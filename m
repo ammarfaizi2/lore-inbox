@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129055AbQJaAD6>; Mon, 30 Oct 2000 19:03:58 -0500
+	id <S129207AbQJaAbg>; Mon, 30 Oct 2000 19:31:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129416AbQJaADt>; Mon, 30 Oct 2000 19:03:49 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:52751 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129055AbQJaADh>;
-	Mon, 30 Oct 2000 19:03:37 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test10-pre7 
-In-Reply-To: Your message of "Mon, 30 Oct 2000 15:47:59 -0800."
-             <Pine.LNX.4.10.10010301541000.3595-100000@penguin.transmeta.com> 
+	id <S129416AbQJaAbR>; Mon, 30 Oct 2000 19:31:17 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:53372 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129207AbQJaAbF>; Mon, 30 Oct 2000 19:31:05 -0500
+Date: Tue, 31 Oct 2000 01:30:46 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Steve Pratt/Austin/IBM <slpratt@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, linux-mm@kvack.org
+Subject: Re: [PATCH] 2.4.0-test10-pre6  TLB flush race in establish_pte
+Message-ID: <20001031013046.M21935@athlon.random>
+In-Reply-To: <OFB4731A18.0D8D8BC1-ON85256988.0074562B@raleigh.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 31 Oct 2000 11:03:30 +1100
-Message-ID: <12654.972950610@ocs3.ocs-net>
+Content-Disposition: inline
+In-Reply-To: <OFB4731A18.0D8D8BC1-ON85256988.0074562B@raleigh.ibm.com>; from slpratt@us.ibm.com on Mon, Oct 30, 2000 at 03:31:22PM -0600
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2000 15:47:59 -0800 (PST), 
-Linus Torvalds <torvalds@transmeta.com> wrote:
->On Tue, 31 Oct 2000, Keith Owens wrote:
->We should have some REALLY simple and to-the-point rules. Namely:
->
-> - object files get linked in the order specified
->
->No ifs, buts, "except when the user doesn't care", or anything like that.
->No extra new logic with fancy new names for FIRST and LAST objects. No,
->that's the wrong thing.
+On Mon, Oct 30, 2000 at 03:31:22PM -0600, Steve Pratt/Austin/IBM wrote:
+> [..] no patch ever
+> appeared. [..]
 
-It is the right thing because it self documents which objects really
-need a link order and why.  The existing mechanism has demonstrably
-failed to do this, resulting in fragile and error prone makefiles.
+You didn't followed l-k closely enough as the strict fix was submitted two
+times but it got not merged. (maybe because it had an #ifdef __s390__ that was
+_necessary_ by that time?)
 
->The two things are entirely orthogonal, as far as I can see. Except
->historically we've mixed them up (OX_OBJS + O_OBJS is the link-list,
->O_OBJS is the symtab information). And this mixup is what the problems
->come from.
+You can find the old and now useless patch here:
 
-True, which is one of the reasons that kbuild 2.5 will remove OX_OBJS,
-MX_OBJS and MIX_OBJS.  But that change affects all Makefiles, we are
-supposed to be in a code freeze.  My patch fixes usb and only affects
-usb, not the entire kernel.
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.0-test5/tlb-flush-smp-race-1
 
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

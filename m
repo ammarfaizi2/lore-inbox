@@ -1,74 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262736AbVCWChV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262751AbVCWCeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262736AbVCWChV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 21:37:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbVCWCeo
+	id S262751AbVCWCeT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 21:34:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262713AbVCWCdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 21:34:44 -0500
-Received: from downeast.net ([204.176.212.2]:44529 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S262712AbVCWCUD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 21:20:03 -0500
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: dtor_core@ameritech.net
-Subject: Re: alsa es1371's joystick functionality broken in 2.6.11-mm4
-Date: Tue, 22 Mar 2005 21:19:31 -0500
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <200503201557.58055.pmcfarland@downeast.net> <200503220706.13029.pmcfarland@downeast.net> <d120d50005032205584fd37a94@mail.gmail.com>
-In-Reply-To: <d120d50005032205584fd37a94@mail.gmail.com>
+	Tue, 22 Mar 2005 21:33:44 -0500
+Received: from loopy.telegraphics.com.au ([202.45.126.152]:2699 "EHLO
+	loopy.telegraphics.com.au") by vger.kernel.org with ESMTP
+	id S262770AbVCWCaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 21:30:04 -0500
+Date: Wed, 23 Mar 2005 13:30:00 +1100 (EST)
+From: Finn Thain <fthain@telegraphics.com.au>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux/m68k <linux-m68k@vger.kernel.org>,
+       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Re: [PATCH] Jazzsonic driver updates
+In-Reply-To: <Pine.LNX.4.62.0503221807160.20753@numbat.sonytel.be>
+Message-ID: <Pine.LNX.4.61.0503231242110.13146@loopy.telegraphics.com.au>
+References: <200503070210.j272ARii023023@hera.kernel.org>
+ <Pine.LNX.4.62.0503221807160.20753@numbat.sonytel.be>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1831945.UrdDUNcyHc";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200503222119.55270.pmcfarland@downeast.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1831945.UrdDUNcyHc
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-On Tuesday 22 March 2005 08:58 am, Dmitry Torokhov wrote:
-> On Tue, 22 Mar 2005 07:06:07 -0500, Patrick McFarland
-> Ok, just so I know where we stand: your gameport/joystick does work in
-> plain 2.6.11 but does not in 2.6.11-mm4, correct? When you load the
-> module with "joystick_port=3D1" is there any messages from ens1371 in
-> dmesg? Have you tried specifying exact port, like
-> "joystick_port=3D0x200" or "joystick_port=3D0x218"? Do you see these ports
-> reserved in /proc/ioports? What about /sys/bus/gameport/devices/? Do
-> you see anything in that directory?
 
-I haven't tested it with 2.6.11 yet... real life showed up, and hasn't gone=
-=20
-away yet. *stab!* I'll be testing it right after I send this email.
+On Tue, 22 Mar 2005, Geert Uytterhoeven wrote:
 
-With joystick_port=3D1 there are no messages from the module, I've tried a =
-bunch=20
-of specific ports, and it doesn't work. The ports are not reserved=20
-in /proc/ioports. /sys/bus/gameport/devices is empty.
+> On Fri, 28 Jan 2005, Linux Kernel Mailing List wrote:
+> > ChangeSet 1.1986, 2005/01/28 00:12:28-05:00, ralf@linux-mips.org
+> > 
+> > 	[PATCH] Jazzsonic driver updates
+> > 	
+> > 	 o Resurrect the Jazz SONIC driver after years of it not having been tested
+> > 	 o Convert from Space.c initialization to module_init / platform device.
+> > 	
+> > 	Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+> 
+> > --- a/drivers/net/sonic.c	2005-03-06 18:10:39 -08:00
+> > +++ b/drivers/net/sonic.c	2005-03-06 18:10:39 -08:00
+> > @@ -116,7 +116,7 @@
+> >  	/*
+> >  	 * Map the packet data into the logical DMA address space
+> >  	 */
+> > -	if ((laddr = vdma_alloc(PHYSADDR(skb->data), skb->len)) == ~0UL) {
+> > +	if ((laddr = vdma_alloc(CPHYSADDR(skb->data), skb->len)) == ~0UL) {
+>                                 ^^^^^^^^^
+> This part broke compilation for Mac/m68k.
+> 
 
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
+Compilation is easily fixed, a patch is below.
 
---nextPart1831945.UrdDUNcyHc
-Content-Type: application/pgp-signature
+BTW, this will still leave the macsonic driver in a non-working state. I 
+have a patch to make it work again, which also re-introduces the support 
+for 16-bit cards that went missing way back in 2.4.something (jazzsonic 
+cards are all 32-bit, as are some mac cards). My patch basically ports the 
+current macsonic driver from mac68k 2.2 branch, and has been widely tested 
+on macs. Problem is, it hasn't yet been tested on MIPS, and it makes a lot 
+of changes to sonic.c, which is shared by jazzsonic and macsonic.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+Can anyone with a Jazz machine help out with this?
 
-iD8DBQBCQNJL8Gvouk7G1cURAi8YAKC8RRySuHucUT9mzJYy4EJ+DaNLFACeMs2+
-xI1pVC2wIG6RMByKJa0BYNc=
-=cv/n
------END PGP SIGNATURE-----
+One of the difficulties is that MIPS and m68k architectures each have 
+their own repo, and last time I looked, the SONIC code in the MIPS repo 
+didn't agree with the SONIC code in the m68k repo. But, it shouldn't be 
+difficult to make macsonic and jazzsonic work with the same core driver 
+code again. Besides, we already have two SONIC drivers in the tree, 
+seperating jazzsonic and macsonic would add a third.
 
---nextPart1831945.UrdDUNcyHc--
+-f
+
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+
+
+--- a/drivers/net/macsonic.c	2005-03-25 04:01:51.000000000 +1100
++++ b/drivers/net/macsonic.c	2005-03-25 04:48:39.000000000 +1100
+@@ -638,6 +638,7 @@
+ #define vdma_free(baz)
+ #define sonic_chiptomem(bat) (bat)
+ #define PHYSADDR(quux) (quux)
++#define CPHYSADDR(quux) (quux)
+ 
+ #define sonic_request_irq       request_irq
+ #define sonic_free_irq          free_irq

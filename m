@@ -1,131 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264855AbUFVRIC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264960AbUFVRIc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264855AbUFVRIC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 13:08:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUFVRHd
+	id S264960AbUFVRIc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 13:08:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbUFVRHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 13:07:33 -0400
-Received: from linux.us.dell.com ([143.166.224.162]:42379 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S264922AbUFVQ6M
+	Tue, 22 Jun 2004 13:07:14 -0400
+Received: from tossu.ebaana.net ([62.121.33.10]:57361 "EHLO tossu.ssp.fi")
+	by vger.kernel.org with ESMTP id S264855AbUFVQx4 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 12:58:12 -0400
-Date: Tue, 22 Jun 2004 11:58:08 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: PATCH 2.4: edd.c display %u, remove REPORT_URL
-Message-ID: <20040622165808.GA25586@lists.us.dell.com>
+	Tue, 22 Jun 2004 12:53:56 -0400
+Message-ID: <200406221954150026.009597B0@smtp.ebaana.net>
+X-Mailer: Calypso Version 3.30.00.00 (4)
+Date: Tue, 22 Jun 2004 19:54:15 +0300
+From: "Juhani Pirttilahti" <juhani.pirttilahti@mbnet.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel problem
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+What is going on? I can't boot ANY version of kernel 2.2.x, 2.4.x or 2.6.x on this computer.
+I was trying to install Debian to this computer...
 
---9jxsPFA5p3P2qPhR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There is nothing wrong with memory. I can also install Windows 98 to it.
 
-Marcelo,
+Hardware:
+motherboard: Micro Star MS-6163, Slot 1
+processor: 350 MHz Pentium 2
+memory: 128 MB + 64 MB + 32 MB PC100 SDRAM (Non ECC)
+hard disk: Maxtor Diamondmax 9+ 30 GB
+network controller: 3com 3C905C
+graphics: Matrox Millenium G100 (AGP)
+cd-rom: Generic 52x :-)
 
-Patch against 2.4.27-rc1.  This removes the REPORT_URL string and
-message telling people to send me their BIOS info.  I've got a huge
-number of reports, and virtually all show that EDD 3.0 is not
-supported, or if supported, is likely implemented in ways contrary to
-the spec.  In 2.7.x I may bring the REPORT_URL back once I've got a
-better way to track the data being sent to me.
+Software:
+Debian testing installer beta 4 (netinstall cd)
+Kernel 2.4.26-1-386 (and others)
 
-Also, this now reports the EDD geometry (if known) and number of
-sectors using %u instead of %x, to be consistent with what is in 2.6.7
-now.
+"Screenshot":
+Unable to handle kernel paging request at virtual address 591bb01c
+printing eip: c0142104 *pde = 00000000
+Oops: 0002
+CPU: 0
+EIP: 0010:[<c0142104>] Not tainted
+EFLAGS: 00010202
+eax: 00000001 ebx: 591bafc0 ecx: 00000000 edx: 591bb01c
+esi: c02177cd edi: 591bb01c ebp: 00000000 esp: c0285f40
+ds: 0018 es: 0018 ss: 0018
+Process swapper (pid: 0, stackpage=c0285000)
+Stack: 00000000 c12143e0 c0246540 00000000 c0142235 00000000 c0285f5c c02177cd 00000001 00000000 c0246540 c1216800 c014d8ca c12143e0 c1216800 00000000 c0136b0c c1216800 00000000 00000000 cbfcc190 c0246540 fffffff4
+Call Trace: [<c0142235>] [<c0136b0c>] [<c0136bad>] [c0105000>] [<c0136cfc>]
+Code: a4 8b 4c 24 18 8b 41 04 c6 04 10 00 c7 03 01 00 00 00 c7 43
+<0>Kernel Panic: Attempted to kill the idle task!
+In idle task - not syncing
 
-Thanks,
-Matt
 
---=20
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
-
-=3D=3D=3D=3D=3D arch/i386/kernel/edd.c 1.3 vs edited =3D=3D=3D=3D=3D
---- 1.3/arch/i386/kernel/edd.c	2003-12-05 12:46:25 -06:00
-+++ edited/arch/i386/kernel/edd.c	2004-06-21 15:41:01 -05:00
-@@ -46,9 +46,8 @@
- MODULE_DESCRIPTION("proc interface to BIOS EDD information");
- MODULE_LICENSE("GPL");
-=20
--#define EDD_VERSION "0.10 2003-Dec-05"
-+#define EDD_VERSION "0.11 2004-Jun-21"
- #define EDD_DEVICE_NAME_SIZE 16
--#define REPORT_URL "http://domsch.com/linux/edd30/results.html"
-=20
- #define left (count - (p - page) - 1)
-=20
-@@ -312,10 +311,6 @@
- 	}
-=20
- out:
--	p +=3D snprintf(p, left, "\nPlease check %s\n", REPORT_URL);
--	p +=3D snprintf(p, left, "to see if this device has been reported.  If no=
-t,\n");
--	p +=3D snprintf(p, left, "please send the information requested there.\n"=
-);
--
- 	return proc_calc_metrics(page, start, off, count, eof, (p - page));
- }
-=20
-@@ -405,7 +400,7 @@
- 		return proc_calc_metrics(page, start, off, count, eof, 0);
- 	}
-=20
--	p +=3D snprintf(p, left, "0x%x\n", info->params.num_default_cylinders);
-+	p +=3D snprintf(p, left, "%u\n", info->params.num_default_cylinders);
- 	return proc_calc_metrics(page, start, off, count, eof, (p - page));
- }
-=20
-@@ -418,7 +413,7 @@
- 		return proc_calc_metrics(page, start, off, count, eof, 0);
- 	}
-=20
--	p +=3D snprintf(p, left, "0x%x\n", info->params.num_default_heads);
-+	p +=3D snprintf(p, left, "%u\n", info->params.num_default_heads);
- 	return proc_calc_metrics(page, start, off, count, eof, (p - page));
- }
-=20
-@@ -431,7 +426,7 @@
- 		return proc_calc_metrics(page, start, off, count, eof, 0);
- 	}
-=20
--	p +=3D snprintf(p, left, "0x%x\n", info->params.sectors_per_track);
-+	p +=3D snprintf(p, left, "%u\n", info->params.sectors_per_track);
- 	return proc_calc_metrics(page, start, off, count, eof, (p - page));
- }
-=20
-@@ -444,7 +439,7 @@
- 		return proc_calc_metrics(page, start, off, count, eof, 0);
- 	}
-=20
--	p +=3D snprintf(p, left, "0x%llx\n", info->params.number_of_sectors);
-+	p +=3D snprintf(p, left, "%llu\n", info->params.number_of_sectors);
- 	return proc_calc_metrics(page, start, off, count, eof, (p - page));
- }
-=20
-
---9jxsPFA5p3P2qPhR
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFA2GUgIavu95Lw/AkRAgpzAJ9YfCTJJ9AdejAA6t7OFuH8jeRRsACfSeO+
-7YB1/qgngLsByfio3phPTgI=
-=HrZ8
------END PGP SIGNATURE-----
-
---9jxsPFA5p3P2qPhR--

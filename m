@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263039AbSJTPqg>; Sun, 20 Oct 2002 11:46:36 -0400
+	id <S263178AbSJTQI1>; Sun, 20 Oct 2002 12:08:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263135AbSJTPqg>; Sun, 20 Oct 2002 11:46:36 -0400
-Received: from host194.steeleye.com ([66.206.164.34]:26636 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S263039AbSJTPqf>; Sun, 20 Oct 2002 11:46:35 -0400
-Message-Id: <200210201552.g9KFqZv11487@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com
-Subject: Re: AIC7xxx driver build failure
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 20 Oct 2002 10:52:35 -0500
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S263181AbSJTQI1>; Sun, 20 Oct 2002 12:08:27 -0400
+Received: from urtica.linuxnews.pl ([217.67.200.130]:13322 "EHLO
+	urtica.linuxnews.pl") by vger.kernel.org with ESMTP
+	id <S263178AbSJTQI1>; Sun, 20 Oct 2002 12:08:27 -0400
+Date: Sun, 20 Oct 2002 18:08:39 +0200 (CEST)
+From: Pawel Kot <pkot@bezsensu.pl>
+X-X-Sender: <pkot@urtica.linuxnews.pl>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Dag Brattli <dag@brattli.net>,
+       <linux-kernel@vger.kernel.org>, <trivial@rustcorp.com.au>,
+       <jt@bougret.hpl.hp.com>
+Subject: Re: [2.4 patch] remove obsolete IrDA list from MAINTAINERS
+In-Reply-To: <Pine.NEB.4.44.0210201631300.28761-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.33.0210201806170.637-100000@urtica.linuxnews.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No, because this bug doesn't exist in the latest version of the driver
-> in my tree or the last set of patches I sent to Linus (a month ago??).
+On Sun, 20 Oct 2002, Adrian Bunk wrote:
 
-I think I missed this on linux-scsi.  However, there have been some fairly 
-major scsi fixes which necessitated changes to your driver (among others) so 
-it could be that the patches now reject.  Could you rebase to 2.5.44 and 
-resend to linux-scsi (or just post a URL, if that's easier)?
+> Mail to the list that is in MAINTAINERS bounces and the new mailinglist
+> doesn't accept mail from non-subscribers. Since you can find this new
+> mailinglist at the IrDA web page it's IMHO the best to simply remove the
+> mailing list entry from MAINTAINERS:
+>
+>
+> --- linux-2.4.19/MAINTAINERS.old	2002-10-20 16:30:07.000000000 +0200
+> +++ linux-2.4.19/MAINTAINERS	2002-10-20 16:30:16.000000000 +0200
+> @@ -828,7 +828,6 @@
+>  IRDA SUBSYSTEM
+>  P:      Dag Brattli
+>  M:      Dag Brattli <dag@brattli.net>
+> -L:      linux-irda@pasta.cs.uit.no
+>  W:      http://irda.sourceforge.net/
+>  S:      Maintained
 
-Thanks,
+The new mailing list for Linux-IrDA is: irda-users@lists.sourceforge.net
+and the current mainainer is AFAIK Jean Tourrilhes
+(jt@bougret.hpl.hp.com).
 
-James
-
-
-
-
+pkot
+-- 
+mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
+http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
 

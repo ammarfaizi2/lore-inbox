@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264627AbTIDEpE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 00:45:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264658AbTIDEpE
+	id S264694AbTIDEt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 00:49:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264626AbTIDEt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 00:45:04 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:38039 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S264627AbTIDEo5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 00:44:57 -0400
-Date: Wed, 03 Sep 2003 21:41:36 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
+	Thu, 4 Sep 2003 00:49:59 -0400
+Received: from rth.ninka.net ([216.101.162.244]:34248 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S264694AbTIDEt5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 00:49:57 -0400
+Date: Wed, 3 Sep 2003 21:49:50 -0700
+From: "David S. Miller" <davem@redhat.com>
 To: Larry McVoy <lm@bitmover.com>
-cc: "Brown, Len" <len.brown@intel.com>, Giuliano Pochini <pochini@shiny.it>,
-       linux-kernel@vger.kernel.org
+Cc: mbligh@aracnet.com, piggin@cyberone.com.au, anton@samba.org,
+       lm@bitmover.com, linux-kernel@vger.kernel.org
 Subject: Re: Scaling noise
-Message-ID: <20970000.1062650495@[10.10.2.4]>
-In-Reply-To: <20030904030227.GJ5227@work.bitmover.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com> <20030903173213.GC5769@work.bitmover.com> <89360000.1062613076@flay> <20030904003633.GA5227@work.bitmover.com> <6130000.1062642088@[10.10.2.4]> <20030904023446.GG5227@work.bitmover.com> <9110000.1062643682@[10.10.2.4]> <20030904030227.GJ5227@work.bitmover.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <20030903214950.26e0b430.davem@redhat.com>
+In-Reply-To: <20030903153901.GB5769@work.bitmover.com>
+References: <20030903040327.GA10257@work.bitmover.com>
+	<20030903041850.GA2978@krispykreme>
+	<20030903042953.GC10257@work.bitmover.com>
+	<20030903062817.GA19894@krispykreme>
+	<3F55907B.1030700@cyberone.com.au>
+	<27780000.1062602622@[10.10.2.4]>
+	<20030903153901.GB5769@work.bitmover.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You don't make that much money, if any, on the high end, the R&D costs
-> dominate. 
+On Wed, 3 Sep 2003 08:39:01 -0700
+Larry McVoy <lm@bitmover.com> wrote:
 
-Neither of us have figures to hand, I think. But you seem prepared to
-admit there's some money to be made at least. Therefore it seems like
-a good market for someone to be in.
+> It's really easy to claim that scalability isn't the problem.  Scaling
+> changes in general cause very minute differences, it's just that there
+> are a lot of them.  There is constant pressure to scale further and people
+> think it's cool.
 
-> But you make money because people buy the middle of the road
-> because you have the high end.  If you don't, they feel uneasy that they
-> can't grow with you.  The high end enables the sales of the real money
-> makers.  It's pure marketing, the high end could be imaginary and as
-> long as you convinced the customers you had it you'd be more profitable.
+So why are people still going down this path?
 
-OK. Suppose, for the sake of argument, that I buy that (I don't really,
-but agree it might be a factor). What makes you think the argument is
-different for an OS than it is for hardware? For adoption of Linux as
-a OS to dominate the market, it's important for the high end to be there 
-as well ... pervasive Linux.
+I'll tell you why, because as SMP issues start to embark upon
+the mainstream boxes people are going to find clever solutions
+to most of the memory sharing issues that cause all the "lock
+overhead".
 
-Seeing Linux and Open Source in general succeed is important to me 
-personaly as a deep seated belief. Maybe from your own arguments, you can
-see it's important for the high end to be there, even if you see no other
-practical purpose for the machines. I believe there are real uses besides
-marketing for it to be there, but maybe you don't need to believe that
-to be convinced.
+Things like RCU are just the tip of the iceberg.  And think Larry,
+we didn't have stuff like RCU back when you were directly working
+and watching people work on huge SMP systems.
 
-M.
+I think it's instructive to look at hyperthreading from another
+angle in this argument, that the cpu people invested billions of
+dollars in work to turn memory latency into free cpu cycles.
 
-PS. Of course, that still leaves the question of programming approach,
-but that's a whole other discussion ;-)
-
-
+Put that in your pipe and smoke it :-)

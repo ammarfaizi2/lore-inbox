@@ -1,77 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265897AbUATX1K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 18:27:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265902AbUATX0c
+	id S265915AbUATXe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 18:34:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265912AbUATXe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 18:26:32 -0500
-Received: from gprs214-112.eurotel.cz ([160.218.214.112]:9088 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265897AbUATX0R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 18:26:17 -0500
-Date: Wed, 21 Jan 2004 00:25:15 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: More cleanups for swsusp
-Message-ID: <20040120232515.GD1234@elf.ucw.cz>
-References: <20040120225219.GA19190@elf.ucw.cz> <20040120151358.09608fc3.akpm@osdl.org>
+	Tue, 20 Jan 2004 18:34:27 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:52747 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265915AbUATXeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 18:34:23 -0500
+Date: Tue, 20 Jan 2004 23:34:17 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Patrick Gefre <pfg@sgi.com>
+Cc: akpm@osdl.org, davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Altix updates
+Message-ID: <20040120233417.A23173@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Patrick Gefre <pfg@sgi.com>, akpm@osdl.org,
+	davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
+References: <200401152154.i0FLscIG023452@fsgi900.americas.sgi.com> <20040116144132.A24555@infradead.org> <400D6A5B.7090009@sgi.com> <20040120180851.A18872@infradead.org> <400D8BBF.7070005@sgi.com> <20040120202132.A20668@infradead.org> <400DAA76.2080103@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040120151358.09608fc3.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <400DAA76.2080103@sgi.com>; from pfg@sgi.com on Tue, Jan 20, 2004 at 04:23:50PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Jan 20, 2004 at 04:23:50PM -0600, Patrick Gefre wrote:
+> I had one for bridge address/TIO, one for bridge address/nonTIO, one for 
+> soft address/TIO and one for soft address/nonTIO.
+> I thought that was what you were proposing. In any event, here's how the 
+> basic code looks (leaving out type defs/error checking/
+> etc) - the wrapper is embedded in the macro - note that we would always 
+> like to use the soft struct because it doesn't cost us a PIO
+> but in the event that the soft struct is not available the bridge 
+> address must be used:
 
-> > +	BUG_ON (sizeof(struct link) != PAGE_SIZE);
-> 
-> Looking at the code, this hardly seems worth checking.  But the compiler
-> should just rub this code out anwyay, so whatever.
-> 
-> hmm, one could do:
-> 
-> #define compile_time_assert(expr)					\
-> 	do {								\
-> 		if (!(expr))						\
-> 			compile_time_assert_failed();	/* undefined */	\
-> 	} while (0)
+(horrible piece of sh^H^H^code snipped)
 
-Well, if you provide such macro, I'll be happy to use it ;-). It
-should be something like 
+Eeek!
 
-compile_time_assert(expr, "message")
+So taking your pio cycle stuff into account, what about:
 
-because with more of these are in the code, it would be nightmare to
-find out which one is wrong.
-
-Perhaps better name, too?
-
-pavel@elonex:/tmp$ cat delme.c
-
-#define COMPILE_ERR_ON(expr, message) \
-        do { if (!(expr)) compile_time_assert_failed_##message(); } while (0)
-
-void main(void)
+void *
+__pcireg_xxx_get(bridge_t *bridge, int type)
 {
-        COMPILE_ERR_ON(0==8, cpu_broke_zeros_neck);
-        COMPILE_ERR_ON(0==0, compiler_went_crazy);
+     switch (type ) {
+        case BT_TIO:
+            return bridge_addr->ti_xxx;
+
+        case BT_PIC:
+            return bridge->addr->pic_xxx;
+
+        default:
+            /* */
+    }
 }
-pavel@elonex:/tmp$ gcc delme.c -o delme
-delme.c: In function `main':
-delme.c:6: warning: return type of `main' is not `int'
-/tmp/ccAx2alr.o(.text+0x11): In function `main':
-: undefined reference to `compile_time_assert_failed_cpu_broke_zeros_neck'
-collect2: ld returned 1 exit status
-pavel@elonex:/tmp$
 
+and then have wrappers for both the plain bridge_t and the pcibr_soft.
+In fact I wonder why you want the one taking bridge_t at all, there is
+absolutely no reason why you should be able to get a bridge_t without
+getting at the pcibr_soft easily.
+> 
+> void *
+> pcireg_xxx_get(void *ptr)
+> {
+>     if ( IS_IOADDR(ptr) )
+>         return REAL_pcireg_xxx_get(ptr, IS_TIO(ptr) ? BT_TIO : BT_PIC);
+>     else
+>         return REAL_pcireg_xxx_get(ptr->bs_base, ptr->bs_bridge_type);
+>        
+> }
 
+No, this is borked again.  The IS_IOADDR tests must go away.
 
-								Pavel
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

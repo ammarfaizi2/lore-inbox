@@ -1,234 +1,289 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285274AbRLSNUk>; Wed, 19 Dec 2001 08:20:40 -0500
+	id <S285277AbRLSNVc>; Wed, 19 Dec 2001 08:21:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285277AbRLSNUc>; Wed, 19 Dec 2001 08:20:32 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:64151 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S285274AbRLSNUU>;
-	Wed, 19 Dec 2001 08:20:20 -0500
-Date: Wed, 19 Dec 2001 16:17:46 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: <linux-raid@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Cc: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>
-Subject: [patch] raid-2.5.1-I9
-In-Reply-To: <Pine.LNX.4.33.0112191607110.7629-200000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0112191616180.7912-101000@localhost.localdomain>
+	id <S285279AbRLSNVN>; Wed, 19 Dec 2001 08:21:13 -0500
+Received: from camus.xss.co.at ([194.152.162.19]:24333 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id <S285277AbRLSNUy>;
+	Wed, 19 Dec 2001 08:20:54 -0500
+Message-ID: <3C209434.BCECA0BE@xss.co.at>
+Date: Wed, 19 Dec 2001 14:20:52 +0100
+From: Andreas Haumer <andreas@xss.co.at>
+Organization: xS+S
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-881173976-1008775066=:7912"
+To: linux-kernel@vger.kernel.org
+CC: monika@xss.co.at
+Subject: Deadlock: Linux-2.2.18, sym53c8xx, Compaq ProLiant, HP Ultrium
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hi!
 
---8323328-881173976-1008775066=:7912
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+We experience a problem with a HP Ultrium LTO drive connected
+to a Compaq ProLiant ML380 server: in the last 6 months we had
+two deadlocks of the machine which seem to be related to the
+sym53c8xx driver.
+
+What happens seems to be as follows:
+
+*) From monday to friday, once a day an amanda backup process 
+   starts and dumps about 70GB of data to the tape. 
+
+*) this works quite fine, but twice in the last 6 months we
+   got the following tape error at the start of the backup:
+
+[...]
+Dec 10 15:00:00 server kernel: sym53c1510D-0-<3,*>: FAST-20 WIDE SCSI
+40.0 MB/s (50 ns, offset 15)
+Dec 10 15:00:01 server kernel: st0: Error with sense data: Info
+fld=0x8000, Current st09:00: sense key Hardware Error
+Dec 10 15:00:01 server kernel: Additional sense indicates Internal
+target failure
+[...]
+
+   After that, the amanda process hangs in state "D" and
+   cannot be killed anymore. The machine itself is still
+   working.
+   This _seems_ to be the indication of an error of the
+   HP Ultrium itself, though the drive works quite fine
+   otherwise...
+
+*) In order to unlock the hanging amanda process I tried to 
+   remove the SCSI drive from the driver:
+
+   echo "scsi remove-single-device" > /proc/scsi/scsi
+
+   This did work well: the hanging amanda process terminated
+   fine after that.
+
+*) Next I tried to re-scan the SCSI bus to make the Ultrium 
+   drive available again for a new backup:
+
+   echo "scsi add-single-device 0 0 3 0" > /proc/scsi/scsi
+
+   Result: the machine completely deadlocked. No log-message,
+   no ping (the server currently runs without monitor and
+   keyboard connected...)
+   We had to power-switch the machine to get it back... :-(
+
+I now have the following problems/questions:
+
+a) Does anyone have any experience with such an HP Ultrium drive?
+   (good/bad?)
+
+b) Does the st0 error message indicate it should be replaced?
+
+c) Is there a bug in the sym53c8xx driver which makes the
+   amanda process hang uninterruptable when this error occurs?
+   It is not nice to be forced to reboot the machine just because 
+   the SCSI tape drive reported some error... :-((
+   After all, this is not a windows server, and there are 40
+   workstations which get fileservice from this server!
+
+d) Is there a bug in the driver which deadlocks the server
+   as soon as someone does a remove/add on the SCSI bus?
+   We can live without this feature, but I don't think a
+   documented function should deadlock the kernel...
+
+The Ultrium hardware error is not reproducable at will. It
+just happens every now and then.
+Next thing I will try is to use a different SCSI controller
+(Adaptec 29160 or the like) to see if the hanging process
+occurs with a different SCSI driver, too.
+
+Following is some information about the server:
+
+Hardware: Compaq ProLiant ML370, Intel PIII/933, 512MB RAM, 
+Compaq Smart Array 5302/32 RAID Controller with about 80GB 
+of disk-capacity, 3Com 3c985 1000BaseSX NIC
+
+Software: Linux-2.2.18 with newer acenic driver (for the 3Com NIC)
+
+Some information from the running system:
+
+root@server {533} # free
+             total       used       free     shared    buffers    
+cached
+Mem:        517644     439092      78552      47404     166716    
+178744
+-/+ buffers/cache:      93632     424012
+Swap:      1052592      18400    1034192
+
+root@server {534} # lspci -v
+00:00.0 Host bridge: Relience Computer CNB20HE (rev 05)
+        Flags: bus master, medium devsel, latency 64
+
+00:00.1 Host bridge: Relience Computer CNB20HE (rev 05)
+        Flags: bus master, medium devsel, latency 64
+
+00:01.0 SCSI storage controller: Symbios Logic Inc. (formerly NCR):
+Unknown device 000a (rev 02)
+        Subsystem: Compaq Computer Corporation: Unknown device b143
+        Flags: bus master, medium devsel, latency 255, IRQ 10
+        I/O ports at 2000
+        Memory at c6cffc00 (32-bit, non-prefetchable)
+        Memory at c6cfe000 (32-bit, non-prefetchable)
+        Capabilities: [40] Power Management version 2
+
+00:01.1 SCSI storage controller: Symbios Logic Inc. (formerly NCR):
+Unknown device 000a (rev 02)
+        Subsystem: Compaq Computer Corporation: Unknown device b143
+        Flags: bus master, medium devsel, latency 255, IRQ 11
+        I/O ports at 2400
+        Memory at c6cfdc00 (32-bit, non-prefetchable)
+        Memory at c6cfc000 (32-bit, non-prefetchable)
+        Capabilities: [40] Power Management version 2
+
+00:02.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro
+100] (rev 08)
+        Subsystem: Compaq Computer Corporation: Unknown device b134
+        Flags: bus master, medium devsel, latency 64, IRQ 15
+        Memory at c6cfb000 (32-bit, non-prefetchable)
+        I/O ports at 2800
+        Memory at c6b00000 (32-bit, non-prefetchable)
+        Capabilities: [dc] Power Management version 2
+
+00:03.0 VGA compatible controller: ATI Technologies Inc 3D Rage IIC
+215IIC [Mach64 GT IIC] (rev 7a) (prog-if 00 [VGA])
+        Subsystem: ATI Technologies Inc: Unknown device 4756
+        Flags: bus master, stepping, medium devsel, latency 64
+        Memory at c5000000 (32-bit, prefetchable)
+        I/O ports at 2c00
+        Memory at c6aff000 (32-bit, non-prefetchable)
+        Capabilities: [5c] Power Management version 1
+
+00:04.0 System peripheral: Compaq Computer Corporation: Unknown device
+a0f0
+        Subsystem: Compaq Computer Corporation: Unknown device b0f3
+        Flags: medium devsel
+        I/O ports at 1800
+        Memory at c6afef00 (32-bit, non-prefetchable)
+
+00:0f.0 ISA bridge: Relience Computer: Unknown device 0200 (rev 51)
+        Subsystem: Relience Computer: Unknown device 0200
+        Flags: bus master, medium devsel, latency 0
+
+00:0f.1 IDE interface: Relience Computer: Unknown device 0211 (prog-if
+8a [Master SecP PriP])
+        Flags: bus master, medium devsel, latency 64
+        I/O ports at 3000
+
+03:03.0 RAID bus controller: Compaq Computer Corporation: Unknown
+device b060 (rev 02)
+        Subsystem: Compaq Computer Corporation: Unknown device 4070
+        Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 5
+        Memory at c6fc0000 (32-bit, non-prefetchable)
+        Memory at c6e00000 (32-bit, non-prefetchable)
+        I/O ports at 4000
+        Capabilities: [f0] Power Management version 2
+        Capabilities: [f8] Vital Product Data
+
+03:06.0 Ethernet controller: 3Com Corporation 3c985 1000BaseSX (rev
+01)
+        Subsystem: Unknown device 9850:0001
+        Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 15
+        Memory at c6dfc000 (32-bit, non-prefetchable)
 
 
--I9: patch mixup again, this one actually does include the intended
-changes. Brown paperbag time ...
+root@server {535} # cat /proc/cciss/cciss0
+cciss0:  Compaq Smart Array 5300 Controller
+       Board ID: 40700e11
+       Firmware Version: 1.62
+       Memory Address: e0812000
+       IRQ: 0x5
+       Logical drives: 2
+       Current Q depth: 0
+       Current # commands on controller 0
+       Max Q depth since init: 1
+       Max # commands on controller since init: 128
+       Max SG entries since init: 22
 
-	Ingo
+cciss/c0d0: blksz=512 nr_blocks=17764320
+cciss/c0d1: blksz=512 nr_blocks=142261440
+nr_allocs = 11831533
+nr_frees = 11831533
 
---8323328-881173976-1008775066=:7912
-Content-Type: APPLICATION/x-gzip; name="raid-2.5.1-I9.gz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0112191617460.7912@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename="raid-2.5.1-I9.gz"
+root@server {536} # cat /proc/scsi/scsi
+Attached devices:
+Host: scsi0 Channel: 00 Id: 03 Lun: 00
+  Vendor: HP       Model: Ultrium 1-SCSI   Rev: N11D
+  Type:   Sequential-Access                ANSI SCSI revision: 03
 
-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
+root@server {537} # cat /proc/scsi/sym53c8xx/0
+General information:
+  Chip sym53c1510D, device id 0xa, revision id 0x2
+  On PCI bus 0, device 1, function 0, IRQ 10
+  Synchronous period factor 10, max commands per lun 32
 
---8323328-881173976-1008775066=:7912--
+root@server {538} # cat /proc/scsi/sym53c8xx/1
+General information:
+  Chip sym53c1510D, device id 0xa, revision id 0x2
+  On PCI bus 0, device 1, function 1, IRQ 11
+  Synchronous period factor 10, max commands per lun 32
+
+root@server {539} # cat /proc/interrupts
+           CPU0
+  0:   76904808          XT-PIC  timer
+  1:          2          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  3:    5231002          XT-PIC  serial
+  5:   11578119          XT-PIC  cciss0
+  8:          2          XT-PIC  rtc
+ 10:   13412657          XT-PIC  sym53c8xx
+ 11:        450          XT-PIC  sym53c8xx
+ 13:          1          XT-PIC  fpu
+ 15:   36100885          XT-PIC  eth0
+NMI:          0
+ERR:          0
+
+root@server {540} # uname -a
+Linux server 2.2.18 #1 SMP Sun May 27 23:14:43 CEST 2001 i686 unknown
+
+root@server {541} # lsmod
+Module                  Size  Used by
+sym53c8xx              56592   0
+af_packet               6528   1  (autoclean)
+nfsd                  184416  16  (autoclean)
+nfs                    75872   1  (autoclean)
+lockd                  47344   1  (autoclean) [nfsd nfs]
+sunrpc                 63376   1  (autoclean) [nfsd nfs lockd]
+acenic                125744   1  (autoclean)
+softdog                 1584   1  (autoclean)
+st                     25424   0
+scsi_mod               55504   2  [sym53c8xx st]
+cciss                  17552   9
+ext2                   42032   7
+
+
+These are the sym53c8xx driver's boot-messages:
+[...]
+sym53c8xx: at PCI bus 0, device 1, function 0
+sym53c8xx: 53c1510D detected
+sym53c8xx: at PCI bus 0, device 1, function 1
+sym53c8xx: 53c1510D detected
+sym53c1510D-0: rev 0x2 on pci bus 0 device 1 function 0 irq 10
+sym53c1510D-0: ID 7, Fast-40, Parity Checking
+sym53c1510D-1: rev 0x2 on pci bus 0 device 1 function 1 irq 11
+sym53c1510D-1: ID 7, Fast-40, Parity Checking
+scsi0 : sym53c8xx-1.7.1-20000726
+scsi1 : sym53c8xx-1.7.1-20000726
+scsi : 2 hosts.
+  Vendor: HP        Model: Ultrium 1-SCSI    Rev: N11D
+  Type:   Sequential-Access                  ANSI SCSI revision: 03
+Detected scsi tape st0 at scsi0, channel 0, id 3, lun 0
+[...]
+
+Any help is appreciated!
+Many thanks in advance!
+
+- andreas
+
+-- 
+Andreas Haumer                     | mailto:andreas@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71

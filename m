@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317637AbSFRV44>; Tue, 18 Jun 2002 17:56:56 -0400
+	id <S317646AbSFRWAt>; Tue, 18 Jun 2002 18:00:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317638AbSFRV4z>; Tue, 18 Jun 2002 17:56:55 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:32779 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317637AbSFRV4y>;
-	Tue, 18 Jun 2002 17:56:54 -0400
-Date: Tue, 18 Jun 2002 14:55:50 -0700
-From: Greg KH <greg@kroah.com>
-To: Matthew Harrell 
-	<mharrell-dated-1024798178.8a2594@bittwiddlers.com>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.22 fix for pci_hotplug
-Message-ID: <20020618215549.GG21229@kroah.com>
-References: <20020618020937.GA2597@bittwiddlers.com>
+	id <S317645AbSFRWAs>; Tue, 18 Jun 2002 18:00:48 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:32149 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S317644AbSFRWAr> convert rfc822-to-8bit; Tue, 18 Jun 2002 18:00:47 -0400
+From: David Schwartz <davids@webmaster.com>
+To: <mgix@mgix.com>, <rml@tech9.net>
+CC: <root@chaos.analogic.com>, Chris Friesen <Chris.Friesen@vax.home.local>,
+       <cfriesen@nortelnetworks.com>, <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.61 (1025) - Licensed Version
+Date: Tue, 18 Jun 2002 15:00:42 -0700
+In-Reply-To: <AMEKICHCJFIFEDIBLGOBKEELCBAA.mgix@mgix.com>
+Subject: RE: Question about sched_yield()
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020618020937.GA2597@bittwiddlers.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Tue, 21 May 2002 19:19:02 -0700
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20020618220044.AAA14121@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 17, 2002 at 10:09:37PM -0400, Matthew Harrell wrote:
-> 
-> --- linux/drivers/hotplug/pci_hotplug_core.c-ori	Mon Jun 17 22:01:17 2002
-> +++ linux/drivers/hotplug/pci_hotplug_core.c	Mon Jun 17 22:03:33 2002
-> @@ -183,13 +183,13 @@
->  /* default file operations */
->  static ssize_t default_read_file (struct file *file, char *buf, size_t count, loff_t *ppos)
->  {
-> -	dbg ("\n");
-> +	dbg ("%s", "\n");
 
-<snip>
+>Correct my logic, please:
+>    
+>    1. Rule: The less you want the CPU, the more you get it.
 
-What problem does this fix?
+	The more you relinquish the CPU, the more you get it when you do want it. 
+(Dynamic priority.)
 
-If you _really_ want to fix something, remove the the need for
-pci_announce_to_drivers() in the Compaq and IBM PCI hotplug drivers :)
+>    2. A yielder process never wants the CPU
 
-thanks,
+	A yielder process *always* wants the CPU, but always relinquishes it when it 
+gets it. (It's always ready-to-run.)
 
-greg k-h
+>    3. As a result of Rule 1, it always gets it.
+
+	The correct rules 1 and 2 don't lead to the conclusion you think.
+
+	DS
+
+

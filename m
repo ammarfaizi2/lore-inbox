@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281458AbRL0OKc>; Thu, 27 Dec 2001 09:10:32 -0500
+	id <S286309AbRL0OVP>; Thu, 27 Dec 2001 09:21:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281648AbRL0OKW>; Thu, 27 Dec 2001 09:10:22 -0500
-Received: from adsl-64-109-89-110.dsl.chcgil.ameritech.net ([64.109.89.110]:48216
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S281458AbRL0OKO>; Thu, 27 Dec 2001 09:10:14 -0500
-Message-Id: <200112271409.fBRE9kR19806@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Dave Jones <davej@suse.de>
-cc: James Bottomley <James.Bottomley@HansenPartnership.com>,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH: NEW ARCHITECTURE FOR 2.5] support for NCR voyager 
- 343x/345x/4100/51xx architecture
-In-Reply-To: Message from Dave Jones <davej@suse.de> 
-   of "Mon, 24 Dec 2001 01:10:43 +0100." <Pine.LNX.4.33.0112240106490.17860-100000@Appserv.suse.de> 
-Mime-Version: 1.0
+	id <S281895AbRL0OVH>; Thu, 27 Dec 2001 09:21:07 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:13520 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S286300AbRL0OUy>; Thu, 27 Dec 2001 09:20:54 -0500
+Date: 27 Dec 2001 14:10:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8FeKjMmXw-B@khms.westfalen.de>
+In-Reply-To: <1008883684.4704.0.camel@localhost.localdomain>
+Subject: Re: Configure.help editorial policy
+X-Mailer: CrossPoint v3.12d.kh8 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 27 Dec 2001 08:09:45 -0600
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <Pine.LNX.4.33.0112201605310.9934-100000@coffee.psychology.mcmaster.ca> <Pine.LNX.4.33.0112201605310.9934-100000@coffee.psychology.mcmaster.ca> <1008883684.4704.0.camel@localhost.localdomain>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-davej@suse.de said:
-> I'd be *so* much happier to see your patch with setup-voyager.c, and a
-> single ifdef in setup.c wrapping setup_voyager() or the likes.
+reid.hekman@ndsu.nodak.edu (Reid Hekman)  wrote on 20.12.01 in <1008883684.4704.0.camel@localhost.localdomain>:
 
-> On another related topic, the bootmem stuff in setup.c would be so
-> much nicer to be split into a bootmem.c imho.
+> On Thu, 2001-12-20 at 15:07, Mark Hahn wrote:
 
-> This would also make sharing the x86 bootmem code with the x86-64
-> bootmem code a lot simpler. 
+> > > 1024 decimal kilobyte disk
+> > > 8.4 decimal gigabyte disks
 
-Separation is clearly a better way to go.  I'll see what I can do (and whether 
-I can take the visw along too). Where is the x86-64 code?  I haven't seen it 
-since 2.4.13-ac8.
+> > though as your example showed, there's very little, if any,
+> > ambiguity: disk is always decimal, memory is always binary, etc.
 
-James Bottomley
+Ah, but the problem with this is that it's *wrong*.
 
+Disk is not always decimal. Nor is it always binary. Most disk sizes are  
+an unholy mixture of the two that deserves a stake through the heart,  
+where 1 GB = 1,024,000,000 bytes.
 
+If even people here do not understand how this works, then can it possibly  
+be the right way of doing things?!
+
+> More importantly, less educated users than yourself might not strike up
+> the distinction between disk and memory units. The common example being,
+> "why does my 9.1GB hard drive show up as 8.9GB?" Rather than explain
+
+A current "9.1GB" hard disk would, if dc didn't lie to me, be either 9.3  
+GB (decimal) or 8.7 GiB (binary).
+
+> For me, my reasons for full names are consistency and aesthetics --
+> allowing us to sidestep the abortion that the IEC has created of SI
+> units.
+
+So you'll be saying "9.3 milliards of bytes" - or is it "billions" where  
+you live?
+
+MfG Kai

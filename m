@@ -1,29 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136758AbREIRNX>; Wed, 9 May 2001 13:13:23 -0400
+	id <S136764AbREIRQG>; Wed, 9 May 2001 13:16:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136763AbREIRNN>; Wed, 9 May 2001 13:13:13 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:10323 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S136761AbREIRNF>; Wed, 9 May 2001 13:13:05 -0400
-Date: Wed, 9 May 2001 13:12:55 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200105091712.f49HCt005184@devserv.devel.redhat.com>
-To: reality@delusion.de, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: USB Problem with reenabling hub
-In-Reply-To: <mailman.989413441.16162.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.989413441.16162.linux-kernel2news@redhat.com>
+	id <S136761AbREIRQA>; Wed, 9 May 2001 13:16:00 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22283 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136762AbREIRPb>; Wed, 9 May 2001 13:15:31 -0400
+Subject: Re: 
+To: george@mvista.com (george anzinger)
+Date: Wed, 9 May 2001 18:15:46 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), root@chaos.analogic.com,
+        linux-kernel@vger.kernel.org (Linux kernel)
+In-Reply-To: <3AF97773.80DAFFC0@mvista.com> from "george anzinger" at May 09, 2001 09:59:31 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14xXYz-0002oc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> switching it back on, a problem occurs with reenabling the ports on
-> that USB hub. The kernel output follows.
+> from the interrupt back to the driver.  This is not unlike what you must
+> already be doing for interrupt completion.
+> 
+> Do pay attention to getting the timer (&t->timer above) properly set up
+> (see my first response or most any usage in the kernel).
+> 
+> Have I got this right Alan?
 
-> Comments anyone?
+The other thing to watch is that you need to delete the timer before you unload
+As you can safely del_timer() an initialised but already deleted timer that
+isnt too onerous.
 
-Next time, post your /proc/version.
+Waiting for a thread in the module unload is trickier. You cannot simply kill
+the thread as it may run after cleanup_module() returns. Instead you do
 
-There were similar things recently (missing urb->dev
-reinitialization in usb_hub_reset).
+static void cleanup_module(void)
+{
+	kill_thread();
+	down(&thread_sem);
+	printk("Thread dead\n");
+}
 
--- Pete
+and in the thread exit path do
+
+	up_and_exit(&thread_sem, error_code);
+
+This ensures that the thread of execution has left the module code space and
+will not return.
+
+Alan
+

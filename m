@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289776AbSBFIbT>; Wed, 6 Feb 2002 03:31:19 -0500
+	id <S290297AbSBFIcj>; Wed, 6 Feb 2002 03:32:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289802AbSBFIbK>; Wed, 6 Feb 2002 03:31:10 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:62348 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S289776AbSBFIa5>;
-	Wed, 6 Feb 2002 03:30:57 -0500
-Date: Wed, 06 Feb 2002 00:29:06 -0800 (PST)
-Message-Id: <20020206.002906.94555802.davem@redhat.com>
-To: hch@caldera.de
-Cc: davidm@hpl.hp.com, mmadore@turbolinux.com, linux-ia64@linuxia64.org,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [Linux-ia64] Proper fix for sym53c8xx_2 driver and dma64_addr_t
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020206092129.A8739@caldera.de>
-In-Reply-To: <20020205223804.A22012@caldera.de>
-	<15456.21030.840746.209377@napali.hpl.hp.com>
-	<20020206092129.A8739@caldera.de>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S289802AbSBFIca>; Wed, 6 Feb 2002 03:32:30 -0500
+Received: from dsl-213-023-043-188.arcor-ip.net ([213.23.43.188]:60592 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S290297AbSBFIcM>;
+	Wed, 6 Feb 2002 03:32:12 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "Michael H. Warfield" <mhw@wittsend.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18-pre8 - Good news and bad news...
+Date: Wed, 6 Feb 2002 09:36:33 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020205234009.A6268@alcove.wittsend.com>
+In-Reply-To: <20020205234009.A6268@alcove.wittsend.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16YNZB-0002MP-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Christoph Hellwig <hch@caldera.de>
-   Date: Wed, 6 Feb 2002 09:21:29 +0100
+On February 6, 2002 05:40 am, Michael H. Warfield wrote:
+> 	After seeing a post from Alan Cox about 2.4.18-pre7, I compiled
+> that up and started the gateway on it.  After it ran for a day (which
+> previous versions had NOT done) I left it to run for the week I was
+> in New York for LinuxWorld Expo.  OK, So I'm a DAMN IDIOT who likes to
+> live dangerously.  My SO knew how to reboot the gateway in case it went
+> tits up, which it did almost a week later.  It was set up to reboot to
+> a safe kernel (2.2.20) till I could get back and autopsy the corpse.
+> No problem...  :-)
+> 
+> 	The good news...  The 5a5a5a5a Oops seems to be gone.  The Oops
+> in 2.4.18-pre7 was different and took a LOT longer to blow.  I didn't
+> try to reproduce it, since 2.4.18-pre8 was out.
 
-   On Tue, Feb 05, 2002 at 01:44:06PM -0800, David Mosberger wrote:
-   >   Christoph> IA64 needs to define dma64_addr_t.
-   > 
-   > Not before the driver writers understand when to use it.
-   
-   Architecture maintainers are not supposed to decide whether driver
-   writers understand APIs.  The dma64_addr_t type is part of the PCI
-   DMA interface and IA64 needs to defines it.
+and the post from Alan was?
 
-You do have a point, but so does David.
-
-What driver wants to get at this type and what are they using it
-for?  dma_addr_t should be used by every driver I am aware of
-except the clustering PCI cards I've been told about and that
-driver isn't in the kernel at this time.
-
-So who needs it? :-)
-
+-- 
+Daniel

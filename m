@@ -1,39 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbUKRN5q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbUKROHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbUKRN5q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 08:57:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbUKRN5q
+	id S261776AbUKROHK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 09:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbUKROHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 08:57:46 -0500
-Received: from holomorphy.com ([207.189.100.168]:53120 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261775AbUKRN5o (ORCPT
+	Thu, 18 Nov 2004 09:07:10 -0500
+Received: from THUNK.ORG ([69.25.196.29]:28121 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261776AbUKROHD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 08:57:44 -0500
-Date: Thu, 18 Nov 2004 05:57:41 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc2-mm2
-Message-ID: <20041118135741.GE2268@holomorphy.com>
-References: <20041118021538.5764d58c.akpm@osdl.org>
+	Thu, 18 Nov 2004 09:07:03 -0500
+Date: Thu, 18 Nov 2004 09:06:45 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       r6144 <rainy6144@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       phillips@istop.com, Alex Tomas <alex@clusterfs.com>,
+       Christopher Li <chrisl@vmware.com>,
+       Christopher Li <ext2-devel@chrisli.org>
+Subject: Re: Fw: [POSSIBLE-BUG] telldir() broken on ext3 dir_index'd directories just after the first entry.
+Message-ID: <20041118140645.GA5306@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	"Stephen C. Tweedie" <sct@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, r6144 <rainy6144@gmail.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	"ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+	phillips@istop.com, Alex Tomas <alex@clusterfs.com>,
+	Christopher Li <chrisl@vmware.com>,
+	Christopher Li <ext2-devel@chrisli.org>
+References: <20041116183813.11cbf280.akpm@osdl.org> <20041117223436.GB5334@thunk.org> <1100736003.11047.14.camel@sisko.sctweedie.blueyonder.co.uk> <20041118045336.GA5236@thunk.org> <Pine.LNX.4.53.0411181221360.12219@yvahk01.tjqt.qr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041118021538.5764d58c.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <Pine.LNX.4.53.0411181221360.12219@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18, 2004 at 02:15:38AM -0800, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm2/
-> - Lots of small bugfixes.  Some against patches in -mm, some against Linus's
->   tree.
-> - There's a patch here which should address the oom-killings which a few
->   people have reported.
+On Thu, Nov 18, 2004 at 12:22:38PM +0100, Jan Engelhardt wrote:
+> >So instead what we need to do is wire '.' and '..' to have hash values
+> >of (0,0) and (2,0), respectively, without ignoring other existing
+> >dirents with colliding hashes.  (In those cases the programs will
+> >break, but they are statistically rare, and there's not much we can do
+> >in those cases anyway.)
+> 
+> IMO it's better to fix the mess all at once to have it weeded out for some
+> months.
 
-Whatever broke sparc64 (likely sunzilog.c) is between 2.6.9-bk2 and
-2.6.9-bk3. I suspect serial changes.
+Programs that assume that '.' and '..' are the first and second
+entries of a directory are intrinsically broken; POSIX never
+guaranteed this to be the case.  Unfortunately, historically things
+have always worked that way, and so there may be some broken programs
+lurking out there.  But there's really not much we can do.
 
+Before, we hard-wired '.' and '..' to always be first, at the cost of
+breaking programs that used the (broken by design) POSIX
+telldir/seekdir interfaces.  Since telldir/seekdir, however badly
+designed, are part of POSIX, it seems appropriate to let those
+programs work, but the cost is a statistical probability that programs
+making assumptions about the order of '.' and '..' will break.  We
+don't really have a choice here.  
 
--- wli
+(Actually, I guess we could define a new hash function that never
+produces certain hash values, but that would break compatibility with
+all existing deployed filesystems that use ext3 htree.  That's not an
+option, either.  So again, making a best effort, but breaking programs
+that are fundamentally broken is the best we can do.)
+
+						- Ted

@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbVASAoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbVASAqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbVASAoU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 19:44:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVASAoU
+	id S261512AbVASAqr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 19:46:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVASAqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 19:44:20 -0500
-Received: from almesberger.net ([63.105.73.238]:28432 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S261508AbVASAoP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 19:44:15 -0500
-Date: Tue, 18 Jan 2005 21:43:29 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Daniel Drake <dsd@gentoo.org>, Andrew Morton <akpm@osdl.org>,
-       Joseph Fannin <jhf@rivenstone.net>, linux-kernel@vger.kernel.org,
-       Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: [PATCH] Wait and retry mounting root device (revised)
-Message-ID: <20050118214329.A26705@almesberger.net>
-References: <20050114002352.5a038710.akpm@osdl.org> <20050116005930.GA2273@zion.rivenstone.net> <41EC7A60.9090707@gentoo.org> <20050118003413.GA26051@parcelfarce.linux.theplanet.co.uk> <20050118010342.GA24328@node1.opengeometry.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050118010342.GA24328@node1.opengeometry.net>; from opengeometry@yahoo.ca on Mon, Jan 17, 2005 at 08:03:42PM -0500
+	Tue, 18 Jan 2005 19:46:47 -0500
+Received: from lakermmtao10.cox.net ([68.230.240.29]:55443 "EHLO
+	lakermmtao10.cox.net") by vger.kernel.org with ESMTP
+	id S261512AbVASAq1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 19:46:27 -0500
+In-Reply-To: <Pine.LNX.4.44.0501181616090.15507-100000@sasami.anime.net>
+References: <Pine.LNX.4.44.0501181616090.15507-100000@sasami.anime.net>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <8A2B802C-69B3-11D9-AC4F-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: Fruhwirth Clemens <clemens@endorphin.org>, linux-kernel@vger.kernel.org,
+       Bill Davidsen <davidsen@tmr.com>,
+       Paul Walker <paul@black-sun.demon.co.uk>,
+       Andries Brouwer <aebr@win.tue.nl>, linux-crypto@nl.linux.org,
+       Venkat Manakkal <venkat@rayservers.com>,
+       Jari Ruusu <jariruusu@users.sourceforge.net>,
+       James Morris <jmorris@redhat.com>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Announce loop-AES-v3.0b file/swap crypto package
+Date: Tue, 18 Jan 2005 19:46:22 -0500
+To: Dan Hollis <goemon@anime.net>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Park wrote:
-> The problem at hand is that USB key drive (which is my immediate
-> concern) takes 5sec to show up.  So, it's much better approach than
-> 'initrd'.
+On Jan 18, 2005, at 19:18, Dan Hollis wrote:
+> On Tue, 18 Jan 2005, Venkat Manakkal wrote:
+>> As for cryptoloop, I'm sorry, I cannot say the same. The password 
+>> hashing
+>> system being changed in the past year, poor stability and machine 
+>> lockups are
+>> what I have noticed, besides there is nothing like the readme here:
+>
+> cryptoloop is also unusably slow, even on my x86_64 machines...
+>
+> at the very least someone should merge in the assembler loop-aes 
+> routines.
+> all other architectural arguments/whining aside, is there any good 
+> reason
+> not to do this?
 
-I'm a little biased, but I disagree ;-) The main problems with initrd
-seem to be that it adds at least one more moving part, and that most
-initrd-making procedures give you something non-interactive that
-hardly interacts with the outside world. Lo and behold, nobody likes
-sudden silent failure of a complex and opaque subsystem, particularly
-if it happens to be vitally important.
+As far as I am aware, from monitoring the various threads of this 
+discussion for a
+few years, the only reason is that nobody has compiled and submitted a 
+set of
+small, discreet, and obvious patches.  I suspect if someone were to do 
+that, it
+would be applied without much fuss or whining.  The primary complaints 
+against
+loop-AES WRT merging it (or any subset) with the mainstream kernel was 
+that it
+is a single bigdiff, with no real subdivision.
 
-I think initrds could be greatly improved by including a BusyBox in
-their failure paths (plus a way to manually enter the BusyBox, in case
-apparent success still means failure). That way, you can actually try
-to fix things if there are problems.
+Cheers,
+Kyle Moffett
 
-Another issue is configuration data that has to exist in the initrd,
-yielding a possibly complex initrd construction process that has to
-follow each configuration change. Also there, an initrd could be able
-to try to access the regular file system to access such information,
-possibly combined with caching and heuristics. (I realize that this
-isn't trivial and bears a high risk of intractable failure paths, but
-I also think that it's worth exploring this direction.)
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
-Regarding the delayed mount problem, I think some retry procedure may
-be the best possible band-aid for a while. While it would be desirable
-for the USB subsystem (etc.) to just block until the device is ready,
-this doesn't work so well if the presence of the device can't be
-predicted at that point, e.g. if a "devfs" (udev, etc.) name has to be
-looked up first.
 
-I'm not sure I understand Al's concern with devices popping up in the
-middle of the loop. For all practical purposes, mounting the root file
-system has a single target anyway, so it can't really compete with
-anything else. Automatically selected alternative roots can make
-sense, but that's sufficiently policy-ish that I think it would be
-better kept in an initrd, where instrumentation is more naturally
-added than in the kernel.
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

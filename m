@@ -1,45 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317473AbSHaMgP>; Sat, 31 Aug 2002 08:36:15 -0400
+	id <S317468AbSHaMtf>; Sat, 31 Aug 2002 08:49:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317471AbSHaMgP>; Sat, 31 Aug 2002 08:36:15 -0400
-Received: from khms.westfalen.de ([62.153.201.243]:5782 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S317458AbSHaMgO>; Sat, 31 Aug 2002 08:36:14 -0400
-Date: 31 Aug 2002 14:02:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: torvalds@transmeta.com
-cc: linux-fsdevel@vger.kernel.org
-cc: dmccr@us.ibm.com
-cc: linux-kernel@vger.kernel.org
-cc: trond.myklebust@fys.uio.no
-Message-ID: <8Vuk51-mw-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.44.0208302110280.1524-100000@home.transmeta.com>
-Subject: Re: [PATCH] Introduce BSD-style user credential [3/3]
-X-Mailer: CrossPoint v3.12d.kh10 R/C435
+	id <S317471AbSHaMtf>; Sat, 31 Aug 2002 08:49:35 -0400
+Received: from leon-2.mat.uni.torun.pl ([158.75.2.64]:28351 "EHLO
+	leon-2.mat.uni.torun.pl") by vger.kernel.org with ESMTP
+	id <S317468AbSHaMte>; Sat, 31 Aug 2002 08:49:34 -0400
+Date: Sat, 31 Aug 2002 14:53:54 +0200 (CEST)
+From: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
+X-X-Sender: golbi@ultra60
+To: pwaechtler@mac.com
+cc: linux-kernel@vger.kernel.org, Michal Wronski <wrona@mat.uni.torun.pl>
+Subject: Re: [PATCH] POSIX message queues
+In-Reply-To: <CDB36B91-BB99-11D6-B9F3-00039387C942@mac.com>
+Message-ID: <Pine.GSO.4.40.0208311440520.7165-100000@ultra60>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-References: <Pine.LNX.4.44.0208302110280.1524-100000@home.transmeta.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-torvalds@transmeta.com (Linus Torvalds)  wrote on 30.08.02 in <Pine.LNX.4.44.0208302110280.1524-100000@home.transmeta.com>:
+Hello,
 
-> One thing that may be interesting (I certainly think it migth be), would
-> be to add a "struct user_struct *" pointer to the vfs_cred as well. This
-> is because I'd just _love_ to have that "user_struct" fed down to the VFS
-> layer, since I think that is where we may some day want to put things like
-> user-supplied cryptographic keys etc.
+On Thu, 29 Aug 2002 pwaechtler@mac.com wrote:
+
+> I know that it's nowhere stated, but POSIX mqueues are perfectly
+> designed to be
+> implemented in userspace with locking facilities provided by the system.
+> ...
+> with proper locking. I am not very happy about the fact, that with
+> futexes the whole
+> cooperating system get stuck when 1 process crashes inside a critical
+> region
+> (yes, then your system is screwed anyway).
+> BUT the messages are not copied between user- and kernelspace like they
+> are
+> in SysV  msgsnd.
+Is coping between user and kernel spaces so bad? As you pointed
+out there are problems with only user space implementation.
+
+> POSIX mqueues have "kernel persistence", i.e. they live until
+> mq_unlink() is called.
+> They do not vanish with the creator on exit().
+Yes. But I don't see what is wrong with our system? Our queues _don't_
+vanish with creator exit. (Our add on to exit() (and fork) is to keep
+track of processes that have opened mqueue. Then mq_unlink() can
+postpone deleting queue to the time when it isn't opened by anyone)
+
+> Without rlimits you can easily consume all available kernel memory (DoS)
+> by creating
+> a mqueue and filling it with garbage.
+To this I answer in an answer to your next post :)
+
 >
-> The advantage of "struct user_struct" (as opposed to just a uid_t) is that
-> it can have information that lives for the whole duration of a login, and
-> it's really the only kind of data structure in the kernel that can track
-> that kind of information.
+> When implemented in kernel space, you have to create a thread with the
+> brand new
+> sys_clone_startup (or whatever name it gets) as notification
+> (SIGEV_THREAD) - which
+> is SCOPE_SYSTEM, no control about this and not always what is desired.
+I don't fully understand it. Can you explain it in more details?
 
-In that case, wouldn't "struct session" be a better name?
+Thanks
 
-MfG Kai
+Krzysiek Benedyczak
+

@@ -1,76 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269382AbUINS5O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269297AbUINS7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269382AbUINS5O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 14:57:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269439AbUINSzk
+	id S269297AbUINS7K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 14:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269199AbUINS6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 14:55:40 -0400
-Received: from mail2.bluewin.ch ([195.186.4.73]:9913 "EHLO mail2.bluewin.ch")
-	by vger.kernel.org with ESMTP id S269366AbUINSxt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 14:53:49 -0400
-Date: Tue, 14 Sep 2004 20:45:18 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Albert Cahalan <albert@users.sf.net>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       Andrew Morton OSDL <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       Paul Jackson <pj@sgi.com>, James Morris <jmorris@redhat.com>,
-       Chris Wright <chrisw@osdl.org>
-Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
-Message-ID: <20040914184517.GA2655@k3.hellgate.ch>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Albert Cahalan <albert@users.sf.net>,
-	Stephen Smalley <sds@epoch.ncsc.mil>,
-	Andrew Morton OSDL <akpm@osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Albert Cahalan <albert@users.sourceforge.net>,
-	Paul Jackson <pj@sgi.com>, James Morris <jmorris@redhat.com>,
-	Chris Wright <chrisw@osdl.org>
-References: <20040914064403.GB20929@k3.hellgate.ch> <20040914071058.GH9106@holomorphy.com> <20040914075508.GA10880@k3.hellgate.ch> <20040914080132.GJ9106@holomorphy.com> <20040914092748.GA11238@k3.hellgate.ch> <20040914153758.GO9106@holomorphy.com> <20040914160150.GB13978@k3.hellgate.ch> <20040914163712.GT9106@holomorphy.com> <20040914171525.GA14031@k3.hellgate.ch> <20040914174325.GX9106@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040914174325.GX9106@holomorphy.com>
-X-Operating-System: Linux 2.6.8 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+	Tue, 14 Sep 2004 14:58:09 -0400
+Received: from s0003.shadowconnect.net ([213.239.201.226]:58528 "EHLO
+	mail.shadowconnect.com") by vger.kernel.org with ESMTP
+	id S269366AbUINSzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 14:55:44 -0400
+Message-ID: <41473F00.50109@shadowconnect.com>
+Date: Tue, 14 Sep 2004 20:57:04 +0200
+From: Markus Lidel <Markus.Lidel@shadowconnect.com>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I2O Updates + Questions
+References: <1095174189.16988.10.camel@localhost.localdomain>
+In-Reply-To: <1095174189.16988.10.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Sep 2004 10:43:25 -0700, William Lee Irwin III wrote:
-> On Tue, 14 Sep 2004 09:37:12 -0700, William Lee Irwin III wrote:
-> >> Not particularly. It largely means poorly-coded apps may report gibberish.
-> 
-> On Tue, Sep 14, 2004 at 07:15:25PM +0200, Roger Luethi wrote:
-> > If we are still talking about the same thing here, gibberish is a rather
-> > strong word. In the design I proposed access control affects the subset
-> > of tasks returned as a result -- the tool would still display meaningful
-> > information for the tasks it got replies for.
-> 
-> That sounds bizarre. I'd expect some kind of reply, even if merely an
-> error. I suppose "no reply" could be interpreted as "ESRCH", though
-> this means distinguishing between "some field caused an error" and
-> "the thing is dead" means the app has to fall back to requesting fields
-> one at a time.
+Hello,
 
-I suppose you are thinking of a request that lists a number of PIDs along
-with a number of field IDs. In that case yes, I agree that it makes sense
-to provide some explicit feedback to the tool once we add access control
-(before that, there is no ambiguity: a missing answer means ESRCH).
+Alan Cox wrote:
 
-The most common request, though, won't provide a list of pids, it will
-only provide a list of field IDs and select all processes in the system
-(NPROC_SELECT_ALL). There is no ambiguity here, either: The tool didn't
-ask for any specific process to begin with, ESRCH doesn't make sense
-here. And for a system that looks anything like /proc does today,
-fields that are capable of triggering EPERM are few and far between,
-certainly not something you are hitting unexpectedly in the fast path
-of a process monitoring tool.
+> Markus, the new I2O stuff mostly looks nice. I found a few bits that
+> seem wrong and some of my old cleanup bits still needed
+> The attached patch files 
+> - Fix misformed error messages in i2o_block
 
-Thanks, by the way, for all the feedback that helped me realize that
-I have so far failed to explain the design well enough. I will try to
-work on that.
+Okay...
 
-Roger
+> - Add recieve_to_virt and send_to_virt to clean up remaining
+>   virt_to_* usage. (I've tweaked them to reflect the i2o_dma
+>   objects) so hopefully I got it right
+> - Post an 8 byte startup message area. Some Promises scribble on the
+>   wrong dword. Also catch this
+> - Fix several cases where messages got written to I/O space without
+>   i2o_raw_writel
+> - Fix a case where we skipped dpt controllers on quiesce and didnt
+>   skip them on enable
+> - Add some bits to try and get promise behaving again
+> - Cleaned up the probe loop
+> - Removed the remainder of i2o_retry and used the trick I was using
+>   in my test code from back whenever- on congestion report BUS_BUSY
+>   and leave it to the scsi layer
+
+Ohohhh... i2o_core.c shouldn't be there anymore... I've split up 
+i2o_core.c in own files e. g. iop.c, pci.c, ...
+
+Probably i've made a mistake with the patch i've submitted...
+
+Will try to get it removed...
+
+> Looking at the code the event stuff seems totally broken in the new code
+> both in core and the commented out i2o_block code (which now leaks
+
+The I2O Block driver doesn't use the event notifaction anymore, instead 
+it uses the probe and remove functions to add or remove disks...
+
+> memory). Also i2o_scsi error path does a readl on msg->body[3] which is
+> wrong as msg->body[3] is in kernel space and its contents are an I2O
+> side message value so should get fed to i2o_send_to_virt().
+
+The msg points to the outbound queue of the controller, don't i need a 
+readl there?
+
+> Other question is message size - right now it uses the 2.4 message size
+> which is twice what all the vendors recommend as working best (and
+> doesn't work at all on AMI)
+
+The message size from the outbound queue of the I2O controller?
+
+Yep, the dpt_i2o driver even set it to 17 instead of 128 :-)
+
+Sorry for the mistake with the i2o_core.c.
+
+Thanks for taking time to look at the I2O driver!
+
+
+Best regards,
+
+
+Markus Lidel
+------------------------------------------
+Markus Lidel (Senior IT Consultant)
+
+Shadow Connect GmbH
+Carl-Reisch-Weg 12
+D-86381 Krumbach
+Germany
+
+Phone:  +49 82 82/99 51-0
+Fax:    +49 82 82/99 51-11
+
+E-Mail: Markus.Lidel@shadowconnect.com
+URL:    http://www.shadowconnect.com

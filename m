@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269002AbRHCNDc>; Fri, 3 Aug 2001 09:03:32 -0400
+	id <S269030AbRHCNDW>; Fri, 3 Aug 2001 09:03:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269041AbRHCNDW>; Fri, 3 Aug 2001 09:03:22 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:57984 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S269002AbRHCNDI>; Fri, 3 Aug 2001 09:03:08 -0400
-Date: Fri, 3 Aug 2001 09:03:04 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Frank Torres <frank@ingecom.net>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Duplicate console output to a RS232C and keep keyb where it is
-In-Reply-To: <014101c11c17$a6dd21a0$66011ec0@frank>
-Message-ID: <Pine.LNX.3.95.1010803085542.16919A-100000@chaos.analogic.com>
+	id <S269041AbRHCNDL>; Fri, 3 Aug 2001 09:03:11 -0400
+Received: from carbon.btinternet.com ([194.73.73.92]:28302 "EHLO
+	carbon.btinternet.com") by vger.kernel.org with ESMTP
+	id <S269030AbRHCNDA>; Fri, 3 Aug 2001 09:03:00 -0400
+Date: Fri, 3 Aug 2001 14:02:49 +0100 (BST)
+From: <asmith@14inverleith.freeserve.co.uk>
+X-X-Sender: <asmith@vtrl22.vtrl.co.uk>
+To: szonyi calin <caszonyi@yahoo.com>
+cc: Matthew Gardiner <kiwiunixman@yahoo.co.nz>, <linux-kernel@vger.kernel.org>
+Subject: Re:(OT) university studies?
+In-Reply-To: <20010803105124.86038.qmail@web13906.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.33.0108031401190.14549-100000@vtrl22.vtrl.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Aug 2001, Frank Torres wrote:
-> 
-> The RS232C is a serial port with 12V and there I have a BA63 20x4 display
-> connected. (info worldwide)
-> It is setted with the right speed, parity, etc. I use echo whatever
-> >/dev/ttyS2 and it works.
 
-It has probably been set okay after boot by `setserial` in some boot 
-script.
+Hi
 
-> If I use the command line parameter everybody says:  (odd and 8 data bits is
-> what I use)
->             serial=2,9600o8
->             console=ttyS2,9600o8 console=tty0
+Could you mention a product so that I can understand your angle.
+--
 
-This is not valid. You cannot reasonably have parity and 8 bits. One
-of them has to go. Either use 8 bits and no parity or 7 bits with
-parity.
+Andrew Smith in Edinburgh, Scotland
 
-This is because there are 10 bits/baud. The "stop" bit is a timing
-interval equal to one of these bits, between characters. Therefore, you
-can have many stop bits, this just spaces the characters.
+On Fri, 3 Aug 2001, szonyi calin wrote:
+
+>
+> > Just a side issue, has any one noticed the decline
+> > in the quality of IT
+> > products over the last 15-20 years? Or is it just
+> > me?
+> >
+> > Matthew Gardiner
+> >
+>
+> Well we must produce fast and much to make more (and
+> more, and more ...) money
+> :-))
+> market economy ...
+>
+> __________________________________________________
+> Do You Yahoo!?
+> Make international calls for as low as $.04/minute with Yahoo! Messenger
+> http://phonecard.yahoo.com/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
 
 

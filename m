@@ -1,76 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261409AbTAYGno>; Sat, 25 Jan 2003 01:43:44 -0500
+	id <S265777AbTAYIYO>; Sat, 25 Jan 2003 03:24:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265457AbTAYGno>; Sat, 25 Jan 2003 01:43:44 -0500
-Received: from packet.digeo.com ([12.110.80.53]:14060 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261409AbTAYGnn>;
-	Sat, 25 Jan 2003 01:43:43 -0500
-Date: Fri, 24 Jan 2003 22:53:20 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: linux-kernel@vger.kernel.org, hch@lst.de
-Subject: Re: ext2 FS corruption with 2.5.59.
-Message-Id: <20030124225320.5d387993.akpm@digeo.com>
-In-Reply-To: <20030124153929.A894@namesys.com>
-References: <20030123153832.A860@namesys.com>
-	<20030124023213.63d93156.akpm@digeo.com>
-	<20030124153929.A894@namesys.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S265894AbTAYIYO>; Sat, 25 Jan 2003 03:24:14 -0500
+Received: from main.gmane.org ([80.91.224.249]:31705 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S265777AbTAYIYN>;
+	Sat, 25 Jan 2003 03:24:13 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Andres Salomon" <dilinger@voxel.net>
+Subject: Re: 2.5.59-mm5
+Date: Sat, 25 Jan 2003 03:33:24 -0500
+Message-ID: <pan.2003.01.25.08.33.21.351761@voxel.net>
+References: <20030123195044.47c51d39.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Jan 2003 06:52:50.0662 (UTC) FILETIME=[608C5060:01C2C43E]
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Pan/0.13.3 (That cat's something I can't explain)
+Cc: linux-mm@kvack.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Drokin <green@namesys.com> wrote:
->
-> Ok, So far simplest way of reproducing for me was this:
-> mkdir /mnt
-> fsstress -p 10 -n1000000 -d /mnt &
-> fsx -c 1234 testfile
+My atyfb_base.c compile fix (from 2.5.54) still hasn't found its way into
+any of the main kernel trees.  The original patch generates a reject
+against 2.5.59-mm5, so here's an updated patch.
+
+
+On Thu, 23 Jan 2003 19:50:44 -0800, Andrew Morton wrote:
+
+> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm5/
 > 
-> Now look at fsx output. When it says about "truncating to largest ever: 0x3ffff",
-> wait 10 more seconds and if nothing happens, ^C the fsx,
-> run "rm -rf testfile*"
-> now run fsx again
-> and so on until it fails.
+> .  -mm3 and -mm4 were not announced - they were sync-up patches as we
+>   worked on the I/O scheduler.
 > 
-> Last time it took me three iterations to reproduce.
+> .  -mm5 has the first cut of Nick Piggin's anticipatory I/O scheduler.
+>   Here's the scoop:
 > 
-
-Well I've been running this for a couple of hours:
-
-	#!/bin/sh
-	while true
-	do
-	        fsstress -p 10 -n1000000 -d . &
-	        fsx-linux -c 1234 testfile &
-	        sleep 180
-	        killall fsx-linux fsstress
-	        sleep 1
-	done
-
-Chance of close/open is 1 in 1234
-seed = 1043574092
-truncating to largest ever: 0x13e76
-truncating to largest ever: 0x2e52c
-truncating to largest ever: 0x3c2c2
-truncating to largest ever: 0x3f15f
-truncating to largest ever: 0x3fcb9
-truncating to largest ever: 0x3fe96
-truncating to largest ever: 0x3ff9d
-truncating to largest ever: 0x3ffff
-skipping zero size read
-skipping zero size write
-/home/akpm/fsx-test: line 9:  1253 Terminated              fsstress -p 10 -n1000000 -d .
-signal 15
-testcalls = 95103
-seed = 1043594552
+[...]
+> 
+> anticipatory_io_scheduling-2_5_59-mm3.patch
+>   Subject: [PATCH] 2.5.59-mm3 antic io sched
+> 
+> 
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-mm' in
+> the body to majordomo@kvack.org.  For more info on Linux MM,
+> see: http://www.linux-mm.org/
 
 
-So I'm going to have to ask you to investigate further.  Does it happen on
-other machines?  Other filesystems?  Older kernels?  That sort of thing.
+--- a/drivers/video/aty/atyfb_base.c    2003-01-25 03:02:35.000000000 -0500
++++ b/drivers/video/aty/atyfb_base.c    2003-01-25 03:21:48.000000000 -0500
+@@ -2587,12 +2587,12 @@
+	if (info->screen_base)
+		iounmap((void *) info->screen_base);
+ #ifdef __BIG_ENDIAN
+-	if (info->cursor && par->cursor->ram)
++	if (par->cursor && par->cursor->ram)
+		iounmap(par->cursor->ram);
+ #endif
+ #endif
+-	if (info->cursor)
+-		kfree(info->cursor);
++	if (par->cursor)
++		kfree(par->cursor);
+ #ifdef __sparc__
+	if (par->mmap_map)
+		kfree(par->mmap_map);
 
-Thanks.

@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311917AbSCODKo>; Thu, 14 Mar 2002 22:10:44 -0500
+	id <S311922AbSCODhU>; Thu, 14 Mar 2002 22:37:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311920AbSCODKY>; Thu, 14 Mar 2002 22:10:24 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:45761 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S311917AbSCODKO>; Thu, 14 Mar 2002 22:10:14 -0500
-Date: Thu, 14 Mar 2002 20:09:57 -0700
-Message-Id: <200203150309.g2F39vA15319@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VGA blank causes hang with 2.4.18 
-In-Reply-To: <8380.1016161366@kao2.melbourne.sgi.com>
-In-Reply-To: <200203150252.g2F2qVM15051@vindaloo.ras.ucalgary.ca>
-	<8380.1016161366@kao2.melbourne.sgi.com>
+	id <S311923AbSCODhJ>; Thu, 14 Mar 2002 22:37:09 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:25098 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S311922AbSCODgv>;
+	Thu, 14 Mar 2002 22:36:51 -0500
+Date: Fri, 15 Mar 2002 13:43:00 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: jt@hpl.hp.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4.19-pre3] New wireless driver API part 1
+Message-ID: <20020315024300.GC1289@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>, jt@hpl.hp.com,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020313185915.A14095@bougret.hpl.hp.com> <E16lLnM-0008E8-00@the-village.bc.nu> <20020313191159.B14095@bougret.hpl.hp.com> <3C9015D2.4060108@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C9015D2.4060108@mandrakesoft.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens writes:
-> On Thu, 14 Mar 2002 19:52:31 -0700, 
-> Richard Gooch <rgooch@ras.ucalgary.ca> wrote:
-> >  Hi, all. Here's a perverse problem: when the screen blanks (text
-> >console) with 2.4.18, the machine hangs. No ping response, no magic
-> >SysReq response. I didn't have this problem with 2.4.7.
-> >
-> >The command I used to configure screen blanking was:
-> >setterm -blank 10 -powerdown 0
-> >
-> >This is an Athalon 850 MHz on a Gigabyte GA-7ZM motherboard.
+On Wed, Mar 13, 2002 at 10:15:30PM -0500, Jeff Garzik wrote:
+> Jean Tourrilhes wrote:
 > 
-> Any response with kdb + nmi watchdog + serial console?  Sounds like
-> a lock problem, kdb + nmi watchdog normally lets you debug those.
+> >1) Most Wireless LAN driver live outside the kernel. So, their
+> >evolution is somewhat decoupled to the kernel, so the earlier the
+> >patch goes it the better it is for those.
+> >
+> As you may have gathered from my last email, this is a bit annoying when 
+> trying to find and stabalize a driver for a card you just got :)
 
-This box isn't set up for serial console. It's a production box, and
-it's running jobs again :-)
+> >	2) David Gibson, maintainer of the Orinoco driver, told me
+> >that he would merge my new-API orinoco patches in his driver only when
+> >the new API would be in 2.4.x (as you may have noticed, he hasn't
+> >updated 2.5.X for a while). Chicken and Eggs.
+> >
+> Does that mean orinoco updates are coming for 2.5.x?
 
-Besides, until kdb is integrated into the kernel, I'm not likely to
-use it (yeah, I know, hell will have to freeze over first).
+Yes, I'll try to send some in.  When 2.5 had just started I figured
+Linus was busy enough with the bio stuff and the driver updates could
+wait, since then I've been busy with other things so I haven't gotten
+around to sending patches.
 
-				Regards,
+AFAIK none of the APIs which are relevant to me have changed so it
+should just be a matter of copying the files across from 2.4.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+-- 
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.  -- H.L. Mencken
+http://www.ozlabs.org/people/dgibson
+

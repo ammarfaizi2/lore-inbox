@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262681AbUKXU6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262848AbUKXVAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262681AbUKXU6y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 15:58:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbUKXU6y
+	id S262848AbUKXVAo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 16:00:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbUKXVAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 15:58:54 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:38016 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262681AbUKXU6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 15:58:52 -0500
-Subject: Re: Suspend 2 merge: 14/51: Disable page alloc failure message
-	when suspending
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041124141521.GA13915@infradead.org>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101294838.5805.245.camel@desktop.cunninghams>
-	 <20041124141521.GA13915@infradead.org>
-Content-Type: text/plain
-Message-Id: <1101329172.3895.0.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 25 Nov 2004 07:46:21 +1100
+	Wed, 24 Nov 2004 16:00:44 -0500
+Received: from ns.theshore.net ([67.18.92.50]:664 "EHLO www.theshore.net")
+	by vger.kernel.org with ESMTP id S262848AbUKXVAN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 16:00:13 -0500
+Message-ID: <000f01c4d25b$e8d497c0$0201a8c0@hawk>
+From: "Christopher S. Aker" <caker@theshore.net>
+To: "Jens Axboe" <axboe@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+References: <001301c4d1f6$941d1370$0201a8c0@hawk> <20041124130139.GC13847@suse.de> <20041124132449.GD13847@suse.de> <002e01c4d22a$f426f630$0201a8c0@hawk> <20041124134038.GF13847@suse.de>
+Subject: Re: 2.6.10-rc2-bk7 - Badness in cfq_put_request at drivers/block/cfq-iosched.c:1402
+Date: Wed, 24 Nov 2004 13:29:24 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> Can you try this simple check to see if it triggers anything?
+>
+> ===== cfq-iosched.c 1.13 vs edited =====
+> --- 1.13/drivers/block/cfq-iosched.c 2004-10-30 01:35:21 +02:00
+> +++ edited/cfq-iosched.c 2004-11-24 14:40:13 +01:00
+> @@ -1389,6 +1389,8 @@
+>   struct cfq_data *cfqd = q->elevator->elevator_data;
+>   struct cfq_rq *crq = RQ_DATA(rq);
+>
+> + WARN_ON(!spin_is_locked(q->queue_lock));
+> +
+>   if (crq) {
+>   struct cfq_queue *cfqq = crq->cfq_queue;
 
-On Thu, 2004-11-25 at 01:15, Christoph Hellwig wrote:
-> On Wed, Nov 24, 2004 at 11:57:55PM +1100, Nigel Cunningham wrote:
-> > While eating memory, we will potentially trigger this a lot. We
-> > therefore disable the message when suspending.
-> 
-> So call the allocator with __GFP_NOWARN
+I'd be happy to, but I won't have a free machine for a couple of days.  I'll can
+probably give it a shot during the weekend...
 
-Everywhere?
-
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
+-Chris
 

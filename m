@@ -1,71 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268056AbTAJACk>; Thu, 9 Jan 2003 19:02:40 -0500
+	id <S268118AbTAIX6K>; Thu, 9 Jan 2003 18:58:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268057AbTAJACk>; Thu, 9 Jan 2003 19:02:40 -0500
-Received: from vger.timpanogas.org ([216.250.140.154]:32393 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S268056AbTAJACi>; Thu, 9 Jan 2003 19:02:38 -0500
-Date: Thu, 9 Jan 2003 18:22:43 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: UnitedLinux violating GPL?
-Message-ID: <20030109182243.A7284@vger.timpanogas.org>
-References: <20030109222748.GA3993@gtf.org> <20030109164534.A6653@vger.timpanogas.org> <20030109224616.GA6282@gtf.org>
+	id <S268119AbTAIX6J>; Thu, 9 Jan 2003 18:58:09 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:36524 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S268118AbTAIX6H>;
+	Thu, 9 Jan 2003 18:58:07 -0500
+Date: Thu, 9 Jan 2003 17:02:51 -0700
+From: yodaiken@fsmlabs.com
+To: Richard Stallman <rms@gnu.org>
+Cc: yodaiken@fsmlabs.com, billh@gnuppy.monkey.org, mark@mark.mielke.cc,
+       lm@bitmover.com, linux-kernel@vger.kernel.org, paul@clubi.ie,
+       riel@conectiva.com.br
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+Message-ID: <20030109170251.A3584@hq.fsmlabs.com>
+References: <20030104222330.GA1386@work.bitmover.com> <E18VFaz-0008S0-00@fencepost.gnu.org> <20030105221345.GA31840@mark.mielke.cc> <E18Vao9-0002JZ-00@fencepost.gnu.org> <20030106173949.GA1712@gnuppy.monkey.org> <E18Vtxz-0002cB-00@fencepost.gnu.org> <20030107141758.GA10770@gnuppy.monkey.org> <E18WB8O-0004jy-00@fencepost.gnu.org> <20030108082615.A2271@hq.fsmlabs.com> <E18Wlrd-0000Po-00@fencepost.gnu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030109224616.GA6282@gtf.org>; from jgarzik@pobox.com on Thu, Jan 09, 2003 at 05:46:16PM -0500
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E18Wlrd-0000Po-00@fencepost.gnu.org>; from rms@gnu.org on Thu, Jan 09, 2003 at 06:13:29PM -0500
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 09, 2003 at 05:46:16PM -0500, Jeff Garzik wrote:
-> On Thu, Jan 09, 2003 at 04:45:34PM -0700, Jeff V. Merkey wrote:
-> > 
-> > 
-> > Jeff,
-> > 
-> > They only have to provide it if someone asks for it.  I suggest sending them 
-> > a request asking for it to be disclosed and copy LKML on the request.  
+On Thu, Jan 09, 2003 at 06:13:29PM -0500, Richard Stallman wrote:
+>     Just for the record, "operating system", and "kernel" are used as 
+>     synonyms in the research literature.
 > 
-> I had hoped that a member in good standing of the Linux community would
-> not put such roadblocks in place.  :(
+> The term "operating system" has been used in both ways for a long
+> time.  When people speak about the "Linux operating system," most of
+> them mean the larger GNU/Linux system--they are not using "operating
+> system" to mean "kernel".
+
+My point was just to note that people who look for information about emacs
+or gcc in the proceedings of the OSDI or SIGOPS Symposium are going to 
+be disappointed. 
+
+> If you use some other term instead of "operating system" for the
+> larger collection of software, it might remove one cause of confusion.
+
+Programming environment. I say "Gnu tools" .
+
+> That won't eliminate the question of what this collection's name
+> should properly be, or correct the misinformation about how it was
+> developed and by whom.
 
 
-Jeff,
+The bad news is that many of our customers now ask us if we support
+"8.0" or "7.3".  For them "Red Hat" is the name of the system. Bob Young's
+ketchup vision has absorbed the world. 
 
-I do not understand what this means.  Just because they did not volunteer it
-does not imply some sort of conspiracy.  There are a lot of patches I make
-locally for my work, but I don't just throw everyone of them out to the 
-whole planet since a lot of them would probably get rejected, and most folks
-probably could care less.  At any rate, I was not being an obstructist 
-or anything.  Perhaps they overlooked it or perhaps it's available 
-somewhere else.  Simplest approach is always the best -- just ask them
-and post to LKML so they know other folks are probably interested.
+I'm sympathetic, but if there is anyone out there who has contributed 
+free software and gets full credit and no hate mail, I'd be very surprised.
 
-Some of the patches I;ve made to Alan's code I am certain he would look 
-at and say something like "well there's goes Jeff again smoking his
-pipe" or something -- but of course only in the nicest sort of way.
+Envy is emulation adapted to the meanest capacity.
+	Ambrose Bierce
 
-:-)
 
-Jeff
 
-> 
-> 
-> > Jeff
-> > (a great name to have)
-> 
-> agreed :)
-> 
-> 	Jeff
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+www.fsmlabs.com  www.rtlinux.com
+1+ 505 838 9109
+

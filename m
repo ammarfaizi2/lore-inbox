@@ -1,92 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266215AbSKFXXx>; Wed, 6 Nov 2002 18:23:53 -0500
+	id <S266218AbSKFX0w>; Wed, 6 Nov 2002 18:26:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266216AbSKFXXx>; Wed, 6 Nov 2002 18:23:53 -0500
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:62964 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S266215AbSKFXXv>; Wed, 6 Nov 2002 18:23:51 -0500
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 6 Nov 2002 16:27:57 -0700
-To: Christopher Li <chrisl@vmware.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Ext2 devel <ext2-devel@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext2-devel] Re: [PATCH] Fix bug in ext3 htree rename: doesn't delete old name, leaves ino with bad nlink
-Message-ID: <20021106232757.GT588@clusterfs.com>
-Mail-Followup-To: Christopher Li <chrisl@vmware.com>,
-	Theodore Ts'o <tytso@mit.edu>,
-	Jeremy Fitzhardinge <jeremy@goop.org>,
-	Ext2 devel <ext2-devel@lists.sourceforge.net>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <1036471670.21855.15.camel@ixodes.goop.org> <20021105212415.GB1472@vmware.com> <20021106082500.GA3680@vmware.com> <20021106214027.GA9711@think.thunk.org> <20021106172455.A7778@vmware.com>
+	id <S266219AbSKFX0w>; Wed, 6 Nov 2002 18:26:52 -0500
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:20733 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S266218AbSKFX0u>;
+	Wed, 6 Nov 2002 18:26:50 -0500
+Date: Wed, 6 Nov 2002 18:33:25 -0500
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Patrick Mansfield <patmans@us.ibm.com>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.46: ide-cd cdrecord (almost) success report
+Message-ID: <20021106233325.GA29940@www.kroptech.com>
+References: <20021106041330.GA9489@www.kroptech.com> <20021106072223.GB4369@suse.de> <20021106155656.GA20403@www.kroptech.com> <20021106101144.A10985@eng2.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021106172455.A7778@vmware.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <20021106101144.A10985@eng2.beaverton.ibm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 06, 2002  17:24 -0800, Christopher Li wrote:
-> On Wed, Nov 06, 2002 at 04:40:27PM -0500, Theodore Ts'o wrote:
-> > On Wed, Nov 06, 2002 at 12:25:00AM -0800, chrisl@vmware.com wrote:
-> > > This should fix the ext3 htree rename problem. Please try it again.
+On Wed, Nov 06, 2002 at 10:11:44AM -0800, Patrick Mansfield wrote:
+> On Wed, Nov 06, 2002 at 10:56:56AM -0500, Adam Kropelin wrote:
+> > On Wed, Nov 06, 2002 at 08:22:23AM +0100, Jens Axboe wrote:
+> > > On Tue, Nov 05 2002, Adam Kropelin wrote:
+> > > > Still without coaster I tried one more thing...
+> > > > 'dd if=/dev/zero of=foo bs=1M' in parallel with another burn. That one
+> > > > did it in. ;) I'm running ext3 and the writeout load totally killed
+> > > > burn, which isn't surprising. I was asking for it, I know. What happened
+> > > 
+> > > Really, this should work. The deadline scheduler should handle this just
+> > > fine in fact. Which device is your burner and which device is the hard
+> > > drive? It sounds like a bug.
 > > 
-> > I've looked over the patch, and I've got some comments....
-> > 
-> > >      handle = ext3_journal_start(old_dir, 2 * EXT3_DATA_TRANS_BLOCKS +
-> > > -                                    EXT3_INDEX_EXTRA_TRANS_BLOCKS + 2);
-> > > +                                    EXT3_INDEX_EXTRA_TRANS_BLOCKS + 3);
-> > 
-> > There's no need to increase the number of blocks that might need to be
-> > dirtied; if ext3_delete_entry() can't find the missing entry, it won't
-> > dirty the block, so the number of blocks that might need to modified
-> > remains constant.
+> > Hard disk is sdc on onboard AIC7xxx.
+> > Writer is hdc, the only device on the secondary onboard IDE channel.
+> > All other disks (IDE & SCSI) were idle during the test.
 > 
-> Even for the same block dirty twice? I am not sure about that case
-> so I put it there. I got a lots of thing to do tonight.
-
-Ted is correct on this one - if we hit this bug because both the source
-and target names were in the same block before the split, then after the
-split we will still need to dirty only 2 blocks because of the rename
-(the split blocks are accounted for in EXT3_INDEX_EXTRA_TRANS_BLOCKS).
-
-> > Simply retrying the ext3_delete_entry() isn't sufficient, since
-> > another ext3_add_entry() could move the directory entry again while
-> > you're reading in the blocks as part of ext3_find_entry().  OK, that
-> > would be pretty rare, since enough other directory adds would have
-> > to fill up enough that another split could happen, but *is* possible.
-> > (Surely our scheduler isn't that unfair....)
+> What queue depth is the AIC setting?
 > 
-> I think we have the lock on ext3_rename. I might be wrong.
-> If other process can change the dir between the add new entry
-> and delete old entry. We should also need to check the entry have
-> been delete from other process in case fall into dead loop? 
+> SCSI in 2.5.x no longer copies the request, so if you have a queue
+> depth larger than the allocated requests there might not be
+> any free requests left for the blk layer to play with.
+> 
+> AIC default queue depth is 253 (with 2.5.46 queue depth can be set to 1
 
-Chris is right on this one.  Like Al said, the VFS holds i_sem on
-"both" directories (or the single directory if src_dir & tgt_dir are
-the same).  We don't need additional locking within ext3...(yet)
+Are you talking tcq depth here? Best as I can tell, 2.5.46 defaults to
+16. Lowering it to 2 doesn't seem to help.
 
-<aside>
-For _real_ scaling of large directories, it would be good to allow
-locking just individual leaf blocks of the directories instead of the
-entire directory.  Since the source and target directory leaf blocks
-are the only possible locations for those filenames, we do not have
-any races w.r.t. other threads adding/deleting files of the same name
-if we lock those directory blocks.
+> queue depth). You can modify .config, or pass boot/module options to
+> lower it.
 
-We will probably need to do this in the next year or so for Lustre where
-we have a requirement for millions of files being created/renamed/deleted
-in the same directory by thousands of clients, and tens of metadata
-servers load-balancing those requests.
-</aside>
+If I've misunderstood you, please clue me in and I'll give it a shot...
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
-
+--Adam

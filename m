@@ -1,83 +1,135 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316276AbSEOIcA>; Wed, 15 May 2002 04:32:00 -0400
+	id <S316334AbSEOIye>; Wed, 15 May 2002 04:54:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316302AbSEOIb7>; Wed, 15 May 2002 04:31:59 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:40774 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S316276AbSEOIb6>; Wed, 15 May 2002 04:31:58 -0400
-Message-Id: <5.1.0.14.2.20020515085358.01fd8580@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 15 May 2002 09:32:23 +0100
-To: Jens Axboe <axboe@suse.de>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: [PATCH] 2.5.15 IDE 61
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Conway <nconway.list@ukaea.org.uk>,
-        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020515061654.GC11948@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S316359AbSEOIyd>; Wed, 15 May 2002 04:54:33 -0400
+Received: from mailg.telia.com ([194.22.194.26]:16375 "EHLO mailg.telia.com")
+	by vger.kernel.org with ESMTP id <S316334AbSEOIya>;
+	Wed, 15 May 2002 04:54:30 -0400
+From: "Christer Nilsson" <christer.nilsson@kretskompaniet.se>
+To: "Greg KH" <greg@kroah.com>
+Cc: <lepied@xfree86.org>, "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] 2.4.19-pre8  Fix for Intuos tablet in wacom.c
+Date: Wed, 15 May 2002 10:54:18 +0200
+Message-ID: <IBEJLIFNGHPKEKCKODPDIEFFDPAA.christer.nilsson@kretskompaniet.se>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0058_01C1FBFE.DC9B8850"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20020515024646.GA21582@kroah.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07:16 15/05/02, Jens Axboe wrote:
->On Tue, May 14 2002, Anton Altaparmakov wrote:
-> > instead of having per channel queue, you could have per device queue, but
-> > use the same lock for both, i.e. don't make the lock part of "struct 
-> queue"
-> > (or whatever it is called) but instead make the address of the lock be
-> > attached to "struct queue".
->
->See request_queue_t, the lock can already be shared.
+This is a multi-part message in MIME format.
 
-/me looks.
+------=_NextPart_000_0058_01C1FBFE.DC9B8850
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 
-So it can. And I thought I had come up with a clever idea... (-;
+Yes, when you removed the smoothing algorithm you forgot to make
+the change my previous patch fixed. Anyway, I took a look at the code
+and found that it could be cleaned up a little.
+This patch works for me, but I can only test it with an Intuos tablet
+although it should not break anything.
 
->And in fact the ide layer used a global ide_lock shared between all queues 
->until just
->recently.
->
-> > Further if a controller is truly broken and you need to synchronize
-> > multiple channels you could share the lock among those.
->
->Again, this is not enough! The lock will only, at best, serialize direct
->queue actions. So I can share a lock between queue A and B and only one
->of them will start a request at any given time, but as soon as request X
->is started for queue A, then we can happily start request Y for queue B.
->
->This is what the hwgroup busy flag protects right now, only one queue is
->allowed to mark the hwgroup busy naturally. So only when request X for
->queue A completes will the hwgroup busy flag be cleared, and queue B can
->start request Y.
+Christer Nilsson
 
-Yes, I understand that, could you not extend the shared lock idea to a 
-shared flags idea? The two could even be in the same memory allocated block 
-as both the lock and the flags would always be shared by the same users. 
-That would just now contain only QUEUE_SHARED_FLAG_BUSY but could be 
-extended later if the need arises.
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Wednesday, May 15, 2002 4:47 AM
+> To: Christer Nilsson
+> Cc: lepied@xfree86.org; Linux-Kernel
+> Subject: Re: [PATCH] 2.4.19-pre8 Fix for Intuos tablet in wacom.c
+> 
+> 
+> On Tue, May 14, 2002 at 08:56:14PM +0200, Christer Nilsson wrote:
+> > Hi Frederic.
+> > 
+> > Can you take a look at this?
+> > 
+> > I've looked at the code at
+> > http://people.mandrakesoft.com/~flepied/projects/wacom/ and found that
+> > there's a couple of lines missing in the kernel driver. It seems that a
+> > smoothing algorithm is left out
+> > in the kernel source. My patch just circumvents that.
+> 
+> I took out the smoothing algorithm, as it does not belong in the kernel.
+> That kind of stuff (filters, etc.) belongs in userspace.
+> 
+> Did my removing it break the current driver accidentally?
+> 
+> thanks,
+> 
+> greg k-h
+> 
+------=_NextPart_000_0058_01C1FBFE.DC9B8850
+Content-Type: application/octet-stream;
+	name="wacom.diff"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="wacom.diff"
 
- From what I gather from the posts on this topic, this would be entirely 
-sufficient to fully lock both request queue handling and request submission 
-to the hardware while maintaining per-device queues.
+--- /usr/src/linux-2.4.19-pre8-ac2/drivers/usb/wacom.c.org	Wed May 15 =
+10:28:42 2002=0A=
++++ /usr/src/linux-2.4.19-pre8-ac2/drivers/usb/wacom.c	Wed May 15 =
+10:32:18 2002=0A=
+@@ -111,7 +111,6 @@=0A=
+ 	struct wacom_features *features;=0A=
+ 	int tool[2];=0A=
+ 	int open;=0A=
+-	int x, y;=0A=
+ 	__u32 serial[2];=0A=
+ };=0A=
+ =0A=
+@@ -209,16 +208,16 @@=0A=
+ 			input_report_abs(dev, ABS_DISTANCE, data[7]);=0A=
+ 			input_report_rel(dev, REL_WHEEL, (signed char) data[6]);=0A=
+ =0A=
+-			input_report_abs(dev, ABS_X, wacom->x =3D x);=0A=
+-			input_report_abs(dev, ABS_Y, wacom->y =3D y);=0A=
++			input_report_abs(dev, ABS_X, x);=0A=
++			input_report_abs(dev, ABS_Y, y);=0A=
+ =0A=
+ 			input_event(dev, EV_MSC, MSC_SERIAL, data[1] & 0x01);=0A=
+ 			return;=0A=
+ 	}=0A=
+ =0A=
+ 	if (data[1] & 0x80) {=0A=
+-		input_report_abs(dev, ABS_X, wacom->x =3D x);=0A=
+-		input_report_abs(dev, ABS_Y, wacom->y =3D y);=0A=
++		input_report_abs(dev, ABS_X, x);=0A=
++		input_report_abs(dev, ABS_Y, y);=0A=
+ 	}=0A=
+ =0A=
+ 	input_report_abs(dev, ABS_PRESSURE, data[6] | ((__u32)data[7] << 8));=0A=
+@@ -236,7 +235,6 @@=0A=
+ 	struct input_dev *dev =3D &wacom->dev;=0A=
+ 	unsigned int t;=0A=
+ 	int idx;=0A=
+-	int x, y; =0A=
+ =0A=
+ 	if (urb->status) return;=0A=
+ =0A=
+@@ -285,11 +283,8 @@=0A=
+ 		return;=0A=
+ 	}=0A=
+ =0A=
+-	x =3D ((__u32)data[2] << 8) | data[3];=0A=
+-	y =3D ((__u32)data[4] << 8) | data[5];=0A=
+-	=0A=
+-	input_report_abs(dev, ABS_X, wacom->x);=0A=
+-	input_report_abs(dev, ABS_Y, wacom->y);=0A=
++	input_report_abs(dev, ABS_X, ((__u32)data[2] << 8) | data[3]);=0A=
++	input_report_abs(dev, ABS_Y, ((__u32)data[4] << 8) | data[5]);=0A=
+ 	input_report_abs(dev, ABS_DISTANCE, data[9] >> 4);=0A=
+ 	=0A=
+ 	if ((data[1] & 0xb8) =3D=3D 0xa0) {						/* general pen packet */=0A=
 
-I may be way off base but I would think that per-device queues are 
-desirable to improve the request merging abilities of the elevator. (Again, 
-code I haven't looked at so it may well be intelligent enough to 
-resort/merge requests with different destinations on the same queue but I 
-am sure you will tell me if this is the case. (-;)
+------=_NextPart_000_0058_01C1FBFE.DC9B8850--
 
-Best regards,
-
-         Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

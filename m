@@ -1,675 +1,474 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265723AbTFXGpm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 02:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265724AbTFXGpm
+	id S265724AbTFXGqR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 02:46:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265727AbTFXGqR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 02:45:42 -0400
-Received: from dp.samba.org ([66.70.73.150]:15056 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265723AbTFXGp2 (ORCPT
+	Tue, 24 Jun 2003 02:46:17 -0400
+Received: from [195.228.112.1] ([195.228.112.1]:47364 "HELO goliat.otpbank.si")
+	by vger.kernel.org with SMTP id S265724AbTFXGpw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 02:45:28 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: corbet@lwn.net (Jonathan Corbet)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] Allow arbitrary number of init funcs in modules 
-In-reply-to: Your message of "Mon, 23 Jun 2003 13:11:41 CST."
-             <20030623191141.31814.qmail@eklektix.com> 
-Date: Tue, 24 Jun 2003 16:57:34 +1000
-Message-Id: <20030624065937.1B45E2C273@lists.samba.org>
+	Tue, 24 Jun 2003 02:45:52 -0400
+Message-ID: <3EF7F619.6040405@dell633.otpefo.com>
+Date: Tue, 24 Jun 2003 08:56:25 +0200
+From: Nagy Tibor <nagyt@otpbank.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en, hu
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Fatal Oops on Dell6300 (kernel 2.4.20)
+Content-Type: multipart/mixed;
+ boundary="------------040102020906010403080508"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030623191141.31814.qmail@eklektix.com> you write:
-> > Feedback is extremely welcome,
-> 
-> OK...you asked for it.  I found three separate bugs, two of them oopsed the
+This is a multi-part message in MIME format.
+--------------040102020906010403080508
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-OK, patch applied, ancient-style module init supported (after separate
-patch to clean out some cruft) and init-sorting routine fixed too.
-Tested on 2.5.73-bk1, test patch included.
+See attached BUG REPORT
 
-For convenience, all patches in one long mail.
+------------------------------------------------------------------------
+Tibor Nagy
+National Savings and Commercial Bank Ltd (OTP Bank)
+E-mail: nagyt@otpbank.hu
+------------------------------------------------------------------------
 
-Feedback still welcome 8)
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-Name: Centralize token pasting and generation of unique IDs
-Author: Rusty Russell
-Status: Tested on 2.5.70-bk13
+--------------040102020906010403080508
+Content-Type: text/plain;
+ name="REPORTING-BUGS"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="REPORTING-BUGS"
 
-D: Add __cat(a,b) to implement token pasting to stringify.h.  To
-D: generate unique names, __unique_id(stem) is implemented (it'd be
-D: nice to have a gcc extension to give a unique identifier).  Change
-D: module.h to use them.
+[1.] One line summary of the problem:    
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .26569-linux-2.5.70-bk16/include/linux/module.h .26569-linux-2.5.70-bk16.updated/include/linux/module.h
---- .26569-linux-2.5.70-bk16/include/linux/module.h	2003-06-12 09:58:02.000000000 +1000
-+++ .26569-linux-2.5.70-bk16.updated/include/linux/module.h	2003-06-12 16:19:16.000000000 +1000
-@@ -55,10 +55,8 @@ search_extable(const struct exception_ta
- 	       unsigned long value);
- 
- #ifdef MODULE
--#define ___module_cat(a,b) __mod_ ## a ## b
--#define __module_cat(a,b) ___module_cat(a,b)
- #define __MODULE_INFO(tag, name, info)					  \
--static const char __module_cat(name,__LINE__)[]				  \
-+static const char __unique_id(name)[]					  \
-   __attribute__((section(".modinfo"),unused)) = __stringify(tag) "=" info
- 
- #define MODULE_GENERIC_TABLE(gtype,name)			\
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .26569-linux-2.5.70-bk16/include/linux/stringify.h .26569-linux-2.5.70-bk16.updated/include/linux/stringify.h
---- .26569-linux-2.5.70-bk16/include/linux/stringify.h	2003-01-02 12:25:36.000000000 +1100
-+++ .26569-linux-2.5.70-bk16.updated/include/linux/stringify.h	2003-06-12 16:32:17.000000000 +1000
-@@ -9,4 +9,11 @@
- #define __stringify_1(x)	#x
- #define __stringify(x)		__stringify_1(x)
- 
-+/* Paste two tokens together. */
-+#define ___cat(a,b) a ## b
-+#define __cat(a,b) ___cat(a,b)
-+
-+/* Try to give a unique identifier: this comes close, iff used as static. */
-+#define __unique_id(stem) \
-+	__cat(__cat(__uniq,stem),__cat(__LINE__,KBUILD_BASENAME))
- #endif	/* !__LINUX_STRINGIFY_H */
+Fatal Oops on Dell6300 (kernel 2.4.20)
 
-Name: Delete redundant init_module and cleanup_module prototypes.
-Author: Rusty Russell
-Status: Trivial
+[2.] Full description of the problem/report:
 
-D: A few places pre-declare "int module_init(void);" and "void
-D: module_cleanup(void);".  Other than being obsolete, this is
-D: unneccessary (it's in init.h anyway).
-D: 
-D: There are still about 100 places which still use the
-D: obsolete-since-2.2 "a function named module_init() magically gets
-D: called": this change frees us up implement that via a macro.
+Our Dell PowerEdge 6300 server (4x550 MHz Xeon, 4GB RAM, SuSe Linux 8.0, 2.4.20 Linux kernel) crashed with the attached Oops.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/block/paride/pf.c .11903-linux-2.5.73-bk1.updated/drivers/block/paride/pf.c
---- .11903-linux-2.5.73-bk1/drivers/block/paride/pf.c	2003-05-05 12:36:58.000000000 +1000
-+++ .11903-linux-2.5.73-bk1.updated/drivers/block/paride/pf.c	2003-06-24 11:43:58.000000000 +1000
-@@ -222,9 +222,6 @@ MODULE_PARM(drive3, "1-7i");
- #define ATAPI_READ_10		0x28
- #define ATAPI_WRITE_10		0x2a
- 
--#ifdef MODULE
--void cleanup_module(void);
--#endif
- static int pf_open(struct inode *inode, struct file *file);
- static void do_pf_request(request_queue_t * q);
- static int pf_ioctl(struct inode *inode, struct file *file,
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/istallion.c .11903-linux-2.5.73-bk1.updated/drivers/char/istallion.c
---- .11903-linux-2.5.73-bk1/drivers/char/istallion.c	2003-06-15 11:29:51.000000000 +1000
-+++ .11903-linux-2.5.73-bk1.updated/drivers/char/istallion.c	2003-06-24 11:43:58.000000000 +1000
-@@ -650,8 +650,6 @@ static unsigned int	stli_baudrates[] = {
-  */
- 
- #ifdef MODULE
--int		init_module(void);
--void		cleanup_module(void);
- static void	stli_argbrds(void);
- static int	stli_parsebrd(stlconf_t *confp, char **argp);
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/moxa.c .11903-linux-2.5.73-bk1.updated/drivers/char/moxa.c
---- .11903-linux-2.5.73-bk1/drivers/char/moxa.c	2003-06-23 10:52:46.000000000 +1000
-+++ .11903-linux-2.5.73-bk1.updated/drivers/char/moxa.c	2003-06-24 11:43:58.000000000 +1000
-@@ -216,10 +216,7 @@ static struct timer_list moxaEmptyTimer[
- static struct semaphore moxaBuffSem;
- 
- int moxa_init(void);
--#ifdef MODULE
--int init_module(void);
--void cleanup_module(void);
--#endif
-+
- /*
-  * static functions:
-  */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/nwbutton.h .11903-linux-2.5.73-bk1.updated/drivers/char/nwbutton.h
---- .11903-linux-2.5.73-bk1/drivers/char/nwbutton.h	2003-05-27 15:02:08.000000000 +1000
-+++ .11903-linux-2.5.73-bk1.updated/drivers/char/nwbutton.h	2003-06-24 11:43:58.000000000 +1000
-@@ -32,10 +32,6 @@ int button_init (void);
- int button_add_callback (void (*callback) (void), int count);
- int button_del_callback (void (*callback) (void));
- static void button_consume_callbacks (int bpcount);
--#ifdef MODULE
--int init_module (void);
--void cleanup_module (void);
--#endif /* MODULE */
- 
- #else /* Not compiling the driver itself */
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/pcxx.c .11903-linux-2.5.73-bk1.updated/drivers/char/pcxx.c
---- .11903-linux-2.5.73-bk1/drivers/char/pcxx.c	2003-06-15 11:29:51.000000000 +1000
-+++ .11903-linux-2.5.73-bk1.updated/drivers/char/pcxx.c	2003-06-24 11:50:28.000000000 +1000
-@@ -209,17 +209,9 @@ static void cleanup_board_resources(void
- 
- #ifdef MODULE
- 
--/*
-- * pcxe_init() is our init_module():
-- */
--#define pcxe_init init_module
--
--void	cleanup_module(void);
--
--
- /*****************************************************************************/
- 
--void cleanup_module()
-+static void pcxe_cleanup()
- {
- 
- 	unsigned long	flags;
-@@ -240,6 +232,12 @@ void cleanup_module()
- 	kfree(digi_channels);
- 	restore_flags(flags);
- }
-+
-+/*
-+ * pcxe_init() is our init_module():
-+ */
-+module_init(pcxe_init);
-+module_cleanup(pcxe_cleanup);
- #endif
- 
- static inline struct channel *chan(register struct tty_struct *tty)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/stallion.c .11903-linux-2.5.73-bk1.updated/drivers/char/stallion.c
---- .11903-linux-2.5.73-bk1/drivers/char/stallion.c	2003-06-15 11:29:52.000000000 +1000
-+++ .11903-linux-2.5.73-bk1.updated/drivers/char/stallion.c	2003-06-24 11:43:58.000000000 +1000
-@@ -472,8 +472,6 @@ static unsigned int	stl_baudrates[] = {
-  */
- 
- #ifdef MODULE
--int		init_module(void);
--void		cleanup_module(void);
- static void	stl_argbrds(void);
- static int	stl_parsebrd(stlconf_t *confp, char **argp);
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/net/wan/sdladrv.c .11903-linux-2.5.73-bk1.updated/drivers/net/wan/sdladrv.c
---- .11903-linux-2.5.73-bk1/drivers/net/wan/sdladrv.c	2003-06-15 11:29:56.000000000 +1000
-+++ .11903-linux-2.5.73-bk1.updated/drivers/net/wan/sdladrv.c	2003-06-24 11:43:58.000000000 +1000
-@@ -160,10 +160,6 @@
- 
- /****** Function Prototypes *************************************************/
- 
--/* Module entry points. These are called by the OS and must be public. */
--int init_module (void);
--void cleanup_module (void);
--
- /* Hardware-specific functions */
- static int sdla_detect	(sdlahw_t* hw);
- static int sdla_autodpm	(sdlahw_t* hw);
-@@ -325,11 +321,7 @@ static int pci_slot_ar[MAX_S514_CARDS];
-  * Context:	process
-  */
- 
--#ifdef MODULE
--int init_module (void)
--#else
- int sdladrv_init(void)
--#endif
- {
- 	int i=0;
- 
-@@ -354,9 +346,12 @@ int sdladrv_init(void)
-  * Module 'remove' entry point.
-  * o release all remaining system resources
-  */
--void cleanup_module (void)
-+static void sdladrv_cleanup(void)
- {
- }
-+
-+module_init(sdladrv_init);
-+module_cleanup(sdladrv_cleanup);
- #endif
- 
- /******* Kernel APIs ********************************************************/
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/net/wan/sdlamain.c .11903-linux-2.5.73-bk1.updated/drivers/net/wan/sdlamain.c
---- .11903-linux-2.5.73-bk1/drivers/net/wan/sdlamain.c	2003-05-27 15:02:12.000000000 +1000
-+++ .11903-linux-2.5.73-bk1.updated/drivers/net/wan/sdlamain.c	2003-06-24 11:43:58.000000000 +1000
-@@ -177,10 +177,6 @@ static void dbg_kfree(void * v, int line
- extern void disable_irq(unsigned int);
- extern void enable_irq(unsigned int);
-  
--/* Module entry points */
--int init_module (void);
--void cleanup_module (void);
--
- /* WAN link driver entry points */
- static int setup(struct wan_device* wandev, wandev_conf_t* conf);
- static int shutdown(struct wan_device* wandev);
-@@ -246,11 +242,7 @@ static int wanpipe_bh_critical=0;
-  * Context:	process
-  */
-  
--#ifdef MODULE
--int init_module (void)
--#else
- int wanpipe_init(void)
--#endif
- {
- 	int cnt, err = 0;
- 
-@@ -313,7 +305,7 @@ int wanpipe_init(void)
-  * o unregister all adapters from the WAN router
-  * o release all remaining system resources
-  */
--void cleanup_module (void)
-+static void wanpipe_cleanup(void)
- {
- 	int i;
- 
-@@ -329,6 +321,8 @@ void cleanup_module (void)
- 	printk(KERN_INFO "\nwanpipe: WANPIPE Modules Unloaded.\n");
- }
- 
-+module_init(wanpipe_init);
-+module_exit(wanpipe_cleanup);
- #endif
- 
- /******* WAN Device Driver Entry Points *************************************/
+[3.] Keywords (i.e., modules, networking, kernel):
 
-Name: Eliminate Unused Functions
-Author: Rusty Russell
-Status: Tested on 2.5.70-bk16
+kernel, oops
 
-D: GCC 3.3 has the ability to eliminate unused static functions.  This includes
-D: code like this:
-D:
-D: static int unusedfunc(void) { ... };
-D: int otherfunc(void)
-D: {
-D:         (void)unusedfunc;
-D: ...
-D: 
-D: This means that macros can suppress the "unused" warning on functions
-D: without preventing the function elimination.  This should allow us to
-D: remove a number of #ifdefs around unused functions.
-D:
-D: Unfortunately, this elimination is only performed if
-D: -finline-functions is used.  In order to prevent GCC automatically
-D: inlining anything, we also specify "--param max-inline-insns-auto=0".
-D:
-D: Earlier compilers don't understand this parameter, so we test for
-D: it at build time.
-D:
-D: Results:
-D:   gcc 3.3 without patch:
-D:       -rwxrwxr-x    1 rusty    rusty     5115166 Jun 13 09:17 vmlinux
-D:   gcc 3.3 with patch:
-D:       -rwxrwxr-x    1 rusty    rusty     5115166 Jun 13 09:58 vmlinux
-D:   gcc 3.3 without patch (small unused function added):
-D:       -rwxrwxr-x    1 rusty    rusty     5115195 Jun 13 10:14 vmlinux
-D:   gcc 3.3 with patch (small unused function added):
-D:       -rwxrwxr-x    1 rusty    rusty     5115166 Jun 13 10:15 vmlinux
+[4.] Kernel version (from /proc/version):
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.70-bk16-check_region/Makefile working-2.5.70-bk16-check_region-inline/Makefile
---- working-2.5.70-bk16-check_region/Makefile	2003-06-12 09:57:39.000000000 +1000
-+++ working-2.5.70-bk16-check_region-inline/Makefile	2003-06-12 21:34:40.000000000 +1000
-@@ -213,10 +213,12 @@ CFLAGS_KERNEL	=
- AFLAGS_KERNEL	=
- 
- NOSTDINC_FLAGS  = -nostdinc -iwithprefix include
-+# Needs gcc 3.3 or above to understand max-inline-insns-auto.
-+INLINE_OPTS	:= $(shell $(CC) -o /non/existent/file -c --param max-inline-insns-auto=0 -xc /dev/null 2>&1 | grep /non/existent/file >/dev/null && echo -finline-functions --param max-inline-insns-auto=0)
- 
- CPPFLAGS	:= -D__KERNEL__ -Iinclude
- CFLAGS 		:= $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
--	  	   -fno-strict-aliasing -fno-common
-+	  	   $(INLINE_OPTS) -fno-strict-aliasing -fno-common
- AFLAGS		:= -D__ASSEMBLY__ $(CPPFLAGS)
- 
- export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION KERNELRELEASE ARCH \
+Linux version 2.4.20 (root@dell632) (gcc version 2.95.3 20010315 (SuSE)) #4 SMP Fri Jan 10 12:07:00 CET 2003
 
-Name: Test Arbitrary Number of Init and Exit Functions
-Author: Rusty Russell
-Status: Tested on 2.5.73-bk1
-Depends: Module/init_exit.patch.gz
+[5.] Output of Oops.. message (if applicable) with symbolic information 
+     resolved (see Documentation/oops-tracing.txt)
 
-D: Test code for module_init_exit: adds example helpers for proc_net
-D: and netfilter, and uses them in netfilter.  Also adds module foo
-D: which uses really old-style init.
+ksymoops 2.4.3 on i686 2.4.20.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.20/ (default)
+     -m /boot/v2.4.20/System.map (specified)
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .15095-linux-2.5.73-bk1/include/linux/netfilter.h .15095-linux-2.5.73-bk1.updated/include/linux/netfilter.h
---- .15095-linux-2.5.73-bk1/include/linux/netfilter.h	2003-05-05 12:37:12.000000000 +1000
-+++ .15095-linux-2.5.73-bk1.updated/include/linux/netfilter.h	2003-06-24 12:19:07.000000000 +1000
-@@ -9,6 +9,8 @@
- #include <linux/if.h>
- #include <linux/wait.h>
- #include <linux/list.h>
-+#include <linux/stringify.h>
-+#include <linux/module.h>
- #endif
- 
- /* Responses from hook functions. */
-@@ -91,6 +93,21 @@ struct nf_info
- int nf_register_hook(struct nf_hook_ops *reg);
- void nf_unregister_hook(struct nf_hook_ops *reg);
- 
-+/* Automatically register/unregister */
-+#define module_nf_hook(_prio, _hookfn, _pf, _hooknum, _hookprio)	     \
-+ static struct nf_hook_ops __cat(nf_hook, _hookfn)			     \
-+ = { .hook=_hookfn, .owner=THIS_MODULE, .pf=_pf, .hooknum=_hooknum,	     \
-+     .priority=_hookprio }; 						     \
-+ static int __init __cat(nfh_reg, _hookfn)(void)			     \
-+ {									     \
-+ 	return nf_register_hook(&__cat(nf_hook, _hookfn));		     \
-+ }									     \
-+ static void __init __cat(nfh_unreg, _hookfn)(void)			     \
-+ {									     \
-+ 	nf_unregister_hook(&__cat(nf_hook, _hookfn));			     \
-+ }									     \
-+ module_init_exit(_prio, __cat(nfh_reg, _hookfn), __cat(nfh_unreg, _hookfn))
-+
- /* Functions to register get/setsockopt ranges (non-inclusive).  You
-    need to check permissions yourself! */
- int nf_register_sockopt(struct nf_sockopt_ops *reg);
-@@ -163,6 +180,10 @@ extern void nf_invalidate_cache(int pf);
- 
- #else /* !CONFIG_NETFILTER */
- #define NF_HOOK(pf, hook, skb, indev, outdev, okfn) (okfn)(skb)
-+
-+/* Just check type and suppress unused message. */
-+#define module_nf_hook(prio, hookfn, pf, hooknum, hookprio)	\
-+static inline nf_hookfn *__unique_id(hookfn) { return hookfn; }
- #endif /*CONFIG_NETFILTER*/
- 
- #endif /*__KERNEL__*/
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .15095-linux-2.5.73-bk1/include/linux/proc_fs.h .15095-linux-2.5.73-bk1.updated/include/linux/proc_fs.h
---- .15095-linux-2.5.73-bk1/include/linux/proc_fs.h	2003-06-15 11:30:09.000000000 +1000
-+++ .15095-linux-2.5.73-bk1.updated/include/linux/proc_fs.h	2003-06-24 12:19:07.000000000 +1000
-@@ -4,6 +4,7 @@
- #include <linux/config.h>
- #include <linux/slab.h>
- #include <linux/fs.h>
-+#include <linux/init.h>
- #include <asm/atomic.h>
- 
- /*
-@@ -191,6 +192,20 @@ static inline void proc_net_remove(const
- extern void kclist_add(struct kcore_list *, void *, size_t);
- extern struct kcore_list *kclist_del(void *);
- 
-+#define module_proc_net(prio, name, fn)					     \
-+static int __cat(_proc_net_init,fn)(void)				     \
-+{									     \
-+	struct proc_dir_entry *proc = proc_net_create(name, 0, fn);	     \
-+	if (!proc)							     \
-+		return -EINVAL;						     \
-+	proc->owner = THIS_MODULE;					     \
-+	return 0;							     \
-+}									     \
-+static void __cat(_proc_net_exit,fn)(void)				     \
-+{									     \
-+	proc_net_remove(name);						     \
-+}									     \
-+module_init_exit(prio, __cat(_proc_net_init,fn), __cat(_proc_net_exit,fn))
- #else
- 
- #define proc_root_driver NULL
-@@ -236,6 +251,10 @@ static inline struct kcore_list * kclist
- 	return NULL;
- }
- 
-+/* Check type and stop gcc from complaining about unused function, but
-+ * allow gcc 3.3+ to discard it. */
-+#define module_proc_net(prio, name, fn)     \
-+static inline get_info_t *__unique_id(test_fntype)(void) { return fn; }
- #endif /* CONFIG_PROC_FS */
- 
- struct proc_inode {
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .15095-linux-2.5.73-bk1/net/ipv4/Makefile .15095-linux-2.5.73-bk1.updated/net/ipv4/Makefile
---- .15095-linux-2.5.73-bk1/net/ipv4/Makefile	2003-06-15 11:30:12.000000000 +1000
-+++ .15095-linux-2.5.73-bk1.updated/net/ipv4/Makefile	2003-06-24 12:19:07.000000000 +1000
-@@ -23,3 +23,4 @@ obj-$(CONFIG_IP_PNP) += ipconfig.o
- obj-$(CONFIG_NETFILTER)	+= netfilter/
- 
- obj-y += xfrm4_policy.o xfrm4_state.o xfrm4_input.o xfrm4_tunnel.o
-+obj-m += foo.o
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .15095-linux-2.5.73-bk1/net/ipv4/foo.c .15095-linux-2.5.73-bk1.updated/net/ipv4/foo.c
---- .15095-linux-2.5.73-bk1/net/ipv4/foo.c	1970-01-01 10:00:00.000000000 +1000
-+++ .15095-linux-2.5.73-bk1.updated/net/ipv4/foo.c	2003-06-24 16:45:38.000000000 +1000
-@@ -0,0 +1,42 @@
-+#include <linux/types.h>
-+#include <linux/ip.h>
-+#include <linux/netfilter.h>
-+#include <linux/netfilter_ipv4.h>
-+#include <linux/init.h>
-+#include <linux/moduleparam.h>
-+
-+static int fail_hook;
-+module_param(fail_hook, int, 0);
-+
-+#define HOOK(n) 				\
-+static int init##n(void)			\
-+{						\
-+	printk("foo: init %u\n", n);		\
-+	if (n == fail_hook)			\
-+		return -EINVAL;			\
-+	return 0;				\
-+}						\
-+static void fini##n(void)			\
-+{						\
-+	printk("foo: fini %u\n", n);		\
-+}						\
-+module_init_exit(-n, init##n, fini##n)
-+
-+HOOK(5);
-+HOOK(1);
-+HOOK(2);
-+HOOK(3);
-+HOOK(4);
-+HOOK(6);
-+
-+/* Old-style... */
-+int init_module(void)
-+{
-+	printk("foo: init module\n");
-+	return 0;
-+}
-+
-+void cleanup_module(void)
-+{
-+	printk("foo: cleanup module\n");
-+}
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .15095-linux-2.5.73-bk1/net/ipv4/netfilter/ip_conntrack_standalone.c .15095-linux-2.5.73-bk1.updated/net/ipv4/netfilter/ip_conntrack_standalone.c
---- .15095-linux-2.5.73-bk1/net/ipv4/netfilter/ip_conntrack_standalone.c	2003-05-05 12:37:14.000000000 +1000
-+++ .15095-linux-2.5.73-bk1.updated/net/ipv4/netfilter/ip_conntrack_standalone.c	2003-06-24 12:19:07.000000000 +1000
-@@ -223,95 +223,6 @@ static unsigned int ip_conntrack_local(u
- 	return ip_conntrack_in(hooknum, pskb, in, out, okfn);
- }
- 
--/* Connection tracking may drop packets, but never alters them, so
--   make it the first hook. */
--static struct nf_hook_ops ip_conntrack_in_ops = {
--	.hook		= ip_conntrack_in,
--	.owner		= THIS_MODULE,
--	.pf		= PF_INET,
--	.hooknum	= NF_IP_PRE_ROUTING,
--	.priority	= NF_IP_PRI_CONNTRACK,
--};
--
--static struct nf_hook_ops ip_conntrack_local_out_ops = {
--	.hook		= ip_conntrack_local,
--	.owner		= THIS_MODULE,
--	.pf		= PF_INET,
--	.hooknum	= NF_IP_LOCAL_OUT,
--	.priority	= NF_IP_PRI_CONNTRACK,
--};
--
--/* Refragmenter; last chance. */
--static struct nf_hook_ops ip_conntrack_out_ops = {
--	.hook		= ip_refrag,
--	.owner		= THIS_MODULE,
--	.pf		= PF_INET,
--	.hooknum	= NF_IP_POST_ROUTING,
--	.priority	= NF_IP_PRI_LAST,
--};
--
--static struct nf_hook_ops ip_conntrack_local_in_ops = {
--	.hook		= ip_confirm,
--	.owner		= THIS_MODULE,
--	.pf		= PF_INET,
--	.hooknum	= NF_IP_LOCAL_IN,
--	.priority	= NF_IP_PRI_LAST-1,
--};
--
--static int init_or_cleanup(int init)
--{
--	struct proc_dir_entry *proc;
--	int ret = 0;
--
--	if (!init) goto cleanup;
--
--	ret = ip_conntrack_init();
--	if (ret < 0)
--		goto cleanup_nothing;
--
--	proc = proc_net_create("ip_conntrack",0,list_conntracks);
--	if (!proc) goto cleanup_init;
--	proc->owner = THIS_MODULE;
--
--	ret = nf_register_hook(&ip_conntrack_in_ops);
--	if (ret < 0) {
--		printk("ip_conntrack: can't register pre-routing hook.\n");
--		goto cleanup_proc;
--	}
--	ret = nf_register_hook(&ip_conntrack_local_out_ops);
--	if (ret < 0) {
--		printk("ip_conntrack: can't register local out hook.\n");
--		goto cleanup_inops;
--	}
--	ret = nf_register_hook(&ip_conntrack_out_ops);
--	if (ret < 0) {
--		printk("ip_conntrack: can't register post-routing hook.\n");
--		goto cleanup_inandlocalops;
--	}
--	ret = nf_register_hook(&ip_conntrack_local_in_ops);
--	if (ret < 0) {
--		printk("ip_conntrack: can't register local in hook.\n");
--		goto cleanup_inoutandlocalops;
--	}
--
--	return ret;
--
-- cleanup:
--	nf_unregister_hook(&ip_conntrack_local_in_ops);
-- cleanup_inoutandlocalops:
--	nf_unregister_hook(&ip_conntrack_out_ops);
-- cleanup_inandlocalops:
--	nf_unregister_hook(&ip_conntrack_local_out_ops);
-- cleanup_inops:
--	nf_unregister_hook(&ip_conntrack_in_ops);
-- cleanup_proc:
--	proc_net_remove("ip_conntrack");
-- cleanup_init:
--	ip_conntrack_cleanup();
-- cleanup_nothing:
--	return ret;
--}
--
- /* FIXME: Allow NULL functions and sub in pointers to generic for
-    them. --RR */
- int ip_conntrack_protocol_register(struct ip_conntrack_protocol *proto)
-@@ -351,25 +262,26 @@ void ip_conntrack_protocol_unregister(st
- 	ip_ct_selective_cleanup(kill_proto, &proto->proto);
- }
- 
--static int __init init(void)
--{
--	return init_or_cleanup(1);
--}
--
--static void __exit fini(void)
--{
--	init_or_cleanup(0);
--}
--
--module_init(init);
--module_exit(fini);
--
- /* Some modules need us, but don't depend directly on any symbol.
-    They should call this. */
- void need_ip_conntrack(void)
- {
- }
- 
-+module_init_exit(-1, ip_conntrack_init, ip_conntrack_cleanup);
-+module_proc_net(0, "ip_conntrack", list_conntracks);
-+
-+/* Connection tracking may drop packets, but never alters them, so
-+   make it the first hook. */
-+module_nf_hook(0, ip_conntrack_in, PF_INET, NF_IP_PRE_ROUTING,
-+	       NF_IP_PRI_CONNTRACK);
-+module_nf_hook(0, ip_conntrack_local, PF_INET, NF_IP_LOCAL_OUT,
-+	       NF_IP_PRI_CONNTRACK);
-+module_nf_hook(0, ip_confirm, PF_INET, NF_IP_LOCAL_IN, NF_IP_PRI_LAST-1);
-+
-+/* Refragmenter; last chance. */
-+module_nf_hook(0, ip_refrag, PF_INET, NF_IP_POST_ROUTING, NF_IP_PRI_LAST);
-+
- EXPORT_SYMBOL(ip_conntrack_protocol_register);
- EXPORT_SYMBOL(ip_conntrack_protocol_unregister);
- EXPORT_SYMBOL(invert_tuplepr);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .15095-linux-2.5.73-bk1/net/ipv4/netfilter/ip_tables.c .15095-linux-2.5.73-bk1.updated/net/ipv4/netfilter/ip_tables.c
---- .15095-linux-2.5.73-bk1/net/ipv4/netfilter/ip_tables.c	2003-05-27 15:02:26.000000000 +1000
-+++ .15095-linux-2.5.73-bk1.updated/net/ipv4/netfilter/ip_tables.c	2003-06-24 12:19:07.000000000 +1000
-@@ -1702,7 +1702,6 @@ static struct ipt_match icmp_matchstruct
- 	.checkentry	= &icmp_checkentry,
- };
- 
--#ifdef CONFIG_PROC_FS
- static inline int print_name(const struct ipt_table *t,
- 			     off_t start_offset, char *buffer, int length,
- 			     off_t *pos, unsigned int *count)
-@@ -1737,13 +1736,13 @@ static int ipt_get_tables(char *buffer, 
- 	*start=(char *)((unsigned long)count-offset);
- 	return pos;
- }
--#endif /*CONFIG_PROC_FS*/
-+
-+module_proc_net(-1, "ip_tables_names", ipt_get_tables);
- 
- static int __init init(void)
- {
- 	int ret;
- 
--	/* Noone else will be downing sem now, so we won't sleep */
- 	down(&ipt_mutex);
- 	list_append(&ipt_target, &ipt_standard_target);
- 	list_append(&ipt_target, &ipt_error_target);
-@@ -1759,19 +1758,6 @@ static int __init init(void)
- 		return ret;
- 	}
- 
--#ifdef CONFIG_PROC_FS
--	{
--	struct proc_dir_entry *proc;
--
--	proc = proc_net_create("ip_tables_names", 0, ipt_get_tables);
--	if (!proc) {
--		nf_unregister_sockopt(&ipt_sockopts);
--		return -ENOMEM;
--	}
--	proc->owner = THIS_MODULE;
--	}
--#endif
--
- 	printk("ip_tables: (C) 2000-2002 Netfilter core team\n");
- 	return 0;
- }
-@@ -1779,9 +1765,6 @@ static int __init init(void)
- static void __exit fini(void)
- {
- 	nf_unregister_sockopt(&ipt_sockopts);
--#ifdef CONFIG_PROC_FS
--	proc_net_remove("ip_tables_names");
--#endif
- }
- 
- EXPORT_SYMBOL(ipt_register_table);
+No modules in ksyms, skipping objects
+Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod file?
+Warning (compare_maps): ksyms_base symbol ip_conntrack_expect_find_get_R__ver_ip_conntrack_expect_find_get not found in System.map.  Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol ip_conntrack_expect_put_R__ver_ip_conntrack_expect_put not found in System.map.  Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol ip_conntrack_find_get_R__ver_ip_conntrack_find_get not found in System.map.  Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol ip_conntrack_put_R__ver_ip_conntrack_put not found in System.map.  Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol netlink_attach_R__ver_netlink_attach not found in System.map.  Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol netlink_detach_R__ver_netlink_detach not found in System.map.  Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol netlink_post_R__ver_netlink_post not found in System.map.  Ignoring ksyms_base entry
+Oops:   0000
+CPU:    0
+EIP:    0010:[<c024ff2e>]  Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 0000002c   ebx: e1e9b198     ecx: c0342dc8       edx: 00000000
+esi: 00000000   edi: 00000000     ebp: d6d16080       esp: c02d5ed8
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 0, stackpage=c02d5000)
+Stack: d6d16080 c024fedc 00000001 c0342dc0 00000800 00000000 e1e9b000 c02510d7
+       d6d16080 d6d16080 c0251050 00000000 c011e75f d6d16080 00000000 00000000
+       00000000 c0342dc0 c0319b4c c0319b20 00000000 40a8a186 00000086 d696e4e4
+Call Trace:    [<c024fedc>] [<c02510d7>] [<c0251050>] [<c011e75f>] [<c011b360>]
+  [<c011b243>] [<c011afcf>] [<c01088cb>] [<c01052a0>] [<c01052a0>] [<c01052a0>]
+  [<c01052a0>] [<c01052cc>] [<c0105332>] [<c0105000>] [<c010504f>]
+Code: 8b 40 2c 47 89 7c 24 10 b9 08 00 00 00 83 78 09 0f 4c c8 b8
+
+>>EIP; c024ff2e <xprt_timer+52/100>   <=====
+Trace; c024fedc <xprt_timer+0/100>
+Trace; c02510d6 <rpc_run_timer+86/90>
+Trace; c0251050 <rpc_run_timer+0/90>
+Trace; c011e75e <timer_bh+292/3d0>
+Trace; c011b360 <bh_action+4c/88>
+Trace; c011b242 <tasklet_hi_action+66/a0>
+Trace; c011afce <do_softirq+6e/cc>
+Trace; c01088ca <do_IRQ+da/ec>
+Trace; c01052a0 <default_idle+0/34>
+Trace; c01052a0 <default_idle+0/34>
+Trace; c01052a0 <default_idle+0/34>
+Trace; c01052a0 <default_idle+0/34>
+Trace; c01052cc <default_idle+2c/34>
+Trace; c0105332 <cpu_idle+3e/54>
+Trace; c0105000 <_stext+0/0>
+Trace; c010504e <rest_init+4e/50>
+Code;  c024ff2e <xprt_timer+52/100>
+00000000 <_EIP>:
+Code;  c024ff2e <xprt_timer+52/100>   <=====
+   0:   8b 40 2c                  mov    0x2c(%eax),%eax   <=====
+Code;  c024ff30 <xprt_timer+54/100>
+   3:   47                        inc    %edi
+Code;  c024ff32 <xprt_timer+56/100>
+   4:   89 7c 24 10               mov    %edi,0x10(%esp,1)
+Code;  c024ff36 <xprt_timer+5a/100>
+   8:   b9 08 00 00 00            mov    $0x8,%ecx
+Code;  c024ff3a <xprt_timer+5e/100>
+   d:   83 78 09 0f               cmpl   $0xf,0x9(%eax)
+Code;  c024ff3e <xprt_timer+62/100>
+  11:   4c                        dec    %esp
+Code;  c024ff40 <xprt_timer+64/100>
+  12:   c8 b8 00 00               enter  $0xb8,$0x0
+
+ <0> Kernel panic: Aiee, killing interrupt handler!
+
+8 warnings issued.  Results may not be reliable.
+
+[6.] A small shell script or example program which triggers the
+     problem (if possible)
+
+None
+
+[7.] Environment
+
+Dell PowerEdge 6300 server
+4x550 MHz Xeon
+4GB RAM
+SuSe Linux 8.0
+2.4.20 Linux kernel (static kernel, no modules loaded)
+
+[7.1.] Software (add the output of the ver_linux script here)
+
+Linux dell632 2.4.20 #4 SMP Fri Jan 10 12:07:00 CET 2003 i686 unknown
+
+Gnu C                  2.95.3
+Gnu make               3.79.1
+util-linux             2.11n
+mount                  2.11n
+modutils               2.4.12
+e2fsprogs              1.26
+pcmcia-cs              3.1.31
+PPP                    2.4.1
+isdn4k-utils           3.1pre4
+Linux C Library        x    1 root     root      1394238 Mar 23  2002 /lib/libc.so.6
+Dynamic linker (ldd)   2.2.5
+Procps                 2.0.7
+Net-tools              1.60
+Kbd                    1.06
+Sh-utils               2.0
+Modules Loaded
+
+[7.2.] Processor information (from /proc/cpuinfo):
+
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 7
+model name	: Pentium III (Katmai)
+stepping	: 3
+cpu MHz		: 550.049
+cache size	: 1024 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips	: 1097.72
+
+processor	: 1
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 7
+model name	: Pentium III (Katmai)
+stepping	: 3
+cpu MHz		: 550.049
+cache size	: 1024 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips	: 1097.72
+
+processor	: 2
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 7
+model name	: Pentium III (Katmai)
+stepping	: 3
+cpu MHz		: 550.049
+cache size	: 1024 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips	: 1097.72
+
+processor	: 3
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 7
+model name	: Pentium III (Katmai)
+stepping	: 3
+cpu MHz		: 550.049
+cache size	: 1024 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips	: 1097.72
+
+
+[7.3.] Module information (from /proc/modules):
+
+Empty
+
+[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
+
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+02f8-02ff : serial(auto)
+03c0-03df : vga+
+03f8-03ff : serial(auto)
+0800-083f : Intel Corp. 82371AB/EB/MB PIIX4 ACPI
+0840-085f : Intel Corp. 82371AB/EB/MB PIIX4 ACPI
+0cf8-0cff : PCI conf1
+1000-100f : Intel Corp. 82371AB/EB/MB PIIX4 IDE
+1020-103f : Intel Corp. 82371AB/EB/MB PIIX4 USB
+d800-d8ff : Adaptec AHA-2940U/UW/D / AIC-7881U
+dc00-dcff : ATI Technologies Inc 3D Rage Pro
+ec00-ecff : Adaptec AIC-7860
+fc80-fcbf : Intel Corp. 82557/8/9 [Ethernet Pro 100] (#2)
+  fc80-fcbf : eepro100
+fcc0-fcff : Intel Corp. 82557/8/9 [Ethernet Pro 100]
+  fcc0-fcff : eepro100
+
+00000000-0009ffff : System RAM
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000c8000-000c87ff : Extension ROM
+000cc000-000ccbff : Extension ROM
+000d0000-000d07ff : Extension ROM
+000f0000-000fffff : System ROM
+00100000-fbffdfff : System RAM
+  00100000-002630b0 : Kernel code
+  002630b1-002d2b23 : Kernel data
+fbffe000-fbffffff : reserved
+fd000000-fdffffff : ATI Technologies Inc 3D Rage Pro
+fe3f0000-fe3fffff : Intel Corp. 80960RP [i960RP Microprocessor]
+fe500000-fe500fff : Adaptec AHA-2940U/UW/D / AIC-7881U
+  fe500000-fe500fff : aic7xxx
+fe501000-fe501fff : ATI Technologies Inc 3D Rage Pro
+fe700000-fe700fff : Adaptec AIC-7860
+  fe700000-fe700fff : aic7xxx
+fe800000-fe8fffff : Intel Corp. 82557/8/9 [Ethernet Pro 100] (#2)
+fe900000-fe9fffff : Intel Corp. 82557/8/9 [Ethernet Pro 100]
+feb00000-feb00fff : Intel Corp. 82557/8/9 [Ethernet Pro 100] (#2)
+  feb00000-feb00fff : eepro100
+feb01000-feb01fff : Intel Corp. 82557/8/9 [Ethernet Pro 100]
+  feb01000-feb01fff : eepro100
+fec00000-fec0ffff : reserved
+fee00000-fee0ffff : reserved
+fff80000-ffffffff : reserved
+
+[7.5.] PCI information ('lspci -vvv' as root)
+
+00:02.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+00:02.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01) (prog-if 80 [Master])
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Region 4: I/O ports at 1000 [disabled] [size=16]
+
+00:02.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin D routed to IRQ 0
+	Region 4: I/O ports at 1020 [disabled] [size=32]
+
+00:02.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin ? routed to IRQ 9
+
+00:04.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro (rev 5c) (prog-if 00 [VGA])
+	Subsystem: Dell Computer Corporation: Unknown device 007f
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop+ ParErr- Stepping+ SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (2000ns min), cache line size 08
+	Region 0: Memory at fd000000 (32-bit, prefetchable) [size=16M]
+	Region 1: I/O ports at dc00 [size=256]
+	Region 2: Memory at fe501000 (32-bit, non-prefetchable) [size=4K]
+	Expansion ROM at <unassigned> [disabled] [size=128K]
+
+00:06.0 SCSI storage controller: Adaptec AHA-2940U/UW/D / AIC-7881U
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (2000ns min, 2000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 14
+	Region 0: I/O ports at d800 [disabled] [size=256]
+	Region 1: Memory at fe500000 (32-bit, non-prefetchable) [size=4K]
+	Expansion ROM at fe400000 [disabled] [size=64K]
+
+00:08.0 PCI bridge: Intel Corp. 80960RP [i960 RP Microprocessor/Bridge] (rev 03) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32, cache line size 08
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
+	I/O behind bridge: 0000f000-00000fff
+	Memory behind bridge: fff00000-000fffff
+	Prefetchable memory behind bridge: fff00000-000fffff
+	BridgeCtl: Parity- SERR+ NoISA- VGA- MAbort- >Reset- FastB2B-
+
+00:08.1 SCSI storage controller: Intel Corp. 80960RP [i960RP Microprocessor] (rev 03)
+	Subsystem: Dell Computer Corporation PowerEdge Expandable RAID Controller 2/SC
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32, cache line size 08
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at fe3f0000 (32-bit, prefetchable) [size=64K]
+	Expansion ROM at fe400000 [disabled] [size=32K]
+
+00:10.0 Host bridge: Intel Corp. 450NX - 82451NX Memory & I/O Controller (rev 03)
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+
+00:12.0 Host bridge: Intel Corp. 450NX - 82454NX/84460GX PCI Expander Bridge (rev 04)
+	Subsystem: Intel Corp. 450NX - 82454NX/84460GX PCI Expander Bridge
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 72, cache line size 08
+
+00:13.0 Host bridge: Intel Corp. 450NX - 82454NX/84460GX PCI Expander Bridge (rev 04)
+	Subsystem: Intel Corp. 450NX - 82454NX/84460GX PCI Expander Bridge
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 72, cache line size 08
+
+00:14.0 Host bridge: Intel Corp. 450NX - 82454NX/84460GX PCI Expander Bridge (rev 04)
+	Subsystem: Intel Corp. 450NX - 82454NX/84460GX PCI Expander Bridge
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 72, cache line size 08
+
+02:08.0 SCSI storage controller: Adaptec AIC-7860 (rev 03)
+	Subsystem: Adaptec: Unknown device 7860
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (1000ns min, 1000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 20
+	Region 0: I/O ports at ec00 [disabled] [size=256]
+	Region 1: Memory at fe700000 (32-bit, non-prefetchable) [size=4K]
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+03:01.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
+	Subsystem: Intel Corp. EtherExpress PRO/100+ Server Adapter (PILA8470B)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (2000ns min, 14000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 19
+	Region 0: Memory at feb01000 (32-bit, non-prefetchable) [size=4K]
+	Region 1: I/O ports at fcc0 [size=64]
+	Region 2: Memory at fe900000 (32-bit, non-prefetchable) [size=1M]
+	Capabilities: [dc] Power Management version 2
+		Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+03:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
+	Subsystem: Intel Corp. EtherExpress PRO/100+ Server Adapter (PILA8470B)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (2000ns min, 14000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 18
+	Region 0: Memory at feb00000 (32-bit, non-prefetchable) [size=4K]
+	Region 1: I/O ports at fc80 [size=64]
+	Region 2: Memory at fe800000 (32-bit, non-prefetchable) [size=1M]
+	Capabilities: [dc] Power Management version 2
+		Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+
+[7.6.] SCSI information (from /proc/scsi/scsi)
+
+Attached devices: 
+Host: scsi0 Channel: 00 Id: 04 Lun: 00
+  Vendor: PLEXTOR  Model: CD-R   PX-R412C  Rev: 1.03
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 06 Lun: 00
+  Vendor: QUANTUM  Model: DLT7000          Rev: 2150
+  Type:   Sequential-Access                ANSI SCSI revision: 02
+Host: scsi1 Channel: 00 Id: 05 Lun: 00
+  Vendor: NEC      Model: CD-ROM DRIVE:466 Rev: 1.06
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi2 Channel: 00 Id: 06 Lun: 00
+  Vendor: DELL     Model: 1x6 U2W SCSI BP  Rev: 5.23
+  Type:   Processor                        ANSI SCSI revision: 02
+Host: scsi2 Channel: 01 Id: 00 Lun: 00
+  Vendor: MegaRAID Model: LD0 RAID0 17278R Rev: 3.13
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi2 Channel: 01 Id: 01 Lun: 00
+  Vendor: MegaRAID Model: LD1 RAID0 17278R Rev: 3.13
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi2 Channel: 01 Id: 02 Lun: 00
+  Vendor: MegaRAID Model: LD2 RAID0 17278R Rev: 3.13
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi2 Channel: 01 Id: 03 Lun: 00
+  Vendor: MegaRAID Model: LD3 RAID0 17278R Rev: 3.13
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi2 Channel: 01 Id: 04 Lun: 00
+  Vendor: MegaRAID Model: LD4 RAID0 17278R Rev: 3.13
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi2 Channel: 01 Id: 05 Lun: 00
+  Vendor: MegaRAID Model: LD5 RAID0 17278R Rev: 3.13
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+
+[7.7.] Other information that might be relevant to the problem
+       (please look in /proc and include all information that you
+       think to be relevant):
+       
+[X.] Other notes, patches, fixes, workarounds:
+
+
+Thank you
+
+--------------040102020906010403080508--
+

@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVCUD01@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVCUD1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbVCUD01 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 22:26:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVCUD00
+	id S261519AbVCUD1N (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 22:27:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbVCUD1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 22:26:26 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:29903 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261542AbVCUD0F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 22:26:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=GzyoAZuSnhy1rzgYC6El8jJLMHjqicAjrhpDWS8HynS4TuwoQjeOog1rXe1cU9F78SSYFf6pngJ3do8Be9GbUdx0fRJWvQWDGhAsACuypxp5Z3WQlYvMXE3kBAsS2392bO2oaPEOXrhmTo7hMFJm3a6t1oFkqCXHMVq3sMA8jq4=
-Message-ID: <e0716e9f0503201926e1c6e05@mail.gmail.com>
-Date: Sun, 20 Mar 2005 22:26:02 -0500
-From: William Beebe <wbeebe@gmail.com>
-Reply-To: William Beebe <wbeebe@gmail.com>
-To: Dave Jones <davej@redhat.com>, William Beebe <wbeebe@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: forkbombing Linux distributions
-In-Reply-To: <20050321032221.GA29664@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 20 Mar 2005 22:27:12 -0500
+Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:36767 "EHLO
+	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261519AbVCUD1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 22:27:03 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16958.16187.716183.994251@wombat.chubb.wattle.id.au>
+Date: Mon, 21 Mar 2005 14:27:55 +1100
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: William Beebe <wbeebe@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: forkbombing Linux distributions
+In-Reply-To: <e0716e9f05032019064c7b1cec@mail.gmail.com>
 References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
-	 <20050321032221.GA29664@redhat.com>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks. That's what I thought. Sorry for the annoyance.
+>>>>> "William" == William Beebe <wbeebe@gmail.com> writes:
 
+William> Sure enough, I created the following script and ran it as a
+William> non-root user:
 
-On Sun, 20 Mar 2005 22:22:21 -0500, Dave Jones <davej@redhat.com> wrote:
-> On Sun, Mar 20, 2005 at 10:06:57PM -0500, William Beebe wrote:
-> 
->  > Is this really a kernel issue? Or is there a better way in userland to
->  > stop this kind of crap?
-> 
-> man ulimit
-> 
->                 Dave
-> 
->
+William> #!/bin/bash $0 & $0 &
+
+There are two approaches to fixing this.
+  1.  Rate limit fork().  Unfortunately some legitimate usges do a lot
+      of forking, and you don't really want to slow them down.
+  2.  Limit (per user) the number of processes allowed. This is what's
+      currently done; and if you as administrator want to you can set
+      RLIMIT_NPROC in /etc/security/limits.conf
+
+On an almost-single-user system such as most desktops, there isn't much
+point in setting this.  On shared systems, it can be useful.
+
+-- 
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

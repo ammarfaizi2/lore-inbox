@@ -1,78 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262599AbUBZBdY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 20:33:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbUBZBdX
+	id S262595AbUBZBdK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 20:33:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbUBZBdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 20:33:23 -0500
-Received: from unthought.net ([212.97.129.88]:47053 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S262599AbUBZBdP (ORCPT
+	Wed, 25 Feb 2004 20:33:10 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:20420 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S262595AbUBZBdE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 20:33:15 -0500
-Date: Thu, 26 Feb 2004 02:33:14 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.25 - large inode_cache
-Message-ID: <20040226013313.GN29776@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Wed, 25 Feb 2004 20:33:04 -0500
+Message-ID: <403D4CBE.9080805@matchmail.com>
+Date: Wed, 25 Feb 2004 17:32:46 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <piggin@cyberone.com.au>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3-mm3
+References: <20040222172200.1d6bdfae.akpm@osdl.org>	<403BCE9E.7080607@matchmail.com> <20040224143025.36395730.akpm@osdl.org> <403D1347.8090801@matchmail.com> <403D468D.2090901@cyberone.com.au>
+In-Reply-To: <403D468D.2090901@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick Piggin wrote:
+> 
+> 
+> Mike Fedyk wrote:
+> 
+>>>
+>>>> What about Nick's fix up patch for the two patches above?  Should I 
+>>>> include that one also?
+>>>
+>>>
+>>
+>> I'm running 2.6.3-mm3-486-fazok (nick's patch), and it has improved my 
+>> slab usage greatly.  It was averaging 500MB-700MB slab.  Now slab is 
+>> ~230MB, and page cache is ~700MB
+>>
+> 
+> That is a much better sounding ratio. Of course that doesn't mean much
+> if performance is worse. Slab might be getting reclaimed a little bit
+> too hard vs pagecache now.
+> 
 
-Dear list,
+I'll let you know.  My graphs are looking better, except for one 
+instance of Xvnc (for one user -- I'm still tracking that one down) 
+hitting a memory grabbing loop that made me kill it.
 
-I have this dual athlon box with 1G memory and a 150G filesystem (four
-IDE disks on promise controllers, SW RAID-0+1, ext3fs, user quotas,
-HIGHMEM set, plain 2.4.25).
+>> See:
+>> http://www.matchmail.com/stats/lrrd/matchmail.com/srv-lnx2600.matchmail.com-memory.html 
+>>
+>>
+>> Is there any way I can get the VM patches against 2.6.3?  I'm not 
+>> comfortable with running -mm3 on this production server, especially 
+>> seeing the "sync hang" bug.
+>>
+> 
+> Well your server wasn't going too badly with 2.6.3, wasn't it? Might
+> as well just wait for them to get into the the tree.
 
-A fresh boot after an unclean shutdown, caused it to run quotacheck on
-the filesystem, nothing odd about that.
+I might as well take out the third 512MB DIMM in that machine then...
 
-However, after quotacheck completed, I got "3 order allocation failed"
-messages. They kept coming, about one per second. This was happening as
-the box entered single user mode - and the messages continued.
+Any chance you could post a VM patch roll-up against 2.6.3 for little 
+ole me?
 
->From /proc/slabinfo, I got:
-inode_cache       1208571 1208571    512 172653 172653    1 :  124   62
-dentry_cache         736 268680    128   27 8956    1 :  252  126
-
-To me it looks like this could be at least a part of the explanation for
-the memory shortage - am I completely off track here?
-
-After a clean boot with no quotacheck, it looks like:
-inode_cache         3829   3829    512  547  547    1 :  124   62
-dentry_cache        4710   4710    128  157  157    1 :  252  126
-
-Besides, after a few days of running, the machine will use about 100MB
-of memory for cache, 100MB for buffers, about 100MB for userspace, and
-the remaining 600-700 MB of memory for inode_cache and dentry_cache.
-
-It's a file server, and its performance is far from stellar. After
-seeing that only about 200MB total was used for cache/buffers, I started
-digging into slabinfo.
-
-Is this a known problem?  (yes, I know that there's been quite a bit
-back and forward on this list about the slabs, but I'm not sure what the
-current status is - as far as I know, the only known long-standing
-problems with the 2.4 series VM should have been fixed in 2.4.25).
-
-If not, is there anything I can do to actually find out what the cause
-of my poor cache sizes are?   I believe that a box which does almost
-strictly NFS file serving and has 1G of memory, should use more than
-100M for cache.  Or is that just me?    (no, there is no significant
-amount of free memory, virtually all is used - but not by cache and not
-by userspace).
-
-If it is a known problem - any workarounds?
-
-Would 2.6 solve it?
-
-Thanks, for any input you may have,
-
- / jakob
-
+Mike

@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVCMLLm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVCML1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbVCMLLm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 06:11:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbVCMLLm
+	id S261153AbVCML1N (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 06:27:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVCML1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 06:11:42 -0500
-Received: from main.gmane.org ([80.91.229.2]:37059 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261151AbVCMLLk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 06:11:40 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Sun, 13 Mar 2005 06:27:13 -0500
+Received: from weber.sscnet.ucla.edu ([128.97.42.3]:48020 "EHLO
+	weber.sscnet.ucla.edu") by vger.kernel.org with ESMTP
+	id S261153AbVCML1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 06:27:09 -0500
+Message-ID: <42342355.2080908@cogweb.net>
+Date: Sun, 13 Mar 2005 03:26:13 -0800
+From: David Liontooth <liontooth@cogweb.net>
+User-Agent: Debian Thunderbird 1.0 (X11/20050118)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: RFD: Kernel release numbering
-Date: Sun, 13 Mar 2005 12:11:34 +0100
-Message-ID: <m2acp7reah.fsf@tnuctip.rychter.com>
-References: <200503031644.j23Gi0Eh011165@laptop11.inf.utfsm.cl>
-	<Pine.LNX.4.58.0503030855460.25732@ppc970.osdl.org>
-	<20050303152825.08e7e4c6.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: g5.rychter.com
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.110003 (No Gnus v0.3) XEmacs/21.5-b19 (linux)
-Cancel-Lock: sha1:1WEzWD8stDJwWQOhvcD/1/DXUu8=
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner: Found to be clean
-X-MailScanner-From: glk-linux-kernel@m.gmane.org
-X-MailScanner-To: linux-kernel@vger.kernel.org
+Subject: ide0=ata66 doesn't seem obsolete
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
- Andrew> Linus Torvalds <torvalds@osdl.org> wrote:
- >>
- >> Now, I haven't actually gotten any complaints about 2.6.11 (apart
- >> from "gcc4 still has problems" with fairly trivial solutions)
 
- Andrew> There have been quite a few.  Mainly driver stuff again:
-[...]
- Andrew> The biggest problem is the new ACPI-based i8042 probing on
- Andrew> Dells.  I'm kicking myself over that because we *knew* the damn
- Andrew> thing was busted, and people kept on having to add
- Andrew> i8042.noacpi=1.  We now have a three-line
- Andrew> work-around-it-until-we-fix-it-for-real patch.
+On my laptop, idebus=66 or nothing gets me this:
+hda: 78140160 sectors (40007 MB) w/1768KiB Cache, CHS=65535/16/63, UDMA(33)
 
-FWIW, this "minor regression" also occurs on other laptops, such as my
-Sharp Mebius.
+In contrast, ide0=ata66 gets me this (never mind the geometry):
+ide_setup: ide0=ata66 -- OBSOLETE OPTION, WILL BE REMOVED SOON!
+hda: 78140160 sectors (40007 MB) w/1768KiB Cache, CHS=4864/255/63, UDMA(100)
 
---J.
+What's not to like?
+
+# uname -r
+2.6.11.2
+
+# lspci
+0000:00:00.0 Host bridge: ALi Corporation M1671 Super P4 Northbridge 
+[AGP4X,PCI and SDR/DDR] (rev 02)
+0000:00:01.0 PCI bridge: ALi Corporation PCI to AGP Controller
+0000:00:07.0 ISA bridge: ALi Corporation M1533 PCI to ISA Bridge 
+[Aladdin IV]
+0000:00:10.0 IDE interface: ALi Corporation M5229 IDE (rev c4)
+0000:00:11.0 Bridge: ALi Corporation M7101 PMU
+
+Cheers,
+Dave
 

@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263435AbVCKP4l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263422AbVCKPxn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263435AbVCKP4l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 10:56:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263438AbVCKP4k
+	id S263422AbVCKPxn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 10:53:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbVCKPxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 10:56:40 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:4054 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263435AbVCKPyH (ORCPT
+	Fri, 11 Mar 2005 10:53:42 -0500
+Received: from gate.firmix.at ([80.109.18.208]:59604 "EHLO gate.firmix.at")
+	by vger.kernel.org with ESMTP id S263422AbVCKPwJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 10:54:07 -0500
-Date: Fri, 11 Mar 2005 16:54:01 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Fabio Coatti <fabio.coatti@wseurope.com>
-Cc: Simone Piunno <simone.piunno@wseurope.com>, Baruch Even <baruch@ev-en.org>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org
-Subject: Re: bonnie++ uninterruptible under heavy I/O load
-Message-ID: <20050311155400.GL28188@suse.de>
-References: <200503111208.20283.simone.piunno@wseurope.com> <200503111514.34949.simone.piunno@wseurope.com> <20050311151644.GJ28188@suse.de> <200503111650.07336.fabio.coatti@wseurope.com>
+	Fri, 11 Mar 2005 10:52:09 -0500
+Subject: Re: Atheros wi-fi card drivers (?)
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Raphael Jacquot <raphael.jacquot@imag.fr>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <422C7979.9050404@imag.fr>
+References: <422C7722.40301@gmail.com>  <422C7979.9050404@imag.fr>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Message-Id: <1110556323.17931.14.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200503111650.07336.fabio.coatti@wseurope.com>
+X-Mailer: Ximian Evolution 1.5.5 
+Date: Fri, 11 Mar 2005 16:52:03 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 11 2005, Fabio Coatti wrote:
-> Alle 16:16, venerdì 11 marzo 2005, Jens Axboe ha scritto:
-> > On Fri, Mar 11 2005, Simone Piunno wrote:
-> > > Alle 14:29, venerdì 11 marzo 2005, Baruch Even ha scritto:
-> > > > echo t > /proc/sysrq-trigger
-> > >
-> > > Before killing bonnie:
-> >
-> > I'm guessing your problem is that bonnie dirtied tons of data before you
-> > killed it, so it has to flush it out. If you run out of request entries,
-> > you will get to sleep uninterruptibly on those while the data is
-> > flushing. I don't see anything unexpected here, it is normal behaviour.
+On Mon, 2005-03-07 at 16:55 +0100, Raphael Jacquot wrote:
+[...]
+> as your name appears european, there are no software patents (yet ?) so 
+
+Alas, this is wrong. The EPO is issuing masses of software patents since
+years (though they are more or less explicitly[0] excluded from
+patentability in the EPC).
+So they must not have been granted in the first place - nevertheless
+they are there.
+
+> you should be able to release that code as required for interoperability
 > 
-> The real issue here is that under heavy I/O activity (bonnie is a good
-> way to emphasize the concept), even caused by only one task, the
-> system becomes quite unresponsive and "sluggish". The same can be seen
-> under a gentoo "emerge --metadata", and slocate has the same effect.
-> The problem is not only related to desktop, but i.e. on a dual opteron
-> il takes several seconds to have an "ls" output (on a nearly empty
-> dir) or simply to log in using ssh.  It seems to me that I/O scheduler
-> gives high priority to the running process and any other request is
-> delayed to the point that the responsiveness of a desktop becomes poor
-> (say, to open a "K" menu takes several seconds on a pIV 2.8G HT).  In
-> every case, we seen that the I/O bound processes are stuck in "D"
-> state, the same stands for pdflush and kswapd.
+> however, IANAL
 
-I'd guess that your problem is queueing, if you have a ton of pending
-requests in the hardware it will take forever to get a new request
-through. There's nothing the io scheduler can do to help you there,
-really. The /proc/driver/cciss/cciss0 you originall posted, was that
-from before or after running bonnie++? I have no latency experience with
-cciss, at least IDE/SATA/SCSI should work alright.
+Me too!
 
-Actually the CFQ that will be in the next -mm release could help you
-out, it limits the hardware queue for latency reasons.
+	Bernd
 
+[0]: Depending on how to interpret the words "software as such".
 -- 
-Jens Axboe
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 

@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261668AbSJ2Io4>; Tue, 29 Oct 2002 03:44:56 -0500
+	id <S261725AbSJ2JIU>; Tue, 29 Oct 2002 04:08:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261678AbSJ2Io4>; Tue, 29 Oct 2002 03:44:56 -0500
-Received: from [212.3.242.3] ([212.3.242.3]:36081 "HELO mail.vt4.net")
-	by vger.kernel.org with SMTP id <S261668AbSJ2Ioz>;
-	Tue, 29 Oct 2002 03:44:55 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.44] 8250_cs does not work.
-Date: Tue, 29 Oct 2002 09:51:14 +0100
-User-Agent: KMail/1.4.3
-References: <200210290908.49320.devilkin-lkml@blindguardian.org> <20021029082449.A17852@flint.arm.linux.org.uk>
-In-Reply-To: <20021029082449.A17852@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210290938.45646.devilkin-lkml@blindguardian.org>
+	id <S261728AbSJ2JIU>; Tue, 29 Oct 2002 04:08:20 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:42706 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261725AbSJ2JIT>; Tue, 29 Oct 2002 04:08:19 -0500
+Subject: Re: overcommit-accounting
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kenny Simpson <theonetruekenny@yahoo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021029031918.43126.qmail@web20008.mail.yahoo.com>
+References: <20021029031918.43126.qmail@web20008.mail.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 29 Oct 2002 09:33:45 +0000
+Message-Id: <1035884025.5852.4.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 October 2002 09:24, Russell King wrote:
-> On Tue, Oct 29, 2002 at 09:08:49AM +0100, DevilKin wrote:
-> > Since I've started to test the 2.5 series, I've noticed that 8250_cs
-> > doesn't really work - it doesn't detect my pcmcia card (psion global gold
-> > card).
-> >
-> > I had a patch for 2.5.40 from Russell King that fixed it, but I can't get
-> > it to apply to 2.5.44, and well - out of the box it still doesn't work.
-> >
-> > Is there any plan to get that fix in the kernel?
->
-> The fix went in, so something else must have broken it.  There were some
-> changes to the PCMCIA layer resource handling.  Please supply:
->
-> 1. kernel messages
-> 2. cardmgr-related messages from /var/log/messages
-> 3. /proc/ioports
-> 4. /proc/tty/driver/serial
+On Tue, 2002-10-29 at 03:19, Kenny Simpson wrote:
+> In linux/Documentation/vm/overcommit-accounting I see
+> the following:
+> "The Linux kernel supports four overcommit handling
+> modes
+> 
+> 0 - Heuristic ...
+> 1 - No overcommit ...
+> 2 - (NEW) strict overcommit...
+> "
+> 
+> Where is number 3 ?
 
-Ah. Looks like I owe you an apology.
-
-I hadn't rebooted after symlinking 8250_cs.o to serial_cs.o. I did a depmod 
--a, and then manually loaded the module - this caused it to not detect my 
-serial pcmcia card.
-
-Rebooting and getting it loaded through cardmgr does work. Odd. Anyway, I'm 
-happy :oP
-
-DK
-
--- 
-"When you are in it up to your ears, keep your mouth shut."
+Robert removed number 3 from 2.5 and I guess he missed one of the
+comments 8)
 

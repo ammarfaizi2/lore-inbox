@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266411AbTAINSi>; Thu, 9 Jan 2003 08:18:38 -0500
+	id <S266456AbTAINWI>; Thu, 9 Jan 2003 08:22:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266456AbTAINSi>; Thu, 9 Jan 2003 08:18:38 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5577 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S266411AbTAINSh>; Thu, 9 Jan 2003 08:18:37 -0500
-Date: Thu, 9 Jan 2003 14:27:15 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21pre3-ac2
-Message-ID: <20030109132715.GT6626@fs.tum.de>
-References: <200301090139.h091d9G26412@devserv.devel.redhat.com> <20030109121431.GQ6626@fs.tum.de> <20030109131510.A25566@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	id <S266535AbTAINWI>; Thu, 9 Jan 2003 08:22:08 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:2821 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S266456AbTAINWI>;
+	Thu, 9 Jan 2003 08:22:08 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301091330.h09DUqY1001279@darkstar.example.net>
+Subject: Re: [ANNOUNCE] Kernel Bug Database V1.10 on-line
+To: mingo@elte.hu
+Date: Thu, 9 Jan 2003 13:30:52 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0301091422140.9186-100000@localhost.localdomain> from "Ingo Molnar" at Jan 09, 2003 02:22:58 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030109131510.A25566@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 09, 2003 at 01:15:10PM +0000, Arjan van de Ven wrote:
-> 
-> this ought to fix it:
->...
+> any reason why it has forced registration with a forced email address?  
 
-Yes, thanks, I can confirm that this patch fixes the compilation 
-problem.
+Well, it was to discourage people posting stupid and/or rude comments
+on it.
 
-cu
-Adrian
+> Makes it hard to just browse the bugs.
 
--- 
+Username: guest
+Password: guest
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+if you really don't want to register with it.
 
+John.

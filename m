@@ -1,51 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbULVNQS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbULVNT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261981AbULVNQS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 08:16:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbULVNQS
+	id S261985AbULVNT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 08:19:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbULVNT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 08:16:18 -0500
-Received: from [143.247.20.203] ([143.247.20.203]:8091 "EHLO
-	cgx-mail.capitalgenomix.com") by vger.kernel.org with ESMTP
-	id S261981AbULVNQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 08:16:14 -0500
-Message-ID: <41C9739A.7040408@capitalgenomix.com>
-Date: Wed, 22 Dec 2004 08:16:10 -0500
-From: "Fao, Sean" <sean.fao@capitalgenomix.com>
-User-Agent: Mozilla Thunderbird 1.0RC1 (Windows/20041201)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Patrick McHardy <kaber@trash.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: what/where is ss tool ?
-References: <00be01c4e819$aca09cd0$0e25fe0a@pysiak> <41C95B88.1070409@trash.net> <012f01c4e81f$f4bddbd0$0e25fe0a@pysiak> <20041222122758.GB6627@m.safari.iki.fi> <41C96F24.2050409@trash.net>
-In-Reply-To: <41C96F24.2050409@trash.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Dec 2004 08:19:57 -0500
+Received: from main.gmane.org ([80.91.229.2]:10626 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261985AbULVNTw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 08:19:52 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ed L Cashin <ecashin@coraid.com>
+Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.10-rc3-bk11
+Date: Wed, 22 Dec 2004 08:19:50 -0500
+Message-ID: <87hdme31xl.fsf@coraid.com>
+References: <87k6rhc4uk.fsf@coraid.com>
+	<1103356085.3369.140.camel@sfeldma-mobl.dsl-verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-34-231-146.asm.bellsouth.net
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+Cancel-Lock: sha1:6XShcQQDlsEspKXU0fB/NKZ9i+k=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McHardy wrote:
+Scott Feldman <sfeldma@pobox.com> writes:
 
-> Hi Dave,
+...
+>> +static char aoe_iflist[IFLISTSZ];
+>> +
+>> +int
+>> +is_aoe_netif(struct net_device *ifp)
+>> +{
+>> +       register char *p, *q;
+>> +       register int len;
+>> +
+>> +       if (aoe_iflist[0] == '\0')
+>> +               return 1;
+>> +
+>> +       for (p = aoe_iflist; *p; p = q + strspn(q, WHITESPACE)) {
+>> +               q = p + strcspn(p, WHITESPACE);
+>> +               if (q != p)
+>> +                       len = q - p;
+>> +               else
+>> +                       len = strlen(p); /* last token in aoe_iflist
+> */
+>> +
+>> +               if (strlen(ifp->name) == len && !strncmp(ifp->name, p,
+> len))
+>> +                       return 1;
+>> +               if (q == p)
+>> +                       break;
+>> +       }
+>> +
+>> +       return 0;
+>> +}
 >
-> please apply this patch which gives users a pointer where
-> to find the ss tool and adds an explanation about TCPDIAG
-> and IPV6.
+> This is getting called for every skb received.  Do you really want to
+> walk a string array looking for "eth0" or "eth1" for every receive
+> packet?  Maybe making the locals "register" helps speed things up.  :-)
 >
->+	  and have selected IPv6 as a module, you need to built this as a
->+	  module too.
+> Seriously, can you achieve the same by registering the packet type
+> handler for each dev and let netif_receive_skb() do the check for
+> skb->dev == packet_type->dev?
+
+We'd like to keep state in the driver in order to be able to control
+both outgoing and incoming traffic.  I'm not sure this check will
+become a performance problem, but anyone with who can measure it is
+welcome to speak up.  I suspect that optimizing this now would be a
+case of premature optimization.
+
+>> + * (1) i have no idea if this is redundant, but i can't figure why
+>> + * the ifp is passed in if it is.
 >
-Patrick, I caught one minor typo.  "you need to built this" should read, "you need to *build* this".
+> This isn't necessary - see deliver_skb()
+
+Thanks.  That looks like the only place our packet handler is called.
+
+>> +       skb->len += ETH_HLEN;   /* (2) */
+>
+> You want to do a skb_push(skb, ETH_HLEN) here instead to keep skb->len
+> and skb->data corresponding (basically to undo the skb->pull() in
+> eth_type_trans()).  skb->mac.raw will still be correct.
+
+Thanks.
+
+...
+>> +       if (h->verfl & AOEFL_ERR) {
+>> +               n = h->err;
+>> +               if (n > NECODES)
+>> +                       n = 0;
+>> +               printk(KERN_CRIT "aoe: aoenet_rcv: error packet from
+> %d.%d; "
+>> +                       "ecode=%d '%s'\n",
+>> +                      __be16_to_cpu(*((u16 *) h->major)), h->minor,
+>> +                       h->err, aoe_errlist[n]);
+>> +               goto exit;
+>> +       }
+>
+> Is there a better way to handle errors than flooding the log?
+
+These errors haven't happened much, but if they did, I'd want
+everybody to know.  Would you suggest a per-device counter to limit
+how many times this message gets printed?  
+
+>> +       dev_kfree_skb(skb);
+>
+> kfree_skb() should be enough.
+
+Hmm.  It's just a macro for kfree_skb, but I thought that
+dev_kfree_skb is the more correct one for us to call.  I mean, if
+dev_kfree_skb isn't supposed to be called here, then what's it for?
 
 -- 
-Sean E. Fao
-
-Capital Genomix
-9290 Gaither Road
-Gaithersburg, MD.  20877
-
-Phone: (301) 977-3224
-Fax: (301) 977-3613
-Web: http://www.capitalgenomix.com
+  Ed L Cashin <ecashin@coraid.com>
 

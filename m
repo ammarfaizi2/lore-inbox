@@ -1,70 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262611AbTDCUoF 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 15:44:05 -0500
+	id S263516AbTDCUrB 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 15:47:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S263449AbTDCUoF 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 15:44:05 -0500
-Received: from [209.63.254.226] ([209.63.254.226]:33797 "EHLO
-	mail.1casabyte.com") by vger.kernel.org with ESMTP
-	id S262611AbTDCUoE 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 15:44:04 -0500
-From: "Robert White" <rwhite@casabyte.com>
-To: "Hugh Dickins" <hugh@veritas.com>
-Cc: "Christoph Rohland" <cr@sap.com>, <tomlins@cam.org>,
-       "CaT" <cat@zip.com.au>, <linux-kernel@vger.kernel.org>
-Subject: RE: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
-Date: Thu, 3 Apr 2003 12:55:18 -0800
-Message-ID: <PEEPIDHAKMCGHDBJLHKGMEAGCGAA.rwhite@casabyte.com>
+	id S263530AbTDCUrB 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 15:47:01 -0500
+Received: from [207.103.213.66] ([207.103.213.66]:64784 "EHLO
+	sandman.sandgate.com") by vger.kernel.org with ESMTP
+	id S263516AbTDCUq7 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 15:46:59 -0500
+From: "Dennis Cook" <cook@sandgate.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: <linux-kernel@vger.kernel.org>, <kernelnewbies@nl.linux.org>
+Subject: RE: Deactivating TCP checksumming
+Date: Thu, 3 Apr 2003 15:57:53 -0500
+Message-ID: <IJEHKLJHMGFNGKMEBBFNMEIICBAA.cook@sandgate.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.44.0304030932330.1551-100000@localhost.localdomain>
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
 Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+In-Reply-To: <3E8C9DDD.3080205@pobox.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hmm, I think, on reflection, that I knew that because of having encountered
-the swapoff problem after putting a bunch of stuff in a tmpfs...
+In the 3c59x.c, e1000, and other adapter drivers, ip_summed is
+what is being checked for value CHECKSUM_HW when sending
+a packet.
 
-Regardless,
-
-Since the tmpfs occupies both ram and swap, then having the absolute size
-limit based only on ram seems odd.
-
-IMHO of course 8-)
-
-Rob.
-
-
------Original Message-----
-From: Hugh Dickins [mailto:hugh@veritas.com]
-Sent: Thursday, April 03, 2003 12:35 AM
-To: Robert White
-Cc: Christoph Rohland; tomlins@cam.org; CaT;
-linux-kernel@vger.kernel.org
-Subject: RE: PATCH: allow percentile size of tmpfs (2.5.66 /
-2.4.20-pre2)
-
-
-On Wed, 2 Apr 2003, Robert White wrote:
-
-> This (using swap as part of the tmpfs type system) is what happens on a
-Sun.
-> I was disappointed (surprised even) in the Linux implementations because
-> mounting a truly temporary /tmp was what I wanted it for.
-
-The Linux implementation of tmpfs _does_ use swap:
-tmpfs data pages go out to swap under memory pressure.
-
-> I would like to see a tmpfs (swapfs?) that did presume that files not in
-use
-> (lately?) would migrate out of my valuable RAM and onto the super-cheap
-swap
-> device.
+> -----Original Message-----
+> From: Jeff Garzik [mailto:jgarzik@pobox.com]
+> Sent: Thursday, April 03, 2003 03:47 PM
+> To: Dennis Cook
+> Cc: linux-kernel@vger.kernel.org; kernelnewbies@nl.linux.org
+> Subject: Re: Deactivating TCP checksumming
+> 
+> 
+> Dennis Cook wrote:
+> > Based on various feedback, on my RH Linux 2.4.18 kernel I tried the
+> > following:
+> > 
+> > Set "features" bit NETIF_F_IP_CSUM set (the only feature bit set).
+> > In my network driver start-transmit check for "CHECKSUM_HW" in 
+> ip_summed.
+> > Using a small test program, use "sendfile" to copy a file to a network
+> > socket FD.
+> > Result is none of the packets presented to my network adapter 
+> driver have
+> > ip_summed set to CHECKSUM_HW, so the SW IP stack has already
+> > computed checksums.
+> 
+> CHECKSUM_HW is for receive, not transmit.  Read the comments at the top 
+> of include/linux/skbuff.h.
+> 
+> 
+> > Is this mechanism possibly broken on kernel 2.4?
+> 
+> 
+> it works quite well.
+> 
+> 	Jeff
+> 
+> 
+> 
+> 
 

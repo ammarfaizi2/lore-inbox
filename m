@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265890AbSKTHn5>; Wed, 20 Nov 2002 02:43:57 -0500
+	id <S267495AbSKTHrU>; Wed, 20 Nov 2002 02:47:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267495AbSKTHn5>; Wed, 20 Nov 2002 02:43:57 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:50873 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S265890AbSKTHn4>;
-	Wed, 20 Nov 2002 02:43:56 -0500
-Date: Wed, 20 Nov 2002 08:50:48 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andy Chou <acc@CS.Stanford.EDU>
-Cc: mc@cs.stanford.edu, linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] 74 potential buffer overruns in 2.5.33
-Message-ID: <20021120075048.GG11884@suse.de>
-References: <20021119234531.GA2723@Xenon.stanford.edu>
+	id <S267553AbSKTHrU>; Wed, 20 Nov 2002 02:47:20 -0500
+Received: from adedition.com ([216.209.85.42]:59140 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S267495AbSKTHrS>;
+	Wed, 20 Nov 2002 02:47:18 -0500
+Date: Wed, 20 Nov 2002 03:01:53 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] epoll interface change and glibc bits ...
+Message-ID: <20021120080153.GB26018@mark.mielke.cc>
+References: <20021120030919.GA9007@bjl1.asuk.net> <Pine.LNX.4.44.0211191957370.1107-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021119234531.GA2723@Xenon.stanford.edu>
+In-Reply-To: <Pine.LNX.4.44.0211191957370.1107-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 19 2002, Andy Chou wrote:
-> Here are 74 out-of-bounds array accesses in Linux 2.5.33 found by the
+On Tue, Nov 19, 2002 at 08:04:33PM -0800, Davide Libenzi wrote:
+> On Wed, 20 Nov 2002, Jamie Lokier wrote:
+> > The `fd' field, on the other hand, is not guaranteed to correspond
+> > with the correct file descriptor number.  So.... perhaps the structure
+> > should contain an `obj' field and _no_ `fd' field?
+> > ...
+> It's OK. I agree. We can remove the fd from inside the structure and have :
+>     struct epoll_event {
+>         unsigned short events;
+>         unsigned short revents;
+>         __uint64_t obj;
+>     };
 
-Ewwww, why so old??
+Forget any argument I had against removing 'fd'. This sounds good.
 
-> [BUG] Seems bad.
-> /home/acc/linux/2.5.33/drivers/block/ll_rw_blk.c:556:blk_dump_rq_flags: 
-> ERROR:BUFFER:556:556:Array bounds error: rq_flags[12] indexed with [12]
-> 
-> 	printk("%s: dev %02x:%02x: ", msg, major(rq->rq_dev), 
-> minor(rq->rq_dev));
-> 	bit = 0;
-> 	do {
-> 		if (rq->flags & (1 << bit))
-> 
-> Error --->
-> 			printk("%s ", rq_flags[bit]);
-> 		bit++;
-> 	} while (bit < __REQ_NR_BITS);
+Perhaps 'obj' should be named 'userdata'?
 
-This was due to someone adding and removing __REQ_* flags and not
-changing blk_dump_rq_flags(). 2.5.48 has no such bug anymore, I fixed
-this up long ago.
+     struct epoll_event {
+         unsigned short   events;
+         unsigned short   revents;
+         __uint64_t       userdata;
+     };
+
+mark
 
 -- 
-Jens Axboe
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

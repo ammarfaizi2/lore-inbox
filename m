@@ -1,71 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTGXO2L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 10:28:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271330AbTGXO2L
+	id S269269AbTGXOhF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 10:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271330AbTGXOhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 10:28:11 -0400
-Received: from dhcp900.linuxsymposium.org ([209.151.11.142]:40064 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id S261825AbTGXO2J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 10:28:09 -0400
-Subject: Re: 2.4.22pre6aa1
-From: Chris Mason <mason@suse.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       Nick Piggin <piggin@cyberone.com.au>
-In-Reply-To: <200307241356.57793.m.c.p@wolk-project.de>
-References: <20030717102857.GA1855@dualathlon.random>
-	 <200307221427.01519.m.c.p@wolk-project.de>
-	 <20030722135957.GA1961@x30.linuxsymposium.org>
-	 <200307241356.57793.m.c.p@wolk-project.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1059056049.2575.17.camel@tiny.suse.com>
+	Thu, 24 Jul 2003 10:37:05 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:30984 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S269269AbTGXOhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 10:37:04 -0400
+Subject: Re: SCO offers UnixWare licenses for Linux
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Diego Calleja =?ISO-8859-1?Q?Garc=EDa?= <diegocg@teleline.es>
+Cc: Michael Bernstein <michael@seven-angels.net>, gmicsko@szintezis.hu,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030721205940.7190f845.diegocg@teleline.es>
+References: <1058807414.513.4.camel@sunshine>
+	 <141DFFFA-BBA4-11D7-A61F-000A95773C00@seven-angels.net>
+	 <20030721205940.7190f845.diegocg@teleline.es>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1059058329.957.11.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 24 Jul 2003 10:14:10 -0400
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.3.99 
+Date: Thu, 24 Jul 2003 16:52:09 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-07-24 at 08:27, Marc-Christian Petersen wrote:
-> On Tuesday 22 July 2003 15:59, Andrea Arcangeli wrote:
+On Mon, 2003-07-21 at 20:59, Diego Calleja García wrote:
+> El Mon, 21 Jul 2003 13:52:21 -0400 Michael Bernstein <michael@seven-angels.net> escribió:
 > 
-> Hi Andrea,
+> > To put it simply, just because they "may,"  - and I say may here simply 
+> > because we have no evidence to prove their claims but cannot flatly 
+> > deny them - own the rights to Sys V, does NOT mean they own the right 
 > 
-> > performance degradation when? note that we're only talking about
-> > contigous I/O here, not contest. I can't measure any performance
-> > degradation during contigous I/O and if something it could be explained
-> > by the now shorter queue, but you tried enlarging it and it went even
-> > slower (this was good btw, confirming a larger queue was completely
-> > worthless and it only hurts the VM without providing any I/O bandwidth
-> > pipelining benefit). The elevator-lowlatency should have no other effect
-> > other than a shorter queue during pure contigous I/O.
-> Well, contigous I/O isn't a big problem, though I saw performance degradation 
-> in contigous I/O. The problem is, that I still see mouse stops while heavy 
-> I/O, that I still see keyboard stops while heavy I/O, X is dog slow while 
-> heavy I/O (renicing X to -20 doesn't really help). I really miss the 2.4.18 
-> time where this wasn't a problem at all!
-> Contest was not the reason. An easy reproducable scenario is:
-> 
->  dd if=/dev/zero of=/home/largefile bs=16384 count=131072
-> 
-> This will kill your mouse, keyboard and X. The only "workaround" not to see 
-> mouse stops, keyboard stops and X dogstyle was decreasing nr_requests from 
-> 128 to 4. Anything higher resulted in pauses (e.g. 8 for nr_requests).
-> Maybe SCSI behaves totally different, dunno. ATM I don't have SCSI around to 
-> test it, only IDE (ATA100/ATA133).
- 
-Ok, there's something fundamental we're missing here, the IDE boxes I
-test on don't show this ;-)  Can you setup a serial console and capture
-sysrq-t during the pause?  Or better yet setup kgdb.  
+> So they want to sell us something that still hasn't proved....cool.
 
-What kind of keyboard/mouse do you have?  
-
-I'll give you an updated q->full patch on Monday, including the
-__get_request_wait latency stats.
-
--chris
-
+And can be rewritten from scratch if necessary... They're crazy!
 

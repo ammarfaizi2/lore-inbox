@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265835AbUBBVLD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 16:11:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265856AbUBBVLD
+	id S265952AbUBBVDr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 16:03:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266013AbUBBVDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 16:11:03 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:47281 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265835AbUBBVJf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 16:09:35 -0500
-Date: Mon, 2 Feb 2004 22:08:48 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Kronos <kronos@kronoz.cjb.net>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [Compile Regression in 2.4.25-pre8][PATCH 37/42]
-In-Reply-To: <20040202200344.GK6785@dreamland.darkstar.lan>
-Message-ID: <Pine.GSO.4.58.0402022207240.19699@waterleaf.sonytel.be>
-References: <20040130204956.GA21643@dreamland.darkstar.lan>
- <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
- <20040202200344.GK6785@dreamland.darkstar.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 2 Feb 2004 16:03:47 -0500
+Received: from mailr-2.tiscali.it ([212.123.84.82]:16751 "EHLO
+	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S265952AbUBBTqK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 14:46:10 -0500
+Date: Mon, 2 Feb 2004 20:46:09 +0100
+From: Kronos <kronos@kronoz.cjb.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [Compile Regression in 2.4.25-pre8][PATCH 14/42]
+Message-ID: <20040202194609.GN6785@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
+References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040202180940.GA6367@dreamland.darkstar.lan>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Feb 2004, Kronos wrote:
-> siimage.c:65: warning: control reaches end of non-void function
->
-> The last statement before the end is BUG(), but I added a return to
-> silence the warning.
->
-> diff -Nru -X dontdiff linux-2.4-vanilla/drivers/ide/pci/siimage.c linux-2.4/drivers/ide/pci/siimage.c
-> --- linux-2.4-vanilla/drivers/ide/pci/siimage.c	Tue Nov 11 17:51:38 2003
-> +++ linux-2.4/drivers/ide/pci/siimage.c	Sat Jan 31 19:07:56 2004
-> @@ -62,6 +62,9 @@
->  			return 0;
->  	}
->  	BUG();
-> +
-> +	/* gcc will complain */
-> +	return 0;
->  }
 
-What about adding `attribute ((noreturn))' to the declaration of BUG() instead?
+dtc.c:182: warning: `dtc_setup' defined but not used
 
-Gr{oetje,eeting}s,
+dtc_setup isn't used when the driver is modular.
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+diff -Nru -X dontdiff linux-2.4-vanilla/drivers/scsi/dtc.c linux-2.4/drivers/scsi/dtc.c
+--- linux-2.4-vanilla/drivers/scsi/dtc.c	Tue Nov 11 17:51:39 2003
++++ linux-2.4/drivers/scsi/dtc.c	Sat Jan 31 17:17:40 2004
+@@ -172,6 +172,7 @@
+ 
+ #define NO_SIGNATURES (sizeof (signatures) /  sizeof (struct signature))
+ 
++#ifndef MODULE
+ /**
+  *	dtc_setup	-	option setup for dtc3x80
+  *
+@@ -202,6 +203,7 @@
+ }
+ 
+ __setup("dtc=", dtc_setup);
++#endif
+ 
+ /**
+  *	dtc_detect	-	detect DTC 3x80 controllers
+-- 
+Reply-To: kronos@kronoz.cjb.net
+Home: http://kronoz.cjb.net
+Alcuni pensano che io sia una persona orribile, ma non vero. Ho il
+cuore di un ragazzino - in un vaso sulla scrivania.

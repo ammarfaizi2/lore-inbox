@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272492AbTHEPIS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 11:08:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272493AbTHEPIS
+	id S272508AbTHEPZM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 11:25:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272514AbTHEPZM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 11:08:18 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:29091 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S272492AbTHEPIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 11:08:17 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Tue, 5 Aug 2003 17:08:14 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: root@chaos.analogic.com
-Cc: helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org
-Subject: Re: FS: hardlinks on directories
-Message-Id: <20030805170814.04326306.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.53.0308051042310.6347@chaos>
-References: <20030804141548.5060b9db.skraw@ithnet.com>
-	<03080409334500.03650@tabby>
-	<20030804170506.11426617.skraw@ithnet.com>
-	<03080416092800.04444@tabby>
-	<20030805003210.2c7f75f6.skraw@ithnet.com>
-	<3F2FA862.2070401@aitel.hist.no>
-	<20030805150351.5b81adfe.skraw@ithnet.com>
-	<Pine.LNX.4.53.0308050916140.5994@chaos>
-	<20030805160435.7b151b0e.skraw@ithnet.com>
-	<Pine.LNX.4.53.0308051042310.6347@chaos>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Aug 2003 11:25:12 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:7040 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S272508AbTHEPZI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 11:25:08 -0400
+Date: Tue, 5 Aug 2003 11:24:54 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Viaris <bmeneses_beltran@hotmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.0-test2 hang in Starting RedHat Network Daemon
+In-Reply-To: <Law11-OE35phwFutJLt00010b17@hotmail.com>
+Message-ID: <Pine.LNX.4.53.0308051121410.248@chaos>
+References: <Law11-OE35phwFutJLt00010b17@hotmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Aug 2003 10:57:11 -0400 (EDT)
-"Richard B. Johnson" <root@chaos.analogic.com> wrote:
+On Tue, 5 Aug 2003, Viaris wrote:
 
-> But symlinks work over NFS. You just have to make sure they are
-> relative to whatever the remote mount-point is:
+> Hi all
+>
+> I have problems with this new kernel, I compiled the 2.6.0-test2 but when
+> start the services this kernel hang in the service starting RedHat Network,
+> the message are:
+>
+> INIT:Id"1" respawning too fast: disabled for 5 minutes
+> INIT:Id"2" respawning too fast: disabled for 5 minutes
+> INIT:Id"3" respawning too fast: disabled for 5 minutes
+> INIT:Id"4" respawning too fast: disabled for 5 minutes
+> INIT:Id"5" respawning too fast: disabled for 5 minutes
+> INIT:Id"6" respawning too fast: disabled for 5 minutes
+> INIT:Id"4" respawning too fast: disabled for 5 minutes
+> INIT: no more processes left in this runlevel.
+>
+> I have in my grub.conf the oher kernel version 2.4.20, If I start with this
+> kernel, all work fine.
+>
+> How can I to resolv this problem with new kernel?
+>
+> Thanks in Advanced,
+>
+> Regards
 
-Yes, I know this works. But honestly I'd say that this is a very ugly thing.
-That's why I want to get rid of it completely (using it currently). The
-straight forward method for linking/remounting stuff is following the links (or
-whatever) on the fileserver and not on the client (like with symlinks).
+Looks like your `gettys` were unable to open their virtual
+terminals. So, you need to make sure that they are enabled
+in your configuration. (UNIX98_PTYS=y), etc.
 
-Regards,
-Stephan
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+

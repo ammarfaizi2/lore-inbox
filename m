@@ -1,31 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129231AbQKXSM1>; Fri, 24 Nov 2000 13:12:27 -0500
+        id <S129145AbQKXSbM>; Fri, 24 Nov 2000 13:31:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129428AbQKXSME>; Fri, 24 Nov 2000 13:12:04 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:18705 "EHLO
-        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S129145AbQKXSMA>; Fri, 24 Nov 2000 13:12:00 -0500
+        id <S129231AbQKXSbD>; Fri, 24 Nov 2000 13:31:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1552 "EHLO
+        www.linux.org.uk") by vger.kernel.org with ESMTP id <S129145AbQKXSay>;
+        Fri, 24 Nov 2000 13:30:54 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200011241756.eAOHutB16267@flint.arm.linux.org.uk>
+Subject: Recent patch to cfi.h screws MTD CFI layer
 To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
-Date: 24 Nov 2000 09:41:48 -0800
-Organization: Transmeta Corporation
-Message-ID: <8vm98s$31u$1@penguin.transmeta.com>
-In-Reply-To: <3A1DFDED.1C37EA7C@haque.net> <Pine.LNX.4.21.0011240047520.16450-100000@age.cs.columbia.edu> <20001124143557.A5614@win.tue.nl>
+Date: Fri, 24 Nov 2000 17:56:54 +0000 (GMT)
+Cc: dwmw2@redhat.com
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20001124143557.A5614@win.tue.nl>,
-Guest section DW  <dwguest@win.tue.nl> wrote:
->
->(But I described the situation where the data on disk was correct
->and the date in core was not - almost certainly this is not an IDE problem.)
+The recent patch in 2.4.0-test11 causes MTD to oops the kernel:
 
-Ehh.. It only means that it would have been a read failure instead of a
-write failure.
+diff -u --recursive --new-file v2.4.0-test10/linux/include/linux/mtd/cfi.h linux/include/linux/mtd/cfi.
+h
+--- v2.4.0-test10/linux/include/linux/mtd/cfi.h Tue Jul  4 10:12:34 2000
++++ linux/include/linux/mtd/cfi.h       Tue Nov  7 10:46:04 2000
+@@ -92,6 +92,7 @@
+        int numchips;
+        unsigned long chipshift; /* Because they're of the same type */
+        struct flchip chips[0];  /* per-chip data structure for each chip */
++       const char *im_name;     /* inter_module name for cmdset_setup */
+ };
 
-		Linus
+ #define MAX_CFI_CHIPS 8 /* Entirely arbitrary to avoid realloc() */
+
+This is what happens to chips[].start during initialisation:
+
+chip 0 start 0
+chip 1 start 800000
+chip 2 start 1000000
+chip 3 start 1800000
+ Intel/Sharp Extended Query Table at 0x0031
+chip 0 start c013b45c		<--- overwritten by write to im_name
+chip 1 start 800000
+chip 2 start 1000000
+chip 3 start 1800000
+chip 0 start c013b45c
+chip 1 start 800000
+chip 2 start 1000000
+chip 3 start 1800000
+number of CFI chips: 4
+chip 0 start c013b45c
+chip 1 start 800000
+chip 2 start 1000000
+chip 3 start 1800000
+
+Here is a patch that fixes the problem, and includes a warning to tell
+people not to add extra fields after the "chips" element.
+
+--- linux.orig/include/linux/mtd/cfi.h	Sat Nov 18 21:54:02 2000
++++ linux/include/linux/mtd/cfi.h	Fri Nov 24 17:57:06 2000
+@@ -209,8 +209,9 @@
+ 				  must be of the same type. */
+ 	int numchips;
+ 	unsigned long chipshift; /* Because they're of the same type */
+-	struct flchip chips[0];  /* per-chip data structure for each chip */
+ 	const char *im_name;	 /* inter_module name for cmdset_setup */
++	struct flchip chips[0];  /* per-chip data structure for each chip */
++	/* do not add extra fields after "chips" */
+ };
+ 
+ #define MAX_CFI_CHIPS 8 /* Entirely arbitrary to avoid realloc() */
+
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

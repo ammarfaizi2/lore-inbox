@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263624AbTCUOjE>; Fri, 21 Mar 2003 09:39:04 -0500
+	id <S263630AbTCUOpn>; Fri, 21 Mar 2003 09:45:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263630AbTCUOjE>; Fri, 21 Mar 2003 09:39:04 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:47244 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S263624AbTCUOjD>; Fri, 21 Mar 2003 09:39:03 -0500
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: Oops with bttv in latest bk
-Date: 21 Mar 2003 15:57:43 +0100
-Organization: SuSE Labs, Berlin
-Message-ID: <87bs04lqc8.fsf@bytesex.org>
-References: <3E78BB99.3070605@portrix.net> <87he9z7z95.fsf@bytesex.org> <3E796530.2010707@portrix.net> <87znnqmitn.fsf@bytesex.org> <3E79ED9F.1000402@portrix.net> <87y939x1sk.fsf@bytesex.org> <3E7AFD4C.2000205@portrix.net>
-NNTP-Posting-Host: localhost
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Trace: bytesex.org 1048258663 8418 127.0.0.1 (21 Mar 2003 14:57:43 GMT)
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S263631AbTCUOpm>; Fri, 21 Mar 2003 09:45:42 -0500
+Received: from amdext2.amd.com ([163.181.251.1]:27351 "EHLO amdext2.amd.com")
+	by vger.kernel.org with ESMTP id <S263630AbTCUOpm>;
+	Fri, 21 Mar 2003 09:45:42 -0500
+X-Server-Uuid: BB5E7757-34FD-4146-B9CC-0950D472AE87
+Message-ID: <99F2150714F93F448942F9A9F112634CA54B2E@txexmtae.amd.com>
+From: ravikumar.chakaravarthy@amd.com
+To: hpa@zytor.com
+cc: linux-kernel@vger.kernel.org
+Subject: RE: Loading and executing kernel from a non-standard address
+ usin g SY SLINUX
+Date: Fri, 21 Mar 2003 08:56:25 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 1265F7AC774846-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Dittmer <j.dittmer@portrix.net> writes:
+Is there a way I can get away with this error? What changes would I have to make??
 
-> >>bttv: driver version 0.9.7 loaded
-> > As it kills the X-Server I guess you are using the X-Servers v4l
-> > module and the Xvideo extention, correct?
-> >
-> yes, using the nv driver. xfree 4.2.1.
 
-Hmm, I can't reproduce that locally.  Pushed my latest bits to
-http://bytesex.org/patches/2.5/
 
-Can you try it again?  If it still oopses for you, can you please load
-the driver with bttv_debug=2 insmod option and mail me that log?
+-Ravi
 
-  Gerd
+-----Original Message-----
+From: H. Peter Anvin [mailto:hpa@zytor.com] 
+Sent: Thursday, March 20, 2003 5:07 PM
+To: Chakaravarthy, Ravikumar
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Loading and executing kernel from a non-standard address usin g SY SLINUX
 
--- 
-/join #zonenkinder
+ravikumar.chakaravarthy@amd.com wrote:
+> I tweaked the SYSLINUX boot loader and kernel to load and execute the kernel from 0x200000 (physical address). However when I try to load the kernel using the SYSLINUX bootloader to an address 0xdf000000(physical address) it doesn't work!!
+> I want to know if the following should work.
+> 
+> 1. Should the syslinux be able to copy to the address DI=(0xdf000000). I think bcopy  function in (SYSLINUX sources) does this.. Though the bcopy is done in the 32-bit mode, SOMETIMES it fails for this physical address). bcopy is called in runkernel.inc.
+
+Yes.
+
+> 2. Will I have any problem in the setup.S code in arch/i386/boot or head.S in arch/i386/boot/compressed because of this copy to 0xdf000000?? At times when it gets past step 1, it fails in malloc in arch/i386/boot/compressed/misc.c. The error it gives in "Memory Error"
+
+Almost certainly.
+
+	-hpa
+
+
+

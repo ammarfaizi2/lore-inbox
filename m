@@ -1,121 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265468AbUBFOq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 09:46:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265470AbUBFOq2
+	id S265477AbUBFOyO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 09:54:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265478AbUBFOyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 09:46:28 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:8612 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S265468AbUBFOqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 09:46:25 -0500
-From: Michael Frank <mhf@linuxmail.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: 2.4.25-rc1: BUG: wrong zone alignment, it will crash
-Date: Fri, 6 Feb 2004 22:45:25 +0800
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200402061735.07726.mhf@linuxmail.org> <Pine.LNX.4.58L.0402061143280.16422@logos.cnet>
-In-Reply-To: <Pine.LNX.4.58L.0402061143280.16422@logos.cnet>
-X-OS: KDE 3 on GNU/Linux
+	Fri, 6 Feb 2004 09:54:14 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:41952 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S265477AbUBFOyL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 09:54:11 -0500
+Date: Fri, 6 Feb 2004 15:54:07 +0100 (MET)
+From: Mattias Wadenstein <maswan@acc.umu.se>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Nick Piggin <piggin@cyberone.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Performance issue with 2.6 md raid0
+In-Reply-To: <16418.64825.5919.694924@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.A41.4.58.0402061535260.28218@lenin.acc.umu.se>
+References: <Pine.A41.4.58.0402051304410.28218@lenin.acc.umu.se>
+ <402263E7.6010903@cyberone.com.au> <Pine.A41.4.58.0402051647460.28218@lenin.acc.umu.se>
+ <4022F94C.30605@cyberone.com.au> <16418.64825.5919.694924@notabene.cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402062245.25651.mhf@linuxmail.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 February 2004 21:44, Marcelo Tosatti wrote:
-> 
-> On Fri, 6 Feb 2004, Michael Frank wrote:
-> 
-> > As with 2.4.24, using the highmem option causes the BUG message.
+On Fri, 6 Feb 2004, Neil Brown wrote:
+
+> On Friday February 6, piggin@cyberone.com.au wrote:
+> > Mattias Wadenstein wrote:
+> > >On Fri, 6 Feb 2004, Nick Piggin wrote:
+> > >>Mattias Wadenstein wrote:
+> > >>>
+> > >>>While testing a file server to store a couple of TB in resonably large
+> > >>>files (>1G), I noticed an odd performance behaviour with the md raid0 in a
+> > >>>pristine 2.6.2 kernel as compared to a 2.4.24 kernel.
+> > >>>
+> > >>>When striping two md raid5:s, instead of going from about 160-200MB/s for
+> > >>>a single raid5 to 300M/s for the raid0 in 2.4.24, the 2.6.2 kernel gave
+> > >>>135M/s in single stream read performance.
+> > >>>
+> > >>Can you try booting with elevator=deadline please?
+> > >
+> > >Ok, then I get 253267 kB/s write and 153187 kB/s read from the raid0. A
+> > >bit better, but still nowhere near the 2.4.24 numbers.
+> > >
+> > >For a single raid5, 158028 kB/s write and 162944 kB/s read.
 > >
-> > This is a kernel ex BK without any patches.
-> >
-> > Linux version 2.4.25-rc1 (root@mhfl4) (gcc version 2.95.3 20010315 (release)) #5 Fri Feb 6 17:27:18 HKT 2004
-> > BIOS-provided physical RAM map:
-> >  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-> >  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-> >  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
-> >  BIOS-e820: 0000000000100000 - 000000001eff0000 (usable)
-> >  BIOS-e820: 000000001eff0000 - 000000001eff3000 (ACPI NVS)
-> >  BIOS-e820: 000000001eff3000 - 000000001f000000 (ACPI data)
-> >  BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
-> > 300MB HIGHMEM available.
-> > 195MB LOWMEM available.
-> > On node 0 totalpages: 126960
-> > zone(0): 4096 pages.
-> > zone(1): 46064 pages.
-> > zone(2): 76800 pages.
-> > BUG: wrong zone alignment, it will crash
-> > Kernel command line: vga=0xf07 root=/dev/hda4 console=tty0 console=ttyS0,115200n8r devfs=nomount nousb acpi=off highmem=300m
-> > Initializing CPU#0
-> > Detected 2399.771 MHz processor.
-> > Console: colour VGA+ 80x60
-> > Calibrating delay loop... 4784.12 BogoMIPS
-> > Memory: 498696k/507840k available (1589k kernel code, 8756k reserved, 676k data, 120k init, 307200k highmem)
-> >
-> > The kernel seems to experience stability problems.
-> 
-> Michael,
-> 
-> This is totally bogus, you dont have highmem available. Dont use highmem=.
-> 
-> 
-> 
+> > Any idea what is holding back performance? Is it IO or CPU bound?
 
-Marcello,
+The CPU usage is not significant for the lower numbers (<30%) and seems
+linear to the delivered bandwidth for the faster configurations (up to
+80% or so when approaching 250M/s write and 360M/s read).
 
-Thanks for your reply.
+> > Can you get a profile of each kernel while doing a read please?
+>
+> Possibly the read-ahead size isn't getting set correctly.
+>
+> What chunksize are you using on the raid0?
 
-It is supposed to work, just a bug in the zone alignment code.
+I was only using 32k, but when I tried changing this to 4 megs I got no
+improvement, leading me to guess that this wasn't it. Unfortunately I
+changed it to "4M", something which mkraid happily accepted but
+interpreted as "4k".
 
-Also 2.6.2 has same problem.
+I didn't verify this against /proc/mdstat then, just noticed this now.
 
-I have have to use HIGHMEM emulation for testing.
+> Are you free to rebuild the raid0 array?
 
-Regards
-Michqel
+Yeah, the raid5s too if needed, but those take a while to resync before
+benchmarking.
 
-Linux version 2.6.2 (mhf@mhfl4) (gcc version 2.95.3 20010315 (release)) #1 Fri Feb 6 19:46:34 HKT 2004
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000001eff0000 (usable)
- BIOS-e820: 000000001eff0000 - 000000001eff3000 (ACPI NVS)
- BIOS-e820: 000000001eff3000 - 000000001f000000 (ACPI data)
- BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
-300MB HIGHMEM available.
-195MB LOWMEM available.
-On node 0 totalpages: 126960
-  DMA zone: 4096 pages, LIFO batch:1
-  Normal zone: 46064 pages, LIFO batch:11
-  HighMem zone: 76800 pages, LIFO batch:16
-BUG: wrong zone alignment, it will crash
-DMI 2.3 present.
-Building zonelist for node : 0
-Kernel command line: vga=0xf07 root=/dev/hda4  console=tty0 console=ttyS0,115200n8r devfs=nomount nousb acpi=off highmem=300m
-Initializing CPU#0
-PID hash table entries: 2048 (order 11: 16384 bytes)
-Detected 2400.068 MHz processor.
-Using tsc for high-res timesource
-Console: colour VGA+ 80x60
-Memory: 498224k/507840k available (1930k kernel code, 8592k reserved, 986k data, 160k init, 307200k highmem)
-Checking if this processor honours the WP bit even in supervisor mode... Ok.
-Calibrating delay loop... 4734.97 BogoMIPS
-Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
-Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
-Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-CPU: Trace cache: 12K uops, L1 D cache: 8K
-CPU: L2 cache: 512K
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU#0: Intel P4/Xeon Extended MCE MSRs (12) available
-CPU: Intel(R) Pentium(R) 4 CPU 2.40GHz stepping 07
-Enabling fast FPU save and restore... done.
+> If so, please rebuild it with a chunksize that is 2 or 4 times the
+> size of a raid5 stripe (i.e. raid5-chunksize * (raid5-drives - 1) ).
 
+Yes, this is much better. I have a 64k raid5 chunksize. A chunksize of
+4096k gives 265313kB/s write and 368228kB/s for a single stream, 512k
+chunksize also gives decent performance (slightly better read and rewrite
+performance, somewhat lower read performance).
 
+I'll continue tweaking and testing some, please respond (and Cc: me) if
+you want to know anything more or if I should try something special.
+
+/Mattias Wadenstein

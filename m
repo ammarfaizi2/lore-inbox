@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274062AbRJJOQi>; Wed, 10 Oct 2001 10:16:38 -0400
+	id <S274255AbRJJOSS>; Wed, 10 Oct 2001 10:18:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274162AbRJJOQ3>; Wed, 10 Oct 2001 10:16:29 -0400
-Received: from fe090.worldonline.dk ([212.54.64.152]:34831 "HELO
-	fe090.worldonline.dk") by vger.kernel.org with SMTP
-	id <S274062AbRJJOQU>; Wed, 10 Oct 2001 10:16:20 -0400
-Message-ID: <3BC456B1.7020304@eisenstein.dk>
-Date: Wed, 10 Oct 2001 16:09:53 +0200
-From: Jesper Juhl <juhl@eisenstein.dk>
-Organization: Eisenstein
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16 i586; en-US; m18) Gecko/20010131 Netscape6/6.01
-X-Accept-Language: en
+	id <S274299AbRJJOSI>; Wed, 10 Oct 2001 10:18:08 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:38638 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S274255AbRJJORz>;
+	Wed, 10 Oct 2001 10:17:55 -0400
+Date: Wed, 10 Oct 2001 10:18:25 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Keith Owens <kaos@ocs.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Tainted Modules Help Notices 
+In-Reply-To: <4527.1002723183@redhat.com>
+Message-ID: <Pine.GSO.4.21.0110101016120.17790-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Dennis.Heuer@stud.uni-hannover.de
-CC: linux-kernel@vger.kernel.org
-Subject: Re: packaging
-In-Reply-To: <20011010132548Z275734-760+23170@vger.kernel.org> <20011011153220.3c2d2dde.Dennis.Heuer@stud.uni-hannover.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dennis.Heuer@stud.uni-hannover.de wrote:
-
-> I'm shure you discussed this several times but...
-
-it's been discussed many, many times, it's even in the lkml FAQ:  
-http://www.tux.org/lkml/#s7-7
 
 
--
-Jesper Juhl
-juhl@eisenstein.dk
+On Wed, 10 Oct 2001, David Woodhouse wrote:
+
+> 
+> kaos@ocs.com.au said:
+> > David Woodhouse <dwmw2@infradead.org> wrote:
+> > > BSD-licensed modules shouldn't mark the kernel as tainted. If they do, 
+> > > that's surely a bug.
+> 
+> >  Any license not listed in include/linux/module.h is not GPL
+> > compatible. That list is currently (2.4.11) 
+> 
+> In the world I live in,  the BSD licence without the advertising clause is
+> GPL compatible.
+
+So is LGPL, for that matter.  And yes, it _does_ make sense, especially
+for headers.
 

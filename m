@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278136AbRJWRtd>; Tue, 23 Oct 2001 13:49:33 -0400
+	id <S278137AbRJWRtx>; Tue, 23 Oct 2001 13:49:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278142AbRJWRtX>; Tue, 23 Oct 2001 13:49:23 -0400
-Received: from fe040.worldonline.dk ([212.54.64.205]:22029 "HELO
-	fe040.worldonline.dk") by vger.kernel.org with SMTP
-	id <S278136AbRJWRtL>; Tue, 23 Oct 2001 13:49:11 -0400
-Date: Tue, 23 Oct 2001 19:49:35 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Shailabh Nagar <nagar@us.ibm.com>, Reto Baettig <baettig@scs.ch>,
-        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: Preliminary results of using multiblock raw I/O
-Message-ID: <20011023194935.A12005@suse.de>
-In-Reply-To: <20011023084238.C638@suse.de> <E15w4Kt-0006RM-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15w4Kt-0006RM-00@the-village.bc.nu>
+	id <S278142AbRJWRtd>; Tue, 23 Oct 2001 13:49:33 -0400
+Received: from pop3.telenet-ops.be ([195.130.132.40]:38344 "EHLO
+	pop3.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S278137AbRJWRtW>; Tue, 23 Oct 2001 13:49:22 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: DevilKin <DevilKin@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: More memory == better?
+Date: Tue, 23 Oct 2001 19:46:54 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20011023161340.02EAC9BD76@pop3.telenet-ops.be> <20011023181501.A6821@blu>
+In-Reply-To: <20011023181501.A6821@blu>
+X-Cats: All your linux' belong to us!
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011023174956.54E609BF5A@pop3.telenet-ops.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 23 2001, Alan Cox wrote:
-> > request the lower level driver can handle. This is typically 127kB, for
-> > SCSI it can be as much as 512kB currently and depending on the SCSI
-> 
-> We really btw should make scsi default to 128K - otherwise all the raid
-> stuff tends to go 127K, 1K, 127K, 1K and have to handle partial stripe
-> read/writes
+On Tuesday 23 October 2001 18:15, antirez wrote:
+> On Tue, Oct 23, 2001 at 06:10:38PM +0200, DevilKin wrote:
+> [snip]
+>
+> > I must say that even with most of my applications loaded/running, the
+> > system never even touches the swap partition.
+> >
+> > So, would it be wise?
+>
+> If the applications you run are very disk-intensive probably the
+> answer is yes, since free memory is used as disk cache.
 
-Fine with me, the major reason for doing 255 sectors and not 256 was IDE
-of course... So feel free to change the default host max_sectors to 256.
+Not really no... Just the average desktop stuff...  some programming now and 
+again... 
+
+And games ofcourse :-)
+
+DK
 
 -- 
-Jens Axboe
-
+devilkin@gmx.net

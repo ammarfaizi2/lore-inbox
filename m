@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261799AbSKCMHZ>; Sun, 3 Nov 2002 07:07:25 -0500
+	id <S261806AbSKCMSz>; Sun, 3 Nov 2002 07:18:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261834AbSKCMHZ>; Sun, 3 Nov 2002 07:07:25 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:47322 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261799AbSKCMHT>;
-	Sun, 3 Nov 2002 07:07:19 -0500
-Date: Sun, 03 Nov 2002 04:03:38 -0800 (PST)
-Message-Id: <20021103.040338.98864962.davem@redhat.com>
-To: kisza@securityaudit.hu
-Cc: yoshfuji@linux-ipv6.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       netfilter-devel@lists.netfilter.org, kuznet@ms2.inr.ac.ru,
-       usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Functions Clean-up
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1036328414.1048.3.camel@arwen>
-References: <20021103.115427.104445233.yoshfuji@linux-ipv6.org>
-	<1036328414.1048.3.camel@arwen>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S261839AbSKCMSz>; Sun, 3 Nov 2002 07:18:55 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:24716 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261806AbSKCMSy>; Sun, 3 Nov 2002 07:18:54 -0500
+Subject: Re: Filesystem Capabilities in 2.6?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Rik van Riel <riel@conectiva.com.br>, "Theodore Ts'o" <tytso@mit.edu>,
+       Dax Kelson <dax@gurulabs.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, davej@suse.de
+In-Reply-To: <20021102234344.I2599@almesberger.net>
+References: <Pine.LNX.4.44.0211021619580.2221-100000@home.transmeta.com>
+	<1036286840.18289.2.camel@irongate.swansea.linux.org.uk> 
+	<20021102234344.I2599@almesberger.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Nov 2002 12:46:27 +0000
+Message-Id: <1036327587.29642.12.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andras Kis-Szabo <kisza@securityaudit.hu>
-   Date: Sun, 03 Nov 2002 14:00:14 +0100
+On Sun, 2002-11-03 at 02:43, Werner Almesberger wrote:
+> > What you are suggesting is the equivalent of marking documents 'secret'
+> > by putting them in a specific drawer and hoping nobody ever misfiles it.
+> > Everyone instead writes "secret" on the document - guess why
+> 
+> This happens if you have a design that is based on taking away
+> privileges/rights/capabilities/power/whatever. If the "naked"
+> object has no special powers, misfiling it does no damage at all.
 
-   (And we should not to trust in the kernel.)
+That isnt actually true. When you misfile it you mistakenly give it
+powers. An untrusted document stuck in the secret drawer becomes seen to
+have much higher value. It might for example lead the military to
+believe a project is secret, make a decision on that basis and get
+everyone shot because the opponents knew about it.
 
-If you can't trust the exthdr parser in the kernel, you probably can't
-trust the kernel to even give you the packets correctly in the first
-place.  So you better just rm -rf netfilter/ while you have the chance
-:-)
+Alan
+

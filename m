@@ -1,32 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264251AbSIQPNC>; Tue, 17 Sep 2002 11:13:02 -0400
+	id <S264258AbSIQPO7>; Tue, 17 Sep 2002 11:14:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264252AbSIQPNC>; Tue, 17 Sep 2002 11:13:02 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:40964 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S264251AbSIQPNC>;
-	Tue, 17 Sep 2002 11:13:02 -0400
-Date: Tue, 17 Sep 2002 08:18:17 -0700
-From: Greg KH <greg@kroah.com>
-To: Mark C <gen-lists@blueyonder.co.uk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problems accessing USB Mass Storage
-Message-ID: <20020917151816.GB2144@kroah.com>
-References: <1032261937.1170.13.camel@stimpy.angelnet.internal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1032261937.1170.13.camel@stimpy.angelnet.internal>
-User-Agent: Mutt/1.4i
+	id <S264260AbSIQPO7>; Tue, 17 Sep 2002 11:14:59 -0400
+Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:28926 "HELO
+	mailphish.drugphish.ch") by vger.kernel.org with SMTP
+	id <S264258AbSIQPO6>; Tue, 17 Sep 2002 11:14:58 -0400
+Message-ID: <3D87488E.8070301@drugphish.ch>
+Date: Tue, 17 Sep 2002 17:21:50 +0200
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Kirk Reiser <kirk@braille.uwo.ca>, Skip Ford <skip.ford@verizon.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.35 undefined reference to `wait_task_inactive'
+References: <200209160644.g8G6iEvo006691@pool-141-150-241-241.delv.east.verizon.net> <x7sn08k7r0.fsf@speech.braille.uwo.ca> <3D87422B.3080300@drugphish.ch> <20020917110828.D23555@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 17, 2002 at 12:25:37PM +0100, Mark C wrote:
+>>+#ifdef MODULE
+>>          ACPI_MODULE_NAME    ("hwgpe")
+>>+#endif
 > 
-> mount /dev/sda /mnt/camera
+> Btw, why not put the #ifdef in the header file that defines 
+> ACPI_MODULE_NAME(x) instead of littering more #ifdefs around code?
 
-Did you try /dev/sda1?
+Right, stupid me. With that I even catch those modules I didn't 
+explicitly set to 'm' in the ACPI subtree. But I guess this is up to the 
+Intel guys anyway. If they don't patch it by 2.5.36 I'll submit a clean 
+patch myself.
 
-thanks,
+Regards,
+Roberto Nibali, ratz
+-- 
+echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
 
-greg k-h

@@ -1,99 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269770AbRIGAcm>; Thu, 6 Sep 2001 20:32:42 -0400
+	id <S269515AbRIGAWt>; Thu, 6 Sep 2001 20:22:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270009AbRIGAcb>; Thu, 6 Sep 2001 20:32:31 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:42608 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S269770AbRIGAcT>; Thu, 6 Sep 2001 20:32:19 -0400
-Date: Fri, 7 Sep 2001 02:32:38 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Jan Harkes <jaharkes@cs.cmu.edu>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: page_launder() on 2.4.9/10 issue
-Message-ID: <20010907023238.A16091@gum01m.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Jan Harkes <jaharkes@cs.cmu.edu>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010906193836Z16130-26183+40@humbolt.nl.linux.org> <Pine.LNX.4.33L.0109061650250.8103-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0109061650250.8103-100000@duckman.distro.conectiva>
-User-Agent: Mutt/1.3.20i
-X-Operating-System: Linux 2.4.7 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+	id <S269593AbRIGAWk>; Thu, 6 Sep 2001 20:22:40 -0400
+Received: from mx-outgoing.delfi.lt ([213.197.128.109]:36618 "HELO
+	mx-outgoing.delfi.lt") by vger.kernel.org with SMTP
+	id <S269515AbRIGAW1>; Thu, 6 Sep 2001 20:22:27 -0400
+Date: Fri, 7 Sep 2001 02:22:23 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: replaying reiserfs journal and bad blocks (was: Re[3]: Basic reiserfs question)
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Hans Reiser <reiser@namesys.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+In-Reply-To: <F45bR99kQgkV07DPT1p00005d9e@hotmail.com>
+ <3B97729B.1F49AACA@namesys.com>
+ <20010907000239.26A738F91C@mail.delfi.lt>
+In-Reply-To: <20010907000239.26A738F91C@mail.delfi.lt>
+X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.4.7 i686
+Message-Id: <20010907002246.877E28F698@mail.delfi.lt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+NB> If you think it's RedHat, you probably are wrong - I use RH with reiserfs
+NB> a long time (more than a year - 6.2, now 7.1), and never got a message about
+NB> replaying journal if system was shut down correctly.
 
---XsQoSWH+UP9D9v3l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+After just written that, I got a real problem. There was a power loss a few minutes ago,
+and I think when hdd was active. Trying to boot 2.4.7 kernel I got a message about
+replaying journal, then hdd error:
 
-On Thu, Sep 06, 2001 at 04:52:05PM -0300, Rik van Riel wrote:
-> On Thu, 6 Sep 2001, Daniel Phillips wrote:
-> > Again, I have to ask, which reads are you interfering with?  Ones that
-> > haven't happened yet?  Remember, the disk is idle.  So *at worst* you a=
-re
-> > going to get one extra seek before getting hit with the tidal wave of r=
-eads
-> > you seem to be worried about.  This simply isn't significant.
-> >
-> > I've tested this, I know early writeout under light load is a win.
->=20
-> Other people have tested this too, and light writeout of
-> small blocks destroys the performance of a heavy read
-> load.
+hdd: dma_intr: status=0x51 { DriveReady SeekComplete Error }                    
+hdd: dma_intr: error=0x40 { UncorrectableError }, LBAsect=84415, sector=36216  
 
-Then just don't take two hard limits, but make an easy mathematical function
-of time and blocks to write (monotonic and with positive slope in both) and
-start to write all blocks once we execced a certain limit.
-So, if you produce very few dirty inactive pages, it'll only happen every
-thirty seconds, e.g., at moderate loads, it may happen every 4 seconds and
-at higher loads it may even happen a couple of times per second.
-Think of a function like t + t*b + b, with appropriate scaling, so we reach
-the threshold either after a long time alone, because of many dirty inactive
-pages alone or because a combination of both. Tuning should be such that
-under normal workloads, the combination of time times pages should be the
-most significant term.
+and kernel panic. Please note that I mount root read-write with this kernel.
 
-(The chance that you run into memory pressure because of too many dirty
-pages this way is lower than before, but if it happens, you can adjust your
-function or the threshold too flush more pages.)
+Then I rebooted 2.2.19 kernel (which mounts root as read-only if that matters):
 
-If you are very concerned about read performance suffering from this, you
-may even monitor reads and adjust the threshold according to read load.
-(Or just make your function include this variable with a negative slope.)
-I believe it won't be necessary though.
+Checking ReiserFS transaction log (device 16:42) ...
+Warning, log recovery starting on readonly filesystem
+hdd: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdd: dma_intr: error=0x40 { UncorrectableError }, LBAsect=84415, sector=36216
+end_request: I/O error, dev 16:42 (hdd), sector 36216
+Replayed 33 transactions in 6 seconds
+Using r5 hash to sort names
+...
+ReiserFS version 3.5.32
+VFS: Mounted root (reiserfs filesystem) readonly.
+
+and system booted normally.
+Now I rebooted back to 2.4.7 and everything seems to be OK.
+So what to do now? Run badblocks? Change disk? Any suggestions?
 
 Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, DE                                SCSI, Security
+Nerijus
 
---XsQoSWH+UP9D9v3l
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7mBWmxmLh6hyYd04RAtThAKDCwU4A4mQFVJqX99Vo+BSKYW6dyACfZXi8
-6Ha2Ls1+P7f7xbue5pP0VsM=
-=aw4I
------END PGP SIGNATURE-----
-
---XsQoSWH+UP9D9v3l--

@@ -1,87 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262859AbTJPLoo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 07:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262861AbTJPLoo
+	id S262853AbTJPLlt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 07:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbTJPLlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 07:44:44 -0400
-Received: from unthought.net ([212.97.129.88]:20895 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S262859AbTJPLom (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 07:44:42 -0400
-Date: Thu, 16 Oct 2003 13:44:40 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
-Cc: mru@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: About _real_ free memory
-Message-ID: <20031016114440.GD8711@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	"Frederick, Fabian" <Fabian.Frederick@prov-liege.be>,
-	mru@users.sourceforge.net, linux-kernel@vger.kernel.org
-References: <D9B4591FDBACD411B01E00508BB33C1B01F6EE59@mesadm.epl.prov-liege.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <D9B4591FDBACD411B01E00508BB33C1B01F6EE59@mesadm.epl.prov-liege.be>
-User-Agent: Mutt/1.3.28i
+	Thu, 16 Oct 2003 07:41:49 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58248 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262853AbTJPLlr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 07:41:47 -0400
+Message-ID: <3F8E83ED.9010608@pobox.com>
+Date: Thu, 16 Oct 2003 07:41:33 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel Blueman <daniel.blueman@gmx.net>
+CC: wind@cocodriloo.com, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] [2.4.21] 8139too 'too much work at interrupt'...
+References: <3F8E757A.5010008@pobox.com> <26145.1066303100@www7.gmx.net>
+In-Reply-To: <26145.1066303100@www7.gmx.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 16, 2003 at 11:04:14AM +0200, Frederick, Fabian wrote:
-> If a process tries to allocate and use more than the really free
-> amount, some cache will be dropped automatically.  From a performance
-> point of view, this could of course be undesirable, but normally
-> there's no need to think about it.
-> 
-> <Why don't we have a command to drop some cache ? or maybe some
-> <kernel rules to do it ? we could gain some more scalability doing that kind
-> of
-> <stuff during low load.
+Daniel Blueman wrote:
+> Yes, the 8139too driver is doing it's job correctly - I was just thinking
 
-No - you would throw out disk cache with the risk of throwing out
-potentially useful data.  The data can be thrown out *immediately*
-anyway if someone needs it.
+I didn't say this, because it is obviously not doing it job correctly.
 
-So:  gain: zero
-     loss: likely noticable
-   ------------------------------
-    total: bad idea
+It needs NAPI to do this.  For now, the driver _should_ stay up, even 
+with these 'too much work...' messages.
 
->Another problem is end-user point of view :
-> 
-> <	-What's available on a box before swapping ?
-> <	-Do I have to add RAM right now ?
 
-[albatross:joe] $ free
-             total       used       free     shared    buffers
-cached
-Mem:       1033944     902036     131908          0      41120
-446456
--/+ buffers/cache:     414460     619484
-Swap:      2101000     294552    1806448
+> about the source of the starvation, ie the cause of the effect. I.e. the
+> brokeness is elsewhere, in other drivers etc.
 
-I have 619 MB of free memory now, if you do not count in the caches.
+Quoting from my original reply:
 
-The free physical memory is around 132 MB - this number tells me how
-much memory the kernel could not find a use for (for either processes or
-cache) - e.g. the amount of memory that I paid for but is not doing
-anything useful.
+	It's due to the 8139 hardware
 
-You want the physical free memory to be as low as possible - it is the
-amount of memory that is being wasted in the system by not doing
-anything useful.  If the user cannot understand this, they should learn
-not to care either.  Certainly, you should never ruin the workings of
-the VM subsystem by freeing useful cache memory, just so a user who has
-no understanding of what is actually going on, can get a nice big number
-in his 'free' output.
+Tons of tiny packets can be sent before RTL8139 will throttle, which can 
+easily be far more than your system can handle at that particular time, 
+especially if it's experiencing high load elsewhere.
 
-Maybe one could patch the 'free' utility instead?   ;)
+You need either NAPI (perfect solution) or "cap interrupt work limit at 
+X packets" (stopgap solution) to prevent your 8139 hardware from being 
+DoS'd off the network.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+	Jeff
+
+
+

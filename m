@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbTILUlv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 16:41:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbTILUlv
+	id S261892AbTILU6j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 16:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbTILU6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 16:41:51 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:7678 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261872AbTILUlu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 16:41:50 -0400
-Date: Fri, 12 Sep 2003 22:41:41 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: [2.6 patch] better i386 CPU selection
-Message-ID: <20030912204141.GQ27368@fs.tum.de>
-References: <200309071647.h87Glp4t014359@harpo.it.uu.se> <20030907174341.GA21260@mail.jlokier.co.uk> <1062958188.16972.49.camel@dhcp23.swansea.linux.org.uk> <20030911062816.GX27368@fs.tum.de> <20030911110435.GA1225@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030911110435.GA1225@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 12 Sep 2003 16:58:39 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:50696 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S261892AbTILU6h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 16:58:37 -0400
+Message-ID: <3F62335B.9050202@techsource.com>
+Date: Fri, 12 Sep 2003 16:58:03 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Schwartz <davids@webmaster.com>
+CC: Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
+Subject: Re: People, not GPL  [was: Re: Driver Model]
+References: <MDEHLPKNGKAHNMBLJOLKAEIKGHAA.davids@webmaster.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 11, 2003 at 12:04:35PM +0100, Dave Jones wrote:
-> On Thu, Sep 11, 2003 at 08:28:16AM +0200, Adrian Bunk wrote:
-> 
->  > - Does the Cyrix III support 686 instructions?
-> 
-> Depends on your definition of 686. If you follow the Intel
-> definition (where CMOV is optional), yes. If you follow the gcc
-> definition (where CMOV is assumed), no.
-> Except for the latest Nehemiah cores (which now have CMOV).
->...
 
-Thanks for this information.
 
-Since I'm looking for the options to pass to gcc I have to follow the 
-gcc definition...
+David Schwartz wrote:
 
-> 		Dave
+> 	However, some people seem to be arguing that the GPL_ONLY symbols are in
+> fact a license enforcement technique. If that's true, then when they
+> distribute their code, they are putting additional restrictions not in the
+> GPL on it. That is a GPL violation.
 
-cu
-Adrian
+Agreed.  GPL_ONLY is not a license restriction.  It is a technical issue.
 
--- 
+Binary-only modules are inherently untrustworthy (no open code review) 
+and undebuggable.  It is therefore of technical merit to restrict both 
+what they can access in the kernel (GPL_ONLY) and limit how much kernel 
+developers should have to tolerate when they're involved.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+But beyond this, there are some social issues.  If someone finds a way 
+to work around this mechanism, they are breaking things to everyone 
+else's detriment.  For a commercial entity to violate the GPL_ONLY 
+barrier is an insult to kernel developers AND to their customers who 
+will have trouble getting problems solved.
+
+So, if a company works around GPL_ONLY, are they violating the GPL 
+license?  Probably not.  Does that make it OKAY?  Probably not.
+
+This is like finding a way to give a user space program access to kernel 
+resources.  There are barriers put in place for a REASON because people 
+make mistakes when they write software.  If no one did, we wouldn't have 
+any need for memory protection, would we.
+
 

@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272476AbRH3VQ4>; Thu, 30 Aug 2001 17:16:56 -0400
+	id <S272484AbRH3VS4>; Thu, 30 Aug 2001 17:18:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272474AbRH3VQs>; Thu, 30 Aug 2001 17:16:48 -0400
-Received: from barnowl.demon.co.uk ([158.152.23.247]:34180 "EHLO
-	barnowl.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S272475AbRH3VQd>; Thu, 30 Aug 2001 17:16:33 -0400
-Mail-Copies-To: nobody
-To: linux-kernel@vger.kernel.org
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <Pine.LNX.4.33.0108292018380.1062-100000@penguin.transmeta.com>
-	<20010830165447Z16272-32385+540@humbolt.nl.linux.org>
-From: Graham Murray <graham@barnowl.demon.co.uk>
-Date: Thu, 30 Aug 2001 21:16:47 +0000
-In-Reply-To: <20010830165447Z16272-32385+540@humbolt.nl.linux.org> (Daniel
- Phillips's message of "Thu, 30 Aug 2001 19:01:25 +0200")
-Message-ID: <m266b51c5c.fsf@barnowl.demon.co.uk>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/20.7
+	id <S271147AbRH3VSo>; Thu, 30 Aug 2001 17:18:44 -0400
+Received: from ns.roland.net ([65.112.177.35]:30219 "EHLO earth.roland.net")
+	by vger.kernel.org with ESMTP id <S272474AbRH3VRz>;
+	Thu, 30 Aug 2001 17:17:55 -0400
+Message-ID: <3B8EADF1.4030100@roland.net>
+Date: Thu, 30 Aug 2001 16:19:45 -0500
+From: Jim Roland <jroland@roland.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Venkatesh Ramachandran <rvenky@cisco.com>
+CC: linux-users@cisco.com, linux-kernel@vger.kernel.org,
+        linux-alpha@vger.kernel.org, brussels-linux@cisco.com,
+        Mathangi Kuppusamy <mathangi@cisco.com>
+Subject: Re: Linux Mounting problem
+In-Reply-To: <3B8E5791.5BBE92A2@cisco.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips <phillips@bonn-fries.net> writes:
+It will enter maintenance mode if fsck was unable to fix errors as a 
+previous boot-up.  Boot with your RH71 cd, enter "linux rescue" at the 
+"boot:" prompt, and your system will be mounted under /mnt/sysimage.  It 
+may delay for a little while while coming up if it's re-running fsck. 
+ After you have a prompt (navigate throught the text dialog boxes 
+first), run fsck and you can fix the partition or inode errors.
 
-> More than anything, it shows that education is needed, not macro patch-ups.
-> We have exactly the same issues with < and >, should we introduce 
-> three-argument macros to replace them?
+Regards,
+Jim Roland, RHCE
 
-Would it not have been much more "obvious" if the rules for
-unsigned/signed integer comparisons (irrespective of the widths
-involved) were
 
-1) If the signed element is negative then it is always less than the
-   unsigned element.
+Venkatesh Ramachandran wrote:
 
-2) If the unsigned element is greater than then maximum positive value
-   expressible by the signed one then it is always greater.
+>Hello,
+>   I am using Redhat Linux 7.1
+>   During reboot, i get the message " Mounting / as readonly"
+>   And, it enters into maintenance mode...( & all other steps fail -
+>/proc not mounted, swap not mounted, fsck fails)
+>   I did the following :
+>   mount -t proc proc /proc
+>   fsck /dev/hda1
+>   The following error messages : ERROR : Couldn't open /dev/null
+>(Read-only file system)
+>
+>   It goes into a never-ending loop, and never i am able to recover from
+>this problem.
+>
+>   Has anyone come across such a problem? How to tackle it?
+>   Do we need to use a bootdisk, to get into the read-write mode of root
+>filesystem ?
+>   How to change root filesystem from read-only to read-write?
+>
+>   This will be of very great help to me and my team.
+>
+>Thanks in advance,
+>Venkatesh.
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-3) Only if both values are positive and within the range of the
-   smaller element are the actual values compared. 
+

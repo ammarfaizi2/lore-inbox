@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269256AbUHZRi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269309AbUHZRpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269256AbUHZRi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 13:38:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269249AbUHZRe2
+	id S269309AbUHZRpR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 13:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269305AbUHZRo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 13:34:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:5080 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269256AbUHZRZD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 13:25:03 -0400
-Date: Thu, 26 Aug 2004 10:20:36 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Rik van Riel <riel@redhat.com>
-cc: Diego Calleja <diegocg@teleline.es>, jamie@shareable.org,
-       christophe@saout.de, vda@port.imtp.ilyichevsk.odessa.ua,
-       christer@weinigel.se, spam@tnonline.net, akpm@osdl.org,
-       wichert@wiggy.net, jra@samba.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <Pine.LNX.4.44.0408261315240.27909-100000@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.58.0408261019580.2304@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0408261315240.27909-100000@chimarrao.boston.redhat.com>
+	Thu, 26 Aug 2004 13:44:26 -0400
+Received: from eagle.rtlogic.com ([216.87.68.236]:38063 "EHLO
+	eagle.rtlogic.com") by vger.kernel.org with ESMTP id S269308AbUHZRj5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 13:39:57 -0400
+Message-ID: <412E2058.60302@rtlogic.com>
+Date: Thu, 26 Aug 2004 11:39:36 -0600
+From: David Rolenc <drolenc@rtlogic.com>
+Reply-To: drolenc@rtlogic.com
+Organization: RT Logic!
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: POSIX_FADV_NOREUSE and O_STREAMING behavior in 2.6.7
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am trying to get O_STREAMING (Robert Love patch for 2.4) behavior in 
+2.6 and just a glance at fadvise.c suggests that POSIX_FADV_NOREUSE is 
+not implemented any differently than POSIX_FADV_WILLNEED. Am I missing 
+something?  I want to read data from disk with readahead and drop the 
+data from the page cache as soon as I am done with it. Do I have to call 
+fadvise with POSIX_FADV_DONTNEED after every read?
 
+Thanks,
 
-On Thu, 26 Aug 2004, Rik van Riel wrote:
->
-> On Thu, 26 Aug 2004, Diego Calleja wrote:
-> 
-> > All this looks like reinventing the file/directory concept wheel.
-> > Instead of adding support for streams and "use files as directories",
-> > why not orientate it to "use directories as files? Streams could very
-> > well be provided by directories containing files,
-> 
-> So all I need to do is "cat /bin | gzip -9 > /path/to/backup.tar.gz" ?
+David Rolenc
+RT Logic!
+www.rtlogic.com 
 
-No no. The stream you get from a directory is totally _independent_ of the 
-contents of the directory. Anything else would be pointless.
-
-		Linus

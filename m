@@ -1,73 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262893AbREVXeS>; Tue, 22 May 2001 19:34:18 -0400
+	id <S262895AbREVXnu>; Tue, 22 May 2001 19:43:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262896AbREVXeI>; Tue, 22 May 2001 19:34:08 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:19645 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S262893AbREVXeA>;
-	Tue, 22 May 2001 19:34:00 -0400
-Date: Wed, 23 May 2001 01:33:23 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200105222333.BAA77751.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, torvalds@transmeta.com
-Subject: Re: [PATCH] struct char_device
-Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
+	id <S262898AbREVXnk>; Tue, 22 May 2001 19:43:40 -0400
+Received: from ns.suse.de ([213.95.15.193]:14862 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S262895AbREVXnc>;
+	Tue, 22 May 2001 19:43:32 -0400
+Date: Wed, 23 May 2001 01:43:30 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: <ttel5535@artax.karlin.mff.cuni.cz>
+Cc: "H. Peter Anvin" <hpa@transmeta.com>, <linux-kernel@vger.kernel.org>,
+        "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
+Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
+In-Reply-To: <Pine.LNX.4.21.0105230032440.31122-100000@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.30.0105230142140.20489-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From torvalds@transmeta.com Wed May 23 00:39:23 2001
+On Wed, 23 May 2001, Tomas Telensky wrote:
 
-    On Tue, 22 May 2001 Andries.Brouwer@cwi.nl wrote:
-    > 
-    > The operations are different, but all bdev/cdev code is identical.
-    > 
-    > So the choice is between two uglies:
-    > (i) have some not entirely trivial amount of code twice in the kernel
-    > (ii) have a union at the point where the struct operations
-    > is assigned.
-    > 
-    > I preferred the union.
+> > Any particular reason this needs to be done in the kernel, as opposed
+> It is already done in kernel, because it's displaying :)
+> So, once evaluated, why not to give it to /proc/cpuinfo. I think it makes
+> sense and gives it things in order.
 
-    I would much prefer a union of pointers over a pointer to a union.
+Displaying at boottime only means the function can be marked as initcode,
+and freed after usage. Putting it in proc/cpuinfo means we use up
+kernel space that can't be freed.
 
-    Why? Because if you have a "struct inode", you also have enough
-    information to decide _which_ of the two types of pointers you have, so
-    you can do the proper dis-ambiguation of the union and properly select
-    either 'inode->dev.char' or 'inode->dev.block' depending on other
-    information in the inode.
+regards,
 
-I am not sure whether we agree or differ in opinion. I wouldn't mind
+Dave.
 
-/* pairing for dev_t to bd_op/cd_op */
-struct bc_device {
-        struct list_head        bd_hash;
-        atomic_t                bd_count;
-        dev_t                   bd_dev;
-        atomic_t                bd_openers;
-        union {
-		struct block_device_operations_and_data *bd_op;
-		struct char_device_operations_and_data *cd_op;
-	}
-        struct semaphore        bd_sem;
-};
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 
-typedef struct bc_device *kdev_t;
-
-and in an inode
-
-	kdev_t dev;
-	dev_t rdev;
-
-In reality we want the pair (dev_t, pointer to stuff), but then
-there is all this administrative nonsense needed to make sure
-that nobody uses the pointer after the module has been unloaded
-that makes the pointer a bit thicker.
-
-       And we should not depend on the "inode->dev.xxxx" pointer
-       being valid all the time, as there is absolutely zero point
-       in initializing the pointer every time somebody does a "ls -l /dev".
-
-Yes, that is why I want to go back and have dev_t rdev, not kdev_t.
-The lookup is done when the device is opened.
-
-Andries

@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291628AbSBHQQO>; Fri, 8 Feb 2002 11:16:14 -0500
+	id <S291627AbSBHQXO>; Fri, 8 Feb 2002 11:23:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291627AbSBHQQE>; Fri, 8 Feb 2002 11:16:04 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20496 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291628AbSBHQP7>; Fri, 8 Feb 2002 11:15:59 -0500
-Subject: Re: [2.5.4-pre3] link error in drivers/video/video.o
-To: davem@redhat.com (David S. Miller)
-Date: Fri, 8 Feb 2002 16:26:06 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, davej@suse.de, eike@bilbo.math.uni-mannheim.de,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020208.074857.88474129.davem@redhat.com> from "David S. Miller" at Feb 08, 2002 07:48:57 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S291631AbSBHQXF>; Fri, 8 Feb 2002 11:23:05 -0500
+Received: from sproxy.gmx.net ([213.165.64.20]:4417 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S291627AbSBHQWt>;
+	Fri, 8 Feb 2002 11:22:49 -0500
+Message-ID: <01ba01c1b0bc$de9d3730$844a2e3e@angband>
+Reply-To: "Andreas Happe" <andreashappe@subdimension.com>
+From: "Andreas Happe" <andreashappe@gmx.net>
+To: "lkml" <linux-kernel@vger.kernel.org>
+Subject: boot problems using 2.5.3-dj3 || -dj4
+Date: Fri, 8 Feb 2002 17:22:10 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16ZDqh-0004AV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    That is incorrect. The warning occurs because someone made bogus changes to
->    the vesa driver without understanding what was going on. The vesa frame
->    buffer returned by the BIOS is a physical cpu address not a bus address
->    and nothing to do with magic PCI mappings.
-> 
-> There were no changes made, in fact the VESA driver by your own
-> definition was buggy before my changes went in. :-) It was using
-> bus_to_virt and virt_to_bus all along Alan.
+after creating a kernel with 2.5.3-dj3 my system hangs up while it is
+starting some daemons at bootup. After removing the vast majority of daemons
+from the system the system starts normal.
 
-My error then. That or someone broke it around 2.0 8). It should be using
-phys_to_virt. Its the usual weirdness of talking to the BIOS which talks in
-CPU physical addresses.
+With dj4 the computer generates a kernel - oops instead of just freezing.
 
-VESAfb also genuinely does not know how the frame buffer is wired into the
-system, it just has a physical address. Another approach I guess might be
-to check if the address range if in a PCI root bridge window and if so 
-ioremap it. That possibly also means someone should get around to shrinking
-the 1Gb (actually 900M) kernel to 768Mb because some frame buffers are now
-at 128Mb of ram
+andreas
+

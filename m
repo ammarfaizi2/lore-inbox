@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267210AbTAAFq6>; Wed, 1 Jan 2003 00:46:58 -0500
+	id <S267203AbTAAFuW>; Wed, 1 Jan 2003 00:50:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267211AbTAAFq6>; Wed, 1 Jan 2003 00:46:58 -0500
-Received: from emory.viawest.net ([216.87.64.6]:33945 "EHLO emory.viawest.net")
-	by vger.kernel.org with ESMTP id <S267210AbTAAFq5>;
-	Wed, 1 Jan 2003 00:46:57 -0500
-Date: Tue, 31 Dec 2002 21:55:18 -0800
-From: A Guy Called Tyketto <tyketto@wizard.com>
+	id <S267204AbTAAFuW>; Wed, 1 Jan 2003 00:50:22 -0500
+Received: from warden3-p.diginsite.com ([208.147.64.186]:13544 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id <S267203AbTAAFuV>; Wed, 1 Jan 2003 00:50:21 -0500
+Date: Tue, 31 Dec 2002 21:46:06 -0800 (PST)
+From: David Lang <dlang@diginsite.com>
 To: Hell.Surfers@cwctv.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-ID: <20030101055518.GB8790@wizard.com>
-References: <0fa5e1042050113DTVMAIL7@smtp.cwctv.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0fa5e1042050113DTVMAIL7@smtp.cwctv.net>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux/2.4.19 (i686)
-X-uptime: 21:35:07 up 26 days, 16:33,  2 users,  load average: 0.00, 0.00, 0.00
-X-RSA-KeyID: 0xE9DF4D85
-X-DSA-KeyID: 0xE319F0BF
-X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
+cc: davids@webmaster.com, <linux-kernel@vger.kernel.org>, <rms@gnu.org>
+Subject: RE:Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+In-Reply-To: <0facf3248050113DTVMAIL7@smtp.cwctv.net>
+Message-ID: <Pine.LNX.4.44.0212312141480.20648-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-ID: <Pine.LNX.4.44.0212312141482.20648@dlang.diginsite.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 01, 2003 at 05:45:06AM +0000, Hell.Surfers@cwctv.net wrote:
-> It matters not whether it was gave or taken, GPL=GPL either way, I shall contact MR. Stallman, as and when I get some legal advice, I AM DEFENDING THE GPL, YOU ARE BULLYING, SUBVERTING AND TWISTING THE GPL. I am a staunch advocate of the FSF.
-> 
+It's obvious that you are not going to listen to anyone who disagrees with
+you so would you please stop filling our mailboxes?
 
-        Good luck! Tell RMS he still owes me dinner, and be sure to bring a 
-video camera along with you! You just might win $10,000 for it, on America's 
-Funniest Home Videos! ;)
+This is not a new discussion. In past discussions it has been decided that
+just including header files is not enough to make something a derived
+work. you don't agree with that so you are going to go make a pest of
+yourself. spare us the further e-mail.
 
-                                                        BL.
--- 
-Brad Littlejohn                         | Email:        tyketto@wizard.com
-Unix Systems Administrator,             |           tyketto@ozemail.com.au
-Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
-  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
+Linus made a statement in the last couple of months about binary-only
+modules for the kernel. please go read that before you go further.
 
+David Lang
+
+On Wed, 1 Jan 2003 Hell.Surfers@cwctv.net wrote:
+
+> Date: Wed, 1 Jan 2003 05:51:28 +0000
+> From: Hell.Surfers@cwctv.net
+> To: davids@webmaster.com, linux-kernel@vger.kernel.org, rms@gnu.org
+> Subject: RE:Re: Why is Nvidia given GPL'd code to use in closed source
+>     drivers?
+>
+> You must understand the GNU/LINUX community is being manipulated by NVidia.
+>
+> Dean. Three ways to kill yourself, and ive been drove in one...
+>
+> On 	Mon, 30 Dec 2002 22:55:35 -0800 	David Schwartz <davids@webmaster.com> wrote:
+>
+>

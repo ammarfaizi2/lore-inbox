@@ -1,85 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312962AbSFJMZn>; Mon, 10 Jun 2002 08:25:43 -0400
+	id <S312973AbSFJM2t>; Mon, 10 Jun 2002 08:28:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313070AbSFJMZm>; Mon, 10 Jun 2002 08:25:42 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:40454 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S312973AbSFJMZf>; Mon, 10 Jun 2002 08:25:35 -0400
-Message-ID: <3D048CFD.2090201@evision-ventures.com>
-Date: Mon, 10 Jun 2002 13:26:53 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.21 kill warnings 4/19
-In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------000504020605000800050008"
+	id <S313113AbSFJM2s>; Mon, 10 Jun 2002 08:28:48 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:46363 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S312973AbSFJM2p>; Mon, 10 Jun 2002 08:28:45 -0400
+Message-Id: <5.1.0.14.2.20020610133039.00ae8440@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 10 Jun 2002 13:32:24 +0100
+To: Martin Dalecki <dalecki@evision-ventures.com>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: [PATCH] 2.5.21 "I can't get no compilation"
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D048B4C.7080107@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000504020605000800050008
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+At 12:19 10/06/02, Martin Dalecki wrote:
+>The subject says it all...
+>
+>Contrary to other proposed patches I realized that there is
+>no such thing as vmalloc_dma.
 
-Fix improper usage of __FUNCTION__ in usb code.
-Fix unpleasant results from some code formatting
-editor (propably emacs) in i2c, which broke
-an error message altogether.
+Perhaps you ought to look in mm/vmalloc.c which contains:
 
---------------000504020605000800050008
-Content-Type: text/plain;
- name="warn-2.5.21-4.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="warn-2.5.21-4.diff"
+void * vmalloc_dma (unsigned long size)
+{
+         return __vmalloc(size, GFP_KERNEL|GFP_DMA, PAGE_KERNEL);
+}
 
-diff -urN linux-2.5.21/drivers/hotplug/pci_hotplug_core.c linux/drivers/hotplug/pci_hotplug_core.c
---- linux-2.5.21/drivers/hotplug/pci_hotplug_core.c	2002-06-09 07:28:23.000000000 +0200
-+++ linux/drivers/hotplug/pci_hotplug_core.c	2002-06-09 20:48:07.000000000 +0200
-@@ -48,7 +48,7 @@
- 	#define MY_NAME	THIS_MODULE->name
- #endif
- 
--#define dbg(fmt, arg...) do { if (debug) printk(KERN_DEBUG "%s: "__FUNCTION__": " fmt , MY_NAME , ## arg); } while (0)
-+#define dbg(fmt, arg...) do { if (debug) printk(KERN_DEBUG "%s: %s: " fmt, MY_NAME, __FUNCTION__, ## arg); } while (0)
- #define err(format, arg...) printk(KERN_ERR "%s: " format , MY_NAME , ## arg)
- #define info(format, arg...) printk(KERN_INFO "%s: " format , MY_NAME , ## arg)
- #define warn(format, arg...) printk(KERN_WARNING "%s: " format , MY_NAME , ## arg)
-diff -urN linux-2.5.21/drivers/hotplug/pci_hotplug_util.c linux/drivers/hotplug/pci_hotplug_util.c
---- linux-2.5.21/drivers/hotplug/pci_hotplug_util.c	2002-06-09 07:30:52.000000000 +0200
-+++ linux/drivers/hotplug/pci_hotplug_util.c	2002-06-09 19:20:08.000000000 +0200
-@@ -41,7 +41,7 @@
- 	#define MY_NAME	THIS_MODULE->name
- #endif
- 
--#define dbg(fmt, arg...) do { if (debug) printk(KERN_DEBUG "%s: "__FUNCTION__": " fmt , MY_NAME , ## arg); } while (0)
-+#define dbg(fmt, arg...) do { if (debug) printk(KERN_DEBUG "%s: %s: " fmt, MY_NAME, __FUNCTION__, ## arg); } while (0)
- #define err(format, arg...) printk(KERN_ERR "%s: " format , MY_NAME , ## arg)
- #define info(format, arg...) printk(KERN_INFO "%s: " format , MY_NAME , ## arg)
- #define warn(format, arg...) printk(KERN_WARNING "%s: " format , MY_NAME , ## arg)
-diff -urN linux-2.5.21/drivers/i2c/i2c-core.c linux/drivers/i2c/i2c-core.c
---- linux-2.5.21/drivers/i2c/i2c-core.c	2002-06-09 07:27:35.000000000 +0200
-+++ linux/drivers/i2c/i2c-core.c	2002-06-09 19:21:30.000000000 +0200
-@@ -381,10 +381,10 @@
- 						printk("i2c-core.o: while "
- 						       "unregistering driver "
- 						       "`%s', the client at "
--						       "address %02x of
--						       adapter `%s' could not
--						       be detached; driver
--						       not unloaded!",
-+						       "address %02x of "
-+						       "adapter `%s' could not "
-+						       "be detached; driver "
-+						       "not unloaded!",
- 						       driver->name,
- 						       client->addr,
- 						       adap->name);
+Or are you going to tell me that is a figment of my imagination?
 
---------------000504020605000800050008--
+Best regards,
+
+         Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,15 +1,13 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263279AbSKJDnh>; Sat, 9 Nov 2002 22:43:37 -0500
+	id <S263589AbSKJDpP>; Sat, 9 Nov 2002 22:45:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263589AbSKJDnh>; Sat, 9 Nov 2002 22:43:37 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49674 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263279AbSKJDng>; Sat, 9 Nov 2002 22:43:36 -0500
-Date: Sat, 9 Nov 2002 19:49:53 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Werner Almesberger <wa@almesberger.net>,
+	id <S263986AbSKJDpP>; Sat, 9 Nov 2002 22:45:15 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:31816 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S263589AbSKJDpN>; Sat, 9 Nov 2002 22:45:13 -0500
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Suparna Bhattacharya <suparna@in.ibm.com>,
        Jeff Garzik <jgarzik@pobox.com>,
@@ -18,67 +16,54 @@ cc: Werner Almesberger <wa@almesberger.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Mike Galbraith <efault@gmx.de>,
        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
 Subject: Re: [lkcd-devel] Re: What's left over.
-In-Reply-To: <m17kfmce6c.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.44.0211091927350.2336-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0211070731200.5567-100000@home.transmeta.com>
+	<m1u1iqcpjg.fsf@frodo.biederman.org>
+	<20021109223142.A31205@almesberger.net>
+	<m17kfmce6c.fsf@frodo.biederman.org>
+	<20021110003027.C31205@almesberger.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 09 Nov 2002 20:49:15 -0700
+In-Reply-To: <20021110003027.C31205@almesberger.net>
+Message-ID: <m1vg36axtw.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Werner Almesberger <wa@almesberger.net> writes:
 
-On 9 Nov 2002, Eric W. Biederman wrote:
+> Eric W. Biederman wrote:
+> > What I was thinking is that the process would for and exec
+> > something like "/etc/rc 6" or maybe "/etc/rc 7" to be clean.
+> > And that script would do all of the user space shutdown.
 > 
-> What I was thinking is that the process would for and exec
-> something like "/etc/rc 6" or maybe "/etc/rc 7" to be clean.
-> And that script would do all of the user space shutdown.
+> Yes, but init also does a kill(-1,...) to get rid of all processes,
+> before the last steps of system shutdown. So you have to somehow
+> make your "page holding" process survive beyond this point.
+
+True.  But it is just as easy to drop the file into something like
+ramfs.  Or a file on the read only file on the root filesystem.  Now
+that we can having shutdown do a pivot_root and totally unmounting
+the root filesystem is probably a good idea.
+
+> > My feel is that kexec-on-panic is a rather different problem.
 > 
-> No need to mlock any pages, or hack init, or special hacks.
-> Just user space cleanly shutting itself down.
+> You make it a different problem by assuming that you'd have a
+> kernel that is specifically built for running at a "safe"
+> location.  
 
-Ehh.. You do realize that the above doesn't actually _work_?
+Well at least the part cleans up after the running kernel.  That is
+what I think it takes to make it stable.  Perhaps I am wrong, but
+I think getting other architecture stable is very hard.
 
-First off, "all the user space shutdown" includes things like turning off 
-networking. Oh, and if you're on a NFS-root system, your process is now 
-officially _toast_.
+> If you assume that you're just using your normal
+> kernel, the two problems converge again. There are still a
+> few things that are different, like the checksumming, but
+> they can safely be added at a later time.
 
-Unless you do the "mlockall()" etc that you seem to think that you don't 
-need, that is.
+I guess I can be proven wrong.
 
-In other words: oh, yes, you do need those mlock() calls.
-
-And never mind the fact that everybody has a slightly different "init" 
-setup, so executing "/etc/rc 6" may not actually _do_ anything. So now you 
-need to learn about all the different initscripts, and get that right. 
-
-And btw, thanks to the mlockall() requirements, you actually end up
-pinning more memory than the two-phase approach ever would have done while 
-you do all this.
-
-You then need to do the pre-loading anyway for the "kexec-on-panic" case
-that you think is so different (I don't understand why you think a reboot
-is different from another reboot, but whatever). So now you not only
-maintain something that knows about many different init scripts and uses
-more memory, it also ends up doing the same reboot thing at least two
-different ways.
-
-  -- meanwhile, in another universe --
-
-With the two-way separation, you don't have any of these problems. Your
-maintenance nightmare has now become _one_ added script:
-
-	/etc/rc.d/rc6.d/K00loadkernel
-
-and people using other init script variants can trivially add a script to
-match their setup. Done. No maintenance headache, no special init
-binaries, no torn-out-hair.
-
-And by adding a startup script, you can have a _different_ small "debug
-dump" kernel loaded early, so that if the machine reboots without going
-through the controlled sequence, it will automatically boot into that
-debug kernel..
-
-			Linus
-
+Eric

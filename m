@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262037AbVAILGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVAILgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262037AbVAILGV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 06:06:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVAILGV
+	id S261157AbVAILgR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 06:36:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbVAILgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 06:06:21 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:10 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262037AbVAILGR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 06:06:17 -0500
-Date: Sun, 9 Jan 2005 12:08:05 +0100
-From: Tomasz Torcz <zdzichu@irc.pl>
+	Sun, 9 Jan 2005 06:36:17 -0500
+Received: from omega.datac.cz ([81.31.15.4]:64904 "EHLO omega.datac.cz")
+	by vger.kernel.org with ESMTP id S261157AbVAILgO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 06:36:14 -0500
+Message-ID: <41E1170D.6090405@feix.cz>
+Date: Sun, 09 Jan 2005 12:35:41 +0100
+From: Michal Feix <michal@feix.cz>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: michal@feix.cz
+CC: Tomasz Torcz <zdzichu@irc.pl>
 Subject: Re: Conflicts in kernel 2.6 headers and {glibc,Xorg}
-Message-ID: <20050109110805.GA8688@irc.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org, michal@feix.cz
-References: <41E0F76D.7080805@feix.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41E0F76D.7080805@feix.cz>
-User-Agent: Mutt/1.5.4i
+References: <41E0F76D.7080805@feix.cz> <20050109110805.GA8688@irc.pl>
+In-Reply-To: <20050109110805.GA8688@irc.pl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 09, 2005 at 10:20:45AM +0100, Michal Feix wrote:
-> Hello evereyone!
+>>First, I'm not on kernel mailing list so please CC any replies to me. 
+>>Thank you.
+>>
+>>Yesterday I was recompiling my Linux from Scratch distribution for the 
+>>first time with Linux kernel 2.6.10 headers as a base for glibc. I've 
+>>found, that glibc (and XOrg later on too) won't compile, as there is a 
+>>conflict in certain functions or macros that glibc and Kernel headers 
+>>both define.
 > 
-> First, I'm not on kernel mailing list so please CC any replies to me. 
-> Thank you.
 > 
-> Yesterday I was recompiling my Linux from Scratch distribution for the 
-> first time with Linux kernel 2.6.10 headers as a base for glibc. I've 
-> found, that glibc (and XOrg later on too) won't compile, as there is a 
-> conflict in certain functions or macros that glibc and Kernel headers 
-> both define.
+>  Are you using proper kernel headers - from
+> http://ep09.pld-linux.org/~mmazur/linux-libc-headers/ ?
 
- Are you using proper kernel headers - from
-http://ep09.pld-linux.org/~mmazur/linux-libc-headers/ ?
+No, I am not, because I wasn't told to do so. For meny years I always 
+used vanilla sources from kernel.org for my /usr/include/... I wasn't 
+told, that it is wrong and I still believe, that Linux kernel headers 
+should be fixed by including these conflicting macros and functions into 
+__KERNEL__ block instead. Or am I missing something?
 
 -- 
-Tomasz Torcz                 "God, root, what's the difference?"
-zdzichu@irc.-nie.spam-.pl         "God is more forgiving."
-
+Michal

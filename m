@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261460AbTCaIUg>; Mon, 31 Mar 2003 03:20:36 -0500
+	id <S261469AbTCaIfz>; Mon, 31 Mar 2003 03:35:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261464AbTCaIUg>; Mon, 31 Mar 2003 03:20:36 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:55277 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S261460AbTCaIUg>;
-	Mon, 31 Mar 2003 03:20:36 -0500
-Date: Mon, 31 Mar 2003 10:31:57 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Joel Becker <Joel.Becker@oracle.com>, Greg KH <greg@kroah.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andries.Brouwer@cwi.nl,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 64-bit kdev_t - just for playing
-Message-ID: <20030331083157.GA29029@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Joel Becker <Joel.Becker@oracle.com>, Greg KH <greg@kroah.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Andries.Brouwer@cwi.nl,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <UTC200303272027.h2RKRbf27546.aeb@smtp.cwi.nl> <Pine.LNX.4.44.0303272245490.5042-100000@serv> <1048805732.3953.1.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.44.0303280008530.5042-100000@serv> <20030327234820.GE1687@kroah.com> <Pine.LNX.4.44.0303281031120.5042-100000@serv> <20030328180545.GG32000@ca-server1.us.oracle.com> <Pine.LNX.4.44.0303281924530.5042-100000@serv>
+	id <S261470AbTCaIfy>; Mon, 31 Mar 2003 03:35:54 -0500
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:1757 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S261469AbTCaIfy>; Mon, 31 Mar 2003 03:35:54 -0500
+Subject: Re: Bad interactive behaviour in 2.5.65-66 (sched.c)
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Jens Axboe <axboe@suse.de>, Con Kolivas <kernel@kolivas.org>,
+       Robert Love <rml@tech9.net>, Peter Lundkvist <p.lundkvist@telia.com>,
+       akpm@digeo.com, mingo@elte.hu, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <5.2.0.9.2.20030331085710.01aa6d30@pop.gmx.net>
+References: <5.2.0.9.2.20030331033120.00cf0d08@pop.gmx.net>
+	 <20030330141404.GG917@suse.de> <3E8610EA.8080309@telia.com>
+	 <1048992365.13757.23.camel@localhost> <20030330141404.GG917@suse.de>
+	 <5.2.0.9.2.20030331033120.00cf0d08@pop.gmx.net>
+	 <5.2.0.9.2.20030331085710.01aa6d30@pop.gmx.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049100382.638.2.camel@teapot>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303281924530.5042-100000@serv>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 31 Mar 2003 10:46:22 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 28, 2003 at 07:48:13PM +0100, Roman Zippel wrote:
+On Mon, 2003-03-31 at 09:05, Mike Galbraith wrote:
+> > > I don't think it's really bad for system responsiveness.  I think the
+> >
+> >What drugs are you on? 2.5.65/66 is the worst interactive kernel I've
+> >ever used, it would be _embarassing_ to release a 2.6-test with such a
+> >rudimentary flaw in it. IOW, a big show stopper.
+> 
+> It's only horrible when you trigger the problems, otherwise it's wonderful.
 
-> If Andries would actually explain, what he wants to do with the larger 
-> dev_t, it would be a lot easier to help him, so that we can at least avoid 
-> the biggest mistakes.
+With scheduler tunables (in -mm, for example), setting min_timeslice =
+max_timeslice = 25 helps a lot with those problems (at least for me) :-)
 
-Can you envision solutions based on 16 bit kdev_t infrastructure? 
+> > > problem is just that the sample is too small.  The proof is that simply
+> > > doing sleep_time %= HZ cures most of my woes.  WRT contest and it's
+> >
+> >Irk, that sounds like a really ugly bandaid.
+> 
+> Nope, it's a really ugly _tourniquet_ ;-)
+> 
+> >I'm wondering why the scheduler guys aren't all over this problem,
+> >getting it fixed.
+> 
+> I think they are.
 
-Regards,
+I hope so ;-)
 
-bert
+        Felipe Alfaro Solana
+   Linux Registered User #287198
+http://counter.li.org
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268101AbUIPOwd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268127AbUIPOz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268101AbUIPOwd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 10:52:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268105AbUIPOwd
+	id S268127AbUIPOz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 10:55:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268122AbUIPOzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 10:52:33 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:54239 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S268101AbUIPOw2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 10:52:28 -0400
-Date: Thu, 16 Sep 2004 16:52:27 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Debian GNU/Linux m68k <debian-68k@lists.debian.org>,
-       uClinux list <uclinux-dev@uclinux.org>,
-       GNU Libc Maintainers <debian-glibc@lists.debian.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: `new' syscalls for m68k
-Message-ID: <20040916145227.GB28893@MAIL.13thfloor.at>
-Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-	Debian GNU/Linux m68k <debian-68k@lists.debian.org>,
-	uClinux list <uclinux-dev@uclinux.org>,
-	GNU Libc Maintainers <debian-glibc@lists.debian.org>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0409102250300.24607@anakin> <Pine.GSO.4.58.0409161016400.23693@waterleaf.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0409161016400.23693@waterleaf.sonytel.be>
-User-Agent: Mutt/1.4.1i
+	Thu, 16 Sep 2004 10:55:25 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:31363 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S268115AbUIPOzD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 10:55:03 -0400
+Date: Thu, 16 Sep 2004 10:54:55 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Srinivas G." <srinivasg@esntechnologies.co.in>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Having problem with mmap system call!!!
+In-Reply-To: <1095341494.22744.26.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.53.0409161050200.12305@chaos>
+References: <4EE0CBA31942E547B99B3D4BFAB348111078FE@mail.esn.co.in> 
+ <Pine.LNX.4.53.0409160958070.12146@chaos> <1095341494.22744.26.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 10:23:08AM +0200, Geert Uytterhoeven wrote:
-> On Fri, 10 Sep 2004, Geert Uytterhoeven wrote:
-> > I'm updating the syscall table for m68k...
-> >
-> > Below is a patch that adds all syscalls that m68k is currently lacking
-> > (compared to ia32). However, I'm wondering whether we need all of them:
-> >   - Are sys_sched_[gs]etaffinity() needed for non-SMP?
-> >   - I disabled [sg]et_thread_area() since sys_[gs]et_thread_area() are
-> >     missing. Do we have to implement them, or should we use some other
-> >     method for Thread Local Storage?
-> >   - What about sys_vserver()?
-> >   - What about sys_kexec_load()?
-> >   - Any others we can/should drop?
-> 
-> My conclusion (so far). I will:
->   - drop sys_sched_[gs]etaffinity() (no SMP on m68k), and sys_kexec_load()
->   - reserve an entry for sys_vserver()
+On Thu, 16 Sep 2004, Alan Cox wrote:
 
-thanks,
-Herbert
+> On Iau, 2004-09-16 at 15:07, Richard B. Johnson wrote:
+> >     if((vp = mmap((caddr_t) HINT, len, PROT, FLAGS, fd, addr)) == SHM_FAIL)
+> >     {
+> >         fprintf(stderr, "Can't access shared memory\n");
+> >         exit(EXIT_FAILURE);
+>
+> SHM_FAIL is the wrong error check btw.
+>
 
->   - add waitid() (2.6.9-rc2)
->   - rename p{read,write}64() to p{read,write} (cfr. m68knommu in 2.6.8.1-uc0)
-> 
-> Which leaves us with [sg]et_thread_area(): what do the glibc hackers have in
-> mind for TLS on m68k?
-> 
-> Thanks!
-> 
-> Gr{oetje,eeting}s,
-> 
-> 						Geert
-> 
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
-> 							    -- Linus Torvalds
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+MAP_FAILED only appeared in real late 'C' runtime library headers.
+That's why the code defines SHM_FAIL, which is also correct, but
+doesn't cause a redefinition error.
+
+> It is much better to do this in the driver than do nasty user mode hacks
+> using /dev/mem. When you do it kernel driver side you end up with a
+> cleaner mmap interface, a sensible permissions model and the hardware
+> device pages mapped directly and nicely into the app
+>
+
+Well that's really nice. Now, how do you do that? The kernel DS
+is not the user DS so you end up with a kernel hack instead of
+a user hack?
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
+

@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132850AbRDIVLw>; Mon, 9 Apr 2001 17:11:52 -0400
+	id <S132851AbRDIVUW>; Mon, 9 Apr 2001 17:20:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132851AbRDIVLo>; Mon, 9 Apr 2001 17:11:44 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:40719 "EHLO
+	id <S132852AbRDIVUN>; Mon, 9 Apr 2001 17:20:13 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:46095 "EHLO
 	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S132850AbRDIVL3>; Mon, 9 Apr 2001 17:11:29 -0400
-Message-Id: <200104092111.f39LBPs17548@aslan.scsiguy.com>
-To: linux-kernel@vger.kernel.org
-cc: torvalds@transmeta.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        dledford@redhat.com
-Subject: Version 6.1.11 of the aic7xxx driver availalbe 
-Date: Mon, 09 Apr 2001 15:11:25 -0600
+	id <S132851AbRDIVUA>; Mon, 9 Apr 2001 17:20:00 -0400
+Message-Id: <200104092119.f39LJts17813@aslan.scsiguy.com>
+To: lists@sapience.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx 6.1.10 and 2.4.4-pre1 
+In-Reply-To: Your message of "Sun, 08 Apr 2001 00:11:32 EDT."
+             <20010408001132.A28840@sapience.com> 
+Date: Mon, 09 Apr 2001 15:19:55 -0600
 From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As always, the latest version of this driver is availalbe here:
+>Apr  7 19:56:13 snap kernel:   Vendor: SEAGATE   Model: ST318275LW        Rev:
+> 0001
 
-http://people.FreeBSD.org/~gibbs/linux/
-
-This site now includes installation instructions, feature set,
-etc.  The page is under construction - comments welcome.
-
-For the impatient:
-
-CHANGELOG:
-    http://people.FreeBSD.org/~gibbs/linux/CHANGELOG
-
-2.4.3-patch:
-    http://people.FreeBSD.org/~gibbs/linux/linux-aic7xxx-6.1.11-2.4.3.patch.gz
-
-2.2.19-patch:
-    http://people.FreeBSD.org/~gibbs/linux/linux-aic7xxx-6.1.11-2.2.19.patch.gz
+I seem to recall this being a very buggy firmware version.  You should
+check with Seagate to see if they have something new.  If this is the
+firmware I'm thinking of, the driver should perform correctly if you
+disable write caching.  You can do this via the SCSI-Select menu for
+the controller.
 
 --
 Justin

@@ -1,25 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266442AbTGEUBC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 16:01:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266448AbTGEUBC
+	id S266469AbTGEUNR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 16:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266473AbTGEUNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 16:01:02 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:23312 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S266442AbTGEUBB
+	Sat, 5 Jul 2003 16:13:17 -0400
+Received: from mail.scsiguy.com ([63.229.232.106]:31504 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S266469AbTGEUNQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 16:01:01 -0400
-Date: Sat, 05 Jul 2003 14:15:24 -0600
+	Sat, 5 Jul 2003 16:13:16 -0400
+Date: Sat, 05 Jul 2003 14:27:43 -0600
 From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Jim Gifford <maillist@jg555.com>,
-       Roberto Slepetys Ferreira <slepetys@homeworks.com.br>,
+To: Roberto Slepetys Ferreira <slepetys@homeworks.com.br>,
        linux-kernel@vger.kernel.org
 Subject: Re: Probably 2.4 kernel or AIC7xxx module trouble
-Message-ID: <2268760000.1057436124@aslan.scsiguy.com>
-In-Reply-To: <14a301c341b7$7ff0bd50$3400a8c0@W2RZ8L4S02>
-References: <00d901c340a8$810556c0$3300a8c0@Slepetys> <1083830000.1057158848@aslan.scsiguy.com>
- <01b101c340dc$ede386c0$3300a8c0@Slepetys> <016901c34191$14c4a1c0$3300a8c0@Slepetys> <13e101c3419d$f62f9410$3400a8c0@W2RZ8L4S02>
- <01f101c3419f$e6d30360$3300a8c0@Slepetys> <913060000.1057267206@aslan.btc.adaptec.com> <14a301c341b7$7ff0bd50$3400a8c0@W2RZ8L4S02>
+Message-ID: <2279890000.1057436863@aslan.scsiguy.com>
+In-Reply-To: <002501c34252$c8d10980$3300a8c0@Slepetys>
+References: <4R5X.8bo.19@gated-at.bofh.it> <4Rzh.h8.25@gated-at.bofh.it> <4WSg.5H7.21@gated-at.bofh.it>
+ <5h0y.5ht.25@gated-at.bofh.it> <5iIR.7Cp.11@gated-at.bofh.it> <5iIQ.7Cp.9@gated-at.bofh.it> <5jOA.14o.9@gated-at.bofh.it>
+ <5lnu.2l7.13@gated-at.bofh.it> <002501c34252$c8d10980$3300a8c0@Slepetys>
 X-Mailer: Mulberry/3.0.3 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,15 +27,22 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Justin, I just tried to enable the nmi watch dog. It doesn't seem to work on
-> my system I tried both
+> Hi again,
 > 
-> append="nmi_watchdog=1"
-> and
-> append="nmi_watchdog=2"
+> I passed the parameer: nmi_watchdog=1 to the kernel at the boot.
+> 
+> And after about 2 hours it frozen again, but in the console I found a lot of
+> messages like this:
+> 
+> smb_proc_readdir_log: name=\....(some directory)....\*, result=-2, rcls=1,
+> err=2
 
-Is the watchdog enabled in your kernel?  The command line only works
-if you have compiled in support for the watchdog.
+Looks like your samba server is upset about some requests its getting.
+These probably have nothing to do with your hang.
+
+Did you verify that the NMI watchdog was functioning properly on your
+system as outline by the NMI watchdog FAQ in the kernel source Documenation
+directory?
 
 --
 Justin

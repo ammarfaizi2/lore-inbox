@@ -1,67 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278185AbRJRW4c>; Thu, 18 Oct 2001 18:56:32 -0400
+	id <S278083AbRJRWww>; Thu, 18 Oct 2001 18:52:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278189AbRJRW4W>; Thu, 18 Oct 2001 18:56:22 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:4601
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S278185AbRJRW4I>; Thu, 18 Oct 2001 18:56:08 -0400
-Date: Thu, 18 Oct 2001 15:56:36 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: James Sutherland <jas88@cam.ac.uk>, Ben Greear <greearb@candelatech.com>,
-        Neil Brown <neilb@cse.unsw.edu.au>, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
-Message-ID: <20011018155636.B2467@mikef-linux.matchmail.com>
-Mail-Followup-To: James Sutherland <jas88@cam.ac.uk>,
-	Ben Greear <greearb@candelatech.com>,
-	Neil Brown <neilb@cse.unsw.edu.au>, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3BCE6E6E.3DD3C2D6@candelatech.com> <Pine.SOL.4.33.0110180937420.13081-100000@yellow.csi.cam.ac.uk> <20011018132035.A444@mikef-linux.matchmail.com> <20011018151718.O1144@turbolinux.com>
+	id <S278185AbRJRWwm>; Thu, 18 Oct 2001 18:52:42 -0400
+Received: from dns1.geolatina.com ([209.92.187.33]:41742 "EHLO
+	core.arrancar.com") by vger.kernel.org with ESMTP
+	id <S278083AbRJRWwf>; Thu, 18 Oct 2001 18:52:35 -0400
+Date: Tue, 16 Oct 2001 13:53:22 -0300
+From: martin sepulveda <martin@joydivision.com.ar>
+To: linux-kernel@vger.kernel.org
+Subject: load 1 at idle, 2.4.12-ac3
+Message-Id: <20011016135322.02ed0f97.martin@joydivision.com.ar>
+X-Mailer: Sylpheed version 0.6.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011018151718.O1144@turbolinux.com>
-User-Agent: Mutt/1.3.23i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 18, 2001 at 03:17:18PM -0600, Andreas Dilger wrote:
-> On Oct 18, 2001  13:20 -0700, Mike Fedyk wrote:
-> > Actually, it looks like Niel is creating a two level Quota system.  In ther
-> > normal quota system, if you own a file anywhere, it is attributed to you.
-> > But, in the tree quota system, it is attributed to the owner of the tree...
-> 
-> Hmm, we already have group quotas, and (excluding ACLs) you would need to
-> have group write permission into the tree to be able to write there.  How
-> does the tree quota help us in the end?  Either users are "nice" and you
-> don't need quotas, or users are "not nice" and you don't want them to be
-> able to dump their files into an area that doesn't keep them "in check" as
-> quotas are designed to do.
-> 
+hi
 
-Hmm, I think I just thought of a use for the tree quota concept.
+while using 2.4.12-ac3 (plus rik's 2.4.12-ac3-vmpatch), y get a load of about 1, while
+doing the same on a 2.4.10 gave about 0.10 - 0.15 load
 
-Lets say that you have about 50GB of space, but you only want to allow 20GB
-for a certain tree (possibly mp3s), and you want to keep user ownerships of
-the files they contribute.
+root@core:~# uptime
+  1:47pm  up  5:36,  4 users,  load average: 1.11, 1.02, 1.04
+root@core:~# 
 
-Now try to use the group quota idea.
+while a top doesn't show nothing to happen:
 
-User makes mp3
-user can chgrp to any user that they are a member of...
-copy to /mp3s.
+  1:48pm  up  5:36,  4 users,  load average: 1.05, 1.01, 1.03
+89 processes: 81 sleeping, 8 running, 0 zombie, 0 stopped
+CPU states:  2.7% user,  1.7% system,  0.0% nice, 95.4% idle
+Mem:   126992K av,  100044K used,   26948K free,     196K shrd,    2588K buff
+Swap:  265032K av,   17788K used,  247244K free                   62348K cached
 
-Now the group (and quota) that was setup for mp3s has been circumvented.
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+ 2721 root      15  -1 23668  10M  1468 R <   2.5  8.6   6:51 X
+11778 root      10   0  1068 1068   820 R     0.3  0.8   0:00 top
+    1 root       8   0    80   68    68 S     0.0  0.0   0:03 init
+    3 root       9   0     0    0     0 SW    0.0  0.0   0:00 keventd
+    4 root      19  19     0    0     0 SWN   0.0  0.0   0:00 ksoftirqd_CPU0
+    5 root       9   0     0    0     0 SW    0.0  0.0   0:01 kswapd
 
-With the tree quota, an entire tree could be assigned to a certain group,
-and then use the group quota tools...
+slackware 8.0, X 4.1.0, fvwm 1.24r, xfstt, esd, apache, mysql (both without
+any connection but running).
+P III 550, 128 MB, IDE HD (1), epic100 module for eth0, advansys module
+for a CDR.
 
-The only other way I can see to fix this would be a cron job to walk the
-tree and set the group to whatever has been setup, but that looks like a
-hack to me.
+any idea?
 
-Is there another way to fix this besides putting all mp3s on a separate
-partition?
+M.
 
-Mike
+-- 
+Talent does what it can, genius what it must.
+I do what I get paid to do.

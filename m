@@ -1,93 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289866AbSAXA4W>; Wed, 23 Jan 2002 19:56:22 -0500
+	id <S288622AbSAXB0H>; Wed, 23 Jan 2002 20:26:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290229AbSAXA4M>; Wed, 23 Jan 2002 19:56:12 -0500
-Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:34438 "EHLO
-	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
-	id <S289866AbSAXA4G>; Wed, 23 Jan 2002 19:56:06 -0500
-Message-ID: <313680C9A886D511A06000204840E1CF40B60E@whq-msgusr-02.pit.comms.marconi.com>
-From: "Punj, Arun" <Arun.Punj@marconi.com>
-To: "'Eric Weigle'" <ehw@lanl.gov>, "Punj, Arun" <Arun.Punj@marconi.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: RE: NEWBIE : can't find /lib/modules/2.4.17/modules.dep error
-Date: Wed, 23 Jan 2002 19:55:57 -0500
+	id <S289657AbSAXBZr>; Wed, 23 Jan 2002 20:25:47 -0500
+Received: from adsl-64-123-56-106.dsl.stlsmo.swbell.net ([64.123.56.106]:3712
+	"EHLO bigandy.naclos.org") by vger.kernel.org with ESMTP
+	id <S288622AbSAXBZp>; Wed, 23 Jan 2002 20:25:45 -0500
+Date: Wed, 23 Jan 2002 19:25:23 -0600 (CST)
+From: Andy Carlson <naclos@swbell.net>
+X-X-Sender: <naclos@bigandy.naclos.org>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Urban Widmark <urban@teststation.com>,
+        Martin Eriksson <nitrax@giron.wox.org>,
+        Justin A <justin@bouncybouncy.net>, <linux-kernel@vger.kernel.org>,
+        Stephan von Krawczynski <skraw@ithnet.com>
+Subject: Re: via-rhine timeouts
+In-Reply-To: <3C4F20A5.F88EA471@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0201231924410.269-100000@bigandy.naclos.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, You are right I did not do a make modules_install. 
+I tried this, and the problem did not go away.  I got about 300K/S
+versus the 7-8M/S I get with the linuxfet driver.
 
-However, the thing is  - my system was working normally in so far as I can
-tell even without doing make modules_install !!! Maybe I am not using any
-of dynamically loading drivers???
+Andy Carlson                                    |\      _,,,---,,_
+naclos@swbell.net                         ZZZzz /,`.-'`'    -.  ;-;;,_
+Cat Pics: http://andyc.dyndns.org/animal.html  |,4-  ) )-,_. ,\ (  `'-'
+St. Louis, Missouri                           '---''(_/--'  `-'\_)
 
-Thanks a ton eric and all who have helped.
 
-ARun
+On Wed, 23 Jan 2002, Andrew Morton wrote:
 
-> -----Original Message-----
-> From: Eric Weigle [mailto:ehw@lanl.gov]
-> Sent: Wednesday, January 23, 2002 7:16 PM
-> To: Punj, Arun
-> Cc: lkml
-> Subject: Re: NEWBIE : can't find /lib/modules/2.4.17/modules.dep error
-> 
-> 
-> > I upgraded the 2.4.7-10 kernel that comes with RH7.2 to 2.4.17. 
-> > [ I could compile it fine and grub is able to load it too...]
-> > 
-> > However, I see the error : can't find 
-> /lib/modules/2.4.17/modules.dep
-> > multiple times.
-> Sounds like you didn't make or install modules. Most kernels 
-> these days
-> are best built using modules for device drivers and such that 
-> are loaded
-> on-demand during runtime, instead of being part of a big 'monolithic'
-> kernel. This saves space in memory and has some other 
-> benefits (although
-> this is open to debate).
-> 
-> `make bzImage` makes just the 'monolithic' part of the 
-> kernel, while `make
-> modules` and `make modules_install` handle building and 
-> installing modules,
-> and should create the proper directories and put in the 
-> appropriate files.
-> 
-> If you did execute the modules commands (as root, of course), 
-> the problem
-> might be in your module loader program suite (insmod, lsmod, 
-> etc.). Old
-> versions of the program don't work with newer kernels. I'm 
-> not a RedHat user
-> so I wouldn't know about that, but you could check their site 
-> and download
-> the latest RPM if that seems to be the problem.
-> 
-> -Eric
-> 
-> -- 
-> --------------------------------------------
->  Eric H. Weigle   CCS-1, RADIANT team
->  ehw@lanl.gov     Los Alamos National Lab
->  (505) 665-4937   http://home.lanl.gov/ehw/
-> --------------------------------------------
+> Urban Widmark wrote:
+> >
+> >     writeb(readb(ioaddr + TxConfig) | 0x80, ioaddr + TxConfig);
+> >     np->tx_thresh = 0x20;
+> > (linuxfet.c)
+> >
+> >         writeb(0x20, ioaddr + TxConfig);
+> >         np->tx_thresh = 0x20;
+> > (via-rhine.c)
+> >
+> > Note how the linuxfet driver sets a higher value but does not make the
+> > tx_thresh follow, so if it later gets a "IntrTxUnderrun" it will lower the
+> > threshold. But the chosen value is probably large enough.
+> >
+> > Those of you with this problem could try changing the 0x80 to 0x20 in the
+> > linuxfet.c driver and see if the problem returns (or the other way around
+> > in the via-rhine.c driver).
+> >
+>
+> That would certainly explain why people are seeing success
+> with linuxfet.
+>
+> Here's the test patch which you describe.  It would be
+> useful if people could try it..
+>
+> --- linux-2.4.18-pre6/drivers/net/via-rhine.c	Tue Jan 22 12:38:30 2002
+> +++ linux-akpm/drivers/net/via-rhine.c	Wed Jan 23 12:42:18 2002
+> @@ -965,7 +965,7 @@ static void init_registers(struct net_de
+>  	/* Initialize other registers. */
+>  	writew(0x0006, ioaddr + PCIBusConfig);	/* Tune configuration??? */
+>  	/* Configure the FIFO thresholds. */
+> -	writeb(0x20, ioaddr + TxConfig);	/* Initial threshold 32 bytes */
+> +	writeb(0x80, ioaddr + TxConfig);	/* Initial threshold 32 bytes */
+>  	np->tx_thresh = 0x20;
+>  	np->rx_thresh = 0x60;			/* Written in via_rhine_set_rx_mode(). */
+>
 > -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+>
 
-
-This e-mail and any attachments are confidential. If you are not the
-intended recipient, please notify us immediately by reply e-mail and then
-delete this message from your system. Do not copy this e-mail or any
-attachment, use the contents for any purposes, or disclose the contents to
-any other person: to do so could be a breach of confidence.

@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279505AbRKMWD0>; Tue, 13 Nov 2001 17:03:26 -0500
+	id <S279509AbRKMWE0>; Tue, 13 Nov 2001 17:04:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279509AbRKMWDS>; Tue, 13 Nov 2001 17:03:18 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:54739
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S279505AbRKMWDL>; Tue, 13 Nov 2001 17:03:11 -0500
-Date: Tue, 13 Nov 2001 17:50:10 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: CML 1.8.4 is available
-Message-ID: <20011113175010.A15716@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S279596AbRKMWEK>; Tue, 13 Nov 2001 17:04:10 -0500
+Received: from demai05.mw.mediaone.net ([24.131.1.56]:50636 "EHLO
+	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
+	id <S279509AbRKMWDg>; Tue, 13 Nov 2001 17:03:36 -0500
+Message-Id: <200111132203.fADM3jW03006@demai05.mw.mediaone.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Brian <hiryuu@envisiongames.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: File server FS?
+Date: Tue, 13 Nov 2001 17:03:34 -0500
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version is always available at http://www.tuxedo.org/~esr/cml2/
+We are about to build a fairly large (720GB) file server using Linux.  No 
+sane person would actually want to watch this thing fsck, but I've seen 
+mixed reports about the functionality of the journaled FSes.
 
-Release 1.8.4: Tue Nov 13 17:31:15 EST 2001
-	* Resync with 2.4.15-pre4 (except for SH port).
-	* Rulebase corrections from Keith Owens and Colin Slater.
-	* DANGEROUS is now a warndepend condition; this means there is a policy
-	  symbol DANGEROUS, and any symbol dependent on it will show DANGROUS
-	  in its legend.
-	* Visibility improvement from Romain BEAUGRAND.
-	* Complete coverage check -- CML1 fossil symbols eliminated.
-	* Matthieu Verbert's configtrans.py fix.
+Specifically, I need support for
+ * KNFSD - it is a file server, afterall
+ * LVM - For snapshots and to add space later
+ * Resizing - See last point
+ * Quotas - Eventually, but we don't need it just yet
 
-CML2 is now fully caught up with the CML1 rulebase in the most current
-kernel version, with symbol coverage mechanically checked in both directions.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Which, if any, of the journaled FSes support these?
+Which one should I go with for a wide range of file and directory sizes?
 
-"Those who make peaceful revolution impossible 
-will make violent revolution inevitable."
-	-- John F. Kennedy
+I have no desire to wipe and restore 720GB of data, so we're pretty much 
+stuck with what we launch with.
+
+Thanks
+	-- Brian

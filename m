@@ -1,80 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267166AbTGTNwM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 09:52:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbTGTNwM
+	id S267190AbTGTNyL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 09:54:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267196AbTGTNyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 09:52:12 -0400
-Received: from helios.univ-reunion.fr ([194.199.73.1]:61666 "EHLO
-	helios.univ-reunion.fr") by vger.kernel.org with ESMTP
-	id S267166AbTGTNwK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 09:52:10 -0400
-Message-ID: <1058709990.3f1aa1e68771a@imp.univ-reunion.fr>
-Date: Sun, 20 Jul 2003 18:06:30 +0400
-From: Alain.BASTIDE@univ-reunion.fr
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: Alain.BASTIDE@univ-reunion.fr, linux-kernel@vger.kernel.org
-Subject: Re: Trans.: Re: AMD Athlon MP Machine check exceptions
-References: <1058703292.3f1a87bcc6b1a@imp.univ-reunion.fr> <20030720125019.GC628@gallifrey>
-In-Reply-To: <20030720125019.GC628@gallifrey>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-User-Agent: Internet Messaging Program (IMP) 3.2
-X-Originating-IP: 10.10.6.196
+	Sun, 20 Jul 2003 09:54:10 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:60944 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267190AbTGTNyJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 09:54:09 -0400
+Date: Sun, 20 Jul 2003 15:09:05 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Charles E. Youse" <beef@nexuslabs.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, John Bradford <john@grabjohn.com>,
+       lkml@lrsehosting.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org, lm@bitmover.com, rms@gnu.org,
+       Valdis.Kletnieks@vt.edu
+Subject: Re: [OT] HURD vs Linux/HURD
+Message-ID: <20030720150905.A12659@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Charles E. Youse" <beef@nexuslabs.com>,
+	Theodore Ts'o <tytso@mit.edu>, John Bradford <john@grabjohn.com>,
+	lkml@lrsehosting.com, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org, lm@bitmover.com, rms@gnu.org,
+	Valdis.Kletnieks@vt.edu
+References: <20030720000716.GA1085@think> <20030720092239.E75410-100000@treason.nexuslabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030720092239.E75410-100000@treason.nexuslabs.com>; from beef@nexuslabs.com on Sun, Jul 20, 2003 at 09:23:19AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jul 20, 2003 at 09:23:19AM -0400, Charles E. Youse wrote:
+> My understanding is that theirs is a re-implementation of ext2, not a
+> port.
 
-Hi,
+There's large part taken directly from Linux but the higher level
+parts are of course totally different.  Due to the GNU Obsfuc^H^H^H^H^HStyle
+it's not easy to diff, though..
 
-
-   i found !!!
-   SENSORS_W83781D had to set to : n and not y 
-   after it work!!!
-
-bye
-
-
-Quoting "Dr. David Alan Gilbert" <gilbertd@treblig.org>:
-
-> * Alain.BASTIDE@univ-reunion.fr (Alain.BASTIDE@univ-reunion.fr) wrote:
-> > Hi 
-> 
-> Hi Alain,
-> 
-> >  i had the same problem whith a MSI 6501 AMD MP 2000+!!!! and now it's
-> worked!!!!
-> > 
-> >  I compile one kernel and when i start  mbmon (
-> > http://www.nt.phys.kyushu-u.ac.jp/shimizu/download/download.html ) 
-> > 
-> > i saw 
-> > Temp.= 32.0, 73.5, 65.5; Rot.= 2596, 4821, 2636
-> > Vcore = 1.66, 2.54; Volt. = 3.34, 4.84, 12.40, -12.78, -5.00
-> 
-> There were known problems with temperature measurements on some Athlon
-> MP systems where two different programs report temperatures 30deg apart
-> - so it is never obvious what to believe!
-> 
-> 
-> > it was amazing cause bios said ~40°C
-> > 
-> >  I compile a new kernel where i change options and now i haven't  got this
-> > message and mbmon say :
-> 
-> Which options?
-> 
-> Dave
->  -----Open up your eyes, open up your mind, open up your code -------   
-> / Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-> \ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
->  \ _________________________|_____ http://www.treblig.org   |_______/
-> 
-> 
-
-
-
-
--------------------------------------------------
-This mail sent through IMP: http://horde.org/imp/

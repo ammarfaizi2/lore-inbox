@@ -1,35 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262962AbVALAqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVALAqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262962AbVALAqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 19:46:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbVALAn7
+	id S261196AbVALAqE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 19:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262971AbVALAoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 19:43:59 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:26242 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262973AbVALAhw (ORCPT
+	Tue, 11 Jan 2005 19:44:24 -0500
+Received: from pat.uio.no ([129.240.130.16]:51673 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261196AbVALAlg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 19:37:52 -0500
-Date: Tue, 11 Jan 2005 16:36:44 -0800
-From: Greg KH <greg@kroah.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use modern format for PCI addresses
-Message-ID: <20050112003644.GA20607@kroah.com>
-References: <1105485396.31942.64.camel@eeyore>
+	Tue, 11 Jan 2005 19:41:36 -0500
+Subject: Re: Linux NFS vs NetApp
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Bernd Eckenfels <ecki-news2005-01@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E1CoVZ2-0006f7-00@calista.eckenfels.6bone.ka-ip.net>
+References: <E1CoVZ2-0006f7-00@calista.eckenfels.6bone.ka-ip.net>
+Content-Type: text/plain
+Date: Tue, 11 Jan 2005 19:41:24 -0500
+Message-Id: <1105490484.15912.51.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105485396.31942.64.camel@eeyore>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 04:16:36PM -0700, Bjorn Helgaas wrote:
-> Use pci_name() rather than "%02x:%02x" when printing PCI
-> address information.
-> 
-> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+on den 12.01.2005 Klokka 00:36 (+0100) skreiv Bernd Eckenfels:
 
-Applied, thanks.
+> However since also the read performance of Linux NFS is bad (at least not
+> very well selftuning) the Hardware is not really the reason for the fast NFS
+> implementation.
 
-greg k-h
+Indeed: NFS readahead requests are often processed out of order by the
+server (due to the basic unordered nature of RPC calls, the lack of
+ordering between nfsd server threads, use of UDP, etc) and so I suspect
+the generic readahead algorithm will tend to default to the random
+access mode in many cases where it should really be doing sequential
+access.
+
+Cheers,
+  Trond
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
+

@@ -1,83 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264175AbTDJVDH (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 17:03:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264177AbTDJVDH (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 17:03:07 -0400
-Received: from pollux.ds.pg.gda.pl ([213.192.76.3]:13579 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264175AbTDJVDC (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 17:03:02 -0400
-Date: Thu, 10 Apr 2003 23:14:23 +0200 (CEST)
-From: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [FBDEV updates] Newest framebuffer fixes.
-In-Reply-To: <Pine.LNX.4.44.0304102005330.23030-100000@phoenix.infradead.org>
-Message-ID: <Pine.LNX.4.51L.0304102312090.626@piorun.ds.pg.gda.pl>
-References: <Pine.LNX.4.44.0304102005330.23030-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	id S264189AbTDJVJ2 (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 17:09:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264190AbTDJVJ2 (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 17:09:28 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:6849 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S264189AbTDJVJZ (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 17:09:25 -0400
+To: Dan Kegel <dank@kegel.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Wolfgang Denk <wd@denx.de>
+Subject: Re: gcc-2.95 broken on PPC? 
+X-Mailer: exmh version 2.2
+Mime-version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-reply-to: Your message of "Thu, 10 Apr 2003 10:52:15 PDT."
+             <3E95AF4F.20105@kegel.com> 
+Date: Thu, 10 Apr 2003 23:20:50 +0200
+Message-Id: <20030410212055.B6A18C5877@atlas.denx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Apr 2003, James Simmons wrote:
-> Here are the latest framebuffer changes. Some driver updates and a
-> massive cleanup of teh cursor code. Tony please test it on the i810
-> chipset. I tested it on the Riva but there is one bug I can't seem to
-> find. Please test this patch. It is against 2.5.67 BK. It shoudl work
-> against 2.5.67 as well.
+In message <3E95AF4F.20105@kegel.com> you wrote:
+> The Denkster wrote:
+>
+> > This is speculation only. We use gcc-2.95.4 as part of  our  ELDK  in
+> > all  of our projects, and a lot of people are using these tools, too.
+> > We definitely see more problems with gcc-3.x compilers.
+> 
+> Hi Wolfgang, when you say you see more problems with gcc-3.x
+> compilers, what is x?  I'd understand if you saw problems
 
-No, it doesn't. On clean 2.5.67:
+There were serios problems with 3.0. I never tested 3.1.  I  believed
+3.2  was OK, but I every now and then problems pop up that seem to be
+compiler related. Never found time to investigate, though.
 
-# zcat fbdev.diff.gz |patch -p0
-patching file linus-2.5/Documentation/devices.txt
-patching file linus-2.5/drivers/video/aty/aty128fb.c
-patching file linus-2.5/drivers/video/cfbimgblt.c
-patching file linus-2.5/drivers/video/console/fbcon.c
-patching file linus-2.5/drivers/video/console/fbcon.h
-patching file linus-2.5/drivers/video/controlfb.c
-patching file linus-2.5/drivers/video/fbcmap.c
-patching file linus-2.5/drivers/video/fbmem.c
-Hunk #3 FAILED at 639.
-Hunk #4 succeeded at 705 (offset 1 line).
-Hunk #6 succeeded at 848 (offset 1 line).
-Hunk #8 succeeded at 931 (offset 1 line).
-Hunk #10 succeeded at 974 (offset 1 line).
-Hunk #12 succeeded at 997 (offset 1 line).
-Hunk #14 succeeded at 1151 (offset 1 line).
-1 out of 15 hunks FAILED -- saving rejects to file 
-linus-2.5/drivers/video/fbmem.c.rej
-patching file linus-2.5/drivers/video/i810/i810.h
-patching file linus-2.5/drivers/video/i810/i810_accel.c
-patching file linus-2.5/drivers/video/i810/i810_dvt.c
-patching file linus-2.5/drivers/video/i810/i810_gtf.c
-patching file linus-2.5/drivers/video/i810/i810_main.c
-patching file linus-2.5/drivers/video/i810/i810_main.h
-patching file linus-2.5/drivers/video/imsttfb.c
-patching file linus-2.5/drivers/video/logo/logo.c
-Hunk #1 FAILED at 33.
-1 out of 1 hunk FAILED -- saving rejects to file linus-2.5/drivers/video/logo/logo.c.rej
-The next patch would create the file 
-linus-2.5/drivers/video/logo/logo_linux_clut224.c, which already exists!  Assume -R? [n]
-Apply anyway? [n]
-Skipping patch.
-1 out of 1 hunk ignored -- saving rejects to file linus-2.5/drivers/video/logo/logo_linux_clut224.c.rej
-patching file linus-2.5/drivers/video/logo/logo_linux_mono.c
-patching file linus-2.5/drivers/video/platinumfb.c
-patching file linus-2.5/drivers/video/radeonfb.c
-patching file linus-2.5/drivers/video/riva/fbdev.c
-patching file linus-2.5/drivers/video/softcursor.c
-patching file linus-2.5/drivers/video/tdfxfb.c
-patching file linus-2.5/drivers/video/tgafb.c
-patching file linus-2.5/drivers/video/vga16fb.c
-patching file linus-2.5/include/linux/fb.h
-patching file linus-2.5/include/linux/linux_logo.h
+> with gcc-3.0.*, but I had hoped that gcc-3.2.2 would compile
+> good kernels for ppc.
+> (Me, I'm still using Montavista Linux 2.0's gcc-2.95.3 to build my ppc kernels,
+> but am looking for an excuse to switch to gcc-3.2.* or gcc-3.3.*.)
 
+I just heard that gdb 5.2.1 shows some problems when built  with  gcc
+3.2  as  sipped with RH-8.0, and the problem goes away when compiling
+with 2.95.[34]. The information might be wrong  or  a  misinterpreta-
+tion, but I'm still suspicious.
+
+Best regards,
+
+Wolfgang Denk
 
 -- 
-pozdr.  Pawe³ Go³aszewski        
----------------------------------
-worth to see: http://www.againsttcpa.com/
-CPU not found - software emulation...
+Software Engineering:  Embedded and Realtime Systems,  Embedded Linux
+Phone: (+49)-8142-4596-87  Fax: (+49)-8142-4596-88  Email: wd@denx.de
+Why is an average signature file longer than an average Perl script??

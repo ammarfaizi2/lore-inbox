@@ -1,84 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266075AbUGZVrd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265795AbUGZVzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266075AbUGZVrd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 17:47:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266072AbUGZVrd
+	id S265795AbUGZVzL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 17:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265544AbUGZVzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 17:47:33 -0400
-Received: from posti6.jyu.fi ([130.234.4.43]:8392 "EHLO posti6.jyu.fi")
-	by vger.kernel.org with ESMTP id S266075AbUGZVrQ (ORCPT
+	Mon, 26 Jul 2004 17:55:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54431 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265521AbUGZVzC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 17:47:16 -0400
-Date: Tue, 27 Jul 2004 00:46:54 +0300 (EEST)
-From: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
-X-X-Sender: ptsjohol@silmu.st.jyu.fi
-To: Robert Olsson <Robert.Olsson@data.slu.se>
-cc: Francois Romieu <romieu@fr.zoreil.com>,
-       H?ctor Mart?n <hector@marcansoft.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
-       <netdev@oss.sgi.com>, <brad@brad-x.com>, <shemminger@osdl.org>
-Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
- RLT-8139 related)
-In-Reply-To: <16645.13126.52445.630789@robur.slu.se>
-Message-ID: <Pine.LNX.4.44.0407270028170.11416-100000@silmu.st.jyu.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Spam-Checked: by miltrassassin
-	at posti6.jyu.fi; Tue, 27 Jul 2004 00:46:56 +0300
+	Mon, 26 Jul 2004 17:55:02 -0400
+Date: Mon, 26 Jul 2004 14:53:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: dgilbert@interlog.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH][2.6.8-rc1-mm1] drivers/scsi/sg.c gcc341 inlining fix
+Message-Id: <20040726145319.7cd97290.akpm@osdl.org>
+In-Reply-To: <200407141216.i6ECGHxg008332@harpo.it.uu.se>
+References: <200407141216.i6ECGHxg008332@harpo.it.uu.se>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jul 2004, Robert Olsson wrote:
+Mikael Pettersson <mikpe@csd.uu.se> wrote:
+>
+> gcc-3.4.1 errors out in 2.6.8-rc1-mm1 at drivers/scsi/sg.c:
+> 
+> drivers/scsi/sg.c: In function `sg_ioctl':
+> drivers/scsi/sg.c:209: sorry, unimplemented: inlining failed in call to 'sg_jif_to_ms': function body not available
+> drivers/scsi/sg.c:930: sorry, unimplemented: called from here
+> make[2]: *** [drivers/scsi/sg.o] Error 1
+> make[1]: *** [drivers/scsi] Error 2
+> make: *** [drivers] Error 2
+> 
+> sg_jif_to_ms() is marked inline but used defore its function
+> body is available. Moving it nearer the top of sg.c (together
+> with sg_ms_to_jif() for consistency) fixes the problem.
+> 
+>...
+>  static int
+> +sg_ms_to_jif(unsigned int msecs)
+> +{
+> +	if ((UINT_MAX / 2U) < msecs)
+> +		return INT_MAX;	/* special case, set largest possible */
+> +	else
+> +		return ((int) msecs <
+> +			(INT_MAX / 1000)) ? (((int) msecs * HZ) / 1000)
+> +		    : (((int) msecs / 1000) * HZ);
+> +}
+> +
+> +static inline unsigned
+> +sg_jif_to_ms(int jifs)
+> +{
+> +	if (jifs <= 0)
+> +		return 0U;
+> +	else {
+> +		unsigned int j = (unsigned int) jifs;
+> +		return (j <
+> +			(UINT_MAX / 1000)) ? ((j * 1000) / HZ) : ((j / HZ) *
+> +								  1000);
+> +	}
+> +}
+> +
 
-> Pasi Sjoholm writes:
 
->  > Pid: 2, comm:          ksoftirqd/0
->  > EIP: 0060:[<e0871224>] CPU: 0
->  > EIP is at rtl8139_poll+0xb4/0x100 [8139too]
->  >  EFLAGS: 00000247    Not tainted  (2.6.7-mm7)
->  > EAX: ffffe000 EBX: 00000040 ECX: df4824f8 EDX: c0441978
->  > ESI: df482400 EDI: e0868000 EBP: dff85f80 DS: 007b ES: 007b
->  > CR0: 8005003b CR2: b7c5a000 CR3: 1fafd000 CR4: 000006d0
->  >  [<c0119580>] ksoftirqd+0x0/0xc0
->  >  [<c02c5f3a>] net_rx_action+0x6a/0x110
->  >  [<c01191a9>] __do_softirq+0xa9/0xb0
->  >  [<c01191d7>] do_softirq+0x27/0x30
->  >  [<c01195e8>] ksoftirqd+0x68/0xc0
->  >  [<c01277e5>] kthread+0xa5/0xb0
->  >  [<c0127740>] kthread+0x0/0xb0
->  >  [<c0102111>] kernel_thread_helper+0x5/0x14
->  > --
->  > I'm not a kernel expert but it would seem that ksoftirqd is in some sort a 
->  > loop because I didn't get any "printk("%s wakes ksoftirqd\n", 
->  > current->comm);"-lines.
-
->  Hello!
-
-Hur är läget Robert?-)
-
->  This looks very much like the problem we see when doing route DoS testing
->  with Alexey.
-
-Hmm, at least it sounds like same problem and in both situations network 
-interface is kept busy.
-
->  In summary: High softirq loads can totally kill userland. The reason is that 
->  do_softirq() is run from many places hard interrupts, local_bh_enable etc 
->  and bypasses the ksoftirqd protection. It just been discussed at OLS with
->  Andrea and Dipankar and others. Current RCU suffers from this problem as well.
-
-Ok, this explanation makes sense and my point of view I think this is 
-quite critical problem if you can "crash" linux kernel just sending enough 
-packets to network interface for an example.
-
->  I've experimented some code to defer softirq's to ksoftirqd after a time as 
->  well as deferring all softirq's to ksoftirqd. Andrea had some ideas as well 
->  as Ingo.
-
-I would be more than glad to help you in testing if you want to publish 
-some patches. 
-
---
-Pasi Sjöholm
+We have standard jiffies_to_msecs() and msecs_to_jiffies() functions in
+include/linux/time.h.  Can we please make these sg-private versions go away
+altogether?
 

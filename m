@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268432AbRHMTaq>; Mon, 13 Aug 2001 15:30:46 -0400
+	id <S266808AbRHMTe0>; Mon, 13 Aug 2001 15:34:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267140AbRHMTa0>; Mon, 13 Aug 2001 15:30:26 -0400
-Received: from NS.iNES.RO ([193.230.220.1]:57528 "EHLO smtp.ines.ro")
-	by vger.kernel.org with ESMTP id <S266606AbRHMTaU>;
-	Mon, 13 Aug 2001 15:30:20 -0400
-Message-ID: <3B782868.95729E1E@interplus.ro>
-Date: Mon, 13 Aug 2001 22:20:08 +0300
-From: Mircea Ciocan <mirceac@interplus.ro>
-Organization: Home Office
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-ac2 i686)
+	id <S266586AbRHMTeQ>; Mon, 13 Aug 2001 15:34:16 -0400
+Received: from zeke.inet.com ([199.171.211.198]:35779 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S266970AbRHMTeD>;
+	Mon, 13 Aug 2001 15:34:03 -0400
+Message-ID: <3B782BAB.891D977A@inet.com>
+Date: Mon, 13 Aug 2001 14:34:03 -0500
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.19-6.2.7 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Ulrich Drepper <drepper@cygnus.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
+To: ptb@it.uc3m.es
+CC: Mircea Ciocan <mirceac@interplus.ro>,
+        linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Is there something that can be done against this ???
-In-Reply-To: <E15WK98-0007gd-00@the-village.bc.nu>
-		<3B7822E5.9AE35D4A@interplus.ro> <m3itfru5rj.fsf@otr.mynet>
+In-Reply-To: <200108131924.VAA03520@xilofon.it.uc3m.es>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	OK, I realized is a hoax, I should look at the code first then cry the
-wolf is comming :), but anyhow this crap is VERY effective in
-demonstrating to a clueless IT manager that Linux is oh, sooo easy to
-break in.
-	So at least to learn something from this, is there a way to stop
-completly that crap ???
-		My apologies to get you disturbed.
-
-
-		Mircea "washing the egg on his face" C.
-
-
-
-			
-
-
-
-Ulrich Drepper wrote:
+"Peter T. Breuer" wrote:
 > 
-> Mircea Ciocan <mirceac@interplus.ro> writes:
+> "A month of sundays ago Mircea Ciocan wrote:"
+> > P.S. Please tell me that I'm just being parnoid and that crap didn't
+> > work on your systems with a lookalike configuration.
 > 
-> >       The attached piece of script kiddie shit is the first one that worked
-> > flawlessly on my Mandrake box :((( ( kernel 2.4.7ac2, glibc-2.2.3 ),
-> > instant root access !!!.
-> 
-> This is a hoax.  Try doing something with your "exploited" shell.
-> 
-> --
-> ---------------.                          ,-.   1325 Chesapeake Terrace
-> Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
-> Red Hat          `--' drepper at redhat.com   `------------------------
+> It doesn't work. It just looks like it does to the viewer!
+
+The \x.. constructs in the echos require bash 2.
+
+C-ya,
+
+Eli
+--------------------.     Real Users find the one combination of bizarre
+Eli Carter           \ input values that shuts down the system for days.
+eli.carter(a)inet.com `-------------------------------------------------

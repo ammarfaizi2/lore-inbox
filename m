@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314433AbSFQPKd>; Mon, 17 Jun 2002 11:10:33 -0400
+	id <S314514AbSFQPMX>; Mon, 17 Jun 2002 11:12:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314444AbSFQPKc>; Mon, 17 Jun 2002 11:10:32 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:8627 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S314433AbSFQPKb>;
-	Mon, 17 Jun 2002 11:10:31 -0400
-Date: Mon, 17 Jun 2002 17:01:00 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Robert Love <rml@tech9.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: [patch] sti() preemption fix, 2.5.22
-Message-ID: <Pine.LNX.4.44.0206171651480.15554-100000@e2>
+	id <S314546AbSFQPMW>; Mon, 17 Jun 2002 11:12:22 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:720 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S314514AbSFQPMU>; Mon, 17 Jun 2002 11:12:20 -0400
+Date: Mon, 17 Jun 2002 10:12:21 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Kristian Peters <kristian.peters@korseby.net>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: isdn oops with 2.4.19-pre10
+In-Reply-To: <20020617092214.03789a68.kristian.peters@korseby.net>
+Message-ID: <Pine.LNX.4.44.0206171009550.22308-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 17 Jun 2002, Kristian Peters wrote:
 
-__global_sti() appears to have a similar bug as __global_cli(), but it's a
-bit more complex to trigger:
+> I tried to unload the isdn modules (I'm using a hisax and a avm b1 
+> card) and get these oopses:
 
-if a syscall-level, irqs-enabled process does a sti() but it does not hold
-the IRQ spinlock, and the process gets preempted after the 'cpu'
-assignment and gets run on another CPU, and the original CPU runs another
-process that does a cli() which holds the global IRQ lock, then the rest
-of __global_sti() will incorrectly release the IRQ lock - possibly causing
-an oops in the other process.
+Okay, I think I can see what is happening.
 
-this too is a few instructions race but looks quite serious at first
-sight.
+Can you confirm that you get the oops if you unload the modules in the 
+same order that you loaded them, but not if you use the reverse order?
 
-(the fix is to disable preemption around the critical section.)
+I.e.
 
-	Ingo
+	insmod capidrv; insmod hisax; rmmod hisax; rmmod capidrv
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.510   -> 1.511  
-#	arch/i386/kernel/irq.c	1.10    -> 1.11   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/06/17	mingo@elte.hu	1.511
-# - sti() preemption bugfix.
-# --------------------------------------------
-#
-diff -Nru a/arch/i386/kernel/irq.c b/arch/i386/kernel/irq.c
---- a/arch/i386/kernel/irq.c	Mon Jun 17 17:00:30 2002
-+++ b/arch/i386/kernel/irq.c	Mon Jun 17 17:00:30 2002
-@@ -368,9 +368,11 @@
- {
- 	int cpu = smp_processor_id();
- 
-+	preempt_disable();
- 	if (!local_irq_count(cpu))
- 		release_irqlock(cpu);
- 	__sti();
-+	preempt_enable();
- }
- 
- /*
+should be okay,
+
+	insmod capidrv; insmod hisax; rmmod capidrv; rmmod hisax
+
+oopses?
+
+--Kai
+
 

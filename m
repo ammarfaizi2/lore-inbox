@@ -1,96 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131548AbRAAISB>; Mon, 1 Jan 2001 03:18:01 -0500
+	id <S131662AbRAAIfm>; Mon, 1 Jan 2001 03:35:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131662AbRAAIRw>; Mon, 1 Jan 2001 03:17:52 -0500
-Received: from freya.yggdrasil.com ([209.249.10.20]:41383 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S131548AbRAAIRh>; Mon, 1 Jan 2001 03:17:37 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 31 Dec 2000 23:47:11 -0800
-Message-Id: <200101010747.XAA02612@adam.yggdrasil.com>
-To: kaos@ocs.com.au, linux-kernel@vger.kernel.org
-Subject: Re: Patch(?): linux-2.4.0-prerelease/drivers/char/drm/Makefile libdrm symbol versioning fix
-Cc: faith@valinux.com
+	id <S131704AbRAAIfc>; Mon, 1 Jan 2001 03:35:32 -0500
+Received: from mail.sun.ac.za ([146.232.128.1]:3590 "EHLO mail.sun.ac.za")
+	by vger.kernel.org with ESMTP id <S131662AbRAAIfU>;
+	Mon, 1 Jan 2001 03:35:20 -0500
+Date: Mon, 1 Jan 2001 10:04:46 +0200 (SAST)
+From: Hans Grobler <grobh@sun.ac.za>
+To: Pierfrancesco Caci <p.caci@tin.it>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0-prerelease compile error in (maybe) mkiss
+In-Reply-To: <87bstskv6z.fsf@penny.ik5pvx.ampr.org>
+Message-ID: <Pine.LNX.4.30.0101010911590.769-100000@prime.sun.ac.za>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> = Adam Richter
->  = Keith Owens
+On 1 Jan 2001, Pierfrancesco Caci wrote:
+> Hi there... first compilation error of 2001 (at least in my timezone :-)
+>
+> ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
+>         --start-group \
+>         arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+>         drivers/block/block.o drivers/char/char.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o  drivers/char/drm/drm.o drivers/isdn/isdn.a drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/video/video.o drivers/net/hamradio/hamradio.o drivers/acpi/acpi.o drivers/md/mddev.o \
+>         net/network.o \
+>         /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a /usr/src/linux/arch/i386/lib/lib.a \
+>         --end-group \
+>         -o vmlinux
+> drivers/net/net.o: In function `network_ldisc_init':
+> drivers/net/net.o(.text.init+0x135): undefined reference to `mkiss_init_ctrl_dev'
+> make: *** [vmlinux] Error 1
 
->>	There is a thread in linux-kernel about how somewhere in
->>linux-2.4.0-test13-preX, the Makefile for drivers/char/drm started
->>building libdrm.a and not versioning the symbols.  I believe the
->>following patch fixes the problem, but I have not tried it for the
->>nonmodular case.
->>
->>	The change is that libdrm.o is built instead of libdrm.a.  This
->>object is linked into the kernel if at least one driver that needs it
->>is also linked into the kernel.  Otherwise, it is built as a helper
->>module which is automatically loaded by modprobe when a module that
->>needs it is loaded.
+Yes, this is a known problem (the patch below got lost). MKISS still has a few other
+pending issues to resolve for 2.4 so I would recommend you use it with care.
 
->Having drmlib.o as a helper module will defeat the requirements listed
->in drivers/char/drm/Makefile (below).  You end up with one copy of the
->library being used by all modules.  See my patch earlier today on l-k
->that builds two versions of drmlib.a, for kernel and module.  That
->patch preserves the drm requirements.
+Working on fixing it...
 
-># libs-objs are included in every module so that radical changes to the
-># architecture of the DRM support library can be made at a later time.
->#
-># The downside is that each module is larger, and a system that uses
-># more than one module (i.e., a dual-head system) will use more memory
-># (but a system that uses exactly one module will use the same amount of
-># memory).
->#
-># The upside is that if the DRM support library ever becomes insufficient
-># for new families of cards, a new library can be implemented for those new
-># cards without impacting the drivers for the old cards.  This is significant,
-># because testing architectural changes to old cards may be impossible, and
-># may delay the implementation of a better architecture.  We've traded slight
-># memory waste (in the dual-head case) for greatly improved long-term
-># maintainability.
+-- Hans
 
->BTW, I disagree with this approach but I guess it is up to the drm
->maintainers.
 
-	Like you, I disagree with this approach, but, if I have not missed
-some important information, then I hope the drm maintainers with see
-the light or, failing that, the Linus will just delete those comments
-from linux/drivers/char/drm/Makefile anyhow and integrate a patch like
-the one I posted.
+diff -u4Nr -X dontdiff linux-2.4.0-prerelease.orig/drivers/net/setup.c linux-2.4.0-prerelease/drivers/net/setup.c
+--- linux-2.4.0-prerelease.orig/drivers/net/setup.c	Mon Dec 11 21:38:29 2000
++++ linux-2.4.0-prerelease/drivers/net/setup.c	Mon Jan  1 07:21:15 2001
+@@ -8,9 +8,8 @@
+ #include <linux/errno.h>
+ #include <linux/init.h>
+ #include <linux/netlink.h>
 
-	Kernel interfaces change radically all the time, and we make better
-tradeoffs to deal with the same issues of maintaining support for old
-hardware which might not be tested right away all the time.  For example,
-we currently maintain two styles of PCI device drivers.  The drm
-maintainers could just write a libdrm2 library if the need arose and
-depmod/modprobe would automatically load it when necessary if they designed
-it the normal way.  Imagine how huge the kernel modules would be if every
-facility in the kernel duplicated itself as an object file in every module.
-Why should drm be treated differently?
+-extern int mkiss_init_ctrl_dev(void);
+ extern int slip_init_ctrl_dev(void);
+ extern int strip_init_ctrl_dev(void);
+ extern int x25_asy_init_ctrl_dev(void);
 
-	It an especially bad tradeoff to take on the maintenance costs
-of a weird kernel build (that drm users are already complaining about on
-linux-kernel) for a facility like drm, which is a graphics optimization
-for applications that are willing to go to some trouble to use it.  Users
-of these applications will be disproprionately quick to upgrade or (for
-example, in embedded applications) some organization will care enough and
-have resources enough to at least report bugs and test fixes.  This is
-like recoding i386 floating point emulation into assembly.  The
-performance/maintence tradeoff is not worth it, because 386's have
-already obscelesced from those applications, and still would have, even
-with FP emulation in assembly.
+@@ -147,11 +146,8 @@
+ 	slip_init_ctrl_dev();
+ #endif
+ #if defined(CONFIG_X25_ASY)
+ 	x25_asy_init_ctrl_dev();
+-#endif
+-#if defined(CONFIG_MKISS)
+-	mkiss_init_ctrl_dev();
+ #endif
+ #if defined(CONFIG_STRIP)
+ 	strip_init_ctrl_dev();
+ #endif
 
-	It's not my call to make, and I think we will follow the stock
-kernels' drivers/char/drm even if it continues this weirdness, but I
-certainly hope this duplication of libdrm in every module will be dropped.
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+
+
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

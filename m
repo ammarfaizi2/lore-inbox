@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268346AbUI2Mgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268335AbUI2MiP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268346AbUI2Mgz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 08:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268345AbUI2Mgz
+	id S268335AbUI2MiP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 08:38:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268342AbUI2MiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 08:36:55 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:41347 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S268342AbUI2Mgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 08:36:44 -0400
-Date: Wed, 29 Sep 2004 14:36:37 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <20040929123637.GA17952@wohnheim.fh-wedel.de>
-References: <415A302E.5090402@comcast.net>
+	Wed, 29 Sep 2004 08:38:15 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:31236 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S268335AbUI2MiJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 08:38:09 -0400
+Date: Wed, 29 Sep 2004 13:37:59 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: dri-devel <dri-devel@lists.sourceforge.net>,
+       Xserver development <xorg@freedesktop.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: New DRM driver model - gets rid of DRM() macros!
+Message-ID: <20040929133759.A11891@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jon Smirl <jonsmirl@gmail.com>,
+	dri-devel <dri-devel@lists.sourceforge.net>,
+	Xserver development <xorg@freedesktop.org>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <9e4733910409280854651581e2@mail.gmail.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <415A302E.5090402@comcast.net>
-User-Agent: Mutt/1.3.28i
-Subject: Re: Compressed filesystems:  Better compression?
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Rcpt-To: nigelenki@comcast.net, linux-kernel@vger.kernel.org
-X-SA-Exim-Mail-From: joern@wohnheim.fh-wedel.de
-X-SA-Exim-Version: 3.1 (built Son Feb 22 10:54:36 CET 2004)
-X-SA-Exim-Scanned: Yes
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <9e4733910409280854651581e2@mail.gmail.com>; from jonsmirl@gmail.com on Tue, Sep 28, 2004 at 11:54:35AM -0400
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 September 2004 23:46:54 -0400, John Richard Moser wrote:
-> 
-> In my own personal tests, I've gotten a 6.25% increase in compression
-> ratio over bzip2 using the above lzma code.  These were very weak tests
-> involving simply bunzipping a 32MiB tar.bz2 of the Mozilla 1.7 source
-> tree and recompressing it with lzma, which produced a 30MiB tar.lzma.  I
-> tried, but could not get it to compress much better than that (I think I
-> touched 29.5 at some point but not sure, it was a while ago).
+On Tue, Sep 28, 2004 at 11:54:35AM -0400, Jon Smirl wrote:
+> I've checked two new directories into DRM CVS for Linux 2.6 -
+> linux-core, shared-core. This code implements a new model for DRM
+> where DRM is split into a core piece and personality modules that
+> share the core. The major reason for doing this is that it allows me
+> to remove all of the DRM() macros; something that is causing lot's of
+> complaints from the Linux kernel people.
 
-Sounds sane.  bzip2 is really hurt by the hart limit of 900k for block
-sorting.
+I gave it a quick look and it looks great so far.
 
-Inside the kernel, other things start to matter, though.  If you
-really want to impress me, take some large test data (your mozilla.tar
-or whatever), cut it up into chunks of 4k and compress each chunk
-individually.  Does lzma still beat gzip?
+Some ideas that would be nice improvements still (not that some may be
+inherited from the old drm code, I just looked at the CVS checkout):
 
-If you can at least get it to compress better for 64k chunks, that's
-already quite interesting.  But excellent compression with infinite
-chunk-size and infinite memory is quite pointless inside the kernel.
-Such things should be left in userspace where they belong.
-
-Jörn
-
--- 
-The wise man seeks everything in himself; the ignorant man tries to get
-everything from somebody else.
--- unknown
+ - once we have Alan's idea of the graphics core implemented drm_init()
+   should go awaw
+ - drm_probe (and it's call to drm_fill_in_dev) looks a little fishy,
+   what about doing the full ->probe callback in each driver where it
+   can do basic hw setup, dealing with pci and calls back into the drm
+   core for minor number allocation and common structure allocations.
+   This would get rid of the ->preinit and ->postinit hooks.
+ - isn't drm_order just a copy of get_order()?
+ - any chance to use proper kernel-doc comments instead of the bastdized
+   and hard to read version you have currently?
+ - the coding style is a little strange, like spurious whitespaces inside
+   braces, maybe you could run it through scripts/Lindent
+ - care to use linux/lists.h instead of opencoded lists, e.g. in
+   dev->file_last/dev->file_first or dev->vmalist
+ - drm_flush is a noop.  a NULL ->flush does the same thing, just easier
+ - dito or ->poll
+ - dito for ->read
+ - why do you use DRM_COPY_FROM_USER_IOCTL in Linux-specific code?
+ - drm__mem_info should be converted to fs/seq_file.c functions
+ - dito for functions in drm_proc.c
+ 

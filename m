@@ -1,50 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272133AbRHXUbx>; Fri, 24 Aug 2001 16:31:53 -0400
+	id <S272320AbRHXUcX>; Fri, 24 Aug 2001 16:32:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272323AbRHXUbm>; Fri, 24 Aug 2001 16:31:42 -0400
-Received: from hibernia.clubi.ie ([212.17.32.129]:27789 "HELO
-	fogarty.jakma.org") by vger.kernel.org with SMTP id <S272321AbRHXUbZ>;
-	Fri, 24 Aug 2001 16:31:25 -0400
-Date: Fri, 24 Aug 2001 21:34:00 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: <paul@fogarty.jakma.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Justin Guyett <justin@soze.net>, Samium Gromoff <_deepfire@mail.ru>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Howl of soul...
-In-Reply-To: <E15aN8C-0006OH-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0108242128420.12905-100000@fogarty.jakma.org>
-X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
-X-Dumb-Filters: aryan marijuiana cocaine heroin hardcore cum pussy porn teen tit sex lesbian group
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272319AbRHXUcP>; Fri, 24 Aug 2001 16:32:15 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:14690 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S272320AbRHXUcD>; Fri, 24 Aug 2001 16:32:03 -0400
+Date: Fri, 24 Aug 2001 22:32:18 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Hua Zhong <hzhong@cisco.com>
+Cc: ddade@digitalstatecraft.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Is it bad to have lots of sleeping tasks?
+Message-ID: <20010824223218.N8355@gum01m.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Hua Zhong <hzhong@cisco.com>, ddade@digitalstatecraft.com,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <E15aNCX-0006PH-00@the-village.bc.nu> <005a01c12cd9$2f153950$103147ab@cisco.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="b/Q3JWIUAuLE0ZFy"
+Content-Disposition: inline
+In-Reply-To: <005a01c12cd9$2f153950$103147ab@cisco.com>
+User-Agent: Mutt/1.3.20i
+X-Operating-System: Linux 2.4.7 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Aug 2001, Alan Cox wrote:
 
-> There have been multiple reports of problems with drive failures on recent
-> IBM drives with lots of OS's.
+--b/Q3JWIUAuLE0ZFy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-hmmm... tell me about it. and not even neccessarily recent.
+On Fri, Aug 24, 2001 at 01:13:04PM -0700, Hua Zhong wrote:
+> > Linus scheduler is pretty dire beyond about 8 runnable threads, but very
+> > good below that. It also has a refresh loop that is O(n) tasks, which is
+> > strange, and actually looks easily to eliminate.
+>=20
+> So why not do it?  Or implement a nicer scheduler?  There are many good
+> ones.  There are o(1) schedulers that provide much better proportional
+> sharing.  They scale and also perform well even in "few running processes"
+> case.  They are also not hard to implement (I once implemented such a
+> scheduler with 100 lines of patch, and that fitted in the existing Linux
+> runqueue framework).  What's the resistence to scheduler changes?
 
-i had 2 IBM DDRS and 1 DGHS 9GB SCSI drives fail on me all in the
-space of a month. All part of one 3disk raid5 array -> 3/3 failure 
-rate. 
+Expect Larry to jump on you.
 
-wasn't bad power, cause the seagates that were in the same box are
-still chugging along now, nearly 2 years later. the seagates and 1
-quantum that replaced the 3 failed IBMs are also still chugging
-along.
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, DE                                SCSI, Security
 
-> Alan
+--b/Q3JWIUAuLE0ZFy
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-You can measure a programmer's perspective by noting his attitude on
-the continuing viability of FORTRAN.
-		-- Alan Perlis
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE7hrnRxmLh6hyYd04RAnI4AJ4/IG/XyfwEJq3IJO/GELr3KVYhCwCdEPp7
+tWNAlUafgXbP63IU+zGshZo=
+=BAF5
+-----END PGP SIGNATURE-----
+
+--b/Q3JWIUAuLE0ZFy--

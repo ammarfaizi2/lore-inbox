@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281458AbRLGODE>; Fri, 7 Dec 2001 09:03:04 -0500
+	id <S281483AbRLGOFI>; Fri, 7 Dec 2001 09:05:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281473AbRLGOCy>; Fri, 7 Dec 2001 09:02:54 -0500
-Received: from uisge.3dlabs.com ([193.133.230.45]:49363 "EHLO uisge.3dlabs.com")
-	by vger.kernel.org with ESMTP id <S281458AbRLGOCl>;
-	Fri, 7 Dec 2001 09:02:41 -0500
-Date: Fri, 7 Dec 2001 14:01:29 +0000
-From: Paul Sargent <Paul.Sargent@3dlabs.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2GB process crashing on 2.4.14
-Message-ID: <20011207140128.F31161@3dlabs.com>
-In-Reply-To: <20011207132317.E31161@3dlabs.com> <E16CLM9-0005rf-00@the-village.bc.nu>
+	id <S281488AbRLGOFC>; Fri, 7 Dec 2001 09:05:02 -0500
+Received: from smtp013.mail.yahoo.com ([216.136.173.57]:4364 "HELO
+	smtp013.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S281483AbRLGOEt>; Fri, 7 Dec 2001 09:04:49 -0500
+Subject: Re: kernel: ldt allocation failed
+From: James Davies <james_m_davies@yahoo.com>
+To: Dave Jones <davej@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Kiril Vidimce <vkire@pixar.com>,
+        Dan Maas <dmaas@dcine.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0112071439430.20718-100000@Appserv.suse.de>
+In-Reply-To: <Pine.LNX.4.33.0112071439430.20718-100000@Appserv.suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 07 Dec 2001 23:59:55 +1000
+Message-Id: <1007733617.2043.0.camel@Lord>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16CLM9-0005rf-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 07, 2001 at 01:48:00PM +0000, Alan Cox wrote:
-> > > Most probably the process is running out of address space to allocate from.
-> > > There is 3Gb of available space. 
-> > 
-> > That would be from 0x00000000 to 0xC0000000, Right?
+Ok I see my mistake now. While the kernel driver contains source code,
+it is only enough to link with the current kernel correctly, and the
+rest binary. Sorry.
+
+On Fri, 2001-12-07 at 23:41, Dave Jones wrote:
+> On 7 Dec 2001, James Davies wrote:
 > 
-> Correct (0xBFFFFFFF)
+> > source code IS available for free under a restrictive license. the GLX
+> > drivers are closed.
 > 
-> > > binary, some your libraries.  Getting above 3Gb/process on x86 is very hairy
-> > > with a bad performance hit
-> > 
-> > So if I was hitting this limit then I should see no / very few gaps, in the
-> > /proc/<pid>/maps. Is that true?
+> Bzzzt...
 > 
-> Providing the memory allocator it is using is sufficiently smart
+> >From the tarball you posted a link to..
+> 
+> -rwxr-xr-x    1 davej    users      889615 Nov 27 20:39 Module-nvkernel*
+> 
+> (davej@noodles:NVIDIA_kernel-1.0-2313)$ file Module-nvkernel
+> Module-nvkernel: ELF 32-bit LSB relocatable, Intel 80386, version 1, not
+> stripped
+> 
+> No-one but nvidia knows whats in this.
+> 
+> regards,
+> Dave.
+> 
+> -- 
+> | Dave Jones.        http://www.codemonkey.org.uk
+> | SuSE Labs
 
-Where "it" is the app?
 
-OK, well looking at the maps output, there seems to be three distinct
-sections:
 
-1) from 0x00000000 to 0x01c6a000 (30MB-ish) are mappings of the executable.
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 
-2) from 0xbca9a000 to 0xbfffffff (56MB-ish) are the libs, plus a few other
-   areas, which I've assumed are stack, and scratch areas for the libs.
-
-3) a single mapping, (was 1.1GB-ish in the map output I attached) which
-   starts at the end of section 1, and is continually growing, and which I
-   can see has no reason to stop until it gets to the start of section 2
-   (some 3GB - 86MB later).
-
-Now admittedly, it's possible that some of the other mappings may grow by a
-factor of 20 to suddenly eat up 1GB of address space, but I doubt it. So I'm
-not buying the address space idea at the moment. That said, I'm not going to
-discount it and will keep a log of what happens on the mappings while this
-process is running, just in case something really wacky like that happens.
-
-Paul
--- 
-Paul Sargent
-mailto: Paul.Sargent@3Dlabs.com

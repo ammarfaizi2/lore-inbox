@@ -1,88 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264392AbTH1XWD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 19:22:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbTH1XWD
+	id S264317AbTH1Xmf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 19:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264449AbTH1Xmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 19:22:03 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34748 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264392AbTH1XV6 (ORCPT
+	Thu, 28 Aug 2003 19:42:35 -0400
+Received: from fmr09.intel.com ([192.52.57.35]:48361 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S264317AbTH1Xma (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 19:21:58 -0400
-Date: Thu, 28 Aug 2003 16:22:29 -0700
-From: Dave Olien <dmo@osdl.org>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.0-test4-mm2 drivers/char.c ---> drivers/char/raw.c
-Message-ID: <20030828232228.GA7242@osdl.org>
-References: <20030828231853.GA7192@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030828231853.GA7192@osdl.org>
-User-Agent: Mutt/1.4i
+	Thu, 28 Aug 2003 19:42:30 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C36DBE.054C6484"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: [PATCH][2.6-test4][1/6]Support for HPET based timer
+Date: Thu, 28 Aug 2003 16:42:19 -0700
+Message-ID: <C8C38546F90ABF408A5961FC01FDBF1902C7D212@fmsmsx405.fm.intel.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH][2.6-test4][1/6]Support for HPET based timer
+Thread-Index: AcNtvgU6LZLlF7EsRH6Fjjr2d0pjnQ==
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: <torvalds@osdl.org>, <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, "Nakajima, Jun" <jun.nakajima@intel.com>
+X-OriginalArrivalTime: 28 Aug 2003 23:42:20.0013 (UTC) FILETIME=[058211D0:01C36DBE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-Mistake in subject line... should refer to drivers/char/raw.c
+------_=_NextPart_001_01C36DBE.054C6484
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 28, 2003 at 04:18:53PM -0700, Dave Olien wrote:
-> 
-> The raw.c character device Oopses dereferencing a NULL pointer in bd_claim()
-> This problem occurred after bd_claim() in block_dev.c was modified to "claim
-> the whole device when a partition is claimed".
-> 
-> raw_open() made the mistake of calling bd_claim BEFORE calling
-> blkdev_get().  At that time, the bdev->bd_contains field. has't been
-> initialized yet.  Switching the order allows blkdev_get() to initialize
-> those fields before calling bd_claim().
-> 
-> Also fixed up some error return paths:
-> 
-> igrab() should never fail under these circumstances since the caller
-> already has a reference to that inode through the bdev at that time.
-> 
-> In the event of blkdev_get() failure or set_blocksize() failure, not
-> all the work to unwind from the error was done.
-> 
-> --- linux-2.6.0-test4-mm2_original/drivers/char/raw.c	2003-08-28 13:16:03.000000000 -0700
-> +++ linux-2.6.0-test4-mm2_raw/drivers/char/raw.c	2003-08-28 14:07:44.000000000 -0700
-> @@ -60,25 +60,25 @@
->  	bdev = raw_devices[minor].binding;
->  	err = -ENODEV;
->  	if (bdev) {
-> -		err = bd_claim(bdev, raw_open);
-> +		err = blkdev_get(bdev, filp->f_mode, 0, BDEV_RAW);
->  		if (err)
->  			goto out;
-> -		err = -ENODEV;
-> -		if (!igrab(bdev->bd_inode))
-> +		igrab(bdev->bd_inode);
-> +		err = bd_claim(bdev, raw_open);
-> +		if (err) {
-> +			blkdev_put(bdev, BDEV_RAW);
->  			goto out;
-> -		err = blkdev_get(bdev, filp->f_mode, 0, BDEV_RAW);
-> +		}
-> +		err = set_blocksize(bdev, bdev_hardsect_size(bdev));
->  		if (err) {
->  			bd_release(bdev);
-> +			blkdev_put(bdev, BDEV_RAW);
->  			goto out;
-> -		} else {
-> -			err = set_blocksize(bdev, bdev_hardsect_size(bdev));
-> -			if (err == 0) {
-> -				filp->f_flags |= O_DIRECT;
-> -				if (++raw_devices[minor].inuse == 1)
-> -					filp->f_dentry->d_inode->i_mapping =
-> -						bdev->bd_inode->i_mapping;
-> -			}
->  		}
-> +		filp->f_flags |= O_DIRECT;
-> +		if (++raw_devices[minor].inuse == 1)
-> +			filp->f_dentry->d_inode->i_mapping =
-> +				bdev->bd_inode->i_mapping;
->  	}
->  	filp->private_data = bdev;
->  out:
+1/6 - hpet1.patch - main.c change to introduce late_time_init()
+
+
+
+
+
+diff -purN linux-2.6.0-test4/init/main.c =
+linux-2.6.0-test4-hpet/init/main.c
+--- linux-2.6.0-test4/init/main.c	2003-08-22 16:52:56.000000000 -0700
++++ linux-2.6.0-test4-hpet/init/main.c	2003-08-28 12:18:15.000000000 =
+-0700
+@@ -106,6 +106,8 @@ int system_running =3D 0;
+ #define MAX_INIT_ENVS 8
+=20
+ extern void time_init(void);
++/* Default late time init is NULL. archs can override this later. */
++void (*late_time_init)(void) =3D NULL;
+ extern void softirq_init(void);
+=20
+ int rows, cols;
+@@ -421,7 +423,6 @@ asmlinkage void __init start_kernel(void
+ 	console_init();
+ 	profile_init();
+ 	local_irq_enable();
+-	calibrate_delay();
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	if (initrd_start && !initrd_below_start_ok &&
+ 			initrd_start < min_low_pfn << PAGE_SHIFT) {
+@@ -433,6 +434,9 @@ asmlinkage void __init start_kernel(void
+ 	page_address_init();
+ 	mem_init();
+ 	kmem_cache_init();
++	if (late_time_init)
++		late_time_init();
++	calibrate_delay();
+ 	pidmap_init();
+ 	pgtable_cache_init();
+ 	pte_chain_init();
+
+
+
+
+
+
+------_=_NextPart_001_01C36DBE.054C6484
+Content-Type: application/octet-stream;
+	name="hpet01.patch"
+Content-Transfer-Encoding: base64
+Content-Description: hpet01.patch
+Content-Disposition: attachment;
+	filename="hpet01.patch"
+
+ZGlmZiAtcHVyTiBsaW51eC0yLjYuMC10ZXN0NC9pbml0L21haW4uYyBsaW51eC0yLjYuMC10ZXN0
+NC1ocGV0L2luaXQvbWFpbi5jCi0tLSBsaW51eC0yLjYuMC10ZXN0NC9pbml0L21haW4uYwkyMDAz
+LTA4LTIyIDE2OjUyOjU2LjAwMDAwMDAwMCAtMDcwMAorKysgbGludXgtMi42LjAtdGVzdDQtaHBl
+dC9pbml0L21haW4uYwkyMDAzLTA4LTI4IDEyOjE4OjE1LjAwMDAwMDAwMCAtMDcwMApAQCAtMTA2
+LDYgKzEwNiw4IEBAIGludCBzeXN0ZW1fcnVubmluZyA9IDA7CiAjZGVmaW5lIE1BWF9JTklUX0VO
+VlMgOAogCiBleHRlcm4gdm9pZCB0aW1lX2luaXQodm9pZCk7CisvKiBEZWZhdWx0IGxhdGUgdGlt
+ZSBpbml0IGlzIE5VTEwuIGFyY2hzIGNhbiBvdmVycmlkZSB0aGlzIGxhdGVyLiAqLwordm9pZCAo
+KmxhdGVfdGltZV9pbml0KSh2b2lkKSA9IE5VTEw7CiBleHRlcm4gdm9pZCBzb2Z0aXJxX2luaXQo
+dm9pZCk7CiAKIGludCByb3dzLCBjb2xzOwpAQCAtNDIxLDcgKzQyMyw2IEBAIGFzbWxpbmthZ2Ug
+dm9pZCBfX2luaXQgc3RhcnRfa2VybmVsKHZvaWQKIAljb25zb2xlX2luaXQoKTsKIAlwcm9maWxl
+X2luaXQoKTsKIAlsb2NhbF9pcnFfZW5hYmxlKCk7Ci0JY2FsaWJyYXRlX2RlbGF5KCk7CiAjaWZk
+ZWYgQ09ORklHX0JMS19ERVZfSU5JVFJECiAJaWYgKGluaXRyZF9zdGFydCAmJiAhaW5pdHJkX2Jl
+bG93X3N0YXJ0X29rICYmCiAJCQlpbml0cmRfc3RhcnQgPCBtaW5fbG93X3BmbiA8PCBQQUdFX1NI
+SUZUKSB7CkBAIC00MzMsNiArNDM0LDkgQEAgYXNtbGlua2FnZSB2b2lkIF9faW5pdCBzdGFydF9r
+ZXJuZWwodm9pZAogCXBhZ2VfYWRkcmVzc19pbml0KCk7CiAJbWVtX2luaXQoKTsKIAlrbWVtX2Nh
+Y2hlX2luaXQoKTsKKwlpZiAobGF0ZV90aW1lX2luaXQpCisJCWxhdGVfdGltZV9pbml0KCk7CisJ
+Y2FsaWJyYXRlX2RlbGF5KCk7CiAJcGlkbWFwX2luaXQoKTsKIAlwZ3RhYmxlX2NhY2hlX2luaXQo
+KTsKIAlwdGVfY2hhaW5faW5pdCgpOwo=
+
+------_=_NextPart_001_01C36DBE.054C6484--

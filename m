@@ -1,77 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265508AbUFTOV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265331AbUFTO2N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265508AbUFTOV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 10:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265494AbUFTOV1
+	id S265331AbUFTO2N (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 10:28:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265494AbUFTO2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 10:21:27 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:31724 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265508AbUFTOTp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 10:19:45 -0400
-Date: Sun, 20 Jun 2004 16:19:39 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Matthias Schniedermeyer <ms@citd.de>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.6 & 2.6.7 sometime hang after much I/O
-Message-ID: <20040620141936.GA14787@suse.de>
-References: <Pine.LNX.4.44.0406201123240.26522-100000@korben.citd.de> <40D56700.2030206@yahoo.com.au> <20040620115908.GA27241@citd.de> <40D58B93.4040304@yahoo.com.au> <20040620141734.GA28048@citd.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040620141734.GA28048@citd.de>
+	Sun, 20 Jun 2004 10:28:13 -0400
+Received: from mailout.despammed.com ([65.112.71.29]:26535 "EHLO
+	mailout.despammed.com") by vger.kernel.org with ESMTP
+	id S265331AbUFTO2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 10:28:06 -0400
+Date: Sun, 20 Jun 2004 09:14:35 -0500 (CDT)
+Message-Id: <200406201414.i5KEEZk18928@mailout.despammed.com>
+From: alftanner@despammed.com
+To: linux-kernel@vger.kernel.org
+Subject: Please help for SiS 180 parallel ata
+X-Mailer: despammed.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 20 2004, Matthias Schniedermeyer wrote:
-> On Sun, Jun 20, 2004 at 11:05:23PM +1000, Nick Piggin wrote:
-> > Matthias Schniedermeyer wrote:
-> > 
-> > >Here we go.
-> > >
-> > >Addendum: After some time more and more konsole froze. Up to the point
-> > >where i (had to) kill(ed) X(CTRL-ALT-Backspace) and after i couldn't
-> > >even log in at the console anymore i rebooted (into 2.6.5). Then i
-> > >recompiled 2.6.7 with SYSRQ-support and tried to reproduce the hanging
-> > >without X. After 3 runs i "gave up" and started X. Here i had luck and
-> > >the process ('cut-movie.pl') froze at first try. Then i killed X and did
-> > >the above on the console.
-> > >
-> > >As the system is currently unsuable enough to reboot, i will reboot in
-> > >2.6.5 after this mail, but i can always reboot into 2.6.7 if you need
-> > >more input.
-> > >
-> > >
-> > 
-> > The attached trace was with 2.6.7, right?
-> 
-> Yes.
-> 
-> > Can you reproduce the hang, then, as root, do:
-> > 
-> > 	echo 1024 > /sys/block/sda/queue/nr_requests
-> > 
-> > Replace sda with whatever devices your hung processes were
-> > doing IO to. Do things start up again?
-> 
-> 1 try (with X) with unchanged nr_requests. (I was stupid enough to issues the
-> command on the wrong HDD :-) )
-> (AFAIR i had the same situation with 2.6.6, sometimes the hang didn't happen)
-> 
-> 6 tries (with X) with nr_requests=1024 and no hang.
-> 
-> 1 try with nr_requests back to 128 and now it hangs.
-> now changing to nr_request=1024 doesn't seem to change anyting, my
-> konsoles start to freeze.
-> 
-> 
-> Don't know if it is relevant but the bytes transfered are always rougly
-> around 3000-3400MB (1500-1700 MB read & 1500-1700 MB write. The program
-> reads 100MB, then writes 100MB, then issues "sync", the hangs happend
-> always about every after 15-17 "rounds")
+Hi all
 
-(missed the initial report) - what io hardware are you using?
+I own a brand new mb for my AMD3200+, Jetway S755max
+with a Sis chipset 755, southbridge 963 + Sis 180.
 
--- 
-Jens Axboe
+I would like to use my Pioneer dvd recorder on the
+third parallel ide, controlled by the sis 180 chipset.
+I am running fedora core 1, with
+kernel-2.4.22-1.2188.nptl.
+I have tried this patch for kernel 2.4.25
+
+2.4.25-libata16.patch.bz2 
+found at:
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/old/
+
+and enabled sata_sis.c, compiling it directly in the
+kernel (not as module).
+
+Unfortunately it is not detected at boot time. The
+lspci -vv output gives:
+00:0c.0 RAID bus controller: Silicon Integrated
+Systems [SiS]: Unknown device 0180 (prog-if 85)
+        Subsystem: Silicon Integrated Systems [SiS]:
+Unknown device 0180
+        Control: I/O+ Mem+ BusMaster+ SpecCycle-
+MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz+ UDF- FastB2B- ParErr-
+DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 128
+        Interrupt: pin A routed to IRQ 12
+        Region 0: I/O ports at d400 [size=8]
+        Region 1: I/O ports at d800 [size=4]
+        Region 2: I/O ports at dc00 [size=8]
+        Region 3: I/O ports at e000 [size=4]
+        Region 4: I/O ports at e400 [size=16]
+        Region 5: I/O ports at <unassigned>
+        Expansion ROM at <unassigned> [disabled]
+[size=64K]
+
+
+I have installed the SiS driver and xp is happy with
+the dvd recorder. It is correctly detected by the
+bios.
+
+Afterwards, I tried to compile sata_sis as a module.
+
+The parallel Pioneer is still not recognised:
+
+When I modprobe sata_sis I obtain:
+
+libata version 1.02 loaded.
+ata1: SATA max UDMA/133 cmd 0xD400 ctl 0xD802 bmdma
+0xE400 irq 12
+ata2: SATA max UDMA/133 cmd 0xDC00 ctl 0xE002 bmdma
+0xE408 irq 12
+ata1: no device found (phy stat 41b7c0c6)
+ata1: thread exiting
+i8253 count too high! resetting..
+ata2: no device found (phy stat 00ff078b)
+ata2: thread exiting
+scsi1 : sata_sis
+scsi2 : sata_sis
+i8253 count too high! resetting..
+
+Does it mean that Sis 180 works only with sata, not
+with its parallel port?
+
+Thanks
 

@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbTEYEXC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 00:23:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbTEYEXC
+	id S261324AbTEYEig (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 00:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTEYEig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 00:23:02 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:5004 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S261323AbTEYEXB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 00:23:01 -0400
-From: Con Kolivas <kernel@kolivas.org>
+	Sun, 25 May 2003 00:38:36 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:384
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S261324AbTEYEig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 00:38:36 -0400
+Date: Sun, 25 May 2003 00:39:21 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
 To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: I/O problems in 2.4.19/2.4.20/2.4.21-rc3
-Date: Sun, 25 May 2003 14:37:57 +1000
-User-Agent: KMail/1.5.1
-Cc: Christian Klose <christian.klose@freenet.de>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200305231405.54599.christian.klose@freenet.de> <200305251127.40516.kernel@kolivas.org> <20030525042803.GA8978@holomorphy.com>
-In-Reply-To: <20030525042803.GA8978@holomorphy.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>, Keith Owens <kaos@ocs.com.au>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       "" <mort@wildopensource.com>, "" <davidm@napali.hpl.hp.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, "" <tomita@cinet.co.jp>
+Subject: Re: cpu-2.5.69-bk14-1
+In-Reply-To: <20030525042329.GB8284@holomorphy.com>
+Message-ID: <Pine.LNX.4.50.0305250037450.17353-100000@montezuma.mastecende.com>
+References: <20030520170331.GK29926@holomorphy.com>
+ <Pine.LNX.4.50.0305241750570.16144-100000@montezuma.mastecende.com>
+ <20030525042329.GB8284@holomorphy.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305251437.57464.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 May 2003 14:28, William Lee Irwin III wrote:
-> On Sun, May 25, 2003 at 11:27:20AM +1000, Con Kolivas wrote:
-> > Even though you're not Marc I do agree with you. The problem is well
-> > described as either poor interactivity (the window wiggle test) or
-> > starvation in the presence of certain scheduler hogs (for whatever
-> > reason) since the interactivity patch from mingo. Dropping the max
-> > timeslice is a bandaid but destroys priority based timeslice
-> > scheduling. Dropping the min timeslice will bring this back, but at
-> > some point the timeslice will be so low that low priority cpu
-> > intensive tasks will spend most of their time cache trashing.
->
-> The fact that it's a "bandaid" and that it "destroys priority-based
-> timeslice scheduling" makes it a shenanigan. If you're having problems
+On Sat, 24 May 2003, William Lee Irwin III wrote:
 
-I don't disagree it's a shenanigan.
+> On Sat, May 24, 2003 at 05:54:10PM -0400, Zwane Mwaikambo wrote:
+> > Successfully run for 4 days with various stress loads. on normally 
+> > troublesome 3way P133 with CONFIG_NR_CPUS = 72 (255 causes a #SS with 
+> > large .configs/kernels)
+> 
+> To clarify, this is due to bootloading limitations and kernel image size.
 
-> solved by capping timeslices, you have someone's timeslice and/or
-> priority growing too large for some reason.
+My bad, i didn't make that clear, i've seen the same with large NR_IRQS 
+arrays.
 
-So there is a benefit to timeslices being as large as 200ms? I'll take your 
-word for it.
-
-> It'd be far better to help figure out what went wrong.
-
-Love to help. No idea where to begin. All we can do is report what helps the 
-symptoms and hope those in the know can decipher it from that.
-
-Con
+	Zwane
+-- 
+function.linuxpower.ca

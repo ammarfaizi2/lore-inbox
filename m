@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129326AbRBTGkf>; Tue, 20 Feb 2001 01:40:35 -0500
+	id <S129701AbRBTHHH>; Tue, 20 Feb 2001 02:07:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129602AbRBTGk0>; Tue, 20 Feb 2001 01:40:26 -0500
-Received: from landsberger.com ([64.6.193.137]:33296 "EHLO
-	mephistopheles.landsberger.com") by vger.kernel.org with ESMTP
-	id <S129326AbRBTGkH>; Tue, 20 Feb 2001 01:40:07 -0500
-Message-ID: <3A92119F.5040307@landsberger.com>
-Date: Mon, 19 Feb 2001 22:41:35 -0800
-From: Landsberger Brian J <brian@landsberger.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; 0.8) Gecko/20010215
-X-Accept-Language: en
+	id <S129807AbRBTHG5>; Tue, 20 Feb 2001 02:06:57 -0500
+Received: from slc404.modem.xmission.com ([166.70.2.150]:22282 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S129701AbRBTHGp>; Tue, 20 Feb 2001 02:06:45 -0500
+To: peterw@dascom.com.au
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel executation from ROM
+In-Reply-To: <XFMail.20010220082732.peterw@dascom.com.au>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Feb 2001 22:04:05 -0700
+In-Reply-To: Peter Waltenberg's message of "Tue, 20 Feb 2001 08:27:32 +1000 (EST)"
+Message-ID: <m1elwuymgq.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
-To: Thomas Sailer <sailer@ife.ee.ethz.ch>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: usb audio
-In-Reply-To: <3A8F077B.169063A8@landsberger.com> <3A914DD3.6AADF0D9@ife.ee.ethz.ch>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No sound comes forth from them, not even so much as a whisper.
+Peter Waltenberg <peterw@dascom.com.au> writes:
 
-Thomas Sailer wrote:
+> Having a PC that booted Linux directly from the (ex-BIOS) ROM , now that
+> would be "interesting".
 
-> Landsberger Brian J wrote:
-> 
->>         Has anyone been able to get the Apple Pro (the round clear) speakers to
->> work in Linux? I've read the howto's and followed the various steps to
->> no avail. The various usb modules print the following to syslog:
-> 
-> 
-> This looks ok. So what is wrong?
-> 
-> Tom
+Been there doing that.
+http://www.linuxbios.org
 
 
+Eric

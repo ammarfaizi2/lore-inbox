@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267637AbSLGNKX>; Sat, 7 Dec 2002 08:10:23 -0500
+	id <S262806AbSLGNJD>; Sat, 7 Dec 2002 08:09:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267695AbSLGNKX>; Sat, 7 Dec 2002 08:10:23 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:33297 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S267637AbSLGNKV>; Sat, 7 Dec 2002 08:10:21 -0500
-Date: Sat, 7 Dec 2002 14:14:24 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@transmeta.com>, jgarzik@pobox.com
-Subject: Re: /proc/pci deprecation?
-Message-ID: <20021207131424.GL32065@louise.pinerecords.com>
-References: <997222131F7@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <997222131F7@vcnet.vc.cvut.cz>
+	id <S267637AbSLGNJC>; Sat, 7 Dec 2002 08:09:02 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:15114 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262806AbSLGNJA>; Sat, 7 Dec 2002 08:09:00 -0500
+Date: Sat, 7 Dec 2002 14:16:28 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: John Bradford <john@grabjohn.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Make menuconfig fails on small display in 2.5.50
+In-Reply-To: <200212071145.gB7BjTcE000914@darkstar.example.net>
+Message-ID: <Pine.LNX.4.44.0212071410271.2109-100000@serv>
+References: <200212071145.gB7BjTcE000914@darkstar.example.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > IMO, yes, since those tools provide the summary, and exist almost purely in
-> > userspace. I forgot to mention in the orginal email that we could also drop
-> > the PCI names database, right? This would save a considerable amount in the
-> > kernel image alone..
+Hi,
+
+On Sat, 7 Dec 2002, John Bradford wrote:
+
+> I just tried to run make menuconfig on 2.5.50, on a serial terminal,
+> and it reports:
 > 
-> If you want, make it user configurable like it was during 2.2.x. But
-> I personally prefer descriptive names and system overview I can parse 
-> without having mounted /usr to get working lspci.
+> Your display is too small to run Menuconfig!
+> It must be at least 19 lines by 80 columns.
+> 
+> make menuconfig in 2.4.20 works perfectly.
 
-Actually I'm inclined to insist that lspci belong in /sbin.  Really.  :)
+Hmm, the logic for this message is still the same, so I'm suprised that it 
+behaves differently.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+> I'm pretty sure I've got the terminal configured correctly - has
+> anybody experienced this?
+
+How exactly was it configured? What kind of serial terminal is it? What is 
+the size of the terminal? Could you send me the output of "echo $LINES 
+$COLUMNS; stty size"?
+
+bye, Roman
+

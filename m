@@ -1,121 +1,150 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbTJ2CAa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 21:00:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbTJ2CAa
+	id S261821AbTJ2CUL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 21:20:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTJ2CUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 21:00:30 -0500
-Received: from mail.kroah.org ([65.200.24.183]:34517 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261882AbTJ2CA1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 21:00:27 -0500
-Date: Tue, 28 Oct 2003 17:59:56 -0800
-From: Greg KH <greg@kroah.com>
-To: Andreas Jellinghaus <aj@dungeon.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ANNOUNCE: User-space System Device Enumeration (uSDE)
-Message-ID: <20031029015956.GB9450@kroah.com>
-References: <3F9DA5A6.3020008@mvista.com> <Pine.LNX.4.33.0310280901490.7139-100000@osdlab.pdx.osdl.net> <pan.2003.10.28.22.59.13.441436@dungeon.inka.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 28 Oct 2003 21:20:11 -0500
+Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:16838 "EHLO
+	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S261821AbTJ2CUA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 21:20:00 -0500
+Message-ID: <20031029021944.86876.qmail@mail.com>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <pan.2003.10.28.22.59.13.441436@dungeon.inka.de>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "David Liontooth" <liontooth@post.com>
+To: linux-kernel@vger.kernel.org
+Cc: "Manfred Spraul" <manfred@colorfullife.com>
+Date: Tue, 28 Oct 2003 21:19:43 -0500
+Subject: Re: [2.6.0-test-9] natsemi oops
+X-Originating-Ip: 128.97.184.97
+X-Originating-Server: ws1-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 28, 2003 at 11:59:14PM +0100, Andreas Jellinghaus wrote:
-> > I find it difficult to see your justification for designing a project from
-> > scratch instead of contributing your time, effort, and ideas to a pair of
-> > already existing, albeit immature, projects that do exactly the same
-> > thing.
+
+Thanks Manfred -- I left out ipx and everything is working great so far. 
+So count that as an ipx problem instead.
+
+Cheers,
+David
+
+Manfred Sproul wrote:
+
+[netdev added to cc list: it looks like a module refcount bug with ipx]
+
+David Liontooth wrote:
+
+>The natsemi oops is triggered in 2.6.0-test9 too.
+>
+>kernel BUG at include/linux/module.h:296
+>
+>
+That's BUG_ON(module_refcount(module) == 0) in __module_get. I doubt
+that the natsemi driver has anything to do with the bug, it looks like a
+bug in the ipx core.
+
+
+----- Original Message -----
+From: "David Liontooth"
+
 > 
-> Hi Patric,
+> The natsemi oops is triggered in 2.6.0-test9 too. 
 > 
-> maybe you can tell me:
-
-Hm, off topic here... Oh well...
-
-> with devfs it is _very_ simple to see what a driver does, and what
-> information it passes on devices. it is the major and minor number,
-> the device type, a name, and a default permissions (that does not
-> require changes in most cases).
+> kernel BUG at include/linux/module.h:296
 > 
-> sysfs is very sparse:
->  - no (explicit) device type
->    (/sys/block/ has block devices, the rest is char.)
+> Everything freezes. 
+> 
+> Am I the only one to get this? 
+> 
+> I don't know when it started, but 2.5.69 has no problems.
+> 
+> Cheers,
+> David
+> 
+> 
+> ----- Original Message -----
+> From: "David Liontooth"
+> Subject: Re: [2.6.0-test-7] natsemi oops
+> 
+> > 
+> > Correction: I get the oops also when natsemi is compiled as a module. 
+> > It is triggered not when the module is loaded, but when it is used 
+> > the first time. Oops (some fragments below) followed by a total freeze;
+> > nothing gets logged.
+> > 
+> > Is this a known problem? 
+> > 
+> > Is there a workaround?
+> > 
+> > Cheers,
+> > David
+> > 
+> > 
+> > ----- Original Message -----
+> > From: David Liontooth
+> > Subject: [2.6.0-test-7] natsemi oops
+> > 
+> > > 
+> > > The 2.6.0-test-7 boots fine and works great -- until I plug
+> > > in the ethernet cable. Within a second I get an oops and
+> > > everything freezes. Booting with "acpi=off" makes no difference.
+> > > If I boot with the ethernet cable plugged in, I get to the 
+> > > login prompt, and it oopses within a second. If I time it right,
+> > > I can log into the machine remotely for one second before it 
+> > > oopses (so the natsemi driver is working). Very reproducible! 
+> > > /proc/kmsg is empty. 
+> > > 
+> > > If I compile natsemi as a module, I don't get the oops. 
+> > > However, now the driver is not working -- I can't ping out.
+> > > Everything works fine in 2.5.69, which I've been running
+> > > since early July.
+> > > 
+> > > Here's some of the oops, taken by hand:
+> > > 
+> > > Process swapper (pid: 0, threadinfo=c042a000 task c03a47a0)
+> > > 
+> > > Stack
+> > > 
+> > > Call trace:
+> > > 
+> > > ipxitf_auto_create
+> > > ipx_rcv
+> > > netif_receive_skb
+> > > process_backlog
+> > > net_rx_action
+> > > do_softirq
+> > > do_IRQ
+> > > _stext
+> > > common_interrupt
+> > > acpi_processor_idle
+> > > cpu_idle
+> > > start_kernel
+> > > unknown_bootoption
+> > > 
+> > > Kernel panic: Fatal exception in interrupt
+> > > In interrupt handler -- not syncing
+> > > 
+> > > Configuration, lspci, and dmesg attached.
+> > > 
+> > > Cheers,
+> > > David
+> > > 
+> > > 
+> > > 
+> > << config-2.6.0-test7-3 >>
+> > << dmesg-2.6.0-test7-7 >>
+> > << lspci-2.6.0-test7 >>
+> > 
+> > -- 
+-- 
+__________________________________________________________
+Sign-up for your own personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
 
-There's your explicitness :)
+CareerBuilder.com has over 400,000 jobs. Be smarter about your job search
+http://corp.mail.com/careers
 
->  - no default permissions
->    (the driver author often knows well, if a device should be secured
->    or not. why can't he pass that information?)
-
-Permissions are often _not_ known better by the driver author.  Let's
-leave this up to the distro to get correct.
-
->  - only plain names like old /dev. I still can't see how any user space
->    tool can find out, that my /sys/block/hda/ is a hard disk, and 
->    /sys/block/hdc/ is a cdrom. how could any tool create /dev/discs/ and
->    /dev/cdrom/ devices without that distinction?
-
-Look at the type of the device associated with the block device.  That
-will tell you if it's a floppy, or cdrom, or whatever.  If IDE devices
-don't export the proper info for this in sysfs, we need to fix it.  I'm
-pretty sure SCSI already does.
-
->  - why is a usb printer class usb? I thought that was the bus? shouldn't
->    it be class printer (or "lp" or something like that)? how can any
->    tool create /dev/printers/ devices, if it cannot see how some usb
->    device is a printer or not?
-
-The USB class is for those types of devices that use the USB major
-number.  See devices.txt for a list of these devices.  There is no
-"class lp" for the kernel, as devices.txt does not specify such a thing.
-There are parallel port printers, serial printers, and USB printers, all
-with different majors and minors.  If you want to consolidate these,
-into one major and class code, please do, but that's a 2.7 issue.  For
-2.6, we have to stick with what we have been doing since at least 2.2.
-
-
-> and how would some driver create additional export information for many
-> devices? understanding how floppy.c creates devfs devices for all those
-> fd0u1440 and friend devices is easy. but how would that driver create
-> information on those devices via sysfs?
-
-The individual driver can create sysfs files using the existing sysfs
-functions (like DEVICE_ATTR(), CLASS_DEVICE_ATTR(), etc.)  Or for the
-block devices, create an attribute and register it with the block code
-(yeah, for block devices it's harder, but not impossible.)
-
-> I don't know exactly what the problem with devfs is, but maybe it is
-> because devfs is a filesystem?
-
-Please see the many discussions about this in the past in the
-linux-kernel archives.
-
-> if sysfs doesn't gather and export the same amount of information 
-> devfs does, I don't know how any tool based on sysfs can ever 
-> seriously replace it. you want people to join current effords
-> (i.e, udev+sysfs). with many open questions I don't see how that
-> is possible? 
-
-sysfs does export enough information for us to do this in userspace.  If
-it's missing anything, please let us know.  Again, permissions will be
-done in userspace, and should not be in the kernel.
-
-> finishing the sysfs documentation and porting some drivers like
-> floppy.c and lp.c to sysfs could help. In its current state, I
-> don't understand many parts of sysfs, and it looks very natural
-> to me, that people rather implement something from scratch if it
-> is easy, than try to understand some very complex.
-
-See the lwn.net series about kobjects and sysfs for some other sysfs
-information.  Usually driver authors will not have to care about that
-stuff at all, but possibly they might want to add a file or two to
-sysfs, through the driver model.  See any of the existing kernel drivers
-that do this (there are a lot of them) for examples of this.
-
-Hope this helps,
-
-greg k-h

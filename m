@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272258AbTHNJHV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 05:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272264AbTHNJHV
+	id S272248AbTHNJSl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 05:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272249AbTHNJSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 05:07:21 -0400
-Received: from smtp1.BelWue.de ([129.143.2.12]:35324 "EHLO smtp1.BelWue.DE")
-	by vger.kernel.org with ESMTP id S272258AbTHNJHU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 05:07:20 -0400
-Date: Thu, 14 Aug 2003 11:07:17 +0200 (CEST)
-From: Oliver Tennert <tennert@science-computing.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6 kbuild config logic and initrd
-Message-ID: <Pine.LNX.4.44.0308141100280.12796-100000@picard.science-computing.de>
+	Thu, 14 Aug 2003 05:18:41 -0400
+Received: from dyn-ctb-203-221-74-134.webone.com.au ([203.221.74.134]:41737
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S272248AbTHNJSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 05:18:40 -0400
+Message-ID: <3F3B53CC.8030209@cyberone.com.au>
+Date: Thu, 14 Aug 2003 19:18:04 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ide: limit drive capacity to 137GB if host doesn't	support
+ LBA48
+References: <200308140324.45524.bzolnier@elka.pw.edu.pl> <1060851207.5535.15.camel@dhcp23.swansea.linux.org.uk>
+In-Reply-To: <1060851207.5535.15.camel@dhcp23.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
 
-While trying to use initrds with the 2.6.0-test3 kernel,
-I found out that ramdisk support (CONFIG_BLK_DEV_RAM) is allowed to be
-modular, while at the same time initrd support (CONFIG_BLK_DEV_INITRD) can be
-compiled into the kernel:
+Alan Cox wrote:
 
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_INITRD=y
+>On Iau, 2003-08-14 at 02:24, Bartlomiej Zolnierkiewicz wrote:
+>
+>> 	hwif->rqsize			= old_hwif.rqsize;
+>>-	hwif->addressing		= old_hwif.addressing;
+>>+	hwif->no_lba48			= old_hwif.no_lba48;
+>>
+>
+>This change is a bad idea. Its called "addressing" because that is what
+>it is about (see SATA and ATA specs). In future SATA addressing becomes
+>a 0,1,2 value because 48bits isnt enough, it may get more forms beyond
+>that.
+>
 
-This does not make sense, however, as no initial ramdisk can be loaded
-while the generic ramdisk driver is outside the static kernel part!
-
-Consequently, I promptly fell for it, though I agree that it should have
-come to my mind before actually compiling the kernel!
-
-In 2.4 kernels, the configuration logic does not allow that.
-
-
-Regards
-
-Oliver
-
-
---
-________________________________________creating IT solutions
-
-Dr. Oliver Tennert			science + computing ag
-phone   +49(0)7071 9457-598		Hagellocher Weg 71-75
-fax     +49(0)7071 9457-411		D-72070 Tuebingen, Germany
-O.Tennert@science-computing.de		www.science-computing.de
-
+Wow! Isn't that over 100 thousand TB? ;)
 
 

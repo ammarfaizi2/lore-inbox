@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316666AbSGLQqy>; Fri, 12 Jul 2002 12:46:54 -0400
+	id <S316659AbSGLQqc>; Fri, 12 Jul 2002 12:46:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316667AbSGLQqw>; Fri, 12 Jul 2002 12:46:52 -0400
-Received: from smtp.eol.ca ([205.189.152.19]:35288 "HELO smtp.eol.ca")
-	by vger.kernel.org with SMTP id <S316666AbSGLQqr>;
-	Fri, 12 Jul 2002 12:46:47 -0400
-Date: Fri, 12 Jul 2002 12:49:31 -0400
-From: William Park <opengeometry@yahoo.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Advice saught on math functions
-Message-ID: <20020712164931.GA1830@node1.opengeometry.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <E17T1a9-00037I-00@the-village.bc.nu> <20020712162229.GC2348@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020712162229.GC2348@werewolf.able.es>
-User-Agent: Mutt/1.4i
+	id <S316667AbSGLQq3>; Fri, 12 Jul 2002 12:46:29 -0400
+Received: from pD9E235D3.dip.t-dialin.net ([217.226.53.211]:3205 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316659AbSGLQqW>; Fri, 12 Jul 2002 12:46:22 -0400
+Date: Fri, 12 Jul 2002 10:48:46 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: JorgP <jorgp@bartnet.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: What is the most stable kernel to date?
+In-Reply-To: <20020712163546.GO29993@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.44.0207121046090.3421-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 12, 2002 at 06:22:29PM +0200, J.A. Magallon wrote:
-> 
-> On 2002.07.12 Alan Cox wrote:
-> >> Are these functions which are supplied by the FPU?  I've looked
-> >> through the fpu emulation headers and exp() is the only one I can find
-> >
-> >You can't use FPU operations in the x86 kernel.
-> 
-> Are you to worried about precission ? Can't you just do your sin() etc.
-> in fixed point ? (and move all your fpdata to fixed point, of course)
+Hi,
 
-Or, you can use polynomial approximations.
+On Fri, 12 Jul 2002, Tomas Szepe wrote:
+> > Has anyone conducted any tests to determine what is the most stable (as in
+> > reliable) kernel available?
+> 
+> There is no such test because there's no way to describe "being stable"
+> in formulas.
+> 
+> You might as well like to stick with a kernel that has worked for you
+> for a long enough time. If you don't need the features of 2.4, go with
+> 2.2-latest.
 
+Well, about stability: I'm running 2.4.19-rc1-aa2 for some days now, I 
+didn't yet have any problems. My sparc64, meanwhile, is running 2.5.24-ct1, 
+stable for more than a week of uptime yet.
+
+							Regards,
+							Thunder
 -- 
-William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>
-8-CPU Cluster, Hosting, NAS, Linux, LaTeX, python, vim, mutt, tin
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

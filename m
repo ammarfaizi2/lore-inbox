@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267200AbTAFVye>; Mon, 6 Jan 2003 16:54:34 -0500
+	id <S267228AbTAFV7h>; Mon, 6 Jan 2003 16:59:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267225AbTAFVye>; Mon, 6 Jan 2003 16:54:34 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:52618 "HELO palrel13.hp.com")
-	by vger.kernel.org with SMTP id <S267200AbTAFVyd>;
-	Mon, 6 Jan 2003 16:54:33 -0500
-Date: Mon, 6 Jan 2003 14:01:35 -0800
-To: Andrew Walrond <andrew@walrond.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Paul Mackerras <paulus@samba.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, davidm@hpl.hp.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.5] PCI: allow alternative methods for probing the BARs
-Message-ID: <20030106220135.GF26790@cup.hp.com>
-References: <Pine.LNX.4.44.0301052009050.3087-100000@home.transmeta.com> <1041848998.666.4.camel@zion.wanadoo.fr> <3E19694D.8030306@walrond.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E19694D.8030306@walrond.org>
-User-Agent: Mutt/1.4i
-From: grundler@cup.hp.com (Grant Grundler)
+	id <S267231AbTAFV7h>; Mon, 6 Jan 2003 16:59:37 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:14048 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267228AbTAFV7g>;
+	Mon, 6 Jan 2003 16:59:36 -0500
+Date: Mon, 6 Jan 2003 14:04:52 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Tom Rini <trini@kernel.crashing.org>, <linux-kernel@vger.kernel.org>,
+       <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH] configurable LOG_BUF_SIZE
+In-Reply-To: <20030106212608.GQ5984@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.33L2.0301061359470.15416-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 06, 2003 at 11:32:29AM +0000, Andrew Walrond wrote:
-> 2.5.53 and 2.5.54 do not seem to find everything on the pci bus on this 
-> asus pr-dls dual p4 xeon m/b
-...
-> But with 2.5.53/2.5.54 bus 14 and bus 18 are missing:
-...
-> ACPI is enabled in both cases (Won't boot with pci=noacpi)
+On Mon, 6 Jan 2003, Tomas Szepe wrote:
 
-Could this be an ACPI resource bug?
-I thought ACPI reported the PCI bus controllers and it's possible
-the 2.5.x code is just not finding the right resources.
+| > [rddunlap@osdl.org]
+|
+| > | |---------------------------------------------------------------------------
+| > | | I'd probably be happier if the current one didn't even _ask_ the user (or|
+| > | | only asked the user if kernel debugging is enabled), and just silently   |
+| > | | defaulted to the normal values.                                          |
+| > | |---------------------------------------------------------------------------
+| >
+| Randy,
+|
+| this looks correct to me.  Maybe using if/endif instead of the two
+| 'depends on' would make the entry more explicit to the eye of a future
+| beholder.
 
-In any case, I don't think this is related to the original problem.
+Hey Tomas,
 
-grant
+Thanks for looking and giving me your comments.
+
+if/endif would be useful there, especially if there was also an 'else'
+available...
+
+-- 
+~Randy
+

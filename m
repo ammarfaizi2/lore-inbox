@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263365AbTJ0DBy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 22:01:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263403AbTJ0DBy
+	id S263742AbTJ0DF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 22:05:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTJ0DF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 22:01:54 -0500
-Received: from ms-smtp-02-smtplb.ohiordc.rr.com ([65.24.5.136]:8603 "EHLO
-	ms-smtp-02-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
-	id S263365AbTJ0DBx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 22:01:53 -0500
-From: Dennis Veatch <dveatch@woh.rr.com>
-Reply-To: dveatch@woh.rr.com
-To: linux-kernel@vger.kernel.org
-Subject: Menuconfig encountered an error
-Date: Sun, 26 Oct 2003 22:04:40 -0500
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 26 Oct 2003 22:05:57 -0500
+Received: from adsl-68-120-202-5.dsl.pltn13.pacbell.net ([68.120.202.5]:992
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S263742AbTJ0DFz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 22:05:55 -0500
+Date: Sun, 26 Oct 2003 19:05:54 -0800
+To: linux-kernel@vger.kernel.org, Honcgda521@aol.com
+Subject: Re: how do i clean my compuiter
+Message-ID: <20031027030554.GB25022@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org, linux-kernel@vger.kernel.org,
+	Honcgda521@aol.com
+References: <6f.3d8f1bad.2ccddf77@aol.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wzJLGUyc3ArbnUjN"
 Content-Disposition: inline
-Message-Id: <200310262204.40702.dveatch@woh.rr.com>
+In-Reply-To: <6f.3d8f1bad.2ccddf77@aol.com>
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mandrake 9.2, kernel source 2.4.22-18mdk
 
-The error;
+--wzJLGUyc3ArbnUjN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Menuconfig has encountered a possible error in one of the kernel's 
-configuration files and is unable to continue. Here is the error report;
+On Sun, Oct 26, 2003 at 09:39:51PM -0500, Honcgda521@aol.com wrote:
+> Subject: how do i clean my compuiter=20
 
-Q> scripts/Menuconfig: line832: MCmenu78: command not found
+Compressed air for the inside of the case, and a lint-free cloth.
 
+--=20
+Joshua Kwan
 
-I do not remember what part of the menu I was in when this happened.
+--wzJLGUyc3ArbnUjN
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--- 
-Registered Linux user 193414
-http://counter.li.org
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-"Trying"? My contribution was much closer to a "feeble wave in the general 
-direction of something that might lead you one step closer to a solution 
-if you squint really hard and do all of the work."
+iQIVAwUBP5yLkaOILr94RG8mAQLhDxAAnKD+gSUJvqVFL2kPlDbuq5mVGwhDjC0n
+QfaEydS9uCVq8soYKYnnMtmW/Y2rQ1sBwFn+qQDsb9csGOjqzKEOvpONbGdwR3hX
+ODYdRmBYqPwbZvhlzNEKiUJh2ZfNfEKYkiFcyYDRwaKnS3j89FTjjpdmudaQM79/
+3KxJTkhW5SYt8ENqebG67WrPbN966xzc+m8uoH5LVShYHKV6JokCqaSalLoXRnav
+Vsn3lJNJHd0Z56qUD5vAfxJSF3SUctY1k11tb+sY9g0Y9NRvKw9kvrRCRt+wRjLl
+52VvNgZOhzU93QpblxcesMsboODY1D5PdQAyI3kBoNGAIdhZlm2EWKm/qzgCOnut
+Xd6X/7Gk3/fHfgqHDvj1MKmMPxas9rg9CYvsjDi+1iFEOfD3zMRbBXTjn0J303K+
+33b5gd8zyeKAvNBb8f5QagzfG9lgJ5AFRP/pGOK28VYBk/ma+/njk0WB8qkz0A5E
++kI5CmrGmVgnCxTxJmZ3K9uwiQhvGQ2ODpKT1VhJWIQlEzaTO4gFLG/R/5zUD3at
+dJxnVV5uzHZhED6opB5OM2wvKQY8PfGjuOQPfuLzh+YHMMhIdd3yafAm9nLquETI
+dK5RzyHExlLK1l1I7Tixr02vByLmIWMz8UT/30CSrk0C2m08pxvtWKKYlmFLqWe9
+BXW+LEqlY9g=
+=luuU
+-----END PGP SIGNATURE-----
 
+--wzJLGUyc3ArbnUjN--

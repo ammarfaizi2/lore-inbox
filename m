@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136838AbREJQ0G>; Thu, 10 May 2001 12:26:06 -0400
+	id <S136841AbREJQiT>; Thu, 10 May 2001 12:38:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136839AbREJQZ5>; Thu, 10 May 2001 12:25:57 -0400
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:50450 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S136838AbREJQZj>; Thu, 10 May 2001 12:25:39 -0400
-From: rjd@xyzzy.clara.co.uk
-Message-Id: <200105101625.f4AGPTh02433@xyzzy.clara.co.uk>
-Subject: Detecting Red Hat builds ?
-To: linux-kernel@vger.kernel.org
-Date: Thu, 10 May 2001 17:25:29 +0100 (BST)
-X-Mailer: ELM [version 2.5 PL3]
+	id <S136842AbREJQiJ>; Thu, 10 May 2001 12:38:09 -0400
+Received: from pc-25-211.mountaincable.net ([24.215.25.211]:61592 "HELO
+	adrock.vbfx.com") by vger.kernel.org with SMTP id <S136841AbREJQh6>;
+	Thu, 10 May 2001 12:37:58 -0400
+Message-ID: <3AFAC3E2.6BA7D8C0@vbfx.com>
+Date: Thu, 10 May 2001 12:37:54 -0400
+From: Adam <adam@vbfx.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 8139too v0.9.17 - w/ 8139B, DFE538TX 10/100 [NOT working]
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Using DHCP, on Slackware 7.1 w/ GLIBC 2.2, kernel 2.4.4(and 2.4.5pre1 w/
+8139too.patch to v0.9.17)
+---
+media is unconnected, link down, or incompatible connection
+---
 
-How can I determine if the build my device driver is being compiled under is
-a standard kernel.org one or a Red Hat one ?
+Is the exact message I get, though, with the v0.9.15c version of the
+driver, my NIC works perfectly fine, should I revert to using kernel
+2.4.3 w/ v0.9.15c of the 8139too driver until it is fixed?
 
-The problem is I have a driver that includes syncppp.h which in the releases
-from kernel.org is in linux/drivers/net/wan/ up to and including 2.4.2 after
-which it moves to linux/include/net/. Can cope with this easily enough with
-a "#if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,2)" but unfortunatly the
-kernel source supplied with Red Hat 7.1 reports itself as 2.4.2 but already
-has the syncppp changes from 2.4.3.
-
-I was shown a trick to solve a similar problem under 2.2.x but the symbol
-defined as a side effect of including one of the standard system headers
-is no longer present :-(
-
-
+If there is anymore information needed to help in possibly fixing the
+problem I'd be more than glad to oblige.
 -- 
-        Bob Dunlop                      FarSite Communications
-        rjd@xyzzy.clara.co.uk           bob.dunlop@farsite.co.uk
-        www.xyzzy.clara.co.uk           www.farsite.co.uk
+Adam
+adam@vbfx.com
+Linux user #190288

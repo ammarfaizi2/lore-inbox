@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263459AbTHVQXK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 12:23:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbTHVQXK
+	id S263172AbTHVQVb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 12:21:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263178AbTHVQVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 12:23:10 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:29617 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263348AbTHVQWO (ORCPT
+	Fri, 22 Aug 2003 12:21:31 -0400
+Received: from mail.dsa-ac.de ([62.112.80.99]:63759 "EHLO k2.dsa-ac.de")
+	by vger.kernel.org with ESMTP id S263172AbTHVQV2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 12:22:14 -0400
-Date: Fri, 22 Aug 2003 09:14:47 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: linux-kernel@vger.kernel.org, parisc-linux@lists.parisc-linux.org,
-       drepper@redhat.com
-Subject: Re: Problems with kernel mmap (failing tst-mmap-eofsync in glibc on
- parisc)
-Message-Id: <20030822091447.6ecea6ca.davem@redhat.com>
-In-Reply-To: <1061563239.2090.25.camel@mulgrave>
-References: <1061563239.2090.25.camel@mulgrave>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Aug 2003 12:21:28 -0400
+Date: Fri, 22 Aug 2003 18:21:24 +0200 (CEST)
+From: Guennadi Liakhovetski <gl@dsa-ac.de>
+To: <irda-users@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+Cc: <pl@dsa-ac.de>
+Subject: Re: [PATCH] + IrDA state
+In-Reply-To: <Pine.LNX.4.33.0308221632200.2856-100000@pcgl.dsa-ac.de>
+Message-ID: <Pine.LNX.4.33.0308221818410.2856-100000@pcgl.dsa-ac.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Aug 2003 09:40:37 -0500
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
+...One more thing I forgot to mention - with our patch, sent in the
+previous email, 2.4.13 didn't Oops any more, it runs until all RAM leaks
+away - about 24 hours, depending on the frequency of connection
+establishment... With 2.4.21 it does Oops.
 
-> This test essentially opens a file (via open(2)), writes something,
-> opens it via a mmaped file object *read only* (via fopen(...,"rm)) reads
-> what was writtent, writes some more and reads it via the mmaped file
-> object.
-> 
-> This last read fails to get the data on parisc.  The problem is that our
-> CPU cache is virtually indexed, and the page the write is storing the
-> data to (in the buffer cache) and the page it is mmapped to have the
-> same physical, but different virtual addresses.  We need the write() to
-> trigger a cache update via flush_dcache_page to get the virtually
-> indexed cache in sync.
-> 
-> The reason this doesn't happen is because the mapping is not on the
-> mmap_shared list that flush_dcache_page() updates.
+Guennadi
+---------------------------------
+Guennadi Liakhovetski, Ph.D.
+DSA Daten- und Systemtechnik GmbH
+Pascalstr. 28
+D-52076 Aachen
+Germany
 
-flush_dcache_page() checks both the shared and non-shared mmap lists,
-so if it is on _either_ list it is flushed.  It does not check only
-the shared list.
-
-The VM_SHARED change you are proposing is definitely wrong.

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313022AbSDCC0o>; Tue, 2 Apr 2002 21:26:44 -0500
+	id <S313019AbSDCC1C>; Tue, 2 Apr 2002 21:27:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313017AbSDCCZP>; Tue, 2 Apr 2002 21:25:15 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:27903 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S313020AbSDCCY6>;
-	Tue, 2 Apr 2002 21:24:58 -0500
-Date: Tue, 2 Apr 2002 18:24:54 -0800
+	id <S313018AbSDCC0s>; Tue, 2 Apr 2002 21:26:48 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:38143 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S313019AbSDCCZi>;
+	Tue, 2 Apr 2002 21:25:38 -0500
+Date: Tue, 2 Apr 2002 18:25:34 -0800
 To: Linus Torvalds <torvalds@transmeta.com>, irda-users@lists.sourceforge.net,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>,
         Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: [PATCH] : ir257_nsc_ob6100.diff
-Message-ID: <20020402182454.H24912@bougret.hpl.hp.com>
+Subject: [PATCH] : ir257_irtty_stats.diff
+Message-ID: <20020402182534.I24912@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,36 +24,29 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir257_nsc_ob6100.diff :
----------------------
-        <Following patch from Kevin Thayer>
-	o [FEATURE] Handle what is probably a new variant of NSC chip
+ir257_irtty_stats.diff :
+----------------------
+        <Following patch from Frank Becker>
+	o [FEATURE] Update dev tx stats at the right time
 
-diff -u -p linux/drivers/net/irda/nsc-ircc.d5.c linux/drivers/net/irda/nsc-ircc.c
---- linux/drivers/net/irda/nsc-ircc.d5.c	Thu Mar 21 15:28:16 2002
-+++ linux/drivers/net/irda/nsc-ircc.c	Thu Mar 21 15:39:22 2002
-@@ -88,10 +88,14 @@ static int nsc_ircc_init_338(nsc_chip_t 
+diff -u -p linux/drivers/net/irda/irtty.d5.c linux/drivers/net/irda/irtty.c
+--- linux/drivers/net/irda/irtty.d5.c	Thu Mar 21 15:28:08 2002
++++ linux/drivers/net/irda/irtty.c	Thu Mar 21 15:29:38 2002
+@@ -713,8 +713,6 @@ static void irtty_write_wakeup(struct tt
  
- /* These are the known NSC chips */
- static nsc_chip_t chips[] = {
-+/*  Name, {cfg registers}, chip id index reg, chip id expected value, revision mask */
- 	{ "PC87108", { 0x150, 0x398, 0xea }, 0x05, 0x10, 0xf0, 
- 	  nsc_ircc_probe_108, nsc_ircc_init_108 },
- 	{ "PC87338", { 0x398, 0x15c, 0x2e }, 0x08, 0xb0, 0xf8, 
- 	  nsc_ircc_probe_338, nsc_ircc_init_338 },
-+	/* Contributed by Kevin Thayer - OmniBook 6100 */
-+	{ "PC87338?", { 0x2e, 0x15c, 0x398 }, 0x08, 0x00, 0xf8, 
-+	  nsc_ircc_probe_338, nsc_ircc_init_338 },
- 	{ NULL }
- };
- 
-@@ -697,6 +701,9 @@ static int nsc_ircc_setup(chipio_t *info
- 	/* Read the Module ID */
- 	switch_bank(iobase, BANK3);
- 	version = inb(iobase+MID);
+ 		self->tx_buff.data += actual;
+ 		self->tx_buff.len  -= actual;
+-
+-		self->stats.tx_packets++;		      
+ 	} else {		
+ 		/* 
+ 		 *  Now serial buffer is almost free & we can start 
+@@ -722,6 +720,8 @@ static void irtty_write_wakeup(struct tt
+ 		 */
+ 		IRDA_DEBUG(5, __FUNCTION__ "(), finished with frame!\n");
+ 		
++		self->stats.tx_packets++;		      
 +
-+	IRDA_DEBUG(2, __FUNCTION__  "() Driver %s Found chip version %02x\n",
-+		   driver_name, version);
+ 		tty->flags &= ~(1 << TTY_DO_WRITE_WAKEUP);
  
- 	/* Should be 0x2? */
- 	if (0x20 != (version & 0xf0)) {
+ 		if (self->new_speed) {

@@ -1,115 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317517AbSIIQ2L>; Mon, 9 Sep 2002 12:28:11 -0400
+	id <S317471AbSIIQct>; Mon, 9 Sep 2002 12:32:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317512AbSIIQ2L>; Mon, 9 Sep 2002 12:28:11 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:18055 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317508AbSIIQ2H>;
-	Mon, 9 Sep 2002 12:28:07 -0400
-Subject: Re: NFS lockd patch proposal for user-level control of the grace period
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: alan@lxorguk.ukuu.org.uk, hch@infradead.org, linux-kernel@vger.kernel.org,
-       linux-kernel-owner@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
-Message-ID: <OF56438CB7.84FFBB03-ON87256C2F.005A4D15@us.ibm.com>
-From: Juan Gomez <juang@us.ibm.com>
-Date: Mon, 9 Sep 2002 09:31:24 -0700
-X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Build V60_09042002A|September 04, 2002) at
- 09/09/2002 10:31:29
+	id <S317498AbSIIQct>; Mon, 9 Sep 2002 12:32:49 -0400
+Received: from packet.digeo.com ([12.110.80.53]:7876 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S317471AbSIIQcs>;
+	Mon, 9 Sep 2002 12:32:48 -0400
+Message-ID: <3D7CD1B9.B1491E6@digeo.com>
+Date: Mon, 09 Sep 2002 09:52:09 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+To: Daniel Phillips <phillips@arcor.de>
+CC: Rik van Riel <riel@conectiva.com.br>,
+       Paolo Ciarrocchi <ciarrocchi@linuxmail.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: LMbench2.0 results
+References: <Pine.LNX.4.44L.0209091035470.1857-100000@imladris.surriel.com> <E17oRCu-0006pL-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Sep 2002 16:37:25.0243 (UTC) FILETIME=[2D9F24B0:01C2581F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips wrote:
+> 
+> On Monday 09 September 2002 15:37, Rik van Riel wrote:
+> > On Sun, 8 Sep 2002, Daniel Phillips wrote:
+> >
+> > > I suspect the overall performance loss on the laptop has more to do with
+> > > several months of focussing exclusively on the needs of 4-way and higher
+> > > smp machines.
+> >
+> > Probably true, we're pulling off an indecent number of tricks
+> > for 4-way and 8-way SMP performance. This overhead shouldn't
+> > be too bad on UP and 2-way machines, but might easily be a
+> > percent or so.
+> 
+> Though to be fair, it's smart to concentrate on the high end with a
+> view to achieving world domination sooner.  And it's a stretch to call
+> the low end performance 'slow'.
 
+It's on the larger machines where 2.4 has problems.  Fixing them up
+makes the kernel broader, more general purpose.  We're seeing 50-100%
+gains in some areas there.  Giving away a few percent on smaller machines
+at this stage is OK.  But yup, we need to go and get that back later.
 
+> An idea that's looking more and more attractive as time goes by is to
+> have a global config option that specifies that we want to choose the
+> simple way of doing things wherever possible, over the enterprise way.
 
+Prefer not to.  We've been able to cover all bases moderately well
+thus far without adding a big boolean switch.
 
-I think either way we get to the kernel would be ok with me. I picked
-sysctl because some comments in the code susggested somebody already though
-of supporting a sysctl gate to user land to export
-grace period control, also Chrisptop suggested this was the way to go when
-I previously proposed using the raw proc filesystem. I think what is nice
-about sysctl is that it is extensible, If we use signals and some other
-folks keep on using signals for other control purposed then they will
-eventually run out and they will have to add sysctl anyway. Said that I
-think either way serves the purpose I want.
+> We want this especially for embedded.  On low end processors, it's even
+> possible that the small way will be faster in some cases than the
+> enterprise way, due to cache effects.
 
-
-Juan
-
-
-
-|---------+---------------------------------->
-|         |           Neil Brown             |
-|         |           <neilb@cse.unsw.edu.au>|
-|         |           Sent by:               |
-|         |           linux-kernel-owner@vger|
-|         |           .kernel.org            |
-|         |                                  |
-|         |                                  |
-|         |           09/08/02 05:27 PM      |
-|         |                                  |
-|---------+---------------------------------->
-  >-----------------------------------------------------------------------------------------------------------------------------|
-  |                                                                                                                             |
-  |       To:       Juan Gomez/Almaden/IBM@IBMUS                                                                                |
-  |       cc:       Alan Cox <alan@lxorguk.ukuu.org.uk>, hch@infradead.org, linux-kernel@vger.kernel.org                        |
-  |       Subject:  Re: NFS lockd patch proposal for user-level control of the grace period                                     |
-  |                                                                                                                             |
-  |                                                                                                                             |
-  >-----------------------------------------------------------------------------------------------------------------------------|
-
-
-
-On Friday September 6, juang@us.ibm.com wrote:
->
->
->
->
-> Christoph, Alan, Neil,
->
-> Attached you will find the patch with the sysctl implementation of my
-> previous patch to enable grace period control from user-land.
-> Please let me know if this looks good enough for inclusion in the kernel
-> distribution or whether I still need to do something else.
-> Note this piece is derived from net/sunrpc/sysctl.c, which by the way I
-> think has a problem with the READ/WRITE verifys which seem
->  to be swicthed which I fixed in lockd version but not there, you may
-want
-> to take a look at net/sunrpc/sysctl.c and fix that although that's a
-minor
-> thing.
->
-> (See attached file: lockd-sysctl.patch)
->
-
-I still haven't managed to find out exactly what you want to do with
-this, and hence whether it is appropriate.
-
-You mentioned in another Email that this was for a High Availability
-setup where one server might take-over a filesystem that another
-server was previously serving.
-
-If this is the case, do you really want to change the grace period, or
-do you really want to re-start the grace period.
-If that is what you really want, then I think that sysctl is
-un-necessary and a simple signal would do the trick.
-Currently, SIGKILL will
-   1/ drop all locks held for clients
-   2/ restart the grace period.
-
-it would probably be quite sensible (and trivial to code) for SIGHUP
-(say) to restart the grace period without dropping the locks.
-
-Would this be suitable for you?
-
-NeilBrown
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
+The main thing we can do for smaller systems is to not allocate as much
+memory at boot time.  Some more careful scaling is needed there.  I'll
+generate a list soon.

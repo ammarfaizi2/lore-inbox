@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313864AbSDIMCj>; Tue, 9 Apr 2002 08:02:39 -0400
+	id <S313862AbSDIMCe>; Tue, 9 Apr 2002 08:02:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313863AbSDIMCi>; Tue, 9 Apr 2002 08:02:38 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:25349 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S313864AbSDIMCg>;
-	Tue, 9 Apr 2002 08:02:36 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 problems with netfilter linking 
-In-Reply-To: Your message of "Sun, 07 Apr 2002 17:36:46 +1000."
-             <20020407173646.40d7c0b7.rusty@rustcorp.com.au> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 09 Apr 2002 22:02:25 +1000
-Message-ID: <17932.1018353745@ocs3.intra.ocs.com.au>
+	id <S313863AbSDIMCd>; Tue, 9 Apr 2002 08:02:33 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:59819 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S313862AbSDIMCb>; Tue, 9 Apr 2002 08:02:31 -0400
+Date: Tue, 9 Apr 2002 13:47:53 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Rob Radez <rob@osinvestor.com>
+Cc: Corey Minyard <minyard@acm.org>, <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Further WatchDog Updates
+In-Reply-To: <Pine.LNX.4.33.0204090645240.17511-100000@pita.lan>
+Message-ID: <Pine.LNX.4.44.0204091344420.32054-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Apr 2002 17:36:46 +1000, 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
->On Sat, 06 Apr 2002 14:48:02 +1000
->Keith Owens <kaos@ocs.com.au> wrote:
->> * Change kbuild 2.5 to detect multi linked objects and not set
->>   KBUILD_OBJECT for those objects.  It follows that multi linked
->>   objects cannot have module or boot parameters, so change modules.h to
->>   barf on MODULE_PARM() and __setup() when KBUILD_OBJECT is not
->>   defined.
->> 
->> I am tending towards the second solution.
->
->You missed "#include "foo.c"" as a possible workaround.  Note that it's
->a waste of disk space, not memory, since these cannot be loaded at the
->same time.
+-/* This returns the status of the WDO signal, inactive high.
+- * returns WDO_ENABLED or WDO_DISABLED
+- */
+-static inline int sc1200wdt_status(void)
++static int sc1200wdt_start(void);
+ {
+-	unsigned char ret;
++	sc1200wdt_read_data(WDCF, &reg);
++	/* assert WDO when any of the following interrupts are triggered 
+too */
++	reg |= (KBC_IRQ | MSE_IRQ | UART1_IRQ | UART2_IRQ);
++	sc1200wdt_write_data(WDCF, reg);
++	/* set the timeout and get the ball rolling */
++	sc1200wdt_write_data(WDTO, timeout);
++}
+ 
+-	sc1200wdt_read_data(WDST, &ret);
+-	return (ret & 0x01);		/* bits 1 - 7 are undefined */
++
++static int sc1200wdt_stop(void)
++{
++	sc1200wdt_write_data(WDTO, 0);
+ }
 
-I have implemented the second solution.  Multi linked objects get no
-value for KBUILD_OBJECT.  I had to do this anyway, depending on which
-order the objects were compiled, kbuild was registering different
-values for KBUILD_OBJECT.  That was causing spurious rebuilds and the
-command appeared to change.
+Did you forget return values? Or perhaps just redeclare those...
+Also i don't quite understand the new status reporting you're doing, mind 
+just explaining it to me a bit? The previous code would tell you wether 
+the watchdog is enabled/disabled so you can tell wether the timeout period 
+has passed.
+
+Regards,
+	Zwane
+
+-- 
+http://function.linuxpower.ca
+		
 

@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281501AbRKHKwl>; Thu, 8 Nov 2001 05:52:41 -0500
+	id <S281512AbRKHLAb>; Thu, 8 Nov 2001 06:00:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281509AbRKHKwb>; Thu, 8 Nov 2001 05:52:31 -0500
-Received: from mail0.epfl.ch ([128.178.50.57]:31759 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id <S281501AbRKHKwP>;
-	Thu, 8 Nov 2001 05:52:15 -0500
-Message-ID: <3BEA63DD.4080200@epfl.ch>
-Date: Thu, 08 Nov 2001 11:52:13 +0100
-From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
-Organization: LTS-DE-EPFL
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S281511AbRKHLAW>; Thu, 8 Nov 2001 06:00:22 -0500
+Received: from [213.98.126.44] ([213.98.126.44]:45715 "HELO mitica.trasno.org")
+	by vger.kernel.org with SMTP id <S281509AbRKHLAI>;
+	Thu, 8 Nov 2001 06:00:08 -0500
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: ext3 vs resiserfs vs xfs
+In-Reply-To: <E161Y87-00052r-00@the-village.bc.nu>
+	<5.1.0.14.2.20011107183639.0285a7e0@pop.cus.cam.ac.uk>
+	<5.1.0.14.2.20011107193045.02b07f78@pop.cus.cam.ac.uk>
+	<3BE99650.70AF640E@zip.com.au> <3BE99650.70AF640E@zip.com.au>
+	<20011107133301.C20245@mikef-linux.matchmail.com>
+	<3BE9AF15.50524856@zip.com.au>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <3BE9AF15.50524856@zip.com.au>
+Date: 08 Nov 2001 11:58:18 +0100
+Message-ID: <m2g07pmsvp.fsf@trasno.mitica>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Robert Love <rml@tech9.net>
-Subject: [PATCH][CFT] AGPGART fixes for several Intel chipsets
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all
+>>>>> "andrew" == Andrew Morton <akpm@zip.com.au> writes:
 
-The patch that provides agp support for Intel 820 chipsets is available 
-for kernel 2.4.14(final). Please test and report/comment.
-I also provide a bigger patch that also fixes the erroneous 16 bits 
-writes/reads to the APSIZE register, which is 8 bits for 820, 840, 845, 
-850 and 860 chipsets. Please test, and send me your comments/suggestions 
-to improve this. It is working for me (Intel 820), but I need feedback 
-from people having othjer chipsets.
+andrew> Mike Fedyk wrote:
+>> 
+>> I have a switch "data=journal" that ext2 will choke on when I boot into an
+>> ext2 only kernel.
+>> 
+>> Is there another way to change the journaling mode besides modifying
+>> /etc/fstab?
 
-You can find all the patches at http://ltswww.epfl.ch/~aspert/patches/
+andrew> Try  adding `rootflags=data=journal' to your kernel boot
+andrew> commandline.
 
-Nicolas.
+That normally fails if you are using ext3 as a module :(
+
+Later, Juan.
+
+
 -- 
-Nicolas Aspert      Signal Processing Laboratory (LTS)
-Swiss Federal Institute of Technology (EPFL)
-
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

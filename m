@@ -1,67 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbULEAFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbULEAIL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbULEAFe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 19:05:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbULEAFb
+	id S261206AbULEAIL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 19:08:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbULEAIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 19:05:31 -0500
-Received: from out010pub.verizon.net ([206.46.170.133]:63972 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S261205AbULEAFZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 19:05:25 -0500
-Message-ID: <41B250DA.8080308@verizon.net>
-Date: Sat, 04 Dec 2004 19:05:46 -0500
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Sat, 4 Dec 2004 19:08:11 -0500
+Received: from inx.pm.waw.pl ([195.116.170.20]:14277 "EHLO inx.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S261206AbULEAH5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 19:07:57 -0500
+To: Matt Mackall <mpm@selenic.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, David Woodhouse <dwmw2@infradead.org>,
+       Alexandre Oliva <aoliva@redhat.com>, Paul Mackerras <paulus@samba.org>,
+       Greg KH <greg@kroah.com>, Matthew Wilcox <matthew@wil.cx>,
+       David Howells <dhowells@redhat.com>, hch@infradead.org,
+       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+References: <ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br>
+	<Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org>
+	<1101828924.26071.172.camel@hades.cambridge.redhat.com>
+	<Pine.LNX.4.58.0411300751570.22796@ppc970.osdl.org>
+	<1101832116.26071.236.camel@hades.cambridge.redhat.com>
+	<Pine.LNX.4.58.0411300846190.22796@ppc970.osdl.org>
+	<1101837135.26071.380.camel@hades.cambridge.redhat.com>
+	<Pine.LNX.4.58.0411301020160.22796@ppc970.osdl.org>
+	<20041130224851.GH8040@waste.org>
+	<Pine.LNX.4.58.0411301452180.22796@ppc970.osdl.org>
+	<20041130232958.GW2460@waste.org>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Fri, 03 Dec 2004 02:03:29 +0100
+In-Reply-To: <20041130232958.GW2460@waste.org> (Matt Mackall's message of
+ "Tue, 30 Nov 2004 15:29:58 -0800")
+Message-ID: <m3zn0wdwgu.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: Lee Revell <rlrevell@joe-job.com>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Alessandro Amici <alexamici@fastwebnet.it>,
-       Miguel Angel Flores <maf@sombragris.com>, linux-kernel@vger.kernel.org
-Subject: Re: kernel development environment
-References: <41B1F97A.80803@sombragris.com>	 <200412042121.49274.alexamici@fastwebnet.it>	 <41B22381.10008@sombragris.com>	 <200412042237.48729.alexamici@fastwebnet.it>	 <1102196829.28776.46.camel@krustophenia.net>	 <41B22EDE.2060009@stud.feec.vutbr.cz> <1102200355.28776.58.camel@krustophenia.net> <41B24A46.2010802@osdl.org>
-In-Reply-To: <41B24A46.2010802@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [209.158.220.243] at Sat, 4 Dec 2004 18:05:24 -0600
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> Lee Revell wrote:
-> 
->> On Sat, 2004-12-04 at 22:40 +0100, Michal Schmidt wrote:
->>
->>> Lee Revell wrote:
->>>
->>>> In case you did not get the joke, Mozilla Mail is one of the WORST mail
->>>> clients for handling kernel patches.  See the list archives.
->>>
->>>
->>> Mozilla works fine if you send patches as attachments.
->>>
->>
->>
->> I still say it's broken.
->>
->> http://lkml.org/lkml/2004/10/22/488
-> 
-> 
-> so don't use copy-paste.  that idea is broken.
-> 
-> otoh, netscape/mozilla/thunderbird mail
-> all work fine (except that attachments are required,
-> instead of being able to insert patches inline).
-> 
+Matt Mackall <mpm@selenic.com> writes:
 
-After inadvertently helping to discover the bug in Mozilla, I use the sendpatchset 
-script written by Paul Jackson at:
+> It's my opinion that it will eventually be deemed beneficial to
+> separate out everything that has a legitimate reason to be used by
+> userspace.
 
-http://www.speakeasy.org/~pj99/sgi/sendpatchset
+That's quite obvious and the whole thread is all about just that.
 
-That lets people's patch-collecting scripts work properly, since (apparently) most 
-of the m choke on the MIME headers from attachments.
+> But I'm not suggesting getting there in one go,
 
-If you need to connect directly to your ISP, Paul sent me a fix I can forward.
+As this is impossible, given du -s /usr/src/linux/include/*.
+
+> what I'm
+> suggesting is how to get there incrementally. To rehash:
+>
+> 1. create include/user and friends
+> 2. when we run across a troublesome ABI definition:
+>      create include/user/foo.h and move the definition there
+>      make sure include/linux/foo.h includes it
+>      userspace and kernel compile as before
+>      send a patch
+
+What _is_ a "troublesome ABI definition" and who would qualify it
+as such?
+
+> 3. repeat step 2 as often as useful
+
+Who would do that?
+
+> 4. add new user ABI always to include/user/
+
+Who would watch that? How do you differentiate between a user API/ABI
+and an internal kernel API, if you don't know the code in question
+at all?
+
+> 5. if at some point we find that all of userspace builds from
+>    include/user/ without reference to include/linux/,
+
+How can we find that? Compiling the Fedora Code 7 would not be enough.
+
+> 7. drop any superfluous include/linux -> include/user includes (there
+>    shouldn't be many)
+
+Why not? Kernel "private" headers can and must include ABI headers
+as the private .c files do.
+
+
+This won't work. include/user won't work either. There can't be any
+"transition periods" nor "instant switchovers".
+
+I can see only one way to solve the problem - gradually, without
+"transition periods" etc.
+
+1. We leave existing include/linux and include/asm (and possibly
+   asm-generic etc) in place.
+2. A new directory(ies) such as include/kernel (internal kernel headers)
+   is created.
+3. Code authors, who (I hope) know their code move the things they
+   know are kernel-internal to the new directory(ies).
+4. Userspace is explicitly forbidden to include anything in the new
+   directory. We can even use some #ifndef __KERNEL__ #error user
+   breakage as a tip.
+
+In a year or two we can probably begin hunting remnants of the
+internals in include/linux and include/asm.
+
+We can now consider anything in include/{linux,asm} which prevents
+userspace compilation etc. a bug. But bugs must be fixed by people
+who know how to fix them correctly.
+-- 
+Krzysztof Halasa

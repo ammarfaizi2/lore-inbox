@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266125AbTLIVEp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 16:04:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266130AbTLIVEp
+	id S266120AbTLIVN0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 16:13:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266143AbTLIVN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 16:04:45 -0500
-Received: from cmailm6.svr.pol.co.uk ([195.92.193.22]:33721 "EHLO
-	cmailm6.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id S266125AbTLIVEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 16:04:44 -0500
-From: Chris Vine <chris@cvine.freeserve.co.uk>
-To: Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
-Date: Tue, 9 Dec 2003 21:03:04 +0000
-User-Agent: KMail/1.5.4
-Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-References: <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com> <20031208135225.GT19856@holomorphy.com> <200312090123.31895.kernel@kolivas.org>
-In-Reply-To: <200312090123.31895.kernel@kolivas.org>
+	Tue, 9 Dec 2003 16:13:26 -0500
+Received: from hibernia.jakma.org ([213.79.33.168]:37007 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S266120AbTLIVNY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 16:13:24 -0500
+Date: Tue, 9 Dec 2003 21:13:17 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Joe Thornber <thornber@sistina.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Device-mapper submission for 2.4
+In-Reply-To: <20031209195032.GG19856@holomorphy.com>
+Message-ID: <Pine.LNX.4.56.0312092109140.30298@fogarty.jakma.org>
+References: <20031209115806.GA472@reti> <20031209195032.GG19856@holomorphy.com>
+X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312092103.04328.chris@cvine.freeserve.co.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 08 December 2003 2:23 pm, Con Kolivas wrote:
-> [snip original discussion thrashing swap on 2.6test with 32mb ram]
->
-> Chris
->
-> By an unusual coincidence I was looking into the patches that were supposed
-> to speed up application startup and noticed this one was merged. A brief
-> discussion with wli suggests this could cause thrashing problems on low
-> memory boxes so can you try this patch? Applies to test11.
->
-> Con
+On Tue, 9 Dec 2003, William Lee Irwin III wrote:
 
-Con,
+> You have *GOT* to be kidding.
 
-I have just got back from a trip away.  I will try out the patch tomorrow, I 
-hope, and see what difference it makes.
+considering the LVM1 tools interface no longer is supported by DM in
+2.6, DM in 2.4 (presumably /with/ LVM1 support (i'd hope)) seems a 
+sane way to give 2.4 LVM1 users an easy and reversable upgrade path 
+to 2.6.
 
-Chris.
+I know I would love to try out 2.6 on my NFS server, but OTOH, I much
+prefer to have access to my data.
 
+> -- wli
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+	warning: do not ever send email to spam@dishone.st
+Fortune:
+Neil Armstrong tripped.

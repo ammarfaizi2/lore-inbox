@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263813AbUCZAIs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 19:08:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263854AbUCZAIQ
+	id S263836AbUCZAIt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 19:08:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263832AbUCZAID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 19:08:16 -0500
-Received: from waste.org ([209.173.204.2]:7066 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S263813AbUCYX7I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 18:59:08 -0500
-From: Matt Mackall <mpm@selenic.com>
+	Thu, 25 Mar 2004 19:08:03 -0500
+Received: from hellhawk.shadowen.org ([212.13.208.175]:37130 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S263836AbUCZAAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 19:00:10 -0500
+Date: Thu, 25 Mar 2004 23:59:21 +0000
+From: Andy Whitcroft <apw@shadowen.org>
 To: Andrew Morton <akpm@osdl.org>
-X-PatchBomber: http://selenic.com/scripts/mailpatches
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <22.524465763@selenic.com>
-Message-Id: <23.524465763@selenic.com>
-Subject: [PATCH 22/22] /dev/random: update credits
-Date: Thu, 25 Mar 2004 17:57:46 -0600
+cc: anton@samba.org, sds@epoch.ncsc.mil, ak@suse.de, raybry@sgi.com,
+       lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, mbligh@aracnet.com
+Subject: Re: [PATCH] [0/6] HUGETLB memory commitment
+Message-ID: <1739144.1080259161@[192.168.0.89]>
+In-Reply-To: <20040325155117.60dbc0e1.akpm@osdl.org>
+References: <18429360.1080233672@42.150.104.212.access.eclipse.net.uk>
+ 	<20040325130433.0a61d7ef.akpm@osdl.org>
+ 	<41997489.1080257240@42.150.104.212.access.eclipse.net.uk>
+ <20040325155117.60dbc0e1.akpm@osdl.org>
+X-Mailer: Mulberry/3.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--On 25 March 2004 15:51 -0800 Andrew Morton <akpm@osdl.org> wrote:
 
-/dev/random  update credits
+> I think it's simply:
+>
+> - Make normal overcommit logic skip hugepages completely
+>
+> - Teach the overcommit_memory=2 logic that hugepages are basically
+>   "pinned", so subtract them from the arithmetic.
+>
+> And that's it.  The hugepages are semantically quite different from normal
+> memory (prefaulted, preallocated, unswappable) and we've deliberately
+> avoided pretending otherwise.
 
-Update dates, add contact info
+True currently.  Though the thread that prompted this was in response to 
+the time taken for this prefault and for the wish to fault them.
 
+I'll have a poke about at it and see how small I can make it.
 
- tiny-mpm/drivers/char/random.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff -puN drivers/char/random.c~random-credit drivers/char/random.c
---- tiny/drivers/char/random.c~random-credit	2004-03-20 13:38:53.000000000 -0600
-+++ tiny-mpm/drivers/char/random.c	2004-03-20 13:38:53.000000000 -0600
-@@ -1,8 +1,8 @@
- /*
-  * random.c -- A strong random number generator
-  *
-- * Version 1.89, last modified 19-Sep-99
-- * 
-+ * Version 1.99  Matt Mackall <mpm@selenic.com> Oct 2003
-+ *
-  * Copyright Theodore Ts'o, 1994, 1995, 1996, 1997, 1998, 1999.  All
-  * rights reserved.
-  *
-
-_
+-apw

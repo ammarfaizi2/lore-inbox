@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316598AbSFGKgd>; Fri, 7 Jun 2002 06:36:33 -0400
+	id <S317258AbSFGKhJ>; Fri, 7 Jun 2002 06:37:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317263AbSFGKgc>; Fri, 7 Jun 2002 06:36:32 -0400
-Received: from slip-202-135-75-200.ca.au.prserv.net ([202.135.75.200]:9089
+	id <S317263AbSFGKhI>; Fri, 7 Jun 2002 06:37:08 -0400
+Received: from slip-202-135-75-200.ca.au.prserv.net ([202.135.75.200]:9601
 	"EHLO wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S316598AbSFGKgb>; Fri, 7 Jun 2002 06:36:31 -0400
+	id <S317258AbSFGKhH>; Fri, 7 Jun 2002 06:37:07 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: andersen@codepoet.org
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: [PATCH] initcall dependency solution. 
-In-Reply-To: Your message of "Fri, 07 Jun 2002 01:26:37 CST."
-             <20020607072636.GA20454@codepoet.org> 
-Date: Fri, 07 Jun 2002 20:15:01 +1000
-Message-Id: <E17GGlp-0000cd-00@wagner.rustcorp.com.au>
+To: linux-kernel@vger.kernel.org
+cc: ralf@gnu.org, rhw@memalpha.cx, mingo@redhat.com, paulus@samba.org,
+        anton@samba.org, schwidefsky@de.ibm.com, bh@sgi.com, davem@redhat.com,
+        ak@suse.de, torvalds@transmeta.com
+Subject: Hotplug CPU Boot Changes: BEWARE
+Date: Fri, 07 Jun 2002 20:40:36 +1000
+Message-Id: <E17GHB3-0000gD-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020607072636.GA20454@codepoet.org> you write:
-> On Fri Jun 07, 2002 at 12:02:11PM +1000, Rusty Russell wrote:
-> > This patch allows you to name initcall dependencies and subsystems.
-> > It is backward compatible with the current initcall levels, but
-> > doesn't respect link order: a couple of changes to make it boot, but
-> > more will be needed I expect.
-> 
-> Interesting.  So in theory this mechanism could also be used 
-> to speed booting by parallelizing execution of each independent
-> initcall dependancy tree...
+Hi all (esp port maintainers),
 
-In theory.  But the right solution is to move userspace as soon as
-possible, for spinning up non-root disks, etc.
+	In writing the hotplug CPU stuff, Linus asked me to alter the
+boot sequence to "plug in" CPUs.  I am shortly going to be sending
+these patches to him now I have got my x86 box to boot with the
+changes.
 
-More importantly we can use the same mechanism to say "do this after
-all cpus are up" or "do this once we have a userspace" etc, and move
-more things to initcalls (ie. neaten the boot code).
+The changes are as follows:
+1) Non-linear CPU support.  No more number/logical map, or
+   smp_num_cpus.  This is easy to change over to.
 
-Rusty.
+2) The boot sequence used to be:
+	smp_boot_cpus()
+	smp_commence()
+	start idle thread, do initfuncs...
+
+   Now it is:
+	start idle thread
+	smp_prepare_cpus(int max_cpus)
+		=> Probes for cpus, sets up cpu_possible() macro to work.
+	do initfuncs
+	For each cpu for which cpu_possible(cpu) is true:
+		cpu_up(int cpunum)
+	smp_cpus_done(max_cpus);
+
+There are two ways to transition: one is to do the minimal hacks so
+that the new boot code works (as per my x86 patch).  The other is to
+take into account that the next stage (optional by arch) is to
+actually bring cpus up and down on the fly, and hence actually write
+code that will work after boot as well (as per my ppc patch).
+
+For the patches, see:
+	http://www.kernel.org/pub/linux/kernel/people/rusty
+
+Rusty.	
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

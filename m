@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265663AbUHCKs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265661AbUHCKxY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265663AbUHCKs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 06:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265684AbUHCKs6
+	id S265661AbUHCKxY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 06:53:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUHCKxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 06:48:58 -0400
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:54495
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S265663AbUHCKs4 (ORCPT
+	Tue, 3 Aug 2004 06:53:24 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:8629 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S265661AbUHCKxW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 06:48:56 -0400
-Message-ID: <410F6D96.60200@bio.ifi.lmu.de>
-Date: Tue, 03 Aug 2004 12:48:54 +0200
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
+	Tue, 3 Aug 2004 06:53:22 -0400
+Date: Tue, 3 Aug 2004 11:53:01 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: dri-devel@lists.sf.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem: nfsd producing stales when restarting too fast
-References: <410F69DF.7050602@bio.ifi.lmu.de> <16655.27452.741143.31043@cse.unsw.edu.au>
-In-Reply-To: <16655.27452.741143.31043@cse.unsw.edu.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: drm mailing list?
+Message-ID: <Pine.LNX.4.58.0408031148580.31513@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
 
-> Try doing the "exportfs -au"  *after* killing nfsd.
-> Unexporting active filesystems while nfsd is running almost guarantees stale
-> file handles.
+Okay the people who are interested in the future of the DRM seem to be
+fairly evenly split between dri-devel and linux-kernel mailing lists,
 
-Doesn't make a difference. Again, only a sleep (1 seems to be enough)
-prevents the stale fs.
+I'm not going to subscribe to lk (I've been there and I quite enjoy having
+a life :-), and I know a fair few lk people won't want to join dri-devel
+as DRM isn't the only thing going on there...
 
-Frank
+So is there a requirement for having a drm mailing list? I'm sure fd.o
+will oblige if I ask, I expect it to be fairly low traffic with mostly
+patch and future directions discussions...
+
+If anyone thinks this is a really bad idea let me know, otherwise I'll
+probably start the ball rolling before the end of the week..
+
+Dave.
 
 -- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 

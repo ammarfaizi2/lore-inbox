@@ -1,69 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265042AbRGEMk4>; Thu, 5 Jul 2001 08:40:56 -0400
+	id <S265043AbRGEMl5>; Thu, 5 Jul 2001 08:41:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265054AbRGEMkq>; Thu, 5 Jul 2001 08:40:46 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:6273 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265043AbRGEMkl>; Thu, 5 Jul 2001 08:40:41 -0400
-Date: Thu, 5 Jul 2001 08:37:12 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Vasu Varma P V <pvvvarma@techmas.hcltech.com>
-cc: kernel Linux <linux-kernel@vger.kernel.org>
-Subject: Re: DMA memory limitation?
-In-Reply-To: <3B4453E6.F4342781@techmas.hcltech.com>
-Message-ID: <Pine.LNX.3.95.1010705082119.19376B-100000@chaos.analogic.com>
+	id <S265065AbRGEMlq>; Thu, 5 Jul 2001 08:41:46 -0400
+Received: from mail.ftr.nl ([212.115.175.146]:60153 "EHLO
+	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
+	id <S265043AbRGEMlc>; Thu, 5 Jul 2001 08:41:32 -0400
+Message-ID: <27525795B28BD311B28D00500481B7601F1558@ftrs1.intranet.ftr.nl>
+From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+To: Anuradha Ratnaweera <anuradha@gnu.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: chuckw@altaserv.net, Vipin Malik <vipin.malik@daniel.com>,
+        Aaron Lehmann <aaronl@vitelus.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        David Woodhouse <dwmw2@infradead.org>, jffs-dev@axis.com,
+        linux-kernel@vger.kernel.org
+Subject: RE: Cosmetic JFFS patch.
+Date: Thu, 5 Jul 2001 14:41:26 +0200 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jul 2001, Vasu Varma P V wrote:
+> Leave the copyright messages alone is all I can say. And as to your flag,
+> well we've got one. Try the 'quiet' boot option
+YOU> Leaving copyright messages also saves the purpose of motivating - not
+all but
+YOU> many - developers.  People who _see_ the printk copyright messages is a
+_very_
+YOU> large superset of people who _look_ at source code, or ChangeLog /
+CREDITS /
+YOU> MAINTAINERS files.
+YOU> After all many copyright messages are not that annoying.
 
-> Hi,
-> 
-> Is there any limitation on DMA memory we can allocate using
-> kmalloc(size, GFP_DMA)? I am not able to acquire more than
-> 14MB of the mem using this on my PCI SMP box with 256MB ram.
-> I think there is restriction on ISA boards of 16MB.
-> Can we increase it ?
-> 
-> thx,
-> Vasu
-
-14MB of DMA(able) memory?  Err. I think you are trying to
-do something you would never need to do.
-
-If your board has a PCI interface, it's got address-space
-allocated where memory does not exist. That's for communicating
-with the board. If this address-space contains memory on that
-board, you treat it just like RAM. That's what the PCI bus
-does for you.
-
-Given this, your board may also be a "bus mastering" board.
-This means that, given the correct programming sequence, it
-can transfer data to or from any location accessible to the
-PCI bus. This is the so-called DMA that PCI bus masters can
-perform.
-
-When you program such a board, you simply translate the
-virtual address of the transfer area to the address that
-the board understands. Look at /linux/Documentation/IO-mapping.txt
-
-The GFP_DMA memory type to which you refer, is for boards that
-must use the lower 16 MB of address space. Such boards are
-usually on the ISA bus. Since the first 1 MB is pretty much
-taken by ROM BIOS, screen-card BIOS, other controllers (like SCSI)
-BIOS, etc., you are not going to increase it.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+Suggestion: make the buffer-size for these messages configurable at make
+config -time.
+So; people can define wether they want the message or not. If size=0, the
+printk-thing
+could be replaced with
+#define printk(x)  /*nothing*/
+Nice for the embedded linux-system people.
 
 
+Greetings,
+
+Folkert van Heusden
+[ www.vanheusden.com ]

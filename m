@@ -1,54 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263594AbUJ3AsC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263676AbUJ3AwK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263594AbUJ3AsC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 20:48:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbUJ3AoQ
+	id S263676AbUJ3AwK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 20:52:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263606AbUJ3AtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 20:44:16 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:61088 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S263617AbUJ3Ak7
+	Fri, 29 Oct 2004 20:49:19 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:50960 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S263689AbUJ3Am3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 20:40:59 -0400
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: [2.6 patch] usbnet.c: remove an unused function
-Date: Fri, 29 Oct 2004 17:37:04 -0700
-User-Agent: KMail/1.6.2
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-References: <20041028232455.GK3207@stusta.de> <200410291617.30136.david-b@pacbell.net> <20041029232742.GE6677@stusta.de>
-In-Reply-To: <20041029232742.GE6677@stusta.de>
+	Fri, 29 Oct 2004 20:42:29 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: <Valdis.Kletnieks@vt.edu>
+Cc: "Manu Abraham" <manu@kromtek.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: BK kernel workflow
+Date: Fri, 29 Oct 2004 17:41:43 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKAEJEPGAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410291737.04415.david-b@pacbell.net>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <200410291720.i9THKPas013399@turing-police.cc.vt.edu>
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Fri, 29 Oct 2004 17:18:19 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Fri, 29 Oct 2004 17:18:20 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 29 October 2004 16:27, Adrian Bunk wrote:
-> On Fri, Oct 29, 2004 at 04:17:30PM -0700, David Brownell wrote:
 
-> > p.s. Last I looked, GCC ignored unused inlines; no code
-> >      generated, no warnings.  Did that change?
-> >...
-> 
-> It didn't change.
-> 
-> But there are three different possible reactions on my patches:
-> 1. ACK, kill this dead code
-> 2. ups, I really wanted to use this function
-> 3. please keep, code using this function will/might follow in the future
-> 
-> Case 1 is the most common case (and this simply removes some dead code).
-> 
-> I had until now two times case 2 (which means the code is now better).
-> 
-> You are the first person for case 3.
+> The *contents of the source of the tree itself* are indeed GPL,
+> and I doubt that
+> anybody argues otherwise.
 
-And presumably there will also be at least a few case 4:
+	Good, I'm glad we agree on that.
 
-  4. no response, treated as an ACK.
+> The actual method(s) used to *STORE*
+> said contents
+> are *NOT* GPL
 
-:)
+	Of course not.
+
+> - if you argue that the fact of storing the source
+> in a BK tree
+> renders the BK itself GPL, then we should stroll over to Redmond
+> with a laptop
+> that has a copy of the source untarred into an NTFS filesystem,
+> and demand that
+> they cough up the source for NTFS.
+
+	No, I'm not arguing that.
+
+> Is anybody arguing that doing that would GPL NTFS? If no, then it
+> doesn't GPL
+> any of the BK bits either.
+
+	Since nobody made that argument, I'm puzzled why you feel the need to
+refute it.
+
+	Here is the argument I was replying to:
+
+>> What someone does in the privacy of his home is outside the scope of the
+>> GPL, this means the kernel repository is the private toy of Linus and he
+>> leaves the decision who may play with him to Larry.
+
+	DS
+
 

@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284134AbRLMPFh>; Thu, 13 Dec 2001 10:05:37 -0500
+	id <S284073AbRLMPCh>; Thu, 13 Dec 2001 10:02:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284139AbRLMPFR>; Thu, 13 Dec 2001 10:05:17 -0500
-Received: from mustard.heime.net ([194.234.65.222]:58846 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S284090AbRLMPFQ>; Thu, 13 Dec 2001 10:05:16 -0500
-Date: Thu, 13 Dec 2001 16:04:34 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG?] RAID sub system / tux
-In-Reply-To: <Pine.LNX.4.33.0112130954410.13419-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.30.0112131558510.26038-100000@mustard.heime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284134AbRLMPC1>; Thu, 13 Dec 2001 10:02:27 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:25666 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S284073AbRLMPCO>; Thu, 13 Dec 2001 10:02:14 -0500
+Date: Thu, 13 Dec 2001 09:01:56 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200112131501.JAA41764@tomcat.admin.navo.hpc.mil>
+To: bodnar42@phalynx.dhs.org, Stewart Allen <stewart@neuron.com>
+Subject: Re: passing params to boot readonly
+In-Reply-To: <E16EPYW-0003nW-00@phalynx>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > After testing this for a while, I'm quite sure there's some kind of bug
-> > that locks up I/O under heavy traffic.
->
-> there's definitely no problem with heavy load on one stream,
-> or with multistream load and default readahead settings.
-> (I certianly have tested the former, and the latter is tested
-> by all the dbench scores you see here).  I'm guessing you'd
-> see no lockup if you removed the readahead.  though it's also worth
-> asking: have you memtest86's the cpu/ram?  and can you cause the
-> lock with single-threaded bonnie?  also, do you have highmem on?
+---------  Received message begins Here  ---------
 
-I have highmem turned off.
+> 
+> On December 12, 2001 21:50, Stewart Allen wrote:
+> > I'm in a bit of a pickle and need to find a way to pass boot params to a
+> > reiserfs rootfs to *prevent* it from replaying the journal on single-user
+> > boot. This may seem like a strange request, but I've got a degraded RAID
+> > array that I need to poke around in before deciding whether or not to send
+> > a disk off to a rehab lab. If the replay occurs, it will potentially
+> > destroy the fs since I'm using a degraded snapshot of the failed disk in
+> > hopes of reclaiming *some* of my data. The system is running 2.2.x (can't
+> > remember and can't find out w/out booting).
+> >
+> > Do I have a snowball's chance of pulling this off?
+> 
+> Well, kinda. The only thing that can deter ReiserFS from replaying the 
+> journal is convincing it that the physical media it's on is actually read 
+> only. Some quick less/grep work revealed that there is no option that makes 
+> the SCSI subsystem claim its devices are readonly (although it'd be extremely 
+> useful for situations such as this).
+> 
+> It'd probably be pretty easy to make a boot disk using a hacked version of 
+> ReiserFS that refuses to replay the journal, by adding a "return 0;" near the 
+> top of journal_read(struct super_block *) in journal.c. However, you might 
+> feel more comfortable sending it off for data recovery than testing kernel 
+> hacks on it ;)
 
-By using default readahead (124), starting the 50 streams, killing them,
-and restarting them, I reproduced the problem. I rebooted the server
-before this.
+Wouldn't it be better to make a backup (dd copy) of the disk volume to another
+drive? The raid would not be mounted, so the fs would not be updated.
 
-I haven't memtest86'd the hardware, but I will. I still beleive this is an
-OS problem - not hardware
+I would recommend that be done even before sending the disk out.
 
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+ALTERNATIVE TO READ-ONLY and this might not be possible.
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+If the raid is SCSI based, then there is (should be) a read-only switch
+in the disk configuration. Most disks do not have a jumper there, and since
+they are usually internal only, the option is not used. Putting the jumper
+on (or removing one if it is there - depends on the drive) will make the
+disk read-only.
 
+Even some IDE drives may have this option, though finding documentation on
+it may be difficult to locate.
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

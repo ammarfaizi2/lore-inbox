@@ -1,76 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264144AbUAELQU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 06:16:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbUAELQU
+	id S264233AbUAELVe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 06:21:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264245AbUAELVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 06:16:20 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:47254 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264144AbUAELQS (ORCPT
+	Mon, 5 Jan 2004 06:21:34 -0500
+Received: from [217.7.64.198] ([217.7.64.198]:17289 "EHLO mx1.net4u.de")
+	by vger.kernel.org with ESMTP id S264233AbUAELVc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 06:16:18 -0500
-Date: Mon, 5 Jan 2004 12:15:56 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Greg KH <greg@kroah.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Daniel Jacobowitz <dan@debian.org>, Andries Brouwer <aebr@win.tue.nl>,
-       Rob Love <rml@ximian.com>, rob@landley.net,
-       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
-Subject: Re: udev and devfs - The final word
-Message-ID: <20040105111556.GA20272@ucw.cz>
-References: <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org> <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105035037.GD4176@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0401041954010.2162@home.osdl.org> <20040105043830.GE4176@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0401042043020.2162@home.osdl.org> <20040105074717.GB13651@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 5 Jan 2004 06:21:32 -0500
+From: Ernst Herzberg <earny@net4u.de>
+Reply-To: earny@net4u.de
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 under vmware ?
+Date: Mon, 5 Jan 2004 12:21:30 +0100
+User-Agent: KMail/1.5.4
+References: <1073297203.12550.30.camel@bip.parateam.prv>
+In-Reply-To: <1073297203.12550.30.camel@bip.parateam.prv>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040105074717.GB13651@kroah.com>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200401051221.30398.earny@net4u.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 04, 2004 at 11:47:17PM -0800, Greg KH wrote:
+On Montag, 5. Januar 2004 11:06, Xavier Bestel wrote:
+> Hi,
+>
+> I have problems running 2.6.0 under vmware (4.02 and 4.05). I did a
+> basic debian/sid install, then installed various 2.6.0 kernel images
+> (with or without initrd, from debian (-test9 and -test11) or self-made
+> (stock 2.6.0).
+> They all make /sbin/init (from sysvinit 2.85) segfault at a particular
+> address (I haven't yet recompiled it with -g to see where, but a
+> dissassembly shows it's a "ret").
+> I try booting to /bin/sh from the initrd, and there I can play with the
+> shell, mount the alternate root, play with commands there, and then exec
+> /sbin/init, but it segfaults at the same point.
+>
+> Has anyone managed to make a basic debian with 2.6 work under vmware ?
+> Has anyone managed to make another distro with 2.6 work under vmware ?
 
-> > But since you brought it up: do you actually have anything else that can
-> > open a remote IMAP file with a few thousand messages without taking ages
-> > for it, and that you don't have to mouse around with? I'd like a graphical
-> > interface for configuring stuff etc, but I sure as hell don't want to find
-> > some f*ing icon to save a few messages that I selected in-order to my
-> > "doit" queue or go to the next one, or pipe the thing to a shell-script,
-> > or any number of things that are my actual _job_.
-> 
-> mutt can provide a path for a recovering pine addict.  I did that a
-> number of years ago and have been quite happy since.  I can't vouch for
-> its IMAP speeds (seems to be fast enough for me, as long as I don't try
-> to do a filter on a large IMAP folder), but the other tasks you do
-> (selecting, piping, etc.) work very well.
+Same problem here. Tried gentoo with 2.6.0 and 2.6.1-rc1: /sbin/init will 
+segfault. Testet vmware on a Dual PIII 2.4.23-pre3 and a Athlon XP with 
+2.6.1-rc1.
 
-Mutt with IMAP is rather bearable even on a GPRS connection (40kbps,
-1sec latency). On a 100baseTX it's not distinguishable from local
-operation.
+Earny
 
-One thing missing in mutt is a persistent message and message header
-cache - opening a folder can take a lot of time over a slow connection.
-But there is a patch at least for the message header cache persistence
-floating on the 'net somewhere.
 
-Another thing that bugs me often in mutt is its inability to service
-keystrokes while doing something else (like checking for new mail over
-IMAP with a slow link). It becomes unresponsive until that task is done.
-
-> I even think there's a mutt config file that duplicates all of the
-> default pine keystrokes just to make moving easier.
-> 
-> The message threading was reason enough for me to switch, although I've
-> heard rumors that pine can handle that now.
-> 
-> thanks,
-> 
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

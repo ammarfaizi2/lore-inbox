@@ -1,74 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265099AbSK1CvR>; Wed, 27 Nov 2002 21:51:17 -0500
+	id <S265102AbSK1DDv>; Wed, 27 Nov 2002 22:03:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265102AbSK1CvR>; Wed, 27 Nov 2002 21:51:17 -0500
-Received: from tantale.fifi.org ([216.27.190.146]:41622 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id <S265099AbSK1CvQ>;
-	Wed, 27 Nov 2002 21:51:16 -0500
-To: linux-kernel@vger.kernel.org
-Cc: Andi Kleen <ak@suse.de>
-Subject: Wierd listen/connect: accept queue never fills up
-From: Philippe Troin <phil@fifi.org>
-Date: 27 Nov 2002 18:58:33 -0800
-Message-ID: <87y97ee6xy.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265111AbSK1DDv>; Wed, 27 Nov 2002 22:03:51 -0500
+Received: from rth.ninka.net ([216.101.162.244]:51378 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S265102AbSK1DDv>;
+	Wed, 27 Nov 2002 22:03:51 -0500
+Subject: Re: [PATCH][2.4] update ref counts on all allocated pages
+From: "David S. Miller" <davem@redhat.com>
+To: Matt Porter <porter@cox.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20021127082556.A26524@home.com>
+References: <20021126170723.A23962@home.com>
+	<1038393091.14825.0.camel@rth.ninka.net>  <20021127082556.A26524@home.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 27 Nov 2002 19:33:17 -0800
+Message-Id: <1038454397.17075.4.camel@rth.ninka.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Andi, I've CC'ed you since you're listed as the author of the `new
-listen' code in net/ipv4/tcp_ipv4.c]
+On Wed, 2002-11-27 at 07:25, Matt Porter wrote:
+> To clarify then, on an order>0 allocation, it is only valid/defined
+> to free the same order of pages.  Is that a true statement?  If so,
+> I'll submit a docs patch and adjust our our local implementation.
 
-Seen on linux 2.4.20rc2.
+Yes, this is correct and it's what everyone does.  The exceptions
+mess with the page counts themselves, look at the sparc64
+pmd/pte dual-page allocations for example.
 
-This program is always able to establish new connections to itself:
-the accept queue never fills up and connections always succeed
-(although they take quite some time after the first four):
-
-  #include <stdio.h>
-  #include <sys/types.h>
-  #include <sys/socket.h>
-  #include <netinet/in.h>
-
-  int main(void)
-  {
-    int fd;
-    struct sockaddr_in sin;
-    socklen_t sinlen;
-
-    if ((fd = socket(PF_INET, SOCK_STREAM, 0)) == -1)
-      perror("socket"), exit(1);
-
-    sin.sin_family      = AF_INET;
-    sin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    sin.sin_port	      = htons(0);
-    if (bind(fd, (struct sockaddr*)&sin, sizeof(sin)) == -1)
-      perror("bind"), exit(1);
-    if (listen(fd, 1) == -1)
-      perror("listen"), exit(1);
-
-    sinlen = sizeof(sin);
-    getsockname(fd, (struct sockaddr*)&sin, &sinlen);
-
-    while (1)
-      {
-        int fdc;
-
-        if ((fdc = socket(PF_INET, SOCK_STREAM, 0)) == -1)
-  	perror("socket"), exit(1);
-        printf("%c", connect(fdc, (struct sockaddr*)&sin, sinlen) == -1
-  	     ? 'F' : '.');
-        fflush(stdout);
-      }
-
-    exit(0);
-  }
-
-I've tried enabling and disabling tcp_syncookies, without any effect.
-
-The same program starts returning errors after two successful connects
-on Solaris and one on HP-UX. Linux keeps returning new connections...
-
-Phil.

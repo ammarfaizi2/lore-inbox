@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135222AbRDRRV0>; Wed, 18 Apr 2001 13:21:26 -0400
+	id <S135224AbRDRRb0>; Wed, 18 Apr 2001 13:31:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135224AbRDRRVQ>; Wed, 18 Apr 2001 13:21:16 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:2314 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S135222AbRDRRVG>;
-	Wed, 18 Apr 2001 13:21:06 -0400
-Date: Wed, 18 Apr 2001 18:19:50 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Fabio Riccardi <fabio@chromium.com>
-Cc: Zach Brown <zab@zabbo.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        "David S. Miller" <davem@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: numbers?
-In-Reply-To: <3ABBB0EF.7A292060@chromium.com>
-Message-ID: <Pine.LNX.4.30.0104181807480.29999-100000@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135225AbRDRRbP>; Wed, 18 Apr 2001 13:31:15 -0400
+Received: from peorth.iteration.net ([208.190.180.178]:56072 "HELO
+	peorth.iteration.net") by vger.kernel.org with SMTP
+	id <S135224AbRDRRbO>; Wed, 18 Apr 2001 13:31:14 -0400
+Date: Wed, 18 Apr 2001 12:31:12 -0500
+From: "Michael C . Wu" <keichii@iteration.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: freebsd-hackers@freebsd.org, linux-kernel@vger.kernel.org
+Subject: Re: SMP in 2.4 (fwd)
+Message-ID: <20010418123112.A9822@peorth.iteration.net>
+Reply-To: "Michael C . Wu" <keichii@peorth.iteration.net>
+Mail-Followup-To: "Michael C . Wu" <keichii@iteration.net>,
+	Rik van Riel <riel@conectiva.com.br>, freebsd-hackers@freebsd.org,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0104181412260.17635-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0104181412260.17635-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Wed, Apr 18, 2001 at 02:12:59PM -0300
+X-PGP-Fingerprint: 5025 F691 F943 8128 48A8  5025 77CE 29C5 8FA1 2E20
+X-PGP-Key-ID: 0x8FA12E20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 18, 2001 at 02:12:59PM -0300, Rik van Riel scribbled:
+| Hi,
+| 
+| better back out SMPng real fast, otherwise you'll get into a
+| flamewar with Dennis again ;)
+| 
+| Riki
+<joke>
+What? You mean we cannot share development and progress? :)
+If FreeBSD can't contribute anything else, we will contribute some trolls.
+</joke>
 
-On Fri, 23 Mar 2001, Fabio Riccardi wrote:
+Deep humble apologies for troll migration
+Michael
 
-> I'm building an alternative web server that is entirely in _user
-> space_ and that achieves the same level of performance as TUX.
-> Presently I can match TUX performance within 10-20%, and I still have
-> quite a few improvements in my pocket.
+| ---------- Forwarded message ----------
+| Date: Wed, 18 Apr 2001 11:08:22 -0400
+| From: Dennis <dennis@etinc.com>
+| To: linux-kernel@vger.kernel.org
+| Subject: SMP in 2.4
+| 
+| Does 2.4 have something similar to spl levels or does it still require the
+| ridiculous MS-DOSish spin-locks to protect every bit of code?
+| 
+| DB
+| 
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/
+| 
+| 
+| To Unsubscribe: send mail to majordomo@FreeBSD.org
+| with "unsubscribe freebsd-hackers" in the body of the message
 
-very interesting statement, which appears to be contradicted by numbers on
-your website. Your website says you get a 1375 SPECweb99 connections
-result on a dual 1 GHz, 4 GB, PIII system:
-
-	http://www.chromium.com/cr_hp.html
-
-the best TUX 2.0 result published so far, on a very similar system (same
-CPU speed, same amount of RAM, same number and type of network cards) is
-3222 connections:
-
-        http://www.spec.org/osg/web99/results/res2001q2/web99-20010319-00100.html
-
-the difference between 1375 and 3222 is quite substantial, TUX is 134%
-faster (2.3 times the performance of your server). I'm sure a userspace
-webserver can get quite close to TUX in simple static benchmarks (in fact
-phttpd should be very close), but SPECweb99 is far from simple. When
-saying you are 10-20% close to TUX, did you refer to SPECweb99 results?
-
-	Ingo
-
+-- 
++-----------------------------------------------------------+
+| keichii@iteration.net         | keichii@freebsd.org       |
+| http://iteration.net/~keichii | Yes, BSD is a conspiracy. |
++-----------------------------------------------------------+

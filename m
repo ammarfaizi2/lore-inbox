@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267474AbTBQU5b>; Mon, 17 Feb 2003 15:57:31 -0500
+	id <S267489AbTBQVHF>; Mon, 17 Feb 2003 16:07:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267478AbTBQU5b>; Mon, 17 Feb 2003 15:57:31 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:25619 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267474AbTBQU5a>; Mon, 17 Feb 2003 15:57:30 -0500
-Date: Mon, 17 Feb 2003 16:03:32 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Rus Foster <rghf@fsck.me.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Dell Insprion Battery Level
-In-Reply-To: <20030217155735.O88375-100000@freebsd.rf0.com>
-Message-ID: <Pine.LNX.3.96.1030217155920.914A-100000@gatekeeper.tmr.com>
+	id <S267492AbTBQVHF>; Mon, 17 Feb 2003 16:07:05 -0500
+Received: from [194.87.44.233] ([194.87.44.233]:27083 "EHLO main.inves.ru")
+	by vger.kernel.org with ESMTP id <S267489AbTBQVHE>;
+	Mon, 17 Feb 2003 16:07:04 -0500
+Date: Tue, 18 Feb 2003 00:17:03 +0300 (MSK)
+From: anton <anton@inves.ru>
+To: linux-kernel@vger.kernel.org
+Subject: about kacpidpc
+Message-ID: <Pine.LNX.3.96.1030218001548.31385C-100000@main.inves.ru>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Feb 2003, Rus Foster wrote:
+ Hello everybody! 
+ I have two questions conserning the process named kacpidpc:
 
-> Hi,
-> Sorry if this is the wrong place. I'm trying to work out if there is
-> anyway to get power levels out of the battery. I've enabled Dell Laptop
-> support and ACPI but can't find anything. Is there a userspace tool I need
-> to install at all?
+1)what this process is? could anyone answer me or give any reference about
+it.
 
-I've used a couple of Dells, Lattitudes and Inspirons, and using APM
-rather than ACPI worked, the apm command gave me battery status and IIRC
-"apm -s" worked to put the Lattitude to sleep.
+2)I had a trouble with this process, may be someone could explain me,
+where this problem went from. The problem was:
 
-Don't know if this will work for you or is all you need, it met my humble
-needs.
+I have a server under linux debian 2.4.17 and it happened two times, that
+all my disck space finished, becouse the file pacct grew anormously, if i
+tried to look lastcomm it all was filled with lines like:  
 
-Note: this was with a 2.4 kernel, I don't recall if I tested the 2.5 for
-this particular ability.
+kacpidpc           F    root     ??         0.00 secs Mon Feb 17 23:32
+kacpidpc           F    root     ??         0.00 secs Mon Feb 17 23:32
+kacpidpc           F    root     ??         0.00 secs Mon Feb 17 23:32
+kacpidpc           F    root     ??         0.00 secs Mon Feb 17 23:32
+  
+ Thanks in advance, with respect, Anton Lizunov
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 

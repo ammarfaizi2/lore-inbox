@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265830AbTAJSbF>; Fri, 10 Jan 2003 13:31:05 -0500
+	id <S265777AbTAJSkb>; Fri, 10 Jan 2003 13:40:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265628AbTAJSad>; Fri, 10 Jan 2003 13:30:33 -0500
-Received: from [193.158.237.250] ([193.158.237.250]:10633 "EHLO
-	mail.intergenia.de") by vger.kernel.org with ESMTP
-	id <S265677AbTAJS3A>; Fri, 10 Jan 2003 13:29:00 -0500
-Date: Fri, 10 Jan 2003 19:37:40 +0100
-Message-Id: <200301101837.h0AIbeO05540@mail.intergenia.de>
-To: Your.message.of"09 Jan 2003 15:20:41 +0900."@mail.intergenia.de
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: exception tables in 2.5.55  [rescued]
-CC: linux-kernel@vger.kernel.org, Greg Ungerer <gerg@snapgear.com>
+	id <S266224AbTAJSjk>; Fri, 10 Jan 2003 13:39:40 -0500
+Received: from smtp08.iddeo.es ([62.81.186.18]:29950 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id <S266199AbTAJSi4>;
+	Fri, 10 Jan 2003 13:38:56 -0500
+Date: Fri, 10 Jan 2003 19:47:39 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: any chance of 2.6.0-test*?
+Message-ID: <20030110184739.GA1579@werewolf.able.es>
+References: <Pine.LNX.4.44.0301100921460.12833-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.44.0301100921460.12833-100000@home.transmeta.com>; from torvalds@transmeta.com on Fri, Jan 10, 2003 at 18:29:36 +0100
+X-Mailer: Balsa 2.0.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm building for the v850, which has no MMU.
+
+On 2003.01.10 Linus Torvalds wrote:
 > 
-> Starting with 2.5.55, I'm getting link errors like:
+> On Fri, 10 Jan 2003, Dave Jones wrote:
+> > 
+> > What's happening with the OSS drivers ?
+> > I'm still carrying a few hundred KB of changes from 2.4 for those.
+> > I'm not going to spent a day splitting them up, commenting them and pushing
+> > to Linus if we're going to be dropping various drivers.
 > 
->   kernel/extable.c:29: undefined reference to `search_extable'
+> I consider them to be old drivers, the same way "hd.c" was. Not
+> necessarily useful for most people, but neither was hd.c. And it was
+> around for a _long_ time (heh. I needed to check. The config option is 
+> still there ;)
 > 
-> I didn't have to worry about this with earlier kernels, and it looks
-> like what happened is that previously arch-specific code was
-> consolidated into the generic kernel.
-
-Yes.  This patch (like most of the module stuff) was written long
-before the mmuless archs were merged.  It didn't occur to me to look
-through all the archs again.
-
-> As far as I can see, the purpose of exception tables is to deal with
-> unexpected memory access traps and on the v850, this basically can't
-> happen (there's no MMU, and no way I know of to detect non-existant
-> memory).  So I'd like to make the generic exception handling stuff
-> optional.
-
-You can now make kernel/extable.o depend on this configuration option
-(whatever you decide it should be).
-
-And surround kernel/module.c's search_module_extables with the same
-option.
-
-It's trivial, just CC: me when you send to Linus, and I'll re-xmit if
-he drops it.
-
-> However, I'm not sure the best way to do this -- I could try to make it
-> dependent on CONFIG_MMU, but are there non-MMU processors that _can_
-> usefully use exception tables (in which case perhaps there should just
-> be a separate CONFIG_EXTABLES or something)?
+> So I don't see a huge reason to remove them from the sources, but we might
+> well make them harder to select by mistake, for example. Right now the
+> config help files aren't exactly helpful, and the OSS choice is before the
+> ALSA one, which looks wrong. 
 > 
-> [Oh, and also, please tell me if I'm mistaken about the purpose of
-> these tables and really _should_ just implement them.]
+> They should probably be marked deprecated, and if they don't get a lot of 
+> maintenance, that's fine.
+> 
+> 		Linus
 
-No, they're for copy_to/from_user and friends.  If your arch doesn't
-rely on exception handling to trap wierd accesses, you can turn this
-off.
+As there is a CONFIG_EXPERIMENTAL, how about a CONFIG_DEPRECATED for the
+opposite edge ?
 
-Hope that helps,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.21-pre2-jam2 (gcc 3.2.1 (Mandrake Linux 9.1 3.2.1-2mdk))

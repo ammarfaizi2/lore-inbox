@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264706AbTBXMdR>; Mon, 24 Feb 2003 07:33:17 -0500
+	id <S266953AbTBXMfs>; Mon, 24 Feb 2003 07:35:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264844AbTBXMdR>; Mon, 24 Feb 2003 07:33:17 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:38788 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S264706AbTBXMdQ>; Mon, 24 Feb 2003 07:33:16 -0500
-Date: Mon, 24 Feb 2003 13:43:17 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with IDE-SCSI in 2.4.21-pre4/2.4.20
-Message-ID: <20030224124317.GD27646@louise.pinerecords.com>
-References: <20030224122259.7a468c82.skraw@ithnet.com> <20030224113002.GC27646@louise.pinerecords.com> <20030224132909.068d0ce9.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030224132909.068d0ce9.skraw@ithnet.com>
-User-Agent: Mutt/1.4i
+	id <S266978AbTBXMfr>; Mon, 24 Feb 2003 07:35:47 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:49336 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S266953AbTBXMfr>;
+	Mon, 24 Feb 2003 07:35:47 -0500
+Date: Mon, 24 Feb 2003 13:45:48 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: procps-list@redhat.com, Linus Torvalds <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>, <alexl@redhat.com>, <viro@math.psu.edu>
+Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
+In-Reply-To: <200302241229.h1OCTRF331287@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.4.44.0302241341240.26626-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [skraw@ithnet.com]
-> 
-> On Mon, 24 Feb 2003 12:30:02 +0100
-> Tomas Szepe <szepe@pinerecords.com> wrote:
-> 
-> > > [skraw@ithnet.com]
-> > > 
-> > > I tried simple "mount /dev/sr0 /mnt" -> spinup, then freeze, "mount /dev/scd0
-> > > /mnt" -> spinup, then freeze. I even tried attaching a real SCSI cdrom, which
-> > > works as expected. I tried booting a live filesystem directly from the
-> > > questionable drive, it works (obviously does not use ide-scsi, but atapi).
-> > 
-> > lspci -vv
-> > ?
 
-Serverworks.  Well, you definitely want to try -ac.  :)
+On Mon, 24 Feb 2003, Albert D. Cahalan wrote:
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+> Sorting is not default because of the memory requirements and because
+> there have been many kernel bugs that cause ps to hang when it hits a
+> particular process. Sorting may mean that ps hangs or is killed before
+> producing anything.
+
+in fact there was an unconditional qsort() done after scanning all tasks,
+until i pointed it out to Alex. It never caused any problems, and sorting
+never showed up as a source of overhead in the profiler, so i'm not sure
+why you insist on sorting so much.
+
+if procps hangs then that's a bug in procps. I'm not quite sure what you
+mean by 'it hits a particular process'.
+
+	Ingo
+

@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVAXXgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbVAXXlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbVAXXgA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 18:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVAXXd0
+	id S261756AbVAXXlk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 18:41:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbVAXXkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 18:33:26 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:34965 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261737AbVAXXch (ORCPT
+	Mon, 24 Jan 2005 18:40:37 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:41196 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261750AbVAXXi4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 18:32:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=AFrwxRq+dmimseu3lnAz494ZCJrKAuGk/onP6qUkaS/iU+rH3IeuSXDmEv/lEmxF8kb1KENLp7ZtmCjrqpDj/sL8qg7vYbjaoLyq4Xt/bHLUPG1kUb47f9G2qW2Xyi2AgWX6hF3LCnz3nTXUs5sw4cY5pGYhQH1nyTtT/LTlkLQ=
-Message-ID: <58cb370e0501241532d078a01@mail.gmail.com>
-Date: Tue, 25 Jan 2005 00:32:34 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Karsten Keil <kkeil@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1
-In-Reply-To: <20050124203624.GB14335@pingi3.kke.suse.de>
+	Mon, 24 Jan 2005 18:38:56 -0500
+Date: Mon, 24 Jan 2005 15:38:49 -0800
+From: Richard Henderson <rth@redhat.com>
+To: Edward Peschko <esp5@pge.com>
+Cc: gcc@gcc.gnu.org, libc-alpha@sources.redhat.com,
+       binutils@sources.redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: forestalling GNU incompatibility - proposal for binary relative dynamic linking
+Message-ID: <20050124233849.GA29765@redhat.com>
+Mail-Followup-To: Richard Henderson <rth@redhat.com>,
+	Edward Peschko <esp5@pge.com>, gcc@gcc.gnu.org,
+	libc-alpha@sources.redhat.com, binutils@sources.redhat.com,
+	linux-kernel@vger.kernel.org
+References: <20050124222449.GB16078@venus> <20050124231047.GC29545@redhat.com> <20050124231636.GC19422@venus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050124021516.5d1ee686.akpm@osdl.org>
-	 <20050124121226.GA29098@infradead.org>
-	 <20050124203624.GB14335@pingi3.kke.suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050124231636.GC19422@venus>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jan 2005 21:36:24 +0100, Karsten Keil <kkeil@suse.de> wrote:
-> On Mon, Jan 24, 2005 at 12:12:26PM +0000, Christoph Hellwig wrote:
-> > > +i4l-new-hfc_usb-driver-version.patch
-> >
-> > this drivers wants:
-> >
-> >  - update for Documentation/CodingStyle
-> 
-> agree, I only take the patch from chip manufacturer and
-> test compiling and working with my hardware and do not look at code style
-> yet.
-> 
-> >  - conversion to proper pci API
-> 
-> ??? the driver is not PCI related at all
+On Mon, Jan 24, 2005 at 03:16:36PM -0800, Edward Peschko wrote:
+> cool.. any chance for some syntactic sugar so me (and other 
+> users/vendors) wouldn't need to change any of their build scripts 
+> and compilation processes?
 
-it seems that hch wanted to also mention this patch:
+Uh, like what?  That's about as simple as you can get.
 
-i4l-hfc-4s-and-hfc-8s-driver.patch
 
-and it is indeed a very ugly one...
+r~

@@ -1,93 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266555AbUGKKas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266558AbUGKKc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266555AbUGKKas (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 06:30:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266554AbUGKKar
+	id S266558AbUGKKc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 06:32:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266554AbUGKKc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 06:30:47 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:23179 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S266555AbUGKK34 (ORCPT
+	Sun, 11 Jul 2004 06:32:27 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:44501 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266557AbUGKKcL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 06:29:56 -0400
-Date: Sun, 11 Jul 2004 12:29:51 +0200 (MEST)
-From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Roman Zippel <zippel@linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
-In-Reply-To: <Pine.GSO.4.58.0407102126150.10242@waterleaf.sonytel.be>
-Message-ID: <Pine.GSO.4.58.0407111226350.3963@waterleaf.sonytel.be>
-References: <20040707122525.X1924@build.pdx.osdl.net>
- <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au> <20040707202746.1da0568b.davem@redhat.com>
- <buo7jtfi2p9.fsf@mctpc71.ucom.lsi.nec.co.jp> <Pine.LNX.4.58.0407072220060.1764@ppc970.osdl.org>
- <buosmc3gix6.fsf@mctpc71.ucom.lsi.nec.co.jp> <Pine.LNX.4.58.0407080855120.1764@ppc970.osdl.org>
- <Pine.LNX.4.58.0407091313570.20635@scrub.home>
- <Pine.GSO.4.58.0407102126150.10242@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 11 Jul 2004 06:32:11 -0400
+Date: Sun, 11 Jul 2004 12:30:20 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com,
+       linux-audio-dev@music.columbia.edu
+Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040711103020.GA24797@elte.hu>
+References: <20040709182638.GA11310@elte.hu> <20040710222510.0593f4a4.akpm@osdl.org> <20040711093209.GA17095@elte.hu> <20040711024518.7fd508e0.akpm@osdl.org> <20040711095039.GA22391@elte.hu> <20040711025855.08afbca1.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040711025855.08afbca1.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=0, required 5.9,
+	autolearn=not spam
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Jul 2004, Geert Uytterhoeven wrote:
-> On Fri, 9 Jul 2004, Roman Zippel wrote:
-> > On Thu, 8 Jul 2004, Linus Torvalds wrote:
-> > > I have one. It's in my head. It's called the Linux Kernel C standard. Some
-> > > of it is documented in CodinggStyle, others is just codified in existing
-> > > practice.
-> >
-> > So far we have been quite liberal in style questions, what annoys me here
-> > is that people send warning patches directly to you without even notifying
-> > the maintainers. If you want people to conform people to a certain
-> > CodingStyle please document officially in the kernel, sparse isn't
-> > distributed with the kernel and the sparse police is silently changing the
-> > kernel all over the place with sometimes questionable benefit. Only the
->
-> I agree, when you're talking about the `if ((x = f())' cases. We already added
-> the extra parentheses to shut up gcc...
->
-> > __user warnings had really found the bugs, but the rest I've seen changes
-> > perfectly legal code.
 
-But why does sparse complain about
+* Andrew Morton <akpm@osdl.org> wrote:
 
-    p->thread.fs = get_fs().seg;
+> OK, but most of the new ones are unneeded with CONFIG_PREEMPT=y.  I'm
+> still failing to see why a non-preempt, voluntary preemption kernel
+> even needs to try to be competitive with a preemptible kernel?
 
-with
+the reason is difference in overhead (codesize, speed) and risks (driver
+robustness). We do not want to enable preempt for Fedora yet because it
+breaks just too much stuff and is too heavy. So we looked for a solution
+that might work for a generic distro.
 
-    linux-m68k-2.6.7/arch/m68k/kernel/process.c:265:23: warning: expected lvalue for member dereference
+here are the code size differences. With a typical .config (debugging
+options disabled), the 2.6.7-mm7(+voluntary-preempt) UP x86 kernel gets
+the following .text sizes:
 
-? Looks valid to me?
+   orig:      1776911 bytes
+   preempt:   1855519 bytes  (+4.4%)
+   voluntary: 1783407 bytes  (+0.3%)
 
-(patch to kill the warning below, _for reference only_)
+so if voluntary-preempt can get close to real preempt's numbers for
+practical stuff then we get most of the benefits while excluding some of
+the nastiest risks and disadvantages.
 
---- linux-m68k-2.6.7/arch/m68k/kernel/process.c.orig	2004-06-21 20:20:00.000000000 +0200
-+++ linux-m68k-2.6.7/arch/m68k/kernel/process.c	2004-06-27 14:47:23.000000000 +0200
-@@ -242,6 +242,7 @@
- 	struct pt_regs * childregs;
- 	struct switch_stack * childstack, *stack;
- 	unsigned long stack_offset, *retp;
-+	mm_segment_t fs;
+(Long-term i'd like to see preempt be used unconditionally - at which
+point the 10-line CONFIG_VOLUNTARY_PREEMPT Kconfig and kernel.h change
+could go away.)
 
- 	stack_offset = THREAD_SIZE - sizeof(struct pt_regs);
- 	childregs = (struct pt_regs *) ((unsigned long) (p->stack) + stack_offset);
-@@ -262,7 +263,8 @@
- 	 * Must save the current SFC/DFC value, NOT the value when
- 	 * the parent was last descheduled - RGH  10-08-96
- 	 */
--	p->thread.fs = get_fs().seg;
-+	fs = get_fs();
-+	p->thread.fs = fs.seg;
-
- 	if (!FPU_IS_EMU) {
- 		/* Copy the current fpu state */
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+	Ingo

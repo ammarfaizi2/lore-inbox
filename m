@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281645AbRLDSWD>; Tue, 4 Dec 2001 13:22:03 -0500
+	id <S283231AbRLDSTL>; Tue, 4 Dec 2001 13:19:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283203AbRLDSUa>; Tue, 4 Dec 2001 13:20:30 -0500
-Received: from 217-126-161-163.uc.nombres.ttd.es ([217.126.161.163]:44169 "EHLO
-	DervishD.viadomus.com") by vger.kernel.org with ESMTP
-	id <S283119AbRLDSTl>; Tue, 4 Dec 2001 13:19:41 -0500
-To: esr@thyrsus.com
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E16BKL5-0001yJ-00@DervishD.viadomus.com>
-Date: Tue, 4 Dec 2001 19:30:43 +0100
-From: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	 Coronado <raul@viadomus.com>
-Reply-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	   Coronado <raul@viadomus.com>
-X-Mailer: DervishD TWiSTiNG Mailer
+	id <S281158AbRLDSTB>; Tue, 4 Dec 2001 13:19:01 -0500
+Received: from mail12.svr.pol.co.uk ([195.92.193.215]:45644 "EHLO
+	mail12.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S283231AbRLDSRR>; Tue, 4 Dec 2001 13:17:17 -0500
+From: Paul Cook <paul@anville.co.uk>
+Reply-To: paul@anville.co.uk
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Small X25 IOCTL Fix
+Date: Tue, 4 Dec 2001 18:17:46 +0000
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_M50UCS184FYRLSIV3W2C"
+Message-Id: <E16BK82-0006RP-00.2001-12-04-18-17-14@mail12.svr.pol.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Eric :))
 
->(2) Requiring Python introduces another tool into the requisites list for
->kernel building.  
+--------------Boundary-00=_M50UCS184FYRLSIV3W2C
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8bit
 
-    I'm happy to see that out of your 'silly' list...
 
->I'm just going to say "Today's problems, today's tools."
+Hi,
 
-    Hey, hope that Python never gets considered a 'today's tool' or
-we will end up needing 256 CPU mainframes just to issue an 'ls'
-(maybe this will not be enough if filesystem drivers are written in
-Python too. In the future, I mean...).
+without the following small patch, it is impossible, using the ioctl 
+interface, to disable the throughput facility without patching /include/x25.h 
+and re-compiling.
 
-    And yes, Python is a today's problem. Fortunately, people keeps
-rewriting their Python code in true languages.
+This is made against a 2.2.19, but looks equally relevant for 2.4.x
 
->Progress happens.
 
-    Python is not progress, is just bloatware. I don't think that the
-kernel *building* should be made dependant on such a fatware. And,
-how about the 'Python License'. I'm pretty sure that it is compatible
-with the rest of the kernel, but we should pray for it not to change.
 
-    And, well, Python is fatware just for me: anyway will see
-reasonable to install a 6Mb sources language just for the
-configuration of the kernel. Very reasonable.
+--------------Boundary-00=_M50UCS184FYRLSIV3W2C
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="x25_ioctl.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="x25_ioctl.diff"
 
->If you don't like it, feel free to go back to writing Autocoder on your 1401.
+LS0tIG5ldC94MjUvb2xkX2FmX3gyNS5jCVdlZCBOb3YgMjggMTg6Mzc6MTUgMjAwMQorKysgbmV0
+L3gyNS9hZl94MjUuYwlUaHUgTm92IDI5IDEyOjMzOjUwIDIwMDEKQEAgLTExNTAsNyArMTE1MCw3
+IEBACiAJCQkJcmV0dXJuIC1FSU5WQUw7CiAJCQlpZiAoZmFjaWxpdGllcy53aW5zaXplX2luIDwg
+MSB8fCBmYWNpbGl0aWVzLndpbnNpemVfaW4gPiAxMjcpCiAJCQkJcmV0dXJuIC1FSU5WQUw7Ci0J
+CQlpZiAoZmFjaWxpdGllcy50aHJvdWdocHV0IDwgMHgwMyB8fCBmYWNpbGl0aWVzLnRocm91Z2hw
+dXQgPiAweDJDKQorCQkJaWYgKGZhY2lsaXRpZXMudGhyb3VnaHB1dCAmJiAoZmFjaWxpdGllcy50
+aHJvdWdocHV0IDwgMHgwMyB8fCBmYWNpbGl0aWVzLnRocm91Z2hwdXQgPiAweDJDKSkKIAkJCQly
+ZXR1cm4gLUVJTlZBTDsKIAkJCWlmIChmYWNpbGl0aWVzLnJldmVyc2UgIT0gMCAmJiBmYWNpbGl0
+aWVzLnJldmVyc2UgIT0gMSkKIAkJCQlyZXR1cm4gLUVJTlZBTDsK
 
-    Good policy... People who don't like Python are morons... And
-maybe those that neither use Java or C# for the kernel will be too in
-a near future, is that what you're trying to say?
-
-    Eric, I think that this is an important issue and that the
-decision about adding such a big dependence to the kernel should be
-studied with care, and not imposed.
-
-    Raúl
+--------------Boundary-00=_M50UCS184FYRLSIV3W2C--

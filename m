@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263229AbTCYRuH>; Tue, 25 Mar 2003 12:50:07 -0500
+	id <S263235AbTCYRvP>; Tue, 25 Mar 2003 12:51:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263230AbTCYRuH>; Tue, 25 Mar 2003 12:50:07 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:21770 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263229AbTCYRuG>; Tue, 25 Mar 2003 12:50:06 -0500
-Date: Tue, 25 Mar 2003 18:01:08 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK FBDEV] A few more updates.
-Message-ID: <20030325180108.E24418@flint.arm.linux.org.uk>
-Mail-Followup-To: James Simmons <jsimmons@infradead.org>,
-	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33.0303251031180.4272-100000@maxwell.earthlink.net>
+	id <S263236AbTCYRvP>; Tue, 25 Mar 2003 12:51:15 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:53638 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id <S263235AbTCYRvL>; Tue, 25 Mar 2003 12:51:11 -0500
+Subject: 2.4.20 and 6to4 tunneling
+From: "Trever L. Adams" <tadams-lists@myrealbox.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048615339.1052.25.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0303251031180.4272-100000@maxwell.earthlink.net>; from jsimmons@infradead.org on Tue, Mar 25, 2003 at 10:32:11AM -0800
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 25 Mar 2003 13:02:20 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 25, 2003 at 10:32:11AM -0800, James Simmons wrote:
-> Linus, please do a
-> 
-> 	bk pull http://fbdev.bkbits.net/fbdev-2.5
+I have found a problem, I am not sure if it is in my configuration or
+not.  I have no dedicated ipv6 addresses, however, my internal network
+and the router are using 6to4 tunneling and uses the appropriate 2002:
+addresses.  I am doing this to learn about ipv6 and possibly to develop
+some software using ipv6.
 
-Patch?
+The problem is that a website I set up on a friend's box in Finland
+(which has a 2001 ipv6 address and doesn't use ipv6) loads the text just
+fine.  However, I never do get the images, and if I do a netstat on the
+server (in Finland), the connection shows open, with a sendq of about
+the image file sizes.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+This sounds like the old mtu problems where path mtu discovery was
+broken.  However, I am unable to find much information.  Is this a bug
+in the kernel, in the setup, or just me being silly?
+
+vichu-ip6.innernet.org is the website, remove the -ip6 to get the ipv4
+site.  Yes, it is a silly little website of me playing around.  The
+image that definitely shows the problem is right at the top of the page.
+
+I can provide ifconfig output or any other details necessary.  I have
+tried to do ethereal analysis of the connection.  I don't seem to see
+anything but the opening syn/syn of the connection carrying the image. 
+It just seems the other end is broken.  The server is running RedHat 8
+all errata, kernel 2.4.18-24.8.0.  Mine is a largely RedHat Phoebe with
+a few packages from the newer rawhide.
+
+Sorry if this is off topic, but I don't seem to be finding any
+references to such problems w/ Google, so I thought it might be a kernel
+bug, but am not quite positive of that yet.
+
+Trever
+--
+"In protocol design, perfection has been reached not when there is
+nothing left to add, but when there is nothing left to take away." --
+RFC1925: The Twelve Networking Truths
 

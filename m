@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314605AbSD1WoS>; Sun, 28 Apr 2002 18:44:18 -0400
+	id <S314689AbSD1WrT>; Sun, 28 Apr 2002 18:47:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314687AbSD1WoR>; Sun, 28 Apr 2002 18:44:17 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:16046 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S314605AbSD1WoQ>;
-	Sun, 28 Apr 2002 18:44:16 -0400
-Date: Mon, 29 Apr 2002 00:44:07 +0200
+	id <S314690AbSD1WrS>; Sun, 28 Apr 2002 18:47:18 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:18606 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S314689AbSD1WrR>;
+	Sun, 28 Apr 2002 18:47:17 -0400
+Date: Mon, 29 Apr 2002 00:47:07 +0200
 From: Vojtech Pavlik <vojtech@suse.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [bk+patch] Let (WIP) be replaced with (EXPERIMENTAL)
-Message-ID: <20020429004407.A12673@ucw.cz>
-In-Reply-To: <20020428142415.A10747@ucw.cz> <3CCBFAB6.7060607@evision-ventures.com> <20020428212429.A12005@ucw.cz> <3CCC4426.3040303@evision-ventures.com>
+To: Dave Jones <davej@suse.de>, Alexander Hoogerhuis <alexh@ihatent.com>,
+        rudmer@legolas.dynup.net, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.10-dj1
+Message-ID: <20020429004707.D12673@ucw.cz>
+In-Reply-To: <20020427030823.GA21608@suse.de> <200204271313.g3RDD4024060@smtp1.wanadoo.nl> <20020427155116.I14743@suse.de> <200204281145.g3SBjJJ20178@smtp2.wanadoo.nl> <m3lmb7zjkp.fsf@lapper.ihatent.com> <20020428223842.J14743@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -20,28 +20,23 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 28, 2002 at 08:49:10PM +0200, Martin Dalecki wrote:
+On Sun, Apr 28, 2002 at 10:38:42PM +0200, Dave Jones wrote:
 
-> > Ok - your decision. If you want, I'll omit the BK part of the patches.
-> > On the other hand, if you could just forward it to Linus as is (or let
-> > me send it to Linus after your confirmation), change comments won't get
-> > lost. 
-> > 
-> >>I preferr a classical diff -urN ;-).
-> > 
-> > It's included, anyway.
+>  > On 2.5.10-dj1 it works like this: keyboard led is responsive to
+>  > hitting caps lock, but when LED is off I get upper case letter typed,
+>  > and when LED is off I get lower case letters. However, the strange bit
+>  > is that lets say I type in my username and password so that they
+>  > appear in lowercase on the screen, I still don't get in. And just fir
+>  > having tried, typing with the caps lock LED off, thus getting upper
+>  > case text, doesn't help either.
+>  > 
+>  > Any pointer to where I go off to track this down?
 > 
-> Yes but why the hell should I bother looking at some uu-encoded stuff?
-> Jet another reason I think BK is plain ugly.
-> Anyway. Please send the chipset parts to linus directly.
-> They seem fine. 
+> Add a #define ATKBD_DEBUG to drivers/input/keyboard/atkbd.c
+> and a #define I8042_DEBUG_IO to drivers/input/serio/i8042.c, and maybe
+> Vojtech can figure out whats going wrong from the output?
 
-Ok, I'll send the two changes to Linus.
-
-> However the _WIP change is despite beeing correct, not complete
-> and I will prefer to do it myself. OK?
-
-Perfect.
+Sure, I'll help where I can. What keyboard/computer is this?
 
 -- 
 Vojtech Pavlik

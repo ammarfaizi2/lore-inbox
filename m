@@ -1,68 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263777AbUE1S2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263776AbUE1Se4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbUE1S2d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 14:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUE1S2c
+	id S263776AbUE1Se4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 14:34:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbUE1Se4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 14:28:32 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:28904 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S263777AbUE1S2a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 14:28:30 -0400
-Subject: Re: [PATCH 2.6] CREDITS file update
-From: Robert Love <rml@ximian.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200405281732.i4SHWGNY010471@turing-police.cc.vt.edu>
-References: <200405281732.i4SHWGNY010471@turing-police.cc.vt.edu>
-Content-Type: multipart/mixed; boundary="=-7jz2N43w03BGS6EyVrw1"
-Date: Fri, 28 May 2004 14:28:29 -0400
-Message-Id: <1085768909.1380.11.camel@betsy>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.8 
+	Fri, 28 May 2004 14:34:56 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:17381 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263776AbUE1Sex (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 14:34:53 -0400
+Date: Fri, 28 May 2004 11:33:32 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Arjan van de Ven <arjanv@redhat.com>
+cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
+Subject: RE: CONFIG_IRQBALANCE for AMD64?
+Message-ID: <2750000.1085769212@flay>
+In-Reply-To: <7F740D512C7C1046AB53446D372001730182BB40@scsmsx402.amr.corp.intel.com>
+References: <7F740D512C7C1046AB53446D372001730182BB40@scsmsx402.amr.corp.intel.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> On Fri, May 28, 2004 at 10:46:18AM -0700, Martin J. Bligh wrote:
+>>> 
+>>> Personally, I find the argument that it's hardware-specific control
+> code
+>>> a much better reason for it to belong in the kernel.
+>> 
+>> Is it really hardware specific ??
+> 
+> I think automatic IRQ binding business should belong to the user-level;
+> it can use generic statistics, application, or platform configuration
+> knowledge.
+> 
+> The kernel-level should have some simple chipset model, such as lowest
+> priority delivery mode with finer granularity of control. The kirqd at
+> this point, is doing automatic IRQ binding business as well today,
+> although it does not literally bind them. So I think we need to remove
+> that part of code from kirqd. 
 
---=-7jz2N43w03BGS6EyVrw1
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+My personal feeling is that we can't get to happen from userspace what 
+really needs to happen .... but we're going about this ass-backwards.
+Instead of starting with a solution, and seeing what we can wedge into
+it ... what do we actually want to do?
 
-On Fri, 2004-05-28 at 13:32 -0400, Valdis.Kletnieks@vt.edu wrote:
+Here's my start at a list ... I'm sure it's woefully incomplete.
 
-> Thomas Dunbar used to be working in one of the Dean's offices
-> here.  He's now down the hall from me (and has been for several
-> years, actually).  So let's fix the crufty pointers...
+1. Utilize all CPUs roughly evenly for IRQ processing load (anything that's
+not measured by the scheduler at least, because it's unfair to other 
+processes). Also, we may well have more than 1 CPU's worth of traffic to
+process in a large network server.
 
-I got another CREDITS patch!
+2. Provide some sort of cache-affinity for network interrupt processing,
+which also helps us not get into out-of-order packet situations.
 
-	Robert Love
+3. Utilize idle CPUs where possible to shoulder the load.
 
+4. Provide such a solution for all architectures.
 
+What else? I think we started doing this because of (1 & 2) mainline, 
+especially as the P4 is moronically stupid by default but I know Dave 
+Olien looked at 3 as well at some point past. 
 
---=-7jz2N43w03BGS6EyVrw1
-Content-Disposition: attachment; filename=credits-patch-1.patch
-Content-Type: text/x-patch; name=credits-patch-1.patch; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+ISTR one of the objections to the in-kernel stuff was that the way it
+calculated costs was to look only at the in_interrupt() part of the
+processing ... does the backend stuff get accounted currently to the
+poor sucker who is currently running, in the same was as the interrupt?
 
+Whatever we do ... all arches are going to need to provide a way to direct
+interrupts to a certain CPU, or group thereof. Can they all do that already?
+I'll confess to not having looked at non-i386 arches. And are others as
+brain damaged as the P4? or do they do something round-robin by default?
 
-
-diff -urN linux-2.6.7-mm1/CREDITS linux/CREDITS
---- linux-2.6.7-mm1/CREDITS	2004-05-09 22:32:54.000000000 -0400
-+++ linux/CREDITS	2004-05-28 13:56:18.535983235 -0400
-@@ -1951,9 +1951,9 @@
- 
- N: Robert M. Love
- E: rml@tech9.net
--E: rml@ufl.edu
-+E: rml@novell.com
- D: misc. kernel hacking and debugging
--S: Gainesville, Florida 32608
-+S: Cambridge, MA 02139
- S: USA
- 
- N: Martin von Löwis
-
---=-7jz2N43w03BGS6EyVrw1--
-
+M.

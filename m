@@ -1,68 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272773AbRJEUb2>; Fri, 5 Oct 2001 16:31:28 -0400
+	id <S273565AbRJEUdt>; Fri, 5 Oct 2001 16:33:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273176AbRJEUbS>; Fri, 5 Oct 2001 16:31:18 -0400
-Received: from lsd.nurk.org ([208.8.184.53]:53895 "HELO lsd.nurk.org")
-	by vger.kernel.org with SMTP id <S272773AbRJEUbN>;
-	Fri, 5 Oct 2001 16:31:13 -0400
-Date: Fri, 5 Oct 2001 13:31:57 -0700 (PDT)
-From: Sean Swallow <sean@swallow.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: PDC20268 UDMA troubles
-Message-ID: <Pine.LNX.4.33.0110051329450.15665-100000@lsd.nurk.org>
+	id <S273135AbRJEUd3>; Fri, 5 Oct 2001 16:33:29 -0400
+Received: from paloma17.e0k.nbg-hannover.de ([62.159.219.17]:1685 "HELO
+	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S272074AbRJEUd0>; Fri, 5 Oct 2001 16:33:26 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Olaf Zaplinski <o.zaplinski@mediascape.de>
+Subject: Re: Linux 2.4.11-pre4
+Date: Fri, 5 Oct 2001 22:33:54 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1551862685.1002279242@mbligh.des.sequent.com>
+In-Reply-To: <1551862685.1002279242@mbligh.des.sequent.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20011005203328Z272074-760+21278@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre,
-
-Thank you for the reply.
-
-I was wondering if both controllers (PDC20268 and PDC20267) should show up
-when I cat /proc/ide/pdc202xx ?
-
-I'm not disabling the BURST_BIT, I think the driver is, but only on the
-second card. Thus, I can't get udma5 on all 4 chains.
-
-This is from dmesg:
-
-PDC20267: IDE controller on PCI bus 00 dev 40
-PDC20267: chipset revision 2
-PDC20267: not 100% native mode: will probe irqs later
-PDC20267: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
-    ide2: BM-DMA at 0x1080-0x1087, BIOS settings: hde:DMA, hdf:pio
-    ide3: BM-DMA at 0x1088-0x108f, BIOS settings: hdg:DMA, hdh:pio
-PDC20268: IDE controller on PCI bus 00 dev 50
-PDC20268: chipset revision 2
-PDC20268: not 100% native mode: will probe irqs later
-PDC20268: (U)DMA Burst Bit DISABLED Primary MASTER Mode Secondary MASTER
-Mode.
-    ide4: BM-DMA at 0x10d0-0x10d7, BIOS settings: hdi:pio, hdj:pio
-    ide5: BM-DMA at 0x10d8-0x10df, BIOS settings: hdk:pio, hdl:pio
-
-Let me know if you need more information.
-
-cheers,
-
--- 
-Sean J. Swallow
-pgp (6.5.2) keyfile @ https://nurk.org/keyfile.txt
-
-
-On Thu, 4 Oct 2001 andre@linux-ide.org wrote:
-
+Am Freitag, 5. Oktober 2001 19:54 schrieb Martin J. Bligh:
+> > Odd. Compiles for me with and without SMP support turned on.
 >
-> There is nothing wrong with the procfs.
-> The HOST performs a sense mode on the contents of the taskfile registers
-> when loading a setfeature to change the transfer rate.  Mode 5 is the
-> same
-> timings as Mode 4; however, the internal base clocks are different.
->
-> Also why are we disabling the BUSRT BIT?
->
->
+> My fault. I'd tested this on SMP and Uniproc, but not uniproc with
+> IO apic support. Try this patch:
 
+1. OK, it fixes the UP UP_IOAPIC compilation problem.
+System (with preempt-patch) up and runnig.
 
+2. Woohu. I have 8 CPUs, now...;-)
+--- /proc is somewhat broken
 
+[-]
+processor       : 7
+vendor_id       : 9—U0D'À
+cpu family      : 1
+model           : 0
+model name      : 0D'À
+stepping        : unknown
+cache size      : 0 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : -1071168528
+wp              : yes
+flags           : fpu syscall mmxext lm 3dnowext 3dnow cxmmx
+bogomips        : 0.00
+[-]
+
+3. OOmem deak look.
+
+4. Back in disk stress mode...again.
+
+-Dieter
+
+> --- smp.h.old	Fri Oct  5 10:46:40 2001
+> +++ smp.h	Fri Oct  5 10:48:37 2001
+> @@ -31,9 +31,20 @@
+>  #  define INT_DELIVERY_MODE 1     /* logical delivery broadcast to all
+> procs */ # endif
+>  #else
+> +# define INT_DELIVERY_MODE 0     /* physical delivery on LOCAL quad */
+>  # define TARGET_CPUS 0x01
+>  #endif
+>
+> +#ifndef clustered_apic_mode
+> + #ifdef CONFIG_MULTIQUAD
+> +  #define clustered_apic_mode (1)
+> +  #define esr_disable (1)
+> + #else /* !CONFIG_MULTIQUAD */
+> +  #define clustered_apic_mode (0)
+> +  #define esr_disable (0)
+> + #endif /* CONFIG_MULTIQUAD */
+> +#endif
+> +
+>  #ifdef CONFIG_SMP
+>  #ifndef ASSEMBLY
+>
+> @@ -76,16 +87,6 @@
+>  extern volatile int physical_apicid_to_cpu[MAX_APICID];
+>  extern volatile int cpu_to_logical_apicid[NR_CPUS];
+>  extern volatile int logical_apicid_to_cpu[MAX_APICID];
+> -
+> -#ifndef clustered_apic_mode
+> - #ifdef CONFIG_MULTIQUAD
+> -  #define clustered_apic_mode (1)
+> -  #define esr_disable (1)
+> - #else /* !CONFIG_MULTIQUAD */
+> -  #define clustered_apic_mode (0)
+> -  #define esr_disable (0)
+> - #endif /* CONFIG_MULTIQUAD */
+> -#endif
+>
+>  /*
+>   * General functions that each host system must provide.

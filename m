@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUILVMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUILVPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbUILVMs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 17:12:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUILVMs
+	id S262085AbUILVPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 17:15:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUILVPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 17:12:48 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:4776 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262071AbUILVMq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 17:12:46 -0400
-Date: Sun, 12 Sep 2004 23:12:45 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Serge Hallyn <serue@us.ibm.com>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] BSD Jail LSM (2/3)
-Message-ID: <20040912211244.GB24240@MAIL.13thfloor.at>
-Mail-Followup-To: Serge Hallyn <serue@us.ibm.com>,
-	Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-	akpm@osdl.org
-References: <1094847705.2188.94.camel@serge.austin.ibm.com> <1094847787.2188.101.camel@serge.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 12 Sep 2004 17:15:25 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:17052 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262085AbUILVPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 17:15:23 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: swsusp: kill crash when too much memory is free
+Date: Sun, 12 Sep 2004 23:16:41 +0200
+User-Agent: KMail/1.6.2
+Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@zip.com.au>,
+       Patrick Mochel <mochel@digitalimplant.org>
+References: <20040909154219.GB11742@atrey.karlin.mff.cuni.cz> <200409111150.28457.rjw@sisk.pl> <20040912204255.GA3168@elf.ucw.cz>
+In-Reply-To: <20040912204255.GA3168@elf.ucw.cz>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1094847787.2188.101.camel@serge.austin.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409122316.41601.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Greetings Serge!
-
-On Fri, Sep 10, 2004 at 03:23:07PM -0500, Serge Hallyn wrote:
-> Attached is a patch against the security Kconfig and Makefile to support
-> bsdjail, as well as the bsdjail.c file itself.  bsdjail offers
-> functionality similar to (but more limited than) the vserver patch.
+On Sunday 12 of September 2004 22:42, Pavel Machek wrote:
+> Hi!
 > 
-> A process in a jail lives under a chroot which is not vulnerable to the
-> well-known chdir(...)(etc)chroot(.) attack against normal chroots, and
-> may be locked to one ip address.  For additional features, please see
-> Documentation/bsdjail.txt, which is included in the next patch.
-
-sounds good, maybe linux-vserver and bsdjail can
-share/utilize common code/functionality here?
-
-(will have a look at the code soon)
-
-also interresting enhancements might be
-
- - private namespaces (linux-vserver uses them)
- - certain virtualizations (loadavg, ...)
-
-anyway, let me know if you are interested in
-any cooperation ...
-
-best,
-Herbert
-
-> The patch applies cleanly to 2.6.8.1, and has been tested on xSeries,
-> pSeries, and zSeries.
+> > > Hmm, I do not know what nForce3 is (it should use better name at the
+> > > minimum), but that driver probably needs some work.
+> > 
+> > It is the sound chip (ie snd-intel8x0).  If I unload it after resume, 
+> > everything's fine and dandy.  Moreover, if I unload it before suspend, the 
+> > box wakes up with no problems (of course, I have to unload the other 
+modules 
+> > too, as I said before).
+> > 
+> > However, I think the problem is with the hardware, not with the driver: if 
+the 
+> > sound driver is unloaded before suspend and loaded again after resume, the 
+> > box behaves as though it were loaded all the time (ie IRQ #5 goes mad).  
+Are 
+> > there any boot options that may help get around this?
 > 
-> Please apply.
-> 
-> Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
-> 
-> -serge
+> Hmm, I do not think it is hardware problem.
 
+You're right, it isn't.  If the kernel is booted with pci=routeirq, the 
+problem goes away, as I've said already.
 
+> Does snd-intel8x0 have any suspend/resume support?
+
+It seems it doesn't, but frankly I haven't looked at the code.
+
+Greets,
+RJW
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

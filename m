@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135617AbREFAiu>; Sat, 5 May 2001 20:38:50 -0400
+	id <S135611AbREFAjA>; Sat, 5 May 2001 20:39:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135613AbREFAik>; Sat, 5 May 2001 20:38:40 -0400
-Received: from www.inreko.ee ([195.222.18.2]:6844 "EHLO www.inreko.ee")
-	by vger.kernel.org with ESMTP id <S135612AbREFAia>;
-	Sat, 5 May 2001 20:38:30 -0400
-Date: Sun, 6 May 2001 02:39:17 +0200
-From: Marko Kreen <marko@l-t.ee>
-To: "Magnus Naeslund(f)" <mag@fbab.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.4 fork() problems (maybe)
-Message-ID: <20010506023917.A22722@l-t.ee>
-In-Reply-To: <00fb01c0d596$afb30690$020a0a0a@totalmef> <20010505223034.C9629@l-t.ee> <018701c0d5c2$67a2ad20$020a0a0a@totalmef>
+	id <S135613AbREFAiv>; Sat, 5 May 2001 20:38:51 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:40308 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S135611AbREFAig>; Sat, 5 May 2001 20:38:36 -0400
+Date: Sun, 6 May 2001 02:37:23 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Jens Axboe <axboe@suse.de>, Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, volodya@mindspring.com,
+        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+Message-ID: <20010506023723.A22850@athlon.random>
+In-Reply-To: <Pine.LNX.4.21.0105031017460.30346-100000@penguin.transmeta.com> <200105041140.NAA03391@cave.bitwizard.nl> <20010504135614.S16507@suse.de> <20010504172940.U3762@athlon.random> <20010505151808.A29451@metastasis.f00f.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <018701c0d5c2$67a2ad20$020a0a0a@totalmef>; from mag@fbab.net on Sun, May 06, 2001 at 02:20:50AM +0200
+In-Reply-To: <20010505151808.A29451@metastasis.f00f.org>; from cw@f00f.org on Sat, May 05, 2001 at 03:18:08PM +1200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 06, 2001 at 02:20:50AM +0200, Magnus Naeslund(f) wrote:
-> From: "Marko Kreen" <marko@l-t.ee>
-> > On Sat, May 05, 2001 at 09:07:53PM +0200, Magnus Naeslund(f) wrote:
-> > > When i do a "su - <user>" it just hangs.
-> > > When i run strace on it i see that it forks and wait()s on the child.
+On Sat, May 05, 2001 at 03:18:08PM +1200, Chris Wedgwood wrote:
+> On Fri, May 04, 2001 at 05:29:40PM +0200, Andrea Arcangeli wrote:
+> 
+>     once block_dev is in pagecache there will obviously be no-way to
+>     share cache between the block device and the filesystem, because
+>     all the caches will be in completly different address spaces.
+> 
+> Once we are at this point... will there be any use in having block
+> devices? FreeBSD appears to have done without them completely about a
 
-> No i use redhat 6.2 (on a alpha system).
-> It works fine with 2.4.3, which i am running now ( i backed out 2.4.4 ).
+moving block_dev in pagecache won't change anything from userspace point
+of view, it's a transparent change (if we ignore the total loss of
+cache coherency between block_dev and fs metadata that it implies, but
+as Linus said such loss of coherency will happen anyways eventually
+because metadata will go into its address space too). Basically there
+will still be a use for the block devices as far as there are fsck and
+other userspace applications that want to use it.
 
-Could you try 2.4.5-pre1?  If that too works then the problem
-quite possibly was indeed fork() child-first change.  If not,
-well, then it gets interesting...
-
--- 
-marko
-
+Andrea SYNAPSE (very amusing movie ;)

@@ -1,154 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263149AbUECIWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263609AbUECI17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263149AbUECIWw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 04:22:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbUECIWw
+	id S263609AbUECI17 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 04:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbUECI17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 04:22:52 -0400
-Received: from ee.oulu.fi ([130.231.61.23]:29378 "EHLO ee.oulu.fi")
-	by vger.kernel.org with ESMTP id S263149AbUECIVs (ORCPT
+	Mon, 3 May 2004 04:27:59 -0400
+Received: from ee.oulu.fi ([130.231.61.23]:11461 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S263609AbUECI0n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 04:21:48 -0400
-Date: Mon, 3 May 2004 11:21:43 +0300 (EEST)
+	Mon, 3 May 2004 04:26:43 -0400
+Date: Mon, 3 May 2004 11:26:40 +0300 (EEST)
 From: Tuukka Toivonen <tuukkat@ee.oulu.fi>
 X-X-Sender: tuukkat@stekt37
 To: linux-kernel@vger.kernel.org
-cc: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Subject: [PATCH] (fix:oops with rmmod i8042) (was:Bug Report: 2.6.5 broken
- module dependencies: i8042 and atkbd?)
-Message-ID: <Pine.GSO.4.58.0405030953100.11293@stekt37>
+Subject: bug: sleeping function called from invalid context at include/linux/rwsem.h:43
+Message-ID: <Pine.GSO.4.58.0405031122050.11293@stekt37>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compiling i8042 as module, then loading it with atkbd and serio, and then
-unloading i8042 causes a kernel Oops (shown below).
+I have dual PentiumIII, gcc 2.95.4 on Debian 3.0, linux 2.6.5. I open two
+aterms and run
+	while true; do rmmod atkbd; done
+in first and
+	while true; do modprobe atkbd; done
+in the second. Works fine for a while, but then I got the following Oops:
 
-It looks like either i8042_controller_cleanup() or serio_unregister_port()
-triggers the timer again and the timer expires after the module i8042 has
-been unloaded, causing the Oops.
+input: AT Translated Set 2 keyboard on isa0060/serio0
+input: AT Translated Set 2 keyboard on isa0060/serio0
+Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
+in_atomic():0, irqs_disabled():1
+Call Trace:
+ [<c011c48b>] __might_sleep+0xa3/0xb0
+ [<c0116ccb>] do_page_fault+0x83/0x4ba
+ [<c0116c48>] do_page_fault+0x0/0x4ba
+ [<c0143ccf>] kmem_cache_free+0x253/0x298
+ [<c0150b52>] __pte_chain_free+0x46/0x64
+ [<c011781e>] __change_page_attr+0x22/0x1b4
+ [<c0117a1b>] change_page_attr+0x6b/0xd0
+ [<c0117bdd>] kernel_map_pages+0x2d/0x5a
+ [<c013e632>] free_hot_cold_page+0x26/0x100
+ [<c0107ed9>] error_code+0x2d/0x38
+ [<c013891b>] module_text_address+0x67/0x84
+ [<c0131a1b>] kernel_text_address+0x2f/0x3b
+ [<c01416a5>] store_stackinfo+0x61/0x88
+ [<c0143c9d>] kmem_cache_free+0x221/0x298
+ [<c0116966>] pgd_free+0x12/0x16
+ [<c0116966>] pgd_free+0x12/0x16
+ [<c0116966>] pgd_free+0x12/0x16
+ [<c011cf2b>] __mmdrop+0x1f/0x3c
+ [<c011cff2>] mmput+0xaa/0xb4
+ [<c0161f6c>] exec_mmap+0x280/0x2a4
+ [<c01628ac>] flush_old_exec+0x91c/0xba4
+ [<c0161cdc>] kernel_read+0x3c/0x4c
+ [<c0180d0d>] load_elf_binary+0x4d9/0xbec
+ [<c0180834>] load_elf_binary+0x0/0xbec
+ [<c0162ea2>] search_binary_handler+0xde/0x2d0
+ [<c018001c>] Letext+0x1dc/0x1e9
+ [<c017fe40>] Letext+0x0/0x1e9
+ [<c0148bc9>] kmap_high+0x39/0x23c
+ [<c01493d6>] page_address+0x4a/0x124
+ [<c0162ea2>] search_binary_handler+0xde/0x2d0
+ [<c01631e3>] do_execve+0x14f/0x1b8
+ [<c010599f>] sys_execve+0x2f/0x68
+ [<c010746f>] syscall_call+0x7/0xb
 
-The patch given below fixes the problem although possibly it could be
-improved. Probably the first del_timer_sync() could be removed.
-
-(I use gcc 2.95.4 on PentiumIII with Debian 3.0)
-
-ksymoops 2.4.5 on i686 2.6.5.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.6.5/ (default)
-     -m /boot/vmlinuz-2.6.5.map (specified)
-
-Error (regular_file): read_ksyms stat /proc/ksyms failed
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Unable to handle kernel paging request at virtual address f8c79ca4
-c012817f
-*pde = 36a4a067
-Oops: 0002 [#1]
-CPU:    0
-EIP:    0060:[<c012817f>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010002   (2.6.5)
-eax: c031ff50   ebx: f8c79ca0   ecx: c1a0da20   edx: f8c79ca0
-esi: c1a0d540   edi: c031ff50   ebp: c031ff58   esp: c031ff40
+Unable to handle kernel paging request at virtual address 00100100
+ printing eip:
+c013891b
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT SMP DEBUG_PAGEALLOC
+CPU:    1
+EIP:    0060:[<c013891b>]    Not tainted
+EFLAGS: 00010007   (2.6.5)
+EIP is at module_text_address+0x67/0x84
+eax: f8c78000   ebx: 00001074   ecx: 00000000   edx: 001000fc
+esi: 726f7078   edi: 00000001   ebp: f52b5b30   esp: f52b5b24
 ds: 007b   es: 007b   ss: 0068
-Stack: 00000001 c031cf88 0000000a c012805a c031ff50 c031ff50 c031ff74 c0123a6b
-       c031cf88 00000000 00000000 c031ff90 00000046 c031ff88 c0114084 c031e000
-       c031e000 c0341520 c031ffc4 c0107e5e c031e000 00000000 c031e000 c031e000
- [<c012805a>] update_process_times+0x2e/0x38
- [<c0123a6b>] do_softirq+0x6b/0xd0
- [<c0114084>] smp_apic_timer_interrupt+0x13c/0x150
- [<c0107e5e>] apic_timer_interrupt+0x1a/0x20
- [<c0104f93>] default_idle+0x2f/0x38
- [<c0105026>] cpu_idle+0x3a/0x48
- [<c010307c>] Letext+0x7c/0x84
- [<c0320853>] start_kernel+0x18b/0x194
-Code: 89 7b 04 89 5d f8 89 02 89 50 04 89 09 89 49 04 90 8b 4d f8
+Process bash (pid: 2973, threadinfo=f52b4000 task=f5601a30)
+Stack: f55b2048 726f7078 f52b5dec f52b5b3c c0131a1b 726f7078 f52b5b58 c01416a5
+       726f7078 f53f6fc8 f7ffdf44 f55b2000 00000fb8 f52b5b88 c0143c9d f7ffdf44
+       f55b2000 c0116966 f54cadc8 f5601a30 f54cadc8 00001000 c0116966 c1ae8f78
+Call Trace:
+ [<c0131a1b>] kernel_t3ext_address+0x2x3b
+ [<c01416a5>] store_stackinfo+0x61/0x88
+ [<c0143c9d>] kmem_cache_free+0x221/0x298
+ [<c0116966>] pgd_free+0x12/0x16
+ [<c0116966>] pgd_free+0x12/0x16
+ [<c0116966>] pgd_free+0x12/0x16
+ [<c011cf2b>] __mmdrop+0x1f/0x3c
+ [<c011cff2>] mmput+0xaa/0xb4
+ [<c0161f6c>] exec_mmap+0x280/0x2a4
+ [<c01628ac>] flush_old_exec+0x91c/0xba4
+ [<c0161cdc>] kernel_read+0x3c/0x4c
+ [<c0180d0d>] load_elf_binary+0x4d9/0xbec
+ [<c0180834>] load_elf_binary+0x0/0xbec
+ [<c0162ea2>] search_binary_handler+0xde/0x2d0
+ [<c018001c>] Letext+0x1dc/0x1e9
+ [<c017fe40>] Letext+0x0/0x1e9
+ [<c0148bc9>] kmap_high+0x39/0x23c
+ [<c01493d6>] page_address+0x4a/0x124
+ [<c0162ea2>] search_binary_handler+0xde/0x2d0
+ [<c01631e3>] do_execve+0x14f/0x1b8
+ [<c010599f>] sys_execve+0x2f/0x68
+ [<c010746f>] syscall_call+0x7/0xb
 
-
->>EIP; c012817f <run_timer_softirq+ff/22c>   <=====
-
->>eax; c031ff50 <init_thread_union+1f50/2000>
->>ebx; f8c79ca0 <__crc_pm_idle+369e21/548d10>
->>ecx; c1a0da20 <__crc_dma_pool_free+45345/f158b>
->>edx; f8c79ca0 <__crc_pm_idle+369e21/548d10>
->>esi; c1a0d540 <__crc_dma_pool_free+44e65/f158b>
->>edi; c031ff50 <init_thread_union+1f50/2000>
->>ebp; c031ff58 <init_thread_union+1f58/2000>
->>esp; c031ff40 <init_thread_union+1f40/2000>
-
-Code;  c012817f <run_timer_softirq+ff/22c>
-00000000 <_EIP>:
-Code;  c012817f <run_timer_softirq+ff/22c>   <=====
-   0:   89 7b 04                  mov    %edi,0x4(%ebx)   <=====
-Code;  c0128182 <run_timer_softirq+102/22c>
-   3:   89 5d f8                  mov    %ebx,0xfffffff8(%ebp)
-Code;  c0128185 <run_timer_softirq+105/22c>
-   6:   89 02                     mov    %eax,(%edx)
-Code;  c0128187 <run_timer_softirq+107/22c>
-   8:   89 50 04                  mov    %edx,0x4(%eax)
-Code;  c012818a <run_timer_softirq+10a/22c>
-   b:   89 09                     mov    %ecx,(%ecx)
-Code;  c012818c <run_timer_softirq+10c/22c>
-   d:   89 49 04                  mov    %ecx,0x4(%ecx)
-Code;  c012818f <run_timer_softirq+10f/22c>
-  10:   90                        nop
-Code;  c0128190 <run_timer_softirq+110/22c>
-  11:   8b 4d f8                  mov    0xfffffff8(%ebp),%ecx
-
-
-1 error issued.  Results may not be reliable.
-
-The Oops happens in __list_splice() function line 236, shown below:
-
-static inline void __list_splice(struct list_head *list,
-                                 struct list_head *head)
-{
-        struct list_head *first = list->next;
-        struct list_head *last = list->prev;
-        struct list_head *at = head->next;
-
-        first->prev = head;	<list.h:236:crash>
-        head->next = first;
-
-        last->next = at;
-        at->prev = last;
-}
-
-This function is called from timer.c:407:
-                 list_splice_init(base->tv1.vec + index, &work_list);
-
-Here is objdump -d -l of the timer object, where the crash happens:
-
-/local/src/linux/linux-2.6.5/kernel/timer.c:405
-     d02:       8b 46 08                mov    0x8(%esi),%eax
-     d05:       c1 e8 1a                shr    $0x1a,%eax
-     d08:       50                      push   %eax
-     d09:       8d 86 10 0e 00 00       lea    0xe10(%esi),%eax
-     d0f:       50                      push   %eax
-     d10:       56                      push   %esi
-     d11:       e8 96 fa ff ff          call   7ac <cascade>
-     d16:       83 c4 0c                add    $0xc,%esp
-/local/src/linux/linux-2.6.5/kernel/timer.c:406
-     d19:       ff 46 08                incl   0x8(%esi)
-/local/src/linux/linux-2.6.5/include/linux/list.h:263
-     d1c:       8d 4c de 10             lea    0x10(%esi,%ebx,8),%ecx
-/local/src/linux/linux-2.6.5/include/linux/list.h:208
-     d20:       8b 19                   mov    (%ecx),%ebx
-/local/src/linux/linux-2.6.5/include/linux/list.h:263
-     d22:       8d 7d f8                lea    0xfffffff8(%ebp),%edi
-/local/src/linux/linux-2.6.5/include/linux/list.h:264
-     d25:       39 cb                   cmp    %ecx,%ebx
-     d27:       74 17                   je     d40 <run_timer_softirq+0x110>
-/local/src/linux/linux-2.6.5/include/linux/list.h:233
-     d29:       8b 51 04                mov    0x4(%ecx),%edx
-/local/src/linux/linux-2.6.5/include/linux/list.h:234
-     d2c:       8b 45 f8                mov    0xfffffff8(%ebp),%eax
-/local/src/linux/linux-2.6.5/include/linux/list.h:236
-     d2f:       89 7b 04                mov    %edi,0x4(%ebx)
+Code: 8b 42 04 0f 18 00 90 8d 42 04 3d 98 1c 2c c0 75 b4 31 c0 5b
 
 Here is my kernel .config:
 
@@ -1518,19 +1477,3 @@ CONFIG_X86_SMP=y
 CONFIG_X86_HT=y
 CONFIG_X86_BIOS_REBOOT=y
 CONFIG_X86_TRAMPOLINE=y
-
-
-Here is the patch that fixes the problem:
-
---- linux-2.6.5/drivers/input/serio/i8042.c.bak	Sat Apr 17 13:08:06 2004
-+++ linux-2.6.5/drivers/input/serio/i8042.c	Sat May  1 13:37:31 2004
-@@ -1012,6 +1012,8 @@
- 			serio_unregister_port(i8042_mux_port + i);
-
- 	i8042_platform_exit();
-+
-+	del_timer_sync(&i8042_timer);
- }
-
- module_init(i8042_init);
-

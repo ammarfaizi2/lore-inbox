@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261165AbTCXXD7>; Mon, 24 Mar 2003 18:03:59 -0500
+	id <S261191AbTCXXN6>; Mon, 24 Mar 2003 18:13:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262573AbTCXXD7>; Mon, 24 Mar 2003 18:03:59 -0500
-Received: from packet.digeo.com ([12.110.80.53]:55458 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261165AbTCXXD6>;
-	Mon, 24 Mar 2003 18:03:58 -0500
-Date: Mon, 24 Mar 2003 17:19:36 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Pavel Machek <pavel@ucw.cz>
+	id <S261274AbTCXXN6>; Mon, 24 Mar 2003 18:13:58 -0500
+Received: from mail136.mail.bellsouth.net ([205.152.58.96]:10899 "EHLO
+	imf48bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S261191AbTCXXN5>; Mon, 24 Mar 2003 18:13:57 -0500
+Subject: Re: CONFIG_VT_CONSOLE in 2.5.6x ?
+From: Louis Garcia <louisg00@bellsouth.net>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.65: *huge* interactivity problems
-Message-Id: <20030324171936.680f98e2.akpm@digeo.com>
-In-Reply-To: <20030323231306.GA4704@elf.ucw.cz>
-References: <20030323231306.GA4704@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+In-Reply-To: <33453.4.64.238.61.1048547120.squirrel@www.osdl.org>
+References: <1048546447.3058.3.camel@tiger>
+	 <33453.4.64.238.61.1048547120.squirrel@www.osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048548310.3388.7.camel@tiger>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 24 Mar 2003 18:25:10 -0500
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Mar 2003 23:14:53.0317 (UTC) FILETIME=[2D257350:01C2F25B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
->
-> Hi!
+Well I can't find it there. I have a 2.5.65 tree and under character
+devices I have
+
+[ ] Non-standard serial port support
+    Serial drivers --->
+[ ] Unix98 PTY support
+(2048) Maximum number of Unix98 PTYs in use (0-2048)
+[ ] Parallel Printer support 
+
+
+I see nothing for Virtual terminal in this sub-menu. Does this depend on
+another option?
+
+--Lou
+
+
+On Mon, 2003-03-24 at 18:05, Randy.Dunlap wrote:
+> > I can't find CONFIG_VT_CONSOLE anywhere in menuconfig. I am having problems
+> > not viewing the bootup messages on my monitor. I do have
+> > console=tty0 in grub.conf.
 > 
-> I'm having awfull interactivity problems. While lingvistic application
-> (slm from nltools.sf.net) is running, machine is unusable. I still can
-> read text in most, but can't login, can't run links, can't... For
-> minutes.
+> It's the second line of the Character Devices menu:
 > 
-> slm does a lot of computation over ~250MB dataset, but during stall
-> disk was not active.
-
-Oh Pavel, this is more a whinge than a bug report.  You know better ;)
-
-- How much memory does the machine have?
-
-- UP/SMP/preempt?
-
-- What do vmstat and top say?
-
-- Did it happen in 2.5.64?  2.5.63?  2.4.20?
-
-- Does it get better if you renice stuff?
-
-- What steps should others take to reproduce it?
-
-etc, etc, etc.
+>   &#9474; &#9474;[*] Virtual terminal
+>   &#9474; &#9474;[*]   Support for console on virtual terminal     <<<<<
+> 
+> ~Randy
+> 
+> 
+> 
 

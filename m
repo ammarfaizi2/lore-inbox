@@ -1,30 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129449AbQKCSRa>; Fri, 3 Nov 2000 13:17:30 -0500
+	id <S131093AbQKCSUu>; Fri, 3 Nov 2000 13:20:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130604AbQKCSRU>; Fri, 3 Nov 2000 13:17:20 -0500
-Received: from ns1.SuSE.com ([202.58.118.2]:42256 "HELO ns1.suse.com")
-	by vger.kernel.org with SMTP id <S129449AbQKCSRK>;
-	Fri, 3 Nov 2000 13:17:10 -0500
-Date: Fri, 3 Nov 2000 17:17:35 -0800 (PST)
+	id <S131112AbQKCSUk>; Fri, 3 Nov 2000 13:20:40 -0500
+Received: from ns1.SuSE.com ([202.58.118.2]:47120 "HELO ns1.suse.com")
+	by vger.kernel.org with SMTP id <S131093AbQKCSUb>;
+	Fri, 3 Nov 2000 13:20:31 -0500
+Date: Fri, 3 Nov 2000 17:20:57 -0800 (PST)
 From: James Simmons <jsimmons@suse.com>
-To: Richard Guenther <richard.guenther@student.uni-tuebingen.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Broken colors on console with 2.4.0-textXX
-In-Reply-To: <Pine.LNX.4.21.0011031032450.15902-100000@fs1.dekanat.physik.uni-tuebingen.de>
-Message-ID: <Pine.LNX.4.21.0011031717130.17614-100000@euclid.oak.suse.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        FrameBuffer List <linux-fbdev@vuser.vu.union.edu>,
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: [linux-fbdev] [PATCH] fbcon->vgacon->fbcon
+In-Reply-To: <Pine.LNX.4.10.10011031513310.1627-100000@cassiopeia.home>
+Message-ID: <Pine.LNX.4.21.0011031720010.17614-100000@euclid.oak.suse.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > How recent of a test kernel. Yes their was a problem with the console
-> > palette but it is now fixed in the most recent test kernels.
+> > I know. I wanted for vgacon to reset the video mode itself. This way ANY
+> > fbdev driver can go back top vgacon. 
 > 
-> 2.4.0-test10-pre5
+> That won't be possible because returning to VGA text mode is chip-specific.
 
-Please upgrade to a newer kernel. This problem has been fixed :-)
+>From what I see in the XF4.0 tree you can. I will find out today with me
+working on the tdfx driver. 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

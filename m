@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265731AbTF3DDW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 23:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265632AbTF3DCl
+	id S265639AbTF3DD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 23:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265629AbTF3DCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 23:02:41 -0400
-Received: from repton.netsplit.com ([62.49.129.38]:4360 "EHLO
-	repton.netsplit.com") by vger.kernel.org with ESMTP id S265639AbTF3DCi
+	Sun, 29 Jun 2003 23:02:40 -0400
+Received: from repton.netsplit.com ([62.49.129.38]:3592 "EHLO
+	repton.netsplit.com") by vger.kernel.org with ESMTP id S265632AbTF3DCi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 29 Jun 2003 23:02:38 -0400
-Date: 30 Jun 2003 03:16:53 -0000
-Message-ID: <20030630031653.29566.qmail@mailgate.netsplit.com>
+Date: 30 Jun 2003 03:16:52 -0000
+Message-ID: <20030630031652.29541.qmail@mailgate.netsplit.com>
 From: usenet@mailgate.netsplit.com
 To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org

@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbVCIG0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262216AbVCIGaf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262177AbVCIG0u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 01:26:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbVCIG0g
+	id S262216AbVCIGaf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 01:30:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVCIGae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 01:26:36 -0500
-Received: from smtp111.mail.sc5.yahoo.com ([66.163.170.9]:49488 "HELO
-	smtp111.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262177AbVCIG0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 01:26:12 -0500
-Subject: Re: [ANNOUNCE 0/6] Open-iSCSI High-Performance Initiator for Linux
-From: Dmitry Yusupov <dmitry_yus@yahoo.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Alex Aizman <itn780@yahoo.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050309060544.GW3120@waste.org>
-References: <422BFCB2.6080309@yahoo.com> <20050309050434.GT3163@waste.org>
-	 <422E8EEB.7090209@yahoo.com>  <20050309060544.GW3120@waste.org>
-Content-Type: text/plain
-Date: Tue, 08 Mar 2005 22:25:58 -0800
-Message-Id: <1110349558.4451.8.camel@mylaptop>
+	Wed, 9 Mar 2005 01:30:34 -0500
+Received: from fire.osdl.org ([65.172.181.4]:25038 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262216AbVCIG2J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 01:28:09 -0500
+Date: Tue, 8 Mar 2005 22:27:37 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: Direct io on block device has performance regression on 2.6.x
+ kernel
+Message-Id: <20050308222737.3712611b.akpm@osdl.org>
+In-Reply-To: <200503090139.j291dfg16356@unix-os.sc.intel.com>
+References: <200503090139.j291dfg16356@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-08 at 22:05 -0800, Matt Mackall wrote:
-> On Tue, Mar 08, 2005 at 09:51:39PM -0800, Alex Aizman wrote:
-> > Matt Mackall wrote:
-> > 
-> > >How big is the userspace client?
-> > >
-> > Hmm.. x86 executable? source?
-> > 
-> > Anyway, there's about 12,000 lines of user space code, and growing. In 
-> > the kernel we have approx. 3,300 lines.
-> > 
-> > >>- 450MB/sec Read on a single connection (2-way 2.4Ghz Opteron, 64KB block 
-> > >>size);
-> > >
-> > >With what network hardware and drives, please?
-> > >
-> > Neterion's 10GbE adapters. RAM disk on the target side.
+"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+>
+> Direct I/O on block device running 2.6.X kernel is a lot SLOWER
+>  than running on a 2.4 Kernel!
 > 
-> Ahh.
+
+A little bit slower, it appears.   It used to be faster.
+
+> ...
 > 
-> Snipped my question about userspace deadlocks - that was the important
-> one. It is in fact why the sfnet one is written as it is - it
-> originally had a userspace component and turned out to be easy to
-> deadlock under load because of it.
+>  			synchronous I/O			AIO
+>  			(pread/pwrite/read/write)	io_submit
+>  2.4.21 based
+>  (RHEL3)		265,122				229,810
+> 
+>  2.6.9			218,565				206,917
+>  2.6.10		213,041				205,891
+>  2.6.11		212,284				201,124
 
-As Scott Ferris pointed out, the main reason for deadlock in sfnet was
-blocking behavior of page cache when daemon tried to do filesystem IO,
-namely syslog(). That was 2.4.x kernel. We don't know whether it is
-fixed in 2.6.x. If someone knows, please let us know. Meanwhile we came
-up with work-around design in user-space. "Paged out" problem fixed
-already in our subversion repository by utilizing mlockall() syscall.
-Also we have IMHO, working solution for OOM during ERL=0 TCP re-connect.
+What sort of CPU?
 
-Dmitry
+What speed CPU?
+
+What size requests?
+
+Reads or writes?
+
+At 5 usecs per request I figure that's 3% CPU utilisation for 16k requests
+at 100 MB/sec.
+
+Once you bolt this onto a real device driver the proportional difference
+will fall, due to addition of the constant factor.
+
+Once you bolt all this onto a real disk controller all the numbers will get
+worse (but in a strictly proportional manner) due to the disk transfers
+depriving the CPU of memory bandwidth.
+
+The raw driver is deprecated and we'd like to remove it.  The preferred way
+of doing direct-IO against a blockdev is by opening it with O_DIRECT.
+
+Your patches don't address blockdevs opened with O_DIRECT.  What you should
+do is to make def_blk_aops.direct_IO point at a new function.  That will
+then work correctly with both raw and with open(/dev/hdX, O_DIRECT).
+
+
+But before doing anything else, please bench this on real hardware, see if
+it is worth pursuing.  And gather an oprofile trace of the existing code.
+
 

@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbRAEK7n>; Fri, 5 Jan 2001 05:59:43 -0500
+	id <S129733AbRAELIX>; Fri, 5 Jan 2001 06:08:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130006AbRAEK7d>; Fri, 5 Jan 2001 05:59:33 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:54536 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S129401AbRAEK73>; Fri, 5 Jan 2001 05:59:29 -0500
-Date: Fri, 5 Jan 2001 11:59:22 +0100
-From: Jan Kara <jack@suse.cz>
-To: Chris Meadors <clubneon@hereintown.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Where to get quota.
-Message-ID: <20010105115922.A30831@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.31.0101021533200.9214-100000@rc.priv.hereintown.net>
-Mime-Version: 1.0
+	id <S129675AbRAELIN>; Fri, 5 Jan 2001 06:08:13 -0500
+Received: from [209.58.33.70] ([209.58.33.70]:57873 "EHLO ns1.sdnpk.org")
+	by vger.kernel.org with ESMTP id <S129573AbRAELIF>;
+	Fri, 5 Jan 2001 06:08:05 -0500
+Message-ID: <3A55AAF7.4F5EDFCD@khi.sdnpk.org>
+Date: Fri, 05 Jan 2001 16:07:35 +0500
+From: Mike <mike@khi.sdnpk.org>
+X-Mailer: Mozilla 4.61 [en] (Win95; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-irda@pasta.cs.UiT.No" <linux-irda@pasta.cs.UiT.No>
+Subject: How can I create root disk in Redhat 6.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.LNX.4.31.0101021533200.9214-100000@rc.priv.hereintown.net>; from clubneon@hereintown.net on Tue, Jan 02, 2001 at 03:37:34PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello.
+Hi !!
 
-> Perhaps the help text for disk quotas needs to be updated, or at least the
-> howto for quotas.
-> 
-> The help text for disk quotas says to see the Quota mini-HOWTO.  The howto
-> says to get the quota source from:
-> 
-> ftp://ftp.funet.fi/pub/Linux/PEOPLE/Linus/subsystems/quota/all.tar.gz
-> 
-> That doesn't exist anymore.
-  You can get newest quota utilities (I'm expecting you want utils for
-old quotafile format) at 'ftp://ftp.cistron.nl/pub/people/mvw/quota/quota-2.00-pre11.tar.gz'
+When i boot linux from rescue disk, i get following message:
 
-> I'm just looking for a quick pointer to the quota source, but also
-> suggesting that maybe the help text should be updated.  Or if someone
-> points me in the right direction, I'll write to the author of the howto.
-  Sorry... I don't know who's the author.
+VFS: Insert root floppy disk to be loaded in RAM disk and press ENTER
 
-								Honza
+Now how can i create a root disk... I am trying to boot Redhat 6.0
+
+
+Regards,
+Mike
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130609AbQKGHQU>; Tue, 7 Nov 2000 02:16:20 -0500
+	id <S130459AbQKGHQa>; Tue, 7 Nov 2000 02:16:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130462AbQKGHQK>; Tue, 7 Nov 2000 02:16:10 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:54026 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130459AbQKGHQG>;
-	Tue, 7 Nov 2000 02:16:06 -0500
-Date: Tue, 7 Nov 2000 08:16:04 +0100
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: ak@suse.de, jordy@napster.com, linux-kernel@vger.kernel.org,
-        kuznet@ms2.inr.ac.ru
-Subject: Re: Poor TCP Performance 2.4.0-10 <-> Win98 SE PPP
-Message-ID: <20001107081604.A2410@gruyere.muc.suse.de>
-In-Reply-To: <3A07662F.39D711AE@napster.com> <200011070428.UAA01710@pizda.ninka.net> <3A079127.47B2B14C@napster.com> <200011070533.VAA02179@pizda.ninka.net> <3A079D83.2B46A8FD@napster.com> <200011070603.WAA02292@pizda.ninka.net> <20001107080342.A2159@gruyere.muc.suse.de> <200011070659.WAA02448@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200011070659.WAA02448@pizda.ninka.net>; from davem@redhat.com on Mon, Nov 06, 2000 at 10:59:04PM -0800
+	id <S130462AbQKGHQU>; Tue, 7 Nov 2000 02:16:20 -0500
+Received: from avocet.prod.itd.earthlink.net ([207.217.121.50]:39128 "EHLO
+	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S130459AbQKGHQP>; Tue, 7 Nov 2000 02:16:15 -0500
+Message-ID: <04c301c0488a$694d6360$0a25a8c0@wizardess.wiz>
+From: "J. Dow" <jdow@earthlink.net>
+To: <dank@alumni.caltech.edu>, <atmproj@yahoo.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <3A07A522.3D1914D2@alumni.caltech.edu>
+Subject: Re: malloc(1/0) ??
+Date: Mon, 6 Nov 2000 23:13:31 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 06, 2000 at 10:59:04PM -0800, David S. Miller wrote:
->    Date: Tue, 7 Nov 2000 08:03:42 +0100
->    From: Andi Kleen <ak@suse.de>
+From: "Dan Kegel" <dank@alumni.caltech.edu>
+> atmproj@yahoo.com asked:
+> > [Why does this program not crash?]
+> >
+> > main() 
+> > { 
+> >    char *s; 
+> >    s = (char*)malloc(0); 
+> >    strcpy(s,"fffff"); 
+> >    printf("%s\n",s); 
+> > } 
 > 
->    It looks very like to me like a poster child for the non timestamp
->    RTT update problem I just described on netdev. Linux always
->    retransmits too early and there is never a better RTT estimate
->    which could fix it.
+> It doesn't crash because the standard malloc is
+> optimized for speed, not for finding bugs.
 > 
-> I thought so too, _BUT_ see my analysis of the Linux side vs.
-> Win98 side logs, they don't match up and therefore something
-> is mangling the packets in the middle.  The TCP sequence numbers are
-> being changed!
+> Try linking it with a debugging malloc, e.g.
+>   cc bug.c -lefence
+> and watch it dump core.
 
-Hmm. One of these weird bandwidth limiters again? 
+I'm not sure that is fully responsive, Dan. Why doesn't the
+strcpy throw a hissyfit and coredump?
 
-> 
-> Also, if your theory were true then 2.2.x would be affected
-> by it as well.
+{^_^}
 
-2.2 does not save RTTs between connections. The RTT is lower than 2.2's
-initial 3s RTT, so 2.2 would never see it. One useful experiment would 
-be to flush the routing cache between attempts or turn off the tcp metrics 
-saving (why don't we have a sysctl for that btw?) 
- 
--Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

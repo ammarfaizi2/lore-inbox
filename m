@@ -1,87 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270144AbUJTGgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269904AbUJTGmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270144AbUJTGgb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 02:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270163AbUJTGcL
+	id S269904AbUJTGmi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 02:42:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269614AbUJSXLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 02:32:11 -0400
-Received: from gate.ebshome.net ([64.81.67.12]:9703 "EHLO gate.ebshome.net")
-	by vger.kernel.org with ESMTP id S268069AbUJTG0j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 02:26:39 -0400
-Date: Tue, 19 Oct 2004 23:26:33 -0700
-From: Eugene Surovegin <ebs@ebshome.net>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com,
-       Nishanth Aravamudan <nacc@us.ibm.com>
-Subject: [PATCH] fix recently introduced race in IBM PPC4xx I2C driver
-Message-ID: <20041020062633.GA16580@gate.ebshome.net>
-Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-	sensors@stimpy.netroedge.com, Nishanth Aravamudan <nacc@us.ibm.com>
-References: <10982315061975@kroah.com> <1098231506495@kroah.com> <20041020052108.GA14871@gate.ebshome.net>
+	Tue, 19 Oct 2004 19:11:43 -0400
+Received: from mail.kroah.org ([69.55.234.183]:6794 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270114AbUJSWq1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 18:46:27 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI fixes for 2.6.9
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <10982257322457@kroah.com>
+Date: Tue, 19 Oct 2004 15:42:12 -0700
+Message-Id: <10982257321712@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041020052108.GA14871@gate.ebshome.net>
-X-ICQ-UIN: 1193073
-X-Operating-System: Linux i686
-X-PGP-Key: http://www.ebshome.net/pubkey.asc
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 19, 2004 at 10:21:08PM -0700, Eugene Surovegin wrote:
+ChangeSet 1.1997.37.3, 2004/10/06 11:18:21-07:00, greg@kroah.com
 
-[snip]
+[PATCH] PCI: make pci_find_subsys() static, as it should not be used anymore
 
-> It looks like this change added race I tried to avoid here.
-> 
-> This code is modeled after __wait_event_interruptible_timeout, where 
-> "prepare_to_wait" is done _before_ checking completion status. This 
-> change breaks this, e.g. if IRQ happens right after we check iic->sts, 
-> but before calling msleep_interruptible(). In this case we'll sleep 
-> much more than required (seconds instead of microseconds)
-> 
-> Greg, if my analysis is correct, please rollback this change.
-> 
-> Nishanth, I'd be nice if you CC'ed me with this patch, my e-mail is at 
-> the top of that source file.
+Use pci_get_subsys() if you want this functionality.
 
-Oh, well. I should have used wait_event_interruptible_timeout when I 
-ported this driver to 2.6.
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-This patch fixes recently introduced race and also cleans ups some 
-2.4-ism.
 
-Please, apply.
+ drivers/pci/search.c |   10 +++++-----
+ include/linux/pci.h  |    7 -------
+ 2 files changed, 5 insertions(+), 12 deletions(-)
 
-Signed-off-by: Eugene Surovegin <ebs@ebshome.net>
 
-===== drivers/i2c/busses/i2c-ibm_iic.c 1.12 vs edited =====
---- 1.12/drivers/i2c/busses/i2c-ibm_iic.c	2004-10-14 11:30:08 -07:00
-+++ edited/drivers/i2c/busses/i2c-ibm_iic.c	2004-10-19 23:18:16 -07:00
-@@ -412,18 +412,12 @@
- 	
- 	if (dev->irq >= 0){
- 		/* Interrupt mode */
--		wait_queue_t wait;
--    		init_waitqueue_entry(&wait, current);
--		
--		add_wait_queue(&dev->wq, &wait);
--		if (in_8(&iic->sts) & STS_PT)
--			msleep_interruptible(dev->adap.timeout * 1000);
--		remove_wait_queue(&dev->wq, &wait);
--		
--		if (unlikely(signal_pending(current))){
-+		ret = wait_event_interruptible_timeout(dev->wq, 
-+			!(in_8(&iic->sts) & STS_PT), dev->adap.timeout * HZ);
-+
-+		if (unlikely(ret < 0))
- 			DBG("%d: wait interrupted\n", dev->idx);
--			ret = -ERESTARTSYS;
--		} else if (unlikely(in_8(&iic->sts) & STS_PT)){
-+		else if (unlikely(in_8(&iic->sts) & STS_PT)){
- 			DBG("%d: wait timeout\n", dev->idx);
- 			ret = -ETIMEDOUT;
- 		}
+diff -Nru a/drivers/pci/search.c b/drivers/pci/search.c
+--- a/drivers/pci/search.c	2004-10-19 15:27:42 -07:00
++++ b/drivers/pci/search.c	2004-10-19 15:27:42 -07:00
+@@ -156,10 +156,11 @@
+  * the pci device returned by this function can disappear at any moment in
+  * time.
+  */
+-struct pci_dev *
+-pci_find_subsys(unsigned int vendor, unsigned int device,
+-		unsigned int ss_vendor, unsigned int ss_device,
+-		const struct pci_dev *from)
++static struct pci_dev * pci_find_subsys(unsigned int vendor,
++				        unsigned int device,
++					unsigned int ss_vendor,
++					unsigned int ss_device,
++					const struct pci_dev *from)
+ {
+ 	struct list_head *n;
+ 	struct pci_dev *dev;
+@@ -351,7 +352,6 @@
+ EXPORT_SYMBOL(pci_find_device);
+ EXPORT_SYMBOL(pci_find_device_reverse);
+ EXPORT_SYMBOL(pci_find_slot);
+-EXPORT_SYMBOL(pci_find_subsys);
+ EXPORT_SYMBOL(pci_get_device);
+ EXPORT_SYMBOL(pci_get_subsys);
+ EXPORT_SYMBOL(pci_get_slot);
+diff -Nru a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h	2004-10-19 15:27:42 -07:00
++++ b/include/linux/pci.h	2004-10-19 15:27:42 -07:00
+@@ -719,9 +719,6 @@
+ 
+ struct pci_dev *pci_find_device (unsigned int vendor, unsigned int device, const struct pci_dev *from);
+ struct pci_dev *pci_find_device_reverse (unsigned int vendor, unsigned int device, const struct pci_dev *from);
+-struct pci_dev *pci_find_subsys (unsigned int vendor, unsigned int device,
+-				 unsigned int ss_vendor, unsigned int ss_device,
+-				 const struct pci_dev *from);
+ struct pci_dev *pci_find_class (unsigned int class, const struct pci_dev *from);
+ struct pci_dev *pci_find_slot (unsigned int bus, unsigned int devfn);
+ int pci_find_capability (struct pci_dev *dev, int cap);
+@@ -886,10 +883,6 @@
+ { return NULL; }
+ 
+ static inline struct pci_dev *pci_find_slot(unsigned int bus, unsigned int devfn)
+-{ return NULL; }
+-
+-static inline struct pci_dev *pci_find_subsys(unsigned int vendor, unsigned int device,
+-unsigned int ss_vendor, unsigned int ss_device, const struct pci_dev *from)
+ { return NULL; }
+ 
+ static inline struct pci_dev *pci_get_device (unsigned int vendor, unsigned int device, struct pci_dev *from)
 

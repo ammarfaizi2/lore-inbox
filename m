@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbUJYM6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbUJYNC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261788AbUJYM6t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 08:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbUJYM6t
+	id S261791AbUJYNC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 09:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbUJYNC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 08:58:49 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:21392 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261788AbUJYM4v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 08:56:51 -0400
-Date: Mon, 25 Oct 2004 14:58:07 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Sami Farin <7atbggg02@sneakemail.com>
-Subject: Re: Linux 2.6.9 latencies: scheduler bug?
-Message-ID: <20041025125807.GA8432@elte.hu>
-References: <20041024212618.GA19377@m.safari.iki.fi> <20041025120021.GA9917@m.safari.iki.fi>
+	Mon, 25 Oct 2004 09:02:58 -0400
+Received: from run.smurf.noris.de ([192.109.102.41]:61406 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S261791AbUJYNCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 09:02:31 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: BK kernel workflow
+Date: Mon, 25 Oct 2004 15:01:50 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2004.10.25.13.01.49.824742@smurf.noris.de>
+References: <41752E53.8060103@pobox.com> <20041019153126.GG18939@work.bitmover.com> <41753B99.5090003@pobox.com> <4d8e3fd304101914332979f86a@mail.gmail.com> <20041019213803.GA6994@havoc.gtf.org> <4d8e3fd3041019145469f03527@mail.gmail.com> <20041019232710.GA10841@kroah.com>
+NNTP-Posting-Host: kiste.smurf.noris.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041025120021.GA9917@m.safari.iki.fi>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: server.smurf.noris.de 1098709310 8152 192.109.102.35 (25 Oct 2004 13:01:50 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Mon, 25 Oct 2004 13:01:50 +0000 (UTC)
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, Greg KH wrote:
 
-* Sami Farin <7atbggg02@sneakemail.com> wrote:
+> On Tue, Oct 19, 2004 at 11:54:16PM +0200, Paolo Ciarrocchi wrote:
+>> I know I'm pedantic but can we all see the list of bk trees ("patches
+>> ready for mainstream" and "patches eventually ready for mainstream")
+>> that we'll be used by Linus ?
+> 
+> The -mm releases has these as a big patch, starting with bk-*
 
-> forget this stupid ip_tables.c patch, latencies have nothing to do with
-> netfilter code, but bad interaction between xmms, rtc_latencytest
-> and iptables.  I now get at max 3.1s (yup, 3100000us) latencies.
-> http://safari.iki.fi/2.6.9-xmms-fun-1.png
-> if you want to reproduce this:
-> 1) run "rtc_latencytest 1024" (can't reproduce with "rtc_latencytest 512")
-> 2) press play in xmms
-> 3) start iptables-script
+Umm, yeah, but it's *one* big patch (or, if you use my -mm import tree
+from bk://smurf.bkbits.net/linux-2.6.X-rcY-mmZ, one BK pull which has
+that as a subtree).
 
-to further debug any latencies please apply the -RT patchset and enable
-PREEMPT_TIMING (and LATENCY_TRACING), that enables us to tell us more
-about the latencies. You dont have to enable PREEMPT_REALTIME (the most
-experimental feature of the patchset) to measure latencies.
+Paolo wants to see two distinct ones.
 
-	Ingo
+Andrew also does things like
+
+bk-netdev.patch
+e1000-module_param-fix.patch
+ne2k-pci-pci-build-fix.patch
+r8169-module_param-fix.patch
+
+which my mind translates as "there's something stupid, incomplete or
+outdated in the bk-netdev tree", or "that tree's maintainer should apply
+these patches. Now." (Ideally, of course, my import script should do the
+same thing.)
+
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+

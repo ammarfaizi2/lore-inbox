@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129744AbQK1Xub>; Tue, 28 Nov 2000 18:50:31 -0500
+        id <S130343AbQK1Xxc>; Tue, 28 Nov 2000 18:53:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130076AbQK1XuV>; Tue, 28 Nov 2000 18:50:21 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:46097 "EHLO
-        penguin.e-mind.com") by vger.kernel.org with ESMTP
-        id <S130352AbQK1XuH>; Tue, 28 Nov 2000 18:50:07 -0500
-Date: Wed, 29 Nov 2000 00:20:09 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: John Kennedy <jk@csuchico.edu>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] blindingly stupid 2.2 VM bug
-Message-ID: <20001129002009.I14675@athlon.random>
-In-Reply-To: <20001119100100.A54301@niksula.cs.hut.fi> <Pine.LNX.4.21.0011201135590.4587-100000@duckman.distro.conectiva> <20001124152831.A5696@valinux.com> <20001125145701.A12719@athlon.random> <20001128150235.A7323@north.csuchico.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001128150235.A7323@north.csuchico.edu>; from jk@csuchico.edu on Tue, Nov 28, 2000 at 03:02:35PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+        id <S130138AbQK1XxM>; Tue, 28 Nov 2000 18:53:12 -0500
+Received: from enterprise.cistron.net ([195.64.68.33]:54284 "EHLO
+        enterprise.cistron.net") by vger.kernel.org with ESMTP
+        id <S129780AbQK1XxC>; Tue, 28 Nov 2000 18:53:02 -0500
+From: miquels@cistron.nl (Miquel van Smoorenburg)
+Subject: Re: [PATCH] no RLIMIT_NPROC for root, please
+Date: 28 Nov 2000 23:23:01 GMT
+Organization: Cistron Internet Services B.V.
+Message-ID: <901eol$3es$1@enterprise.cistron.net>
+In-Reply-To: <20001128222040.H2680@sith.mimuw.edu.pl> <E140slT-000565-00@the-village.bc.nu> <20001128231334.A438@var.cx>
+X-Trace: enterprise.cistron.net 975453781 3548 195.64.65.201 (28 Nov 2000 23:23:01 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 28, 2000 at 03:02:35PM -0800, John Kennedy wrote:
-> On Sat, Nov 25, 2000 at 02:57:01PM +0100, Andrea Arcangeli wrote:
-> > ... VM-global-*-7 has no known bugs AFIK.
-> 
->   Is there anything more recent than VM-global-2.2.18pre18-7?  It isn't
-> patching very cleanly against my pre-patch-2.2.18-23 tree. 
+In article <20001128231334.A438@var.cx>,
+Frank v Waveren  <fvw@var.cx> wrote:
+>On Tue, Nov 28, 2000 at 09:58:14PM +0000, Alan Cox wrote:
+>> > Because you want to be able to `kill <pid>`?
+>> > And if you are over-limits you can't?
+>> Wrong. limit is a shell built in
+>
+>I assume you mean kill is a shell builtin. Depending on your shell. :-).
 
-It patches cleanly for me. (ignore the offset warnings from patch, just make
-sure there are no rejects)
+No. Think about it.
 
-Andrea
+Mike.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

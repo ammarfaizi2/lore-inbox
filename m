@@ -1,81 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264849AbSJaLCI>; Thu, 31 Oct 2002 06:02:08 -0500
+	id <S264830AbSJaLMA>; Thu, 31 Oct 2002 06:12:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264853AbSJaLCI>; Thu, 31 Oct 2002 06:02:08 -0500
-Received: from codepoet.org ([166.70.99.138]:45260 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S264849AbSJaLCF>;
-	Thu, 31 Oct 2002 06:02:05 -0500
-Date: Thu, 31 Oct 2002 04:08:30 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Rasmus Andersen <rasmus@jaquet.dk>
-Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_TINY
-Message-ID: <20021031110830.GA28812@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Rasmus Andersen <rasmus@jaquet.dk>, Adrian Bunk <bunk@fs.tum.de>,
-	linux-kernel@vger.kernel.org
-References: <20021030233605.A32411@jaquet.dk> <Pine.NEB.4.44.0210310145300.20835-100000@mimas.fachschaften.tu-muenchen.de> <20021031092440.B5815@jaquet.dk> <20021031100512.GA27985@codepoet.org> <20021031110834.J5815@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OgqxwSJOaUobr8KG"
-Content-Disposition: inline
-In-Reply-To: <20021031110834.J5815@jaquet.dk>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk2, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S264850AbSJaLMA>; Thu, 31 Oct 2002 06:12:00 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:25565 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S264830AbSJaLL6>; Thu, 31 Oct 2002 06:11:58 -0500
+Date: Thu, 31 Oct 2002 12:18:20 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Alexander Viro <viro@math.psu.edu>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.45
+In-Reply-To: <Pine.LNX.4.44.0210301651120.6719-100000@penguin.transmeta.com>
+Message-ID: <Pine.NEB.4.44.0210311214210.10655-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 30 Oct 2002, Linus Torvalds wrote:
 
---OgqxwSJOaUobr8KG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>...
+> Summary of changes from v2.5.44 to v2.5.45
+> ============================================
+>...
+> Alexander Viro <viro@math.psu.edu>:
+>...
+>   o ps2esdi
+>...
 
-On Thu Oct 31, 2002 at 11:08:34AM +0100, Rasmus Andersen wrote:
-> On Thu, Oct 31, 2002 at 03:05:12AM -0700, Erik Andersen wrote:
-> > I build all my kernels with -Os and it works just fine for me.
->=20
-> Right then, I guess I'll give it an another shot. Do you
-> have any numbers in terms of saved space etc. to share?
-> Other impressions?
 
-Here are some numbers for you.  Using 2.4.20-pre-10-erik (the
-hacked up kernel I happen to be using on my desktop) using gcc
-2.95.4 (from Debian testing) and my stock kernel configuration:
+This patch changed the parameters of ps2esdi_readwrite but didn't change
+the function prototype resulting in the following compile error:
 
-bzImage compiled -O2:   1268158
-bzImage compiled -Os:   1251431
+<--  snip  -->
 
-vmlinux compiled -O2:   3457737
-vmlinux compiled -Os:   3437257
+...
+  gcc -Wp,-MD,drivers/block/.ps2esdi.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 -Iarch/i386/mach-generic
+-nostdinc -iwithprefix include    -DKBUILD_BASENAME=ps2esdi   -c -o
+drivers/block/ps2esdi.o drivers/block/ps2esdi.c
+...
+drivers/block/ps2esdi.c:566: conflicting types for `ps2esdi_readwrite'
+drivers/block/ps2esdi.c:77: previous declaration of `ps2esdi_readwrite'
+make[2]: *** [drivers/block/ps2esdi.o] Error 1
 
-/lib/modules/kernel size -O2:  2472629
-/lib/modules/kernel size -Os:  2463661
+<--  snip   -->
 
-   text    data     bss     dec     hex filename
-2354620  316768  258136 2929524  2cb374 vmlinux.O2
-2336016  316768  258136 2910920  2c6ac8 vmlinux.Os
 
- -Erik
+The fix is simple:
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
 
---OgqxwSJOaUobr8KG
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--- linux-2.5.45-full/drivers/block/ps2esdi.c.old	2002-10-31 11:42:27.000000000 +0100
++++ linux-2.5.45-full/drivers/block/ps2esdi.c	2002-10-31 12:11:50.000000000 +0100
+@@ -74,7 +74,7 @@
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+ static void do_ps2esdi_request(request_queue_t * q);
 
-iD8DBQE9wQ8tX5tkPjDTkFcRAgVwAJ9VJ1q+O7kzZRtqDGRPgSwz9wgOSACdHdB3
-mPl35/JZNPDokHrSxA8UWgk=
-=gOFT
------END PGP SIGNATURE-----
+-static void ps2esdi_readwrite(int cmd, u_char drive, u_int block, u_int count);
++static void ps2esdi_readwrite(int cmd, struct request *req);
 
---OgqxwSJOaUobr8KG--
+ static void ps2esdi_fill_cmd_block(u_short * cmd_blk, u_short cmd,
+ u_short cyl, u_short head, u_short sector, u_short length, u_char drive);
+
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
+

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318914AbSHWQkf>; Fri, 23 Aug 2002 12:40:35 -0400
+	id <S318918AbSHWQsM>; Fri, 23 Aug 2002 12:48:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318918AbSHWQkf>; Fri, 23 Aug 2002 12:40:35 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:27008 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S318914AbSHWQke>; Fri, 23 Aug 2002 12:40:34 -0400
-Date: Fri, 23 Aug 2002 12:45:10 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Robert Love <rml@tech9.net>
-cc: sanket rathi <sanket@linuxmail.org>, linux-kernel@vger.kernel.org
+	id <S318946AbSHWQsM>; Fri, 23 Aug 2002 12:48:12 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:39952
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S318918AbSHWQsM>; Fri, 23 Aug 2002 12:48:12 -0400
 Subject: Re: interrupt handler
-In-Reply-To: <1030119432.863.3674.camel@phantasy>
-Message-ID: <Pine.LNX.3.95.1020823123854.2797A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Robert Love <rml@tech9.net>
+To: root@chaos.analogic.com
+Cc: sanket rathi <sanket@linuxmail.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1020823123854.2797A-100000@chaos.analogic.com>
+References: <Pine.LNX.3.95.1020823123854.2797A-100000@chaos.analogic.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 23 Aug 2002 12:52:20 -0400
+Message-Id: <1030121541.1935.3684.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Aug 2002, Robert Love wrote:
+On Fri, 2002-08-23 at 12:45, Richard B. Johnson wrote:
 
-> On Fri, 2002-08-23 at 08:17, Richard B. Johnson wrote:
+> On 23 Aug 2002, Robert Love wrote:
+> > Only the current interrupt handler is disabled... interrupts are
+> > normally ON.
 > 
-> > Interrupts default to OFF within an interrupt handler. Given this,
-> > why would you use a spin-lock within the ISR on a single-processor
-> > machine?
-> 
-> Only the current interrupt handler is disabled... interrupts are
-> normally ON.
-> 
-> 	Robert Love
+> No. Check out irq.c, line 446. The interrupts are turned back on
+> only if the flag did not have SA_INTERRUPT set. Certainly most
+> requests for interrupt services within drivers have SA_INTERRUPT
+> set.
 
-No. Check out irq.c, line 446. The interrupts are turned back on
-only if the flag did not have SA_INTERRUPT set. Certainly most
-requests for interrupt services within drivers have SA_INTERRUPT
-set.
+Sigh... SA_INTERRUPT is used only for fast interrupts.  Certainly most
+drivers do not have it (and most that do are probably from the way old
+days when we went through great pains to distinguish between fast and
+slow interrupt handlers).
 
-This is linux-2.4.18 or 2.4.19. If the current code, 2.5+ enables
-by default, it's broken and should be fixed.
+Today, very few things should run with all interrupts disabled.  That is
+just dumb.  In fact, on this system, it seems only the timer interrupt
+sets SA_INTERRUPT...
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+	Robert Love
 

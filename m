@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131616AbRCSVCo>; Mon, 19 Mar 2001 16:02:44 -0500
+	id <S131589AbRCSVPf>; Mon, 19 Mar 2001 16:15:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131617AbRCSVCe>; Mon, 19 Mar 2001 16:02:34 -0500
-Received: from nrg.org ([216.101.165.106]:18468 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S131616AbRCSVC0>;
-	Mon, 19 Mar 2001 16:02:26 -0500
-Date: Mon, 19 Mar 2001 13:01:42 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Pavel Machek <pavel@suse.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for 2.5] preemptible kernel
-In-Reply-To: <20010317183408.A137@bug.ucw.cz>
-Message-ID: <Pine.LNX.4.05.10103191249200.24441-100000@cosmic.nrg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131623AbRCSVPZ>; Mon, 19 Mar 2001 16:15:25 -0500
+Received: from [63.140.126.166] ([63.140.126.166]:55812 "EHLO helium.inexs.com")
+	by vger.kernel.org with ESMTP id <S131589AbRCSVPS>;
+	Mon, 19 Mar 2001 16:15:18 -0500
+Date: Mon, 19 Mar 2001 15:13:45 -0600
+From: Chuck Campbell <campbell@neosoft.com>
+To: linux-kernel@vger.kernel.org
+Cc: campbell@neosoft.com
+Subject: ata100 controller question
+Message-ID: <20010319151345.B3939@helium.inexs.com>
+Reply-To: campbell@neosoft.com
+Mail-Followup-To: linux-kernel@vger.kernel.org, campbell@neosoft.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
+I've searched the kernel Documentation directory (linux 2.4.x) and I can't 
+find anything about which IDE - ata100 pci cards are supported.  I also
+looked in the Doc directory for my 2.2.12 kernel with no luck either.
 
-Thanks for you comments.
+I've purchased the only one I could find at the comp-usa near me (Maxtor)
+and their web site doesn't even tell me what chipset it uses.
 
-On Sat, 17 Mar 2001, Pavel Machek wrote:
-> > diff -Nur 2.4.2/arch/i386/kernel/traps.c linux/arch/i386/kernel/traps.c
-> > --- 2.4.2/arch/i386/kernel/traps.c	Wed Mar 14 12:16:46 2001
-> > +++ linux/arch/i386/kernel/traps.c	Wed Mar 14 12:22:45 2001
-> > @@ -973,7 +973,7 @@
-> >  	set_trap_gate(11,&segment_not_present);
-> >  	set_trap_gate(12,&stack_segment);
-> >  	set_trap_gate(13,&general_protection);
-> > -	set_trap_gate(14,&page_fault);
-> > +	set_intr_gate(14,&page_fault);
-> >  	set_trap_gate(15,&spurious_interrupt_bug);
-> >  	set_trap_gate(16,&coprocessor_error);
-> >  	set_trap_gate(17,&alignment_check);
-> 
-> Are you sure about this piece? Add least add a comment, because it
-> *looks* strange.
+I wanted to verify that it will work before I open it up, or they won't take 
+it back for a refund.
 
-With a preemptible kernel, we need to enter the page fault handler with
-interrupts disabled to protect the cr2 register.  The interrupt state is
-restored immediately after cr2 has been saved.  Otherwise, an interrupt
-could cause the faulting thread to be preempted, and the new thread
-could also fault, clobbering the cr2 register for the preempted thread.
-See the diff for linux/arch/i386/mm/fault.c.
+Next I searched the linux-kernel archives for maxtor, and saw some things
+about disks, but nothing about the controller, so I guess it has never
+come up???
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+Where am I supposed to find this kind of information?
 
-MontaVista Software                             nigel@mvista.com
+thanks,
+-chuck
 
+
+-- 
+ACCEL Services, Inc.| Specialists in Gravity, Magnetics |  1(713)993-0671 ph.
+1980 Post Oak Blvd. |   and Integrated Interpretation   |  1(713)960-1157 fax
+    Suite 2050      |                                   |
+ Houston, TX, 77056 |          Chuck Campbell           | campbell@neosoft.com
+                    |  President & Senior Geoscientist  |
+
+     "Integration means more than having all the maps at the same scale!"

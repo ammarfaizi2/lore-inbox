@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263118AbTDFVuc (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 17:50:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263120AbTDFVub (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 17:50:31 -0400
-Received: from smtp1.clear.net.nz ([203.97.33.27]:36757 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S263117AbTDFVua (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 17:50:30 -0400
-Date: Mon, 07 Apr 2003 09:58:57 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: PATCH: Fixes for ide-disk.c
-In-reply-to: <1049662835.1600.31.camel@dhcp22.swansea.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1049666337.9837.11.camel@laptop-linux.cunninghams>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1049527877.1865.17.camel@laptop-linux.cunninghams>
- <1049561200.25700.7.camel@dhcp22.swansea.linux.org.uk>
- <1049570711.3320.2.camel@laptop-linux.cunninghams>
- <1049641400.963.18.camel@dhcp22.swansea.linux.org.uk>
- <1049663520.8403.26.camel@laptop-linux.cunninghams>
- <1049662835.1600.31.camel@dhcp22.swansea.linux.org.uk>
+	id S263123AbTDFVwV (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 17:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbTDFVwU (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 17:52:20 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:50904 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263123AbTDFVvq (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 17:51:46 -0400
+Date: Sun, 06 Apr 2003 15:03:03 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Rik van Riel <riel@surriel.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
+       andrea@suse.de, mingo@elte.hu, hugh@veritas.com, dmccr@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, Bill Irwin <wli@holomorphy.com>
+Subject: Re: subobj-rmap
+Message-ID: <1600000.1049666582@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0304061737510.2296-100000@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.44.0304061737510.2296-100000@chimarrao.boston.redhat.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-04-07 at 09:00, Alan Cox wrote:
-> There are multiple "blocked" fields to deal with. drive->blocked
-> indicates we can't feed it commands because it is blocked due to
-> power management.
+>> Supposing we keep a list of areas (hung from the address_space) that 
+>> describes independant linear ranges of memory that have the same set
+>> of vma's mapping them (call those subobjects). Each subobject has a
+>> chain of vma's from it that are mapping that subobject.
+>> 
+>> address_space ---> subobject ---> subobject ---> subobject ---> subobject
+>>                        |              |              |              | 
+>>                        v              v              v              v
+>>                       vma            vma            vma            vma
+>>                        |                             |              | 
+>>                        v                             v              v
+>>                       vma                           vma            vma
+>>                        |                             |        
+>>                        v                             v        
+>>                       vma                           vma       
 > 
-> idedisk_suspend sets the drive->blocked field so that we panic if
-> anything is sent to the disk after we turned it off (since it
-> would be a corrupter).
+> OK, lets say we have a file of 1000 pages, or
+> offsets 0 to 999, with the following mappings:
 > 
-> idedisk_resume is called on the resume path and marks the drive
-> as safe to use.
+> VMA A:   0-999
+> VMA B:   0-200
+> VMA C: 150-400
+> VMA D: 300-500
+> VMA E: 300-500
+> VMA F:   0-999
 > 
-> So if you hit that bug, you did I/O after shutting the drive down,
-> which is not allowed.
+> How would you describe these with independant regions ?
 
-Okay. So the right behaviour is to ignore multiple idedisk_suspend calls
-and ignore multiple idedisk_resume calls?
+Good question to illustrate with.
+Extra spacing added just for ease of reading:
 
-Regards,
+0-150 -> 150-200 -> 200-300 -> 300-400 -> 400-500 -> 500-999
+ A          A          A          A          A          A
+ B          B
+            C          C          C 
+                                  D          D          
+                                  E          E          
+ F          F          F          F          F          F
 
-Nigel
+> For VMAs D & E and A & F it's a no-brainer,
+> but for Oracle shared memory you shouldn't
+> assume that you have any similar mappings
 
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
+We can always leave the sys_remap_file_pages stuff using pte_chains,
+and should certainly do that at first. But doing it for normal stuff
+should be less controversial, I think.
 
-Be diligent to present yourself approved to God as a workman who does
-not need to be ashamed, handling accurately the word of truth.
-	-- 2 Timothy 2:14, NASB.
-
+M.

@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262673AbTCYOmO>; Tue, 25 Mar 2003 09:42:14 -0500
+	id <S262674AbTCYOvk>; Tue, 25 Mar 2003 09:51:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262675AbTCYOmO>; Tue, 25 Mar 2003 09:42:14 -0500
-Received: from almesberger.net ([63.105.73.239]:6663 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S262673AbTCYOmN>; Tue, 25 Mar 2003 09:42:13 -0500
-Date: Tue, 25 Mar 2003 11:53:15 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: raj <raj@cs.wisc.edu>, linux-kernel@vger.kernel.org, zandy@cs.wisc.edu
-Subject: Re: [PATCH] ptrace on stopped processes (2.4)
-Message-ID: <20030325115315.B7414@almesberger.net>
-References: <1047936295.3e763d273307c@www-auth.cs.wisc.edu> <20030324040908.GA19754@nevyn.them.org> <3E7EA4B2.5010306@cs.wisc.edu> <20030324150552.GA26287@nevyn.them.org> <20030325104842.A7468@almesberger.net> <20030325135802.GA13406@nevyn.them.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030325135802.GA13406@nevyn.them.org>; from dan@debian.org on Tue, Mar 25, 2003 at 08:58:02AM -0500
+	id <S262675AbTCYOvk>; Tue, 25 Mar 2003 09:51:40 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:33711 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262674AbTCYOvj>;
+	Tue, 25 Mar 2003 09:51:39 -0500
+Message-ID: <3E806EF3.2000301@us.ibm.com>
+Date: Tue, 25 Mar 2003 09:00:03 -0600
+From: Jon Grimm <jgrimm2@us.ibm.com>
+Organization: IBM
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+CC: LKML <linux-kernel@vger.kernel.org>,
+       Trivial Kernel Patches <trivial@rustcorp.com.au>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH] warning and unused in sctp.h
+References: <20030325142400.194987b0.sfr@canb.auug.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Jacobowitz wrote:
-> Have you got an example that needs this?
+Stephen Rothwell wrote:
 
-No, I was just suggesting an approach that may work, in case
-somebody wants to fix this. SIGSTOP/CONT doesn't seem like a
-very popular communication mechanism anyway.
+> Hi,
+> 
+> This patch changes a flags argument to spin_lock_irq_save to unsigned long
+> and removes its unused attribute.  The first gets rid of several warnings
+> and the second is "obviously correct" (at least according to Rusty) :-).
+> 
 
-I did notice that two processes trying to ptrace each other
-end up being unkillably deadlocked on 2.4.18, which a fix
-for the SIGSTOP problem may resolve, but I didn't check if
-this still happens in more recent kernels. ("Don't do it" is
-a satisfactory work-around.)
+Hi Stephen.   What probably isn't obvious is that the same source is 
+compiled into a user-level test harness where that variable really _is_ 
+unused.  ;-)    However, this was just a hack to get rid of a 
+compilation warning in the testsuite, so I'm glad to see it gone.
 
-I'll worry about such subtleties once I've made heads and
-tails of how UML's ptrace-relay interacts with process
-termination :-)
+thanks!
+-jon
 
-- Werner
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+
+

@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262513AbSJBSLJ>; Wed, 2 Oct 2002 14:11:09 -0400
+	id <S262515AbSJBSGD>; Wed, 2 Oct 2002 14:06:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262517AbSJBSLJ>; Wed, 2 Oct 2002 14:11:09 -0400
-Received: from n13.sp.op.dlr.de ([129.247.25.4]:21913 "EHLO n13.sp.op.dlr.de")
-	by vger.kernel.org with ESMTP id <S262513AbSJBSLJ>;
-	Wed, 2 Oct 2002 14:11:09 -0400
-Message-ID: <3D9B376B.6060900@dlr.de>
-Date: Wed, 02 Oct 2002 20:14:03 +0200
-From: Martin Wirth <Martin.Wirth@dlr.de>
-Reply-To: Martin.Wirth@dlr.de
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.0.0) Gecko/20020611
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] futex-2.5.40-B5
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S262513AbSJBSGD>; Wed, 2 Oct 2002 14:06:03 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:43017
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S262515AbSJBSGC>; Wed, 2 Oct 2002 14:06:02 -0400
+Subject: Re: [PATCH] Re: Capabilities-related change in 2.5.40
+From: Robert Love <rml@tech9.net>
+To: Chris Wright <chris@wirex.com>
+Cc: Daniel Jacobowitz <dan@debian.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20021002094417.D26557@figure1.int.wirex.com>
+References: <20021001164907.GA25307@nevyn.them.org>
+	 <20021001134552.A26557@figure1.int.wirex.com>
+	 <20021001211210.GA8784@nevyn.them.org>
+	 <20021002003817.B26557@figure1.int.wirex.com>
+	 <20021002132331.GA17376@nevyn.them.org>
+	 <1033569212.24108.20.camel@phantasy>
+	 <20021002094417.D26557@figure1.int.wirex.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1033582255.24476.52.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 02 Oct 2002 14:10:55 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo,
+On Wed, 2002-10-02 at 12:44, Chris Wright wrote:
 
-in your updated futex patch you use get_page/put_page for page pinning.
-But for reserved pages, put_page does not decrement the page counter, so
-get_page should not be called for such pages. These was a patch included
-in 2.5.40 which changed this the call to page_cache_get
-(==get_page in current implementation) in get_user_pages to:
+> kernel/sched.c::static inline task_t *find_process_by_pid...
+> 
+> Guess that won't work w/out more changes.  Perhaps it's simpler/safer
+> to be just be explicit in this case.
 
-	if (!PageReserved(page))
-		get_page(page);
+>From 2.5.40:
 
-So I think the futex code should do the same.
+        static inline task_t *find_process_by_pid(pid_t pid)
+        {
+        	return pid ? find_task_by_pid(pid) : current;
+        }
 
-Martin
+should work :)
+
+	Robert Love
 

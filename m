@@ -1,77 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268989AbRHBQUk>; Thu, 2 Aug 2001 12:20:40 -0400
+	id <S269107AbRHBQiL>; Thu, 2 Aug 2001 12:38:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269039AbRHBQUa>; Thu, 2 Aug 2001 12:20:30 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:30053 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S268989AbRHBQUU>; Thu, 2 Aug 2001 12:20:20 -0400
-Date: Thu, 2 Aug 2001 18:18:34 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: Andries.Brouwer@cwi.nl
-Cc: alan@lxorguk.ukuu.org.uk, brent@linux1.org, linux-kernel@vger.kernel.org,
-        mantel@suse.de, rubini@vision.unipv.it, torvalds@transmeta.com
-Subject: Re: [PATCH] make psaux reconnect adjustable
-Message-ID: <20010802181834.B14708@pckurt.casa-etp.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>, Andries.Brouwer@cwi.nl,
-	alan@lxorguk.ukuu.org.uk, brent@linux1.org,
-	linux-kernel@vger.kernel.org, mantel@suse.de,
-	rubini@vision.unipv.it, torvalds@transmeta.com
-In-Reply-To: <200108021602.QAA113498@vlet.cwi.nl>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8GpibOaaTibBMecb"
-Content-Disposition: inline
-In-Reply-To: <200108021602.QAA113498@vlet.cwi.nl>
-User-Agent: Mutt/1.3.20i
-X-Operating-System: Linux 2.4.7-SMP i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+	id <S269101AbRHBQiC>; Thu, 2 Aug 2001 12:38:02 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27667 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S267985AbRHBQhs>; Thu, 2 Aug 2001 12:37:48 -0400
+Subject: Re: [RFT] #2 Support for ~2144 SCSI discs
+To: rgooch@ras.ucalgary.ca (Richard Gooch)
+Date: Thu, 2 Aug 2001 17:34:18 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        adilger@turbolinux.com (Andreas Dilger), linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+In-Reply-To: <no.id> from "Richard Gooch" at Aug 02, 2001 09:47:18 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15SLQQ-00011K-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> That said, in 2.5 I want to see us move away from using device numbers
+> as the fundamental device handle and move to device instance
+> structures. That's a lot cleaner, and BTW is devfs-neutral
+> (i.e. doesn't need devfs to work). Exposing a 32 bit dev_t to
+> user-space is acceptable, but internally it should be shunned.
 
---8GpibOaaTibBMecb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You need it internally otherwise you are screwed the moment you have 65536
+volumes mounted - because you run out of unique device identifiers for stat.
 
-On Thu, Aug 02, 2001 at 04:02:38PM +0000, Andries Brouwer wrote:
-> From: Alan Cox <alan@lxorguk.ukuu.org.uk>:
->=20
-> > 2.2 has had the sysctl for ages, and it defaults to off
-
-I would definitely not object to defaulting to off.
-
-> Not precisely - it is a boot parameter "psaux-reconnect".
-> That is better than a sysctl.
-
-Why should that be better than a sysctl? Boot parameters are ugly. You=20
-need to reboot in order to change them ...
-
-Your other mail implies that we can fix the problem without manual
-intervention by parsing AA 00 instead of just AA. If it's true, I'd=20
-consider that the best solution.=20
-Otherwise, I'd like my patch to be applied maybe with a changed default.
-
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, DE                                SCSI, Security
-
---8GpibOaaTibBMecb
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7aX1ZxmLh6hyYd04RApT9AKDHFa2hTt8CIkrzSQ2hLGjNUBBsugCgpXHZ
-6yFa+mIM8HhuiH2NRCRhd04=
-=5vOe
------END PGP SIGNATURE-----
-
---8GpibOaaTibBMecb--
+Fortunately 32bit dev_t (not kdev_t .. which I think is what you are talking
+about and will I assume go pointer to struct) is only one syscall change

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQKPCEP>; Wed, 15 Nov 2000 21:04:15 -0500
+	id <S129045AbQKPCSQ>; Wed, 15 Nov 2000 21:18:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129186AbQKPCEE>; Wed, 15 Nov 2000 21:04:04 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:18440 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129183AbQKPCDz>; Wed, 15 Nov 2000 21:03:55 -0500
-Date: Wed, 15 Nov 2000 17:33:29 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andries Brouwer <aeb@veritas.com>
-cc: Harald Koenig <koenig@tat.physik.uni-tuebingen.de>, emoenke@gwdg.de,
-        eric@andante.org, linux-kernel@vger.kernel.org
-Subject: Re: BUG: isofs broken (2.2 and 2.4)
-In-Reply-To: <Pine.LNX.4.10.10011151709380.3216-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10011151730550.880-100000@penguin.transmeta.com>
+	id <S129060AbQKPCSH>; Wed, 15 Nov 2000 21:18:07 -0500
+Received: from dns.buddysync.com.sg ([203.126.129.188]:55563 "EHLO
+	www.cyberlab.com.sg") by vger.kernel.org with ESMTP
+	id <S129045AbQKPCR4>; Wed, 15 Nov 2000 21:17:56 -0500
+Message-ID: <3A133CC5.45069C9@ieee.org>
+Date: Thu, 16 Nov 2000 09:47:49 +0800
+From: Chng Tiak-Jung <tiakjung@ieee.org>
+Reply-To: tiakjung@ieee.org
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-dp1 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Matthew Carlisle <Matthewc@aeimusic.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: NatSemi CS5530 Sound Support
+In-Reply-To: <1DA9F58AA962D4118EAE00508B5BD5439B8F7F@MAIL01SEA>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthew Carlisle wrote:
+> Are there any plans to develop kernel sound driver support for the
+> Cyrix/NatSemi CS5530 chipset?  I noticed PCI and IDE support for this
+> chipset in the kernel source, but nothing for the sound.  I have a NatSemi
+> Geode GXLV processor, NatSemi Geode CS5530 chipset, and the AC97 codec that
+> NatSemi recommends (although I'm sure any one will do).  So I can act as an
+> alpha/beta/gamma/zappa tester!  :)
 
+Go register as a developer on National Semiconductor's website and you
+can download the source to the native audio support for CS5530. However,
+my understanding is that this driver will only work on system with BIOS
+that support VSA2, so you may need to upgrade your BIOS first.
 
-On Wed, 15 Nov 2000, Linus Torvalds wrote:
-> 
-> Does this patch fix it for you?
-> 
-> Warning: TOTALLY UNTESTED!!! Please test carefully.
-
-Ok, I tested it with the broken image.
-
-It looks like "readdir()" is ok now (but not really knowing what the right
-output should be I cannot guarantee that). HOWEVER, doing an "ls -l" on
-some of the files gets ENOENT, implying that "lookup()" still has some
-problems with the image.
-
-I suspect the code to handle split entries in isofs_find_entry() has some
-simple bug, but I'm too lazy to check it out right now. Anybody else
-willing to finish this one off?
-
-		Linus
-
+Regards,
+T J
+--
+Chng Tiak-Jung                          tiak-jung.chng@eno.ericsson.se
+Cyberlab Singapore, Ericsson Research                Tel: +65-880-8649
+510 Thomson Road, #18-00                             Fax: +65-256-2403
+SLF Building, Singapore 298135                http://www.ericsson.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

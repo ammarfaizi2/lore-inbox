@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVAEAPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbVAEAIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbVAEAPt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 19:15:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVAEAP1
+	id S262451AbVAEAIK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 19:08:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbVADVoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 19:15:27 -0500
-Received: from holomorphy.com ([207.189.100.168]:6030 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262008AbVAEANY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 19:13:24 -0500
-Date: Tue, 4 Jan 2005 16:09:42 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Willy Tarreau <willy@w.ods.org>, Thomas Graf <tgraf@suug.ch>,
-       "Theodore Ts'o" <tytso@mit.edu>, Adrian Bunk <bunk@stusta.de>,
-       Diego Calleja <diegocg@teleline.es>, aebr@win.tue.nl,
-       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050105000942.GA7961@holomorphy.com>
-References: <20050104053348.GB19945@alpha.home.local> <41DB2BF3.2010103@tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41DB2BF3.2010103@tmr.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 4 Jan 2005 16:44:13 -0500
+Received: from out011pub.verizon.net ([206.46.170.135]:10639 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S262309AbVADVlF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 16:41:05 -0500
+From: James Nelson <james4765@cwazy.co.uk>
+To: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+Cc: paulus@samba.org, James Nelson <james4765@cwazy.co.uk>
+Message-Id: <20050104214124.21749.95220.20405@localhost.localdomain>
+In-Reply-To: <20050104214048.21749.85722.89116@localhost.localdomain>
+References: <20050104214048.21749.85722.89116@localhost.localdomain>
+Subject: [PATCH 5/7] ppc: remove cli()/sti() in arch/ppc/platforms/pal4_setup.c
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [209.158.220.243] at Tue, 4 Jan 2005 15:41:04 -0600
+Date: Tue, 4 Jan 2005 15:41:05 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 06:51:15PM -0500, Bill Davidsen wrote:
-> I expect this to be ignored or disparaged like all other suggestions 
-> that anything resembling stability is needed.
+Signed-off-by: James Nelson <james4765@gmail.com>
 
-No one is claiming stability is not needed. We are only debating the
-best way to go about accomplishing it.
-
-
--- wli
+diff -urN --exclude='*~' linux-2.6.10-mm1-original/arch/ppc/platforms/pal4_setup.c linux-2.6.10-mm1/arch/ppc/platforms/pal4_setup.c
+--- linux-2.6.10-mm1-original/arch/ppc/platforms/pal4_setup.c	2004-12-24 16:35:28.000000000 -0500
++++ linux-2.6.10-mm1/arch/ppc/platforms/pal4_setup.c	2005-01-03 19:49:42.123501068 -0500
+@@ -81,7 +81,7 @@
+ static void
+ pal4_restart(char *cmd)
+ {
+-        __cli();
++        local_irq_disable();
+         __asm__ __volatile__("lis  3,0xfff0\n \
+                               ori  3,3,0x100\n \
+                               mtspr 26,3\n \
+@@ -95,7 +95,7 @@
+ static void
+ pal4_power_off(void)
+ {
+-	__cli();
++	local_irq_disable();
+ 	for(;;);
+ }
+ 

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318162AbSIOS3m>; Sun, 15 Sep 2002 14:29:42 -0400
+	id <S318166AbSIOSqN>; Sun, 15 Sep 2002 14:46:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318165AbSIOS3m>; Sun, 15 Sep 2002 14:29:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56592 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318162AbSIOS3m>;
-	Sun, 15 Sep 2002 14:29:42 -0400
-Message-ID: <3D84D29D.5090604@mandrakesoft.com>
-Date: Sun, 15 Sep 2002 14:34:05 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S318173AbSIOSqN>; Sun, 15 Sep 2002 14:46:13 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:11446 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S318166AbSIOSqM>;
+	Sun, 15 Sep 2002 14:46:12 -0400
+Date: Sun, 15 Sep 2002 20:57:46 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] thread-exec-2.5.34-B1, BK-curr
+In-Reply-To: <Pine.LNX.4.44.0209151137490.10830-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0209152055290.9822-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: Daniel Phillips <phillips@arcor.de>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-References: <Pine.LNX.4.44.0209101156510.7106-100000@home.transmeta.com> <E17qRfU-0001qz-00@starship> <20020915020739.A22101@devserv.devel.redhat.com> <E17qalv-0000B6-00@starship> <20020915142304.A21363@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
-> This has nothing to do with a debugger, this is a different topic.
-> You actually want a crash dump analyzis tool, and so do I.
-> So, let's discuss that. I happen to get e-mails with oops in USB
-> callbacks pretty often, and they are always useless. It would be
-> possible to track them if off-stack memory was saved, perhaps.
-> However, to expect users to use debugger to collect this off-stack
-> information is a delusion.
 
+On Sun, 15 Sep 2002, Linus Torvalds wrote:
 
-http://lkcd.sourceforge.net/
+> > i dont like those semantics either - will verify whether thread-specific
+> > exec() works via a helper thread (or vfork) - it really should.
+> 
+> As long as it works with something sane (and vfork() is sane), I'm happy
+> with the posix behaviour by default. [...]
 
-Linux crash dumps, and includes an analysis tool...
+yes - the default case is very similar to that: exec() works for a
+1-member thread_group, otherwise i couldnt have booted the kernel.
 
+> [...] After all, the execve() really _does_ need to "de-thread" anyway,
+> and if we need to make that explicit (with the vfork()) then that's
+> fine.
+
+ok. libpthreads uses an internal clone() for posix_spawn() [which does
+what your example illustrates] which should be a tad faster than vfork() -
+but vfork() should work just as well.
+
+	Ingo
 

@@ -1,50 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269308AbRHQBE3>; Thu, 16 Aug 2001 21:04:29 -0400
+	id <S269356AbRHQB1M>; Thu, 16 Aug 2001 21:27:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269334AbRHQBET>; Thu, 16 Aug 2001 21:04:19 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:29968 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S269308AbRHQBEK>; Thu, 16 Aug 2001 21:04:10 -0400
-Message-Id: <200108170104.f7H14CI83159@aslan.scsiguy.com>
-To: leroyljr@ccsi.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Failure to Compile AIC7xxx Driver 
-In-Reply-To: Your message of "Thu, 16 Aug 2001 19:15:38 CDT."
-             <200108170013.f7H0DoO21290@ccsi.com> 
-Date: Thu, 16 Aug 2001 19:04:12 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S269372AbRHQB1C>; Thu, 16 Aug 2001 21:27:02 -0400
+Received: from mail.erisksecurity.com ([208.179.59.234]:14378 "EHLO
+	Tidal.eRiskSecurity.com") by vger.kernel.org with ESMTP
+	id <S269356AbRHQB0s>; Thu, 16 Aug 2001 21:26:48 -0400
+Message-ID: <3B7C72CE.60601@blue-labs.org>
+Date: Thu, 16 Aug 2001 21:26:38 -0400
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010815
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Jakob =?ISO-8859-1?Q?=D8stergaard?= <jakob@unthought.net>
+CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: "VM watchdog"? [was Re: VM nuisance]
+In-Reply-To: <3B748AA8.4010105@blue-labs.org> <20010814140011.B38@toy.ucw.cz> <20010817002420.C30521@unthought.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->If nobody has brought this up yet, I want to report this issue.
+I think it is an excellent way to do it.  Nobody said you have to run 
+the program and nobody forces you to use a particular program with a 
+particular policy.  It puts the OOM policy in userland where -you- 
+decide when and how things happen.
+
+David
+
+Jakob Østergaard wrote:
+
+>>Maybe creating userland program that
+>>*) allocates few megs
+>>*) while 1 sleep 1m, gettimeofday. If more tha two minutes elapsed,
+>>	tell OOM handler to kick in.
+>>
 >
->Here is what happened when I tried to build the aic7xxx driver for 2.4.9:
+>On my compute-server in the basement this is completely unacceptable because it
+>*may* just be working hard on something big.  The excessive swapping may just
+>be 10-30 minutes where some app is using way more memory than the box has RAM,
+>in this case it's no problem at all, and all your suggestion would give me is
+>randomly dying compute jobs.
 >
->aicasm/aicasm_scan.l: In function `yylex':
->aicasm/aicasm_scan.l:115: `T_VERSION' undeclared (first use in this function)
->aicasm/aicasm_scan.l:115: (Each undeclared identifier is reported only once
->aicasm/aicasm_scan.l:115: for each function it appears in.)
->aicasm/aicasm_scan.l:132: `T_STRING' undeclared (first use in this function)
+>On my desktop this is unacceptable as well. You want the system to be frozen
+>for more than two minutes before doing anything about it ?
 >
->This is for the new driver, BTW.
+>The problem with using such vague heuristics against fixed (arbitrary) limits
+>is that the effect will almost always be completely unacceptable.  Either your
+>arbitrary limit is way too high, or way too low.
+>
+>I can't tell you how to do it - but I think your suggestion is an excellent way
+>to *not* do it     :)
+>
+>>Or maybe kernel could have some "VM watchdog", which would trigger OOM if
+>>it is not polled once a minute...
+>>
+>
+>Didn't everyone pretty much agree that if we could turn off overcommit
+>completely and reliably, that would be the preferred solution ?   Simply sig11
+>the app that's unlucky enough to want more memory than there's in the system
+>(or, horror, have malloc() fail)
+>
+>Now, I don't remember the entire thread, but IIRC it was difficult to kill
+>overcommit completely.
+>
 
-I tried to reproduce this locally, but was never able to do so.  My
-best guess is that the default rules for building lex/yacc grammers don't
-include proper dependencies for the generated y.tab.h file.  Of course,
-it shouldn't be necessary.  Both aicasm_gram.y and aicasm_scan.l should
-have newer dates than the y.tab.h file from a previous build (both are
-updated for 2.4.9) and aicasm_gram.c is listed first in the dependency
-line, so yacc should have already been run prior to the compilation of
-aicasm_scan.c.
+The kernel allocates memory within itself.  We will still reach OOM 
+conditions.  It can't be avoided.
 
-Perhaps a make guru can lend some insight?
+David
 
-If you manually go into drivers/scsi/aic7xxx/aicasm and do a make clean, the
-error should go away.
 
-Of course, you could just disable the build of the firmware in your
-kernel config...
-
---
-Justin

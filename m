@@ -1,69 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269610AbRHADJa>; Tue, 31 Jul 2001 23:09:30 -0400
+	id <S269551AbRHAD2f>; Tue, 31 Jul 2001 23:28:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269611AbRHADJU>; Tue, 31 Jul 2001 23:09:20 -0400
-Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:56719 "EHLO
-	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S269610AbRHADJQ>;
-	Tue, 31 Jul 2001 23:09:16 -0400
-Message-Id: <200108010309.f7139nY03951@www.2ka.mipt.ru>
-Date: Wed, 1 Aug 2001 08:08:49 +0400
-From: John Polyakov <johnpol@2ka.mipt.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Fw: Troubless with compiling 2.4.7-ac1 kernel with kdb
-Reply-To: johnpol@2ka.mipt.ru
-X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.7; Linux 2.4.7-ac1; i686)
-Organization: MIPT
-Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+	id <S269619AbRHAD2Z>; Tue, 31 Jul 2001 23:28:25 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:19007 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S269551AbRHAD2O>; Tue, 31 Jul 2001 23:28:14 -0400
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Stuart MacDonald <stuartm@connecttech.com>, Khalid Aziz <khalid@fc.hp.com>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Support for serial console on legacy free machines
+In-Reply-To: <200107302332.f6UNWbxg001791@webber.adilger.int>
+	<3B65F1A2.30708CC1@fc.hp.com>
+	<000701c119cd$ebf0c720$294b82ce@connecttech.com>
+	<20010731174247.A21802@flint.arm.linux.org.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 31 Jul 2001 21:21:54 -0600
+In-Reply-To: <20010731174247.A21802@flint.arm.linux.org.uk>
+Message-ID: <m18zh4zcq5.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello.
+Russell King <rmk@arm.linux.org.uk> writes:
 
-While i was trying to compile my 2.4.7-ac1 kernel with kdb support, I've get this error and warnings:
+> On Tue, Jul 31, 2001 at 10:34:35AM -0400, Stuart MacDonald wrote:
+> > That's very odd. That implies that serial consoles don't use the serial
+> > driver at all then, as the pci serial port setup is done at the same
+> > time as the regular serial port setups.
+> > 
+> > If a serial console is using serial.c, the pci serial ports will also
+> > be available.
+> 
+> No.  Console initialisation is done early, before PCI is setup.  This
+> means that the serial driver is relying on a static array of IO port
+> addresses.  At this time, the serial driver hasn't probed any ports at
+> all, so it doesn't really know what does and doesn't exist.
 
----------------------------------------
-In file included from /usr/src/linux/include/net/checksum.h:33,
-from /usr/src/linux/include/linux/raid/md.h:34,
-from init/main.c:24:
-/usr/src/linux/include/asm/checksum.h:72:30: warning: multi-line string literals are deprecated
-/usr/src/linux/include/asm/checksum.h:72:30: warning: multi-line string literals are deprecated
-/usr/src/linux/include/asm/checksum.h:72:30: warning: multi-line string literals are deprecated
-/usr/src/linux/include/asm/checksum.h:72:30: warning: multi-line string literals are deprecated
+Hmm. I hadn't realized it was poking in the dark.
+ 
+> The more I think about this, the more that I think we need to get rid
+> of this early console initialisation.  I think Linus really wants early
+> console initialisation though, and to be honest, its an extremely useful
+> debugging tool for those pesky non-boots with blank displays.
 
-And many, many times.... :(
--------------------------------------
-make[2]: *** [kdbmain.o] Error 1
-make[2]: Leavind directory `/usr/src/linux/kdb'
-make[1]: *** [first_rule] Error 2
-make[1]: Leavind directory `/usr/src/linux/kdb'
-make: *** [_dir_kdb] Error 2
-make: Leavind directory `/usr/src/linux'
--------------------------------------
-kdbmain.c:71: conflicting types for `kdb_nextline'
-/usr/src/linux/inclumake[2]: *** [kdbmain.o] Error 1
-make[2]: Leavind directory `/usr/src/linux/kdb'
-make[1]: *** [first_rule] Error 2
-make[1]: Leavind directory `/usr/src/linux/kdb'
-make: *** [_dir_kdb] Error 2
-make: Leavind directory `/usr/src/linux'
+I think I both agree and disagree with you.  I think it might make sense
+to seperate out the debugging console drivers from the normal kernel drivers.
+I have had several times where I have had to hack up a serial driver that
+is initialized very early so I could see why my kernel is crashing.
 
-de/linux/kdbprivate.h:70: previous declaration of `kdb_nextline'
-make[2]: *** [kdbmain.o] Error 1
-make[2]: Leavind directory `/usr/src/linux/kdb'
-make[1]: *** [first_rule] Error 2
-make[1]: Leavind directory `/usr/src/linux/kdb'
-make: *** [_dir_kdb] Error 2
-make: Leavind directory `/usr/src/linux'
+If we seperated out the console drivers and modified them so they would
+build for specific hardware, and would be initialized immediately upon
+transition to C code.  There would be a major debugging benefit.  
 
-It was asked some minutes ago in 
-kdb@oss.sgi.com list, and Keith Owens <kaos@melbourne.sgi.com> advice me to ask this question in linux-kernel mail-list.
+Then we could probably afford to use the normal serial code for a more
+normal serial console.
 
-I'm doing this.
+Does this sound like a reasonable direction to go?  You've torn open
+the code and familiar with what it's guts look like.
 
-Thanks in advance.
----
-WBR. //s0mbre
+
+> If someone would like to produce a patch which adds an option for early
+> console vs "normal" console initialisation...  Otherwise I'll add it to
+> my (longish) "to do" list.
+
+I might have to look.  I have done some preliminary work, in getting a
+very, very early serial console built so I'm not completely in the
+dark.  If you like the idea of splitting the console code in two half
+that uses normal routines and another have that does very, very, very
+early initialization I'm more likely to :)
+
+Eric
+

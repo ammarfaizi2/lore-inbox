@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266069AbTBGRDL>; Fri, 7 Feb 2003 12:03:11 -0500
+	id <S266643AbTBGRAs>; Fri, 7 Feb 2003 12:00:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266081AbTBGRDL>; Fri, 7 Feb 2003 12:03:11 -0500
-Received: from www.amthinking.net ([65.104.119.37]:51413 "EHLO
-	ex0.amthinking.net") by vger.kernel.org with ESMTP
-	id <S266069AbTBGRDJ>; Fri, 7 Feb 2003 12:03:09 -0500
-From: "James Lamanna" <james.lamanna@appliedminds.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Scanf behavior
-Date: Fri, 7 Feb 2003 09:12:46 -0800
-Message-ID: <010e01c2cecc$22200810$39140b0a@amthinking.net>
+	id <S266645AbTBGRAs>; Fri, 7 Feb 2003 12:00:48 -0500
+Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.223]:37599 "EHLO
+	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S266643AbTBGRAq>; Fri, 7 Feb 2003 12:00:46 -0500
+Date: Fri, 7 Feb 2003 12:19:51 -0500 (EST)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: fdavis@master
+To: linux-kernel@vger.kernel.org
+cc: fdavis@si.rr.com, <trivial@rustcorp.com.au>
+Subject: [PATCH] 2.5.59 : drivers/char/ite_gpio.c
+Message-ID: <Pine.LNX.4.44.0302071217520.6917-100000@master>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-OriginalArrivalTime: 07 Feb 2003 17:12:45.0923 (UTC) FILETIME=[22057B30:01C2CECC]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was looking at addressing bug #189 on bugzilla which calls for scanf
-to respect field_widths for numeric arguments (i.e. %2hd)
-2 semantic issues I thought of:
+Hello all,
+   The following patch addresses buzilla bug # 321, and removes a double 
+logical issue. Please review for inclusion.
 
-1) Should the field width ignore any number modifiers ( '0x' for hex,
-'0' for octal, '-' for negatives) ?
-For example a field_width of 1 on the string "0x5F" should return 0 or
-0x5 
-(I would think the latter is much more appropriate).
+Regards,
+Frank
 
-2) What about a field_width of 0? Always return 0?
 
-Thanks,
---James
+--- linux/drivers/char/ite_gpio.c.old	2003-01-16 21:22:23.000000000 -0500
++++ linux/drivers/char/ite_gpio.c	2003-02-07 02:04:43.000000000 -0500
+@@ -140,7 +140,7 @@
+ {
+ 	int ret=-1;
+ 
+-	if (MAX_GPIO_LINE > *data >= 0) 
++	if ((MAX_GPIO_LINE > *data) && (*data >= 0)) 
+ 		ret=ite_gpio_irq_pending[*data];
+  
+ 	DEB(printk("ite_gpio_in_status %d ret=%d\n",*data, ret));
 

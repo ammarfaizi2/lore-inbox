@@ -1,45 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289298AbSA2NbE>; Tue, 29 Jan 2002 08:31:04 -0500
+	id <S289296AbSA2NhE>; Tue, 29 Jan 2002 08:37:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289296AbSA2Nay>; Tue, 29 Jan 2002 08:30:54 -0500
-Received: from mx5.sac.fedex.com ([199.81.194.37]:15879 "EHLO
-	mx5.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S289294AbSA2Nau>; Tue, 29 Jan 2002 08:30:50 -0500
-Date: Tue, 29 Jan 2002 21:01:30 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: Jeff Chua <jchua@fedex.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Thomas Hood <jdthood@mail.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: 2.4.18-pre7 slow ... apm problem
-In-Reply-To: <200201282309.AAA22703@webserver.ithnet.com>
-Message-ID: <Pine.LNX.4.44.0201292057370.600-100000@boston.corp.fedex.com>
+	id <S289313AbSA2Ngo>; Tue, 29 Jan 2002 08:36:44 -0500
+Received: from zcamail03.zca.compaq.com ([161.114.32.103]:10513 "EHLO
+	zcamail03.zca.compaq.com") by vger.kernel.org with ESMTP
+	id <S289308AbSA2Ngf> convert rfc822-to-8bit; Tue, 29 Jan 2002 08:36:35 -0500
+content-class: urn:content-classes:message
+Subject: pagecoloring: kernel 2.2 mm question: what is happening during fork ?
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/29/2002
- 09:05:39 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/29/2002
- 09:05:41 PM,
-	Serialize complete at 01/29/2002 09:05:41 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Tue, 29 Jan 2002 14:36:24 +0100
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+Message-ID: <11EB52F86530894F98FFB1E21F9972540C239A@aeoexc01.emea.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [OT] Re: Note describing poor dcache utilization under high memory pressure
+Thread-Index: AcGovmv+zk3zKRtSQaKNwaUQUyuYTwAAYCRw
+From: "Cabaniols, Sebastien" <Sebastien.Cabaniols@Compaq.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 29 Jan 2002 13:36:24.0936 (UTC) FILETIME=[F2418E80:01C1A8C9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jan 2002, Stephan von Krawczynski wrote:
+Hello lkml,
 
-> Ok, I cannot see this one, I have no APM enabled on my boxes. Sorry.
+I have a few questions about memory management:
 
-If I set apm idle off, vmware guest os "ping localhost" works fine.
+When I do a fork, which part of the kernel is allocating the memory for
+the childs, where and when the memory copy takes place ? I know that
+linux is doing copy on write but I don't know which part of the kernel
+is really doing the page allocation when the copy on write understands
+that the process really wants to write now. Then the second question is
+how is the memory copy done ?
 
-> As I never saw this with vmware 2 (even not on 2.4.18-pre7) I would
-> say version 3 has a real problem somewhere.
 
-Never had any problem with vmware3 until pre7.
+The third and last question is what is the role of the slab allocator ?
+When does a process asks for memory from a slab ? Is it used to build
+the stack the heap ? 
 
-Try to test vmware2 on pre7 with apm cpu_idle enabled. I think you'll see
-the same problem. Again, pre6 with apm cpu_idle enabled works fine.
+I have looked many web pages but none of them were clear to me. 
 
-Jeff
+If you have time, my whole problem is described here:
+
+More context:
+-------------
+
+I am currently working to add page coloring into the linux kernel
+version 2.2.19 (I am using Alpha with big direct mapped L1 so 
+page coloring is really necessary to have good stable perfs)
+
+I started from a patch found on the web and it basically just
+rewrapps some get_free_page calls to a get_free_page_by_address
+routine that checks the virtual address and looks for a page which
+is correctly aligned.
+
+To sumup:
+
+All calls to get_free_page in filemap.c have been replaced by
+get_free_page_by_address
+In memory.c the do_anonymous contains a get_free_page replaced by a
+get_free_page_by_address
+
+
+
+The patch is really doing nice job on simple cases (fortran monothread
+code) but it fails on the following code:
+
+{
+	char* a;
+	int i,n=0;
+
+	while(1)
+	{
+	
+	  a=malloc(sizeof(char)*1024*8*10); /*reserve ten pages (8k*10)
+*/
+ 
+	  for(i=0;i<81920;i++)
+		{
+		  a[i]=i*n;
+		}
+
+	  sleep (1<<n);
+	  n++;
+	  fork();
+
+	}
+}
+
+It simply fails because the page_coloring_code is bypassed when doing
+forks... but 
+I could not find which part of the linux kernel code is doing the memory
+allocations
+for the forked processes.
+
+
+thanks for any help
+
+Sebastien
 

@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130015AbRBGTnn>; Wed, 7 Feb 2001 14:43:43 -0500
+	id <S130151AbRBGTfX>; Wed, 7 Feb 2001 14:35:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130407AbRBGTnX>; Wed, 7 Feb 2001 14:43:23 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:60420 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129652AbRBGTnM>; Wed, 7 Feb 2001 14:43:12 -0500
-Date: Wed, 7 Feb 2001 13:35:15 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: langus@timpanogas.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jakub Jelinek <jakub@redhat.com>, linux-kernel@vger.kernel.org,
-        jmerkey@timpanogas.org
-Subject: PCI-SCI Build Problems on RedHat 7.1
-Message-ID: <20010207133515.A28268@vger.timpanogas.org>
-In-Reply-To: <20010207131439.A28015@vger.timpanogas.org> <E14QaAX-00016d-00@the-village.bc.nu> <20010207132426.A28159@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010207132426.A28159@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Wed, Feb 07, 2001 at 01:24:26PM -0700
+	id <S129907AbRBGTfN>; Wed, 7 Feb 2001 14:35:13 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:39432 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S129608AbRBGTe4>; Wed, 7 Feb 2001 14:34:56 -0500
+Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE666@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Tony Hoyle'" <tmh@magenta-netlogic.com>
+Cc: linux-kernel@vger.kernel.org,
+        "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>
+Subject: RE: ACPI slowdown...
+Date: Wed, 7 Feb 2001 11:34:18 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 07, 2001 at 01:24:26PM -0700, Jeff V. Merkey wrote:
+> From: Tony Hoyle [mailto:tmh@magenta-netlogic.com]
+> OK I see that safe_halt() will re-enable interrupts.  However 
+> this is only
+> called in S1.  If your machine gets as far as S3 you have...
 
-Larry,  
+I think you mean C1 and C3, but I know what you mean.. :)
 
-Please provide to Alan Cox the exact versions and revision levels of 
-the RedHat 7.1 build used for the SCI testing.  Please provide him 
-any other information he requests concerning the setup of this 
-system.
+[C3 code snipped]
 
-Jeff
+> There is no halt here... the interrupts are enabled for only 
+> a couple of 
+> instructions (one comparison and a jump) before being disabled again. 
+> It seems to me if the computer gets into S3 it'll effectively 
+> die until 
+> some kind of busmaster device wakes it up (DMA?).
 
+The problem I've had in fixing this code is that it WorksForMe(TM). I cannot
+reproduce the problem on my machine (an IBM T20). That's the way the code
+was, so I left it (the code I changed/broke was the C2/C3 latency calcs).
 
-> On Wed, Feb 07, 2001 at 07:22:19PM +0000, Alan Cox wrote:
-> > > In file included from init.c:30:
-> > > ../../prolog.h:344:8: invalid #ident
-> > 
-> > It doesnt say #ident isnt supported it says your use of it is invalid. What
-> > precisely does that line read ?
-> 
-> JJ tried it and it worked on some version he was running, but fails on 
-> the 7.1 build.  Here is the code that produces the offending messages.
-> I got an "invalid keyword" (sorry, it was not "unknown" but "invalid", that was 
-> a different error message on gcc 2.96).
-> 
-> Jeff
-> 
-> 
+Since you have a symtomatic system, if you're willing to do some testing to
+either prove or disprove your theory (that entering C2/C3 interrupts enabled
+helps things) I would greatly appreciate it.
+
+Also, the next ACPI update will let you disable using this code for idle (so
+we have some breathing room while we fix it) and will print some more C
+state info on boot, because although you don't say, it sounds like you have
+a desktop system, which usually don't support C2/C3, and so should not be
+trying to enter them.
+
+Regards -- Andy
+(ACPI maintainer)
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

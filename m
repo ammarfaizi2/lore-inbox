@@ -1,61 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbTIXBGU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 21:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbTIXBGU
+	id S261237AbTIXBUG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 21:20:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbTIXBUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 21:06:20 -0400
-Received: from main.gmane.org ([80.91.224.249]:34479 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261235AbTIXBGS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 21:06:18 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Shash Chatterjee <sasvata@badfw.org>
-Subject: Re: RH-9 boot hangs from floppy bootdisk
-Date: Tue, 23 Sep 2003 20:06:10 -0500
-Message-ID: <3F70EE02.1010900@badfw.org>
-References: <bkkvb0$so3$1@sea.gmane.org> <1064230425.8593.10.camel@dhcp23.swansea.linux.org.uk>
+	Tue, 23 Sep 2003 21:20:06 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:20354 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261237AbTIXBUC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 21:20:02 -0400
+Date: Tue, 23 Sep 2003 18:19:51 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Larry McVoy <lm@bitmover.com>
+Subject: Re: log-buf-len dynamic
+Message-ID: <20030924011951.GA5615@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Matthew Wilcox <willy@debian.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+	Larry McVoy <lm@bitmover.com>
+References: <20030923221528.GP1269@velociraptor.random> <Pine.LNX.4.44.0309231524160.24527-100000@home.osdl.org> <20030924003652.GI16314@velociraptor.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030916
-X-Accept-Language: en-us, en
-In-Reply-To: <1064230425.8593.10.camel@dhcp23.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030924003652.GI16314@velociraptor.random>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
+	required 7, AWL)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
+On Wed, Sep 24, 2003 at 02:36:52AM +0200, Andrea Arcangeli wrote:
+> You're right I should provide new code, and avoid comments on the a bit
+> inferior info in bkcvs (that Larry nicely offered to even improve after
+> cvs gets properly fixed), but I had no real interest in this area todate
+> and my job keeps most of my time full already and that's higher
+> priority.
 
-Thanks for the suggestion, certainly works far better than before. 
-Disabling DMA on IDE does allow me to boot right up.  I was able to use 
-up2date and install the 2.4.20-20.9 kernel.  I then made a new bootdisk 
-using mkbootdisk.  Booting using the new kernel from floppy got a bit 
-further, it actually loaded the kernel fro /dev/hdb2.  But hung after it 
-got to "Enabling Swap ..".   Any more ideas?
+The problem I have is as follows:
 
-I am now about to copy the boot sector using dd and using Win-XP's 
-loader to load it to see if it helps.
+a) I understand your point of view and from the very first version of BK 
+   we released we addressed it.  100% of the data and the metadata is 
+   available from the command line with BK.  Always has been and always 
+   will be, if that's not true that is is a bug and we'll fix it.  People
+   use BK because they like it, not because we locked them in.
 
-Should I be using an even newer kernel?  Which one is known to work with 
-RH-9 (I haven't kept up with building kernels and libc compatibilities 
-in a long time, not since Slackware '97 days :-)?
+b) I understand your need to not be dependent on BitMover or BitKeeper. 
+   That's why we built the CVS gateway, so you wouldn't need to depend
+   on us, the data you care about is available in a form that doesn't
+   require any license agreements.
 
-Shash
+What the above two points demonstrate, dramatically so, is that we
+understand your concerns and agree with them.  We have spent a lot of
+time and money to make sure that you are happy.  Not whining, not 
+flaming, we were writing code to make you happy.  We were writing that
+code long before you ever heard of BitKeeper and we have the revision
+history to prove it.
 
-Alan Cox wrote:
-> On Sul, 2003-09-21 at 20:48, Shash Chatterjee wrote:
-> 
->>When booting from floppy, it loads the kernel/ramdisk from floppy, then 
->>recognizes the HW and then hangs with the following message (at the 
->>bottom).  Hitting any key causes a single "keyboard: unknown keysequence 
->>0e .." and then I have to hard-reset to recover.
-> 
-> 
-> Firstly try booting with the additional option "ide=nodma". That will
-> hopefully get you installed but slowly and able to update to a newer
-> kernel.
-> 
+What we expected in return was the same understanding.
 
+What we got was you complaining about us, in public, over and over.
 
+Andrea, you need to grow up and learn that biting the hand that is held
+out to you and is helping you, that's not smart.  What you have done
+is to make all the people who tried so hard to help you dislike you.
+That is your problem.  You need to grow up.  The world is based on
+relationships, people helping each other.  That means you help those
+who help you, or at least don't piss all over those who help you.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

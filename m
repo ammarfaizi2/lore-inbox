@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269873AbUJSRFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269921AbUJSRbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269873AbUJSRFk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 13:05:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269838AbUJSRDS
+	id S269921AbUJSRbq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 13:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267285AbUJSR22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 13:03:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5262 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269761AbUJSQhH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 12:37:07 -0400
-Date: Tue, 19 Oct 2004 12:35:22 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: bgagnon@coradiant.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Memory leak in 2.4.27 kernel, using mmap raw packet sockets
-Message-ID: <20041019143522.GA8688@logos.cnet>
-References: <OFDDC77A23.4D34536B-ON85256F2D.00514F15-85256F2D.00517F52@coradiant.com> <20041015182352.GA4937@logos.cnet> <1097980764.13226.21.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1097980764.13226.21.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.5.1i
+	Tue, 19 Oct 2004 13:28:28 -0400
+Received: from galaxy.systems.pipex.net ([62.241.162.31]:55007 "EHLO
+	galaxy.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S267961AbUJSRXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 13:23:09 -0400
+Message-ID: <41754D7B.8090203@dsl.pipex.com>
+Date: Tue, 19 Oct 2004 18:23:07 +0100
+From: Johan Groth <jgroth@dsl.pipex.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ross Biro <ross.biro@gmail.com>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Dma problems with Promise IDE controller
+References: <41741CDB.5010300@dsl.pipex.com>	 <58cb370e04101813221d36b793@mail.gmail.com>	 <8783be660410181420683d1341@mail.gmail.com>	 <41753E1D.8010608@dsl.pipex.com> <8783be660410191013230a1b48@mail.gmail.com>
+In-Reply-To: <8783be660410191013230a1b48@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 17, 2004 at 03:39:26AM +0100, Alan Cox wrote:
-> On Gwe, 2004-10-15 at 19:23, Marcelo Tosatti wrote:
-> > I prefer doing the "if (PageReserved(page)) put_page_testzero(page)" as
-> > you propose instead of changing get_user_pages(), as there are several
-> > users which rely on its behaviour.
-> > 
-> > I have applied your fix to the 2.4 BK tree.
+Ross Biro wrote:
+[snip]
+
 > 
-> That isnt sufficient. Consider anything else taking a reference to the
-> page and the refcount going negative. 
-
-You mean not going negative? The problem here as I understand here is 
-we dont release the count if the PageReserved is set, but we should. 
-
-You mean there are other codepaths which release pages? That use __free_pages
-which ignores PageReserved pages.
-
-Is the problem wider than what I think?
-
-> And yes 2.6.x has this problem and
-> far worse in some ways, but it also has the mechanism to fix it.
+> The drive still has a bad sector.  You are having trouble because the
+> error recover in the Linux ide code is not the same as Windows and
+> most drive vendors care about Windows, not the ATA-Spec.  On top of
+> that Linux switches out of DMA mode once it hits a bad sector, so the
+> drive will be very slow from the on.
 > 
-> 2.6.x uses VM_IO as a VMA flag which tells the kernel two things
-> a) get_user_pages fails on it
-> b) core dumping of it is forbidden
-> 
-> 2.6.x is missing a whole pile of these (fixed in the 2.6.9-ac tree I'm
-> putting together). I *think* remap_page_range() in 2.6.x can just set
-> VM_IO, but older kernels didn't pass the vma so all the users would need
-> fixing (OSS audio, media/video, usb audio, usb video, frame buffer
-> etc).
+> The only way you are going to fix the problem is if your drive has
+> some spare sectors still available, and you do a write with out a read
+> to the bad sector.
 
-All these are have codepaths which release pages using put_page()'s? 
+Ok, I pretty sure it has spare sectors. How do I write to that sector 
+without a read and how do I find which sector is bad?
 
-Thanks
+Sorry for all these questions but this is the first time I've had these 
+kind of problems ever. SCSI disks fix bad blocks by themselves so you 
+don't have to do anything.
+
+Regards,
+Johan

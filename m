@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129093AbRBVKjT>; Thu, 22 Feb 2001 05:39:19 -0500
+	id <S129753AbRBVKo7>; Thu, 22 Feb 2001 05:44:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129753AbRBVKjJ>; Thu, 22 Feb 2001 05:39:09 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38672 "EHLO
+	id <S129932AbRBVKou>; Thu, 22 Feb 2001 05:44:50 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40464 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129093AbRBVKi7>; Thu, 22 Feb 2001 05:38:59 -0500
-Subject: Re: PROBLEM: Network hanging - Tulip driver with Netgear (Lite-On)
-To: pat@isis.co.za (Pat Verner)
-Date: Thu, 22 Feb 2001 10:42:11 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4.3.2.7.0.20010222095007.00b9e260@192.168.0.18> from "Pat Verner" at Feb 22, 2001 09:56:03 AM
+	id <S129753AbRBVKoe>; Thu, 22 Feb 2001 05:44:34 -0500
+Subject: Re: Very high bandwith packet based interface and performance problems
+To: raj@cup.hp.com (Rick Jones)
+Date: Thu, 22 Feb 2001 10:20:46 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), nyet@curtis.curtisfong.org (Nye Liu),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A946F71.69D94D13@cup.hp.com> from "Rick Jones" at Feb 21, 2001 05:46:25 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14VtCQ-0003t2-00@the-village.bc.nu>
+Message-Id: <E14Vsrg-0003pw-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> three Netgear NICs and am experiencing considerable trouble with the=20
-> combination:
+> > TCP _requires_ the remote end ack every 2nd frame regardless of progress.
 > 
-> Kernel 2.4.[01]:        ifconfig shows that the card see's traffic on t=
-> he=20
-> network, but does not transmit anything (no response to ping).
+> um, I thought the spec says that ACK every 2nd segment is a SHOULD not a
+> MUST?
 
-Use a current 2.4.*-ac. Jeff and co fixed this we think.
+Yes its a SHOULD in RFC1122, but in any normal environment pretty much a 
+must and I know of no stack significantly violating it.
 
-Alan
+RFC1122 also requires that your protocol stack SHOULD be able to leap tall
+buldings at a single bound of course...
 

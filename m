@@ -1,36 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266115AbUHASwq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266116AbUHAS4D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266115AbUHASwq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 14:52:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266116AbUHASwq
+	id S266116AbUHAS4D (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 14:56:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266124AbUHAS4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 14:52:46 -0400
-Received: from quechua.inka.de ([193.197.184.2]:13744 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S266115AbUHASwp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 14:52:45 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: secure computing for 2.6.7
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <Pine.LNX.4.58.0408011801260.1368@sphinx.mythic-beasts.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.5-20040615 ("Gighay") (UNIX) (Linux/2.6.5 (i686))
-Message-Id: <E1BrLRs-0007yu-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Sun, 01 Aug 2004 20:52:44 +0200
+	Sun, 1 Aug 2004 14:56:03 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:30414 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266116AbUHASzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 14:55:51 -0400
+Date: Sun, 1 Aug 2004 20:55:44 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>, James.Bottomley@HansenPartnership.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] let AIC7{9,X}XX_BUILD_FIRMWARE depend on !PREVENT_FIRMWARE_BUILD
+Message-ID: <20040801185543.GB2746@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.58.0408011801260.1368@sphinx.mythic-beasts.com> you wrote:
-> How hard would it be to have a per-task bitmap of syscalls allowed? This
-> way, a task could restrict to the exact subset of syscalls required for
-> maximum security.
 
-Which somewhat overlaps with the user-priveldeges patches and some lsm
-modules, so i am not sure if this needs to be small and lean to be useful on
-its own.
+The patch below lets AIC7{9,X}XX_BUILD_FIRMWARE depend on 
+!PREVENT_FIRMWARE_BUILD.
 
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.8-rc2-mm1-full/drivers/scsi/aic7xxx/Kconfig.aic7xxx.old	2004-08-01 17:03:52.000000000 +0200
++++ linux-2.6.8-rc2-mm1-full/drivers/scsi/aic7xxx/Kconfig.aic7xxx	2004-08-01 17:04:40.000000000 +0200
+@@ -61,7 +61,7 @@
+ 
+ config AIC7XXX_BUILD_FIRMWARE
+ 	bool "Build Adapter Firmware with Kernel Build"
+-	depends on SCSI_AIC7XXX
++	depends on SCSI_AIC7XXX && !PREVENT_FIRMWARE_BUILD
+ 	help
+ 	This option should only be enabled if you are modifying the firmware
+ 	source to the aic7xxx driver and wish to have the generated firmware
+--- linux-2.6.8-rc2-mm1-full/drivers/scsi/aic7xxx/Kconfig.aic79xx.old	2004-08-01 17:04:01.000000000 +0200
++++ linux-2.6.8-rc2-mm1-full/drivers/scsi/aic7xxx/Kconfig.aic79xx	2004-08-01 17:04:32.000000000 +0200
+@@ -46,7 +46,7 @@
+ 
+ config AIC79XX_BUILD_FIRMWARE
+ 	bool "Build Adapter Firmware with Kernel Build"
+-	depends on SCSI_AIC79XX
++	depends on SCSI_AIC79XX && !PREVENT_FIRMWARE_BUILD
+ 	help
+ 	This option should only be enabled if you are modifying the firmware
+ 	source to the aic79xx driver and wish to have the generated firmware
+

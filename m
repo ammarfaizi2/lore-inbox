@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262046AbSKMQtJ>; Wed, 13 Nov 2002 11:49:09 -0500
+	id <S262208AbSKMQyH>; Wed, 13 Nov 2002 11:54:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262128AbSKMQtJ>; Wed, 13 Nov 2002 11:49:09 -0500
-Received: from suonpaa.iki.fi ([62.236.96.196]:56748 "EHLO
-	oberon.erasmus.jurri.net") by vger.kernel.org with ESMTP
-	id <S262046AbSKMQtJ>; Wed, 13 Nov 2002 11:49:09 -0500
-To: Paul <set@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.47-ac2
-References: <200211130130.gAD1U0B10849@devserv.devel.redhat.com>
-	<20021113031047.GP9928@squish.home.loc>
-	<87smy5ifij.fsf@puck.erasmus.jurri.net>
-From: Samuli Suonpaa <suonpaa@iki.fi>
-Date: Wed, 13 Nov 2002 18:55:09 +0200
-In-Reply-To: <87smy5ifij.fsf@puck.erasmus.jurri.net> (Samuli Suonpaa's
- message of "Wed, 13 Nov 2002 18:46:44 +0200")
-Message-ID: <87of8tif4i.fsf@puck.erasmus.jurri.net>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
- (i386-debian-linux-gnu)
+	id <S262224AbSKMQyH>; Wed, 13 Nov 2002 11:54:07 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:896 "EHLO
+	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
+	id <S262208AbSKMQyH>; Wed, 13 Nov 2002 11:54:07 -0500
+From: "Folkert van Heusden" <folkert@vanheusden.com>
+To: "'Nivedita Singhvi'" <niv@us.ibm.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: tcp_v4_get_port?
+Date: Wed, 13 Nov 2002 18:04:09 +0100
+Message-ID: <005b01c28b36$af601640$3640a8c0@boemboem>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <Pine.LNX.4.44.0211121431500.18229-100000@w-nivedita.beaverton.ibm.com>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samuli Suonpaa <suonpaa@iki.fi> writes:
-> I get this also. With every 4.5-kernel I have tried compiling. (At
-> least 4.5.45, 4.5.45-ac2, 4.5.47-ac1.) 
+> Am I right that in net/ipv4/tcp_ipv4.c in function "tcp_v4_get_port" the
+> portnumber for a new connection is generated? Because fiddling with that
+> code seems to have no effect on the portnumbers generated for new
+> connections.
+NS> What change are you making and which kernel are you making it in?
 
-Umm... I guess I shouldn't have had all those mushrooms for lunch...
+Kernel 2.4.19
+Changes like; have it not starting to use ports from 1024 up, but
+rather from 32768 down to 1024 (and then from 65535 down again).
 
-Suonp‰‰...

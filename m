@@ -1,64 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264534AbTGKRCq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 13:02:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264505AbTGKRCq
+	id S264279AbTGKQ6V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 12:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbTGKQ4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 13:02:46 -0400
-Received: from pat.uio.no ([129.240.130.16]:61913 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264495AbTGKRCm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 13:02:42 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 11 Jul 2003 12:56:45 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:19384
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264472AbTGKQ4G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 12:56:06 -0400
+Subject: Re: AMD760MPX: bogus chispset ? (was PROBLEM: sound is stutter,
+	sizzle with lasts kernel releases)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: xi <xizard@enib.fr>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F0EED9B.4080502@enib.fr>
+References: <3F0EED9B.4080502@enib.fr>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <16142.61723.615768.520443@charged.uio.no>
-Date: Fri, 11 Jul 2003 19:17:15 +0200
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux FSdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.75 Support dentry revalidation under open(".")
-In-Reply-To: <Pine.LNX.4.44.0307110955180.3452-100000@home.osdl.org>
-References: <16142.54383.804882.881178@charged.uio.no>
-	<Pine.LNX.4.44.0307110955180.3452-100000@home.osdl.org>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Organization: 
+Message-Id: <1057943291.20629.30.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 11 Jul 2003 18:08:14 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Linus Torvalds <torvalds@osdl.org> writes:
+On Gwe, 2003-07-11 at 18:02, xi wrote:
+> Now I have done some investigations, and I think I have found the 
+> problem: It has appeared between kernel-2.4.18-pre9 and kernel-2.4.18-rc1
+> If I am not wrong, between these two versions, Alan Cox did a change in 
+> drivers/pci/quirks.c and this is this change which cause the problem.
 
-     > I'm not sure. It may not impact other filesystems, but it
-     > impacts the internal consistency of the dentry tree, and can
-     > cause some really nasty aliasing issues.
+As I read the documentation the other change is also required in this
+situation to avoid a chipset lockup. It might be worth you rechecking
+the AMD errata docs for 762/768 again to be sure I didnt screw up and
+there are not newer rules for other revisions. 
 
-We can remove the d_invalidate(). See my response to your second
-paragraph...
-
-However as a more general argument: it is hard to avoid aliasing if
-people are playing games on the server. If e.g. somebody does
-
-mv foo bar
-mkdir foo
-
-on the server side while one of our processes was in the original
-"foo" directory, it would IMHO be wrong not to allow us to d_drop()
-the original dentry in order to allow other processes to access the
-new "foo".
-
-     > If d_invalidate() returns a failure, that means that the dentry
-     > is still hashed (because it was busy), and returning NULL and
-     > leaving the dentry there sounds very wrong, since it can never
-     > be fixed with a new lookup.
-
-The d_invalidate() is not really crucial for the purposes of the
-open(".")-type call, and could indeed be taken out. The main point as
-far as NFS is concerned is the d_revalidate() call.
-
-I will resubmit the patch with the d_invalidate taken out...
-
-Cheers,
-  Trond

@@ -1,50 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285048AbRLLCP5>; Tue, 11 Dec 2001 21:15:57 -0500
+	id <S284933AbRLLCQr>; Tue, 11 Dec 2001 21:16:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285051AbRLLCPs>; Tue, 11 Dec 2001 21:15:48 -0500
-Received: from mons.uio.no ([129.240.130.14]:42631 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S284933AbRLLCP2>;
-	Tue, 11 Dec 2001 21:15:28 -0500
-To: torvalds@transmeta.com (Linus Torvalds)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: knfsd and FS_REQUIRES_DEV
-In-Reply-To: <Pine.LNX.4.33.0112111810160.541-100000@devserv.devel.redhat.com>
-	<20011211.162011.21927662.davem@redhat.com>
-	<9v69ci$5e1$1@penguin.transmeta.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 12 Dec 2001 03:15:19 +0100
-In-Reply-To: <9v69ci$5e1$1@penguin.transmeta.com>
-Message-ID: <shszo4p18w8.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S285051AbRLLCQj>; Tue, 11 Dec 2001 21:16:39 -0500
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:15060 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S285050AbRLLCQV>; Tue, 11 Dec 2001 21:16:21 -0500
+Date: Wed, 12 Dec 2001 02:16:18 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+Reply-To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+To: Hans Reiser <reiser@namesys.com>
+cc: Nathan Scott <nathans@sgi.com>, Andreas Gruenbacher <ag@bestbits.at>,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-xfs@oss.sgi.com
+Subject: Re: reiser4 (was Re: [PATCH] Revised extended attributes  interface)
+In-Reply-To: <3C169DCD.8060806@namesys.com>
+Message-ID: <Pine.SOL.3.96.1011212015827.2712B-100000@draco.cus.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Linus Torvalds <torvalds@transmeta.com> writes:
+On Wed, 12 Dec 2001, Hans Reiser wrote:
+> Anton Altaparmakov wrote:
+> >I was just stating a fact of how they are stored on NTFS, again something
+> >I have no power to change.
+> >
+> But does NTFS specificism/cripplism belong in VFS?
 
-     > Well, that actually could work with things like /proc, which
-     > actually has meaningful inode numbers. They may not be stable
-     > across reboots, of course, nor even really stable in general,
-     > but in _theory_ there's nothing to keep us from exporting /proc
-     > files and potentially other virtual filesystems.
+No, of course not. But the vfs needs to be able to cope with limitations
+of specific file systems (even if it is only by passing -Exyz into
+userspace).
 
-I'd be really interested in seeing an NFS client caching protocol that
-could cope with this...
+> >>Well, gosh, okay, maybe you want to prepend ',,' to streams and '..' to 
+> >>extended attributes.  I personally think Linux would only want to do so 
+> >>when used as a fileserver emulating NTFS/SAMBA.  There is no enhancement 
+> >>of user functionality from doing it for general purpose filesystems. 
+> >
+> >Just wait until this functionality is available and watch all GUI things
+> >start to use it en masse! I don't doubt that GNOME/KDE/replace with your
+> >favourite window manager are going to hesitate to start putting in the
+> >icon, the name, and whatnot inside EAs or inside named streams the instant
+> >they are ubiquitously available and I think that makes a lot of sense too.
+> >No doubt I will get flamed for saying this but all flames go to
+> >/dev/null...
+> >
+> >Both MacOS and as of recently Windows do this kind of stuff, too, and it
+> >can't be long before Linux goes the same way, provided file systems
+> >support the required features (i.e. EAs and/or named streams) so I
+> >disagree with you this is only a compatibility thing. It might start out
+> >as one but it will find real world applications very quickly...
+> >
+> I am not saying that the features of EAs are not useful, I am saying 
+> that I want to choose them individually for particular files.
+> 
+> It could be so much better to have EDIBLE_PIZZA (example from previous 
+> email) instead of just PIZZA, sigh.
 
-For /proc you don't even *want* stability across reboots. That said,
-even if you did, the current VFS API is quite sufficient to allow you
-to create a protocol that will satisfy those stability
-requirements.
+I am not quite sure what you mean. Surely you can just have all features
+available at all times/to all files and then you just use the ones you
+want, just ignoring/not using the rest. Why do you see the need for
+"selecting features of EAs individually for particular files"? It makes
+sense when buying EDIBLE_PIZZA but I don't see how that can be transferred
+onto files. After all I can just have all pizza ingredients and only put
+the ones I want on the pizza just ignoring the others.
 
-The important thing as far as NFS filehandles are concerned is that
-the actual information you put in is invariant over reboots, and that
-it suffices to locate a file uniquely. With the current API, that
-means that we need at least one unique number to identify the actual
-'super_operations->fh_to_dentry()' method to be used. Beyond
-that, it is entirely up to the fs how it wants to interpret the rest
-of the filehandle...
+Um, I think we might be saying the same thing in different words...
 
-Cheers,
-   Trond
+> >>Programs will get written to use your API, and not work with reiserfs, 
+> >>and will get written to use our API and not work with NTFS, and this is 
+> >>bad....
+> >
+> >Now that is true. And yes, it is bad. However it will be up to the
+> >community to decide which API to use and at the moment there are several
+> >fs using the "bestbits" API and only reiserfs (?) the "reiserfs" one...
+> >And we all know from our very own $Deity that we don't design software, we
+> >just write things and let evolution decide which is better. (((-;
+> >
+> Fortunately he isn't entirely consistent on this point.:-)
+> 
+> I predict you guys will ship first and get a lot of usage, and then we 
+> will ship later with more features,
+> and the result will be a mess for users.  This is the usual evolutionary 
+> design standards mess.  
+
+Yes, your prediction will likely hold true IMO.
+
+> Objectively, I understand it is highly reasonable for the Linux 
+> community to assume that what we
+> implement will be horrible until we finish it.  I would encourage it to 
+> assume that someone else
+> will eventually get orthogonalism right though, and I think it would be 
+> worth waiting for it, because
+> these are the sorts of design features that stick around for 30 years. 
+>  I don't really expect that most folks will choose to wait though.
+
+Me neither. People want it now, which pretty much limits the choice to
+one of the things available and working now, plus some required cleanups
+to satisfy all $Deities so the solution can be accepted in the kernel...
+
+The one who comes first gets to populate the vacuum. Evolution at its
+best. (-:
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+
+

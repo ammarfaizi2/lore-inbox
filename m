@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273237AbRIUKfQ>; Fri, 21 Sep 2001 06:35:16 -0400
+	id <S273255AbRIUKig>; Fri, 21 Sep 2001 06:38:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273255AbRIUKfH>; Fri, 21 Sep 2001 06:35:07 -0400
-Received: from ip122-15.asiaonline.net ([202.85.122.15]:1410 "EHLO
-	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
-	id <S273237AbRIUKe5>; Fri, 21 Sep 2001 06:34:57 -0400
-Message-ID: <3BAB889D.5434E042@rcn.com.hk>
-Date: Sat, 22 Sep 2001 02:36:13 +0800
-From: David Chow <davidchow@rcn.com.hk>
-Organization: Resources Computer Network Ltd.
-X-Mailer: Mozilla 4.76 [zh_TW] (X11; U; Linux 2.4.4-1DC i686)
-X-Accept-Language: zh_TW, en
+	id <S273261AbRIUKi1>; Fri, 21 Sep 2001 06:38:27 -0400
+Received: from indyio.rz.uni-sb.de ([134.96.7.3]:62973 "EHLO
+	indyio.rz.uni-sb.de") by vger.kernel.org with ESMTP
+	id <S273255AbRIUKiN>; Fri, 21 Sep 2001 06:38:13 -0400
+Message-ID: <3BAB189F.D4B76FEE@stud.uni-saarland.de>
+Date: Fri, 21 Sep 2001 10:38:23 +0000
+From: Studierende der Universitaet des Saarlandes 
+	<masp0008@stud.uni-sb.de>
+Reply-To: manfred@colorfullife.com
+Organization: Studierende Universitaet des Saarlandes
+X-Mailer: Mozilla 4.08 [en] (X11; I; Linux 2.0.36 i686)
 MIME-Version: 1.0
-To: Padraig Brady <padraig@antefacto.com>
+To: Adrian Cox <adrian@humboldt.co.uk>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: VIA Cyrix C3/MIII CPU
-In-Reply-To: <3BA98E0F.F4C052BD@rcn.com.hk> <3BA9D8F7.2030709@antefacto.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: [PATCH] Midi close race
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Padraig Brady ¼g¹D¡G
-> 
-> Seems like your init is hanging?
-> Are you sure you haven't a glibc compiled for 686?
-> 
-> Padraig.
-> 
-> David Chow wrote:
-> 
-> >Dear all,
-> >
-> >I am testing my board using the Cyrix C3 733 CPU. After installing the
-> >newly compiled kernel 2.4.7 , after the message "freeing unsused memory"
-> >and hangs... anyone has this before? I am using the new VIA 694T chipset
-> >. Or anyone test the Cyrix C3 CPU? Thanks
-> >
-> >regards,
-> >
-> >David
-> >
++       if (open_devs < 2)
++               del_timer(&poll_timer);
 
-Ok.. it seem's you are right because the root file system is mountd
-readonly... okay!. thanks.. I will reinstall the glibc and see if that
-fixes... okay.
+Probably you need del_timer_sync():
+Otherwise the timer could be running on another cpu.
 
-regards,
++       open_devs--;
 
-David Chow
+--
+	Manfred
+(OT: Are there any mail archives that store the cc list? I'm not
+subscribed to l-k, and if I answer a mail the cc list is always lost)

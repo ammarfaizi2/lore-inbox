@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267212AbSLEEih>; Wed, 4 Dec 2002 23:38:37 -0500
+	id <S267215AbSLEElp>; Wed, 4 Dec 2002 23:41:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267213AbSLEEih>; Wed, 4 Dec 2002 23:38:37 -0500
-Received: from bgp996345bgs.nanarb01.mi.comcast.net ([68.40.49.89]:44703 "EHLO
-	syKr0n.mine.nu") by vger.kernel.org with ESMTP id <S267212AbSLEEig>;
-	Wed, 4 Dec 2002 23:38:36 -0500
-Subject: [COMPILE ERROR] BK Tree rev 1.910 ide-scsi.c compile fails
-From: Mohamed El Ayouty <melayout@umich.edu>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 04 Dec 2002 23:45:52 -0500
-Message-Id: <1039063552.2113.37.camel@syKr0n.mine.nu>
+	id <S267216AbSLEElp>; Wed, 4 Dec 2002 23:41:45 -0500
+Received: from havoc.gtf.org ([64.213.145.173]:58525 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S267215AbSLEElo>;
+	Wed, 4 Dec 2002 23:41:44 -0500
+Date: Wed, 4 Dec 2002 23:49:13 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Parallel build broken in latest BK
+Message-ID: <20021205044913.GA30035@gtf.org>
+References: <Pine.LNX.4.33.0212042215540.924-100000@localhost.localdomain>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0212042215540.924-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux-2.5 Bitkeeper rev 1.910 
+On Wed, Dec 04, 2002 at 10:23:40PM -0600, Patrick Mochel wrote:
+> 
+> I typically do 
+> 
+> $ make -j4 MAKE="make -j4" bzImage
 
-Compile Error on Scsi
+Try the GNU-and-improved:
 
-gcc -Wp,-MD,drivers/scsi/.ide-scsi.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic
--fomit-frame-pointer -nostdinc -iwithprefix include   
--DKBUILD_BASENAME=ide_scsi -DKBUILD_MODNAME=ide_scsi   -c -o
-drivers/scsi/ide-scsi.o drivers/scsi/ide-scsi.c
-drivers/scsi/ide-scsi.c: In function `should_transform':
-drivers/scsi/ide-scsi.c:767: structure has no member named `tag'
-make[2]: *** [drivers/scsi/ide-scsi.o] Error 1
-rm drivers/scsi/scsi_sysfs.c
-make[1]: *** [drivers/scsi] Error 2
-make: *** [drivers] Error 2
+	make -j4
 
-Mohamed El Ayouty
+I just tried that and it works fine.
+
+I think MAKE= is a remnant of the old kbuild.  Shouldn't be needed
+anymore since the build doesn't descend into directories the way it used
+to.
+
+Also, just plain "make" is preferred now, too :)
+It builds bzImage and modules both.
+
+	Jeff
+
+
+

@@ -1,62 +1,178 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261518AbSJMNXH>; Sun, 13 Oct 2002 09:23:07 -0400
+	id <S261525AbSJMOJd>; Sun, 13 Oct 2002 10:09:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261520AbSJMNXH>; Sun, 13 Oct 2002 09:23:07 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:17909 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S261518AbSJMNXG>;
-	Sun, 13 Oct 2002 09:23:06 -0400
-Date: Sun, 13 Oct 2002 15:28:44 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200210131328.PAA14675@harpo.it.uu.se>
-To: jcdutton@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: kernel api for application profiling
+	id <S261526AbSJMOJd>; Sun, 13 Oct 2002 10:09:33 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:12296 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261525AbSJMOJb>; Sun, 13 Oct 2002 10:09:31 -0400
+Date: Sun, 13 Oct 2002 15:15:20 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>
+Subject: Re: [PATCH] LTT for 2.5.41: Core infrastructure 1/3
+Message-ID: <20021013151520.A17134@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Karim Yaghmour <karim@opersys.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	LTT-Dev <ltt-dev@shafik.org>
+References: <3DA5188A.D5436324@opersys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DA5188A.D5436324@opersys.com>; from karim@opersys.com on Thu, Oct 10, 2002 at 02:04:58AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Oct 2002 21:08:30 +1000, James Courtier-Dutton wrote:
->I wish to be able to make a function call to start a timer, and then 
->later on in the program stop the timer and therefore gather information 
->about how long a particular routine took.
->The problem I have is that between start of timer and stop of timer, the 
->kernel might task switch to another thread or process. I would like this 
->kernel task switch to automatically stop the timer, and then restart it 
->when I get CPU time returned. I cannot find any such API availiable 
->currently in the linux kernel.
+On Thu, Oct 10, 2002 at 02:04:58AM -0400, Karim Yaghmour wrote:
+> 1) We needed to define TRUE and FALSE for the tracer. A grep for
+> #define TRUE/FALSE in include/linux shows a few repeats. Shouldn't
+> these be globally defined somewhere?
 
-perfctr & PAPI support this. perfctr virtualises the TSC which
-gives you high-res process times, and sampling is extremely
-light-weight (no syscalls involved) so measuring small blocks
-of code is feasible & accurate.
-perfctr is a low-level Linux/x86-specific framework. PAPI is
-a higher-level framework which supports a number of platforms.
-PAPI uses perfctr on Linux/x86.
+No.  No core code uses it, and that's for a reason.  I suggest
+you simply use 1/0 instead.
 
-Both perfctr and PAPI also let you set up CPU performance
-counters for counting other things than clock cycles.
+> 2) The tracer uses rvmalloc/rvfree. If I remember correctly there was
+> a suggestion at some point to define these globally for easier use.
+> A rapid grep in drivers/ shows that quite a few drivers had copies
+> of these functions in their source (especially drivers/ieee1394,
+> drivers/media/video, drivers/usb/media/).
 
-See:
-<http://www.csd.uu.se/~mikpe/linux/perfctr/>
-<http://icl.cs.utk.edu/projects/papi/>
+Tons of duplication.  IIRC there was a political reason not to have
+common versions, but IMO the duplication is far to big nowdays to
+not have a generic library version.
 
->Also, as an extension to this, it would be nice to know which other 
->tasks happened during the task switch. The reason I would like this, is 
->so that I can tell if the time was taken reading data off the hard disk 
->or instead time spent by X displaying/transfering to screen the next 
->video frame. If too much time is being spent doing a task like reading 
->from the hard disk, I would need to look into reducing the latency of 
->that task. This might also highlight buggy modules that take up too much 
->of a time slice. I have seen some task switches take 800ms away from my 
->audio out thread, and therefore causing underruns on the sound hardware, 
->that then causes glitches in the perceived audio coming from the speakers.
+> +/* Structure packing within the trace */
+> +#if LTT_UNPACKED_STRUCTS
 
-This could perhaps be measured by programming a TSC-like event into
-a performance counter and programming it to count in kernel-mode only.
-P6, K7, and P4 should all support this.
+who defines this?
 
-And before people ask me: perfctr is not yet in official kernels,
-I'm working on a cleaned up version for 2.5 submission RSN,
-perfctr isn't easy for newbies to use due to HW-specific details,
-but PAPI gives you a nice cosy high-level API.
+> +/* The functions to the tracer management code */
+> +int trace_set_config
+> + (int,		/* Use depth to fetch eip */
+> +  int,		/* Use bounds to fetch eip */
+> +  int,		/* Detph to fetch eip */
+> +  void *,	/* Lower bound eip address */
+> +  void *);	/* Upper bound eip address */
 
-/Mikael
+Linux style for this would be:
+
+extern int trace_set_config(int, int, int, void *, void *);
+
+But, yes, that looses some info.  When doing multi-line
+prototypes please at least use tabs and add the actual
+parameter names (like e.g. XFS does):
+
+extern int trace_set_config(
+	int		do_depth,	/* Use depth to fetch eip */
+	int		do_bounds,	/* Use bounds to fetch eip */
+	int		depth,		/* Detph to fetch eip */
+	void		*lower,		/* Lower bound eip address */
+	void		*upper);	/* Upper bound eip address */
+
+> +/* Generic function */
+> +static inline void TRACE_EVENT(u8 event_id, void* data)
+> +{
+> +	trace_event(event_id, data);
+> +}
+
+Umm, why don't you just use trace_even in the actual code?
+
+> +/* Traced events */
+> +#define TRACE_EV_START           0	/* This is to mark the trace's start */
+> +#define TRACE_EV_SYSCALL_ENTRY   1	/* Entry in a given system call */
+> +#define TRACE_EV_SYSCALL_EXIT    2	/* Exit from a given system call */
+> +#define TRACE_EV_TRAP_ENTRY      3	/* Entry in a trap */
+> +#define TRACE_EV_TRAP_EXIT       4	/* Exit from a trap */
+> +#define TRACE_EV_IRQ_ENTRY       5	/* Entry in an irq */
+> +#define TRACE_EV_IRQ_EXIT        6	/* Exit from an irq */
+> +#define TRACE_EV_SCHEDCHANGE     7	/* Scheduling change */
+> +#define TRACE_EV_KERNEL_TIMER    8	/* The kernel timer routine has been called */
+> +#define TRACE_EV_SOFT_IRQ        9	/* Hit key part of soft-irq management */
+> +#define TRACE_EV_PROCESS        10	/* Hit key part of process management */
+> +#define TRACE_EV_FILE_SYSTEM    11	/* Hit key part of file system */
+> +#define TRACE_EV_TIMER          12	/* Hit key part of timer management */
+> +#define TRACE_EV_MEMORY         13	/* Hit key part of memory management */
+> +#define TRACE_EV_SOCKET         14	/* Hit key part of socket communication */
+> +#define TRACE_EV_IPC            15	/* Hit key part of System V IPC */
+> +#define TRACE_EV_NETWORK        16	/* Hit key part of network communication */
+> +
+> +#define TRACE_EV_BUFFER_START   17	/* Mark the begining of a trace buffer */
+> +#define TRACE_EV_BUFFER_END     18	/* Mark the ending of a trace buffer */
+> +#define TRACE_EV_NEW_EVENT      19	/* New event type */
+> +#define TRACE_EV_CUSTOM         20	/* Custom event */
+> +
+> +#define TRACE_EV_CHANGE_MASK    21	/* Change in event mask */
+> +
+> +#define TRACE_EV_HEARTBEAT      22	/* Heartbeat event */
+
+What about an enum?
+
+> +#ifdef CONFIG_X86_TSC
+> +#include <asm/msr.h>
+> +#endif
+> +
+> +/**
+> + *	calc_time_delta: - Utility function for time delta calculation.
+> + *	@now: current time
+> + *	@start: start time
+> + *
+> + *	Returns the time delta produced by subtracting start time from now.
+> + */
+> +static inline trace_time_delta calc_time_delta(struct timeval *now, 
+> +					       struct timeval *start)
+> +{
+> +	return (now->tv_sec - start->tv_sec) * 1000000
+> +		+ (now->tv_usec - start->tv_usec);
+> +}
+> +
+> +/**
+> + *	recalc_time_delta: - Utility function for time delta recalculation.
+> + *	@now: current time
+> + *	@new_delta: the new time delta calculated
+> + *	@cpu: the associated CPU id
+> + *
+> + *	Sets the value pointed to by new_delta to the time difference between
+> + *	the buffer start time and now, if TSC timestamping is being used. 
+> + */
+> +static inline void recalc_time_delta(struct timeval *now, 
+> +				     trace_time_delta *new_delta,
+> +				     u8 cpu)
+> +{
+> +	if(using_tsc == FALSE)
+> +		*new_delta = calc_time_delta(now, &buffer_start_time(cpu));
+> +}
+> +
+> +/**
+> + *	get_time_delta: - Utility function for getting time delta.
+> + *	@now: pointer to a timeval struct that may be given current time
+> + *	@cpu: the associated CPU id
+> + *
+> + *	Returns either the TSC if TSCs are being used, or the time and the
+> + *	time difference between the current time and the buffer start time 
+> + *	if TSCs are not being used.  The time is returned so that callers
+> + *	can use the do_gettimeofday() result if they need to.
+> + */
+> +static inline trace_time_delta get_time_delta(struct timeval *now, u8 cpu)
+> +{
+> +	trace_time_delta time_delta;
+> +
+> +#if defined (__i386__) || defined (__x86_64__)
+> +	if((using_tsc == TRUE) && cpu_has_tsc)
+> +		rdtscl(time_delta);
+> +	else {
+> +		do_gettimeofday(now);
+> +		time_delta = calc_time_delta(now, &buffer_start_time(cpu));
+> +	}
+> +#else	
+> +	do_gettimeofday(now);
+> +	time_delta = calc_time_delta(now, &buffer_start_time(cpu));
+> +#endif
+> +
+> +	return time_delta;
+> +}
+
+Instead of adding per-arch stuff here I'd suggest using asm/trace.h
+with an asm-generic/trace.h for the default version.
+

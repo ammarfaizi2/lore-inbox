@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261568AbSK0Euc>; Tue, 26 Nov 2002 23:50:32 -0500
+	id <S261581AbSK0Eul>; Tue, 26 Nov 2002 23:50:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261574AbSK0Euc>; Tue, 26 Nov 2002 23:50:32 -0500
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:1028 "EHLO
-	lap.molina") by vger.kernel.org with ESMTP id <S261568AbSK0Eub>;
-	Tue, 26 Nov 2002 23:50:31 -0500
-Date: Tue, 26 Nov 2002 22:49:32 -0600 (CST)
-From: Thomas Molina <tmolina@copper.net>
-X-X-Sender: tmolina@lap.molina
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] module_param() 1/3
-In-Reply-To: <20021126065343.B48DE2C04E@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0211262246230.833-100000@lap.molina>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261574AbSK0Eul>; Tue, 26 Nov 2002 23:50:41 -0500
+Received: from ns.suse.de ([213.95.15.193]:30728 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261581AbSK0Euk>;
+	Tue, 26 Nov 2002 23:50:40 -0500
+To: kuznet@ms2.inr.ac.ru
+Cc: rddunlap@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.5.48
+References: <Pine.LNX.4.33L2.0211261547450.2873-100000@dragon.pdx.osdl.net.suse.lists.linux.kernel> <200211270042.DAA19185@sex.inr.ac.ru.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 27 Nov 2002 05:57:58 +0100
+In-Reply-To: kuznet@ms2.inr.ac.ru's message of "27 Nov 2002 01:49:57 +0100"
+Message-ID: <p73lm3ftxrd.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Nov 2002, Rusty Russell wrote:
+kuznet@ms2.inr.ac.ru writes:
 
-> Linus,
-> 	This is the core support, with the out-by-one error which made
-> it not boot with 0 params fixed (Doh!).  Tested on 2.5.49 (with a test
-> parameter and without).
+> > It would be OK with me not to accept such extensions.  :)
+> 
+> One of a few of extensions which does not cause any reaction
+> but "it's strange that it was not in KR, apparently it was lost
+> due to a buglet in the first parser" :-)
 
-System is RedHat 8.0 with mod-init tools 0.7 added.  I pulled down a fresh 
-2.5.49 tarball and added all three of your patches.  
+IMHO it's a bit dangerous. It even inspired me to my first gcc
+patch, adding a warning for: 
 
-modprobe pcmcia_core gives the following error:
+	bla > 0 ? : somethingelse
 
-pcmcia_core: falsely claims to have parameter t
-FATAL: Error inserting /lib/modules/2.5.49/kernel/pcmcia_core.o: Invalid argument
+(boolean expression as first argument) 
 
+returning the boolean value for true which would be always 1. But the real 
+intention was to return bla. I did this mistake at least twice. After that 
+I decided to avoid this extension. Unfortunately the gcc guys ignored the patch
+to warn for it.
 
+-Andi

@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262970AbTJUGgM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 02:36:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262971AbTJUGgM
+	id S262986AbTJUHWM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 03:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbTJUHWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 02:36:12 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:43438 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S262970AbTJUGgI (ORCPT
+	Tue, 21 Oct 2003 03:22:12 -0400
+Received: from dns1.seagha.com ([217.66.0.18]:40781 "EHLO relay-1.seagha.com")
+	by vger.kernel.org with ESMTP id S262986AbTJUHWJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 02:36:08 -0400
-Date: Mon, 20 Oct 2003 23:35:36 -0700
-From: Jeremy Higdon <jeremy@sgi.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: gwh@sgi.com, jbarnes@sgi.com, aniket_m@hotmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Patch to add support for SGI's IOC4 chipset
-Message-ID: <20031021063536.GA78855@sgi.com>
-References: <3F7CB4A9.3C1F1237@sgi.com> <200310071527.56813.bzolnier@elka.pw.edu.pl> <20031008033809.GA29878@sgi.com> <200310162020.51303.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200310162020.51303.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.4.1i
+	Tue, 21 Oct 2003 03:22:09 -0400
+Message-ID: <6DED3619289CD311BCEB00508B8E133601177AEB@nt-server2.antwerp.seagha.com>
+From: Karl Vogel <karl.vogel@seagha.com>
+To: "'Neil Brown'" <neilb@cse.unsw.edu.au>
+Cc: Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: RE: LVM on md0: raid0_make_request bug: can't convert block acros
+	s chunks or bigger than 64k
+Date: Tue, 21 Oct 2003 09:24:57 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 16, 2003 at 08:20:51PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > Somebody else referred to this posting:
+> >   http://marc.theaimsgroup.com/?l=linux-kernel&m=103369952814053&w=2
+> > 
+> > but that patch doesn't apply cleanly anymore and I'm not 
+> familiar with
+> > the code to be confident to fix it up myself. (that post 
+> was from almost
+> > exactly 1 year ago, so alot changed probably :)
 > 
-> > I will be on a vacation starting tomorrow, so I won't be able to reply
-> > until Oct 19th or 20th, in case there are any more issues.  Hopefully this
-> > one will be okay  :-)
+> That patch is already included.
 > 
-> I think that after applying attached incremental patch it can go in.
+> The problem is that dm is not honouring the merge_bvec_fn that
+> raid0 has set.
+> 
+> This patch might fix it, but I'm not very familiar with the dm code,
+> so I make no promises.
 
-Thanks.  I'll test this and reply with the results.
+I will give it a shot when I get home.
 
-> - defining IDE_ARCH_ACK_INTR and ide_ack_intr() in sgiioc4.c is a no-op,
->   it should be done <asm/ide.h> to make it work
->   (I think the same problem is present in 2.4.x)
+> (I wonder why you are running LVM on top of raid0 given that lvm
+> contains raid0 functionality).
+> 
+> NeilBrown
 
-The definition in <include/linux/ide.h> is only used if IDE_ARCH_ACK_INTR is
-not defined.  sgiioc4.c defines IDE_ARCH_ACK_INTR before including that file,
-so I believe we get the definition we want without touching ide.h, don't we?
+Historical reasons.. but since it worked, I never changed it.. and now it
+makes for a good test case :)
 
-> - fix NULL pointer dereference (accessing hwif->name while hwif is NULL)
->   in sgiioc4_ide_setup_pci_device() (was this driver ever tested?)
-
-Yes.  It may be that since name is an array, the value passed to request_region
-was the offset of name in the structure.  Since that was never dereferenced,
-things worked okay.  In any case, the code was obviously incorrect.
-
-> - make config option SN2 specific
-> - replace uint{8,32,64}_t by u{8,32,64}
-
-These look fine.
-
-I'll await a response on the IDE_ARCH_ACK_INTR issue.  Do you want me to send
-another patch, or is the previous with your update sufficient?
-
-thanks
-
-jeremy
+Thx,
+Karl

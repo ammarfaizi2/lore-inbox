@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281010AbRKOTa3>; Thu, 15 Nov 2001 14:30:29 -0500
+	id <S281019AbRKOTi7>; Thu, 15 Nov 2001 14:38:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281016AbRKOTaU>; Thu, 15 Nov 2001 14:30:20 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:44747 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S281019AbRKOTaQ>; Thu, 15 Nov 2001 14:30:16 -0500
-Date: Thu, 15 Nov 2001 14:30:12 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200111151930.fAFJUCq16060@devserv.devel.redhat.com>
-To: vojtech@suse.cz
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Possible Bug: 2.4.14 USB Keyboard
-In-Reply-To: <mailman.1005850740.5583.linux-kernel2news@redhat.com>
-In-Reply-To: <3BF2DFBF.6090502@prairiegroup.com> <20011114145312.A6925@kroah.com> <3BF3D029.7070609@prairiegroup.com> <20011115090023.A10511@kroah.com> <3BF40C03.4010509@prairiegroup.com> <mailman.1005850740.5583.linux-kernel2news@redhat.com>
+	id <S281015AbRKOTit>; Thu, 15 Nov 2001 14:38:49 -0500
+Received: from chunnel.redhat.com ([199.183.24.220]:32760 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S281012AbRKOTil>; Thu, 15 Nov 2001 14:38:41 -0500
+Date: Thu, 15 Nov 2001 19:37:17 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Matt Bernstein <matt@theBachChoir.org.uk>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+        Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>,
+        linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
+Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
+Message-ID: <20011115193717.B14221@redhat.com>
+In-Reply-To: <3BF285D7.8F5AAB6E@redhat.com> <Pine.LNX.4.33.0111141502110.8473-100000@nick.dcs.qmul.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0111141502110.8473-100000@nick.dcs.qmul.ac.uk>; from matt@theBachChoir.org.uk on Wed, Nov 14, 2001 at 03:08:25PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Do you have the keybdev module loaded? Also, don't load the usbkbd
-> module, if you load hid ...
-> 
-> -- 
-> Vojtech Pavlik
-> SuSE Labs
+Hi,
 
-There is a small problem with this approach: users have no clue
-how to control what modules are loaded, hotplug loads whatever
-was built (and recorded in modules.usbmap), and some users
-have keyboards that plainly refuse to work with hid, therefore
-vendors have to build both modules.
+On Wed, Nov 14, 2001 at 03:08:25PM +0000, Matt Bernstein wrote:
 
-See this little gem, for instance:
- https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=55878
+> I hope they do; I've just set up a very similar beast (looks like the same
+> mobo and same CPUs). Is the RAM "registered" ECC? Are your CPUs the same
+> stepping? One problem we were bitten by was the Radeon DRI, so we disabled
+> it (in XF86Config-4) and it now seems to at least boot into X.
 
-I suspect some distributions can get away with "load the right
-module" approach because their userbase is so small and technical
-that they do not hit these cases often. I think something needs
-fixing in hid.
+There are known problems in AMD760+Radeon setups, and a workaround is
+to avoid asserting RADEON_SOFT_RESET_HBP during init.  The latest
+kernels have that fix in the radeon drm.  Using that in conjunction
+with an X server containing the same fix, I've finally got a stable
+761+radeon setup here.
 
--- Pete
+I think the X server fix went in on the 4.1.99 branch, but I know that
+at least the Red Hat XFree86-4.1 rpms have got the patch back-ported.
+
+> it's not any faster than a dual PIII (1GHz) at the task it's meant to
+> perform :( both CPUs report 75% usage, and vmstat 1 doesn't show the IO
+> systems being slugged. Very strange. We're wondering if we've hit memory
+> bandwidth as the tasks involve some hard sums with big matrices.
+
+If the CPUs were bottlenecked on memory then they would still be
+pegged at 100% according to the OS.  They'd just get less work done in
+a given interval.
+
+Cheers,
+ Stephen

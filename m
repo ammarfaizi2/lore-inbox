@@ -1,43 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315207AbSEUQvJ>; Tue, 21 May 2002 12:51:09 -0400
+	id <S315213AbSEUQvz>; Tue, 21 May 2002 12:51:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315212AbSEUQvI>; Tue, 21 May 2002 12:51:08 -0400
-Received: from ns.suse.de ([213.95.15.193]:63502 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S315207AbSEUQvH>;
-	Tue, 21 May 2002 12:51:07 -0400
-Date: Tue, 21 May 2002 18:51:07 +0200
-From: Dave Jones <davej@suse.de>
-To: Claude Lamy <clamy@sunrisetelecom.com>, linux-kernel@vger.kernel.org
-Subject: Re: Fw: /usr/include/asm/system.h
-Message-ID: <20020521185107.C15417@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Claude Lamy <clamy@sunrisetelecom.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <000d01c200c4$4d0b9570$5132a8c0@AVANSUN.COM> <20020521144833.X15417@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S315227AbSEUQvy>; Tue, 21 May 2002 12:51:54 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:18048 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S315213AbSEUQvr>; Tue, 21 May 2002 12:51:47 -0400
+Date: Tue, 21 May 2002 12:52:38 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Calin A. Culianu" <calin@ajvar.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Lazy Newbie Question
+In-Reply-To: <Pine.LNX.4.33L2.0205211159110.14445-100000@rtlab.med.cornell.edu>
+Message-ID: <Pine.LNX.3.95.1020521124137.1506A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 21, 2002 at 02:48:33PM +0200, Dave Jones wrote:
- >  > > > I am running a Mandrake 8.1 linux distribution with gcc 2.96.  In
- >  > > > the file /usr/include/asm/system.h, the function __cmpxchg uses a
- >  > > > parameter named "new" which is a reserved keyword in C++.
- > The function is wrapped in an #ifdef __KERNEL__
- > Kernel code isn't meant to be compiled with a c++ compiler
+On Tue, 21 May 2002, Calin A. Culianu wrote:
 
-I was of course, completely wrong about this, that #ifdef doesn't cover
-the whole of <asm/system.h>. 
+> On Tue, 21 May 2002, Richard B. Johnson wrote:
+> 
+> > On Tue, 21 May 2002, Calin A. Culianu wrote:
+> >
+> > >
+> > > Whats the best way to do the equivalent of a stat() on a char * pathname
+> > > from inside a kernel module?  Don't ask why I need to do this.. I know it
+> > > sounds evil but I just need to do it...  Basically I need to find out the
+> > > minor number of a device file.
+> > >
+> >
+> > No. You never "need to do it". Some user-mode task, somewhere, installs
+> > your module. That same task can open your device and via ioctl() tell
+> > it anything it needs to know.
+> 
+> Well I need to do it.  I know all about ioctls and the like,
+> thank-you-very-much.  I am writing code for COMEDI (have you heard of this
+> driver suite?) which uses a kernel-space API for Realtime Linux
+> (RTAI/RT-Linux).  So yes, I NEED TO DO IT!  :)
+> 
 
-Some of the stuff outside that ifdef will never work in a userspace
-app anyway (like wbinvd). Looking at it, is there anything there at all
-that we should let userspace be seeing, or should that #ifdef cover
-the whole file ?
+Well the COMEDI I know about, written mostly by David Schleef, does
+not require manipulating files in kernel space. This is a collection
+of drivers, tools, and libraries for data acquisition.
 
-    Dave.
+> >
+> > A "file" is something the kernel handles on behalf of a task. That
+> > task has a context which, amongst other things, allows the kernel
+> > to assign file-descriptors. The kernel is not a task. It does not
+> > have a "context". Of course it can create one and it can steal one.
+> > These are the two methods used inside the kernel to handle "files".
+> >
+> > And, unless the kernel task "thread" is permanent, it's a dirty
+> > way of corrupting the kernel.
+> >
+> 
+> Yes, as meantioned above.. my thread is permanent.  It is a periodic
+> realtime priority thread.  However, the stuff that needs to determine
+> device minors is going to run at non-realtime priority.
+> 
+> At any rate.. please don't chastise me.  I am asking a simple question and
+> I wanted a straightforward answer.. I didn't expect to be flamed for it.
+> 
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+My response was hardly a flame. Grep the driver sources for
+kernel_thread().  There are important methods of terminating such
+threads, if necessary, such as before removing a module. A kernel
+thread can use files, but they have to execute sys_open(), etc.,
+you do not attempt to use the user-mode trap (int 0x80).
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

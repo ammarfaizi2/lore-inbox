@@ -1,143 +1,267 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263510AbTLALiO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 06:38:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263513AbTLALiO
+	id S262094AbTLALrO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 06:47:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbTLALrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 06:38:14 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:18102 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263510AbTLALiL (ORCPT
+	Mon, 1 Dec 2003 06:47:14 -0500
+Received: from ns0.eris.qinetiq.com ([128.98.1.1]:63543 "HELO
+	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
+	id S262094AbTLALq7 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 06:38:11 -0500
-Date: Mon, 1 Dec 2003 17:07:04 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: James W McMechan <mcmechanjw@juno.com>
-Cc: hugh@veritas.com, linux-kernel@vger.kernel.org,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Oops with tmpfs on both 2.4.22 & 2.6.0-test11
-Message-ID: <20031201113703.GB6918@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20031130.185915.-1591395.7.mcmechanjw@juno.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 1 Dec 2003 06:46:59 -0500
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: usb2 issues
+Date: Mon, 1 Dec 2003 11:46:23 +0000
+User-Agent: KMail/1.5.3
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <20031130.185915.-1591395.7.mcmechanjw@juno.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200312011146.23719.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 01, 2003 at 05:50:13AM +0000, James W McMechan wrote:
-> Hello, I have a test program  which will generate the Oops easily.
-> No maintainer was listed for tmpfs and the best Google reference is
-> about 2 years back, and it does not seem to be about this issue.
-> 
-> This Oops both 2.4.22 and 2.6.0-test11
-> It results from a ARCH=um bugreport and I kept making the
-> test program shorter, now down to one executable line.
-> 
-> It oops with the list poison address on 2.6.0-test11
-> Neither myself nor William Lee Irwin III know what the
-> list_del(q);
-> list_add(q, &dentry->d_subdirs);
-> from fs/libfs.c:90 or 137 is intended to do but he suggested you might
-> know
-> I think that is where it is corrupting the list entries.
-> 
-> /* by James_McMechan at hotmail com */                                   
->       
-> /* test2 program to Oops shmfs mounted at /dev/shm */
-> /* yes it is dumb but unprivileged users should not be able */
-> /* to Oops the kernel regardless of how dumb the program */
-> #include <sys/types.h>
-> #include <dirent.h>
-> main()
-> {/* off 0 is "." off 1 is ".." off 2 is empty */
->         seekdir(opendir("/dev/shm"), (off_t) 2);
-> }
-> 
-> On Sun, 30 Nov 2003 20:51:01 -0800 William Lee Irwin III
-> <wli@holomorphy.com> writes:
-> > On Sun, Nov 30, 2003 at 06:06:41PM -0800, James W McMechan wrote:
-> > > Have you got a suggestion on who to bug, I have not found
-> > > maintainers on tmpfs or now the libfs section.
-> > 
-> > Hugh Dickins is highly clueful and generally maintains tmpfs. He's
-> > fixed bugs in fs/libfs.c before, too.
-> > 
-> > 
-> > -- wli
-
-Hi,
-
-I hope nobody minds me jumping in this thread. I have been looking at this
-code for some time and hope I have got the facts correct.
-
-The two list_xxx macros as mentioned (fs/libfs.c:line 137) adjusts the 
-cursor dentry to the beginning of the d_subdirs list needed for 
-(file->f_pos == 2) as there can be additions in the d_subdirs list after the 
-open call and before ->lseek or ->readdir call.
-
-The cursor adjustment in dcache_dir_lseek() (fs/libfs.c: line 90) always
-puts the cursor just before the last looked dentry in the while loop. 
-
-But it is problematic when we have an empty directory and (file->f_pos == 2)
-In this case we have the loop counter p pointing to the cursor and doing
-list_del and list_add_tail of the same list node results in oops.
-
-The following patch takes (file->f_post == 2) as a special case and adjusts 
-the cursor dentry by putting it right at the beginning of the d_subdirs
-list.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
-Thanks
-Maneesh
+Whenever I load the ehci-hcd driver for my USB2 card, I get the following 
+(kernel 2.4.22):
 
- fs/libfs.c |   10 +++++++---
- 1 files changed, 7 insertions(+), 3 deletions(-)
+Dec  1 11:28:58 mwatts kernel: usb.c: USB disconnect on device 02:07.0-1 
+address 2
+Dec  1 11:29:19 mwatts kernel: ehci_hcd 02:07.2: VIA Technologies, Inc. USB 
+2.0
+Dec  1 11:29:19 mwatts kernel: ehci_hcd 02:07.2: irq 18, pci mem e0ab9c00
+Dec  1 11:29:19 mwatts kernel: usb.c: new USB bus registered, assigned bus 
+number 5
+Dec  1 11:29:19 mwatts kernel: PCI: 02:07.2 PCI cache line size set 
+incorrectly (64 bytes) by BIOS/FW.
+Dec  1 11:29:19 mwatts kernel: PCI: 02:07.2 cache line size too large - 
+expecting 32.
+Dec  1 11:29:19 mwatts kernel: ehci_hcd 02:07.2: USB 2.0 enabled, EHCI 0.95, 
+driver 2003-Jun-19/2.4
+Dec  1 11:29:19 mwatts kernel: hub.c: USB hub found
+Dec  1 11:29:19 mwatts kernel: hub.c: 4 ports detected
 
-diff -puN fs/libfs.c~dcache_dir_lseek-fix fs/libfs.c
---- linux-2.6.0-test11/fs/libfs.c~dcache_dir_lseek-fix	2003-12-01 15:48:22.000000000 +0530
-+++ linux-2.6.0-test11-maneesh/fs/libfs.c	2003-12-01 16:28:27.000000000 +0530
-@@ -75,12 +75,13 @@ loff_t dcache_dir_lseek(struct file *fil
- 		file->f_pos = offset;
- 		if (file->f_pos >= 2) {
- 			struct list_head *p;
-+			struct dentry * dentry = file->f_dentry;
- 			struct dentry *cursor = file->private_data;
- 			loff_t n = file->f_pos - 2;
- 
- 			spin_lock(&dcache_lock);
--			p = file->f_dentry->d_subdirs.next;
--			while (n && p != &file->f_dentry->d_subdirs) {
-+			p = dentry->d_subdirs.next;
-+			while (n && p != &dentry->d_subdirs) {
- 				struct dentry *next;
- 				next = list_entry(p, struct dentry, d_child);
- 				if (!d_unhashed(next) && next->d_inode)
-@@ -88,7 +89,10 @@ loff_t dcache_dir_lseek(struct file *fil
- 				p = p->next;
- 			}
- 			list_del(&cursor->d_child);
--			list_add_tail(&cursor->d_child, p);
-+			if (file->f_pos == 2)
-+				list_add(&cursor->d_child, &dentry->d_subdirs);
-+			else
-+				list_add_tail(&cursor->d_child, p);
- 			spin_unlock(&dcache_lock);
- 		}
- 	}
+Is the stuff about the cache line normal?
 
-_
+Also, I get massive amounts of errors whenever I try and do anything to a 
+20Gig drive connected via usb2 (fat32 filesystem)
+If I simply unload the ehci-hcd driver, it works fine in usb1 on the same 
+hardware (lspci -v follows).
+
+02:07.0 USB Controller: VIA Technologies, Inc. USB (rev 50) (prog-if 00 
+[UHCI])
+        Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
+        Flags: bus master, medium devsel, latency 64, IRQ 16
+        I/O ports at ece0 [size=32]
+        Capabilities: [80] Power Management version 2
+
+02:07.1 USB Controller: VIA Technologies, Inc. USB (rev 50) (prog-if 00 
+[UHCI])
+        Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
+        Flags: bus master, medium devsel, latency 64, IRQ 17
+        I/O ports at ecc0 [size=32]
+        Capabilities: [80] Power Management version 2
+
+02:07.2 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 51) (prog-if 20 
+[EHCI])
+        Subsystem: VIA Technologies, Inc. (Wrong ID): Unknown device 1234
+        Flags: bus master, medium devsel, latency 64, IRQ 18
+        Memory at fe9ffc00 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [80] Power Management version 2
 
 
 
 
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-5044999 Fax: 91-80-5268553
-T/L : 9243696
+
+This is what happens when I plug in the drive:
+
+Dec  1 11:37:03 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 2
+Dec  1 11:37:03 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:37:03 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 3
+Dec  1 11:37:03 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:37:04 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 4
+Dec  1 11:37:04 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:37:04 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 5
+Dec  1 11:37:04 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:37:05 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 6
+Dec  1 11:37:05 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:37:05 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 7
+Dec  1 11:37:05 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:37:06 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 8
+Dec  1 11:37:06 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:37:06 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 9
+Dec  1 11:37:06 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:37:07 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 10
+Dec  1 11:37:07 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:37:07 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 11
+Dec  1 11:37:07 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:37:08 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 12
+Dec  1 11:37:08 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:37:08 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 13
+Dec  1 11:37:08 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:37:09 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 14
+Dec  1 11:37:09 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:37:09 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 15
+Dec  1 11:37:09 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:37:10 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 16
+Dec  1 11:37:10 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:37:10 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 17
+Dec  1 11:37:10 mwatts kernel: scsi2 : SCSI emulation for USB Mass Storage 
+devices
+Dec  1 11:37:10 mwatts kernel:   Vendor: IC25N020  Model: ATMR04-0          
+Rev: 0811
+Dec  1 11:37:10 mwatts kernel:   Type:   Direct-Access                      
+ANSI SCSI revision: 02
+Dec  1 11:37:10 mwatts kernel: Attached scsi disk sda at scsi2, channel 0, id 
+0, lun 0
+Dec  1 11:37:10 mwatts /etc/hotplug/scsi.agent: sd_mod allready loaded
+
+Followed a few moments later by:
+
+Dec  1 11:38:21 mwatts kernel: usb_control/bulk_msg: timeout
+Dec  1 11:38:26 mwatts kernel: usb_control/bulk_msg: timeout
+Dec  1 11:38:31 mwatts kernel: usb-storage: host_reset() requested but not 
+implemented
+Dec  1 11:38:41 mwatts kernel: scsi: device set offline - command error 
+recover failed: host 2 channel 0 id 0 lun 0
+
+As soon as I unplug the device, I get this:
+
+Dec  1 11:39:19 mwatts kernel: sda: Unit Not Ready, error = 0x70000
+Dec  1 11:39:19 mwatts kernel: sda : READ CAPACITY failed.
+Dec  1 11:39:19 mwatts kernel: sda : status = 0, message = 00, host = 7, 
+driver = 00
+Dec  1 11:39:19 mwatts kernel: sda : sense not available.
+Dec  1 11:39:19 mwatts kernel: sda : block size assumed to be 512 bytes, disk 
+size 1GB.
+Dec  1 11:39:19 mwatts kernel:  /dev/scsi/host2/bus0/target0/lun0: I/O error: 
+dev 08:00, sector 0
+Dec  1 11:39:19 mwatts kernel:  I/O error: dev 08:00, sector 0
+Dec  1 11:39:19 mwatts kernel:  I/O error: dev 08:00, sector 2097144
+Dec  1 11:39:19 mwatts kernel:  I/O error: dev 08:00, sector 2097144
+Dec  1 11:39:19 mwatts kernel:  I/O error: dev 08:00, sector 0
+Dec  1 11:39:19 mwatts kernel:  I/O error: dev 08:00, sector 0
+Dec  1 11:39:19 mwatts kernel: ldm_validate_partition_table(): Disk read 
+failed.
+Dec  1 11:39:19 mwatts kernel:  I/O error: dev 08:00, sector 0
+Dec  1 11:39:19 mwatts kernel:  unable to read partition table
+Dec  1 11:39:19 mwatts kernel: WARNING: USB Mass Storage data integrity not 
+assured
+Dec  1 11:39:19 mwatts kernel: USB Mass Storage device found at 17
+Dec  1 11:39:19 mwatts kernel: usb.c: USB disconnect on device 02:07.2-1 
+address 17
+Dec  1 11:39:22 mwatts /etc/hotplug/usb.agent: Setup usb-storage for USB 
+product 5e3/702/2
+
+
+
+
+Interestingly, the first time I plug the device in, I get the following:
+
+Dec  1 11:43:00 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 2
+Dec  1 11:43:00 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:43:00 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 3
+Dec  1 11:43:00 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:43:01 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 4
+Dec  1 11:43:01 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:43:01 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 5
+Dec  1 11:43:01 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:43:02 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 6
+Dec  1 11:43:02 mwatts kernel: usb.c: USB device not responding, giving up 
+(error=-71)
+Dec  1 11:43:02 mwatts kernel: hub.c: new USB device 02:07.2-1, assigned 
+address 7
+Dec  1 11:43:02 mwatts kernel: usb.c: USB device 7 (vend/prod 0x5e3/0x702) is 
+not claimed by any active driver.
+Dec  1 11:43:05 mwatts /etc/hotplug/usb.agent: Setup usb-storage for USB 
+product 5e3/702/2
+Dec  1 11:43:06 mwatts kernel: Initializing USB Mass Storage driver...
+Dec  1 11:43:06 mwatts kernel: usb.c: registered new driver usb-storage
+Dec  1 11:43:06 mwatts kernel: scsi2 : SCSI emulation for USB Mass Storage 
+devices
+Dec  1 11:43:06 mwatts kernel:   Vendor: IC25N020  Model: ATMR04-0          
+Rev: 0811
+Dec  1 11:43:06 mwatts kernel:   Type:   Direct-Access                      
+ANSI SCSI revision: 02
+Dec  1 11:43:06 mwatts kernel: Attached scsi disk sda at scsi2, channel 0, id 
+0, lun 0
+Dec  1 11:43:06 mwatts kernel: SCSI device sda: 39070080 512-byte hdwr sectors 
+(20004 MB)
+Dec  1 11:43:06 mwatts /etc/hotplug/scsi.agent: sd_mod allready loaded
+Dec  1 11:43:06 mwatts kernel:  /dev/scsi/host2/bus0/target0/lun0: p1
+Dec  1 11:43:06 mwatts kernel: WARNING: USB Mass Storage data integrity not 
+assured
+Dec  1 11:43:06 mwatts kernel: USB Mass Storage device found at 7
+Dec  1 11:43:06 mwatts kernel: USB Mass Storage support registered.
+Dec  1 11:43:06 mwatts /etc/hotplug/usb.agent: Module setup usb-storage for 
+USB product 5e3/702/2
+Dec  1 11:43:06 mwatts /etc/hotplug/usb/usb-storage: Load scsimon
+Dec  1 11:43:06 mwatts /etc/hotplug/usb/usb-storage: scsimon allready loaded
+
+After a few more errors, the drive will eventually be marked offline again.
+
+Mark.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ TIM
+St Andrews Road, Malvern
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/yyoPBn4EFUVUIO0RAinoAJ9ArI7yq8ThSqRn+3XvpT029q9wCgCg+wcv
+RcVoh12fuYy9PncADYx6owc=
+=E3wm
+-----END PGP SIGNATURE-----
+

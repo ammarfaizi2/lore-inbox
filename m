@@ -1,67 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262600AbSI0Tj3>; Fri, 27 Sep 2002 15:39:29 -0400
+	id <S262615AbSI0Trk>; Fri, 27 Sep 2002 15:47:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262601AbSI0TjW>; Fri, 27 Sep 2002 15:39:22 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:3086 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262598AbSI0TjA>;
-	Fri, 27 Sep 2002 15:39:00 -0400
-Date: Fri, 27 Sep 2002 12:42:40 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] More USB changes for 2.5.38
-Message-ID: <20020927194240.GE12909@kroah.com>
-References: <20020927193723.GA12909@kroah.com> <20020927193855.GB12909@kroah.com> <20020927194025.GC12909@kroah.com> <20020927194054.GD12909@kroah.com>
-Mime-Version: 1.0
+	id <S262618AbSI0Trd>; Fri, 27 Sep 2002 15:47:33 -0400
+Received: from magic.adaptec.com ([208.236.45.80]:32958 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S262615AbSI0TrX>; Fri, 27 Sep 2002 15:47:23 -0400
+Date: Fri, 27 Sep 2002 13:52:09 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: James Bottomley <James.Bottomley@steeleye.com>, Jens Axboe <axboe@suse.de>,
+       Matthew Jacob <mjacob@feral.com>,
+       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+       Mathieu Chouquet-Stringer <mathieu@newview.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Warning - running *really* short on DMA buffers while 
+ doingfiletransfers
+Message-ID: <2580166224.1033156329@aslan.btc.adaptec.com>
+In-Reply-To: <3D94B33F.EB3B9D41@digeo.com>
+References: <3D94AC8B.4AB6EB09@digeo.com>
+ <2561606224.1033154176@aslan.btc.adaptec.com> <3D94B33F.EB3B9D41@digeo.com>
+X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20020927194054.GD12909@kroah.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.611.1.3 -> 1.611.1.4
-#	drivers/usb/storage/unusual_devs.h	1.18    -> 1.19   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/09/26	brihall@pcisys.net	1.611.1.4
-# [PATCH] Update for JMTek USBDrive
-# 
-# Attached is a patch against the 2.4.19 linux kernel. It adds an entry
-# for another version of the JMTek USBDrive (driverless), and also updates
-# my email address.
-# --------------------------------------------
-#
-diff -Nru a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
---- a/drivers/usb/storage/unusual_devs.h	Fri Sep 27 12:30:19 2002
-+++ b/drivers/usb/storage/unusual_devs.h	Fri Sep 27 12:30:19 2002
-@@ -548,17 +548,22 @@
- 		US_SC_SCSI, US_PR_BULK, NULL,
- 		US_FL_MODE_XLATE | US_FL_START_STOP | US_FL_FIX_INQUIRY ),
- 
--/* Submitted by Brian Hall <brihall@bigfoot.com>
-+/* Submitted by Brian Hall <brihall@pcisys.net>
-  * Needed for START_STOP flag */
- UNUSUAL_DEV(  0x0c76, 0x0003, 0x0100, 0x0100,
- 		"JMTek",
- 		"USBDrive",
- 		US_SC_SCSI, US_PR_BULK, NULL,
- 		US_FL_START_STOP ),
-+UNUSUAL_DEV(  0x0c76, 0x0005, 0x0100, 0x0100,
-+		"JMTek",
-+		"USBDrive",
-+		US_SC_SCSI, US_PR_BULK, NULL,
-+		US_FL_START_STOP ),
- 
- /* Reported by Dan Pilone <pilone@slac.com>
-  * The device needs the flags only.
-- * Also reported by Brian Hall <brihall@bigfoot.com>, again for flags.
-+ * Also reported by Brian Hall <brihall@pcisys.net>, again for flags.
-  * I also suspect this device may have a broken serial number.
-  */
- UNUSUAL_DEV(  0x1065, 0x2136, 0x0000, 0x9999,
+> Watch the read of sector 528598.  It was inserted into the
+> elevator at 24989.185 seconds, was taken off the elevator by
+> the driver at 24989.186 seconds and was completed in bio_endio()
+> at 24992.273 seconds.  That trace was taken with 253 tags.  I
+> don't have a 4-tag trace handy but it was much the same, with
+> a two-second lag.
+> 
+> I am assuming that the driver submits the request to the disk
+> shortly after calling elv_next_request().  If I'm wrong, and
+> the driver itself is hanging onto the request for a significant
+> amount of time then the disk is not the source of the delay.
+
+Since your drive cannot handle 253 tags, when saturated with commands,
+a new command is never submitted to the drive directly.  Instead the
+command waits in the aic7xxx driver's queue until space is available
+on the device.  In FreeBSD, this never happens as tag depth is known
+to, and adjusted by, the mid-layer.  In Linux I must report the
+queue depth without having sufficient load or history with the device
+to know anything about its capabilities so I have no choice but to
+throttle internally should the device support fewer tags than initially
+reported to the OS.  You can determine the actual device queue
+depth from "cat /proc/scsi/aic7xxx/#".  Run a bunch of I/O first so
+that the tag depth gets locked first.
+
+--
+Justin
+
+

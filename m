@@ -1,85 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262986AbUJ1MQG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262985AbUJ1MQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262986AbUJ1MQG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 08:16:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262979AbUJ1MQF
+	id S262985AbUJ1MQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 08:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbUJ1MQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 08:16:05 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:46722
-	"EHLO ladymac.shadowen.org") by vger.kernel.org with ESMTP
-	id S262992AbUJ1MMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 08:12:20 -0400
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] bootmem use NODE_DATA
-Cc: apw@shadowen.org
-Message-Id: <E1CN98F-0006Ri-5p@ladymac.shadowen.org>
-From: Andy Whitcroft <apw@shadowen.org>
-Date: Thu, 28 Oct 2004 13:11:55 +0100
+	Thu, 28 Oct 2004 08:16:23 -0400
+Received: from out014pub.verizon.net ([206.46.170.46]:29406 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S262985AbUJ1MMr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 08:12:47 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9bk6 msdos fs OOPS
+Date: Thu, 28 Oct 2004 08:12:41 -0400
+User-Agent: KMail/1.7
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Nigel Kukard <nkukard@lbsd.net>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+References: <41809921.10200@lbsd.net> <873bzzw60c.fsf@devron.myhome.or.jp> <200410280714.40033.gene.heskett@verizon.net>
+In-Reply-To: <200410280714.40033.gene.heskett@verizon.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410280812.41150.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [141.153.91.102] at Thu, 28 Oct 2004 07:12:41 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Whilst looking at simplifying the implmentation of i386 initialisation
-code I noticed the following.  This change allows these routines to be
-used in both node based and flat memory models which allows more of the
-init code to be common in these models.
+On Thursday 28 October 2004 07:14, Gene Heskett wrote:
+>On Thursday 28 October 2004 05:23, OGAWA Hirofumi wrote:
+>>Nigel Kukard <nkukard@lbsd.net> writes:
+>>> OOPS is 100% reproducable. I boot into X, and run    eog
+>>> /mnt/camera/dcim/100cresi    and BANG.
+>>
+>>This is known problem. Can you please try the following patch?
+>>Then, please send debugging output.
+>>
+>>Thanks.
+>
+>This still applies cleanly to 2.6.10-rc1-bk6, so I'm building it to
+>test also.  I have an Olympus C-3020 that mounts as a vfat file
+>system over usb.  It has been somewhat of a problem if the card has
+>quite a few pix on it, I must copy, and delete, from the bottom of
+>the dirlisting else it goes read-only on me.  When the build is
+> done, I'll try mounting it to see if this also gives an Oops, then
+> reboot and try again, and report the results.
 
--apw
+After the reboot to a 2.6.10-rc1-bk6 plus your patch, its still fine, 
+and except for the usual references to /dev/sda1 in the log when I 
+turn it on or off, mounting it and scanning its directory doesn't 
+generate any additional log info.  Was it supposed to?
 
-=== 8< ===
-Convert the default non-node based bootmem routines to use
-NODE_DATA(0).  This is semantically and functionally identical in
-any non-node configuration as NODE_DATA(x) is defined as below.
-
-#define NODE_DATA(nid)          (&contig_page_data)
-
-For the node cases (CONFIG_NUMA and CONFIG_DISCONTIG_MEM) we can
-use these non-node forms where all boot memory is defined on node 0.
-
-Revision: $Rev: 732 $
-
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
-
-diffstat 050-bootmem-use-NODE_DATA
----
- bootmem.c |   10 ++++------
- 1 files changed, 4 insertions(+), 6 deletions(-)
-
-diff -upN reference/mm/bootmem.c current/mm/bootmem.c
---- reference/mm/bootmem.c
-+++ current/mm/bootmem.c
-@@ -343,31 +343,29 @@ unsigned long __init free_all_bootmem_no
- 	return(free_all_bootmem_core(pgdat));
- }
- 
--#ifndef CONFIG_DISCONTIGMEM
- unsigned long __init init_bootmem (unsigned long start, unsigned long pages)
- {
- 	max_low_pfn = pages;
- 	min_low_pfn = start;
--	return(init_bootmem_core(&contig_page_data, start, 0, pages));
-+	return(init_bootmem_core(NODE_DATA(0), start, 0, pages));
- }
- 
- #ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
- void __init reserve_bootmem (unsigned long addr, unsigned long size)
- {
--	reserve_bootmem_core(contig_page_data.bdata, addr, size);
-+	reserve_bootmem_core(NODE_DATA(0)->bdata, addr, size);
- }
- #endif /* !CONFIG_HAVE_ARCH_BOOTMEM_NODE */
- 
- void __init free_bootmem (unsigned long addr, unsigned long size)
- {
--	free_bootmem_core(contig_page_data.bdata, addr, size);
-+	free_bootmem_core(NODE_DATA(0)->bdata, addr, size);
- }
- 
- unsigned long __init free_all_bootmem (void)
- {
--	return(free_all_bootmem_core(&contig_page_data));
-+	return(free_all_bootmem_core(NODE_DATA(0)));
- }
--#endif /* !CONFIG_DISCONTIGMEM */
- 
- void * __init __alloc_bootmem (unsigned long size, unsigned long align, unsigned long goal)
- {
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265069AbTHLJoX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 05:44:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265531AbTHLJoX
+	id S265531AbTHLJ47 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 05:56:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267317AbTHLJ47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 05:44:23 -0400
-Received: from pop.gmx.net ([213.165.64.20]:4295 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265069AbTHLJoX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 05:44:23 -0400
-Message-Id: <5.2.1.1.2.20030812114333.019f4e78@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Tue, 12 Aug 2003 11:48:27 +0200
-To: Nick Piggin <piggin@cyberone.com.au>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] O13int for interactivity
-Cc: rob@landley.net, Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-In-Reply-To: <3F38B53C.6080507@cyberone.com.au>
-References: <5.2.1.1.2.20030812105738.019ca6e8@pop.gmx.net>
- <5.2.1.1.2.20030812075224.01988de8@pop.gmx.net>
- <200308110248.09399.rob@landley.net>
- <200308050207.18096.kernel@kolivas.org>
- <200308052022.01377.kernel@kolivas.org>
- <3F2F87DA.7040103@cyberone.com.au>
- <200308110248.09399.rob@landley.net>
- <5.2.1.1.2.20030812075224.01988de8@pop.gmx.net>
- <5.2.1.1.2.20030812105738.019ca6e8@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Tue, 12 Aug 2003 05:56:59 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:42661
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S265531AbTHLJ45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 05:56:57 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Mike Galbraith <efault@gmx.de>,
+       Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy   ...
+Date: Tue, 12 Aug 2003 03:23:13 -0400
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <5.2.1.1.2.20030809183021.0197ae00@pop.gmx.net> <5.2.1.1.2.20030810084805.01a0dfa8@pop.gmx.net>
+In-Reply-To: <5.2.1.1.2.20030810084805.01a0dfa8@pop.gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308120323.14612.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07:37 PM 8/12/2003 +1000, Nick Piggin wrote:
+On Sunday 10 August 2003 03:11, Mike Galbraith wrote:
+> Everything I've seen says "you need at least a 300Mhz cpu to decode".  My
+> little cpu is 500Mhz, so I'd have to make more than half of my total
+> computational power available for SCHED_SOFTRR tasks for video decode in
+> realtime to work.  Even on my single user box, I wouldn't want to have to
+> fight for cpu because some random developer decided to use
+> SCHED_SOFTRR.  If I make that much cpu available, someone will try to use
+> it.  Personally, I think you should need authorization for even tiny
+> amounts of cpu at this priority.
+>
+>          -Mike
 
->I think backboost was very nice. I'd say Con could probably get a lot
->further if that was in but its not going to happen now.
+Perhaps you want some kind of extension to "renice" to allow a running process 
+to be have its percent chopped back then?  (Without necessarily affecting the 
+global reserve?)
 
-Agreed.  Backboost is _lovely_... except for the fangs and claws :)
+Shouldn't require root, just require running as the same user as the process.  
+(if you can 'kill -SIGSTOP" a task, you should be able to reduce its 
+priority...)
 
-         -Mike 
+Rob
+
 

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265206AbTLRO4n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 09:56:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265213AbTLRO4n
+	id S265200AbTLROyF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 09:54:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265201AbTLROyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 09:56:43 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:28564 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP id S265206AbTLRO4k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 09:56:40 -0500
-Date: Thu, 18 Dec 2003 09:54:34 -0500
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 keyboard not working
-Message-ID: <20031218145434.GA20303@gnu.org>
-References: <20031218060053.GA645@gnu.org> <Pine.LNX.4.58.0312180230150.1710@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312180230150.1710@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.3.28i
-From: Lennert Buytenhek <buytenh@gnu.org>
+	Thu, 18 Dec 2003 09:54:05 -0500
+Received: from mail01.mail.esat.net ([193.120.142.6]:20688 "EHLO
+	mail01.mail.esat.net") by vger.kernel.org with ESMTP
+	id S265200AbTLROyD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 09:54:03 -0500
+Message-ID: <0d6401c3c576$c6889b00$6e69690a@RIMAS>
+From: "Remus" <rmocius@auste.elnet.lt>
+To: <linux-kernel@vger.kernel.org>
+References: <20031217114125.GA20057@malvern.uk.w2k.superh.com> <3FE08470.5040801@pacbell.net> <20031218143236.GB20057@malvern.uk.w2k.superh.com>
+Subject: iproute2 and 2.6.0 kernel
+Date: Thu, 18 Dec 2003 14:53:31 -0000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 18, 2003 at 02:31:09AM -0500, Zwane Mwaikambo wrote:
+Hi folks,
 
-> > Hi,
-> >
-> > Halfway between having uncompressed the kernel and starting init, the console
-> > starts to scroll "atkbd.c: Unknown key pressed", mentioning key code 0 (IIRC),
-> > even though no keys are pressed at all.  After a while, the scrolling stops,
-> > but the keyboard still doesn't work.  2.4 works fine on the same hardware.
-> >
-> > Hardware is an Intel SE7505VB2 board with dual 2.40GHz Xeon processors,
-> > and a Logitech PS/2 "Internet keyboard."
-> >
-> > Ideas?
-> 
-> May we have a look at your .config?
+I have a linux box with three NICs (two for external ISP, and one local).
+Today I tried to use 2.6.0 kernel and something is wrong, because iproute2
+does not work corretly.
+No routed packets go via second ISP NIC which I use with iproute rules. With
+2.4.22 kernel I have no problems at all with packet routing.
 
-It's attached in .gz format (sorry, it wouldn't go through otherwise :/).
+I compiled 2.6.0 kernel myself, maybe I missed something in .config file?
 
+Thanks
 
---L
+Remus
+

@@ -1,82 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266813AbRGFTfc>; Fri, 6 Jul 2001 15:35:32 -0400
+	id <S266816AbRGFTgC>; Fri, 6 Jul 2001 15:36:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266815AbRGFTfV>; Fri, 6 Jul 2001 15:35:21 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:20608 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S266813AbRGFTfG>; Fri, 6 Jul 2001 15:35:06 -0400
-Date: Fri, 6 Jul 2001 15:34:54 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Tracy R Reed <treed@ultraviolet.org>
-cc: Ben Ford <ben@kalifornia.com>, jesse@cats-chateau.net, kmw@rowsw.com,
-        J Sloan <jjs@mirai.cx>, linux-kernel@vger.kernel.org
-Subject: Re: Uncle Sam Wants YOU!
-In-Reply-To: <20010706115943.G13383@ultraviolet.org>
-Message-ID: <Pine.LNX.3.95.1010706151900.5845A-100000@chaos.analogic.com>
+	id <S266815AbRGFTfv>; Fri, 6 Jul 2001 15:35:51 -0400
+Received: from h131s117a129n47.user.nortelnetworks.com ([47.129.117.131]:30851
+	"HELO pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
+	id <S266816AbRGFTfj>; Fri, 6 Jul 2001 15:35:39 -0400
+Message-ID: <3B46130E.EB8A8A7C@nortelnetworks.com>
+Date: Fri, 06 Jul 2001 15:35:42 -0400
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Cc: root@chaos.analogic.com
+Subject: Re: why this 1ms delay in mdio_read? (cont'd from "are ioctl calls 
+ supposed to take this long?")
+In-Reply-To: <Pine.LNX.3.95.1010706143953.5031A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Jul 2001, Tracy R Reed wrote:
-
-> On Sun, Jul 01, 2001 at 04:53:25PM -0700, Ben Ford wrote:
-> > I seem to recall that MS products cannot be used in aircraft control 
-> > rooms for this reason.
+"Richard B. Johnson" wrote:
 > 
-> Your statement above is not necessarily true. By control rooms do you mean
-> control towers or in the aircraft themselves? Inside the aircraft itself
-> is obviously the more critical situation and NT is being used there so I
-> don't see why it wouldn't be used in the air traffic control system as
-> well whether it be in control towers, air route traffic control centers,
-> or wherever.
+> On Fri, 6 Jul 2001, Chris Friesen wrote:
+
+> >       mdelay(1); /* One ms delay... */
+> >
+> >       ...rest of code...
+> >
 > 
-> MS products are used in life-critical situations.  First, there was the
-> USS Yorktown. But that was just a test situation.  
-> 
-> Here is an NT system used in a real non-test and FAA certified situation.
-> It operates the primary flight instruments of a high-performance aircraft.
-> There are several certified aircraft using this unit. I can't remember the
-> others I've read about but this is the Lancair Columbia 400.
-> 
-> From http://www.avweb.com/articles/colum400/ :
+> What? What kernel version?
+> The code here says:
+>      /* Establish sync by sending at least 32 logic ones */
+>      for (i = 32; i >=0; i--) {..........}
 
-[SNIPPED most of the rest]
+I had assumed that it was part of the normal drivers, but now after digging into
+it some more it appears to have been added as part of a patch from Motorola for
+a compact PCI board.  I can't see why they would have done this but I'm trying
+to track it down now.
 
-It's Windows/CE. It takes a few seconds to boot from NVRAM. It's used
-in Honeywell Flight Directors (for the FP display). It's not like
-it was life-critical, you still have (required) steam gages for
-backup. It is probably more reliable than the mechanical backups
-because, except for the bugs, it has no moving parts.
- 
-> Wouldn't want to pull a Kennedy!
+Thanks for all your help,
 
-Don't bet on it. I'm not a Kennedy supporter, but the "rich kid"
-went to the best and most expensive flight school in America. He
-had already passed the Instrument written exam. He had more flight
-instruction than many ATPs and the instruction was modern which means
-he seldom looked out the window (a pet peeve of mine), doing about
-everything by reference to instruments.
-
-FYI. The horizontal stabilizer was not with the airplane when
-it was recovered; The damage was impact damage from hitting water
-dead-nuts vertical; The loss of control occurred while leveling
-off during a routine descent.
-
-Regardless of what the politicians at the NTSB say, this looks
-to me like the AC shed its tail, resulting in an unrecoverable
-loss of control. Of course, what do I know. I'm only a commercial
-pilot/Inst with a little over 3,000 hours over the past 30 years.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+Chris
 
 
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

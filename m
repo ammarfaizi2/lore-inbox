@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264483AbRFITgx>; Sat, 9 Jun 2001 15:36:53 -0400
+	id <S264484AbRFITjD>; Sat, 9 Jun 2001 15:39:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264484AbRFITgn>; Sat, 9 Jun 2001 15:36:43 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:42744 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S264483AbRFITgf>;
-	Sat, 9 Jun 2001 15:36:35 -0400
-Date: Sat, 9 Jun 2001 15:36:32 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org, Dawson Engler <engler@csl.Stanford.EDU>
-Subject: Re: [CHECKER] a couple potential deadlocks in 2.4.5-ac8
-In-Reply-To: <Pine.LNX.4.21.0106091148380.26187-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0106091524420.19361-100000@weyl.math.psu.edu>
+	id <S264485AbRFITix>; Sat, 9 Jun 2001 15:38:53 -0400
+Received: from teranet244-12-200.monarch.net ([24.244.12.200]:31238 "HELO
+	mail.clusterfilesystem.com") by vger.kernel.org with SMTP
+	id <S264484AbRFITis>; Sat, 9 Jun 2001 15:38:48 -0400
+Date: Sat, 9 Jun 2001 13:39:40 -0600 (MDT)
+From: "Peter J. Braam" <braam@clusterfilesystem.com>
+To: "P.A.M. van Dam" <nucleus@ramoth.xs4all.nl>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Ext3 kernel RPMS (2.4.5 & 2.2.19)
+In-Reply-To: <20010609181551.A26422@ladystrange.bluehorizon.nl>
+Message-ID: <Pine.LNX.4.33.0106091337570.6182-100000@lustre.clusterfilesystem.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Go to gkernel on sourceforge or to Andrew Morton's WWW site:
 
-On Sat, 9 Jun 2001, Linus Torvalds wrote:
+http://www.uow.edu.au/~andrewm/linux/ext3/
 
-> Anyway, in a 2.5.x timeframe we should probably make sure that we do not
-> have the need for a recursive BKL any more. That shouldn't be that hard to
-> fix, especially with help from CHECKER to verify that we didn't forget
-> some case.
 
-True, but... I can easily see the situation when ->foo() and ->bar()
-both call a helper function which needs BKL for a small piece of code.
-->foo() callers take BKL (and it's choke-full of places that still need
-BKL, anyway). ->bar() is called without BKL. Moreover, grabbing BKL
-over the whole helper is a massive overkill.
+On Sat, 9 Jun 2001, P.A.M. van Dam wrote:
 
-ObUnrelated: fs/super.c is getting to the point where it naturally
-falls into two files - one that deals with mount cache and all things
-vfsmount-related, mount tree manipulations, etc. and another that deals
-with superblocks. Mind if I split the thing?
+> On Fri, Jun 08, 2001 at 03:23:16PM -0600, Peter J. Braam wrote:
+> > Hi,
+> >
+> > Mostly for my own use, I prepared two kernel RPM's with Ext3 in them.
+> >
+> > Versions:
+> > 2.2.19 + 0.0.7a
+> > 2.4.5  + 0.0.6
+> >
+> > PLEASE USE THESE AT YOUR OWN RISK - THEY CONTAIN EXPERIMENTAL FILE SYSTEM
+> > CODE.
+> > - Peter J. Braam -
+> > http://www.clusterfilesystem.com
+>
+> Ext3 for 2.4 kernels. Great. It's probably been asked before, but where can I
+> find the ext3 patch for the 2.4 kernels?
+>
+> Thanks in advance!
+>
+> Best regards,
+>
+> 	Pascal
+>
+> >
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+-- 
 

@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319638AbSIMNb7>; Fri, 13 Sep 2002 09:31:59 -0400
+	id <S318538AbSIMNjm>; Fri, 13 Sep 2002 09:39:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319645AbSIMNb7>; Fri, 13 Sep 2002 09:31:59 -0400
-Received: from 166.Red-80-36-134.pooles.rima-tde.net ([80.36.134.166]:6183
-	"EHLO apocalipsis") by vger.kernel.org with ESMTP
-	id <S319638AbSIMNb6>; Fri, 13 Sep 2002 09:31:58 -0400
-Date: Fri, 13 Sep 2002 15:38:55 +0200
-From: "Juan M. de la Torre" <jmtorre@gmx.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] Trivial patch in the bootmem allocator
-Message-ID: <20020913133855.GA623@apocalipsis>
+	id <S319196AbSIMNjm>; Fri, 13 Sep 2002 09:39:42 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:43983 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S318538AbSIMNjl>;
+	Fri, 13 Sep 2002 09:39:41 -0400
+Date: Fri, 13 Sep 2002 15:44:04 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: Benjamin LaHaise <bcrl@redhat.com>, Shailabh Nagar <nagar@watson.ibm.com>,
+       Linux Aio <linux-aio@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5 port of aio-20020619 for raw devices
+Message-ID: <20020913134404.GG935@suse.de>
+References: <3D80DB14.2040809@watson.ibm.com> <20020912143540.J18217@redhat.com> <20020913184652.C2758@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20020913184652.C2758@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 13 2002, Suparna Bhattacharya wrote:
+> On Thu, Sep 12, 2002 at 02:35:40PM -0400, Benjamin LaHaise wrote:
+> > On Thu, Sep 12, 2002 at 02:21:08PM -0400, Shailabh Nagar wrote:
+> > > I just did a rough port of the raw device part of the aio-20020619.diff
+> > > over to 2.5.32 using the 2.5 aio API published so far. The changeset
+> > > comments are below. The patch hasn't been tested. Its only guaranteed
+> > > to compile.
+> > > 
+> > > I'd like to reiterate that this is not a fork of aio kernel code
+> > > development or any attempt to question Ben's role as maintainer ! This
+> > > was only an exercise in porting to enable a comparison of the older
+> > > (2.4) approach with whatever's coming soon.
+> > > 
+> > > Comments are invited on all aspects of the design and implementation.
+> > 
+> > The generic aio <-> kvec functions were found to not work well, and 
+> > the chunking code needs to actually pipeline data for decent io thruput.  
+> > Short story: the raw device code must be rewritten using the dio code 
+> > that akpm introduced.
+> 
+> How async (degree on non-blocking nature of steps in the async state 
+> machine) do we want to be when we use the dio pipelining code ?
+> (besides making the wait for dio completion bit async, of course)
+> 
+> Some key places where we can potentially block are when mapping 
+> the user pages, as part of get_blocks, when alloc'ing a bio,
+> when issuing submit_bio  (i.e. waiting for the request pipeline
+> to drain out or free up slots). I guess, at least the last one
+> would be addressed ... not sure what the plans for the rest
+> are.
 
- If the requested align is PAGE_SIZE, it is impossible to merge with the
-previous allocation request, because the allocated area must begin in a
-page boundary.
+alloc_bio non-blocking can be done by caller himself, submit_bio
+non-blocking can be assured with BIO_RW_AHEAD.
 
-Regards,
-Juanma
-
---- linux/mm/bootmem.c.orig     Fri Sep 13 15:23:22 2002
-+++ linux/mm/bootmem.c  Fri Sep 13 15:24:31 2002
-@@ -205,7 +205,7 @@
-         * of this allocation's buffer? If yes then we can 'merge'
-         * the previous partial page with this allocation.
-         */
--       if (align <= PAGE_SIZE
-+       if (align < PAGE_SIZE
-            && bdata->last_offset && bdata->last_pos+1 == start) {
-                offset = (bdata->last_offset+align-1) & ~(align-1);
-                if (offset > PAGE_SIZE)
-
- 
 -- 
-/jm
+Jens Axboe
 

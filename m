@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVCaLMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVCaLNL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbVCaLMU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 06:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVCaLMU
+	id S261331AbVCaLNL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 06:13:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVCaLNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 06:12:20 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:55556 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261329AbVCaLMM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 06:12:12 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: dedekind@infradead.org
-Subject: Re: [RFC] CryptoAPI & Compression
-Cc: herbert@gondor.apana.org.au, dwmw2@infradead.org,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
-Organization: Core
-In-Reply-To: <1112265786.21585.16.camel@sauron.oktetlabs.ru>
-X-Newsgroups: apana.lists.os.linux.cryptoapi,apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au>
-Date: Thu, 31 Mar 2005 21:11:23 +1000
+	Thu, 31 Mar 2005 06:13:11 -0500
+Received: from ns1.suse.de ([195.135.220.2]:27042 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261331AbVCaLMg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 06:12:36 -0500
+Date: Thu, 31 Mar 2005 13:12:35 +0200
+From: Andi Kleen <ak@suse.de>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Andi Kleen <ak@suse.de>, blaisorblade@yahoo.it, torvalds@osdl.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/3] x86_64: remove duplicated sys_time64
+Message-ID: <20050331111235.GL1623@wotan.suse.de>
+References: <20050330173216.426CFEFECF@zion> <20050331103834.GC1623@wotan.suse.de> <20050331211059.0ddc078c.sfr@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050331211059.0ddc078c.sfr@canb.auug.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Artem B. Bityuckiy <dedekind@infradead.org> wrote:
+On Thu, Mar 31, 2005 at 09:10:59PM +1000, Stephen Rothwell wrote:
+> On Thu, 31 Mar 2005 12:38:34 +0200 Andi Kleen <ak@suse.de> wrote:
+> >
+> > Nack. The generic sys_time still writes to int, not long.
+> > That is why x86-64 has a private one. Please keep that.
 > 
->> Good catch.  I'll apply this one.
-> Only one small note: I've spotted this but didn't test. I didn't make
-> sure this is OK if we haven't ever used the compression and remove the
-> deflate module. (i.e, in this case we call zlib_[in|de]flateEnd() while
-> we haven't ever called zlib_[in|de]flate()). Although I believe it must
-> be OK, we need to try it.
+> It writes to a time_t which is a __kernel_time_t which is a long on
+> x86-64, isn't it?
 
-It's OK because deflateReset == deflateEnd + deflateInit.  Feel free
-to test it though.  You can find my tree at
+At least in 2.6.10 it writes to int.
 
-bk://herbert.bkbits.net/cryptodev-2.6
 
-> So, it seems I can't just port the JFFS2 stuff. I need to explore zlib
-> more closely. Thus, I need some time. I'll inform you about my results.
-
-For the default zlib parameters (which crypto/deflate.c does not use)
-the maximum overhead is 5 bytes every 16KB plus 6 bytes.  So for input
-streams less than 16KB the figure of 12 bytes is correct.  However,
-in general the overhead needs to grow proportionally to the number of
-blocks in the input.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+-Andi

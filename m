@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbTD0Wmy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 18:42:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbTD0Wmy
+	id S261899AbTD0Wjq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 18:39:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbTD0Wjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 18:42:54 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:32398
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261903AbTD0Wmx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 18:42:53 -0400
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Sun, 27 Apr 2003 18:39:46 -0400
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:6928 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id S261899AbTD0Wjp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 18:39:45 -0400
+Date: Sun, 27 Apr 2003 23:51:58 +0100 (BST)
+From: Matthew Kirkwood <matthew@hairy.beasts.org>
+X-X-Sender: <matthew@sphinx.mythic-beasts.com>
 To: Larry McVoy <lm@bitmover.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030427223612.GI23068@work.bitmover.com>
-References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com>
-	 <20030424083730.5F79A2127F@dungeon.inka.de>
-	 <20030424085913.GH28253@mail.jlokier.co.uk>
-	 <3EA804A8.8070608@techsource.com>
-	 <1051209350.4004.6.camel@dhcp22.swansea.linux.org.uk>
-	 <20030424192941.E1425@almesberger.net>
-	 <20030427142106.GA24244@merlin.emma.line.org>
-	 <20030427165959.GC6820@work.bitmover.com>
-	 <1051479168.15485.12.camel@dhcp22.swansea.linux.org.uk>
-	 <20030427223612.GI23068@work.bitmover.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051480586.15478.23.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Apr 2003 22:56:26 +0100
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+In-Reply-To: <20030427185037.GA23581@work.bitmover.com>
+Message-ID: <Pine.LNX.4.33.0304272346080.15035-100000@sphinx.mythic-beasts.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-04-27 at 23:36, Larry McVoy wrote:
-> But you are still missing the point.  As long as the feeling is that it is
-> OK to reverse engineer by staring at the file formats, the corporations
-> will respond by encrypting the data you want to stare at.
+On Sun, 27 Apr 2003, Larry McVoy wrote:
 
-And government if it is smart will reply by enforcing reverse
-engineering rights *for compatibility* (not cloning), or business
-(the surviving bits anyway) will figure it out and do it themselves.
+Please excuse the aggressive trimming, but I don't think I'm
+affecting the intent of your works.
 
-> In other words, it's pretty much hopeless to try and catch up that way,
-> you might as well go try and build something better from the start.
+>     1) Corporations are threatened when people copy their content and/or
+>        products.
 
-You have to interoperate to do that. 
+I think that the word "copy" may be a significant cause
+of artificial disagreement here.  I, for one, find it just
+as misleading as "free" (is it as-in-beer or as-in-speech?).
+
+Larry -- would you be willing, in future postings of this
+nature, to distinguish "duplicate" and "reimplement"?
+(Perhaps someone else will find better, more obviously
+different, words, but that's the best I can do today.)  If
+you did this, at least the discussions about whether you
+refer to copyright or patents would disappear.
+
+Matthew.
 

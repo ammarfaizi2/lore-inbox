@@ -1,69 +1,154 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263522AbTDODWS (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 23:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263947AbTDODWS (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 23:22:18 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:24993 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263522AbTDODWQ (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 23:22:16 -0400
-Date: Mon, 14 Apr 2003 20:34:03 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 583] New: Enabling Coda with Devfs causes Kernel Panic
-Message-ID: <18760000.1050377643@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id S263947AbTDODcn (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 23:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263967AbTDODcn (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 23:32:43 -0400
+Received: from mail.casabyte.com ([209.63.254.226]:8208 "EHLO
+	mail.1casabyte.com") by vger.kernel.org with ESMTP id S263947AbTDODck (for <rfc822;Linux-Kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 23:32:40 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "Riley Williams" <Riley@Williams.Name>,
+       "Linux Kernel List" <Linux-Kernel@vger.kernel.org>
+Subject: RE: kernel support for non-English user messages
+Date: Mon, 14 Apr 2003 20:44:29 -0700
+Message-ID: <PEEPIDHAKMCGHDBJLHKGKEIFCHAA.rwhite@casabyte.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <BKEGKPICNAKILKJKMHCAGEEBCGAA.Riley@Williams.Name>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=583
+Message codes would be *VERY BAD* anyway.  As soon as you start that, then
+you need a numbering authority and all that nonsense.
 
-           Summary: Enabling Coda with Devfs causes Kernel Panic
-    Kernel Version: 2.5.67
-            Status: NEW
-          Severity: blocking
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: qubex@punkass.com
+However, it should be "reasonably easy" to preprocess (in the gcc -E sense)
+all the files in a kernel directory and the gather up nearly all the
+prototype strings.  (you would still have the occasional person who wrote
+"char Message[] = "INode: %d invalid"; printk(Message,number);" instead of
+having the string in place as just "printk("INode: %d invalid",number);" and
+the later is easier to collect up 8-)
+
+The thing is "INode: %d invalid", as a string is easy to decompose into a
+regular expression because it is mostly-constant and the non-constant parts
+are represented with constant markers.  There are a small number of
+degenerate cases [e.g. printk("Filename %s invalid: %s","Filename","invalid:
+whitespace character")] that might need to be tweaked but nothing is
+perfect.
+
+So "the magic tool" collects these imprint strings and builds a list of all
+the strings (for the translator), a recognizer-table (perhaps hashes against
+the constant leader word of each message and a regex for the message) that
+points to the also-built hash/key into the table of all of the known
+strings.
+
+The human translator comes along to prepare the table for the target
+language, and populates a replacement-string table with the translations
+with suitable $1, $2, etc. style markers for all the messages he can
+translate.
+
+At runtime, the translator takes the recognizer-table and does the hash on
+the leader word, then tries the string against the regexes with the same
+leader hash.  Every match (there should usually be only one) will net the
+key hash which in turn leads to the human-supplied replacement line.  $1
+style replacement takes place, and the line is emitted in the "new"
+language.  IF there is no match, the unchanged line is produced.
+
+It's cute in that in-elegant sort of way, but it *IS* deterministic and
+extensible (if the unique hash/key algo can be worked out.)
+
+In fact, such a system could be pointed at, say, the kernel archive, and
+produce a translation of all the kernel messages (for a given kernel etc)
+and leave the bulk of the message text untouched.
+
+Rob.
+
+-----Original Message-----
+From: Riley Williams [mailto:Riley@Williams.Name]
+Sent: Friday, April 11, 2003 3:53 PM
+To: Robert White; Linux Kernel List
+Subject: RE: kernel support for non-English user messages
 
 
-Distribution: Gentoo 1.4_rc 
-Hardware Environment: Micron Millenia Transport, P133 (i586) 
-Software Environment: i586-pc-linux-gnu, posix threads, gcc 3.2.2 
-Problem Description: Compiling Devfs into kernel is fine. Compiling Coda
-into kernel is fine.  Compiling Devfs and Coda together is not fine, causes
-a kernel panic.   
-Sorry, I don't have a console - here is what I can see of the error: 
- 
-CPU:     0 
-EIP:     0060:[<C020605F>]    Not tainted 
-EFLAGS: 00010202 
-EIP is at vsnprintf+0x2f/0x460 
-eax: c2fd3f43    ebx: c2fd3f44   ecx: c040776c   edx: 00000000 
-esi: c2fd3f44    edi: 00000000   ebp: c2fd3f24    esp: c2fd3f0c 
-ds: 007b    es: 007b    ss: 0068 
-Process swapper (pid: 1, threadinfo=c2fd2000 task c2fd0040) 
-Stack: 000001f0 c2fd3f2c c2fd3f83 c2fd3f44 c2fd3fa0 00000000 c2fd3f8c
-c01a4a62            c2fd3f44 00000040 00000000 c2fd3f98 c01360d1 00000000
-00000246 00000043            00000001 00000000 c2fd3f70 c0150e47 00000018
-000000d0 00000000 00000001   
-[<c01a4a62>] devfs_mk_dir+0x22/0xd0 
-[<c01360d1>] kmalloc+0x81/0x99 
-[<c0150e47>] register_chrdev_region+0x17/0x120 
-[<c0150f6b>] register_chrdev+0x1b/0x20 
-[<c019a9ab>] init_coda_psdev+0x4b/0x90 
-[<c019b050>] init_once+0x0/0x20 
-[<c01050a2>] init+0x32/0x190 
-[<c0105070>] init+0x0/0x190 
-[<c0107255>] kernel_thread_helper+0x50/0x10 
- 
-Code: 80 3a 00 74 1d 8a 02 3c 25 74 3d 3b 75 f0 77 05 88 06 8b 55 
-<0>Kernel panic: Attempted to kill init! 
- 
-Steps to reproduce: 
-Compile Devfs and Codafs into kernel (have not tested as modules.) This
-causes kernel panic  upon boot.
+Hi Robert.
+
+ > Actually, my final point had been that doing it inside the kernel
+ > itself, or indeed inside klogd, was probably a very bad idea. If
+ > the translation always happens after-the-fact based on properly
+ > harvested message semantics then any segment of messages
+ > distributed into this mailing list (among other uses) would be
+ >
+ > A)  Still in English.
+ > B)  Translatable after the fact there too.
+ >
+ > Also after-the-fact translation makes the language translations a
+ > scalar problem instead of a matrix one. That is, if you always
+ > pass the message stream around in English (treat it like n opaque
+ > source file) and then translate it as necessary, it will "always
+ > work".
+ >
+ > If you try to do the translations at message generation time, then
+ > the translation must be any-language-to-any-language capable during
+ > post-even discussions. Not good.
+
+I can see the points you're making, and that is precisely why I believe
+that message codes would be required to implement this idea. As Linus
+has vetoed the idea of having message codes in the kernel, I can't see
+it ever coming to fruition.
+
+ > Also, you will always have leakage as people add new strings to the
+ > set.
+
+That's the easiest aspect of dealing with it - the tool that generates
+the language set to use just grabs the "English" language version for
+any message codes not in the selected translation.
+
+ > As for the #define issues, when you process the source tree to build the
+ > source matrix you just "gcc -E file.c | collector" and now the printk
+ > case you mention is handled. Any module designer who does uglier things
+ > can make a dead-code procedure that expresses his possible output strings
+ > for collection (if he cares.)
+
+ > {Satire}
+
+ > Speaking as an arrogant (U.S. of) American who knows that God(TradeMark,
+ > all rights reserved) decreed that he never had to learn any language but
+ > his own, I can honestly state, that it is nearly certain that you will
+ > get no real support for the multi-language kernel out of a us
+USAmericans.
+ > We can't even get ourselves to write decent comments, and on the average,
+ > we all secretly believe that if we just speak slowly enough everybody
+ > really knows English. After all, that's how our condescending "wouldn't
+ > want to fail Johnny, it would be bad for his self-image" public schools
+ > taught us in the first place.... 8-)
+
+Speaking as an amused (U.S. of) American, I long ago learned how to tell
+when
+somebody is speaking "God's Language"(tm) - that's simple to work out. After
+all, the most likely people to speak "God's Language"(tm) are those that
+have
+just left His presence - the new born babies - so if we want to listen to
+His
+language, we just listen to them speak it. What could be simpler???
+
+However, I understand "God's Language"(tm) is not currently understood well
+enough by the kernel developers for any of them to translate the kernel
+messages into it...
+
+ > {/Satire}
+
+Best wishes from Riley.
+---
+ * Nothing as pretty as a smile, nothing as ugly as a frown.
+
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.471 / Virus Database: 269 - Release Date: 10-Apr-2003
 

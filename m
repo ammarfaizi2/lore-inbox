@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129359AbRC2Ws0>; Thu, 29 Mar 2001 17:48:26 -0500
+	id <S129443AbRC2XAS>; Thu, 29 Mar 2001 18:00:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129506AbRC2WsH>; Thu, 29 Mar 2001 17:48:07 -0500
-Received: from chromium11.wia.com ([207.66.214.139]:4115 "EHLO
-	neptune.kirkland.local") by vger.kernel.org with ESMTP
-	id <S129359AbRC2WsG>; Thu, 29 Mar 2001 17:48:06 -0500
-Message-ID: <3AC3BC59.9DB44884@chromium.com>
-Date: Thu, 29 Mar 2001 14:51:05 -0800
-From: Fabio Riccardi <fabio@chromium.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+	id <S129495AbRC2XAJ>; Thu, 29 Mar 2001 18:00:09 -0500
+Received: from gateway.sequent.com ([192.148.1.10]:57831 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S129443AbRC2W7x>; Thu, 29 Mar 2001 17:59:53 -0500
+Date: Thu, 29 Mar 2001 14:57:26 -0800 (PST)
+From: Brian Beattie <bbeattie@sequent.com>
+To: Andreas Dilger <adilger@turbolinux.com>
+cc: Xavier Ordoquy <xordoquy@aurora-linux.com>, linux-kernel@vger.kernel.org
+Subject: Re: Bug in the file attributes ?
+In-Reply-To: <200103291844.f2TIiSK09176@webber.adilger.int>
+Message-ID: <Pine.PTX.4.10.10103291446300.17109-100000@eng2.sequent.com>
 MIME-Version: 1.0
-To: "J . A . Magallon" <jamagallon@able.es>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: linux scheduler limitations?
-In-Reply-To: <3AC3A6C9.991472C0@chromium.com> <20010329233521.C6053@werewolf.able.es> <3AC3B35D.FC010700@chromium.com> <20010330003356.C1052@werewolf.able.es>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J . A . Magallon" wrote:
+On Thu, 29 Mar 2001, Andreas Dilger wrote:
 
-> It all depends on your app, as every parallel algorithm. In a web-ftp-whatever
-> server, you do not need any synchro. You can start threads in free run and
-> let them die alone.
+> Xavier Ordoquy writes:
+> > I just made a manipulation that disturbs me. So I'm asking whether it's a
+> > bug or a features.
+> > 
+> > user> su
+> > root> echo "test" > test
+> > root> ls -l
+> > -rw-r--r--   1 root     root            5 Mar 29 19:14 test
+> > root> exit
+> > user> rm test
+> > rm: remove write-protected file `test'? y
+> > user> ls test
+> > ls: test: No such file or directory
+> > 
+> > This is in the user home directory.
+> > Since the file is read only for the user, it should not be able to remove
+> > it. Moreover, the user can't write to test.
+> 
+> This is definitely not a bug.  Deleting a file (under *nix) does not
+> "modify" the file at all, it is modifying the directory where the file
+> resides.
 
-even if you don't need synchronization you pay for it anyway, since you will have
-to use the pthread version of libc that is reentrant. Moreover many calls (i.e.
-accept) are "scheduling points" for pthreads, whenever you call them the runtime
-will perform quite a bit of bookeeping.
+To be correct and pedantic, in a traditional Unix type filesystem, one
+does not remove a file...one dereferences it, i.e. "unlink", as part of
+this process garbage collection is performed which checks the reference
+count. If the inode's reference count is zero, the inode and data blocks
+are returned to their respective free lists.  All the rm command does, is
+to remove the directory entry and decrement the reference count :).  This
+is why Unix has a rm (remove link) as opposed to a del (delete file)
+command.
 
-it is instructive to use a profiler on your application and see what happens when
-you use pthreads...
+Brian...just being pedantic :-^
 
-> You said, 'mapped'.
-> AFAIK, that is the advantage, you can avoid the VM switch by sharing memory.
-
-If your application uses lots of memory than I agree, Apache only uses a tiny
-amount of RAM per instance though, so I don't think that that is my case.
-
- - Fabio
-
+Brian Beattie
+bbeattie@sequent.com
+503.578.5899  Des2-3C-5
 

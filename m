@@ -1,111 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbVAMXnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbVAMXnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261815AbVAMXnG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 18:43:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVAMXmn
+	id S261781AbVAMXnE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 18:43:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbVAMXky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 18:42:43 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:26902 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261781AbVAMXbL (ORCPT
+	Thu, 13 Jan 2005 18:40:54 -0500
+Received: from mail.joq.us ([67.65.12.105]:19383 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261810AbVAMXat (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 18:31:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
-        b=eHc30+8jcfca0rEyDaAdeQT3EDvtp2brHKQ4+6l3yvpXcalVUiZWjH901IGY0w+UfWB4vBxLnGXmkURGC9kCDEA35vX+q0rgwu+5LOwJ6jyo07XSMpBy+vIPod+GJOsS8E+MoQQDAphlpDPHU3WVumBfAap9Dal4kYYvMwllPwI=
-Message-ID: <8746466a0501131531782a77bc@mail.gmail.com>
-Date: Thu, 13 Jan 2005 16:31:11 -0700
-From: Dave <dave.jiang@gmail.com>
-Reply-To: Dave <dave.jiang@gmail.com>
-To: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       smaurer@teja.com, linux@arm.linux.org.uk, dsaxena@plexity.net,
-       drew.moseley@intel.com, mporter@kernel.crashing.org
-Subject: [PATCH 4/5] Convert resource to u64 from unsigned long
-Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_708_4636185.1105659071477"
+	Thu, 13 Jan 2005 18:30:49 -0500
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Chris Wright <chrisw@osdl.org>,
+       Paul Davis <paul@linuxaudiosystems.com>, Matt Mackall <mpm@selenic.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       mingo@elte.hu, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <20050111214152.GA17943@devserv.devel.redhat.com>
+	<200501112251.j0BMp9iZ006964@localhost.localdomain>
+	<20050111150556.S10567@build.pdx.osdl.net>
+	<87y8ezzake.fsf@sulphur.joq.us>
+	<20050112074906.GB5735@devserv.devel.redhat.com>
+	<87oefuma3c.fsf@sulphur.joq.us>
+	<20050113072802.GB13195@devserv.devel.redhat.com>
+	<878y6x9h2d.fsf@sulphur.joq.us>
+	<20050113210750.GA22208@devserv.devel.redhat.com>
+	<1105651508.3457.31.camel@krustophenia.net>
+	<20050113214320.GB22208@devserv.devel.redhat.com>
+From: "Jack O'Quin" <joq@io.com>
+Date: Thu, 13 Jan 2005 17:31:40 -0600
+In-Reply-To: <20050113214320.GB22208@devserv.devel.redhat.com> (Arjan van de
+ Ven's message of "Thu, 13 Jan 2005 22:43:20 +0100")
+Message-ID: <87oefs9a8z.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_708_4636185.1105659071477
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Arjan van de Ven <arjanv@redhat.com> writes:
 
-These are changes for ARM platform as far as I was able to test
+> On Thu, Jan 13, 2005 at 04:25:08PM -0500, Lee Revell wrote:
+>> The basic issue is that the current semantics of SCHED_FIFO seem make
+>> the deadlock/data corruption due to runaway RT thread issue difficult.
+>> The obvious solution is a new scheduling class equivalent to SCHED_FIFO
+>> but with a mechanism for the kernel to demote the offending thread to
+>> SCHED_OTHER in an emergency. 
+>
+> and this is getting really close to the original "counter proposal" to the
+> LSM module that was basically "lets make lower nice limit an rlimit, and
+> have -20 mean "basically FIFO" *if* the task behaves itself".
 
-Signed-off-by: Dave Jiang (dave.jiang@gmail.com)
+Yes.  However, my tests have so far shown a need for "actual FIFO as
+long as the task behaves itself."
 
+Otherwise, your rlimits proposal is fine.  I still think it puts more
+of a burden on the sysadmin, but nobody else seems to care about that.
 -- 
--= Dave =-
-
-Software Engineer - Advanced Development Engineering Team 
-Storage Component Division - Intel Corp. 
-mailto://dave.jiang @ intel
-http://sourceforge.net/projects/xscaleiop/
-----
-The views expressed in this email are
-mine alone and do not necessarily 
-reflect the views of my employer
-(Intel Corp.).
-
-------=_Part_708_4636185.1105659071477
-Content-Type: application/octet-stream; name="patch-arm_u64fix"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="patch-arm_u64fix"
-
-ZGlmZiAtTmF1ciBsaW51eC0yLjYuMTEtcmMxL2FyY2gvYXJtL2tlcm5lbC9iaW9zMzIuYyBsaW51
-eC0yLjYuMTEtcmMxLXU2NC9hcmNoL2FybS9rZXJuZWwvYmlvczMyLmMKLS0tIGxpbnV4LTIuNi4x
-MS1yYzEvYXJjaC9hcm0va2VybmVsL2Jpb3MzMi5jCTIwMDQtMTItMjQgMTQ6MzQ6MzEuMDAwMDAw
-MDAwIC0wNzAwCisrKyBsaW51eC0yLjYuMTEtcmMxLXU2NC9hcmNoL2FybS9rZXJuZWwvYmlvczMy
-LmMJMjAwNS0wMS0xMyAxMTo0NTo0MS44Mjk0NjI5MjggLTA3MDAKQEAgLTMwNCw3ICszMDQsNyBA
-QAogc3RhdGljIHZvaWQgX19kZXZpbml0CiBwZGV2X2ZpeHVwX2RldmljZV9yZXNvdXJjZXMoc3Ry
-dWN0IHBjaV9zeXNfZGF0YSAqcm9vdCwgc3RydWN0IHBjaV9kZXYgKmRldikKIHsKLQl1bnNpZ25l
-ZCBsb25nIG9mZnNldDsKKwl1NjQgb2Zmc2V0OwogCWludCBpOwogCiAJZm9yIChpID0gMDsgaSA8
-IFBDSV9OVU1fUkVTT1VSQ0VTOyBpKyspIHsKQEAgLTYxOSw5ICs2MTksOSBAQAogICogd2hpY2gg
-bWlnaHQgYmUgbWlycm9yZWQgYXQgMHgwMTAwLTB4MDNmZi4uCiAgKi8KIHZvaWQgcGNpYmlvc19h
-bGlnbl9yZXNvdXJjZSh2b2lkICpkYXRhLCBzdHJ1Y3QgcmVzb3VyY2UgKnJlcywKLQkJCSAgICB1
-bnNpZ25lZCBsb25nIHNpemUsIHVuc2lnbmVkIGxvbmcgYWxpZ24pCisJCQkgICAgdTY0IHNpemUs
-IHU2NCBhbGlnbikKIHsKLQl1bnNpZ25lZCBsb25nIHN0YXJ0ID0gcmVzLT5zdGFydDsKKwl1NjQg
-c3RhcnQgPSByZXMtPnN0YXJ0OwogCiAJaWYgKHJlcy0+ZmxhZ3MgJiBJT1JFU09VUkNFX0lPICYm
-IHN0YXJ0ICYgMHgzMDApCiAJCXN0YXJ0ID0gKHN0YXJ0ICsgMHgzZmYpICYgfjB4M2ZmOwpkaWZm
-IC1OYXVyIGxpbnV4LTIuNi4xMS1yYzEvYXJjaC9hcm0va2VybmVsL3NldHVwLmMgbGludXgtMi42
-LjExLXJjMS11NjQvYXJjaC9hcm0va2VybmVsL3NldHVwLmMKLS0tIGxpbnV4LTIuNi4xMS1yYzEv
-YXJjaC9hcm0va2VybmVsL3NldHVwLmMJMjAwNS0wMS0xMyAxNDozOTo0MC4xOTc1ODk3NjggLTA3
-MDAKKysrIGxpbnV4LTIuNi4xMS1yYzEtdTY0L2FyY2gvYXJtL2tlcm5lbC9zZXR1cC5jCTIwMDUt
-MDEtMTMgMTE6NDU6NDEuODMwNDYyNzc2IC0wNzAwCkBAIC0xMTUsOSArMTE1LDIzIEBACiAgKiBT
-dGFuZGFyZCBtZW1vcnkgcmVzb3VyY2VzCiAgKi8KIHN0YXRpYyBzdHJ1Y3QgcmVzb3VyY2UgbWVt
-X3Jlc1tdID0gewotCXsgIlZpZGVvIFJBTSIsICAgMCwgICAgIDAsICAgICBJT1JFU09VUkNFX01F
-TQkJCX0sCi0JeyAiS2VybmVsIHRleHQiLCAwLCAgICAgMCwgICAgIElPUkVTT1VSQ0VfTUVNCQkJ
-fSwKLQl7ICJLZXJuZWwgZGF0YSIsIDAsICAgICAwLCAgICAgSU9SRVNPVVJDRV9NRU0JCQl9CisJ
-eyAKKwkJLm5hbWUgPSAiVmlkZW8gUkFNIiwgICAKKwkJLnN0YXJ0ID0gMCwgICAgIAorCQkuZW5k
-ID0gMCwgICAgIAorCQkuZmxhZ3MgPSBJT1JFU09VUkNFX01FTQkJCQorCX0sCisJeyAKKwkJLm5h
-bWUgPSAiS2VybmVsIHRleHQiLCAKKwkJLnN0YXJ0ID0gMCwgICAgIAorCQkuZW5kID0gMCwgICAg
-IAorCQkuZmxhZ3MgPSBJT1JFU09VUkNFX01FTQkJCQorCX0sCisJeyAKKwkJLm5hbWUgPSAiS2Vy
-bmVsIGRhdGEiLCAKKwkJLnN0YXJ0ID0gMCwgICAgIAorCQkuZW5kID0gMCwgICAgIAorCQkuZmxh
-Z3MgPSBJT1JFU09VUkNFX01FTQkJCX0KIH07CiAKICNkZWZpbmUgdmlkZW9fcmFtICAgbWVtX3Jl
-c1swXQpAQCAtMTI1LDkgKzEzOSwyNCBAQAogI2RlZmluZSBrZXJuZWxfZGF0YSBtZW1fcmVzWzJd
-CiAKIHN0YXRpYyBzdHJ1Y3QgcmVzb3VyY2UgaW9fcmVzW10gPSB7Ci0JeyAicmVzZXJ2ZWQiLCAg
-ICAweDNiYywgMHgzYmUsIElPUkVTT1VSQ0VfSU8gfCBJT1JFU09VUkNFX0JVU1kgfSwKLQl7ICJy
-ZXNlcnZlZCIsICAgIDB4Mzc4LCAweDM3ZiwgSU9SRVNPVVJDRV9JTyB8IElPUkVTT1VSQ0VfQlVT
-WSB9LAotCXsgInJlc2VydmVkIiwgICAgMHgyNzgsIDB4MjdmLCBJT1JFU09VUkNFX0lPIHwgSU9S
-RVNPVVJDRV9CVVNZIH0KKwl7IAorCQkubmFtZSA9ICJyZXNlcnZlZCIsICAgIAorCQkuc3RhcnQg
-PSAweDNiYywgCisJCS5lbmQgPSAweDNiZSwgCisJCS5mbGFncyA9IElPUkVTT1VSQ0VfSU8gfCBJ
-T1JFU09VUkNFX0JVU1kgCisJfSwKKwl7IAorCQkubmFtZSA9ICJyZXNlcnZlZCIsICAgIAorCQku
-c3RhcnQgPSAweDM3OCwgCisJCS5lbmQgPSAweDM3ZiwgCisJCS5mbGFncyA9IElPUkVTT1VSQ0Vf
-SU8gfCBJT1JFU09VUkNFX0JVU1kgCisJfSwKKwl7IAorCQkubmFtZSA9ICJyZXNlcnZlZCIsICAg
-IAorCQkuc3RhcnQgPSAweDI3OCwgCisJCS5lbmQgPSAweDI3ZiwgCisJCS5mbGFncyA9IElPUkVT
-T1VSQ0VfSU8gfCBJT1JFU09VUkNFX0JVU1kgCisJfQogfTsKIAogI2RlZmluZSBscDAgaW9fcmVz
-WzBdCgpkaWZmIC1OYXVyIGxpbnV4LTIuNi4xMS1yYzEvaW5jbHVkZS9hc20tYXJtL21hY2gvcGNp
-LmggbGludXgtMi42LjExLXJjMS11NjQvaW5jbHVkZS9hc20tYXJtL21hY2gvcGNpLmgKLS0tIGxp
-bnV4LTIuNi4xMS1yYzEvaW5jbHVkZS9hc20tYXJtL21hY2gvcGNpLmgJMjAwNC0xMi0yNCAxNDoz
-NDo0NS4wMDAwMDAwMDAgLTA3MDAKKysrIGxpbnV4LTIuNi4xMS1yYzEtdTY0L2luY2x1ZGUvYXNt
-LWFybS9tYWNoL3BjaS5oCTIwMDUtMDEtMTMgMTE6NDU6NDEuODQzNDYwODAwIC0wNzAwCkBAIC0y
-OCw3ICsyOCw3IEBACiBzdHJ1Y3QgcGNpX3N5c19kYXRhIHsKIAlzdHJ1Y3QgbGlzdF9oZWFkIG5v
-ZGU7CiAJaW50CQlidXNucjsJCS8qIHByaW1hcnkgYnVzIG51bWJlcgkJCSovCi0JdW5zaWduZWQg
-bG9uZwltZW1fb2Zmc2V0OwkvKiBidXMtPmNwdSBtZW1vcnkgbWFwcGluZyBvZmZzZXQJKi8KKwl1
-NjQJCW1lbV9vZmZzZXQ7CS8qIGJ1cy0+Y3B1IG1lbW9yeSBtYXBwaW5nIG9mZnNldAkqLwogCXVu
-c2lnbmVkIGxvbmcJaW9fb2Zmc2V0OwkvKiBidXMtPmNwdSBJTyBtYXBwaW5nIG9mZnNldAkJKi8K
-IAlzdHJ1Y3QgcGNpX2J1cwkqYnVzOwkJLyogUENJIGJ1cwkJCQkqLwogCXN0cnVjdCByZXNvdXJj
-ZSAqcmVzb3VyY2VbM107CS8qIFByaW1hcnkgUENJIGJ1cyByZXNvdXJjZXMJCSovCg==
-------=_Part_708_4636185.1105659071477--
+  joq

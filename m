@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271841AbRIMQm7>; Thu, 13 Sep 2001 12:42:59 -0400
+	id <S271845AbRIMQrJ>; Thu, 13 Sep 2001 12:47:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271836AbRIMQmt>; Thu, 13 Sep 2001 12:42:49 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:2314 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S271834AbRIMQmh>; Thu, 13 Sep 2001 12:42:37 -0400
-Date: Thu, 13 Sep 2001 09:42:43 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: tushar korde <tushar_k5@rediffmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: suggest project
-In-Reply-To: <20010913144253.T11046@mea-ext.zmailer.org>
-Message-ID: <Pine.LNX.4.10.10109130936180.23464-100000@transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271847AbRIMQrE>; Thu, 13 Sep 2001 12:47:04 -0400
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:17157 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S271848AbRIMQqv>; Thu, 13 Sep 2001 12:46:51 -0400
+Date: Thu, 13 Sep 2001 18:39:28 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: torvalds@transmeta.com
+Subject: [x86-64 patch 7/11] Fix RIP register name collision in ixj.c
+Message-ID: <20010913183928.A2615@suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
->    Find out why Linux PS/2 keyboard and mouse drivers don't support
->    disconnect, and reconnect of said devices.   Then fix things so
->    that keyboard can be replugged at any time, and it gets into
->    sensible state, same with the mouse.
-> 
->    This is especially serious nuisance while running X-window system,
->    which of course uses raw keyboard events.  (But that should not matter
->    at the low-level driver, which should handle the reconnect issue.)
+This patch changes name of one *unused* struct field (RIP) in the ixj.c
+telephony driver to a different name (XRIP), because it collides with
+the RIP register name on the x86-64.
 
-This has been fixed for some time with the input api drivers we have had
-in CVS. 
+--- linux/drivers/telephony/ixj.h	Thu Sep 13 16:13:23 2001
++++ linux-64-latest/drivers/telephony/ixj.h	Thu Sep 13 16:16:59 2001
+@@ -574,7 +574,7 @@
+ 				struct _CR0_BITREGS {
+ 					BYTE CLK_EXT:1;		/* cr0[0:0] */
+ 
+-					BYTE RIP:1;	/* cr0[1:1] */
++					BYTE XRIP:1;	/* cr0[1:1] */
+ 
+ 					BYTE AR:1;	/* cr0[2:2] */
+ 
+-- 
+Vojtech Pavlik
+SuSE Labs
 

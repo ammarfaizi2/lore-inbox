@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262150AbUBXDKv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 22:10:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbUBXDKv
+	id S262140AbUBXDKb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 22:10:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbUBXDKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 22:10:51 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:49117 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262150AbUBXDKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 22:10:49 -0500
-Date: Mon, 23 Feb 2004 22:09:34 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 3c359_microcode.h clean up - 2.6.3
-Message-ID: <20040224030933.GA7116@siasl.dyndns.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Mike Phillips <phillim2@comcast.net>
+	Mon, 23 Feb 2004 22:10:31 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:54701 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S262140AbUBXDKa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 22:10:30 -0500
+Message-ID: <403AC099.90208@zytor.com>
+Date: Mon, 23 Feb 2004 19:10:17 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
+X-Accept-Language: en, sv, es, fr
+MIME-Version: 1.0
+To: Coywolf Qi Hunt <coywolf@greatcn.org>
+CC: Philippe Elie <phil.el@wanadoo.fr>, linux-kernel@vger.kernel.org
+Subject: Re: Does Flushing the Queue after PG REALLY a Necessity?
+References: <c16rdh$gtk$1@terminus.zytor.com> <4039D599.7060001@greatcn.org> <20040223151815.GA403@zaniah> <403AB897.8070002@greatcn.org>
+In-Reply-To: <403AB897.8070002@greatcn.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Small patch to clean up 3c359_micrcode.h, no other drivers in the kernel
-come anywhere near the file and the #if is superflous.
+Coywolf Qi Hunt wrote:
+ >
+> The problem is there's two jumps in the kernel. Intel's manual only asks 
+> for "Execute a near JMP instruction".
+> 
 
-Mike Phillips 
+A far JMP is definitely sufficient, and serves to normalize EIP as well.
 
-diff -urN -X dontdiff linux-2.6.3/drivers/net/tokenring/3c359_microcode.h linux-2.6.3-working/drivers/net/tokenring/3c359_microcode.h
---- linux-2.6.3/drivers/net/tokenring/3c359_microcode.h	2004-02-17 22:57:20.000000000 -0500
-+++ linux-2.6.3-working/drivers/net/tokenring/3c359_microcode.h	2004-02-23 21:57:58.000000000 -0500
-@@ -20,9 +20,6 @@
-  * different length.
-  */
- 
--
--#if defined(CONFIG_3C359) || defined(CONFIG_3C359_MODULE) 
--
- static int mc_size = 24880 ; 
- 
- u8 microcode[] = { 
-@@ -1582,4 +1579,3 @@
- ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
- ,0x90,0xea,0xc0,0x15,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x13,0x06
- } ;  
--#endif 
+I have uploaded a patch which also preinitializes the GDT, which may 
+make the VISWS code a bit less of a special case.
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/earlymem-4.diff
+
+> If no any reason for the two jumps, the code should be fixed to remains 
+> only ONE near jump.
+
+Why are you so obsessed with minimality?  The performance of this code 
+matters not one bit.
+
+	-hpa

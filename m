@@ -1,30 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265773AbSL3Tgo>; Mon, 30 Dec 2002 14:36:44 -0500
+	id <S265736AbSL3TnV>; Mon, 30 Dec 2002 14:43:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265777AbSL3Tgn>; Mon, 30 Dec 2002 14:36:43 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:56326 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S265773AbSL3Tgn>;
-	Mon, 30 Dec 2002 14:36:43 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212301944.gBUJitEc003084@darkstar.example.net>
-Subject: Re: my observations about 2.4.21-pre2
-To: rpjday@mindspring.com (Robert P. J. Day)
-Date: Mon, 30 Dec 2002 19:44:55 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0212301304150.25855-100000@dell> from "Robert P. J. Day" at Dec 30, 2002 01:18:04 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S265777AbSL3TnV>; Mon, 30 Dec 2002 14:43:21 -0500
+Received: from router.go.cz ([62.24.94.222]:63361 "EHLO napalm.go.cz")
+	by vger.kernel.org with ESMTP id <S265736AbSL3TnU>;
+	Mon, 30 Dec 2002 14:43:20 -0500
+Date: Mon, 30 Dec 2002 20:52:06 +0100
+From: Jan Dvorak <jan.dvorak@kraxnet.cz>
+To: linux-kernel@vger.kernel.org
+Subject: PPP problems in 2.4.19-20, modem freezes
+Message-ID: <20021230205206.A2196@go.cz>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.11i
+Organization: (www.kraxnet.cz)
+X-URL: http://www.johnydog.cz/
+X-OS: Linux 2.4.20 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Under Parallel port support, there are duplicated entries for
->   "Support for PCMCIA management for PC-style ports", with the
->   first entry being grayed out, although i'm sure many folks
->   have already noticed this.
+Hello,
 
-A patch to fix this was posted to LKML about 3 months ago.
+I'm running leased line between two 28.8k external modems, with pppd 2.4.1.
+After upgrading kernel to 2.4.19, i've experienced modem freezes - when the
+connection dies and modem (the one switched to recieve) hangs up, sometimes it 'freezes', not reacting at any inputs from terminal program/pppd, emiting weird
+signal to the line (that tone you got when the line is aborted while
+handshaking, but this time it won't time out). Killing pppd or even
+rebooting the machine doesn't help, i must manually cycle the modem to start working again.
+With older kernels (2.4.16) it works fine. Any ideas ?
 
-John.
+Please CC replies to me, as i'm not on the list.
+
+Thanks, Jan
+

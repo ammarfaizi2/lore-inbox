@@ -1,45 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262939AbVAFSDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262938AbVAFSDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262939AbVAFSDc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 13:03:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262956AbVAFRvN
+	id S262938AbVAFSDb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 13:03:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbVAFR6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 12:51:13 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:39554 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262941AbVAFRup (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 12:50:45 -0500
-Date: Thu, 6 Jan 2005 09:50:14 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Ray Bryant <raybry@sgi.com>
-cc: Andi Kleen <ak@muc.de>, Steve Longerbeam <stevel@mvista.com>,
-       Hugh Dickins <hugh@veritas.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, andrew morton <akpm@osdl.org>
-Subject: Re: page migration patchset
-In-Reply-To: <41DD608A.80003@sgi.com>
-Message-ID: <Pine.LNX.4.58.0501060947470.16240@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0501052008160.8705-100000@localhost.localdomain>
- <41DC7EAD.8010407@mvista.com> <20050106144307.GB59451@muc.de> <41DD608A.80003@sgi.com>
+	Thu, 6 Jan 2005 12:58:09 -0500
+Received: from dhost001-17.intermedia.net ([64.78.61.64]:49083 "EHLO
+	DHOST001-17.DEX001.intermedia.net") by vger.kernel.org with ESMTP
+	id S262954AbVAFRv7 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 12:51:59 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: ARP routing issue
+Date: Thu, 6 Jan 2005 09:51:55 -0800
+Message-ID: <B8561865DB141248943E2376D0E85215846788@DHOST001-17.DEX001.intermedia.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ARP routing issue
+Thread-Index: AcT0CnKw21ubt22FScSwDN4WX1Z6sgADdBEA
+From: "Steve Iribarne" <steve.iribarne@dilithiumnetworks.com>
+To: "Jan De Luyck" <lkml@kcore.org>
+Cc: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Jan 2005, Ray Bryant wrote:
+And you see the arp packet coming out which interface??
 
-> > If nothing happens soon regarding the "other" hugetlb code I will
-> > forward port my SLES9 code. It already has NUMA policy support.
-> I too have been frustrated by this process.  I think Christoph Lameter
-> at SGI is looking at forward porting the "old" lazy hugetlbpage allocation
-> code.  Of course, the proof is in the "doing" of this and I am not sure
-> what other priorities he has at the moment.
+ 
 
-Sorry I did not have time to continue the huge stuff in face of other
-things that came up in the fall. I ported the stuff to 2.6.10 yesterday
-but it still needs some rework.
-
-Could you sent me the most up to date version of the SLES9 stuff including
-any unintegrated changes? I can work though this next week I believe and
-post a new huge pages patch.
+-> -----Original Message-----
+-> From: Jan De Luyck [mailto:lkml@kcore.org] 
+-> Sent: Thursday, January 06, 2005 8:12 AM
+-> To: Steve Iribarne
+-> Cc: linux-kernel@vger.kernel.org; linux-net@vger.kernel.org
+-> Subject: Re: ARP routing issue
+-> 
+-> On Thursday 06 January 2005 17:06, Steve Iribarne wrote:
+-> > Hi Jan,
+-> >
+-> >
+-> > -> default gateway is set to 10.0.22.1, on eth0.
+-> > ->
+-> > -> Problem is, if I try to ping from another network
+-> > -> (10.216.0.xx) to 10.0.24.xx, i see the following ARP request:
+-> > ->
+-> > -> arp who-has 10.0.22.1 tell 10.0.24.xx
+-> > ->
+-> >
+-> > You see that coming out the eth0 interface??
+-> >
+-> > If that is the case it is most definately wrong.  Assuming 
+-> that your 
+-> > masks are setup properly.  But I haven't worked on the 2.4 
+-> kernel for 
+-> > a long time so I'm not so sure if what you are seeing is a 
+-> bug that 
+-> > has been fixed.
+-> 
+-> The network information is:
+-> eth0 10.0.22.xxx mask 255.255.255.0
+-> eth1 10.0.24.xxx mask 255.255.255.0
+-> 
+-> routing:
+-> 10.0.22.0 0.0.0.0 255.255.255.0 eth0
+-> 10.0.24.0 0.0.0.0 255.255.255.0 eth1
+-> 0.0.0.0  10.0.22.1 0.0.0.0  eth0
+-> 
+-> Jan
+-> 
+-> --
+-> If a man slept by day, he had little time to work.  That was 
+-> a satisfying notion to Escargot.
+->   -- "The Stone Giant", James P. Blaylock
+-> 

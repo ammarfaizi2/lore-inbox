@@ -1,117 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270432AbRHHJc2>; Wed, 8 Aug 2001 05:32:28 -0400
+	id <S270436AbRHHJf6>; Wed, 8 Aug 2001 05:35:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270433AbRHHJcT>; Wed, 8 Aug 2001 05:32:19 -0400
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:56271 "EHLO
-	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S270432AbRHHJcP>; Wed, 8 Aug 2001 05:32:15 -0400
-From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
-Message-Id: <200108080930.LAA03334@sunrise.pg.gda.pl>
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-To: rhw@MemAlpha.CX (Riley Williams)
-Date: Wed, 8 Aug 2001 11:30:34 +0200 (MET DST)
-Cc: mra@pobox.com (Mark Atwood), soruk@eridani.co.uk (Michael McConnell),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <Pine.LNX.4.33.0108072359440.30936-100000@infradead.org> from "Riley Williams" at Aug 08, 2001 12:35:54 AM
-Reply-To: ankry@green.mif.pg.gda.pl
-X-Mailer: ELM [version 2.5 PL2]
+	id <S270435AbRHHJfs>; Wed, 8 Aug 2001 05:35:48 -0400
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:63889 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S270436AbRHHJfm>; Wed, 8 Aug 2001 05:35:42 -0400
+Importance: Normal
+Subject: Re: BUG: Assertion failure with ext3-0.95 for 2.4.7
+To: arjanv@redhat.com, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFC92557FF.2232CB90-ONC1256AA2.0034783B@de.ibm.com>
+From: "Christian Borntraeger" <CBORNTRA@de.ibm.com>
+Date: Wed, 8 Aug 2001 11:36:00 +0200
+X-MIMETrack: Serialize by Router on D12ML020/12/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 08/08/2001 11:35:41
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Riley Williams wrote:"
 
->  1. InitScripts points at Kernel ...
->  2. Kernel replies ...
->  3. InitScripts then tells Kernel ...
 
-I believe this discussion leads to constructive conlusions.
-Even if that are 2.5+ conclusions.
+>> I tried the Patch from http://www.zip.com.au/~akpm/ext3-2.4-0.9.5-247.gz
+>> with the kernel 2.4.7 with a new LVM- patch(0.9.1)  and some S/390
+specific
+>> patches. I use mke2fs version 1.22.
+>> S/390 is a 32bit big endian machine. After compiling and running the
+kernel
+>> I created an ext3-file system on an 70GB LVM. When running the postmark
+>> test I get (reproduceable) the message from above. dmesg shows:
+>
+>It would be interesting to know if this still happends without a beta
+>version of LVM,
+>and without LVM at all.
 
-> So far, I've only seen the above scenario occur, and I have to admit
-> to having very little sympathy with it. However, I'm always open to
-> persuasion that the above is not the situation that is occurring.
+I will try it. But if I mount the same file system as ext2 (mount ... -t
+ext2) the test succeeds, so I guess it is not LVM specific. I will inform
+you if I know the result.
 
-[...]
+greetings
 
-> Let's deal with the various scenarios that I can see:
-> 
->  1. Just one interface, either static or hotplug.
-Nothing interesting.
-
->  2. Multiple identical static interfaces.
-Nothing interesting.
-
->  3. Multiple different static interfaces.
-I see some subcases here:
-
-3a. All interfaces are initialized
-
-3b. Not all interfaces are initialized 
-    [ "interface physicaly exist" != "interface is connected/configured"
-
-3c. Interfaces supported by single driver are identical
-
-3d. Interfaces supported by single driver are significantly different
-
-I thing one met some common problems with the hotplug case here in the above
-subcases.
-
->     At the moment, you are required to group these by the driver that
->     controls them, simply because each driver will automatically map
->     all interfaces that it supports when it is loaded. Likewise, you
->     are required to initialise interfaces in ascending order of their
->     name in the modules.conf file.
-> 
->  4. Multiple hotplug interfaces.
-
-I thing this case and 3. case should be solved both: for the modular drivers
-case and for the built-in drivers case.
-
->     I have to admit to never having dealt with hotplug interfaces, but
->     I understand some aspects of the interface are still being ironed
->     out by the kernel developers. As a result, I would not be at all
->     surprised to hear that problems still exist.
-> 
->  5. Multiple static and hotplug interfaces.
-> 
->     At the moment, you are required to group these by whether the
->     interface is static or hotplug, configuring all static interfaces
->     before any of the hotplug ones. This therefore reduces to being
->     either case (2) or (3) followed by case (4), and should be dealt
->     with accordingly.
-
-Consider complex situation: you have two drivers, each of them supporting
-static and built in and hotplug interfaces.
-Yes, this is a theoretical problem, but solving it would probably also solve
-all (or almost all) of the above cases.
-
-I like the idea of assigning names by MAC addresses. It IMO should solve
-all problems as:
-- if more then one interface has the same MAC address, they are probably
-  identical, and you can switch them in hardware (cabling). Or am I
-  wrong here?
-- If you want to change the MAC address you do it *AFTER* the interface
-  is initialized (driver is loaded, interface name is assigned). Or am 
-  I also wrong here?
-
-This seem to be a good idea if there's also support for "ether=" like
-global kernel parameter working for build-in drivers.
-
-> As a result, the ONLY time I can see any problem occurring is when
-> there are multiple hotplug interfaces to deal with (case (4) above),
-> and this is acknowledged to be a case where some of the issues have
-> not yet been fully ironed out.
-> 
-> Can you agree with this analysis, or have I overlooked something?
-
-Andrzej
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
 

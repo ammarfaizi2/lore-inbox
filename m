@@ -1,60 +1,199 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267748AbUHaKcI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267749AbUHaKgF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267748AbUHaKcI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 06:32:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267749AbUHaKcI
+	id S267749AbUHaKgF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 06:36:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267734AbUHaKgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 06:32:08 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:34989 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S267748AbUHaKbr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 06:31:47 -0400
-Date: Tue, 31 Aug 2004 12:29:55 +0200
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Cc: Jay Lan <jlan@sgi.com>, Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Arthur Corliss <corliss@digitalmages.com>,
-       Andrew Morton <akpm@osdl.org>, Jay Lan <jlan@engr.sgi.com>,
-       lkml <linux-kernel@vger.kernel.org>, erikj@dbear.engr.sgi.com,
-       limin@engr.sgi.com, lse-tech@lists.sourceforge.net,
-       Ragnar =?iso-8859-1?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>,
-       Yoshitaka ISHIKAWA <y.ishikawa@soft.fujitsu.com>
-Subject: Re: [Lse-tech] Re: [PATCH] new CSA patchset for 2.6.8
-Message-ID: <20040831102955.GA3540@frec.bull.fr>
-References: <412D2E10.8010406@engr.sgi.com> <20040825221842.72dd83a4.akpm@osdl.org> <Pine.LNX.4.53.0408261821090.14826@gockel.physik3.uni-rostock.de> <Pine.LNX.4.58.0408261111520.22750@bifrost.nevaeh-linux.org> <Pine.LNX.4.53.0408262133190.8515@broiler.physik3.uni-rostock.de> <20040827054218.GA4142@frec.bull.fr> <412F9197.4030806@sgi.com> <20040831090647.GA3441@frec.bull.fr>
-Mime-Version: 1.0
-In-Reply-To: <20040831090647.GA3441@frec.bull.fr>
-User-Agent: Mutt/1.5.6+20040722i
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 31/08/2004 12:35:19,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 31/08/2004 12:35:25,
-	Serialize complete at 31/08/2004 12:35:25
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Tue, 31 Aug 2004 06:36:05 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:59618 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S267749AbUHaKfx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 06:35:53 -0400
+Date: Tue, 31 Aug 2004 19:41:02 +0900
+From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: [RFC] buddy allocator without bitmap(2) [1/3]
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Cc: linux-mm <linux-mm@kvack.org>, LHMS <lhms-devel@lists.sourceforge.net>
+Message-id: <413455BE.6010302@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6)
+ Gecko/20040113
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 31, 2004 at 11:06:47AM +0200, Guillaume Thouvenin wrote:
-> On Fri, Aug 27, 2004 at 12:55:03PM -0700, Jay Lan wrote:
-> > Please visit http://oss.sgi.com/projects/pagg/
-> > The page has been updated to provide information on a per job
-> > accounting project called 'job' based on PAGG.
-> > 
-> > There is one userspace rpm and one kernel  module for job.
-> > This may provide what you are looking for. It is a mature product
-> > as well. I am sure Limin(job) and Erik(pagg) would appreciate any
-> > input you can provide to make 'job' more useful.
-> 
->   I have a question about job. If I understand how it works, you can not
-> add a process in a job. I mean when you start a session, a container is 
-> created and it's the only way to create it. If I'm right, I think that it 
-> could be interesting to add a process using ioctl and /proc interface.
+This is 2nd file.
+Implements initialization code for buddy allocator.
 
-I think that I'm not very clear. You can add a process to a container
-using the /proc/csa interface but it seems that currently this feature
-is not available with job-1.2.1 package. Therefore, maybe we can add a
-command called jattach that will attach a process to a given jid...
 
-Best,
-Guillaume
+- Kame
+
+------------
+
+This patch removes bitmap allocation in zone_init_free_lists() and
+page_to_bitmap_size();
+
+calculate_aligned_end() works
+(a) detects mem_map is aligned or not.
+(b) if start of mem_map is not aligned, add PG_buddyend flags to pages
+     which has no lower address buddy.
+(c) if end of mem_map is not aligned, reserve it by reserve_bootmem()
+
+
+
+-- Kame
+
+
+---
+
+  linux-2.6.9-rc1-mm1-k-kamezawa/mm/page_alloc.c |  112 ++++++++++++++++---------
+  1 files changed, 73 insertions(+), 39 deletions(-)
+
+diff -puN mm/page_alloc.c~eliminate-bitmap-init mm/page_alloc.c
+--- linux-2.6.9-rc1-mm1-k/mm/page_alloc.c~eliminate-bitmap-init	2004-08-31 18:37:14.596519040 +0900
++++ linux-2.6.9-rc1-mm1-k-kamezawa/mm/page_alloc.c	2004-08-31 18:43:30.723339072 +0900
+@@ -1499,6 +1499,70 @@ static void __init calculate_zone_totalp
+  	printk(KERN_DEBUG "On node %d totalpages: %lu\n", pgdat->node_id, realtotalpages);
+  }
+
++/*
++ * (1) checks a mem_map is aligned to max_order or not.
++ * (2) if mem_map is not aligned in its start address, find pages which are
++ * lower-end of buddy.
++ * (3) if mem_map is not aligned in end addres,, find a page which is higher
++ * end of buddy and remove it from buddy allocator.
++ * All found pages are marked as PG_buddyend. These marked page has speccial
++ * meaning in free_pages().
++ */
++
++
++static void __init calculate_aligned_end(struct zone *zone,
++					 unsigned long start_pfn,
++					 int nr_pages)
++{
++	struct page *base;
++	unsigned long mask;
++	long start_idx, end_idx;
++	
++	start_idx = start_pfn - zone->zone_start_pfn;
++	end_idx = start_idx + nr_pages - 1;
++	mask = (1 << MAX_ORDER) - 1;
++	base = zone->zone_mem_map;
++	
++	if (start_idx & mask) {
++		long edge_idx, buddy_idx;
++		int order;
++		edge_idx = start_idx;
++		/*
++		 * Mark all pages which can be  higher half of buddy in
++		 * its index, but its lower half is never available.
++		 */
++		for (edge_idx = start_idx,order = 0;
++		     order < MAX_ORDER;
++		     order++) {
++			if (edge_idx > end_idx)
++				break;
++			buddy_idx = edge_idx ^ (1 << order);
++			if (buddy_idx < edge_idx) {
++				SetPageBuddyend(base + edge_idx);
++				edge_idx += (1 << order);
++			}
++		}
++	}
++	if ((end_idx & mask) != mask) {
++		unsigned long end_address;
++		/*
++		 * Reserve the last page as the stopper for buddy allocator.
++		 * This page is a victim to make buddy allocator work fine.
++		 *
++		 * Note:
++                 * We are using reserve_bootmem() here, is this correct ?
++		 */
++		SetPageBuddyend(base + end_idx);
++		SetPagePrivate(base + end_idx);
++		end_address = (zone->zone_start_pfn + end_idx) << PAGE_SHIFT;
++#ifndef CONFIG_DISCONTIGMEM
++		reserve_bootmem(end_address,PAGE_SIZE);
++#else
++		reserve_bootmem_node(zone->zone_pgdat,end_address,PAGE_SIZE);
++#endif
++	}
++	return;
++}
+
+  /*
+   * Initially all pages are reserved - free ones are freed
+@@ -1510,7 +1574,9 @@ void __init memmap_init_zone(unsigned lo
+  {
+  	struct page *start = pfn_to_page(start_pfn);
+  	struct page *page;
+-
++	unsigned long saved_start_pfn = start_pfn;
++	struct zone *zonep = zone_table[NODEZONE(nid, zone)];
++	
+  	for (page = start; page < (start + size); page++) {
+  		set_page_zone(page, NODEZONE(nid, zone));
+  		set_page_count(page, 0);
+@@ -1524,51 +1590,19 @@ void __init memmap_init_zone(unsigned lo
+  #endif
+  		start_pfn++;
+  	}
+-}
+-
+-/*
+- * Page buddy system uses "index >> (i+1)", where "index" is
+- * at most "size-1".
+- *
+- * The extra "+3" is to round down to byte size (8 bits per byte
+- * assumption). Thus we get "(size-1) >> (i+4)" as the last byte
+- * we can access.
+- *
+- * The "+1" is because we want to round the byte allocation up
+- * rather than down. So we should have had a "+7" before we shifted
+- * down by three. Also, we have to add one as we actually _use_ the
+- * last bit (it's [0,n] inclusive, not [0,n[).
+- *
+- * So we actually had +7+1 before we shift down by 3. But
+- * (n+8) >> 3 == (n >> 3) + 1 (modulo overflows, which we do not have).
+- *
+- * Finally, we LONG_ALIGN because all bitmap operations are on longs.
+- */
+-unsigned long pages_to_bitmap_size(unsigned long order, unsigned long nr_pages)
+-{
+-	unsigned long bitmap_size;
+-
+-	bitmap_size = (nr_pages-1) >> (order+4);
+-	bitmap_size = LONG_ALIGN(bitmap_size+1);
++	/* Because memmap_init_zone() is called in suitable way
++	 * even if zone has memory holes,
++	 * calling calculate_aligned_end(zone) here is reasonable
++	 */
++	calculate_aligned_end(zonep, saved_start_pfn, size);
+
+-	return bitmap_size;
+  }
+
+  void zone_init_free_lists(struct pglist_data *pgdat, struct zone *zone, unsigned long size)
+  {
+  	int order;
+-	for (order = 0; ; order++) {
+-		unsigned long bitmap_size;
+-
++	for (order = 0 ; order < MAX_ORDER ; order++) {
+  		INIT_LIST_HEAD(&zone->free_area[order].free_list);
+-		if (order == MAX_ORDER-1) {
+-			zone->free_area[order].map = NULL;
+-			break;
+-		}
+-
+-		bitmap_size = pages_to_bitmap_size(order, size);
+-		zone->free_area[order].map =
+-		  (unsigned long *) alloc_bootmem_node(pgdat, bitmap_size);
+  	}
+  }
+
+
+_
+

@@ -1,157 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291309AbSBMCMW>; Tue, 12 Feb 2002 21:12:22 -0500
+	id <S291310AbSBMCTe>; Tue, 12 Feb 2002 21:19:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291310AbSBMCMN>; Tue, 12 Feb 2002 21:12:13 -0500
-Received: from [63.231.122.81] ([63.231.122.81]:37206 "EHLO lynx.adilger.int")
-	by vger.kernel.org with ESMTP id <S291309AbSBMCLz>;
-	Tue, 12 Feb 2002 21:11:55 -0500
-Date: Tue, 12 Feb 2002 19:08:34 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Larry McVoy <lm@bitmover.com>, Ingo Molnar <mingo@elte.hu>,
-        Tom Rini <trini@kernel.crashing.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Alexander Viro <viro@math.psu.edu>,
-        Rob Landley <landley@trommello.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020212190834.W9826@lynx.turbolabs.com>
-Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
-	Larry McVoy <lm@bitmover.com>, Ingo Molnar <mingo@elte.hu>,
-	Tom Rini <trini@kernel.crashing.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Alexander Viro <viro@math.psu.edu>,
-	Rob Landley <landley@trommello.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020130092529.O23269@work.bitmover.com> <Pine.LNX.4.33L.0202122058150.12554-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33L.0202122058150.12554-100000@imladris.surriel.com>; from riel@conectiva.com.br on Tue, Feb 12, 2002 at 08:59:34PM -0200
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S291311AbSBMCTO>; Tue, 12 Feb 2002 21:19:14 -0500
+Received: from femail12.sdc1.sfba.home.com ([24.0.95.108]:41431 "EHLO
+	femail12.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S291310AbSBMCTE>; Tue, 12 Feb 2002 21:19:04 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, inglem@cisco.com (Mukund Ingle)
+Subject: Re: Quick question on Software RAID support.
+Date: Tue, 12 Feb 2002 21:19:54 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16aoUH-0003mY-00@the-village.bc.nu>
+In-Reply-To: <E16aoUH-0003mY-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020213021903.PBFY16300.femail12.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 12, 2002  20:59 -0200, Rik van Riel wrote:
-> On Wed, 30 Jan 2002, Larry McVoy wrote:
-> > and then you added one change below that, multiple times.  If you were to
-> > combine all of those changes in a BK tree, it would look like
-> >
-> > 			[older changes]
-> > 			      v
-> > 			  [2.5.3-pre4]
-> > 			      v
-> > 			  [2.5.3-pre5]
-> >   [sched1] [sched2] [sched3] [sched4] [sched5] [sched6] [sched7]
-> 
-> I'm porting rmap to 2.5 now, doing just this.
-> 
-> One thing I noticed was that the space usage of all the
-> bk trees I'm using in order to keep the different changes
-> individually pullable is about 1.5 GB now.
+On Tuesday 12 February 2002 08:45 pm, Alan Cox wrote:
+> > 1) Does the Software RAID-5 support automatic detection
+> >      of a drive failure? How?
+>
+> It sees the commands failing on the underlying controller. Set up a
+> software raid 5 and just yank a drive out of a  bay if you want to test it
+>
+> > 2) Has Linux Software RAID-5 been used in the Enterprise environment
+> >      to support redundancy by any real-world networking company
+> >      or this is just a tool used by individuals to provide redundancy on
+> >      their own PCs in the labs and at home?
+>
+> Dunno about that. I just hack code 8)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Is this using "bk clone -l" or just "bk clone"?  I would _imagine_
-that since the rmap changes are fairly localized that you would only
-get multiple copies of a limited number of files, and it wouldn't
-increase the size of each repository very much.
+I've seen a 20-way Linux software raid used to capture uncompressed HTDV 
+video in realtime, as part of an HTDV video editing system for which I 
+believe the client was billed six figures.
 
-As Larry mentioned, you could re-merge these trees.  The following script
-will probably be enough, since we don't want/need to compare all files
-in each tree, only SCCS and BitKeeper files that are in the same place
-in the heirarchy.  Very lightly tested - Larry will have to tell me if
-it is OK to hard-link everything in SCCS and BitKeeper repositories,
-or if there are some files that should be ignored.
+That was SCSI.  (Well, dual qlogic fiber channel controllers that pretended 
+to be scsi.)  I've also encountered a couple companies selling 14-drive 
+enclosures (IDE, they rackmount in a 3U or 4U) that are turned into big 
+software raid systems for data hosting.
 
-On my e2fsprogs tree, it takes 12s to relink a clone to its parent,
-saving 12/19MB = 63% reduction in space per clone.
+And of course, you might want to talk to IBM and their global file system 
+stuff, and their implementation of the logical volume management stuff last 
+year (what was not the one that Linus eventually went with, I believe...)
 
-Cheers, Andreas
-=========================== bkrelink =====================================
-#!/bin/sh
-# A script to relink files in BitKeeper repositories if they were not
-# created with "bk clone -l" or if the same changes were made to both
-# repositories.
-#
-# Andreas Dilger <adilger@turbolabs.com>  02/12/2002
+Does this count?
 
-PROG=bkrelink
+(I kind of doubt IBM, HP, or Sun are insterested in tools for individual 
+end-users...)
 
-usage() {
-	echo "usage: $PROG <parent BK tree> <clone BK tree>" 1>&2 && exit 1
-}
-
-[ $# -ne 2 ] && usage
-[ ! -d "$1/BitKeeper" ] && usage
-[ ! -d "$2/BitKeeper" ] && usage
-
-PTREE=$1
-CTREE=$2
-
-#DEBUG=1
-say() {
-	[ "$DEBUG" ] && echo "$*"
-	return 0
-}
-
-do_link() {
-	echo "$PROG: hard-linking $2 to $1"
-	ln -f $1 $2
-}
-
-# We need to do some ugly things with the find processes to keep the relative
-# paths correct in each tree.  Likewise, | read will run in a separate process
-# so we need to do the checks in a subshell so all the stat fields are set.
-(cd $CTREE
-say "$PROG: finding in $CTREE" 1>&2
-find . -type d \( -name BitKeeper -o -name SCCS \) ) | while read DIR; do
-(cd $CTREE/$DIR
-say "$PROG: looking in $CTREE/$DIR" 1>&2
-find . -type f ) | while read FILE; do
- 	PFILE=$PTREE/$DIR/$FILE
- 	CFILE=$CTREE/$DIR/$FILE
-
-	say "$PROG: checking $CFILE, $PFILE"
-
-	[ ! -f "$PFILE" ] && say "$PROG: $PFILE not found" && continue
-	[ ! -f "$CFILE" ] && say "$PROG: $CFILE not found" && continue
-
-	[ "$DEBUG" ] && stat -t $PFILE && stat -t $CFILE
-	stat -t $PFILE | { read JNK PSZ JNK JNK PUSR PGRP PDEV PINO PLINK JNK
-	stat -t $CFILE | { read JNK CSZ JNK JNK CUSR CGRP CDEV CINO CLINK JNK
-
-	# do the easy test (size compare) first
-	[ $CSZ != $PSZ ] && say "size mismatch: $CSZ != $PSZ" && continue
-	# can't hard link across devices
-	[ $CDEV != $PDEV ] && say "dev mismatch: $CDEV != $PDEV" && continue
-	# already hard linked (same device number, same inode numer)
-	[ $CINO == $PINO ] && say "ino match: $CINO == $PINO" && continue
-	[ $CUSR != $PUSR ] && say "user mismatch: $CUSR != $PUSR" && continue
-	[ $CGRP != $PGRP ] && say "group mismatch: $CGRP != $PGRP" && continue
-
-	#echo "$PROG: comparing $CFILE, $PFILE"
-
-	cmp --quiet $CFILE $PFILE || continue
-
-	# We try to have only a single target against which we link.
-	# If in doubt, move links towards the specified parent.
-	if [ $CLINK -eq 1 ]; then
-		do_link $PFILE $CFILE
-	elif [ $PLINK -eq 1 ]; then
-		do_link $CFILE $PFILE
-	else
-		do_link $PFILE $CFILE
-	fi
-	}
-	}
-done
-done
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+Rob

@@ -1,32 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315468AbSGTLCc>; Sat, 20 Jul 2002 07:02:32 -0400
+	id <S315406AbSGTKyH>; Sat, 20 Jul 2002 06:54:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315479AbSGTLCc>; Sat, 20 Jul 2002 07:02:32 -0400
-Received: from mkc-65-26-127-29.kc.rr.com ([65.26.127.29]:29703 "EHLO
-	portal.home.hanaden.com") by vger.kernel.org with ESMTP
-	id <S315468AbSGTLCb>; Sat, 20 Jul 2002 07:02:31 -0400
-Message-ID: <3D394409.2010906@hanaden.com>
-Date: Sat, 20 Jul 2002 06:05:45 -0500
-From: Hanasaki JiJi <hanasaki@hanaden.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a+) Gecko/20020712
-X-Accept-Language: en-us, en
+	id <S315430AbSGTKyH>; Sat, 20 Jul 2002 06:54:07 -0400
+Received: from dsl-213-023-043-116.arcor-ip.net ([213.23.43.116]:54661 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S315406AbSGTKyG>;
+	Sat, 20 Jul 2002 06:54:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Rodland <arodland@noln.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -ac] Panicking in morse code, v2
+Date: Sat, 20 Jul 2002 12:58:42 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <20020719011300.548d72d5.arodland@noln.com> <20020719190213.2a2d51f8.arodland@noln.com>
+In-Reply-To: <20020719190213.2a2d51f8.arodland@noln.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: howto Name eth[0 .. n-1]  in kernel 2.4.18 vs earlier kernels?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17Vrwh-0000b5-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just upgraded to 2.4.18 on debian woody and built my own kernel.  In the
-past, there was an alias for "tulip" in the modules file.  This named my
-NIC eth0.  In my firewall, it named the NICs eth0 and eth1
+Nice joke.  Unfortunately, this code is too useful to ignore.  I distinctly 
+remember finding myself in the position of having completed the firmware of 
+an embedded device without properly recording the correspondence of led blink 
+patterns to error codes, the result being that if the firmware had ever failed
+(luckily it never did) nobody would have been quite sure why.  How much more 
+useful, satisfying and stylish to have encoded the failure messages in morse.
 
-In 2.4.18 I cannot seem to find the place to name the NICs.  Where can
-this be done?  It will be a big issue on my firewall as eth0 MUST remain
-the external nic.
+On Saturday 20 July 2002 01:02, Andrew Rodland wrote:
+> Thanks a million to the unnamed linux<AT>horizon.com for some great
+> suggestions/info. v2 of the morse-panic patch features better
+> punctuation handling, proper morse-like timings, and something like 1/5
+> the static data requirement, thanks to the varicode algo that I
+> couldn't come up with myself. :)
 
-Thankyou
+Indeed, that one had me scratching my head, even with the code in front of 
+me.  Let me describe the encoding method for the benefit of anybody not 
+energetic or foolish enough to puzzle it out for themselves:
 
+  - The sequence is encoded from low bit to high, zero=dit, one=dah
 
+  - The sequence always terminates with a one=dah, which is dropped,
+    followed by an infinite string of zeros.
+
+The infinite string of zeros is shifted in from the top of the byte, hence 
+the terminating condition morse <= 1, which prudently covers the impossible 
+case of morse == 0.
+
+This deserves a comment.
+
+Note that there is a bug waiting to bite: you need to declare morse as 
+unsigned char, otherwise you will be unable to make good on your claim that 
+up to 7 morse bits can be encoded.
+
+-- 
+Daniel

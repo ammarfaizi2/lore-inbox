@@ -1,26 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264883AbSJRGQ3>; Fri, 18 Oct 2002 02:16:29 -0400
+	id <S264877AbSJRGZn>; Fri, 18 Oct 2002 02:25:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264897AbSJRGQ2>; Fri, 18 Oct 2002 02:16:28 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:37827 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264883AbSJRGQ1>;
-	Fri, 18 Oct 2002 02:16:27 -0400
-Date: Thu, 17 Oct 2002 23:14:54 -0700 (PDT)
-Message-Id: <20021017.231454.60541659.davem@redhat.com>
-To: omit@rice.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Double & Integral don't match
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <004301c27664$9d224070$7e0c2a80@OMIT>
-References: <004301c27664$9d224070$7e0c2a80@OMIT>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S264967AbSJRGZn>; Fri, 18 Oct 2002 02:25:43 -0400
+Received: from zero.aec.at ([193.170.194.10]:28176 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id <S264877AbSJRGZl>;
+	Fri, 18 Oct 2002 02:25:41 -0400
+Date: Fri, 18 Oct 2002 08:31:29 +0200
+From: Andi Kleen <ak@muc.de>
+To: Peter Chubb <peter@chubb.wattle.id.au>, Benjamin LaHaise <bcrl@redhat.com>,
+       Andi Kleen <ak@muc.de>, Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] statfs64 no longer missing
+Message-ID: <20021018063129.GA24682@averell>
+References: <20021016140658.GA8461@averell> <shs7kgipiym.fsf@charged.uio.no> <15789.64263.606518.921166@wombat.chubb.wattle.id.au> <20021017000111.GA25054@averell> <20021017154102.D30332@redhat.com> <15791.21383.361727.533851@wombat.chubb.wattle.id.au> <20021018061701.GA18925@clusterfs.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021018061701.GA18925@clusterfs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Wasn't Dave Miller just saying that passing "long" between user-space
+> and the kernel is just a bad idea?  Should we use "__u32" and "__u64"
+> here instead?
 
-You may not do floating point operations in the kernel.
+This is architecture specific, where it is ok.
+
+-Andi

@@ -1,88 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263345AbUCNL5g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 06:57:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263346AbUCNL5c
+	id S263346AbUCNL5y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 06:57:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263347AbUCNL5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 06:57:32 -0500
-Received: from sun1000.pwr.wroc.pl ([156.17.1.33]:36265 "EHLO
-	sun1000.pwr.wroc.pl") by vger.kernel.org with ESMTP id S263345AbUCNL5a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 06:57:30 -0500
-Date: Sun, 14 Mar 2004 12:57:27 +0100
-From: Pawel Dziekonski <pawel.dziekonski@pwr.wroc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.4] IDE performance drop again
-Message-ID: <20040314115727.GA21362@sun1000.pwr.wroc.pl>
-Reply-To: Pawel Dziekonski <pawel.dziekonski@pwr.wroc.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 14 Mar 2004 06:57:54 -0500
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:45330 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S263346AbUCNL5s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 06:57:48 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Olaf Hering <olh@suse.de>
+Subject: Re: Does sysfs really provides persistent hardware path to devices?
+Date: Sun, 14 Mar 2004 14:53:56 +0300
+User-Agent: KMail/1.6.1
+Cc: Greg KH <greg@kroah.com>, jw schultz <jw@pegasys.ws>,
+       linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+References: <E19odOM-000NwL-00.arvidjaar-mail-ru@f22.mail.ru> <200401172334.13561.arvidjaar@mail.ru> <20040119130817.GA27953@suse.de>
+In-Reply-To: <20040119130817.GA27953@suse.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-X-Useless-Header: Vim powered ;^)
-X-00-Privacy-Policy: S/MIME encrypted e-mail is welcome.
-X-04-Privacy-Policy-My_SSL_Certificate: http://www.europki.pl/cgi-bin/dn-cert.pl?serial=000001D2&certdir=/usr/local/cafe/data/polish_ca/certs/user&type=email
-X-05-Privacy-Policy-CA_SSL_Certificate: http://www.europki.pl/polish_ca/ca_cert/en_index.html
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403141453.59145.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Monday 19 January 2004 16:08, Olaf Hering wrote:
+>  On Sat, Jan 17, Andrey Borzenkov wrote:
+> > > > Well, we did not move a tiny bit since the beginning of this thread
+> > > > :) You still did not show me namedev configuration that implements
+> > > > persistent name for a device based on its physical location :)))
+> > >
+> > > Ok, do you have any other ideas of how to do this?
+> >
+> > given current sysfs implementation - using wildcards remains the only
+> > solution. I for now am using this trivial script:
+> >
+> > pts/0}% cat /etc/udev/scripts/removables
+> > #!/usr/bin/perl
+> >
+> > my $devpath, $base;
+> >
+> > $base = $1 if ($ARGV[0] =~ /(.*\D)\d*$/);
+> > $devpath = readlink "/sys/block/$base/device";
+> >
+> > if ($devpath =~
+> > m|/devices/pci0000:00/0000:00:1f.4/usb2/2-2/2-2.4/2-2.4:1.0/host\d+/\d+:0
+> >:0:0|) {
+> >         print "flash0";
+> > } elsif ($devpath =~
+> > m|/devices/pci0000:00/0000:00:1f.4/usb2/2-2/2-2.1/2-2.1:1.0/host\d+/\d+:0
+> >:0:0|) {
+> >         print "flash1";
+> > } elsif ($devpath =~ m|/devices/legacy/host\d+/\d+:0:4:0|) {
+> >         print "jaz";
+> > } else {
+> >         exit(1);
+> > }
+>
+> I'm not sure what you are trying to do.
 
-after switching from 2.6.1 to 2.6.4 I see IDE performance drop again.
+I am trying to assign name for a USB slot on my PCs front so that when I plug 
+in USB stick or USB drive or whatever I get the same name. Always.
 
-hdparm /dev/hda
+> Working with the 'physical 
+> location' of removeable devices will probably fail.
 
-/dev/hda:
- multcount    =  1 (on)
- IO_support   =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- readonly     =  0 (off)
- readahead    = 8192 (on)
- geometry     = 26310/16/63, sectors = 26520480, start = 0
+why? The 'physical location' is the only thing that is unlikely to change 
+unless you physically change you hardware.
 
-under 2.4.x and 2.6.1 i had about 40 MB/s in hdparm -ft. in 2.6.4 i get
-at most 26 MB/s. changing readahead does not help. i'm using ac
-scheduler.
+Anyway - it appears that udev (as of 022 now) still does not support doing it. 
+Once more - I want to make sure that SCSI disk plugged in specific USB slot 
+(that does not ever change) always gets the same name. So that I always know 
+how to access it.
 
-lspci
+naive user would think that something like
 
-00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 02)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 22)
-00:07.1 IDE interface: VIA Technologies, Inc.  VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 10)
-00:07.2 USB Controller: VIA Technologies, Inc. USB (rev 10)
-00:07.3 USB Controller: VIA Technologies, Inc. USB (rev 10)
-00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
-00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686 AC97 Audio Controller (rev 20)
-00:0b.0 SCSI storage controller: Tekram Technology Co.,Ltd. TRM-S1040 (rev 01)
-00:11.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 02)
-00:11.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 02)
-00:14.0 Ethernet controller: Realtek Semiconductor Co., Ltd.  RTL-8139/8139C/8139C+ (rev 10)
-01:00.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 MX/MX 400] (rev b2)
+KERNEL="sd*" BUS="usb" PLACE="2.4:1.0" SYMLINK="flash0/sd%n"
 
-/proc/interrupts 
-           CPU0       
-  0:    1602384          XT-PIC  timer
-  1:       4247          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  8:       6328          XT-PIC  rtc
-  9:          0          XT-PIC  acpi
- 10:     194179          XT-PIC  uhci_hcd, uhci_hcd, eth0
- 11:          0          XT-PIC  VIA686A
- 12:     100786          XT-PIC  nvidia, bttv0
- 14:      27087          XT-PIC  ide0
- 15:          5          XT-PIC  ide1
-NMI:          0 
-LOC:    1598373 
-ERR:     260588
-MIS:          0
+would work. Surely it does not. When udev sees "sd*" it does not see bus USB. 
+When udev sees bus USB it does not see "sd*". It does (probably) see sd* on 
+bus SCSI but it does not help me in any way because I have no way to 
+associate SCSI ID with USB port. While kernel does know that "sda" is a child 
+of USB port 2.4:0.1 I do not see any way to express it in udev.
 
-regards, P
+Could somebody explain what am I doing wrong. Thank you. 
 
-PS. I'm not subscribed, so please CC me your replies. thanks.
--- 
-Pawel Dziekonski <pawel.dziekonski|@|pwr.wroc.pl>, KDM WCSS avatar:0:0:
-Wroclaw Networking & Supercomputing Center, HPC Department
--> See message headers for privacy policy info.
+> The usb-storage 
+> devices here have a serial field, I really hope it is unique, use it.
+
+Sigh ... let me quote:
+
+> I have 6 different firewire hard drives, and an iPod, a usb stick, a usb
+> stick/camera combo, and a bunch of flash memory products (CF, SM, SD) so
+> such a thing would be incredibly useful to me.  I'm always modifying my
+> fstab to keep things in order.
+
+so you suggest him to add every device separately? And if he has half a dozen 
+friends having half a dozen devices each - do you suggest adding yet another 
+40 lines for all of them? And keep it in sync with all updates and upgrades?
+
+On the contrary he likely has just a couple of USB ports and one firewire and 
+he just needs three lines for *any* device which is ever going to be plugged 
+in. Or he would need if it was supported.
+
+thank you
+
+-andrey

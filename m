@@ -1,62 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261894AbTANOgm>; Tue, 14 Jan 2003 09:36:42 -0500
+	id <S262937AbTANOgT>; Tue, 14 Jan 2003 09:36:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263039AbTANOgm>; Tue, 14 Jan 2003 09:36:42 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:46856 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S261894AbTANOgk>; Tue, 14 Jan 2003 09:36:40 -0500
-Message-ID: <3E2422B5.B5F8AD31@aitel.hist.no>
-Date: Tue, 14 Jan 2003 15:46:13 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.5.58 i686)
-X-Accept-Language: no, en, en
+	id <S263039AbTANOgT>; Tue, 14 Jan 2003 09:36:19 -0500
+Received: from smtp.laposte.net ([213.30.181.7]:2743 "EHLO smtp.laposte.net")
+	by vger.kernel.org with ESMTP id <S262937AbTANOgS>;
+	Tue, 14 Jan 2003 09:36:18 -0500
+Message-ID: <00e901c2bbdb$563b8b50$2680a8c0@nordnet.net>
+From: "Florent CHANTRET" <florent@chantret.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: SMBALERT# thermal sensor signal for Intel PII in the kernel ?
+Date: Tue, 14 Jan 2003 15:43:41 +0100
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Repeatable scheduling oddity in 2.5.5x?
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I occationally use the program dvipdfm for creating pdf-files.
-It works for a while, then it just pauses.  The process (and
-child processes) sleeps and the load falls to 0 for no reason.
+Hi geeks and guru's ;o)
 
-Moving the mouse around or holding down a keyboard key (even shift)
-gets it going again.  Note that the windows with the "stuck"
-processes don't need to have focus.
-Pinging the machine don't seem to help, so it isn't
-purely an interrupt thing.
+Even if I'm a developper, I'm not there for the moment to help you
+developping this wonderful Linux Kernel. Later, perhaps ;o)
 
-This is not a case of starvation, the cpu is free but the kernel
-seems to want some mouse/keyboard activity in order to hand out
-timeslices.  This is hopeless if I'm logged in via ssh.  Causing massive
-disk activity might help, but usually not.  Logging in as root
-and giving the processes a massive priority boost don't
-change a thing.
+But, I've a problem with my laptop Sony VAIO powered by a bugged as hell
+Intel PII Celeron (lot of customers from Sony have the same problem and
+there is no support from this fuckin' company, nor from Intel, and I don't
+think contacting Micro$$$$oft is the good thing to do).
 
-I don't think it is a timeout either, this is not a portable and
-the problem can trigger in 10 seconds or so after giving the
-command.
+My laptop randomly shutdown due to a bug in the thermal sensor of the PII
+sending a SMBALERT# signal. There is no solution for NT fuckin' OS (only a
+trick on "WinDaube" 98 (french expression for WinShit ;o))
 
-The machine is nowhere near OOM either.
+I don't want to be on an unstable fuckin' system, so I decided to
+permanently switched to Linux (I was always reticent, I was considering
+Linux was the best stuff for server but not so ready yet for desktop :
+crappy fonts, some applications missing or not so user-friendly, but I'm
+changing my mind), cause there is a real support, and tha ability to see the
+source code. Open Source ruleeezzzzzzzzzz ;o)
 
-ps and top just show the relevant processes sleeping along with
-other processes that don't have any input to process.
-But these have. :-(
+But let's go to the problem :
 
-I see this with 2.5.58 and 2.5.55, UP with preempt.
+Here is the Intel stuff about the bug :
+http://cipsa.physik.uni-freiburg.de/~zwerger/Vaio/Intel_Mobile_Temp-Prob.pdf
+Here is the fix on fuckin' Windows 98 (as a curiosity) :
+http://cipsa.physik.uni-freiburg.de/~zwerger/Vaio/indexeng.htm
 
-dvipdfm reads a .dvi file, and use a pipe with zcat and
-gv to process postscript figures.  There seems to always
-be such a pipe active when it gets stuck.
+So there is a software way to fix this hardware bug.
 
-I don't think a programming error in these programs
-can _know_ wether or not I'm wiggling the mouse,
-that's why I suspect the kernel.
+So I've build a 2.4.20 kernel without  all the APM,ACPI, PM at boot, CPU
+Idle and "Machine Check Exception" but I've still the problem. The kernel
+still answer to an SMBALERT# which cause the machine to shutdown.
 
-Is there anything more I could do to try tracking this down?
-I have no problems repeating it.
+So, before asking in the ML, I've searched on Google and Google Groups
+without success (there is quite nothing about SMBALERT#).
 
-Helge Hafting
+I've grepped all the 2.4.20 source code but there is anywhere the presence
+of SMBALERT# in a comment. I've noticed some codes about SMBus (which I
+think include the SMBALERT functionnality) but I don't know if I can
+deactivate SMBus in the kernel config and if it is safe to do it.
+
+There is several functions in the kernel for SMBus so if I must patch the
+code to deactivate this precise signal, any help would be appreciated ;o)
+
+If I can fix it, I will try to convert all the consumers of the F-serie VAIO
+bugged to Linux ;o)
+
+Thanks for your answer and sorry if this is not the good place to post but
+I've searched a lot before. I don't want to erase Linux to put a "Windaube
+98" help help help ;o)
+
+Regards and respect for your great work !
+Florent CHANTRET
+

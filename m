@@ -1,71 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272690AbTG1HB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 03:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272689AbTG1HAH
+	id S272703AbTG1HIb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 03:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272704AbTG1HIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 03:00:07 -0400
-Received: from f12.mail.ru ([194.67.57.42]:37638 "EHLO f12.mail.ru")
-	by vger.kernel.org with ESMTP id S272687AbTG1G6Y (ORCPT
+	Mon, 28 Jul 2003 03:08:31 -0400
+Received: from pop.gmx.de ([213.165.64.20]:41353 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S272703AbTG1HIZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 02:58:24 -0400
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: =?koi8-r?Q?=22?=Andrew Morton=?koi8-r?Q?=22=20?= <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org,
-       =?koi8-r?Q?=22?=Daniele Venzano=?koi8-r?Q?=22=20?= 
-	<webvenza@libero.it>
-Subject: Re: 2.6.0-test1 devfs question
+	Mon, 28 Jul 2003 03:08:25 -0400
+Message-Id: <5.2.1.1.2.20030728091801.01b83538@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Mon, 28 Jul 2003 09:27:49 +0200
+To: Andre Hedrick <andre@linux-ide.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch] sched-2.6.0-test1-G6, interactivity changes
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10307272338160.30891-100000@master.linux-ide
+ .org>
+References: <5.2.1.1.2.20030728065857.01bc9708@pop.gmx.net>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.248.25.26]
-Date: Mon, 28 Jul 2003 11:13:38 +0400
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E19h2CQ-0009YQ-00.arvidjaar-mail-ru@f12.mail.ru>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 11:45 PM 7/27/2003 -0700, Andre Hedrick wrote:
 
-> 
-> The patch is broken - 2.4 does /dev/md/2 as well.
-> 
-> So what is the bug?  Why are people suddenly having problems with this?
-> 
+>On Mon, 28 Jul 2003, Mike Galbraith wrote:
+>
+> > At 09:18 PM 7/27/2003 +0200, Felipe Alfaro Solana wrote:
+> > >On Sun, 2003-07-27 at 15:40, Ingo Molnar wrote:
+> > > > my latest scheduler patchset can be found at:
+> > > >
+> > > >       redhat.com/~mingo/O(1)-scheduler/sched-2.6.0-test1-G6
+> > > >
+> > > > this version takes a shot at more scheduling fairness - i'd be 
+> interested
+> > > > how it works out for others.
+> > >
+> > >This -G6 patch is fantastic, even without nicing the X server. I didn't
+> > >even need to tweak any kernel scheduler knob to adjust for maximum
+> > >smoothness on my desktop. Response times are impressive, even under
+> > >heavy load. Great!
+> >
+> > Can you try the following please?
+> >
+> > This one I just noticed:
+> > 1.  start top.
+> > 2.  start dd if=/dev/zero | dd of=/dev/null
+> > 3.  wiggle a window very briefly.
+> > Here, X becomes extremely jerky, and I think this is due to two
+> > things.  One, X uses it's sleep_avg very quickly, and expires.  Two, the
+> > piped dd now is highly interactive due to the ns resolution clock (uhoh).
+>
+>What kind of LAME test is this?  If "X becomes extremely jerky" ?
 
-Daniele did some debugging, result is:
+Huh?  The point is that piped cpu hogs just became high priority.
 
-=================
-Buggy config
-------------
-GRUB command line: kernel (hd0,1)/testing root=/dev/md2
-video=radeonfb:1024x768-32@60
-As output there is only (copied by hand):
+>Sheesh, somebody come up with a build class solution.
+>
+>CONFIG_SERVER
+>CONFIG_WORKSTATION
+>CONGIG_IAMAGEEKWHOPLAYSGAMES
+>CONFIG_GENERIC_LAMER
+>
+>Determining quality of the scheduler based on how a mouse responds is ...
+>
+>Sorry but this is just laughable, emperical subjective determination
+>based on a random hardware combinations for QA/QC for a test?
+>
+>Don't bother replying cause last thing I want to know is why.
 
-[...]
+Oh, I see, you just felt like doing some mindless flaming.
 
-raid1: raid set md2 active with 2 out of 2 mirrors
-md: ... autorun DONE.
-create_dev: name=/dev/root dev=902 dname=md2
-VFS: cannot open root device "md2" or md2
-please append a correct "root=" boot option
-Kernel panic: VFS: unable to mount root fs on md2
-<STOP>
-==================
-
-the bug is almost for sure in init/do_mount_devfs.c:read_dir; it
-allocates static buffer of size at most 2**MAX_ORDER and tries to
-read the whole dir at once. md driver creates all minors in md_init
-i.e. 256 (2**MINORBITS). MAX_ORDER default is 11 so we have at most
-2K which is enough for appr. 200 entries; 256 do not fit :)
-
-Daniel, please, could you change read_dir to just allocate bigger
-buffer - 4K should do - and test once more?
-
-I'll see what can be done. Anyone sees reason why normal directory
-scan won't work here?
-
--andrey 
+         -Mike 
 

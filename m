@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266621AbUBMARN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 19:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266625AbUBMARN
+	id S266626AbUBMANi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 19:13:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266632AbUBMANi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 19:17:13 -0500
-Received: from mail.shareable.org ([81.29.64.88]:7298 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S266621AbUBMARI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 19:17:08 -0500
-Date: Fri, 13 Feb 2004 00:17:02 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: John Bradford <john@grabjohn.com>
-Cc: Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
-Message-ID: <20040213001702.GA24981@mail.shareable.org>
-References: <20040209115852.GB877@schottelius.org> <20040212004532.GB29952@hexapodia.org> <20040212085451.GC20898@mail.shareable.org> <200402121655.39709.robin.rosenberg.lists@dewire.com> <200402121617.i1CGHH2c000275@81-2-122-30.bradfords.org.uk>
+	Thu, 12 Feb 2004 19:13:38 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34694 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266626AbUBMANf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 19:13:35 -0500
+Date: Fri, 13 Feb 2004 00:13:33 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Michael Frank <mhf@linuxmail.org>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
+Message-ID: <20040213001333.GV21151@parcelfarce.linux.theplanet.co.uk>
+References: <200402130615.10608.mhf@linuxmail.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200402121617.i1CGHH2c000275@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200402130615.10608.mhf@linuxmail.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
-> > Definitely a good reason.  It seem many assume file names are a local thing,
-> > but this is not so. Now consider the case with an external firewire
-> > disk or memory stick created on a machine with iso-8859-1 as the system character
-> > set and e.g xfs as the file system. What happens when I hook it up to a new redhat
-> > installation that thinks file names are best stored as utf8? Most non-ascii
-> > file names aren't even legal in utf8.
-> 
-> Another thing to consider is that you can encode the same character in
-> several ways using utf8,
+On Fri, Feb 13, 2004 at 06:15:10AM +0800, Michael Frank wrote:
+> +		Chapter : Macros
+> +
+> +Macros defining constants are capitalized.
+> +
+> +#define CONSTANT 0x12345
+> +
+> +CAPITALIZED macro names are appreciated but macros resembling functions
+> +may be named in lower case.
+> +
+> +Macros with multiple statements should be enclosed in a do - while block.
+> +
+> +#define macrofun(a,b,c) 		\
+> +do {					\
+> +	if (a == 5)			\
+> +		do_this(b,c);		\
+> +					\
+> +} while (0)
+> +
+> +Macros defining expressions must enclose the expression in parenthesis
+> +to reduce sideeffects.
+> +
+> +#define CONSTEXP (CONSTANT | 3)
+> +#define MACWEXP(a,b) ((a) + (b))
 
-No, you can't.  Only the shortest encoding of a character is valid
-UTF-8, and any program which claims to comply with Unicode is
-_required_ to reject all other encodings, citing security as the main
-reason.
+Generally, enum and inline functions are preferable to the above.
 
-That means any code which transcodes UTF-8 to another encoding (such
-as iso-8859-1) must reject the non-minimal forms as invalid
-characters, in whatever way that is done.
+Things to avoid when doing macros:
 
-If there's any transcoding code in Linux which doesn't do that, it's a
-potential security hole and should be fixed.
+	1) macros that affect control flow:
 
-> so two filenames could have different byte strings, but evaluate to
-> the same set of unicode characters.
+#define FOO(x) do {if (blah(x) < 0) return -EBUGGERED;} while(0)
 
-That's true in some other encodings I think (the iso-2022 ones), but
-not UTF-8.
+is _not_ a good idea.  It looks like a function call; don't break the internal
+parsers of those who will read the code.
 
--- Jamie
+	2) macros that depend on having a local variable with magic name:
+
+#define FOO(val) bar(index, val)
+
+might look like a good thing, but it's confusing as hell when one reads the
+code and it's prone to breakage from seemingly innocent changes.
+
+	3) macros with arguments that are used as l-values: FOO(x) = y; will
+bite you if somebody e.g. turns FOO into inlined function.
+
+

@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267789AbUG3TFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267795AbUG3THP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267789AbUG3TFG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 15:05:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267796AbUG3TFG
+	id S267795AbUG3THP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 15:07:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267788AbUG3THP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 15:05:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37598 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267791AbUG3TE7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 15:04:59 -0400
-Date: Fri, 30 Jul 2004 20:04:56 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: Matthew Wilcox <willy@debian.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: Exposing ROM's though sysfs
-Message-ID: <20040730190456.GZ10025@parcelfarce.linux.theplanet.co.uk>
-References: <20040730181205.GW10025@parcelfarce.linux.theplanet.co.uk> <20040730185921.99631.qmail@web14929.mail.yahoo.com>
+	Fri, 30 Jul 2004 15:07:15 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:41439 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S267796AbUG3TG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 15:06:28 -0400
+Date: Fri, 30 Jul 2004 21:06:21 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Nicolas Boichat <nicolas@boichat.ch>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Grega Fajdiga <Gregor.Fajdiga@guest.arnes.si>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Compile error in 2.6.8-rc2-mm1 - rivafb related
+Message-ID: <20040730190620.GB685@fs.tum.de>
+References: <1091105305.11537.6.camel@cable155-82.ljk.voljatel.net> <20040730141441.GA685@fs.tum.de> <1091203618.6583.7.camel@tom>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040730185921.99631.qmail@web14929.mail.yahoo.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1091203618.6583.7.camel@tom>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 30, 2004 at 11:59:21AM -0700, Jon Smirl wrote:
-> Alan Cox knows more about this, but I believe there is only one PCI
-> card in existence that does this.
+On Fri, Jul 30, 2004 at 06:06:58PM +0200, Nicolas Boichat wrote:
 
-Strange; he was the one who pointed out this requirement to me in the
-first place and he hinted that many devices did this.
+> Hello,
 
-> For the one or two cards that do this, the device drivers could flag
-> this to the PCI subsystem. In the flagged case the sysfs read code
-> could  shut off interrupts, enable the ROM, copy it, and then reenable
-> interrupts. 
+Hi Nicolas,
+ 
+> On Fri, 2004-07-30 at 16:14, Adrian Bunk wrote:
+>...
+> > @Nicolas:
+> > Your rivafb-i2c-fixes patch in -mm causes this with CONFIG_FB_RIVA_I2C=n 
+> > (it moves i2c code from inside an #ifdef CONFIG_FB_RIVA_I2C to a place 
+> > where it isn't guarded by such an #ifdef).
+> 
+> It seems that a wrong patch (an older one) has been integrated in -mm.
+> 
+> I attached the right patch, that I already sent on July 14.
 
-Shutting off interrupts isn't nearly enough.  Any other CPU could access the
-device, or indeed any device capable of DMA could potentially cause trouble.
+this patch fixes it, but it seems due to some context changes, it no 
+longer applies cleanly against 2.6.8-rc2-mm1.
+
+> Best regards,
+> 
+> Nicolas
+
+cu
+Adrian
 
 -- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

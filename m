@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265196AbUGQPhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266708AbUGQP70@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265196AbUGQPhT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 11:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266185AbUGQPhT
+	id S266708AbUGQP70 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 11:59:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266713AbUGQP7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 11:37:19 -0400
-Received: from bay2-f1.bay2.hotmail.com ([65.54.247.1]:36365 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S265196AbUGQPhR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 11:37:17 -0400
-X-Originating-IP: [213.16.186.86]
-X-Originating-Email: [sta_tzani7@hotmail.com]
-From: "stavros tzanidakis" <sta_tzani7@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: arch/i386/kernel/traps.o error
-Date: Sat, 17 Jul 2004 15:37:16 +0000
+	Sat, 17 Jul 2004 11:59:25 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:21414 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S266708AbUGQP7Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jul 2004 11:59:24 -0400
+Date: Sat, 17 Jul 2004 17:57:17 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jean Francois Martinez <jfm512@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Davicom DM9102AF card working only at 10 Mbps
+Message-ID: <20040717175717.A11275@electric-eye.fr.zoreil.com>
+References: <1090070520.4498.25.camel@agnes>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY2-F1WuoHWh7qdDZ70006accb@hotmail.com>
-X-OriginalArrivalTime: 17 Jul 2004 15:37:16.0862 (UTC) FILETIME=[F084A5E0:01C46C13]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1090070520.4498.25.camel@agnes>; from jfm512@free.fr on Sat, Jul 17, 2004 at 03:22:00PM +0200
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jean Francois Martinez <jfm512@free.fr> :
+> I have an ethernet card with a DM9102AF chip.  It only works at 10 Mbps.
+> 
+> More precisely by using etheral on another box I see the frames it is
+> sending but it seems unable to catch the replies.  If I configure it 
+> to transmit at 10 Mbps then it works.
 
-Hi ! I tried to build kernel 2.6.6 on a SUSE 9 system (kernel 2.4.X) but I 
-faced up the problem below. I have made make mrproper, make xconfig and I 
-have the minimum software requirements. Could anybody help me? Thanks a lot. 
-Stavros
-CC      arch/i386/kernel/traps.o
-arch/i386/kernel/traps.c: In function `die':
-arch/i386/kernel/traps.c:331: warning: implicit declaration of function 
-`CHK_REMOTE_DEBUG'
-arch/i386/kernel/traps.c:331: error: parse error before ')' token
-arch/i386/kernel/traps.c: In function `do_int3':
-arch/i386/kernel/traps.c:436: error: parse error before "return"
-arch/i386/kernel/traps.c: In function `do_overflow':
-arch/i386/kernel/traps.c:437: error: parse error before "return"
-arch/i386/kernel/traps.c: In function `do_bounds':
-arch/i386/kernel/traps.c:438: error: parse error before "return"
-arch/i386/kernel/traps.c: In function `do_coprocessor_segment_overrun':
-arch/i386/kernel/traps.c:440: error: parse error before ')' token
-arch/i386/kernel/traps.c: In function `do_invalid_TSS':
-arch/i386/kernel/traps.c:441: error: parse error before ')' token
-arch/i386/kernel/traps.c: In function `do_segment_not_present':
-arch/i386/kernel/traps.c:442: error: parse error before ')' token
-arch/i386/kernel/traps.c: In function `do_stack_segment':
-arch/i386/kernel/traps.c:443: error: parse error before ')' token
-arch/i386/kernel/traps.c: In function `do_general_protection':
-arch/i386/kernel/traps.c:469: error: parse error before ')' token
-arch/i386/kernel/traps.c: In function `do_debug':
-arch/i386/kernel/traps.c:681: error: parse error before ')' token
-make[1]: *** [arch/i386/kernel/traps.o] Error 1
-make: *** [arch/i386/kernel] Error 2
+The name of the driver ('lsmod' output) would help identify the relevant
+maintainer (if any). It seems to be a tulip clone, right ?
 
-_________________________________________________________________
-Tired of spam? Get advanced junk mail protection with MSN 8. 
-http://join.msn.com/?page=features/junkmail
+> It happens both with 2.4 and 2.6 kernels.
 
+Some more details could help as well:
+- vendor or vanilla kernel ?
+- sub-revision ?
+- latest -bk/-mm ?
+
+--
+Ueimor

@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266485AbUIEL7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266490AbUIEMBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266485AbUIEL7M (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 07:59:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266490AbUIEL7M
+	id S266490AbUIEMBW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 08:01:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266531AbUIEMBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 07:59:12 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:55696 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S266485AbUIEL6A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 07:58:00 -0400
-Date: Sun, 5 Sep 2004 13:57:49 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <1215700165.20040905135749@tnonline.net>
-To: Tonnerre <tonnerre@thundrix.ch>
-CC: Christer Weinigel <christer@weinigel.se>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@ucw.cz>,
-       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Chris Wedgwood <cw@f00f.org>, <viro@parcelfarce.linux.theplanet.co.uk>,
-       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
-       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <20040905111743.GC26560@thundrix.ch>
-References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl>
- <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org>
- <m3eklm9ain.fsf@zoo.weinigel.se> <20040905111743.GC26560@thundrix.ch>
+	Sun, 5 Sep 2004 08:01:21 -0400
+Received: from circe.telenet-ops.be ([195.130.132.59]:28806 "EHLO
+	circe.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S266490AbUIEL7Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 07:59:24 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm2 - 'journal block not found' - ext3 on crack?
+References: <200409021815.i82IFpLT022145@turing-police.cc.vt.edu>
+	<20040903164824.4a3b0ee1.akpm@osdl.org>
+From: karl.vogel@seagha.com
+Date: Sun, 05 Sep 2004 14:00:23 +0200
+In-Reply-To: <20040903164824.4a3b0ee1.akpm@osdl.org> (Andrew Morton's
+ message of "Fri, 3 Sep 2004 16:48:24 -0700")
+Message-ID: <m37jr9c4dk.fsf@seagha.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@osdl.org> writes:
 
-  
+> Valdis.Kletnieks@vt.edu wrote:
+>>
+>> I built 2.6.9-rc1-mm2 last night, and I've had this happen on 2 separate file systems today:
+>> 
+>> Sep  2 12:42:54 turing-police kernel: EXT3-fs error (device dm-6) in start_transaction: Journal has aborted
+>
+> Probably caused by an I/O error (or data loss) performing metadata reads.
+>
+>> 3) I'm using ext3-on-LVM, if that matters...
+>
+> Let me guess: raid5?
+>
+> We've had a steady stream of heisenbugreports for ext3-on-raid5
+> for several years.
 
-> Salut,
+For the record, I just got a journal aborted on 2.6.9-rc1-mm3.
+I'm also using ext3-on-LVM (no RAID stuff involved).
 
-> On Wed, Sep 01, 2004 at 01:02:24AM +0200, Christer Weinigel wrote:
->> I can see the argument for having the equivalent of Content-type or
->> Content-transfer-encoding as a named stream though.
-
-> Why having them as  named streams if we can get them  as xattrs for no
-> additional pain? (Since fileutils would  have to be changed anyway, we
-> can even make cp copy and emacs update xattrs.)
-
-  What if I do not use emacs, but vim, mcedit, gedit, or some other
-  editor? It doesn't seem logical to have to patch every application
-  that uses files.
-
-  ~S
-
-> 			    Tonnerre
-
+I'm afraid that I don't have more info.
+ 

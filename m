@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291345AbSBSMZU>; Tue, 19 Feb 2002 07:25:20 -0500
+	id <S291377AbSBSMjm>; Tue, 19 Feb 2002 07:39:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291359AbSBSMZK>; Tue, 19 Feb 2002 07:25:10 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:47887 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S291345AbSBSMZC>; Tue, 19 Feb 2002 07:25:02 -0500
-Date: Tue, 19 Feb 2002 13:25:00 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Peter Christy <christy@attglobal.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: via686/AD1886/Soundmax drivers
-Message-ID: <20020219132500.A18055@suse.cz>
-In-Reply-To: <20020219090303.4d5ef5f3.christy@attglobal.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020219090303.4d5ef5f3.christy@attglobal.net>; from christy@attglobal.net on Tue, Feb 19, 2002 at 09:03:03AM +0000
+	id <S291372AbSBSMjc>; Tue, 19 Feb 2002 07:39:32 -0500
+Received: from dsl-213-023-040-169.arcor-ip.net ([213.23.40.169]:29080 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S291377AbSBSMjT>;
+	Tue, 19 Feb 2002 07:39:19 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: [RFC] Page table sharing
+Date: Tue, 19 Feb 2002 13:43:50 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>, dmccr@us.ibm.com,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+        Robert Love <rml@tech9.net>, mingo@redhat.co,
+        Andrew Morton <akpm@zip.com.au>, manfred@colorfullife.com,
+        wli@holomorphy.com
+In-Reply-To: <Pine.LNX.4.21.0202191209570.1016-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.21.0202191209570.1016-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16d9cc-0001Ep-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 19, 2002 at 09:03:03AM +0000, Peter Christy wrote:
-
-> I am not a serious programmer (I peaked with 6502s and haven't done any
-> machine level stuff since!), but following hints in the earlier threads I
-> added the following lines to the kernel source ac97_codec.c file:
+On February 19, 2002 01:22 pm, Hugh Dickins wrote:
+> On Tue, 19 Feb 2002, Daniel Phillips wrote:
+> > On February 19, 2002 04:22 am, Linus Torvalds wrote:
+> > > That still leaves the TLB invalidation issue, but we could handle that
+> > > with an alternate approach: use the same "free_pte_ctx" kind of gathering
+> > > that the zap_page_range() code uses for similar reasons (ie gather up the
+> > > pte entries that you're going to free first, and then do a global
+> > > invalidate later).
+> > 
+> > I think I'll fall back to unsharing the page table on swapout as Hugh 
+> > suggested, until we sort this out.
 > 
-> 	{0x41445361, "Analog Devices AD1886",	&default_ops},
-> 	{0x41445461, "Analog Devices AD1886",	&default_ops},
-> 
-> I added both lines as I had conflicting information as to the 0x4144
-> numbers.
+> My proposal was to unshare the page table on read fault, to avoid race.
+> I suppose you could, just for your current testing, use that technique
+> in swapout, to avoid the much more serious TLB issue that Linus has now
+> raised.  But don't do so without realizing that it is a very deadlocky
+> idea for swapout (making pages freeable) to need to allocate pages.
 
-It's simple, they're "ADS" ...
+I didn't fail to notice that.  It's no worse than any other page reservation
+issue, of which we have plenty.  One day we're going to have to solve them all.
+
+> And it's not much use for swapout to skip them either, since the shared
+> page tables become valuable on the very large address spaces which we'd
+> want swapout to be hitting.
+
+Unsharing is the route of least resistance at the moment.  If necessary I can
+keep a page around for that purpose, then reestablish that reserve after using
+it.
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Daniel

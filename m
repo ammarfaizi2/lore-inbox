@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284933AbRLZUy4>; Wed, 26 Dec 2001 15:54:56 -0500
+	id <S284924AbRLZVLr>; Wed, 26 Dec 2001 16:11:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284924AbRLZUyr>; Wed, 26 Dec 2001 15:54:47 -0500
-Received: from tourian.nerim.net ([62.4.16.79]:12562 "HELO tourian.nerim.net")
-	by vger.kernel.org with SMTP id <S284899AbRLZUyf>;
-	Wed, 26 Dec 2001 15:54:35 -0500
-Message-ID: <3C2A38D5.3090309@free.fr>
-Date: Wed, 26 Dec 2001 21:53:41 +0100
-From: Lionel Bouton <Lionel.Bouton@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011220
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Andre Hedrick <andre@linux-ide.org>
-Subject: Re: [RFC] SIS5513 ATA100 support
-In-Reply-To: <3C27B02B.7070804@free.fr> <3C28CFEA.1010808@free.fr>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S284952AbRLZVLh>; Wed, 26 Dec 2001 16:11:37 -0500
+Received: from f105.law9.hotmail.com ([64.4.9.105]:12550 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S284950AbRLZVLd>;
+	Wed, 26 Dec 2001 16:11:33 -0500
+X-Originating-IP: [199.172.169.9]
+From: "Arturas V" <arturasv@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: avaitaitis@bloomberg.net
+Subject: Re: Proliant hangs with 2.4 but works with 2.2. 
+Date: Wed, 26 Dec 2001 16:11:27 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F105uevz176RbFGIUUJ0000fff8@hotmail.com>
+X-OriginalArrivalTime: 26 Dec 2001 21:11:28.0202 (UTC) FILETIME=[E239D2A0:01C18E51]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+lafanga lafanga wrote:
+>I have a Compaq Proliant 1600 server which can be hung on demand with >all 
+>the 2.4 series kernels I have tried (2.4, 2.4.1 & 2.4.2-pre3). >Kernel 
+>2.2.16 runs perfectly (from a default RH7.0).
 
-I'm back with new code.
+>I have ensured that the server meets the necessary requirements for >the 
+>2.4 kernels (modutils etc) and I have tried kgcc and various gcc versions. 
+> >When compiling I have tried default configs and also minimalist configs 
+>(with only cpqarray and tlan). I have also ensured that I have the latest 
+> >current SmartStart CD (4.9) and have setup the firmware for installing 
+>Linux.
 
-This one doesn't work on my sis735 either :-( but after having 
-triple-checked my code I don't see why :-((. Time to show the code to 
-others...
+I had similar problem with 2.4.5 Kernel. I managed to solve the problem by 
+configuring a working verion of kernel with
+NCR53C8XX SCSI support as well as SYM53C8XX. As far as I understood
+SYM53C8xx support covers 53C8xx chips better than NCR53C8xx and that makes 
+all the difference. Anyone understands why?
+---
+Arturas Vaitaitis.
+---
+Please CC to arturv@acedsl.com
+P.S. Intelligence has yet to prove its survival value
 
-If someone familiar with pci-ide code could just take a quick look...
-
-The goal is only working ata-100 inits. There's code in sis5513.c that 
-could use a little cleanup but I'll wait working ata-100 inits to work 
-on that.
-
-You have an edited (commented) diff from original sis5513.c and the real 
-patch attached.
-
-A complete new sis5513.c is available for more conveniance at :
-http://gyver.homeip.net/sis5513.c
-
-LB.
+_________________________________________________________________
+Send and receive Hotmail on your mobile device: http://mobile.msn.com
 

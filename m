@@ -1,71 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263105AbSJVXkm>; Tue, 22 Oct 2002 19:40:42 -0400
+	id <S262365AbSJVXtS>; Tue, 22 Oct 2002 19:49:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263152AbSJVXkl>; Tue, 22 Oct 2002 19:40:41 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:51193 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S263105AbSJVXkZ>; Tue, 22 Oct 2002 19:40:25 -0400
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200210221046.46700.Take.Vos@binary-magic.com> 
-References: <200210221046.46700.Take.Vos@binary-magic.com> 
-To: Take Vos <Take.Vos@binary-magic.com>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: PROBLEM: PS/2 mouse wart does not work, while scratch pad does. 
+	id <S262397AbSJVXtS>; Tue, 22 Oct 2002 19:49:18 -0400
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:22028 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262365AbSJVXtR>;
+	Tue, 22 Oct 2002 19:49:17 -0400
+Date: Tue, 22 Oct 2002 16:54:09 -0700
+From: Greg KH <greg@kroah.com>
+To: Richard J Moore <richardj_moore@uk.ibm.com>
+Cc: Werner Almesberger <wa@almesberger.net>,
+       Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
+       S Vamsikrishna <vamsi_krishna@in.ibm.com>
+Subject: Re: 2.4 Ready list - Kernel Hooks
+Message-ID: <20021022235409.GC9498@kroah.com>
+References: <OFD4366ECB.CE549043-ON80256C5A.007614F9@portsmouth.uk.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 23 Oct 2002 00:46:31 +0100
-Message-ID: <5001.1035330391@passion.cambridge.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <OFD4366ECB.CE549043-ON80256C5A.007614F9@portsmouth.uk.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 23, 2002 at 12:09:38AM +0100, Richard J Moore wrote:
+> We created
+> kernel hooks for exactly the same reasons that LSM needs hooks - to allow
+> ancillary function to exist outside the kernel, to avoid kernel bloat, to
+> allow more than one function to be called from a given call-back (think of
+> kdb and kprobes - both need to be called from do_debug).
 
-Take.Vos@binary-magic.com said:
-> hardware:DELL Inspiron 8100
+No, that is NOT the same reason LSM needs hooks!  LSM hooks are there to
+mediate access to various kernel objects, from within the kernel itself.
+Please do not confuse LSM with any of the above projects.
 
->  The internal scratch pad works, but the internal wart mouse doesn't,
-> in the  BIOS it is set to use both devices for input. This is tested
-> with both  Xfree86 and running cat on /dev/input/mice and /dev/input/
-> mouse0 and  /dev/input/event0. 
+thanks,
 
-Probing for various other PS/2 extensions appears to confuse the thing such 
-that the clitmouse no longer works. If we probe for it first and then abort 
-the other probes, it seems happier...
-
---- 1.16/drivers/input/mouse/psmouse.c  Tue Oct  8 11:51:30 2002
-+++ edited/drivers/input/mouse/psmouse.c        Wed Oct 23 00:39:06 2002
-@@ -311,6 +311,26 @@
-        if (psmouse_noext)
-                return PSMOUSE_PS2;
-
-+/*
-+ * Try Synaptics TouchPad magic ID
-+ */
-+
-+       param[0] = 0;
-+       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+       psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
-+
-+       if (param[1] == 0x47) {
-+               /* We could do more here. But it's sufficient just
-+                  to stop the subsequent probes from screwing the
-+                  thing up. */
-+               psmouse->vendor = "Synaptics";
-+               psmouse->name = "TouchPad";
-+               return PSMOUSE_PS2;
-+       }
-+
- /*
-  * Try Genius NetMouse magic init.
-  */
-
-
---
-dwmw2
-
-
+greg k-h

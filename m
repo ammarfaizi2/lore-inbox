@@ -1,48 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278197AbRJ1Lzr>; Sun, 28 Oct 2001 06:55:47 -0500
+	id <S278214AbRJ1MDs>; Sun, 28 Oct 2001 07:03:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278206AbRJ1Lzh>; Sun, 28 Oct 2001 06:55:37 -0500
-Received: from host213-122-131-210.btinternet.com ([213.122.131.210]:57326
-	"EHLO firewall0.node0.idium.eu.org") by vger.kernel.org with ESMTP
-	id <S278197AbRJ1LzY>; Sun, 28 Oct 2001 06:55:24 -0500
-Message-ID: <045301c15fa7$c2809b70$1901a8c0@node0.idium.eu.org>
-From: "David Flynn" <Dave@keston.u-net.com>
-To: "linux kernel mailinglist" <linux-kernel@vger.kernel.org>
-Subject: Via KT133 and 2.4.8 and a hard disk problem ?
-Date: Sun, 28 Oct 2001 11:57:46 -0000
+	id <S278215AbRJ1MDi>; Sun, 28 Oct 2001 07:03:38 -0500
+Received: from torvi.fmi.fi ([193.166.211.16]:50948 "EHLO torvi.fmi.fi")
+	by vger.kernel.org with ESMTP id <S278214AbRJ1MDc>;
+	Sun, 28 Oct 2001 07:03:32 -0500
+From: Kari Hurtta <hurtta@leija.mh.fmi.fi>
+Message-Id: <200110281203.f9SC3soW005371@leija.fmi.fi>
+Subject: [2.4.13] [devfs 0.119 (20011009)] base.c: devfsd_ioctl
+To: rgooch@atnf.csiro.au
+Date: Sun, 28 Oct 2001 14:03:54 +0200 (EET)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL95a (25)]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: text/plain; charset=US-ASCII
+X-Filter: torvi: 2 received headers rewritten with id 20011028/26775/01
+X-Filter: torvi: ID 25378, 1 parts scanned for known viruses
+X-Filter: leija.fmi.fi: ID 23635, 1 parts scanned for known viruses
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All;
 
-What is the status of the problems with the old KT133 and kernel 2.4.8 ?
+Can you say where I have wrong?
 
-I have a system here which looks to me as if its beginning to suffer from
-HDD failure, just do anything with the disk for a while and you get disk {
-busy } errors (and there is an 0x0d error code there somewhere) ... (oh, and
-the HDD light reports no activity) normally, i would view this as a good
-time to pull all the data off the drive and replace it.
+Code on devfsd_ioctl() [base.c]:
 
-However, i have noticed that the chipset used is the Via KT133, and am now
-wondering if this is actually a HDD problem (i still am siding with this) or
-a chipset problem.
+        if (fs_info->devfsd_task == NULL)
+        {
+            if ( !spin_trylock (&lock) ) return -EBUSY;
+            fs_info->devfsd_task = current;
+            spin_unlock (&lock);
 
-You can guarantee the problem by just running badblocks -sv /dev/hda
+To me that spinlock looks like it is useless.
+Either
 
-and it will happen at some point, (not always the same place)
+	1) If it is mean that lock protects two CPUs settting
+            fs_info->devfsd_task when another is set it,
+	    then test about fs_info->devfsd_task == NULL
+	    should be inside of locked code
+or     2) this is protected with some other lock as comment
+          perhaps indicates:
 
-Can anyone offer any advice on this ?
+        /*  Ensure only one reader has access to the queue. This scheme will
+            work even if the global kernel lock were to be removed, because it
+            doesn't matter who gets in first, as long as only one gets it
+        */
+        if (fs_info->devfsd_task == NULL)
+        {
+            if ( !spin_trylock (&lock) ) return -EBUSY;
 
-Thanks,
+Should this be:
 
-Dave
+--- fs/devfs/base.c.old	Thu Oct 11 09:23:24 2001
++++ fs/devfs/base.c	Sun Oct 28 14:59:03 2001
+@@ -3227,6 +3227,11 @@
+ 	if (fs_info->devfsd_task == NULL)
+ 	{
+ 	    if ( !spin_trylock (&lock) ) return -EBUSY;
++	    if (fs_info->devfsd_task != NULL) {
++	         /* We lost race ... */
++	         spin_unlock (&lock);
++		 return -EBUSY;
++	    }
+ 	    fs_info->devfsd_task = current;
+ 	    spin_unlock (&lock);
+ 	    fs_info->devfsd_file = file;
 
+
+-- 
+          /"\                           |  Kari 
+          \ /     ASCII Ribbon Campaign |    Hurtta
+           X      Against HTML Mail     |
+          / \                           |

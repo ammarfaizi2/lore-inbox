@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262537AbREZCAU>; Fri, 25 May 2001 22:00:20 -0400
+	id <S261685AbREZCMU>; Fri, 25 May 2001 22:12:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262535AbREZCAL>; Fri, 25 May 2001 22:00:11 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:28722 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S262531AbREZCAG>; Fri, 25 May 2001 22:00:06 -0400
-Date: Sat, 26 May 2001 03:59:36 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ben LaHaise <bcrl@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
+	id <S261735AbREZCMK>; Fri, 25 May 2001 22:12:10 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:16234 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S261685AbREZCL7>; Fri, 25 May 2001 22:11:59 -0400
+Date: Fri, 25 May 2001 22:11:40 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
 Subject: Re: Linux-2.4.5
-Message-ID: <20010526035936.P9634@athlon.random>
-In-Reply-To: <Pine.LNX.4.31.0105251826290.1126-100000@penguin.transmeta.com> <Pine.LNX.4.33.0105252138550.3806-100000@toomuch.toronto.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0105252138550.3806-100000@toomuch.toronto.redhat.com>; from bcrl@redhat.com on Fri, May 25, 2001 at 09:39:36PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <20010526035936.P9634@athlon.random>
+Message-ID: <Pine.LNX.4.33.0105252206550.3806-100000@toomuch.toronto.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 25, 2001 at 09:39:36PM -0400, Ben LaHaise wrote:
-> Sorry, this doesn't fix the problem.  It still hangs on highmem machines.
-> Try running cerberus on a PAE kernel sometime.
+On Sat, 26 May 2001, Andrea Arcangeli wrote:
 
-There can be more bugs of course, two patches I posted are only meant to
-fix deadlocks in the allocation fail path of alloc_bounces() and the
-second patch in getblk() allocation fail path, nothing more. Those are
-strictly necessary fixes as far I can tell, and their implementation was
-quite obviously right to my eyes.
+> Now if you send some debugging info with deadlocks you gets with 2.4.5
+> vanilla I will be certainly interested to found their source. Also Rik
+> just said to have a fix for other bugs in that area, I didn't checked
+> that part.
 
-Now if you send some debugging info with deadlocks you gets with 2.4.5
-vanilla I will be certainly interested to found their source. Also Rik
-just said to have a fix for other bugs in that area, I didn't checked
-that part.
+In the red hat tree, we fixed the problem by adding __GFP_FAIL to
+GFP_BUFFER, as well as adding a yield to alloc_pages.  Think of what
+happens when you try to allocate a buffer_head to swap out a page when
+you're out of memory.  See below.
 
-What I can say is that with my tree I didn't reproduced deadlocks
-highmem related with cerberus but I'm using highmem emulation not real
-highmem.
+		-ben
 
-Andrea
+diff -ur v2.4.4-ac9/include/linux/mm.h work/include/linux/mm.h
+--- v2.4.4-ac9/include/linux/mm.h	Mon May 14 15:22:17 2001
++++ work/include/linux/mm.h	Mon May 14 18:33:21 2001
+@@ -528,7 +528,7 @@
+
+
+ #define GFP_BOUNCE	(__GFP_HIGH | __GFP_FAIL)
+-#define GFP_BUFFER	(__GFP_HIGH | __GFP_WAIT)
++#define GFP_BUFFER	(__GFP_HIGH | __GFP_FAIL | __GFP_WAIT)
+ #define GFP_ATOMIC	(__GFP_HIGH)
+ #define GFP_USER	(             __GFP_WAIT | __GFP_IO)
+ #define GFP_HIGHUSER	(             __GFP_WAIT | __GFP_IO | __GFP_HIGHMEM)
+diff -ur v2.4.4-ac9/mm/vmscan.c work/mm/vmscan.c
+--- v2.4.4-ac9/mm/vmscan.c	Mon May 14 14:57:00 2001
++++ work/mm/vmscan.c	Mon May 14 16:43:05 2001
+@@ -636,6 +636,12 @@
+ 	 */
+ 	shortage = free_shortage();
+ 	if (can_get_io_locks && !launder_loop && shortage) {
++		if (gfp_mask & __GFP_WAIT) {
++			__set_current_state(TASK_RUNNING);
++			current->policy |= SCHED_YIELD;
++			schedule();
++		}
++
+ 		launder_loop = 1;
+
+ 		/*
+

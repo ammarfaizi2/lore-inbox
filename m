@@ -1,33 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279722AbRKVOn7>; Thu, 22 Nov 2001 09:43:59 -0500
+	id <S279768AbRKVOvA>; Thu, 22 Nov 2001 09:51:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279768AbRKVOnt>; Thu, 22 Nov 2001 09:43:49 -0500
-Received: from odysseus1.dohle.com ([194.127.185.21]:13 "EHLO
-	odysseus1.dohle.com") by vger.kernel.org with ESMTP
-	id <S279722AbRKVOnp>; Thu, 22 Nov 2001 09:43:45 -0500
-Message-ID: <3BFD0F19.86D23BEB@dohle.com>
-Date: Thu, 22 Nov 2001 15:43:37 +0100
-From: Achim =?iso-8859-1?Q?Kr=FCmmel?= <akruemmel@dohle.com>
-Organization: Dohle Systemberatung GmbH
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S279783AbRKVOuu>; Thu, 22 Nov 2001 09:50:50 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:14224 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S279768AbRKVOun>; Thu, 22 Nov 2001 09:50:43 -0500
+Date: Thu, 22 Nov 2001 16:57:34 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: <davej@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon /proc/cpuinfo anomaly [minor]
+Message-ID: <Pine.LNX.4.33.0111221653290.28285-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Intel I860
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+hmm i've always been under the impression that those strings are hard
+encoded into the CPU so even if we're on a motherboard/bios which doesn't
+"support" that particular CPU we can do a cpuid and get the same string.
 
-I have to setup a fast Linux Server for a database application.
-I would like to use a Mainboard for 2 Pentium4 CPUs for this.
-I found such a board with a Intel I860 chip. Is this chip
-supported by the current Kernel v2.4.14 or will I get problems
-with this board and Linux?
+Regards,
+	Zwane Mwaikambo
 
-many thanks,
 
-   Achim Kruemmel

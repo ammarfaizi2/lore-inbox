@@ -1,72 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289379AbSAODIb>; Mon, 14 Jan 2002 22:08:31 -0500
+	id <S289381AbSAODJl>; Mon, 14 Jan 2002 22:09:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289378AbSAODIV>; Mon, 14 Jan 2002 22:08:21 -0500
-Received: from [202.135.142.196] ([202.135.142.196]:57865 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S289376AbSAODIR>; Mon, 14 Jan 2002 22:08:17 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] PATH_MAX Poxification.
-Date: Tue, 15 Jan 2002 14:08:25 +1100
-Message-Id: <E16QJxZ-00035E-00@wagner.rustcorp.com.au>
+	id <S289376AbSAODJa>; Mon, 14 Jan 2002 22:09:30 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:49927 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S289370AbSAODJB>;
+	Mon, 14 Jan 2002 22:09:01 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200201150308.g0F38rp502016@saturn.cs.uml.edu>
+Subject: Re: [RFC] klibc requirements
+To: felix-dietlibc@fefe.de (Felix von Leitner)
+Date: Mon, 14 Jan 2002 22:08:53 -0500 (EST)
+Cc: greg@kroah.com (Greg KH), linux-kernel@vger.kernel.org,
+        andersen@codepoet.org
+In-Reply-To: <20020109042331.GB31644@codeblau.de> from "Felix von Leitner" at Jan 09, 2002 05:23:31 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As went in to 2.5.2...
+Felix von Leitner writes:
 
-Thanks!
-Rusty.
+> My understanding of what "initramfs programs" actually means is vague at
+> best.  Are these just programs that are intended to work in an initial
+> ram disk?  Or is it a special collection that is included in the kernel
+> distribution?
 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.4.14/include/linux/limits.h working-2.4.14-pathmax/include/linux/limits.h
---- linux-2.4.14/include/linux/limits.h	Thu Jul 29 03:30:10 1999
-+++ working-2.4.14-pathmax/include/linux/limits.h	Wed Nov 21 10:59:37 2001
-@@ -11,7 +11,7 @@
- #define MAX_CANON        255	/* size of the canonical input queue */
- #define MAX_INPUT        255	/* size of the type-ahead buffer */
- #define NAME_MAX         255	/* # chars in a file name */
--#define PATH_MAX        4095	/* # chars in a path name */
-+#define PATH_MAX        4096	/* # chars in a path name including nul */
- #define PIPE_BUF        4096	/* # bytes in atomic write to a pipe */
- 
- #define RTSIG_MAX	  32
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.4.14/fs/dcache.c working-2.4.14-pathmax/fs/dcache.c
---- linux-2.4.14/fs/dcache.c	Thu Oct  4 15:57:36 2001
-+++ working-2.4.14-pathmax/fs/dcache.c	Wed Nov 21 12:04:18 2001
-@@ -1262,7 +1262,7 @@
- 		panic("Cannot create buffer head SLAB cache");
- 
- 	names_cachep = kmem_cache_create("names_cache", 
--			PATH_MAX + 1, 0, 
-+			PATH_MAX, 0, 
- 			SLAB_HWCACHE_ALIGN, NULL, NULL);
- 	if (!names_cachep)
- 		panic("Cannot create names SLAB cache");
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.4.14/fs/namei.c working-2.4.14-pathmax/fs/namei.c
---- linux-2.4.14/fs/namei.c	Thu Oct 18 07:46:29 2001
-+++ working-2.4.14-pathmax/fs/namei.c	Wed Nov 21 10:57:58 2001
-@@ -99,16 +99,17 @@
-  * kernel data space before using them..
-  *
-  * POSIX.1 2.4: an empty pathname is invalid (ENOENT).
-+ * PATH_MAX includes the nul terminator --RR.
-  */
- static inline int do_getname(const char *filename, char *page)
- {
- 	int retval;
--	unsigned long len = PATH_MAX + 1;
-+	unsigned long len = PATH_MAX;
- 
- 	if ((unsigned long) filename >= TASK_SIZE) {
- 		if (!segment_eq(get_fs(), KERNEL_DS))
- 			return -EFAULT;
--	} else if (TASK_SIZE - (unsigned long) filename < PATH_MAX + 1)
-+	} else if (TASK_SIZE - (unsigned long) filename < PATH_MAX)
- 		len = TASK_SIZE - (unsigned long) filename;
- 
- 	retval = strncpy_from_user((char *)page, filename, len);
+1. special collection by default
+2. user-specified as desired
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+I think the dietlibc idea has to be scrapped so we can run BSD apps.
+(and others maybe, but I'm not looking to start a flame war)
+
+uClibc is LGPL, so traditional 4-clause BSD licensed code can be
+linked with it.
+
+> there are no legacy requirements to cater to.  We can write code without
+> printf and stdio, for example.  Also, we probably don't need regular
+> expressions or DNS.  Those are the big space hogs when linking
+> statically against a libc.  In the diet libc, all of the above are very
+> small, but avoiding them in the first place is better then optimizing
+> them for small size.
+
+DNS is very good to have. There are many things one might want
+to specify by name. NFS servers, NIS servers, SMB servers, and
+even the machine itself to get an IP via DNS.
+
+> This may look like a good idea, but dynamic linking should be avoided.
+> Trust me on this.  While it is possible to squeeze the dynamic loader
+> down to below 10k, 10k really is a lot of code.  And empty program with
+> the diet libc is way below 1k on x86.  So to reap the benefit of dynamic
+> linking, you would need a lot of programs.  Also please note that -fPIC
+> makes code larger.  And we need to keep symbols around, which makes up a
+> substantial part of the shared diet libc.
+
+a.out
+
+Even with ELF, you shouldn't need that 10 kB. Treat ELF like a.out,
+getting rid of the -fPIC stuff in favor of offsets assigned when
+you build the initramfs. Dynamic linking should be:
+
+open
+mmap
+mmap
+close
+
+You know the file to open. You know what offset you need it at.
+There isn't any need for symbols. OK, that's half-dynamic,
+but it gets the job done.

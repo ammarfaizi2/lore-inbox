@@ -1,341 +1,285 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbVADSbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbVADSxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261767AbVADSbT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 13:31:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbVADSbT
+	id S261791AbVADSxe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 13:53:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbVADSxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 13:31:19 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:53189 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261767AbVADSan (ORCPT
+	Tue, 4 Jan 2005 13:53:34 -0500
+Received: from fire.osdl.org ([65.172.181.4]:64732 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261791AbVADSxI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 13:30:43 -0500
-Date: Tue, 4 Jan 2005 12:30:43 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] split bprm_apply_creds into two functions
-Message-ID: <20050104183043.GA3592@IBM-BWN8ZTBWA01.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 4 Jan 2005 13:53:08 -0500
+Message-ID: <41DAE494.1020807@osdl.org>
+Date: Tue, 04 Jan 2005 10:46:44 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul Bain <prbain@essex.ac.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.6.10 oops on startup
+References: <1104605177.6137.92.camel@sofa.co.uk>
+In-Reply-To: <1104605177.6137.92.camel@sofa.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch splits bprm_apply_creds into two functions,
-bprm_apply_creds and bprm_post_apply_creds.  The latter is called
-after the task_lock has been dropped.  Without this patch, SELinux
-must drop the task_lock and re-acquire it during apply_creds, making
-the 'unsafe' flag meaningless to any later security modules.  Please
-apply.
+Paul Bain wrote:
+> Hi,
+> I upgraded the kernel on my Gericom Ego laptop from 2.6.7 to 2.6.10, and
+> now on startup I get two oopses (see attachment, taken with
+> CONFIG_FRAME_POINTER and CONFIG_DEBUG_SLAB enabled).
+> 2.6.7 works fine with a similar configuration, I haven't tried 2.6.8 or
+> 2.6.9 yet.
+> 
+> Can anyone help?
 
-thanks,
--serge
+Hi,
 
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+Have you tested any 2.6.10-bk# versions to see if this has been
+fixed by recent patches?
+If not, please try that and let us know, then I'll look at it
+more if needed.
 
-Index: linux-2.6.10-mm1/fs/exec.c
-===================================================================
---- linux-2.6.10-mm1.orig/fs/exec.c	2005-01-04 12:15:45.000000000 -0600
-+++ linux-2.6.10-mm1/fs/exec.c	2005-01-04 12:42:43.000000000 -0600
-@@ -963,6 +963,7 @@ void compute_creds(struct linux_binprm *
- 	unsafe = unsafe_exec(current);
- 	security_bprm_apply_creds(bprm, unsafe);
- 	task_unlock(current);
-+	security_bprm_post_apply_creds(bprm);
- }
- 
- EXPORT_SYMBOL(compute_creds);
-Index: linux-2.6.10-mm1/include/linux/security.h
-===================================================================
---- linux-2.6.10-mm1.orig/include/linux/security.h	2005-01-04 12:15:45.000000000 -0600
-+++ linux-2.6.10-mm1/include/linux/security.h	2005-01-04 13:02:15.000000000 -0600
-@@ -109,13 +109,20 @@ struct swap_info_struct;
-  *	and the information saved in @bprm->security by the set_security hook.
-  *	Since this hook function (and its caller) are void, this hook can not
-  *	return an error.  However, it can leave the security attributes of the
-- *	process unchanged if an access failure occurs at this point. It can
-- *	also perform other state changes on the process (e.g.  closing open
-- *	file descriptors to which access is no longer granted if the attributes
-- *	were changed). 
-+ *	process unchanged if an access failure occurs at this point.
-  *	bprm_apply_creds is called under task_lock.  @unsafe indicates various
-  *	reasons why it may be unsafe to change security state.
-  *	@bprm contains the linux_binprm structure.
-+ * @bprm_post_apply_creds:
-+ *	Runs after bprm_apply_creds with the task_lock dropped, so that
-+ *	functions which cannot be called safely under the task_lock can
-+ *	be used.  This hook is a good place to perform state changes on
-+ *	the process such as closing open file descriptors to which access
-+ *	is no longer granted if the attributes were changed. 
-+ *	Note that a security module might need to save state between
-+ *	bprm_apply_creds and bprm_post_apply_creds to store the decision
-+ *	on whether the process may proceed.
-+ *	@bprm contains the linux_binprm structure.
-  * @bprm_set_security:
-  *	Save security information in the bprm->security field, typically based
-  *	on information about the bprm->file, for later use by the apply_creds
-@@ -1042,6 +1049,7 @@ struct security_operations {
- 	int (*bprm_alloc_security) (struct linux_binprm * bprm);
- 	void (*bprm_free_security) (struct linux_binprm * bprm);
- 	void (*bprm_apply_creds) (struct linux_binprm * bprm, int unsafe);
-+	void (*bprm_post_apply_creds) (struct linux_binprm * bprm);
- 	int (*bprm_set_security) (struct linux_binprm * bprm);
- 	int (*bprm_check_security) (struct linux_binprm * bprm);
- 	int (*bprm_secureexec) (struct linux_binprm * bprm);
-@@ -1314,6 +1322,10 @@ static inline void security_bprm_apply_c
- {
- 	security_ops->bprm_apply_creds (bprm, unsafe);
- }
-+static inline void security_bprm_post_apply_creds (struct linux_binprm *bprm)
-+{
-+	security_ops->bprm_post_apply_creds (bprm);
-+}
- static inline int security_bprm_set (struct linux_binprm *bprm)
- {
- 	return security_ops->bprm_set_security (bprm);
-@@ -1992,6 +2004,11 @@ static inline void security_bprm_apply_c
- 	cap_bprm_apply_creds (bprm, unsafe);
- }
- 
-+static inline void security_bprm_post_apply_creds (struct linux_binprm *bprm)
-+{ 
-+	return;
-+}
-+
- static inline int security_bprm_set (struct linux_binprm *bprm)
- {
- 	return cap_bprm_set_security (bprm);
-Index: linux-2.6.10-mm1/security/dummy.c
-===================================================================
---- linux-2.6.10-mm1.orig/security/dummy.c	2005-01-04 12:15:45.000000000 -0600
-+++ linux-2.6.10-mm1/security/dummy.c	2005-01-04 12:42:43.000000000 -0600
-@@ -201,6 +201,11 @@ static void dummy_bprm_apply_creds (stru
- 	current->sgid = current->egid = current->fsgid = bprm->e_gid;
- }
- 
-+static void dummy_bprm_post_apply_creds (struct linux_binprm *bprm)
-+{
-+	return;
-+}
-+
- static int dummy_bprm_set_security (struct linux_binprm *bprm)
- {
- 	return 0;
-@@ -916,6 +921,7 @@ void security_fixup_ops (struct security
- 	set_to_dummy_if_null(ops, bprm_alloc_security);
- 	set_to_dummy_if_null(ops, bprm_free_security);
- 	set_to_dummy_if_null(ops, bprm_apply_creds);
-+	set_to_dummy_if_null(ops, bprm_post_apply_creds);
- 	set_to_dummy_if_null(ops, bprm_set_security);
- 	set_to_dummy_if_null(ops, bprm_check_security);
- 	set_to_dummy_if_null(ops, bprm_secureexec);
-Index: linux-2.6.10-mm1/security/selinux/hooks.c
-===================================================================
---- linux-2.6.10-mm1.orig/security/selinux/hooks.c	2005-01-04 12:15:45.000000000 -0600
-+++ linux-2.6.10-mm1/security/selinux/hooks.c	2005-01-04 12:42:43.000000000 -0600
-@@ -1801,10 +1801,7 @@ static void selinux_bprm_apply_creds(str
- 	struct task_security_struct *tsec;
- 	struct bprm_security_struct *bsec;
- 	u32 sid;
--	struct av_decision avd;
--	struct itimerval itimer;
--	struct rlimit *rlim, *initrlim;
--	int rc, i;
-+	int rc;
- 
- 	secondary_ops->bprm_apply_creds(bprm, unsafe);
- 
-@@ -1814,91 +1811,101 @@ static void selinux_bprm_apply_creds(str
- 	sid = bsec->sid;
- 
- 	tsec->osid = tsec->sid;
-+	bsec->unsafe = 0;
- 	if (tsec->sid != sid) {
- 		/* Check for shared state.  If not ok, leave SID
- 		   unchanged and kill. */
- 		if (unsafe & LSM_UNSAFE_SHARE) {
--			rc = avc_has_perm_noaudit(tsec->sid, sid,
--					  SECCLASS_PROCESS, PROCESS__SHARE, &avd);
-+			rc = avc_has_perm(tsec->sid, sid, SECCLASS_PROCESS,
-+					PROCESS__SHARE, NULL);
- 			if (rc) {
--				task_unlock(current);
--				avc_audit(tsec->sid, sid, SECCLASS_PROCESS,
--				    PROCESS__SHARE, &avd, rc, NULL);
--				force_sig_specific(SIGKILL, current);
--				goto lock_out;
-+				bsec->unsafe = 1;
-+				return;
- 			}
- 		}
- 
- 		/* Check for ptracing, and update the task SID if ok.
- 		   Otherwise, leave SID unchanged and kill. */
- 		if (unsafe & (LSM_UNSAFE_PTRACE | LSM_UNSAFE_PTRACE_CAP)) {
--			rc = avc_has_perm_noaudit(tsec->ptrace_sid, sid,
--					  SECCLASS_PROCESS, PROCESS__PTRACE, &avd);
--			if (!rc)
--				tsec->sid = sid;
--			task_unlock(current);
--			avc_audit(tsec->ptrace_sid, sid, SECCLASS_PROCESS,
--				  PROCESS__PTRACE, &avd, rc, NULL);
-+			rc = avc_has_perm(tsec->ptrace_sid, sid,
-+					  SECCLASS_PROCESS, PROCESS__PTRACE,
-+					  NULL);
- 			if (rc) {
--				force_sig_specific(SIGKILL, current);
--				goto lock_out;
-+				bsec->unsafe = 1;
-+				return;
- 			}
--		} else {
--			tsec->sid = sid;
--			task_unlock(current);
- 		}
-+		tsec->sid = sid;
-+	}
-+}
- 
--		/* Close files for which the new task SID is not authorized. */
--		flush_unauthorized_files(current->files);
-+/*
-+ * called after apply_creds without the task lock held
-+ */
-+static void selinux_bprm_post_apply_creds(struct linux_binprm *bprm)
-+{
-+	struct task_security_struct *tsec;
-+	struct rlimit *rlim, *initrlim;
-+	struct itimerval itimer;
-+	struct bprm_security_struct *bsec;
-+	int rc, i;
- 
--		/* Check whether the new SID can inherit signal state
--		   from the old SID.  If not, clear itimers to avoid
--		   subsequent signal generation and flush and unblock
--		   signals. This must occur _after_ the task SID has
--                  been updated so that any kill done after the flush
--                  will be checked against the new SID. */
--		rc = avc_has_perm(tsec->osid, tsec->sid, SECCLASS_PROCESS,
--				  PROCESS__SIGINH, NULL);
--		if (rc) {
--			memset(&itimer, 0, sizeof itimer);
--			for (i = 0; i < 3; i++)
--				do_setitimer(i, &itimer, NULL);
--			flush_signals(current);
--			spin_lock_irq(&current->sighand->siglock);
--			flush_signal_handlers(current, 1);
--			sigemptyset(&current->blocked);
--			recalc_sigpending();
--			spin_unlock_irq(&current->sighand->siglock);
--		}
-+	tsec = current->security;
-+	bsec = bprm->security;
- 
--		/* Check whether the new SID can inherit resource limits
--		   from the old SID.  If not, reset all soft limits to
--		   the lower of the current task's hard limit and the init
--		   task's soft limit.  Note that the setting of hard limits 
--		   (even to lower them) can be controlled by the setrlimit 
--		   check. The inclusion of the init task's soft limit into
--	           the computation is to avoid resetting soft limits higher
--		   than the default soft limit for cases where the default
--		   is lower than the hard limit, e.g. RLIMIT_CORE or 
--		   RLIMIT_STACK.*/
--		rc = avc_has_perm(tsec->osid, tsec->sid, SECCLASS_PROCESS,
--				  PROCESS__RLIMITINH, NULL);
--		if (rc) {
--			for (i = 0; i < RLIM_NLIMITS; i++) {
--				rlim = current->signal->rlim + i;
--				initrlim = init_task.signal->rlim+i;
--				rlim->rlim_cur = min(rlim->rlim_max,initrlim->rlim_cur);
--			}
--		}
-+	if (bsec->unsafe) {
-+		force_sig_specific(SIGKILL, current);
-+		return;
-+	}
-+	if (tsec->osid == tsec->sid)
-+		return;
- 
--		/* Wake up the parent if it is waiting so that it can
--		   recheck wait permission to the new task SID. */
--		wake_up_interruptible(&current->parent->signal->wait_chldexit);
-+	/* Close files for which the new task SID is not authorized. */
-+	flush_unauthorized_files(current->files);
- 
--lock_out:
--		task_lock(current);
--		return;
-+	/* Check whether the new SID can inherit signal state
-+	   from the old SID.  If not, clear itimers to avoid
-+	   subsequent signal generation and flush and unblock
-+	   signals. This must occur _after_ the task SID has
-+	  been updated so that any kill done after the flush
-+	  will be checked against the new SID. */
-+	rc = avc_has_perm(tsec->osid, tsec->sid, SECCLASS_PROCESS,
-+			  PROCESS__SIGINH, NULL);
-+	if (rc) {
-+		memset(&itimer, 0, sizeof itimer);
-+		for (i = 0; i < 3; i++)
-+			do_setitimer(i, &itimer, NULL);
-+		flush_signals(current);
-+		spin_lock_irq(&current->sighand->siglock);
-+		flush_signal_handlers(current, 1);
-+		sigemptyset(&current->blocked);
-+		recalc_sigpending();
-+		spin_unlock_irq(&current->sighand->siglock);
-+	}
-+
-+	/* Check whether the new SID can inherit resource limits
-+	   from the old SID.  If not, reset all soft limits to
-+	   the lower of the current task's hard limit and the init
-+	   task's soft limit.  Note that the setting of hard limits 
-+	   (even to lower them) can be controlled by the setrlimit 
-+	   check. The inclusion of the init task's soft limit into
-+	   the computation is to avoid resetting soft limits higher
-+	   than the default soft limit for cases where the default
-+	   is lower than the hard limit, e.g. RLIMIT_CORE or 
-+	   RLIMIT_STACK.*/
-+	rc = avc_has_perm(tsec->osid, tsec->sid, SECCLASS_PROCESS,
-+			  PROCESS__RLIMITINH, NULL);
-+	if (rc) {
-+		for (i = 0; i < RLIM_NLIMITS; i++) {
-+			rlim = current->signal->rlim + i;
-+			initrlim = init_task.signal->rlim+i;
-+			rlim->rlim_cur = min(rlim->rlim_max,initrlim->rlim_cur);
-+		}
- 	}
-+
-+	/* Wake up the parent if it is waiting so that it can
-+	   recheck wait permission to the new task SID. */
-+	wake_up_interruptible(&current->parent->signal->wait_chldexit);
- }
- 
- /* superblock security operations */
-@@ -4218,6 +4225,7 @@ struct security_operations selinux_ops =
- 	.bprm_alloc_security =		selinux_bprm_alloc_security,
- 	.bprm_free_security =		selinux_bprm_free_security,
- 	.bprm_apply_creds =		selinux_bprm_apply_creds,
-+	.bprm_post_apply_creds =	selinux_bprm_post_apply_creds,
- 	.bprm_set_security =		selinux_bprm_set_security,
- 	.bprm_check_security =		selinux_bprm_check_security,
- 	.bprm_secureexec =		selinux_bprm_secureexec,
-Index: linux-2.6.10-mm1/security/selinux/include/objsec.h
-===================================================================
---- linux-2.6.10-mm1.orig/security/selinux/include/objsec.h	2005-01-04 12:15:45.000000000 -0600
-+++ linux-2.6.10-mm1/security/selinux/include/objsec.h	2005-01-04 12:42:43.000000000 -0600
-@@ -87,6 +87,12 @@ struct bprm_security_struct {
- 	struct linux_binprm *bprm;     /* back pointer to bprm object */
- 	u32 sid;                       /* SID for transformed process */
- 	unsigned char set;
-+
-+	/*
-+	 * unsafe is used to share failure information from bprm_apply_creds()
-+	 * to bprm_post_apply_creds().
-+	 */
-+	char unsafe;
- };
- 
- struct netif_security_struct {
+Thanks,
+~Randy
+
+> ------------------------------------------------------------------------
+> 
+> Jan  1 17:04:05 portabrick kernel:     ACPI-0294: *** Error: Looking up [ACST] in namespace, AE_ALREADY_EXISTS
+> Jan  1 17:04:05 portabrick kernel: slab error in cache_free_debugcheck(): cache `size-1024': double free, or memory outside object was overwritten
+> Jan  1 17:04:05 portabrick kernel:  [<c0103dbe>] dump_stack+0x1e/0x20
+> Jan  1 17:04:05 portabrick kernel:  [<c0141e54>] cache_free_debugcheck+0x1b4/0x2b0
+> Jan  1 17:04:05 portabrick kernel:  [<c01429c5>] kfree+0x55/0xa0
+> Jan  1 17:04:05 portabrick kernel:  [<c02150a9>] acpi_ex_load_op+0x1e4/0x1ef
+> Jan  1 17:04:05 portabrick kernel:  [<c0216e69>] acpi_ex_opcode_1A_1T_0R+0x24/0x59
+> Jan  1 17:04:05 portabrick kernel:  [<c021071a>] acpi_ds_exec_end_op+0xb4/0x2d6
+> Jan  1 17:04:05 portabrick kernel:  [<c021e337>] acpi_ps_parse_loop+0x527/0x80f
+> Jan  1 17:04:05 portabrick kernel:  [<c021e676>] acpi_ps_parse_aml+0x57/0x1cd
+> Jan  1 17:04:05 portabrick kernel:  [<c021eea9>] acpi_psx_execute+0x15d/0x1c4
+> Jan  1 17:04:05 portabrick kernel:  [<c021c20d>] acpi_ns_execute_control_method+0x41/0x51
+> Jan  1 17:04:05 portabrick kernel:  [<c021c1b2>] acpi_ns_evaluate_by_handle+0x74/0x8e
+> Jan  1 17:04:05 portabrick kernel:  [<c021c0ad>] acpi_ns_evaluate_relative+0xa9/0xc5
+> Jan  1 17:04:05 portabrick kernel:  [<c021b95a>] acpi_evaluate_object+0xfe/0x1af
+> Jan  1 17:04:05 portabrick kernel:  [<c022a58f>] acpi_processor_set_pdc+0x6e/0x78
+> Jan  1 17:04:05 portabrick kernel:  [<c022a81d>] acpi_processor_get_performance_info+0x2e/0x74
+> Jan  1 17:04:05 portabrick kernel:  [<c022aa41>] acpi_processor_register_performance+0x6e/0xa3
+> Jan  1 17:04:05 portabrick kernel:  [<c010dcac>] centrino_cpu_init_acpi+0x6c/0x380
+> Jan  1 17:04:05 portabrick kernel:  [<c010e036>] centrino_cpu_init+0x76/0x160
+> Jan  1 17:04:05 portabrick kernel:  [<c0292d7c>] cpufreq_add_dev+0x11c/0x390
+> Jan  1 17:04:05 portabrick kernel:  [<c025c569>] sysdev_driver_register+0xa9/0xc0
+> Jan  1 17:04:05 portabrick kernel:  [<c0293b81>] cpufreq_register_driver+0x81/0x140
+> Jan  1 17:04:05 portabrick kernel:  [<c03bbbd3>] centrino_init+0x23/0x30
+> Jan  1 17:04:05 portabrick kernel:  [<c03b3906>] do_initcalls+0x56/0xd0
+> Jan  1 17:04:05 portabrick kernel:  [<c0100462>] init+0x32/0x120
+> Jan  1 17:04:05 portabrick kernel:  [<c01012c5>] kernel_thread_helper+0x5/0x10
+> Jan  1 17:04:05 portabrick kernel: dfc0d058: redzone 1: 0x5a2cf071, redzone 2: 0x5a2cf071.
+> Jan  1 17:04:05 portabrick kernel:     ACPI-1138: *** Error: Method execution failed [\_PR_.CPU1._PDC] (Node c14da200), AE_ALREADY_EXISTS
+> Jan  1 17:04:05 portabrick kernel: ACPI wakeup devices: 
+> Jan  1 17:04:05 portabrick kernel: P0P2  LAN CBC0 CBC1 ILNK AUDI MODM USB1 USB2 USB3 
+> Jan  1 17:04:05 portabrick kernel: ACPI: (supports S0 S3 S4 S4bios S5)
+> Jan  1 17:04:05 portabrick kernel: EXT3-fs: mounted filesystem with ordered data mode.
+> Jan  1 17:04:05 portabrick kernel: VFS: Mounted root (ext3 filesystem) readonly.
+> Jan  1 17:04:05 portabrick kernel: Freeing unused kernel memory: 160k freed
+> Jan  1 17:04:05 portabrick kernel: kjournald starting.  Commit interval 5 seconds
+> Jan  1 17:04:05 portabrick kernel: Slab corruption: start=dfc0d05c, len=1024
+> Jan  1 17:04:05 portabrick kernel: Redzone: 0x170fc2a5/0x170fc2a5.
+> Jan  1 17:04:05 portabrick kernel: Last user: [<c023693c>](tty_write+0x11c/0x270)
+> Jan  1 17:04:05 portabrick kernel: 000: 0d 49 4e 49 54 3a 20 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:05 portabrick kernel: 010: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:05 portabrick kernel: 020: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:05 portabrick kernel: 030: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:05 portabrick kernel: 040: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:05 portabrick kernel: 050: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:05 portabrick kernel: Prev obj: start=dfc0cc50, len=1024
+> Jan  1 17:04:05 portabrick kernel: Redzone: 0x5a2cf071/0x5a2cf071.
+> Jan  1 17:04:05 portabrick kernel: Last user: [<00000000>](0x0)
+> Jan  1 17:04:05 portabrick kernel: 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> Jan  1 17:04:05 portabrick kernel: 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> Jan  1 17:04:05 portabrick kernel: Next obj: start=dfc0d468, len=1024
+> Jan  1 17:04:05 portabrick kernel: Redzone: 0x170fc2a5/0x170fc2a5.
+> Jan  1 17:04:05 portabrick kernel: Last user: [<c02833c7>](cdrom_read_toc+0x407/0x450)
+> Jan  1 17:04:05 portabrick kernel: 000: 5a 5a 5a 5a 5a 5a 5a 5a ff ff 1f 00 5a 5a 5a 5a
+> Jan  1 17:04:05 portabrick kernel: 010: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:05 portabrick kernel: slab error in cache_alloc_debugcheck_after(): cache `size-1024': double free, or memory outside object was overwritten
+> Jan  1 17:04:05 portabrick kernel:  [<c0103dbe>] dump_stack+0x1e/0x20
+> Jan  1 17:04:05 portabrick kernel:  [<c01423bd>] cache_alloc_debugcheck_after+0xfd/0x180
+> Jan  1 17:04:05 portabrick kernel:  [<c014273b>] kmem_cache_alloc+0x5b/0x80
+> Jan  1 17:04:05 portabrick kernel:  [<c01e7a3b>] kobject_hotplug+0xab/0x2f0
+> Jan  1 17:04:05 portabrick kernel:  [<c01e723b>] kobject_del+0x1b/0x30
+> Jan  1 17:04:05 portabrick kernel:  [<c025e7c4>] class_device_del+0xa4/0xc0
+> Jan  1 17:04:05 portabrick kernel:  [<c025e7f2>] class_device_unregister+0x12/0x20
+> Jan  1 17:04:05 portabrick kernel:  [<c024078b>] vcs_remove_devfs+0x1b/0x33
+> Jan  1 17:04:05 portabrick kernel:  [<c02484a0>] con_close+0x70/0x80
+> Jan  1 17:04:05 portabrick kernel:  [<c0237a8f>] release_dev+0x6df/0x830
+> Jan  1 17:04:05 portabrick kernel:  [<c0238096>] tty_release+0x16/0x20
+> Jan  1 17:04:05 portabrick kernel:  [<c01592ad>] __fput+0x10d/0x150
+> Jan  1 17:04:05 portabrick kernel:  [<c0157990>] filp_close+0x50/0x90
+> Jan  1 17:04:05 portabrick kernel:  [<c0157a2a>] sys_close+0x5a/0xa0
+> Jan  1 17:04:05 portabrick kernel:  [<c0102faf>] syscall_call+0x7/0xb
+> Jan  1 17:04:05 portabrick kernel: dfc0d058: redzone 1: 0x170fc2a5, redzone 2: 0x170fc2a5.
+> Jan  1 17:04:05 portabrick kernel: slab error in cache_free_debugcheck(): cache `size-1024': double free, or memory outside object was overwritten
+> Jan  1 17:04:05 portabrick kernel:  [<c0103dbe>] dump_stack+0x1e/0x20
+> Jan  1 17:04:05 portabrick kernel:  [<c0141e54>] cache_free_debugcheck+0x1b4/0x2b0
+> Jan  1 17:04:05 portabrick kernel:  [<c01429c5>] kfree+0x55/0xa0
+> Jan  1 17:04:05 portabrick kernel:  [<c0237361>] release_mem+0x1c1/0x210
+> Jan  1 17:04:05 portabrick kernel:  [<c0237964>] release_dev+0x5b4/0x830
+> Jan  1 17:04:05 portabrick kernel:  [<c0238096>] tty_release+0x16/0x20
+> Jan  1 17:04:06 portabrick kernel:  [<c01592ad>] __fput+0x10d/0x150
+> Jan  1 17:04:06 portabrick kernel:  [<c0157990>] filp_close+0x50/0x90
+> Jan  1 17:04:06 portabrick kernel:  [<c0157a2a>] sys_close+0x5a/0xa0
+> Jan  1 17:04:06 portabrick kernel:  [<c0102faf>] syscall_call+0x7/0xb
+> Jan  1 17:04:06 portabrick kernel: dfc0d058: redzone 1: 0x5a2cf071, redzone 2: 0x5a2cf071.
+> Jan  1 17:04:06 portabrick kernel: Slab corruption: start=dfc0d05c, len=1024
+> Jan  1 17:04:06 portabrick kernel: Redzone: 0x170fc2a5/0x170fc2a5.
+> Jan  1 17:04:06 portabrick kernel: Last user: [<c023693c>](tty_write+0x11c/0x270)
+> Jan  1 17:04:06 portabrick kernel: 000: 76 65 72 73 69 6f 6e 20 32 2e 38 34 20 62 6f 6f
+> Jan  1 17:04:06 portabrick kernel: 010: 74 69 6e 67 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: 020: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: 030: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: 040: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: 050: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: Prev obj: start=dfc0cc50, len=1024
+> Jan  1 17:04:06 portabrick kernel: Redzone: 0x5a2cf071/0x5a2cf071.
+> Jan  1 17:04:06 portabrick kernel: Last user: [<00000000>](0x0)
+> Jan  1 17:04:06 portabrick kernel: 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> Jan  1 17:04:06 portabrick kernel: 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> Jan  1 17:04:06 portabrick kernel: Next obj: start=dfc0d468, len=1024
+> Jan  1 17:04:06 portabrick kernel: Redzone: 0x170fc2a5/0x170fc2a5.
+> Jan  1 17:04:06 portabrick kernel: Last user: [<c02833c7>](cdrom_read_toc+0x407/0x450)
+> Jan  1 17:04:06 portabrick kernel: 000: 5a 5a 5a 5a 5a 5a 5a 5a ff ff 1f 00 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: 010: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: slab error in cache_alloc_debugcheck_after(): cache `size-1024': double free, or memory outside object was overwritten
+> Jan  1 17:04:06 portabrick kernel:  [<c0103dbe>] dump_stack+0x1e/0x20
+> Jan  1 17:04:06 portabrick kernel:  [<c01423bd>] cache_alloc_debugcheck_after+0xfd/0x180
+> Jan  1 17:04:06 portabrick kernel:  [<c014273b>] kmem_cache_alloc+0x5b/0x80
+> Jan  1 17:04:06 portabrick kernel:  [<c01e7a3b>] kobject_hotplug+0xab/0x2f0
+> Jan  1 17:04:06 portabrick kernel:  [<c01e723b>] kobject_del+0x1b/0x30
+> Jan  1 17:04:06 portabrick kernel:  [<c025e7c4>] class_device_del+0xa4/0xc0
+> Jan  1 17:04:06 portabrick kernel:  [<c025e7f2>] class_device_unregister+0x12/0x20
+> Jan  1 17:04:06 portabrick kernel:  [<c024078b>] vcs_remove_devfs+0x1b/0x33
+> Jan  1 17:04:06 portabrick kernel:  [<c02484a0>] con_close+0x70/0x80
+> Jan  1 17:04:06 portabrick kernel:  [<c0237a8f>] release_dev+0x6df/0x830
+> Jan  1 17:04:06 portabrick kernel:  [<c0238096>] tty_release+0x16/0x20
+> Jan  1 17:04:06 portabrick kernel:  [<c01592ad>] __fput+0x10d/0x150
+> Jan  1 17:04:06 portabrick kernel:  [<c0157990>] filp_close+0x50/0x90
+> Jan  1 17:04:06 portabrick kernel:  [<c0157a2a>] sys_close+0x5a/0xa0
+> Jan  1 17:04:06 portabrick kernel:  [<c0102faf>] syscall_call+0x7/0xb
+> Jan  1 17:04:06 portabrick kernel: dfc0d058: redzone 1: 0x170fc2a5, redzone 2: 0x170fc2a5.
+> Jan  1 17:04:06 portabrick kernel: slab error in cache_free_debugcheck(): cache `size-1024': double free, or memory outside object was overwritten
+> Jan  1 17:04:06 portabrick kernel:  [<c0103dbe>] dump_stack+0x1e/0x20
+> Jan  1 17:04:06 portabrick kernel:  [<c0141e54>] cache_free_debugcheck+0x1b4/0x2b0
+> Jan  1 17:04:06 portabrick kernel:  [<c01429c5>] kfree+0x55/0xa0
+> Jan  1 17:04:06 portabrick kernel:  [<c0237361>] release_mem+0x1c1/0x210
+> Jan  1 17:04:06 portabrick kernel:  [<c0237964>] release_dev+0x5b4/0x830
+> Jan  1 17:04:06 portabrick kernel:  [<c0238096>] tty_release+0x16/0x20
+> Jan  1 17:04:06 portabrick kernel:  [<c01592ad>] __fput+0x10d/0x150
+> Jan  1 17:04:06 portabrick kernel:  [<c0157990>] filp_close+0x50/0x90
+> Jan  1 17:04:06 portabrick kernel:  [<c0157a2a>] sys_close+0x5a/0xa0
+> Jan  1 17:04:06 portabrick kernel:  [<c0102faf>] syscall_call+0x7/0xb
+> Jan  1 17:04:06 portabrick kernel: dfc0d058: redzone 1: 0x5a2cf071, redzone 2: 0x5a2cf071.
+> Jan  1 17:04:06 portabrick kernel: Slab corruption: start=dfc0d05c, len=1024
+> Jan  1 17:04:06 portabrick kernel: Redzone: 0x170fc2a5/0x170fc2a5.
+> Jan  1 17:04:06 portabrick kernel: Last user: [<c023693c>](tty_write+0x11c/0x270)
+> Jan  1 17:04:06 portabrick kernel: 000: 0d 0a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: 010: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: 020: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: 030: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: 040: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: 050: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: Prev obj: start=dfc0cc50, len=1024
+> Jan  1 17:04:06 portabrick kernel: Redzone: 0x5a2cf071/0x5a2cf071.
+> Jan  1 17:04:06 portabrick kernel: Last user: [<00000000>](0x0)
+> Jan  1 17:04:06 portabrick kernel: 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> Jan  1 17:04:06 portabrick kernel: 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> Jan  1 17:04:06 portabrick kernel: Next obj: start=dfc0d468, len=1024
+> Jan  1 17:04:06 portabrick kernel: Redzone: 0x170fc2a5/0x170fc2a5.
+> Jan  1 17:04:06 portabrick kernel: Last user: [<c02833c7>](cdrom_read_toc+0x407/0x450)
+> Jan  1 17:04:06 portabrick kernel: 000: 5a 5a 5a 5a 5a 5a 5a 5a ff ff 1f 00 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: 010: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: slab error in cache_alloc_debugcheck_after(): cache `size-1024': double free, or memory outside object was overwritten
+> Jan  1 17:04:06 portabrick kernel:  [<c0103dbe>] dump_stack+0x1e/0x20
+> Jan  1 17:04:06 portabrick kernel:  [<c01423bd>] cache_alloc_debugcheck_after+0xfd/0x180
+> Jan  1 17:04:06 portabrick kernel:  [<c014273b>] kmem_cache_alloc+0x5b/0x80
+> Jan  1 17:04:06 portabrick kernel:  [<c01e7a3b>] kobject_hotplug+0xab/0x2f0
+> Jan  1 17:04:06 portabrick kernel:  [<c01e723b>] kobject_del+0x1b/0x30
+> Jan  1 17:04:06 portabrick kernel:  [<c025e7c4>] class_device_del+0xa4/0xc0
+> Jan  1 17:04:06 portabrick kernel:  [<c025e7f2>] class_device_unregister+0x12/0x20
+> Jan  1 17:04:06 portabrick kernel:  [<c024078b>] vcs_remove_devfs+0x1b/0x33
+> Jan  1 17:04:06 portabrick kernel:  [<c02484a0>] con_close+0x70/0x80
+> Jan  1 17:04:06 portabrick kernel:  [<c0237a8f>] release_dev+0x6df/0x830
+> Jan  1 17:04:06 portabrick kernel:  [<c0238096>] tty_release+0x16/0x20
+> Jan  1 17:04:06 portabrick kernel:  [<c01592ad>] __fput+0x10d/0x150
+> Jan  1 17:04:06 portabrick kernel:  [<c0157990>] filp_close+0x50/0x90
+> Jan  1 17:04:06 portabrick kernel:  [<c0157a2a>] sys_close+0x5a/0xa0
+> Jan  1 17:04:06 portabrick kernel:  [<c0102faf>] syscall_call+0x7/0xb
+> Jan  1 17:04:06 portabrick kernel: dfc0d058: redzone 1: 0x170fc2a5, redzone 2: 0x170fc2a5.
+> Jan  1 17:04:06 portabrick kernel: slab error in cache_free_debugcheck(): cache `size-1024': double free, or memory outside object was overwritten
+> Jan  1 17:04:06 portabrick kernel:  [<c0103dbe>] dump_stack+0x1e/0x20
+> Jan  1 17:04:06 portabrick kernel:  [<c0141e54>] cache_free_debugcheck+0x1b4/0x2b0
+> Jan  1 17:04:06 portabrick kernel:  [<c01429c5>] kfree+0x55/0xa0
+> Jan  1 17:04:06 portabrick kernel:  [<c0237361>] release_mem+0x1c1/0x210
+> Jan  1 17:04:06 portabrick kernel:  [<c0237964>] release_dev+0x5b4/0x830
+> Jan  1 17:04:06 portabrick kernel:  [<c0238096>] tty_release+0x16/0x20
+> Jan  1 17:04:06 portabrick kernel:  [<c01592ad>] __fput+0x10d/0x150
+> Jan  1 17:04:06 portabrick kernel:  [<c0157990>] filp_close+0x50/0x90
+> Jan  1 17:04:06 portabrick kernel:  [<c0157a2a>] sys_close+0x5a/0xa0
+> Jan  1 17:04:06 portabrick kernel:  [<c0102faf>] syscall_call+0x7/0xb
+> Jan  1 17:04:06 portabrick kernel: dfc0d058: redzone 1: 0x5a2cf071, redzone 2: 0x5a2cf071.
+> Jan  1 17:04:06 portabrick kernel: Slab corruption: start=dfc0d05c, len=1024
+> Jan  1 17:04:06 portabrick kernel: Redzone: 0x170fc2a5/0x170fc2a5.
+> Jan  1 17:04:06 portabrick kernel: Last user: [<c0173b34>](alloc_fd_array+0x24/0x30)
+> Jan  1 17:04:06 portabrick kernel: 000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> Jan  1 17:04:06 portabrick kernel: 010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> Jan  1 17:04:06 portabrick kernel: 020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> Jan  1 17:04:06 portabrick kernel: 030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> Jan  1 17:04:06 portabrick kernel: 040: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> Jan  1 17:04:06 portabrick kernel: 050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> Jan  1 17:04:06 portabrick kernel: Prev obj: start=dfc0cc50, len=1024
+> Jan  1 17:04:06 portabrick kernel: Redzone: 0x170fc2a5/0x170fc2a5.
+> Jan  1 17:04:06 portabrick kernel: Last user: [<c0173b34>](alloc_fd_array+0x24/0x30)
+> Jan  1 17:04:06 portabrick kernel: 000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> Jan  1 17:04:06 portabrick kernel: 010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> Jan  1 17:04:06 portabrick kernel: Next obj: start=dfc0d468, len=1024
+> Jan  1 17:04:06 portabrick kernel: Redzone: 0x170fc2a5/0x170fc2a5.
+> Jan  1 17:04:06 portabrick kernel: Last user: [<c02833c7>](cdrom_read_toc+0x407/0x450)
+> Jan  1 17:04:06 portabrick kernel: 000: 5a 5a 5a 5a 5a 5a 5a 5a ff ff 1f 00 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: 010: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> Jan  1 17:04:06 portabrick kernel: slab error in cache_alloc_debugcheck_after(): cache `size-1024': double free, or memory outside object was overwritten
+> Jan  1 17:04:06 portabrick kernel:  [<c0103dbe>] dump_stack+0x1e/0x20
+> Jan  1 17:04:06 portabrick kernel:  [<c01423bd>] cache_alloc_debugcheck_after+0xfd/0x180
+> Jan  1 17:04:06 portabrick kernel:  [<c014284b>] __kmalloc+0x8b/0xc0
+> Jan  1 17:04:06 portabrick kernel:  [<c0173b34>] alloc_fd_array+0x24/0x30
+> Jan  1 17:04:06 portabrick kernel:  [<c0173c27>] expand_fd_array+0x97/0x1b0
+> Jan  1 17:04:06 portabrick kernel:  [<c0169e21>] expand_files+0x41/0x60
+> Jan  1 17:04:06 portabrick kernel:  [<c016a017>] sys_dup2+0x87/0x160
+> Jan  1 17:04:06 portabrick kernel:  [<c0102faf>] syscall_call+0x7/0xb
+> Jan  1 17:04:06 portabrick kernel: dfc0d058: redzone 1: 0x170fc2a5, redzone 2: 0x170fc2a5.
+> Jan  1 17:04:06 portabrick kernel: Unable to handle kernel paging request at virtual address a56b6b8f
+> Jan  1 17:04:06 portabrick kernel:  printing eip:
+> Jan  1 17:04:06 portabrick kernel: c0158542
+> Jan  1 17:04:06 portabrick kernel: *pde = 00000000
+> Jan  1 17:04:06 portabrick kernel: Oops: 0000 [#1]
+> Jan  1 17:04:06 portabrick kernel: PREEMPT 
+> Jan  1 17:04:06 portabrick kernel: Modules linked in:
+> Jan  1 17:04:06 portabrick kernel: CPU:    0
+> Jan  1 17:04:06 portabrick kernel: EIP:    0060:[<c0158542>]    Not tainted VLI
+> Jan  1 17:04:06 portabrick kernel: EFLAGS: 00010282   (2.6.10) 
+> Jan  1 17:04:06 portabrick kernel: EIP is at sys_read+0x22/0x80
+> Jan  1 17:04:06 portabrick kernel: eax: a56b6b6b   ebx: a56b6b6b   ecx: c1655c08   edx: c16c8000
+> Jan  1 17:04:06 portabrick kernel: esi: fffffff7   edi: 080ed008   ebp: c16c8fbc   esp: c16c8f98
+> Jan  1 17:04:06 portabrick kernel: ds: 007b   es: 007b   ss: 0068
+> Jan  1 17:04:06 portabrick kernel: Process hotplug (pid: 341, threadinfo=c16c8000 task=c16c7a60)
+> Jan  1 17:04:06 portabrick kernel: Stack: c16c8fa0 00000008 00000000 00000000 00000000 00000000 00000000 000000ff 
+> Jan  1 17:04:06 portabrick kernel:        00000488 c16c8000 c0102faf 000000ff 080ed008 00000488 00000488 080ed008 
+> Jan  1 17:04:06 portabrick kernel:        bffff4b8 00000003 0000007b 0000007b 00000003 b7f6bff8 00000073 00000246 
+> Jan  1 17:04:06 portabrick kernel: Call Trace:
+> Jan  1 17:04:06 portabrick kernel:  [<c0103d7f>] show_stack+0x7f/0xa0
+> Jan  1 17:04:06 portabrick kernel:  [<c0103f16>] show_registers+0x156/0x1d0
+> Jan  1 17:04:06 portabrick kernel:  [<c010413a>] die+0xea/0x180
+> Jan  1 17:04:06 portabrick kernel:  [<c01162d2>] do_page_fault+0x482/0x6c0
+> Jan  1 17:04:06 portabrick kernel:  [<c01039e7>] error_code+0x2b/0x30
+> Jan  1 17:04:06 portabrick kernel:  [<c0102faf>] syscall_call+0x7/0xb
+> Jan  1 17:04:06 portabrick kernel: Code: e9 26 ff ff ff 8d 74 26 00 55 89 e5 83 ec 24 89 5d f8 8b 45 08 8d 55 f4 89 75 fc be f7 ff ff ff e8 04 0e 00 00 85 c0 89 c3 74 3e <8b> 40 24 8b 53 28 89 1c 24 89 45 ec 8d 45 ec 89 44 24 0c 8b 45 

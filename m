@@ -1,33 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271033AbRHOFnn>; Wed, 15 Aug 2001 01:43:43 -0400
+	id <S271050AbRHOFuO>; Wed, 15 Aug 2001 01:50:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271041AbRHOFnd>; Wed, 15 Aug 2001 01:43:33 -0400
-Received: from oit.gatech.edu ([130.207.166.135]:59798 "EHLO oit.gatech.edu")
-	by vger.kernel.org with ESMTP id <S271033AbRHOFnP>;
-	Wed, 15 Aug 2001 01:43:15 -0400
-From: dmaynor@iceland.oit.gatech.edu
-Date: Wed, 15 Aug 2001 01:43:28 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.8 Resource leaks + limits
-Message-ID: <20010815014328.A15395@iceland.oit.gatech.edu>
-In-Reply-To: <3ce801c12548$b7971750$020a0a0a@totalmef> <200108150532.f7F5WGq01653@penguin.transmeta.com>
+	id <S271047AbRHOFuD>; Wed, 15 Aug 2001 01:50:03 -0400
+Received: from sunny-legacy.pacific.net.au ([210.23.129.40]:28122 "EHLO
+	sunny.pacific.net.au") by vger.kernel.org with ESMTP
+	id <S271048AbRHOFuA>; Wed, 15 Aug 2001 01:50:00 -0400
+Subject: Re: [PATCH] CDP handler for linux
+From: David Luyer <david_luyer@pacific.net.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Chris Crowther <chrisc@shad0w.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <E15WlHC-0001xF-00@the-village.bc.nu>
+In-Reply-To: <E15WlHC-0001xF-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12 (Preview Release)
+Date: 15 Aug 2001 15:48:00 +1000
+Message-Id: <997854480.3451.10.camel@typhaon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200108150532.f7F5WGq01653@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Aug 14, 2001 at 10:32:16PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is why you mainly find per-process stuff in all the limits. 
+On 14 Aug 2001 21:59:02 +0100, Alan Cox wrote:
+> > 	This said, if the consesus is that it belongs in userspace, I
+> > shall set about porting the code over to a dameon and possibly maintaing
+> > the kernel patch as a secondary "hobby project".
 > 
-> Linux has had (for a while now) a "struct user" that is actually quickly
-> accessible through a direct pointer off every process that is associated
-> with that user, and we could (and _will_) start adding these kinds of
-> limits. However, part of the problem is that because the limits haven't
-> historically existed, there is also no accepted and nice way of setting
-> the limits.
-So when you do impose this, where will it be setable, will there be a flat file in /etc
-like solaris, or compile time for the kernel?
+> I really think user space is the right place for it. That keeps it in
+> pageable memory and likely to dump a core not an entire box on errors.
 
+You're right (of course), but to a small extent it may depend how
+critical CDP is to your routing.  Both CDP and HSRP are things which
+can be used by Ciscos to choose backup paths, but neither protocol is
+really "urgent, real-time priority required" in the timing so that's
+really the main reason to stay out of the kernel.
+
+If you're using "set ip next-hop verify-availability" in a Cisco router
+then you don't want CDP to fail unless the machine is unavailable to
+route.  But then I guess we don't have OSPF or BGP in the kernel, so CDP
+doesn't belong there either.
+
+One thing which would be nice though from a performance perspective is
+a kernel NetFlow collector.  I'm currently using a netflow collecter
+which uses <asm/unistd.h> and doesn't link against libc or crt0.o,
+accumulates all it's write()s as 128k chunks, etc, and that's damn fast,
+but the kernel should be able to be even faster (avoid all those
+context switches on each packet received).
+-- 
+David Luyer                                     Phone:   +61 3 9674 7525
+Engineering Projects Manager   P A C I F I C    Fax:     +61 3 9699 8693
+Pacific Internet (Australia)  I N T E R N E T   Mobile:  +61 4 1111 2983
+http://www.pacific.net.au/                      NASDAQ:  PCNTF

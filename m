@@ -1,84 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267539AbTBGD4N>; Thu, 6 Feb 2003 22:56:13 -0500
+	id <S267554AbTBGEBM>; Thu, 6 Feb 2003 23:01:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267451AbTBGD4N>; Thu, 6 Feb 2003 22:56:13 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:30201 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267444AbTBGD4K>; Thu, 6 Feb 2003 22:56:10 -0500
-Date: Thu, 6 Feb 2003 23:05:44 -0500
-From: Doug Ledford <dledford@redhat.com>
-To: Patrick Mansfield <patmans@us.ibm.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       James Bottomley <James.Bottomley@steeleye.com>, mikeand@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: Broken SCSI code in the BK tree (was: 2.5.59-mm8)
-Message-ID: <20030206230544.E19868@redhat.com>
-Mail-Followup-To: Patrick Mansfield <patmans@us.ibm.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	James Bottomley <James.Bottomley@steeleye.com>, mikeand@us.ibm.com,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <20030203233156.39be7770.akpm@digeo.com><167540000.1044346173@[10.10.2.4]> <20030204001709.5e2942e8.akpm@digeo.com><384960000.1044396931@flay> <211570000.1044508407@[10.10.2.4]> <265170000.1044564655@[10.10.2.4]> <275930000.1044570608@[10.10.2.4]> <1044573927.2332.100.camel@mulgrave> <20030206172434.A15559@beaverton.ibm.com> <293060000.1044583265@[10.10.2.4]> <20030206182502.A16364@beaverton.ibm.com>
+	id <S267573AbTBGEBM>; Thu, 6 Feb 2003 23:01:12 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:13331 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267554AbTBGEBL>;
+	Thu, 6 Feb 2003 23:01:11 -0500
+Date: Thu, 6 Feb 2003 20:06:06 -0800
+From: Greg KH <greg@kroah.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+       Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [PATCH] Restore module support.
+Message-ID: <20030207040606.GA30337@kroah.com>
+References: <20030204233310.AD6AF2C04E@lists.samba.org> <Pine.LNX.4.44.0302062358140.32518-100000@serv> <20030206232515.GA29093@kroah.com> <Pine.LNX.4.44.0302070037230.32518-100000@serv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030206182502.A16364@beaverton.ibm.com>; from patmans@us.ibm.com on Thu, Feb 06, 2003 at 06:25:02PM -0800
+In-Reply-To: <Pine.LNX.4.44.0302070037230.32518-100000@serv>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 06, 2003 at 06:25:02PM -0800, Patrick Mansfield wrote:
-> On Thu, Feb 06, 2003 at 06:01:06PM -0800, Martin J. Bligh wrote:
-> > 
-> > Curious. I've no idea why the changes brought this out then ... I've done
-> > hundreds and hundreds of reboots on 2.5 on all sorts of different kernels,
-> > and never, ever seen this. Yet in 2.5.59-bk I see it every single time.
-> > Very odd.
-> > 
-> > M.
+On Fri, Feb 07, 2003 at 01:01:01AM +0100, Roman Zippel wrote:
+> Hi,
 > 
-> Okay:
+> On Thu, 6 Feb 2003, Greg KH wrote:
 > 
-> There were some bk scsi changes that ignored the queue depth (qlogicisp
-> sets them all to one). 
+> > But what are the modutils numbers? :)
 > 
-> Current bk (I just pulled and checked) has a fix, the cleaner shinier 
-> better scsi_lib.c scsi_request_fn now has this code:
-> 
-> 	if (sdev->device_busy >= sdev->queue_depth)
-> 		break;
-> 
-> So the oops has to do with the isp handling multiple requests in a row or
-> in quick succession.
-> 
-> Hopefully going to the latest bk will fix your oops.
+> There should be no real difference as I'd like to integrate Kai's patch too.
 
-It might, but please understand this.  The qlogicisp driver does things to
-the scsi mid layer that the scsi mid layer does not protect itself against
-and as a result is the biggest pile of steaming, unsupportable, crap code
-in the universe!  The scsi mid layer was designed from day one to think
-that the host->can_queue, sdev->queue_depth, and host->sg_tablesize items
-were *static* on a given host/device unless specifically changed by
-calling into the adjustment routines (scsi_adjust_queue_depth).  The
-qlogicisp driver violates those principles and I make no warranty of any
-kind that said driver will continue to operate properly unless someone
-takes the time to actually audit the qlogicisp_queuecommand() and
-qlogicisp_irq() routine to make sure it is actually doing the right thing
-when making those changes!
+Ok, I'm confused, you're advocating putting back the old modutils
+interface, but somehow not using the old modutils code?  I don't
+understand.
 
-If I understand correctly, Matthew Jacob's latest isp driver set drives
-*all* qlogic hardware (or at least all the older stuff like the qlogicisp
-driver drives).  I would much prefer that people simply test out Matthew's
-driver and use it instead.  In fact, if it's ready for 2.5 kernel use, I
-would strongly recommend that it be considered as a possible replacement
-in the linux kernel for the default driver on all qlogic cards not handled
-by the new qla2x00 driver version 6 (DaveM may have objections to that 
-related to sparc if Matthew's driver isn't sparc friendly, but I don't 
-know of any other reason not to switch over).
 
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+> > Come on, what Rusty did was the "right thing to do" and has made life
+> > easier for all of the arch maintainers (or so says the ones that I've
+> > talked to), and has made my life easier with regards to
+> > MODULE_DEVICE_TABLE() logic, which will enable the /sbin/hotplug
+> > scripts/binary to shrink a _lot_.
+> 
+> What was the "right thing to do"?
+> There were certainly a few interesting changes, but I'd like discuss them 
+> first. For example there is more than one solution to improve the 
+> MODULE_DEVICE_TABLE() logic (*), so how is Rusty's better?
+
+Neither one of those proposals, no any others, were backed with working
+examples.  Rusty had the only working example of getting rid of the
+userspace knowledge of the kernel data structures that I know of so far.
+
+thanks,
+
+greg k-h

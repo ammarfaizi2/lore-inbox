@@ -1,230 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275096AbRJJIrj>; Wed, 10 Oct 2001 04:47:39 -0400
+	id <S273108AbRJJIv7>; Wed, 10 Oct 2001 04:51:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275097AbRJJIra>; Wed, 10 Oct 2001 04:47:30 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:3053 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S275096AbRJJIrO>; Wed, 10 Oct 2001 04:47:14 -0400
-Date: Wed, 10 Oct 2001 10:47:40 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Thomas Hood <jdthood@mail.com>
-cc: linux-kernel@vger.kernel.org, <acme@conectiva.com.br>
-Subject: Re: Linux 2.4.10-ac10
-In-Reply-To: <1002676545.5283.4.camel@thanatos>
-Message-ID: <Pine.NEB.4.40.0110101032320.28053-200000@mimas.fachschaften.tu-muenchen.de>
+	id <S275097AbRJJIvu>; Wed, 10 Oct 2001 04:51:50 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:8149 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S273108AbRJJIvd>; Wed, 10 Oct 2001 04:51:33 -0400
+Message-ID: <3BC40C41.5040603@wipro.com>
+Date: Wed, 10 Oct 2001 14:22:17 +0530
+From: "BALBIR SINGH" <balbir.singh@wipro.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1920110659-756053209-1002702892=:28053"
-Content-ID: <Pine.NEB.4.40.0110101046360.28094@mimas.fachschaften.tu-muenchen.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Sticky/Key-Setable SysRq (resubmit)
+In-Reply-To: <20011009105251.A20842@mueller.datastacks.com> <9pvd04$9sd$1@cesium.transmeta.com>
+Content-Type: multipart/mixed;
+	boundary="------------InterScan_NT_MIME_Boundary"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---1920110659-756053209-1002702892=:28053
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.NEB.4.40.0110101046361.28094@mimas.fachschaften.tu-muenchen.de>
+This is a multi-part message in MIME format.
 
-On 9 Oct 2001, Thomas Hood wrote:
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> > Two things that might perhaps have influence:
-> > 2.4.10-ac9
-> > ...
-> > o   Clean up ad1816 resource handling     (Arnaldo Carvalho de Melo)
-> > ...
->
-> I think you've got it.
->...
+H. Peter Anvin wrote:
 
-Yes, that was it. Sound works again for me after I've reversed the
-attached patch to drivers/sound/ad1816.c.
+ >Followup to:  <20011009105251.A20842@mueller.datastacks.com>
+ >By author:    Crutcher Dunnavant <crutcher@datastacks.com>
+ >In newsgroup: linux.dev.kernel
+ >
+ >>Attached is the patch from last week which provides the sysrq system
+ >>with the following:
+ >>
+ >>a toggleable 'sticky' flag in /proc, which makes the sysrq key work 
+on bad
+ >>keyboards, and through bad KVMs.
+ >>
+ >>the ability to set which key in /proc, which makes the sysrq key work on
+ >>system _without_ a 'sysrq' key; like bad KVMs.
+ >>
+ >>I've gotten no tracktion on this in a week, so I'm resubmitting it.
+ >>
+ >
+ >I think doing this through procfs might be reasonable, but a kernel
+ >command line option would be absolutely mandatory.  If things are
+ >crappy you might not get to the point of fidding with /proc.
+ >
+ >Also, I really think SysRq has nothing to do under "Kernel
+ >Hacking/Kernel Debugging".  More than anything else it's a system
+ >administration feature.
+ >
+ >	-hpa
+ >
 
-cu
-Adrian
+Also, when configuring the kernel you can decide not to have /proc 
+mounted (although this is very rare), but it might happen, if somebody 
+decided not to use it, so as suggested, I think a kernel command line 
+option would be nice.
 
--- 
+Balbir
 
-Get my GPG key: finger bunk@debian.org | gpg --import
 
-Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
 
---1920110659-756053209-1002702892=:28053
-Content-Type: TEXT/PLAIN; NAME="patch-ad1816.c"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.NEB.4.40.0110101034520.28053@mimas.fachschaften.tu-muenchen.de>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="patch-ad1816.c"
 
-LS0tIGxpbnV4LmFjL2RyaXZlcnMvc291bmQvYWQxODE2LmMNCisrKyBsaW51
-eC5hYy9kcml2ZXJzL3NvdW5kL2FkMTgxNi5jDQpAQCAtMjgsNiArMjgsOCBA
-QA0KICAqCUNocmlzdG9waCBIZWxsd2lnOiBBZGFwdGVkIHRvIG1vZHVsZV9p
-bml0L21vZHVsZV9leGl0LgkyMDAwLzAzLzAzDQogICoNCiAgKglDaHJpc3Rv
-cGggSGVsbHdpZzogQWRkZWQgaXNhcG5wIHN1cHBvcnQJCQkyMDAwLzAzLzE1
-DQorICoNCisgKglBcm5hbGRvIENhcnZhbGhvIGRlIE1lbG86IGdldCByaWQg
-b2YgY2hlY2tfcmVnaW9uCTIwMDEvMTAvMDcNCiAgKi8NCiANCiAjaW5jbHVk
-ZSA8bGludXgvY29uZmlnLmg+DQpAQCAtNDgsNyArNTAsNyBAQA0KICAgICAg
-ICAgICB0aW1lb3V0LS07IFwNCiAgIH0gXA0KICAgaWYgKHRpbWVvdXQ9PTAp
-IHtcDQotICAgICAgICAgIHByaW50aygiYWQxODE2OiBDaGVjayBmb3IgcG93
-ZXIgZmFpbGVkIGluICVzIGxpbmU6ICVkXG4iLF9fRklMRV9fLF9fTElORV9f
-KTsgXA0KKyAgICAgICAgICBwcmludGsoS0VSTl9XQVJOSU5HICJhZDE4MTY6
-IENoZWNrIGZvciBwb3dlciBmYWlsZWQgaW4gJXMgbGluZTogJWRcbiIsX19G
-SUxFX18sX19MSU5FX18pOyBcDQogICB9IFwNCiB9DQogDQpAQCAtNzgsOSAr
-ODAsOSBAQA0KICAgDQogfSBhZDE4MTZfaW5mbzsNCiANCi1zdGF0aWMgaW50
-IG5yX2FkMTgxNl9kZXZzID0gMDsNCi1zdGF0aWMgaW50IGFkMTgxNl9jbG9j
-a2ZyZXE9MzMwMDA7DQotc3RhdGljIGludCBvcHRpb25zPTA7DQorc3RhdGlj
-IGludCBucl9hZDE4MTZfZGV2czsNCitzdGF0aWMgaW50IGFkMTgxNl9jbG9j
-a2ZyZXEgPSAzMzAwMDsNCitzdGF0aWMgaW50IG9wdGlvbnM7DQogDQogLyog
-Zm9yIGJhY2t3YXJkIG1hcHBpbmcgb2YgaXJxIHRvIHNvdW5kIGRldmljZSAq
-Lw0KIA0KQEAgLTU1OCwxNCArNTYwLDE1IEBADQogDQogCQ0KIAlpZiAoaXJx
-IDwgMCB8fCBpcnEgPiAxNSkgew0KLQkgICAgICAgIHByaW50ayAoImFkMTgx
-NjogR290IGJvZ3VzIGludGVycnVwdCAlZFxuIiwgaXJxKTsNCisJICAgICAg
-ICBwcmludGsoS0VSTl9XQVJOSU5HICJhZDE4MTY6IEdvdCBib2d1cyBpbnRl
-cnJ1cHQgJWRcbiIsIGlycSk7DQogCQlyZXR1cm47DQogCX0NCiANCiAJZGV2
-ID0gaXJxMmRldltpcnFdOw0KIAkNCiAJaWYgKGRldiA8IDAgfHwgZGV2ID49
-IG51bV9hdWRpb2RldnMpIHsNCi0JICAgICAgICBwcmludGsgKCJhZDE4MTY6
-IElSUTJBRDE4MTYtbWFwcGluZyBmYWlsZWQgZm9yIGlycSAlZCBkZXZpY2Ug
-JWRcbiIsIGlycSxkZXYpOw0KKwkgICAgICAgIHByaW50ayhLRVJOX1dBUk5J
-TkcgImFkMTgxNjogSVJRMkFEMTgxNi1tYXBwaW5nIGZhaWxlZCBmb3IgIg0K
-KwkJCQkgICAgImlycSAlZCBkZXZpY2UgJWRcbiIsIGlycSxkZXYpOw0KIAkJ
-cmV0dXJuOwkgICAgICAgIA0KIAl9DQogDQpAQCAtMTAwMCw4ICsxMDAzLDEw
-IEBADQogCWludCAqb3NwPWh3X2NvbmZpZy0+b3NwOw0KIAlpbnQgdG1wOw0K
-IA0KLQlwcmludGsoImFkMTgxNjogQUQxODE2IHNvdW5kZHJpdmVyIENvcHly
-aWdodCAoQykgMTk5OCBieSBUaG9yc3RlbiBLbmFiZVxuIik7DQotCXByaW50
-aygiYWQxODE2OiBpbz0weCV4LCBpcnE9JWQsIGRtYT0lZCwgZG1hMj0lZCwg
-Y2xvY2tmcmVxPSVkLCBvcHRpb25zPSVkIGlzYWRtYWJ1Zz0lZFxuIiwNCisJ
-cHJpbnRrKEtFUk5fSU5GTyAiYWQxODE2OiBBRDE4MTYgc291bmRkcml2ZXIg
-Ig0KKwkJCSAiQ29weXJpZ2h0IChDKSAxOTk4IGJ5IFRob3JzdGVuIEtuYWJl
-XG4iKTsNCisJcHJpbnRrKEtFUk5fSU5GTyAiYWQxODE2OiBpbz0weCV4LCBp
-cnE9JWQsIGRtYT0lZCwgZG1hMj0lZCwgIg0KKwkJCSAiY2xvY2tmcmVxPSVk
-LCBvcHRpb25zPSVkIGlzYWRtYWJ1Zz0lZFxuIiwNCiAJICAgICAgIGh3X2Nv
-bmZpZy0+aW9fYmFzZSwNCiAJICAgICAgIGh3X2NvbmZpZy0+aXJxLA0KIAkg
-ICAgICAgaHdfY29uZmlnLT5kbWEsDQpAQCAtMTAxMCwxNiArMTAxNSwxNyBA
-QA0KIAkgICAgICAgb3B0aW9ucywNCiAJICAgICAgIGlzYV9kbWFfYnJpZGdl
-X2J1Z2d5KTsNCiANCi0JaWYgKGNoZWNrX3JlZ2lvbiAoaW9fYmFzZSwgMTYp
-KSB7DQotCQlwcmludGsgKCJhZDE4MTY6IEkvTyBwb3J0IDB4JTAzeCBub3Qg
-ZnJlZVxuIiwgaW9fYmFzZSk7DQotCQlyZXR1cm4gMDsNCisJaWYgKHJlcXVl
-c3RfcmVnaW9uKGlvX2Jhc2UsIDE2LCAiQUQxODE2IFNvdW5kIikpIHsNCisJ
-CXByaW50ayhLRVJOX1dBUk5JTkcgImFkMTgxNjogSS9PIHBvcnQgMHglMDN4
-IG5vdCBmcmVlXG4iLA0KKwkJCQkgICAgaW9fYmFzZSk7DQorCQlnb3RvIGVy
-cjsNCiAJfQ0KIA0KIAlERUJVR0xPRyhwcmludGsgKCJhZDE4MTY6IGRldGVj
-dCgleClcbiIsIGlvX2Jhc2UpKTsNCiAJDQogCWlmIChucl9hZDE4MTZfZGV2
-cyA+PSBNQVhfQVVESU9fREVWKSB7DQotCQlwcmludGsgKCJhZDE4MTY6IGRl
-dGVjdCBlcnJvciAtIHN0ZXAgMFxuIik7DQotCQlyZXR1cm4gMDsNCisJCXBy
-aW50ayhLRVJOX1dBUk5JTkcgImFkMTgxNjogZGV0ZWN0IGVycm9yIC0gc3Rl
-cCAwXG4iKTsNCisJCWdvdG8gb3V0X3JlbGVhc2VfcmVnaW9uOw0KIAl9DQog
-DQogCWRldmMtPmJhc2UgPSBpb19iYXNlOw0KQEAgLTEwMzIsNyArMTAzOCw3
-IEBADQogCXRtcD1pbmIoZGV2Yy0+YmFzZSk7DQogCWlmICggKHRtcCYweDgw
-KT09MCB8fCB0bXA9PTI1NSApIHsNCiAJCURFQlVHTE9HIChwcmludGsgKCJh
-ZDE4MTY6IENoaXAgaXMgbm90IGFuIEFEMTgxNiBvciBjaGlwIGlzIG5vdCBh
-Y3RpdmUgKFRlc3QgMClcbiIpKTsNCi0JCXJldHVybigwKTsNCisJCWdvdG8g
-b3V0X3JlbGVhc2VfcmVnaW9uOw0KIAl9DQogDQogDQpAQCAtMTA0MCwxNCAr
-MTA0NiwxNCBAQA0KIAlhZF93cml0ZShkZXZjLDgsMTIzNDUpOyANCiAJaWYg
-KGFkX3JlYWQoZGV2Yyw5KSE9MTIzNDUpIHsNCiAJCURFQlVHTE9HIChwcmlu
-dGsgKCJhZDE4MTY6IENoaXAgaXMgbm90IGFuIEFEMTgxNiAoVGVzdCAxKVxu
-IikpOw0KLQkJcmV0dXJuKDApOw0KKwkJZ290byBvdXRfcmVsZWFzZV9yZWdp
-b247DQogCX0NCiAgIA0KIAkvKiB3cml0ZXMgdG8gaXJlZyA4IGFyZSBjb3Bp
-ZWQgdG8gaXJlZyA5ICovDQogCWFkX3dyaXRlKGRldmMsOCw1NDMyMSk7IA0K
-IAlpZiAoYWRfcmVhZChkZXZjLDkpIT01NDMyMSkgew0KIAkJREVCVUdMT0cg
-KHByaW50ayAoImFkMTgxNjogQ2hpcCBpcyBub3QgYW4gQUQxODE2IChUZXN0
-IDIpXG4iKSk7DQotCQlyZXR1cm4oMCk7DQorCQlnb3RvIG91dF9yZWxlYXNl
-X3JlZ2lvbjsNCiAJfQ0KIA0KIA0KQEAgLTEwNTUsMTQgKzEwNjEsMTQgQEAN
-CiAJYWRfd3JpdGUoZGV2YywxMCw1NDMyMSk7IA0KIAlpZiAoYWRfcmVhZChk
-ZXZjLDExKSE9NTQzMjEpIHsNCiAJCURFQlVHTE9HIChwcmludGsgKCJhZDE4
-MTY6IENoaXAgaXMgbm90IGFuIEFEMTgxNiAoVGVzdCAzKVxuIikpOw0KLQkJ
-cmV0dXJuKDApOw0KKwkJZ290byBvdXRfcmVsZWFzZV9yZWdpb247DQogCX0N
-CiANCiAJLyogd3JpdGVzIHRvIGlyZWcgMTAgYXJlIGNvcGllZCB0byBpcmVn
-IDExICovDQogCWFkX3dyaXRlKGRldmMsMTAsMTIzNDUpOyANCiAJaWYgKGFk
-X3JlYWQoZGV2YywxMSkhPTEyMzQ1KSB7DQogCQlERUJVR0xPRyAocHJpbnRr
-ICgiYWQxODE2OiBDaGlwIGlzIG5vdCBhbiBBRDE4MTYgKFRlc3QgNClcbiIp
-KTsNCi0JCXJldHVybigwKTsNCisJCWdvdG8gb3V0X3JlbGVhc2VfcmVnaW9u
-Ow0KIAl9DQogDQogCS8qIGJpdCBpbiBiYXNlICsxIGNhbm5vdCBiZSBzZXQg
-dG8gMSAqLw0KQEAgLTEwNzAsMTUgKzEwNzYsMTkgQEANCiAJb3V0YigweGZm
-LGRldmMtPmJhc2UrMSk7IA0KIAlpZiAoaW5iKGRldmMtPmJhc2UrMSkhPXRt
-cCkgew0KIAkJREVCVUdMT0cgKHByaW50ayAoImFkMTgxNjogQ2hpcCBpcyBu
-b3QgYW4gQUQxODE2IChUZXN0IDUpXG4iKSk7DQotCQlyZXR1cm4oMCk7DQor
-CQlnb3RvIG91dF9yZWxlYXNlX3JlZ2lvbjsNCiAJfQ0KIA0KICAgDQogCURF
-QlVHTE9HIChwcmludGsgKCJhZDE4MTY6IGRldGVjdCgpIC0gRGV0ZWN0ZWQg
-T0tcbiIpKTsNCiAJREVCVUdMT0cgKHByaW50ayAoImFkMTgxNjogQUQxODE2
-IFZlcnNpb246ICVkXG4iLGFkX3JlYWQoZGV2Yyw0NSkpKTsNCiANCi0JLyog
-IGRldGVjdGlvbiB3YXMgc3VjY2Vzc2Z1bCAqLw0KKwkvKiBkZXRlY3Rpb24g
-d2FzIHN1Y2Nlc3NmdWwgKi8NCiAJcmV0dXJuIDE7IA0KK291dF9yZWxlYXNl
-X3JlZ2lvbjoNCisJcmVsZWFzZV9yZWdpb24oaW9fYmFzZSwgMTYpOw0KKwkv
-KiBkZXRlY3Rpb24gd2FzIE5PVCBzdWNjZXNzZnVsICovDQorZXJyOglyZXR1
-cm4gMDsNCiB9DQogDQogDQpAQCAtMTA5MiwxMCArMTEwMiw3IEBADQogCWlu
-dCAgICAgICAgICAgICBteV9kZXY7DQogCWNoYXIgICAgICAgICAgICBkZXZf
-bmFtZVsxMDBdOw0KIAlhZDE4MTZfaW5mbyAgICAqZGV2YyA9ICZkZXZfaW5m
-b1tucl9hZDE4MTZfZGV2c107DQotCQ0KIA0KLQkvKiBhbGxvY2F0ZSBpL28g
-cG9ydHMgKi8NCi0gICAgICAgCXJlcXVlc3RfcmVnaW9uIChod19jb25maWct
-PmlvX2Jhc2UsIDE2LCAiQUQxODE2IFNvdW5kIik7DQogCWRldmMtPmJhc2Ug
-PSBod19jb25maWctPmlvX2Jhc2U7CQ0KIA0KIAkvKiBkaXNhYmxlIGFsbCBp
-bnRlcnJ1cHRzICovDQpAQCAtMTEwNSwzNSArMTExMiwyOSBAQA0KIAlvdXRi
-ICgwLCBkZXZjLT5iYXNlKzEpOwkNCiANCiAJLyogYWxsb2NhdGUgaXJxICov
-DQotCWlmIChod19jb25maWctPmlycSA8IDAgfHwgaHdfY29uZmlnLT5pcnEg
-PiAxNSkgew0KLQkJcmVsZWFzZV9yZWdpb24oaHdfY29uZmlnLT5pb19iYXNl
-LCAxNik7DQotCQlyZXR1cm47CSAgDQotCX0NCisJaWYgKGh3X2NvbmZpZy0+
-aXJxIDwgMCB8fCBod19jb25maWctPmlycSA+IDE1KQ0KKwkJZ290byBvdXRf
-cmVsZWFzZV9yZWdpb247DQogCWlmIChyZXF1ZXN0X2lycShod19jb25maWct
-PmlycSwgYWQxODE2X2ludGVycnVwdCwwLA0KLQkJCSJTb3VuZFBvcnQiLA0K
-LQkJCWh3X2NvbmZpZy0+b3NwKSA8IDApCXsNCi0JICAgICAgICBwcmludGsg
-KCJhZDE4MTY6IElSUSBpbiB1c2VcbiIpOw0KLQkJcmVsZWFzZV9yZWdpb24o
-aHdfY29uZmlnLT5pb19iYXNlLCAxNik7DQotCQlyZXR1cm47DQorCQkJIlNv
-dW5kUG9ydCIsIGh3X2NvbmZpZy0+b3NwKSA8IDApCXsNCisJICAgICAgICBw
-cmludGsoS0VSTl9XQVJOSU5HICJhZDE4MTY6IElSUSBpbiB1c2VcbiIpOw0K
-KwkJZ290byBvdXRfcmVsZWFzZV9yZWdpb247DQogCX0NCiAJZGV2Yy0+aXJx
-PWh3X2NvbmZpZy0+aXJxOw0KIA0KIAkvKiBETUEgc3R1ZmYgKi8NCiAJaWYg
-KHNvdW5kX2FsbG9jX2RtYSAoaHdfY29uZmlnLT5kbWEsICJTb3VuZCBTeXN0
-ZW0iKSkgew0KLQkJcHJpbnRrICgiYWQxODE2OiBDYW4ndCBhbGxvY2F0ZSBE
-TUElZFxuIiwgaHdfY29uZmlnLT5kbWEpOw0KLQkJZnJlZV9pcnEoaHdfY29u
-ZmlnLT5pcnEsaHdfY29uZmlnLT5vc3ApOw0KLQkJcmVsZWFzZV9yZWdpb24o
-aHdfY29uZmlnLT5pb19iYXNlLCAxNik7DQotCQlyZXR1cm47DQorCQlwcmlu
-dGsoS0VSTl9XQVJOSU5HICJhZDE4MTY6IENhbid0IGFsbG9jYXRlIERNQSVk
-XG4iLA0KKwkJCQkgICAgaHdfY29uZmlnLT5kbWEpOw0KKwkJZ290byBvdXRf
-ZnJlZV9pcnE7DQogCX0NCiAJZGV2Yy0+ZG1hX3BsYXliYWNrPWh3X2NvbmZp
-Zy0+ZG1hOw0KIAkNCiAJaWYgKCBod19jb25maWctPmRtYTIgIT0gLTEgJiYg
-aHdfY29uZmlnLT5kbWEyICE9IGh3X2NvbmZpZy0+ZG1hKSB7DQotCQlpZiAo
-c291bmRfYWxsb2NfZG1hIChod19jb25maWctPmRtYTIsICJTb3VuZCBTeXN0
-ZW0gKGNhcHR1cmUpIikpIHsNCi0JCQlwcmludGsgKCJhZDE4MTY6IENhbid0
-IGFsbG9jYXRlIERNQSVkXG4iLCBod19jb25maWctPmRtYTIpOw0KLQkJCXNv
-dW5kX2ZyZWVfZG1hKGh3X2NvbmZpZy0+ZG1hKTsNCi0JCQlmcmVlX2lycSho
-d19jb25maWctPmlycSxod19jb25maWctPm9zcCk7DQotCQkJcmVsZWFzZV9y
-ZWdpb24oaHdfY29uZmlnLT5pb19iYXNlLCAxNik7DQotCQkJcmV0dXJuOw0K
-KwkJaWYgKHNvdW5kX2FsbG9jX2RtYShod19jb25maWctPmRtYTIsDQorCQkJ
-CSAgICAiU291bmQgU3lzdGVtIChjYXB0dXJlKSIpKSB7DQorCQkJcHJpbnRr
-KEtFUk5fV0FSTklORyAiYWQxODE2OiBDYW4ndCBhbGxvY2F0ZSBETUElZFxu
-IiwNCisJCQkJCSAgICBod19jb25maWctPmRtYTIpOw0KKwkJCWdvdG8gb3V0
-X2ZyZWVfZG1hOw0KIAkJfQ0KIAkJZGV2Yy0+ZG1hX2NhcHR1cmU9aHdfY29u
-ZmlnLT5kbWEyOw0KIAkJZGV2Yy0+YXVkaW9fbW9kZT1ETUFfQVVUT01PREV8
-RE1BX0RVUExFWDsNCkBAIC0xMTU3LDE1ICsxMTU4LDggQEANCiAJCQkJCSAg
-ICAgIGRldmMsDQogCQkJCQkgICAgICBod19jb25maWctPmRtYSwgDQogCQkJ
-CQkgICAgICBod19jb25maWctPmRtYTIpKSA8IDApIHsNCi0JCXByaW50ayAo
-ImFkMTgxNjogQ2FuJ3QgaW5zdGFsbCBzb3VuZCBkcml2ZXJcbiIpOw0KLQkJ
-aWYgKGRldmMtPmRtYV9jYXB0dXJlPj0wKSB7DQotCQkgICAgICAgIHNvdW5k
-X2ZyZWVfZG1hKGh3X2NvbmZpZy0+ZG1hMik7DQotCQl9DQotCQlzb3VuZF9m
-cmVlX2RtYShod19jb25maWctPmRtYSk7DQotCQlmcmVlX2lycShod19jb25m
-aWctPmlycSxod19jb25maWctPm9zcCk7DQotCQlyZWxlYXNlX3JlZ2lvbiho
-d19jb25maWctPmlvX2Jhc2UsIDE2KTsNCi0JCXJldHVybjsNCi0NCisJCXBy
-aW50ayhLRVJOX1dBUk5JTkcgImFkMTgxNjogQ2FuJ3QgaW5zdGFsbCBzb3Vu
-ZCBkcml2ZXJcbiIpOw0KKwkJZ290byBvdXRfZnJlZV9kbWFfMjsNCiAJfQ0K
-IA0KIAkvKiBmaWxsIHJlc3Qgb2Ygc3RydWN0dXJlIHdpdGggcmVhc29uYWJs
-ZSBkZWZhdWx0IHZhbHVlcyAqLw0KQEAgLTEyMTEsNiArMTIwNSwxNyBAQA0K
-IAkJCQkgICAgICAgZGV2YykpID49IDApIHsNCiAJCWF1ZGlvX2RldnNbbXlf
-ZGV2XS0+bWluX2ZyYWdtZW50ID0gMDsNCiAJfQ0KK291dDoJcmV0dXJuOw0K
-K291dF9mcmVlX2RtYV8yOg0KKwlpZiAoZGV2Yy0+ZG1hX2NhcHR1cmUgPj0g
-MCkNCisJICAgICAgICBzb3VuZF9mcmVlX2RtYShod19jb25maWctPmRtYTIp
-Ow0KK291dF9mcmVlX2RtYToNCisJc291bmRfZnJlZV9kbWEoaHdfY29uZmln
-LT5kbWEpOw0KK291dF9mcmVlX2lycToNCisJZnJlZV9pcnEoaHdfY29uZmln
-LT5pcnEsaHdfY29uZmlnLT5vc3ApOw0KK291dF9yZWxlYXNlX3JlZ2lvbjoN
-CisJcmVsZWFzZV9yZWdpb24oaHdfY29uZmlnLT5pb19iYXNlLCAxNik7DQor
-CWdvdG8gb3V0Ow0KIH0NCiANCiBzdGF0aWMgdm9pZCBfX2V4aXQgdW5sb2Fk
-X2NhcmQoYWQxODE2X2luZm8gKmRldmMpDQpAQCAtMTI0Miw5ICsxMjQ3LDgg
-QEANCiAJCQ0KIAkJREVCVUdMT0cgKHByaW50aygiYWQxODE2OiBVbmxvYWRp
-bmcgY2FyZCBhdCBiYXNlPSV4IHdhcyBzdWNjZXNzZnVsXG4iLGRldmMtPmJh
-c2UpKTsNCiAJCQ0KLQl9IGVsc2Ugew0KLQkJcHJpbnRrICgiYWQxODE2OiBu
-byBkZXZpY2UvY2FyZCBzcGVjaWZpZWRcbiIpOw0KLQl9DQorCX0gZWxzZQ0K
-KwkJcHJpbnRrKEtFUk5fV0FSTklORyAiYWQxODE2OiBubyBkZXZpY2UvY2Fy
-ZCBzcGVjaWZpZWRcbiIpOw0KIH0NCiANCiBzdGF0aWMgc3RydWN0IGFkZHJl
-c3NfaW5mbyBjZmc7DQo=
---1920110659-756053209-1002702892=:28053--
+
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+----------------------------------------------------------------------------------------------------------------------
+Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
+is intended for use only by the individual or entity to which it is
+addressed, and may contain information that is privileged, confidential or
+exempt from disclosure under applicable law. If you are not the intended
+recipient or it appears that this mail has been forwarded to you without
+proper authority, you are notified that any use or dissemination of this
+information in any manner is strictly prohibited. In such cases, please
+notify us immediately at mailto:mailadmin@wipro.com and delete this mail
+from your records.
+----------------------------------------------------------------------------------------------------------------------
+
+
+--------------InterScan_NT_MIME_Boundary--

@@ -1,44 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUFFTsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264073AbUFFTtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264085AbUFFTsg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 15:48:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264090AbUFFTsg
+	id S264073AbUFFTtb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 15:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbUFFTtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 15:48:36 -0400
-Received: from gprs214-14.eurotel.cz ([160.218.214.14]:35713 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264085AbUFFTsb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 15:48:31 -0400
-Date: Sun, 6 Jun 2004 21:48:19 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 2.6] Mousedev - tapping support for touchpads in absolute mode (Synaptics)
-Message-ID: <20040606194819.GC10081@elf.ucw.cz>
-References: <200406050252.45260.dtor_core@ameritech.net>
+	Sun, 6 Jun 2004 15:49:31 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:32643 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264073AbUFFTtY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 15:49:24 -0400
+Subject: Re: Killing POSIX deadlock detection
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Andrew Morton <akpm@osdl.org>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20040606132751.GZ5850@parcelfarce.linux.theplanet.co.uk>
+References: <200406050725.i557P3hQ004052@supreme.pcug.org.au>
+	 <20040606130422.0c8946b3.sfr@canb.auug.org.au>
+	 <20040606132751.GZ5850@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1086551360.5472.48.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406050252.45260.dtor_core@ameritech.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 06 Jun 2004 15:49:20 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> The patch below implements tapping support for touchpads working in absolute
-> mode so Synaptics users do not need use psmouse.proto=imps to have tapping in
-> absence of native X driver/GPM support. The new kernel parameter
-> mousedev.tap_time=<msecs> controls the feature, use 0 to disable tapping.
+På su , 06/06/2004 klokka 09:27, skreiv Matthew Wilcox:
+\
+> > T1 locks file F1 -> lock (P1, F1)
+> > P2 locks file F2 -> lock (P2, F2)
+> > P2 locks file F1 -> blocks against (P1, F1)
+> > T1 locks file F2 -> blocks against (P2, F2)
 > 
-> The patch is on top of other mousedev patch I posted earlier.
+> Less contrived example -- T2 locks file F2.  We report deadlock here too,
+> even though T1 is about to unlock file F1.
 
-Heh, and this should also help on compaq nx5k which has synaptics but
-does not support tapping. Good.
+So what is better: report an error and give the user a chance to
+recover, or allowing the potential deadlock?
+Only the user can resolve problems such as the above threaded problem,
+given the SuS definitions.
 
-									Pavel
+> So, final call.  Any objections to never returning -EDEADLCK?
 
--- 
-934a471f20d6580d5aad759bf0d97ddc
+Yes: As Chuck points out, that is a fairly nasty change of the userland
+API.
+
+Worse: it is a change that fixes only one problem for only a minority of
+users (those that combine locking over multiple NPTL threads - a
+situation which after the "fix" remains just as poorly defined) at the
+expense of reintroducing a series of deadlocking problems for those
+single threaded users that rely on the EDEADLK (and have done so
+throughout the entire 2.4.x series).
+
+Finally, EDEADLK does actually appear to be mandatory to implement in
+SUSv3, given that it states:
+
+        A potential for deadlock occurs if a process controlling a
+        locked region is put to sleep by attempting to lock another
+        process' locked region. If the system detects that sleeping
+        until a locked region is unlocked would cause a deadlock,
+        fcntl() shall fail with an [EDEADLK] error.
+        
+(again see
+http://www.opengroup.org/onlinepubs/009695399/functions/fcntl.html)
+
+Trond

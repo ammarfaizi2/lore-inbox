@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266948AbTADPMs>; Sat, 4 Jan 2003 10:12:48 -0500
+	id <S266953AbTADPUZ>; Sat, 4 Jan 2003 10:20:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266953AbTADPMs>; Sat, 4 Jan 2003 10:12:48 -0500
-Received: from elin.scali.no ([62.70.89.10]:9234 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S266948AbTADPMr>;
-	Sat, 4 Jan 2003 10:12:47 -0500
-Date: Sat, 4 Jan 2003 16:23:54 +0100 (CET)
-From: Steffen Persvold <sp@scali.com>
-X-X-Sender: sp@sp-laptop.isdn.scali.no
-To: "David S. Miller" <davem@redhat.com>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
-Subject: NAPI and tg3
-Message-ID: <Pine.LNX.4.44.0301041613350.2946-100000@sp-laptop.isdn.scali.no>
+	id <S266957AbTADPUZ>; Sat, 4 Jan 2003 10:20:25 -0500
+Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:16028 "EHLO
+	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S266953AbTADPUY>; Sat, 4 Jan 2003 10:20:24 -0500
+Date: Sat, 4 Jan 2003 13:28:41 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andre Hedrick <andre@linux-ide.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Honest does not pay here ...
+In-Reply-To: <Pine.LNX.4.10.10301040547120.421-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.50L.0301041325100.2429-100000@imladris.surriel.com>
+References: <Pine.LNX.4.10.10301040547120.421-100000@master.linux-ide.org>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
+On Sat, 4 Jan 2003, Andre Hedrick wrote:
 
-I have access to 8 Dell 2650s with onboard Broadcom BCM5701 chips. They 
-are quipped with Dual 2.4 GHz Xeon processors and 1GB of RAM. I'm running 
-RedHat 7.3, but with a stock 2.4.20 kernel.
+> Well, all this goes to show you is that if you try to do the right thing
+> and you have something of value, you are attacked.
 
-As I understand it the tg3 driver is using NAPI on the 2.4.20 kernel 
-(dev->poll). I've been experiencing bad performance (low bandwidth) on 
-cluster applications running with LAM for example, but the problem 
-manifest itself if you run two bandwidth needy applications in parallel 
-on two machines (i.e two processes on each machine, one per processor) 
-using Gbe. 
+Attacked by (mostly) a bunch of wankers who don't seem to do much
+useful themselves.  People who do useful work once in a while know
+how much effort you are putting into Linux drivers and appreciate
+the work you're doing.
 
-I've disabled the NAPI mode and went back to the old interrupt method and 
-this works much better (i.e the bandwidth is now evenly distributed 
-between the two applications).
+> Well you all have gotten all kinds of goodie for free,
 
-What could be the cause of this problem ? Is it NAPI itself (doing RX 
-under scheduler control) or is it something else (for example lock 
-contetion).
+And I thank you for that.
 
-Any ideas ?
+> Well I was thinking of giving part of it to the community after I
+> recovered my costs of development, now I think not.
 
-Thanks,
+That's a real shame.  I like your business model of recovering the
+development costs before releasing the software since it's a way
+to fund your work on the kernel pretty much full-time, which seems
+to have resulted in really good free drivers.
+
+To be honest I don't understand why people are complaining about
+the fact that your model keeps some drivers closed for 18 months,
+while a completely free model wouldn't even start development of
+the drivers for 18 months, until after the hardware became generally
+available.
+
+regards,
+
+Rik
 -- 
-  Steffen Persvold   |       Scali AS      
- mailto:sp@scali.com |  http://www.scali.com
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
-
-
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

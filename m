@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268926AbRIRMFB>; Tue, 18 Sep 2001 08:05:01 -0400
+	id <S270201AbRIRMh2>; Tue, 18 Sep 2001 08:37:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269318AbRIRMEl>; Tue, 18 Sep 2001 08:04:41 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:25864 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S268926AbRIRMEd>;
-	Tue, 18 Sep 2001 08:04:33 -0400
-Date: Tue, 18 Sep 2001 09:04:12 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <Pine.LNX.4.33.0109170840520.8836-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0109180901580.14288-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S270257AbRIRMhS>; Tue, 18 Sep 2001 08:37:18 -0400
+Received: from xsmtp.ethz.ch ([129.132.97.6]:46840 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S270201AbRIRMhD> convert rfc822-to-8bit;
+	Tue, 18 Sep 2001 08:37:03 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+content-class: urn:content-classes:message
+Subject: new OOPS 2.4.10-pre11, do_generic_file_read [devfs related?]
+Date: Tue, 18 Sep 2001 14:34:13 +0200
+Message-ID: <3BA73F45.4090704@dplanet.ch>
+Thread-Topic: new OOPS 2.4.10-pre11, do_generic_file_read [devfs related?]
+Thread-Index: AcFAPqmbtKOyEKv7EdWZHACQJ4nSeQ==
+From: "Giacomo Catenazzi" <cate@dplanet.ch>
+To: <linux-kernel@vger.kernel.org>, "Richard Gooch" <rgooch@ras.ucalgary.ca>
+X-OriginalArrivalTime: 18 Sep 2001 12:37:26.0017 (UTC) FILETIME=[ABF49F10:01C1403E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Sep 2001, Linus Torvalds wrote:
+Starting in 2.4.10-pre11 I have a new oops.
+This time the oops happens also without floppy support,
+but also this bug happen at boot time, when mounting root
+rw. Also this time the oops seem reproducible.
+devfs=nomount solve this bug (like the old bug).
 
-> We should not do _anything_ in __find_page_nolock().
 
-> The aging has to be done at a higher level (ie when you actually _use_
-> it, not when you search the hash queues).
+What the status of your devfs rewrite ?
 
-Absolutely agreed. In fact, I already did this last week
-in the -still not published- new version of the reverse
-mapping patch ;)
+	giacomo
 
-(now if I only could get that thing SMP safe in an efficient
-way)
 
-regards,
+  Receiver lock-up bug exists -- enabling work-around.
+Unable to handle kernel NULL pointer dereference at virtual address
+00000000
+00000000
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<00000000>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010202
+eax: c0262e00   ebx: cff61e34   ecx: cfb310c0   edx: cff61e34
+esi: c13a9034   edi: cfab6cc0   ebp: 00000000   esp: cfa11ed8
+ds: 0018   es: 0018   ss: 0018
+Process fsck.ext2 (pid: 37, stackpage=cfa11000)
+Stack: c0123064 cfb310c0 c13a9034 00000c00 00000001 00000000 00000400
+cfab6c20
+         00000000 cfe9a420 cfbaeea0 cfa10000 c010fedc cfe9a420 cfbaeea0
+080640d4
+         cfb310c0 ffffffea 00000000 00000400 c01236af cfb310c0 cfb310e0
+cfa11f4c
+Call Trace: [<c0123064>] [<c010fedc>] [<c01236af>] [<c01234b0>]
+[<c012f410>]
+     [<c0136490>] [<c012f26e>] [<c0106d3b>]
+Code:  Bad EIP value.
 
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+  >>EIP; 00000000 Before first symbol
+Trace; c0123064 <do_generic_file_read+2b4/4f0>
+Trace; c010fedc <do_page_fault+2fc/4e0>
+Trace; c01236ae <generic_file_read+19e/1c0>
+Trace; c01234b0 <file_read_actor+0/60>
+Trace; c012f410 <sys_read+b0/d0>
+Trace; c0136490 <block_llseek+0/a0>
+Trace; c012f26e <sys_lseek+6e/80>
+Trace; c0106d3a <system_call+32/38>
 

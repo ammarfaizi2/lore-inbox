@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291088AbSCHWzS>; Fri, 8 Mar 2002 17:55:18 -0500
+	id <S291272AbSCHWy7>; Fri, 8 Mar 2002 17:54:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291214AbSCHWzJ>; Fri, 8 Mar 2002 17:55:09 -0500
-Received: from host194.steeleye.com ([216.33.1.194]:41738 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S291088AbSCHWyw>; Fri, 8 Mar 2002 17:54:52 -0500
-Message-Id: <200203082254.g28MsnO08634@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Dave Jones <davej@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] modularization of i386 setup_arch and mem_init in 2.4.18
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 08 Mar 2002 17:54:49 -0500
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S291214AbSCHWys>; Fri, 8 Mar 2002 17:54:48 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:33017 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S291088AbSCHWyc>; Fri, 8 Mar 2002 17:54:32 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+Date: Fri, 8 Mar 2002 17:55:20 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: rusty@rustcorp.com.au (Rusty Russell), linux-kernel@vger.kernel.org
+In-Reply-To: <E16jRAU-0007QU-00@the-village.bc.nu>
+In-Reply-To: <E16jRAU-0007QU-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020308225425.772D13FE06@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As a sidenote (sort of related topic) :
->  An idea being kicked around a little right now is x86 subarch
->  support for 2.5. With so many of the niche x86 spin-offs appearing
->  lately, all fighting for their own piece of various files in
->  arch/i386/kernel/, it may be time to do the same as the ARM folks
-> did,
->  and have..
+On Friday 08 March 2002 03:40 pm, Alan Cox wrote:
+> > So I would suggest making the size (and thus alignment check) of locks at
+> > least 8 bytes (and preferably 16). That makes it slightly harder to put
+> > locks on the stack, but gcc does support stack alignment, even if the
+> > code sucks right now.
+>
+> Can we go to cache line alignment - for an array of locks thats clearly
+> advantageous
 
->   arch/i386/generic/
->   arch/i386/numaq/
->   arch/i386/visws
->   arch/i386/voyager/
->   etc..
+NO and let me explain.
 
-I'll go for this (although it's probably a 2.5 thing rather than 2.4).  The 
-key to making an effective split is to get the abstractions in the generic 
-part correct.  I suspect that each of the different arch's has slightly 
-different abstraction requirements of the i386 routines, but if we begin the 
-split in one arch and pass it around to the others we'll end up with something 
-that is roughly correct.
+I would to be able to integrate the lock with the data.
+This is much more cache friendly then putting the lock on a different 
+cacheline.
 
-I'll look at doing at least a generic and voyager in the next week (if I get 
-time).
+If you want an array you need to pad each element. 
+That's easy enough to do....
+Can't shrink a datastructure on the other hand :-)
 
-James
-
-
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)

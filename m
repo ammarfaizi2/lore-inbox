@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289871AbSAWOva>; Wed, 23 Jan 2002 09:51:30 -0500
+	id <S289867AbSAWPUs>; Wed, 23 Jan 2002 10:20:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289874AbSAWOvK>; Wed, 23 Jan 2002 09:51:10 -0500
-Received: from colorfullife.com ([216.156.138.34]:21252 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S289872AbSAWOvE>;
-	Wed, 23 Jan 2002 09:51:04 -0500
-Date: Wed, 23 Jan 2002 15:50:59 +0100 (CET)
-From: Manfred Spraul <manfred@colorfullife.com>
-X-X-Sender: <manfred@dbl.localdomain>
-To: "David S. Miller" <davem@redhat.com>
-cc: <masp0008@stud.uni-saarland.de>, <drobbins@gentoo.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon/AGP issue update
-In-Reply-To: <20020123.034411.71089598.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0201231546560.23603-100000@dbl.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S289872AbSAWPUi>; Wed, 23 Jan 2002 10:20:38 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:64640 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S289867AbSAWPUa>;
+	Wed, 23 Jan 2002 10:20:30 -0500
+Date: Wed, 23 Jan 2002 07:18:55 -0800 (PST)
+Message-Id: <20020123.071855.13775376.davem@redhat.com>
+To: rmk@arm.linux.org.uk
+Cc: davej@suse.de, martin.macok@underground.cz, linux-kernel@vger.kernel.org,
+        ak@muc.de
+Subject: Re: [andrewg@tasmail.com: remote memory reading through tcp/icmp]
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020121144404.B11489@flint.arm.linux.org.uk>
+In-Reply-To: <20020121031211.B29830@suse.de>
+	<20020120.184318.13746427.davem@redhat.com>
+	<20020121144404.B11489@flint.arm.linux.org.uk>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002, David S. Miller wrote:
+   From: Russell King <rmk@arm.linux.org.uk>
+   Date: Mon, 21 Jan 2002 14:44:04 +0000
+   
+   It appears that net/ipv6/ndisc.c forgets to convert the payload_len header
+   field to host byteorder before comparing it.
+   
+   The following patch corrects this.
 
->
-> This isn't true.  The speculative store won't get data into the
-> cache if there is a TLB miss.
->
-The Pentium III loads TLB entries speculatively, there is a Intel
-document how to flush tbl entries where they explicitely mention that.
-
-> 4MB pages map the GART pages and "other stuff", ie. memory used by
-> other subsystems, user pages and whatever else.  This is the only
-> way the bug can be thus triggered for kernel mappings, which is why
-> turning off 4MB pages fixes this part.
->
-
-We might be luky - pIII performs speculative tlb loads, and Athlon
-performs spurious cache line writeouts, but I don´t trust such solutions.
-
+Applied, thanks.

@@ -1,51 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274183AbRISU4p>; Wed, 19 Sep 2001 16:56:45 -0400
+	id <S274184AbRISU5Z>; Wed, 19 Sep 2001 16:57:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274184AbRISU4f>; Wed, 19 Sep 2001 16:56:35 -0400
-Received: from viper.haque.net ([66.88.179.82]:4224 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S274183AbRISU4b>;
-	Wed, 19 Sep 2001 16:56:31 -0400
-Date: Wed, 19 Sep 2001 16:56:43 -0400 (EDT)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Mark Orr <markorr@intersurf.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10pre12 -- PPP compile problem;  tty_register_ldisc hanging
-In-Reply-To: <E15jmz5-0003c8-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0109191655030.1087-100000@viper.haque.net>
+	id <S274187AbRISU5I>; Wed, 19 Sep 2001 16:57:08 -0400
+Received: from anime.net ([63.172.78.150]:23058 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S274184AbRISU5D>;
+	Wed, 19 Sep 2001 16:57:03 -0400
+Date: Wed, 19 Sep 2001 13:57:10 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Arjan van de Ven <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
+In-Reply-To: <20010919223626.B3775@suse.cz>
+Message-ID: <Pine.LNX.4.30.0109191356460.28278-100000@anime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Sep 2001, Alan Cox wrote:
+On Wed, 19 Sep 2001, Vojtech Pavlik wrote:
+> Here we go, a TBird 1.1G with KT133 (non-A), normally working with value
+> 89 in reg 55, not exhibiting the bug under any setting.
 
-> The tty exports are now in the drivers/char/tty* files.
+But its 133a experiencing the problem?
 
-I guess that it didnt get merged then because it's not there.
+Anyone tried kt266...
 
-Here's the correct patch to be used instead of what I posted earlier...
-
---- linux/drivers/char/tty_io.c.orig	Wed Sep 19 15:59:09 2001
-+++ linux/drivers/char/tty_io.c	Wed Sep 19 15:59:20 2001
-@@ -270,6 +270,8 @@
- 	return 0;
- }
-
-+EXPORT_SYMBOL(tty_register_ldisc);
-+
- /* Set the discipline of a tty line. */
- static int tty_set_ldisc(struct tty_struct *tty, int ldisc)
- {
+-Dan
 
 -- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+[-] Omae no subete no kichi wa ore no mono da. [-]
 

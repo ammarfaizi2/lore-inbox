@@ -1,83 +1,166 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263303AbTKQFRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 00:17:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTKQFRJ
+	id S261602AbTKQFTy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 00:19:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTKQFTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 00:17:09 -0500
-Received: from mail-06.iinet.net.au ([203.59.3.38]:45993 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263303AbTKQFRG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 00:17:06 -0500
-Message-ID: <3FB859CC.2040002@cyberone.com.au>
-Date: Mon, 17 Nov 2003 16:17:00 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: gene.heskett@verizon.net
-CC: Andrew Morton <akpm@osdl.org>, Gawain Lynch <gawain@freda.homelinux.org>,
-       prakashpublic@gmx.de, linux-kernel@vger.kernel.org, cat@zip.com.au
-Subject: Re: Terrible interactivity with 2.6.0-t9-mm3
-References: <20031116192643.GB15439@zip.com.au> <200311162254.23043.gene.heskett@verizon.net> <3FB84C5A.3000705@cyberone.com.au> <200311162347.48739.gene.heskett@verizon.net>
-In-Reply-To: <200311162347.48739.gene.heskett@verizon.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Nov 2003 00:19:54 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:60553 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261602AbTKQFTu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 00:19:50 -0500
+Date: Mon, 17 Nov 2003 10:55:18 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, "linux-aio@kvack.org" <linux-aio@kvack.org>
+Subject: Re: 2.6.0-test9-mm3 - AIO test results
+Message-ID: <20031117052518.GA11184@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20031112233002.436f5d0c.akpm@osdl.org> <1068761038.1805.35.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1068761038.1805.35.camel@ibm-c.pdx.osdl.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 13, 2003 at 02:03:58PM -0800, Daniel McNeil wrote:
+> Andrew,
+> 
+> I'm testing test9-mm3 on a 2-proc Xeon with a ext3 file system.
+> I tested using the test programs aiocp and aiodio_sparse.
+> (see http://developer.osdl.org/daniel/AIO/)
+> 
+> Using aiocp with i/o sizes from 1k to 512k to copy files worked
+> without any errors or kernel debug messages.
+> 
+> With 64k i/o, the aiodio_sparse program complete without any errors.
+> There are no kernel error messages, so that is good.
+> 
+> There are still problems with non power of 2 i/o sizes using AIO and
+> O_DIRECT.  It hangs with aio's that do not seem to complete.  The test
+> does exit when hitting ^c and there are no kernel messages.  Test output
+> below:
 
+Could you check if the following patch fixes the problem for you ?
 
-Gene Heskett wrote:
+Regards
+Suparna
 
->On Sunday 16 November 2003 23:19, Nick Piggin wrote:
->
->>I think you might have confused Andrew a bit more ;)
->>
->>To start with, you are talking about IO schedulers, while the thread
->>is about CPU interactivity.
->>
->
->I wasn't aware that such performance issues were divorced.  In my 
->admitted limited view, a laggy mouse is a laggy mouse, and its due to 
->irq latency in achieving the context switch to service the mouses 
->data.  To me, its sorta like 2=2. :)
->
+--------------------------------------------------------------
 
-I guess its mostly due to scheduling latency. I think IRQ latency is
-generally very good these days.
+With this patch, when the DIO code falls back to buffered i/o after
+having submitted part of the i/o, then buffered i/o is issued only
+for the remaining part of the request (i.e. the part not already 
+covered by DIO).
 
-Scheduling latency caused not by long critical sections in the kernel,
-but having things scheduled in front of you (X) for a long time.
-
->
->>The problem here looks like something that is caused by something in
->>mm3, not in mm2, not linus.patch, and not
->>context-switch-accounting-fix.patch.
->>
->>
->>Off topic: it would be good if you could try the as disk scheduler
->>in mm3. I recall you had some problems with it earlier, but they
->>should be fixed in mm3. Thanks.
->>
->
->Ok Nick.  I'll reboot tomorrow without the elevator argument.  Right 
->now, amanda is fixin to be fired off in about 25 minutes and I want 
->to see how badly its estimate phase hogs the machine using the cfq 
->scheduler.  With the -mm2 as, it was almost psychedelic to watch the 
->mouse move.
->
-
-OK thanks. I think this problem you were seeing _was_ interrupt latency
-due to AS doing millions of WARNs. It should be fixed in mm3.
-
->
->Also off topic re mouse performance, and I expect this is an X issue, 
->but when its been blanked because I'm typing, it takes about a full 
->seconds worth of hand waving before it becomes visible again.  This 
->is an X issue and I should go away, right?
->
-
-Sounds like it.
-
-
+diff -ur pure-mm3/fs/direct-io.c linux-2.6.0-test9-mm3/fs/direct-io.c
+--- pure-mm3/fs/direct-io.c	2003-11-14 09:09:06.000000000 +0530
++++ linux-2.6.0-test9-mm3/fs/direct-io.c	2003-11-17 09:00:47.000000000 +0530
+@@ -74,6 +74,7 @@
+ 					   been performed at the start of a
+ 					   write */
+ 	int pages_in_io;		/* approximate total IO pages */
++	size_t	size;			/* total request size (doesn't change)*/
+ 	sector_t block_in_file;		/* Current offset into the underlying
+ 					   file in dio_block units. */
+ 	unsigned blocks_available;	/* At block_in_file.  changes */
+@@ -226,7 +227,7 @@
+ 			dio_complete(dio, dio->block_in_file << dio->blkbits,
+ 					dio->result);
+ 			/* Complete AIO later if falling back to buffered i/o */
+-			if (dio->result != -ENOTBLK) {
++			if (dio->result >= dio->size || dio->rw == READ) {
+ 				aio_complete(dio->iocb, dio->result, 0);
+ 				kfree(dio);
+ 			} else {
+@@ -889,6 +890,7 @@
+ 	dio->blkbits = blkbits;
+ 	dio->blkfactor = inode->i_blkbits - blkbits;
+ 	dio->start_zero_done = 0;
++	dio->size = 0;
+ 	dio->block_in_file = offset >> blkbits;
+ 	dio->blocks_available = 0;
+ 	dio->cur_page = NULL;
+@@ -925,7 +927,7 @@
+ 
+ 	for (seg = 0; seg < nr_segs; seg++) {
+ 		user_addr = (unsigned long)iov[seg].iov_base;
+-		bytes = iov[seg].iov_len;
++		dio->size += bytes = iov[seg].iov_len;
+ 
+ 		/* Index into the first page of the first block */
+ 		dio->first_block_in_page = (user_addr & ~PAGE_MASK) >> blkbits;
+@@ -956,6 +958,13 @@
+ 		}
+ 	} /* end iovec loop */
+ 
++	if (ret == -ENOTBLK && rw == WRITE) {
++		/*
++		 * The remaining part of the request will be 
++		 * be handled by buffered I/O when we return
++		 */
++		ret = 0;
++	}
+ 	/*
+ 	 * There may be some unwritten disk at the end of a part-written
+ 	 * fs-block-sized block.  Go zero that now.
+@@ -986,19 +995,13 @@
+ 	 */
+ 	if (dio->is_async) {
+ 		if (ret == 0)
+-			ret = dio->result;	/* Bytes written */
+-		if (ret == -ENOTBLK) {
+-			/*
+-			 * The request will be reissued via buffered I/O
+-			 * when we return; Any I/O already issued
+-			 * effectively becomes redundant.
+-			 */
+-			dio->result = ret;
++			ret = dio->result;
++		if (ret > 0 && dio->result < dio->size && rw == WRITE) {
+ 			dio->waiter = current;
+ 		}
+ 		finished_one_bio(dio);		/* This can free the dio */
+ 		blk_run_queues();
+-		if (ret == -ENOTBLK) {
++		if (dio->waiter) {
+ 			/*
+ 			 * Wait for already issued I/O to drain out and
+ 			 * release its references to user-space pages
+@@ -1032,7 +1035,8 @@
+ 		}
+ 		dio_complete(dio, offset, ret);
+ 		/* We could have also come here on an AIO file extend */
+-		if (!is_sync_kiocb(iocb) && (ret != -ENOTBLK))
++		if (!is_sync_kiocb(iocb) && !(rw == WRITE && ret >= 0 && 
++			dio->result < dio->size))
+ 			aio_complete(iocb, ret, 0);
+ 		kfree(dio);
+ 	}
+diff -ur pure-mm3/mm/filemap.c linux-2.6.0-test9-mm3/mm/filemap.c
+--- pure-mm3/mm/filemap.c	2003-11-14 09:15:08.000000000 +0530
++++ linux-2.6.0-test9-mm3/mm/filemap.c	2003-11-15 11:11:16.000000000 +0530
+@@ -1895,14 +1895,16 @@
+ 		 */
+ 		if (written >= 0 && file->f_flags & O_SYNC)
+ 			status = generic_osync_inode(inode, mapping, OSYNC_METADATA);
+-		if (written >= 0 && !is_sync_kiocb(iocb))
++		if (written >= count && !is_sync_kiocb(iocb))
+ 			written = -EIOCBQUEUED;
+-		if (written != -ENOTBLK)
++		if (written < 0 || written >= count)
+ 			goto out_status;
+ 		/*
+ 		 * direct-io write to a hole: fall through to buffered I/O
++		 * for completing the rest of the request.
+ 		 */
+-		written = 0;
++		pos += written;
++		count -= written;
+ 	}
+ 
+ 	buf = iov->iov_base;

@@ -1,92 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130614AbQL3IuJ>; Sat, 30 Dec 2000 03:50:09 -0500
+	id <S133074AbQL3JK7>; Sat, 30 Dec 2000 04:10:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133074AbQL3It6>; Sat, 30 Dec 2000 03:49:58 -0500
-Received: from photon.idirect.com ([207.136.80.123]:53198 "EHLO photon")
-	by vger.kernel.org with ESMTP id <S130614AbQL3Itp>;
-	Sat, 30 Dec 2000 03:49:45 -0500
-Message-ID: <000c01c07239$35b48820$2d8342d8@fermat>
-From: "BH" <hammock@look.ca>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.2.18 and joy-gravis.o
-Date: Sat, 30 Dec 2000 00:19:18 -0800
+	id <S133088AbQL3JKt>; Sat, 30 Dec 2000 04:10:49 -0500
+Received: from m11.boston.juno.com ([63.211.172.74]:62615 "EHLO
+	m11.boston.juno.com") by vger.kernel.org with ESMTP
+	id <S133074AbQL3JKk>; Sat, 30 Dec 2000 04:10:40 -0500
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Date: Sat, 30 Dec 2000 03:33:42 -0500
+Subject: [PATCH] test13-pre6  net/atm/lec.c
+Message-ID: <20001230.033349.-192941.1.fdavis112@juno.com>
+X-Mailer: Juno 5.0.15
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0009_01C071F6.26938730"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: multipart/alternative; boundary=--__JNP_000_5510.0696.1d1b
+X-Juno-Line-Breaks: 9-6,7,9-25,26-32767
+From: Frank Davis <fdavis112@juno.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+This message is in MIME format.  Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-------=_NextPart_000_0009_01C071F6.26938730
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+----__JNP_000_5510.0696.1d1b
+Content-Type: text/plain; charset=us-ascii  
+Content-Transfer-Encoding: 7bit
 
-Is the joy-gravis module non-working in 2.2.18 ?
-
-setup:
-es1370 on a K6-2 400 / ALi 15xx board, Gravis XTerminator gamepad
-
-I'm loading the module with joystick=3D1 to enable the gameport, and it =
-shows in dmesg, loading joystick module, then when I modprobe =
-joy-gravis, I get this output:
-
-lib/modules/.../misc/joy-gravis.o: init_module: Device or resource busy
-/lib/modules/.../misc/joy-gravis.o: insmod =
-/lib/modules/.../misc/joy-gravis.o failed
-
-This also happens with the emu10k1 sound card.
-Before when the boot-time gameport hack was used, the gamepad module =
-loaded up fine.
-
-------=_NextPart_000_0009_01C071F6.26938730
-Content-Type: text/html;
-	charset="iso-8859-1"
+Hello,
+  The following patch appears to fix 2 of the 3 undefined references:
+publish_netdev is still unresolved.
+Regards,
+Frank
+--- net/atm/lec.c.old Sat Dec 30 03:08:14 2000
++++ net/atm/lec.c     Sat Dec 30 03:17:44 2000
+@@ -772,10 +772,10 @@
+                 size = sizeof(struct lec_priv);
+ #ifdef CONFIG_TR
+                 if (is_trdev)
+-                        dev_lec[i] = prepare_trdev(NULL, size);
++                        dev_lec[i] = init_trdev(NULL, size);
+                 else
+ #endif
+-                dev_lec[i] = prepare_etherdev(NULL, size);
++                dev_lec[i] = init_etherdev(NULL, size);
+                 if (!dev_lec[i])
+                         return -ENOMEM;
+ 
+----__JNP_000_5510.0696.1d1b
+Content-Type: text/html; charset=us-ascii  
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Diso-8859-1">
-<META content=3D"MSHTML 5.50.4611.1300" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2>Is the joy-gravis module non-working in =
-2.2.18=20
-?</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>setup:</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>es1370 on a K6-2 400&nbsp;/ ALi 15xx =
-board, Gravis=20
-XTerminator gamepad</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>I'm loading the module with =
-joystick=3D1 to enable=20
-the gameport, and it shows in dmesg, loading joystick module, then when =
-I=20
-modprobe joy-gravis, I get this output:</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>lib/modules/.../misc/joy-gravis.o: =
-init_module:=20
-Device or resource busy<BR>/lib/modules/.../misc/joy-gravis.o: insmod=20
-/lib/modules/.../misc/joy-gravis.o failed</FONT></DIV>
-<DIV><FONT size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>This also happens with the emu10k1 =
-sound=20
-card.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>Before when the boot-time gameport hack =
-was used,=20
-the gamepad module loaded up fine.</FONT></DIV></BODY></HTML>
+<META content=3D"text/html; charset=3Dwindows-1252" http-equiv=3DContent-=
+Type>
+<META content=3D"MSHTML 5.00.2314.1000" name=3DGENERATOR></HEAD>
+<BODY bottomMargin=3D0 leftMargin=3D3 rightMargin=3D3 topMargin=3D0>
+<DIV>Hello,</DIV>
+<DIV>&nbsp; The following patch appears to fix 2 of the 3 undefined =
+references:=20
+publish_netdev is still unresolved.</DIV>
+<DIV>
+<P class=3DMsoPlainText><SPAN=20
+style=3D"mso-fareast-font-family: 'MS Mincho'">Regards,</SPAN></P>
+<P class=3DMsoPlainText><SPAN=20
+style=3D"mso-fareast-font-family: 'MS Mincho'">Frank</SPAN></P>
+<P class=3DMsoPlainText><SPAN style=3D"mso-fareast-font-family: 'MS Mincho'=
+">---=20
+net/atm/lec.c.old<SPAN style=3D"mso-tab-count: 1"> </SPAN>Sat Dec 30 03:08:=
+14=20
+2000<BR>+++ net/atm/lec.c<SPAN style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp=
+;&nbsp;=20
+</SPAN>Sat Dec 30 03:17:44 2000<BR>@@ -772,10 +772,10 @@<BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+</SPAN>size =3D sizeof(struct lec_priv);<BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;</SPAN>#ifdef CONFIG_TR<BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+</SPAN>if (is_trdev)<BR>-<SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;=20
+</SPAN>dev_lec[i] =3D prepare_trdev(NULL, size);<BR>+<SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;=20
+</SPAN>dev_lec[i] =3D init_trdev(NULL, size);<BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+</SPAN>else<BR><SPAN style=3D"mso-spacerun: yes">&nbsp;</SPAN>#endif<BR>-<=
+SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+</SPAN>dev_lec[i] =3D prepare_etherdev(NULL, size);<BR>+<SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+</SPAN>dev_lec[i] =3D init_etherdev(NULL, size);<BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+</SPAN>if (!dev_lec[i])<BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;&nbsp;=20
+</SPAN>return -ENOMEM;<BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;</SPAN><BR></P></SPAN></DIV></BODY></HTML>
 
-------=_NextPart_000_0009_01C071F6.26938730--
-
+----__JNP_000_5510.0696.1d1b--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

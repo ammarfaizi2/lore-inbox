@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbUBKEor (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 23:44:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUBKEor
+	id S263310AbUBKFEL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 00:04:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUBKFEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 23:44:47 -0500
-Received: from fep04-svc.mail.telepac.pt ([194.65.5.203]:58273 "EHLO
-	fep04-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
-	id S263166AbUBKEoq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 23:44:46 -0500
-From: Claudio Martins <ctpm@rnl.ist.utl.pt>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [patch] Re: psmouse.c, throwing 3 bytes away
-Date: Wed, 11 Feb 2004 04:44:40 +0000
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200402041820.39742.wnelsonjr@comcast.net> <200402070911.42569.murilo_pontes@yahoo.com.br> <20040209004812.GA18512@ucw.cz>
-In-Reply-To: <20040209004812.GA18512@ucw.cz>
+	Wed, 11 Feb 2004 00:04:10 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:21894 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263310AbUBKFEJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 00:04:09 -0500
+Date: Wed, 11 Feb 2004 00:03:59 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Chris PeBenito <pebenito@gentoo.org>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>, Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: 2.6.3-rc1-mm1 (SELinux + ext3 + nfsd oops)
+In-Reply-To: <1076471114.4925.0.camel@chris.pebenito.net>
+Message-ID: <Xine.LNX.4.44.0402110000160.10071-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402110444.40543.ctpm@rnl.ist.utl.pt>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 10 Feb 2004, Chris PeBenito wrote:
 
-  Hi,
+> Still oopses.  I also tried with 2.6.3-rc2, and it also oopses.
 
-  Just to report that during many hours of desktop use and also some heavier 
-use (like quake3 :-), the mouse behaved just fine without any glitches or 
-error messages.
+Odd, I'm unable to reproduce the problem with the same server mount
+options, export options and client mount options (full details obtained
+off-list).
 
-  So it seems that the problem is solved with your patch.
+What happens if you boot with selinux=0?
 
-  Thanks for your work!
+Please make sure you have the nfsd fix if using rc1-mm1.
 
-best regards
 
-Claudio
-
-On Monday 09 February 2004 00:48, Vojtech Pavlik wrote:
-> On Sat, Feb 07, 2004 at 09:11:42AM +0000, Murilo Pontes wrote:
-> > Problem still occurs :-(
->
-> And here is a fix. Damn stupid mistake I made.
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
 

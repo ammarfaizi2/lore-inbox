@@ -1,72 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265828AbUAEAsw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 19:48:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265831AbUAEAsw
+	id S265821AbUAEBE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 20:04:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265823AbUAEBE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 19:48:52 -0500
-Received: from mail-09.iinet.net.au ([203.59.3.41]:6100 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265828AbUAEAsv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 19:48:51 -0500
-Message-ID: <3FF8B470.9010301@cyberone.com.au>
-Date: Mon, 05 Jan 2004 11:48:48 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: Soeren Sonnenburg <kernel@nn7.de>, Lincoln Dale <ltd@cisco.com>,
-       Con Kolivas <kernel@kolivas.org>, Mark Hahn <hahn@physics.mcmaster.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, gillb4@telusplanet.net
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-References: <200401041242.47410.kernel@kolivas.org> <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca> <200401040815.54655.kernel@kolivas.org> <20040103233518.GE3728@alpha.home.local> <200401041242.47410.kernel@kolivas.org> <5.1.0.14.2.20040104195316.02151e98@171.71.163.14> <3FF7DA24.40802@cyberone.com.au> <1073211879.3261.6.camel@localhost> <20040104111257.GO1882@matchmail.com> <20040104111945.GA14348@alpha.home.local>
-In-Reply-To: <20040104111945.GA14348@alpha.home.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Jan 2004 20:04:29 -0500
+Received: from findaloan.ca ([66.11.177.6]:12204 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id S265821AbUAEBE1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 20:04:27 -0500
+Date: Sun, 4 Jan 2004 20:02:36 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Andries Brouwer <aebr@win.tue.nl>, Linus Torvalds <torvalds@osdl.org>,
+       Rob Love <rml@ximian.com>, rob@landley.net,
+       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040105010236.GA24001@mark.mielke.cc>
+Mail-Followup-To: viro@parcelfarce.linux.theplanet.co.uk,
+	Andries Brouwer <aebr@win.tue.nl>,
+	Linus Torvalds <torvalds@osdl.org>, Rob Love <rml@ximian.com>,
+	rob@landley.net, Pascal Schmidt <der.eremit@email.de>,
+	linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+References: <20040103141029.B3393@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031423180.2162@home.osdl.org> <20040104000840.A3625@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031802420.2162@home.osdl.org> <20040104034934.A3669@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031856130.2162@home.osdl.org> <20040104142111.A11279@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl> <20040104223710.GY4176@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040104223710.GY4176@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 04, 2004 at 10:37:10PM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Sun, Jan 04, 2004 at 11:01:04PM +0100, Andries Brouwer wrote:
+> > A common Unix idiom is testing for the identity
+> > of two files by comparing st_ino and st_dev.
+> > A broken idiom?
+> 	No, just your usual highly selective reading.  First of all, that
+> idiom relies only on different ->s_dev *among* *currently* *mounted*
+> *filesystems*.
+> ...
+> Now, care to explain how preserving aforementioned common Unix idiom
+> is related to your expostulations?
 
+I think he is defending bad design practices by pointing out common
+bad design practices, and asking why these bad practices shouldn't be
+allowed to continue, given that they are so common... :-)
 
-Willy Tarreau wrote:
+Are there any real programs that assume st_dev/st_ino values are constant
+across mount/unmount/mount? If so, Linus is saying we should break these
+programs, so that the authors can become aware of the problem, rather than
+leaving the problem as a subtle corner case.
 
->On Sun, Jan 04, 2004 at 03:12:57AM -0800, Mike Fedyk wrote:
->
->>On Sun, Jan 04, 2004 at 11:24:39AM +0100, Soeren Sonnenburg wrote:
->>
->>>[...]
->>>
->>>>Or, out of interest, an alternate scheduler?
->>>>
->>>>http://www.kerneltrap.org/~npiggin/w29p2.gz
->>>>(applies 2.6.1-rc1-mm1, please renice X to -10 or so)
->>>>
->>>Thats nothing *I* can try out as I am on the powerpc benh tree.
->>>
->>>
->>Says who?  The scheduler isn't platform specific.  Nick, do you have any per
->>arch defines in your patch?
->>
->
->I found slight changes to arch specific files, but IMHO this should not be
->the problem. But AFAIR, benh's ppc patches are somewhat complete and may
->introduce conflicts.
->
+I see no reason at all to keep these programs running. They are incorrect,
+and that is that.
 
-The problem is just that the mm tree is currently carrying some
-intrusive (patch wise, not functionality wise) scheduler stuff
-which will go to linus which is why I am working from there. So
-the patch will only apply cleanly on the mm tree, but only because
-of the cleanups + minor fixes. Nothing fundamental.
+If and when this comes up in 2.7 development, I would like to see an
+option of the sort: 1) Try to maintain major:minor numbers across
+reboots (even at the expense of complexity and efficiency), 2) Try to
+maintain a subset of the major:minor numbers across reboots
+(compromise) 3) Provide the most efficient implementation, making no
+guarantees regarding the numbering scheme, unless using a numbering
+scheme turns out to be more efficient. Deprecate 1), and let 2) and 3)
+evolve until we see who the victor is... :-) As long as the interface
+that maps device to number is abstracted, the above should be pluggable.
 
->
->BTW, for Nick, the patch didn't compile, I had to change sched_clock()
->definition from unsigned long long to unsigned long in
->arch/i386/kernel/timers/timer_tsc.c. Don't know if it was the right thing to
->do, but it compiles and boots.
->
+mark
 
-Yeah thats right
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

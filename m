@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272280AbRJTKrX>; Sat, 20 Oct 2001 06:47:23 -0400
+	id <S272773AbRJTLza>; Sat, 20 Oct 2001 07:55:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272549AbRJTKrO>; Sat, 20 Oct 2001 06:47:14 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:36625 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id <S272280AbRJTKq6>;
-	Sat, 20 Oct 2001 06:46:58 -0400
-Message-ID: <20011020145515.A17623@castle.nmd.msu.ru>
-Date: Sat, 20 Oct 2001 14:55:15 +0400
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: kuznet@ms2.inr.ac.ru
-Cc: linux-kernel@vger.kernel.org, cfriesen@nortelnetworks.com
-Subject: Re: how to see manually specified proxy arp entries using "ip neigh"
-In-Reply-To: <20011019173233.A12919@castle.nmd.msu.ru> <200110191713.VAA03502@ms2.inr.ac.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <200110191713.VAA03502@ms2.inr.ac.ru>; from "A.N.Kuznetsov" on Fri, Oct 19, 2001 at 09:13:12PM
+	id <S272818AbRJTLzT>; Sat, 20 Oct 2001 07:55:19 -0400
+Received: from dark.pcgames.pl ([195.205.62.2]:25542 "EHLO dark.pcgames.pl")
+	by vger.kernel.org with ESMTP id <S272773AbRJTLzK>;
+	Sat, 20 Oct 2001 07:55:10 -0400
+Date: Sat, 20 Oct 2001 13:54:54 +0200 (CEST)
+From: Krzysztof Oledzki <ole@ans.pl>
+X-X-Sender: <ole@dark.pcgames.pl>
+To: <linux-kernel@vger.kernel.org>
+Subject: bug in "raid5: measuring checksumming speed"
+Message-ID: <Pine.LNX.4.33.0110201342410.19999-100000@dark.pcgames.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-On Fri, Oct 19, 2001 at 09:13:12PM +0400, A.N.Kuznetsov wrote:
-> 
-> > I don't want to turn on proxy arp on an interface basis, because subtle
-> > mistakes in network configuration with proxy arp turned on may have serious
-> > consequences, including arp storm (sic!),
-> 
-> Andrey, do not fuck me brains. :-) (translate this to English :-))
-> No "serious" consequences exist. And not serious ones are surely covered
+It seems that there is something wrong with measuring checksumming speed -
+on my two P3 boxes linux chooses pIII_sse but pII_mmx and p5_mmx are
+reported as faster instructions:
 
-An offtopic note about consequences:
-let's suppose proxy_arp is turned on on eth0 with the primary goal to proxy
-addresses available via eth1.  There is another interface eth2 were
-1.2.3.0/24 routed to.  Forwarding is turned on everywhere.
-Someone decided to save on equipment (or simply made a mistake) and short-cut
-eth0 and eth2 segments, unconscious forming "shared media".
-What do you think will happen when a broadcast ARP request for 1.2.3.4
-arrives to both eth0 and eth2?
-Right, "is-at" reply with eth0 MAC address of this poor "proxy" on that
-shared media.
+2.4.10-ac10/Pentium3 733:
+raid5: measuring checksumming speed
+   8regs     :  1266.400 MB/sec
+   32regs    :   898.400 MB/sec
+   pIII_sse  :  1508.000 MB/sec
+   pII_mmx   :  1643.600 MB/sec
+   p5_mmx    :  1730.400 MB/sec
+raid5: using function: pIII_sse (1508.000 MB/sec)
 
-> by the same mistakes which you can make forced to add useless element
-> to configuration.
+Podobnie na drugim systemie:
+2.4.10-ac10/Pentium3 933:
+raid5: measuring checksumming speed
+   8regs     :  1603.600 MB/sec
+   32regs    :  1138.000 MB/sec
+   pIII_sse  :  1910.000 MB/sec
+   pII_mmx   :  2081.600 MB/sec
+   p5_mmx    :  2189.600 MB/sec
+raid5: using function: pIII_sse (1910.000 MB/sec)
 
-Well, what I want is to make the host an arp "proxy" on all interfaces for
-all addresses reachable through devX.  I do not want to mess with how
-customer configures all other interfaces.
-Right now all routes to devX are /32, for all of them proxy arp entries are
-created by the same script, and all are happy.
+Best regards,
 
-How can it be done better?
-New mechanism of fine-grained control over proxy arp? :-)
+                                Krzysztof Oledzki
 
-	Andrey
+

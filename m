@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbTHYMwX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 08:52:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbTHYMwX
+	id S261874AbTHYM5R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 08:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbTHYM5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 08:52:23 -0400
-Received: from it-backbone-1.infraserv.com ([212.38.2.131]:12813 "EHLO
-	it-backbone-1.infraserv.com") by vger.kernel.org with ESMTP
-	id S261835AbTHYMwV convert rfc822-to-8bit (ORCPT
+	Mon, 25 Aug 2003 08:57:17 -0400
+Received: from dci.doncaster.on.ca ([66.11.168.194]:12524 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S261874AbTHYM5Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 08:52:21 -0400
-Message-ID: <2B6CA561B67B72418738D8F3D7853DA3020137E6@20-exchange-1.infraserv.com>
-From: "Schindewolf, Stefan, Infraserv-Hoechst/DE" 
-	<Stefan.Schindewolf@Infraserv.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: PROBLEM: LUN- Gaps on HP VA7410 not recognized by scsi scan
-Date: Mon, 25 Aug 2003 14:52:13 +0200
+	Mon, 25 Aug 2003 08:57:16 -0400
+To: Marcus Sundberg <marcus@ingate.com>
+Cc: Junio C Hamano <junkio@cox.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: PPPoE Oops with 2.4.22-rc
+References: <fa.fl74mr0.184m51s@ifi.uio.no> <fa.k5266bj.136mf8l@ifi.uio.no>
+	<7v7k559zu5.fsf@assigned-by-dhcp.cox.net>
+	<vebruhz99j.fsf@inigo.ingate.se>
+In-Reply-To: <vebruhz99j.fsf@inigo.ingate.se>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 25 Aug 2003 08:57:14 -0400
+Message-ID: <87smnpgaj9.fsf@stark.dyndns.tv>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
 
-Our company is running a HP Virtual Array 7410 as a Storage System for our
-HP-UX, Linux and W2K servers.
-A few weeks ago we connected a Cisco MDS9216 SAN- Switch for testing
-purposes to our testing SAN.
-As server we choose SuSE Enterprise Server 8 with Kernel 2.4.19 Build 304
-and a Windows box.
+Marcus Sundberg <marcus@ingate.com> writes:
 
-We configured the first two LUNs for Windows and the following two for
-Linux.
-Linux did not recognize his LUNs. Only after permitting Linux access to the
-Windows LUNs it would "see" his own storage.
+> I triggered it by doing 'ifconfig down' on the underlying ethernet
+> device. It's possible there are other ways to trigger it also. 
 
-We contacted our HP Support and they found out, that in the following line
-the product number is incorrect:
-{"HP", "A6189B", "*", BLIST_SPARSELUN | BLIST_LARGELUN},	//HP Va7410
-Array
-It should be A6218A. Otherwise Linux would miss every LUN located "behind" a
-LUN- Gap.
-As this is not a SuSE specific problem, I am posting it to this mailing
-list.
-If you have further questions, please contact me.
+Thank you. This has been a bug for a little while. I reported it with 2.4.20 a
+few months ago.
 
-Thanks and best regards.
 
-> Stefan Schindewolf
-> 
-> Infraserv GmbH & Co Höchst KG
-> Service Center Informationstechnologie
-> D710, D-65926 Frankfurt
-> Telefon: +49/69/305-43870
-> Fax: +49/69/305-23549
-> mailto:stefan.schindewolf@infraserv.com
-> http://www.infraserv.com
-> 
-> 
+-- 
+greg
+

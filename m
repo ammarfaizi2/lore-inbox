@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277038AbRJVQa0>; Mon, 22 Oct 2001 12:30:26 -0400
+	id <S277039AbRJVQj1>; Mon, 22 Oct 2001 12:39:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277030AbRJVQaR>; Mon, 22 Oct 2001 12:30:17 -0400
-Received: from cmailg5.svr.pol.co.uk ([195.92.195.175]:14648 "EHLO
-	cmailg5.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S277022AbRJVQaK>; Mon, 22 Oct 2001 12:30:10 -0400
-Message-Id: <5.1.0.14.0.20011022172950.06214268@ti500710a080-0696.bb.online.no>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 22 Oct 2001 17:30:28 +0100
-To: linux-kernel@vger.kernel.org
-From: "Andreas D. Landmark" <andreas.landmark@noxtension.com>
+	id <S277047AbRJVQjR>; Mon, 22 Oct 2001 12:39:17 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:29406 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S277039AbRJVQjK>;
+	Mon, 22 Oct 2001 12:39:10 -0400
+Date: Mon, 22 Oct 2001 14:34:25 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: bill davidsen <davidsen@tmr.com>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.2.20pre10
 In-Reply-To: <200110221620.f9MGKHD15890@deathstar.prodigy.com>
-In-Reply-To: <E15veDQ-0001nl-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Message-ID: <Pine.LNX.4.33L.0110221432490.22127-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 22.10.2001 17:20, bill davidsen wrote:
->   And who will be maintaining the world and us-castrated kernel source?
->I can't imagine anything worse for the security of this country than not
->allow computer users access to security issues.
+On Mon, 22 Oct 2001, bill davidsen wrote:
 
-I'd say the DMCA is a good candidate for being worse for computer security
-than no security patches...
+>   And who will be maintaining the world and us-castrated kernel
+> source? I can't imagine anything worse for the security of this
+> country than not allow computer users access to security issues.
 
+Don't worry, there are more than enough kernel hackers
+outside of the US to keep maintaining the kernel.
 
+The worst that could happen is that the US cripples
+itself by not allowing the kernel hackers outside the
+US to publish security info to people in the US, but
+only to the rest of the world.
 
+That's tough, they're a democratic country, they can
+change the law if it hurts them too much.
+
+cheers,
+
+Rik
 -- 
-Andreas D Landmark / noXtension
-Real Time, adj.:
-         Here and now, as opposed to fake time, which only occurs there
-and then.
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

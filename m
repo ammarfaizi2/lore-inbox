@@ -1,72 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267252AbTAKP24>; Sat, 11 Jan 2003 10:28:56 -0500
+	id <S267248AbTAKPg3>; Sat, 11 Jan 2003 10:36:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267246AbTAKP24>; Sat, 11 Jan 2003 10:28:56 -0500
-Received: from static24-72-2-224.reverse.accesscomm.ca ([24.72.2.224]:17815
-	"EHLO rapfast.petcom.com") by vger.kernel.org with ESMTP
-	id <S267221AbTAKP2y>; Sat, 11 Jan 2003 10:28:54 -0500
-Message-ID: <3E203A45.B590F101@petcom.com>
-Date: Sat, 11 Jan 2003 09:37:41 -0600
-From: Roe Peterson <roe@petcom.com>
-Organization: LiveGlobalBid.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
+	id <S267257AbTAKPg3>; Sat, 11 Jan 2003 10:36:29 -0500
+Received: from smtp-101.nerim.net ([62.4.16.101]:26634 "EHLO kraid.nerim.net")
+	by vger.kernel.org with ESMTP id <S267248AbTAKPg2>;
+	Sat, 11 Jan 2003 10:36:28 -0500
+Message-ID: <3E203C00.5060403@inet6.fr>
+Date: Sat, 11 Jan 2003 16:45:04 +0100
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-laptop@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: dell precision m50 _very_ slow paging/swapping
-Content-Type: text/plain; charset=us-ascii
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: choice of raid5 checksumming algorithm wrong ?
+References: <1042266405.14440.54.camel@sun>
+In-Reply-To: <1042266405.14440.54.camel@sun>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Soeren Sonnenburg wrote:
 
-Although Dell doesn't consider the precision M50 a laptop (it's a
-"portable workstation"), this list
-looks like a good place to start :-)
+>Hi!
+>
+>I really do wonder whether the displayed message is wrong or why it
+>always chooses the slowest checksumming function (happens with 2.4.19 -
+>21pre3)
+>  
+>
+SSE is always preferred because unlike other checksumming code it 
+doesn't use the processor caches when reading/writing data/checksum.
+This is slower (if several GB/s can be considered slow) for the 
+checksumming but far better for the overall system performance.
 
-I'm having a big problem with a brand-new M50.  The symptoms persist
-whether I try Redhat 7.3
-or 8.0.
-
-Generally, everything is fine, right up to the time the machine starts
-paging out to disk.  Then, the
-system essentially grinds to a halt.
-
-The paging activity eventually gets done, and, once things are running
-in RAM, the machine flies.
-
-However, I've seen starting mozilla take ~45 seconds, and starting vi
-take 15!!!
-
-This machine:
-
-    1.8Ghz Pentium 4 Pro Mobile CPU
-    256MB RAM
-    40 GB hard drive (userland benchmarks look good - 16-18 MB/sec
-transfer rates)
-    nVidia Quadro 4 GoGl video
-    PIIX4 EIDE chipset
-    i810 compatible sound
-    Latest BIOS upgrade from Dell (A07)
-
-I see the same result with redhat 7.3 and 8.0.
-
-I've even disabled the PIIX support in the kernel, on the theory that
-something in the IDE
-subsystem was responsible - no change, except (as expected) user mode
-disk IO slowed down
-somewhat.
-
-I freely admit I'm confused.
-
-Dell support is:
-    1 - extremely frustrating
-    2 - totally useless
-
-And I don't even want to talk about Redhat.
-
-Can anyone point me at a theory, even??
-
-
+LB.
 

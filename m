@@ -1,105 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266620AbUFWTdc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266626AbUFWTgB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266620AbUFWTdc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 15:33:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266618AbUFWTdc
+	id S266626AbUFWTgB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 15:36:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266628AbUFWTgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 15:33:32 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:26496 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S266628AbUFWTdC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 15:33:02 -0400
-Message-Id: <200406231931.i5NJVeY10040@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: More bug fix in mm/hugetlb.c - fix try_to_free_low()
-Date: Wed, 23 Jun 2004 12:33:00 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcRZWOSfZF1L1+w9Q9qh2U2PoW6zWA==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Wed, 23 Jun 2004 15:36:01 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:30619 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S266626AbUFWTf6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 15:35:58 -0400
+Date: Wed, 23 Jun 2004 20:35:56 +0100 (BST)
+From: jsimmons@pentafluge.infradead.org
+To: Guido Guenther <agx@sigxcpu.org>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch]: Fix rivafb's NV_ARCH_
+In-Reply-To: <20040620192549.GA4307@bogon.ms20.nix>
+Message-ID: <Pine.LNX.4.56.0406232035340.27210@pentafluge.infradead.org>
+References: <20040601041604.GA2344@bogon.ms20.nix> <1086064086.1978.0.camel@gaston>
+ <20040601135335.GA5406@bogon.ms20.nix> <20040616070326.GE28487@bogon.ms20.nix>
+ <20040620192549.GA4307@bogon.ms20.nix>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: 0.3 (/)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (0.3 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 NO_REAL_NAME           From: does not include a real name
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is it just me having bad luck with hugetlb for x86 lately?  Take base
-2.6.7, turn on CONFIG_HIGHMEM and CONFIG_HUGETLBFS.  Try to config
-the hugetlb pool:
 
-[root@quokka]# echo 100 > /proc/sys/vm/nr_hugepages
-[root@quokka]# grep HugePage /proc/meminfo
-HugePages_Total:   100
-HugePages_Free:    100
-
-[root@quokka]# echo 20 > /proc/sys/vm/nr_hugepages
-[root@quokka]# grep HugePage /proc/meminfo
-HugePages_Total:     0
-HugePages_Free:      0
-
-[root@quokka]# echo 100 > /proc/sys/vm/nr_hugepages
-[root@quokka]# grep HugePage /proc/meminfo
-HugePages_Total:   100
-HugePages_Free:    100
-
-[root@quokka]# echo 0 > /proc/sys/vm/nr_hugepages
-[root@quokka]# grep HugePage /proc/meminfo
-HugePages_Total:    31
-HugePages_Free:     31
-
-The argument "count" passed to try_to_free_low() is the config parameter
-for desired hugetlb page pool size.  But the implementation took that
-input argument as number of pages to free. It also decrement the config
-parameter as well.  All give random behavior depend on how many hugetlb
-pages are in normal/highmem zone.
-
-A two line fix in try_to_free_low() would be:
-
--			if (!--count)
--				return 0;
-+			if (count >= nr_huge_pages)
-+				return count;
-
-But more appropriately, that function shouldn't return anything.
-
-diff -Nurp linux-2.6.7.orig/mm/hugetlb.c linux-2.6.7/mm/hugetlb.c
---- linux-2.6.7.orig/mm/hugetlb.c	2004-06-15 22:19:37.000000000 -0700
-+++ linux-2.6.7/mm/hugetlb.c	2004-06-23 12:11:31.000000000 -0700
-@@ -130,7 +130,7 @@ static void update_and_free_page(struct
- }
-
- #ifdef CONFIG_HIGHMEM
--static int try_to_free_low(unsigned long count)
-+static void try_to_free_low(unsigned long count)
- {
- 	int i;
- 	for (i = 0; i < MAX_NUMNODES; ++i) {
-@@ -141,16 +141,14 @@ static int try_to_free_low(unsigned long
- 			list_del(&page->lru);
- 			update_and_free_page(page);
- 			--free_huge_pages;
--			if (!--count)
--				return 0;
-+			if (count >= nr_huge_pages)
-+				return;
- 		}
- 	}
--	return count;
- }
- #else
--static inline int try_to_free_low(unsigned long count)
-+static inline void try_to_free_low(unsigned long count)
- {
--	return count;
- }
- #endif
-
-@@ -170,7 +168,8 @@ static unsigned long set_max_huge_pages(
- 		return nr_huge_pages;
-
- 	spin_lock(&hugetlb_lock);
--	for (count = try_to_free_low(count); count < nr_huge_pages; --free_huge_pages) {
-+	try_to_free_low(count);
-+	for (; count < nr_huge_pages; --free_huge_pages) {
- 		struct page *page = dequeue_huge_page();
- 		if (!page)
- 			break;
+Could you compare it to my latest Nvidia driver? 
 
 
+
+On Sun, 20 Jun 2004, Guido Guenther wrote:
+
+> Hi,
+> On Wed, Jun 16, 2004 at 09:03:27AM +0200, Guido Guenther wrote:
+> > here's another piece of rivafb fixing that helps the driver on ppc
+> > pbooks again a bit further. It corrects several wrong NV_ARCH_20
+> > settings which are actually NV_ARCH_10 as determined by the PCIId.
+> Any comments on this patch?
+>  -- Guido
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

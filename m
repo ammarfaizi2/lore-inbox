@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288953AbSBVBAr>; Thu, 21 Feb 2002 20:00:47 -0500
+	id <S288936AbSBVBD1>; Thu, 21 Feb 2002 20:03:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290118AbSBVBAh>; Thu, 21 Feb 2002 20:00:37 -0500
-Received: from tomts21-srv.bellnexxia.net ([209.226.175.183]:7351 "EHLO
-	tomts21-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S288953AbSBVBAX>; Thu, 21 Feb 2002 20:00:23 -0500
-Date: Thu, 21 Feb 2002 20:00:21 -0500 (EST)
-From: Craig <penguin@wombat.ca>
-X-X-Sender: carsnau@wombat
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: SOLVED -> Re: Serial Console changes in linux 2.4.15??
-In-Reply-To: <m1d6z23wjy.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.42.0202211958030.23209-100000@wombat>
+	id <S288959AbSBVBDS>; Thu, 21 Feb 2002 20:03:18 -0500
+Received: from starbug.ugh.net.au ([203.31.238.37]:35852 "EHLO
+	starbug.ugh.net.au") by vger.kernel.org with ESMTP
+	id <S288936AbSBVBDH>; Thu, 21 Feb 2002 20:03:07 -0500
+Date: Fri, 22 Feb 2002 12:03:03 +1100 (EST)
+From: David Burrows <snadge@ugh.net.au>
+To: Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Dodgey Linus BogoMIPS code ;) (was Re: baffling linux bug)
+In-Reply-To: <20020221160228.E5583@suse.de>
+Message-ID: <20020222115546.B15623-100000@starbug.ugh.net.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Feb 2002, Eric W. Biederman wrote:
-
-> Old versions of /sbin/init are broken and clear CREAD.  Most getty's (except
-> mingetty) do the right thing.  I saw the change at 2.4.2 -> 2.4.3.  I
-> don't why some people have managed to avoid it for longer periods of
-> time.
+On Thu, 21 Feb 2002, Dave Jones wrote:
+> On Fri, Feb 22, 2002 at 01:53:10AM +1100, David Burrows wrote:
+>  > I have a problem where my computer locks up during "Calibrating Delay
+>  > Loop..".  I have been using Linux on this same hardware for many years,
+>  > and it only started doing this 2 days ago.  It does not seem to matter
+>  > what kernel version (2.0, 2.2, 2.4.17) I use or what medium I boot from.
 >
-> The great mystery is how /sbin/init managed to work in 2.4.2....
->
-> Eric
->
+>  I had an old Winchip box that did this. Turned out to be a bad SIMM.
+>  Try running memtest86 for a while.
 
+I have ran memtest86 all the way through, and shuffled the memory around
+(moved them to different slots) and it still crashes in calibrating delay
+loop.  FreeBSD and Windows still work.  If I knew how init/main.c worked,
+what jiffies are and how they are updated (timer interrupt?), then I would
+have some idea of what I'm doing when I step through the BogoMip
+calculation code.
 
-Eric,
-  Thanks very much to both you and Alan.  You were exactly right.  The version
-of /sbin/init on our filesystem was quite old (2 years old).  I grabbed the tar
-ball of the newest version, and using this version (without the "#if 0" lines)
-works just fine because it sets up the console properly.
+Is there some sort of (or can there be) a safety check which tests to see
+if the timer is functioning correctly and displays an error message such
+as "Timer interrupt is broken, system halted." if it is not.  I don't want
+to give up on this hardware yet, ESPECIALLY considering that other
+operating systems that I absolutely HATE still continue to work, and my
+favourite one doesn't. :(
 
-Thanks again.
+Thanks again for your time,
 
---
-Craig.
-+------------------------------------------------------+
-http://www.wombat.ca               Why? Why not.
-http://www.washington.edu/pine/    Pine @ the U of Wash.
-+-------------=*sent via Pine4.42*=--------------------+
-
-
+David.
 

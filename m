@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265258AbSJRNC6>; Fri, 18 Oct 2002 09:02:58 -0400
+	id <S265339AbSJRNFb>; Fri, 18 Oct 2002 09:05:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265260AbSJRNC5>; Fri, 18 Oct 2002 09:02:57 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:10252 "EHLO
+	id <S265340AbSJRNFa>; Fri, 18 Oct 2002 09:05:30 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:12300 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S265258AbSJRNC5>; Fri, 18 Oct 2002 09:02:57 -0400
-Date: Fri, 18 Oct 2002 14:08:54 +0100
+	id <S265339AbSJRNF3>; Fri, 18 Oct 2002 09:05:29 -0400
+Date: Fri, 18 Oct 2002 14:11:26 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: Crispin Cowan <crispin@wirex.com>
-Cc: "David S. Miller" <davem@redhat.com>, greg@kroah.com, hch@infradead.org,
-       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       linux-security-module@wirex.com
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: "David S. Miller" <davem@redhat.com>, jgarzik@pobox.com, greg@kroah.com,
+       hch@infradead.org, torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] remove sys_security
-Message-ID: <20021018140854.D1670@infradead.org>
+Message-ID: <20021018141126.E1670@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Crispin Cowan <crispin@wirex.com>,
-	"David S. Miller" <davem@redhat.com>, greg@kroah.com,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-	linux-security-module@wirex.com
-References: <20021017203652.GB592@kroah.com> <20021017.133816.82029797.davem@redhat.com> <20021017205830.GD592@kroah.com> <20021017.135832.54206778.davem@redhat.com> <3DAFBFA2.4040207@wirex.com>
+	Andreas Steinmetz <ast@domdv.de>,
+	"David S. Miller" <davem@redhat.com>, jgarzik@pobox.com,
+	greg@kroah.com, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+References: <20021017.131830.27803403.davem@redhat.com> <3DAF3EF1.50500@domdv.de> <3DAF412A.7060702@pobox.com> <20021017.155630.98395232.davem@redhat.com> <3DAF4382.9020800@domdv.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DAFBFA2.4040207@wirex.com>; from crispin@wirex.com on Fri, Oct 18, 2002 at 01:00:34AM -0700
+In-Reply-To: <3DAF4382.9020800@domdv.de>; from ast@domdv.de on Fri, Oct 18, 2002 at 01:10:58AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 18, 2002 at 01:00:34AM -0700, Crispin Cowan wrote:
-> If you remove this system call, you will save almost nothing in kernel 
-> resources, but do a lot of damage to functionality.
+On Fri, Oct 18, 2002 at 01:10:58AM +0200, Andreas Steinmetz wrote:
+> David S. Miller wrote:
+> > I'm now leaning more towards something like what Al Viro
+> > hinted at earlier, creating generic per-file/fd attributes.
+> > This kind of stuff.
+> > 
+> I'm perfectly happy with anything that doesn't kill LSM.
 
-But I remove an extensible, very broken interface before it's too late.
+What about maintaining it out-of-tree?  That's the most widely used
+way to keep crap alive..
 

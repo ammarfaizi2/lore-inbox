@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267481AbSKQKJI>; Sun, 17 Nov 2002 05:09:08 -0500
+	id <S267478AbSKQKHN>; Sun, 17 Nov 2002 05:07:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267489AbSKQKIl>; Sun, 17 Nov 2002 05:08:41 -0500
-Received: from 2-103.ctame701-2.telepar.net.br ([200.181.170.103]:18700 "EHLO
+	id <S267480AbSKQKHN>; Sun, 17 Nov 2002 05:07:13 -0500
+Received: from 2-103.ctame701-2.telepar.net.br ([200.181.170.103]:15372 "EHLO
 	brinquendo.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S267482AbSKQKHx>; Sun, 17 Nov 2002 05:07:53 -0500
-Date: Sun, 17 Nov 2002 08:14:41 -0200
+	id <S267478AbSKQKHJ>; Sun, 17 Nov 2002 05:07:09 -0500
+Date: Sun, 17 Nov 2002 08:13:57 -0200
 From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Christoph Hellwig <hch@lst.de>, Matthew Wilcox <willy@debian.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ntfs: fix up header file cleanups
-Message-ID: <20021117101440.GF27924@conectiva.com.br>
+Subject: [PATCH] hugetlbfs: fix up header file cleanups
+Message-ID: <20021117101357.GC27924@conectiva.com.br>
 Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
 	Linus Torvalds <torvalds@transmeta.com>,
 	Christoph Hellwig <hch@lst.de>, Matthew Wilcox <willy@debian.org>,
@@ -43,47 +43,48 @@ You can import this changeset into BK by piping this whole message to:
 ===================================================================
 
 
-ChangeSet@1.850, 2002-11-17 07:50:35-02:00, acme@conectiva.com.br
+ChangeSet@1.847, 2002-11-17 07:30:35-02:00, acme@conectiva.com.br
   Fix up after header file cleanups: add <linux/mount.h> to
-  ntfs that got it implicitly before.
+  hugetlbfs that got it implicitly before.
 
 
  inode.c |    1 +
  1 files changed, 1 insertion(+)
 
 
-diff -Nru a/fs/ntfs/inode.c b/fs/ntfs/inode.c
---- a/fs/ntfs/inode.c	Sun Nov 17 07:50:52 2002
-+++ b/fs/ntfs/inode.c	Sun Nov 17 07:50:52 2002
-@@ -23,6 +23,7 @@
- #include <linux/buffer_head.h>
- #include <linux/smp_lock.h>
- #include <linux/quotaops.h>
+diff -Nru a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+--- a/fs/hugetlbfs/inode.c	Sun Nov 17 07:34:08 2002
++++ b/fs/hugetlbfs/inode.c	Sun Nov 17 07:34:08 2002
+@@ -11,6 +11,7 @@
+ #include <asm/current.h>
+ #include <linux/sched.h>		/* remove ASAP */
+ #include <linux/fs.h>
 +#include <linux/mount.h>
- 
- #include "ntfs.h"
- #include "dir.h"
+ #include <linux/file.h>
+ #include <linux/writeback.h>
+ #include <linux/pagemap.h>
 
 ===================================================================
 
 
 This BitKeeper patch contains the following changesets:
-1.850
+1.847
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch12771
-M'XL(`'QFUST``]U4WVO;,!!^COZ*@SR.V'>R9<=F*5VZGV30D-&GL0=%DFLS
-MVPJVG+7@/WY*UC60=@\K>YI.(*0[W7VG[T-3N.E-ET^D:@R;PD?;NWRB;&N4
-MJ_8R4+8)MIUW;*SUCK"TC0F7J[!J53UHT\]X()AWKZ53)>Q-U^<3"J+'$W>_
-M,_ED\^[#S><W&\86"[@J97MKOA@'BP5SMMO+6O>7TI6U;0/7R;9OC#L6'A]#
-M1X[(O0E*(Q3)2`G&Z:A($\F8C$8>SY.8'7JX/,=^EH6(4LRB-!8C$8^1O04*
-MY@(!>4@44@J8Y@+S2,R0YXCP;%)X13!#MH1_V\`54_"^NH-A![)PIH/22.V7
-MHJH-J-K(=MCU.4BMX75=M<-=V-BA=4%YX8'XNZTK>G"E='!K'51^-KNZ4I6K
-M[V%K"MN9@*T@2S-BZQ,1;/:7@S&4R"Y@N1J+/CP4]7JPV@1JI"Q%)&\19B(;
-MT6_B<:MT5,P3E<PUJBSES[_IDUPGN@1&?(R2.*:CA,X"#T)Z*136R+;HC/9H
-M:ML50UU7A3D`^OJ;V6]_P(6"^T$X1C'-^5%&OM@3&?'_5D:_^+B&6??C.+TN
-HUN?4O$!:G[@`8M.'#^8<X.FO4:51W_NA6?`X40)1LY^^[/P!RP0`````
+begin 664 bkpatch9137
+M'XL(`)!BUST``]V476O;,!2&KZ-?<2"7(_8YEBU_L)2LW2<=-&3T:NQ"D>78
+MU+:"+6<M^,=/2=<4LC"VL=W,%MCX2*_?H_=!4[CM=9=-I&HTF\)[T]MLHDRK
+ME:UVTE.F\=:=*ZR,<06_-(WV+Z_]JE7UD.M^%G@1<^6EM*J$G>[Z;$(>/WZQ
+M#UN=359OWMU^?+5B;#Z'JU*V&_U)6YC/F37=3M9YOY"VK$WKV4ZV?:/MX<?C
+M<>H8(`;NCBCF&(F1!(;QJ"@GDB'I'(,P$2';][`X]7ZB0D0QID$2X4B!(&2O
+M@;PDC`$#G\@G]Q)G'#,>S3#($.&L*+P@F"&[A+_;P!53\+:ZAV$+LK"Z@U++
+MW#V*JM:@:BW;8=MG(/,<7M95.]S[C1E:ZY47SHA;6PX;;>MUT8,MI86-L5"Y
+MT6SK2E6V?H"U+DRG/78-1"DE;/D<!YO]YL482F07(.^VS2*O-MKL>_[\M"-?
+MQJ+WCX8<,";7GGK,`#E1PL,P&#$5B4M"J)PC7ZLU*15&ZORF_T3P$*I3P)&G
+M(A`'T,[-WC/W#_PR64KI&*BZ1E:UUVK[2[*$"6+H(!QYS$5\0)'_`"+^WR`^
+M!G8#L^[K83BPEF>S^P-`/Q`'8M/OA]6IU>=S2Y5:W?5#,\_3*!5%)-@WGDZN
+%!A<%````
 `
 end
 

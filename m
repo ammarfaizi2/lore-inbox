@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136036AbREGNxQ>; Mon, 7 May 2001 09:53:16 -0400
+	id <S136058AbREGNyG>; Mon, 7 May 2001 09:54:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136058AbREGNxF>; Mon, 7 May 2001 09:53:05 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53256 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136036AbREGNwy>; Mon, 7 May 2001 09:52:54 -0400
-Subject: Re: [Question] Explanation of zero-copy networking
-To: alexander.eichhorn@rz.tu-ilmenau.de
-Date: Mon, 7 May 2001 14:56:10 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3AF6A697.22370520@rz.tu-ilmenau.de> from "Alexander Eichhorn" at May 07, 2001 03:43:51 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S136091AbREGNx4>; Mon, 7 May 2001 09:53:56 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:50449 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S136058AbREGNxv>; Mon, 7 May 2001 09:53:51 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: page_launder() bug
+Date: 7 May 2001 06:53:44 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9d69d8$g9f$1@cesium.transmeta.com>
+In-Reply-To: <15094.10942.592911.70443@pizda.ninka.net> <Pine.LNX.4.33.0105070823060.24073-100000@svea.tellus>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14wlUi-0003WQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> documented so far) detailed description of the newly 
-> implemented zero-copy mechanisms in the network-stack. 
-> We are interested in how to use it (changed network-API?) 
-> and also in the internal architecture. 
+Followup to:  <Pine.LNX.4.33.0105070823060.24073-100000@svea.tellus>
+By author:    Tobias Ringstrom <tori@tellus.mine.nu>
+In newsgroup: linux.dev.kernel
+>
+> On Sun, 6 May 2001, David S. Miller wrote:
+> > It is the most straightforward way to make a '1' or '0'
+> > integer from the NULL state of a pointer.
+> 
+> But is it really specified in the C "standards" to be exctly zero or one,
+> and not zero and non-zero?
+> 
 
-It is built around sendfile. Trying to do zero copy on pages with user space
-mappings get so horribly non pretty it is better to build the API from the
-physical side of things.
+Yes it is.
 
-> Our second question: Are there any plans for contructing 
-> a general copy-avoidance infrastructure (smth. like UVM in 
-> NetBSD does) and new IPC-mechanisms on top of it yet??
+> 
+> IMHO, the ?: construct is way more readable and reliable.
+> 
 
-Andrea Arcangeli has O_DIRECT file I/O for the ext2 file system. There are also
-several patches for kiovec based single copy pipes have been posted too.
+In C99 one can write (bool)foo which is more readable than either,
+especially since that is really what one is trying to do.
 
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

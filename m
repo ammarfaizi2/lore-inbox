@@ -1,58 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268490AbUIXGt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268580AbUIXG54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268490AbUIXGt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 02:49:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268532AbUIXGpu
+	id S268580AbUIXG54 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 02:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268577AbUIXGyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 02:45:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:48858 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268515AbUIXGkv (ORCPT
+	Fri, 24 Sep 2004 02:54:05 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:52442 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S268530AbUIXGwM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 02:40:51 -0400
-Subject: Re: 2.6.9-rc2-mm2: devmem_is_allowed
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Martin Diehl <lists@mdiehl.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0409240030210.14340-100000@notebook.home.mdiehl.de>
-References: <Pine.LNX.4.44.0409240030210.14340-100000@notebook.home.mdiehl.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kgikf2By5opisltrc6k4"
-Organization: Red Hat UK
-Message-Id: <1096008029.2612.37.camel@laptop.fenrus.com>
+	Fri, 24 Sep 2004 02:52:12 -0400
+Date: Fri, 24 Sep 2004 02:52:07 -0400
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>,
+       Andrew Morton <akpm@osdl.org>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [1/1] connector: Kernel connector - userspace <-> kernelspace "linker".
+Message-ID: <20040924065207.GR30131@ruslug.rutgers.edu>
+Mail-Followup-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+	"Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>,
+	Andrew Morton <akpm@osdl.org>, netdev@oss.sgi.com,
+	linux-kernel@vger.kernel.org
+References: <1095331899.18219.58.camel@uganda> <20040921124623.GA6942@uganda.factory.vocord.ru> <20040924000739.112f07dd@zanzibar.2ka.mipt.ru> <20040923215447.GD30131@ruslug.rutgers.edu> <1095997232.17587.8.camel@uganda> <20040924054844.GO30131@ruslug.rutgers.edu> <1096006470.17587.37.camel@uganda> <1096007404.17587.49.camel@uganda> <20040924063231.GP30131@ruslug.rutgers.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 24 Sep 2004 08:40:29 +0200
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vTfKKTivj/mQoluA"
+Content-Disposition: inline
+In-Reply-To: <20040924063231.GP30131@ruslug.rutgers.edu>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: 2.4.18-1-686
+Organization: Rutgers University Student Linux Users Group
+From: mcgrof@studorgs.rutgers.edu (Luis R. Rodriguez)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-kgikf2By5opisltrc6k4
-Content-Type: text/plain
+--vTfKKTivj/mQoluA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, 2004-09-24 at 00:37, Martin Diehl wrote:
-> Hi,
+On Fri, Sep 24, 2004 at 02:32:31AM -0400, Luis R. Rodriguez wrote:
+> On Fri, Sep 24, 2004 at 10:30:04AM +0400, Evgeniy Polyakov wrote:
+> >=20
+> > BTW, it can also restrict userspace event notification in following way:
+> > when someone sends a message to notify group A of
+> > registering/unregistering of device with id {x,y} then connector can
+> > check if this group A is registered through callback_register_gpl(it is
+> > not exist for now, but can be created as a copy of callback_register() )
+> > or not. If it is GPL - send notify, else - execute=20
+> > "mail -s "shit happens" linux-kernel@vger.kernel.org"=20
+> > in the way /sbin/hotplug is called.
+> > BTW, this decision also can be obtained from external policy module.
+> >=20
+> > As you may think connector in current implementation is quite powerful
+> > interface( if I will not praise it, who will? :) ), and somebody can
+> > make bad things a bit easier with it, but it is also very flexible and
+> > can be tuned to suit your needs.
+> >=20
+> > I'm open for discussion :)
 >=20
-> after switching from working 2.6.9-rc2 to -mm2, X refused to start on my=20
-> testbox. It turned out this was because it failed (EPERM) reading from=20
-> /dev/mem beyond the 1MB limit.
+> Kernel maintainers:=20
+>=20
+> What do you think? Can a driver which requires access to binary
+> callbacks be included as part of the stock kernel as GPL if Evgeniy's
+> Connector provides some sort of kernel "jail" for the callback
+> functionality?=20
+>=20
+> 	Luis
+>=20
 
-can you get me a strace of the failing X server?
-The code as is is as designed; X has no business messing with kernel ram
-over 1Mb, there is nothing there for it to (ab)use.
-(There is PCI memory much higher up but that is allowed again)
+BTW just wanted to say I realize all this is rediculous, I'm just
+testing waters ;)
 
---=-kgikf2By5opisltrc6k4
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+	Luis
+
+--=20
+GnuPG Key fingerprint =3D 113F B290 C6D2 0251 4D84  A34A 6ADD 4937 E20A 525E
+
+--vTfKKTivj/mQoluA
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBBU8FdxULwo51rQBIRAkrAAJ9slpgdOouPWhsN0dUNn25LxpSZQACfZCkG
-1ixIHRk114FvJ/SXdoDUzM4=
-=uknC
+iD8DBQFBU8QXat1JN+IKUl4RAiDnAJwPFH9r2jWf+Tf2E4DUVa4cA8EqIwCeOR1Q
+79499n7yUrERNbzNeVnKScI=
+=oqnr
 -----END PGP SIGNATURE-----
 
---=-kgikf2By5opisltrc6k4--
-
+--vTfKKTivj/mQoluA--

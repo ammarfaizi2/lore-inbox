@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286553AbRLUUsI>; Fri, 21 Dec 2001 15:48:08 -0500
+	id <S286556AbRLUUyi>; Fri, 21 Dec 2001 15:54:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286554AbRLUUr6>; Fri, 21 Dec 2001 15:47:58 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:35290 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S286553AbRLUUrv>; Fri, 21 Dec 2001 15:47:51 -0500
-Date: Fri, 21 Dec 2001 15:47:50 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Chris Wedgwood <cw@f00f.org>, "Eric S. Raymond" <esr@thyrsus.com>,
-        David Garfield <garfield@irving.iisd.sra.com>,
-        Linux Anonymous List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy
-Message-ID: <20011221154750.I15926@redhat.com>
-In-Reply-To: <20011221153136.G15926@redhat.com> <Pine.LNX.4.33L.0112211835440.28489-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
+	id <S286555AbRLUUy2>; Fri, 21 Dec 2001 15:54:28 -0500
+Received: from [129.27.43.9] ([129.27.43.9]:28939 "EHLO xarch.tu-graz.ac.at")
+	by vger.kernel.org with ESMTP id <S286556AbRLUUyN>;
+	Fri, 21 Dec 2001 15:54:13 -0500
+Date: Fri, 21 Dec 2001 21:54:11 +0100 (CET)
+From: Alex <mail_ker@xarch.tu-graz.ac.at>
+To: linux-kernel@vger.kernel.org
+Subject: arp problems with eth0 / isapnp / 3c509-b card
+Message-ID: <Pine.LNX.4.10.10112212152380.9284-100000@xarch.tu-graz.ac.at>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33L.0112211835440.28489-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Fri, Dec 21, 2001 at 06:36:22PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 21, 2001 at 06:36:22PM -0200, Rik van Riel wrote:
-> Also, a GB of disk space really is 2^10 * 10^6 ...
-> 
-> Better make sure we get it consistent ... *runs like hell*
 
-I always thought they'd like to count the size of disks in bits...  man, 
-don't you really want on of those new 240Gbit disks?  I hear they can 
-pull in a sustained 200Gbit/s on reads!
 
-		-ben
--- 
-Fish.
+On Fri, 21 Dec 2001, Alan Cox wrote:
+
+> > Whenever I ping my nexthop router (ip: x.x.x.1) i get a pause of a few
+> > seconds, then a whole sequence of "Destination unreachable".
+> > Looking at the arp cache using "arp -a", I see that the arp cache is
+> > always incomplete (always KEEPS being incomplete).
+>
+> Sounds like you have the card on the wrong port or the IRQ not set in
+> the BIOS to be routed to ISA
+
+
+Sir! It's PLUG AND PLAY! Isapnp! I ought not to care about IRQ or Bios?
+
+Yours
+
+Alex
+
+
+

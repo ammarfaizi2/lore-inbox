@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317952AbSFNQrt>; Fri, 14 Jun 2002 12:47:49 -0400
+	id <S317954AbSFNQuN>; Fri, 14 Jun 2002 12:50:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317954AbSFNQrs>; Fri, 14 Jun 2002 12:47:48 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:7439 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S317952AbSFNQrs> convert rfc822-to-8bit;
-	Fri, 14 Jun 2002 12:47:48 -0400
-Message-ID: <3D0A1E31.3030600@evision-ventures.com>
-Date: Fri, 14 Jun 2002 18:47:45 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
-X-Accept-Language: pl, en-us
+	id <S317955AbSFNQuM>; Fri, 14 Jun 2002 12:50:12 -0400
+Received: from radium.jvb.tudelft.nl ([130.161.82.13]:3712 "EHLO
+	radium.jvb.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S317954AbSFNQuL>; Fri, 14 Jun 2002 12:50:11 -0400
+From: "Robbert Kouprie" <robbert@radium.jvb.tudelft.nl>
+To: "'Raphael Manfredi'" <Raphael_Manfredi@pobox.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: The buggy APIC of the Abit BP6
+Date: Fri, 14 Jun 2002 18:49:41 +0200
+Message-ID: <004901c213c3$7a73b8f0$020da8c0@nitemare>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Jens Axboe <axboe@suse.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.21 IDE 91
-In-Reply-To: <Pine.LNX.4.44.0206140940240.2576-100000@home.transmeta.com>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Linus Torvalds napisa³:
-> 
-> On Fri, 14 Jun 2002, Jens Axboe wrote:
-> 
->>- current 2.5 bk deadlocks reading partition info off disk. Again a
->>  locking problem I suppose, to be honest I just got very tired when
->>  seeing it happen and didn't want to spend tim looking into it.
-> 
-> 
-> Hmm. There's a bug in "balance_irq()" if you are trying to run a SMP
-> kernel on an UP machine right now, and it _might_ be that the lockup has
-> nothing to do with the IDE layer, but simple with the first PCI interrupt
-> (as opposed to local timer interrupt) coming in.
+Raphael Manfredi wrote:
 
-...
+> Here's my own solution for it, in an old article.  I've been running
+> with this patch since then, and transmit timeouts have never been a
+problem.
+> 
+> I run 2.4.18-pre7 nowadays, and the patch below applied without
+problem.
 
-> I don't know. Might be the IDE code too, of course.
+Thanks very much! This looks very promising. I just patched
+2.4.19pre10-ac2 with it and booted it up on my BP6. I will report back
+any failure or success of APIC kicking ;)
 
-Just to complete the picture: I'm running SMP kernels on
-UP for the sake of spinlock debugging and compilatoin coverage too.
-But as I have already stated - I run my own patches on
-top of the last offical release instead of BK contents.
+BTW, did you get any explanation why this wasn't applied in -ac or main
+kernel?
 
+- Robbert Kouprie
 

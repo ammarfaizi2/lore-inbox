@@ -1,40 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280804AbRKLOe3>; Mon, 12 Nov 2001 09:34:29 -0500
+	id <S280812AbRKLOht>; Mon, 12 Nov 2001 09:37:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280808AbRKLOeT>; Mon, 12 Nov 2001 09:34:19 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:43531 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S280804AbRKLOeM>; Mon, 12 Nov 2001 09:34:12 -0500
-Message-ID: <3BEFDDBB.2090605@namesys.com>
-Date: Mon, 12 Nov 2001 17:33:31 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010923
-X-Accept-Language: en-us
+	id <S280810AbRKLOhk>; Mon, 12 Nov 2001 09:37:40 -0500
+Received: from cs6625192-102.austin.rr.com ([66.25.192.102]:9999 "EHLO
+	mail1.cirrus.com") by vger.kernel.org with ESMTP id <S280809AbRKLOhX>;
+	Mon, 12 Nov 2001 09:37:23 -0500
+Message-ID: <973C11FE0E3ED41183B200508BC7774C022FB87B@csexchange.crystal.cirrus.com>
+From: "Woller, Thomas" <twoller@crystal.cirrus.com>
+To: "'Shawfeng Dong'" <dong@ucolick.org>,
+        "Woller, Thomas" <twoller@crystal.cirrus.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: CS4281 on Dell Inspiron 2100 running Redhat 7.2 
+Date: Mon, 12 Nov 2001 08:36:10 -0600
 MIME-Version: 1.0
-To: arjanv@redhat.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Oops in reiserfs w/2.4.7-10
-In-Reply-To: <Pine.LNX.4.33.0111122233530.26293-100000@bad-sports.com> <3BEFBDE0.6080804@namesys.com> <3BEFC301.A92C64D4@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have now tested the latest Red Hat 7.2 kernel (2.4.7.-10) and it 
-passes our regression tests, which means that it is indeed a reasonably 
-stable kernel that I would be willing to put my home directory on if it 
-was me and I wasn't using NFS on it.  (I used 2.4.5 on my laptop for 
-months with no problem, and I would guess that it is as stable as that 
-one, when we talk about stable, remember we mean stable for a a few 
-hundred thousand users).  The latest Linus kernels will be more stable, 
-and since Linux is still stabilizing, I would guess that using a recent 
-kernel is going to remain a good idea for the next few months.  
- Apologies to Red Hat for relying on second hand reports, and for that 
-reason advising users to go to a kernel I had more knowledge about. 
- Users using NFS should keep a watch on the recently found bug involving 
-rename, I think a patch just came out recently, and I expect it will be 
-going into the kernel soon.
+I have never been able to figure out why some machines need a POR
+in order to work after running a windows based OS (win2k and
+win98se I seem to remember both cause this behavior).  I have
+tried adding resets into the init code that the part understands,
+but no help.  My belief is that the BIOS is not properly
+resetting the chip to the same consistent state on a warm boot as
+a cold boot.  Since there are no longer any h/w persons at Cirrus
+to work with probing the state of the cs4281 during this failure
+(part has been end-of-lifed), and getting DELL to open up the
+BIOS is most likely not going to happen, then I don't anticipate
+a solution from me.  more trial and error work might yield an
+answer... else you'll have to power the machine each time
+rebooting :(  wish i had more.  if you want the cs4281
+Programming manual, and do some register twiddling yourself, i
+can send directly to you. i have been able to get this document
+out without requiring an NDA.
+thanks
+Tom Woller
+twoller@crystal.cirrus.com
 
-Hans
+-----Original Message-----
+From: Shawfeng Dong [mailto:dong@ucolick.org]
+Sent: Saturday, November 10, 2001 11:33 PM
+To: twoller@crystal.cirrus.com
+Cc: linux-kernel@vger.kernel.org
+Subject: CS4281 on Dell Inspiron 2100 running Redhat 7.2 
+
+
+Hi,
+
+I installed both Windows 2000 and RedHat Linux 7.2 onto my Dell
+Inspiron
+2100 laptop. The sound card is  Cirrus Logic Crystal CS4281 PCI
+Audio. It
+works fine under W2k, also fine under Linux if the laptop boots
+directly
+into Linux. But there is a weird problem: if I reboot the
+computer from W2k
+into Linux, it is unable to load the sound driver.
+
+Do you have any idea what may cause this weird behavior? Or can
+you send me
+the latest driver? If you need more detailed information, please
+let me
+know.
+
+Thanks and best wishes,
+
+Shaw
 

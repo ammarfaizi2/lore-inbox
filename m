@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316216AbSEQNmQ>; Fri, 17 May 2002 09:42:16 -0400
+	id <S316220AbSEQNrD>; Fri, 17 May 2002 09:47:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316217AbSEQNmP>; Fri, 17 May 2002 09:42:15 -0400
-Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:6470 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id <S316216AbSEQNmP>; Fri, 17 May 2002 09:42:15 -0400
-Date: Fri, 17 May 2002 15:40:33 +0200 (CEST)
-From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
-To: Ed Vance <EdV@macrolink.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: OX16PCI954 - more than 921600/3000000
-In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A7825@EXCHANGE>
-Message-ID: <Pine.LNX.4.44.0205171536260.3934-100000@lt.wsisiz.edu.pl>
+	id <S316221AbSEQNrC>; Fri, 17 May 2002 09:47:02 -0400
+Received: from dc-mx04.cluster1.charter.net ([209.225.8.14]:32658 "EHLO
+	dc-mx04.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id <S316220AbSEQNrC>; Fri, 17 May 2002 09:47:02 -0400
+To: <bvermeul@devel.blackstar.nl>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel PCMCIA/CardBus on a Tecra 8200
+In-Reply-To: <Pine.LNX.4.33.0205162339200.26976-100000@devel.blackstar.nl>
+From: Norman Walsh <ndw@nwalsh.com>
+X-URL: http://nwalsh.com/
+Date: Fri, 17 May 2002 09:46:55 -0400
+Message-ID: <87hel6ga40.fsf@nwalsh.com>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.1 (i686-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 May 2002, Ed Vance wrote:
+/ <bvermeul@devel.blackstar.nl> was heard to say:
+| I've seen these messages before. Check config.opts, and make sure it's 
+| valid. When in doubt, reinstall pcmcia-cs from woody.
+| That seemed to fix the problem I had.
 
-> Notice that there are no choices that are even close. The 954 UART can do
-> much better than this with its CPR prescaler register, but this
-> functionality is not supported by the current driver.  However, a patch to
-> properly support the CPR register has been posted to the list a few times.
-> An archived message that contains the patch and caveats is found here:
-> (Thanks Fabrizio)
-> 
-> http://groups.google.com/groups?dq=&hl=en&group=mlist.linux.serial&safe=off&
-> selm=linux.serial.OFAB55B09E.868BB835-ONC1256B82.005C3839%40diamond.philips.
-> com
+Thank you! In an act of some desperation, I --removed, --purged, and
+re --installed the pcmcia-cs package and those problems went away.
 
-Thank You very much for this link and for some suggestions. I will try
-this patch next week.
+                                        Be seeing you,
+                                          norm
 
 -- 
-*[ £ukasz Tr±biñski ]*
-SysAdmin @wsisiz.edu.pl
-
+Norman Walsh <ndw@nwalsh.com> | It'll cost you.
+http://nwalsh.com/            | 

@@ -1,87 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318155AbSHKJKI>; Sun, 11 Aug 2002 05:10:08 -0400
+	id <S318216AbSHKJNJ>; Sun, 11 Aug 2002 05:13:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318216AbSHKJKI>; Sun, 11 Aug 2002 05:10:08 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:53891 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S318155AbSHKJKH>; Sun, 11 Aug 2002 05:10:07 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Chris the Elder <chippo@netactive.co.za>
-Date: Sun, 11 Aug 2002 19:13:32 +1000
+	id <S318242AbSHKJNJ>; Sun, 11 Aug 2002 05:13:09 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:52356 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S318216AbSHKJNH>;
+	Sun, 11 Aug 2002 05:13:07 -0400
+To: <linux-kernel@vger.kernel.org>
+Cc: marcelo@conectiva.com.br, Stephane Wirtel <stephane.wirtel@belgacom.net>
+Subject: Re: [PATCH] 2.4.20-pre1 warnings cleanup
+References: <m3y9be2ulv.fsf@defiant.pm.waw.pl>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 11 Aug 2002 10:48:21 +0200
+In-Reply-To: <m3y9be2ulv.fsf@defiant.pm.waw.pl>
+Message-ID: <m3r8h5233e.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15702.10940.895498.828689@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ancient NFS patch sought
-In-Reply-To: message from Chris the Elder on Sunday August 11
-References: <3D5622FC.7080602@netactive.co.za>
-X-Mailer: VM 7.03 under Emacs 21.2.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday August 11, chippo@netactive.co.za wrote:
-> Greets,
-> 
-> I'm looking for a few terms that I can use to STFW with google, to find
-> the patch (or code) for a wierd ancient NFS feature.
-> 
-> Many years ago I was using someone else's Linux box with NFS.  This
-> version of NFS had the feature that:
-> 
-> On the server you could copy a file to it's own name followed by a '#'
-> followed by the MAC address of one of the clients, and then that client
-> would see this copy of the file as though it were the original.  The two
-> files would typically be different, and the server and the client get
-> their own versions each.  The process could be continued for any number
-> of different clients.
-> 
-> Can anyone give me some search terms (or an URL) to help me find the
-> code for this feature on the web?
+--=-=-=
 
-ClusterNFS on sourceforge.  So
-   http://clusternfs.sourceforge.net/
+Oops,
 
-> 
-> TIA,
-> chippo
-> 
-> PS: What I really want to know (which I'll hopefully glean from the
-> code/URL when located) is:
->  - was this a user-space or kernel-space implementation of NFS
+Krzysztof Halasa <khc@pm.waw.pl> writes:
 
-UserSpace
+> The following patch clears some compiler warning messages from 2.4.20-pre1
+> and eliminates unused code.
 
->  - how much mission it'll be to get the same (or similar) functionality
-> on a 2.4 kern.
+The patch is attached.
+-- 
+Krzysztof Halasa
+Network Administrator
 
-Not if I can help it.  All the functionality you need already exists.
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment; filename=warnings-2.4.20-pre1.patch
 
-Each client mounts a common root filesystem.
-A very early rc script mounts a per-client filesystem on
-e.g. /perclient.
-The rc script can use hostname or IP address or MAC address or
-whatever it wants to choose the actual filesystem to mount:
+--- linux/arch/i386/kernel/dmi_scan.c.orig	Sat Aug  3 17:13:28 2002
++++ linux/arch/i386/kernel/dmi_scan.c	Sat Aug  3 19:02:47 2002
+@@ -186,12 +186,13 @@
+ #define MATCH(a,b)	{ a, b }
+ 
+ /*
+- *	We have problems with IDE DMA on some platforms. In paticular the
++ *	We have problems with IDE DMA on some platforms. In particular the
+  *	KT7 series. On these it seems the newer BIOS has fixed them. The
+  *	rule needs to be improved to match specific BIOS revisions with
+  *	corruption problems
+- */ 
+- 
++ */
++
++#if 0
+ static __init int disable_ide_dma(struct dmi_blacklist *d)
+ {
+ #ifdef CONFIG_BLK_DEV_IDE
+@@ -204,6 +205,7 @@
+ #endif	
+ 	return 0;
+ }
++#endif
+ 
+ /* 
+  * Reboot options and system auto-detection code provided by
+--- linux/init/do_mounts.c.orig	Sat Aug  3 17:14:32 2002
++++ linux/init/do_mounts.c	Sat Aug  3 18:26:32 2002
+@@ -882,6 +882,7 @@
+ #define WSIZE 0x8000    /* window size--must be a power of two, and */
+ 			/*  at least 32K for zip's deflate method */
+ 
++#ifdef CONFIG_BLK_DEV_RAM
+ static uch *inbuf;
+ static uch *window;
+ 
+@@ -1006,5 +1007,6 @@
+ 	kfree(window);
+ 	return result;
+ }
++#endif /* CONFIG_BLK_DEV_RAM */
+ 
+ #endif  /* BUILD_CRAMDISK */
+--- linux/arch/i386/kernel/setup.c.orig	Sat Aug  3 17:13:29 2002
++++ linux/arch/i386/kernel/setup.c	Sat Aug  3 19:17:22 2002
+@@ -175,6 +175,8 @@
+ static int disable_x86_fxsr __initdata = 0;
+ static int disable_x86_ht __initdata = 0;
+ 
++static int __init have_cpuid_p(void);
++
+ int enable_acpi_smp_table;
+ 
+ #if defined(CONFIG_AGP) || defined(CONFIG_AGP_MODULE)
 
-   mount -t nfs -o nolocks server:/clientfilesys/`hostname` /perclient
-
-Then any file that needs to be per-client becomes a symlink into
-/perclient.
-
-About the only thing that this doesn't work for is files the are
-unlinked and re-created often.  I suspect if there are any of those
-there is a workable solution.
-
-NeilBrown
-
-
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--=-=-=--

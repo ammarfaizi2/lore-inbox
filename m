@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269926AbRIEBAY>; Tue, 4 Sep 2001 21:00:24 -0400
+	id <S269967AbRIEBDY>; Tue, 4 Sep 2001 21:03:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269967AbRIEBAO>; Tue, 4 Sep 2001 21:00:14 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37137 "EHLO
+	id <S269971AbRIEBDP>; Tue, 4 Sep 2001 21:03:15 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43537 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269926AbRIEBAC>; Tue, 4 Sep 2001 21:00:02 -0400
+	id <S269967AbRIEBDE>; Tue, 4 Sep 2001 21:03:04 -0400
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Advice on Unsigned Types
-Date: 4 Sep 2001 18:00:19 -0700
+Subject: Re: CPU context corrupt?
+Date: 4 Sep 2001 18:03:11 -0700
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9n3tf3$ffq$1@cesium.transmeta.com>
-In-Reply-To: <3B8EF269.BF457C7F@home.com>
+Message-ID: <9n3tkf$fh8$1@cesium.transmeta.com>
+In-Reply-To: <999606788.1571.12.camel@hamlet>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,24 +21,34 @@ Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3B8EF269.BF457C7F@home.com>
-By author:    John Kacur <jkacur@home.com>
+Followup to:  <999606788.1571.12.camel@hamlet>
+By author:    Aquila <aquila@hypox.org>
 In newsgroup: linux.dev.kernel
+>
+> Hi
 > 
-> The advice the author give on Unsigned Types is:
-> "Avoid unnecessary complexity by minimizing your use of unsigned types.
-> Specifically, don't use an unsigned type to represent a quantity just
-> because it will never be negative (e.g."age" or "national debt").
-> Use a signed type like int and you won't have to worry about boundary
-> cases in the detailed rules for promoting mixed types.
-> Only use unsigned types for bitfields or binary masks. Use casts in
-> expressions, to make all the operands signed or unsigned, so the
-> compiler does not have to choose the result type."
+> I have had this problem quite a while now: when playing tribes2 or when
+> a particular CPU intensive xscreensaver is running, X would often hang.
+> I used to be able to ssh from another box or use SysRq-K to kill X and
+> restart (but I never figured out what the problem was).
+> 
+> Ever since upgrading to 2.4.9-ac3 (from 2.4.8-ac5 I believe), whenever
+> it hangs in X the computer would beep and give this message in syslog:
+> 
+> Sep  4 21:43:41 hamlet kernel: CPU 0: Machine Check Exception:
+> 0000000000000004
+> Sep  4 21:43:41 hamlet kernel: Bank 1: f600200000000152 at
+> 7600200000000152
+> Sep  4 21:43:41 hamlet kernel: Bank 2: d40040000000017a at
+> 540040000000017a
+> Sep  4 21:43:41 hamlet kernel: Kernel panic: CPU context corrupt
+> 
+> It hangs there, and SysRq-K is no longer able to kill X properly. sshd
+> stops working as well. What does this message mean? Do I have faulty
+> hardware? 
 > 
 
-So the author isn't talking about developing operating systems.  In
-operating systems it's almost the other way around -- signed is really
-the exception.
+Yes.
 
 	-hpa
 -- 

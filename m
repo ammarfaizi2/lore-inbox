@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264929AbUFHJ5q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264922AbUFHKGC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264929AbUFHJ5q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 05:57:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264931AbUFHJ5q
+	id S264922AbUFHKGC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 06:06:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbUFHKGC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 05:57:46 -0400
-Received: from web25109.mail.ukl.yahoo.com ([217.12.10.57]:20879 "HELO
-	web25109.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S264922AbUFHJ5d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 05:57:33 -0400
-Message-ID: <20040608095730.39955.qmail@web25109.mail.ukl.yahoo.com>
-Date: Tue, 8 Jun 2004 10:57:30 +0100 (BST)
-From: =?iso-8859-1?q?Patric=20Ho?= <patric1972uk@yahoo.co.uk>
-Subject: kenel memory usage question.
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 8 Jun 2004 06:06:02 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:28432 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S264922AbUFHKFq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 06:05:46 -0400
+Date: Tue, 8 Jun 2004 20:05:30 +1000
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Vincent Sanders <vince@kyllikki.org>
+Subject: [VGA16FB] Fix bogus mem_start value
+Message-ID: <20040608100530.GA26292@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="HcAYCG3uE/tztfnV"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am working on linux used in embedded devices. I use
-following method to calculate the actual amount of
-memory used by kernel+processes (not including page
-caches and swap is off in my system):
 
-(from /proc/meminfo) MemTotal - MemFree - Buffers -
-Cached.
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I thought this should be a fairly constant number for
-a minimal kernel, e.g. no network support, and
-statistics are collected right after login. However
-when I use different "mem=" kernel cmd-line option, I
-got quite different numbers:
+Hi Andrew:
 
-7M: 2580K
-8M: 2612K
-16M: 2648K
-128M: 3584K
+The recent change to vga16fb's memory mapping that you partially
+reverted is still broken.  In particular, it's setting fix.mem_start
+to a virtual address on i386.  The value of fix.mem_start is meant
+to be physical.
 
-Any idea why this happens? I can even see "Slab:"
-changes from 1220K when mem=7M to 1968K when mem=128K.
-It looks like kernel can adjust memory usage depends
-on the actual physical memory available. I previously
-thought only page caches can shrink in such way.
+We could simply apply virt_to_phys to it, but somehow I doubt that
+is what it's meant to do on arm.  So until we hear from someone who
+knows how it works on arm, let's just revert this change.
 
-Thanks a lot.
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
-Patric
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
 
+===== drivers/video/vga16fb.c 1.38 vs edited =====
+--- 1.38/drivers/video/vga16fb.c	2004-05-22 18:18:20 +10:00
++++ edited/drivers/video/vga16fb.c	2004-06-08 19:57:40 +10:00
+@@ -1372,8 +1372,6 @@
+ 	vga16fb.par = &vga16_par;
+ 	vga16fb.flags = FBINFO_FLAG_DEFAULT;
+ 
+-	vga16fb.fix.smem_start	= VGA_MAP_MEM(vga16fb.fix.smem_start);
+-
+ 	i = (vga16fb_defined.bits_per_pixel == 8) ? 256 : 16;
+ 	ret = fb_alloc_cmap(&vga16fb.cmap, i, 0);
+ 	if (ret) {
 
-	
-	
-		
-____________________________________________________________
-Yahoo! Messenger - Communicate instantly..."Ping" 
-your friends today! Download Messenger Now 
-http://uk.messenger.yahoo.com/download/index.html
+--HcAYCG3uE/tztfnV--

@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262706AbUCORGM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 12:06:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbUCORGM
+	id S262705AbUCORJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 12:09:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbUCORJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 12:06:12 -0500
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:12527 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S262706AbUCORGD
+	Mon, 15 Mar 2004 12:09:27 -0500
+Received: from relay2.ptmail.sapo.pt ([212.55.154.22]:64743 "HELO sapo.pt")
+	by vger.kernel.org with SMTP id S262705AbUCORJZ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 12:06:03 -0500
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: =?CP 1252?q?S=F8ren=20Hansen?= <sh@warma.dk>
-Subject: Re: UID/GID mapping system
-Date: Mon, 15 Mar 2004 11:05:36 -0600
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-References: <1078775149.23059.25.camel@luke> <04031207520900.07660@tabby> <1079103602.1571.26.camel@quaoar>
-In-Reply-To: <1079103602.1571.26.camel@quaoar>
+	Mon, 15 Mar 2004 12:09:25 -0500
+From: Claudio Martins <ctpm@rnl.ist.utl.pt>
+To: linux-kernel@vger.kernel.org
+Subject: Re: unionfs
+Date: Mon, 15 Mar 2004 17:09:11 +0000
+User-Agent: KMail/1.6.1
+Cc: =?iso-8859-1?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Ian Kent <raven@themaw.net>, Carsten Otte <cotte@freenet.de>,
+       mszeredi@inf.bme.hu, herbert@13thfloor.at
+References: <200403151235.25877.cotte@freenet.de> <Pine.LNX.4.58.0403152233490.19386@raven.themaw.net> <20040315161323.GD16615@wohnheim.fh-wedel.de>
+In-Reply-To: <20040315161323.GD16615@wohnheim.fh-wedel.de>
 MIME-Version: 1.0
-Message-Id: <04031511053600.13518@tabby>
-Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200403151709.11373.ctpm@rnl.ist.utl.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 March 2004 09:00, Søren Hansen wrote:
-> fre, 2004-03-12 kl. 14:52 skrev Jesse Pollard:
-> > > Let's just for a second assume that I'm the slow one here. Why is the
-> > > world a less secure place after this system is incorporated into the
-> > > kernel?
-> >
-> > Because a rogue client will have access to every uid on the server.
+
+On Monday 15 March 2004 16:13, Jörn Engel wrote:
+> On Mon, 15 March 2004 22:35:20 +0800, Ian Kent wrote:
+> > I don't understand the requirement properly. Sorry.
 >
-> As opposed to now when a rogue client is very well contained?
+> Depends on who you ask, but imo it boils down to this:
+> - Use one filesystem as backing store, usually ro.
+> - Have another filesystem on top for extra functionality, usually rw
+>   access.
 >
-> > Mapping provides a shield to protect the server.
->
-> A mapping system could provide extra security if implemented on the
-> server. That's true. This is, however, not what I'm trying to do. This
-> system is NOT a security related one (it doesn't increase nor decrease
-> security), but rather a convenience related one.
+> Famous example is a rw-CDROM, where writes go to hard drive and
+> unchanged data is read from CDROM.  But it makes sense for other
+> things as well.
 
-Then it becomes an identity mapping (as in 1:1) and is therefore
-not usefull.
 
-If you are doing double mapping, then I (as a server administrator)
-would not export the filesystem to you.
+  If I understand correctly this unionfs feature would also be the cleanest 
+way of changing the root filesystem after using an initrd ramdisk on boot. 
+Currently the pivot_root call is used to change root but that still implies a 
+bit of a hack. You can read about it on this fine paper:
 
-The current situation is always a 1:1 mapping (NFS version < 4). Therefore
-any filesystem export is by definition within the same security domain.
+http://www.cis.udel.edu/~zhi/www.docshow.net/linux/ols.zip
 
-If you as an administrator of a client host violate the UIDs assigned to
-you (by hiding the audit trail), then you are violating the rules established
-in that security domain; and should not be trusted - and the client host
-should not have an available export.
 
-It is never necessary to map on a client. It means that the server has been
-improperly setup, or that the client is not within the proper security domain.
+  It's also a good read if you want to understand the linux bootloaders and 
+the boot process in general.
+
+Regards
+
+Claudio 
+

@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbTFEBnX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 21:43:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbTFEBnX
+	id S264370AbTFEB5H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 21:57:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbTFEB5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 21:43:23 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:4234 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264377AbTFEBnW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 21:43:22 -0400
-Date: Wed, 4 Jun 2003 18:56:52 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: shemminger@osdl.org, jgarzik@pobox.com, davem@redhat.com,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70-bk+ broken networking
-Message-Id: <20030604185652.31958d1f.akpm@digeo.com>
-In-Reply-To: <3EDE7FEB.2C7FAEC7@digeo.com>
-References: <20030604161437.2b4d3a79.shemminger@osdl.org>
-	<3EDE7FEB.2C7FAEC7@digeo.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 4 Jun 2003 21:57:07 -0400
+Received: from imsantv21.netvigator.com ([210.87.250.77]:31165 "EHLO
+	imsantv21.netvigator.com") by vger.kernel.org with ESMTP
+	id S264370AbTFEB5D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 21:57:03 -0400
+From: Michael Frank <mflt1@micrologica.com.hk>
+To: Pavel Machek <pavel@suse.cz>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>
+Subject: Re: Linux 2.4.21-rc6
+Date: Thu, 5 Jun 2003 10:10:01 +0800
+User-Agent: KMail/1.5.2
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Marc Wilson <msw@cox.net>,
+       lkml <linux-kernel@vger.kernel.org>
+References: <20030529052425.GA1566@moonkingdom.net> <200306031813.10155.m.c.p@wolk-project.de> <20030604215431.GJ333@elf.ucw.cz>
+In-Reply-To: <20030604215431.GJ333@elf.ucw.cz>
+X-OS: GNU/Linux+KDE
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Jun 2003 01:56:52.0736 (UTC) FILETIME=[BC1D1800:01C32B05]
+Content-Disposition: inline
+Message-Id: <200306051010.01649.mflt1@micrologica.com.hk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> wrote:
+On Thursday 05 June 2003 05:54, Pavel Machek wrote:
+> Hi!
 >
-> Stephen Hemminger wrote:
-> > 
-> > Test machine running 2.5.70-bk latest can't boot because eth2 won't
-> > come up.  The same machine and configuration successfully brings up
-> > all the devices and runs on 2.5.70.
-> 
-> kjournald is stuck waiting for IO to complete against some buffer
-> during transaction commit.
-> 
-> I'd be suspecting block layer or device drivers.  What device driver
-> is handling your /var/log?
+> > > Ok, so you can reproduce the hangs reliably EVEN with -rc6, Marc?
+> >
+> > well, even if you mean Marc Wilson, I also have to say something (as I've
+> > written in my previous email some days ago)
+> >
+> > The pauses/stops are _a lot_ less than w/o the fix but they are _not_
+> > gone. Tested with 2.4.21-rc6.
+>
+> If hangs are not worse than 2.4.20, then I'd go ahead with release....
+>
+> 									
+I have -rc6 running on a P4 for a few days, doing the test script, 
+compiles, Opera and found it to be comparable to 2.4.18.
 
-I take that back.
+It also does well on slower machines of about 1/4 the the CPU and disk
+bandwidth. 
 
-Your sysrq-T woke up syslogd which did a synchronous write which poked
-kjournald.  You happened to catch it in mid-commit.  So that's all normal
-and sane.
+IMHO, interactivity is reasonable (again just IMHO), and others
+may disagree.
 
-Something is up with netdevice initialisation.  My eth0 (e100) is in a
-strange half-there state and won't come up.  Reverting the post-2.5.70 e100
-changes does not help.  It's something which went into the tree today I
-think.
-
+-- 
+Powered by linux-2.5.70-mm3
+My current linux related activities in rough order of priority:
+- Testing of 2.4/2.5 kernel interactivity
+- Testing of Swsusp for 2.4
+- Testing of Opera 7.11 emphasizing interactivity
+- Research of NFS i/o errors during transfer 2.4>2.5
+- Learning 2.5 series kernel debugging with kgdb - it's in the -mm tree
+- Studying 2.5 series serial and ide drivers, ACPI, S3
+* Input and feedback is always welcome *
 

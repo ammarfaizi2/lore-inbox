@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263374AbRFKD0Q>; Sun, 10 Jun 2001 23:26:16 -0400
+	id <S263375AbRFKDaQ>; Sun, 10 Jun 2001 23:30:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263375AbRFKD0G>; Sun, 10 Jun 2001 23:26:06 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:33246 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S263374AbRFKDZw>;
-	Sun, 10 Jun 2001 23:25:52 -0400
-Message-ID: <3B243A33.8B32FCD6@mandrakesoft.com>
-Date: Sun, 10 Jun 2001 23:25:39 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1 i686)
-X-Accept-Language: en
+	id <S263378AbRFKDaH>; Sun, 10 Jun 2001 23:30:07 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:518 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263375AbRFKD3x>; Sun, 10 Jun 2001 23:29:53 -0400
+Date: Sun, 10 Jun 2001 20:29:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Aron Lentsch <lentsch@nal.go.jp>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: IRQ problems on new Toshiba Libretto
+In-Reply-To: <Pine.LNX.4.21.0106111107270.1065-100000@triton.nal.go.jp>
+Message-ID: <Pine.LNX.4.21.0106102026290.2599-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: ghofmann@pair.com
-Cc: "David S. Miller" <davem@redhat.com>, Russell King <rmk@arm.linux.org.uk>,
-        Ben LaHaise <bcrl@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: 3C905b partial  lockup in 2.4.5-pre5 and up to 2.4.6-pre1
-In-Reply-To: <3B23A4BB.7B4567A3@mandrakesoft.com> <3B23F20A.22574.10AD93@localhost>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Glenn C. Hofmann" wrote:
+
+On Mon, 11 Jun 2001, Aron Lentsch wrote:
 > 
-> I have, as was suggested, built as a module, and get unresolved symbol do_softirq, so
-> this appears to be another problem in this driver with 2.4.6-pre2.  If I can help in any
-> way, please let me know, although I am by no means a programmer, just a tester.
+> dump_irq returns the following:
+> -----------------------------------------------------------------------
+> No PCI interrupt routing table was found.
 
-edit kernel/ksyms.c:
+Hey, you don't have a pirq table, no wonder Linux cannot find the
+information.
 
--EXPORT_SYMBOL(do_softirq);
-+EXPORT_SYMBOL_NOVERS(do_softirq);
+It's probably an ACPI-only system - rather uncommon, but I bet it will
+become fairly common especially in laptops with WindowsME and higher only.
 
-and see if that helps.
+There's a ACPI dump utility in the ACPI tools, that might give people some
+idea on what's up. Right now Linux ACPI only does irq routing on ia64, if
+I remember correctly, so ACPI per se won't fix the problem, but it would
+definitely be the next thing to look at.
 
-Errors about do_softirq are unrelated to a specific driver.
+Oh, well..
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+		Linus
+

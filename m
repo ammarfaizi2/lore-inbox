@@ -1,101 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262505AbVCaBfa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262442AbVCaBhJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262505AbVCaBfa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 20:35:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262480AbVCaBfa
+	id S262442AbVCaBhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 20:37:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262480AbVCaBhI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 20:35:30 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:60371 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262588AbVCaBef (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 20:34:35 -0500
-Date: Wed, 30 Mar 2005 17:32:32 -0800
-From: Paul Jackson <pj@engr.sgi.com>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: gh@us.ibm.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net
-Subject: Re: [patch 0/8] CKRM: Core patch set
-Message-Id: <20050330173232.3ae4c791.pj@engr.sgi.com>
-In-Reply-To: <20050331002900.5c5dd04a.diegocg@gmail.com>
-References: <20050330225505.7a443227.diegocg@gmail.com>
-	<E1DGkl7-0002aV-00@w-gerrit.beaverton.ibm.com>
-	<20050331002900.5c5dd04a.diegocg@gmail.com>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 30 Mar 2005 20:37:08 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:56053 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262442AbVCaBgv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 20:36:51 -0500
+Message-ID: <424B542F.9090308@mvista.com>
+Date: Wed, 30 Mar 2005 17:36:47 -0800
+From: Frank Rowand <frowand@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Frank Rowand <frowand@mvista.com>, Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] ppc RT: Realtime preempt support for PPC
+References: <422CCC1D.1050902@mvista.com> <20050316100914.GA16012@elte.hu> <423F691E.200@mvista.com>
+In-Reply-To: <423F691E.200@mvista.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego wrote:
-> I bet I'm not the only one here
-> who can't understand it either.....
+Frank Rowand wrote:
+> Ingo Molnar wrote:
+> 
+>> hi Frank - sorry about the late reply, was busy with other things. Your
+> 
+> 
+> My turn to be late, but now I'm back from vacation :-).
+> 
+> 
+>> ppc patches look mostly mergeable, with some small details still open:
+>>
+>> * Frank Rowand <frowand@mvista.com> wrote:
+>>
+>>
+>>> The patches are:
+>>>
+>>> 1/5 ppc_rt.patch          - the core realtime functionality for PPC
+>>
+>>
+>>
+>> what is the rationale behind the rt_lock.h changes? The #ifdef
+>> CONFIG_PPC32 changes in generic code are not really acceptable, the -RT
+>> tree tries to keep a single spinlock definition and debugging
+>> primitives, across all architectures.
 
-You're not alone.
+< stuff deleted >
 
-See an email thread entitled:
+> The second "#ifdef CONFIG_PPC32" is in raw_rwlock_t, making the lock
+> field signed instead of unsigned.  The PPC code uses the value of
+> -1 to mean write locked, 0 to mean unlocked, and >0 to mean read
+> locked.  With one minor exception, all of the PPC raw_rwlock_t related
+> code will work properly with an unsigned type because the code that
+> checks the value of lock is assembly and treats lock as signed.  The
+> one non-assembly code that examines lock as a signed object is in
+> arch/ppc/lib/locks.c and is disabled unless CONFIG_DEBUG_SPINLOCK is
+> defined.  If CONFIG_DEBUG_SPINLOCK is ever enabled this will be
+> very evident as each call to __raw_write_unlock() will result in a
+> printk() warning.  The strongest reason I could advance for making
+> lock signed for PPC32 is that any future C code that checks for a
+> lock value less than zero will not function correctly and might not
+> be very obvious.
+> Thus it is also OK that you left this chunk out of your patch.
 
-    Classes: 1) what are they, 2) what is their name?
-    http://sourceforge.net/mailarchive/forum.php?thread_id=5328162&forum_id=35191
+< more stuff deleted >
 
-on the ckrm-tech@lists.sourceforge.net email list between Aug 14 and Aug
-27, 2004, where I did my best to encourage the CKRM project to address
-this problem.  To no avail.
+I'm working on the architecture support for realtime on PPC64 now.
+If the lock field of struct raw_rwlock_t is a long instead of int
+then /proc/meminfo shows MemFree decreasing from 485608 kB to 485352 kB.
 
-Apparently, to some of the smartest amongst us, who got to hear
-live presentations describing CKRM, it makes sense and is worthy
-of serious consideration.
+Do you have a preference for lock to be long instead of int?
 
-For myself, of more ordinary intelligence and working just from the
-documentation and an occassional glance at the code, it has been a
-difficult proposal to understand, with a rather large patch requiring
-some non-trivial kernel hooks.
-
-A question for the CKRM developers:
-
-    What middleware packages, outside the kernel, exist or are
-    in the works that will rely on CKRM?
-    
-    CKRM (like another project near and dear to me, cpusets)
-    strikes me as a "middleware foundation" facility, intended
-    to provide the essential kernel support required for some
-    serious enterprise software.  So perhaps in addition to
-    asking what end-users (of a combined kernel-middleware
-    platform) exist, we should also be asking who will be
-    directly using CKRM - directly layering middleware on top
-    of it.
-    
-    The details don't matter much and may have to remain
-    obscured in the competitive fog.  But the presence of
-    multiple groups lobbying for the same kernel infrastructure,
-    as an apparent basis for competing middleware products,
-    would I think weigh in CKRM's favor.
-
-My impression, which may not align with how the CKRM developers view
-things, is that CKRM is descendent from what have been called fair-share
-schedulers.  The following comes from the above email thread.
-
-No doubt the CKRM experts are already familiar with these, but for the
-possible benefit of other readers:
-
-  UNICOS Resource Administration - Chapter 4. Fair-share Scheduler
-  http://oscinfo.osc.edu:8080/dynaweb/all/004-2302-001/@Generic__BookTextView/22883
-
-  SHARE II -- A User Administration and Resource Control System for UNIX
-  http://www.c-side.com/c/papers/lisa-91.html
-
-  Solaris Resource Manager White Paper
-  http://wwws.sun.com/software/resourcemgr/wp-mixed/
-
-  ON THE PERFORMANCE IMPACT OF FAIR SHARE SCHEDULING
-  http://www.cs.umb.edu/~eb/goalmode/cmg2000final.htm
-
-  A Fair Share Scheduler, J. Kay and P. Lauder
-  Communications of the ACM, January 1988, Volume 31, Number 1, pp 44-55.
+Do you know if any of the other 64 bit architectures would have an
+issue with int?
 
 
+-Frank
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+Frank Rowand <frank_rowand@mvista.com>
+MontaVista Software, Inc
+

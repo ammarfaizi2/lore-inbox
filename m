@@ -1,29 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263630AbRFNSR5>; Thu, 14 Jun 2001 14:17:57 -0400
+	id <S263703AbRFNSQ5>; Thu, 14 Jun 2001 14:16:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263608AbRFNSRk>; Thu, 14 Jun 2001 14:17:40 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:52749 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263607AbRFNSRb>; Thu, 14 Jun 2001 14:17:31 -0400
-Subject: Re: threading question
-To: ognen@gene.pbi.nrc.ca
-Date: Thu, 14 Jun 2001 19:15:48 +0100 (BST)
-Cc: davidel@xmailserver.org (Davide Libenzi), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0106121546510.11222-100000@gene.pbi.nrc.ca> from "ognen@gene.pbi.nrc.ca" at Jun 12, 2001 03:48:34 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S263608AbRFNSQr>; Thu, 14 Jun 2001 14:16:47 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:17210 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S263607AbRFNSQk>; Thu, 14 Jun 2001 14:16:40 -0400
+Date: Thu, 14 Jun 2001 20:16:34 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Richard Henderson <rth@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: unregistered changes to the user<->kernel API
+Message-ID: <20010614201634.C2115@athlon.random>
+In-Reply-To: <20010614191219.A30567@athlon.random> <20010614191634.B30567@athlon.random> <20010614192122.C30567@athlon.random> <20010614103249.A28852@redhat.com> <20010614194757.B715@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Abem-00055Y-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20010614194757.B715@athlon.random>; from andrea@suse.de on Thu, Jun 14, 2001 at 07:47:57PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> they are done. This should help it (and avoid the pthread_create,
-> pthread_exit). I will implement this and report my results if there is
-> interest.
+On Thu, Jun 14, 2001 at 07:47:57PM +0200, Andrea Arcangeli wrote:
+> On Thu, Jun 14, 2001 at 10:32:49AM -0700, Richard Henderson wrote:
+> > within glibc, and (2) making these accesses slower since they
+> > will be considered O_DIRECT after the change.
+> 
+> and then read/write will return -EINVAL which is life-threatening.
+> O_DIRECT like rawio via /dev/raw imposes special buffer size and
+> alignment (size multiple of softblocksize of the fs and softblocksize
+> alignment, at max I can turn it down to hardblocksize without intensive
+> changes and guaranteeing zerocopy [modulo bounce buffers on x86 of
+> course]).
+> 
+> So in short at least glibc would need to be replaced...
 
-You should also check up the cache colouring. X86 boxes have relatively poor
-memory performance and most x86 chips have lousy behaviour when data bounces
-between processors or is driven out of cache
+in the meantime we solve this issue I released a new o_direct patch and
+a 2.4.6pre3aa1 with O_DIRECT set like in the patches I sent to Linus at
+the start of the thread. As soon as we take a definitive decision I will
+update them. (in the meantime alpha users will at least be allowed again
+to use O_SYNC with o_direct support applied ;)
+
+Andrea

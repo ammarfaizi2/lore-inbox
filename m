@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265088AbSJRMqr>; Fri, 18 Oct 2002 08:46:47 -0400
+	id <S265097AbSJRMzn>; Fri, 18 Oct 2002 08:55:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265097AbSJRMqr>; Fri, 18 Oct 2002 08:46:47 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:62475 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S265088AbSJRMqq>; Fri, 18 Oct 2002 08:46:46 -0400
-Date: Fri, 18 Oct 2002 13:52:43 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Crispin Cowan <crispin@wirex.com>
-Cc: "David S. Miller" <davem@redhat.com>, hch@infradead.org, greg@kroah.com,
-       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       linux-security-module@wirex.com
-Subject: Re: [PATCH] remove sys_security
-Message-ID: <20021018135243.B1670@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Crispin Cowan <crispin@wirex.com>,
-	"David S. Miller" <davem@redhat.com>, greg@kroah.com,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-	linux-security-module@wirex.com
-References: <20021017201030.GA384@kroah.com> <20021017211223.A8095@infradead.org> <3DAFB260.5000206@wirex.com> <20021018.000738.05626464.davem@redhat.com> <3DAFC6E7.9000302@wirex.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DAFC6E7.9000302@wirex.com>; from crispin@wirex.com on Fri, Oct 18, 2002 at 01:31:35AM -0700
+	id <S265098AbSJRMzn>; Fri, 18 Oct 2002 08:55:43 -0400
+Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:58648
+	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id <S265097AbSJRMzl>; Fri, 18 Oct 2002 08:55:41 -0400
+Message-ID: <0d8c01c276a6$67cf9020$370a0a0a@slappy>
+Reply-To: "Sean Estabrooks" <seanlkml@rogers.com>
+From: "Sean Estabrooks" <seanlkml@rogers.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: =?iso-8859-1?Q?Gerrit_Bruchh=E4user?= <gbruchhaeuser@orga.com>
+References: <3DAFDC88.2010009@orga.com>
+Subject: Re: bootsect.S and magic address 0x78
+Date: Fri, 18 Oct 2002 09:00:59 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep03-mail.bloor.is.net.cable.rogers.com from [24.102.213.12] using ID <seanlkml@rogers.com> at Fri, 18 Oct 2002 09:01:00 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 18, 2002 at 01:31:35AM -0700, Crispin Cowan wrote:
-> That's interesting. Passing a completely opaque value (actually an 
-> integer) through the system call was exactly what we designed it to do, 
-> because we saw a design need for pecisely that: so that applications 
-> with awareness of a specific module can talk to the module.
-> 
-> Could you elaborate on why this is a sign of trouble, design wise?
+> Hello Linus,
+>
+>
+> Can you tell me where this magic address 0x78 in arch/i386/bootsect.S
+> refers to? I mean, is this somewhere specified?
+>
+> Many thanks and cheers from germany.
+>
+> Gerrit
 
-Because we already have such a syscall (ioctl) and we see the trouble it
-causes all over the place.  Design yur interfaces properly instead.
+> Hello Linus,
+>
+>
+> Can you tell me where this magic address 0x78 in arch/i386/bootsect.S
+> refers to? I mean, is this somewhere specified?
+>
 
-> >If we do things such as the fs stacking or fs filter ideas,
-> >that eliminates a whole swath of the facilities the security_ops
-> >"provide".  No ugly syscalls passing opaque types through the kernel
-> >to some magic module, but rather a real facility that is useful
-> >to many things other than LSM.
-> >
-> Yes, that will be wonderful. And the LSM team will be pleased to re-work 
-> the desing when stackable file systems appear and we can take advantage 
-> of them.
+Hope you'll settle for an answer from a simple lkml lurker and not the top
+gun.
 
-So do it know.  It's possible and it just shows you've sent the LSM crap
-without actually thinking about a better design.  Come back when you
-have a proper design.
+The address 0x78 points to the floppy disk drive parameter table
+described here:  http://www.xs4all.nl/~matrix/fdd_pt.html
 
-and btw, as LSM is part of the kernel anyone can and will change it.
-Your LSM team attitude is a bit like that hated CVS mentality..
+A list of all the low memory ROM BIOS vectors and addresses can be
+found here:  http://www.cybertrails.com/~fys/rombios.htm
+
+Cheers,
+Sean
+

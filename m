@@ -1,256 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262752AbVCDDSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262690AbVCCW6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262752AbVCDDSo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 22:18:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262771AbVCDDRU
+	id S262690AbVCCW6k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 17:58:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262655AbVCCWLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 22:17:20 -0500
-Received: from mail.dif.dk ([193.138.115.101]:55774 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262746AbVCDCrs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 21:47:48 -0500
-Date: Fri, 4 Mar 2005 03:48:45 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH][7/10] verify_area cleanup : sparc and sparc64
-Message-ID: <Pine.LNX.4.62.0503040338520.2801@dragon.hygekrogen.localhost>
+	Thu, 3 Mar 2005 17:11:33 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15793 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262662AbVCCWKs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 17:10:48 -0500
+Message-ID: <42278B3C.5030307@pobox.com>
+Date: Thu, 03 Mar 2005 17:10:04 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: hzhong@cisco.com
+CC: "'Linus Torvalds'" <torvalds@osdl.org>, "'Greg KH'" <greg@kroah.com>,
+       "'David S. Miller'" <davem@davemloft.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+References: <200503032156.AWY71165@mira-sjc5-e.cisco.com>
+In-Reply-To: <200503032156.AWY71165@mira-sjc5-e.cisco.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hua Zhong wrote:
+> The reason that I think it's important for some other person to do this job
+> independently is that you are not bothered by bugfixes, which you never did
+> well. :) You move on to each release as you do today, with different
+> criteria, and someone else who can do the job better do so to stablize it.
+> 
+> In the end it's more like the old way of 2.5/2.4, but just with a shorter
+> release cycle, and the "2.6 stable release maintainer" could also continue
+> to pick up new 2.6.x releases to work on instead of having to be stuck on
+> one tree for 2 years or ever. He can say "this is the last 2.6.12.x release
+> and next I'll start 2.6.16.1", etc.
+> 
+> For this to happen the person has to be well-recognized and trusted by the
+> community. Alan is one of the best candidates. :) Of course, I'm not sure if
+> he is still interested..
 
-This patch converts verify_area to access_ok for sparc and sparc64.
 
+I think the system we appear to have wound up with is superior:  there 
+is no single 2.6.X.Y maintainer, but more a $sucker mail alias that Does 
+The Right Thing.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -urp linux-2.6.11-orig/arch/sparc/kernel/ptrace.c linux-2.6.11/arch/sparc/kernel/ptrace.c
---- linux-2.6.11-orig/arch/sparc/kernel/ptrace.c	2005-03-02 08:38:33.000000000 +0100
-+++ linux-2.6.11/arch/sparc/kernel/ptrace.c	2005-03-03 20:42:08.000000000 +0100
-@@ -374,8 +374,8 @@ asmlinkage void do_ptrace(struct pt_regs
- 		struct pt_regs *cregs = child->thread.kregs;
- 		int rval;
- 
--		rval = verify_area(VERIFY_WRITE, pregs, sizeof(struct pt_regs));
--		if(rval) {
-+		if (!access_ok(VERIFY_WRITE, pregs, sizeof(struct pt_regs))) {
-+			rval = -EFAULT;
- 			pt_error_return(regs, -rval);
- 			goto out_tsk;
- 		}
-@@ -401,8 +401,8 @@ asmlinkage void do_ptrace(struct pt_regs
- 		/* Must be careful, tracing process can only set certain
- 		 * bits in the psr.
- 		 */
--		i = verify_area(VERIFY_READ, pregs, sizeof(struct pt_regs));
--		if(i) {
-+		if (!access_ok(VERIFY_READ, pregs, sizeof(struct pt_regs))) {
-+			i = -EFAULT;
- 			pt_error_return(regs, -i);
- 			goto out_tsk;
- 		}
-@@ -439,8 +439,8 @@ asmlinkage void do_ptrace(struct pt_regs
- 		struct fps __user *fps = (struct fps __user *) addr;
- 		int i;
- 
--		i = verify_area(VERIFY_WRITE, fps, sizeof(struct fps));
--		if(i) {
-+		if (!access_ok(VERIFY_WRITE, fps, sizeof(struct fps))) {
-+			i = -EFAULT;
- 			pt_error_return(regs, -i);
- 			goto out_tsk;
- 		}
-@@ -474,8 +474,8 @@ asmlinkage void do_ptrace(struct pt_regs
- 		struct fps __user *fps = (struct fps __user *) addr;
- 		int i;
- 
--		i = verify_area(VERIFY_READ, fps, sizeof(struct fps));
--		if(i) {
-+		if (!access_ok(VERIFY_READ, fps, sizeof(struct fps))) {
-+			i = -EFAULT;
- 			pt_error_return(regs, -i);
- 			goto out_tsk;
- 		}
-diff -urp linux-2.6.11-orig/arch/sparc/kernel/signal.c linux-2.6.11/arch/sparc/kernel/signal.c
---- linux-2.6.11-orig/arch/sparc/kernel/signal.c	2005-03-02 08:38:13.000000000 +0100
-+++ linux-2.6.11/arch/sparc/kernel/signal.c	2005-03-03 20:42:08.000000000 +0100
-@@ -205,7 +205,7 @@ restore_fpu_state(struct pt_regs *regs, 
- 	set_used_math();
- 	clear_tsk_thread_flag(current, TIF_USEDFPU);
- 
--	if (verify_area(VERIFY_READ, fpu, sizeof(*fpu)))
-+	if (!access_ok(VERIFY_READ, fpu, sizeof(*fpu)))
- 		return -EFAULT;
- 
- 	err = __copy_from_user(&current->thread.float_regs[0], &fpu->si_float_regs[0],
-@@ -231,7 +231,7 @@ static inline void do_new_sigreturn (str
- 	sf = (struct new_signal_frame __user *) regs->u_regs[UREG_FP];
- 
- 	/* 1. Make sure we are not getting garbage from the user */
--	if (verify_area(VERIFY_READ, sf, sizeof(*sf)))
-+	if (!access_ok(VERIFY_READ, sf, sizeof(*sf)))
- 		goto segv_and_exit;
- 
- 	if (((unsigned long) sf) & 3)
-@@ -297,7 +297,7 @@ asmlinkage void do_sigreturn(struct pt_r
- 	scptr = (struct sigcontext __user *) regs->u_regs[UREG_I0];
- 
- 	/* Check sanity of the user arg. */
--	if (verify_area(VERIFY_READ, scptr, sizeof(struct sigcontext)) ||
-+	if (!access_ok(VERIFY_READ, scptr, sizeof(struct sigcontext)) ||
- 	    (((unsigned long) scptr) & 3))
- 		goto segv_and_exit;
- 
-@@ -356,7 +356,7 @@ asmlinkage void do_rt_sigreturn(struct p
- 
- 	synchronize_user_stack();
- 	sf = (struct rt_signal_frame __user *) regs->u_regs[UREG_FP];
--	if (verify_area(VERIFY_READ, sf, sizeof(*sf)) ||
-+	if (!access_ok(VERIFY_READ, sf, sizeof(*sf)) ||
- 	    (((unsigned long) sf) & 0x03))
- 		goto segv;
- 
-diff -urp linux-2.6.11-orig/arch/sparc/kernel/sys_sparc.c linux-2.6.11/arch/sparc/kernel/sys_sparc.c
---- linux-2.6.11-orig/arch/sparc/kernel/sys_sparc.c	2005-03-02 08:38:00.000000000 +0100
-+++ linux-2.6.11/arch/sparc/kernel/sys_sparc.c	2005-03-03 20:42:08.000000000 +0100
-@@ -399,7 +399,7 @@ sparc_sigaction (int sig, const struct o
- 	if (act) {
- 		unsigned long mask;
- 
--		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
-+		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
- 		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
- 		    __get_user(new_ka.sa.sa_restorer, &act->sa_restorer))
- 			return -EFAULT;
-@@ -417,7 +417,7 @@ sparc_sigaction (int sig, const struct o
- 		 * deadlock us if we held the signal lock on SMP.  So for
- 		 * now I take the easy way out and do no locking.
- 		 */
--		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
-+		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
- 		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
- 		    __put_user(old_ka.sa.sa_restorer, &oact->sa_restorer))
- 			return -EFAULT;
-diff -urp linux-2.6.11-orig/arch/sparc/kernel/sys_sunos.c linux-2.6.11/arch/sparc/kernel/sys_sunos.c
---- linux-2.6.11-orig/arch/sparc/kernel/sys_sunos.c	2005-03-02 08:38:07.000000000 +0100
-+++ linux-2.6.11/arch/sparc/kernel/sys_sunos.c	2005-03-03 20:42:08.000000000 +0100
-@@ -1131,7 +1131,7 @@ sunos_sigaction(int sig, const struct ol
- 	if (act) {
- 		old_sigset_t mask;
- 
--		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
-+		if (!access_ok(VERIFY_READ, act, sizeof(*act)) ||
- 		    __get_user(new_ka.sa.sa_handler, &act->sa_handler) ||
- 		    __get_user(new_ka.sa.sa_flags, &act->sa_flags))
- 			return -EFAULT;
-@@ -1152,7 +1152,7 @@ sunos_sigaction(int sig, const struct ol
- 		 * But then again we don't support SunOS lwp's anyways ;-)
- 		 */
- 		old_ka.sa.sa_flags ^= SUNOS_SV_INTERRUPT;
--		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
-+		if (!access_ok(VERIFY_WRITE, oact, sizeof(*oact)) ||
- 		    __put_user(old_ka.sa.sa_handler, &oact->sa_handler) ||
- 		    __put_user(old_ka.sa.sa_flags, &oact->sa_flags))
- 			 return -EFAULT;
-diff -urp linux-2.6.11-orig/arch/sparc/kernel/unaligned.c linux-2.6.11/arch/sparc/kernel/unaligned.c
---- linux-2.6.11-orig/arch/sparc/kernel/unaligned.c	2005-03-02 08:38:25.000000000 +0100
-+++ linux-2.6.11/arch/sparc/kernel/unaligned.c	2005-03-03 20:42:08.000000000 +0100
-@@ -428,40 +428,35 @@ static inline int ok_for_user(struct pt_
- 			      enum direction dir)
- {
- 	unsigned int reg;
--	int retval, check = (dir == load) ? VERIFY_READ : VERIFY_WRITE;
-+	int check = (dir == load) ? VERIFY_READ : VERIFY_WRITE;
- 	int size = ((insn >> 19) & 3) == 3 ? 8 : 4;
- 
- 	if ((regs->pc | regs->npc) & 3)
- 		return 0;
- 
--	/* Must verify_area() in all the necessary places. */
-+	/* Must access_ok() in all the necessary places. */
- #define WINREG_ADDR(regnum) \
- 	((void __user *)(((unsigned long *)regs->u_regs[UREG_FP])+(regnum)))
- 
--	retval = 0;
- 	reg = (insn >> 25) & 0x1f;
- 	if (reg >= 16) {
--		retval = verify_area(check, WINREG_ADDR(reg - 16), size);
--		if (retval)
--			return retval;
-+		if (!access_ok(check, WINREG_ADDR(reg - 16), size))
-+			return -EFAULT;
- 	}
- 	reg = (insn >> 14) & 0x1f;
- 	if (reg >= 16) {
--		retval = verify_area(check, WINREG_ADDR(reg - 16), size);
--		if (retval)
--			return retval;
-+		if (!access_ok(check, WINREG_ADDR(reg - 16), size))
-+			return -EFAULT;
- 	}
- 	if (!(insn & 0x2000)) {
- 		reg = (insn & 0x1f);
- 		if (reg >= 16) {
--			retval = verify_area(check, WINREG_ADDR(reg - 16),
--					     size);
--			if (retval)
--				return retval;
-+			if (!access_ok(check, WINREG_ADDR(reg - 16), size))
-+				return -EFAULT;
- 		}
- 	}
--	return retval;
- #undef WINREG_ADDR
-+	return 0;
- }
- 
- void user_mna_trap_fault(struct pt_regs *regs, unsigned int insn) __asm__ ("user_mna_trap_fault");
-diff -urp linux-2.6.11-orig/arch/sparc64/kernel/binfmt_aout32.c linux-2.6.11/arch/sparc64/kernel/binfmt_aout32.c
---- linux-2.6.11-orig/arch/sparc64/kernel/binfmt_aout32.c	2005-03-02 08:38:09.000000000 +0100
-+++ linux-2.6.11/arch/sparc64/kernel/binfmt_aout32.c	2005-03-03 20:42:08.000000000 +0100
-@@ -114,9 +114,9 @@ static int aout32_core_dump(long signr, 
- 
- /* make sure we actually have a data and stack area to dump */
- 	set_fs(USER_DS);
--	if (verify_area(VERIFY_READ, (void __user *) START_DATA(dump), dump.u_dsize))
-+	if (!access_ok(VERIFY_READ, (void __user *) START_DATA(dump), dump.u_dsize))
- 		dump.u_dsize = 0;
--	if (verify_area(VERIFY_READ, (void __user *) START_STACK(dump), dump.u_ssize))
-+	if (!access_ok(VERIFY_READ, (void __user *) START_STACK(dump), dump.u_ssize))
- 		dump.u_ssize = 0;
- 
- 	set_fs(KERNEL_DS);
-diff -urp linux-2.6.11-orig/arch/sparc64/kernel/signal32.c linux-2.6.11/arch/sparc64/kernel/signal32.c
---- linux-2.6.11-orig/arch/sparc64/kernel/signal32.c	2005-03-02 08:38:34.000000000 +0100
-+++ linux-2.6.11/arch/sparc64/kernel/signal32.c	2005-03-03 20:42:08.000000000 +0100
-@@ -351,7 +351,7 @@ void do_new_sigreturn32(struct pt_regs *
- 	sf = (struct new_signal_frame32 __user *) regs->u_regs[UREG_FP];
- 
- 	/* 1. Make sure we are not getting garbage from the user */
--	if (verify_area(VERIFY_READ, sf, sizeof(*sf))	||
-+	if (!access_ok(VERIFY_READ, sf, sizeof(*sf)) ||
- 	    (((unsigned long) sf) & 3))
- 		goto segv;
- 
-@@ -436,7 +436,7 @@ asmlinkage void do_sigreturn32(struct pt
- 	scptr = (struct sigcontext32 __user *)
- 		(regs->u_regs[UREG_I0] & 0x00000000ffffffffUL);
- 	/* Check sanity of the user arg. */
--	if (verify_area(VERIFY_READ, scptr, sizeof(struct sigcontext32)) ||
-+	if (!access_ok(VERIFY_READ, scptr, sizeof(struct sigcontext32)) ||
- 	    (((unsigned long) scptr) & 3))
- 		goto segv;
- 
-@@ -504,7 +504,7 @@ asmlinkage void do_rt_sigreturn32(struct
- 	sf = (struct rt_signal_frame32 __user *) regs->u_regs[UREG_FP];
- 
- 	/* 1. Make sure we are not getting garbage from the user */
--	if (verify_area(VERIFY_READ, sf, sizeof(*sf))	||
-+	if (!access_ok(VERIFY_READ, sf, sizeof(*sf)) ||
- 	    (((unsigned long) sf) & 3))
- 		goto segv;
- 
+	Jeff
 
 

@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264932AbUFHJVr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264911AbUFHJdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264932AbUFHJVr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 05:21:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264929AbUFHJV3
+	id S264911AbUFHJdV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 05:33:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUFHJdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 05:21:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:2746 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264916AbUFHJVP (ORCPT
+	Tue, 8 Jun 2004 05:33:21 -0400
+Received: from gate.corvil.net ([213.94.219.177]:11015 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S264911AbUFHJdU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 05:21:15 -0400
-Date: Tue, 8 Jun 2004 05:20:55 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Mike McCormack <mike@codeweavers.com>, Ingo Molnar <mingo@elte.hu>,
+	Tue, 8 Jun 2004 05:33:20 -0400
+Message-ID: <40C58781.1060200@draigBrady.com>
+Date: Tue, 08 Jun 2004 10:31:45 +0100
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel Egger <de@axiros.com>
+CC: David Woodhouse <dwmw2@infradead.org>, cijoml@volny.cz,
        linux-kernel@vger.kernel.org
-Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-Message-ID: <20040608092055.GX4736@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <40C2B51C.9030203@codeweavers.com> <20040606052615.GA14988@elte.hu> <40C2D5F4.4020803@codeweavers.com> <1086507140.2810.0.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1086507140.2810.0.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.4.1i
+Subject: Re: jff2 filesystem in vanilla
+References: <200406041000.41147.cijoml@volny.cz> <F84CE3DA-B605-11D8-B781-000A958E35DC@axiros.com> <1086390590.4588.70.camel@imladris.demon.co.uk> <3F4B6D09-B6CA-11D8-B781-000A958E35DC@axiros.com>
+In-Reply-To: <3F4B6D09-B6CA-11D8-B781-000A958E35DC@axiros.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 06, 2004 at 09:32:21AM +0200, Arjan van de Ven wrote:
-> On Sun, 2004-06-06 at 10:29, Mike McCormack wrote:
-> > Hi Ingo,
-> > 
-> > Ingo Molnar wrote:
-> > 
-> > > there are multiple methods in FC1 to turn this off:
-> > > 
-> > > - FC1 has PT_GNU_STACK support and all binaries that have no
-> > >   PT_GNU_STACK program header will have the stock Linux VM layout. 
-> > >   (including executable stack/heap) So by stripping the PT_GNU_STACK 
-> > >   header from the wine binary you get this effect.
-> > 
-> > As far as we can tell, this alone does not stop the kernel from loading 
-> > stuff at the addresses we need.  Even without PT_GNU_STACK ld-linux.so.2 
-> > and libc are loaded below 0x01000000, which is the region that Wine 
-> > assumes is free.  I think this may be due to prelinking...
+Daniel Egger wrote:
+> Believe it or not but JFFS2 is the only filesystem that works
+> reasonably on CF, especially when the system is used mostly read
+> only and the device is cut off from power every now and then. ;)
 > 
-> that is prelink yes, not the kernel execshield.
+> I tried different FS which we used read-only (and remounted it
+> r/w in case we needed it) in the last tries but we still were
+> able to kill a card without a problem and had FS corruption which
+> needed a console to fix.
 
-But prelink only allocates in the area below executable if
-/proc/sys/kernel/exec-shield exist (and only for i386; there is also
---exec-shield/--no-exec-shield to override).
+Can you give more detail on how you were able to "kill a card".
+Were there hot spots in those filesystems?
 
-Really the most safe way for Wine is to create a PT_LOAD segment with
-p_flags 0 covering the whole area below the executable.  The kernel first
-maps the executable, then the dynamic linker, so no matter what address
-are ld.so and shared libraries prelinked to, they will not be mapped to the
-area Wine reserves.
-Unfortunately, there is no easy way in ld to create the segment ATM,
-see http://sources.redhat.com/ml/binutils/2003-12/msg00211.html
-In current binutils, perhaps creating a special linker script from the
-default on the fly and assigning segments there could work, but maybe
-far easier would be to just create one allocated PT_LOAD segment somewhere
-and using libelf change it's location and p_flags.
-
-Making Wine a PIE is also a possible solution (at least in FC2 for
-non-prelinked PIEs kernel doesn't honor ld.so's prelinked address), but
-then you cannot be sure the kernel doesn't choose the addresses Wine wishes
-to reserve while randomizing.
-
-	Jakub
+Pádraig.

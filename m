@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318392AbSHGN5W>; Wed, 7 Aug 2002 09:57:22 -0400
+	id <S317980AbSHGOKa>; Wed, 7 Aug 2002 10:10:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318423AbSHGN5W>; Wed, 7 Aug 2002 09:57:22 -0400
-Received: from [212.3.242.3] ([212.3.242.3]:40176 "HELO mail.vt4.net")
-	by vger.kernel.org with SMTP id <S318392AbSHGN5W>;
-	Wed, 7 Aug 2002 09:57:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: Chris Chabot <chabotc@xs4all.nl>
-Subject: Re: Why 'mrproper'?
-Date: Wed, 7 Aug 2002 15:58:51 +0200
-User-Agent: KMail/1.4.1
-References: <Pine.LNX.4.33.0208070851230.2421-100000@iccarus.tmr.com> <3D511E23.8020902@xs4all.nl>
-In-Reply-To: <3D511E23.8020902@xs4all.nl>
+	id <S318035AbSHGOKa>; Wed, 7 Aug 2002 10:10:30 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:58617 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317980AbSHGOK3>; Wed, 7 Aug 2002 10:10:29 -0400
+Subject: Re: PROBLEM: kernel BUG at page_alloc.c:117!
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Sergio Avila <sergio@evoto.org>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208071558.51884.devilkin-lkml@blindguardian.org>
+In-Reply-To: <200208071509.30398.sergio@evoto.org>
+References: <200208071509.30398.sergio@evoto.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 07 Aug 2002 16:33:29 +0100
+Message-Id: <1028734409.18478.302.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 August 2002 15:18, Chris Chabot wrote:
-> It was named such at the time, as a 'cleaning agent' comparible to 'Mr
-> Muscle', etc.. Thus mrproper _realy_ cleans the kernel tree ;-)
+On Wed, 2002-08-07 at 14:09, Sergio Avila wrote:
+> [1.] One line summary of the problem:
+> 
+>         kernel BUG at page_alloc.c:117!
 
-LOL. And to add to this, here in Belgium where I live, we have a product that 
-is actually called 'Mr. Proper' and it is a cleaning agent.
+>         Aug  7 04:17:25 lordvaider kernel: NVRM: AGPGART: freed 16 
+> pages
+>         Aug  7 04:17:25 lordvaider kernel: NVRM: AGPGART: backend 
 
-DK
-
--- 
-Oh, when I was in love with you,
-	Then I was clean and brave,
-And miles around the wonder grew
-	How well did I behave.
-
-And now the fancy passes by,
-	And nothing will remain,
-And miles around they'll say that I
-	Am quite myself again.
-		-- A. E. Housman
+Please report this to Nvidia. The linux community does not support or
+care about bugs reported on any boot when their binary only modules have
+been loaded
 

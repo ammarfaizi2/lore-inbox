@@ -1,49 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284460AbRLJRAr>; Mon, 10 Dec 2001 12:00:47 -0500
+	id <S286308AbRLJRBr>; Mon, 10 Dec 2001 12:01:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286308AbRLJRAi>; Mon, 10 Dec 2001 12:00:38 -0500
-Received: from colorfullife.com ([216.156.138.34]:52751 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S284460AbRLJRA1>;
-	Mon, 10 Dec 2001 12:00:27 -0500
-Message-ID: <3C14EA26.5060306@colorfullife.com>
-Date: Mon, 10 Dec 2001 18:00:22 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S286313AbRLJRB2>; Mon, 10 Dec 2001 12:01:28 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49673 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286311AbRLJRBV>; Mon, 10 Dec 2001 12:01:21 -0500
+Subject: Re: Linux/Pro  -- clusters
+To: viro@math.psu.edu (Alexander Viro)
+Date: Mon, 10 Dec 2001 17:09:43 +0000 (GMT)
+Cc: Andries.Brouwer@cwi.nl, torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0112101136490.14238-100000@binet.math.psu.edu> from "Alexander Viro" at Dec 10, 2001 11:49:36 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Jack Steiner <steiner@sgi.com>
-CC: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] [RFC] [PATCH] Scalable Statistics Counters
-In-Reply-To: <200112101633.KAA45958@fsgi055.americas.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16DTvz-0002dr-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jack Steiner wrote:
+> It's _way_ easier than trying to fix leaks and dangling pointers in
+> the fuzzy code we'd get with your approach.  Just look at the fun
+> Richard has with devfs right now.
 
->
->BTW, I think Tony Luck (at Intel) is currently changing the slab allocator 
->to be numa-aware. Are coordinating your work with his???
->
+And it means we can get proper refcounting. Which as the maintainer of
+two block drivers that support dynamic volume create/destroy is remarkably
+good news.
 
-Thanks, I wasn't aware that he's working on it.
-I haven't started coding, I'm still collecting what's needed.
-
-* force certain alignments. e.g. ARM needs 1024 byte aligned objects for 
-the page tables.
-* NUMA support.
-* Add a "priority" to kmem_cache_shrink, to avoid that every 
-dcache/icache shrink causes an IPI to all cpus.
-* If possible: replace the division in kmem_cache_free_one with the 
-multiplication by the reciprocal. (I have a patch, but it's too ugly for 
-inclusion). Important for uniprocessor versions.
-* add reservation support - e.g. there must be a minimum amount of bio 
-structures available, otherwise the kernel could oom-deadlock. They must 
-be available, not hidden in the per-cpu caches of the other cpus.
-
---
-    Manfred
-
-
+Alan

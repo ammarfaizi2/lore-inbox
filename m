@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315264AbSDWRQQ>; Tue, 23 Apr 2002 13:16:16 -0400
+	id <S315265AbSDWRQa>; Tue, 23 Apr 2002 13:16:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315265AbSDWRQP>; Tue, 23 Apr 2002 13:16:15 -0400
-Received: from zero.tech9.net ([209.61.188.187]:9234 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S315264AbSDWRQN>;
-	Tue, 23 Apr 2002 13:16:13 -0400
-Subject: Re: exporting task_nice in O(1)-sched
-From: Robert Love <rml@tech9.net>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020423152749.GC1697@werewolf.able.es>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 23 Apr 2002 13:15:45 -0400
-Message-Id: <1019582164.1465.110.camel@phantasy>
-Mime-Version: 1.0
+	id <S315267AbSDWRQ3>; Tue, 23 Apr 2002 13:16:29 -0400
+Received: from exchange.macrolink.com ([64.173.88.99]:42769 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S315265AbSDWRQ1>; Tue, 23 Apr 2002 13:16:27 -0400
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A77B0@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'James L Peterson'" <peterson@austin.ibm.com>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: RE: PowerPC Linux and PCI
+Date: Tue, 23 Apr 2002 10:16:16 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-04-23 at 11:27, J.A. Magallon wrote:
- 
-> Found this building bproc. New O(1) scheduler kills the nice field in
-> task struct. It gives a way to fix the niceness (set_user_nice()), but
-> the funtion to _query_ is not exported. Any particular reason ?
+James L Peterson wrote: 
+> 
+> "David S. Miller" wrote:
+> > 
+> > An important point to mention is that big endian systems need to do
+> > byte twisting in the PCI controller for all the byte-lane issues to
+> > work out properly.
+> 
+> What does this mean?  This suggests that PCI controller for
+> big-endian systems are not interchangeable with PCI controllers
+> for little-endian systems, because the controller itself does
+> byte swapping (is that what you mean by "byte twisting"?)
 
-Probably because Ingo intended to hide as many interfaces to the
-scheduler as possible and only export those symbols that were needed.
+I think David's reference is to the system's PCI subsystem/interface rather
+than to the PCI cards plugged into it.
 
-It is safe to export if it is needed.
+Ed Vance
 
-	Robert Love
+---------------------------------------------------------------- 
+Ed Vance              edv@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------
 

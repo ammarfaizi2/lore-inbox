@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318791AbSHGSUr>; Wed, 7 Aug 2002 14:20:47 -0400
+	id <S318794AbSHGSUg>; Wed, 7 Aug 2002 14:20:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318793AbSHGSUn>; Wed, 7 Aug 2002 14:20:43 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30469 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318791AbSHGSTi>;
-	Wed, 7 Aug 2002 14:19:38 -0400
-Date: Wed, 7 Aug 2002 19:23:14 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "David S. Miller" <davem@redhat.com>, george@mvista.com, willy@debian.org,
-       kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-Subject: Re: softirq parameters
-Message-ID: <20020807192314.H24631@parcelfarce.linux.theplanet.co.uk>
-References: <20020804172650.N24631@parcelfarce.linux.theplanet.co.uk> <3D4D668F.3A29DD10@mvista.com> <20020804.223746.89817190.davem@redhat.com> <20020807152423.3577a5cc.rusty@rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020807152423.3577a5cc.rusty@rustcorp.com.au>; from rusty@rustcorp.com.au on Wed, Aug 07, 2002 at 03:24:23PM +1000
+	id <S318796AbSHGSUg>; Wed, 7 Aug 2002 14:20:36 -0400
+Received: from mailgw3a.lmco.com ([192.35.35.7]:49678 "EHLO mailgw3a.lmco.com")
+	by vger.kernel.org with ESMTP id <S318794AbSHGSUL>;
+	Wed, 7 Aug 2002 14:20:11 -0400
+Content-return: allowed
+Date: Wed, 07 Aug 2002 14:22:05 -0400
+From: "Reed, Timothy A" <timothy.a.reed@lmco.com>
+Subject: Hyperthreading Options in 2.4.19
+To: "Linux Kernel ML (E-mail)" <linux-kernel@vger.kernel.org>
+Message-id: <9EFD49E2FB59D411AABA0008C7E675C009D8DEE3@emss04m10.ems.lmco.com>
+MIME-version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 07, 2002 at 03:24:23PM +1000, Rusty Russell wrote:
-> Partially agree.  Removing all args might be worthwhile.  But all these
-> softirqs use the "cpu" arg to access per-cpu data, which should be
-> changed to use the per_cpu_data mechanism anyway, which removes the
-> point of the arg.
+Hello All,
+	I am going rounds with a sub-contractor of ours about what options
+should and should not be compiled into the kernel in order for
+Hyperthreading to work.  Can anyone make any suggestions and comments to the
+options (below)  that I am planning on enforcing:
+	MSR
+	MTRR
+	CPUID
 
-I see.  That makes a lot of sense.
+	Lilo.conf : acpismp=force?? 
 
-> Things haven't been changed over because I haven't pushed the per-cpu
-> interface changes (required for some archs 8() to Linus yet.  But you'll
-> want them so we can save space (you only need allocate per-cpu data for
-> cpus where cpu_possible(i) is true).
+	Are the following worth any thing of value to Hyperthreading:
+	Microcode
+	ACPI
 
-So what we want is something more like:
+TIA
 
-struct softnet_data softnet_data __per_cpu_data = { NULL };
+Timothy Reed
+Software Engineer/Systems Administrator
+Lockheed Martin - NE & SS Syracuse
+Email: timothy.a.reed@lmco.com
 
-static void void net_tx_action(void *arg)
-{
-	struct softnet_data *data = arg;
-	if (arg->completion_queue) {
-	...
-}
-
-	open_softirq(NET_TX_SOFTIRQ, net_tx_action, softnet_data);
-
-and have kernel/softirq.c do:
-
-                do {
-                        if (pending & 1)
-                                h->action(this_cpu(h->data));
-                        h++;
-                        pending >>= 1;
-                } while (pending);
-
-right?
-
--- 
-Revolutions do not require corporate support.

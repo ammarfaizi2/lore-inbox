@@ -1,76 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316857AbSHJMCK>; Sat, 10 Aug 2002 08:02:10 -0400
+	id <S316860AbSHJMCp>; Sat, 10 Aug 2002 08:02:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316860AbSHJMCK>; Sat, 10 Aug 2002 08:02:10 -0400
-Received: from purple.csi.cam.ac.uk ([131.111.8.4]:30646 "EHLO
-	purple.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S316857AbSHJMCJ>; Sat, 10 Aug 2002 08:02:09 -0400
-Message-Id: <5.1.0.14.2.20020810125310.00ae3690@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 10 Aug 2002 13:05:59 +0100
-To: "David S. Miller" <davem@redhat.com>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: [patch 1/12] misc fixes
-Cc: akpm@zip.com.au, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20020809.182433.69288385.davem@redhat.com>
-References: <3D54647C.DB6DE08A@zip.com.au>
- <3D54647C.DB6DE08A@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S316878AbSHJMCp>; Sat, 10 Aug 2002 08:02:45 -0400
+Received: from tomts16.bellnexxia.net ([209.226.175.4]:37117 "EHLO
+	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S316860AbSHJMCl>; Sat, 10 Aug 2002 08:02:41 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: "Kingsley G. Morse Jr." <change@nas.com>
+Subject: Re: What obvious symptoms addressed by the slablru patch?
+Date: Sat, 10 Aug 2002 08:06:01 -0400
+User-Agent: KMail/1.4.2
+References: <20020809192530.A7098@debian1.loaner.com>
+In-Reply-To: <20020809192530.A7098@debian1.loaner.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208100806.01828.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:24 10/08/02, David S. Miller wrote:
->    From: Andrew Morton <akpm@zip.com.au>
->    Date: Fri, 09 Aug 2002 17:55:24 -0700
+HI Kingsley
+
+You wrote:
 >
->    - `retval' should not be initialised to "~0UL" because that is
->      0x00000000ffffffff with 64-bit sector_t.
+>     If you are having slab memory problems or
+>     dcache/icache get too large and seen not to be
+>     pruned 'correctly' - This patch may well help.
 >
->'0' defaults to 'int' on 32-bit systems so ~0 isn't right either.
+> and
 >
->What I think you really want is "~(sector_t) 0".
+>     Feedback very welcome
+>
+> Can you elaborate on what:
+>
+>     slab memory problems and
+>
+>     dcache/icache
+>
+>         getting too large and
+>         not being pruned 'correctly'
+>
+> look like to an end user?
 
-Actually, ~0 is fine. This is because of the associativity of events 
-happening. Breaking it down into individual ops as the compiler sees it:
+Without slablru on a lightly loaded box you would see memory 'disappear'
+ie. vmstat would show the free/buf/cache numbers decreasing.   If you
+then looked at /proc/slabinfo you would see some caches (usually inode
+and dentry) using lots of memory.  This memory eventually will get reclaimed
+when we get vm pressure.  With out slablru this pressure comes too late
+and is often caused by slab caches instead of real world loads...
 
-1) constant 0 -> int type
-2) ~0 -> (int)-1
-3) assign to larger type sector_t -> sign extend smaller type to size of 
-larger type -> (sector_t)-1
+What slablru does basicly is sync the shrinking of slab caches with the
+rest of the vm.  So if you allocate lots of slab pages (like during an updatedb
+run) the vm takes this into account and even with low vm pressure starts
+trimming caches.  This means that, while slab caches can still get large, the
+vm will trim them at the same rate it does other pages.  It no longer waits
+until too long to do so.
 
-Therefore not specifying anything after the initial constant definition 
-_always_ works because of sign extension and the order of evaluation which 
-is guaranteed by the C language.
+One small detail in slablru.  There are currently two types of slab caches.
+Those that free slabs directly and those that age their slabs before freeing
+them.  The dcache (dentries) and inode caches age their members.  This
+also contributed to the above problem.  The stock kernel ages and 
+shrinks at the same time.  slablru factors out aging and shrinking.  This
+helps keep these caches using their fair share (which can be large) of
+the systems resources.
 
-OTOH if you hard code 0U or 0L or 0UL or whatever it breaks because it 
-forces the compiler not to sign extend and assume this to be a hardvalue, 
-which is zero extended.
-
-Note I just tried all possible combinations with a little test program and 
-both assignments and binary operators work as expected (with sign 
-extension) when the constant is given without qualifiers and both break 
-horribly (no sign extension) when the constant is given with qualifiers.
-
-I did this testing for another reason, and that is PAGE_MASK and 
-PAGE_CACHE_MASK which break when used for 64-bit values on 32-bit 
-architectures exactly for the above outlined reasons.
-
-If no one beats me to it I will submit a patch to change PAGE_SIZE (and 
-thus automatically PAGE_CACHE_SIZE) on all architectures to no longer use 
-the "UL" type qualifier which is responsible for the breakage. This 
-supersedes my previous ugly patch introducing a PAGE_{CACHE_,}MASK_LL...
-
-Best regards,
-
-         Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Ed Tomlinson
 

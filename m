@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312418AbSDNTEz>; Sun, 14 Apr 2002 15:04:55 -0400
+	id <S312419AbSDNTHK>; Sun, 14 Apr 2002 15:07:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312419AbSDNTEy>; Sun, 14 Apr 2002 15:04:54 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:29706 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S312418AbSDNTEx>;
-	Sun, 14 Apr 2002 15:04:53 -0400
-Date: Sun, 14 Apr 2002 11:04:33 -0700
-From: Greg KH <greg@kroah.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.8-pre3 full compile - warnings
-Message-ID: <20020414180433.GB18238@kroah.com>
-In-Reply-To: <1605.1018774441@ocs3.intra.ocs.com.au> <2425212891.1018783655@[10.10.2.3]>
-Mime-Version: 1.0
+	id <S312420AbSDNTHJ>; Sun, 14 Apr 2002 15:07:09 -0400
+Received: from inje.iskon.hr ([213.191.128.16]:12995 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S312419AbSDNTHI>;
+	Sun, 14 Apr 2002 15:07:08 -0400
+To: Don Dupuis <ddupuissprint@earthlink.net>
+Cc: linux-kernel@vger.kernel.org, "Stephen C. Tweedie" <sct@redhat.com>,
+        Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: sard/iostat disk I/O statistics/accounting for 2.5.8-pre3
+In-Reply-To: <dnu1qia3zg.fsf@magla.zg.iskon.hr>
+	<1018578201.4395.22.camel@linux-ath.linux.dev.com>
+Reply-To: zlatko.calusic@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Date: Sun, 14 Apr 2002 21:06:44 +0200
+Message-ID: <dnit6um75n.fsf@magla.zg.iskon.hr>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Common Lisp,
+ i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sun, 17 Mar 2002 15:53:12 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 14, 2002 at 11:27:36AM -0700, Martin J. Bligh wrote:
-> > Although everything compiled, it did not link because of missing symbols.
-> > 
-> > arch/i386/kernel/pci-pc.o: In function `pci_conf1_read':
-> > arch/i386/kernel/pci-pc.o(.text+0xa3): undefined reference to
-> > `mp_bus_id_to_local' arch/i386/kernel/pci-pc.o: In function
-> > `pci_conf1_write':
-> > arch/i386/kernel/pci-pc.o(.text+0x2c3): undefined reference to
-> > `mp_bus_id_to_local' arch/i386/kernel/pci-pc.o: In function
-> > `pci_fixup_i450nx':
-> > arch/i386/kernel/pci-pc.o(.text+0x1c01): undefined reference to
-> > `quad_local_to_mp_bus_id' arch/i386/kernel/pci-pc.o(.text+0x1c28):
-> > undefined reference to `quad_local_to_mp_bus_id'
-> > arch/i386/kernel/pci-pc.o: In function `pcibios_init':
-> > arch/i386/kernel/pci-pc.o(.text.init+0xbd): undefined reference to
-> > `quad_local_to_mp_bus_id' drivers/video/neofb.o: In function
-> > `neofb_setup':
-> 
-> Looks like someone screwed up arch/i386/kernel/mpparse.c 
-> between pre2 and pre3 - at a glance, it looked like someone
-> took an old version of the file without my changes to support
-> multi-quad PCI on NUMA-Q, and hacked it forward without changing
-> it properly ... 
+Don Dupuis <ddupuissprint@earthlink.net> writes:
 
-In looking at the changesets, it seems that the offending party is the
-ACPI group.  I'd go complain to them :)
+> I have a program called cspm at http://sourceforge.net/projects/cspm
+> that uses Stephen's sard patches.  This program allows showing stats on
+> all disks, controllers, and on a systemwide basis.  It will show ios,
+> uses, merges, and blocks per second.  This program was written in QT.
+> Please have a look at it and provide some feedback.
+>
 
-greg k-h
+After having lots of problems with Qt 3.0, I finally managed to
+install it on my Debian. Then I had to correct one bug in your source
+to get it to compile, and now it just coredumps like it has a problem
+when parsing /proc/partitions (as open() of that file is last thing
+before it dies with segmentation fault).
+
+I would like to try it, but didn't have much luck so far.
+-- 
+Zlatko

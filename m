@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267306AbUHDGpV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267285AbUHDGq3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267306AbUHDGpV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 02:45:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267313AbUHDGpJ
+	id S267285AbUHDGq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 02:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267302AbUHDGq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 02:45:09 -0400
-Received: from 80.58.55.42.proxycache.rima-tde.net ([80.58.55.42]:30435 "HELO
-	vger.kernel.org") by vger.kernel.org with SMTP id S267303AbUHDGo4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 02:44:56 -0400
-To: <linux-kernel@vger.kernel.org>
-From: "joaquin" <mmirtceli@yahoo.com>
-Date: Wed, 04 Aug 2004 06:51:01 GMT
-Message-Id: <1091602261-30089@yahoo.com>
-Subject: UPS Shipped Drugs!  No Prescription!
-X-Mailer: gray redwing
+	Wed, 4 Aug 2004 02:46:29 -0400
+Received: from mail003.syd.optusnet.com.au ([211.29.132.144]:36500 "EHLO
+	mail003.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S267285AbUHDGqE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 02:46:04 -0400
+References: <34840234.20040804074326@dns.toxicfilms.tv>
+Message-ID: <cone.1091601947.196990.9775.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Scheduler policies for staircase
+Date: Wed, 04 Aug 2004 16:45:47 +1000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What do you pay now?
+Maciej Soltysiak writes:
 
-If you pay more than these prices, maybe you should click this link....
-http://www.dfjndfv.com/_85924943b9db73ac62baa654773c6a8e/5
+> Con,
+> 
+> I have been using SCHED_BATCH on two machines now with expected
+> results. So this you might consider this as another success report :-)
 
-VALIUM - $2 a pill! (Anti-Depressant)
-SOMA - $3 a pill! (Pain Relief)
-XANAX - $1.70 a pill! (Anti-Depressant)
-LIPITOR - $3.50 a pill! (Cholesterol Control)
-ZYBAN - $3 a pill! (Stop Smoking)
-ZOLOFT - $2 a pill! (Anti-Depressant)
-PAXIL - $3 a pill! (Anti-Depressant)
-PROZAC - $2 a pill! (Anti-Depressant)
-GLUCOPHAGE - 70 cents a pill! (Diabetes)
-MERIDIA - $2.50 a pill! (Weight Loss)
-VIOXX - $1 a pill! (Pain Relief)
-CELEBREX - $2 a pill! (Pain Relief)
-XENICAL - $2.50 a pill! (Weight Loss)  
+Great. Thanks for the report. I too use them all day every day on each 
+machine I have with distributed computing clients so they're pretty well 
+tested.
 
-http://www.dfjndfv.com/_85924943b9db73ac62baa654773c6a8e/5
+> Do you think that these schedulers could come into the mainline
+> soon? Would you submit them to Linus without the staircase scheduler
+> or would you rather wait for the whole bunch of changes to get
+> rock-stable ?
 
+It could easily be modified to suit the current scheduler. Obviously I want 
+my scheduler to be considered for mainline at some stage in the future but 
+there needs to be a good reason for that to occur, and the 12 other 
+schedulers out there need to also be tested (we better hurry up or it could 
+be twice that soon :P). At this stage I'll hold onto these patches and see 
+what happens. I'd rather not have to rewrite it to suit the current 
+scheduler and go through all the bugtesting again since there isn't a 
+burning need for this scheduler policy in mainline at the moment. The 
+lack of a large amount of feedback about staircase shows that most people 
+aren't really interested in the cpu scheduler at the moment anyway.
 
+Cheers,
+Con
 
-
-
-
-
-
-
-master1 hornetmailman promethe kitty metallic bfi miranda 
-meow tintinmetallica lorraine safety
-orchid cutie fozzie 

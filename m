@@ -1,75 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVAaVkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVAaVpK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbVAaVkH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 16:40:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbVAaVkG
+	id S261381AbVAaVpK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 16:45:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbVAaVpK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 16:40:06 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:44493 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261385AbVAaVjk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 16:39:40 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Ralf Baechle <ralf@linux-mips.org>
-Subject: Re: [PATCH] Fix SERIAL_TXX9 dependencies
-Date: Mon, 31 Jan 2005 22:29:45 +0100
-User-Agent: KMail/1.6.2
-Cc: Atsushi Nemoto <anemo@mba.ocn.ne.jp>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, bunk@stusta.de
-References: <20050129131134.75dacb41.akpm@osdl.org> <200501312123.11451.arnd@arndb.de> <20050131205342.GA11238@linux-mips.org>
-In-Reply-To: <20050131205342.GA11238@linux-mips.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_JNq/BxxIqEcB8Nf";
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200501312229.45780.arnd@arndb.de>
+	Mon, 31 Jan 2005 16:45:10 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2574 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261381AbVAaVpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 16:45:06 -0500
+Date: Mon, 31 Jan 2005 22:45:03 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jonathan@buzzard.org.uk, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove subscribers-only tlinux-users address
+Message-ID: <20050131214503.GE21437@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It's generally agreed that subscribers-only mailing lists shouldn't be 
+listed in MAINTAINERS (since it's impossible to send a simple Cc to such 
+a list).
 
---Boundary-02=_JNq/BxxIqEcB8Nf
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-On Maandag 31 Januar 2005 21:53, Ralf Baechle wrote:
-> As for the TX3912 issue, there is no remaining user so that driver would
-> now be continuing to suffer from accelerated bitrot.
+---
 
-Does this mean that all tx3912 support is deprecated? In that case, you
-could remove even more code:
+This patch was already sent on:
+- 6 Dec 2004
+- 20 Dec 2004
 
- arch/mips/mm/c-tx39.c     |  123 +++------------
- arch/mips/mm/cache.c      |    1
- drivers/video/Kconfig     |    9 -
- drivers/video/Makefile    |    1
- drivers/video/tx3912fb.c  |  328 -----------------------------------------
- include/asm-mips/tx3912.h |  361 ----------------------------------------------
- include/video/tx3912.h    |   62 -------
- 7 files changed, 24 insertions(+), 861 deletions(-)
+--- linux-2.6.10-rc2-mm4-full/MAINTAINERS.old	2004-12-06 19:40:38.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/MAINTAINERS	2004-12-06 19:40:54.000000000 +0100
+@@ -2188,7 +2188,6 @@
+ TOSHIBA SMM DRIVER
+ P:	Jonathan Buzzard
+ M:	jonathan@buzzard.org.uk
+-L:	tlinux-users@tce.toshiba-dme.co.jp
+ W:	http://www.buzzard.org.uk/toshiba/
+ S:	Maintained
+ 
 
-> Akpm has in
-> the meantime sent the patches to Linus, so what's left would be renaming
-> the driver, as per your suggestion.
-
-If it's already merged, it's probably not worth the extra moving around.
-
-	Arnd <><
-
---Boundary-02=_JNq/BxxIqEcB8Nf
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBB/qNJ5t5GS2LDRf4RAjT1AJ0QZQhtmxeEJwGsp5zsc888AUqweQCggHXP
-VAW2Bp6QElzSELY7AgnqX7c=
-=5LHn
------END PGP SIGNATURE-----
-
---Boundary-02=_JNq/BxxIqEcB8Nf--

@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314584AbSFOTYQ>; Sat, 15 Jun 2002 15:24:16 -0400
+	id <S315472AbSFOTcr>; Sat, 15 Jun 2002 15:32:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315471AbSFOTYP>; Sat, 15 Jun 2002 15:24:15 -0400
-Received: from holomorphy.com ([66.224.33.161]:7595 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S314584AbSFOTYP>;
-	Sat, 15 Jun 2002 15:24:15 -0400
-Date: Sat, 15 Jun 2002 12:23:57 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
+	id <S315479AbSFOTcq>; Sat, 15 Jun 2002 15:32:46 -0400
+Received: from smtp02do.de.uu.net ([192.76.144.69]:25331 "EHLO
+	smtp02do.de.uu.net") by vger.kernel.org with ESMTP
+	id <S315472AbSFOTcq>; Sat, 15 Jun 2002 15:32:46 -0400
+From: Ulrich Pfeifer <pfeifer@wait.de>
 To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Subject: beautify nr_free_pages()
-Message-ID: <20020615192357.GR25360@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Mime-Version: 1.0
+Subject: 2.4.17: Cramfs fixes + mtime
+In-Reply-To: <p5r8jfshpd.fsf@hentai.de.uu.net>
+Date: 15 Jun 2002 21:32:42 +0200
+Message-ID: <p5u1o4qqw5.fsf@hentai.de.uu.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nr_free_pages() is overly verbose. The following is perhaps clearer and
-gets to the point with fewer lines of code and inside of 80 columns.
+Hello,
 
-Against 2.5.21
+some more work on the cramfs patch:
 
++ mkcramfs can detect hard linked files again.  Duplicate files are
+  not detected - I don't think that is of much use.
 
-Cheers,
-Bill
++ support for uncompressed files fixed.  Did not work to reliable
+  before.
 
++ added a flag (-a 0.95) to mkcramfs to automatically XIP files (store
+  them uncompressed) if the compression ration is below the specified
+  limit.
 
+Here is the patch:
 
-===== mm/page_alloc.c 1.67 vs edited =====
---- 1.67/mm/page_alloc.c	Mon Jun  3 08:25:10 2002
-+++ edited/mm/page_alloc.c	Sat Jun 15 12:10:41 2002
-@@ -495,16 +495,13 @@
-  */
- unsigned int nr_free_pages(void)
- {
--	unsigned int sum;
--	zone_t *zone;
--	pg_data_t *pgdat = pgdat_list;
-+	unsigned int i, sum = 0;
-+	pg_data_t *pgdat;
-+
-+	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
-+		for (i = 0; i < MAX_NR_ZONES; ++i)
-+			sum += pgdat->node_zones[i].free_pages;
- 
--	sum = 0;
--	while (pgdat) {
--		for (zone = pgdat->node_zones; zone < pgdat->node_zones + MAX_NR_ZONES; zone++)
--			sum += zone->free_pages;
--		pgdat = pgdat->node_next;
--	}
- 	return sum;
- }
- 
+  http://www.wait.de/agenda/cramfs+mtime-2.4.17.patch-2.gz (16k)
+
+This time the URL does really work.
+
+Ulrich Pfeifer

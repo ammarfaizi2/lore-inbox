@@ -1,89 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263918AbRFEIhf>; Tue, 5 Jun 2001 04:37:35 -0400
+	id <S263922AbRFEIqq>; Tue, 5 Jun 2001 04:46:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263804AbRFEIhZ>; Tue, 5 Jun 2001 04:37:25 -0400
-Received: from cx595243-c.okc1.ok.home.com ([24.6.27.53]:46751 "EHLO
-	quark.localdomain") by vger.kernel.org with ESMTP
-	id <S263918AbRFEIhO>; Tue, 5 Jun 2001 04:37:14 -0400
-From: Vincent Stemen <linuxkernel@AdvancedResearch.org>
-Date: Tue, 5 Jun 2001 03:37:03 -0500
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-To: Nick Urbanik <nicku@vtc.edu.hk>,
-        Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <3B1C8C1B.E3946FE1@vtc.edu.hk>
-In-Reply-To: <3B1C8C1B.E3946FE1@vtc.edu.hk>
-Subject: Re: Cannot mount old ext2 cdrom, but e2fsck shows no problems
-MIME-Version: 1.0
-Message-Id: <01060503370300.10504@quark>
+	id <S263924AbRFEIqg>; Tue, 5 Jun 2001 04:46:36 -0400
+Received: from t2.redhat.com ([199.183.24.243]:38129 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S263922AbRFEIqX>; Tue, 5 Jun 2001 04:46:23 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <15132.22933.859130.119059@pizda.ninka.net> 
+In-Reply-To: <15132.22933.859130.119059@pizda.ninka.net>  <13942.991696607@redhat.com> <3B1C1872.8D8F1529@mandrakesoft.com> <15132.15829.322534.88410@pizda.ninka.net> <20010605155550.C22741@metastasis.f00f.org> 
+To: "David S. Miller" <davem@redhat.com>
+Cc: Chris Wedgwood <cw@f00f.org>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        bjornw@axis.com, linux-kernel@vger.kernel.org,
+        linux-mtd@lists.infradead.org
+Subject: Re: Missing cache flush. 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: 8bit
+Date: Tue, 05 Jun 2001 09:46:09 +0100
+Message-ID: <25587.991730769@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 June 2001 02:36, Nick Urbanik wrote:
-> Dear folks,
->
-> I made 18 ext2 cdroms in October 1998 using an old (new at the time) Red
-> Hat system.  Now I can't mount them.  e2fsck shows no problems.  I also
-> can dd them to a file, then mount the file.  But I want to be able to
-> simply access them directly.  Current system: RH 7.1 with all updates.
->
-> Sorry, I can't remember the exact command I used to create the images.
->
-> I also want to better understand the output of dumpe2fs, and how to
-> relate this to mount.
->
 
-I think you are running into a block size issue.  I notice your fs
-block size is only 1024.  See if you can mount it on an IDE CDROM
-drive.  I ran into the same problem with file systems with a block
-size of 1024 when using the ide-scsi module because it saw the device
-bs as being 4096.  You cannot mount a file system with block size
-smaller than the device.  I would unload the the ide-scsi modules and
-mount it as /dev/hdxx and it mounted just fine.  I started specifying
-the bs to be 4k when creating the file system to backup to CD and the
-problem went away.  The error message was deceiving.  I did not
-discover what it was until I left X windows and tried it from the
-console and finally got an error relating to block size.
+davem@redhat.com said:
+> Chris Wedgwood writes:
+> > What if the memory is erased underneath the CPU being aware of
+> > this? In such a way ig generates to bus traffic...
 
-- Vincent Stemen
+> This doesn't happen on x86.  The processor snoops all transactions
+> done by other agents to/from main memory.  The processor caches are
+> always up to date. 
 
->
->
-> $ dumpe2fs -h /dev/scd0
-> dumpe2fs 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
-> Filesystem volume name:   <none>
-> Last mounted on:          <not available>
-> Filesystem UUID:          7eb1b040-59f7-11d2-9e35-002018530df2
-> Filesystem magic number:  0xEF53
-> Filesystem revision #:    0 (original)
-> Filesystem features:     (none)
-> Filesystem state:         clean
-> Errors behavior:          Continue
-> Filesystem OS type:       Linux
-> Inode count:              166624
-> Block count:              665600
-> Reserved block count:     33280
-> Free blocks:              142206
-> Free inodes:              153910
-> First block:              1
-> Block size:               1024
-> Fragment size:            1024
-> Blocks per group:         8192
-> Fragments per group:      8192
-> Inodes per group:         2032
-> Inode blocks per group:   254
-> Last mount time:          Fri Oct  2 21:06:45 1998
-> Last write time:          Fri Oct  2 23:53:28 1998
-> Mount count:              3
-> Maximum mount count:      20
-> Last checked:             Fri Oct  2 20:57:46 1998
-> Check interval:           15552000 (6 months)
-> Next check after:         Wed Mar 31 20:57:46 1999
-> Reserved blocks uid:      0 (user root)
-> Reserved blocks gid:      0 (group root)
->
-> (I originally sent this to the Red Hat list, but there was no response).
->
+No. My original mail presented two situations in which this assumption is 
+false.
+
+1. Bank-switched RAM. You want to force a writeback before switching pages.
+   I _guarantee_ you that the CPU isn't snooping my access to the I/O port
+   which sets the latch that drives the upper few address bits of the RAM 
+   chips.
+
+2. Flash. A few writes of magic data to magic addresses and a whole erase
+   block suddenly contains 0xFF. The CPU doesn't notice that either.
+
+What I want is a function like simon_says_flush_page_to_ram(). In this 
+case, I _do_ know better than the CPU. It is _not_ coherent with these 
+devices.
+
+I'm actually working on a MIPS box at the moment - the particular problems
+with doing it on i386 don't interest me too much. To be honest, I could do
+it by sticking asm instructions inside ifdefs in what is otherwise
+arch-independent code. I'd rather not do it like that, though. 
+
+Surely stuff like that should be exported by the arch-specific code or
+include files somehow. Possibly with a #define or function I can use to tell
+whether a selective flush is actually available on the current CPU. If it's
+not possible to flush the dcache selectively, then the cost of doing a full
+flush probably outweighs the benefit¹ of running the flash cached in the
+first place. But it should still be possible to do it from arch-independent
+code without manually inserting asm instructions to do it.
+
+--
+dwmw2
+
+¹ The _assumed_ benefit, admittedly. I should get some benchmarks to back up
+the comment about molasses in arch/cris/drivers/axisflashmap.c
+
+

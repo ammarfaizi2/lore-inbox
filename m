@@ -1,63 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265932AbUHaRsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266195AbUHaRu1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265932AbUHaRsz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 13:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUHaRsz
+	id S266195AbUHaRu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 13:50:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266006AbUHaRu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 13:48:55 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:19136 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265932AbUHaRr2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 13:47:28 -0400
-Date: Tue, 31 Aug 2004 19:47:19 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@lst.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.9-rc1-mm2: why is DIGIEPCA marked BROKEN?
-Message-ID: <20040831174719.GG3466@fs.tum.de>
-References: <20040830235426.441f5b51.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 31 Aug 2004 13:50:26 -0400
+Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:31925 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S265978AbUHaRtE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 13:49:04 -0400
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: linux-kernel@vger.kernel.org, jason@stdbev.com
+Subject: Re: 2.6.9-rc1-mm2 nvidia breakage
+Date: Tue, 31 Aug 2004 14:48:55 -0300
+User-Agent: KMail/1.7
+Cc: Sid Boyce <sboyce@blueyonder.co.uk>, akpm@osdl.org
+References: <4134A5EE.5090003@blueyonder.co.uk> <d40d2dbcd4c9aaaeb94073ca00d7b3b7@stdbev.com>
+In-Reply-To: <d40d2dbcd4c9aaaeb94073ca00d7b3b7@stdbev.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040830235426.441f5b51.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200408311448.55974.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 11:54:26PM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.9-rc1-mm1:
->...
-> +mark-pcxx-as-broken.patch
-> 
->  Dead driver
->...
+Jason Munro wrote:
+> I also had to change calls to pci_find_class in nv.c to pci_get_class to
+> get the module to load with 2.6.9-rc1-mm2.
 
-<--  snip  -->
-
-From: Christoph Hellwig <hch@lst.de>
-
-It's already marked BROKEN_ON_SMP, but even a UP compile yields tons of
-errors.  While those aren't deeply complicated to fix having them for over
-a year now is a pretty good indicator no one cares.
-
-<--  snip  -->
+Yup. But KDE 3.3 doesn't load with this kernel. No oops, no crash. It just 
+hangs at "Initializing peripherals..." and stays there forever... 
 
 
-If I revert mark-pcxx-as-broken.patch, the driver compiles UP for me 
-with exactly zero errors or warnings.
-
-@Christoph:
-Could you post the errors you observed?
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Regards,
+Norberto

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271712AbTG2Psm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 11:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271811AbTG2Psm
+	id S271811AbTG2P4X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 11:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271833AbTG2P4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 11:48:42 -0400
-Received: from indianer.linux-kernel.at ([212.24.125.53]:2457 "EHLO
-	indianer.linux-kernel.at") by vger.kernel.org with ESMTP
-	id S271712AbTG2Pse convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 11:48:34 -0400
-Message-Id: <200307291546.h6TFkMBV005386@indianer.linux-kernel.at>
-From: Oliver Pitzeier <oliver@linux-kernel.at>
-To: WHarms@bfs.de, linux-kernel@vger.kernel.org
-Subject: RE: alpha; gas & linux 2.6.0-test1
-Date: Tue, 29 Jul 2003 17:47:49 +0200
-Organization: Linux Kernel Austria
-X-Mailer: Oracle Outlook Connector 3.4 40812
+	Tue, 29 Jul 2003 11:56:23 -0400
+Received: from firewall.mdc-dayton.com ([12.161.103.180]:6116 "EHLO
+	firewall.mdc-dayton.com") by vger.kernel.org with ESMTP
+	id S271811AbTG2P4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 11:56:21 -0400
+From: "Kathy Frazier" <kfrazier@mdc-dayton.com>
+To: "Krzysztof Halasa" <khc@pm.waw.pl>
+Cc: <linux-kernel@vger.kernel.org>, <herbert@13thfloor.at>
+Subject: RE: Problems related to DMA or DDR memory on Intel 845 chipset?
+Date: Tue, 29 Jul 2003 12:07:41 -0500
+Message-ID: <PMEMILJKPKGMMELCJCIGAELOCDAA.kfrazier@mdc-dayton.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MailScanner-Information: Please contact your Internet E-Mail Service Provider for more information
-X-MailScanner: Found to be clean
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
+In-Reply-To: <m3he55xwo7.fsf@defiant.pm.waw.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> i tried to compile linux 2.6.0 unfortunaly the
-> GNU assembler version 2.11.90.0.8 (alpha-redhat-linux) using 
-> BFD version 2.11.90.0.8 has a problem:
-> 
-[ ... ]
-> 
-> I solved that with an upgrade to
-> GNU assembler version 2.13 (alphaev56-unknown-linux-gnu) 
-> using BFD version 2.13
-> 
-> there is already a check for as < 2.7 perhaps checking for 
-> <2.13 would be better :)
 
-as 2.12 runs at my machine. You know, I don't have troubles...
+>Actually I was thinking about an IC on your card, something like
+>PLX PCI9080 chip - i.e. the chip connected to the PCI bus and doing
+>the DMA transfers (many specialized controllers have built-in PCI
+>bridge, though).
 
-Best regards,
- Oliver
+We have an Altera EPLD on our device which is PCI 2.2 compliant.
+
+>Could you please state if you are using bus mastering PCI DMA, or
+>if it is IDE DMA (an IDE hard disk etc) thing?
+
+bus master DMA.
+
+Regards,
+Kathy
 

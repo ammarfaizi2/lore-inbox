@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286168AbRLZGmq>; Wed, 26 Dec 2001 01:42:46 -0500
+	id <S286171AbRLZI0t>; Wed, 26 Dec 2001 03:26:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286187AbRLZGmg>; Wed, 26 Dec 2001 01:42:36 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:2308 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S286186AbRLZGm1>; Wed, 26 Dec 2001 01:42:27 -0500
-Date: Wed, 26 Dec 2001 09:42:09 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Weiping He <laser@zhengmai.com.cn>
-Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: anybody know about "journal-615" and/or "journal-601" log error?
-Message-ID: <20011226094209.B871@namesys.com>
-In-Reply-To: <005401c18dc6$f3e3fb10$d20101c0@T21laser>
+	id <S286172AbRLZI0k>; Wed, 26 Dec 2001 03:26:40 -0500
+Received: from smtp3.libero.it ([193.70.192.53]:43189 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id <S286171AbRLZI0e>;
+	Wed, 26 Dec 2001 03:26:34 -0500
+Date: Wed, 26 Dec 2001 09:26:33 +0100
+From: Luca Amigoni <al.net@libero.it>
+To: linux-kernel@vger.kernel.org
+Subject: Davicom DM910x (dfme) doesn't link
+Message-ID: <20011226092633.A9287@mater.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <005401c18dc6$f3e3fb10$d20101c0@T21laser>
-User-Agent: Mutt/1.3.22.1i
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.2.3
+X-Advice: Debian GNU/Linux user
+X-Signature: Magis usu discantur quam scripto
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+I've tried to compile kernel version 2.4.17 with static dfme support,
+but ld fails to link. Here is the error I get:
 
-On Wed, Dec 26, 2001 at 12:36:18PM +0800, Weiping He wrote:
+drivers/net/net.o(.data+0x434): undefined reference to `local symbols \
+      in discarded section .text.exit'
+make: *** [vmlinux] Error 1
 
->     but I've experienced server hang up of my box, the syslog entity is:
->     (this show up after I re-compile the kernel with the reiserfs's:
->         Have reiserfs do extra internal checking
->         Stats in /proc/fs/reiserfs
->      options set to enable)
-> Dec 26 09:47:10 x200 kernel: journal-615: buffer write failed
-> Dec 18 10:19:13 x200 kernel: journal-601, buffer write failed
-Any other errors in the logs?
-Reading the code these errors appear after we put IO request
-and then watitng for it to be complete with wait_on_buffer().
-But after wait_on_buffer returns, bufer is still not up to date,
-which usually means IO request have failed for some reason.
+Setting dfme as module is ok. Same problem with 2.4.16-pre1; I've found
+references about a dfme problem in 2.4.7 kernel, but nothing for new
+ones.
 
-> I've experienced power failure before the problem happens.
-> and after it happens, in `top' I can see that `kupdated' mark as <debunc>
-Yes, because there was an Oops after this message.
+I've used gcc 2.95.4 and ld version 2.11.92.0.12.3.
 
-> my question is what's the matter here? I do some search in kernel archive
-> but found almost nothing relate that 'journal-615' or 'journal-601'.
 
-> Is it a bug or my sw/hw configure problem?
-Right now it looks more like a HW problem.
-Can you dig more messages from your kernel log.
-Can you try to run reiserfsck on a problematic partition and see
-if there is anything wrong?
-
-Bye,
-    Oleg
+Luca Amigoni

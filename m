@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262970AbVALAqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262056AbVALAyI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262970AbVALAqG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 19:46:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262967AbVALAoL
+	id S262056AbVALAyI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 19:54:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbVALAud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 19:44:11 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:34478 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262978AbVALAhx (ORCPT
+	Tue, 11 Jan 2005 19:50:33 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63382 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262978AbVALArM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 19:37:53 -0500
-Date: Tue, 11 Jan 2005 16:37:28 -0800
-From: Greg KH <greg@kroah.com>
-To: Roland Dreier <roland@topspin.com>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
-       tom.l.nguyen@intel.com
-Subject: Re: [PATCH] PCI: Clean up printks in msi.c
-Message-ID: <20050112003728.GC20607@kroah.com>
-References: <52sm59yzsx.fsf@topspin.com> <Pine.LNX.4.61.0501101022500.26637@montezuma.fsmlabs.com> <20050110173133.GA30605@kroah.com> <52k6qlyyix.fsf@topspin.com>
+	Tue, 11 Jan 2005 19:47:12 -0500
+Date: Tue, 11 Jan 2005 19:46:19 -0500
+From: Dave Jones <davej@redhat.com>
+To: domen@coderock.org
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, hannal@us.ibm.com,
+       janitor@sternwelten.at
+Subject: Re: [patch 03/11] arch/i386/pci/i386.c: Use new for_each_pci_dev macro
+Message-ID: <20050112004618.GT29712@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, domen@coderock.org,
+	akpm@osdl.org, linux-kernel@vger.kernel.org, hannal@us.ibm.com,
+	janitor@sternwelten.at
+References: <20050111233458.9B8E01F228@trashy.coderock.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <52k6qlyyix.fsf@topspin.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050111233458.9B8E01F228@trashy.coderock.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 09:39:02AM -0800, Roland Dreier wrote:
->     Greg> I agree.  Roland, care to change it?
-> 
-> No problem, here's the patch without any "success" message.
-> 
-> 
-> Add "PCI:" prefixes and fix up the formatting and grammar of printks
-> in drivers/pci/msi.c.  The main motivation was to fix the shouting
-> "MSI INIT SUCCESS" message printed when an MSI-using driver is first
-> started, but while we're at it we might as well tidy up all the messages.
-> 
-> Signed-off-by: Roland Dreier <roland@topspin.com>
+On Wed, Jan 12, 2005 at 12:34:58AM +0100, domen@coderock.org wrote:
 
-Applied, thanks.
+ > As requested by Christoph Hellwig I've created a new macro called
+ > for_each_pci_dev. It is a wrapper for this common use of pci_get/find_device:
+ > 
+ > (while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL))
+ > 
+ > This macro will return the pci_dev *for all pci devices.  Here is the first patch I 
+ > used to test this macro with. Compiled and booted on my T23. There will be
+ > 53 more patches using this new macro.
 
-greg k-h
+Which looks just like the pci_for_each_dev we used to have.
+That function got removed due some shortcoming or other that I never
+fully understood, but ISTR it had something to do with locking.
+(why it couldnt be hidden inside for_each_pci_dev is a mystery to me)
+
+We've had lots of code in the kernel go from this..
+
+pci_for_each_dev(loop_dev) {
+
+to the disgustingly unreadable..
+
+while ((loop_dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, loop_dev)) != NULL) {
+
+and now its going to ..
+
+for_each_pci_dev(loop_dev) {
+
+So,.. what has all this churn bought us, and where does it end ?
+With four words in the function name, we've enough possibilities
+for quite a few more iterations yet.
+
+		Dave
+

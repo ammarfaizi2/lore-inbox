@@ -1,103 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbVBAQuO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262066AbVBAQwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbVBAQuO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 11:50:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbVBAQuO
+	id S262066AbVBAQwR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 11:52:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVBAQwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 11:50:14 -0500
-Received: from zone4.gcu-squad.org ([213.91.10.50]:57295 "EHLO
-	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S262065AbVBAQuC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 11:50:02 -0500
-Date: Tue, 1 Feb 2005 17:42:31 +0100 (CET)
-To: adobriyan@mail.ru
-Subject: Re: [PATCH 2.6] I2C: New chip driver: sis5595
-X-IlohaMail-Blah: khali@localhost
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
-Message-ID: <dfju0pfr.1107276150.9406540.khali@localhost>
-In-Reply-To: <200502011857.24786.adobriyan@mail.ru>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: "Aurelien Jarno" <aurelien@aurel32.net>, "Greg KH" <greg@kroah.com>,
-       "LKML" <linux-kernel@vger.kernel.org>,
-       "LM Sensors" <sensors@Stimpy.netroedge.com>
-MIME-Version: 1.0
+	Tue, 1 Feb 2005 11:52:17 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:36320 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262066AbVBAQv6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 11:51:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Pzzx5sppRE0TGl0BzR2mf9QxwZu7awFbtU0AeIMCpzly3XimU5xOoC07wt5lTUcjPPM1F5bxaZqNK2ie35IE5CB84es+FaUp+vrTjdMnG3+U8LmmmH2yXWAbg1p3dOTgDljW+6LP2U/mURzF2cHtyKISxygbgp3GnYvfBBcdgaY=
+Message-ID: <84144f0205020108441679cbef@mail.gmail.com>
+Date: Tue, 1 Feb 2005 18:44:01 +0200
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: "pmarques@grupopie.com" <pmarques@grupopie.com>
+Subject: Re: [PATCH 2.6] 1/7 create kstrdup library function
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1107228501.41fef755e66e8@webmail.grupopie.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
+References: <1107228501.41fef755e66e8@webmail.grupopie.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hi Alexey,
+On Tue,  1 Feb 2005 03:28:21 +0000, pmarques@grupopie.com
+<pmarques@grupopie.com> wrote:
+> 
+> This patch creates the kstrdup library function so that it doesn't have to be
+> reimplemented (or even EXPORT'ed) by every user that needs it.
+> 
+> Signed-off-by: Paulo Marques <pmarques@grupopie.com>
+> 
+> diff -buprN -X dontdiff vanilla-2.6.11-rc2-bk9/lib/string.c linux-2.6.11-rc2-bk9/lib/string.c
+> --- vanilla-2.6.11-rc2-bk9/lib/string.c 2005-01-31 20:05:37.000000000 +0000
+> +++ linux-2.6.11-rc2-bk9/lib/string.c   2005-01-31 20:00:31.000000000 +0000
+> @@ -599,3 +599,23 @@ void *memchr(const void *s, int c, size_
+>  }
+>  EXPORT_SYMBOL(memchr);
+>  #endif
+> +
+> +/*
+> + * kstrdup - allocate space for and copy an existing string
+> + *
+> + * @s: the string to duplicate
+> + * @gfp: the GFP mask used in the kmalloc() call when allocating memory
+> + */
+> +char *kstrdup(const char *s, int gfp)
+> +{
+> +       int len;
+> +       char *buf;
+> +
+> +       if (!s) return NULL;
+> +
+> +       len = strlen(s) + 1;
+> +       buf = kmalloc(len, gfp);
+> +       if (buf)
+> +               memcpy(buf, s, len);
+> +       return buf;
+> +}
+> +
+> +EXPORT_SYMBOL(kstrdup);
 
-> lm90 (all sensors chips have approximately the same speed, right?) spec
-> says:
+kstrdup() is a special-case _memory allocator_ (not so much a string
+operation) so I think it should go into mm/slab.c where we currently
+have kcalloc().
 
-Absolutely not, it depends on the raw speed (internal clock) and the
-number of channels. But in fact it doesn't matter, see below.
+P.S. Please inline patches to your email as per
+Documentation/SubmittingPatches. I, for one, have trouble with
+attachments.
 
-> "It takes the LM90 31.25 ms to measure the temperature of the remote diode
-> and internal diode".
-
-This is completely unrelated to the time it takes to read the registers.
-The temperature (or other) measurements are done in the backgroud,
-continuously, by the hardware monitoring chips.
-
-> Google says: "The buses [I2C, SMBus] operate at the same
-> speed, up to 100kHz, but the I2C bus has both 400kHz and 2MHz versions."
-
-And this is what matters, because this tells you how much time it takes
-to read one register. Multiply by the number of registers you need to
-read (from 4 to 50, depends on the chip) and you have an approximative
-total of time required by the update function, when the jiffies test
-succeeds.
-
-In other words, what matters in terms of speed is the SMBus the chip is
-connected to, not the speed of the chip itself. Typical speed for
-motherboard SMBus is 16kHz.
-
-Let's look at how things work. These hardware monitoring chip drivers
-export files to sysfs, which map more or less directly to the registers.
-When one reads the sysfs file, the driver will attempt to read all
-registers, cache all values and return the requested one. If an update
-occured recently (typically less than 2 seconds ago) then the cached
-value is directly returned instead. The reason why this is implemented
-that way is that most chips stop monitoring when they receive read
-requests. If we allowed registers to be read individually and without
-caching the results, chips could possibly be kept busy forever, which
-would be dangerous. We also want to avoid SMBus saturation.
-
-Typically, people will read all sysfs files in a row (by running
-"sensors" or any other hardware monitoring tool). This means that, for
-a given read series:
-1* The first sysfs file read will most probably trigger an update.
-2* All the other sysfs file reads will hit the cache.
-
-> What I'm trying to say that you shouldn't care about s/cmp; jcc/call/ if
-> the actual measurement is infinite from CPU's POV.
-
-That's absolutely right, optimizing the case in which the update *will*
-occur (case 1* above) is worthless because it only occurs once in a
-series, and is inherently slow. However, we still want to make the cache
-hits (case 2* above) as fast as possible (IMHO at least) because it can
-happen several dozen times in a series.
-
-Your proposal actually slows down 1* (additional function call) but not
-2*, so I'm fine with that. However, it also implies a mandatory update
-at init time, which may take several seconds with no benefit, and I am
-*not* fine with that.
-
-> Well, yes, I agree that initialization will become slower. But how long is
-> register read (from first outb command to the moment when CPU sees it)?
-> I'm trying to build time hierarchy of things we're discussing in my head.
-
-It's not outb/inb but (in the most common case)
-i2c_smbus_read_byte_data. It *is* damn slow in comparison with any other
-command, I/O or not. This is why I don't want to add any at init time
-for no reason.
-
-Thanks,
---
-Jean Delvare
+                                   Pekka

@@ -1,66 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261911AbTC0Kmm>; Thu, 27 Mar 2003 05:42:42 -0500
+	id <S261927AbTC0KoW>; Thu, 27 Mar 2003 05:44:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261914AbTC0Kml>; Thu, 27 Mar 2003 05:42:41 -0500
-Received: from [196.41.29.142] ([196.41.29.142]:47607 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id <S261911AbTC0Kmk>; Thu, 27 Mar 2003 05:42:40 -0500
-Subject: Re: lm sensors sysfs file structure
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Jan Dittmer <j.dittmer@portrix.net>
-Cc: Greg KH <greg@kroah.com>, Mark Studebaker <mds@paradyne.com>,
-       KML <linux-kernel@vger.kernel.org>, Dominik Brodowski <linux@brodo.de>,
-       sensors@Stimpy.netroedge.com
-In-Reply-To: <3E82D678.9000807@portrix.net>
-References: <1048582394.4774.7.camel@workshop.saharact.lan>
-	 <20030325175603.GG15823@kroah.com> <1048705473.7569.10.camel@nosferatu.lan>
-	 <3E82024A.4000809@portrix.net> <20030326202622.GJ24689@kroah.com>
-	 <3E82292E.536D9196@paradyne.com> <20030326225234.GA27436@kroah.com>
-	 <3E82D678.9000807@portrix.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048762244.4773.1258.camel@workshop.saharact.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2- 
-Date: 27 Mar 2003 12:50:44 +0200
-Content-Transfer-Encoding: 7bit
+	id <S261929AbTC0KoW>; Thu, 27 Mar 2003 05:44:22 -0500
+Received: from mail.set-software.de ([193.218.212.121]:41108 "EHLO
+	gateway.local.net") by vger.kernel.org with ESMTP
+	id <S261927AbTC0KoV> convert rfc822-to-8bit; Thu, 27 Mar 2003 05:44:21 -0500
+From: Michael Knigge <Michael.Knigge@set-software.de>
+Date: Thu, 27 Mar 2003 10:54:23 GMT
+Message-ID: <20030327.10542332@knigge.local.net>
+Subject: ptrace fix for 2.4.18
+To: lkml <linux-kernel@vger.kernel.org>
+X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.1; Win32)
+X-Priority: 3 (Normal)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-27 at 12:46, Jan Dittmer wrote:
-> Greg KH wrote:
-> > True, but multi-valued files are not allowed in sysfs.  It's especially
-> > obnoxious that you have 3 value files when you read them, but only
-> > expect 2 values for writing.  The way I split up the values in the
-> > lm75.c driver shows a user exactly which values  are writable, and
-> > enforces this on the file system level.
-> 
-> Agreed, I never knew which of the three values had which functionality.
-> For via686a this would be inX, inX_min, inX_max, tempX, tempX_overshoot 
-> (over = overshoot = os ?), tempX_hyst, and so on.
-> 
-> > Entry	Values	Function
-> > -----	------	--------
-> > temp,
-> > temp[1-3]  3	Temperature max, min or hysteresis, and input value.
-> > 	       	Floating point values XXX.X or XXX.XX in degrees Celcius.
-> 
-> If we're restructuring it, I think we should also agree on _one_ common 
-> denominator for all values ie. mVolt and milli-Degree Celsius, so that 
-> no userspace program ever again has know how to convert them to 
-> user-readable values and every user can just cat the values and doesn't 
-> have to wonder if it's centi-Volt, milli-Volt, centi-Degree, dezi-Degree 
-> or whatever.
-> 
+Hi,
 
-Right, can we just get this finalised soon ?  Not much fun in redoing
-something 2 times already ;)
+is there anywhere a fix for the ptrace-bug for 2.4.18? I don't wanna 
+upgrade to 2.4.20 for some reasons...
 
 
-Regards,
+thanks,
+  Michael
 
--- 
-Martin Schlemmer
+
 
 

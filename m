@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262517AbRFBMOt>; Sat, 2 Jun 2001 08:14:49 -0400
+	id <S262545AbRFBMbh>; Sat, 2 Jun 2001 08:31:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262531AbRFBMO3>; Sat, 2 Jun 2001 08:14:29 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:40970 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S262517AbRFBMOY>;
-	Sat, 2 Jun 2001 08:14:24 -0400
-Date: Sat, 2 Jun 2001 14:14:12 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: Haseeb Budhani <haseeb@ipinfusion.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Interface "type".
-Message-ID: <20010602141412.A19864@se1.cogenit.fr>
-In-Reply-To: <3B14AE60.9090904@ipinfusion.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B14AE60.9090904@ipinfusion.com>; from haseeb@ipinfusion.com on Wed, May 30, 2001 at 01:25:04AM -0700
-X-Organisation: Marie's fan club - I
+	id <S262548AbRFBMb2>; Sat, 2 Jun 2001 08:31:28 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:53958 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262545AbRFBMbN>;
+	Sat, 2 Jun 2001 08:31:13 -0400
+Date: Sat, 2 Jun 2001 14:30:59 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200106021230.OAA182199.aeb@vlet.cwi.nl>
+To: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+Subject: rtl8139too in 2.4.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Haseeb Budhani <haseeb@ipinfusion.com> ecrit :
-[...]
-> I have a fairly quick one: Is there an ioctl flag/call which can be used
-> to find out the "type" of the interface being used ?
+My RTL8139 (Identified 8139 chip type 'RTL-8139A')
+was fine in 2.4.3 and doesnt work in 2.4.5.
+Copying the 2.4.3 version of 8139too.c makes things work again.
 
-See net/core/dev.c:dev_ifsioc + SIOCGIFHWADDR + include/linux/if_arp.h
-+ google/search?q=linux+ioctl+device+hardware+type&btnG=Google+Search
-+ man ioctl_list
+Since lots of people complained about this, I have not tried to
+debug - maybe a fixed version already exists?
 
--- 
-Ueimor
+One remark:
+2.4.5 says "eth1: media is unconnected, link down, or incompatible connection"
+coming from 8139too.c line 1367. The code there is
+
+	if (mii_reg5) {
+		printk(KERN_INFO"%s: Setting %s%s-duplex based on"
+			" auto-negotiated partner ability %4.4x.\n", dev->name,
+			mii_reg5 == 0 ? "" :
+			(mii_reg5 & 0x0180) ? "100mbps " : "10mbps ",
+			tp->full_duplex ? "full" : "half", mii_reg5);
+	} else {
+		printk(KERN_INFO"%s: media is unconnected, link down, "
+			"or incompatible connection\n",
+			dev->name);
+	}
+
+where mii_reg5 is tested against zero inside a conditional
+where we know that it is nonzero.
+Probably the outer test is wrong.
+
+Andries

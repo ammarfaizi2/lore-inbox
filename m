@@ -1,45 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312269AbSDNNLf>; Sun, 14 Apr 2002 09:11:35 -0400
+	id <S312277AbSDNNQn>; Sun, 14 Apr 2002 09:16:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312277AbSDNNLe>; Sun, 14 Apr 2002 09:11:34 -0400
-Received: from h00403399c977.ne.client2.attbi.com ([24.218.54.41]:48026 "EHLO
-	fred.cambridge.ma.us") by vger.kernel.org with ESMTP
-	id <S312269AbSDNNLd>; Sun, 14 Apr 2002 09:11:33 -0400
-From: pjd@fred001.dynip.com
-Message-Id: <200204141311.g3EDBUP22922@fred.cambridge.ma.us>
-Subject: Re: module programming smp-safety howto?
-To: emmanuel_michon@realmagic.fr (Emmanuel Michon)
-Date: Sun, 14 Apr 2002 09:11:30 -0400 (EDT)
-Cc: aia21@cus.cam.ac.uk (Anton Altaparmakov),
-        emmanuel_michon@realmagic.fr (Emmanuel Michon),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <7whemjbj48.fsf@avalon.france.sdesigns.com> from "Emmanuel Michon" at Apr 10, 2002 06:42:31 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S312294AbSDNNQm>; Sun, 14 Apr 2002 09:16:42 -0400
+Received: from lmail.actcom.co.il ([192.114.47.13]:38018 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S312277AbSDNNQm>; Sun, 14 Apr 2002 09:16:42 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Itai Nahshon <nahshon@actcom.co.il>
+Reply-To: nahshon@actcom.co.il
+To: ivan <ivan@es.usyd.edu.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: Memory Leaking. Help!
+Date: Sun, 14 Apr 2002 16:15:18 +0300
+X-Mailer: KMail [version 1.4]
+In-Reply-To: <Pine.LNX.4.33.0204142204330.19694-100000@dipole.es.usyd.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200204141615.18177.nahshon@actcom.co.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Emmanuel Michon wrote:
-> 
-> Anton Altaparmakov <aia21@cus.cam.ac.uk> writes:
-> 
-> > Also, are we going to see the driver published under GPL (I sure hope
-> > so!) or is it going to be binary only as per usual Sigma Designs policy?
-> 
-> The core library (supporting the PCI chip and all devices attached
-> thru its i2c) is binary only.
+On Sunday 14 April 2002 15:23 pm, ivan wrote:
+> Machine is under warranty; Dell replaced mum and both CPUs. Still going
+> down. They refused to replace RAM (4Gb) asking me to test memory by
+> swapping RAM around to see if frequency of crushes will decrease/increase.
+> This is despite all my explanations that it was a production server.
 
-If it's anything like the code that Sigma has for its 8400/8401, I
-would keep it private out of sheer embarrassment, myself.
+Have you tried memtest86 ?
 
-It sounds like you're doing from-the-ground-up new development, instead
-of trying to port the user-space library for the 8400, which is a 
-good thing, as the 8400 code we licensed under NDA at my last position
-was a steaming pile of dung.  It also sounds like you're making a real
-driver, instead of a shim driver that mmaps all the hardware for a
-user-space library - another good design decision.
-
- Peter Desnoyers 
+-- Itai

@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291451AbSBHHWZ>; Fri, 8 Feb 2002 02:22:25 -0500
+	id <S291452AbSBHHb3>; Fri, 8 Feb 2002 02:31:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291452AbSBHHWH>; Fri, 8 Feb 2002 02:22:07 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:11280 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S291451AbSBHHV4>; Fri, 8 Feb 2002 02:21:56 -0500
-Date: Fri, 8 Feb 2002 08:21:41 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-Cc: John Weber <weber@nyc.rr.com>, linux-kernel@vger.kernel.org
-Subject: Re: linux 2.5.4-pre3 and IDE changes
-Message-ID: <20020208082141.C2995@suse.cz>
-In-Reply-To: <3C634346.1010405@nyc.rr.com> <Pine.LNX.4.10.10202071953330.15165-100000@master.linux-ide.org>
-Mime-Version: 1.0
+	id <S291453AbSBHHbT>; Fri, 8 Feb 2002 02:31:19 -0500
+Received: from [217.7.28.131] ([217.7.28.131]:1297 "EHLO inetgate.hob.de")
+	by vger.kernel.org with ESMTP id <S291452AbSBHHbF>;
+	Fri, 8 Feb 2002 02:31:05 -0500
+Message-ID: <3C637CDD.E0EEBF96@hob.de>
+Date: Fri, 08 Feb 2002 08:23:09 +0100
+From: Christian Hildner <christian.hildner@hob.de>
+Organization: hob electronic
+X-Mailer: Mozilla 4.78 [de]C-CCK-MCD DT  (WinNT; U)
+X-Accept-Language: de
+MIME-Version: 1.0
+To: Jes Sorensen <jes@trained-monkey.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-ia64] kmalloc() size-limitation
+In-Reply-To: <3C3D6A89.27EAA4C7@hob.de>
+		<15421.61910.163437.45726@napali.hpl.hp.com>
+		<3C3ED5E7.8BA479B7@hob.de>
+		<15423.5404.65155.924018@napali.hpl.hp.com>
+		<3C43D6EC.74B4EC85@hob.de>
+		<d31yg1lzgm.fsf@lxplus052.cern.ch>
+		<3C5F80F2.54AF98E3@hob.de> <15458.41366.1639.628598@trained-monkey.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10202071953330.15165-100000@master.linux-ide.org>; from andre@linuxdiskcert.org on Thu, Feb 07, 2002 at 07:54:09PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 07, 2002 at 07:54:09PM -0800, Andre Hedrick wrote:
-> 
-> I repeat that is a diagnostic layer and is to never be called from the
-> kernel, it is a user-space only and will go away.
+Jes Sorensen schrieb:
 
-But it should compile nevertheless, shouldn't it?
+> >>>>> "Christian" == Christian Hildner <christian.hildner@hob.de> writes:
+>
+> Christian> Jes Sorensen schrieb:
+> >> Because drivers needs to work on all architectures and relying on
+> >> different hahavior from kmalloc() is bad.
+>
+> Christian> sorry for being unclear. I mean from increasing the kmalloc()
+> Christian> size-limit all platforms would benefit.
+>
+> Thats not really a good idea, and definately not something you want to
+> rely on. A lot of architectures are still stuck with 4KB pages and
+> trying to allocate 128KB on larger in one chunk is likely to fail after
+> the system has been running for a while. On an ia64 with 16KB or 64KB
+> pages it's fairly likely it will work, but this is not necessarily a
+> good idea to do for other archs. If you need such a large block of
+> memory, vmalloc() is the real way to go.
+>
+> Jes
 
-> 
-> On Thu, 7 Feb 2002, John Weber wrote:
-> 
-> > The address member of struct scatterlist appears to have been changed to 
-> > dma_address.
-> > 
-> > A simple s/\.address/\.dma_address/ should fix this compile error.
-> > 
-> > ide-dma.c: In function `ide_raw_build_sglist':
-> > ide-dma.c:269: structure has no member named `address'
-> > ide-dma.c:276: structure has no member named `address'
-> > make[3]: *** [ide-dma.o] Error 1
-> > make[3]: Leaving directory `/usr/src/linux-2.5.4/drivers/ide'
-> > make[2]: *** [first_rule] Error 2
-> > make[2]: Leaving directory `/usr/src/linux-2.5.4/drivers/ide'
-> > make[1]: *** [_subdir_ide] Error 2
-> > make[1]: Leaving directory `/usr/src/linux-2.5.4/drivers'
-> > make: *** [_dir_drivers] Error 2
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> Andre Hedrick
-> Linux Disk Certification Project                Linux ATA Development
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I think you are right. Memory fragmentation will become a real problem on
+small machines.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Christian
+

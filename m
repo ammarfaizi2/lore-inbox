@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVCUJHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbVCUJQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261703AbVCUJHT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 04:07:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbVCUJHS
+	id S261713AbVCUJQa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 04:16:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVCUJQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 04:07:18 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:26028 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261703AbVCUJGl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 04:06:41 -0500
-Date: Mon, 21 Mar 2005 10:06:22 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-01
-Message-ID: <20050321090622.GA8430@elte.hu>
-References: <20050319191658.GA5921@elte.hu> <20050320174508.GA3902@us.ibm.com> <20050321085332.GA7163@elte.hu> <20050321090122.GA8066@elte.hu>
+	Mon, 21 Mar 2005 04:16:30 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:2250 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S261713AbVCUJQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 04:16:28 -0500
+Date: Mon, 21 Mar 2005 12:16:16 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
+       chas williams - CONTRACTOR <chas@cmf.nrl.navy.mil>,
+       Leendert van Doorn <leendert@watson.ibm.com>,
+       Reiner Sailer <sailer@watson.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] alpha build fixes
+Message-ID: <20050321121616.A24129@jurassic.park.msu.ru>
+References: <423BABBF.6030103@pobox.com> <20050319231116.GA4114@twiddle.net> <20050319231641.GA28070@havoc.gtf.org> <58cb370e0503210005358cf200@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050321090122.GA8066@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <58cb370e0503210005358cf200@mail.gmail.com>; from bzolnier@gmail.com on Mon, Mar 21, 2005 at 09:05:39AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
+On Mon, Mar 21, 2005 at 09:05:39AM +0100, Bartlomiej Zolnierkiewicz wrote:
+> On Sat, 19 Mar 2005 18:16:41 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
+> > On Sat, Mar 19, 2005 at 03:11:16PM -0800, Richard Henderson wrote:
+> > > On Fri, Mar 18, 2005 at 11:34:07PM -0500, Jeff Garzik wrote:
+> > > > +/* TODO: integrate with include/asm-generic/pci.h ? */
+> > > > +static inline int pci_get_legacy_ide_irq(struct pci_dev *dev, int channel)
+> > > > +{
+> > > > +   return channel ? 15 : 14;
+> > > > +}
+> > >
+> > > Am I missing something, or is this *only* used by drivers/ide/pci/amd74xx.c?
+> > > Why in the world would we have this much infrastructure for one driver?  And
+> > > why not just not compile that one for Alpha, since it'll never be used.
+> > 
+> > My presumption is that it will be used in other IDE drivers in the
+> > future.  Bart?
 > 
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > got this early-bootup crash on an SMP box:
-> 
-> the same kernel image boots fine on an UP box, so it's an SMP bug.
-> 
-> note that the same occurs with your latest (synchronization barrier)
-> fixes applied as well.
+> This code is meant to be used by other IDE/libata drivers.
 
-i've uploaded my current tree (-V0.7.41-01) to:
+Then isn't linux/ide.h the proper place for default pci_get_legacy_ide_irq()
+implementation instead of asm-generic/pci.h? The latter is only used by
+7 out of 23 architectures, so not only alpha gets broken.
 
-  http://redhat.com/~mingo/realtime-preempt/
-
-it includes the latest round of RCU fixes - but doesnt solve the SMP
-bootup crash.
-
-	Ingo
+Ivan.

@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292990AbSCAAaV>; Thu, 28 Feb 2002 19:30:21 -0500
+	id <S293132AbSB1Xze>; Thu, 28 Feb 2002 18:55:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292520AbSCAA2L>; Thu, 28 Feb 2002 19:28:11 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14855 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310276AbSCAAUu>; Thu, 28 Feb 2002 19:20:50 -0500
-Date: Thu, 28 Feb 2002 16:20:21 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Howells <dhowells@redhat.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: thread groups bug? 
-In-Reply-To: <15283.1014933475@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.33.0202281616510.31454-100000@penguin.transmeta.com>
+	id <S310208AbSB1XxH>; Thu, 28 Feb 2002 18:53:07 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:8905 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S310204AbSB1Xt3>; Thu, 28 Feb 2002 18:49:29 -0500
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: nfs-devel@linux.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.5: compile error in fs/filesystems.c
+From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
+Date: Fri, 01 Mar 2002 00:49:15 +0100
+Message-ID: <87vgchi2v8.fsf@tigram.bogus.local>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Artificial
+ Intelligence, i386-debian-linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Neil,
 
-On Thu, 28 Feb 2002, David Howells wrote:
-> 
-> Except that the execve() _can_ (a) change the TGID and (b) result in two
-> effective thread groups of the same TGID as far as the kernel is concerned.
+here is a patch to fix fs/filesystems.c, if you configure neither NFSD
+nor NFSD_MODULE, but CONFIG_MODULES.
 
-You're right. I did that for security reasons - making sure that nobody 
-can execve a suid application and then keep on sending signals to it under 
-the auspices of thread groups. I'd forgotten about that thing.
+Regards, Olaf.
 
-Maybe killing the other threads on execve _is_ the right thing after all, 
-if that also gives us POSIX behaviour.
-
-Who actually maintains the pthread library? I don't think they use 
-CLONE_THREAD at all yet, right?
-
-		Linus
-
+--- v2.5.5/fs/filesystems.c	Thu Feb 28 22:41:18 2002
++++ linux/fs/filesystems.c	Fri Mar  1 00:16:29 2002
+@@ -15,14 +15,17 @@
+ #include <linux/linkage.h>
+ 
+ #if ! defined(CONFIG_NFSD)
++#if defined(CONFIG_NFSD_MODULES)
+ struct nfsd_linkage *nfsd_linkage;
++EXPORT_SYMBOL(nfsd_linkage);
++#endif
+ 
+ long
+ asmlinkage sys_nfsservctl(int cmd, void *argp, void *resp)
+ {
+ 	int ret = -ENOSYS;
+ 	
+-#if defined(CONFIG_MODULES)
++#if defined(CONFIG_NFSD_MODULES)
+ 	lock_kernel();
+ 
+ 	if (nfsd_linkage ||
+@@ -36,6 +39,5 @@
+ #endif
+ 	return ret;
+ }
+-EXPORT_SYMBOL(nfsd_linkage);
+ 
+ #endif /* CONFIG_NFSD */

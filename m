@@ -1,36 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268919AbUJPWHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268944AbUJPWgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268919AbUJPWHR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 18:07:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268922AbUJPWHQ
+	id S268944AbUJPWgw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 18:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268937AbUJPWgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 18:07:16 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:39561 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S268919AbUJPWHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 18:07:09 -0400
-Date: Sun, 17 Oct 2004 02:06:36 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Erwin Schoenmakers <esc-solutions@planet.nl>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: while building kernel 2.6.8.1. for Alpha (Miata)
-Message-ID: <20041017020636.A23552@jurassic.park.msu.ru>
-References: <417139A2.5090705@planet.nl> <20041016191704.A20686@jurassic.park.msu.ru> <20041016153017.GE5307@stusta.de> <20041016195847.A20976@jurassic.park.msu.ru> <20041016172154.GH5307@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20041016172154.GH5307@stusta.de>; from bunk@stusta.de on Sat, Oct 16, 2004 at 07:21:54PM +0200
+	Sat, 16 Oct 2004 18:36:52 -0400
+Received: from web52901.mail.yahoo.com ([206.190.39.178]:48811 "HELO
+	web52901.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S268944AbUJPWgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 18:36:35 -0400
+Message-ID: <20041016223635.41769.qmail@web52901.mail.yahoo.com>
+Date: Sat, 16 Oct 2004 23:36:35 +0100 (BST)
+From: Chris Rankin <rankincj@yahoo.com>
+Subject: [OOPS] Linux 2.6.8.1 with PL2303
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 16, 2004 at 07:21:54PM +0200, Adrian Bunk wrote:
-> The gcc dependency sounds pretty tough.
+Linux 2.6.8.1-SMP on a UP machine, devfs, gcc-3.4.2
 
-Sorry, I was thinking of some miscompilation problems unrelated to kernel.
- 
-> Why isn't even gcc 3.3.3 able to produce a kernel on Alpha?
+I received this error when unplugging my PL2303 USB
+serial converter from my USB 2.0 hub. (Not that the
+device worked when I tried to use it anyway.)
 
-Actually, gcc 3.1 should be sufficient.
+usb 5-5.4: PL-2303 converter now attached to ttyUSB0
+usbcore: registered new driver pl2303
+drivers/usb/serial/pl2303.c: Prolific PL2303 USB to
+serial adaptor driver v0.11
+PL-2303 ttyUSB0: pl2303_open - failed submitting
+interrupt urb, error -28
+PL-2303 ttyUSB0: PL-2303 converter now disconnected
+from ttyUSB0
+$ usb 5-5.4: USB disconnect, address 3
+Unable to handle kernel NULL pointer dereference at
+virtual address 00000000
+ printing eip:
+00000000
+*pde = 00000000
+Oops: 0000 [#1]
+SMP
+Modules linked in: pl2303 usbserial snd_seq_oss
+snd_seq_midi snd_emu10k1_synth snd_emux_synth
+snd_seq_virmidi snd_seq_midi_event snd_seq_midi_emul
+snd_seq videodev mga deflate zlib_deflate zlib_inflate
+twofish serpent aes_i586 blowfish des
+sha256 crypto_null af_key md5 ipv6 snd_rtctimer
+binfmt_misc w83781d eeprom i2c_sensor i2c_i801
+i2c_core ide_cd cdrom psmouse pcspkr button processor
+nfs nfsd exportfs lockd sunrpc ehci_hcd eth1394
+ohci_hcd ohci1394 ieee1394 8139too mii crc32
+emu10k1_gp gameport snd_emu10k1 snd_rawmidi
+snd_seq_device snd_ac97_codec snd_pcm snd_timer
+snd_page_alloc snd_util_mem snd_hwdep snd soundcore
+uhci_hcd usbcore i8xx_tco intel_agp agpgart joydev
+evdev ext3 jbd
+CPU:    0
+EIP:    0060:[<00000000>]    Not tainted
+EFLAGS: 00010202   (2.6.8.1)
+EIP is at 0x0
+eax: d3769801   ebx: dace2290   ecx: 00000000   edx:
+d3769838
+esi: d3769800   edi: dace2280   ebp: cfd71024   esp:
+de8c3e7c
+ds: 007b   es: 007b   ss: 0068
+Process khubd (pid: 540, threadinfo=de8c3000
+task=dee83310)
+Stack: e161df78 d3769838 00000083 dace2280 dace2280
+e15fd2a0 cfd71000 e08d910a
+       dace2280 dace2280 d051cdd0 dace2290 e15fd2c0
+c01f6a66 dace2290 dace22b8
+       dace2290 cfd710d0 c01f6cf5 dace2290 dace2290
+dace2290 cfd710d0 c01f5a89
+Call Trace:
+ [<e161df78>] usb_serial_disconnect+0x38/0x90
+[usbserial]
+ [<e08d910a>] usb_unbind_interface+0x6a/0x70 [usbcore]
+ [<c01f6a66>] device_release_driver+0x66/0x70
+ [<c01f6cf5>] bus_remove_device+0x65/0xb0
+ [<c01f5a89>] device_del+0x59/0xc0
+ [<e08e02f8>] usb_disable_device+0x98/0x110 [usbcore]
+ [<e08db353>] usb_disconnect+0xb3/0x160 [usbcore]
+ [<e08dc322>] hub_port_connect_change+0x242/0x400
+[usbcore]
+ [<e08dc6b6>] hub_events+0x1d6/0x3d0 [usbcore]
+ [<c011ad70>] autoremove_wake_function+0x0/0x60
+ [<e08dc8f5>] hub_thread+0x45/0x120 [usbcore]
+ [<c011ad70>] autoremove_wake_function+0x0/0x60
+ [<c011ad70>] autoremove_wake_function+0x0/0x60
+ [<e08dc8b0>] hub_thread+0x0/0x120 [usbcore]
+ [<c0103f35>] kernel_thread_helper+0x5/0x10
+Code:  Bad EIP value.
 
-Ivan.
+
+
+	
+	
+		
+___________________________________________________________ALL-NEW Yahoo! Messenger - all new features - even more fun!  http://uk.messenger.yahoo.com

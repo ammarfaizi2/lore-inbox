@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbUDMABl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 20:01:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbUDMABl
+	id S263184AbUDMAJR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 20:09:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263193AbUDMAJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 20:01:41 -0400
-Received: from zero.aec.at ([193.170.194.10]:11275 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263171AbUDMABh (ORCPT
+	Mon, 12 Apr 2004 20:09:17 -0400
+Received: from mail2.bluewin.ch ([195.186.4.73]:60826 "EHLO mail2.bluewin.ch")
+	by vger.kernel.org with ESMTP id S263192AbUDMAJQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 20:01:37 -0400
-To: Terence Ripperda <tripperda@nvidia.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PAT support
-References: <1KifY-uA-7@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 13 Apr 2004 02:01:33 +0200
-In-Reply-To: <1KifY-uA-7@gated-at.bofh.it> (Terence Ripperda's message of
- "Tue, 13 Apr 2004 00:40:06 +0200")
-Message-ID: <m3n05gu4o2.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 12 Apr 2004 20:09:16 -0400
+Date: Tue, 13 Apr 2004 02:08:53 +0200
+To: Fabian Frederick <Fabian.Frederick@skynet.be>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Doc patches ?
+Message-ID: <20040413000853.GC7217@mars>
+References: <1081786119.5593.13.camel@bluerhyme.real3>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1081786119.5593.13.camel@bluerhyme.real3>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: a.othieno@bluewin.ch (Arthur Othieno)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terence Ripperda <tripperda@nvidia.com> writes:
+On Mon, Apr 12, 2004 at 06:08:39PM +0200, Fabian Frederick wrote:
+> Hi,
+> 
+> 	Someone could tell me who's the right person to bother when it comes to
+> documentation improvements and there's no name nor reference in it ? 
+> 
+> Regards,
+> Fabian
 
-Hi Terence,
+Your best bet for trivial changes is the Trivial Patch Monkey
+(http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/).
 
-> this current patch includes the original PAT support and the new
-> cachemap mechanism. note that the cachemap mechanism does not
-> actually change any caching attributes, it only keeps track of the
-> attributes and tests regions. I think the end idea would be that
-> drivers would use the normal
-> ioremap/change_page_attr/remap_page_range mechanisms like they
-> already do, and these mechanisms would in turn use cachemap to make
-> sure there's no conflicts. I'm completely open to how any specific
-> details should work, and any changes needed to be made.
+However, if your changes may need (wider) peer review (for example
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107662387806544&w=2)
+then linux-kernel it is.
 
-Looks good for starting. The patch could use some minor cleanup still,
-but it should be good enough for testing.
-
-As for an interface - i still think it would be cleaner to just
-call it from change_page_attr(). Then other users only need to
-call a single function. But that's easily changed.
-
-To make it really useful I think we need ioremap_wrcomb() and support
-in the bus/pci mmap function (the PCI layer already has ioctls for this,
-they are just ignored on i386 right). Then the X server could
-start using it. 
-
-Without any users the testing coverage would be probably not too good,
-but it needs some testing in the real world before it could 
-be merged first. Maybe it could be simply hooked into the AGP
-driver and into some DRM driver. Then people would start testing
-it at least.
-
--Andi
-
+	Arthur

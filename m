@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269619AbRHCVZT>; Fri, 3 Aug 2001 17:25:19 -0400
+	id <S269620AbRHCV0j>; Fri, 3 Aug 2001 17:26:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269620AbRHCVY7>; Fri, 3 Aug 2001 17:24:59 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:47634 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S269619AbRHCVYr>;
-	Fri, 3 Aug 2001 17:24:47 -0400
-Date: Fri, 3 Aug 2001 18:24:53 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Anders Peter Fugmann <afu@fugmann.dhs.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Ongoing 2.4 VM suckage
-In-Reply-To: <3B6AD039.5060809@fugmann.dhs.org>
-Message-ID: <Pine.LNX.4.33L.0108031823380.11893-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S269627AbRHCV0a>; Fri, 3 Aug 2001 17:26:30 -0400
+Received: from rdu26-47-014.nc.rr.com ([66.26.47.14]:260 "EHLO unicorn")
+	by vger.kernel.org with ESMTP id <S269620AbRHCV0T>;
+	Fri, 3 Aug 2001 17:26:19 -0400
+Message-ID: <3B6B1700.6000503@bellsouth.net>
+Date: Fri, 03 Aug 2001 17:26:24 -0400
+From: Paul Stroud <pstroud@bellsouth.net>
+User-Agent: Mozilla/5.0 (Windows; U; Win95; en-US; rv:0.9.1) Gecko/20010607 Netscape6/6.1b1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Mulitple 3c509 cards 2.4.x Kernel
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Aug 2001, Anders Peter Fugmann wrote:
+William wrote:
 
-> I dont know task states are defined, but by 'running' I mean that it
-> is not stopped by the VM, when the VM needs to fetch memory for the
-> process.
+> Did you configure your cards (ie. IRQ, IO) using DOS driver or
+> '3c5x9setup.c'?
 
-What do you propose the program does when it doesn't have
-its data ? Better give up the CPU for somebody else than
-twiddle your thumbs while you don't have the data you want.
+Both cards were configured as non-pnp to use the irq/io mentioned
+earlier(10,0x280,3,0x300).
 
-regards,
+Alan wrote:
+> Try ether=3,0x300,0,0,eth0,10,0x280,0,0,eth1
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+The ether fix did not work.
+dmesg shows no isapnp devices found.
+/proc/ioports and /proc/interrupts show the card
+that is found and that the other ioport and interrupt are
+unused. 
 
-http://www.surriel.com/		http://distro.conectiva.com/
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+
 

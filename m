@@ -1,64 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264546AbSIWFIB>; Mon, 23 Sep 2002 01:08:01 -0400
+	id <S264560AbSIWF0B>; Mon, 23 Sep 2002 01:26:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264555AbSIWFIA>; Mon, 23 Sep 2002 01:08:00 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:34951 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S264546AbSIWFIA>;
-	Mon, 23 Sep 2002 01:08:00 -0400
-Message-ID: <1032757988.3d8ea2e4a0618@kolivas.net>
-Date: Mon, 23 Sep 2002 15:13:08 +1000
-From: Con Kolivas <conman@kolivas.net>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, Ville Herva <vherva@niksula.hut.fi>,
-       Daniel Jacobowitz <dan@debian.org>, Robert Love <rml@tech9.net>
-Subject: Re: [BENCHMARK] gcc3.2 v 2.95.3 (contest and linux-2.5.38)
-References: <1032750261.3d8e84b5486a9@kolivas.net> <3D8E8D7F.810EF57F@digeo.com> <20020923034626.GA28612@nevyn.them.org> <1032753047.3d8e8f973e17d@kolivas.net> <3D8E9158.4E3DE029@digeo.com> <1032754853.3d8e96a520836@kolivas.net> <3D8E988F.DCB3196D@digeo.com>
-In-Reply-To: <3D8E988F.DCB3196D@digeo.com>
+	id <S264592AbSIWF0B>; Mon, 23 Sep 2002 01:26:01 -0400
+Received: from packet.digeo.com ([12.110.80.53]:48121 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264560AbSIWF0A>;
+	Mon, 23 Sep 2002 01:26:00 -0400
+Message-ID: <3D8EA718.2FC057E5@digeo.com>
+Date: Sun, 22 Sep 2002 22:31:04 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.38-mm1 dbench 512 might sleep backtrace emitted
+References: <20020923045914.GI25605@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Sep 2002 05:31:04.0986 (UTC) FILETIME=[69508FA0:01C262C2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Andrew Morton <akpm@digeo.com>:
-
-> Con Kolivas wrote:
-> > 
-> > Quoting Andrew Morton <akpm@digeo.com>:
-> > 
-> > > Con Kolivas wrote:
-> > > >
-> > > > Correct. contest was run with gcc2.95.3 only. The kernels were
-> compiled
-> > > with
-> > > > 2.95.3 and 3.2 respectively.
-> > >
-> > > I think you made a mistake.  Please rerun. Just one data point will do.
-> > >
-> > 
-> > Ok here are two points to confirm the results and their reproducibility:
-> > 
-> > No Load:
-> > 2.5.38                  68.25           99%
-> > 2.5.38-gcc32            103.03          99%
-> > 2.5.38-gcc32a           103.47          99%
-> > 
-> > Process Load:
-> > 2.5.38                  71.60           95%
-> > 2.5.38-gcc32            112.98          91%
-> > 2.5.38-gcc32a           113.60          91%
-> > 
+William Lee Irwin III wrote:
 > 
-> beats the hell out of me.  Frankly, I *still* think
-> you made a mistake (at least on the io load thing)
-> because the CPU time went down by a mile - it was
-> waiting on disk all the time.
+> Trace; c01175f7 <__might_sleep+27/2b>
+> Trace; c0139764 <__alloc_pages+24/24c>
+> Trace; f8e74698 <END_OF_CODE+38ac8334/????>
+> Trace; c011300d <pte_alloc_one+41/118>
+> Trace; c012b89d <pte_alloc_map+4d/214>
+> Trace; c012da28 <vmtruncate+138/164>
+> Trace; c0133f68 <move_one_page+e8/328>
+> Trace; c0134091 <move_one_page+211/328>
+> Trace; c01341d9 <move_page_tables+31/7c>
+> Trace; c0134870 <do_mremap+64c/7cc>
+> Trace; c0134a40 <sys_mremap+50/73>
+> Trace; c010746f <syscall_call+7/b>
 
-If you think I've made a mistake then you're probably correct. I'm investigating
-this further. Please do NOT pass judgement on these benchmarks until I
-completely retest everything, ensuring gcc is fixed for everything except the
-kernel being tested. Disregard until I have a fresh set of confirmed results.
+Well I can't immediately see any held locks on that path, can
+you?  Odd.
 
-Con.
+Might be best to put a breakpoint on the printk in __might_sleep(),
+get some more info if it bites again.
+
+If there _are_ no locks held in that chain then there is
+something wrong with in_atomic().  So check the current
+task state with `task25' and `thread25' from my .gdbinit.
+
+
+set editing on
+set radix 0x0a
+
+define rmt
+set remotebaud 115200
+target remote /dev/ttyS0
+end
+
+define comm25
+p ((struct thread_info *)((int)$esp & ~0x1fff))->task->comm
+end
+
+define task25
+p ((struct thread_info *)((int)$esp & ~0x1fff))->task
+end
+
+define thread25
+p ((struct thread_info *)((int)$esp & ~0x1fff))
+end
+
+define reboot
+	maintenance packet r
+end
+
+
+define page_states
+printf "Dirty: %dK\n", (page_states[0].nr_dirty + page_states[1].nr_dirty + page_states[2].nr_dirty + page_states[3].nr_dirty) * 4
+printf "Writeback: %dK\n", (page_states[0].nr_writeback + page_states[1].nr_writeback + page_states[2].nr_writeback + page_states[3].nr_writeback) * 4
+printf "Pagecache: %dK\n", (page_states[0].nr_pagecache + page_states[1].nr_pagecache + page_states[2].nr_pagecache + page_states[3].nr_pagecache) * 4
+printf "Page Table Pages: %d\n", (page_states[0].nr_page_table_pages + page_states[1].nr_page_table_pages + page_states[2].nr_page_table_pages + page_states[3].nr_page_table_pages) * 4
+printf "nr_reverse_maps: %d\n", page_states[0].nr_reverse_maps + page_states[1].nr_reverse_maps + page_states[2].nr_reverse_maps + page_states[3].nr_reverse_maps
+end
+
+
+define offsetof
+	set $off = &(((struct $arg0 *)0)->$arg1)
+	printf "%d 0x%x\n", $off, $off
+end
+
+# list_entry list type member
+define list_entry
+	set $off = (int)&(((struct $arg1 *)0)->$arg2)
+	set $addr = (int)$arg0
+	set $res = $addr - $off
+	printf "0x%x\n", $res
+end

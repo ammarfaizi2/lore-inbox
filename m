@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267156AbSLKNnQ>; Wed, 11 Dec 2002 08:43:16 -0500
+	id <S267150AbSLKNkx>; Wed, 11 Dec 2002 08:40:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267155AbSLKNmU>; Wed, 11 Dec 2002 08:42:20 -0500
-Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:28108 "EHLO
-	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S267163AbSLKNld>; Wed, 11 Dec 2002 08:41:33 -0500
-Date: Wed, 11 Dec 2002 06:42:21 -0800 (PST)
-From: James Simmons <jsimmons@infradead.org>
-X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: Paul Mackerras <paulus@samba.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: patch for aty128fb.c
-In-Reply-To: <15863.9692.239964.520652@argo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.33.0212110635110.2617-100000@maxwell.earthlink.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267163AbSLKNjz>; Wed, 11 Dec 2002 08:39:55 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60170 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S267150AbSLKNjq>; Wed, 11 Dec 2002 08:39:46 -0500
+Date: Wed, 11 Dec 2002 14:47:31 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: IBM spamms me with error messages
+Message-ID: <20021211134730.GD3575@atrey.karlin.mff.cuni.cz>
+References: <20021210205611.GH20049@atrey.karlin.mff.cuni.cz> <20021210224325.GE32122@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021210224325.GE32122@mea-ext.zmailer.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-> Currently it can only put one rage 128 chip to sleep, but that is ok
-> for now since I've never seen a laptop with two rage 128 chips yet. :)
-> The generic device model will ultimately give us a better way to
-> handle sleep/wakeup.
+> > I replied to some mail on l-k and IBM spammed me with 20+ error
+> > messages. Now it is apparently going to do that again.
+> 
+>    Still/again ?
 
-Actually I started to looking into doing that. I noticed struct
-pci_driver having a resume and suspend function. Is this related? I just
-started to looking into the new PM code.
+Hehe, I replied to this, and got error, again.
 
+								Pavel
 
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

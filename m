@@ -1,58 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263002AbRFCNXz>; Sun, 3 Jun 2001 09:23:55 -0400
+	id <S262705AbRFDROO>; Mon, 4 Jun 2001 13:14:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262989AbRFCNPC>; Sun, 3 Jun 2001 09:15:02 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38921 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262922AbRFCMea>;
-	Sun, 3 Jun 2001 08:34:30 -0400
-Date: Sun, 3 Jun 2001 13:33:33 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Oleg Drokin <green@linuxhacker.ru>, Alan Cox <laughing@shared-source.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.5-ac7
-Message-ID: <20010603133333.A25478@flint.arm.linux.org.uk>
-In-Reply-To: <200106030746.f537kSZ12820@linuxhacker.ru> <E156VvF-0004D1-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E156VvF-0004D1-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Jun 03, 2001 at 12:19:52PM +0100
+	id <S264339AbRFDRN4>; Mon, 4 Jun 2001 13:13:56 -0400
+Received: from unamed.infotel.bg ([212.39.68.18]:8232 "EHLO l.himel.bg")
+	by vger.kernel.org with ESMTP id <S262761AbRFDRHx>;
+	Mon, 4 Jun 2001 13:07:53 -0400
+Date: Mon, 4 Jun 2001 20:09:08 +0300 (EEST)
+From: Julian Anastasov <ja@ssi.bg>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Is Via 8633/8233 supported?
+Message-ID: <Pine.LNX.4.10.10106041955030.17787-100000@l>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 03, 2001 at 12:19:52PM +0100, Alan Cox wrote:
-> > AC> 2.4.5-ac7
-> > AC> o       Make USB require PCI                            (me)
-> > Huh?!
-> > How about people from StrongArm sa11x0 port, who have USB host controller (in
-> > sa1111 companion chip) but do not have PCI?
-> 
-> The strongarm doesnt have a USB master but a slave.
 
-Alan, a StrongARM 11x0 with its companion SA11x1 chip is a USB master.
-Last time I looked, it was supported:
+Hello,
 
-diff -urN 2.4.5-rmk2/linux/drivers/usb/usb-ohci-sa1111.h linux/drivers/usb/usb-ohci-sa1111.h
---- 2.4.5-rmk2/linux/drivers/usb/usb-ohci-sa1111.h      Wed Dec 31 19:00:00 1969
-+++ linux/drivers/usb/usb-ohci-sa1111.h Tue May 29 16:49:47 2001
-@@ -0,0 +1,692 @@
-+/*
-+ * usb-ohci-sa1111.h
-+ *
-+ * definitions and special code for Intel SA-1111 USB OHCI host controller
-+ *
-+ * 10/24/00 Brad Parker <brad@heeltoe.com>
-+ * added memory allocation code
-+ *
-+ * 09/26/00 Brad Parker <brad@heeltoe.com>
-+ * init code for the SA-1111 ohci controller
-+ * special dma map/unmap code to compensate for SA-1111 h/w bug
-+ *
-+ */
+	Recently (on May 16, locked 3c905B with 2.4.5pre2) I asked
+about a problem with APIC. I see that some recent changes fix problems
+with Via 82C686* chipsets. What about Via 8633/8233 chipset. Is it really
+supported, someone successfully running SMP box? Is "... Using IRQ router
+default..." ok for this chipset?
+
+
+Regards
 
 --
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Julian Anastasov <ja@ssi.bg>
 

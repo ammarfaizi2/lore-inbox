@@ -1,71 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129469AbRCLKNi>; Mon, 12 Mar 2001 05:13:38 -0500
+	id <S129719AbRCLKc2>; Mon, 12 Mar 2001 05:32:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129473AbRCLKN2>; Mon, 12 Mar 2001 05:13:28 -0500
-Received: from serifos.unige.ch ([129.194.49.75]:60433 "EHLO serifos.unige.ch")
-	by vger.kernel.org with ESMTP id <S129469AbRCLKNV>;
-	Mon, 12 Mar 2001 05:13:21 -0500
-Date: Mon, 12 Mar 2001 11:11:21 +0100
-From: Brunet Eric <Eric.Brunet@physics.unige.ch>
+	id <S129725AbRCLKcT>; Mon, 12 Mar 2001 05:32:19 -0500
+Received: from smtp22.singnet.com.sg ([165.21.101.202]:64270 "EHLO
+	smtp22.singnet.com.sg") by vger.kernel.org with ESMTP
+	id <S129719AbRCLKcI>; Mon, 12 Mar 2001 05:32:08 -0500
+Message-ID: <3AACA87D.70C740A8@magix.com.sg>
+Date: Mon, 12 Mar 2001 19:44:13 +0900
+From: Anthony Heading <anthony@magix.com.sg>
+X-Mailer: Mozilla 4.75 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Bug in 2.2.19pre16 : bad interaction between sound and APM
-Message-ID: <20010312111121.A27564@serifos.unige.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
+Subject: Should mount --bind not follow symlinks?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Hi,
+    My automounted dirs have up till now been symlinks, where
+e.g. /opt/perl defaults to automounting /export/opt/perl/LATEST
+which is a symlink.
 
-A friend of mine has a toshiba 320CDT laptop, with a redhat 6.1
-installed. In order to be able to use the USB port, I have compiled on it
-a 2.2.19pre16 kernel. It all works very well except that I cannot get
-sound working after the laptop has been in suspend mode.
+   This all worked OK until the 2.4(.2) automounter helpfully tries
+to mount --bind /export/opt/perl/LATEST /opt/perl
 
-After a resume from suspend mode, if I try to play a mp4 sample, I only
-get some hashed, repetitive and disconnected fragments of the original
-tune. In the logs, I get the message
+   And this errors with "mount: wrong fs type, ..." because it
+seems the first arg to mount --bind mustn't be a symlink,
+resulting in a "No such file" or similar error being returned
+to the requester.
 
-Sound: DMA (output) timed out --- IRQ/DRQ config error ?
+   What is especially confusing is that if this whole thing
+was kicked off with say  ls /opt/perl/bin,  the first attempt
+returns "No such file or directory", but automount
+then installs a symlink into /opt,  so a second ls attempt
+works fine.
 
-The sound subsystem is compiled in the kernel (not as a module). Here is
-some relevant part of /proc/sound (copied by hand, so there might be some
-typos or omissions)
+   Is this known about / to be expected?  I can't see why
+one of automount or mount or the underlying system call
+shouldn't chase symlinks, but I know I might be missing
+some reason why I shouldn't be attempting this.
 
-OSS/Free: 3.8s2++-971130
-
-drivers
-Type 42: OPL3SA2
-Type 45: OPL3SA2 MSS
-Type 43: OPL3SA2 MIDI
-Type  1: OPL-2/OPL-3 FM
-Type  5: Roland MPU-401
-Type 26: MPU-401 (UART)
-
-OPL3SA2        at 0x370 irq 5 drq 1,0
-OPL3SA2 MSS    at 0x530       drq 1,0
-OPL3SA2 MIDI   at 0x330 irq 9 drq 1
-OPL-2/OPL-3 FM at 0x388 irq 9 drq 0
-
-Audio devices:
- 0: MS Sound System (CS4321) DUPLEX
-
-apm version is 3.0beta9.
-
-I remember I had some similar problem with sound on this machine with the
-previous kernel (standard redhat 6.1 kernel), but I never really paid
-attention: as the sound was a module, I could reinitialize everything by
-unloading and reloading the module. So it is quite probable that this
-problem is an old one which has nothing to do in particular with
-2.2.19pre16.
-
-If there is some missing information, or if you want me to try ßomething,
-please don't hesitate.  And by the way, is there a way to reinitialize the
-sound subsystem when it is not compiled as a module ?
-
-
-Éric Brunet
+Anthony

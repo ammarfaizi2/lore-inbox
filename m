@@ -1,134 +1,128 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288325AbSAXPeC>; Thu, 24 Jan 2002 10:34:02 -0500
+	id <S288377AbSAXPem>; Thu, 24 Jan 2002 10:34:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288377AbSAXPdy>; Thu, 24 Jan 2002 10:33:54 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:48008 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S288325AbSAXPdj>; Thu, 24 Jan 2002 10:33:39 -0500
-Date: Thu, 24 Jan 2002 15:35:51 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Benjamin LaHaise <bcrl@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: pte-highmem-5
-In-Reply-To: <20020124040937.C20533@athlon.random>
-Message-ID: <Pine.LNX.4.21.0201241416320.1044-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288422AbSAXPei>; Thu, 24 Jan 2002 10:34:38 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:773 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S288377AbSAXPeU>;
+	Thu, 24 Jan 2002 10:34:20 -0500
+Date: Thu, 24 Jan 2002 08:19:50 -0700
+From: yodaiken@fsmlabs.com
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: yodaiken@fsmlabs.com, Robert Love <rml@tech9.net>,
+        george anzinger <george@mvista.com>, Momchil Velikov <velco@fadata.bg>,
+        Arjan van de Ven <arjan@fenrus.demon.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020124081950.A5668@hq.fsmlabs.com>
+In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <1011650506.850.483.camel@phantasy> <20020121165659.A20501@hq.fsmlabs.com> <E16SqOY-0001mL-00@starship.berlin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <E16SqOY-0001mL-00@starship.berlin>; from phillips@bonn-fries.net on Tue, Jan 22, 2002 at 03:10:42AM +0100
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Let me reorder the mail (to avoid deadlock:) commenting on last first...
-
-On Thu, 24 Jan 2002, Andrea Arcangeli wrote:
-> On Wed, Jan 23, 2002 at 05:38:47AM +0000, Hugh Dickins wrote:
-> > On Wed, 23 Jan 2002, Andrea Arcangeli wrote:
-> > > The ordering thing is really simple I think. There are very few places
-> > > where we kmap and kmap_pagetable at the same time. And I don't see how
-> > > can could ever kmap before kmap_pagetable. so that part looks fine to me.
-> > 
-> > Nice if that's so, but I think you're sadly deluded ;-)
-> > Imagine sys_read going to file_read_actor (kmap, __copy_to_user, kunmap),
-> > imagine the __copy_to_user faulting (needs to kmap the pagetable),
+On Tue, Jan 22, 2002 at 03:10:42AM +0100, Daniel Phillips wrote:
+> On January 22, 2002 12:56 am, yodaiken@fsmlabs.com wrote:
+> > I have not seen that argued - certainly I have not argued it myself.
+> > My argument is:
+> > 	It makes the kernel _much_ more complex
 > 
-> I said the reverse, but this is the right path I meant of course. I
-> didn't see the other way happening anywhere, mostly because it would be
-> a bug if we would ever kmap during pagefaults because we could deadlock
-> just now in such a case.
+> The patch itself is simple, so this must be an extended interpretation of the 
+> word 'complex'.
+
+I'm at a loss here. You seem to be arguing that
+there there is a relationship between the complexity of a patch
+that changes the entire synchronization assumption of the
+kernel and the complexity of the result. But that seems
+unbelievable. Is there some component of your argument I've missed?
+
 > 
-> > imagine the place faulted is hole in ???fs file (kmap in
-> > clear_highpage),
+> > 	It has known costs e.g. by making the lockless 
+> > 		per-processor caching  more difficult if not impossible
 > 
-> we can't call clear_highpage during page faults (hey, if we would ever
-> do, that would be just a deadlock condition right now in 2.4.17 too,
-> without pte-highmem applied :).
+> Not at all, the lazy man's way of dealing with this is to disable preemption 
+> around that code, an efficient operation.
 
-Does your ";)" mean that you know very well that it's done in
-several places?  I may be mistaken, but block_read_full_page,
-nfs_readpage_sync, ramfs_readpage and shmem_getpage_locked (latter
-a clear_highpage), all look like they use kmap in a place which could
-deadlock already.  I bet there are other instances.  So far as I know,
-we've not actually seen such deadlocks, the current LAST_PKMAP 1024
-appears in practice to be enough to make them very unlikely (so far;
-and I feel much safer now you've lifted the 512 limit on HIGHMEM64G).
-I've CC'ed Ben: I think he atomicized some kmapping copy macros a
-few months back, may have a view on this.
+Well, aside from how easy it will be to isolate all that information,
+doesn't that defeat the purpose of the patch?  There is a big
+difference in design between
+	try to get fromverylightweight cache
+		fallback to slow but fair and safe pool
+and
+	try to bound worst case times
 
-And now to the first part:
+In the first case we amortize worst case times by making average case
+very low. This is a common design methodology in Linux kernel: semaphores
+are the classic example.
+So I'm sure that you can add any number of hacks to the kernel, but my
+argument stands: per-processor caching is a common case optimization that
+de-optimizes worst case. If the purpose of preemption is to reduce
+latency, per-processor caching is at counter-purposes.
 
-> I can imagine an alternate design to avoid the deadlock without the
-> series (doesn't sound exactly what you had in mind with count >= 1, but
-> it's on the same lines about using the task_struct to keep some per-task
-> information about the kmaps), it has some more overhead though, but it
-> has the very nice goodness of also invalidating the ordering
-> requirements.
+
+It's also worth pointing out that every use of cpu-specific information
+is dangerous if preemption is extended to smp.
+	x = smp_processor_id();
+	//get preempted
+	do_something(memslab[x]); // used to be safe since only current can
+				// do this.
+
+	
+> > 	It seems to lead to a requirement for inheritance
 > 
-> The only new requirement would become the max number of kmap run by a single
-> task in sequence (which is not a new requirement, we had the very
-> requirement before too which was the NR_KMAP_SERIES).
+> I don't know about that.  From the (long) thread above, it looks like you 
+> haven't successfully proved the assertion that -preempt introduces any new 
+> inheritance requirement.
+
+Oliver cited the trivial case. He was ignored.
+
+> > 	It has no demonstrated benefits.
 > 
-> The first kmap run by a task will try to reserve the MAX_NR_TASK_KMAPS
-> slots (we can keep track if it's the first kmap with some task_structure
-> field, on the lines of what you suggested), if it fails to reserve all
-> of them, it will release the ones it tried to allocate in the meantime
-> and it will go to sleep waiting for the resourced to be released by
-> somebody else. If it succeed it will use the first reserved entry to
-> succeed the kmap. The later kmaps will use the other two reserved kmap
-> slots preallocated at the first kmap. If the kernel tries to allocate
-> one more kmap entry over MAX_NR_TASK_KMAPS we can BUG().
-> 
-> In short this makes sure if a kmap has to sleep, it will always be the
-> first one. This ensures the deadlock avoidance.
-> 
-> This would solve not only the deadlock but it also drops the ordering
-> requirements, plus it will solve the mixture thing as well
-> (optimizations are possible, if the first kmap maps a page just mapped
-> we'd need to reserve only MAX_NR_TASK_KMAPS-1 entries, simply doing the
-> reservation + first kmap atomically, which will be natural). We can
-> define MAX_NR_TASK_KMAPS (suggestions for a better define name are
-> welcome) to 3, one for the kmap for the pagecache, one for the first
-> pagetable, and one for the second pagetable map (mremap). 
-> 
-> Comments? Now I tend to believe this way is simpler after all, mostly
-> because it doesn't create special cases with special series, and it
-> makes life simpler for the kmap users, in short it reduces the
-> anti-deadlock requirement dramatically.
+> Demonstrated to who?  I have certainly demonstrated the benefits to myself, 
+> and others have attested to doing the same.
 
-At first I was very enthusiastic about this proposal: it gives solid,
-convincing protection against kmap deadlocks.  But I have two doubts.
+I've heard similar arguments in favor of aromatherapy and Scientology.
 
-The first, minor doubt is that I don't believe you can BUG() beyond
-MAX_NR_TASK_KMAPS: in 2.5 perhaps, or a 2.4-pre, but I think we have
-to live with the fact that there are or may already be potential kmap
-deadlocks, and in a release it would be more harmful to BUG on every
-entry to that potential, than to hang if it actually deadlocks (but
-we must make LAST_PKMAP large enough to make that unlikely enough).
+What's amazing about all the arguments in favor of preemption is that we
+don't see any published numbers of the obvious application: a periodic
+SCHED_FIFO process. We've done these experiments and the results are
+_dismal_. 
+Even ignoring this, the repeated publication of numbers showing that
+Andrew's patches get better results and the repeated statement by 
+Andrew that the hard part of latency reduction
+is _not_ solved by preemption alone
+is continually met with repetitions of the same unsubstantiated chorus:
+	But it is easier to maintain  
 
-I think your MAX would be 2 not 3, unless you are allowing for the
-danger kmaps such as I list above.  Neither mremap nor copy_page_range
-is done during a fault, there's no underlying kmap, they can use both.
-But what about the loop driver?  Can that raise the max? indefinitely?
 
-The second, major doubt is: I don't see how this could be implemented,
-without making kmaps so much more heavyweight than they are at present,
-that we'd avoid them wherever possible (going for the atomic alternative
-in many places).  Every kmap_high which at present finds page->virtual
-set and increments pkmap_count, would in the new scheme have to go and
-find MAX_NR_TASK_KMAPS-1 free slots, and increment their pkmap_counts;
-yet what proportion of these tasks would go on to use the additional
-kmaps?  If you can implement it with little overhead, it'll be great!
 
-I've been thinking less ambitiously.  Not worrying about the existing
-potential deadlocks, just making sure that pagetable kmaps won't
-increase the possibility of deadlock at all.  I'm sure just doubling
-LAST_PKMAP would not be sufficient: the way a pagetable kmap is held
-over the page allocation, the system under memory pressure could
-degrade to a point where all the kmaps were held by faulting
-pagetables.  I'm thinking of limiting the total number of pagetable
-kmaps at any one time, and using pte_offset_nowait everywhere(?)
-i.e. regetting the mapping, hopefully still cached in page->virtual,
-after possibly waiting to allocate page.
+> As far as arguments go, your main points don't seem to be rooted in firm 
+> ground at all.  On the other hand, the proponents of this patch have 
+> compelling arguments: it makes Linux feel smoother, it makes certain tests 
+> run faster, it doesn't slow anything down measurably, it's stable and so on.  
+> I even explained why it does what it does.  I don't understand why you're so 
+> vehemently opposed to this, especially as it's a config option.
 
-Hugh
+What you proposed is a
+claimed explanation of why a task that experienced regular unfixable
+latencies of multiple milliseconds waiting for I/O would have additional
+latencies possibly reduced by some unknown amount. You failed to make a
+case that this is either something that actually happens or that it would
+ever make any difference.
+
+BTW: I've made no arguments that the patch should not be made an option.
+I've argued that it is based on a very bad design premise. As for
+whether it should be added to 2.5,  sold by other vendors, advertised on TV,
+used when operating heavy machinery, or taken by pregnant women,
+that's not up to me.
+
+
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

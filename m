@@ -1,106 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262889AbVA2KcC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262873AbVA2K6W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262889AbVA2KcC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 05:32:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbVA2KcC
+	id S262873AbVA2K6W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 05:58:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbVA2K6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 05:32:02 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:35042 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S262889AbVA2Kb5 (ORCPT
+	Sat, 29 Jan 2005 05:58:22 -0500
+Received: from muan.mtu.ru ([195.34.34.229]:26894 "EHLO muan.mtu.ru")
+	by vger.kernel.org with ESMTP id S262873AbVA2K5w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 05:31:57 -0500
-Message-ID: <41FB7517.418D556A@tv-sign.ru>
-Date: Sat, 29 Jan 2005 14:35:51 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Sat, 29 Jan 2005 05:57:52 -0500
+Reply-To: <zapravka_@umail.ru>
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	=?ISO-8859-1?Q?=20=22CEPB.=E3EHTP?= (MOCKBA)1O9-787O" <zapravka_@umail.ru>"
+								    ^	    ^-missing closing '"' in token
+							     \-missing end of mailbox
+Subject: =?ISO-8859-1?Q?=20Pacxo=C4=CE=C9=CB=C9,?=  =?ISO-8859-1?Q?=20=DAa=D0pa=D7=CBa?=  =?ISO-8859-1?Q?=20=CB?=
+	=?ISO-8859-1?Q?ap=D4p=C9=C4=D6e=CA,?=  =?ISO-8859-1?Q?=20=C4oc=D4a=D7=CBa?=  =?ISO-8859-1?Q?=20=D0?=
+	=?ISO-8859-1?Q?o?= MOCKBE.
+Date: Sat, 29 Jan 2005 13:57:48 +0300
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Ram Pai <linuxram@us.ibm.com>, Steven Pratt <slpratt@austin.ibm.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 3/4] readahead: factor out duplicated code
-References: <41FB6F45.848CEFF6@tv-sign.ru>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1081
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1081
+Message-Id: <20050129105650.8B0624D2EBB@muan.mtu.ru>
+From: linux-kernel-owner@vger.kernel.org
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This patch introduces make_ahead_window() function for
-> simplification of page_cache_readahead.
-
-If you will count this patch acceptable, I'll rediff it against
-next mm iteration.
-
-For your convenience here is the code with the patch applied.
-
-int make_ahead_window(mapping, filp, ra, int force)
-{
-	int block, ret;
-
-	ra->ahead_size = get_next_ra_size(ra);
-	ra->ahead_start = ra->start + ra->size;
-
-	block = force || (ra->prev_page >= ra->ahead_start);
-	ret = blockable_page_cache_readahead(mapping, filp,
-			ra->ahead_start, ra->ahead_size, ra, block);
-
-	if (!ret && !force) {
-		ra->ahead_start = 0;
-		ra->ahead_size = 0;
-	}
-
-	return ret;
-}
-
-unsigned long page_cache_readahead(mapping, ra, filp, offset, req_size)
-{
-	unsigned long max, newsize = req_size;
-	int sequential = (offset == ra->prev_page + 1);
-
-	if (offset == ra->prev_page && req_size == 1 && ra->size != 0)
-		goto out;
-
-	ra->prev_page = offset;
-	max = get_max_readahead(ra);
-	newsize = min(req_size, max);
-
-	if (newsize == 0 || (ra->flags & RA_FLAG_INCACHE)) {
-		newsize = 1;
-		goto out;
-	}
-
-	ra->prev_page += newsize - 1;
-
-	if ((ra->size == 0 && offset == 0) ||
-	    (ra->size == -1 && sequential)) {
-		ra->size = get_init_ra_size(newsize, max);
-		ra->start = offset;
-		if (!blockable_page_cache_readahead(mapping, filp, offset, ra->size, ra, 1))
-			goto out;
-
-		if (req_size >= max)
-			make_ahead_window(mapping, filp, ra, 1);
-
-		goto out;
-	}
-
-	if (!sequential || (ra->size == 0)) {
-		ra_off(ra);
-		blockable_page_cache_readahead(mapping, filp, offset, newsize, ra, 1);
-		goto out;
-	}
-
-
-	if (ra->ahead_start == 0) {
-		if (!make_ahead_window(mapping, filp, ra, 0))
-			goto out;
-	}
-
-	if (ra->prev_page >= ra->ahead_start) {
-		ra->start = ra->ahead_start;
-		ra->size = ra->ahead_size;
-		make_ahead_window(mapping, filp, ra, 0);
-	}
-out:
-	return newsize;
-}
+KAPTPéäöé, TOHEPù, úAðPABKA, äOCTABKA ðO MOCKBE.
+Í. TAçAHCKAñ:                     (O95) 74O~7552
+Í. ûOCCE üHTõúéACTOB:    (O95) 74O~755I
+çOPñþAñ ìéHéñ :               (O95) IO9~787O
+PEMOîô úAXBATA ðO îECKOìøKõ ìéCTOB - 5OO pÕÂ.

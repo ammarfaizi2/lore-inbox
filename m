@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265928AbUIAKkv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266014AbUIAKmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265928AbUIAKkv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 06:40:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266014AbUIAKkv
+	id S266014AbUIAKmP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 06:42:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266116AbUIAKmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 06:40:51 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:49924 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S265928AbUIAKkt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 06:40:49 -0400
-Message-ID: <4135A834.50002@hist.no>
-Date: Wed, 01 Sep 2004 12:45:08 +0200
-From: Helge Hafting <helge.hafting@hist.no>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+	Wed, 1 Sep 2004 06:42:15 -0400
+Received: from dev.tequila.jp ([128.121.50.153]:40209 "EHLO dev.tequila.jp")
+	by vger.kernel.org with ESMTP id S266014AbUIAKmK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 06:42:10 -0400
+Message-ID: <4135A771.4050604@tequila.co.jp>
+Date: Wed, 01 Sep 2004 19:41:53 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+User-Agent: Mozilla Thunderbird 0.7 (Windows/20040616)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc1-mm2 Inconsistent kallsyms
-References: <20040830235426.441f5b51.akpm@osdl.org>	<41343C0F.5020508@hist.no> <20040831020206.191c0d01.akpm@osdl.org>
-In-Reply-To: <20040831020206.191c0d01.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: oops in 2.6.8.1-mm4 and usb
+References: <mailman.1093944725.30419.linux-kernel2news@redhat.com> <20040831232628.39dae8a3@lembas.zaitcev.lan>
+In-Reply-To: <20040831232628.39dae8a3@lembas.zaitcev.lan>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Pete Zaitcev wrote:
+> 
+> 
+> This oops is very mysterious, because it indicates that sc->intf was
+> NULL, which is not possible when device_remove_file was called.
+> 
+> I'll look at it. For the moment, just make sure you have this:
 
->Helge Hafting <helge.hafting@hist.no> wrote:
->  
->
->>This compiled, but failed anyway (after make mrproper):
->>
->>   LD      vmlinux
->>   SYSMAP  System.map
->>   SYSMAP  .tmp_System.map
->> Inconsistent kallsyms data, try setting CONFIG_KALLSYMS_EXTRA_PASS
->>    
->>
->
->It can happen I guess, depending on which way the wind was blowing when
->your binutils was released.
->
->Do you try doing what it said?
->  
->
-I tried it, and it worked.  This is posted using 2.6.9-rc1-mm2
+I can confirm that this patch fixes the problem of the oops during 
+unmount/shutdown (or reboot). Thanks.
 
-Helge Hafting
+lg, clemens

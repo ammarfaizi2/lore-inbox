@@ -1,67 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262049AbRE0Ojj>; Sun, 27 May 2001 10:39:39 -0400
+	id <S262052AbRE0OpU>; Sun, 27 May 2001 10:45:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262052AbRE0Oj3>; Sun, 27 May 2001 10:39:29 -0400
-Received: from web12801.mail.yahoo.com ([216.136.174.36]:42765 "HELO
-	web12801.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262049AbRE0OjR>; Sun, 27 May 2001 10:39:17 -0400
-Message-ID: <20010527143912.23667.qmail@web12801.mail.yahoo.com>
-Date: Mon, 28 May 2001 00:39:12 +1000 (EST)
-From: =?iso-8859-1?q?Cody=20Gould?= <codygould@yahoo.com.au>
-Reply-To: codygould@yahoo.com.au
-Subject: 2.4.5-ac1 hard disk corruption... acpi responsible?
-To: linux-kernel@vger.kernel.org
+	id <S262087AbRE0OpK>; Sun, 27 May 2001 10:45:10 -0400
+Received: from jcwren-1.dsl.speakeasy.net ([216.254.53.52]:5878 "EHLO
+	jcwren.com") by vger.kernel.org with ESMTP id <S262052AbRE0Oo5>;
+	Sun, 27 May 2001 10:44:57 -0400
+Reply-To: <jcwren@jcwren.com>
+From: "John Chris Wren" <jcwren@jcwren.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problems with ac12 kernels and up
+Date: Sun, 27 May 2001 10:44:49 -0400
+Message-ID: <NDBBKBJHGFJMEMHPOPEGAEEACHAA.jcwren@jcwren.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Debian, Intel 440BX2 Seattle, 2x Fujitsu UDMA33 IDE
-hard drives.  In my bootscripts, hdparm enables DMA.
+I have been running 2.4.4-ac11 for a few weeks, and decided to upgrade to
+2.4.4-ac18. I applied the patches, compiled, and installed (all per usual),
+and when booting, get a kernel panic at the point VFS is trying to mount the
+root file system. I started working backwards to find the last kernel that
+would boot. I got down to ac13, and the panics stopped, but I get the
+following message:
 
-I tried most all 2.4.0-acx up to 2.4.4-ac9, and then
-plain 2.4.5 today, over the past few months, with no
-corruption or instability.
+Checking root filesystem. /dev/hde13 is mounted.
+Cannot continue, aboorting.
+*** An error occurred during the file system check.
+*** Dropping you to a shell; the system will reboot
+*** when you leave the shell.
 
-Today I moved to 2.4.5-ac1, the only different thing
-than normal was I enabled ACPI instead of APM.  
+Same for ac12. I used the same config file I used for ac11 and previous ac
+kernels. I then decided to try the 2.4.5 kernel, which worked fine. I then
+applied the 2.4.5-ac1 patches, and got the above message, again.
 
-After 2 minutes in the fresh kernel on the console, I
-was make'ing an application, and the kernel gave some
-messages about reverting DMA mode, which I have never,
-ever seen before, followed by file I/O errors on lots
-of source files.
+The system is an Abit KT7A-RAID w/ a 1Ghz Athlon. The dmesg output link
+below describes the drive configuration.  The BIOS is configured to boot
+from the HPT-370.
 
-I shutdown and rebooted, ext2fs detected my main disk
-as corrupt, and ran a check, spewing off screens and
-screens mentioning bad superblocks, incorrect times on
-inodes, and corrupt inodes within bad blocks [of which
-I have none].
+As part of the test, I completely reinstalled the 2.4.4 kernel source,
+applied the ac11 patch, and my config file, rebuilt and reinstalled. All
+worked fine. Any thoughts on why this might be occurring?
 
-I tar'd up what little I could salvage from my disk in
-single user mode where you run the fsck manually, when
-the kernel started giving messages about problems
-communicating with USB [I compile in the USB for
-Intel, and the HID, and have a Sidewinder joystick
-plugged in that I wasn't using].  
+I can provide any additional information as necessary. Here are the various
+files:
 
-The system was unuseable past that point, so I wiped
-clean and installed Win2K while I get my backups
-together.  My hardware is fine, of course, everything
-is AOK now.  The kernel had just gone crazy and mad.
+http://jcwren.com/linux/config.txt - config file
+http://jcwren.com/linux/dmesg.txt - ac11 dmesg log
+http://jcwren.com/linux/lilo.txt - lilo.conf
 
-That's my experiences.  Sorry it's long and I can't
-provide specific error messages, as I couldn't really
-do anything with my system in the state it was in.
+I'm not smart enough to know how to capture the output for a kernel that
+panics and halts. If I can provide any additional information for resolving
+the problem, I would be happy to. Oh, and as best as I can tell before it
+all scrolls by, the kernel reporting looks to be the same between all
+kernels, with only the version being different.
 
-I hope that helps someone.  Please CC me comments as I
-am not on the mailing list.  Thank you.
+--John
 
-Cody Gould
-
-
-_____________________________________________________________________________
-http://messenger.yahoo.com.au - Yahoo! Messenger
-- Voice chat, mail alerts, stock quotes and favourite news and lots more!

@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbVACWIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbVACWIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbVACWIW (ORCPT <rfc822;willy@w.ods.org>);
+	id S261874AbVACWIW (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 3 Jan 2005 17:08:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbVACWFS
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbVACWFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 17:05:18 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:55966 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261888AbVACWCN (ORCPT
+	Mon, 3 Jan 2005 17:05:41 -0500
+Received: from smtpout.mac.com ([17.250.248.85]:61413 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261903AbVACWES (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 17:02:13 -0500
-Date: Mon, 3 Jan 2005 17:01:50 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, robert_hentosh@dell.com
-Subject: Re: [PATCH][2/2] do not OOM kill if we skip writing many pages
-In-Reply-To: <20050103185110.GF14886@logos.cnet>
-Message-ID: <Pine.LNX.4.61.0501031700240.25392@chimarrao.boston.redhat.com>
-References: <Pine.LNX.4.61.0412201013420.13935@chimarrao.boston.redhat.com>
- <20050102172929.GL5164@dualathlon.random> <Pine.LNX.4.61.0501022319180.10640@chimarrao.boston.redhat.com>
- <20050103122241.GE29158@logos.cnet> <20050103162500.GX5164@dualathlon.random>
- <Pine.LNX.4.61.0501031130310.25392@chimarrao.boston.redhat.com>
- <20050103185110.GF14886@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 3 Jan 2005 17:04:18 -0500
+In-Reply-To: <Pine.LNX.4.61.0501031648300.25392@chimarrao.boston.redhat.com>
+References: <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl> <0F9DCB4E-5DD1-11D9-892B-000D9352858E@mac.com> <Pine.LNX.4.61.0501031648300.25392@chimarrao.boston.redhat.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <5B2E0ED4-5DD3-11D9-892B-000D9352858E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Adrian Bunk <bunk@stusta.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       William Lee Irwin III <wli@debian.org>
+From: Felipe Alfaro Solana <lkml@mac.com>
+Subject: Re: starting with 2.7
+Date: Mon, 3 Jan 2005 23:03:53 +0100
+To: Rik van Riel <riel@redhat.com>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Jan 2005, Marcelo Tosatti wrote:
+On 3 Jan 2005, at 22:48, Rik van Riel wrote:
 
-> Yes - Andrew's throttle_vm_writeout() should be handling that.
+> On Mon, 3 Jan 2005, Felipe Alfaro Solana wrote:
+>> On 3 Jan 2005, at 21:59, Horst von Brand wrote:
+>
+>>> Open up the code. Most of the changes will then be done as a matter 
+>>> of
+>>> course by others.
+>>
+>> Unfortunately, you can't force the entire hardware industry to open 
+>> up their drivers.
+>
+> That's ok.  I don't have to buy that hardware.
 
-> You sure the above logic is working on RH kernels?
+Gosh! I bought an ATI video card, I bought a VMware license, etc.... I 
+want to keep using them. Changing a "stable" kernel will continuously 
+annoy users and vendors.
 
-Exactly the same code.
+I think new developments will force a 2.7 branch: when 2.6 feature set 
+stabilizes, people will keep more time testing a stable, relatively 
+static kernel base, finding bugs, instead of trying to keep up with 
+changes.
 
-> I can't see how it could fail with this in place.
-
-Neither can I, except perhaps the IO subsystem is sized
-to handle more IO than all the lowmem pages simultaneously ?
-
-The patch I just posted to lkml ([5/?]) should fix another
-issue related to this problem, and might just fix the problem.
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan

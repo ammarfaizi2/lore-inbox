@@ -1,81 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbTEHPYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 11:24:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbTEHPYZ
+	id S261797AbTEHP0J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 11:26:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTEHP0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 11:24:25 -0400
-Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:54326 "EHLO
-	lucifer.gotontheinter.net") by vger.kernel.org with ESMTP
-	id S261727AbTEHPYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 11:24:23 -0400
-Subject: Re: Dell Inspiron 8200, 2.5.69, ACPI problems
-From: Disconnect <lkml@sigkill.net>
-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EB9D625.1060704@blue-labs.org>
-References: <3EB9D625.1060704@blue-labs.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052408205.1531.27.camel@slappy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 08 May 2003 11:36:45 -0400
+	Thu, 8 May 2003 11:26:09 -0400
+Received: from watch.techsource.com ([209.208.48.130]:1410 "EHLO
+	techsource.com") by vger.kernel.org with ESMTP id S261797AbTEHP0H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 11:26:07 -0400
+Message-ID: <3EBA7AE2.9020401@techsource.com>
+Date: Thu, 08 May 2003 11:42:26 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Roland Dreier <roland@topspin.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: top stack (l)users for 2.5.69
+References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305070933450.11740@chaos> <20030507135657.GC18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305071008080.11871@chaos> <p05210601badeeb31916c@[207.213.214.37]> <Pine.LNX.4.53.0305071323100.13049@chaos> <52k7d2pqwm.fsf@topspin.com> <Pine.LNX.4.53.0305071424290.13499@chaos> <52bryeppb3.fsf@topspin.com> <Pine.LNX.4.53.0305071523010.13724@chaos> <52n0hyo85x.fsf@topspin.com> <Pine.LNX.4.53.0305071547060.13869@chaos> <3EB96FB2.2020401@techsource.com> <Pine.LNX.4.53.0305080729410.16638@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As a 'me too' the same is true on inspiron 8500, under 2.4 and 2.5. 
-I've got a fixed-up DSDT installed (see the guide at
-http://www.cpqlinux.com/acpi-howto.html and
-http://developer.intel.com/technology/iapc/acpi/bios_override.htm ..)
-and that drops some of the noise (and fixes some of the missing bits)
-but acpid and others (basically any acpi call) results in similar
-messages.
 
-Its not a kernel issue (well, its a warning from the kernel.. but the
-kernel can't fix this directly.)  Turning off ACPI debugging will
-probably make it stop, but the underlying issue is Dell (and many other
-vendors) don't test their ACPI firmware under anything except windows.
 
->From Intel's ACPI site (and this applies to many acpi issues):
-Q16. What is the "implicit return" issue, and why hasn't it been fixed?
-A16. {cut} Due to an errata, this bug does not manifest itself on
-Windows' ACPI implementations, and therefore was not detected when OEMs
-tested their systems using that OS.
- 
- We've made the decision for now to not be bug-for-bug compatible with
-existing ACPI OS implementations. We are implementing according to the
-ACPI specification's requirements, and hopefully this may drive better
-compliance on all operating systems. 
-
-On Wed, 2003-05-07 at 23:59, David Ford wrote:
-> ACPI: AC Adapter [AC] (on-line)
->     ACPI-0207: *** Warning: Buffer created with zero length in AML
->     ACPI-0207: *** Warning: Buffer created with zero length in AML
->     ACPI-0207: *** Warning: Buffer created with zero length in AML
->     ACPI-0207: *** Warning: Buffer created with zero length in AML
-> ACPI: Battery Slot [BAT0] (battery present)
->     ACPI-0207: *** Warning: Buffer created with zero length in AML
->         -0091: *** Error: ut_allocate: Attempt to allocate zero bytes
->     ACPI-0207: *** Warning: Buffer created with zero length in AML
->         -0091: *** Error: ut_allocate: Attempt to allocate zero bytes
->     ACPI-0207: *** Warning: Buffer created with zero length in AML
->         -0091: *** Error: ut_allocate: Attempt to allocate zero bytes
->     ACPI-0207: *** Warning: Buffer created with zero length in AML
->         -0091: *** Error: ut_allocate: Attempt to allocate zero bytes
-> ACPI: Battery Slot [BAT1] (battery present)
-> ACPI: Lid Switch [LID]
-> ACPI: Power Button (CM) [PBTN]
-> ACPI: Sleep Button (CM) [SBTN]
-> ACPI: Processor [CPU0] (supports C1 C2, 8 throttling states)
-> ACPI: Thermal Zone [THM] (25 C)
+Richard B. Johnson wrote:
 > 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Disconnect <lkml@sigkill.net>
+> In protected mode, the kernel stack. And, regardless of implimentation
+> details, there can only be one. It's the one whos stack-selector
+> is being used by the CPU. So, in the case of Linux, with multiple
+> kernel stacks (!?????), one for each process, whatever process is
+> running in kernel mode (current) has it's SS active. It's the
+> one that gets hit with the interrupt.
+
+That's kinda what I figured.  I just didn't know if there was some 
+(hardware) provision to do otherwise, or if there was some reason why 
+the interrupt handler might immediately switch stacks, etc.
+
+That is to say, some CPUs might have provision for a stack pointer to be 
+associated with each interrupt vector.
+
+Secondly, given so many unknowns about what might already be on the 
+current kernel stack, it might be generally safer to move the processor 
+state (saved by the CPU on interrupt) from the current stack to some 
+"interrupt stack" which may have a more predictable amount of free 
+space.  (Then again, if the CPU is currently executing in user space, 
+the kernel stack is probably completely empty.)
+
+I realize that, however small, that would be an undesirable amount of 
+overhead, but it occurs to me that someone might do that anyhow for 
+stability reasons.  I could imagine some interrupts needing more than a 
+trivial amount of stack space.  I'm assuming, for instance, that things 
+like the IDE block driver would need to do things like PIO a sector 
+to/from an old CDROM drive, look up the next scheduled I/O operation to 
+perform, etc.
+
 

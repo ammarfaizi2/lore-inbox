@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264154AbUEHGKH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264161AbUEHHCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264154AbUEHGKH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 02:10:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264155AbUEHGKH
+	id S264161AbUEHHCz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 03:02:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264160AbUEHHCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 02:10:07 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28846 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264154AbUEHGKD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 02:10:03 -0400
-Date: Fri, 7 May 2004 23:09:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Cc: rusty@rustcorp.com.au, bruceg@em.ca, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3-mm2
-Message-Id: <20040507230915.447a92fa.akpm@osdl.org>
-In-Reply-To: <200405072213.23167.rjwysocki@sisk.pl>
-References: <20040505013135.7689e38d.akpm@osdl.org>
-	<20040506195223.017cd7f6.akpm@osdl.org>
-	<1083903398.7481.43.camel@bach>
-	<200405072213.23167.rjwysocki@sisk.pl>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 8 May 2004 03:02:55 -0400
+Received: from viefep12-int.chello.at ([213.46.255.25]:23828 "EHLO
+	viefep12-int.chello.at") by vger.kernel.org with ESMTP
+	id S264161AbUEHHCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 03:02:54 -0400
+From: Anubis <kerub@gmx.net>
+To: linux-kernel@vger.kernel.org, petri.koistinen@iki.fi, lathiat@sixlabs.org,
+       janitor@sternwelten.at
+Subject: Re: Bug for making NETFILTER
+Date: Sat, 8 May 2004 09:04:59 +0200
+User-Agent: KMail/1.6
+References: <200405050743.42833.kerub@gmx.net> <20040505175653.GA2250@mars.ravnborg.org>
+In-Reply-To: <20040505175653.GA2250@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405080904.59703.kerub@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"R. J. Wysocki" <rjwysocki@sisk.pl> wrote:
->
-> On Friday 07 of May 2004 06:16, Rusty Russell wrote:
->  > On Fri, 2004-05-07 at 12:52, Andrew Morton wrote:
->  > > Bruce Guenter <bruceg@em.ca> wrote:
->  > > > On Wed, May 05, 2004 at 01:31:35AM -0700, Andrew Morton wrote:
->  > > > > Move-saved_command_line-to-init-mainc.patch
->  > > > >   Move saved_command_line to init/main.c
->  > > >
->  > > > This patch appears to be breaking serial console for me.  Reverting
->  > > > this patch with patch -R makes it work again.  I can't tell from the
->  > > > contents of the patch why it causes problems, but it does.  I'd be
->  > > > happy to provide any further details if required.
->  > >
->  > > Thanks for narrowing it down - I'd been meaning to look into the serial
->  > > console problem.
->  > >
->  > > Rusty, can you have a ponder please?
->  >
->  > Works for me: I use serial console.  Config please.
-> 
->  As you wish,
+On Wednesday 05 May 2004 19:56, Sam Ravnborg wrote:
+> > make[3]: *** No rule to make target `net/ipv4/netfilter/ipt_mark.o',
+> > needed by `net/ipv4/netfilter/built-in.o'.  Stop.
+> > for linux-2.6.5
+> Check permissions on the file - or maybe something else went wrong whan
+> patching up the kernel src?
 
-Works for me too.  Can you share your kernel boot commandline with us?
+Permissions are ok, but filename probably is not: ipt_MARK.c
+Anyway I did not patch the kernel but got the full distribution.
+
+I copied ipt_MARK.c to ipt_mark.c and got the following:
+  CC      net/ipv4/netfilter/ipt_mark.o
+net/ipv4/netfilter/ipt_mark.c:13:43: linux/netfilter_ipv4/ipt_mark.h: No such 
+file or directory
+net/ipv4/netfilter/ipt_mark.c: In function `match':
+net/ipv4/netfilter/ipt_mark.c:30: error: dereferencing pointer to incomplete 
+type
+net/ipv4/netfilter/ipt_mark.c:30: error: dereferencing pointer to incomplete 
+type
+net/ipv4/netfilter/ipt_mark.c:30: error: dereferencing pointer to incomplete 
+type
+net/ipv4/netfilter/ipt_mark.c: In function `checkentry':
+net/ipv4/netfilter/ipt_mark.c:40: error: invalid application of `sizeof' to an 
+incomplete type
+make[3]: *** [net/ipv4/netfilter/ipt_mark.o] Error 1

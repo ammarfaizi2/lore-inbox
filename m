@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289735AbSAJWYt>; Thu, 10 Jan 2002 17:24:49 -0500
+	id <S289738AbSAJW03>; Thu, 10 Jan 2002 17:26:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289736AbSAJWYj>; Thu, 10 Jan 2002 17:24:39 -0500
-Received: from h24-71-138-152.ss.shawcable.net ([24.71.138.152]:64504 "HELO
-	lorien.untroubled.org") by vger.kernel.org with SMTP
-	id <S289737AbSAJWYZ>; Thu, 10 Jan 2002 17:24:25 -0500
-Date: Thu, 10 Jan 2002 16:24:45 -0600
-From: Bruce Guenter <bruceg@em.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Where's all my memory going?
-Message-ID: <20020110162445.A13236@em.ca>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E16OMpF-0001pj-00@the-village.bc.nu> <Pine.LNX.4.33L.0201092034590.2985-100000@imladris.surriel.com> <20020110024520.A29045@em.ca> <20020110030537.C771@lynx.adilger.int> <20020110145542.B2499@mould.bodgit-n-scarper.com> <20020110134657.A26688@lynx.adilger.int>
+	id <S289736AbSAJW0O>; Thu, 10 Jan 2002 17:26:14 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:17322
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S289739AbSAJWZw>; Thu, 10 Jan 2002 17:25:52 -0500
+Date: Thu, 10 Jan 2002 15:24:57 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Rob Landley <landley@trommello.org>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, Greg KH <greg@kroah.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+Message-ID: <20020110222457.GE13931@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk> <20020110013856.A26151@devcon.net> <20020110024240.GW13931@cpe-24-221-152-185.az.sprintbbd.net> <200201102155.g0ALtkA22362@snark.thyrsus.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020110134657.A26688@lynx.adilger.int>; from adilger@turbolabs.com on Thu, Jan 10, 2002 at 01:46:57PM -0700
+In-Reply-To: <200201102155.g0ALtkA22362@snark.thyrsus.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 10, 2002 at 09:09:01AM -0500, Rob Landley wrote:
+> On Wednesday 09 January 2002 09:42 pm, Tom Rini wrote:
+> > On Thu, Jan 10, 2002 at 01:38:56AM +0100, Andreas Ferber wrote:
+> > > On Wed, Jan 09, 2002 at 05:25:07PM -0700, Tom Rini wrote:
+> > > > > This could be done anyway: just replace the initramfs image built by
+> > > > > the kernel build with anotherone built from another source tree. It
+> > > > > would be helpful though if the tools were distributed both standalone
+> > > > > and included into the kernel tree.
+> > > >
+> > > > If the kernel is going to build an initramfs option, it also needs a
+> > > > way to be given one.  The issue I'm thinking of is I know of a few
+> > > > platforms where the initramfs archive will have to be part of the
+> > > > 'zImage' file (much like they do for ramdisks now).
+> > >
+> > > Append it to the zImage and let the kernel look for it there. Plus add
+> > > a tool to util-linux (or maybe an option to rdev?) to let you replace
+> > > the embedded initramfs in a {,b}zImage with a customized one.
+> >
+> > Er, 'rdev' is an x86-only program, so lets not add common functionality
+> > to that.  And I'd rather not throw something onto the end of the
+> > 'zImage' since I just got done removing annoying/broken things like
+> > that.
+> 
+> You want it to be an ELF section then?
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I want it to be implementation specific.  The running kernel shouldn't
+care how it got the image, just that it did.
 
-On Thu, Jan 10, 2002 at 01:46:57PM -0700, Andreas Dilger wrote:
-> One question - what happens to the emails after they are delivered?  Are
-> they kept on the local filesystem?
+And yes, on PPC it will either be given one by a 'real' bootloader
+(yaboot, ppcboot) or an ELF section like the kernel itself, ramdisk and
+sometimes System.map are.
 
-Messages in the queue are deleted after delivery (of course).  Messages
-delivered locally are stored on the local filesystem until they're
-picked up by POP (typically within 15 minutes).
---=20
-Bruce Guenter <bruceg@em.ca> http://em.ca/~bruceg/ http://untroubled.org/
-OpenPGP key: 699980E8 / D0B7 C8DD 365D A395 29DA  2E2A E96F B2DC 6999 80E8
-
---jRHKVT23PllUwdXP
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8PhSt6W+y3GmZgOgRAloTAJ43laDzalfME5y3XFkySUbDHKDjJgCgnCNG
-HlFwtBpQibVb9++hxcNqqEU=
-=KYny
------END PGP SIGNATURE-----
-
---jRHKVT23PllUwdXP--
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131507AbRCNTdR>; Wed, 14 Mar 2001 14:33:17 -0500
+	id <S131505AbRCNTch>; Wed, 14 Mar 2001 14:32:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131508AbRCNTdI>; Wed, 14 Mar 2001 14:33:08 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:28912 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131506AbRCNTdC>;
-	Wed, 14 Mar 2001 14:33:02 -0500
-Date: Wed, 14 Mar 2001 14:32:21 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
+	id <S131506AbRCNTc2>; Wed, 14 Mar 2001 14:32:28 -0500
+Received: from mg03.austin.ibm.com ([192.35.232.20]:14807 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S131503AbRCNTcT>; Wed, 14 Mar 2001 14:32:19 -0500
+Message-ID: <3AAFC708.752B2819@austin.ibm.com>
+Date: Wed, 14 Mar 2001 13:31:20 -0600
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Andreas Dilger <adilger@turbolinux.com>
-cc: Linux kernel development list <linux-kernel@vger.kernel.org>,
+CC: Alexander Viro <viro@math.psu.edu>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>,
         Linux FS development list <linux-fsdevel@vger.kernel.org>
 Subject: Re: (struct dentry *)->vfsmnt;
-In-Reply-To: <200103141914.f2EJEVN10163@webber.adilger.int>
-Message-ID: <Pine.GSO.4.21.0103141428490.4468-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <200103141726.f2EHQoj09856@webber.adilger.int>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+AIX stores all of this information in the LVM, not in the filesystem. 
+The filesystem itself has nothing to do with importing and exporting
+volume groups.  Having the information stored as part of LVM's metadata
+allows the utilities to only deal with LVM instead of every individual
+file system.
 
-
-On Wed, 14 Mar 2001, Andreas Dilger wrote:
-
-> Obviously, the whole vgimport stuff is going to be in userland.  The only
-> part that needs to go in the kernel is storing the mountpoint in the
-> filesystem superblock.  It is _not_ OK to just put it in /.last.mounted.
-> Quite often a data/application VG is moved independent of the root filesystem.
-> The info needs to stay with the filesystem itself.
-
-Sorry - .last.mounted in the root of filesystem, indeed.
-
-> > Since the reading side contains a bunch of heuristics
-> > (obviously depending on the local naming policy for temp. mountpoints,
-> > for one thing) you don't need anything special on the writing side...
+Andreas Dilger wrote:
 > 
-> The writing side can't be done in userland without basically making
-> mount(8) know about the superblock layout of each and every filesystem:
+> Al writes:
+> > On Tue, 13 Mar 2001, Andreas Dilger wrote:
+> >
+> > > On AIX, it is possible to import a volume group, and it automatically
+> > > builds /etc/fstab entries from information stored in the fs.  Having the
+> > > "last mounted on" would have the mount point info, and of course LVM
+> > > would hold the device names.
+> >
+> > Wait a minute. What happens if you bring /home from one box to another,
+> > that already has /home? Corrupted /etc/fstab?
 
-That's a wonderful reason to put it _not_ into superblock... OK, what's
-wrong with the variant above?
+> For the same reason that the UUID and LABEL are stored in the superblock:
+> you want this infomation kept with the filesystem and not anywhere else,
+> otherwise it will quickly get out-of-date.  Wherever you mounted the
+> filesystem last is where it would be mounted if you import the VG on
+> another system.  You can obviously edit /etc/fstab afterwards if it is
+> wrong, and then remount the filesystem(s), and this will store the
+> correct mountpoint into the filesystem for the next vgimport.
 
-							Cheers,
-								Al
-
+-- 
+David J. Kleikamp
+IBM Linux Technology Center

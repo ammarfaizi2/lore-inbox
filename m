@@ -1,132 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262710AbREYRC2>; Fri, 25 May 2001 13:02:28 -0400
+	id <S262713AbREYREJ>; Fri, 25 May 2001 13:04:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262713AbREYRCR>; Fri, 25 May 2001 13:02:17 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:63445 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S262710AbREYRCK>; Fri, 25 May 2001 13:02:10 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Fri, 25 May 2001 10:02:08 -0700
-Message-Id: <200105251702.KAA23819@adam.yggdrasil.com>
-To: dledford@redhat.com
-Subject: Re: Fwd: Copyright infringement in linux/drivers/usb/serial/keyspan*fw.h
-Cc: aaronl@vitelus.com, acahalan@cs.uml.edu, linux-kernel@vger.kernel.org
+	id <S263101AbREYRD7>; Fri, 25 May 2001 13:03:59 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:10256
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S262713AbREYRDt>; Fri, 25 May 2001 13:03:49 -0400
+Date: Fri, 25 May 2001 12:58:18 -0400
+From: Chris Mason <mason@suse.com>
+To: Hans Reiser <reiser@namesys.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>,
+        Andi Kleen <ak@suse.de>, Andreas Dilger <adilger@turbolinux.com>,
+        monkeyiq <monkeyiq@users.sourceforge.net>,
+        linux-kernel@vger.kernel.org, Nikita Danilov <god@namesys.com>
+Subject: Re: Dying disk and filesystem choice.
+Message-ID: <328640000.990809898@tiny>
+In-Reply-To: <3B0E8696.5B1F304@namesys.com>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Ledford wrote:
->"Adam J. Richter" wrote:
-
->>         On the question of whether this is nothing more than
->> aggregation,
-
->Yes, on that very question, I would argue it is a mere aggregation.
-
->> the firmware works intimately with the device driver to
->> produce a unitary result.
-
->Irrelevant.
-
-        The 1991 Abridged 6th Edition of _Black's Law Dictionary_
-defines "aggregation" thusly (unfortunately, talking in terms of
-patent law, but it is the most authoratitive definition I have found
-so far):
-
-        Aggregation: The combination of two or more elements in patent claims,
-        each of which is unrelated and each of which performs separately and
-        without cooperation , where combination does not define a composite
-        integrate mechanism.  Term means that the elements of a claimed
-        combination are incapabile of co-operation to produce a unitary
-        result, and in its true sense does not need prior art patents to
-        support it.
 
 
-	If you want to argue that a court will use a different definition
-of aggregation, then please explain why and quote that definition.  Also,
-it's important not to forget the word "mere."  If the combination is anything
-*more* than aggregration, then it's not _merely_ aggregation.  So,
-if you wanted to argue from the definition on webster.com:
+On Friday, May 25, 2001 09:21:42 AM -0700 Hans Reiser <reiser@namesys.com>
+wrote:
+> No, our policy is strictly in sync with and reflective of that of the
+> rest of the linux-kernel.  Since the ac series has a different policy, we
+> can be different in regards to the ac series.  
 
-	1 : a group, body, or mass composed of many distinct parts
-	    or individuals
-        2 a : the collecting of units or parts into a mass or whole
-	  b : the condition of being so collected
+Not really, our policy has been much more restrictive than the rest of the
+kernel.  Look at the patches we didn't send in.
 
-	You have to argue that absolutely nothing more than this
-is being done.  For example, the code the parts are not working
-together.
+> 
+> And I don't begin to comprehend your not sending in the lost disk space
+> after crash bug fix (I assume it is what you mean when you refer to lost
+> files after a crash, because I know of no lost files after a crash bug,
+> please phrase things more carefully), and it really annoys me and the
+> users, frankly.  Why you consider that a feature is beyond me.
 
->All drivers work with some sort of firmware on their respective
->targets to produce a unitary result, even if that firmware is implemented with
->silicon (as a ROM BIOS that loads the proper firmware code, or as
->microcode/state hardware built into the chip(set) itself).  As a closely
->similar device, think about the 1542 SCSI controller.  [...]
+The patch is a _huge_ change to the way files are deleted and truncated, to
+what happens during mount, and to the way transactions work.  It is
+effectively a format extension, and must be verified against both 2.2.x
+kernels and 2.4.x kernels, in both disk formats.
 
-	Yes.  It would also be illegal to distribute a GPL'ed driver
-.o that #include'd that proprietary firmware.
+Before I even consider introducing a change of this size, I want to be as
+sure as I can the rest of the code is stable.  It is the only way we can
+debug it and stay sane.  Even after I release the code, I won't want it in
+an ac series for a while.  It does much more harm than good if it somehow
+ruins compatibility with an older kernel, especially in 2.4.x.  
 
->>  You actually have to do some
->> kernel development to remove the
->> [proprietary firmware from the keyspan_usa drivers].
+Yes, it is a bug fix.  But, it is a very different kind of bug fix than
+something that corrupts files at random, or something that doesn't get
+buffers to disk at the right time.  
 
+I won't pretend the fix isn't important, but I won't allow larger changes
+to ruin the progress we've made so far.
 
->That's because you are assuming that uploading garbage to the device is not an
->option.
+-chris
 
-	No.  If I you change the driver to upload garbage, your
-userland loader that just looks for the unitialized device ID will
-not be able to get to the uninitialized device before the device
-driver claims the interface and trashes it.  So, your supposed act of
-disaggregation by zeroing out the effected bytes did not fully
-restore the old functionality.
-
-	By the way, I'm pretty sure that the situation is even
-worse.  The modified driver would not just load garbage to the
-ezusb device.  It would tell the ezusb device to jump to it, so
-you would not be able to talk to it after that point, other than
-by telling the kernel to reset the hub port that the ezusb device
-is connected to, in which case, the keyspan_usa driver will again
-grab the device and trash it.
-
-	I would also argue that searching for a lengthy bit string
-in file format and carefully zeroing it out is enough complexity
-so that the connection between the two pieces of information (the
-firmware integrated in the .o and the rest of the .o) are more
-than just aggregation.
-
-	I'm not denying that you could imagine a case that is a gray
-area where the FSF's understood intention in writing the GPL as
-interpreted by a judge from the GPL _and other evidence_ under the
-four corner's rule may have been to allow it, but I don't think
-we're anywhere near it.  But I agree that one could find some
-point where it's a judgement call.  If you get sued and the judge
-agrees with the plaintiff, you can lose your house, you life's savings,
-etc.  in statutory damages at, I believe, $50k per act of copying.
-If the judge agrees with you, well, then you have the satisfaction
-of winning that argument.  I hope you appreciate the asymmetry of
-the risk and have similarly calibrate your standards for caution,
-at least when you advocate exposing others to these kinds of risks.
-
->> you could just skip distribution of an extra file and have the rest of
->> the functionality work. 
-
->That is exactly the case.  The only change that must be made to remove that .h
->file from the driver source is to tell the driver where the *new* location of
->the correct firmware is.
-
-	What do you mean "remove the .h file" from the .o and
-"tell the driver" (open your mouth and talk to the screen?).
-We are talking about a .o file.  Copying the .o file is the
-act of infringement.
-
-	Also, if you're going to respond further, please also
-answer the following question.  Are you claiming that the FSF intended
-to allow a GPL'ed .o file that contains proprietary firmware for another
-microprocessor or are you claiming that FSF made a drafting error in
-the writing the GPL?
-
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."

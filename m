@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262694AbTDQXSw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 19:18:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbTDQXSw
+	id S262690AbTDQXSc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 19:18:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTDQXSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 19:18:52 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:11733 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262694AbTDQXSu
+	Thu, 17 Apr 2003 19:18:32 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:43662 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262690AbTDQXSb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 19:18:50 -0400
-Date: Thu, 17 Apr 2003 16:32:07 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
-To: lse-tech@lists.sourceforge.net
-cc: linux-kernel@vger.kernel.org
-Subject: Agenda for Conference Call Friday
-Message-ID: <69830000.1050622327@w-hlinder>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Thu, 17 Apr 2003 19:18:31 -0400
+Date: Fri, 18 Apr 2003 01:29:42 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.67-ac1 IDE - fix Taskfile IOCTLs
+In-Reply-To: <1050618406.32652.10.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.SOL.4.30.0304180127100.574-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-		LSE Con Call Agenda 
+On 17 Apr 2003, Alan Cox wrote:
 
-	I. Bill Irwin: Page Clustering (pgcl) 
-		Boots on IA32 machine with 64 GB of RAM...
+> On Gwe, 2003-04-18 at 00:16, Bartlomiej Zolnierkiewicz wrote:
+> > Hey,
+> >
+> > This time 5 incremental patches:
+> >
+> > 1       - Fix PIO handlers for Taskfile ioctls.
+> > 2a + 2b - Taskfile and flagged Taskfile PIO handlers unification.
+> > 3       - Map HDIO_DRIVE_CMD ioctl onto taskfile.
+> > 4       - Remove dead ide_diag_taskfile() code.
+> >
+> > [ More comments inside patches. ]
+>
+> I'll take a look at them for ac3. Can I roll in 1/2a-b and 4 and skip
+> the experimental one for ac3 ?
 
-	II. Anyone Else
-
-USA Toll Free:      1-877-849-9636
-International Toll: +1-719-457-5110
-Passcode: 372406 
-9:30am PST (GMT-0800), 11:30am CST, 12:30pm EST every other Friday
-
+Sure, you can also include 3 because by old function is used by default,
+to use the new one CONFIG_IDE_TASKFILE_IO has to be turned on...
 

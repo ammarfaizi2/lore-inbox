@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281159AbRKPHE2>; Fri, 16 Nov 2001 02:04:28 -0500
+	id <S281160AbRKPHHs>; Fri, 16 Nov 2001 02:07:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281160AbRKPHET>; Fri, 16 Nov 2001 02:04:19 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:22656 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S281159AbRKPHEE>; Fri, 16 Nov 2001 02:04:04 -0500
-Message-ID: <000001c16e6c$c29061d0$f5976dcf@nwfs>
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <002501c16e0c$d3800550$f5976dcf@nwfs> <1005854832.2730.1.camel@heat>
-Subject: Re: Microsoft IE6 is crashing with Linux 2.4.X
-Date: Thu, 15 Nov 2001 14:45:39 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S281215AbRKPHH2>; Fri, 16 Nov 2001 02:07:28 -0500
+Received: from mail.bmlv.gv.at ([193.171.152.34]:6075 "EHLO mail.bmlv.gv.at")
+	by vger.kernel.org with ESMTP id <S281160AbRKPHHU>;
+	Fri, 16 Nov 2001 02:07:20 -0500
+Message-Id: <3.0.6.32.20011116080809.009150b0@pop3.bmlv.gv.at>
+X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
+Date: Fri, 16 Nov 2001 08:08:09 +0100
+To: linux-kernel@vger.kernel.org
+From: "Ph. Marek" <marek@bmlv.gv.at>
+Subject: Re: Lockup in IDE code
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to some folks who responded to this, IE6 is just plain broken.  I
-apologize for the lateness of responding, but my Linux server crashed with
-sendmail spawing thread after thread and my /var/spool/mqueue directory
-filled to bursting with corrupted mail headers.  IE6 got into some kind of
-braindead loop where it started flooding sendmail with tons of bogus (and
-garbage) mail headers.
+I've had the same problem.
 
-It's clearly a piece of sh_t browser.  This latest release qualifies as a
-computer virus.  It's much more destructive that lion every dreamed of
-being.
+Lockups with 2.4.14pre1 + ext3-patch, sysrq not possible, HD led is on.
 
-Jeff
+This is a 7IXE4 (AMD756), Duron 650, 384MB. 2 HD's, 1 CDROM.
+
+	
+I've noted that on startup I got "spurious 8259A interrupt: IRQ7", and the
+machine locked hard on IDE activity (sometimes).
+after observing the above message and others like 
+	hda: timeout waiting for DMA
+	ide_dmaproc: chipset supported ide_dma timeoutfunc only: 14
+	hda: read_intr: status=0x51
+	hda: read_intr: status=0x04
+	hda: read_intr: status=0x51
+	hda: read_intr: status=0x04
+	hda: read_intr: status=0x51
+	hda: read_intr: status=0x04
+	ide0: reset: success
+
+The I've tested disabling some options.
+So far my best result was disabling APIC on UP (both - IOAPIC and APIC) -
+so far I've had no more lockups.
+
+Will test further, but this seemed to be the problem for me.
 
 
------ Original Message -----
-From: "Jeffrey W. Baker" <jwbaker@acm.org>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Thursday, November 15, 2001 1:07 PM
-Subject: Re: Microsoft IE6 is crashing with Linux 2.4.X
+Regards,
+
+Phil
 
 
-> On Thu, 2001-11-15 at 11:35, Jeff V. Merkey wrote:
-> >
-> > I have upgraded several W2K boxes to the latest IE6 packages I
-downloaded
-> > from Microsoft's website.  I am seeing a behavior which appears to be a
-bug.
->
-> Be a lot more interesting email if you included a dump of the actual
-> network traffic.  -jwb
+-
+This message is RSA-encrypted: n=33389, e=257
 

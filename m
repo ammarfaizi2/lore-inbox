@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129811AbRAEKd4>; Fri, 5 Jan 2001 05:33:56 -0500
+	id <S129383AbRAEKq7>; Fri, 5 Jan 2001 05:46:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130003AbRAEKdq>; Fri, 5 Jan 2001 05:33:46 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:47626 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129811AbRAEKda>;
-	Fri, 5 Jan 2001 05:33:30 -0500
-Date: Fri, 5 Jan 2001 10:31:09 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Daniel Phillips <phillips@innominate.de>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-Message-ID: <20010105103109.O1290@redhat.com>
-In-Reply-To: <Pine.LNX.4.30.0101031253130.6567-100000@springhead.px.uk.com> <Pine.LNX.4.21.0101031325270.1403-100000@duckman.distro.conectiva> <3A5352ED.A263672D@innominate.de> <20010104192104.C2034@redhat.com> <3A5515D0.7F21E668@innominate.de>
-Mime-Version: 1.0
+	id <S129401AbRAEKqk>; Fri, 5 Jan 2001 05:46:40 -0500
+Received: from punt.aladdin.de ([194.123.19.6]:13177 "HELO punt.aladdin.de")
+	by vger.kernel.org with SMTP id <S129383AbRAEKqe>;
+	Fri, 5 Jan 2001 05:46:34 -0500
+To: linux-kernel@vger.kernel.org
+Cc: cpg@aladdin.de
+Subject: compile error on 2.4.0
+From: Christian Groessler <cpg@aladdin.de>
+Date: 05 Jan 2001 11:46:12 +0100
+Message-ID: <87vgruxonf.fsf@panther.aladdin.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A5515D0.7F21E668@innominate.de>; from phillips@innominate.de on Fri, Jan 05, 2001 at 01:31:12AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Fri, Jan 05, 2001 at 01:31:12AM +0100, Daniel Phillips wrote:
-> "Stephen C. Tweedie" wrote:
-> > 
-> Yes, and so long as your journal is not on another partition/disk things
-> will eventually be set right.  The combination of a partially updated
-> filesystem and its journal is in some sense a complete, consistent
-> filesystem.
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.0/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i586 -DMODULE -DMODVERSIONS -include /usr/src/linux-2.4.0/include/linux/modversions.h   -c -o r128_cce.o r128_cce.c
+r128_cce.c: In function `r128_cce_init_ring_buffer':
+r128_cce.c:339: structure has no member named `agp'
+r128_cce.c:333: warning: `ring_start' might be used uninitialized in this function
+r128_cce.c: In function `r128_cce_packet':
+r128_cce.c:1023: warning: unused variable `size'
+r128_cce.c:1021: warning: unused variable `buffer'
+r128_cce.c:1019: warning: unused variable `dev_priv'
+make[3]: *** [r128_cce.o] Error 1
 
-Right.
 
-> I'm curious - how does ext3 handle the possibility of a crash during
-> journal recovery?
+.config file on request...
 
-Recovery comes in two parts: replay of the log, and deletion of
-orphaned inodes.
+regards,
+chris
 
-The log replay is fully idempotent: it just consists of writing the
-appropriate log blocks to their home locations on disk.  It doesn't
-matter if you do those writes once, twice or a hundred times, you
-still get the same result, so crashing mid-recovery and starting again
-from scratch is perfectly safe.
-
-Once that recovery is done, the filesystem is marked, atomically, to
-be clean.
-
-Secondly, we do the deletion of orphaned inodes.  By this time, the
-journal itself has been recovered so we are journaling our operations,
-so each orphaned inode delete is being logged.  A crash will recover
-to a consistent state via the normal journaling transaction methods,
-and will restart orphan recovery from where it left off.
-
-Cheers,
- Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,54 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290721AbSAYQvJ>; Fri, 25 Jan 2002 11:51:09 -0500
+	id <S290727AbSAYQxN>; Fri, 25 Jan 2002 11:53:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290723AbSAYQuy>; Fri, 25 Jan 2002 11:50:54 -0500
-Received: from vena.lwn.net ([206.168.112.25]:22537 "HELO eklektix.com")
-	by vger.kernel.org with SMTP id <S290721AbSAYQuq>;
-	Fri, 25 Jan 2002 11:50:46 -0500
-Message-ID: <20020125165045.5104.qmail@eklektix.com>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: ACPI mentioned on lwn.net/kernel 
-From: corbet@lwn.net (Jonathan Corbet)
-In-Reply-To: Your message of "Thu, 24 Jan 2002 17:29:40 PST."
-             <59885C5E3098D511AD690002A5072D3C02AB7BDF@orsmsx111.jf.intel.com> 
-Date: Fri, 25 Jan 2002 09:50:45 -0700
+	id <S290726AbSAYQxA>; Fri, 25 Jan 2002 11:53:00 -0500
+Received: from dpc6682034030.direcpc.com ([66.82.34.30]:260 "EHLO
+	oscar.hatestheinter.net") by vger.kernel.org with ESMTP
+	id <S290725AbSAYQw2>; Fri, 25 Jan 2002 11:52:28 -0500
+Subject: Re: [right one][patch] amd athlon cooling on kt266/266a chipset
+From: Disconnect <lkml@sigkill.net>
+To: Daniel Nofftz <nofftz@castor.uni-trier.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1011899975.2029.9.camel@oscar>
+In-Reply-To: <Pine.LNX.4.40.0201221817410.11025-200000@infcip10.uni-trier.de> 
+	<1011899975.2029.9.camel@oscar>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 25 Jan 2002 11:49:07 -0500
+Message-Id: <1011977347.1788.5.camel@oscar>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andy,
+On suggestions from a few people, I tried underclocking the system to
+1200 mhz (x12 instead of x13) and most of the problems went away.
 
-> As longtime subscribers to acpi-devel know, this seems to come up every few
-> months, but the criticisms mentioned in this week's lwn.net kernel
-> development summary (http://lwn.net/2002/0124/kernel.php3) prompt me to
-> respond, lest my silence be taken for capitulation. ;-)
+The jagged lines on xawtv are present only during "fast motion" although
+there is some fuzz on all motion, its watchable (akin to slightly bad
+reception.)
 
-I'm sorry if you, or the other Linux ACPI developers, felt attacked by what
-was written - that certainly wasn't the intent.  Everything that appeared
-in LWN had to do with the ACPI specification, and not any particular
-implementation.  I don't doubt that I could have written it in a clearer,
-more even-handed way.
+The usb keyboard problems went away (that could relate to other things
+I've been messing with - X seems happier w/ 2 usb keyboards than with
+just 1 for some reason.)
 
-It may well be that the concerns over ACPI are overblown.  It is true,
-however, that the concerns exist and are widely shared.  It would be
-worthwhile to have a discussion on why people shouldn't worry.  What
-controls are there on the things AML code can do?  What reasons are there
-to expect that ACPI code will be more reliable than any other sort of BIOS
-code? 
+Testing sound and such, no skips or other issues from xmms, even when
+top reports 70-80% idle.
 
-Increasingly, it seems that it will not be possible to use modern hardware
-without ACPI.  So, in a sense, the point will be moot.  Certainly it is
-only a good thing that Linux has a high-quality ACPI implementation in the
-works, so that users will have the option to use it.  I expect that most
-will happily run it and look no further.  
+CPU states:  22.2% user,  10.9% system,  24.7% nice,  42.2% idle
+CPU Temp: +35.8 C     (limit = +51 C,  hysteresis = +49 C) 
 
-But that doesn't change the fact that a lot of people do not like the ACPI
-standard.  There is some selling yet to be done if that dislike is to be
-overcome. 
+So I'm about 10C lower than before. Yay :)
 
-jon
+Any way to selectively enable/disable this from userspace? (Such that,
+eg, when I'm not watching tv I can enable, when I fire up xawtv and/or
+high-load apps I can disable..)  
 
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net
+Maybe (eventually) base it off load average..? (So load >.8 its
+disabled, below that its selectively enabled - daemon to handle it could
+be taught to check process lists, etc..)
+
+
+On Thu, 2002-01-24 at 14:19, Disconnect wrote:
+> I just finished testing the patch, and it shows huge temperature savings
+> (10 to 15C when idle).  The problem is, it screws up v4l (bttv), usb
+> keyboard under X becomes effectively unusable, etc.
+> 
+> V4l - using xinerama, xvideo, v4l under X4.1.0.1 - the picture gets
+> jagged lines through it (offset scanlines maybe?) and tends to be jumpy.
+> 
+> usb keyboard - its slightly bad under X anyway (sticky keys, modifiers,
+> etc) but with this patch I had to log in from another system just to
+> shut down - even ctrl-alt-delete wouldn't work. In about 15 mins of
+> arguing with it I probably got 20 keystrokes into the xserver. (mouse
+> continued to work fine however.)
+> 
+> Seems like a great idea, if these problems can be solved. I'd love to
+> get my cpu back down to 30C on a regular basis ;)
+> 
+> (Currently running the same kernel w/o amd_disconnect=yes and it isn't
+> showing any problems at all.)
+> 
+> Motherboard is an Iwill kk266 (kt133) w/ a 1.2G tbird, 512M ram, 2
+> aic7xxx (one pcb w/ pci bridge)
+> Primary video: nvidia geforce2 mx (yah yah but it works ;) ..)
+> Second/Third video: matrox mga g100 (4port card, 2 ports in use)
+> 
+> Also, I noticed an odd problem w/ ACPI. dmesg shows:
+> ACPI: Power Button (FF) found
+> ACPI: Multiple power buttons detected, ignoring fixed-feature
+> ACPI: Power Button (CM) found
+> ..and:
+>  ls -l /proc/acpi/button/
+> total 0
+> dr-xr-xr-x    2 root     root            0 Jan 24 14:19 power/
+> dr-xr-xr-x    2 root     root            0 Jan 24 14:19 power/
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+

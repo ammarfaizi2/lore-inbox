@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289352AbSAOBhz>; Mon, 14 Jan 2002 20:37:55 -0500
+	id <S289344AbSAOBiP>; Mon, 14 Jan 2002 20:38:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289351AbSAOBhp>; Mon, 14 Jan 2002 20:37:45 -0500
-Received: from tomts15.bellnexxia.net ([209.226.175.3]:1020 "EHLO
-	tomts15-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S289344AbSAOBhf>; Mon, 14 Jan 2002 20:37:35 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: [patch] O(1) scheduler-H6/H7 and nice +19
-Date: Mon, 14 Jan 2002 20:37:30 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: mingo@elte.hu, <linux-kernel@vger.kernel.org>, Dave Jones <davej@suse.de>
-In-Reply-To: <Pine.LNX.4.40.0201131944290.933-100000@blue1.dev.mcafeelabs.com>
-In-Reply-To: <Pine.LNX.4.40.0201131944290.933-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020115013732.384A6BB346@oscar.casa.dyndns.org>
+	id <S289351AbSAOBiG>; Mon, 14 Jan 2002 20:38:06 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:58759
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S289344AbSAOBhu>; Mon, 14 Jan 2002 20:37:50 -0500
+Date: Mon, 14 Jan 2002 20:21:50 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: arjan@fenrus.demon.nl, linux-kernel@vger.kernel.org
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Message-ID: <20020114202150.B24120@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, arjan@fenrus.demon.nl,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020114174133.D23081@thyrsus.com> <E16QGVZ-0003Ky-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16QGVZ-0003Ky-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Jan 14, 2002 at 11:27:17PM +0000
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 13, 2002 10:45 pm, Davide Libenzi wrote:
-> On Sun, 13 Jan 2002, Ed Tomlinson wrote:
-> > With pre3+H7, kernel compiles still take 40% longer with a setiathome
-> > process running at nice +19.  This is _not_ the case with the old
-> > scheduler.
->
-> Did you try to set MIN_TIMESLICE to 10 ( sched.h ) ?make bzImage with setiathome running nice +19
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > You miss my point.  Sure he's entitled to them.  But why should he
+> > *have to have them*?  They're extra state which, in the presence
+> > of a proper autoconfigurator, he doesn't need.
+> 
+> You have it backwards. The _autoconfigurator_ is extra state which in the
+> presence of the config he doesn't need
 
-This makes things a worst - note the decreased cpu utilizaton...
-  
-make bzImage  424.33s user 32.21s system 48% cpu 15:48.69 total
+Oh, come on Alan.  You can do better than that.  
 
-What is this telling us?  
+If Melvin loses the autoconfigurator, there's no state he has to reconstruct.
+There will be one exactly like it in the next tarball.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Ed Tomlinson
-
->>make bzImage  391.11s user 30.85s system 62% cpu 11:17.37 total
->>
->>make bzImage alone
->>
->>make bzImage  397.33s user 32.14s system 92% cpu 7:43.58 total
->>
->>Notice the large difference in run times...
-
-
+[The disarming of citizens] has a double effect, it palsies the hand
+and brutalizes the mind: a habitual disuse of physical forces totally
+destroys the moral [force]; and men lose at once the power of
+protecting themselves, and of discerning the cause of their
+oppression.
+        -- Joel Barlow, "Advice to the Privileged Orders", 1792-93

@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUHaF5B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266684AbUHaGAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266663AbUHaF5B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 01:57:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266684AbUHaF5B
+	id S266684AbUHaGAP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 02:00:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266687AbUHaGAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 01:57:01 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5251 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266663AbUHaF47
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 01:56:59 -0400
-Message-ID: <4134131D.6050001@pobox.com>
-Date: Tue, 31 Aug 2004 01:56:45 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Bill Huey (hui)" <bhuey@lnxw.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Tom Vier <tmv@comcast.net>,
+	Tue, 31 Aug 2004 02:00:15 -0400
+Received: from inet-tsb.toshiba.co.jp ([202.33.96.40]:11935 "EHLO
+	inet-tsb.toshiba.co.jp") by vger.kernel.org with ESMTP
+	id S266684AbUHaGAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 02:00:08 -0400
+Message-ID: <7076215DFAA4574099E5CD59FE42226204FBC27B@pcssrv42.pcs.pc.ome.toshiba.co.jp>
+From: "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
+To: Petr Sebor <petr@scssoft.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, petter.sundlof@findus.dhs.org,
        linux-kernel@vger.kernel.org
-Subject: Re: Userspace file systems & MKs (Re: silent semantic changes with
- reiser4)
-References: <1093480940.2748.35.camel@entropy> <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy> <20040826053200.GU31237@waste.org> <20040826075348.GT1284@nysv.org> <20040826163234.GA9047@delft.aura.cs.cmu.edu> <Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org> <20040831033950.GA32404@zero> <Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org> <413400B6.6040807@pobox.com> <20040831053055.GA8654@nietzsche.lynx.com>
-In-Reply-To: <20040831053055.GA8654@nietzsche.lynx.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: RE: Cannot enable DMA on SATA drive (SCSI-libsata, VIA SATA)
+Date: Tue, 31 Aug 2004 14:58:26 +0900
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Huey (hui) wrote:
-> DragonFly BSD, the only remotely functional open source BSD project on this
-> planet, has plans in place to push certain kernel components like their VFS
-> layer into userspace for easier debugging, testing and other things that go
+Hi Petr
 
-That violates Jeff's First Rule, put the fast path stuff in the kernel.
+Petr wrote> I am not using the combine mode on the sata drives 
+Petr wrote> (or at least, I don't know about it). I was implying that
+Petr wrote> when I connect another pure IDE drive to the motherboard, 
+Petr wrote> then the situation gets better.
 
+It seems that I have mistaken. 
+The misunderstood problem is as follows. 
 
-> with developing file systems easily. If they back it with something like C++
-> for doing constructor style type conversion on top of overloaded operators
-> to back VFS data structure translation, could easily import stuff like most
-> Linux file systems without major restructuring, say, if they had their
-> translation library written. In this case, userspace kernel systems have
-> some serious programming advantages over traditional kernels.
+Combined mode can be set up by the SATA controller of ESB of Intel tip. 
+This mode is the mode which can use SATA and PATA simultaneously. 
+In ata_piix driver, when combined mode is specified, it does not work.
+On the other hand, at the piix driver, in order not to recognize ESB tip, 
+it worked only by PIO mode.
 
-Sounds like security would be a pain in the ass :)
+Petr wrote> Whats wrong here (or ... what feels wrong) is that the system 
+Petr wrote> slows down noticeably when transferring data
+Petr wrote> to/from the sata drives. It 'feels' like using an old ide 
+Petr wrote> disk with pio mode only. I am not saying that the transfer rates
+Petr wrote> are low though... hdparm -t on the sata drives gives me following:
 
+It is the result of measuring in my environment:
 
-> They're also pushing an async syscall model to support a non-1:1 threading
-> system for userspace unlike what Linux has done with futexes. It'll allow
+  Linux-2.4.28-pre2 (RedHat Enterprise Linux 3 Update2 Base)
+  HDD: HITACHI DeskStar 80G x 2
+  SATA: Intel 82801ESB
+  ata_piix driver version : 1.02.
 
-messaging passing is also known as "really slow C function calls"
+The result is as follows. 
+I think that there are not your result and great difference.
 
-My PCI bus passes messages all the time.  A message is in the eye of the 
-beholder.
+/dev/sda:
+Timing buffered disk reads:  152 MB in  3.00 seconds =  50.67 MB/sec
 
-	Jeff
+/dev/sdb:
+Timing buffered disk reads:  174 MB in  3.02 seconds =  57.62 MB/sec
 
-
+Best Regards,
+Haruo 

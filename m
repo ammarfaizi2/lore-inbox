@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267650AbSLFWtM>; Fri, 6 Dec 2002 17:49:12 -0500
+	id <S267630AbSLFWv0>; Fri, 6 Dec 2002 17:51:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267654AbSLFWtM>; Fri, 6 Dec 2002 17:49:12 -0500
-Received: from h-64-105-35-8.SNVACAID.covad.net ([64.105.35.8]:52880 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S267650AbSLFWtL>; Fri, 6 Dec 2002 17:49:11 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Fri, 6 Dec 2002 14:52:21 -0800
-Message-Id: <200212062252.OAA07111@adam.yggdrasil.com>
-To: James.Bottomley@steeleye.com
-Subject: Re: [RFC] generic device DMA implementation
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, willy@debian.org
+	id <S267648AbSLFWv0>; Fri, 6 Dec 2002 17:51:26 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6672 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267630AbSLFWvY>; Fri, 6 Dec 2002 17:51:24 -0500
+Date: Fri, 6 Dec 2002 14:58:22 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jim Houston <jim.houston@ccur.com>
+cc: george anzinger <george@mvista.com>,
+       Stephen Rothwell <sfr@canb.auug.org.au>,
+       LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
+       "David S. Miller" <davem@redhat.com>, <ak@muc.de>, <davidm@hpl.hp.com>,
+       <schwidefsky@de.ibm.com>, <ralf@gnu.org>, <willy@debian.org>
+Subject: Re: [PATCH] compatibility syscall layer (lets try again)
+In-Reply-To: <3DF11D16.289456B2@ccur.com>
+Message-ID: <Pine.LNX.4.44.0212061450330.1101-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
->how about dma_alloc to take two flags
 
->DRIVER_SUPPORTS_CONSISTENT_ONLY
+On Fri, 6 Dec 2002, Jim Houston wrote:
+> 
+> I know it would be a few extra lines of assembly code but it would be
+> nice if the restart routine had the original arguments.
 
-	It's pretty much impossible not to support consistent memory.
+It's not even extra code on x86, since we don't stomp on any of the
+arguments, and they will all have the same values when returning. So on
+x86, we could see the arguments by just adding parameters to the
+sys_restart_syscall() function.
 
-	I'd suggest a shorter name for code readability and particularly
-to hint that this is the standard usage.  I'd suggest DMA_CONSISTENT
-or "0".
+However, the same is not necessarily true on other architectures, where
+there can be overlap between clobbers and arguments (so that the first
+invocation of the system call may have trashed the arguments unless it
+explicitly saves it), and that's the reason I don't want to expose the
+original ones.
 
->and
+Also, I actually much prefer the arguments to be saved away in the restart 
+block for another reason too - because that way you can _trust_ them. The 
+restart function basically knows that the arguments are truly the same 
+that were saved away - if you allow the register contents from user space 
+to be re-used, clever 'ptrace()' usage will be able to change the 
+registers.
 
->DRIVER_SUPPORTS_NON_CONSISTENT
+In other words, with the current setup, we can actually have hidden kernel 
+state inside the restart block, and it never gets leaked to/from user 
+space. That's potentially quite useful in itself (you can cache argument 
+values).
 
-	There is a pretty strong convention for medium to short names
-in the kernel, although this name will be used much less, so its
-length is not as important.  I'd like something that would match the
-names of the corresponding cache flushing and invalidation functions.
-I think I had previously suggested DMA_MAYBE_CONSISTENT and wmb_maybe
-or dma_sync_maybe but I'm not that attached to the "maybe" word.
-
-[...]
-
->and dma_alloc_consistent to be equivalent to dma_alloc with  
->DRIVER_SUPPORTS_CONSISTENT_ONLY (and hence equivalent to pci_alloc_consistent)
-
-Why have a separate dma_alloc_consistent function?
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
-
+		Linus
 

@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267236AbUBRRoi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 12:44:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267639AbUBRRoi
+	id S267988AbUBRUBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 15:01:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267994AbUBRUBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 12:44:38 -0500
-Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:3516 "EHLO
-	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S267236AbUBRRoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 12:44:34 -0500
-From: Eric <eric@cisu.net>
-To: Zoltan NAGY <nagyz@nefty.hu>
-Subject: Re: v2.6 in vmware?
-Date: Wed, 18 Feb 2004 11:44:14 -0600
-User-Agent: KMail/1.5.94
-References: <634316431.20040218143725@nefty.hu>
-In-Reply-To: <634316431.20040218143725@nefty.hu>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402181144.14794.eric@cisu.net>
+	Wed, 18 Feb 2004 15:01:09 -0500
+Received: from hera.kernel.org ([63.209.29.2]:34475 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S267988AbUBRUBE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 15:01:04 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: UTF-8 and case-insensitivity
+Date: Wed, 18 Feb 2004 20:00:30 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c10g8u$e68$1@terminus.zytor.com>
+References: <16434.58656.381712.241116@samba.org> <16435.20457.610841.62521@samba.org> <200402181331.36859.robin.rosenberg.lists@dewire.com> <4033974F.4090706@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1077134430 14537 63.209.29.3 (18 Feb 2004 20:00:30 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Wed, 18 Feb 2004 20:00:30 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 18 February 2004 7:37 am, Zoltan NAGY wrote:
-> Hi!
+Followup to:  <4033974F.4090706@zytor.com>
+By author:    "H. Peter Anvin" <hpa@zytor.com>
+In newsgroup: linux.dev.kernel
 >
-> I've been trying to get 2.6.x working in vmware4, but it drops some
-> oopses during init... I cannot provide details, but I'm sure that it
-> does not just me who are having problems with it..
+> Robin Rosenberg wrote:
+> > 
+> > I believe (please correct me if this is wrong) that Windows never actually
+> > supported any of the UCS-2 code that were in conflict with UTF-16. The cost
+> > of this operation was that some of the "private" code blocks of unicode 2.0, i.e. 
+> > U+D800..U+DFFF were redefined as "surrogates" in Unicode 3.0 making the 
+> > UTF-16 encoding more or less backwards compatible with UCS-2. And it's 
+> > UTF-16LE and UCS-2LE, but I suspect you knew that :-)
+> > 
+> 
+> Make that Unicode 1.0 and 1.1, and you're correct.
+> 
 
-	Right now I am using Vmware 4.something in kernel 2.6.2-rc3 and will upgrade 
-to 2.6.3 and im pretty sure it will work. Make sure you use the appropriate 
-install script. Someone has published their own patches to make VMware more 
-compatible w/ 2.6.
-	Do a google for vmware-any-any-update49.tar.gz or updateXX where XX might be 
-a newer version. I have not had any oopses with this package. The only 
-problem I have is some older versions of the update package wouldnt compile. 
-Perhaps you are insmodding a module built for 2.4 and crashing the kernel?
+Err, that was supposed to be 1.1 and 2.0.
 
-> Regards,
->
-> --
-> Zoltan NAGY,
-> Network Administrator
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Unicode 1.1 reshuffled the private use range from Unicode 1.0, in
+order to make room for surrogates in Unicode 2.0.
 
--- 
--------------------------
-Eric Bambach
-Eric at cisu dot net
--------------------------
+UTF-16, what a horrible ugly hack.
+
+	-hpa

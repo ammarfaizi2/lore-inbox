@@ -1,95 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266443AbUFZXVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266492AbUFZXVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266443AbUFZXVO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 19:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266492AbUFZXVO
+	id S266492AbUFZXVT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 19:21:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266496AbUFZXVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 19:21:14 -0400
-Received: from ftp.nuit.ca ([66.11.160.83]:54666 "EHLO smtp.nuit.ca")
-	by vger.kernel.org with ESMTP id S266443AbUFZXVJ (ORCPT
+	Sat, 26 Jun 2004 19:21:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:702 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266492AbUFZXVQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 19:21:09 -0400
-Date: Sat, 26 Jun 2004 23:21:06 +0000
-From: simon@nuit.ca
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cannot access '/dev/pts/292': Value too large for defined data type
-Message-ID: <20040626232104.GA32365@nuit.ca>
-References: <20040626151108.GA8778@nuit.ca> <20040626135948.7b4396e9.akpm@osdl.org>
+	Sat, 26 Jun 2004 19:21:16 -0400
+Date: Sat, 26 Jun 2004 16:20:20 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: zaitcev@redhat.com, greg@kroah.com, arjanv@redhat.com, jgarzik@redhat.com,
+       tburke@redhat.com, linux-kernel@vger.kernel.org,
+       stern@rowland.harvard.edu, mdharm-usb@one-eyed-alien.net,
+       david-b@pacbell.net
+Subject: Re: drivers/block/ub.c
+Message-Id: <20040626162020.67d661c7.davem@redhat.com>
+In-Reply-To: <200406270036.14716.oliver@neukum.org>
+References: <20040626130645.55be13ce@lembas.zaitcev.lan>
+	<200406262356.49275.oliver@neukum.org>
+	<20040626150700.544a4fb4.davem@redhat.com>
+	<200406270036.14716.oliver@neukum.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
-Content-Disposition: inline
-In-Reply-To: <20040626135948.7b4396e9.akpm@osdl.org>
-X-Operating-System: Debian GNU/Linux
-X-GPG-Key-Server: x-hkp://subkeys.pgp.net
-User-Agent: Mutt/1.5.6+20040523i
-X-Scan-Signature: smtp.nuit.ca 1BeMTq-0008SP-Mj 6d155ee43afc8b798cf6b81b3511493e
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 27 Jun 2004 00:36:14 +0200
+Oliver Neukum <oliver@neukum.org> wrote:
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> So either it has no effect or it is needed?
+> Then why take the risk that gcc is changed or an architecture added that
+> needs it? It seems to be cleaner to me to mark data structures that
+> must be layed out as specified specially. Safer, too, just in case.
 
-Ce jour Sat, 26 Jun 2004, Andrew Morton a dit:
+Because it generates enormously inefficient code on RISC
+platforms.  It turns simple word loads like:
 
-> simon@nuit.ca wrote:
-> >
-> > whenever i try open a new pseudo-pty, i get a similar message to=20
-> >  the one in the subject, and one like "fstat: Value too large for defin=
-ed data
-> >  type" if i open an xterm.
->=20
-> It appears that you're using some variant of the 2.6.7 kernel, yes?
+	ld	[%addr], %reg
 
-yup, just pure mainline, no patches.
+into something like:
 
-> That kernel (and many preceding ones) will create large pty indexes and o=
-ld
-> (and/or buggy) userspace fails to handle it correctly.
+	ldub	[%addr + 0], %tmp1
+	ldub	[%addr + 1], %tmp2
+	ldub	[%addr + 2], %tmp3
+	ldub	[%addr + 3], %tmp4
+	sll	%tmp1, 24, %tmp1
+	sll	%tmp2, 16, %tmp2
+	sll	%tmp3, 8, %tmp3
+	or	%tmp1, %tmp2, %tmp1
+	or	%tmp1, %tmp3, %tmp1
+	or	%tmp1, %tmp4, %reg
 
-ok, i suspected the user space stuff would puke on that, thanks.
+A ten-fold increase in code size just to access any member
+of the structure.
 
-> Post-2.6.7, the allocation of pty indexes was switched to first-fit and
-> things should now work OK.
-
-oh good news - thank you very much :).
-
-> Please test a current kernel and send a report.
->=20
-> 2.6.7 plus
-> ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.7-bk9.gz
-> would be suitable.
-
-ok. as soon as i can. move it up on my mental TODO list =3D).
-
-BTW, thanks go to all the kernel hackers and patch submitters (and
-anyone else that works on or for the kernel :), for doing
-such a good job, it's appreciated.
-
-
-
---/04w6evG8XlLl3ft
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iQGVAwUBQN4E3mqIeuJxHfCXAQKtUQv+OzE+4SlyJuwHEWZbnphiitaIe8jngsC8
-rkFQYTNw9m20JfLwDrLhy4gdELy1CUPtHIALBEfMRjrrnHjT3Vnxe55EIoh7u/oz
-BwWjwcO7EAPv/C02Ih81PKdoztafUiA0qhlrZ1yQJSD9OxxadIPdeqfICAdQiOAK
-qJnoTUNYx29fpXXZtmWTxdER5oe6NIgNHqKpmqENDmAmJ2w8J8RL0gn6VfoRmwjH
-g9Wz0iYXIUXav5skSVXE6Hs0A1rfJf5DmyAPh8skJSCVzkzp4r3GWZwB//CL38hi
-DQpKyWxzLgTEfj/mYB+eGJlx5VOJUYqUa5q/R+pwlejq3PO8cJjmoAcEn5/sjGck
-hcpoexS2hrWCE9MqDImapV3OVnIhFJHeMKr/FBincEeNW+roRHUNvnoE3W4U+rma
-c757/u3nPcBme+uqlAG6LcCoitcGveuGbMYP3oWr7x31a8TFIYkAwWx/eW/Apfh3
-gpfrMgzZCNBMbtYdymp/oxBC/agis1/e
-=iIBD
------END PGP SIGNATURE-----
-
---/04w6evG8XlLl3ft--
+I think you have no idea how astronomically inefficient the code is
+which gets generated when you add the packed attribute to a structure.

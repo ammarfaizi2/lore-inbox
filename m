@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbUFNIQ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUFNIYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbUFNIQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 04:16:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbUFNIQN
+	id S262114AbUFNIYX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 04:24:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUFNIXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 04:16:13 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:24529 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262079AbUFNIPA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 04:15:00 -0400
-Date: Mon, 14 Jun 2004 09:14:59 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: [8/12] fake inquiry for Sony Clie PEG-TJ25 in unusual_devs.h
-Message-ID: <20040614081459.GG7162@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-References: <20040614003148.GO1444@holomorphy.com> <20040614003331.GP1444@holomorphy.com> <20040614003459.GQ1444@holomorphy.com> <20040614003605.GR1444@holomorphy.com> <20040614003708.GS1444@holomorphy.com> <20040614003835.GT1444@holomorphy.com> <20040614003929.GU1444@holomorphy.com> <20040614004034.GV1444@holomorphy.com> <20040614004147.GW1444@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040614004147.GW1444@holomorphy.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 14 Jun 2004 04:23:48 -0400
+Received: from mail.dif.dk ([193.138.115.101]:27778 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262114AbUFNIVF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 04:21:05 -0400
+Date: Mon, 14 Jun 2004 10:20:12 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, Ryan Underwood <nemesis-lists@icequake.net>,
+       Willy Tarreau <willy@w.ods.org>, twaugh@redhat.com
+Subject: Re: Request: Netmos support in parport_serial for 2.4.27
+In-Reply-To: <20040613220727.GB4771@logos.cnet>
+Message-ID: <Pine.LNX.4.56.0406141013020.7333@jjulnx.backbone.dif.dk>
+References: <20040613111949.GB6564@dbz.icequake.net> <20040613123950.GA3332@logos.cnet>
+ <Pine.LNX.4.56.0406132225020.5930@jjulnx.backbone.dif.dk>
+ <20040613220727.GB4771@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 13, 2004 at 05:41:47PM -0700, William Lee Irwin III wrote:
->  * Fake inquiry for Sony Clie PEG-TJ25 in drivers/usb/storage/unusual_devs.h
-> This fixes Debian BTS #243650.
-> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=243650
-> 
-> 	From: Mike Alborn <malborn@deandra.homeip.net>
-> 	To: Debian Bug Tracking System <submit@bugs.debian.org>
-> 	Subject: kernel-image-2.6.5-1-686: usb-storage fails to enumerate Sony Clie PEG-TJ25
-> 	Message-Id: <E1BDet8-0000ND-00@dominique>
-> 
-> When I connect my Sony Clie PEG-TJ25 to my computer and run the MS
-> Import function, the usb-storage module reports the following error:
-> 
-> scsi0 : SCSI emulation for USB Mass Storage devices 
-> scsi scan: 56 byte inquiry failed with code 134217730. Consider
-> BLIST_INQUIRY_36 for this device.
-> 
-> lsusb shows the Clie device, but when I try to mount /dev/sda1, I get
-> '/dev/sda1 is not a valid block device' and cfdisk is 'unable to open
-> /dev/sda' I have no other SCSI hard disks installed on the system, so I
-> assume /dev/sda1 is where I should find my Clie.
-> 
-> Note that this function worked with a Debian package of a 2.4 kernel (I
-> believe it was 2.4.24).
+On Sun, 13 Jun 2004, Marcelo Tosatti wrote:
 
-This one is already in for some time.
+>
+> Jesper,
+>
+> Two more things.
+>
+> It seems v2.6 also lacks support for this boards:
+>
+> grep PCI_DEVICE_ID_NETMOS_ *
+> pci_ids.h:#define PCI_DEVICE_ID_NETMOS_9735     0x9735
+> pci_ids.h:#define PCI_DEVICE_ID_NETMOS_9835     0x9835
+> [marcelo@localhost linux]$
+>
+> Care to prepare a v2.6 version?
+>
+
+I don't mind giving it a try, but as I said in my original reply I'm way
+out of my league here. First of all I'm not the author of the original
+patch, all I did was to try and update it to apply cleanly against
+2.4.27-pre5. Secondly I don't have the hardware, so the only testing I can
+do is check that it compiles cleanly and then test boot a kernel to see if
+it blows up.
+But sure, I'll see if I can get it worked into 2.6, that'll be a nice
+challenge, but I'll probably be needing some help along the way.
+
+
+> And two, do we really need to move parport_serial.c to drivers/char in v2.4 ?
+>
+To be honest, I have no idea.
+
+
+--
+Jesper Juhl <juhl-lkml@dif.dk>
 

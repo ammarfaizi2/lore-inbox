@@ -1,81 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbUAOGCt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 01:02:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbUAOGCt
+	id S261973AbUAOGYF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 01:24:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbUAOGYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 01:02:49 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:31159 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261965AbUAOGCr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 01:02:47 -0500
-Date: Thu, 15 Jan 2004 11:33:21 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Rusty Russell <rusty@au1.ibm.com>
-Cc: paul.mckenney@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] RCU for low latency [2/2]
-Message-ID: <20040115060320.GA3985@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20040108115051.GC5128@in.ibm.com> <20040109000244.8C58D17DDE@ozlabs.au.ibm.com> <20040114082420.GA3755@in.ibm.com> <20040115103500.28f9e1bf.rusty@rustcorp.com.au>
+	Thu, 15 Jan 2004 01:24:05 -0500
+Received: from rth.ninka.net ([216.101.162.244]:4480 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S261973AbUAOGYC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 01:24:02 -0500
+Date: Wed, 14 Jan 2004 22:23:16 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Jun Sun <jsun@mvista.com>
+Cc: akpm@osdl.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org,
+       rmk@arm.linux.org.uk, jsun@mvista.com
+Subject: Re: [BUG] 2.6.1/MIPS - missing cache flushing when user program
+ returns pages to kernel
+Message-Id: <20040114222316.25276f12.davem@redhat.com>
+In-Reply-To: <20040114174012.H13471@mvista.com>
+References: <20040114163920.E13471@mvista.com>
+	<20040114171252.4d873c51.akpm@osdl.org>
+	<20040114172946.03e54706.akpm@osdl.org>
+	<20040114174012.H13471@mvista.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040115103500.28f9e1bf.rusty@rustcorp.com.au>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 10:35:00AM +1100, Rusty Russell wrote:
-> On Wed, 14 Jan 2004 13:54:20 +0530
-> Dipankar Sarma <dipankar@in.ibm.com> wrote:
-> > Done, except that once we reach the callback limit, we need to check
-> > for RT tasks after every callback, instead of at the start of the RCU batch.
-> 
-> AFAICT, if you're in a softirq it can't change.  If you're not, there's
-> no limit anyway.
+On Wed, 14 Jan 2004 17:40:12 -0800
+Jun Sun <jsun@mvista.com> wrote:
 
-What if a blocked RT task was woken up by an irq that interrupted
-RCU callback processing ? All of a sudden you now have a RT task
-in the queue. Isn't this possible ?
+> Looking at my tree (which is from linux-mips.org), it appears
+> arm, sparc, sparc64, and sh have tlb_start_vma() defined to call
+> cache flushing.
 
+Correct, in fact every platform where cache flushing matters
+at all (ie. where flush_cache_*() routines actually need to
+flush a cpu cache), they should have tlb_start_vma() do such
+a flush.
 
-> > > Ideally you'd create a new workqueue for this, or at the very least
-> > > use kthread primitives (once they're in -mm, hopefully soon).
-> > 
-> > I will use kthread primitives once they are available in mainline.
-> 
-> But ulterior motive is to push the kthread primitives by making as much
-> code depend on it as possible 8)
+> What exactly does tlb_start_vma()/tlb_end_vma() mean?  There is
+> only one invocation instance, which is significant enough to infer
+> the meaning.  :)
 
-hehe. How nefarious :-)
+When the kernel unmaps a mmap region of a process (either for the
+sake of munmap() or tearing down all mapping during exit()) tlb_start_vma()
+is called, the page table mappings in the region are torn down one by
+one, then a tlb_end_vma() call is made.
 
-> > I will clean this up later should we come to a conclusion that
-> > we need the low-latency changes in mainline. I don't see
-> > any non-driver kernel code using module_param() though.
-> 
-> I'm trying to catch them as new ones get introduced.  If the name is
-> old-style, then there's little point changing (at least for 2.6).
+At the top level, ie. whoever invokes unmap_page_range(), there will
+be a tlb_gather_mmu() call.
 
-OK, but I am not sure how to do this for non-module code.
+In order to properly optimize the cache flushes, most platforms do the
+following:
 
-> > New patch below. Needs rq-has-rt-task.patch I mailed earlier.
-> > There are more issues that need investigations - can we starve
-> > RCU callbacks leading to OOMs
-> 
-> You can screw your machine up with RT tasks, yes.  This is no new problem,
-> I think.
+1) The tlb->fullmm boolean keeps trap of whether this is just a munmap()
+   unmapping operation (if zero) or a full address space teardown
+   (if non-zero).
 
-That is another way to look at it :)
+2) In the full address space teardown case, and thus tlb->fullmm is
+   non-zero, the top level will do the explict flush_cache_mm()
+   (see mm/mmap.c:exit_mmap()), therefore the tlb_start_vma()
+   implementation need not do the flush, otherwise it does.
 
-> > should we compile out krcuds
-> > based on a config option (CONFIG_PREEMPT?). Any suggestions ?
-> 
-> Depends on the neatness of the code, I think...
+   This is why sparc64 and friends implement it like this:
 
-Well there seems to be a difference in opinion about whether the
-krcuds should be pervasive or not. Some think they should be,
-some thinks they should not be when we aren't aiming for low
-latency (say CONFIG_PREEMPT=n).
+#define tlb_start_vma(tlb, vma) \
+do {    if (!(tlb)->fullmm)     \
+                flush_cache_range(vma, vma->vm_start, vma->vm_end); \
+} while (0)
 
-Thanks
-Dipankar
+Hope this clears things up.
+
+Someone should probably take what I just wrote, expand and organize it,
+then add such content to Documentation/cachetlb.txt

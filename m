@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVAYDdA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbVAYDeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbVAYDdA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 22:33:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbVAYDdA
+	id S261788AbVAYDeF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 22:34:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbVAYDeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 22:33:00 -0500
-Received: from fmr14.intel.com ([192.55.52.68]:25245 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261784AbVAYDc6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 22:32:58 -0500
-Subject: Re: [PATCH 4/29] x86-i8259-shutdown
-From: Len Brown <len.brown@intel.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com>
-References: <x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1106623970.2399.205.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 24 Jan 2005 22:32:50 -0500
+	Mon, 24 Jan 2005 22:34:05 -0500
+Received: from fw.osdl.org ([65.172.181.6]:25575 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261788AbVAYDd5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 22:33:57 -0500
+From: Andrew Tridgell <tridge@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16885.48502.243516.563660@samba.org>
+Date: Tue, 25 Jan 2005 14:31:02 +1100
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Andreas Gruenbacher <agruen@suse.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: memory leak in 2.6.11-rc2
+In-Reply-To: <41F5BB0D.6090006@osdl.org>
+References: <20050120020124.110155000@suse.de>
+	<16884.8352.76012.779869@samba.org>
+	<200501232358.09926.agruen@suse.de>
+	<200501240032.17236.agruen@suse.de>
+	<16884.56071.773949.280386@samba.org>
+	<16885.47804.68041.144011@samba.org>
+	<41F5BB0D.6090006@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+Reply-To: tridge@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-19 at 02:31, Eric W. Biederman wrote:
-> From: Eric W. Biederman <ebiederm@xmission.com>
-> 
-> This patch disables interrupt generation from the legacy pic on
-> reboot.  Now that there is a sys_device class it should not be called
-> while drivers are still using interrupts.
-> 
-> There is a report about this breaking ACPI power off on some systems.
-> http://bugme.osdl.org/show_bug.cgi?id=4041
-> However the final comment seems to exhonorate this code.  So until
-> I get more information I believe that was a false positive.
+Randy,
 
-No, the last comment in the bug report
-(davej says that there were poweroff problems in FC)
-does not exhonerate this patch.
-All it says is that there are additional poweroff bugs out there.
+ > I have applied the patch from Linus for the leak in
+ > free_pipe_info()
+...
+ > Do you have today's memleak patch applied?  (cut-n-paste below).
 
--Len
+yes :-)
 
+I'm trying the little leak tracking patch from Alexander Nyberg now.
 
+Cheers, Tridge

@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263453AbTJUWSi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 18:18:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbTJUWSi
+	id S263469AbTJUW2N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 18:28:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263472AbTJUW2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 18:18:38 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:41988 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263453AbTJUWSg
+	Tue, 21 Oct 2003 18:28:12 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:45572 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263469AbTJUW2K
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 18:18:36 -0400
+	Tue, 21 Oct 2003 18:28:10 -0400
 To: linux-kernel@vger.kernel.org
 Path: gatekeeper.tmr.com!davidsen
 From: davidsen@tmr.com (bill davidsen)
 Newsgroups: mail.linux-kernel
 Subject: Re: [RFC] frandom - fast random generator module
-Date: 21 Oct 2003 22:08:31 GMT
+Date: 21 Oct 2003 22:18:07 GMT
 Organization: TMR Associates, Schenectady NY
-Message-ID: <bn4aov$jf7$1@gatekeeper.tmr.com>
-References: <3F8E552B.3010507@users.sf.net> <3F8E58A9.20005@cyberone.com.au> <bn40oa$i4q$1@gatekeeper.tmr.com> <bn46q9$1rv$1@cesium.transmeta.com>
-X-Trace: gatekeeper.tmr.com 1066774111 19943 192.168.12.62 (21 Oct 2003 22:08:31 GMT)
+Message-ID: <bn4bav$ji4$1@gatekeeper.tmr.com>
+References: <3F8E552B.3010507@users.sf.net> <3F8E8101.70009@pobox.com> <bn42vk$ies$1@gatekeeper.tmr.com> <20031021212136.GA15043@hh.idb.hist.no>
+X-Trace: gatekeeper.tmr.com 1066774687 20036 192.168.12.62 (21 Oct 2003 22:18:07 GMT)
 X-Complaints-To: abuse@tmr.com
 Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <bn46q9$1rv$1@cesium.transmeta.com>,
-H. Peter Anvin <hpa@zytor.com> wrote:
-| Followup to:  <bn40oa$i4q$1@gatekeeper.tmr.com>
-| By author:    davidsen@tmr.com (bill davidsen)
-| In newsgroup: linux.dev.kernel
-| >
-| > In article <3F8E58A9.20005@cyberone.com.au>,
-| > Nick Piggin  <piggin@cyberone.com.au> wrote:
-| > 
-| > | Without looking at the code, why should this be done in the kernel?
-| > 
-| > Because it's a generally useful function, /dev/random and /dev/urandom
-| > are in the kernel, /dev/urandom is SLOW. And doing a userspace solution
-| > is a bitch in shell scripts ;-)
-| > 
+In article <20031021212136.GA15043@hh.idb.hist.no>,
+Helge Hafting  <helgehaf@aitel.hist.no> wrote:
+| On Tue, Oct 21, 2003 at 07:55:32PM +0000, bill davidsen wrote:
 | 
-| Bullshit.  "myrng 36 | foo" works just fine.
+| > Your argument is correct, but this is data generation rather than
+| > analysis. In doing simulation it's desirable to ensure that multiple
+| > instances of a program don't use the same numbers.
+| > 
+| > For instance, simulating user load against a server; I want the
+| > simulation of human thinking time to be a number in the range n..m and
+| > not to be the same for all threads. Sure I can get around that, and do,
+| > but I wouldn't mind having a simple source of random bytes which was
+| > quality PRNG and unique.
+| 
+| Each thread use the same userspace pseudo-random generator (faster
+| than any kernel implementation as you avoid the syscalls) and
+| each initialize by a single read from urandom, so they get
+| different series of numbers.
 
-myrng?? That doesn't seem to be part of the bash I have, or any
-distribution I could check, and google shows a bunch of visual basic
-results rather than anything useful.
-
-If you're suggesting that every user write their own program to
-generate random numbers, then write a script to call it, that kind of
-defeats the purpose of doing shell instead of writing a program, doesn't
-it? Not to mention that to get entropy the user program will have to
-call the devices anyway.
-
-I think this could also fail the objective of returning unique results
-in an SMP system, but that's clearly imprementation dependent.
+As noted, I do get around that... some care needs to be taken calling
+random number generators from threads, since some have internal storage
+in addition to the seed which can be provided by the caller.
 -- 
 bill davidsen <davidsen@tmr.com>
   CTO, TMR Associates, Inc

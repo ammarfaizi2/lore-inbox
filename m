@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262877AbSKRQjM>; Mon, 18 Nov 2002 11:39:12 -0500
+	id <S263193AbSKRQlL>; Mon, 18 Nov 2002 11:41:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262881AbSKRQjL>; Mon, 18 Nov 2002 11:39:11 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:13981 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S262877AbSKRQjL>; Mon, 18 Nov 2002 11:39:11 -0500
-Date: Mon, 18 Nov 2002 10:46:10 -0600 (CST)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Richard Henderson <rth@twiddle.net>
-cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: in-kernel linking issues
-In-Reply-To: <20021115045146.A23944@twiddle.net>
-Message-ID: <Pine.LNX.4.44.0211181040490.24137-100000@chaos.physics.uiowa.edu>
+	id <S263204AbSKRQlL>; Mon, 18 Nov 2002 11:41:11 -0500
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:25677 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S263193AbSKRQlJ>;
+	Mon, 18 Nov 2002 11:41:09 -0500
+Message-ID: <3DD919EA.7070505@mvista.com>
+Date: Mon, 18 Nov 2002 10:48:42 -0600
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+CC: John Levon <levon@movementarian.org>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: NMI handling rework for x86
+References: <Pine.LNX.4.44.0211162128450.1543-100000@montezuma.mastecende.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Nov 2002, Richard Henderson wrote:
+Zwane Mwaikambo wrote:
 
-> [...]
-> 
-> 	ld -T z.ld -shared -o z.so z.o
+>On Sun, 17 Nov 2002, John Levon wrote
+>
+>150,000? Nice Corey, again i stand corrected on that front.
+>
+>	Zwane
+>  
+>
+Thanks, but I'm not the one who deserves the credit.  John Levon and 
+Dipankar Sarma showed me how it works.  I just started working on the 
+problem and have been the code monkey :-).  I'm not used to working in 
+the ultra-scalability mode, it's different in many ways.
 
-BTW, this reminds me of something various people and me have been thinking
-about for some time, i.e. postprocessing the .o files to generate the 
-actual module object.
-
-It seems there are various reasons to do that, possibly the linker issues
-which triggered the above, the new - yet to be introduced - module version
-mechanism (I think), and it provides additional benefits like e.g. being
-able to add the kernel version info in that step, so that a change in
-EXTRAVERSION doesn't cause a rebuild of just about everything.
-
-A related question would be a good suffix for kernel modules, e.g
-"foo.mo" or "foo.ko" as in module object or kernel object?
-
---Kai
+-Corey
 
 

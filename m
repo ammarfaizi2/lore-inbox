@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289536AbSAOMol>; Tue, 15 Jan 2002 07:44:41 -0500
+	id <S289547AbSAOMob>; Tue, 15 Jan 2002 07:44:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289545AbSAOMob>; Tue, 15 Jan 2002 07:44:31 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:7853 "EHLO xfe3.d.ethz.ch")
-	by vger.kernel.org with ESMTP id <S289536AbSAOMoP>;
-	Tue, 15 Jan 2002 07:44:15 -0500
-Message-ID: <3C442395.8010500@debian.org>
-Date: Tue, 15 Jan 2002 13:41:57 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: en-us, en
+	id <S289545AbSAOMoM>; Tue, 15 Jan 2002 07:44:12 -0500
+Received: from dlezb.ext.ti.com ([192.91.75.132]:46578 "EHLO go4.ext.ti.com")
+	by vger.kernel.org with ESMTP id <S289541AbSAOMoG>;
+	Tue, 15 Jan 2002 07:44:06 -0500
+Message-ID: <3C44240F.6070202@ti.com>
+Date: Tue, 15 Jan 2002 13:43:59 +0100
+From: christian e <cej@ti.com>
+Organization: Texas Instruments A/S,Denmark
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011202
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        "Eric S. Raymond" <esr@thyrsus.com>
-Subject: Re: Autoconfiguration: Original design scenario
-In-Reply-To: <3C4401CD.3040408@debian.org> <20020115105733.B994@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Jan 2002 12:44:11.0336 (UTC) FILETIME=[54B3A480:01C19DC2]
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Swap: an update on how my box is running now..
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,all
 
-Russell King wrote:
+Yesterday I downloaded 2.4.18pre2 patch and the 2.4.18pre2-aa2 patch.
 
- 
-> I really don't see why hisax couldn't say "oh, you have an ISDN card with
-> IDs xxxx:xxxx, that's hisax type nn" and be done with it, rather than
-> needing to be told "pci id xxxx:xxxx type nn".  Have a look at
-> drivers/isdn/hisax/config.c and wonder how the hell you take some random
-> vendors PCI ISDN card and work out how to drive it under Linux.
-> 
-> (For the record, the card was:
->    1397:2bd0       - Cologne Chip Designs GmbH - HFC-PCI 2BD0 ISDN
->  and the driver requirements were:  hisax type 35 proto 2)
-> 
-> Realistically, I don't think any autoconfigurator will solve such cases
-> until these areas can be fixed up reasonably.
- 
+Then did the echo 500 > /proc/sys/vm/vm_mapped_ratio
 
-Autoconfigure cannnot solve this.
-The card is not in my database.
-To help user, you should tell the driver maintainer to add our card
-in the know pci devices. In this manner autoconfigure, hotplug and
-modutils can take easy use your card.
+as François recommended..
 
-This is also a problem of PCI design.
-ISAPNP have the function type, USB have also the
-function class, so that there exists few interfaces, and kernel
-can ask only to specific interface and not to the specific card.
-PCI also have the interface field, but not very used, and the
-interfaces are also not so standardized.
+So far looking good..Not nearly as swap happy now..Here's top output:
 
-	giacomo
+foo@bar:~$ top -bn 1|head -n 15
 
- 
 
+  13:40:21 up  3:19,  5 users,  load average: 0.57, 0.65, 0.70
+113 processes: 108 sleeping, 5 running, 0 zombie, 0 stopped
+CPU states:  11.6% user,  15.7% system,   0.0% nice,  72.6% idle
+Mem:    514148K total,   508664K used,     5484K free,     9140K buffers
+Swap:   248968K total,     8424K used,   240544K free,   281180K cached
+
+   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+  2056 ce        17   0  1020 1016   772 R    13.5  0.1   0:00 top
+  1596 ce         1   0  210M 210M  210M R    12.7 41.9  27:23 vmware
+  1599 ce        20 -19 99972  97M 99380 S <   0.8 19.3   0:12 vmware
+     1 root      20   0   524  524   460 S     0.0  0.1   0:04 init
+     2 root      20   0     0    0     0 SW    0.0  0.0   0:00 keventd
+     3 root      20   0     0    0     0 SW    0.0  0.0   0:00 kapm-idled
+
+
+Still I'm wondering why 'cached' is soo big.Can I tune it so that it 
+wont swap until cache+buffers are close to 0 ???
+But anyway..I can finally use my Windows in Vmware..Great..
+
+best regards
+
+Christian
 

@@ -1,96 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263644AbUCUNLU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 08:11:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263647AbUCUNLT
+	id S263647AbUCUNNA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 08:13:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263648AbUCUNM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 08:11:19 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:36366 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S263644AbUCUNLR
+	Sun, 21 Mar 2004 08:12:59 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:44973 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S263647AbUCUNM6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 08:11:17 -0500
-Date: Mon, 22 Mar 2004 00:11:09 +1100
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, mochel@osdl.org
-Subject: [PMDISK] Fix strcmp in sysfs store
-Message-ID: <20040321131109.GA28413@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="jRHKVT23PllUwdXP"
+	Sun, 21 Mar 2004 08:12:58 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: Andi Kleen <ak@suse.de>
+Subject: Re: Fixes for .cfi directives for x86_64 kgdb
+Date: Sun, 21 Mar 2004 18:42:14 +0530
+User-Agent: KMail/1.5
+Cc: jim.houston@comcast.net, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       kgdb-bugreport@lists.sourceforge.net
+References: <m33c8788ac.fsf@new.localdomain> <200403191847.43692.amitkale@emsyssoft.com> <20040319202315.3c01a501.ak@suse.de>
+In-Reply-To: <20040319202315.3c01a501.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Message-Id: <200403211842.14885.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 20 Mar 2004 12:53 am, Andi Kleen wrote:
+> On Fri, 19 Mar 2004 18:47:43 +0530
+>
+> "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+> > Thanks. Checked into kgdb.sourceforge.net cvs tree
+>
+> It's not very useful because that tree still has the broken
+> "interrupt threads" support.
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi:
-
-This patch fixes the sysfs store functions for pmdisk when the input
-contains a trailing newline.
-
-Cheers,
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-Index: kernel-2.5/kernel/power/disk.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/kernel/power/disk.c,v
-retrieving revision 1.1.1.3
-diff -u -r1.1.1.3 disk.c
---- a/kernel-2.5/kernel/power/disk.c	11 Mar 2004 02:55:21 -0000	1.1.1.3
-+++ b/kernel-2.5/kernel/power/disk.c	21 Mar 2004 13:00:40 -0000
-@@ -285,11 +285,16 @@
- {
- 	int error = 0;
- 	int i;
-+	int len;
-+	char * p;
- 	u32 mode = 0;
- 
-+	p = memchr(buf, '\n', n);
-+	len = p ? p - buf: n;
-+
- 	down(&pm_sem);
- 	for (i = PM_DISK_FIRMWARE; i < PM_DISK_MAX; i++) {
--		if (!strcmp(buf,pm_disk_modes[i])) {
-+		if (!strncmp(buf,pm_disk_modes[i],len)) {
- 			mode = i;
- 			break;
- 		}
-Index: kernel-2.5/kernel/power/main.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/kernel/power/main.c,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 main.c
---- a/kernel-2.5/kernel/power/main.c	28 Sep 2003 04:44:22 -0000	1.1.1.2
-+++ b/kernel-2.5/kernel/power/main.c	21 Mar 2004 12:59:48 -0000
-@@ -218,10 +218,15 @@
- {
- 	u32 state = PM_SUSPEND_STANDBY;
- 	char ** s;
-+	char * p;
- 	int error;
-+	int len;
-+
-+	p = memchr(buf, '\n', n);
-+	len = p ? p - buf: n;
- 
- 	for (s = &pm_states[state]; *s; s++, state++) {
--		if (!strcmp(buf,*s))
-+		if (!strncmp(buf,*s,len))
- 			break;
- 	}
- 	if (*s)
-
---jRHKVT23PllUwdXP--
+Does it show interrupt threads or not?
+-Amit

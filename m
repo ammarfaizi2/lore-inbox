@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131614AbRDCLAK>; Tue, 3 Apr 2001 07:00:10 -0400
+	id <S131590AbRDCLLn>; Tue, 3 Apr 2001 07:11:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131600AbRDCLAA>; Tue, 3 Apr 2001 07:00:00 -0400
-Received: from fw-cam.cambridge.arm.com ([193.131.176.3]:8157 "EHLO
-	fw-cam.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id <S131158AbRDCK7v>; Tue, 3 Apr 2001 06:59:51 -0400
-Message-Id: <4.3.2.7.2.20010403115233.00b97d80@cam-pop.cambridge.arm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Tue, 03 Apr 2001 11:58:04 +0100
-To: "Andrew Chan" <achan@achan.com>
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@arm.com>
-Subject: Re: Promise 20267 "working" but no UDMA
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <00d601c0ba9c$d60cc700$3700a8c0@pluto>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S131606AbRDCLLd>; Tue, 3 Apr 2001 07:11:33 -0400
+Received: from [212.115.175.146] ([212.115.175.146]:28402 "EHLO
+	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
+	id <S131629AbRDCLLa>; Tue, 3 Apr 2001 07:11:30 -0400
+Message-ID: <27525795B28BD311B28D00500481B7601F113E@ftrs1.intranet.ftr.nl>
+From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: unresolved symbols; I must have lost my brain
+Date: Tue, 3 Apr 2001 13:10:07 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:13 PM 4/1/01, you wrote:
->Anybody manage to get UDMA 66/100 working with an on-board Promise 20267
->chip?
+People,
 
-I'm a bit confused by this thread. I have two PDC2067 chips in my 
-fileserver, both on Ultra100 boards and connected to 4 x 30Gb IBM deskstar 
-disks. I have it set up as one 15GB and one ~75Gb partition using Linux 
-RAID 5, and it works fine (as far as I can tell) with this config.
+Somehow I must have lost my brain.
+In exit.c I introduced some array:
 
-I do admit I have a fifth disk that has /bin, /etc, /boot on it for the 
-purposes of booting, so I can boot single user and maintain the RAID array 
-when necessary.
+pid_t pidarray[100];
 
-Is the issue here about the Promise FastTrack BIOS messing things up? If 
-so, why use it, rather than the Promise Ultra100 BIOS, which seems to be 
-fine (again, AFAIK).
+in fork.c I refer to this array:
 
-Yours,
+extern pid_t pidarray[100];
 
-Ruth
+(or something like that. looked it up in K&R, couldn't
+find what I did wrong)
 
--- 
+for some reason the kernel build process complains
+about the pidarray it could not find.
+This is a very trivial problem, but, well, I'm not
+seing it. Tried to move the declaration to some
+header-file, etc. etc. Done it all, doesn't work.
 
-Ruth 
-Ivimey-Cook                       ruthc@sharra.demon.co.uk
-Technical 
-Author, ARM Ltd              ruth.ivimey-cook@arm.com
-
+Anyone who can shed some light on this problem?

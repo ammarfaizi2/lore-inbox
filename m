@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317540AbSFKU7k>; Tue, 11 Jun 2002 16:59:40 -0400
+	id <S317541AbSFKVCY>; Tue, 11 Jun 2002 17:02:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317541AbSFKU7j>; Tue, 11 Jun 2002 16:59:39 -0400
-Received: from www.aub.dk ([195.24.1.195]:6528 "EHLO Princess")
-	by vger.kernel.org with ESMTP id <S317540AbSFKU7i>;
-	Tue, 11 Jun 2002 16:59:38 -0400
-From: Allan Sandfeld Jensen <snowwolf@one2one-networks.com>
-Organization: One2one Networks A/S
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bandwidth 'depredation' revisited
-Date: Tue, 11 Jun 2002 22:59:19 +0200
-User-Agent: KMail/1.4.5
-In-Reply-To: <3D05EEAF.mailZE11URHZ@viadomus.com> <3D060FF6.5000409@fugmann.dhs.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200206112259.19131.snowwolf@one2one-networks.com>
+	id <S317543AbSFKVCX>; Tue, 11 Jun 2002 17:02:23 -0400
+Received: from ns.suse.de ([213.95.15.193]:4874 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317541AbSFKVCW>;
+	Tue, 11 Jun 2002 17:02:22 -0400
+To: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+Subject: Re: Multicast netlink for non-root process
+In-Reply-To: <20020611134418.A22893@bougret.hpl.hp.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 11 Jun 2002 23:02:22 +0200
+Message-ID: <p737kl5cyw1.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 June 2002 16:57, Anders Fugmann wrote:
-> When you start a big download, you actually request a server to send as
-> much data as possible to you. Quickly, the packet queues on your ISP's
-> side gets filled up. If these queues are big (can hold many packets) you
-> will see a rather high latency when trying to retrieve replys, since any
-> pakcets (incl. ACK) will need first to enter the queue, and wait for
-> their turn to be send to you.
->
-> The best solution would be to install some sort of traffic shaping on
-> the remove side (you ISP), but that is often(/always) not a possible
-> solution.
->
-> The second best solution is to simple drop packets comming in too 
-> quickly from the interface. By this, the sending machine will slow down 
-> transmission. The idea is to keep the queues at you ISP empty.
+Jean Tourrilhes <jt@bougret.hpl.hp.com> writes:
+> 	The cause is here :
+> ----------- net/netlink/af_netlink.c - l322 ------------------
+> 
+> static int netlink_bind(struct socket *sock, struct sockaddr *addr, int addr_len)
+> {
+> [...]
+> 	/* Only superuser is allowed to listen multicasts */
+> 	if (nladdr->nl_groups && !capable(CAP_NET_ADMIN))
+> 		return -EPERM;
+> --------------------------------------------------------------
+> 
+> 	Why ?
 
-You could also just delay trafic from certain IPs. Or even better, you could 
-postpone acknowledgedments until you get the right distribution.
+There used to be a reason for it (ask Alexey for details), but it has gone.
+It should be safe now to remove it I think.
 
-I know routers that do the former to gain fair download on shared internet 
-connections, but the second would be a lot nicer.
+-Andi
+

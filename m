@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262535AbSJAVLi>; Tue, 1 Oct 2002 17:11:38 -0400
+	id <S262446AbSJAVD0>; Tue, 1 Oct 2002 17:03:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262834AbSJAVLi>; Tue, 1 Oct 2002 17:11:38 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:58858 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S262535AbSJAVLh>;
-	Tue, 1 Oct 2002 17:11:37 -0400
-Date: Tue, 1 Oct 2002 23:27:16 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Workqueue Abstraction, 2.5.40-H7
-In-Reply-To: <Pine.LNX.4.44.0210011251050.10307-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.44.0210012323200.25070-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262499AbSJAVD0>; Tue, 1 Oct 2002 17:03:26 -0400
+Received: from the-penguin.otak.com ([216.122.56.136]:10112 "EHLO
+	the-penguin.otak.com") by vger.kernel.org with ESMTP
+	id <S262446AbSJAVDX>; Tue, 1 Oct 2002 17:03:23 -0400
+Date: Tue, 1 Oct 2002 14:08:41 -0700
+From: Lawrence Walton <lawrence@the-penguin.otak.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Andrew Morton <akpm@digeo.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Oops iee1394 video1394 rmap
+Message-ID: <20021001210841.GA25577@the-penguin.otak.com>
+References: <3D9A04B4.B1355CB6@digeo.com> <Pine.LNX.4.44L.0210011729010.1909-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L.0210011729010.1909-100000@duckman.distro.conectiva>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.5.39 on an i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 1 Oct 2002, Kai Germaschewski wrote:
-
-> I'm possibly messing things up here, but doesn't it generally make more
-> sense to convert tq_immediate users to tasklets instead of work queues?
+Rik van Riel [riel@conectiva.com.br] wrote:
+> On Tue, 1 Oct 2002, Andrew Morton wrote:
 > 
-> tq_immediate users do not need process context, and one use I'm familiar
-> with is basically doing bottom half interrupt processing, e.g. in lots
-> of places in the ISDN code. Introducing a context switch for no obvious
-> gain there seems rather pointless to me?
+> > This would appear to be a page which was mapped by remap_page_range().
+> > It's not PageReserved, and it has no reverse mapping.
+> >
+> > I believe the right fix is to just delete the BUG check at rmap.c:280.
 > 
-> The same may be true for the tq_timer users as well?
+> Yes.  I used to have this bugcheck in 2.4-rmap but removed it
+> ages ago. I have no idea why it was reintroduced in 2.5...
+> 
+It works fine, no surprises at all, I am doing a fresh mozilla compile, burning a CD, 
+playing music, and the camera works great!
 
-the main reason was that it was easier to convert everything (even old-BH
-style code) that did deferred processing to workqueues than to tasklets -
-since a fair chunk of deferred processing needs process context. Another
-reason is that generally it's easier to handle overload situations if the
-work is done in process contexts. But i agree, for things where it really
-matters performance-wise, introducing a tasklet should be the next step.
+Here is my pitiful patch. :)
 
-	Ingo
+--- mm/rmap.c.org	2002-10-01 13:28:54.000000000 -0700
++++ mm/rmap.c	2002-10-01 13:29:07.000000000 -0700
+@@ -277,8 +277,6 @@
+ 
+ 	pte_chain_lock(page);
+ 
+-	BUG_ON(page->pte.direct == 0);
+- 
+ 	if (PageDirect(page)) {
+ 		if (page->pte.direct == pte_paddr) {
+ 			page->pte.direct = 0;
+-- 
+*--* Mail: lawrence@otak.com
+*--* Voice: 425.739.4247
+*--* Fax: 425.827.9577
+*--* HTTP://www.otak-k.com/~lawrence/
+--------------------------------------
+- - - - - - O t a k  i n c . - - - - - 
+
 

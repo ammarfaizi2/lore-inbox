@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263119AbVCEPwq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbVCEPjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263119AbVCEPwq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 10:52:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbVCEPrU
+	id S261993AbVCEPjr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 10:39:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262002AbVCEPiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 10:47:20 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:62647 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262111AbVCEPl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 10:41:56 -0500
-Message-ID: <4229D342.7030705@acm.org>
-Date: Sat, 05 Mar 2005 09:41:54 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bene Martin <martin.bene@icomedias.com>
-Cc: bunk@stusta.de, linux-kernel@vger.kernel.org
-Subject: Re: ipmi in kernel 2.6.11
-References: <FA095C015271B64E99B197937712FD02510ACF@freedom.grz.icomedias.com>
-In-Reply-To: <FA095C015271B64E99B197937712FD02510ACF@freedom.grz.icomedias.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Mar 2005 10:38:09 -0500
+Received: from coderock.org ([193.77.147.115]:44963 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262021AbVCEPft (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 10:35:49 -0500
+Subject: [patch 07/12] Re: radio-sf16fmi cleanup
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, domen@coderock.org, sebek64@post.cz
+From: domen@coderock.org
+Date: Sat, 05 Mar 2005 16:35:28 +0100
+Message-Id: <20050305153529.5430B1F203@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bene Martin wrote:
 
->Hi Adrian,
->
->bmcsensors package (reading hardware sensors provided by intel boards
->via ipmi) used to work fine with 2.6.10; no longer works with 2.6.11
->because of removal of the ipmi_request function (+ exported symbol).
->
->correct fix would be to use ipmi_request_settime with retries=-1 and
->retry_time_ms=0?
->  
->
-That fix should work fine.  Sorry about that, I didn't know anyone was 
-using that function, and the unused function police found it :).
+This is small cleanup of radio-sf16fmi driver.
 
--Corey
+Signed-off-by: Marcel Sebek <sebek64@post.cz>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+---
+
+
+ kj-domen/Documentation/kernel-parameters.txt |    3 ---
+ kj-domen/drivers/media/radio/radio-sf16fmi.c |   10 ----------
+ 2 files changed, 13 deletions(-)
+
+diff -puN Documentation/kernel-parameters.txt~kill_kernel_parameter-sf16fm Documentation/kernel-parameters.txt
+--- kj/Documentation/kernel-parameters.txt~kill_kernel_parameter-sf16fm	2005-03-05 16:11:31.000000000 +0100
++++ kj-domen/Documentation/kernel-parameters.txt	2005-03-05 16:11:31.000000000 +0100
+@@ -1148,9 +1148,6 @@ running once the system is up.
+ 
+ 	serialnumber	[BUGS=IA-32]
+ 
+-	sf16fm=		[HW] SF16FMI radio driver for Linux
+-			Format: <io>
+-
+ 	sg_def_reserved_size=
+ 			[SCSI]
+  
+diff -puN drivers/media/radio/radio-sf16fmi.c~kill_kernel_parameter-sf16fm drivers/media/radio/radio-sf16fmi.c
+--- kj/drivers/media/radio/radio-sf16fmi.c~kill_kernel_parameter-sf16fm	2005-03-05 16:11:31.000000000 +0100
++++ kj-domen/drivers/media/radio/radio-sf16fmi.c	2005-03-05 16:11:31.000000000 +0100
+@@ -326,13 +326,3 @@ static void __exit fmi_cleanup_module(vo
+ 
+ module_init(fmi_init);
+ module_exit(fmi_cleanup_module);
+-
+-#ifndef MODULE
+-static int __init fmi_setup_io(char *str)
+-{
+-	get_option(&str, &io);
+-	return 1;
+-}
+-
+-__setup("sf16fm=", fmi_setup_io);
+-#endif
+_

@@ -1,71 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262731AbTLULX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 06:23:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbTLULX3
+	id S262740AbTLUL3r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 06:29:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbTLUL3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 06:23:29 -0500
-Received: from mail.shareable.org ([81.29.64.88]:40071 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262731AbTLULX1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 06:23:27 -0500
-Date: Sun, 21 Dec 2003 11:23:16 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: John Bradford <john@grabjohn.com>
-Cc: ryutaroh@it.ss.titech.ac.jp, vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cannot input bar with JP106 keyboards
-Message-ID: <20031221112316.GE3438@mail.shareable.org>
-References: <20031219123645.GA28801@ucw.cz> <20031220.183049.74735752.ryutaroh@it.ss.titech.ac.jp> <20031220093532.GB6017@ucw.cz> <20031220.185244.71103628.ryutaroh@it.ss.titech.ac.jp> <200312201246.hBKCkP4a000191@81-2-122-30.bradfords.org.uk>
+	Sun, 21 Dec 2003 06:29:47 -0500
+Received: from neveragain.de ([217.69.76.1]:31625 "EHLO hobbit.neveragain.de")
+	by vger.kernel.org with ESMTP id S262740AbTLUL3o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 06:29:44 -0500
+Date: Sun, 21 Dec 2003 12:29:34 +0100
+From: Martin Loschwitz <madkiss@madkiss.org>
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>, linux-kernel@vger.kernel.org
+Subject: Re: 3ware driver broken with 2.4.22/23 ?
+Message-ID: <20031221112933.GA5758@minerva.local.lan>
+References: <20031221112113.GE916@mail.muni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
 Content-Disposition: inline
-In-Reply-To: <200312201246.hBKCkP4a000191@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031221112113.GE916@mail.muni.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
-> As I understand it there was traditionally a distinction between pipe,
-> (a broken vertical line), and bar, (solid vertical line).
-> 
-> The markings on my keyboard are as follows:
-> 
-> Pipe is the fourth character on the lower-right backslash key.
-> Bar is the second character on the upper-right yen key.
-> 
-> However, my keyboard emulates a US one in Set 2, and produces the
-> Linux 'pipe' symbol, for example as in
-> 
-> cat foo | less
-> 
-> when the bar key is pressed.
 
-I have a UK keyboard; it's a Microsoft Natural keyboard.
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It has both "broken vertical line" and "solid vertical line" markings.
-The former is in the usual place above backslash.  The latter is in
-the alternate (altgr, as opposed to shift) position on the key which
-has backquote (grave) and logical-not symbols.
+On Sun, Dec 21, 2003 at 12:21:13PM +0100, Lukas Hejtmanek wrote:
+> Hello,
+>=20
+> I have 3ware Escalade 8500-8 card with 8 SATA WD 250GB drives. I set up H=
+W RAID5
+> configuration over all drives.
+> I'm using kernel 2.4.23 vanilla with XFS patch. RAID5 partition is format=
+ed to
+> XFS.
+> System is single hyper threaded P4 Xeon 2.8GHz with 1GB of RAM. There is =
+Intel
+> 1000/PRO ethernet card. Motherboard is MSI E7501 Master-LS.
+>=20
+> If I do:
+> iozone -Ra -g 20G -e -n 10485760=20
+> on the XFS partition then it freezes after certain time (but always the s=
+ame
+> amount if I run it again few times).
+>=20
+> Server responds only to ping and sysrq. No process can be run and already
+> running process top freezes as well. After about 8 hours it is still free=
+zed.
+> If I connect monitor to the server when it freezes then monitor indicates=
+ - no
+> signal.
+>=20
+> I use configuration with SMP without HIGHMEM. However it happens without =
+SMP as
+> well. (Driver: 1.02.00.036)
+>=20
+> With kernel 2.6.0 it seems to be ok. (Driver: 1.02.00.037)
+>=20
+> Can firmware upgrade help? Or there is an issue with something other not =
+related
+> to 3ware card?
+>=20
+Well, it happens from time to time that the card refuses to work with an
+actual driver as actual drivers sometimes make use of functions introduced
+in firmware upgrades. Upgrading the firmware should be the first thing to
+try. Chances are it works well even with 2.4 afterwards.
 
-Curiously, both "broken vertical line" and "solid vertical line"
-generate a solid vertical line character in X (U+007C, standard pipe
-character), though shift+altgr+"broken vertical line" generates a
-broken vertical line character (U+08A6).
+> --=20
+> Luk=E1? Hejtm=E1nek
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-On the Linux console, all combinations generate a broken vertical
-line, although that's the terminal font displaying a broken line for
-the same character that X shows as a solid one.
+--=20
+  .''`.   Martin Loschwitz           Debian GNU/Linux developer
+ : :'  :  madkiss@madkiss.org        madkiss@debian.org
+ `. `'`   http://www.madkiss.org/    people.debian.org/~madkiss/
+   `-     Use Debian GNU/Linux 3.0!  See http://www.debian.org/
 
-What a strange mismash.  It would be nice if the keyboard simply
-produced what is shown on the keys!
+--PNTmBPCT7hxwcZjr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-It's nice that the logical-not key actually generates a logical-not
-character these days.  I'm not sure why so many keyboard have it, and
-in such a prominent position, considering I've never _ever_ seen it
-used in a document, and the other logical symbols aren't present.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-Many older mappings emitted tilde at this position instead of
-logical-not, which I often used and was quite startled the day it
-started emitting what was on the key.
+iD8DBQE/5YQdHPo+jNcUXjARAiuLAKCYiNOsF6tNZ0+0Y8UkZUZquspxKACeK2lE
+0LWVAh6hZnf1wBaht1ZLJUU=
+=Niwu
+-----END PGP SIGNATURE-----
 
--- Jamie
+--PNTmBPCT7hxwcZjr--

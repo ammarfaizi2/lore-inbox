@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268136AbUHXB2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267232AbUHWTWO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268136AbUHXB2E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 21:28:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267961AbUHXB2C
+	id S267232AbUHWTWO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 15:22:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267452AbUHWTVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 21:28:02 -0400
-Received: from fw.osdl.org ([65.172.181.6]:29418 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268136AbUHXBXI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 21:23:08 -0400
-Date: Mon, 23 Aug 2004 18:21:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org, suparna@in.ibm.com
-Subject: Re: [PATCH] Writeback page range hint
-Message-Id: <20040823182109.6af19081.akpm@osdl.org>
-In-Reply-To: <20040824011822.GB15668@redhat.com>
-References: <200408232138.i7NLcfJd019125@hera.kernel.org>
-	<20040824010723.GA15668@redhat.com>
-	<20040823181400.7d721370.akpm@osdl.org>
-	<20040824011822.GB15668@redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 23 Aug 2004 15:21:50 -0400
+Received: from mail.kroah.org ([69.55.234.183]:452 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267214AbUHWSgr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 14:36:47 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <10932860853494@kroah.com>
+Date: Mon, 23 Aug 2004 11:34:45 -0700
+Message-Id: <10932860852863@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> wrote:
->
-> On Mon, Aug 23, 2004 at 06:14:00PM -0700, Andrew Morton wrote:
-> 
->  > >   > +	int nonblocking:1;		/* Don't get stuck on request queues */
->  > >   > +	int encountered_congestion:1;	/* An output: a queue is full */
->  > >   > +	int for_kupdate:1;		/* A kupdate writeback */
->  > >   > +	int for_reclaim:1;		/* Invoked from the page allocator */
->  > > 
->  > >  Causes sparse spew..
->  > > 
->  > >  include/linux/writeback.h:54:19: warning: dubious one-bit signed bitfield
->  > >  include/linux/writeback.h:55:30: warning: dubious one-bit signed bitfield
->  > >  include/linux/writeback.h:56:19: warning: dubious one-bit signed bitfield
->  > >  include/linux/writeback.h:57:19: warning: dubious one-bit signed bitfield
->  > 
->  > That's fussy of it.  I assume this shuts it up?
-> 
-> very likely (its 2am, and I'm feeling too lazy to check).
+ChangeSet 1.1807.56.11, 2004/08/04 08:37:35-04:00, dwmw2@shinybook.infradead.org
 
-That's the middle of the working day.
+PCI quirks -- parisc. 
 
-> though, is there any real reason why they are bitfields at all ?
+Remove pcibios_fixups[] from core code and declare the one fixup in
+the same place it's implemented.
 
-That should have been in the changelog.  Bad Suparna.
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-These structures are allocated on the stack in the (deep) writeback paths. 
-Saving a few bytes there does seem to be worth the increased code size.
+
+ arch/parisc/kernel/pci.c |    9 ---------
+ drivers/parisc/superio.c |    1 +
+ 2 files changed, 1 insertion(+), 9 deletions(-)
+
+
+diff -Nru a/arch/parisc/kernel/pci.c b/arch/parisc/kernel/pci.c
+--- a/arch/parisc/kernel/pci.c	2004-08-23 11:06:17 -07:00
++++ b/arch/parisc/kernel/pci.c	2004-08-23 11:06:17 -07:00
+@@ -146,15 +146,6 @@
+ 	return str;
+ }
+ 
+-/* Used in drivers/pci/quirks.c */
+-struct pci_fixup pcibios_fixups[] = { 
+-#ifdef CONFIG_SUPERIO
+-	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_NS,	PCI_DEVICE_ID_NS_87415,	superio_fixup_pci },
+-#endif
+-	{ 0 }
+-};
+-
+-
+ /*
+  * Called by pci_set_master() - a driver interface.
+  *
+diff -Nru a/drivers/parisc/superio.c b/drivers/parisc/superio.c
+--- a/drivers/parisc/superio.c	2004-08-23 11:06:17 -07:00
++++ b/drivers/parisc/superio.c	2004-08-23 11:06:17 -07:00
+@@ -480,6 +480,7 @@
+ 	pci_read_config_byte(pdev, PCI_CLASS_PROG, &prog);
+ 	printk("PCI: Enabled native mode for NS87415 (pif=0x%x)\n", prog);
+ }
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_87415, superio_fixup_pci);
+ 
+ /* Because of a defect in Super I/O, all reads of the PCI DMA status 
+  * registers, IDE status register and the IDE select register need to be 
 

@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266701AbSKOVFC>; Fri, 15 Nov 2002 16:05:02 -0500
+	id <S266688AbSKOVDw>; Fri, 15 Nov 2002 16:03:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266721AbSKOVFC>; Fri, 15 Nov 2002 16:05:02 -0500
-Received: from rth.ninka.net ([216.101.162.244]:34967 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S266701AbSKOVFB>;
-	Fri, 15 Nov 2002 16:05:01 -0500
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-From: "David S. Miller" <davem@redhat.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <396026666.1037298946@[10.10.2.3]>
-References: <1037325839.13735.4.camel@rth.ninka.net> 
-	<396026666.1037298946@[10.10.2.3]>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 15 Nov 2002 13:30:35 -0800
-Message-Id: <1037395835.22209.3.camel@rth.ninka.net>
-Mime-Version: 1.0
+	id <S266701AbSKOVDw>; Fri, 15 Nov 2002 16:03:52 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16913 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266688AbSKOVDw>; Fri, 15 Nov 2002 16:03:52 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: NFS mountned  directory  and apache2 (2.5.47)
+Date: Fri, 15 Nov 2002 21:10:19 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <ar3nrr$f1a$1@penguin.transmeta.com>
+References: <79A23782BB8@vcnet.vc.cvut.cz> <15829.22032.166977.73195@helicity.uio.no> <20021115202649.A18706@infradead.org>
+X-Trace: palladium.transmeta.com 1037394638 32540 127.0.0.1 (15 Nov 2002 21:10:38 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 15 Nov 2002 21:10:38 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-11-14 at 18:35, Martin J. Bligh wrote:
-> Hmmm ... I'm not sure that being that restrictive is going to help.
+In article <20021115202649.A18706@infradead.org>,
+Christoph Hellwig  <hch@infradead.org> wrote:
+>On Fri, Nov 15, 2002 at 09:16:16PM +0100, Trond Myklebust wrote:
+>> >>>>> " " == Petr Vandrovec <VANDROVE@vc.cvut.cz> writes:
+>> 
+>>      > It does not change anything on the brokeness of apache2 (or
+>>      > maybe glibc). It must be able to revert to read/write loop if
+>>      > sendfile fails with EINVAL. There is no guarantee that existing
+>>      > sendfile() API means that you can use it with all filesystems.
+>> 
+>> I disagree. Sendfile can *always* be emulated using the standard file
+>> 'read' method.
+>
+>Linus removed that in early 2.5 because it led to kmap() deadlocks.
+>sendfile can fail with EINVAL and userspace must not rely on it
+>working on any object.
 
-Yes it is unless you create toplevel categories for bugs that
-are occuring on non-official kernel trees.
+Now that I think we've fixed the deadlocks a different way, we _might_
+be able to re-introduce a more generic sendfile(). 
 
-My expeience so far with this bug database has been that I just
-immediately close every bug assigned to me, here are two
-examples:
+We should also change the name of the dang thing at least internally,
+since it has very little to do with sending a file any more.  And
+furthermore we should probably introduce an internal file operation that
+is the reverse of our misnamed "sendfile", ie a "receive actor" (we
+already have the notion of actors, but we don't use them for receiving
+directly into a "struct file *"). 
 
-1) TCP crash with -mm2 patches --> known error in Andrew's
-   patches
+Then we could actually do a real "copyfile()", by just matching up the
+source file "sendfile()" function with the destination file "receive
+actor" function and letting it rip.  That should allow true "move the
+page cache page from one file to another" copies of files, for example. 
 
-2) tcp_MSS doesn't compile --> already fixed in current BK tree
-
-the list goes on and on, and the simple fact of the matter is that
-I have yet to see a _REAL_ bonified bug.  If this is how this bug
-database is going to continue to be used by people, it's going to
-be of only limited usefullness to me.
-
-Look, if #1 and #2 would have been posted to linux-kernel instead,
-the fact is that before I woke up and hit my email box SOMEONE ELSE
-would have responded and even sent that person a patch.
-
-In this sense it appears that linux-kernel is more effective than
-thus bug database, ESPECIALLY if we are going to allow people to
-report bugs against trees with random patches applied.
-
+		Linus

@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317665AbSGPMac>; Tue, 16 Jul 2002 08:30:32 -0400
+	id <S317670AbSGPMfl>; Tue, 16 Jul 2002 08:35:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317670AbSGPMab>; Tue, 16 Jul 2002 08:30:31 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:51718 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S317665AbSGPMaa>; Tue, 16 Jul 2002 08:30:30 -0400
-Date: Tue, 16 Jul 2002 14:33:24 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-Message-ID: <20020716123324.GF4576@merlin.emma.line.org>
-Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <s5g7kjwsn12.fsf@egghead.curl.com> <Pine.LNX.4.44.0207152356430.19217-100000@lexx.infeline.org> <20020716020845.Z28720@mea-ext.zmailer.org>
+	id <S317675AbSGPMfk>; Tue, 16 Jul 2002 08:35:40 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:64750 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317670AbSGPMfj>; Tue, 16 Jul 2002 08:35:39 -0400
+Subject: Re: New char driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: henrique@cyclades.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200207160930.26598.henrique@cyclades.com>
+References: <200207020634.g626YXT21430@Port.imtp.ilyichevsk.odessa.ua> 
+	<200207160930.26598.henrique@cyclades.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 16 Jul 2002 14:48:44 +0100
+Message-Id: <1026827324.2119.46.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020716020845.Z28720@mea-ext.zmailer.org>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Jul 2002, Matti Aarnio wrote:
+On Tue, 2002-07-16 at 13:30, henrique wrote:
+> Hello !!!
+> 
+> I want to include a new board driver in the 2.5 kernel serie. Who should 
+> receive this new driver. I didn't find any reference to this issue on the 
+> last "lk maintainers" e-mail
 
->   These days, usually, the transaction database for MTAs is UNIX
->   filesystem.   For ZMailer I have considered (although not actually
->   done - yet) using SleepyCat DB files for the transaction subsystem.
->   There are great challenges in failure compartementalisation, and
->   integrity, when using that kind of integrated database mechanisms.
->   Getting SEGV is potentially _very_ bad thing!
+For 2.4 - Marcelo Tosatti cc me/list
+For 2.5 - Linus torvalds cc Dave Jones/list
 
-Read: lethal to the spool. Has SleepyCat DB learned to recover from
-ENOSPC in the meanwhile? I had a db1.85 file corrupt after ENOSPC once...
-
--- 
-Matthias Andree

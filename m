@@ -1,34 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262922AbSJGIJu>; Mon, 7 Oct 2002 04:09:50 -0400
+	id <S262916AbSJGIUw>; Mon, 7 Oct 2002 04:20:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262925AbSJGIJu>; Mon, 7 Oct 2002 04:09:50 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:34454 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262922AbSJGIJt>;
-	Mon, 7 Oct 2002 04:09:49 -0400
-Date: Mon, 07 Oct 2002 01:08:43 -0700 (PDT)
-Message-Id: <20021007.010843.130618724.davem@redhat.com>
-To: kai-germaschewski@uiowa.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild news
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0210052048130.13557-100000@chaos.physics.uiowa.edu>
-References: <Pine.LNX.4.44.0210052048130.13557-100000@chaos.physics.uiowa.edu>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S262917AbSJGIUw>; Mon, 7 Oct 2002 04:20:52 -0400
+Received: from hacksaw.org ([216.41.5.170]:6240 "EHLO
+	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
+	id <S262916AbSJGIUv>; Mon, 7 Oct 2002 04:20:51 -0400
+Message-Id: <200210070826.g978QRhq007655@habitrail.home.fools-errant.com>
+X-Mailer: exmh version 2.5 08/15/2002 with nmh-1.0.4
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: LILO probs 
+In-reply-to: Your message of "Mon, 07 Oct 2002 10:12:12 +0200."
+             <200210071012.12712.roy@karlsbakk.net> 
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 07 Oct 2002 04:26:27 -0400
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-   Date: Sat, 5 Oct 2002 21:10:06 -0500 (CDT)
+> > Disk /dev/hda: 16 heads, 63 sectors, 38792 cylinders
+> >
+> > Nr AF  Hd Sec  Cyl  Hd Sec  Cyl    Start     Size ID
+> >  1 80   1   1    0  15  63  609       63   614817 83
+> >  2 00   0   1  610  15  63 1023   614880 10486224 83
+> >  3 00  15  63 1023  15  63 1023 11101104  4194288 83
+> >  4 00  15  63 1023  15  63 1023 15295392 23806944 0f
+> >  5 00  15  63 1023  15  63 1023       63  2097585 83
+> >  6 00  15  63 1023  15  63 1023       63  1048257 83
+> >  7 00  15  63 1023  15  63 1023       63  1048257 82
+> >  8 00  15  63 1023  15  63 1023       63 19612593 83
 
-   o The final link of vmlinux is now always done as a two step process:
+It's a very confusing table, but more importantly it seems to imply that 
+/dev/hda{5,6,7,8} all start at cylinder 63, and end in a variety of places.
 
-This doesn't seem to be happening "always" now in current
-2.5.x, I did not see a .tmp_vmlinux get generated.
+If this is an accurate representation of the partition table on this disk, I 
+would suggest you recover what you can from it, and start over.
 
-It seems the whole mechanism to do kallsyms got redone since
-you sent this email.
+Better would be to have a look at the partition table with something that can 
+fix it, like fdisk, sfdisk or parted. Example:
+
+sfdisk -l /dev/hda
+
+
+-- 
+If in doubt, consult tradition.
+If still in doubt, consult your experience.
+If still in doubt, consult your body.
+http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+
+

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264896AbUEKQv7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264877AbUEKQwA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264896AbUEKQv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 12:51:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264877AbUEKQux
+	id S264877AbUEKQwA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 12:52:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbUEKQuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 12:50:53 -0400
-Received: from p060042.ppp.asahi-net.or.jp ([221.113.60.42]:61432 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S264873AbUEKQgS
+	Tue, 11 May 2004 12:50:32 -0400
+Received: from p060042.ppp.asahi-net.or.jp ([221.113.60.42]:62200 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S264877AbUEKQga
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 12:36:18 -0400
-Date: Wed, 12 May 2004 01:36:15 +0900
-Message-ID: <m21xlqsyyo.wl%ysato@users.sourceforge.jp>
+	Tue, 11 May 2004 12:36:30 -0400
+Date: Wed, 12 May 2004 01:36:28 +0900
+Message-ID: <m2zn8erkdv.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] H8/300 update (1/9) bitops.h add find_next_bit
+Subject: [PATCH} H8/300 update (2/9) ldscripts fix
 User-Agent: Wanderlust/2.11.24 (Wonderwall) SEMI/1.14.6 (Maruoka)
  LIMIT/1.14.7 (Fujiidera) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,94 +23,93 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- add find_next_bit
+- symbol prefix (use h8300 and v850) support
+- include headers
 
 -- 
 Yoshinori Sato
 <ysato@users.sourceforge.jp>
 
-diff -Nru linux-2.6.6/include/asm-h8300/bitops.h linux-2.6.6-h8300/include/asm-h8300/bitops.h
---- linux-2.6.6/include/asm-h8300/bitops.h	2004-05-11 14:30:27.000000000 +0900
-+++ linux-2.6.6-h8300/include/asm-h8300/bitops.h	2004-05-11 21:28:11.000000000 +0900
-@@ -181,6 +181,23 @@
- #define find_first_zero_bit(addr, size) \
- 	find_next_zero_bit((addr), (size), 0)
+diff -Nru linux-2.6.6/arch/h8300/kernel/vmlinux.lds.S linux-2.6.6-h8300/arch/h8300/kernel/vmlinux.lds.S
+--- linux-2.6.6/arch/h8300/kernel/vmlinux.lds.S	2004-05-11 14:30:44.000000000 +0900
++++ linux-2.6.6-h8300/arch/h8300/kernel/vmlinux.lds.S	2004-05-11 21:04:14.000000000 +0900
+@@ -1,3 +1,5 @@
++#include <asm-generic/vmlinux.lds.h>
++#include <asm/thread_info.h>
+ #include <linux/config.h>
  
-+static __inline__ unsigned long __ffs(unsigned long word)
-+{
-+	unsigned long result;
+ #ifdef CONFIG_H8300H_GENERIC
+diff -Nru linux-2.6.6/include/asm-generic/vmlinux.lds.h linux-2.6.6-h8300/include/asm-generic/vmlinux.lds.h
+--- linux-2.6.6/include/asm-generic/vmlinux.lds.h	2004-05-11 14:30:47.000000000 +0900
++++ linux-2.6.6-h8300/include/asm-generic/vmlinux.lds.h	2004-05-11 23:03:42.000000000 +0900
+@@ -1,7 +1,15 @@
++#include <linux/config.h>
 +
-+	result = -1;
-+	__asm__("1:\n\t"
-+		"shlr.l %2\n\t"
-+		"adds #1,%0\n\t"
-+		"bcc 1b"
-+		: "=r" (result)
-+		: "0"(result),"r"(word));
-+	return result;
-+}
+ #ifndef LOAD_OFFSET
+ #define LOAD_OFFSET 0
+ #endif
+ 
++#if defined(CONFIG_H8300) || defined(CONFIG_V850)
++#define SYMBOL(_sym_) _##_sym_
++#else
++#define SYMBOL(_sym_) _sym_
++#endif
 +
-+#define ffs(x) generic_ffs(x)
-+#define fls(x) generic_fls(x)
-+
- static __inline__ int find_next_zero_bit (void * addr, int size, int offset)
- {
- 	unsigned long *p = (unsigned long *)(((unsigned long)addr + (offset >> 3)) & ~3);
-@@ -217,22 +234,44 @@
- 	return result + ffz(tmp);
- }
+ #define RODATA								\
+ 	.rodata           : AT(ADDR(.rodata) - LOAD_OFFSET) {		\
+ 		*(.rodata) *(.rodata.*)					\
+@@ -14,30 +22,30 @@
+ 									\
+ 	/* Kernel symbol table: Normal symbols */			\
+ 	__ksymtab         : AT(ADDR(__ksymtab) - LOAD_OFFSET) {		\
+-		__start___ksymtab = .;					\
++		SYMBOL(__start___ksymtab) = .;				\
+ 		*(__ksymtab)						\
+-		__stop___ksymtab = .;					\
++		SYMBOL(__stop___ksymtab) = .;				\
+ 	}								\
+ 									\
+ 	/* Kernel symbol table: GPL-only symbols */			\
+ 	__ksymtab_gpl     : AT(ADDR(__ksymtab_gpl) - LOAD_OFFSET) {	\
+-		__start___ksymtab_gpl = .;				\
++		SYMBOL(__start___ksymtab_gpl) = .;			\
+ 		*(__ksymtab_gpl)					\
+-		__stop___ksymtab_gpl = .;				\
++		SYMBOL(__stop___ksymtab_gpl) = .;			\
+ 	}								\
+ 									\
+ 	/* Kernel symbol table: Normal symbols */			\
+ 	__kcrctab         : AT(ADDR(__kcrctab) - LOAD_OFFSET) {		\
+-		__start___kcrctab = .;					\
++		SYMBOL(__start___kcrctab) = .;				\
+ 		*(__kcrctab)						\
+-		__stop___kcrctab = .;					\
++		SYMBOL(__stop___kcrctab) = .;				\
+ 	}								\
+ 									\
+ 	/* Kernel symbol table: GPL-only symbols */			\
+ 	__kcrctab_gpl     : AT(ADDR(__kcrctab_gpl) - LOAD_OFFSET) {	\
+-		__start___kcrctab_gpl = .;				\
++		SYMBOL(__start___kcrctab_gpl) = .;			\
+ 		*(__kcrctab_gpl)					\
+-		__stop___kcrctab_gpl = .;				\
++		SYMBOL(__stop___kcrctab_gpl) = .;			\
+ 	}								\
+ 									\
+ 	/* Kernel symbol table: strings */				\
+@@ -47,12 +55,12 @@
  
--static __inline__ unsigned long __ffs(unsigned long word)
-+static __inline__ unsigned long find_next_bit(const unsigned long *addr,
-+	unsigned long size, unsigned long offset)
- {
--	unsigned long result;
-+	unsigned long *p = (unsigned long *)(((unsigned long)addr + (offset >> 3)) & ~3);
-+	unsigned int result = offset & ~31UL;
-+	unsigned int tmp;
+ #define SECURITY_INIT							\
+ 	.security_initcall.init : {					\
+-		__security_initcall_start = .;				\
++		SYMBOL(__security_initcall_start) = .;			\
+ 		*(.security_initcall.init) 				\
+ 		__security_initcall_end = .;				\
+ 	}
  
--	result = -1;
--	__asm__("1:\n\t"
--		"shlr.l %2\n\t"
--		"adds #1,%0\n\t"
--		"bcc 1b"
--		: "=r" (result)
--		: "0"(result),"r"(word));
--	return result;
--}
-+	if (offset >= size)
-+		return size;
-+	size -= result;
-+	offset &= 31UL;
-+	if (offset) {
-+		tmp = *(p++);
-+		tmp &= ~0UL << offset;
-+		if (size < 32)
-+			goto found_first;
-+		if (tmp)
-+			goto found_middle;
-+		size -= 32;
-+		result += 32;
-+	}
-+	while (size >= 32) {
-+		if ((tmp = *p++) != 0)
-+			goto found_middle;
-+		result += 32;
-+		size -= 32;
-+	}
-+	if (!size)
-+		return result;
-+	tmp = *p;
- 
--#define ffs(x) generic_ffs(x)
--#define fls(x) generic_fls(x)
-+found_first:
-+	tmp &= ~0UL >> (32 - size);
-+	if (tmp == 0UL)
-+		return result + size;
-+found_middle:
-+	return result + __ffs(tmp);
-+}
- 
- /*
-  * Every architecture must define this function. It's the fastest
+ #define SCHED_TEXT							\
+-		__scheduling_functions_start_here = .;			\
++		SYMBOL(__scheduling_functions_start_here) = .;		\
+ 		*(.sched.text)						\
+-		__scheduling_functions_end_here = .;
++		SYMBOL(__scheduling_functions_end_here) = .;

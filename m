@@ -1,51 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131407AbRDBWSu>; Mon, 2 Apr 2001 18:18:50 -0400
+	id <S131400AbRDBWRU>; Mon, 2 Apr 2001 18:17:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131408AbRDBWSl>; Mon, 2 Apr 2001 18:18:41 -0400
-Received: from snowstorm.mail.pipex.net ([158.43.192.97]:52975 "HELO
-	snowstorm.mail.pipex.net") by vger.kernel.org with SMTP
-	id <S131407AbRDBWSZ>; Mon, 2 Apr 2001 18:18:25 -0400
-To: linux-kernel@vger.kernel.org
-From: Trevor-Hemsley@dial.pipex.com (Trevor Hemsley)
-Date: Mon, 02 Apr 2001 22:55:36
-Subject: Re: Matrox G400 Dualhead
-X-Mailer: ProNews/2 V1.51.ib103
+	id <S131407AbRDBWRK>; Mon, 2 Apr 2001 18:17:10 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31249 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131400AbRDBWQz>; Mon, 2 Apr 2001 18:16:55 -0400
+Subject: Re: PROBLEM:Bug when installing NVidia Driver Module
+To: gregvb@theblackfire.net (Greg von Beck)
+Date: Mon, 2 Apr 2001 23:18:01 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0104011147300.10910-100000@www.theblackfire.net> from "Greg von Beck" at Apr 01, 2001 12:07:22 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010402221831Z131407-407+5602@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14kCeC-0006pD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Apr 2001 17:43:42, Petr Vandrovec <vandrove@vc.cvut.cz> 
-wrote:
-
-> Trevor Hemsley wrote:
+> /lib/modules/2.4.3/video/NVDriver: unresolved symbol _mmx_memcpy
 > 
-> > I get this as well on my G200. From observation it appears that the
-> > refresh rate is being doubled when you exit X and that's why the
-> > console appears blank. On my system I normally use
-> > 
-> > modprobe matroxfb vesa=263 fv=85
-> > 
-> > to give a large text console. On return from X, if I blindly type
-> > 
-> > fbset "640x480-60"
-> > 
-> > then I get a visible screen back but my monitor tells me that it's
-> > running at 640x480@119Hz. Same thing for 800x600-60 only this one says
-> > 120Hz.
+> however if i rebuild my kernel using an "i686" architecture this problem
+> no longer comes up.
 > 
-> Unfortunately Matrox datasheet says that it is impossible :-( Can you
-> try 'fbset -depth 0; fbset -depth 8' ?
+> It is quite possible that this is NVidia's problem, however it seemed
+> reasonable that the "athlon" architecture should support MMX.
 
-Yes, that fixes it. Issuing the first fbset command brings me back 
-some sort of display, all fsck'ed up but vaguely readable with 
-shimmering bits of text all over it in the wrong places. The second 
-fbset gets it back correctly at the right resolution and right refresh
-rate. Thanks, a workaround at least.
-
--- 
-Trevor Hemsley, Brighton, UK.
-Trevor-Hemsley@dial.pipex.com
+Take it up with Nvidia - its (as usual) their problem

@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbTHWFGr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 01:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbTHWFGr
+	id S263502AbTHWFYm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 01:24:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263496AbTHWFYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 01:06:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:35803 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261360AbTHWFGp (ORCPT
+	Sat, 23 Aug 2003 01:24:42 -0400
+Received: from ns.aratech.co.kr ([61.34.11.200]:17294 "EHLO ns.aratech.co.kr")
+	by vger.kernel.org with ESMTP id S263502AbTHWFYk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 01:06:45 -0400
-Date: Fri, 22 Aug 2003 22:05:00 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: kai.germaschewski@gmx.de, rusty@rustcorp.com.au
-Subject: [PATCH] eliminate gcc warnings on assert [__builtin_expect]
-Message-Id: <20030822220500.6c0e1053.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 23 Aug 2003 01:24:40 -0400
+Date: Sat, 23 Aug 2003 14:26:34 +0900
+From: TeJun Huh <tejun@aratech.co.kr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Race condition in 2.4 tasklet handling (cli() broken?)
+Message-ID: <20030823052633.GA4307@atj.dyndns.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030823025448.GA32547@atj.dyndns.org> <20030823040931.GA3872@atj.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030823040931.GA3872@atj.dyndns.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ Oops, Sorry.  Only bh handling is relevant.  Softirq and tasklet are
+not of concern to cli().
 
-Building genksyms on ia64 (gcc 3.3.1) produces these warnings:
+On Sat, Aug 23, 2003 at 01:09:31PM +0900, TeJun Huh wrote:
+>  Additional suspicious things.
+> 
+> 1. tasklet_kill() has similar race condition.  mb() required before
+> tasklet_unlock_wait().
 
-scripts/genksyms/genksyms.c: In function `copy_node':
-scripts/genksyms/genksyms.c:224: warning: passing arg 1 of `__builtin_expect' makes integer from pointer without a cast
-scripts/genksyms/genksyms.c: In function `expand_and_crc_list':
-scripts/genksyms/genksyms.c:384: warning: passing arg 1 of `__builtin_expect' makes integer from pointer without a cast
-scripts/genksyms/genksyms.c:390: warning: passing arg 1 of `__builtin_expect' makes integer from pointer without a cast
-scripts/genksyms/genksyms.c:396: warning: passing arg 1 of `__builtin_expect' makes integer from pointer without a cast
+Corrected 2.
 
+ global_bh_lock test inside wait_on_irq() suggests that cli() tries to
+block not only interrupt handling but also bh handlings of all cpus;
+however, current implementation does not guarantee that.
 
-Is there a problem with coercing the pointer parameter to be (int)?
+ Because global_bh_lock is acquired in bh_action() <call trace:
+handle_IRQ_event()->do_softirq()->tasklet_action()->bh_action()> after
+decrementing local_irq_count(), other cpus may happily begin bh
+handling while a cpu is still inside cli() - sti() critical section.
 
---
-~Randy
+ If bh hanlding is not guaranteed to be blocked during cli() - sti()
+critical section, global_bh_lock test inside wait_on_irq() is
+redundant and if it should be guaranteed, current implmentation seems
+broken.
 
-
-patch_name:	ksyms_assert.patch
-patch_version:	2003-08-22.21:28:40
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	eliminate gcc warnings on assert/__builtin_expect();
-product:	Linux
-product_versions: 260-test4
-diffstat:	=
- scripts/genksyms/genksyms.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-
-diff -Naur ./scripts/genksyms/genksyms.h~astype ./scripts/genksyms/genksyms.h
---- ./scripts/genksyms/genksyms.h~astype	Fri Aug  8 21:39:02 2003
-+++ ./scripts/genksyms/genksyms.h	Fri Aug 22 21:14:59 2003
-@@ -89,8 +89,8 @@
- 
- #define MODUTILS_VERSION "<in-kernel>"
- 
--#define xmalloc(size) ({ void *__ptr = malloc(size); assert(__ptr || size == 0); __ptr; })
--#define xstrdup(str)  ({ char *__str = strdup(str); assert(__str); __str; })
-+#define xmalloc(size) ({ void *__ptr = malloc(size); assert((int)__ptr || size == 0); __ptr; })
-+#define xstrdup(str)  ({ char *__str = strdup(str); assert((int)__str); __str; })
- 
- 
- #endif /* genksyms.h */
+-- 
+tejun

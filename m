@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbUK2TfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbUK2Tk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261767AbUK2TfS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 14:35:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbUK2TeI
+	id S261769AbUK2Tk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 14:40:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbUK2TiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 14:34:08 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:1744 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261614AbUK2TKq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 14:10:46 -0500
-Date: Mon, 29 Nov 2004 11:08:00 -0800
-From: Greg KH <greg@kroah.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Stelian Pop <stelian@popies.net>, Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] usb-storage should enable scsi disk in Kconfig
-Message-ID: <20041129190800.GE15452@kroah.com>
-References: <20041119193350.GE2700@deep-space-9.dsnet> <20041119195736.GA8466@infradead.org> <20041119213942.GG2700@deep-space-9.dsnet> <20041119230820.GB32455@one-eyed-alien.net> <419FD192.1040604@osdl.org>
+	Mon, 29 Nov 2004 14:38:25 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:34838 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261721AbUK2Tc0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 14:32:26 -0500
+Date: Mon, 29 Nov 2004 20:32:26 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Rik van Riel <riel@redhat.com>, Chris Mason <mason@suse.com>,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>
+Subject: Re: [PATCH] CKRM 1/10: Base CKRM Events
+Message-ID: <20041129193226.GA8397@mars.ravnborg.org>
+Mail-Followup-To: Gerrit Huizenga <gh@us.ibm.com>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org,
+	Rik van Riel <riel@redhat.com>, Chris Mason <mason@suse.com>,
+	ckrm-tech <ckrm-tech@lists.sourceforge.net>
+References: <E1CYqXA-00056l-00@w-gerrit.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <419FD192.1040604@osdl.org>
+In-Reply-To: <E1CYqXA-00056l-00@w-gerrit.beaverton.ibm.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 20, 2004 at 03:21:54PM -0800, Randy.Dunlap wrote:
-> 
-> Until 'suggests' is available, does this help any?
-> It's tough getting people to read Help messages though.
-> 
-> 
-> 
-> Add comment/NOTE that USB_STORAGE probably needs BLK_DEV_SD also.
-> Add a few device types to help text and reformat it.
+ Index: linux-2.6.10-rc2/kernel/ckrm/Makefile
+> ===================================================================
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux-2.6.10-rc2/kernel/ckrm/Makefile	2004-11-19 20:40:52.528302080 -0800
+> @@ -0,0 +1,7 @@
+> +#
+> +# Makefile for CKRM
+> +#
+> +
+> +ifeq ($(CONFIG_CKRM),y)
+> +    obj-y = ckrm_events.o
+> +endif	
 
-Applied, thanks.
+Plase make this:
 
-greg k-h
+obj-y := ckrm_events.o
 
+> --- linux-2.6.10-rc2.orig/kernel/Makefile	2004-11-14 17:27:09.000000000 -0800
+> +++ linux-2.6.10-rc2/kernel/Makefile	2004-11-19 20:41:21.885651099 -0800
+> @@ -7,7 +7,7 @@
+>  	    sysctl.o capability.o ptrace.o timer.o user.o \
+>  	    signal.o sys.o kmod.o workqueue.o pid.o \
+>  	    rcupdate.o intermodule.o extable.o params.o posix-timers.o \
+> -	    kthread.o wait.o kfifo.o sys_ni.o
+> +	    kthread.o wait.o kfifo.o sys_ni.o ckrm/
+
+And this:
+obj-$(CONFIG_CKRM) += ckrm/
+
+	Sam

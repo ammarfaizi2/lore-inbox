@@ -1,141 +1,85 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315985AbSENSgq>; Tue, 14 May 2002 14:36:46 -0400
+	id <S314085AbSENSs5>; Tue, 14 May 2002 14:48:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315977AbSENSgo>; Tue, 14 May 2002 14:36:44 -0400
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:17967 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id <S315984AbSENSfs>;
-	Tue, 14 May 2002 14:35:48 -0400
-Date: Tue, 14 May 2002 19:35:54 +0100 (BST)
+	id <S315988AbSENSs4>; Tue, 14 May 2002 14:48:56 -0400
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:7990 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S314085AbSENSsz>;
+	Tue, 14 May 2002 14:48:55 -0400
+Date: Tue, 14 May 2002 19:49:01 +0100 (BST)
 From: Tigran Aivazian <tigran@veritas.com>
 X-X-Sender: <tigran@einstein.homenet>
 To: Dead2 <dead2@circlestorm.org>
 cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Initrd or Cdrom as root
-In-Reply-To: <00d101c1fb73$8b0165e0$0d01a8c0@studio2pw0bzm4>
-Message-ID: <Pine.LNX.4.33.0205141930430.1577-100000@einstein.homenet>
+In-Reply-To: <00fd01c1fb76$1d8654a0$0d01a8c0@studio2pw0bzm4>
+Message-ID: <Pine.LNX.4.33.0205141938390.1577-100000@einstein.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, 14 May 2002, Dead2 wrote:
-> This CDROM is supposed to be able to be inserted into a fresh
-> server with no partitions on the HDD's. When booted, it will detect
-> the HDD, partition it and then install some rpm packages to get a
-> basic setup running.
-
-Hmmm, that is called a Linux distribution btw :)
-
-> I have also tested this cdrom in a few other computers with the
-> same error messages.
+> Isolinux: http://syslinux.zytor.com/iso.php
 >
-> "enableapic"? I just assumed it existed.
+> If you have a tutorial of how to make a bootable cdrom that does not use
+> Isolinux, then please point me to it.. =)
 
-perhaps it _should_ exist to enable the user the override a hardcoded
-"noapic" option in the image. I.e. you may build a floppy/cd with "noapic"
-hardcoded in lilo.conf but it is convenient to be able to override it.
-When I added "noapic" option this didn't occur to me... Or, perhaps a
-better syntax is "ioapics=0" and "ioapics=1" but this gives an impression
-that one can also say "ioapics=2" which is not the same as the easy
-solution above.
+I don't have a tutorial, unfortunately. I just wrote the necessary scripts
+myself. Besides, this is not something fundamental where one should rely
+on the work of others, imho. Creating a bootable CD is too "custom" to be
+generic and when it is made generic you end up with problems like you are
+having, i.e. not knowing exactly what is going on.
+
+But the basic steps I do are:
+
+a) generate the 2.88M floppy image on /dev/ram0 and fake the geometry like
+this:
+
+disk=/dev/ram0
+  bios=0
+  sectors=36 # or 18 for 1.44M
+  cylinders=80
+  heads=2
+
+b) make the minimum content of the image:
+
+mkdir boot dev etc
+mknod dev/null c 1 3
+mknod dev/ram1 b 1 1
+mknod dev/zero c 1 5
+
+c) copy the kernel image and LILO bits in there
+
+d) lilo -r /mnt ; umount /mnt
+
+e) dd if=/dev/ram0 of=boot/boot2880.img bs=1k count=2880
+
+f) mkisofs -b boot/boot2880.img -c boot/boot.cat \
+        -J -R -quiet \
+        -o image.iso
+
+(actually, I add a lot more parameters to mkisofs but they are too
+specific to my task so are not interesting)
+
+
+>
+> To make the iso image I use the following command:
+>
+> 'mkisofs -b isolinux.bin -o test.iso -no-emul-boot -boot-load-size
+> 4 -boot-info-table /iso'
+>
+
+Interesting, so you are saying that the modern BIOSes are already capable
+of booting no-emulation CDs? Last time I tried it (perhaps a year ago)
+some of my Dell machines couldn't do it so I gave up and decided to live
+with the 2.88M limit. I thought that BIOSes only support enough of "no
+emulation" to boot Windows installation CD.
+
+But if things changed and I should revisit the idea (i.e. if it is now
+possible to have boot images larger than 2.88M in a portable manner) then
+I would like to know.
 
 Regards
 Tigran
-
->
-> ----- Original Message -----
-> From: "Tigran Aivazian" <tigran@veritas.com>
->
->
-> > ok, what's your CD-ROM attached to?
-> > is it an IDE or a SCSI CD-ROM?
-> > If scsi, which HBA is it connected to?
-> > And have you compiled kernel support for that HBA?
-> >
-> > The major=0x48 is really 72 which is some exotic hardware called
-> > "Compaq Intelligent Drive Array". Do you have an instance of such hardware
-> > in your machine?
-> >
-> > And why are you passing "enableapic" boot parameter if it doesn't exist?
-> > (unless it is some new 2.5.x thing)
-> >
-> > I assume you are booting Linux 2.4.18, because that is what the patch was
-> > supposed to apply to.
-> >
-> > On Tue, 14 May 2002, Dead2 wrote:
-> >
-> > > Unfortunately it boots too fast for me to see that message..
-> > >
-> > > This is my isolinux.cfg file:
-> > > ---
-> > > DEFAULT zoac
-> > >
-> > > LABEL zoac
-> > >     KERNEL /boot/bzImage
-> > >     APPEND "enableapic rootcd=1"
-> > > ---
-> > > >From what I know, that should work.. right?
-> > >
-> > > -=Dead2=-
-> > >
-> > > ----- Original Message -----
-> > > From: "Tigran Aivazian" <tigran@veritas.com>
-> > > To: "Dead2" <dead2@circlestorm.org>
-> > > Cc: <linux-kernel@vger.kernel.org>
-> > > Sent: Tuesday, May 14, 2002 7:41 PM
-> > > Subject: Re: Initrd or Cdrom as root
-> > >
-> > >
-> > > > did you forget to pass "rootcd=1" in the boot command line?
-> > > >
-> > > > When the kernel boots it shows the command line like this:
-> > > >
-> > > >   Kernel command line: BOOT_IMAGE=linux-nopae ro root=305
-> > > BOOT_FILE=/boot/vmlinuz-2.4.18 rootcd=1
-> > > >
-> > > > What does it look like in your case?
-> > > >
-> > > > On Tue, 14 May 2002, Dead2 wrote:
-> > > >
-> > > > > I tested the patch, but it still does not work..
-> > > > >
-> > > > > These are the error messages I get:
-> > > > > (lines 1,2,3,6 and 7 are prolly not relevant)
-> > > > >
-> > > > > ---
-> > > > > SCSI subsystem driver Revision: 1.00
-> > > > > 3ware Storage Controller device driver for Linux v1.02.00.016.
-> > > > > 3w-xxxx: No cards with valid units found.
-> > > > > request_module[scsi_hostadapter]: Root fs not mounted
-> > > > > request_module[scsi_hostadapter]: Root fs not mounted
-> > > > > pci_hotplug: PCI Hot Plug PCI Core version: 0.3
-> > > > > cpqphp.o: Compaq Hot Plug PCI Controller Driver version 0.9.6
-> > > > > VFS: Cannot open root device "" or 48:03
-> > > > > Please append a correct "root=" boot option
-> > > > > Kernel panic: VFS: Unable to mount root fs on 48:03
-> > > > > ---
-> > > > >
-> > > > > I have compiled in a lot of scsi drivers that are not used, so
-> > > > > the kernel will be able to boot on just about any system.
-> > > > > The cdrom on the test computer is on /dev/hdc. But I have
-> > > > > also tested it on several other computers with no luck.
-> > > > >
-> > > > > Attached: My kernel .config
-> > > > >
-> > > > > -=Dead2=-
-> > > > >
-> > > >
-> > > >
-> > >
-> > >
-> >
-> >
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
 

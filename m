@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135323AbREFKRZ>; Sun, 6 May 2001 06:17:25 -0400
+	id <S135345AbREFK2f>; Sun, 6 May 2001 06:28:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135345AbREFKRQ>; Sun, 6 May 2001 06:17:16 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:2969 "EHLO
-	fungus.svenskatest.se") by vger.kernel.org with ESMTP
-	id <S135323AbREFKRC>; Sun, 6 May 2001 06:17:02 -0400
-Date: Sun, 6 May 2001 12:16:58 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-To: Xuan Baldauf <xuan--lkml@baldauf.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFT] smbfs bugfixes for 2.4.4
-In-Reply-To: <3AF4974C.D5D85498@baldauf.org>
-Message-ID: <Pine.LNX.4.30.0105061202340.20337-100000@cola.teststation.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135413AbREFK20>; Sun, 6 May 2001 06:28:26 -0400
+Received: from p3EE3C993.dip.t-dialin.net ([62.227.201.147]:36100 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S135345AbREFK2R>; Sun, 6 May 2001 06:28:17 -0400
+Date: Sun, 6 May 2001 12:28:16 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: CML2 <linux-kernel@vger.kernel.org>
+Cc: "Eric S. Raymond" <esr@thyrsus.com>, kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 1.4.0, aka "brutality and heuristics"
+Message-ID: <20010506122816.B8590@emma1.emma.line.org>
+Mail-Followup-To: CML2 <linux-kernel@vger.kernel.org>,
+	"Eric S. Raymond" <esr@thyrsus.com>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010504205312.A27435@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010504205312.A27435@thyrsus.com>; from esr@thyrsus.com on Fri, May 04, 2001 at 20:53:12 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 May 2001, Xuan Baldauf wrote:
+On Fri, 04 May 2001, Eric S. Raymond wrote:
 
-> it does not fix|work around the bug completely:
-> 
-> 1. windows: Create a file, e.g. with 741 bytes.
-> 2. linux: "ls -la" will show you the file with the correct size (741)
-> 3. linux: read the file into your smbfs cache (e.g. "less file")
-> 4. windows: add some contents to the file, e.g. so that it is now 896 bytes
-> long
-> 5. linux: "ls -la" will show you the file with the correct size (896)
-> 6. linux: read the file (e.g. "less file")
+> Sigh...now, I hope, we can get back to solving problems that I don't
+> expect to be so rare they're lost in the statistical noise.  It's not
+> good to get so obsessed about finding clever solutions to corner cases
+> that one loses sight of the larger issues.
 
-Ah, but now you are talking about a different bug.
-
-Your original testcase only contained changes from the smbfs client (the
-abc/xyz test). For me that is solved by this patch and I wanted you to
-check if it did in your environment as well.
-
-I have one other report of something being broken with changes made on the
-server side only.
-
-There is also yet another problem if you change a file from smbfs and from
-the server. The smbfs side will remember the wrong filesize. This may be a
-fix for that:
-http://www.hojdpunkten.ac.se/054/samba/smbfs-2.4.4-truncate+retry-3.patch
-								(-3, not -2)
-
-/Urban
-
+The problem about rare cases is that they don't get proper testing, so
+bugs may slip through and go unnoticed for an extended amount of time
+without even being documented.

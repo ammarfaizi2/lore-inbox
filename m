@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274281AbRITAYG>; Wed, 19 Sep 2001 20:24:06 -0400
+	id <S274277AbRITAUG>; Wed, 19 Sep 2001 20:20:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274282AbRITAX4>; Wed, 19 Sep 2001 20:23:56 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:61189 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S274281AbRITAXj>; Wed, 19 Sep 2001 20:23:39 -0400
-Date: Wed, 19 Sep 2001 20:25:39 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: <proski@portland.hansa.lan>
-To: <linux-kernel@vger.kernel.org>
-cc: Fabian Arias <dewback@vtr.net>, <reiserfs-list@namesys.com>
-Subject: [PATCH] 2.4.9-ac12 - problem mounting reiserfs (parse error?)
-In-Reply-To: <Pine.LNX.4.40.0109191248360.5460-100000@ronto.dewback.cl>
-Message-ID: <Pine.LNX.4.33.0109192018010.1016-100000@portland.hansa.lan>
+	id <S274284AbRITAT4>; Wed, 19 Sep 2001 20:19:56 -0400
+Received: from [24.254.60.19] ([24.254.60.19]:27086 "EHLO
+	femail29.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S274277AbRITATy>; Wed, 19 Sep 2001 20:19:54 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+Subject: Re: Re[2]: [PATCH] Athlon bug stomper. Pls apply.
+Date: Wed, 19 Sep 2001 17:19:06 -0700
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20010919154701.A7381@stud.ntnu.no> <20010919165503.A16359@gondor.com> <9oafeu$1o0$1@penguin.transmeta.com>
+In-Reply-To: <9oafeu$1o0$1@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01091917190600.00628@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wednesday 19 September 2001 09:00 am, Linus Torvalds wrote:
+> In article <20010919165503.A16359@gondor.com>,
 
-> But in my case I don't have "defaults" on fstab on my reiserfs partitions:
 >
-> /dev/hdc1  /      ext2          defaults,errors=remount-ro      0 1
-> /dev/hdc5  /home  reiserfs      rw                              0 2
+> Right now, for example, I'm leaning towards applying the patch, but
+> quite frankly I'm still not certain.  Getting _some_ kind of
+> information out of VIA would be really good - even just an ACK from
+> somebody who is under NDA and can say just "yes, it's safe to clear bit
+> 7 of reg 0x55".
+>
 
-The common part is that you only have options recognized before they come
-to the reiserfs level.  So the option list is empty at this point, with
-reiserfs cannot deal with it.
-
-Here's the fix for 2.4.9-ac12:
-
----------------------------------
---- linux.orig/fs/reiserfs/super.c
-+++ linux/fs/reiserfs/super.c
-@@ -223,7 +223,7 @@ static int parse_options (
- 	{"0", 0}
-     };
-     *blocks = 0;
--    if (!options)
-+    if (!options || !*options)
- 	/* use default configuration: create tails, journaling on, no
-            conversion to newest format */
- 	return 1;
----------------------------------
-
-If the string is empty, there is nothing to parse in it.  Another question
-is that the parser could be made more robust, but my patch is correct,
-minimal and works for me.
-
-> > "reiserfs kgetopt: there is not option" appears on the console and in the
-> > dmesg output, it's not coming from mount.
-
-To reiserfs team: please check spelling.  It should be "there is no
-option".  Also there are "pounters" in the comments.
-
--- 
-Regards,
-Pavel Roskin
-
+Is there an way someone could find out what Windows, possibly with VIA's 
+4-in-1 drivers, do with this bit? And for that matter, what the test 
+program that tests it regardless of kernel optimizations does in Windows, 
+if it can be ported?

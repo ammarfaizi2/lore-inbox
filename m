@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130531AbRCIPLg>; Fri, 9 Mar 2001 10:11:36 -0500
+	id <S130528AbRCIPYQ>; Fri, 9 Mar 2001 10:24:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130529AbRCIPL0>; Fri, 9 Mar 2001 10:11:26 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:64244 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130528AbRCIPLP>; Fri, 9 Mar 2001 10:11:15 -0500
-Date: Fri, 9 Mar 2001 19:22:57 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] documentation mm.h + swap.h
-In-Reply-To: <5.0.2.1.2.20010309003257.00abeac0@pop.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.33.0103091922460.2283-100000@duckman.distro.conectiva>
+	id <S130534AbRCIPYH>; Fri, 9 Mar 2001 10:24:07 -0500
+Received: from cnxt19932001.conexant.com ([199.191.32.1]:31751 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S130528AbRCIPXy>; Fri, 9 Mar 2001 10:23:54 -0500
+Date: Fri, 9 Mar 2001 16:22:45 +0100 (CET)
+From: <rui.sousa@mindspeed.com>
+To: "John O'Connor" <joconnor@orga.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: SMP and non-SMP modules
+In-Reply-To: <3AA8DA1E.557C946C@orga.com>
+Message-ID: <Pine.LNX.4.30.0103091606230.12607-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Mar 2001, Anton Altaparmakov wrote:
-> At 21:10 08/03/2001, Rik van Riel wrote:
-> >+ * There is also a hash table mapping (inode,offset) to the page
-> >+ * in memory if present. The lists for this hash table use the fields
-> >+ * page->next_hash and page->pprev_hash.
+On Fri, 9 Mar 2001, John O'Connor wrote:
+
+> What is the difference between an SMP and a non-SMP module?
 >
-> Shouldn't (inode,offset) be (inode,index), or possibly (mapping,index)?
+> I have a module that works fine on 2.2.14 and I want to make it run on another distribution that uses a 2.2.16-SMP kernel.
+>
+> What changes will be needed?
 
-> And here, too?
+You will need at least to recompile the module against the new kernel.
 
-Indeed, thanks.
-
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+Rui Sousa
 

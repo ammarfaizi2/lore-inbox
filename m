@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265795AbTGJJJN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 05:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265874AbTGJJJN
+	id S269107AbTGJJWx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 05:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269117AbTGJJWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 05:09:13 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:19162 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S265795AbTGJJJL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 05:09:11 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Piet Delaney <piet@www.piet.net>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.5.74-mm3 - apm_save_cpus() Macro still bombs out
-Date: Thu, 10 Jul 2003 11:22:56 +0200
-User-Agent: KMail/1.5.9
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030708223548.791247f5.akpm@osdl.org> <20030709021849.31eb3aec.akpm@osdl.org> <1057815890.22772.19.camel@www.piet.net>
-In-Reply-To: <1057815890.22772.19.camel@www.piet.net>
-MIME-Version: 1.0
+	Thu, 10 Jul 2003 05:22:53 -0400
+Received: from ns.suse.de ([213.95.15.193]:30738 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269107AbTGJJWw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 05:22:52 -0400
+Date: Thu, 10 Jul 2003 11:37:31 +0200
+From: Andi Kleen <ak@suse.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+       ak@suse.de
+Subject: Re: per_cpu fixes
+Message-ID: <20030710093731.GC17798@wotan.suse.de>
+References: <200307092120.h69LKTBH002759@napali.hpl.hp.com> <20030710015208.1E7A22C44B@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200307101122.59138.schlicht@uni-mannheim.de>
+In-Reply-To: <20030710015208.1E7A22C44B@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 July 2003 07:44, Piet Delaney wrote:
-> On Wed, 2003-07-09 at 02:18, Andrew Morton wrote:
-> > Thomas Schlichter <schlicht@uni-mannheim.de> wrote:
->
-> .
-> .
-> .
->
-> > Seems complex.  I just have this:
+> When I implemented this, I imagined archs putting their per-cpu offset
+> inside a register, so they could get to their vars in one instruction,
+> but not the IA64 remapping thing.  We are now suffering because of my
+> limited imagination (which David has commented on before 8).
 
-~~snip~~
+x86-64 has similar problems. While the virtual addresses are different
+the direct access using the segment register doesn't yield an address
+(there is no LEA instruction to read from segment registers). It can be
+worked around, but you have to follow an indirect pointer.
+For most efficient access you can't take the address.
 
-> I'll settle for Matt Mackall <mpm@selenic.com> fix for now:
->
->     +#define apm_save_cpus()        (current->cpus_allowed)
->
-> I wonder why other, like Thomas Schlichter <schlicht@uni-mannheim.de>,
-> had no problem with the CPU_MASK_NONE fix.
+[currently the code doesn't use the Segment access for per_cpu data,
+but I plan to readd this eventually]
 
-Well, I didn't try the CPU_MASK_NONE fix. I am using my fix attached to my 
-first mail, but Andrew ment it was too complex (your quoting from above). So 
-he proposed the simpler fix, wich simply looked good to me...
-
-> I tried adding the #include <linux/cpumask.h> that Marc-Christian
-> Petersen <m.c.p@wolk-project.de> sugested but it didn't help. Looks
-> like Jan De Luyck <lkml@kcore.org> had a similar result.
->
-> -piet
-
-Thomas
+-Andi

@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135927AbRDZVLH>; Thu, 26 Apr 2001 17:11:07 -0400
+	id <S135925AbRDZVOh>; Thu, 26 Apr 2001 17:14:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135926AbRDZVKs>; Thu, 26 Apr 2001 17:10:48 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:49413 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135925AbRDZVKp>; Thu, 26 Apr 2001 17:10:45 -0400
+	id <S135935AbRDZVO1>; Thu, 26 Apr 2001 17:14:27 -0400
+Received: from pa176.jeleniag.ppp.tpnet.pl ([212.160.39.176]:384 "HELO
+	marek.almaran.home") by vger.kernel.org with SMTP
+	id <S135925AbRDZVOY>; Thu, 26 Apr 2001 17:14:24 -0400
+Date: Thu, 26 Apr 2001 23:04:26 +0200
+From: =?iso-8859-2?Q?Marek_P=EAtlicki?= <marpet@buy.pl>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Can multiple device drivers *share* a PCI bridge?
-Date: 26 Apr 2001 14:10:14 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9ca2rm$2sc$1@cesium.transmeta.com>
-In-Reply-To: <AF6E1CA59D6AD1119C3A00A0C9893C9A04F57136@cninexchsrv01.crane.navy.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Subject: binfmt_misc on 2.4.3-ac14
+Message-ID: <20010426230426.A998@marek.almaran.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <AF6E1CA59D6AD1119C3A00A0C9893C9A04F57136@cninexchsrv01.crane.navy.mil>
-By author:    Friedrich Steven E CONT CNIN <friedrich_s@crane.navy.mil>
-In newsgroup: linux.dev.kernel
->
-> I have 5 IP modules (Industry Pak I/O) that plug onto an IP carrier.  The
-> carrier has a bridge that gets found via vendor ID/device ID, but the *sub*
-> devices don't show up as distinct pci devices.  I'm using the *new*
-> approach, i.e., defining a pci_device_id struct that has been initialized
-> with vendirID/deviceID pairs I'm supporting.
-> 
-> When my module loads, the kernel calls my probe routine.  If my probe
-> routine returns 0, then this pci device is essentially locked to my device
-> driver.  How can I share that pci device with multiple drivers?  My current
-> thoughts are to simply make a *unified* driver that supports the various IP
-> modules.  That unified driver is not a general solution, but it would be ok
-> for this project.  I'm curious about how to develop a general solution to
-> this problem.  I believe any user of these IP modules would want to be able
-> to mix-n-match IP modules at will, merely adding device drivers, not having
-> a unified driver.
-> 
+Hi!
 
-A properly designed device should have a separate PCI function (with
-its own VID/DID) for each of the subdevices.  That's what the PCI
-functions are all about.  Your device is doing something nonstandard,
-so you need a shim device to handle its nonstandard decoding.
+Has anybody used binfmt_misc on 2.4.3-ac14? It fails for me:
 
-	-hpa
+echo ':py:E::py::/opt/bin/python:' > /proc/sys/fs/binfmt_misc/register
+bash: /proc/sys/fs/binfmt_misc/register: No such file or directory
+
+The directory /proc/sys/fs/binfmt_misc/ exists, but nothing in it.
+
+2.4.3 kernel built with exactly the same settings works flawlessly.
+
+Btw: it's RH 7.0, but I've compiled on kgcc (announcing itself as
+egcs-2.91.66)
+
+Thanks and best regards
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Marek Pêtlicki <marpet@buy.pl>
+

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293461AbSB1QDl>; Thu, 28 Feb 2002 11:03:41 -0500
+	id <S292955AbSB1QGg>; Thu, 28 Feb 2002 11:06:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293441AbSB1QBb>; Thu, 28 Feb 2002 11:01:31 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:50498 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S293452AbSB1P7w>; Thu, 28 Feb 2002 10:59:52 -0500
-Date: Thu, 28 Feb 2002 10:59:38 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: thread groups bug?
-Message-ID: <20020228105938.H8011@redhat.com>
-In-Reply-To: <bcrl@redhat.com> <2961.1014910587@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <2961.1014910587@warthog.cambridge.redhat.com>; from dhowells@redhat.com on Thu, Feb 28, 2002 at 03:36:27PM +0000
+	id <S293440AbSB1QGO>; Thu, 28 Feb 2002 11:06:14 -0500
+Received: from mhw.ulib.iupui.edu ([134.68.164.123]:47082 "EHLO
+	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
+	id <S293432AbSB1QEo>; Thu, 28 Feb 2002 11:04:44 -0500
+Date: Thu, 28 Feb 2002 11:04:39 -0500 (EST)
+From: "Mark H. Wood" <mwood@IUPUI.Edu>
+X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel module ethics.
+In-Reply-To: <3C7DFB9C.6A9F41F5@aitel.hist.no>
+Message-ID: <Pine.LNX.4.33.0202281054570.4589-100000@mhw.ULib.IUPUI.Edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 28, 2002 at 03:36:27PM +0000, David Howells wrote:
-> > How about: (3) make execve allocate a new thread group id?
-> 
-> It seems that the TGID must also be a valid PID so that signal handling will
-> work correctly...
-> 
-> This could be solved by making PIDs independent of processes, but that's
-> really not very nice.
+On Thu, 28 Feb 2002, Helge Hafting wrote:
+[much snipped]
+> Generally, the more open the better.  Keep in mind that buying
+> hw that needs a closed-source driver is something we do _only_ when
+> no competing product with a GPL driver exist.  Your competitors
+> might go the GPL way even if you don't.  Many users of closed drivers
+> do so because they converted a machine from windows to linux.
+> If they buy specifically for linux, they buy something well-supported.
+> And the ideal then is a driver in the official tree.  The second
+> best is a open source driver that might get into the tree - it just
+> hasn't happened yet.  A closed driver at least initiates a web search
+> for other harware...
 
-Oh, interesting.  Note that we already allocate from the pid space for 
-other things, so it's entirely doable.  Another choice would be to simply 
-disallow the thread group leader from exec'ing.  Linux threads traditionally 
-try to remain as close to process behaviour as possible, and allowing an 
-individual thread to exec is very useful, so I'm still in favour of 
-allocating a new tgid.
+I want to underscore this.  I don't buy hardware until I know that it's
+possible to *keep* it running with Linux.  If the driver is closed-source,
+I'll buy something else or do without.  Secret magic firmware would be
+grudgingly accepted, but only if there isn't a comparable product with no
+secrets.
 
-		-ben
 -- 
-"A man with a bass just walked in,
- and he's putting it down
- on the floor."
+Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
+Our lives are forever changed.  But *that* is exactly as it always was.
+

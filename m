@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272444AbTG3R5G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 13:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272835AbTG3R5G
+	id S273168AbTG3SCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 14:02:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273169AbTG3SCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 13:57:06 -0400
-Received: from mail.kroah.org ([65.200.24.183]:37042 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S272444AbTG3R5E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 13:57:04 -0400
-Date: Wed, 30 Jul 2003 10:56:49 -0700
-From: Greg KH <greg@kroah.com>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Compile AX8817x driver
-Message-ID: <20030730175648.GA2333@kroah.com>
-References: <yw1xsmp0f4zh.fsf@zaphod.guide>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xsmp0f4zh.fsf@zaphod.guide>
-User-Agent: Mutt/1.4.1i
+	Wed, 30 Jul 2003 14:02:09 -0400
+Received: from web20509.mail.yahoo.com ([216.136.226.144]:26201 "HELO
+	web20509.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S273168AbTG3SCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 14:02:06 -0400
+Message-ID: <20030730180201.78497.qmail@web20509.mail.yahoo.com>
+Date: Wed, 30 Jul 2003 11:02:01 -0700 (PDT)
+From: Studying MTD <studying_mtd@yahoo.com>
+Subject: Re: linux-2.6.0-test1 : modules not working
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: agoddard@purdue.edu, joshk@triplehelix.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20030730080115.28fd5d4f.rddunlap@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 21, 2003 at 02:18:10PM +0200, Måns Rullgård wrote:
+I am curious what is the minimum kernel source tree is
+required to build external modules.
+
+I dont want to touch my kernel , i want to make
+another directory same 'module_test' and want to copy
+only required minimum kernel Source tree with modified
+scripts's Makefile and kbuild Makefile to build "Hello
+World".
+
+Please help me.
+
+Thanks.
+
+
+--- "Randy.Dunlap" <rddunlap@osdl.org> wrote:
 > 
-> This trivial Makefile patch causes the AX8817x driver to actually be
-> built.  The diff is against 2.6.0-test1.
+> Sure, 2.6 supports external modules (if you mean
+> modules that are
+> built outside of the kernel source tree), but for
+> now you also
+> need a full kernel source tree for the build system
+> to reference.
+> I.e., you can't build an external module without
+> having a full
+> kernel source tree installed and configured.
+> 
 
-Applied, thanks.
 
-greg k-h
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com

@@ -1,88 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267323AbUIXBlv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267234AbUIXBlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267323AbUIXBlv (ORCPT <rfc822;willy@w.ods.org>);
+	id S267234AbUIXBlv (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 23 Sep 2004 21:41:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267657AbUIXBjj
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267662AbUIXBjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 21:39:39 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:57051 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267323AbUIWUoO
+	Thu, 23 Sep 2004 21:39:55 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:24463 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267234AbUIWUoL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 16:44:14 -0400
-Subject: [patch 2/9]  block/xd: replace schedule_timeout() 	with msleep()/msleep_interruptible()
+	Thu, 23 Sep 2004 16:44:11 -0400
+Subject: [patch 1/9]  replace PRINTK with pr_debug in 	block/umem.c
 To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, domen@coderock.org
 From: janitor@sternwelten.at
-Date: Thu, 23 Sep 2004 22:44:15 +0200
-Message-ID: <E1CAaRr-0002HO-GB@sputnik>
+Date: Thu, 23 Sep 2004 22:44:12 +0200
+Message-ID: <E1CAaRo-0002Dw-L5@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
 
-Any comments would be appreciated. 
 
-Description: Use msleep() or msleep_interruptible() [as appropriate]
-instead of schedule_timeout() to gurantee the task delays as
-expected. As a result changed the units of the timeout variable from
-jiffies to msecs.
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 
+Hi.
+
+Removed unused dprintk, replaced PRINTK with pr_debug.
+Compile tested.
+
+Signed-off-by: Domen Puncer <domen@coderock.org>
 Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+
 ---
 
- linux-2.6.9-rc2-bk7-max/drivers/block/xd.c |   14 +++++---------
- 1 files changed, 5 insertions(+), 9 deletions(-)
+ linux-2.6.9-rc2-bk7-max/drivers/block/umem.c |   11 ++++-------
+ 1 files changed, 4 insertions(+), 7 deletions(-)
 
-diff -puN drivers/block/xd.c~msleep-drivers_block_xd drivers/block/xd.c
---- linux-2.6.9-rc2-bk7/drivers/block/xd.c~msleep-drivers_block_xd	2004-09-21 21:07:31.000000000 +0200
-+++ linux-2.6.9-rc2-bk7-max/drivers/block/xd.c	2004-09-21 21:07:31.000000000 +0200
-@@ -62,7 +62,7 @@ static int xd[5] = { -1,-1,-1,-1, };
+diff -puN drivers/block/umem.c~pr_debug-drivers_block_umem drivers/block/umem.c
+--- linux-2.6.9-rc2-bk7/drivers/block/umem.c~pr_debug-drivers_block_umem	2004-09-21 20:51:31.000000000 +0200
++++ linux-2.6.9-rc2-bk7-max/drivers/block/umem.c	2004-09-21 20:51:31.000000000 +0200
+@@ -34,6 +34,7 @@
+  *			 - set initialised bit then.
+  */
  
- #define XD_DONT_USE_DMA		0  /* Initial value. may be overriden using
- 				      "nodma" module option */
--#define XD_INIT_DISK_DELAY	(30*HZ/1000)  /* 30 ms delay during disk initialization */
-+#define XD_INIT_DISK_DELAY	(30)  /* 30 ms delay during disk initialization */
++//#define DEBUG /* uncomment if you want debugging info (pr_debug) */
+ #include <linux/config.h>
+ #include <linux/sched.h>
+ #include <linux/fs.h>
+@@ -58,10 +59,6 @@
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
  
- /* Above may need to be increased if a problem with the 2nd drive detection
-    (ST11M controller) or resetting a controller (WD) appears */
-@@ -625,14 +625,12 @@ static u_char __init xd_initdrives (void
- 	for (i = 0; i < XD_MAXDRIVES; i++) {
- 		xd_build(cmdblk,CMD_TESTREADY,i,0,0,0,0,0);
- 		if (!xd_command(cmdblk,PIO_MODE,NULL,NULL,NULL,XD_TIMEOUT*8)) {
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(XD_INIT_DISK_DELAY);
-+			msleep_interruptible(XD_INIT_DISK_DELAY);
+-#define PRINTK(x...) do {} while (0)
+-#define dprintk(x...) do {} while (0)
+-/*#define dprintk(x...) printk(x) */
+-
+ #define MM_MAXCARDS 4
+ #define MM_RAHEAD 2      /* two sectors */
+ #define MM_BLKSIZE 1024  /* 1k blocks */
+@@ -299,7 +296,7 @@ static void mm_start_io(struct cardinfo 
  
- 			init_drive(count);
- 			count++;
+ 	/* make the last descriptor end the chain */
+ 	page = &card->mm_pages[card->Active];
+-	PRINTK("start_io: %d %d->%d\n", card->Active, page->headcnt, page->cnt-1);
++	pr_debug("start_io: %d %d->%d\n", card->Active, page->headcnt, page->cnt-1);
+ 	desc = &page->desc[page->cnt-1];
  
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(XD_INIT_DISK_DELAY);
-+			msleep_interruptible(XD_INIT_DISK_DELAY);
- 		}
+ 	desc->control_bits |= cpu_to_le32(DMASCR_CHAIN_COMP_EN);
+@@ -532,7 +529,7 @@ static void process_page(unsigned long d
+ 		activate(card);
+ 	} else {
+ 		/* haven't finished with this one yet */
+-		PRINTK("do some more\n");
++		pr_debug("do some more\n");
+ 		mm_start_io(card);
  	}
- 	return (count);
-@@ -753,8 +751,7 @@ static void __init xd_wd_init_controller
+  out_unlock:
+@@ -555,7 +552,7 @@ static void process_page(unsigned long d
+ static int mm_make_request(request_queue_t *q, struct bio *bio)
+ {
+ 	struct cardinfo *card = q->queuedata;
+-	PRINTK("mm_make_request %ld %d\n", bh->b_rsector, bh->b_size);
++	pr_debug("mm_make_request %ld %d\n", bh->b_rsector, bh->b_size);
  
- 	outb(0,XD_RESET);		/* reset the controller */
- 
--	set_current_state(TASK_UNINTERRUPTIBLE);
--	schedule_timeout(XD_INIT_DISK_DELAY);
-+	msleep(XD_INIT_DISK_DELAY);
- }
- 
- static void __init xd_wd_init_drive (u_char drive)
-@@ -928,8 +925,7 @@ If you need non-standard settings use th
- 	xd_maxsectors = 0x01;
- 	outb(0,XD_RESET);		/* reset the controller */
- 
--	set_current_state(TASK_UNINTERRUPTIBLE);
--	schedule_timeout(XD_INIT_DISK_DELAY);
-+	msleep(XD_INIT_DISK_DELAY);
- }
- 
- static void __init xd_xebec_init_drive (u_char drive)
+ 	bio->bi_phys_segments = bio->bi_idx; /* count of completed segments*/
+ 	spin_lock_irq(&card->lock);
 _

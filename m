@@ -1,81 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262877AbRE0Xsl>; Sun, 27 May 2001 19:48:41 -0400
+	id <S262880AbRE0Xyv>; Sun, 27 May 2001 19:54:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262879AbRE0Xsb>; Sun, 27 May 2001 19:48:31 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13327 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262877AbRE0Xs3>; Sun, 27 May 2001 19:48:29 -0400
-Subject: Re: [CHECKER] user-pointer bugs in 2.4.4 and 2.4.4-ac8
-To: engler@csl.Stanford.EDU (Dawson Engler)
-Date: Mon, 28 May 2001 00:45:38 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-In-Reply-To: <200105242112.OAA29801@csl.Stanford.EDU> from "Dawson Engler" at May 24, 2001 02:12:02 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262882AbRE0Xym>; Sun, 27 May 2001 19:54:42 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:24533 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S262880AbRE0Xy2>;
+	Sun, 27 May 2001 19:54:28 -0400
+Message-ID: <3B1193A8.6DB90579@mandrakesoft.com>
+Date: Sun, 27 May 2001 19:54:17 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Richard Henderson <rth@twiddle.net>
+Cc: "Ingo T. Storm" <it@lapavoni.de>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Re: 2.4.5 does not link on Ruffian (alpha)
+In-Reply-To: <3B0BFE90.CE148B7@kjist.ac.kr> <20010523210923.A730@athlon.random> <022e01c0e5fc$39ac0cf0$2e2ca8c0@buxtown.de> <3B102822.625E01DF@mandrakesoft.com> <3B1032BE.72BD1336@mandrakesoft.com> <20010527163901.A18929@twiddle.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E154AE6-0002Ux-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> /u2/engler/mc/oses/linux/2.4.4-ac8/drivers/isdn/eicon/linchr.c:64:do_ioctl: ERROR:PARAM:62:64: tainted var 'pDivaConfig' (from line 62) used as arg 0 to 'DivasCardConfig'
-> 	switch (command)
+Richard Henderson wrote:
+> On Sat, May 26, 2001 at 06:48:30PM -0400, Jeff Garzik wrote:
+> > When built with CONFIG_ALPHA_NAUTILUS, my UP1000's IDE totally fails.
+> 
+> Mine doesn't.
+> 
+> > I am booting w/ aboot 0.7a from SRM, -without- the
+> > srm-as-bootloader kernel config option.
+> 
+> That is the error.
 
-Yep - fixed
+Ok, thanks.
 
-> [BUG]supposed to at least be bad form.
-> /u2/engler/mc/oses/linux/2.4.4-ac8/drivers/isdn/eicon/linchr.c:186:do_ioctl: ERROR:PARAM:184:186: tainted var 'mem_block' (from line 184) used as arg 0 to 'DivasGetMem'
-> 			return 0;
+FWIW the documentation seems to imply that the option is necessary only
+when directly booting from SRM, i.e.. no bootloader is involved at all. 
+It uses the example of MILO's presence or absence as indicating the need
+for this option.
 
-Yep - fixed
+So... is it safe to always enable this option, with a little hacking
+perhaps?  :)   
 
-> /u2/engler/mc/oses/linux/2.4.4-ac8/drivers/isdn/eicon/linchr.c:131:do_ioctl: ERROR:PARAM:129:131: tainted var 'pDivaLog' (from line 129) used as arg 0 to 'DivasLog'
+Regards,
 
-Yep - fixed
+	Jeff
 
-> /u2/engler/mc/oses/linux/2.4.4-ac8/drivers/isdn/eicon/linchr.c:172:do_ioctl: ERROR:PARAM:142:172: tainted var 'arg' (from line 142) used as arg 0 to 'DivasGetList'
 
-Yep.
 
-> /u2/engler/mc/oses/linux/2.4.4-ac8/drivers/net/appletalk/ipddp.c:268:ipddp_ioctl: ERROR:PARAM:268:268: tainted var 'rt' (from line 268) used as arg 0 to 'ipddp_find_route'
->         {
 
-Ok fixed
 
-> /u2/engler/mc/oses/linux/2.4.4-ac8/drivers/isdn/eicon/linchr.c:97:do_ioctl: ERROR:PARAM:95:97: Deref tainted var 'pDivaStart' (tainted from line 95)
+> Using SRM as bootloader
+> CONFIG_ALPHA_SRM
+>   There are two different types of booting firmware on Alphas: SRM,
+>   which is command line driven, and ARC, which uses menus and arrow
+>   keys. Details about the Linux/Alpha booting process are contained in
+>   the Linux/Alpha FAQ, accessible on the WWW from
+>   http://www.alphalinux.org .
+> 
+>   The usual way to load Linux on an Alpha machine is to use MILO
+>   (a bootloader that lets you pass command line parameters to the
+>   kernel just like lilo does for the x86 architecture) which can be
+>   loaded either from ARC or can be installed directly as a permanent
+>   firmware replacement from floppy (which requires changing a certain
+>   jumper on the motherboard). If you want to do either of these, say N
+>   here. If MILO doesn't work on your system (true for Jensen
+>   motherboards), you can bypass it altogether and boot Linux directly
+>   from an SRM console; say Y here in order to do that. Note that you
+>   won't be able to boot from an IDE disk using SRM. 
+> 
+>   If unsure, say N.
 
-Real - fixed
-
-> /u2/engler/mc/oses/linux/2.4.4-ac8/drivers/net/appletalk/ipddp.c:265:ipddp_ioctl: ERROR:PARAM:268:265: tainted var 'rt' (from line 268) used as arg 0 to 'ipddp_create'
-
-Fixed
-
-> /u2/engler/mc/oses/linux/2.4.4-ac8/drivers/net/appletalk/ipddp.c:273:ipddp_ioctl: ERROR:PARAM:268:273: tainted var 'rt' (from line 268) used as arg 0 to 'ipddp_delete'
-
-Fixed
-
->                 case SIOCFINDIPDDPRT:
-> Start --->
->                         if(copy_to_user(rt, ipddp_find_route(rt), sizeof(struct ipddp_route)))
->                                 return -EFAULT;
-
-Fixed
-
-> [BUG]  seems pretty confused.
-> /u2/engler/mc/oses/linux/2.4.4-ac8/net/decnet/af_decnet.c:1491:__dn_getsockopt: ERROR:PARAM:1438:1491: Deref tainted var 'optlen' (tainted from line 1438)
-> 	struct linkinfo_dn link;
-> 	unsigned int r_len;
-
-Fixed
-
-> 	case PHONE_CAPABILITIES_CHECK:
-> Error --->
-> 		retval = capabilities_check(j, (struct phone_capability *) arg);
-> 		break;
-
-Fixed
-
-All look valid to me
-
+-- 
+Jeff Garzik      | Disbelief, that's why you fail.
+Building 1024    |
+MandrakeSoft     |

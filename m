@@ -1,86 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264010AbUD0Lw2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264019AbUD0Lx7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264010AbUD0Lw2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 07:52:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264022AbUD0Lw2
+	id S264019AbUD0Lx7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 07:53:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264021AbUD0Lx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 07:52:28 -0400
-Received: from [62.221.213.104] ([62.221.213.104]:31117 "EHLO
-	mx01.websystems.nl") by vger.kernel.org with ESMTP id S264010AbUD0LwZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 07:52:25 -0400
-Message-ID: <33610.80.56.84.145.1083066742.squirrel@wmail.websystems.nl>
-Date: Tue, 27 Apr 2004 13:52:22 +0200 (CEST)
-Subject: 2.6.5: Unable to handle kernel paging request at virtual address
-From: "Justin Albstmeijer" <justin@VLAMea.nl>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2-1
+	Tue, 27 Apr 2004 07:53:59 -0400
+Received: from mail.turbolinux.co.jp ([210.171.55.67]:37892 "EHLO
+	mail.turbolinux.co.jp") by vger.kernel.org with ESMTP
+	id S264022AbUD0Lxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 07:53:52 -0400
+Message-ID: <408E49B9.3090302@turbolinux.co.jp>
+Date: Tue, 27 Apr 2004 20:53:29 +0900
+From: Go Taniguchi <go@turbolinux.co.jp>
+Organization: Turbolinx Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ja-JP; rv:1.2.1) Gecko/20030105
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+To: Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org
+CC: Clemens Schwaighofer <cs@tequila.co.jp>, dlang@digitalinsight.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc2-mm2 + Adaptec I2O
+References: <408DE95F.5010201@tequila.co.jp>	<20040426221814.490a0cfd.akpm@osdl.org>	<Pine.LNX.4.58.0404262223260.17702@dlang.diginsite.com>	<408DF117.4060309@tequila.co.jp>	<20040426230455.53406d74.akpm@osdl.org>	<408DFBEE.3080803@tequila.co.jp> <20040426232522.253594a2.akpm@osdl.org>
+In-Reply-To: <20040426232522.253594a2.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-Because I experienced the following problem:
-(Default Fedora Core 1 SMP Kernel Hang on Dual Xeon System )
-http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=109497
+Andrew Morton wrote:
+> Clemens Schwaighofer <cs@tequila.co.jp> wrote:
+> 
+>>Andrew Morton wrote:
+>> | Clemens Schwaighofer <cs@tequila.co.jp> wrote:
+>> |
+>> |> on this URL [http://www.smartcgi.com/?action=docs,kernel26-adaptec] you
+>> |> can find a patch that I could successfully path again 2.6.5 (vanilla)
+>> |> and compile successfully.
+>> |
+>> |
+>> | hm.  Against 2.6.0.  Go, would you have time to send that patch in to the
+>> | scsi team at linux-scsi@vger.kernel.org?
+>>
+>> yes,
+>>
+>> remark:
+>>
+>> ~ Originally this patch has been released by Go Taniguchi at
+>> http://pkgcvs.turbolinux.co.jp/~go/patch-2.6/dpt_i2o.patch
+>>
+>> patch attached
+> 
+> 
+> Sorry, my question was directed to Go Taniguchi <go@turbolinux.co.jp> - Go
+> should submit the patch.
 
-on a DELL Poweredge 2650 (2x 2.8Ghz Xeon processors)
+Yea, I sent an mail to LKML in the end of last year regarding this issue.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107275564119915&w=2
 
-I started testing the 2.6 kernel by compiling a custom kernel.
-Started with 2.6.4 and moved to 2.6.5 after the problem still occurred.
-2.6.5 also crashed after a couple of days.
-Then I tried the kernel boot options "noapic acpi=off" and the server work
-fine for 10 days.
-Then it started giving segmentation faults and showed this in de messages
-file:
----------------------------------------------------------------------------
-kernel: Unable to handle kernel paging request at virtual address 00100104
-kernel:  printing eip:
-kernel: c0120525
-kernel: *pde = 00000000
-kernel: Oops: 0002 [#1]
-kernel: SMP
-kernel: CPU:    1
-kernel: EIP:    0060:[<c0120525>]    Not tainted
-kernel: EFLAGS: 00010202   (2.6.5VL01)
-kernel: EIP is at __mmdrop+0x58/0x84
-kernel: eax: 00100100   ebx: f71be400   ecx: 00000000   edx: 00200200
-kernel: esi: f7234580   edi: 00000000   ebp: dfedbf48   esp: dfedbedc
-kernel: ds: 007b   es: 007b   ss: 0068
-kernel: Process bash (pid: 27353, threadinfo=dfeda000 task=f72fed00)
-kernel: Stack: dfbf91c0 0000000c c011e2be c01a5baf 00000004 dfedbefc
-00000000 00000000
-kernel:        00000004 00000004 00000000 dfbf91e0 6a3d49b2 0002c4dd
-dfbf91c0 00000000
-kernel:        c24235f0 c2422ca0 fffffc18 00002e8b 6a3d8871 0002c4dd
-f72fed00 f72feec8
-kernel: Call Trace:
-kernel:  [<c011e2be>] schedule+0x495/0x7d8
-kernel:  [<c01a5baf>] avc_has_perm+0x62/0x78
-kernel:  [<c0124b26>] sys_wait4+0x189/0x231
-kernel:  [<c011e601>] default_wake_function+0x0/0xc
-kernel:  [<c01231a0>] session_of_pgrp+0x25/0x81
-kernel:  [<c011e601>] default_wake_function+0x0/0xc
-kernel:  [<c0124bf5>] sys_waitpid+0x27/0x2b
-kernel:  [<c010905b>] syscall_call+0x7/0xb
-kernel:
-kernel: Code: 89 50 04 89 02 c7 43 04 00 02 20 00 c7 03 00 01 10 00 c6 05
-----------------------------------------------------------------------------
+However, I think that Adaptec probably just re-make a new version of dpt_i2o.
+My patch may differ from the Adaptec policy.
 
-c01204cd T __mmdrop
-c0120551 T mmput
-c01205b2 T mmgrab
-c01205da T mm_release
+I thought that it may be good for someone need the driver before Adaptec 
+completed the driver. What's why I uploaded my patch onto web.
 
-I can still ping the server.. but nothing else.
+The number of the access is over 1000 now after I counted it.
 
-Any suggestion.
+Please merge to Andrew's tree if Adaptec does not mind.
 
-
+This is my patch same as send from Clemens.
+http://pkgcvs.turbolinux.co.jp/~go/patch-2.6/dpt_i2o.patch
 
 

@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293330AbSBZVUS>; Tue, 26 Feb 2002 16:20:18 -0500
+	id <S292393AbSBZVgW>; Tue, 26 Feb 2002 16:36:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293604AbSBZVUI>; Tue, 26 Feb 2002 16:20:08 -0500
-Received: from mailer3.bham.ac.uk ([147.188.128.54]:10457 "EHLO
-	mailer3.bham.ac.uk") by vger.kernel.org with ESMTP
-	id <S293601AbSBZVUD>; Tue, 26 Feb 2002 16:20:03 -0500
-Date: Tue, 26 Feb 2002 21:19:54 +0000 (GMT)
-From: Mark Cooke <mpc@star.sr.bham.ac.uk>
-X-X-Sender: mpc@pc24.sr.bham.ac.uk
-To: Vincent Bernat <bernat@free.fr>
-cc: Tom Eastep <teastep@shorewall.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: VIA Northbridge Workaround in 2.4.18 Causing Video Problems
-In-Reply-To: <m3u1s4asb4.fsf@neo.loria>
-Message-ID: <Pine.LNX.4.44.0202262111220.9420-100000@pc24.sr.bham.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S293070AbSBZVgD>; Tue, 26 Feb 2002 16:36:03 -0500
+Received: from zero.tech9.net ([209.61.188.187]:9485 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S292393AbSBZVgB>;
+	Tue, 26 Feb 2002 16:36:01 -0500
+Subject: Re: crypto (was Re: Congrats Marcelo,)
+From: Robert Love <rml@tech9.net>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Andreas Dilger <adilger@turbolabs.com>,
+        "Dennis, Jim" <jdennis@snapserver.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C7BFAFA.D8923CFF@mandrakesoft.com>
+In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD4@cdserv.meridian-data.com>
+	<20020226140644.U12832@lynx.adilger.int> 
+	<3C7BFAFA.D8923CFF@mandrakesoft.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 26 Feb 2002 16:35:54 -0500
+Message-Id: <1014759355.1109.31.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Feb 2002, Vincent Bernat wrote:
+On Tue, 2002-02-26 at 16:15, Jeff Garzik wrote:
 
-> OoO Pendant le journal télévisé du mardi 26 février 2002, vers 20:57,
-> Tom Eastep <teastep@shorewall.net> disait:
+> I would -love- to see crypto in the mainstream kernel.  Distribution of
+> crypto software on kernel.org has been OK for a while now.
 > 
-> > I'm currently getting around the problem with the following hack:
+> Who knows what the kerneli guys, freeswan, etc. guys think.
 > 
-> You may use the "setpci" command instead to fix this in "userland".
+> IMO it's time to get a good IPsec implementation in the kernel...
 
-Talking about fixups, did anyone examine the very recent pci bandwidth
-patch from VIA and try using setpic for a fixup?  I emailed VIA 
-asking for details of the fixup and haven't heard back yet.
+Besides IPsec, what crypto is there for the kernel?  I've never really
+understood what "crypto in the kernel means" since it all should be a
+userspace thing.
 
-(I haven't got windows installed to do a before and after comparison
-of the chipset registers to try the fixup here.)
+Except IPsec, of course, and adding Freeswan would be a Good Thing. 
+Freeswan people?
 
-tecchannel.de references: 
+One thing I've heard in the past is "Yes, the US is safe now wrt
+encryption but <country> is not" -- and I've seen country=France,etc
+i.e. (self) important places.
 
-PCI Bandwidth:      http://www.tecchannel.de/hardware/817/
-VIA Patch Results:  http://www.tecchannel.de/hardware/817/11.html
-
-Peak transfer rates increased from 10-40%
-
-Cheers,
-
-Mark
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
--- 
-+-------------------------------------------------------------------------+
-Mark Cooke                  The views expressed above are mine and are not
-Systems Programmer          necessarily representative of university policy
-University Of Birmingham    URL: http://www.sr.bham.ac.uk/~mpc/
-+-------------------------------------------------------------------------+
+	Robert Love
 

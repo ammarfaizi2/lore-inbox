@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310749AbSCHI77>; Fri, 8 Mar 2002 03:59:59 -0500
+	id <S310750AbSCHJLV>; Fri, 8 Mar 2002 04:11:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310748AbSCHI7t>; Fri, 8 Mar 2002 03:59:49 -0500
-Received: from [210.102.202.245] ([210.102.202.245]:22406 "EHLO
-	mercury.senux.com") by vger.kernel.org with ESMTP
-	id <S310746AbSCHI7c>; Fri, 8 Mar 2002 03:59:32 -0500
-Date: Fri, 8 Mar 2002 17:59:21 +0900
-From: Brian Lee <senux@senux.com>
+	id <S310751AbSCHJLC>; Fri, 8 Mar 2002 04:11:02 -0500
+Received: from tassadar.physics.auth.gr ([155.207.123.25]:49544 "EHLO
+	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
+	id <S310750AbSCHJKp>; Fri, 8 Mar 2002 04:10:45 -0500
+Date: Fri, 8 Mar 2002 11:10:43 +0200 (EET)
+From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
 To: linux-kernel@vger.kernel.org
-Subject: [senux@senux.com: patch files in redhat linux kernel.]
-Message-ID: <20020308085921.GB14030@jupiter.senux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-homepage: http://www.senux.com/
+Subject: strange message from swapper , 2.4.18-ac2 + bridge-nf-0.0.6-against-2.4.18.diff
+Message-ID: <Pine.LNX.4.44.0203081100260.31976-100000@tassadar.physics.auth.gr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry but I think many guys here understand and may send
-me comment about this. (I forward this from enigma list in RH)
 
------ Forwarded message from Brian Lee <senux@senux.com> -----
+Hello ,
 
-Date: Fri, 8 Mar 2002 17:57:05 +0900
-From: Brian Lee <senux@senux.com>
-To: enigma-list@redhat.com
-Subject: patch files in redhat linux kernel.
-Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.3.27i
+Yesterday i got those messages in my linux bridge logfile . Apart from
+them , the box continues to operate normally . The box was not doing
+anything at all at this moment .
 
-Hi,
+Mar  7 14:21:30 none kernel:
+Mar  7 14:21:30 none kernel: Pid: 0, comm:              swapper
+Mar  7 14:21:30 none kernel: EIP: 0010:[default_idle+35/40] CPU: 0 EFLAGS: 00000246    Not tainted
+Mar  7 14:21:30 none kernel: EAX: 00000000 EBX: c0252000 ECX: c10e2260 EDX: c10e2260
+Mar  7 14:21:30 none kernel: ESI: c0105150 EDI: ffffe000 EBP: 0008e000 DS: 0018 ES: 0018
+Mar  7 14:21:30 none kernel: CR0: 8005003b CR2: 0804cf54 CR3: 017c4000 CR4: 00000010
+Mar  7 14:21:30 none kernel: Call Trace: [cpu_idle+63/84] [rest_init+0/40] [rest_init+39/40]
+Mar  7 14:21:30 none kernel:
+Mar  7 14:21:30 none kernel: Pid: 0, comm:              swapper
+Mar  7 14:21:30 none kernel: EIP: 0010:[default_idle+35/40] CPU: 0 EFLAGS: 00000246    Not tainted
+Mar  7 14:21:30 none kernel: EAX: 00000000 EBX: c0252000 ECX: c10e6260 EDX: c10e6260
+Mar  7 14:21:30 none kernel: ESI: c0105150 EDI: ffffe000 EBP: 0008e000 DS: 0018 ES: 0018
+Mar  7 14:21:30 none kernel: CR0: 8005003b CR2: 080bd000 CR3: 01cba000 CR4: 00000010
+Mar  7 14:21:30 none kernel: Call Trace: [cpu_idle+63/84] [rest_init+0/40] [rest_init+39/40]
+Mar  7 14:21:31 none kernel:
+Mar  7 14:21:31 none kernel: Pid: 0, comm:              swapper
+Mar  7 14:21:31 none kernel: EIP: 0010:[default_idle+35/40] CPU: 0 EFLAGS: 00000246    Not tainted
+Mar  7 14:21:31 none kernel: EAX: 00000000 EBX: c0252000 ECX: c10e6260 EDX: c10e6260
+Mar  7 14:21:31 none kernel: ESI: c0105150 EDI: ffffe000 EBP: 0008e000 DS: 0018 ES: 0018
+Mar  7 14:21:31 none kernel: CR0: 8005003b CR2: 080bd000 CR3: 01cba000 CR4: 00000010
+Mar  7 14:21:31 none kernel: Call Trace: [cpu_idle+63/84] [rest_init+0/40] [rest_init+39/40]
 
-I opened kernel source rpm and saw about 300 patch files
-there. I want to know what each patch files does to linux
-kernel. 
 
-I tried to figure out by changelog but it is terrible for me.
-I want to know info of patch files especially about VM and
-swap which I heard issued to recenlt kernel.
+Linux none 2.4.18-ac2 #1 Thu Feb 28 22:42:29 EET 2002 i586 unknown
 
-Sorry for short English but any replying and comments will
-be very helpful for me. Thank you.
+The distribution is slackware 8 .
 
------ End forwarded message -----
+ Kind regards
+--
+=============================================================================
 
--- 
- ____       Brian Lee       <senux@senux.com>
- |o | i   / Homepage http://www.senux.com/en/
- #######|<  GnuPG public key is   0x46C763A3
-(x-x-x-x) \ --------------------------------
+Dimitris Zilaskos
+
+Department of Physics @ Aristotle Univercity of Thessaloniki , Greece
+=============================================================================
+

@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289328AbSBST0e>; Tue, 19 Feb 2002 14:26:34 -0500
+	id <S289551AbSBST2Y>; Tue, 19 Feb 2002 14:28:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289347AbSBST0Y>; Tue, 19 Feb 2002 14:26:24 -0500
-Received: from ns.suse.de ([213.95.15.193]:51214 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S289328AbSBST0P>;
-	Tue, 19 Feb 2002 14:26:15 -0500
-Date: Tue, 19 Feb 2002 20:26:11 +0100
-From: Dave Jones <davej@suse.de>
-To: John Hughes <johughes@shaw.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.5 NVidia driver compile fails
-Message-ID: <20020219202611.D11133@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	John Hughes <johughes@shaw.ca>, linux-kernel@vger.kernel.org
-In-Reply-To: <0GRS001V4NKSMU@l-daemon>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <0GRS001V4NKSMU@l-daemon>; from johughes@shaw.ca on Tue, Feb 19, 2002 at 01:07:13PM -0600
+	id <S289347AbSBST2P>; Tue, 19 Feb 2002 14:28:15 -0500
+Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:25891 "EHLO
+	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
+	id <S289339AbSBST2E>; Tue, 19 Feb 2002 14:28:04 -0500
+Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C01101F40@nocmail.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: lvm will not compile on 2.5.5pre1
+Date: Tue, 19 Feb 2002 14:27:58 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 19, 2002 at 01:07:13PM -0600, John Hughes wrote:
- > nv.c:1438: incompatible type for argument 4 of `remap_page_range_Reb32c755'
- > nv.c:1438: too few arguments to function `remap_page_range_Reb32c755'
- > make[2]: *** [nv.o] Error 1
+Can someone point me in the right direction.  I am scanning the code, but
+not sure where to follow up with this.  LVM won't compile in 2.5.5pre1, I
+get the following error upon compilation.
+                                                        
+lvm.c: In function `lvm_do_lock_lvm':
 
- Assuming you get lucky, and manage to fix up all the compile
- errors in the source you have, chances are that the same
- interface changes will break the binary only part too.
- So it'll compile, link, and likely explode as soon as you
- try to use it.
+lvm.c:1310: structure has no member named `sigpending'  
 
- It's likely that only nvidia can help you here.
- Same goes for any other binary only module during a devel series.
+I'm looking into why this is, but can't seem to find where the structure is
+located to fix it, and what member may be missing.  Any help or pointers
+appreciated.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Thanks,
+Bruce H.
+ 

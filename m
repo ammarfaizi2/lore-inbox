@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263319AbTEVVw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 17:52:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTEVVwD
+	id S263281AbTEVWI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 18:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263305AbTEVWI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 17:52:03 -0400
-Received: from granite.he.net ([216.218.226.66]:43275 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S263319AbTEVVvA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 17:51:00 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10536411603009@kroah.com>
-Subject: Re: [PATCH] PCI changes for 2.5.69
-In-Reply-To: <10536411604177@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 22 May 2003 15:06:00 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
+	Thu, 22 May 2003 18:08:28 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:60132 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263281AbTEVWI1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 18:08:27 -0400
+Date: Thu, 22 May 2003 15:19:54 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: maneesh@in.ibm.com, Jens Axboe <axboe@suse.de>
+Cc: ivg2@cornell.edu, linux-kernel@vger.kernel.org, page0588@sundance.sjsu.edu,
+       greg@kroah.com, tytso@us.ibm.com
+Subject: Re: kernel BUG at include/linux/dcache.h:271!
+Message-Id: <20030522151954.1230ef53.akpm@digeo.com>
+In-Reply-To: <20030522115702.GA1150@in.ibm.com>
+References: <200305211911.51467.ivg2@cornell.edu>
+	<20030522115702.GA1150@in.ibm.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 May 2003 22:21:31.0876 (UTC) FILETIME=[7F4F9240:01C320B0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1063.1.3, 2003/05/05 17:29:47-05:00, Matt_Domsch@dell.com
+Maneesh Soni <maneesh@in.ibm.com> wrote:
+>
+> The problem is that we have multiple ramdisks but all have
+> common request queue and common elevator. In terms of sysfs we 
+> have multiple kobjects for multiple ramdisks, but one single kobject for the 
+> ramdisks' common elevator. 
+> 
+> While initializing, different kobjects are allocated for the ramdisks but,
+> the common elevator uses the same kobject. In other words, every init
+> of a ramdisk, the common elevator.kobj->parent will be different and it will
+> allocate a new dentry, overwrite the elevator.kobj->dentry
+> and loose the earlier allocated dentries. (see: elv_register_queue())
+> 
+> While exiting, it ends up in removing the same dentry (allocated at the last)
+> again and BUGs in dget on dentry with zero ref count.
+> 
+> Not sure where it should be fixed 
+> ramdisk 
+>  - should have separate queues on for each ramdisk
+> 
+> elevator 
+>  - should not re-register already registered queue in elv_register_queue
+> 
+> sysfs 
+>  - should handle kobject with multiple parent kobjects 
 
-pci.h whitespace cleanups
+I can't think of anywhere else where we are likely to want to support
+multiple devices from a single queue in this manner, so perhaps the best
+solution is to remove the exceptional case: allocate a separate queue for
+each ramdisk instance.
 
+Jens, do you agree?
 
- include/linux/pci.h |    4 ----
- 1 files changed, 4 deletions(-)
-
-
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	Thu May 22 14:51:42 2003
-+++ b/include/linux/pci.h	Thu May 22 14:51:42 2003
-@@ -514,8 +514,6 @@
- #define	to_pci_driver(drv) container_of(drv,struct pci_driver, driver)
- 
- 
--
--
- /* these external functions are only available when PCI support is enabled */
- #ifdef CONFIG_PCI
- 
-@@ -777,8 +775,6 @@
- 	for(dev = NULL; 0; )
- 
- #define	isa_bridge	((struct pci_dev *)NULL)
--
--
- 
- #else
- 
 

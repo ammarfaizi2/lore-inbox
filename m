@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261860AbTCZSlu>; Wed, 26 Mar 2003 13:41:50 -0500
+	id <S261323AbTCZSr6>; Wed, 26 Mar 2003 13:47:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261862AbTCZSlu>; Wed, 26 Mar 2003 13:41:50 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62726 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261860AbTCZSlt>; Wed, 26 Mar 2003 13:41:49 -0500
-Date: Wed, 26 Mar 2003 13:47:04 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: jds <jds@soltis.cc>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems when boot new kernel 2.5.66 kernel panic
-In-Reply-To: <20030325190214.M66226@soltis.cc>
-Message-ID: <Pine.LNX.3.96.1030326134208.8246B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261789AbTCZSr6>; Wed, 26 Mar 2003 13:47:58 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:57861 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261323AbTCZSr5>;
+	Wed, 26 Mar 2003 13:47:57 -0500
+Date: Wed, 26 Mar 2003 10:58:17 -0800
+From: Greg KH <greg@kroah.com>
+To: Stelian Pop <stelian.pop@fr.alcove.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: USB MemoryStick reader and 2.5.66
+Message-ID: <20030326185817.GG24689@kroah.com>
+References: <20030325124711.GC1242@hottah.alcove-fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030325124711.GC1242@hottah.alcove-fr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Mar 2003, jds wrote:
-
-> Hi my name is Jesus Delgado from Mexico City:
+On Tue, Mar 25, 2003 at 01:47:11PM +0100, Stelian Pop wrote:
+> Hi,
 > 
->   I need help for resolve this problems, compile kernel 2.5.66 in rh 8, update
-> my lvm to lvm2 utils, devmapper, modutil 2.4.24, when try to boot with new
-> kernel recive this messages:
+> Is the usb storage driver supposed to work in the latest kernels, or
+> is there somewhere a big pile of scsi / usb-storage patches waiting
+> to be integrated and I shouldn't bother with that until then ?
 
-I think you have the old modutils unless Rusty changed the version numbers
-drastically. From memory they are somewhere in
-  ftp:ftp.kernel.org/pub/linux/kernel/people/rusty
+No it should work.  I just used a usb cdrom successfully with 2.5.66.
 
-However, your problem *might* be initrd if the drivers are not all built
-in. The stock Redhat mkinitrd called by "make install" doesn't seem to
-work, and Rusty has stated he has no intentions of providing a working
-one. I'm told there's a new mkinitrd at Redhat, but I haven't found it (or
-even looked very hard).
+> This is with an internal USB Memory Stick reader on a Sony Vaio C1VE, 
+> which works just fine in 2.4, but in 2.5 it doesn't even gets 
+> recognized (hotplug ?). If I modprobe usb-storage manually the 
+> module loads just fine:
+>   Initializing USB Mass Storage driver...
+>   scsi0 : SCSI emulation for USB Mass Storage devices
+>     Vendor: Sony      Model: MSC-U01N          Rev: 1.00
+>     Type:   Direct-Access                      ANSI SCSI revision: 02
+> 
+> But then any attempt to mount it or even 'dd if=/dev/sda' hangs 
+> forever, the only messages I have in kernel logs are below.
+> 
+> Is someone interesting in a more complete bug report or should I
+> test something else ?
 
-If you are building it all in I can't help.
+Could you enter this into bugzilla.kernel.org?  Then I can assign it to
+the usb-storage maintainer :)
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+thanks,
 
+greg k-h

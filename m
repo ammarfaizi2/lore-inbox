@@ -1,52 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266318AbSLQTDh>; Tue, 17 Dec 2002 14:03:37 -0500
+	id <S265414AbSLQTCK>; Tue, 17 Dec 2002 14:02:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266491AbSLQTDg>; Tue, 17 Dec 2002 14:03:36 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51460 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266318AbSLQTDb>; Tue, 17 Dec 2002 14:03:31 -0500
-Message-ID: <3DFF76D7.2050403@transmeta.com>
-Date: Tue, 17 Dec 2002 11:11:19 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021119
-X-Accept-Language: en, sv
+	id <S265469AbSLQTCK>; Tue, 17 Dec 2002 14:02:10 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:41989 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id <S265414AbSLQTCH>; Tue, 17 Dec 2002 14:02:07 -0500
+Message-ID: <3DFF764F.9010702@google.com>
+Date: Tue, 17 Dec 2002 11:09:03 -0800
+From: Ross Biro <rossb@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-CC: Linus Torvalds <torvalds@transmeta.com>,
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ulrich Drepper <drepper@redhat.com>,
        Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hpa@transmeta.com
 Subject: Re: Intel P6 vs P7 system call performance
-References: <Pine.LNX.4.44.0212162204300.1800-100000@home.transmeta.com> <Pine.LNX.4.50.0212162241150.26163-100000@twinlark.arctic.org>
-In-Reply-To: <Pine.LNX.4.50.0212162241150.26163-100000@twinlark.arctic.org>
-Content-Type: text/plain; charset=us-ascii
+References: <Pine.LNX.4.44.0212171046550.1095-100000@home.transmeta.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dean gaudet wrote:
-> On Mon, 16 Dec 2002, Linus Torvalds wrote:
-> 
->>It's not as good as a pure user-mode solution using tsc could be, but
->>we've seen the kinds of complexities that has with multi-CPU systems, and
->>they are so painful that I suspect the sysenter approach is a lot more
->>palatable even if it doesn't allow for the absolute best theoretical
->>numbers.
-> 
-> don't many of the multi-CPU problems with tsc go away because you've got a
-> per-cpu physical page for the vsyscall?
-> 
-> i.e. per-cpu tsc epoch and scaling can be set on that page.
-> 
-> the only trouble i know of is what happens when an interrupt occurs and
-> the task is rescheduled on another cpu... in theory you could test %eip
-> against 0xfffffxxx and "rollback" (or complete) any incomplete
-> gettimeofday call prior to saving a task's state.  but i bet that test is
-> undesirable on all interrupt paths.
-> 
 
-Exactly.  This is a real problem.
+It doesn't make sense to me to use a specially formatted page forced 
+into user space to tell libraries how to do system calls.  Perhaps each 
+executable personality in the kernel should export a special shared 
+library in it's own native format that contains the necessary 
+information.  That way we don't have to worry as much about code or 
+values changing sizes or locations.
 
-	-hpa
+We would have the chicken/egg problem with how the special shared 
+library gets loaded in the first place.  For that we either support a 
+legacy syscall method (i.e. int 0x80 on x86) which should only be used 
+by ld.so or the equivalent or magically force the library into user 
+space at a known address.
+
+    Ross
+
+
+Linus Torvalds wrote:
+
+>On 17 Dec 2002, Alan Cox wrote:
+>  
+>
+>>Is there any reason you can't just keep the linker out of the entire
+>>mess by generating
+>>
+>>	.byte whatever
+>>	.dword 0xFFFF0000
+>>
+>>instead of call ?
+>>    
+>>
+>
+>Alan, the problem is that there _is_ no such instruction as a "call
+>absolute".
+>
+>There is only a "call relative" or "call indirect-absolute". So you either
+>have to indirect through memory or a register, or you have to fix up the
+>call at link-time.
+>
+>Yeah, I know it sounds strange, but it makes sense. Absolute calls are
+>actually very unusual, and using relative calls is _usually_ the right
+>thing to do. It's only in cases like this that we really want to call a
+>specific address.
+>
+>			Linus
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
+
+
 

@@ -1,67 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317756AbSGKFAf>; Thu, 11 Jul 2002 01:00:35 -0400
+	id <S317764AbSGKFF0>; Thu, 11 Jul 2002 01:05:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317764AbSGKFAe>; Thu, 11 Jul 2002 01:00:34 -0400
-Received: from holomorphy.com ([66.224.33.161]:3220 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S317756AbSGKFAe>;
-	Thu, 11 Jul 2002 01:00:34 -0400
-Date: Wed, 10 Jul 2002 22:02:21 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: lazy_buddy-2.5.25-1
-Message-ID: <20020711050221.GC27093@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-References: <20020710085917.GP25360@holomorphy.com> <20020711044956.GB27093@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020711044956.GB27093@holomorphy.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S317765AbSGKFFZ>; Thu, 11 Jul 2002 01:05:25 -0400
+Received: from h-64-105-137-27.SNVACAID.covad.net ([64.105.137.27]:51129 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S317764AbSGKFFZ>; Thu, 11 Jul 2002 01:05:25 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 10 Jul 2002 22:07:32 -0700
+Message-Id: <200207110507.WAA20797@adam.yggdrasil.com>
+To: rusty@rustcop.com.au
+Subject: Re: Rusty's module talk at the Kernel Summit
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 10, 2002 at 09:49:56PM -0700, William Lee Irwin III wrote:
-> Ugh, forward port breakage. Ran into this in a different patch but
-> realized it was broken here too. Sorry folks. You'll need this on
-> top of the prior post.
+On 2002-07-11 2:48:30, Rusty Russell <rusty@rustcorp.com.au> wrote:
+>On Thu, 4 Jul 2002 10:24:11 -0700
+>"Adam J. Richter" <adam@yggdrasil.com> wrote:
+>>       The system that I am composing this email on has 1.1MB of
+>> modules and does not have sound drivers loaded.  It has ipv4 and a
+>> number of other facilities modularized that are not modules in the
+>> stock kernels.  Every system that I use has a configuration like this.
+>> With a lower per-module overhead, I would be more inclined to try to
+>> modularize other facilities and break up some larger modules into
+>> smaller ones, in the case where there is substantial code that is not
+>> needed for some configurations.
+>
+>For God's sake, WHY?  Look at what you're doing to your TLB (and if you
+>made IPv4 a removable module, I'll bet real money you have a bug unless
+>you are *very* *very* clever).
 
-Even worse, I spotted another (thankfully more minor) bug while still
-peeking at this... okay, back to more urgent things.
+	My motivation in modularizing ipv4 was to be able to sqeeze more
+drivers onto a boot floppy for CD's or hard disks and have that kernel
+still be able to continue on bring up networking later (and to avoid
+maintaining a different kernel binary).  Ultimately, I would like to
+see CONFIG_NET modularized, if only to reduce the time spent reading
+the floppy.
 
+	I have deliberately not fixed some reference count problems in
+my ipv4.o module right now because I'm pretty sure lots of things would
+break if I tried removing it.  I did write a module_exit function, but
+I never tried turning off the reference counting and executing it.
 
-Cheers,
-Bill
+	I also was under the impression that Dave Miller had a modularized
+ipv4 in a "vger cvs" kernel (remember them?), so I assumed that some
+modularization of ipv4 was working its way to Linus.
 
+	About translation lookaside cache misses, I was considering
+breaking down these large modules mostly after the optimizations that
+I wishfully described later in my posting:
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.631   -> 1.632  
-#	     mm/page_alloc.c	1.126   -> 1.127  
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/07/10	wli@tisifone.holomorphy.com	1.632
-# page_alloc.c:
-#   Correct nr_deferred_pages() calculation.
-# --------------------------------------------
-#
-diff --minimal -Nru a/mm/page_alloc.c b/mm/page_alloc.c
---- a/mm/page_alloc.c	Wed Jul 10 21:59:45 2002
-+++ b/mm/page_alloc.c	Wed Jul 10 21:59:45 2002
-@@ -739,8 +739,8 @@
- 	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next) {
- 		node_zones = pgdat->node_zones;
- 		for (i = 0; i < MAX_NR_ZONES; ++i) {
--			for (order = 0; order < MAX_ORDER; ++order)
--				pages += node_zones[i].free_area[order].locally_free;
-+			for (order = MAX_ORDER; order >= 0; --order)
-+				pages = 2*pages + node_zones[i].free_area[order].locally_free;
- 		}
- 	}
- 	return pages;
+| Then somebody changes allocation of
+| modules that are less than a page to use kmalloc(GFP_HIGHMEM) instead
+| of vmalloc (~30% of modules on my system are already this small).
+| Then somebody figures out a way to have vmalloc's larger than a page
+| that do not need page alignment can sometimes start in the unused last
+| page of another vmalloc.
+
+	In that case, it's a much more emperical question about
+whether eliminating large chunks of unused code brings the code that
+does run into the same page more often than splitting the module
+causes code that was in the same page to be split into two different
+pages, especially if there is a reasoonable chance that that code is
+going to be loaded into a location that shares a page that would already
+be in the TLB.
+
+	Come to think of it, if modules do not have to occupy full pages,
+you could perhaps add a "module affinity" so that modules that reference
+each other would be more likely to end up sharing a page.  Module loading
+happens tens of times a day, if that.  Inter-module calls can happen a
+zillion times per second.  So, who knows, it might be worth the complexity,
+could be in insmod.
+
+	Dave Miller's proposal to use 4MB pages for modules is an
+interesting alternative, but, isn't kmalloc()'ed memory already
+in the kernel's big page?  If so, then using that for small modules
+would have the same effect for at least those modules, and I believe
+that kmalloc is set up to handle up to 128kB.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310789AbSCSLqy>; Tue, 19 Mar 2002 06:46:54 -0500
+	id <S310940AbSCSLs5>; Tue, 19 Mar 2002 06:48:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310829AbSCSLqo>; Tue, 19 Mar 2002 06:46:44 -0500
-Received: from pD9E53E9A.dip.t-dialin.net ([217.229.62.154]:48356 "EHLO
-	sol.fo.et.local") by vger.kernel.org with ESMTP id <S310789AbSCSLqa>;
-	Tue, 19 Mar 2002 06:46:30 -0500
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: David Woodhouse <dwmw2@infradead.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: SysRq question
-In-Reply-To: <Pine.LNX.4.33L2.0203180922230.2434-100000@dragon.pdx.osdl.net>
-From: Joachim Breuer <jmbreuer@gmx.net>
-Date: Tue, 19 Mar 2002 12:45:56 +0100
-Message-ID: <m3pu20hjbf.fsf@venus.fo.et.local>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (Cuyahoga Valley,
- i386-redhat-linux)
-MIME-Version: 1.0
+	id <S310829AbSCSLsv>; Tue, 19 Mar 2002 06:48:51 -0500
+Received: from mta.sara.nl ([145.100.16.144]:43677 "EHLO mta.sara.nl")
+	by vger.kernel.org with ESMTP id <S310940AbSCSLsh>;
+	Tue, 19 Mar 2002 06:48:37 -0500
+Message-Id: <200203191148.MAA07887@mailgate.sara.nl>
+X-Mailer: exmh version 2.3.1 01/18/2001 with version: MH 6.8.4 #7[UCI]
+From: Remco Post <r.post@sara.nl>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help 
+In-Reply-To: Your message of "Mon, 18 Mar 2002 16:08:05 -0300."
+             <Pine.LNX.4.44L.0203181606580.2181-100000@imladris.surriel.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Tue, 19 Mar 2002 12:48:34 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> writes:
-> On Mon, 18 Mar 2002, David Woodhouse wrote:
->
-> | rddunlap@osdl.org said:
-> | >  I've seen a couple of cheapo keyboards where some Alt-SysRq-key
-> | > combinations don't generate anything from the keyboard.  (I'm typing
-> | > on one of them right now.) For example, Alt-SysRq-5|6 works, but
-> | > 1,2,3,4,7,8,9 don't.
-> |
-> | Try using the other Alt key.
->
-> Same result with either Alt key.
+> On Mon, 18 Mar 2002, Mike Dresser wrote:
+> > On Mon, 18 Mar 2002, Rik van Riel wrote:
+> >
+> > > > The unit here is B, which does conflict with the unit bel, but is
+> > > > widely used to mean byte in computer contexts.
+> > >
+> > > Also, the kilobell is highly unlikely to be used ;)
+> > >
+> > > Rik
+> >
+> > Dunno about that, the S/N ratio on slashdot seems to get into the kB's
+> > somedays.
+> 
+> I'm not sure what parallel universe you live in, but I'm
+> pretty damn sure that mine doesn't have 10000 times more
+> signal than noise on slashdot ;)
+> 
+> An S+N/N of one kB is 40 dB...
+> 
+> regards,
+> 
+> Rik
+> -- 
 
-BTW that's not the problem I'm seeing, Alt-SysRq-*ANYTHING* is not
-caught from any of the offending keyboards because (IIRC) they send
-Alt-SysRq as a two-code sequence, with the (apparently) Alt-Down code
-repeated before the command keycode - thus, all the command keycode
-parser sees (it seems it looks only at the first byte after Alt-SysRq)
-is the Alt-Down keycode, which is not a command.
+changing the d to a k doesn't do anything for the  behaviour Bell scale, it's 
+just scaling... :) so 1 kB = 10000 dB...
+
+
 
 -- 
-"I use emacs, which might be thought of as a thermonuclear
- word processor."
--- Neal Stephenson, "In the beginning... was the command line"
+Met vriendelijke groeten,
+
+Remco Post
+
+SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
+High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
+
+"I really didn't foresee the Internet. But then, neither did the computer
+industry. Not that that tells us very much of course - the computer industry
+didn't even foresee that the century was going to end." -- Douglas Adams
+
+

@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266508AbUHIM0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266535AbUHIMbf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266508AbUHIM0m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 08:26:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266522AbUHIM0l
+	id S266535AbUHIMbf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 08:31:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266538AbUHIMbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 08:26:41 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:50140 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S266508AbUHIMZb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 08:25:31 -0400
-Date: Mon, 9 Aug 2004 14:24:51 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408091224.i79COp69009736@burner.fokus.fraunhofer.de>
-To: eric@lammerts.org, schilling@fokus.fraunhofer.de
-Cc: James.Bottomley@steeleye.com, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+	Mon, 9 Aug 2004 08:31:35 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:2628 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP id S266535AbUHIMbe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 08:31:34 -0400
+Date: Mon, 9 Aug 2004 14:31:26 +0200 (CEST)
+From: Bart Hartgers <bart@etpmod.phys.tue.nl>
+Subject: Re: ix86 Atomic ops during DMA...
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.53.0408090809520.7612@chaos>
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
+Message-Id: <20040809123129.792F8507@etpmod.phys.tue.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Eric Lammerts <eric@lammerts.org>
+On  9 Aug, Richard B. Johnson wrote:
 
->On Fri, 6 Aug 2004, Joerg Schilling wrote:
->> The CAM interface (which is from the SCSI standards group)
->> usually is implemeted in a way that applications open /dev/cam and
->> later supply bus, target and lun in order to get connected
->> to any device on the system that talks SCSI.
->>
->> Let me repeat: If you believe that this is a bad idea, give very
->> good reasons.
+How about:
 
->With this interface, how do you grant non-root users access to a CD
->writer, but prevent them from directly accessing a SCSI harddisk?
+	lock andl (%ebx),0xffffffff
 
-On Linux, it is impossible to run cdrecord without root privilleges.
-Make cdrecord suid root, it has been audited....
+Not sure 100% if I have the arguments in the right order ;-). 
 
-On Solaris, there is ACLs, RBAC & getppriv() / setppriv()
 
-http://docs.sun.com/db/doc/816-5167/6mbb2jaeu?a=expand
-
-Jörg
+> 	I need...
+> 
+> 	movl (%ebx), %eax	# Read status from register in ebx
+> 	movl %eax, (%ebx)	# Write it back
+> 
+> ..to occur together without the bus being taken away by a DMA
+>  operation until these two instructions are complete.
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+Bart Hartgers - TUE Eindhoven 
+http://plasimo.phys.tue.nl/bart/contact/

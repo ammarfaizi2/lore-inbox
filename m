@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVADP2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVADP34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261683AbVADP2h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 10:28:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVADP2h
+	id S261695AbVADP34 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 10:29:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVADP3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 10:28:37 -0500
-Received: from ns.suse.de ([195.135.220.2]:692 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261683AbVADP2Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 10:28:24 -0500
-Date: Tue, 4 Jan 2005 16:28:22 +0100
-From: Andi Kleen <ak@suse.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ak@suse.de
-Subject: Re: [PATCH] x86_64: Add reboot=force
-Message-ID: <20050104152822.GB19744@wotan.suse.de>
-References: <200501040623.j046N1Sf011351@hera.kernel.org> <41DAB4EC.2070309@osdl.org>
+	Tue, 4 Jan 2005 10:29:55 -0500
+Received: from [212.20.225.142] ([212.20.225.142]:46874 "EHLO
+	orlando.wolfsonmicro.main") by vger.kernel.org with ESMTP
+	id S261690AbVADP2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 10:28:48 -0500
+Subject: Re: [PATCH 2/2] AC97 plugin suspend/resume
+From: Liam Girdwood <Liam.Girdwood@wolfsonmicro.com>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <41DAB13E.40208@didntduck.org>
+References: <1104850247.9143.335.camel@cearnarfon>
+	 <41DAB13E.40208@didntduck.org>
+Content-Type: text/plain
+Message-Id: <1104852526.9143.351.camel@cearnarfon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41DAB4EC.2070309@osdl.org>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 04 Jan 2005 15:28:46 +0000
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Jan 2005 15:28:47.0108 (UTC) FILETIME=[15519C40:01C4F272]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 07:23:24AM -0800, Randy.Dunlap wrote:
-> Linux Kernel Mailing List wrote:
-> >ChangeSet 1.2136.3.75, 2005/01/03 20:44:39-08:00, ak@suse.de
-> >
-> >	[PATCH] x86_64: Add reboot=force
-> >	
-> >	Add reboot=force
-> >	
-> >	reboot=force doesn't wait for any other CPUs on reboot.  This is 
-> >	useful when
-> >	you really need a system to reboot on its own.
+On Tue, 2005-01-04 at 15:07, Brian Gerst wrote:
+
+> There is really no reason to add these fields if they are NULL.  Zero 
+> (or NULL for pointers) is the default for all unspecified fields, and it 
+> is kernel convention to use this feature to reduce clutter.
 > 
-> Why only for x86_64 ?
 
-The x86-64 reboot code is quite different from i386 and I've only
-seen the problems on x86-64. If you think it's useful on x86-64 too
-feel free to port it over.
+Ok, patch 2/2 can be safely ignored. It was added for clarity.
 
--Andi
+Liam
+

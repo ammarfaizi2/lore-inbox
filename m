@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268983AbRHGQRV>; Tue, 7 Aug 2001 12:17:21 -0400
+	id <S269041AbRHGRBz>; Tue, 7 Aug 2001 13:01:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268907AbRHGQRL>; Tue, 7 Aug 2001 12:17:11 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:37885 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S268110AbRHGQRE>;
-	Tue, 7 Aug 2001 12:17:04 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200108042332.f74NW1N01658@lynx.adilger.int>
-Subject: Re: Any known ext2 FS problems in 2.4.7?
-To: david@blue-labs.org (David Ford)
-Date: Sat, 4 Aug 2001 17:32:01 -0600 (MDT)
-Cc: adilger@turbolinux.com (Andreas Dilger),
-        linux-kernel@vger.kernel.org (linux-kernel),
-        unlisted-recipients:;;;;@fsa.enel.ucalgary.ca;;; (no To-header on input)
-In-Reply-To: <3B6BA0B8.1080704@blue-labs.org> from "David Ford" at Aug 04, 2001 03:14:00 AM
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S269049AbRHGRBo>; Tue, 7 Aug 2001 13:01:44 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:24070 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S269041AbRHGRBh>; Tue, 7 Aug 2001 13:01:37 -0400
+Message-Id: <200108031443.f73EhQLX017842@pincoya.inf.utfsm.cl>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread 
+In-Reply-To: Your message of "Fri, 03 Aug 2001 15:09:06 +0200."
+             <01080315090600.01827@starship> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Fri, 03 Aug 2001 10:43:26 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ford writes:
-> Ok, the assumed guilty party that just at 4.5gigs flat tonight was the 
-> rsync for the kernel mirror.
-> 
-> Here are the facts.
-> a) lsof didn't report any large files opened by rsync
-> b) lsof currently reports about 80k in deleted files
-> c) the directory where rsync runs from, the destination directory of the 
-> mirror, both report expected sizes, the mirror is a little over 9 gigs 
-> like it should be, the script directory is tiny.
-> e) dmesg shows nothing
-> f) du of the partitions shows the expected usage of about 13gigs.
-> 
-> 4.5gigs just disappeared into nothingness.  I can't find it with any 
-> tools.  I have to shut this machine down to single user mode and run 
-> e2fsck to recover the space.
+Daniel Phillips <phillips@bonn-fries.net> said:
+> On Friday 03 August 2001 05:13, Alexander Viro wrote:
 
-Could you try (a) running with quotas disabled to see if it fixes the
-problem, or (b) running an -ac kernel which has changes to the quota
-code (along with new quota tools, from sourceforge, I believe).
+[...]
 
-Cheers, Andreas
+> > You forgot ".. at any given moment". IOW, operation you propose is
+> > inherently racy. You want to do that - you do that in userland.
+
+> Are you saying that there may not be a ".." some of the time?  Or just 
+> that it may spontaneously be relinked?  If it does spontaneously change 
+> it doesn't matter, you have still made sure there is access by at least 
+> one path.
+
+Think "mv thisdir somewhereelse"
 -- 
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+Dr. Horst H. von Brand                Usuario #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

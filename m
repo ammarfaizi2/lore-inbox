@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285278AbRLFWhx>; Thu, 6 Dec 2001 17:37:53 -0500
+	id <S285261AbRLFWld>; Thu, 6 Dec 2001 17:41:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285269AbRLFWfh>; Thu, 6 Dec 2001 17:35:37 -0500
-Received: from bitmover.com ([192.132.92.2]:57988 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S285339AbRLFWfV>;
-	Thu, 6 Dec 2001 17:35:21 -0500
-Date: Thu, 6 Dec 2001 14:35:16 -0800
-From: Larry McVoy <lm@bitmover.com>
+	id <S285255AbRLFWlR>; Thu, 6 Dec 2001 17:41:17 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36367 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285266AbRLFWk4>; Thu, 6 Dec 2001 17:40:56 -0500
+Date: Thu, 6 Dec 2001 14:34:28 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
-        phillips@bonn-fries.net, davidel@xmailserver.org,
-        rusty@rustcorp.com.au, Martin.Bligh@us.ibm.com, riel@conectiva.com.br,
-        lars.spam@nocrew.org, hps@intermeta.de, linux-kernel@vger.kernel.org
-Subject: Re: SMP/cc Cluster description
-Message-ID: <20011206143516.P27589@work.bitmover.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
-	phillips@bonn-fries.net, davidel@xmailserver.org,
-	rusty@rustcorp.com.au, Martin.Bligh@us.ibm.com,
-	riel@conectiva.com.br, lars.spam@nocrew.org, hps@intermeta.de,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011206122116.H27589@work.bitmover.com> <E16C78o-0003LB-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E16C78o-0003LB-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Dec 06, 2001 at 10:37:18PM +0000
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux/Pro  -- clusters
+In-Reply-To: <E16C76m-0003Kk-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0112061422040.12667-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 06, 2001 at 10:37:18PM +0000, Alan Cox wrote:
-> >    problem.  Scheduler, networking, device drivers, everything.  That's
-> >    thousands of locks and uncountable bugs, not to mention the impact on
-> >    uniprocessor performance.
-> 
-> Most of my block drivers in Linux have one lock. The block queuing layer
-> has one lock which is often the same lock.
 
-Hooray!  That's great and that's the way I'd like to keep it.  Do you think
-you can do that on a 64 way SMP?  Not much chance, right?
+On Thu, 6 Dec 2001, Alan Cox wrote:
+>
+> Ok so kdev_t will split into structs for char and block device which are
+> seperate things ?
 
-> > You tell me - which is easier, multithreading the networking stack to 
-> > 64 way SMP or running 64 distinct networking stacks?
-> 
-> Which is easier. Managing 64 routers or managing 1 router ?
+Yes. And the name will change to reflect that.
 
-That's a red herring, there are not 64 routers in either picture, there
-are 64 ethernet interfaces in both pictures.  So let me rephrase the
-question: given 64 ethernets, 64 CPUs, on one machine, what's easier,
-1 multithreaded networking stack or 64 independent networking stacks?
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+(Ie once char and block are separate, like they logically are in the
+namespace anyway, there's no "dev_t" at all, it's all "struct char_device"
+or "struct block_device" and they have nothing in common).
+
+We already have pretty much all the infrastructure in place for this, it's
+just that a lot of calling conventions have "kdev_t" still (which is
+actually ambiguous as-is - you have to look at the function name etc to
+figure out if it is a character device or a block device).
+
+The main ones are things like "bread()" down all the way to the bottom of
+the IO path. The sad thing is that along the whole path, we actually end
+up needing the structure pointer in different places, so the IO code
+(which is supposed to be timing-critical) ends up doing various lookups on
+the kdev_t several times (both at a higher level and deep down in the IO
+submit layer).
+
+So now we have to do "bdfind()" *kdev_t -> block_device", and
+"get_gendisk()" for "kdev_t -> struct gendisk" and about 5 different
+"index various arrays using the MAJOR number" on the way to actually doing
+the IO.
+
+Even though the filesystems that want to _do_ the IO actually already have
+the structure pointer available, and all the indexing off major would
+actually fairly trivially just be about reading off the fields off that
+structure.
+
+(Ugh, just _look_ at the code looking up block size, sector size,
+"readonly" status, queue finding, statistics gathering etc. The
+ro_bits thing seems to "know" that "long" is 32 bits etc. It's enough to
+make you cry ;)
+
+Oh, well. It _is_ going to be quite painful to switch things around.
+
+		Linus
+

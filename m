@@ -1,84 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbUEQPlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbUEQPsf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbUEQPlL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 11:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUEQPlL
+	id S261693AbUEQPsf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 11:48:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbUEQPsf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 11:41:11 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:29358 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261680AbUEQPlD (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 11:41:03 -0400
-Message-Id: <200405171540.i4HFeuFK003144@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: tglx@linutronix.de
-Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.26] drivers/char/vt.c fix compiler warnings 
-In-Reply-To: Your message of "Mon, 17 May 2004 14:47:56 +0200."
-             <200405171447.56737.tglx@linutronix.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <200405151505.23250.tglx@linutronix.de> <20040517104729.GA8933@wsdw14.win.tue.nl>
-            <200405171447.56737.tglx@linutronix.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1104724183P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 17 May 2004 11:40:55 -0400
+	Mon, 17 May 2004 11:48:35 -0400
+Received: from web50005.mail.yahoo.com ([206.190.38.20]:15540 "HELO
+	web50005.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261693AbUEQPsc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 11:48:32 -0400
+Message-ID: <20040517154831.81383.qmail@web50005.mail.yahoo.com>
+Date: Mon, 17 May 2004 08:48:31 -0700 (PDT)
+From: fc scsi <scsi_fc_group@yahoo.com>
+Subject: Re: _PAGE_PCD bit in DMAable memory
+To: Roland Dreier <roland@topspin.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <52r7tjx09t.fsf@topspin.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1104724183P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-On Mon, 17 May 2004 14:47:56 +0200, Thomas Gleixner said:
+Thanks for the reply and the information. Actually,
+the code will have to run on Intel Xscale
+processor(ARM based). Since I don't have Linux running
+on the board as of now, I was trying out things on my
+i386 machine to get non-cacheable memory. That was
+when I thought that GFP_DMA should give me
+non-cacheable memory(_PAGE_PCD on i386 should be set
+for such a memory, and L_PTE_CACHEABLE should be clear
+on Xscale by this analogy). But, as you have explained
+_PAGE_PCD need not be set for non-cacheable memory for
+i386. I am new to Xscale architecture and don't know
+if pci_alloc_consistent() will give me non-cacheable
+memory or not. Can anyone who has worked on Xscale
+confirm this.
 
-> Ooops, did not think about that. Was just annoyed from the compiler war=
-nings.
-> What about:
+Another curiousity for me is, if
+pci_alloc_consistent() gives non-cacheable memory for
+Xscale(arm) then will the L_PTE_CACHEABLE bit set in
+it or not?
 
-> +#if MAX_NR_KEYMAPS < 256		=
+Anyway, thanks Roland for the previous answer. It was
+a great help.
 
->  	if (i >=3D NR_KEYS || s >=3D MAX_NR_KEYMAPS)
-> +#else
-> +	if (i >=3D NR_KEYS)
-> +#endif	=
-
->  		return -EINVAL;	=
-
-
-Speaking as somebody who's had stuff rejected for doing this sort of ifde=
-f'ing,
-the *right* fix is to go back and look at the definitions of everything, =
-and
-see if there's a reason why the compiler is tossing the warning.
-
-Canonical example is, of course the userland:
-
-	char c;
-	if ((c=3Dgetc()) !=3D EOF) {....
-
-(I don't have a 2.4 tree handy to double-check, but maybe the variable 's=
-'
-should be something wider?  It's *quite* possible that there is/will be s=
-ome
-keyboard of the Chinese/Japanese/Korean persuasion which actually ends up=
- with
-more than 256 keymap entries.....
+Regards.
 
 
+--- Roland Dreier <roland@topspin.com> wrote:
+>     fc> Hi, I am trying to get DMAable memory on
+> i386
+>     fc> (kmalloc(GFP_DMA,)) but seems _PAGE_PCD is
+> not set on the
+>     fc> pages that i get back the memory from. Am I
+> getting the
+>     fc> correct results? If yes, then is it not that
+> GFP_DMA should
+>     fc> give me non-cacheable memory (equivalent to
+> setting _PAGE_PCD
+>     fc> along with _PAGE_PWT on i386). Can anyone
+> confirm for me that
+>     fc> GFP_DMA will *always* give me non-cacheable
+> and contiguous
+>     fc> memory.
+> 
+> On i386, the GFP_DMA flag controls _where_ the
+> memory will be
+> allocated, namely in the low 16 MB.  This is really
+> a relic of the
+> days of 24-bit ISA DMA.
+> 
+> On i386, the memory does not have to be
+> non-cacheable, since in the PC
+> architecture the bus controller will maintain
+> consistency by snooping
+> the CPU.  However, to be portable, your code should
+> use
+> pci_alloc_consistent() to get memory for DMAing. 
+> This will do the
+> right thing on all platforms, including making sure
+> that the memory is
+> non-cacheable on architectures where the bus
+> controller does not snoop.
+> 
+> (By the way, kmalloc() will always return contiguous
+> memory, but you
+> should still use pci_alloc_consistent for DMA
+> memory)
+> 
+>  - Roland
 
 
---==_Exmh_1104724183P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAqN0HcC3lWbTT17ARAv2HAJ9s8td4mZ8iOMwxx7V+xk49Tth8gQCg6vxg
-wt1AW4MHhc4WkT4HBFkYaNM=
-=ov0Y
------END PGP SIGNATURE-----
-
---==_Exmh_1104724183P--
+	
+		
+__________________________________
+Do you Yahoo!?
+SBC Yahoo! - Internet access at a great low price.
+http://promo.yahoo.com/sbc/

@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314514AbSD1WKJ>; Sun, 28 Apr 2002 18:10:09 -0400
+	id <S314605AbSD1WoS>; Sun, 28 Apr 2002 18:44:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314527AbSD1WKJ>; Sun, 28 Apr 2002 18:10:09 -0400
-Received: from dsl-213-023-040-044.arcor-ip.net ([213.23.40.44]:36749 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314514AbSD1WKI>;
-	Sun, 28 Apr 2002 18:10:08 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-Date: Sun, 28 Apr 2002 00:10:20 +0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020426192711.D18350@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E171aOa-0001Q6-00@starship>
+	id <S314687AbSD1WoR>; Sun, 28 Apr 2002 18:44:17 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:16046 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S314605AbSD1WoQ>;
+	Sun, 28 Apr 2002 18:44:16 -0400
+Date: Mon, 29 Apr 2002 00:44:07 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [bk+patch] Let (WIP) be replaced with (EXPERIMENTAL)
+Message-ID: <20020429004407.A12673@ucw.cz>
+In-Reply-To: <20020428142415.A10747@ucw.cz> <3CCBFAB6.7060607@evision-ventures.com> <20020428212429.A12005@ucw.cz> <3CCC4426.3040303@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 April 2002 20:27, Russell King wrote:
-> Hi,
+On Sun, Apr 28, 2002 at 08:49:10PM +0200, Martin Dalecki wrote:
+
+> > Ok - your decision. If you want, I'll omit the BK part of the patches.
+> > On the other hand, if you could just forward it to Linus as is (or let
+> > me send it to Linus after your confirmation), change comments won't get
+> > lost. 
+> > 
+> >>I preferr a classical diff -urN ;-).
+> > 
+> > It's included, anyway.
 > 
-> I've been looking at some of the ARM discontigmem implementations, and
-> have come across a nasty bug.  To illustrate this, I'm going to take
-> part of the generic kernel, and use the Alpha implementation to
-> illustrate the problem we're facing on ARM.
-> 
-> I'm going to argue here that virt_to_page() can, in the discontigmem
-> case, produce rather a nasty bug when used with non-direct mapped
-> kernel memory arguments.
+> Yes but why the hell should I bother looking at some uu-encoded stuff?
+> Jet another reason I think BK is plain ugly.
+> Anyway. Please send the chipset parts to linus directly.
+> They seem fine. 
 
-It's tough to follow, even when you know the code.  While cooking my
-config_nonlinear patch I noticed the line you're concerned about and
-regarded it with deep suspicion.  My patch does this:
+Ok, I'll send the two changes to Linus.
 
--               page = virt_to_page(__va(phys_addr));
-+               page = phys_to_page(phys_addr);
+> However the _WIP change is despite beeing correct, not complete
+> and I will prefer to do it myself. OK?
 
-And of course took care that phys_to_page does the right thing in all
-cases.
-
-<plug>
-The new config_nonlinear was designed as a cleaner, more powerful
-replacement for all non-numa uses of config_discontigmem.
-</plug>
+Perfect.
 
 -- 
-Daniel
+Vojtech Pavlik
+SuSE Labs

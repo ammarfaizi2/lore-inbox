@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129697AbQKMOC3>; Mon, 13 Nov 2000 09:02:29 -0500
+	id <S129245AbQKMOXy>; Mon, 13 Nov 2000 09:23:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129881AbQKMOCU>; Mon, 13 Nov 2000 09:02:20 -0500
-Received: from astrid2.nic.fr ([192.134.4.2]:24076 "EHLO astrid2.nic.fr")
-	by vger.kernel.org with ESMTP id <S129697AbQKMOCK>;
-	Mon, 13 Nov 2000 09:02:10 -0500
-Date: Mon, 13 Nov 2000 15:02:15 +0000
-From: Francois romieu <romieu@ensta.fr>
+	id <S129249AbQKMOXp>; Mon, 13 Nov 2000 09:23:45 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:5462
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129245AbQKMOXj>; Mon, 13 Nov 2000 09:23:39 -0500
+Date: Mon, 13 Nov 2000 16:21:55 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
 To: linux-kernel@vger.kernel.org
-Cc: Mircea Damian <dmircea@linux.kappa.ro>
-Subject: [upatch] Documentation/Configure.help (was: ppp.txt)
-Message-ID: <20001113150215.C12459@nic.fr>
-Reply-To: Francois romieu <romieu@ensta.fr>
-In-Reply-To: <20001112180007.A5323@linux.kappa.ro>
+Subject: Oops on 2.2.17 [klogd bonus question]
+Message-ID: <20001113162155.A18009@jaquet.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001112180007.A5323@linux.kappa.ro>; from dmircea@linux.kappa.ro on Sun, Nov 12, 2000 at 06:00:07PM +0200
-X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Sun, Nov 12, 2000 at 06:00:07PM +0200, Mircea Damian wrote :
-[...]
-> I just want to say that the file 'Documentation/networking/ppp.txt' (as it
-> is mentioned in Configure.help at CONFIG_PPP option) does not exists.
+Hi.
 
---- /usr/src/linux-2.4.0-test11-pre4.orig/Documentation/Configure.help	Mon Nov 13 09:55:53 2000
-+++ /usr/src/linux-2.4.0-test11-pre4/Documentation/Configure.help	Mon Nov 13 14:57:25 2000
-@@ -6795,10 +6795,9 @@
-   days support PPP rather than SLIP.
- 
-   To use PPP, you need an additional program called pppd as described
--  in Documentation/networking/ppp.txt and in the PPP-HOWTO, available
--  at http://www.linuxdoc.org/docs.html#howto . If you upgrade
--  from an older kernel, you might need to upgrade pppd as well. The
--  PPP option enlarges your kernel by about 16 KB.
-+  in the PPP-HOWTO, available at http://www.linuxdoc.org/docs.html#howto. 
-+  If you upgrade from an older kernel, you might need to upgrade pppd as 
-+  well. The PPP option enlarges your kernel by about 16 KB.
- 
-   There are actually two versions of PPP: the traditional PPP for
-   asynchronous lines, such as regular analog phone lines, and
+I'm getting oopses on a linux 2.2.17 box when I try to do
+tar cvIf <file> -X<file> /. Reproducably. This works fine 
+for the std. RH 6.2 kernel (2.2.14-5). The resulting file 
+is about 20MB.
 
--- 
-Ueimor
+I would submit the oops, but it is run through klogd and
+I seem to remember people expressing dissatisfaction 
+with klogd. So what do I do now to get a usable oops
+to submit?
+
+Regards,
+  Rasmus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264937AbUHSJva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264795AbUHSJ4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264937AbUHSJva (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 05:51:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUHSJvF
+	id S264795AbUHSJ4V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 05:56:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbUHSJ4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 05:51:05 -0400
-Received: from cantor.suse.de ([195.135.220.2]:44218 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264795AbUHSJrl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 05:47:41 -0400
-To: "Pankaj Agarwal" <pankaj@pnpexports.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: how to identify filesystem type
-References: <001901c485cc$208c3a60$9159023d@dreammachine>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: You mean you don't want to watch WRESTLING from ATLANTA?
-Date: Thu, 19 Aug 2004 11:46:42 +0200
-In-Reply-To: <001901c485cc$208c3a60$9159023d@dreammachine> (Pankaj Agarwal's
- message of "Thu, 19 Aug 2004 14:37:44 +0530")
-Message-ID: <je657fzchp.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 19 Aug 2004 05:56:20 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:55168 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S264795AbUHSJ4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 05:56:09 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P3
+From: Lee Revell <rlrevell@joe-job.com>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Charbonnel <thomas@undata.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+In-Reply-To: <20040819115438.12306093@mango.fruits.de>
+References: <1092627691.867.150.camel@krustophenia.net>
+	 <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net>
+	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
+	 <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu>
+	 <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu>
+	 <20040818141231.4bd5ff9d@mango.fruits.de> <20040818122703.GA17301@elte.hu>
+	 <20040819115438.12306093@mango.fruits.de>
+Content-Type: text/plain
+Message-Id: <1092909443.8432.141.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 19 Aug 2004 05:57:23 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Pankaj Agarwal" <pankaj@pnpexports.com> writes:
+On Thu, 2004-08-19 at 05:54, Florian Schmidt wrote:
+> On Wed, 18 Aug 2004 14:27:03 +0200
+> Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > 
+> > * Florian Schmidt <mista.tapas@gmx.net> wrote:
+> > 
+> > > Hi, it applied against 2.6.8.1 with some offsets and some buzz [?].
+> > > Well anyways it compiled fine and the copy_page_range latency is
+> > > gone.. Now i also see the extracty entropy thing, too..
+> > 
+> > could you try the attached patch that changes SHA_CODE_SIZE to 3 -
+> > does this reduce the latency caused by extract_entropy?
+> 
+> sorry, my box got fsck'ed. rebuilding system now. will be a day before i
+> can resume testing..
+> 
 
-> I need your help, in understanding filesystems. Kindly let me know how to
-> identify the filesystem in an image file or block device.
+By any chance did you try the hack I posted to disable the random
+driver?  I suspect that had subtle effects that hosed my machine.  I did
+not have to rebuild it from scratch, but it was close.  Things would
+break and then start working again after a reboot or two for no reason.
 
-Use file:
+Lee
 
-# file -s /dev/hda3
-/dev/hda3: ReiserFS V3.6 block size 4096 (mounted or unclean) num blocks 9500285 r5 hash
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."

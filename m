@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316595AbSEUUkx>; Tue, 21 May 2002 16:40:53 -0400
+	id <S316602AbSEUUkz>; Tue, 21 May 2002 16:40:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316605AbSEUUkM>; Tue, 21 May 2002 16:40:12 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:5018 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316602AbSEUUjv>;
-	Tue, 21 May 2002 16:39:51 -0400
-Date: Thu, 16 May 2002 23:10:58 +0000
+	id <S316598AbSEUUkS>; Tue, 21 May 2002 16:40:18 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:3226 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316599AbSEUUjN>;
+	Tue, 21 May 2002 16:39:13 -0400
+Date: Thu, 16 May 2002 23:56:59 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: "David S. Miller" <davem@redhat.com>
-Cc: jgarzik@mandrakesoft.com, andrew.grover@intel.com, mochel@osdl.org,
-        Greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: pci segments/domains
-Message-ID: <20020516231057.A116@toy.ucw.cz>
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7E45@orsmsx111.jf.intel.com> <3CE4098E.2070808@mandrakesoft.com> <20020516.183102.56532896.davem@redhat.com>
+To: Larry McVoy <lm@work.bitmover.com>, Rusty Russell <rusty@rustcorp.com.au>,
+        Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: AUDIT: copy_from_user is a deathtrap.
+Message-ID: <20020516235658.E116@toy.ucw.cz>
+In-Reply-To: <20020518200540.N8794@work.bitmover.com> <E179HtC-0001cB-00@wagner.rustcorp.com.au> <20020518210218.P8794@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
@@ -22,11 +22,18 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> We are going to end up soon with generic devices in 2.5.x
-> and we might as well end up with a "struct bus" too, which
+> > But as we all know, it is harder to remove a feature from Linux, than
+> > to get the camel book through the eye of a needle (or something).
+> 
+> It's possible that I'm too tired to have grasped this, but if I have,
+> you're all wet.  In all cases, read needs to return the number of bytes
+> successfully moved.  If you ask for N and 1/2 of the way through N you
+> are going to get a fault, and you return SEGFAULT, now how can I ever
+> find out that N/2 bytes actually made it out to me?  I want to know that.
+> If you are arguing that return N/2 is wrong, you are incorrect. 
 
-We actually had "struct bus" in the past, but we figured it is better to
-let devices have subdevices.
+Imagine "I reallyu want to know how much memory memcpy() copied!". It is
+as unreasonable as that.
 								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

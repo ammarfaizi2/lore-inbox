@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131491AbRAWQ5B>; Tue, 23 Jan 2001 11:57:01 -0500
+	id <S131382AbRAWRJQ>; Tue, 23 Jan 2001 12:09:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131513AbRAWQ4v>; Tue, 23 Jan 2001 11:56:51 -0500
-Received: from vitelus.com ([64.81.36.147]:41739 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S131491AbRAWQ4i>;
-	Tue, 23 Jan 2001 11:56:38 -0500
-Date: Tue, 23 Jan 2001 08:56:33 -0800
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Daniel Stone <daniel@kabuki.eyep.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and ipmasq modules
-Message-ID: <20010123085633.D32100@vitelus.com>
-In-Reply-To: <20010120144616.A16843@vitelus.com> <E14KsZI-0006IU-00@halfway> <20010122180158.B24670@vitelus.com> <E14Kxtc-0000KT-00@kabuki.eyep.net>
+	id <S131422AbRAWRJH>; Tue, 23 Jan 2001 12:09:07 -0500
+Received: from gateway.sequent.com ([192.148.1.10]:50136 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S131382AbRAWRI7>; Tue, 23 Jan 2001 12:08:59 -0500
+Date: Tue, 23 Jan 2001 09:08:49 -0800
+From: Mike Kravetz <mkravetz@sequent.com>
+To: Jun Nakajima <jun@sco.com>
+Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] multi-queue scheduler update
+Message-ID: <20010123090849.A959@w-mikek2.sequent.com>
+In-Reply-To: <20010118155311.B8637@w-mikek.des.sequent.com> <LYR76657-1923-2001.01.23-08.54.49--mikek#sequent.com@lyris.sequent.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <E14Kxtc-0000KT-00@kabuki.eyep.net>; from daniel@kabuki.eyep.net on Tue, Jan 23, 2001 at 06:29:34PM +1100
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <LYR76657-1923-2001.01.23-08.54.49--mikek#sequent.com@lyris.sequent.com>; from jun@sco.com on Tue, Jan 23, 2001 at 11:49:27AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 23, 2001 at 06:29:34PM +1100, Daniel Stone wrote:
-> Well, it's NAT'ing it OK. Are you sure you have a rule like the
-> following:
-> iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-> ?
-# iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-iptables: No chain/target/match by that name
+On Tue, Jan 23, 2001 at 11:49:27AM -0500, Jun Nakajima wrote:
+> I tried to run SDET (Software Development Environment Throughput), which
+> basically is a system level, throughput oriented benchmark, on the 2.4.0
+> kernel and 2.4.0 kernel with this patch. 
 
+Thanks for running this.  I too remember SDET, but I won't claim
+to be old. :)
 
-Hmm??
+We were doing some more analysis on the multi-queue scheduler and
+noticed that performance has regressed since posting preliminary
+numbers with the 2.4.0-test10 kernel.  After comparing the code,
+it looks like I have over-engineered for the worst case of lock
+contention.  This was done at the expense of the normal case.
+I'm currently working on this situation and expect to have a new
+patch out in the not too distant future.
 
-I tried iptables -A INPUT -j ACCEPT and it did not fix DCC.
+I expect the numbers will get better.
+-- 
+Mike Kravetz                                 mkravetz@sequent.com
+IBM Linux Technology Center
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268791AbUHLUv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268777AbUHLU5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268791AbUHLUv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 16:51:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268777AbUHLUuv
+	id S268777AbUHLU5m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 16:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268786AbUHLU5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 16:50:51 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:40917 "EHLO
+	Thu, 12 Aug 2004 16:57:41 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:42965 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268755AbUHLUsq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 16:48:46 -0400
-Subject: Re: New concept of ext3 disk checks
+	id S268784AbUHLU4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 16:56:42 -0400
+Subject: Re: [RFC, PATCH] sys_revoke(), just a try. (was: Re: dynamic /dev
+	security hole?)
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: otto.wyss@orpatec.ch
-Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <411BAFCA.92217D16@orpatec.ch>
-References: <411BAFCA.92217D16@orpatec.ch>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       Eric Lammerts <eric@lammerts.org>, Marc Ballarin <Ballarin.Marc@gmx.de>,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <200408121849.20227.mbuesch@freenet.de>
+References: <20040808162115.GA7597@kroah.com>
+	 <1092057570.5761.215.camel@cube> <200408111912.21469.mbuesch@freenet.de>
+	 <200408121849.20227.mbuesch@freenet.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1092339980.22362.1.camel@localhost.localdomain>
+Message-Id: <1092340279.22362.6.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 12 Aug 2004 20:46:21 +0100
+Date: Thu, 12 Aug 2004 20:51:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-08-12 at 18:58, Otto Wyss wrote:
-> The advantage of such a concept are rather obvious, desktop systems
-> don't have to use ridiculous high check interval values or disable
-> checks altogether and server systems may run forever. Also checks may be
-> done first on the written disk sectors. On an average loaded system,
-> this way malfunctioning software are detected within minutes and
-> hardware possibly within days, a rather high improvement to the current
-> detection time of sometimes months.
+On Iau, 2004-08-12 at 17:49, Michael Buesch wrote:
+> +static ssize_t revoke_read(struct file *filp,
+> +			   char *buf,
+> +			   size_t count,
+> +			   loff_t *ppos)
+> +{
+> +	return 0;
+> +}
 
-I think it would indeed be a good project. If anyone has patches please
-send them along to the linux-fsdevel list
+-EIO I think but I'm not sure I remember the BSD behaviour in full
+
+> +static int filp_revoke(struct file *filp, struct inode *inode)
+> +{
+
+First problem here is that the handle might still be in use
+for mmap, so you'd need to undo mmaps on it. A second is that 
+while you can ->flush() here you can't really close it until the
+file usage count hits zero. 
+
+You are btw tackling a really really hard problem and its more likely
+the way to do this is to add revoke() methods to drivers and do it at
+the driver level - as the tty layer does with vhangup.
 

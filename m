@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129284AbRBSXMj>; Mon, 19 Feb 2001 18:12:39 -0500
+	id <S129027AbRBSXcf>; Mon, 19 Feb 2001 18:32:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129285AbRBSXMa>; Mon, 19 Feb 2001 18:12:30 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:40560 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129284AbRBSXMS>; Mon, 19 Feb 2001 18:12:18 -0500
-Date: Mon, 19 Feb 2001 18:12:12 -0500 (EST)
-From: Ben LaHaise <bcrl@redhat.com>
-To: <linux-kernel@vger.kernel.org>
-cc: <alan@redhat.com>
-Subject: [PATCH] make nfsroot accept server addresses from BOOTP root
-Message-ID: <Pine.LNX.4.30.0102191809350.27085-100000@today.toronto.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129059AbRBSXcZ>; Mon, 19 Feb 2001 18:32:25 -0500
+Received: from ganymede.isdn.uiuc.edu ([192.17.19.210]:17425 "EHLO
+	ganymede.isdn.uiuc.edu") by vger.kernel.org with ESMTP
+	id <S129027AbRBSXcO>; Mon, 19 Feb 2001 18:32:14 -0500
+Date: Mon, 19 Feb 2001 17:31:53 -0600
+From: Bill Wendling <wendling@ganymede.isdn.uiuc.edu>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Pozsar Balazs <pozsy@sch.bme.hu>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [IDE] meaningless #ifndef?
+Message-ID: <20010219173153.B12609@ganymede.isdn.uiuc.edu>
+In-Reply-To: <Pine.GSO.4.30.0102192252130.7963-100000@balu> <Pine.LNX.4.10.10102191421140.4861-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.10.10102191421140.4861-100000@master.linux-ide.org>; from andre@linux-ide.org on Mon, Feb 19, 2001 at 02:31:55PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Also sprach Andre Hedrick:
+} On Mon, 19 Feb 2001, Pozsar Balazs wrote:
+} 
+} > from drivers/ide/ide-features.c:
+} > 
+} > /*
+} >  *  All hosts that use the 80c ribbon mus use!
+} >  */
+} > byte eighty_ninty_three (ide_drive_t *drive)
+} > {
+} >         return ((byte) ((HWIF(drive)->udma_four) &&
+} > #ifndef CONFIG_IDEDMA_IVB
+} >                         (drive->id->hw_config & 0x4000) &&
+} > #endif /* CONFIG_IDEDMA_IVB */
+} >                         (drive->id->hw_config & 0x6000)) ? 1 : 0);
+} > }
+} > 
+} > If i see well, then this is always same whether CONFIG_IDEDMA_IVB is
+} > defined or not.
+} > What's the clue?
+} 
+[snip...]
 
-Here's a handy little patch that makes the kernel parse out the ip
-address of the nfs server from the bootp root path.  Otherwise it's
-impossible to boot the kernel without command line options on diskless
-workstations (I hate RPL).
+The use of the ternary operator is superfluous, though...and makes the
+code look ugly IMNSHO :).
 
-		-ben
-
-diff -ur v2.4.1-ac18/fs/nfs/nfsroot.c work/fs/nfs/nfsroot.c
---- v2.4.1-ac18/fs/nfs/nfsroot.c	Mon Sep 25 16:13:53 2000
-+++ work/fs/nfs/nfsroot.c	Mon Feb 19 18:05:24 2001
-@@ -224,8 +224,7 @@
- 		}
- 	}
- 	if (name[0] && strcmp(name, "default")) {
--		strncpy(buf, name, NFS_MAXPATHLEN-1);
--		buf[NFS_MAXPATHLEN-1] = 0;
-+		root_nfs_parse_addr(name);
- 	}
- }
-
-
+-- 
+|| Bill Wendling			wendling@ganymede.isdn.uiuc.edu

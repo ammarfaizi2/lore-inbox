@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290772AbSAaARh>; Wed, 30 Jan 2002 19:17:37 -0500
+	id <S290760AbSAaAN0>; Wed, 30 Jan 2002 19:13:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290769AbSAaARX>; Wed, 30 Jan 2002 19:17:23 -0500
-Received: from jubjub.wizard.com ([209.170.216.9]:3590 "EHLO jubjub.wizard.com")
-	by vger.kernel.org with ESMTP id <S290768AbSAaAQM>;
-	Wed, 30 Jan 2002 19:16:12 -0500
-Date: Wed, 30 Jan 2002 16:16:09 -0800
-From: A Guy Called Tyketto <tyketto@wizard.com>
-To: kbuild-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: make xconfig whinges about Configure.help
-Message-ID: <20020131001609.GA31911@wizard.com>
+	id <S290759AbSAaANP>; Wed, 30 Jan 2002 19:13:15 -0500
+Received: from ns.suse.de ([213.95.15.193]:32004 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290757AbSAaANF>;
+	Wed, 30 Jan 2002 19:13:05 -0500
+Date: Thu, 31 Jan 2002 01:13:02 +0100
+From: Dave Jones <davej@suse.de>
+To: Erik Andersen <andersen@codepoet.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <20020131011302.B31313@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Erik Andersen <andersen@codepoet.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020130211422.GA22705@codepoet.org> <E16W3no-0000Jv-00@the-village.bc.nu> <20020130234847.GA25577@codepoet.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux/2.5.2 (i686)
-X-uptime: 4:07pm  up 11 days, 11:01,  2 users,  load average: 0.12, 0.09, 0.12
-X-RSA-KeyID: 0xE9DF4D85
-X-DSA-KeyID: 0xE319F0BF
-X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020130234847.GA25577@codepoet.org>; from andersen@codepoet.org on Wed, Jan 30, 2002 at 04:48:48PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 30, 2002 at 04:48:48PM -0700, Erik Andersen wrote:
+ > > assumptions. See the NCR5380 stuff I've now all done (in 2.4.18pre) - dont 
+ > > use 2.5.* NCR5380 it'll probably corrupt your system if it doesn't just die
+ > > or hang - Linus apparently merged untested stuff to the old broken driver.
+ > 
+ > This is in the latest -ac kernels?
 
-        Just an FYI.. when one runs 'make xconfig', and goes to request help 
-on a certain option given, a message comes up:
+ Even better, it's in 2.4 mainline.
 
-                                RTFM
-
-No Help available - unable to open file Documentation/Configure.help. This 
-file should have come with your kernel.
-
-        Vanilla 2.5.3 and the patch for it, removes the file. Is this being 
-worked on? make oldconfig will work for now, but just a heads up.
-
-                                                        BL.
 -- 
-Brad Littlejohn                         | Email:        tyketto@wizard.com
-Unix Systems Administrator,             |           tyketto@ozemail.com.au
-Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
-  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

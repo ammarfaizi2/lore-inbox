@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264920AbTBTKuP>; Thu, 20 Feb 2003 05:50:15 -0500
+	id <S265169AbTBTKxR>; Thu, 20 Feb 2003 05:53:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265140AbTBTKuO>; Thu, 20 Feb 2003 05:50:14 -0500
-Received: from penguin-ext.wise.edt.ericsson.se ([193.180.251.47]:47593 "EHLO
-	penguin.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
-	id <S264920AbTBTKuM>; Thu, 20 Feb 2003 05:50:12 -0500
-X-Sybari-Trust: da073815 9ffcebbb 7a95d2f4 00000138
-From: Miklos.Szeredi@eth.ericsson.se (Miklos Szeredi)
-Date: Thu, 20 Feb 2003 11:59:54 +0100 (MET)
-Message-Id: <200302201059.h1KAxsg11519@duna48.eth.ericsson.se>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       avf-fuse-dev@lists.sourceforge.net
-Subject: [ANNOUNCE] Filesystem in Userspace (FUSE) 1.0 stable release
+	id <S265168AbTBTKxR>; Thu, 20 Feb 2003 05:53:17 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:27849 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP
+	id <S265140AbTBTKxO>; Thu, 20 Feb 2003 05:53:14 -0500
+Message-ID: <008601c2d8cf$a60e4c60$760010ac@edumazet>
+From: "dada1" <dada1@cosmosbay.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: "Andi Kleen" <ak@suse.de>, "Simon Kirby" <sim@netnation.com>,
+       <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>,
+       <davem@redhat.com>
+References: <20030219174757.GA5373@netnation.com.suse.lists.linux.kernel> <p73r8a3xub5.fsf@amdsimf.suse.de> <20030220092043.GA25527@netnation.com> <20030220093422.GA16369@wotan.suse.de> <006301c2d8c8$921c1d10$760010ac@edumazet> <20030220105435.GD10374@wotan.suse.de>
+Subject: Re: Longstanding networking / SMP issue? (duplextest)
+Date: Thu, 20 Feb 2003 12:03:06 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FUSE lets you write your very own filesystem, as an ordinary program.
-It has a simple yet comprehensive interface, and provides an easy way
-to create a virtual filesystem for just about any application.
 
-Example applications include: automatic CD changer fs, remote
-filesystems for handhelds, filesystem view for databases, etc...
 
-FUSE currently works on all 2.4.x kernels (up to 2.4.20 and possibly
-later).  Installation is simple, no kernel patching or recompilation
-is needed.  Documentation for the interface and example programs are
-provided in the package.
+> > Yes IP is best-effort. But this argument cant explain why IP on linux
+works
+> > better if we disable SMP on linux...
+>
+> It has nothing to do with SMP. The lazy locking dropping packets can
+happen
+> on UP kernels too in extreme cases. Also with preempt.
+>
 
-You can download the latest version from:
+Well, I too noticed that binding NIC IRQS one one CPU
 
-  http://sourceforge.net/projects/avf
+echo 1 > /proc/irq/18/smp_affinity
 
-Miklos
+helps a lot in normal cases.
+
+Some of us want SMP machine because application needs a lot of CPU, but we
+also need to not drop frames to save the limited network bandwith.
+
+Thanks
+

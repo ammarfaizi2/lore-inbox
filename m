@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293403AbSCKA3R>; Sun, 10 Mar 2002 19:29:17 -0500
+	id <S293410AbSCKAjT>; Sun, 10 Mar 2002 19:39:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293407AbSCKA3H>; Sun, 10 Mar 2002 19:29:07 -0500
-Received: from mons.uio.no ([129.240.130.14]:40359 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S293403AbSCKA2u>;
-	Sun, 10 Mar 2002 19:28:50 -0500
-MIME-Version: 1.0
+	id <S293411AbSCKAjJ>; Sun, 10 Mar 2002 19:39:09 -0500
+Received: from taifun.devconsult.de ([212.15.193.29]:2579 "EHLO
+	taifun.devconsult.de") by vger.kernel.org with ESMTP
+	id <S293410AbSCKAiz>; Sun, 10 Mar 2002 19:38:55 -0500
+Date: Mon, 11 Mar 2002 01:38:53 +0100
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: Robert Love <rml@tech9.net>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] syscall interface for cpu affinity
+Message-ID: <20020311013853.A1545@devcon.net>
+Mail-Followup-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+	Robert Love <rml@tech9.net>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <1015784104.1261.8.camel@phantasy>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15499.64058.442959.241470@charged.uio.no>
-Date: Mon, 11 Mar 2002 01:28:42 +0100
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-In-Reply-To: <200203110018.BAA11921@webserver.ithnet.com>
-In-Reply-To: <shswuwkujx5.fsf@charged.uio.no>
-	<200203110018.BAA11921@webserver.ithnet.com>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1015784104.1261.8.camel@phantasy>; from rml@tech9.net on Sun, Mar 10, 2002 at 01:15:03PM -0500
+Organization: dev/consulting GmbH
+X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Stephan von Krawczynski <skraw@ithnet.com> writes:
+On Sun, Mar 10, 2002 at 01:15:03PM -0500, Robert Love wrote:
+> 
+> This patch implements
+> 
+>         int sched_set_affinity(pid_t pid, unsigned int len,
+>                                unsigned long *new_mask_ptr);
+> 
+>         int sched_get_affinity(pid_t pid, unsigned int *user_len_ptr,
+>                                unsigned long *user_mask_ptr)
+> 
+> which set and get the cpu affinity (task->cpus_allowed) for a task,
+> using the set_cpus_allowed function in Ingo's scheduler.  The functions
+> properly support changes to cpus_allowed, implement security, and are
+> well-tested.
 
-     > this is a weak try of an explanation. All involved fs types are
-     > reiserfs. The problem occurs reproducably only after (and
+Setting the affinity of a whole process group also makes sense IMHO.
+Therefore I think an interface more like the setpriority syscall
+for sched_set_affinity (with two parameters which/who instead of a
+single PID) would be more flexible, eg.
 
-Which ReiserFS format? Is it version 3.5?
+    int sched_set_affinity(int which, int who, unsigned int len,
+                           unsigned long *new_mask_ptr);
 
-   'cat /proc/fs/reiserfs/device/version'
+with who one of {PRIO_PROCESS,PRIO_PGRP,PRIO_USER} and which according
+to the value of who.
 
-     > including)
-     > 2.2.20 and above and _not_ in 2.2.19. There must be some
-     > problem.
 
-The client code in 2.2.20 is supposed to be the same as in 2.4.x. The
-only thing I can think might be missing is the fix to cope with broken
-servers that reuse filehandles (this violates the RFCs). Reiserfs 3.5
-+ knfsd is one such broken combination. Another broken server is
-unfsd...
+Getting the mask of a group of processes doesn't make sense though
+(what if they differ?), so the current interface of sched_get_affinity
+is just fine IMHO.
 
-     > Though I do not know whether the problem is on the client side,
-     > or simply produced by this client side and effectively located
-     > on 2.4.18 server, I really can't tell. But giving me something
-     > to try might clear the picture.
-                                                                      
-You might try keeping a file open on /backup while you play with /mnt...
-
-Cheers,
-   Trond
+Andreas
+-- 
+       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
+     ---------------------------------------------------------
+         +49 521 1365800 - af@devcon.net - www.devcon.net

@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262061AbUBWXMY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 18:12:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbUBWXMX
+	id S262110AbUBWXLU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 18:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbUBWXLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 18:12:23 -0500
-Received: from mail.convergence.de ([212.84.236.4]:23427 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S262061AbUBWXLk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 18:11:40 -0500
-Message-ID: <403A889F.6080406@convergence.de>
-Date: Tue, 24 Feb 2004 00:11:27 +0100
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Michael Hunold <hunold@linuxtv.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Compilation fix for latest DVB updates (was Re: x86_64 build failure)
-References: <20040223143728.77a76d84.akpm@osdl.org>
-In-Reply-To: <20040223143728.77a76d84.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------080509080002010105020804"
+	Mon, 23 Feb 2004 18:11:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30902 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262112AbUBWXJ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 18:09:26 -0500
+Date: Mon, 23 Feb 2004 15:11:11 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Michael Hunold <hunold@convergence.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/9] tda1004x DVB frontend update
+Message-Id: <20040223151111.441c0d6d.akpm@osdl.org>
+In-Reply-To: <403A841E.9090700@convergence.de>
+References: <10775702831806@convergence.de>
+	<10775702843054@convergence.de>
+	<20040223140943.7e58eb5c.akpm@osdl.org>
+	<403A841E.9090700@convergence.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080509080002010105020804
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Michael Hunold <hunold@convergence.de> wrote:
+>
+> Changing the i2c subsystem would require changes in all frontend drivers 
+> + plus in the dvb drivers exporting the i2c facilities.
+> 
+> Is such a big change acceptable for 2.6 if it fixes these horrible hacks 
+> or is this 2.7 stuff?
 
-On 02/23/04 23:37, Andrew Morton wrote:
+Depends on your confidence level, Michael.  We have ways of getting such
+things tested before pushing them into the mainline kernel and we wouldn't
+do that until you're confident in it.
 
-> drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c:32:28: dvb_usb_compat.h: No such file or directory
+And it's not really the end of the world if DVB is a bit wobbly for a while
+(sorry ;)).
 
-Rats. My latest test kernel configuration had USB disabled for some 
-unknown reason, so the dvb-ttusb-budget and dvb-ttusb-dec drivers were 
-not compiled at all.
+So yeah, I'd be inclined to push ahead and do the right thing here.
 
-I attached a quick fix: simply remove the offending line of code, it's 
-from our 2.4 USB compatibility layer.
-
-I CCed LKML so others get to know this patch, too.
-
-CU
-Michael.
-
---------------080509080002010105020804
-Content-Type: text/plain;
- name="dvb-ttusb-budget-compile-fix.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dvb-ttusb-budget-compile-fix.diff"
-
-diff -ura linux-2.6.3/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c linux-2.6.3-hf/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c
---- linux-2.6.3/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c	2004-02-24 00:06:29.000000000 +0100
-+++ linux-2.6.3-hf/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c	2004-02-24 00:07:26.000000000 +0100
-@@ -29,7 +29,6 @@
- #include <linux/dvb/dmx.h>
- #include <linux/pci.h>
- 
--#include "dvb_usb_compat.h"
- #include "dvb_functions.h"
- 
- /*
-
---------------080509080002010105020804--

@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281234AbRKYXz6>; Sun, 25 Nov 2001 18:55:58 -0500
+	id <S281245AbRKZAA2>; Sun, 25 Nov 2001 19:00:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281233AbRKYXzt>; Sun, 25 Nov 2001 18:55:49 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:49911
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S281234AbRKYXzi>; Sun, 25 Nov 2001 18:55:38 -0500
-Date: Sun, 25 Nov 2001 15:55:31 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Mike Castle <dalgoda@ix.netcom.com>, linux-kernel@vger.kernel.org,
-        Michael Zimmermann <zim@vegaa.de>, "H. Peter Anvin" <hpa@zytor.com>,
-        Andreas Dilger <adilger@turbolabs.com>
-Subject: Re: Moving ext3 journal file
-Message-ID: <20011125155531.E30336@mikef-linux.matchmail.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org, Michael Zimmermann <zim@vegaa.de>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Andreas Dilger <adilger@turbolabs.com>
-In-Reply-To: <20011123155901.C1308@lynx.no> <9tmocg$jfn$1@cesium.transmeta.com> <20011123174120.Q1308@lynx.no> <9tmr83$jo2$1@cesium.transmeta.com> <20011123212557.U1308@lynx.no> <3BFF2AAE.7000000@zytor.com> <3BFF8692.7060900@vegaa.de> <20011125023314.B30336@mikef-linux.matchmail.com> <20011125031452.B27959@thune.mrc-home.com> <20011125145537.C30336@mikef-linux.matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011125145537.C30336@mikef-linux.matchmail.com>
-User-Agent: Mutt/1.3.23i
+	id <S281249AbRKZAAS>; Sun, 25 Nov 2001 19:00:18 -0500
+Received: from [67.36.120.14] ([67.36.120.14]:23943 "HELO tabris.net")
+	by vger.kernel.org with SMTP id <S281245AbRKZAAO>;
+	Sun, 25 Nov 2001 19:00:14 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
+Organization: Dome-S-Isle Data
+To: <gonzalo.ab@navegalia.com>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel Bug
+Date: Sun, 25 Nov 2001 18:59:53 -0500
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <8508783beb.83beb85087@navegalia.com>
+In-Reply-To: <8508783beb.83beb85087@navegalia.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011125235954.7E46BFB80D@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 25, 2001 at 02:55:37PM -0800, Mike Fedyk wrote:
-> On Sun, Nov 25, 2001 at 03:14:53AM -0800, Mike Castle wrote:
-> > On Sun, Nov 25, 2001 at 02:33:14AM -0800, Mike Fedyk wrote:
-> > > The newest e2fsck (1.25) will hide the file for you, just like it would be
-> > > if the conversion was done on an unmounted FS.
-> > 
-> > 
-> > Actually, to re-iterate a recent point:  No, it won't.
-> > 
-> > The next version of e2fsck should.  But 1.25 does NOT do that.
-> > 
-> 
-> Ok...
-> 
-> Strange that aDilger has been one to say that 1.25 does hide the file...
-> 
-> Since I don't know myself, I'll let others say for sure.
-> 
+On Sunday 25 November 2001 13:03, gonzalo.ab@navegalia.com wrote:
+> See the attached file about a bug in the 2.4.14 kernel in loop.c file.
+>
+This has been known since the release of Linus 2.4.14.
+>
 
-Yep, just finished reading the thread.
+-- 
+tabris
 
-You may disregard...
+   The end is the beginning and yet you go on
 
-MF
+                                                          Samuel Beckett

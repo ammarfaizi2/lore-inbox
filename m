@@ -1,76 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263513AbTLIXlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 18:41:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263500AbTLIXlP
+	id S263345AbTLIXrl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 18:47:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263376AbTLIXrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 18:41:15 -0500
-Received: from email-out1.iomega.com ([147.178.1.82]:5349 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S263497AbTLIXlJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 18:41:09 -0500
-Subject: Re: partially encrypted filesystem
-From: Pat LaVarre <p.lavarre@ieee.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Phillip Lougher <phillip@lougher.demon.co.uk>,
-       Matthew Wilcox <willy@debian.org>, Erez Zadok <ezk@cs.sunysb.edu>,
-       =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Kallol Biswas <kbiswas@neoscale.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <1070883425.31993.80.camel@hades.cambridge.redhat.com>
-References: <20031205191447.GC29469@parcelfarce.linux.theplanet.co.uk>
-	 <200312051947.hB5Jlupp030878@agora.fsl.cs.sunysb.edu>
-	 <20031205202838.GD29469@parcelfarce.linux.theplanet.co.uk>
-	 <3FD127D4.9030007@lougher.demon.co.uk>
-	 <1070883425.31993.80.camel@hades.cambridge.redhat.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1071013254.24032.13.camel@patibmrh9>
+	Tue, 9 Dec 2003 18:47:41 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:50445 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S263345AbTLIXrk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 18:47:40 -0500
+Date: Wed, 10 Dec 2003 10:46:55 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Joe Thornber <thornber@sistina.com>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch 1/4] fs.h: b_journal_head
+Message-ID: <20031209234655.GF783@frodo>
+References: <20031209115806.GA472@reti> <20031209122418.GC472@reti>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 09 Dec 2003 16:40:54 -0700
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Dec 2003 23:41:08.0580 (UTC) FILETIME=[EB7A8240:01C3BEAD]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031209122418.GC472@reti>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Even if you were going to admit to having a block size of 64KiB to the
-> layers above you,
+Hi Joe,
 
-Within pdt x05 dvd/ cd, as contrasted with pdt x00 hdd/ flash, since
-1999 we have an ansi t10 paper standard for a device to report bytes per
-write block inequal to bytes per read block i.e. the 1999 mmc x0020
-RandomWritable "feature" that describes a disc in a drive.
+On Tue, Dec 09, 2003 at 12:24:18PM +0000, Joe Thornber wrote:
+> Add a new member to struct buffer_head called b_journal_head.  This is
+> for jbd to use, rather than have it peeking at b_private for in flight
+> ios.
+> ...
+> --- diff/include/linux/fs.h	2003-12-09 10:25:27.000000000 +0000
+> +++ source/include/linux/fs.h	2003-12-09 10:32:41.000000000 +0000
+> @@ -265,7 +265,7 @@
+>  	struct page *b_page;		/* the page this bh is mapped to */
+>  	void (*b_end_io)(struct buffer_head *bh, int uptodate); /* I/O completion */
+>   	void *b_private;		/* reserved for b_end_io */
+> -
+> + 	void *b_journal_head;		/* ext3 journal_heads */
+>  	unsigned long b_rsector;	/* Real buffer location on disk */
+>  	wait_queue_head_t b_wait;
+>  
 
-I haven't yet seen an fs run in Linux that bothers to fetch this plug 'n
-play data, hence my op x46 GPCMD_GET_CONFIGURATION patches of
-linux-scsi.
+Could you explain a bit more about when b_private should and
+shouldn't be used with this change?  We make use of b_private
+within XFS, I'm just wondering if we will be stepping on each
+others toes here?  And if XFS does need to use b_journal_head
+instead of b_private with DM, maybe a more generic name like
+"b_fsprivate" or something would be clearer?
 
-> you just can't _do_ atomic replacement of blocks,
-> which is required for normal file systems to operate correctly.
+thanks.
 
-Google tells me cd-rw and dvd+rw likewise do not support random writing
-without load balancing e.g.
-
-http://fy.chalmers.se/~appro/linux/DVD+RW/
-http://fy.chalmers.se/~appro/linux/DVD+RW/#udf
-
-"... As you might know DVD+RW media can sustain only around 1000
-overwrites. The thing about fully fledged file systems is that every
-read [or tight bunch of 'em] is accompanied by corresponding i-node
-update or in other words a write! ..."
-
-> These characteristics of flash have often been dealt with by
-> implementing a 'translation layer' -- a kind of pseudo-filesystem --
-> which pretends to be a block device with the normal 512-byte
-> atomic-overwrite behaviour. You then use a traditional file system on
-> top of that emulated block device. 
-
-Ick.
-
-Naive read-modify-write to raise bytes-per-write-block passed-thru drops
-thruput like 7X in the benchmarks I've seen.
-
-Pat LaVarre
-
-
+-- 
+Nathan

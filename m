@@ -1,64 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318757AbSHGL7o>; Wed, 7 Aug 2002 07:59:44 -0400
+	id <S318565AbSHGL5l>; Wed, 7 Aug 2002 07:57:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318758AbSHGL7o>; Wed, 7 Aug 2002 07:59:44 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:41465 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318757AbSHGL7n>; Wed, 7 Aug 2002 07:59:43 -0400
-Subject: Re: kernel thread exit race
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-In-Reply-To: <15697.1225.84051.277799@laputa.namesys.com>
-References: <15696.59115.395706.489896@laputa.namesys.com>
-	<1028719111.18156.227.camel@irongate.swansea.linux.org.uk>
-	<15696.61666.452460.264138@laputa.namesys.com>
-	<1028722283.18156.274.camel@irongate.swansea.linux.org.uk> 
-	<15697.1225.84051.277799@laputa.namesys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 07 Aug 2002 14:22:46 +0100
-Message-Id: <1028726566.18478.291.camel@irongate.swansea.linux.org.uk>
+	id <S318588AbSHGL5k>; Wed, 7 Aug 2002 07:57:40 -0400
+Received: from fw.2d3d.co.za ([66.8.28.230]:16055 "HELO mail.2d3d.co.za")
+	by vger.kernel.org with SMTP id <S318565AbSHGL5i>;
+	Wed, 7 Aug 2002 07:57:38 -0400
+Date: Wed, 7 Aug 2002 14:05:06 +0200
+From: Abraham vd Merwe <abraham@2d3d.co.za>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Dax Kelson <dax@gurulabs.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: ethtool documentation
+Message-ID: <20020807140506.A12417@crystal.2d3d.co.za>
+Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
+	Dax Kelson <dax@gurulabs.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0208062318350.4696-100000@mooru.gurulabs.com> <Pine.LNX.3.95.1020807070841.28061A-100000@chaos.analogic.com>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OgqxwSJOaUobr8KG"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.95.1020807070841.28061A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Wed, Aug 07, 2002 at 07:18:17 -0400
+Organization: 2d3D, Inc.
+X-Operating-System: Debian GNU/Linux crystal 2.4.17-pre4 i686
+X-GPG-Public-Key: http://oasis.blio.net/pgpkeys/keys/2d3d.gpg
+X-Uptime: 1:55pm  up 7 days, 19:12, 10 users,  load average: 0.02, 0.07, 0.03
+X-Edited-With-Muttmode: muttmail.sl - 2001-06-06
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-07 at 12:30, Nikita Danilov wrote:
-> Let me clarify this. Suppose there is some obscure architecture that
-> maintains in spinlocks some additional data for debugging. Then,
-> 
-> complete_and_exit()->complete()->spin_unlock_irqrestore() 
-> 
-> "wakes up" thread on another CPU and proceeds to access spin-lock data
-> (to check/update debugging information, for example), but by this time
-> woken up thread manages to unload module and to un-map page containing
-> spin-lock data.
 
-At the point complete() sets x->done to indicate completion occurred it
-holds the lock, when it drops the lock then the wait_for_completion can
-return, and while it may touch the data again, the complete() call will
-not.
+--OgqxwSJOaUobr8KG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-So in your unload you have got
+Hi Richard!
 
-	complete_and_exit()
+This whole argument is useless anyway. The ethtool API already allows
+userland apps to change the eeprom, so you can already change the MAC
+address (which I also believe is the way it should be, because that allows
+manufacturers to program the MAC address without requiring additional
+drivers).
 
-On return from this we know the thread won't touch the lock data again
-and we know the thread if executing is not executing in module space
+People don't like to break their hardware for the fun of it. You don't see
+people reprogramming their memory eeproms using the i2c code, but the
+functionality is there. I think ripping out all kinds of functionality just
+because there is a slight chance of some stupid person trashing his/her
+hardware is unproductive and contrary to the spirit of open and free softwa=
+re.
+
+> > > If you let a user write to this area, you will allow the user
+> > > to destroy the connectivity on a LAN.
+> > >=20
+> > > Because of this, there is no such thing as 'unused eeprom space' in
+> > > the Ethernet Controllers. Be careful about putting this weapon in
+> > > the hands of the 'public'. All you need is for one Linux Machine
+> > > on a LAN to end up with the same IEEE Station Address as another
+> > > on that LAN and connectivity to everything on that segment will
+> > > stop. You do this once at an important site and Linux will get a
+> > > very black eye.
+> >=20
+> > Dick, this "weapon" has been the in the hands of admins and evil-doers =
+for=20
+> > YEARS!
+> >=20
+> > It is called /sbin/ifconfig
+> >=20
+> > With this evil command nearly any NIC can masquerade as any one of
+> > ~281474976710656 possible IEEE Station Addresses. This weapon of
+> > destruction has seen wide spread proliferation across most Unix varient=
+s.
+> > Human sacrifice, dogs and cats living together, mass hysteria!
+> >=20
+> > Err, no wait.
+> >=20
+> > The sky is not falling, you protest too much.
+> >=20
+> > Dax Kelson
+> >=20
+>=20
+> That capability is not permanent. If you let users write to the
+> SEEPROM, permanently changing the IEEE Station Address, you have
+> let users permanently break their network boards. I do protest
+> when this capability is in the kernel.
+>=20
+> Anybody, who knows how can, write a driver that can destroy their
+> disk drives, their modems, their audio boards, their screen-cards,
+> their motherboards, ...the list goes on..., because EEPROMS are
+> being used now days. But, you don't put that capability in the
+> kernel as a default.
+>=20
+> If you do, you get complaints from those who have had the misfortune of
+> being interrogated by lawyers.
+>=20
+> Also, if you want to destroy Ethernet, mucking with the MAC address
+> is an easy way to do it.
+
+--=20
+
+Regards
+ Abraham
+
+Luck can't last a lifetime, unless you die young.
+		-- Russell Banks
+
+__________________________________________________________
+ Abraham vd Merwe - 2d3D, Inc.
+
+ Device Driver Development, Outsourcing, Embedded Systems
+
+  Cell: +27 82 565 4451         Snailmail:
+   Tel: +27 21 761 7549            Block C, Aintree Park
+   Fax: +27 21 761 7648            Doncaster Road
+ Email: abraham@2d3d.co.za         Kenilworth, 7700
+  Http: http://www.2d3d.com        South Africa
 
 
-And
-	wait_for_completion
+--OgqxwSJOaUobr8KG
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-in the actual module unload path means the complete has finished (but
-not neccessarily the exit) so the thread isnt running module code any
-more and won't touch the lock again
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE9UQzyzNXhP0RCUqMRAkA/AJ0XeMXP6yceSc3eTqDLxk8thd6XnwCdHwKJ
+vg9JEsDG5ghnj3mGTd6OlgE=
+=LVm1
+-----END PGP SIGNATURE-----
 
-This does assume that spin_unlock in the arch code doesn't scribble on
-things after it unlocks. So if its doing debugging or pre-emption magic
-it must do that before it finally drops the lock proper. Thats what I'd
-expect anyway since it has to protect its own internal data too
-
+--OgqxwSJOaUobr8KG--

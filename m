@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261354AbSLPVSu>; Mon, 16 Dec 2002 16:18:50 -0500
+	id <S261376AbSLPVUQ>; Mon, 16 Dec 2002 16:20:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261356AbSLPVSu>; Mon, 16 Dec 2002 16:18:50 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:55567 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S261354AbSLPVSt>;
-	Mon, 16 Dec 2002 16:18:49 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to do -nostdinc? 
-In-reply-to: Your message of "Mon, 16 Dec 2002 19:29:19 BST."
-             <20021216182919.GA1607@mars.ravnborg.org> 
+	id <S261416AbSLPVUQ>; Mon, 16 Dec 2002 16:20:16 -0500
+Received: from 216-42-72-142.ppp.netsville.net ([216.42.72.142]:62347 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id <S261376AbSLPVUP>;
+	Mon, 16 Dec 2002 16:20:15 -0500
+Subject: Re: ext3 updates for 2.4.20
+From: Chris Mason <mason@suse.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       "ext3-users@redhat.com" <ext3-users@redhat.com>
+In-Reply-To: <3DFCE5E7.A8BE82B4@digeo.com>
+References: <3DFCE5E7.A8BE82B4@digeo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 16 Dec 2002 16:28:12 -0500
+Message-Id: <1040074092.17448.80.camel@tiny>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 17 Dec 2002 08:26:33 +1100
-Message-ID: <20218.1040073993@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Dec 2002 19:29:19 +0100, 
-Sam Ravnborg <sam@ravnborg.org> wrote:
->On Sun, Dec 15, 2002 at 11:06:41PM +1100, Keith Owens wrote:
->> There are two ways of setting the -nostdinc flag in the kernel Makefile :-
->> 
->> (1) -nostdinc $(shell $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/-I \1include/gp')
->> (2) -nostdinc -iwithprefix include
->> 
->> The first format breaks with non-English locales, however the fix is trivial.
->> 
->> (1a) -nostdinc $(shell LANG=C $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/-I \1include/gp')
->> 
->Hi Keith.
->
->Based on the comments received, solution (2) seems to be OK.
->Do you agree?
+Hmmm, this took me a while to find the first time around in the
+commit_super code, and I almost forgot about it.
 
-Does gcc still mark -iwithprefix as deprecated?  If it does then do not
-rely on it and use (1a).  If gcc will support -iwithprefix then use (2).
+Looking at the loop in sync_supers()
+
+       while (sb != sb_entry(&super_blocks))
+                if (sb->s_dirt) {
+                        sb->s_count++;
+                        spin_unlock(&sb_lock);
+
+Right here, we can race against kill_super, which means an unmount can
+make the FS go away completely.  The only thing that saves the
+write_super() call is a check for s->s_root != NULL.  Since we don't
+check that before calling sync_fs, it should race against an unmount.
+
+                        down_read(&sb->s_umount);
+                        write_super(sb);
+                        if (wait && sb->s_op && sb->s_op->sync_fs)
+                                sb->s_op->sync_fs(sb);
+                        drop_super(sb);
+                        goto restart;
+                } else
+
+Any reason ext3 can't have a check for s_root in there?
+
+-chris
+
 

@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314682AbSEYP0t>; Sat, 25 May 2002 11:26:49 -0400
+	id <S314675AbSEYPdZ>; Sat, 25 May 2002 11:33:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314675AbSEYP0s>; Sat, 25 May 2002 11:26:48 -0400
-Received: from mail.actcom.co.il ([192.114.47.13]:58841 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S314682AbSEYP0r>; Sat, 25 May 2002 11:26:47 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Itai Nahshon <nahshon@actcom.co.il>
-Reply-To: nahshon@actcom.co.il
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: USB Keyboard problem
-Date: Sat, 25 May 2002 18:26:42 +0300
-X-Mailer: KMail [version 1.4]
-Cc: linux-kernel@vger.kernel.org
+	id <S314686AbSEYPdY>; Sat, 25 May 2002 11:33:24 -0400
+Received: from smtp08.wxs.nl ([195.121.6.40]:5354 "EHLO smtp08.wxs.nl")
+	by vger.kernel.org with ESMTP id <S314675AbSEYPdY>;
+	Sat, 25 May 2002 11:33:24 -0400
+Message-ID: <3CEFAB05.62937A75@wxs.nl>
+Date: Sat, 25 May 2002 17:17:25 +0200
+From: Gert Vervoort <Gert.Vervoort@wxs.nl>
+Organization: Planet Internet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.5.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200205251826.42386.nahshon@actcom.co.il>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.18 ide-scsi compile fix
+In-Reply-To: <3CEF8815.C7C13D39@wxs.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just bought an "HP Multimedia Keyboard Hub" (USB).
-Using with RedHat 7.2, kernels 2.4.9-81 and also
-various 2.4.19-pre.
+> --- ide-scsi.c.1        Sat May 25 14:21:28 2002
+> +++ ide-scsi.c  Sat May 25 14:21:37 2002
+> @@ -804,7 +804,7 @@
+>  };
+> 
+> 
+> -static int __init idescsi_init(void)
+> +int __init idescsi_init(void)
+>  {
+>         int ret;
+>         ret = ata_driver_module(&idescsi_driver);
 
-Immediately after boot the keyboard does not work.
-I see some events from the knob and also from
-some extra buttons but not from the keyboard itself
-(some produce "unknown scancode" errors. That's
-a different topic). The keyboard leds turn on and off
-responding to pressing caps-lock etc on the PS/2
-keyboard.
+This does not boot, as idescsi_init seems is also called by the scsi subsystem.
+The following patch actually boots on my system:
 
-After "rmmod hid" and "modprobe hid" The usb
-keyboard works just fine - until I disconnect/reconnect
-it or until the next reboot.
-
-The hub function on they keyboard works OK.
-
-The keyboard works with other OS, or with the bios
-(after I enabled "USB Legasy Support").
-
-Any suggestions/hints?
-
-I'm also looking for programs o test the HID event
-interface (evtest) as suggested in the docs, It is not in
-the suggested web page.
-
-Thanks,
-
--- Itai
-
+--- ide.c.1     Sat May 25 16:22:54 2002
++++ ide.c       Sat May 25 16:23:22 2002
+@@ -3444,9 +3444,7 @@
+        idefloppy_init();
+ #endif
+ #ifdef CONFIG_BLK_DEV_IDESCSI
+-# ifdef CONFIG_SCSI
+-       idescsi_init();
+-# else
++# ifndef CONFIG_SCSI
+    #error ATA SCSI emulation selected but no SCSI-subsystem in kernel
+ # endif
+ #endif

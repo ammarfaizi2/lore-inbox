@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312484AbSDEMLV>; Fri, 5 Apr 2002 07:11:21 -0500
+	id <S312494AbSDEMNk>; Fri, 5 Apr 2002 07:13:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312489AbSDEMLL>; Fri, 5 Apr 2002 07:11:11 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:8340 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S312484AbSDEMLH>;
-	Fri, 5 Apr 2002 07:11:07 -0500
-Date: Fri, 05 Apr 2002 04:04:51 -0800 (PST)
-Message-Id: <20020405.040451.127871174.davem@redhat.com>
-To: stelian.pop@fr.alcove.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: socket write(2) after remote shutdown(2) problem ?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020405120054.GF16595@come.alcove-fr>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S312497AbSDEMNa>; Fri, 5 Apr 2002 07:13:30 -0500
+Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:51593 "EHLO
+	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
+	id <S312494AbSDEMNK>; Fri, 5 Apr 2002 07:13:10 -0500
+Date: Fri, 5 Apr 2002 14:13:07 +0200 (MET DST)
+From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+cc: joeja@mindspring.com, linux-kernel@vger.kernel.org
+Subject: Re: faster boots?
+In-Reply-To: <3CAD55F7.55C56F96@aitel.hist.no>
+Message-ID: <Pine.GSO.4.05.10204051407001.19669-100000@mausmaki.cosy.sbg.ac.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Stelian Pop <stelian.pop@fr.alcove.com>
-   Date: Fri, 5 Apr 2002 14:00:55 +0200
+improving kernel bootup time:
 
-   As you can see, read() doesn't return any error, just 0 to 
-   indicate end-of-file (seems correct interpretation of remote
-   shutdown here), but it doesn't report any error from the 
-   precedent write... Bug ?
+	what about saving the parameters for successfully loaded modules?
+	(like the IRQs and other stuff which gets autodetected.)
+	- and when those modules are loaded for the second time, the
+		saves values will be used, without the need to do
+		autoprobing (don't know how much time that will
+		save, but it should save quite some time for people
+		having all the drivers in the kernel, but no matching
+		hardware)
+		- this will only work if there are no static inits,
+			but everything's modularized (which should
+			be in the works?)
+	- also you need to have a parameter to reprobe the whole modules
 
-Race, wait a bit, the reset will arrive.
 
-This is a error state in your code, writing when the server expects no
-data.  Always remember that when you are trying to judge if
-whatever socket operation results is valid or invalid.
-   
-Since we find out about the reset asynchronously, this is what
-happens.
+- this would also give a nice template for building a customized kernel
+(well again for people who are not really used to do things like that)
 
-   > But all of this is irrelevant.  When a server closes and says "send me
-   > no more data", this implies that the server told the client it doesn't
-   > want any more data.
-   
-   Perfectly valid but only if the 'applicative close' has reached the
-   other end. If it's still queued in TCP buffers, the client may not
-   have received yet that close... I thought that this was the only
-   reason that shutdown() existed at all: flush the buffers preparing
-   an imminent close...
+	just my $0.02
 
-Not a close "in TCP" but a close "in your apps protocol".
-As in:
+		tm
 
-	write(socket_fd, "Ok client I have all your data, lets close now")
+-- 
+in some way i do, and in some way i don't.
 
-See?  If the server closes without telling the client that, all
-bets are off.
-
-Look, your app is buggy, PERIOD.  Once you start to write to a closed
-socket, sorry the phase of the moon decides what happens to you.  Most
-of the time you'll be lucky and see an error.

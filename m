@@ -1,89 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266536AbUHPCHQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267328AbUHPCIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266536AbUHPCHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 22:07:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267324AbUHPCHQ
+	id S267328AbUHPCIO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 22:08:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267324AbUHPCIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 22:07:16 -0400
-Received: from everest.2mbit.com ([24.123.221.2]:52417 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S266536AbUHPCHN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 22:07:13 -0400
-Message-ID: <412016AA.6030006@greatcn.org>
-Date: Mon, 16 Aug 2004 10:06:34 +0800
-From: Coywolf Qi Hunt <coywolf@greatcn.org>
-User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: akpm@osdl.org, kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org
-References: <411F3A48.2030201@greatcn.org> <20040815174915.GA7265@mars.ravnborg.org>
-In-Reply-To: <20040815174915.GA7265@mars.ravnborg.org>
-X-Scan-Signature: 6eb353166da14b9bccdfc72745a05025
-X-SA-Exim-Connect-IP: 218.24.180.43
-X-SA-Exim-Mail-From: coywolf@greatcn.org
-Subject: [patch] remove obsolete HEAD in kbuild
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 15 Aug 2004 22:08:14 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:52704 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267328AbUHPCH4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 22:07:56 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P0
+From: Lee Revell <rlrevell@joe-job.com>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+In-Reply-To: <20040816022554.16c3c84a@mango.fruits.de>
+References: <20040726204720.GA26561@elte.hu>
+	 <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu>
+	 <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu>
+	 <20040812235116.GA27838@elte.hu> <1092382825.3450.19.camel@mindpipe>
+	 <20040813104817.GI8135@elte.hu> <1092432929.3450.78.camel@mindpipe>
+	 <20040814072009.GA6535@elte.hu> <20040815115649.GA26259@elte.hu>
+	 <20040816022554.16c3c84a@mango.fruits.de>
+Content-Type: text/plain
+Message-Id: <1092622121.867.109.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 15 Aug 2004 22:08:41 -0400
 Content-Transfer-Encoding: 7bit
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-	*  3.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
-	*      [218.24.180.43 listed in cnkrbl.ahbl.org]
-X-SA-Exim-Version: 4.0+cvs20040712 (built Mon, 09 Aug 2004 23:30:37 -0500)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
+On Sun, 2004-08-15 at 20:25, Florian Schmidt wrote:
+> On Sun, 15 Aug 2004 13:56:49 +0200
+> Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > 
+> > i've uploaded the -P0 patch:
+> > 
+> >  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P0
+> 
+> I haven't tried this patch yet, but i have a question regarding the
+> mlockall issue:
+> 
+> Jackd also uses IPC mechnisms for remote procedure calls [i think,
+> please correct me] and makes heavy use of shared memory. Might
+> mlock(all) have influence of this? is jackd maybe producing xruns
+> because some IPC stuff blocks when mlockall is used?
 
->On Sun, Aug 15, 2004 at 06:26:16PM +0800, Coywolf Qi Hunt wrote:
->  
->
->>Hi,
->>
->>This removes an obsolete variable in the top Makefile. It is used in 2.4 
->>Makefile.
->>Now the 2.6 kbuild is no longer using it. I have tested it.
->>    
->>
->
->find -name 'Makefile*' | xargs grep HEAD
->identify one user: cris.
->
->Please resend patch with removal in arch/cris/Makefile.
->
-Signed-off-by: Coywolf Qi Hunt <coywolf@greatcn.org>
+I reworked the jackd latency histogram to report the time elapsed
+between entering and exiting the poll() of PCM fd's in alsa-driver.c. 
+This is a different metric than the previous max_usecs histogram, which
+I believe indirectly measured latency, this one measures it directly.
 
- Makefile           |    1 -
- arch/cris/Makefile |    2 --
- 2 files changed, 3 deletions(-)
+http://krustophenia.net/testresults.php?dataset=2.6.8.1-P0
 
-diff -Nrup linux-2.6.8/Makefile linux-2.6.8-cy/Makefile
---- linux-2.6.8/Makefile	2004-08-15 05:46:21.000000000 -0400
-+++ linux-2.6.8-cy/Makefile	2004-08-15 05:46:41.000000000 -0400
-@@ -506,7 +506,6 @@ libs-y		:= $(libs-y1) $(libs-y2)
- #       normal descending-into-subdirs phase, since at that time
- #       we cannot yet know if we will need to relink vmlinux.
- #	So we descend into init/ inside the rule for vmlinux again.
--head-y += $(HEAD)
- vmlinux-objs := $(head-y) $(init-y) $(core-y) $(libs-y) $(drivers-y) $(net-y)
- 
- quiet_cmd_vmlinux__ = LD      $@
-diff -Nrup linux-2.6.8/arch/cris/Makefile linux-2.6.8-cy/arch/cris/Makefile
---- linux-2.6.8/arch/cris/Makefile	2004-08-15 20:58:18.673278888 -0400
-+++ linux-2.6.8-cy/arch/cris/Makefile	2004-08-15 20:59:30.109679014 -0400
-@@ -39,8 +39,6 @@ CFLAGS := $(subst -fomit-frame-pointer,,
- CFLAGS += -fno-omit-frame-pointer
- endif
- 
--HEAD := arch/$(ARCH)/$(SARCH)/kernel/head.o
--
- LIBGCC = $(shell $(CC) $(CFLAGS) -print-file-name=libgcc.a)
- 
- core-y		+= arch/$(ARCH)/kernel/ arch/$(ARCH)/mm/
+The peaks on this graph should correspond directly to the length of the
+non-preemptible critical section reported by Ingo's latency tracer.  I
+think the large peak around 580-600usecs is caused by the
+extract_entropy issue (which can be hit by regular processes and
+ksoftirqd), and the large peak around 80-100 by the XFree86 unmap_vmas
+issue, as the times match and these are by far the most common reported
+in latency_trace.
 
+There are a number of samples above 700us.  I am working with a period
+time of 666 usecs, and since there are 2 periods per buffer, we would
+have to hit two > 666 usec latencies in a row for an xrun - it appears
+that there are many individual latencies above 666, certainly more than
+there are xruns.  So, maybe the mlockall issue is not a result of
+triggering a single large latency, but of increasing the frequency of
+these higher latencies so that we are more likely to hit 2 in a row.
 
--- 
-Coywolf Qi Hunt
-Homepage http://greatcn.org/~coywolf/
-Admin of http://GreatCN.org and http://LoveCN.org
+IIRC ksoftirqd will defer more work under load, and ksoftirqd is one of
+the more common offenders to hit the extract_entropy latency.  Maybe
+mlockall causes more softirqs to be deferred, thus increaing the change
+that we will have to do more than 666 usecs worth of work on 2
+successive wakeups.
+
+Lee
 

@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132179AbQKSDkY>; Sat, 18 Nov 2000 22:40:24 -0500
+	id <S132235AbQKSDvJ>; Sat, 18 Nov 2000 22:51:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132252AbQKSDkO>; Sat, 18 Nov 2000 22:40:14 -0500
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:58887 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S132179AbQKSDkE>; Sat, 18 Nov 2000 22:40:04 -0500
-Message-ID: <3A175226.3A9C3180@holly-springs.nc.us>
-Date: Sat, 18 Nov 2000 23:08:06 -0500
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S132236AbQKSDu7>; Sat, 18 Nov 2000 22:50:59 -0500
+Received: from nessie.weebeastie.net ([61.8.7.205]:14599 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S132235AbQKSDut>; Sat, 18 Nov 2000 22:50:49 -0500
+Date: Sun, 19 Nov 2000 14:20:39 +1100
+From: CaT <cat@zip.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: ext2 sparse superblocks
+Subject: 2.4.0test11pre7 and synaptics touchpad
+Message-ID: <20001119142039.A612@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm looking for documentation on Ext2's support for sparse superblocks.
-Canvasing search engines gets me the same two references to tune2fs and
-the dac960. I've also looked in /usr/doc and
-/usr/src/linux/Documentation without success.
+In an attempt to see how 2.4.0 would go with my notebook I grabbed
+the latest and compiled it. It booted fine but my touchpad wouldn't
+work properly. It was highly unresponsive... as if it was missing
+movements alot. It'd move at one time and at another it would not.
+It was very unusable.
 
-What it the method uses to reduce the number of superblocks? How are
-they laid out before vs after sparse_super is enabled? Any caveats?
+I had input core support compiled in and non-serial/bus mouse support
+aswell. Was there anything else I should've compiled in? Did I miss
+something?
 
-Thanks.
+I was using gpm 1.19.3 with it with synps2 mouse driver. I just looked
+in the logfiles and couldn't see anything that screamed out at me. 
+Anything specific I should look for? I'm currently back in 2.2.18pre21
+where the touchpad works really well.
 
--M
+-- 
+CaT (cat@zip.com.au)
+
+	'We do more then just sing and dance. We've got a brain too.'
+		-- The Backstreet Boys
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

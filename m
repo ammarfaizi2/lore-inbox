@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267683AbUBSCao (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 21:30:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267687AbUBSCan
+	id S267085AbUBSAJA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 19:09:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267165AbUBSAJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 21:30:43 -0500
-Received: from fw.osdl.org ([65.172.181.6]:44174 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267683AbUBSCaf (ORCPT
+	Wed, 18 Feb 2004 19:09:00 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:528 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S267085AbUBSAI4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 21:30:35 -0500
-Date: Wed, 18 Feb 2004 18:23:13 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: kjo <kernel-janitors@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, kaos@ocs.com.au
-Subject: reference_init.pl for Linux 2.6
-Message-Id: <20040218182313.7b7b915e.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Feb 2004 19:08:56 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: kdb@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Announce: kdb v4.3 is available for kernel 2.4.25 
+Date: Thu, 19 Feb 2004 11:08:30 +1100
+Message-ID: <4517.1077149310@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I have updated Keith Owens "reference_init.pl" script for
-Linux 2.6.  It searches for code that refers to other code
-sections that they should not reference, such as init code
-calling exit code or v.v.
+Content-Type: text/plain; charset=us-ascii
 
-The script searches all .o (non-MODULE) files in the current
-directory and sub-directories.  To restrict its scope, just
-'cd drivers/video', e.g., to run it.
+KDB (Linux Kernel Debugger) has been updated.
 
-Notes:  __devinit and __devexit don't mean/do anything if
-CONFIG_HOTPLUG=y, so setting CONFIG_HOTPLUG=n and doing a
-'make allyesconfig && make all' finds the most possible
-problems.  I say 'possible' because there are probably some
-false positives reported.
+ftp://oss.sgi.com/projects/kdb/download/v4.3/
 
-script for Linux 2.6 is at:
-http://developer.osdl.org/rddunlap/scripts/reference_init26.pl
+Current versions are :-
+  kdb-v4.3-2.4.25-common-1.bz2
+  kdb-v4.3-2.4.25-i386-1.bz2
+  kdb-v4.3-2.4.25-ia64-040218-1.bz2
 
-and output from Linux 2.6.3 is at:
-http://developer.osdl.org/rddunlap/scripts/badrefs.out
+The ia64 patch has changed slightly since kdb-v4.3-2.4.25-rc1, due to
+more clean ups in the base arch/ia64/kernel/mca.c file.  Apart from
+that, the only changes are to the target kernel name in the change logs.
 
-Comments/corrections welcome.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
 
---
-~Randy
-kernel-janitors project:  http://janitor.kernelnewbies.org/
+iD8DBQFAM/5+i4UHNye0ZOoRAh8xAJ976UHq7l3gT0FJHVc2o2S/SHdpcQCgq62/
+sWxpv3+3pTZGf+QJfyjcpEg=
+=dXH7
+-----END PGP SIGNATURE-----
+

@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278446AbRJOVmv>; Mon, 15 Oct 2001 17:42:51 -0400
+	id <S277431AbRJOVrB>; Mon, 15 Oct 2001 17:47:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278442AbRJOVmd>; Mon, 15 Oct 2001 17:42:33 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:56331 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S278438AbRJOVm3>; Mon, 15 Oct 2001 17:42:29 -0400
-Date: Mon, 15 Oct 2001 17:37:19 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Dual Athlon XP 1800+ on Tyan Thunder K7 or Tiger MP anyone?
-In-Reply-To: <Pine.LNX.4.33.0110111222170.12058-100000@windmill.gghcwest.com>
-Message-ID: <Pine.LNX.3.96.1011015173113.21274F-100000@gatekeeper.tmr.com>
+	id <S278454AbRJOVqv>; Mon, 15 Oct 2001 17:46:51 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39686 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277431AbRJOVqh>; Mon, 15 Oct 2001 17:46:37 -0400
+Subject: Re: USB stability - possibly printer related
+To: kkrieser_list@footballmail.com (Kevin Krieser)
+Date: Mon, 15 Oct 2001 22:52:54 +0100 (BST)
+Cc: stano@meduna.org (Stanislav Meduna),
+        kkrieser_list@footballmail.com (Kevin Krieser),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <NDBBLFLJADKDMBPPNBALCEJDGAAA.kkrieser_list@footballmail.com> from "Kevin Krieser" at Oct 15, 2001 07:41:14 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15tFfK-0003V6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Oct 2001, Jeffrey W. Baker wrote:
+> I will have to reboot to find this out.  However, it was the latest
+> available a couple months ago when I bought the drive, and found out the
+> normal BIOS for the regular IDE controllers hung the computer when it hit
+> the 40GB drive during boot.
 
-> Registered ECC PC2100 DIMMs are $40 for 256MB at crucial.com.  The local
-> computer shop has $129 for random taiwanese 512MB DIMM and $193 for
-> Corsair brand of same.
-> 
-> I dunno where your $900/GB figure comes from.
-
-512MB registered at $450ea. The 256MB are about the cost you mention, but
-allow only a single GB with no room for expansion. I tried all weekend to
-get into crutial.com and kept getting "too busy to accept you" messages,
-so it may be great but not currently useful. Yes I tried from several
-site, and at 2:10am Morning when I was fixing a server...
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+There are various ways around this. One bizarre one for Linux boxes is to
+set the box to boot off a floppy, stick a boot floppy into it and then
+tell the BIOS there is no IDE drive on hda. Linux for most controllers will
+find it anyway

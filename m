@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269106AbUIXUDL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269102AbUIXUD6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269106AbUIXUDL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 16:03:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269102AbUIXUDL
+	id S269102AbUIXUD6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 16:03:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269105AbUIXUD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 16:03:11 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:6839 "EHLO hermes.sc.intel.com")
-	by vger.kernel.org with ESMTP id S269106AbUIXUDE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 16:03:04 -0400
-Date: Fri, 24 Sep 2004 13:02:52 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Cc: akpm@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add hook for PCI resource deallocation
-Message-ID: <20040924130251.A26271@unix-os.sc.intel.com>
-References: <41498CF6.9000808@jp.fujitsu.com>
+	Fri, 24 Sep 2004 16:03:57 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:52121 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269102AbUIXUDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 16:03:30 -0400
+Subject: Re: [PROPOSAL/PATCH] Fortuna PRNG in /dev/random
+From: Lee Revell <rlrevell@joe-job.com>
+To: James Morris <jmorris@redhat.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Jean-Luc Cooke <jlcooke@certainkey.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, mpm@selenic.com
+In-Reply-To: <Xine.LNX.4.44.0409241440410.8732-100000@thoron.boston.redhat.com>
+References: <Xine.LNX.4.44.0409241440410.8732-100000@thoron.boston.redhat.com>
+Content-Type: text/plain
+Message-Id: <1096056208.11589.8.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <41498CF6.9000808@jp.fujitsu.com>; from kaneshige.kenji@jp.fujitsu.com on Thu, Sep 16, 2004 at 05:54:14AM -0700
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 24 Sep 2004 16:03:29 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 05:54:14AM -0700, Kenji Kaneshige wrote:
+On Fri, 2004-09-24 at 14:43, James Morris wrote:
+> On Fri, 24 Sep 2004, Theodore Ts'o wrote:
 > 
->    Hi,
+> > have *any* encryption algorithms in the kernel at all.  As to whether
+> > or not cryptoapi needs to be mandatory in the kernel, the question is
+> > aside from /dev/random, do most people need to have crypto in the
+> > kernel?  If they're not using ipsec, or crypto loop devices, etc.,
+> > they might not want to have the crypto api in their kernel
+> > unconditionally.
 > 
->    This patch adds a hook 'pcibios_disable_device()' into
->    pci_disable_device() to call architecture specific PCI resource
->    deallocation code. It's a opposite part of pcibios_enable_device().
->    We need this hook to deallocate architecture specific PCI resource
->    such as IRQ resource, etc.. This patch is just for adding the hook,
->    so pcibios_disable_device() is defined as a null function on all
->    architecture so far.
-> 
->    I tested this patch on i386, x86_64 and ia64. But it has not been
->    tested on other architectures because I don't have these machines.
-> 
->    Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-> 
+> As far as I know embedded folk do not want the crypto API to be mandatory,
+> although I think Matt Mackall wanted to try and make something work
+> (perhaps a subset just for /dev/random use).
 
-Hi Kenji
+/dev/random used to be a source of high latencies, but Ingo's patches 
+fix this.  There was not a lot of CPU overhead but the latency was was a
+problem for serious audio use.  But, audio is a unique set of
+requirements, it's somewhere between desktop and embedded and hard-RT.
 
-I think instead of modifying all the arch specific code, you could use the __attribute__(weak)
-and define a default dummy funcion in 	drivers/pci/pci.c
+This could certainly be a problem for the embedded folks due to space or
+CPU concerns, but the latency problem seems to be solved.
 
-void __attribute__((weak)) pcibios_disable_device(struct pci_dev *dev)	{ }
+Lee  
 
-
-each arch that really needs this can define the override function. That way you dont need to 
-put the dummy function in several places, containing your changes to a very few set of files.
-
-
-Cheers,
-ashok

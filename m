@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276344AbRI1WeQ>; Fri, 28 Sep 2001 18:34:16 -0400
+	id <S276324AbRI1Wdo>; Fri, 28 Sep 2001 18:33:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276355AbRI1WeF>; Fri, 28 Sep 2001 18:34:05 -0400
-Received: from air-1.osdlab.org ([65.201.151.5]:27657 "EHLO
-	osdlab.pdx.osdl.net") by vger.kernel.org with ESMTP
-	id <S276353AbRI1Wdw>; Fri, 28 Sep 2001 18:33:52 -0400
-Message-ID: <3BB4FA41.DAAFB705@osdlab.org>
-Date: Fri, 28 Sep 2001 15:31:29 -0700
-From: "Randy.Dunlap" <rddunlap@osdlab.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alex Cruise <acruise@infowave.com>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: apm suspend broken in 2.4.10
-In-Reply-To: <6B90F0170040D41192B100508BD68CA1015A81B6@earth.infowave.com>
+	id <S276355AbRI1Wdf>; Fri, 28 Sep 2001 18:33:35 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:25591 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S276324AbRI1WdX>; Fri, 28 Sep 2001 18:33:23 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Fri, 28 Sep 2001 16:33:13 -0600
+To: Brad <prettygood@cs.stanford.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Big-endian reading/writing cramfs (vs 2.4.10)
+Message-ID: <20010928163313.C930@turbolinux.com>
+Mail-Followup-To: Brad <prettygood@cs.stanford.edu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0109281440380.9055-200000@earth.ayrnetworks.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109281440380.9055-200000@earth.ayrnetworks.com>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Unload some of these (that you don't really need to run)
-> > and try "apm -s".
-> > If that fails, unload some more of them and try again...
-> > That would at least narrow down the search for us.
-> 
-> I already tried that... Maybe my message didn't get through :)
-> 
-> >AC> Just for fun, I tried removing all of my loaded 2.4.10 modules one by
-> one,
-> >AC> and attempting 'apm --suspend' in between, and still had the same
-> problem
-> >AC> when I got down to the bare minimum (ext3 and jbd)
-> 
-> Anyway, it looks like something keyboard- or A20-related is vetoing my
-> suspend request.  Did you get my "the plot thickens" message?  It's not
-> appearing in the lkml archives, maybe it got lost last night.
+On Sep 28, 2001  14:58 -0700, Brad wrote:
+> +#define CRAM_SWAB_16(x)	( ( (0x0000FF00 & (x)) >> 8   ) | \
+> +			  ( (0x000000FF & (x)) << 8 ) )
 
-I saw the keyboard message, and someone else's A20 reference.
-Not one from you IIRC.
+Why not just use the well-defined le16_to_cpu() and le32_to_cpu() macros?
 
-~Randy
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+

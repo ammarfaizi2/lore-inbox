@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbVBSK5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVBSLs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261692AbVBSK5E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 05:57:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVBSK5E
+	id S261532AbVBSLs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 06:48:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVBSLs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 05:57:04 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:60136 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261692AbVBSK5A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 05:57:00 -0500
-Subject: Re: Should kirqd work on HT?
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1108805793.6304.75.camel@laptopd505.fenrus.org>
-References: <1108794699.4098.28.camel@desktop.cunningham.myip.net.au>
-	 <4216E248.5070603@pobox.com>
-	 <1108804063.4098.35.camel@desktop.cunningham.myip.net.au>
-	 <1108805793.6304.75.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Message-Id: <1108810730.4098.44.camel@desktop.cunningham.myip.net.au>
+	Sat, 19 Feb 2005 06:48:56 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:2114 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261532AbVBSLsy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 06:48:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=FA8bm3D0jLQuqfjA/T1L+BUtJq8tjve7OQbiHvoIcjvnbqoeguehApBrD9959TGUyqDDc+yhx64yNcc0VMMEm2nYqxRcw05NJC8BB9y7nnEm7lXw6J4+OuTiRvol3SHyLqtU2KhzkqU5q/NSM4ISldL4Qf0X6qffq0lgAps5+Uw=
+Message-ID: <58cb370e05021903481de251df@mail.gmail.com>
+Date: Sat, 19 Feb 2005 12:48:52 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: FAUmachine: Looking for a good documented DMA bus master capable PCI IDE Controller card
+In-Reply-To: <20050219102410.GD16858@cip.informatik.uni-erlangen.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 19 Feb 2005 21:58:50 +1100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20050219102410.GD16858@cip.informatik.uni-erlangen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again.
+Hi,
 
-Didn't realise it was going to take nothing to install, so I've done it.
-IRQs are running on cpu 1 now. Is there some documentation somewhere?
-I'm wondering whether I can compile kirqd out.
-
-Thanks and regards,
-
-Nigel
-
-On Sat, 2005-02-19 at 20:36, Arjan van de Ven wrote:
-> On Sat, 2005-02-19 at 20:07 +1100, Nigel Cunningham wrote:
-> > Hi Jeff.
-> > 
-> > On Sat, 2005-02-19 at 17:52, Jeff Garzik wrote:
-> > > Nigel Cunningham wrote:
-> > > What are the results of running irqbalanced?
-> > 
-> > You mean the debugging output? I can reenable it and record the results
-> > if that's what you mean.
+On Sat, 19 Feb 2005 11:24:10 +0100, Thomas Glanzmann
+<sithglan@stud.uni-erlangen.de> wrote:
+> Hello,
+> we just implemented the Intel PIIX DMA Bus Master capable IDE Controller
+> in FAUmachine. This improved the IO access to virtual IDE Devices using
+> DMA as transport mechanism a lot.
 > 
-> no Jeff meant
-> http://people.redhat.com/arjanv/irqbalance/
-> that app most likely....
+> But with the current simulation it is only possible to access 4 devices
+> via DMA.
 > 
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
+> Because of that I am looking for a good documented PCI IDE Controller
+> Card to provide DMA access to more than 4 devices with public available
+> documentation. Any pointers?
 
-Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
+In IDE you have 2 devices per port and usually 2 ports per PCI device.
+There are some controller cards with 4 ports but they don't have public
+available documentation etc.  I really wonder what are you trying to
+achieve and why just can't you use more than 1 "virtual" PIIX crontoller.
 
+Bartlomiej

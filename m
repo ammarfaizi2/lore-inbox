@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311935AbSCOGIu>; Fri, 15 Mar 2002 01:08:50 -0500
+	id <S311940AbSCOGhJ>; Fri, 15 Mar 2002 01:37:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311936AbSCOGIk>; Fri, 15 Mar 2002 01:08:40 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53766 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311935AbSCOGIa>;
-	Fri, 15 Mar 2002 01:08:30 -0500
-Date: Fri, 15 Mar 2002 06:08:29 +0000
-From: Joel Becker <jlbec@evilplan.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: frankeh@watson.ibm.com, matthew@hairy.beasts.org,
-        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [PATCH] Re: futex and timeouts
-Message-ID: <20020315060829.L4836@parcelfarce.linux.theplanet.co.uk>
-Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
-	Rusty Russell <rusty@rustcorp.com.au>, frankeh@watson.ibm.com,
-	matthew@hairy.beasts.org, linux-kernel@vger.kernel.org,
-	lse-tech@lists.sourceforge.net
-In-Reply-To: <20020314151846.EDCBF3FE07@smtp.linux.ibm.com> <E16lkRS-0001HN-00@wagner.rustcorp.com.au>
+	id <S311941AbSCOGg7>; Fri, 15 Mar 2002 01:36:59 -0500
+Received: from syr-24-24-11-40.twcny.rr.com ([24.24.11.40]:16632 "EHLO
+	server.foo") by vger.kernel.org with ESMTP id <S311940AbSCOGgy>;
+	Fri, 15 Mar 2002 01:36:54 -0500
+Date: Fri, 15 Mar 2002 01:36:44 -0500
+From: Dan Maas <dmaas@dcine.com>
+To: linux-kernel@vger.kernel.org
+Subject: unwanted disk access by the kernel?
+Message-ID: <20020315013644.A26891@morpheus>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E16lkRS-0001HN-00@wagner.rustcorp.com.au>; from rusty@rustcorp.com.au on Fri, Mar 15, 2002 at 04:39:50PM +1100
-X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.2i
+X-Info: http://www.dcine.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 15, 2002 at 04:39:50PM +1100, Rusty Russell wrote:
-> Yep, sorry, my mistake.  I suggest make it a relative "struct timespec
-> *" (more futureproof that timeval).  It would make sense to split the
-> interface into futex_down and futex_up syuscalls, since futex_up
-> doesn't need a timeout arg, but I haven't for the moment.
+I've been trying to set up my laptop for mobile use. I'm having a
+problem with unwanted disk activity - even when the system is
+completely idle, there is still an occasional trickle of disk writes
+(which prevents the poor hard drive from ever spinning down). 
 
-	Why waste a syscall?  The user is going to be using a library
-wrapper.  They don't have to know that futex_up() calls sys_futex(futex,
-FUTEX_UP, NULL);
+Yes, I thought this was a user-space issue too - but even booting into
+a bare-bones root environment does not stop the occasional disk
+access! Here is everything that's left:
 
-Joel
+ PID USER       VSZ  RSS     TIME STAT COMMAND          WCHAN
+    7 root         0    0 00:00:00 SW   [kupdated]       kupdate
+    6 root         0    0 00:00:00 SW   [bdflush]        bdflush
+    5 root         0    0 00:00:00 SW   [kswapd]         kswapd
+    4 root         0    0 00:00:00 SWN  [ksoftirqd_CPU0] ksoftirqd
+    1 root      1316  524 00:00:05 S    init [S]         select
+    2 root         0    0 00:00:00 SW   [keventd]        context_thread
+    3 root         0    0 00:00:00 SW   [kapmd]          apm_mainloop
+    8 root         0    0 00:00:00 Z    [khubd <defunct> exit
+  879 root      1316  524 00:00:00 S    init [S]         wait4
+  880 root      2556 1576 00:00:00 S     \_ bash         wait4
+  927 root      3524 1512 00:00:00 R         \_ ps afx - -
 
--- 
+If I manually spin down the disk, it always wakes up within 30 seconds
+or so. During the spin-up, kupdated goes into the 'D' state and blocks
+in wait_on_buffer(). This means it's writing dirty filesystem buffers,
+right? So who is doing the dirtying? I've eliminated all possible
+user-space sources of I/O! (strace confirms that NO user-space
+processes are doing I/O; they're all sleeping...)
 
-Life's Little Instruction Book #182
+(I'm running a stock Linus 2.4.18 kernel, with APM enabled. The system
+is Debian woody. All filesystems are ext2.)
 
-	"Be romantic."
-
-			http://www.jlbec.org/
-			jlbec@evilplan.org
+Regards,
+Dan

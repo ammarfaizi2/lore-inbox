@@ -1,94 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVCNRSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVCNRWw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbVCNRSg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 12:18:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbVCNRSf
+	id S261628AbVCNRWw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 12:22:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVCNRWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 12:18:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:7353 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261630AbVCNRRh (ORCPT
+	Mon, 14 Mar 2005 12:22:52 -0500
+Received: from mail.tmr.com ([216.238.38.203]:37387 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261628AbVCNRWk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 12:17:37 -0500
-Date: Mon, 14 Mar 2005 12:17:23 -0500
-From: Dave Jones <davej@redhat.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Pavel Machek <pavel@ucw.cz>, David Lang <david.lang@digitalinsight.com>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: dmesg verbosity [was Re: AGP bogosities]
-Message-ID: <20050314171722.GC1799@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, Pavel Machek <pavel@ucw.cz>,
-	David Lang <david.lang@digitalinsight.com>,
-	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Paul Mackerras <paulus@samba.org>, benh@kernel.crashing.org,
-	linux-kernel@vger.kernel.org
-References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com> <Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz> <20050314083717.GA19337@elf.ucw.cz> <200503140855.18446.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503140855.18446.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 14 Mar 2005 12:22:40 -0500
+Date: Mon, 14 Mar 2005 12:10:19 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Greg KH <greg@kroah.com>
+cc: Chris Wright <chrisw@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       Pavel Machek <pavel@ucw.cz>,
+       "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+Subject: Re: Linux 2.6.11.2
+In-Reply-To: <20050311220150.GA4925@kroah.com>
+Message-ID: <Pine.LNX.3.96.1050314115353.4343A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 14, 2005 at 08:55:18AM -0800, Jesse Barnes wrote:
- > On Monday, March 14, 2005 12:37 am, Pavel Machek wrote:
- > > Perhaps we could have a rule like
- > >
- > > "non-experimental driver may only print out one line per actual
- > > device?"
- > >
- > > (and perhaps: dmesg output for boot going okay should fit on one screen).
- > >
- > > Or perhaps we should have warnings-like regression testing.
- > >
- > > "New kernel 2.8.17 came: 3 errors, 135 warnings, 1890 lines of dmesg
- > > junk".
- > >         Pavel
- > 
- > We already have the 'quiet' option, but even so, I think the kernel is *way* 
- > too verbose.  Someone needs to make a personal crusade out of removing 
- > unneeded and unjustified printks from the kernel before it really gets better 
- > though...
+On Fri, 11 Mar 2005, Greg KH wrote:
 
-As long as the patches to remove/quiten various texts go through the
-various subsystem maintainers, this shouldn't be a problem, though
-I imagine there will be some resistance to some parts.
+> On Fri, Mar 11, 2005 at 11:19:28AM -0800, Chris Wright wrote:
+> > * Matt Mackall (mpm@selenic.com) wrote:
+> > > Or do you want to do it the same way you do for every other branch? I
+> > > don't want to special-case it in my code and I don't think users want
+> > > to special-case it in their brains. Have separate interdiffs on the
+> > > side, please, and then people can choose, but do it the standard way.
+> > > 
+> > > Dear ${SUCKER}s, can we have a decision on this? My ketchup tool is
+> > > broken for 2.6.11.2 and I don't want to cut a new release until a firm
+> > > decision is made. Obviously I have a strong preference for all 2.6.x.y
+> > > diffs being against 2.6.x, it means that .y can be treated the same as
+> > > -rc, -bk, -mm, ... (and I already coded it that way when 2.6.8.1 came
+> > > out).
+> > 
+> > I agree with having the patch be against .x, with x.y -> x.y+1 interdiffs
+> > available on the side.  Greg, any issue with that?
+> 
+> No, I agree with that, and will not be hard to do at all (the release
+> script already handles this just fine.)  
+> 
+> I've held off rediffing 2.6.11.2 so far, as I don't know where to put
+> the x.y+1 interdiffs?  kernel/v2.6/incr/ ?  Any thoughts?
 
-One of the biggest offenders is ACPI. On my desktop, that alone
-accounts for 10% of the messages since boot.
+I guess incr is as good as any, I thought you would put the "against base" 
+somewhere, having already decided to do incrementals. Hopefully you will
+at least change the numbering on the patch file (no, not the version in
+the Makefile), so patch 2.6.11.3i is againt 2.6.11.2, and 2.6.11.3 is
+against 2.6.11. That way people can tell after the download which one they
+have if they forget.
 
-(12:05:09:davej@delerium:~)$ dmesg -s 128000 | grep ^ACPI | wc -l
-50
-(12:05:18:davej@delerium:~)$ dmesg -s 128000 | wc -l
-500
+I didn't like the initial decision to go incremental, and I even less like
+changing now, but it's the right thing to do. It's not like we have a big
+investment in scripts or anything, and you're doing the work.
 
-On SMP there's way too much noise.
-We could do some checks in the CPU init code to not print any
-of the init junk if its the same as the boot CPU.
-That should be fairly trivial, and would reduce quite a few messages.
-
-Of the 500 messages in my dmesg scrollback right now, 412 of them
-are unique. Removing some of this duplication sounds like an
-excellent place to begin.
-
-Another way to save some text could be to cluster multiple lines
-so that instead of..
-
-ACPI: IRQ0 used by override.
-ACPI: IRQ2 used by override.
-ACPI: IRQ9 used by override.
-
-we have
-
-ACPI: IRQs 0,2,9 used by override.
-
-(Whatever the hell that message means anyway -- this one just used
- as an example).
-
-		Dave
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

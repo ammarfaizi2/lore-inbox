@@ -1,81 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266304AbUBQU3h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 15:29:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266587AbUBQU3h
+	id S266580AbUBQURg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 15:17:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266581AbUBQURg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 15:29:37 -0500
-Received: from mailout.informatik.tu-muenchen.de ([131.159.0.5]:57559 "EHLO
-	mailout.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id S266304AbUBQU3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 15:29:34 -0500
-From: Thomas Weich <weicht@in.tum.de>
-To: Athanasios Leontaris <aleontar@ucsd.edu>
-Subject: Re: 2.6.2 Kernel Badness with 1.0-5336 NVIDIA driver
-Date: Tue, 17 Feb 2004 21:31:52 +0100
-User-Agent: KMail/1.6
-Cc: s0348365@sms.ed.ac.uk, linux-kernel@vger.kernel.org
-References: <200402170808.21530.aleontar@ucsd.edu> <200402171754.14513.s0348365@sms.ed.ac.uk> <200402170957.51875.aleontar@ucsd.edu>
-In-Reply-To: <200402170957.51875.aleontar@ucsd.edu>
-MIME-Version: 1.0
+	Tue, 17 Feb 2004 15:17:36 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40630 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266580AbUBQURb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 15:17:31 -0500
+Date: Tue, 17 Feb 2004 20:17:30 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: tridge@samba.org, Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: UTF-8 and case-insensitivity
+Message-ID: <20040217201730.GR8858@parcelfarce.linux.theplanet.co.uk>
+References: <16433.38038.881005.468116@samba.org> <Pine.LNX.4.58.0402162034280.30742@home.osdl.org> <16433.47753.192288.493315@samba.org> <Pine.LNX.4.58.0402170704210.2154@home.osdl.org> <Pine.LNX.4.58.0402170833110.2154@home.osdl.org> <20040217194414.GP8858@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0402171153460.2154@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-7"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402172131.52993.weicht@in.tum.de>
+In-Reply-To: <Pine.LNX.4.58.0402171153460.2154@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had the same problems with NVidia 1.0-5336 but there was no hint 
-in /var/log/* that the NVidia driver caused the freeze. It wasn't necessary 
-that X  was running, loading the nvidia Module was sufficient to freeze the 
-complete system after an unspecified amount of time.
+On Tue, Feb 17, 2004 at 12:10:23PM -0800, Linus Torvalds wrote:
+> I do believe we'd need to have some way to "refresh" the fd in your
+> example, without restarting the whole lookup. So that when the user gets 
+> EFOAD, it can do
+> 
+> 	refresh(fd);
 
-For me, it worked to use the 1.0-5328 version with patches from www.minion.de. 
-Since then, everything is working without problems.
+lseek(fd, 0, 0);
 
-I'm not on the list.
+> > And we really don't want to encourage those who port Windows userland in
+> > not fixing the idiotic semantics.  As for Lindows... let's just say that
+> > I can't find any way to describe what I really think of those clowns, their
+> > intellect and their morals that wouldn't lead to a lawsuit from them.
+> 
+> Heh.
+> 
+> I suspect most people don't care that much, but I also suspect that 
+> projects like samba have to have a "anal mode" where they really act like 
+> Windows, even when it's "wrong". People can then choose to say "screw that 
+> idiocy", but by just _having_ a very compatible mode you deflect a lot of 
+> criticism. Regardless of whether people want the anal mode or not in real 
+> life.
 
-Thomas
-
-> I checked it. "RenderAccel" is not set.
-> Maybe FW and SBA have something to do with it, but that's just a guess.
-> Thanks.
->
-> On Tuesday 17 February 2004 09:54 am, Alistair John Strachan wrote:
-> > On Tuesday 17 February 2004 16:08, you wrote:
-> > > Hi to all,
-> > >
-> > > Pls cc me as I am not subscribing.
-> > > I know that the kernel is tainted so pls don't flame ;)
-> > > The kernel is 2.6.2 from www.kernel.org and I use AGPGART for AGP
-> > > (_not_ NvAGP). Fast Writes and SBA are enabled. FC1 is the distro. The
-> > > mobo is Abit KG7 and the video card an FX5600.
-> > >
-> > > X stopped responding out of the blue, at a KDE 3.2 desktop, and it
-> > > could not be killed either. The following messages were uncovered in my
-> > > /var/log/messages:
-> >
-> > [snip]
-> >
-> > Please first check to see if /etc/X11/XF86Config or /etc/X11/XF86Config-4
-> > contains the string:
-> >
-> > Option "RenderAccel" "1"
-> >
-> > If it does, either remove the line or replace it with:
-> >
-> > Option "RenderAccel" "0"
-> >
-> > Render acceleration is still not working with the proprietary driver. I'm
-> > not saying it's definitely this, it just might not be related to the
-> > messages in syslog.
-> >
-> > I occasionally see these badness messages in syslog, but my machine never
-> > locks up. I was under the impression that these were only warnings.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Umm...  Samba deals with Windows clients.  Windows software allegedly being
+ported to Linux is a different story and in that case there's no excuse for
+demanding case-insensitive operations.

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315804AbSEEBJT>; Sat, 4 May 2002 21:09:19 -0400
+	id <S315805AbSEEBKp>; Sat, 4 May 2002 21:10:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315805AbSEEBJR>; Sat, 4 May 2002 21:09:17 -0400
-Received: from mail3.aracnet.com ([216.99.193.38]:8398 "EHLO mail3.aracnet.com")
-	by vger.kernel.org with ESMTP id <S315804AbSEEBI4>;
-	Sat, 4 May 2002 21:08:56 -0400
-Date: Sat, 4 May 2002 18:08:58 -0700 (PDT)
-From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: IO stats in /proc/partitions
-In-Reply-To: <20020504213534.GA3034@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.33.0205041805240.11514-100000@shell1.aracnet.com>
+	id <S315806AbSEEBKi>; Sat, 4 May 2002 21:10:38 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:34826 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315805AbSEEBJ2>; Sat, 4 May 2002 21:09:28 -0400
+Message-ID: <3CD4777F.80203@evision-ventures.com>
+Date: Sun, 05 May 2002 02:06:23 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Osamu Tomita <tomita@cinet.co.jp>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.13 IDE PIO mode Fix
+In-Reply-To: <3CD31883.E41E0DFA@cinet.co.jp>
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 May 2002, Tomas Szepe wrote:
+Uz.ytkownik Osamu Tomita napisa?:
+> I found this bug in 2.5.10 first. And caused ext2 FS corruption.
+> We are porting Linux to PC-9801 architecture (made by NEC Japan).
+> It has PIO ONLY IDE I/F. So please check PIO mode too.
 
-> But hey, you've suffered thru it, which, guess what, makes you the
-> perfect candidate to have the honor of writing the docs!
+Hey I can't do everything. And I know that people like you will
+check it anyway :-)... But seriously - Thank you very much for
+the plague and indeed 16 bit transfers are something I see makes sense for
+embedded platforms.
 
-The person who made the "design" decisions and implemented the code is
-responsible for documenting it. At least that's what *I* was taught 40
-years ago when I learned to program a computer.
--- 
-M. Edward Borasky
-znmeb@borasky-research.net
 
-The COUGAR Project
-http://www.borasky-research.com/Cougar.htm
-
-How to Stop A Folksinger Cold # 4
-"Tie me kangaroo down, sport..."
-Tie your own kangaroo down -- and stop calling me "sport"!
+> # Our porting status - 2.2.x/2.4.x done and updating. 2.5.x partial.
+> 
+> diff -urN linux-2.5.10/drivers/ide/ide-taskfile.c linux/drivers/ide/ide-taskfile.c
+> --- linux-2.5.10/drivers/ide/ide-taskfile.c    Wed Apr 24 16:15:19 2002
+> +++ linux/drivers/ide/ide-taskfile.c  Fri Apr 26 15:44:42 2002
+> @@ -202,7 +202,7 @@
+>                         ata_write_slow(drive, buffer, wcount);
+>                 else
+>  #endif
+> -                       ata_write_16(drive, buffer, wcount<<1);
+> +                       ata_write_16(drive, buffer, wcount);
+>         }
+>  }
 

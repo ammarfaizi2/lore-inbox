@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbUKICqf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbUKIDGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbUKICqf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 21:46:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUKICqf
+	id S261364AbUKIDGV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 22:06:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbUKIDGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 21:46:35 -0500
-Received: from mail-03.iinet.net.au ([203.59.3.35]:10641 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261359AbUKICqc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 21:46:32 -0500
-Message-ID: <41902F83.6060200@cyberone.com.au>
-Date: Tue, 09 Nov 2004 13:46:27 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable
- braindamage
-References: <20041105200118.GA20321@logos.cnet>	<20041108162731.GE2336@logos.cnet>	<20041108185546.GA3468@logos.cnet>	<419029D9.90506@cyberone.com.au> <20041108183552.7caccad1.akpm@osdl.org>
-In-Reply-To: <20041108183552.7caccad1.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Nov 2004 22:06:21 -0500
+Received: from holomorphy.com ([207.189.100.168]:30849 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261364AbUKIDGT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 22:06:19 -0500
+Date: Mon, 8 Nov 2004 19:05:55 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Willibald Krenn <Willibald.Krenn@gmx.at>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: VMM:  syscall for reordering pages in vm
+Message-ID: <20041109030555.GA2973@holomorphy.com>
+References: <418F4F97.5000805@gmx.at> <1099915498.3577.7.camel@laptop.fenrus.org> <418F661E.6050601@gmx.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <418F661E.6050601@gmx.at>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arjan van de Ven schrieb:
+>> eh isn't this already possible with mmap and mremap ?
+
+On Mon, Nov 08, 2004 at 01:27:10PM +0100, Willibald Krenn wrote:
+> If I'm not mistaken: You can not tell mmap and mremap to explicitely 
+> exchange two pages. (Mremap resizes an existing memory mapping.)
+> Perhaps I did not explain my idea good enough: I want something along 
+> the lines "Current memory contents in page starting at address X move to 
+> address Y and the contents of the page starting at address Y shall be 
+> found at address X in future".
+
+You're thinking of POSIX mremap(2); Linux' actual mremap() ABI allows
+relocation of pages within a process address space, though only to
+previously unoccupied locations, not direct exchange.
 
 
-Andrew Morton wrote:
-
->Nick Piggin <piggin@cyberone.com.au> wrote:
->
->>I'm not sure... it could also be just be a fluke
->> due to chaotic effects in the mm, I suppose :|
->>
->
->2.6 scans less than 2.4 before declaring oom.  I looked at the 2.4
->implementation and thought "whoa, that's crazy - let's reduce it and see
->who complains".  My three-year-old memory tells me it was reduced by 2x to
->3x.
->
->We need to find testcases (dammit) and do the analysis.  It could be that
->we're simply not scanning far enough.
->
->
->
-
-Oh yeah, there definitely seems to be OOM problems as well (although
-luckily not _too_ many people seem to be complaining).
-
-I thought Marcelo was talking about increased incidents of people
-reporting eg. order-0 atomic allocation failures though, after the
-recentish code from you and I to fix up alloc_pages.
-
+-- wli

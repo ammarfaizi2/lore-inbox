@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129525AbQLRWEN>; Mon, 18 Dec 2000 17:04:13 -0500
+	id <S129464AbQLRWEn>; Mon, 18 Dec 2000 17:04:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129524AbQLRWED>; Mon, 18 Dec 2000 17:04:03 -0500
-Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:62100 "HELO tsx-prime.MIT.EDU")
-	by vger.kernel.org with SMTP id <S129464AbQLRWDq>;
-	Mon, 18 Dec 2000 17:03:46 -0500
-Date: Mon, 18 Dec 2000 16:33:13 -0500
-Message-Id: <200012182133.QAA02136@tsx-prime.MIT.EDU>
-From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-CC: David Schwartz <davids@webmaster.com>,
-        Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: Jamie Lokier's message of Mon, 18 Dec 2000 21:38:01 +0100,
-	<20001218213801.A19903@pcep-jamie.cern.ch>
-Subject: Re: /dev/random: really secure?
-Phone: (781) 391-3464
+	id <S129524AbQLRWEd>; Mon, 18 Dec 2000 17:04:33 -0500
+Received: from [158.111.6.62] ([158.111.6.62]:3599 "EHLO mcdc-us-smtp3.cdc.gov")
+	by vger.kernel.org with ESMTP id <S129464AbQLRWEH>;
+	Mon, 18 Dec 2000 17:04:07 -0500
+Message-ID: <B7F9A3E3FDDDD11185510000F8BDBBF2019C79D3@mcdc-atl-5.cdc.gov>
+X-Sybari-Space: 00000000 00000000 00000000
+From: Heitzso <xxh1@cdc.gov>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: usb broken in 2.4.0 test 12 versus 2.2.18
+Date: Mon, 18 Dec 2000 16:33:26 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Mon, 18 Dec 2000 21:38:01 +0100
-   From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+I have a Canon usb camera that I access via a
+recent copy of the s10sh program (with -u option).
 
-   David Schwartz wrote:
-   > The code does its best to estimate how much actual entropy it is gathering.
+Getting to the camera via s10sh -u worked through 
+large sections of 2.4.0 test X but broke recently.  
+I cannot say for certain which test/patch the 
+break occurred in.
 
-   A potential weakness.  The entropy estimator can be manipulated by
-   feeding data which looks random to the estimator, but which is in fact
-   not random at all.
+Running 2.4.0 test12 malloc errors appear.
+Everything is fine with 2.2.18.  I haven't tried
+the test13 series of patches.  
 
-Yes, absolutely.  That's why you have to be careful before you make
-changes to the kernel code to feed additional data to the estimator.
-*Usually* relying on interrupt timing is safe, but not always.  For
-example, an adversary can observe, and in some cases control the
-arrivial of network packets which control the network card's interrupt
-timings.  Is it enough to be able to predict with cpu-counter
-resolution the inputs to the /dev/random pool?  Maybe; it depends on how
-paranoid you are.
+key .config options:
+ CONFIG_USB on
+ DEVICEFS on
+ HOTPLUG on
+ UHCI on
+everything else off (i.e. printers, keyboards,
+mice, etc.). 
 
-Note that writing to /dev/random does *not* update the entropy estimate,
-for this very reason.  The assumption is that inputs to the entropy
-estimator have to be trusted, and since /dev/random is typically
-world-writeable, it is not so trusted.
+Baseline system is RH6.2 with most patches applied
+(so avoiding RH7 compiler problems).  Basic dev
+environment is same (i.e. compiling the two kernels
+on the same box).
 
-					- Ted
+If someone wants to email me a debug sequence or
+ask more specific questions feel free.
+
+xxh1@cdc.gov
+Heitzso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

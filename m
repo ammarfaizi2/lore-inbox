@@ -1,40 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291944AbSBNWDu>; Thu, 14 Feb 2002 17:03:50 -0500
+	id <S291935AbSBNWCk>; Thu, 14 Feb 2002 17:02:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291942AbSBNWDl>; Thu, 14 Feb 2002 17:03:41 -0500
-Received: from mailhost.nmt.edu ([129.138.4.52]:62478 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id <S291944AbSBNWDg>;
-	Thu, 14 Feb 2002 17:03:36 -0500
-Date: Thu, 14 Feb 2002 15:03:31 -0700
-From: Val Henson <val@nmt.edu>
-To: Paul Mackerras <paulus@samba.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: smp_send_reschedule vs. smp_migrate_task
-Message-ID: <20020214150331.P30586@boardwalk>
-In-Reply-To: <15466.6058.686853.295549@argo.ozlabs.ibm.com>
+	id <S291942AbSBNWCa>; Thu, 14 Feb 2002 17:02:30 -0500
+Received: from out019pub.verizon.net ([206.46.170.98]:3033 "EHLO
+	out019.verizon.net") by vger.kernel.org with ESMTP
+	id <S291935AbSBNWCR>; Thu, 14 Feb 2002 17:02:17 -0500
+Date: Thu, 14 Feb 2002 17:00:19 -0500
+From: Skip Ford <skip.ford@verizon.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BUG?] -- Kernel compilation on v2.5.4 source breaks
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0202141625030.31418-200000@dodobirdy.netcraft.com.my>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <15466.6058.686853.295549@argo.ozlabs.ibm.com>; from paulus@samba.org on Wed, Feb 13, 2002 at 06:37:14PM +1100
-Favorite-Color: Polka dot
+In-Reply-To: <Pine.LNX.4.33.0202141625030.31418-200000@dodobirdy.netcraft.com.my>; from julian@netwxs.com.my on Thu, Feb 14, 2002 at 04:31:53PM +0800
+Message-Id: <20020214220216.SXFO379.out019.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 13, 2002 at 06:37:14PM +1100, Paul Mackerras wrote:
-> I am looking at the updates for PPC that are needed because of the
-> changes to the scheduler in 2.5.x.  I need to implement
-> smp_migrate_task(), but I do not have another IPI easily available;
-> the Open PIC interrupt controller used in a lot of SMP PPC machines
-> supports 4 IPIs in hardware and we are already using all of them.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I had only one IPI for the RPIC (an interrupt controller only used on
-Synergy PPC boards) and I implemented a little message queue to
-simulate all 4 IPI's.  The mailbox implementation suggested by James
-Bottomley ended up having race conditions on our board.  It's probably
-not the most elegant solution, but it works and required no change to
-the PowerPC SMP code.  See my "Make Gemini boot" patch to linuxppc-dev
-and take a look at the files rpic.c and rpic.h.
+Julian Gomez wrote:
+> 
+> The error is :
+> 
+> -- start here --
+> 
+> make[1]: Entering directory `/network-fs/linux-2.5.4/arch/i386/kernel'
+> gcc -D__KERNEL__ -I/network-fs/linux-2.5.4/include -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+> -march=i686   -DKBUILD_BASENAME=process  -c -o process.o process.c
+> process.c:60: parse error before `unsigned'
+> make[1]: *** [process.o] Error 1
+> make[1]: Leaving directory `/network-fs/linux-2.5.4/arch/i386/kernel'
+> make: *** [_dir_arch/i386/kernel] Error 2
+> 
+> -- end here --
+> 
+> on a pristine v2.5.4 with the patch for processor.h from David Howell's
+> applied. Configuration file is attached to this message. Same
 
--VAL
+Well, you're saying 2.5.4 but that error is what you get if you apply
+2.5.5-pre1 to a tree that has the processor.h patch already applied.
+
+You need to change the following line in processor.h:
+'#define thread_saved_pc(TSK) (((unsigned long*)(TSK)->thread.esp)[3])'
+
+to:
+
+'extern unsigned long thread_saved_pc(struct task_struct *tsk);'
+
+- -- 
+Skip  ID: 0x7EDDDB0A
+-----BEGIN PGP SIGNATURE-----
+
+iEYEARECAAYFAjxsM18ACgkQBMKxVH7d2wptawCfdWCv2uZxRfHibIpx3uryRQWj
+6DcAnRqqdkzlDFL5ZAt8DiYsBE/62sxX
+=fZfn
+-----END PGP SIGNATURE-----

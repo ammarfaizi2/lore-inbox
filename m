@@ -1,98 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbVCXBbG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVCXBdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262314AbVCXBbG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 20:31:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbVCXBbG
+	id S262325AbVCXBdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 20:33:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbVCXBdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 20:31:06 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:39146 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262314AbVCXBa6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 20:30:58 -0500
-Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was:
-	Re:2.6.12-rc1-mm1: Kernel BUG at pci:389)
+	Wed, 23 Mar 2005 20:33:09 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:53650 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262325AbVCXBcz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 20:32:55 -0500
+Subject: Re: 2.6.12-rc1-mm1: Kernel BUG at pci:389
 From: Li Shaohua <shaohua.li@intel.com>
-To: Len Brown <len.brown@intel.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1111626180.17317.921.camel@d845pe>
-References: <1111626180.17317.921.camel@d845pe>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, rjw@sisk.pl,
+       lkml <linux-kernel@vger.kernel.org>, Len Brown <len.brown@intel.com>
+In-Reply-To: <20050322122041.GA1414@elf.ucw.cz>
+References: <20050322122041.GA1414@elf.ucw.cz>
 Content-Type: text/plain
-Message-Id: <1111627673.11775.6.camel@sli10-desk.sh.intel.com>
+Message-Id: <1111627799.11775.9.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 24 Mar 2005 09:27:53 +0800
+Date: Thu, 24 Mar 2005 09:29:59 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-24 at 09:03, Len Brown wrote:
-> On Wed, 2005-03-23 at 18:49, Rafael J. Wysocki wrote:
-> > Hi,
-> > 
-> > On Wednesday, 23 of March 2005 23:39, Pavel Machek wrote:
-> > > Hi!
+On Tue, 2005-03-22 at 20:20, Pavel Machek wrote:
+> Hi!
+> 
+> > >> > Yes, but it is needed. There are many drivers, and they look at
+> > >> > numerical value of PMSG_*. I'm proceeding in steps. I hopefully
+> > killed
+> > >> > all direct accesses to the constants, and will switch constants
+> to
+> > >> > something else... But that is going to be tommorow (need some
+> > sleep).
+> > >> The patches are going to acquire correct PCI device sleep state
+> for
+> > >> suspend/resume. We discussed the issue several months ago. My
+> plan is
+> > we
+> > >> first introduce 'platform_pci_set_power_state', then merge the
+> > >> 'platform_pci_choose_state' patch after Pavel's pm_message_t
+> > conversion
+> > >> finished. Maybe Len mislead my comments.
+> > >>
+> > >> Anyway for the callback, my intend is platform_pci_choose_state
+> > accept
+> > >> the pm_message_t parameter, and it return an 'int', since
+> platform
+> > >> method possibly failed and then pci_choose_state translate the
+> return
+> > >> value to pci_power_t.
 > > >
-> > > > > > > Will this do it for the moment?
-> > > > > >
-> > > > > > Its certainly better.
-> > > > >
-> > > > > With the Len's patch applied I have to unload the modules:
-> > > > >
-> > > > > ohci_hcd
-> > > > > ehci_hcd
-> > > > > yenta_socket
-> > > > >
-> > > > > before suspend as each of them hangs the box solid during
-> either
-> > > > > suspend or resume.  Moreover, when I tried to load the
-> ehci_hcd
-> > > > > module back after resume, it hanged the box solid too.
+> > >You can't just retype around like that. You may want it take
+> > >pci_power_t * as an argument, and then return 0/-ENODEV or
+> something
+> > >like that. But you can't retype between int and pm_message_t...
+> > No, taking pci_power_t as an argument is meaningless. For ACPI, we
+> > should know the exact sleep state, pm_message_t will tell us. But
+> I'm ok
+> > to let it return a pci_power_t, and the failure case returns
+> > -ENODEV.
 > 
-> Is this failure with suspend to RAM or to disk?
+> You can't put -ENODEV into pci_power_t ... but maybe we should create
+> PCI_ERROR and pass it in cases like this one?
+That makes sense, please do it.
+
 > 
-> How about if you try this patch?
+> > >> > Could you just revert those two patches? First one is very
+> > >> > wrong. Second one might be fixed, but... See comments below.
+> > >> I think the platform_pci_set_power_state should be ok, did you
+> see it
+> > >> causes oops?
+> > >
+> > >No its just ugly and uses __force in "creative" way. That one can
+> be
+> > >recovered.
+> > Do you mean this?
+> > 
+> > > +   static int state_conv[] = {
+> > > +           [0] = 0,
+> > > +           [1] = 1,
+> > > +           [2] = 2,
+> > > +           [3] = 3,
+> > > +           [4] = 3
+> > > +   };
+> > > +   int acpi_state = state_conv[(int __force) state];
+> > 
+> > The table should be
+> >               [PCI_D0] = 0,
+> > 
+> > I'm not sure, but then could we use state_conv[state] directly? It
+> seems
 > 
-> http://linux-acpi.bkbits.net:8080/to-akpm/cset@423b4875tyauh4CrSSoQfXOEPDkmUw
+> I think so. Of course it is wrong, but it is less wrong than forcing
+> it to integer than index, without using macros at all.
 > 
-> patch -Rp1 from 2.6.12-rc1-mm and see if it stops being broken
-> or patch -Np1 to 2.6.12-rc and see if it starts being broken.
+> Or perhaps you should do
 > 
-> This one removes an earlier attempt at resuming PCI links -- now
-> putting the onus on the drivers to be properly written
-> to release and acquire their interrupt for a successful
-> suspend/resume.
+> switch (state) {
+> case PCI_D0: ...
+> }
 > 
-> 
-> In theory, this is taken care of something like this:
-> driver.resume
->         pci_enable_device
->                 pci_enable_device_bars
->                         pcibios_enable_device
->                                 pcibios_enable_irq
->                                         acpi_pci_irq_enable
-> 
-> but if the patch above makes a difference, then theory != practice:-)
-> 
-> I'd believe that ohci_hcd and ehci_hcd are fragile since glancing
-> at their lengthy .resume routines it isn't immediately obvious
-> that they do this.  But yenta_dev_resume has a pci_enable_device(),
-> so that failure may be less straightforward.
-> 
-> cheers,
-> -Len
-> 
-> ps. if point me to a full dmesg -s64000 from 2.6.12-rc1 acpi-enabled
-> boot, that would help -- for it will show if we're even using pci
-> interrupt links (and programming them) for these devices on this box.
-Yes, we changed the behavior of device suspend/resume. Every PCI device
-should call 'pci_disable_device' at suspend and call 'pci_enable_device'
-at resume. It fixes a bug and more important thing is it's safer (Eg. it
-disable interrupts, bus master and etc).
-I actually added such calls in uhci, ehci and yenta. It's ok for S3 (and
-definitely required for S3). Unclear if it's ok for S4, so please try
-revert the patch.
+> ...and handle default case somehow.
+That's ok for me. I'll change it later.
 
 Thanks,
 Shaohua

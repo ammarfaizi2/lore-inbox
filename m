@@ -1,110 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262231AbTH3XcA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 19:32:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbTH3Xb0
+	id S262279AbTH3X2H (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 19:28:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTH3X2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 19:31:26 -0400
-Received: from aneto.able.es ([212.97.163.22]:48258 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S262231AbTH3XbX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 19:31:23 -0400
-Date: Sun, 31 Aug 2003 01:31:20 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] check_gcc for i386
-Message-ID: <20030830233120.GC20429@werewolf.able.es>
-References: <Pine.LNX.4.44.0308301957440.20117-100000@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.44.0308301957440.20117-100000@logos.cnet>; from marcelo@parcelfarce.linux.theplanet.co.uk on Sun, Aug 31, 2003 at 00:58:10 +0200
-X-Mailer: Balsa 2.0.14
+	Sat, 30 Aug 2003 19:28:07 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12960 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262279AbTH3X2D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 19:28:03 -0400
+Date: Sat, 30 Aug 2003 20:30:36 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
+X-X-Sender: marcelo@logos.cnet
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Mike Fedyk <mfedyk@matchmail.com>, Antonio Vargas <wind@cocodriloo.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>
+Subject: Re: Andrea VM changes
+In-Reply-To: <20030830231904.GL24409@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0308302026570.20323-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 08.31, Marcelo Tosatti wrote:
-> 
-> 
-> On Sun, 31 Aug 2003, J.A. Magallon wrote:
-> 
+
+On Sun, 31 Aug 2003, Andrea Arcangeli wrote:
+
+> On Sat, Aug 30, 2003 at 04:21:02PM -0300, Marcelo Tosatti wrote:
+> > y
 > > 
-> > On 08.30, Marcelo Tosatti wrote:
-> > > 
-> > > Hello,
-> > > 
-> > > Here goes -pre2. It contains an USB update, PPC merge, m68k merge, IDE
-> > > changes from Alan, network drivers update from Jeff, amongst other fixes
-> > > and updates.
-> > > 
+> > On Sat, 30 Aug 2003, Marcelo Tosatti wrote:
 > > 
-> > New try...
-> > Plz, could you include this on your queue ?
+> > > >
+> > > > Indeed, you are right.
+> > > >
+> > > > I'll start looking at them Monday. I'll keep you in touch. Thanks.
+> > >
+> > > Andrea,
+> > >
+> > > Would you mind to explain me 05_vm_06_swap_out-3 ?
+> > >
+> > > I see you change shrink_cache, try_to_free_pages_zone, etc.
+> > >
+> > > Can you please give me a detailed explanation of the changes there?
+> > >
+> > > I appreciate very much.
+> > >
+> > > I'll keep looking at other patches for now.
 > > 
-> > --- linux-2.4.21-bp1/arch/i386/Makefile.orig	2003-06-18 23:40:25.000000000 +0200
-> > +++ linux-2.4.21-bp1/arch/i386/Makefile	2003-06-18 23:59:25.000000000 +0200
-> > @@ -53,11 +53,11 @@
-> >  endif
-> >  
-> >  ifdef CONFIG_MPENTIUMIII
-> > -CFLAGS += -march=i686
-> > +CFLAGS += $(call check_gcc,-march=pentium3,-march=i686)
-> >  endif
-> >  
-> >  ifdef CONFIG_MPENTIUM4
-> > -CFLAGS += -march=i686
-> > +CFLAGS += $(call check_gcc,-march=pentium4,-march=i686)
-> >  endif
-> >  
-> >  ifdef CONFIG_MK6
+> > 05_vm_09_misc_junk-3 removes the PF_MEMDIE and you also seem to remove the
+> > OOM killer. Is that right? Why?
 > 
-> OK, I forgot what that does. Can you please explain in detail what 
-> check_gcc does. 
+> because the oom killer is a DoS on servers, on a database setup, with 2G
+> free, with say all tasks 2.7G large, it'll start killing all the
+> thousand database tasks instead of the 2g netscape task that hit an
+> userspace bug and it started allocating ram in a loop, and that will
+> make no progress since no physical ram will be released. There's no need
+> of oom killer to keep the system stable, with my vm, and the current
+> probabilistic oom killer in the page fault hander 
+
+So tasks get killed in case of page allocation failure? 
+
+> kills the right task most of the time (unlike the stock oom killers that
+> works well only for the desktops or developer machines). So it does a
+> much better job and it doesn't risk to DoS the box due oom.
+
+Mind to explain me in more detail the OOM killing mechanism? 
+
+
+> Another DoS generated by the oom killer is that it'll try forever to
+> kill a UNINTERRUPTIBLE task hanging in a nfs server that is down, so it
+> hangs the whole box for an unlimited time.
 > 
-> 
+> I've an algorithm that will work, and that will provide very good
+> guarantees to kill the "best" task to make the machine usable again,
+> with the needed protection against the security DoSes, but it's in
+> no-way similar to the current oom killer.
 
-arch/i386/Makefile:
+My concern is about how this oom killer works. 
 
-check_gcc = $(shell if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi)
+PS: Thanks for answering, hope we can agree on things and make progress 
+on this merge. 
 
-So
-
-$(call check_gcc,-march=pentium3,-march=i686)
-
-checks if gcc supports -march=pentium3 and returns it, if not it returns the
-fallbask (-march=i686). So it changes i686 to pentium3 if supported by the
-compiler. Same for P4. It will help in instruction scheduling and so on.
-
-I will also answer here to Andre...
-
-> 
-> This can be a potentially harmful change, suddenly exposing compiler 
-> bugs and other compiler related problems in the kernel code we have not 
-> yet seen. On one side, these bugs _should_ get fixed, on the other side, 
-> we might not find them all before release. Also, the pentium3 and 
-> pentium4 options have been known to compile for example bad SSE code in 
-> some gcc versions, something that's giving me a feeling those gcc 
-> options may be a little immature to use for a stable kernel series.
-> 
-
-Testing till now:
-- Myself ;), on PIII and P4, and also on PII (with additional patch I
-  would like to submit if this goes in...), all the gccs in mandrake
-  since 2.96, I think, to 3.3.1
-- Some people apart from me is using it and I have not received any
-  complaint about this.
-- My -jam patchset has survived benchmarks of rwhron@earthlink.net,
-  see http://home.earthlink.net/~rwhron/kernel/bigbox.html.
-. It is in 2.6 and nobody has showed any problem.
-- We are still in early -pre, so its time to chase bugs...;)
-
-Any question/comment ?
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.22-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-1mdk))

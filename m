@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265694AbTF2QM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 12:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbTF2QM7
+	id S265704AbTF2Qcp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 12:32:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265706AbTF2Qcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 12:12:59 -0400
-Received: from indyio.rz.uni-saarland.de ([134.96.7.3]:25638 "EHLO
-	indyio.rz.uni-saarland.de") by vger.kernel.org with ESMTP
-	id S265694AbTF2QM6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 12:12:58 -0400
-Message-ID: <3EFF1349.6020802@hipac.org>
-Date: Sun, 29 Jun 2003 18:26:49 +0200
-From: Michael Bellion and Thomas Heinz <nf@hipac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: de, en
+	Sun, 29 Jun 2003 12:32:45 -0400
+Received: from cmu-24-35-32-166.mivlmd.cablespeed.com ([24.35.32.166]:1284
+	"EHLO lap.molina") by vger.kernel.org with ESMTP id S265704AbTF2Qco
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 12:32:44 -0400
+Date: Sun, 29 Jun 2003 12:44:56 -0600 (CST)
+From: Thomas Molina <tmolina@copper.net>
+X-X-Sender: tmolina@lap.molina
+To: "P. Christeas" <p_christ@hol.gr>
+cc: Arkadiusz Miskiewicz <arekm@pld-linux.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Synaptics support kills my mouse
+In-Reply-To: <200306261746.14578.p_christ@hol.gr>
+Message-ID: <Pine.LNX.4.44.0306291241220.1007-100000@lap.molina>
 MIME-Version: 1.0
-To: Pekka Savola <pekkas@netcore.fi>
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [ANNOUNCE] nf-hipac v0.8 released
-References: <Pine.LNX.4.44.0306290924310.28882-100000@netcore.fi>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pekka
+On Thu, 26 Jun 2003, P. Christeas wrote:
 
-You wrote:
->>We are going to test the stuff tomorrow on an i386 and tell you
->>the results afterwards.
+> It is true, 2.5.73 unconditionally detects and tries to use the Syn. Touchpad 
+> in 'absolute mode'. I wouldn't blame the authors of the module, however. They 
+> are already doing a great job :).
+> 
+> I 've read the code to see what's wrong and found that the problem is that the 
+> Touchpad itself doesn't report any data to the PS/2 port. The code still 
+> looks conforming to the specs.
+> However, you shouldn't give up 2.5.73 because of that. You can still use the 
+> PS/2 compatibility mode
+>  o Compile the ps mouse as a module "psmouse"
+>  o Arrange so that the module is loaded with the option "psmouse_noext=1"
+>  o Have gpm and X (you can even use both of them) read /dev/input/mice as an 
+> exps2 or imps2 mouse (Intellimouse Explorer PS/2) .
 
-Well, nf-hipac works fine together with the ebtables patch for 2.4.21
-on an i386 machine. We expect it to work with other patches too.
-
->>In principle, nf-hipac should work properly whith the bridge patch.
->>We expect it to work just like iptables apart from the fact that
->>you cannot match on bridge ports.
-
-Well, this statement holds for the native nf-hipac in/out interface
-match but of course you can match on bridge ports with nf-hipac
-using the iptables physdev match. So everything should be fine :)
-
-> One obvious thing that's missing in your performance and Roberto's figures 
-> is what *exactly* are the non-matching rules.  Ie. do they only match IP 
-> address, a TCP port, or what? (TCP port matching is about a degree of 
-> complexity more expensive with iptables, I recall.)
-
-[answered in private e-mail]
-
-
-Regards,
-
-+-----------------------+----------------------+
-|   Michael Bellion     |     Thomas Heinz     |
-| <mbellion@hipac.org>  |  <creatix@hipac.org> |
-+-----------------------+----------------------+
+Further update.  I can get the same effect/workaround by making the mouse 
+support built in (my preference) and specifying the above option on the 
+kernel options line.
 

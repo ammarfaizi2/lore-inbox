@@ -1,71 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280764AbRKSVxT>; Mon, 19 Nov 2001 16:53:19 -0500
+	id <S280744AbRKSWAu>; Mon, 19 Nov 2001 17:00:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280755AbRKSVxJ>; Mon, 19 Nov 2001 16:53:09 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:30676 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S280744AbRKSVw5>;
-	Mon, 19 Nov 2001 16:52:57 -0500
-Date: Mon, 19 Nov 2001 21:52:53 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Rik van Riel <riel@conectiva.com.br>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: Remco Post <r.post@sara.nl>, James A Sutherland <jas88@cam.ac.uk>,
-        linux-kernel@vger.kernel.org, remco@zhadum.sara.nl,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: Swap 
-Message-ID: <1924931095.1006206772@[195.224.237.69]>
-In-Reply-To: <Pine.LNX.4.33L.0111191917000.1491-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0111191917000.1491-100000@duckman.distro.conecti
- va>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S280748AbRKSWAj>; Mon, 19 Nov 2001 17:00:39 -0500
+Received: from auemail1.lucent.com ([192.11.223.161]:55761 "EHLO
+	auemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id <S280744AbRKSWAa>; Mon, 19 Nov 2001 17:00:30 -0500
+Message-ID: <3BF980F6.6080503@lucent.com>
+Date: Mon, 19 Nov 2001 17:00:22 -0500
+From: John Ellson <ellson@lucent.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011115
+X-Accept-Language: en-us
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] "make modules_install" breaks with new /bin/cp
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik,
+linux-2.4.15-pre6, fileutils-4.1.1-1.i386.rpm
 
---On Monday, 19 November, 2001 7:17 PM -0200 Rik van Riel 
-<riel@conectiva.com.br> wrote:
+With my configuration (details not important), "make modules_install" results in:
 
->> Out of interest, is received wisdom that this is a good/bad
->> thing?
->
-> Load control is a good thing since it means the box
-> gets slower in a controlled way instead of running
-> fine one minute and horribly falling over the next
-> minute.
->
-> I'm certainly planning to implement some load control
-> measures for 2.5.
+mkdir -p /lib/modules/2.4.15-pre6/kernel/drivers/sound/
+cp soundcore.o sound.o cs4232.o ad1848.o pss.o ad1848.o mpu401.o cs4232.o uart401.o ad1848.o mpu401.o uart6850.o 
+v_midi.o btaudio.o /lib/modules/2.4.15-pre6/kernel/drivers/sound/
+cp: will not overwrite just-created `/lib/modules/2.4.15-pre6/kernel/drivers/sound/ad1848.o' with `ad1848.o'
+cp: will not overwrite just-created `/lib/modules/2.4.15-pre6/kernel/drivers/sound/cs4232.o' with `cs4232.o'
+cp: will not overwrite just-created `/lib/modules/2.4.15-pre6/kernel/drivers/sound/ad1848.o' with `ad1848.o'
+cp: will not overwrite just-created `/lib/modules/2.4.15-pre6/kernel/drivers/sound/mpu401.o' with `mpu401.o'
+make[2]: *** [_modinst__] Error 1
 
-OK another potentially dumb question on this:
+This hasn't been a problem with earlier version of /bin/cp (upto fileutils-4.1-4.i386.rpm in RH7.2),
+but /bin/cp from fileutils-4.1.1-1.i386.rpm (in the Rawhide collection) is more pedantic about
+multiple copies of the same file.
 
-I had previously (mis?)understood load control to mean (say)
-clustering page out requests to pages from specific
-processes, then altering the scheduler to avoid scheduling these
-processes for extended periods of time, then moving onto the next
-set of processes to victimize, and so forth; i.e. increasing
-scheduler granularity to cope with increased average virtual
-memory access times by decreasing VM footprint used per second.
+This patch works around this "feature".  It would be better if the Makefiles were changed to only
+install modules once, but thats a deeper problem.
 
-The original poster seemed to be talking about the old-UNIX
-definition of swapping, which, if I remember right, was releasing
-/all/ clean pages for an app (I guess this has already been done
-by the time we want to do this) and paging /all/ dirty pages
-& freeing the memory there and then.
 
-I'd have thought swapping was a pretty coarsely-grained
-form of load control (and difficulted with shared mem etc.);
-do you believe there is a requirement to implement (old UNIX)
-swapping per-se, or merely to intelligently tweak the scheduler
-to cope better with high VM system loads? [the absence of the
-former was what I was suggesting might have been considered
-a good thing]
 
---
-Alex Bligh
+--- Rules.make.orig	Mon Nov 19 16:49:55 2001
++++ Rules.make	Mon Nov 19 16:50:20 2001
+@@ -173,7 +173,7 @@
+  _modinst__: dummy
+  ifneq "$(strip $(ALL_MOBJS))" ""
+  	mkdir -p $(MODLIB)/kernel/$(MOD_DESTDIR)
+- 
+cp $(ALL_MOBJS) $(MODLIB)/kernel/$(MOD_DESTDIR)$(MOD_TARGET)
++ 
+for i in $(ALL_MOBJS);do cp $$i $(MODLIB)/kernel/$(MOD_DESTDIR)$(MOD_TARGET);done
+  endif
+
+  .PHONY: modules_install
+
+	
+
+
+-- 
+John Ellson (ellson@lucent.com)  Lucent Technologies, Holmdel, NJ, 07733
+

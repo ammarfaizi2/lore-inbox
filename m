@@ -1,51 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282898AbRL0Wbb>; Thu, 27 Dec 2001 17:31:31 -0500
+	id <S282916AbRL0Wlb>; Thu, 27 Dec 2001 17:41:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282904AbRL0WbV>; Thu, 27 Dec 2001 17:31:21 -0500
-Received: from gear.torque.net ([204.138.244.1]:28173 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S282898AbRL0WbJ>;
-	Thu, 27 Dec 2001 17:31:09 -0500
-Message-ID: <3C2BA1B4.EB853055@torque.net>
-Date: Thu, 27 Dec 2001 17:33:24 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Leung Yau Wai <chris@gist.q-station.net>
-CC: linux-scsi@vger.kernel.org
-Subject: Re: dd cdrom error
+	id <S282904AbRL0WlV>; Thu, 27 Dec 2001 17:41:21 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:1887 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S282916AbRL0WlI>;
+	Thu, 27 Dec 2001 17:41:08 -0500
+Message-ID: <20011227234104.B4528@win.tue.nl>
+Date: Thu, 27 Dec 2001 23:41:04 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: Stephan von Krawczynski <skraw@ithnet.com>,
+        "James Stevenson" <mistral@stev.org>
+Cc: jlladono@pie.xtec.es, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x kernels, big ide disks and old bios
+In-Reply-To: <3C285B40.91A83EC7@jep.dhis.org> <001a01c18d77$a9e92ca0$0801a8c0@Stev.org> <20011226173307.34e25fe6.skraw@ithnet.com> <000701c18ed8$73f2b2d0$0801a8c0@Stev.org> <20011227195101.5bf120f9.skraw@ithnet.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20011227195101.5bf120f9.skraw@ithnet.com>; from Stephan von Krawczynski on Thu, Dec 27, 2001 at 07:51:01PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Leung Yau Wai <chris@gist.q-station.net> wrote:
-> I come across a problem which seem exist in kernel 
-> 2.4.x but not in 2.2.x.
->
-> The problem is that, when I try to using dd to create 
-> a ISO image of a cdrom then around dumping the end of 
-> the disc it will give out the following error message:
->
-> e.g. dd if=/dev/cdrom of=n.iso
+On Thu, Dec 27, 2001 at 07:51:01PM +0100, Stephan von Krawczynski wrote:
 
-If dd is used like that, it is surprising you do not get
-more errors. An iso9660 image does not necessarily fill
-the track. So the IDE equivalent of the SCSI READ CAPACITY 
-command will often report a size that includes unwritten 
-sectors at the end. Those unwritten sectors can/will cause
-IO errors when an attempt is made to read them.
+> I don't know. I tried once with
+> 
+> 00:01.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
+> 
+> and it did not work. I could definitely not write beyond the 32 GB border. I
+> replaced the mobo then.
 
-A very useful program called "isosize" has made a return to
-util-linux-2.10s (and later). Execute:
-  isosize -x /dev/cdrom
-to find the number of sectors and the sector size of the iso9660
-fs held _within_ the first track. Then use those numbers as the 
-"count=" and "bs=" arguments to dd respectively.
-
-
-If you still have problems try turning DMA off via hdparm
-or set the DMA mode back to 33 MHz (-X34).
-
-Doug Gilbert
+Did you try setmax?

@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267714AbTBRIa5>; Tue, 18 Feb 2003 03:30:57 -0500
+	id <S267715AbTBRIid>; Tue, 18 Feb 2003 03:38:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267715AbTBRIa4>; Tue, 18 Feb 2003 03:30:56 -0500
-Received: from mail.hometree.net ([212.34.181.120]:27581 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S267714AbTBRIa4>; Tue, 18 Feb 2003 03:30:56 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: ext3 clings to you like flypaper
-Date: Tue, 18 Feb 2003 08:40:56 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <b2srio$v2k$1@tangens.hometree.net>
-References: <78320000.1045465489@[10.10.2.4]> <1045482621.29000.40.camel@passion.cambridge.redhat.com> <2460000.1045500532@[10.10.2.4]>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1045557656 31828 212.34.181.4 (18 Feb 2003 08:40:56 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 18 Feb 2003 08:40:56 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	id <S267716AbTBRIid>; Tue, 18 Feb 2003 03:38:33 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:33454 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S267715AbTBRIic>; Tue, 18 Feb 2003 03:38:32 -0500
+Date: Tue, 18 Feb 2003 09:15:29 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: Paul Mackerras <paulus@samba.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: stuff-up in pcmcia/cardbus stuff
+Message-ID: <20030218081529.GA2334@brodo.de>
+References: <15953.37244.263505.214325@argo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15953.37244.263505.214325@argo.ozlabs.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> writes:
+On Tue, Feb 18, 2003 at 12:50:52PM +1100, Paul Mackerras wrote:
+> Recent 2.5 kernels will crash with a null pointer dereference on my
+> powerbook (PowerPC laptop) when I try to suspend.  I tracked it down
+> to cardbus_suspend() in drivers/pcmcia/pci-socket.c calling
+> pcmcia_suspend_socket() with a NULL argument.  It turns out that
+> socket->pcmcia_socket is never set in the current code.
 
->And in answer to some other questions:
+Indeed. socket->pcmcia_socket (old) == socket->cls_d.s_info[0] (new)
+Could you please check whether this patch helps?
 
->This machine can't boot off CD, so rescue disks are not an option.
->It's remote anyway, and I shouldn't have to screw around with it to do this.
->I'm not using initrd
+	Dominik
 
->The point remains, if I say I want ext2, I should get ext2, not whatever 
->some random developer decides he thinks I should have. Worst of all,
->the system then lies to you and says it's mounted ext2 when it's not.
-
-Don't compile any FS into the kernel. Load ext2 from an initrd. root
-fs mounts as ext2 and you're happy.
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
-
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire
+diff -ruN linux-original/drivers/pcmcia/pci_socket.c linux/drivers/pcmcia/pci_socket.c
+--- linux-original/drivers/pcmcia/pci_socket.c	2003-02-18 09:08:00.000000000 +0100
++++ linux/drivers/pcmcia/pci_socket.c	2003-02-18 09:12:02.000000000 +0100
+@@ -230,14 +230,16 @@
+ static int cardbus_suspend (struct pci_dev *dev, u32 state)
+ {
+ 	pci_socket_t *socket = pci_get_drvdata(dev);
+-	pcmcia_suspend_socket (socket->pcmcia_socket);
++	if (socket && socket->cls_d.s_info[0])
++		pcmcia_suspend_socket (socket->cls_d.s_info[0]);
+ 	return 0;
+ }
+ 
+ static int cardbus_resume (struct pci_dev *dev)
+ {
+ 	pci_socket_t *socket = pci_get_drvdata(dev);
+-	pcmcia_resume_socket (socket->pcmcia_socket);
++	if (socket && socket->cls_d.s_info[0])
++		pcmcia_resume_socket (socket->cls_d.s_info[0]);
+ 	return 0;
+ }
+ 
+diff -ruN linux-original/drivers/pcmcia/pci_socket.h linux/drivers/pcmcia/pci_socket.h
+--- linux-original/drivers/pcmcia/pci_socket.h	2003-02-18 09:08:00.000000000 +0100
++++ linux/drivers/pcmcia/pci_socket.h	2003-02-18 09:10:29.000000000 +0100
+@@ -20,7 +20,6 @@
+ 	socket_cap_t cap;
+ 	spinlock_t event_lock;
+ 	unsigned int events;
+-	struct socket_info_t *pcmcia_socket;
+ 	struct work_struct tq_task;
+ 	struct timer_list poll_timer;
+ 

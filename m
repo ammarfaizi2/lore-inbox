@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbTKMCoE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 21:44:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTKMCoE
+	id S261959AbTKMCvD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 21:51:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbTKMCvC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 21:44:04 -0500
-Received: from zok.sgi.com ([204.94.215.101]:14753 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S261928AbTKMCoD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 21:44:03 -0500
-Date: Wed, 12 Nov 2003 18:42:33 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Pat Gefre <pfg@sgi.com>
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com
-Subject: Re: [PATCH] Updating our sn code in 2.6
-Message-Id: <20031112184233.2474003b.pj@sgi.com>
-In-Reply-To: <Pine.SGI.3.96.1031112174709.40512D-100000@fsgi900.americas.sgi.com>
-References: <20031107102514.A2437@infradead.org>
-	<Pine.SGI.3.96.1031112174709.40512D-100000@fsgi900.americas.sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 12 Nov 2003 21:51:02 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:33986 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261959AbTKMCvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 21:51:01 -0500
+Subject: Re: List of SCO files
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1068679942.3082.131.camel@mentor.gurulabs.com>
+References: <1068679942.3082.131.camel@mentor.gurulabs.com>
+Content-Type: text/plain
+Message-Id: <1068691791.13135.41.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 13 Nov 2003 13:49:51 +1100
 Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch still seems way too monolithic, Pat.
+Or just include/asm-m68k/spinlock.h :)
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+The whole file is just:
+
+#ifndef __M68K_SPINLOCK_H
+#define __M68K_SPINLOCK_H
+ 
+#error "m68k doesn't do SMP yet"
+ 
+#endif
+
+

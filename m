@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267877AbRGRNWn>; Wed, 18 Jul 2001 09:22:43 -0400
+	id <S267879AbRGRNXd>; Wed, 18 Jul 2001 09:23:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267876AbRGRNWd>; Wed, 18 Jul 2001 09:22:33 -0400
-Received: from mcp.csh.rit.edu ([129.21.60.9]:22290 "EHLO mcp.csh.rit.edu")
-	by vger.kernel.org with ESMTP id <S267874AbRGRNWQ>;
-	Wed, 18 Jul 2001 09:22:16 -0400
-Date: Wed, 18 Jul 2001 09:22:16 -0400
-From: Jeff Mahoney <jeffm@suse.com>
-To: mdaljeet@in.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ppc Linux-2.4.2 not generating core dump for SIGSEGV and abort()
-Message-ID: <20010718092216.D16609@fury.csh.rit.edu>
-In-Reply-To: <CA256A8D.0047BE63.00@d73mta01.au.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <CA256A8D.0047BE63.00@d73mta01.au.ibm.com>; from mdaljeet@in.ibm.com on Wed, Jul 18, 2001 at 06:31:25PM +0530
-X-Operating-System: SunOS 5.8 (sun4u)
+	id <S267876AbRGRNXX>; Wed, 18 Jul 2001 09:23:23 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:28167 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S267874AbRGRNXN>;
+	Wed, 18 Jul 2001 09:23:13 -0400
+Date: Wed, 18 Jul 2001 10:23:07 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Inclusion of zoned inactive/free shortage patch 
+In-Reply-To: <Pine.LNX.4.21.0107172118200.7772-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33L.0107181016500.27454-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 18, 2001 at 06:31:25PM +0530, mdaljeet@in.ibm.com wrote:
-> Hi all,
->      I am using Suse-linux-7.1 with default linux -ppc kernel on apple G4
-> machine.
-> SIGSEGV is never generating the core dump. though this signal is being
-> caught by the user process.
-> I also tried with "abort" call which should generate the core dump, but
-> this is also not working. The same program with abort call is generating
-> core dumps on other linux/unix platforms.
-> Can anybody tell me where is the problem?
+On Tue, 17 Jul 2001, Marcelo Tosatti wrote:
 
-    Core dumps are disabled by default for a SuSE install.
+> The following patch (against 2.4.6-ac2, already merged in 2.4.6-ac3) adds
+> specific perzone inactive/free shortage handling code.
 
-    If you're using bash:
-    ulimit -c unlimited
+Marcelo, now that you have the nice VM statistics
+patch, do you have some numbers on how this patch
+affects the system, or is this patch based on
+guesswork ?  ;)
 
-    or csh:
-    unlimit coredumpsize
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-    -Jeff
--- 
-Jeff Mahoney
-jeffm@suse.com
-jeffm@csh.rit.edu
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

@@ -1,65 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263927AbTLJUWT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 15:22:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTLJUWT
+	id S263914AbTLJUOw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 15:14:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263918AbTLJUOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 15:22:19 -0500
-Received: from dyn-213-36-224-2.ppp.tiscali.fr ([213.36.224.2]:11780 "EHLO
-	nsbm.kicks-ass.org") by vger.kernel.org with ESMTP id S263927AbTLJUWP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 15:22:15 -0500
-Date: Wed, 10 Dec 2003 21:22:09 +0100
-From: Witukind <witukind@nsbm.kicks-ass.org>
-To: mru@kth.se (=?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?=)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
-Message-Id: <20031210212209.7fce7dae.witukind@nsbm.kicks-ass.org>
-In-Reply-To: <yw1xd6aw4ge3.fsf@kth.se>
-References: <200312081536.26022.andrew@walrond.org>
-	<20031208154256.GV19856@holomorphy.com>
-	<3FD4CC7B.8050107@nishanet.com>
-	<20031208233755.GC31370@kroah.com>
-	<20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org>
-	<20031209075619.GA1698@kroah.com>
-	<1070960433.869.77.camel@nomade>
-	<20031209090815.GA2681@kroah.com>
-	<buoiskqfivq.fsf@mcspd15.ucom.lsi.nec.co.jp>
-	<yw1xd6ayib3f.fsf@kth.se>
-	<20031210202354.7a3c429a.witukind@nsbm.kicks-ass.org>
-	<yw1xd6aw4ge3.fsf@kth.se>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 10 Dec 2003 15:14:52 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:41739
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S263914AbTLJUOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 15:14:50 -0500
+Date: Wed, 10 Dec 2003 12:09:09 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Larry McVoy <lm@bitmover.com>, Arjan van de Ven <arjanv@redhat.com>,
+       Valdis.Kletnieks@vt.edu, Kendall Bennett <KendallB@scitechsoft.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+In-Reply-To: <Pine.LNX.4.58.0312100959180.29676@home.osdl.org>
+Message-ID: <Pine.LNX.4.10.10312101152090.3805-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Dec 2003 20:33:24 +0100
-mru@kth.se (Måns Rullgård) wrote:
 
-> Witukind <witukind@nsbm.kicks-ass.org> writes:
+Linus,
+
+Didn't your earlier public comments state in clear terms, each kernel
+release it self has a unique module interface.  This would be the
+effective API for the snap shot in time.  Where as claims of it being a
+moving target is between releases?  Thus binary module writers get what
+they get?
+
+This looks to be your position in the past.
+
+With this in mind, it makes each "published" source the manual unique into
+itself.
+
+I am just a little confused and fuzzy around the edges.
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+PS: Nobody has yet to comment that I have remaind civil throught the
+thread :-) whoops!
+
+On Wed, 10 Dec 2003, Linus Torvalds wrote:
+
 > 
-> > On Tue, 09 Dec 2003 10:39:32 +0100 mru@kth.se (Måns Rullgård) wrote:
+> On Wed, 10 Dec 2003, Larry McVoy wrote:
 > >
-> >> > Is there a specific case for which people want this feature?
-> >> > Offhand it seems like a slightly odd thing to ask for...
-> >> 
-> >> I believe the original motivation for module autoloading was to
-> >save> memory by unloading modules when their devices were unused. 
-> >Loading> them automatically on demand made for less trouble for
-> >users, who> didn't have to run modprobe manually to use the sound
-> >card, or> whatever.  This could still be a good thing in embedded
-> >systems.> 
-> >
-> > I don't see why it wouldn't be a good thing for regular systems
-> > also. Saving memory is usually a good idea.
+> > I see.  And your argument, had it prevailed 5 years ago, would have
+> > invalidated the following, would it not?  The following from one of the
+> > Microsoft lawsuits.
 > 
-> The biggest modules are about 100k.  Saving 100k of 1 GB doesn't
-> really seem worth any effort.
+> No it wouldn't.
+> 
+> Microsoft very much _has_ a binary API to their drivers, in a way that
+> Linux doesn't.
+> 
+> MS has to have that binary API exactly because they live in a binary-only
+> world. They've basically put that requirement on themselves by having
+> binary-only distributions.
+> 
+> So your argument doesn't fly. To Microsoft, a "driver" is just another
+> external entity, with documented API's, and they indeed ship their _own_
+> drivers that way too. And all third-party drivers do the same thing.
+> 
+> So there is no analogy to the Linux case. In Linux, no fixed binary API
+> exists, and the way normal drivers are distributed are as GPL'd source
+> code.
+> 
+> 			Linus
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-I don't have 1 Gb of memory. On my laptop with 16 mb RAM saving 100k is worth
-the effort.
-
--- 
-Jabber: heimdal@jabber.org

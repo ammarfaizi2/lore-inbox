@@ -1,50 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263205AbUAIRRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 12:17:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263221AbUAIRRQ
+	id S262848AbUAIRYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 12:24:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbUAIRYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 12:17:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:36006 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263205AbUAIRRP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 12:17:15 -0500
-Date: Fri, 9 Jan 2004 09:17:10 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Catalin BOIE <util@deuroconsult.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bridge-utils update for 2.6 ?
-Message-Id: <20040109091710.1c156735.shemminger@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0401091203540.28409@hosting.rdsbv.ro>
-References: <1059.192.168.0.97.1073611363.squirrel@sml.dyndns.org>
-	<3FFE3157.9030307@osdl.org>
-	<2363.192.168.0.97.1073642603.squirrel@sml.dyndns.org>
-	<Pine.LNX.4.58.0401091203540.28409@hosting.rdsbv.ro>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.7claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 9 Jan 2004 12:24:25 -0500
+Received: from ms-smtp-01-smtplb.ohiordc.rr.com ([65.24.5.135]:52668 "EHLO
+	ms-smtp-01-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S262848AbUAIRYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 12:24:23 -0500
+From: Rob Couto <rpc@cafe4111.org>
+Reply-To: rpc@cafe4111.org
+Organization: Cafe 41:11
+To: linux-kernel@vger.kernel.org
+Subject: Re: Make the init-process look like the StarWars Credits
+Date: Fri, 9 Jan 2004 12:18:12 -0500
+User-Agent: KMail/1.5.4
+References: <3FFEDD1D.7000003@ippensen.de>
+In-Reply-To: <3FFEDD1D.7000003@ippensen.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401091218.12671.rpc@cafe4111.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Jan 2004 12:04:15 +0200 (EET)
-Catalin BOIE <util@deuroconsult.ro> wrote:
+On Friday 09 January 2004 11:55, Niels Ippensen wrote:
+> Hi,
+>
+> I was wondering if there is a way to make the boot-process look
+> StarWars-like:
+>
+>
+>    		lalallaal
+>   	llalalallalalalalalalalalala
+> lalalalalalalaalallalalalalalalalallala
+>
+> and let it scroll up the screen. I would think that this could be done
+> with the Framebuffer-Device. Maybe something like fblogo or so.
+>
+> Thanks,
+> Niels
 
-> On Fri, 9 Jan 2004, Thomas Graham wrote:
-> 
-> > my god, what protocol could I use for STP replacement after it's removed
-> > from the kernal code then ?!
-> 
-> The userlevel one. ;)
 
-Yup, that's right.  Many people have requested enhanced STP support, and rather
-than continuing to do it all in the kernel, the right way to do it is to have
-a well-defined API (probably netlink), and a separate user level process to manipulate
-the underlying routing.  Then (hopefully with help from the community) the daemon can
-be enhanced (or replaced) as needed.
+if your processor is so fast that it gets bored waiting for your disk, that 
+could be cool ;)
 
-Don't worry ;-) the kernel and system won't break.  The existing in kernel STP
-support will stay (probably as an option) for the life of 2.6; to accommodate
-users using the existing utils.
+http://www.bootsplash.org has the utils for full-screen fb logo and other 
+stuff, i.e. fbmngplay and fbtruetype, playback mng anims and drop text in any 
+size/color/position on the screen in a TrueType font. mix that together with 
+some nice bilinear filtering and you'd have the beginning of a jaw-dropping 
+misuse of CPU :)
 
+so in other words, without examining the practicality, yes. the fb can do that 
+if the kernel console that gets rendered to the fb can be piped thru a gimpy 
+pre-processor. sounds like fun. maybe one could even borrow the code from the 
+starwars XScreenSaver to do the pretty rendering, since it already takes 
+plaintext input.
+
+-- 
+Rob Couto
+rpc@cafe4111.org
+Rules for computing success:
+1) Attitude is no substitute for competence.
+2) Ease of use is no substitute for power.
+3) Safety matters; use a static-free hammer.
+--

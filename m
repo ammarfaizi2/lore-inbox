@@ -1,32 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312891AbSDOQBg>; Mon, 15 Apr 2002 12:01:36 -0400
+	id <S312894AbSDOQGp>; Mon, 15 Apr 2002 12:06:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312894AbSDOQBf>; Mon, 15 Apr 2002 12:01:35 -0400
-Received: from 24-25-196-177.san.rr.com ([24.25.196.177]:3855 "HELO
-	acmay.homeip.net") by vger.kernel.org with SMTP id <S312891AbSDOQBf>;
-	Mon, 15 Apr 2002 12:01:35 -0400
-Date: Mon, 15 Apr 2002 09:01:33 -0700
-From: andrew may <acmay@acmay.homeip.net>
-To: Jens Axboe <axboe@suse.de>
-Cc: Roman Zippel <zippel@linux-m68k.org>, "Ivan G." <ivangurdiev@yahoo.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.8 compile bugs
-Message-ID: <20020415090133.C30578@ecam.san.rr.com>
-In-Reply-To: <20020415115131.GN12608@suse.de> <Pine.LNX.4.21.0204151356070.26237-100000@serv> <20020415120927.GO12608@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
+	id <S312896AbSDOQGo>; Mon, 15 Apr 2002 12:06:44 -0400
+Received: from panther.fit.edu ([163.118.5.1]:47003 "EHLO fit.edu")
+	by vger.kernel.org with ESMTP id <S312894AbSDOQGo>;
+	Mon, 15 Apr 2002 12:06:44 -0400
+Message-ID: <3CBAF8EC.6070403@fit.edu>
+Date: Mon, 15 Apr 2002 11:59:40 -0400
+From: Kervin Pierre <kpierre@fit.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020410
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Eugenio Mastroviti <eugeniom@gointernet.co.uk>
+CC: ivan <ivan@es.usyd.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: Memory Leaking. Help!
+In-Reply-To: <Pine.LNX.4.33.0204151017480.20961-100000@dipole.es.usyd.edu.au> <3CBAC6B3.2040002@gointernet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 15, 2002 at 02:09:27PM +0200, Jens Axboe wrote:
-> In my mind these are generic functions, it's a shame that they come with
-> a pci_ prefix and take a pci dev as first argument (the NULL for isa
-> seems like a kludge).
+Eugenio Mastroviti wrote:
+> much data as it can in memory. The actual memory in use (check with 
+> 'free') is total-(buffers+cache)= 2.2-(0.37+1.51)GB=about 320 MB, which 
 
-arch/ppc/mm/cachemap.c has the function consistent_alloc() for getting
-uncached mem for non-PCI use. I don't know about the other arch's.
+This is interesting.  What exactly is buffers and cache used for?
 
-But we could expect the other arch's to provide the same function.
+I had the same issue with the original poster with a new server.  A 
+fresh install with nothing significant running ( no bind nor sendmail, 
+etc. ) reported that over 450 out of 512 MB was used, but looking at the 
+process usage on top I barelly got 5% memory usuage by process.  If the 
+above calculation ( memory use = total - buffers - cache ) is correct 
+then the memory use drops to ~100 MB.
+
+I guess what's confusing is that total memory usuage is including 
+buffers and cache.  If that memory is available to applications, 
+shouldn't it be removed from the "total used" figure?
+
+--Kervin
+
+
+-- 
+http://linuxquestions.org/ - Ask linux questions, give linux help.
+http://splint.org/ - Write safe C code. splint source-code analyzer.
+

@@ -1,96 +1,179 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310206AbSE2Blp>; Tue, 28 May 2002 21:41:45 -0400
+	id <S313181AbSE2CQe>; Tue, 28 May 2002 22:16:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310835AbSE2Blo>; Tue, 28 May 2002 21:41:44 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:62987 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S310206AbSE2Bln>;
-	Tue, 28 May 2002 21:41:43 -0400
-Date: Tue, 28 May 2002 21:34:57 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, yodaiken@fsmlabs.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: A reply on the RTLinux discussion.
-Message-ID: <20020528213457.A22540@mark.mielke.cc>
-In-Reply-To: <Pine.LNX.4.21.0205281702540.17583-100000@serv> <1022604318.4123.114.camel@irongate.swansea.linux.org.uk> <3CF42179.29A2CAED@linux-m68k.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S313189AbSE2CQe>; Tue, 28 May 2002 22:16:34 -0400
+Received: from smtp.adiglobal.com ([66.207.47.93]:2058 "EHLO
+	mail.adiglobal.com") by vger.kernel.org with ESMTP
+	id <S313181AbSE2CQc>; Tue, 28 May 2002 22:16:32 -0400
+From: "Guillaume Boissiere" <boissiere@adiglobal.com>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 28 May 2002 22:16:22 -0400
+MIME-Version: 1.0
+Subject: [STATUS 2.5]  May 29, 2002
+Message-ID: <3CF401B6.19079.7867141@localhost>
+X-mailer: Pegasus Mail for Windows (v4.01)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 29, 2002 at 02:31:53AM +0200, Roman Zippel wrote:
-> Alan Cox wrote:
-> > Perhaps you should spend your
-> > time thinking instead of insinuating everyone on the planet who isnt
-> > working for rtai is a liar ?
-> I am watching this whole mess already quite some time and I am trying
-> very hard to make sense out of this. Victor pretends to be the nice guy
-> here, but if one looks closer, one can see how little respect he has for
+The latest update is available at http://kernelnewbies.org/status/
+with hyperlinks to all the projects (text only version below).
 
-I can't speak for Victor, but...
+Items that have changed since last week are in bold.  Items with a
+star in front of them are new.
+Enjoy!
 
-Is it illegal for Victor to keep his options open?
+-- Guillaume
 
-It is really simple. Either A) Victor has a patent, and code in RTAI
-may need to be licensed, or B) Victor has a patent, and code in RTAI
-does not need to be licensed.
 
-The text for the patent is available. Technical people and lawyers
-huddle over a table, decide whether it is worth the risk, and go from
-there. This is the way that every company must go under our current
-legal structure.
+---------------------------------------------
+Kernel 2.5 status  -  May 29th, 2002
+(Latest kernel release is 2.5.18)
 
-Even if you *did* get a 'straight' answer out of Victor, his words
-would not change his ability to sue RTAI. If RTAI needs a license,
-they should *get* a license. If they don't need a license, they don't
-need a license.
 
-What is clear, is that the wrong question is being asked to the wrong
-person. You don't ask Victor whether you can be exempt from potential
-risk. You ask Victor for a license (i.e. written down and signed by
-his company), or you take the risk, and assume that you do not need a
-license. In neither case do you ask "I think my code might infringe on
-your patent, can you make a (verbal) statement publicly that you will
-look away if indeed you ever, at any time in the future, decide that
-it is?"
+Features:
 
-In fact, if such a question was posed (which I think we have
-observed), I would assume that the company posing the question was not
-legally responsible, and *I*, as a prospective client in need of a RT
-OS for my application, would avoid. The last thing I need is the
-company working on my RT OS to be sued and disappear. I would much
-prefer to work with the company that has the patent.
+Merged
+o in 2.5.1+   Rewrite of the block IO (bio) layer             (Jens Axboe)
+o in 2.5.2    Initial support for USB 2.0                     (David Brownell, Greg Kroah-Hartman, 
+etc.)
+o in 2.5.2    Per-process namespaces, late-boot cleanups      (Al Viro, Manfred Spraul)
+o in 2.5.2+   New scheduler for improved scalability          (Ingo Molnar)
+o in 2.5.2+   New kernel device structure (kdev_t)            (Linus Torvalds, etc.)
+o in 2.5.3    IDE layer update                                (Andre Hedrick)
+o in 2.5.3    Support reiserfs external journal               (Reiserfs team)
+o in 2.5.3    Generic ACL (Access Control List) support       (Nathan Scott)
+o in 2.5.3    PnP BIOS driver                                 (Alan Cox, Thomas Hood, Dave Jones, 
+etc.)
+o in 2.5.3+   New driver model & unified device tree          (Patrick Mochel)
+o in 2.5.4    Add preempt kernel option                       (Robert Love, MontaVista team)
+o in 2.5.4    Support for Next Generation POSIX Threading     (NGPT team)
+o in 2.5.4+   Porting all input devices over to input API     (Vojtech Pavlik, James Simmons)
+o in 2.5.5    Add ALSA (Advanced Linux Sound Architecture)    (ALSA team)
+o in 2.5.5    Pagetables in highmem support                   (Ingo Molnar, Arjan van de Ven)
+o in 2.5.5    New architecture: AMD 64-bit (x86-64)           (Andi Kleen, x86-64 Linux team)
+o in 2.5.5    New architecture: PowerPC 64-bit (ppc64)        (Anton Blanchard, ppc64 team)
+o in 2.5.5+   IDE subsystem major cleanup                     (Martin Dalecki, Vojtech Pavlik)
+o in 2.5.6    Add JFS (Journaling FileSystem from IBM)        (JFS team)
+o in 2.5.6    per_cpu infrastructure                          (Rusty Russell)
+o in 2.5.6    HDLC (High-level Data Link Control) update      (Krzysztof Halasa)
+o in 2.5.6    smbfs Unicode and large file support            (Urban Widmark) 
+o in 2.5.7    New driver API for Wireless Extensions          (Jean Tourrilhes)
+o in 2.5.7    Video for Linux (V4L) redesign                  (Gerd Knorr)
+o in 2.5.7    Futexes (Fast Lightweight Userspace Semaphores) (Rusty Russell, etc.)
+o in 2.5.7+   NAPI network interrupt mitigation               (Jamal Hadi Salim, Robert Olsson, 
+Alexey Kuznetsov)
+o in 2.5.7+   ACPI (Advanced Configuration & Power Interface) (Andy Grover, ACPI team)
+o in 2.5.8    Syscall interface for CPU task affinity         (Robert Love)
+o in 2.5.8    Radix-tree pagecache                            (Momchil Velikov, Christoph Hellwig)
+o in 2.5.8+   Delayed disk block allocation                   (Andrew Morton)
+o in 2.5.9    Smarter IRQ balancing                           (Ingo Molnar)
+o in 2.5.11   Replace old NTFS driver with NTFS TNG driver    (Anton Altaparmakov)
+o in 2.5.11   Fast walk dcache                                (Hanna Linder)
+o in 2.5.11+  Rewrite of the framebuffer layer                (James Simmons)
+o in 2.5.12+  Rewrite of the buffer layer                     (Andrew Morton)
+o in 2.5.14   Support for IDE TCQ (Tagged Command Queueing)   (Jens Axboe)
+o in 2.5.14   Bluetooth support (no longer experimental!)     (Maxim Krasnyansky, Bluetooth team)
+o in 2.5.17   New quota system supporting plugins             (Jan Kara)
+o in 2.5.17+  Move ISDN4Linux to CAPI based interface         (Kai Germaschewski, ISDN4Linux team)
+* in 2.5.18   Software suspend (to disk & RAM)                (Pavel Machek)
 
-But then again - this is the crux of the matter. RTAI is suffering due
-to 'patent issues', and RTLinux is not. RTLinux owns the patent, after
-all. This couldn't possibly be RTAI whining because they cannot get
-a large enough customer base, could it?
+o in -dj      Rewrite of the console layer                    (James Simmons)
+o in -dj      New MTRR (Memory Type Range Register) driver    (Patrick Mochel)
+o in -ac      Strict address space accounting                 (Alan Cox)
+o in -ac      PCMCIA Zoom video support                       (Alan Cox)
+o in -ac      More complete NetBEUI stack                     (Arnaldo Carvalho de Melo, from 
+Procom donated code)
+o in -ac      More complete IEEE 802.2 stack                  (Arnaldo, Jay Schullist, from Procom 
+donated code)
+o in -ac      Add support for CPU clock/voltage scaling       (Erik Mouw, Dave Jones, Russell 
+King, Arjan van de Ven)
+o in -ac      Improved i2o (Intelligent Input/Ouput) layer    (Alan Cox)
 
-Sure there are all sorts of precidences that this sets. However, I have
-yet to see any sort of true evolution or development *not* set
-precidences.
+o Ready       Better event logging for enterprise systems     (Larry Kessler, evlog team)
+o Ready       Linux booting ELF images                        (Eric Biederman)
+o Ready       First pass at LinuxBIOS support                 (Eric Biederman)
+o Ready       Build option for Linux Trace Toolkit (LTT)      (Karim Yaghmour)
+o Ready       New kernel build system (kbuild 2.5)            (Keith Owens)
+o Ready       Read-Copy Update Mutual Exclusion               (Dipankar Sarma, Rusty Russell, 
+Andrea Arcangeli, LSE Team)
 
-The only real argument I have seen from RTAI folk is that Victor isn't
-being a proper Open Source priest. This may annoy other Open Source
-priests, but it does not affect my own opinion of the man. I find the
-'Open Source' religion to have no future. I see applications of an
-Open Source-style license, but as a religion? As an ability to judge a
-person based on some sort of Open Source-defined morality? Nope... no
-future.
+o Beta        Serial driver restructure                       (Russell King)
+o Beta        New IO scheduler                                (Jens Axboe)
+o Beta        Add XFS (A journaling filesystem from SGI)      (XFS team)
+o Beta        New VM with reverse mappings                    (Rik van Riel)
+o Beta        Fix long-held locks for low scheduling latency  (Andrew Morton, Robert Love, etc.)
+o Beta        Add Linux Security Module (LSM)                 (LSM team)
+o Beta        Hotplug CPU support                             (Rusty Russell)
+o Beta        Per-mountpoint read-only, union-mounts, unionfs (Al Viro)
+o Beta        EVMS (Enterprise Volume Management System)      (EVMS team)
+o Beta        LVM (Logical Volume Manager) v2.0               (LVM team)
+o Beta        Dynamic Probes                                  (Suparna Bhattacharya, dprobes team)
+o Beta        Scalable CPU bitmasks                           (Russ Weight)
+o Beta        Page table sharing                              (Daniel Phillips)
+o Beta        ext2/ext3 online resize support                 (Andreas Dilger)
+o Beta        Add User-Mode Linux (UML)                       (Jeff Dike)
+o Beta        UDF Write support for CD-R/RW (packet writing)  (Jens Axboe, Peter Osterlund)
+o Beta        Add hardware sensors drivers                    (lm_sensors team)
+o Beta        New kernel config system: CML2                  (Eric Raymond)
+o Beta        USB device (not host) support                   (Stuart Lynne, Greg Kroah-Hartman)
 
-mark
+o Alpha       Better support of high-end NUMA machines        (NUMA team)
+o Alpha       Add Asynchronous IO (aio) support               (Ben LaHaise)
+o Alpha       Overhaul PCMCIA support                         (David Woodhouse, David Hinds)
+o Alpha       Full compliance with IPv6                       (Alexey Kuznetzov, Jun Murai, 
+Yoshifuji Hideaki, USAGI team)
+o Alpha       UMSDOS (Unix under MS-DOS) Rewrite              (Al Viro)
+o Alpha       Scalable Statistics Counter                     (Ravikiran Thirumalai)
+o Alpha       Linux Kernel Crash Dumps                        (Matt Robinson, LKCD team)
+o Alpha       Add support for NFS v4                          (NFS v4 team)
+o Alpha       ext2/ext3 large directory support: HTree index  (Daniel Phillips, Christopher Li, 
+Ted Ts'o)
+o Alpha       Remove use of the BKL (Big Kernel Lock)         (Alan Cox, Robert Love, Neil Brown, 
+Dave Hansen, etc.)
+o Alpha       Zerocopy NFS                                    (Hirokazu Takahashi)
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+o Started     Change all drivers to new driver model          (All maintainers)
+o Started     Reiserfs v4                                     (Reiserfs team)
+o Started     Direct pagecache <-> BIO disk I/O               (Andrew Morton)
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+o Draft #2    New lightweight library (klibc)                 (Greg Kroah-Hartman)
+o Draft #3    Replace initrd by initramfs                     (H. Peter Anvin, Al Viro)
+o Planning    Add thrashing control                           (Rik van Riel)
+o Planning    Remove all hardwired drivers from kernel        (Alan Cox, etc.)
+o Planning    Generic parameter/command line interface        (Keith Owens)
+o Planning    New mount API                                   (Al Viro)
+o Planning    Implement new device naming convention          (Device naming team)
+o Planning    InfiniBand support                              (InfiniBand team)
 
-                           http://mark.mielke.cc/
+Cleanups:
+
+Merged
+o in 2.5.3    Break Configure.help into multiple files        (Linus Torvalds)
+o in 2.5.3    Untangle sched.h & fs.h include dependancies    (Dave Jones, Roman Zippel)
+o in 2.5.4    Per network protocol slabcache & sock.h         (Arnaldo Carvalho de Melo)
+o in 2.5.4    Per filesystem slabcache & fs.h                 (Daniel Phillips, Jeff Garzik, Al 
+Viro)
+o in 2.5.6    Killing kdev_t for block devices                (Al Viro)
+o in 2.5.18+  ->getattr() ->setattr() ->permission() changes  (Al Viro)
+
+o in -dj      Split up x86 setup.c into managable pieces      (Patrick Mochel)
+
+o Ready       Switch to ->get_super() for file_system_type    (Al Viro)
+
+o Beta        file.h and INIT_TASK                            (Benjamin LaHaise)
+o Beta        Proper UFS fixes, ext2 and locking cleanups     (Al Viro)
+o Beta        Lifting limitations on mount(2)                 (Al Viro)
+o Beta        Remove dcache_lock                              (Maneesh Soni, IBM team)
+
+o Started     Reorder x86 initialization                      (Dave Jones, Randy Dunlap)
+
+Have some free time and want to help?  Check out the Kernel Janitor 
+TO DO list for a list of source code cleanups you can work on.  
+A great place to start learning more about kernel internals!
+
+
 

@@ -1,41 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbTHERRG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 13:17:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbTHERRF
+	id S269954AbTHERWd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 13:22:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270013AbTHERWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 13:17:05 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:41856 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262385AbTHERRE
+	Tue, 5 Aug 2003 13:22:30 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:10560 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP id S269954AbTHERW2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 13:17:04 -0400
-Subject: Re: IDE locking problem
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOL.4.30.0308051414530.7948-100000@mion.elka.pw.edu.pl>
-References: <Pine.SOL.4.30.0308051414530.7948-100000@mion.elka.pw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1060103589.1190.15.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 Aug 2003 18:13:09 +0100
+	Tue, 5 Aug 2003 13:22:28 -0400
+To: Werner Almesberger <werner@almesberger.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Nivedita Singhvi <niv@us.ibm.com>,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: TOE brain dump
+References: <20030802140444.E5798@almesberger.net> <3F2BF5C7.90400@us.ibm.com>
+	<3F2C0C44.6020002@pobox.com> <20030802184901.G5798@almesberger.net>
+	<m1fzkiwnru.fsf@frodo.biederman.org>
+	<20030804162433.L5798@almesberger.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 Aug 2003 11:19:09 -0600
+In-Reply-To: <20030804162433.L5798@almesberger.net>
+Message-ID: <m1u18wuinm.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-08-05 at 13:30, Bartlomiej Zolnierkiewicz wrote:
-> HDIO_UNREGISTER_HWIF ioctl.  Together with HDIO_SCAN_HWIF ioctl it
-> provides dirty hotswap functionality.  Thats why I mentioned about problem
-> with ide_unregister() and non default io bases.
+Werner Almesberger <werner@almesberger.net> writes:
 
-I'm currently testing busstate ioctl based rescanning in 2.4 (long story involving
-a laptop). I've made the busstate off code clean up the device - so the hwif becomes
-device->present=0 for all devices and busstate on rescans the bus and updates the
-device objects.
+> Eric W. Biederman wrote:
+> > The optimized for low latency cases seem to have a strong
+> > market in clusters.
+> 
+> Clusters have captive, no, _desperate_ customers ;-) And it
+> seems that people are just as happy putting MPI as their
+> transport on top of all those link-layer technologies.
 
-Its a hack in many ways to keep the base objects present so that the brown and sticky
-issues of blk queues in 2.4 never meet the fan of object destruction.
+MPI is not a transport.  It an interface like the Berkeley sockets
+layer.  The semantics it wants right now are usually mapped to
+TCP/IP when used on an IP network.  Though I suspect SCTP might
+be a better fit.  
+
+But right now nothing in the IP stack is a particularly good fit.
+
+Right now there is a very strong feeling among most of the people
+using and developing on clusters that by and large what they are doing
+is not of interest to the general kernel community, and so has no
+chance of going in.   So you see hack piled on top of hack piled on
+top of hack.
+
+Mostly I think the that is less true, at least if they can stand the
+process of severe code review and cleaning up their code.  If we can
+put in code to scale the kernel to 64 processors.  NIC drivers for
+fast interconnects and a few similar tweaks can't hurt either.  
+
+But of course to get through the peer review process people need
+to understand what they are doing.
+
+> > There is one place in low latency communications that I can think
+> > of where TCP/IP is not the proper solution.  For low latency
+> > communication the checksum is at the wrong end of the packet.
+> 
+> That's one of the few things ATM's AAL5 got right. But in the end,
+> I think it doesn't really matter. At 1 Gbps, an MTU-sized packet
+> flies by within 13 us. At 10 Gbps, it's only 1.3 us. At that point,
+> you may well treat it as an atomic unit.
+
+So store and forward of packets in a 3 layer switch hierarchy, at 1.3 us
+per copy. 1.3us to the NIC + 1.3us to the first switch chip + 1.3us to the
+second switch chip + 1.3us to the top level switch chip + 1.3us to a middle layer
+switch chip + 1.3us to the receiving NIC + 1.3us the receiver.
+
+1.3us * 7 = 9.1us to deliver a packet to the other side.  That is
+still quite painful.  Right now I can get better latencies over any of
+the cluster interconnects.  I think 5 us is the current low end, with
+the high end being about 1 us.
+
+Quite often in MPI when a message is sent the program cannot continue
+until the reply is received.  Possibly this is a fundamental problem
+with the application programming model, encouraging applications to
+be latency sensitive.  But it is a well established API and
+programming paradigm so it has to be lived with.
+
+All of this is pretty much the reverse of the TOE case.  Things are
+latency sensitive because real work needs to be done.  And the more
+latency you have the slower that work gets done.  
+
+A lot of the NICs which are used for MPI tend to be smart for two
+reasons.  1) So they can do source routing. 2) So they can safely
+export some of their interface to user space, so in the fast path
+they can bypass the kernel.
+
+Eric
+
 

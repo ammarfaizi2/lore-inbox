@@ -1,75 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263162AbUFCQw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263776AbUFCQyX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263162AbUFCQw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 12:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbUFCQw5
+	id S263776AbUFCQyX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 12:54:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264253AbUFCQyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 12:52:57 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:57323 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263162AbUFCQwx (ORCPT
+	Thu, 3 Jun 2004 12:54:22 -0400
+Received: from mail.kroah.org ([65.200.24.183]:21928 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263776AbUFCQxr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 12:52:53 -0400
-Date: Thu, 3 Jun 2004 18:52:50 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Jeff V. Merkey" <jmerkey@drdos.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: submit_bh leaves interrupts on upon return
-Message-ID: <20040603165250.GO1946@suse.de>
-References: <40BE93DC.6040501@drdos.com> <20040603085002.GG28915@suse.de> <40BF8E1F.1060009@drdos.com>
+	Thu, 3 Jun 2004 12:53:47 -0400
+Date: Thu, 3 Jun 2004 09:51:42 -0700
+From: Greg KH <greg@kroah.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       ak@suse.de
+Subject: Re: [PATCH] fix sys cpumap for > 352 NR_CPUS
+Message-ID: <20040603165142.GA3959@kroah.com>
+References: <20040602161115.1340f698.pj@sgi.com> <1086222156.29391.337.camel@bach> <20040603162712.GA3291@kroah.com> <20040603093807.33bc670d.pj@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40BF8E1F.1060009@drdos.com>
+In-Reply-To: <20040603093807.33bc670d.pj@sgi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 03 2004, Jeff V. Merkey wrote:
-> Jens Axboe wrote:
+On Thu, Jun 03, 2004 at 09:38:07AM -0700, Paul Jackson wrote:
+> > We do check for an error in that function, so returning any negative
+> > error value for a show() sysfs callback will be handled properly.
 > 
-> >On Wed, Jun 02 2004, Jeff V. Merkey wrote:
-> > 
-> >
-> >>Any reason why submit_bh should turn on interrupts after being called by 
-> >>a process with ints off in 2.4.20?  I see it's possible to sleep during 
-> >>elevatoring, but why does it need to leave interrupts on if the calling 
-> >>state was with ints off.  
-> >>   
-> >>
-> >
-> >It's illegal to call it with interrupts off, so... __make_request()
-> >doesn't save interrupt state, so you will always leave with interrupts
-> >enabled.
-> >
-> > 
-> >
-> Jens
+> If a show() function returns an error, you handle it - good.  As it
+> should be.
 > 
-> I noticed in the code it does not check for this when make_request is 
-> called, so I altered the calling sequence to call with ints on. I don't 
-> see much of a performance difference either way, so calling with ints on 
-> was easy to instrument. I am posting about 80,000+ buffer heads per 
-> second in with what I am doing, so filling out buffer_head structures 
-> and submitting them ad hoc was causing some interrupt windows where the 
-> chains were getting corrupted. I altered the calling sequence and added 
-> atomic counters so I can submit and call with ints on to avoid the 
-> corruption. One of the troublesome aspects of the manner in which 
-> make_request is implemented in always needing a context of a thread for 
-> sleeping to submit asynch I/O limits the ability to gang schedule large 
-> disk I/O from the b_end_io callback. Would make performance a lot more 
-> spectacular if it worked this way, but I am seeing good enough 
-> performance with it left the way it is. 3Ware's 66Mhz ATA adapter in 
-> this implementation is reaching almost 400 MB/S throughput on 2.4.20. I 
-> have not tried this on 2.6 yet, but will later this month.
+> But if a show() function overwrites the page buffer provided to it,
+> before returning, then there is nothing you can do beyond sending
+> condolences to the next of kin.
 
-Submitting large numbers of buffer_heads from b_end_io is _nasty_, 2.4
-io scheduler runtime isn't exactly world champion and you are doing this
-at hard irq time. Not a good idea. Definitely not the true path to
-performance, unless you don't care about anything else in the system.
+Yup, you broke the kernel, you get to keep both pieces :)
 
-At least in 2.6 you have a much faster io scheduler and the additionally
-large bio, so you wont spend nearly as much time there if you are
-clever. You still need process context, though, that hasn't changed.
+> This PATCH and email thread came about because the buffer size is not
+> passed into the show() function, nor, so far as I can tell, is it
+> documented anywhere other than implicitly in the fill_read_buffer()
+> code:
+> 
+>     buffer->page = (char *) get_zeroed_page(GFP_KERNEL);
 
--- 
-Jens Axboe
+I agree that we should document this better.  This thread has shown
+that.
 
+> So we were getting confused as to what size buffer we had, when
+> coding defensively to avoid buffer overrun.
+
+Panicing the kernel is not really acceptable, even if you did just
+scribble accross any portion of kernel memory in your show() function.
+Just be aware of the size and code your show() function to be defensive
+and not overrun that size.
+
+thanks,
+
+greg k-h

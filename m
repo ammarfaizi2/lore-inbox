@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291436AbSBHGOu>; Fri, 8 Feb 2002 01:14:50 -0500
+	id <S291434AbSBHGfC>; Fri, 8 Feb 2002 01:35:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291437AbSBHGOk>; Fri, 8 Feb 2002 01:14:40 -0500
-Received: from altus.drgw.net ([209.234.73.40]:1029 "EHLO altus.drgw.net")
-	by vger.kernel.org with ESMTP id <S291432AbSBHGO0>;
-	Fri, 8 Feb 2002 01:14:26 -0500
-Date: Fri, 8 Feb 2002 00:14:21 -0600
-From: Troy Benjegerdes <hozer@drgw.net>
-To: Larry McVoy <lm@work.bitmover.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Stelian Pop <stelian.pop@fr.alcove.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-Message-ID: <20020208001421.P17426@altus.drgw.net>
-In-Reply-To: <20020207080714.GA10860@come.alcove-fr> <Pine.LNX.4.33.0202070833400.2269-100000@athlon.transmeta.com> <20020207092640.P27932@work.bitmover.com> <20020207232858.M17426@altus.drgw.net> <20020207220619.A18469@work.bitmover.com>
+	id <S291437AbSBHGew>; Fri, 8 Feb 2002 01:34:52 -0500
+Received: from angband.namesys.com ([212.16.7.85]:33158 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S291434AbSBHGel>; Fri, 8 Feb 2002 01:34:41 -0500
+Date: Fri, 8 Feb 2002 09:34:40 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Alex Riesen <fork0@users.sourceforge.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [reiserfs-dev] 2.5.4-pre1: zero-filled files resiserfs
+Message-ID: <20020208093440.A7311@namesys.com>
+In-Reply-To: <20020207082348.A26413@riesen-pc.gr05.synopsys.com> <20020207104420.A6824@namesys.com> <20020207230235.A173@steel> <20020208085155.A7034@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020207220619.A18469@work.bitmover.com>; from lm@bitmover.com on Thu, Feb 07, 2002 at 10:06:19PM -0800
+In-Reply-To: <20020208085155.A7034@namesys.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 07, 2002 at 10:06:19PM -0800, Larry McVoy wrote:
-> > Ideally, this should ask what changesets you want to send, and what 
-> > public tree to look at to see *what* makes sense to send.
-> 
-> In BK 2.1.4 we added a 
-> 
-> 	bk send -u<url> email
-> 
-> which does the sync with the URL and sends only what you have that the
-> URL doesn't have.  But you have to be running 2.1.4 on both ends.
+Hello!
 
-Perfect. 
+On Fri, Feb 08, 2002 at 08:51:55AM +0300, Oleg Drokin wrote:
+> these corruptions are not from the previous kernels (particularly
+> bad_leaf: block 211482 has wrong order of items record worries me)
+Also I hope this is not on the same box, where you are getting 
+Machine Check Exceptions.
 
-Does 2.1.4 have a "is the user on crack and trying to send the whole
-tree" check?
-
--- 
-Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
------"If this message isn't misspelled, I didn't write it" -- Me -----
-"Why do musicians compose symphonies and poets write poems? They do it
-because life wouldn't have any meaning for them if they didn't. That's 
-why I draw cartoons. It's my life." -- Charles Schulz
+Bye,
+    Oleg

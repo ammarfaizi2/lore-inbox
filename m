@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316127AbSFPLEM>; Sun, 16 Jun 2002 07:04:12 -0400
+	id <S316135AbSFPLFK>; Sun, 16 Jun 2002 07:05:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316135AbSFPLEL>; Sun, 16 Jun 2002 07:04:11 -0400
-Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:27320 "EHLO
-	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S316127AbSFPLEL>; Sun, 16 Jun 2002 07:04:11 -0400
-Date: Sun, 16 Jun 2002 07:05:31 -0400
-To: wli@holomorphy.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.21 IDE 91
-Message-ID: <20020616110531.GA951@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-From: rwhron@earthlink.net
+	id <S316158AbSFPLFJ>; Sun, 16 Jun 2002 07:05:09 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:10221 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S316135AbSFPLFG>; Sun, 16 Jun 2002 07:05:06 -0400
+Date: Sun, 16 Jun 2002 13:05:02 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 kill warnings 6/19
+In-Reply-To: <3D048F0C.6060904@evision-ventures.com>
+Message-ID: <Pine.NEB.4.44.0206161302570.11043-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> At some point in the past, akpm wrote:
->>> Does this patch get the throughput back?
+On Mon, 10 Jun 2002, Martin Dalecki wrote:
 
->> That makes all the difference to dbench.  
+>...
+> - Fix improper __FUNCTION__ usage in smb_debug.h.
+>...
 
-> How does it do against the prior 2.5 kernels?
 
-dbench ext2 128    Average 
-2.5.1-dj13           8.04 mb/sec 
-2.5.2-dj6            8.59  
-2.5.4-dj2            8.45  
-2.5.16              11.06  
-2.5.18-akpm         18.11  
-2.5.18-wli          18.54  
-2.5.19              18.60  
-2.5.19-wli          18.54  
-2.5.19-wli3         20.93  
-2.5.20              12.89  
-2.5.20-dj4          10.58  
-2.5.21              12.67  
-2.5.21-akpm         19.65
+Was it intended that this change breaks the compilation of
+fs/smbfs/proc.c?
+
+
+<--  snip  -->
+
+...
+  gcc -Wp,-MD,./.proc.o.d -D__KERNEL__
+-I/home/bunk/linux/kernel-2.5/linux-2.5.21-full/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
+-fomit-frame-pointer
+ -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=k6 -nostdinc -iwithprefix include  -DSMBFS_PARANOIA  -DKBUILD_BASENAME=proc
+-c -o proc.o proc.c
+proc.c: In function `smb_request_ok':
+proc.c:875: parse error before `)'
+make[2]: *** [proc.o] Error 1
+make[2]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.21-full/fs/smbfs'
+
+<--  snip  -->
+
+
+cu
+Adrian
 
 -- 
-Randy Hron
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
 

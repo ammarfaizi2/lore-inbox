@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262978AbTHVBuy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 21:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262980AbTHVBuy
+	id S262983AbTHVCMp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 22:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbTHVCMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 21:50:54 -0400
-Received: from [202.107.117.26] ([202.107.117.26]:8407 "EHLO ldap")
-	by vger.kernel.org with ESMTP id S262978AbTHVBuw (ORCPT
+	Thu, 21 Aug 2003 22:12:45 -0400
+Received: from [202.107.117.26] ([202.107.117.26]:57815 "EHLO ldap")
+	by vger.kernel.org with ESMTP id S262983AbTHVCMo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 21:50:52 -0400
-Date: Fri, 22 Aug 2003 09:50:43 +0800
+	Thu, 21 Aug 2003 22:12:44 -0400
+Date: Fri, 22 Aug 2003 10:12:39 +0800
 From: "Bill J.Xu" <xujz@neusoft.com>
 Subject: Re: "ctrl+c" disabled!
-To: root@chaos.analogic.com
+To: Edgar Toernig <froese@gmx.de>
 Cc: linux-kernel@vger.kernel.org
-Message-id: <046101c3684f$cc3498d0$2a01010a@avwindows>
+Message-id: <04b901c36852$dccc7660$2a01010a@avwindows>
 MIME-version: 1.0
 X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.3790.0
 X-Mailer: Microsoft Outlook Express 6.00.3790.0
@@ -23,53 +23,50 @@ Content-transfer-encoding: 7BIT
 X-Priority: 3
 X-MSMail-priority: Normal
 References: <036601c367e0$01adabc0$2a01010a@avwindows>
- <Pine.LNX.4.53.0308210842100.2668@chaos>
+ <3F457A19.8E8A1F65@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I use the serial line to connect my computer with linux box, and I use the SecureCRT.
-The following is the corresponding configuration of linux box' inittab file.
-
-# Serial lines
-s1:12345:respawn:/sbin/agetty -L 9600 ttyS0 vt100
-s2:12345:respawn:/sbin/agetty 9600 ttyS1 vt100
-
-Thank you, dear Dick Johnson
-
-
-Bill
-
+The following is the stty' result, I think it's right
+----------------------------------------------------------------------------------
+bash-2.05# stty -a
+speed 9600 baud; rows 0; columns 0; line = 0;
+intr = ^C; quit = ^\; erase = ^?; kill = ^X; eof = ^D; eol = <undef>;
+eol2 = <undef>; start = ^Q; stop = ^S; susp = ^Z; rprnt = ^R; werase = ^W;
+lnext = ^V; flush = ^U; min = 1; time = 0;
+-parenb -parodd cs8 hupcl -cstopb cread clocal -crtscts
+-ignbrk -brkint ignpar -parmrk -inpck -istrip -inlcr -igncr icrnl ixon -ixoff
+-iuclc ixany -imaxbel
+opost -olcuc -ocrnl onlcr -onocr -onlret -ofill -ofdel nl0 cr0 tab0 bs0 vt0 ff0
+isig icanon -iexten echo -echoe -echok -echonl -noflsh -xcase -tostop echoprt
+echoctl echoke
+----------------------------------------------------------------------------------
+but  ^C is bad
 
 ----- Original Message ----- 
-From: "Richard B. Johnson" <root@chaos.analogic.com>
+From: "Edgar Toernig" <froese@gmx.de>
 To: "Bill J.Xu" <xujz@neusoft.com>
 Cc: <linux-kernel@vger.kernel.org>
-Sent: Thursday, August 21, 2003 8:46 PM
+Sent: Friday, August 22, 2003 10:04 AM
 Subject: Re: "ctrl+c" disabled!
 
 
-> On Thu, 21 Aug 2003, Bill J.Xu wrote:
-> 
-> > hello everyone,
+> "Bill J.Xu" wrote:
 > >
-> > when I connect linux through serial port,and run a program such as "ping xxx.xxx.xxx.xxx",then I can not stop it by using "ctrl+c".and the only way is to telnet it,and kill that progress
-> >
+> > when I connect linux through serial port,and run a program such
+> > as "ping xxx.xxx.xxx.xxx",then I can not stop it by using "ctrl+c".
+> > and the only way is to telnet it,and kill that progress
+> > 
 > > why?
-> >
-> > thanks
-> >
-> > Bill J.Xu
-> > -
-> How do you 'connect' through the serial port? You need to use a
-> serial `getty` that properly sets up the terminal. The 'mini-getty'
-> used on recent distributions doesn't bother.
-> Also, if you are not using a real terminal, you need to use a terminal
-> program that actually sends a ^C.
 > 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
->             Note 96.31% of all statistics are fiction.
+> Try:
 > 
+>   stty -a
 > 
+> and check the intr setting.  Maybe it's set to DEL (^?).
+> You can correct it with:
+> 
+>   stty intr "^c"
+> 
+> Ciao, ET.
 > 

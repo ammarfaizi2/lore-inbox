@@ -1,35 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264525AbTEJXNq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 19:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbTEJXNq
+	id S264527AbTEJXlA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 19:41:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264528AbTEJXlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 19:13:46 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:43396 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id S264525AbTEJXNp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 19:13:45 -0400
-Date: Sat, 10 May 2003 18:26:24 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Kmt Sundqvist <rabbit80@mbnet.fi>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.69] Does ISDN work at all?
-In-Reply-To: <1263.194.100.163.20.1052593367.squirrel@webmail.mbnet.fi>
-Message-ID: <Pine.LNX.4.44.0305101825160.4483-100000@chaos.physics.uiowa.edu>
+	Sat, 10 May 2003 19:41:00 -0400
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:3018 "EHLO
+	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
+	id S264527AbTEJXk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 19:40:59 -0400
+Message-ID: <3EBD90F7.6040306@blue-labs.org>
+Date: Sat, 10 May 2003 19:53:27 -0400
+From: David Ford <david+powerix@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030509
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: ACPI and battery information, 2.5.69
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 May 2003, Kmt Sundqvist wrote:
+(Not 2.5.69 specific -- waiting for it to be implemented)
 
-> I've been unable to spot any information whether I should assume that ISDN
-> just doesn't work yet in 2.5.x, or whether I should keep on trying to make
-> it work.  All hints are appreciated.
+(/proc/acpi/battery/BAT0) # cat info
+present:                 yes
+design capacity:         0 mWh
+last full capacity:      0 mWh
+battery technology:      non-rechargeable
+design voltage:          0 mV
+design capacity warning: 0 mWh
+design capacity low:     0 mWh
+capacity granularity 1:  0 mWh
+capacity granularity 2:  0 mWh
+model number:           
+serial number:          
+battery type:           
+OEM info:               
 
-It's been worked on (rather slowly, unfortunately, my bad...) I.e. no, 
-it's not expected to work yet ;(
+(/proc/acpi/battery/BAT0) # cat state
+present:                 yes
+capacity state:          ok
+charging state:          unknown
+present rate:            0 mA
+remaining capacity:      0 mAh
+present voltage:         0 mV
 
---Kai
+
+According to http://jpstrand.homeip.net/user/delli8200/delli8200.html, 
+ACPI patch 20030328 produces full battery information for 2.4.21-preX 
+kernels.
+
+David
 

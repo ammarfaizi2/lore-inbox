@@ -1,42 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264980AbUJETDB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUJETIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264980AbUJETDB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 15:03:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUJETDB
+	id S261724AbUJETIY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 15:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUJETIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 15:03:01 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:41180 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S263664AbUJETCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 15:02:55 -0400
-Date: Tue, 5 Oct 2004 12:02:25 -0700
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
-       jeffpc@optonline.net, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       trivial@rustcorp.com.au, rusty@rustcorp.com.au, greg@kroah.com
-Subject: Re: [PATCH 2.6][resend] Add DEVPATH env variable to hotplug helper call
-Message-ID: <20041005120224.A28582@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <20041003162012.79296b37.akpm@osdl.org> <20041004102220.A3304@unix-os.sc.intel.com> <20041004123725.58f1e77c.akpm@osdl.org> <20041004124355.A17894@unix-os.sc.intel.com> <20041005012556.A22721@unix-os.sc.intel.com> <20041005101823.223573d9.akpm@osdl.org> <20041005102706.A27795@unix-os.sc.intel.com> <20041005104744.59177aea.akpm@osdl.org> <20041005110112.B27795@unix-os.sc.intel.com> <20041005112309.1215b350.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041005112309.1215b350.akpm@osdl.org>; from akpm@osdl.org on Tue, Oct 05, 2004 at 11:23:09AM -0700
+	Tue, 5 Oct 2004 15:08:24 -0400
+Received: from mail.dif.dk ([193.138.115.101]:46535 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261724AbUJETIT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 15:08:19 -0400
+Date: Tue, 5 Oct 2004 21:15:44 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: "Johnson, Richard" <rjohnson@analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.6.5-1.358 and Fedora
+In-Reply-To: <Pine.LNX.4.53.0410051413520.3024@quark.analogic.com>
+Message-ID: <Pine.LNX.4.61.0410052100110.2913@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.53.0410051413520.3024@quark.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 05, 2004 at 11:23:09AM -0700, Andrew Morton wrote:
-> Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com> wrote:
+On Tue, 5 Oct 2004, Johnson, Richard wrote:
 
-Andrew,
-	My patch which removes cpu_run_sbin_hotplug() to use kobject_hotplug() works
-fine with your patch which modifies kobject_hotplug().
-I am able to get the same cpu "offline" notifications to user land.
+> 
+> 
+> In order to use Linux version 2.6.x, I installed the
+> stuff that came with the "Red Hat Fedora(tm) Linux 2"
+> book. I even bought a new hard disk so that it wouldn't
+> break anything I have on my other disks.
+> 
+> It installed, but I needed to set up a module development
+> environment so I attempted to compile the kernel with
+> the provided files.
+> 
+> First I copied a .config file from /usr/src/linux-2.6.5-1.358/configs
+> that came with the other software. Then I did:
+> 
+> make oldconfig
+> make bzImage
+> make modules
+> make modules_install
+> 
 
-You can safely apply both of our patches.
+$ make oldconfig
+$ make
+$ su
+# make modules_install 
 
-Thanks and regards,
-Anil
+is the normal way for 2.6 kernels. A plain "make" takes care of all the 
+magic of building the kernel proper and the modules.
+
+
+> This seemed to go alright. Then I entered:
+> 
+> make install
+> 
+
+Only do that if you are sure your systems bootloader configuration is able 
+to deal with it. Maybe Fedora is configured so that "make install" can 
+work, I wouldn't know I'm a Slackware user myself.
+
+Personally I prefer to manually
+# cp System.map /boot/System.map-<kernel-version>
+# cp arch/i386/boot/bzImage /boot/vmlinuz-<kernel-version>
+# ln -sf /boot/System.map-<kernel-version> /boot/System.map
+
+and then edit /etc/lilo.conf to add an entry for the new kernel, followed 
+by /sbin/lilo to reinstall the bootloader of course.
+
+
+> This had some warning about module versions, but it seemed to work.
+> 
+> Then I re-booted. Naturally nothing worked.
+
+<flamebait snipped>
+
+May I suggest reading /path/to/your/kernel/source/README it describes the 
+details of building and installing the kernel, maybe you can find a clue 
+to what you did wrong.
+
+
+> 
+> The following hand-copied error messages exist and the root-file
+> system fails to be found because all the modules fail to install.
+> 
+> 
+> aic7xxx: version magic '2.6.5-1.358 SMP 686 REGPARM 4KSTACKS gcc-3.3`
+>              should be '2.6.5-1.358 SMP 686 REGPARM 4KSTACKS gcc-3.3`
+> 
+> 
+> All the modules that get installed by initrd have the same kind
+> of error message where "version magic" claims that it doesn't
+> compare with something that looks okay to the eye.
+> 
+
+Could it be you accidentally installed your new modules in the same 
+location as the old ones or that your initrd holds modules compiled for a 
+different kernel than the one you just build - did you remember to update 
+your initrd?
+
+
+> Also, the repair provisions don't have any capability of
+> copying back the contents of /lib/modules/  in any usable
+> way. I had to reinstall everything from scratch, just like
+> Windows. Nice work.
+> 
+I assume you are here refering to "repair provisions" provided in the book 
+"Red Hat Fedora(tm) Linux 2" you mentioned above. What does that have to 
+do with the kernel? I'd suggest you take that up with RedHat and/or the 
+books author.
+
+
+--
+Jesper Juhl
 

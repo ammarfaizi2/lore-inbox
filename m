@@ -1,65 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262646AbVCDE0S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVCDE0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262646AbVCDE0S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 23:26:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVCCV15
+	id S261432AbVCDE0U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 23:26:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVCCTkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 16:27:57 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:27399 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262520AbVCCV1C (ORCPT
+	Thu, 3 Mar 2005 14:40:52 -0500
+Received: from fire.osdl.org ([65.172.181.4]:7404 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262212AbVCCTKH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 16:27:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=C3udovuXTdCH1X1KhC/zCgeFhyUDD1OcrxVhkjuoZXNGM+ElLPBwxYv7icKU9LX2fDpIhrAjYBcnGqEB3Zri0mdS60RZPNrZ22YHkgXqWhVOvZ7GKcDtDBc95aW4v9IGwMdhyaV9nBq8Sh8vGy338Y7OIbTXimOOloh6G15qg/0=
-Message-ID: <dd02451d050303132662482b66@mail.gmail.com>
-Date: Thu, 3 Mar 2005 22:26:37 +0100
-From: Marko Rebrina <mrebrina@gmail.com>
-Reply-To: Marko Rebrina <mrebrina@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with w6692 & kernel >=2.6.10
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Mar 2005 14:10:07 -0500
+Date: Thu, 3 Mar 2005 11:11:05 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Hua Zhong <hzhong@cisco.com>
+cc: "'Jeff Garzik'" <jgarzik@pobox.com>, "'Greg KH'" <greg@kroah.com>,
+       "'David S. Miller'" <davem@davemloft.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: RE: RFD: Kernel release numbering
+In-Reply-To: <200503031842.AWY46304@mira-sjc5-e.cisco.com>
+Message-ID: <Pine.LNX.4.58.0503031101270.25732@ppc970.osdl.org>
+References: <200503031842.AWY46304@mira-sjc5-e.cisco.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have problem with w6692 (mISDN-2005-02-25) & kernel >=2.6.10 (with
-2.6.9 is OK!) 
 
-# lspci
-0000:01:07.0 Network controller: Winbond Electronics Corp W6692 (rev 01)
 
-# modprobe w6692pci  protocol=2
-FATAL: Error inserting w6692pci
-(/lib/modules/2.6.11/kernel/drivers/isdn/hardware/mISDN/w6692pci.ko):
-No such device
+On Thu, 3 Mar 2005, Hua Zhong wrote:
+> 
+> Do you consider having a real stable release maintainer again?
 
-log:
+No, this really is a different thing.
 
-CAPI Subsystem Rev 1.1.2.8
-capi20: Rev 1.1.2.7: started up with major 68 (middleware+capifs)
-Modular ISDN Stack core $Revision: 1.23 $
-mISDNd: kernel daemon started
-ISDN L1 driver version 1.11
-ISDN L2 driver version 1.19
-mISDN: DSS1 Rev. 1.26
-Capi 2.0 driver file version 1.14
-ISAC module $Revision: 1.16 $
+This is not a "truly separate" parallell track, exactly because it would 
+not actually get a life of its own. For it to make sense, it would not do 
+any big changes, ie it would be _limited_ in a way that a real stable 
+release would not. Also, since it would leave the old kernel behind when a 
+new stable release comes along, it would not have any real independence in 
+time either.
 
-Winbond W6692 PCI driver Rev. 1.12
-ACPI: PCI interrupt 0000:01:07.0[A] -> GSI 19 (level, high) -> IRQ 19
-mISDN_w6692: found adapter Winbond W6692 at 0000:01:07.0
-W6692: Winbond W6692 version (0): W6692 V00
-kcapi: Controller 1: mISDN1 attached
-mISDNd: test event done
-w6692: IRQ 19 count 4
-kcapi: card 1 "mISDN1" ready.
-w6692 1 cards installed
-try_ok(13) try_wait(0) try_mult(0) try_inirq(0)
-irq_ok(4) irq_fail(0)
-release_l1 id 1
-release_udss1 refcnt 1 l3(f39faa40) inst(f39faab8)
-kcapi: card 1 down.
-kcapi: Controller 1: mISDN1 unregistered
+Now, I think this "sucker tree" I'm talking about would be a great basis 
+for somebody else then taking it _further_ (ie vendor stable trees), but 
+it really is a fairly small step.
+
+> If you want someone to do the job, give him a title. It's a thankless and
+> boring job, and you can't make it worse by just hiding him somewhere.
+
+Actually, that was something I'd _avoid_ - make it non-glorious on 
+purpose. In the kind of tree I envision, the _last_ thing we'd want is the 
+maintainer looking at a big picture and feeling important. I'd be happiest 
+if he was almost totally anonymous, because I think it's likely a boring 
+job, but it's a boring job that _many_ people could do (ie to avoid 
+burnign people out, make it be a stint of a couple of months, not a 
+"crowning life work", and then you could probably have half a dozen people 
+who are perfectly willing to take it on every once in a while.
+
+Ie I'd organize it like some of the "checkin committees" work for other 
+projects that have nowhere _near_ as much work going on as Linux has. That 
+seems to work well for small projects - and we can try to keep this 
+"small" exactly by having the strict rules in place that would mean that 
+99% of all patches wouldn't even be a consideration.
+
+In other words, I'm really talking about something different from what you 
+seem to envision. I think we should call the tree the "sucker tree", and 
+if somebody wants to make a logo for it, make it be a penguin with a 
+jokers' hat: exactly to remind people that it's not about the glory.
+
+(Maybe that's going overboard a bit ;)
+
+		Linus

@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbVBNSVi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbVBNS1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261512AbVBNSVi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 13:21:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVBNSVi
+	id S261513AbVBNS1V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 13:27:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVBNS1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 13:21:38 -0500
-Received: from mail1.upco.es ([130.206.70.227]:1213 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S261512AbVBNSVP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 13:21:15 -0500
-Date: Mon, 14 Feb 2005 19:21:12 +0100
-From: Romano Giannetti <romanol@upco.es>
-To: linux-kernel@vger.kernel.org
-Cc: acpi-devel@lists.sourceforge.net
-Subject: Repost: BUG 2.6.11-rc1: ACPI keys events: only "arrive" after 8 of them.
-Message-ID: <20050214182112.GA11686@pern.dea.icai.upco.es>
-Reply-To: romano@dea.icai.upco.es
-Mail-Followup-To: Romano Giannetti <romanol@upco.es>,
-	linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+	Mon, 14 Feb 2005 13:27:21 -0500
+Received: from web26504.mail.ukl.yahoo.com ([217.146.176.41]:47783 "HELO
+	web26504.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261513AbVBNS1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 13:27:17 -0500
+Message-ID: <20050214182716.20902.qmail@web26504.mail.ukl.yahoo.com>
+Date: Mon, 14 Feb 2005 18:27:16 +0000 (GMT)
+From: Neil Conway <nconway_kernel@yahoo.co.uk>
+Subject: Re: NFS (ext3/VFS?) bug in 2.6.8/10
+To: Markus Plail <linux-kernel@gitteundmarkus.de>,
+       linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ --- Markus Plail <linux-kernel@gitteundmarkus.de> wrote: 
+> I can't help you, but just want to say that I also see those errors
+> on a local xfs file system, so it doesn't seem to be a NFS problem
+> I was first seeing this with 2.6.11-rc3-mm1 on a directory with 8k.
 
-Dear Linux gurus, 
+Hmm, I played about a bit with XFS, but couldn't get my particular
+recipe to generate any errors whatsoever (either local or with NFS).
 
-     this is a minor bug that is puzzling me since my switch from 2.6.7 to
-     2.6.9 (and continuing with 2.6.11-rc1).
+Can you elaborate?  Do you have a simple method which reproduces it?
 
-     When I press the suspend key on my Vaio FX701, nothing happens. It
-     should trigger an ACPI event that, caught by acpid, run the suspend
-     script (which show a confirmation window); and so worked in 2.6.7.
+Regards,
+Neil
 
-          
-     Now, the really strange thing: if I press it 8 times in a row, then the
-     event arrives. It's as if the events are queued in a 8-depth queue. If
-     now I cancel suspend, and press another special key, like the
-     combination to switch video output to the external VGA, all the
-     "queued" suspend-event do arrive... this happens with the two "display
-     switch" key, and the "suspend" key. There is no interaction with, for
-     example, lid close event which works as should. 
+PS: I have half an idea that the problem might be to do with the
+dcache.  This is probably a wild shot in the dark though as it would be
+difficult to find someone who knows less than me about the whole VFS
+;-))
 
-     I'm stymied. If anyone can help me with this, or simply tell me how to
-     have more data on this, I will try to obtain all the data I can. 
-     I'm using a vanilla 2.6.11-rc1, which config is available here: 
+PPS: sorry for lack of direct reply - had to manually cut and paste
+your message in from an archive, as I forgot to mention in my original
+post that I'm off-list at the moment.
 
-     http://www.dea.icai.upco.es/romano/linux/config-2.6.11rc1.txt
 
-     Thank you in advance,      
-                                Romano 
-     
-
-          
-
--- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+	
+	
+		
+___________________________________________________________ 
+ALL-NEW Yahoo! Messenger - all new features - even more fun! http://uk.messenger.yahoo.com

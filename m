@@ -1,99 +1,325 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292256AbSBBJXa>; Sat, 2 Feb 2002 04:23:30 -0500
+	id <S292258AbSBBJ1k>; Sat, 2 Feb 2002 04:27:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292258AbSBBJXV>; Sat, 2 Feb 2002 04:23:21 -0500
-Received: from turing.cs.hmc.edu ([134.173.42.99]:64963 "EHLO
-	turing.cs.hmc.edu") by vger.kernel.org with ESMTP
-	id <S292256AbSBBJXJ>; Sat, 2 Feb 2002 04:23:09 -0500
-Date: Sat, 2 Feb 2002 01:27:05 -0800 (PST)
-From: Nathan Field <nathan@cs.hmc.edu>
-To: Daniel Jacobowitz <dan@debian.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Re: BUG: PTRACE_POKETEXT modifies memory in related
- processes
-In-Reply-To: <20020202023940.A17031@nevyn.them.org>
-Message-ID: <Pine.GSO.4.32.0202020024130.9858-100000@turing.cs.hmc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292259AbSBBJ1W>; Sat, 2 Feb 2002 04:27:22 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:22534 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S292258AbSBBJ1M>;
+	Sat, 2 Feb 2002 04:27:12 -0500
+Date: Sat, 2 Feb 2002 10:26:59 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Axel H. Siebenwirth" <axel@hh59.org>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.3 - (IDE) hda: drive not ready for command errors
+Message-ID: <20020202102659.L12156@suse.de>
+In-Reply-To: <20020201153303.A1508@prester.hh59.org> <5.1.0.14.2.20020201160018.026603b0@pop.cus.cam.ac.uk> <20020201164813.GA14296@neon>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020201164813.GA14296@neon>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Sorry then.  You didn't give any of this context in the original
-> message.  Had you been using GDB - a reasonable assumption - my
-> explanation would have been accurate.
-	Thats okay, years ago I used to lurk on the lkml and I saw tons of
-stupid questions. Had I seen my own message without knowing the background
-I probably would have assumed the same things. The problem was when I
-wrote it I didn't really have the context, I just knew the parent and
-child were sharing the same memory space since. After I saw your response
-I found out that it was almost impossible to get the problem to reproduce
-under gdb. I was all set to write a mini-debugger to show the problem when
-a friend suggested we just scan the kernel source.
+On Fri, Feb 01 2002, Axel H. Siebenwirth wrote:
+> Hi Anton!
+> 
+> On Fri, 01 Feb 2002, Anton Altaparmakov wrote:
+> 
+> > I was about to send the drive (IBM 7200rpm 41GiB) back for replacement when 
+> > I as last resort tried to upgrade the firmware of the drive.
+> > 
+> > After the upgrade the drive started working again, fully passed the Drive 
+> > Fitness Test (IBM utility) and it has been working for a few weeks non-stop 
+> > in my file server RAID-1 array since then.
+> 
+> The thing is that they come up now, just since I installed 2.5.3. Might
+> there be a hope that it is a kernel-related issue (new IDE driver...). Drive
+> has been working fine ever since till now.
 
-> I've got the design mostly worked out to make GDB handle fork()
-> better.  I just need to settle on a few details and find some time to
-> finish it.
-	Personally I'd love to offer to help you out, there are tons of
-special cases that are really nasty to deal with that I could help you out
-on. Unfortunatly I don't think my company would appreciate it, so all I
-can really say is best of luck. It's a fun project, and it'll be
-interesting to see how you do it. I've heard that strace can do it by
-patching in an infinite loop after the syscall. I do it in a way that is
-more arch indep, though only if you have a really capable debugger behind
-you.
+Please try with this patch -- it's against 2.5.3-pre3, but I think it
+should apply to 2.5.3 final as well.
 
-	Do you know if anyone has looked at improving the general
-debugging interface? The solaris interface is just beautiful for things
-like this. You can catch forks, vforks, exec's and so on without having to
-do any crazy run-time modifications. It also works when you don't have
-debugging symbols, which is my Achilles heel. If I can't tell where fork
-is (think of a shell with a statically linked libc that's been stripped)
-then I can't hope to catch it. Since many apps spawn shells which then
-spawn other programs I'm just out of luck. Have you come up with a way to
-work around this?
-
-[snip silly part of patch]
-> Why is this first half even necessary?  I don't see that it makes any
-> difference.  Maybe I'm missing something.
-	Oops, my mistake. That is a leftover from my first pass at fixing
-the problem, and shouldn't be there. Sorry about that, I just submitted a
-patch for what it took to get my system to work. I can take that out and
-submit a new patch.
-
-In fact, how about this:
-
---- ptrace.c.orig	Fri Feb  1 20:17:18 2002
-+++ ptrace.c	Sat Feb  2 00:53:43 2002
-@@ -173,6 +173,7 @@
- 		put_page(page);
- 		len -= bytes;
- 		buf += bytes;
-+		addr += bytes;
+diff -ur /ata/linux-2.5.3-pre3/drivers/ide/ide-disk.c drivers/ide/ide-disk.c
+--- /ata/linux-2.5.3-pre3/drivers/ide/ide-disk.c	Fri Jan 25 05:05:06 2002
++++ drivers/ide/ide-disk.c	Fri Jan 25 02:53:03 2002
+@@ -192,11 +192,6 @@
+ 	sectors = rq->nr_sectors;
+ 	if (sectors == 256)
+ 		sectors = 0;
+-	if (command == WIN_MULTWRITE_EXT || command == WIN_MULTWRITE) {
+-		sectors = drive->mult_count;
+-		if (sectors > rq->current_nr_sectors)
+-			sectors = rq->current_nr_sectors;
+-	}
+ 
+ 	taskfile.sector_count	= sectors;
+ 	taskfile.sector_number	= sect;
+@@ -241,11 +236,6 @@
+ 	sectors = rq->nr_sectors;
+ 	if (sectors == 256)
+ 		sectors = 0;
+-	if (command == WIN_MULTWRITE_EXT || command == WIN_MULTWRITE) {
+-		sectors = drive->mult_count;
+-		if (sectors > rq->current_nr_sectors)
+-			sectors = rq->current_nr_sectors;
+-	}
+ 
+ 	memset(&taskfile, 0, sizeof(task_struct_t));
+ 	memset(&hobfile, 0, sizeof(hob_struct_t));
+@@ -300,13 +290,8 @@
+ 	memset(&hobfile, 0, sizeof(hob_struct_t));
+ 
+ 	sectors = rq->nr_sectors;
+-	if (sectors == 256)
++	if (sectors == 65536)
+ 		sectors = 0;
+-	if (command == WIN_MULTWRITE_EXT || command == WIN_MULTWRITE) {
+-		sectors = drive->mult_count;
+-		if (sectors > rq->current_nr_sectors)
+-			sectors = rq->current_nr_sectors;
+-	}
+ 
+ 	taskfile.sector_count	= sectors;
+ 	hobfile.sector_count	= sectors >> 8;
+diff -ur /ata/linux-2.5.3-pre3/drivers/ide/ide-probe.c drivers/ide/ide-probe.c
+--- /ata/linux-2.5.3-pre3/drivers/ide/ide-probe.c	Fri Jan 25 05:05:06 2002
++++ drivers/ide/ide-probe.c	Fri Jan 25 04:46:26 2002
+@@ -625,7 +625,7 @@
+ 	blk_queue_segment_boundary(q, 0xffff);
+ 
+ 	/* IDE can do up to 128K per request, pdc4030 needs smaller limit */
+-	max_sectors = (is_pdc4030_chipset ? 127 : 255);
++	max_sectors = (is_pdc4030_chipset ? 127 : 256);
+ 	blk_queue_max_sectors(q, max_sectors);
+ 
+ 	/* IDE DMA can do PRD_ENTRIES number of segments. */
+diff -ur /ata/linux-2.5.3-pre3/drivers/ide/ide-taskfile.c drivers/ide/ide-taskfile.c
+--- /ata/linux-2.5.3-pre3/drivers/ide/ide-taskfile.c	Fri Jan 25 05:05:06 2002
++++ drivers/ide/ide-taskfile.c	Fri Jan 25 04:45:48 2002
+@@ -255,6 +255,7 @@
+ 	return 1;		/* drive ready: *might* be interrupting */
+ }
+ 
++ide_startstop_t bio_mulout_intr (ide_drive_t *drive);
+ ide_startstop_t do_rw_taskfile (ide_drive_t *drive, ide_task_t *task)
+ {
+ 	task_struct_t *taskfile = (task_struct_t *) task->tfRegister;
+@@ -263,7 +264,7 @@
+ 	byte HIHI = (drive->addressing) ? 0xE0 : 0xEF;
+ 
+ 	/* (ks/hs): Moved to start, do not use for multiple out commands */
+-	if (task->handler != task_mulout_intr) {
++	if (task->handler != task_mulout_intr && task->handler != bio_mulout_intr) {
+ 		if (IDE_CONTROL_REG)
+ 			OUT_BYTE(drive->ctl, IDE_CONTROL_REG);	/* clear nIEN */
+ 		SELECT_MASK(HWIF(drive), drive, 0);
+@@ -313,7 +314,7 @@
+ 	byte HIHI = (drive->addressing) ? 0xE0 : 0xEF;
+ 
+ 	/* (ks/hs): Moved to start, do not use for multiple out commands */
+-	if (*handler != task_mulout_intr) {
++	if (*handler != task_mulout_intr && handler != bio_mulout_intr) {
+ 		if (IDE_CONTROL_REG)
+ 			OUT_BYTE(drive->ctl, IDE_CONTROL_REG);  /* clear nIEN */
+ 		SELECT_MASK(HWIF(drive), drive, 0);
+@@ -936,15 +937,12 @@
+ 	char *pBuf		= NULL;
+ 	unsigned long flags;
+ 
+-	if (!rq->current_nr_sectors) { 
+-		printk("task_out_intr: should not trigger\n");
+-		ide_end_request(1, HWGROUP(drive));
+-		return ide_stopped;
+-	}
+-
+-	if (!OK_STAT(stat,DRIVE_READY,drive->bad_wstat)) {
++	if (!OK_STAT(stat,DRIVE_READY,drive->bad_wstat))
+ 		return ide_error(drive, "task_out_intr", stat);
+-	}
++
++	if (!rq->current_nr_sectors)
++		if (!ide_end_request(1, HWGROUP(drive)))
++			return ide_stopped;
+ 
+ 	if ((rq->current_nr_sectors==1) ^ (stat & DRQ_STAT)) {
+ 		rq = HWGROUP(drive)->rq;
+@@ -958,16 +956,8 @@
+ 		rq->current_nr_sectors--;
  	}
- 	up_read(&mm->mmap_sem);
- 	mmput(mm);
+ 
+-	if (rq->current_nr_sectors <= 0) {
+-		if (ide_end_request(1, HWGROUP(drive))) {
+-			ide_set_handler(drive, &task_out_intr, WAIT_CMD, NULL);
+-			return ide_started;
+-		}
+-	} else {
+-		ide_set_handler(drive, &task_out_intr, WAIT_CMD, NULL);
+-		return ide_started;
+-	}
+-	return ide_stopped;
++	ide_set_handler(drive, task_out_intr, WAIT_CMD, NULL);
++	return ide_started;
+ }
+ 
+ /*
+@@ -1061,14 +1051,132 @@
+ 	return ide_started;
+ }
+ 
++ide_startstop_t pre_bio_out_intr (ide_drive_t *drive, struct request *rq)
++{
++	ide_task_t *args = rq->special;
++	ide_startstop_t startstop;
++
++	/*
++	 * assign private copy for multi-write
++	 */
++	memcpy(&HWGROUP(drive)->wrq, rq, sizeof(struct request));
++
++	if (ide_wait_stat(&startstop, drive, DATA_READY, drive->bad_wstat, WAIT_DRQ))
++		return startstop;
++
++	/*
++	 * (ks/hs): Stuff the first sector(s)
++	 * by implicitly calling the handler
++	 */
++	if (!(drive_is_ready(drive))) {
++		int i;
++		/*
++		 * (ks/hs): FIXME: Replace hard-coded
++		 *               100, error handling?
++		 */
++		for (i=0; i<100; i++) {
++			if (drive_is_ready(drive))
++				break;
++		}
++	}
++
++	return args->handler(drive);
++}
++
++
++ide_startstop_t bio_mulout_intr (ide_drive_t *drive)
++{
++#ifdef ALTSTAT_SCREW_UP
++	byte stat	= altstat_multi_busy(drive, GET_ALTSTAT(), "write");
++#else
++	byte stat		= GET_STAT();
++#endif /* ALTSTAT_SCREW_UP */
++
++	byte io_32bit		= drive->io_32bit;
++	struct request *rq	= &HWGROUP(drive)->wrq;
++	ide_hwgroup_t *hwgroup	= HWGROUP(drive);
++	int mcount		= drive->mult_count;
++	ide_startstop_t startstop;
++
++	/*
++	 * (ks/hs): Handle last IRQ on multi-sector transfer,
++	 * occurs after all data was sent in this chunk
++	 */
++	if (!rq->nr_sectors) {
++		if (stat & (ERR_STAT|DRQ_STAT)) {
++			startstop = ide_error(drive, "bio_mulout_intr", stat);
++			memcpy(rq, HWGROUP(drive)->rq, sizeof(struct request));
++			return startstop;
++		}
++
++		__ide_end_request(HWGROUP(drive), 1, rq->hard_nr_sectors);
++		HWGROUP(drive)->wrq.bio = NULL;
++		return ide_stopped;
++	}
++
++	if (!OK_STAT(stat, DATA_READY, BAD_R_STAT)) {
++		if (stat & (ERR_STAT | DRQ_STAT)) {
++			startstop = ide_error(drive, "bio_mulout_intr", stat);
++			memcpy(rq, HWGROUP(drive)->rq, sizeof(struct request));
++			return startstop;
++		}
++
++		/* no data yet, so wait for another interrupt */
++		if (hwgroup->handler == NULL)
++			ide_set_handler(drive, bio_mulout_intr, WAIT_CMD, NULL);
++
++		return ide_started;
++	}
++
++	do {
++  		char *buffer;
++  		int nsect = rq->current_nr_sectors;
++		unsigned long flags;
++
++		if (nsect > mcount)
++			nsect = mcount;
++		mcount -= nsect;
++
++		buffer = ide_map_buffer(rq, &flags);
++		rq->sector += nsect;
++		rq->nr_sectors -= nsect;
++		rq->current_nr_sectors -= nsect;
++
++		/* Do we move to the next bio after this? */
++		if (!rq->current_nr_sectors) {
++			/* remember to fix this up /jens */
++			struct bio *bio = rq->bio->bi_next;
++
++			/* end early early we ran out of requests */
++			if (!bio) {
++				mcount = 0;
++			} else {
++				rq->bio = bio;
++				rq->current_nr_sectors = bio_iovec(bio)->bv_len >> 9;
++			}
++		}
++
++		/*
++		 * Ok, we're all setup for the interrupt
++		 * re-entering us on the last transfer.
++		 */
++		taskfile_output_data(drive, buffer, nsect * SECTOR_WORDS);
++		ide_unmap_buffer(buffer, &flags);
++	} while (mcount);
++
++	drive->io_32bit = io_32bit;
++	rq->errors = 0;
++	if (hwgroup->handler == NULL)
++		ide_set_handler(drive, bio_mulout_intr, WAIT_CMD, NULL);
++
++	return ide_started;
++}
++
+ /* Called by internal to feature out type of command being called */
+ ide_pre_handler_t * ide_pre_handler_parser (struct hd_drive_task_hdr *taskfile, struct hd_drive_hob_hdr *hobfile)
+ {
+ 	switch(taskfile->command) {
+ 				/* IDE_DRIVE_TASK_RAW_WRITE */
+-		case CFA_WRITE_MULTI_WO_ERASE:
+-		case WIN_MULTWRITE:
+-		case WIN_MULTWRITE_EXT:
+ 				/* IDE_DRIVE_TASK_OUT */
+ 		case WIN_WRITE:
+ 		case WIN_WRITE_EXT:
+@@ -1077,7 +1185,10 @@
+ 		case CFA_WRITE_SECT_WO_ERASE:
+ 		case WIN_DOWNLOAD_MICROCODE:
+ 			return &pre_task_out_intr;
+-				/* IDE_DRIVE_TASK_OUT */
++		case CFA_WRITE_MULTI_WO_ERASE:
++		case WIN_MULTWRITE:
++		case WIN_MULTWRITE_EXT:
++			return &pre_bio_out_intr;
+ 		case WIN_SMART:
+ 			if (taskfile->feature == SMART_WRITE_LOG_SECTOR)
+ 				return &pre_task_out_intr;
+@@ -1120,7 +1231,7 @@
+ 		case CFA_WRITE_MULTI_WO_ERASE:
+ 		case WIN_MULTWRITE:
+ 		case WIN_MULTWRITE_EXT:
+-			return &task_mulout_intr;
++			return &bio_mulout_intr;
+ 		case WIN_SMART:
+ 			switch(taskfile->feature) {
+ 				case SMART_READ_VALUES:
 
-> That'll do it all right.  Might want to forward this patch (at least
-> the latter bit) to Linus and Marcello to make sure they see it.
-	Sure, I'm not a regular on the lkml, what email addresses should I
-use to send the patches? Someone else suggested that I also send it to
-Dave Jones, but I haven't been able to find an email address for Marcello
-through google or in the one daily digest I've gotten so far.
-	Dave Jones <davej@suse.de>
-	Linus Torvalds <torvalds@transmeta.com>
-The lkml FAQ at http://www.tux.ork/lkml seems to be a bit out of date on
-this :)
-
-	nathan
-
-------------
-Nathan Field  Root is not something to be shared with strangers.
-
-"It is commonly the case with technologies that you can get the best
- insight about how they work by watching them fail."
-        -- Neal Stephenson
-
-
-
+-- 
+Jens Axboe
 

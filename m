@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbVBBTz2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262321AbVBBT7B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262648AbVBBTz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 14:55:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262630AbVBBTz0
+	id S262321AbVBBT7B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 14:59:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVBBTqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 14:55:26 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:16005 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S262622AbVBBTy7 (ORCPT
+	Wed, 2 Feb 2005 14:46:36 -0500
+Received: from asplinux.ru ([195.133.213.194]:781 "EHLO relay.asplinux.ru")
+	by vger.kernel.org with ESMTP id S262589AbVBBTkd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 14:54:59 -0500
-Date: Wed, 2 Feb 2005 20:55:12 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Peter Osterlund <petero2@telia.com>, linux-kernel@vger.kernel.org,
-       dtor_core@ameritech.net
-Subject: Re: Touchpad problems with 2.6.11-rc2
-Message-ID: <20050202195512.GA3852@ucw.cz>
-References: <20050123190109.3d082021@localhost.localdomain> <m3acqr895h.fsf@telia.com> <20050201234148.4d5eac55@localhost.localdomain> <20050202102033.GA2420@ucw.cz> <20050202085628.49f809a0@localhost.localdomain> <20050202170727.GA2731@ucw.cz> <20050202095851.27321bcf@localhost.localdomain> <20050202191135.GA3189@ucw.cz> <20050202113929.0bff00e9@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050202113929.0bff00e9@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+	Wed, 2 Feb 2005 14:40:33 -0500
+Message-ID: <42012C7B.1010609@sw.ru>
+Date: Wed, 02 Feb 2005 22:39:39 +0300
+From: Vasily Averin <vvs@sw.ru>
+Organization: SW-soft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021224
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Matt Domsch <Matt_Domsch@dell.com>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Andrey Melnikov <temnota+kernel@kmv.ru>, linux-kernel@vger.kernel.org,
+       Atul Mukker <Atul.Mukker@lsil.com>,
+       Sreenivas Bagalkote <Sreenivas.Bagalkote@lsil.com>
+Subject: Re: [PATCH] Prevent NMI oopser
+References: <41F5FC96.2010103@sw.ru> <20050131231752.GA17126@logos.cnet> <42011EFA.10109@sw.ru> <20050202190626.GB18763@lists.us.dell.com>
+In-Reply-To: <20050202190626.GB18763@lists.us.dell.com>
+X-Enigmail-Version: 0.70.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 02, 2005 at 11:39:29AM -0800, Pete Zaitcev wrote:
-> On Wed, 2 Feb 2005 20:11:35 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
+Hello Matt
+
+Matt Domsch wrote:
+> On Wed, Feb 02, 2005 at 09:42:02PM +0300, Vasily Averin wrote:
+>>This is megaraid2 driver update (2.10.8.2 version, latest 2.4-compatible
+>>version that I've seen), taken from latest RHEL3 kernel update. I
+>>believe it should prevent NMI in abort/reset handler.
 > 
-> > It's different hardware. While the ALPS pad delivers X axis in the range
-> > of 0 to 1000, the Synaptics pad will give X axis values from approx 1500
-> > to approx 5500. This is four times the resolution - the size of the pad
-> > is mostly the same.
+> Thanks Vasily, I was just looking at this again yesterday.
 > 
-> > We need to divide by 2 for ALPS and by 8 for Synaptics, and that's
-> > basically all we need to do. But we must not do that by checking the pad
-> > manufacturer, because when a third pad type comes in (Say Logitech
-> > TouchPad 3), we shouldn't need to modify mousedev.c
+> You'll also find that because the driver doesn't define its inline
+> functions prior to their use, newest compilers refuse to compile this
+> version of the driver.  Earlier compilers just ignore it and don't
+> inline anything.
 > 
-> What you say is valid. I see now that this is what had to be addressed by
-> this statement:
->   size = dev->absmax[ABS_Y] - dev->absmin[ABS_Y];
-> 
-> Removing that was my mistake and I wish I had a different pad for testing.
-> I'll do some measurements here and return something of that nature into
-> the patched code and give it a try.
+> As a hack, one could #define inline /*nothing*/ in megaraid2.h to
+> avoid this, but it would be nice if the functions could all get
+> reordered such that inlining works properly, and the need for function
+> declarations in megaraid2.h would disappear completely.
 
-OK.
+Could you fix it by additional patch? Or do you going to prepare a new one?
 
-> But I still think that using yres here is wrong. It may be a fine idea,
-> but adding another divisor here ruined the precision of small movements.
-> This was my problem. Trying to line up two windows was hugely frustrating
-> with 2.6.11-rc2 & Peter's patches. But also, it was unnecessary to use yres,
-> because the reach or maximum moving distance is to be accomplished with
-> ballistics, not scaling.
+Thank you,
+	Vasily Averin, SWSoft Linux Kernel Team
 
-I agree. If one wants full precision even at the ballistic speeds of
-movement (and Synaptics can do that simply by not dividing the values),
-one can use the special X driver.
-
-No need to be overclever in mousedev.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

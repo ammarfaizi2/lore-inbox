@@ -1,34 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267278AbUHSTEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267285AbUHSTHG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267278AbUHSTEy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 15:04:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267293AbUHSTEy
+	id S267285AbUHSTHG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 15:07:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267293AbUHSTFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 15:04:54 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:56290 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S267285AbUHSTDv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 15:03:51 -0400
-Date: Thu, 19 Aug 2004 21:03:50 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: i_blocks overflow
-Message-ID: <Pine.LNX.4.58.0408192056490.23100@artax.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Aug 2004 15:05:07 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:8837 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267283AbUHSTDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 15:03:40 -0400
+Subject: Re: kernbench on 512p
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: davidm@hpl.hp.com
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <16676.55284.896783.567359@napali.hpl.hp.com>
+References: <200408191216.33667.jbarnes@engr.sgi.com>
+	 <16676.54657.220755.148837@napali.hpl.hp.com>
+	 <200408191237.16959.jbarnes@engr.sgi.com>
+	 <16676.55284.896783.567359@napali.hpl.hp.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092938120.28370.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 19 Aug 2004 18:55:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Iau, 2004-08-19 at 17:40, David Mosberger wrote:
+> Why not file a bug-report to Red Hat instead?  guile v1.6 and the
+> guile-SLIB are quite old and rather standard.
 
-Maximum file size on Linux is 2^41-2049.
-What happens when you create file so large and overflow i_blocks
-variable? (because that file will use more than 2^32 blocks, there are
-indirect blocks too) There seems to be no check for that in
-inode_add_bytes.
+On debian maybe.
 
-This bug applies to both 2.4 and 2.6.
+The enterprise demand for guile-slib is suprisingly low ;)
 
-Does anybody have so large raid to try it?
-
-Mikulas

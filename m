@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289101AbSAUJV4>; Mon, 21 Jan 2002 04:21:56 -0500
+	id <S289103AbSAUJ3S>; Mon, 21 Jan 2002 04:29:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289105AbSAUJVr>; Mon, 21 Jan 2002 04:21:47 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:32519 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S289101AbSAUJVe>; Mon, 21 Jan 2002 04:21:34 -0500
-Date: Mon, 21 Jan 2002 11:21:30 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: rm-ing files with open file descriptors
-Message-ID: <20020121092130.GA51774@niksula.cs.hut.fi>
-In-Reply-To: <20020120210841.GU51774@niksula.cs.hut.fi> <200201210906.g0L96vT2001762@tigger.cs.uni-dortmund.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200201210906.g0L96vT2001762@tigger.cs.uni-dortmund.de>
-User-Agent: Mutt/1.3.25i
+	id <S289119AbSAUJ3H>; Mon, 21 Jan 2002 04:29:07 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:53741 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S289103AbSAUJ2y>;
+	Mon, 21 Jan 2002 04:28:54 -0500
+Date: Mon, 21 Jan 2002 12:26:10 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Erich Focht <efocht@ess.nec.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: O(1) scheduler: load_balance issues
+In-Reply-To: <Pine.LNX.4.21.0201191826400.14284-100000@sx6.ess.nec.de>
+Message-ID: <Pine.LNX.4.33.0201211221270.2872-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 21, 2002 at 10:06:57AM +0100, you [Horst von Brand] claimed:
-> 
-> There are filesystems around (MSDOS, VFAT) that haven't got fixed inode
-> numbers for files. There are networked filesystems where this would need
-> radical changes to the server side. Some even make up inode numbers on the
-> fly IIRC.
 
-True.
- 
-> If in dire need, you could hack something together for <favorite
-> filesystem> by groveling over the disk image. e2fsprogs' libraries should
-> come handy...
+On Sat, 19 Jan 2002, Erich Focht wrote:
 
-Well, I'll have to come up with the dire need first - or any need indeed :).
-Just playing around with the idea.
+> In the load_balance() function the initial value for max_load should
+> better be set to 1 instead of 0 in order to avoid finding 'busiest'
+> runqueues with only one task. This avoids taking the spin-locks
+> unnecessarily for the case idle=1.
 
-IIRC, Stephen Tweedie had made such a patch for ext2.
+agreed.
 
+> Another issue: I don't understand how prev_max_load works, I think
+> that the comments in load_balance are not true any more and the
+> comparison to prev_max_load can be dropped. [...]
 
--- v --
+you are right, and this changed recently. Since we do not search for
+multiple queues anymore when balancing, this variable can be dropped.
+I've added both of your suggestions to my tree.
 
-v@iki.fi
+	Ingo
+

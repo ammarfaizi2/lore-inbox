@@ -1,42 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135471AbRDWPzx>; Mon, 23 Apr 2001 11:55:53 -0400
+	id <S135474AbRDWP6x>; Mon, 23 Apr 2001 11:58:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135483AbRDWPzn>; Mon, 23 Apr 2001 11:55:43 -0400
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:58767 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S135471AbRDWPz2>; Mon, 23 Apr 2001 11:55:28 -0400
-Date: Mon, 23 Apr 2001 11:53:32 -0400
-From: Bill Nottingham <notting@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: whitney@math.berkeley.edu, manuel@mclure.org,
-        Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Problem with "su -" and kernels 2.4.3-ac11 and higher
-Message-ID: <20010423115332.A27493@devserv.devel.redhat.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	whitney@math.berkeley.edu, manuel@mclure.org,
-	Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200104230242.f3N2gns08877@adsl-209-76-109-63.dsl.snfc21.pacbell.net> <E14rcVF-0007cJ-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S135484AbRDWP6n>; Mon, 23 Apr 2001 11:58:43 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:30136 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S135474AbRDWP63>;
+	Mon, 23 Apr 2001 11:58:29 -0400
+Message-ID: <3AE45121.926C4B51@mandrakesoft.com>
+Date: Mon, 23 Apr 2001 11:58:25 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcus Meissner <Marcus.Meissner@caldera.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] es1371 pci fix/cleanup
+In-Reply-To: <20010423175158.A15604@caldera.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14rcVF-0007cJ-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Apr 23, 2001 at 10:19:27AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox (alan@lxorguk.ukuu.org.uk) said: 
-> > > Did you try nesting more than one "su -"? The first one after a boot
-> > > works for me - every other one fails.
-> > 
-> > Same here: the first "su -" works OK, but a second nested one hangs:
+Marcus Meissner wrote:
 > 
-> It appears to be a bug in PAM. Someone seems to reply on parent/child running
-> order and just got caught out
+> Hi,
+> 
+> This moves pci_enable_device in the es1371 driver before any resource
+> access and also replaces the RSRCISIOREGION by just pci_resource_flags
+> as suggested by Jeff.
+> 
+> Tested and verified.
+> 
+> Ciao, Marcus
+> 
+> Index: drivers/sound/es1371.c
+> ===================================================================
+> RCS file: /build/mm/work/repository/linux-mm/drivers/sound/es1371.c,v
+> retrieving revision 1.7
+> diff -u -r1.7 es1371.c
+> --- drivers/sound/es1371.c      2001/04/17 17:26:05     1.7
+> +++ drivers/sound/es1371.c      2001/04/23 15:49:15
+> @@ -2771,9 +2771,6 @@
+>         { SOUND_MIXER_WRITE_IGAIN, 0x4040 }
+>  };
+> 
+> -#define RSRCISIOREGION(dev,num) (pci_resource_start((dev), (num)) != 0 && \
+> -                                (pci_resource_flags((dev), (num)) & IORESOURCE_IO))
+> -
+>  static int __devinit es1371_probe(struct pci_dev *pcidev, const struct pci_device_id *pciid)
+>  {
+>         struct es1371_state *s;
+> @@ -2783,8 +2780,11 @@
+>         signed long tmo2;
+>         unsigned int cssr;
+> 
+> -       if (!RSRCISIOREGION(pcidev, 0))
+> +       if (pci_enable_device(pcidev))
+>                 return -1;
+> +
+> +       if (!(pci_resource_flags(pcidev, 0) & IORESOURCE_IO))
+> +               return -1;
+>         if (pcidev->irq == 0)
+>                 return -1;
 
-I'm not so sure; this hang is already after all the authentication is
-done.
+Looks ok except error returns.
 
-Bill
+pci_enable_device - obtain its return value, and return that.
+
+no IORESOURCE_IO or pcidev->irq==0 - I guess -ENODEV would be
+appropriate.  (basically look at errno.h and make a judgement call which
+error best fits the situation)
+
+-- 
+Jeff Garzik      | The difference between America and England is that
+Building 1024    | the English think 100 miles is a long distance and
+MandrakeSoft     | the Americans think 100 years is a long time.
+                 |      (random fortune)

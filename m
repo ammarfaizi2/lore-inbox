@@ -1,57 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268559AbTBWUG0>; Sun, 23 Feb 2003 15:06:26 -0500
+	id <S268974AbTBWUIy>; Sun, 23 Feb 2003 15:08:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268564AbTBWUG0>; Sun, 23 Feb 2003 15:06:26 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:40387 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S268559AbTBWUGX>; Sun, 23 Feb 2003 15:06:23 -0500
-Date: Sun, 23 Feb 2003 12:16:26 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: object-based rmap and pte-highmem
-Message-ID: <9540000.1046031384@[10.10.2.4]>
-In-Reply-To: <b3b6u4$bt2$1@penguin.transmeta.com>
-References: <96700000.1045871294@w-hlinder>
- <20030222192424.6ba7e859.akpm@digeo.com> <11090000.1046016895@[10.10.2.4]>
- <b3b6u4$bt2$1@penguin.transmeta.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S268975AbTBWUIy>; Sun, 23 Feb 2003 15:08:54 -0500
+Received: from rrzd2.rz.uni-regensburg.de ([132.199.1.12]:57218 "EHLO
+	rrzd2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S268974AbTBWUIv>; Sun, 23 Feb 2003 15:08:51 -0500
+Date: Sun, 23 Feb 2003 21:19:01 +0100
+From: Christian Guggenberger 
+	<Christian.Guggenberger@physik.uni-regensburg.de>
+To: alan@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.5.62-ac1
+Message-ID: <20030223211901.A3928@pc9391.uni-regensburg.de>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_2fHTh5uZTiUOsy"
+Content-Transfer-Encoding: 8bit
+X-Mailer: Balsa 1.2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I have a plan for that (UKVA) ... we reserve a per-process area with 
->> kernel type protections (either at the top of user space, changing
->> permissions appropriately, or inside kernel space, changing per-process
->> vs global appropriately). 
-> 
-> Nobody ever seems to have solved the threading impact of UKVA's. I told
-> Andrea about it almost a year ago, and his reaction was "oh, duh!" and
-> couldn't come up with a solution either.
-> 
-> The thing is, you _cannot_ have a per-thread area, since all threads
-> share the same TLB.  And if it isn't per-thread, you still need all the
-> locking and all the scalability stuff that the _current_ pte_highmem
-> code needs, since there are people with thousands of threads in the same
-> process. 
-> 
-> Until somebody _addresses_ this issue with UKVA, I consider UKVA to be a
-> pipe-dream of people who haven't thought it through.
 
-I don't see why that's an issue - the pagetables are per-process, not
-per-thread.
+--=_2fHTh5uZTiUOsy
+Content-Type: text/plain; format=flowed; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-Yes, that was a stalling point for sticking kmap in there, which was
-amongst my original plotting for it, but the stuff that's per-process
-still works. 
+Alan Cox wrote:
+> Linux 2.5.62-ac1
+> 	Merge Linus 2.5.62
+> o	UNEXPECTED_IO_APIC can be static		(Pavel Machek)
+> o	Update IPMI driver to version 18		(Corey Minyard)
+> o	Tons of spelling fixes				(Steven Cole)
+snip
+> o	SunRPC race fix					(Trond Myklebust)
+> o	Refix addr/port naming confusion in IDE iops	(me)
+> o	Forward port VIA APIC handling quirks		(me)
+Hi Alan,
 
-I'm not suggesting kmapping them dynamically (though it's rather like
-permanent kmap), I'm suggesting making enough space so we have them all
-there for each process all the time. None of this tiny little window
-shifting around stuff ...
+Should this one fix those problems with IO-APICs seen on most UP Via Boards?
+For me it doesn't work. For now I have two options with 2.5:
 
-M.
+1. Disbable IO-APICs completely, but then my machine only boots with acpi=off
+
+or
+
+2. Use IO-APICs, to get a bootable kernel with acpi enabled, but then all 
+onboard devices won't work (via-rhine...) correctly.
+
+Is there any chance to get acpi working without IO-APICs?
+
+lspci (if it helps) output is attached.
+
+Christian
+
+--=_2fHTh5uZTiUOsy
+Content-Type: text/plain
+Content-Disposition: attachment; filename="lspci.txt"
+
+00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333 AGP]
+00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+00:0b.0 Multimedia controller: Philips Semiconductors SAA7146 (rev 01)
+00:0e.0 RAID bus controller: Triones Technologies, Inc. HPT374 (rev 07)
+00:0e.1 RAID bus controller: Triones Technologies, Inc. HPT374 (rev 07)
+00:10.0 USB Controller: VIA Technologies, Inc. USB (rev 80)
+00:10.1 USB Controller: VIA Technologies, Inc. USB (rev 80)
+00:10.2 USB Controller: VIA Technologies, Inc. USB (rev 80)
+00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
+00:11.1 IDE interface: VIA Technologies, Inc. VT82C586/B/686A/B PIPC Bus Master IDE (rev 06)
+00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233 AC97 Audio Controller (rev 50)
+00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 74)
+01:00.0 VGA compatible controller: nVidia Corporation NV5 [RIVA TNT2/TNT2 Pro] (rev 15)
+
+--=_2fHTh5uZTiUOsy--
 

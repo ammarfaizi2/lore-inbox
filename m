@@ -1,79 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317494AbSGOQEm>; Mon, 15 Jul 2002 12:04:42 -0400
+	id <S317505AbSGOQHq>; Mon, 15 Jul 2002 12:07:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317504AbSGOQEl>; Mon, 15 Jul 2002 12:04:41 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:21771 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S317494AbSGOQEj>;
-	Mon, 15 Jul 2002 12:04:39 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200207151607.g6FG7In203512@saturn.cs.uml.edu>
-Subject: Re: HZ, preferably as small as possible
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Mon, 15 Jul 2002 12:07:18 -0400 (EDT)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
-       torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <20020715092411.A12082@flint.arm.linux.org.uk> from "Russell King" at Jul 15, 2002 09:24:11 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S317508AbSGOQHp>; Mon, 15 Jul 2002 12:07:45 -0400
+Received: from lockupnat.curl.com ([216.230.83.254]:59384 "EHLO
+	egghead.curl.com") by vger.kernel.org with ESMTP id <S317505AbSGOQHm>;
+	Mon, 15 Jul 2002 12:07:42 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.19-rc1/2.5.25 provide dummy fsync() routine for directories on NFS mounts
+References: <20020715075221.GC21470@uncarved.com> <Pine.LNX.3.95.1020715084232.22834A-100000@chaos.analogic.com> <20020715133507.GF32155@merlin.emma.line.org> <s5gwurxt59x.fsf@egghead.curl.com> <20020715151833.GA22828@merlin.emma.line.org>
+From: "Patrick J. LoPresti" <patl@curl.com>
+Date: 15 Jul 2002 12:10:37 -0400
+In-Reply-To: <mit.lcs.mail.linux-kernel/20020715151833.GA22828@merlin.emma.line.org>
+Message-ID: <s5g4rf1t1j6.fsf@egghead.curl.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King writes:
-> On Mon, Jul 15, 2002 at 02:56:14AM -0400, Albert D. Cahalan wrote:
+Matthias Andree <matthias.andree@stud.uni-dortmund.de> writes:
 
->> Unfortunately, the hack must remain for another 4 years or so.
->> Maybe that's not so bad though. I prefer it over this:
->> 
->> #ifdef __386__
->> #define HZ 100
->> #endif
->> #ifdef __IA64__
->> #define HZ 1024
->> #endif
->> #ifdef __ARM__
->> #define HZ 128  // if they settle on this
->
-> Ehh?  It's been 100 on the majority of ARM.  If it's different in libproc,
-> the libproc is broken.
+> The data= mode was not part of the past discussion, that's why I
+> brought this up now. However, reiserfs or ext3fs with data=writeback
+> only journal the fsync() metadata involved, not the order of data
+> (file contents) versus directory contents, so you can end up with a
+> "crash - journal replay - file with bogus contents" scenario.
 
-It's not a different value in libproc. There's autodetection.
-I can't just support "the majority of ARM", and people keep
-giving me shit about HZ supposedly being a per-arch constant.
-(not that there's a sane way to get a per-arch constant from
-user code anyway)
+This should not happen with a properly written application.  fsync()
+flushes a bunch of stuff to disk, but it normally makes no promise
+about the ORDER in which that stuff goes out.  fsync() itself is how
+application authors can enforce an ordering on disk operations.
 
-> One (broken) machine type decided it would be a
-> good idea to change it to 1000.  Since no one has paid any attention
-> to this machine for some time, it's support code will get dropped if
-> they don't fix it before 2.6.
+For example, a typical MTA might follow this paradigm:
 
-You have 64, 128, and 1000. See for yourself.
+    write temp file
+    fsync()
+    rename temp file to destination
+    fsync()
+    report success
 
-arch-cl7500/param.h     #define HZ 100
-arch-epxa10db/param.h   #define HZ 100
-arch-integrator/param.h #define HZ 100
-arch-l7200/param.h      #define HZ 128
-arch-shark/param.h      #define HZ 64
-arch-tbox/param.h       #define HZ 1000
+(Yes, I know, "link/unlink" is more common in practice than rename().
+But the principle is the same.)
 
-I need to support all of that with one binary.
-So I'm stuck with:
+Or, in the case of Postfix:
 
-  case    9 ...   11 :  Hertz =   10; break; /* S/390 (sometimes) */
-  case   18 ...   22 :  Hertz =   20; break; /* user-mode Linux */
-  case   30 ...   34 :  Hertz =   32; break; /* ia64 emulator */
-  case   48 ...   52 :  Hertz =   50; break;
-  case   58 ...   62 :  Hertz =   60; break;
-  case   63 ...   65 :  Hertz =   64; break; /* StrongARM /Shark */
-  case   95 ...  105 :  Hertz =  100; break; /* normal Linux */
-  case  124 ...  132 :  Hertz =  128; break; /* MIPS, ARM */
-  case  195 ...  204 :  Hertz =  200; break; /* normal << 1 */
-  case  253 ...  260 :  Hertz =  256; break;
-  case  393 ...  408 :  Hertz =  400; break; /* normal << 2 */
-  case  790 ...  808 :  Hertz =  800; break; /* normal << 3 */
-  case  990 ... 1010 :  Hertz = 1000; break; /* ARM */
-  case 1015 ... 1035 :  Hertz = 1024; break; /* Alpha, ia64 */
-  case 1180 ... 1220 :  Hertz = 1200; break; /* Alpha */
+    write message file
+    fsync()
+    chmod +x message file
+    fsync()
+    report success
+
+The first paradigm uses the presence of a directory entry to represent
+"committed" data.  The second uses a mode bit on the file.
+
+Both of these paradigms work fine with data=writeback.  Yes, they
+require calling fsync() twice, but that is exactly what you need to
+enforce the ordering constraints!
+
+An MTA has two ordering constraints:
+
+  1) Data must be flushed to disk before it is marked on disk as
+     "committed".  This is to ensure that, after a crash, the MTA does
+     not read a corrupted mail file.
+
+  2) Data must be marked on disk as "committed" before a success code
+     is reported to the remote MTA.  This is to ensure that no mail is
+     lost.
+
+The ext3 data=ordered mode enforces the first constraint for mailers
+using the "rename" paradigm, eliminating the need for the first
+fsync() call.  But any MTA which relies on data=ordered semantics is
+not only Linux-specific, but ext3/reiserfs specific!
+
+Synchronous directory updates, a la FFS, enforce the second constraint
+(again for the "rename" paradigm), eliminating the need for the second
+fsync().
+
+But to be robust across platforms and file systems, a mailer needs
+both fsync() calls.  (On Linux, you actually need to fsync() the
+*directory*, not the file, for the "rename" paradigm.  It would be
+nice if we could convince MTA authors to do this.)
+
+> I don't think so. They'd rather declare ReiserFS unsupported and go with
+> chattr +S. Seen that.
+> 
+> New implementations (Courier's maildrop) still rely on BSD FFS
+> "synchronous directory" semantics.
+
+Are you sure?  Because that is ridiculous...  Modern BSDs like to use
+"soft updates", which need that second fsync() to commit the metadata.
+So as long as fsync() commits the journal, either paradigm above
+should work fine under any journaling mode.
+
+Summary: *All* MTAs should call fsync() twice.  The only issue is what
+descriptors they should call it on, exactly :-).
+
+ - Pat

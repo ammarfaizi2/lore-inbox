@@ -1,37 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271270AbUJVM0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271265AbUJVMZO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271270AbUJVM0k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 08:26:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271269AbUJVMZ1
+	id S271265AbUJVMZO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 08:25:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271260AbUJVMZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 08:25:27 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:42927 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S271276AbUJVMZJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 08:25:09 -0400
-Date: Fri, 22 Oct 2004 14:24:53 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: s390 patches.
-Message-ID: <20041022122453.GA3720@mschwid3.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
+	Fri, 22 Oct 2004 08:25:13 -0400
+Received: from CPE-203-51-28-190.nsw.bigpond.net.au ([203.51.28.190]:37359
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id S271266AbUJVMYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 08:24:19 -0400
+Message-ID: <4178FBC5.7090508@eyal.emu.id.au>
+Date: Fri, 22 Oct 2004 22:23:33 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-mm1
+References: <20041022032039.730eb226.akpm@osdl.org>
+In-Reply-To: <20041022032039.730eb226.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
-the sacf security exploit went public yesterday, so we shold push
-the fix to the BitKeeper tree soon. And guess what I've some other
-patches as well ;-)
+Andrew Morton wrote:
+ > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9/2.6.9-mm1/
 
-1) fix sacf local root exploit (CAN-2004-0887)
-2) core changes: pid to cr4, cpcmd fixes & missing clobber.
-3) cleanup segment load/unload infrastructure.
-4) add system control for the debug feature
-5) qdio fixes
-6) network driver changes
+I see the DVB stuff is not here anymore (was in rc-mm). Why?
 
-blue skies,
-  Martin.
+-- 
+Eyal Lebedinsky	 (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

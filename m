@@ -1,221 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265405AbUAFWau (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 17:30:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265413AbUAFWau
+	id S265434AbUAFWm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 17:42:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265443AbUAFWmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 17:30:50 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:50122 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S265405AbUAFWaP
+	Tue, 6 Jan 2004 17:42:25 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:24540 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S265434AbUAFWmR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 17:30:15 -0500
-Message-ID: <3FFB35CE.8020905@us.ibm.com>
-Date: Tue, 06 Jan 2004 14:25:18 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: azarah@nosferatu.za.org
-CC: Jesse Barnes <jbarnes@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       mbligh@aracnet.com
-Subject: Re: [PATCH] Simplify node/zone field in page->flags
-References: <3FE74B43.7010407@us.ibm.com>	 <20031222131126.66bef9a2.akpm@osdl.org> <3FF9D5B1.3080609@us.ibm.com>	 <20040105213736.GA19859@sgi.com>  <3FF9E64D.5080107@us.ibm.com> <1073345023.6075.357.camel@nosferatu.lan>
-Content-Type: multipart/mixed;
- boundary="------------050804070601070109020109"
+	Tue, 6 Jan 2004 17:42:17 -0500
+Date: Tue, 6 Jan 2004 14:40:33 -0800
+From: Patrick Mansfield <patmans@ibm.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: neuffer@goofy.zdv.uni-mainz.de, a.arnold@kfa-juelich.de,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
+Subject: [PATCH] Re: 2.6.1-rc1: SCSI: `TIMEOUT' redefined
+Message-ID: <20040106144033.A13031@beaverton.ibm.com>
+References: <Pine.LNX.4.58.0312310033110.30995@home.osdl.org> <20040106183325.GJ11523@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040106183325.GJ11523@fs.tum.de>; from bunk@fs.tum.de on Tue, Jan 06, 2004 at 07:33:25PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050804070601070109020109
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, Jan 06, 2004 at 07:33:25PM +0100, Adrian Bunk wrote:
+> On Wed, Dec 31, 2003 at 12:36:49AM -0800, Linus Torvalds wrote:
+> >...
+> > Summary of changes from v2.6.0 to v2.6.1-rc1
+> > ============================================
+> >...
+> > Patrick Mansfield:
+> >   o consolidate and log scsi command on send and completion
+> >...
+> 
+> This adds a #define TIMEOUT to scsi.h conflicting with a different 
+> TIMEOUT #define in drivers/scsi/eata_generic.h:
 
-Martin Schlemmer wrote:
-> On Tue, 2004-01-06 at 00:33, Matthew Dobson wrote:
-> 
->>Jesse Barnes wrote:
->>
->>>On Mon, Jan 05, 2004 at 01:22:57PM -0800, Matthew Dobson wrote:
->>>
->>>
->>>>Jesse had acked the patch in an earlier itteration.  The only thing 
->>>>that's changed is some line offsets whilst porting the patch forward.
->>>>
->>>>Jesse (or anyone else?), any objections to this patch as a superset of 
->>>>yours?
->>>
->>>
->>>No objections here.  Of course, you'll have to rediff against the
->>>current tree since that stuff has been merged for awhile now.  On a
->>>somewhat related note, Martin mentioned that he'd like to get rid of
->>>memblks.  I'm all for that too; they just seem to get in the way.
->>>
->>>Jesse
->>>
->>
->>Yeah... didn't actually attatch the patch to that last email, did I? 
->>Brain slowly transitioning back into "on" mode after a couple weeks 
->>solidly in the "off" position.
->>
-> 
-> 
-> Get this with gcc-3.3.2 cvs:
-> 
-> --
-> include/linux/mm.h: In function `page_nodenum':
-> include/linux/mm.h:337: warning: right shift count >= width of type
-> include/linux/mm.h:337: warning: suggest parentheses around + or -
-> inside shift
-> --
-> 
-> Think we could get those () in to make it more clear and the compiler
-> happy?
-> 
-> 
-> Thanks,
-> 
+Sorry Adrian, here is a patch renaming TIMEOUT to TIMEOUT_ERROR.  Still
+not a good name for the usage in SCSI core, but it does not conflict, and
+matches the other names for the IO completion results (SUCCESS, FAILED,
+etc., they and others should really be prefixed with at least SCSI).
 
-Figured out what the right shift count message was about.  On UP with 
-MAX_NODES_SHIFT = 0, the node bitfield has no length so the bitshift was 
-too far.  Setting MAX_NODES_SHIFT = 1 gives the node bitfield a size of 
-1, and we just store a 0 there for node 0.
+eata does not use the TIMEOUT it defines, but there are enough defines of
+TIMEOUT that it could be a problem in other drivers.
 
-Updated patch attatched.
+Only compile tested for eata driver.
 
-Thanks!
-
--Matt
-
---------------050804070601070109020109
-Content-Type: text/plain;
- name="nodezone.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nodezone.patch"
-
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.1-rc1/include/linux/mm.h linux-2.6.1-rc1+nodezone/include/linux/mm.h
---- linux-2.6.1-rc1/include/linux/mm.h	Mon Jan  5 12:36:24 2004
-+++ linux-2.6.1-rc1+nodezone/include/linux/mm.h	Mon Jan  5 16:14:22 2004
-@@ -322,23 +322,33 @@ static inline void put_page(struct page 
- /*
-  * The zone field is never updated after free_area_init_core()
-  * sets it, so none of the operations on it need to be atomic.
-- * We'll have up to log2(MAX_NUMNODES * MAX_NR_ZONES) zones
-- * total, so we use NODES_SHIFT here to get enough bits.
-+ * We'll have up to (MAX_NUMNODES * MAX_NR_ZONES) zones total, 
-+ * so we use (MAX_NODES_SHIFT + MAX_ZONES_SHIFT) here to get enough bits.
-  */
--#define ZONE_SHIFT (BITS_PER_LONG - NODES_SHIFT - MAX_NR_ZONES_SHIFT)
-+#define NODEZONE_SHIFT (BITS_PER_LONG - MAX_NODES_SHIFT - MAX_ZONES_SHIFT)
-+#define NODEZONE(node, zone)	((node << ZONES_SHIFT) | zone)
-+
-+static inline unsigned long page_zonenum(struct page *page)
-+{
-+	return (page->flags >> NODEZONE_SHIFT) & (~(~0UL << ZONES_SHIFT));
-+}
-+static inline unsigned long page_nodenum(struct page *page)
-+{
-+	return (page->flags >> (NODEZONE_SHIFT + ZONES_SHIFT));
-+}
- 
- struct zone;
- extern struct zone *zone_table[];
- 
- static inline struct zone *page_zone(struct page *page)
+--- 1.132/drivers/scsi/scsi.c	Tue Sep 30 07:24:17 2003
++++ edited/drivers/scsi/scsi.c	Tue Jan  6 13:13:34 2004
+@@ -441,7 +441,7 @@
+ 			case FAILED:
+ 				printk("FAILED ");
+ 				break;
+-			case TIMEOUT:
++			case TIMEOUT_ERROR:
+ 				/* 
+ 				 * If called via scsi_times_out.
+ 				 */
+===== drivers/scsi/scsi_error.c 1.67 vs edited =====
+--- 1.67/drivers/scsi/scsi_error.c	Mon Sep 29 05:37:28 2003
++++ edited/drivers/scsi/scsi_error.c	Tue Jan  6 13:12:58 2004
+@@ -164,7 +164,7 @@
+  **/
+ void scsi_times_out(struct scsi_cmnd *scmd)
  {
--	return zone_table[page->flags >> ZONE_SHIFT];
-+	return zone_table[page->flags >> NODEZONE_SHIFT];
- }
+-	scsi_log_completion(scmd, TIMEOUT);
++	scsi_log_completion(scmd, TIMEOUT_ERROR);
+ 	if (unlikely(!scsi_eh_scmd_add(scmd, SCSI_EH_CANCEL_CMD))) {
+ 		panic("Error handler thread not present at %p %p %s %d",
+ 		      scmd, scmd->device->host, __FILE__, __LINE__);
+===== include/scsi/scsi.h 1.15 vs edited =====
+--- 1.15/include/scsi/scsi.h	Mon Sep 29 05:39:10 2003
++++ edited/include/scsi/scsi.h	Tue Jan  6 13:12:42 2004
+@@ -302,7 +302,7 @@
+ #define QUEUED          0x2004
+ #define SOFT_ERROR      0x2005
+ #define ADD_TO_MLQUEUE  0x2006
+-#define TIMEOUT         0x2007
++#define TIMEOUT_ERROR   0x2007
  
--static inline void set_page_zone(struct page *page, unsigned long zone_num)
-+static inline void set_page_zone(struct page *page, unsigned long nodezone_num)
- {
--	page->flags &= ~(~0UL << ZONE_SHIFT);
--	page->flags |= zone_num << ZONE_SHIFT;
-+	page->flags &= ~(~0UL << NODEZONE_SHIFT);
-+	page->flags |= nodezone_num << NODEZONE_SHIFT;
- }
- 
- #ifndef CONFIG_DISCONTIGMEM
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.1-rc1/include/linux/mmzone.h linux-2.6.1-rc1+nodezone/include/linux/mmzone.h
---- linux-2.6.1-rc1/include/linux/mmzone.h	Mon Jan  5 12:36:24 2004
-+++ linux-2.6.1-rc1+nodezone/include/linux/mmzone.h	Tue Jan  6 14:02:46 2004
-@@ -160,8 +160,8 @@ struct zone {
- #define ZONE_NORMAL		1
- #define ZONE_HIGHMEM		2
- 
--#define MAX_NR_ZONES		3	/* Sync this with MAX_NR_ZONES_SHIFT */
--#define MAX_NR_ZONES_SHIFT	2	/* ceil(log2(MAX_NR_ZONES)) */
-+#define MAX_NR_ZONES		3	/* Sync this with ZONES_SHIFT */
-+#define ZONES_SHIFT		2	/* ceil(log2(MAX_NR_ZONES)) */
- 
- #define GFP_ZONEMASK	0x03
- 
-@@ -303,7 +303,7 @@ int min_free_kbytes_sysctl_handler(struc
- extern struct pglist_data contig_page_data;
- #define NODE_DATA(nid)		(&contig_page_data)
- #define NODE_MEM_MAP(nid)	mem_map
--#define MAX_NODES_SHIFT		0
-+#define MAX_NODES_SHIFT		1
- 
- #else /* CONFIG_DISCONTIGMEM */
- 
-@@ -311,7 +311,7 @@ extern struct pglist_data contig_page_da
- 
- #if BITS_PER_LONG == 32
  /*
-- * with 32 bit flags field, page->zone is currently 8 bits.
-+ * with 32 bit page->flags field, we reserve 8 bits for node/zone info.
-  * there are 3 zones (2 bits) and this leaves 8-2=6 bits for nodes.
-  */
- #define MAX_NODES_SHIFT		6
-@@ -328,6 +328,13 @@ extern struct pglist_data contig_page_da
- #error NODES_SHIFT > MAX_NODES_SHIFT
- #endif
- 
-+/* There are currently 3 zones: DMA, Normal & Highmem, thus we need 2 bits */
-+#define MAX_ZONES_SHIFT		2
-+
-+#if ZONES_SHIFT > MAX_ZONES_SHIFT
-+#error ZONES_SHIFT > MAX_ZONES_SHIFT
-+#endif
-+
- extern DECLARE_BITMAP(node_online_map, MAX_NUMNODES);
- extern DECLARE_BITMAP(memblk_online_map, MAX_NR_MEMBLKS);
- 
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.1-rc1/mm/page_alloc.c linux-2.6.1-rc1+nodezone/mm/page_alloc.c
---- linux-2.6.1-rc1/mm/page_alloc.c	Mon Jan  5 12:36:24 2004
-+++ linux-2.6.1-rc1+nodezone/mm/page_alloc.c	Mon Jan  5 14:04:46 2004
-@@ -50,7 +50,7 @@ EXPORT_SYMBOL(nr_swap_pages);
-  * Used by page_zone() to look up the address of the struct zone whose
-  * id is encoded in the upper bits of page->flags
-  */
--struct zone *zone_table[MAX_NR_ZONES*MAX_NUMNODES];
-+struct zone *zone_table[1 << (ZONES_SHIFT + NODES_SHIFT)];
- EXPORT_SYMBOL(zone_table);
- 
- static char *zone_names[MAX_NR_ZONES] = { "DMA", "Normal", "HighMem" };
-@@ -1212,7 +1212,7 @@ void __init memmap_init_zone(struct page
- 	struct page *page;
- 
- 	for (page = start; page < (start + size); page++) {
--		set_page_zone(page, nid * MAX_NR_ZONES + zone);
-+		set_page_zone(page, NODEZONE(nid, zone));
- 		set_page_count(page, 0);
- 		SetPageReserved(page);
- 		INIT_LIST_HEAD(&page->list);
-@@ -1253,7 +1253,7 @@ static void __init free_area_init_core(s
- 		unsigned long size, realsize;
- 		unsigned long batch;
- 
--		zone_table[nid * MAX_NR_ZONES + j] = zone;
-+		zone_table[NODEZONE(nid, j)] = zone;
- 		realsize = size = zones_size[j];
- 		if (zholes_size)
- 			realsize -= zholes_size[j];
-
---------------050804070601070109020109--
-
+  * Midlevel queue return values.

@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLKMXX>; Mon, 11 Dec 2000 07:23:23 -0500
+	id <S129511AbQLKMcE>; Mon, 11 Dec 2000 07:32:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129511AbQLKMXN>; Mon, 11 Dec 2000 07:23:13 -0500
-Received: from mx5.sac.fedex.com ([199.81.194.37]:4364 "EHLO mx5.sac.fedex.com")
-	by vger.kernel.org with ESMTP id <S129183AbQLKMW4>;
-	Mon, 11 Dec 2000 07:22:56 -0500
-Message-ID: <000f01c06368$9122cee0$aa5812bc@corp.fedex.com>
-From: "Jeff Chua" <jchua@fedex.com>
-To: "Werner Almesberger" <Werner.Almesberger@epfl.ch>, <viro@math.psu.edu>
+	id <S129878AbQLKMbz>; Mon, 11 Dec 2000 07:31:55 -0500
+Received: from mx7.sac.fedex.com ([199.81.194.38]:28175 "EHLO
+	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S129511AbQLKMbl>; Mon, 11 Dec 2000 07:31:41 -0500
+Message-ID: <000f01c06369$c5018160$aa5812bc@corp.fedex.com>
+From: "Jeff Chua" <jeffchua@silk.corp.fedex.com>
+To: "Jeff Chua" <jchua@fedex.com>,
+        "Werner Almesberger" <Werner.Almesberger@epfl.ch>, <viro@math.psu.edu>
 Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <20001120042151.A599@almesberger.net>
 Subject: Re: [PATCH,RFC] initrd vs. BLKFLSBUF
-Date: Mon, 11 Dec 2000 19:50:12 +0800
-Organization: FedEx
+Date: Mon, 11 Dec 2000 19:59:00 +0800
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -70,6 +69,7 @@ here -----------------------------------
   _________________________________________________________________________
  / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
 /_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+
 
 
 -

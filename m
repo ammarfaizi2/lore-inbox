@@ -1,485 +1,565 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266453AbTBCOkp>; Mon, 3 Feb 2003 09:40:45 -0500
+	id <S266720AbTBCOtj>; Mon, 3 Feb 2003 09:49:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266514AbTBCOkp>; Mon, 3 Feb 2003 09:40:45 -0500
-Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:50566 "EHLO
-	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
-	id <S266453AbTBCOke>; Mon, 3 Feb 2003 09:40:34 -0500
+	id <S266540AbTBCOpe>; Mon, 3 Feb 2003 09:45:34 -0500
+Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:22198 "EHLO
+	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S266637AbTBCOnb>; Mon, 3 Feb 2003 09:43:31 -0500
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 fixes (1/12).
-Date: Mon, 3 Feb 2003 15:47:01 +0100
+Subject: [PATCH] s390 fixes (9/12).
+Date: Mon, 3 Feb 2003 15:50:05 +0100
 User-Agent: KMail/1.5
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200302031547.01824.schwidefsky@de.ibm.com>
+Message-Id: <200302031550.05403.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-updates for the channel subsystem driver
-
-This adds the missing support for chp machine checks, i.e.
-enabling or disabling a set of devices from the service element.
-Some minor bugs in the driver are fixed as well.
-diff -urN linux-2.5.59/drivers/s390/cio/chsc.c 
-linux-2.5.59-s390/drivers/s390/cio/chsc.c
---- linux-2.5.59/drivers/s390/cio/chsc.c	Fri Jan 17 03:22:16 2003
-+++ linux-2.5.59-s390/drivers/s390/cio/chsc.c	Mon Feb  3 14:56:08 2003
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/chsc.c
-  *   S/390 common I/O routines -- channel subsystem call
-- *   $Revision: 1.46 $
-+ *   $Revision: 1.53 $
-  *
-  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
-  *			      IBM Corporation
-@@ -53,12 +53,6 @@
- 	return test_bit (sch->schib.pmcw.chpid[chp], chpids_logical);
+update qdio driver
+diff -urN linux-2.5.59/drivers/s390/cio/qdio.c 
+linux-2.5.59-s390/drivers/s390/cio/qdio.c
+--- linux-2.5.59/drivers/s390/cio/qdio.c	Fri Jan 17 03:22:19 2003
++++ linux-2.5.59-s390/drivers/s390/cio/qdio.c	Mon Feb  3 15:13:55 2003
+@@ -55,7 +55,7 @@
+ #include "qdio.h"
+ #include "ioasm.h"
+ 
+-#define VERSION_QDIO_C "$Revision: 1.18 $"
++#define VERSION_QDIO_C "$Revision: 1.23 $"
+ 
+ /****************** MODULE PARAMETER VARIABLES ********************/
+ MODULE_AUTHOR("Utz Bacher <utz.bacher@de.ibm.com>");
+@@ -752,7 +752,7 @@
+ #endif /* QDIO_DBF_LIKE_HELL */
+ 
+ 	if (q->state==QDIO_IRQ_STATE_ACTIVE)
+-		q->handler(q->irq,
++		q->handler(q->cdev,
+ 			   QDIO_STATUS_INBOUND_INT|q->error_status_flags,
+ 			   q->qdio_error,q->siga_error,q->q_no,start,count,
+ 			   q->int_parm);
+@@ -1039,7 +1039,7 @@
+ #endif /* QDIO_DBF_LIKE_HELL */
+ 
+ 	if (q->state==QDIO_IRQ_STATE_ACTIVE)
+-		q->handler(q->irq,QDIO_STATUS_OUTBOUND_INT|
++		q->handler(q->cdev,QDIO_STATUS_OUTBOUND_INT|
+ 			   q->error_status_flags,
+ 			   q->qdio_error,q->siga_error,q->q_no,start,count,
+ 			   q->int_parm);
+@@ -1283,7 +1283,8 @@
  }
  
--static inline void
--chsc_clear_chpid(struct subchannel *sch, int chp)
--{
--	clear_bit(sch->schib.pmcw.chpid[chp], chpids);
--}
--
- void
- chsc_validate_chpids(struct subchannel *sch)
+ static int
+-qdio_alloc_qs(struct qdio_irq *irq_ptr, int no_input_qs, int no_output_qs,
++qdio_alloc_qs(struct qdio_irq *irq_ptr, struct ccw_device *cdev,
++	      int no_input_qs, int no_output_qs,
+ 	      qdio_handler_t *input_handler,
+ 	      qdio_handler_t *output_handler,
+ 	      unsigned long int_parm,int q_format,
+@@ -1327,6 +1328,7 @@
+ 		q->int_parm=int_parm;
+ 		irq_ptr->input_qs[i]=q;
+ 		q->irq=irq_ptr->irq;
++		q->cdev = cdev;
+ 		q->mask=1<<(31-i);
+ 		q->q_no=i;
+ 		q->is_input_q=1;
+@@ -1403,6 +1405,7 @@
+ 		irq_ptr->output_qs[i]=q;
+ 		q->is_input_q=0;
+ 		q->irq=irq_ptr->irq;
++		q->cdev = cdev;
+ 		q->mask=1<<(31-i);
+ 		q->q_no=i;
+ 		q->first_to_check=0;
+@@ -1626,7 +1629,7 @@
+ 				       "device %s!?\n", cdev->dev.bus_id);
+ 			goto omit_handler_call;
+ 		}
+-		q->handler(q->irq,QDIO_STATUS_ACTIVATE_CHECK_CONDITION|
++		q->handler(q->cdev,QDIO_STATUS_ACTIVATE_CHECK_CONDITION|
+ 			   QDIO_STATUS_LOOK_FOR_ERROR,
+ 			   0,0,0,-1,-1,q->int_parm);
+ 	omit_handler_call:
+@@ -1882,6 +1885,27 @@
+ qdio_cleanup(struct ccw_device *cdev, int how)
  {
-@@ -69,17 +63,10 @@
- 
- 	for (chp = 0; chp <= 7; chp++) {
- 		mask = 0x80 >> chp;
--		if (sch->lpm & mask) {
-+		if (sch->lpm & mask)
- 			if (!chsc_chpid_logical(sch, chp))
- 				/* disable using this path */
- 				sch->lpm &= ~mask;
--		} else {
--			/* This chpid is not
--			 * available to us */
--			chsc_clear_chpid(sch, chp);
--			if (test_bit(chp, chpids_known))
--				set_chp_status(chp, CHP_STANDBY);
--		}
- 	}
- }
- 
-@@ -528,6 +515,98 @@
- 	schedule_work(&work);
- }
- 
-+static void
-+chp_add(int chpid)
-+{
-+	struct subchannel *sch;
-+	int irq, ret;
-+	char dbf_txt[15];
+ 	struct qdio_irq *irq_ptr;
++	char dbf_text[15];
++	int rc;
 +
-+	if (!test_bit(chpid, chpids_logical))
-+		return; /* no need to do the rest */
-+	
-+	sprintf(dbf_txt, "cadd%x", chpid);
-+	CIO_TRACE_EVENT(2, dbf_txt);
++	irq_ptr = cdev->private->qdio_data;
++	if (!irq_ptr)
++		return -ENODEV;
 +
-+	for (irq = 0; irq <= __MAX_SUBCHANNELS; irq++) {
-+		int i;
++	sprintf(dbf_text,"qcln%4x",irq_ptr->irq);
++	QDIO_DBF_TEXT1(0,trace,dbf_text);
++	QDIO_DBF_TEXT0(0,setup,dbf_text);
 +
-+		sch = ioinfo[irq];
-+		if (!sch) {
-+			ret = css_probe_device(irq);
-+			if (ret == -ENXIO)
-+				/* We're through */
-+				return;
-+			continue;
-+		}
-+	
-+		spin_lock(&sch->lock);
-+		for (i=0; i<8; i++)
-+			if (sch->schib.pmcw.chpid[i] == chpid) {
-+				if (stsch(sch->irq, &sch->schib) != 0) {
-+					/* Endgame. */
-+					spin_unlock(&sch->lock);
-+					return;
-+				}
-+				break;
-+			}
-+		if (i==8) {
-+			spin_unlock(&sch->lock);
-+			return;
-+		}
-+		sch->lpm = (sch->schib.pmcw.pim &
-+			    sch->schib.pmcw.pam &
-+			    sch->schib.pmcw.pom)
-+			| 0x80 >> i;
-+
-+		chsc_validate_chpids(sch);
-+
-+		dev_fsm_event(sch->dev.driver_data, DEV_EVENT_VERIFY);
-+
-+		spin_unlock(&sch->lock);
-+	}
++	rc = qdio_shutdown(cdev, how);
++	if (rc == 0)
++		rc = qdio_free(cdev);
++	return rc;
 +}
 +
-+/* 
-+ * Handling of crw machine checks with channel path source.
-+ */
-+void
-+chp_process_crw(int chpid)
++int
++qdio_shutdown(struct ccw_device *cdev, int how)
 +{
-+	/*
-+	 * Update our descriptions. We need this since we don't always
-+	 * get machine checks for path come and can't rely on our information
-+	 * being consistent otherwise.
-+	 */
-+	chsc_get_sch_descriptions();
-+	if (!cio_chsc_desc_avail) {
-+		/*
-+		 * Something went wrong...
-+		 * We can't reliably say whether a path was there before.
-+		 */
-+		CIO_CRW_EVENT(0, "Error: Could not retrieve "
-+			      "subchannel descriptions, will not process chp"
-+			      "machine check...\n");
-+		return;
-+	}
-+
-+	if (!test_bit(chpid, chpids)) {
-+		/* Path has gone. We use the link incident routine.*/
-+		s390_set_chpid_offline(chpid);
-+	} else {
-+		/* 
-+		 * Path has come. Allocate a new channel path structure,
-+		 * if needed. 
-+		 */
-+		if (chps[chpid] == NULL)
-+			new_channel_path(chpid, CHP_ONLINE);
-+		else
-+			set_chp_status(chpid, CHP_ONLINE);
-+		/* Avoid the extra overhead in process_rec_acc. */
-+		chp_add(chpid);
-+	}
-+}
-+
- /*
-  * Function: s390_vary_chpid
-  * Varies the specified chpid online or offline
-@@ -667,6 +746,7 @@
- 	chp = kmalloc(sizeof(struct channel_path), GFP_KERNEL);
- 	if (!chp)
- 		return -ENOMEM;
-+	memset(chp, 0, sizeof(struct channel_path));
- 
- 	chps[chpid] = chp;
- 
-diff -urN linux-2.5.59/drivers/s390/cio/cio.c 
-linux-2.5.59-s390/drivers/s390/cio/cio.c
---- linux-2.5.59/drivers/s390/cio/cio.c	Fri Jan 17 03:22:55 2003
-+++ linux-2.5.59-s390/drivers/s390/cio/cio.c	Mon Feb  3 14:56:08 2003
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/cio.c
-  *   S/390 common I/O routines -- low level i/o calls
-- *   $Revision: 1.90 $
-+ *   $Revision: 1.91 $
-  *
-  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
-  *			      IBM Corporation
-@@ -197,8 +197,7 @@
- 	sch->orb.pfch = sch->options.prefetch == 0;
- 	sch->orb.spnd = sch->options.suspend;
- 	sch->orb.ssic = sch->options.suspend && sch->options.inter;
--	sch->orb.lpm = (lpm != 0) ? (lpm & sch->lpm) : sch->lpm;
--
-+	sch->orb.lpm = (lpm != 0) ? lpm : sch->lpm;
- #ifdef CONFIG_ARCH_S390X
- 	/*
- 	 * for 64 bit we always support 64 bit IDAWs with 4k page size only
-diff -urN linux-2.5.59/drivers/s390/cio/device.c 
-linux-2.5.59-s390/drivers/s390/cio/device.c
---- linux-2.5.59/drivers/s390/cio/device.c	Fri Jan 17 03:22:27 2003
-+++ linux-2.5.59-s390/drivers/s390/cio/device.c	Mon Feb  3 14:56:08 2003
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/device.c
-  *  bus driver for ccw devices
-- *   $Revision: 1.45 $
-+ *   $Revision: 1.49 $
-  *
-  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
-  *			 IBM Corporation
-@@ -215,6 +215,8 @@
- void
- ccw_device_set_offline(struct ccw_device *cdev)
- {
-+	int ret;
-+
- 	if (!cdev)
- 		return;
- 	if (!cdev->online || !cdev->drv)
-@@ -226,23 +228,36 @@
- 
- 	cdev->online = 0;
- 	spin_lock_irq(cdev->ccwlock);
--	ccw_device_offline(cdev);
-+	ret = ccw_device_offline(cdev);
- 	spin_unlock_irq(cdev->ccwlock);
--	wait_event(cdev->private->wait_q, dev_fsm_final_state(cdev));
-+	if (ret == 0)
-+		wait_event(cdev->private->wait_q, dev_fsm_final_state(cdev));
-+	else
-+		//FIXME: we can't fail!
-+		pr_debug(KERN_ERR"ccw_device_offline returned %d, device %s\n",
-+			 ret, cdev->dev.bus_id);
- }
- 
- void
- ccw_device_set_online(struct ccw_device *cdev)
- {
--	if (!cdev || !cdev->handler)
-+	int ret;
-+
-+	if (!cdev)
- 		return;
- 	if (cdev->online || !cdev->drv)
- 		return;
- 
- 	spin_lock_irq(cdev->ccwlock);
--	ccw_device_online(cdev);
-+	ret = ccw_device_online(cdev);
- 	spin_unlock_irq(cdev->ccwlock);
--	wait_event(cdev->private->wait_q, dev_fsm_final_state(cdev));
-+	if (ret == 0)
-+		wait_event(cdev->private->wait_q, dev_fsm_final_state(cdev));
-+	else {
-+		pr_debug(KERN_ERR"ccw_device_online returned %d, device %s\n",
-+			 ret, cdev->dev.bus_id);
-+		return;
-+	}
- 	if (cdev->private->state != DEV_STATE_ONLINE)
- 		return;
- 	if (!cdev->drv->set_online || cdev->drv->set_online(cdev) == 0) {
-@@ -250,9 +265,13 @@
- 		return;
- 	}
- 	spin_lock_irq(cdev->ccwlock);
--	ccw_device_offline(cdev);
-+	ret = ccw_device_offline(cdev);
- 	spin_unlock_irq(cdev->ccwlock);
--	wait_event(cdev->private->wait_q, dev_fsm_final_state(cdev));
-+	if (ret == 0)
-+		wait_event(cdev->private->wait_q, dev_fsm_final_state(cdev));
-+	else 
-+		pr_debug(KERN_ERR"ccw_device_offline returned %d, device %s\n",
-+			 ret, cdev->dev.bus_id);
- }
- 
- static ssize_t
-diff -urN linux-2.5.59/drivers/s390/cio/device_ops.c 
-linux-2.5.59-s390/drivers/s390/cio/device_ops.c
---- linux-2.5.59/drivers/s390/cio/device_ops.c	Fri Jan 17 03:22:27 2003
-+++ linux-2.5.59-s390/drivers/s390/cio/device_ops.c	Mon Feb  3 14:56:08 2003
-@@ -48,7 +48,8 @@
- 	if (!cdev)
++	struct qdio_irq *irq_ptr;
+ 	int i,result;
+ 	unsigned long flags;
+ 	int timeout;
+@@ -1891,7 +1915,7 @@
+ 	if (!irq_ptr)
  		return -ENODEV;
- 	if (cdev->private->state != DEV_STATE_ONLINE &&
--	    cdev->private->state != DEV_STATE_W4SENSE)
-+	    cdev->private->state != DEV_STATE_W4SENSE &&
-+	    cdev->private->state != DEV_STATE_QDIO_ACTIVE)
- 		return -EINVAL;
- 	sch = to_subchannel(cdev->dev.parent);
- 	if (!sch)
-@@ -122,6 +123,15 @@
- {
- 	struct subchannel *sch;
- 	unsigned int stctl;
-+	void (*handler)(struct ccw_device *, unsigned long, struct irb *);
+ 
+-	sprintf(dbf_text,"qcln%4x",irq_ptr->irq);
++	sprintf(dbf_text,"qsqs%4x",irq_ptr->irq);
+ 	QDIO_DBF_TEXT1(0,trace,dbf_text);
+ 	QDIO_DBF_TEXT0(0,setup,dbf_text);
+ 
+@@ -1923,6 +1947,9 @@
+ 			result=-EINPROGRESS;
+ 	}
+ 
++	if (result)
++		return result;
 +
-+	if (cdev->private->state == DEV_STATE_QDIO_ACTIVE) {
-+		if (cdev->private->qdio_data)
-+			handler = cdev->private->qdio_data->handler;
-+		else
-+			handler = NULL;
-+	} else
-+		handler = cdev->handler;
+ 	/* cleanup subchannel */
+ 	spin_lock_irqsave(get_ccwdev_lock(cdev),flags);
+ 	if (how&QDIO_FLAG_CLEANUP_USING_CLEAR) {
+@@ -1955,6 +1982,29 @@
+ 	qdio_set_state(irq_ptr,QDIO_IRQ_STATE_INACTIVE);
+ }
  
- 	sch = to_subchannel(cdev->dev.parent);
- 
-@@ -144,13 +154,9 @@
- 	/*
- 	 * Now we are ready to call the device driver interrupt handler.
- 	 */
--	if (cdev->private->state == DEV_STATE_QDIO_ACTIVE) {
--		if (cdev->private->qdio_data &&
--		    cdev->private->qdio_data->handler)
--			cdev->private->qdio_data->handler(cdev, sch->u_intparm,
--							  &cdev->private->irb);
--	} else
--		cdev->handler (cdev, sch->u_intparm, &cdev->private->irb);
-+	if (handler)
-+		handler(cdev, sch->u_intparm, &cdev->private->irb);
++int
++qdio_free(struct ccw_device *cdev)
++{
++	struct qdio_irq *irq_ptr;
++	char dbf_text[15];
 +
- 	/*
- 	 * Clear the old and now useless interrupt response block.
- 	 */
-diff -urN linux-2.5.59/drivers/s390/cio/device_pgid.c 
-linux-2.5.59-s390/drivers/s390/cio/device_pgid.c
---- linux-2.5.59/drivers/s390/cio/device_pgid.c	Fri Jan 17 03:22:15 2003
-+++ linux-2.5.59-s390/drivers/s390/cio/device_pgid.c	Mon Feb  3 14:56:08 2003
-@@ -141,6 +141,8 @@
- 	struct subchannel *sch;
- 	struct irb *irb;
- 	int ret;
-+	int opm;
-+	int i;
- 
- 	irb = (struct irb *) __LC_IRB;
- 	/* Ignore unsolicited interrupts. */
-@@ -154,6 +156,16 @@
- 	/* 0, -ETIME, -EOPNOTSUPP, -EAGAIN, -EACCES or -EUSERS */
- 	case 0:			/* Sense Path Group ID successful. */
- 		cdev->private->flags.pgid_supp = 1;
-+		opm = sch->schib.pmcw.pim &
-+			sch->schib.pmcw.pam &
-+			sch->schib.pmcw.pom;
-+		for (i=0;i<8;i++) {
-+			if (opm == (0x80 << i)) {
-+				/* Don't group single path devices. */
-+				cdev->private->flags.pgid_supp = 0;
-+				break;
-+			}
-+		}
- 		if (cdev->private->pgid.inf.ps.state1 == SNID_STATE1_RESET)
- 			memcpy(&cdev->private->pgid, &global_pgid,
- 			       sizeof(struct pgid));
-diff -urN linux-2.5.59/drivers/s390/cio/device_status.c 
-linux-2.5.59-s390/drivers/s390/cio/device_status.c
---- linux-2.5.59/drivers/s390/cio/device_status.c	Fri Jan 17 03:22:08 2003
-+++ linux-2.5.59-s390/drivers/s390/cio/device_status.c	Mon Feb  3 14:56:08 
-2003
-@@ -348,7 +348,7 @@
- ccw_device_accumulate_and_sense(struct ccw_device *cdev, struct irb *irb)
- {
- 	ccw_device_accumulate_irb(cdev, irb);
--	if (irb->scsw.actl != 0)
-+	if ((irb->scsw.actl  & (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT)) != 0)
- 		return -EBUSY;
- 	/* Check for basic sense. */
- 	if (cdev->private->flags.dosense &&
-diff -urN linux-2.5.59/drivers/s390/cio/ioasm.h 
-linux-2.5.59-s390/drivers/s390/cio/ioasm.h
---- linux-2.5.59/drivers/s390/cio/ioasm.h	Fri Jan 17 03:23:01 2003
-+++ linux-2.5.59-s390/drivers/s390/cio/ioasm.h	Mon Feb  3 14:56:08 2003
-@@ -2,83 +2,6 @@
- #define S390_CIO_IOASM_H
- 
- /*
-- * area for channel subsystem call
-- */
--struct chsc_area {
--	struct {
--		/* word 0 */
--		__u16 command_code1;
--		__u16 command_code2;
--		union {
--			struct {
--				/* word 1 */
--				__u32 reserved1;
--				/* word 2 */
--				__u32 reserved2;
--			} __attribute__ ((packed,aligned(8))) sei_req;
--			struct {
--				/* word 1 */
--				__u16 reserved1;
--				__u16 f_sch;	 /* first subchannel */
--				/* word 2 */
--				__u16 reserved2;
--				__u16 l_sch;	/* last subchannel */
--			} __attribute__ ((packed,aligned(8))) ssd_req;
--		} request_block_data;
--		/* word 3 */
--		__u32 reserved3;
--	} __attribute__ ((packed,aligned(8))) request_block;
--	struct {
--		/* word 0 */
--		__u16 length;
--		__u16 response_code;
--		/* word 1 */
--		__u32 reserved1;
--		union {
--			struct {
--				/* word 2 */
--				__u8  flags;
--				__u8  vf;	  /* validity flags */
--				__u8  rs;	  /* reporting source */
--				__u8  cc;	  /* content code */
--				/* word 3 */
--				__u16 fla;	  /* full link address */
--				__u16 rsid;	  /* reporting source id */
--				/* word 4 */
--				__u32 reserved2;
--				/* word 5 */
--				__u32 reserved3;
--				/* word 6 */
--				__u32 ccdf;	  /* content-code dependent field */
--				/* word 7 */
--				__u32 reserved4;
--				/* word 8 */
--				__u32 reserved5;
--				/* word 9 */
--				__u32 reserved6;
--			} __attribute__ ((packed,aligned(8))) sei_res;
--			struct {
--				/* word 2 */
--				__u8 sch_valid : 1;
--				__u8 dev_valid : 1;
--				__u8 st	       : 3; /* subchannel type */
--				__u8 zeroes    : 3;
--				__u8  unit_addr;  /* unit address */
--				__u16 devno;	  /* device number */
--				/* word 3 */
--				__u8 path_mask;
--				__u8 fla_valid_mask;
--				__u16 sch;	  /* subchannel */
--				/* words 4-5 */
--				__u8 chpid[8];	  /* chpids 0-7 */
--				/* words 6-9 */
--				__u16 fla[8];	  /* full link addresses 0-7 */
--			} __attribute__ ((packed,aligned(8))) ssd_res;
--		} response_block_data;
--	} __attribute__ ((packed,aligned(8))) response_block;
--} __attribute__ ((packed,aligned(PAGE_SIZE)));
--
--/*
-  * TPI info structure
-  */
- struct tpi_info {
-diff -urN linux-2.5.59/drivers/s390/s390mach.c 
-linux-2.5.59-s390/drivers/s390/s390mach.c
---- linux-2.5.59/drivers/s390/s390mach.c	Fri Jan 17 03:22:56 2003
-+++ linux-2.5.59-s390/drivers/s390/s390mach.c	Mon Feb  3 14:56:08 2003
-@@ -21,6 +21,7 @@
- 
- extern void css_process_crw(int);
- extern void chsc_process_crw(void);
-+extern void chp_process_crw(int);
- 
++	irq_ptr = cdev->private->qdio_data;
++	if (!irq_ptr)
++		return -ENODEV;
++
++	sprintf(dbf_text,"qfqs%4x",irq_ptr->irq);
++	QDIO_DBF_TEXT1(0,trace,dbf_text);
++	QDIO_DBF_TEXT0(0,setup,dbf_text);
++
++	if (cdev->private->state != DEV_STATE_ONLINE)
++		return -EINVAL;
++
++	qdio_cleanup_finish(irq_ptr);
++	cdev->private->qdio_data = 0;
++	qdio_release_irq_memory(irq_ptr);
++	return 0;
++}
++
  static void
- s390_handle_damage(char *msg)
-@@ -64,7 +65,8 @@
- 		case CRW_RSC_CPATH:
- 			pr_debug(KERN_NOTICE,
- 				 "source is channel path %02X\n",
--				 pcrwe->crw.rsid);
-+				 crw.rsid);
-+			chp_process_crw(crw.rsid);
- 			break;
- 		case CRW_RSC_CONFIG:
- 			pr_debug(KERN_NOTICE,
+ qdio_cleanup_handle_timeout(struct ccw_device *cdev)
+ {
+@@ -1967,14 +2017,10 @@
+ 	QDIO_PRINT_INFO("Did not get interrupt on cleanup, irq=0x%x.\n",
+ 			irq_ptr->irq);
+ 
+-	qdio_cleanup_finish(irq_ptr);
+-
+ 	spin_unlock_irqrestore(get_ccwdev_lock(cdev),flags);
+ 
+ 	spin_unlock(&irq_ptr->setting_up_lock);
+ 
+-	cdev->private->qdio_data = 0;
+-	qdio_release_irq_memory(irq_ptr);
+ 	cdev->private->state = DEV_STATE_ONLINE;
+ 	wake_up(&cdev->private->wait_q);
+ }
+@@ -1984,10 +2030,6 @@
+ 			struct irb *irb)
+ {
+ 	struct qdio_irq *irq_ptr;
+-	int cstat,dstat;
+-
+-	cstat = irb->scsw.cstat;
+-        dstat = irb->scsw.dstat;
+ 
+ 	if (intparm == 0)
+ 		QDIO_PRINT_WARN("Got unsolicited interrupt on cleanup "
+@@ -1997,22 +2039,18 @@
+ 
+ 	qdio_irq_check_sense(irq_ptr->irq, irb);
+ 
+-	qdio_cleanup_finish(irq_ptr);
+-
+ 	spin_unlock(&irq_ptr->setting_up_lock);
+ 
+-	cdev->private->qdio_data = 0;
+-	qdio_release_irq_memory(irq_ptr);
+ 	cdev->private->state = DEV_STATE_ONLINE;
+ 	wake_up(&cdev->private->wait_q);
+ }
+ 
+ static inline void
+-qdio_initialize_do_dbf(struct qdio_initialize *init_data)
++qdio_allocate_do_dbf(struct qdio_initialize *init_data)
+ {
+ 	char dbf_text[20]; /* if a printf would print out more than 8 chars */
+ 
+-	sprintf(dbf_text,"qini%4x",init_data->cdev->private->irq);
++	sprintf(dbf_text,"qalc%4x",init_data->cdev->private->irq);
+ 	QDIO_DBF_TEXT0(0,setup,dbf_text);
+ 	QDIO_DBF_TEXT0(0,trace,dbf_text);
+ 	sprintf(dbf_text,"qfmt:%x",init_data->q_format);
+@@ -2045,7 +2083,7 @@
+ }
+ 
+ static inline void
+-qdio_initialize_fill_input_desc(struct qdio_irq *irq_ptr, int i, int iqfmt)
++qdio_allocate_fill_input_desc(struct qdio_irq *irq_ptr, int i, int iqfmt)
+ {
+ 	irq_ptr->input_qs[i]->is_iqdio_q = iqfmt;
+ 
+@@ -2063,8 +2101,8 @@
+ }
+ 
+ static inline void
+-qdio_initialize_fill_output_desc(struct qdio_irq *irq_ptr, int i, 
+-				 int j, int iqfmt)
++qdio_allocate_fill_output_desc(struct qdio_irq *irq_ptr, int i,
++			       int j, int iqfmt)
+ {
+ 	irq_ptr->output_qs[i]->is_iqdio_q = iqfmt;
+ 
+@@ -2093,7 +2131,7 @@
+ 		       irq_ptr->irq);
+ 	QDIO_DBF_TEXT2(1,setup,"eq:timeo");
+ 	spin_unlock(&irq_ptr->setting_up_lock);
+-	qdio_cleanup(cdev,QDIO_FLAG_CLEANUP_USING_CLEAR);
++	qdio_shutdown(cdev,QDIO_FLAG_CLEANUP_USING_CLEAR);
+ 
+ 	up(&init_sema);
+ }
+@@ -2164,7 +2202,7 @@
+ 			       "device end: dstat=%02x, cstat=%02x\n",
+ 			       irq_ptr->irq, dstat, cstat);
+ 		spin_unlock(&irq_ptr->setting_up_lock);
+-		qdio_cleanup(cdev,QDIO_FLAG_CLEANUP_USING_CLEAR);
++		qdio_shutdown(cdev,QDIO_FLAG_CLEANUP_USING_CLEAR);
+ 		up(&init_sema);
+ 		return 1;
+ 	}
+@@ -2243,13 +2281,32 @@
+ int
+ qdio_initialize(struct qdio_initialize *init_data)
+ {
++	int rc;
++	char dbf_text[15];
++
++	sprintf(dbf_text,"qini%4x",init_data->cdev->private->irq);
++	QDIO_DBF_TEXT0(0,setup,dbf_text);
++	QDIO_DBF_TEXT0(0,trace,dbf_text);
++
++	rc = qdio_allocate(init_data);
++	if (rc == 0) {
++		rc = qdio_establish(init_data->cdev);
++		if (rc != 0)
++			qdio_free(init_data->cdev);
++	}
++
++	return rc;
++}
++
++
++int
++qdio_allocate(struct qdio_initialize *init_data)
++{
+ 	int i;
+-	unsigned long saveflags;
+ 	struct qdio_irq *irq_ptr;
+ 	struct ciw *ciw;
+-	int result,result2;
++	int result;
+ 	int is_iqdio;
+-	char dbf_text[20]; /* if a printf would print out more than 8 chars */
+ 
+ 	down_interruptible(&init_sema);
+ 
+@@ -2270,7 +2327,7 @@
+ 		goto out;
+ 	}
+ 
+-	qdio_initialize_do_dbf(init_data);
++	qdio_allocate_do_dbf(init_data);
+ 
+ 	/* create irq */
+ 	irq_ptr=kmalloc(sizeof(struct qdio_irq),GFP_DMA);
+@@ -2325,7 +2382,8 @@
+ 	irq_ptr->aqueue.cmd=DEFAULT_ACTIVATE_QS_CMD;
+ 	irq_ptr->aqueue.count=DEFAULT_ACTIVATE_QS_COUNT;
+ 
+-	if (!qdio_alloc_qs(irq_ptr,init_data->no_input_qs,
++	if (!qdio_alloc_qs(irq_ptr, init_data->cdev,
++			   init_data->no_input_qs,
+ 			   init_data->no_output_qs,
+ 			   init_data->input_handler,
+ 			   init_data->output_handler,init_data->int_parm,
+@@ -2383,12 +2441,12 @@
+ 	/* first input descriptors, then output descriptors */
+ 	is_iqdio = (init_data->q_format == QDIO_IQDIO_QFMT) ? 1 : 0;
+ 	for (i=0;i<init_data->no_input_qs;i++)
+-		qdio_initialize_fill_input_desc(irq_ptr, i, is_iqdio);
++		qdio_allocate_fill_input_desc(irq_ptr, i, is_iqdio);
+ 
+ 	for (i=0;i<init_data->no_output_qs;i++)
+-		qdio_initialize_fill_output_desc(irq_ptr, i,
+-						 init_data->no_input_qs,
+-						 is_iqdio);
++		qdio_allocate_fill_output_desc(irq_ptr, i,
++					       init_data->no_input_qs,
++					       is_iqdio);
+ 
+ 	/* qdr, qib, sls, slsbs, slibs, sbales filled. */
+ 
+@@ -2423,7 +2481,8 @@
+ 			goto out2;
+ 		}
+ 		iqdio_set_delay_target(irq_ptr,IQDIO_DELAY_TARGET);
+-	}
++	} else
++		result = 0;
+ 
+ 	/* Set callback functions. */
+ 	irq_ptr->cleanup_irq = qdio_cleanup_handle_irq;
+@@ -2431,6 +2490,36 @@
+ 	irq_ptr->establish_irq = qdio_establish_handle_irq;
+ 	irq_ptr->establish_timeout = qdio_establish_handle_timeout;
+ 	irq_ptr->handler = qdio_handler;
++	
++out:
++	if (irq_ptr)
++		spin_unlock(&irq_ptr->setting_up_lock);
++out2:
++	up(&init_sema);
++
++	return result;
++}
++
++int
++qdio_establish(struct ccw_device *cdev)
++{
++	struct qdio_irq *irq_ptr;
++	unsigned long saveflags;
++	int result, result2;
++	char dbf_text[20];
++
++	irq_ptr = cdev->private->qdio_data;
++	if (!irq_ptr)
++		return -EINVAL;
++
++	if (cdev->private->state != DEV_STATE_ONLINE)
++		return -EINVAL;
++	
++	spin_lock(&irq_ptr->setting_up_lock);
++
++	sprintf(dbf_text,"qest%4x",cdev->private->irq);
++	QDIO_DBF_TEXT0(0,setup,dbf_text);
++	QDIO_DBF_TEXT0(0,trace,dbf_text);
+ 
+ 	/* establish q */
+ 	irq_ptr->ccw.cmd_code=irq_ptr->equeue.cmd;
+@@ -2438,14 +2527,14 @@
+ 	irq_ptr->ccw.count=irq_ptr->equeue.count;
+ 	irq_ptr->ccw.cda=QDIO_GET_ADDR(irq_ptr->qdr);
+ 
+-	spin_lock_irqsave(get_ccwdev_lock(init_data->cdev),saveflags);
++	spin_lock_irqsave(get_ccwdev_lock(cdev),saveflags);
+ 
+-	ccw_device_set_timeout(init_data->cdev, QDIO_ESTABLISH_TIMEOUT);
+-	ccw_device_set_options(init_data->cdev, 0);
+-	result=ccw_device_start(init_data->cdev,&irq_ptr->ccw,
++	ccw_device_set_timeout(cdev, QDIO_ESTABLISH_TIMEOUT);
++	ccw_device_set_options(cdev, 0);
++	result=ccw_device_start(cdev,&irq_ptr->ccw,
+ 				QDIO_DOING_ESTABLISH,0,0);
+ 	if (result) {
+-		result2=ccw_device_start(init_data->cdev,&irq_ptr->ccw,
++		result2=ccw_device_start(cdev,&irq_ptr->ccw,
+ 					 QDIO_DOING_ESTABLISH,0,0);
+ 		sprintf(dbf_text,"eq:io%4x",result);
+ 		QDIO_DBF_TEXT2(1,setup,dbf_text);
+@@ -2459,28 +2548,26 @@
+ 		result=result2;
+ 	}
+ 	if (result == 0)
+-		init_data->cdev->private->state = DEV_STATE_QDIO_INIT;
+-	spin_unlock_irqrestore(get_ccwdev_lock(init_data->cdev),saveflags);
++		cdev->private->state = DEV_STATE_QDIO_INIT;
++	spin_unlock_irqrestore(get_ccwdev_lock(cdev),saveflags);
+ 
+ 	if (result) {
+ 		spin_unlock(&irq_ptr->setting_up_lock);
+-		qdio_cleanup(init_data->cdev,QDIO_FLAG_CLEANUP_USING_CLEAR);
+-		goto out2;
++		qdio_shutdown(cdev,QDIO_FLAG_CLEANUP_USING_CLEAR);
++		goto out;
+ 	}
+ 	
+-	wait_event(init_data->cdev->private->wait_q,
+-		   dev_fsm_final_state(init_data->cdev) ||
++	wait_event(cdev->private->wait_q,
++		   dev_fsm_final_state(cdev) ||
+ 		   (irq_ptr->state == QDIO_IRQ_STATE_ESTABLISHED));
+ 
+-	if (init_data->cdev->private->state == DEV_STATE_QDIO_INIT)
+-		return 0;
++	if (cdev->private->state == DEV_STATE_QDIO_INIT)
++		result = 0;
++	else 
++		result = -EIO;
+ 
+-	result = -EIO;
+- out:
+-	if (irq_ptr)
+-		spin_unlock(&irq_ptr->setting_up_lock);
+- out2:
+-	up(&init_sema);
++out:
++	spin_unlock(&irq_ptr->setting_up_lock);
+ 
+ 	return result;
+ 	
+@@ -2564,6 +2651,8 @@
+ 		}
+ 	}
+ 
++	qdio_wait_nonbusy(QDIO_ACTIVATE_DELAY);
++
+ 	qdio_set_state(irq_ptr,QDIO_IRQ_STATE_ACTIVE);
+ 
+  out:
+@@ -3051,8 +3140,12 @@
+ module_init(init_QDIO);
+ module_exit(cleanup_QDIO);
+ 
++EXPORT_SYMBOL(qdio_allocate);
++EXPORT_SYMBOL(qdio_establish);
+ EXPORT_SYMBOL(qdio_initialize);
+ EXPORT_SYMBOL(qdio_activate);
+ EXPORT_SYMBOL(do_QDIO);
++EXPORT_SYMBOL(qdio_shutdown);
++EXPORT_SYMBOL(qdio_free);
+ EXPORT_SYMBOL(qdio_cleanup);
+ EXPORT_SYMBOL(qdio_synchronize);
+diff -urN linux-2.5.59/drivers/s390/cio/qdio.h 
+linux-2.5.59-s390/drivers/s390/cio/qdio.h
+--- linux-2.5.59/drivers/s390/cio/qdio.h	Fri Jan 17 03:21:44 2003
++++ linux-2.5.59-s390/drivers/s390/cio/qdio.h	Mon Feb  3 15:13:55 2003
+@@ -1,7 +1,7 @@
+ #ifndef _CIO_QDIO_H
+ #define _CIO_QDIO_H
+ 
+-#define VERSION_CIO_QDIO_H "$Revision: 1.8 $"
++#define VERSION_CIO_QDIO_H "$Revision: 1.10 $"
+ 
+ //#define QDIO_DBF_LIKE_HELL
+ 
+@@ -48,6 +48,10 @@
+ #define QDIO_STATS_CLASSES 2
+ #define QDIO_STATS_COUNT_NEEDED 2*/
+ 
++#define QDIO_ACTIVATE_DELAY 5 /* according to brenton belmar and paul
++				 gioquindo it can take up to 5ms before
++				 queues are really active */
++
+ #define QDIO_NO_USE_COUNT_TIME 10
+ #define QDIO_NO_USE_COUNT_TIMEOUT 1000 /* wait for 1 sec on each q before
+ 					  exiting without having use_count
+@@ -579,6 +583,7 @@
+ 
+ 	int is_input_q;
+ 	int irq;
++	struct ccw_device *cdev;
+ 
+ 	unsigned int is_iqdio_q;
+ 
+diff -urN linux-2.5.59/include/asm-s390/qdio.h 
+linux-2.5.59-s390/include/asm-s390/qdio.h
+--- linux-2.5.59/include/asm-s390/qdio.h	Fri Jan 17 03:21:42 2003
++++ linux-2.5.59-s390/include/asm-s390/qdio.h	Mon Feb  3 15:13:55 2003
+@@ -50,11 +50,11 @@
+ } __attribute__ ((packed,aligned(256)));
+ 
+ 
+-/* params are: irq, status, qdio_error, siga_error,
++/* params are: ccw_device, status, qdio_error, siga_error,
+    queue_number, first element processed, number of elements processed,
+    int_parm */
+-typedef void qdio_handler_t(int,unsigned int,unsigned int,unsigned int,
+-			    unsigned int,int,int,unsigned long);
++typedef void qdio_handler_t(struct ccw_device *,unsigned int,unsigned int,
++			    unsigned int,unsigned int,int,int,unsigned long);
+ 
+ 
+ #define QDIO_STATUS_INBOUND_INT 0x01
+@@ -100,6 +100,8 @@
+ 	void **output_sbal_addr_array; /* addr of n*128 void ptrs */
+ };
+ extern int qdio_initialize(struct qdio_initialize *init_data);
++extern int qdio_allocate(struct qdio_initialize *init_data);
++extern int qdio_establish(struct ccw_device *);
+ 
+ extern int qdio_activate(struct ccw_device *,int flags);
+ 
+@@ -127,6 +129,8 @@
+ 			    unsigned int queue_number);
+ 
+ extern int qdio_cleanup(struct ccw_device*, int how);
++extern int qdio_shutdown(struct ccw_device*, int how);
++extern int qdio_free(struct ccw_device*);
+ 
+ unsigned char qdio_get_slsb_state(struct ccw_device*, unsigned int flag,
+ 				  unsigned int queue_number,
+diff -urN linux-2.5.59/include/asm-s390x/qdio.h 
+linux-2.5.59-s390/include/asm-s390x/qdio.h
+--- linux-2.5.59/include/asm-s390x/qdio.h	Fri Jan 17 03:22:09 2003
++++ linux-2.5.59-s390/include/asm-s390x/qdio.h	Mon Feb  3 15:13:55 2003
+@@ -50,11 +50,11 @@
+ } __attribute__ ((packed,aligned(256)));
+ 
+ 
+-/* params are: irq, status, qdio_error, siga_error,
++/* params are: ccw_device, status, qdio_error, siga_error,
+    queue_number, first element processed, number of elements processed,
+    int_parm */
+-typedef void qdio_handler_t(int,unsigned int,unsigned int,unsigned int,
+-			    unsigned int,int,int,unsigned long);
++typedef void qdio_handler_t(struct ccw_device *,unsigned int,unsigned int,
++			    unsigned int,unsigned int,int,int,unsigned long);
+ 
+ 
+ #define QDIO_STATUS_INBOUND_INT 0x01
+@@ -100,6 +100,8 @@
+ 	void **output_sbal_addr_array; /* addr of n*128 void ptrs */
+ };
+ extern int qdio_initialize(struct qdio_initialize *init_data);
++extern int qdio_allocate(struct qdio_initialize *init_data);
++extern int qdio_establish(struct ccw_device *);
+ 
+ extern int qdio_activate(struct ccw_device *,int flags);
+ 
+@@ -127,6 +129,8 @@
+ 			    unsigned int queue_number);
+ 
+ extern int qdio_cleanup(struct ccw_device*, int how);
++extern int qdio_shutdown(struct ccw_device*, int how);
++extern int qdio_free(struct ccw_device*);
+ 
+ unsigned char qdio_get_slsb_state(struct ccw_device*, unsigned int flag,
+ 				  unsigned int queue_number,
 

@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289495AbSAVWcb>; Tue, 22 Jan 2002 17:32:31 -0500
+	id <S289494AbSAVWcb>; Tue, 22 Jan 2002 17:32:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289494AbSAVWcW>; Tue, 22 Jan 2002 17:32:22 -0500
-Received: from codepoet.org ([166.70.14.212]:49853 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S289493AbSAVWcL>;
-	Tue, 22 Jan 2002 17:32:11 -0500
-Date: Tue, 22 Jan 2002 15:32:08 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18-pre6
-Message-ID: <20020122223208.GA32491@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0201221602360.2059-100000@freak.distro.conectiva>
-Mime-Version: 1.0
+	id <S289492AbSAVWcW>; Tue, 22 Jan 2002 17:32:22 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25092 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289494AbSAVWcM>;
+	Tue, 22 Jan 2002 17:32:12 -0500
+Message-ID: <3C4DE863.6E486FA5@mandrakesoft.com>
+Date: Tue, 22 Jan 2002 17:32:03 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
+CC: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [Patch - 2.4.17++] Fix undefined ksym in minix.o, ext2.o, sysv.o
+In-Reply-To: <200201222216.g0MMGj317058@enterprise.bidmc.harvard.edu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0201221602360.2059-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.24i
-X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue Jan 22, 2002 at 04:06:38PM -0200, Marcelo Tosatti wrote:
-> pre5:
-> 
-> - Include missing radeonfb defines		(Erik Andersen)
+"Kristofer T. Karas" wrote:
+> +#if defined(CONFIG_EXT2_FS)||defined(CONFIG_MINIX_FS)||defined(CONFIG_SYSV_FS)
+> +EXPORT_SYMBOL(waitfor_one_page);
+> +#endif
 
-Credit for this patch really belongs to Ani Joshi.  I just 
-resent it when I saw it was missing,
+No, it needs to be exported unconditionally.
 
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+-- 
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

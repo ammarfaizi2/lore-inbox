@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbUFYS5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266840AbUFYTC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262208AbUFYS5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 14:57:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266832AbUFYS5Z
+	id S266840AbUFYTC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 15:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266838AbUFYTBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 14:57:25 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:36268 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262208AbUFYS4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 14:56:12 -0400
-Message-ID: <40DC7539.7000803@comcast.net>
-Date: Fri, 25 Jun 2004 14:55:53 -0400
-From: David van Hoose <david.vanhoose@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Fri, 25 Jun 2004 15:01:43 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:55792 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266843AbUFYTBV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 15:01:21 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Anssi Saari <as@sci.fi>
+Subject: Re: PROBLEM: booting 2.6.7 hangs with IRQ handling problems
+Date: Fri, 25 Jun 2004 21:06:03 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <20040622192942.GA15367@sci.fi> <200406231748.33679.bzolnier@elka.pw.edu.pl> <20040623180431.GA8963@sci.fi>
+In-Reply-To: <20040623180431.GA8963@sci.fi>
 MIME-Version: 1.0
-To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-CC: "Philip R. Auld" <pauld@egenera.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Helge Hafting <helge.hafting@hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: Collapse ext2 and 3 please
-References: <Pine.LNX.4.44.0406251438420.15676-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0406251438420.15676-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200406252106.04029.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you.
-It says ext2. Based on other messages, I look at /sbin/mkinitrd.
-It looks to me that RedHat/Fedora are pretty dumb making stupid 
-assumptions about the fs type instead of looking at the filesystem types 
-that root has setup in fstab.
-I've patched my mkinitrd script to check the fs type of the root 
-partition according to /proc/mounts. This should work unless someone is 
-overriding mkinitrd to build an initrd for a foreign system or changing 
-their root partition. To fix that, I've added an command-line option to 
-specify the fs type of the root partition.
+On Wednesday 23 of June 2004 20:04, Anssi Saari wrote:
+> On Wed, Jun 23, 2004 at 05:48:33PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > On Tuesday 22 of June 2004 21:29, Anssi Saari wrote:
+> > > Hello,
+> >
+> > Hi,
+> >
+> > > On my home PC I have an AMD Athlon XP 1900+ on an Aopen AK77-600Max
+> > > motherboard, VIA KT600 chipset. It works fine with Linux 2.6.6, apart
+> > > from the apparently nonexistent support for PATA devices on the Promise
+> > > PDC20378, but I can't boot 2.6.7. I've tried vanilla 2.6.7, 2.6.7 with
+> > > acpi-20040326 patch and 2.6.7-bk4. acpi=off, noapic or nolapic don't
+> > > seem to help.
+> >
+> > Since 2.6.6 works and 2.6.7-bk4 doesn't can you try -bk1/2/3 and
+> > do bisection search on specific changesets?  Thanks!
+>
+> OK. I find that 2.6.6-bk1 seemed fine, but 2.6.6-bk2 already prints out
+> these messages. It did boot, but then hanged shortly after. I hope this
+> helps to narrow it down?
 
-Thanks very very much.
-Sorry for the error. I assumed too much about RedHat.
+Does it hang the same way as 2.6.7?
 
-Thanks,
-David
+There were no IDE changes between 2.6.6-bk1 and 2.6.6-bk2.
+Can you do a diff between dmesg outputs from -bk1 and -bk2?
 
-Tigran Aivazian wrote:
-> # gzip -dc /boot/initrd-2.4.21-15.EL.img | file -
-> standard input:              Linux rev 1.0 ext2 filesystem data
-> 
-> Make sure you use the correct filename for your initrd image (check 
-> /etc/grub.conf to find out which one is used).
-> 
-> Kind regards
-> Tigran
-> 
+You can also try narrowing it down to a specific changeset
+[ http://linux.bkbits.net:8080/linux-2.5/ ] but it can take a while.
+
+Bartlomiej
+

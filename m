@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262478AbVAJVAq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262471AbVAJU4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262478AbVAJVAq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 16:00:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVAJVAf
+	id S262471AbVAJU4r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 15:56:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVAJUxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 16:00:35 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:54733 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262478AbVAJU7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 15:59:41 -0500
-Subject: Re: starting with 2.7
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <m1fz196o39.fsf@muc.de>
-References: <1697129508.20050102210332@dns.toxicfilms.tv>
-	 <41DD9968.7070004@comcast.net>
-	 <1105045853.17176.273.camel@localhost.localdomain>
-	 <1105115671.12371.38.camel@DreamGate> <41DEC5F1.9070205@comcast.net>
-	 <1105237910.11255.92.camel@DreamGate> <41E0A032.5050106@comcast.net>
-	 <1105278618.12054.37.camel@localhost.localdomain>
-	 <41E1CCB7.4030302@comcast.net> <21d7e99705010917281c6634b8@mail.gmail.com>
-	 <1105361337.12054.66.camel@localhost.localdomain>  <m1fz196o39.fsf@muc.de>
-Content-Type: text/plain
+	Mon, 10 Jan 2005 15:53:30 -0500
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:6740 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262471AbVAJUwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 15:52:33 -0500
+Message-ID: <41E2EB09.5000603@sbcglobal.net>
+Date: Mon, 10 Jan 2005 15:52:25 -0500
+From: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041223
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: address space reservation functionality?
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1105386921.12004.126.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 10 Jan 2005 19:55:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-01-10 at 20:11, Andi Kleen wrote:
-> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> I haven't seen a real request from someone who requires 1GB, but needs
-> to use more than 96MB (16MB GFP_DMA + 64-128MB softiommu/amd iommu memory) 
+Hi,
 
-Some bm4400 users report this problem.
+I was wondering if some functionality existed in Linux.  Specifically, 
+in Solaris, you can mmap the null device in order to reserve part of the 
+address space without otherwise consuming resources.  This is detailed 
+in the Solaris manpage null(7D).  The same functionality is also 
+available under Windows NT/XP/2K by calling the VirtualAlloc function 
+with the MEM_RESERVE flag omitting the MEM_COMMIT flag.  Does Linux have 
+a similar mechanism buried somewhere whereby I can reserve a part of the 
+address space and not increase the "virtual size" of the process or the 
+system's idea of the amount of memory in use?  I could not find one by 
+using the source.
+
+Regards,
+
+Rob
 

@@ -1,77 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263388AbTCUAiN>; Thu, 20 Mar 2003 19:38:13 -0500
+	id <S263375AbTCUAd1>; Thu, 20 Mar 2003 19:33:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263389AbTCUAiN>; Thu, 20 Mar 2003 19:38:13 -0500
-Received: from pacific.moreton.com.au ([203.143.238.4]:36871 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S263388AbTCUAiL>; Thu, 20 Mar 2003 19:38:11 -0500
-Message-ID: <3E7A6149.2010308@snapgear.com>
-Date: Fri, 21 Mar 2003 10:48:09 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
+	id <S263376AbTCUAd1>; Thu, 20 Mar 2003 19:33:27 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:17102 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S263375AbTCUAdZ>; Thu, 20 Mar 2003 19:33:25 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: [Bonding-devel] [patch] (2/8) Add 802.3ad support to bonding (released
+ to bonding on sourceforge)
+To: "David S. Miller" <davem@redhat.com>
+Cc: hshmulik@intel.com, bonding-devel@lists.sourceforge.net,
+       bonding-announce@lists.sourceforge.net, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, jgarzik@pobox.com
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF1BD71312.6E4C42DC-ON88256CF0.000314A8@us.ibm.com>
+From: Jay Vosburgh <fubar@us.ibm.com>
+Date: Thu, 20 Mar 2003 16:43:52 -0800
+X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.0 [IBM]|December 16, 2002) at
+ 03/20/2003 17:44:04
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: 2.5.56: undefined reference to `_ebss' from drivers/mtd/maps/uclinux.c
-References: <20030112095559.GT21826@fs.tum.de> <3E226969.5080406@snapgear.com> <20030320145927.GF11659@fs.tum.de> <20030320160008.GB3174@fs.tum.de>
-In-Reply-To: <20030320160008.GB3174@fs.tum.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
-
-This seems reasonable to me. It is after all targeted at uclinux.
-I suspect noone with VM setups would be much interrested in using
-it anyway.
-
-Patch looks good to me.
-
-Regards
-Greg
 
 
 
-Adrian Bunk wrote:
-> On Thu, Mar 20, 2003 at 03:59:28PM +0100, Adrian Bunk wrote:
-> 
->>...
->>It might not be a solution for the whole issue, but is it intentionally
->>that it's possible to enable CONFIG_MTD_UCLINUX on non-uClinux 
->>architectures or should an appropriate dependency be added to the 
->>Kconfig file?
-> 
-> 
-> The following patch should do what I was thinking of:
-> 
-> --- linux-2.5.65-full/drivers/mtd/maps/Kconfig.old	2003-03-20 16:56:25.000000000 +0100
-> +++ linux-2.5.65-full/drivers/mtd/maps/Kconfig	2003-03-20 16:56:45.000000000 +0100
-> @@ -348,7 +348,7 @@
->  
->  config MTD_UCLINUX
->  	tristate "Generic uClinux RAM/ROM filesystem support"
-> -	depends on MTD_PARTITIONS
-> +	depends on MTD_PARTITIONS && !MMU
->  	help
->  	  Map driver to support image based filesystems for uClinux.
->  
-> 
-> 
-> Any comments on whether this is correct?
-> 
-> 
-> cu
-> Adrian
-> 
 
--- 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
+>So when do these changes end up being sent to myself or
+>Jeff for mainline inclusion?
+>
+>I have no objection to the sourceforge project for bonding, but
+>I do object to there being such latency between what the sourceforge
+>tree has (especially bug fixes) and what gets submitted into the
+>mainline.
+>
+>Personally, I'd prefer that all development occur in the mainline
+>tree.  That gives you testing coverage that is impossible otherwise.
+
+      Fair enough; the delay has gotten excessive of late.
+
+      Would it be satisfactory going forward for the sourceforge site to
+contain patches to "standard" releases (e.g., 2.4.20), and do updates to
+the current development kernel and the sourceforge site simultaneously? In
+other words, sourceforge has a patch containing all bonding updates since
+2.4.20 (or whichever version) was released, and each time that patch is
+updated, the incremental update goes out for inclusion in the development
+kernel.
+
+      -J
 

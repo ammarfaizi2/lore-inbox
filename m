@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261723AbUCaNSA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 08:18:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbUCaNSA
+	id S261774AbUCaN0k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 08:26:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbUCaN0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 08:18:00 -0500
-Received: from rrzd2.rz.uni-regensburg.de ([132.199.1.12]:30439 "EHLO
-	rrzd2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id S261723AbUCaNR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 08:17:58 -0500
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.kernel.org
-Date: Wed, 31 Mar 2004 15:16:36 +0200
+	Wed, 31 Mar 2004 08:26:40 -0500
+Received: from vtens.prov-liege.be ([193.190.122.60]:20959 "EHLO
+	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
+	id S261774AbUCaN0j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 08:26:39 -0500
+Message-ID: <D9B4591FDBACD411B01E00508BB33C1B01E2575C@mesadm.epl.prov-liege.be>
+From: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: 2.4.25 vanilla on proliant
+Date: Wed, 31 Mar 2004 15:26:37 +0200
 MIME-Version: 1.0
-Subject: 2.4.21 on Itanium2: floating-point assist fault at ip 400000000062ada1, isr 0000020000000008
-Reply-to: ulrich.windl@rz.uni-regensburg.de
-Message-ID: <406AE0D5.10359.1930261@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Content-Conformance: HerringScan-0.25/Sophos-3.77+2.18+2.07.040+05 January 2004+87296@20040331.130955Z
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-I did try to find an answer is SuSE's support database, not in SAP's support 
-database, and also did search Google, but could not find an answer:
+	I'm trying to install a 2.4.25 on Advanced server 2.1 Proliant
+Compaq.
+	I keep having the following :
+		...
+		ds:no socket drivers loaded
+		kmod: failed to exec /sbin/modprobe -s -k block_major_104,
+errno=2
+		VFS : cannot open root device "cciss/c0d0p6" or 68:06
+		Please append a correct "root=" boot option
+		kernel panic : VFS : unable to mount root fs on 68:06
 
-We run SuSE Linux Enterprise Server 8 (SLES8) on a HP rx4640 Itanium2 server 
-with 2 CPUs (family: Itanium 2, model: 1, revision: 5, archrev: 0).
+	However I 'make modules_install' on cciss,rd,aic7xxx,ds,cpqarray
+amongst others
+	then mkinitrd /boot/initrd2425 2.4.25
 
-In syslog is do see periodic kernel messages (with no implicit priority) that 
-read:
+	grub snippet :
+	menu.lst : title 2.4.25
+			root (hd0,0)
+			kernel /2425 ro root=/dev/cciss/c0d0p6
+			initrd /initrd2425
 
-dw.sapC11_DVS02(14393): floating-point assist fault at ip 400000000062ada1, 
-isr 0000020000000008
 
-("dw.sapC11_DVS02" is a SAP R/3 work process (46D_EXT, patch 1754, for those 
-who care)
-
-Can anybody explain what this message means? Is it an application problem, or 
-is it a kernel problem?
+	Someone could help me ?
 
 Regards,
-Ulrich
-P.S. I'm not subscribed to linux-kernel, so please CC: at least.
-
+Fabian

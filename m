@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129614AbQLDMgy>; Mon, 4 Dec 2000 07:36:54 -0500
+	id <S129834AbQLDMwE>; Mon, 4 Dec 2000 07:52:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129669AbQLDMgo>; Mon, 4 Dec 2000 07:36:44 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:16375 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S129614AbQLDMga>;
-	Mon, 4 Dec 2000 07:36:30 -0500
-Date: Mon, 4 Dec 2000 13:05:53 +0100
-From: Andries Brouwer <aeb@veritas.com>
-To: K Ratheesh <rathee@lantana.tenet.res.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux for local languages - patch
-Message-ID: <20001204130553.A19985@veritas.com>
-In-Reply-To: <Pine.LNX.4.10.10012040923020.29288-100000@lantana.iitm.ernet.in>
-Mime-Version: 1.0
+	id <S129845AbQLDMvx>; Mon, 4 Dec 2000 07:51:53 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9296 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129834AbQLDMvq>; Mon, 4 Dec 2000 07:51:46 -0500
+Subject: Re: test12-pre4
+To: mhaque@haque.net (Mohammad A. Haque)
+Date: Mon, 4 Dec 2000 12:21:23 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <3A2B163A.380E4A62@haque.net> from "Mohammad A. Haque" at Dec 03, 2000 10:57:46 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.10.10012040923020.29288-100000@lantana.iitm.ernet.in>; from rathee@lantana.tenet.res.in on Mon, Dec 04, 2000 at 09:32:58AM +0530
+Content-Transfer-Encoding: 7bit
+Message-Id: <E142ucX-0003mR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 04, 2000 at 09:32:58AM +0530, K Ratheesh wrote:
-
-> I am working on enabling Linux console for Local languages. As the current
-> PSF format doesn't support variable width fonts , I have made a patch in
-> the console driver so that it will load a user defined multi-glyph mapping
-> table so that multiple glyphs can be displayed for a single character
-> code. All editing operations will also be taken care of.
-
-Good. Last year I needed support for Tibetan and added just the
-converse: single glyphs that were represented by a sequence of
-Unicode symbols. This is needed e.g. in the situation where Unicode
-does not have precomposed symbol+diacritical, so that the glyph that
-represents an accented character corresponds to a sequence rather
-than a single Unicode symbol.
-
-Did you start with this psf2 header (from kbd-1.03)?
-(Last time I looked, console-tools didnt have this yet.)
-
-> Further, for Indian languages, there are various consonant/vowel modifiers
-> which result in complex character clusters. So I have extended the patch
-> to load user defined context sensitive parse rules for glyphs /
-> character codes as well. Again, all editing operations will behave
-> according to the parse rule specifications.
+> Was borking on dummy.c. This seemed to fix it. Verification please?
 > 
-> Even though the patch has been developed keeping Indian languages in mind,
-> I feel it will be applicable to many other languages (for eg. Chinese)
-> which require wider fonts on console or user defined parsing at I/O level.
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.0-test11/include -Wall
+> -Wstrict-prototypes -O6 -fomit-frame-pointer -fno-strict-aliasing -pipe
+> -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include
+> /usr/src/linux-2.4.0-test11/include/linux/modversions.h   -c -o dummy.o
+> dummy.c
+> dummy.c: In function `dummy_init_module':
+> dummy.c:103: invalid type argument of `->'
+> make[2]: *** [dummy.o] Error 1
 
-Yes, maybe. Or maybe something like this is better done in user space.
+Can you send me your .config and I'll double check this. "It built for me
+before I sent it to Linus, honest" 
 
-> Those who want to try out this patch can send mail to me in the address
-> rathee@lantana.iitm.ernet.in or to indlinux-iitm@lantana.iitm.ernet.in 
-
-Wouldnt mind seeing your patch.
-
-Andries - aeb@cwi.nl
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

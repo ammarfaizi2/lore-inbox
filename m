@@ -1,66 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130006AbRAKNUW>; Thu, 11 Jan 2001 08:20:22 -0500
+	id <S130355AbRAKN0d>; Thu, 11 Jan 2001 08:26:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130130AbRAKNUN>; Thu, 11 Jan 2001 08:20:13 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:16000 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130006AbRAKNUG>;
-	Thu, 11 Jan 2001 08:20:06 -0500
-Date: Wed, 10 Jan 2001 21:19:41 -0800
-Message-Id: <200101110519.VAA02784@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: andrewm@uow.edu.au
-CC: jayts@bigfoot.com, linux-kernel@vger.kernel.org,
-        linux-audio-dev@ginette.musique.umontreal.ca, xpert@xfree86.org,
-        mcrichto@mpp.ecs.umass.edu
-In-Reply-To: <3A5D994A.1568A4D5@uow.edu.au> (message from Andrew Morton on
-	Thu, 11 Jan 2001 22:30:18 +1100)
-Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
-In-Reply-To: <3A57DA3E.6AB70887@uow.edu.au> from "Andrew Morton" at Jan 07, 2001 01:53:50 PM <200101110312.UAA06343@toltec.metran.cx> <3A5D994A.1568A4D5@uow.edu.au>
+	id <S131993AbRAKN0Y>; Thu, 11 Jan 2001 08:26:24 -0500
+Received: from [172.16.18.67] ([172.16.18.67]:1153 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S130614AbRAKN0R>; Thu, 11 Jan 2001 08:26:17 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <17071.979217174@ocs3.ocs-net> 
+In-Reply-To: <17071.979217174@ocs3.ocs-net> 
+To: Keith Owens <kaos@ocs.com.au>
+Cc: List Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go? 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 11 Jan 2001 13:25:53 +0000
+Message-ID: <17460.979219553@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Just some commentary and a bug report on your patch Andrew:
 
-Opinion: Personally, I think the approach in Andrew's patch
-	 is the way to go.
+kaos@ocs.com.au said:
+> So you want two services, one static for code that does not do any
+> initialisation and one dynamic for code that does do initialisation.
+> Can you imagine the fun when somebody adds startup code to a routine
+> that was using static registration? 
 
-	 Not because it can give the absolute best results.
-	 But rather, it is because it says "here is where a lot
-         of time is spent".
+Oh come on. If you change a module from being 'self-contained' and 
+registered at compile time to requiring initialisation it's hardly 
+unreasonable to expect you switch the registration too.
 
-	 This has two huge benefits:
-	 1) It tells us where possible algorithmic improvements may
-	    be possible.  In some cases we may be able to improve the
-	    code to the point where the pre-emption points are no
-	    longer necessary and can thus be removed.
-	 2) It affects only code which can burn a lot of cpu without
-	    scheduling.  Compare this to schemes which make the kernel
-	    fully pre-emptable, causing _EVERYONE_ to pay the price of
-	    low-latency.  If we were to later fine algorithmic
-	    improvements to the high-latency pieces of code, we
-            couldn't then just "undo" support for pre-emption because
-	    dependencies will have swept across the whole kernel
-	    already.
+Besides, I'm not going to allow any link order dependencies into code I
+maintain without them being impossible to avoid - and if anyone's thought
+about the problem hard enough to convince me to accept such a change,
+they'll have noticed the need to change the registration.
 
-            Pre-emption, by itself, also doesn't help in situations
-	    where lots of time is spent while holding spinlocks.
-	    There are several other operating systems which support
-	    pre-emption where you will find hard coded calls to the
-	    scheduler in time-consuming code.  Heh, it's almost like,
-	    "what's the frigging point of pre-emption then if you
-	    still have to manually check in some spots?"
+> Oh dear, I added init code so I have to remember to change from static 
+> to dynamic registration, and that affects the link order so now I have 
+> to tweak the Makefile.
 
-Bug:	In the tcp_minisock.c changes, if you bail out of the loop
-	early (ie. max_killed=1) you do not decrement tcp_tw_count
-	by killed, which corrupts the state of the TIME_WAIT socket
-	reaper.  The fix is simple, just duplicate the tcp_tw_count
-	decrement into the "if (max_killed)" code block.
+cf. "Oh dear, I added init code but put it _after_ the registration instead
+of before, so stuff blows up."
 
-Later,
-David S. Miller
-davem@redhat.com
+Neither of these two programmers will get their code into anything I 
+maintain.
+
+cf. "Oh dear, I need registration, but I have to remember that
+inter_module_xxx can't do static registration so now I have to tweak the
+Makefile."
+
+kaos@ocs.com.au said:
+> Stick to one method that works for all routines, dynamic registration.
+
+It doesn't work for all routines. It introduces unnecessary brokenness - 
+link order dependencies - where previously there were none.
+
+> If that imposes the occasional need for a couple of extra calls in
+> some routines and for people to think about initialisation order right
+> from the start then so be it, it is a small price to pay for long term
+> stability and ease of maintenance.
+
+I'm thinking about link order. If I _wasn't_ thinking about link order, 
+then I'd just put the lines in the 'right' order in the Makefile and put up 
+with it. But I'm thinking about it, and I object to it. It is absolutely 
+unnecessary in this case.
+
+As far as I'm concerned, fixing the registration problems introduced by the
+dynamic inter_module_register is a small price to pay for long term
+stability and ease of maintenance :)
+
+--
+dwmw2
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,126 +1,146 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263011AbREaDvP>; Wed, 30 May 2001 23:51:15 -0400
+	id <S263003AbREaDlC>; Wed, 30 May 2001 23:41:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263012AbREaDvF>; Wed, 30 May 2001 23:51:05 -0400
-Received: from [24.6.27.53] ([24.6.27.53]:14214 "EHLO quark.localdomain")
-	by vger.kernel.org with ESMTP id <S263011AbREaDuq>;
-	Wed, 30 May 2001 23:50:46 -0400
-From: Vincent Stemen <linuxkernel@AdvancedResearch.org>
-Date: Wed, 30 May 2001 22:47:29 -0500
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="US-ASCII"
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>
-To: Mike Galbraith <mikeg@wen-online.de>
-In-Reply-To: <Pine.LNX.4.33.0105302205240.418-100000@mikeg.weiden.de>
-In-Reply-To: <Pine.LNX.4.33.0105302205240.418-100000@mikeg.weiden.de>
-Subject: Re: Plain 2.4.5 VM... (and 2.4.5-ac3)
+	id <S263006AbREaDkw>; Wed, 30 May 2001 23:40:52 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:28427 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S263003AbREaDkn>;
+	Wed, 30 May 2001 23:40:43 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200105310340.f4V3eVF244481@saturn.cs.uml.edu>
+Subject: Re: How to know HZ from userspace?
+To: laforge@gnumonks.org (Harald Welte)
+Date: Wed, 30 May 2001 23:40:30 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva> from "Harald Welte" at May 30, 2001 08:37:25 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Message-Id: <01053022472901.02370@quark>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 May 2001 15:17, Mike Galbraith wrote:
-> On Wed, 30 May 2001, Vincent Stemen wrote:
-> > On Wednesday 30 May 2001 01:02, Mike Galbraith wrote:
-> > > On Tue, 29 May 2001, Vincent Stemen wrote:
-> > > > On Tuesday 29 May 2001 15:16, Alan Cox wrote:
-> > > > > > a reasonably stable release until 2.2.12.  I do not understand
-> > > > > > why code with such serious reproducible problems is being
-> > > > > > introduced into the even numbered kernels.  What happened to
-> > > > > > the plan to use only the
-> > > > >
-> > > > > Who said it was introduced ?? It was more 'lurking' than
-> > > > > introduced. And unfortunately nobody really pinned it down in
-> > > > > 2.4test.
-> > > >
-> > > > I fail to see the distinction.  First of all, why was it ever
-> > > > released as 2.4-test?  That question should probably be directed at
-> > > > Linus.  If it is not fully tested, then it should be released it as
-> > > > an odd number.  If it already existed in the odd numbered
-> > > > development kernel and was known, then it should have never been
-> > > > released as a production kernel until it was resolved.  Otherwise,
-> > > > it completely defeats the purpose of having the even/odd numbering
-> > > > system.
-> > > >
-> > > > I do not expect bugs to never slip through to production kernels,
-> > > > but known bugs that are not trivial should not, and serious bugs
-> > > > like these VM problems especially should not.
-> > >
-> > > And you can help prevent them from slipping through by signing up as
-> > > a shake and bake tester.  Indeed, you can make your expectations
-> > > reality absolutely free of charge, <microfont> and or compensation
-> > > </microfont> what a bargain!
-> > >
-> > > X ___________________ ;-)
-> > >
-> > > 	-Mike
-> >
-> > The problem is, that's not true.  These problems are not slipping
-> > through because of lack of testers.  As Alan said, the VM problem has
->
-> Sorry, that's a copout.  You (we) had many chances to notice.  Don't
-> push the problems back onto developers.. it's our problem.
->
+Harald Welte writes:
 
-How is that a copout?  The problem was noticed.  I am only suggesting
-that we not be in such a hurry to put code in the production kernels
-until we are pretty sure it works well enough, and that we release
-major production versions more often so that they do not contain 2 or
-3 years worth of new code making it so hard to debug.  We probably
-should have had 2 or 3 code freezes and production releases since
-2.2.x.  As I mentioned in a previous posting, this way we do not have
-to run a 2 or 3 year old kernel in order to have reasonable stability.
+> Is there any way to read out the compile-time HZ value of the kernel?
+> 
+> I had a brief look at /proc/* and didn't find anything.
 
-> > Here are some of the problems I see:
-> >
-> > There was far to long of a stretch with to much code dumped into both
-> > the 2.2 and 2.4 kernels before release.  There needs to be a smaller
-> > number changes between major releases so that they can be more
-> > thoroughly tested and debugged.  In the race to get it out there they
-> > are making the same mistakes as Microsoft, releasing production
-> > kernels with known serious bugs because it is taking to long and they
-> > want to move on forward.  I enjoy criticizing Microsoft so much for
-> > the same thing that I do not want to have to stop in order to not
-> > sound hypocritical :-).  The Linux community has built a lot of it's
-> > reputation on not making these mistakes.  Please lets try not to
-> > destroy that.
-> >
-> > They are disregarding the even/odd versioning system.
-> > For example:
-> > There was a new 8139too driver added to the the 2.4.5 (I think) kernel
-> > which Alan Cox took back out and reverted to the old one in his
-> > 2.4.5-ac? versions because it is apparently causing lockups.
-> > Shouldn't this new driver have been released in a 2.5.x development
-> > kernel and proven there before replacing the one in the production
-> > kernel?  I haven't even seen a 2.5.x kernel released yet.
-> >
-> > Based on Linus's original very good plan for even/odd numbers, there
-> > should not have been 2.4.0-test? kernels either.  This was another
-> > example of the rush to increment to 2.4 long before it was ready.
-> > There was a long stretch of test kernels and and now we are all the
-> > way to 2.4.5 and it is still not stable.  We are repeating the 2.2.x
-> > process all over again.  It should have been 2.3.x until the
-> > production release was ready.  If they needed to distinguish a code
-> > freeze for final testing, it could be done with a 4th version
-> > component (2.3.xx.xx), where the 4 component is incremented for final
-> > bug fixes.
->
-> Sorry, I disagree with every last bit.  Either you accept a situation
-> or you try to do something about it.
->
-> 	-Mike
+Look again, this time with a sick mind. Got your barf bag?
+Kubys made me do it.
 
-I am spending a lot of time testing new kernels, reporting bugs and
-offering suggestions that I think may improve on the stability of
-production kernels.  Is this not considered doing something about it?
-It is necessary to point out where one sees a problem in order to
-offer possible solutions for improvement. 
+/****************************************************************/
+/***********************************************************************\
+*   Copyright (C) 1992-1998 by Michael K. Johnson, johnsonm@redhat.com *
+*                                                                      *
+*      This file is placed under the conditions of the GNU Library     *
+*      General Public License, version 2, or any later version.        *
+*      See file COPYING for information on distribution conditions.    *
+\***********************************************************************/
+
+/* ...but Albert Cahalan wrote the really evil parts.
+MKJ is only guilty for the macro */
+
+/* Sets Hertz equal to the kernel's HZ, as seen in /proc. */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#include <unistd.h>
+#include <fcntl.h>
+
+#ifndef HZ
+#include <netinet/in.h>  /* htons */
+#endif
+
+long smp_num_cpus;     /* number of CPUs */
+
+#define BAD_OPEN_MESSAGE                                        \
+"Error: /proc must be mounted\n"                                \
+"  To mount /proc at boot you need an /etc/fstab line like:\n"  \
+"      /proc   /proc   proc    defaults\n"                      \
+"  In the meantime, mount /proc /proc -t proc\n"
+
+#define STAT_FILE    "/proc/stat"
+static int stat_fd = -1;
+#define UPTIME_FILE  "/proc/uptime"
+static int uptime_fd = -1;
+#define LOADAVG_FILE "/proc/loadavg"
+static int loadavg_fd = -1;
+#define MEMINFO_FILE "/proc/meminfo"
+static int meminfo_fd = -1;
+
+static char buf[1024];
+
+/* This macro opens filename only if necessary and seeks to 0 so
+ * that successive calls to the functions are more efficient.
+ * It also reads the current contents of the file into the global buf.
+ */
+#define FILE_TO_BUF(filename, fd) do{                           \
+    static int local_n;                                         \
+    if (fd == -1 && (fd = open(filename, O_RDONLY)) == -1) {    \
+        fprintf(stderr, BAD_OPEN_MESSAGE);                      \
+        fflush(NULL);                                           \
+        _exit(102);                                             \
+    }                                                           \
+    lseek(fd, 0L, SEEK_SET);                                    \
+    if ((local_n = read(fd, buf, sizeof buf - 1)) < 0) {        \
+        perror(filename);                                       \
+        fflush(NULL);                                           \
+        _exit(103);                                             \
+    }                                                           \
+    buf[local_n] = '\0';                                        \
+}while(0)
+
+unsigned long Hertz;
+static void init_Hertz_value(void) __attribute__((constructor));
+static void init_Hertz_value(void){
+  unsigned long user_j, nice_j, sys_j, other_j;  /* jiffies (clock ticks) */
+  double up_1, up_2, seconds;
+  unsigned long jiffies, h;
+  smp_num_cpus = sysconf(_SC_NPROCESSORS_CONF);
+  if(smp_num_cpus==-1) smp_num_cpus=1;
+  do{
+    FILE_TO_BUF(UPTIME_FILE,uptime_fd);  sscanf(buf, "%lf", &up_1);
+    /* uptime(&up_1, NULL); */
+    FILE_TO_BUF(STAT_FILE,stat_fd);
+    sscanf(buf, "cpu %lu %lu %lu %lu", &user_j, &nice_j, &sys_j, &other_j);
+    FILE_TO_BUF(UPTIME_FILE,uptime_fd);  sscanf(buf, "%lf", &up_2);
+    /* uptime(&up_2, NULL); */
+  } while((long)( (up_2-up_1)*1000.0/up_1 )); /* want under 0.1% error */
+  jiffies = user_j + nice_j + sys_j + other_j;
+  seconds = (up_1 + up_2) / 2;
+  h = (unsigned long)( (double)jiffies/seconds/smp_num_cpus );
+  /* actual values used by 2.4 kernels: 32 64 100 128 1000 1024 1200 */
+  switch(h){
+  case   30 ...   34 :  Hertz =   32; break; /* ia64 emulator */
+  case   48 ...   52 :  Hertz =   50; break;
+  case   58 ...   62 :  Hertz =   60; break;
+  case   63 ...   65 :  Hertz =   64; break; /* StrongARM /Shark */
+  case   95 ...  105 :  Hertz =  100; break; /* normal Linux */
+  case  124 ...  132 :  Hertz =  128; break; /* MIPS, ARM */
+  case  195 ...  204 :  Hertz =  200; break; /* normal << 1 */
+  case  253 ...  260 :  Hertz =  256; break;
+  case  393 ...  408 :  Hertz =  400; break; /* normal << 2 */
+  case  790 ...  808 :  Hertz =  800; break; /* normal << 3 */
+  case  990 ... 1010 :  Hertz = 1000; break; /* ARM */
+  case 1015 ... 1035 :  Hertz = 1024; break; /* Alpha, ia64 */
+  case 1180 ... 1220 :  Hertz = 1200; break; /* Alpha */
+  default:
+#ifdef HZ
+    Hertz = (unsigned long)HZ;    /* <asm/param.h> */
+#else
+    /* If 32-bit or big-endian (not Alpha or ia64), assume HZ is 100. */
+    Hertz = (sizeof(long)==sizeof(int) || htons(999)==999) ? 100UL : 1024UL;
+#endif
+    fprintf(stderr, "Unknown HZ value! (%ld) Assume %ld.\n", h, Hertz);
+  }
+}
+/****************************************************************/
 
 
 
-- Vincent 
+
 

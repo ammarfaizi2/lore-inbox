@@ -1,124 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263891AbTLaJkS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 04:40:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbTLaJkS
+	id S263953AbTLaJtj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 04:49:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbTLaJtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 04:40:18 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:52639 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S263891AbTLaJkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 04:40:08 -0500
-Date: Wed, 31 Dec 2003 10:39:30 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Derek Foreman <manmower@signalmarketing.com>
-Cc: DervishD <raul@pleyades.net>, Eugene <spamacct11@yahoo.com>,
-       linux-kernel@vger.kernel.org,
-       "ynezz @ hysteria. sk" <ynezz@hysteria.sk>
-Subject: Re: best AMD motherboard for Linux
-Message-ID: <20031231093929.GC8062@louise.pinerecords.com>
-References: <3FEF0AFD.4040109@yahoo.com> <20031228172008.GA9089@c0re.hysteria.sk> <3FEF0AFD.4040109@yahoo.com> <20031228174828.GF3386@DervishD> <20031229165620.GF30794@louise.pinerecords.com> <Pine.LNX.4.58.0312301144340.467@uberdeity> <20031230194203.GA8062@louise.pinerecords.com> <Pine.LNX.4.58.0312301354130.765@uberdeity>
+	Wed, 31 Dec 2003 04:49:39 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:28660 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263953AbTLaJth
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 04:49:37 -0500
+Date: Wed, 31 Dec 2003 15:25:03 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: daniel@osdl.org, janetmor@us.ibm.com, pbadari@us.ibm.com,
+       linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH linux-2.6.0-test10-mm1] filemap_fdatawait.patch
+Message-ID: <20031231095503.GA4069@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <3FCD4B66.8090905@us.ibm.com> <1070674185.1929.9.camel@ibm-c.pdx.osdl.net> <1070907814.707.2.camel@ibm-c.pdx.osdl.net> <1071190292.1937.13.camel@ibm-c.pdx.osdl.net> <1071624314.1826.12.camel@ibm-c.pdx.osdl.net> <20031216180319.6d9670e4.akpm@osdl.org> <20031231091828.GA4012@in.ibm.com> <20031231013521.79920efd.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312301354130.765@uberdeity>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031231013521.79920efd.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec-30 2003, Tue, 18:46 -0600
-Derek Foreman <manmower@signalmarketing.com> wrote:
-
-> > > > nVidia translates to "trouble" around here.  Selected Radeon cards,
-> > > > on the other hand, work perfectly with opensource drivers and should
-> > > > perform comparably.
-> > >
-> > > I'm not sure how you're defining "comparably".  If you mean they get
-> > > similar numbers from glxgears, that's possible.  But the feature sets are
-> > > not at all comparable.  Nvidia's linux driver actually exposes the
-> > > features available on modern graphics hardware.
-> > >
-> > > If you're going to advise against the use of their products in a public
-> > > forum, I suggest you be a lot more specific.
+On Wed, Dec 31, 2003 at 01:35:21AM -0800, Andrew Morton wrote:
+> Suparna Bhattacharya <suparna@in.ibm.com> wrote:
 > >
-> > The person asking for advice was very articulate in what their primary
-> > concerns in choosing hardware were, and my suggestion was made with those
-> > in mind.
+> > It seems like the case Daniel is thinking about is when 
+> > a process has issued writes to the page cache, and then filemap_fdatawrite
+> > is called, while these pages are being written back to disk parallely by 
+> > another thread (not holding i_sem). The filemap_fdatawrite wouldn't see
+> > pages that are in the process of being written out by the background
+> > thread so it doesn't mark them for writeback.
 > 
-> His primary requirement was that it (the motherboard) work well with
-> linux.  He stated that he was capable of installing drivers if he had to,
-> but it would be even better if it wasn't required.
+> If those pages are under writeout then they are clean and
+> filemap_fdatawrite() has nothing to do.
+
+Sure, it doesn't, because the other thread is about to issue
+a writeout on them. But it does mean that there is no guarantee
+that those pages are already marked as writeback when 
+filemap_fdatawrite returns and filemap_fdatawait is called.
+
 > 
-> Open source drivers, or whether nvidia fits your idea of a "linux
-> supporting company" were not on the stated list of requirements.
-
-Indirectly they were, if you admit that opensource drivers are "better"
-for Linux users.  The person's goal was, let me quote, "to make sure
-I get the hardware that works best with Linux."  I suggested they avoid
-nVidia, because _my opinion_ is that binary-only drivers do not "work best."
-
-> In fact, the message wasn't even asking for an opinion on the graphics
-> card.
-
-Yes and no, it did mention graphics hardware, and somebody started
-a subthread in which I reacted.
-
-> >            Yes, I'm convinced that a binary only driver is not an adequate
-> > solution in "supporting linux."
+> If, however, those pages were redirtied while under I/O then they are
+> dirty, on dirty_pages and are under writeout.  In that case
+> filemap_fdatawrite() must wait for the current write to complete and must
+> start a new write.
 > 
-> Paying people to write the driver, write documentation for the driver, and
-> provide technical support for the driver does not meet your requirements
-> for "supporting linux"...
-
-Indeed it doesn't -- this approach doesn't work for Linux.  Might work
-for other operating systems, but it certainly doesn't work for Linux.
-
-> Your requirements seem steep indeed.
-
-Yes.
-
-> There are a lot of drivers in the linux source tree itself that are
-> just as closed to you and I as the nvidia ones.  Lots of companies only
-> give out their documentation under NDA to "appropriate open source
-> developers" (I thought one of the great things about opensource was that
-> everyone was an "appropriate developer").  So while we can look at the
-> source code, we don't have enough information about it to provide adequate
-> peer review or to fix bugs in it ourselves.
-
-Now, excuse me French, _this_ is a big load.  Come back when you've tried
-to find out how a piece of hardware works with and without working driver
-sources.
-
-> We still have to contact whoever has the complete documentation, and we
-> still have to wait for them to make a fix available.
-
-Ok, I might not be able to add support for a new revision of a chip,
-true enough.  Somebody will do it, eventually.  The important thing
-you're ignoring is -- if such a driver is oopsing my box, I will be
-able to fix it.
-
-> > And by the way, you are not being specific in naming the "features
-> > available on modern graphics hardware," either.
+> > The following filemap_fdatawait 
+> > would find these pages on the locked_pages list all right, but if its
+> > unlucky enough to be in the window that Daniel mentions where PG_dirty 
+> > is cleared but PG_writeback hasn't yet been set, then the page would
+> > have move to the clean list without waiting for the actual writeout
+> > to complete !
 > 
-> Vertex programs, fragment programs, vertex buffer objects, to name a few
-> things.  These are also available in the closed source ATI drivers.
+> If you are referring to this code in mpage_writepage():
 > 
-> Run glxinfo and look at the gl version strings and the supported
-> extensions.  I'll send you the output of mine off-list if you'd like to do
-> a comparison.
+> 		lock_page(page);
+> 
+> 		if (wbc->sync_mode != WB_SYNC_NONE)
+> 			wait_on_page_writeback(page);
+> 
+> 		if (page->mapping == mapping && !PageWriteback(page) &&
+> 					test_clear_page_dirty(page)) {
+> 
+> 
+> then I don't see the race - the page lock synchronises the two threads?
+> 
 
-No I don't, but thank you.
+But filemap_fdatawait does not look at the page lock. So there's a
+tiny window when the page is on locked_pages with PG_dirty cleared
+and PG_writeback not set. Does that make sense, or is there something
+I overlook ?
 
-> If you really do have specific complaints about nvidia's drivers,
-> it would be polite to email them first - they do reply to their
-> linux-bugs email address.
+Daniel's patch precisely tried to fill that gap - he added a check for page 
+lock in filemap_datawait.
 
-No, thanks, I've had my share with nVidia's oopsing drivers.
+Regards
+Suparna
 
-> Just claiming "nvidia translates into trouble" is really nothing more
-> than FUD.
-
-No, it isn't.  Search the lkml archives for "OOPS Tainted nvdriver."
+> 
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> the body to majordomo@kvack.org.  For more info on Linux AIO,
+> see: http://www.kvack.org/aio/
+> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
 
 -- 
-Tomas Szepe <szepe@pinerecords.com>
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

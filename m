@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284979AbRL3VAE>; Sun, 30 Dec 2001 16:00:04 -0500
+	id <S284970AbRL3U4o>; Sun, 30 Dec 2001 15:56:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284987AbRL3U7y>; Sun, 30 Dec 2001 15:59:54 -0500
-Received: from dial-up-2.energonet.ru ([195.16.109.101]:6784 "EHLO
-	dial-up-2.energonet.ru") by vger.kernel.org with ESMTP
-	id <S284979AbRL3U7p>; Sun, 30 Dec 2001 15:59:45 -0500
-Date: Mon, 31 Dec 2001 00:01:09 +0000 (GMT)
-From: ertzog <ertzog@bk.ru>
-To: Lennert Buytenhek <buytenh@gnu.org>
-cc: linux-kernel@vger.kernel.org, jdike@karaya.com
-Subject: Re: [PATCH][RFC] global errno considered harmful
-In-Reply-To: <20011230110623.A17083@gnu.org>
-Message-ID: <Pine.LNX.4.21.0112302355100.1013-100000@dial-up-2.energonet.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284945AbRL3U4e>; Sun, 30 Dec 2001 15:56:34 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:20368 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S284970AbRL3U4Y>; Sun, 30 Dec 2001 15:56:24 -0500
+Date: Sun, 30 Dec 2001 20:58:46 +0000
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, rmk@arm.linux.org.uk
+Subject: PF_NOIO missing.
+Message-ID: <20011230205846.A14713@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@transmeta.com>, rmk@arm.linux.org.uk
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Oops, we didn't resync this bit quick enough..
+Fixes build failure in loop.
 
-And can anybody explain, why is it so ?
-(I mean checking for -1, and the switch(errno){}.)
-AFAIK, syscall returns us a number (on i386 it is in eax)
-and we can use it. Is errno a kernel thing, or GLIBC ?
-Haven't we a return code in eax, after   int 0x80 ?  
-(sorry, but I never worked on Linux on other architectures)  
+Dave.
 
 
+diff -urN --exclude-from=/home/davej/.exclude linux-2.5.2-pre3/include/linux/sched.h linux-2.5/include/linux/sched.h
+--- linux-2.5.2-pre3/include/linux/sched.h	Fri Dec 28 23:25:39 2001
++++ linux-2.5/include/linux/sched.h	Sat Dec 29 11:11:32 2001
+@@ -433,6 +433,7 @@
+ #define PF_MEMALLOC	0x00000800	/* Allocating memory */
+ #define PF_MEMDIE	0x00001000	/* Killed for out-of-memory */
+ #define PF_FREE_PAGES	0x00002000	/* per process page freeing */
++#define PF_NOIO		0x00004000	/* avoid generating further I/O */
  
-Best regards.
+ #define PF_USEDFPU	0x00100000	/* task used FPU this quantum (SMP) */
+ 
 
-On Sun, 30 Dec 2001, Lennert Buytenhek wrote:
-> Is there any particular reason we need a global errno in the kernel
-> at all? (which, by the way, doesn't seem to be subject to any kind of
-
+-- 
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

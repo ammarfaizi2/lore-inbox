@@ -1,70 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263868AbTKLSBV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 13:01:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263871AbTKLSBV
+	id S264018AbTKLSUS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 13:20:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264055AbTKLSUS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 13:01:21 -0500
-Received: from devil.servak.biz ([209.124.81.2]:12185 "EHLO devil.servak.biz")
-	by vger.kernel.org with ESMTP id S263868AbTKLSBU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 13:01:20 -0500
-Subject: ALSA crash in 2.6.0-test9-mm2
-From: Torrey Hoffman <thoffman@arnor.net>
-To: perex@perex.cz, Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1068659915.1446.16.camel@moria.arnor.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 12 Nov 2003 09:58:35 -0800
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - devil.servak.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - arnor.net
+	Wed, 12 Nov 2003 13:20:18 -0500
+Received: from mail3-126.ewetel.de ([212.6.122.126]:23681 "EHLO
+	mail3.ewetel.de") by vger.kernel.org with ESMTP id S264018AbTKLSUP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 13:20:15 -0500
+Date: Wed, 12 Nov 2003 19:20:05 +0100 (CET)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+In-Reply-To: <Pine.LNX.4.44.0311111706530.1694-100000@home.osdl.org>
+Message-ID: <Pine.LNX.4.44.0311121910010.983-100000@neptune.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got a crash and system hang in my system initialization scripts.
+On Tue, 11 Nov 2003, Linus Torvalds wrote:
 
-My startup scripts essentially do (this is the short version):
-	modprobe snd
-	modprobe sound-slot-0
-	modprobe sound-slot-1
-	/usr/sbin/alsactl restore >/dev/null 2>&1
+> Does it work if you change the order of those two things in ide-cd.c (or
+> just remove the call to "cdrom_get_last_written()" entirely, so that it
+> always just does the sane thing).
 
-I'm not sure if the hang was in one of the modprobes or 
-when alsactl was run.   /etc/modprobe.conf contains:
-	alias sound-slot-0 snd-intel8x0
-	alias sound-slot-1 snd-ice1712
+I've moved the cdrom_read_capacity() to the top of cdrom_read_toc and
+now the capacity gets set correctly and everything seems to work just 
+fine.
 
-Nov 12 09:15:22 moria kernel: intel8x0_measure_ac97_clock: measured 49593 usecs
-Nov 12 09:15:22 moria kernel: intel8x0: clocking to 48000
-Nov 12 09:15:22 moria kernel: Debug: sleeping function called from invalid context at include/asm/semaphore.h:119
-Nov 12 09:15:22 moria kernel: in_atomic():1, irqs_disabled():0
-Nov 12 09:15:22 moria kernel: Call Trace:
-Nov 12 09:15:22 moria kernel:  [<c012405c>] __might_sleep+0xab/0xc9
-Nov 12 09:15:22 moria kernel:  [<fcc637bd>] ap_cs8427_sendbytes+0x38/0xd2 [snd_ice1712]
-Nov 12 09:15:22 moria kernel:  [<fcc1329b>] snd_i2c_sendbytes+0x22/0x26 [snd_i2c]
-Nov 12 09:15:22 moria kernel:  [<fcc1a15e>] snd_cs8427_reg_read+0x2c/0x8c [snd_cs8427]
-Nov 12 09:15:22 moria kernel:  [<fcc1a414>] snd_cs8427_create+0xa4/0x347 [snd_cs8427]
-Nov 12 09:15:22 moria kernel:  [<c02e6e5c>] snd_device_new+0x20/0x6a
-Nov 12 09:15:22 moria kernel:  [<fcc5f51a>] snd_ice1712_init_cs8427+0x2f/0x6f [snd_ice1712]
-Nov 12 09:15:22 moria kernel:  [<fcc64153>] snd_ice1712_delta_init+0x230/0x2b9 [snd_ice1712]
-Nov 12 09:15:22 moria kernel:  [<fcc63227>] snd_ice1712_probe+0x323/0x34c [snd_ice1712]
-Nov 12 09:15:22 moria kernel:  [<c0178a5b>] dput+0x24/0x2b5
-Nov 12 09:15:22 moria kernel:  [<c0215dcf>] pci_device_probe_static+0x4d/0x5e
-Nov 12 09:15:22 moria kernel:  [<c0215e18>] __pci_device_probe+0x38/0x4b
-Nov 12 09:15:22 moria kernel:  [<c0215e57>] pci_device_probe+0x2c/0x48
-Nov 12 09:15:22 moria kernel:  [<c027c725>] bus_match+0x3d/0x65
-Nov 12 09:15:22 moria kernel:  [<c027c83e>] driver_attach+0x59/0x83
-Nov 12 09:15:22 moria kernel:  [<c027cb07>] bus_add_driver+0x9e/0xb1
-Nov 12 09:15:22 moria kernel:  [<c021601e>] pci_register_driver+0x6b/0x90
-Nov 12 09:15:22 moria kernel:  [<fcbda015>] alsa_card_ice1712_init+0x15/0x4e [snd_ice1712]
-Nov 12 09:15:22 moria kernel:  [<c013ead0>] sys_init_module+0x14f/0x233
-Nov 12 09:15:22 moria kernel:  [<c034769a>] sysenter_past_esp+0x43/0x65
+dd to and from the raw device works, as do mke2fs and e2fsck. I could
+also mount the disk read-write, write a 10MB file to it, and umount
+again without problems. Then I rebooted into 2.4 and verified that the
+filesystem is okay and the 10MB file made it to disk correctly.
+
+Lookin' good so far.
+
+Now, assuming there is a reason that the cdrom_read_capacity() function
+is only used as a fallback for normal ide-cd devices, my change might
+break non-MO devices. I also don't know what to do when read_capacity
+fails - setting capacity to 0 obviously breaks as we've seen before,
+so maybe setting it to the lowest possible MO size (128M) would be a
+good way to handle that situation.
+
+Jens, what do you think?
 
 -- 
-Torrey Hoffman <thoffman@arnor.net>
+Ciao,
+Pascal
 

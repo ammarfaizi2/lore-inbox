@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266806AbRHMTZ0>; Mon, 13 Aug 2001 15:25:26 -0400
+	id <S266977AbRHMTY1>; Mon, 13 Aug 2001 15:24:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266606AbRHMTZR>; Mon, 13 Aug 2001 15:25:17 -0400
-Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:57868 "EHLO nyc.rr.com")
-	by vger.kernel.org with ESMTP id <S266806AbRHMTZE>;
-	Mon, 13 Aug 2001 15:25:04 -0400
-Message-ID: <3B782705.2000100@nyc.rr.com>
-Date: Mon, 13 Aug 2001 15:14:13 -0400
-From: John Weber <weber@nyc.rr.com>
-Organization: My House
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
+	id <S266806AbRHMTYQ>; Mon, 13 Aug 2001 15:24:16 -0400
+Received: from xilofon.it.uc3m.es ([163.117.139.114]:6272 "EHLO
+	xilofon.it.uc3m.es") by vger.kernel.org with ESMTP
+	id <S266977AbRHMTYD>; Mon, 13 Aug 2001 15:24:03 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200108131924.VAA03520@xilofon.it.uc3m.es>
+Subject: Re: Is there something that can be done against this ???
+X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
+In-Reply-To: <3B7822E5.9AE35D4A@interplus.ro> "from Mircea Ciocan at Aug 13,
+ 2001 09:56:37 pm"
+To: Mircea Ciocan <mirceac@interplus.ro>
+Date: Mon, 13 Aug 2001 21:24:06 +0200 (CEST)
+CC: linux kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Are we going too fast?
-In-Reply-To: <fa.l9dq0tv.7gqnhh@ifi.uio.no> <fa.g70as7v.1722ipv@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"A month of sundays ago Mircea Ciocan wrote:"
+> P.S. Please tell me that I'm just being parnoid and that crap didn't
+> work on your systems with a lookalike configuration.
 
+It doesn't work. It just looks like it does to the viewer!
 
-Alan Cox wrote:
+The "exploit" is a loadable shared library that replaces the 
+getuid, geteuid, getgid and getegid functions with dummies that
+always return 0. So the code in bash that looks up the
+prompt and all thatgoes and  looks up roots .profile. The result is
+that you get what looks like a root prompt, and your calls to 
+id return 0 :-)
 
->>of them have suffered from one malady or another - from the dual PIII with
->>the VIA chipset and Matrox G400 card, which locks up nicely when I switch
->>
-> 
-> Welcome to wacky hardware. To get a G400 stable on x86 you need at least
-> 
-> XFree86 4.1 if you are running hardware 3D (and DRM 4.1)
-> 2.4.8 or higher with the VIA fixes
-> Preferably a very recent BIOS update for the VIA box
-> 
+But it can't really change uid. Try touching a file in / !
 
-
-I'm sorry, but what "VIA fixes" are we referring to?
-
-My hardware:
-- VIA  Apollo Pro 133A - VIA VT82C686A South, VIA VT82C693A North
-
-The only problem I have ever had with my system had to do with the 
-
-onboard sound (via82cxxx_audio driver specifically), and Mr. Jeff
-Garzik promptly issued a patch which corrected my problem.
-
-I'm currently running linux kernel 2.4.8 with no problems whatsoever.
-
+Peter

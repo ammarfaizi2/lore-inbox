@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272300AbTHIJWF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 05:22:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272305AbTHIJWF
+	id S272299AbTHIJVN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 05:21:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272300AbTHIJVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 05:22:05 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:51461 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S272300AbTHIJWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 05:22:02 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: cijoml@volny.cz, linux-kernel@vger.kernel.org
-Subject: Re: APM working on SMP machines?
-Date: Sat, 9 Aug 2003 11:21:31 +0200
-User-Agent: KMail/1.5.3
-References: <200308091105.27619.cijoml@volny.cz>
-In-Reply-To: <200308091105.27619.cijoml@volny.cz>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200308091120.42524.m.c.p@wolk-project.de>
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Sat, 9 Aug 2003 05:21:13 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:4100 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S272299AbTHIJVM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 05:21:12 -0400
+Subject: [PATCH 2.6.0-test3] compile fix for driver/block/paride/pd.c
+From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
+To: trivial@rustcorp.com.au
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 09 Aug 2003 15:09:54 +0530
+Message-Id: <1060421994.1276.6.camel@lima.royalchallenge.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 09 August 2003 11:05, Michal Semler wrote:
+This patch removes the extra argument to blk_init_queue which prevents
+the module from compiling.
 
-Hi Michal,
 
-> I would like to know when will work APM on SMP machines?
-> I use Dell  workstation 400 with 2 P2 CPUs.
-> When I remove one CPU APM works, when I have 2 in case APM
-> doesn't work
-> I can't use ACPI, because this machine doesn't support it.
-> apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16)
-> apm: disabled - APM is not SMP safe.
-> Thanks for fixing and reply - it's very uncomfortable
-> switch off computer manually :(
+--- linux-2.6.0-test3/drivers/block/paride/pd.c	2003-07-28 10:43:52.000000000 +0530
++++ linux-2.6.0-test3-nvk/drivers/block/paride/pd.c	2003-08-09 15:02:19.000000000 +0530
+@@ -893,7 +893,7 @@
+ 	if (register_blkdev(major, name))
+ 		return -1;
+ 
+-	blk_init_queue(&pd_queue, do_pd_request, &pd_lock);
++	blk_init_queue(do_pd_request, &pd_lock);
+ 	blk_queue_max_sectors(&pd_queue, cluster);
+ 
+ 	printk("%s: %s version %s, major %d, cluster %d, nice %d\n",
 
-root@codeman:[/] # modinfo -p apm
-......
-smp int, description "Set this to enable APM use on an SMP platform. Use with 
-caution on older systems"
-......
 
-Did you try this? (2.4.21 and above)
-
-ciao, Marc
 

@@ -1,81 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131975AbRBQWQB>; Sat, 17 Feb 2001 17:16:01 -0500
+	id <S132047AbRBQWjL>; Sat, 17 Feb 2001 17:39:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131984AbRBQWPw>; Sat, 17 Feb 2001 17:15:52 -0500
-Received: from web2104.mail.yahoo.com ([128.11.68.248]:4883 "HELO
-	web2104.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S131975AbRBQWPl>; Sat, 17 Feb 2001 17:15:41 -0500
-Message-ID: <20010217221540.23972.qmail@web2104.mail.yahoo.com>
-Date: Sat, 17 Feb 2001 14:15:40 -0800 (PST)
-From: Fireball Freddy <fireballfreddy@yahoo.com>
-Subject: Comparing buffer cache algorithms on 2.2.17.  Suggestions?
-To: linux-kernel@vger.kernel.org
+	id <S132059AbRBQWjB>; Sat, 17 Feb 2001 17:39:01 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:24845
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S132047AbRBQWip>; Sat, 17 Feb 2001 17:38:45 -0500
+Date: Sat, 17 Feb 2001 14:38:19 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Dennis <dennis@etinc.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux stifles innovation...
+In-Reply-To: <5.0.0.25.0.20010217150612.0390d950@mail.etinc.com>
+Message-ID: <Pine.LNX.4.10.10102171423120.31811-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howdy,
+On Sat, 17 Feb 2001, Dennis wrote:
 
-  Trying to implement some different buffer caching
-algorithms in Linux.  This is just for comparison
-purposes for a thesis, not suggesting any problem with
-the current scheme.  Here is what I'm attempting:
+> good commercial drivers dont need fixing. another point. You are arguing 
+> that having source is required to fix crappy code, which i agree with.
+> 
+> You "guys" like to have source, and there is nothing wrong with that. But 
+> requiring that all code be distributed as source DOES stifle innovation. 
+> Its as simple as that.
 
-  o Eliminate BUF_CLEAN, BUF_DIRTY, and BUF_LOCKED
-lists in favor of a single BUF_LRU list.  This because
-I don't see the point of maintaining three lists...
-the only time I need to find all the dirty blocks is
-on a sync of some sort.  I don't mind if the sync
-takes a while longer if the normal operating condition
-is faster.
+And when your customer gets screw because you refuse to update your binary
+driver because you do not know or have had the chance to follow any
+evolving API, you are going to blame us in OPEN source, right.
 
-  Once I have the cache working on a single list
-(assuming I can!) I plan on using an I/O generator to
-get some repeatable traces so I can compare the
-following:
+Meanwhile the API changes may have boosted the performance factor and you
+have screw yourself and customer base because you are to lame to see the
+value of open source.
 
-  o LRU vs SLRU with static region percentages vs SLRU
-with dynamic region percentages
-  o Periodic flushing of dirty blocks enabled vs
-disabled
-  o Write-through caching vs write-back caching vs
-adaptive (switching between wt and wb based on recent
-activity) vs my own method (write to disk on first
-write, only to buffer after that, write to disk again
-when block is flushed, if dirty)
-  o Of course, I'll also do a run with the default
-Linux 2.2.17 to see how it compares with the others
+Some time ago I proposed CLAPI, and you are one of the venders that would 
+benefit from such a beast.  This model would have required you to LGPL a
+kernel library that would have all the functional IP (that is not IP) that
+is to lame to be placed into the hardware.  If your hardware is so flakey
+that you have to pump/prime it for operations....well....you get the
+point.
 
-  It looks like the ext2 fs is going to complicate
-this somewhat, as it sets blocks dirty and/or writes
-them itself sometimes.  Not sure how I'm going to get
-around this... will probably ignore it for now.
+If I recall you and your company on one of the worst offenders of taking
+code (GPL or not) and changing it and putting it out as binaries.  I am
+surprized that you have not been taken down yet.  Then if someone asks for
+the return of the code base and changes because they can under the terms
+of the license that you removed from that code, you charge them a fee and
+suggest actionable terms if any disclosure into the public form from
+where it came.
 
-  I'd appreciate any advice on this undertaking. 
-Specifically, how many things (tools, etc) is this
-going to break, warnings about common pitfalls, and
-other suggestions.  I would like to have started this
-on 2.4, but I wanted to work on a release that had
-been out for a bit, so I'd know that any problems were
-caused by *me* and not just kernel bugs.  :)
+Regards,
 
-  Also, are there any specific people to whom I should
-direct memory management questions?  I've had some in
-the past few months but haven't been able to get
-answers.  Or should I post them to this list (I assume
-not).  Finally, I have noticed references to a
-kernelnewbies chat room.  I prefer newsgroups to
-chat... is there a good mailing list devoted to kernel
-newbies?
+Andre Hedrick
+Linux ATA Development
 
-  Thanks to everyone for your hard work, and apologies
-for adding one more e-mail to the pile.
-
-    Andy Cottrell
-
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail - only $35 
-a year!  http://personal.mail.yahoo.com/

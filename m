@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264704AbTE1MZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 08:25:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264706AbTE1MZ4
+	id S264707AbTE1Mk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 08:40:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264709AbTE1Mk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 08:25:56 -0400
-Received: from mailgate.rz.uni-karlsruhe.de ([129.13.64.97]:22290 "EHLO
-	mailgate.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
-	id S264704AbTE1MZz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 08:25:55 -0400
-Date: Wed, 28 May 2003 14:38:43 +0200
-From: Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: Andrew Morton <akpm@digeo.com>, axboe@suse.de, m.c.p@wolk-project.de,
-       kernel@kolivas.org, manish@storadinc.com, andrea@suse.de,
-       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+	Wed, 28 May 2003 08:40:26 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:59825 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264707AbTE1MkZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 08:40:25 -0400
+Date: Wed, 28 May 2003 14:53:12 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: Andrew Morton <akpm@digeo.com>, kernel@kolivas.org,
+       matthias.mueller@rz.uni-karlsruhe.de, manish@storadinc.com,
+       andrea@suse.de, marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
 Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Message-ID: <20030528123843.GA714@rz.uni-karlsruhe.de>
-Mail-Followup-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-	Andrew Morton <akpm@digeo.com>, axboe@suse.de,
-	m.c.p@wolk-project.de, kernel@kolivas.org, manish@storadinc.com,
-	andrea@suse.de, marcelo@conectiva.com.br,
-	linux-kernel@vger.kernel.org
-References: <200305280930.48810.m.c.p@wolk-project.de> <20030528073544.GR845@suse.de> <20030528005156.1fda5710.akpm@digeo.com> <20030528101348.GA804@rz.uni-karlsruhe.de> <20030528032315.679e77b0.akpm@digeo.com> <20030528121040.GA1193@rz.uni-karlsruhe.de> <20030528121446.GB1193@rz.uni-karlsruhe.de> <3ED4A9B4.1050907@gmx.net> <20030528122308.GC1193@rz.uni-karlsruhe.de> <3ED4AB5A.3010408@gmx.net>
+Message-ID: <20030528125312.GV845@suse.de>
+References: <3ED2DE86.2070406@storadinc.com> <200305281305.44073.m.c.p@wolk-project.de> <20030528042700.47372139.akpm@digeo.com> <200305281331.26959.m.c.p@wolk-project.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3ED4AB5A.3010408@gmx.net>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200305281331.26959.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28, 2003 at 02:28:10PM +0200, Carl-Daniel Hailfinger wrote:
-> Matthias Mueller wrote:
-> > On Wed, May 28, 2003 at 02:21:08PM +0200, Carl-Daniel Hailfinger wrote:
-> > 
-> >>Matthias Mueller wrote:
-> >>
-> >>>On Wed, May 28, 2003 at 02:10:40PM +0200, Matthias Mueller wrote:
-> >>>
-> >>>
-> >>>>Tested all of them and some combinations:
-> >>>>patch 1 alone:    hangs, no zombies
-> >>>>patch 2 alone:    hangs, no zombies
-> >>>>patch 3 alone: no hangs,    zombies
-> >>>>patch 1+2:     no hangs, no zombies
-> >>>>patch 1+2+3:   no hangs, no zombies
+On Wed, May 28 2003, Marc-Christian Petersen wrote:
+> On Wednesday 28 May 2003 13:27, Andrew Morton wrote:
 > 
-> Right?
-Yes.
+> Hi Akpm,
+> 
+> > > Does the attached one make sense?
+> > Nope.
+> nm.
+> 
+> > Guys, you're the ones who can reproduce this.  Please spend more time
+> > working out which chunk (or combination thereof) actually fixes the
+> > problem.  If indeed any of them do.
+> As I said, I will test it this evening. ATM I don't have time to
+> recompile and reboot. This evening I will test extensively, even on
+> SMP, SCSI, IDE and so on.
+
+May I ask how you are reproducing the bad results? I'm trying in vain
+here...
+
+-- 
+Jens Axboe
+

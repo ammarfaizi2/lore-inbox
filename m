@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267891AbUIPKuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267818AbUIPK5K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267891AbUIPKuF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 06:50:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267901AbUIPKtU
+	id S267818AbUIPK5K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 06:57:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267901AbUIPK5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 06:49:20 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:11234 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267851AbUIPKtD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 06:49:03 -0400
-Subject: Re: journal aborted, system read-only
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: gene.heskett@verizon.net
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <200409160103.35665.gene.heskett@verizon.net>
-References: <200409121128.39947.gene.heskett@verizon.net>
-	 <1095088378.2765.18.camel@sisko.scot.redhat.com>
-	 <200409160103.35665.gene.heskett@verizon.net>
+	Thu, 16 Sep 2004 06:57:10 -0400
+Received: from 147.32.220.203.comindico.com.au ([203.220.32.147]:17111 "EHLO
+	relay01.mail-hub.kbs.net.au") by vger.kernel.org with ESMTP
+	id S267818AbUIPK5G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 06:57:06 -0400
+Subject: [PATCH] Suspend2 Merge: Driver model patches 0/2
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Andrew Morton <akpm@digeo.com>, Patrick Mochel <mochel@digitalimplant.org>,
+       Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1095331734.1958.3.camel@sisko.scot.redhat.com>
+Message-Id: <1095332314.3855.157.camel@laptop.cunninghams>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 16 Sep 2004 11:48:55 +0100
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 16 Sep 2004 20:58:35 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi.
 
-On Thu, 2004-09-16 at 06:03, Gene Heskett wrote:
+Here are two patches for the driver model, which have been in use in
+suspend2 for around a month.
 
-> >Well, we really need to see _what_ error the journal had encountered
-...
-> It just did it to me again, this time with 2.6.9-rc1-mm5.
+The first provides support for keeping part of the device tree alive
+while suspending the remainder. This is accomplished by abstracting the
+dpm_active, dpm_off and dpm_irq lists into a new struct partial device
+tree, and providing functions to create new device trees and move
+devices and their parents between trees. The current API for suspending
+and resuming devices is completely unchanged by this patch. New
+functions provide the extra functionality and existing functions are
+wrappers that work on the default tree. Suspend2 uses this to keep the
+storage device and graphics driver alive while putting other devices to
+sleep at the start of saving the image.
 
-> And as usual in these cases, the logs are spotlessly clean 
-> because /var is on /, which is on /dev/hda7, an syslog couldn't write 
-> when its read-only.
+The second patch adds a helper for finding a device_class given it's
+name. This is used to locate the frame buffer drivers and (in
+combination with the above patch) keep them alive while suspending other
+drivers.
 
-Possibility the first is to create a separate partition for /var;
-possibility the second is to set up a serial console.  Without access to
-that log information, all we know is "there was an IO error," and that's
-really not enough to narrow down the search. :-)
+Regards,
 
-Thanks,
- Stephen
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
 

@@ -1,69 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131733AbRDMUTf>; Fri, 13 Apr 2001 16:19:35 -0400
+	id <S131756AbRDMUqY>; Fri, 13 Apr 2001 16:46:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131691AbRDMUT0>; Fri, 13 Apr 2001 16:19:26 -0400
-Received: from dystopia.lab43.org ([209.217.122.210]:16078 "EHLO
-	dystopia.lab43.org") by vger.kernel.org with ESMTP
-	id <S131733AbRDMUTP>; Fri, 13 Apr 2001 16:19:15 -0400
-Date: Fri, 13 Apr 2001 16:16:58 -0400 (EDT)
-From: Rod Stewart <stewart@dystopia.lab43.org>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: 8139too: defunct threads
-In-Reply-To: <3AD61258.4E8567D8@uow.edu.au>
-Message-ID: <Pine.LNX.4.33.0104131611400.8043-100000@dystopia.lab43.org>
+	id <S131806AbRDMUqO>; Fri, 13 Apr 2001 16:46:14 -0400
+Received: from web4306.mail.yahoo.com ([216.115.104.198]:49668 "HELO
+	web4306.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S131756AbRDMUp6>; Fri, 13 Apr 2001 16:45:58 -0400
+Message-ID: <20010413204557.21595.qmail@web4306.mail.yahoo.com>
+Date: Fri, 13 Apr 2001 13:45:57 -0700 (PDT)
+From: Jerry Hong <jhong001@yahoo.com>
+Subject: thread problem with libc for Linux
+To: gcc@gcc.gnu.org
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, 
+  I am using RedHat 6.2, gcc 2.95.2(libc.so.6).
+  I have a problem runing threads on Linux. I build
+the application with the following line:
+  g++  -D_REENTRANT -D_UNIX -DXML_LINUX -o tapp \
+     testt.c unixfileio.cpp -lpthread
+    
+  The program is creating a certain number of threads,
+then wait for all threads it creates to finish. 
+  When I create less than 40 threads, everything works
+fine. However when I creates more than 40 threads, I
+got "Segmentation fault".  It doesn't complain any
+thing in my program at all.  I am sure all the threads
+the main thread created are finished and they all have
+done their job,  the problem here is caused by main
+thread exiting.  I really don't know what can cause
+such problem.  The following is the backtrace info
+when I created 41 threads.
 
-On Thu, 12 Apr 2001, Andrew Morton wrote:
-> Rod Stewart wrote:
-> >
-> > On Thu, 12 Apr 2001, Andrew Morton wrote:
-> > > Rod Stewart wrote:
-> > > >
-> > > > Hello,
-> > > >
-> > > > Using the 8139too driver, 0.9.15c, we have noticed that we get a defunct
-> > > > thread for each device we have; if the driver is built into the kernel.
-> > > > If the driver is built as a module, no defunct threads appear.
-> > >
-> > > What is the parent PID for the defunct tasks?  zero?
-> >
-> > According to ps, 1
->
-> Ah.  Of course.  All (or most) kernel initialisation is
-> done by PID 1.  Search for "kernel_thread" in init/main.c
->
-> So it seems that in your setup, process 1 is not reaping
-> children, which is why this hasn't been reported before.
-> Is there something unusual about your setup?
+  Jack
 
-I found the difference which causes this.  If I build my kernel with
-IP_PNP (IP: kernel level autoconfiguration) support I get a defunt thread
-for each 8139too device.  If I don't build with IP_PNP support I don't get
-any, defunct ethernet threads.
+     
+(gdb) set arg 1 41
+(gdb) r
+Starting program: /home/liug/aaa/tapp 1 41
+rtfint.cpp: rtf_config_env =
+/home/liug/aaa/RtfConfig.xml
+[New Thread 1313 (manager thread)]
+[New Thread 1311 (initial thread)]
+....
+Program received signal SIGSEGV, Segmentation fault.
+0x401ca0d6 in chunk_free (ar_ptr=0x4025ed60,
+p=0x80a1ba8) at malloc.c:3097
+3097    malloc.c: No such file or directory.
+(gdb) 
+(gdb) bt
+#0  0x401ca0d6 in chunk_free (ar_ptr=0x4025ed60,
+p=0x80a1ba8) at malloc.c:3097
+#1  0x401c9fba in __libc_free (mem=0x80a1c88) at
+malloc.c:3023
+#2  0x402506e1 in __deregister_frame_info
+(begin=0x806f008) at ../../gcc/frame.c:581
+#3  0x804c873 in __do_global_dtors_aux ()
+#4  0x806c3c9 in _fini ()
+#5  0x4019125a in exit (status=0) at exit.c:57
+#6  0x401889d1 in __libc_start_main () at
+../sysdeps/generic/libc-start.c:92
 
-This make any sense?  Here is the relevant diff from a working config to a
-bad one:
-[root@stewart-nw34 conf]# diff -u config-p5-good config-p6-bad
---- config-p5-good      Fri Apr 13 16:07:10 2001
-+++ config-p6-bad       Fri Apr 13 16:12:21 2001
-@@ -173,7 +173,9 @@
-# CONFIG_IP_ROUTE_TOS is not set
-# CONFIG_IP_ROUTE_VERBOSE is not set
-# CONFIG_IP_ROUTE_LARGE_TABLES is not set
--# CONFIG_IP_PNP is not set
-+CONFIG_IP_PNP=y
-+# CONFIG_IP_PNP_BOOTP is not set
-+# CONFIG_IP_PNP_RARP is not set
-CONFIG_NET_IPIP=m
-CONFIG_NET_IPGRE=m
-# CONFIG_NET_IPGRE_BROADCAST is not set
 
-Thanks,
--Rms
 
+__________________________________________________
+Do You Yahoo!?
+Get email at your own domain with Yahoo! Mail. 
+http://personal.mail.yahoo.com/

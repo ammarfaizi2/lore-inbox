@@ -1,725 +1,154 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261327AbTCYBmC>; Mon, 24 Mar 2003 20:42:02 -0500
+	id <S261366AbTCYBqX>; Mon, 24 Mar 2003 20:46:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261326AbTCYB3L>; Mon, 24 Mar 2003 20:29:11 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:14096 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261327AbTCYB2D>;
-	Mon, 24 Mar 2003 20:28:03 -0500
-Subject: Re: [PATCH] i2c driver changes for 2.5.66
-In-reply-to: <10485563181803@kroah.com>
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-From: Greg KH <greg@kroah.com>
-Content-Type: text/plain; charset=US-ASCII
-Mime-version: 1.0
-Date: Mon, 24 Mar 2003 17:38 -0800
-Message-id: <10485563181090@kroah.com>
-X-mailer: gregkh_patchbomb
+	id <S261364AbTCYBox>; Mon, 24 Mar 2003 20:44:53 -0500
+Received: from dial-74.041net.co.yu ([213.240.29.74]:2176 "EHLO azdaha.local")
+	by vger.kernel.org with ESMTP id <S261366AbTCYBoW>;
+	Mon, 24 Mar 2003 20:44:22 -0500
+From: Toplica Tanaskovic <toptan@EUnet.yu>
+To: linux-kernel@vger.kernel.org
+Subject: [REPRODUCABLE BUGS] Linux 2.5.66
+Date: Tue, 25 Mar 2003 02:55:10 +0100
+User-Agent: KMail/1.5.9
+References: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_+b7f+4M6eKBMyOG"
+Message-Id: <200303250255.10510.toptan@EUnet.yu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.889.357.2, 2003/03/21 12:45:28-08:00, greg@kroah.com
 
-i2c: remove i2c_adapter->name and use dev->name instead.
+--Boundary-00=_+b7f+4M6eKBMyOG
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+	I've encountered two reproducable bugs, and one feature which can and can =
+not=20
+be called bug:
+
+1. Radeon frame buffer driver doesn't support mode change in kernel boot=20
+params. In 2.6.65 it is OK.
+
+	append line from lilo.conf
+
+    append =3D " hdd=3Dide-scsi video=3Dradeon:1024x768-24@100"
+
+	No mether what is in video=3Dradeon:..., resolution is always set to 80x30=
+ with=20
+60Hz refresh.
+
+2. Radeon frame buffer mode switching gives unexpected results. When switch=
+ing=20
+from lower res to higher, switching is ok but you still have old chararcter=
+=20
+res. eg. 80x30. The text is located in upper left corner, and the right sid=
+e=20
+off the text area is filled with garbage. Bellow text area there is nothing.
+=09
+3. Cursor disapears when moving with cursor keys. This is very annoying whe=
+n=20
+you are editing text for example.
+
+	My config is attached, gcc version is 2.95.3, modutils 2.4.21.
+=2D-=20
+Regards,
+Tanaskovi=C4=87 Toplica
 
 
- drivers/i2c/busses/i2c-ali15x3.c |    8 ++--
- drivers/i2c/busses/i2c-amd756.c  |    6 ++-
- drivers/i2c/busses/i2c-amd8111.c |    4 +-
- drivers/i2c/busses/i2c-i801.c    |    8 ++--
- drivers/i2c/busses/i2c-isa.c     |    4 +-
- drivers/i2c/busses/i2c-piix4.c   |    8 ++--
- drivers/i2c/i2c-algo-bit.c       |   13 +++---
- drivers/i2c/i2c-algo-pcf.c       |   19 ++++------
- drivers/i2c/i2c-core.c           |   73 ++++++++++++++++-----------------------
- drivers/i2c/i2c-dev.c            |   17 +++------
- drivers/i2c/i2c-elektor.c        |   10 +++--
- drivers/i2c/i2c-elv.c            |    4 +-
- drivers/i2c/i2c-philips-par.c    |    4 +-
- drivers/i2c/i2c-velleman.c       |    4 +-
- drivers/i2c/scx200_acb.c         |   28 ++++++--------
- include/linux/i2c.h              |    1 
- 16 files changed, 105 insertions(+), 106 deletions(-)
 
+--Boundary-00=_+b7f+4M6eKBMyOG
+Content-Type: application/x-gzip;
+  name="config.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="config.gz"
 
-diff -Nru a/drivers/i2c/busses/i2c-ali15x3.c b/drivers/i2c/busses/i2c-ali15x3.c
---- a/drivers/i2c/busses/i2c-ali15x3.c	Mon Mar 24 17:28:41 2003
-+++ b/drivers/i2c/busses/i2c-ali15x3.c	Mon Mar 24 17:28:41 2003
-@@ -474,9 +474,11 @@
- 
- static struct i2c_adapter ali15x3_adapter = {
- 	.owner		= THIS_MODULE,
--	.name		= "unset",
- 	.id		= I2C_ALGO_SMBUS | I2C_HW_SMBUS_ALI15X3,
- 	.algo		= &smbus_algorithm,
-+	.dev		= {
-+		.name	= "unset",
-+	},
- };
- 
- static struct pci_device_id ali15x3_ids[] __devinitdata = {
-@@ -500,8 +502,8 @@
- 	/* set up the driverfs linkage to our parent device */
- 	ali15x3_adapter.dev.parent = &dev->dev;
- 
--	sprintf(ali15x3_adapter.name, "SMBus ALI15X3 adapter at %04x",
--		ali15x3_smba);
-+	snprintf(ali15x3_adapter.dev.name, DEVICE_NAME_SIZE,
-+		"SMBus ALI15X3 adapter at %04x", ali15x3_smba);
- 	return i2c_add_adapter(&ali15x3_adapter);
- }
- 
-diff -Nru a/drivers/i2c/busses/i2c-amd756.c b/drivers/i2c/busses/i2c-amd756.c
---- a/drivers/i2c/busses/i2c-amd756.c	Mon Mar 24 17:28:41 2003
-+++ b/drivers/i2c/busses/i2c-amd756.c	Mon Mar 24 17:28:41 2003
-@@ -312,9 +312,11 @@
- 
- static struct i2c_adapter amd756_adapter = {
- 	.owner		= THIS_MODULE,
--	.name		= "unset",
- 	.id		= I2C_ALGO_SMBUS | I2C_HW_SMBUS_AMD756,
- 	.algo		= &smbus_algorithm,
-+	.dev		= {
-+		.name	= "unset",
-+	},
- };
- 
- enum chiptype { AMD756, AMD766, AMD768, NFORCE };
-@@ -376,7 +378,7 @@
- 	/* set up the driverfs linkage to our parent device */
- 	amd756_adapter.dev.parent = &pdev->dev;
- 
--	sprintf(amd756_adapter.name,
-+	snprintf(amd756_adapter.dev.name, DEVICE_NAME_SIZE,
- 		"SMBus AMD75x adapter at %04x", amd756_ioport);
- 
- 	error = i2c_add_adapter(&amd756_adapter);
-diff -Nru a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
---- a/drivers/i2c/busses/i2c-amd8111.c	Mon Mar 24 17:28:41 2003
-+++ b/drivers/i2c/busses/i2c-amd8111.c	Mon Mar 24 17:28:41 2003
-@@ -357,8 +357,8 @@
- 		goto out_kfree;
- 
- 	smbus->adapter.owner = THIS_MODULE;
--	sprintf(smbus->adapter.name,
--			"SMBus2 AMD8111 adapter at %04x", smbus->base);
-+	snprintf(smbus->adapter.dev.name, DEVICE_NAME_SIZE,
-+		"SMBus2 AMD8111 adapter at %04x", smbus->base);
- 	smbus->adapter.id = I2C_ALGO_SMBUS | I2C_HW_SMBUS_AMD8111;
- 	smbus->adapter.algo = &smbus_algorithm;
- 	smbus->adapter.algo_data = smbus;
-diff -Nru a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
---- a/drivers/i2c/busses/i2c-i801.c	Mon Mar 24 17:28:41 2003
-+++ b/drivers/i2c/busses/i2c-i801.c	Mon Mar 24 17:28:41 2003
-@@ -546,9 +546,11 @@
- 
- static struct i2c_adapter i801_adapter = {
- 	.owner		= THIS_MODULE,
--	.name		= "unset",
- 	.id		= I2C_ALGO_SMBUS | I2C_HW_SMBUS_I801,
- 	.algo		= &smbus_algorithm,
-+	.dev		= {
-+		.name	= "unset",
-+	},
- };
- 
- static struct pci_device_id i801_ids[] __devinitdata = {
-@@ -597,8 +599,8 @@
- 	/* set up the driverfs linkage to our parent device */
- 	i801_adapter.dev.parent = &dev->dev;
- 
--	sprintf(i801_adapter.name, "SMBus I801 adapter at %04x",
--		i801_smba);
-+	snprintf(i801_adapter.dev.name, DEVICE_NAME_SIZE,
-+		"SMBus I801 adapter at %04x", i801_smba);
- 	return i2c_add_adapter(&i801_adapter);
- }
- 
-diff -Nru a/drivers/i2c/busses/i2c-isa.c b/drivers/i2c/busses/i2c-isa.c
---- a/drivers/i2c/busses/i2c-isa.c	Mon Mar 24 17:28:41 2003
-+++ b/drivers/i2c/busses/i2c-isa.c	Mon Mar 24 17:28:41 2003
-@@ -39,9 +39,11 @@
- /* There can only be one... */
- static struct i2c_adapter isa_adapter = {
- 	.owner		= THIS_MODULE,
--	.name		= "ISA main adapter",
- 	.id		= I2C_ALGO_ISA | I2C_HW_ISA,
- 	.algo		= &isa_algorithm,
-+	.dev		= {
-+		.name	= "ISA main adapter",
-+	},
- };
- 
- static int __init i2c_isa_init(void)
-diff -Nru a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
---- a/drivers/i2c/busses/i2c-piix4.c	Mon Mar 24 17:28:41 2003
-+++ b/drivers/i2c/busses/i2c-piix4.c	Mon Mar 24 17:28:41 2003
-@@ -394,9 +394,11 @@
- 
- static struct i2c_adapter piix4_adapter = {
- 	.owner		= THIS_MODULE,
--	.name		= "unset",
- 	.id		= I2C_ALGO_SMBUS | I2C_HW_SMBUS_PIIX4,
- 	.algo		= &smbus_algorithm,
-+	.dev		= {
-+		.name	= "unset",
-+	},
- };
- 
- static struct pci_device_id piix4_ids[] __devinitdata = {
-@@ -449,8 +451,8 @@
- 	/* set up the driverfs linkage to our parent device */
- 	piix4_adapter.dev.parent = &dev->dev;
- 
--	sprintf(piix4_adapter.name, "SMBus PIIX4 adapter at %04x",
--		piix4_smba);
-+	snprintf(piix4_adapter.dev.name, DEVICE_NAME_SIZE,
-+		"SMBus PIIX4 adapter at %04x", piix4_smba);
- 
- 	retval = i2c_add_adapter(&piix4_adapter);
- 
-diff -Nru a/drivers/i2c/i2c-algo-bit.c b/drivers/i2c/i2c-algo-bit.c
---- a/drivers/i2c/i2c-algo-bit.c	Mon Mar 24 17:28:41 2003
-+++ b/drivers/i2c/i2c-algo-bit.c	Mon Mar 24 17:28:41 2003
-@@ -23,6 +23,8 @@
- 
- /* $Id: i2c-algo-bit.c,v 1.44 2003/01/21 08:08:16 kmalkki Exp $ */
- 
-+/* #define DEBUG 1 */
-+
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/delay.h>
-@@ -338,16 +340,14 @@
- 
- 	while (count > 0) {
- 		c = *temp;
--		DEB2(printk(KERN_DEBUG "i2c-algo-bit.o: %s sendbytes: writing %2.2X\n",
--			    i2c_adap->name, c&0xff));
-+		DEB2(dev_dbg(&i2c_adap->dev, "sendbytes: writing %2.2X\n", c&0xff));
- 		retval = i2c_outb(i2c_adap,c);
- 		if ((retval>0) || (nak_ok && (retval==0)))  { /* ok or ignored NAK */
- 			count--; 
- 			temp++;
- 			wrcount++;
- 		} else { /* arbitration or no acknowledge */
--			printk(KERN_ERR "i2c-algo-bit.o: %s sendbytes: error - bailout.\n",
--			       i2c_adap->name);
-+			dev_err(&i2c_adap->dev, "sendbytes: error - bailout.\n");
- 			i2c_stop(adap);
- 			return (retval<0)? retval : -EFAULT;
- 			        /* got a better one ?? */
-@@ -527,13 +527,12 @@
- 	struct i2c_algo_bit_data *bit_adap = adap->algo_data;
- 
- 	if (bit_test) {
--		int ret = test_bus(bit_adap, adap->name);
-+		int ret = test_bus(bit_adap, adap->dev.name);
- 		if (ret<0)
- 			return -ENODEV;
- 	}
- 
--	DEB2(printk(KERN_DEBUG "i2c-algo-bit.o: hw routines for %s registered.\n",
--	            adap->name));
-+	DEB2(dev_dbg(&adap->dev, "hw routines registered.\n"));
- 
- 	/* register new adapter to i2c module... */
- 
-diff -Nru a/drivers/i2c/i2c-algo-pcf.c b/drivers/i2c/i2c-algo-pcf.c
---- a/drivers/i2c/i2c-algo-pcf.c	Mon Mar 24 17:28:41 2003
-+++ b/drivers/i2c/i2c-algo-pcf.c	Mon Mar 24 17:28:41 2003
-@@ -27,6 +27,8 @@
-    messages, proper stop/repstart signaling during receive,
-    added detect code */
- 
-+/* #define DEBUG 1 */		/* to pick up dev_dbg calls */
-+
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/delay.h>
-@@ -222,21 +224,19 @@
- 	int wrcount, status, timeout;
-     
- 	for (wrcount=0; wrcount<count; ++wrcount) {
--		DEB2(printk(KERN_DEBUG "i2c-algo-pcf.o: %s i2c_write: writing %2.2X\n",
--		      i2c_adap->name, buf[wrcount]&0xff));
-+		DEB2(dev_dbg(&i2c_adap->dev, "i2c_write: writing %2.2X\n",
-+				buf[wrcount]&0xff));
- 		i2c_outb(adap, buf[wrcount]);
- 		timeout = wait_for_pin(adap, &status);
- 		if (timeout) {
- 			i2c_stop(adap);
--			printk(KERN_ERR "i2c-algo-pcf.o: %s i2c_write: "
--			       "error - timeout.\n", i2c_adap->name);
-+			dev_err(&i2c_adap->dev, "i2c_write: error - timeout.\n");
- 			return -EREMOTEIO; /* got a better one ?? */
- 		}
- #ifndef STUB_I2C
- 		if (status & I2C_PCF_LRB) {
- 			i2c_stop(adap);
--			printk(KERN_ERR "i2c-algo-pcf.o: %s i2c_write: "
--			       "error - no ack.\n", i2c_adap->name);
-+			dev_err(&i2c_adap->dev, "i2c_write: error - no ack.\n");
- 			return -EREMOTEIO; /* got a better one ?? */
- 		}
- #endif
-@@ -263,14 +263,14 @@
- 
- 		if (wait_for_pin(adap, &status)) {
- 			i2c_stop(adap);
--			printk(KERN_ERR "i2c-algo-pcf.o: pcf_readbytes timed out.\n");
-+			dev_err(&i2c_adap->dev, "pcf_readbytes timed out.\n");
- 			return (-1);
- 		}
- 
- #ifndef STUB_I2C
- 		if ((status & I2C_PCF_LRB) && (i != count)) {
- 			i2c_stop(adap);
--			printk(KERN_ERR "i2c-algo-pcf.o: i2c_read: i2c_inb, No ack.\n");
-+			dev_err(&i2c_adap->dev, "i2c_read: i2c_inb, No ack.\n");
- 			return (-1);
- 		}
- #endif
-@@ -445,8 +445,7 @@
- 	struct i2c_algo_pcf_data *pcf_adap = adap->algo_data;
- 	int rval;
- 
--	DEB2(printk(KERN_DEBUG "i2c-algo-pcf.o: hw routines for %s registered.\n",
--	            adap->name));
-+	DEB2(dev_dbg(&adap->dev, "hw routines registered.\n"));
- 
- 	/* register new adapter to i2c module... */
- 
-diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
---- a/drivers/i2c/i2c-core.c	Mon Mar 24 17:28:41 2003
-+++ b/drivers/i2c/i2c-core.c	Mon Mar 24 17:28:41 2003
-@@ -23,6 +23,8 @@
- 
- /* $Id: i2c-core.c,v 1.95 2003/01/22 05:25:08 kmalkki Exp $ */
- 
-+/* #define DEBUG 1 */		/* needed to pick up the dev_dbg() calls */
-+
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/errno.h>
-@@ -82,9 +84,8 @@
- 		if (NULL == adapters[i])
- 			break;
- 	if (I2C_ADAP_MAX == i) {
--		printk(KERN_WARNING 
--		       " i2c-core.o: register_adapter(%s) - enlarge I2C_ADAP_MAX.\n",
--			adap->name);
-+		dev_warn(&adap->dev,
-+			"register_adapter - enlarge I2C_ADAP_MAX.\n");
- 		res = -ENOMEM;
- 		goto out_unlock;
- 	}
-@@ -105,7 +106,6 @@
- 	if (adap->dev.parent == NULL)
- 		adap->dev.parent = &legacy_bus;
- 	sprintf(adap->dev.bus_id, "i2c-%d", i);
--	strcpy(adap->dev.name, "i2c controller");
- 	device_register(&adap->dev);
- 
- 	/* inform drivers of new adapters */
-@@ -116,8 +116,7 @@
- 			drivers[j]->attach_adapter(adap);
- 	up(&core_lists);
- 	
--	DEB(printk(KERN_DEBUG "i2c-core.o: adapter %s registered as adapter %d.\n",
--	           adap->name,i));
-+	DEB(dev_dbg(&adap->dev, "registered as adapter %d.\n", i));
- 
-  out_unlock:
- 	up(&core_lists);
-@@ -134,8 +133,7 @@
- 		if (adap == adapters[i])
- 			break;
- 	if (I2C_ADAP_MAX == i) {
--		printk( KERN_WARNING "i2c-core.o: unregister_adapter adap [%s] not found.\n",
--			adap->name);
-+		dev_warn(&adap->dev, "unregister_adapter adap not found.\n");
- 		res = -ENODEV;
- 		goto out_unlock;
- 	}
-@@ -148,9 +146,9 @@
- 	for (j = 0; j < I2C_DRIVER_MAX; j++) 
- 		if (drivers[j] && (drivers[j]->flags & I2C_DF_DUMMY))
- 			if ((res = drivers[j]->attach_adapter(adap))) {
--				printk(KERN_WARNING "i2c-core.o: can't detach adapter %s "
-+				dev_warn(&adap->dev, "can't detach adapter"
- 				       "while detaching driver %s: driver not "
--				       "detached!",adap->name,drivers[j]->name);
-+				       "detached!", drivers[j]->name);
- 				goto out_unlock;
- 			}
- 
-@@ -164,10 +162,10 @@
- 		     * must be deleted, as this would cause invalid states.
- 		     */
- 			if ((res=client->driver->detach_client(client))) {
--				printk(KERN_ERR "i2c-core.o: adapter %s not "
-+				dev_err(&adap->dev, "adapter not "
- 					"unregistered, because client at "
- 					"address %02x can't be detached. ",
--					adap->name, client->addr);
-+					client->addr);
- 				goto out_unlock;
- 			}
- 		}
-@@ -180,7 +178,7 @@
- 
- 	adapters[i] = NULL;
- 
--	DEB(printk(KERN_DEBUG "i2c-core.o: adapter unregistered: %s\n",adap->name));
-+	DEB(dev_dbg(&adap->dev, "adapter unregistered\n"));
- 
-  out_unlock:
- 	up(&core_lists);
-@@ -272,8 +270,7 @@
- 		struct i2c_adapter *adap = adapters[k];
- 		if (adap == NULL) /* skip empty entries. */
- 			continue;
--		DEB2(printk(KERN_DEBUG "i2c-core.o: examining adapter %s:\n",
--			    adap->name));
-+		DEB2(dev_dbg(&adap->dev, "examining adapter\n"));
- 		if (driver->flags & I2C_DF_DUMMY) {
- 		/* DUMMY drivers do not register their clients, so we have to
- 		 * use a trick here: we call driver->attach_adapter to
-@@ -281,11 +278,10 @@
- 		 * this or hell will break loose...  
- 		 */
- 			if ((res = driver->attach_adapter(adap))) {
--				printk(KERN_WARNING "i2c-core.o: while unregistering "
--				       "dummy driver %s, adapter %s could "
-+				dev_warn(&adap->dev, "while unregistering "
-+				       "dummy driver %s, adapter could "
- 				       "not be detached properly; driver "
--				       "not unloaded!",driver->name,
--				       adap->name);
-+				       "not unloaded!",driver->name);
- 				goto out_unlock;
- 			}
- 		} else {
-@@ -296,19 +292,16 @@
- 					DEB2(printk(KERN_DEBUG "i2c-core.o: "
- 						    "detaching client %s:\n",
- 					            client->name));
--					if ((res = driver->
--							detach_client(client)))
--					{
--						printk(KERN_ERR "i2c-core.o: while "
-+					if ((res = driver->detach_client(client))) {
-+ 						dev_err(&adap->dev, "while "
- 						       "unregistering driver "
- 						       "`%s', the client at "
- 						       "address %02x of "
--						       "adapter `%s' could not "
-+						       "adapter could not "
- 						       "be detached; driver "
- 						       "not unloaded!",
- 						       driver->name,
--						       client->addr,
--						       adap->name);
-+						       client->addr);
- 						goto out_unlock;
- 					}
- 				}
-@@ -374,16 +367,14 @@
- 	
- 	if (adapter->client_register)  {
- 		if (adapter->client_register(client))  {
--			printk(KERN_DEBUG
--			       "i2c-core.o: warning: client_register seems "
--			       "to have failed for client %02x at adapter %s\n",
--			       client->addr, adapter->name);
-+			dev_warn(&adapter->dev, "warning: client_register "
-+				"seems to have failed for client %02x\n",
-+				client->addr);
- 		}
- 	}
- 
--	DEB(printk(KERN_DEBUG
--		   "i2c-core.o: client [%s] registered to adapter [%s] "
--		   "(pos. %d).\n", client->name, adapter->name, i));
-+	DEB(dev_dbg(&adapter->dev, "client [%s] registered to adapter "
-+			"(pos. %d).\n", client->name, i));
- 
- 	if (client->flags & I2C_CLIENT_ALLOW_USE)
- 		client->usage_count = 0;
-@@ -579,7 +570,7 @@
- 			seq_printf(s, "dummy     ");
- 
- 		seq_printf(s, "\t%-32s\t%-32s\n",
--			      adapter->name, adapter->algo->name);
-+			      adapter->dev.name, adapter->algo->name);
- 	}
- 	up(&core_lists);
- 
-@@ -688,8 +679,7 @@
- 	int ret;
- 
- 	if (adap->algo->master_xfer) {
-- 	 	DEB2(printk(KERN_DEBUG "i2c-core.o: master_xfer: %s with %d msgs.\n",
--		            adap->name,num));
-+ 	 	DEB2(dev_dbg(&adap->dev, "master_xfer: with %d msgs.\n", num));
- 
- 		down(&adap->bus);
- 		ret = adap->algo->master_xfer(adap,msgs,num);
-@@ -697,8 +687,7 @@
- 
- 		return ret;
- 	} else {
--		printk(KERN_ERR "i2c-core.o: I2C adapter %04x: I2C level transfers not supported\n",
--		       adap->id);
-+		dev_err(&adap->dev, "I2C level transfers not supported\n");
- 		return -ENOSYS;
- 	}
- }
-@@ -715,8 +704,8 @@
- 		msg.len = count;
- 		(const char *)msg.buf = buf;
- 	
--		DEB2(printk(KERN_DEBUG "i2c-core.o: master_send: writing %d bytes on %s.\n",
--			count,client->adapter->name));
-+		DEB2(dev_dbg(&client->adapter->dev, "master_send: writing %d bytes.\n",
-+				count));
- 	
- 		down(&adap->bus);
- 		ret = adap->algo->master_xfer(adap,&msg,1);
-@@ -745,8 +734,8 @@
- 		msg.len = count;
- 		msg.buf = buf;
- 
--		DEB2(printk(KERN_DEBUG "i2c-core.o: master_recv: reading %d bytes on %s.\n",
--			count,client->adapter->name));
-+		DEB2(dev_dbg(&client->adapter->dev, "master_recv: reading %d bytes.\n",
-+				count));
- 	
- 		down(&adap->bus);
- 		ret = adap->algo->master_xfer(adap,&msg,1);
-diff -Nru a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
---- a/drivers/i2c/i2c-dev.c	Mon Mar 24 17:28:41 2003
-+++ b/drivers/i2c/i2c-dev.c	Mon Mar 24 17:28:41 2003
-@@ -30,6 +30,9 @@
- 
- /* $Id: i2c-dev.c,v 1.53 2003/01/21 08:08:16 kmalkki Exp $ */
- 
-+/* If you want debugging uncomment: */
-+/* #define DEBUG 1 */
-+
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/fs.h>
-@@ -41,10 +44,6 @@
- #include <linux/i2c-dev.h>
- #include <asm/uaccess.h>
- 
--/* If you want debugging uncomment: */
--/* #define DEBUG */
--
--
- /* struct file_operations changed too often in the 2.1 series for nice code */
- 
- static ssize_t i2cdev_read (struct file *file, char *buf, size_t count, 
-@@ -386,11 +385,11 @@
- 	char name[12];
- 
- 	if ((i = i2c_adapter_id(adap)) < 0) {
--		printk(KERN_DEBUG "i2c-dev.o: Unknown adapter ?!?\n");
-+		dev_dbg(&adap->dev, "Unknown adapter ?!?\n");
- 		return -ENODEV;
- 	}
- 	if (i >= I2CDEV_ADAPS_MAX) {
--		printk(KERN_DEBUG "i2c-dev.o: Adapter number too large?!? (%d)\n",i);
-+		dev_dbg(&adap->dev, "Adapter number too large?!? (%d)\n",i);
- 		return -ENODEV;
- 	}
- 
-@@ -401,14 +400,12 @@
- 			DEVFS_FL_DEFAULT, I2C_MAJOR, i,
- 			S_IFCHR | S_IRUSR | S_IWUSR,
- 			&i2cdev_fops, NULL);
--		printk(KERN_DEBUG "i2c-dev.o: Registered '%s' as minor %d\n",adap->name,i);
-+		dev_dbg(&adap->dev, "Registered as minor %d\n", i);
- 	} else {
- 		/* This is actually a detach_adapter call! */
- 		devfs_remove("i2c/%d", i);
- 		i2cdev_adaps[i] = NULL;
--#ifdef DEBUG
--		printk(KERN_DEBUG "i2c-dev.o: Adapter unregistered: %s\n",adap->name);
--#endif
-+		dev_dbg(&adap->dev, "Adapter unregistered\n");
- 	}
- 
- 	return 0;
-diff -Nru a/drivers/i2c/i2c-elektor.c b/drivers/i2c/i2c-elektor.c
---- a/drivers/i2c/i2c-elektor.c	Mon Mar 24 17:28:41 2003
-+++ b/drivers/i2c/i2c-elektor.c	Mon Mar 24 17:28:41 2003
-@@ -174,10 +174,12 @@
- };
- 
- static struct i2c_adapter pcf_isa_ops = {
--	.owner		   = THIS_MODULE,
--	.name		   = "PCF8584 ISA adapter",
--	.id		   = I2C_HW_P_ELEK,
--	.algo_data	   = &pcf_isa_data,
-+	.owner		= THIS_MODULE,
-+	.id		= I2C_HW_P_ELEK,
-+	.algo_data	= &pcf_isa_data,
-+	.dev		= {
-+		.name	= "PCF8584 ISA adapter",
-+	},
- };
- 
- static int __init i2c_pcfisa_init(void) 
-diff -Nru a/drivers/i2c/i2c-elv.c b/drivers/i2c/i2c-elv.c
---- a/drivers/i2c/i2c-elv.c	Mon Mar 24 17:28:41 2003
-+++ b/drivers/i2c/i2c-elv.c	Mon Mar 24 17:28:41 2003
-@@ -129,9 +129,11 @@
- 
- static struct i2c_adapter bit_elv_ops = {
- 	.owner		= THIS_MODULE,
--	.name		= "ELV Parallel port adaptor",
- 	.id		= I2C_HW_B_ELV,
- 	.algo_data	= &bit_elv_data,
-+	.dev		= {
-+		.name	= "ELV Parallel port adaptor",
-+	},
- };
- 
- static int __init i2c_bitelv_init(void)
-diff -Nru a/drivers/i2c/i2c-philips-par.c b/drivers/i2c/i2c-philips-par.c
---- a/drivers/i2c/i2c-philips-par.c	Mon Mar 24 17:28:41 2003
-+++ b/drivers/i2c/i2c-philips-par.c	Mon Mar 24 17:28:41 2003
-@@ -151,8 +151,10 @@
- 
- static struct i2c_adapter bit_lp_ops = {
- 	.owner		= THIS_MODULE,
--	.name		= "Philips Parallel port adapter",
- 	.id		= I2C_HW_B_LP,
-+	.dev		= {
-+		.name	= "Philips Parallel port adapter",
-+	},
- };
- 
- static void i2c_parport_attach (struct parport *port)
-diff -Nru a/drivers/i2c/i2c-velleman.c b/drivers/i2c/i2c-velleman.c
---- a/drivers/i2c/i2c-velleman.c	Mon Mar 24 17:28:41 2003
-+++ b/drivers/i2c/i2c-velleman.c	Mon Mar 24 17:28:41 2003
-@@ -114,9 +114,11 @@
- 
- static struct i2c_adapter bit_velle_ops = {
- 	.owner		= THIS_MODULE,
--	.name		= "Velleman K8000",
- 	.id		= I2C_HW_B_VELLE,
- 	.algo_data	= &bit_velle_data,
-+	.dev		= {
-+		.name	= "Velleman K8000",
-+	},
- };
- 
- static int __init i2c_bitvelle_init(void)
-diff -Nru a/drivers/i2c/scx200_acb.c b/drivers/i2c/scx200_acb.c
---- a/drivers/i2c/scx200_acb.c	Mon Mar 24 17:28:41 2003
-+++ b/drivers/i2c/scx200_acb.c	Mon Mar 24 17:28:41 2003
-@@ -140,8 +140,7 @@
- 
- 	switch (iface->state) {
- 	case state_idle:
--		printk(KERN_WARNING NAME ": %s, interrupt in idle state\n", 
--		       iface->adapter.name);
-+		dev_warn(&iface->adapter.dev, "interrupt in idle state\n",);
- 		break;
- 
- 	case state_address:
-@@ -226,8 +225,8 @@
- 	return;
- 
-  error:
--	printk(KERN_ERR NAME ": %s, %s in state %s\n", iface->adapter.name, 
--	       errmsg, scx200_acb_state_name[iface->state]);
-+	dev_err(&iface->adapter.dev, "%s in state %s\n", errmsg,
-+		scx200_acb_state_name[iface->state]);
- 
- 	iface->state = state_idle;
- 	iface->result = -EIO;
-@@ -236,8 +235,8 @@
- 
- static void scx200_acb_timeout(struct scx200_acb_iface *iface) 
- {
--	printk(KERN_ERR NAME ": %s, timeout in state %s\n", 
--	       iface->adapter.name, scx200_acb_state_name[iface->state]);
-+	dev_err(&iface->adapter.dev, "timeout in state %s\n",
-+		scx200_acb_state_name[iface->state]);
- 
- 	iface->state = state_idle;
- 	iface->result = -EIO;
-@@ -331,13 +330,12 @@
- 	    size, address, command, len, rw == I2C_SMBUS_READ);
- 
- 	if (!len && rw == I2C_SMBUS_READ) {
--		printk(KERN_WARNING NAME ": %s, zero length read\n", 
--		       adapter->name);
-+		dev_warn(&adapter->dev, "zero length read\n");
- 		return -EINVAL;
- 	}
- 
- 	if (len && !buffer) {
--		printk(KERN_WARNING NAME ": %s, nonzero length but no buffer\n", adapter->name);
-+		dev_warn(&adapter->dev, "nonzero length but no buffer\n");
- 		return -EFAULT;
- 	}
- 
-@@ -458,17 +456,17 @@
- 	memset(iface, 0, sizeof(*iface));
- 	adapter = &iface->adapter;
- 	adapter->data = iface;
--	sprintf(adapter->name, "SCx200 ACB%d", index);
-+	snprintf(adapter->dev.name, DEVICE_NAME_SIZE, "SCx200 ACB%d", index);
- 	adapter->owner = THIS_MODULE;
- 	adapter->id = I2C_ALGO_SMBUS;
- 	adapter->algo = &scx200_acb_algorithm;
- 
- 	init_MUTEX(&iface->sem);
- 
--	sprintf(description, "NatSemi SCx200 ACCESS.bus [%s]", adapter->name);
-+	snprintf(description, sizeof(description), "NatSemi SCx200 ACCESS.bus [%s]", adapter->dev.name);
- 	if (request_region(base, 8, description) == 0) {
--		printk(KERN_ERR NAME ": %s, can't allocate io 0x%x-0x%x\n", 
--		       adapter->name, base, base + 8-1);
-+		dev_err(&adapter->dev, "can't allocate io 0x%x-0x%x\n",
-+			base, base + 8-1);
- 		rc = -EBUSY;
- 		goto errout;
- 	}
-@@ -476,14 +474,14 @@
- 
- 	rc = scx200_acb_probe(iface);
- 	if (rc) {
--		printk(KERN_WARNING NAME ": %s, probe failed\n", adapter->name);
-+		dev_warn(&adapter->dev, "probe failed\n");
- 		goto errout;
- 	}
- 
- 	scx200_acb_reset(iface);
- 
- 	if (i2c_add_adapter(adapter) < 0) {
--		printk(KERN_ERR NAME ": %s, failed to register\n", adapter->name);
-+		dev_err(&adapter->dev, "failed to register\n");
- 		rc = -ENODEV;
- 		goto errout;
- 	}
-diff -Nru a/include/linux/i2c.h b/include/linux/i2c.h
---- a/include/linux/i2c.h	Mon Mar 24 17:28:41 2003
-+++ b/include/linux/i2c.h	Mon Mar 24 17:28:41 2003
-@@ -210,7 +210,6 @@
-  */
- struct i2c_adapter {
- 	struct module *owner;
--	char name[32];	/* some useful name to identify the adapter	*/
- 	unsigned int id;/* == is algo->id | hwdep.struct->id, 		*/
- 			/* for registered values see below		*/
- 	struct i2c_algorithm *algo;/* the algorithm to access the bus	*/
+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
+05gcv2P+f3AyWfFbRQAA
 
+--Boundary-00=_+b7f+4M6eKBMyOG--

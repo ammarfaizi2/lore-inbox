@@ -1,77 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293682AbSCAT5h>; Fri, 1 Mar 2002 14:57:37 -0500
+	id <S290809AbSCAUAU>; Fri, 1 Mar 2002 15:00:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293681AbSCATzQ>; Fri, 1 Mar 2002 14:55:16 -0500
-Received: from FORT-POINT-STATION.MIT.EDU ([18.7.7.76]:46506 "EHLO
-	fort-point-station.mit.edu") by vger.kernel.org with ESMTP
-	id <S293705AbSCATyy>; Fri, 1 Mar 2002 14:54:54 -0500
-Date: Fri, 1 Mar 2002 14:54:51 -0500 (EST)
-From: Bharath Krishnan <bharath@MIT.EDU>
-To: <h.lubitz@internet-factory.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Yet another disk transfer speed problem 
-Message-ID: <Pine.GSO.4.30L.0203011451590.3706-100000@stymie.mit.edu>
+	id <S293695AbSCAT6l>; Fri, 1 Mar 2002 14:58:41 -0500
+Received: from edu.joroinen.fi ([195.156.135.125]:44548 "HELO edu.joroinen.fi")
+	by vger.kernel.org with SMTP id <S293681AbSCAT6T> convert rfc822-to-8bit;
+	Fri, 1 Mar 2002 14:58:19 -0500
+Date: Fri, 1 Mar 2002 21:58:17 +0200 (EET)
+From: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>
+X-X-Sender: <pk@edu.joroinen.fi>
+To: Blue Lang <blue@b-side.org>
+cc: Thomas Schenk <tschenk@origin.ea.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Recommendations on Gigabit Ethernet Cards
+In-Reply-To: <Pine.LNX.4.30.0203011418140.10809-100000@gib.soccerchix.org>
+Message-ID: <Pine.LNX.4.33.0203012155550.10668-100000@edu.joroinen.fi>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Here is fdisk -l results:
+On Fri, 1 Mar 2002, Blue Lang wrote:
 
-[root@yakuza root]# /sbin/fdisk -l /dev/hdg
+> On 1 Mar 2002, Thomas Schenk wrote:
+>
+> > I am looking for recommendations on which of the gigabit ethernet cards
+> > supported by the 2.4.x (x >= 17) kernel I should use.  Any guidance
+> > based on personal experience would be greatly appreciated.  I am looking
+> > for recommendation based on performance and stability of the driver.
+>
+> i've had decent results (excellent performance, occasional light glitches)
+> with the broadcom 1000bt copper ethernet cards, in both server and
+> workstation use. the only problems i've had with them are related to
+> trying to use them with fixed-speed ports attached to cisco switches. if
+> you put em all in a rack with a nice GB switch, they kick butt.
+>
 
-Disk /dev/hdg: 255 heads, 63 sectors, 4866 cylinders
-Units = cylinders of 16065 * 512 bytes
+These cards are now supported by the new Tigon3-driver. URL and more
+information about the driver can be found from mail with subject:
 
-   Device Boot    Start       End    Blocks   Id  System
-/dev/hdg1   *         1       255   2048256    6  FAT16
+"Subject: [BETA-0.93] Fourth test release of Tigon3 driver"
 
-
-[root@yakuza root]# /sbin/fdisk -l /dev/hde
-
-Disk /dev/hde: 255 heads, 63 sectors, 1867 cylinders
-Units = cylinders of 16065 * 512 bytes
-
-   Device Boot    Start       End    Blocks   Id  System
-/dev/hde1             1         6     48163+  83  Linux
-/dev/hde2             7      1056   8434125   83  Linux
-/dev/hde3   *      1154      1867   5735205    7  HPFS/NTFS
-/dev/hde4          1057      1153    779152+   f  Win95 Ext'd (LBA)
-/dev/hde5          1057      1153    779121   82  Linux swap
-
-Partition table entries are not in disk order
+You can find broadcom5700-chipset at least from 3com 3c996 cards.
 
 
-As you can see, I have a fat16 partition on hdg. I can delete it and make
-an ext3 partition there and see if that changes anything.
+Intel's EtherExpress Pro/1000 cards do also have new driver in the
+kernel..
 
 
-Thanks,
+- Pasi Kärkkäinen
 
--bharath
-
->>>
-
-Could you provide fdisk -l for both? For some odd reason unknown to me
-some filesystems give slower results with hdparm than others, even with
-the buffer-cache reads (which are intended to measure memory speed, not
-drive speed, and thus should be the same for all drives on a given
-mainboard). Also, hdparm directly on the drive device is often a bit
-slower than hdparm for the first (outermost) partition. These problems
-have been far worse in older kernels, though. With 2.2 I once
-benchmarked a vfat-partition at half the speed the same partition gave
-as ext2.
-
-Holger
-
-
-
--bharath
-
-
-
-
+                                   ^
+                                .     .
+                                 Linux
+                              /    -    \
+                             Choice.of.the
+                           .Next.Generation.
 

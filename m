@@ -1,55 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129166AbQKKBsV>; Fri, 10 Nov 2000 20:48:21 -0500
+	id <S129029AbQKKCDz>; Fri, 10 Nov 2000 21:03:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129322AbQKKBsL>; Fri, 10 Nov 2000 20:48:11 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:38815 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129166AbQKKBsB>; Fri, 10 Nov 2000 20:48:01 -0500
-Message-ID: <3A0CA547.E9259929@haque.net>
-Date: Fri, 10 Nov 2000 20:47:51 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i686)
+	id <S129044AbQKKCDq>; Fri, 10 Nov 2000 21:03:46 -0500
+Received: from nifty.blue-labs.org ([208.179.0.193]:31535 "EHLO
+	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S129029AbQKKCDd>; Fri, 10 Nov 2000 21:03:33 -0500
+Message-ID: <3A0CA8B4.5D254820@linux.com>
+Date: Fri, 10 Nov 2000 18:02:28 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Ralf Baechle <ralf@uni-koblenz.de>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: sendmail fails to deliver mail with attachments in /var/spool/mqueue
-In-Reply-To: <3A0C3F30.F5EB076E@timpanogas.org> <3A0C6B7C.110902B4@timpanogas.org> <3A0C6E01.EFA10590@timpanogas.org> <26054.973893835@euclid.cs.niu.edu> <8uhs7c$2hr$1@cesium.transmeta.com> <20001111023521.D29352@bacchus.dhis.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Steve VanDevender <stevev@efn.org>
+CC: "Jeff V. Merkey" <jmerkey@timpanogas.org>, sendmail-bugs@sendmail.org,
+        Igmar Palsenberg <maillist@chello.nl>, root@chaos.analogic.com,
+        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in 
+ /var/spool/mqueue]
+In-Reply-To: <3A0C5EDC.3F30BE9C@timpanogas.org>
+		<Pine.LNX.4.21.0011110113590.6465-100000@server.serve.me.nl>
+		<20001110151232.A16552@sendmail.com>
+		<3A0C8117.20853855@timpanogas.org> <14860.40393.864532.703716@tzadkiel.efn.org>
+Content-Type: multipart/mixed;
+ boundary="------------6E2AF144DFA5728153EAFA49"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have this exact argument at work every so often. People coming in from
-an NT environment have difficulty understanding what it is/means and
-that it's not neccessarily bad when load gets above 1, etc, etc, etc.
+This is a multi-part message in MIME format.
+--------------6E2AF144DFA5728153EAFA49
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Ralf Baechle wrote:
-> 
-> On Fri, Nov 10, 2000 at 02:18:20PM -0800, H. Peter Anvin wrote:
-> 
-> > Numerically high load averages aren't inherently a bad thing.  There
-> > isn't anything bad about a system with a loadavg of 20 if it does what
-> > it should in the time you'd expect.  However, if your daemons start
-> > blocking because they assume this number means badness, than that is
-> > the problem, not the loadavg in itself.
-> 
-> The problem seems to me that the load figure doesn't express what most
-> people seem to expect it to - CPU load.
-> 
->   Ralf
+>  > With a handle like
+>  > "Assmann", deviation is proably something you already understand quite
+>  > well ...
+>
+> Don't be a moron.  Claus is German, Assman really is his last name and
+> not some "handle", and it's pronounced "Oss-man".
 
--- 
+Claus is a well liked, knowledgable and well experienced person in numerous
+domains.  Please don't stoop to such silly games with people's proper name.
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
+-d
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+--
+"The difference between 'involvement' and 'commitment' is like an
+eggs-and-ham breakfast: the chicken was 'involved' - the pig was
+'committed'."
+
+
+
+--------------6E2AF144DFA5728153EAFA49
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="david.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for David Ford
+Content-Disposition: attachment;
+ filename="david.vcf"
+
+begin:vcard 
+n:Ford;David
+x-mozilla-html:TRUE
+adr:;;;;;;
+version:2.1
+email;internet:david@kalifornia.com
+title:Blue Labs Developer
+x-mozilla-cpt:;14688
+fn:David Ford
+end:vcard
+
+--------------6E2AF144DFA5728153EAFA49--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261819AbTIPJo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 05:44:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbTIPJo2
+	id S261555AbTIPJhD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 05:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbTIPJhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 05:44:28 -0400
-Received: from f13.mail.ru ([194.67.57.43]:26632 "EHLO f13.mail.ru")
-	by vger.kernel.org with ESMTP id S261819AbTIPJo0 (ORCPT
+	Tue, 16 Sep 2003 05:37:03 -0400
+Received: from gprs149-34.eurotel.cz ([160.218.149.34]:9088 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261555AbTIPJhB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 05:44:26 -0400
-From: =?koi8-r?Q?=22?=Alexey Dobriyan=?koi8-r?Q?=22=20?= 
-	<adobriyan@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Unable to build tgafb.c in 2.6.0-test5 due to undefined color_table
+	Tue, 16 Sep 2003 05:37:01 -0400
+Date: Tue, 16 Sep 2003 11:36:50 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nicolae Mihalache <mache@abcpages.com>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6-test4 problems: suspend and touchpad
+Message-ID: <20030916093649.GA397@elf.ucw.cz>
+References: <Pine.LNX.4.33.0309150949270.950-100000@localhost.localdomain> <3F662322.9060205@abcpages.com>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: unknown via proxy [193.124.225.253]
-Date: Tue, 16 Sep 2003 13:44:25 +0400
-Reply-To: =?koi8-r?Q?=22?=Alexey Dobriyan=?koi8-r?Q?=22=20?= 
-	  <adobriyan@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E19zCNl-000I6m-00.adobriyan-mail-ru@f13.mail.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F662322.9060205@abcpages.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I was trying to compile the tga framebuffer driver but there was a > compiler error saying that color_table was not defined. I grepped 
-> through the drivers/video and include/video directories and did not > find a declaration. Was there a header file not included or code 
-> missing from the driver?
+Hi!
 
-This should fix the problem.
+> >It does not. Could you please try removing the module before you suspend? 
+> >
+> Yes, removing and readding the module does the trick.
+> Unfortunately I've seen that something else does not work after resume: 
+> my USB mouse.
+> But for some reason I can not remove the usbcore module, the kernel says 
+> it's in use.
+> 
+> Now, how can I help to solve these problems? Is somebody working to 
+> solve these problems or should I try to solve them myself (at least with 
+> the Broadcom 4400 driver) ?
 
-Alexey
-
-diff -urN a/drivers/video/tgafb.c b/drivers/video/tgafb.c
---- a/drivers/video/tgafb.c	2003-09-08 23:50:16.000000000 +0400
-+++ b/drivers/video/tgafb.c	2003-09-16 13:46:46.000000000 +0400
-@@ -22,6 +22,7 @@
- #include <linux/delay.h>
- #include <linux/init.h>
- #include <linux/fb.h>
-+#include <linux/selection.h>
- #include <linux/pci.h>
- #include <asm/io.h>
- #include <video/tgafb.h>
-
+Network driver should be reasonably easy to do; so please help :-).
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314633AbSEBQTe>; Thu, 2 May 2002 12:19:34 -0400
+	id <S314635AbSEBQZ7>; Thu, 2 May 2002 12:25:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314635AbSEBQTd>; Thu, 2 May 2002 12:19:33 -0400
-Received: from falstaff.iris-tech.net ([195.82.115.155]:63680 "HELO
-	mail.iris-tech.net") by vger.kernel.org with SMTP
-	id <S314633AbSEBQTd>; Thu, 2 May 2002 12:19:33 -0400
-Date: Thu, 2 May 2002 17:20:11 +0000 (GMT)
-From: Leo Liberti IrisTech <liberti@falstaff.iris-tech.net>
-To: linux-kernel@vger.kernel.org
-cc: liberti@iris-tech.net
-Subject: aha152x.c incompatible with scatterlist in 2.5.12
-Message-ID: <Pine.LNX.4.44.0205021715140.27983-100000@falstaff.iris-tech.net>
+	id <S314637AbSEBQZ6>; Thu, 2 May 2002 12:25:58 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:65036 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314635AbSEBQZ6>; Thu, 2 May 2002 12:25:58 -0400
+Subject: Re: devfs: BKL *not* taken while opening devices
+To: arjanv@redhat.com (Arjan van de Ven)
+Date: Thu, 2 May 2002 17:44:15 +0100 (BST)
+Cc: zippel@linux-m68k.org (Roman Zippel), arjanv@redhat.com (Arjan van de Ven),
+        haveblue@us.ibm.com (Dave Hansen), linux-kernel@vger.kernel.org
+In-Reply-To: <20020429134659.A26165@devserv.devel.redhat.com> from "Arjan van de Ven" at Apr 29, 2002 01:46:59 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E173Jgl-0004Iu-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > The BKL doesn't make a driver safe, remember that it's released on
+> > schedule.
+> 
+> I know. But a LOT of in kernel and out-of kernel drives don't schedule
+> in open and are therefore safe right now
 
-Hello, I am having problems building kernel 2.5.12 on an i686 arch - in
-particular the aha152x module (built as a PCMCIA module) does not compile
-because it depends on "struct scatterlist" (see include/asm/scatterlist.h)
-having the member "char* address". Kernels 2.4.x had
+I looked at this for video4linux and for watchdog drivers. The score was
+something like 80% buggy 20% correct. Remember things like request_irq
+can schedule.
 
-struct scatterlist {
-    char *  address;    /* Location data is to be transferred to */
-    char * alt_address; /* Location of actual if address is a
-                         * dma indirect buffer.  NULL otherwise */
-    unsigned int length;
-};
-
-whereas kernels 2.5.x have a different declaration of scatterlist:
-
-struct scatterlist {
-    struct page         *page;
-    unsigned int        offset;
-    dma_addr_t          dma_address;
-    unsigned int        length;
-};
-
-I don't know enough about the SCSI subsystem changes to fix this myself -
-does anyone have a hint?
-
-Could you please reply also to liberti@iris-tech.net as I am not
-subscribed to the linux-kernel list.
-
-Thanks,
-
-Leo
-
+Fix the drivers, even if they get fixed before the lock is removed

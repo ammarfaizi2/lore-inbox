@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281805AbRK1G0W>; Wed, 28 Nov 2001 01:26:22 -0500
+	id <S281887AbRK1G7k>; Wed, 28 Nov 2001 01:59:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281777AbRK1G0P>; Wed, 28 Nov 2001 01:26:15 -0500
-Received: from epithumia.math.uh.edu ([129.7.128.2]:60827 "EHLO
-	epithumia.math.uh.edu") by vger.kernel.org with ESMTP
-	id <S281877AbRK1G0D>; Wed, 28 Nov 2001 01:26:03 -0500
-To: "Neulinger, Nathan" <nneul@umr.edu>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with 3ware 3dm and 2.4.16...
-In-Reply-To: <E8139C9A62384F49A7EBF9CCCD2243C101B88A@umr-mail2.umr.edu>
-From: Jason L Tibbitts III <tibbs@math.uh.edu>
-Date: 28 Nov 2001 00:25:49 -0600
-In-Reply-To: "Neulinger, Nathan"'s message of "Tue, 27 Nov 2001 15:57:03 -0600"
-Message-ID: <ufavgfvtnrm.fsf@epithumia.math.uh.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
+	id <S281823AbRK1G7b>; Wed, 28 Nov 2001 01:59:31 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:14350 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S281886AbRK1G7S>;
+	Wed, 28 Nov 2001 01:59:18 -0500
+Date: Wed, 28 Nov 2001 07:58:50 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.1-pre2 does not compile
+Message-ID: <20011128075850.D23858@suse.de>
+In-Reply-To: <15364.3457.368582.994067@gargle.gargle.HOWL> <Pine.LNX.4.33.0111271701140.1629-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0111271701140.1629-100000@penguin.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "NN" == Nathan Neulinger <Neulinger> writes:
+On Tue, Nov 27 2001, Linus Torvalds wrote:
+> 
+> On Wed, 28 Nov 2001, Paul Mackerras wrote:
+> >
+> > Is there a description of the new block layer and its interface to
+> > block device drivers somewhere?  That would be helpful, since Ben
+> > Herrenschmidt and I are going to have to convert several
+> > powermac-specific drivers.
+> 
+> Jens has something written up, which he sent to me as an introduction to
+> the patch. I'll send that out unless he does a cleaned-up version, but I'd
+> actually prefer for him to do the sending. Jens?
 
-NN> When running 2.4.10, everything works fine, as soon as I move to
-NN> 2.4.16 though, the 3ware 3dm process no longer works, it claims to
-NN> get a ioctl error 'no such device or address'. Interesting thing
-NN> is - from the below output, looks like the ioctl worked.
+No problem, I'll clean it up and send it out. I also planned on doing a
+specific guide to converting drivers to exploit the new features.
 
-Which version of 3dm are you running?  Rumour has it (on
-linux-ide-arrays@lists.math.uh.edu) that 3dm version 1.10 will solve
-this problem.  I have not yet upgraded my storage machines, however.
-Perhaps tomorrow.
+-- 
+Jens Axboe
 
- - J<

@@ -1,62 +1,111 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316778AbSFDU5z>; Tue, 4 Jun 2002 16:57:55 -0400
+	id <S316795AbSFDU6w>; Tue, 4 Jun 2002 16:58:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316780AbSFDU5y>; Tue, 4 Jun 2002 16:57:54 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:38272
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S316778AbSFDU5x>; Tue, 4 Jun 2002 16:57:53 -0400
-Date: Tue, 4 Jun 2002 13:56:44 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: mochel@osdl.org, anton@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.5.19] Oops during PCI scan on Alpha
-Message-ID: <20020604205644.GB1335@opus.bloom.county>
-In-Reply-To: <20020604.111337.51699424.davem@redhat.com> <Pine.LNX.4.33.0206041227410.654-100000@geena.pdx.osdl.net> <20020604.124241.78709149.davem@redhat.com>
+	id <S316780AbSFDU6t>; Tue, 4 Jun 2002 16:58:49 -0400
+Received: from [195.157.192.66] ([195.157.192.66]:13650 "HELO
+	baobab.mtlb.co.uk") by vger.kernel.org with SMTP id <S316755AbSFDU6p>;
+	Tue, 4 Jun 2002 16:58:45 -0400
+Date: Tue, 4 Jun 2002 21:56:17 +0100
+From: Robert Cardell <rbt@mtlb.co.uk>
+To: marcelo@plucky.distro.conectiva, linux-kernel@vger.kernel.org
+Subject: [PATCH] Trivial, IDE geometry fix / defconfig changes
+Message-ID: <20020604215617.A288@garfield.mtlb.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 04, 2002 at 12:42:41PM -0700, David S. Miller wrote:
->    From: Patrick Mochel <mochel@osdl.org>
->    Date: Tue, 4 Jun 2002 12:38:06 -0700 (PDT)
-> 
->    
->    > There's this middle area between core and subsys, why not
->    > just be explicit about it's existence?
->    > 
->    > Short of making the true dependencies describable, I think my
->    > postcore_initcall solution is fine.
->    
->    What sense is there in naming it postcore_initcall? What does it tell you 
->    about the intent of the function? 
->    
-> It says "this has to be initialized, but after core initcalls because
-> it expects core to be setup."  That's what "postcore" means. :-)
-> 
->    The initcall levels are not a means to bypass true dependency resolution. 
->    They're an alternative means to solving some of the dependency problems 
->    without having a ton of #ifdefs and hardcoded, explicit calls to 
->    initialization routines. 
->    
-> I added no ifdefs, what are you talking about.
 
-I think the ifdefs referred to any of the more complex, but also
-arguably more correct ideas (ie things which actually do real
-dependancies).  Or maybe hard-coding the corner cases and keeping the
-current solution.
+Hi all,
 
-> You people are blowing this shit WAY out of proportion.  Just fix the
-> bug now and reinplement the initcall hierarchy in a seperate changeset
-> so people can actually get work done in the 2.5.x tree while you do
-> that ok?
+Two patches included. The first fixes a bug with really large (48-bit lba)
+drives where the kernel miscomputes the geometry if the BIOS isn't 48-bit
+aware. (At least I think that's when it would happen.) This messes up the EVMS
+in particular, since it thinks the drives are 16 times their real size, and
+tries to read past the end of the device at discovery time. I'm sending it to
+the list as well as Marcelo just to be sure it's the right fix (although it's
+very trivial, I'm just paranoid :), and so it can be sent to Linus/Martin D.
+if it's still relevant to 2.5.
 
-heh.  Or implement some sort of proper dependancies to it all as well.
-:)
+I've also taken the liberty of changing the default configuration to exclude
+the Symbios 8xx SCSI, EtherExpress Pro, and Ensoniq ES1371, on the basis that:
+ - In the first case, the driver is being superceded,
+ - In the first two cases, they are 'hidden' from view if you use
+     make menuconfig and don't specifically check for them. I'm sick of
+     accidentally building them into my kernels. 
+ - None of them are particularly common pieces of hardware anyway.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+There are lots of other things I'd change in the default config (why is SMP
+the default and parport not, for example?), but these are the things that
+/really/ bother me.
+
+First patch against drivers/ide/ide-disk.c, second against arch/i386/defconfig.
+(2.4.19-pre9) I'm not on the list at the moment, cc me to reply.
+
+Thanks,
+
+Robert Cardell
+<rbt@mtlb.co.uk>
+
+
+--- ide-disk.c.old	Tue Jun  4 21:09:10 2002
++++ ide-disk.c	Tue Jun  4 21:09:44 2002
+@@ -929,9 +929,9 @@
+ 
+ 	if (id->cfs_enable_2 & 0x0400) {
+ 		capacity_2 = id->lba_capacity_2;
+-		drive->cyl = (unsigned int) capacity_2 / (drive->head * drive->sect);
+ 		drive->head		= drive->bios_head = 255;
+ 		drive->sect		= drive->bios_sect = 63;
++		drive->cyl = (unsigned int) capacity_2 / (drive->head * drive->sect);
+ 		drive->select.b.lba	= 1;
+ 		set_max_ext = idedisk_read_native_max_address_ext(drive);
+ 		if (set_max_ext > capacity_2) {
+
+
+
+--- defconfig.old	Tue Jun  4 21:13:00 2002
++++ defconfig	Tue Jun  4 21:21:41 2002
+@@ -325,10 +325,7 @@
+ # CONFIG_SCSI_NCR53C7xx is not set
+ # CONFIG_SCSI_SYM53C8XX_2 is not set
+ # CONFIG_SCSI_NCR53C8XX is not set
+-CONFIG_SCSI_SYM53C8XX=y
+-CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=4
+-CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
+-CONFIG_SCSI_NCR53C8XX_SYNC=20
++# CONFIG_SCSI_SYM53C8XX is not set
+ # CONFIG_SCSI_NCR53C8XX_PROFILE is not set
+ # CONFIG_SCSI_NCR53C8XX_IOMAPPED is not set
+ # CONFIG_SCSI_NCR53C8XX_PQS_PDS is not set
+@@ -415,7 +412,7 @@
+ # CONFIG_DE4X5 is not set
+ # CONFIG_DGRS is not set
+ # CONFIG_DM9102 is not set
+-CONFIG_EEPRO100=y
++# CONFIG_EEPRO100 is not set
+ # CONFIG_LNE390 is not set
+ # CONFIG_FEALNX is not set
+ # CONFIG_NATSEMI is not set
+@@ -694,7 +691,7 @@
+ #
+ # Sound
+ #
+-CONFIG_SOUND=y
++# CONFIG_SOUND is not set
+ # CONFIG_SOUND_BT878 is not set
+ # CONFIG_SOUND_CMPCI is not set
+ # CONFIG_SOUND_EMU10K1 is not set
+@@ -702,7 +699,7 @@
+ # CONFIG_SOUND_FUSION is not set
+ # CONFIG_SOUND_CS4281 is not set
+ # CONFIG_SOUND_ES1370 is not set
+-CONFIG_SOUND_ES1371=y
++# CONFIG_SOUND_ES1371 is not set
+ # CONFIG_SOUND_ESSSOLO1 is not set
+ # CONFIG_SOUND_MAESTRO is not set
+ # CONFIG_SOUND_MAESTRO3 is not set
+

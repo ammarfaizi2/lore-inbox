@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318008AbSHKSdj>; Sun, 11 Aug 2002 14:33:39 -0400
+	id <S317865AbSHKSfz>; Sun, 11 Aug 2002 14:35:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318032AbSHKSdj>; Sun, 11 Aug 2002 14:33:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55310 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318008AbSHKSdj>;
-	Sun, 11 Aug 2002 14:33:39 -0400
-Message-ID: <3D56B13A.D3F741D1@zip.com.au>
-Date: Sun, 11 Aug 2002 11:47:22 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S318032AbSHKSfz>; Sun, 11 Aug 2002 14:35:55 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:29126 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S317865AbSHKSfy>;
+	Sun, 11 Aug 2002 14:35:54 -0400
+Message-Id: <200208111838.g7BIcYg31930@zeus.kernel.org>
+From: "Mohammed Zika" <mohazika3@yahoo.co.uk>
+Reply-To: mohazika@mail.com
+To: linux-kernel@vger.kernel.org
+Date: Sun, 11 Aug 2002 11:41:44 -0700
+Subject: Business Proposal.
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 4/21] fix ARCH_HAS_PREFETCH
-References: <3D56147E.15E7A98@zip.com.au> <1029095396.16216.18.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===_SecAtt_000_1fxyxammvyxkna"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> On Sun, 2002-08-11 at 08:38, Andrew Morton wrote:
-> > This information loss is unfortunate.  Examples:
-> >
-> >       for (i = 0; i < N; i++)
-> >               prefetch(foo[i]);
-> >
-> >    Problem is, if `prefetch' is a no-op, the compiler will still
-> >    generate an empty busy-wait loop.  Which it must do.
-> 
-> Why - nothing there is volatile
+--===_SecAtt_000_1fxyxammvyxkna
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Because the compiler sees:
+ Dear=2C
 
-	for (i = 0; i < N; i++)
-		;
+I am the personal Lawyer and close confidant to Mrs=2E Maryam Abacha=2C the former first lady and wife of the late Gen=2E Sani Abacha=2C the former head of state and commander in chief of the armed forces of the Federal Republic of Nigeria=2E
 
-and it says "ah ha.  A busy wait delay loop" and leaves it alone.
+She =28MRS=2E M=2E ABACHA=29=2C has as a result of the trust and confidence=2C she has in me mandated that I search for a reliable and trustworthy foreign partner=2C who will help receive some funds which she had in cash totalling US$25=2E7M or more =28Twenty-Five Million Seven Hundred Thousand Dollars Only=29 into a personal=2C company or any reliable foreign bank accounts
+within and outside the country have all been frozen by the authorities=2E =28I would refer you the website of=3A WWW=2ETELLMAGAZINE=2Ecom of November 23=2C 1998 page 25=2C for further information about this money and the ABACHAS=29
 
-It's actually a special-case inside the compiler to not optimise
-away such constructs.
+This money in question has however=2C been clearly moved through a! diplomatic arrangement and Deposited with a security company that has branches in Africa and Europe=2E It may also interest you to note that she =28MRS=2E ABACHA=29 and her family have=2C since the inception of the present democratic government=2C been placed under partial house arrest with their international travelling passports seized pending when the current fund recovery face - off between them and the president RTD GEN=2C OBASANJO led Democratic Government is resolved=2C in which from all indication will not exceed this year=2E
+
+She has decided to offer anybody who will be willing to render this tremendous assistance=2C 35% of the total sum while 5% of the amount to be transferred will be set aside to settle all sundry expenses incurred in the course of the transaction=2E
+
+Note that this transaction involves no risks whatsoever=2C as you will have no dealing with my country=2C Nigeria=2E Rather you will deal directly with the Security Company=2C which is located where th! e money is right now=2E
+
+Let me have your confidential Tel=2FFax numbers in your response to this proposal=2E I shall let you into a complete detailed picture of this mutual beneficial transaction when I have received your anticipated positive reply=2E Reply to this e-mail address=3Amohazika=40mail=2Ecom
+
+This matter should be treated as urgent and confidential=2E Should you for any reason decide not to be part of this transaction=2C do inform me promptly to enable me look for another interested person=2E
+
+Regards=2C
+
+MOHAMMED ZIKA
+ 
+
+--===_SecAtt_000_1fxyxammvyxkna
+Content-Type: application/octet-stream; name="man12.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="man12.txt"
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--===_SecAtt_000_1fxyxammvyxkna--

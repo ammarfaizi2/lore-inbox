@@ -1,63 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263930AbTFKTEg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 15:04:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264027AbTFKTEg
+	id S264061AbTFKTIY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 15:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264156AbTFKTIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 15:04:36 -0400
-Received: from ns.suse.de ([213.95.15.193]:63760 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263930AbTFKTEc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 15:04:32 -0400
-Date: Wed, 11 Jun 2003 21:18:15 +0200
-From: Andi Kleen <ak@suse.de>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: ak@suse.de, vojtech@suse.cz, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] New x86_64 time code for 2.5.70
-Message-ID: <20030611191815.GA30411@wotan.suse.de>
-References: <1055357432.17154.77.camel@serpentine.internal.keyresearch.com>
+	Wed, 11 Jun 2003 15:08:24 -0400
+Received: from u212-239-189-116.adsl.pi.be ([212.239.189.116]:14601 "EHLO
+	italy.lashout.net") by vger.kernel.org with ESMTP id S264061AbTFKTIW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 15:08:22 -0400
+Subject: Re: siI3112 crash on enabling dma
+From: Adriaan Peeters <apeeters@lashout.net>
+Reply-To: apeeters@lashout.net
+To: Justin Cormack <justin@street-vision.com>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <1055276951.2046.5.camel@lotte>
+References: <1054929160.1793.121.camel@localhost>
+	 <1055261120.28365.40.camel@localhost>  <1055276951.2046.5.camel@lotte>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1055359316.28365.317.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1055357432.17154.77.camel@serpentine.internal.keyresearch.com>
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 11 Jun 2003 21:21:56 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 11:50:32AM -0700, Bryan O'Sullivan wrote:
-> The time code for x86-64 in 2.5.70 isout of date and wildly unstable,
-> setting the clock to the year 1,115,117 (!) during boot about 60% of the
-> time.  This subsequently causes other pieces of completely unrelated
-> userspace software to crash randomly for no obvious reason once the
-> system comes up.
+On Tue, 2003-06-10 at 22:29, Justin Cormack wrote:
 
-Thanks for doing this work.
+> I got severe filesystem corruption on an Sii3112 system (Supermicro
+> E7505 with 2 onboard SiI3112) but I later memtested the machine and
+> found bad ram, so I dont think it is a valid example of corruption.
+> However I am still slightly suspicious. Did you have 
 
-Does it only look this way or is your white space really broken?
+The memory is stable, no problems in memtest.
 
-> Right now, the only known problem is with the fixup of jiffies if a
-> timer interrupt is lost, which I've hence turned off.  There's
-> preliminary support for using HPET for the gettimeofday vsyscall, but
-> since vsyscalls are disabled on x86-64 for now, that's obviously
-> untested.
+> echo "max_kb_per_request:15" > /proc/ide/hdXX/settings
+> set for the relevant drives? This is a known bug (I didnt have this
+> either, another reason why this is not a valid datapoint...)
 
-What makes you think they are disabled? They are used for every 64bit
-program that uses gettimeofday or time and enabled by default.
+These were not set when the error occured. I found this option after the
+crash somewhere on the net, but I can't find any references to it on
+google at the moment :( Can it cause that severe filesystem corruption ?
 
-> +static inline void rdtscll_sync(unsigned long *tsc)
-> +{
-> +	sync_core();
-> +	rdtscll(*tsc);
+Was DMA enabled on your system, and what drives did you use ?
 
-On UP the sync_core is not really needed, but more reliable. May be worth
-it to stick into an #ifdef though.
->  
->  	}
->   
-> +	call++;
-> +
+I tested several firmware revisions, disabled mmio in the driver,
+nothing helped. No DMA at boot, and the crash is easy to reproduce, for
+example:
 
-What's that?
+console1: dd if=/dev/hda of=/dev/null
+console2: hdparm -X66 -d1 /dev/hda
 
+result without max_kb_per_request:
+---
+/dev/hda:
+ setting using_dma to 1 (on)
+blk: queue c0468b00, I/O limit 4095Mb (mask 0xffffffff)
+ setting xfermode to 66 (UltraDMA mode2)
+hda: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
 
--Andi
+hda: dma_intr: status=0xd0 { Busy }
+
+hda: DMA disabled
+--
+
+result with max_kb_per_request:
+---
+/dev/hda:
+ setting using_dma to 1 (on)
+blk: queue c0468b00, I/O limit 4095Mb (mask 0xffffffff)
+ setting xfermode to 66 (UltraDMA mode2)
+hda: dma_timer_expiry: dma status = 0x21
+hda: timeout waiting for DMA
+hda: timeout waiting for DMA
+hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+--
+
+The system hangs and nothing is written to syslog.
+
+I don't know where to look next.
+
+-- 
+Adriaan Peeters <apeeters@lashout.net>
+

@@ -1,65 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275685AbRJAWvB>; Mon, 1 Oct 2001 18:51:01 -0400
+	id <S275694AbRJAW4K>; Mon, 1 Oct 2001 18:56:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275684AbRJAWuw>; Mon, 1 Oct 2001 18:50:52 -0400
-Received: from smtp3.libero.it ([193.70.192.53]:56810 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id <S275685AbRJAWuq>;
-	Mon, 1 Oct 2001 18:50:46 -0400
-Date: Tue, 2 Oct 2001 00:43:16 +0200
-From: antirez <antirez@invece.org>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: Andreas Dilger <adilger@turbolabs.com>,
-        Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>,
-        linux-kernel@vger.kernel.org, "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: /dev/random entropy calculations broken?
-Message-ID: <20011002004316.D2155@blu>
-Reply-To: antirez <antirez@invece.org>
-In-Reply-To: <20011001105927.A22795@turbolinux.com> <45266246.1001976925@[195.224.237.69]>
-Mime-Version: 1.0
+	id <S275695AbRJAW4A>; Mon, 1 Oct 2001 18:56:00 -0400
+Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:26347 "EHLO
+	smtprelay2.abs.adelphia.net") by vger.kernel.org with ESMTP
+	id <S275694AbRJAWzz>; Mon, 1 Oct 2001 18:55:55 -0400
+Message-ID: <3BB8F490.4638A81E@adelphia.net>
+Date: Mon, 01 Oct 2001 18:56:16 -0400
+From: "Rinaldi J. Montessi" <rinaldij@adelphia.net>
+Organization: http://www.Federalist.com/
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: <<=?iso-8859-1?Q?=A5?=>>
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: APIC revisited
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <45266246.1001976925@[195.224.237.69]>; from linux-kernel@alex.org.uk on Mon, Oct 01, 2001 at 10:55:26PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 01, 2001 at 10:55:26PM +0100, Alex Bligh - linux-kernel wrote:
-> However, unless one is worried about someone having broken
-> SHA-1 OR one is worried about annoying blocking behavour
-> on read(), I'm not convinced the entropy calculation is
-> doing anything useful anyway.
+I realize that this is a FAQ item, but the information contained therein
+is a bit sparse.  I have an Abitbp6 motherboard with dual celerons 533's
+not overclocked.  The bus is 66mhz.
 
-I think the /dev/random /dev/urandom solution is perfect
-from this point of view. Using /dev/random you can get
-random number that are secure _even_ if tomorrow SHA1 will
-be broken at the cost of a very slow generation.
-Or you may trust SHA1 (or some other crypto primitive) to
-avoid to collect too much entropy to generate the output.
-Probably real world applications should use
-/dev/urandom, assuming it's properly designed, i.e. the
-internal state is changed once there is enough entropy
-to create a new unguessable key, the entropy isn't
-overstimated, and so on.
+My boot params are (from dmesg)
 
-BTW I agree, instead to create a key being paranoid about
-the SHA1 security it's better to double check if the
-entropy source is ok. For example the linux PRNG used
-to collect a lot of entropy bits from the keyboard
-auto-repeat aaaaaaaaaaaaaa ...
-It's useless to try to collect enough entropy (and maybe
-overstimating it) to produce an output secure against
-SHA1 possible weakness (i.e. totally generated with
-entropy bits). It's probably better a more conservative
-approach in the entropy collection and to use a belived secure
-crypto primitive to produce the PRNG output.
+Kernel command line: BOOT_IMAGE=linux2410 ro root=2203
+BOOT_FILE=/boot/vmlinuz-2.4.10 hdc=ide-scsi noapic
 
-After all, unless you are using a one-time pad probably
-the key generated with /dev/random will be used with
-the crypto algorithms you refused to trust.
+The BIOS is set for MPS 1.1
 
+These are both recommended in the FAQ (as is trashing the Abit mobo, but
+that is not feasible at the present time).
+
+I am of the impression that with the noapic parameter all calls are to
+be handled via CPU0, yet I am getting several errors on CPU1 as well. 
+
+uptime
+4:28pm  up 4 days, 17:50,  4 users,  load average: 0.00, 0.00, 0.00
+
+/proc/interrupts
+
+           CPU0       CPU1       
+  0:   40989069          0          XT-PIC  timer
+  1:      64603          0          XT-PIC  keyboard
+  2:          0          0          XT-PIC  cascade
+  3:     663114          0          XT-PIC  eth1
+  7:     230556          0          XT-PIC  soundblaster
+  8:          1          0          XT-PIC  rtc
+  9:       2735          0          XT-PIC  eth0
+ 10:     720950          0          XT-PIC  ide2, ide3
+ 12:    2096913          0          XT-PIC  PS/2 Mouse
+ 14:     705487          0          XT-PIC  ide0
+ 15:          5          0          XT-PIC  ide1
+NMI:          0          0 
+LOC:   40988011   40988007 
+ERR:         97
+MIS:          0
+
+The errors are fairly divided between CPU0 and CPU1 54/43 per dmesg,
+although this seems to indicate otherwise.
+
+The last series of errors is fairly representative:
+
+APIC error on CPU0: 02(04)
+APIC error on CPU1: 04(08)
+APIC error on CPU1: 08(08)
+APIC error on CPU0: 04(04)
+APIC error on CPU0: 04(02)
+APIC error on CPU0: 02(02)
+
+Can I assume there is no kernel solution to this problem; and is there a
+way for me to quantify potential/probable file corruption?
+
+Thanks,
+
+Rinaldi
 -- 
-Salvatore Sanfilippo <antirez@invece.org>
-http://www.kyuzz.org/antirez
-finger antirez@tella.alicom.com for PGP key
-28 52 F5 4A 49 65 34 29 - 1D 1B F6 DA 24 C7 12 BF
+By all means marry. If you get a good wife you will become happy, 
+and if you get a bad one you will become a philosopher. --Socrates

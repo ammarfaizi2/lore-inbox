@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135426AbRD3Pyw>; Mon, 30 Apr 2001 11:54:52 -0400
+	id <S135463AbRD3P4c>; Mon, 30 Apr 2001 11:56:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135413AbRD3Pym>; Mon, 30 Apr 2001 11:54:42 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:1548 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S135427AbRD3Pya>;
-	Mon, 30 Apr 2001 11:54:30 -0400
-Date: Mon, 30 Apr 2001 11:54:57 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: David Emory Watson <demoryw@pacbell.net>, aia21@cam.ac.uk,
-        stoffel@casc.com, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: CML2 1.3.1, aka "I stick my neck out a mile..."
-Message-ID: <20010430115457.A28006@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alexander Viro <viro@math.psu.edu>,
-	David Emory Watson <demoryw@pacbell.net>, aia21@cam.ac.uk,
-	stoffel@casc.com, linux-kernel@vger.kernel.org,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010430025335.A5189@thyrsus.com> <Pine.GSO.4.21.0104300255530.4113-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0104300255530.4113-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, Apr 30, 2001 at 03:17:09AM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S135427AbRD3P4V>; Mon, 30 Apr 2001 11:56:21 -0400
+Received: from relay.freedom.net ([207.107.115.209]:12299 "HELO relay")
+	by vger.kernel.org with SMTP id <S135413AbRD3Pz4>;
+	Mon, 30 Apr 2001 11:55:56 -0400
+X-Freedom-Envelope-Sig: linux-kernel@vger.kernel.org AQHAkRjbtHLVD+Tjl8M/pWiWubc0UBoJzZruJzJcGflXfjzKQUr0gq6i
+Date: Mon, 30 Apr 2001 09:55:25 -0600
+Old-From: cacook@freedom.net
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Common GUI Config for All Users
+Content-Type: text/plain; charset = "us-ascii" 
+Content-Transfer-Encoding: 7bit
+From: cacook@freedom.net
+Message-Id: <20010430155605Z135413-409+1694@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro <viro@math.psu.edu>:
-> <wry> We hang in different parts of USENET </wry>
- 
-I don't hang in Usenet at all, any more.  Gave up on it about '98.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-You know why there's a Second Amendment?  In case the government fails to
-follow the first one.
-         -- Rush Limbaugh, in a moment of unaccustomed profundity 17 Aug 1993
+Looking for the best way to give all users a common desktop, which comes from one source (for easy administration).
+
+Found copying my /root/.gnome & .sawfish directories to a user home breaks the user's GUI, implying a symlink wouldn't work.  I am told .gnome & .sawfish can be copied to /etc/skel to give common look for new users, but need ongoing single-source control.  Besides, I tried copying root's config files to skel & it broke user GUIs.
+
+Security is also a concern, so couldn't symlink into root anyway.
+
+Symlinked root's panel file & folder to non-prived user's, but adding/removing an applet in root does not seem to affect the user's desktop.
+
+Recommendations & resources welcomed, please.
+--
+C.
+
+The best way out is always through.
+      - Robert Frost  A Servant to Servants, 1914

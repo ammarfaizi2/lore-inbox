@@ -1,74 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264153AbUHBMnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266469AbUHBMoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264153AbUHBMnW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 08:43:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266460AbUHBMnW
+	id S266469AbUHBMoS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 08:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266460AbUHBMoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 08:43:22 -0400
-Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:45840
-	"EHLO muru.com") by vger.kernel.org with ESMTP id S264153AbUHBMnU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 08:43:20 -0400
-Date: Mon, 2 Aug 2004 05:43:18 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: MSI K8N Neo + powernow-k8: ACPI info is worse than BIOS PST
-Message-ID: <20040802124318.GA30100@atomide.com>
-References: <20040731140008.GJ4108@li2-47.members.linode.com> <20040802100658.GC10412@atomide.com> <20040802114655.GD18254@li2-47.members.linode.com>
-Mime-Version: 1.0
+	Mon, 2 Aug 2004 08:44:18 -0400
+Received: from zero.aec.at ([193.170.194.10]:57868 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S266469AbUHBMoJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 08:44:09 -0400
+To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [Patch for review] BSD accounting IO stats
+References: <2oJkL-4sl-41@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 02 Aug 2004 14:44:03 +0200
+In-Reply-To: <2oJkL-4sl-41@gated-at.bofh.it> (Guillaume Thouvenin's message
+ of "Mon, 02 Aug 2004 13:40:11 +0200")
+Message-ID: <m3r7qpsoa4.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040802114655.GD18254@li2-47.members.linode.com>
-User-Agent: Mutt/1.3.28i
-X-Mailer: Mutt http://www.mutt.org/
-X-URL: http://www.muru.com/ http://www.atomide.com
-X-Accept-Language: fi en
-X-Location: USA, California, San Francisco
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Randall Nortman <linuxkernellist@wonderclown.com> [040802 04:47]:
-> On Mon, Aug 02, 2004 at 03:07:01AM -0700, Tony Lindgren wrote:
-> > * Randall Nortman <linuxkernellist@wonderclown.com> [040731 07:01]:
-> > > 
-> > > If anybody qualified to hack this code is interested in creating a
-> > > real workaround for BIOSes like this, I offer my system (and my time,
-> > > as I cannot give remote access) for testing.  I would suggest adding a
-> > > compile-time or load-time option to prefer the BIOS over ACPI (as in
-> > > powernow-k7, I think), and maybe a compile-time option to use Tony's
-> > > hardcoded tables.
-> > 
-> > Just to clarify a bit, my patch only uses the 800MHz hardcoded, which
-> > should work on all AMD64 processors. The max value used is the current
-> > running value.
-> 
-> 
-> Actually, thanks to an off-list response from Anton Ertl (anton at
-> mips dot complang dot tuwien dot ac dot at), I have made an important
-> discovery that's relevant to my situation and your patch: newer amd64
-> cores (Newcastle cores) cannot clock down to 800MHz!  I apparently am
-> lucky enough to have gotten the CG stepping of my CPU, which supports
-> 1000, 1800, and 2000MHz modes, exactly as reported by the BIOS.  I
-> have therefore backed out your patch, and the result is that my system
-> is actually snappier.  (I suspect that really weird things were
-> happening when cpufreq tried to clock down to 800MHz; I was getting
-> high CPU load, periodic temporary freezes, and audio glitches, all of
-> which went away when I set the minimum clock to 1000MHz.  I hope I
-> didn't do any permanent damage.)  These new cores actually consume
-> less power at 1000MHz than the old ones did at 800MHz, so it's a
-> win-win for the lucky ones like me.
+Guillaume Thouvenin <guillaume.thouvenin@bull.net> writes:
 
-OK, then my patch does not work any more unless there's some way to
-detect what's the correct minimum speed. Since my system works with
-just the ACPI tables, it's unlikely that I'll spend more time on 
-this :)
+> diff -uprN -X dontdiff linux-2.6.8-rc2/drivers/block/ll_rw_blk.c linux-2.6.8-rc2+BSDacct_IO/drivers/block/ll_rw_blk.c
+> --- linux-2.6.8-rc2/drivers/block/ll_rw_blk.c	2004-07-18 06:57:42.000000000 +0200
+> +++ linux-2.6.8-rc2+BSDacct_IO/drivers/block/ll_rw_blk.c	2004-07-27 09:17:33.149321480 +0200
+> @@ -1949,10 +1949,12 @@ void drive_stat_acct(struct request *rq,
+>  
+>  	if (rw == READ) {
+>  		disk_stat_add(rq->rq_disk, read_sectors, nr_sectors);
+> +		current->rblk += nr_sectors;
 
-> Now that I see that my BIOS table was correct after all, I'm left
-> wondering why MSI would have gotten that right but the ACPI wrong,
-> since Windows uses the ACPI information afaik.  And that leads me to
-> suspect that perhaps the bug is in the powernow-k8 ACPI code rather
-> than my firmware.  Any thoughts?
+This doesn't look very useful, because most writes which
+are flushed delayed would get accounted to pdflushd.
+Using such inaccurate data for accounting sounds quite dangerous
+to me.
 
-No idea...
+If you really wanted to do this i guess you would need to 
+track the pid of the process and account it there. But the
+process may be already gone, so it would better fit into
+some other longer lived data structure (like the uid) 
 
-Tony
+Overall I don't think this accounting is worth it because
+doing it right would be quite some overhead and doing it in
+a simple way like this patch is too inaccurate.
+
+-Andi
+

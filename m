@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbTJORkt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 13:40:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263764AbTJORks
+	id S263763AbTJORib (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 13:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263764AbTJORia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 13:40:48 -0400
-Received: from hugin.maersk-moller.net ([193.88.237.237]:20357 "EHLO
-	hugin.maersk-moller.net") by vger.kernel.org with ESMTP
-	id S263777AbTJORkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 13:40:40 -0400
-Message-ID: <3F8D8690.9040104@maersk-moller.net>
-Date: Wed, 15 Oct 2003 19:40:32 +0200
-From: Peter Maersk-Moller <peter@maersk-moller.net>
-Organization: Visit <http://www.maersk-moller.net/>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx lockup for SMP for 2.4.22
-References: <3F8D1377.3060509@maersk-moller.net> <3F8D3A47.1000804@maersk-moller.net> <Pine.LNX.4.53.0310151124180.2328@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.53.0310151124180.2328@montezuma.fsmlabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Oct 2003 13:38:30 -0400
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:2547 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S263763AbTJORiX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 13:38:23 -0400
+Date: Wed, 15 Oct 2003 11:37:19 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Nikita Danilov <Nikita@Namesys.COM>,
+       Erik Mouw <erik@harddisk-recovery.com>,
+       Josh Litherland <josh@temp123.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Transparent compression in the FS
+Message-ID: <20031015113719.E1593@schatzie.adilger.int>
+Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
+	Nikita Danilov <Nikita@Namesys.COM>,
+	Erik Mouw <erik@harddisk-recovery.com>,
+	Josh Litherland <josh@temp123.org>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <16269.20654.201680.390284@laputa.namesys.com> <20031015142738.GG24799@bitwizard.nl> <16269.23199.833564.163986@laputa.namesys.com> <Pine.LNX.4.53.0310151150370.7350@chaos> <16269.29716.461117.338214@laputa.namesys.com> <Pine.LNX.4.53.0310151253001.7576@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.53.0310151253001.7576@chaos>; from root@chaos.analogic.com on Wed, Oct 15, 2003 at 01:19:09PM -0400
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Oct 15, 2003  13:19 -0400, Richard B. Johnson wrote:
+> On Wed, 15 Oct 2003, Nikita Danilov wrote:
+> > It could not if block-level compression is used. Which is the only
+> > solution, given random-access to file bodies.
+> 
+> Then the degenerative case is no compression at all. There is no
+> advantage to writing a block that is 1/N full of compressed data.
+> You end up having to write the whole block anyway.
 
-Zwane Mwaikambo wrote:
->>More info on the subject. It turns out that a 2.4.22 kernel
->>without SMP-support but with IO-APIC enabled will also lock-up/stop
->>when it installs the aic7xxx driver upon boot. Disabling the IO-APIC
->>and disabling SMP-support makes the kernel boot normally.
+In the ext2 compression code, they compress maybe 8 source blocks into
+(hopefully) some smaller number of compressed blocks.  Yes, there is still
+a minimum block size, but you can save some reasonable fraction of the
+total space (e.g. 8 blocks down to 4.5 blocks still gives you 5/8 = 37%
+compression, although not 50%).  You get more efficient compression the
+more source blocks you use, although your "damage area" grows in case of
+error.
 
-> How about UP and IO-APIC?
-
-Assuming UP means uni-processor, do you then mean removing
-one of the processors or just disabling (ie. not enabling) SMP ?
-
-The latter case (enabling IO-APIC and disabling SMP) makes the
-boot process halt when it come to activating the aic7xxx driver.
-
---PMM
-
-----------------------------------------------------------------
-Peter Maersk-Moller
-----------------------------------------------------------------
-Ogg/Vorbis support for MPEG4IP. YUV12, XviD, AVI and MP4 support
-for libmpeg2. See http://www.maersk-moller.net/projects/
-----------------------------------------------------------------
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

@@ -1,37 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266422AbUBEUYP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 15:24:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266519AbUBEUYP
+	id S266564AbUBEUdv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 15:33:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266631AbUBEUdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 15:24:15 -0500
-Received: from smtp102.mail.sc5.yahoo.com ([216.136.174.140]:57533 "HELO
-	smtp102.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266422AbUBEUYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 15:24:05 -0500
-From: Murilo Pontes <murilo_pontes@yahoo.com.br>
-To: linux-kernel@vger.kernel.org
-Subject: Re: psmouse.c, throwing 3 bytes away
-Date: Thu, 5 Feb 2004 17:24:27 +0000
-User-Agent: KMail/1.6
-References: <200402041820.39742.wnelsonjr@comcast.net>
-In-Reply-To: <200402041820.39742.wnelsonjr@comcast.net>
+	Thu, 5 Feb 2004 15:33:50 -0500
+Received: from gw0.infiniconsys.com ([65.219.193.226]:61454 "EHLO
+	mail.infiniconsys.com") by vger.kernel.org with ESMTP
+	id S266564AbUBEUcK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 15:32:10 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200402051517.37466.murilo_pontes@yahoo.com.br>
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Date: Thu, 5 Feb 2004 15:32:09 -0500
+Message-ID: <08628CA53C6CBA4ABAFB9E808A5214CB01DB96CF@mercury.infiniconsys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Thread-Index: AcPsJocX0LYSfnIgQamxpWSnv401JQAADleg
+From: "Tillier, Fabian" <ftillier@infiniconsys.com>
+To: "Greg KH" <greg@kroah.com>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, <sean.hefty@intel.com>,
+       <linux-kernel@vger.kernel.org>, <hozer@hozed.org>, <woody@co.intel.com>,
+       <bill.magro@intel.com>, <woody@jf.intel.com>,
+       <infiniband-general@lists.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have same problems since of 2.6.0, now I running 2.6.2 stock kernel
-I run XFree86-4.3.0 and still with problems, anyone try XFree86-4.4.0 devel snapshots???
+So which is more important to the "Linux kernel" project: i386 backwards
+compatibility, or consistent API and functionality across processor
+architectures? ;)
 
-I try kernel with/without  preempty/acpi/apic make all possibilities, 
-then may be error is not in kernel, but in XFree86-4.3.0 which not support big changes in input system
-of 2.6.x, I tried compile XFree86 with linux-2.6.{0,1,2} kernel headers was 100% fail, sounds binary 
-and source incompatibilites,  
+- Fab
 
 
-Thanks in advance
+-----Original Message-----
+From: Greg KH [mailto:greg@kroah.com] 
+Sent: Thursday, February 05, 2004 12:28 PM
+To: Tillier, Fabian
+Cc: Randy.Dunlap; sean.hefty@intel.com; linux-kernel@vger.kernel.org;
+hozer@hozed.org; woody@co.intel.com; bill.magro@intel.com;
+woody@jf.intel.com; infiniband-general@lists.sourceforge.net
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
+theLinux kernel
+
+On Thu, Feb 05, 2004 at 02:26:19PM -0500, Tillier, Fabian wrote:
+> Do note that for non x86 architectures, the component library atomic
+> abstraction is all #define to the Linux provided functions.  Only x86
+> needed help because of i386 backwards compatibility which is not a
+goal
+> of the InfiniBand project.
+
+But that is a goal of the "Linux kernel" project :)
+
+greg k-h

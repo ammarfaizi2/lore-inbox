@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129712AbRCAQue>; Thu, 1 Mar 2001 11:50:34 -0500
+	id <S129734AbRCAQxx>; Thu, 1 Mar 2001 11:53:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129723AbRCAQuY>; Thu, 1 Mar 2001 11:50:24 -0500
-Received: from mehl.gfz-potsdam.de ([139.17.1.100]:13013 "EHLO
-	mehl.gfz-potsdam.de") by vger.kernel.org with ESMTP
-	id <S129712AbRCAQuT> convert rfc822-to-8bit; Thu, 1 Mar 2001 11:50:19 -0500
-Date: Thu, 1 Mar 2001 17:50:04 +0100
-From: Steffen Grunewald <steffen@gfz-potsdam.de>
+	id <S129725AbRCAQxo>; Thu, 1 Mar 2001 11:53:44 -0500
+Received: from gear.torque.net ([204.138.244.1]:62224 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S129723AbRCAQxh>;
+	Thu, 1 Mar 2001 11:53:37 -0500
+Message-ID: <3A9E7D1B.3B0C067B@torque.net>
+Date: Thu, 01 Mar 2001 11:47:23 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.2 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: Tim Walberg <tewalberg@mediaone.net>
-Subject: Re: smartmedia adapter support??
-Message-ID: <20010301175002.H7883@dss19>
-Mail-Followup-To: Steffen Grunewald <steffen>, linux-kernel@vger.kernel.org,
-	Tim Walberg <tewalberg@mediaone.net>
-In-Reply-To: <20010301100041.A22824@mediaone.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010301100041.A22824@mediaone.net>; from tewalberg@mediaone.net on Thu, Mar 01, 2001 at 10:00:41AM -0600
-X-Disclaimer: I don't speak for no one else. And vice versa
-X-Operating-System: SunOS
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by dss19.gfz-potsdam.de id RAA14680
+Subject: Re: Writing on raw device with software RAID 0 is slow
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 2001-03-01 (10:00), Tim Walberg wrote:
-> Just wondering whether anyone has successfully gotten
-> either a PCMCIA SmartMedia Adapter (specifically the
-> Viking Components one) or a FlashPath floppy SmartMedia
-> adapter working under 2.4.x. I've got both, and haven't
-> gotten either working under either 2.2.x or 2.4.x, but
-> I haven't had the time to work real hard at it either,
-> so I'm hoping someone can give me some pointers...
+ 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-http://www.smartdisk.com has a driver (which includes a binary-
-only library) for FlashPath that you can compile for your kernel
+Ben LaHaise wrote:
+> On Thu, 1 Mar 2001, Stephen C. Tweedie wrote:
+> 
+> > Yep.  There shouldn't be any problem increasing the 64KB size, it's
+> > only the lack of accounting for the pinned memory which stopped me
+> > increasing it by default.
+> 
+> Actually, how about making it a sysctl?  That's probably the most
+> reasonable approach for now since the optimal size depends on hardware.
 
-Works fine here (2.2.16)
+Something else may slow down raw IO. A buffer
+that looks contiguous in the user space typically looks
+quite splintered from the kernel's perspective. This
+means that a buffer of 64 KB in the user space ends
+up being a scatter gather list of 16 elements (assuming
+PAGE_SIZE of 4KB) en route to the IDE or SCSI subsystem.
 
-Don't know about PCMCIA though
+Now one SCSI adapter that I have examined must push each
+scatter gather element through its firmware to the DMA 
+engine which can only hold one element at a time. 
+That takes time.
 
-Steffen
--- 
-Steffen Grunewald | GFZ | PB 2.2 | Telegrafenberg E3 | D-14473 Potsdam
-» email: steffen(at)gfz-potsdam.de | fax/fon: +49-331-288-1266/-1245 «
-Software is like sex - it's better when it's free. --- Linus Torvalds
+Doug Gilbert

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281563AbRKMJlS>; Tue, 13 Nov 2001 04:41:18 -0500
+	id <S281565AbRKMJn6>; Tue, 13 Nov 2001 04:43:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281564AbRKMJlI>; Tue, 13 Nov 2001 04:41:08 -0500
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:13579 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S281563AbRKMJk6> convert rfc822-to-8bit; Tue, 13 Nov 2001 04:40:58 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Christian =?iso-8859-15?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: =?iso-8859-15?q?Fran=E7ois=20Cami?= <stilgar2k@wanadoo.fr>,
-        Sean Elble <S_Elble@yahoo.com>
-Subject: Re: Testing Kernel Releases Before Being Released (Was Re: Re: loop back broken in 2.2.14)
-Date: Tue, 13 Nov 2001 10:39:24 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: joeja@mindspring.com, John Alvord <jalvo@mbay.net>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Springmail.105.1005596822.0.40719200@www.springmail.com> <015101c16bdc$e633dbe0$0a00a8c0@intranet.mp3s.com> <3BF07147.5050503@wanadoo.fr>
-In-Reply-To: <3BF07147.5050503@wanadoo.fr>
+	id <S281566AbRKMJns>; Tue, 13 Nov 2001 04:43:48 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1288 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S281565AbRKMJnl>; Tue, 13 Nov 2001 04:43:41 -0500
+Subject: Re: DMA problem (?) w/ 2.4.6-xfs and ServerWorks OSB4 Chipset
+To: adam-dated-1006069566.ee3370@flounder.net (Adam McKenna)
+Date: Tue, 13 Nov 2001 09:51:21 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011112234604.C29675@flounder.net> from "Adam McKenna" at Nov 12, 2001 11:46:04 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E163a2V-0002D4-00@mrvdom01.schlund.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E163aDx-0000aQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am wondering too... Anyone got ideas on this ?
->
-> I would like to avoid some specific problems... especially
-> bugs that show up when compiling a certain module / feature
-> of the kernel, like the loopback in 2.4.14.
+> I ask because I'm still having major problems with the OSB4 chipset on
+> 2.4.14.  I've had to disable DMA completely on my boxes to avoid IDE errors
+> and fs corruption.  Does anyone know of a patch that addresses the issues
+> with this chipset?
 
-Why not introduce a linux-2.4.xx-rc?
+No. I spent some time digging into this problem with both Serverworks and
+Red Hat customers. With certain disks, certain OSB4 revisions and UDMA 
+the controller occasionally gets "stuck", the next DMA it issues starts
+by reissuing the last 4 bytes of the previous request and the entire thing
+goes totally to crap.
 
-If there is no compile error or huge problem it will become linux-2.4.xx 
-__without__ any change after 1 day.
-If there is a problem, only a patch for this problem is applied. 
-Just an idea
+The -ac tree will detect this case and panic and hang the machine solid to
+avoid actual disk corruption. The real fix appears to be "dont do UDMA on
+the OSB4". The CSB5 seems fine.
 
-greetings
-
-Christian
+Alan

@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263812AbTEFP1T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 11:27:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263813AbTEFP1S
+	id S263834AbTEFPbI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 11:31:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263847AbTEFPbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 11:27:18 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:31045 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP id S263812AbTEFP1R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 11:27:17 -0400
-To: Andrew Morton <akpm@digeo.com>
-Cc: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.69-mm1
-References: <20030504231650.75881288.akpm@digeo.com>
-	<1052231590.2166.141.camel@spc9.esa.lanl.gov>
-	<20030506083358.348edb4d.akpm@digeo.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 06 May 2003 09:36:38 -0600
-In-Reply-To: <20030506083358.348edb4d.akpm@digeo.com>
-Message-ID: <m17k949jeh.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	Tue, 6 May 2003 11:31:08 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:2213 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263834AbTEFPau (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 11:30:50 -0400
+Date: Tue, 6 May 2003 17:43:23 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Pascal Schmidt <der.eremit@email.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [IDE] trying to make MO drive work with ide-floppy/ide-cd
+Message-ID: <20030506154323.GE905@suse.de>
+References: <20030506140751.GA25817@suse.de> <Pine.LNX.4.44.0305061715150.965-100000@neptune.local> <20030506152543.GX905@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030506152543.GX905@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> writes:
+On Tue, May 06 2003, Jens Axboe wrote:
+> > > You need to patch cdrom.c as well:
+> > > 
+> > > 	if ((fp->f_mode & FMODE_WRITE) && !CDROM_CAN(CDC_DVD_RAM))
+> > > 		return -EROFS;
+> > > 
+> > 
+> > Simply removing that test doesn't get me working write support,
+> > I still get:
+> > 
+> > # mount -t ext2 /dev/hde /mnt/mo
+> > mount: block device /dev/hde is write-protected, mounting read-only
+> > 
+> > The disk is not write-protected, I checked.
+> 
+> Shouldn't matter, the drive has to check for that particular bit (and it
+> obviously does not). Are we still talking 2.5 or 2.4?
 
-> Steven Cole <elenstev@mesatop.com> wrote:
-> >
-> > I have one machine for testing which is running X, and a kexec reboot
-> >  glitches the video system when initiated from runlevel 5.  Kexec works fine
-> >  from runlevel 3.
-> 
-> Yes, there are a lot of driver issues with kexec.  Device drivers will assume
-> that the hardware is in the state which the BIOS left behind.
-> 
-> In this case, the Linus device driver's shutdown functions are obviously not
-> leaving the card in a pristine state.  A lot of drivers _do_ do this
-> correctly.  But some don't.
-> 
-> It seems that kexec is really supposed to be invoked from run level 1.  ie:
-> you run all your system's shutdown scripts before switching.  If you'd done
-> that then you wouldn't have been running X and all would be well.
-> 
-> do-kexec.sh is for the very impatient ;)
+You also need to fix this in ide-cd:
 
-The biggest issue with kexec when you are in X is that nothing
-tells X to shutdown.  So you have to at least shutdown X manually.
+	if (CDROM_CONFIG_FLAGS(drive)->dvd_ram)
+		set_disk_ro(drive->disk, 0);
 
-Eric
+-- 
+Jens Axboe
+

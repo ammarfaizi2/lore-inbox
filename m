@@ -1,84 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289901AbSAOOvY>; Tue, 15 Jan 2002 09:51:24 -0500
+	id <S289840AbSAOOzY>; Tue, 15 Jan 2002 09:55:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289881AbSAOOvI>; Tue, 15 Jan 2002 09:51:08 -0500
-Received: from Morgoth.esiway.net ([193.194.16.157]:34056 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S289840AbSAOOuy>; Tue, 15 Jan 2002 09:50:54 -0500
-Date: Tue, 15 Jan 2002 15:50:48 +0100 (CET)
-From: Marco Colombo <marco@esi.it>
-To: Giacomo Catenazzi <cate@debian.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery
- --the elegant solution)
-In-Reply-To: <3C442BDB.7010008@debian.org>
-Message-ID: <Pine.LNX.4.33.0201151517550.11441-100000@Megathlon.ESI>
+	id <S289876AbSAOOzO>; Tue, 15 Jan 2002 09:55:14 -0500
+Received: from warden.digitalinsight.com ([208.29.163.2]:39331 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S289840AbSAOOzG>; Tue, 15 Jan 2002 09:55:06 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Felix von Leitner <felix-dietlibc@fefe.de>
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, Greg KH <greg@kroah.com>,
+        linux-kernel@vger.kernel.org, andersen@codepoet.org
+Date: Tue, 15 Jan 2002 06:54:46 -0800 (PST)
+Subject: Re: [RFC] klibc requirements
+In-Reply-To: <20020115115544.GA20020@codeblau.de>
+Message-ID: <Pine.LNX.4.40.0201150649430.23491-100000@dlang.diginsite.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Jan 2002, Giacomo Catenazzi wrote:
+On Tue, 15 Jan 2002, Felix von Leitner wrote:
 
-> 
-> 
-> Marco Colombo wrote:
-> 
->  
-> > Alan, Eric (and others, too), please.
-> > Of course the autoconfigurator is an useful piece of software.
-> > And of course Eric is posting to the wrong list here. Kernel developers
-> > don't need any autoconfigurator at all (yes, it's just "extra state").
-> 
-> 
-> The main discussion was in kbuild-devel list.
+> Date: Tue, 15 Jan 2002 12:55:44 +0100
+> From: Felix von Leitner <felix-dietlibc@fefe.de>
+> To: Albert D. Cahalan <acahalan@cs.uml.edu>
+> Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+>      andersen@codepoet.org
+> Subject: Re: [RFC] klibc requirements
+>
+> Thus spake Albert D. Cahalan (acahalan@cs.uml.edu):
+> > I think the dietlibc idea has to be scrapped so we can run BSD apps.
+> > (and others maybe, but I'm not looking to start a flame war)
+>
+> What apps are you talking about?
 
-Uh, my mailbox hurts just at the thought of even more posting on the suject.
+he's talking about licencing issues.
 
-> > Eric, Aunt Tillie doesn't need any custom-made, untested, probably not
-> > working kernel. QA comes at a price. The lastest VM fix may take a while
-> > to reach mainstream kernels. That's life.
-> 
-> Maybe this force kernel maintainer to merge the tested and trusted
-> distribution patches into the main kernel's branches.
+LGPL libc replacements can be used with any program, GPL libc replacements
+can only be used with programs licenced in a way that can be combined with
+GPL (and the resulting program is GPL.
 
-Which means, in Alan's (and Yoda's) words, even more perturbations of the
-Source. I don't really like the idea of kernel maintainers forced into
-anything...
+as an example (not for the boot process, but an example of a replacement
+libc use) I use the firewall toolkit, it has been around for a _loooong_
+time (in software terms anyway) and has a firly odd licence (free for you
+to use, source available, cannot sell it) which is not compatable with the
+GPL. with glibc staticly linked this makes huge binaries, with libc5 they
+were a lot smaller. I would like to try to use this small libc for these
+proxies, but if the library is GPL, not LGPL I'm not allowed to.
 
-Kernel tarballs are for hackers. Marcelo can't test any configuration
-the autoconfigurator can produce. So basically it means an untested
-kernel. Running untested kernel isn't a job for Joe User, and never
-will be.
-
-Some distro vendor may be interested in an easy, do-it-yourself kernel
-compilation & customization tool. It brings almost nothing to kernel
-developers.
-
-Vendors and kernel developers have different goals. That horrible hack
-that fixes some bug or misbehavior fits fine into a vendor kernel, and
-has no place in Marcelo's tree; the same for that C++ written, cross OS
-crap driver for hardware XYZ. Users want it, vendors provide it.
-Different goals, different targets.
-
-> Anyway, the target of Linux changes. If was a toy for hacker 10 year
-> ago, maybe in future will be the toy for Aunt Tillies. So:
-> Forget aunts and the other scenarios of Eric.
-> Let talk about what autoconfigure can do yet (aka the creation of
-> a /proc/drivers (better in /dev) with a list of all running
-> kernel drivers. aka how the modules will be in the next months)
-
-Creating .config (or whatever) is an userland issue, IMHO. /proc/driver
-and the like is another issue, as it can be useful in general. 
-
-Autoconfiguration is nice. But please move the topic elsewhere.
-
-.TM.
--- 
-      ____/  ____/   /
-     /      /       /			Marco Colombo
-    ___/  ___  /   /		      Technical Manager
-   /          /   /			 ESI s.r.l.
- _____/ _____/  _/		       Colombo@ESI.it
-
+David Lang

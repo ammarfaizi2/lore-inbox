@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262410AbUBYDd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 22:33:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUBYDd2
+	id S262398AbUBYDba (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 22:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUBYDb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 22:33:28 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:14764 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S262410AbUBYDd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 22:33:27 -0500
-Date: Tue, 24 Feb 2004 22:32:52 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: "Woodruff, Robert J" <woody@co.intel.com>
-cc: Christoph Hellwig <hch@infradead.org>,
-       "Woodruff, Robert J" <woody@jf.intel.com>,
-       <linux-kernel@vger.kernel.org>, "Hefty, Sean" <sean.hefty@intel.com>,
-       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-       "Davis, Arlin R" <arlin.r.davis@intel.com>,
-       <marcelo.tosatti@cyclades.com>, <torvalds@osdl.org>,
-       Troy Benjegerdes <hozer@hozed.org>, Greg KH <greg@kroah.com>
-Subject: RE: PATCH - InfiniBand Access Layer (IBAL)
-In-Reply-To: <F595A0622682C44DBBE0BBA91E56A5ED1C36CC@orsmsx410.jf.intel.com>
-Message-ID: <Pine.LNX.4.44.0402242232070.15091-100000@chimarrao.boston.redhat.com>
+	Tue, 24 Feb 2004 22:31:29 -0500
+Received: from mail-10.iinet.net.au ([203.59.3.42]:22718 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S262398AbUBYDb2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 22:31:28 -0500
+Message-ID: <403C170B.7020207@cyberone.com.au>
+Date: Wed, 25 Feb 2004 14:31:23 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org, Cliff White <cliffw@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: reaim - 2.6.3-mm1 IO performance down.
+References: <1077674458.403c01da445ea@vds.kolivas.org>
+In-Reply-To: <1077674458.403c01da445ea@vds.kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Feb 2004, Woodruff, Robert J wrote:
+Con Kolivas wrote:
 
-> You may want to start talking more with some of your customers. I'm
-> thinkin they might have a different opinion about wanting InfiniBand
-> support in Linux.
+>
+>>Running the reaim 'new_fserver' workload, we now see a performance drop on
+>>2.6.3-mm1, ext3 filesystem
+>>
+>
+>I observed a serious slowdown on non numa, non smt machines with kernbench and
+>the scheduler changes (posted results a week ago here:
+>http://marc.theaimsgroup.com/?l=linux-kernel&m=107719112225482&w=2 )
+>
+>A summary of those results is half job load (-j4 on 8x):
+>2.6.3: Elapsed Time 231.274
+>2.6.3-mm1: Elapsed Time 273.688
+>
+>The drop in reaim performance is possibly related.
+>
+>
 
-What would customers do with an infiniband layer for
-which no device drivers are available ?
-
-Now if the device drivers were available, it would
-make sense...
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+I have been meaning to look at that. The STP wasn't working
+for me for a couple of days, but Cliff fixed that so I'll get
+on it.
 

@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVAGXnN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbVAGXp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbVAGXnN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 18:43:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVAGXdc
+	id S261715AbVAGXp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 18:45:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVAGXnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 18:33:32 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:55682 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261737AbVAGXcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 18:32:24 -0500
-Subject: RE: [PATCH 2.6] cciss typo fix
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF107DC0185@cceexc23.americas.cpqcorp.net>
-References: <D4CFB69C345C394284E4B78B876C1CF107DC0185@cceexc23.americas.cpqcorp.net>
-Content-Type: text/plain
-Date: Fri, 07 Jan 2005 18:32:02 -0500
-Message-Id: <1105140722.4151.28.camel@mulgrave>
+	Fri, 7 Jan 2005 18:43:25 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:56059 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261715AbVAGXgk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 18:36:40 -0500
+Date: Fri, 7 Jan 2005 15:36:32 -0800
+From: Greg KH <greg@kroah.com>
+To: Ikke <ikke.lkml@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kobject_uevent
+Message-ID: <20050107233632.GA1467@kroah.com>
+References: <297f4e01050107065060e0b2ad@mail.gmail.com> <297f4e0105010713254b6e0678@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <297f4e0105010713254b6e0678@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-07 at 17:24 -0600, Miller, Mike (OS Dev) wrote:
-> Hmmm, SuSE complained that __be32 was not defined in the kernel. Any other thoughts, anyone?
+On Fri, Jan 07, 2005 at 10:25:14PM +0100, Ikke wrote:
+> I'm a little confused by the use of KOBJ_* stuff in
+> include/linux/kobject_uevent.h and the string representation of them
+> in lib/kobject_uevent.c, which means people must edit 2 files if they
+> want to add new events?
 
-Erm, well it might not be defined in the SuSE kernel ... that's based on
-2.6.5, I believe.  These symbols are definitely defined in the mainline
-kernel.
+Yes, that is exactly correct.  The enumerated type is used for the
+callers to kobject_uevent* and the string is sent out on the wire from
+within the kevent core code.
 
-James
+Hope this helps,
 
-
+greg k-h

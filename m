@@ -1,45 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261526AbTCZLQY>; Wed, 26 Mar 2003 06:16:24 -0500
+	id <S261522AbTCZLPn>; Wed, 26 Mar 2003 06:15:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261598AbTCZLQY>; Wed, 26 Mar 2003 06:16:24 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:35297 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S261526AbTCZLQW>;
-	Wed, 26 Mar 2003 06:16:22 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Wed, 26 Mar 2003 12:27:29 +0100 (MET)
-Message-Id: <UTC200303261127.h2QBRTt05048.aeb@smtp.cwi.nl>
-To: corryk@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: struct dm_ioctl
-Cc: joe@fib011235813.fsnet.co.uk, lvm-devel@sistina.com
+	id <S261526AbTCZLPm>; Wed, 26 Mar 2003 06:15:42 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:195 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261522AbTCZLPl>; Wed, 26 Mar 2003 06:15:41 -0500
+Date: Wed, 26 Mar 2003 12:26:49 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.5.66: compile problem with snd-ice1724
+Message-ID: <20030326112648.GL24744@fs.tum.de>
+References: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The main users of dev_t in the userspace-kernel interface
-are mknod and stat. But there is a small collection of
-more obscure interfaces that use a dev_t parameter
-(like the ustat system call) or a dev_t field in a
-parameter struct (for example, struct loopinfo,
-struct nfsctl_export, struct dm_ioctl).
+On Mon, Mar 24, 2003 at 03:26:47PM -0800, Linus Torvalds wrote:
+>...
+> Summary of changes from v2.5.65 to v2.5.66
+> ============================================
+>...
+> Jaroslav Kysela <perex@suse.cz>:
+>   o ALSA update
+>...
 
-It is almost always a mistake to have an interface
-with a dev_t field, since nobody knows the size of
-a dev_t field. The kernel size differs from the user
-space size, the libc5 size differs from the glibc size.
-A struct with such a field therefore has unknown size,
-the fields following the dev_t field have unknown offset,
-and lots of troubles arise.
-Such interfaces are broken from the start.
+snd-ice1724 seems to be too much of a copy of snd-ice1712, trying to 
+compile both into the kernel results in the following error:
 
-But there are a few and we must deal with them one by one.
+<--  snip  -->
 
-One is struct dm_ioctl. Google tells me that it was
-noticed already that it defined a broken interface,
-and Kevin Corry submitted a patch against 2.5.51.
-Today this has not been applied yet.
+...
+   ld -m elf_i386  -r -o sound/pci/ice1712/built-in.o 
+sound/pci/ice1712/snd-ice1712.o sound/pci/ice1712/snd-ice1724.o
+sound/pci/ice1712/snd-ice1724.o(.text+0x540): In function 
+`snd_ice1712_akm4xxx_init':
+: multiple definition of `snd_ice1712_akm4xxx_init'
+sound/pci/ice1712/snd-ice1712.o(.text+0x7540): first defined here
+sound/pci/ice1712/snd-ice1724.o(.text+0x2c0): In function 
+`snd_ice1712_akm4xxx_reset':
+: multiple definition of `snd_ice1712_akm4xxx_reset'
+sound/pci/ice1712/snd-ice1712.o(.text+0x72c0): first defined here
+sound/pci/ice1712/snd-ice1724.o(.text+0x8c0): In function 
+`snd_ice1712_akm4xxx_build_controls':
+: multiple definition of `snd_ice1712_akm4xxx_build_controls'
+sound/pci/ice1712/snd-ice1712.o(.text+0x78c0): first defined here
+sound/pci/ice1712/snd-ice1724.o(.text+0x0): In function 
+`snd_ice1712_akm4xxx_write':
+: multiple definition of `snd_ice1712_akm4xxx_write'
+sound/pci/ice1712/snd-ice1712.o(.text+0x7000): first defined here
+make[3]: *** [sound/pci/ice1712/built-in.o] Error 1
 
-What is the status? Should I resubmit that patch?
+<--  snip  -->
 
-[http://marc.theaimsgroup.com/?l=linux-kernel&m=103956089203199&w=3]
+cu
+Adrian
 
-Andries
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

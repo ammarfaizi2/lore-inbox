@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbTISWNQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 18:13:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbTISWNQ
+	id S261833AbTISWOn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 18:14:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbTISWOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 18:13:16 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:19189 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261844AbTISWNN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 18:13:13 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: use O_DIRECT open file, when read will hang.
-Date: Fri, 19 Sep 2003 15:12:06 -0700
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org, suparna@in.ibm.com
-References: <20030919124631.3b4e6301.hugang@soulinfo.com> <200309190939.18796.pbadari@us.ibm.com> <20030919095736.284aaa9f.akpm@osdl.org>
-In-Reply-To: <20030919095736.284aaa9f.akpm@osdl.org>
+	Fri, 19 Sep 2003 18:14:42 -0400
+Received: from ida.rowland.org ([192.131.102.52]:6660 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S261833AbTISWOb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 18:14:31 -0400
+Date: Fri, 19 Sep 2003 18:14:29 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>
+cc: USB development list <linux-usb-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: USB APM suspend
+Message-ID: <Pine.LNX.4.44L0.0309191755590.763-100000@ida.rowland.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200309191512.06188.pbadari@us.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19 September 2003 09:57 am, Andrew Morton wrote:
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> > I am also seeing some kind of regression on raw in 2.6.0-test5-mm2.
->
-> What is "some kind of regression"?
->
-> > Unfortunately, this happens only with huge database benchmarks.
-> > I still haven't narrowed it down.
->
-> Use mm3 - it has fixes.  Daniel McNeil reports that mm3 fixes the dbt2
-> problems he was seeing.
+Here's a piece from my system log, when I did "apm --suspend".  The 
+usb_device_suspend/resume messages are things I added for debugging.
 
-My database tests work fine with 2.6.0-test5-mm3. My database doesn't
-complain about EFAULTs any more.
+Sep 19 17:02:35 ida kernel: uhci-hcd 0000:00:07.2: suspend to state 3
+Sep 19 17:02:35 ida kernel: drivers/usb/host/uhci-hcd.c: 6400: suspend_hc
+Sep 19 17:02:35 ida kernel: usb_device_suspend: 1-1:0
+Sep 19 17:02:35 ida kernel: usb_device_suspend: 1-1
+Sep 19 17:02:35 ida kernel: usb_device_suspend: 1-0:0
+Sep 19 17:02:35 ida kernel: usb_device_suspend: usb1
+Sep 19 17:02:45 ida kernel: uhci-hcd 0000:00:07.2: suspend D4 --> D3
+Sep 19 17:02:45 ida kernel: drivers/usb/host/uhci-hcd.c: 6400: wakeup_hc
+Sep 19 17:02:45 ida kernel: usb_device_resume: usb1
+Sep 19 17:02:45 ida kernel: usb_device_resume: 1-0:0
+Sep 19 17:02:45 ida kernel: usb_device_resume: 1-1
+Sep 19 17:02:45 ida kernel: usb_device_resume: 1-1:0
+Sep 19 17:02:45 ida kernel: uhci-hcd 0000:00:07.2: can't resume, not suspended!
 
-Thanks,
-Badari
+This has several odd things.  Note that both the first two "0000:00:07.2"  
+messages were created by hcd-pci.c, in its usb_hcd_pci_suspend() routine.  
+
+Why was this routine called twice?  (Don't be fooled by the timestamps; I 
+think the "suspend D4 --> D3" message was created during the suspend but 
+not read by syslogd until after the resume.)
+
+Why doesn't usb_hcd_pci_resume() log a similar message when it is called?
+A simple oversight?
+
+Why was the host controller suspended _before_ its child USB devices?  
+
+And why was it woken up twice?
+
+Alan Stern
+
+
+P.S.: Greg, what on Earth does "GREG: gregindex = 0" mean?
+

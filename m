@@ -1,57 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbUCKNkL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 08:40:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbUCKNkL
+	id S261322AbUCKNmk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 08:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbUCKNmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 08:40:11 -0500
-Received: from mta07-svc.ntlworld.com ([62.253.162.47]:16051 "EHLO
-	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S261258AbUCKNkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 08:40:05 -0500
-From: Richard Browning <richard@redline.org.uk>
-Organization: Redline Software Engineering
-To: Len Brown <len.brown@intel.com>
-Subject: Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel 2.4.x 2.6.x / Crash/Freeze
-Date: Thu, 11 Mar 2004 13:38:20 +0000
-User-Agent: KMail/1.6
-Cc: linux-kernel@vger.kernel.org
-References: <A6974D8E5F98D511BB910002A50A6647615F4B99@hdsmsx402.hd.intel.com> <1078987834.2556.84.camel@dhcppc4>
-In-Reply-To: <1078987834.2556.84.camel@dhcppc4>
+	Thu, 11 Mar 2004 08:42:40 -0500
+Received: from mail009.syd.optusnet.com.au ([211.29.132.64]:128 "EHLO
+	mail009.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261322AbUCKNmE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 08:42:04 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.4-ck1
+Date: Fri, 12 Mar 2004 00:41:26 +1100
+User-Agent: KMail/1.6.1
 MIME-Version: 1.0
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403111338.20255.richard@redline.org.uk>
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200403120041.50554.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 March 2004 06:50, Len Brown wrote:
-> On Wed, 2004-03-10 at 07:27, Richard Browning wrote:
-> > When operating from the
-> > command line it is usual to see a Machine Check Exception error
-> > immediately prior to system failure.
->
-> details?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-CPU 2: Machine Check Exception: 000...0004
-CPU 3: Machine Check Exception: 000...0004
+Updated patchset
+http://kernel.kolivas.org
 
-Is what I get now. Previously I also got "Kernel Context Corrupt" in addition 
-to the above.
 
-The MCE error can be made to appear when, for example, I'm running a 
-configure/compile cycle. I thought it might be a SATA issue so installed 
-Mandrake on an IDE drive but I got the same error.
+includes:
+am
+Autoregulates the virtual memory swappiness.
 
-As an aside, I'm running Gentoo with CFLAGS=-O2 -march=pentium4 -pipe ... I 
-was running CFLAGS=-O3 -march=pentium3 -mcpu=pentium4 -mmmx -ssse2 (and so 
-on) with no difference whatsoever (probably shouldn't be a surprise bearing 
-in mind the kernel is compiled with its own flags).
+domains
+sched_domains
 
-I've run MEMTEST with no errors reported. It's a very interesting problem, 
-since with SMP only everything works okay. But SMP+Hyperthreading and, sooner 
-rather than later, the thing will bomb.
+smtnice
+Make "nice" hyperthread smart
 
-R
+batch
+Batch scheduling.
+
+iso
+Isochronous scheduling.
+
+cfqioprio
+Complete Fair Queueing disk scheduler and I/O priorities
+
+schedioprio
+Set initial I/O priorities according to cpu scheduling policy and nice
+
+sng204
+Supermount-NG v2.0.4
+
+bs313
+Bootsplash v3.1.3
+
+reiser4
+Reiser4 filesystem 
+
+
+Changes:
+Added:
+Sched_domains for improved SMT (Hyperthreading), SMP and Numa support.
+Reiser4 snapshot (see www.namesys.com for support tools)
+
+Modified:
+Swappiness autoregulation now has the option of changing from autoregulated 
+swappiness to static swappiness on the fly:
+echo 0 > /proc/sys/vm/autoswappiness
+and then you can set the swappiness via the usual method
+echo 60 > /proc/sys/vm/swappiness
+Lots of resyncs with sched_domains mean some patches rolled up and 
+incrementals may be more dependent on other patches now.
+
+Con Kolivas
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAUGyGZUg7+tp6mRURAle5AKCHpSBR6W5NDhsPtQDAkKhazPkDTQCfXUiA
+2sSWdbQTaFTRlzidMu7lfMY=
+=y2Bq
+-----END PGP SIGNATURE-----

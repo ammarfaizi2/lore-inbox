@@ -1,43 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318143AbSGRP0v>; Thu, 18 Jul 2002 11:26:51 -0400
+	id <S318133AbSGRPPS>; Thu, 18 Jul 2002 11:15:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318144AbSGRP0v>; Thu, 18 Jul 2002 11:26:51 -0400
-Received: from [213.4.129.129] ([213.4.129.129]:49908 "EHLO tsmtp4.mail.isp")
-	by vger.kernel.org with ESMTP id <S318143AbSGRP0u>;
-	Thu, 18 Jul 2002 11:26:50 -0400
-Date: Thu, 18 Jul 2002 17:29:29 +0200
-From: Diego Calleja <diegocg@teleline.es>
-To: Steven Cole <scole@lanl.gov>
-Cc: alan@redhat.com, linux-kernel@vger.kernel.org, cleverdj@ibm.us.com
-Subject: Re: Linux 2.4.19-rc1-ac7
-Message-Id: <20020718172929.2fcc92ff.diegocg@teleline.es>
-In-Reply-To: <1026920340.11636.63.camel@spc9.esa.lanl.gov>
-References: <200207171056.g6HAuXR24678@devserv.devel.redhat.com>
-	<1026920340.11636.63.camel@spc9.esa.lanl.gov>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+	id <S318132AbSGRPPS>; Thu, 18 Jul 2002 11:15:18 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:30592 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S318122AbSGRPPR>;
+	Thu, 18 Jul 2002 11:15:17 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200207181517.TAA00426@sex.inr.ac.ru>
+Subject: Re: Networking question
+To: Jack.Bloch@icn.siemens.com (Bloch, Jack)
+Date: Thu, 18 Jul 2002 19:17:45 +0400 (MSD)
+Cc: maxk@qualcomm.com, linux-kernel@vger.kernel.org
+In-Reply-To: <180577A42806D61189D30008C7E632E87939A6@boca213a.boca.ssc.siemens.com> from "Bloch, Jack" at Jul 18, 2 11:11:31 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Jul 2002 09:39:00 -0600
-Steven Cole <scole@lanl.gov> escribió:
+Hello!
 
-> 
-> Not yet fixed for me. Here is the error shortly after the very
-> beginning of the boot:
-> 
-> APIC error on CPU0: 08(08)
-> APIC error on CPU0: 08(08)
-> message repeats at this point.
-> 
-> This is on a VALinux 2231 dual p-III with an Intel Server Board STL2.
-> Same .config which I sent last time.  I can resend if necessary.
+> code code of netif_rx_ni seems to be logically the most correct way since it
+> will trigger do_softirq directly after the call to netif_rx.
 
+Yes, of course. I simply forgot that _ni was evetually added.
 
-Same for a hp netserver lh plus dual P200mhz:
-
-APIC error on CPU0: 08(08)
-<forever>
+Alexey

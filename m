@@ -1,110 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266385AbUAVSfj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 13:35:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266332AbUAVSfj
+	id S264565AbUAVQkx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 11:40:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUAVQkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 13:35:39 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:1411 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S266395AbUAVSf2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 13:35:28 -0500
-Date: Fri, 23 Jan 2004 07:38:13 +1300
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: Re: PATCH: Export console functions for use by Software Suspend	nice
- display
-In-reply-to: <20040122082438.GV21151@parcelfarce.linux.theplanet.co.uk>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: ncunningham@users.sourceforge.net
-Message-id: <1074796577.12771.81.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: multipart/signed; boundary="=-f63NAanTw/MOnCbE/QTW";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <1074757083.1943.37.camel@laptop-linux>
- <20040122082438.GV21151@parcelfarce.linux.theplanet.co.uk>
+	Thu, 22 Jan 2004 11:40:53 -0500
+Received: from colo.lackof.org ([198.49.126.79]:45247 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S264565AbUAVQkv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 11:40:51 -0500
+Date: Thu, 22 Jan 2004 09:40:49 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       torvalds@osdl.org, alan@lxorguk.ukuu.org.uk, greg@kroah.com,
+       Andi Kleen <ak@colin2.muc.de>,
+       "Kondratiev, Vladimir" <vladimir.kondratiev@intel.com>,
+       "Seshadri, Harinarayanan" <harinarayanan.seshadri@intel.com>
+Subject: Re: [patch] PCI Express Enhanced Config Patch - 2.6.0-test11
+Message-ID: <20040122164049.GB13354@colo.lackof.org>
+References: <6B09584CC3D2124DB45C3B592414FA83011A3357@bgsmsx402.gar.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6B09584CC3D2124DB45C3B592414FA83011A3357@bgsmsx402.gar.corp.intel.com>
+User-Agent: Mutt/1.3.28i
+X-Home-Page: http://www.parisc-linux.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 22, 2004 at 03:51:22PM +0530, Durairaj, Sundarapandian wrote:
+> I tested it on our i386 platform. 
 
---=-f63NAanTw/MOnCbE/QTW
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Any chance Intel can test this on an IA64 box?
 
-Hi.
+...
+>  /*
+> + *We map full Page size on each request. Incidently that's the size we
+> + *have for config space too.
+> + */
 
-I'm not sure that write is what I want. At the very least, it will make
-the code harder to read and maintain. Here's a small portion of what I'm
-currently doing:
+"full Page size" != 4k on several architectures.
+PCI Express is going to be implemented on ia64 and power as well.
 
-/* Print version */
-posn[0] =3D (unsigned char) (0);
-posn[1] =3D (unsigned char) (video_num_lines);
-putconsxy(suspend_console, posn);
-cond_console_print(swsusp_version, strlen(swsusp_version));
-=20
-/* Print header */
-posn[0] =3D (unsigned char) ((video_num_columns - 29) / 2);
-posn[1] =3D (unsigned char) ((video_num_lines / 3) -4);
-putconsxy(suspend_console, posn);
-=20
-The output looks something like this:
------
+...
+> diff -Naur linux-2.6.0/include/asm-i386/pci.h
+...
+> +#ifdef CONFIG_PCI_EXPRESS
+> +/*
+> + *Variable used to store the base address of the last pciexpress device
+> + *accessed.
+> + */
+> +static u32 pcie_last_accessed_device;
 
+Andi is right - this is a definite no-no.
 
-              S U S P E N D    T O    D I S K
-
-
-        Writing caches...
-        [--------        120/640MB             ]
-
-
-
-
-
-
-
-2.0-rc4
------
-
-Bootsplash is also supported, so there's an even nicer version :>
-
-Regards,
-
-Nigel
-
-On Thu, 2004-01-22 at 21:24, viro@parcelfarce.linux.theplanet.co.uk
-wrote:
-> On Thu, Jan 22, 2004 at 09:12:00PM +1300, Nigel Cunningham wrote:
-> > Hi.
-> >=20
-> > Here's a second patch; this exports gotoxy, reset_terminal, hide_cursor=
-,
-> > getconsxy and putconsxy for use in Software Suspend's nice display.
->=20
-> Why don't you open /dev/console on rootfs and use write(2)?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
-n
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---=20
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
-
---=-f63NAanTw/MOnCbE/QTW
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAEBggVfpQGcyBBWkRAmOKAKCD+u8lJAa07Vj5gDIsgpu1DDQ88ACgkBIH
-5YEhVwA9N1ItE46evdNyCzo=
-=jeS4
------END PGP SIGNATURE-----
-
---=-f63NAanTw/MOnCbE/QTW--
-
+grant

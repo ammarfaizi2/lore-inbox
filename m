@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268055AbUHVSNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268050AbUHVSKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268055AbUHVSNo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 14:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268056AbUHVSNo
+	id S268050AbUHVSKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 14:10:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268055AbUHVSKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 14:13:44 -0400
-Received: from pop3.infonegocio.com ([213.4.129.150]:16123 "EHLO
-	telesmtp4.mail.isp") by vger.kernel.org with ESMTP id S268055AbUHVSNn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 14:13:43 -0400
-From: Unai Garro <ugarro@telefonica.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: RTL-8139 Network card slow down on 2.6.8.1-mm
-Date: Sun, 22 Aug 2004 20:11:34 +0200
-User-Agent: KMail/1.6.82
-References: <200408221850.34538.ugarro@telefonica.net>
-In-Reply-To: <200408221850.34538.ugarro@telefonica.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 22 Aug 2004 14:10:09 -0400
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:57220 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S268050AbUHVSJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 14:09:56 -0400
+Date: Sun, 22 Aug 2004 20:09:54 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040822180954.GB27210@merlin.emma.line.org>
+Mail-Followup-To: Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <schilling@fokus.fraunhofer.de> <41288E10.nail9MX3BDIPM@burner> <200408221511.i7MFBW2I002954@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200408222011.34791.ugarro@telefonica.net>
+In-Reply-To: <200408221511.i7MFBW2I002954@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu wrote:
-> This should fix it:
-> 
-> 
-http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.8-rc4-mm1/8139too-mm-revert.patch
-> http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.8-rc4-mm1/8139too-10.patch
-> http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.8-rc4-mm1/8139too-20.patch
+On Sun, 22 Aug 2004, Horst von Brand wrote:
 
-Yes, that seems to work just fine now. Thanks for the quick response
+> In the end, I'd only say that I've been on LKML for a long, long time
+> (since it started, more or less). And each single time the head hackers
+> agreed on something, and there was a single dissenter, the dissenter was in
+> the wrong. Sure, this time could be different, but I have seen absolutely
+> no (yes, _no_) evidence here to the contrary.
 
- Unai
+There _are_ cases where a kernel patch sneaked to a subsystem maintainer
+has made it even when some of the "heads" said it was impossible.
+
+The key is convincing a subsystem maintainer that the patch helps and
+doesn't hurt. And that doesn't work with a rant and can sometime take a
+kernel patch to show how it works.  A decent patch with a more decent
+description works wonders - usually.
+
+-- 
+Matthias Andree
+
+NOTE YOU WILL NOT RECEIVE MY MAIL IF YOU'RE USING SPF!
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)

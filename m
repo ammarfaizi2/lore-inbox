@@ -1,67 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318326AbSGRU3I>; Thu, 18 Jul 2002 16:29:08 -0400
+	id <S318285AbSGRU1x>; Thu, 18 Jul 2002 16:27:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318302AbSGRU3I>; Thu, 18 Jul 2002 16:29:08 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33031 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318326AbSGRU3H>;
-	Thu, 18 Jul 2002 16:29:07 -0400
-Date: Thu, 18 Jul 2002 21:32:08 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
-Cc: jsimmons@transvirtual.com
-Subject: Re: 2.5.26 broken on headless boxes
-Message-ID: <20020718213208.P13352@parcelfarce.linux.theplanet.co.uk>
-References: <20020717165538.D13352@parcelfarce.linux.theplanet.co.uk> <20020718010617.GL1096@holomorphy.com> <20020718142946.L13352@parcelfarce.linux.theplanet.co.uk> <20020718201857.GS1096@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020718201857.GS1096@holomorphy.com>; from wli@holomorphy.com on Thu, Jul 18, 2002 at 01:18:57PM -0700
+	id <S318302AbSGRU1w>; Thu, 18 Jul 2002 16:27:52 -0400
+Received: from castle2.midamerican.com ([204.124.192.1]:11925 "HELO
+	castle2.midamerican.com") by vger.kernel.org with SMTP
+	id <S318285AbSGRU1w> convert rfc822-to-8bit; Thu, 18 Jul 2002 16:27:52 -0400
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Wrong CPU count
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+Date: Thu, 18 Jul 2002 15:29:48 -0500
+Message-ID: <FE7D223FAA62A7429CFEF2669FDF17BC0CF397@DMEVS02.mec.i.midamerican.com>
+Thread-Topic: Wrong CPU count
+Thread-Index: AcIullCCQUzyl2RAT4maqhUibQALkgAA1sKw
+From: "Hubbard, Dwight" <DHubbard@midamerican.com>
+To: <Matt_Domsch@Dell.com>, <RSinko@island.com>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 18 Jul 2002 20:29:48.0295 (UTC) FILETIME=[DC6F4970:01C22E99]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 18, 2002 at 01:18:57PM -0700, William Lee Irwin III wrote:
-> On Thu, Jul 18, 2002 at 02:29:46PM +0100, Matthew Wilcox wrote:
-> >>>EIP; c01b7695 <visual_init+85/e0>   <=====
-> >>>edx; f7906600 <END_OF_CODE+37502e5c/????>
-> >>>edi; c03dcc00 <vc_cons+0/fc>
-> >>>esp; c3d45e7c <END_OF_CODE+39426d8/????>
-> > Trace; c01b7773 <vc_allocate+83/140>
-> > Trace; c01baa25 <con_open+19/88>
-> > Trace; c01ac08c <tty_open+20c/394>
-> > Trace; c0145a83 <link_path_walk+683/874>
-> > Trace; c0144ed7 <permission+27/2c>
-> > Trace; c0146373 <may_open+5f/2ac>
-> > Trace; c013c33a <chrdev_open+66/98>
-> > Trace; c013b001 <dentry_open+e1/1b0>
-> > Trace; c013af16 <filp_open+52/5c>
-> > Trace; c013b307 <sys_open+37/74>
-> > Trace; c0108893 <syscall_call+7/b>
+And doubles the cost of licensing software that uses per cpu licensing while giving marginally better performance.
+
+-----Original Message-----
+From: Matt_Domsch@Dell.com [mailto:Matt_Domsch@Dell.com]
+Sent: Thursday, July 18, 2002 3:01 PM
+To: RSinko@island.com; linux-kernel@vger.kernel.org
+Subject: RE: Wrong CPU count
+
+
+> After upgrading  from kernel 2.4.7-10smp to 2.4.9-34smp using 
+> the Red Hat
+> RPM downloaded from RH Network, the CPU count on the machine 
+> reported by
+> dmesg and listed in /proc/cpuinfo was 4 rather than the actual 2.
 > 
-> This is the 4th one of these I've seen in the last two days. Any chance
-> of being able to compile with -g and get an addr2line on the EIP? I've
-> tried to reproduce it myself, but haven't gotten it to happen yet.
+> This has occured on all 4 Dell 2650's that I've installed 
+> this patch on.  I
+> don't have any other mult-processor machines available to 
+> test this with.
 
-seems fairly obvious what's happening with a couple of printks...
+Congratulations, you purchased a fine PowerEdge 2650 with processors which
+contain HyperThreading technology.  Each physical processor appears as two
+logical processors.  This behaviour is expected, and correct. :-)
 
-    printk("visual_init: sw = %p, conswitchp = %p, currcons = %d, init = %d\n",
-                    sw, conswitchp, currcons, init);
+Thanks,
+Matt
 
-gets me the interesting fact that sw & conswitchp are both NULL.
-later on, we call:
-    sw->con_init(vc_cons[currcons].d, init);
-which seems like it would be the exact cause, no?
+--
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
 
-now whether putting a:
-
-	if (!sw)
-		return;
-
-call into visual_init or whether we should determine earlier never to
-call visual_init, I don't know.  The people who know about the console
-have been conspicuously silent so far...
-
--- 
-Revolutions do not require corporate support.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267615AbSLGFKB>; Sat, 7 Dec 2002 00:10:01 -0500
+	id <S267717AbSLGFQJ>; Sat, 7 Dec 2002 00:16:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267620AbSLGFKB>; Sat, 7 Dec 2002 00:10:01 -0500
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:15744 "EHLO
-	laptop.localdomain") by vger.kernel.org with ESMTP
-	id <S267615AbSLGFKA> convert rfc822-to-8bit; Sat, 7 Dec 2002 00:10:00 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Con Kolivas <conman@kolivas.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] max bomb segment tuning with read latency 2 patch in contest
-Date: Sat, 7 Dec 2002 16:20:01 +1100
-User-Agent: KMail/1.4.3
-Cc: Andrew Morton <akpm@digeo.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200212071620.05503.conman@kolivas.net>
+	id <S267719AbSLGFQJ>; Sat, 7 Dec 2002 00:16:09 -0500
+Received: from bitmover.com ([192.132.92.2]:2524 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S267717AbSLGFQH>;
+	Sat, 7 Dec 2002 00:16:07 -0500
+Date: Fri, 6 Dec 2002 21:23:42 -0800
+From: Larry McVoy <lm@bitmover.com>
+Message-Id: <200212070523.gB75Ng932574@work.bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: compile problem in current BK 2.5
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+FYI 
 
-Here are some io_load contest benchmarks with 2.4.20 with the read latency2 
-patch applied and varying the max bomb segments from 1-6 (SMP used to save 
-time!)
-
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.20 [5]              164.9   45      31      21      4.55
-2420rl2b1 [5]           93.5    81      18      22      2.58
-2420rl2b2 [5]           88.2    87      16      22      2.44
-2420rl2b4 [5]           87.8    84      17      22      2.42
-2420rl2b6 [5]           100.3   77      19      22      2.77
-
-io_other:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.20 [5]              89.6    86      17      21      2.47
-2420rl2b1 [3]           48.1    156     9       21      1.33
-2420rl2b2 [3]           50.0    149     9       21      1.38
-2420rl2b4 [5]           51.9    141     10      21      1.43
-2420rl2b6 [5]           52.1    142     9       20      1.44
-
-There seems to be a limit to the benefit of decreasing max bomb segments. It 
-does not seem to have a significant effect on io load on another hard disk 
-(although read latency2 is overall much better than vanilla).
-
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE98YUEF6dfvkL3i1gRAn4kAJ4x414sM3G+8fVrXv2P0huRhNKicgCgqFyo
-kCXIKMVtO/Zp+tM92qlUz4s=
-=HOKs
------END PGP SIGNATURE-----
+make -f scripts/Makefile.build obj=drivers/block
+  gcc -Wp,-MD,drivers/block/.nbd.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon -Iarch/i386/mach-generic -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=nbd -DKBUILD_MODNAME=nbd   -c -o drivers/block/nbd.o drivers/block/nbd.c
+In file included from drivers/block/nbd.c:56:
+include/linux/nbd.h:87:2: #endif without #if
+drivers/block/nbd.c:71: warning: `struct request' declared inside parameter list
+drivers/block/nbd.c:71: warning: its scope is only this definition or declaration, which is probably not what you want.
+drivers/block/nbd.c: In function `nbd_end_request':
+drivers/block/nbd.c:73: dereferencing pointer to incomplete type
+drivers/block/nbd.c:74: `request_queue_t' undeclared (first use in this function)
+drivers/block/nbd.c:74: (Each undeclared identifier is reported only once
+drivers/block/nbd.c:74: for each function it appears in.)
+drivers/block/nbd.c:74: `q' undeclared (first use in this function)
+drivers/block/nbd.c:74: dereferencing pointer to incomplete type
+drivers/block/nbd.c:75: parse error before `struct'
+drivers/block/nbd.c:82: `flags' undeclared (first use in this function)
+drivers/block/nbd.c:83: `bio' undeclared (first use in this function)
+drivers/block/nbd.c:83: dereferencing pointer to incomplete type
+drivers/block/nbd.c:84: `nsect' undeclared (first use in this function)
+drivers/block/nbd.c:85: warning: implicit declaration of function `blk_finished_io'
+drivers/block/nbd.c:86: dereferencing pointer to incomplete type
+drivers/block/nbd.c:90: warning: implicit declaration of function `blk_put_request'
+drivers/block/nbd.c: In function `nbd_open':
+drivers/block/nbd.c:96: dereferencing pointer to incomplete type
+drivers/block/nbd.c: At top level:
+drivers/block/nbd.c:176: warning: `struct request' declared inside parameter list
+drivers/block/nbd.c: In function `nbd_send_req':
+drivers/block/nbd.c:180: dereferencing pointer to incomplete type

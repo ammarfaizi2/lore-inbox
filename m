@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266010AbUGOD7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265228AbUGOEBc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266010AbUGOD7o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 23:59:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUGOD7o
+	id S265228AbUGOEBc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 00:01:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266033AbUGOEBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 23:59:44 -0400
-Received: from holomorphy.com ([207.189.100.168]:64417 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266010AbUGOD7h (ORCPT
+	Thu, 15 Jul 2004 00:01:31 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:10431 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S265228AbUGOEBZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 23:59:37 -0400
-Date: Wed, 14 Jul 2004 20:59:29 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Naveed Latif <naveedlatif786@yahoo.co.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 7 GB RAM Drive
-Message-ID: <20040715035929.GM3411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Naveed Latif <naveedlatif786@yahoo.co.in>,
-	linux-kernel@vger.kernel.org
-References: <20040715035459.91164.qmail@web8201.mail.in.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040715035459.91164.qmail@web8201.mail.in.yahoo.com>
-User-Agent: Mutt/1.5.6+20040523i
+	Thu, 15 Jul 2004 00:01:25 -0400
+Date: Thu, 15 Jul 2004 11:58:01 +0000
+From: Tanyrac <tanyrac@dogmail.org>
+Subject: Linux-kernel, Mature sex and family INCEST!
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <3HAE8LE45BG77L93@vger.kernel.org>
+In-Reply-To: <3HAE8LE45BG77L93@vger.kernel.org>
+Message-ID: <AFCI1J17ADKH0G74@dogmail.org>
+Reply-To: Gaxujyh <gaxujyh@wartaponsel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 15, 2004 at 04:54:59AM +0100, Naveed Latif wrote:
-> Can any one help me regarding this issue, How I can I
-> solve this problem.
+http://mature4you.biz Mature sex + INCEST!
+Dreaming of mature women? Don't dream, watch them act! 
+Have you ever seen five guys thumping one woman? 
+Boys are young and inexperienced. Women are attractive and mature. 
+Have a good time watching first-rate videos. 
+The word Enough does not exist for guys screwing mature women.
+http://mature4you.biz Mature sex + INCEST!
 
-Fix up rd.c so it can do mapping->gfp_mask |= GFP_HIGHUSER.
+If you would like to unscribe pliase visit http://www.mature4you.biz/unsc.php
+Sorry that waste you time!
 
 
--- wli

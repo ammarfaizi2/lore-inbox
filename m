@@ -1,49 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264577AbUHECGh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267333AbUHECJ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264577AbUHECGh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 22:06:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267333AbUHECGh
+	id S267333AbUHECJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 22:09:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267350AbUHECJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 22:06:37 -0400
-Received: from zero.aec.at ([193.170.194.10]:13060 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S264577AbUHECGg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 22:06:36 -0400
-To: Phy Prabab <phyprabab@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Issues with MPT scsi driver
-References: <2pFoG-4kS-9@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 05 Aug 2004 04:06:32 +0200
-In-Reply-To: <2pFoG-4kS-9@gated-at.bofh.it> (Phy Prabab's message of "Thu,
- 05 Aug 2004 03:40:06 +0200")
-Message-ID: <m3llguxrrr.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Wed, 4 Aug 2004 22:09:56 -0400
+Received: from gizmo01ps.bigpond.com ([144.140.71.11]:59365 "HELO
+	gizmo01ps.bigpond.com") by vger.kernel.org with SMTP
+	id S267333AbUHECJx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 22:09:53 -0400
+Message-ID: <411196EE.9050408@bigpond.net.au>
+Date: Thu, 05 Aug 2004 12:09:50 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Albert Cahalan <albert@users.sf.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       kernel@kolivas.org, Andrew Morton OSDL <akpm@osdl.org>
+Subject: Re: SCHED_BATCH and SCHED_BATCH numbering
+References: <1091638227.1232.1750.camel@cube> <41118AAE.7090107@bigpond.net.au> <41118D0C.9090103@yahoo.com.au>
+In-Reply-To: <41118D0C.9090103@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phy Prabab <phyprabab@yahoo.com> writes:
+Nick Piggin wrote:
+> Peter Williams wrote:
+> 
+>> Albert Cahalan wrote:
+>>
+>>> Are these going to be numbered consecutively, or might
+>>> they better be done like the task state? SCHED_FIFO is
+>>> in fact already treated this way in one place. One might
+>>> want to test values this way:
+>>>
+>>> if(foo & (SCHED_ISO|SCHED_RR|SCHED_FIFO))  ...
+>>>
+>>> (leaving aside SCHED_OTHER==0, or just translate
+>>> that single value for the ABI)
+>>>
+>>> I'd like to see these get permenant allocations
+>>> soon, even if the code doesn't go into the kernel.
+>>> This is because user-space needs to know the values.
+>>
+>>
+>>
+>> Excellent idea.  The definition of rt_task() could become:
+>>
+>> #define rt_task(p) ((p)->policy & (SCHED_RR|SCHED_FIFO))
+>>
+>> instead of the highly dodgy:
 
-> Hello all.
->
-> I am having issues with MTP driver under 2.6.8(rcx) on
-> Opteron.  Also under stock 2.6.7, however 2.6.7-bk20
-> appears to be the last to be functional.
+I probably should have said "slightly" instead of "highly" here but I 
+got carried away. :-)
 
-It works for me as of 2.6.8rc2. 
+>>
+>> #define rt_task(p) ((p)->prio < MAX_RT_PRIO)
+>>
+> 
+> Nothing wrong with that, is there?
 
-> The kernel boots but fails on the MPT (my main drive)
-> to pivot_root (perpetual "Reset").  
+It's sloppy logic in that "prio" being less than MAX_RT_PRIO is a 
+consequence of the task being real time not the definition of it.  At 
+the moment it is a sufficient condition for identifying a task as real 
+time but that may not always be the case.  But, the real issue is, 
+what's the point of having a field, "policy", that IS the definitive 
+indicator of the task's scheduling policy if you don't use it?  An 
+rt_task() function/macro defined in terms of the policy field with this 
+suggested numbering scheme should always be correct.
 
-Tried pci=noacpi? Maybe it is an ACPI problem.
+At the moment rt_task(p) could be defined as ((p)->policy != 
+SCHED_OTHER) but the addition of SCHED_ISO and SCHED_BATCH would break 
+that.  Another option would be (((p)->policy == SCHED_FIFO) || 
+((p)->policy == SCHED_RR)) but that's a little long winded and (avoiding 
+it) is probably the reason for the current definition.  So I stand by my 
+comment that Albert's numbering scheme is an excellent idea.
 
-> Anyone have any luck with this driver?
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Yes, it works fine on a lot of machines - MPT Fusion
-is one of the most common SCSI controllers on Opteron
-boards.
-
--Andi
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce
 

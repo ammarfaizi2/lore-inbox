@@ -1,76 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVBNR3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVBNRmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261498AbVBNR3J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 12:29:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVBNR3J
+	id S261496AbVBNRmD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 12:42:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVBNRmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 12:29:09 -0500
-Received: from irulan.endorphin.org ([80.68.90.107]:30469 "EHLO
-	irulan.endorphin.org") by vger.kernel.org with ESMTP
-	id S261498AbVBNR26 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 12:28:58 -0500
-Subject: Re: [PATCH 01/04] Adding cipher mode context information to
-	crypto_tfm
-From: Fruhwirth Clemens <clemens@endorphin.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, michal@logix.cz, adam@yggdrasil.com
-In-Reply-To: <20050214090726.2d099d96.davem@davemloft.net>
-References: <Xine.LNX.4.44.0502101247390.9159-100000@thoron.boston.redhat.com>
-	 <1108387234.8086.37.camel@ghanima>
-	 <20050214075655.6dec60cb.davem@davemloft.net>
-	 <1108400799.23133.34.camel@ghanima>
-	 <20050214090726.2d099d96.davem@davemloft.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7nK3NhocAA8lCOth/lZv"
-Date: Mon, 14 Feb 2005 18:28:55 +0100
-Message-Id: <1108402135.23133.48.camel@ghanima>
+	Mon, 14 Feb 2005 12:42:02 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:34566
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S261496AbVBNRmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 12:42:00 -0500
+Date: Mon, 14 Feb 2005 18:41:58 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Subject: Re: [RFC] Changing COW detection to be memory hotplug friendly
+Message-ID: <20050214174158.GE13712@opteron.random>
+References: <20050203035605.C981A7046E@sv1.valinux.co.jp> <Pine.LNX.4.61.0502072041130.30212@goblin.wat.veritas.com> <Pine.LNX.4.61.0502081549320.2203@goblin.wat.veritas.com> <20050210190521.GN18573@opteron.random> <Pine.LNX.4.61.0502101953190.6194@goblin.wat.veritas.com> <20050210204025.GS18573@opteron.random> <Pine.LNX.4.61.0502110710150.5866@goblin.wat.veritas.com> <20050211085239.GD18573@opteron.random> <Pine.LNX.4.61.0502111258310.7808@goblin.wat.veritas.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0502111258310.7808@goblin.wat.veritas.com>
+X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
+X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
+X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> By the way, while we're talking of remove_exclusive_swap_page:
+> a more functional issue I sometimes wonder about, why don't we
+> remove_exclusive_swap_page on write fault?  Keeping the swap slot
+> is valuable if read fault, but once the page is dirtied, wouldn't
+> it usually be better to free that slot and allocate another later?
 
---=-7nK3NhocAA8lCOth/lZv
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, 2005-02-14 at 09:07 -0800, David S. Miller wrote:
-> On Mon, 14 Feb 2005 18:06:39 +0100
-> Fruhwirth Clemens <clemens@endorphin.org> wrote:
->=20
-> > There is nothing wrong with having special methods, that lack generalit=
-y
-> > but are superior in performance. There is something wrong, when there
-> > are no other. And there are no other for holding three kmappings or mor=
-e
-> > concurrently.
->=20
-> You want more resources in a context where no such thing exists,
-> in interrupt processing context.  There the stack is limited, allocatable
-> memory is limited, etc. etc. etc.  And all of this is because you cannot
-> sleep in interrupt context.
-
-I have said nothing about sleeping in interrupt or softirq context.
-
-First, one has to make kmap fallible. Second, ensure that it does not
-fail often. This can be done by creating a page table pool, where kmap
-can allocate page tables from, when all of the remaining page tables are
-full. The mempool is of course refilled at the next occasion.
-
-For stuff, that cannot be allowed to fail, kmap_atomic is still there.
---=20
-Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
-
---=-7nK3NhocAA8lCOth/lZv
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCEN/XbjN8iSMYtrsRAlFcAJ95zvM/FaRHrdZy4KHVmnOCeE54wwCeJBqs
-6vY+6Mp05gopBfEPM0xffJE=
-=b4Xd
------END PGP SIGNATURE-----
-
---=-7nK3NhocAA8lCOth/lZv--
+Avoiding swap fragmentation is one reason to leave it allocated. So you
+can swapin/swapout/swapin/swapout always in the same place on disk as
+long as there's plenty of swap still available. I'm not sure how much
+speedup this provides, but certainly it makes sense.

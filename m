@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135548AbRD1QZR>; Sat, 28 Apr 2001 12:25:17 -0400
+	id <S135575AbRD1Q4D>; Sat, 28 Apr 2001 12:56:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135550AbRD1QZH>; Sat, 28 Apr 2001 12:25:07 -0400
-Received: from femail4.rdc1.on.home.com ([24.2.9.91]:47278 "EHLO
-	femail4.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S135548AbRD1QYt>; Sat, 28 Apr 2001 12:24:49 -0400
-Message-ID: <3AEAF969.58972FB4@home.com>
-Date: Sat, 28 Apr 2001 13:10:01 -0400
-From: John Kacur <jkacur@home.com>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16-3 i586)
-X-Accept-Language: en, ru, ja
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.4 sluggish under fork load
-In-Reply-To: <Pine.LNX.4.33.0104281322070.1159-100000@ppro.localdomain> <20010428170709.A410@kianga.local>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S135577AbRD1Qzx>; Sat, 28 Apr 2001 12:55:53 -0400
+Received: from imo-m03.mx.aol.com ([64.12.136.6]:23255 "EHLO
+	imo-m03.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S135575AbRD1Qzo>; Sat, 28 Apr 2001 12:55:44 -0400
+Date: Sat, 28 Apr 2001 12:55:21 -0400
+From: alram84@netscape.net (Alex Ramos)
+To: nickpda255@yahoo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: gcc 2.95.2 and kernel 2.2.18
+Mime-Version: 1.0
+Message-ID: <0527E9F0.34AA1851.001D9865@netscape.net>
+In-Reply-To: <20010427081413.15232.qmail@web4603.mail.yahoo.com>
+X-Mailer: Franklin Webmailer 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Peter Osterlund wrote:
->> 
->> Another thing is that the bash loop "while true ; do /bin/true ; done" is
->> not possible to interrupt with ctrl-c.
+I used Peanut Linux (debian based from ibiblio.org/peanut), and gcc 2.95.2 to compile the 2.2.19 kernel I run now. No problems here.
 
->        Same thing here.
 
-I'm not having any problems. Just a quick question, is everyone who is
-having a problem running with more than one cpu?
-
-John Kacur
+--
+home page: 
+http://members.fortunecity.com/fretburn1
+AIM: GhiZzard
+ICQ: 34778276
+(When I'm on those things of course! :))
+__________________________________________________________________
+Get your own FREE, personal Netscape Webmail account today at http://webmail.netscape.com/

@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261450AbTEYNuY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 09:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbTEYNuY
+	id S261192AbTEYNte (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 09:49:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbTEYNte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 09:50:24 -0400
-Received: from sol.cc.u-szeged.hu ([160.114.8.24]:43967 "EHLO
-	sol.cc.u-szeged.hu") by vger.kernel.org with ESMTP id S261450AbTEYNuX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 09:50:23 -0400
-Date: Sun, 25 May 2003 16:03:33 +0200 (CEST)
-From: Geller Sandor <wildy@petra.hos.u-szeged.hu>
+	Sun, 25 May 2003 09:49:34 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:22533 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S261192AbTEYNtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 09:49:33 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
 To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: linux-kernel@vger.kernel.org
 Subject: Re: Undo aic7xxx changes
+Date: Sun, 25 May 2003 16:01:36 +0200
+User-Agent: KMail/1.5.1
+Cc: willy@w.ods.org, gibbs@scsiguy.com, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva> <200305251447.34027.m.c.p@wolk-project.de> <20030525155003.5b837661.skraw@ithnet.com>
 In-Reply-To: <20030525155003.5b837661.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.44.0305251559100.20807-100000@petra.hos.u-szeged.hu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305251601.36790.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 May 2003, Stephan von Krawczynski wrote:
+On Sunday 25 May 2003 15:50, Stephan von Krawczynski wrote:
 
-> Is there a changelog somewhere? What is the difference between 20030520
-> and 20030523 ?
+Hi Stephan,
 
-See drivers/scsi/aic7xxx/CHANGELOG
+> > before trying this, could you please update to aic20030523? Thank you.
+> Is there a changelog somewhere? What is the difference between 20030520 and
+> 20030523 ?
+yes, there is a changelog. Unfortunately in the tar.gz package because the one 
+on Justins website isn't up2date. I've made it available on my website.
 
-  Geller Sandor <wildy@petra.hos.u-szeged.hu>
+http://wolk.sf.net/tmp/AIC-CHANGELOG
+
+ciao, Marc
+
 

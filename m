@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269350AbUHZS4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269325AbUHZS6R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269350AbUHZS4A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 14:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269371AbUHZSz6
+	id S269325AbUHZS6R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 14:58:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269280AbUHZS5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 14:55:58 -0400
-Received: from fw.osdl.org ([65.172.181.6]:682 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269350AbUHZSte (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 14:49:34 -0400
-Date: Thu, 26 Aug 2004 11:49:19 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@lst.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+	Thu, 26 Aug 2004 14:57:45 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:52486 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S269325AbUHZS3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 14:29:13 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Rik van Riel <riel@redhat.com>, Linus Torvalds <torvalds@osdl.org>
 Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <20040826183838.GE2793@holomorphy.com>
-Message-ID: <Pine.LNX.4.58.0408261147590.2304@ppc970.osdl.org>
-References: <20040824202521.GA26705@lst.de> <412BA741.4060006@pobox.com>
- <20040824205343.GE21964@parcelfarce.linux.theplanet.co.uk>
- <20040824212232.GF21964@parcelfarce.linux.theplanet.co.uk> <412CDA68.7050702@namesys.com>
- <20040825184523.GA15419@lst.de> <412DA725.4040200@namesys.com>
- <20040826183838.GE2793@holomorphy.com>
+Date: Thu, 26 Aug 2004 21:28:41 +0300
+User-Agent: KMail/1.5.4
+Cc: Diego Calleja <diegocg@teleline.es>, <jamie@shareable.org>,
+       <christophe@saout.de>, <christer@weinigel.se>, <spam@tnonline.net>,
+       <akpm@osdl.org>, <wichert@wiggy.net>, <jra@samba.org>,
+       <reiser@namesys.com>, <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <flx@namesys.com>,
+       <reiserfs-list@namesys.com>
+References: <Pine.LNX.4.44.0408261356330.27909-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0408261356330.27909-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408262128.41326.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 26 August 2004 20:57, Rik van Riel wrote:
+> On Thu, 26 Aug 2004, Linus Torvalds wrote:
+> > > So all I need to do is "cat /bin | gzip -9 > /path/to/backup.tar.gz" ?
+> >
+> > No no. The stream you get from a directory is totally _independent_ of
+> > the contents of the directory. Anything else would be pointless.
+>
+> It's a relief to know that nobody's taking my humorous
+> suggestion seriously, but now we still have the "standard
+> Unix tools can't manipulate files" problem...
 
+Is it possible to sufficiently hide "dirs inside files"
+so that old tools will be unable to see them?
 
-On Thu, 26 Aug 2004, William Lee Irwin III wrote:
->  
-> +N: Hans Reiser
-> +E: reiser@namesys.com
-> +W: http://www.namesys.com/
-> +D: official Linux kernel hairstyle critic
-> +S: 6979 Exeter Dr
-> +S: Oakland, CA 94611
-> +S: USA
-> +
+I just checked:
 
-LOL.
+ls -d /foo  does lstat64("/foo", ...)
+ls -d /foo/ does lstat64("/foo", ...)
+	but
+ls -d /foo/. does lstat64("/foo/.", ...)
 
-In all fairness, how _would_ you have described it?
+Will it work out if "dir inside file" will only be visible when referred as "file/."?
+--
+vda
 
-Besides, I don't think this should go in the CREDITS file, since hair 
-styling criticism is clearly an ongoing MAINTAINERS issue, no?
-
-		Linus

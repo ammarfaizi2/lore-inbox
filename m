@@ -1,98 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272342AbTHIMkT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 08:40:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272356AbTHIMkT
+	id S272356AbTHIMwj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 08:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272357AbTHIMwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 08:40:19 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:33289 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S272342AbTHIMkM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 08:40:12 -0400
-Date: Sat, 9 Aug 2003 22:39:09 +1000
-To: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH] Fix usb interface change in hisax st5481_*
-Message-ID: <20030809123909.GA26782@gondor.apana.org.au>
-References: <20030809122539.GA23890@gondor.apana.org.au>
+	Sat, 9 Aug 2003 08:52:38 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:63750 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S272356AbTHIMwh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 08:52:37 -0400
+Subject: [PATCH 2.6.0-test3][BLUETOOTH] BUG fix for
+	drivers/bluetooth/hci_usb.c
+From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
+To: Maxim Krasnyansky <maxk@qualcomm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, trivial@rustcorp.com.au
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 09 Aug 2003 18:41:59 +0530
+Message-Id: <1060434720.2511.45.camel@lima.royalchallenge.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="7JfCtLOvnd9MIVvH"
-Content-Disposition: inline
-In-Reply-To: <20030809122539.GA23890@gondor.apana.org.au>
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The patch below fixes two pointer reference bugs (shows up as compile
+time warnings given below) which wrongly take the address of "struct
+usb_interface*".
 
-On Sat, Aug 09, 2003 at 10:25:39PM +1000, herbert wrote:
-> 
-> This patch makes the HISAX ST5481 driver build again with 2.6.0-test3
-> where the usb_host_config structure has changed.
+============compiler warning============================
+drivers/bluetooth/hci_usb.c: In function `hci_usb_probe':
+drivers/bluetooth/hci_usb.c:786: warning: assignment from incompatible
+pointer type
+drivers/bluetooth/hci_usb.c:810: warning: assignment from incompatible
+pointer type
+=========================================================================
+diff -urN linux-2.6.0-test3/drivers/bluetooth/hci_usb.c linux-2.6.0-test3-nvk/drivers/bluetooth/hci_usb.c
+--- linux-2.6.0-test3/drivers/bluetooth/hci_usb.c	2003-07-15 17:22:49.000000000 +0530
++++ linux-2.6.0-test3-nvk/drivers/bluetooth/hci_usb.c	2003-08-09 18:17:21.000000000 +0530
+@@ -783,7 +783,7 @@
+ 
+ 	BT_DBG("udev %p ifnum %d", udev, ifnum);
+ 
+-	iface = &udev->actconfig->interface[0];
++	iface = udev->actconfig->interface[0];
+ 
+ 	/* Check our black list */
+ 	if (usb_match_id(intf, ignore_ids))
+@@ -807,7 +807,7 @@
+ 
+ 	ifn = min_t(unsigned int, udev->actconfig->desc.bNumInterfaces, HCI_MAX_IFACE_NUM);
+ 	for (i = 0; i < ifn; i++) {
+-		iface = &udev->actconfig->interface[i];
++		iface = udev->actconfig->interface[i];
+ 		for (a = 0; a < iface->num_altsetting; a++) {
+ 			uif = &iface->altsetting[a];
+ 			for (e = 0; e < uif->desc.bNumEndpoints; e++) {
 
-And here is the patch.
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=q
 
-Index: kernel-source-2.5/drivers/isdn/hisax/st5481_b.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/isdn/hisax/st5481_b.c,v
-retrieving revision 1.1.1.5
-diff -u -r1.1.1.5 st5481_b.c
---- kernel-source-2.5/drivers/isdn/hisax/st5481_b.c	9 Aug 2003 08:11:56 -0000	1.1.1.5
-+++ kernel-source-2.5/drivers/isdn/hisax/st5481_b.c	9 Aug 2003 12:20:58 -0000
-@@ -254,7 +254,7 @@
- 
- 	DBG(4,"");
- 
--	altsetting = &(dev->config->interface[0].altsetting[3]);
-+	altsetting = &(dev->config->interface[0]->altsetting[3]);
- 
- 	// Allocate URBs and buffers for the B channel out
- 	endpoint = &altsetting->endpoint[EP_B1_OUT - 1 + bcs->channel * 2];
-Index: kernel-source-2.5/drivers/isdn/hisax/st5481_d.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/isdn/hisax/st5481_d.c,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 st5481_d.c
---- kernel-source-2.5/drivers/isdn/hisax/st5481_d.c	3 Jan 2003 01:36:52 -0000	1.1.1.2
-+++ kernel-source-2.5/drivers/isdn/hisax/st5481_d.c	9 Aug 2003 12:20:13 -0000
-@@ -658,7 +658,7 @@
- 
- 	DBG(2,"");
- 
--	altsetting = &(dev->config->interface[0].altsetting[3]);
-+	altsetting = &(dev->config->interface[0]->altsetting[3]);
- 
- 	// Allocate URBs and buffers for the D channel out
- 	endpoint = &altsetting->endpoint[EP_D_OUT-1];
-Index: kernel-source-2.5/drivers/isdn/hisax/st5481_usb.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/isdn/hisax/st5481_usb.c,v
-retrieving revision 1.1.1.4
-diff -u -r1.1.1.4 st5481_usb.c
---- kernel-source-2.5/drivers/isdn/hisax/st5481_usb.c	11 Jan 2003 04:58:06 -0000	1.1.1.4
-+++ kernel-source-2.5/drivers/isdn/hisax/st5481_usb.c	9 Aug 2003 12:19:09 -0000
-@@ -258,7 +258,7 @@
- 	}
- 
- 	
--	altsetting = &(dev->config->interface[0].altsetting[3]);	
-+	altsetting = &(dev->config->interface[0]->altsetting[3]);	
- 
- 	// Check if the config is sane
- 	if ( altsetting->desc.bNumEndpoints != 7 ) {
-
---7JfCtLOvnd9MIVvH--

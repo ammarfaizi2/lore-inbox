@@ -1,64 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131323AbRDZEaJ>; Thu, 26 Apr 2001 00:30:09 -0400
+	id <S133091AbRDZEfT>; Thu, 26 Apr 2001 00:35:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133091AbRDZE37>; Thu, 26 Apr 2001 00:29:59 -0400
-Received: from www.wen-online.de ([212.223.88.39]:42002 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S131323AbRDZE3l>;
-	Thu, 26 Apr 2001 00:29:41 -0400
-Date: Thu, 26 Apr 2001 06:28:57 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
-In-Reply-To: <Pine.LNX.4.21.0104251829490.967-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0104260617020.566-100000@mikeg.weiden.de>
+	id <S133098AbRDZEfA>; Thu, 26 Apr 2001 00:35:00 -0400
+Received: from ns1.eqip.net ([195.206.66.146]:33497 "HELO mailgate.eqip.net")
+	by vger.kernel.org with SMTP id <S133091AbRDZEeu>;
+	Thu, 26 Apr 2001 00:34:50 -0400
+Path: Home.Lunix!not-for-mail
+Subject: Re: Problem with "su -" and kernels 2.4.3-ac11 and higher
+Date: Thu, 26 Apr 2001 04:34:28 +0000 (UTC)
+Organization: lunix confusion services
+In-Reply-To: <E14rcVF-0007cJ-00@the-village.bc.nu>
+NNTP-Posting-Host: kali.eth
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-Trace: quasar.home.lunix 988259668 7616 10.253.0.3 (26 Apr 2001 04:34:28
+    GMT)
+X-Complaints-To: abuse-0@ton.iguana.be
+NNTP-Posting-Date: Thu, 26 Apr 2001 04:34:28 +0000 (UTC)
+X-Newsreader: knews 1.0b.0
+Xref: Home.Lunix mail.linux.kernel:87341
+X-Mailer: Perl5 Mail::Internet v1.33
+Message-Id: <9c88gk$7e0$1@post.home.lunix>
+From: linux-kernel@ton.iguana.be (Ton Hospel)
+To: linux-kernel@vger.kernel.org
+Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Apr 2001, Marcelo Tosatti wrote:
+In article <E14rcVF-0007cJ-00@the-village.bc.nu>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+>> > Did you try nesting more than one "su -"? The first one after a boot
+>> > works for me - every other one fails.
+>> 
+>> Same here: the first "su -" works OK, but a second nested one hangs:
+> 
+> It appears to be a bug in PAM. Someone seems to reply on parent/child running
+> order and just got caught out
+> 
 
-> On Tue, 24 Apr 2001, Linus Torvalds wrote:
->
-> > Basically, I don't want to mix synchronous and asynchronous
-> > interfaces. Everything should be asynchronous by default, and waiting
-> > should be explicit.
->
-> The following patch changes all swap IO functions to be asynchronous by
-> default and changes the callers to wait when needed (except
-> rw_swap_page_base which will block writers if there are too many in flight
-> swap IOs).
->
-> Ingo's find_get_swapcache_page() does not wait on locked pages anymore,
-> which is now up to the callers.
->
-> time make -j32 test with 4 CPUs machine, 128M ram and 128M swap:
->
-> pre5
-> ----
-> 228.04user 28.14system 5:16.52elapsed 80%CPU (0avgtext+0avgdata
-> 0maxresident)k
-> 0inputs+0outputs (525113major+678617minor)pagefaults 0swaps
->
-> pre5 + attached patch
-> --------------------
-> 227.18user 25.49system 3:40.53elapsed 114%CPU (0avgtext+0avgdata
-> 0maxresident)k
-> 0inputs+0outputs (495387major+644924minor)pagefaults 0swaps
->
->
-> Comments?
+I once debugged a very simular sounding problem that I solved with
+the following patch to login. It's a wild guess, but you could try if
+it happens to solve it. If not it might at least be a hint of what has to
+be done to su.
+(the problem is that the extra process PAM keeps waiting is process leader)
+(I don't have redhat, so I can't check if this is relevant here)
 
-More of a question.  Neither Ingo's nor your patch makes any difference
-on my UP box (128mb PIII/500) doing make -j30.  It is taking me 11 1/2
-minutes to do this test (that's horrible).  Any idea why?
-
-(I can get it to under 9 with MUCH extremely ugly tinkering.  I've done
-this enough to know that I _should_ be able to do 8 1/2 minutes ~easily)
-
-	-Mike
-
+diff -ur util-linux-2.9x/login-utils/login.c util-linux-2.9x-ton/login-utils/login.c
+--- util-linux-2.9x/login-utils/login.c	Sun Sep 12 23:25:30 1999
++++ util-linux-2.9x-ton/login-utils/login.c	Tue Sep 21 03:24:52 1999
+@@ -1109,6 +1112,15 @@
+        exit(0);
+     }
+     /* child */
++
++    if (tcsetpgrp(0, getpid()) < 0)
++        fprintf(stderr,
++                _("login: could not become foreground process group: %s\n"),
++                strerror(errno));
++    if (setpgid(0, 0) < 0)
++        fprintf(stderr, _("login: could not become process leader: %s\n"),
++                strerror(errno));
++
+ #endif
+     signal(SIGINT, SIG_DFL);
+     

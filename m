@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317878AbSFNDzg>; Thu, 13 Jun 2002 23:55:36 -0400
+	id <S317880AbSFNEA0>; Fri, 14 Jun 2002 00:00:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317880AbSFNDzf>; Thu, 13 Jun 2002 23:55:35 -0400
-Received: from mail1.suri.co.jp ([61.194.3.174]:11795 "EHLO thames.suri.co.jp")
-	by vger.kernel.org with ESMTP id <S317878AbSFNDzf>;
-	Thu, 13 Jun 2002 23:55:35 -0400
-Date: Fri, 14 Jun 2002 12:55:28 +0900
-From: OHKUBO Katsuhiko <ohkubo-k@suri.co.jp>
-To: linux-kernel@vger.kernel.org
-Subject: question: The use of s_op->write_super_lockfs/unlockfs
-Reply-To: ohkubo-k@suri.co.jp
-Message-Id: <20020614122405.FF2D.OHKUBO-K@suri.co.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.00.08
+	id <S317882AbSFNEAZ>; Fri, 14 Jun 2002 00:00:25 -0400
+Received: from host186-15.discord.birch.net ([65.16.186.15]:62180 "EHLO
+	inspiron.random") by vger.kernel.org with ESMTP id <S317880AbSFNEAZ>;
+	Fri, 14 Jun 2002 00:00:25 -0400
+Date: Fri, 14 Jun 2002 06:00:25 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+        Richard Brunner <richard.brunner@amd.com>, mark.langsdorf@amd.com
+Subject: Re: New version of pageattr caching conflict fix for 2.4
+Message-ID: <20020614040025.GA2093@inspiron.birch.net>
+In-Reply-To: <20020613221533.A2544@wotan.suse.de> <20020613210339.B21542@redhat.com> <20020614032429.A19018@wotan.suse.de> <20020613213724.C21542@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 13, 2002 at 09:37:24PM -0400, Benjamin LaHaise wrote:
+> On Fri, Jun 14, 2002 at 03:24:29AM +0200, Andi Kleen wrote:
+> > > This version is missing a few of the fixes included in my version: 
+> > > it doesn't properly flush global tlb entries, or update the page 
+> > 
+> > Sure it does. INVLPG (__flush_tlb_one) flushes global entries.
+> 
+> It failed to do so in my testing.  The only safe way of flushing 
 
-Hello.
+just a fast comment on this bit: x86 specs state invlpg must flush
+global entries from the tlb too, see also the kmap_prot as pratical
+reference.
 
-There ars
-	void write_super_lockfs(super_block *)
-	void unlockfs(super_block *)
-in struct super_operations.
-
-Ext3 and reiserfs have implementations of it.
-But I cannot find callers of it and system calls for it.
-
-There are some pathches such as 
-	http://www.lifix.fi/listarchive/lkml/2001-08/msg00464.html
-but it's not included in Linux 2.4.18/2.5.21.
-	drivers/md/lvm.c has only callers of functions in this patch
-	if defined LVM_VFS_ENHANCEMENT, but there aren't function bodys.
-
-Q1: Who does use s_op->write_super_lockfs/unlockfs now?
-Q2: How lockfs/unlockfs will be used in future?
-Q3: Is it enable to implement of system calls for lockfs/unlockfs
-	without deadlocks?
-
-Thanks in advance.
-
------------
-OHKUBO Katsuhiko ohkubo-k@suri.co.jp
-
+Andrea

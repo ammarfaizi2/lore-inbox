@@ -1,28 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272128AbTHDTbP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 15:31:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272166AbTHDTbP
+	id S272165AbTHDTXK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 15:23:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272162AbTHDTXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 15:31:15 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:15234 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S272128AbTHDTbM (ORCPT
+	Mon, 4 Aug 2003 15:23:10 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:7554 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S272135AbTHDTXH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 15:31:12 -0400
-Date: Mon, 4 Aug 2003 12:26:32 -0700
+	Mon, 4 Aug 2003 15:23:07 -0400
+Date: Mon, 4 Aug 2003 12:17:37 -0700
 From: "David S. Miller" <davem@redhat.com>
-To: Werner Almesberger <werner@almesberger.net>
-Cc: ebiederm@xmission.com, jgarzik@pobox.com, niv@us.ibm.com,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: TOE brain dump
-Message-Id: <20030804122632.65ba2122.davem@redhat.com>
-In-Reply-To: <20030804162433.L5798@almesberger.net>
-References: <20030802140444.E5798@almesberger.net>
-	<3F2BF5C7.90400@us.ibm.com>
-	<3F2C0C44.6020002@pobox.com>
-	<20030802184901.G5798@almesberger.net>
-	<m1fzkiwnru.fsf@frodo.biederman.org>
-	<20030804162433.L5798@almesberger.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: milstone reached: ia64 linux builds out of Linus' tree
+Message-Id: <20030804121737.4cb7ae41.davem@redhat.com>
+In-Reply-To: <1060024077.719.26.camel@dhcp22.swansea.linux.org.uk>
+References: <200308041737.h74HbdCf015443@napali.hpl.hp.com>
+	<20030804113144.47fcc112.davem@redhat.com>
+	<16174.43161.252794.244789@napali.hpl.hp.com>
+	<20030804114546.10786f84.davem@redhat.com>
+	<1060024077.719.26.camel@dhcp22.swansea.linux.org.uk>
 X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -30,25 +29,13 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Aug 2003 16:24:33 -0300
-Werner Almesberger <werner@almesberger.net> wrote:
+On 04 Aug 2003 20:07:58 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-> Eric W. Biederman wrote:
-> > There is one place in low latency communications that I can think
-> > of where TCP/IP is not the proper solution.  For low latency
-> > communication the checksum is at the wrong end of the packet.
-> 
-> That's one of the few things ATM's AAL5 got right.
+> but having finally ended up in the right place *is* a milestone.
 
-Let's recall how long the IFF_TRAILERS hack from BSD :-)
+I agree.
 
-> But in the end, I think it doesn't really matter.
+I apologize, I really didn't want to diminsh what has been
+accomplished.  I was trying to achieve something different :)
 
-I tend to agree on this one.
-
-And on the transmit side if you have more than 1 pending TX frame, you
-can always be prefetching the next one into the fifo so that by the
-time the medium is ready all the checksum bits have been done.
-
-In fact I'd be surprised if current generation 1g/10g cards are not
-doing something like this.

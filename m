@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283286AbSAGR0r>; Mon, 7 Jan 2002 12:26:47 -0500
+	id <S283244AbSAGR3R>; Mon, 7 Jan 2002 12:29:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283268AbSAGR0i>; Mon, 7 Jan 2002 12:26:38 -0500
-Received: from ns.suse.de ([213.95.15.193]:13838 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S283244AbSAGR0X>;
-	Mon, 7 Jan 2002 12:26:23 -0500
-Date: Mon, 7 Jan 2002 18:26:20 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.1-dj13
-In-Reply-To: <200201071719.JAA03321@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0201071824350.16327-100000@Appserv.suse.de>
+	id <S284285AbSAGR3C>; Mon, 7 Jan 2002 12:29:02 -0500
+Received: from gate.perex.cz ([194.212.165.105]:61959 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S283244AbSAGR0q>;
+	Mon, 7 Jan 2002 12:26:46 -0500
+Date: Mon, 7 Jan 2002 18:25:13 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Christoph Hellwig <hch@caldera.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: ALSA patch for 2.5.2pre9 kernel
+In-Reply-To: <20020107180656.A16283@caldera.de>
+Message-ID: <Pine.LNX.4.31.0201071819090.498-100000@pnote.perex-int.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jan 2002, H. Peter Anvin wrote:
+On Mon, 7 Jan 2002, Christoph Hellwig wrote:
 
-> In article <Pine.LNX.4.33.0201071349590.14473-100000@Appserv.suse.de> of
-> linux.dev.kernel, you write:
+> On Mon, Jan 07, 2002 at 09:02:39AM -0800, Linus Torvalds wrote:
+> > > linux/sound is silly.  It's drivers so put it under linux/drivers/sound.
+> >
+> > That was my initial reaction too, but Jaroslav clearly wants a
+> > higher-level generic hierarchy. Which means that we're not talking about
+> > _drivers_ any more, we're talking about something that is much more
+> > closely related to a "networking" kind of thing.
+>
+> If you look at the code it clearly is driver code.
 
-<bah, cursed newsgate>
+What is code in linux/sound/core then? This midlevel code is shared
+with all drivers and definitely belongs to same place like
+linux/net/core.
 
-> > It's a blatant rip-off. It wasn't something I particularly thought of,
-> > it just happened. Maybe I just stared at one too many -ac changelogs.
-> By the way, you may want to upload your logs (if you don't already) to
-> the kernel.org account under the name patch-2.5.x.log in the same
-> directory as the patches.  Then we should be able to pick them up for
-> the front page tableau, or at least we will be once I can get some
-> time to get the scripts redone...
+						Jaroslav
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/patch-2.5.1-dj.log
+-----
+Jaroslav Kysela <perex@suse.cz>
+SuSE Linux    http://www.suse.com
+ALSA Project  http://www.alsa-project.org
 
-Let me know if you'd rather the filename match a different format,
-or want symlinks to LATEST-IS, or the likes..
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
 

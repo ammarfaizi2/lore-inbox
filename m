@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbVDCTSc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbVDCTXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbVDCTSc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 15:18:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbVDCTSc
+	id S261868AbVDCTXp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 15:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbVDCTXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 15:18:32 -0400
-Received: from smtp-vbr11.xs4all.nl ([194.109.24.31]:20999 "EHLO
-	smtp-vbr11.xs4all.nl") by vger.kernel.org with ESMTP
-	id S261876AbVDCTSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 15:18:17 -0400
-In-Reply-To: <424FE1D3.9010805@osvik.no>
-References: <424FD9BB.7040100@osvik.no> <20050403220508.712e14ec.sfr@canb.auug.org.au> <424FE1D3.9010805@osvik.no>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <524d7fda64be6a3ab66a192027807f57@xs4all.nl>
+	Sun, 3 Apr 2005 15:23:45 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:56518 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261868AbVDCTXn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 15:23:43 -0400
+Message-ID: <425042B2.4080403@colorfullife.com>
+Date: Sun, 03 Apr 2005 21:23:30 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel stack size
+References: <424EFD2A.6060305@colorfullife.com>	 <1112480132.27149.55.camel@localhost.localdomain>	 <424F96DD.2070307@colorfullife.com> <1112551304.27149.126.camel@localhost.localdomain>
+In-Reply-To: <1112551304.27149.126.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org
-From: Renate Meijer <kleuske@xs4all.nl>
-Subject: Re: Use of C99 int types
-Date: Sun, 3 Apr 2005 21:23:27 +0200
-To: Dag Arne Osvik <da@osvik.no>
-X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steven Rostedt wrote:
 
-On Apr 3, 2005, at 2:30 PM, Dag Arne Osvik wrote:
-
-> Stephen Rothwell wrote:
+>On Sun, 2005-04-03 at 09:10 +0200, Manfred Spraul wrote:
 >
->> On Sun, 03 Apr 2005 13:55:39 +0200 Dag Arne Osvik <da@osvik.no> wrote:
->>
->>> I've been working on a new DES implementation for Linux, and ran into
->>> the problem of how to get access to C99 types like uint_fast32_t for
->>> internal (not interface) use.  In my tests, key setup on Athlon 64 
->>> slows
->>> down by 40% when using u32 instead of uint_fast32_t.
->>>
->>
->> If you look in stdint.h you may find that uint_fast32_t is actually
->> 64 bits on Athlon 64 ... so does it help if you use u64?
->>
+>  
+>
+>>Yes - sem or spin locks are quicker as long as no cache line transfers 
+>>are necessary. If the semaphore is accessed by multiple cpus, then 
+>>kmalloc would be faster: slab tries hard to avoid taking global locks. 
+>>I'm not speaking about contention, just the cache line ping pong for 
+>>acquiring a free semaphore.
+>>    
 >>
 >
-> Yes, but wouldn't it be much better to avoid code like the following, 
-> which may also be wrong (in terms of speed)?
+>Without contention, is there still a problem with cache line ping pong
+>of acquiring a free semaphore?
 >
-> #ifdef CONFIG_64BIT  // or maybe CONFIG_X86_64?
->  #define fast_u32 u64
-> #else
->  #define fast_u32 u32
-> #endif
+>I mean, say only one task is using a given semaphore. Is there still
+>going to be cache line transfers for acquiring it? Even if the task in
+>question stays on a CPU. Is the "LOCK" on an instruction that expensive
+>even if the other CPUs haven't accessed that location of memory.
+>
+>  
+>
+No. If everything is cpu-local, then there are obviously no cache line 
+transfers. LOCK is not that expensive. On a Pentium 3, it was 20 cpu 
+cycles. On an Athlon 64, it's virtually free.
 
-Isn't it better to use a general integer type, reflecting the cpu's 
-native register-size and let the compiler sort it out? Restrict all 
-uses of explicit width types to where it's *really* needed, that is, in 
-drivers, network-code, etc. I firmly oppose any definition of "#define 
-fast_u32 u64". This kind of definitions will only create needless 
-confusion.
-
-I wonder how much other code is suffering from this kind of overly 
-explicit typing. It's much easier to make assumptions about integer 
-size unwittingly than it is to avoid them. I used to assume (for 
-instance) that sizeof(int) == sizeof(long) == sizeof(void *) at one 
-point in my career. Fortunately, reality soon asserted itself again.
-
-Regards,
-
-Renate Meijer.
+--
+    Manfred
 

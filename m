@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272865AbRIGWJC>; Fri, 7 Sep 2001 18:09:02 -0400
+	id <S272870AbRIGWMW>; Fri, 7 Sep 2001 18:12:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272866AbRIGWIw>; Fri, 7 Sep 2001 18:08:52 -0400
-Received: from nicol6.umkc.edu ([134.193.4.67]:22541 "EHLO nicol6.umkc.edu")
-	by vger.kernel.org with ESMTP id <S272865AbRIGWIn>;
-	Fri, 7 Sep 2001 18:08:43 -0400
-Message-ID: <3B9943F3.612D467B@umkc.edu>
-Date: Fri, 07 Sep 2001 17:02:27 -0500
-From: "David L. Nicol" <nicold@umkc.edu>
-Organization: UMKC Information Services Central Systems
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
-X-Accept-Language: en
+	id <S272871AbRIGWMM>; Fri, 7 Sep 2001 18:12:12 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56585 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272870AbRIGWL4>; Fri, 7 Sep 2001 18:11:56 -0400
+Subject: Re: "Cached" grows and grows and grows...
+To: skraw@ithnet.com (Stephan von Krawczynski)
+Date: Fri, 7 Sep 2001 23:15:36 +0100 (BST)
+Cc: mcelrath@draal.physics.wisc.edu (Bob McElrath),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010907191349.457cad95.skraw@ithnet.com> from "Stephan von Krawczynski" at Sep 07, 2001 07:13:49 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: automatic per-connection ECN disabling
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15fTuS-0002g1-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> To tell you the honest truth: you are not alone in cosmos (with this problem)
+> ;-)
+> To give you that explicit hint for saving money: do not buy mem, it will be
+> eaten up by recent kernels without any performance gain or other positive
+> impact whatsoever. 
 
-I like the promise of explicit notification of congestion, and
-have enabled ECN on my computer.  However, I am always forgetting
-it is on and getting paranoid before I remember it and turn it
-off in order to communicate with a server behind a non-ECN firewall.
+Pick up a 2.4.9-ac kernel, and you shouldnt be seeing the problem (I say
+shouldnt, I'm not 100% convinced its all under control)
 
-How difficult would it be, I wonder, to set the TCP stack to
-attempt a non-ECN connection if the first SYN does not come back
-in reasonable time?  That is, send the second (or third) initial
-SYN without the ECN option?
+> Try using 2.4.4, if it doesn't succeed, forget 2.4 and use 2.2.19. That works.
+> Unfortunately you may have to completely reinstall your system when going back
+> to 2.2.
 
-In effect it would be a third ECN mode besides on and off: Auto.
-
-And it would make a good default.
-
-
-
-
--- 
-                                           David Nicol 816.235.1187
-Insist on genuine Dead Horse brand bongo drums.
+That should not be needed at all. 

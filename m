@@ -1,72 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263143AbSJaQy2>; Thu, 31 Oct 2002 11:54:28 -0500
+	id <S265257AbSJaRI3>; Thu, 31 Oct 2002 12:08:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263137AbSJaQy2>; Thu, 31 Oct 2002 11:54:28 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:19207 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S263143AbSJaQy0>; Thu, 31 Oct 2002 11:54:26 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
+	id <S265258AbSJaRI3>; Thu, 31 Oct 2002 12:08:29 -0500
+Received: from herald.cc.purdue.edu ([128.210.11.29]:18850 "EHLO
+	herald.cc.purdue.edu") by vger.kernel.org with ESMTP
+	id <S265257AbSJaRI1>; Thu, 31 Oct 2002 12:08:27 -0500
+Date: Thu, 31 Oct 2002 12:13:34 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+Subject: Re: What's left over.
+Message-ID: <20021031171334.GA22597@snerble.cc.purdue.edu>
+Reply-To: shuey@purdue.edu
+References: <Pine.LNX.4.44.0210302224180.20210-100000@nakedeye.aparity.com> <Pine.LNX.4.44.0210310737170.2035-100000@home.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15809.25023.211776.529580@laputa.namesys.com>
-Date: Thu, 31 Oct 2002 20:00:47 +0300
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <Torvalds@Transmeta.COM>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: [PATCH]: reiser4 [8/8] reiser4 code
-In-Reply-To: <Pine.GSO.4.21.0210311121520.16688-100000@weyl.math.psu.edu>
-References: <15809.22155.408140.213679@laputa.namesys.com>
-	<Pine.GSO.4.21.0210311121520.16688-100000@weyl.math.psu.edu>
-X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-X-Zippy-Says: My ELBOW is a remote FRENCH OUTPOST!!
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210310737170.2035-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
+From: Michael Shuey <shuey@purdue.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
- > 
- > 
- > On Thu, 31 Oct 2002, Nikita Danilov wrote:
- > 
- > >  > And you want that to be reviewed until tonight?
- > >  > 
- > > 
- > > No. But changes to the core are not very complicated. If Linus "reviews"
- > > and accepts them life of reiser4 would be much simpler.
- > 
- > Changes to the core consist (AFAICS) of exporting a bunch of functions
- > with no explanation of the way they are used - with some of them it's
- > really straightforward (and can go in at any point), with some one
- > would expect really detailed explanation and code review (your comments
- > regarding fsync_super() export trigger all sorts of alarms for me).
+I'm a user, and I request that LKCD get merged into the kernel. :-)
 
-Let's start from fsync_super() then.
+On Thu, Oct 31, 2002 at 07:46:08AM -0800, Linus Torvalds wrote:
+> What I'm saying by "vendor driven" is that it has no relevance for the 
+> standard kernel, and since it has no relevance to that, then I have no 
+> incentives to merge it. The crash dump is only useful with people who 
+> actively look at the dumps, and I don't know _anybody_ outside of the 
+> specialized vendors you mention who actually do that.
 
-Reiser4 has data journalling.
+I actively look at LKCD dumps.  I have no affiliation with SGI, IBM, or any
+of the previously mentioned companies.  I'm not aware of any vendors providing
+pre-patched kernels with LKCD; right now my only option for reasonable crash
+data is to patch and build my own kernel.
 
-When ->writepage() is called on dirtied page, page joins transaction.
-During umount all out-standing transaction have to be committed.  But if
-file were mmapped, then, at the moment of the call to ->kill_super()
-pages can be dirtied without ->writepage() ever called on them.
+> I will merge it when there are real users who want it - usually as a
+> result of having gotten used to it through a vendor who supports it. (And
+> by "support" I do not mean "maintain the patches", but "actively uses it"
+> to work out the users problems or whatever).
 
-generic_shutdown_super() calls fsync_super(sb) (which will call
-->writepage() on each dirty page) and then invalidate_inodes().
+Here at Purdue University we're building several Linux clusters.  LKCD is
+most useful to help find in-kernel problems.  Most of the time our crashes
+are due to a flakey stick of RAM or a dying disk (or controller), but LKCD
+dumps are still useful.  With a crash dump I can analyze the cause of the
+crash after the fact, but without a dump my only option to get _any_ crash
+data is to leave a console plugged into each node of my clusters.
 
-Reiser4 has commit out-standing transactions -between- these two points:
-after ->writepage() has been called on all dirty pages, but before
-inodes were destroyed. Thus, we cannot use
-kill_block_super()/generic_shutdown_super().
+Do you feel like donating a 700-port console server?  Right, so it's LKCD
+for me then.
 
- > 
- > PS: Cc'ing a posting on a public list to a subscribers-only one is
- > generally not a nice thing to do...  Cc: trimmed.
+> People have to realize that my kernel is not for random new features. The
+> stuff I consider important are things that people use on their own, or
+> stuff that is the base for other work. Quite often I want vendors to merge
+> patches _they_ care about long long before I will merge them (examples of
+> this are quite common, things like reiserfs and ext3 etc).
+> 
+> THAT is what I mean by vendor-driven. If vendors decide they really want
+> the patches, and I actually start seeing noises on linux-kernel or getting
+> requests for it being merged from _users_ rather than developers, then
+> that means that the vendor is on to something.
 
-Arghh... Sorry, it will be fixed... soon.
+I understand that Linux can't have random new features (especially going into
+a feature-freeze).  However, any additions that provide better debugging info
+are (in my opinion, at any rate) worth it.  Every other UNIX I've used (with
+the possible exception of an early Ultrix) has some facility to inspect the
+kernel - all have _at_least_ dumps that get written to a swap disk on a crash
+and many have an in-core debugger.  Running gdb on a live kernel from a
+remote machine isn't unheard of, at least with other OSes.  Unfortunately,
+only aid you'll get in debugging a Linux kernel is the source code.  Sure,
+you can add a mess of printk's all over suspect code, and yes, the console
+gets a register dump on a panic, but that really isn't enough.  Some times
+it's nice to be able to walk through the kernel's data structures and figure
+out just what was going on when things died.  I get this with LKCD.
 
- > 
+To that end, it'd be nice if the trace toolkit and SGI's kernel debugger were
+added.  No, I haven't used them, but then I don't do much kernel development
+either.  I'd bet that LTT and the kernel debugger would be very useful to
+those who do, though.
 
-Nikita.
+-- 
+Mike Shuey

@@ -1,122 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263193AbUDPOHH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 10:07:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263191AbUDPOHH
+	id S263211AbUDPOKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 10:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbUDPOKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 10:07:07 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:27793 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263215AbUDPOGo (ORCPT
+	Fri, 16 Apr 2004 10:10:25 -0400
+Received: from external2.azuro.com ([212.44.26.44]:50104 "EHLO zinc.azuro.com")
+	by vger.kernel.org with ESMTP id S263211AbUDPOKS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 10:06:44 -0400
-Message-ID: <407FE86F.50908@us.ibm.com>
-Date: Fri, 16 Apr 2004 09:06:39 -0500
-From: Brian King <brking@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Heiko Carstens <Heiko.Carstens@de.ibm.com>
-CC: rusty@rustcorp.com.au, linux-scsi@vger.kernel.org,
-       linux-scsi-owner@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: call_usermodehelper hang
-References: <OFD911A46B.B4FA5620-ONC1256E78.002FEC42-C1256E78.0030BCD4@de.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Apr 2004 10:10:18 -0400
+Envelope-to: linux-kernel@vger.kernel.org
+Date: Fri, 16 Apr 2004 15:10:16 +0100
+To: linux-kernel@vger.kernel.org
+Subject: NFS oops with 2.6.4 server / Solaris 2.8 client
+Message-ID: <20040416141016.GA27316@platinum.azuro.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: Peter Clay <pete@azuro.com>
+X-Spam-Score: 0.0 (/)
+X-Spam-Report: Spam detection software, running on the system "zinc", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or block
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  I have this oops with the situation described in the
+	subject, using the Solaris automounter in /net to access the Linux
+	server. This is repeatable. It doesn't always crash the machine, but
+	fairly soon after I end up with all the nfsd processes stuck in 'D'
+	state. What other debugging information would help find this problem?
+	[...] 
+	Content analysis details:   (0.0 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The fix is in Andrew Morton's tree. The solution was to add a
-call_usermodehelper_async, which can be called with semaphores held.
-Grab the following patches:
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mm6/broken-out/call_usermodehelper_async.patch
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mm6/broken-out/call_usermodehelper_async-always.patch
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mm6/broken-out/kstrdup-and-friends.patch
+I have this oops with the situation described in the subject, using the Solaris
+automounter in /net to access the Linux server. This is repeatable. It doesn't
+always crash the machine, but fairly soon after I end up with all the nfsd
+processes stuck in 'D' state. What other debugging information would help find
+this problem?
 
-You will get a compile error since the mm tree has another patch in it.
-Change the offending (system_state != SYSTEM_RUNNING) to (!system_running)
+(output of dmesg follows)
 
--Brian
+...
+nfs warning: mount version older than kernel
+RPC request reserved 0 but used 112
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+ printing eip:
+c02a91c0
+*pde = 00000000
+Oops: 0002 [#1]
+CPU:    0
+EIP:    0060:[<c02a91c0>]    Not tainted
+EFLAGS: 00010287
+EIP is at do_tcp_sendpages+0x660/0xbf0
+eax: 00000000   ebx: ddc5cb80   ecx: 00000008   edx: 00000000
+esi: 00000001   edi: cfd0d9c8   ebp: d0632100   esp: dd0dbe34
+ds: 007b   es: 007b   ss: 0068
+Process nfsd (pid: 1366, threadinfo=dd0da000 task=dd100d40)
+Stack: 000000b0 000000d0 c014d61a dd19670c dd0dbe70 c01c7efd d0632110 00000000
+       00000008 00000000 00000000 00000000 000005b4 00007530 00000000 cfd0d800
+       00000008 00000000 c02a97d9 cfd0d800 dd0dbeac 00000000 00000008 00000000
+Call Trace:
+ [<c014d61a>] close_private_file+0x2a/0x30
+ [<c01c7efd>] nfsd_close+0x1d/0x40
+ [<c02a97d9>] tcp_sendpage+0x89/0xa0
+ [<c02e8343>] svc_sendto+0x173/0x2b0
+ [<c01d0e28>] encode_post_op_attr+0x1c8/0x260
+ [<c02e941c>] svc_tcp_sendto+0x6c/0xc0
+ [<c02e9bbc>] svc_send+0xbc/0x100
+ [<c02eb828>] svcauth_unix_release+0x58/0x60
+ [<c02e7858>] svc_process+0x1b8/0x640
+ [<c01c43b0>] nfsd+0x190/0x300
+ [<c01c4220>] nfsd+0x0/0x300
+ [<c0108c49>] kernel_thread_helper+0x5/0xc
 
-
-Heiko Carstens wrote:
->>I have been running into some kernel hangs due to call_usermodehelper. 
-> 
-> Looking
-> 
->>at the backtrace, it looks to me like there are deadlock issues with 
-> 
-> adding
-> 
->>devices from work queues. Attached is a sample backtrace from one of the
->>hangs I experienced. My question is why does call_usermodehelper do 
->>2 different
->>things depending on whether or not it is called from the kevent 
->>task? It appears
->>that the simple way to fix the hang would be to never have 
-> 
-> call_usermodehelper
-> 
->>use a work_queue since it must be called from process context anyway, or
->>am I missing something?
-> 
-> 
-> Do you have a solution for this problem? As it appears we have the very 
-> same
-> problem with the zfcp lldd, since we also trigger a scsi_add_device call 
-> by
-> using schedule_work. IMO the right way to solve this problem would be to 
-> not
-> trigger any hotplug events while holding a semaphore.
-> 
-> 
->>0xc0000000017df300        1        0  0    0   D  0xc0000000017df7b0 
-> 
-> swapper
-> 
->>           SP(esp)            PC(eip)      Function(args)
->>0xc00000003fc9f460  0x0000000000000000  NO_SYMBOL or Userspace
->>0xc00000003fc9f4f0  0xc000000000058c40  .schedule +0xb4
->>0xc00000003fc9f5c0  0xc00000000005a464  .wait_for_completion +0x138
->>0xc00000003fc9f6c0  0xc00000000007c594  .call_usermodehelper +0x104
->>0xc00000003fc9f810  0xc00000000022d3e8  .kobject_hotplug +0x3c4
->>0xc00000003fc9f900  0xc00000000022d67c  .kobject_add +0x134
->>0xc00000003fc9f9a0  0xc00000000012b3d8  .register_disk +0x70
->>0xc00000003fc9fa40  0xc00000000027dfe4  .add_disk +0x60
->>0xc00000003fc9fad0  0xc0000000002dc7dc  .sd_probe +0x290
->>0xc00000003fc9fb80  0xc00000000026fbe8  .bus_match +0x94
->>0xc00000003fc9fc10  0xc00000000026ff70  .driver_attach +0x8c
->>0xc00000003fc9fca0  0xc000000000270104  .bus_add_driver +0x110
->>0xc00000003fc9fd50  0xc000000000270a18  .driver_register +0x38
->>0xc00000003fc9fdd0  0xc0000000002cd8f8  .scsi_register_driver +0x28
->>0xc00000003fc9fe50  0xc0000000004941d8  .init_sd +0x8c
->>0xc00000003fc9fee0  0xc00000000000c720  .init +0x25c
->>0xc00000003fc9ff90  0xc0000000000183ec  .kernel_thread +0x4c
->>
->>0xc00000003fab3380        4        1  0    0   D  0xc00000003fab3830 
-> 
-> events/0
-> 
->>           SP(esp)            PC(eip)      Function(args)
->>0xc00000003faaf6e0  0x0000000000000000  NO_SYMBOL or Userspace
->>0xc00000003faaf770  0xc000000000058c40  .schedule +0xb4
->>0xc00000003faaf840  0xc00000000022fa20  .rwsem_down_write_failed +0x14c
->>0xc00000003faaf910  0xc00000000026fed0  .bus_add_device +0x11c
->>0xc00000003faaf9b0  0xc00000000026e288  .device_add +0xd0
->>0xc00000003faafa50  0xc0000000002cdb00  .scsi_sysfs_add_sdev +0x8c
->>0xc00000003faafb00  0xc0000000002cbff8  .scsi_probe_and_add_lun +0xb04
->>0xc00000003faafc00  0xc0000000002ccca0  .scsi_add_device +0x90
->>0xc00000003faafcb0  0xc0000000002d9458  .ipr_worker_thread +0xc60
->>0xc00000003faafdc0  0xc00000000007cd9c  .worker_thread +0x268
->>0xc00000003faafee0  0xc0000000000839cc  .kthread +0x160
->>0xc00000003faaff90  0xc0000000000183ec  .kernel_thread +0x4c
-> 
-> 
-> 
-
-
--- 
-Brian King
-eServer Storage I/O
-IBM Linux Technology Center
+Code: ff 42 04 8b 83 a8 00 00 00 8b 6c 24 28 8d 04 f0 89 68 10 8d
 

@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261572AbTCTP0i>; Thu, 20 Mar 2003 10:26:38 -0500
+	id <S261529AbTCTPZH>; Thu, 20 Mar 2003 10:25:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261575AbTCTP0i>; Thu, 20 Mar 2003 10:26:38 -0500
-Received: from im2.mail.tds.net ([216.170.230.92]:32450 "EHLO im2.sec.tds.net")
-	by vger.kernel.org with ESMTP id <S261572AbTCTP0F> convert rfc822-to-8bit;
-	Thu, 20 Mar 2003 10:26:05 -0500
-Date: Thu, 20 Mar 2003 10:37:00 -0500 (EST)
-From: Jon Portnoy <portnoy@tellink.net>
-X-X-Sender: portnoy@cerberus.oppresses.us
-To: Dagfinn Ilmari =?iso-8859-1?q?Manns=E5ker?= <ilmari@ping.uio.no>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Deprecating .gz format on kernel.org
-In-Reply-To: <d8jof46mnx8.fsf@wirth.ping.uio.no>
-Message-ID: <Pine.LNX.4.53.0303201036470.26507@cerberus.oppresses.us>
-References: <Pine.LNX.4.44.0303192107270.3901-100000@einstein31.homenet>
- <1048110127.1534.8.camel@laptop.fenrus.com> <20030319215551.GD19088@conectiva.com.br>
- <20030319220622.GT15385@E227.suse.de> <2016.192.168.0.2.1048117580.squirrel@mail.sandall.us>
- <m2bs06o32s.fsf@vador.mandrakesoft.com> <d8jof46mnx8.fsf@wirth.ping.uio.no>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+	id <S261571AbTCTPZH>; Thu, 20 Mar 2003 10:25:07 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:30969 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261529AbTCTPUk>; Thu, 20 Mar 2003 10:20:40 -0500
+Date: Thu, 20 Mar 2003 16:31:35 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.5 patch] fix .text.exit error in OSS awe_wave.c
+Message-ID: <20030320153134.GA3174@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Mar 2003, Dagfinn Ilmari [iso-8859-1] Mannsåker wrote:
+I got a .exit.text error in 2.5.65.
 
-> Thierry Vignaud <tvignaud@mandrakesoft.com> writes:
-> 
-> > "Eric Sandall" <eric@sandall.us> writes:
-> >
-> >> > > > I can't speak for the others, but Red Hat Linux uses the .bz2
-> >> > > > files in kernel rpms
-> >> > >
-> >> > > Conectiva too.
-> >> >
-> >> > ... and so does SuSE.
-> >> 
-> >> And Source Mage (http://www.sourcemage.org).  :)
-> >
-> > mandrake too ...
-> 
-> Debian as well.
-> 
+The problem is that in sound/oss/awe_wave.c the __init function
+_attach_awe calls the __exit function awe_release_region.
 
-And Gentoo :-)
+The following patch that removes the __exit from awe_release_region 
+fixes it:
+
+
+--- linux-2.5.65-notfull/sound/oss/awe_wave.c.old	2003-03-20 16:09:19.000000000 +0100
++++ linux-2.5.65-notfull/sound/oss/awe_wave.c	2003-03-20 16:09:40.000000000 +0100
+@@ -757,7 +757,7 @@
+ 	return 0;
+ }
+ 
+-static void __exit
++static void
+ awe_release_region(void)
+ {
+ 	if (! port_setuped) return;
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

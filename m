@@ -1,34 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132398AbRDPXet>; Mon, 16 Apr 2001 19:34:49 -0400
+	id <S132400AbRDPXj3>; Mon, 16 Apr 2001 19:39:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132399AbRDPXej>; Mon, 16 Apr 2001 19:34:39 -0400
-Received: from jffdns02.or.intel.com ([134.134.248.4]:63458 "EHLO
-	hebe.or.intel.com") by vger.kernel.org with ESMTP
-	id <S132398AbRDPXef>; Mon, 16 Apr 2001 19:34:35 -0400
-Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE843@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Pavel Machek'" <pavel@suse.cz>,
-        Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
-        Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Let init know user wants to shutdown
-Date: Mon, 16 Apr 2001 16:32:49 -0700
+	id <S132405AbRDPXjT>; Mon, 16 Apr 2001 19:39:19 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28940 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132400AbRDPXjH>; Mon, 16 Apr 2001 19:39:07 -0400
+Subject: Re: Linux 2.4.3-ac7
+To: johnc@damncats.org (John Cavan)
+Date: Tue, 17 Apr 2001 00:40:31 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3ADB2B99.EB0C3E28@damncats.org> from "John Cavan" at Apr 16, 2001 01:27:53 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14pIbi-0001Dr-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Pavel Machek [mailto:pavel@suse.cz]
-> There are 32 signals, and signals can carry more information, if
-> required. I really think doing it way UPS-es are done is right
-> approach.
+> I tried it on my dual P3 box with the VIA chipset and I'm definitely
+> getting timeouts for the USB devices. Booting with "noapic" resolves the
+> problem for me. Output of lspci for the VIA stuff is:
 
-I would think that it would make sense to keep shutdown with all the other
-power management events. Perhaps it will makes more sense to handle UPS's
-through the power management code.
+Thats an unrelated problem. The BIOS on the tyan tiger is broken
 
-Regards -- Andy
+> 
 

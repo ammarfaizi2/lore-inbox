@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbVCLEuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbVCLE6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbVCLEuI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 23:50:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbVCLEuI
+	id S261862AbVCLE6l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 23:58:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVCLE6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 23:50:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51141 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261688AbVCLEuD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 23:50:03 -0500
-Message-ID: <423274E5.4060804@pobox.com>
-Date: Fri, 11 Mar 2005 23:49:41 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Christoph Lameter <christoph@graphe.net>
-CC: linux-kernel@vger.kernel.org, mark@chelsio.com, netdev@oss.sgi.com
-Subject: Re: A new 10GB Ethernet Driver by Chelsio Communications
-References: <Pine.LNX.4.58.0503110356340.14213@server.graphe.net> <20050311112132.6a3a3b49.akpm@osdl.org>
-In-Reply-To: <20050311112132.6a3a3b49.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Mar 2005 23:58:41 -0500
+Received: from thunk.org ([69.25.196.29]:48860 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261862AbVCLE6h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 23:58:37 -0500
+Date: Fri, 11 Mar 2005 23:58:28 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Moritz Muehlenhoff <jmm@inutil.org>,
+       Martin Josefsson <gandalf@wlug.westbo.se>,
+       Volker Braun <volker.braun@physik.hu-berlin.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Average power consumption in S3?
+Message-ID: <20050312045828.GA19215@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Moritz Muehlenhoff <jmm@inutil.org>,
+	Martin Josefsson <gandalf@wlug.westbo.se>,
+	Volker Braun <volker.braun@physik.hu-berlin.de>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <20050309142612.GA6049@informatik.uni-bremen.de> <1110388970.1076.48.camel@tux.rsn.bth.se> <20050310180826.GA6795@informatik.uni-bremen.de> <20050311034615.GA314@thunk.org> <1110516679.32557.350.camel@gaston> <20050311174433.GA6735@thunk.org> <1110584902.5809.116.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110584902.5809.116.camel@gaston>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Christoph Lameter <christoph@graphe.net> wrote:
+On Sat, Mar 12, 2005 at 10:48:21AM +1100, Benjamin Herrenschmidt wrote:
 > 
->>A Linux driver for the Chelsio 10Gb Ethernet Network Controller by
->> Chelsio (http://www.chelsio.com). This driver supports the Chelsio N210
->> NIC and is backward compatible with the Chelsio N110 model 10Gb NICs.
-> 
-> 
-> Thanks, Christoph.
-> 
-> The 400k patch was too large for the vger email server so I have uploaded it to
-> 
->  http://www.zip.com.au/~akpm/linux/patches/stuff/a-new-10gb-ethernet-driver-by-chelsio-communications.patch
+> I'm hesitant to switch a whitelist because of a couple of settings in
+> there that are specific to the way the chip is wired on the mobo.
+> Apparently, thinkpads are similar enough to Macs, but I wouldn't bet on
+> this beeing "commmon"...
 
-step 1:  kill all the OS wrappers.
+If this is true, then ATI probably won't be able to tell us anything
+useful, so we're only going to find out if people in the Thinkpad
+division are willing to tell us something useful (and their track
+record for being helpful has not been particularly stellar).
 
-And do you really need hooks for multiple MACs, when only one MAC is 
-really supported?  Typically these hooks are at a higher level anyway -- 
-struct net_device.
+And what I was thinking about doing was having the CONFIG option only
+do it for machines that were detected as being IBM Thinkpads, not all
+Radeon chips.  The blacklist would be for specific IBM thinkpad
+models; what I'm guessing here is that it's likely that all or most
+modern IBM thinkpads are going to be wired the same way on the
+motherboard.  
 
-	Jeff
-
-
+						- Ted

@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263761AbUEXAG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263766AbUEXAZ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263761AbUEXAG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 20:06:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUEXAG4
+	id S263766AbUEXAZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 20:25:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUEXAZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 20:06:56 -0400
-Received: from [209.195.52.120] ([209.195.52.120]:64947 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S263761AbUEXAGm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 20:06:42 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Christian Borntraeger <linux-kernel@borntraeger.net>
-Cc: linux-kernel@vger.kernel.org, Gergely Czuczy <phoemix@harmless.hu>,
-       itk-sysadm@ppke.hu
-Date: Sun, 23 May 2004 17:06:32 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: Linux 2.4 VS 2.6 fork VS thread creation time test
-In-Reply-To: <200405232147.36372.linux-kernel@borntraeger.net>
-Message-ID: <Pine.LNX.4.58.0405231659130.8199@dlang.diginsite.com>
-References: <Pine.LNX.4.60.0405230914330.15840@localhost>
- <200405231139.44096.linux-kernel@borntraeger.net>
- <Pine.LNX.4.58.0405230247450.8199@dlang.diginsite.com>
- <200405232147.36372.linux-kernel@borntraeger.net>
+	Sun, 23 May 2004 20:25:29 -0400
+Received: from CPE-203-51-26-94.nsw.bigpond.net.au ([203.51.26.94]:1778 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S263766AbUEXAZ1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 20:25:27 -0400
+Message-ID: <40B140DF.2070300@eyal.emu.id.au>
+Date: Mon, 24 May 2004 10:25:03 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.7-rc1 - drivers/scsi/ipr.h too smart for me...
+References: <Pine.LNX.4.58.0405222331200.18534@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0405222331200.18534@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 May 2004, Christian Borntraeger wrote:
+Linus Torvalds wrote:
+> Hmm.. This is stuff all over the map, but most interesting (or at least
+> most "core") is probably the merging of the NUMA scheduler and the anonvma
+> rmap code. The latter gets rid of the expensive pte chains, and instead
+> allows reverse page mapping by keeping track of which vma (and offset)  
+> each page is associated with. Special kudos to Andrea Arcangeli and Hugh
+> Dickins.
 
-> David Lang wrote:
-> > On Sun, 23 May 2004, Christian Borntraeger wrote:
-> > > Gergely Czuczy wrote:
-> > > > failed. As I told it above all the processes are teminated right
-> > > > after creation, but there were a lot of defunct processes in the
-> > > > system, and they were only gone when the parent termineted.
-> > > Have you heard of wait, waitpid and pthread_join?
-> > there really is some sort of problem with 2.6.6 in this area. I have an
->
-> Well in the example given by Gergely there was no wait call at all.
-> Therefore I believe your problem is not related to his one.
+I see many anonymous unions used in drivers/scsi/ipr.h:
 
-Ok, very possible
+drivers/scsi/ipr.h:460: warning: unnamed struct/union that defines no instances
+drivers/scsi/ipr.h:620: warning: unnamed struct/union that defines no instances
+drivers/scsi/ipr.h:665: warning: unnamed struct/union that defines no instances
+drivers/scsi/ipr.h:788: warning: unnamed struct/union that defines no instances
+drivers/scsi/ipr.h:942: warning: unnamed struct/union that defines no instances
 
-> What do you mean by with 2.6.6. Does this testcase behaves differently with
-> other kernel versions? Which version is the first with this problem?
+that my Debian stable (gcc 2.95.4) does not understand. Changes still says:
 
-I started doing this testing with 2.6.4 and had problems with 2.6.[456],
-but only on the opterons
+o  Gnu C                  2.95.3
 
-> > the prarent deals with sigchild by
-> > handler{
-> > while ( wait(...) >0);
-> > signal(SIGCHLD, handler);
-> > }
->
-> You run signal within the signal handler. This is not necessary, although
-> this should cause no problems. Nevertheless, can you try your test without
-> signal in the signal handler?
-
-I will do this, but as I read the signal man page this will cause signal
-to be reset after the first signal hits and nothing will set it to handle
-any future signals, where should the handler get set instead?
-
-> cheers
->
-> Christian
->
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

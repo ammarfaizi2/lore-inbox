@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285096AbRL0Anb>; Wed, 26 Dec 2001 19:43:31 -0500
+	id <S285088AbRL0AkA>; Wed, 26 Dec 2001 19:40:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285098AbRL0AnV>; Wed, 26 Dec 2001 19:43:21 -0500
-Received: from khazad-dum.debian.net ([200.196.10.6]:24448 "EHLO
-	khazad-dum.debian.net") by vger.kernel.org with ESMTP
-	id <S285096AbRL0AnK>; Wed, 26 Dec 2001 19:43:10 -0500
-Date: Wed, 26 Dec 2001 22:43:07 -0200
-From: Henrique de Moraes Holschuh <hmh@rcm.org.br>
+	id <S285089AbRL0Aju>; Wed, 26 Dec 2001 19:39:50 -0500
+Received: from linuxbrew.com ([209.217.133.5]:17280 "HELO
+	andromeda.linuxbrew.com") by vger.kernel.org with SMTP
+	id <S285088AbRL0Ajm>; Wed, 26 Dec 2001 19:39:42 -0500
+Message-ID: <33371.66.69.241.215.1009413581.squirrel@www.linuxbrew.com>
+Date: Wed, 26 Dec 2001 18:39:41 -0600 (CST)
+Subject: Preemptable kernel patches.. for 2.4.17?
+From: "Shane Painter" <shane@linuxbrew.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: PDC20265 ide_dma_timeout and RAID5 issues (2.4.17)
-Message-ID: <20011226224307.B1837@khazad-dum>
-In-Reply-To: <20011226120617.A1316@khazad-dum> <20011226121859.B1700@khazad-dum>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011226121859.B1700@khazad-dum>; from hmh@rcm.org.br on Wed, Dec 26, 2001 at 12:18:59PM -0200
-X-GPG-Fingerprint-1: 1024D/128D36EE 50AC 661A 7963 0BBA 8155  43D5 6EF7 F36B 128D 36EE
-X-GPG-Fingerprint-2: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+Reply-To: shane@linuxbrew.com
+X-Mailer: SquirrelMail (version 1.0.6)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, following a hint by Carlos Carvalho (thanks, man!), I downloaded and
-applied the newest version of the IDE patches, and so far the system appears
-to be working fine. I am stress-testing it, and will report back if it
-breaks.
 
-Apparently, there is a showstopper bug for the PDC20265 on a A7V for RAID in
-the current IDE subsystem of 2.4.17, which is fixed in the newest
-incarnation of the IDE patches.  So, for archival purposes, anyone having
-issues and hangs with Promise PDC20265 controllers and Linux Software
-RAID5, on a VIA kt133 board... you may need to update the IDE subsystem with
-the newest patches from linuxdiskcert.org to solve your problem.
+Where might one find patches for 2.4.17 to add preemptable kernel functionality.
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+I have looked around, but can only come up with patches for 2.4.6 from
+sourceforge... is this the latest? Any direction would be greatly appreciated.
+
+Thanks,
+-Shane 
+
+------------------------------------------------------------------------------
+"Give a man a beer, and he will waste and hour; 
+     Teach a man to brew, and he will waste a lifetime."
+
+

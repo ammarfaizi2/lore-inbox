@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271055AbTHGXM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 19:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271103AbTHGXM7
+	id S271071AbTHGXC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 19:02:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271080AbTHGXC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 19:12:59 -0400
-Received: from [203.51.27.20] ([203.51.27.20]:18418 "EHLO e4.eyal.emu.id.au")
-	by vger.kernel.org with ESMTP id S271055AbTHGXM5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 19:12:57 -0400
-Message-ID: <3F32DCE9.74E61CF9@eyal.emu.id.au>
-Date: Fri, 08 Aug 2003 09:12:41 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.22-rc1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Chris Rankin <rankincj@yahoo.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Loading Pentium III microcode under Linux - catch 22!
-References: <20030807143831.73389.qmail@web40603.mail.yahoo.com>
+	Thu, 7 Aug 2003 19:02:58 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:37904 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S271071AbTHGXC5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 19:02:57 -0400
+Date: Thu, 7 Aug 2003 16:02:52 -0700
+From: jw schultz <jw@pegasys.ws>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][TRIVIAL] Bugzilla bug # 322 - double logical operator drivers/char/sx.c
+Message-ID: <20030807230252.GJ1380@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200308061830.05586.jeffpc@optonline.net> <3F319EE7.8010409@techsource.com> <200308070420.45464.jeffpc@optonline.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200308070420.45464.jeffpc@optonline.net>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: This message may contain content offensive to Atheists and servants of false gods.  Read at your own risk.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Rankin wrote:
+On Thu, Aug 07, 2003 at 04:20:37AM -0400, Jeff Sipek wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
->  --- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > As far as I am aware none of the microcode updates
-> > even apply to 933Mhz era PIII, just the ones the
-> > BIOS ships with by default nowdays. Also the kind of
-> > stuff the errata fix are obscure ultra-weird corner
-> > cases people just don't hit.
+> On Wednesday 06 August 2003 20:35, Timothy Miller wrote:
+> > Josef 'Jeff' Sipek wrote:
+> > > Just a simple fix to make the statements more readable. (instead of
+> > > "i < TIMEOUT > 0" the statement is divided into two, joined by &&.)
+> >
+> > Can you really DO (x < y > z) and have it work as an anded pair of
+> > comparisons?  Maybe this is an addition to C that I am not aware of.
+> >
+> > I would expect (x < y > z) to be equivalent to ((x < y) > z).
 > 
-> Lucky me, eh?
-> 
-> My CPUs *do* take microcode, and they are 933 MHz...
-> ;-). I upgraded from a pair of 733 MHz CPUs bought in
+> Odd, this has been in the kernel ever since Linus started using BK. I didn't 
+> check pre-BK. I wonder what the author intended to say. (I believe in the 
+> ((a<b) && (b>c)) theory.)
 
-Some random ideas:
-	- reinstall the slower, stable CPUs and burn the BIOS
-		If you are a linux hacker then you kept these
-		"just in case".. or else
-	- get a loaner CPU and use it to burn the BIOS
-		If you are a linux hacker then you have no
-		life and no friends to get a loaner from but
-		you do have a roomfull of computer parts...
-		otherwise
-	- install only one CPU, it may be more stable
-	- run your CPU slower than spec, it may be more stable
-		most microcode bugs are not timining sensitive
-		but it is worth a try
+I've got an old system with 2.2.10 and took a look.  It
+appears as though the form of the loop in may of 1999 was
 
-Good luck.
+	for(delay = SX_CCR_TIMEOUT; delay; delay--)
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+so my guess is that the changes were made around the
+constant to minimise typing and progressed something like so:
+
+	for(delay = SX_CCR_TIMEOUT; delay; delay--)
+	for(delay = SX_CCR_TIMEOUT; delay > 0; delay--)
+	for(delay = 0; delay < SX_CCR_TIMEOUT > 0; delay++)
+
+with name changes somewhere in the mix.  So there was never
+any intent to have a double test.  Besides comparing a
+constant with another constant wouldn't make much sense.
+
+
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

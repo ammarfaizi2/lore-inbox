@@ -1,46 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264860AbUEOAXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265342AbUEOA1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264860AbUEOAXv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 20:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264858AbUEOAQZ
+	id S265342AbUEOA1f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 20:27:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265341AbUEOAZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 20:16:25 -0400
-Received: from dingo.clsp.jhu.edu ([128.220.117.40]:2688 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264649AbUENXtd (ORCPT
+	Fri, 14 May 2004 20:25:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:48613 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264822AbUEOAUb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 19:49:33 -0400
-Date: Fri, 14 May 2004 05:25:22 +0200
-From: Pavel Machek <pavel@ucw.cz>
+	Fri, 14 May 2004 20:20:31 -0400
+Date: Fri, 14 May 2004 17:11:38 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       rene.herman@keyaccess.nl, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, arjanv@redhat.com
-Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
-Message-ID: <20040514032522.GA704@elf.ucw.cz>
-References: <409F4944.4090501@keyaccess.nl> <200405102125.51947.bzolnier@elka.pw.edu.pl> <409FF068.30902@keyaccess.nl> <200405102352.24091.bzolnier@elka.pw.edu.pl> <20040510215626.6a5552f2.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Henrik.Seidel@gmx.de
+Subject: Re: sysfs warning + spinlock BUG in typhoon radio
+Message-Id: <20040514171138.0b99bb6c.rddunlap@osdl.org>
+In-Reply-To: <20040514162919.143c0d6c.akpm@osdl.org>
+References: <20040514113804.1964105f.rddunlap@osdl.org>
+	<20040514162919.143c0d6c.akpm@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040510215626.6a5552f2.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 14 May 2004 16:29:19 -0700 Andrew Morton wrote:
 
-> > There is a problem with new 2.6 generic ->shutdown framework,
-> >  it doesn't differentiate between reboot / halt and power_off.
-> >  We may try to fix it or revert to 2.4 way of doing things if
-> >  this is too big change for 2.6.
-> 
-> It's a bit grubby, but we could easily add a fourth state to
-> `system_state': split SYSTEM_SHUTDOWN into SYSTEM_REBOOT and SYSTEM_HALT. 
-> That would be a quite simple change.
+| "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+| >
+| > Calling initcall 0xc10bc558: typhoon_init+0x0/0x12a()
+| > Typhoon Radio Card driver v0.1
+| > CLASS: registering class device: ID = 'radio2'
+| > class_hotplug - name = radio2
+| > videodev: "Typhoon Radio" has no release callback. Please fix your driver for proper sysfs support, see http://lwn.net/Articles/36850/
+| > radio-typhoon: port 0x316.
+| > radio-typhoon: mute frequency is 87500 kHz.
+| > eip: c0b946cc
+| > ------------[ cut here ]------------
+| > kernel BUG at include/asm/spinlock.h:120!
+| 
+| Does this fix?
+| 
+| 
+| diff -puN drivers/media/radio/radio-typhoon.c~typhoon-locking-fix drivers/media/radio/radio-typhoon.c
+| --- 25/drivers/media/radio/radio-typhoon.c~typhoon-locking-fix	Fri May 14 16:26:46 2004
+| +++ 25-akpm/drivers/media/radio/radio-typhoon.c	Fri May 14 16:28:29 2004
+| @@ -326,7 +326,6 @@ static int __init typhoon_init(void)
+|  		return -EINVAL;
+|  	}
+|  	typhoon_unit.iobase = io;
+| -	init_MUTEX(&typhoon_unit.lock);
+|  
+|  	if (mutefreq < 87000 || mutefreq > 108500) {
+|  		printk(KERN_ERR "radio-typhoon: You must set a frequency (in kHz) used when muting the card,\n");
+| @@ -337,6 +336,7 @@ static int __init typhoon_init(void)
+|  #endif /* MODULE */
+|  
+|  	printk(KERN_INFO BANNER);
+| +	init_MUTEX(&typhoon_unit.lock);
+|  	io = typhoon_unit.iobase;
+|  	if (!request_region(io, 8, "typhoon")) {
+|  		printk(KERN_ERR "radio-typhoon: port 0x%x already in use\n",
+| 
+| _
 
-I believe that we do not want to split that. These paths get pretty
-little testing, and splitting testing effort even more could be pretty
-bad.
-								Pavel
--- 
-When do you have heart between your knees?
+
+Yes, that fixes the spinlock BUG.  Thanks.
+
+I'll look at the other piece of it later/weekend:
+|| videodev: "Typhoon Radio" has no release callback. Please fix your driver for proper sysfs support, see http://lwn.net/Articles/36850/
+since this is still there.
+
+--
+~Randy

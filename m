@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132434AbRA1VmT>; Sun, 28 Jan 2001 16:42:19 -0500
+	id <S143630AbRA1Vql>; Sun, 28 Jan 2001 16:46:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143630AbRA1VmI>; Sun, 28 Jan 2001 16:42:08 -0500
-Received: from wpk-smtp-relay2.cwci.net ([195.44.63.19]:38170 "EHLO
-	wpk-smtp-relay.cwci.net") by vger.kernel.org with ESMTP
-	id <S132434AbRA1Vlx>; Sun, 28 Jan 2001 16:41:53 -0500
-Date: Sun, 28 Jan 2001 21:41:15 +0000 (UTC)
-From: Mo McKinlay <mmckinlay@gnu.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Renaming lost+found
-In-Reply-To: <9523bg$7dc$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.30.0101282140210.17985-100000@nvws005.nv.london>
-Organization: inter/open Labs
-X-URL: http://www.interopen.org/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S144242AbRA1Vqb>; Sun, 28 Jan 2001 16:46:31 -0500
+Received: from omega.cisco.com ([171.69.63.141]:55708 "EHLO cisco.com")
+	by vger.kernel.org with ESMTP id <S143552AbRA1VqW>;
+	Sun, 28 Jan 2001 16:46:22 -0500
+Message-Id: <4.3.2.7.2.20010129084117.02ae4f00@171.69.63.141>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Mon, 29 Jan 2001 08:45:32 +1100
+To: Dax Kelson <dax@gurulabs.com>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: ECN fixes for Cisco gear
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.SOL.4.30.0101281429140.6934-100000@ultra1.inconnect.c
+ om>
+In-Reply-To: <20010128151835.G13195@xi.linuxpower.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Today, H. Peter Anvin (hpa@zytor.com) wrote:
+At 02:33 PM 28/01/2001 -0700, Dax Kelson wrote:
+>Here is the fix for PIX:
+>
+>(see
+>http://www.cisco.com/cgi-bin/Support/Bugtool/onebug.pl?bugid=CSCds23698)
+>     Bud ID: CSCds23698
+>     Headline: PIX sends RSET in response to tcp connections with ECN
+>  bits set
+>     Product: PIX
+>     Component: fw
+>     Severity: 2 Status: R [Resolved]
+>     Version Found: 5.1(1)
+>     Fixed-in Version: 5.1(2.206) 5.1(2.207)  5.2(1.200)
 
-  > Hello people... the original question was: can lost+found be
-  > *renamed*, i.e. does the tools (e2fsck &c) use "/lost+found" by name,
-  > or by inode?  As far as I know it always uses the same inode number
-  > (11), but I don't know if that is anywhere enforced.
+fixes have been incorporated for a number of different release trains for 
+the pix.
 
-I seem to recall e2fsck complaining when I renamed lost+found, but that
-may well be a consistency check. Don't quote me on this, though.
-
-Mo.
-
-- -- 
-Mo McKinlay
-mmckinlay@gnu.org
-- -------------------------------------------------------------------------
-GnuPG/PGP Key: pub  1024D/76A275F9 2000-07-22
-
-
-
+Fixed-In Version now covers releases:
+         5.1(2.206), 5.1(2.207), 5.2(1.200), 6.0(0.100), 5.2(3.210)
 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+cheers,
 
-iEYEARECAAYFAjp0kgYACgkQRcGgB3aidfngIACdH4Ze9KRUS/jExERYM0Jt0n4e
-WyMAoKxzOr7KnVeEoHCHKlCBjNcncx8U
-=myDq
------END PGP SIGNATURE-----
+lincoln.
+NB. it has been posted that Raptor filewalls will also apparently fail to 
+allow connections with ECN bits set.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

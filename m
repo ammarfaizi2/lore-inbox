@@ -1,67 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262120AbSJ2RXT>; Tue, 29 Oct 2002 12:23:19 -0500
+	id <S262235AbSJ2ROA>; Tue, 29 Oct 2002 12:14:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262126AbSJ2RXT>; Tue, 29 Oct 2002 12:23:19 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:4071 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S262120AbSJ2RXP>;
-	Tue, 29 Oct 2002 12:23:15 -0500
-Date: Tue, 29 Oct 2002 09:29:32 -0800
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: James McKenzie <james@fishsoup.dhs.org>, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
-Subject: Re: [2.5 patch] allow only one Toshiba Type-O IR Port driver in the kernel
-Message-ID: <20021029172932.GE32449@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20021021173233.GA20616@bougret.hpl.hp.com> <Pine.NEB.4.44.0210291619310.14144-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S262425AbSJ2ROA>; Tue, 29 Oct 2002 12:14:00 -0500
+Received: from cmailm4.svr.pol.co.uk ([195.92.193.211]:4620 "EHLO
+	cmailm4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S262235AbSJ2RNy>; Tue, 29 Oct 2002 12:13:54 -0500
+Date: Tue, 29 Oct 2002 17:20:16 +0000
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] dm update 3/3
+Message-ID: <20021029172016.GC1779@fib011235813.fsnet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.NEB.4.44.0210291619310.14144-100000@mimas.fachschaften.tu-muenchen.de>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 29, 2002 at 04:26:50PM +0100, Adrian Bunk wrote:
-> On Mon, 21 Oct 2002, Jean Tourrilhes wrote:
-> 
-> > 	Adrian,
-> 
-> Hi Jean,
-> 
-> > 	Thanks very much for the report. I personally uses modules,
-> > and I would prefer the ability to compile both modules, so that people
-> > can try both without having to recompile their kernel.
-> 
-> notice that my patch doesn't disallow to build both drivers as modules.
-> 
-> > 	I think a much better patch (and simpler in the long term)
-> > would be to just rename 'toshoboe_init' to 'donauboe_init' (plus the
-> > few other offending function). This is a case where the name doesn't
-> > really matter.
-> > 	What do you think ?
-> 
-> That's an alternate solution that should also fix the compile problem.
-> 
-> But as stated above my patch doesn't affect the case when both drivers are
-> modular which is usually the desired setup when you want to switch between
-> the two drivers.
+Keep track of allocated minors in a bitset rather than abusing
+get_gendisk.
 
-	I personally prefer to make the driver code cleaner rather
-than making the config/Makefile rules more complex. I believe that in
-the long run, it always pay to keep things simple.
-	But, I'm not religious about it.
 
-> cu
-> Adrian
-
-	How do we proceed ? Do you want to send patches yourself
-directly, or do you want to wait until I send my next IrDA update ?
-	Regards,
-
-	Jean
-
+--- diff/drivers/md/dm.c	2002-10-29 16:22:36.000000000 +0000
++++ source/drivers/md/dm.c	2002-10-29 16:34:45.000000000 +0000
+@@ -15,7 +15,7 @@
+ #include <linux/slab.h>
+ 
+ static const char *_name = DM_NAME;
+-#define MAX_DEVICES 256
++#define MAX_DEVICES (1 << KDEV_MINOR_BITS)
+ #define SECTOR_SHIFT 9
+ 
+ static int major = 0;
+@@ -483,13 +483,25 @@
+ 	return 0;
+ }
+ 
++/*-----------------------------------------------------------------
++ * A bitset is used to keep track of allocated minor numbers.
++ *---------------------------------------------------------------*/
++static spinlock_t _minor_lock = SPIN_LOCK_UNLOCKED;
++static unsigned long _minor_bits[MAX_DEVICES / BITS_PER_LONG];
++
++static void free_minor(int minor)
++{
++	spin_lock(&_minor_lock);
++	clear_bit(minor, _minor_bits);
++	spin_unlock(&_minor_lock);
++}
++
+ /*
+  * See if the device with a specific minor # is free.
+  */
+-static int specific_dev(int minor, struct mapped_device *md)
++static int specific_minor(int minor)
+ {
+-	struct gendisk *disk;
+-	int part;
++	int r = -EBUSY;
+ 
+ 	if (minor >= MAX_DEVICES) {
+ 		DMWARN("request for a mapped_device beyond MAX_DEVICES (%d)",
+@@ -497,26 +509,32 @@
+ 		return -EINVAL;
+ 	}
+ 
+-	disk = get_gendisk(MKDEV(_major, minor), &part);
+-	if (disk) {
+-		put_disk(disk);
+-		return -EBUSY;
++	spin_lock(&_minor_lock);
++	if (!test_bit(minor, _minor_bits)) {
++		r = minor;
++		set_bit(minor, _minor_bits);
+ 	}
++	spin_unlock(&_minor_lock);
+ 
+-	return minor;
++	return r;
+ }
+ 
+-static int any_old_dev(struct mapped_device *md)
++static int any_old_minor(void)
+ {
+-	int i;
++	int i, r = -EBUSY;
+ 
+-	for (i = 0; i < MAX_DEVICES; i++)
+-		if (specific_dev(i, md) >= 0) {
++	spin_lock(&_minor_lock);
++	for (i = 0; i < MAX_DEVICES; i++) {
++		if (!test_bit(i, _minor_bits)) {
++			r = i;
++			set_bit(i, _minor_bits);
+ 			DMWARN("allocating minor = %d", i);
+-			return i;
++			break;
+ 		}
++	}
++	spin_unlock(&_minor_lock);
+ 
+-	return -EBUSY;
++	return r;
+ }
+ 
+ /*
+@@ -532,7 +550,7 @@
+ 	}
+ 
+ 	/* get a minor number for the dev */
+-	minor = (minor < 0) ? any_old_dev(md) : specific_dev(minor, md);
++	minor = (minor < 0) ? any_old_minor() : specific_minor(minor);
+ 	if (minor < 0) {
+ 		kfree(md);
+ 		return NULL;
+@@ -547,6 +565,7 @@
+ 
+ 	md->disk = alloc_disk(1);
+ 	if (!md->disk) {
++		free_minor(md->disk->first_minor);
+ 		kfree(md);
+ 		return NULL;
+ 	}
+@@ -566,6 +585,7 @@
+ 
+ static void free_dev(struct mapped_device *md)
+ {
++	free_minor(md->disk->first_minor);
+ 	del_gendisk(md->disk);
+ 	put_disk(md->disk);
+ 	kfree(md);

@@ -1,42 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265999AbUFUDhC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263475AbUFUDsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265999AbUFUDhC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 23:37:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265997AbUFUDhC
+	id S263475AbUFUDsv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 23:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbUFUDsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 23:37:02 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3763 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266002AbUFUDgy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 23:36:54 -0400
-Message-ID: <40D657B7.8040807@pobox.com>
-Date: Sun, 20 Jun 2004 23:36:23 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+	Sun, 20 Jun 2004 23:48:51 -0400
+Received: from pacific.moreton.com.au ([203.143.235.130]:10763 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id S263475AbUFUDst (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 23:48:49 -0400
+Message-ID: <40D65A88.8080601@snapgear.com>
+Date: Mon, 21 Jun 2004 13:48:24 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.7-bk way too fast
-References: <40D64DF7.5040601@pobox.com>
-In-Reply-To: <40D64DF7.5040601@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.6.7-uc0 (MMU-less fixups)
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> Something is definitely screwy with the latest -bk.  I updated from a 
-> kernel ~1 week ago, and all timer-related stuff is moving at a vastly 
-> increased rate.  My guess is twice as fast.  Most annoying is the system 
-> clock advances at twice normal rate, and keyboard repeat is so sensitive 
-> I am spending quite a bit of time typing this message, what with having 
-> to delettte (<== example) extra characters.  Double-clicking is also 
-> broken :(
+Hi All,
 
-Looks like disabling CONFIG_ACPI fixes things.  Narrowing down cset now...
+An update of the uClinux (MMU-less) fixups against 2.6.7.
+A few more things merged in 2.6.7, so only a handful of patches
+for general uClinux and m68knommu.
 
-	Jeff
+http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.7-uc0.patch.gz
+
+Change log:
+
+. merge linux-2.6.7                          me
+. more Feith hardware support                Werner Feith
+. stop 5282 pit timer from going backwards   me/Felix Daners
+. fix PHY race confition in FEC driver       Philippe De Muyter
+. fix OOM killer for non-MMU configs         Giovanni Casoli
+
+
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

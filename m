@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315216AbSDWOvG>; Tue, 23 Apr 2002 10:51:06 -0400
+	id <S315225AbSDWO7h>; Tue, 23 Apr 2002 10:59:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315226AbSDWOvF>; Tue, 23 Apr 2002 10:51:05 -0400
-Received: from bitmover.com ([192.132.92.2]:46257 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S315216AbSDWOvE>;
-	Tue, 23 Apr 2002 10:51:04 -0400
-Date: Tue, 23 Apr 2002 07:51:03 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Jeff Garzik <garzik@havoc.gtf.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020423075103.A25771@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Jeff Garzik <garzik@havoc.gtf.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020422123924.A6638@havoc.gtf.org> <Pine.LNX.4.21.0204231016220.19435-100000@serv>
+	id <S315228AbSDWO7g>; Tue, 23 Apr 2002 10:59:36 -0400
+Received: from sproxy.gmx.de ([213.165.64.20]:39085 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S315225AbSDWO7g>;
+	Tue, 23 Apr 2002 10:59:36 -0400
+Date: Tue, 23 Apr 2002 16:57:17 +0200
+From: Sebastian Droege <sebastian.droege@gmx.de>
+To: alsa-devel@alsa-project.org, perex@suse.cz, abramo@alsa-project.org
+Cc: linux-kernel@vger.kernel.org, alsa-user@alsa-project.org
+Subject: Progress of DSP Code for CS46xx?
+Message-Id: <20020423165717.32057fbe.sebastian.droege@gmx.de>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=..Lmm7E,DZEwH6r"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 23, 2002 at 03:49:50PM +0200, Roman Zippel wrote:
-> Free speech is really not at danger here. The problem is something
-> completely different. Linux is still a free software project and the
-> question is how seriously do we take this? 
+--=..Lmm7E,DZEwH6r
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-You might stop and ask yourself how the people who work on this free
-software project pay the bills.  I remember a recent converation with
-Daniel where I said "if you work there, your work won't be GPLed" and
-he replied "No problem".  It's interesting how quickly he lost his GPL
-rules when he wanted a job.  Are you any different?  Is anyone any
-different?  Obviously, everyone needs to eat.  So how many people are
-doing development on something which is not GPLed in order to pay the
-bills so they can eat and still contribute to something which is GPLed?
-Most of the people here, right?  
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Hi,
+are there any efforts or is there any progress in updating the CS46xx driver?
+Is someone working on changing the DSP code to support multichannel output and S/PDIF output?
+Is there someone out there who tries to reverse engineer the windows driver to enhance the ALSA driver?
+Or has Cirrus released their specs for the DPS chip (I don't think so :( )?
+
+If so I am willing to test and help this person(s) wherever I can.
+I have a Terratec XFire 1024 with CS4624 chipset and want to use multichannel output without a soundserver and S/PDIF output (but this isn't as important as the multichannel output) without buying a new card
+
+Thanks & Bye
+--=..Lmm7E,DZEwH6r
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iD8DBQE8xXZWe9FFpVVDScsRAr05AKDrFmnn1AbLuYpj/4k/oII/+LKQDwCgus8H
+sXMatjXOafMYtsmKdGcy7D8=
+=vDAf
+-----END PGP SIGNATURE-----
+
+--=..Lmm7E,DZEwH6r--
+

@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131286AbRCRXUl>; Sun, 18 Mar 2001 18:20:41 -0500
+	id <S131290AbRCRX3A>; Sun, 18 Mar 2001 18:29:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131297AbRCRXUW>; Sun, 18 Mar 2001 18:20:22 -0500
-Received: from 24dyn111.com21.casema.net ([213.17.94.111]:64530 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S131286AbRCRXUH>;
-	Sun, 18 Mar 2001 18:20:07 -0500
-Date: Mon, 19 Mar 2001 00:18:25 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Subject: right way to export VM data to userspace for a performance tool
-Message-ID: <20010319001825.A13169@home.ds9a.nl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre4i
+	id <S131309AbRCRX2u>; Sun, 18 Mar 2001 18:28:50 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:29967 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131290AbRCRX2p>; Sun, 18 Mar 2001 18:28:45 -0500
+Date: Sun, 18 Mar 2001 15:27:56 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jens Axboe <axboe@suse.de>
+cc: Paul Gortmaker <p_gortmaker@yahoo.com>, <alan@lxorguk.ukuu.org.uk>,
+        <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] off-by-1 error in ide-probe (2.4.x)
+In-Reply-To: <20010318223558.L29105@suse.de>
+Message-ID: <Pine.LNX.4.31.0103181527140.2798-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody,
 
-I want to write a tool that can extract information from the kernel about
-the VM situation. Conceptually, I want something that looks like this:
 
-# cacheinfo /var/mysql/data/powerdns/records.MYD
-75% of blocks in memory
-12% dirty
-# cacheinfo -d -v /var/mysql/data/powerdns/records.MYD
-0	M
-1	M
-2	-
-3	-
-4	D
-....
+On Sun, 18 Mar 2001, Jens Axboe wrote:
+>
+> The 256 is _not_ a bug in the driver, it's more likely a bug in your
+> drive. 256 is a perfectly legal transfer size. That said, maybe it is
+> a good idea to leave it at 255 just for safety on drives not handling
+> 0 sectors == 128kB transfer.
 
-Before writing this, I'm wondering how the kernel people feel that this sort
-of information should be exported to userland. There are lots of options,
-but not being a kernel architect/philosopher, I don't have a clue.
+Agreed. That would be a trivially easy bug in the firmware, limiting to
+255 sectors seems safer.
 
-My goal is to have a patch included in the main kernel, so it is very
-important that I write stuff people will agree on.
+		Linus
 
-Please let me know what you think.
-
-Kind regards,
-
-bert
-
--- 
-http://www.PowerDNS.com      Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet

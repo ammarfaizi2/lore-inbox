@@ -1,61 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261436AbSIWWrb>; Mon, 23 Sep 2002 18:47:31 -0400
+	id <S261434AbSIWWqh>; Mon, 23 Sep 2002 18:46:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261437AbSIWWrb>; Mon, 23 Sep 2002 18:47:31 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:35567 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261436AbSIWWr1>;
-	Mon, 23 Sep 2002 18:47:27 -0400
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200209232252.g8NMqN110401@eng2.beaverton.ibm.com>
-Subject: Re: Bug in last night's bk test
-To: akpm@digeo.com (Andrew Morton)
-Date: Mon, 23 Sep 2002 15:52:23 -0700 (PDT)
-Cc: plars@linuxtestproject.org (Paul Larson),
-       pbadari@us.ibm.com (Badari Pulavarty),
-       linux-kernel@vger.kernel.org (lkml), lse-tech@lists.sourceforge.net
-In-Reply-To: <3D8F9047.B464ABD4@digeo.com> from "Andrew Morton" at Sep 23, 2002 02:05:59 PM PST
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261436AbSIWWqh>; Mon, 23 Sep 2002 18:46:37 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:30853 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S261434AbSIWWq2>; Mon, 23 Sep 2002 18:46:28 -0400
+Date: Mon, 23 Sep 2002 17:51:28 -0500 (CDT)
+From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Bob_Tracy <rct@gherkin.frus.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.38: modular IDE broken
+In-Reply-To: <m17takZ-0005khC@gherkin.frus.com>
+Message-ID: <Pine.LNX.4.44.0209231749050.13892-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Paul Larson wrote:
-> > 
-> > The automated nightly testing turned up a bug on one of the test
-> > machines last night.  The system that had the problem was running ltp
-> > and was a 2-way PII-550, 2GB ram, ext2.  Here is the ksymoops dump:
-> > 
-> > ksymoops 2.4.5 on i686 2.4.18.  Options used
-> >      -V (default)
-> >      -K (specified)
-> >      -L (specified)
-> >      -O (specified)
-> >      -m System.map (specified)
-> > 
-> > kernel BUG at ll_rw_blk.c:1802!
-> 
-> Ah, yes.
-> 
-> The direct-io code will build requests which are larger than
-> the ips driver is prepared to accept, and the BIO layer correctly
-> BUGs out over it.
-> 
-> We need to convert direct-io to use the bio_add_page() facility
-> which Jens has recently added.
-> 
-> Until that's done you'll need to set BIO_MAX_PAGES to 16 in
-> include/linux/bio.h
-> 
+On Mon, 23 Sep 2002, Bob_Tracy wrote:
 
-I am little confused here. I thought IPS driver can handle 64K IO.
-Infact, IPS_MAX_SG is set to 17. So it should be able to handle 68K.
-I have been told that it can handle more than that.. but for some
-reason it was set to 17.
+> This may well have been broken in earlier versions...  The last one I
+> tried to compile before 2.5.38 was 2.5.34.  Quick problem summary:
+> 
+> ide-proc.o doesn't get built if CONFIG_BLK_DEV_IDE isn't "y", so
+> depmod complains about unresolved symbols.
 
-Paul, what kernel are u running ? 2.5.38 ? 
+Yup, drivers/ide/Makefile should have
 
-- Badari
+===== Makefile 1.5 vs edited =====
+--- 1.5/drivers/ide/Makefile	Wed Sep 18 20:11:21 2002
++++ edited/Makefile	Mon Sep 23 17:50:05 2002
+@@ -24,7 +24,7 @@
+ obj-$(CONFIG_BLK_DEV_IDEDMA_PCI)	+= ide-dma.o
+ obj-$(CONFIG_BLK_DEV_ISAPNP)		+= ide-pnp.o
+ 
+-ifeq ($(CONFIG_BLK_DEV_IDE),y)
++ifdef CONFIG_BLK_DEV_IDE
+ obj-$(CONFIG_PROC_FS)			+= ide-proc.o
+ endif
+ 
+> If I edit linux/drivers/ide/Makefile to force the build, I still end
+> up with various depmod errors, some of which would doubtless go away
+> if I turned off module versioning.  Anyone got a quick fix that I'm
+> too tired to see?  Here's the depmod output with ide-proc.o forced:
+> 
+> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.38; fi
+> depmod: *** Unresolved symbols in /lib/modules/2.5.38/kernel/drivers/ide/ide-disk.o
+> depmod:         proc_ide_read_geometry_R50fed6f7
+> depmod: *** Unresolved symbols in /lib/modules/2.5.38/kernel/drivers/ide/ide-floppy.o
+> depmod:         proc_ide_read_geometry_R50fed6f7
+> depmod: *** Unresolved symbols in /lib/modules/2.5.38/kernel/drivers/ide/ide-probe.o
+> depmod:         do_ide_request
+> depmod:         ide_add_generic_settings
+> depmod:         create_proc_ide_interfaces_Rab2c600e
+> depmod:         ide_bus_type
+> depmod: *** Unresolved symbols in /lib/modules/2.5.38/kernel/drivers/ide/ide.o
+> depmod:         proc_ide_create_Ra8e0f104
+> depmod:         ide_remove_proc_entries_R5a5a621b
+> depmod:         ide_add_proc_entries_Rce569c25
+> depmod:         destroy_proc_ide_drives_Ra54f63e5
+> depmod:         proc_ide_destroy_R35e1351c
+> depmod:         bus_unregister
+> depmod:         proc_ide_read_capacity_R46b2a30d
+> depmod:         create_proc_ide_interfaces_Rab2c600e
+> depmod:         ide_scan_pcibus
+> make: *** [_modinst_post] Error 1
+
+Basically, for all symbols which don't end in _R*, an EXPORT_SYMBOL() 
+statement is missing. Add as necessary ;)
+
+--Kai
+
+

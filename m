@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269420AbRHGUcK>; Tue, 7 Aug 2001 16:32:10 -0400
+	id <S269223AbRHGUcA>; Tue, 7 Aug 2001 16:32:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269421AbRHGUcA>; Tue, 7 Aug 2001 16:32:00 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:40970 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S269420AbRHGUbs>;
-	Tue, 7 Aug 2001 16:31:48 -0400
-Date: Tue, 7 Aug 2001 22:31:50 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alex Romosan <romosan@adonis.lbl.gov>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: oops with 2.4.8-pre5
-Message-ID: <20010807223150.I24336@suse.de>
-In-Reply-To: <87bslrfx9n.fsf@adonis.lbl.gov> <20010807221746.G24336@suse.de> <20010807222955.H24336@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="H8ygTp4AXg6deix2"
-Content-Disposition: inline
-In-Reply-To: <20010807222955.H24336@suse.de>
+	id <S269421AbRHGUbu>; Tue, 7 Aug 2001 16:31:50 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:22477 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S269223AbRHGUbg>; Tue, 7 Aug 2001 16:31:36 -0400
+From: Ian Stirling <root@mauve.demon.co.uk>
+Message-Id: <200108072030.VAA30471@mauve.demon.co.uk>
+Subject: Re: Encrypted Swap
+To: linux-kernel@vger.kernel.org (l)
+Date: Tue, 7 Aug 2001 21:30:56 +0100 (BST)
+In-Reply-To: <Pine.LNX.4.33.0108062047310.17919-100000@kobayashi.soze.net> from "Justin Guyett" at Aug 06, 2001 08:56:15 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---H8ygTp4AXg6deix2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Tue, Aug 07 2001, Jens Axboe wrote:
-> On Tue, Aug 07 2001, Jens Axboe wrote:
-> > On Tue, Aug 07 2001, Alex Romosan wrote:
-> > > i got the following oops with kernel 2.4.8-pre5. i was just logged in
-> > > remotely, reading email with gnus and maybe i had just run dselect
-> > > (debian package installer):
-> > 
-> > This should fix it.
 > 
-> Eh scratch that braino, here's a right one...
+> On Tue, 7 Aug 2001, David Spreen wrote:
+> 
+> > I was just searching for swap-encryption-solutions in the lkml-archive.
+> > Did I get the point saying ther's no way to do swap encryption
+> > in linux right now? (Well, a swapfile in an encrypted kerneli
+> > partition r something like that is not really what I want to
+> > do I think).
+> 
+> What's the benefit?  Sure, attackers have to know that encrypted swap is
+> in use, and have to be able to find the key in memory, but they already
+> can do both if they're root, and non-root can't [shouldn't be able to]
+> read swap devices on a properly secured machine.  Swap isn't meant for
 
-Too tired, or something... I think I'll stop for today.
+Consider a laptop.
+It normally mounts data and swap encrypted.
+it requires a passphrase to login to a user which has access to
+the encrypted filesystem.
 
--- 
-Jens Axboe
+When the laptop is closed, or on an inactivity timeout, it halts normal
+processing, encrypts all RAM, and then invokes the "save to disk" mechanism.
 
+Data can only be stolen if the operator cannot shut the laptop, 
+and the attacker does not do so, or if the operator can be coerced
+to reveal the key.
 
---H8ygTp4AXg6deix2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename=sync_old_buffers-3
+What would be even nicer would be a way to checkpoint in a secure
+manner all processes tainted by accessing a secure device.
 
---- /opt/kernel/linux-2.4.8-pre5/fs/buffer.c	Tue Aug  7 10:28:50 2001
-+++ fs/buffer.c	Tue Aug  7 22:32:36 2001
-@@ -2581,10 +2472,15 @@
- 
- 			spin_lock(&lru_list_lock);
- 			bh = lru_list[BUF_DIRTY];
-+			if (!bh) {
-+				spin_unlock(&lru_list_lock);
-+				goto quit;
-+			}
- 			if (!time_before(jiffies, bh->b_flushtime))
- 				continue;
- 			spin_unlock(&lru_list_lock);
- 		}
-+quit:
- 		run_task_queue(&tq_disk);
- 		return 0;
- 	}
-
---H8ygTp4AXg6deix2--

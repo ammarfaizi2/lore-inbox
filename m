@@ -1,219 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266773AbUGUXWD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264430AbUGUXqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266773AbUGUXWD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 19:22:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266778AbUGUXVn
+	id S264430AbUGUXqM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 19:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266774AbUGUXqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 19:21:43 -0400
-Received: from w130.z209220038.sjc-ca.dsl.cnc.net ([209.220.38.130]:9213 "EHLO
-	mail.inostor.com") by vger.kernel.org with ESMTP id S266627AbUGUXU4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 19:20:56 -0400
-Message-ID: <40FEF9CD.9020308@inostor.com>
-Date: Wed, 21 Jul 2004 16:18:37 -0700
-From: Shesha Sreenivasamurthy <shesha@inostor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: O_DIRECT
-References: <40FD561D.1010404@inostor.com>	<20040721020520.4d171db7.robn@verdi.et.tudelft.nl>	<40FEA382.8050700@inostor.com>	<20040721192042.11f9c3f5.robn@verdi.et.tudelft.nl>	<40FEAF70.4070407@inostor.com> <20040721201532.7e6161ed.robn@verdi.et.tudelft.nl>
-In-Reply-To: <20040721201532.7e6161ed.robn@verdi.et.tudelft.nl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Jul 2004 19:46:12 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:40860 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S264430AbUGUXqI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 19:46:08 -0400
+Date: Wed, 21 Jul 2004 23:45:34 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Scott Wood <scott@timesys.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Lee Revell <rlrevell@joe-job.com>,
+       Andrew Morton <akpm@osdl.org>, linux-audio-dev@music.columbia.edu,
+       arjanv@redhat.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       "La Monte H.P. Yarroll" <piggy@timesys.com>
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040721214534.GA31892@elte.hu>
+References: <1090380467.1212.3.camel@mindpipe> <20040721000348.39dd3716.akpm@osdl.org> <20040721053007.GA8376@elte.hu> <1090389791.901.31.camel@mindpipe> <20040721082218.GA19013@elte.hu> <20040721085246.GA19393@elte.hu> <40FE545E.3050300@yahoo.com.au> <20040721183415.GC2206@yoda.timesys> <20040721184650.GA27375@elte.hu> <20040721195650.GA2186@yoda.timesys>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040721195650.GA2186@yoda.timesys>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-1.428, required 5.9,
+	autolearn=not spam, BAYES_20 -1.43
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I could never get it working with 4096 block size.
 
-I created an EXT3 with blockize=4096 (mkfs.ext3 -b 4096 /dev/sda11). 
-Alligned memory to 4096 boundary. Read 8192 Bytes. -> UNSUCCESSFUL :(
-I created an XFS with blockize=4096 (mkfs.xfs -f  -b size=4096 
-/dev/sda11). Alligned memory to 4096 boundary. Read 8192 Bytes. -> 
-UNSUCCESSFUL :(
+* Scott Wood <scott@timesys.com> wrote:
 
-SUCCESS HAPPEND ONLY WHEN ....
+> Likewise, interrupts are "designed" to be unpreemptible, but it is
+> possible to run them in their own threads so as to further reduce
+> sources of latency (at a throughput cost, of course).  This allows
+> long-held spinlocks that an interrupt handler needs to acquire to be
+> replaced with mutexes that don't inhibit preemption.
+> 
+> Of course, a better fix is to keep the interrupt handlers and critical
+> sections short, but threading them can be very effective for producing
+> low latencies in the short term (we were able to achieve worst
+> measured case latencies of well under 100us on ordinary PC hardware
+> under 2.4.x using this approach).
 
-1. I created an XFS with blockize=4096 (mkfs.xfs -f  -b size=4096 
-/dev/sda11).
-                                                       OR
-    I created an EXT3 with blockize=4096 (mkfs.ext3 -b 4096 /dev/sda11).
+do you have a 2.6 patch for hardirq redirection too? I always thought
+this to be the best approach to achive hard-RT class latency guarantees
+under Linux (but never coded it up). The problem with RTLinux is that it
+introduces a separate OS (with separate APIs). It is (much) further
+ahead of Linux in terms of latencies, algorithms and guarantees but is
+still a separate OS. I believe there is a natural synergy between low
+latencies needed for good desktop and multiuser performance and
+soft-RT/hard-RT needs, which we should use - RTLinux doesnt generate
+this synergy.
 
-2. Changed blocksizeto 1024
-3. Alligned memory to 1024 boundary.
-4  Read 8192 Bytes. -> SUCCESSFUL :)
+if both hardirqs and softirqs are redirectable to process contexts then
+the only unpredictable latency would be the very short IRQ entry stub of
+a new hardirq costing ~5 usecs - which latency is limited in effect
+unless the CPU is hopelessly bombarded with interrupts.
 
--Shesha
+to solve the spinlock problem of hardirqs i'd propose a dual type
+spinlock that is a spinlock if hardirqs are immediate (synchronous) and
+it would be a mutex if hardirqs are redirected (asynchronous). Then some
+simple driver could be converted to this RT-aware spinlock and we'd see
+how well it works. Have you done experiments in this direction? I
+believe this all could be merged upstream, given sufficient cleanliness.
 
-
-Rob van Nieuwkerk wrote:
-
->On Wed, 21 Jul 2004 11:01:20 -0700
->Shesha Sreenivasamurthy <shesha@inostor.com> wrote:
->
->Hi Shesha,
->
->  
->
->>ohhh OK, if the block size is 4096, then the read/write size must be 
->>integer multiple of 4096 ??? is it ???
->>In general should the read/write length be a multiple of block size?
->>    
->>
->
->Yes, see my previous emails.
->
->	greetings,
->	Rob van Nieuwkerk
->
->  
->
->>Rob van Nieuwkerk wrote:
->>
->>    
->>
->>>On Wed, 21 Jul 2004 10:10:26 -0700
->>>Shesha Sreenivasamurthy <shesha@inostor.com> wrote:
->>>
->>>Hi Shesha,
->>>
->>>You don't mention what the *size* of your read()/write() is.
->>>Besides a requirement on the alignment of the read/write buffer
->>>the size of the read()/write() must also be OK.
->>>
->>>	greetings,
->>>	Rob van Nieuwkerk
->>>
->>> 
->>>
->>>      
->>>
->>>>This is what I found ....
->>>>
->>>>Our driver sets the block size to be 4096. so BLKBSZGET will return 
->>>>4096. So if I allin the memory at 4096 boundary, I cannot read using 
->>>>O_DIRECT. But, if I set the block size to 512.  I can read/write 
->>>>successfully. It also works with 1024, but no with 4096
->>>>
->>>>So the recepie what I am following is ...
->>>>
->>>>BLKBSZGET -> Get original block size
->>>>BLKBSZSET ->  Set the block size to 512
->>>>READ | WRITE Successfully ;)
->>>>BLKBSZSET ->  Set back to the original block size
->>>>
->>>>-Shesha
->>>>
->>>>Rob van Nieuwkerk wrote:
->>>>
->>>>   
->>>>
->>>>        
->>>>
->>>>>On Tue, 20 Jul 2004 10:27:57 -0700
->>>>>Shesha Sreenivasamurthy <shesha@inostor.com> wrote:
->>>>>
->>>>>Hi Shesha,
->>>>>
->>>>>
->>>>>
->>>>>     
->>>>>
->>>>>          
->>>>>
->>>>>>I am having trouble with O_DIRECT. Trying to read or write from a block 
->>>>>>device partition.
->>>>>>
->>>>>>1. Can O_DIRECT be used on a plain block device partition say 
->>>>>>"/dev/sda11" without having a filesystem on it.
->>>>>>  
->>>>>>
->>>>>>       
->>>>>>
->>>>>>            
->>>>>>
->>>>>yes.
->>>>>
->>>>>
->>>>>
->>>>>     
->>>>>
->>>>>          
->>>>>
->>>>>>2. If no file system is created then what should be the softblock size. 
->>>>>>I am using the IOCTL "BLKBSZGET". Is this correct?
->>>>>>  
->>>>>>
->>>>>>       
->>>>>>
->>>>>>            
->>>>>>
->>>>>yes.
->>>>>
->>>>>
->>>>>
->>>>>     
->>>>>
->>>>>          
->>>>>
->>>>>>3. Can we use SEEK_END with O_DIRECT on a partition without filesystem.
->>>>>>  
->>>>>>
->>>>>>       
->>>>>>
->>>>>>            
->>>>>>
->>>>>yes.
->>>>>
->>>>>I'm using these exact things in an application.
->>>>>
->>>>>Note that with 2.4 kernels the "granularity" you can use for offset
->>>>>and r/w size is the softblock size (*).  For 2.6 the requirements are
->>>>>much more relaxed: it's the device blocksize (typically 512 byte).
->>>>>
->>>>>(*): actually one of offset or r/w size has a smaller minimum if
->>>>>I remember correctly.  Don't remember which one.  But if you assume
->>>>>the softblock size as a minimum for both you're allways safe.
->>>>>
->>>>>	greetings,
->>>>>	Rob van Nieuwkerk
->>>>>
->>>>>--
->>>>>Kernelnewbies: Help each other learn about the Linux kernel.
->>>>>Archive:       http://mail.nl.linux.org/kernelnewbies/
->>>>>FAQ:           http://kernelnewbies.org/faq/
->>>>>
->>>>>
->>>>>.
->>>>>
->>>>>
->>>>>
->>>>>     
->>>>>
->>>>>          
->>>>>
->>>--
->>>Kernelnewbies: Help each other learn about the Linux kernel.
->>>Archive:       http://mail.nl.linux.org/kernelnewbies/
->>>FAQ:           http://kernelnewbies.org/faq/
->>>
->>>
->>>.
->>>
->>> 
->>>
->>>      
->>>
->
->--
->Kernelnewbies: Help each other learn about the Linux kernel.
->Archive:       http://mail.nl.linux.org/kernelnewbies/
->FAQ:           http://kernelnewbies.org/faq/
->
->
->.
->
->  
->
-
+	Ingo

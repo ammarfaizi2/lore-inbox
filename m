@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292627AbSBQAGZ>; Sat, 16 Feb 2002 19:06:25 -0500
+	id <S291077AbSBQWPk>; Sun, 17 Feb 2002 17:15:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292628AbSBQAGP>; Sat, 16 Feb 2002 19:06:15 -0500
-Received: from pD9E6B262.dip.t-dialin.net ([217.230.178.98]:18563 "EHLO
-	fefe.de") by vger.kernel.org with ESMTP id <S292627AbSBQAGH>;
-	Sat, 16 Feb 2002 19:06:07 -0500
-Date: Sun, 17 Feb 2002 01:05:58 +0100
-From: Felix von Leitner <usenet-20020216@fefe.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Disgusted with kbuild developers
-Message-ID: <20020217000558.GC9701@fefe.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020215171952.D15406@thyrsus.com> <Pine.LNX.4.44.0202151902070.16872-100000@xanadu.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0202151902070.16872-100000@xanadu.home>
-User-Agent: Mutt/1.3.25i
+	id <S291164AbSBQWP3>; Sun, 17 Feb 2002 17:15:29 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:65466 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S291077AbSBQWPU>; Sun, 17 Feb 2002 17:15:20 -0500
+Date: Sun, 17 Feb 2002 22:16:48 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Linus Torvalds <torvalds@transmeta.com>, dmccr@us.ibm.com,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+        Robert Love <rml@tech9.net>, Rik van Riel <riel@conectiva.com.br>,
+        mingo@redhat.co, Andrew Morton <akpm@zip.com.au>,
+        manfred@colorfullife.com, wli@holomorphy.com
+Subject: Re: [RFC] Page table sharing
+In-Reply-To: <E16cX9a-0000D9-00@starship.berlin>
+Message-ID: <Pine.LNX.4.21.0202172133520.10152-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spake Nicolas Pitre (nico@cam.org):
-> As a bonus to further stimulate acceptance of CML2, make it work with the
-> tools that most people already have i.e. Python 1.5.
+On Sun, 17 Feb 2002, Daniel Phillips wrote:
+> 
+> Note that we have to hold the page_table_share_lock until we're finished
+> copying in the ptes, otherwise the source could go away.  This can turn
+> into a lock on the page table itself eventually, so whatever contention
+> there might be will be eliminated.
+> 
+> Fixing up copy_page_range to bring the pmd populate inside the 
+> mm->page_table_lock is trivial, I won't go into it here.  With that plus
+> changes as above, I think it's tight.  Though I would not bet my life on
+> it ;-)
 
-I don't have python.  Any version of python.
+Sorry, I didn't really try to follow your preceding discussion of
+zap_page_range.  (I suspect you need to step back and think again if it
+gets that messy; but that may be unfair, I haven't thought it through).
 
-And I refuse to use software that forces me to install an ugly
-monstrosity like python.  Integrating python in the build process is
-like integrating IE into Windows.  It may please the stupid masses who
-use Red Hat anyway and don't care what happens when they click their
-mouse button, but it's conceptually bad for the OS and the kernel so far
-went to great lengths to not depend on external bloat.  It is a good
-thing to minimize dependencies!  If you can't do it in C and /bin/sh,
-then please step aside and let someone handle the job who is up to it.
+You need your "page_table_share_lock" (better, per-page-table spinlock)
+much more than you seem to realize.  If mm1 and mm2 share a page table,
+mm1->page_table_lock and mm2->page_table_lock give no protection against
+each other.  Consider copy_page_range from mm1 or __pte_alloc in mm1
+while try_to_swap_out is acting on shared page table in mm2.  In fact,
+I think even the read faults are vulnerable to races (mm1 and mm2
+bringing page in at the same time so double-counting it), since your
+__pte_alloc doesn't regard a read fault as reason to break the share.
 
-So far this looks like you are on one hell of an ego trip.
+I'm also surprised that your copy_page_range appears to be setting
+write protect on each pte, including expensive pte_page, VALID_PAGE
+stuff on each.  You avoid actually copying pte and incrementing counts,
+but I'd expect you to want to avoid the whole scan: invalidating entry
+for the page table itself, to force fault if needed.
 
-Felix
+Hugh
+

@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132282AbRAIWtO>; Tue, 9 Jan 2001 17:49:14 -0500
+	id <S132226AbRAIWtO>; Tue, 9 Jan 2001 17:49:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132271AbRAIWtF>; Tue, 9 Jan 2001 17:49:05 -0500
-Received: from grunt.ksu.ksu.edu ([129.130.12.17]:32167 "EHLO
-	mailhub.cns.ksu.edu") by vger.kernel.org with ESMTP
-	id <S132226AbRAIWsv>; Tue, 9 Jan 2001 17:48:51 -0500
-Date: Tue, 9 Jan 2001 16:48:47 -0600
-From: Joseph Pingenot <jap3003@ksu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: APM/ACPI in-depth documentation
-Message-ID: <20010109164847.B10231@ksu.edu>
-Reply-To: jap3003+response@ksu.edu
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S132282AbRAIWs4>; Tue, 9 Jan 2001 17:48:56 -0500
+Received: from mail.libertysurf.net ([213.36.80.91]:41618 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S132271AbRAIWsg>; Tue, 9 Jan 2001 17:48:36 -0500
+Message-ID: <3A5B961B.857B8802@paulbristow.net>
+Date: Tue, 09 Jan 2001 23:52:11 +0100
+From: Paul Bristow <paul@paulbristow.net>
+Organization: http://paulbristow.net
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-21mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.4.0 MAINTAINERS for ide-floppy updates
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-X-School: Kansas State University
-X-vi-or-emacs: vi
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings.
+Linus, Alan,
 
-Where can I find in-depth information on ACPI and APM?  I'd like
-  to get the problems I've found in 2.2.18 and 2.4.0 fixed.
-Ideally, I'd like information on *exactly* how to suspend my
-  laptop (Toshiba 1605CDS, Phoenix BIOS).  I.e., what IO ports, 
-  memory ranges, interrupts to use, and how to use them.
-Anyone know where to go for this?  It doesn't look like Toshiba
-  is going to be very helpful telling me about their BIOS interface.
-Thanks!
+Could you please apply this patch to the MAINTAINERS file so that the
+2.4.x
+IDE-FLOPPY maintainer is correctly identified as me and not Gadi any
+more.
+This change happened at 2.2.18 for the 2.2.x tree.
 
-                              -Joseph
+I am discussing with Sam the previous patch that Alan applied in
+2.4.0-ac4 for 1.44M floppy formatting in LS-120 drives.
+
+Regards,
 
 -- 
-Joseph==============================================jap3003@ksu.edu
-"I felt a great disturbance in the force.  As if a significant plot
-  line suddenly cried out in terror... and was suddenly silenced."
-                        -Torg in "Sluggy Freelance" www.sluggy.com.
+
+Paul
+
+Email:	paul@paulbristow.net
+Web:	http://paulbristow.net
+ICQ:	11965223
+
+
+Patch follows
+
+diff -ur linux-2.4.0/MAINTAINERS linux/MAINTAINERS
+--- linux-2.4.0/MAINTAINERS     Sun Dec 31 18:31:15 2000
++++ linux/MAINTAINERS   Tue Jan  9 23:20:48 2001
+@@ -594,9 +594,16 @@
+ W:     http://www.kernel.dk
+ S:     Maintained
+ 
+-IDE/ATAPI TAPE/FLOPPY DRIVERS
++IDE/ATAPI TAPE DRIVERS
+ P:     Gadi Oxman
+ M:     Gadi Oxman <gadio@netvision.net.il>
++L:     linux-kernel@vger.kernel.org
++S:     Maintained
++
++IDE/ATAPI FLOPPY DRIVERS
++P:     Paul Bristow
++M:     Paul Bristow <paul@paulbristow.net>
++W:     http://paulbristow.net/linux/idefloppy.html
+ L:     linux-kernel@vger.kernel.org
+ S:     Maintained
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

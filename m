@@ -1,50 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135805AbRA1AMm>; Sat, 27 Jan 2001 19:12:42 -0500
+	id <S135846AbRA1AOb>; Sat, 27 Jan 2001 19:14:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135845AbRA1AMV>; Sat, 27 Jan 2001 19:12:21 -0500
-Received: from [63.95.87.168] ([63.95.87.168]:57863 "HELO xi.linuxpower.cx")
-	by vger.kernel.org with SMTP id <S135782AbRA1AMA>;
-	Sat, 27 Jan 2001 19:12:00 -0500
-Date: Sat, 27 Jan 2001 19:11:59 -0500
-From: Gregory Maxwell <greg@linuxpower.cx>
-To: James Sutherland <jas88@cam.ac.uk>
-Cc: David Schwartz <davids@webmaster.com>,
-        Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: hotmail not dealing with ECN
-Message-ID: <20010127191159.B7467@xi.linuxpower.cx>
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKCECMNFAA.davids@webmaster.com> <Pine.SOL.4.21.0101272308030.701-100000@green.csi.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <Pine.SOL.4.21.0101272308030.701-100000@green.csi.cam.ac.uk>; from jas88@cam.ac.uk on Sat, Jan 27, 2001 at 11:09:27PM +0000
+	id <S135844AbRA1AOX>; Sat, 27 Jan 2001 19:14:23 -0500
+Received: from mail001.syd.optusnet.com.au ([203.2.75.244]:24518 "EHLO
+	mail001.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S135890AbRA1AOO>; Sat, 27 Jan 2001 19:14:14 -0500
+Date: Sun, 28 Jan 2001 10:14:04 +1000
+Message-Id: <200101280014.f0S0E4702435@borogoves.yi.org>
+From: Derek Benson <derek@borogoves.yi.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel boot problems
+Reply-to: derek@borogoves.yi.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 27, 2001 at 11:09:27PM +0000, James Sutherland wrote:
-> On Sat, 27 Jan 2001, David Schwartz wrote:
-> 
-> > 
-> > > Firewalling should be implemented on the hosts, perhaps with centralized
-> > > policy management. In such a situation, there would be no reason to filter
-> > > on funny IP options.
-> > 
-> > 	That's madness. If you have to implement your firewalling on every host,
-> > what do you do when someone wants to run a new OS? Forbid it?
-> 
-> Of course. Then you find out about some new problem you want to block, so
-> you spend the next week reconfiguring a dozen different OS firewalling
-> systems. Hrm... I'll stick with a proper firewall, TYVM!
+ Ryan> Hello all,
 
-It's this kind of ignorance that makes the internet a less secure and stable
-place.
+Hi
 
-The network should not be a stateful device. If you need stateful
-firewalling the only place it should be implimented is on the end node. If
-management of that is a problem, then make an interface solve that problem
-insted of breaking the damn network.
+ Ryan> I was wondering if someone might be able to help me.  I have
+ Ryan> just compiled my kernel and set it up on a floppy to boot off a
+ Ryan> disk.  I have it then use an image file to uncompress and get
+ Ryan> the filesystem off ,etc.  Well when it boots it says it has
+ Ryan> uncompressed the filesystem image and then gives me this:
+ Ryan> Mounted Root (ext2 filesystem) readonly Freeing unused kernel
+ Ryan> memory: 212K freed Warning: unable to open an initial console
+ Ryan> Kernel panic: no init found. Try passing init= option to the
+ Ryan> kernel.
+
+ Ryan> I know that I have init on the image, so what could I be doing
+ Ryan> wrong.  It is probably something stupid that I am overlooking,
+ Ryan> but I thank you in advance.
+
+This is commonly seen when your /etc/fstab is pointing to the wrong partion
+for root, or (I believe) on some older kernels where the location of the root
+partition is contained within the kernel or on the boot sector somewhere.
+(Forgive me for not being more explicit my memory fails me) Try man rdev
+for changeing these values. 
+
+Of course as someone else has noted there could be other reasons, but if
+you are looking for something 'stupid' (believe me I've done this before 
+too) then this could be it.  
+
+Try passing 'root=/dev/hda2' or whatever (without the '') to the kernel
+at the boot prompt:
+
+lilo: linux root=/dev/hda1 single
+
+Replace linux above with the alias of your kernel.
+
+If you don't know what partiion root is on you can always cycle through
+the partitions consecutively.  (I've done this before when breaking into
+linux boxes that I didn't build but had the job of maintaining).
+
+Once you have booted into single mode you can edit /etc/fstab to point to 
+the right place.  Or else if thats correct just boot up with linux root=blah
+and you'll be up and running!
+
+Hope this helps.
+
+derek
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

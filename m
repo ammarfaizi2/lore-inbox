@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267043AbTAPLlO>; Thu, 16 Jan 2003 06:41:14 -0500
+	id <S267049AbTAPLmK>; Thu, 16 Jan 2003 06:42:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267047AbTAPLlO>; Thu, 16 Jan 2003 06:41:14 -0500
-Received: from nowaydude.rearden.com ([64.160.169.126]:29899 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id <S267043AbTAPLlN>; Thu, 16 Jan 2003 06:41:13 -0500
-Date: Thu, 16 Jan 2003 03:51:09 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Robert Macaulay <robert_macaulay@dell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.57 IO slowdown with CONFIG_PREEMPT enabled
-Message-Id: <20030116035109.64d1ef97.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0301151712350.23847-100000@ping.us.dell.com>
-References: <20030115143313.76953b63.akpm@digeo.com>
-	<Pine.LNX.4.44.0301151712350.23847-100000@ping.us.dell.com>
-X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S267050AbTAPLmJ>; Thu, 16 Jan 2003 06:42:09 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:41966 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S267049AbTAPLmI>; Thu, 16 Jan 2003 06:42:08 -0500
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <8dqiqC6mw-B@khms.westfalen.de> 
+References: <8dqiqC6mw-B@khms.westfalen.de>  <20030113134017$1d68@gated-at.bofh.it> 
+To: kaih@khms.westfalen.de (Kai Henningsen)
+Cc: linux-kernel@vger.kernel.org, rpjday@mindspring.com
+Subject: Re: why the new config process is a *big* step backwards 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Jan 2003 11:50:04.0794 (UTC) FILETIME=[68CD25A0:01C2BD55]
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 16 Jan 2003 11:47:48 +0000
+Message-ID: <9583.1042717668@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Macaulay <robert_macaulay@dell.com> wrote:
->
-> On Wed, 15 Jan 2003, Andrew Morton wrote:
-> > if you could please test that with CONFIG_PREEMPT=y
-> 
-> Reverting that brings the speed back up
 
-OK.  How irritating.
+kaih@khms.westfalen.de said:
+> >   this is inconsistent with other common things people are
+> > familiar with -- in the pine mailer, for example, you can't
+> > use a folder both for storing files *and* for having subfolders.
+> > and think about bookmarks in a browser (a model i wish the new
+> > config process had followed).
 
-Presumably there's a fairness problem - once a CPU goes in there to start
-spinning on the lock, the length of the loop is such that it's easy for
-non-holders to zoom in and claim it first.  Or something.
+> Strange. Filesystems (which everyone should be familiar with)
+> certainly do   this, and so does (for example) Pegasus Mail with IMAP
+> folders ...
 
-Unless another way of solving the problem which that patch solves presents
-itself we may need to revert it.
+> I think Pine and bookmarks are faulty here.
 
-Or not.  Should a CONFIG_PREEMPT SMP kernel compromise its latency because of
-overused locking??
+Nah. Pine can do folders containing both mail and subfolders just fine.
 
 
-I'd appreciate it if you could take a closer look at the mysterious
-self-reverting .config, please.  See if you can work out what is causing it,
-tell me how you're rebooting (reboot -f?  -fn?  Big Red Button?) and whether
-the offending file is on the root filesystem, etc.
+--
+dwmw2
 
 
-Thanks.

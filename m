@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266209AbUFYFTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266186AbUFYFWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266209AbUFYFTN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 01:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266211AbUFYFTN
+	id S266186AbUFYFWz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 01:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266208AbUFYFWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 01:19:13 -0400
-Received: from smtp.polymtl.ca ([132.207.4.11]:17600 "EHLO smtp.polymtl.ca")
-	by vger.kernel.org with ESMTP id S266209AbUFYFTL (ORCPT
+	Fri, 25 Jun 2004 01:22:55 -0400
+Received: from fw.osdl.org ([65.172.181.6]:28378 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266186AbUFYFWy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 01:19:11 -0400
-Message-ID: <1088140750.40dbb5ce0fd50@www.imp.polymtl.ca>
-Date: Fri, 25 Jun 2004 07:19:10 +0200
-From: Guillaume Thouvenin <guillaume.thouvenin@polymtl.ca>
-To: linux-kernel@vger.kernel.org
-Subject: [Patch] Enhanced Linux System Accounting for 2.6.7
-MIME-Version: 1.0
+	Fri, 25 Jun 2004 01:22:54 -0400
+Date: Thu, 24 Jun 2004 22:21:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Cc: ak@muc.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-mm2
+Message-Id: <20040624222140.07e01dae.akpm@osdl.org>
+In-Reply-To: <200406242257.03397.rjwysocki@sisk.pl>
+References: <20040624014655.5d2a4bfb.akpm@osdl.org>
+	<200406242257.03397.rjwysocki@sisk.pl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 192.90.72.1
-X-Poly-FromMTA: (c4.si.polymtl.ca [132.207.4.29]) at Fri, 25 Jun 2004 05:19:10 +0000
-X-AntiVirus: checked by Vexira Milter 1.0.6; VAE 6.26.0.3; VDF 6.26.0.6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+"R. J. Wysocki" <rjwysocki@sisk.pl> wrote:
+>
+> On Thursday 24 of June 2004 10:46, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-m
+> >m2/
+> 
+> Well, I have alarmingly many problems with this patch (my system is a dual 
+> Opteron - full config log attached):
+> 
+> 1) There is an Oops at early boot time, caused probably by earlyprintk, which 
+> makes the serial console stop working (the call trace goes too fast to read 
+> and of course it does not go to the serial console ...).
 
-    Here is a new patch for kernel 2.6.7. You can download it from 
-sourceforge at 
-http://prdownloads.sourceforge.net/elsa/patch-2.6.7-elsa?download
-  
-    This patch provides structures and functions to do accounting
-for a group of process. There is two parts. 
+This is fixed, yes?
 
-  On one hand there is two APIs that allow the creation and the 
-destruction of an item called a "bank" that will contain an 
-group of processes. There is also two other routines that can 
-add or remove processes in a bank.
+> 2) There is an Oops when trying to unload the sound driver (snd-intel8x0).  At 
+> present I'm unable to grab it. because of 1).
 
-  On the other hand, you have the accounting mechanism that used bank
-to perform BSD-like accounting for a group of process. We used ioctl()
-interface to create/destroy a bank and also to add/remove a process in
-a bank. Currently, device driver is dev/elsacct and the major number
-is dynamically allocated, therefore you need to check the number in the
-/proc/devices and create the corresponding device. A sample code is
-given at:
-http://cvs.sourceforge.net/viewcvs.py/elsa/tests/elsa_cmd.c?rev=1.7&view=markup
- 
-    Currently we do BSD-like accounting. The next step is to identify what
-kind of metrics can be interesting for accounting. We started to describe
-that point on a withpaper that is available at:
-http://sourceforge.net/docman/display_doc.php?docid=23446&group_id=105806
-This paper describes differences between two accounting systems that are
-ELSA and CSA.
- 
-    Every comments are welcome, 
+I'm not able to reproduce this.  Can you grab a trace now?
 
-The ELSA poject team (http://elsa.sourceforge.net)
+> 3) This breaks fb console on my system quite a bit:
+> 
+> > +core-fbcon-fixes.patch
+> 
+> - there is an ugly grey background area behind the penguin logos at startup.  
+> The (screen behind the) logos are (is) ok without it. ;-)
+
+I forwarded this to Antonino, but he's hiding.

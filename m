@@ -1,67 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbULIOPg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbULIOTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbULIOPg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 09:15:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbULIOPf
+	id S261412AbULIOTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 09:19:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbULIOTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 09:15:35 -0500
-Received: from dfw-gate2.raytheon.com ([199.46.199.231]:59618 "EHLO
-	dfw-gate2.raytheon.com") by vger.kernel.org with ESMTP
-	id S261361AbULIOP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 09:15:27 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OFBFDFFF38.8E8C4EA3-ON86256F65.004D59FB@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Thu, 9 Dec 2004 08:14:34 -0600
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 12/09/2004 08:14:36 AM
+	Thu, 9 Dec 2004 09:19:25 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:21943 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S261412AbULIOTJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 09:19:09 -0500
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E57057A1AEA@exa-atlanta>
+From: "Mukker, Atul" <Atulm@lsil.com>
+To: "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "Bagalkote, Sreenivas" <sreenib@lsil.com>
+Cc: "'Matt Domsch'" <Matt_Domsch@Dell.com>,
+       "'brking@us.ibm.com'" <brking@us.ibm.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'SCSI Mailing List'" <linux-scsi@vger.kernel.org>,
+       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
+       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>,
+       "Mukker, Atul" <Atulm@lsil.com>
+Subject: RE: How to add/drop SCSI drives from within the driver?
+Date: Thu, 9 Dec 2004 09:11:15 -0500 
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another odd crash, this time with PREEMPT_RT and 32-5.
+ 
+> > >The real way I'd like to handle this is via hotplug.  The hotplug 
+> > >event would transmit the HCTL in the environment.
+> > >Whether the drive actually gets incorporated into the system and 
+> > >where is user policy, so it's appropriate that it should be in 
+> > >userland.
+> > 
+> > James, it is the application that is adding the drive. So 
+> it is not a 
+> > hotplug event for the driver.
+> 
+> Then perhaps I don't understand what the issue is.  If the 
+> application is adding the drive, then surely it would know 
+> the numbers.  If not, then the driver must communicate this 
+> back, and that's what the hotplug would be about.
+> 
+> James
+> 
+> 
+Let me elaborate it.
 
-Was trying to download 32-12 using mozilla and saw the following:
- - the download window came up with ?? of ?? downloaded
- - at this point, mozilla was not responsive, could move windows
-with the window manager but no updates to the window contents.
- - top showed no CPU usage for mozilla-bin
-Tried alt-sysrq-L (was then going to do -D) and got the following
-messages on the serial console...
+1. The management applications decide to created new logical drives or
+remove some of the existing ones.
 
-SysRq : (          IRQ 1-278  |#0): new 2304 us maximum-latency critical
-section.
-[stack dump shown]
-(          IRQ 1-278  |#0): new 374313 us maximum-latency critical section.
-[stack dump shown]
-(          IRQ 1-278  |#0): new 374868 us maximum-latency critical section.
-[stack dump shown]
-(          IRQ 1-278  |#0): new 374923 us maximum-latency critical section.
-[stack dump shown]
+2. How applications would do this, is by sending commands to the megaraid
+firmware via driver. Driver does not intercept these commands for a simple
+reason that the driver code would become unnecessarily bulky to understanad
+all the possible ways applications can change the number of logical devices.
 
-At this point, the system is non responsive. Network operations had
-stopped, no mouse / display updates, no response to keyboard commands
-like Alt-SysRq keys. Never saw the output of Alt-SysRq-L on the serial
-console. The system log did not have anything either, its last message
-was the one noting that I had logged in for the day.
+3. Once the change in configuration has happened, someone must notify kernel
+about new or removed devices.
 
-Let me know if you need the serial console output.
+4. Since megaraid driver does not know about these changes, it cannot notify
+kernel.
 
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
+5. So this becomes the responsibility of the application which caused the
+change in configuration. Application dilemma is, all it know is it created a
+few devices and removed some. But there is no way for it to relate the
+affected devices with the way how kernel was or would be seeing them, that
+is, the affected device's scsi address. Remember, the affected devices are
+only logical, there is no physical bus, target, lun associated with them.
+Driver creates this mapping on the fly.
 
+6. That's where application seeks help from driver and requests for the scsi
+address driver would be using for the affected devices.
+
+7. Once it has the scsi address for the devices in question, depending on
+the application and system administrator's preference, application would
+either use sysfs to add/remove affected devices or cause a hotplug event
+resulting in the configured behavior.
+
+8. So, all driver has to do to assist applications is to provide the logical
+drive number to scsi address mapping. Application would say, hey! I
+added/removed logical drive number 5, driver reverts, here is the scsi
+address for it "host:2, channel:5, target:5 lun:0" :-)
+
+-Atul Mukker

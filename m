@@ -1,52 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVB1OSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVB1OIC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbVB1OSO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 09:18:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVB1ORI
+	id S261624AbVB1OIC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 09:08:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVB1OGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 09:17:08 -0500
-Received: from smtp2.volja.net ([217.72.64.60]:15113 "EHLO smtp2.volja.net")
-	by vger.kernel.org with ESMTP id S261630AbVB1ON5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 09:13:57 -0500
-Message-ID: <1109599986.422326f240b1b@webmail.volja.net>
-Date: Mon, 28 Feb 2005 15:13:06 +0100
-From: robinud@volja.net
+	Mon, 28 Feb 2005 09:06:24 -0500
+Received: from lumumba.luc.ac.be ([193.190.9.252]:62990 "EHLO
+	lumumba.luc.ac.be") by vger.kernel.org with ESMTP id S261611AbVB1OBp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 09:01:45 -0500
+Date: Mon, 28 Feb 2005 15:01:45 +0100
+From: Panagiotis Issaris <takis@lumumba.luc.ac.be>
 To: linux-kernel@vger.kernel.org
-Subject: Multichannel audio ?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.5 / FreeBSD-5.2.1
-X-Originating-IP: 213.253.102.145
+Subject: [PATCH] SA9730 cleanup or fix
+Message-ID: <20050228150145.C32550@lumumba.luc.ac.be>
+Reply-To: panagiotis.issaris@mech.kuleuven.ac.be
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="NzB8fVQJ5HfG6fxh"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-How does one use the extra channels on a six channel card ?
-I can only hear the 2 front speakers.
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I remember on a es1370 card, that I had an extra /dev/dsp1 for the rear speaker
-pair, but with an on board VIA audio there is only one /dev/dsp.
+Hi,
 
-I also tried playing a 6 channel sound file with sox, but still only the front
-speakers make sound.
+In the SAA9730 driver the lan_saa9730_start() function always returns
+zero which makes the if/return code unnecessary.
 
-Any clues ?
+The first patch removes this check.
 
-HW is VIA 8235 + Realtek ALC650
-kernel 2.6.8-debian
-driver is OSS via82xxxx ( I'm willing to switch to ALSA, but a quick look says
-it is the same there ).
+In case it is suspected that the lan_saa9730_start() function might be
+modified in the future, causing it to be possible to return values other
+then zero, then the second patch -replacing the previous one- fixes the
+problem that in that case the requested irq is not being freed.
 
-Ideally I would want a second stereo /dev/dsp1, that would produce sound on the
-rear speakers.
+Both patches apply to 2.6.11-rc5-bk2.
 
-Thanks for any help,
-David
+With friendly regards,
+Takis
+-- 
+OpenPGP key: http://lumumba.luc.ac.be/takis/takis_public_key.txt
+fingerprint: 6571 13A3 33D9 3726 F728  AA98 F643 B12E ECF3 E029
 
-----------------------------------------------------------------
-Varno. Enostavno. Vredno. Internet dodatne storitve.
-http://www.voljatel.si/storitve/
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="pi-20050228T134601-linux-saa9730.diff"
 
+diff -uprN linux-2.6.11-rc5-bk2/drivers/net/saa9730.c linux-2.6.11-rc5-bk2-pi/drivers/net/saa9730.c
+--- linux-2.6.11-rc5-bk2/drivers/net/saa9730.c	2005-02-28 13:44:53.000000000 +0100
++++ linux-2.6.11-rc5-bk2-pi/drivers/net/saa9730.c	2005-02-28 13:45:23.000000000 +0100
+@@ -815,9 +815,8 @@ static int lan_saa9730_open(struct net_d
+ 	evm_saa9730_enable_lan_int(lp);
+ 
+ 	/* Start the LAN controller */
+-	if (lan_saa9730_start(lp))
+-		return -1;
+-
++	lan_saa9730_start(lp);
++	
+ 	netif_start_queue(dev);
+ 
+ 	return 0;
+
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="pi-20050228T145542-linux-saa9730.diff"
+
+diff -uprN linux-2.6.11-rc5-bk2/drivers/net/saa9730.c linux-2.6.11-rc5-bk2-pi/drivers/net/saa9730.c
+--- linux-2.6.11-rc5-bk2/drivers/net/saa9730.c	2005-02-28 13:44:53.000000000 +0100
++++ linux-2.6.11-rc5-bk2-pi/drivers/net/saa9730.c	2005-02-28 14:56:17.000000000 +0100
+@@ -816,8 +816,11 @@ static int lan_saa9730_open(struct net_d
+ 
+ 	/* Start the LAN controller */
+ 	if (lan_saa9730_start(lp))
++	{
++		free_irq(dev->irq, (void *) dev);
+ 		return -1;
+-
++	}
++	
+ 	netif_start_queue(dev);
+ 
+ 	return 0;
+
+--NzB8fVQJ5HfG6fxh--

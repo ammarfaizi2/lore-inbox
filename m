@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317185AbSFBOBM>; Sun, 2 Jun 2002 10:01:12 -0400
+	id <S317184AbSFBOAe>; Sun, 2 Jun 2002 10:00:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317187AbSFBOBL>; Sun, 2 Jun 2002 10:01:11 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:1294 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S317185AbSFBOBJ>;
-	Sun, 2 Jun 2002 10:01:09 -0400
-Date: Sun, 2 Jun 2002 16:03:57 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Ion Badulescu <ionut@cs.columbia.edu>, linux-kernel@vger.kernel.org
+	id <S317185AbSFBOAe>; Sun, 2 Jun 2002 10:00:34 -0400
+Received: from dsl-213-023-038-078.arcor-ip.net ([213.23.38.78]:28052 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317184AbSFBOAd>;
+	Sun, 2 Jun 2002 10:00:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Peter Osterlund <petero2@telia.com>,
+        Thunder from the hill <thunder@ngforever.de>
 Subject: Re: KBuild 2.5 Impressions
-Message-ID: <20020602160357.A1726@mars.ravnborg.org>
-In-Reply-To: <Pine.LNX.4.44.0206012349360.671-100000@age.cs.columbia.edu> <Pine.LNX.4.44.0206020139510.29405-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Date: Sun, 2 Jun 2002 16:00:11 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Peter Osterlund <petero2@telia.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0206020601320.29405-100000@hawkeye.luckynet.adm> <m24rglhmhu.fsf@ppro.localdomain>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17EVu0-0000Ph-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 02, 2002 at 01:58:10AM -0600, Thunder from the hill wrote:
-[cc: list trimmed]
+On Sunday 02 June 2002 14:51, Peter Osterlund wrote:
+> Thunder from the hill <thunder@ngforever.de> writes:
+> > Problem #2 (make NO_MAKEFILE_GEN) is a bit tricky with the new concept. 
+> > You may try to maintain it, but I wonder where you'll end up.
+> 
+> On my system I get 0.40s with NO_MAKEFILE_GEN compared to 3.41s
+> without, so my system is fast enough even without NO_MAKEFILE_GEN. I
+> just find it strange that the documentation says bug reports will be
+> ignored. If it breaks unintentionally in future kernels, fixing it
+> would probably not be too hard. Or are you planning to remove this
+> feature altogether?
 
-> I split it so that you can merge some stuff in and it has no effect. You 
-> can even merge the whole thing in with no effect as long as you're using 
-> the old Makefile,v 2.4.
+I think what he's saying is that the feature is a hack and isn't supposed
+to work properly all the time, so don't complain about if it doesn't.  I
+think that's a reasonable attitude.  There's yet more speed to be gained
+by building the proper machinery for deciding reliably when the makefile
+has to be rebuilt, and maybe doing the job incrementally, but that's not
+the task at hand, that's a project for somebody to take their time and
+do properly later.  It's exactly this kind of work Keith has provided a
+solid base for.
 
-Piecemal is not about splitting the patch in small bits only.
-It's about adding features one-by-one, and about fixing bugs one-by-one.
-Forget the story that current kbuild-2.5 needs the core in order to
-enable any functionality.
-A small list of stuff independent of the core stuff:
-o New defconfig target
-o New installable target
-o Replacement of installkernel script with a couple of commandline options
-o asmoffset stuff, allthough not used for i386 at present
-o The idea behind _shipped prefix on shipped files
-o randconfig, warnings in split-include, mkdep, 2048 symbol limit, dbl qoutes
-o Quit output, making warnings more visible
-o etc.
+FYI, the way it works is, it just fails to do the makefile rebuild,
+relying on human intelligence and experience to know that nothing
+changed that would require a rebuild.  IOW, use at your own risk.  I
+doubt this feature will go away, because anything that speeds up a
+edit/compile/kaboom cycle that much is going to be happily used by a
+significant number of madmen.  If it breaks for some reason, such as
+a new feature of bugfix that requires the makefile to *always* be
+updated, somebody will step up to fix it.
 
-I think Linus did not want to take a patch that changed too much, and
-thats what kbuild-2.5 does. This does not change when you split it up
-file by file.
-
-	Sam
+-- 
+Daniel

@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131555AbRC3RTT>; Fri, 30 Mar 2001 12:19:19 -0500
+	id <S131505AbRC3RP3>; Fri, 30 Mar 2001 12:15:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131562AbRC3RTK>; Fri, 30 Mar 2001 12:19:10 -0500
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:58313 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S131555AbRC3RTE>; Fri, 30 Mar 2001 12:19:04 -0500
-Message-ID: <4148FEAAD879D311AC5700A0C969E89006887716@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: pavel@suse.cz, sfr@canb.auug.org.au, twoller@crystal.cirrus.com,
-   linux-kernel@vger.kernel.org
-Subject: RE: Incorrect mdelay() results on Power Managed Machines x86
-Date: Fri, 30 Mar 2001 09:17:14 -0800
+	id <S131555AbRC3RPS>; Fri, 30 Mar 2001 12:15:18 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:41737 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S131505AbRC3RPM>;
+	Fri, 30 Mar 2001 12:15:12 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200103301713.VAA03794@ms2.inr.ac.ru>
+Subject: Re: IP layer bug?
+To: green@dredd.crimea.edu (Oleg Drokin)
+Date: Fri, 30 Mar 2001 21:13:40 +0400 (MSK DST)
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com
+In-Reply-To: <20010325005731.A5243@dredd.crimea.edu> from "Oleg Drokin" at Mar 25, 1 00:57:31 am
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not sure what you mean by well-defined. Do you mean, does it have a
-fixed address? No, it is relocatable. The ACPI driver can find it because
-the base address is specified in the ACPI tables. After the ACPI driver is
-loaded the driver could export a pmtimer read function. This is great except
-that anything before ACPI load would be out of luck.
+Hello!
 
-After reading a chipset datasheet (in this case for the ICH-2M) both the
-8254 timers and the PM timer are driven off a 14.31818 MHz clock input - the
-PM timer is that divided by 4 and the 8254 is that divided by 12.
+>    For now I workarounded it with filling skb->cb with zeroes before
+>    netif_rx(),
 
-Is there any way we could use the 8254 timer for a reliable udelay? Not as
-accurate, but no ACPI dependency.
+This is right. For another examples look into tunnels.
 
-Regards -- Andy
+> but I believe it is a kludge and networking layer should be fixed instead.
 
-> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-> > I know on ACPI systems you are guaranteed a PM timer 
-> running at ~3.57 Mhz.
-> > Could udelay use that, or are there other timers that are 
-> better (maybe
-> > without the ACPI dependency)? 
-> 
-> We could use that if ACPI was present. It might be worth 
-> exploring. Is this
-> PM timer well defined for accesses  ?
+No.
+
+alloc_skb() creates skb with clean cb. ip_rcv() and other protocol handlers
+do not redo this work. If device uses cb internally, it must clear it
+before handing skb to netif_rx().
+
+Alexey

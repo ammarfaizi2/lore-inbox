@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262449AbTJXShr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 14:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbTJXShr
+	id S262456AbTJXSnx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 14:43:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbTJXSnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 14:37:47 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:11136 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262449AbTJXShq (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 14:37:46 -0400
-Message-Id: <200310241837.h9OIbjlf003495@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: "C. David Shaffer" <cdshaffer@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: non-root pthread code (attached) "crashes" 2.4.20-8 on Intel...how about 2.4.22 
-In-Reply-To: Your message of "Fri, 24 Oct 2003 13:44:17 EDT."
-             <16281.25841.66888.498987@aslan.cs.westminster.edu> 
-From: Valdis.Kletnieks@vt.edu
-References: <16281.25841.66888.498987@aslan.cs.westminster.edu>
+	Fri, 24 Oct 2003 14:43:53 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:31435 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S262456AbTJXSnv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 14:43:51 -0400
+Date: Fri, 24 Oct 2003 20:43:42 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Jirka Kosina <jikos@jikos.cz>
+Cc: Nathan Scott <nathans@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-xfs@oss.sgi.com
+Subject: Re: 2.6.0-test8 XFS bug
+Message-ID: <20031024184342.GA13378@louise.pinerecords.com>
+References: <Pine.LNX.4.58.0310232336180.6971@twin.jikos.cz> <20031024000951.GH858@frodo> <Pine.LNX.4.58.0310240853500.30731@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_533209984P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 24 Oct 2003 14:37:45 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0310240853500.30731@twin.jikos.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_533209984P
-Content-Type: text/plain; charset=us-ascii
+On Oct-24 2003, Fri, 09:03 +0200
+Jirka Kosina <jikos@jikos.cz> wrote:
 
-On Fri, 24 Oct 2003 13:44:17 EDT, "C. David Shaffer" <cdshaffer@acm.org>  said:
+> I can simply reproduce it - the only thing needed is to nfsmount this
+> partition from clients and start writing a file to it, as I've written
+> before. The crash occurs immediately after the transfer begins.
 
-> Attached is an incorrect solution to a classroom problem which
-> reliably crashes (more later) every linux machine that I've tried it
-> on.  crash = machine becomes unresponsive to user input, no external
+Do the crashes still occur after a re-mkfs?
 
-Two words:  "fork bomb".  Known problem since Ritchie, Kernighan, and
-Thompson were coding the fork() syscall 30 years ago.
-
-'man ulimit' and look at 'max user processes' (-u).
-
-And before anybody flames about why this is the default value for that ulimit,
-ask yourself "what value should be used by default instead?" and be prepared to
-justify your answer.
-
-
---==_Exmh_533209984P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/mXF4cC3lWbTT17ARAvRWAJ9OGsf3b2GakNO4te3G4h3dPRUpJgCgrKRg
-o1hKJrSojmudk5uY1Nrtkis=
-=Swub
------END PGP SIGNATURE-----
-
---==_Exmh_533209984P--
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262248AbSKMSYG>; Wed, 13 Nov 2002 13:24:06 -0500
+	id <S262303AbSKMS35>; Wed, 13 Nov 2002 13:29:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262258AbSKMSYG>; Wed, 13 Nov 2002 13:24:06 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:47236 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S262248AbSKMSYG>; Wed, 13 Nov 2002 13:24:06 -0500
-Date: Wed, 13 Nov 2002 13:33:34 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Chuck Lever <cel@citi.umich.edu>, Dan Kegel <dank@kegel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: re: [PATCH] new timeout behavior for RPC requests on TCP sockets
-In-Reply-To: <1037209348.11996.109.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.3.95.1021113133009.2518A-100000@chaos.analogic.com>
+	id <S262324AbSKMS35>; Wed, 13 Nov 2002 13:29:57 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:45213 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S262303AbSKMS3z>;
+	Wed, 13 Nov 2002 13:29:55 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: rusty@rustcorp.com.au
+Date: Wed, 13 Nov 2002 19:36:23 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Modules in 2.5.47-bk...
+Cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <76A6C122742@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Nov 2002, Alan Cox wrote:
+Hi Rusty,
+  I'm probably missing something important, but do you have any plans
+to integrate module-init-tools into modutils, or extend module-init-tools
+functionality to make them usable? I tried module-init-tools 0.6
+and I must say that I'm really surprised that it is possible to make
+such change after feature freeze, without maintaining at least minimal
+usability.
 
-> On Wed, 2002-11-13 at 16:44, Richard B. Johnson wrote:
-> > If the application "chooses to drop the request", the kernel is not
-> > required to fix that application. The RPC cannot retransmit if
-> > it has been shut-down or disconnected, which is about the only
-> > way the application could "choose to drop the request". So something
-> > doesn't smell right here.
-> 
-> Check your socks...
-> 
-> As far as RPC goes the RPC server can choose to drop a request whenever
-> it pleases by simply throwing it away (eg reading it from the socket and
-> binning it) depending on its workload. There are actually reasons for
-> that in some situations (eg if the top requests are all for a volume
-> that is down its better to throw them away so you can get requests for a
-> volume that is functional)
-> 
-> Alan
+  If there are modutils which can live with new module system, please
+point me to them. But I did not found such.
 
-Yes! But, the Client it is perfectly free to request it again and
-should (must) to keep any mounted volumes intact. This doesn't
-affect the internal TCP/IP stack (or it shouldn't). Since the whole
-NFS thing is "stateless", the client just issues another request.
+  For now I gave up. Except other, I did not found way how to pass
+options to module: MODULE_PARM() is now always nothing, and
+while options are probably stored in THIS_MODULE->args, I see
+no users of this (load_module finds .setup.init (which is now named
+.init.setup, and __setup expands to it only ifndef MODULE, BTW!), but 
+ignores it afterward).
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-   Bush : The Fourth Reich of America
-
-
+  So in short, is there available some document which says why this
+change was needed, where it is going, and what fs and device driver
+developers (ie. me) should do to get their (ie. mine) drivers back 
+to working state? Should I just concentrate on my other projects,
+and stop tracking 2.5.x kernels? Or should I just do couple of
+cset -x ?
+                                            Thanks,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz

@@ -1,73 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbULULde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbULULup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261734AbULULde (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 06:33:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbULULde
+	id S261741AbULULup (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 06:50:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbULULuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 06:33:34 -0500
-Received: from mpc-26.sohonet.co.uk ([193.203.82.251]:6798 "EHLO
-	moving-picture.com") by vger.kernel.org with ESMTP id S261734AbULULd3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 06:33:29 -0500
-Message-ID: <41C80A04.9070504@moving-picture.com>
-Date: Tue, 21 Dec 2004 11:33:24 +0000
-From: James Pearson <james-p@moving-picture.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040524
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Reducing inode cache usage on 2.4?
-References: <41C316BC.1020909@moving-picture.com> <20041217151228.GA17650@logos.cnet> <41C37AB6.10906@moving-picture.com> <20041217172104.00da3517.akpm@osdl.org> <20041220192046.GM4630@dualathlon.random>
-In-Reply-To: <20041220192046.GM4630@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Disclaimer: This email and any attachments are confidential, may be legally
-X-Disclaimer: privileged and intended solely for the use of addressee. If you
-X-Disclaimer: are not the intended recipient of this message, any disclosure,
-X-Disclaimer: copying, distribution or any action taken in reliance on it is
-X-Disclaimer: strictly prohibited and may be unlawful. If you have received
-X-Disclaimer: this message in error, please notify the sender and delete all
-X-Disclaimer: copies from your system.
-X-Disclaimer: 
-X-Disclaimer: Email may be susceptible to data corruption, interception and
-X-Disclaimer: unauthorised amendment, and we do not accept liability for any
-X-Disclaimer: such corruption, interception or amendment or the consequences
-X-Disclaimer: thereof.
+	Tue, 21 Dec 2004 06:50:44 -0500
+Received: from ozlabs.org ([203.10.76.45]:26020 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261741AbULULuk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 06:50:40 -0500
+Date: Tue, 21 Dec 2004 22:46:06 +1100
+From: Anton Blanchard <anton@samba.org>
+To: "Jose R. Santos" <jrsantos@austin.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
+Message-ID: <20041221114605.GB21710@krispykreme.ozlabs.ibm.com>
+References: <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com> <50260000.1103061628@flay> <20041215045855.GH27225@wotan.suse.de> <20041215144730.GC24000@krispykreme.ozlabs.ibm.com> <20041216050248.GG32718@wotan.suse.de> <20041216051323.GI24000@krispykreme.ozlabs.ibm.com> <20041216141814.GA10292@rx8.austin.ibm.com> <20041220165629.GA21231@rx8.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041220165629.GA21231@rx8.austin.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> My only suggestion for 2.4 is to try with vm_cache_scan_ratio = 20 or
-> higher (or alternatively vm_mapped_ratio = 50 or = 20).  There's a
-> reason why everything is tunable by sysctl.
-> 
-> I don't think the vm_lru_balance_ratio is the one he's interested
-> about. vm_lru_balance_ratio controls how much work is being done at
-> every dcache/icache shrinking.
-> 
-> His real objective is to invoke the dcache/icache shrinking more
-> frequently, how much work is being done at each pass is a secondary
-> issue. If we don't invoke it, nothing will be shrunk, no matter what is
-> the value of vm_lru_balance_ratio.
-> 
-> Hope this helps funding an optimal tuning for the workload.
+ 
+> The difference between the two runs was with in noise of the benchmark on
+> my small setup.  I wont be able to get a larger NUMA system until next year,
+> so I'll retest when that happens.  In the mean time, I don't see a reason
+> either to stall this patch, but that may change on I get numbers on a
+> larger system.
 
-Setting vm_mapped_ratio to 20 seems to give a 'better' memory usage 
-using my very contrived test - running a find will result in about 900Mb 
-of dcache/icache, but then running a cat to /dev/null will shrink the 
-dcache/icache down to between 100-300Mb - running the find and cat at 
-the same time results in about the same dcache/icache usage.
+Thanks Jose!
 
-I'll give this a go on the production NFS server and I'll see if it 
-improves things.
+Brent, looks like we are happy on the ppc64 front.
 
-Thanks
-
-James Pearson
-
-
-
-
+Anton

@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261733AbTBFJtl>; Thu, 6 Feb 2003 04:49:41 -0500
+	id <S265872AbTBFJxW>; Thu, 6 Feb 2003 04:53:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265863AbTBFJtl>; Thu, 6 Feb 2003 04:49:41 -0500
-Received: from adsl-67-123-8-233.dsl.pltn13.pacbell.net ([67.123.8.233]:3296
-	"EHLO influx.triplehelix.org") by vger.kernel.org with ESMTP
-	id <S261733AbTBFJtk>; Thu, 6 Feb 2003 04:49:40 -0500
-Date: Thu, 6 Feb 2003 01:58:46 -0800
-To: Joeri Belis <joeri.belis@nollekens.be>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: how can i see if i am using a module or compiled in kernel?
-Message-ID: <20030206095846.GA24461@triplehelix.org>
-References: <011c01c2cdc0$ae05dd30$15c809c6@PCJOERI01>
+	id <S265890AbTBFJxW>; Thu, 6 Feb 2003 04:53:22 -0500
+Received: from userbb201.dsl.pipex.com ([62.190.241.201]:39849 "EHLO
+	irishsea.home.craig-wood.com") by vger.kernel.org with ESMTP
+	id <S265872AbTBFJxV>; Thu, 6 Feb 2003 04:53:21 -0500
+Date: Thu, 6 Feb 2003 10:02:32 +0000
+From: Nick Craig-Wood <ncw1@axis.demon.co.uk>
+To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
+Message-ID: <20030206100232.GA9613@axis.demon.co.uk>
+References: <20030205174021.GE19678@dualathlon.random> <20030205102308.68899bc3.akpm@digeo.com> <20030205184535.GG19678@dualathlon.random> <20030205114353.6591f4c8.akpm@digeo.com> <20030205141104.6ae9e439.arashi@yomerashi.yi.org> <20030205233115.GB14131@work.bitmover.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <011c01c2cdc0$ae05dd30$15c809c6@PCJOERI01>
-User-Agent: Mutt/1.5.3i
-From: Joshua Kwan <joshk@triplehelix.org>
+In-Reply-To: <20030205233115.GB14131@work.bitmover.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 05, 2003 at 03:31:15PM -0800, Larry McVoy wrote:
+> We can go buy another machine for glibc2.3
 
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Buy a machine?  Why not use UML?
 
-On Thu, Feb 06, 2003 at 10:18:15AM +0100, Joeri Belis wrote:
-> Hi,
->=20
-> How can i see if serial.o is being used or that i have this compiled in t=
-he
-> kernel?
+  http://user-mode-linux.sourceforge.net/
 
-Use dmesg to look for stuff that has been compiled into the kernel and=20
-lsmod (typically /sbin/lsmod) for loaded modules.
+umlbuilder can build Redhat 8.0 images (along with loads of others)
 
-Regards
-Josh
+  http://umlbuilder.sourceforge.net/
+  http://umlbuilder.sourceforge.net/distributions.shtml
 
---=20
-New PGP public key: 0x27AFC3EE
-(doesn't expire, yay)
+There are debian root filing systems on the UML site.
 
---y0ulUmNC+osPPQO6
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Alternatively use the image created by umlbuilder and chroot into it.
+Mount --bind your source directory and away you go...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+QjHWT2bz5yevw+4RAsMDAJ9PzzPnNg2+Ui5JeLtABsuIJRCOMwCbBnlf
-mldMdJcPNq1vB/J8FGDiluo=
-=J/Jo
------END PGP SIGNATURE-----
-
---y0ulUmNC+osPPQO6--
+-- 
+Nick Craig-Wood
+ncw1@axis.demon.co.uk

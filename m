@@ -1,122 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269576AbTGJVPm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 17:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269587AbTGJVPm
+	id S269618AbTGJVUL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 17:20:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269619AbTGJVUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 17:15:42 -0400
-Received: from fw-az.mvista.com ([65.200.49.158]:50168 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S269576AbTGJVPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 17:15:37 -0400
-Message-ID: <3F0DDAB5.6060105@mvista.com>
-Date: Thu, 10 Jul 2003 14:29:25 -0700
-From: Steven Dake <sdake@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Samuel Flory <sflory@rackable.com>
-CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-kernel@vger.kernel.org, andre@linux-ide.org, frankt@promise.com
-Subject: Re: IDE/Promise 20276 FastTrack RAID Doesn't work in 2.4.21, patch
- attached to fix
-References: <Pine.SOL.4.30.0307102202340.22284-100000@mion.elka.pw.edu.pl> <3F0DD66B.6080209@rackable.com>
-In-Reply-To: <3F0DD66B.6080209@rackable.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Jul 2003 17:20:11 -0400
+Received: from storm.he.net ([64.71.150.66]:8669 "HELO storm.he.net")
+	by vger.kernel.org with SMTP id S269618AbTGJVUH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 17:20:07 -0400
+Date: Thu, 10 Jul 2003 13:48:11 -0700
+From: Greg KH <greg@kroah.com>
+To: Mikael Starvik <mikael.starvik@axis.com>
+Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: CRIS architecture update
+Message-ID: <20030710204811.GB13089@kroah.com>
+References: <3C6BEE8B5E1BAC42905A93F13004E8AB03277AA5@mailse01.axis.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C6BEE8B5E1BAC42905A93F13004E8AB03277AA5@mailse01.axis.se>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Samuel Flory wrote:
-
-> Bartlomiej Zolnierkiewicz wrote:
->
->> Hi,
->>
->> Do you have "Special FastTrak Feature" enabled?
->>  
->>
->
-> Can we change the option to something that makes sense.  I get the 
-> feeling no one understands what it does at 1st glance.  This is the 
-> 2nd time I've seen a patch like this. 
-
-I tried the kernel with fasttrack enabled because I saw something about 
-forcing the bios, but either it doesn't work or it doesn't work with my 
-adaptor.  The patch does work, though.
-
-But I definately agree, special fasttrack feature should atleast have 
-some useful help information for how it is used (if anyone knows?)
-
--steve
-
->
->> -- 
->> Bartlomiej
->>
->> On Thu, 10 Jul 2003, Steven Dake wrote:
->>
->>  
->>
->>> Folks,
->>>
->>> After I upgraded to 2.4.21, I noticed my Gigabyte motherboard with
->>> onboard IDE Promise 20276 FastTrack RAID no longer works.  The 
->>> following
->>> patch fixes the problem, which appears to be an incomplete list of
->>> devices in the ide setup code.  There are probably other fasttrack RAID
->>> adaptors that should be added to the setup code, but I don't know what
->>> they are.
->>>
->>> Thanks
->>> -steve
->>>   
->>
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe 
->> linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>  
->>
->
->
->------------------------------------------------------------------------
->
->diff -ur linux-2.4.22-pre3-ac1-old/Documentation/Configure.help linux-2.4.22-pre3-ac1/Documentation/Configure.help
->--- linux-2.4.22-pre3-ac1-old/Documentation/Configure.help	2003-07-07 04:23:56.000000000 -0700
->+++ linux-2.4.22-pre3-ac1/Documentation/Configure.help	2003-07-10 05:53:27.000000000 -0700
->@@ -1297,9 +1297,12 @@
+On Thu, Jul 10, 2003 at 10:24:56PM +0200, Mikael Starvik wrote:
+> >Speaking of older kernels, any chances for a 2.5 update? 
 > 
->   If unsure, say N.
+> Yes. I have sent patches to Linus several times, the latest one today.
+> So far he has been dropping my patches on the floor.
 > 
->-Special FastTrak Feature
->+Ignore FastTrak Bios and configure drives as IDE disks
-> CONFIG_PDC202XX_FORCE
->-  For FastTrak enable overriding BIOS.
->+  Enable overriding BIOS RAID configuration.  Without this option the 
->+  kernel may refuse to see your drives.  Do not enable if you are 
->+  using Promise's binary module.  This option is compatible with the 
->+  GPL ataraid driver.
-> 
-> SiS5513 chipset support
-> CONFIG_BLK_DEV_SIS5513
->diff -ur linux-2.4.22-pre3-ac1-old/drivers/ide/Config.in linux-2.4.22-pre3-ac1/drivers/ide/Config.in
->--- linux-2.4.22-pre3-ac1-old/drivers/ide/Config.in	2003-07-07 04:18:53.000000000 -0700
->+++ linux-2.4.22-pre3-ac1/drivers/ide/Config.in	2003-07-10 05:51:22.000000000 -0700
->@@ -66,7 +66,7 @@
-> 	    dep_mbool     '      Special UDMA Feature' CONFIG_PDC202XX_BURST $CONFIG_BLK_DEV_PDC202XX_OLD $CONFIG_BLK_DEV_IDEDMA_PCI
-> 	    dep_tristate '    PROMISE PDC202{68|69|70|71|75|76|77} support' CONFIG_BLK_DEV_PDC202XX_NEW $CONFIG_BLK_DEV_IDEDMA_PCI
-> 	    if [ "$CONFIG_BLK_DEV_PDC202XX_OLD" = "y" -o "$CONFIG_BLK_DEV_PDC202XX_OLD" = "m" -o "$CONFIG_BLK_DEV_PDC202XX_NEW" = "y" -o "$CONFIG_BLK_DEV_PDC202XX_NEW" = "m" ]; then
->-	        bool     '    Special FastTrak Feature' CONFIG_PDC202XX_FORCE
->+	        bool     '    Ignore FastTrak Bios and configure drives as IDE disks' CONFIG_PDC202XX_FORCE
-> 	    fi
-> 	    dep_tristate '    RZ1000 chipset bugfix/support' CONFIG_BLK_DEV_RZ1000 $CONFIG_X86
-> 	    dep_tristate '    SCx200 chipset support' CONFIG_BLK_DEV_SC1200 $CONFIG_BLK_DEV_IDEDMA_PCI
->  
->
+> So far our 2.5 tree doesn't have a USB driver because I 
+> would like to wait until the USB framework is less volatile.
 
+Heh, like that will ever happen... :)
+
+But any api changes that are made to USB are also made to all in-kernel
+drivers.  I've been skipping the CRIS USB driver since way back in early
+2.5 you told me too.
+
+> In my mind we will port the USB driver somewhere around
+> 2.6.0.
+
+Glad to hear it.
+
+thanks,
+
+greg k-h

@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279169AbRJZWxf>; Fri, 26 Oct 2001 18:53:35 -0400
+	id <S279470AbRJZXJa>; Fri, 26 Oct 2001 19:09:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279476AbRJZWx0>; Fri, 26 Oct 2001 18:53:26 -0400
-Received: from mail.direcpc.com ([198.77.116.30]:40381 "EHLO
-	postoffice2.direcpc.com") by vger.kernel.org with ESMTP
-	id <S279169AbRJZWxU>; Fri, 26 Oct 2001 18:53:20 -0400
-Subject: Re: crypto api and 2.4.13
-From: "Jeffrey H. Ingber" <jhingber@ix.netcom.com>
-To: ognen@gene.pbi.nrc.ca
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0110261634430.3034-100000@gene.pbi.nrc.ca>
-In-Reply-To: <Pine.LNX.4.30.0110261634430.3034-100000@gene.pbi.nrc.ca>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16 (Preview Release)
-Date: 26 Oct 2001 18:53:24 -0400
-Message-Id: <1004136808.1724.0.camel@Eleusis>
-Mime-Version: 1.0
+	id <S279476AbRJZXJV>; Fri, 26 Oct 2001 19:09:21 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:2311 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S279470AbRJZXJG>; Fri, 26 Oct 2001 19:09:06 -0400
+Date: Fri, 26 Oct 2001 19:09:40 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@portland.hansa.lan>
+To: <linux-kernel@vger.kernel.org>
+cc: Sebastian Droege <sebastian.droege@gmx.de>
+Subject: [PATCH] pcibios_set_irq_routing undefined in 2.4.13-ac[12]
+Message-ID: <Pine.LNX.4.33.0110261905260.22934-100000@portland.hansa.lan>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try cryptoapi.sourceforge.net
+Hello!
 
-Jeffrey H. Ingber (jhingber _at_ ix.netcom.com)
+Here's the trivial fix for undefined symbols pcibios_set_irq_routing and
+pcibios_get_irq_routing_table if PCI access is direct only on i386
+architecture.
 
-On Fri, 2001-10-26 at 18:37, ognen@gene.pbi.nrc.ca wrote:
-> Hello,
-> 
-> what is the status of the crypto api (international kernel patch) that was
-> offered up until 2.4.3? These are the only patches now on ftp.kernel.org.
-> 
-> Would the same work with 2.4.13 and ext3?
-> 
-> Thank you,
-> Ognen
-> -- 
-> Ognen Duzlevski
-> Plant Biotechnology Institute
-> National Research Council of Canada
-> Bioinformatics team
-> work: (306) 975-5274
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+The patch is against 2.4.13-ac2
 
+----------------------------------
+--- linux.orig/arch/i386/kernel/i386_ksyms.c
++++ linux/arch/i386/kernel/i386_ksyms.c
+@@ -112,6 +112,9 @@ EXPORT_SYMBOL(pci_free_consistent);
+ #ifdef CONFIG_PCI
+ EXPORT_SYMBOL(pcibios_penalize_isa_irq);
+ EXPORT_SYMBOL(pci_mem_start);
++#endif
++
++#ifdef CONFIG_PCI_BIOS
+ EXPORT_SYMBOL(pcibios_set_irq_routing);
+ EXPORT_SYMBOL(pcibios_get_irq_routing_table);
+ #endif
+----------------------------------
+
+Regards,
+Pavel Roskin
 

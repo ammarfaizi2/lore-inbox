@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261481AbSJCXhU>; Thu, 3 Oct 2002 19:37:20 -0400
+	id <S261472AbSJCXoD>; Thu, 3 Oct 2002 19:44:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261484AbSJCXhU>; Thu, 3 Oct 2002 19:37:20 -0400
-Received: from pacific.moreton.com.au ([203.143.238.4]:4076 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S261481AbSJCXhT>; Thu, 3 Oct 2002 19:37:19 -0400
-Message-ID: <3D9CD647.7000806@snapgear.com>
-Date: Fri, 04 Oct 2002 09:44:07 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.40-ac1
-References: <Pine.LNX.4.44L.0210031614030.1909-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261473AbSJCXoC>; Thu, 3 Oct 2002 19:44:02 -0400
+Received: from ns.suse.de ([213.95.15.193]:35083 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261472AbSJCXoC>;
+	Thu, 3 Oct 2002 19:44:02 -0400
+Date: Fri, 4 Oct 2002 01:49:28 +0200
+From: Andi Kleen <ak@suse.de>
+To: Kevin Corry <corryk@us.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       evms-devel@lists.sourceforge.net
+Subject: Re: [PATCH] EVMS core 3/4: evms_ioctl.h
+Message-ID: <20021004014928.A21424@wotan.suse.de>
+References: <02100307370503.05904@boiler.suse.lists.linux.kernel> <p73vg4jr1ic.fsf@oldwotan.suse.de> <0210031730460A.05904@boiler>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0210031730460A.05904@boiler>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rik,
+On Thu, Oct 03, 2002 at 05:30:46PM -0500, Kevin Corry wrote:
+> In general, we are aware of the issues with using 32-bit user-space on top of 
+> 64-bit kernel. If you take a look at evms.c you will find several functions 
+> that get registered at init-time with the 32-to-64-bit ioctl conversion code. 
+> These take care of translating pointers from user-space to kernel-space in 
+> this situation. EVMS has been tested on ppc64 with success, and we have 
+> someone currently running tests on sparc64 to make sure it works there as 
+> well.
 
-Rik van Riel wrote:
-> On Thu, 3 Oct 2002, Christoph Hellwig wrote:
-> 
->>On Thu, Oct 03, 2002 at 10:20:03AM -0400, Alan Cox wrote:
-> 
-> 
->>>The two are so different I think that keeping it seperate is actually the
->>>right idea personally.
->>
->>Did you actually take a look?  Many files are basically the same and other
->>are just totally stubbed out in nommu.
-> 
-> 
-> So how about having one mm/ directory with:
-> 
-> 1) the common stuff
-> 2) the MMU stuff
-> 3) the NOMMU stuff
-> 
-> ... and some magic in Makefile to select which .c files to
-> compile ?
-> 
-> That should keep code duplication to a minimum.
+I think you have some security holes in there: 
 
-Easy done. Would it bother anyone having a few files
-named XYZ-nommu.c in there?
+	+parms.buffer_address  = (u8 *)uvirt_to_kernel(parms32.buffer_address);
+	[...]
+	+set_fs(KERNEL_DS);
+	+rc = sys_ioctl(fd, kcmd, (unsigned long)karg);
+	+set_fs(old_fs);
 
-Although the sticking point may be the common files that
-still contain a lot of ifdefs.
 
-Regards
-Greg
+parms32.buffer_address comes from user space. With the set_fs you turn
+off all access checking. Surely when whatever sits at the bottom of 
+sys_ioctl accesses it it'll use copy_from/to_user and it will do an 
+unchecked reference of a user supplied pointer, allowing it to read/write
+all memory.
+
+Same bug is present in more functions.
+
+The rule is: when you do set_fs(KERNEL_DS) you have to copy all user supplied
+pointers before it.
 
 
 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
+-Andi

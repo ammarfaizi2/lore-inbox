@@ -1,71 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265763AbUGDTxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265764AbUGDT4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265763AbUGDTxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 15:53:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265764AbUGDTxJ
+	id S265764AbUGDT4T (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 15:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265766AbUGDT4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 15:53:09 -0400
-Received: from twin.uoregon.edu ([128.223.214.27]:34511 "EHLO twin.uoregon.edu")
-	by vger.kernel.org with ESMTP id S265763AbUGDTxF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 15:53:05 -0400
-Date: Sun, 4 Jul 2004 12:53:04 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Fawad Lateef <fawad_lateef@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Need help in creating 8GB RAMDISK
-In-Reply-To: <20040704092523.58214.qmail@web20806.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.44.0407041247590.20955-100000@twin.uoregon.edu>
+	Sun, 4 Jul 2004 15:56:19 -0400
+Received: from web51801.mail.yahoo.com ([206.190.38.232]:3481 "HELO
+	web51801.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265764AbUGDT4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 15:56:17 -0400
+Message-ID: <20040704195617.51809.qmail@web51801.mail.yahoo.com>
+Date: Sun, 4 Jul 2004 12:56:17 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
+Subject: Re: Slow internet access for 2.6.7bk15&16
+To: bert hubert <ahu@ds9a.nl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040704165743.GD18688@outpost.ds9a.nl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Jul 2004, Fawad Lateef wrote:
+Okay, so I imagine that this is in the latest bk, will
+give that a try.
 
-> Hello
-> 
-> I am creating a RAMDISK of 7GB (from 1GB to 8GB). I
-> reserved the RAM by changing the code in
-> arch/i386/mm/init.c .......... 
-> 
-> But I am not able to access the RAM from 1GB to 8GB in
-> a kernel module ........ after crossing the 4GB RAM,
-> the system goes into standby state. But if I insert
-> the same module 2 times means one for 1GB to 4GB and
-> other for 4GB to 8GB. and mount them seprately both
-> works fine ............ 
+Thanks!
+Phy
 
-on a non-64bit intel architecture you can only grab 4GB of ram per 
-process because that's how big the page table is. There are 16 4GB page 
-tables for the 64GB ram that intel machines are capable of addressing.
- 
-> Can any one tell me the reason behind this ??? I think
-> that in a single module we can't access more than 4GB
-> RAM ...... If this is the reason then what to do ??? I
-> need 7GB RAMDISK as a single drive ....
+
+--- bert hubert <ahu@ds9a.nl> wrote:
+> On Sat, Jul 03, 2004 at 07:41:12PM -0700, Phy Prabab
+> wrote:
+> > Heelo,
+> > 
+> > I have been watching a thread concerning the slow
+> down
+> > with accessing some websites but have not found a
+> > resolution to the issue.  
 > 
-> Thanks and Regards,
+> Probably fixed by
+>
+http://linus.bkbits.net:8080/linux-2.5/cset@40e47ae2tQ_PIxw_HStw3YgsdJFHow?nav=index.html|ChangeSet@-4d
 > 
-> Fawad Lateef
-> 
-> 
-> 		
-> __________________________________
-> Do you Yahoo!?
-> Yahoo! Mail - You care about security. So do we.
-> http://promotions.yahoo.com/new_mail
+> -- 
+> http://www.PowerDNS.com      Open source, database
+> driven DNS Software 
+> http://lartc.org           Linux Advanced Routing &
+> Traffic Control HOWTO
 > -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
-GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
 
-
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - Helps protect you from nasty viruses.
+http://promotions.yahoo.com/new_mail

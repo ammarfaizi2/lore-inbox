@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263242AbUB1Bqf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 20:46:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbUB1Bqf
+	id S262915AbUB1B7w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 20:59:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbUB1B7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 20:46:35 -0500
-Received: from gate.crashing.org ([63.228.1.57]:14268 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S263244AbUB1Bqe (ORCPT
+	Fri, 27 Feb 2004 20:59:52 -0500
+Received: from inventor.gentoo.org ([216.223.235.2]:384 "EHLO meep.gentoo.org")
+	by vger.kernel.org with ESMTP id S262915AbUB1B7v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 20:46:34 -0500
-Subject: Re: Radeon Framebuffer Driver in 2.6.3?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: arief# <arief_m_utama@telkomsel.co.id>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0402280048120.2216-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0402280048120.2216-100000@phoenix.infradead.org>
+	Fri, 27 Feb 2004 20:59:51 -0500
+Subject: 2.6.3-bk9 QA testing: firewire good, USB printing dead
+From: Daniel Robbins <drobbins@gentoo.org>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Message-Id: <1077932239.23405.71.camel@gaston>
+Organization: Gentoo Technologies, Inc.
+Message-Id: <1077933682.14653.23.camel@wave.gentoo.org>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 28 Feb 2004 12:37:21 +1100
+Date: Fri, 27 Feb 2004 19:01:22 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi everyone,
 
-> Rememeber we have to modify every driver then to support FB_ACTIVATE_FORCE.
-> You have to ask yourself what do you want to do exactly? 
+Ben Collins pointed me to 2.6.3-bk9 for my firewire troubles, and I'm
+happy to report that firewire is working like a champ -- never better.
+I'm burning 3 CDs simultaneously via firewire (2 controllers) with no
+problems. I expect 4 simultaneous burns will also work well. My devices
+have Oxford 911 chips, controllers are soundblaster audigy and a generic
+3-port 1394a card.
 
-No we don't. Only fbmem, and that's part of the patch. What we could
-do is strip the FB_ACTIVATE_FORCE (and actually clear out the
-activate field completely) when copying to the driver's var structure
-in fb_set_var().
+However, 2.6.3-bk9's USB printing support appears to be dead. I can't
+get it to work reliably. Tested on Epson Stylus Photo 960 and a Brother
+Laser printer. catting files to /dev/usb/lp? tends to fail (process will
+get "stuck") and printer data stops flowing. This is on an Athlon XP
+(NForce2) system using the on-board USB. The official 2.6.3 release
+works fine. I'd expect these USB printing death symptoms to be easily
+reproducable on quite a few systems -- the problems hit me in the first
+few seconds of print testing. If they end up being more elusive, I can
+try to dig up more info for anyone who's interested in trying to isolate
+the problem.
 
-In fact, we should certainly fix fb_set_var to _ignore_ the activate
-field when comparing the var structures... this is a bug in the
-current version imho.
+Regards,
 
-It's a bit difficult to fix it while keeping memcmp, except if we do
-a local copy of the var structure, which would eat stack space...
-
-One problem with unblank is that it can be called at interrupt time,
-but I don't think that ever happens with mode_switch set to true.
-So we may just kmalloc a local copy of the var...
-
-Ben.
-
+Daniel
 

@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318381AbSGYJnV>; Thu, 25 Jul 2002 05:43:21 -0400
+	id <S318372AbSGYJkL>; Thu, 25 Jul 2002 05:40:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318388AbSGYJnV>; Thu, 25 Jul 2002 05:43:21 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:24570 "EHLO
+	id <S318388AbSGYJkL>; Thu, 25 Jul 2002 05:40:11 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:23546 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318382AbSGYJnU>; Thu, 25 Jul 2002 05:43:20 -0400
-Subject: Re: Linux-2.4.18-rc3-ac3: bug with using whole disks as filesystems
+	id <S318372AbSGYJkL>; Thu, 25 Jul 2002 05:40:11 -0400
+Subject: Re: puzzling kernel hangs with 2.4.18
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Luyer <david@luyer.net>
+To: Jamie Zawinski <jwz@jwz.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <004901c233b9$680612b0$638317d2@pacific.net.au>
-References: <004901c233b9$680612b0$638317d2@pacific.net.au>
+In-Reply-To: <3D3FC052.43740DB4@jwz.org>
+References: <3D3FC052.43740DB4@jwz.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 25 Jul 2002 11:59:59 +0100
-Message-Id: <1027594799.9488.35.camel@irongate.swansea.linux.org.uk>
+Date: 25 Jul 2002 11:57:15 +0100
+Message-Id: <1027594635.9489.33.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-07-25 at 09:58, David Luyer wrote:
-> Original commands to cause failure:
->   mkfs -b 8192 /dev/sdb -f
->   mount /dev/sdb /cache
+> Any suggestions?
 
-That isnt supported on x86 (it exceeds page size) but the crash is
-something that should not have happened and points to a missing
-validation check in the reiserfs code.
+Start with getting the errata kernel, see if that helps. I don't think
+it will make a difference but lets be sure. Also check the box with
+memtest86. 2.4 does stress hardware way harder than 2.2, especially if
+the box is an AMD Athlon
 
-Alan
+If that doesn't help do also file an entry in
+	https://bugzilla.redhat.com/bugzilla
+
+It may be a problem with the Red Hat patches not the base kernel so it
+is useful for us to be able to track it too.
 

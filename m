@@ -1,81 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262646AbREOGM5>; Tue, 15 May 2001 02:12:57 -0400
+	id <S262649AbREOGRQ>; Tue, 15 May 2001 02:17:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262647AbREOGMq>; Tue, 15 May 2001 02:12:46 -0400
-Received: from po4.wam.umd.edu ([128.8.10.166]:5539 "EHLO po4.wam.umd.edu")
-	by vger.kernel.org with ESMTP id <S262646AbREOGM0>;
-	Tue, 15 May 2001 02:12:26 -0400
-Date: Tue, 15 May 2001 02:12:23 -0400 (EDT)
-From: Jeremy Hunt Manson <jmanson@wam.umd.edu>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] for sb_card.c in kernel 2.4.2
-Message-ID: <Pine.GSO.4.21.0105150156160.14349-300000@rac5.wam.umd.edu>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-989907143=:14349"
+	id <S262651AbREOGRG>; Tue, 15 May 2001 02:17:06 -0400
+Received: from oss.sgi.com ([216.32.174.190]:15621 "EHLO oss.sgi.com")
+	by vger.kernel.org with ESMTP id <S262649AbREOGQ5>;
+	Tue, 15 May 2001 02:16:57 -0400
+Date: Tue, 15 May 2001 03:06:45 -0300
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: God <atm@sdk.ca>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: TCP capture effect :: estimate queue length ?
+Message-ID: <20010515030645.A15896@bacchus.dhis.org>
+In-Reply-To: <20010514234604.A4694@gruyere.muc.suse.de> <Pine.LNX.4.21.0105142339470.23642-100000@scotch.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0105142339470.23642-100000@scotch.homeip.net>; from atm@sdk.ca on Mon, May 14, 2001 at 11:49:16PM -0400
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Mon, May 14, 2001 at 11:49:16PM -0400, God wrote:
 
----559023410-851401618-989907143=:14349
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+> > Packets are dropped when a device queue
+> > fills, and when one sender is much faster than the other the faster sender
+> > often wins the race, while the packets of the slower one get dropped.
+> 
+> [.....]
+> 
+> Speaking of queues on routers/servers, does such a util exist that would
+> measure (even a rough estimate), what level of congestion (queueing) is
+> happening between point A and B ?  I'd be curious how badly congested some
+> things upstream from me are......   I know I can use ping or
+> traceroute ... but they don't report queueing or bursting.  Both measure
+> latency and packetloss ... short of stareing at a running ping that is
+> ... <G>
 
+Pathchar, yet another Van Jacobsen toy does this.  Unfortunately the old
+and rotten pre-version you can find in ftp.ee.lbl.gov:/pathchar/ is afaik
+the last one.  In the past it served me well you find about how ISPs are
+lying ...  100mbit backbone = fast ethernet in their computer room ...
 
-Hi folks.  I've never posted a kernel patch before, so I don't know if I
-got it right.  I followed the instructions in the FAQ...  I'm not
-subscribed, so if you could follow up to jmanson@wam.umd.edu, I would
-appreciate it.
-
-This patch adds support for my sound card, which was an OEM version of
-the SB AWE32 PnP (Got it from Dell).  It is pretty boring.  I made it for
-2.4.2, but none of the patches since then seem to have added this support,
-so here it is.
-
-I would appreciate it if it could find its way into the kernel, as
-hand-modifying the code after every patch I get from now on would be a
-pain.  And I am sure that there are a lot of mystified circa-1996 Dell
-owners out there...
-
-Thanks!
-
-					Jeremy Manson
-					jmanson@wam.umd.edu
-
----559023410-851401618-989907143=:14349
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=README
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.21.0105150212230.14349@rac5.wam.umd.edu>
-Content-Description: 
-Content-Disposition: attachment; filename=README
-
-QWRkcyBzdXBwb3J0IGZvciBDcmVhdGl2ZSBTQiBBV0UzMiBQblAgKENUTDAw
-NDUpDQo=
----559023410-851401618-989907143=:14349
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=patch
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.21.0105150212231.14349@rac5.wam.umd.edu>
-Content-Description: 
-Content-Disposition: attachment; filename=patch
-
-ZGlmZiAtdSAtLXJlY3Vyc2l2ZSAtLW5ldy1maWxlIHYyLjQuMi9saW51eC9k
-cml2ZXJzL3NvdW5kL3NiX2NhcmQuYyBsaW51eC9kcml2ZXJzL3NvdW5kL3Ni
-X2NhcmQuYw0KLS0tIGxpbnV4LW9yaWcvZHJpdmVycy9zb3VuZC9zYl9jYXJk
-LmMgIFR1ZSBNYXkgMTUgMDE6NTA6MzYgMjAwMQ0KKysrIGxpbnV4L2RyaXZl
-cnMvc291bmQvc2JfY2FyZC5jICAgICAgIFR1ZSBNYXkgMTUgMDE6MzA6MTMg
-MjAwMQ0KQEAgLTMzOCw2ICszMzgsMTEgQEANCiAgICAgICAgICAgICAgICBJ
-U0FQTlBfVkVORE9SKCdDJywnVCcsJ0wnKSwgSVNBUE5QX0ZVTkNUSU9OKDB4
-MDAzMSksDQogICAgICAgICAgICAgICAgMCwwLDAsMCwNCiAgICAgICAgICAg
-ICAgICAwLDEsMSwtMX0sDQorICAgICAgIHsiQ3JlYXRpdmUgU0IgQVdFMzIg
-UG5QIiwNCisgICAgICAgICAgICAgICBJU0FQTlBfVkVORE9SKCdDJywnVCcs
-J0wnKSwgSVNBUE5QX0RFVklDRSgweDAwNDUpLA0KKyAgICAgICAgICAgICAg
-IElTQVBOUF9WRU5ET1IoJ0MnLCdUJywnTCcpLCBJU0FQTlBfRlVOQ1RJT04o
-MHgwMDMxKSwNCisgICAgICAgICAgICAgICAwLDAsMCwwLA0KKyAgICAgICAg
-ICAgICAgIDAsMSwxLC0xfSwNCiAgICAgICAgeyJTb3VuZCBCbGFzdGVyIEFX
-RSAzMiIsDQogICAgICAgICAgICAgICAgSVNBUE5QX1ZFTkRPUignQycsJ1Qn
-LCdMJyksIElTQVBOUF9ERVZJQ0UoMHgwMDQ4KSwNCiAgICAgICAgICAgICAg
-ICBJU0FQTlBfVkVORE9SKCdDJywnVCcsJ0wnKSwgSVNBUE5QX0ZVTkNUSU9O
-KDB4MDAzMSksDQo=
----559023410-851401618-989907143=:14349--
+  Ralf

@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263868AbUA3TqA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 14:46:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUA3Tp7
+	id S264245AbUA3Txr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 14:53:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUA3Txq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 14:45:59 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:45509 "HELO
+	Fri, 30 Jan 2004 14:53:46 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:18117 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263868AbUA3TpP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 14:45:15 -0500
-Date: Fri, 30 Jan 2004 20:45:07 +0100
+	id S265516AbUA3Tx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 14:53:29 -0500
+Date: Fri, 30 Jan 2004 20:53:20 +0100
 From: Adrian Bunk <bunk@fs.tum.de>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Romain Lievin <roms@lpg.ticalc.org>
+       Thomas Winischhofer <thomas@winischhofer.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.4 patch] fix a compile warning in tipar.c (fwd) (fwd)
-Message-ID: <20040130194507.GO3004@fs.tum.de>
+Subject: [2.4 patch] agpgart_be.c: remove dupliacte PCI_DEVICE_ID_SI_651 entry (fwd)
+Message-ID: <20040130195319.GQ3004@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,110 +25,63 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi Marcelo,
 
-the patch forwarded below still applies and compiles against
+the trivial patch forwarded below still applies and compiles against 
 2.4.25-pre8.
 
 Please apply
 Adrian
 
 
-
 ----- Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
 
-Date:	Sat, 20 Dec 2003 00:08:38 +0100
+Date:	Wed, 30 Jul 2003 23:39:54 +0200
 From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Romain Lievin <roms@lpg.ticalc.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.4 patch] fix a compile warning in tipar.c (fwd)
+To: Thomas Winischhofer <thomas@winischhofer.net>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [2.4 patch] agpgart_be.c: remove dupliacte PCI_DEVICE_ID_SI_651 entry
 
-Hi Marcelo,
+agpgart_be.c contains two entries for PCI_DEVICE_ID_SI_651. The patch 
+below removes one of them.
 
-the patch forwarded below still applies and compiles against 
-2.4.24-pre1.
+I've tested the compilation eith 2.4.22-pre9.
 
-Please apply
+cu
 Adrian
 
-
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
-
-Date:	Sun, 3 Aug 2003 12:58:42 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Romain Lievin <roms@lpg.ticalc.org>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [2.4 patch] fix a compile warning in tipar.c
-
-I got the following compile warning in 2.4.22-pre10:
-
-<--  snip  -->
-
-...
-gcc -D__KERNEL__ 
--I/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include -
-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc -iwithprefix 
-include -DKBUILD_BASENAME=tipar  -c -o tipar.o tipar.c
-tipar.c:76:1: warning: "minor" redefined
-In file included from 
-/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include/linux/fs.h:16,
-                 from 
-/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include/linux/capability.h:17,
-                 from 
-/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include/linux/binfmts.h:5,
-                 from 
-/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include/linux/sched.h:9,
-                 from tipar.c:49:
-/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include/linux/kdev_t.h:81:1:
- warning: this is the location of the previous definition
-...
-
-<--  snip  -->
-
-The minor #define was added to kdev_t.h in 2.4.18-pre4. The following
-patch adjusts tipar.c accordingly. Besides this, it changes the kernel
-version chack from a private macro to use the KERNEL_VERSION in kernel.h.
-
---- linux-2.4.22-pre10-full/drivers/char/tipar.c.old	2003-08-02 22:52:49.000000000 +0200
-+++ linux-2.4.22-pre10-full/drivers/char/tipar.c	2003-08-02 22:57:57.000000000 +0200
-@@ -71,9 +71,11 @@
- #define DRIVER_DESC    "Device driver for TI/PC parallel link cables"
- #define DRIVER_LICENSE "GPL"
- 
--#define VERSION(ver,rel,seq) (((ver)<<16) | ((rel)<<8) | (seq))
--#if LINUX_VERSION_CODE < VERSION(2,5,0)
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,18)
- # define minor(x) MINOR(x)
-+#endif
-+
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
- # define need_resched() (current->need_resched)
- #endif
- 
-
-
-
-I've tested the compilation with 2.4.22-pre10.
-
-Please apply
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
+--- linux-2.4.22-pre9-full/drivers/char/agp/agpgart_be.c.old	2003-07-30 23:34:54.000000000 +0200
++++ linux-2.4.22-pre9-full/drivers/char/agp/agpgart_be.c	2003-07-30 23:35:43.000000000 +0200
+@@ -4961,30 +4961,24 @@
+ 	{ PCI_DEVICE_ID_SI_651,
+ 		PCI_VENDOR_ID_SI,
+ 		SIS_GENERIC,
+ 		"SiS",
+ 		"651",
+ 		sis_generic_setup },
+ 	{ PCI_DEVICE_ID_SI_650,
+ 		PCI_VENDOR_ID_SI,
+ 		SIS_GENERIC,
+ 		"SiS",
+ 		"650",
+ 		sis_generic_setup },
+-	{ PCI_DEVICE_ID_SI_651,
+-		PCI_VENDOR_ID_SI,
+-		SIS_GENERIC,
+-		"SiS",
+-		"651",
+-		sis_generic_setup },
+ 	{ PCI_DEVICE_ID_SI_645,
+ 		PCI_VENDOR_ID_SI,
+ 		SIS_GENERIC,
+ 		"SiS",
+ 		"645",
+ 		sis_generic_setup },
+ 	{ PCI_DEVICE_ID_SI_646,
+ 		PCI_VENDOR_ID_SI,
+ 		SIS_GENERIC,
+ 		"SiS",
+ 		"646",
+ 		sis_generic_setup },
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

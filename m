@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318225AbSHEFcl>; Mon, 5 Aug 2002 01:32:41 -0400
+	id <S318298AbSHEFbb>; Mon, 5 Aug 2002 01:31:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318297AbSHEFcl>; Mon, 5 Aug 2002 01:32:41 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:18849 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S318225AbSHEFcN>;
-	Mon, 5 Aug 2002 01:32:13 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Kingsley Cheung <kingsley@aurema.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Possible Bug in "sys_init_module"? 
-In-reply-to: Your message of "Mon, 05 Aug 2002 14:57:07 +1000."
-             <Pine.LNX.4.44.0208051241290.11259-100000@kingsley.sw.oz.au> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 05 Aug 2002 15:35:29 +1000
-Message-ID: <3340.1028525729@kao2.melbourne.sgi.com>
+	id <S318299AbSHEFbb>; Mon, 5 Aug 2002 01:31:31 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34057 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318298AbSHEFba>; Mon, 5 Aug 2002 01:31:30 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode linux]
+Date: Mon, 5 Aug 2002 05:35:13 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <ail2qh$bf0$1@penguin.transmeta.com>
+References: <1028294887.18635.71.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208031332120.7531-100000@localhost.localdomain> <m3u1mb5df3.fsf@averell.firstfloor.org>
+X-Trace: palladium.transmeta.com 1028525679 22281 127.0.0.1 (5 Aug 2002 05:34:39 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 5 Aug 2002 05:34:39 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Aug 2002 14:57:07 +1000 (EST), 
-Kingsley Cheung <kingsley@aurema.com> wrote:
->Please cc me since I'm not on the mailing list.
+In article <m3u1mb5df3.fsf@averell.firstfloor.org>,
+Andi Kleen  <ak@muc.de> wrote:
+>Ingo Molnar <mingo@elte.hu> writes:
 >
->Assume that one script invokes modprobe which calls "sys_init_module" 
->first.  The big kernel lock is taken and then plenty of sanity checks 
->done. After dependencies are checked and updated, the "init_module" 
->function of the module is invoked. Now if this function happens to block, 
->the kernel lock is dropped. A call to "sys_init_module" by modprobe in 
->the other script to initialise a second module dependent on the first 
->could then take the big kernel lock, check the dependencies and find them 
->okay, and then have its "init_module" function invoked. And if this 
->second module relies on the first module being properly initialised 
->before it is loaded, this can break. 
+>
+>> actually the opposite is true, on a 2.2 GHz P4:
+>> 
+>>   $ ./lat_sig catch
+>>   Signal handler overhead: 3.091 microseconds
+>> 
+>>   $ ./lat_ctx -s 0 2
+>>   2 0.90
+>> 
+>> ie. *process to process* context switches are 3.4 times faster than signal
+>> delivery. Ie. we can switch to a helper thread and back, and still be
+>> faster than a *single* signal.
+>
+>This is because the signal save/restore does a lot of unnecessary stuff.
+>One optimization I implemented at one time was adding a SA_NOFP signal
+>bit that told the kernel that the signal handler did not intend 
+>to modify floating point state (few signal handlers need FP) It would 
+>not save the FPU state then and reached quite some speedup in signal
+>latency. 
+>
+>Linux got a lot slower in signal delivery when the SSE2 support was
+>added. That got this speed back.
 
-This is a trade off between two conflicting requirements.  If a module
-fails during initialization then we want the module symbols to debug
-the module.  But those same symbols should not be considered valid when
-doing insmod.  The query_module() interface does not have the
-flexibility to distinguish between the two types of user space query.
+This will break _horribly_ when (if) glibc starts using SSE2 for things
+like memcpy() etc.
 
-In any case the problem is bigger than module symbols.  What happens
-when a module_init breaks after registering some functions?  The
-functions are registered and can be called, but the module is stuffed.
-insmod symbols are just one instance of the wider problem - if a module
-fails during init or exit and does not recover then the kernel is in an
-unreliable state.  It is broken, you get to keep the pieces.
+I agree that it is really sad that we have to save/restore FP on
+signals, but I think it's unavoidable. Your hack may work for you, but
+it just gets really dangerous in general. having signals randomly
+subtly corrupt some SSE2 state just because the signal handler uses
+something like memcpy (without even realizing that that could lead to
+trouble) is bad, bad, bad.
 
-On my todo list for modutils 2.5 is to invoke init_module() from a
-separate task.  That task will be killed by the kernel oops (there is
-no way for userspace to recover from oops) but the parent insmod will
-detect the failure and say
+In other words, "not intending to" does not imply "will not".  It's just
+potentially too easy to change SSE2 state by mistake. 
 
-  init_module() for foo failed.  The kernel is in an unreliable state.
+And yes, this signal handler thing is clearly visible on benchmarks. 
+MUCH too clearly visible.  I just didn't see any safe alternatives
+(and I still don't ;( )
 
+		Linus

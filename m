@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268484AbUHYHU6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266885AbUHYLbr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268484AbUHYHU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 03:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268490AbUHYHU6
+	id S266885AbUHYLbr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 07:31:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266745AbUHYLbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 03:20:58 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21128 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268484AbUHYHUx (ORCPT
+	Wed, 25 Aug 2004 07:31:47 -0400
+Received: from mail.gmx.net ([213.165.64.20]:13505 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266885AbUHYLbn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 03:20:53 -0400
-Date: Wed, 25 Aug 2004 00:20:45 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-Subject: Re: [RFC&PATCH 1/2] PCI Error Recovery (readX_check)
-In-Reply-To: <1093417267.2170.47.camel@gaston>
-Message-ID: <Pine.LNX.4.58.0408250015420.17766@ppc970.osdl.org>
-References: <412AD123.8050605@jp.fujitsu.com>  <Pine.LNX.4.58.0408232231070.17766@ppc970.osdl.org>
- <1093417267.2170.47.camel@gaston>
+	Wed, 25 Aug 2004 07:31:43 -0400
+X-Authenticated: #4512188
+Message-ID: <412C789D.2050303@gmx.de>
+Date: Wed, 25 Aug 2004 13:31:41 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040815)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Peter Williams <pwil3058@bigpond.net.au>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] V-5.0.1 Single Priority Array O(1) CPU Scheduler Evaluation
+References: <412AAC1D.5050104@bigpond.net.au> <412C53D6.3040202@bigpond.net.au>
+In-Reply-To: <412C53D6.3040202@bigpond.net.au>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+Peter Williams wrote:
+| Now available for 2.6.9-rc1:
+|
+| ZAPHOD:
+|
+<http://prdownloads.sourceforge.net/cpuse/patch-2.6.9-rc1-spa_zaphod_FULL-v5.0.1?download>
 
-On Wed, 25 Aug 2004, Benjamin Herrenschmidt wrote:
->
-> Well, I'm not sure about all this... part of the problem is that drivers
-> commonly need to also do IOs from interrupts. And another driver may
-> "pollute" us too, depending on how the HW & bridge are designed. So we
-> really also want to disable interrupts, we may need a "flags" around (could
-> be burried into the cookie stuff though as an arch specific thing)
+|
+|
+| HYDRA:
+|
+<http://prdownloads.sourceforge.net/cpuse/patch-2.6.9-rc1-spa_hydra_FULL-v5.0.1?download>
 
-Good point. I believe you _do_ end up having to do that, like it or not.
+|
+|
+| Others at <https://sourceforge.net/projects/cpuse/>
+|
+| Peter
 
-Because if you don't lock the bridge (or whatever the entity is that keeps 
-track of errors), the whole exercise is kind of pointless. If two drivers 
-try to do error checking at the same time, and will potentially clear the 
-errors of each other, causing the errors to get lost, the whole recovery 
-infrastructure is clearly worthless.
+Hie, could you provide me link which explans in detail, but yet easy to
+read, how those schedulers work?
 
-> Most drivers already have such a low level lock though, so we may end
-> up replacing it with a bridge-based lock... but depending on the architecture,
-> that would end up sync'ing lots of drivers on the same lock, which may not
-> be good especially if we have no checking to do... 
+Thanks,
 
-Some serialization will happen. Inevitable. See above.
+Prakash
 
-The "good news" is that I doubt very many drivers will care enough to do
-this. I suspect you'll only have a few very specific drivers used in 
-fault-tolerant circumstances, where you care more about the errors than 
-about the inevitable serialization.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-> I don't know what is the best thing to do here... The arch is the one to
-> know what is the granularity of the error management (per slot ? per segment
-> or per domain ?) and so to know what kind of lock is needed...
-
-It will have to depend on the bus setup. Not arch-specific per se, but 
-clearly specific to the bus controllers in question. 
-
-		Linus
+iD8DBQFBLHidxU2n/+9+t5gRAi4HAKDiiGaytNv/bMuYWn7k6MJfmVRV/gCg8qYf
+XIDpzNXeQ0Mq1cRX3ch2XBs=
+=Shmq
+-----END PGP SIGNATURE-----

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131795AbRAQR34>; Wed, 17 Jan 2001 12:29:56 -0500
+	id <S132641AbRAQRbG>; Wed, 17 Jan 2001 12:31:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132829AbRAQR3r>; Wed, 17 Jan 2001 12:29:47 -0500
-Received: from ktk.bidmc.harvard.edu ([134.174.237.112]:26895 "EHLO
-	ktk.bidmc.harvard.edu") by vger.kernel.org with ESMTP
-	id <S131795AbRAQR3b>; Wed, 17 Jan 2001 12:29:31 -0500
-Message-ID: <3A65D668.F746F2EE@bigfoot.com>
-Date: Wed, 17 Jan 2001 12:29:12 -0500
-From: "Kristofer T. Karas" <ktk@bigfoot.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre7 i686)
-X-Accept-Language: en, en-GB
+	id <S132829AbRAQRa4>; Wed, 17 Jan 2001 12:30:56 -0500
+Received: from smtp2.ihug.co.nz ([203.109.252.8]:4874 "EHLO smtp2.ihug.co.nz")
+	by vger.kernel.org with ESMTP id <S132641AbRAQRaj>;
+	Wed, 17 Jan 2001 12:30:39 -0500
+Message-ID: <3A65D60E.188C88E6@ihug.co.nz>
+Date: Thu, 18 Jan 2001 06:27:42 +1300
+From: david <sector2@ihug.co.nz>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Svein Erik Brostigen <svein.brostigen@oracle.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1-pre8, webbrowsers and proxies...
-In-Reply-To: <3A6553F1.C1A87632@oracle.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: need help raid and 2.4.0
+X-Priority: 1 (Highest)
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Svein Erik Brostigen wrote:
+hi i am moving from 2.2.18 to 2.4.0 i have a ide raid set but can not
+get it to run under 2.4.0
+i user mdadd / mdrun to config it. in raid-tools 0.42 but it dose not
+come up under 2.4.0 it just says unknow devices /dev/hda3 & /dev/hdc3
+but thay are thear and when i try to compile raid-tools .53 undir 2.4.0
+i get a lot of error in string.h (i am runing debian 2.2r2)
+i configured the kernel
 
-> After compiling and booting into 2.4.1-pre8, I found some strange
-> behaviour. I was not able to connect to any website using a http proxy.
+can someone help me i am reconfigering my raid set and i have a big
+drive to hold the data but i only have it for 1 day
 
-The problem is not with your web client, it's with your connection to the
-proxy.  Your proxy doesn't want to talk to your machine.  I am assuming that
-the proxy does accept a connection when you are running kernel 2.2.x, but
-rejects it under 2.4.x, correct?  If this is not so (the proxy refuses you
-regardless of kernel version) then you need to ask the proxy administrator;
-it's their problem, not linux's.
+thank you
+    David Rundle <sector2@ihug.co.nz>
 
-But assuming the refused connections occur with 2.4.x, then what is most
-likely happening is that you have compiled CONFIG_INET_ECN into your kernel.
-As the documentation says, many firewalls (at notable sites) refuse
-connections from machines with ECN enabled.
 
-See if the file /proc/sys/net/ipv4/tcp_ecn exists when you are running 2.4.x.
 
-If so, do  'echo 0 > /proc/sys/net/ipv4/tcp_ecn' and try your proxy again.
 
-Kris
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

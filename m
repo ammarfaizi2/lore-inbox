@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267195AbUJIRCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267212AbUJIREM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267195AbUJIRCK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 13:02:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267212AbUJIRCK
+	id S267212AbUJIREM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 13:04:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267235AbUJIREM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 13:02:10 -0400
-Received: from puzzle.sasl.smtp.pobox.com ([207.8.226.4]:40645 "EHLO
-	sasl.smtp.pobox.com") by vger.kernel.org with ESMTP id S267195AbUJIRCH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 13:02:07 -0400
-Subject: Re: [Kernel-janitors] [PATCH 2.6][9/12] pplus.c replace
-	pci_find_device with pci_get_device
-From: Scott Feldman <sfeldma@pobox.com>
-Reply-To: sfeldma@pobox.com
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       kernel-janitors <kernel-janitors@lists.osdl.org>,
-       benh@kernel.crashing.org, paulus@samba.org, greg@kroah.com
-In-Reply-To: <33930000.1097191565@w-hlinder.beaverton.ibm.com>
-References: <33930000.1097191565@w-hlinder.beaverton.ibm.com>
-Content-Type: text/plain
-Message-Id: <1097341320.3903.3.camel@sfeldma-mobl2.dsl-verizon.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 09 Oct 2004 10:02:01 -0700
-Content-Transfer-Encoding: 7bit
+	Sat, 9 Oct 2004 13:04:12 -0400
+Received: from web13723.mail.yahoo.com ([66.163.176.62]:59318 "HELO
+	web13723.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267212AbUJIREH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 13:04:07 -0400
+Message-ID: <20041009170406.68545.qmail@web13723.mail.yahoo.com>
+Date: Sat, 9 Oct 2004 10:04:06 -0700 (PDT)
+From: Martins Krikis <mkrikis@yahoo.com>
+Subject: Re: Linux 2.4.28-pre4
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, mkrikis@yahoo.com
+In-Reply-To: <bc8bcc5104100909425b84579a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-07 at 16:26, Hanna Linder wrote:
-> -	if ((dev = pci_find_device(PCI_VENDOR_ID_WINBOND,
-> +	if ((dev = pci_get_device(PCI_VENDOR_ID_WINBOND,
->  				   PCI_DEVICE_ID_WINBOND_82C105, dev))) {
->  		/*
->  		 * Disable LEGIRQ mode so PCI INTS are routed
+Marcelo,
 
-Missing cleanup at the bottom of func?
+> Here goes 2.4.28-pre4...
 
-	if(dev)
-		pci_dev_put(dev);
+Congratulations on that.
 
--scott
+> From now on can now change only what is necessary and let
+> the 2.4 tree in peace :)
+
+Does this mean that there is no hope for adding iswraid to 
+the 2.4 kernel?
+http://prdownloads.sourceforge.net/iswraid/2.4.28-pre3-iswraid.patch.gz?download
+It still applies cleanly to 2.4.28-pre4 as well... Please consider.
+
+Thanks,
+
+  Martins Krikis
+  Storage Components Division
+  Intel Massachusetts
+
+
+
+
+
+		
 

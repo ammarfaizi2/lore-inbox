@@ -1,91 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265537AbTIDV5m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 17:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265565AbTIDV4G
+	id S264839AbTIDWEv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 18:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265079AbTIDWEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 17:56:06 -0400
-Received: from [165.165.195.1] ([165.165.195.1]:43392 "EHLO nosferatu.lan")
-	by vger.kernel.org with ESMTP id S265537AbTIDVzy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 17:55:54 -0400
-Subject: Re: [PATCH 2.6.0-test4][sk98lin] sk98lin driver with hardware bug
-	make eth unusable
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Mirko Lindner <mlindner@syskonnect.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1062066254.5426.391.camel@mlindner-lin.skd.de>
-References: <200308121301.43873.gallir@uib.es>
-	 <1060689676.13254.172.camel@workshop.saharacpt.lan>
-	 <200308121440.50395.gallir@uib.es> <1061663721.13460.5.camel@nosferatu.lan>
-	 <1061728032.13460.28.camel@nosferatu.lan>
-	 <1062066254.5426.391.camel@mlindner-lin.skd.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-f72mzJ/Scd7vYzEmts58"
-Message-Id: <1062712523.10805.2.camel@nosferatu.lan>
+	Thu, 4 Sep 2003 18:04:50 -0400
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:38136 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S264839AbTIDWEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 18:04:46 -0400
+Date: Thu, 4 Sep 2003 16:03:44 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Mike Fedyk <mfedyk@matchmail.com>, Andrew Morton <akpm@osdl.org>,
+       reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: precise characterization of ext3 atomicity
+Message-ID: <20030904160344.E15623@schatzie.adilger.int>
+Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
+	Mike Fedyk <mfedyk@matchmail.com>, Andrew Morton <akpm@osdl.org>,
+	reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+References: <3F574A49.7040900@namesys.com> <20030904085537.78c251b3.akpm@osdl.org> <3F576176.3010202@namesys.com> <20030904091256.1dca14a5.akpm@osdl.org> <3F57676E.7010804@namesys.com> <20030904181540.GC13676@matchmail.com> <3F578656.60005@namesys.com> <20030904132804.D15623@schatzie.adilger.int> <3F57AF79.1040702@namesys.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 04 Sep 2003 23:55:25 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F57AF79.1040702@namesys.com>; from reiser@namesys.com on Fri, Sep 05, 2003 at 01:32:41AM +0400
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sep 05, 2003  01:32 +0400, Hans Reiser wrote:
+> Andreas Dilger wrote:
+> >It is possible to do the same with ext3, namely exporting journal_start()
+> >and journal_stop() (or some interface to them) to userspace so the application
+> >can start a transaction for multiple operations.  We had discussed this in
+> >the past, but decided not to do so because user applications can screw up in
+> >so many ways, and if an application uses these interfaces it is possible to
+> >deadlock the entire filesystem if the application isn't well behaved.
+>
+> That's why we confine it to a (finite #defined number) set of 
+> operations within one sys_reiser4 call.  At some point we will allow 
+> trusted user space processes to span multiple system calls (mail server 
+> applicances, database appliances, etc., might find this useful).  You 
+> might consider supporting sys_reiser4 at some point.
 
---=-f72mzJ/Scd7vYzEmts58
-Content-Type: multipart/mixed; boundary="=-CZLS0GJuJIoUtPVgB8ql"
+Ah, OK.  If you are confining the atom to a single syscall, then this is
+a much easier problem to solve, assuming sys_reiser4() has a sufficiently
+rich interface to express what people want to do.  It avoids all of the
+potential problems that could arise if you want to keep a transaction
+open over multiple syscalls.
 
-
---=-CZLS0GJuJIoUtPVgB8ql
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, 2003-08-28 at 12:24, Mirko Lindner wrote:
-> The newest version of the sk98lin driver with some fixes for HW Csum was
-> sent to the driver Maintainers today (Kernel 2.4.22 and Kernel
-> 2.6.0-test4). Here is a list with fixes and new functions:
->=20
-> VERSION 6.17 (Thu Aug 26 2003 - mlindner)
-> New Features:
-
-I need to apply attached patch to test4-bk5 to get it to compile (on
-SMP).  Other than that, it seems ok.
-
-
-Thanks,
-
---=20
-
-Martin Schlemmer
-
-
-
-
---=-CZLS0GJuJIoUtPVgB8ql
-Content-Disposition: attachment; filename=sk98lin-smp-fixup.patch
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; name=sk98lin-smp-fixup.patch; charset=iso-8859-1
-
-LS0tIDEvZHJpdmVycy9uZXQvc2s5OGxpbi9za2RpbS5jCTIwMDMtMDktMDMgMjI6NTk6MzAuNzQx
-NzYyNTkyICswMjAwDQorKysgMi9kcml2ZXJzL25ldC9zazk4bGluL3NrZGltLmMJMjAwMy0wOS0w
-MyAyMjo1ODozNi4xNDUwNjI1NTIgKzAyMDANCkBAIC0zMTksNiArMzE5LDcgQEAgR2V0Q3VycmVu
-dFN5c3RlbUxvYWQoU0tfQUMgKnBBQykgew0KIAl1bnNpZ25lZCBpbnQgIFVzZWRUaW1lICAgID0g
-MDsNCiAJdW5zaWduZWQgaW50ICBTeXN0ZW1Mb2FkICA9IDA7DQogI2lmZGVmIENPTkZJR19TTVAN
-CisJZXh0ZXJuIGludCBzbXBfbnVtX2NwdXM7DQogCXVuc2lnbmVkIGludCAgU0tOdW1DcHVzICAg
-PSBzbXBfbnVtX2NwdXM7DQogI2Vsc2UNCiAJdW5zaWduZWQgaW50ICBTS051bUNwdXMgICA9IDE7
-DQo=
-
---=-CZLS0GJuJIoUtPVgB8ql--
-
---=-f72mzJ/Scd7vYzEmts58
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/V7TLqburzKaJYLYRAhmZAJwLYSUefc5RdBETbJlzGeC2Nv5fNQCcDexn
-eoc6ruv2/T3tP+rPy9KibRg=
-=PUXZ
------END PGP SIGNATURE-----
-
---=-f72mzJ/Scd7vYzEmts58--
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

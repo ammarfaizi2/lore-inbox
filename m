@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271592AbRHPQcd>; Thu, 16 Aug 2001 12:32:33 -0400
+	id <S271590AbRHPQeN>; Thu, 16 Aug 2001 12:34:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271591AbRHPQcX>; Thu, 16 Aug 2001 12:32:23 -0400
-Received: from as2-4-3.an.g.bonet.se ([194.236.34.191]:20974 "EHLO
-	cosmo.zigo.dhs.org") by vger.kernel.org with ESMTP
-	id <S271590AbRHPQcL>; Thu, 16 Aug 2001 12:32:11 -0400
-Date: Thu, 16 Aug 2001 18:32:23 +0200 (CEST)
-From: Dennis Bjorklund <db@zigo.dhs.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.2.19: d-link dfe530-tx, Transmit timed out
-Message-ID: <Pine.LNX.4.33.0108161810440.18106-100000@cosmo.zigo.dhs.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271591AbRHPQeD>; Thu, 16 Aug 2001 12:34:03 -0400
+Received: from bt-207-238.bta.net.cn ([202.106.207.238]:32384 "HELO localhost")
+	by vger.kernel.org with SMTP id <S271590AbRHPQd4>;
+	Thu, 16 Aug 2001 12:33:56 -0400
+Date: Fri, 17 Aug 2001 00:33:58 +0800
+From: hugang <linuxbest@soul.com.cn>
+To: "Randy.Dunlap" <rddunlap@osdlab.org>
+Cc: bart@jukie.net, linux-kernel@vger.kernel.org
+Subject: Re: apm, swsuspend.
+Message-Id: <20010817003358.64128986.linuxbest@soul.com.cn>
+In-Reply-To: <3B798977.AB3E1EE3@osdlab.org>
+In-Reply-To: <20010814160812.I29740@jukie.net>
+	<3B798977.AB3E1EE3@osdlab.org>
+Organization: soul
+X-Mailer: Sylpheed version 0.5.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a d-link dfe530-tx that goes mad when there is heavy load on
-the network and and stops working. The heavy traffic is not to this
-computer but between other computers on the network. I use the 2.2.19
-kernel that redhat have built for rh 6.2.
+On Tue, 14 Aug 2001 13:26:31 -0700
+"Randy.Dunlap" <rddunlap@osdlab.org> wrote:
 
-This is the log
 
-kernel: via-rhine.c:v1.08b-LK1.0.0 12/14/2000  Written by Donald Becker
-kernel:   http://www.scyld.com/network/via-rhine.html
-kernel: eth1: VIA VT6102 Rhine-II at 0xe400, 00:50:ba:6e:76:63, IRQ 9.
-kernel: eth1: MII PHY found at address 8, status 0x782d advertising 01e1 Link 40a1.
-[...]
-kernel: eth1: Transmit timed out, status 0000, PHY status 782d, resetting..
-(a lot of these)
+Can swsusp support in 2.4.x?
 
-I know this thread was up a year ago but there doesn't seem to have been a
-solution.  I also remember that there where patches that was supposed to
-reset the card when this happens, but obviously they never got into the
-kernel.
-
-What happened to these patches, do they live somewhere outside the
-kernel?
-
-I should probably throw out this stupid card and get something else. Any
-suggestion of a card working well in linux? The computer is a P90 so a
-card that uses little cpu would be good. If I have to buy I can just as
-well buy something that works well in linux. Maybe I should get the same
-cards that Alan or Linus uses :-) They ought to work in the future I
-guess..
-
+Thanks
 -- 
-/Dennis
+Best Regard!
+礼！
+----------------------------------------------------
+hugang : 胡刚 	GNU/Linux User
+email  : gang_hu@soul.com.cn linuxbest@soul.com.cn
+Tel    : +861068425741/2/3/4
+Web    : http://www.soul.com.cn
 
+	Beijing Soul technology Co.Ltd.
+	   北京众志和达科技有限公司
+----------------------------------------------------

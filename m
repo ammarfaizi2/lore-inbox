@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVANNwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbVANNzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbVANNwW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 08:52:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVANNwV
+	id S261985AbVANNzq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 08:55:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbVANNzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 08:52:21 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9441 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261983AbVANNwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 08:52:17 -0500
-Date: Fri, 14 Jan 2005 08:21:14 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "Roy Keene (Contractor)" <keene@nrlssc.navy.mil>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.28 crashes with BUG at page_alloc.c:144
-Message-ID: <20050114102113.GB8176@logos.cnet>
-References: <Pine.LNX.4.58.0501131241230.6797@opt-riedlinger.nrlssc.navy.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501131241230.6797@opt-riedlinger.nrlssc.navy.mil>
-User-Agent: Mutt/1.5.5.1i
+	Fri, 14 Jan 2005 08:55:46 -0500
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:3256 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S261985AbVANNzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 08:55:35 -0500
+Date: Fri, 14 Jan 2005 14:55:27 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: swapspace layout improvements advocacy
+In-Reply-To: <20050112105315.2ac21173.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.53.0501141433000.7044@gockel.physik3.uni-rostock.de>
+References: <20050112123524.GA12843@lnx-holt.americas.sgi.com>
+ <Pine.LNX.4.44.0501121758180.2765-100000@localhost.localdomain>
+ <20050112105315.2ac21173.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 12:44:23PM -0600, Roy Keene (Contractor) wrote:
-> I'm having problems with a stock 2.4.28 kernel occasionally giving
-> BUGs and then the system becoming unstable.
+On Wed, 12 Jan 2005, Andrew Morton wrote:
+
+> Our current way of allocating swap can cause us to end up with little
+> correlation between adjacent pages on-disk.  But this can be improved.  THe
+> old swapspace-layout-improvements patch was designed to fix that up, but
+> needs more testing and tuning.
 > 
-> Has anyone else seen this ?
+> It clusters pages on-disk via their virtual address.
 
-A page being freed has the "mapping" pointer set:
+2.6 seems in due need of such a patch.
 
-         if (page->mapping)
-                BUG();
-> Example:
-> 
-> Jan 13 10:24:30 x kernel: kernel BUG at page_alloc.c:144!
-> Jan 13 10:24:30 x kernel: invalid operand: 0000
-> Jan 13 10:24:30 x kernel: CPU:    0
-> Jan 13 10:24:30 x kernel: EIP:    0010:[<c013a3d2>]    Tainted: P
-> Jan 13 10:24:30 x kernel: EFLAGS: 00013282
-> Jan 13 10:24:30 x kernel: eax: 00000000   ebx: c28c1760   ecx: c02f32d4   edx: c02f3040
-> Jan 13 10:24:30 x kernel: esi: c28c1760   edi: 00000000   ebp: ea01fbc4   esp: f47fbdd0
-> Jan 13 10:24:30 x kernel: ds: 0018   es: 0018   ss: 0018
-> Jan 13 10:24:30 x kernel: Process X (pid: 2412, stackpage=f47fb000)
-> Jan 13 10:24:30 x kernel: Stack: 00000001 00003286 00000003 cb6eca00 cb6eca00 cb6eca00 c28c1760 c01479d3
-> Jan 13 10:24:30 x kernel:        cb6eca00 00000000 c28c1760 c02f31f8 000200a6 c0139a1c c28c1760 000001d2
-> Jan 13 10:24:30 x kernel:        00000b54 000001d2 00000018 0000001d 000001d2 c02f31f8 c02f31f8 c0139c6a
-> Jan 13 10:24:30 x kernel: Call Trace:    [<c01479d3>] [<c0139a1c>] [<c0139c6a>] [<c0139ce2>] [<c012688a>]
-> Jan 13 10:24:30 x kernel:   [<c013a93d>] [<c013ac58>] [<c012e117>] [<c012e4c5>] [<c0119648>] [<c0108cba>]
-> Jan 13 10:24:30 x kernel:   [<c0122e25>] [<c012688a>] [<c0117588>] [<c01192d0>] [<c0108fbc>]
-> Jan 13 10:24:30 x kernel:
-> Jan 13 10:24:30 x kernel: Code: 0f 0b 90 00 57 d0 2a c0 8b 35 d0 27 37 c0 89 d8 29 f0 c1 f8
+I recently found out that 2.6 kernels degrade horribly when going into 
+swap. On my dual PIII-850 with as little as 256 mb ram, I can easily 
+demonstrate that by opening about 40-50 instances of konquerer with large 
+tables, many images and such things. When the machine is into 80-120 mb of 
+the 256 mb swap partition, it becomes almost unusable. Even the desktop 
+background picture needs ~20sec to update, not to talk about any windows' 
+contents. And you can literally hear the reason for it: the harddisk is 
+seeking like crazy.
 
-Are you using any binary module? Seems so.
+I've applied Ingo Molnars swapspace-layout-improvements-2.6.9-rc1-bk12-A1
+port of the patch to a 2.6.11-rc1 kernel, and it handles the same workload 
+much smoother. It's slow, but you can work with it.
 
+I just wonder why noone else complained yet. Are systems with tight memory 
+constraints so uncommon these days?
 
+Tim

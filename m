@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267396AbSLLExc>; Wed, 11 Dec 2002 23:53:32 -0500
+	id <S267414AbSLLEzv>; Wed, 11 Dec 2002 23:55:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267414AbSLLExc>; Wed, 11 Dec 2002 23:53:32 -0500
-Received: from mail8.kc.rr.com ([24.94.162.176]:21768 "EHLO mail8.wi.rr.com")
-	by vger.kernel.org with ESMTP id <S267396AbSLLExb>;
-	Wed, 11 Dec 2002 23:53:31 -0500
-Message-ID: <007e01c2a19b$934e9a00$6400a8c0@win01>
-From: "Ted Kaminski" <mouschi@wi.rr.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: pnp/IDE question- help fixing up a patch
-Date: Wed, 11 Dec 2002 23:01:47 -0600
+	id <S267416AbSLLEzv>; Wed, 11 Dec 2002 23:55:51 -0500
+Received: from pop015pub.verizon.net ([206.46.170.172]:24544 "EHLO
+	pop015.verizon.net") by vger.kernel.org with ESMTP
+	id <S267414AbSLLEzu>; Wed, 11 Dec 2002 23:55:50 -0500
+Message-ID: <3DF818D1.8@verizon.net>
+Date: Thu, 12 Dec 2002 00:04:17 -0500
+From: Stephen Wille Padnos <stephen.willepadnos@verizon.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.51 - Strange UP APIC / 8139too / USB issues
+References: <3DF7A706.3020600@verizon.net>
+In-Reply-To: <3DF7A706.3020600@verizon.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at pop015.verizon.net from [64.223.83.18] at Wed, 11 Dec 2002 23:03:32 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Correction:
 
-I've got an ide, and an idepnp question... (for 2.4)
+The problem is actually ACPI.  With ACPI disabled, both USB and network
+function correctly with local APIC + IO-APIC enabled or disabled.
 
-I'm working on refining a patch sent previously
-(http://groups.google.com/groups?selm=20021108061020.A14168%40localhost) to
-be less intrusive. I'll be refering to things done in that patch...
+Sorry for the red herring.
 
-The short of it is, this sb16 pnpide interface apparently cannot use
-ALTSTATUS at a certain point. (I'm no ide whiz, I'm just simplifying the
-code that David Meybohm wrote, so maybe I'm off a bit) at any rate, this
-seems to require a new flag be listed along with the hardware information.
+- Steve
 
-His solution was to add
-+ int  no_passive;  /* no passive status tests */
-to hw_reg_s in ide.h and check that flag in drive_is_ready()
+Stephen Wille Padnos wrote:
+[snip]
 
-I *think* it's out of place. It seems to me it'd be more appropriate to add
-+ unsigned no_passive : 1;   /* no passive status tests */
-to hwif_s in ide.h.  Right next to a few other bitfields
+> I finally found the culprit - "Local APIC Support on Uniprocessors" 
+> and "IO-APIC on uniprocessors".  If both items are enabled, the 
+> network functions, but USB doesn't work.  If not both are enabled 
+> (neither, or Local APIC but not IO-APIC), then the USB system works, 
+> but the network doesn't.  :( 
 
-Which is better? or is there a different, even better spot?
+[snip]
 
-As for the idepnp part, he added a "dev = NULL" into the loop, and was
-unsure of whether or not this was a good idea.  I have the same question.
-Or perhaps this smells of a seperate patch?
-
-I'd rather ask these question in the form of my own patch, but... I'm a bit
-short on time, atm. sorry.
-
-Thanks in advace,
--Ted
 

@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262457AbTFBP0r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 11:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbTFBP0r
+	id S262459AbTFBP2t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 11:28:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbTFBP2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 11:26:47 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:5626 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S262457AbTFBP0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 11:26:46 -0400
-Subject: Re: [PATCH RFC] 1/2 central workspace for zlib
-From: David Woodhouse <dwmw2@infradead.org>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: matsunaga <matsunaga_kazuhisa@yahoo.co.jp>, linux-mtd@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030602153656.GA679@wohnheim.fh-wedel.de>
-References: <20030530144959.GA4736@wohnheim.fh-wedel.de>
-	 <002901c32919$ddc37000$570486da@w0a3t0>
-	 <20030602153656.GA679@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=UTF-8
-Organization: 
-Message-Id: <1054568407.20369.382.camel@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
-Date: Mon, 02 Jun 2003 16:40:07 +0100
-Content-Transfer-Encoding: 8bit
+	Mon, 2 Jun 2003 11:28:48 -0400
+Received: from mail5.iserv.net ([204.177.184.155]:13469 "EHLO mail5.iserv.net")
+	by vger.kernel.org with ESMTP id S262459AbTFBP2r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 11:28:47 -0400
+Message-ID: <3EDB7053.3040707@didntduck.org>
+Date: Mon, 02 Jun 2003 11:42:11 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stuart MacDonald <stuartm@connecttech.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Redundant code?
+References: <00e301c3291c$22d4f270$294b82ce@stuartm>
+In-Reply-To: <00e301c3291c$22d4f270$294b82ce@stuartm>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-02 at 16:36, Jörn Engel wrote:
-> Considering that mtdblock should not be performance critical in
-> production use anyway, this is a very hard problem.  What do you
-> think?
+Stuart MacDonald wrote:
+> Seems to me the following is redundant code, since get_fd_set also
+> memsets the fds.res_* bitmaps.
+> 
+> ..Stu
+> 
+> --- linux-2.5.70/fs/select.c	2003-05-26 21:00:21.000000000 -0400
+> +++ linux-2.5.70-new/fs/select.c	2003-06-02 11:40:24.000000000 -0400
+> @@ -344,9 +344,6 @@
+>  	    (ret = get_fd_set(n, outp, fds.out)) ||
+>  	    (ret = get_fd_set(n, exp, fds.ex)))
+>  		goto out;
+> -	zero_fd_set(n, fds.res_in);
+> -	zero_fd_set(n, fds.res_out);
+> -	zero_fd_set(n, fds.res_ex);
+>  
+>  	ret = do_select(n, &fds, &timeout);
+>  
+> 
 
-mtdblock shouldn't actually be _using_ the vmalloc'd buffer for write
-caching in production at all. Anyone using mtdblock in write mode for
-production wants shooting.
+fds.in != fds.res_in
 
-Perhaps we could get away with allocating it only when the device is
-opened for write? Even that's suboptimal since in 2.4, JFFS2 opens the
-mtdblock device for write but doesn't actually _write_ to it; just gets
-the appropriate MTD device and uses that directly.
-
--- 
-dwmw2
+--
+				Brian Gerst
 

@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288005AbSA2OQM>; Tue, 29 Jan 2002 09:16:12 -0500
+	id <S289191AbSA2OSC>; Tue, 29 Jan 2002 09:18:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289191AbSA2OQC>; Tue, 29 Jan 2002 09:16:02 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:60827 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S288005AbSA2OPw>; Tue, 29 Jan 2002 09:15:52 -0500
-Date: Tue, 29 Jan 2002 15:14:48 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Rene Rebe <rene.rebe@gmx.net>
-cc: vda@port.imtp.ilyichevsk.odessa.ua, alex14641@yahoo.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: I've stopped the 'Spurious interrupts on IRQ7'
-In-Reply-To: <20020128.153902.730555757.rene.rebe@gmx.net>
-Message-ID: <Pine.GSO.3.96.1020129151308.4073B-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S289372AbSA2ORw>; Tue, 29 Jan 2002 09:17:52 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:60627 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S289191AbSA2ORl>;
+	Tue, 29 Jan 2002 09:17:41 -0500
+Date: Tue, 29 Jan 2002 17:15:15 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Jens Axboe <axboe@suse.de>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <E16VYVH-0003x8-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0201291706490.11065-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jan 2002, Rene Rebe wrote:
 
-> Or was this debug-message introduced in a 2.4.x kernel and this
-> situation was simply ignored?
+On Tue, 29 Jan 2002, Alan Cox wrote:
 
- The message was introduced during the 2.3.x development cycle.
+> [...] And a measurable number of the listed maintainer addresses just
+> bounce.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+out of the 300+ email addresses in the MAINTAINERS file, 15 addresses
+bounced physically. (whether they bounce logically is another question.)
+
+	Ingo
 

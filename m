@@ -1,89 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282162AbRKWPnw>; Fri, 23 Nov 2001 10:43:52 -0500
+	id <S282170AbRKWQMV>; Fri, 23 Nov 2001 11:12:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282170AbRKWPnm>; Fri, 23 Nov 2001 10:43:42 -0500
-Received: from mail1.arcor-ip.de ([145.253.2.10]:9618 "EHLO mail1.arcor-ip.de")
-	by vger.kernel.org with ESMTP id <S282162AbRKWPnY>;
-	Fri, 23 Nov 2001 10:43:24 -0500
-Message-ID: <3BFE6E98.8090109@arcormail.de>
-Date: Fri, 23 Nov 2001 16:43:20 +0100
-From: Hartmut Holz <hartmut.holz@arcormail.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Input/output error
-In-Reply-To: <Pine.LNX.4.33.0111221415490.1518-100000@grignard.amagerkollegiet.dk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S282172AbRKWQML>; Fri, 23 Nov 2001 11:12:11 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:31185 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S282170AbRKWQMB>; Fri, 23 Nov 2001 11:12:01 -0500
+Message-Id: <5.1.0.14.2.20011123160559.00a8d8b0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 23 Nov 2001 16:10:48 +0000
+To: lgb@lgb.hu
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Which gcc version?
+Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011123163019.A5418@vega.digitel2002.hu>
+In-Reply-To: <3BFE67E8.CFA0D371@redhat.com>
+ <20011123125137Z282133-17408+17815@vger.kernel.org>
+ <5.1.0.14.2.20011123135801.00aad970@pop.cus.cam.ac.uk>
+ <3BFE591B.D1F75CD5@starband.net>
+ <3BFE67E8.CFA0D371@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rasmus Bøg Hansen wrote:
+At 15:30 23/11/01, =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= wrote:
+>On Fri, Nov 23, 2001 at 03:14:48PM +0000, Arjan van de Ven wrote:
+> > war wrote:
+> > >
+> > > #1) The compiler from redhat (gcc-2.96) is not an official GNU release.
+> > > #2) http://www.atnf.csiro.au/~rgooch/linux/docs/kernel-newsflash.html/
+> > >       "the reccomend compiler is now gcc-2.95.3, rather than gcc-2.91.66"
+> >
+> > From Documentation/Changes in 2.4.15:
+> >
+> > The Red Hat gcc 2.96 compiler subtree can also be used to build this
+> > tree.
+> > You should ensure you use gcc-2.96-74 or later. gcc-2.96-54 will not
+> > build
+> > the kernel correctly.
+>
+>True, but as it's known, gcc-2.96 is NOT an official gcc release by the gcc
+>team. It was RedHat's fault to fetch a development CVS gcc snapshot and
+>release it as gcc 2.96 in RedHat distributions, while object format used by
+>2.96 is not compatible with 2.95 nor 3.0.x at least according information
+>can be found on site of gcc. It was very ROTFL RedHat to release kgcc to be
+>able to compile kernel. And these type of distributions are marked as even
+>enterprise-ready and likes by RedHat :) Sorry for the flame, but IMHO it's
+>very funny :) [Also, while developing MPlayer we had got problems with even
+>newer 2.96's, so we do not recommend it in the dox, and ./configure won't
+>able you to use 2.96 without a special configure switch ...]
 
-> On Thu, 22 Nov 2001, Marcus Grando wrote:
-> 
-> 
->>On try start syslog deamon occur this errrors "Input/output error" on many archives /var directory.
->>
-> 
-> Try to run fsck on the /var partition. Also you should check the disk 
-> for bad blocks. What output do you get from the kernel ('dmesg', 
-> /var/log/messages etc.)?
-> 
-> It could be a bad disk developing bad sectors.
-> 
-> Rasmus
-> 
-> 
+Oh, I have to look at your configure.in for how you do that so I can add 
+the opposite check to linux-ntfs and refuse to compile if gcc-2.96 or 3.x 
+is NOT used. (-:
 
-On my machine (2.4.15 final) it is the same behaviour.  After reboot
-the lock files (and only the lock files) are corrupt. With 2.4.14 and 
-2.4.13 everything works fine. gcc 2.96, e2fsck 1.25, aic7896/97
+>But for being more serious: do newer gcc 2.96 versions have these type of
+>errors? I mean mainly incompatible object format ...
 
-e2fsck output:
---------------
-Pass 1: Checking inodes, blocks, and sizes
-Pass 2: Checking directory structure
-Entry 'kudzu' in /lock/subsys (30001) has deleted/unused inode 30005. 
-Clear? yes
+I don't know about that. All I can say is that since RedHat 7.0 and the 
+updated gcc-2.96 (the first release was indeed broken) I have been using 
+gcc-2.96 for everything and I haven't experienced any problems with it 
+(compiling both kernels and user space code with it but YMMV as I don't 
+compile that much user space code myself except for my own code which 
+obviously works considering I write it for gcc-2.96...). I even installed 
+gcc-2.96 on my SuSE 7.2 system and that has been happy with it, too.
 
-Entry 'network' in /lock/subsys (30001) has deleted/unused inode 30006. 
-  Clear? yes
+Anton
 
-Entry 'syslog' in /lock/subsys (30001) has deleted/unused inode 30007. 
-Clear? yes
 
-Entry 'portmap' in /lock/subsys (30001) has deleted/unused inode 30008. 
-  Clear? yes
-
-Entry 'nfslock' in /lock/subsys (30001) has deleted/unused inode 30009. 
-  Clear? yes
-
-Entry 'random' in /lock/subsys (30001) has deleted/unused inode 30012. 
-Clear? yes
-
-Entry 'netfs' in /lock/subsys (30001) has deleted/unused inode 30013. 
-Clear? yes
-
-Entry 'autofs' in /lock/subsys (30001) has deleted/unused inode 30014. 
-Clear? yes
-
-Entry 'local' in /lock/subsys (30001) has deleted/unused inode 30029. 
-Clear? yes
-
-Entry 'syslogd.pid' in /run (38001) has deleted/unused inode 38009. 
-Clear? yes
-
-Entry 'klogd.pid' in /run (38001) has deleted/unused inode 38010. 
-Clear? yes
-
-Pass 3: Checking directory connectivity
-Pass 4: Checking reference counts
-Pass 5: Checking group summary information
-
-/var: ***** FILE SYSTEM WAS MODIFIED *****
-/var: 23017/66000 files (5.9% non-contiguous), 115364/263168 blocks
-
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129216AbRB0NLi>; Tue, 27 Feb 2001 08:11:38 -0500
+	id <S129227AbRB0NWC>; Tue, 27 Feb 2001 08:22:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129259AbRB0NL2>; Tue, 27 Feb 2001 08:11:28 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:27777 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129216AbRB0NLU>; Tue, 27 Feb 2001 08:11:20 -0500
-Date: Tue, 27 Feb 2001 08:11:00 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Per Erik Stendahl <PerErik@onedial.se>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Bug in cdrom_ioctl?
-In-Reply-To: <E44E649C7AA1D311B16D0008C73304460933AF@caspian.prebus.uppsala.se>
-Message-ID: <Pine.LNX.3.95.1010227080200.13747A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129259AbRB0NVw>; Tue, 27 Feb 2001 08:21:52 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:44046 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S129227AbRB0NVr>; Tue, 27 Feb 2001 08:21:47 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Wed, 28 Feb 2001 00:18:00 +1100
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: rsync over ssh on 2.4.2 to 2.2.18
+Message-ID: <20010228001800.C2207@linuxcare.com>
+In-Reply-To: <200102271002.f1RA2B408058@brick.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <200102271002.f1RA2B408058@brick.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Tue, Feb 27, 2001 at 10:02:11AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Feb 2001, Per Erik Stendahl wrote:
 
-> Hi.
-> 
-> In linux-2.4.2/drivers/cdrom/cdrom.c:cdrom_ioctl() branches
-> CDROM_SET_OPTIONS and CDROM_CLEAR_OPTIONS both return like this:
-> 
->     return cdi->options;
-> 
-> If cdi->options is non-zero, the ioctl() calls returns non-zero.
-> My ioctl(2) manpage says that a successful ioctl() should return
-> zero. Now I dont know which is at fault here - the cdrom.c code or
-> the manpage. :-) Could somebody enlighten me?
-> 
-> /Per Erik Stendahl
-> -
+Hi,
 
-Specifically, (at the API) upon an error -1 (nothing else) is to be
-returned and 'errno' set appropriately. The results of a successful ioctl()
-operation is supposed to have been returned in the parameter list (via
-pointer). So, you have found a design bug. I wonder how much stuff
-gets broken if this gets fixed?
+> I'm seeing odd behaviour with rsync over ssh between two x86 machines -
+> one if the is an UP PIII (Katmai) running 2.4.2 (isdn-gw) and the other
+> is an UP Pentium 75-200 (pilt-gw) running 2.2.15pre13 with some custom
+> serial driver hacks (for running Amplicon cards with their ISA interrupt-
+> sharing scheme).
 
-I suggest you just fix it and see what breaks. Maybe sombody's
-CD writer will break, but a patch will quickly be made by the
-maintainer(s).
+What version of ssh are you using? Older versions would use blocking IO
+which would result in deadlocks (and angry emails wrongly blaming rsync :)
 
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+Anton

@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVBXCZo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVBXCc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261694AbVBXCZo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 21:25:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbVBXCZU
+	id S261754AbVBXCc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 21:32:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbVBXCc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 21:25:20 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:8925 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261694AbVBXCY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 21:24:59 -0500
-Subject: Re: More latency regressions with 2.6.11-rc4-RT-V0.7.39-02
-From: Lee Revell <rlrevell@joe-job.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <421D2DEE.8070209@yahoo.com.au>
-References: <1109182061.16201.6.camel@krustophenia.net>
-	 <Pine.LNX.4.61.0502231908040.13491@goblin.wat.veritas.com>
-	 <1109187381.3174.5.camel@krustophenia.net>
-	 <Pine.LNX.4.61.0502231952250.14603@goblin.wat.veritas.com>
-	 <1109190614.3126.1.camel@krustophenia.net>
-	 <Pine.LNX.4.61.0502232053320.14747@goblin.wat.veritas.com>
-	 <421D1171.7070506@yahoo.com.au> <1109207024.4516.6.camel@krustophenia.net>
-	 <421D2DEE.8070209@yahoo.com.au>
-Content-Type: text/plain
-Date: Wed, 23 Feb 2005 21:24:57 -0500
-Message-Id: <1109211897.4831.2.camel@krustophenia.net>
+	Wed, 23 Feb 2005 21:32:56 -0500
+Received: from fire.osdl.org ([65.172.181.4]:10655 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261754AbVBXCcy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 21:32:54 -0500
+Date: Wed, 23 Feb 2005 18:32:45 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Roland McGrath <roland@redhat.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] override RLIMIT_SIGPENDING for non-RT signals
+Message-ID: <20050224023245.GA28536@shell0.pdx.osdl.net>
+References: <421D1548.2080504@goop.org> <200502240145.j1O1jlab010606@magilla.sf.frob.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502240145.j1O1jlab010606@magilla.sf.frob.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-24 at 12:29 +1100, Nick Piggin wrote:
-> Lee Revell wrote:
-> > 
-> > IIRC last time I really tested this a few months ago, the worst case
-> > latency on that machine was about 150us.  Currently its 422us from the
-> > same clear_page_range code path.
-> > 
-> Well it should be pretty trivial to add a break in there.
-> I don't think it can get into 2.6.11 at this point though,
-> so we'll revisit this for 2.6.12 if the clear_page_range
-> optimisations don't get anywhere.
-> 
+* Roland McGrath (roland@redhat.com) wrote:
+> Indeed, I think your patch does not go far enough.  I can read POSIX to say
+> that the siginfo_t data must be available when `kill' was used, as well.
 
-Agreed, it would be much better to optimize this away than just add a
-scheduling point.  It seems like we could do this lazily.
+How?  I only see reference to filling in SI_USER for rt signals?
+Just curious...(I've only got SuSv3 and some crusty old POSIX rt docs).
 
-IMHO it's not critical that these latency fixes be merged until the VP
-feature gets merged, until then people will be using Ingo's patches
-anyway.
+> This patch makes it allocate the siginfo_t, even when that exceeds
+> {RLIMIT_SIGPENDING}, for any non-RT signal (< SIGRTMIN) not sent by
+> sigqueue (actually, any signal that couldn't have been faked by a sigqueue
+> call).  Of course, in an extreme memory shortage situation, you are SOL and
+> violate POSIX a little before you die horribly from being out of memory anyway.
 
-Lee
+> The LEGACY_QUEUE logic already ensures that, for non-RT signals, at most
+> one is ever on the queue.  So there really is no risk at all of unbounded
+> resource consumption; the usage can reach {RLIMIT_SIGPENDING} + 31, is all.
 
+Good point.  Although it's RLIMIT_SIGPENDING + (31 * user_nprocs).  So
+that could be 31 * 8k, for example.
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317017AbSGHRIJ>; Mon, 8 Jul 2002 13:08:09 -0400
+	id <S317012AbSGHRRt>; Mon, 8 Jul 2002 13:17:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317012AbSGHRII>; Mon, 8 Jul 2002 13:08:08 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:64228 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S317017AbSGHRIH>; Mon, 8 Jul 2002 13:08:07 -0400
-Date: Mon, 8 Jul 2002 19:10:22 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: <Andries.Brouwer@cwi.nl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: IDE, util-linux
-In-Reply-To: <UTC200207081650.g68GoJJ02428.aeb@smtp.cwi.nl>
-Message-ID: <Pine.SOL.4.30.0207081900090.12042-100000@mion.elka.pw.edu.pl>
+	id <S317018AbSGHRRs>; Mon, 8 Jul 2002 13:17:48 -0400
+Received: from pD952ABA4.dip.t-dialin.net ([217.82.171.164]:13271 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317012AbSGHRRs>; Mon, 8 Jul 2002 13:17:48 -0400
+Date: Mon, 8 Jul 2002 11:20:25 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: jbradford@dial.pipex.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: OT: reply to "Perfectly clean automotive glass and mirrors"
+In-Reply-To: <200207081616.RAA02535@darkstar.example.net>
+Message-ID: <Pine.LNX.4.44.0207081119050.10105-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Mon, 8 Jul 2002 Andries.Brouwer@cwi.nl wrote:
+On Mon, 8 Jul 2002 jbradford@dial.pipex.com wrote:
+> I usually use
+> 
+> cat /dev/zero > /dev/hda
+> 
+> to clean Windows(tm) that I come across ;-)
 
-> >> recklessly booted 2.5.25. It survived for several hours,
-> >> then deadlocked. Two filesystems turned out to be corrupted.
-> >> Wouldn't mind if the rock solid 2.4 handling of HPT366
-> >> was carefully copied to 2.5
->
-> > Don't run vanilla 2.5.25, it has only IDE-93...
->
-> Yes. Funny isn't it? Every few weeks the past two or three
-> months I reported on the status of 2.5 on my hardware.
-> Always the answer is: yes, we know, the current version is
-> broken, wait for version N+1.
+I'd use dd, then you can get beautiful paintings onto the hard disk. But 
+unfortunately, I never had Windows[tm]...
 
-Really not funny and I'm not the guilty one here...
-
-I have just started fixing 2.5 bugs and there is a lot of them...
-
-> I hope you noticed the HPT366 part of my letter, and not
-> only the deadlock part.
-
-Yes.
-
-Regards
---
-Bartlomiej
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 
 

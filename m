@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319512AbSIGUGb>; Sat, 7 Sep 2002 16:06:31 -0400
+	id <S319514AbSIGUKx>; Sat, 7 Sep 2002 16:10:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319513AbSIGUGa>; Sat, 7 Sep 2002 16:06:30 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:53235 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S319512AbSIGUGa>; Sat, 7 Sep 2002 16:06:30 -0400
-Date: Sat, 7 Sep 2002 22:11:04 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Harald Welte <laforge@gnumonks.org>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre2
-In-Reply-To: <Pine.LNX.4.44.0208121943150.3382-100000@freak.distro.conectiva>
-Message-ID: <Pine.NEB.4.44.0209072132240.7218-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319515AbSIGUKw>; Sat, 7 Sep 2002 16:10:52 -0400
+Received: from B5bd2.pppool.de ([213.7.91.210]:34501 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S319514AbSIGUKw>; Sat, 7 Sep 2002 16:10:52 -0400
+Subject: Re: ide drive dying?
+From: Daniel Egger <degger@fhm.edu>
+To: jbradford@dial.pipex.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200209071502.g87F2dCQ001040@darkstar.example.net>
+References: <200209071502.g87F2dCQ001040@darkstar.example.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-H5aiSs8y4ya0RlDA4kod"
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 07 Sep 2002 22:19:44 +0200
+Message-Id: <1031429984.2723.29.camel@sonja.de.interearth.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Aug 2002, Marcelo Tosatti wrote:
 
->...
-> Harald Welte <laforge@gnumonks.org>:
->...
->   o [NETFILTER]: Backport newnat infrastructure to 2.4.x
->...
+--=-H5aiSs8y4ya0RlDA4kod
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Hi Harald,
+Am Sam, 2002-09-07 um 17.02 schrieb jbradford@dial.pipex.com:
 
-this patch adds a #include <linux/netfilter_ipv4/ip_conntrack_helper.h> to
-ip_conntrack.h and since ip_conntrack_helper.h already has a
-#include <linux/netfilter_ipv4/ip_conntrack.h> this results in a circular
-dependency. Could you please fix this?
+> No, but you've upgraded the firmware, right?
 
-TIA
-Adrian
+Not exactly. According to IBM technical support there is no such thing
+as a new firmware. The drives are alright, the OS is broken.
 
--- 
+> If that has fixed the problem, then it is not a faulty drive.
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+Right, and how would you notice without sacrifying more data?
+
+> So, you'll just plug in your 'new' disk, and in a few months,
+> bad sectors will start appearing.
+
+Not if you sold it at Ebay, which is what I did with all *new*
+drives I received from IBM. I just kept the "serviceable used part"
+one in case I need to install Windows to upgrade the firmware of
+some drive or anything else in range.
+=20
+--=20
+Servus,
+       Daniel
+
+--=-H5aiSs8y4ya0RlDA4kod
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9el9fchlzsq9KoIYRAnWsAJ9k7KjmcMBaOWwXOArBA4ZFQylVZgCfarAa
+600CTLRAz3LXPtTcRND9xck=
+=Y7eI
+-----END PGP SIGNATURE-----
+
+--=-H5aiSs8y4ya0RlDA4kod--
 

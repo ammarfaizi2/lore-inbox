@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263819AbTKFSAu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 13:00:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263813AbTKFSAt
+	id S263014AbTKFSLb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 13:11:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbTKFSLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 13:00:49 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:17028 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263812AbTKFSAn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 13:00:43 -0500
-Subject: RE: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b6).
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Andrew Vasquez <andrew.vasquez@qlogic.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Linux-SCSI <linux-scsi@vger.kernel.org>
-In-Reply-To: <B179AE41C1147041AA1121F44614F0B0598CE6@AVEXCH02.qlogic.org>
-References: <B179AE41C1147041AA1121F44614F0B0598CE6@AVEXCH02.qlogic.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hTaqNPdIuC6MyHrxeaeO"
-Organization: Red Hat, Inc.
-Message-Id: <1068141595.5234.10.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 06 Nov 2003 18:59:55 +0100
+	Thu, 6 Nov 2003 13:11:30 -0500
+Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:24194
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S263014AbTKFSL3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 13:11:29 -0500
+Date: Thu, 6 Nov 2003 13:10:52 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Robert Bird <rbird@Atlanticpositioners.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: reassigning IRQs for specific PCI slots...
+In-Reply-To: <13811E54B99D7C4AA403E725583A356F0BBB72@mail-server.atlanticpositioners.com>
+Message-ID: <Pine.LNX.4.53.0311061309380.27287@montezuma.fsmlabs.com>
+References: <13811E54B99D7C4AA403E725583A356F0BBB72@mail-server.atlanticpositioners.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 6 Nov 2003, Robert Bird wrote:
 
---=-hTaqNPdIuC6MyHrxeaeO
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> We are trying to use RTLinux thread to service a PCI-based multi-port 
+> serial card.  I have read several documents regarding "sharing IRQs", 
+> using boot-prompt parameters, IO-APIC.txt, etc.  I am being told by the 
+> RTLinux community that I must not share interrupts when using real-time 
+> thread to service a PCI-based function.  I have tried using several 
+> combinations of boot-prompt parameters (we are using GRUB) but have had 
+> no success in redirecting IRQ assignment during boot-time!
 
-On Thu, 2003-11-06 at 18:45, Andrew Vasquez wrote:
+If you don't have the option to assign irqs to specific slots in the BIOS 
+you can try shuffling PCI adapters around. I take it you don't have an 
+IOAPIC on the board?
 
-> No.  We've had this IOWR problem since the inception of 5.x series
-> driver.  Software (SMS 3.0) has been built on top of the this IOCTL
-
-how about removing most if not all of these ioctls ?
-The scsi layer has a *generic* "send passthrough" mechanism already for
-example.
-
-
-
---=-hTaqNPdIuC6MyHrxeaeO
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/qowaxULwo51rQBIRAu6SAJ0eYuH+qU6ZO7NOuv3/6D6WLSPtbwCeNpa/
-Uk2Bx05M7abbBYJcwwPceQ4=
-=vBdR
------END PGP SIGNATURE-----
-
---=-hTaqNPdIuC6MyHrxeaeO--

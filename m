@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261684AbTCaP1D>; Mon, 31 Mar 2003 10:27:03 -0500
+	id <S261691AbTCaP2a>; Mon, 31 Mar 2003 10:28:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261690AbTCaP1D>; Mon, 31 Mar 2003 10:27:03 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:60902 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261684AbTCaP1C>;
-	Mon, 31 Mar 2003 10:27:02 -0500
-Date: Mon, 31 Mar 2003 07:33:51 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: _VJ <vjose@icope.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Probs in printk
-Message-Id: <20030331073351.2de6c47a.rddunlap@osdl.org>
-In-Reply-To: <3E881337.50903@icope.com>
-References: <3E881337.50903@icope.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S261693AbTCaP2a>; Mon, 31 Mar 2003 10:28:30 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:37843 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S261691AbTCaP23>; Mon, 31 Mar 2003 10:28:29 -0500
+Date: Mon, 31 Mar 2003 16:39:39 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Lawrence Walton <lawrence@the-penguin.otak.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: MCE error
+Message-ID: <20030331153939.GA32463@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Lawrence Walton <lawrence@the-penguin.otak.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030330184756.GA22307@the-penguin.otak.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030330184756.GA22307@the-penguin.otak.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Mar 2003 15:36:47 +0530 _VJ <vjose@icope.com> wrote:
+On Sun, Mar 30, 2003 at 10:47:56AM -0800, Lawrence Walton wrote:
+ > I just got a MCE error while running 2.5.65 "MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+ > Bank 2: 940040000000017a" did a google search and found Dave Jones's parsemce, and decoded it to
+ > 
+ > Status: (ba) Error IP valid
+ > Restart IP invalid.
+ > 
+ > And was wondering what that actually meant. :) 
 
-| Hi,
-| 
-| I'm using printk for the device driver I'm writing.It doesn't give the 
-| output to my console and the only way I can get those is just using
-| cat  /proc/kmsg.But what I want is to get console prints while I'm 
-| running .Then I put the kernel image of the remote system where it used 
-| to give console output.Still I'm not getting any output to the screen.I 
-| tried to use console_print ....not giving any result to the console.So I 
-| would like to know what can I do about this
+Incomplete dump, what it really means.. 
 
-The only time that I've had this kind of problem (that I recall),
-I just had to use a KERN_printklevel attribute to print the message.
-E.g.,
-	printk(KERN_CRIT "where does this message go\n");
+(davej@deviant:davej)$ ./a.out -b 2 -e 0xba -s 940040000000017a -a 0
+Status: (186) Error IP valid
+Restart IP invalid.
+parsebank(2): 940040000000017a @ 0
+	External tag parity error
+	Correctable ECC error
+	Address in addr register valid
+	Error enabled in control register
+	Memory heirarchy error
+	Request: Generic error
+	Transaction type : Generic
+	Memory/IO : I/O
 
-It can also help to change the console loglevel (Alt-SysRq-N, where
-N is 1 digit, higher prints more messages [try 9]).
+Looks like the L2 cache ECC checking spotted something going wrong,
+and fixed it up. This can happen in cases where there is inadequate
+cooling, power, or overclocking (or in rare circumstances, flaky CPUs)
 
-and what kernel version?  You should always give that info,
-even when it's useless.  :)
+		Dave
 
---
-~Randy

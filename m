@@ -1,69 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbUCBOFv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 09:05:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbUCBOFv
+	id S261654AbUCBOJT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 09:09:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbUCBOJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 09:05:51 -0500
-Received: from [209.124.87.2] ([209.124.87.2]:12525 "EHLO
-	server.cyberhostplus.biz") by vger.kernel.org with ESMTP
-	id S261648AbUCBOFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 09:05:49 -0500
-From: "Steve Lee" <steve@tuxsoft.com>
-To: "'Zwane Mwaikambo'" <zwane@linuxpower.ca>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: 2.6.4-rc1 problems with e100 & 3c59x
-Date: Tue, 2 Mar 2004 08:05:32 -0600
-Message-ID: <008301c4005f$708fec70$e501a8c0@saturn>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <Pine.LNX.4.58.0403020258110.29087@montezuma.fsmlabs.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server.cyberhostplus.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - tuxsoft.com
+	Tue, 2 Mar 2004 09:09:19 -0500
+Received: from ns.suse.de ([195.135.220.2]:15319 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261654AbUCBOJN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 09:09:13 -0500
+Date: Tue, 2 Mar 2004 15:09:10 +0100
+From: Karsten Keil <kkeil@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: small ISDN fixes
+Message-ID: <20040302140910.GA24599@pingi3.kke.suse.de>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.4.21-166-default i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using /etc/modprobe.conf and I don't load any modules manually.
-This is mostly a module kernel, the only problem I'm having is with the
-network.  2.6.3 does work with the drivers compiled in (but not as
-modules).  2.6.4-rc1 I can not get to work at all (modules or builtin).
-Thanks for your suggestion.
+Hi,
 
-Steve
+here are small ISDN fixes for the 2.6.4-rc1-bk2 tree.
 
------Original Message-----
-From: Zwane Mwaikambo [mailto:zwane@linuxpower.ca] 
-Sent: Tuesday, March 02, 2004 2:00 AM
-To: Steve Lee
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-rc1 problems with e100 & 3c59x
+The first one is only a C99 versus GNU style initializer
+change for newer compiler happiness (Thanks to Art Haas)
+(Andrew this one is allready in your tree).
 
-On Mon, 1 Mar 2004, Steve Lee wrote:
-
-> I've searched the archives as well as googled around without any luck
-> regarding my situation.  BTW, please CC me as I'm no longer subscribed
-> (furthering my education has prevented me from keeping up with the
-> list).
->
-> Can anyone please give me some clue as to what might be wrong?  My
-> network is working fine with the drivers compiled in 2.6.3 (but not as
-> modules).  I can't get 2.6.4-rc1 to work at all with my network cards.
-
-One thing to make sure is that you're using /etc/modprobe.conf and don't
-load the modules manually.
-
-	Zwane
+The other fix a compiler inlining/optimation problem with
+strpbrk, if it has only a one character search string.
+(result on missing strchr because the compiler internaly
+replace strpbrk with strchr in this case, but after inline
+handling stage).
 
 
+diff -ur linux-2.6.4-rc1-bk2.org/drivers/isdn/hisax/hisax_fcpcipnp.c linux-2.6.4-rc1-bk2.clean/drivers/isdn/hisax/hisax_fcpcipnp.c
+--- linux-2.6.4-rc1-bk2.org/drivers/isdn/hisax/hisax_fcpcipnp.c	2004-03-02 11:24:21.000000000 +0100
++++ linux-2.6.4-rc1-bk2.clean/drivers/isdn/hisax/hisax_fcpcipnp.c	2004-03-02 13:46:14.000000000 +0100
+@@ -971,10 +971,10 @@
+ }
+ 
+ static struct pnp_driver fcpnp_driver = {
+-	name:     "fcpnp",
+-	probe:    fcpnp_probe,
+-	remove:   __devexit_p(fcpnp_remove),
+-	id_table: fcpnp_ids,
++	.name		= "fcpnp",
++	.probe		= fcpnp_probe,
++	.remove		= __devexit_p(fcpnp_remove),
++	.id_table	= fcpnp_ids,
+ };
+ #endif
+ 
+@@ -988,10 +988,10 @@
+ }
+ 
+ static struct pci_driver fcpci_driver = {
+-	name:     "fcpci",
+-	probe:    fcpci_probe,
+-	remove:   __devexit_p(fcpci_remove),
+-	id_table: fcpci_ids,
++	.name		= "fcpci",
++	.probe		= fcpci_probe,
++	.remove		= __devexit_p(fcpci_remove),
++	.id_table	= fcpci_ids,
+ };
+ 
+ static int __init hisax_fcpcipnp_init(void)
+diff -ur linux-2.6.4-rc1-bk2.org/drivers/isdn/icn/icn.c linux-2.6.4-rc1-bk2.clean/drivers/isdn/icn/icn.c
+--- linux-2.6.4-rc1-bk2.org/drivers/isdn/icn/icn.c	2003-12-18 03:59:59.000000000 +0100
++++ linux-2.6.4-rc1-bk2.clean/drivers/isdn/icn/icn.c	2004-03-02 13:18:59.000000000 +0100
+@@ -504,19 +504,19 @@
+ 		case 3:
+ 			{
+ 				char *t = status + 6;
+-				char *s = strpbrk(t, ",");
++				char *s = strchr(t, ',');
+ 
+ 				*s++ = '\0';
+ 				strlcpy(cmd.parm.setup.phone, t,
+ 					sizeof(cmd.parm.setup.phone));
+-				s = strpbrk(t = s, ",");
++				s = strchr(t = s, ',');
+ 				*s++ = '\0';
+ 				if (!strlen(t))
+ 					cmd.parm.setup.si1 = 0;
+ 				else
+ 					cmd.parm.setup.si1 =
+ 					    simple_strtoul(t, NULL, 10);
+-				s = strpbrk(t = s, ",");
++				s = strchr(t = s, ',');
+ 				*s++ = '\0';
+ 				if (!strlen(t))
+ 					cmd.parm.setup.si2 = 0;
+diff -ur linux-2.6.4-rc1-bk2.org/drivers/isdn/isdnloop/isdnloop.c linux-2.6.4-rc1-bk2.clean/drivers/isdn/isdnloop/isdnloop.c
+--- linux-2.6.4-rc1-bk2.org/drivers/isdn/isdnloop/isdnloop.c	2003-12-18 03:57:58.000000000 +0100
++++ linux-2.6.4-rc1-bk2.clean/drivers/isdn/isdnloop/isdnloop.c	2004-03-02 13:20:06.000000000 +0100
+@@ -122,17 +122,17 @@
+ isdnloop_parse_setup(char *setup, isdn_ctrl * cmd)
+ {
+ 	char *t = setup;
+-	char *s = strpbrk(t, ",");
++	char *s = strchr(t, ',');
+ 
+ 	*s++ = '\0';
+ 	strlcpy(cmd->parm.setup.phone, t, sizeof(cmd->parm.setup.phone));
+-	s = strpbrk(t = s, ",");
++	s = strchr(t = s, ',');
+ 	*s++ = '\0';
+ 	if (!strlen(t))
+ 		cmd->parm.setup.si1 = 0;
+ 	else
+ 		cmd->parm.setup.si1 = simple_strtoul(t, NULL, 10);
+-	s = strpbrk(t = s, ",");
++	s = strchr(t = s, ',');
+ 	*s++ = '\0';
+ 	if (!strlen(t))
+ 		cmd->parm.setup.si2 = 0;
 
-
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development

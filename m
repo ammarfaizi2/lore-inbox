@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268323AbRHDFNV>; Sat, 4 Aug 2001 01:13:21 -0400
+	id <S269797AbRHDFSv>; Sat, 4 Aug 2001 01:18:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269797AbRHDFNK>; Sat, 4 Aug 2001 01:13:10 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:58461 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S268323AbRHDFNA>; Sat, 4 Aug 2001 01:13:00 -0400
-Date: Sat, 4 Aug 2001 01:13:04 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@touchme.toronto.redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>
-Subject: Re: [RFC][DATA] re "ongoing vm suckage"
-In-Reply-To: <Pine.LNX.4.33.0108032141370.894-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0108040055090.11200-100000@touchme.toronto.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269798AbRHDFSl>; Sat, 4 Aug 2001 01:18:41 -0400
+Received: from erasmus.off.net ([64.39.30.25]:14857 "HELO erasmus.off.net")
+	by vger.kernel.org with SMTP id <S269797AbRHDFSZ>;
+	Sat, 4 Aug 2001 01:18:25 -0400
+Date: Sat, 4 Aug 2001 01:18:38 -0400
+From: Zach Brown <zab@zabbo.net>
+To: Dan Kegel <dank@kegel.com>
+Cc: Petru Paler <ppetru@ppetru.net>, Christopher Smith <x@xman.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: Could /dev/epoll deliver aio completion notifications? (was: Re: sigopen() vs. /dev/sigtimedwait)
+Message-ID: <20010804011838.W3034@erasmus.off.net>
+In-Reply-To: <3B6B50C4.D9FBF398@kegel.com> <20010803183853.H1080@ppetru.net> <3B6B59AF.9826F928@kegel.com> <3B6B662F.3E83C22F@kegel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3B6B662F.3E83C22F@kegel.com>; from dank@kegel.com on Fri, Aug 03, 2001 at 08:04:15PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Aug 2001, Linus Torvalds wrote:
+> On the other hand, if /dev/epoll were flexible enough that it could
+> deliver AIO completion notifications, 
 
-> [ Quick grep later ]
->
-> On my 1GB machine, we apparently allocate 1792 requests for _each_ queue.
-> Considering that a single request can have hundreds of buffers allocated
-> to it, that is just _ridiculous_.
+As far as I know, Ben LaHaise (bcrl@redhat.com) already has a fine
+method conceived for receiving batches of async completion, including an
+"async poll".  It should give the sort of behaviour you want and is also
+useful for other AIO things, obviously :)
 
-> How about capping the number of requests to something sane, like 128? Then
-> the natural request allocation (together with the batching that we already
-> have) should work just dandy.
+You should really chat with him.
 
-This has other drawbacks that are quite serious: namely, the order in
-which io is submitted to the block layer is not anywhere close to optimal
-for getting useful amounts of work done.  This situation only gets worse
-as more and more tasks find that they need to clean buffers in order to
-allocate memory, and start throwing more and more buffers from different
-tasks into the io queue (think what happens when two tasks are walking
-the dirty buffer lists locking buffers and then attempting to allocate a
-request which then delays one of the tasks).
-
-> Ben, willing to do some quick benchmarks?
-
-Within reason.  I'm actually heading to bed now, so it'll have to wait
-until tomorrow, but it is fairly trivial to reproduce by dd'ing to an 8GB
-non-sparse file.  Also, duplicating a huge file will show similar
-breakdown under load.  Cheers,
-
-		-ben
-
+- z

@@ -1,47 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261666AbRE1XPt>; Mon, 28 May 2001 19:15:49 -0400
+	id <S261696AbRE1XRJ>; Mon, 28 May 2001 19:17:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261692AbRE1XPj>; Mon, 28 May 2001 19:15:39 -0400
-Received: from yoda.planetinternet.be ([195.95.30.146]:13066 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S261666AbRE1XP2>; Mon, 28 May 2001 19:15:28 -0400
-Date: Tue, 29 May 2001 01:15:22 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: Vadim Lebedev <vlebedev@aplio.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Potenitial security hole in the kernel
-Message-ID: <20010529011522.A3293@ping.be>
-In-Reply-To: <003601c0e7bf$41953080$0101a8c0@LAP> <20010529002900.A3190@ping.be> <009601c0e7c5$bd7021f0$0101a8c0@LAP>
+	id <S261706AbRE1XQ7>; Mon, 28 May 2001 19:16:59 -0400
+Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:51204 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S261696AbRE1XQv>; Mon, 28 May 2001 19:16:51 -0400
+Date: Mon, 28 May 2001 17:16:47 -0600
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
+Subject: Current tulip driver from 2.4.5 is plain broken
+Message-ID: <20010528171647.D12494@mail.harddata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2i
-In-Reply-To: <009601c0e7c5$bd7021f0$0101a8c0@LAP>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 29, 2001 at 12:30:03AM +0200, Vadim Lebedev wrote:
-> Kurt,
-> 
-> Maybe i'm missing something but it seems that during execution of the signal
-> handler, user mode stack contains kernel mode context...
-> Hence the security hole
+I mentioned that before but this should be stated clearly.  As far as I
+am concerned "Linux Tulip driver version 0.9.15-pre2 (May 16, 2001)",
+as used in 2.4.5 - and other kernels - is totally buggered.  It comes up,
+and ethernet interfaces can be configured, but does not matter how I am
+playing with options I cannot get a single packet through.
 
-It's rather complicated how things work.
+Replacing it in 2.4.5 with "Linux Tulip driver version 0.9.14d (April 3,
+2001)", which I have handy, restores sanity immediately and a network
+simply works without any heroic efforts.
 
-Both the user and kernel stack are changed.
+My NIC is "Digital DS21143 Tulip rev 65 at 0x8800".  BTW - a version
+"tulip-1.1.7" from sourceforge behaves exactly like 0.9.15-pre2.
 
-On the user stack we add a frame from the calling function.  This
-just looks a function call.
+This is an output of 'tulip-diag -af' from a working setup:
 
-On the kernel stack we change the last frame so we "return" to
-the signal handler from the kernel.
+tulip-diag.c:v2.06 1/8/2001 Donald Becker (becker@scyld.com)
+ http://www.scyld.com/diag/index.html
+Index #1: Found a Digital DS21143 Tulip adapter at 0x8800.
+Digital DS21143 Tulip chip registers at 0x8800:
+ 0x00: f8a0e000 ffffffff ffffffff 0d572000 0d572200 f0660000 b2422002 fbfffbff
+ 0x40: e0000000 fff583ff ffffffff 00000000 000052ca ffff0001 fffbffff 8ffd0008
+ Port selection is 10mpbs-serial, half-duplex.
+ Transmit started, Receive started, half-duplex.
+  The Rx process state is 'Waiting for packets'.
+  The Tx process state is 'Idle'.
+  The transmit threshold is 72.
+  The NWay status register is 000052ca.
+  Internal autonegotiation state is 'Negotiation complete'.
 
-The signal handler then "returns" to the place where the process
-did the system call.  You do not return to the kernel.
+And this what shows up when I am trying to use "the-new-and-improved":
 
-I hope this helps you understand things better.
+tulip-diag.c:v2.06 1/8/2001 Donald Becker (becker@scyld.com)
+ http://www.scyld.com/diag/index.html
+Index #1: Found a Digital DS21143 Tulip adapter at 0x8800.
+Digital DS21143 Tulip chip registers at 0x8800:
+ 0x00: f8a0d000 ffffffff ffffffff 0b9f4000 0b9f4200 f0000000 b2420200 fbfffbff
+ 0x40: e0000000 fff483ff ffffffff 00000000 000060ca ffff0001 fffbffff 8ffd0000
+ Port selection is 10mpbs-serial, full-duplex.
+ Transmit stopped, Receive stopped, full-duplex.
+  The Rx process state is 'Stopped'.
+  The Tx process state is 'Stopped'.
+  The transmit threshold is 72.
+  The NWay status register is 000060ca.
+  Internal autonegotiation state is 'Link check'.
 
+Comments?
 
-Kurt
+    Michal
+    michal@harddata.com
 

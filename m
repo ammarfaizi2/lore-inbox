@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265383AbTFFHhi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 03:37:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265384AbTFFHhi
+	id S265381AbTFFHh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 03:37:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265383AbTFFHh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 03:37:38 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:60423 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265383AbTFFHhh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 03:37:37 -0400
-Date: Fri, 6 Jun 2003 08:51:06 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, manfred@colorfullife.com,
-       axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: problem with blk_queue_bounce_limit()
-Message-ID: <20030606085106.A15894@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"David S. Miller" <davem@redhat.com>, davidm@hpl.hp.com,
-	davidm@napali.hpl.hp.com, manfred@colorfullife.com, axboe@suse.de,
-	linux-kernel@vger.kernel.org
-References: <16096.16492.286361.509747@napali.hpl.hp.com> <20030606.003230.15263591.davem@redhat.com> <20030606084410.A14779@infradead.org> <20030606.004305.68041319.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030606.004305.68041319.davem@redhat.com>; from davem@redhat.com on Fri, Jun 06, 2003 at 12:43:05AM -0700
+	Fri, 6 Jun 2003 03:37:29 -0400
+Received: from gherkin.frus.com ([192.158.254.49]:384 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id S265381AbTFFHh2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 03:37:28 -0400
+Subject: 2.5.70: AXIS usb flash disk problem
+To: linux-kernel@vger.kernel.org
+Date: Fri, 6 Jun 2003 02:51:00 -0500 (CDT)
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20030606075100.B35774F0C@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob Tracy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 06, 2003 at 12:43:05AM -0700, David S. Miller wrote:
->    From: Christoph Hellwig <hch@infradead.org>
->    Date: Fri, 6 Jun 2003 08:44:10 +0100
-> 
->    PCI_DMA_BUS_IS_PHYS should be a propert of each struct device because
->    a machine might have a iommu for one bus type but not another,
-> 
-> We know of no such systems.  Even in mixed-bus environments such as
-> sparc64 SBUS+PCI systems.
+Well...  *That* was exciting :-(.  I plugged a 64 MB AXIS usb flash
+disk into my Linux machine, and the following syslog messages were
+recorded before the machine locked up solid:
 
-What about alpha systems with EISA and PCI slots?
+Jun  6 02:20:32 gherkin kernel: Initializing USB Mass Storage driver...
+Jun  6 02:20:33 gherkin kernel: scsi1 : SCSI emulation for USB Mass Storage devices
+Jun  6 02:20:33 gherkin kernel:   Vendor: STORIX    Model: AXIS              Rev: 1.00
+Jun  6 02:20:33 gherkin kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
+Jun  6 02:20:33 gherkin kernel: SCSI device sdb: 128000 512-byte hdwr sectors (66 MB)
+Jun  6 02:20:33 gherkin kernel: usb-storage: Buffer length smaller than header!!<4>usb-storage: Had to truncate MODE_SENSE_10 buffer into MODE_SENSE.
+Jun  6 02:20:33 gherkin kernel: usb-storage: outputBufferSize is 10 and length is 4.
+Jun  6 02:20:33 gherkin kernel: usb-storage: Command will be truncated to fit in SENSE6 buffer.
+Jun  6 02:20:33 gherkin kernel: sdb: Write Protect is off
+Jun  6 02:20:33 gherkin kernel: sdb: Mode Sense: 00 00 00 00
+Jun  6 02:20:33 gherkin kernel: usb-storage: Buffer length smaller than header!!<4>usb-storage: Command will be truncated to fit in SENSE6 buffer.
+Jun  6 02:20:33 gherkin kernel: usb-storage: Buffer length smaller than header!!<4>usb-storage: Had to truncate MODE_SENSE_10 buffer into MODE_SENSE.
+Jun  6 02:20:33 gherkin kernel: usb-storage: outputBufferSize is 4 and length is 1.
+Jun  6 02:20:33 gherkin kernel: usb-storage: Command will be truncated to fit in SENSE6 buffer.
+
+Any reason why SCSI emulation and the real thing might not get along?
+The scsi0 device is an Adaptec 2930U2 (aic7xxx driver).  Haven't tried
+using the usb flash disk on a Linux IDE machine yet.
+
+-- 
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

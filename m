@@ -1,62 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270440AbTGPIdD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 04:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270427AbTGPIch
+	id S270437AbTGPIdE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 04:33:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270426AbTGPIbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 04:32:37 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:25515 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S270420AbTGPI3v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 04:29:51 -0400
-Date: Wed, 16 Jul 2003 01:44:26 -0700
-From: Frank Cusack <fcusack@fcusack.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>, torvalds@osdl.org
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Allow unattended nfs3/krb5 mounts
-Message-ID: <20030716014426.A9725@google.com>
-References: <20030715232605.A9418@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030715232605.A9418@google.com>; from fcusack@fcusack.com on Tue, Jul 15, 2003 at 11:26:05PM -0700
+	Wed, 16 Jul 2003 04:31:44 -0400
+Received: from dp.samba.org ([66.70.73.150]:15779 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S270437AbTGPI0k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 04:26:40 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com, akpm@zip.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 4/5] module.h to use local_t
+Date: Wed, 16 Jul 2003 18:40:52 +1000
+Message-Id: <20030716084132.377502C226@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2003 at 11:26:05PM -0700, Frank Cusack wrote:
-> - This doesn't actually work as-is.  A separate patch is needed for
->   rpc_setbufsize() which I will provide separately, after getting
->   feedback for this patch.
+Linus, please apply.  module.h defined local_inc/dec for arch
+overriding, now it's generic.
 
-Since I don't expect a known-broken patch to be applied ... here's
-the bufsize patch.
+Name: Use local_t for module reference counts
+Author: Rusty Russell
+Depends: Percpu/local_t.patch.gz
+Status: Booted on 2.6.0-test1
 
-	- fix null dereference on xprt->inet if !connected,
-	  which happens if a rpc cred wasn't available (root+auth_gss case)
-	- set bufsize on reconnect
+D: Uses local_t for module reference counts.
 
-diff -uNrp linux-2.6.0-test1.2/net/sunrpc/clnt.c linux-2.6.0-test1.3/net/sunrpc/clnt.c
---- linux-2.6.0-test1.2/net/sunrpc/clnt.c	Tue Jul 15 23:29:15 2003
-+++ linux-2.6.0-test1.3/net/sunrpc/clnt.c	Wed Jul 16 00:02:31 2003
-@@ -385,7 +385,8 @@ rpc_setbufsize(struct rpc_clnt *clnt, un
- 	xprt->rcvsize = 0;
- 	if (rcvsize)
- 		xprt->rcvsize = rcvsize + RPC_SLACK_SPACE;
--	xprt_sock_setbufsize(xprt);
-+	if (xprt_connected(xprt))
-+		xprt_sock_setbufsize(xprt);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .4869-2.5.75-bk3-refcnt_local_t.pre/include/linux/module.h .4869-2.5.75-bk3-refcnt_local_t/include/linux/module.h
+--- .4869-2.5.75-bk3-refcnt_local_t.pre/include/linux/module.h	2003-07-03 09:44:00.000000000 +1000
++++ .4869-2.5.75-bk3-refcnt_local_t/include/linux/module.h	2003-07-14 11:32:11.000000000 +1000
+@@ -16,6 +16,7 @@
+ #include <linux/kmod.h>
+ #include <linux/elf.h>
+ #include <linux/stringify.h>
++#include <asm/local.h>
+ 
+ #include <asm/module.h>
+ 
+@@ -171,7 +172,7 @@ void *__symbol_get_gpl(const char *symbo
+ 
+ struct module_ref
+ {
+-	atomic_t count;
++	local_t count;
+ } ____cacheline_aligned;
+ 
+ enum module_state
+@@ -283,12 +284,6 @@ void __symbol_put(const char *symbol);
+ #define symbol_put(x) __symbol_put(MODULE_SYMBOL_PREFIX #x)
+ void symbol_put_addr(void *addr);
+ 
+-/* We only need protection against local interrupts. */
+-#ifndef __HAVE_ARCH_LOCAL_INC
+-#define local_inc(x) atomic_inc(x)
+-#define local_dec(x) atomic_dec(x)
+-#endif
+-
+ /* Sometimes we know we already have a refcount, and it's easier not
+    to handle the error case (which only happens with rmmod --wait). */
+ static inline void __module_get(struct module *module)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .4869-2.5.75-bk3-refcnt_local_t.pre/kernel/module.c .4869-2.5.75-bk3-refcnt_local_t/kernel/module.c
+--- .4869-2.5.75-bk3-refcnt_local_t.pre/kernel/module.c	2003-07-03 09:44:01.000000000 +1000
++++ .4869-2.5.75-bk3-refcnt_local_t/kernel/module.c	2003-07-14 11:32:11.000000000 +1000
+@@ -374,9 +374,9 @@ static void module_unload_init(struct mo
+ 
+ 	INIT_LIST_HEAD(&mod->modules_which_use_me);
+ 	for (i = 0; i < NR_CPUS; i++)
+-		atomic_set(&mod->ref[i].count, 0);
++		local_set(&mod->ref[i].count, 0);
+ 	/* Hold reference count during initialization. */
+-	atomic_set(&mod->ref[smp_processor_id()].count, 1);
++	local_set(&mod->ref[smp_processor_id()].count, 1);
+ 	/* Backwards compatibility macros put refcount during init. */
+ 	mod->waiter = current;
  }
+@@ -599,7 +599,7 @@ unsigned int module_refcount(struct modu
+ 	unsigned int i, total = 0;
  
- /*
-diff -uNrp linux-2.6.0-test1.2/net/sunrpc/xprt.c linux-2.6.0-test1.3/net/sunrpc/xprt.c
---- linux-2.6.0-test1.2/net/sunrpc/xprt.c	Tue Jul 15 23:29:15 2003
-+++ linux-2.6.0-test1.3/net/sunrpc/xprt.c	Wed Jul 16 00:02:37 2003
-@@ -436,6 +436,7 @@ xprt_connect(struct rpc_task *task)
- 		goto out_write;
- 	}
- 	xprt_bind_socket(xprt, sock);
-+	xprt_sock_setbufsize(xprt);
- 
- 	if (!xprt->stream)
- 		goto out_write;
+ 	for (i = 0; i < NR_CPUS; i++)
+-		total += atomic_read(&mod->ref[i].count);
++		total += local_read(&mod->ref[i].count);
+ 	return total;
+ }
+ EXPORT_SYMBOL(module_refcount);
+
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

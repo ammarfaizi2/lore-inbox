@@ -1,93 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265701AbUH1ARM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267863AbUH1AWI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265701AbUH1ARM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 20:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267856AbUH1ARL
+	id S267863AbUH1AWI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 20:22:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267852AbUH1AWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 20:17:11 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:5589 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S265701AbUH1AQx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 20:16:53 -0400
-Date: Sat, 28 Aug 2004 02:19:03 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <1798850364.20040828021903@tnonline.net>
-To: Jamie Lokier <jamie@shareable.org>
-CC: Rik van Riel <riel@redhat.com>, Hans Reiser <reiser@namesys.com>,
-       David Masover <ninja@slaphack.com>, Linus Torvalds <torvalds@osdl.org>,
-       Diego Calleja <diegocg@teleline.es>, <christophe@saout.de>,
-       <vda@port.imtp.ilyichevsk.odessa.ua>, <christer@weinigel.se>,
-       <akpm@osdl.org>, <wichert@wiggy.net>, <jra@samba.org>, <hch@lst.de>,
-       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <flx@namesys.com>, <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <20040827154156.GA31757@mail.shareable.org>
-References: <412EEB75.1030401@namesys.com>
- <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
- <1888171711.20040827171520@tnonline.net>
- <20040827154156.GA31757@mail.shareable.org>
+	Fri, 27 Aug 2004 20:22:07 -0400
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:14342 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id S267863AbUH1ATH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 20:19:07 -0400
+Message-ID: <412FCF75.7070903@superbug.demon.co.uk>
+Date: Sat, 28 Aug 2004 01:19:01 +0100
+From: James Courtier-Dutton <James@superbug.demon.co.uk>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040812)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+CC: Rob van Nieuwkerk <robn@berrymount.nl>,
+       Wouter Van Hemel <wouter-kernel@fort-knox.rave.org>, prakashkc@gmx.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.8 pwc patches and counterpatches
+References: <33193.151.37.215.244.1093530681.squirrel@webmail.azzurra.org> <Pine.LNX.4.61.0408271536340.578@senta.theria.org> <20040828011818.2d5f282c.robn@berrymount.nl> <200408280303.43166.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200408280303.43166.vda@port.imtp.ilyichevsk.odessa.ua>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Denis Vlasenko wrote:
+>>
+>>	-----------------------------------------------------------
+>>	The author of the pwc driver has publicly stated that this
+>>	NDA has expired more than 1 year ago !!!
+>>	-----------------------------------------------------------
+> 
+> 
+> "NDA expired" == "information is not a secret anymore" ?
+> I'm not sure, IANAL...
+> --
+> vda
+> 
 
-  
-
-> Spam wrote:
->> > The problem is more fundamental than that.  Some of the
->> > file streams proposed need to be backed up, while others
->> > are alternative presentations of the file, which should
->> > not be backed up.
->> 
->>   No, not really. This is a user decision and should be options in the
->>   backup  software.  I don't think it is up to the kernel, filesystem,
->>   or  the  OS  in  general to decide what information the user want to
->>   retain or not.
-
-> It is helpful for the OS, or a naming convention, to indicate what
-> _is information_ though.
-
-> It makes no sense to backup two or more copies of the _same
-> information_, and it makes even less sense to try to restore them as
-> it'll either be slow, fail (you can't always write to alternative
-> presentations), or cause unwanted side effects.
-
-> Just like when you backup a dynamic web site.  You store the files
-> which the server is using.  You don't use "wget" to store the
-> generated pages, that's not a useful backup and you can't restore from it.
-
-  I do not agree. Everything can be considered information, even if it
-  is derived from an already existing file.
-
-  If  the  user  wants  to  not  backup certain things then that is an
-  option to tell the backup program.
-
->> > Currently I see no way to distinguish between the stuff
->> > that should be backed up and the stuff that shouldn't.
->> 
->> > That problem needs to be resolved before we can even start
->> > thinking about fixing archivers...
->> 
->>   The  archivers  should,  as  I  said,  allow  the user to choose. It
->>   shouldn't be automatic. Default, should IMO be to store everything.
-
-> Don't try to store different views of the same thing.
-> When you try to restore, you _won't_ necessarily get back what you stored.
-
-  No, it would be restored as it were before with the meta information
-  intact.
-
-> Whereas if you follow the OS's advice, and skip virtual files, then
-> backup and restore will recreate the filesystem, which is what you want.
-
-> _That's_ storing everything.  It's what you want from a backup.
-
-  It would be storing everything but the virtual files.
-
-
-> -- Jamie
+That all depends on the terms of the NDA.
+To me, if an NDA expires, it can mean 2 things:
+1) All information covered by the NDA has to be returned, and any 
+information that cannot be returned, (I.E. Remembered in someone's 
+brain.) must be kept secret forever, or until the information is made 
+public by someone else.
+2) The information covered in the NDA is no longer secret, and can be 
+discosed to the public.
 

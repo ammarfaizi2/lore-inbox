@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbUCKWWw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 17:22:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUCKWWv
+	id S261787AbUCKWZi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 17:25:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUCKWZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 17:22:51 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:35724 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261797AbUCKWW0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 17:22:26 -0500
-Message-ID: <4050E7DE.2020007@tmr.com>
-Date: Thu, 11 Mar 2004 17:27:42 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Ketrenos <jketreno@linux.co.intel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Announce] Intel PRO/Wireless 2100 802.11b driver
-References: <404E27E6.40200@linux.co.intel.com>
-In-Reply-To: <404E27E6.40200@linux.co.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Mar 2004 17:25:38 -0500
+Received: from fw.osdl.org ([65.172.181.6]:10690 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261787AbUCKWZ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 17:25:27 -0500
+Date: Thu, 11 Mar 2004 14:25:15 -0800
+From: Mark Wong <markw@osdl.org>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-lvm@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: lvm2 performance data with linux-2.6
+Message-ID: <20040311142515.A27177@osdlab.pdx.osdl.net>
+Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>, linux-lvm@redhat.com,
+	linux-kernel@vger.kernel.org
+References: <200403081916.i28JGgE25794@mail.osdl.org> <4050E453.3010809@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <4050E453.3010809@tmr.com>; from davidsen@tmr.com on Thu, Mar 11, 2004 at 05:12:35PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Ketrenos wrote:
-> I am pleased to announce the launch of an open source development 
-> project for
-> the Intel PRO/Wireless 2100 miniPCI network adapter. The project has been
-> created and is hosted at http://ipw2100.sf.net.
+On Thu, Mar 11, 2004 at 05:12:35PM -0500, Bill Davidsen wrote:
+> markw@osdl.org wrote:
+> > I've started collecting various data (including oprofile) using our
+> > DBT-2 (OLTP) workload with lvm2 on linux 2.6.2 and 2.6.3 on ia32 and
+> > ia64 platforms:
+> > 	http://developer.osdl.org/markw/lvm2/
+> > 
+> > So far I've only varied the stripe width with lvm, from 8 KB to 512 KB,
+> > for PostgreSQL that is using 8 KB sized blocks with ext2.  It appears
+> > that a stripe width of 16 KB through 128KB on the ia64 system gives the
+> > best throughput for the DBT-2 workload on a volume that should be doing
+> > mostly sequential writes.
+> > 
+> > I'm going to run through more tests varying the block size that
+> > PostgreSQL uses, but I wanted to share what I had so far in case there
+> > were other suggestions or recommendations.
+> > 
+> Here's one thought: look at the i/o rates on individual drives using 
+> each stripe size. You *might* see that one size does far fewer seeks 
+> than others, which is a secondary thing to optimize after throughput IMHO.
 > 
-> The driver, as it currently stands, is able to associate and communicate in
-> Infrastructure mode. Support for both 2.4 and 2.6 is available. We are
-> releasing this driver now as "early beta" code to get feedback and help
-> in the development, so expect bugs (and please report them)!  Of course
-> Intel will continue the effort (as part of this Open Source project).
-> We are planning to add support of all key wireless features (adhoc, WEP, 
-> etc)
-> over the next few months, quicker with help from others in the community.
-> 
-> NOTE: Let me reiterate -- this driver is in active development. Features 
-> and
-> capabilities available on other operating systems have not all been 
-> implemented
-> at this time. This includes wireless features (adhoc, wep) as well as
-> performance and power savings.
-> 
-> I look forward to working with the community to improve and enhance the 
-> driver.
-> So if you have an Intel wireless 802.11b miniPCI network adapter in your
-> laptop... download the bits, give it a whirl, and let me know how it goes.
-> Please also let us know if you encounter any problems that may be 
-> related to
-> specific distributions.
+> If you don't have a tool for this I can send you the latest diorate 
+> which does stuff like this, io rate perdrive or per partition, something 
+> I occasionally find revealing.
 
-Great job! Dare we hope that in the future the news 802.11[bg] unit I 
-have seen mentioned would also be supported in a similar manner?
+Yeah, please do send me a copy.  I'd be interested to see what that might 
+turn up.  I've just been using iostat -x so far.
 
-		-bill
+Thanks,
+Mark

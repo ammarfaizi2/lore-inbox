@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276059AbRI1ODf>; Fri, 28 Sep 2001 10:03:35 -0400
+	id <S276067AbRI1OGP>; Fri, 28 Sep 2001 10:06:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276063AbRI1ODQ>; Fri, 28 Sep 2001 10:03:16 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:31249 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S276059AbRI1OC6>;
-	Fri, 28 Sep 2001 10:02:58 -0400
-Date: Fri, 28 Sep 2001 16:02:52 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Thomas Hood <jdthood@mail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PnP BIOS + 2.4.9-ac16 = no boot
-Message-ID: <20010928160250.K21524@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-In-Reply-To: <3BB47F7F.DE2FD301@mail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3BB47F7F.DE2FD301@mail.com>
-User-Agent: Mutt/1.3.20i
+	id <S276065AbRI1OGF>; Fri, 28 Sep 2001 10:06:05 -0400
+Received: from relay-4v.club-internet.fr ([194.158.96.115]:5767 "HELO
+	relay-4v.club-internet.fr") by vger.kernel.org with SMTP
+	id <S276063AbRI1OFy>; Fri, 28 Sep 2001 10:05:54 -0400
+Message-ID: <3BB48494.404F15A8@club-internet.fr>
+Date: Fri, 28 Sep 2001 16:09:24 +0200
+From: Daniel Caujolle-Bert <segfault@club-internet.fr>
+Reply-To: segfault@club-internet.fr
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjanv@redhat.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Binary only module overview
+In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 28, 2001 at 09:47:43AM -0400, Thomas Hood wrote:
+Hi,
 
-[ Some detailed PnP BIOS driver explication snipped]
-> I attach a revised patch which cuts out proc support.  Hopefully
-> this will allow your kernel to boot.  This is just a hack; I'll
-> submit a proper fix to Alan later.
-
-I confirm that the revised patch makes a bootable kernel for me.
-
-> Stelian: Your report made me go back and look at something Alan
-> told me earlier about Vaio laptops.  At the time I didn't fully 
-> understand what he meant when he said:
-> > If you query the current device status on a Vaio and some other boxes
-> > using the 32bit API your computer dies horribly shortly afterwards.
-> I didn't realize that he meant the "current" configuration as
-> opposed to the "boot" configuration.  Stupid of me.
+Arjan van de Ven wrote:
+> 
+> Hi,
+> 
+> I'm composing a list of all existing binary only modules,
+> and I got to a list of 26 different modules; I undoubtedly forgot a few,
+> so I hereby request feedback from people who know about modules I
+> left out, so that I can complete the list. (I do not really care about
+> modules that once existed for 2.0 or earlier and no longer exist for all
+> intents and purposes)
+> 
+> Greetings,
+>   Arjan van de Ven
+> 
+> Hardware drivers
+> ----------------
 [...]
-> -	pnp_proc_init();
-> +	// pnp_proc_init();
+> PCTel           - winmodem driver
 
-What about making a conditional on 'is_sony_vaio_laptop' here ?
-(but you need to extends the conditionnal export of this variable 
-from dmi_scan.c / i386_ksyms.c).
+	This one is not really 100% binary only, it use
+an modified version of serial.c kernel driver. Of course
+it's freely available.
 
-Stelian.
+Cheers.
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|---------------- Free Software Engineer -----------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|------------- Alcôve, liberating software ---------------|
+73's de Daniel, F1RMB.
+
+              -=- Daniel Caujolle-Bert -=- segfault@club-internet.fr -=-
+                        -=- f1rmb@f1rmb.ampr.org (AMPR NET) -=-

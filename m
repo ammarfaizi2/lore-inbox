@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbUBNDoM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 22:44:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264604AbUBNDoM
+	id S263584AbUBNEVi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 23:21:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbUBNEVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 22:44:12 -0500
-Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:43367 "HELO
-	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261733AbUBNDoJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 22:44:09 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PATCH, RFC: Version 3 of 2.6 Codingstyle
-Date: Fri, 13 Feb 2004 22:44:04 -0500
-User-Agent: KMail/1.6
-Cc: Michael Frank <mhf@linuxmail.org>
-References: <200402130615.10608.mhf@linuxmail.org> <200402140944.34060.mhf@linuxmail.org>
-In-Reply-To: <200402140944.34060.mhf@linuxmail.org>
-MIME-Version: 1.0
+	Fri, 13 Feb 2004 23:21:38 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29588 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263584AbUBNEVg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 23:21:36 -0500
+Date: Sat, 14 Feb 2004 04:21:34 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: jt@hpl.hp.com
+Cc: "David S. Miller" <davem@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [PATCH 2.6 IrDA] new driver : stir4200
+Message-ID: <20040214042134.GG8858@parcelfarce.linux.theplanet.co.uk>
+References: <20040214015059.GA25979@bougret.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402132244.04843.dtor_core@ameritech.net>
+In-Reply-To: <20040214015059.GA25979@bougret.hpl.hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 February 2004 08:44 pm, Michael Frank wrote:
->  
-> -4) forgetting about sideeffects. Macros defining expressions must enclose the
-> -expression in parenthesis. Note that this does not eliminate all side effects.
-> +4) forgetting about side effects: macros defining expressions must enclose each
-> +parameter and the expression in parentheses.
->  
->  #define CONSTEXP (CONSTANT | 3)
->  #define MACWEXP(a,b) ((a) + (b))
->
+On Fri, Feb 13, 2004 at 05:50:59PM -0800, Jean Tourrilhes wrote:
 
-The statements above are incorrect.
+> +static void stir_disconnect(struct usb_interface *intf)
+> +{
+> +	struct stir_cb *stir = usb_get_intfdata(intf);
+> +	struct net_device *net;
+> +
+> +	usb_set_intfdata(intf, NULL);
+> +	if (!stir)
+> +		return;
+> +
+> +	/* Stop transmitter */
+> +	net = stir->netdev;
+> +	netif_device_detach(net);
+> +
+> +	/* Remove netdevice */
+> +	unregister_netdev(net);
+> +
+> +	/* No longer attached to USB bus */
+> +	stir->usbdev = NULL;
+> +
+> +	free_netdev(net);
+> +}
 
-Parentheses will never eliminate a side effect, macros do not have a
-"side effect problem". Functions and macros both can have side effects
-and sometimes side effect is a desired outcome.
-
-Parentheses will only prevent surprises when argument expansion takes
-place:
-
-#define times_2(a)	(a * 2)
-b = macro(a + 2);
-
-will be expanded to:
-
-b = (a + 2 * 2);
-
-which is obviously not what programmer had in mind.
-
--- 
-Dmitry
+1)  Do we need netif_device_detach() there?  
+2)  Shouldn't we leave usb_set_intfdata() until after unregister_netdev()?

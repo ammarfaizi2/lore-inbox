@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280597AbRKOMLm>; Thu, 15 Nov 2001 07:11:42 -0500
+	id <S280618AbRKOMWe>; Thu, 15 Nov 2001 07:22:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280618AbRKOMLd>; Thu, 15 Nov 2001 07:11:33 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:34565 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S280597AbRKOMLP>;
-	Thu, 15 Nov 2001 07:11:15 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Martin Persson <martin@cendio.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with Linux 2.4.15-pre4 on an IBM ThinkPad 
-In-Reply-To: Your message of "15 Nov 2001 10:25:34 BST."
-             <vwk7wsv10x.fsf@akrulino.lkpg.cendio.se> 
+	id <S280781AbRKOMWP>; Thu, 15 Nov 2001 07:22:15 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:3343 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S280660AbRKOMWE>;
+	Thu, 15 Nov 2001 07:22:04 -0500
+Date: Thu, 15 Nov 2001 23:17:38 +1100
+From: Anton Blanchard <anton@samba.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: groudier@free.fr, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] small sym-2 fix
+Message-ID: <20011115231738.B27258@krispykreme>
+In-Reply-To: <20011115153654.E22552@krispykreme> <20011115.021916.45712781.davem@redhat.com> <20011115223526.A27258@krispykreme> <20011115.034136.73653260.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 15 Nov 2001 22:57:09 +1100
-Message-ID: <1292.1005825429@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <20011115.034136.73653260.davem@redhat.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Nov 2001 10:25:34 +0100, 
-Martin Persson <martin@cendio.se> wrote:
->However (there's always a however), now I have other problems with my
->laptop. The network comes right up and everything works just fine,
->except when I try to scp files on a few Mbytes from the laptop. When I
->try that, sometimes the scp just works nicely up to 99% where it
->stalls, sometimes it continues after a few seconds, sometimes it
->stalls infinitely (or at least for more than 10 minutes, I interrupted
->it).
+ 
+> Using an 8K page size should really be transparent to
+> any sane ELF userland, why not just do it?  Is there
+> some hardcoded dependency in the ppc ELF stuff or is
+> it just a "some of our kernel code still assumes PAGE_SIZE
+> = 4K"?
 
-I would suspect the Xircom driver (RBEM56G, right?).  I have similar
-symptoms with RBEM56G in a Compaq laptop, ssh hangs during bulk
-transfers and is sensitive to which direction the transfer was started.
-"ifconfig eth0 -promisc" a few times will usually restart the transfer,
-sometimes it takes "/etc/rc.d/init.d/pcmcia restart" to fix the
-problem, then wait until TCP retransmission picks up again.
+Its just that the kernel code assumes 4k PAGE_SIZE. Fixing this is high
+on my list but there are still more basic things to finish first :)
 
-I don't believe ssh is at fault, it just causes the right set of
-activity to trip the driver problem.  ifconfig eth0 -promisc reloads
-CSR6 on the card and the problem goes away, without me touching the ssh
-transfers.
-
-This was on my list of problems to debug (after modutils, kdb, xfs,
-kbuild 2.5, ...) but I managed to trip over the Ethernet cable and
-completely broke the card.  The Realport cards are more resilient than
-most PCMCIA network cards but they have their limits.
-
+Anton

@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbUFWMZC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUFWM1s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbUFWMZC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 08:25:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbUFWMZC
+	id S262418AbUFWM1s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 08:27:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264958AbUFWM1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 08:25:02 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64526 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261947AbUFWMY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 08:24:59 -0400
-Date: Wed, 23 Jun 2004 13:24:56 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bug 2905] New: Aironet 340 PCMCIA card not working since 2.6.7
-Message-ID: <20040623132456.A27549@flint.arm.linux.org.uk>
-Mail-Followup-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-	linux-kernel@vger.kernel.org
-References: <200406171753.i5HHrx38015816@fire-2.osdl.org> <Pine.LNX.4.60.0406172152310.5847@poirot.grange>
+	Wed, 23 Jun 2004 08:27:48 -0400
+Received: from gprs214-143.eurotel.cz ([160.218.214.143]:50571 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262418AbUFWM1q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 08:27:46 -0400
+Date: Wed, 23 Jun 2004 14:27:33 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Prepare for SMP suspend
+Message-ID: <20040623122733.GA31091@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.60.0406172152310.5847@poirot.grange>; from g.liakhovetski@gmx.de on Thu, Jun 17, 2004 at 09:58:32PM +0200
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 17, 2004 at 09:58:32PM +0200, Guennadi Liakhovetski wrote:
-> Don't think it will help for this specific problem, but this patch fixes 
-> alignment problem (especially seen on ARM, Russell:-)). Sending as a text 
-> attachment, as my setup is known to mangle tabs...
-> 
-> Signed-off-by: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Hi!
 
-Can you forward this to Jeff Garzik please?
+Its very bad idea to freeze migration threads, as it crashes machine
+upon next call to "schedule()". In refrigerator, I had one
+"wake_up_process()" too many. This fixes it. Please apply,
 
-Thanks.
+Signed-off-by: Pavel Machek <pavel@suse.cz>
+
+								Pavel
+
+--- clean/kernel/sched.c	2004-06-22 12:36:47.000000000 +0200
++++ linux/kernel/sched.c	2004-06-22 12:39:00.000000000 +0200
+@@ -3558,6 +3558,7 @@
+ 		p = kthread_create(migration_thread, hcpu, "migration/%d",cpu);
+ 		if (IS_ERR(p))
+ 			return NOTIFY_BAD;
++		p->flags |= PF_NOFREEZE;
+ 		kthread_bind(p, cpu);
+ 		/* Must be high prio: stop_machine expects to yield to it. */
+ 		rq = task_rq_lock(p, &flags);
+ 
+--- linux.orig/kernel/power/process.c	2004-06-22 12:53:19.000000000 +0200
++++ linux/kernel/power/process.c	2004-06-03 00:27:56.000000000 +0200
+@@ -109,7 +109,6 @@
+ 			wake_up_process(p);
+ 		} else
+ 			printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
+-		wake_up_process(p);
+ 	} while_each_thread(g, p);
+ 
+ 	read_unlock(&tasklist_lock);
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

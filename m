@@ -1,90 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261687AbTKDXMD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 18:12:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbTKDXMD
+	id S261351AbTKDX3f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 18:29:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbTKDX3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 18:12:03 -0500
-Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:12037
-	"EHLO muru.com") by vger.kernel.org with ESMTP id S261687AbTKDXMA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 18:12:00 -0500
-Date: Tue, 4 Nov 2003 15:11:57 -0800
-To: Charles Lepple <clepple@ghz.cc>
-Cc: psavo@iki.fi, lkml <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: [PATCH] amd76x_pm on 2.6.0-test9 cleanup
-Message-ID: <20031104231157.GI1042@atomide.com>
-References: <20031104200517.GD1042@atomide.com> <9F0055D6-0F17-11D8-A943-003065DC6B50@ghz.cc>
+	Tue, 4 Nov 2003 18:29:35 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:62704 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261351AbTKDX3e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 18:29:34 -0500
+Subject: Re: get_cycles() on i386
+From: john stultz <johnstul@us.ibm.com>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+In-Reply-To: <20031104232252.GG5792@ca-server1.us.oracle.com>
+References: <20031104232252.GG5792@ca-server1.us.oracle.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1067988463.11437.115.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9F0055D6-0F17-11D8-A943-003065DC6B50@ghz.cc>
-User-Agent: Mutt/1.5.4i
-From: Tony Lindgren <tony@atomide.com>
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 04 Nov 2003 15:27:43 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Charles Lepple <clepple@ghz.cc> [031104 14:40]:
-> On Tuesday, November 4, 2003, at 03:05 PM, Tony Lindgren wrote:
-> 
-> >* Charles Lepple <clepple@ghz.cc> [031104 11:45]:
-> >>On Tuesday 04 November 2003 02:15 pm, Tony Lindgren wrote:
-> >>>I've heard of timing problems if it's compiled in, but supposedly 
-> >>>they
-> >>>don't happen when loaded as module.
-> >>
-> >>In some of the earlier testX versions of the kernel, I did not see any
-> >>difference between compiling as a module, and compiling into the 
-> >>kernel. (It
-> >>is currently a module on my system.)
-> >>
-> >>I did, however, manage to keep ntpd happy by reducing HZ to 100. Even 
-> >>raising
-> >>HZ to 200 is enough to throw off its PLL. The machine is idle for 90% 
-> >>of the
-> >>day, though, so I don't know if the PLL is adapting to the fact that 
-> >>the
-> >>system is idling, but the values for tick look reasonable.
-> >
-> >Interesting, sounds like the idling causes missed timer interrupts? 
-> >Can you
-> >briefly describe what's the easiest way to reproduce the timer 
-> >problem, just
-> >change HZ to 200 and look at the system time?
-> 
-> Weird. On -test9-bk at HZ=1000, with amd76x_pm loaded as a module 
-> (lazy_idle=800, the default), the system clock is running fast.
-> 
-> With ntpd running, the clock was stepped back 2.5 seconds twice in 20 
-> minutes.
-> 
-> Here's what I get from adjtimexconfig (after stopping ntpd, of course):
-> 
-> # adjtimexconfig
-> Comparing clocks (this will take 70 sec)... adjusting system time by  
-> -126.211  sec/day
-> Done
-> 
-> Now tick is 9985. I distinctly remember it being somewhat over 10,000 
-> the last time I ran with HZ=1000 and amd_76x_pm active. With HZ=100, 
-> adjtimexconfig sets tick=10002.
-> 
-> I'm not entirely sure what the "acpi" interrupt is doing-- it 
-> increments about once every two seconds when the system is idle, and 
-> various types of system activity make it happen more frequently. At 
-> least I'm not getting any "irq 9: nobody cared!" messages anymore (the 
-> button module is loaded, so I guess it is handling it). If I don't have 
-> amd76x_pm loaded, the acpi interrupt is triggered a couple of times 
-> after button is loaded, but then it doesn't happen again until I 
-> actually press a button.
+On Tue, 2003-11-04 at 15:22, Joel Becker wrote:
+> Folks,
+> 	Certain distributions are building all of their SMP kernels
+> NUMA-aware.  This is great, as the kernels support boxes like the x440
+> with no trouble.  However, this implicitly disables CONFIG_X86_TSC.
+> While that is good for NUMA systems, and fine from a kernel timing
+> standpoint, it also eliminates any generic access to the TSC via
+> get_cycles().  With CONFIG_X86_TSC not defined, get_cycles() always
+> returns 0.
+> 	Given that >95% of machines will not be x440s, this means that a
+> user of that kernel cannot access a high resolution timer via
+> get_cycles().  I don't want to have to litter my code with rdtscll()
+> when I managed to remove it!
+> 	The proposed patch is trivial.  If the system has a TSC, it is
+> available get_cycles().  This makes no change to the other parts of the
+> kernel protected by CONFIG_X86_TSC.
 
-Weird. On my system the irq 9 count is still 0 0 since I started the
-machine this morning. I have ACPI compiled into the kernel, and then load
-amd76x_pm as module. But I have HZ=100, I'll try it with HZ=1000 at some
-point.
+CONFIG_X86_TSC be the devil. Personally, I'd much prefer dropping the
+compile time option and using dynamic detection. Something like (not
+recently tested and i believe against 2.5.something, but you get the
+idea):
 
-But it sounds like the timer problem may be related to the snooze-on-load
-problem on S2460, especially if the timer problem only happens on S2460.
 
-Tony
+diff -Nru a/include/asm-i386/timex.h b/include/asm-i386/timex.h
+--- a/include/asm-i386/timex.h	Mon Feb 24 21:09:32 2003
++++ b/include/asm-i386/timex.h	Mon Feb 24 21:09:32 2003
+@@ -40,14 +40,10 @@
+ 
+ static inline cycles_t get_cycles (void)
+ {
+-#ifndef CONFIG_X86_TSC
+-	return 0;
+-#else
+-	unsigned long long ret;
+-
+-	rdtscll(ret);
++	unsigned long long ret = 0;
++	if(cpu_has_tsc)
++		rdtscll(ret);
+ 	return ret;
+-#endif
+ }
+ 
+ extern unsigned long cpu_khz;
+
+
+thanks
+-john
+
+

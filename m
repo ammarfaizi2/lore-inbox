@@ -1,111 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263184AbUDORoV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 13:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbUDORoC
+	id S263059AbUDORml (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 13:42:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263045AbUDORlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 13:44:02 -0400
-Received: from mail.kroah.org ([65.200.24.183]:28086 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263184AbUDORmS convert rfc822-to-8bit
+	Thu, 15 Apr 2004 13:41:55 -0400
+Received: from emulex.emulex.com ([138.239.112.1]:50897 "EHLO
+	emulex.emulex.com") by vger.kernel.org with ESMTP id S263141AbUDORjO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 13:42:18 -0400
-X-Donotread: and you are reading this why?
-Subject: Re: [PATCH] Driver Core update for 2.6.6-rc1
-In-Reply-To: <10820509122120@kroah.com>
-X-Patch: quite boring stuff, it's just source code...
-Date: Thu, 15 Apr 2004 10:41:52 -0700
-Message-Id: <1082050912368@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Thu, 15 Apr 2004 13:39:14 -0400
+Message-ID: <3356669BBE90C448AD4645C843E2BF2802C0168A@xbl.ma.emulex.com>
+From: "Smart, James" <James.Smart@Emulex.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: persistence of kernel object attribute ??
+Date: Thu, 15 Apr 2004 13:39:11 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1643.36.7, 2004/03/22 11:47:06-08:00, kronos@kronoz.cjb.net
 
-[PATCH] Sysfs for framebuffer
+I've been looking at everything I can find, asked a few questions, and don't
+have an answer to the following issue.
 
-the following patch (against 2.6.5-rc2) teaches fb to use class_simple.
-With this patch udev will automagically create device nodes for each
-framebuffer registered. Once all drivers are converted to
-framebuffer_{alloc,release} we can switch to our own class.
+I have a driver that wants to export attributes per instance. I'd like the
+ability for the user to modify an attribute dynamically (sysfs works well) -
+but I'd like the new value to be persistent the next time the driver
+unloads/loads or the system reboots.  I don't want to have to update
+constants in source and recompile the driver.  I'm looking for something
+similar (cringe!) to the MS registry.  Is there a facility available to
+kernel objects to allow for persistent attributes to be set/retrieved? If
+not, any recommendations on how to implement this ?
 
-This is what sysfs dir looks like:
-
-notebook:~# tree /sys/class/graphics/
-/sys/class/graphics/
-`-- fb0
-    `-- dev
-
-
- drivers/video/fbmem.c |   19 +++++++++++++++++++
- 1 files changed, 19 insertions(+)
-
-
-diff -Nru a/drivers/video/fbmem.c b/drivers/video/fbmem.c
---- a/drivers/video/fbmem.c	Thu Apr 15 10:20:59 2004
-+++ b/drivers/video/fbmem.c	Thu Apr 15 10:20:59 2004
-@@ -32,6 +32,9 @@
- #include <linux/kmod.h>
- #endif
- #include <linux/devfs_fs_kernel.h>
-+#include <linux/err.h>
-+#include <linux/kernel.h>
-+#include <linux/device.h>
- 
- #if defined(__mc68000__) || defined(CONFIG_APUS)
- #include <asm/setup.h>
-@@ -1251,6 +1254,8 @@
- #endif
- };
- 
-+static struct class_simple *fb_class;
-+
- /**
-  *	register_framebuffer - registers a frame buffer device
-  *	@fb_info: frame buffer info structure
-@@ -1265,6 +1270,7 @@
- register_framebuffer(struct fb_info *fb_info)
- {
- 	int i;
-+	struct class_device *c;
- 
- 	if (num_registered_fb == FB_MAX)
- 		return -ENXIO;
-@@ -1273,6 +1279,12 @@
- 		if (!registered_fb[i])
- 			break;
- 	fb_info->node = i;
-+
-+	c = class_simple_device_add(fb_class, MKDEV(FB_MAJOR, i), NULL, "fb%d", i);
-+	if (IS_ERR(c)) {
-+		/* Not fatal */
-+		printk(KERN_WARNING "Unable to create class_device for framebuffer %d; errno = %ld\n", i, PTR_ERR(c));
-+	}
- 	
- 	if (fb_info->pixmap.addr == NULL) {
- 		fb_info->pixmap.addr = kmalloc(FBPIXMAPSIZE, GFP_KERNEL);
-@@ -1338,6 +1350,7 @@
- 		kfree(fb_info->sprite.addr);
- 	registered_fb[i]=NULL;
- 	num_registered_fb--;
-+	class_simple_device_remove(MKDEV(FB_MAJOR, i));
- 	return 0;
- }
- 
-@@ -1398,6 +1411,12 @@
- 	devfs_mk_dir("fb");
- 	if (register_chrdev(FB_MAJOR,"fb",&fb_fops))
- 		printk("unable to get major %d for fb devs\n", FB_MAJOR);
-+
-+	fb_class = class_simple_create(THIS_MODULE, "graphics");
-+	if (IS_ERR(fb_class)) {
-+		printk(KERN_WARNING "Unable to create fb class; errno = %ld\n", PTR_ERR(fb_class));
-+		fb_class = NULL;
-+	}
- 
- #ifdef CONFIG_FB_OF
- 	if (ofonly) {
+-- james
 

@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267584AbRGSPPl>; Thu, 19 Jul 2001 11:15:41 -0400
+	id <S267582AbRGSPLl>; Thu, 19 Jul 2001 11:11:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267594AbRGSPPb>; Thu, 19 Jul 2001 11:15:31 -0400
-Received: from t2.redhat.com ([199.183.24.243]:39155 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S267584AbRGSPP1>; Thu, 19 Jul 2001 11:15:27 -0400
-Message-ID: <3B56F992.915D3DCA@redhat.com>
-Date: Thu, 19 Jul 2001 16:15:30 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-5smp i686)
+	id <S267584AbRGSPLc>; Thu, 19 Jul 2001 11:11:32 -0400
+Received: from [217.6.75.131] ([217.6.75.131]:59273 "EHLO
+	mail.internetwork-ag.de") by vger.kernel.org with ESMTP
+	id <S267582AbRGSPLT>; Thu, 19 Jul 2001 11:11:19 -0400
+Message-ID: <3B56FA33.A3ED4F6E@internetwork-ag.de>
+Date: Thu, 19 Jul 2001 17:18:11 +0200
+From: Till Immanuel Patzschke <tip@internetwork-ag.de>
+Organization: interNetwork AG
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Edouard Soriano <e_soriano@dapsys.com>, linux-kernel@vger.kernel.org
-Subject: Re: 1GB system working with 64MB
-In-Reply-To: <20010719.14393700@dap21.dapsys.ch>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [Q]: kernel: __alloc_pages: 3-order allocation failed.
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Edouard Soriano wrote:
-> 
-> Hello Folks,
-> 
-> Environment: linux 2.2.16smp
-> RedHat 7.0
+Hi,
+
+I'm running a dual PIII, 3GB box (2.4.0.SuSE and 2.4.4.SuSE) getting the error
+above, despite the fact the ~700MB are still available.  In conjunction w/ the
+log message I get fork failures (out of memory)...
+I'm running 5500 processes having devices open and doing IP.  Many of the
+processes are pppds.
+
+Is there any way to allow the kernel using more of the available memory
+(tweaking constants etc.)...
+[limits have been raised...]
+
+Thanks for the help,
+
+Immanuel
+
+--
+Till Immanuel Patzschke                 mailto: tip@internetwork-ag.de
+interNetwork AG                         Phone:  +49-(0)611-1731-121
+Bierstadter Str. 7                      Fax:    +49-(0)611-1731-31
+D-65189 Wiesbaden                       Web:    http://www.internetwork-ag.de
 
 
-> My problem are the 63892K
 
-If you upgrade to the 2.2.19 kernel, this will just work,
-no need for extra options. (Red Hat also has a 2.2.19 kernel 
-available as errata release for 7.0)

@@ -1,103 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269100AbTGJIHM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 04:07:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269043AbTGJIDx
+	id S269096AbTGJIHm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 04:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269056AbTGJIHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 04:03:53 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:62226 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S269056AbTGJIDB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 04:03:01 -0400
-Date: Thu, 10 Jul 2003 09:58:50 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Aschwin Marsman <a.marsman@aYniK.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.22-pre4
-Message-ID: <20030710075850.GA20790@alpha.home.local>
-References: <Pine.LNX.4.55L.0307091918400.5325@freak.distro.conectiva> <Pine.LNX.4.44.0307100717570.18695-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0307100717570.18695-100000@localhost.localdomain>
-User-Agent: Mutt/1.4i
+	Thu, 10 Jul 2003 04:07:25 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:48120 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S269096AbTGJIF5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 04:05:57 -0400
+Message-ID: <3F0D217B.4040900@intel.com>
+Date: Thu, 10 Jul 2003 11:19:07 +0300
+From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alexander Viro <viro@math.psu.edu>
+Subject: PATCH: seq_file interface to provide large data chunks
+X-Enigmail-Version: 0.76.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+seq_file interface, as it exist in last official kernel, never provides 
+more then one page for each 'read' call. Old read_proc_t did loop to 
+fill more than one page.
 
-On Thu, Jul 10, 2003 at 07:23:32AM +0200, Aschwin Marsman wrote:
-> On Wed, 9 Jul 2003, Marcelo Tosatti wrote:
-> 
-> > Hi,
-> > 
-> > Here goes -pre4. It contains a lot of updates and fixes.
-> > 
-> > We decided to include this new code quota code which allows usage of
-> > quotas with 32bit UID/GIDs.
-> > 
-> > Most Toshibas should work now due to an important ACPI fix.
-> > 
-> > Please help and test.
-> 
-> I use -pre3 with succes, only power down is currently not working
-> (only the discs shutdown, no real poweroff). That's why I disabled
-> apm and enabled apm in the kernel with -pre4, but that gives:
+Following patch against 2.4.21 fixes seq_file to provide more than one 
+page if user requests it.
+Many programs do read(large_buffer) once, instead of looping while 
+read()>0. They work wrong with seq_file. Also, one may expect read() to 
+provide whole information atomically (OK, relatively to other process 
+context stuff).
+This patch loops over while some space remains in user provided buffer.
 
-I remember having had problems with ACPI because my power off didn't work.
-After reading through the code, I noticed that due to erroneous comparisons,
-some code path would never be executed, and/or some preparatory work before
-entering S5 would be done twice, or could not recover from error, I don't
-recall exactly. So I sent the two patches below to the acpi-devel list twice,
-but never got any reply.
+I am not subscribed to lkml, thus please cc: me (Vladimir Kondratiev 
+<vladimir.kondratiev@intel.com>) explicitly.
 
-I don't even know if they still apply, but you can try them anyway, they're
-simple.
-
-If I recall correctly, the first one should be enough to poweroff with a simple
-"echo 5 > /proc/acpi/sleep", while the second one allows the system to use this
-for poweroff.
-
-Cheers,
-Willy
-
-
---- ./drivers/acpi/system.c-orig	Tue Apr 29 17:39:34 2003
-+++ ./drivers/acpi/system.c	Tue Apr 29 19:08:09 2003
-@@ -180,7 +180,7 @@
- 			return AE_ERROR;
- 	}
+--- linux-2.4.21/fs/seq_file.c    2003-06-13 17:51:37.000000000 +0300
++++ linux/fs/seq_file.c    2003-07-10 10:47:53.000000000 +0300
+@@ -55,6 +55,7 @@
+         return -EPIPE;
  
--	if (state < ACPI_STATE_S5) {
-+	if (state <= ACPI_STATE_S5) {
- 		/* Tell devices to stop I/O and actually save their state.
- 		 * It is theoretically possible that something could fail,
- 		 * so handle that gracefully..
-@@ -277,6 +277,7 @@
- 
- 	switch (state) {
- 	case ACPI_STATE_S1:
-+	case ACPI_STATE_S5:
- 		barrier();
- 		status = acpi_enter_sleep_state(state);
- 		break;
-
-
-
---- ./drivers/acpi/system.c-orig	Tue Apr 29 19:09:19 2003
-+++ ./drivers/acpi/system.c	Tue Apr 29 19:36:08 2003
-@@ -90,9 +90,7 @@
- static void
- acpi_power_off (void)
- {
--	acpi_enter_sleep_state_prep(ACPI_STATE_S5);
--	ACPI_DISABLE_IRQS();
--	acpi_enter_sleep_state(ACPI_STATE_S5);
-+	acpi_suspend(ACPI_STATE_S5);
- }
- 
- #endif /*CONFIG_PM*/
-
+     down(&m->sem);
++Again:
+     /* grab buffer if we didn't have one */
+     if (!m->buf) {
+         m->buf = kmalloc(m->size = PAGE_SIZE, GFP_KERNEL);
+@@ -123,11 +124,14 @@
+         goto Efault;
+     copied += n;
+     m->count -= n;
++    size -= n;
++    buf += n;
+     if (m->count)
+         m->from = n;
+     else
+         pos++;
+     m->index = pos;
++    goto Again;
+ Done:
+     if (!copied)
+         copied = err;
 
 

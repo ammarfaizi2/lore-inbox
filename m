@@ -1,86 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264188AbTH1SuM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 14:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264214AbTH1SuM
+	id S264146AbTH1Siv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 14:38:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264155AbTH1Siv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 14:50:12 -0400
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:63365 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id S264188AbTH1Ss1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 14:48:27 -0400
-From: Matt Gibson <gothick@gothick.org.uk>
-Organization: The Wardrobe Happy Cow Emporium
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4 and hardware reports a non fatal incident
-Date: Thu, 28 Aug 2003 18:28:12 +0100
-User-Agent: KMail/1.5.3
-References: <200308281548.44803.tomasz_czaus@go2.pl> <20030828084640.68fe827d.rddunlap@osdl.org>
-In-Reply-To: <20030828084640.68fe827d.rddunlap@osdl.org>
-X-Pointless-MIME-Header: yes
-X-Archive: encrypt
+	Thu, 28 Aug 2003 14:38:51 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:15922 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S264146AbTH1Sit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 14:38:49 -0400
+Message-ID: <3F4E4AB9.6000308@rackable.com>
+Date: Thu, 28 Aug 2003 11:32:25 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+CC: Stephen Hemminger <shemminger@osdl.org>,
+       joe briggs <jbriggs@briggsmedia.com>
+Subject: Re: binary kernel drivers re. hpt370 and redhat
+References: <200308271840.30368.jbriggs@briggsmedia.com> <20030827145755.7e1ce956.shemminger@osdl.org> <3F4D4B49.8010907@rackable.com>
+In-Reply-To: <3F4D4B49.8010907@rackable.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308281828.12833.gothick@gothick.org.uk>
+X-OriginalArrivalTime: 28 Aug 2003 18:38:47.0041 (UTC) FILETIME=[9DBB1710:01C36D93]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 Aug 2003 16:46, Randy.Dunlap wrote:
-> On Thu, 28 Aug 2003 15:48:44 +0200 Tomasz Czaus <tomasz_czaus@go2.pl> 
-wrote:
-> | Hello,
-> |
-> | when my system is booting I can see such a message:
-> |
-> | kernel: MCE: The hardware reports a non fatal, correctable incident
-> | occurred on CPU 0.
-> | kernel: Bank 0: e664000000000185
+Samuel Flory wrote:
 
-Yeah, I get one of those on boot, too.  Or at least I did.  I was going to 
-turn the processor checking stuff back on to see if it happened 
-consistently.  What processor is it, Tomasz?  Mine's an Athlon.  Output of 
-"cat /proc/cpuinfo" at the end, if anyone's remotely interested...
-
-> Use "parsemce" from here:
->   http://www.codemonkey.org.uk/projects/parsemce/
-> to decode it.
+> Stephen Hemminger wrote:
 >
-> So 2.6 has more/better/different processor error checking.
+>> On Wed, 27 Aug 2003 18:40:30 -0400
+>> joe briggs <jbriggs@briggsmedia.com> wrote:
+>>
+>>  
+>>
+>>> I have a client who has a raid controller currently supported under 
+>>> windows, and now wants to support linux as a bootable device.  
+>>> Currently, some of their trade secrets are contained in the driver 
+>>> as opposed to the controller firmware, etc., so for now they wish to 
+>>> release a binary-only driver to certain beta customers.  (i.e., 1st 
+>>> stage of porting is similar functionality as windows). Am I correct 
+>>> that in order to boot off of this device that the driver would have 
+>>> to be statically linked in vs. a module which could be distributed 
+>>> as a binary-only driver keyed to the kernel.revision of the 
+>>> distribution's kernel?  I would like to avoid any flames and ask 
+>>> that all recognize that some hardware providers are having to ease 
+>>> into the pond a toe at a time.  Any constructive thoughts, 
+>>> suggestions, references, tips, etc. highly appreciated.
+>>>   
+>>
+>>
+>> The driver could be a module and live in initramfs.  If you can
+>> get the initial Linux image and initramfs loaded, you would be okay.
+>>
+>
+>   Rather an initrd under Linux.
 
-Thanks for the link, Randy, I'll give it a go tonight.  Although with my 
-knowledge of current processor archictecture, I'm guessing it'll parse it 
-from one format I don't have a clue about into a more verbose format I don't 
-have a clue about ;-)
+  Sorry I meant Linux 2.4. ;-)  Initramfs is a 2.6 thing.
 
-Cheers,
-
-M
-
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 4
-model name      : AMD Athlon(tm) Processor
-stepping        : 4
-cpu MHz         : 1195.130
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov 
-pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips        : 2367.48
+>   Note that there is a partial source driver, and RH driver's disks 
+> here: (look under raid IC with the right chipset for partial source.)
+> http://www.highpoint-tech.com/usaindex.htm
+>
+>>
+>> The problem is more in the bootloader (LILO or GRUB) would not no how
+>> to do raid. The /boot partition would have to be on a non-raid 
+>> partition.
+>> Same problem if driver is statically linked in the kernel.
+>>  
+>>
+>   If you are doing raid 1.  Lilo should work.  It doesn't really 
+> matter if lilo isn't aware of of the data on the other drive.  Each 
+> has a full copy of everything.
+>
+> PS-  Newer linux kernels should be able to support the "raid" 
+> controller as a normal ide controller.  You could then just configure 
+> linux software raid.
+>
 
 
 -- 
-"It's the small gaps between the rain that count,
- and learning how to live amongst them."
-	      -- Jeff Noon
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
+
+

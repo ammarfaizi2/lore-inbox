@@ -1,60 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281458AbRK0QHJ>; Tue, 27 Nov 2001 11:07:09 -0500
+	id <S281483AbRK0QKj>; Tue, 27 Nov 2001 11:10:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281473AbRK0QG7>; Tue, 27 Nov 2001 11:06:59 -0500
-Received: from [200.210.19.82] ([200.210.19.82]:47495 "HELO
-	mail.centercursos.com.br") by vger.kernel.org with SMTP
-	id <S281458AbRK0QGq> convert rfc822-to-8bit; Tue, 27 Nov 2001 11:06:46 -0500
-Message-ID: <3C03B952.7040809@uol.com.br>
-Date: Tue, 27 Nov 2001 14:03:30 -0200
-From: Michel Angelo da Silva Pereira <michelpereira@uol.com.br>
-Organization: Borges & Rinolfi =?ISO-8859-1?Q?Solu=E7=F5es?= em Redes Corporativas
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S281512AbRK0QK3>; Tue, 27 Nov 2001 11:10:29 -0500
+Received: from relay.planetinternet.be ([194.119.232.24]:23814 "EHLO
+	relay.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S281478AbRK0QKL>; Tue, 27 Nov 2001 11:10:11 -0500
+Date: Tue, 27 Nov 2001 17:09:52 +0100
+From: Kurt Roeckx <Q@ping.be>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Release Policy [was: Linux 2.4.16  ]
-In-Reply-To: <Pine.LNX.4.40.0111261216500.88-100000@rc.priv.hereintown.net> <Pine.LNX.4.21.0111261351160.13786-100000@freak.distro.conectiva> <9tu0n2$sav$1@cesium.transmeta.com> <20011126192902.M5770@khan.acc.umu.se> <3C028A8D.8040503@zytor.com> <20011126161802.A8398@xi.linuxpower.cx> <20011127154323.B513@Zenith.starcenter>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+Subject: 64 bit and __STRICT_ANSI__
+Message-ID: <20011127170952.A18621@ping.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I agree with your opinion, it's so difficult to understand what is 
-happening with the linux kernel.
-	And the -rc (Release Candidate) it's not welcome, remember me another OS 
-in development status.
+Not all places in the kernel headers seem to deal with 64 bit in
+the same way.  Their currently seem to be 3 ways it's being
+handled.
 
-Bye
+The first is always define/use it.
+The second only if __GNUC__ is defined
+And the third only if __GNUC__ is defined and __STRICT_ANSI__ not.
 
-Sven Vermeulen wrote:
+Is there a reason why their should be that __STRICT_ANSI__?
 
-> On Mon, Nov 26, 2001 at 04:18:02PM -0500, Gregory Maxwell wrote:
-> 
-> 
-> Some people may find this more "logical", but imho most will find it
-> confusing... It's already difficult to inform someone about the
-> (number).(even|odd).(release)-(patch|pre-final) scheme. I'm more into 
-> 	-pre: added some features, bugfixes etc...
-> 	-fc : feature-freeze, only bugfixes
-> and having some time (f.i. 48h) between the last -fc and the "real" release
-> (without having a single addendum to the ChangeLog).
-> 
-> Just my 2 cents,
-> 	Sven Vermeulen
-> 
-> 
+examples:
+asm/types.h:
+#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+typedef __signed__ long long __s64;
+typedef unsigned long long __u64;
+#endif
+[...]
+typedef signed long long s64;
+typedef unsigned long long u64;
+
+asm/posix_types.h:
+#ifdef __GNUC__
+typedef long long       __kernel_loff_t;
+#endif
+
+linux/types.h:
+#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+typedef __kernel_loff_t         loff_t;
+#endif
+[...]
+#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+typedef         __u64           uint64_t;
+typedef         __u64           u_int64_t;
+typedef         __s64           int64_t;
+#endif
+
+asm/fcntl.h:
+struct flock64 {
+        short  l_type;
+        short  l_whence;
+        loff_t l_start;
+        loff_t l_len;
+        pid_t  l_pid;
+};
+
+linux/dirent.h:
+struct dirent64 {
+        __u64           d_ino;
+        __s64           d_off;
+        unsigned short  d_reclen;
+        unsigned char   d_type;
+        char            d_name[256];
+};
 
 
--- 
-=================================================
-Borges & Rinolfi Soluções em Redes Corporativas
-Security Officer
-Profissional Certificado Conectiva Linux
-www.techs.com.br/kidmumu - UIN 4553082 - LC 83522
 
-... e querido papai do céu, em vez de botar as vitaminas no óleo de
-bacalhau, bota nos merengues que seu Manoel tem lá na venda. Amém.
-=================================================
+What they seem to have in common is that __* is defined(__GNUC__)
+&& !defined(__STRICT_ANSI__), and the rest not.
+
+The reason I bring this up is because on libc5 including some
+header file like <fcntl.h> and <dirent.h> will cause compilation
+problems if using -ansi, and I have no idea how to fix it properly.
+
+
+Kurt
 

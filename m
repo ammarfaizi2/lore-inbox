@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265840AbUAKQyY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 11:54:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265916AbUAKQyY
+	id S265378AbUAKRGX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 12:06:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265436AbUAKRGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 11:54:24 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:62625 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265840AbUAKQyX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 11:54:23 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 11 Jan 2004 08:53:32 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Bart Samwel <bart@samwel.tk>
-cc: Tim Cambrant <tim@cambrant.com>, Mario Vanoni <vanonim@bluewin.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH][TRIVIAL] Remove bogus "value 0x37ffffff truncated to
- 0x37ffffff" warning.
-In-Reply-To: <4001569C.3010700@samwel.tk>
-Message-ID: <Pine.LNX.4.44.0401110852030.19685-100000@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 11 Jan 2004 12:06:23 -0500
+Received: from chiark.greenend.org.uk ([193.201.200.170]:3278 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S265378AbUAKRGW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 12:06:22 -0500
+To: linux-kernel@vger.kernel.org
+Cc: rml@ximian.com
+Subject: Re: Laptops & CPU frequency
+In-Reply-To: <1073791061.1663.77.camel@localhost>
+References: <20040111025623.GA19890@ncsu.edu> <20040111025623.GA19890@ncsu.edu> <1073791061.1663.77.camel@localhost>
+Message-Id: <E1Afj2b-0004QN-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Date: Sun, 11 Jan 2004 17:06:21 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Jan 2004, Bart Samwel wrote:
+Robert Love wrote:
 
-> Now it seems to behave correctly: for '~' it always warns, for '-' it 
-> only warns if the negative value is below -0x80000000. I'll submit a 
-> patch to this effect (including the format extensions) to the binutils 
-> people.
+>The MHz value in /proc/cpuinfo should be updated as the CPU speed
+>changes - that is, it is not calculated just at boot, but it is updated
+>as the speed actually changes.
 
-binutils 2.14 works fine, so I believe they already fixed it.
+Is this true even when the speed changes aren't done through Speedstep?
+Some older (PII/non-Speedstep PIIIs) Thinkpads automatically change
+speed based on presence of AC power, but do it in a way that's exposed
+as an ACPI throttling state rather than a performance state. My
+experience is that this doesn't result in cpuinfo getting updated, and
+various kernel things seem to become unhappy. On the other hand, I
+haven't tried this since 2.5.5something - I just told the BIOS not to
+touch stuff instead.
 
-
-
-- Davide
-
-
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

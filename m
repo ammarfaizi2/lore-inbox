@@ -1,90 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbUFENia@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbUFENnf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbUFENia (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 09:38:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbUFENia
+	id S261369AbUFENnf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 09:43:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbUFENnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 09:38:30 -0400
-Received: from vhost-13-248.vhosts.internet1.de ([62.146.13.248]:31717 "EHLO
-	spotnic.de") by vger.kernel.org with ESMTP id S261347AbUFENi1 (ORCPT
+	Sat, 5 Jun 2004 09:43:35 -0400
+Received: from cantor.suse.de ([195.135.220.2]:55176 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261369AbUFENnc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 09:38:27 -0400
-In-Reply-To: <1086425211.4588.88.camel@imladris.demon.co.uk>
-References: <200406041000.41147.cijoml@volny.cz> <F84CE3DA-B605-11D8-B781-000A958E35DC@axiros.com> <1086390590.4588.70.camel@imladris.demon.co.uk> <3F4B6D09-B6CA-11D8-B781-000A958E35DC@axiros.com> <1086425211.4588.88.camel@imladris.demon.co.uk>
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-22-761311660"
-Message-Id: <97F190B4-B6F5-11D8-B781-000A958E35DC@axiros.com>
-Content-Transfer-Encoding: 7bit
-Cc: cijoml@volny.cz, linux-kernel@vger.kernel.org
-From: Daniel Egger <de@axiros.com>
-Subject: Re: jff2 filesystem in vanilla
-Date: Sat, 5 Jun 2004 15:38:13 +0200
-To: David Woodhouse <dwmw2@infradead.org>
-X-Pgp-Agent: GPGMail 1.0.2
-X-Mailer: Apple Mail (2.618)
+	Sat, 5 Jun 2004 09:43:32 -0400
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SUSE Labs
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH] Symlinks for building external modules
+Date: Sat, 5 Jun 2004 15:45:07 +0200
+User-Agent: KMail/1.6.2
+Cc: Jari Ruusu <jariruusu@users.sourceforge.net>,
+       =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+References: <200406031858.09178.agruen@suse.de> <20040604192304.GB3530@mars.ravnborg.org> <yw1xy8n3yun6.fsf@kth.se>
+In-Reply-To: <yw1xy8n3yun6.fsf@kth.se>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Message-Id: <200406051545.07507.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 04 June 2004 21:45, Måns Rullgård wrote:
+> Sam Ravnborg <sam@ravnborg.org> writes:
+> > Andreas - please expalin why you want build to be a symlink, and not
+> > the directory used when actually building the kernel.
+>
+> I can't speak for Andreas, but I prefer to keep my root filesystem as
+> clean as possible.  Often it's mounted read-only.
 
---Apple-Mail-22-761311660
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+Either way would work, but I prefer to have the actual files below /usr/src.
+The /lib directory is meant for files required during boot, whereas /usr may 
+be mounted later. If we want to allow both possibilities, we probably want to 
+add the following check:
 
-On 05.06.2004, at 10:46, David Woodhouse wrote:
+Index: linux-2.6.7-rc2/Makefile
+===================================================================
+--- linux-2.6.7-rc2.orig/Makefile
++++ linux-2.6.7-rc2/Makefile
+@@ -735,7 +735,8 @@ _modinst_:
+        @rm -f $(MODLIB)/{source,build}
+        @mkdir -p $(MODLIB)/kernel
+        @ln -s $(srctree) $(MODLIB)/source
+-       @ln -s $(objtree) $(MODLIB)/build
++       @[ $(objtree) -ef  $(MODLIB)/build ] \
++               || ln -s $(objtree) $(MODLIB)/build
+        $(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.modinst
 
-> Can you be more specific? I don't know of any such problems. If they
-> exist, they give me a potential excuse to update 2.4 to the current 
-> code
-> -- but to be honest I'd rather just leave it in maintenance mode.
 
-Unfortunately not. We had misterious kernel oopses on bootup in
-changing places in the source that appeared and vanished at will.
-At first I had broken memory in mind but this wasn't the case. My next
-guess was that the log checking (the looong version) might temporarily
-overheat the passively cooled CPU but we could scrap that possibility as
-well after reproducing the problem in a very cool environment.
+Next, we may want to add a Makefile to the output directory so that external 
+modules will build the same way they did before, without specifying the 
+source tree separately:
 
-After the tedious upgrade to the CVS version, everything works
-like a charm and is now in never-touch-a-running system mode.
+Index: linux-2.6.7-rc2/Makefile
+===================================================================
+--- linux-2.6.7-rc2.orig/Makefile
++++ linux-2.6.7-rc2/Makefile
+@@ -125,11 +125,19 @@ ifeq ($(skip-makefile),)
+ # but instead _all depend on modules
+ .PHONY: all
+ ifeq ($(KBUILD_EXTMOD),)
+-_all: all
++_all: $(objtree)/Makefile all
+ else
+ _all: modules
+ endif
 
-> CF is bog-roll technology. I wouldn't want to use it in production even
-> with JFFS2 on it -- but at least when it gets confused you'll only lose
-> a limited amount of data with JFFS2.
++.PHONY: $(objtree)/Makefile
++$(objtree)/Makefile:
++       $(Q)if [ ! $(srctree) -ef $(objtree) ]; then \
++               ( echo "modules modules_install clean:" ; \
++                 echo -e "\t\$$(MAKE) -C $(srctree) \$$@ O=\$$(CURDIR)" \
++               ) > $(objtree)/Makefile ; \
++       fi
++
+ # Make sure we're not wasting cpu-cycles doing locale handling, yet do make
+ # sure error messages appear in the user-desired language
+ ifdef LC_ALL
 
-Works fine for us.
 
-> If you're going to use JFFS2 on CF, you should really investigate using
-> the write-buffer we implemented for NAND flash, but without the ECC
-> parts. It'll mean you write each CF sector once rather than overwriting
-> the sector each time you add a few bytes to the log.
-
-Sounds good though not too useful for us because we typically do not
-write much on the disc, just the configuration which only changes
-once in a while.
-
-However, do you have any specific pointers where to look?
-
-Servus,
-       Daniel
-
---Apple-Mail-22-761311660
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
-
-iQEVAwUBQMHMyjBkNMiD99JrAQKrOggAgtc2Q2CjraPUfzS/2IpTyVXsHMchoF/H
-vel4p18Bzun/Xy0H8LAPwOS9ECjiwV4mpzwjcU5RZs+uN1irQbG3iLAih2mdm2uD
-a8skP2Wi5ZiaO1WYYrsyTKlEDNEHk59cohZCnc1Hbjo2NMV6HTEVqmtdxz4ARtLr
-Xd21H+hJvPT19wqx/PevlCUjQuj3PAX3xu4uCPZWD8On1TBYOLpU2anVtF+XMgFk
-gaSHGTtMKOKOicC2vSk8B1iLCTGRbozaj6pnFQdBpsBl3yzvz/z2hcUecZXKu9ac
-4ReLlUbisjYjYKhIefvoVMrwIOA02yeoO67RL41fVZe864/UGDMWNQ==
-=ICg+
------END PGP SIGNATURE-----
-
---Apple-Mail-22-761311660--
-
+Cheers,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG

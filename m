@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262633AbUKELRy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262644AbUKELSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262633AbUKELRy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 06:17:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbUKELRy
+	id S262644AbUKELSN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 06:18:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbUKELSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 06:17:54 -0500
-Received: from cantor.suse.de ([195.135.220.2]:2793 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262633AbUKELRw (ORCPT
+	Fri, 5 Nov 2004 06:18:13 -0500
+Received: from mail.x-echo.com ([195.101.94.2]:21765 "EHLO mail.x-echo.com")
+	by vger.kernel.org with ESMTP id S262644AbUKELSH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 06:17:52 -0500
-Date: Fri, 5 Nov 2004 12:17:51 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Lorenzo Allegrucci <l_allegrucci@yahoo.it>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: Re: 2.6.10-rc1-mm3
-Message-ID: <20041105111751.GC8349@wotan.suse.de>
-References: <20041105001328.3ba97e08.akpm@osdl.org> <200411051041.17940.l_allegrucci@yahoo.it> <20041105102204.GA4730@elte.hu> <20041105110951.GA29702@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041105110951.GA29702@elte.hu>
+	Fri, 5 Nov 2004 06:18:07 -0500
+To: Stelian Pop <stelian@popies.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: meye bug?  No.
+Mail-Copies-To: nobody
+Organisation: =?iso-8859-15?q?=C9cho?= interactive
+X-Face: ,MPrV]g0IX5D7rgJol{*%.pQltD?!TFg(`c8(2pkt-F0SLh(g3mIFYU1GYf]C/GuUTbr;cZ5y;3ALK%.OL8A.^.PW14e/,X-B?Nv}2a9\u-j0sSa
+References: <20041104111231.GF3472@crusoe.alcove-fr>
+	<87zn1xjoqo.fsf@mirexpress.internal.placard.fr.eu.org>
+	<20041104215805.GB3996@deep-space-9.dsnet>
+From: Roland Mas <roland.mas@free.fr>
+Date: Fri, 05 Nov 2004 12:18:01 +0100
+In-Reply-To: <20041104215805.GB3996@deep-space-9.dsnet> (Stelian Pop's
+ message of "Thu, 4 Nov 2004 22:58:05 +0100")
+Message-ID: <87actwo87q.fsf_-_@cachemir.echo-net.net>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 05, 2004 at 12:09:51PM +0100, Ingo Molnar wrote:
-> 
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > > ------------[ cut here ]------------
-> > > kernel BUG at mm/memory.c:156!
-> > 
-> > > Process shmt04 (pid: 4854, threadinfo=dca51000 task=de374510)
-> > 
-> > reproducible here too, just running LTP's shmt04 directly triggers it
-> > immediately. Looks like there's interaction of 4-level pagetables with
-> > ipc/shm.c or mm/shmem.c.
-> 
-> due to the PML4 feature, the clear_page_tables() function changed to
-> clear_page_range(), changing its (first,size) argument to (first,last). 
-> Normally it's called with (0,TASK_SIZE) which normally is PML4-aligned,
-> but in the (relatively rare) do_munmap() use this is not the case. We
-> correctly calculate the range that could be cleared, but it's not
-> PML4_SIZE aligned.
+Stelian Pop (2004-11-04 22:58:05 +0100) :
 
-I think just removing the BUG_ON is easier.  I sent a patch for that
-to Andrew.
+> On Thu, Nov 04, 2004 at 10:19:59PM +0100, Roland Mas wrote:
 
-> The solution is to clip both 'first' and 'last' to PML4_SIZE boundary.
-> Since when we calculate 'first' we add at least +PML4_SIZE to the value,
-> it is safe to clip 'first'. It is obviously safe to clip 'last'.
+[...]
 
-It's a bit tricky because on 3level architectures it clips on
-PGDs, not PML4s, otherwise it would never free any pagetables.  
-But the if()s check that correctly.
+>> "meye: need to reset HIC!".  Repeatedly, as in about twice a second
+>> until reboot.  Oh, and no picture ever comes out, either :-)
+> [...]
+>> sonypi: detected type1 model, verbose = 0, fnkeyinit = off, camera = off, compat = off, mask = 0xffffffff, useinput = on, acpi = on
+>                                                               ^^^^^^^^^^^^
+>
+> :)
 
--Andi
+Okay, so I made a fool of myself, hope you had fun, sorry for the
+inconvenience otherwise :-)
+
+  Seriously though, and as much as I know I should have read the docs,
+is this detectable from meye?  If it is, I suggest it would be a nice
+thing to have a different or more explicit error message.  Just "meye:
+need to reset HIC, is sonypi correctly configured?" would be cool.
+
+Roland.
+-- 
+Roland Mas
+
+Such compressed poems / With seventeen syllables / Can't have much meaning...
+  -- in Gödel, Escher, Bach: an Eternal Golden Braid (Douglas Hofstadter)

@@ -1,68 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbTENI2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 04:28:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTENI2O
+	id S261324AbTENI07 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 04:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbTENI07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 04:28:14 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:7952 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261365AbTENI1F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 04:27:05 -0400
-Date: Wed, 14 May 2003 09:39:44 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: David Howells <dhowells@warthog.cambridge.redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>, David Howells <dhowells@redhat.com>,
-       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
-Subject: Re: [PATCH] PAG support only
-Message-ID: <20030514093944.A9474@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Howells <dhowells@warthog.cambridge.redhat.com>,
-	David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	openafs-devel@openafs.org
-References: <20030513213759.A9244@infradead.org> <13536.1052900263@warthog.warthog>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <13536.1052900263@warthog.warthog>; from dhowells@warthog.cambridge.redhat.com on Wed, May 14, 2003 at 09:17:43AM +0100
+	Wed, 14 May 2003 04:26:59 -0400
+Received: from tag.witbe.net ([81.88.96.48]:42252 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S261324AbTENI06 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 04:26:58 -0400
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Dean McEwan'" <dean_mcewan@linuxmail.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Digital Rights Management - An idea
+Date: Wed, 14 May 2003 10:39:42 +0200
+Message-ID: <003201c319f4$5da588b0$3f00a8c0@witbe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+In-Reply-To: <20030514083039.26350.qmail@linuxmail.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 09:17:43AM +0100, David Howells wrote:
-> > - and even a wrong one..
-> 
-> I disagree, but no matter.
+Hello,
 
-It's not a matter of your (or my) personal opinion of coding style.  Linux
-is a big project and it's only maintainable if everyone sticks to a slightly
-similar style.  
+>     I had an idea for DRM, what about a kernel that forces 
+> everything downloaded to have a 
+> valid signature, and doesn't let the file/program be accessed 
+> otherwise?
+ 
+Waoh....
 
+If I want to install a new soft, I'm gonna have to find someone
+having the .tgz file signed so that I can get it ????
 
-> > > +static kmem_cache_t *vfs_token_cache;
-> > > +static kmem_cache_t *vfs_pag_cache;
-> > 
-> > How many of those will be around for a typical AFS client?  I have the vague
-> > feeling the slabs are overkill..
-> 
-> And then there's the people who said I shouldn't use kmalloc but should create
-> a slab instead...
+Is that what U mean ?
 
-That's why I ask how much it is used.  Could you answer the question maybe?
-
-> 
-> > > +	if (pag>0) {
-> > > +		/* join existing PAG */
-> > > +		if (tsk->vfspag->pag &&
-> > > +		    tsk->vfspag->pag==pag)
-> > > +			return pag;
-> > 
-> > Please try to get your code in conformance with Documentation/CodingStyle.
-> 
-> You are suggesting what changes exactly?
-
-spaces between operators to start with.  It's not that difficult to read the
-above document and other core kernel code, though.
+Regards,
+Paul
 

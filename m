@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262364AbUKQQX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262368AbUKQQ2O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262364AbUKQQX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 11:23:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbUKQQX6
+	id S262368AbUKQQ2O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 11:28:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbUKQQ2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 11:23:58 -0500
-Received: from imag.imag.fr ([129.88.30.1]:42999 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S262364AbUKQQX4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 11:23:56 -0500
-Date: Wed, 17 Nov 2004 17:23:54 +0100 (CET)
-From: Catalin Drula <Catalin.Drula@imag.fr>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: AF_UNIX sockets: strange behaviour
-Message-ID: <Pine.GSO.4.33.0411171717530.8987-100000@horus.imag.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Wed, 17 Nov 2004 17:23:54 +0100 (CET)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+	Wed, 17 Nov 2004 11:28:14 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:56804 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262368AbUKQQ2L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 11:28:11 -0500
+Subject: Re: [patch] prefer TSC over PM Timer
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0411151531590.22091@twinlark.arctic.org>
+References: <Pine.LNX.4.61.0411151531590.22091@twinlark.arctic.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1100705099.420.32.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 17 Nov 2004 15:25:01 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Dick Johnson wrote:
->
-> > Catalin Drula wrote:
-> >
-> > - there is a skb in the sk_receive_queue with a len of 13
-> > - 6 bytes are read from it
-> > - a skb with the remaining 7 bytes is requeued in sk_receive_queue
-> > - on the next call to unix_stream_recvmsg, the sk_receive_queue is
-> >  empty (!)
-> >
-> > Thus, this confirms the behaviour observed from userspace. Is this a
-> > bug? Who could be removing the skb from the receive_queue?
->
-> If you need STREAM behavior I think you need to use recv(),
-> recvfrom(),or read().
->
-> If you use recvmsg(), the "message" will be removed even it you
-> haven't read it all. Note in the 'man' page description:
-> "If the a message is too long to fit in the supplied buffer, excess
-> bytes may be discarded depending upon the type of socket the message
-> is being received from...
+On Maw, 2004-11-16 at 00:23, dean gaudet wrote:
+> i've heard other folks have independently run into this problem -- in fact 
+> i see the most recent fc2 kernels already do this.  i'd like this to be 
+> accepted into the main kernel though.
 
-At first I used read() and then I tried recv() as well.
+IMHO it was a mistake to make this change in FC2.
 
-Catalin
+> the x86 PM Timer is an order of magnitude slower than the TSC for 
+> gettimeofday calls.  i'm seeing 8%+ of the time spent doing gettimeofday 
+> in someworkloads... and apparently kernel.org was seeing 80% of its time 
+> go to gettimeofday during the fc3-release overload.  PM timer is also less 
+> accurate than TSC.
+
+Nobody guarantees that the TSC is clocked at the same rate per CPU and
+several power management schemes break it. I see it break on my Thinkpad
+600 and its one reason I have to replace the FC kernel with a 2.6-ac
+kernel on that system.
+
+Is gettimeofday supposed to return the right value or be fast ?
 

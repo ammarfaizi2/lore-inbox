@@ -1,76 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264448AbRFTAaS>; Tue, 19 Jun 2001 20:30:18 -0400
+	id <S264458AbRFTApc>; Tue, 19 Jun 2001 20:45:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264450AbRFTAaJ>; Tue, 19 Jun 2001 20:30:09 -0400
-Received: from linux.vmri.hu ([193.225.208.140]:34820 "EHLO linux.vmri.hu")
-	by vger.kernel.org with ESMTP id <S264448AbRFTAaE>;
-	Tue, 19 Jun 2001 20:30:04 -0400
-Message-ID: <3B2FEEE0.C57EC336@sch.bme.hu>
-Date: Wed, 20 Jun 2001 02:31:28 +0200
-From: Marcell Gal <cell@sch.bme.hu>
-Reply-To: cell@sch.bme.hu
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.4 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-CC: "David S. Miller" <davem@redhat.com>, Dax Kelson <dkelson@gurulabs.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Holger Kiehl <Holger.Kiehl@dwd.de>,
-        VLAN Mailing List <vlan@Scry.WANfear.com>,
-        "vlan-devel (other)" <vlan-devel@lists.sourceforge.net>,
-        Lennert <buytenh@gnu.org>, Gleb Natapov <gleb@nbase.co.il>
-Subject: Re: Should VLANs be devices or something else?
-In-Reply-To: <3B2FCE0C.67715139@candelatech.com>
-			<Pine.LNX.4.33.0106191641150.17061-100000@duely.gurulabs.com> <15151.55017.371775.585016@pizda.ninka.net> <3B2FDD62.EFC6AEB1@candelatech.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264461AbRFTApW>; Tue, 19 Jun 2001 20:45:22 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:55206 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S264458AbRFTApJ>; Tue, 19 Jun 2001 20:45:09 -0400
+Date: Tue, 19 Jun 2001 18:45:01 -0600
+Message-Id: <200106200045.f5K0j1B18267@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Bind oddity/trap
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+  Hi, Al. Here's an oddity I just ran across with VFS bindings:
 
-Ben Greear wrote:
+# mkfifo /dev/modem   (BTW: it would be nice not to have to make the node)
+# mount --bind /dev/tts/0 /dev/modem
+# kermit
+kermit> set line /dev/modem
+kermit> set speed 4800
+?Sorry, you must SET LINE first
 
-> >  > > Should VLANs be devices or some other thing?
-> I found it to be the easiest way to implement things.  It allowed
-> me to not have to touch any of layer 3, and I did not have to patch
-> any user-space program like ip or ifconfig.
+The reason this is happening is because Kermit will do a readdir(2),
+scanning /dev for a node with the same inum as it gets from fstat(2).
+In this case, fstat(2) is giving the inum of /dev/tts/0, which is of
+course the correct behaviour. However, the d_ino field from readdir(2)
+is giving the inum of the "mount point" (the FIFO I created). So there
+is an inconsistency, and kermit gets confused.
 
-I faced the same issue when implementing RFC2684 (formerly 1483)
-Ethernet over ATM-AAL5. Since users want to do the same thing
-(ifconfig, tcpdump, rfc 2514 pppoe, dhcp, ipx) as with traditional eth0
-using register_netdev was 'the right thing'.
-However having the possibility of many devices annoyed
-some people. (upto appr. 4095/ATM-VC in case of vlan over rfc2684 over
-atm ;-)
+Perhaps readdir(2) should return the same inum as fstat(2) does? I
+realise that could be quite nasty to implement. However, it is an
+inconsistency, and a potential trap. But there probably isn't a good
+solution to this one.
 
-My answer to the (old) 'long ifconfig listing' argument:
-Users do not have more interfaces in the ifconfig listing than those they
-create for themselves.
-That's ok, exactly what they want. Those who do not like many interfaces
-do not
-create many.
-The real thrill would be maintaining new (or patched) tools just because
-we want to
-avoid having the _possibility_ of long listings at any cost...
+				Regards,
 
-I remember
-/proc/sys/net/ipv4/conf/
-was broken for about >300 devices. I do not know how's it today.
-
-> Adding the hashed lookup for devices took the exponential curve out of
-> ip and ifconfig's performance, btw.
-
-n^2 for creating n devices (in the unfortunate increasing or random
-order),
-(not 2^n), I guess.
-
-    Cell
-
---
-You'll never see all the places, or read all the books, but fortunately,
-they're not all recommended.
-
-
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

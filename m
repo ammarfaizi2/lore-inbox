@@ -1,64 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131070AbRADSSU>; Thu, 4 Jan 2001 13:18:20 -0500
+	id <S130836AbRADSUu>; Thu, 4 Jan 2001 13:20:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131626AbRADSSK>; Thu, 4 Jan 2001 13:18:10 -0500
-Received: from ntx.cix.co.uk ([194.153.15.116]:13841 "EHLO nvlonlx01.nv.london")
-	by vger.kernel.org with ESMTP id <S131070AbRADSSA>;
-	Thu, 4 Jan 2001 13:18:00 -0500
-Date: Thu, 4 Jan 2001 18:15:26 +0000 (UTC)
-From: Mo McKinlay <mmckinlay@gnu.org>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Lang <david.lang@digitalinsight.com>,
+	id <S131541AbRADSUk>; Thu, 4 Jan 2001 13:20:40 -0500
+Received: from warden.digitalinsight.com ([208.29.163.2]:1683 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S130983AbRADSU1>; Thu, 4 Jan 2001 13:20:27 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Mo McKinlay <mmckinlay@gnu.org>
+Cc: Chris Wedgwood <cw@f00f.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Daniel Phillips <phillips@innominate.de>,
-        Helge Hafting <helgehaf@idb.hist.no>, <linux-kernel@vger.kernel.org>
+        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+Date: Thu, 4 Jan 2001 10:19:58 -0800 (PST)
 Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-In-Reply-To: <20010105071053.A31025@metastasis.f00f.org>
-Message-ID: <Pine.LNX.4.30.0101041813310.967-100000@nvws005.nv.london>
-Organization: inter/open Labs
-X-URL: http://www.interopen.org/
+In-Reply-To: <Pine.LNX.4.30.0101041813310.967-100000@nvws005.nv.london>
+Message-ID: <Pine.LNX.4.31.0101041018430.10387-100000@dlang.diginsite.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, 4 Jan 2001, Mo McKinlay wrote:
+
+>   > The off button need not and _does not_ remove power instantly (if at
+>   > all) on many appliances.
+>
+> Indeed - but unplugging your VCR from the wall won't harm it. Everyone
+> knows the power button on a TV/VCR/etc doesn't actually kill the power,
+> just reduce consumption (i.e., standby mode). But unplugging it at the
+> wall doesn't have any detrimental effects - doing that to a PC will.
+
+if you change that statement to "usually won't harm it" I agree with you
+(I have had a VCR eat a tape when this was done)
+
+David Lang
 
 
-
-  > The off button need not and _does not_ remove power instantly (if at
-  > all) on many appliances.
-
-Indeed - but unplugging your VCR from the wall won't harm it. Everyone
-knows the power button on a TV/VCR/etc doesn't actually kill the power,
-just reduce consumption (i.e., standby mode). But unplugging it at the
-wall doesn't have any detrimental effects - doing that to a PC will.
-
-Being able to change what the power button does is cool, but it does mask
-the real issue - what happens when you pull the plug, and how do you make
-it so that it's acceptable?
-
-- -- 
-Mo McKinlay
-mmckinlay@gnu.org
-- -------------------------------------------------------------------------
-GnuPG/PGP Key: pub  1024D/76A275F9 2000-07-22
-
-
-
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjpUvcEACgkQRcGgB3aidflzEwCgpYdN7Tp7e1S3HGoTA6JKBS40
-+GUAn20lCCVeqJbPzJ5k+qJd1OHsZjqu
-=YQ4B
------END PGP SIGNATURE-----
-
+> Being able to change what the power button does is cool, but it does mask
+> the real issue - what happens when you pull the plug, and how do you make
+> it so that it's acceptable?
+>
+> --
+> Mo McKinlay
+> mmckinlay@gnu.org
+> -------------------------------------------------------------------------
+> GnuPG/PGP Key: pub  1024D/76A275F9 2000-07-22
+>
+>
+>
+>
+>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

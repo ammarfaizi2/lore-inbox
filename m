@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313170AbSDDOD2>; Thu, 4 Apr 2002 09:03:28 -0500
+	id <S313199AbSDDOLA>; Thu, 4 Apr 2002 09:11:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313172AbSDDODW>; Thu, 4 Apr 2002 09:03:22 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:44201 "EHLO
+	id <S313179AbSDDOKt>; Thu, 4 Apr 2002 09:10:49 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:50091 "EHLO
 	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S313170AbSDDODI>; Thu, 4 Apr 2002 09:03:08 -0500
-Date: Thu, 4 Apr 2002 16:03:05 +0200
+	id <S313189AbSDDOKh>; Thu, 4 Apr 2002 09:10:37 -0500
+Date: Thu, 4 Apr 2002 16:10:25 +0200
 From: Stelian Pop <stelian.pop@fr.alcove.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: kraxel@bytesex.org
-Subject: [PATCH 2.5.8-pre1] motioneye video driver
-Message-ID: <20020404140305.GH9820@come.alcove-fr>
+Cc: rml@tech9.net
+Subject: [PATCH 2.5.8-pre1] ppp_deflate.c fix...
+Message-ID: <20020404141025.GI9820@come.alcove-fr>
 Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
 Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	kraxel@bytesex.org
+	rml@tech9.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,62 +23,42 @@ User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.5.8-pre1 'video_generic_ioctl' has gone, replaced by 
-'video_generic_ioctl'. However, no video driver has been
-updated to use the new API.
+When compiling 2.5.8-pre1 without CONFIG_PREEMPT, and ppp all in modules,
+I have unresolved symbols in ppp_deflate.o (local_bh_enable and
+local_bh_disable). If CONFIG_PREEMPT is on, no problems.
 
-The Gerd's patches from http://bytesex.org/patches/2.5/
-must be applied.
+The attached patch fixes it by adding some header files to ppp_deflate.c which
+somehow makes it properly compile.
 
-Attached is the motioneye driver patch only, which I can
-confirm it works properly.
+But after a second look, I must say I don't really understand how this is 
+supposed to work, for example:
+	include/linux/spinlock.h 
+		* defines spin_lock_bh dependent on local_bh_disable
+		* defines preempt_disable
+	include/asm-i386/softirq.h
+		* defines local_bh_disable dependent on ... preempt_disable
+
+Do we have here a circular dependency problem or ? 
 
 Stelian.
 
-===== drivers/media/video/meye.c 1.9 vs edited =====
---- 1.9/drivers/media/video/meye.c	Thu Mar 14 17:16:34 2002
-+++ edited/drivers/media/video/meye.c	Thu Apr  4 11:08:17 2002
-@@ -893,8 +893,8 @@
- 	return 0;
- }
+===== drivers/net/ppp_deflate.c 1.6 vs edited =====
+--- 1.6/drivers/net/ppp_deflate.c	Mon Mar  4 14:20:25 2002
++++ edited/drivers/net/ppp_deflate.c	Thu Apr  4 14:31:05 2002
+@@ -36,11 +36,13 @@
+ #include <linux/vmalloc.h>
+ #include <linux/init.h>
+ #include <linux/smp_lock.h>
++#include <linux/spinlock.h>
  
--static int meye_ioctl(struct inode *inode, struct file *file,
--		      unsigned int cmd, void *arg) {
-+static int meye_do_ioctl(struct inode *inode, struct file *file,
-+			 unsigned int cmd, void *arg) {
+ #include <linux/ppp_defs.h>
+ #include <linux/ppp-comp.h>
  
- 	switch (cmd) {
+ #include <linux/zlib.h>
++#include <linux/interrupt.h>
  
-@@ -1169,6 +1169,12 @@
- 	return 0;
- }
- 
-+static int meye_ioctl(struct inode *inode, struct file *file,
-+		     unsigned int cmd, unsigned long arg)
-+{
-+	return video_usercopy(inode, file, cmd, arg, meye_do_ioctl);
-+}
-+
- static int meye_mmap(struct file *file, struct vm_area_struct *vma) {
- 	unsigned long start = vma->vm_start;
- 	unsigned long size  = vma->vm_end - vma->vm_start;
-@@ -1209,7 +1215,7 @@
- 	open:		meye_open,
- 	release:	meye_release,
- 	mmap:		meye_mmap,
--	ioctl:		video_generic_ioctl,
-+	ioctl:		meye_ioctl,
- 	llseek:		no_llseek,
- };
- 
-@@ -1219,7 +1225,6 @@
- 	type:		VID_TYPE_CAPTURE,
- 	hardware:	VID_HARDWARE_MEYE,
- 	fops:		&meye_fops,
--	kernel_ioctl:	meye_ioctl,
- };
- 
- static int __devinit meye_probe(struct pci_dev *pcidev, 
+ static spinlock_t comp_free_list_lock = SPIN_LOCK_UNLOCKED;
+ static LIST_HEAD(comp_free_list);
 -- 
 Stelian Pop <stelian.pop@fr.alcove.com>
 Alcove - http://www.alcove.com

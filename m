@@ -1,70 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbUCLCHB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 21:07:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbUCLCGq
+	id S261904AbUCLCNk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 21:13:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbUCLCNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 21:06:46 -0500
-Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:41443 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id S261909AbUCLCGn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 21:06:43 -0500
-Message-ID: <40511B2E.5020704@stesmi.com>
-Date: Fri, 12 Mar 2004 03:06:38 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7a) Gecko/20040219
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: psycosonic <psycosonic@rootisg0d.org>
-CC: linux-net@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Abysmal network performance since 2.4.25 !!!!!...
-References: <004c01c407cf$5fffa270$0700a8c0@darkgod>
-In-Reply-To: <004c01c407cf$5fffa270$0700a8c0@darkgod>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Mar 2004 21:13:40 -0500
+Received: from dp.samba.org ([66.70.73.150]:39298 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261904AbUCLCNj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 21:13:39 -0500
+Date: Fri, 12 Mar 2004 13:12:59 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm1
+Message-ID: <20040312021259.GG16751@krispykreme>
+References: <20040310233140.3ce99610.akpm@osdl.org> <20040311134955.GB16751@krispykreme> <4050F657.3050005@cyberone.com.au> <40511A89.3040204@cyberone.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40511A89.3040204@cyberone.com.au>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-psycosonic wrote:
 
-> Hey.
-> 
-> I'm having some problems since i updated from kernel 2.4.24 to 2.4.25 .. it
-> seems that 2.4.25 has some real performance problems.
-> The problem is that i can't get the NIC's to work fine.. i don't know 
-> why, i've already used several kernel configurations..
-> i've also tried with patch2.4.25pre4 and... nothin' ...even used another 
-> switch 10/100mbit.. not even with patch-2.4.26pre2 it goes normal,
-> I've compiled the kernel in another computer, with too many different 
-> configurations, different hardware.. etc.. and the result is the same.
-> Some friends of mine are having the same problem.
-> Well.. with kernel 2.4.24 i usually had a max speed of 12Mb/s .. now , 
-> with 2.4.25 it only goes to 2,2Mb/s MAX speed.  :(
+> You need to be setting cpu_power for each of the CPU groups.
 
-If you're only seeing 12Mbit/s (b=bit, B=byte) already before
-then there's something at play here with your network I'm afraid.
+Aha, thanks. I'll do that and retest.
 
-Replace the nics and you'll see the problems should go away.
-
-I haven't seen any problems so far with my equipment.
-
-> Computer 1:
-> 
-> Pentium 3 @ 733Mhz
-> Board with SIS Chipset.
-> NIC's: SIS900 & Realtek 8139
-
-My laptop has an 8139 and it works fine.
-
-> AMD XP 2600+
-> Board ASUS A7V8X-MX Chipset VIA KT400
-> NIC's: VIA Rhine
-
-If you don't solve it I'll check with my Rhine.
-
-> Please gimme some answer ASAP.. i'm getting crazy :(
-
-Start by getting it up to 100Mbit on the old kernel and then ask
-for more help as 12Mbit/s points to other problems.
-
-// Stefan
+Anton

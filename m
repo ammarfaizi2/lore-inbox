@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262868AbSJLJ6D>; Sat, 12 Oct 2002 05:58:03 -0400
+	id <S262878AbSJLKQO>; Sat, 12 Oct 2002 06:16:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262869AbSJLJ6C>; Sat, 12 Oct 2002 05:58:02 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:45578 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S262868AbSJLJ6C>; Sat, 12 Oct 2002 05:58:02 -0400
-Message-ID: <3DA7F385.3040409@namesys.com>
-Date: Sat, 12 Oct 2002 14:03:49 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
+	id <S262881AbSJLKQO>; Sat, 12 Oct 2002 06:16:14 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:14791 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262878AbSJLKQN>; Sat, 12 Oct 2002 06:16:13 -0400
+Date: Sat, 12 Oct 2002 12:21:58 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Mitchell Blank Jr <mitch@sfgoth.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: Linux v2.5.42
+In-Reply-To: <20021012114117.A5374@mars.ravnborg.org>
+Message-ID: <Pine.NEB.4.44.0210121205410.8340-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-To: Rob Landley <landley@trommello.org>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not
- 3.0 - (NUMA))
-References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com> <200210060130.g961UjY2206214@pimout2-ext.prodigy.net> <3DA7647C.3060603@namesys.com> <20021012012807.1BB5B635@merlin.webofficenow.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
+On Sat, 12 Oct 2002, Sam Ravnborg wrote:
 
->I'm also looking for an "unmount --force" option that works on something 
->other than NFS.  Close all active filehandles (the programs using it can just 
->deal with EBADF or whatever), flush the buffers to disk, and unmount.  None 
->of this "oh I can't do that, you have a zombie process with an open file...", 
->I want  "guillotine this filesystem pronto, capice?" behavior.
+> On Sat, Oct 12, 2002 at 11:24:48AM +0200, Adrian Bunk wrote:
+> > This patch fixed part of the kbuild breakage in drivers/atm/Makefile, the
+> > following patch fixes the rest:
+> Small adjustment:
 >
-This sounds useful.  It would be nice if umount prompted you rather than 
-refusing.
+> 	Sam
+>
+> --- linux-2.5.42-full/drivers/atm/Makefile.old	2002-10-12 11:13:48.000000000 +0200
+> +++ linux-2.5.42-full/drivers/atm/Makefile	2002-10-12 11:20:15.000000000 +0200
+>  @@ -36,7 +36,7 @@
+>     fore_200e-objs		+= fore200e_pca_fw.o
+>     # guess the target endianess to choose the right PCA-200E firmware image
+>     ifeq ($(CONFIG_ATM_FORE200E_PCA_DEFAULT_FW),y)
+>  -    CONFIG_ATM_FORE200E_PCA_FW = $(shell if test -n "`$(CC) -E -dM $(src)/../../include/asm/byteorder.h | grep ' __LITTLE_ENDIAN '`"; then echo pca200e.bin; else echo pca200e_ecd.bin2; fi)
+>  +    CONFIG_ATM_FORE200E_PCA_FW = $(shell if test -n "`$(CC) -E -dM $(src)/../../include/asm/byteorder.h | grep ' __LITTLE_ENDIAN '`"; then echo $(obj)/pca200e.bin; else echo $(obj)/pca200e_ecd.bin2; fi)
+>     endif
+>   endif
 
->
->Of course loopback mounts would be kind of upset about this, but to be 
->honest: tough.  The loopback block device gives them an I/O error, and the 
->filesystem should just cope.  Floppies do this all the time with dust and cat 
->hair and stuff...
->
->Of course I don't yet know 1/10 as much about the VFS as I need to, but I'm 
->learning.  Slowly...
->
->Rob
->
->
->  
->
+Yes thanks, your patch is better than mine.
+
+cu
+Adrian
+
+-- 
+
+"Is there not promise of rain?" Ling Tan asked suddenly out
+of the darkness. There had been need of rain for many days.
+"Only a promise," Lao Er said.
+                                Pearl S. Buck - Dragon Seed
 
 
 

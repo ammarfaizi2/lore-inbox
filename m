@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290599AbSARE6w>; Thu, 17 Jan 2002 23:58:52 -0500
+	id <S290593AbSARE4w>; Thu, 17 Jan 2002 23:56:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290600AbSARE6m>; Thu, 17 Jan 2002 23:58:42 -0500
-Received: from dcn237-32.dcn.davis.ca.us ([168.150.237.32]:40966 "EHLO
-	barn.psychohorse.com") by vger.kernel.org with ESMTP
-	id <S290599AbSARE6f>; Thu, 17 Jan 2002 23:58:35 -0500
-Message-Id: <200201180455.g0I4tw014948@barn.psychohorse.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Matthew Johnson <matthew@psychohorse.com>
-Reply-To: matthew@psychohorse.com
-To: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: vm philosophising
-Date: Thu, 17 Jan 2002 20:58:15 -0800
-X-Mailer: KMail [version 1.3.2]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0201180235210.32617-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0201180235210.32617-100000@imladris.surriel.com>
+	id <S290599AbSARE4n>; Thu, 17 Jan 2002 23:56:43 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18445 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S290593AbSARE4e>; Thu, 17 Jan 2002 23:56:34 -0500
+Date: Thu, 17 Jan 2002 23:56:05 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Klaus Meyer <k.meyer@m3its.de>
+cc: Stephan von Krawczynski <skraw@ithnet.com>, linux-kernel@vger.kernel.org,
+        rwhron@earthlink.net, bcrl@redhat.com
+Subject: Re: highmem=system killer, 2.2.17=performance killer ?
+In-Reply-To: <3C4782BA.906950C8@m3its.de>
+Message-ID: <Pine.LNX.3.96.1020117235335.5060B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is an interesting assertion ... but up to date nobody has
-> been able to tell me what exactly should be different between
-> these two mythical VMs ;)
->
+On Fri, 18 Jan 2002, Klaus Meyer wrote:
 
-Well what is the different requirements for desktop use versus, the server in 
-terms of virtual memory? What I am doing on my system with MP3's playing, 
-running Xfree86 on a SuSE 7.3 system will be different from a server running 
-DMBS's.
+> It was just a bad memory modul. Believe me, i'd tested them before
+> carefully.
+> But i had to learn that even ECC-modules installed in brand motherboards
+> dont tell you that they are not working correctly.
 
-Another issue, would it be possible to select one or the other VM's like you 
-do for example the CPU type? 
+I wonder if your BIOS is doing the right thing setting the ECC config?
+That should have been reported.
 
-Kind regards,
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-Mayy

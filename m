@@ -1,73 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131305AbRCWRgj>; Fri, 23 Mar 2001 12:36:39 -0500
+	id <S131312AbRCWRj7>; Fri, 23 Mar 2001 12:39:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131311AbRCWRgU>; Fri, 23 Mar 2001 12:36:20 -0500
-Received: from algernon.satimex.tvnet.hu ([195.38.110.113]:44046 "EHLO
-	zeus.suselinux.hu") by vger.kernel.org with ESMTP
-	id <S131307AbRCWRgK>; Fri, 23 Mar 2001 12:36:10 -0500
-Date: Fri, 23 Mar 2001 18:35:13 +0100 (CET)
-From: Pjotr Kourzanoff <pjotr@suselinux.hu>
-To: Bryan Henderson <hbryan@us.ibm.com>
-cc: <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] sane access to per-fs metadata (was Re: [PATCH]
- Documentation/ioctl-number.txt)
-In-Reply-To: <OF791BBBC5.E3FCBEEE-ON87256A18.005BA3B7@LocalDomain>
-Message-ID: <Pine.LNX.4.31.0103231814590.19423-100000@zeus.suselinux.hu>
+	id <S131316AbRCWRjt>; Fri, 23 Mar 2001 12:39:49 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24335 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131312AbRCWRjo>; Fri, 23 Mar 2001 12:39:44 -0500
+Subject: Re: [PATCH] Prevent OOM from killing init
+To: jas88@cam.ac.uk (James A. Sutherland)
+Date: Fri, 23 Mar 2001 17:32:46 +0000 (GMT)
+Cc: dwguest@win.tue.nl (Guest section DW),
+        riel@conectiva.com.br (Rik van Riel),
+        orourke@missioncriticallinux.com (Patrick O'Rourke),
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0103231721480.4103-100000@dax.joh.cam.ac.uk> from "James A. Sutherland" at Mar 23, 2001 05:26:22 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14gVQf-00056B-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Mar 2001, Bryan Henderson wrote:
+> That depends what you mean by "must not". If it's your missile guidance
+> system, aircraft autopilot or life support system, the system must not run
+> out of memory in the first place. If the system breaks down badly, killing
+> init and thus panicking (hence rebooting, if the system is set up that
+> way) seems the best approach.
 
-> How it can be used? Well, say it you've mounted JFS on /usr/local
-> >% mount -t jfsmeta none /mnt -o jfsroot=/usr/local
-> >% ls /mnt
-> >stats     control   bootcode whatever_I_bloody_want
-> >% cat /mnt/stats
-> >master is on /usr/local
-> >fragmentation = 5%
-> >696942 reads, yodda, yodda
-> >% echo "defrag 69 whatever 42 13" > /mnt/control
-> >% umount /mnt
->
-> There's a lot of cool simplicity in this, both in implementation and
-> application, but it leaves something to be desired in functionality.  This
-> is partly because the price you pay for being able to use existing,
-> well-worn Unix interfaces is the ancient limitations of those interfaces
-> -- like the inability to return adequate error information.
+Ultra reliable systems dont contain memory allocators. There are good reasons
+for this but the design trade offs are rather hard to make in a real world
+environment
 
-  I can imagine a solution to this using the _same_ method - extend
-  /proc/*/ with a new entry (say, trace) for dumping errors. Put data
-  in there from every failing function in your code. Normally, this
-  will not introduce overheads (not unless you use error conditions to
-  pass on useful information), however, in case of errors, you can
-  get the backtrace (together with any info you want to put in there)
-  immediately.
-
-> Specifically, transactional stuff looks really hard in this method.
-> If I want the user to know why his "defrag" command failed, how would I
-> pass that information back to him?  What if I want to warn him of of a
-> filesystem inconsistency I found along the way?  Or inform him of how
-> effective the defrag was?  And bear in mind that multiple processes may be
-> issuing commands to /mnt/control simultaneously.
-
-  That's all up to you. Informational messages can go to /proc.
-  Transactions/serialization can be done in your filesystem's
-  implementation. Maybe glibc guys would even want to extend
-  strerror() to handle these cases?
-
->
-> With ioctl, I can easily match a response of any kind to a request.  I can
-> even return an English text message if I want to be friendly.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
->
-
-  Cheers,
-
-Pjotr Kourzanov
+Solving the trivial overcommit case is not a difficult task but since I don't
+believe it is needed I'll wait for those who moan so loudly to do it
 

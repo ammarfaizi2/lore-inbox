@@ -1,30 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266078AbSLYDdB>; Tue, 24 Dec 2002 22:33:01 -0500
+	id <S266091AbSLYFma>; Wed, 25 Dec 2002 00:42:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266081AbSLYDdB>; Tue, 24 Dec 2002 22:33:01 -0500
-Received: from ip68-101-124-193.oc.oc.cox.net ([68.101.124.193]:34964 "EHLO
-	ip68-4-86-174.oc.oc.cox.net") by vger.kernel.org with ESMTP
-	id <S266078AbSLYDdB>; Tue, 24 Dec 2002 22:33:01 -0500
-Date: Tue, 24 Dec 2002 19:41:12 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-Subject: Re: Horrible drive performance under concurrent i/o jobs (dlh problem?)
-Message-ID: <20021225034112.GA2323@ip68-4-86-174.oc.oc.cox.net>
-References: <000d01c2a8b6$3d102e20$941e1c43@joe> <B7CC2AA8-1720-11D7-8DC6-000393950CC2@karlsbakk.net> <20021224172122.GB30929@pegasys.ws>
+	id <S266095AbSLYFma>; Wed, 25 Dec 2002 00:42:30 -0500
+Received: from lightning.adam.com.au ([203.2.124.20]:36879 "HELO
+	lightning.adam.com.au") by vger.kernel.org with SMTP
+	id <S266091AbSLYFm3>; Wed, 25 Dec 2002 00:42:29 -0500
+Date: Wed, 25 Dec 2002 16:33:22 +1030
+From: David Lloyd <lloy0076@adam.com.au>
+To: Justin Cormack <justin@street-vision.com>
+Cc: nick@snowman.net, roy@karlsbakk.net, sampson@attglobal.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: OT: Which Gigabit ethernet card?
+Message-Id: <20021225163322.364251ca.lloy0076@adam.com.au>
+In-Reply-To: <1040664496.7156.112.camel@lotte>
+References: <Pine.LNX.4.21.0212230949270.22216-100000@ns.snowman.net>
+	<1040664496.7156.112.camel@lotte>
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021224172122.GB30929@pegasys.ws>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 24, 2002 at 09:21:23AM -0800, jw schultz wrote:
-> If the the stated average seek is 50% of full stroke and not
 
-no, stated average seek = one third (~33%) of full stroke
+Justin,
 
-google for "average seek stroke" if you don't believe me :)
+> are fast disappearing. You can even stick a non crossover cable
+> between a 100MB pci card and a GigE one and it will work.
 
--Barry K. Nathan <barryn@pobox.com>
+Thank Goodness -- I've worked in places where they INSIST on making
+crossover cables the same length and colour as normal cables. Then you
+go, "huh? samba/the network/the kernel" is not working until someone
+with better eyesight finds the problem.
+
+*death to crossover cables*
+
+
+DSL

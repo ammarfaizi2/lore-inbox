@@ -1,89 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263445AbTETBSf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 21:18:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbTETBSe
+	id S263448AbTETBZr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 21:25:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263449AbTETBZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 21:18:34 -0400
-Received: from dp.samba.org ([66.70.73.150]:10649 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263445AbTETBSc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 21:18:32 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: akpm@zip.com.au
-Cc: linux-kernel@vger.kernel.org, David Mosberger-Tang <davidm@hpl.hp.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>
-Subject: [PATCH 2/3] Per-cpu SMP unification
-Date: Tue, 20 May 2003 11:23:46 +1000
-Message-Id: <20030520013131.294E42C082@lists.samba.org>
+	Mon, 19 May 2003 21:25:47 -0400
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:60121 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP id S263448AbTETBZq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 21:25:46 -0400
+Message-ID: <3EC98D9D.1080309@kegel.com>
+Date: Mon, 19 May 2003 19:06:21 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Davide Libenzi <davidel@xmailserver.org>,
+       John Myers <jgmyers@netscape.com>, linux-aio@kvack.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Comparing the aio and epoll event frameworks.
+References: <200305192333.QAA12018@pagarcia.nscp.aoltw.net> <Pine.LNX.4.55.0305191657540.6565@bigblue.dev.mcafeelabs.com> <3EC9807D.3080804@kegel.com> <Pine.LNX.4.55.0305191743230.6565@bigblue.dev.mcafeelabs.com> <20030520010258.GQ2444@holomorphy.com> <3EC986ED.80604@kegel.com> <20030520011541.GR2444@holomorphy.com>
+In-Reply-To: <20030520011541.GR2444@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Untested on ia64, but fairly trivial if I've broken something ].
+William Lee Irwin III wrote:
+> William Lee Irwin III wrote:
+> 
+>>>I think this would be useful for network daemons that would like to
+>>>fairly schedule responses (i.e. not re-arm until a client on a given fd
+>>>deserves a turn again). IRC daemons would appear to be a perfect
+>>>candidate for such.  ...
+> 
+> 
+> On Mon, May 19, 2003 at 06:37:49PM -0700, Dan Kegel wrote:
+> 
+>>No need.  The plain old edge triggered behavior can handle this
+>>nicely.
+> 
+> 
+> AIUI after the iospace on an fd is exhausted the event will be re-armed.
+> It could probably be taken and then ignored until the client deserves a
+> response again. Is that what you had in mind?
 
-Name: Unification of per-cpu headers for SMP
-Author: Rusty Russell
-Status: Trivial
-Depends: Misc/percpu-up-unify.patch.gz
+In edge-triggered mode, epoll will deliver an event only when events warrant it (sic).
+If you decide to starve a client for a while, that client's fd
+will only get an event or two as the last bits of I/O to it
+occur; after that, no more events will come in unless you do
+some I/O.
 
-D: There's really only one sane way to implement accessing other CPU's
-D: variables, there's no real reason for archs to use a method other
-D: than __per_cpu_offset[], so move that from asm-*/percpu.h to
-D: linux/percpu.h.
+So I guess I'm saying "remember the fact that you got the event, but
+don't do anything about it until you feel like it".
+- Dan
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .14538-linux-2.5.69-bk13/include/asm-generic/percpu.h .14538-linux-2.5.69-bk13.updated/include/asm-generic/percpu.h
---- .14538-linux-2.5.69-bk13/include/asm-generic/percpu.h	2003-05-19 15:08:47.000000000 +1000
-+++ .14538-linux-2.5.69-bk13.updated/include/asm-generic/percpu.h	2003-05-19 15:08:48.000000000 +1000
-@@ -5,16 +5,12 @@
- #define __GENERIC_PER_CPU
- #ifdef CONFIG_SMP
- 
--extern unsigned long __per_cpu_offset[NR_CPUS];
--
- /* Separate out the type, so (int[3], foo) works. */
- #ifndef MODULE
- #define DEFINE_PER_CPU(type, name) \
-     __attribute__((__section__(".data.percpu"))) __typeof__(type) name##__per_cpu
- #endif
- 
--/* var is in discarded region: offset to particular copy we want */
--#define per_cpu(var, cpu) (*RELOC_HIDE(&var##__per_cpu, __per_cpu_offset[cpu]))
- #define __get_cpu_var(var) per_cpu(var, smp_processor_id())
- 
- #endif	/* SMP */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .14538-linux-2.5.69-bk13/include/asm-ia64/percpu.h .14538-linux-2.5.69-bk13.updated/include/asm-ia64/percpu.h
---- .14538-linux-2.5.69-bk13/include/asm-ia64/percpu.h	2003-05-19 15:08:47.000000000 +1000
-+++ .14538-linux-2.5.69-bk13.updated/include/asm-ia64/percpu.h	2003-05-19 15:08:48.000000000 +1000
-@@ -18,15 +18,12 @@
- #include <linux/threads.h>
- 
- #ifdef CONFIG_SMP
--extern unsigned long __per_cpu_offset[NR_CPUS];
--
- #ifndef MODULE
- #define DEFINE_PER_CPU(type, name) \
-     __attribute__((__section__(".data.percpu"))) __typeof__(type) name##__per_cpu
- #endif
- 
- #define __get_cpu_var(var)	(var##__per_cpu)
--#define per_cpu(var, cpu)	(*RELOC_HIDE(&var##__per_cpu, __per_cpu_offset[cpu]))
- #endif /* CONFIG_SMP */
- 
- extern void setup_per_cpu_areas (void);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .14538-linux-2.5.69-bk13/include/linux/percpu.h .14538-linux-2.5.69-bk13.updated/include/linux/percpu.h
---- .14538-linux-2.5.69-bk13/include/linux/percpu.h	2003-05-19 15:08:47.000000000 +1000
-+++ .14538-linux-2.5.69-bk13.updated/include/linux/percpu.h	2003-05-19 15:08:48.000000000 +1000
-@@ -10,6 +10,10 @@
- 
- #ifdef CONFIG_SMP
- 
-+/* var is in discarded region: offset to particular copy we want */
-+#define per_cpu(var, cpu) (*RELOC_HIDE(&var##__per_cpu, __per_cpu_offset[cpu]))
-+extern unsigned long __per_cpu_offset[NR_CPUS];
-+
- struct percpu_data {
- 	void *ptrs[NR_CPUS];
- 	void *blkp;
+-- 
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278057AbRJOU5k>; Mon, 15 Oct 2001 16:57:40 -0400
+	id <S278075AbRJOU7A>; Mon, 15 Oct 2001 16:59:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278075AbRJOU5a>; Mon, 15 Oct 2001 16:57:30 -0400
-Received: from pD9525065.dip.t-dialin.net ([217.82.80.101]:60040 "EHLO
-	beermail.no-ip.com") by vger.kernel.org with ESMTP
-	id <S278057AbRJOU5T> convert rfc822-to-8bit; Mon, 15 Oct 2001 16:57:19 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Slo Mo Snail <slomo@beermail.no-ip.com>
-Reply-To: slomo@beermail.no-ip.com
-To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-Subject: Re: How many versions of VM are there?
-Date: Mon, 15 Oct 2001 22:58:22 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.LNX.4.33.0110151105400.22170-100000@shell1.aracnet.com>
-In-Reply-To: <Pine.LNX.4.33.0110151105400.22170-100000@shell1.aracnet.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15tEoY-0000dt-00@beermail.no-ip.com>
+	id <S278347AbRJOU6u>; Mon, 15 Oct 2001 16:58:50 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:4358 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S278075AbRJOU6g>; Mon, 15 Oct 2001 16:58:36 -0400
+Date: Mon, 15 Oct 2001 16:59:09 -0400
+From: Bill Davidsen <davidsen@deathstar.prodigy.com>
+Message-Id: <200110152059.f9FKx9q00507@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: TCP acking too fast
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <3BC8DAF0.3D16A546@welho.com>
+Organization: Prodigy http://www.prodigy.com/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As far as I know there are 2 different version of VM:
-2.2.x and 2.4.x-acyy: Rik von Riel's VM (but I'm not sure wether it's the 
-same VM)
-2.4.x: Andrea's VM
+In article <3BC8DAF0.3D16A546@welho.com> Mika.Liljeberg@welho.com wrote:
 
-You find Documentation in
-Documentation/vm/*
-Documentation/sysctl/vm.txt
+>I've already disabled quickacks, replaced the receive MSS estimate with
+>advertised MSS in the ack sending policy (two places), and removed one
+>dubious "immediate ack" condition from send_delay_ack(). The annoying
+>thing is that none of this seem to make any real difference. I must be
+>missing something huge that's right in front of my nose, but I'm
+>starting to run out of steam.
+>
+>Any thoughts on this?
 
-but i think there's no Documentation of Andrea's VM yet
+The discussion has been most complete, I guess at this point is you
+can't fix the sender to stop this anti-social behaviour, you might try
+using iptables to "mangle" the PSH off from this host or rate limit the
+ACKs, or some other hack. None of which is a "solution," just some
+interesting things to try.
 
-Bye
+As noted, the core problem is that TCP doesn't like really asymmetric
+bandwidth.
 
-> Can I get some clarification on how many different versions of VM are
-> "kicking around?" I know there is the 2.2 version, the 2.4.x Linus Torvalds
-> version, and Rik van Riel's version which currently resides in the
-> 2.4.x-acyy tree. Are there others? Which one is likely to be the "fittest
-> that survives?" And where might I find documentation on the tuning
-> parameters? The 2.2 version is of little interest, but the others are quite
-> important.
-
+-- 
+bill davidsen <davidsen@tmr.com>
+ "If I were a diplomat, in the best case I'd go hungry.  In the worst
+  case, people would die."
+		-- Robert Lipe

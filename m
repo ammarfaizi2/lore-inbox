@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbUJXLEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbUJXLKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbUJXLEy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 07:04:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbUJXLEx
+	id S261441AbUJXLKl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 07:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbUJXLKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 07:04:53 -0400
-Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:24729 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261438AbUJXLEw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 07:04:52 -0400
-Date: Sun, 24 Oct 2004 13:04:48 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: "Jeff V. Merkey" <jmerkey@drdos.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.6.9 and GPL Buyout
-Message-ID: <20041024110448.GB27485@merlin.emma.line.org>
-Mail-Followup-To: "Jeff V. Merkey" <jmerkey@drdos.com>,
-	linux-kernel@vger.kernel.org
-References: <1098480691.8033.8.camel@wombat.educ.indiana.edu> <41797B49.5020809@drdos.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41797B49.5020809@drdos.com>
-User-Agent: Mutt/1.5.6i
+	Sun, 24 Oct 2004 07:10:41 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:55616 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261441AbUJXLKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 07:10:01 -0400
+Date: Sun, 24 Oct 2004 13:09:54 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Cyclades assignment warning
+Message-ID: <Pine.LNX.4.61.0410241308380.27036@anakin>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Oct 2004, Jeff V. Merkey wrote:
 
-> I'll post the entire listing with line numbers of the files SCO 
-> [alleges] were taken from UNIX by IBM and others. 
+Cyclades: Remove unneeded cast that causes a warning (cy_isa_addresses is an
+array of unsigned ints).
 
-So where did you put that list up?
+--- linux-2.6.10-rc1/drivers/char/cyclades.c.orig	2004-10-23 10:33:00.000000000 +0200
++++ linux-2.6.10-rc1/drivers/char/cyclades.c	2004-10-24 12:47:52.000000000 +0200
+@@ -5551,7 +5551,7 @@ cy_setup(char *str, int *ints)
+     }
+     for (j = 1; j <= ints[0]; j++){
+         if ( i < NR_ISA_ADDRS ){
+-            cy_isa_addresses[i++] = (unsigned char *)(ints[j]);
++            cy_isa_addresses[i++] = ints[j];
+         }
+     }
+ #endif /* CONFIG_ISA */
 
--- 
-Matthias Andree
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,97 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286968AbSABMET>; Wed, 2 Jan 2002 07:04:19 -0500
+	id <S286976AbSABMIr>; Wed, 2 Jan 2002 07:08:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286966AbSABMEI>; Wed, 2 Jan 2002 07:04:08 -0500
-Received: from wiproecmx1.wipro.com ([164.164.31.5]:42890 "EHLO
-	wiproecmx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S286841AbSABMD4>; Wed, 2 Jan 2002 07:03:56 -0500
-From: "Raghavendra Koushik" <raghavendra.koushik@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: Hot swap support in linux?
-Date: Wed, 2 Jan 2002 17:28:50 +0530
-Message-ID: <005501c19384$d7fca730$5408720a@M3NOR67026>
+	id <S286979AbSABMIh>; Wed, 2 Jan 2002 07:08:37 -0500
+Received: from racine.noos.net ([212.198.2.71]:14110 "EHLO smtp.noos.fr")
+	by vger.kernel.org with ESMTP id <S286976AbSABMI1>;
+	Wed, 2 Jan 2002 07:08:27 -0500
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Thomas Capricelli <tcaprice@logatique.fr>
+Cc: Momchil Velikov <velco@fadata.bg>, Tom Rini <trini@kernel.crashing.org>,
+        <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: [PATCH] mesh: target 0 aborted
+Date: Wed, 2 Jan 2002 13:08:16 +0100
+Message-Id: <20020102120816.16274@smtp.noos.fr>
+In-Reply-To: <20020102105250.8AE1323CBB@persephone.dmz.logatique.fr>
+In-Reply-To: <20020102105250.8AE1323CBB@persephone.dmz.logatique.fr>
+X-Mailer: CTM PowerMail 3.1.1 carbon <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPartTM-000-4c2d7344-ff77-11d5-a940-00b0d0d06be8"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
-In-Reply-To: <E16LLva-0008AG-00@the-village.bc.nu>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>	I'm the one responsible for this patch. I can't boot my powerpc7600
+whithout 
+>it. I've been pushing this patch (on the linux-ppc list) for so long
+(several 
+>years, don't remember), that I've given up last year.
+>
+>	Linuxppc people are even worse than Linus. I did not even get an answer 
+>about a problem with my patch or whatever. Pure 'nothing'. Not even a 'no'.
+>
+>	I'm still ready to test/discuss about the pb with anybody, anyway.
+>
+>	Let's get clear about what I've done : I'm using linuxppc for many years, 
+>and at one point, the kernel refused to boot. I've checked the difference 
+>between this kernel and the last one I was using, and merely changed
+back the 
+>mesh.c so that it works. As I was not following kernel dvpmt very closely by 
+>then, I can't tell when the change that broke things came in.
 
-This is a multi-part message in MIME format.
+I'm probably responsible for your patch never beeing merged then, sorry
+about that. MESH is a weird beast, sometimes, fixing it for one case will
+break others, it's pretty timing sensitive and full of interesting HW
+bugs. One problem I have currently is the lack of HW. Fortunately, I've
+managed to get back an old 8500 class machine (with MESH), this will
+allow me to play a bit with it.
 
-------=_NextPartTM-000-4c2d7344-ff77-11d5-a940-00b0d0d06be8
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+I'm away for now, but I'll look into this once I'm back, next week.
 
-few more questions pertaining to hot swap..
-1. 	how exactly do I build my linux kernel with hotswap support. When I do
-	'make xconfig' (for linux 2.4.4 kernel) I don't see a hotplug option.
-
-2.	If I write my driver according to the new way of writing PCI drivers for
-    	ethernet cards i.e using MODULE_DEVICE_TABLE et al, is it enough to
-make
-	my driver hot pluggable.
-
-3.	Does the NIC need to provide any particular h/w support to make it
-	hotpluggable.
-
-
-Thanks in advance
-Koushik
-
-
- 
-
-
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Alan Cox
-Sent: Tuesday, January 01, 2002 3:44 PM
-To: Raghavendra Koushik
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hot swap support in linux?
+Ben.
 
 
-> Does the current linux kernel support hot swap feature for
-network interface
-> cards(NICs). I would be glad if any of you can provide me some pointers or
-> documentation regards the same...
-
-If your hardware supports it - yes. You'll need something like the compaq
-hotswap pci backplanes or of course simply use cardbus
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-------=_NextPartTM-000-4c2d7344-ff77-11d5-a940-00b0d0d06be8
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
------------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-------------------------------------------------------------------------------------------------------------------------
-
-------=_NextPartTM-000-4c2d7344-ff77-11d5-a940-00b0d0d06be8--

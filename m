@@ -1,54 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263264AbTCYTYA>; Tue, 25 Mar 2003 14:24:00 -0500
+	id <S263273AbTCYT0v>; Tue, 25 Mar 2003 14:26:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263251AbTCYTXT>; Tue, 25 Mar 2003 14:23:19 -0500
-Received: from a089148.adsl.hansenet.de ([213.191.89.148]:56707 "EHLO
-	ds666.starfleet") by vger.kernel.org with ESMTP id <S263249AbTCYTWj>;
-	Tue, 25 Mar 2003 14:22:39 -0500
-Message-ID: <3E80AF19.3010708@portrix.net>
-Date: Tue, 25 Mar 2003 20:33:45 +0100
-From: Jan Dittmer <j.dittmer@portrix.net>
-Organization: portrix.net GmbH
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030305
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: Re: add eeprom i2c driver
-References: <3E806AC6.30503@portrix.net> <20030325172024.GC15823@kroah.com>
-In-Reply-To: <20030325172024.GC15823@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263276AbTCYT0u>; Tue, 25 Mar 2003 14:26:50 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:3761 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S263273AbTCYT0o>; Tue, 25 Mar 2003 14:26:44 -0500
+Date: Tue, 25 Mar 2003 20:37:17 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] pcmcia (2/4): remove "init_status" from struct pcmcia_driver
+Message-ID: <20030325193717.GB15319@brodo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Tue, Mar 25, 2003 at 03:42:14PM +0100, Jan Dittmer wrote:
-> 
->>This adds support for reading eeproms.
->>Tested against latest bk changes with i2c-isa.
-> 
-> 
-> I'd like to hold off in submitting the i2c chip drivers just yet, due to
-> the changes for sysfs that are going to be needed for these drivers.
-> 
-> As an example of the changes necessary, here's a patch against the i2c
-> cvs version of the eeprom.c driver that converts it over to use sysfs,
-> instead of the /proc and sysctl interface.  It's still a bit rough, but
-> you should get the idea of where I'm wanting to go with this.  As you
-> can see, it takes about 100 lines of code off of this driver, which is
-> nice.
-> 
-> I'm copying the sensors list too, as they wanted to see how this was
-> going to be done.
-> 
-> Comments?
-> 
+As we don't have a late_initcall in ds.c any more, we can't easily
+distinguish between in-kernel drivers and those built as modules. This
+information was used by cardmgr to detect whether "rmmod" makes
+sense. As unloading of modules seems to be deprecated behaviour anyway
+in 2.5., and the current driver unloading process is IMO broken
+anyway, I don't shed any tears on this lost functionality.
 
-Looks good, I'll try to come up with a converted version of via686a 
-later. Should tidy up a lot.
+ drivers/pcmcia/ds.c |    7 +------
+ include/pcmcia/ds.h |    2 +-
+ 2 files changed, 2 insertions(+), 7 deletions(-)
 
-Jan
-
-
+diff -ruN linux-original/drivers/pcmcia/ds.c linux/drivers/pcmcia/ds.c
+--- linux-original/drivers/pcmcia/ds.c	2003-03-25 19:49:54.000000000 +0100
++++ linux/drivers/pcmcia/ds.c	2003-03-25 19:55:59.000000000 +0100
+@@ -129,9 +129,6 @@
+ 
+ extern struct proc_dir_entry *proc_pccard;
+ 
+-/* We use this to distinguish in-kernel from modular drivers */
+-static int init_status = 1;
+-
+ /*====================================================================*/
+ 
+ static void cs_error(client_handle_t handle, int func, int ret)
+@@ -156,7 +153,6 @@
+ 		return -EINVAL;
+ 
+  	driver->use_count = 0;
+- 	driver->status = init_status;
+ 	driver->drv.bus = &pcmcia_bus_type;
+ 
+ 	return driver_register(&driver->drv);
+@@ -251,8 +247,7 @@
+ 	struct pcmcia_driver *p_dev = container_of(driver, 
+ 						   struct pcmcia_driver, drv);
+ 
+-	*p += sprintf(*p, "%-24.24s %d %d\n", driver->name, p_dev->status,
+-		     p_dev->use_count);
++	*p += sprintf(*p, "%-24.24s 1 %d\n", driver->name, p_dev->use_count);
+ 	d = (void *) p;
+ 
+ 	return 0;
+diff -ruN linux-original/include/pcmcia/ds.h linux/include/pcmcia/ds.h
+--- linux-original/include/pcmcia/ds.h	2003-03-25 18:26:53.000000000 +0100
++++ linux/include/pcmcia/ds.h	2003-03-25 19:51:04.000000000 +0100
+@@ -144,7 +144,7 @@
+ extern struct bus_type pcmcia_bus_type;
+ 
+ struct pcmcia_driver {
+-	int			use_count, status;
++	int			use_count;
+ 	dev_link_t		*(*attach)(void);
+ 	void			(*detach)(dev_link_t *);
+ 	struct module		*owner;

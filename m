@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261472AbSJTVN3>; Sun, 20 Oct 2002 17:13:29 -0400
+	id <S261510AbSJTVgL>; Sun, 20 Oct 2002 17:36:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261489AbSJTVN3>; Sun, 20 Oct 2002 17:13:29 -0400
-Received: from shells.hardanger.net ([209.113.172.35]:45320 "EHLO
-	server.bohemians.org") by vger.kernel.org with ESMTP
-	id <S261472AbSJTVN2>; Sun, 20 Oct 2002 17:13:28 -0400
-Date: Sun, 20 Oct 2002 22:19:32 +0100
-From: Martin Dahl <dahlm@izno.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: include/linux/pnp.h:248: parse error before ')' token
-Message-ID: <20021020211931.GA11137@izno.net>
-References: <20021020211420.GA10444@izno.net>
+	id <S261687AbSJTVgL>; Sun, 20 Oct 2002 17:36:11 -0400
+Received: from AGrenoble-101-1-3-17.abo.wanadoo.fr ([193.253.251.17]:16326
+	"EHLO awak") by vger.kernel.org with ESMTP id <S261510AbSJTVgK> convert rfc822-to-8bit;
+	Sun, 20 Oct 2002 17:36:10 -0400
+Subject: Re: Bitkeeper outrage, old and new
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Robert Love <rml@tech9.net>
+Cc: Ben Collins <bcollins@debian.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Richard Stallman <rms@gnu.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1035141319.16887.293.camel@phantasy>
+References: <20021014170248.A19897@infradead.org>
+	<E181WHl-00010N-00@fencepost.gnu.org> <20021015193138.A4010@infradead.org>
+	<200210161856.g9GIu57t013710@santafe.santafe.edu>
+	<20021016201328.A24882@infradead.org> <E1832Lh-0004xH-00@fencepost.gnu.org>
+	<20021019161201.A26017@work.bitmover.com> <3DB1EAAB.30401@pobox.com>
+	<20021020154609.GD696@phunnypharm.org> <3DB2E661.8070802@pobox.com> 
+	<20021020173438.GK696@phunnypharm.org> 
+	<1035141319.16887.293.camel@phantasy>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 20 Oct 2002 23:42:02 +0200
+Message-Id: <1035150122.967.5.camel@bip>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021020211420.GA10444@izno.net>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doh, forgot to say, this is with 2.5.44
-
-> Got this when compiling parport_pc.c, looks like a typo in pnp.h
+Le dim 20/10/2002 à 21:15, Robert Love a écrit :
+> On Sun, 2002-10-20 at 13:34, Ben Collins wrote:
 > 
-> --- include/linux/pnp.h.orig    2002-10-20 22:08:38.000000000 +0100
-> +++ include/linux/pnp.h 2002-10-20 22:08:49.000000000 +0100
-> @@ -245,7 +245,7 @@
->  
->  /* just in case anyone decides to call these without PnP Support Enabled */
->  static inline int pnp_protocol_register(struct pnp_protocol *protocol) { return -ENODEV; }
-> -static inline void pnp_protocol_unregister(struct pnp_protocol *protocol) { ; )
-> +static inline void pnp_protocol_unregister(struct pnp_protocol *protocol) { ; }
->  static inline int pnp_init_device(struct pnp_dev *dev) { return -ENODEV; }
->  static inline int pnp_add_device(struct pnp_dev *dev) { return -ENODEV; }
->  static inline void pnp_remove_device(struct pnp_dev *dev) { ; }
+> > I disagree. I don't see anything in the copyright assignment (and I have
+> > signed a few for the FSF) that says I don't retain original copyright
+> > for my work.
+> 
+> That is only because they relicense the work back to you (and its GPLed
+> you have a lot of freedom with it anyhow).
+> 
+> When you sign over your copyright, you relinquish it.  The FSF now has
+> the copyright on your work and you do not.
 
--- 
-Martin Dahl
-dahlm@izno.net
+You're plain wrong. 
+
+You both have the copyright on your work.
+
+	Xav
+
+

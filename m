@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbTLLRzt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 12:55:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbTLLRzt
+	id S261595AbTLLR5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 12:57:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbTLLR5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 12:55:49 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:13215 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S261744AbTLLRzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 12:55:49 -0500
-Date: Fri, 12 Dec 2003 09:55:42 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Backport ide-cd cdrecord support to 2.4
-Message-ID: <20031212175542.GK15401@matchmail.com>
-Mail-Followup-To: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-References: <20031211230830.GJ15401@matchmail.com> <20031212074414.GO7599@suse.de>
+	Fri, 12 Dec 2003 12:57:16 -0500
+Received: from mail.kroah.org ([65.200.24.183]:42933 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261595AbTLLR5O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 12:57:14 -0500
+Date: Fri, 12 Dec 2003 09:56:57 -0800
+From: Greg KH <greg@kroah.com>
+To: Johannes Stezenbach <js@convergence.de>, sensors@stimpy.netroedge.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test11: i2c-dev.h for userspace
+Message-ID: <20031212175656.GA2933@kroah.com>
+References: <20031212145652.GA30747@convergence.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031212074414.GO7599@suse.de>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031212145652.GA30747@convergence.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 12, 2003 at 08:44:14AM +0100, Jens Axboe wrote:
-> On Thu, Dec 11 2003, Mike Fedyk wrote:
-> > If there's one feature that I'd love to see in 2.4 it's eliminating my need
-> > for ide-scsi completely. :)
+On Fri, Dec 12, 2003 at 03:56:52PM +0100, Johannes Stezenbach wrote:
 > 
-> Well that's not going to happen. It's not an isolated feature, it's a
-> small addon to the new block io infrastructure in 2.6.
+> I had some trouble compiling a userspace application
+> which uses the I2C device interface (the DirectFB
+> Matrox driver). Apparently some stuff has been removed
+> from i2c-dev.h
 
-Drat, I didn't realize it depended on the BIO infrastructure.
+Yes it has.  Do not use the kernel headers in your userspace
+application.  If you need this interface, use the updated i2c-dev.h that
+is in the lmsensors release.  That is the proper file.
 
-Thanks for clairifying.
+thanks,
+
+greg k-h

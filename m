@@ -1,77 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266396AbUA2VBi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 16:01:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266397AbUA2VBh
+	id S266335AbUA2Uwg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 15:52:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266348AbUA2Uwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 16:01:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:18911 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266396AbUA2VBf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 16:01:35 -0500
-Date: Thu, 29 Jan 2004 12:56:13 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: kiza@gmx.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-rc2 + aha152x still oopses
-Message-Id: <20040129125613.0757af61.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0401292100001.4784-100000@poirot.grange>
-References: <200401281458.47217.kiza@gmx.net>
-	<Pine.LNX.4.44.0401292100001.4784-100000@poirot.grange>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Jan 2004 15:52:36 -0500
+Received: from mail46-s.fg.online.no ([148.122.161.46]:57000 "EHLO
+	mail46-s.fg.online.no") by vger.kernel.org with ESMTP
+	id S266335AbUA2Uwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 15:52:34 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Lindent fixed to match reality
+References: <20040129193727.GJ21888@waste.org>
+	<20040129201556.GK16675@khan.acc.umu.se> <yw1xr7xi1ojs.fsf@kth.se>
+	<20040129204250.GL16675@khan.acc.umu.se>
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Thu, 29 Jan 2004 21:52:12 +0100
+In-Reply-To: <20040129204250.GL16675@khan.acc.umu.se> (David Weinehall's
+ message of "Thu, 29 Jan 2004 21:42:50 +0100")
+Message-ID: <yw1xn0861nr7.fsf@kth.se>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+David Weinehall <tao@acc.umu.se> writes:
 
-The aha152x maintainer (Juergen E. Fischer) has already replied:
+> On Thu, Jan 29, 2004 at 09:35:03PM +0100, Måns Rullgård wrote:
+>> David Weinehall <tao@acc.umu.se> writes:
+>> 
+>> >> b) (no -bs) "sizeof(foo)" rather than "sizeof (foo)"
+>> >
+>> > I can't really see the logic in this, though I know a lot of people do
+>> > it.  I try to stay consistent, thus I do:
+>> >
+>> > if ()
+>> > for ()
+>> > case ()
+>> > while ()
+>> > sizeof ()
+>> > typeof ()
+>> >
+>> > since they're all parts of the language, rather than
+>> > functions/macros or invocations of such.
+>> 
+>> What I fail to see here is why that should make a difference regarding
+>> whitespace before the parens.
+>
+> All I'm trying to say, is that we should be consistent; most code
+> has:
+>
+> if (), for (), case (), while ()
+>
+> (and possibly sizeof foo, typeof foo)
+>
+> but
+>
+> sizeof(foo), typeof(foo)
+>
+> which is what I dislike (consistancy is good.)
 
-No, that was an other bug.  Try attached patch.  I already submitted it
-to Andrew Morton and expect it to appear in 2.6.2.
+Well, those have function-like semantics in that they have a value,
+unlike an if statement.  That could possibly explain the difference.
+I know perfectly well that sizeof is not a function, so don't bother
+explaining that.
 
-
-
-On Thu, 29 Jan 2004 21:06:16 +0100 (CET) Guennadi Liakhovetski <g.liakhovetski@gmx.de> wrote:
-
-| I am forwarding your email to linux-scsi. Besides, there has been some
-| fixes merged recently in 2.6.2-rcX, try the latest available. However, not
-| sure if your specific problem has been fixed there.
-| 
-| Guennadi
-| 
-| On Wed, 28 Jan 2004, Oliver Feiler wrote:
-| 
-| > Hi,
-| >
-| > this is related to my post from Jan 7th, see
-| > http://lkml.org/lkml/2004/1/6/202.
-| >
-| > The Oops in the aha152x driver was supposed to be fixed in 2.6.1-rc1 from what
-| > I was told. I've been running 2.6.1-rc2 and indeed it didn't happen with that
-| > kernel. Today however I got a slightly different oops with the same kernel. I
-| > didn't see any changes to the driver since 2.6.1-rc2 so I didn't upgrade
-| > (takes a long time to compile on a 486).
-| >
-| > I got two oopses which I attached to this mail. After that the system needed
-| > to be resetted. Is this a new problem or did I just miss changes to the
-| > driver and it is already fixed in 2.6.2-rc2?
-| >
-| > Bye,
-| > Oliver
-| >
-| > --
-| > Oliver Feiler  <kiza@(kcore.de|lionking.org|gmx[pro].net)>
-| >
-| 
-| ---
-| Guennadi Liakhovetski
-
---
-~Randy
-kernel-janitors project:  http://janitor.kernelnewbies.org/
+-- 
+Måns Rullgård
+mru@kth.se

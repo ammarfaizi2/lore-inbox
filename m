@@ -1,98 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262518AbUDAPPi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 10:15:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbUDAPPi
+	id S262453AbUDAPSC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 10:18:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbUDAPSC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 10:15:38 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:38630
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262518AbUDAPPf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 10:15:35 -0500
-Date: Thu, 1 Apr 2004 17:15:34 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, vrajesh@umich.edu,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
-Message-ID: <20040401151534.GJ18585@dualathlon.random>
-References: <20040401020126.GW2143@dualathlon.random> <Pine.LNX.4.44.0404010549540.28566-100000@localhost.localdomain> <20040401133555.GC18585@dualathlon.random> <20040401150911.GI18585@dualathlon.random>
+	Thu, 1 Apr 2004 10:18:02 -0500
+Received: from fed1mtao04.cox.net ([68.6.19.241]:22491 "EHLO
+	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S262453AbUDAPRz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 10:17:55 -0500
+Date: Thu, 1 Apr 2004 08:17:43 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Martin Schaffner <schaffner@gmx.li>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: booting 2.6.4 from OpenFirmware
+Message-ID: <20040401151743.GF21709@smtp.west.cox.net>
+References: <321B041D-8298-11D8-AC61-0003931E0B62@gmx.li> <1080687527.1198.48.camel@gaston> <555BCB50-837A-11D8-8BC8-0003931E0B62@gmx.li>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040401150911.GI18585@dualathlon.random>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <555BCB50-837A-11D8-8BC8-0003931E0B62@gmx.li>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids x-ref/mm/page_io.c x/mm/page_io.c
-> --- x-ref/mm/page_io.c	2004-04-01 17:07:10.231289760 +0200
-> +++ x/mm/page_io.c	2004-04-01 17:07:33.182800600 +0200
-> @@ -139,7 +139,7 @@ struct address_space_operations swap_aop
->  
->  /*
->   * A scruffy utility function to read or write an arbitrary swap page
-> - * and wait on the I/O.
-> + * and wait on the I/O.  The caller must have a ref on the page.
->   */
->  int rw_swap_page_sync(int rw, swp_entry_t entry, struct page *page)
->  {
-> @@ -151,8 +151,16 @@ int rw_swap_page_sync(int rw, swp_entry_
->  	lock_page(page);
->  
->  	BUG_ON(page->mapping);
-> -	page->mapping = &swapper_space;
-> -	page->index = entry.val;
-> +	ret = add_to_page_cache(page, &swapper_space, entry.val, GFP_KERNEL);
-> +	if (unlikely(ret)) {
-> +		unlock_page(page);
-> +		return ret;
-> +	}
-> +	/*
-> +	 * get one more reference to make page non-exclusive so
-> +	 * remove_exclusive_swap_page won't mess with it.
-> +	 */
-> +	page_cache_get(page);
->  
->  	if (rw == READ) {
->  		ret = swap_readpage(NULL, page);
-> @@ -161,7 +169,13 @@ int rw_swap_page_sync(int rw, swp_entry_
->  		ret = swap_writepage(page, &swap_wbc);
->  		wait_on_page_writeback(page);
->  	}
-> -	page->mapping = NULL;
-> +
-> +	lock_page(page);
-> +	remove_from_page_cache(page);
-> +	unlock_page(page);
-> +	page_cache_release(page);
-> +	page_cache_release(page);	/* For add_to_page_cache() */
-> +
->  	if (ret == 0 && (!PageUptodate(page) || PageError(page)))
->  		ret = -EIO;
->  	return ret;
+On Thu, Apr 01, 2004 at 02:17:24AM +0100, Martin Schaffner wrote:
+> 
+> On 30.03.2004, at 23:58, Benjamin Herrenschmidt wrote:
+> 
+> >On Wed, 2004-03-31 at 08:18, Martin Schaffner wrote:
+> >>Hi,
+> >>
+> >>I try to boot linux-2.6.4 from OpenFirmware on my Apple iBook2 (dual
+> >>USB). I'm using the image named "vmlinux.elf-pmac". While linux-2.4.25
+> >>boots fine, linux-2.6.4 doesn't  [...]
+> >>
+> >>If I try to boot the stock kernel, OpenFirmware tells me "Claim
+> >>failed", and returns to the command prompt.
+> >
+> >That's strange, I do such netbooting everyday on a wide range of
+> >machines without trouble. Are you using some kind of cross compiler ?
+> >Maybe there are some issues with cross compiling of the boot wrapper...
+> 
+> I WAS cross-compiling, but the problem persists when compiling 
+> natively. I don't net-boot but load the image from a HFS+ partition. I 
+> can't boot
+> 
+> http://membres.lycos.fr/schaffner/vmlinux.orig
+> 
+> which is a compilation of linux-2.6.4 with
+> 
+> http://membres.lycos.fr/schaffner/.config
+> 
+> I can, however, boot
+> 
+> http://membres.lycos.fr/schaffner/vmlinux.patched
+> 
+> which is the same after the following patch:
+> 
+> http://membres.lycos.fr/schaffner/boot-of-works.patch
+> 
+> Maybe the problem is specific to the model of the machine?
 
-incrementally to the above I applied this hardness checks in the
-anon-vma patch, so we're safe against the problem Andrew outlined
-(somebody attempting to do swapin/swapouts of anonymous pages through
-that interface, something that shouldn't happen since we want only the
-VM to deal with userspace mapped pages).
+I suspect that there's some ELF sections which need to be dropped.
+Can you do an objdump -x on the vmlinux.elf-pmac with and without that
+patch and tell us which names are missing from the working one?  Thanks.
 
-@@ -149,8 +149,14 @@ int rw_swap_page_sync(int rw, swp_entry_
- 	};
- 
- 	lock_page(page);
--
-+	/*
-+	 * This library call can be only used to do I/O
-+	 * on _private_ pages just allocated with alloc_pages().
-+	 */
- 	BUG_ON(page->mapping);
-+	BUG_ON(PageSwapCache(page));
-+	BUG_ON(PageAnon(page));
-+	BUG_ON(PageLRU(page));
- 	ret = add_to_page_cache(page, &swapper_space, entry.val, GFP_KERNEL);
- 	if (unlikely(ret)) {
- 		unlock_page(page);
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

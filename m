@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130164AbRA2Lsm>; Mon, 29 Jan 2001 06:48:42 -0500
+	id <S130330AbRA2Lws>; Mon, 29 Jan 2001 06:52:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130330AbRA2Lsd>; Mon, 29 Jan 2001 06:48:33 -0500
-Received: from rasputin.trustix.com ([195.139.104.66]:773 "HELO
-	rasputin.trustix.com") by vger.kernel.org with SMTP
-	id <S130164AbRA2LsP>; Mon, 29 Jan 2001 06:48:15 -0500
-Message-ID: <3A75589D.3011F759@trustix.com>
-Date: Mon, 29 Jan 2001 12:48:45 +0100
-From: Lars Gaarden <larsg@trustix.com>
-Organization: Trustix AS
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac9 i686)
+	id <S131160AbRA2Lw3>; Mon, 29 Jan 2001 06:52:29 -0500
+Received: from embolism.psychosis.com ([216.242.103.100]:18182 "EHLO
+	embolism.psychosis.com") by vger.kernel.org with ESMTP
+	id <S130330AbRA2LwS>; Mon, 29 Jan 2001 06:52:18 -0500
+Message-ID: <3A755950.9C730B80@psychosis.com>
+Date: Mon, 29 Jan 2001 06:51:44 -0500
+From: Dave Cinege <dcinege@psychosis.com>
+Reply-To: dcinege@psychosis.com
+Organization: www.psychosis.com
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1p11-1 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Adrian Cox <apc@agelectronics.co.uk>
-Cc: Dylan Griffiths <Dylan_G@bigfoot.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: More on the VIA KT133 chipset misbehaving in Linux
-In-Reply-To: <3A75278F.B41B492B@bigfoot.com> <3A75507A.9386AFE2@agelectronics.co.uk>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] Remove arbitrary md= boot device limit
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Cox wrote:
-> 
-> Dylan Griffiths wrote:
-> > The VIA KT133 chipset exhibits the following bugs under Linux 2.2.17 and
-> > 2.4.0:
-> > 1) PS/2 mouse cursor randomly jumps to upper right hand corner of screen and
-> > locks for a bit
-> 
-> This happens to me about once a month on a BX chipset PII machine here,
-> and on a KT133 chipset machine I have.  I have to hit ctrl-alt-backspace
-> to regain control of the console. I always assumed it was a bug in X,
-> but it never caused me enough trouble to actually make me pursue it.
+linux-2.4.1p11-1/drivers/md/md.c
+line 3643
+-#define MAX_MD_BOOT_DEVS     8
++#define MAX_MD_BOOT_DEVS     MAX_MD_DEVS
 
-Useless datapoint:
-I've experienced the same a few times on an old Pentium computer.
-Mouse pointer jumps to upper right corner, and locks hard.
-Intel chipset, not sure if it is FX or HX. Matrox Mill2 graphics card.
-Kernel is 2.2.16-ish on a modified RH6.1. XFree 3.3.6. gpm is running.
+-------------------------------------------------------
+To:  Dave Cinege <dcinege@psychosis.com>
+
+On Mon, 29 Jan 2001, Dave Cinege wrote:
+
+> -#define MAX_MD_BOOT_DEVS     8
+> +#define MAX_MD_BOOT_DEVS     MAX_MD_DEVS
+
+sure this is fine.
+
+        Ingo
+-------------------------------------------------------
+To:	Ingo Molnar <mingo@redhat.com>
+
+Devices above md8 will not be initialized when speced with md=.
+Error ("md: Minor device number too high.\n");
+
+The limitation is imposed by
+        #define MAX_MD_BOOT_DEVS        8
+However it appears arbitray to me. Doesn't make much sence since you can create
+/dev/md100 and it may well be the only md device you have...
+
+Is there any reason the next 2.4.1 prepatch should not include this?
+
+-#define MAX_MD_BOOT_DEVS       8
++#define MAX_MD_BOOT_DEVS       MAX_MD_DEVS
+
+(If not I assume you will be submitting this to Linus...)
 
 -- 
-LarsG
+"Nobody will ever be safe until the last cop is dead."
+		NH Rep. Tom Alciere - (My new Hero)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbRADGKs>; Thu, 4 Jan 2001 01:10:48 -0500
+	id <S129348AbRADGRR>; Thu, 4 Jan 2001 01:17:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129413AbRADGKi>; Thu, 4 Jan 2001 01:10:38 -0500
-Received: from webmail.metabyte.com ([216.218.208.53]:7200 "EHLO
-	webmail.metabyte.com") by vger.kernel.org with ESMTP
-	id <S129348AbRADGKg>; Thu, 4 Jan 2001 01:10:36 -0500
-Message-ID: <3A541361.65942CB3@metabyte.com>
-Date: Wed, 03 Jan 2001 22:08:33 -0800
-From: Pete Zaitcev <zaitcev@metabyte.com>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S129413AbRADGRH>; Thu, 4 Jan 2001 01:17:07 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:43781 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129348AbRADGQy>; Thu, 4 Jan 2001 01:16:54 -0500
+Date: Thu, 4 Jan 2001 02:25:19 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: __get_swap_page() minor problem 
+Message-ID: <Pine.LNX.4.21.0101040220180.1158-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: So, what about kwhich on RH6.2?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Jan 2001 06:10:34.0307 (UTC) FILETIME=[0C890130:01C07615]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Are we going to use Miquel's patch? I cannot build fresh 2.2.x
-on plain RH6.2 without it. The 2.2.19-pre6 comes out without it.
-Or is "install new bash" the official answer? Alan?
 
--- Pete
+Hi,
 
---- linux-2.2.19-pre3/scripts/kwhich	Sun Dec 10 16:49:45 2000
-+++ linux-2.2.19-pre3-p3/scripts/kwhich	Sat Dec 23 21:10:33 2000
-@@ -7,7 +7,7 @@
-         exit 1
- fi
+If the check for "count >= SWAP_MAP_MAX" in __get_swap_page is true, we
+will end up trying to unlock a not-yet-locked spinlock.
+
+Here goes a patch to change this.
+
+--- linux/mm/swapfile.c.orig	Thu Jan  4 04:10:08 2001
++++ linux/mm/swapfile.c	Thu Jan  4 04:10:12 2001
+@@ -90,8 +90,12 @@
+ 	int type, wrapped = 0;
  
--IFS=:
-+IFS=":$IFS"
- for cmd in $*
- do
-         for path in $PATH
+ 	entry.val = 0;	/* Out of memory */
+-	if (count >= SWAP_MAP_MAX)
+-		goto bad_count;
++	if (count >= SWAP_MAP_MAX) {
++		printk(KERN_ERR "get_swap_page: bad count %hd from %p\n",
++	       		count, __builtin_return_address(0));
++		return entry;
++	}
++
+ 	swap_list_lock();
+ 	type = swap_list.next;
+ 	if (type < 0)
+@@ -130,11 +134,6 @@
+ out:
+ 	swap_list_unlock();
+ 	return entry;
+-
+-bad_count:
+-	printk(KERN_ERR "get_swap_page: bad count %hd from %p\n",
+-	       count, __builtin_return_address(0));
+-	goto out;
+ }
+ 
+ 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

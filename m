@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266833AbUHWUUG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267344AbUHWUYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266833AbUHWUUG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 16:20:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266509AbUHWUTi
+	id S267344AbUHWUYU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 16:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267503AbUHWUYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 16:19:38 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:64467 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S267433AbUHWTJx convert rfc822-to-8bit (ORCPT
+	Mon, 23 Aug 2004 16:24:15 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:57785 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267344AbUHWTmS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 15:09:53 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] [broken?] Add MSI support to e1000
-Date: Mon, 23 Aug 2004 12:09:36 -0700
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E50240619D9DA@orsmsx404.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] [broken?] Add MSI support to e1000
-Thread-Index: AcSJNwRs4zo5B7KzQDSgaCSsNmW6aAACdFMg
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: "Roland Dreier" <roland@topspin.com>
-Cc: "cramerj" <cramerj@intel.com>, "Ronciak, John" <john.ronciak@intel.com>,
-       "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>,
-       <linux-net@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-X-OriginalArrivalTime: 23 Aug 2004 19:09:39.0930 (UTC) FILETIME=[BD4343A0:01C48944]
+	Mon, 23 Aug 2004 15:42:18 -0400
+Date: Mon, 23 Aug 2004 21:43:30 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P7
+Message-ID: <20040823194330.GA6539@elte.hu>
+References: <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu> <20040820133031.GA13105@elte.hu> <20040820195540.GA31798@elte.hu> <20040821140501.GA4189@elte.hu> <1093160993.817.46.camel@krustophenia.net> <1093282713.826.13.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093282713.826.13.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, August 23, 2004 Roland Dreier wrote: 
->    Tom> I do not see anything wrong with the patch and the kernel MSI
->    Tom> support because it works for a short time. Ganesh may provide
->    Tom> an answer on the MSI support in e1000 hardware.
->
->Based on the e1000 documentation I have, the only thing required for
->the e1000 to use MSI is to set the MSI enable bit in the PCI header.
->Of course there may be some e1000 erratum involving MSI but I have not
->been able to find any indication that this is the case.
->
->It seems possible that there could be some problem in the core Linux
->interrupt code even though some interrupts work -- for example there
->could be a race condition triggered when a second interrupt is
->delivered while handling the first interrupt.  However I couldn't find
->any such bug, although I am not at all an expert about low-level
->interrupt handling/APIC programming.
 
-MSI is an edge trigger, which requires the synchronization handshake 
-between the hardware device and its software device driver. For the 
-MSI-X capability structure, the kernel handles the synchronization 
-by masking and unmasking the MSI maskbits. For the MSI capability 
-structure, the MSI maskbits is optional. If the e1000 hardware does not
-support the MSI maskbits in its MSI capability structure, I guess it 
-could be a race condition in e1000 hardware, which results an 
-unpredictable behavior.
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-Thanks,
-Long
+> to file a bug report.  Traces can be found here:
+> 
+> http://krustophenia.net/2.6.8.1-P7
 
+re the skb latencies: Mark H Johnson managed to reduce net-input
+latencies by decreasing /proc/sys/net/core/netdev_max_backlog to 8 -
+could you try this, does it help? (you could try an even more extreme
+setting like 4.)
+
+	Ingo

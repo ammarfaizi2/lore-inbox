@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271320AbRHTQPn>; Mon, 20 Aug 2001 12:15:43 -0400
+	id <S271334AbRHTQQn>; Mon, 20 Aug 2001 12:16:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271321AbRHTQPd>; Mon, 20 Aug 2001 12:15:33 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:24733 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S271320AbRHTQPV>; Mon, 20 Aug 2001 12:15:21 -0400
-Date: Mon, 20 Aug 2001 10:15:38 -0600
-Message-Id: <200108201615.f7KGFcD01007@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Donald Thompson <dlt@dataventures.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Stallion EasyIO and devfs
-In-Reply-To: <Pine.LNX.4.31.0108200124160.11127-100000@dv1.dataventures.com>
-In-Reply-To: <200108122123.f7CLNDK03327@mobilix.ras.ucalgary.ca>
-	<Pine.LNX.4.31.0108200124160.11127-100000@dv1.dataventures.com>
+	id <S271332AbRHTQQ1>; Mon, 20 Aug 2001 12:16:27 -0400
+Received: from smtp6.mindspring.com ([207.69.200.110]:36103 "EHLO
+	smtp6.mindspring.com") by vger.kernel.org with ESMTP
+	id <S271334AbRHTQQN>; Mon, 20 Aug 2001 12:16:13 -0400
+Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
+From: Robert Love <rml@tech9.net>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Johan Adolfsson <johan.adolfsson@axis.com>,
+        Oliver Xymoron <oxymoron@waste.org>, linux-kernel@vger.kernel.org,
+        riel@conectiva.com.br
+In-Reply-To: <3B80EADC.234B39F0@evision-ventures.com>
+In-Reply-To: <Pine.LNX.4.30.0108182234250.31188-100000@waste.org>
+	<998193404.653.12.camel@phantasy> <3B80E01B.2C61FF8@evision-ventures.com>
+	<21a701c12963$bcb05b60$0a070d0a@axis.se> 
+	<3B80EADC.234B39F0@evision-ventures.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.19.07.08 (Preview Release)
+Date: 20 Aug 2001 12:15:51 -0400
+Message-Id: <998324166.2936.1.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Donald Thompson writes:
-> devfsd and the compatability links work correctly as of 2.4.8 with the
-> patch you provided.
-> 
-> This is quite possibly user error and not a kernel issue, but it seems
-> pppd 2.4.1 breaks once I've got the stallion card under devfsd with
-> compatability links.
-> 
-> mgetty runs on device lets say, /dev/ttyE2 (symlink to /dev/ttyE/2), and
-> passes off incoming connections to pppd. I'm expecting pppd is gonna want
-> to look at /etc/ppp/options.ttyE2, but its not.
-> 
-> If I change stallion.c at around line 145 from:
-> static char     *stl_serialname = "ttyE/%d";
-> 
-> To:
-> static char     *stl_serialname = "ttyE%d";
-> 
-> so that the real device becomes /dev/ttyE2 rather than a symlink to
-> /dev/ttyE/2 pppd starts looking at the correct options file.
+On 20 Aug 2001 12:47:56 +0200, Martin Dalecki wrote:
+> The device get's powerd up at a random time for the attacker.
+> That's entierly sufficient if you assume that your checksum function
+> f(i) hat the property that there is no function g, where we have
+> f(i+1)=g(f(i)), where g has a polynomial order over the time domain.
+> i is unknown for the attacker.
 
-The recent versions of devfsd expect the Stallion devices to have the
-name tts/E%d, so this suggests that you are running a virgin
-kernel. So grab devfs-patch-v187 and devfsd-v1.3.17 (or later) and try
-again. If you still have problems, run strace and analyse the result.
+isnt that the case?
 
-				Regards,
+also, its not even that g completes in polynomial time. its that g is
+not algorithmic at all.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

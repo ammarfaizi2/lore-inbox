@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284820AbRLZUQQ>; Wed, 26 Dec 2001 15:16:16 -0500
+	id <S284831AbRLZUN0>; Wed, 26 Dec 2001 15:13:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284853AbRLZUQH>; Wed, 26 Dec 2001 15:16:07 -0500
-Received: from mail3.svr.pol.co.uk ([195.92.193.19]:8038 "EHLO
-	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S284842AbRLZUPz>; Wed, 26 Dec 2001 15:15:55 -0500
-Posted-Date: Wed, 26 Dec 2001 20:15:50 GMT
-Date: Wed, 26 Dec 2001 20:15:50 +0000 (GMT)
-From: Riley Williams <rhw@MemAlpha.cx>
-Reply-To: Riley Williams <rhw@MemAlpha.cx>
-To: Eliezer dos Santos =?ISO-8859-1?Q?Magalh=E3es?= 
-	<magalhaes@intime-net.com.br>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: writing device drivers
-In-Reply-To: <01c301c18e45$6e2dd6b0$6400000a@cyber>
-Message-ID: <Pine.LNX.4.21.0112262004260.32161-100000@Consulate.UFP.CX>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284836AbRLZUNQ>; Wed, 26 Dec 2001 15:13:16 -0500
+Received: from ns01.netrox.net ([64.118.231.130]:15766 "EHLO smtp01.netrox.net")
+	by vger.kernel.org with ESMTP id <S284831AbRLZUNC>;
+	Wed, 26 Dec 2001 15:13:02 -0500
+Subject: Re: [PATCH] fully preemptible kernel
+From: Robert Love <rml@tech9.net>
+To: Steve Bergman <steve@rueb.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1009396922.1678.9.camel@voyager.rueb.com>
+In-Reply-To: <1007930466.11789.2.camel@phantasy> 
+	<1009396922.1678.9.camel@voyager.rueb.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
+Date: 26 Dec 2001 15:13:50 -0500
+Message-Id: <1009397641.4966.5.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Eliezer.
+On Wed, 2001-12-26 at 15:02, Steve Bergman wrote:
 
-> where can I find a good paper , or something good that could teach
-> me how to write device drivers ?? I really would like to know ,
-> mainly network device drivers , for example , how could I re-write
-> the rtl8139 driver ?
+> I just compiled 2.4.17 with the patch from your site that looks to be
+> for 2.4.17-final.  Unfortunately, several modules (e.g. unix.o) fail on
+> load with an undefined symbol error (preempt_schedule).  FWIW, I also
+> have the patch that started the recent "Make highly niced processes run
+> only when idle" thread.  Which reminds me, I'm anxious to try out your
+> "fixed" version of SCHED_IDLE when it's ready. ;-) 
 
-A good starting point is the book "Linux Device Drivers" published by
-O'Reilly Associates (with which I have no relationship other than as a
-satisfied customer, depite my name). Details can be found at...
+If there is no compile error, it is probably mismatched modules, because
+preempt_schedule is properly exported.
 
-	http://www.oreilly.com/catalog/linuxdrive2/
+Make sure your kernel tree is fully patched and CONFIG_PREEMPT is
+enabled.  Rerun `make dep' and then recompile (including your modules). 
+Make sure your modules are properly installed.
 
-...regarding the second edition thereof - I have the first edition
-myself, which covers the 2.0 kernel series, but I believe the second
-edition covers the 2.4 series kernels, SMP and USB, all of which were
-missing from the original.
+Either your running kernel doesn't have preemption enabled or your
+kernel does but your modules don't (i.e. they are old modules).
 
-Best wishes from Riley.
+	Robert Love
 

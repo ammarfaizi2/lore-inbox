@@ -1,63 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUHBXtW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264522AbUHBXxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264503AbUHBXtW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 19:49:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbUHBXtW
+	id S264522AbUHBXxr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 19:53:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264560AbUHBXxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 19:49:22 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:57027 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S264503AbUHBXtH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 19:49:07 -0400
-Date: Tue, 3 Aug 2004 00:48:27 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Ian Romanick <idr@us.ibm.com>
-Cc: Jon Smirl <jonsmirl@yahoo.com>, lkml <linux-kernel@vger.kernel.org>,
+	Mon, 2 Aug 2004 19:53:47 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:58520 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264522AbUHBXxn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 19:53:43 -0400
+Message-ID: <410ED3F7.7090809@us.ibm.com>
+Date: Mon, 02 Aug 2004 16:53:27 -0700
+From: Ian Romanick <idr@us.ibm.com>
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>
+CC: lkml <linux-kernel@vger.kernel.org>,
        "DRI developer's list" <dri-devel@lists.sourceforge.net>
 Subject: Re: DRM code reorganization
-In-Reply-To: <410E81C3.2070804@us.ibm.com>
-Message-ID: <Pine.LNX.4.58.0408030040030.27728@skynet>
-References: <20040802155312.56128.qmail@web14923.mail.yahoo.com>
- <410E81C3.2070804@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <20040802155312.56128.qmail@web14923.mail.yahoo.com> <410E81C3.2070804@us.ibm.com> <20040802185746.GA12724@redhat.com> <410E9FEE.60108@us.ibm.com> <20040802204553.GC12724@redhat.com>
+In-Reply-To: <20040802204553.GC12724@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> If this is something that we really want to pursue, someone needs to dig in
-> and figure out:
->
-> 1. How much / which code can be "trivially" shared?
-> 2. How much / which code can be shared with very little work?
-> 3. How much / which code would we rather get a root-canal than try to make
-> shared?
->
-> The concern has been that, by making a "generic" library layer, we'd actually
-> make the DRM more difficult to maintain.  Nobody has really had the time to do
-> the research required to either substantiate or refute those claims.  Based on
-> the little experience I have in the DRM, I tend to believe them.
+Dave Jones wrote:
 
-I'm going to agree with Ian here, making a generic library layer is going
-to make maintaining  the DRM a full time job as opposed to the 5-6 hrs a
-week I do on it ... also the change to a library needs to be done in
-little steps, removing something from one place and adding it to another,
-a big code-drop from the DRI CVS is not going to be acceptable to anyone,
-however breaking things in the kernel tree is also not going to be...
+> On Mon, Aug 02, 2004 at 01:11:26PM -0700, Ian Romanick wrote:
+> 
+>  > > > This would be *very* non-trivial to do.  Doing the DRM like this has 
+>  > > > come up probably a dozen times (or more) over the last 3 years.
+>  > >Which should ring alarm bells that something might not be quite right.
+>  > And that it hasn't been done all those times should be a sign of 
+>  > *something*. ;)
+> 
+> heh. I'd attribute it to the fact that it's tedious monotonous work
+> doing cleanup work like this, as opposed to 'sexy' work, like hacking
+> on something new.  Personally, I've always found something more important
+> to be doing.  Maybe I can find some more time to look into it soon.
 
-So if people are proposing a complete DRM re-write, then what I forsee has
-to happen is, a new development tree is setup, the code is beaten into shape,
-we rename the project something else like ghm (graphics hardware manager -
-you heard it here first :-), we import it into the kernel and deprecate
-the DRM in-kernel, maybe we can develop it in the kernel tree as
-(EXPERIMENTAL), then everyone can give out about it while the work is in
-progress as opposed to when we are finished it ...
+If you're like me and most of the other developers, you've already got a 
+to-do list a mile long.  For me hitting myself on the head with a hammer 
+is pretty low. ;)
 
-Dave.
+>  > 1. There is a lot more variability among graphics cards that there is 
+>  > among, say, network cards.  Look at the output of 'grep __HAVE_ | grep 
+>  > define' on any two <card>.h files to see what I mean.  The output for 
+>  > tdfx.h and radeon.h, or mga.h and savage.h is *very* different.  That, 
+>  > by itself, makes a huge difference on what code is needed.
+> 
+> The __HAVE_ stuff is another pet gripe of mine.
+> In particular, the mish-mash of __HAVE_AGP , __REALLY_HAVE_AGP, __MUST_HAVE_AGP
+> flags have bugged me for a long time.
 
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+The problem is that __REALLY_HAVE_FOO is usually just (__HAVE_FOO && 
+CONFIG_FOO) on Linux.  They appear to be derived slightly differently on 
+NetBSD and FreeBSD.  'grep __REALLY_HAVE drm_os_*bsd.h | grep define' in 
+the bsd directory in the DRM tree.  Since there's just the three 
+(__REALLY_HAVE_AGP, __REALLY_HAVE_SG, and __REALLY_HAVE_MTRR), I think 
+we can live with them.
+
+It shouldn't be too hard to get rid of __MUST_HAVE_AGP, though.
+
+I think this is the right place to start.  A couple of these look easier 
+to get rid of than others.  __HAVE_MTRR and __HAVE_AGP are enabled in 
+every driver except ffb.  It should be easy enough to get rid of them. 
+It looks like __HAVE_RELEASE, __HAVE_DMA_READY, __HAVE_DMA_FLUSH, 
+__HAVE_DMA_QUIESCENT, and __HAVE_MULTIPLE_DMA_QUEUES (which looks broken 
+anyway) should also be low-hanging fruit.
+
+If we get that far, I think the next step would be to replace the 
+DRIVER_* macros with a table of function pointers that would get passed 
+around.  Since I doubt any of those uses are performance critical, that 
+should be fine.
+
+Then we can start looking at data structure refactoring.
+
+>  > >If this kind of abuse wasn't so widespread, abstracting this code
+>  > >out into shared sections and driver specific parts would be a lot
+>  > >simpler. Sadly, this is the tip of the iceberg.
+>  > 
+>  > I think it comes down to the fact that the original DRM developers 
+>  > wanted templates.  C doesn't have them, so they did the "next best" thing.
+> 
+> I vaguelly recall the code at one point not looking quite 'so bad',
+> it just grew and grew into this monster.  I'm sure it was done originally
+> with the best of intentions, but it seems someone along the line got
+> a bit carried away.
+
+There was a point when a *lot* of the device-dependent code was still in 
+the OS-dependent directories.  This is how the i810 and i830 drivers 
+still are.  I think as more of the code got moved into the 
+OS-independent directory, it got less pleasant to read.
+
 

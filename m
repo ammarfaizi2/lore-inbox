@@ -1,35 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280930AbRKLTDY>; Mon, 12 Nov 2001 14:03:24 -0500
+	id <S280943AbRKLTHO>; Mon, 12 Nov 2001 14:07:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280933AbRKLTDO>; Mon, 12 Nov 2001 14:03:14 -0500
-Received: from mmohlmann.demon.nl ([212.238.27.16]:19204 "HELO
-	brand.mmohlmann.demon.nl") by vger.kernel.org with SMTP
-	id <S280930AbRKLTCz>; Mon, 12 Nov 2001 14:02:55 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Mathijs Mohlmann <mathijs@knoware.nl>
-To: Andrea Arcangeli <andrea@suse.de>, "David S. Miller" <davem@redhat.com>
-Subject: Re: [PATCH] fix loop with disabled tasklets
-Date: Mon, 12 Nov 2001 20:03:00 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com, kuznet@ms2.inr.ac.ru,
-        Thorsten Kukuk <kukuk@suse.de>
-In-Reply-To: <20011110152845.8328F231A4@brand.mmohlmann.demon.nl> <20011112150452.S1381@athlon.random> <20011112152044.V1381@athlon.random>
-In-Reply-To: <20011112152044.V1381@athlon.random>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011112190244.82A2A231A4@brand.mmohlmann.demon.nl>
+	id <S280940AbRKLTHF>; Mon, 12 Nov 2001 14:07:05 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:58752 "EHLO
+	wookie-laptop.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S280933AbRKLTGv>; Mon, 12 Nov 2001 14:06:51 -0500
+Subject: Re: Regression testing of 2.4.x before release?
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Dan Kegel <dank@kegel.com>
+Cc: Luigi Genoni <kernel@Expansa.sns.it>, Mike Galbraith <mikeg@wen-online.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        stp@osdl.org
+In-Reply-To: <3BEF6B1B.1E077ED9@kegel.com>
+In-Reply-To: <Pine.LNX.4.33.0111041955290.30596-100000@Expansa.sns.it> 
+	<3BE5F0B5.52274D07@kegel.com>
+	<1004978377.1226.22.camel@wookie-laptop.pdx.osdl.net> 
+	<3BEF6B1B.1E077ED9@kegel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.07.16.47 (Preview Release)
+Date: 12 Nov 2001 11:07:34 -0800
+Message-Id: <1005592054.16715.35.camel@wookie-laptop.pdx.osdl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 November 2001 15:20, Andrea Arcangeli wrote:
-> real fix looks like this 
+On Sun, 2001-11-11 at 22:24, Dan Kegel wrote:
+> "Timothy D. Witham" wrote:
 
-This works for me.  Sorry for my stubbornness earlier. I didn't receive 
-Linus' comment on this and didn't find anything about it in the archive. 
-Thought is was an issue.
+  Snip
 
-Thanx Andrea, i learned a lot (humbleness being one  :)
+> 
+> At some point it might be nice to also use the STP to help
+> speed gcc 3 development, too.  (I personally am really
+> looking forward to the day when I can use the same compiler
+> for both c++ and kernel.)
+> 
 
-	me
+  Strange, I was just talking to somebody about compiler 
+performance and regression issues and what sort of automation
+could be done to do that sort of testing.  
+
+  Since the STP is really a framework and just about any piece
+of software and testing environment could be worked into it.
+
+ So I guess you could have two pieces.  One that just ran a bunch
+of compile and user level tests and then one that went in and
+checked out the compiler on a kernel tree and then ran the
+same performance tests that had been run using the "standard"
+compiler.  
+
+  Are you stepping forward to integrate this into STP? :-)
+
+> - Dan
+-- 
+Timothy D. Witham - Lab Director - wookie@osdlab.org
+Open Source Development Lab Inc - A non-profit corporation
+15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
+

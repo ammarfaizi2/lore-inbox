@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131056AbQK2NnP>; Wed, 29 Nov 2000 08:43:15 -0500
+        id <S131466AbQK2NpZ>; Wed, 29 Nov 2000 08:45:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131310AbQK2NnF>; Wed, 29 Nov 2000 08:43:05 -0500
-Received: from ha1.rdc2.occa.home.com ([24.2.8.66]:49116 "EHLO
-        mail.rdc2.occa.home.com") by vger.kernel.org with ESMTP
-        id <S131056AbQK2Nmx>; Wed, 29 Nov 2000 08:42:53 -0500
-Message-ID: <001501c05a06$2267b760$19211518@vnnys1.ca.home.com>
-From: "Android" <android@turbosport.com>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E140x2k-0005Ou-00@the-village.bc.nu>
-Subject: Re: XFree 4.0.1/NVIDIA 0.9-5/2.4.0-testX/11 woes [solved]
-Date: Wed, 29 Nov 2000 05:13:15 -0800
+        id <S131465AbQK2NpP>; Wed, 29 Nov 2000 08:45:15 -0500
+Received: from chia.umiacs.umd.edu ([128.8.120.111]:33963 "EHLO
+        chia.umiacs.umd.edu") by vger.kernel.org with ESMTP
+        id <S131310AbQK2No4>; Wed, 29 Nov 2000 08:44:56 -0500
+Date: Wed, 29 Nov 2000 08:14:27 -0500 (EST)
+From: Adam <adam@cfar.umd.edu>
+To: Tigran Aivazian <tigran@veritas.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 'holey files' not holey enough.
+In-Reply-To: <Pine.LNX.4.21.0011291306260.883-100000@penguin.homenet>
+Message-ID: <Pine.GSO.4.21.0011290812140.2862-100000@chia.umiacs.umd.edu>
+X-WEB: http://www.eax.com
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I've never seen such thing as code without bugs. In my experience,
-> > the NVIDIA drivers are by far the most complete and solid 3D drivers
-> > under Linux.
->
-> You are welcome to your opinion. I've got this great bridge to sell you
-too
+> > 	[adam@pepsi /tmp]$ uname -a
+> > 	Linux pepsi 2.4.0-test7-packet #24 SMP Fri Sep 8 20:26:35 EDT 2000 i686
+> > 
+> > 	[adam@pepsi /tmp]$  dd if=/dev/zero of=holed.file bs=1000 seek=5000 count=1000
+> > 	[adam@pepsi /tmp]$ ls -l holed.file 
+> > 	-rw-rw-r--    1 adam     adam      6000000 Nov 29 08:52 holed.file
+> > 	[adam@pepsi /tmp]$ du -sh holed.file 
+> > 	1.9M    holed.file
 
-The most stable of all video drivers under Linux has to be the standard VGA
-driver.
-As for SVGA, then VESA wins that territory. The problem with specific
-SVGA/Accelorator
-drivers is that the details of the video card operation is kept secret, and
-what information
-is known is scarce. Much of it is found by experimentation, and dare I say,
-reverse engineering.
-In most cases, you're lucky you get a working driver at all. The same holds
-true for sound cards.
-So, unless the company has fully released the details of their NVIDIA card
-to whomever wrote
-the Linux driver, then don't think for a moment that it is crash-free. Just
-one wrong bit sent to
-an incorrect port, and it's time to reset your machine. I don't need to
-mention data loss.
+> what filesystem type? on ext2 filesystem on 2.4.0-test12-pre3 I get
+> expected result:
+> 
+> # dd if=/dev/zero of=hole bs=1000 seek=5000 count=1000
+> 1000+0 records in
+> 1000+0 records out
+> # l hole
+> -rw-r--r--    1 root     root      6000000 Nov 29 13:06 hole
+> # du -sh hole
+> 988k    hole
+> # u
+> Linux penguin 2.4.0-test12 #1 Wed Nov 29 09:08:13 GMT 2000 i686 unknown
 
-                                      -- Ted
+It is ext2fs with 4kb blocks.
 
+[root@pepsi /tmp]# rpm -q -f /usr/bin/du
+fileutils-4.0-21
+
+[root@pepsi /tmp]# ldd /usr/bin/du
+        libc.so.6 => /lib/libc.so.6 (0x4001f000)
+        /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x40000000)
+
+[root@pepsi /tmp]# rpm -q -f /lib/libc.so.6 
+glibc-2.1.3-21
+
+-- 
+Adam
+http://www.eax.com	The Supreme Headquarters of the 32 bit registers
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,66 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287648AbRLaVIW>; Mon, 31 Dec 2001 16:08:22 -0500
+	id <S287649AbRLaVe0>; Mon, 31 Dec 2001 16:34:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287652AbRLaVIN>; Mon, 31 Dec 2001 16:08:13 -0500
-Received: from femail31.sdc1.sfba.home.com ([24.254.60.21]:44197 "EHLO
-	femail31.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S287648AbRLaVHy>; Mon, 31 Dec 2001 16:07:54 -0500
-Date: Mon, 31 Dec 2001 16:07:52 -0500
-From: Willem Riede <wriede@home.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: You WIN ...
-Message-ID: <20011231160752.G24321@linnie.riede.org>
-In-Reply-To: <20011231160647.F24321@linnie.riede.org>
+	id <S287651AbRLaVeQ>; Mon, 31 Dec 2001 16:34:16 -0500
+Received: from mail.cogenit.fr ([195.68.53.173]:55233 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S287649AbRLaVeB>;
+	Mon, 31 Dec 2001 16:34:01 -0500
+Date: Mon, 31 Dec 2001 22:33:53 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: Micah Anderson <micah@riseup.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.20 crashing every other day
+Message-ID: <20011231223353.A23894@fafner.intra.cogenit.fr>
+In-Reply-To: <20011231115217.P19151@riseup.net> <20011231213024.A22942@fafner.intra.cogenit.fr> <20011231131136.T19151@riseup.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20011231160647.F24321@linnie.riede.org>; from wriede@home.com on Mon, Dec 31, 2001 at 16:06:47 -0500
-X-Mailer: Balsa 1.3.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011231131136.T19151@riseup.net>; from micah@riseup.net on Mon, Dec 31, 2001 at 01:11:36PM -0800
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2001.12.31 07:58 Jens Axboe wrote:
-> 
-> (sat on this for a few days not to boil over)
-> 
-> On Sat, Dec 29 2001, Andre Hedrick wrote:
-> > 
-> > Jens,
-> > 
-> > You win -- it is not worth trying to work with you at this time.
-> > All you and I have done is become bitter enemies.
-> 
-I'm not sure that entering this debate is a good idea, but it is 
-so sad to see two such valuable contributers to Linux bicker
-with each other...
+Micah Anderson <micah@riseup.net> :
+[...]
+> unfortunately I dont know enough about the kernels to determine how to
+> "backpatch" this, anyone have a 2.2 patch?!
 
-On the infrequent occasion that I had to exchange email with Andre,
-I've realized it is very hard to communicate with him (sorry Andre),
-so I understand how Jens must be feeling.
+Until you find one, you can "fix" the bit with setpci (beware: you may still 
+have fscked your memory by the time you issue the adequate setpci command).
 
-On the other hand - and that may just be my problem, as I don't claim 
-to have enough expertise - I've read Suparna's and Jens' notes, 
-reviewed the code changes and still don't understand where the 
-whole ide/scsi/block/char i/o re-design is going. (I can see what has 
-been done - that's well documented, but not what's coming or why - a 
-discussion of the decomposition in layers, what is each' responsibility
-and what's the api between them, simplifications/improvements that
-result)
-
-Likewise, I've not been able to discern from Andre's posts what it is
-he's trying to do. No idea how that violates what Jens wants.
-
-But Andre is clearly an unrivaled expert in his area, and the recent
-results posted to this list are impressive, so I understand that
-Andre feels frustrated not to be able to get those improvements into
-the kernel.
-
-As a linux user, I certainly want the benefit of what both parties have 
-to offer. It would have to satisfy Linus' taste, fit Jens' design, and 
-realize Andre's improvements. There ought to be a way for that to happen.
-
-Now, if only I was smart enough to figure that one out :-(
-
-Regards, Willem Riede.
-(maintainer of osst tape driver)
+-- 
+Ueimor - sleep 36000

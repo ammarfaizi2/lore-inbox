@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbTEQVlv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 17:41:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbTEQVlv
+	id S261872AbTEQV5K (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 17:57:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbTEQV5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 17:41:51 -0400
-Received: from ip68-4-255-84.oc.oc.cox.net ([68.4.255.84]:48017 "EHLO
-	ip68-101-124-193.oc.oc.cox.net") by vger.kernel.org with ESMTP
-	id S261852AbTEQVlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 17:41:49 -0400
-Date: Sat, 17 May 2003 14:54:42 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: dak@gnu.org
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Scheduling problem with 2.4?
-Message-ID: <20030517215442.GB2411@ip68-101-124-193.oc.oc.cox.net>
-References: <x54r3tddhs.fsf@lola.goethe.zz> <20030517174100.GT1429@dualathlon.random> <x5r86x74ci.fsf@lola.goethe.zz> <20030517203045.GZ1429@dualathlon.random> <x565o9717j.fsf@lola.goethe.zz>
+	Sat, 17 May 2003 17:57:10 -0400
+Received: from CPE-65-29-137-188.wi.rr.com ([65.29.137.188]:33774 "EHLO
+	supa.0xd6.org") by vger.kernel.org with ESMTP id S261872AbTEQV5J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 May 2003 17:57:09 -0400
+Date: Sat, 17 May 2003 17:09:12 -0500
+From: Paul Mundt <lethal@linux-sh.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Dreamcast framebuffer updates.
+Message-ID: <20030517220912.GA16800@linux-sh.org>
+References: <20030517215102.A21395@infradead.org> <Pine.LNX.4.44.0305172159090.21274-100000@phoenix.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <x565o9717j.fsf@lola.goethe.zz>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44.0305172159090.21274-100000@phoenix.infradead.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 17, 2003 at 10:44:16PM +0200, David Kastrup wrote:
-> I am talking about the kernel coming with RedHat 9, uname -a gives
-> Linux lola.goethe.zz 2.4.20-8 #1 Thu Mar 13 17:54:28 EST 2003 i686 i686 i386 GNU/Linux
+On Sat, May 17, 2003 at 09:59:35PM +0100, James Simmons wrote:
+> > >  #ifdef CONFIG_MTRR
+> > > -  #include <asm/mtrr.h>
+> > > +#include <asm/mtrr.h>
+> > >  #endif
+> > 
+> > how can CONFIG_MTRR ever be set for sh?
 > 
-> Unfortunately, this kernel is here to stay for quite a while, and I
-> would want to find a way to let Emacs cooperate with it better without
-> telling people to recompile the kernel or wait a year.
+> Paul ???   Is it possible? 
+> 
+No, its not possible. Things were originally written with generic pvr2
+hardware in mind (including PVR2 PCI boards like the Neon 250).
+Unfortunately I don't have any of that hardware, so these days its all
+SH specific. As such, the MTRR stuff can be removed without any
+problems.
 
-They should be upgrading to the kernel here, at least, for security
-reasons:
-https://rhn.redhat.com/errata/RHSA-2003-172.html
-
-I have no idea what effect, if any, it would have on your performance
-problems though.
-
--Barry K. Nathan <barryn@pobox.com>

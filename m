@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263147AbTJEQTY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 12:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263149AbTJEQTX
+	id S263151AbTJEQgU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 12:36:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTJEQgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 12:19:23 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28941 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263147AbTJEQTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 12:19:22 -0400
-Date: Sun, 5 Oct 2003 17:19:16 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: JFFS2 swsusp / signal cleanup.
-Message-ID: <20031005171916.B21478@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-References: <1065266733.16088.91.camel@imladris.demon.co.uk> <20031005161155.GA753@elf.ucw.cz>
-Mime-Version: 1.0
+	Sun, 5 Oct 2003 12:36:20 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:42396
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S263151AbTJEQgT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 12:36:19 -0400
+Message-ID: <3F80484A.3030105@redhat.com>
+Date: Sun, 05 Oct 2003 09:35:22 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030925 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
+CC: linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>,
+       pwaechtler@mac.com, Michal Wronski <wrona@mat.uni.torun.pl>
+Subject: Re: POSIX message queues
+References: <Pine.GSO.4.58.0310051047560.12323@ultra60>
+In-Reply-To: <Pine.GSO.4.58.0310051047560.12323@ultra60>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031005161155.GA753@elf.ucw.cz>; from pavel@ucw.cz on Sun, Oct 05, 2003 at 06:11:55PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 05, 2003 at 06:11:55PM +0200, Pavel Machek wrote:
-> Is flush_signals() really so stupid to do? Goal was to make
-> modifications to code as simple as possible, and as most pieces do not
-> expect to be interrupted, pretending signal never happened seems like
-> good idea...
+Krzysztof Benedyczak wrote:
 
-What if that signal was necessary for the operation of the thread, and
-dropping it would cause a problem?
+> There are a lot of differencies but if the most important one is use of
+> ioctl vs syscalls it can be changed (in fact our implementation loong time
+> ago used syscalls).
 
-Since you're effectively using signal handling to cause a false pending
-signal indication, surely the correct cleanup is to re-calculate the
-pending signal indication.  That way, we won't be throwing away signals.
+Syscalls are always better.  At least from my perspective.  Just imagine
+how the runtime should determine that the kernel doesn't support msqs?
+With syscalls I get -ENOSYS back.  With ioctls I get EINVAL.  But what
+this mean?  Functionality not available?  Invalid parameters to the
+existing implementation?
 
-I'm also wondering if there could be a problem with (ab)using TASK_STOPPED
-here - could a stopped task be woken prematurely and thereby sent spinning
-in refrigerator() by a non-stopped process sending a SIGCONT at just the
-right time?
+ALso think about strace which is an important part in many peoples life.
+ Hiding the functionality in some ioctls doesn't make it easy to follow
+the program even if strace gets even more code added to the ioctl decoder.
 
-Maybe we want a TASK_FROZEN state to describe the "frozen, may not be woken
-by anything except thawing" state?
+Basically, demultiplexers are bad.  Syscalls are cheap.
+
+
+> In another words: is our implementation in the position
+> of NGPT or better? ;-)
+
+I don't understand.  Why NGPT and what about "position"?  If you mean
+including a solution in the runtime (librt), sure, this will happen.
+But not before I see a solution in the official kernel.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
-      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                      2.6 Serial core
+--------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+

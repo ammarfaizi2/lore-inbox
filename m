@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261423AbREYS1Y>; Fri, 25 May 2001 14:27:24 -0400
+	id <S261422AbREYSZO>; Fri, 25 May 2001 14:25:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbREYS1O>; Fri, 25 May 2001 14:27:14 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:35935 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S261423AbREYS1E>; Fri, 25 May 2001 14:27:04 -0400
-Date: Fri, 25 May 2001 13:27:03 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200105251827.NAA21092@tomcat.admin.navo.hpc.mil>
-To: ishikawa@yk.rim.or.jp, linux-kernel@vger.kernel.org
-Subject: Re: OOM process killer: strange X11 server crash...
-X-Mailer: [XMailTool v3.1.2b]
+	id <S261423AbREYSZE>; Fri, 25 May 2001 14:25:04 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:34706 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261422AbREYSYx>;
+	Fri, 25 May 2001 14:24:53 -0400
+Date: Fri, 25 May 2001 14:24:52 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: DVD blockdevice buffers
+In-Reply-To: <Pine.LNX.4.21.0105251100180.949-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0105251415400.27664-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ishikawa <ishikawa@yk.rim.or.jp>:
-....
->Anyway, this time, here is what was printed on the screen (the tail end
-> of it).
-> --- begin quote ---
->     ... could not record the above. they scrolled up and disapper...
-> Out of Memory: Killed process 4550 (XF8_SVGA.ati12).
-> __alloc_pages: 0-order allocation failed.
-> VM: killing process XF86_SVGA.ati12
-> --- end quote
-> 
-> And before the message disappeared, I think I saw the
-> netscape process was killed, too.
-> I checked the log message and looked for "Memory"
-> Sure enough I foundnetscapewas killed, too, in this case.
-> 
-> May 25 09:16:46 duron kernel: Memory: 255280k/262080k available (978k
-> kernel cod
-> e, 6412k reserved, 378k data, 224k init, 0k highmem)
->     ...
-> May 25 10:45:31 duron kernel: Out of Memory: Killed process 5562
-> (netscape).
-> May 25 10:45:31 duron kernel: Out of Memory: Killed process 5450
-> (XF86_SVGA.ati1
-> 2).
->      ...
-
-Something I have noticed with netscape is that if the X server is
-killed out from under it (user logout, or kill X11 manually) is that
-it continues to run. The process appears to be looping around select
-and attempting to reconnect to the (now dead) X server, and not exiting
-like it should.
-
-Other times it seems to terminate properly. The problem may exhibit itself
-if netscape is waiting for some asynchronous event (like the name service
-lookup maybe) and misses the/a signal that it's socket to the X server
-has failed. If a kill -15 doesn't terminate the rogue netscape, then it
-takes a kill -9 . In my expierence it is in a tight loop, and ignoring
-normal user input. It could still be expanding memory consumption...
 
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+On Fri, 25 May 2001, Linus Torvalds wrote:
 
-Any opinions expressed are solely my own.
+> For example, I suspect that the metadata bitmaps in particular cache so
+> well that the fact that we need to do several seeks over them every once
+> in a while is a non-issue: we might be happier having the bitmaps in
+> memory (and having simpler code), than try to avoid the occasional seeks.
+>
+> The "simpler code" argument in particular is, I think, a fairly strong
+> one. Our current bitmap code is quite horrible, with multiple layers of
+> caching (ext2 will explicitly hold references to some blocks, while at the
+> same time depending on the buffer cache to cache the other blocks -
+> nightmare)
+
+Oh, current code is a complete mess - no arguments here. 8-element LRU.
+Combined with the fact that directories allocation tries to get even
+distribution of directory inodes by cylinder groups, you blow that LRU
+completely on a regular basis if your fs is larger that 16 cg. For 1Kb
+blocks fs it's 128Mb. For 4Kb - 2Gb. And pain starts at the half of that
+size.
+
+If you are OK with adding two extra arguments to ->readpage() I could
+submit a patch replacing that with plain and simple page cache by tomorrow.
+It should not be a problem to port, but I want to get some sleep before
+testing it...
+

@@ -1,34 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262642AbSJHBXx>; Mon, 7 Oct 2002 21:23:53 -0400
+	id <S262603AbSJHBfg>; Mon, 7 Oct 2002 21:35:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262644AbSJHBXx>; Mon, 7 Oct 2002 21:23:53 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:52612 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S262642AbSJHBXw>;
-	Mon, 7 Oct 2002 21:23:52 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200210080126.FAA14944@sex.inr.ac.ru>
-Subject: Re: [PATCH] Fix IPv6
-To: yoshfuji@linux-ipv6.org (YOSHIFUJI Hideaki /
-	=?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?=)
-Date: Tue, 8 Oct 2002 05:26:58 +0400 (MSD)
-Cc: jasper@spaans.ds9a.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <20021008.100853.123683687.yoshfuji@linux-ipv6.org> from "YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?=" at Oct 8, 2 10:08:53 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S262613AbSJHBfg>; Mon, 7 Oct 2002 21:35:36 -0400
+Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:40640 "EHLO
+	kolivas.net") by vger.kernel.org with ESMTP id <S262603AbSJHBfe>;
+	Mon, 7 Oct 2002 21:35:34 -0400
+Message-ID: <1034041272.3da237b8b7908@kolivas.net>
+Date: Tue,  8 Oct 2002 11:41:12 +1000
+From: Con Kolivas <conman@kolivas.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.5.40-mm2 with contest
+References: <1033960902.3da0fdc6839aa@kolivas.net> <3DA139EC.8A34A593@digeo.com> <1034038912.3da22e805c7c0@kolivas.net> <3DA233EC.1119CD7B@digeo.com>
+In-Reply-To: <3DA233EC.1119CD7B@digeo.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Quoting Andrew Morton <akpm@digeo.com>:
 
-> Agreed.
+> Con Kolivas wrote:
+> > 
+> > ...
+> > -       swap_tendency = mapped_ratio / 2 + distress + vm_swappiness;
+> > +       swap_tendency = mapped_ratio / 2 + distress ;
+> > +       if (swap_tendency > 50){
+> > +               if (vm_swappiness <= 990) vm_swappiness+=10;
+> > +               }
+> > +               else
+> > +               if (vm_swappiness > 0) vm_swappiness--;
+> > +       swap_tendency += (vm_swappiness / 10);
+> >
+> 
+> heh, that could work.  So basically you're saying "the longer we're
+> under swap stress, the more swappy we want to get".
 
-Me too.
+Exactly, which made complete sense to me.
 
-Sigh... that's why code is full of __constant_* in the most unexpected places.
-For my straight brains it is much easier to use __constant_* each time when
-I know forward that it is a constant instead of keeping in mind all
-the gcc bugs. Well, the beast which does not eliminate empty loops,
-is unlikely to eliminate if (is_constant_p()) too, right? :-) 
+> 
+> Problem is, users have said they don't want that.  They say that they
+> want to copy ISO images about all day and not swap.  I think.
 
-Alexey
+But do they really want that or do they think they want that without knowing the
+consequences of such a setting?
+
+> It worries me.  It means that we'll be really slow to react to sudden
+> load swings, and it increases the complexity of the analysis and
+> testing.  And I really do want to give the user a single knob,
+> which has understandable semantics and for which I can feasibly test
+> all operating regions.
+> 
+> I really, really, really, really don't want to get too fancy in there.
+
+Well I made it as simple as I possibly could. It seems to do what they want (not
+swappy) but not at the expense of making the machine never swapping when it
+really needs to - and the performance seems to be better all round in real
+usage. I guess the only thing is it isn't a fixed number... unless we set a
+maximum swappiness level or... but then it starts getting unnecessarily
+complicated with questionable benefits.
+
+> I have changed this code a bit, and have added other things.  Mainly
+> over on the writer throttling side, which tends to be the place where
+> the stress comes from in the first place.
+
+/me waits but is a little disappointed
+
+Con

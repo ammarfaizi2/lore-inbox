@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129928AbQKEXQJ>; Sun, 5 Nov 2000 18:16:09 -0500
+	id <S129117AbQKEX1m>; Sun, 5 Nov 2000 18:27:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130012AbQKEXQA>; Sun, 5 Nov 2000 18:16:00 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:2310 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S129928AbQKEXPv>; Sun, 5 Nov 2000 18:15:51 -0500
-Date: Sun, 5 Nov 2000 23:15:27 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Keith Owens <kaos@ocs.com.au>
-cc: tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10) 
-In-Reply-To: <6647.973334586@ocs3.ocs-net>
-Message-ID: <Pine.LNX.4.21.0011052257130.6733-100000@imladris.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129121AbQKEX1d>; Sun, 5 Nov 2000 18:27:33 -0500
+Received: from vp175121.reshsg.uci.edu ([128.195.175.121]:19725 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S129117AbQKEX1T>; Sun, 5 Nov 2000 18:27:19 -0500
+Date: Sun, 5 Nov 2000 15:26:16 -0800
+Message-Id: <200011052326.eA5NQGm16983@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: Marc Lehmann <pcg@goof.com>
+Cc: Tim Riker <Tim@Rikers.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: non-gcc linux?
+In-Reply-To: <20001105234225.J443@cerebro.laendle>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.17 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Nov 2000, Keith Owens wrote:
+On Sun, 5 Nov 2000 23:42:25 +0100, Marc Lehmann <pcg@goof.com> wrote:
+> On Sun, Nov 05, 2000 at 04:06:37PM -0500, Jakub Jelinek <jakub@redhat.com> wrote:
 
-> Move this to "in progress" and add MTD code breaks with
-> CONFIG_MODVERSIONS, for the same reason.  I wrote a patch to replace
-> get_module_symbol a week ago and sent it to the DRM/AGP/MTD people for
-> testing - no response yet.
+>> for SGI, or SGI would have to be willing to assign some code to FSF.
+> 
+> Which is the standard procedure that the FSF requires for all it's
+> programs to be able to defend them
 
-Sorry for the delay. I don't actually have any appropriate hardware any
-more that doesn't now have a JFFS root filesystem, making it difficult to
-test the modular code :)
+... or sell them under a different license. Not that they would, but they
+could, if they really wanted to.
 
-Your patch looks like it'll work. Although I don't really see any
-advantage over {get,put}_module_symbol() in this case, it does look like
-it can be used to finally provide module persistent storage, which will be
-useful.
-
-However, the easy fix for the MTD code is to use EXPORT_SYMBOL_NOVERS()
-for the offending symbols. It's the most appropriate for putting into 2.4.
-
-If the inter_module_{put,get} change is really going into 2.4 at this
-late stage, then I'll merge your patch into my CVS tree and look at
-updating the MTD code in the 2.4 tree to a more recent version. I was
-intending to leave that for later, though.
-
-Also - if it goes into 2.4, please make sure it goes into 2.2 as well.
-get_module_symbol() is already broken there because it doesn't increase
-the module's use count, and it'll prevent an ugly mess of ifdefs.
+Ion
 
 -- 
-dwmw2
-
-
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

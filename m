@@ -1,61 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269619AbUICJYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269471AbUICJ2u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269619AbUICJYc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 05:24:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269476AbUICJYJ
+	id S269471AbUICJ2u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 05:28:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269616AbUICJ1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 05:24:09 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8200 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S269577AbUICJUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 05:20:33 -0400
-Date: Fri, 3 Sep 2004 10:20:27 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc1-mm3
-Message-ID: <20040903102027.B7535@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040903014811.6247d47d.akpm@osdl.org>
+	Fri, 3 Sep 2004 05:27:42 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:7862 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S269577AbUICJZm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 05:25:42 -0400
+Date: Fri, 3 Sep 2004 11:25:47 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Free Ekanayaka <free@agnula.org>, Eric St-Laurent <ericstl34@sympatico.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Mark_H_Johnson@raytheon.com,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
+       nando@ccrma.stanford.edu, luke@audioslack.com, free78@tin.it
+Subject: [patch] voluntary-preempt-2.6.9-rc1-bk4-R1
+Message-ID: <20040903092547.GA18594@elte.hu>
+References: <20040902221402.GA29434@elte.hu> <1094171082.19760.7.camel@krustophenia.net> <1094181447.4815.6.camel@orbiter> <1094192788.19760.47.camel@krustophenia.net> <20040903063658.GA11801@elte.hu> <1094194157.19760.71.camel@krustophenia.net> <20040903070500.GB13100@elte.hu> <1094197233.19760.115.camel@krustophenia.net> <87acw7bxkh.fsf@agnula.org> <1094198755.19760.133.camel@krustophenia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040903014811.6247d47d.akpm@osdl.org>; from akpm@osdl.org on Fri, Sep 03, 2004 at 01:48:11AM -0700
+In-Reply-To: <1094198755.19760.133.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 03, 2004 at 01:48:11AM -0700, Andrew Morton wrote:
-> - Status update on various large patches in -mm:
 
-As far as the serial patches go, there's a bug in bugzilla where
-a problem has been reported in -mm, whereas non-mm works fine...
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-I also have some pending serial changes for Linus, but haven't
-received any "it works" "it doesn't work" reports back so I'm not
-happy to push this during the -rc phase.
+> As of -R0 it's definitely stable on UP and SMP users are reporting the
+> same.  All known problems should be fixed, and there are no known
+> regressions.  You should probably post a UP version and have your
+> users test that before posting SMP packages, the latter are not quite
+> as well tested.
 
-PCMCIA wise, I want to dump a couple of Dominik's earlier patches
-in which start moving code around to separate the core PCMCIA/Cardbus
-code from the PCMCIA specific "card services" code.  See
+Florian Schmidt reported a minor bug that prevents a successful build if
+!CONFIG_LATENCY_TRACE - i've uploaded -R1 that fixes this:
+  
+ http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-R1
 
-  http://pcmcia.arm.linux.org.uk/
+there are no other changes in -R1, and there are no known pending bugs
+currently.
 
-for details on this.  I want patch series 14 to be merged into Linus'
-tree separately from 15 and 16 so that if someone finds a problem
-down the line, it's easy to isolate it between the changes.  Note that
-I _still_ haven't heard back from the guy who reported a deadlock with
-current kernels, so I'm unsure about merging the validatemem patch.
-I really want to do this before series 15 and 16.  I'll probably decide
-to take the approach of just applying the proposed fix without having
-it tested in the reported scenario and hope for the best...
+for a packaged kernel i'd suggest to enable all the CONFIG_PREEMPT_*
+values in the .config, including CONFIG_PREEMPT_TIMING.
 
-Once patch series 14, 15 and 16 are in, driver model stuff seems to
-be the next thing on the cards for PCMCIA.
+CONFIG_LATENCY_TRACE can add overhead if active, so while it would be
+useful for initial packages to enable this .config option, i'd suggest
+to turn it off by default by changing 'tracing_enabled = 1' to
+'tracing_enabled = 0' in the patch. Then people can enable it and do
+precise tracing whenever they encounter a particular high latency on
+their system.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+configuring the threaded/nonthreaded properties of IRQ handlers can be
+tricky. Perhaps a script could scan /proc (and/or /sys) for audio
+interrupts and make them directly executed? Unfortunately audio
+interrupt handler requests dont seem to be going through some central
+ALSA function so i see no easy way to somehow tag audio interrupts
+automatically and provide some /proc flag to make audio interrupts
+non-threaded by default.
+
+	Ingo

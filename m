@@ -1,72 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289108AbSA3LRp>; Wed, 30 Jan 2002 06:17:45 -0500
+	id <S289106AbSA3LRF>; Wed, 30 Jan 2002 06:17:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289110AbSA3LR0>; Wed, 30 Jan 2002 06:17:26 -0500
-Received: from dsl-213-023-038-145.arcor-ip.net ([213.23.38.145]:11408 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289108AbSA3LRV>;
-	Wed, 30 Jan 2002 06:17:21 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-Date: Wed, 30 Jan 2002 12:21:29 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@transmeta.com>, Larry McVoy <lm@bitmover.com>,
-        Rob Landley <landley@trommello.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0201301123350.7341-100000@serv>
-In-Reply-To: <Pine.LNX.4.33.0201301123350.7341-100000@serv>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Vsny-0000Dj-00@starship.berlin>
+	id <S289108AbSA3LQz>; Wed, 30 Jan 2002 06:16:55 -0500
+Received: from aboukir-101-2-1-easter.adsl.nerim.net ([62.4.19.191]:23170 "HELO
+	verveine") by vger.kernel.org with SMTP id <S289106AbSA3LQt>;
+	Wed, 30 Jan 2002 06:16:49 -0500
+Date: Wed, 30 Jan 2002 12:16:40 +0100
+From: "'Brugier Pascal'" <pbrugier@easter-eggs.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14 cpqarray eepro100 ext3
+Message-ID: <20020130121640.A3571@easter-eggs.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020122145844.A622@easter-eggs.com> <000b01c1a34f$65e6e860$2a0110ac@netlinkaccess.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <000b01c1a34f$65e6e860$2a0110ac@netlinkaccess.com>; from akropel1@rochester.rr.com on Tue, Jan 22, 2002 at 09:16:34AM -0500
+X-Operating-System: Debian Gnu/Linux 2.4.14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 30, 2002 11:39 am, Roman Zippel wrote:
-> Hi,
+On Tue, Jan 22, 2002 at 09:16:34AM -0500, Adam Kropelin wrote:
+> Brugier Pascal:
+> > Hi
+> > 
+> > I'm not on the mailling list can you CC'ed the answers/comments
+> > posted to the list in response to my posting? thank you.
+> > 
+> > I have a Compaq Prolient DL 360, 1 PIII 1 GHz, 2 scsi hd in Raid 1
+> > 2 ethernet controlers eepro100 (only one is used) and ext3 fs.
 > 
-> On Wed, 30 Jan 2002, Daniel Phillips wrote:
+> <snip>
 > 
-> > Yes, we should cc our patches to a patchbot:
-> >
-> >   patches-2.5@kernel.org -> goes to linus
-> >   patches-2.4@kernel.org -> goes to marcello
-> >   patches-usb@kernel.org -> goes to gregkh, regardless of 2.4/2.5
-> >   etc.
+> > Invalid operand 00000 (i'm not sur about thenumber of 0 because
+> > someone else read for me and doesn't remember)
 > 
-> I'd rather make the patchbot more intelligent, that means it analyzes the
-> patch and produces a list of touched files. People can now register to get
-> notified about patches, which changes areas they are interested in.
+> <snip>
+> 
+> Pascal,
+> 
+> I had this same problem on my home-grown server (i.e., not a Compaq)
+> running a Compaq Smart 221. It followed me across kernel versions and
+> across cpqarray driver versions. In my case it turned out to be bad RAM
+> in the server uncovered by memtest86. With new RAM it's now rock-solid
+> for me.
+> 
+> There is an updated version of cpqarray in 2.4.13-ac7 (not sure which
+> -ac it came in at, but that's the one I grabbed it from) which you can
+> copy directly into 2.4.17 if you want. I see slightly improved
+> performance with that update, though it was the RAM that actually solved
+> my issue. 
+> 
 
-But they can already do that, by subscribing to the respective mailing list 
-(obviously, the bot posts to the list as well as forwarding to the 
-maintainer) and running the mails through a filter of their choice.
+Hi 
 
-> In the simplest configuration nothing would change for Linus, but patches
-> wouldn't get lost and people could be notified if their patch was applied
-> or if it doesn't apply anymore.
+I'm sur now that it's not a memory problem, i downgrad to 2.4.13
+and everything work fine.
 
-OK, it would be nice, but you wouldn't want to pile on so many features that 
-this never gets implemented would you?  The minimal thing that forwards and 
-posts patches is what we need now.  Like any other software it can be 
-improved over time.
+I'll send a new mail with more explications to the list (now i'd
+suscribe), to explain my problem and what i found (with from others 
+of course).
 
-> Other people have a place to search for patches and they can check whether 
-> something was already fixed.
-
-Automating the applied/dropped status is clearly the next problem to tackle, 
-but that's harder, it involves behavioral changes on the maintainers side.  
-(Pragmatically, providing a web interface so somebody whose job it is to do 
-that, can efficiently post 'applied' messages to the list would get the job 
-done without making anyone learn new tools or change the way they work.)
-
-By the way, who is going to code this?  Or are we determined to make 
-ourselves look like wankers once again, by putting considerably more time 
-into the lkml flamewar than goes into producing working code?
-
-(Hint: I am not going to code it, nor should I since I should be working in 
-the kernel.)
+Best regards
 
 -- 
-Daniel
+Pascal Brugier
+---------------------------------------------------------------
+Easter-eggs                               Spécialiste GNU/Linux
+44-46 rue de l'Ouest  -  75014 Paris  -  France  -  Métro Gaité
+Phone: +33 (0) 1 43 35 00 37    -    Fax: +33 (0) 1 43 35 00 76
+mailto:pbrugier@easter-eggs.com  -   http://www.easter-eggs.com
+---------------------------------------------------------------
+709D77A2 -   ED24 4E29 E5B4 FDE7 56A4  352D F24E 7E68 709D 77A2
+_______________________________________________________________

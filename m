@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293162AbSCRWsk>; Mon, 18 Mar 2002 17:48:40 -0500
+	id <S293203AbSCRWsk>; Mon, 18 Mar 2002 17:48:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293203AbSCRWsb>; Mon, 18 Mar 2002 17:48:31 -0500
-Received: from ns.hobby.nl ([212.72.224.8]:36868 "EHLO hgatenl.hobby.nl")
-	by vger.kernel.org with ESMTP id <S293201AbSCRWsW>;
-	Mon, 18 Mar 2002 17:48:22 -0500
-Date: Mon, 18 Mar 2002 22:23:05 +0100
-From: toon@vdpas.hobby.nl
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-pre3-ac1
-Message-ID: <20020318222305.A23934@vdpas.hobby.nl>
-In-Reply-To: <20020318025233.A7C044E534@mail.vnsecurity.net> <E16mvYx-0004re-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S293190AbSCRWsb>; Mon, 18 Mar 2002 17:48:31 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59409 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S293203AbSCRWsX> convert rfc822-to-8bit; Mon, 18 Mar 2002 17:48:23 -0500
+Date: Mon, 18 Mar 2002 14:46:04 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 7.52 second kernel compile
+In-Reply-To: <200203182312.24958.Dieter.Nuetzel@hamburg.de>
+Message-ID: <Pine.LNX.4.33.0203181434440.10517-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id g2IMlpN00447
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 18, 2002 at 11:44:27AM +0000, Alan Cox wrote:
-> > - 2.4.19-pre-ac: kswapd try to swap out and access disk continuously. Whole
-> > system is slow down and un-interactivable.
-> 
-> echo "2" >/proc/sys/vm/overcommit_memory
 
-Why are you using the value "2"?
-It makes me think that it activates some special magic,
-but all I can find in mmap.c is:
+On Mon, 18 Mar 2002, Dieter [iso-8859-15] Nützel wrote:
+>
+> it seems to be that it depends on gcc and flags.
 
-        /* Sometimes we want to use more memory than we have. */
-        if (sysctl_overcommit_memory)
-            return 1;
+That instability doesn't seem to show up on a PII. Interesting. Looks like 
+the athlon may be reordering TLB accesses, while the PII apparently 
+doesn't.
 
-Regards,
-Toon.
--- 
- /"\
- \ /     ASCII RIBBON CAMPAIGN
-  X        AGAINST HTML MAIL
- / \
+Or maybe the program is just flawed, and the interesting 1/8 pattern comes 
+from something else altogether.
+
+			Linus
+

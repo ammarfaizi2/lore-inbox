@@ -1,36 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262612AbUCWPsL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 10:48:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbUCWPsL
+	id S262609AbUCWQB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 11:01:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbUCWQB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 10:48:11 -0500
-Received: from box.punkt.pl ([217.8.180.66]:26131 "HELO box.punkt.pl")
-	by vger.kernel.org with SMTP id S262612AbUCWPsK (ORCPT
+	Tue, 23 Mar 2004 11:01:29 -0500
+Received: from poros.telenet-ops.be ([195.130.132.44]:51882 "EHLO
+	poros.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S262609AbUCWQB1 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 10:48:10 -0500
-Message-ID: <40605B33.9050105@punkt.pl>
-Date: Tue, 23 Mar 2004 16:43:47 +0100
-From: |TEcHNO| <techno@punkt.pl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-gb, ja, pl
+	Tue, 23 Mar 2004 11:01:27 -0500
+From: Jan De Luyck <lkml@kcore.org>
+To: Sven Luther <sven.luther@wanadoo.fr>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] Sysfs for framebuffer
+Date: Tue, 23 Mar 2004 17:01:16 +0100
+User-Agent: KMail/1.6.1
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Kronos <kronos@kronoz.cjb.net>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>
+References: <20040320174956.GA3177@dreamland.darkstar.lan> <200403231211.09334.lkml@kcore.org> <20040323122627.GA22830@lambda>
+In-Reply-To: <20040323122627.GA22830@lambda>
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.x][2.6.x]EIO AP-1600 ATA133 Controller Card
-References: <40601966.3010706@punkt.pl> <200403231522.43676.m.watts@eris.qinetiq.com>
-In-Reply-To: <200403231522.43676.m.watts@eris.qinetiq.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200403231701.19786.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Watts wrote:
-<cut>>
-> Seems to work just fine with the two hard drives I have on it.
-Humm... any suggestions then? Shoudl I go and return it/change it?
-You sure it's the same Bios etc.?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
--- 
-pozdrawiam     |"Who says the Anti-Christ has to be a man?!"
-techno@punkt.pl|Art Bell - Radio Talk Show Host
+On Tuesday 23 March 2004 13:26, Sven Luther wrote:
+
+> > - From a users point of view: if there are only to be framebuffer devices
+> > listed in this class, why not call it just what it is: "Framebuffer" ?
+> > Naming it after something it is only in a broad sense makes no sense to
+> > me. I'd be looking in /sys/.../framebuffer instead of /sys/.../graphics
+> > or /display.
+>
+> Notice that /display is what is used by most OF implementations, so this
+> kinda makes sense. I would vote like BenH on this if i was consulted.
+
+OF implementations?
+
+>
+> > Display would be the EDID info of my screen (physical), and graphics...
+> > well... I'd half expect something like capture cards to be there...
+>
+> But this also makes sense, still, i guess we are concerned with more
+> info than just the framebuffer, right ?
+
+Yup. What's in a name indeed. But one might try to make it as non-confusing as 
+possible.
+
+Kind regards,
+
+Jan De Luyck
+
+- -- 
+Anything is possible on paper.
+		-- Ron McAfee
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAYF9OUQQOfidJUwQRAlUCAJ9gevHf51xYtw7Zu4PAAI3Lq+VvJgCbByUB
+c2zgx+ZzG9zKZo/9Lslr76s=
+=zzhB
+-----END PGP SIGNATURE-----

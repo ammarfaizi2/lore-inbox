@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267263AbUJRSpy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267415AbUJRSqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267263AbUJRSpy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 14:45:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267411AbUJRSnj
+	id S267415AbUJRSqm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 14:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267411AbUJRSqI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 14:43:39 -0400
-Received: from mail.kroah.org ([69.55.234.183]:19609 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267263AbUJRSmL (ORCPT
+	Mon, 18 Oct 2004 14:46:08 -0400
+Received: from mail4.utc.com ([192.249.46.193]:30349 "EHLO mail4.utc.com")
+	by vger.kernel.org with ESMTP id S267415AbUJRSoy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 14:42:11 -0400
-Date: Mon, 18 Oct 2004 11:41:26 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] USB: handle NAK packets in input devices.
-Message-ID: <20041018184126.GA23748@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Mon, 18 Oct 2004 14:44:54 -0400
+Message-ID: <41740F19.1080502@cybsft.com>
+Date: Mon, 18 Oct 2004 13:44:41 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
+References: <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu>
+In-Reply-To: <20041018145008.GA25707@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew requested this fix go in before 2.6.9 was out, to keep people's
-syslog quiet for a lot of different USB input devices.
+Ingo Molnar wrote:
+> i have released the -U5 Real-Time Preemption patch:
+> 
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U5
+> 
 
-Fixes bug bugzilla.kernel.org bug #3564
+Ingo,
 
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+*** Warning: "__you_cannot_kmalloc_that_much" 
+[drivers/scsi/aacraid/aacraid.ko] undefined!
 
-diff -Nru a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
---- a/drivers/usb/input/hid-core.c	2004-10-15 16:40:01 -07:00
-+++ b/drivers/usb/input/hid-core.c	2004-10-15 16:40:01 -07:00
-@@ -926,6 +926,8 @@
- 		case -ENOENT:
- 		case -ESHUTDOWN:
- 			return;
-+		case -ETIMEDOUT:	/* NAK */
-+			break;
- 		default:		/* error */
- 			warn("input irq status %d received", urb->status);
- 	}
+This just appeared in U5. I was trying to track this one down just 
+because I saw it, even though I don't need aacraid. I am having a hell 
+of a time tracking down what changed that would cause this, but I figure 
+you will know exactly what changed that would cause it. :)
+
+kr
+

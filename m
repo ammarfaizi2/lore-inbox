@@ -1,113 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319171AbSIDOSx>; Wed, 4 Sep 2002 10:18:53 -0400
+	id <S319193AbSIDOcA>; Wed, 4 Sep 2002 10:32:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319172AbSIDOSx>; Wed, 4 Sep 2002 10:18:53 -0400
-Received: from mta.sara.nl ([145.100.16.144]:60116 "EHLO mta.sara.nl")
-	by vger.kernel.org with ESMTP id <S319171AbSIDOSv>;
-	Wed, 4 Sep 2002 10:18:51 -0400
-Date: Wed, 4 Sep 2002 16:23:04 +0200
-Subject: Re: writing OOPS/panic info to nvram?
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v482)
-Cc: morten.helgesen@nextframe.net, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-To: "J.A. Magallon" <jamagallon@able.es>
-From: Remco Post <r.post@sara.nl>
-In-Reply-To: <20020904140856.GA1949@werewolf.able.es>
-Message-Id: <D365BFFC-C011-11D6-A20D-000393911DE2@sara.nl>
-Content-Transfer-Encoding: 7bit
-X-Pgp-Agent: GPGMail 0.5.3 (v20)
-X-Mailer: Apple Mail (2.482)
+	id <S319195AbSIDOcA>; Wed, 4 Sep 2002 10:32:00 -0400
+Received: from jalon.able.es ([212.97.163.2]:11164 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S319193AbSIDOb7>;
+	Wed, 4 Sep 2002 10:31:59 -0400
+Date: Wed, 4 Sep 2002 16:36:15 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [TRIVIAL PATCH] Remove list_t infection.
+Message-ID: <20020904143615.GC1949@werewolf.able.es>
+References: <20020904024428.727A02C19C@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020904024428.727A02C19C@lists.samba.org>; from rusty@rustcorp.com.au on Wed, Sep 04, 2002 at 04:44:42 +0200
+X-Mailer: Balsa 1.4.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-
-On woensdag, september 4, 2002, at 04:08 , J.A. Magallon wrote:
-
+On 2002.09.04 Rusty Russell wrote:
+>In message <Pine.LNX.4.44.0209031923290.1513-100000@home.transmeta.com> you wri
+>te:
+...
 >
-> On 2002.09.04 Remco Post wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->>
->> On woensdag, september 4, 2002, at 02:54 , Morten Helgesen wrote:
->>
->>> On Wed, Sep 04, 2002 at 01:49:12PM +0100, Alan Cox wrote:
->>>> On Wed, 2002-09-04 at 13:31, Morten Helgesen wrote:
->>>>> True - the 'normal' size on a PC is apparently something like 114
->>>>> bytes ...
->>>>> I  guess we could use it for something useful ... but maybe not for
->>>>> OOPSen/panics.
->>>>>
->>>>> I didn`t realize we only had 114 bytes to work with.
->>>>
->>>> We don't. They are all used by the BIOS
->>>
->>> That makes it even less useful. Oh well.
->>>
->>
->> For PC style hardware it does. For other platforms, it's stil nice to 
->> be
->> able to see the oops info on an unattended crash (all crashes? ;) Dump
->> to nvram, dump to file after boot.... Other option is to crash-dump to
->> swap... Question is, do you really want to do that?
->>
+>I'm confused, but I do know three things:
 >
-> Instead of swap, let user specify a partition to raw dump there. If a 
-> user
-> wants crash dumps, he has to leave some small disk space free and give 
-> an
-> option like "dump=/dev/hda7".
+>1) list_t *bad*,
 >
+>2) Grand renaming of "struct list_head" *bad*, and
 >
 
-Mjah,
+Why not something like:
 
-swap can be destroyed during a crash dump, so why not use that? 
-Everybody else does it (AIX, Solaris, IRIX) so if none of the commercial 
-UNIX vendors see a problem in using swap for dump, why should we?
+struct list_node {
+    struct list_node *prev;
+    struct list_node *next;
+}
 
-I like the nvram option best for hardware that allows a oops output to 
-be stored in nvram, since that is also usable on diskless systems when 
-the network is down (or the network driver oopses) or when the disk 
-driver oopses... Maybe do something like:
+struct list {
+    struct list_node *prev;
+    struct list_node *next;
+}   
+        
+list_length(struct list *l)
+list_add(struct list_node *new, struct list *head)
+list_splice(struct list *list, struct list *head)
 
-if there is enough space on disk && ..., use that else
-if there is a swap over nfs && ..., use that else
-if there is a tape drive attaced and a tape is present and it is 
-writeable... else
-if there is nvram available use that
+New:
 
-and print on the console....
+#define list_sublist_from(node) ((struct list *)node)
 
-maybe this is all a bit overkill for what we need to do, maybe not... I 
-guess it would make it possible to debug systems that are just sitting 
-there by themselves, and have some curious problem...
-
-- ---
-Met vriendelijke groeten,
-
-Remco Post
-
-SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
-High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
-PGP keys at http://home.sara.nl/~remco/keys.asc
-
-"I really didn't foresee the Internet. But then, neither did the computer
-industry. Not that that tells us very much of course - the computer 
-industry
-didn't even foresee that the century was going to end." -- Douglas Adams
+So people would be forced to think if he is using a 'list_head'
+as a node or as a sublist, and do the right casts to shut up the
+compiler (that's why you can't do a typedef list_node list..., for
+the compiler to scream...)
 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (Darwin)
-
-iD8DBQE9dhdQBIoCv9yTlOwRAsm0AJ40VJx5QmhrI7ME4w02WyM3Vn9X6wCcDMyq
-M8Dp4XhDjSkKtEO3rbLlwxo=
-=YtBZ
------END PGP SIGNATURE-----
-
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.0 (Cooker) for i586
+Linux 2.4.20-pre5-j0 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))

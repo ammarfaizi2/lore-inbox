@@ -1,76 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318739AbSG0MAj>; Sat, 27 Jul 2002 08:00:39 -0400
+	id <S318742AbSG0MLi>; Sat, 27 Jul 2002 08:11:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318741AbSG0MAj>; Sat, 27 Jul 2002 08:00:39 -0400
-Received: from [196.26.86.1] ([196.26.86.1]:36801 "HELO
-	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S318739AbSG0MAj>; Sat, 27 Jul 2002 08:00:39 -0400
-Date: Sat, 27 Jul 2002 14:21:36 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Robert Love <rml@tech9.net>, Andrew Morton <akpm@zip.com.au>,
-       Ravikiran G Thirumalai <kiran@in.ibm.com>,
-       <linux-kernel@vger.kernel.org>, lse <lse-tech@lists.sourceforge.net>,
-       <riel@conectiva.com.br>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [Lse-tech] Re: [RFC] Scalable statistics counters using
- kmalloc_percpu
-In-Reply-To: <20020726201526.GZ2907@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0207271345320.20701-100000@linux-box.realnet.co.sz>
+	id <S318743AbSG0MLi>; Sat, 27 Jul 2002 08:11:38 -0400
+Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:4224 "EHLO
+	DervishD.pleyades.net") by vger.kernel.org with ESMTP
+	id <S318742AbSG0MLh>; Sat, 27 Jul 2002 08:11:37 -0400
+Date: Sat, 27 Jul 2002 14:22:20 +0200
+Organization: Pleyades
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: About the need of a swap area
+Message-ID: <3D42907C.mailFS15JQVA@viadomus.com>
+User-Agent: nail 9.31 6/18/02
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+From: DervishD <raul@pleyades.net>
+Reply-To: DervishD <raul@pleyades.net>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Jul 2002, William Lee Irwin III wrote:
+    Hi all :))
 
-> On Fri, Jul 26, 2002 at 12:50:12PM -0700, Robert Love wrote:
-> > In current 2.5?  I thought Andrew and I fixed all those issues and
-> > pushed them to Linus...
-> > The `configurable NR_CPUS' patch works fine for me.  I always boot with
-> > NR_CPUS=2.
-> 
-> No idea who it works for, it sure doesn't work here. Behold:
-> ...changing IO-APIC physical APIC ID to 14 ... ok.
-> BIOS bug, IO-APIC#11 ID 0 is already used!...
-> Kernel panic: Max APIC ID exceeded!
-> 
-> In idle task - not syncing
+    I read a time ago that, no matter the RAM you have, adding a
+swap-area will improve performance a lot. So I tested.
 
-hmm
+    I created a swap area twice as large as my RAM size (just an
+arbitrary size), that is 1G. I've tested with lower sizes too. My RAM
+is never filled (well, I haven't seen it filled, at least) since I
+always work on console, no X and things like those. Even compiling
+two or three kernels at a time don't consume my RAM. What I try to
+explain is that the swap is not really needed in my machine, since
+the memory is not prone to be filled.
 
-Since you can only have 4 bits for your IOAPIC ID, you need to stuff them 
-all into the 4 bit address space, looking at the IDs there should be 
-plenty space for 8 IOAPICs in the 4 bit region. Another funny, is how come 
-it tries to reassign IDs for 12 IOAPICs? unless it picked up more from the 
-proprietory vendor section of mp tables seeing as it only picked up 8 at 
-boot, i think that code might need a once over.
+    Well, I haven't notice any change in performance, and the swap
+area is *never* used. That contradicts what I've read about that, no
+matter your free RAM size, a bit of swap is always used. That is not
+my case, definitely.
 
-Another strange check is the following;
+    So my question is: should I use a swap-area for improving
+performance (or whatever else), or should I use those precious bytes
+to improving my porn collection }:))? Seriously: I don't understand
+how the swap works, I don't know if the swap area is used only when
+RAM is exhausted or when the free RAM goes low beyond some point,
+etc... I've read (just took a look) the kernel archives about swap
+and it haven't light me O:))
 
-if (phys_id_present_map & (1 << mp_ioapics[apic].mpc_apicid))
-
-and earlier...
-
-if (clustered_apic_mode)
-	/* We don't have a good way to do this yet - hack */
-	phys_id_present_map = (u_long) 0xf;
-
-urgh...
-
-Overrall i think arch/i386/kernel/io_apic.c needs a looking over.
-
-Cheers,
-	Zwane
--- 
-function.linuxpower.ca
-
-
-
-
-
-
-
-
-
+    Thanks a lot :)
+    Raúl

@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262151AbUB2VlD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 16:41:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbUB2VlD
+	id S262150AbUB2Via (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 16:38:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbUB2Vi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 16:41:03 -0500
-Received: from main.gmane.org ([80.91.224.249]:36279 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262151AbUB2Vkr (ORCPT
+	Sun, 29 Feb 2004 16:38:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:39337 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262150AbUB2ViX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 16:40:47 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.3.0
-Date: Sun, 29 Feb 2004 22:33:19 +0100
-Message-ID: <yw1xn0711sgw.fsf@kth.se>
-References: <200402291942.45392.mmazur@kernel.pl> <200402292130.55743.mmazur@kernel.pl>
- <c1tk26$c1o$1@terminus.zytor.com> <200402292221.41977.mmazur@kernel.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ti211310a080-4136.bb.online.no
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:tKZP+LUdHn7bQVSckLAnNCcSFlA=
+	Sun, 29 Feb 2004 16:38:23 -0500
+Date: Sun, 29 Feb 2004 16:38:51 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Stephen Smalley <sds@epoch.ncsc.mil>, <linux-kernel@vger.kernel.org>
+Subject: [SELINUX] Handle fuse binary mount data.
+Message-ID: <Xine.LNX.4.44.0402291637360.22151-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mariusz Mazur <mmazur@kernel.pl> writes:
+This patch ensures that fuse filesystems are able to be mounted with 
+SELinux enabled.
 
-> On Sunday 29 of February 2004 22:03, H. Peter Anvin wrote:
->> If so, we actually have a bit of an issue w.r.t. the potential
->> legality of these headers.  Technically they're incompatible with LGPL
->> and BSD-licensed libraries; I think we need some kind of official
->> declaration that compiling against them is permitted.
->
-> /me knows nothing about legalities. So if you could explain exactly why, what 
-> to do about it and how can that help... (and why there wasn't any problem 
-> earlier, when people used headers from linux tarballs?)
+Please apply.
 
-Excuse my ignorance, but why can't the headers from the kernel still
-be used.  They seem to be working fine here.
 
--- 
-Måns Rullgård
-mru@kth.se
+diff -urN -X dontdiff linux-2.6.3-mm4.o/security/selinux/hooks.c linux-2.6.3-mm4.w/security/selinux/hooks.c
+--- linux-2.6.3-mm4.o/security/selinux/hooks.c	2004-02-25 22:42:16.000000000 -0500
++++ linux-2.6.3-mm4.w/security/selinux/hooks.c	2004-02-28 23:44:04.885656768 -0500
+@@ -332,8 +332,8 @@
+ 	name = sb->s_type->name;
+ 
+ 	/* Ignore these fileystems with binary mount option data. */
+-	if (!strcmp(name, "coda") ||
+-	    !strcmp(name, "afs") || !strcmp(name, "smbfs"))
++	if (!strcmp(name, "coda") || !strcmp(name, "afs") ||
++	    !strcmp(name, "smbfs") || !strcmp(name, "fuse"))
+ 		goto out;
+ 
+ 	/* NFS we understand. */
+@@ -1897,7 +1897,8 @@
+ 
+ 	/* Binary mount data: just copy */
+ 	if (!strcmp(fstype, "nfs") || !strcmp(fstype, "coda") ||
+-	    !strcmp(fstype, "smbfs") || !strcmp(fstype, "afs")) {
++	    !strcmp(fstype, "smbfs") || !strcmp(fstype, "afs") ||
++	    !strcmp(fstype, "fuse")) {
+ 		copy_page(sec_curr, in_curr);
+ 		goto out;
+ 	}
 

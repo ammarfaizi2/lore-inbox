@@ -1,88 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261788AbTKKNZM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 08:25:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263489AbTKKNZM
+	id S263490AbTKKNjF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 08:39:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263496AbTKKNjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 08:25:12 -0500
-Received: from mail-08.iinet.net.au ([203.59.3.40]:48588 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261788AbTKKNZG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 08:25:06 -0500
-Subject: Re: [autofs] "simultaneous" mounts causing weird behavior
-From: Ian Kent <raven@themaw.net>
-To: Matthew Mitchell <matthew@geodev.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1068483422.2640.458.camel@aluminum>
-References: <Pine.LNX.4.33.0311061108300.32640-100000@wombat.indigo.net.au>
-	 <1068483422.2640.458.camel@aluminum>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1068557622.3147.45.camel@raven.themaw.net>
+	Tue, 11 Nov 2003 08:39:05 -0500
+Received: from users.linvision.com ([62.58.92.114]:36844 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S263490AbTKKNjA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 08:39:00 -0500
+Date: Tue, 11 Nov 2003 14:38:59 +0100
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       davide.rossetti@roma1.infn.it, filia@softhome.net,
+       jesse@cats-chateau.net, dwmw2@infradead.org, moje@vabo.cz,
+       kakadu_croc@yahoo.com
+Subject: Re: OT: why no file copy() libc/syscall ??
+Message-ID: <20031111133859.GA11115@bitwizard.nl>
+References: <1068512710.722.161.camel@cube>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Nov 2003 21:33:43 +0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1068512710.722.161.camel@cube>
+User-Agent: Mutt/1.3.28i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-11-11 at 00:57, Matthew Mitchell wrote:
-
-> > You should be using the latest autofs4 kernel module with this. It is
-> > available form the same place you got the beta autofs-4.
+On Mon, Nov 10, 2003 at 08:05:11PM -0500, Albert Cahalan wrote:
+> So open the file, change context, and then:
 > 
-> OK.  Looks like a big change to the kernel setup (from a quick browse of
-> the patch).  In the interest of isolating the change to userspace, can
-> you point me to a version of autofs4 that works with the stock 2.4.20
-> kernel module?  I'd be happy to forward-port anything that works and
-> test it again with the newer code.  (I can test the new stuff pretty
-> easily on one machine but I don't want to undertake the week-long
-> process of updating the kernel on the whole cluster just for this
-> problem.)
+> long copy_fd_to_file(int fd, const char *name, ...)
 > 
+> (if you can no longer read from the OPEN fd,
+> either we override that or we just don't care
+> about such mostly-fictional cases)
 
-What is the question here. autofs is a kernel automounter. The autofs4
-kernel module is as much a part of the package as the daemon. There is
-no userspace version of the kernel module. I can't see how there can be.
 
-Using the module distributed with 2.4 kernels is fine if you don't want
-browsable mount points and that's it.
+Actually, I think we should have a: 
 
-<rant>
+	long copy_fd_to_fd (int src, int dst, int len)
 
-I must also add that you don't need to change the kernel source tree at
-all to use my updated kernel module. This was one of the reasons I
-constructed the module build kit (available on kernel.org in the same
-directory as the autofs v4 package). Further more, the changes I have
-made are exclusively to the autofs4 module, as should be the case for
-any filesystem module.
+type of systemcall. 
 
-The other reason I put the kit together was that when I took over
-maintenance of autofs v4, the previous maintainer, although happy to
-hand over the maintenance of the daemon, was less than happy for me to
-maintain the kernel module. So I will, as time passes, try to get my
-changes into the kernel although I haven't made any progress there yet.
+It should do something like:
 
-</rant>
+	while ((nbytes = read (src, buf, BUFSIZE)) >= 0) {
+		if (write (dst, buf, nbytes) < 0) 
+			return totbytes; 
+		totbytes += nbytes;
+	}
 
-You need to read the doco in the kit to use it. Briefly, you need the
-kernel source tree corresponding to the running kernel and matching
-kernel config file. In Makefile.conf set the macro variables as
-instructed and 'make' then 'make install' (install must be done as
-root). This will build the module, make a copy of the kernels' module
-and place the updated module in the right place. Subsequent 'make
-install' will not overwrite the backup if it already exists. 'make
-uninstall' will reinstate the original kernel module.
+but it allows kernel-space to optimize this whenever possible. Kernel
+then becomes responsible for detecting and handling the optimizable
+cases. 
 
-I have tried to cater for people who are reluctant to patch and build
-kernels with the kit.  
+The kernel then becomes something
 
-What else can I do?
+	if (islocalfile (src) && issocket (dst)) 
+		/* Call the old sendfile */ 
+		return sendfile (....);
+
+	if (isCIFS (src), isCIFS(dst))
+		/* Tell remote host to copy the file. */
+		return CIFS_copy_file (....); 
+
+	...
+
+and then the default implementation. This is nice and expandible, and
+provides a default for the case that cannot be optimized. 
+
+And if you don't want the extra code, we could enclose the different
+optimizations with ifdefs.
+
+But alas, last time Linus didn't agree with me and decided we should
+do something like "sendfile", which is IMHO just a special case of
+this one.
+
+
+If we implement this in kernel (at first just the copy_fd_fd and the
+default implementation), then we can get "cp" to use this, and then
+suddenly whenever we upgrade the kernel, cp can use the newly
+optimized copying mechanism. (e.g. whenever we manage to specify a
+socket as the destination, cp would suddenly start to use
+"sendfile"!!)
+
+(It might be better to include a "buffer" argument in the interface,
+freeing the implementation of allocating a buffer when an optimization
+is not possible).
+
+		Roger. 
 
 -- 
-
-   ,-._|\    Ian Kent
-  /      \   Perth, Western Australia
-  *_.--._/   E-mail: raven@themaw.net
-        v    Web: http://themaw.net/
-
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261864AbTEZRVL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 13:21:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbTEZRVH
+	id S261872AbTEZRUE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 13:20:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTEZRTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 13:21:07 -0400
-Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:35283 "EHLO
-	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S261864AbTEZRTS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 13:19:18 -0400
-Date: Mon, 26 May 2003 19:31:31 +0200
+	Mon, 26 May 2003 13:19:09 -0400
+Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:229 "EHLO
+	d06lmsgate-4.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S261887AbTEZRQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 13:16:05 -0400
+Date: Mon, 26 May 2003 19:25:41 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 (9/10): tape device driver.
-Message-ID: <20030526173131.GJ3748@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390 (5/10): module count.
+Message-ID: <20030526172541.GF3748@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,211 +21,146 @@ User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bug fixes for the s390 tape device driver:
- - Remove tapechar_init() from mem.c. It is called via module_init anyway.
- - Remove unnecessary #include <version.h>
- - Make tape_block compile. Add fixme.
- - Export symbols needed by tape discipline drivers.
+Remove unnecessary MOD_INC_USE_COUNT/MOD_DEC_USE_COUNT pairs.
 
 diffstat:
- drivers/char/mem.c             |    3 ---
- drivers/s390/char/tape_34xx.c  |    5 ++---
- drivers/s390/char/tape_block.c |   17 +++++++++++------
- drivers/s390/char/tape_char.c  |    5 +----
- drivers/s390/char/tape_core.c  |   10 +++++++---
- drivers/s390/char/tape_proc.c  |    1 -
- drivers/s390/char/tape_std.c   |    1 -
- 7 files changed, 21 insertions(+), 21 deletions(-)
+ arch/s390/kernel/debug.c        |    3 ---
+ drivers/s390/block/dasd_ioctl.c |    2 --
+ drivers/s390/net/ctcmain.c      |    8 +++-----
+ drivers/s390/net/iucv.c         |    8 +++-----
+ 4 files changed, 6 insertions(+), 15 deletions(-)
 
-diff -urN linux-2.5/drivers/char/mem.c linux-2.5-s390/drivers/char/mem.c
---- linux-2.5/drivers/char/mem.c	Mon May 26 19:20:26 2003
-+++ linux-2.5-s390/drivers/char/mem.c	Mon May 26 19:20:47 2003
-@@ -707,9 +707,6 @@
- #ifdef CONFIG_FTAPE
- 	ftape_init();
- #endif
--#if defined(CONFIG_S390_TAPE) && defined(CONFIG_S390_TAPE_CHAR)
--	tapechar_init();
--#endif
- 	return 0;
- }
- 
-diff -urN linux-2.5/drivers/s390/char/tape_34xx.c linux-2.5-s390/drivers/s390/char/tape_34xx.c
---- linux-2.5/drivers/s390/char/tape_34xx.c	Mon May  5 01:53:12 2003
-+++ linux-2.5-s390/drivers/s390/char/tape_34xx.c	Mon May 26 19:20:47 2003
-@@ -10,7 +10,6 @@
-  */
- 
- #include <linux/config.h>
--#include <linux/version.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/bio.h>
-@@ -1042,7 +1041,7 @@
+diff -urN linux-2.5/arch/s390/kernel/debug.c linux-2.5-s390/arch/s390/kernel/debug.c
+--- linux-2.5/arch/s390/kernel/debug.c	Mon May 26 19:20:43 2003
++++ linux-2.5-s390/arch/s390/kernel/debug.c	Mon May 26 19:20:45 2003
+@@ -585,7 +585,6 @@
  {
- 	int rc;
- 
--	DBF_EVENT(3, "34xx init: $Revision: 1.7 $\n");
-+	DBF_EVENT(3, "34xx init: $Revision: 1.8 $\n");
- 	/* Register driver for 3480/3490 tapes. */
- 	rc = ccw_driver_register(&tape_34xx_driver);
- 	if (rc)
-@@ -1061,7 +1060,7 @@
- MODULE_DEVICE_TABLE(ccw, tape_34xx_ids);
- MODULE_AUTHOR("(C) 2001-2002 IBM Deutschland Entwicklung GmbH");
- MODULE_DESCRIPTION("Linux on zSeries channel attached 3480 tape "
--		   "device driver ($Revision: 1.7 $)");
-+		   "device driver ($Revision: 1.8 $)");
- MODULE_LICENSE("GPL");
- 
- module_init(tape_34xx_init);
-diff -urN linux-2.5/drivers/s390/char/tape_block.c linux-2.5-s390/drivers/s390/char/tape_block.c
---- linux-2.5/drivers/s390/char/tape_block.c	Mon May  5 01:53:36 2003
-+++ linux-2.5-s390/drivers/s390/char/tape_block.c	Mon May 26 19:20:47 2003
-@@ -237,14 +237,13 @@
- 	blk_queue_segment_boundary(q, -1L);
- 
- 	disk->major = tapeblock_major;
--	disk->first_minor = i;
-+	disk->first_minor = device->first_minor;
- 	disk->fops = &tapeblock_fops;
- 	disk->private_data = device;
- 	disk->queue = q;
--	set_capacity(disk, size);
-+	//set_capacity(disk, size);
- 
--	sprintf(disk->disk_name, "tBLK%d", i);
--	sprintf(disk->disk_name, "tBLK/%d", i);
-+	sprintf(disk->disk_name, "tBLK/%d", device->first_minor / TAPE_MINORS_PER_DEV);
- 
- 	add_disk(disk);
- 	d->disk = disk;
-@@ -302,10 +301,16 @@
- static int
- tapeblock_open(struct inode *inode, struct file *filp)
- {
--	struct gendisk *disk = inp->i_bdev->bd_disk;
-+	struct gendisk *disk = inode->i_bdev->bd_disk;
- 	struct tape_device *device = disk->private_data;
- 	int rc;
- 
-+	/*
-+	 * FIXME: this new tapeblock_open function is from 2.5.69.
-+	 * It doesn't do tape_get_device anymore but picks the device
-+	 * pointer from disk->private_data. It is stored in 
-+	 * tapeblock_setup_device but WITHOUT proper ref-counting.
-+	 */
- 	rc = tape_open(device);
- 	if (rc)
- 		goto put_device;
-@@ -333,7 +338,7 @@
- static int
- tapeblock_release(struct inode *inode, struct file *filp)
- {
--	struct gendisk *disk = inp->i_bdev->bd_disk;
-+	struct gendisk *disk = inode->i_bdev->bd_disk;
- 	struct tape_device *device = disk->private_data;
- 
- 	tape_release(device);
-diff -urN linux-2.5/drivers/s390/char/tape_char.c linux-2.5-s390/drivers/s390/char/tape_char.c
---- linux-2.5/drivers/s390/char/tape_char.c	Mon May  5 01:53:36 2003
-+++ linux-2.5-s390/drivers/s390/char/tape_char.c	Mon May 26 19:20:47 2003
-@@ -37,6 +37,7 @@
- 
- static struct file_operations tape_fops =
- {
-+	.owner = THIS_MODULE,
- 	.read = tapechar_read,
- 	.write = tapechar_write,
- 	.ioctl = tapechar_ioctl,
-@@ -237,13 +238,11 @@
- 	struct tape_device *device;
- 	int minor, rc;
+ 	debug_info_t *rc = NULL;
  
 -	MOD_INC_USE_COUNT;
- 	if (major(filp->f_dentry->d_inode->i_rdev) != tapechar_major)
- 		return -ENODEV;
- 	minor = minor(filp->f_dentry->d_inode->i_rdev);
- 	device = tape_get_device(minor / TAPE_MINORS_PER_DEV);
- 	if (IS_ERR(device)) {
+ 	if (!initialized)
+ 		BUG();
+ 	down(&debug_lock);
+@@ -605,7 +604,6 @@
+       out:
+         if (rc == NULL){
+ 		printk(KERN_ERR "debug: debug_register failed for %s\n",name);
 -		MOD_DEC_USE_COUNT;
- 		return PTR_ERR(device);
- 	}
- 	DBF_EVENT(6, "TCHAR:open: %x\n", minor(inode->i_rdev));
-@@ -257,7 +256,6 @@
- 		tape_release(device);
- 	}
- 	tape_put_device(device);
--	MOD_DEC_USE_COUNT;
+         }
+ 	up(&debug_lock);
  	return rc;
+@@ -627,7 +625,6 @@
+ 	debug_info_put(id);
+ 	up(&debug_lock);
+ 
+-	MOD_DEC_USE_COUNT;
+       out:
+ 	return;
+ }
+diff -urN linux-2.5/drivers/s390/block/dasd_ioctl.c linux-2.5-s390/drivers/s390/block/dasd_ioctl.c
+--- linux-2.5/drivers/s390/block/dasd_ioctl.c	Mon May  5 01:53:32 2003
++++ linux-2.5-s390/drivers/s390/block/dasd_ioctl.c	Mon May 26 19:20:45 2003
+@@ -59,7 +59,6 @@
+ 	new->no = no;
+ 	new->handler = handler;
+ 	list_add(&new->list, &dasd_ioctl_list);
+-	MOD_INC_USE_COUNT;
+ 	return 0;
  }
  
-@@ -293,7 +291,6 @@
- 	tape_release(device);
- 	tape_unassign(device);
- 	tape_put_device(device);
+@@ -76,7 +75,6 @@
+ 		return -EINVAL;
+ 	list_del(&old->list);
+ 	kfree(old);
 -	MOD_DEC_USE_COUNT;
  	return 0;
  }
  
-diff -urN linux-2.5/drivers/s390/char/tape_core.c linux-2.5-s390/drivers/s390/char/tape_core.c
---- linux-2.5/drivers/s390/char/tape_core.c	Mon May  5 01:53:08 2003
-+++ linux-2.5-s390/drivers/s390/char/tape_core.c	Mon May 26 19:20:47 2003
-@@ -11,7 +11,6 @@
+diff -urN linux-2.5/drivers/s390/net/ctcmain.c linux-2.5-s390/drivers/s390/net/ctcmain.c
+--- linux-2.5/drivers/s390/net/ctcmain.c	Mon May  5 01:53:12 2003
++++ linux-2.5-s390/drivers/s390/net/ctcmain.c	Mon May 26 19:20:45 2003
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: ctcmain.c,v 1.40 2003/04/08 16:00:17 mschwide Exp $
++ * $Id: ctcmain.c,v 1.41 2003/04/15 16:45:37 aberg Exp $
+  *
+  * CTC / ESCON network driver
+  *
+@@ -36,7 +36,7 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  *
+- * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.40 $
++ * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.41 $
+  *
   */
- 
- #include <linux/config.h>
--#include <linux/version.h>
- #include <linux/module.h>
- #include <linux/init.h>	     // for kernel parameters
- #include <linux/kmod.h>	     // for requesting modules
-@@ -904,7 +903,7 @@
+ 
+@@ -272,7 +272,7 @@
+ print_banner(void)
  {
- 	tape_dbf_area = debug_register ( "tape", 1, 2, 3*sizeof(long));
- 	debug_register_view(tape_dbf_area, &debug_sprintf_view);
--	DBF_EVENT(3, "tape init: ($Revision: 1.23 $)\n");
-+	DBF_EVENT(3, "tape init: ($Revision: 1.25 $)\n");
- 	tape_proc_init();
- 	tapechar_init ();
- 	tapeblock_init ();
-@@ -929,12 +928,17 @@
- MODULE_AUTHOR("(C) 2001 IBM Deutschland Entwicklung GmbH by Carsten Otte and "
- 	      "Michael Holzheu (cotte@de.ibm.com,holzheu@de.ibm.com)");
- MODULE_DESCRIPTION("Linux on zSeries channel attached "
--		   "tape device driver ($Revision: 1.23 $)");
-+		   "tape device driver ($Revision: 1.25 $)");
+ 	static int printed = 0;
+-	char vbuf[] = "$Revision: 1.40 $";
++	char vbuf[] = "$Revision: 1.41 $";
+ 	char *version = vbuf;
  
- module_init(tape_init);
- module_exit(tape_exit);
+ 	if (printed)
+@@ -2582,7 +2582,6 @@
+ 	file->private_data = kmalloc(STATS_BUFSIZE, GFP_KERNEL);
+ 	if (file->private_data == NULL)
+ 		return -ENOMEM;
+-	MOD_INC_USE_COUNT;
+ 	return 0;
+ }
  
- EXPORT_SYMBOL(tape_dbf_area);
-+EXPORT_SYMBOL(tape_generic_remove);
-+EXPORT_SYMBOL(tape_disable_device);
-+EXPORT_SYMBOL(tape_generic_probe);
-+EXPORT_SYMBOL(tape_enable_device);
-+EXPORT_SYMBOL(tape_put_device);
- EXPORT_SYMBOL(tape_state_verbose);
- EXPORT_SYMBOL(tape_op_verbose);
- EXPORT_SYMBOL(tape_state_set);
-diff -urN linux-2.5/drivers/s390/char/tape_proc.c linux-2.5-s390/drivers/s390/char/tape_proc.c
---- linux-2.5/drivers/s390/char/tape_proc.c	Mon May  5 01:53:13 2003
-+++ linux-2.5-s390/drivers/s390/char/tape_proc.c	Mon May 26 19:20:47 2003
-@@ -12,7 +12,6 @@
+@@ -2590,7 +2589,6 @@
+ ctc_stat_close(struct inode *inode, struct file *file)
+ {
+ 	kfree(file->private_data);
+-	MOD_DEC_USE_COUNT;
+ 	return 0;
+ }
+ 
+diff -urN linux-2.5/drivers/s390/net/iucv.c linux-2.5-s390/drivers/s390/net/iucv.c
+--- linux-2.5/drivers/s390/net/iucv.c	Mon May  5 01:53:01 2003
++++ linux-2.5-s390/drivers/s390/net/iucv.c	Mon May 26 19:20:45 2003
+@@ -1,5 +1,5 @@
+ /* 
+- * $Id: iucv.c,v 1.10 2003/03/28 08:54:40 mschwide Exp $
++ * $Id: iucv.c,v 1.11 2003/04/15 16:45:37 aberg Exp $
+  *
+  * IUCV network driver
+  *
+@@ -29,7 +29,7 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  *
+- * RELEASE-TAG: IUCV lowlevel driver $Revision: 1.10 $
++ * RELEASE-TAG: IUCV lowlevel driver $Revision: 1.11 $
+  *
   */
+ 
+@@ -332,7 +332,7 @@
+ static void
+ iucv_banner(void)
+ {
+-	char vbuf[] = "$Revision: 1.10 $";
++	char vbuf[] = "$Revision: 1.11 $";
+ 	char *version = vbuf;
  
- #include <linux/config.h>
--#include <linux/version.h>
- #include <linux/module.h>
- #include <linux/vmalloc.h>
- #include <linux/seq_file.h>
-diff -urN linux-2.5/drivers/s390/char/tape_std.c linux-2.5-s390/drivers/s390/char/tape_std.c
---- linux-2.5/drivers/s390/char/tape_std.c	Mon May  5 01:52:48 2003
-+++ linux-2.5-s390/drivers/s390/char/tape_std.c	Mon May 26 19:20:47 2003
-@@ -11,7 +11,6 @@
-  */
+ 	if ((version = strchr(version, ':'))) {
+@@ -842,7 +842,6 @@
+ 		}
+ 		register_flag = 1;
+ 	}
+-	MOD_INC_USE_COUNT;
+ 	iucv_debug(1, "exiting");
+ 	return new_handler;
+ }				/* end of register function */
+@@ -903,7 +902,6 @@
+ 	iucv_remove_handler(h);
+ 	kfree(h);
  
- #include <linux/config.h>
--#include <linux/version.h>
- #include <linux/stddef.h>
- #include <linux/kernel.h>
- #include <linux/bio.h>
+-	MOD_DEC_USE_COUNT;
+ 	iucv_debug(1, "exiting");
+ 	return 0;
+ }

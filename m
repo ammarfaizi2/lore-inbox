@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317176AbSFBNZa>; Sun, 2 Jun 2002 09:25:30 -0400
+	id <S317179AbSFBNbZ>; Sun, 2 Jun 2002 09:31:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317177AbSFBNZ3>; Sun, 2 Jun 2002 09:25:29 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:24569 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317176AbSFBNZ3>; Sun, 2 Jun 2002 09:25:29 -0400
-Subject: Re: FUD or FACTS ?? but a new FLAME!
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOL.4.30.0206021405070.1886-100000@mion.elka.pw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 02 Jun 2002 15:29:44 +0100
-Message-Id: <1023028184.23878.12.camel@irongate.swansea.linux.org.uk>
+	id <S317178AbSFBNbY>; Sun, 2 Jun 2002 09:31:24 -0400
+Received: from [210.78.134.243] ([210.78.134.243]:22544 "EHLO 210.78.134.243")
+	by vger.kernel.org with ESMTP id <S317177AbSFBNbX>;
+	Sun, 2 Jun 2002 09:31:23 -0400
+Date: Sun, 2 Jun 2002 21:22:16 +0800
+From: zheng chuanbo <zhengcb@netpower.com.cn>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: some bugs with the bridge in  linux2.4.18?
+X-mailer: FoxMail 3.11 Release [cn]
 Mime-Version: 1.0
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200206022122193.SM00800@zhengcb>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-06-02 at 13:11, Bartlomiej Zolnierkiewicz wrote:
-> So what should we do in case of overclocked PCI bus?
-> Get overclocked ATA or try to mess with timings?
 
-You cannot overclock the AMD on chipset IDE or the intel on chipset IDE.
-It doesn't actually matter what you do the system is going to be way out
-of wack. These are chipset bridges rather than card people ram into
-weird bits of hardware.
+[the problem]: 
+in linux2.4.18,when i use brctl to build the bridge,it works. and the hosts can communicate with the host on the other side of the bridge. but when i tried to stop the bridge with cmd "brctl delif bridge eth0",it always hung there. if i plugged off all the cables,the bridge can also be stopped without any problems.
 
-The VIA stuff and the Promise it makes some sense to try because they
-may be shoved in boxes with a 25MHz PCI clock, or in a few cases a
-horribly broke 37.5/41Mhz bus from the early chipsets that had 'idiot
-only' 75/83Mhz FSB options
+[tested]:
+i tracked the program of brctl,and found that the systems stopped at the following code:
+	ioctl(br_socket_fd, SIOCDEVPRIVATE, &ifr);
+so i guess the problem is in the ioctl in kernel.
+i tested both linux2.4.17 and linux2.4.19pre9, none of them has no such problem.
+in linux2.4.19pre1,it works well most of the time,but sometimes it fails. when i check the status with "brctl showstp bridge",if one of the interface shows "blocking",then when try to stop the bridge ,the system also hung there.
+
+so i guess one of the patch solved the problem. which one is it? and what is missed in linux2.4.18? i wish i could find out the answer.
+
+(i don't alway come here,so i wish the answser could be CC to me. thanks.)
+
+chuanbo zheng
+zhengcb@netpower.com.cn
+
+
+
 

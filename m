@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315260AbSFDSIF>; Tue, 4 Jun 2002 14:08:05 -0400
+	id <S315372AbSFDSQ5>; Tue, 4 Jun 2002 14:16:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315372AbSFDSIE>; Tue, 4 Jun 2002 14:08:04 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:21679 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S315260AbSFDSIA>; Tue, 4 Jun 2002 14:08:00 -0400
-Message-ID: <3CFD01F8.B69152E4@nortelnetworks.com>
-Date: Tue, 04 Jun 2002 14:07:52 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: packets being dropped in IP stack but no error counts incrementing?
-Content-Type: text/plain; charset=us-ascii
+	id <S315374AbSFDSQ4>; Tue, 4 Jun 2002 14:16:56 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:50086 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S315372AbSFDSQz>;
+	Tue, 4 Jun 2002 14:16:55 -0400
+Date: Tue, 04 Jun 2002 11:13:37 -0700 (PDT)
+Message-Id: <20020604.111337.51699424.davem@redhat.com>
+To: mochel@osdl.org
+Cc: anton@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.5.19] Oops during PCI scan on Alpha
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0206040821100.654-100000@geena.pdx.osdl.net>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Patrick Mochel <mochel@osdl.org>
+   Date: Tue, 4 Jun 2002 08:50:11 -0700 (PDT)
 
-I've been doing some testing on 2.4.18 and I'm seeing an interesting problem.
+   On Sun, 2 Jun 2002, David S. Miller wrote:
+   
+   > It's happening on every platform.  It should be done before
+   > arch_initcalls actually, but after core_initcalls.  I would suggest to
+   > rename unused_initcall into postcore_iniscall, then use it for this
+   > and sys_bus_init which has the same problem.
+   
+   Can't it go the other way? Instead of mass-promotion of the setup 
+   functions, can't we demote the ones that are causing the problems? 
+   
+There's this middle area between core and subsys, why not
+just be explicit about it's existence?
 
-I have a test tool that simulates bursty UDP traffic by sending a bunch of
-messages and then delaying a while.   If I leave the receiving udp socket at its
-normal size, then I can get a significant number of messages just vanishing
-between the ethernet driver and the userspace socket.  The driver rx count shows
-that all packets were received, but the userspace program doesn't get all of
-them.  netstat/ifconfig/iproute2 rx dropped counts do not increase.
-
-Is this design intent, are we messing a counter increment when dropping packets,
-or am I not looking at the right counter for these numbers?
-
-Thanks,
-
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Short of making the true dependencies describable, I think my
+postcore_initcall solution is fine.

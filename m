@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271905AbRIQRN0>; Mon, 17 Sep 2001 13:13:26 -0400
+	id <S271906AbRIQRPG>; Mon, 17 Sep 2001 13:15:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271906AbRIQRNR>; Mon, 17 Sep 2001 13:13:17 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:41479 "EHLO
+	id <S271918AbRIQRO4>; Mon, 17 Sep 2001 13:14:56 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:47623 "EHLO
 	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S271905AbRIQRNE>; Mon, 17 Sep 2001 13:13:04 -0400
-Message-ID: <3BA62F35.86B5F099@zip.com.au>
-Date: Mon, 17 Sep 2001 10:13:25 -0700
+	id <S271906AbRIQROt>; Mon, 17 Sep 2001 13:14:49 -0400
+Message-ID: <3BA62FA0.F9700EFE@zip.com.au>
+Date: Mon, 17 Sep 2001 10:15:12 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac10 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: ahmedg@dacafe.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 3com 575 on Sony PCG-F590
-In-Reply-To: <1000733749.mailspinnerdV3.2.5.3@smtp.dacafe.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Christian =?iso-8859-1?Q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+CC: Juan <piernas@ditec.um.es>, linux-kernel@vger.kernel.org
+Subject: Re: Ext3 journal on its own device?
+In-Reply-To: <3BA61CC0.C9ECC8A0@ditec.um.es> <E15j19N-0006Gh-00@mrvdom03.schlund.de> <3BA62575.E14C5808@ditec.um.es>,
+		<3BA62575.E14C5808@ditec.um.es> <E15j1RG-00082a-00@mrvdom03.schlund.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ahmedg@dacafe.com wrote:
+Christian Bornträger wrote:
 > 
-> Hello all,
+> > But the problem is that I need to use Linux 2.2.19, and the latest Ext3
+> > version for that kernel is 0.0.7a, isn't it?.
 > 
-> I have a vaio PCG-F590 with 3Com Megahertz cardbus model 3CCFE575CT, I
-> tried to install linux 2.4.4-4GB but unfortunately I couldn't configure
-> it correctly.
-> 
-> It works if I eject the card during booting and insert it again.
-> 
-> Does anybody know a solution for it?
+> good point. I am not sure if ext3 is still maintained for linux 2.2, but I
+> doubt it. Andrew or Stephen should be able to answer this question.
+
+Stephen is actively maintaining ext3 for the 2.2 kernels, but
+it is definitely in "maintenance mode".
+
+> But with 0.0.7a it is not possible to have an external journal.
 > 
 
-There seems to be a problem specific to the 575's wherein the
-cardbus layer fails to allocate the PCI IO resources correctly.
-I don't have the hardware and I have yet to pin down someone
-who has the time/knowledge to poke into the PCI layer to find
-out what's going on.
+That's true.
 
-Could you please boot the system with the card inserted, and then
-send me the output of `dmesg'?
-
-Thanks.
+-

@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbVASSSn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVASSTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261818AbVASSSn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 13:18:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbVASSSn
+	id S261820AbVASSTK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 13:19:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVASSTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 13:18:43 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:44510 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261818AbVASSSl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 13:18:41 -0500
-Date: Wed, 19 Jan 2005 19:18:33 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andreas Gruenbacher <agruen@suse.de>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Sam Ravnborg <sam@ravnborg.org>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [kbuild 2/5] Dont use the running kernels config file by default
-In-Reply-To: <1106157119.8642.25.camel@winden.suse.de>
-Message-ID: <Pine.LNX.4.61.0501191858060.30794@scrub.home>
-References: <20050118184123.729034000.suse.de>  <20050118192608.423265000.suse.de>
-  <Pine.LNX.4.61.0501182106340.6118@scrub.home> <1106157119.8642.25.camel@winden.suse.de>
+	Wed, 19 Jan 2005 13:19:10 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:4289 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261820AbVASSTF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 13:19:05 -0500
+To: Hariprasad Nellitheertha <hari@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: [PATCH 16/29] x86-kexec
+References: <overview-11061198973484@ebiederm.dsl.xmission.com>
+	<x86-64-e820-64bit-11061198971581@ebiederm.dsl.xmission.com>
+	<x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com>
+	<x86-64-i8259-shutdown-11061198973969@ebiederm.dsl.xmission.com>
+	<x86-apic-virtwire-on-shutdown-11061198973730@ebiederm.dsl.xmission.com>
+	<x86-64-apic-virtwire-on-shutdown-11061198973345@ebiederm.dsl.xmission.com>
+	<vmlinux-fix-physical-addrs-11061198973860@ebiederm.dsl.xmission.com>
+	<x86-vmlinux-fix-physical-addrs-11061198971192@ebiederm.dsl.xmission.com>
+	<x86-64-vmlinux-fix-physical-addrs-11061198972723@ebiederm.dsl.xmission.com>
+	<x86-64-entry64-1106119897218@ebiederm.dsl.xmission.com>
+	<x86-config-kernel-start-1106119897152@ebiederm.dsl.xmission.com>
+	<x86-64-config-kernel-start-11061198972987@ebiederm.dsl.xmission.com>
+	<kexec-kexec-generic-11061198974111@ebiederm.dsl.xmission.com>
+	<x86-machine-shutdown-1106119897775@ebiederm.dsl.xmission.com>
+	<x86-kexec-11061198971773@ebiederm.dsl.xmission.! com>
+	<41EE4E30.6060908@in.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Jan 2005 11:17:23 -0700
+In-Reply-To: <41EE4E30.6060908@in.ibm.com>
+Message-ID: <m1pt015ln0.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hariprasad Nellitheertha <hari@in.ibm.com> writes:
 
-On Wed, 19 Jan 2005, Andreas Gruenbacher wrote:
-
-> > > A user ran into the following problem: They grab a SuSE kernel-source
-> > > package that is more recent than their running kernel. The tree under
-> > > /usr/src/linux is unconfigured by default; there is no .config. User
-> > > does a ``make menuconfig'', which gets its default values from
-> > > /boot/config-$(uname -r). User tries to build the kernel, which doesn't
-> > > work.
-> > 
-> > NAK. This isn't normally supposed to happen and it shouldn't be as bad 
-> > anymore as it used to be. Removing these path doesn't magically create a 
-> > working kernel.
+> Hello Eric,
 > 
-> "Not normally supposed to happen" and "shouldn't be as bad anymore"
-> aren't very sound arguments.
+> Eric W. Biederman wrote:
+> > This is the i386 implementation of kexec.
+> 
+> I tried these patches on an i386 box with kexec-tools-1.99. kexec-ing with
+> vmlinux works fine but bzImage still doesnt go through. Is there a newer
+> kexec-tools package that we need to use this with (to take care of the
+> "purgatory code getting overwritten" problem you had identified).
 
-It's as precise as above problem report. 
+Yes.  I will release the 2.0 version shortly.  I need to give it a code
+review before I put it out.  So sometime later today.
 
-> It's fundamentally broken to use a
-> semi-random configuration for a kernel source tree that may be
-> arbitrarily far apart.
-
-No, it's not. Please provide more information why exactly this is broken.
-
-> It's not uncommon that users who build their own kernel modules often
-> are very clueless. Nevertheless we shouldn't cause them pain
-> unnecessarily.
-
-So they should first try the 2.6 kernel provided by the distribution and 
-then try compiling their own kernel. In this situation it's actually more 
-likely that they produce a working kernel with the current behaviour, the 
-defconfig is not a guarantee for a working kernel either.
-Sorry, but as long as nobody writes an autoconfig tool for the kernel, the 
-kernel configuration is not a simple process and any default can only be a 
-compromise and may fail. If you have evidence that there are better 
-defaults, we can change this, but your problem report above is not enough.
-
-bye, Roman
+Eric

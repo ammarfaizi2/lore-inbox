@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316753AbSGLSaq>; Fri, 12 Jul 2002 14:30:46 -0400
+	id <S316770AbSGLSgj>; Fri, 12 Jul 2002 14:36:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316757AbSGLSap>; Fri, 12 Jul 2002 14:30:45 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64013 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316753AbSGLSak>; Fri, 12 Jul 2002 14:30:40 -0400
-Message-ID: <3D2F20DD.1030704@zytor.com>
-Date: Fri, 12 Jul 2002 11:33:01 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
-X-Accept-Language: en-us, en, sv
+	id <S316774AbSGLSgi>; Fri, 12 Jul 2002 14:36:38 -0400
+Received: from tao-eth.natur.cuni.cz ([195.113.46.57]:7692 "EHLO natur.cuni.cz")
+	by vger.kernel.org with ESMTP id <S316770AbSGLSge>;
+	Fri, 12 Jul 2002 14:36:34 -0400
+X-Obalka-From: mmokrejs@natur.cuni.cz
+Date: Fri, 12 Jul 2002 20:39:18 +0200 (CEST)
+From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Kelledin <kelledin+LKML@skarpsey.dyndns.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Missing files in 2.4.19-rc1
+In-Reply-To: <Pine.LNX.4.44.0207120643190.3421-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.OSF.4.44.0207122035310.281934-100000@tao.natur.cuni.cz>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Martin Dalecki <dalecki@evision-ventures.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-References: <Pine.LNX.4.44.0207121050230.14359-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Fri, 12 Jul 2002, Martin Dalecki wrote:
-> 
->>So Linus what's your opinnion please?
-> 
-> 
-> I will violently oppose anything that implies that the IDE layer uses the
-> SCSI layer normally.  No way, Jose. I'm all for scrapping, but the thing
-> that should be scrapped is ide-scsi.
-> 
-> The higher layers already have much of what the SCSI layer does, and the
-> SCSI layer itself is slowly moving in that direction.
-> 
+On Fri, 12 Jul 2002, Thunder from the hill wrote:
 
-Then *please* make a *compatible* interface available to user space. 
-This certainly can be done; the parallel port IDE interface stuff had 
-exactly such an interface (/dev/pg*) -- we could have a /dev/hg* 
-interface presumably.  That is an acceptable solution.
+> make mrproper
 
-Note again that this discussion (and it's a discussion, not a voting 
-session -- technical pros and cons is what applies) apply to ATAPI (SCSI 
-over IDE) only.  Alan has already brought up the fact of non-hard disk 
-non-ATAPI devices, and IMO those devices are explicitly out of scope. 
-Maturity of drivers is another, but right now we're suffering through 
-having to deal with multiple drivers for the same hardware, or with user 
-space having to choose different interfaces depending on connection 
-interface, and either which way that's pretty pathetic.
+done
 
-	-hpa
+> cp ../.config .
 
+cp ../linux-2.4.19-pre2/$hostname.cfg .config
+
+> make oldconfig
+
+done. I had to set settings for some new drivers.
+
+`make dep` gave again:
+
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.19-rc1/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686  -nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include -E -D__GENKSYMS__ au1000_gpio.c
+| /sbin/genksyms -p smp_ -k 2.4.19 > /usr/src/linux-2.4.19-rc1/include/linux/modules/au1000_gpio.ver.tmp
+au1000_gpio.c:41: asm/au1000.h: No such file or directory
+au1000_gpio.c:42: asm/au1000_gpio.h: No such file or directory
+[...]
+make -C hisax fastdep
+md5sum: can't open hfc_pci.
+md5sum: can't open hfc_pci
+[...]
+
+I guess all as reported earlier.
+
+BTW:
+$ find . -name hfc_pci*
+./drivers/isdn/hisax/hfc_pci.c
+./drivers/isdn/hisax/hfc_pci.h
+$
+
+And now? ;)
+-- 
+Martin Mokrejs <mmokrejs@natur.cuni.cz>
+PGP5.0i key is at http://www.natur.cuni.cz/~mmokrejs
+MIPS / Institute for Bioinformatics <http://mips.gsf.de>
+GSF - National Research Center for Environment and Health
+Ingolstaedter Landstrasse 1, D-85764 Neuherberg, Germany
+tel.: +49-89-3187 3683 , fax: +49-89-3187 3585
 

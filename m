@@ -1,76 +1,233 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266762AbUG1BzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266763AbUG1B5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266762AbUG1BzU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 21:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266763AbUG1BzU
+	id S266763AbUG1B5e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 21:57:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266764AbUG1B5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 21:55:20 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:3509 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S266762AbUG1BzN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 21:55:13 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: Keith Owens <kaos@sgi.com>, linux-kernel@vger.kernel.org,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, fastboot@osdl.org
-Subject: Re: Announce: dumpfs v0.01 - common RAS output API
-References: <16734.1090513167@ocs3.ocs.com.au>
-	<20040725235705.57b804cc.akpm@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 27 Jul 2004 19:53:01 -0600
-In-Reply-To: <20040725235705.57b804cc.akpm@osdl.org>
-Message-ID: <m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Jul 2004 21:57:34 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:39054 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266763AbUG1B4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 21:56:49 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2, preemptable hardirqs
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Lenar L?hmus <lenar@vision.ee>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+In-Reply-To: <20040727162759.GA32548@elte.hu>
+References: <40F3F0A0.9080100@vision.ee>
+	 <20040713143947.GG21066@holomorphy.com> <1090732537.738.2.camel@mindpipe>
+	 <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu>
+	 <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu>
+	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
+	 <20040726204720.GA26561@elte.hu>  <20040727162759.GA32548@elte.hu>
+Content-Type: text/plain
+Message-Id: <1090979823.743.39.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 27 Jul 2004 21:57:05 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
-
-> Keith Owens <kaos@sgi.com> wrote:
-> >
-> >  * How do we get a clean API to do polling mode I/O to disk?
+On Tue, 2004-07-27 at 12:27, Ingo Molnar wrote:
+> i've uploaded -L2:
+>  
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-L2
 > 
-> We hope to not have to.  The current plan is to use kexec: at boot time, do
-> a kexec preload of a small (16MB) kernel image.  When the main kernel
-> crashes or panics, jump to the kexec kernel.  The kexec kernel will hold a
-> new device driver for /dev/hmem through which applications running under
-> the kexec'ed kernel can access the crashed kernel's memory.
+Some more results:
 
-Hmm.  I think this will require one of the kernels to run at a
-non-default address in physical memory.
 
-> Write the contents of /dev/hmem to stable storage using whatever device
-> drivers are in the kexeced kernel, then reboot into a real kernel
-> again.
+I can no longer trigger XRUNs with bonnie, so I switched to iozone.  Here is 
+what I got:
 
-And at this point I don't quite see why you would need /dev/hmem,
-as opposed to just using /dev/mem.
+ ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
+ [<c01066a7>] dump_stack+0x17/0x20
+ [<de93654b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
+ [<de956211>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
+ [<c01078c8>] handle_IRQ_event+0x38/0x80
+ [<c0107e5d>] do_IRQ+0xbd/0x1a0
+ [<c0106268>] common_interrupt+0x18/0x20
+ [<c0146751>] add_to_swap+0x21/0xc0
+ [<c0139426>] shrink_list+0x156/0x4b0
+ [<c01398cd>] shrink_cache+0x14d/0x370
+ [<c013a0f8>] shrink_zone+0xa8/0xf0
+ [<c013a4ce>] balance_pgdat+0x1be/0x220
+ [<c013a5d9>] kswapd+0xa9/0xb0
+ [<c0104395>] kernel_thread_helper+0x5/0x10
+ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
+ [<c01066a7>] dump_stack+0x17/0x20
+ [<de93654b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
+ [<de956211>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
+ [<c01078c8>] handle_IRQ_event+0x38/0x80
+ [<c0107e5d>] do_IRQ+0xbd/0x1a0
+ [<c0106268>] common_interrupt+0x18/0x20
+ [<c015deff>] do_poll+0x5f/0xc0
+ [<c015e091>] sys_poll+0x131/0x220
+ [<c0106047>] syscall_call+0x7/0xb
+ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
+ [<c01066a7>] dump_stack+0x17/0x20
+ [<de93654b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
+ [<de956211>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
+ [<c01078c8>] handle_IRQ_event+0x38/0x80
+ [<c0107e5d>] do_IRQ+0xbd/0x1a0
+ [<c0106268>] common_interrupt+0x18/0x20
+ [<c0146751>] add_to_swap+0x21/0xc0
+ [<c0139426>] shrink_list+0x156/0x4b0
+ [<c01398cd>] shrink_cache+0x14d/0x370
+ [<c013a0f8>] shrink_zone+0xa8/0xf0
+ [<c013a197>] shrink_caches+0x57/0x60
+ [<c013a238>] try_to_free_pages+0x98/0x170
+ [<c0132707>] __alloc_pages+0x137/0x340
+ [<c01302c5>] generic_file_aio_write_nolock+0x355/0xb80
+ [<c0130bd2>] generic_file_aio_write+0x62/0x90
+ [<c01a9458>] ext3_file_write+0x28/0xc0
+ [<c014b01a>] do_sync_write+0x6a/0xa0
+ [<c014b10c>] vfs_write+0xbc/0x110
+ [<c014b1de>] sys_write+0x2e/0x50
+ [<c0106047>] syscall_call+0x7/0xb
+ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
+ [<c01066a7>] dump_stack+0x17/0x20
+ [<de93654b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
+ [<de956211>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
+ [<c01078c8>] handle_IRQ_event+0x38/0x80
+ [<c0107e5d>] do_IRQ+0xbd/0x1a0
+ [<c0106268>] common_interrupt+0x18/0x20
+ [<c0146751>] add_to_swap+0x21/0xc0
+ [<c0139426>] shrink_list+0x156/0x4b0
+ [<c01398cd>] shrink_cache+0x14d/0x370
+ [<c013a0f8>] shrink_zone+0xa8/0xf0
+ [<c013a4ce>] balance_pgdat+0x1be/0x220
+ [<c013a5d9>] kswapd+0xa9/0xb0
+ [<c0104395>] kernel_thread_helper+0x5/0x10
+ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
+ [<c01066a7>] dump_stack+0x17/0x20
+ [<de93654b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
+ [<de956211>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
+ [<c01078c8>] handle_IRQ_event+0x38/0x80
+ [<c0107e5d>] do_IRQ+0xbd/0x1a0
+ [<c0106268>] common_interrupt+0x18/0x20
+ [<c0146751>] add_to_swap+0x21/0xc0
+ [<c0139426>] shrink_list+0x156/0x4b0
+ [<c01398cd>] shrink_cache+0x14d/0x370
+ [<c013a0f8>] shrink_zone+0xa8/0xf0
+ [<c013a4ce>] balance_pgdat+0x1be/0x220
+ [<c013a5d9>] kswapd+0xa9/0xb0
+ [<c0104395>] kernel_thread_helper+0x5/0x10
+ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
+ [<c01066a7>] dump_stack+0x17/0x20
+ [<de93654b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
+ [<de956211>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
+ [<c01078c8>] handle_IRQ_event+0x38/0x80
+ [<c0107e5d>] do_IRQ+0xbd/0x1a0
+ [<c0106268>] common_interrupt+0x18/0x20
+ [<c0146751>] add_to_swap+0x21/0xc0
+ [<c0139426>] shrink_list+0x156/0x4b0
+ [<c01398cd>] shrink_cache+0x14d/0x370
+ [<c013a0f8>] shrink_zone+0xa8/0xf0
+ [<c013a4ce>] balance_pgdat+0x1be/0x220
+ [<c013a5d9>] kswapd+0xa9/0xb0
+ [<c0104395>] kernel_thread_helper+0x5/0x10
+ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
+ [<c01066a7>] dump_stack+0x17/0x20
+ [<de93654b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
+ [<de956211>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
+ [<c01078c8>] handle_IRQ_event+0x38/0x80
+ [<c0107e5d>] do_IRQ+0xbd/0x1a0
+ [<c0106268>] common_interrupt+0x18/0x20
+ [<c0146751>] add_to_swap+0x21/0xc0
+ [<c0139426>] shrink_list+0x156/0x4b0
+ [<c01398cd>] shrink_cache+0x14d/0x370
+ [<c013a0f8>] shrink_zone+0xa8/0xf0
+ [<c013a197>] shrink_caches+0x57/0x60
+ [<c013a238>] try_to_free_pages+0x98/0x170
+ [<c0132707>] __alloc_pages+0x137/0x340
+ [<c01302c5>] generic_file_aio_write_nolock+0x355/0xb80
+ [<c0130bd2>] generic_file_aio_write+0x62/0x90
+ [<c01a9458>] ext3_file_write+0x28/0xc0
+ [<c014b01a>] do_sync_write+0x6a/0xa0
+ [<c014b10c>] vfs_write+0xbc/0x110
+ [<c014b1de>] sys_write+0x2e/0x50
+ [<c0106047>] syscall_call+0x7/0xb
+ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
+ [<c01066a7>] dump_stack+0x17/0x20
+ [<de93654b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
+ [<de956211>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
+ [<c01078c8>] handle_IRQ_event+0x38/0x80
+ [<c0107e5d>] do_IRQ+0xbd/0x1a0
+ [<c0106268>] common_interrupt+0x18/0x20
+ [<c0146751>] add_to_swap+0x21/0xc0
+ [<c0139426>] shrink_list+0x156/0x4b0
+ [<c01398cd>] shrink_cache+0x14d/0x370
+ [<c013a0f8>] shrink_zone+0xa8/0xf0
+ [<c013a4ce>] balance_pgdat+0x1be/0x220
+ [<c013a5d9>] kswapd+0xa9/0xb0
+ [<c0104395>] kernel_thread_helper+0x5/0x10
+ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
+ [<c01066a7>] dump_stack+0x17/0x20
+ [<de93654b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
+ [<de956211>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
+ [<c01078c8>] handle_IRQ_event+0x38/0x80
+ [<c0107e5d>] do_IRQ+0xbd/0x1a0
+ [<c0106268>] common_interrupt+0x18/0x20
+ [<c0146751>] add_to_swap+0x21/0xc0
+ [<c0139426>] shrink_list+0x156/0x4b0
+ [<c01398cd>] shrink_cache+0x14d/0x370
+ [<c013a0f8>] shrink_zone+0xa8/0xf0
+ [<c013a197>] shrink_caches+0x57/0x60
+ [<c013a238>] try_to_free_pages+0x98/0x170
+ [<c0132707>] __alloc_pages+0x137/0x340
+ [<c01302c5>] generic_file_aio_write_nolock+0x355/0xb80
+ [<c0130bd2>] generic_file_aio_write+0x62/0x90
+ [<c01a9458>] ext3_file_write+0x28/0xc0
+ [<c014b01a>] do_sync_write+0x6a/0xa0
+ [<c014b10c>] vfs_write+0xbc/0x110
+ [<c014b1de>] sys_write+0x2e/0x50
+ [<c0106047>] syscall_call+0x7/0xb
+ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
+ [<c01066a7>] dump_stack+0x17/0x20
+ [<de93654b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
+ [<de956211>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
+ [<c01078c8>] handle_IRQ_event+0x38/0x80
+ [<c0107e5d>] do_IRQ+0xbd/0x1a0
+ [<c0106268>] common_interrupt+0x18/0x20
+ [<c0146751>] add_to_swap+0x21/0xc0
+ [<c0139426>] shrink_list+0x156/0x4b0
+ [<c01398cd>] shrink_cache+0x14d/0x370
+ [<c013a0f8>] shrink_zone+0xa8/0xf0
+ [<c013a4ce>] balance_pgdat+0x1be/0x220
+ [<c013a5d9>] kswapd+0xa9/0xb0
+ [<c0104395>] kernel_thread_helper+0x5/0x10
+ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
+ [<c01066a7>] dump_stack+0x17/0x20
+ [<de93654b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
+ [<de956211>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
+ [<c01078c8>] handle_IRQ_event+0x38/0x80
+ [<c0107e5d>] do_IRQ+0xbd/0x1a0
+ [<c0106268>] common_interrupt+0x18/0x20
+ [<c0146751>] add_to_swap+0x21/0xc0
+ [<c0139426>] shrink_list+0x156/0x4b0
+ [<c01398cd>] shrink_cache+0x14d/0x370
+ [<c013a0f8>] shrink_zone+0xa8/0xf0
+ [<c013a4ce>] balance_pgdat+0x1be/0x220
+ [<c013a5d9>] kswapd+0xa9/0xb0
+ [<c0104395>] kernel_thread_helper+0x5/0x10
+ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
+ [<c01066a7>] dump_stack+0x17/0x20
+ [<de93654b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
+ [<de956211>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
+ [<c01078c8>] handle_IRQ_event+0x38/0x80
+ [<c0107e5d>] do_IRQ+0xbd/0x1a0
+ [<c0106268>] common_interrupt+0x18/0x20
+ [<c0146751>] add_to_swap+0x21/0xc0
+ [<c0139426>] shrink_list+0x156/0x4b0
+ [<c01398cd>] shrink_cache+0x14d/0x370
+ [<c013a0f8>] shrink_zone+0xa8/0xf0
+ [<c013a4ce>] balance_pgdat+0x1be/0x220
+ [<c013a5d9>] kswapd+0xa9/0xb0
+ [<c0104395>] kernel_thread_helper+0x5/0x10
 
-Or will the crashing kernel save and compress the core dump to
-somewhere in ram and the dump kernel read it out from there? 
+Lee
 
-> That's all pretty simple to do, and the quality of the platform's crash
-> dump feature will depend only upon the quality of the platform's kexec
-> support.
-
-Which will largely depend on the quality of it's device drivers...
- 
-> People have bits and pieces of this already - I'd hope to see candidate
-> patches within a few weeks.  The main participants are rddunlap, suparna
-> and mbligh.
-
-I'm sorry I missed you then.  Unfortunately this is my busiest season at work
-so I wasn't able to make it to OLS this year :(
-
-Does anyone have a proof of concept implementation?  I have been able to find
-a little bit of time for this kind of thing lately and have just done
-the x86-64 port.  (You can all give me a hard time about taking a year
-to get back to it :)  I am in the process of breaking everything up
-into their individual change patches and doing a code review so I feel
-comfortable with sending the code to Andrew.  So this would be a very
-good time for me to look at any code for reporting a crash dump with
-a kernel started with kexec.
-
-Eric

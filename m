@@ -1,61 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268540AbUILJOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268430AbUILJNz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268540AbUILJOS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 05:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268541AbUILJOS
+	id S268430AbUILJNz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 05:13:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268540AbUILJNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 05:14:18 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:43182 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S268540AbUILJOM (ORCPT
+	Sun, 12 Sep 2004 05:13:55 -0400
+Received: from [211.58.254.17] ([211.58.254.17]:17388 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S268430AbUILJNu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 05:14:12 -0400
-Date: Sun, 12 Sep 2004 11:13:58 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Hamie <hamish@travellingkiwi.com>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: radeon-pre-2
-In-Reply-To: <1094944787.21702.3.camel@localhost.localdomain>
-Message-ID: <Pine.GSO.4.58.0409121111330.3377@waterleaf.sonytel.be>
-References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
- <9e47339104091010221f03ec06@mail.gmail.com> <1094835846.17932.11.camel@localhost.localdomain>
- <9e47339104091011402e8341d0@mail.gmail.com> <Pine.LNX.4.58.0409102254250.13921@skynet>
- <1094853588.18235.12.camel@localhost.localdomain> <Pine.LNX.4.58.0409110137590.26651@skynet>
- <1094873412.4838.49.camel@admin.tel.thor.asgaard.local>
- <Pine.LNX.4.58.0409110600120.26651@skynet> <1094913222.21157.61.camel@localhost.localdomain>
- <9e47339104091109463694ffd3@mail.gmail.com> <1094919681.21157.119.camel@localhost.localdomain>
- <41434DA0.3050408@travellingkiwi.com> <1094944787.21702.3.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 12 Sep 2004 05:13:50 -0400
+Date: Sun, 12 Sep 2004 18:13:46 +0900
+To: linux-kernel@vger.kernel.org
+Cc: kai@germaschewski.name
+Message-ID: <20040912091346.GA13359@home-tj.org>
+Reply-To: patsubstforLOCALVERSIONand-fno-omit-frame-pointer@home-tj.org
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="7AUc2qLy4jB3hD7Z"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040818i
+From: Tejun Heo <tj@home-tj.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Sep 2004, Alan Cox wrote:
-> > What about if you want to use fb when in text mode (Because you get
-> > 200x75 on a 1600x1200 screen) AND run DRI because the rest of the time
-> > you want to run fast 3D. Plus you want to be able to CTRL-ALT-F1/F2/F7
-> > back & forth between X & fb... (i.e. how I currently use it but with
-> > unaccelerated x.org radeon drivers, becaus ethe 3D ones WON'T play nicely).
->
-> Thats actually the easy case. We don't care if it takes another 30th of
-> a second to flip console. The hard one Jon was trying to point out is
 
-BTW, it's not always O(30th of seconds): if we have to reprogram the PLLs
-(someone else may have changed the hardware state, let's play safe), it can
-take much longer.
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-People already complained about long switching times between different VCs
-using the same video mode, due to reprogramming the PLL from scratch, just to
-be safe no one else did something to the hardware state we don't know about.
+ Hello, I'm attaching two patches for the top Makefile.
 
-Gr{oetje,eeting}s,
+ The first patch modifies LOCALVERSION definition such taht it uses
+patsubst instead of subst to remove surrounding double quotes from
+CONFIG_LOCALVERSION.  This helps syntax-highlighting editors.
 
-						Geert
+ The second patch addes -fno-omit-frame-pointer to CFLAGS when
+CONFIG_FRAME_POINTER is set.  My gcc (gcc-3.3.4 Debian 1:3.3.4-11)
+automatically turns on -fomit-frame-pointer when -O2 is specified and
+thus breaks CONFIG_FRAME_POINTER option.  I'm not sure if other
+versions of gcc wouldn't choke with -fno-omit-frame-pointer.  My 2.95
+(2.95.4) seems to be OK though.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+-- 
+tejun
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="patsubst_localversion.patch"
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/09/12 16:29:12+09:00 tj@htj.dyndns.org 
+#   Use patsubst instead of subst to remove surrounding double quotes
+#   from CONFIG_LOCALVERSION.  This helps syntax-highlighting editors.
+# 
+# Makefile
+#   2004/09/12 16:29:06+09:00 tj@htj.dyndns.org +1 -1
+#   Use patsubst instead of subst to remove surrounding double quotes
+#   from CONFIG_LOCALVERSION.  This helps syntax-highlighting editors.
+# 
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	2004-09-12 18:04:33 +09:00
++++ b/Makefile	2004-09-12 18:04:33 +09:00
+@@ -157,7 +157,7 @@
+ 
+ LOCALVERSION = $(subst $(space),, \
+ 	       $(shell cat /dev/null $(localversion-files)) \
+-	       $(subst ",,$(CONFIG_LOCALVERSION)))
++	       $(patsubst "%",%,$(CONFIG_LOCALVERSION)))
+ 
+ KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)$(LOCALVERSION)
+ 
+
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="noomitframepointer.patch"
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/09/12 16:31:46+09:00 tj@htj.dyndns.org 
+#   Newer gcc versions automatically turns on -fomit-frame-pointer when
+#   -O2 is specified thus breaking CONFIG_FRAME_POINTER option.
+#   Explicitly specifying -fno-omit-frame-pointer fixes it.
+# 
+# Makefile
+#   2004/09/12 16:31:40+09:00 tj@htj.dyndns.org +3 -1
+#   Newer gcc versions automatically turns on -fomit-frame-pointer when
+#   -O2 is specified thus breaking CONFIG_FRAME_POINTER option.
+#   Explicitly specifying -fno-omit-frame-pointer fixes it.
+# 
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	2004-09-12 18:04:54 +09:00
++++ b/Makefile	2004-09-12 18:04:54 +09:00
+@@ -486,7 +486,9 @@
+ CFLAGS		+= -O2
+ endif
+ 
+-ifndef CONFIG_FRAME_POINTER
++ifdef CONFIG_FRAME_POINTER
++CFLAGS		+= -fno-omit-frame-pointer
++else
+ CFLAGS		+= -fomit-frame-pointer
+ endif
+ 
+
+--7AUc2qLy4jB3hD7Z--

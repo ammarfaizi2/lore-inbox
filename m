@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316459AbSE3IFI>; Thu, 30 May 2002 04:05:08 -0400
+	id <S316475AbSE3IV7>; Thu, 30 May 2002 04:21:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316463AbSE3IFH>; Thu, 30 May 2002 04:05:07 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:50439 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S316459AbSE3IFH>; Thu, 30 May 2002 04:05:07 -0400
-Date: Thu, 30 May 2002 10:04:03 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: missing bit from signal patches
-In-Reply-To: <20020530101848.2ac84805.sfr@canb.auug.org.au>
-Message-ID: <Pine.LNX.4.21.0205300959050.17583-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316477AbSE3IV6>; Thu, 30 May 2002 04:21:58 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:12798 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S316475AbSE3IV5>; Thu, 30 May 2002 04:21:57 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <5A753748.173116C9.000634D3@netscape.net> 
+To: gndutm@netscape.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: can't include headers 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 30 May 2002 09:21:57 +0100
+Message-ID: <9253.1022746917@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, 30 May 2002, Stephen Rothwell wrote:
+gndutm@netscape.net said:
+> I need to write a device driver under linux. I am using slackware
+> linux  kernel 2.4.18.  I have problem to include headers, here is some
+> of my code:
 
-> The following should allow the affected architectures to build in
-> 2.5.19 as currently there will be two definitions of
-> copy_siginfo_to_user.
+> #define __KERNEL__ 
+> #include <linux/config.h>      (ok) 
 
-There are other build problems. m68k doesn't compile, because siginfo_t is
-defined after the generic include and the inline functions in there access
-that structure. On the other hand I can't put the include after the
-definition, as it depends on other defines in the include.
-I worked around it with some ugly hacks, but a proper fix would be very
-welcome.
+> #ifdef CONFIG_MODVERSIONS
+> #define MODVERSIONS 
+> #include <linux/modversions.h> (ok)
+> #endif
 
-bye, Roman
+No, this is not OK. Add a simple Makefile like the normal kernel ones 
+and do something like 
+	make -C /lib/modules/`uname -r`/build SUBDIRS=`pwd`
+
+It's the only way to get the correct gcc options &c. 
+
+--
+dwmw2
+
 

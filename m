@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278928AbRKXRcv>; Sat, 24 Nov 2001 12:32:51 -0500
+	id <S278808AbRKXR1A>; Sat, 24 Nov 2001 12:27:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278927AbRKXRcc>; Sat, 24 Nov 2001 12:32:32 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:24068 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S278911AbRKXRcV>;
-	Sat, 24 Nov 2001 12:32:21 -0500
-Date: Sat, 24 Nov 2001 18:32:12 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Anton Altaparmakov <aia21@cam.ac.uk>, war <war@starband.net>,
-        Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Which gcc version?
-In-Reply-To: <E167fN7-0002RA-00@starship.berlin>
-Message-ID: <Pine.LNX.4.33.0111241831000.547-100000@Expansa.sns.it>
+	id <S278810AbRKXR0l>; Sat, 24 Nov 2001 12:26:41 -0500
+Received: from imo-m07.mx.aol.com ([64.12.136.162]:60105 "EHLO
+	imo-m07.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S278808AbRKXR02>; Sat, 24 Nov 2001 12:26:28 -0500
+Message-ID: <3BFFD69D.674CF2EE@cs.com>
+Date: Sat, 24 Nov 2001 10:19:25 -0700
+From: Charles Marslett <cmarslett9@cs.com>
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en,zh-TW,ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Phil Howard <phil-linux-kernel@ipal.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Journaling pointless with today's hard disks?
+In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de> <Pine.LNX.4.33L.0111241138070.4079-100000@imladris.surriel.com> <20011124103642.A32278@vega.ipal.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Phil Howard wrote:
+> OOC, do you think there is any real advantage to the 1m to 4m cache
+> that drives have these days, considering the effective caching in
+> the OS that all OSes these days have ... over adding that much
+> memory to your system RAM?  The only use for caching I can see in
+> a drive is if it has physical sector sizes greater than the logical
+> sector write granularity size which would require a read-mod-write
+> kind of operation internally.  But that's not really "cache" anyway.
 
+Not asked of me, but as always, I do have an opinion:
 
-On Sat, 24 Nov 2001, Daniel Phillips wrote:
+I think the real reason for the very large disk caches is that the
+cost of a track buffer for simple read-ahead is about the same as the
+1 MB "cache" on cheap modern drives.  And with very simple logic they
+can "cache" several physical tracks, say the ones that contain the inode
+and the last few sectors of the most recently accessed file.  Sometimes
+this saves you a rotational delay time reading or writing a sector span,
+so it can do better than the OS then (I admit, that doesn't happen often).
+And the cost/benefit tradeoff is worth it, because the cost is so little.
 
-> On November 24, 2001 05:01 pm, Luigi Genoni wrote:
-> > On Fri, 23 Nov 2001, Anton Altaparmakov wrote:
-> > > At 18:30 23/11/01, Daniel Phillips wrote:
-> > > >On November 23, 2001 02:59 pm, Anton Altaparmakov wrote:
-> > > > > gcc-3x OTOH is not a good idea at the moment.
-> > > >
-> > > >Do you have any particular reason for saying that?
-> > >
-> > > I haven't done any measurements myself but from what I have read, gcc-3.x
-> > > produces significantly slower code than gcc-2.96. I know I should try
-> > > myself some time... but if that is indeed true that is a very good reason
-> > > to stick with gcc-2.96.
-> >
-> > I did some serious bench.
-> > On all my codes, using eavilly floating point computation, binaries
-> > built with gcc 3.0.2 are about 5% slower that the ones built with 2.95.3
-> > on athlon processor with athlon optimizzations.
-> > On the other side, on sparclinux, same codes compiled with gcc 3.0.2 are
-> > really faster, about 20%, that with 2.95.3
->
-> Interesting, but not as interesting as knowing what the results are for
-> non-fp code, since we are talking about kernel compilation.
->
-on sparc64 nor gcc 2.95.3 nor 3.0.2 can be used to compile the kernel, at
-less for what i know, you have to stay with egcs 64 bit compiler.
+[Someone who really knows may correct me, however.]
 
+--Charles 
+          /"\                           |
+          \ /     ASCII Ribbon Campaign |
+           X      Against HTML Mail     |--Charles Marslett
+          / \                           |  www.wordmark.org

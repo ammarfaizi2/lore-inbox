@@ -1,82 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262416AbSK0SoO>; Wed, 27 Nov 2002 13:44:14 -0500
+	id <S262712AbSK0Sux>; Wed, 27 Nov 2002 13:50:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262712AbSK0SoO>; Wed, 27 Nov 2002 13:44:14 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7951 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262416AbSK0SoN>; Wed, 27 Nov 2002 13:44:13 -0500
-Date: Wed, 27 Nov 2002 10:51:54 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: sfr@canb.auug.org.au, <linux-kernel@vger.kernel.org>, <anton@samba.org>,
-       <ak@muc.de>, <davidm@hpl.hp.com>, <schwidefsky@de.ibm.com>,
-       <ralf@gnu.org>, <willy@debian.org>
-Subject: Re: [PATCH] Start of compat32.h (again)
-In-Reply-To: <20021126.235810.22015752.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0211271039350.15032-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264666AbSK0Sux>; Wed, 27 Nov 2002 13:50:53 -0500
+Received: from imail.ricis.com ([64.244.234.16]:56328 "EHLO imail.ricis.com")
+	by vger.kernel.org with ESMTP id <S262712AbSK0Suw>;
+	Wed, 27 Nov 2002 13:50:52 -0500
+Date: Wed, 27 Nov 2002 12:58:10 -0600
+From: Lee Leahu <lee@ricis.com>
+To: linux-kernel@vger.kernel.org
+Subject: vmware + aic7xxx + 2.4.19-4gb-smp = kernel panic
+Message-Id: <20021127125810.2a4c4574.lee@ricis.com>
+Organization: RICIS, Inc.
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Note: Send abuse reports to abuse@[(Private IP)].
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 26 Nov 2002, David S. Miller wrote:
-> 
-> Linus what is you big beef with the names used before, the "__kernel"
-> part of the name?  We can't just use "u32" for ino_t althroughout the
-> compat32 code or whatever your idea seems to be.
+my hardware is this:
 
-I have two _big_ beefs with the 
+2 pentium III 1.13 gb processors
+tyan motharboard w/ via chipset
+1.5 gb ram
 
-	__kernel_xxx_t32
+adaptec 2490 scsi card.
+plextor cd re-writer 8/2/20
 
-naming:
+sound blaster live card
 
- - the xxx_t naming is already ugly, but at least it's standard ("_t 
-   stands for typedef"). No such case is true for _t32.
+-----------------------------------------------------------
 
- - the __kernel_ naming is already ugly, but at least it has a _reason_ 
-   for it, namely that we have to have __ to avoid polluting user-space
-   headers with the _one_ thing that the kernel exports, namely
-   architecture types. Again, this is _not_ true for the compat32 stuff, 
-   since it's an ABI, not an API issue, and the types aren't exposed to
-   user space headers.
+problem description:
 
-In short, it's f*cking ugly, for no good reason.  That in itself is _way_ 
-enough reason to say "No FRIGGING WAY!".
+when i have vmware up and running w2k server,
+and i burn a cd from bash (as root) using cdrecord,
+i am getting a kernel panic.
 
-The original patch was worse by an order of magnitude for _another_ 
-reason, which has nothing to do with naming:
+also to note,  the emu10k1 sound driver is loaded with xmms playing mp3s.
 
-Note that I'm not against having architecture-specific "compat32 types". 
-HOWEVER, if they are architecture-specific, then they had better not be in 
-a generic file. So it's just _fundamentally_ wrong to have a <linux/xxx.h> 
-file that then has "architecture-specific" stuff in it. That's just CRAP.
 
-So the naming is just ugly (but ugly enough that I don't want to see it). 
-The real crap is having a architecture-independent file that defines 
-non-generic types.
+----------------------------------------------------------
 
-I suspect that the correct way to do things is:
+additional kernel info:
 
- - have an <asm/compat32.h> for the types. The types _are_ different for 
-   different architectures, even if 90% of them look really really 
-   similar. It's just not worth it trying to share code that is not 
-   fundamentally the same - and in this case it isn't.
+i was able to save this data because i configured the kernel to use the serial port as its console,
+and i had tail -f /var/log/messages running on the serial port console
 
-   This fixes the fundamental objection I had to <linux/compat32.h>
 
- - use sane naming. Something like "compat32_nlink_t" is sane. Something 
-   like "__kernel_nlink_t32" is not.
 
-You might as well also discuss just dropping the "32" from "compat32"  
-while you're at it. As far as I can tell the code and the fundamental
-issue has nothing to do with 32-bitness per se. It has everything to do
-with compatibility with an older ABI. The 32-bitness is a implementation
-detail, there's nothing that fundamentally says the same compat code might
-not work with a 64(user)->128(kernel) bit (or a 16->32 bit) compatibility
-layer.
+Nov 27 12:38:36 zadio kernel: sr0: CDROM (ioctl) reports ILLEGAL REQUEST.
+Nov 27 12:38:36 zadio kernel:  I/O error: dev 0b:00, sector 64
+Nov 27 12:38:37 zadio last message repeated 4 times
+Nov 27 12:38:37 zadio kernel: sr0: CDROM (ioctl) reports ILLEGAL REQUEST.
+Nov 27 12:38:37 zadio kernel:  I/O error: dev 0b:00, sector 64
+Nov 27 12:38:37 zadio last message repeated 4 times
+Nov 27 12:38:38 zadio kernel: sr0: CDROM (ioctl) reports ILLEGAL REQUEST.
+Nov 27 12:38:38 zadio kernel:  I/O error: dev 0b:00, sector 64
+Nov 27 12:38:38 zadio last message repeated 4 times
+Nov 27 12:38:38 zadio kernel: sr0: CDROM (ioctl) reports ILLEGAL REQUEST.
+Nov 27 12:38:38 zadio kernel:  I/O error: dev 0b:00, sector 64
+Nov 27 12:38:39 zadio last message repeated 4 times
+Nov 27 12:38:39 zadio kernel: sr0: CDROM (ioctl) reports ILLEGAL REQUEST.
+Nov 27 12:39:15 zadio kernel: scsi0:0:4:0: Attempting to queue an ABORT message
+Nov 27 12:39:15 zadio kernel: scsi0: Dumping Card State while idle, at SEQADDR 0x15c
+Nov 27 12:39:15 zadio kernel: ACCUM = 0x2, SINDEX = 0x20, DINDEX = 0xc0, ARG_2 = 0x0
+Nov 27 12:39:15 zadio kernel: HCNT = 0x0 SCBPTR = 0x0
+Nov 27 12:39:15 zadio kernel: SCSISEQ = 0x12, SBLKCTL = 0x0
+Nov 27 12:39:15 zadio kernel:  DFCNTRL = 0x4, DFSTATUS = 0x6d
+Nov 27 12:39:15 zadio kernel: LASTPHASE = 0x1, SCSISIGI = 0xb6, SXFRCTL0 = 0x88
+Nov 27 12:39:15 zadio kernel: SSTAT0 = 0x7, SSTAT1 = 0x13
+Nov 27 12:39:15 zadio kernel: STACK == 0x186, 0x156, 0x0, 0x35
+Nov 27 12:39:15 zadio kernel: SCB count = 4
+Nov 27 12:39:15 zadio kernel: Kernel NEXTQSCB = 3
+Nov 27 12:39:15 zadio kernel: Card NEXTQSCB = 3
+Nov 27 12:39:15 zadio kernel: QINFIFO entries: 
+Nov 27 12:39:15 zadio kernel: Waiting Queue entries: 
+Nov 27 12:39:15 zadio kernel: Disconnected Queue entries: 
+Nov 27 12:39:15 zadio kernel: QOUTFIFO entries: 
+Nov 27 12:39:15 zadio kernel: Sequencer Free SCB List: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 
+Nov 27 12:39:15 zadio kernel: Sequencer SCB Info: 0(c 0x40, s 0x47, l 0, t 0x2) 1(c 0x0, s 0xff, l 255, t 0xff) 2(c 0x0, s 0xff, l 255, t 0xff) 3(c 0x0, s 0xff, l 255, t 0xff) 4(c 0x0, s 0xff, l 255, t 0xff) 5(c 0x0, s 0xff, l 255, t 0xff) 6(c 0x0, s 0xff, l 255, t 0xff) 7(c 0x0, s 0xff, l 255, t 0xff) 8(c 0x0, s 0xff, l 255, t 0xff) 9(c 0x0, s 0xff, l 255, t 0xff) 10(c 0x0, s 0xff, l 255, t 0xff) 11(c 0x0, s 0xff, l 255, t 0xff) 12(c 0x0, s 0xff, l 255, t 0xff) 13(c 0x0, s 0xff, l 255, t 0xff) 14(c 0x0, s 0xff, l 255, t 0xff) 15(c 0x0, s 0xff, l 255, t 0xff) 
+Nov 27 12:39:15 zadio kernel: Pending list: 2(c 0x40, s 0x47, l 0)
+Nov 27 12:39:15 zadio kernel: Kernel Free SCB list: 1 0 
+Nov 27 12:39:15 zadio kernel: Untagged Q(4): 2 
+Nov 27 12:39:15 zadio kernel: DevQ(0:4:0): 0 waiting
+Nov 27 12:39:15 zadio kernel: (scsi0:A:4:0): Queuing a recovery SCB
+Nov 27 12:39:15 zadio kernel: scsi0:0:4:0: Device is disconnected, re-queuing SCB
+Nov 27 12:39:15 zadio kernel: scsi0: brkadrint, Scratch or SCB Memory Parity Error at seqaddr = 0x15c
+Nov 27 12:39:15 zadio kernel: scsi0: Dumping Card State while idle, at SEQADDR 0x15c
+Nov 27 12:39:15 zadio kernel: ACCUM = 0x2, SINDEX = 0x20, DINDEX = 0xc0, ARG_2 = 0x0
+Nov 27 12:39:15 zadio kernel: HCNT = 0x0 SCBPTR = 0x0
+Nov 27 12:39:15 zadio kernel: SCSISEQ = 0x12, SBLKCTL = 0x0
+Nov 27 12:39:15 zadio kernel:  DFCNTRL = 0x4, DFSTATUS = 0x6d
+Nov 27 12:39:15 zadio kernel: LASTPHASE = 0x1, SCSISIGI = 0xb6, SXFRCTL0 = 0x88
+Nov 27 12:39:15 zadio kernel: SSTAT0 = 0x7, SSTAT1 = 0x13
+Nov 27 12:39:15 zadio kernel: STACK == 0x186, 0x156, 0x0, 0x35
+Nov 27 12:39:15 zadio kernel: SCB count = 4
+Nov 27 12:39:15 zadio kernel: Kernel NEXTQSCB = 3
+Nov 27 12:39:15 zadio kernel: Card NEXTQSCB = 2
+Nov 27 12:39:15 zadio kernel: QINFIFO entries: 2 
+Nov 27 12:39:15 zadio kernel: Waiting Queue entries: 
+Nov 27 12:39:15 zadio kernel: Disconnected Queue entries: 
+Nov 27 12:39:15 zadio kernel: QOUTFIFO entries: 
+Nov 27 12:39:15 zadio kernel: Sequencer Free SCB List: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 
+Nov 27 12:39:15 zadio kernel: Sequencer SCB Info: 0(c 0x40, s 0x47, l 0, t 0x2) 1(c 0x0, s 0xff, l 255, t 0xff) 2(c 0x0, s 0xff, l 255, t 0xff) 3(c 0x0, s 0xff, l 255, t 0xff) 4(c 0x0, s 0xff, l 255, t 0xff) 5(c 0x0, s 0xff, l 255, t 0xff) 6(c 0x0, s 0xff, l 255, t 0xff) 7(c 0x0, s 0xff, l 255, t 0xff) 8(c 0x0, s 0xff, l 255, t 0xff) 9(c 0x0, s 0xff, l 255, t 0xff) 10(c 0x0, s 0xff, l 255, t 0xff) 11(c 0x0, s 0xff, l 255, t 0xff) 12(c 0x0, s 0xff, l 255, t 0xff) 13(c 0x0, s 0xff, l 255, t 0xff) 14(c 0x0, s 0xff, l 255, t 0xff) 15(c 0x0, s 0xff, l 255, t 0xff) 
+Nov 27 12:39:15 zadio kernel: Pending list: 2(c 0x54, s 0x47, l 0)
+Nov 27 12:39:15 zadio kernel: Kernel Free SCB list: 1 0 
+Nov 27 12:39:15 zadio kernel: Untagged Q(4): 2 
+Nov 27 12:39:15 zadio kernel: DevQ(0:4:0): 0 waiting
+Nov 27 12:39:15 zadio kernel: Recovery SCB completes
+Nov 27 12:39:15 zadio kernel: Recovery code sleeping
+Nov 27 12:39:15 zadio kernel: Recovery code awake
+Nov 27 12:39:15 zadio kernel: aic7xxx_abort returns 0x2002
+Kernel panic: Loop 1
 
-			Linus
 
+
+
+-- 
++----------------------------------+---------------------------------+
+| Lee Leahu                        | voice -> 708-444-2690           |
+| Internet Technology Specialist   | fax -> 708-444-2697             |
+| RICIS, Inc.                      | email -> lee@ricis.com          |
++----------------------------------+---------------------------------+
+| I cannot conceive that anybody will require multiplications at the |
+| rate of 40,000 or even 4,000 per hour ...                          |
+|		-- F. H. Wales (1936)                                |
++--------------------------------------------------------------------+

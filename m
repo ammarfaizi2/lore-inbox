@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310979AbSC1Aby>; Wed, 27 Mar 2002 19:31:54 -0500
+	id <S310953AbSC1Abo>; Wed, 27 Mar 2002 19:31:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311026AbSC1Abp>; Wed, 27 Mar 2002 19:31:45 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:13145 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S310979AbSC1Abh>; Wed, 27 Mar 2002 19:31:37 -0500
-Date: Wed, 27 Mar 2002 19:31:26 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Erik Andersen <andersen@codepoet.org>, Jos Hulzink <josh@stack.nl>,
-        jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-Subject: Re: DE and hot-swap disk caddies
-Message-ID: <20020327193126.J29474@redhat.com>
-In-Reply-To: <20020328001709.GA16582@codepoet.org> <Pine.LNX.4.10.10203271618550.6006-100000@master.linux-ide.org>
-Mime-Version: 1.0
+	id <S311026AbSC1Abh>; Wed, 27 Mar 2002 19:31:37 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:60423 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S310953AbSC1Ab2>; Wed, 27 Mar 2002 19:31:28 -0500
+Message-ID: <3CA263EB.2576ED4A@zip.com.au>
+Date: Wed, 27 Mar 2002 16:29:31 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Matthew Kirkwood <matthew@hairy.beasts.org>
+CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Filesystem benchmarks: ext2 vs ext3 vs jfs vs minix
+In-Reply-To: <3CA20698.E8A9826E@zip.com.au> <Pine.LNX.4.33.0203272354430.17217-100000@sphinx.mythic-beasts.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 27, 2002 at 04:23:34PM -0800, Andre Hedrick wrote:
-> There was one company how got it correct, but I do not know if they are
-> still around.  The solution is not CHEAP, it requires total HOST vender
-> unique callers and special state diagrams.  Also this was a true
-> Master/Slave pair solution, the hook was it broke the timing skews on the
-> buss. Thus Ultra33 or mode 2 as the limit.
+Matthew Kirkwood wrote:
+> 
+> On Wed, 27 Mar 2002, Andrew Morton wrote:
+> 
+> > > Yeah, I thought it was a little odd.  Postgres does so much
+> > > fsync()ing that I thought it may just have been that the lower
+> > > overhead won out over ext2's cleverer layout.  All the I/O was
+> > > basically fsync-driven, so this test was only about write
+> > > performance.
+> >
+> > For fsync-intensive loads ext3's best mode is generally
+> > data=journal.  That way, an fsync is satisfied by a nice
+> > single linear write to the journal.
+> 
+> Here we are.  This is with just a 200Mb journal (the partition
+> is only a little over 1Gb, and the datafiles grow fairly big,
+> so I didn't brave making it any bigger).
+> 
+>         tuning? single  ir      mx-ir   oltp    mixed-oltp
+>                 (sec)   (tps)   (sec)   (tps)   (sec)
+> ext3    bn      1285.32 65.98   1996.41 90.05   307.79
+> ext3-wb bn      1287.31 98.42   2149.38 125.13  236.02
+> ext3-jd bn      1306.90 72.07   1813.54 125.15  305.27
 
-What about the hot swap bays I've picked up that properly handle power 
-up/down?  If that is the only device on the bus and the interface is 
-properly tristated, what prevents hot swap?
+Oh well.
 
-		-ben
--- 
-"A man with a bass just walked in,
- and he's putting it down
- on the floor."
+It sounds like a useful and valid workload to optimise
+for.  So I'll take you up on the offer of those scripts,
+please.
+
+-

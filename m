@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264183AbUHHTRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266188AbUHHTSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264183AbUHHTRN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 15:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266157AbUHHTRN
+	id S266188AbUHHTSi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 15:18:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266157AbUHHTSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 15:17:13 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:9663 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S264183AbUHHTRL (ORCPT
+	Sun, 8 Aug 2004 15:18:38 -0400
+Received: from dci.doncaster.on.ca ([66.11.168.194]:945 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S266188AbUHHTS1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 15:17:11 -0400
-Message-ID: <41167CC7.5020102@colorfullife.com>
-Date: Sun, 08 Aug 2004 21:19:35 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Sun, 8 Aug 2004 15:18:27 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Andi Kleen <ak@muc.de>
+Subject: Re: block layer sg, bsg
+Date: Sun, 8 Aug 2004 15:18:25 -0400
+User-Agent: KMail/1.6.2
+Cc: "David S. Miller" <davem@redhat.com>, yoshfuji@linux-ipv6.org,
+       jgarzik@pobox.com, axboe@suse.de, linux-kernel@vger.kernel.org
+References: <20040804191850.GA19224@havoc.gtf.org> <200408060303.40261.phillips@arcor.de> <20040806150416.GA90652@muc.de>
+In-Reply-To: <20040806150416.GA90652@muc.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] remove magic +1 from shm segment count
-Content-Type: multipart/mixed;
- boundary="------------090302000302030702050309"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408081518.25522.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090302000302030702050309
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Friday 06 August 2004 11:04, Andi Kleen wrote:
+> > Somewhere I got the idea that if a structure is declared with attribute
+> > PACKED, gcc will generate alignment-independent code (e.g., access each
+> > field byte by byte) on alignment-restricted architectures.  So if what I
+> > imagine about gcc is true, what issues remain?  These structs have to be
+> > declared packed anyway and with fixed field sizes, or the layout will
+> > vary across architectures.
+>
+> With packed things should be fine for x86-64/i386. However it may
+> generate bad code for other architectures.
 
-Hi,
+That's the question.  From talking to gcc developers in the former Cygnus 
+office, it's thought that alignment-restricted architectures are supposed to 
+do bytewise access (or equivalent) to PACKED fields, but nobody was sure if 
+every architecture implements this, or even if it's the formally defined 
+behavior for PACKED.  That's a subset of GCC developers of course.
 
-Michael Kerrisk found a bug in the shm accounting code:
-sysv shm allows to create SHMMNI+1 shared memory segments, instead of 
-SHMMNI segments. The +1 is probably from the first shared anonymous 
-mapping implementation that used the sysv code to implement shared anon 
-mappings.
-The implementation got replaced, it's now the other way around (sysv 
-uses the shared anon code), but the +1 remained.
+As far as I can see, if PACKED doesn't work this way on all architectures then 
+it's broken and needs to be fixed.
 
-Andrew - could you add the patch to your tree?
+Regards,
 
-Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
-
---------------090302000302030702050309
-Content-Type: text/plain;
- name="patch-ipcshm-count"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-ipcshm-count"
-
---- 2.6/ipc/shm.c	2004-08-07 11:14:24.000000000 +0200
-+++ build-2.6/ipc/shm.c	2004-08-08 21:10:02.156421648 +0200
-@@ -78,7 +78,7 @@
- 
- static inline int shm_addid(struct shmid_kernel *shp)
- {
--	return ipc_addid(&shm_ids, &shp->shm_perm, shm_ctlmni+1);
-+	return ipc_addid(&shm_ids, &shp->shm_perm, shm_ctlmni);
- }
- 
- 
-
---------------090302000302030702050309--
+Daniel

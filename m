@@ -1,80 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262745AbVDAOn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262754AbVDAOqU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262745AbVDAOn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 09:43:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbVDAOn6
+	id S262754AbVDAOqU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 09:46:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262753AbVDAOqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 09:43:58 -0500
-Received: from smtp2.netcabo.pt ([212.113.174.29]:25105 "EHLO
-	exch01smtp09.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S262745AbVDAOnk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 09:43:40 -0500
-Message-ID: <8294.195.245.190.93.1112366538.squirrel@www.rncbc.org>
-In-Reply-To: <20050401125219.GA2560@elte.hu>
-References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu>
-    <20050401104724.GA31971@elte.hu>
-    <55598.195.245.190.93.1112357613.squirrel@www.rncbc.org>
-    <20050401125219.GA2560@elte.hu>
-Date: Fri, 1 Apr 2005 15:42:18 +0100 (WEST)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
-       "Steven Rostedt" <rostedt@goodmis.org>
-User-Agent: SquirrelMail/1.4.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 01 Apr 2005 14:43:39.0441 (UTC) FILETIME=[315CAA10:01C536C9]
+	Fri, 1 Apr 2005 09:46:18 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:18067 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262751AbVDAOoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 09:44:23 -0500
+Subject: Re: [RFC] CryptoAPI & Compression
+From: David Woodhouse <dwmw2@infradead.org>
+To: "Artem B. Bityuckiy" <dedekind@infradead.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org>
+References: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au>
+	 <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org>
+Content-Type: text/plain
+Date: Fri, 01 Apr 2005 15:44:06 +0100
+Message-Id: <1112366647.3899.66.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 (2.2.1.1-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> thx - i've uploaded -43-01 which should fix this.
->
+On Fri, 2005-04-01 at 15:36 +0100, Artem B. Bityuckiy wrote:
+> In our code we do zlib_deflate(stream, Z_SYNC_FLUSH), so we always flush 
+> the output. So the final zlib_deflate(stream, Z_FINISH) requires 1 byte 
+> for the EOB marker and 4 bytes for adler32 (5 bytes total). Thats all. If 
+> we compress a huge buffer, then we still need to output those 5 bytes as 
+> well. I.e, the overhead of each block *is not accumulated* ! I even need 
+> to make the reserved space less then 12 bytes!
 
-Now it's dying-on-the-beach:
-.
-.
-.
-if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F
-System.map  2.6.12-rc1-RT-V0.7.43-01.0; fi
-WARNING:
-/lib/modules/2.6.12-rc1-RT-V0.7.43-01.0/kernel/drivers/usb/storage/usb-storage.ko
-needs unknown symbol __compat_down_failed_interruptible
-WARNING:
-/lib/modules/2.6.12-rc1-RT-V0.7.43-01.0/kernel/drivers/usb/storage/usb-storage.ko
-needs unknown symbol __compat_up_wakeup
-WARNING:
-/lib/modules/2.6.12-rc1-RT-V0.7.43-01.0/kernel/drivers/parport/parport.ko
-needs unknown symbol __compat_down_failed_interruptible
-WARNING:
-/lib/modules/2.6.12-rc1-RT-V0.7.43-01.0/kernel/drivers/parport/parport.ko
-needs unknown symbol __compat_up_wakeup
-WARNING:
-/lib/modules/2.6.12-rc1-RT-V0.7.43-01.0/kernel/drivers/net/ppp_async.ko
-needs unknown symbol __compat_up_wakeup
-WARNING:
-/lib/modules/2.6.12-rc1-RT-V0.7.43-01.0/kernel/drivers/net/ppp_async.ko
-needs unknown symbol __compat_down_failed
-WARNING:
-/lib/modules/2.6.12-rc1-RT-V0.7.43-01.0/kernel/drivers/ieee1394/ieee1394.ko
-needs unknown symbol __compat_down_failed_trylock
-WARNING:
-/lib/modules/2.6.12-rc1-RT-V0.7.43-01.0/kernel/drivers/ieee1394/ieee1394.ko
-needs unknown symbol __compat_down_failed_interruptible
-WARNING:
-/lib/modules/2.6.12-rc1-RT-V0.7.43-01.0/kernel/drivers/ieee1394/ieee1394.ko
-needs unknown symbol __compat_up_wakeup
-WARNING:
-/lib/modules/2.6.12-rc1-RT-V0.7.43-01.0/kernel/drivers/ieee1394/ieee1394.ko
-needs unknown symbol __compat_down_failed
-make: *** [_modinst_post] Error 1
+Hm. Could we avoid using Z_SYNC_FLUSH and stick with a larger amount?
+That would give us better compression.
 
-Bye.
 -- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+dwmw2
 

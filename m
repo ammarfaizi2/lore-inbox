@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267675AbUHPO6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267676AbUHPO56@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267675AbUHPO6o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 10:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267656AbUHPO6o
+	id S267676AbUHPO56 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 10:57:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267656AbUHPO56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 10:58:44 -0400
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:30164
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S267681AbUHPO61 (ORCPT
+	Mon, 16 Aug 2004 10:57:58 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:28088 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267681AbUHPO5r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 10:58:27 -0400
-Message-ID: <4120CB92.50102@bio.ifi.lmu.de>
-Date: Mon, 16 Aug 2004 16:58:26 +0200
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, John Wendel <jwendel10@comcast.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
-References: <411FD919.9030702@comcast.net>	 <20040816143817.0de30197.Ballarin.Marc@gmx.de> <1092661385.20528.25.camel@localhost.localdomain>
-In-Reply-To: <1092661385.20528.25.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Aug 2004 10:57:47 -0400
+Date: Mon, 16 Aug 2004 16:58:31 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Thomas Charbonnel <thomas@undata.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P2
+Message-ID: <20040816145831.GA14195@elte.hu>
+References: <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092662814.5082.2.camel@localhost> <1092665577.5362.12.camel@localhost> <1092667804.5362.21.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092667804.5362.21.camel@localhost>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Alan Cox wrote:
+* Thomas Charbonnel <thomas@undata.org> wrote:
 
- >>This patch restores the behaviour of previous kernels, security issues included:
- >
- >
- > Like allowing any user to erase your drive firmware. What you could do
- > which is much more useful is printk the command byte that gets refused
- > and see if you can pin down what commands are being blocked that
- > are needed by K3B
+>  0.000ms (+0.000ms): do_IRQ (default_idle)
+>  0.000ms (+0.000ms): mask_and_ack_8259A (do_IRQ)
+>  0.459ms (+0.459ms): generic_redirect_hardirq (do_IRQ)
+>  0.459ms (+0.000ms): generic_handle_IRQ_event (do_IRQ)
+>  0.459ms (+0.000ms): timer_interrupt (generic_handle_IRQ_event)
 
-growisofs from the dvd+rw tools doesn't work either with 2.6.8, not even
-with suid bit set. So it seems that the 2.6.8.1 kernel keeps normal users
-from writing CDs except when setting cdrecord suid, which I read on this
-list would imply "some security bugs" (I don't know if that is true or not...)
+> It definitely looks like the kernel is interrupted by some interrupt
+> source not covered by the patch.
 
-But is that really the intention with 2.6.8.1 to give all programs for cd/dvd
-writing the suid bit to allow users writing cds/dvds? (while even with
-that at least k3b and growisofs fail at the moment)
+the only possibility is SMM, which is not handled by Linux. (but by the
+BIOS.) Otherwise we track everything - including NMIs.
 
-At least this is a major change which I guess will make almost everyone
-trying this kernel run into problems with cd writing :-(
+can you reproduce this using an UP kernel too?
 
-cu,
-Frank
-
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
-
+	Ingo

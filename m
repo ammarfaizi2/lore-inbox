@@ -1,75 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266366AbUGJTtf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266373AbUGJUDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266366AbUGJTtf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 15:49:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266370AbUGJTtf
+	id S266373AbUGJUDo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 16:03:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUGJUDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 15:49:35 -0400
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:4266 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266366AbUGJTtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 15:49:33 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] linux-2.6.7-bk20: possible use-after-free in platform_device_unregister()
-Date: Sat, 10 Jul 2004 14:49:29 -0500
-User-Agent: KMail/1.6.2
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-References: <200407102131.10194.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200407102131.10194.vda@port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
+	Sat, 10 Jul 2004 16:03:44 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:41431 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S266373AbUGJUDn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 16:03:43 -0400
+Date: Sat, 10 Jul 2004 13:03:35 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+Cc: Andreas Schwab <schwab@suse.de>, Jan Knutar <jk-lkml@sci.fi>,
+       L A Walsh <lkml@tlinx.org>, linux-kernel@vger.kernel.org
+Subject: Re: XFS: how to NOT null files on fsck?
+Message-ID: <20040710200335.GA6095@taniwha.stupidest.org>
+References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx> <200407101555.27278.norberto+linux-kernel@bensa.ath.cx> <je658vwtbl.fsf@sykes.suse.de> <200407101646.27067.norberto+linux-kernel@bensa.ath.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407101449.30408.dtor_core@ameritech.net>
+In-Reply-To: <200407101646.27067.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 July 2004 01:31 pm, Denis Vlasenko wrote:
-> void platform_device_unregister(struct platform_device * pdev)
-> {
-> ? ? ? ? int i;
-> 
-> ? ? ? ? if (pdev) {
-> ? ? ? ? ? ? ? ? device_unregister(&pdev->dev);
->
+On Sat, Jul 10, 2004 at 04:46:27PM -0300, Norberto Bensa wrote:
 
-Here depca_platform_release kicks in and frees platform device structure.
-platform_device_unregister should save pointer to resources. 
- 
-> ? ? ? ? ? ? ? ? for (i = 0; i < pdev->num_resources; i++) {
-> ? ? ? ? ? ? ? ? ? ? ? ? struct resource *r = &pdev->resource[i];
-> ===> ? ? ? ? ? ? ? ? ? ?if (r->flags & (IORESOURCE_MEM|IORESOURCE_IO))
-> ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? release_resource(r);
-> ? ? ? ? ? ? ? ? }
-> ? ? ? ? }
-> }
-> 
+> Wow. You're telling me that XFS doesn't know if a given piece of the
+> log is from file-a or file-b and just in case it zeroes its
+> contents?
 
-Does the following help (hopefully it will apply - I have just a tad
-different tree):
+No.
 
-===== drivers/base/platform.c 1.21 vs edited =====
---- 1.21/drivers/base/platform.c	2004-07-04 19:56:37 -05:00
-+++ edited/drivers/base/platform.c	2004-07-10 14:44:51 -05:00
-@@ -143,13 +143,15 @@
-  */
- void platform_device_unregister(struct platform_device * pdev)
- {
--	int i;
--
- 	if (pdev) {
-+		int i, num_resources = pdev->num_resources;
-+		struct resource *r, *resources = pdev->resource;
-+
-+		/* this call may free pdev, that's why we saved resource data */
- 		device_unregister(&pdev->dev);
- 
--		for (i = 0; i < pdev->num_resources; i++) {
--			struct resource *r = &pdev->resource[i];
-+		for (i = 0; i < num_resources; i++) {
-+			r = &resources[i];
- 			if (r->flags & (IORESOURCE_MEM|IORESOURCE_IO))
- 				release_resource(r);
- 		}
+The log-replay can't tell where that block came from --- it might have
+been newly allocated and therfore need zeroing.
+
+> If that's true, XFS has moved to my never-ever-use-it-again list.
+
+There are many alternatives.
+
+
+   --cw

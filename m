@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316893AbSFKHmn>; Tue, 11 Jun 2002 03:42:43 -0400
+	id <S316887AbSFKHla>; Tue, 11 Jun 2002 03:41:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316892AbSFKHlb>; Tue, 11 Jun 2002 03:41:31 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:57538 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316885AbSFKHkh>;
-	Tue, 11 Jun 2002 03:40:37 -0400
-Date: Tue, 11 Jun 2002 00:36:25 -0700 (PDT)
-Message-Id: <20020611.003625.05877183.davem@redhat.com>
-To: oliver@neukum.name
-Cc: roland@topspin.com, wjhun@ayrnetworks.com, paulus@samba.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200206110938.52090.oliver@neukum.name>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S316892AbSFKHl2>; Tue, 11 Jun 2002 03:41:28 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:41230 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316889AbSFKHj4>; Tue, 11 Jun 2002 03:39:56 -0400
+Date: Tue, 11 Jun 2002 08:39:47 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.21: kbuild changes broke filenames with commas
+Message-ID: <20020611083947.A1346@flint.arm.linux.org.uk>
+In-Reply-To: <20020609175804.B8761@flint.arm.linux.org.uk> <5896.1023750165@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Oliver Neukum <oliver@neukum.name>
-   Date: Tue, 11 Jun 2002 09:38:52 +0200
-   
-   You don't have to fully expose it. We make a simple rule like:
-   If you want to do DMA to a variable it needs "DMA_ALIGN after the
-   name in the declaration". Architectures could define it, with generic nop.
-   People will get it wrong by doing DMA to members of structures
-   otherwise. There's no really painless way to solve this.
-   You have to introduce a new rule anyway.
+On Tue, Jun 11, 2002 at 09:02:45AM +1000, Keith Owens wrote:
+> >linux/drivers/block/smart1,2.h
+> >linux/drivers/scsi/53c7,8xx.c
+> >linux/drivers/scsi/53c7,8xx.h
+> >linux/drivers/scsi/53c7,8xx.scr
+> >linux/arch/arm/mm/proc-arm6,7.S
+> >linux/arch/arm/mm/proc-arm2,3.S
+> 
+> kbuild 2.5 can handle filenames with ',' in the name.  I do not believe
+> in restricting what users can do unless there is absolutely no
+> alternative.  In this case a smarter build system can handle special
+> filenames.
 
-The DMA_ALIGN attribute doesn't work, on some systems the PCI
-cacheline size is determined at boot time not compile time.
+I've already fixed up the two ARM ones.  That leaves one problematic
+file - 53c7,8xx.c.
+
+Is it really worth adding complexity to a build system to work around
+what is really a GCC bug for just one file?  I don't think so.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261736AbSI2Ss5>; Sun, 29 Sep 2002 14:48:57 -0400
+	id <S261721AbSI2TEb>; Sun, 29 Sep 2002 15:04:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261738AbSI2Ss5>; Sun, 29 Sep 2002 14:48:57 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:63624 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261736AbSI2Sru>;
-	Sun, 29 Sep 2002 14:47:50 -0400
-Date: Sun, 29 Sep 2002 19:54:55 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: [patch] smptimers, old BH removal, tq-cleanup, 2.5.39
-Message-ID: <20020929185455.GA28248@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Ingo Molnar <mingo@elte.hu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Dipankar Sarma <dipankar@in.ibm.com>,
-	Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-	"David S. Miller" <davem@redhat.com>
-References: <Pine.LNX.4.44.0209291927400.15706-100000@localhost.localdomain>
+	id <S261739AbSI2TEb>; Sun, 29 Sep 2002 15:04:31 -0400
+Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:23278 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S261721AbSI2TE2>; Sun, 29 Sep 2002 15:04:28 -0400
+Subject: Re: [PATCH] ALSA update [6/10] - 2002/07/20
+From: Arjan van de Ven <arjanv@fenrus.demon.nl>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0209292050390.591-100000@pnote.perex-int.cz>
+References: <Pine.LNX.4.33.0209292050390.591-100000@pnote.perex-int.cz>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-Cd/yAp59i6q+E+SqwRJc"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 29 Sep 2002 21:12:23 +0200
+Message-Id: <1033326744.2419.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209291927400.15706-100000@localhost.localdomain>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 29, 2002 at 07:52:17PM +0200, Ingo Molnar wrote:
- > 
- > the attached patch is the smptimers patch plus the removal of old BHs and
- > a rewrite of task-queue handling.
 
-As an aside, some of the stuff in Documentation/ like Rusty's various
-guides are now woefully out of date with whats happening in 2.5
-Yet another small project for someone with too much time on their
-hands would be to go through this, deleting the obsolete stuff, and
-updating the locking documentation to reflect new issues like
-preemption.
+--=-Cd/yAp59i6q+E+SqwRJc
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-		Dave
+On Sun, 2002-09-29 at 20:51, Jaroslav Kysela wrote:
+> +	sgbuf =3D snd_magic_cast(snd_pcm_sgbuf_t, substream->dma_private, retur=
+n -EINVAL);
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+hummmm magic casts?? why ?
+
+> +		ptr =3D snd_malloc_pci_pages(sgbuf->pci, PAGE_SIZE, &addr);
+
+what is wrong with the PCI DMA API that makes ALSA wants a private
+interface/implementation ?
+
+>  EXPORT_SYMBOL(snd_wrapper_kmalloc);
+>  EXPORT_SYMBOL(snd_wrapper_kfree);
+> +EXPORT_SYMBOL(snd_wrapper_vmalloc);
+> +EXPORT_SYMBOL(snd_wrapper_vfree);
+
+why do you need a wrapper for vfree?=20
+
+
+
+
+--=-Cd/yAp59i6q+E+SqwRJc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9l1CXxULwo51rQBIRAqwiAJwJly9DE66y4muuZnrbgmsPbZf78ACglbo3
+v1uQruhq52jbXdp8sCYVV5M=
+=sEN9
+-----END PGP SIGNATURE-----
+
+--=-Cd/yAp59i6q+E+SqwRJc--
+

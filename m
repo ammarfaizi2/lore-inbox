@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269883AbUJTIYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270140AbUJTIbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269883AbUJTIYv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 04:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269967AbUJTIXj
+	id S270140AbUJTIbw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 04:31:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270067AbUJTI0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 04:23:39 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50694 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S270163AbUJTIK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 04:10:58 -0400
-Date: Wed, 20 Oct 2004 09:10:45 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PCI fixes for 2.6.9
-Message-ID: <20041020091045.D1047@flint.arm.linux.org.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <10982257353682@kroah.com> <10982257352301@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <10982257352301@kroah.com>; from greg@kroah.com on Tue, Oct 19, 2004 at 03:42:15PM -0700
+	Wed, 20 Oct 2004 04:26:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4260 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269536AbUJTIXC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 04:23:02 -0400
+Message-ID: <41762058.3000304@pobox.com>
+Date: Wed, 20 Oct 2004 04:22:48 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Versioning of tree
+References: <1098254970.3223.6.camel@gaston>
+In-Reply-To: <1098254970.3223.6.camel@gaston>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 19, 2004 at 03:42:15PM -0700, Greg KH wrote:
-> ChangeSet 1.1997.37.29, 2004/10/06 12:50:32-07:00, kaneshige.kenji@jp.fujitsu.com
+Benjamin Herrenschmidt wrote:
+> Hi Linus !
 > 
-> [PATCH] PCI: warn of missing pci_disable_device()
+> After you tag a "release" tree in bk, could you bump the version number
+> right away, with eventually some junk in EXTRAVERSION like "-devel" ?
 > 
-> As mentioned in Documentaion/pci.txt, pci device driver should call
-> pci_disable_device() when it decides to stop using the device. But
-> there are some drivers that don't use pci_disable_device() so far.
+> It's quite painful to have a module dir name clash between the "clean"
+> final tree and whatever dev stuff we are testing out of bk ... it's fine
+> once you go to -rc1, but in the meantime, it's really annoying.
 
-No.  This is wrong.  There are some classes of devices, notably
-PCMCIA Cardbus drivers where buggy BIOS means this should _NOT_
-be done.
+echo "-bk" > localversion
+make
 
-There are BIOSen out there which refuse to suspend/resume if the
-Cardbus bridge is disabled.
+You can do it just as easily as anyone else :)
 
-It's not that the driver is buggy.  It's that the driver has far
-more information than the PCI layer could ever have.
+	Jeff
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+
+

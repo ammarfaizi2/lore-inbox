@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268312AbUHYS7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268279AbUHYTDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268312AbUHYS7V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 14:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268308AbUHYS7V
+	id S268279AbUHYTDd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 15:03:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268286AbUHYTDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 14:59:21 -0400
-Received: from waste.org ([209.173.204.2]:64925 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S268286AbUHYS7G (ORCPT
+	Wed, 25 Aug 2004 15:03:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41391 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268279AbUHYTDc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 14:59:06 -0400
-Date: Wed, 25 Aug 2004 13:58:54 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: linux-kernel@vger.kernel.org, bcasavan@sgi.com
-Subject: Re: [PATCH] kallsyms data size reduction / lookup speedup
-Message-ID: <20040825185854.GP31237@waste.org>
-References: <1093406686.412c0fde79d4f@webmail.grupopie.com> <20040825173941.GJ5414@waste.org> <412CDE9D.3090609@grupopie.com>
+	Wed, 25 Aug 2004 15:03:32 -0400
+Date: Wed, 25 Aug 2004 12:03:01 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: joshk@triplehelix.org, rddunlap@osdl.org, lcaron@apartia.fr,
+       linux-kernel@vger.kernel.org
+Subject: Re: TG3(Tigoon) & Kernel 2.4.27
+Message-Id: <20040825120301.0f396eb0.davem@redhat.com>
+In-Reply-To: <200408251034.59717.oliver@neukum.org>
+References: <412B5B35.7020701@apartia.fr>
+	<20040824233648.53eb7c30.davem@redhat.com>
+	<412C442D.3090107@triplehelix.org>
+	<200408251034.59717.oliver@neukum.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <412CDE9D.3090609@grupopie.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 25, 2004 at 07:46:53PM +0100, Paulo Marques wrote:
-> Matt Mackall wrote:
-> >On Wed, Aug 25, 2004 at 05:04:46AM +0100, pmarques@grupopie.com wrote:
-> >
-> >>As always, comments, suggestions, flames will be greatly appreciated :)
-> >
-> >
-> >Please post patches inline so they're easier to comment on.
-> >Attachments are a nuisance.
-> 
-> Sorry about that. I've had problems in the past with my email client 
-> word wrapping patches, so to be sure the patch goes untouched I sent it 
-> this way.
-> 
-> Since I've changed email client since then, next time I'll try inlining 
-> again.
-> 
-> >Am I correct that this is completely replacing stem compression with
-> >your substring dictionary approach?
-> 
-> Yes, you are correct.
-> 
-> Right now I'm working on making the proc interface more eficient by 
-> removing all the seq_file stuff, that was needed because of the O(n) 
-> lookup time we had previously.
+On Wed, 25 Aug 2004 10:34:59 +0200
+Oliver Neukum <oliver@neukum.org> wrote:
 
-FYI, killing the seq_file stuff will likely prove unpopular. So you'll
-want to do that in a separate patch. If it doesn't affect the way
-you're handling compression, please repost your compression patch. I
-have a few comments, but otherwise I think we should move forward with it.
- 
---
-Mathematics is the supreme nostalgia of our time.
+> Am Mittwoch, 25. August 2004 09:47 schrieb Joshua Kwan:
+> > I'm not clear on the details but what they seem to have deduced is that
+> > as long as the firmware 'variable' is not shipped into Debian as part of
+> > the compiled tg3.o, it's barely Free. See
+> > 
+> > http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=243044
+> > 
+> > for details of the loophole. To me, it makes no difference...
+> 
+> And it really strains the meaning of "bugreport"
+
+And I have to assume that you guys did the same thing to the
+qlogic scsi drivers too?  That should wipe out about half of
+the ia64 boxes out there, ROFL!

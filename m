@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267245AbSK3N44>; Sat, 30 Nov 2002 08:56:56 -0500
+	id <S267247AbSK3N5s>; Sat, 30 Nov 2002 08:57:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267247AbSK3N44>; Sat, 30 Nov 2002 08:56:56 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:6299 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267245AbSK3N4z>; Sat, 30 Nov 2002 08:56:55 -0500
-Subject: Re: Massive problems with 2.4.20 module loading
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Martin Loschwitz <madkiss@madkiss.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021130084940.GA4534@minerva.local.lan>
-References: <20021130084940.GA4534@minerva.local.lan>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 30 Nov 2002 14:36:57 +0000
-Message-Id: <1038667017.17199.0.camel@irongate.swansea.linux.org.uk>
+	id <S267252AbSK3N5r>; Sat, 30 Nov 2002 08:57:47 -0500
+Received: from twister.ispgateway.de ([62.67.200.3]:19722 "HELO
+	twister.ispgateway.de") by vger.kernel.org with SMTP
+	id <S267247AbSK3N5p>; Sat, 30 Nov 2002 08:57:45 -0500
+Date: Sat, 30 Nov 2002 15:05:18 +0100
+From: Steffen Moser <lists@steffen-moser.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Javier Marcet <jmarcet@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: Exaggerated swap usage
+Message-ID: <20021130140518.GB1735@steffen-moser.de>
+Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
+	Javier Marcet <jmarcet@pobox.com>, linux-kernel@vger.kernel.org
+References: <20021129115405.GD15682@jerry.marcet.dyndns.org> <Pine.LNX.4.44L.0211291429260.15981-100000@imladris.surriel.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L.0211291429260.15981-100000@imladris.surriel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-11-30 at 08:49, Martin Loschwitz wrote:
-> Hello Marcelo, hello world,
+* On Fri, Nov 29, 2002 at 02:31 PM (-0200), Rik van Riel wrote:
+
+> On Fri, 29 Nov 2002, Javier Marcet wrote:
 > 
-> I'm having massive problems with Linux 2.4.20 and modul loading. In fact,
-> it seems to have something to do with devfs. Everytime i try to load a
-> module which is supposed to create something new in /dev, i get an Oops.
-> I noticed that behaviour with vmware-module and now also with ALSA 
-> 0.9.0rc6. Is there a fix available for this yet?
+> > In recent 2.4.20 pre and rc kernels ( I tend to use the ac branch ), I
+> > had notice my system, when using X mainly, got terribly slow after some
+> > use.
+> 
+> First, lets get one thing straight:  the problem is the slowness,
+> not necessarily the swap usage.  
 
-Linux 2,4.20 doesnt include vmware or ALSA. The fact you list those
-modules alone suggests that the problem is that you haven't rebuilt them
-for the new kernel
+I've experienced a similar problem with "linux-2.4.20-rc2-ac3", 
+"linux-2.4.20-rc4-ac1" and "linux-2.4.20-ac1". At first I also
+thought it's a swap problem, but this seems to be a wrong con-
+clusion, too. 
 
+The problem occurs, for example, when Mozilla and RealPlayer are
+running and I start to compile something or copy large files. The 
+RealPlayer interrupts, the mouse sometimes doesn't move smoothly 
+any more, and so on. 
 
+Using "linux-2.4.20" I don't see this behaviour.
+
+I've collected some information when running "linux-2.4.20-ac1" 
+and "linux-2.4.20". I've uploaded it to:
+
+  http://www.uni-ulm.de/~s_smoser/lkml/
+
+The "vmstat"- and "ps"-files were created during the "cp" of about 
+2,5 GB of data from one hard disk to the other one. 
+
+Bye,
+Steffen

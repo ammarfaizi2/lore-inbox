@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265077AbTAUPdR>; Tue, 21 Jan 2003 10:33:17 -0500
+	id <S266330AbTAUPfd>; Tue, 21 Jan 2003 10:35:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266078AbTAUPdR>; Tue, 21 Jan 2003 10:33:17 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:2696 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S265077AbTAUPdQ>;
-	Tue, 21 Jan 2003 10:33:16 -0500
-Date: Tue, 21 Jan 2003 16:41:57 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: "HAMILTON,DAVID (HP-Ireland,ex2)" <david_hamilton3@hp.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux Kernel SCSI Blacklist
-Message-ID: <20030121164157.A17848@ucw.cz>
-References: <253B1BDA4E68D411AC3700D0B77FC5F809632CAF@patsydan.dublin.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <253B1BDA4E68D411AC3700D0B77FC5F809632CAF@patsydan.dublin.hp.com>; from david_hamilton3@hp.com on Tue, Jan 21, 2003 at 02:57:24PM -0000
+	id <S266564AbTAUPfd>; Tue, 21 Jan 2003 10:35:33 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:52359 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
+	id <S266330AbTAUPfb>; Tue, 21 Jan 2003 10:35:31 -0500
+Date: Tue, 21 Jan 2003 16:44:30 +0100 (CET)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: linux-kernel@vger.kernel.org
+Subject: SIOCGSTAMP does not work ?
+Message-ID: <Pine.LNX.4.51.0301211636500.3454@dns.toxicfilms.tv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 21, 2003 at 02:57:24PM -0000, HAMILTON,DAVID (HP-Ireland,ex2) wrote:
-> I understand that this is not necessarily a bug, but I need to quickly
-> determine why the HP VA7410 disk array is listed in the scsi_scan.c file,
-> and the implications and/or correctness of the flags attached to it.
+Hi,
 
-The blacklist table in the scsi_scan.c file says the device has sparse
-(non-consecutive) LUN numbers and that the probing must not stop at
-first non-existing LUN, but instead all possible LUNs need to be probed.
+i was recently trying to use SIOCGSTAMP to get the date of the last packet
+that arrived on the socket. like so:
 
-This is most likely true.
+	struct timeval tv;
+	...
+	ioctl(fd, SIOCGSTAMP, &tv);
 
-> Apologies if this is not the correct place to ask, but I need help urgently
-> on this one.
-> 
-> Thanks,
-> 	David.
-> 
-> David Hamilton
-> Senior Technical Consultant
-> HP Ireland 
-> 
-> Direct Line 
-> Fax Number 
-> Mobile Phone 
-> Email 
-> +353 (1) 6158320
-> +353 (1) 6158296
-> +353 (86) 8158320
-> David.Hamilton3@hp.com 
-> This message is confidential and may also be legally privileged. If you are
-> not the intended recipient please notify the sender immediately. You must
-> not copy this message or use it for any purpose, nor publish or disclose its
-> contents to any other person. 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Unfortunately no matter how i tried that i always got errno: ENOENT, which
+is explained by `man 7 ip':
+SIOCGSTAMP was called on a socket where no packet arrived.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Little browsing through the net/ipv4 dir showed that there is a macro
+TCP_CHECK_TIMER(sk) that is being used around tcp.c, tcp_ipv4.c and
+tcp_timer.c
+
+More grepping showed that TCP_CHECK_TIMER(sk) defined in include/net/tcp.h
+does absolutely nothing!
+
+#define TCP_CHECK_TIMER(sk) do { } while (0)
+
+The questions are:
+1. Is this all really related?
+
+2. Why is TCP_CHECK_TIMER not coded ?
+
+Regards,
+Maciej Soltysiak
+
+-----BEGIN GEEK CODE BLOCK-----
+VERSION: 3.1
+GIT/MU d-- s:- a-- C++ UL++++$ P L++++ E- W- N- K- w--- O! M- V- PS+ PE++
+Y+ PGP- t+ 5-- X+ R tv- b DI+ D---- G e++>+++ h! y?
+-----END GEEK CODE BLOCK-----

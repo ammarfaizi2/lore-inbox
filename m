@@ -1,41 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289724AbSAWIFf>; Wed, 23 Jan 2002 03:05:35 -0500
+	id <S289727AbSAWIKf>; Wed, 23 Jan 2002 03:10:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289726AbSAWIF1>; Wed, 23 Jan 2002 03:05:27 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7720 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S289724AbSAWIFG>; Wed, 23 Jan 2002 03:05:06 -0500
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: "Bradley D. LaRonde" <brad@ltc.com>, "Thomas Capricelli" <orzel@kde.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Mounting a in-ROM filesystem efficiently
-In-Reply-To: <0ddd01c184b3$ce15c470$5601010a@prefect>
-	<066801c183f2$53f90ec0$5601010a@prefect>
-	<20011213160007.D998D23CCB@persephone.dmz.logatique.fr>
-	<25867.1008323156@redhat.com> <13988.1008348675@redhat.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 23 Jan 2002 01:01:47 -0700
-In-Reply-To: <13988.1008348675@redhat.com>
-Message-ID: <m1elkhfqc4.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S289729AbSAWIKP>; Wed, 23 Jan 2002 03:10:15 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:64755 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S289727AbSAWIKM>; Wed, 23 Jan 2002 03:10:12 -0500
+Message-Id: <200201222210.g0MMANwH001411@tigger.cs.uni-dortmund.de>
+To: jan.ciger@epfl.ch
+cc: Samuel Maftoul <maftoul@esrf.fr>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: umounting 
+In-Reply-To: Message from Jan Ciger <jan.ciger@epfl.ch> 
+   of "Tue, 22 Jan 2002 15:52:07 +0100." <m16T2IB-02103HC@ligsg2.epfl.ch> 
+Date: Tue, 22 Jan 2002 23:10:23 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org> writes:
+Jan Ciger <jan.ciger@epfl.ch> said:
 
-> brad@ltc.com said:
-> >  That sounds nice, but I cannot imagine how much trouble it would be
-> > to implement.
-> 
-> Adding the pages to the page cache on read_inode() is fairly simple. Hacking 
-> the kernel so that readpage() can provide its own page less so.
+[...]
 
-Well the generic solution is to simply skip readpage and provide (for your fs)
-your own versions of generic_file_read and filemap_nopage.  At least
-if you want to do it on demand...
+> So, the solution is - teach your users to unmount disks before leaving, or 
+> mount them in synchronous mode - but I am not sure, whether VFAT supports 
+> that and it is a performance hog too. 
 
-Eric
-
+Better use mtools. No mounting required, which does screw DOSish minds.
+-- 
+Horst von Brand			     http://counter.li.org # 22616

@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266532AbUBLTMT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 14:12:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266556AbUBLTMT
+	id S266554AbUBLT24 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 14:28:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266563AbUBLT2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 14:12:19 -0500
-Received: from cpc3-hitc2-5-0-cust51.lutn.cable.ntl.com ([81.99.82.51]:2702
-	"EHLO zog.reactivated.net") by vger.kernel.org with ESMTP
-	id S266532AbUBLTMS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 14:12:18 -0500
-Message-ID: <402BA5BD.9070307@reactivated.net>
-Date: Thu, 12 Feb 2004 16:11:41 +0000
-From: Daniel Drake <dan@reactivated.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Thu, 12 Feb 2004 14:28:55 -0500
+Received: from web21204.mail.yahoo.com ([216.136.131.77]:63674 "HELO
+	web21204.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266554AbUBLT2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 14:28:50 -0500
+Message-ID: <20040212192848.29083.qmail@web21204.mail.yahoo.com>
+Date: Thu, 12 Feb 2004 11:28:48 -0800 (PST)
+From: Konstantin Kudin <konstantin_kudin@yahoo.com>
+Subject: Strange boot with multiple identical disks
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Derek Foreman <manmower@signalmarketing.com>
-Cc: Ross Dickson <ross@datscreative.com.au>, linux-kernel@vger.kernel.org,
-       Jamie Lokier <jamie@shareable.org>, Ian Kumlien <pomac@vapor.com>,
-       Jesse Allen <the3dfxdude@hotmail.com>,
-       Craig Bradney <cbradney@zip.com.au>
-Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround
- instead of apic ack delay.
-References: <200402120122.06362.ross@datscreative.com.au> <Pine.LNX.4.58.0402121118490.515@gonopodium.signalmarketing.com>
-In-Reply-To: <Pine.LNX.4.58.0402121118490.515@gonopodium.signalmarketing.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Derek Foreman wrote:
-> Is there a measurable performance loss over not having the patch at all?
-> Some nforce2 systems work just fine.  Is there a way to distinguish
-> between systems that need it and those that don't?
+ Hi everybody,
 
-Do you have one of those systems to hand? My betting is on that when you 
-enable APIC/IOAPIC you will see crashes very frequently. This isn't enabled in 
-the default kernel config..
+ Here is the issue. A redhat 9 linux system had 2
+drives, /hda and /hdb. Then /hda started developing
+bad clusters {UncorrectableError}, so I got an
+identical warranty replacement drive.
 
-PS, Ross: Again, great work, thanks. I am running the patches you posted in 
-the thread starter (without the previous ones) on 2.6.3-rc2-mm1 without problem.
+ Then I hooked up the new drive as /hdc, and did a
+sector by sector copy {dd if=/dev/hda of=/dev/hdc
+conv=noerror,sync} Overall, I got ~2k of bad 512B
+sectors.
 
-Daniel
+ Then I swaped the fresh one to /hda, and put aside
+the failing one. I booted, did fsck on all partitions
+and also raids, and things came up fine. So far so
+good.
+
+ Now I am trying to add the failing one as /hdc, and
+boot. Linux starts to display all kinds of weird
+messages, and thinks that / partition was shut down
+uncleanly. I just hit "reset". Then I disable /hdc via
+the boot option hdc=noprobe, and things boot fine. If
+I try to disable raid via raid=noautodetect, the bunch
+of errors still appears and the boot is no go. Done
+this several times, without /hdc things are fine, with
+- all kinds of issues.
+
+ What is the problem for linux to boot on /hda when
+/hdc is detected and has almost identical setup? 
+Where does it read all the garbage that starts to
+screw up the boot process when /hdc is detected? I'd
+like to hook up /hdc to wipe out the data there. The
+drive is huge, so I'd rather wipe it out while working
+then under other circumstances.
+ 
+ Thanks!
+
+ Konstantin
+
+__________________________________
+Do you Yahoo!?
+Yahoo! Finance: Get your refund fast by filing online.
+http://taxes.yahoo.com/filing.html

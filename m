@@ -1,103 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319497AbSIMCHc>; Thu, 12 Sep 2002 22:07:32 -0400
+	id <S319500AbSIMCMZ>; Thu, 12 Sep 2002 22:12:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319501AbSIMCHc>; Thu, 12 Sep 2002 22:07:32 -0400
-Received: from host.greatconnect.com ([209.239.40.135]:17427 "EHLO
-	host.greatconnect.com") by vger.kernel.org with ESMTP
-	id <S319497AbSIMCHa>; Thu, 12 Sep 2002 22:07:30 -0400
-Message-ID: <3D8149F1.4010008@rackable.com>
-Date: Thu, 12 Sep 2002 19:14:09 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S319504AbSIMCMZ>; Thu, 12 Sep 2002 22:12:25 -0400
+Received: from dsl-213-023-020-157.arcor-ip.net ([213.23.20.157]:18828 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319500AbSIMCMY>;
+	Thu, 12 Sep 2002 22:12:24 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Rusty Russell <rusty@rustcorp.com.au>,
+       Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [RFC] Raceless module interface
+Date: Fri, 13 Sep 2002 04:19:18 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+References: <20020913015502.1D43F2C070@lists.samba.org>
+In-Reply-To: <20020913015502.1D43F2C070@lists.samba.org>
 MIME-Version: 1.0
-To: Stephen Lord <lord@sgi.com>
-CC: Andrea Arcangeli <andrea@suse.de>, Austin Gonyou <austin@coremetrics.com>,
-       Christian Guggenberger 
-	<christian.guggenberger@physik.uni-regensburg.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
-Subject: Re: 2.4.20pre5aa2
-References: <20020911201602.A13655@pc9391.uni-regensburg.de>	<1031768655.24629.23.camel@UberGeek.coremetrics.com>	<20020911184111.GY17868@dualathlon.random> <3D81235B.6080809@rackable.com> 	<20020913002316.GG11605@dualathlon.random> <1031878070.1236.29.camel@snafu> <3D813EE8.6090700@rackable.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17pg3H-0007pb-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Stephen is there any reason to leave the system in it's current state? 
- (IE You guys want the output of some tool.)  Or shall I give it a go at 
-a kernel  with CONFIG_3GB, and maybe play with vmalloc settings?
+On Friday 13 September 2002 03:30, Rusty Russell wrote:
+> In message <Pine.LNX.4.44.0209121520300.28515-100000@serv> you write:
+> > The usecount is optional, the only important question a module must be
+> > able to answer is: Are there any objects/references belonging to the
+> > module? It's a simple yes/no question. If a module can't answer that, it
+> > likely has more problem than just module unloading.
+> 
+> Ah, we're assuming you insert synchronize_kernel() between the call
+> to stop and the call to exit?
+> 
+> In which case *why* do you check the use count *inside* exit_affs_fs?
+> Why not get exit_module() to do "if (mod->usecount() != 0) return
+> -EBUSY; else mod->exit();"?
 
-Samuel Flory wrote:
+Because mod->usecount may be a totally inadequate way of determining
+if a module is busy.  How does it work for LSM, for example?
 
-> Stephen Lord wrote:
->
->> On Thu, 2002-09-12 at 19:23, Andrea Arcangeli wrote:
->>  
->>
->>> that seems a bug in xfs, it BUG() if vmap fails, it must not BUG(), it
->>> must return -ENOMEM to userspace instead, or it can try to recollect 
->>> and
->>> release some of the other vmalloced entries. Most probably you run into
->>> an address space shortage, not a real ram shortage, so to workaround it
->>> you can recompile with CONFIG_2G and it'll probably work, also dropping
->>> the gap page in vmalloc may help workaround it (there's no config 
->>> option
->>> for it though). It could be also a vmap leak, maybe a missing vfree,
->>> just some idea.
->>>
->>>   
->>
->>
->> We hold vmalloced space for very short periods of time, in fact
->> filesystem recovery and large extended attributes are the only
->> cases. In this case we should be attempting to remap 2 pages
->> together. The only way out of this would be to fail the whole
->> mount at this point. I suspect a leak elsewhere.
->>
->> Samuel, when you mounted xfs and it oopsed, was it shortly after bootup?
->>
->
->  Yes I'd just logged in and manually mounted it.
->
->> Also, how far did your dbench run get before it hung? I tried the
->> kernel, but I paniced during startup - then I realized I did not 
->> apply the patch to fix the xfs/scheduler interactions first.
->>  
->>
-> It looked around 1/4 to 1/2 done with dbench 32.  I'm not sure if it 
-> was the 1st or second run.  I run dbench from a script:
-> sync
-> sync
-> ./dbench 2
-> sync
-> sync
-> ./dbench 4
-> sync
-> sync
-> ./dbench 8
-> sync
-> sync
-> ./dbench 16
-> sync
-> sync
-> ./dbench 32
-> sync
-> sync
-> ./dbench 64
-> sync
-> sync
-> <repeats >
->
->  I generally use this script narrow down which configurations seem to 
-> be most promising.
->
->> How much memory is in the machine by the way?
->
-> 4G ram, and 4G swap.
->
->
->
->
+> There's the other issue of symmetry.  If you allocate memory, in
+> start, do you clean it up in stop or exit?
 
+Actually, I'm going to press you on why you think you even need a
+two stage stop.  I know you have your reasons, but I doubt any of
+the effects you aim at cannot be achieved with a single stage
+stop/exit.  Could you please summarize the argument in favor of the
+two stage stop?
 
+> Similarly for other
+> resources: you call mod->exit() every time start fails, so that is
+> supposed to check that mod->start() succeeded?
+
+He does?  That's not right.  ->start should clean up after itself if
+it fails, like any other good Linux citizen.
+
+> Of course, separating start into "init" and "start" allows you to
+> solve the half-initialized problem as well as clarify the rules.
+
+I doubt it gives any new capability at all.  The same with the
+entrenched separation at the user level between create and init
+module: what does it give you that an error exit from a single
+create/init would not?  Sure, I know it's not going to change,
+but I'd like to know what the thinking was, and especially, if
+there's a non-bogus reason, I'd like to know it.
+
+-- 
+Daniel

@@ -1,84 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbVATWzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbVATW6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262205AbVATWzF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 17:55:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbVATWzF
+	id S262211AbVATW6M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 17:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVATW5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 17:55:05 -0500
-Received: from innocence-lost.us ([66.93.152.112]:57231 "EHLO
-	innocence-lost.net") by vger.kernel.org with ESMTP id S262205AbVATWy6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 17:54:58 -0500
-Date: Thu, 20 Jan 2005 15:54:57 -0700 (MST)
-From: jnf <jnf@innocence-lost.us>
-To: Chris Wright <chrisw@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: linux capabilities ?
-In-Reply-To: <20050120134918.N469@build.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.61.0501201547230.24484@fhozvffvba.vaabprapr-ybfg.arg>
-References: <Pine.LNX.4.61.0501201053070.24484@fhozvffvba.vaabprapr-ybfg.arg>
- <20050120134918.N469@build.pdx.osdl.net>
+	Thu, 20 Jan 2005 17:57:49 -0500
+Received: from opersys.com ([64.40.108.71]:1806 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S262208AbVATW5Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 17:57:24 -0500
+Message-ID: <41F039C7.1080300@opersys.com>
+Date: Thu, 20 Jan 2005 18:07:51 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Werner Almesberger <wa@almesberger.net>
+CC: tglx@linutronix.de, Roman Zippel <zippel@linux-m68k.org>,
+       Tim Bird <tim.bird@am.sony.com>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>
+Subject: Re: [RFC] Instrumentation (was Re: 2.6.11-rc1-mm1)
+References: <20050120183951.A17570@almesberger.net>
+In-Reply-To: <20050120183951.A17570@almesberger.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chris, thank you for the response.
 
->
-> This is not exactly safe.  It was removed on purpose.  See this paper:
-> http://www.cs.berkeley.edu/~daw/papers/setuid-usenix02.pdf
+Werner Almesberger wrote:
+>  - if the probe target is an instruction long enough, replace it with
+>    a jump or call (that's what I think the kprobes folks are working
+>    on. I remember for sure that they were thinking about it.)
 
-I will read the paper before commenting on it further, however I cannot
-see what dangers it would really provide that a setuid program doesnt
-already have- other than the ability to give another non-root process root
-like abilities. However, the more I ponder it, it seems as if you could
-accomplish a lot of things with a set of ACL's and Capabilities (think
-compartmentalizing everything from each other where no one thing has full
-control of anything other than its particular subsystem).
+I heard about this years ago, but I don't know that anything came of
+it. I suspect that this is not as simple as it looks and that the
+only reliable way to do it is with a trap.
 
->
-> BTW, CAP_SYS_ADMIN is a lot of privileges, so even this would not be as
-> secure as you might hope.
+> Probably because everybody saw that it was good :-)
 
-Yes, I am fully aware of that, I had previously written in a current->uid
-check as well to get around the capabilities problem, however it didn't
-work so I took it out. Portability isn't as much as an issue as 'making it
-work on this box'.
+Great, thanks. That's what we'll aim for then. We've already got
+the "disable" and "static" implemented, so now we need to figure
+out how do we best implement this tagging. IBM's kernel hooks
+allowed the NOP solution, so I'm guessing it shouldn't be that
+much of a stretch to extend it for marking up the code for kprobes
+and friends. I don't know whether this code is still maintained or
+not, but I'd like to hear input as to whether this is a good basis,
+or whether you're thinking of something like your uml-sim hooks?
 
->
-> 3 doesn't require any permissions.  It's like doing 'dmesg.'
+> So you need seeking, even in the presence of fine-grained control
+> over what gets traced in the first place ? (As opposed to extracting
+> the interesting data from the full trace, given that the latter
+> shouldn't contain too much noise.)
 
-Hrm, am I missing something? Oh wait, duh, I misread that line. ;]
+The problem is that you don't necessarily know beforehand what's
+the problem. So here's an actual example:
 
-> Since /proc/kmsg is 0400 you need CAP_DAC_READ_SEARCH (don't necessarily
-> need full override).  Otherwise, you are right, you do need CAP_SYS_ADMIN.
-> Or just use syslog(2) directly, and you'll avoid the DAC requirement.
+I had a client who had this box on which a task was always getting
+picked up by the OOM killer. Try as they might, the development
+team couldn't figure out which part of the code was causing this.
+So we put LTT in there and in less than 5 minutes we found the
+problem. It turned out that a user-space access to a memory-mapped
+FPGA caused an unexpected FP interrupt to occur, and the application
+found itself in a recursive signal handler. In this case there was
+an application symptom, but it was a hardware problem.
 
-Hrm, even a chmod of it didn't appear to really affect things?
-I will investigate the CAP_DAC_READ_SEARCH and see how that works, I
-appreciate the response.
+This is just a simple example, but there are plenty of other
+examples where a sysadmin will be experiencing some weird
+hard to reproduce bugs on some of his systems and he'll spend
+a considerable amount of time trying to guess what's happening.
+This is especially complicated when there's no indication as to
+what's the root of the problem. So at that point being able to
+log everything and being able to rapidely browse through it is
+critical.
 
+Once you've done such a first trace you _may_ _possibly_ be
+able to refine your search requirements and relog with that in
+mind, but that's after the fact.
 
-> The best way is to drop the caps from within the syslogd.  Otherwise
-> you will gain/lose all caps on execve() due to the way caps actually
-> effectively follow uids.  Here, I threw together an example of some
-> other bits of code I have laying around (run it as root).
+> Or that they have been consumed. My question is just whether this
+> kind of aggregation is something you need.
 
-Thank you, when I get a second I will take a look through it. I've already
-written a couple programs to set/get capabilities, so I am aware of the
-interface/api, it was just that even with the capabilities it was not
-working ;]
-Either way I will take a look through the code, I appreciate the reply.
+Absolutely. If you're thinking about short 100kb or MBs traces,
+then a simpler scheme would be possible. But when we're talking
+about GB and 100GBs spaning days, there's got to be a managed
+way of doing it.
 
+>>I have nothing against kprobes. People keep refering to it as if
+>>it magically made all the related problems go away, and it doesn't.
+> 
+> 
+> Yes, I know just too well :-) In umlsim, I have pretty much the
+> same problems, and the solutions aren't always nice. So far, I've
+> been lucky enough that I could almost always find a suitable
+> function entry to abuse.
 
+Glad you acknowledge as much.
 
-> thanks,
-> -chris
-> --
-> Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
->
+> However, since a kprobes-based mechanism is - in the worst case,
+> i.e. when needing markup - as good as direct calls to LTT, and gives
+> you a lot more flexibility if things aren't quite as hostile, I
+> think it makes sense to focus on such a solution.
 
-cheers,
+You certainly have a lot more experience than I do with that, so
+I'd like to solicit your help. As above: what's the best way to
+provide this in addition to the static and disable points?
 
-jnf
+> Yup, but you could move even more intelligence outside the kernel.
+> All you really need in the kernel is a place to put the probe,
+> plus some debugging information to tell you where you find the
+> data (the latter possibly combined with gently coercing the
+> compiler to put it at some accessible place).
+
+Right, but then you end up with a mechanism with generalized hooks.
+Actually there was a time when LTT was a driver and you could
+either build it as a module or keep it built-in. However, when
+we published patches to get LTT accepted in 2.5 we were told on
+LKML to move LTT into kernel/ and avoid all this driver stuff.
+Having it, or parts of it, in the kernel makes it much simpler
+and much more likely that the existing ad-hoc tracing code
+spreading accross the sources be removed in exchange for a
+single agreed upon way of doing things.
+
+It must be said that like I had done with relayfs, the LTT patch
+will go through a major redux and I will post the patches for
+review like before on LKML.
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

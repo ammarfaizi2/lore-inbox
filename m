@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292248AbSCDIgo>; Mon, 4 Mar 2002 03:36:44 -0500
+	id <S292272AbSCDJFA>; Mon, 4 Mar 2002 04:05:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292254AbSCDIge>; Mon, 4 Mar 2002 03:36:34 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30221 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292248AbSCDIgV>;
-	Mon, 4 Mar 2002 03:36:21 -0500
-Message-ID: <3C83318D.D79F887A@zip.com.au>
-Date: Mon, 04 Mar 2002 00:34:21 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
+	id <S292273AbSCDJEv>; Mon, 4 Mar 2002 04:04:51 -0500
+Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:51008 "EHLO
+	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S292272AbSCDJEg>; Mon, 4 Mar 2002 04:04:36 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Oliver Neukum <oliver@neukum.org>
+To: Gerd Knorr <kraxel@bytesex.org>,
+        Kernel List <linux-kernel@vger.kernel.org>,
+        video4linux list <video4linux-list@redhat.com>
+Subject: Re: [patch] 2.5 videodev redesign -- #3
+Date: Mon, 4 Mar 2002 09:17:54 +0100
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20020302151538.A7839@bytesex.org>
+In-Reply-To: <20020302151538.A7839@bytesex.org>
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Andreas Dilger <adilger@clusterfs.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] delayed disk block allocation
-In-Reply-To: <3C7F3B4A.41DB7754@zip.com.au> <20020303223103.J4188@lynx.adilger.int> <3C83280A.A8CF7CC8@zip.com.au>,
-		<3C83280A.A8CF7CC8@zip.com.au> <E16hnUV-0000aa-00@starship.berlin>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <iss.28ea.3c83389c.370f5.1@mailout.lrz-muenchen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> 
-> ..
-> I guess 4K PAGE_CACHE_SIZE will serve us well for another couple of years,
+Am Samstag, 2. März 2002 15:15 schrieb Gerd Knorr:
+>   Hi,
+>
+> I've updated the videodev patch set.  The core part of the redesign is
+> attached below for comments.  It is also available here:
+> 	http://bytesex.org/patches/2.5/10_videodev-2.5.6-pre2.diff
+>
+> The 2.4 version of the patch (which is slightly different because
+> it keeps the old stuff for backward compatibility) is here:
+> 	http://bytesex.org/patches/10_videodev-2.4.19-pre2.diff
+>
+> I've also updated most v4l drivers (including usb cams this time)
+> to the new videodev interface.  Changes are available as individual,
+> per driver patches from:
+> 	http://bytesex.org/patches/2.5/
+>
+> There is also one big patch with all changes:
+> 	http://bytesex.org/patches/2.5/patch-2.5.6-pre2-kraxel.gz
+>
+> Comments?  Bugs?  I plan to feed this to Linus soon ...
 
-Having reviewed the archives, it seems that the multipage PAGE_CACHE_SIZE
-patches which Hugh and Ben were working on were mainly designed to increase
-I/O efficiency.
+Hi,
 
-If that's the only reason for large pages then yeah, I think we can stick
-with 4k PAGE_CACHE_SIZE :).  There really are tremendous efficiencies
-available in the current code.
+it seems to me that you are not holding the BKL during
+the open method of the individual driver. This will
+cause races with unplugging on some USB cameras.
 
-Another (and very significant) reason for large pages is to decrease
-TLB misses.   Said to be very important for large-working-set scientific
-apps and such.  But that doesn't seem to have a lot to do with PAGE_CACHE_SIZE?
-
-> ...
-> By the way, have you ever seen a sparse 1K blocksize file?
-> ...
-
-Sure I have.  I just created one.  (I'm writing test cases for my
-emails now.  Sheesh).
-
--
+	Regards
+		Oliver

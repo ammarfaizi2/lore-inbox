@@ -1,32 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267375AbTAHQBA>; Wed, 8 Jan 2003 11:01:00 -0500
+	id <S267261AbTAHQK5>; Wed, 8 Jan 2003 11:10:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267507AbTAHQBA>; Wed, 8 Jan 2003 11:01:00 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:54277 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267375AbTAHQA7>;
-	Wed, 8 Jan 2003 11:00:59 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301081609.h08G929Q001835@darkstar.example.net>
-Subject: Re: [PATCH][TRIVIAL] menuconfig color sanity
-To: jeff-lk@gerard.st
-Date: Wed, 8 Jan 2003 16:09:02 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030108155623.GA26882@kanoe.ludicrus.net> from "Joshua M. Kwan" at Jan 08, 2003 07:56:23 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267613AbTAHQK5>; Wed, 8 Jan 2003 11:10:57 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:48402
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S267261AbTAHQK5>; Wed, 8 Jan 2003 11:10:57 -0500
+Subject: Re: observations on 2.5 config screens
+From: Robert Love <rml@tech9.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Adrian Bunk <bunk@fs.tum.de>, "Robert P. J. Day" <rpjday@mindspring.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1030108093021.21759B-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1030108093021.21759B-100000@gatekeeper.tmr.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042041195.694.2734.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-3) 
+Date: 08 Jan 2003 10:53:15 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> using yellow and green text with a "white" background in
-> menuconfig works all right on console
+On Wed, 2003-01-08 at 09:32, Bill Davidsen wrote:
 
-I have seen the original problem, where the first letter is not
-visible in an xterm.
+> Someone else suggested putting all the low level options like preempt,
+> smp, and the stuff in kernel-hacking into a single menu, with a better
+> name.
 
-Just add a colour/monochrome toggle, that way people can choose which
-they prefer.
+I do not think I like this.  SMP, kernel preemption, and high memory
+support are the three most fundamental choices one makes during
+configuration.
 
-John.
+They should be out in the open, in the beginning, in a well-labeled
+category.  They only issue I see is "processor options" should be
+renamed "core options" or whatever.  But that is trivial.
+
+	Robert Love
+

@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316902AbSFQLOh>; Mon, 17 Jun 2002 07:14:37 -0400
+	id <S293203AbSFQLSc>; Mon, 17 Jun 2002 07:18:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316899AbSFQLOg>; Mon, 17 Jun 2002 07:14:36 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28171 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316898AbSFQLOf>;
-	Mon, 17 Jun 2002 07:14:35 -0400
-Date: Mon, 17 Jun 2002 12:14:36 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: willy@debian.org, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] Remove SCSI_BH
-Message-ID: <20020617121436.R9435@parcelfarce.linux.theplanet.co.uk>
-References: <20020616192253.Q9435@parcelfarce.linux.theplanet.co.uk> <20020616.222201.105585133.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020616.222201.105585133.davem@redhat.com>; from davem@redhat.com on Sun, Jun 16, 2002 at 10:22:01PM -0700
+	id <S290289AbSFQLSb>; Mon, 17 Jun 2002 07:18:31 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:5028 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S310206AbSFQLSZ>; Mon, 17 Jun 2002 07:18:25 -0400
+Date: Mon, 17 Jun 2002 12:50:43 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Hanno =?ISO-8859-1?Q?B=F6ck?= <hanno@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.22 compile problems
+In-Reply-To: <20020617125905.5511b12c.hanno@gmx.de>
+Message-ID: <Pine.LNX.4.44.0206171249470.1263-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 16, 2002 at 10:22:01PM -0700, David S. Miller wrote:
->    From: Matthew Wilcox <willy@debian.org>
->    Date: Sun, 16 Jun 2002 19:22:53 +0100
->    
->    Hi, Linus.  This patch switches SCSI from a bottom half to a tasklet.
->    It's been reviewed, tested & approved by Andrew Morton, James Bottomley &
->    Doug Gilbert.  Please apply.
+On Mon, 17 Jun 2002, Hanno Böck wrote:
+
+> I tried to compile 2.5.22 and got the following errors:
 > 
-> I always wanted to make this a per-cpu SOFTIRQ, there is no reason
-> it can't be and it's important enough to deserve to be one.
+> arch/i386/kernel/kernel.o(.text.init+0x1450): undefined reference to `apic_read'
+> arch/i386/kernel/kernel.o(.text.init+0x149b): undefined reference to `apic_write_around'
+> arch/i386/kernel/kernel.o(.text.init+0x14cd): undefined reference to `apic_read'
+> arch/i386/kernel/kernel.o(.text.init+0x14e0): undefined reference to `apic_write_around'
+> make: *** [vmlinux] Fehler 1
 
-I agree that it probably should become a softirq.  However, in its current
-state, I'm not sure it would gain any advantage from becoming a softirq.
-I think it would take someone with far more understanding of the SCSI
-layer than I have to do this work properly.  My current motivation is to
-eradicate bottom halves rather than to improve scsi.
+Thanks, I'll look into that.
 
-If someone's maintaining a TODO list for the scsi subsystem, please include:
+> I have tried kernels 2.5.18, 2.5.20, 2.5.21 and 2.5.22 and I always had compile problems. Can't someone test the kernel-source with all options activated before it is released?
+> I think it doesn't matter if this happens sometimes in the 2.5-series, but it should not become usual.
 
- * Convert scsi_bottom_half_handler to a softirq.
+Well this particular one would actually 'go away' with all options set, so 
+you can't win em all.
 
-as one of the entries.
-
+Cheers,
+	Zwane
 -- 
-Revolutions do not require corporate support.
+http://function.linuxpower.ca
+		
+

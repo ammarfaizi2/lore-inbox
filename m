@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264625AbUF1BgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264627AbUF1BpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264625AbUF1BgN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 21:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264627AbUF1BgN
+	id S264627AbUF1BpG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 21:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264633AbUF1BpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 21:36:13 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:3776 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S264625AbUF1BgK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 21:36:10 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Subject: RE: [ACPI] No APIC interrupts after ACPI suspend
-Date: Mon, 28 Jun 2004 09:35:55 +0800
-Message-ID: <B44D37711ED29844BEA67908EAF36F032D5361@pdsmsx401.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ACPI] No APIC interrupts after ACPI suspend
-Thread-Index: AcRcZF641UwOCqemSn+kQC5S4Z2nDAAR9R0A
-From: "Li, Shaohua" <shaohua.li@intel.com>
-To: "Matthew Garrett" <mjg59@srcf.ucam.org>
-Cc: <linux-kernel@vger.kernel.org>, <acpi-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 28 Jun 2004 01:35:56.0242 (UTC) FILETIME=[41E01320:01C45CB0]
+	Sun, 27 Jun 2004 21:45:05 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:38897 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S264627AbUF1Bo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 21:44:59 -0400
+Date: Sun, 27 Jun 2004 18:44:43 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Erik Jacobson <erikj@subway.americas.sgi.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Altix serial driver
+Message-ID: <20040628014443.GA24247@taniwha.stupidest.org>
+References: <200406231754.56837.jbarnes@engr.sgi.com> <Pine.SGI.4.53.0406242153360.343801@subway.americas.sgi.com> <20040625083130.GA26557@infradead.org> <Pine.SGI.4.53.0406250742350.377639@subway.americas.sgi.com> <20040625124807.GA29937@infradead.org> <Pine.SGI.4.53.0406250751470.377692@subway.americas.sgi.com> <20040626235248.GC12761@taniwha.stupidest.org> <Pine.SGI.4.53.0406271908390.524706@subway.americas.sgi.com> <20040628003311.GA23017@taniwha.stupidest.org> <20040628021439.A17654@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040628021439.A17654@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently we have no suspend/resume code for IOAPIC, we should add it.
-For PIC mode, current 8259 resume code ignored IRQ level/edge trigger,
-and it should be added.
+On Mon, Jun 28, 2004 at 02:14:39AM +0100, Russell King wrote:
 
-Thanks,
-Shaohua
->-----Original Message-----
->From: acpi-devel-admin@lists.sourceforge.net [mailto:acpi-devel-
->admin@lists.sourceforge.net] On Behalf Of Matthew Garrett
->Sent: Monday, June 28, 2004 12:28 AM
->To: David Eriksson
->Cc: linux-kernel@vger.kernel.org; acpi-devel@lists.sourceforge.net
->Subject: Re: [ACPI] No APIC interrupts after ACPI suspend
->
->On Sat, 2004-06-26 at 18:42 +0200, David Eriksson wrote:
->
->> Maybe you've found this bug?
->>
->> http://bugme.osdl.org/show_bug.cgi?id=2643
->
->Yeah, that one was biting me, but it's not the one causing this bug.
->cat /proc/interrupts shows that the ACPI interrupt is correctly set to
->level triggered, but the ioapic isn't set up correctly so no interrupts
->make it through. The same seems to be true for all other
-level-triggered
->interrupts.
->
->--
->Matthew Garrett | mjg59@srcf.ucam.org
->
->
->
->-------------------------------------------------------
->This SF.Net email sponsored by Black Hat Briefings & Training.
->Attend Black Hat Briefings & Training, Las Vegas July 24-29 -
->digital self defense, top technical experts, no vendor pitches,
->unmatched networking opportunities. Visit www.blackhat.com
->_______________________________________________
->Acpi-devel mailing list
->Acpi-devel@lists.sourceforge.net
->https://lists.sourceforge.net/lists/listinfo/acpi-devel
+> It's the way its always been done, and the way the tty layer works.
+> You register a range of ttys that you're going to be driving, and
+> you own those ttys whether or not you actually have hardware for
+> them.
 
+How about this (yes, it's a hack but it's really not that bad and will
+get things working until we can fix this up in 2.7.x):
+
+===== drivers/serial/8250.c 1.55 vs edited =====
+--- 1.55/drivers/serial/8250.c	2004-04-17 02:48:54 -07:00
++++ edited/drivers/serial/8250.c	2004-06-27 18:42:55 -07:00
+@@ -2175,6 +2175,12 @@
+ {
+ 	int ret, i;
+ 
++#if defined(__ia64__) && defined(ia64_platform_is)
++	/* SN2 cannot have 8250-like serial ports. */
++	if (ia64_platform_is("sn2"))
++		return -ENODEV;
++#endif
++
+ 	printk(KERN_INFO "Serial: 8250/16550 driver $Revision: 1.90 $ "
+ 		"%d ports, IRQ sharing %sabled\n", (int) UART_NR,
+ 		share_irqs ? "en" : "dis");
+
+
+Completely untested of source, and we might want to move things around
+a bit if early console stuff causes problems.
+
+   --cw

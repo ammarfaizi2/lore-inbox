@@ -1,67 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310434AbSCBUKQ>; Sat, 2 Mar 2002 15:10:16 -0500
+	id <S310433AbSCBUGu>; Sat, 2 Mar 2002 15:06:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310435AbSCBUKG>; Sat, 2 Mar 2002 15:10:06 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17412 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310434AbSCBUJw>; Sat, 2 Mar 2002 15:09:52 -0500
-Subject: Re: Network Security hole (was -> Re: arp bug )
-To: erich@uruk.org
-Date: Sat, 2 Mar 2002 20:22:51 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), ja@ssi.bg (Julian Anastasov),
-        szekeres@lhsystems.hu (Szekeres Bela),
-        dang@fprintf.net (Daniel Gryniewicz),
-        linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <E16hFeV-0000Nj-00@trillium-hollow.org> from "erich@uruk.org" at Mar 02, 2002 11:58:43 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S310435AbSCBUGk>; Sat, 2 Mar 2002 15:06:40 -0500
+Received: from relay1.mail.twtelecom.net ([207.67.10.252]:21009 "HELO
+	relay1.mail.twtelecom.net") by vger.kernel.org with SMTP
+	id <S310433AbSCBUG3>; Sat, 2 Mar 2002 15:06:29 -0500
+Subject: kernel thread --> user process
+From: Joel Hollingsworth <jhollingsworth@elon.edu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16hG1r-0008Kh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/1.0.1 
+Date: 02 Mar 2002 15:06:27 -0500
+Message-Id: <1015099588.24535.175.camel@trumpy.elon.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I would argue that this is a work-around to a problem, serves no
-> useful purpose, and in general this is violating the "principle of
-> least surprise".
 
-I strongly disagree. The RFCs _are_ expected behaviour (with the odd
-exception like URG which BSD redefined by force)
 
->   2)  In my example above (and in fact any case of very asymmetric
->       bandwidth) it ends up causing weird and highly suboptimal
->       misbehavior.
+I would like to push a kernel thread into a user-level process through
+the use of execve. The kernel thread is started from a loadable 
+module - so there has been no user-level process dipping into the 
+kernel that we could just replace. 
 
-Because you ran two different speed networks over the same cable without
-any seperation ?
+The process init does something similar. From what I've been reading it
+just calls execve() and magically it is a user-level process. Since 
+my code does not generate a user-level process I assume there is more
+to it than that. Can someone point me in the right direction to 
+accomplishing this? Do I need to generate a user-land stack frame? How?
 
-> Can you give me an argument for why these should be present?  (like
-> some kind of use for it?)
+Please cc jhollingsworth@elon.edu as I'm currently not subscribed.
 
-Internet standards. Along with the fact your perceived safety isnt there
-in the first place. Consider a source routed frame. Consider the fact
-most of your daemons bind to INADDR_ANY. It would be a false and misleading
-appearance of security at best.
+Thanks for reading.
 
-If you want a firewall use firewall rules. If an end user is not sure how to
-set up a basic firewall they can run tools like gnome-lokkit and answer simple
-questions.
+-joel
 
-> the arp thing, because I saw warning messages from my FreeBSD boxen
-> about these weird arps.
-
-FreeBSD binds arp to the specific interface, but accepts packets on any
-(from memory). The warnings it issues about the ARPs are a bug because the
-RFC's make no assertions about ARP replies being host or address based.
-
-> on reception, just check against the exact expected input address,
-> would actually be a performance improvement on machines with multiple
-> NICs.
-
-Hardly. You can have multiple addresses per nic anyway so its all the same
-routing hashes. You can also have multiple nics with the same address. Its
-already many<->many.
-
-Alan

@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261641AbSJVTuQ>; Tue, 22 Oct 2002 15:50:16 -0400
+	id <S264806AbSJVTwG>; Tue, 22 Oct 2002 15:52:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261657AbSJVTuQ>; Tue, 22 Oct 2002 15:50:16 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:45792 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261641AbSJVTuP>;
-	Tue, 22 Oct 2002 15:50:15 -0400
-Date: Tue, 22 Oct 2002 20:57:30 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Rob Landley <landley@trommello.org>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Roman Zippel <zippel@linux-m68k.org>, riel@conectiva.com.br,
-       linux-kernel@vger.kernel.org, akpm@zip.com.au, davem@redhat.com,
-       mingo@redhat.com
-Subject: Re: [STATUS 2.5]  October 21, 2002
-Message-ID: <20021022195730.GA30958@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Rob Landley <landley@trommello.org>,
-	Guillaume Boissiere <boissiere@adiglobal.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Roman Zippel <zippel@linux-m68k.org>, riel@conectiva.com.br,
-	linux-kernel@vger.kernel.org, akpm@zip.com.au, davem@redhat.com,
-	mingo@redhat.com
-References: <20021021135137.2801edd2.rusty@rustcorp.com.au> <3DB3AB3E.23020.5FFF7144@localhost> <200210211522.35843.landley@trommello.org> <20021022194739.GB28822@clusterfs.com>
+	id <S261657AbSJVTwG>; Tue, 22 Oct 2002 15:52:06 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:10776 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S264806AbSJVTv7>;
+	Tue, 22 Oct 2002 15:51:59 -0400
+Date: Tue, 22 Oct 2002 21:58:07 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Christoph Hellwig <hch@infradead.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Jan Kasprzak <kas@informatics.muni.cz>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-pre11 /proc/partitions read
+Message-ID: <20021022195807.GA26620@win.tue.nl>
+References: <20021022185958.GB26585@win.tue.nl> <Pine.LNX.4.44L.0210221625440.27942-100000@freak.distro.conectiva> <20021022193226.GC26585@win.tue.nl> <20021022203504.A7770@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021022194739.GB28822@clusterfs.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20021022203504.A7770@infradead.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 01:47:39PM -0600, Andreas Dilger wrote:
- > On Monday 21 October 2002 06:22, Guillaume Boissiere wrote:
- > > Also, are initramfs, ext2/3 resize for 2.7/3.1?
- > 
- > The online resize stuff has been suffering because I've been terribly
- > busy at work.  Even so, it can be merged after the 2.5 code freeze,
- > since it is internal to ext3 and does not affect any APIs.
+On Tue, Oct 22, 2002 at 08:35:04PM +0100, Christoph Hellwig wrote:
 
-Nevertheless, it means any ext3 stability testing done post-freeze
-would be invalidated by addition of a new _feature_.
+> Both of those should be fixed by my patch, i.e. were caused by a bug
+> in fpos handling in the seq_file /proc/partitions.  There is nothing
+> about the statistics in them.
 
-		Dave
+True. I quoted these references (i) because they are readily available,
+and (ii) because they show problems with the file changing contents while
+it is being read.
+These two references predate your 2.4.19 patch - they are about a
+Redhat-private kernel that already had these disk statistics.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+The default 1K buffer was not large enough. Some utilities have now
+been patched to tell stdio to use a 16K buffer. We won't have to wait
+long before also that will turn out to be insufficient.
+
+It is bad that one has to patch mount and the ext2 utilities and fdisk
+and I don't know what other programs because some irrelevant (to mount etc.)
+and changing stuff was added to /proc/partitions.
+
+Andries
+

@@ -1,74 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbTJSTja (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 15:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbTJSTja
+	id S262224AbTJSTkG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 15:40:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbTJSTkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 15:39:30 -0400
-Received: from ncircle.nullnet.fi ([62.236.96.207]:35266 "EHLO
-	ncircle.nullnet.fi") by vger.kernel.org with ESMTP id S262110AbTJSTj2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 15:39:28 -0400
-Message-ID: <49794.192.168.9.10.1066592366.squirrel@ncircle.nullnet.fi>
-In-Reply-To: <013801c39677$035e1d40$0514a8c0@HUSH>
-References: <00b801c3955c$7e623100$0514a8c0@HUSH>   
-    <1066579176.7363.3.camel@milo.comcast.net><41102.192.168.9.10.1066584247.squirrel@ncircle.nullnet.fi>
-       <yw1x3cdpgm46.fsf@users.sourceforge.net>
-    <48232.192.168.9.10.1066590873.squirrel@ncircle.nullnet.fi>
-    <013801c39677$035e1d40$0514a8c0@HUSH>
-Date: Sun, 19 Oct 2003 22:39:26 +0300 (EEST)
+	Sun, 19 Oct 2003 15:40:00 -0400
+Received: from main.gmane.org ([80.91.224.249]:64427 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262224AbTJSTj4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 15:39:56 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
 Subject: Re: HighPoint 374
-From: "Tomi Orava" <Tomi.Orava@ncircle.nullnet.fi>
-To: "Carlos Fernandez Sanz" <cfs-lk@nisupu.com>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+Date: Sun, 19 Oct 2003 21:39:52 +0200
+Message-ID: <yw1xy8vhf247.fsf@users.sourceforge.net>
+References: <00b801c3955c$7e623100$0514a8c0@HUSH> <1066579176.7363.3.camel@milo.comcast.net>
+ <41102.192.168.9.10.1066584247.squirrel@ncircle.nullnet.fi>
+ <yw1x3cdpgm46.fsf@users.sourceforge.net>
+ <48232.192.168.9.10.1066590873.squirrel@ncircle.nullnet.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:Womf2mjg5qNluhBzVzSDtoj4ilA=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Tomi Orava" <Tomi.Orava@ncircle.nullnet.fi> writes:
 
-> Tomy,
+>> I'm using a RocketRAID 1540 SATA card (hpt374 based) in an Alpha
+>> system.  It has no such thing as ACPI.  The disks are four Seagate
+>> Barracuda 7200.7 running software raid5.  My /proc/interrupts:
 >
-> The
->
-> hdparm -m0 device
->
-> seems to have fixed the problem for me. I'll try increasing the number in
-> the following days and run extensive tests, but for now, it's quite
-> enough.
+> Ok, that might be one reason why it's working for you but not for me.
+> If I've understood correctly, people who have problems with HPT374
+> are using the integrated Parallel-ATA interface instead of SATA.
 
-That is *very* interesting. I quess that's about the only hdparm
-option that I have never tried before. I'm really interested in hearing
-if that really fixes the problem for you and for good. The thing is
-that the machine with HPT374-chip is running as a server so I'm
-not very eager to use it as a test bed (unless it's absolutely necessary).
-Please, if it's possible for you, try to copy say two big files from
-one disk to another at the same time couple of times in order to see if
-your machine is able to handle it ... I have been able to run mine
-2-3 days in the past without any problems if there are _no_ major
-disk transfers going on.
-
-The question of course is why does that hdparm option seem to fix
-the problem in this case ? Is it perhaps a bug in HPT374-driver or
-some lower IDE-layer ? (Just quessing ...)
-
-> BTW your email server doesn't seem to like my address and refuses to
-> deliver
-> any mail, if you aren't running it maybe you should tell the admin that
-> he's
-> blocking Spain's largest ISP for some reason?
-
-I'm sorry, I don't accept mails coming from dsl/cable/modem-pools due to
-high amount of spam. I will accept mails coming from your ISP's mail
-gateway though.
-
-Regards,
-Tomi Orava
-
+The chip on the SATA controller is the same as the PATA version.  The
+SATA interface is handled by external bridge chips.  I don't really
+see how it would make any difference if the hpt374 is on a PCI board
+on on the motherboard.  The Alpha system is quite different from your
+average PC in some ways, though.  That could explain some differences.
 
 -- 
-Tomi.Orava@ncircle.nullnet.fi
+Måns Rullgård
+mru@users.sf.net
+

@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264964AbTLWHDF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 02:03:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264966AbTLWHDF
+	id S264963AbTLWGyt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 01:54:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264964AbTLWGyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 02:03:05 -0500
-Received: from mail.mediaways.net ([193.189.224.113]:51649 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP id S264964AbTLWHDD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 02:03:03 -0500
-Subject: 2.6.0ben1 + ieee1394 (snapshot from yesterdays svn repos) -> works
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: bcollins@debian.org
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1072162924.2803.462.camel@localhost>
+	Tue, 23 Dec 2003 01:54:49 -0500
+Received: from fw.osdl.org ([65.172.181.6]:45710 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264963AbTLWGyr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 01:54:47 -0500
+Date: Mon, 22 Dec 2003 22:54:42 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Bernardo Innocenti <bernie@develer.com>
+Cc: mtd@infradead.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix static build of drivers/mtd/chips/jedec_probe.c
+Message-Id: <20031222225442.764d8d0e.akpm@osdl.org>
+In-Reply-To: <3FE7D92A.1090205@develer.com>
+References: <3FE7D92A.1090205@develer.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Date: Tue, 23 Dec 2003 08:02:04 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Bernardo Innocenti <bernie@develer.com> wrote:
+>
+> Hello,
+> 
+> one liner fix for building jedec_probe statically in m68knommu and possibly other archs.
+> 
+> Applies to 2.6.0.
+> 
+> 
+> --- drivers/mtd/chips/jedec_probe.c	2003-12-23 06:50:51.842514068 +0100
+> +++ drivers/mtd/chips/jedec_probe.c.orig	2003-12-23 06:51:15.512685112 +0100
+> @@ -8,7 +8,6 @@
+>  
+>  #include <linux/config.h>
+>  #include <linux/module.h>
+> -#include <linux/init.h>
+>  #include <linux/types.h>
+>  #include <linux/kernel.h>
+>  #include <asm/io.h>
+> 
 
-I just wanted to send kudos, as this version seems to be the first one
-which does not generate a kernel panik just from the very start. It was
-also possible to transfer ~20GB (firewire attached ide-hd) via the sbp2
-module and then removing the sbp2/ohci1394/ieee1394 module several times
-without it oopsing (that was enough last time I checked to generate a
-kernel panik!)
-
-Regards,
-Soeren.
+Inclusion of init.h shouldn't break anything.   What is the error?
 

@@ -1,49 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262820AbULRDA1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262841AbULRDDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262820AbULRDA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 22:00:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbULRDA1
+	id S262841AbULRDDd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 22:03:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbULRDCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 22:00:27 -0500
-Received: from mail.kroah.org ([69.55.234.183]:4542 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262820AbULRDAP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 22:00:15 -0500
-Date: Fri, 17 Dec 2004 18:57:59 -0800
-From: Greg KH <greg@kroah.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] debugfs for 2.6.10-rc3
-Message-ID: <20041218025759.GA27152@kroah.com>
-References: <20041216213645.GA9710@kroah.com> <20041218023335.GA19699@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041218023335.GA19699@thunk.org>
-User-Agent: Mutt/1.5.6i
+	Fri, 17 Dec 2004 22:02:39 -0500
+Received: from out003pub.verizon.net ([206.46.170.103]:62120 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S262828AbULRDBz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 22:01:55 -0500
+Message-ID: <41C39DB8.6050403@verizon.net>
+Date: Fri, 17 Dec 2004 22:02:16 -0500
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Dittmer <jdittmer@ppp0.net>
+CC: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] lcd: replace cli()/sti() with spin_lock_irqsave()/spin_unlock_irqrestore()
+References: <20041217235927.17998.75228.61750@localhost.localdomain> <41C380D0.9020001@ppp0.net>
+In-Reply-To: <41C380D0.9020001@ppp0.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [209.158.220.243] at Fri, 17 Dec 2004 21:01:54 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 17, 2004 at 09:33:35PM -0500, Theodore Ts'o wrote:
-> On Thu, Dec 16, 2004 at 01:36:45PM -0800, Greg KH wrote:
-> > I've added debugfs to my bk driver tree (located at
-> > bk://kernel.bkbits.net/gregkh/linux/driver-2.6) so it will show up in
-> > the next -mm release.  
+Jan Dittmer wrote:
+> James Nelson wrote:
 > 
-> Debugfs is a very natural name, but it will undoubtedly cause
-> confusion since we already have debugfs(8) in e2fsprogs.  One is a
-> filesystem, and the other is a user-mode command, so it's not a total
-> name collision, but it could cause some communication mixups.  
+>>Remove the cli()/sti() calls in drivers/char/lcd.c
 > 
-> On the other hand, I couldn't think of a better name, so perhaps we
-> should just live with it.  I did want to point out the potential
-> problem now while there's still a chance to change it, though....
+> 
+> Why is this cli() there in the first place? ioctl is already
+> called under lock_kernel.
+> 
+> 
 
-I agree about the name clash (I pointed it out in my original debugfs
-post) and like you, I couldn't think of a better name either.
+First - a warning.  Newbie on the loose, running around, asking for a whack with 
+the cluebat.
 
-Think of it like a trademark, they both have the same name, yet they
-live in different locations, hence they are both allowed to exist :)
+I had seen other drivers that had cli()/sti() calls in the ioctl functions.  So, 
+that is wrong?  Should all of those cli()/sti() calls be removed?
 
-thanks,
+Just to site things properly in my mind, was it always the case that ioctl is 
+called under lock_kernel, or is this a relatively recent (2.3+) development?  Some 
+of the *really* abandoned drivers haven't been touched in at least that long.
 
-greg k-h
+>>Signed-off-by: James Nelson <james4765@gmail.com>
+>>
+>>diff -urN --exclude='*~' linux-2.6.10-rc3-mm1-original/drivers/char/lcd.c linux-2.6.10-rc3-mm1/drivers/char/lcd.c
+>>--- linux-2.6.10-rc3-mm1-original/drivers/char/lcd.c	2004-12-03 16:53:42.000000000 -0500
+>>+++ linux-2.6.10-rc3-mm1/drivers/char/lcd.c	2004-12-17 18:57:10.760197439 -0500
+>>@@ -33,6 +33,8 @@
+>> 
+>> #include "lcd.h"
+>> 
+>>+static spinlock_t lcd_lock = SPIN_LOCK_UNLOCKED;
+>>+
+>> static int lcd_ioctl(struct inode *inode, struct file *file,
+>> 		     unsigned int cmd, unsigned long arg);
+>> 
+>>@@ -464,14 +466,13 @@
+>> 			}
+>> 
+>> 			printk("Churning and Burning -");
+>>-			save_flags(flags);
+>> 			for (i = 0; i < FLASH_SIZE; i = i + 128) {
+>> 
+>> 				if (copy_from_user
+>> 				    (rom, display.RomImage + i, 128))
+>> 					return -EFAULT;
+> 
+> 
+> The driver is leaking memory, rom is not freed in this case.
+
+Erm.  Didn't notice that.
+
+> 
+> Jan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315862AbSFCXqR>; Mon, 3 Jun 2002 19:46:17 -0400
+	id <S315883AbSFCXup>; Mon, 3 Jun 2002 19:50:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315883AbSFCXqQ>; Mon, 3 Jun 2002 19:46:16 -0400
-Received: from numenor.qualcomm.com ([129.46.51.58]:22711 "EHLO
-	numenor.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S315862AbSFCXqP>; Mon, 3 Jun 2002 19:46:15 -0400
-Message-Id: <5.1.0.14.2.20020603162827.0831ad78@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 03 Jun 2002 16:46:07 -0700
-To: torvalds@transmeta.com
-From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Subject: [PATCH] 2.5.20 Fix non-modular Bluetooth compilation
-Cc: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S315910AbSFCXuo>; Mon, 3 Jun 2002 19:50:44 -0400
+Received: from [63.204.6.12] ([63.204.6.12]:52650 "EHLO mail.somanetworks.com")
+	by vger.kernel.org with ESMTP id <S315883AbSFCXuo>;
+	Mon, 3 Jun 2002 19:50:44 -0400
+Date: Mon, 3 Jun 2002 19:50:42 -0400 (EDT)
+From: "Scott Murray" <scottm@somanetworks.com>
+X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Subject: Re: [PATCH][2.5] Port opl3sa2 changes from 2.4
+In-Reply-To: <Pine.LNX.4.44.0206031709370.3833-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.33.0206031923540.5598-100000@rancor.yyz.somanetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Mon, 3 Jun 2002, Thunder from the hill wrote:
 
-This trivial patch fixes linker error when Bluetooth support is compiled in.
+> Hi,
+>
+> On Mon, 3 Jun 2002, Scott Murray wrote:
+> > I think it would be better to wait until Zwane sends something to Alan
+> > and/or Marcelo, as this patch is incorrect on a couple of levels.  See my
+> > annotations below:
+>
+> His patch won't match for 2.5. I just adapted it, even though I've had a
+> typo there.
+[snip]
+> As I mentioned, I was just porting it.
 
-Please apply.
-Max
+I gotta say, I'm a little lost as to why you're taking this upon yourself,
+considering that Zwane is for all intents and purposes the maintainer now
+instead of me, and he seems to be effectively pushing stuff into 2.5 via
+the Alan -> Marcelo -> Dave Jones -> Linus scheme.  I would really prefer
+that you let him submit a patch for this, as I'm pretty sure that the
+addition of the isapnp_change_resource calls will break the driver for
+anyone whose machine doesn't have DMA 0 available.
 
---- linux-2.5/net/bluetooth/af_bluetooth.c.old  Mon Jun  3 16:40:22 2002
-+++ linux-2.5/net/bluetooth/af_bluetooth.c      Mon Jun  3 16:40:46 2002
-@@ -317,7 +317,7 @@
-         PF_BLUETOOTH, bluez_sock_create
-  };
+Scott
 
--static int __init bluez_init(void)
-+int __init bluez_init(void)
-  {
-         BT_INFO("BlueZ Core ver %s Copyright (C) 2000,2001 Qualcomm Inc",
-                  VERSION);
+
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
+
 
 

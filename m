@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264446AbUAKNkY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 08:40:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264535AbUAKNkY
+	id S262730AbUAKNfG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 08:35:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264264AbUAKNfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 08:40:24 -0500
-Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:19721 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S264446AbUAKNkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 08:40:22 -0500
-Date: Sun, 11 Jan 2004 14:42:14 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@Stimpy.netroedge.com>
-Subject: [PATCH 2.4] i2c cleanups, third wave
-Message-Id: <20040111144214.7a6a4e59.khali@linux-fr.org>
-Reply-To: LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@Stimpy.netroedge.com>
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 11 Jan 2004 08:35:06 -0500
+Received: from gprs214-122.eurotel.cz ([160.218.214.122]:63874 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262730AbUAKNfC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 08:35:02 -0500
+Date: Sun, 11 Jan 2004 14:36:28 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: To whom should I submit Suspend patches?
+Message-ID: <20040111133628.GC897@elf.ucw.cz>
+References: <1073677687.2067.29.camel@laptop-linux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1073677687.2067.29.camel@laptop-linux>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I will be sending 8 patches to you, based on linux-2.4.25-pre4. They
-contain cleanups for the i2c subsystem code, ported from LM Sensors' i2c
-CVS repository [1]. Since that repository was also the base of the i2c
-subsystem as is now in linux 2.6, one might also consider these patches
-as backports from linux 2.6.
+Hi!
 
-Details about what the patch does and credits will be found with each
-patch.
+> Patrick has a new job and it seems to have swallowed him whole. To whom
+> should I be submitting patches for Suspend itself? I was wanting to go
+> wild submitting patches before my move to Canberra in three weeks time.
+> I do have a BK tree I can put them in if it helps.
 
-Please apply,
-thanks.
+It depends...
 
-[1] http://www2.lm-sensors.nu/~lm78/cvs/browse.cgi/i2c
+...on what kind of patches. Fixes for current code adding no features
+should go to me. If you want to patch swsusp2 into kernel, well, I
+believe we are feature-frozen now. I'd probably be okay with you
+taking over pmdisk and turning it into swsusp2, but I'd prefer to keep
+simple swsusp for 2.6.
 
+Anyway all of this needs to be decided by Andrew.
+								Pavel
 -- 
-Jean Delvare
-http://www.ensicaen.ismra.fr/~delvare/
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

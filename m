@@ -1,213 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbUJaELX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbUJaEL2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbUJaELX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 00:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbUJaELX
+	id S261495AbUJaEL2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 00:11:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbUJaEL2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 00:11:23 -0400
-Received: from soundwarez.org ([217.160.171.123]:10901 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261489AbUJaELO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 00:11:14 -0400
-Date: Sun, 31 Oct 2004 05:11:12 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew <cmkrnl@speakeasy.net>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] 2.6.10.rc1.bk6 /lib/kobject_uevent.c buffer issues
-Message-ID: <20041031041112.GA1711@vrfy.org>
-References: <20041027142925.GA17484@imladris.arnor.me> <20041027152134.GA13991@kroah.com> <417FCD78.6020807@speakeasy.net> <20041029201314.GA29171@kroah.com> <20041029212856.GA12582@vrfy.org> <20041029231319.GA503@kroah.com> <20041030000045.GA13356@vrfy.org> <20041030002523.GA13425@vrfy.org> <20041030025429.GA13757@vrfy.org>
-Mime-Version: 1.0
+	Sun, 31 Oct 2004 00:11:28 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:39458 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261495AbUJaELZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 00:11:25 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Message-Flag: Warning: May contain useful information
+References: <Pine.LNX.4.58.0410302005270.28839@ppc970.osdl.org>
+From: Roland Dreier <roland@topspin.com>
+Date: Sat, 30 Oct 2004 21:11:24 -0700
+In-Reply-To: <Pine.LNX.4.58.0410302005270.28839@ppc970.osdl.org> (Linus
+ Torvalds's message of "Sat, 30 Oct 2004 20:20:53 -0700 (PDT)")
+Message-ID: <52d5yzwmqb.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: Sparse "context" checking..
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041030025429.GA13757@vrfy.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 31 Oct 2004 04:11:24.0688 (UTC) FILETIME=[AFB2B900:01C4BEFF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 30, 2004 at 04:54:29AM +0200, Kay Sievers wrote:
-> On Sat, Oct 30, 2004 at 02:25:23AM +0200, Kay Sievers wrote:
-> > On Sat, Oct 30, 2004 at 02:00:45AM +0200, Kay Sievers wrote:
-> > > On Fri, Oct 29, 2004 at 06:13:19PM -0500, Greg KH wrote:
-> > > > On Fri, Oct 29, 2004 at 11:28:56PM +0200, Kay Sievers wrote:
-> > > > > > But there might still be a problem.  With this change, the sequence
-> > > > > > number is not sent out the kevent message.  Kay, do you think this is an
-> > > > > > issue?  I don't think we can get netlink messages out of order, right?
-> > > > > 
-> > > > > Right, especially not the events with the same DEVPATH, like "remove"
-> > > > > beating an "add". But I'm not sure if the number isn't useful. Whatever
-> > > > > we may do with the hotplug over netlink in the future, we will only have
-> > > > > /sbin/hotplug for the early boot and it may be nice to know, what events
-> > > > > we have already handled...
-> > > > > 
-> > > > > > I'll hold off on applying this patch until we figure this out...
-> > > > > 
-> > > > > How about just reserving 20 bytes for the number (u64 will never be
-> > > > > more than that), save the pointer to that field, and fill the number in
-> > > > > later?
-> > > > 
-> > > > Ah, something like this instead?  I like it, it's even smaller than the
-> > > > previous patch.  Compile tested only...
-> > > 
-> > > I like that. How about the following. It will keep the buffer clean from
-> > > random chars, cause the kevent does not have the vector and relies on
-> > > the '\0' to separate the strings from each other.
-> > > I've tested it. The netlink-hotplug message looks like this:
-> > > 
-> > > recv(3, "remove@/class/input/mouse2\0ACTION=remove\0DEVPATH=/class/input/mouse2\0SUBSYSTEM=input\0SEQNUM=961                 \0", 1024, 0) = 113
-> > 
-> > Hmm, these trailing spaces are just bad, sorry. I'll better pass the
-> > envp array over to send_uevent() and clean up the keys while copying
-> > the env values into the skb buffer. This will make the event payload
-> > more safe too. So your first version looks better.
-> 
-> How about this? We copy over key by key into the skb buffer and the
-> netlink message can get the envp array without depending on a single
-> continuous buffer.
-> 
-> The netlink message looks nice like this now:
-> 
-> recv(3, "
->   add@/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0\0
->   HOME=/\0
->   PATH=/sbin:/bin:/usr/sbin:/usr/bin\0
->   ACTION=add\0
->   DEVPATH=/devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0\0
->   SUBSYSTEM=usb\0
->   SEQNUM=991\0
->   DEVICE=/proc/bus/usb/003/008\0
->   PRODUCT=46d/c03e/2000\0
->   TYPE=0/0/0\0
->   INTERFACE=3/1/2\0
-> ", 1024, 0) = 268
+    Linus> In particular, this is designed for doing things like
+    Linus> matching up a "lock" with the pairing "unlock", and right
+    Linus> now that's exactly what the code does: it makes each
+    Linus> spinlock count as "+1" in the context, and each spinunlock
+    Linus> count as "-1", and then hopefully it should all add up.
 
-Here is an improved version that uses skb_put() to fill the skb buffer,
-instead of trimming the buffer to the final size after we've copied over
-all keys.
+Do you have a plan for how to handle functions like spin_trylock()?  I
+notice in the current tree you just didn't annotate spin_trylock().
 
 Thanks,
-Kay
-
-
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
-
-===== lib/kobject_uevent.c 1.10 vs edited =====
---- 1.10/lib/kobject_uevent.c	2004-10-23 00:42:52 +02:00
-+++ edited/lib/kobject_uevent.c	2004-10-31 04:58:32 +01:00
-@@ -23,6 +23,9 @@
- #include <linux/kobject.h>
- #include <net/sock.h>
- 
-+#define BUFFER_SIZE	1024	/* buffer for the hotplug env */
-+#define NUM_ENVP	32	/* number of env pointers */
-+
- #if defined(CONFIG_KOBJECT_UEVENT) || defined(CONFIG_HOTPLUG)
- static char *action_to_string(enum kobject_action action)
- {
-@@ -53,12 +56,11 @@ static struct sock *uevent_sock;
-  *
-  * @signal: signal name
-  * @obj: object path (kobject)
-- * @buf: buffer used to pass auxiliary data like the hotplug environment
-- * @buflen:
-- * gfp_mask:
-+ * @envp: possible hotplug environment to pass with the message
-+ * @gfp_mask:
-  */
--static int send_uevent(const char *signal, const char *obj, const void *buf,
--			int buflen, int gfp_mask)
-+static int send_uevent(const char *signal, const char *obj,
-+		       char **envp, int gfp_mask)
- {
- 	struct sk_buff *skb;
- 	char *pos;
-@@ -69,16 +71,25 @@ static int send_uevent(const char *signa
- 
- 	len = strlen(signal) + 1;
- 	len += strlen(obj) + 1;
--	len += buflen;
- 
--	skb = alloc_skb(len, gfp_mask);
-+	/* allocate buffer with the maximum possible message size */
-+	skb = alloc_skb(len + BUFFER_SIZE, gfp_mask);
- 	if (!skb)
- 		return -ENOMEM;
- 
- 	pos = skb_put(skb, len);
-+	sprintf(pos, "%s@%s", signal, obj);
- 
--	pos += sprintf(pos, "%s@%s", signal, obj) + 1;
--	memcpy(pos, buf, buflen);
-+	/* copy the environment key by key to our continuous buffer */
-+	if (envp) {
-+		int i;
-+
-+		for (i = 2; envp[i]; i++) {
-+			len = strlen(envp[i]) + 1;
-+			pos = skb_put(skb, len);
-+			strcpy(pos, envp[i]);
-+		}
-+	}
- 
- 	return netlink_broadcast(uevent_sock, skb, 0, 1, gfp_mask);
- }
-@@ -107,10 +118,10 @@ static int do_kobject_uevent(struct kobj
- 		if (!attrpath)
- 			goto exit;
- 		sprintf(attrpath, "%s/%s", path, attr->name);
--		rc = send_uevent(signal, attrpath, NULL, 0, gfp_mask);
-+		rc = send_uevent(signal, attrpath, NULL, gfp_mask);
- 		kfree(attrpath);
- 	} else {
--		rc = send_uevent(signal, path, NULL, 0, gfp_mask);
-+		rc = send_uevent(signal, path, NULL, gfp_mask);
- 	}
- 
- exit:
-@@ -169,8 +180,6 @@ static inline int send_uevent(const char
- u64 hotplug_seqnum;
- static spinlock_t sequence_lock = SPIN_LOCK_UNLOCKED;
- 
--#define BUFFER_SIZE	1024	/* should be enough memory for the env */
--#define NUM_ENVP	32	/* number of env pointers */
- /**
-  * kobject_hotplug - notify userspace by executing /sbin/hotplug
-  *
-@@ -182,6 +191,7 @@ void kobject_hotplug(struct kobject *kob
- 	char *argv [3];
- 	char **envp = NULL;
- 	char *buffer = NULL;
-+	char *seq_buff;
- 	char *scratch;
- 	int i = 0;
- 	int retval;
-@@ -258,6 +268,11 @@ void kobject_hotplug(struct kobject *kob
- 	envp [i++] = scratch;
- 	scratch += sprintf(scratch, "SUBSYSTEM=%s", name) + 1;
- 
-+	/* reserve space for the sequence,
-+	 * put the real one in after the hotplug call */
-+	envp[i++] = seq_buff = scratch;
-+	scratch += strlen("SEQNUM=18446744073709551616") + 1;
-+
- 	if (hotplug_ops->hotplug) {
- 		/* have the kset specific function add its stuff */
- 		retval = hotplug_ops->hotplug (kset, kobj,
-@@ -273,15 +288,13 @@ void kobject_hotplug(struct kobject *kob
- 	spin_lock(&sequence_lock);
- 	seq = ++hotplug_seqnum;
- 	spin_unlock(&sequence_lock);
--
--	envp [i++] = scratch;
--	scratch += sprintf(scratch, "SEQNUM=%lld", (long long)seq) + 1;
-+	sprintf(seq_buff, "SEQNUM=%lld", (long long)seq);
- 
- 	pr_debug ("%s: %s %s seq=%lld %s %s %s %s %s\n",
- 		  __FUNCTION__, argv[0], argv[1], (long long)seq,
- 		  envp[0], envp[1], envp[2], envp[3], envp[4]);
- 
--	send_uevent(action_string, kobj_path, buffer, scratch - buffer, GFP_KERNEL);
-+	send_uevent(action_string, kobj_path, envp, GFP_KERNEL);
- 
- 	if (!hotplug_path[0])
- 		goto exit;
-
+  Roland

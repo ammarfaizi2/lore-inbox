@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264699AbTBACtl>; Fri, 31 Jan 2003 21:49:41 -0500
+	id <S264702AbTBADMC>; Fri, 31 Jan 2003 22:12:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264702AbTBACtl>; Fri, 31 Jan 2003 21:49:41 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:43240 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S264699AbTBACtk>; Fri, 31 Jan 2003 21:49:40 -0500
-Date: Fri, 31 Jan 2003 20:59:05 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] Module alias and device table support.
-In-Reply-To: <Pine.LNX.4.44.0302010157530.6646-100000@serv>
-Message-ID: <Pine.LNX.4.44.0301312055360.16486-100000@chaos.physics.uiowa.edu>
+	id <S264705AbTBADMB>; Fri, 31 Jan 2003 22:12:01 -0500
+Received: from mail021.syd.optusnet.com.au ([210.49.20.161]:40852 "EHLO
+	mail021.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S264702AbTBADMB> convert rfc822-to-8bit; Fri, 31 Jan 2003 22:12:01 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Con Kolivas <conman@kolivas.net>
+To: Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: [BENCHMARK] 2.5.59-mm7 with contest
+Date: Sat, 1 Feb 2003 14:21:16 +1100
+User-Agent: KMail/1.4.3
+Cc: Andrew Morton <akpm@digeo.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Aggelos Economopoulos <aoiko@cc.ece.ntua.gr>
+References: <200302010930.54538.conman@kolivas.net> <200302011209.49692.conman@kolivas.net> <3E3B2187.1000203@cyberone.com.au>
+In-Reply-To: <3E3B2187.1000203@cyberone.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302011421.17044.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Feb 2003, Roman Zippel wrote:
+> >I found the following is how loads occur almost always:
+> >noload time: 60
+> >load time kernal a: 80, loads 20
+> >load time kernel b: 100, loads 40
+> >load time kernel c: 90, loads 30
+> >
+> >and loads/total time wouldnt show this effect as kernel c would appear to
+> > have a better load rate
+>
+> Kernel a would have a rate of .25 l/s, b: .4 l/s, c: .33~ l/s so I b would
+> be better.
 
-> > > > missing 
-> > > > EXPORT_SYMBOL()s tend to go unnoticed quite often otherwise.
-> > > 
-> > > The problem here is that we use System.map, it's not that difficult to 
-> > > extract the exported symbols:
-> > > objcopy -j .kstrtab -O binary vmlinux .export.tmp
-> > > tr \\0 \\n < .export.tmp > Export.map
-> > 
-> > What you say is right (except that it misses symbols exported from 
-> > modules), but I don't see what you mean the problem is?
-> 
-> See above, maybe I quoted to much. The other exported symbols are 
-> already extracted by depmod, so it had exactly the information it needs 
-> and would give more correct warnings.
+Err yeah thats what I mean sorry. What I'm getting at is notice they all do it 
+at 1/second regardless. It's only the scheduling balance that has changed 
+rather than the rate of work.
 
-The exported symbols can be extracted just as easily from System.map as 
-from vmlinux, so I think I still don't understand your point. (And chances 
-are higher that System.map is in /boot than an uncompressed vmlinux). 
+> >if there was
+> >load time kernel d: 80, loads 40
+> >
+> >that would be more significant no?
+>
+> It would, yes... but it would measure .5 loads per second done.
+>
+> The noload time is basically constant anyway so I don't think it would add
+> much value if it were incorporated into the results, but would make the
+> metric harder to follow than simple "loads per second".
 
-depmod does give correct warnings, but only at modules install time, not 
-at modules build time, that's what I was trying to say.
+At the moment total loads tells the full story either way so for now I'm 
+sticking to that.
 
---Kai
-
-
+Con

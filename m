@@ -1,77 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271729AbRHUQOb>; Tue, 21 Aug 2001 12:14:31 -0400
+	id <S271728AbRHUQOB>; Tue, 21 Aug 2001 12:14:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271731AbRHUQOW>; Tue, 21 Aug 2001 12:14:22 -0400
-Received: from mail.gmx.de ([213.165.64.20]:50135 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S271729AbRHUQOH>;
-	Tue, 21 Aug 2001 12:14:07 -0400
-Message-ID: <3B8288DA.D5E52766@gmx.at>
-Date: Tue, 21 Aug 2001 18:14:18 +0200
-From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-ac3 i686)
-X-Accept-Language: en
+	id <S271731AbRHUQNl>; Tue, 21 Aug 2001 12:13:41 -0400
+Received: from waste.org ([209.173.204.2]:12300 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S271728AbRHUQN3>;
+	Tue, 21 Aug 2001 12:13:29 -0400
+Date: Tue, 21 Aug 2001 11:13:39 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+cc: Theodore Tso <tytso@mit.edu>, David Schwartz <davids@webmaster.com>,
+        Andreas Dilger <adilger@turbolinux.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: /dev/random in 2.4.6
+In-Reply-To: <605104920.998386381@[169.254.45.213]>
+Message-ID: <Pine.LNX.4.30.0108210957060.13373-100000@waste.org>
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 [I] just run xdos
-In-Reply-To: <Pine.LNX.4.33.0108191600580.10914-100000@boston.corp.fedex.com>
-			<m166bjokre.fsf@frodo.biederman.org>
-			<20010819214322.D1315@squish.home.loc>
-			<m1snenmfe0.fsf@frodo.biederman.org>
-			<20010820211410.B218@squish.home.loc> <m1g0amlzcm.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" wrote:
-> 
-> Paul <set@pobox.com> writes:
-> 
-> > "Eric W. Biederman" <ebiederm@xmission.com>, on Mon Aug 20, 2001 [12:09:27 AM]
-> > said:
-> >
-> >
-> > > If you can rule out X stracing dosemu might be of some help.   The
-> > > challenge now is to track down what dosemu is doing that is triggering
-> > > the problem.
-> > >
-> > > As an interrupt handler is where the oops is occuring.  Finding an
-> > > immediate cause and effect could be tricky.
-> > >
-> > > Eric
-> >
-> >       Dear Eric;
-> >
-> >       Ok. I oopsed/locked the machine running 'dos' in a vt,
-> > without X in single user mode. Then I did it again, stracing the
-> > session.  Unfortunately, the fs was left in such a state, that
-> > fsck completely chucked the logfile out. Then I booted 2.2.18, and
-> > tried.  I could not make it oops.
-> >       I need to setup a test machine to persue this farther, as
-> > locking and fscking my main box is no fun:) Ill try to get that
-> > strace...
-> 
-> O.k.  That rules out all kinds of things.  What is interesting at first
-> glance is that a) Every oops has been in an interrupt handler. and
-> b) It is never remotely at the same location.
-> 
-> I'm beginning to suspect there is some kind of hardware problem.  But it
-> is very weird.  I wonder if dos 6.2 somehow tickles a bug in the media GX
-> processor.  Though my top canidate is probably the lazy state switching
-> introduced in 2.4.  I know there were some problems with the ldt that were
-> fixed, and there might be another case out there.  But I'm just guessing
-> in the dark.
-> 
-> If you can reproduce this on a second machine that would definentily help.
-> 
-> Eric
+On Tue, 21 Aug 2001, Alex Bligh - linux-kernel wrote:
 
-I have the same problem on a K7-800. My kernel is 2.4.7-ac3 (with K7
-optimization!). Everything else seems to work fine, but dosemu locks up
-the computer when running certain games.
-Sometimes I can play for quite some time (1/2 hour or more) without
-problems. Eventually it will freeze. It feels like it is triggered by
-mouse activity.
+> > No you don't, that's your whole complaint to start with. You're clearly
+> > entropy-limited. If you were willing to block waiting for enough entropy,
+> > you'd be fine with the current scheme.
+>
+> Yes I /do/. I want to wait for sufficient entropy. I count inter-IRQ
+> timing from network as a source of entropy. IE if the entropy pool
+> is exhausted, I'm prepared to, and desire to, block, until a few packets
+> have arrived. However, I do not wish to block indefinitely (actually
+> about 3 minutes as there's a little periodic block I/O) which is what
+> happens if I do not count network IRQ timing as an entropy source
+> (current /dev/random result, without Robert's patch, on most NICs).
+> Equally, I do not want want to read /dev/urandom (and not block)
+> which, in an absence of entropy, is (arguably) cryptographically weaker
+> (see below).
 
-Wilfried
+You're throwing the baby out with the bathwater. If you overestimate the
+entropy added by even a small amount, /dev/random is no better than
+/dev/urandom.
+
+Imagine your attacker has broken into your firewall and can observe all
+packets on your network at high accuracy. She's also got an exact
+duplicate of your operational setup, software, hardware, switches,
+routers, so she's got a pretty good idea of what your interrupt latency
+looks like, etc., and she can even try to simulate the loads you're
+experiencing by replaying packets. She's also a brilliant statistician. So
+on each network interrupt, when you're adding, say, 8 bits of entropy to
+the count, she's able to reliably guess 1. Really she only needs to guess
+one bit right more than half the time - so long as she can gather slightly
+more information than we think she can. Since your app is occassionally
+blocking waiting for entropy, you're giving it out faster than you're
+taking it in. Assuming your attacker has broken the hash function (SHA and
+then some), it's just a short matter of time before she has enough
+information to correlate her guesses and what you've sent to figure out
+exactly what's in the pool and start guessing your session keys. Assuming
+she hasn't broken SHA, then /dev/urandom is just as good.
+
+So the whole point of /dev/random is to be more secure than just the hash
+function and mixing. Which do you think is easier, breaking the hash
+function or breaking into your network operations center and walking off
+with your server? If your NOC is so secure, then you can probably afford a
+hardware entropy source..
+
+Read Schneier's essay on attack trees if the above argument doesn't make
+sense to you:
+
+ http://www.ddj.com/articles/1999/9912/9912a/9912a.htm?topic=security
+
+> Measuring it there at least 16 network IRQs for the minimum
+> SSL transaction. That generates 16x12 = 192 bits of
+> entropy (each IRQ contributes 12 bits).
+
+12 bits is a maximum and it's based on the apparent randomness of the
+interrupt timing deltas. If your attacker is impatient, she can just ping
+you at pseudo-random intervals tuned to clean your pool more rapidly.
+You're also forgetting that TCP initial sequence numbers come from the
+pool to prevent connection spoofing - more entropy lost.
+
+> The point is simple: We say to authors of cryptographic applications
+> (ssl, ssh etc.) that they should use /dev/random, because /dev/urandom
+> is not cryptographically strong enough.
+
+Who ever said that? /dev/random is a cute exercise in paranoia, not
+practicality. It's nice for seeding personal GPG keys and ssh identities,
+but was never intended for bulk cryptography. It's also nice for keys
+you're going to reuse because if your attacker monitors all your traffic
+and holds onto it for 50 years, and SHA happens to gets broken before El
+Gamal, your GPG key is still safe.
+
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

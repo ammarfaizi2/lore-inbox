@@ -1,49 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRBETzV>; Mon, 5 Feb 2001 14:55:21 -0500
+	id <S129232AbRBETzl>; Mon, 5 Feb 2001 14:55:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129232AbRBETzL>; Mon, 5 Feb 2001 14:55:11 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:275 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129051AbRBETzE>; Mon, 5 Feb 2001 14:55:04 -0500
+	id <S131368AbRBETzc>; Mon, 5 Feb 2001 14:55:32 -0500
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:54536 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S129232AbRBETz0>; Mon, 5 Feb 2001 14:55:26 -0500
+Date: Mon, 5 Feb 2001 19:53:31 +0000
 To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: PROBLEM: kernel BUG at page_alloc.c:190!
-Date: 5 Feb 2001 11:54:29 -0800
-Organization: Transmeta Corporation
-Message-ID: <95n0dl$uhk$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.31.0102051942040.875-100000@wasyl.dom.pl>
+Subject: VIA silent disk corruption - bad news
+Message-ID: <20010205195331.A736@colonel-panic.com>
+Mail-Followup-To: pdh, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: Peter Horton <pdh@colonel-panic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.31.0102051942040.875-100000@wasyl.dom.pl>,
-Jakub Wasielewski  <wasyl@infoland.com.pl> wrote:
->[1.] One line summary of the problem: kernel BUG at page_alloc.c:190!
+The patch doesn't work for me. Maybe I need to disable some more of
+those North bridge features :-(
 
-I really need the symbolic oops information with the first oops piped
-through ksymoops:
+Oh bum. Back to testing with "normal" ...
 
->kernel BUG at page_alloc.c:190!
+P.
 
-This basically should happen only if the memory zone lists have become
-nastily corrupted.  But I'd need to see the decode of this:
+-----  CORRUPTING SETUP  -----
 
->Call Trace: [<c012e465>] [<c0123807>] [<c0123884>] [<c0123a3a>] [<c0112e47>] [<c0112ce8>] [<c01137d4>]
->       [<c011d99f>] [<c0113d7a>] [<c01090dc>] [<c010002b>]
+00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 02)
+	Subsystem: Asustek Computer, Inc.: Unknown device 8033
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
+	Latency: 0 set
+	Region 0: Memory at e4000000 (32-bit, prefetchable) [size=64M]
+	Capabilities: [a0] AGP version 2.0
+		Status: RQ=31 SBA+ 64bit- FW- Rate=421
+		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- AuxPwr- DSI- D1- D2- PME-
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+00: 06 11 05 03 06 00 10 a2 02 00 00 06 00 00 00 00
+10: 08 00 00 e4 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 43 10 33 80
+30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 17 a4 6b b4 4f 81 08 08 80 00 04 08 08 08 08 08
+60: 03 ff 00 a0 52 e5 e5 00 44 7c 86 0f 08 3f 00 00
+70: de 80 cc 0c 0e a1 d2 00 01 b4 11 02 00 00 00 00
+80: 0f 40 00 00 c0 00 00 00 02 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 02 c0 20 00 07 02 00 1f 00 00 00 00 6e 02 04 00
+b0: 59 ec 80 b5 32 33 28 00 00 00 00 00 00 00 00 00
+c0: 01 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 0e 22 00 00 00 00 00 91 06
 
-to get an idea of what was going on at the time.. The other oopses are
-not interesting, they're just more result of the corrupted memory maps.
+-----  DIFF FOR NON-CORRUPTING SETUP  -----
 
->[7.7.] Other information that might be relevant to the problem:
->Well,  as  you can see the procs are overclocked (433@541) but that never
->caused me problems. If my bug is caused by overclocking please accept  my
->apologies!
-
-This is the likeliest explanation, though. A small amount of cache
-corruption due to your quite radically overclocked CPU's can do
-anything..
-
-		Linus
+@@ -5,7 +5,7 @@
+ 	Latency: 0 set
+ 	Region 0: Memory at e4000000 (32-bit, prefetchable) [size=64M]
+ 	Capabilities: [a0] AGP version 2.0
+-		Status: RQ=31 SBA+ 64bit- FW- Rate=421
++		Status: RQ=31 SBA+ 64bit- FW- Rate=21
+ 		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=
+ 	Capabilities: [c0] Power Management version 2
+ 		Flags: PMEClk- AuxPwr- DSI- D1- D2- PME-
+@@ -15,12 +15,12 @@
+ 20: 00 00 00 00 00 00 00 00 00 00 00 00 43 10 33 80
+ 30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
+ 40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+-50: 17 a4 6b b4 4f 81 08 08 80 00 04 08 08 08 08 08
+-60: 03 ff 00 a0 52 e5 e5 00 44 7c 86 0f 08 3f 00 00
+-70: de 80 cc 0c 0e a1 d2 00 01 b4 11 02 00 00 00 00
++50: 17 a4 6b b4 06 81 08 08 80 00 04 08 08 08 08 08
++60: 03 ff 00 a0 50 e4 e4 00 40 78 86 0f 08 3f 00 00
++70: d8 80 cc 0c 0e a1 d2 00 01 b4 01 02 00 00 00 00
+ 80: 0f 40 00 00 c0 00 00 00 02 00 00 00 00 00 00 00
+ 90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+-a0: 02 c0 20 00 07 02 00 1f 00 00 00 00 6e 02 04 00
++a0: 02 c0 20 00 03 02 00 1f 00 00 00 00 6e 02 00 00
+ b0: 59 ec 80 b5 32 33 28 00 00 00 00 00 00 00 00 00
+ c0: 01 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00
+ d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

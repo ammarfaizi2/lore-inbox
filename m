@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271347AbRHOS3E>; Wed, 15 Aug 2001 14:29:04 -0400
+	id <S271352AbRHOSgO>; Wed, 15 Aug 2001 14:36:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271348AbRHOS2z>; Wed, 15 Aug 2001 14:28:55 -0400
-Received: from [194.102.102.3] ([194.102.102.3]:17412 "EHLO ns1.Aniela.EU.ORG")
-	by vger.kernel.org with ESMTP id <S271347AbRHOS2g>;
-	Wed, 15 Aug 2001 14:28:36 -0400
-Date: Wed, 15 Aug 2001 21:28:30 +0300 (EEST)
-From: <lk@Aniela.EU.ORG>
-To: God <atm@sdk.ca>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG?] :: "Value too large for defined data type"
-In-Reply-To: <Pine.LNX.4.21.0108150418230.8270-100000@scotch.homeip.net>
-Message-ID: <Pine.LNX.4.33.0108152127520.4092-100000@ns1.Aniela.EU.ORG>
+	id <S271351AbRHOSfz>; Wed, 15 Aug 2001 14:35:55 -0400
+Received: from barn.holstein.com ([198.134.143.193]:50948 "EHLO holstein.com")
+	by vger.kernel.org with ESMTP id <S271348AbRHOSfp>;
+	Wed, 15 Aug 2001 14:35:45 -0400
+Date: Wed, 15 Aug 2001 14:35:03 -0400
+Message-Id: <200108151835.f7FIZ3802147@pcx4168.holstein.com>
+From: "Todd M. Roy" <troy@holstein.com>
+To: mauelshagen@sistina.com
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <20010815191736.A32547@sistina.com> (mauelshagen@sistina.com)
+Subject: Re: *** ANNOUNCEMENT *** LVM 1.0 available at www.sistina.com
+Reply-To: troy@holstein.com
+In-Reply-To: <20010815191736.A32547@sistina.com>
+X-MIMETrack: Itemize by SMTP Server on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
+ 08/15/2001 02:38:32 PM,
+	Serialize by Router on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
+ 08/15/2001 02:38:33 PM,
+	Serialize complete at 08/15/2001 02:38:33 PM
+X-Priority: 3 (Normal)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> # echo *
-> box1.071401.dump test
-> #
->
-> I tried to remove the file using rm, but I get the same error as ls:
+>From reading the README.1st file, is my understanding
+correct that if  one  already has migrated from
+lvm 0.9.1b7 to 0.9.1b8, it is
+*NOT* necessary to run pvvversion again?
 
+Thanks,
 
-do this:
-
- # > test
- # rm test
-
-and it will delete the file
->
-> # rm test
-> rm: cannot remove `test': Value too large for defined data type
-> #
->
-> The file is taking up ~4G of space (which is reflected correctly with df,
-> du will not read the file).
->
-> It was a stupid thing to do, but could there be a better way for the OS to
-> handle this and is there any way I can remove the file?  It's on  a 60
-> Gig drive, so formatting would not be an option right about now ...
->
-> The box in question (box2), is running Slack with a 2.4.3 kernel:
->
-> # uname -a
-> Linux box2 2.4.3 #7 SMP Sun Apr 29 13:42:05 EDT 2001 i686 unknown
-> #
->
->
-> Any thoughts?
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+  Todd
+**********************************************************************
+This footnote confirms that this email message has been swept by 
+MIMEsweeper for the presence of computer viruses.
+**********************************************************************

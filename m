@@ -1,41 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264825AbTIIWiW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 18:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264942AbTIIWiV
+	id S264785AbTIIWe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 18:34:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264929AbTIIWe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 18:38:21 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:13068 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S264825AbTIIWfp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 18:35:45 -0400
-Message-Id: <200309092235.h89MZU2J005307@ccure.karaya.com>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: uml-patch-2.6.0-test5
+	Tue, 9 Sep 2003 18:34:26 -0400
+Received: from codepoet.org ([166.70.99.138]:40363 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S264785AbTIIWcS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 18:32:18 -0400
+Date: Tue, 9 Sep 2003 16:32:18 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix 2.4.x incorrect argv[0] for init
+Message-ID: <20030909223218.GA11277@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+	linux-kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 09 Sep 2003 18:35:30 -0400
-From: Jeff Dike <jdike@addtoit.com>
+Content-Disposition: inline
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates UML to 2.6.0-test5.  There were a couple of bug fixes, but 
-no functional changes in this patch.
+In both 2.4.x and in 2.6.x, when someone specifies "init=" to
+select an alternative binary to run instead of /sbin/init,
+argv[0] is not set correctly.  This is a problem for programs
+such as busybox that multiplex applications based on the value of
+argv[0].  For example, even if you specify init=/bin/sh" on the
+kernel command line, busybox will still receive "/sbin/init" as
+argv[0], and will therefore run init rather than /bin/sh...
 
-The 2.6.0-test5 UML patch is available at
-	http://jdike.stearns.org/mirror/uml-patch-2.6.0-test5-1.bz2
+This patch fixes it.  Please apply,
 
-BK users can pull my 2.5 repository from
-	http://jdike.stearns.org:5000/uml-2.5
+ -Erik
 
-For the other UML mirrors and other downloads, see 
-        http://user-mode-linux.sourceforge.net/dl-sf.html
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--
+
+
+--- orig/init/main.c	2003-08-30 10:50:15.000000000 -0600
++++ linux-2.4.22/init/main.c	2003-08-30 10:50:15.000000000 -0600
+@@ -545,6 +545,12 @@
+ #endif
+ }
  
-Other links of interest:
++static void run_init_process(char *init_filename)
++{
++	argv_init[0] = init_filename;
++	execve(init_filename, argv_init, envp_init);
++}
++
+ extern void prepare_namespace(void);
  
-        The UML project home page : http://user-mode-linux.sourceforge.net
-        The UML Community site : http://usermodelinux.org
-
-				Jeff
-
+ static int init(void * unused)
+@@ -587,10 +593,12 @@
+ 	 */
+ 
+ 	if (execute_command)
+-		execve(execute_command,argv_init,envp_init);
+-	execve("/sbin/init",argv_init,envp_init);
+-	execve("/etc/init",argv_init,envp_init);
+-	execve("/bin/init",argv_init,envp_init);
+-	execve("/bin/sh",argv_init,envp_init);
++		run_init_process(execute_command);
++
++	run_init_process("/sbin/init");
++	run_init_process("/etc/init");
++	run_init_process("/bin/init");
++	run_init_process("/bin/sh");
++
+ 	panic("No init found.  Try passing init= option to kernel.");
+ }

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283354AbRK3JEe>; Fri, 30 Nov 2001 04:04:34 -0500
+	id <S283574AbRK3JIO>; Fri, 30 Nov 2001 04:08:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283574AbRK3JEZ>; Fri, 30 Nov 2001 04:04:25 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:174 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S283354AbRK3JEK>;
-	Fri, 30 Nov 2001 04:04:10 -0500
-Date: Fri, 30 Nov 2001 04:04:07 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: linux-kernel@vger.kernel.org
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [LART] pc_keyb.c changes
-In-Reply-To: <Pine.GSO.4.21.0111300252030.13367-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0111300354080.13367-100000@weyl.math.psu.edu>
+	id <S283572AbRK3JIE>; Fri, 30 Nov 2001 04:08:04 -0500
+Received: from gateway-2.hyperlink.com ([213.52.152.2]:51217 "EHLO
+	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
+	id <S283574AbRK3JHx>; Fri, 30 Nov 2001 04:07:53 -0500
+Message-ID: <4548.10.119.8.1.1007111319.squirrel@extranet.jtrix.com>
+Date: Fri, 30 Nov 2001 09:08:39 -0000 (GMT)
+Subject: Re: 2.5.1-pre4 compile error - pd.c
+From: "Martin A. Brooks" <martin@jtrix.com>
+To: <axboe@suse.de>
+In-Reply-To: <20011130100153.S16796@suse.de>
+In-Reply-To: <20011130100153.S16796@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.0 [rc2])
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> max_sectors has been moved into the queue. So when you did this before
+>
+> max_sectors[dev indexing] = max_sectors_in_request
+>
+> you now do
+>
+> q = blk_get_queue(dev);
+> blk_queue_max_sectors(max_sectors_in_request);
 
-On Fri, 30 Nov 2001, Alexander Viro wrote:
+I'm sure you're right, but I'm no kernel hacker.  Just a chimp with a
+compiler :)
 
-> 	Could the person who switched from BKL to spin_lock_irqsave() in
-> pc_keyb.c please share whatever the hell he had been smoking?  Free clue:
-> disabling interrupts for long intervals to improve scalability is right up
-> there with fighting for peace and fucking for virginity.
-> 
-> 	Linus, could we please revert that crap and feed the authors to
-> Larry?  If they are religious about Scalability At Any Cost, Common Sense
-> Be Damned(tm) - let's give them a chance to become martyrs...
+--
+Martin A. Brooks   Systems Administrator
+Jtrix Ltd          t: +44 7395 4990
+57-59 Neal Street  f: +44 7395 4991
+London, WC2H 9PP   e: martin@jtrix.com
 
-BTW, while we are at it, one is _not_ supposed to do inclusion to/removal from
-single-linked list without any exclusion whatsoever.  Example:
-drivers/input/evdev.c::evdev_{open,release}().  Or drivers/input/joydev.c
-and drivers/input/mousedev.c, for that matter.  Sigh...
 

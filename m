@@ -1,45 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143876AbRA1UNt>; Sun, 28 Jan 2001 15:13:49 -0500
+	id <S143880AbRA1UO7>; Sun, 28 Jan 2001 15:14:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143907AbRA1UNl>; Sun, 28 Jan 2001 15:13:41 -0500
-Received: from [63.95.87.168] ([63.95.87.168]:37644 "HELO xi.linuxpower.cx")
-	by vger.kernel.org with SMTP id <S143880AbRA1UNg>;
-	Sun, 28 Jan 2001 15:13:36 -0500
-Date: Sun, 28 Jan 2001 15:13:32 -0500
-From: Gregory Maxwell <greg@linuxpower.cx>
-To: James Sutherland <jas88@cam.ac.uk>
-Cc: jamal <hadi@cyberus.ca>, linux-kernel@vger.kernel.org
-Subject: Re: ECN: Clearing the air (fwd)
-Message-ID: <20010128151332.F13195@xi.linuxpower.cx>
-In-Reply-To: <Pine.GSO.4.30.0101281039440.24762-100000@shell.cyberus.ca> <Pine.SOL.4.21.0101281704430.16734-100000@green.csi.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <Pine.SOL.4.21.0101281704430.16734-100000@green.csi.cam.ac.uk>; from jas88@cam.ac.uk on Sun, Jan 28, 2001 at 05:11:20PM +0000
+	id <S143896AbRA1UOt>; Sun, 28 Jan 2001 15:14:49 -0500
+Received: from [211.49.129.171] ([211.49.129.171]:57357 "EHLO
+	smtp3.thrunet.com") by vger.kernel.org with ESMTP
+	id <S143880AbRA1UOc>; Sun, 28 Jan 2001 15:14:32 -0500
+Date: Mon, 29 Jan 2001 05:14:20 +0900
+From: "OnLine Korea" <olk@olk.co.kr>
+To: linux-kernel@vger.kernel.org
+Subject: linux-kernel´Ô¾È³çÇÏ¼¼¿ä? 
+X-AD2000-Serial: 1033
+X-AD2000-Register: "¹ÚÀçÇö" <olk@olk.co.kr>
+MIME-Version: 1.0
+Content-Type: text/html
+Content-Transfer-Encoding: base64
+Message-ID: <05f3c0014201c11SMTP3@smtp3.thrunet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 28, 2001 at 05:11:20PM +0000, James Sutherland wrote:
-[snip]
-> > The simplest thing in this chaos is to fix the firewall because it is in
-> > violation to begin with.
-> 
-> It is not in violation, and you can't fix it: it's not yours.
-[snip]
- > > It's too bad we end up defining protocols using English. We should use
-> > mathematical equations to remove any ambiguity ;->
-> 
-> No, just use English properly. "Must be zero" doesn't actually mean "must
-> be set to zero when sending, and ignored when receiving/processing", which
-> is probably what the standard SHOULD have said.
+PEhUTUw+DQo8SEVBRD4NCjxNRVRBIE5BTUU9IkdFTkVSQVRPUiIgQ29udGVudD0iTWljcm9z
+b2Z0IERIVE1MIEVkaXRpbmcgQ29udHJvbCI+DQo8VElUTEU+PC9USVRMRT4NCjwvSEVBRD4N
+CjxCT0RZPg0KPFA+PEZPTlQgZmFjZT2xvLiyw7wgc2l6ZT0yPqLEIL/AtMPAxyDAr7jTIMfR
+uLa18CCixTwvRk9OVD48L1A+DQo8UD48Rk9OVCBmYWNlPbG8uLLDvCBzaXplPTI+Jm5ic3A7
+ICJEYWQsIEkgZG9uJ3Qgd2FudCB0byBnbyB0byBzY2hvb2wgdG9kYXkuLCIgc2FpZCANCnRo
+ZSBib3kuPEJSPiZuYnNwOyAiV2h5IG5vdCwgc29uPyI8QlI+Jm5ic3A7ICJXZWxsLCBvbmUg
+b2YgdGhlIGNoaWNrZW5zIG9uIHRoZSANCnNjaG9vbCBmYXJtIGRpZWQgbGFzdCB3ZWVrIGFu
+ZCA8QlI+Jm5ic3A7Jm5ic3A7IHdlIGhhZCBjaGlja2VuIHNvdXAgZm9yIGx1bmNoIA0KdGhl
+IG5leHQgZGF5LiBBbmQgdGhyZWUgZGF5cyBhZ28gPEJSPiZuYnNwOyZuYnNwOyBvbmUgb2Yg
+dGhlIHBpZ3MgZGllZCBhbmQgd2UgDQpoYWQgcm9hc3QgcG9yayB0aGUgbmV4dCBkYXksLCwu
+IjxCUj4mbmJzcDsgIkJ1dCB3aHkgZG9uJ3QgeW91IHdhbnQgdG8gZ28gDQp0b2RheT8iPEJS
+PiZuYnNwOyAiQmVjYXVzZSB0aGUgRW5nbGlzaCB0ZWFjaGVyIGRpZWQgeWVzdGVyZGF5ISI8
+QlI+Jm5ic3A7IA0KIi4uLi4uIjwvRk9OVD48L1A+DQo8UD48Rk9OVCBmYWNlPbG8uLLDvCBz
+aXplPTI+Jm5ic3A7ICK+xrr8LCCzqiC/wLTDIMfQsbMgsKGx4iC9yL7uLiIgx8+w7SC80rPi
+wMwguLvH37TZLjxCUj4mbmJzcDsgIr/WILChseIgDQq9yL7uPyI8QlI+Jm5ic3A7ICLB9rOt
+IMHWv6Egx9CxsyCz88Dlv6G8rSC03yDH0SC4triusKEgwde++rTCtaUgtNnAvbOvIMGhvcnA
+uLfOIDxCUj4mbmJzcDsmbmJzcDsgtN8gvbrHwbimILjUvvq+7i4gDQqx17iusO0gM8DPIMD8
+v6G0wiC1xcH2IMfRILi2uK6woSDB1776tMK1pSA8QlI+Jm5ic3A7Jm5ic3A7ILHXILTZwL0g
+s6+/obTCILXFwfYgutKw7bHiuKYguNS++rDtLi4uLiI8QlI+Jm5ic3A7IA0KIrHXt7G1pSC/
+wLTDwLogv9Ygx9Cxs7+hILChseIgvci+7j8iPEJSPiZuYnNwOyAivu7BpiC/tb7uILyxu/20
+1MDMILW5vsawobzMtNwguLu+3yEiPEJSPiZuYnNwOyANCiIuLi4uLiI8L0ZPTlQ+PC9QPg0K
+PFA+PEZPTlQgZmFjZT2xvLiyw7wgc2l6ZT0yPqLEIL/AtMPAxyC/tb7uIMfRuLa18CCixSZu
+YnNwOyZuYnNwOyZuYnNwOyA8L0ZPTlQ+PC9QPg0KPFA+PEZPTlQgZmFjZT2xvLiyw7wgc2l6
+ZT0yPqLCIEkgZmVsdCBvbiB0b3Agb2YgdGhlIA0Kd29ybGQmbmJzcDsmbmJzcDsmbmJzcDsm
+bmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsm
+bmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsgDQo8L0ZPTlQ+PC9QPg0KPFA+PEZPTlQgZmFjZT2x
+vLiyw7wgc2l6ZT0yPrvntvfAuiC0qbG4s6ogvLqw+MfPuOkgseK60MDMIMHBwLogsM3AuiC0
+57+sx8/B9r/kLiA8QlI+ubC30Cwgvu62siC757b3tenAuiC8urD4x9/AuyC2p7+hILT1IA0K
+sOK81cfYwfbB9ri4ILTrus660MDHILvntve16cC6IDxCUj5bs6q4piC6wSEgs7uwoSDD1rDt
+vt9dtvOw7SC7/bCix9W0z7TZLiA8QlI+wMy/zSCwsMC6ILHiutDAuyCzqsW4s7u0wiDHpcf2
+wMwgJ29uIHRvcCBvZiANCnRoZSB3b3JsZCe2+LTPtNkuPC9GT05UPjwvUD4NCjxQPjxGT05U
+IGZhY2U9sby4ssO8IHNpemU9Mj5BOiBJIGhlYXJkIHlvdSB3ZXJlIGVuZ2FnZWQgdG8gTWFy
+aWFuLjwvRk9OVD48L1A+DQo8UD48Rk9OVCBmYWNlPbG8uLLDvCBzaXplPTI+QjogQWN0dWFs
+bHksIEkgd2FzLjwvRk9OVD48L1A+DQo8UD48Rk9OVCBmYWNlPbG8uLLDvCBzaXplPTI+QTog
+T2gsIHJlYWxseT8gU28sIGhvdyBkaWQgeW91IGZlZWwgb24gdGhlIG5pZ2h0IG9mIA0KeW91
+ciBlbmdhZ2VtZW50PzwvRk9OVD48L1A+DQo8UD48Rk9OVCBmYWNlPbG8uLLDvCBzaXplPTI+
+QjogSSBmZWx0IGxpa2UgSSB3YXMgb24gdG9wIG9mIHRoZSB3b3JsZC48L0ZPTlQ+PC9QPg0K
+PFA+PEZPTlQgZmFjZT2xvLiyw7wgc2l6ZT0yPqHhJ29uIHRvcCBvZiB0aGUgd29ybGQnuKYg
+wfe/qsfPuOkgW7y8u/MgssC067Hiv6FdtvO0wiDAx7nMwMy45yANCjxCUj4mbmJzcDsgJ0kg
+ZmVsdCBvbiB0b3Agb2YgdGhlIHdvcmxkLie0wiAivLy78yCywLTrseK/oSDA1rTCILTAs6bA
+zL76tNkuIjxCUj4mbmJzcDsgwe8sICixssDlyPcgDQqx4rrQwMwgwcG+0rTZKbimILbmx9W0
+z7TZLjxCUj4mbmJzcDsgyOfI9yBbseK60MDMIMHBvtK+7l2287TCIMDHucy3ziAnSSBmZWx0
+IGdvb2QuJ7i4wLsgu/2wosfPseIgvay/7LOqIA0KPEJSPiZuYnNwOyDAzCDHpcf2tbUgvsuw
+7SDA1sC4uOkgsKjBpMDHIMelx/bAuyC09SDA3yDH0iC89iDA1sC7ILDFv6G/5C48L0ZPTlQ+
+PC9QPg0KPFA+PEZPTlQgZmFjZT2xvLiyw7wgc2l6ZT0yPqLBICdvbiB0b3Agb2YgdGhlIHdv
+cmxkJ7TCILy8u/MgssC067Hiv6EgwNa0wiC0wLOmIS4gsde3uLTZuOkgDQo8QlI+Jm5ic3A7
+Jm5ic3A7ICdvdXQgb2YgdGhpcyB3b3JsZCe0wj8gwMwgvLy788DHIMDPILCwwfYgvsqw1CCx
+2bvnx9Fbd29uZGVyZnVsXSwgPEJSPiZuYnNwOyANCiZuYnNwOyDIpMC6IMivu/PA+8DOW2Zh
+bnRhc3RpY13AzLb1ILbmwMy/ob/kLjwvRk9OVD48L1A+DQo8UD48Rk9OVCBmYWNlPbG8uLLD
+vCBzaXplPTI+QToguN64rr7IsPogvuDIpcfRtNmw7SC16b76tMK1pS48QlI+Qjogu+e9xyDA
+zLnMIMffvu4uPEJSPkE6IL7uLCANCsGkuLvAzL7fPyZuYnNwOyCx17ehLL7gyKW9xMfRILHX
+s68gueO/oSCx4rrQwMwgvu62rr7uPzxCUj5COiC8vLvzwLsgvvLAuiCx4rrQwMy++sH2Ljwv
+Rk9OVD48L1A+DQo8UD48Rk9OVCBmYWNlPbG8uLLDvCBzaXplPTI+osQgv8C0w8DHIMDPvu4m
+bmJzcDsgx9G4trXwIKLFPC9GT05UPjwvUD4NCjxQPjxGT05UIGZhY2U9sby4ssO8IHNpemU9
+Mj4mbmJzcDsmbmJzcDsgodjAz77utbUgv7W+7r/NILCwwLogx/zFwrfOILG4vLogtce+7iAN
+CsDWvcC0z7TZLjxCUj4tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS08QlI+bGludXgta2VybmVstNQgDQq+yLPnx8+8vL/kPyA8
+L0ZPTlQ+PC9QPg0KPFA+PEZPTlQgZmFjZT2xvLiyw7wgc2l6ZT0yPsD6yPG0wiDA/MituKYg
+wMy/68fYvK0gsK2757/NIDE6MbfOIL/csbm+7iDH0L3AwLsgx9IgvPYgwNa0wiA8QlI+osQg
+T25saW5lIEtvcmVhIA0KWyA8QSBocmVmPSJodHRwOi8vd3d3Lm9say5jby5rciI+d3d3Lm9s
+ay5jby5rcjwvQT4gXSCixSC287DtIMfVtM+02S48L0ZPTlQ+PC9QPg0KPFA+PEZPTlQgZmFj
+ZT2xvLiyw7wgc2l6ZT0yPrjVwPosIMfjtvS++MDMIMbtwfYgteW3wSDBy7zbx9W0z7TZLiC6
+zrXwILPKsde3r7/uIL/rvK24pi4uLi4uLjwvRk9OVD48L1A+DQo8UD48Rk9OVCBmYWNlPbG8
+uLLDvCBzaXplPTI+wPrI8SDIuLvnv6G8rbTCIL+1vu4gwK+407/NILv9yLAgyLjIrb+hILD8
+vckgwNa0wiC60LXpsrIguMXAzyi/+S2x3SksIDxCUj6/tb7uIMCvuNO/zSC9xyANCrv9yLC/
+oSDHyr/kx9Egu/3IsMi4yK0gx9Egua7A5b6/wLsguau34bfOILq4s7sgteW4rrDtIMDWvu6/
+5C48L0ZPTlQ+PC9QPg0KPFA+PEZPTlQgZmFjZT2xvLiyw7wgc2l6ZT0yPsCnv82wsMC6ILO7
+v+vAxyC8rbrxvbq4piC53r7Gurix4iC/+MfPvcO46SCh7CA8QSANCmhyZWY9Im1haWx0bzpv
+bGtAb2xrLmNvLmtyIj5vbGtAb2xrLmNvLmtyPC9BPiCh7bfOIDxCUj4ieWVzIrbztMIgs7u/
+68DHILTkwOXAuyDB1r3DseIgDQq52bb4tM+02S48L0ZPTlQ+PC9QPg0KPFA+PEZPTlQgZmFj
+ZT2xvLiyw7wgc2l6ZT0yPrHXuK6w7SwgwPrI8SDA/MitIL/csbm+7iCwrcDHsKEgscOx3cfP
+vcUgutC16cC7IMCnx9gmbmJzcDsgosIgPEEgDQpocmVmPSJodHRwOi8vd3d3Lm9say5jby5r
+ci9pbnN0aV9mcmFtZS5odG0iPr3DufywrcDHPC9BPiCiwiC1tSA8QlI+Mci4v6Egx9HH2Lyt
+ILmrt+G3ziC9x73Dx8+w7SANCsDWwLi0zyDH0bn4ILXpvu66uLDtIL3NwLi9w7jpIMH2sd0g
+vcXDu8fYIMHWvLy/5C48L0ZPTlQ+PC9QPg0KPFA+PEZPTlQgZmFjZT2xvLiyw7wgc2l6ZT0y
+Prmrt+EgvcO5/LCtwMcgvcXDuyC55rn9wLogorogPEEgDQpocmVmPSJodHRwOi8vd3d3Lm9s
+ay5jby5rci9pbnN0aV9mcmFtZS5odG0iPr+pseI8L0E+IKK4ILimIMWsuK/Hz73FIMjEILCt
+wMcgvcXDu7b1v6EgDQrA1rTCPEJSPr3DufywrcDHuKYgvcXDu8fPvcO46SDA+sjxsKEgwPzI
+rbimILXlt8EgvcO5/LCtwMe4piDH2CC15biwtOS0z7TZLjwvRk9OVD48L1A+DQo8UD48Rk9O
+VCBmYWNlPbG8uLLDvCBzaXplPTI+ubC30CwgwPzIrSAwMi01ODgtMDUxMCDAuLfOtbUgvcXD
+u8fPvccgvPYgwNaxuL/kLjwvRk9OVD48L1A+DQo8UD48Rk9OVCBmYWNlPbG8uLLDvCBzaXpl
+PTI+vsa5q8LJt88gwMwgx9C9wLn9wMwgbGludXgta2VybmVstNTAxyDIuMitIL3Ht8Igx+K7
+87+hIMDbwLogurjFxsDMIA0Ktce++sC4uOk8QlI+x9W0z7TZLjwvRk9OVD48L1A+DQo8UD48
+Rk9OVCBmYWNlPbG8uLLDvCBzaXplPTI+sKi758fVtM+02S48L0ZPTlQ+PC9QPg0KPFA+PEZP
+TlQgZmFjZT2xvLiyw7wgc2l6ZT0yPmxpbnV4LWtlcm5lbLTUsrK0wiBodHRwOi8vaWNhdC5z
+bnUuYWMua3IvbmV3cy5odG1sv6EgwNa0wiDB1rzSuKYguriw7SC43sDPILXluK6w1CANCrXH
+vvq9wLTPtNkuPC9GT05UPjwvUD4NCjxQPjxGT05UIGZhY2U9sby4ssO8IHNpemU9Mj660sfK
+v+TH0SDBpLq4v7S02bjpIMGkuLsgwcu828fVtM+02S48QlI+PC9GT05UPjwvUD4NCjwvQk9E
+WT4NCjwvSFRNTD4NCg==
 
-I see your problem now... You can't read!
-The standard don't just say "Must be zero" it also says that it is reserved.
-Reserved is very explicitly defined elseware... In the language of RFCs (and
-most of engineering) it means 'you must always set it as specified' when
-generating, and you must never behave differently because of it. 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

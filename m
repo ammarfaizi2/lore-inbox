@@ -1,153 +1,95 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316473AbSEOTTc>; Wed, 15 May 2002 15:19:32 -0400
+	id <S316476AbSEOTUK>; Wed, 15 May 2002 15:20:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316474AbSEOTTb>; Wed, 15 May 2002 15:19:31 -0400
-Received: from romulus.cs.ut.ee ([193.40.5.125]:35266 "EHLO romulus.cs.ut.ee")
-	by vger.kernel.org with ESMTP id <S316473AbSEOTTa>;
-	Wed, 15 May 2002 15:19:30 -0400
-Date: Wed, 15 May 2002 22:19:19 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: linux-kernel@vger.kernel.org
-Subject: AIC7XXX, 2.4.19-pre8 & AIC7850 problem
-In-Reply-To: <200205151437.g4FEb5990247@aslan.scsiguy.com>
-Message-ID: <Pine.GSO.4.43.0205152213360.22236-100000@romulus.cs.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S316475AbSEOTUJ>; Wed, 15 May 2002 15:20:09 -0400
+Received: from bitmover.com ([192.132.92.2]:5581 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S316474AbSEOTUF>;
+	Wed, 15 May 2002 15:20:05 -0400
+Date: Wed, 15 May 2002 12:20:03 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Changelogs on kernel.org
+Message-ID: <20020515122003.A13795@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <30386.1021456050@redhat.com> <Pine.LNX.4.44.0205150931500.25038-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Please do.  They are invaluable in diagnosing the cause of such problems.
+On Wed, May 15, 2002 at 09:39:30AM -0700, Linus Torvalds wrote:
+> On Wed, 15 May 2002, David Woodhouse wrote:
+> > Are you still accepting BK changesets by mail? I heard rumours that you'd
+> > said you didn't want them any more -- but couldn't find a message in which
+> > you actually said that.
+> 
+> I try to avoid it as much as possible - it's actually more work for me,
+> and about 50% of the BK patches I get don't even apply, because the person
+> who sent them to me didn't send the whole series (ie left out some patch
+> he didn't like or something like that).
 
-This is from Digital Celebris GL 5133 ST, using Doug Ledford's old
-driver works OK so the hardware should be OK. AIC7850 is onboard.
+FYI, if they do a 
 
-Linux version 2.4.19-pre8 (mroos@vaarikas) (gcc version 2.95.4 20011002 (Debian prerelease)) #5 K mai 15 21:08:51 EEST 2002
-BIOS-provided physical RAM map:
- BIOS-e801: 0000000000000000 - 000000000009f000 (usable)
- BIOS-e801: 0000000000100000 - 0000000002800000 (usable)
-40MB LOWMEM available.
-On node 0 totalpages: 10240
-zone(0): 4096 pages.
-zone(1): 6144 pages.
-zone(2): 0 pages.
-Kernel command line: PAMSkadabra ro root=0803 console=ttyS0,9600,8,n,1 blaah blaah blaah
-Initializing CPU#0
-Detected 132.728 MHz processor.
-Console: colour VGA+ 80x25
-Calibrating delay loop... 264.60 BogoMIPS
-Memory: 38460k/40960k available (928k kernel code, 2112k reserved, 302k data, 228k init, 0k highmem)
-Dentry cache hash table entries: 8192 (order: 4, 65536 bytes)
-Inode cache hash table entries: 4096 (order: 3, 32768 bytes)
-Mount-cache hash table entries: 1024 (order: 1, 8192 bytes)
-Buffer-cache hash table entries: 1024 (order: 0, 4096 bytes)
-Page-cache hash table entries: 16384 (order: 4, 65536 bytes)
-Intel Pentium with F0 0F bug - workaround enabled.
-CPU: Intel Pentium 75 - 200 stepping 0c
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-PCI: PCI BIOS revision 2.10 entry at 0xfd8d1, last bus=0
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-Limiting direct PCI/PCI transfers.
-isapnp: Scanning for PnP cards...
-isapnp: No Plug & Play device found
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-apm: BIOS not found.
-Starting kswapd
-VFS: Diskquotas version dquot_6.4.0 initialized
-pty: 256 Unix98 ptys configured
-Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ DETECT_IRQ SERIAL_PCI ISAPNP enabled
-ÿttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-Linux Tulip driver version 0.9.15-pre10 (Mar 8, 2002)
-eth0: Digital DC21040 Tulip rev 36 at 0xf080, 00:00:F8:21:E5:F3, IRQ 11.
-SCSI subsystem driver Revision: 1.00
-ahc_pci:0:8:0: Using left over BIOS settings
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.7
-        <Adaptec aic7850 SCSI adapter>
-        aic7850: Single Channel A, SCSI Id=7, 3/253 SCBs
+	bk send -ubk://linux.bkbits.net/linux-2.5 torvalds@transmeta.com
 
-scsi0:0:0:0: Attempting to queue an ABORT message
-scsi0: Dumping Card State in Status phase, at SEQADDR 0x15c
-ACCUM = 0xc0, SINDEX = 0x61, DINDEX = 0x65, ARG_2 = 0xff
-HCNT = 0x0 SCBPTR = 0x0
-SCSISEQ = 0x12, SBLKCTL = 0x0
- DFCNTRL = 0x0, DFSTATUS = 0x2d
-LASTPHASE = 0xc0, SCSISIGI = 0xc6, SXFRCTL0 = 0x88
-SSTAT0 = 0x5, SSTAT1 = 0x2
-STACK == 0x186, 0x0, 0x0, 0x35
-SCB count = 4
-Kernel NEXTQSCB = 2
-Card NEXTQSCB = 2
-QINFIFO entries:
-Waiting Queue entries:
-Disconnected Queue entries:
-QOUTFIFO entries:
-Sequencer Free SCB List: 1 2
-Sequencer SCB Info: 0(c 0x40, s 0x7, l 0, t 0x3) 1(c 0x0, s 0x8, l 0, t 0xff) 2(c 0x0, s 0xff, l 255, t 0xff)
-Pending list: 3(c 0x40, s 0x7, l 0)
-Kernel Free SCB list: 1 0
-Untagged Q(0): 3
-DevQ(0:0:0): 0 waiting
-scsi0:0:0:0: Device is active, asserting ATN
-scsi0: brkadrint, Scratch or SCB Memory Parity Error at seqaddr = 0x15c
-scsi0: Dumping Card State in Status phase, at SEQADDR 0x15c
-ACCUM = 0xc0, SINDEX = 0x61, DINDEX = 0x65, ARG_2 = 0xff
-HCNT = 0x0 SCBPTR = 0x0
-SCSISEQ = 0x12, SBLKCTL = 0x0
- DFCNTRL = 0x0, DFSTATUS = 0x2d
-LASTPHASE = 0xc0, SCSISIGI = 0xd6, SXFRCTL0 = 0x88
-SSTAT0 = 0x5, SSTAT1 = 0x2
-STACK == 0x186, 0x0, 0x0, 0x35
-SCB count = 4
-Kernel NEXTQSCB = 2
-Card NEXTQSCB = 2
-QINFIFO entries:
-Waiting Queue entries:
-Disconnected Queue entries:
-QOUTFIFO entries:
-Sequencer Free SCB List: 1 2
-Sequencer SCB Info: 0(c 0x40, s 0x7, l 0, t 0x3) 1(c 0x0, s 0x8, l 0, t 0xff) 2(c 0x0, s 0xff, l 255, t 0xff)
-Pending list: 3(c 0x40, s 0x7, l 0)
-Kernel Free SCB list: 1 0
-Untagged Q(0): 3
-DevQ(0:0:0): 0 waiting
-Recovery SCB completes
-Recovery code sleeping
-Recovery code awake
-aic7xxx_abort returns 0x2002
-scsi0:0:0:0: Attempting to queue an ABORT message
-scsi0: Dumping Card State in Data-out phase, at SEQADDR 0x0
-ACCUM = 0x0, SINDEX = 0x0, DINDEX = 0x0, ARG_2 = 0x0
-HCNT = 0x0 SCBPTR = 0x0
-SCSISEQ = 0x0, SBLKCTL = 0xc0
- DFCNTRL = 0x0, DFSTATUS = 0x29
-LASTPHASE = 0x0, SCSISIGI = 0xc6, SXFRCTL0 = 0x0
-SSTAT0 = 0x0, SSTAT1 = 0x0
-STACK == 0x0, 0x0, 0x0, 0x0
-SCB count = 4
-Kernel NEXTQSCB = 3
-Card NEXTQSCB = 0
-QINFIFO entries: 3 2
-Waiting Queue entries: 0:255 1:255 2:255
-Disconnected Queue entries: 0:255 1:255 2:255
-QOUTFIFO entries:
-Sequencer Free SCB List: 0 1 2
-Sequencer SCB Info: 0(c 0x40, s 0x7, l 0, t 0xff) 1(c 0x0, s 0x8, l 0, t 0xff) 2(c 0x0, s 0xff, l 255, t 0xff)
-Pending list: 2(c 0x40, s 0x7, l 0)
-Kernel Free SCB list: 1 0
-Untagged Q(0): 2
-DevQ(0:0:0): 0 waiting
-qinpos = 0, SCB index = 3
-Kernel panic: Loop 1
+that problem goes away.  The -u<url> stuff does the same sort of handshake
+that a pull does to figure out what needs to be sent to fill in the holes.
 
- €
+> > Having the facility to put per-file changelogs in with BK rather than just
+> > sending patches is something I quite like, so I'd rather not just revert to
+> > sending patches.
+> 
+> [ Personal opinion alert! No impact on patch acceptance, as long as
+>   enough changelog information exists _somewhere_ ]
+> 
+> I personally like good changelog comments, and I find per-file comments to
+> be a mistake.
 
+<Also personal opinion>
+
+Sometimes yes, sometimes no.  Certainly the high order bit is to capture
+the logical change in the changeset comment.  One should only have to read
+the change{set,log} comment to see if that change is interesting or not,
+it should not be necessary to go read the file comments.
+
+The file comments are more about the details of the implementation, not
+the idea.  I think the reason that Linus doesn't care about file comments
+is that he always reads the diffs and that's better than any comment, in
+general.  That's more or less true, but the file comment is a place to
+give yourself or others a hint as to what was in your mind when you made
+that change.  Those hints can really save your butt when the pressure is
+on to turn around a bugfix fast for a customer/whatever.
+
+One of the engineers here said "Changeset comments are for managers,
+file comments are for engineers", which is another way to look at it.
+
+Anyway, I would agree 100% that the changeset comments are the most
+important in general, so if those are gotten right then we're ahead
+of the game.
+
+>  - the per-file comments don't show up in many of the standard changelogs
+>    (not mine, not in "bk changes" etc), so the per-changeset comment
+
+bk changes -v
+
+will list the file comments as well.  There is a minor sorting bug in there
+when the timestamps are screwed up, but it tries pretty hard to make it be
+
+	ChangeSet comments
+
+	    File 1 comments
+
+	    File 2 comments
+
+	    Etc.
 -- 
-Meelis Roos (mroos@linux.ee)
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

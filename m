@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261319AbTCOHlK>; Sat, 15 Mar 2003 02:41:10 -0500
+	id <S261314AbTCOHun>; Sat, 15 Mar 2003 02:50:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261320AbTCOHlK>; Sat, 15 Mar 2003 02:41:10 -0500
-Received: from cygnus-ext.enyo.de ([212.9.189.162]:37130 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id <S261319AbTCOHlJ>;
-	Sat, 15 Mar 2003 02:41:09 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Never ever use word BitKeeper if Larry does not like you
-From: Florian Weimer <fw@deneb.enyo.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Sat, 15 Mar 2003 08:51:58 +0100
-In-Reply-To: <fqt47vk89d2sq6v3tfm5fj5o0jsgebalg6@4ax.com> (John Alvord's
- message of "Fri, 14 Mar 2003 16:49:37 -0800")
-Message-ID: <8765qljcdd.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.090016 (Oort Gnus v0.16) Emacs/21.2 (gnu/linux)
-References: <20030314184009$1b0a@gated-at.bofh.it>
-	<20030314184009$54f5@gated-at.bofh.it>
-	<20030314184009$6d9e@gated-at.bofh.it>
-	<20030314184009$548a@gated-at.bofh.it>
-	<20030314184009$69b1@gated-at.bofh.it> <873clpbovs.fsf@deneb.enyo.de>
-	<fqt47vk89d2sq6v3tfm5fj5o0jsgebalg6@4ax.com>
-MIME-Version: 1.0
+	id <S261316AbTCOHun>; Sat, 15 Mar 2003 02:50:43 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:46992 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261314AbTCOHum>;
+	Sat, 15 Mar 2003 02:50:42 -0500
+Date: Sat, 15 Mar 2003 09:01:14 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Osamu Tomita <tomita@cinet.co.jp>
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.61 (14/26) input
+Message-ID: <20030315090114.B3075@ucw.cz>
+References: <20030217134333.GA4734@yuzuki.cinet.co.jp> <20030217141223.GN4799@yuzuki.cinet.co.jp> <20030314092248.A27902@ucw.cz> <3E72C390.9CF1A9ED@cinet.co.jp>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3E72C390.9CF1A9ED@cinet.co.jp>; from tomita@cinet.co.jp on Sat, Mar 15, 2003 at 03:09:20PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Alvord <jalvo@mbay.net> writes:
+On Sat, Mar 15, 2003 at 03:09:20PM +0900, Osamu Tomita wrote:
+> Vojtech Pavlik wrote:
+> > 
+> > On Mon, Feb 17, 2003 at 11:12:23PM +0900, Osamu Tomita wrote:
+> > 
+> > > This is patchset to support NEC PC-9800 subarchitecture
+> > > against 2.5.61 (14/26).
+> > >
+> > > Drivers for PC98 standard keyboard/mouse.
+> > 
+> > Thanks, applied.
+> Thanks.
+> Please check my patch agaist 2.5.64 I posted. That has update
+> (only one line) to syncronize parameter change of interrupt
+> function.
 
-> If I were in BitMover, I would treat such advances as trade secrets,
+Already there, too.
 
-It's a bit questionable to treat something as trade secret which is
-licensed for certain forms of redistribution.
-
-(Maybe the license has changed since summer 2002, I don't know.)
+-- 
+Vojtech Pavlik
+SuSE Labs

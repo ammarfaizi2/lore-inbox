@@ -1,86 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265998AbTB0S2k>; Thu, 27 Feb 2003 13:28:40 -0500
+	id <S266010AbTB0S3b>; Thu, 27 Feb 2003 13:29:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266010AbTB0S2k>; Thu, 27 Feb 2003 13:28:40 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:56292 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP
-	id <S265998AbTB0S2j>; Thu, 27 Feb 2003 13:28:39 -0500
-Date: Fri, 28 Feb 2003 07:42:05 +1300
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: SWSUSP Discontiguous pagedirs
-In-reply-to: <20030227132024.GB27084@atrey.karlin.mff.cuni.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1046371311.2308.30.camel@laptop-linux.cunninghams>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1045784829.3821.10.camel@laptop-linux.cunninghams>
- <20030223223757.GA120@elf.ucw.cz>
- <1046136752.1784.15.camel@laptop-linux.cunninghams>
- <20030227132024.GB27084@atrey.karlin.mff.cuni.cz>
+	id <S266064AbTB0S3b>; Thu, 27 Feb 2003 13:29:31 -0500
+Received: from pop.gmx.de ([213.165.64.20]:19449 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S266010AbTB0S33> convert rfc822-to-8bit;
+	Thu, 27 Feb 2003 13:29:29 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Torsten Foertsch <torsten.foertsch@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Capabilities question
+Date: Thu, 27 Feb 2003 19:38:14 +0100
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200302271938.19362.torsten.foertsch@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-28 at 02:20, Pavel Machek wrote:
-> Hi!
-> 
-> > SPAM: Content analysis details:   (6.30 hits, 5 required)
-> > SPAM: SUBJ_HAS_SPACES    (2.6 points)  Subject contains lots of white space
-> Spam assassin clearly does not like you :-(.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I'll make my subject lines shorter :>
+Hi,
 
-> > Well, I might ask how many people you know with 4GB of swap and 4GB of
-> > RAM they want to suspend to disk :> Don't forget we still aren't
-> > handling himem anyway (at least not last time I checked). As y
-> 
-> Well, on x86-64 it should be able to suspend 8GB machine just fine --
-> being 64bit means you don't have to deal with himem. Plus it would
-> only be 2GB limit on x86-64.
+what is the right way to get the current capability setting inherited through 
+execve()?
 
-I was thinking about this before I got up. If the code was a hybrid of
-what we have now and my changes, there wouldn't need to be such a limit.
-If I am thinking straight, the number of pages to be copied back using
-suspend_asm.S will always be within this currently limit, because no
-highmem pages will be needed during the suspend process, so they can all
-be put in the second pageset. The only issue then is storage of the data
-for those pageset 2 pages. We could just add another layer of
-indirection(!), but that would result in quite inefficient memory usage
-in the pagedir struct beyond the end of pageset 1. Still, the
-alternative is more complicated code, and if you have that much memory
-anyway... I'll put some more thought into this.
+My goal is a wrapper program that sets the needed capabilities and then 
+execve()s the real program. These capabilities should also be inherited if 
+the real program spawns childs via fork/exec.
 
-> 
-> > If you still doubt the usefulness, perhaps you might try loading up 2.4,
-> > first with beta 16 applied and then with beta 18. In both cases, compare
-> > performance after loading up a bunch of applications and doing a suspend
-> > to disk cycle. Depending of course on what the applications are, beta 16
-> > will be sluggish to respond (since it has to access disk a lot) whereas
-> > beta 18 will be much more responsive - as if you'd never suspended. To
-> > think in marketing terms for a moment, which would you rather have a
-> > reviewer comparing Linux and Windows see?
-> 
-> As I'm used to machine pushed to swap, I can tolerate it quite
-> easily. shell/emacs/mutt is what I use, anyway...
+Is that possible?
 
-Mmm, but not all of us do. I'm using Evolution, Win4Lin...
+I read the appropriate parts of fs/exec.c where 
+/*
+ * This function is used to produce the new IDs and capabilities
+ * from the old ones and the file's capabilities.
+ *
+ * The formula used for evolving capabilities is:
+ *
+ *       pI' = pI
+ * (***) pP' = (fP & X) | (fI & pI)
+ *       pE' = pP' & fE          [NB. fE is 0 or ~0]
+ *
+ * I=Inheritable, P=Permitted, E=Effective // p=process, f=file
+ * ' indicates post-exec(), and X is the global 'cap_bset'.
+ *
+ */
+is implemented. The problem is that fP and fE are either 0 or ~0 depending on 
+the current uid or the uid of the file to be executed (if S_ISUID). Thus pP' 
+is only masked by cap_bset which is a global constant (0xfffffeff).
 
-> 
-> I don't know. I'd let Linus decide. I don't like hard limit on ammount
-> of mem, through.
-> 
-> Is it possible to use some userspace app to page it back it?
+Torsten
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-All things are possible, but not everything is beneficial :> (Bible).
-Actually, I'm not sure it's possible in this case. We can't restart
-processes when most of their memory space, along with all of the page
-cache and swap cache is still on disk and they think it's in RAM.
-
-Regards,
-
-Nigel
-
+iD8DBQE+XlsbwicyCTir8T4RAjaaAJ9dU8E0YWy1fBnf6OdIX0wr7aQQ2gCgwObJ
+aSAxVyLvV0n4MN4E84VVERg=
+=YE3a
+-----END PGP SIGNATURE-----

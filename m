@@ -1,40 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272038AbRIIP7u>; Sun, 9 Sep 2001 11:59:50 -0400
+	id <S272020AbRIIQJL>; Sun, 9 Sep 2001 12:09:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272039AbRIIP7k>; Sun, 9 Sep 2001 11:59:40 -0400
-Received: from codepoet.org ([166.70.14.212]:63543 "HELO winder.codepoet.org")
-	by vger.kernel.org with SMTP id <S272038AbRIIP7Y>;
-	Sun, 9 Sep 2001 11:59:24 -0400
-Date: Sun, 9 Sep 2001 09:59:45 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Shiva Raman Pandey <shiva@sasken.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Query about Tun/Tap Modules
-Message-ID: <20010909095945.A2253@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Shiva Raman Pandey <shiva@sasken.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <9ng1q4$or1$1@ncc-z.sasken.com>
-Mime-Version: 1.0
+	id <S272039AbRIIQJC>; Sun, 9 Sep 2001 12:09:02 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64260 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272020AbRIIQIu>; Sun, 9 Sep 2001 12:08:50 -0400
+Subject: Re: Purpose of the mm/slab.c changes
+To: manfred@colorfullife.com (Manfred Spraul)
+Date: Sun, 9 Sep 2001 17:12:50 +0100 (BST)
+Cc: andrea@suse.de (Andrea Arcangeli), linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk (Alan Cox), torvalds@transmeta.com
+In-Reply-To: <001201c13942$b1bec9a0$010411ac@local> from "Manfred Spraul" at Sep 09, 2001 05:18:00 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9ng1q4$or1$1@ncc-z.sasken.com>
-User-Agent: Mutt/1.3.20i
-X-Operating-System: Linux 2.4.8-ac10-rmk1-rmk2, Rebel-NetWinder(Intel sa110 rev 3), 262.14 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15g7CU-0007LK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun Sep 09, 2001 at 08:58:56PM +0530, Shiva Raman Pandey wrote:
-> 
-> Q2. What can be other ways, not very complicated  to solve my purpose
-> instead of using Tun/Tap.
+> lifo/fifo for unused slabs is obviously superflous - free is free, it
+> doesn't matter which free page is used first/last.
 
-The network block device can be used via loopback...
-
- -Erik
-
---
-Erik B. Andersen   email:  andersee@debian.org
---This message was written using 73% post-consumer electrons--
+Which pages are likely to be in the CPU caches ?

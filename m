@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129282AbRCPMvk>; Fri, 16 Mar 2001 07:51:40 -0500
+	id <S129078AbRCPMrA>; Fri, 16 Mar 2001 07:47:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129321AbRCPMva>; Fri, 16 Mar 2001 07:51:30 -0500
-Received: from ecstasy.ksu.ru ([193.232.252.41]:59048 "EHLO ecstasy.ksu.ru")
-	by vger.kernel.org with ESMTP id <S129282AbRCPMvR>;
-	Fri, 16 Mar 2001 07:51:17 -0500
-X-Pass-Through: Kazan State University network
-Message-ID: <3AB20865.2070804@ksu.ru>
-Date: Fri, 16 Mar 2001 15:34:45 +0300
-From: Art Boulatov <art@ksu.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test10-pre5-reiserfs-3.6.18-acpi-i2c i686; en-US; 0.7) Gecko/20010203
-X-Accept-Language: ru, en
-MIME-Version: 1.0
-To: Mike Galbraith <mikeg@wen-online.de>
-CC: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: pivot_root & linuxrc problem
-In-Reply-To: <Pine.LNX.4.33.0103160822350.1057-100000@mikeg.weiden.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S129321AbRCPMqv>; Fri, 16 Mar 2001 07:46:51 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:59028 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129282AbRCPMqm>;
+	Fri, 16 Mar 2001 07:46:42 -0500
+Date: Fri, 16 Mar 2001 13:45:35 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200103161245.NAA00944.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, rhw@MemAlpha.CX
+Subject: Re: [PATCH] Improved version reporting
+Cc: kaboom@gatech.edu, linux-kernel@vger.kernel.org, seberino@spawar.navy.mil
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
+    From: Riley Williams <rhw@MemAlpha.CX>
 
-........
+    Neither am I - but, according to comments from RedHat a while back,
+    they repackage mount separately because they provide a NEWER version
+    of mount than is in the util-linux package. This will ALSO result in
+    `mount --version` giving the wrong answer...
 
-> 
-> Aha.. so that's it.  I've never been able to get /linuxrc to execute
-> automagically.  I wonder why /linuxrc executes on Art's system, but
-> not on mine.  I can call it whatever I want and it doesn't run unless
-> I explicitly start it with init=whatever.
-> 
-> If it does execute though, that explains init complaining.. pid is
-> going to be whatever comes after the last thread started (would be
-> 8 here).  It looks like you're only supposed to do setup things in
-> magic filename /linuxrc and not exec /sbin/init from there.
-> 
-> In any case, it looks like renaming linuxrc to whatever.sh and booting
-> with init=/whatever.sh instead will likely make init happy.
-> 
-> 	-Mike
-> 
-> 
-Thank you for your answers, Mike and Russell.
+There is no newer version.
+In ancient times I came with frequent releases of mount, at a time
+when util-linux was released very infrequently. These years mount
+is part of util-linux, and util-linux is released frequently.
 
-They made me sure something weird going on with my setup.
-And I think a have figured the problem.
-I was using etherboot to boot the kernel and initrd.
-I should have told you that before, and I'm sorry I did not.
+    Unless one can guarantee that the util-linux and mount packages are
+    the SAME version, mount can't be guaranteed to report the version of
+    the util-linux package installed. RedHat provide a NEWER version of
+    mount to util-linux so that guarantee doesnae exist.
 
-Bootin' localy, with lilo,  seems to  solve the "PID problem".
+I do not think they do.
 
-I guess that's more of mknbi from etherboot question than kernel-related...
-I  have to check more in depth the etherboot documenation/sources.
+     > You are mistaken, as is proved by the reports that contain a kbd
+     > line: a grep on linux-kernel for this Februari shows people with
+     > Kbd 0.96, 0.99 and 1.02.
 
-Art.
+    {Shrug} Please explain why I was unable to get ver_linux to report a
 
+When other people can and you cannot, why should I explain your failure?
+Let me just check. A version from 1993:
+
+  % ./loadkeys -h 2>&1 | head -1
+  loadkeys version 0.81
+
+A version from 2001:
+
+  % ./loadkeys -h 2>&1 | head -1
+  loadkeys version 1.06
+
+Maybe nothing has changed here the past eight years. It just works.
+Perhaps you tried some modified version.
+
+Andries

@@ -1,76 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276989AbRJCVeG>; Wed, 3 Oct 2001 17:34:06 -0400
+	id <S276996AbRJCVmi>; Wed, 3 Oct 2001 17:42:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276997AbRJCVd4>; Wed, 3 Oct 2001 17:33:56 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:50338 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S276994AbRJCVdl>;
-	Wed, 3 Oct 2001 17:33:41 -0400
-Date: Wed, 3 Oct 2001 17:34:10 -0400
-Message-Id: <200110032134.f93LYAd08956@buggy.badula.org>
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: jdthood@home.dhs.org (Thomas Hood)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Stelian Pop <stelian.pop@fr.alcove.com>
-In-Reply-To: <20011003153550.0A0D85AC@thanatos.toad.net>
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.8-ac9 (i586))
+	id <S276997AbRJCVm2>; Wed, 3 Oct 2001 17:42:28 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:53002 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S276996AbRJCVmS>;
+	Wed, 3 Oct 2001 17:42:18 -0400
+Date: Wed, 3 Oct 2001 23:42:52 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Kirill Ratkin <kratkin@yahoo.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Netfilter problem
+In-Reply-To: <20011003141144.98896.qmail@web11903.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.33.0110032342010.10272-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Oct 2001 11:35:50 -0400 (EDT), Thomas Hood <jdthood@home.dhs.org> wrote:
+strange!
+it compiled correctly fr mw with all 2.4 kernels, with gcc 2.95.3, and gcc
+3.0.0/1
 
-> I notice that both the Vaio and the Inspiron have Phoenix BIOSes.
-> So perhaps there is a class of Phoenix BIOSes we should be testing
-> for.  For the time being, we will need to add Ion Badulescu's Inspiron
-> to the dmi_blacklist.  Ion, can you give us the exact product name,
-> exact BIOS vendor name, exact BIOS version and exact BIOS date?
-> Also, let us know all the results of your tests of various kernels.
+Luigi
 
-dmidecode says:
 
-Handle 0x0000
-        DMI type 0, 20 bytes.
-        BIOS Information Block
-                Vendor: Phoenix Technologies LTD
-                Version: A12
-                Release: 07/04/2000
-                BIOS base: 0xEA3D0
-                ROM size: 192K
-                Capabilities:
-                        Flags: 0x0000000000001F90
-Handle 0x0001
-        DMI type 1, 25 bytes.
-        System Information Block
-                Vendor: Dell Computer Corporation
-                Product: Inspiron 7500
-                Version: Revision B0
-                Serial Number: 123456789
+On Wed, 3 Oct 2001, Kirill Ratkin wrote:
 
-and from another laptop exhibiting the same problem:
+> Hi.
+>
+> I've a strange error when I try to check protocol type
+> in netfilter hook function.
+>
+> I see this message:
+> kping.c: In function `knet_hook':
+> kping.c:116: dereferencing pointer to incomplete type
+> make: *** [kping.o] Error 1
+>
+> This is part of my code:
+> static
+> unsigned int knet_hook(unsigned int hooknum,
+>                       struct sk_buff** p_skb,
+>                       const struct net_device* p_in,
+>                       const struct net_device* p_out,
+>                       int (*okfn)(struct sk_buff* ))
+> {
+>   ...
+>   if((*p_skb)->nh.iph->protocol==
+> 	(unsigned char)IPPROTO_ICMP)
+>   {
+>     printk("<1>ICMP Packet killed\n");
+>     return NF_DROP;
+>   }
+>   ...
+> }
+>
+> It had compiled on 2.4.1 version.
+>
+> I don't understand why ... .
+>
+>
+> __________________________________________________
+> Do You Yahoo!?
+> Listen to your Yahoo! Mail messages from any phone.
+> http://phone.yahoo.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Handle 0x0000
-        DMI type 0, 20 bytes.
-        BIOS Information Block
-                Vendor: Phoenix Technologies LTD
-                Version: A06
-                Release: 05/19/2000
-                BIOS base: 0xEA380
-                ROM size: 192K
-                Capabilities:
-                        Flags: 0x0000000000001F90
-Handle 0x0001
-        DMI type 1, 25 bytes.
-        System Information Block
-                Vendor: Dell Computer Corporation
-                Product: Inspiron 5000
-                Version: Revision B0
-                Serial Number: 123456789
-
-Again: both laptops oops with 2.4.9-ac16 when PnPBIOS is enabled, both 
-work fine with 2.4.10-ac4 even with PnPBIOS enabled.
-
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.

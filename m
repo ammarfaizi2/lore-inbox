@@ -1,76 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129161AbQJ3JYS>; Mon, 30 Oct 2000 04:24:18 -0500
+	id <S129279AbQJ3JZI>; Mon, 30 Oct 2000 04:25:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129217AbQJ3JYH>; Mon, 30 Oct 2000 04:24:07 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:15366 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129161AbQJ3JXs>; Mon, 30 Oct 2000 04:23:48 -0500
-Date: Mon, 30 Oct 2000 02:20:24 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-Message-ID: <20001030022024.B20023@vger.timpanogas.org>
-In-Reply-To: <20001030015546.B19869@vger.timpanogas.org> <Pine.LNX.4.21.0010301114480.3186-100000@elte.hu>
-Mime-Version: 1.0
+	id <S129217AbQJ3JY7>; Mon, 30 Oct 2000 04:24:59 -0500
+Received: from smtp1.mail.yahoo.com ([128.11.69.60]:25360 "HELO
+	smtp1.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129278AbQJ3JYr>; Mon, 30 Oct 2000 04:24:47 -0500
+X-Apparently-From: <p?gortmaker@yahoo.com>
+Message-ID: <39FD3CB6.2F641BBF@yahoo.com>
+Date: Mon, 30 Oct 2000 04:17:42 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.17 i486)
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: pavel rabel <pavel@web.sajt.cz>, linux-net@vger.kernel.org,
+        netdev@oss.sgi.com,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] NE2000
+In-Reply-To: <Pine.LNX.4.21.0010300344130.6792-100000@web.sajt.cz> <39FC83CD.B10BF08D@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0010301114480.3186-100000@elte.hu>; from mingo@elte.hu on Mon, Oct 30, 2000 at 11:27:04AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2000 at 11:27:04AM +0100, Ingo Molnar wrote:
+Jeff Garzik wrote:
 > 
-> On Mon, 30 Oct 2000, Jeff V. Merkey wrote:
+> pavel rabel wrote:
+> > help. So I removed PCI code from ne.c to have ISA only driver. It
 > 
-> > For example, if you put a MOV EAX, CR3;  MOV CR3, EAX; in a context
-> > switching path, on a PPro 200, you can do about 35,000 context
-> > switches/second
-> 
-> in 2.4 & Xeons we can do more than 100,000 context switches/second, and
-> that is more than enough. But the point is: network IO performance does
-> not depend on context switching speed too much. Also, in Linux we are
-> using global pages which makes kernel-space TLBs persistent even across
-> CR3 flushes.
+> This change sounds ok to me, if noone else objects.  (I added to the CC
+> a bit)  I saw that code, and was thinking about doing the same thing
+> myself.  ne2k-pci.c definitely has changes which are not included in
+> ne.c, and it seems silly to duplicate ne2000 PCI support.
 
-This is putrid.  NetWare does 353,00,000/second on a Xenon, pumping out
-gobs of packets in between them.  MANOS does 857,000,000/second.  This 
-is terrible.  No wonder it's so f_cking slow!!!
+Actually if you look at the archives (ID 39A3A608.1F984C60@yahoo.com)
+you will see that I've stated this will be done for 2.5 a couple of
+months ago.  (Which is also why PCI support in ne.c hasn't tracked that
+of ne2k-pci.c - I want to avoid encouraging new PCI users of ne.c)
 
-> 
-> > [...] There's also the use of segment registers all over the place to
-> > copy from kernel to user and user to kernel space memory. [...]
-> 
-> we do not use the fs segment register for user-space copies anymore,
-> neither in 2.2, nor in 2.4. You must be reading old books and probably
-> forgot to cross-check with the kernel source? :-)
+There is no urgency in trying to squeeze a patch like this in the back
+door of a 2.4.0 release.  For example, there are people out there now
+who are using the ne.c driver to run both ISA and PCI cards in the same 
+box without having to use 2 different drivers.  We can wait until 2.5.0
+to break their .config file.
+
+[ I've several other 8390 related patches I've been sitting on - trying
+to not contribute to the delay of 2.4.0 unless explicitly asked, such
+as the 8390.h get_module_symbol deletion.  Other 8390 patches I have 
+are a separated Tx timeout for 8390.c, kill off dev->rmem_start/end 
+and use ioremap() where required, and replace old check/request_region()
+with code that makes use of the newer resource structures. ]
+
+Good to know people are still keeping an eye out for dead code though...
+
+Thanks,
+Paul.
 
 
-ds: and es: are both used in copy-to-user and copy-from-user and they get 
-reloaded.
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 
-
-> 
-> > [...] Having the fast paths you mention does help a lot, but it's the
-> > fact that this goes on at all that will make it tough to walk into a
-> > NetWare shop with Linux and rip out NetWare servers and replace them
-> > unless we look at a NetWare vs. NetLinux (that's what we call it! a
-> > NetWare-like Linux platform).
-> 
-> the worst thing you can do is to mis-identify performance problems and
-> spend braincells on the wrong problem. The problems limiting Linux network
-> scalability have been identified during the last 12 months by a small
-> team, and solved in TUX. TUX is a fileserver, it shouldnt be alot of work
-> to enable it for (TCP-only?) netware serving. It's *done*, Jeff, it's not
-> a hypotetical thing, it's here, it works and it performs.
-> 
-
-NetWare is here too, and it handles 5000+ file and print users, Linux does not.
-Let's fix it.  I know why NetWare is fast.  Let's apply some of the same 
-principles and see what happens.  Love to have you involved.
-
-> 	Ingo
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

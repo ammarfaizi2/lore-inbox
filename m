@@ -1,72 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317657AbSFLHOL>; Wed, 12 Jun 2002 03:14:11 -0400
+	id <S317655AbSFLHNz>; Wed, 12 Jun 2002 03:13:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317659AbSFLHOK>; Wed, 12 Jun 2002 03:14:10 -0400
-Received: from eagle.he.net ([216.218.174.2]:28684 "EHLO eagle.he.net")
-	by vger.kernel.org with ESMTP id <S317657AbSFLHOI>;
-	Wed, 12 Jun 2002 03:14:08 -0400
-Date: Wed, 12 Jun 2002 00:14:09 -0700
-Message-Id: <200206120714.AAA07894@eagle.he.net>
-From: "Anjali Kulkarni" <anjali@indranetworks.com>
-To: mingo@elte.hu, Anjali Kulkarni <anjali@indranetworks.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: scheduler problems
-X-Mailer: WebMail 1.25
-X-IPAddress: 61.11.16.239
+	id <S317657AbSFLHNy>; Wed, 12 Jun 2002 03:13:54 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22788 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317655AbSFLHNx>; Wed, 12 Jun 2002 03:13:53 -0400
+Subject: Re: linux 2.4.19-preX IDE bugs
+To: davidsen@tmr.com (Bill Davidsen)
+Date: Wed, 12 Jun 2002 08:31:49 +0100 (BST)
+Cc: nick@octet.spb.ru (Nick Evgeniev), andre@linux-ide.org (Andre Hedrick),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1020611184236.29598B-100000@gatekeeper.tmr.com> from "Bill Davidsen" at Jun 11, 2002 06:49:40 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17I2bd-000732-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>   I agree that if it has known problems which destroy data it should be
+> unavailable in the stable kernel. It certainly sounds as if that's the
+> case, and the driver could be held out until 2.4.20 or so when it can be
+> fixed, or if it can't be fixed it can just go away.
 
-> (given that the current 2.2 kernel is 2.2.21, the first thing would 
-be to
-> test it there too.)
-> 
-
-Thanks, I 'll do that.
-
-> > [...] It is due to the fact that the schedule() function does not 
-find
-> > the 'current' process in the runqueue. [...]
-> 
-> a crash in line 384 means that the runqueue got corrupted by 
-something,
-> most likely caused by buggy kernel code outside of the scheduler.
-
-Right, I thought of that, but how is it that it gets corrupt at exactly 
-the same offset in task_struct of that process and every time with 
-different processes? (I have run it atleast 20-30 times). And it just 
-doesnt come if I kill the process in question? (I couldnt kill kupdate, 
-and hence it comes anyways). And I have checked the task_struct of that 
-process, the next_task & prev_task & other fields are not corrupted. 
-Ofcource, it's still possible, like if the memory allocated & freed by 
-my code is then used by scheduler for allocating task_struct; and then 
-it is accessed again by mistake by my code at the same offset. 
-But you feel sure it's a run queue corruption problem, and not anything 
-else? If so, is there any particular way to debug this?
-
-> > Can anyone tell me what's happening here? My kernel module is no 
-way the
-> > cause of any of this. [...]
-> 
-> does it happen if you do not run your kernel module after bootup, 
-ever?
-
-No, it does not:(
-
-Thanks,
-Anjali
-
-> 
-> 	Ingo
-> 
-> 
-
-
-Anjali Kulkarni
-Software Engineer
-Indra Networks
-
-~Living Well is the best Revenge~
+Then I suggest you give up computing, because PC hardware doesnt make
+your grade. BTW the general open promise bugs *dont* include data
+corruption so I suspect it may be your h/w thats hosed.

@@ -1,66 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbULNQqo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbULNQtX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbULNQqo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 11:46:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbULNQqn
+	id S261553AbULNQtX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 11:49:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbULNQtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 11:46:43 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:45042 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261554AbULNQqQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 11:46:16 -0500
-Date: Tue, 14 Dec 2004 08:45:49 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: kernel BUG at mm/rmap.c:480 in 2.6.10-rc3-bk7
-Message-ID: <20041214164548.GA18817@kroah.com>
-Mime-Version: 1.0
+	Tue, 14 Dec 2004 11:49:23 -0500
+Received: from news.suse.de ([195.135.220.2]:36547 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261553AbULNQtJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 11:49:09 -0500
+Date: Tue, 14 Dec 2004 17:49:07 +0100
+From: "Andi Kleen" <ak@suse.de>
+To: Keir.Fraser@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
+       Steven.Hand@cl.cam.ac.uk, Ian.Pratt@cl.cam.ac.uk, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, riel@redhat.com
+Message-ID: <41BF1983.mailP9C1B91GB@suse.de>
+User-Agent: nail 10.6 11/15/03
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sender: ak@wotan.suse.de
+To: Rik van Riel <riel@redhat.com>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+	Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, Steven.Hand@cl.cam.ac.uk,
+	Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk
+Subject: arch/xen considered harmful was Re: Xen VMM patch set - take 2
+References: <E1CXLph-0000XC-00@mta1.cl.cam.ac.uk.suse.lists.linux.kernel>
+	<Pine.LNX.4.61.0411281206100.12575@chimarrao.boston.redhat.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 14 Dec 2004 17:49:07 +0100
+In-Reply-To: <Pine.LNX.4.61.0411281206100.12575@chimarrao.boston.redhat.com.suse.lists.linux.kernel>
+Message-ID: <p73mzwgddvg.fsf_-_@wotan.suse.de>
+Lines: 48
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 
-So I finally try to get dri working on my laptop and I get the following
-kernel bug when killing X (the program gish was running at the time):
+Rik van Riel <riel@redhat.com> writes:
 
-Any ideas?
+[very late answer]
 
-thanks,
+> Stunned silence I guess - merging an architecture is
+> usually much more controversial ;)
 
-greg k-h
+In my opinion it's still an extremly bad idea to have arch/xen
+an own architecture. It will cause a lot of work long term
+to maintain it, especially when it gets x86-64 support too.
+It would be much better to just merge it with i386/x86-64.
 
-------------[ cut here ]------------
-kernel BUG at mm/rmap.c:480!
-invalid operand: 0000 [#1]
-Modules linked in: orinoco_pci orinoco hermes radeon ehci_hcd ohci_hcd usbcore
-CPU:    0
-EIP:    0060:[<c0147d72>]    Not tainted VLI
-EFLAGS: 00010286   (2.6.10-rc3-bk7) 
-EIP is at page_remove_rmap+0x32/0x40
-eax: ffffffff   ebx: 00000000   ecx: c1143440   edx: c1143440
-esi: c821144c   edi: 00200000   ebp: c1143440   esp: c8aebd94
-ds: 007b   es: 007b   ss: 0068
-Process gish (pid: 10864, threadinfo=c8aea000 task=c7c2c040)
-Stack: c0141495 c1143440 00000000 c8aebdc4 c0114720 0a1a2067 b6d13000 c7c03b6c 
-       b6b13000 00000000 c0141651 c03d97f8 c7c03b68 b6913000 00200000 00000000 
-       c03d97f8 b6913000 c7c03b6c b6b13000 00000000 c01416c3 c03d97f8 c7c03b68 
-Call Trace:
- [<c0141495>] zap_pte_range+0x135/0x290
- [<c0114720>] recalc_task_prio+0xc0/0x1c0
- [<c0141651>] zap_pmd_range+0x61/0x80
- [<c01416c3>] unmap_page_range+0x53/0x90
- [<c0141801>] unmap_vmas+0x101/0x1e0
- [<c0145f41>] exit_mmap+0x71/0x140
- [<c01163c4>] mmput+0x24/0x80
- [<c011a756>] do_exit+0x146/0x370
- [<c011a9f7>] do_group_exit+0x37/0x80
- [<c012339a>] get_signal_to_deliver+0x1da/0x2d0
- [<c0102d1b>] do_signal+0x9b/0x170
- [<c01633b0>] __pollwait+0x0/0xd0
- [<c0163c74>] sys_select+0x3f4/0x540
- [<c0132a69>] handle_IRQ_event+0x39/0x70
- [<c0102e27>] do_notify_resume+0x37/0x3c
- [<c0102f6e>] work_notifysig+0x13/0x15
-Code: c4 08 75 1d 83 42 08 ff 0f 98 c0 84 c0 74 11 8b 42 08 40 78 16 9c 58 fa ff 0d 90 34 3f c0 50 9d c3 0f 0b dd 01 e3 3e 2d c0 eb d9 <0f> 0b e0 01 e3 3e 2d c0 eb e0 8d 74 26 00 83 ec 20 b8 01 00 00 
+Currently it's already difficult enough to get people to
+add fixes to both i386 and x86-64, adding fixes to three
+or rather four (xen32 and xen64) architectures will be quite bad.
+In practice we'll likely get much worse code drift and missing
+fixes. Also I still suspect Ian is underestimating how much
+work it is long term to keep an Linux architecture uptodate.
+
+I cannot imagine the virtualization hooks are intrusive anyways. The
+only things it needs to hook idle and the page table updates, right?
+Doing that cleanly in the existing architectures shouldn't be that
+hard.
+
+I suspect xen64 will be rather different from xen32 anyways
+because as far as I can see the tricks Xen32 uses to be
+fast (segment limits) just plain don't work on 64bit
+because the segments don't extend into 64bit space.
+So having both in one architecture may also end up messy.
+
+And i386 and x86-64 are in many pieces very different anyways,
+I have my doubts that trying to mesh them together in arch/xen
+will be very pretty.
+
+Also the other thing I'm worried about is that there is no clear
+specification on how the Xen<->Linux interface works. Assuming
+there will be other para Hypervisors in the future too will we
+end up with even more virtual architectures? It would be much
+better to have at least a somewhat defined "linux virtual interface"
+first that is actually understood by multiple people outside
+the Xen group.
+
+I think before merging stuff the hypervisor interfaces need to be
+discussed on linux-kernel. Splitting the patches and posting them
+as individual pieces for i386 with good description will be a good
+first step for that.
+
+-Andi

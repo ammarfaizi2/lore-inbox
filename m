@@ -1,61 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280989AbRKLVHC>; Mon, 12 Nov 2001 16:07:02 -0500
+	id <S280995AbRKLVNB>; Mon, 12 Nov 2001 16:13:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280990AbRKLVGw>; Mon, 12 Nov 2001 16:06:52 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:37043 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S280989AbRKLVGi>;
-	Mon, 12 Nov 2001 16:06:38 -0500
-Message-ID: <3BF039D9.D75809F2@sgi.com>
-Date: Mon, 12 Nov 2001 13:06:33 -0800
-From: L A Walsh <law@sgi.com>
-Organization: Trust Technology, Core Linux, SGI
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: en, en-US, en-GB, fr
+	id <S280992AbRKLVMw>; Mon, 12 Nov 2001 16:12:52 -0500
+Received: from proton.llumc.edu ([143.197.200.1]:23806 "EHLO proton.llumc.edu")
+	by vger.kernel.org with ESMTP id <S280990AbRKLVMj>;
+	Mon, 12 Nov 2001 16:12:39 -0500
+From: "Don Krause" <dkrause@optivus.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Is ReiserFS stable?
+Date: Mon, 12 Nov 2001 13:12:27 -0800
+Message-ID: <015f01c16bbe$bd5272e0$6cc8c58f@satoy>
 MIME-Version: 1.0
-To: "mike@morpheus" <mike@morpheus.streamgroup.co.uk>
-CC: Linux-kernel@vger.kernel.org
-Subject: Re: mysterious power off problem 2.4.10-2.4.14 on laptop
-In-Reply-To: <Pine.LNX.4.33.0111122227140.24454-100000@morpheus.streamgroup.co.uk>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <20011111175053.96626.qmail@web11701.mail.yahoo.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"mike@morpheus" wrote:
-> Give ACPI a try, for a while I've noticed APM getting mixed up
-> on my home box (its a VIA chipset, I've been told that probably
-> why :), doing things like not powering off and changing the instant-off
-> powerbutton to a wait-5-seconds powerbutton.
-> 
-> I switched to ACPI and everythings been working fine :)
----
-	Thanks for the suggestion.  However APM was working superbly for
-my architecture in 2.4.9 and before.  It turned off the display when I
-wasn't using it.  It occasionally spun down disks w/the help of noflushd,
-and when suspend was indicated, it correctly suspended to RAM where it
-can stay for hours using <1%/hour.  
+Actually, while I had major problems with reiser and nfs in the stock SuSE
+6.4 kernel,
+I have a very busy nfs server running SuSE 6.4 with a custom compiled 2.4.2
+kernel and
+all available (at the time..) reiser +nfs patches, that moves on the order
+of 6 million
+files per day, with no problems. (Small files, but this same system crashed
+consistently every
+30 days or so with the stock kernel)
 
-	I did try ACPI at some point, but it didn't work as well in
-providing the same features and reliability when I tested it.  The
-config option says "Experimental", ACPI isn't a feature complete as
-APM and ACPI was in development.  It might work differently on different
-hardware, for example.  While it is to be the replacement for APM, I
-don't know if I am comfortable moving to it yet -- and even so, why should
-APM mysteriously break when it has been working great since the early 
-2.4 series and fairly well since 2.2 (X was a problem on my hardware at one
-point).
+And to make things worse, this box exports to a Sun 1000e,
+running 2.6
 
-	I'd prefer not to try an unknown, where if I have a problem, I
-don't know if it is my hardware, a misconfiguration on my part, or the
-Experimental Hardware.  That would likely take more time than simply
-staying with APM -- a known 'working configuration', and finding what
-changed in 2.4.10 (and remains in 2.4.14) that lead to the new problems.
+ankaa:~ # uptime
+  1:33pm  up 194 days, 22:31,   1 user,   load average: 0.00, 0.00, 0.00
+ankaa:~ # uname -a
+Linux ankaa 2.4.2 #1 Thu Apr 19 07:34:27 PDT 2001 i586 unknown
 
-	If it worked before, then something changed in the kernel to
-break it, I'd generally classify that as a bug.  Now maybe there
-are new utilities needed -- however, in SuSE 7.3, they use the 2.4.10
-kernel and their default setup has the same problem.
+(No load, this is a backup database server, and backups don't run monday
+mornings..)
 
-:-(
--linda
+Because of the success of this server, I'll be switching our home
+directories to reiser over the next couple months.
+
+
+--
+Don Krause                                       ph: 909.799.8327
+Systems Administrator                          page: 909.512.0174
+Optivus Technology, Inc               e-mail: dkrause@optivus.com
+"Splitting Atoms.. Saving Lives"           http://www.optivus.com
+
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Sean Elble
+> Sent: Sunday, November 11, 2001 9:51 AM
+> To: Roy Sigurd Karlsbakk; linux-kernel@vger.kernel.org
+> Subject: Re: Is ReiserFS stable?
+>
+>
+> That all depends on what you mean by "stable". Reiser
+> is certainly capable of high uptimes, but Reiser
+> doesn't have a good history of working well with older
+> UNIX tools/systems like NFS, due to Reiser's newer
+> methods for handling inodes and such. If this isn't a
+> problem for you, Reiser should work very well for you;
+> it works great on my /var partition, which handles my
+> Squid proxy. I don't use Reiser on my /home partition
+> though; that FS has the user directories exported
+> through NFS, as well as Samba. In fact, I use SGI's
+> XFS on my /home partition, and that works well too.
+> The main advantage to using XFS is that it handles NFS
+> _really_ well, and it has certain features Reiser
+> doesn't, like extended attributes, and access control
+> lists. YMMV, but Reiser seems stable for just that one
+> specific duty . . . I'd recommend trying Reiser, JFS,
+> XFS, and maybe even Ext3 to get a feel for how stable
+> each is for your particular needs. HTH.
+> --- Roy Sigurd Karlsbakk <roy@karlsbakk.net> wrote:
+> > Hi all
+> >
+> > I've heard a lot of talk from all sorts of people
+> > about ReiserFS not being
+> > stable enough to use in a productional environment
+> > where high uptime is
+> > essensial.
+> >
+> > Can someone tell me if this is true?
+> >
+> > Thanks
+> >
+> > roy
+> >
+> > --
+> > Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+> >
+> > Computers are like air conditioners.
+> > They stop working when you open Windows.
+> >
+

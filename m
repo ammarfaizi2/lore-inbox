@@ -1,79 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263572AbUCTXlS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 18:41:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbUCTXlS
+	id S262424AbUCTXyu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 18:54:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263575AbUCTXyu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 18:41:18 -0500
-Received: from ns.suse.de ([195.135.220.2]:35813 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263572AbUCTXlQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 18:41:16 -0500
-Date: Sun, 21 Mar 2004 00:41:14 +0100
-From: Olaf Hering <olh@suse.de>
-To: sam@ravnborg.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm2
-Message-ID: <20040320234114.GA19604@suse.de>
-References: <20040320231248.89BBA15C1E@post1.dk>
+	Sat, 20 Mar 2004 18:54:50 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56581 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262424AbUCTXyt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 18:54:49 -0500
+Date: Sat, 20 Mar 2004 23:54:45 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Jaroslav Kysela <perex@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: can device drivers return non-ram via vm_ops->nopage?
+Message-ID: <20040320235445.B24744@flint.arm.linux.org.uk>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Jaroslav Kysela <perex@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <20040320133025.GH9009@dualathlon.random> <20040320144022.GC2045@holomorphy.com> <20040320150621.GO9009@dualathlon.random> <20040320154419.A6726@flint.arm.linux.org.uk> <Pine.LNX.4.58.0403201651520.1816@pnote.perex-int.cz> <20040320160911.B6726@flint.arm.linux.org.uk> <Pine.LNX.4.58.0403202038530.1816@pnote.perex-int.cz> <20040320222341.J6726@flint.arm.linux.org.uk> <20040320224518.GQ2045@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040320231248.89BBA15C1E@post1.dk>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040320224518.GQ2045@holomorphy.com>; from wli@holomorphy.com on Sat, Mar 20, 2004 at 02:45:18PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sun, Mar 21, sam@ravnborg.org wrote:
+On Sat, Mar 20, 2004 at 02:45:18PM -0800, William Lee Irwin III wrote:
+> Is there any possibility of an extension to remap_area_pages() that
+> could resolve this? I can't say I fully understood and/or remember
+> the issue with it that you pointed out.
 
-> Date: Lør, 20 Mar 2004 23:50:30 +0100 skrev Olaf Hering <olh@suse.de> : 
-> 
-> >
-> >I think that one made it into rc2. It breaks uml compilation, 
-> >
-> >  CC	   kernel/acct.o
-> >  IKCFG   kernel/ikconfig.h
-> >  GZIP    kernel/config_data.gz
-> >  IKCFG   kernel/config_data.h
-> >/bin/sh: line 1: scripts/bin2c: No such file or directory
-> >make[1]: *** [kernel/config_data.h] Error 1
-> >make: *** [kernel] Error 2
-> >error: Bad exit status from /var/tmp/rpm-tmp.18419 (%build)
-> >
-> >looks like IKCFG does not depend on scripts/bin2c anymore?
-> 
-> There is a missing dependency on 'scripts' in the Makefile.
+The issues are:
 
-This patch is needed to fix the compile. Odd, make -jN works.
+1. ALSA wants to mmap the buffer used to transfer data to/from the
+   card into user space.  This buffer may be direct-mapped RAM,
+   memory allocated via dma_alloc_coherent(), an on-device buffer,
+   or anything else.
 
+   The user space mapping must likewise be DMA-coherent.
 
---- linux-2.6.4.um/arch/um/Makefile-i386~	2004-03-20 21:13:52.000000000 +0100
-+++ linux-2.6.4.um/arch/um/Makefile-i386	2004-03-20 21:16:14.000000000 +0100
-@@ -30,7 +30,7 @@ filechk_$(SYS_DIR)/thread.h := $(SYS_UTI
- $(SYS_DIR)/thread.h: $(SYS_UTIL_DIR)/mk_thread 
- 	$(call filechk,$@)
- 
--$(SYS_UTIL_DIR)/mk_sc: scripts/fixdep include/config/MARKER FORCE ; 
-+$(SYS_UTIL_DIR)/mk_sc: scripts/basic/fixdep include/config/MARKER FORCE ; 
- 	$(Q)$(MAKE) $(build)=$(SYS_UTIL_DIR) $@
- 
- $(SYS_UTIL_DIR)/mk_thread: $(ARCH_SYMLINKS) $(GEN_HEADERS) sys_prepare FORCE ; 
---- ./Makefile~	2004-03-21 00:12:23.000000000 +0100
-+++ ./Makefile	2004-03-21 00:22:28.000000000 +0100
-@@ -568,7 +568,7 @@ $(sort $(vmlinux-objs)) arch/$(ARCH)/ker
- # 	Handle descending into subdirectories listed in $(SUBDIRS)
- 
- .PHONY: $(SUBDIRS)
--$(SUBDIRS): prepare-all
-+$(SUBDIRS): prepare-all scripts
- 	$(Q)$(MAKE) $(build)=$@
- 
- # Things we need to do before we recursively start building the kernel
+   Currently, ALSA just does virt_to_page() on whatever address it
+   feels like in its nopage() function, which is obviously not
+   acceptable for two out of the three specific cases above.
+
+2. ALSA wants to _coherently_ share data between the kernel-side
+   drivers, and user space ALSA library, mainly the DMA buffer
+   head/tail pointers so both kernel space and user space knows
+   when the buffer is full/empty.
 
 -- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

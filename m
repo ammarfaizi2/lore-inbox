@@ -1,32 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVBZVuk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVBZWFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbVBZVuk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 16:50:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVBZVuk
+	id S261277AbVBZWFP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 17:05:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVBZWFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 16:50:40 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:61355 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S261249AbVBZVuh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 16:50:37 -0500
-Date: Sat, 26 Feb 2005 22:50:36 +0100 (MET)
-From: <Andries.Brouwer@cwi.nl>
-Message-Id: <200502262150.j1QLoaH25198@apps.cwi.nl>
-To: linux-kernel@vger.kernel.org
-Subject: cyrix_arr_init and centaur_mcr_init unused?
+	Sat, 26 Feb 2005 17:05:14 -0500
+Received: from elektron.ikp.physik.tu-darmstadt.de ([130.83.24.72]:35849 "EHLO
+	elektron.ikp.physik.tu-darmstadt.de") by vger.kernel.org with ESMTP
+	id S261277AbVBZWFI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 17:05:08 -0500
+From: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16928.62091.346922.744462@hertz.ikp.physik.tu-darmstadt.de>
+Date: Sat, 26 Feb 2005 23:04:59 +0100
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: torvalds@osdl.org, akpm@osdl.org, bon@elektron.ikp.physik.tu-darmstadt.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] partitions/msdos.c
+In-Reply-To: <20050226213459.GA21137@apps.cwi.nl>
+References: <20050226213459.GA21137@apps.cwi.nl>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arch/i386/kernel/cpu/mtrr/cyrix.c has a routine cyrix_arr_init(), and
-arch/i386/kernel/cpu/mtrr/centaur.c has a routine centaur_mcr_init().
-At first sight it looks like these are unused.
-Do I overlook something?
+>>>>> "Andries" == Andries Brouwer <Andries.Brouwer@cwi.nl> writes:
 
-(They occur as the .init fields of some struct, and I did not find any
-calls of ->init().)
+Andrew,
 
-If there are no calls and the code is needed, then some systems
-may be broken today. If the code is not needed, maybe it should
-be removed.
+    Andries> I think nobody uses such partitions seriously, but nevertheless
+    Andries> this should probably live in -mm for a while to see if anybody
+    Andries> complains.
 
-Andries
+the partition table of the USB stick in question is valid:
+
+ 1B0:  00 00 00 00 00 00 00 00   53 3F 3C B9 00 00 00 01 ........S?<.....
+ 1C0:  01 00 06 10 21 7D 25 00   00 00 DB F3 01 00 00 00 ....!}%.........
+ 1D0:  00 00 00 00 00 00 00 00   00 00 00 00 00 00 00 00 ................
+   *
+ 1F0:  00 00 00 00 00 00 00 54   72 75 6D 70 4D 53 55 AA .......TrumpMSU.
+
+Entry 1 is a FAT partition of exactly the size of the stick, and entries 2
+to 4 are empty, marked by id zero. However the manufacturer decided to put a
+name string  "Trump" ( /sbin/lsusb gives
+Bus 004 Device 012: ID 090a:1bc0 Trumpion Microelectronics, Inc.) just before
+the "55 AA" partition table magic and our code reads this string as a
+(bogus) size for the fourth entry, taking it for real.
+
+Please consider the patch for the main kernel distribution.
+
+Cheers
+-- 
+Uwe Bonnes                bon@elektron.ikp.physik.tu-darmstadt.de
+
+Institut fuer Kernphysik  Schlossgartenstrasse 9  64289 Darmstadt
+--------- Tel. 06151 162516 -------- Fax. 06151 164321 ----------

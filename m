@@ -1,56 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262266AbUCJXgt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 18:36:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbUCJXgt
+	id S262565AbUCJXid (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 18:38:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbUCJXid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 18:36:49 -0500
-Received: from outgoingmail.adic.com ([63.81.117.28]:24668 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262266AbUCJXgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 18:36:48 -0500
-Message-ID: <404FA575.1090907@xfs.org>
-Date: Wed, 10 Mar 2004 17:32:05 -0600
-From: Steve Lord <lord@xfs.org>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-CC: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       kenneth.w.chen@intel.com, Andrew Morton <akpm@osdl.org>,
-       thornber@redhat.com, linux-xfs@oss.sgi.com
-Subject: Re: [PATCH] backing dev unplugging
-References: <20040310124507.GU4949@suse.de> <20040310222247.GA713@frodo>
-In-Reply-To: <20040310222247.GA713@frodo>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 10 Mar 2004 18:38:33 -0500
+Received: from ozlabs.org ([203.10.76.45]:44165 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262565AbUCJXiY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 18:38:24 -0500
+Subject: [PATCH] module.h unused or used?
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: ak@suse.de
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1078961842.23891.94.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 11 Mar 2004 10:37:22 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Scott wrote:
-> 
-> For this second one, we probably just want to ditch the flush_cnt
-> there (this change is doing blk_run_address_space on every 32nd
-> buffer target, and not the intervening ones).  We will be doing a
-> bunch more blk_run_address_space calls than we probably need to,
-> not sure if thats going to become an issue or not, let me prod
-> some of the other XFS folks for more insight there...
-> 
-> thanks.
-> 
+Name: EXPORT_SYMBOL declares something used and unused
+Author: Rusty Russell
+Status: Trival
 
-The concept there was that we were just pushing things down into the
-elevator in a batch, then unplugging it afterwards. The do it every
-32 I/O's was added to avoid some request starvation issues - which are
-probably historical now.
+Someone added __attribute_used__ throughout module.h, but didn't
+remove the ", unused".  Looks like some arch/gcc combos still consider
+it unused, and discard the fn.
 
-I was lazy and did not look at the context on the code, but there
-are two paths in here. One is unmount flushing all the entries for
-a specific filesystem, the other is background flushing. I think the
-background flush activity can live without the blk_run_address_space
-call being there at all. If we need to grab the lock on the metadata
-later we will make the call then. The unmount case needs to call it,
-but since that specifies a specific target, it can just make one
-call.
+Rant: GCC should have introduced "needed" and "unneeded" attributed,
+rather than dick around with the established behaviour of "unused",
+which could then be a (deprecated) synonym for "needed".  The user
+then gets an unused warning and inserts attribute "needed" or
+"unneeded": both suppress the warning, but say explicitly whether it
+can be discarded or not.
 
-Steve
+But now we have "used" meaning it's unused (as the compiler will tell
+you), BUT I need it anyway.  And every time I use them I have to check
+which is which.  Even better, used defines to unused for backwards
+compatibility.  Um, yeah.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11285-linux-2.6.4-rc3-bk1/include/linux/module.h .11285-linux-2.6.4-rc3-bk1.updated/include/linux/module.h
+--- .11285-linux-2.6.4-rc3-bk1/include/linux/module.h	2004-03-10 12:12:05.000000000 +1100
++++ .11285-linux-2.6.4-rc3-bk1.updated/include/linux/module.h	2004-03-11 10:32:50.000000000 +1100
+@@ -64,11 +64,12 @@ void sort_main_extable(void);
+ #define __MODULE_INFO(tag, name, info)					  \
+ static const char __module_cat(name,__LINE__)[]				  \
+   __attribute_used__							  \
+-  __attribute__((section(".modinfo"),unused)) = __stringify(tag) "=" info
++  __attribute__((section(".modinfo"))) = __stringify(tag) "=" info
+ 
+ #define MODULE_GENERIC_TABLE(gtype,name)			\
+ extern const struct gtype##_id __mod_##gtype##_table		\
+-  __attribute__ ((unused, alias(__stringify(name))))
++  __attribute_used__						\
++  __attribute__ ((alias(__stringify(name))))
+ 
+ #define THIS_MODULE (&__this_module)
+ 
+@@ -165,7 +166,7 @@ void *__symbol_get_gpl(const char *symbo
+ 	extern void *__crc_##sym __attribute__((weak));		\
+ 	static const unsigned long __kcrctab_##sym		\
+ 	__attribute_used__					\
+-	__attribute__((section("__kcrctab" sec), unused))	\
++	__attribute__((section("__kcrctab" sec)))		\
+ 	= (unsigned long) &__crc_##sym;
+ #else
+ #define __CRC_SYMBOL(sym, sec)
+@@ -179,7 +180,7 @@ void *__symbol_get_gpl(const char *symbo
+ 	= MODULE_SYMBOL_PREFIX #sym;                    	\
+ 	static const struct kernel_symbol __ksymtab_##sym	\
+ 	__attribute_used__					\
+-	__attribute__((section("__ksymtab" sec), unused))	\
++	__attribute__((section("__ksymtab" sec)))		\
+ 	= { (unsigned long)&sym, __kstrtab_##sym }
+ 
+ #define EXPORT_SYMBOL(sym)					\
+
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

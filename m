@@ -1,80 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315379AbSGIQzX>; Tue, 9 Jul 2002 12:55:23 -0400
+	id <S316605AbSGIQ5l>; Tue, 9 Jul 2002 12:57:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316434AbSGIQzW>; Tue, 9 Jul 2002 12:55:22 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:13324 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S315379AbSGIQzV>; Tue, 9 Jul 2002 12:55:21 -0400
-Date: Tue, 9 Jul 2002 17:57:54 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: Enhanced profiling support (was Re: vm lock contention reduction)
-Message-ID: <20020709165754.GA96901@compsoc.man.ac.uk>
-References: <20020708113928.GA80073@compsoc.man.ac.uk> <Pine.LNX.4.44.0207081039390.2921-100000@home.transmeta.com>
+	id <S316897AbSGIQ5k>; Tue, 9 Jul 2002 12:57:40 -0400
+Received: from ds217-115-141-141.dedicated.hosteurope.de ([217.115.141.141]:27397
+	"EHLO ds217-115-141-141.dedicated.hosteurope.de") by vger.kernel.org
+	with ESMTP id <S316605AbSGIQ5h>; Tue, 9 Jul 2002 12:57:37 -0400
+Date: Tue, 9 Jul 2002 19:00:19 +0200
+From: Jochen Suckfuell <jo-lkml@suckfuell.net>
+To: Thunder from the hill <thunder@ngforever.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Bill Davidsen <davidsen@tmr.com>, Andries Brouwer <aebr@win.tue.nl>,
+       Adrian Bunk <bunk@fs.tum.de>, Jochen Suckfuell <jo-lkml@suckfuell.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Re: Disk IO statistics still buggy
+Message-ID: <20020709190019.A19394@ds217-115-141-141.dedicated.hosteurope.de>
+References: <20020706074824.GA24771@win.tue.nl> <Pine.LNX.4.44.0207060740020.10105-100000@hawkeye.luckynet.adm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207081039390.2921-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Boards of Canada - Geogaddi
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0207060740020.10105-100000@hawkeye.luckynet.adm>; from thunder@ngforever.de on Sat, Jul 06, 2002 at 07:42:42AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 08, 2002 at 10:52:36AM -0700, Linus Torvalds wrote:
+Hi!
 
->  - I'd associate each profiling event with a dentry/offset pair, simply
->    because that's the highest-level thing that the kernel knows about and
->    that is "static".
-
-This makes sense, I think.
-
->  - I'd suggest that the profiler explicitly mark the dentries it wants
->    profiled, so that the kernel can throw away events that we're not
->    interested in. The marking function would return a cookie to user
->    space, and increment the dentry count (along with setting the
->    "profile" flag in the dentry)
-
-For a system-wide profiler, this needs to be /all/ dentries that get
-mapped in with executable permissions, or we lose any mappings of shared
-libraries we don't know about etc. Essentially, oprofile wants samples
-against any dentry that gets mmap()ed with PROT_EXEC, so this marking
-would really need to happen at mmap() time. Missing out on any dentry
-profiles amounts to data loss in the system profile and has the
-potential to mislead.
-
->  - the "cookie" (which would most easily just be the kernel address of the
->    dentry) would be the thing that we give to user-space (along with
->    offset) on profile read. The user app can turn it back into a filename.
+On Sat, Jul 06, 2002 at 07:42:42AM -0600, Thunder from the hill wrote:
+> On Sat, Jul 06, 2002 at 12:15:47AM -0400, Bill Davidsen wrote:
+> > > Marcelos' BK repository (that will become 2.4.19-rc2) includes a patch to
+> > > remove these statistics completely from /proc/partitions...
+> > 
+> > Is this the new Linux way of life? Removing modules is hard, GET RID OF
+> > THE FEATURE! Stats in /proc/partitions are not always correct, GET RID OF
+> > THE FEATURE!
 > 
-> Whether it is the original "mark this file for profiling" phase that saves
-> away the cookie<->filename association, or whether we also have a system
-> call for "return the path of this cookie", I don't much care about.
-> Details, details.
-> 
-> Anyway, what would be the preferred interface from user level?
+> You misunderstood. It was nothing incorrect about the stats in 
+> /proc/partitions, it was just moved because it just didn't belong into 
+> /proc/partitions.
 
-oprofile currently receives eip-pid pairs, along with the necessary
-syscall tracing info needed to reconstruct file offsets. The above
-scheme removes the dependency on the pid, but this also unfortunately
-throws away some useful information.
+And it hasn't been removed either. Only the output has been removed; the
+data is still collected. Meanwhile I found the bug that leads to wrong
+ios_in_flight values on SCSI systems:
 
-It is often useful to be able to separate out shared-library samples on
-a per-process (and/or per-application) basis. Any really useful profile
-buffer facility really needs to preserve this info, but just including
-the raw pid isn't going to work when user-space can't reconstruct the
-"name" of the pid (where "name" would be something "/bin/bash") because
-the process exited in the meantime.
+The accounting was done on a copy of the request _after_ the request has
+been dequeued and the irq_request_lock released. I fixed this by taking
+this lock again while calling the accounting function (see the patch
+below).
 
-The same goes for kernel samples that happen in process context.
+** This patch is relevant regardless where the statistics will finally
+be printed. **
 
-So this might work well in tandem with some global process-tree tracing
-scheme, but I don't know what form that might take ...
+One issue is still left: on my non-SCSI machine, the ios_in_flight value
+is at -1 when although requests are running. It doesn't get any more
+wrong than that it seems, and I'm not sure where that happened. Maybe
+something went wrong when initializing this value at boot time? I have a
+workaround that corrects negative ios_in_flight values to zero each time
+/proc/partitions is read. After further testing I will post it to the
+list.
 
-(Then there are kernel modules, but that's probably best served by
-patching modutils)
+Bye
+Jochen Suckfüll
 
-regards
-john
+-- 
+Jochen Suckfuell  ---  http://www.suckfuell.net/jochen/  ---
+
+--- linux/drivers/scsi/scsi_lib.c Mon Jul  8 16:15:27 2002
++++ linux_work/drivers/scsi/scsi_lib.c Tue Jul  9 17:56:39 2002
+@@ -426,7 +426,9 @@
+   if (req->waiting != NULL) {
+    complete(req->waiting);
+   }
++  spin_lock_irq(&io_request_lock);
+   req_finished_io(req);
++  spin_unlock_irq(&io_request_lock);
+   add_blkdev_randomness(MAJOR(req->rq_dev));
+ 
+         SDpnt = SCpnt->device;
+
+

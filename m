@@ -1,72 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbUK3U7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262315AbUK3VAc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbUK3U7E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 15:59:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbUK3U5G
+	id S262315AbUK3VAc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 16:00:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbUK3VAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 15:57:06 -0500
-Received: from fw.osdl.org ([65.172.181.6]:30368 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262315AbUK3U4r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 15:56:47 -0500
-Date: Tue, 30 Nov 2004 12:56:33 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alexandre Oliva <aoliva@redhat.com>
-cc: David Howells <dhowells@redhat.com>, Paul Mackerras <paulus@samba.org>,
-       Greg KH <greg@kroah.com>, David Woodhouse <dwmw2@infradead.org>,
-       Matthew Wilcox <matthew@wil.cx>, hch@infradead.org,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-In-Reply-To: <ormzwzrrmy.fsf@livre.redhat.lsd.ic.unicamp.br>
-Message-ID: <Pine.LNX.4.58.0411301249590.22796@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org>
- <19865.1101395592@redhat.com> <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
- <1101406661.8191.9390.camel@hades.cambridge.redhat.com> <20041127032403.GB10536@kroah.com>
- <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org>
- <ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br> <8219.1101828816@redhat.com>
- <Pine.LNX.4.58.0411300744120.22796@ppc970.osdl.org>
- <ormzwzrrmy.fsf@livre.redhat.lsd.ic.unicamp.br>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 Nov 2004 16:00:24 -0500
+Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:31962 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S262320AbUK3U5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 15:57:25 -0500
+Date: Tue, 30 Nov 2004 13:57:22 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Barry Bouwsma <linuxbugs@dyndns.dk>
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: UFS1 filesystem compatibility problem under Linux
+Message-ID: <20041130205722.GD22547@schnapps.adilger.int>
+Mail-Followup-To: Barry Bouwsma <linuxbugs@dyndns.dk>,
+	Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200411301423.iAUENK601275@Mail.NOSPAM.DynDNS.dK>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="KDt/GgjP6HVcx58l"
+Content-Disposition: inline
+In-Reply-To: <200411301423.iAUENK601275@Mail.NOSPAM.DynDNS.dK>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--KDt/GgjP6HVcx58l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 30 Nov 2004, Alexandre Oliva wrote:
-> 
-> - move anything that is not protected by #ifdef __KERNEL__ to the
-> ukabi header tree, adding an include in the beginning of the original
-> header that includes the ukabi header.
+On Nov 30, 2004  15:23 +0100, Barry Bouwsma wrote:
+> I've had absolutely no problems under FreeBSD (apart from possibly
+> finding one or two bits of code that needed to be fixed) when I've
+> made regular use of fragment sizes up to and including the block
+> size (as large as 65536 bytes), so long as fsize is within the range
+> of bsize/8 to bsize.
+>=20
+> Question:  Is there a reason that the Linux UFS code would be unable
+> to handle frag sizes larger than 4k, or is this simply an arbitrary
 
-No. I want stuff that goes into the ABI tree to be clearly _defined_ to be 
-user-visible. Not a "let's move it all there and then prune it". 
+Linux requires blocksize <=3D PAGE_SIZE, so basically all filesystems
+use blocksize <=3D 4096 unless they implement support internally for
+reading/writing partial disk blocks from the page or buffer cache.
 
-Leave anything questionable in the current location. And never EVER move 
-anything that is kernel-internal to a new "clean" tree, because that would 
-be totally pointless. At that point, people would have to edit the "clean" 
-tree even for kernel internal stuff. No go.
+With ext2/3 it is possible to change the number of inodes allocated
+without changing the blocksize (less inodes per block group).  If you
+care about mounting under Linux it might be worthwhile seeing if UFS
+can do the same.
 
-Also, "ukabi" just isn't going to fly as a name. It's also not as simple 
-as you seem to think, since a lot of these ABI things are architecture- 
-dependent, which apparently all you guys have totally ignored. 
+>           + (REG) Maximum file size depends on the block size on your
+>             filesystem. For ext2 (and UFS, SysVFS and similar
+>             filesystems), the limits are:
+> Block size      Maximum file size (GiBytes)
+> 512 B           2
+> 1   kiB         16
+> 2   kiB         128
+> 4   kiB         1024
+> 8   kiB         8192   (PAGE_SIZE must be >=3D 8 kiB)
 
-I've suggested "include/user/" and "include/asm-xxx/user", which handles 
-architecture-specific parts too. I'm ok with doing it the other way 
-around, ie "include/user/" and "include/user/arch-xxxx".
+This is it exactly.
 
-And "user" might be "user-abi" or something like that, but it sure isn't 
-going to be some unreadable contraction.
+> Hmmm, this reference to PAGE_SIZE is interesting -- the reason
+> I'm asking all these stupid questions is to know whether some
+> out-of-the-box on-CD-or-similar Linux could be expected to be
+> able to handle my UFS1 filesystem as described above, with no
+> need for a custom or tweaked kernel.
 
-And I _still_ want to see these patches only for things where somebody can 
-validly argue that 
- (a) it can't break anything (ie the old location still includes the new 
-     one, exactly the same way)
- (b) there are people who will actually take _advantage_ of that 
-     particular file (ie "just because I think so" doesn't fly).
+It seems unlikely (though not impossible, I haven't checked the UFS
+code) than it is possible to mount your filesystem without serious
+hacking to the filesystem/VFS/VM, unless of course you are mounting
+on an ia64 machine (or similar) with 64kB PAGE_SIZE.  Sadly, x86_64
+does not support a larger PAGE_SIZE than 4096 (until you get to 4MB
+or something like that).
 
-Moving files around is just too disruptive to be done without damn good 
-reason.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
 
-		Linus
+
+--KDt/GgjP6HVcx58l
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFBrN6ypIg59Q01vtYRAq5WAJ4xr/k1DRa1MvrKwEY2RghRJ03miQCdHaDX
+woPRvLrpbfv7p6+DNDjpBO4=
+=gUXd
+-----END PGP SIGNATURE-----
+
+--KDt/GgjP6HVcx58l--

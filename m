@@ -1,59 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265800AbSKAWa3>; Fri, 1 Nov 2002 17:30:29 -0500
+	id <S265806AbSKAWco>; Fri, 1 Nov 2002 17:32:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265801AbSKAWa3>; Fri, 1 Nov 2002 17:30:29 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:18850 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265800AbSKAWa2>;
-	Fri, 1 Nov 2002 17:30:28 -0500
-Message-Id: <200211012236.gA1MaqT20507@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Hans Reiser <reiser@namesys.com>
-cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
-       Oleg Drokin <green@namesys.com>, Nikita Danilov <Nikita@namesys.com>,
-       cliffw@osdl.org
-Subject: Re: We need help benchmarking and debugging reiser4 
-In-Reply-To: Message from Hans Reiser <reiser@namesys.com> 
-   of "Wed, 30 Oct 2002 11:30:31 +0300." <3DBF98A7.8060906@namesys.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 01 Nov 2002 14:36:52 -0800
-From: Cliff White <cliffw@osdl.org>
+	id <S265808AbSKAWco>; Fri, 1 Nov 2002 17:32:44 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:28066 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265806AbSKAWch>;
+	Fri, 1 Nov 2002 17:32:37 -0500
+Date: Fri, 1 Nov 2002 14:34:59 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Andrew Morton <akpm@digeo.com>
+cc: Arnd Bergmann <arnd@bergmann-dalldorf.de>,
+       <kernel-janitor-discuss@lists.sourceforge.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: might_sleep() in copy_{from,to}_user and friends?
+In-Reply-To: <3DC25CA5.B15848E0@digeo.com>
+Message-ID: <Pine.LNX.4.33L2.0211011431230.28320-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can some of you help us by doing such things as replicating our 
-> benchmarks, and helping us debug it as we enter the last stretch before 
-> Halloween?
-> 
+On Fri, 1 Nov 2002, Andrew Morton wrote:
 
-We are interested in helping, but i haven't seen the follow-up mail 
-mentioned below - if you could send us some more specifics, we'd be
-glad to join the fun.
-cliffw
-OSDL
+| Arnd Bergmann wrote:
+| >
+| > I have been looking for more places in 2.5 that can be marked
+| > might_sleep() and noticed that all the functions in asm/uaccess.h
+| > are not marked although they sleep if the memory they access
+| > has to be paged in.
+| >
+| > After adding might_sleep() in ten places in asm-i386/uaccess.h
+| > and arch/i386/lib/usercopy.c, I have been running this kernel
+| > for about two weeks.
+|
+| This is an excellent point.  If someone is holding a lock
+| across a uaccess function and userspace has passed the address
+| of a valid but not-present page we will hit the "atomic copy_user"
+| path.  Userspace will be returned an EFAULT and will be left
+| scratching its head, wondering what it did wrong.
+|
+| Or the kernel will deadlock, of course.
+|
+| I don't think we need to add the check to anything other than
+| ia32.  That will pick up the great bulk of any problems, and
+| arch-specific code won't be doing these copies much anyway.
 
-> Nikita and Oleg will describe the details of what to do to replicate the 
-> benchmarks, please be sure to use reiser4 readdir order for writes to 
-> reiser4 (that means don't use tarballs made from ext2 (Remember that 
-> writes determine subsequent read performance.)), and to use the latest 
-> hard drives and fast processors with udma 5 turned on.  We are quite 
-> sensitive to transfer speed since we do a good job of avoiding seeks.  
-> We are sensitive to readdir order because we sort directory entries 
-> (which is necessary for having efficient large directory lookups).   In 
-> reiser4.1 we will ship a repacker, and then it won't matter what order 
-> you do writes in so long as the repacker gets a chance to run at night.  
-> 
-> -- 
-> Hans
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Another thing to consider is that the rate-limiting in
+__might_sleep() hides lots of instances being reported -- or at
+least it did when I removed that rate-limiting and had to wait
+for 2-3 minutes for all of that scrolling to finish.
 
+I guess that if enough people test it and give feedback, we'll see
+and fix all of them eventually...
+
+-- 
+~Randy
+"I'm a healthy mushroom."
 

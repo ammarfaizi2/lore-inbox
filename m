@@ -1,55 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278514AbRJVLM6>; Mon, 22 Oct 2001 07:12:58 -0400
+	id <S278525AbRJVLRs>; Mon, 22 Oct 2001 07:17:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278517AbRJVLMs>; Mon, 22 Oct 2001 07:12:48 -0400
-Received: from lilly.ping.de ([62.72.90.2]:46350 "HELO lilly.ping.de")
-	by vger.kernel.org with SMTP id <S278514AbRJVLMi>;
-	Mon, 22 Oct 2001 07:12:38 -0400
-Date: 22 Oct 2001 13:08:58 +0200
-Message-ID: <20011022130858.A1699@planetzork.spacenet>
-From: jogi@planetzork.ping.de
-To: "Rik van Riel" <riel@conectiva.com.br>
+	id <S278563AbRJVLRk>; Mon, 22 Oct 2001 07:17:40 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:16 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S278525AbRJVLR2>;
+	Mon, 22 Oct 2001 07:17:28 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Alexander Viro <viro@math.psu.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13pre5aa1
-In-Reply-To: <20011021211726.A476@planetzork.spacenet> <Pine.LNX.4.33L.0110211749310.3690-100000@imladris.surriel.com>
+Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12 
+In-Reply-To: Your message of "Mon, 22 Oct 2001 05:34:43 -0400."
+             <Pine.GSO.4.21.0110220526480.2294-100000@weyl.math.psu.edu> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.33L.0110211749310.3690-100000@imladris.surriel.com>; from riel@conectiva.com.br on Sun, Oct 21, 2001 at 05:50:30PM -0200
+Date: Mon, 22 Oct 2001 21:17:48 +1000
+Message-ID: <25634.1003749468@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 21, 2001 at 05:50:30PM -0200, Rik van Riel wrote:
-> On 21 Oct 2001 jogi@planetzork.ping.de wrote:
-> 
-> > 2.4.12-ac3:       4:52.16   5:21.15   6:22.85   10:26.70
-> 
-> > If further infos are interesting just send me an email.
-> 
-> It would be cool if you could test this with 2.4.12-ac3 and
-> my -vmpatch and -freeswap patches against this kernel ;)
-> 
-> Patches on http://www.surriel.com/patches/
+On Mon, 22 Oct 2001 05:34:43 -0400 (EDT), 
+Alexander Viro <viro@math.psu.edu> wrote:
+>On Mon, 22 Oct 2001, Keith Owens wrote:
+>> In modutils 2.5 I will get rid of all the hard coded entries in
+>> util/alias.h.  Instead each module will define what it supports,
+>> including any special commands to be run when the module is loaded or
+>> unloaded.  Much easier for everyone and far more flexible.
+>
+>Heh.  OK, so you've stopped me in the middle of writing RFC that proposes
+>addition of
+>MODULE_CONF(string)
 
-As promised here are the results for 2.4.12-ac3 + vmpatch
-and freeswap.
+Strange, that was exactly what I was planning for 2.5 :).
 
-2.4.12-ac3: 8:20.46
-2.4.12-ac3: 6:36.67
-2.4.12-ac3: 6:37.61
-2.4.12-ac3: 7:36.24
-2.4.12-ac3: 7:21.24
+>that would put that string into separate section and making modules_install
 
-These times are for -j100.
+<pedantic>
+depmod, not modules_install, depmod is run at other times.
+</pedantic>
 
-Kind regards,
+>dump these sections, feed them through s/_NAME_/`basename $module`/ and
 
-   Jogi
+kbuild 2.5 does -DKBUILD_OBJECT=module_name for all objects linked into
+a module.  KBUILD_OBJECT defines the overall module, not the individual
+files that make up the module.  We have the technology!
 
--- 
+>cat them into defaults file that would go into $INSTALL_MOD_PATH.
 
-Well, yeah ... I suppose there's no point in getting greedy, is there?
+Just another modules.* file, probably modules.dynamic.conf.
 
-    << Calvin & Hobbes >>
+BTW, INSTALL_MOD_PATH is dead in kbuild 2.5, it is a configuration
+option and is held in .config.
+
+>MODULES_BLKDEV(), MODULE_LDISC(), etc. would be trivial wrappers around that.
+
+Everything is a device and can be handled by the hotplug project.  It
+is really a cunning plan by David Brownell and Greg Kroah-Hartman to
+own the entire device subsystem ;).
+
+>Looks like the thing you mentioned would make quite a few people happy.
+>Might be worth doing in 2.4...
+
+Please, no more 2.4 changes.  Let Linus get 2.4 stable, fork 2.5 so we
+can break it on a daily basis then backport to 2.4 when it works.
+

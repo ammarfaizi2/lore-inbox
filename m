@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262572AbTCRUs7>; Tue, 18 Mar 2003 15:48:59 -0500
+	id <S262576AbTCRVJg>; Tue, 18 Mar 2003 16:09:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262573AbTCRUs7>; Tue, 18 Mar 2003 15:48:59 -0500
-Received: from 12-225-92-115.client.attbi.com ([12.225.92.115]:33664 "EHLO
-	p3.coop.hom") by vger.kernel.org with ESMTP id <S262572AbTCRUs6>;
-	Tue, 18 Mar 2003 15:48:58 -0500
-Date: Tue, 18 Mar 2003 12:59:07 -0800
-From: Jerry Cooperstein <coop@axian.com>
-To: Stephen Hemminger <shemminger@osdl.org>
+	id <S262578AbTCRVJf>; Tue, 18 Mar 2003 16:09:35 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:23461 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S262576AbTCRVJf>; Tue, 18 Mar 2003 16:09:35 -0500
+Date: Tue, 18 Mar 2003 22:20:29 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Henrique Gobbi <henrique2.gobbi@cyclades.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: seqlock/unlock(&xtime_lock) problems cause keyboard, time skew problems
-Message-ID: <20030318205907.GB4081@p3.attbi.com>
-References: <20030318190557.GA14447@p3.attbi.com> <1048019543.6294.3.camel@dell_ss3.pdx.osdl.net>
+Subject: Re: Building a 2.4.x kernel with all options
+Message-ID: <20030318212029.GC6564@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.53.0303181346500.11080@skynet> <3E76FFB9.50908@cyclades.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1048019543.6294.3.camel@dell_ss3.pdx.osdl.net>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3E76FFB9.50908@cyclades.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 18, 2003 at 12:32:24PM -0800, Stephen Hemminger wrote:
-> On Tue, 2003-03-18 at 11:05, Jerry Cooperstein wrote:
-> > Since 2.5.60 my thinkpad keyboard repeat rate has been erratic when
-....
-
+On Tue, 18 March 2003 11:15:05 +0000, Henrique Gobbi wrote:
 > 
-> Does this notebook vary the clock rate? If so then using TSC for 
-> time of day clock is probably a problem.  Try booting with notsc.
+> Is there a easy way to compile a linux 2.4 kernel with all possible 
+> options. That is, something like "make all" or "make everything".
+> 
+> I need to build a kernel that has everything set. If possible I'd like 
+> to use everything that can be module as module.'
+> 
+> Any hint is welcome
 
-Yes the notebook varies the clock rate -- its about 150MHZ with
-batter power, 500 MHZ on AC.
+There is no easy way, there isn't even a single "biggest .config".
+Some drivers are mutually exclusive, so you have to chose.
 
-I tried booting with notsc, the results were:
+Tomorrow at work, I can send you a .config that should have almost
+everything compiled into the kernel, for i386 uniprocessor, linux
+2.4.21-pre3.
 
-for kernels through 2.5.63:  kernel panic on boot, message saying pentium+
-requires tsc
+If you manage to create an even bigger .config from that base or have
+other maxed our configs for smp, other platforms or other kernels, I'd
+like to get a copy. But make sure they compile first. :)
 
-for 2.5.64, 2.5.65:  no failure, but no help.
+Jörn
 
-Merci
-
-coop
-
-======================================================================
- Jerry Cooperstein,  Senior Consultant,  <coop@axian.com>
- Axian, Inc., Software Consulting and Training
- 4800 SW Griffith Dr., Ste. 202,  Beaverton, OR  97005 USA
- http://www.axian.com/               
-======================================================================
-
+-- 
+Correctness comes second.
+Features come third.
+Performance comes last.
+Maintainability is needed for all of them.

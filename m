@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbRAYMXt>; Thu, 25 Jan 2001 07:23:49 -0500
+	id <S130008AbRAYMYt>; Thu, 25 Jan 2001 07:24:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130008AbRAYMXj>; Thu, 25 Jan 2001 07:23:39 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23822 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129511AbRAYMXa>;
-	Thu, 25 Jan 2001 07:23:30 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200101251149.f0PBnB206123@flint.arm.linux.org.uk>
-Subject: Re: kernel BUG at slab.c:1542!(2.4.1-pre9)
-To: tim@parrswood.manchester.sch.uk (Tim Fletcher)
-Date: Thu, 25 Jan 2001 11:49:10 +0000 (GMT)
-Cc: phillips@innominate.de (Daniel Phillips),
-        Shawn.Starr@Home.net (Shawn Starr), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0101241803290.30141-100000@pine.parrswood.manchester.sch.uk> from "Tim Fletcher" at Jan 24, 2001 06:05:02 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S135412AbRAYMYj>; Thu, 25 Jan 2001 07:24:39 -0500
+Received: from indyio.rz.uni-sb.de ([134.96.7.3]:56141 "EHLO
+	indyio.rz.uni-sb.de") by vger.kernel.org with ESMTP
+	id <S130008AbRAYMY3>; Thu, 25 Jan 2001 07:24:29 -0500
+Message-ID: <3A701AEB.CF4CE9C3@stud.uni-saarland.de>
+Date: Thu, 25 Jan 2001 12:24:11 +0000
+From: Studierende der Universitaet des Saarlandes 
+	<masp0008@stud.uni-sb.de>
+Reply-To: manfred@colorfullife.com
+Organization: Studierende Universitaet des Saarlandes
+X-Mailer: Mozilla 4.08 [en] (X11; I; Linux 2.0.36 i686)
 MIME-Version: 1.0
+To: ak@suse.de, davem@redhat.com, linux-kernel@vger.kernel.org,
+        kuznet@ms2.inr.ac.ru
+Subject: Re: Linux 2.2.16 through 2.2.18preX TCP hang bug triggered by rsync
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Fletcher writes:
-> What ever a none privilaged user space apps does witness:
-> 
-> root@localhost# dd if=/dev/random of=/dev/mem
+Andi wrote:
+> Basically it would accept the acks with the data in most
+> cases except when the application has totally stopped
+> reading and in that case it doesn't harm to ignore the
+> acks. 
 
-If you can do that as a non-priviledged user, then you've got bigger
-security problems than that.
+But it seems that that's exactly what rsync does:
+It performs bulk data writes without reading. There are 32 kB in the
+receive buffers, and rsync continues to write. If the process would read
+some data the TCP stack would immediately recover.
 
-/dev/mem should NOT be read/writable by anyone other than root.  Its
-permissions should be no more than 600.
+RST are already processed, ACK's should be processed, but what about
+URG? 
+
 --
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

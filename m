@@ -1,63 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313060AbSHMIfc>; Tue, 13 Aug 2002 04:35:32 -0400
+	id <S293203AbSHMIeQ>; Tue, 13 Aug 2002 04:34:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313477AbSHMIfc>; Tue, 13 Aug 2002 04:35:32 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63505 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313060AbSHMIfb>;
-	Tue, 13 Aug 2002 04:35:31 -0400
-Message-ID: <3D58C81D.4DAA3FBE@zip.com.au>
-Date: Tue, 13 Aug 2002 01:49:33 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] __func__ -> __FUNCTION__
-References: <3D58A45F.A7F5BDD@zip.com.au> <20020813092043.A1859@infradead.org>
-Content-Type: text/plain; charset=us-ascii
+	id <S313060AbSHMIeQ>; Tue, 13 Aug 2002 04:34:16 -0400
+Received: from maroon.csi.cam.ac.uk ([131.111.8.2]:12722 "EHLO
+	maroon.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S293203AbSHMIeP>; Tue, 13 Aug 2002 04:34:15 -0400
+Subject: [BUG] 2.5.31 doesn't boot - looks IDE related
+From: Anton Altaparmakov <aia21@cantab.net>
+To: Marcin Dalecki <dalecki@evision.ag>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 13 Aug 2002 09:38:02 +0100
+Message-Id: <1029227882.6892.90.camel@storm.christs.cam.ac.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> 
-> On Mon, Aug 12, 2002 at 11:17:03PM -0700, Andrew Morton wrote:
-> >
-> > It is a requirement of the SPARC port that Linux be compilable
-> > by egcs-1.1.2, aka gcc-2.91.66.
-> >
-> > That compiler does not support __func__.
-> 
-> Is there any reason to not use __FUNCTION__?  According to the gcc folks
-> that there is no plan to retire it, and as long as all known-good kernel
-> compilers support it a gccism is a lot better than a standard feature that
-> is not supported by most of the kernel compilers.
+Marcin,
 
-Sounds fine to me.
+2.5.31 dies with the last messages being:
+[snip]
+ATA/ATAPI device driver v7.0.0
+ATA: PCI bus speed 33.3MHz
+ATA: VIA Technologies, Inc. Bus Master IDE, PCI slot 00:07.1
+ATA: chipset rev.: 6
+ATA: non-legacy mode: IRQ probe delayed
+VP_IDE: VIA vt82c686b (rev 40) ATA UDMA100 controller on PCI 00:07.1
+    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:DMA
+hda: IC35L040AVER07-0, DISK drive
+hdc: LITE-ON LTR-12102B, ATAPI CD/DVD-ROM drive 
+hdd: Maxtor 90288D2, DISK drive 
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+<it is dead>
 
---- linux-2.5.31/include/linux/kernel.h	Wed Jul 24 14:31:31 2002
-+++ 25/include/linux/kernel.h	Tue Aug 13 01:48:36 2002
-@@ -13,6 +13,8 @@
- #include <linux/types.h>
- #include <linux/compiler.h>
- 
-+#define __func__ use.__FUNCTION__.not.__func__
-+
- /* Optimization barrier */
- /* The "volatile" is due to gcc bugs */
- #define barrier() __asm__ __volatile__("": : :"memory")
+2.4.19 at the same place gives:
+[snip]
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+VP_IDE: IDE controller on PCI bus 00 dev 39
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
+    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:DMA
+hda: IC35L040AVER07-0, ATA DISK drive
+hdc: LITE-ON LTR-12102B, ATAPI CD/DVD-ROM drive
+hdd: Maxtor 90288D2, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 80418240 sectors (41174 MB) w/1916KiB Cache, CHS=5005/255/63,
+UDMA(100)
+hdd: 5627664 sectors (2881 MB) w/256KiB Cache, CHS=5583/16/63, UDMA(33)
+Partition check:
+ hda: hda1 hda2 < hda5 hda6 hda7 >
+ hdd: [PTBL] [697/128/63] hdd1 hdd2 < hdd5 hdd6 hdd7 hdd8 hdd9 hdd10 >
+<and continues happily>
 
-It affects
+Looks like your domain... Any hope for having IDE working again soon?
 
-drivers/char/drm/mga_dma.c
-drivers/char/drm/mga_drv.h
-drivers/char/drm/mga_state.c
-drivers/char/drm/r128_cce.c
-drivers/char/drm/r128_drv.h
-drivers/char/drm/r128_state.c
-drivers/char/drm/radeon_cp.c
-drivers/char/drm/radeon_drv.h
-drivers/char/drm/radeon_state.c
-include/net/bluetooth/bluetooth.h
+I've got NTFS write code now and can't test it because I can't boot the
+kernel! )-:
+
+Perhaps I should just move all my development to 2.4 and forget 2.5...
+
+-- 
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/

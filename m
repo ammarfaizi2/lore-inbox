@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266152AbUBKSgg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 13:36:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266153AbUBKSgg
+	id S266075AbUBKSoo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 13:44:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266083AbUBKSoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 13:36:36 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:28818 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S266152AbUBKSge
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 13:36:34 -0500
-Subject: Re: 2.6.2 - System clock runs too fast
-From: john stultz <johnstul@us.ibm.com>
-To: Markus Hofmann <markus@gofurther.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200402111007.50549.markus@gofurther.de>
-References: <200402101332.26552.markus@gofurther.de>
-	 <1076442533.1351.35.camel@cog.beaverton.ibm.com>
-	 <200402111007.50549.markus@gofurther.de>
-Content-Type: text/plain
-Message-Id: <1076524588.795.28.camel@cog.beaverton.ibm.com>
+	Wed, 11 Feb 2004 13:44:44 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.135.30]:14608 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S266075AbUBKSok (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 13:44:40 -0500
+Date: Thu, 12 Feb 2004 03:45:37 +0900 (JST)
+Message-Id: <20040212.034537.11291491.yoshfuji@linux-ipv6.org>
+To: kas@informatics.muni.cz
+Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru,
+       yoshfuji@linux-ipv6.org
+Subject: Re: [Patch] Netlink BUG() on AMD64
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20040211181113.GA2849@fi.muni.cz>
+References: <20040205183604.N26559@fi.muni.cz>
+	<20040211181113.GA2849@fi.muni.cz>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 11 Feb 2004 10:36:28 -0800
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-11 at 01:07, Markus Hofmann wrote:
-> Thank you for answering.
-> In the meantime I heard that apm could cause this problem. I tested this by 
-> compiling acpi. The result was that the clock runs normal with acpi.
-> But I want to use apm. So I removed the acpi and now the system clock is too 
-> slow with only apm.
+In article <20040211181113.GA2849@fi.muni.cz> (at Wed, 11 Feb 2004 19:11:14 +0100), Jan Kasprzak <kas@informatics.muni.cz> says:
+
+> 	I suggest the following patch, but all occurences of
+> nlmsg_failure: and rtattr_failure: labels should be checked for a similar
+> problem.
 > 
-> I think this is a very curious thing! :-(
+> --- linux-2.6.2/net/ipv4/fib_rules.c.orig	2004-02-11 18:55:58.000000000 +0100
+> +++ linux-2.6.2/net/ipv4/fib_rules.c	2004-02-11 19:03:08.319215408 +0100
+> @@ -438,7 +438,7 @@
+>  
+>  nlmsg_failure:
+>  rtattr_failure:
+> -	skb_put(skb, b - skb->tail);
+> +	skb_trim(skb, b - skb->data);
+>  	return -1;
+>  }
+>  
+> Please apply or let me know what the proper fix should be.
 
-Indeed, normally its ACPI that causes more problems. That's a new one.
+looks good to me.
+Other places including net/ipv6/{addrconf.c,route.c} seems okay.
 
-I'd be curious how this drift changes using the attached patch.
-
-thanks
--john
-
-===== arch/i386/kernel/timers/timer_tsc.c 1.35 vs edited =====
---- 1.35/arch/i386/kernel/timers/timer_tsc.c	Wed Jan  7 00:31:11 2004
-+++ edited/arch/i386/kernel/timers/timer_tsc.c	Tue Jan 20 13:22:54 2004
-@@ -226,7 +226,7 @@
- 	delta += delay_at_last_interrupt;
- 	lost = delta/(1000000/HZ);
- 	delay = delta%(1000000/HZ);
--	if (lost >= 2) {
-+	if (0 && (lost >= 2)) {
- 		jiffies_64 += lost-1;
- 
- 		/* sanity check to ensure we're not always losing ticks */
-
-
-
-
-
-
-
+--yoshfuji

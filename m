@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268158AbUIFPtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268161AbUIFPvx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268158AbUIFPtd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 11:49:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268161AbUIFPtd
+	id S268161AbUIFPvx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 11:51:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268162AbUIFPvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 11:49:33 -0400
-Received: from imag.imag.fr ([129.88.30.1]:39929 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S268158AbUIFPtb (ORCPT
+	Mon, 6 Sep 2004 11:51:52 -0400
+Received: from mx02.qsc.de ([213.148.130.14]:19601 "EHLO mx02.qsc.de")
+	by vger.kernel.org with ESMTP id S268161AbUIFPvv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 11:49:31 -0400
-Date: Mon, 6 Sep 2004 17:48:39 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: Intel ICH - sound/pci/intel8x0.c
-Message-ID: <20040906154839.GA6672@linux.ensimag.fr>
-Reply-To: 9e47339104090607111e8a6f5d@mail.gmail.com
-Mime-Version: 1.0
+	Mon, 6 Sep 2004 11:51:51 -0400
+Date: Mon, 06 Sep 2004 17:51:57 +0200
+From: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
+Organization: Privat.
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-kernel@vger.kernel.org,
+       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/3] copyfile: generic_sendpage
+Message-ID: <413C879D.nail51W11794T@pluto.uni-freiburg.de>
+References: <20040904165733.GC8579@wohnheim.fh-wedel.de>
+ <20040906133523.GC25429@wohnheim.fh-wedel.de>
+ <413C74E6.nail3YF11Y0TT@pluto.uni-freiburg.de>
+ <200409061646.41772.oliver@neukum.org>
+In-Reply-To: <200409061646.41772.oliver@neukum.org>
+User-Agent: nail 11.6pre 9/6/04
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
-From: Matthieu Castet <mat@ensilinx1.imag.fr>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Mon, 06 Sep 2004 17:49:28 +0200 (CEST)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Takashi says the code is already gone in the alsa tree so we don't
-> know how they fixed it.
-They ask to use generic modules instead.
+Oliver Neukum <oliver@neukum.org> wrote:
 
-look at the cvs log :
+> Am Montag, 6. September 2004 16:32 schrieb Gunnar Ritter:
+> > Then I don't see the point in having a copyfile system call. In
+>
+> Potentially tremendous speedups in networked filesystems.
 
-Summary: remove gameport/MIDI support
+Which are even particularly susceptible to operations the user
+might want to interrupt.
 
-snd-intel8x0's gameport/MIDI code has quite a few problems:  the port
-addresses cannot be detected reliably (or not at all with newer LPC
-bridge devices), joystick port address 0x208 isn't supported, the MIDI
-interrupt isn't detected, PnP isn't supported, changing the port
-addresses in the LPC bridge configuration doesn't affect the devices
-in the Super-I/O chip connected to the LPC bus, and registering this
-driver for the LPC bridge PCI device prevents other drivers using the
-LPC's PCI id from loading later.
-
-All these problems can be cured by removing the offending code and
-using the proper modules for these devices (ns558/snd-mpu401) instead.
+	Gunnar

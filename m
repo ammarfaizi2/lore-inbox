@@ -1,64 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265785AbUAPVEO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 16:04:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUAPVEO
+	id S265803AbUAPVGa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 16:06:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265804AbUAPVGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 16:04:14 -0500
-Received: from cliff.cse.wustl.edu ([128.252.166.5]:27895 "EHLO
-	cliff.cse.wustl.edu") by vger.kernel.org with ESMTP id S265785AbUAPVEI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 16:04:08 -0500
-From: "Cheng Huang" <cheng@cse.wustl.edu>
-To: "'Nerijus Baliunas'" <nerijus@users.sourceforge.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Hang with Promise Ultra100 TX2 (kernel 2.4.18)
-Date: Fri, 16 Jan 2004 15:04:04 -0600
-Message-ID: <006901c3dc74$466be8e0$0400a8c0@ChengDELL>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <20040115154755.CE15E5DA0@mx.ktv.lt>
-Importance: Normal
+	Fri, 16 Jan 2004 16:06:30 -0500
+Received: from colin2.muc.de ([193.149.48.15]:12807 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S265803AbUAPVG2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 16:06:28 -0500
+Date: 16 Jan 2004 22:07:26 +0100
+Date: Fri, 16 Jan 2004 22:07:26 +0100
+From: Andi Kleen <ak@colin2.muc.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Matt Mackall <mpm@selenic.com>, george@mvista.com, ak@muc.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: kgdb for x86_64 2.6 kernels
+Message-ID: <20040116210726.GA31861@colin2.muc.de>
+References: <1dEqx-F0-1@gated-at.bofh.it> <1dMRc-6DQ-3@gated-at.bofh.it> <1e2Mk-6YA-17@gated-at.bofh.it> <1e2Mo-6YA-31@gated-at.bofh.it> <1e3fi-4nG-5@gated-at.bofh.it> <m3ptdlwsf5.fsf@averell.firstfloor.org> <4006512A.7080002@mvista.com> <20040115085217.GA43298@colin2.muc.de> <20040116011510.GM28521@waste.org> <20040116100445.0dfde09e.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040116100445.0dfde09e.rddunlap@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry not to mention. I have already applied the patch before I asked
-this question. Any further suggestions? Thanks.
+> I'd like to help also, but I don't have ICH4 or other usb-debug
+> hardware AFAIK.
 
--- Cheng
+I suspect other vendors with EHCI support have it too. Check some data sheets.
 
------Original Message-----
-From: Nerijus Baliunas [mailto:nerijus@users.sourceforge.net] 
-Sent: Thursday, January 15, 2004 9:43 AM
-To: linux-kernel@vger.kernel.org
-Cc: Cheng Huang
-Subject: Re: Hang with Promise Ultra100 TX2 (kernel 2.4.18)
-
-On Thu, 15 Jan 2004 13:49:22 +0200 Pasi Kärkkäinen <pasik@iki.fi> wrote:
-
-> On Thu, Jan 15, 2004 at 03:17:12AM -0600, Cheng Huang wrote:
-> > I have to use kernel 2.4.18 because I need to install KURT (realtime
-> > linux) with it. However, my system hangs on boot with the following
-> > message:
-> 
-> I think there has been a lot of bug fixes in the latest 2.4 kernels
-for
-> promise cards.
-> 
-> I'm running promise ultra133-tx2 successfully with 2.4.22 kernel.
-> 
-> Merge the promise driver from later 2.4.x kernels to 2.4.18 and
-recompile? 
-
-When I used 2.4.18 I had Andre's ide.2.4.18-rc1.02152002.patch.bz2
-applied.
-
-Regards,
-Nerijus
-
+-Andi

@@ -1,116 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271798AbSISREk>; Thu, 19 Sep 2002 13:04:40 -0400
+	id <S271844AbSISREy>; Thu, 19 Sep 2002 13:04:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271844AbSISREj>; Thu, 19 Sep 2002 13:04:39 -0400
-Received: from packet.digeo.com ([12.110.80.53]:22680 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S271798AbSISREi> convert rfc822-to-8bit;
-	Thu, 19 Sep 2002 13:04:38 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
+	id <S271850AbSISREy>; Thu, 19 Sep 2002 13:04:54 -0400
+Received: from quark.didntduck.org ([216.43.55.190]:60934 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S271844AbSISREv>; Thu, 19 Sep 2002 13:04:51 -0400
+Message-ID: <3D8A04C0.6050508@didntduck.org>
+Date: Thu, 19 Sep 2002 13:09:20 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: CDCether.c
-Date: Thu, 19 Sep 2002 10:09:37 -0700
-Message-ID: <4C568C6A13479744AA1EA3E97EEEB3231B7DDF@schumi.digeo.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: CDCether.c
-Thread-Index: AcJfpZ9qFs+31pCzRRih/4BTCKUyuQAR6ufgAARy+IA=
-From: "Michael Duane" <Mike.Duane@digeo.com>
-To: "Michael Duane" <Mike.Duane@digeo.com>,
-       "Brad Hards" <bhards@bigpond.net.au>, <linux-kernel@vger.kernel.org>
+To: root@chaos.analogic.com
+CC: dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Syscall changes registers beyond %eax, on linux-i386
+References: <Pine.LNX.3.95.1020919115049.14758A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have duplicated the problem with a stock Redhat 7.3
-installation using a Toshiba PCX2200 cable modem connected
-to standard PC hardware via USB
+Richard B. Johnson wrote:
+> On Thu, 19 Sep 2002, dvorak wrote:
+> 
+> 
+>>Hi,
+>>
+>>recently i came across a situation were on linux-i386 not only %eax was
+>>altered after a syscall but also %ebx. I tracked this problem down, to
+>>gcc re-using a variable passed to a function.
+>>
+>>This was found on a debian system with a 2.4.17 kernel compiled with gcc
+>>2.95.2 and verified on another system, kernel 2.4.18 compiled with 2.95.4 
+>>Attached is small program to test for this 'bug'
+>>
+>>a syscall gets his data off the stack, the stack looks like:
+>>
+>>saved(edx)
+>>saved(ecx)
+>>saved(ebx)
+>>return_addres 	(somewhere in entry.S)
+>>
+>>When the syscall is called.
+>>
+>>the register came there through use of 'SAVE_ALL'.
+>>
+>>After the syscall returns these registers are restored using RESTORE_ALL
+>>and execution is transferred to userland again.
+>>
+>>A short snippet of sys_poll, with irrelavant data removed.
+>>
+>>sys_poll(struct pollfd *ufds, .. , ..) {
+>>    ...
+>>    ufds++;
+>>    ...
+>>}
+>>
+>>It seems that gcc in certain cases optimizes in such a way that it changes
+>>the variable ufds as placed on the stack directly. Which results in saved(ebx)
+>>being overwritten and thus in a changed %ebx on return from the system call.
+>>
+> 
+> 
+> The 'C' compiler must make room on the stack for any local
+> variables except register types. If it was doing as you state, you
+> couldn't even execute a "hello world" program. Further, the local
+> variables are after the return address. It would screw up the return
+> address and you'd go off into hyper-space upon return.
+> 
+> 
+> 
+>>I don't know if this is considered a bug, and if it is, from whom.
+>>If it's not a bug it means low-level userland programs need to be rewritten
+>>to store all registers on a syscall and restore them on return.
+>>
+> 
+> 
+> No. Various 'C' implementers have standardized calling methods even
+> though it's not part of the 'C' standard. gcc and others assume that
+> a called procedure is not going to change any segments or index registers.
+> There are various optimization things, like "-fcaller-saves" where the
+> called procedure can destroy anything. You may be using something that
+> was wrongly compiled using that switch.
+> 
+>  
+> 
+>>It shouldn't be a bug in gcc, since the C-standard doesn't talk about how to 
+>>pass variables and stuff. So it seems like a kernel(-gcc-interaction) bug.
+>>
+>>To solve this issue 2 solutions spring to mind
+>>1) add a flag to gcc to tell it that it shouldn't do this optimization, this
+>>   won't work with the gcc's already out there.
+>>2) When calling a syscall explicitly push all variable an extra time, since
+>>   the code in entry.S doesn't know the amount of variables to a syscall it
+>>   needs to push all theoretical 6 parameters every time, a not so nice
+>>   overhead.
+>>
+>>
+> 
+> 
+> There is a bug in some other code. Try this. It will show
+> that ebx is not being killed in a syscall. You can prove
+> that this code works by changing ebx to eax, which will
+> get destroyed and print "Broken" before exit.
 
+The bug is only with _some_ syscalls, and getpid() is not one of them, 
+so your example is flawed.  It happens when a syscall modifies one of 
+it's parameter values.  The solution is to assign the parameter to a 
+local variable before modifying it.
 
-> -----Original Message-----
-> From: Michael Duane 
-> Sent: Thursday, September 19, 2002 8:23 AM
-> To: Brad Hards; linux-kernel@vger.kernel.org
-> Subject: RE: CDCether.c
-> 
-> 
-> 
-> 
-> > -----Original Message-----
-> > From: Brad Hards [mailto:bhards@bigpond.net.au]
-> > Sent: Wednesday, September 18, 2002 11:21 PM
-> > To: Michael Duane; linux-kernel@vger.kernel.org
-> > Subject: Re: CDCether.c
-> > 
-> > 
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> > 
-> > On Thu, 19 Sep 2002 09:49, Michael Duane wrote:
-> > > Who is the maintainer of CDCEther.c?  I am having a problem
-> > > with packets getting "wedged" somewhere on the way out
-> > > and need to know if others have reported this problem.
-> > Others have reported probems that normally look something 
-> > like "it works fine 
-> > for some minutes to days, and then all connectivity stops, 
-> > till I reboot or 
-> > re-insert the module", but I can't duplicate. Does this match 
-> > your problem?
-> 
-> No, this is quite different. It appears to be a function of packet 
-> size. ping -s <size> <host> will generate packet loss up to 100 
-> percent with any size of (86+(64*n)).  All other values work fine.
-> tcpdump on the linux side sees multiple packet retries with 
-> correct back-off timeing, but the network side never sees the
-> packet. Now for the odd part - any network activity on another
-> session to the same box will free the "wedged" packet and the
-> network will recieve the last packet sent in the linux retry
-> sequence.
-> 
-> I don't know that it is in the CDCEther driver, but here are the
-> combinations I have tried:
-> 
->     linux -> usb -> cdcether -> broadcom modem -> network : FAILS
->     linux -> usb -> pegasus -> linksys adaptor -> 3com DOCSIS 
-> -> network : OKAY
->     windows -> usb -> broadcom driver -> broadcom modem -> 
-> network : OKAY
-> 
-> > 
-> > > I'm running the 2.4.17 kernel and using a Broadcom DOCSIS
-> > > modem based around a 3345.
-> > Most people have reported the problem with Via UHCI chipsets, 
-> > and usb-uhci 
-> > driver. Does this match your configuration?
-> 
-> I'm using usb-uhci with an Intel 810e2.  I have tried the 2.4.19
-> kernel with the same results. This is a proprietary hardware platform
-> and I haven't been able to get the 2.5.36 kernel to boot yet.
-> 
-> > 
-> > You might care to upgrade the kernel too.
-> > 
-> > Brad
-> > 
-> > - -- 
-> > http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. 
-> > Birds in Black.
-> > -----BEGIN PGP SIGNATURE-----
-> > Version: GnuPG v1.0.6 (GNU/Linux)
-> > Comment: For info see http://www.gnupg.org
-> > 
-> > iD8DBQE9iWzJW6pHgIdAuOMRAvXrAJ9JfDSnx25dKI7yXvQC2XjNEydS+wCgpKMe
-> > kSP0H8AB5Sj8Ebo6SGAPVNs=
-> > =RTI4
-> > -----END PGP SIGNATURE-----
-> > 
-> > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+--
+				Brian Gerst
+

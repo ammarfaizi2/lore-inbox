@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273204AbRIWVps>; Sun, 23 Sep 2001 17:45:48 -0400
+	id <S273624AbRIWVqs>; Sun, 23 Sep 2001 17:46:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273440AbRIWVpk>; Sun, 23 Sep 2001 17:45:40 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:40964 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S273622AbRIWVpd>; Sun, 23 Sep 2001 17:45:33 -0400
-Subject: Re: [PATCH] tty canonical mode: nicer erase behaviour
-To: nyh@math.technion.ac.il (Nadav Har'El)
-Date: Sun, 23 Sep 2001 22:50:16 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), zefram@fysh.org,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010923234111.A16873@leeor.math.technion.ac.il> from "Nadav Har'El" at Sep 23, 2001 11:41:11 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15lH8i-0000W3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S273350AbRIWVqj>; Sun, 23 Sep 2001 17:46:39 -0400
+Received: from fenrus.demon.co.uk ([158.152.228.152]:60364 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S273326AbRIWVqZ>;
+	Sun, 23 Sep 2001 17:46:25 -0400
+Message-Id: <m15lH5A-000OVWC@amadeus.home.nl>
+Date: Sun, 23 Sep 2001 22:46:36 +0100 (BST)
+From: arjan@fenrus.demon.nl
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10aa1 (00_vm-tweaks-1)
+In-Reply-To: <E15lH4e-0000VP-00@the-village.bc.nu>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Debian's solution isn't a silver bullet, in my opinion... It just means the
-> ^H/^? confusion stops being a problem in a stand-alone system (if all your
-> applications and configuration files come as defaults from Debian, they are
-> consistent) but it just increased the mess when you log in from one system
-> type to another (one of them being none-Linux Unix)...
+In article <E15lH4e-0000VP-00@the-village.bc.nu> you wrote:
+>> If you took my patch for it, PLEASE don't send it for inclusion; it's an
+>> evil hack and no longer needed when Intel fixes the bug in their 440GX bios.
 
-Thats in many ways a design flaw in the protocols. Original telnet has
-IAC sequences to send a "delete" regardless of keymapping policies that
-are not known at end points. X also does it right with the keysyms.
-Ssh seems to lack this
+> "when" is not a word I find useful about most bios bugs. Try "if" or
+> "less likely that being hit on the head by an asteroid"
+
+This case is different. Intel promised the update "soon". For them it's
+simple, either they update or they can't say their 440GX boards are linux
+compatible, because with the current bios they really aren't. 
+
+They could also chose to open the "Intel Proprietary" information that is
+needed to actually work with this board properly instead of via bios hacks,
+but that's their choice...
+
+Greetings,
+   Arjan van de Ven

@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbTDHQ37 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 12:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbTDHQ37 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 12:29:59 -0400
-Received: from golf.rb.xcalibre.co.uk ([217.8.240.16]:45842 "EHLO
-	golf.rb.xcalibre.co.uk") by vger.kernel.org with ESMTP
-	id S261393AbTDHQ35 (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 12:29:57 -0400
-Envelope-to: linux-kernel@vger.kernel.org
-From: Alistair Strachan <alistair@devzero.co.uk>
-To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.67-mm1
-Date: Tue, 8 Apr 2003 17:41:10 +0100
-User-Agent: KMail/1.5.9
-MIME-Version: 1.0
+	id S261520AbTDHQhr (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 12:37:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbTDHQhr (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 12:37:47 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:9477 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261520AbTDHQhq (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 12:37:46 -0400
+Date: Tue, 8 Apr 2003 17:49:18 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Krishnakumar. R" <krishnakumar@naturesoft.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, page0588@sundance.sjsu.edu,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] - 2.5.67 - proc interface to ramdisk driver.
+Message-ID: <20030408174918.A16814@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Krishnakumar. R" <krishnakumar@naturesoft.net>,
+	Linus Torvalds <torvalds@transmeta.com>, page0588@sundance.sjsu.edu,
+	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+References: <200304082141.46820.krishnakumar@naturesoft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200304081741.10129.alistair@devzero.co.uk>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200304082141.46820.krishnakumar@naturesoft.net>; from krishnakumar@naturesoft.net on Tue, Apr 08, 2003 at 09:41:46PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-> . sparc64 is now using gcc-3.x, so there is a patch here to make 
->   gcc-2.95 the minimum required version.
+On Tue, Apr 08, 2003 at 09:41:46PM +0530, Krishnakumar. R wrote:
+> Hi,
 > 
-> . A few rmap-speedup patches reduce the rmap CPU tax by 25-30% on a P4
+> The following patch will provide a 
+> proc interface to the ramdisk driver. 
 > 
-> . Various other cleaups, speedups and fixups.
+> Using this interface the size of the 
+> ramdisk can be changed at runtime.
 
-On attempting to boot this kernel, I get the following just before init:
-Kernel panic: VFS: Unable to mount root fs on 03:05
+I think you really want a sysfs interface instead.  Maybe Rusty could
+submit the patch to actually implement the sysfs acess to his new module
+parameter stuff as promised and you'd get it almost for free :)
 
-2.5.67 base works fine. I discovered that reverting the following 
-patches allows me to boot. I can increase the granularity of my search 
-if nothing comes immediately to mind:
-
-aggregated-disk-stats.patch
-dynamic-hd_struct-allocation-fixes.patch
-dynamic-hd_struct-allocation.patch
-
-I reverted the aggregated-xx patch because it depends on the dynamic 
-hd_struct work in a single line;
-
-+               struct hd_struct *hd = gp->part[n];
-
-Therefore it may not be this patch that is the source of the problem, 
-but I backed it out anyway.
-
-Cheers,
-Alistair Strachan.
 

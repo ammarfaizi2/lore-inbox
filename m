@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267685AbSLTBhi>; Thu, 19 Dec 2002 20:37:38 -0500
+	id <S267683AbSLTBga>; Thu, 19 Dec 2002 20:36:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267686AbSLTBhi>; Thu, 19 Dec 2002 20:37:38 -0500
-Received: from adsl-b3-74-176.telepac.pt ([213.13.74.176]:19153 "HELO
-	puma-vgertech.no-ip.com") by vger.kernel.org with SMTP
-	id <S267685AbSLTBhh>; Thu, 19 Dec 2002 20:37:37 -0500
-Message-ID: <3E0276B9.40001@vgertech.com>
-Date: Fri, 20 Dec 2002 01:47:37 +0000
-From: Nuno Silva <nuno.silva@vgertech.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021210 Debian/1.2.1-3
-X-Accept-Language: en-us, pt
+	id <S267684AbSLTBga>; Thu, 19 Dec 2002 20:36:30 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:61875 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267683AbSLTBga>;
+	Thu, 19 Dec 2002 20:36:30 -0500
+Date: Thu, 19 Dec 2002 17:43:14 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Matt Bernstein <matt@theBachChoir.org.uk>
+cc: Ed Tomlinson <tomlins@cam.org>, Paul P Komkoff Jr <i@stingr.net>,
+       <linux-kernel@vger.kernel.org>, Dave Jones <davej@suse.de>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [drm:drm_init] *ERROR* Cannot initialize the agpgart module.
+In-Reply-To: <Pine.LNX.4.51.0212200127001.877@jester.mews>
+Message-ID: <Pine.LNX.4.33L2.0212191734240.30841-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-To: Torben Frey <kernel@mailsammler.de>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Horrible drive performance under concurrent i/o jobs (dlh problem?)
-References: <3E01D7D7.2070201@mailsammler.de>
-In-Reply-To: <3E01D7D7.2070201@mailsammler.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, 20 Dec 2002, Matt Bernstein wrote:
 
-Torben Frey wrote:
+| On Dec 17 Ed Tomlinson wrote:
+|
+| >Not normally.  If I modprobe via-agp modprobe segfaults (a Rusty's bug),
+| >but via_agp and agpgart get loaded (note that - changed to _ when the module
+| >is loaded - it has dash in file in the directory).  Doing it this time gets
+| >an oops (52bk as of last night):
+| [snip]
+|
+| I get a very similar oops, but with amd_k7_agp (2.5.52-mm2). I'm not
+| bk-savvy as yet, but if pointed at a diff, would be happy to verify it.
 
-[..snip..]
+2.5.zz kernel diff snapshots (from bk) are available at
+  http://www.kernel.org/pub/linux/kernel/v2.5/snapshots/
+e.g., latest is:
+  http://www.kernel.org/pub/linux/kernel/v2.5/snapshots/patch-2.5.52-bk4.bz2
 
-> watching "vmstat 1" in another window - and this is what surprised me:
-> when I stopped the copy job, there were 22 more seconds when data was
-> still written to the backup software raid. Is this a hint where the
-> problem could be? I have the same "feature" when I write to my 3ware.
-> 
-
-[..snip..]
-
-AFAIK, this is because you have some GB of memory (RAM) that are beeing 
-used as disk-cache. It took 22 seconds for the cached writes-to-disk 
-being flushed to the device.
-
-If 22 seconds is too much for the amount of cached disk-writes is 
-another story :)
-
-Maybe 3ware controllers are slow with many disks? Try the same with only 
-3 disks to eliminate this variable.
-
-Regards,
-Nuno Silva
+-- 
+~Randy
 

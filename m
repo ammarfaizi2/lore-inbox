@@ -1,55 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266505AbUIEKJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266513AbUIEKNv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266505AbUIEKJw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 06:09:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266509AbUIEKJw
+	id S266513AbUIEKNv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 06:13:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266517AbUIEKNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 06:09:52 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:19595 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266505AbUIEKJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 06:09:50 -0400
-Message-ID: <413AE5DA.9070208@yahoo.com.au>
-Date: Sun, 05 Sep 2004 20:09:30 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
+	Sun, 5 Sep 2004 06:13:51 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:60894 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266513AbUIEKNs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 06:13:48 -0400
+Date: Sun, 5 Sep 2004 12:13:38 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Antonino Daplas <adaplas@pol.net>
+cc: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Thomas Winischhofer <thomas@winischhofer.net>
+Subject: Re: [Linux-fbdev-devel] [PATCH 4/5][RFC] fbdev: Clean up framebuffer
+ initialization
+In-Reply-To: <200409051750.47987.adaplas@hotpop.com>
+Message-ID: <Pine.GSO.4.58.0409051206180.28961@waterleaf.sonytel.be>
+References: <200409041108.40276.adaplas@hotpop.com>
+ <Pine.GSO.4.58.0409051113060.28961@waterleaf.sonytel.be>
+ <200409051750.47987.adaplas@hotpop.com>
 MIME-Version: 1.0
-To: Anton Blanchard <anton@samba.org>
-CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
-Subject: Re: [RFC][PATCH 0/3] beat kswapd with the proverbial clue-bat
-References: <413AA7B2.4000907@yahoo.com.au> <20040904230939.03da8d2d.akpm@osdl.org> <20040905062743.GG7716@krispykreme>
-In-Reply-To: <20040905062743.GG7716@krispykreme>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard wrote:
->>There have been few reports, and I believe that networking is getting
->>changed to reduce the amount of GFP_ATOMIC higher-order allocation
->>attempts.
-> 
-> 
-> FYI I seem to remember issues on loopback due to its large MTU. Also the
+On Sun, 5 Sep 2004, Antonino A. Daplas wrote:
+> On Sunday 05 September 2004 17:16, Geert Uytterhoeven wrote:
+> > On Sat, 4 Sep 2004, Antonino A. Daplas wrote:
+> > > Currently, the framebuffer system is initialized in a roundabout manner.
+> > > First, drivers/char/mem.c calls fbmem_init().  fbmem_init() will then
+> > > iterate over an array of individual drivers' xxxfb_init(), then each
+> > > driver registers its presence back to fbmem.  During console_init(),
+> > > drivers/char/vt.c will call fb_console_init(). fbcon will check for
+> > > registered drivers, and if any are present, will call take_over_console()
+> > > in drivers/char/vt.c.
+> > >
+> > > This patch changes the initialization sequence so it proceeds in this
+> > > manner: Each driver has its own module_init(). Each driver calls
+> > > register_framebuffer() in fbmem.c. fbmem.c will then notify fbcon of the
+> > > driver registration.  Upon notification, fbcon calls take_over_console()
+> > > in vt.c.
+> >
+> > My main concern with this change is that it will be no longer possible to
+> > change initialization order (and hence choose the primary display for
+> > systems with multiple graphics adapters) by specifying `video=xxxfb' on the
+> > kernel command line.
+>
+> I see your point.  But, can we use "fbcon=" setup options to choose which fb
+> gets mapped to what console? We already have fbcon=map:<option> so we can
+> choose which becomes the primary display. Granted the "fbcon=" setup is
+> currently broken, but if fixed, will that be a fair compromise?
 
-Yeah I had seen a few, surprisingly few though. Sorry I'm a bit clueless
-about networking - I suppose there is a good reason for the 16K MTU? My
-first thought might be that a 4K one could be better on CPU cache as well
-as lighter on the mm. I know the networking guys know what they're doing
-though...
+Yes, sounds fine.
 
-> printk_ratelimit stuff first appeared because the e1000 was spewing so
-> many higher order page allocation failures on some boxes.
-> 
-> But yes, the e1000 guys were going to look into multiple buffer mode so
-> they dont need a high order allocation.
-> 
+Just thinking of something else: right now it's possible to disable a fbdev by
+saying `video=xxxfb:off'. This can be useful if the fbdev driver doesn't work
+with your hardware. After you change, individual fbdev drivers will have to
+reimplement this theirselves in their __setup() functions.
 
-Well let me be the first to say I don't want to stop that from happening.
+Gr{oetje,eeting}s,
 
-With regard to getting this patchset tested, I might see if I can hunt
-down another e1000 and give it a try at the end of the week. If anyone
-would like to beat me to it, just let me know and I'll send out a new
-set of patches with those couple of required fixes.
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,115 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285935AbSBCGOE>; Sun, 3 Feb 2002 01:14:04 -0500
+	id <S285850AbSBCGXg>; Sun, 3 Feb 2002 01:23:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285850AbSBCGNy>; Sun, 3 Feb 2002 01:13:54 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:5391 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S285935AbSBCGNr>; Sun, 3 Feb 2002 01:13:47 -0500
-Date: Sat, 2 Feb 2002 22:04:59 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Manuel McLure <manuel@mclure.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 Oops when trying to mount ATAPI CDROM
-In-Reply-To: <20020202170244.A12338@ulthar.internal>
-Message-ID: <Pine.LNX.4.10.10202021715180.26613-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S286179AbSBCGX1>; Sun, 3 Feb 2002 01:23:27 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:52750 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S285850AbSBCGXV>;
+	Sun, 3 Feb 2002 01:23:21 -0500
+Date: Sat, 2 Feb 2002 22:21:24 -0800
+From: Greg KH <greg@kroah.com>
+To: Nathan <wfilardo@fuse.net>
+Cc: Dave Jones <davej@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Issues with 2.5.3-dj1
+Message-ID: <20020203062124.GA15134@kroah.com>
+In-Reply-To: <3C5B5EC0.40503@fuse.net> <20020202055115.GA11359@kroah.com> <3C5B8C0D.8090009@fuse.net> <20020202133358.A5738@suse.de> <3C5C8CA2.9000103@fuse.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C5C8CA2.9000103@fuse.net>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Sun, 06 Jan 2002 04:04:13 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Feb 02, 2002 at 08:04:34PM -0500, Nathan wrote:
+> Dave Jones wrote:
+> 
+> >On Sat, Feb 02, 2002 at 01:49:49AM -0500, Nathan wrote:
+> >
+> >> Alright... a 2.5.3 with no extras boots fine (with init=/bin/bash) and 
+> >> can load and unload hotplug several times without OOPSing.  So it 
+> >> appears to be something else.  Hope that helps.
+> >
+> >Do you have driverfs mounted ? Can you try 2.5.3 + greg's
+> >USB driverfs patch ?
+> >
+> Unless driverfs is mounted by default or by something other than 
+> /etc/fstab, no I don't have it on.
 
-Manuel,
+It's internally mounted even if you don't physically mount the fs.
 
-Would you be kind enough to be a little more specific on the hardware?
-The attached devices bu make model and real vender if known.
+> w/ Greg's USB driverfs patch : system proves to be stable.
+>    (though 2.5.3 sometimes looses my keyboard after a time?)
 
-Regards,
+Is this a USB keyboard?  Are there any kernel log messages?
 
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
+> Raw -dj1:  explosion as above. [no ACPI (doesn't compile anyway), no 
+> preempt this time around, either.]
+>    (also lost my keyboard.  Odd.  Seems to be about 50% of the time 
+> with 2.5.3 + anything.)
 
-On Sat, 2 Feb 2002, Manuel McLure wrote:
+Hm, input layer changes?
 
-> Motherboard: ASUS P55T2P4 motherboard (Intel 430HX chipset)
-> CPU: AMD K6-III 400MHz
-> CD-ROM: No-name ATAPI CD-ROM installed as master on IDE channel 1 (hard 
-> drive is attached as master on IDE channel 0)
-> Kernel: Official 2.4.17 and Red Hat 2.4.9-21
-> 
-> Whenever I try to access the CD-ROM after boot, I get the following Oops:
-> 
-> Unable to handle kernel NULL pointer dereference at virtual address 
-> 00000063
-> c0193030
-> *pde = 00000000
-> Oops: 0000
-> CPU:    0
-> EIP:    0010:[<c0193030>]    Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010246
-> eax: c02b7730   ebx: 00000000   ecx: 00000005   edx: 00000004
-> esi: 00000005   edi: c02b7730   ebp: 00000001   esp: c0f51ee0
-> ds: 0018   es: 0018   ss: 0018
-> Process modprobe (pid: 1180, stackpage=c0f51000)
-> Stack: c02b7730 00000286 c8db3960 c0189762 c02b7730 c02b7730 00000007 
-> c02b7730
->         c3e03e00 c02b7730 00000134 c8db0a81 c02b7730 c8db3960 00000001 
-> c8dad000
->         00000001 00000015 00000001 c01165d7 c8db38a0 c0ab0000 000067a0 
-> c0ab2000
-> Call Trace: [<c8db3960>] [<c0189762>] [<c8db0a81>] [<c8db3960>] 
-> [<c01165d7>]
->     [<c8db38a0>] [<c8dad060>] [<c0106f13>]
-> Code: 8a 15 63 00 00 00 83 e2 08 75 06 f6 43 6a 02 74 0c be 07 00
-> 
-> >> EIP; c0193030 <config_drive_xfer_rate+d0/110>   <=====
-> Trace; c8db3960 <[ide-cd]ide_cdrom_driver+0/f>
-> Trace; c0189762 <ide_register_subdriver+92/100>
-> Trace; c8db0a81 <[ide-cd]init_module+a1/1af>
-> Trace; c8db3960 <[ide-cd]ide_cdrom_driver+0/f>
-> Trace; c01165d7 <sys_init_module+537/5f0>
-> Trace; c8db38a0 <[ide-cd].LC156+0/d>
-> Trace; c8dad060 <[ide-cd]__module_license+0/0>
-> Trace; c0106f13 <system_call+33/40>
-> Code;  c0193030 <config_drive_xfer_rate+d0/110>
-> 00000000 <_EIP>:
-> Code;  c0193030 <config_drive_xfer_rate+d0/110>   <=====
->     0:   8a 15 63 00 00 00         mov    0x63,%dl   <=====
-> Code;  c0193036 <config_drive_xfer_rate+d6/110>
->     6:   83 e2 08                  and    $0x8,%edx
-> Code;  c0193039 <config_drive_xfer_rate+d9/110>
->     9:   75 06                     jne    11 <_EIP+0x11> c0193041 
-> <config_drive_xfer_rate+e1/110>
-> Code;  c019303b <config_drive_xfer_rate+db/110>
->     b:   f6 43 6a 02               testb  $0x2,0x6a(%ebx)
-> Code;  c019303f <config_drive_xfer_rate+df/110>
->     f:   74 0c                     je     1d <_EIP+0x1d> c019304d 
-> <config_drive_xfer_rate+ed/110>
-> Code;  c0193041 <config_drive_xfer_rate+e1/110>
->    11:   be 07 00 00 00            mov    $0x7,%esi
-> 
-> After the Oops, lsmod shows:
-> 
-> ide-cd                 27072   3  (initializing)
-> 
-> and the module is stuck at initializing. 
-> This CD-ROM worked fine on 2.2.20 as long as I booted with "hdc=noprobe 
-> hdc=cdrom" (otherwise I'd get "lost interrupt" messages). I have tried 
-> "ide=nodma" with no effect, as well as trying with the "hdc=" options both 
-> on and off. Running "hdparm -d0 /dev/hdc" before trying the mount causes 
-> the same Oops.
-> 
-> Any ideas?
-> 
-> Thanks!
-> -- 
-> Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
-> <manuel@mclure.org>     | and significant law, no man may kill a cat.
-> <http://www.mclure.org> |             -- H.P. Lovecraft
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Glad 2.5.3 is working for you :)
 
+Thanks for testing it with my driverfs patch.
+
+greg k-h

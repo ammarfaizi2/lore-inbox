@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268849AbUIHEWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268836AbUIHEYE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268849AbUIHEWm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 00:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268889AbUIHEWm
+	id S268836AbUIHEYE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 00:24:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268182AbUIHEYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 00:22:42 -0400
-Received: from www2.muking.org ([216.231.42.228]:16413 "HELO www2.muking.org")
-	by vger.kernel.org with SMTP id S268836AbUIHEWN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 00:22:13 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R6
-From: Kevin Hilman <kjh-lkml@hilman.org>
-Organization: None to speak of.
-Date: 07 Sep 2004 21:22:11 -0700
-Message-ID: <834qm92xvw.fsf@www2.muking.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Sep 2004 00:24:04 -0400
+Received: from pat.uio.no ([129.240.130.16]:19621 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S268861AbUIHEX4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 00:23:56 -0400
+Subject: Re: [CHECKER] 2.6.8.1 deadlock in rpc_queue_lock <<===>> 
+	rpc_sched_lock
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Greg Banks <gnb@melbourne.sgi.com>
+Cc: Dawson Engler <engler@coverity.dreamhost.com>,
+       linux-kernel@vger.kernel.org, developers@coverity.com
+In-Reply-To: <1094615460.20243.165.camel@hole.melbourne.sgi.com>
+References: <Pine.LNX.4.58.0409071915020.23546@coverity.dreamhost.com>
+	 <1094615460.20243.165.camel@hole.melbourne.sgi.com>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1094617428.8389.12.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 08 Sep 2004 00:23:48 -0400
+Content-Transfer-Encoding: 8BIT
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running the VP patch on a PII 400MHz to closer approximate an
-embedded target.  I get a 21ms latency trace during boot which dwarfs
-other latencies and prevents me from seeing any of the later latencies
-when I'm running my test.  The trace (from -R5) is available here:
+På ty , 07/09/2004 klokka 23:51, skreiv Greg Banks:
 
-  http://hilman.org/kevin/VP/trace-cond_resched.txt
+> If this arc ever happens, you have data structure corruption issues
+> which are far more worrying than a deadlock.
 
-At first glance, it appears to be the result of an accumulation of
-calls to __delay() from the 3c59x vortex driver.  Any ideas what's
-going on here?
+True, but we should still get rid of it. No point in maintaining buggy
+debugging lines.
 
-Is there a way to disable the trace by default and enable it later via
-/proc?  I see that the preemption itself can be disabled via
-command-line and then enable later via /proc but I don't see the same
-for the latency trace.
+Note that in any case, the global rpc_queue_lock is gone in recent
+NFS_ALL and 2.6.x-mm series patches.
 
-Kevin
-http://hilman.org/
+Cheers,
+   Trond
 

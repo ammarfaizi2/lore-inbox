@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267097AbSK2QO1>; Fri, 29 Nov 2002 11:14:27 -0500
+	id <S267101AbSK2QVc>; Fri, 29 Nov 2002 11:21:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267098AbSK2QO1>; Fri, 29 Nov 2002 11:14:27 -0500
-Received: from boden.synopsys.com ([204.176.20.19]:35502 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP
-	id <S267097AbSK2QO0>; Fri, 29 Nov 2002 11:14:26 -0500
-Date: Fri, 29 Nov 2002 17:21:36 +0100
-From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: Netfilter Coreteam <coreteam@netfilter.org>
-Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
-Subject: circular dependency in netfilter headers (ip_conntrack.h)
-Message-ID: <20021129162136.GB26745@riesen-pc.gr05.synopsys.com>
-Reply-To: Alexander.Riesen@synopsys.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
+	id <S267102AbSK2QVc>; Fri, 29 Nov 2002 11:21:32 -0500
+Received: from 5-106.ctame701-1.telepar.net.br ([200.193.163.106]:11972 "EHLO
+	5-106.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S267101AbSK2QVb>; Fri, 29 Nov 2002 11:21:31 -0500
+Date: Fri, 29 Nov 2002 14:28:42 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "Randal, Phil" <prandal@herefordshire.gov.uk>
+cc: "'Javier Marcet'" <jmarcet@pobox.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Exaggerated swap usage
+In-Reply-To: <0EBC45FCABFC95428EBFC3A51B368C9501B02D@jessica.herefordshire.gov.uk>
+Message-ID: <Pine.LNX.4.44L.0211291427120.15981-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gmake[2]: Circular /export/home/riesen-pc0/riesen/compile/v2.4.20/include/linux/netfilter_ipv4/ip_conntrack_helper.h <- /export/home/riesen-pc0/riesen/compile/v2.4.20/include/linux/netfilter_ipv4/ip_conntrack.h dependency dropped.
+On Fri, 29 Nov 2002, Randal, Phil wrote:
 
+> Mem:  1031036K av, 1021140K used,    9896K free,       0K shrd,   80560K buff
+> Swap: 1052216K av,    5064K used, 1047152K free                  627808K cached
 
-I remember someone fixing it, but couldn't find the patch.
-FWIW:
+> Swapping in these circumstances shows a pathological reluctance to shed
+> cached pages.
 
---- 2.4.20/include/linux/netfilter_ipv4/ip_conntrack.h	2002-08-13 06:01:49.000000000 +0200
-+++ 2.4.20+/include/linux/netfilter_ipv4/ip_conntrack.h	2002-11-29 17:09:16.000000000 +0100
-@@ -148,7 +148,8 @@ struct ip_conntrack_expect
- 	union ip_conntrack_expect_help help;
- };
- 
--#include <linux/netfilter_ipv4/ip_conntrack_helper.h>
-+struct ip_conntrack_helper;
-+
- struct ip_conntrack
- {
- 	/* Usage count in here is 1 for hash table/destruct timer, 1 per skb,
+You've got 1 GB of RAM and 5 MB of pages in swap. That's an
+almost negligable quantity.
+
+Also, if vmstat doesn't show any swapins, the data is just
+sitting there in swap without ever being used ... quite
+possible since many distros start up daemons that people
+don't really use.
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+

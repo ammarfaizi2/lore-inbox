@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbULJRxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbULJRz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261780AbULJRxe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 12:53:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbULJRwB
+	id S261770AbULJRz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 12:55:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbULJRz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 12:52:01 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16856 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261777AbULJRvl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 12:51:41 -0500
-Message-ID: <41B9E224.9030705@pobox.com>
-Date: Fri, 10 Dec 2004 12:51:32 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Julien Langer <jlanger@zigweb.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Sil3112 and Seagate ST3160023AS
-References: <1102691231.3921.13.camel@moeff>
-In-Reply-To: <1102691231.3921.13.camel@moeff>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Dec 2004 12:55:56 -0500
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:33992 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S261770AbULJRzq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 12:55:46 -0500
+Date: Fri, 10 Dec 2004 18:55:04 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+       marcelo.tosatti@cyclades.com, LKML <linux-kernel@vger.kernel.org>,
+       nickpiggin@yahoo.com.au
+Subject: Re: [PATCH] oom killer (Core)
+Message-ID: <20041210175504.GY16322@dualathlon.random>
+References: <1101995280.13353.124.camel@tglx.tec.linutronix.de> <20041202164725.GB32635@dualathlon.random> <20041202085518.58e0e8eb.akpm@osdl.org> <20041202180823.GD32635@dualathlon.random> <1102013716.13353.226.camel@tglx.tec.linutronix.de> <20041202233459.GF32635@dualathlon.random> <20041203022854.GL32635@dualathlon.random> <20041210163614.GN2714@holomorphy.com> <20041210173554.GW16322@dualathlon.random> <20041210174336.GP2714@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041210174336.GP2714@holomorphy.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Julien Langer wrote:
-> Is there a way to disable this fix, which slows down my drive, since it
-> worked fine for a long time without this fix on older kernel versions?
-> I'm using the deprecated ide driver for the sil controller, not libata.
+On Fri, Dec 10, 2004 at 09:43:36AM -0800, William Lee Irwin III wrote:
+> Well, the only way I see this happening is the process exiting followed
+> by use_mm() on init_mm for unobvious reasons (perhaps reasons not in
+> the tree).
 
+I don't see the problem with use_mm. use_mm has either the mm set to
+ctx->mm or to NULL, and ctx->mm is set to the mm of the process calling
+io_setup.
 
-Unfortunately it's just a matter of time until you hit a problem, 
-without the errata fix that causes the performance loss.
-
-	Jeff
-
-
+The only thing using init_mm is the idle task/swapper as far as I can
+tell, kernel threads and exiting tasks have a NULL mm.

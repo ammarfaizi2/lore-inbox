@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264612AbTF3OWL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 10:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264776AbTF3OWK
+	id S264780AbTF3OZf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 10:25:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbTF3OZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 10:22:10 -0400
-Received: from pat.uio.no ([129.240.130.16]:25505 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264612AbTF3OWH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 10:22:07 -0400
+	Mon, 30 Jun 2003 10:25:31 -0400
+Received: from vdp152.ath06.cas.hol.gr ([195.97.121.153]:11648 "EHLO
+	pfn1.pefnos") by vger.kernel.org with ESMTP id S264780AbTF3OWv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 10:22:51 -0400
+From: "P. Christeas" <p_christ@hol.gr>
+To: Thomas Molina <tmolina@copper.net>
+Subject: Re: Synaptics support kills my mouse
+Date: Mon, 30 Jun 2003 17:37:27 +0300
+User-Agent: KMail/1.5
+Cc: Arkadiusz Miskiewicz <arekm@pld-linux.org>,
+       lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0306291241220.1007-100000@lap.molina>
+In-Reply-To: <Pine.LNX.4.44.0306291241220.1007-100000@lap.molina>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Message-Id: <200306300001.38039.p_christ@hol.gr>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16128.19176.804116.866980@charged.uio.no>
-Date: Mon, 30 Jun 2003 16:36:24 +0200
-To: Linux FSdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       NFS maillist <nfs@lists.sourceforge.net>
-Subject: [PATCH 0/4] Optimize NFS open() calls by means of 'intents'...
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patches add the concept of 'intents' to the VFS layer,
-and are subsequently used to optimize the NFSv2/v3 close-to-open code,
-and to add O_EXCL support.
-                                                                                
-Intents are a concept which have been pioneered under Linux by Peter
-Braam. They are an optional field that is passed down to inode ops and
-are used in order to pass down extra information to the filesystem
-about the nature of the operation being undertaken.
- 
-This allows the filesystem in turn to make assumptions in order to
-optimize away unnecessary operations (for instance under NFS - doing
-both a LOOKUP and a GETATTR when doing an open), and to choose
-variants that improve the atomicity (For instance under NFSv4 you
-may choose to OPEN rather than LOOKUP).
+Thomas Molina wrote:
+> On Thu, 26 Jun 2003, P. Christeas wrote:
+> > It is true, 2.5.73 unconditionally detects and tries to use the Syn.
+> > Touchpad in 'absolute mode'. I wouldn't blame the authors of the module,
+> > however. They are already doing a great job :).
+> >
+> > I 've read the code to see what's wrong and found that the problem is
+> > that the Touchpad itself doesn't report any data to the PS/2 port. The
+> > code still looks conforming to the specs.
+> > However, you shouldn't give up 2.5.73 because of that. You can still use
+> > the PS/2 compatibility mode
+> >  o Compile the ps mouse as a module "psmouse"
+> >  o Arrange so that the module is loaded with the option "psmouse_noext=1"
+> >  o Have gpm and X (you can even use both of them) read /dev/input/mice as
+> > an exps2 or imps2 mouse (Intellimouse Explorer PS/2) .
+>
+> Further update.  I can get the same effect/workaround by making the mouse
+> support built in (my preference) and specifying the above option on the
+> kernel options line.
 
-So far, I have only implemented OPEN intents. In the future, it may
-prove to be useful to add intents for other operations (I know the
-Lustre project in particular is keen to do this) in order to optimize
-away unnecessary file permission checks, and other such things.
- 
-The patches presented now differ from those presented in May in that
-I've tried to take into account both Linus' and Al Viro's comments.
-The strategy is therefore to make use of the 'struct nameidata',
-when it exists, and feed that down to the filesystem. The actual
-intent information is then included as a union in the nameidata.
- 
-Cheers,
-  Trond
+You can, but I wouldn't recommend that. Having a module allows you to change 
+the behaviour runtime (even inside X). 
+
+

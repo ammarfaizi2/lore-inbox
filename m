@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264677AbSLVOz2>; Sun, 22 Dec 2002 09:55:28 -0500
+	id <S264629AbSLVPYz>; Sun, 22 Dec 2002 10:24:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264683AbSLVOz2>; Sun, 22 Dec 2002 09:55:28 -0500
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:29909 "EHLO
-	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S264677AbSLVOz1>; Sun, 22 Dec 2002 09:55:27 -0500
-Subject: Re: PATCH 2.5.x disable BAR when sizing
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Paul Mackerras <paulus@samba.org>
+	id <S264683AbSLVPYz>; Sun, 22 Dec 2002 10:24:55 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:33922 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S264629AbSLVPYy>;
+	Sun, 22 Dec 2002 10:24:54 -0500
+Date: Sun, 22 Dec 2002 15:32:29 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Ingo Molnar <mingo@elte.hu>
 Cc: Linus Torvalds <torvalds@transmeta.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, davidm@hpl.hp.com,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Ulrich Drepper <drepper@redhat.com>, bart@etpmod.phys.tue.nl,
+       davej@codemonkey.org.uk, hpa@transmeta.com, terje.eggestad@scali.com,
+       matti.aarnio@zmailer.org, hugh@veritas.com,
        linux-kernel@vger.kernel.org
-In-Reply-To: <15877.26255.524564.576439@argo.ozlabs.ibm.com>
-References: <m17ke3m3gl.fsf@frodo.biederman.org>
-	<Pine.LNX.4.44.0212211423390.1604-100000@home.transmeta.com> 
-	<15877.26255.524564.576439@argo.ozlabs.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 22 Dec 2002 16:03:01 +0100
-Message-Id: <1040569382.1966.11.camel@zion>
+Subject: Re: Intel P6 vs P7 system call performance
+Message-ID: <20021222153229.GA30269@bjl1.asuk.net>
+References: <Pine.LNX.4.44.0212211858240.8783-100000@home.transmeta.com> <Pine.LNX.4.44.0212221111080.31068-100000@localhost.localdomain>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0212221111080.31068-100000@localhost.localdomain>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-12-22 at 08:15, Paul Mackerras wrote:
-> Linus Torvalds writes:
-> 
-> > Actually, I think it's certainly valid to not allow "printk()" to happen
-> > around the BAR probing, at least at bootup when we control all the CPU's
-> > tightly anyway.
-> 
-> I'd like us to disable interrupts too.  On powermacs, the interrupt
-> controller is typically inside a combo I/O ASIC which is on the PCI
-> bus.  If we take an interrupt while the ASIC's BAR is relocated or
-> turned off, we will get a machine check when we try to access the
-> interrupt controller and the kernel will die at that point.
+Ingo Molnar wrote:
+> and i'm 100% sure the more robust eflags saving will also avoid security
+> holes. The amount of security-relevant complexity that comes from all the
+> x86 features [and their combinations] is amazing.
 
-Actually, it's even worse, as the current probe code also turn off
-address decoders of PCI<->PCI bridges when probing, and in a lot of
-case, the combo ASIC containing the interrupt controller _is_ behind a
-PCI<->PCI bridge ! Same problem with serial port (so printk is unsafe
-for quite a while on serial consoles) etc...
+Userspace can skip the "popfl" with a well-timed signal.  If the
+"sysexit" path leaves the kernel with an unsafe eflags, that will
+propagate into the signal handler.
 
-The code has a comment that clearly says that we don't know why address
-decoding is turned off and that should be fixed, so I suggest we either
-fix it now or replace the comment with an explanation of why we need to
-turn it off ;) Eventually, turning it off could be made an exception via
-some quirks mecanism.
+AFAICT, one of these is required:
 
-Ben.
+	1. eflags must be safe before leaving kernel space, or
+	2. setup_sigcontext() must clean it up (it already does clear TF).
 
-
+-- Jamie

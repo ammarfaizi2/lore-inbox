@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132504AbQKKVH0>; Sat, 11 Nov 2000 16:07:26 -0500
+	id <S132552AbQKKVKg>; Sat, 11 Nov 2000 16:10:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132527AbQKKVHG>; Sat, 11 Nov 2000 16:07:06 -0500
-Received: from tepid.osl.fast.no ([213.188.9.130]:34569 "EHLO
+	id <S132527AbQKKVK0>; Sat, 11 Nov 2000 16:10:26 -0500
+Received: from tepid.osl.fast.no ([213.188.9.130]:36361 "EHLO
 	tepid.osl.fast.no") by vger.kernel.org with ESMTP
-	id <S132504AbQKKVGz>; Sat, 11 Nov 2000 16:06:55 -0500
-Date: Sat, 11 Nov 2000 21:07:52 GMT
-Message-Id: <200011112107.VAA31913@tepid.osl.fast.no>
-Subject: [patch] patch-2.4.0-test10-irda9 (was: Re: The IrDA patches)
+	id <S132552AbQKKVKN>; Sat, 11 Nov 2000 16:10:13 -0500
+Date: Sat, 11 Nov 2000 21:11:10 GMT
+Message-Id: <200011112111.VAA31999@tepid.osl.fast.no>
+Subject: [patch] patch-2.4.0-test10-irda10 (was: Re: The IrDA patches)
 X-Mailer: Pygmy (v0.4.4pre)
-Subject: [patch] patch-2.4.0-test10-irda9 (was: Re: The IrDA patches)
+Subject: [patch] patch-2.4.0-test10-irda10 (was: Re: The IrDA patches)
 Cc: linux-kernel@vger.kernel.org
 From: Dag Brattli <dagb@fast.no>
 To: torvalds@transmeta.com
@@ -24,7 +24,7 @@ your latest 2.4 code. If you decide to apply them, then I suggest you start
 with the first one (irda1.diff) and work your way to the last one 
 (irda24.diff) since most of them are not commutative. 
 
-The name of this patch is irda9.diff. 
+The name of this patch is irda10.diff. 
 
 (Many thanks to Jean Tourrilhes for splitting up the big patch)
 
@@ -33,782 +33,852 @@ The name of this patch is irda9.diff.
 [CRITICA] : Fix potential kernel crash
 [OUPS   ] : Error that will be fixed in a later patch
 
-irda9.diff :
-----------------
-	o [CORRECT] Change queue_t to irda_queue_t (namespace pollution)
+irda10.diff :
+-----------------
+	o [CRITICA] Update skb handling (Add skb_get() and kfree_skb())
 
-diff -urpN old-linux/include/net/irda/discovery.h linux/include/net/irda/discovery.h
---- old-linux/include/net/irda/discovery.h	Thu Nov  9 13:45:18 2000
-+++ linux/include/net/irda/discovery.h	Thu Nov  9 14:44:44 2000
-@@ -45,7 +45,7 @@
-  * The DISCOVERY structure is used for both discovery requests and responses
-  */
- typedef struct discovery_t {
--	queue_t q;               /* Must be first! */
-+	irda_queue_t q;          /* Must be first! */
- 
- 	__u32      saddr;        /* Which link the device was discovered */
- 	__u32      daddr;        /* Remote device address */
-diff -urpN old-linux/include/net/irda/ircomm_core.h linux/include/net/irda/ircomm_core.h
---- old-linux/include/net/irda/ircomm_core.h	Tue Dec 21 10:17:31 1999
-+++ linux/include/net/irda/ircomm_core.h	Thu Nov  9 14:44:44 2000
-@@ -53,7 +53,7 @@ typedef struct {
- } call_t;
- 
- struct ircomm_cb {
--	queue_t queue;
-+	irda_queue_t queue;
- 	magic_t magic;
- 
- 	notify_t notify;
-diff -urpN old-linux/include/net/irda/ircomm_tty.h linux/include/net/irda/ircomm_tty.h
---- old-linux/include/net/irda/ircomm_tty.h	Fri Jan 28 19:36:22 2000
-+++ linux/include/net/irda/ircomm_tty.h	Thu Nov  9 14:44:44 2000
-@@ -48,7 +48,7 @@
-  * IrCOMM TTY driver state
-  */
- struct ircomm_tty_cb {
--	queue_t queue;            /* Must be first */
-+	irda_queue_t queue;            /* Must be first */
- 	magic_t magic;
- 
- 	int state;                /* Connect state */
-diff -urpN old-linux/include/net/irda/irda_device.h linux/include/net/irda/irda_device.h
---- old-linux/include/net/irda/irda_device.h	Tue Oct 31 11:18:04 2000
-+++ linux/include/net/irda/irda_device.h	Thu Nov  9 14:44:44 2000
-@@ -79,7 +79,7 @@ struct irda_task;
- typedef int (*IRDA_TASK_CALLBACK) (struct irda_task *task);
- 
- struct irda_task {
--	queue_t q;
-+	irda_queue_t q;
- 	magic_t magic;
- 
- 	IRDA_TASK_STATE state;
-@@ -111,7 +111,7 @@ typedef struct {
- 
- /* Dongle registration info */
- struct dongle_reg {
--	queue_t q;         /* Must be first */
-+	irda_queue_t q;         /* Must be first */
- 	IRDA_DONGLE type;
- 
- 	void (*open)(dongle_t *dongle, struct qos_info *qos);
-diff -urpN old-linux/include/net/irda/iriap.h linux/include/net/irda/iriap.h
---- old-linux/include/net/irda/iriap.h	Thu Jan  6 14:46:18 2000
-+++ linux/include/net/irda/iriap.h	Thu Nov  9 14:44:44 2000
-@@ -58,7 +58,7 @@ typedef void (*CONFIRM_CALLBACK)(int res
- 				 struct ias_value *value, void *priv);
- 
- struct iriap_cb {
--	queue_t q;      /* Must be first */	
-+	irda_queue_t q; /* Must be first */	
- 	magic_t magic;  /* Magic cookie */
- 
- 	int          mode;   /* Client or server */
-diff -urpN old-linux/include/net/irda/irias_object.h linux/include/net/irda/irias_object.h
---- old-linux/include/net/irda/irias_object.h	Thu Nov  9 11:49:35 2000
-+++ linux/include/net/irda/irias_object.h	Thu Nov  9 14:44:44 2000
-@@ -42,7 +42,7 @@
-  *  LM-IAS Object
-  */
- struct ias_object {
--	queue_t q;     /* Must be first! */
-+	irda_queue_t q;     /* Must be first! */
- 	magic_t magic;
- 	
- 	char  *name;
-@@ -71,7 +71,7 @@ struct ias_value {
-  *  Attributes used by LM-IAS objects
-  */
- struct ias_attrib {
--	queue_t q; /* Must be first! */
-+	irda_queue_t q; /* Must be first! */
- 	int magic;
- 
-         char *name;   	         /* Attribute name */
-diff -urpN old-linux/include/net/irda/irlan_common.h linux/include/net/irda/irlan_common.h
---- old-linux/include/net/irda/irlan_common.h	Tue Jul 11 11:12:24 2000
-+++ linux/include/net/irda/irlan_common.h	Thu Nov  9 14:44:44 2000
-@@ -161,7 +161,7 @@ struct irlan_provider_cb {
-  *  IrLAN control block
-  */
- struct irlan_cb {
--	queue_t q; /* Must be first */
-+	irda_queue_t q; /* Must be first */
- 
- 	int    magic;
- 	struct net_device dev;        /* Ethernet device structure*/
-diff -urpN old-linux/include/net/irda/irlap.h linux/include/net/irda/irlap.h
---- old-linux/include/net/irda/irlap.h	Tue Oct 31 11:18:04 2000
-+++ linux/include/net/irda/irlap.h	Thu Nov  9 14:44:44 2000
-@@ -81,7 +81,7 @@
- #define irda_incomp      (*self->decompressor.cp->incomp)
- 
- struct irda_compressor {
--	queue_t q;
-+	irda_queue_t q;
- 
- 	struct compressor *cp;
- 	void *state; /* Not used by IrDA */
-@@ -90,7 +90,7 @@ struct irda_compressor {
- 
- /* Main structure of IrLAP */
- struct irlap_cb {
--	queue_t q;     /* Must be first */
-+	irda_queue_t q;     /* Must be first */
- 	magic_t magic;
- 
- 	struct net_device  *netdev;
-diff -urpN old-linux/include/net/irda/irlmp.h linux/include/net/irda/irlmp.h
---- old-linux/include/net/irda/irlmp.h	Thu Nov  9 13:45:18 2000
-+++ linux/include/net/irda/irlmp.h	Thu Nov  9 14:44:44 2000
-@@ -75,13 +75,13 @@ typedef void (*DISCOVERY_CALLBACK1) (dis
- typedef void (*DISCOVERY_CALLBACK2) (hashbin_t *, void *);
- 
- typedef struct {
--	queue_t queue; /* Must be first */
-+	irda_queue_t queue; /* Must be first */
- 
- 	__u16 hints; /* Hint bits */
- } irlmp_service_t;
- 
- typedef struct {
--	queue_t queue; /* Must be first */
-+	irda_queue_t queue; /* Must be first */
- 
- 	__u16 hint_mask;
- 
-@@ -96,7 +96,7 @@ struct lap_cb; /* Forward decl. */
-  *  Information about each logical LSAP connection
-  */
- struct lsap_cb {
--	queue_t queue;      /* Must be first */
-+	irda_queue_t queue;      /* Must be first */
- 	magic_t magic;
- 
- 	int  connected;
-@@ -122,7 +122,7 @@ struct lsap_cb {
-  *  Information about each registred IrLAP layer
-  */
- struct lap_cb {
--	queue_t queue; /* Must be first */
-+	irda_queue_t queue; /* Must be first */
- 	magic_t magic;
- 
- 	int reason;    /* LAP disconnect reason */
-diff -urpN old-linux/include/net/irda/irmod.h linux/include/net/irda/irmod.h
---- old-linux/include/net/irda/irmod.h	Fri Jan 28 19:36:22 2000
-+++ linux/include/net/irda/irmod.h	Thu Nov  9 14:44:44 2000
-@@ -69,7 +69,7 @@ typedef void (*TODO_CALLBACK)( void *sel
-  *  addtional information
-  */
- struct irda_event {
--	queue_t q; /* Must be first */
-+	irda_queue_t q; /* Must be first */
- 	
- 	struct irmanager_event event;
- };
-@@ -78,7 +78,7 @@ struct irda_event {
-  *  Funtions with needs to be called with a process context
-  */
- struct irda_todo {
--	queue_t q; /* Must be first */
-+	irda_queue_t q; /* Must be first */
- 
- 	void *self;
- 	TODO_CALLBACK callback;
-@@ -94,8 +94,8 @@ struct irda_cb {
- 
- 	int in_use;
- 
--	queue_t *event_queue; /* Events queued for the irmanager */
--	queue_t *todo_queue;  /* Todo list */
-+	irda_queue_t *event_queue; /* Events queued for the irmanager */
-+	irda_queue_t *todo_queue;  /* Todo list */
- };
- 
- int irmod_init_module(void);
-diff -urpN old-linux/include/net/irda/irqueue.h linux/include/net/irda/irqueue.h
---- old-linux/include/net/irda/irqueue.h	Tue Oct 31 11:18:17 2000
-+++ linux/include/net/irda/irqueue.h	Thu Nov  9 14:44:44 2000
-@@ -30,8 +30,8 @@
- #include <linux/types.h>
- #include <linux/spinlock.h>
- 
--#ifndef QUEUE_H
--#define QUEUE_H
-+#ifndef IRDA_QUEUE_H
-+#define IRDA_QUEUE_H
- 
- #define NAME_SIZE      32
- 
-@@ -62,39 +62,39 @@ typedef void (*FREE_FUNC)(void *arg);
-  */
- #define GET_HASHBIN(x) ( x & HASHBIN_MASK )
- 
--struct irqueue {
--	struct irqueue *q_next;
--	struct irqueue *q_prev;
-+struct irda_queue {
-+	struct irda_queue *q_next;
-+	struct irda_queue *q_prev;
- 
- 	char   q_name[NAME_SIZE];
- 	__u32  q_hash;
- };
--typedef struct irqueue queue_t;
-+typedef struct irda_queue irda_queue_t;
- 
- typedef struct hashbin_t {
- 	__u32      magic;
- 	int        hb_type;
- 	int        hb_size;
- 	spinlock_t hb_mutex[HASHBIN_SIZE] ALIGN;
--	queue_t   *hb_queue[HASHBIN_SIZE] ALIGN;
-+	irda_queue_t   *hb_queue[HASHBIN_SIZE] ALIGN;
- 
--	queue_t* hb_current;
-+	irda_queue_t* hb_current;
- } hashbin_t;
- 
- hashbin_t *hashbin_new(int type);
- int      hashbin_delete(hashbin_t* hashbin, FREE_FUNC func);
- int      hashbin_clear(hashbin_t* hashbin, FREE_FUNC free_func);
--void     hashbin_insert(hashbin_t* hashbin, queue_t* entry, __u32 hashv, 
-+void     hashbin_insert(hashbin_t* hashbin, irda_queue_t* entry, __u32 hashv, 
- 			char* name);
- void*    hashbin_find(hashbin_t* hashbin, __u32 hashv, char* name);
- void*    hashbin_remove(hashbin_t* hashbin, __u32 hashv, char* name);
- void*    hashbin_remove_first(hashbin_t *hashbin);
--queue_t *hashbin_get_first(hashbin_t *hashbin);
--queue_t *hashbin_get_next(hashbin_t *hashbin);
-+irda_queue_t *hashbin_get_first(hashbin_t *hashbin);
-+irda_queue_t *hashbin_get_next(hashbin_t *hashbin);
- 
--void enqueue_last(queue_t **queue, queue_t* element);
--void enqueue_first(queue_t **queue, queue_t* element);
--queue_t *dequeue_first(queue_t **queue);
-+void enqueue_last(irda_queue_t **queue, irda_queue_t* element);
-+void enqueue_first(irda_queue_t **queue, irda_queue_t* element);
-+irda_queue_t *dequeue_first(irda_queue_t **queue);
- 
- #define HASHBIN_GET_SIZE(hashbin) hashbin->hb_size
- 
-diff -urpN old-linux/include/net/irda/irttp.h linux/include/net/irda/irttp.h
---- old-linux/include/net/irda/irttp.h	Tue Dec 21 10:17:31 1999
-+++ linux/include/net/irda/irttp.h	Thu Nov  9 14:44:44 2000
-@@ -63,7 +63,7 @@
-  *  connection.
-  */
- struct tsap_cb {
--	queue_t q;            /* Must be first */
-+	irda_queue_t q;            /* Must be first */
- 	magic_t magic;        /* Just in case */
- 
- 	__u8 stsap_sel;       /* Source TSAP */
-diff -urpN old-linux/include/net/irda/irtty.h linux/include/net/irda/irtty.h
---- old-linux/include/net/irda/irtty.h	Fri Jan 28 19:36:22 2000
-+++ linux/include/net/irda/irtty.h	Thu Nov  9 14:44:44 2000
-@@ -45,7 +45,7 @@ struct irtty_info {
- #define IRTTY_IOC_MAXNR   2
- 
- struct irtty_cb {
--	queue_t q;     /* Must be first */
-+	irda_queue_t q;     /* Must be first */
- 	magic_t magic;
- 
- 	struct net_device *netdev; /* Yes! we are some kind of netdevice */
-diff -urpN old-linux/drivers/net/irda/irtty.c linux/drivers/net/irda/irtty.c
---- old-linux/drivers/net/irda/irtty.c	Thu Nov  9 13:48:34 2000
-+++ linux/drivers/net/irda/irtty.c	Thu Nov  9 14:44:44 2000
-@@ -176,7 +176,7 @@ static int irtty_open(struct tty_struct 
- 		MINOR(tty->device) - tty->driver.minor_start +
- 		tty->driver.name_base);
- 
--	hashbin_insert(irtty, (queue_t *) self, (int) self, NULL);
-+	hashbin_insert(irtty, (irda_queue_t *) self, (int) self, NULL);
- 
- 	if (tty->driver.flush_buffer)
- 		tty->driver.flush_buffer(tty);
-diff -urpN old-linux/net/irda/discovery.c linux/net/irda/discovery.c
---- old-linux/net/irda/discovery.c	Thu Nov  9 13:45:18 2000
-+++ linux/net/irda/discovery.c	Thu Nov  9 14:44:44 2000
-@@ -92,7 +92,7 @@ void irlmp_add_discovery(hashbin_t *cach
- 	}
- 
- 	/* Insert the new and updated version */
--	hashbin_insert(cachelog, (queue_t *) new, new->daddr, NULL);
-+	hashbin_insert(cachelog, (irda_queue_t *) new, new->daddr, NULL);
- 
- 	spin_unlock_irqrestore(&irlmp->log_lock, flags);
- }
-diff -urpN old-linux/net/irda/ircomm/ircomm_core.c linux/net/irda/ircomm/ircomm_core.c
---- old-linux/net/irda/ircomm/ircomm_core.c	Thu Jan  6 14:46:18 2000
-+++ linux/net/irda/ircomm/ircomm_core.c	Thu Nov  9 14:44:44 2000
-@@ -127,7 +127,7 @@ struct ircomm_cb *ircomm_open(notify_t *
- 	self->service_type = service_type;
- 	self->line = line;
- 
--	hashbin_insert(ircomm, (queue_t *) self, line, NULL);
-+	hashbin_insert(ircomm, (irda_queue_t *) self, line, NULL);
- 
- 	ircomm_next_state(self, IRCOMM_IDLE);	
- 
-diff -urpN old-linux/net/irda/ircomm/ircomm_tty.c linux/net/irda/ircomm/ircomm_tty.c
---- old-linux/net/irda/ircomm/ircomm_tty.c	Fri Apr 21 15:17:57 2000
-+++ linux/net/irda/ircomm/ircomm_tty.c	Thu Nov  9 14:44:44 2000
-@@ -429,7 +429,7 @@ static int ircomm_tty_open(struct tty_st
- 		tty->termios->c_oflag = 0;
- 
- 		/* Insert into hash */
--		hashbin_insert(ircomm_tty, (queue_t *) self, line, NULL);
-+		hashbin_insert(ircomm_tty, (irda_queue_t *) self, line, NULL);
- 	}
- 	self->open_count++;
- 
-diff -urpN old-linux/net/irda/irda_device.c linux/net/irda/irda_device.c
---- old-linux/net/irda/irda_device.c	Tue Mar 21 11:17:28 2000
-+++ linux/net/irda/irda_device.c	Thu Nov  9 14:44:44 2000
-@@ -379,7 +379,7 @@ struct irda_task *irda_task_execute(void
- 	init_timer(&task->timer);
- 
- 	/* Register task */
--	hashbin_insert(tasks, (queue_t *) task, (int) task, NULL);
-+	hashbin_insert(tasks, (irda_queue_t *) task, (int) task, NULL);
- 
- 	/* No time to waste, so lets get going! */
- 	ret = irda_task_kick(task);
-@@ -518,7 +518,7 @@ int irda_device_register_dongle(struct d
-         }
- 	
- 	/* Insert IrDA dongle into hashbin */
--	hashbin_insert(dongles, (queue_t *) new, new->type, NULL);
-+	hashbin_insert(dongles, (irda_queue_t *) new, new->type, NULL);
- 	
-         return 0;
- }
-diff -urpN old-linux/net/irda/iriap.c linux/net/irda/iriap.c
---- old-linux/net/irda/iriap.c	Thu Nov  9 11:49:35 2000
-+++ linux/net/irda/iriap.c	Thu Nov  9 14:44:44 2000
-@@ -180,7 +180,7 @@ struct iriap_cb *iriap_open(__u8 slsap_s
- 
- 	init_timer(&self->watchdog_timer);
- 
--	hashbin_insert(iriap, (queue_t *) self, (int) self, NULL);
-+	hashbin_insert(iriap, (irda_queue_t *) self, (int) self, NULL);
- 	
- 	/* Initialize state machines */
- 	iriap_next_client_state(self, S_DISCONNECT);
-diff -urpN old-linux/net/irda/irias_object.c linux/net/irda/irias_object.c
---- old-linux/net/irda/irias_object.c	Thu Nov  9 11:49:35 2000
-+++ linux/net/irda/irias_object.c	Thu Nov  9 14:44:44 2000
-@@ -189,7 +189,7 @@ void irias_insert_object(struct ias_obje
- 	ASSERT(obj != NULL, return;);
- 	ASSERT(obj->magic == IAS_OBJECT_MAGIC, return;);
- 	
--	hashbin_insert(objects, (queue_t *) obj, 0, obj->name);
-+	hashbin_insert(objects, (irda_queue_t *) obj, 0, obj->name);
- }
- 
- /*
-@@ -244,7 +244,7 @@ void irias_add_attrib( struct ias_object
- 	/* Set if attrib is owned by kernel or user space */
- 	attrib->value->owner = owner;
- 
--	hashbin_insert(obj->attribs, (queue_t *) attrib, 0, attrib->name);
-+	hashbin_insert(obj->attribs, (irda_queue_t *) attrib, 0, attrib->name);
- }
- 
- /*
-diff -urpN old-linux/net/irda/irlan/irlan_common.c linux/net/irda/irlan/irlan_common.c
---- old-linux/net/irda/irlan/irlan_common.c	Thu Nov  9 13:27:10 2000
-+++ linux/net/irda/irlan/irlan_common.c	Thu Nov  9 14:44:44 2000
-@@ -293,7 +293,7 @@ struct irlan_cb *irlan_open(__u32 saddr,
- 	init_timer(&self->watchdog_timer);
- 	init_timer(&self->client.kick_timer);
- 
--	hashbin_insert(irlan, (queue_t *) self, daddr, NULL);
-+	hashbin_insert(irlan, (irda_queue_t *) self, daddr, NULL);
- 	
- 	skb_queue_head_init(&self->client.txq);
- 	
 diff -urpN old-linux/net/irda/irlap.c linux/net/irda/irlap.c
---- old-linux/net/irda/irlap.c	Thu Jan  6 14:46:18 2000
-+++ linux/net/irda/irlap.c	Thu Nov  9 14:44:44 2000
-@@ -154,7 +154,7 @@ struct irlap_cb *irlap_open(struct net_d
- 	
- 	irlap_next_state(self, LAP_NDM);
+--- old-linux/net/irda/irlap.c	Thu Nov  9 14:47:22 2000
++++ linux/net/irda/irlap.c	Thu Nov  9 14:47:40 2000
+@@ -232,7 +232,8 @@ void irlap_connect_indication(struct irl
+ 	ASSERT(self->magic == LAP_MAGIC, return;);
  
--	hashbin_insert(irlap, (queue_t *) self, self->saddr, NULL);
-+	hashbin_insert(irlap, (irda_queue_t *) self, self->saddr, NULL);
- 
- 	irlmp_register_link(self, self->saddr, &self->notify);
+ 	irlap_init_qos_capabilities(self, NULL); /* No user QoS! */
+-	
++
++	skb_get(skb); /*LEVEL4*/
+ 	irlmp_link_connect_indication(self->notify.instance, self->saddr, 
+ 				      self->daddr, &self->qos_tx, skb);
+ }
+@@ -248,6 +249,7 @@ void irlap_connect_response(struct irlap
+ 	IRDA_DEBUG(4, __FUNCTION__ "()\n");
  	
-diff -urpN old-linux/net/irda/irlap_comp.c linux/net/irda/irlap_comp.c
---- old-linux/net/irda/irlap_comp.c	Mon Oct 25 20:49:42 1999
-+++ linux/net/irda/irlap_comp.c	Thu Nov  9 14:44:44 2000
-@@ -63,7 +63,7 @@ int irda_register_compressor( struct com
-         new->cp = cp;
+ 	irlap_do_event(self, CONNECT_RESPONSE, skb, NULL);
++	kfree_skb(skb);
+ }
  
- 	/* Insert IrDA compressor into hashbin */
--	hashbin_insert( irlap_compressors, (queue_t *) new, cp->compress_proto,
-+	hashbin_insert( irlap_compressors, (irda_queue_t *) new, cp->compress_proto,
- 			NULL);
- 	
-         return 0;
+ /*
+@@ -292,6 +294,7 @@ void irlap_connect_confirm(struct irlap_
+ 	ASSERT(self != NULL, return;);
+ 	ASSERT(self->magic == LAP_MAGIC, return;);
+ 
++	skb_get(skb); /*LEVEL4*/
+ 	irlmp_link_connect_confirm(self->notify.instance, &self->qos_tx, skb);
+ }
+ 
+@@ -310,6 +313,7 @@ void irlap_data_indication(struct irlap_
+ 
+ #ifdef CONFIG_IRDA_COMPRESSION
+ 	if (self->qos_tx.compression.value) {
++		skb_get(skb); /*LEVEL4*/
+ 		skb = irlap_decompress_frame(self, skb);
+ 		if (!skb) {
+ 			IRDA_DEBUG(1, __FUNCTION__ "(), Decompress error!\n");
+@@ -317,6 +321,7 @@ void irlap_data_indication(struct irlap_
+ 		}
+ 	}
+ #endif
++	skb_get(skb); /*LEVEL4*/
+ 	irlmp_link_data_indication(self->notify.instance, skb, unreliable);
+ }
+ 
+@@ -373,6 +378,7 @@ void irlap_data_request(struct irlap_cb 
+ 			ASSERT(skb != NULL, return;);
+ 		}
+ 		irlap_do_event(self, SEND_I_CMD, skb, NULL);
++		kfree_skb(skb);
+ 	} else
+ 		skb_queue_tail(&self->txq, skb);
+ }
+@@ -422,6 +428,7 @@ void irlap_unitdata_indication(struct ir
+ 	/* Hide LAP header from IrLMP layer */
+ 	skb_pull(skb, LAP_ADDR_HEADER+LAP_CTRL_HEADER);
+ 
++	skb_get(skb); /*LEVEL4*/
+ 	irlmp_link_unitdata_indication(self->notify.instance, skb);
+ }
+ #endif /* CONFIG_IRDA_ULTRA */
 diff -urpN old-linux/net/irda/irlap_event.c linux/net/irda/irlap_event.c
---- old-linux/net/irda/irlap_event.c	Thu Jan  6 14:46:18 2000
-+++ linux/net/irda/irlap_event.c	Thu Nov  9 14:44:44 2000
-@@ -496,7 +496,7 @@ static int irlap_state_query(struct irla
+--- old-linux/net/irda/irlap_event.c	Thu Nov  9 14:47:22 2000
++++ linux/net/irda/irlap_event.c	Thu Nov  9 14:47:40 2000
+@@ -230,7 +230,7 @@ void irlap_do_event(struct irlap_cb *sel
+ 	
+ 	if (!self || self->magic != LAP_MAGIC)
+ 		return;
+-	
++
+   	IRDA_DEBUG(3, __FUNCTION__ "(), event = %s, state = %s\n", 
+ 		   irlap_event[event], irlap_state[self->state]); 
+ 	
+@@ -252,6 +252,7 @@ void irlap_do_event(struct irlap_cb *sel
+ 			while ((skb = skb_dequeue(&self->txq)) != NULL) {
+ 				ret = (*state[self->state])(self, SEND_I_CMD,
+ 							    skb, NULL);
++				kfree_skb(skb);
+ 				if (ret == -EPROTO)
+ 					break; /* Try again later! */
+ 			}
+@@ -351,12 +352,11 @@ static int irlap_state_ndm(struct irlap_
+ 			self->caddr = info->caddr;
+ 			
+ 			irlap_next_state(self, LAP_CONN);
+-			
++
+ 			irlap_connect_indication(self, skb);
+ 		} else {
+ 			IRDA_DEBUG(0, __FUNCTION__ "(), SNRM frame does not "
+ 				   "contain an I field!\n");
+-			dev_kfree_skb(skb);
+ 		}
+ 		break;
+ 	case DISCOVERY_REQUEST:		
+@@ -410,14 +410,13 @@ static int irlap_state_ndm(struct irlap_
+ 			irlap_start_query_timer(self, QUERY_TIMEOUT*info->S);
+ 			irlap_next_state(self, LAP_REPLY);
+ 		}
+-		dev_kfree_skb(skb);
+ 		break;
+ #ifdef CONFIG_IRDA_ULTRA
+ 	case SEND_UI_FRAME:
+ 		/* Only allowed to repeat an operation twice */
+ 		for (i=0; ((i<2) && (self->media_busy == FALSE)); i++) {
+ 			skb = skb_dequeue(&self->txq_ultra);
+-			if (skb)			
++			if (skb)
+ 				irlap_send_ui_frame(self, skb, CBROADCAST, 
+ 						    CMD_FRAME);
+ 			else
+@@ -433,7 +432,6 @@ static int irlap_state_ndm(struct irlap_
+ 		if (info->caddr != CBROADCAST) {
+ 			IRDA_DEBUG(0, __FUNCTION__ 
+ 				   "(), not a broadcast frame!\n");
+-			dev_kfree_skb(skb);
+ 		} else
+ 			irlap_unitdata_indication(self, skb);
+ 		break;
+@@ -447,19 +445,14 @@ static int irlap_state_ndm(struct irlap_
+ 		 * will only be used to send out the same info as the cmd
+ 		 */
+ 		irlap_send_test_frame(self, CBROADCAST, info->daddr, skb);
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case RECV_TEST_RSP:
+ 		IRDA_DEBUG(0, __FUNCTION__ "() not implemented!\n");
+-		dev_kfree_skb(skb);
+ 		break;
+ 	default:
+ 		IRDA_DEBUG(2, __FUNCTION__ "(), Unknown event %s\n", 
+ 			   irlap_event[event]);
+ 		
+-		if (skb)
+-			dev_kfree_skb(skb);
+-
+ 		ret = -1;
+ 		break;
+ 	}	
+@@ -492,7 +485,6 @@ static int irlap_state_query(struct irla
+ 			WARNING(__FUNCTION__ "(), discovery log is gone! "
+ 				"maybe the discovery timeout has been set to "
+ 				"short?\n");
+-			dev_kfree_skb(skb);
  			break;
  		}
  		hashbin_insert(self->discovery_log, 
--			       (queue_t *) info->discovery,
-+			       (irda_queue_t *) info->discovery,
- 			       info->discovery->daddr, NULL);
- 
+@@ -502,7 +494,6 @@ static int irlap_state_query(struct irla
  		/* Keep state */
-diff -urpN old-linux/net/irda/irlmp.c linux/net/irda/irlmp.c
---- old-linux/net/irda/irlmp.c	Thu Nov  9 13:45:18 2000
-+++ linux/net/irda/irlmp.c	Thu Nov  9 14:44:44 2000
-@@ -178,7 +178,7 @@ struct lsap_cb *irlmp_open_lsap(__u8 sls
- 	irlmp_next_lsap_state(self, LSAP_DISCONNECTED);
- 	
- 	/* Insert into queue of unconnected LSAPs */
--	hashbin_insert(irlmp->unconnected_lsaps, (queue_t *) self, (int) self, 
-+	hashbin_insert(irlmp->unconnected_lsaps, (irda_queue_t *) self, (int) self, 
- 		       NULL);
- 	
- 	return self;
-@@ -286,7 +286,7 @@ void irlmp_register_link(struct irlap_cb
- 	/*
- 	 *  Insert into queue of unconnected LSAPs
- 	 */
--	hashbin_insert(irlmp->links, (queue_t *) lap, lap->saddr, NULL);
-+	hashbin_insert(irlmp->links, (irda_queue_t *) lap, lap->saddr, NULL);
+ 		/* irlap_next_state(self, LAP_QUERY);  */
  
- 	/* 
- 	 *  We set only this variable so IrLAP can tell us on which link the
-@@ -431,7 +431,7 @@ int irlmp_connect_request(struct lsap_cb
- 	ASSERT(lsap->lap != NULL, return -1;);
- 	ASSERT(lsap->lap->magic == LMP_LAP_MAGIC, return -1;);
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case SLOT_TIMER_EXPIRED:
+ 		if (self->s < self->S) {
+@@ -537,9 +528,6 @@ static int irlap_state_query(struct irla
+ 		IRDA_DEBUG(2, __FUNCTION__ "(), Unknown event %s\n", 
+ 			   irlap_event[event]);
  
--	hashbin_insert(self->lap->lsaps, (queue_t *) self, (int) self, NULL);
-+	hashbin_insert(self->lap->lsaps, (irda_queue_t *) self, (int) self, NULL);
- 
- 	self->connected = TRUE;
- 	
-@@ -573,7 +573,7 @@ struct lsap_cb *irlmp_dup(struct lsap_cb
- 	
- 	init_timer(&new->watchdog_timer);
- 	
--	hashbin_insert(irlmp->unconnected_lsaps, (queue_t *) new, (int) new, 
-+	hashbin_insert(irlmp->unconnected_lsaps, (irda_queue_t *) new, (int) new, 
- 		       NULL);
- 
- 	/* Make sure that we invalidate the cache */
-@@ -628,7 +628,7 @@ int irlmp_disconnect_request(struct lsap
- 	ASSERT(lsap->magic == LMP_LSAP_MAGIC, return -1;);
- 	ASSERT(lsap == self, return -1;);
- 
--	hashbin_insert(irlmp->unconnected_lsaps, (queue_t *) self, (int) self, 
-+	hashbin_insert(irlmp->unconnected_lsaps, (irda_queue_t *) self, (int) self, 
- 		       NULL);
- 	
- 	/* Reset some values */
-@@ -674,7 +674,7 @@ void irlmp_disconnect_indication(struct 
- 
- 	ASSERT(lsap != NULL, return;);
- 	ASSERT(lsap == self, return;);
--	hashbin_insert(irlmp->unconnected_lsaps, (queue_t *) lsap, (int) lsap, 
-+	hashbin_insert(irlmp->unconnected_lsaps, (irda_queue_t *) lsap, (int) lsap, 
- 		       NULL);
- 
- 	self->lap = NULL;
-@@ -1246,7 +1246,7 @@ __u32 irlmp_register_service(__u16 hints
- 		return 0;
+-		if (skb)
+-			dev_kfree_skb(skb);
+-
+ 		ret = -1;
+ 		break;
  	}
- 	service->hints = hints;
--	hashbin_insert(irlmp->services, (queue_t *) service, handle, NULL);
-+	hashbin_insert(irlmp->services, (irda_queue_t *) service, handle, NULL);
+@@ -595,15 +583,11 @@ static int irlap_state_reply(struct irla
+ 			self->frame_sent = TRUE;
+ 			irlap_next_state(self, LAP_REPLY);
+ 		}
+-		dev_kfree_skb(skb);
+ 		break;
+ 	default:
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), Unknown event %d, %s\n", event,
+ 			   irlap_event[event]);
  
- 	return handle;
- }
-@@ -1322,7 +1322,7 @@ __u32 irlmp_register_client(__u16 hint_m
- 	client->callback2 = callback2;
- 	client->priv = priv;
+-		if (skb)
+-			dev_kfree_skb(skb);
+-		
+ 		ret = -1;
+ 		break;
+ 	}
+@@ -665,14 +649,12 @@ static int irlap_state_conn(struct irlap
+ 		irlap_start_wd_timer(self, self->wd_timeout);
+ 		irlap_next_state(self, LAP_NRM_S);
  
-- 	hashbin_insert(irlmp->clients, (queue_t *) client, handle, NULL);
-+ 	hashbin_insert(irlmp->clients, (irda_queue_t *) client, handle, NULL);
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case RECV_DISCOVERY_XID_CMD:
+ 		IRDA_DEBUG(3, __FUNCTION__ 
+ 			   "(), event RECV_DISCOVER_XID_CMD!\n");
+ 		irlap_next_state(self, LAP_NDM);
  
- 	return handle;
- }
-diff -urpN old-linux/net/irda/irlmp_event.c linux/net/irda/irlmp_event.c
---- old-linux/net/irda/irlmp_event.c	Thu Nov  9 13:36:27 2000
-+++ linux/net/irda/irlmp_event.c	Thu Nov  9 14:44:44 2000
-@@ -523,7 +523,7 @@ static int irlmp_state_connect(struct ls
- 		ASSERT(self->lap != NULL, return -1;);
- 		ASSERT(self->lap->lsaps != NULL, return -1;);
+-		dev_kfree_skb(skb);
+ 		break;		
+ 	case DISCONNECT_REQUEST:
+ 		irlap_send_dm_frame(self);
+@@ -682,9 +664,6 @@ static int irlap_state_conn(struct irlap
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), Unknown event %d, %s\n", event,
+ 			   irlap_event[event]);
  		
--		hashbin_insert(self->lap->lsaps, (queue_t *) self, (int) self, 
-+		hashbin_insert(self->lap->lsaps, (irda_queue_t *) self, (int) self, 
- 			       NULL);
+-		if (skb)
+-			dev_kfree_skb(skb);
+-
+ 		ret = -1;
+ 		break;
+ 	}
+@@ -766,7 +745,6 @@ static int irlap_state_setup(struct irla
+ 			irlap_start_wd_timer(self, self->wd_timeout);
+ 		} else {
+ 			/* We just ignore the other device! */
+-			dev_kfree_skb(skb);
+ 			irlap_next_state(self, LAP_SETUP);
+ 		}
+ 		break;
+@@ -803,14 +781,11 @@ static int irlap_state_setup(struct irla
+ 		irlap_next_state(self, LAP_NDM);
  
- 		irlmp_send_lcf_pdu(self->lap, self->dlsap_sel, 
-diff -urpN old-linux/net/irda/irmod.c linux/net/irda/irmod.c
---- old-linux/net/irda/irmod.c	Thu Nov  9 13:45:18 2000
-+++ linux/net/irda/irmod.c	Thu Nov  9 14:44:44 2000
-@@ -347,7 +347,7 @@ void irda_execute_as_process( void *self
- 	new->param = param;
- 	
- 	/* Queue todo */
--	enqueue_last(&irda.todo_queue, (queue_t *) new);
-+	enqueue_last(&irda.todo_queue, (irda_queue_t *) new);
+ 		irlap_disconnect_indication(self, LAP_DISC_INDICATION);
+-		dev_kfree_skb(skb);
+ 		break;
+ 	default:
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), Unknown event %d, %s\n", event,
+ 			   irlap_event[event]);		
+-		if (skb)
+-			dev_kfree_skb(skb);
+-		
++
+ 		ret = -1;
+ 		break;
+ 	}	
+@@ -860,8 +835,7 @@ static int irlap_state_xmit_p(struct irl
+ 				IRDA_DEBUG(4, __FUNCTION__ 
+ 					   "(), Not allowed to transmit more "
+ 					   "bytes!\n");
+-				skb_queue_head(&self->txq, skb);
+-
++				skb_queue_head(&self->txq, skb_get(skb));
+ 				/*
+ 				 *  We should switch state to LAP_NRM_P, but
+ 				 *  that is not possible since we must be sure
+@@ -900,7 +874,7 @@ static int irlap_state_xmit_p(struct irl
+ 		} else {
+ 			IRDA_DEBUG(4, __FUNCTION__ 
+ 				   "(), Unable to send! remote busy?\n");
+-			skb_queue_head(&self->txq, skb);
++			skb_queue_head(&self->txq, skb_get(skb));
  
- 	event.event = EVENT_NEED_PROCESS_CONTEXT;
+ 			/*
+ 			 *  The next ret is important, because it tells 
+@@ -929,9 +903,6 @@ static int irlap_state_xmit_p(struct irl
+ 		IRDA_DEBUG(0, __FUNCTION__ "(), Unknown event %s\n", 
+ 			   irlap_event[event]);
  
-@@ -382,7 +382,7 @@ void irmanager_notify( struct irmanager_
- 	new->event = *event;
- 	
- 	/* Queue event */
--	enqueue_last(&irda.event_queue, (queue_t *) new);
-+	enqueue_last(&irda.event_queue, (irda_queue_t *) new);
- 	
- 	/* Wake up irmanager sleeping on read */
- 	wake_up_interruptible(&irda.wait_queue);
-diff -urpN old-linux/net/irda/irqueue.c linux/net/irda/irqueue.c
---- old-linux/net/irda/irqueue.c	Tue Dec 21 10:17:58 1999
-+++ linux/net/irda/irqueue.c	Thu Nov  9 14:44:44 2000
-@@ -36,7 +36,7 @@
- #include <net/irda/irqueue.h>
- #include <net/irda/irmod.h>
+-		if (skb)
+-			dev_kfree_skb(skb);
+-
+ 		ret = -EINVAL;
+ 		break;
+ 	}
+@@ -964,7 +935,6 @@ static int irlap_state_pclose(struct irl
+ 		irlap_next_state(self, LAP_NDM);
+ 		
+ 		irlap_disconnect_indication(self, LAP_DISC_INDICATION);
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case FINAL_TIMER_EXPIRED:
+ 		if (self->retry_count < self->N3) {
+@@ -985,9 +955,6 @@ static int irlap_state_pclose(struct irl
+ 	default:
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), Unknown event %d\n", event);
  
--static queue_t *dequeue_general( queue_t **queue, queue_t* element);
-+static irda_queue_t *dequeue_general( irda_queue_t **queue, irda_queue_t* element);
- static __u32 hash( char* name);
+-		if (skb)
+-			dev_kfree_skb(skb);
+-
+ 		ret = -1;
+ 		break;	
+ 	}
+@@ -1041,7 +1008,7 @@ static int irlap_state_nrm_p(struct irla
+ 				
+ 				/* Keep state, do not move this line */
+ 				irlap_next_state(self, LAP_NRM_P);
+-				
++
+ 				irlap_data_indication(self, skb, FALSE);
+ 			} else {
+ 				del_timer(&self->final_timer);
+@@ -1065,7 +1032,7 @@ static int irlap_state_nrm_p(struct irla
+ 				 * upper layers
+ 				 */
+ 				irlap_next_state(self, LAP_XMIT_P);
+-			
++
+ 				irlap_data_indication(self, skb, FALSE);
+ 
+ 				/* This is the last frame */
+@@ -1102,7 +1069,6 @@ static int irlap_state_nrm_p(struct irla
+ 				irlap_start_final_timer(self, self->final_timeout);
+ 				irlap_next_state(self, LAP_NRM_P);
+ 			}
+-			dev_kfree_skb(skb);
+ 			break;
+ 		}
+ 		/* 
+@@ -1124,7 +1090,7 @@ static int irlap_state_nrm_p(struct irla
+ 				
+ 				/* Keep state, do not move this line */
+ 				irlap_next_state(self, LAP_NRM_P);
+-				
++
+ 				irlap_data_indication(self, skb, FALSE);
+ 			} else {
+ 				/* 
+@@ -1142,7 +1108,7 @@ static int irlap_state_nrm_p(struct irla
+ 
+ 				/* Keep state, do not move this line!*/
+ 				irlap_next_state(self, LAP_NRM_P); 
+-				
++
+ 				irlap_data_indication(self, skb, FALSE);
+ 			}
+ 			break;
+@@ -1171,7 +1137,6 @@ static int irlap_state_nrm_p(struct irla
+ 				
+ 				self->ack_required = FALSE;
+ 			}
+-			dev_kfree_skb(skb);
+ 			break;
+ 		}
+ 
+@@ -1193,7 +1158,6 @@ static int irlap_state_nrm_p(struct irla
+ 				
+ 				self->xmitflag = FALSE;
+ 			}
+-			dev_kfree_skb(skb);
+ 			break;
+ 		}
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), Not implemented!\n");
+@@ -1209,6 +1173,7 @@ static int irlap_state_nrm_p(struct irla
+ 		} else {
+ 			del_timer(&self->final_timer);
+ 			irlap_data_indication(self, skb, TRUE);
++			printk(__FUNCTION__ "(): RECV_UI_FRAME: next state %s\n", irlap_state[self->state]);
+ 			irlap_start_poll_timer(self, self->poll_timeout);
+ 		}
+ 		break;
+@@ -1270,7 +1235,6 @@ static int irlap_state_nrm_p(struct irla
+ 			irlap_disconnect_indication(self, LAP_RESET_INDICATION);
+ 			self->xmitflag = TRUE;
+ 		}
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case RECV_RNR_RSP:
+ 		ASSERT(info != NULL, return -1;);
+@@ -1285,14 +1249,12 @@ static int irlap_state_nrm_p(struct irla
+ 			
+ 		/* Start poll timer */
+ 		irlap_start_poll_timer(self, self->poll_timeout);
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case RECV_FRMR_RSP:
+ 		del_timer(&self->final_timer);
+ 		self->xmitflag = TRUE;
+ 		irlap_next_state(self, LAP_RESET_WAIT);
+ 		irlap_reset_indication(self);
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case FINAL_TIMER_EXPIRED:
+ 		/* 
+@@ -1357,7 +1319,6 @@ static int irlap_state_nrm_p(struct irla
+ 		} else
+ 			irlap_resend_rejected_frames(self, CMD_FRAME);
+ 		irlap_start_final_timer(self, self->final_timeout);
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case RECV_SREJ_RSP:
+ 		irlap_update_nr_received(self, info->nr);
+@@ -1367,7 +1328,6 @@ static int irlap_state_nrm_p(struct irla
+ 		} else
+ 			irlap_resend_rejected_frame(self, CMD_FRAME);
+ 		irlap_start_final_timer(self, self->final_timeout);
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case RECV_RD_RSP:
+ 		IRDA_DEBUG(0, __FUNCTION__ "(), RECV_RD_RSP\n");
+@@ -1381,8 +1341,6 @@ static int irlap_state_nrm_p(struct irla
+ 	default:
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), Unknown event %s\n", 
+ 			   irlap_event[event]);
+-		if (skb)
+-			dev_kfree_skb(skb);
+ 
+ 		ret = -1;
+ 		break;
+@@ -1430,8 +1388,6 @@ static int irlap_state_reset_wait(struct
+ 	default:
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), Unknown event %s\n", 
+ 			   irlap_event[event]);
+-		if (skb)
+-			dev_kfree_skb(skb);
+ 
+ 		ret = -1;
+ 		break;	
+@@ -1467,7 +1423,6 @@ static int irlap_state_reset(struct irla
+ 
+ 		irlap_disconnect_indication(self, LAP_NO_RESPONSE);
+ 
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case RECV_UA_RSP:
+ 		del_timer(&self->final_timer);
+@@ -1483,7 +1438,6 @@ static int irlap_state_reset(struct irla
+ 
+ 		irlap_start_poll_timer(self, self->poll_timeout);
+ 
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case FINAL_TIMER_EXPIRED:
+ 		if (self->retry_count < 3) {
+@@ -1522,13 +1476,10 @@ static int irlap_state_reset(struct irla
+ 			IRDA_DEBUG(0, __FUNCTION__ 
+ 				   "(), SNRM frame contained an I field!\n");
+ 		}
+-		dev_kfree_skb(skb);
+ 		break;
+ 	default:
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), Unknown event %s\n", 
+ 			   irlap_event[event]);	
+-		if (skb)
+-			dev_kfree_skb(skb);
+ 
+ 		ret = -1;
+ 		break;	
+@@ -1566,7 +1517,7 @@ static int irlap_state_xmit_s(struct irl
+ 			 *  speed and turn-around-time.
+ 			 */
+ 			if (skb->len > self->bytes_left) {
+-				skb_queue_head(&self->txq, skb);
++				skb_queue_head(&self->txq, skb_get(skb));
+ 				/*
+ 				 *  Switch to NRM_S, this is only possible
+ 				 *  when we are in secondary mode, since we 
+@@ -1600,7 +1551,7 @@ static int irlap_state_xmit_s(struct irl
+ 			}
+ 		} else {
+ 			IRDA_DEBUG(2, __FUNCTION__ "(), Unable to send!\n");
+-			skb_queue_head(&self->txq, skb);
++			skb_queue_head(&self->txq, skb_get(skb));
+ 			ret = -EPROTO;
+ 		}
+ 		break;
+@@ -1613,8 +1564,6 @@ static int irlap_state_xmit_s(struct irl
+ 	default:
+ 		IRDA_DEBUG(2, __FUNCTION__ "(), Unknown event %s\n", 
+ 			   irlap_event[event]);
+-		if (skb)
+-			dev_kfree_skb(skb);
+ 
+ 		ret = -EINVAL;
+ 		break;
+@@ -1676,7 +1625,7 @@ static int irlap_state_nrm_s(struct irla
+ #endif
+ 				/* Keep state, do not move this line */
+ 				irlap_next_state(self, LAP_NRM_S);
+-				
++
+ 				irlap_data_indication(self, skb, FALSE);
+ 				break;
+ 			} else {
+@@ -1739,7 +1688,6 @@ static int irlap_state_nrm_s(struct irla
+ 			
+ 				irlap_start_wd_timer(self, self->wd_timeout);
+ 			}
+-			dev_kfree_skb(skb);
+ 			break;
+ 		}
+ 
+@@ -1778,7 +1726,7 @@ static int irlap_state_nrm_s(struct irla
+ 				
+ 				/* Keep state, do not move this line */
+ 				irlap_next_state(self, LAP_NRM_S);
+-				
++
+ 				irlap_data_indication(self, skb, FALSE);
+ 				irlap_start_wd_timer(self, self->wd_timeout);
+ 			}
+@@ -1787,11 +1735,9 @@ static int irlap_state_nrm_s(struct irla
+ 		
+ 		if (ret == NR_INVALID) {
+ 			IRDA_DEBUG(0, "NRM_S, NR_INVALID not implemented!\n");
+-			dev_kfree_skb(skb);
+ 		}
+ 		if (ret == NS_INVALID) {
+ 			IRDA_DEBUG(0, "NRM_S, NS_INVALID not implemented!\n");
+-			dev_kfree_skb(skb);
+ 		}
+ 		break;
+ 	case RECV_UI_FRAME:
+@@ -1870,7 +1816,6 @@ static int irlap_state_nrm_s(struct irla
+ 			IRDA_DEBUG(1, __FUNCTION__ 
+ 				   "(), invalid nr not implemented!\n");
+ 		} 
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case RECV_SNRM_CMD:
+ 		/* SNRM frame is not allowed to contain an I-field */
+@@ -1885,7 +1830,6 @@ static int irlap_state_nrm_s(struct irla
+ 				   "(), SNRM frame contained an I-field!\n");
+ 			
+ 		}
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case RECV_REJ_CMD:
+ 		irlap_update_nr_received(self, info->nr);
+@@ -1895,7 +1839,6 @@ static int irlap_state_nrm_s(struct irla
+ 		} else
+ 			irlap_resend_rejected_frames(self, CMD_FRAME);
+ 		irlap_start_wd_timer(self, self->wd_timeout);
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case RECV_SREJ_CMD:
+ 		irlap_update_nr_received(self, info->nr);
+@@ -1905,7 +1848,6 @@ static int irlap_state_nrm_s(struct irla
+ 		} else
+ 			irlap_resend_rejected_frame(self, CMD_FRAME);
+ 		irlap_start_wd_timer(self, self->wd_timeout);
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case WD_TIMER_EXPIRED:
+ 		/*
+@@ -1944,7 +1886,6 @@ static int irlap_state_nrm_s(struct irla
+ 		irlap_apply_default_connection_parameters(self);
+ 
+ 		irlap_disconnect_indication(self, LAP_DISC_INDICATION);
+-		dev_kfree_skb(skb);		
+ 		break;
+ 	case RECV_DISCOVERY_XID_CMD:
+ 		irlap_wait_min_turn_around(self, &self->qos_tx);
+@@ -1953,7 +1894,6 @@ static int irlap_state_nrm_s(struct irla
+ 		irlap_start_wd_timer(self, self->wd_timeout);
+ 		irlap_next_state(self, LAP_NRM_S);
+ 
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case RECV_TEST_CMD:
+ 		/* Remove test frame header */
+@@ -1964,13 +1904,10 @@ static int irlap_state_nrm_s(struct irla
+ 
+ 		/* Send response (info will be copied) */
+ 		irlap_send_test_frame(self, self->caddr, info->daddr, skb);
+-		dev_kfree_skb(skb);
+ 		break;
+ 	default:
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), Unknown event %d, (%s)\n", 
+ 			   event, irlap_event[event]);
+-		if (skb)
+-			dev_kfree_skb(skb);
+ 
+ 		ret = -EINVAL;
+ 		break;
+@@ -2005,7 +1942,6 @@ static int irlap_state_sclose(struct irl
+ 		irlap_apply_default_connection_parameters(self);
+ 
+ 		irlap_disconnect_indication(self, LAP_DISC_INDICATION);
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case RECV_DM_RSP:
+ 		/* Always switch state before calling upper layers */
+@@ -2015,7 +1951,6 @@ static int irlap_state_sclose(struct irl
+ 		irlap_apply_default_connection_parameters(self);
+ 		
+ 		irlap_disconnect_indication(self, LAP_DISC_INDICATION);
+-		dev_kfree_skb(skb);
+ 		break;
+ 	case WD_TIMER_EXPIRED:
+ 		irlap_apply_default_connection_parameters(self);
+@@ -2025,9 +1960,7 @@ static int irlap_state_sclose(struct irl
+ 	default:
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), Unknown event %d, (%s)\n", 
+ 			   event, irlap_event[event]);
+-		if (skb)
+-			dev_kfree_skb(skb);
+-		
++
+ 		ret = -EINVAL;
+ 		break;
+ 	}
+@@ -2064,8 +1997,6 @@ static int irlap_state_reset_check( stru
+ 	default:
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), Unknown event %d, (%s)\n", 
+ 			   event, irlap_event[event]);
+-		if (skb)
+-			dev_kfree_skb(skb);
+ 
+ 		ret = -EINVAL;
+ 		break;
+diff -urpN old-linux/net/irda/irlap_frame.c linux/net/irda/irlap_frame.c
+--- old-linux/net/irda/irlap_frame.c	Thu Jan  6 14:46:18 2000
++++ linux/net/irda/irlap_frame.c	Thu Nov  9 14:47:40 2000
+@@ -164,7 +164,6 @@ static void irlap_recv_snrm_cmd(struct i
+ 		if ((info->caddr == 0x00) || (info->caddr == 0xfe)) {
+ 			IRDA_DEBUG(3, __FUNCTION__ 
+ 			      "(), invalid connection address!\n");
+-			dev_kfree_skb(skb);
+ 			return;
+ 		}
+ 		
+@@ -175,13 +174,13 @@ static void irlap_recv_snrm_cmd(struct i
+ 		/* Only accept if addressed directly to us */
+ 		if (info->saddr != self->saddr) {
+ 			IRDA_DEBUG(2, __FUNCTION__ "(), not addressed to us!\n");
+-			dev_kfree_skb(skb);
+ 			return;
+ 		}
+ 		irlap_do_event(self, RECV_SNRM_CMD, skb, info);
+-	} else
++	} else {
+ 		/* Signal that this SNRM frame does not contain and I-field */
+ 		irlap_do_event(self, RECV_SNRM_CMD, skb, NULL);
++	}
+ }
  
  /*
-@@ -79,7 +79,7 @@ hashbin_t *hashbin_new(int type)
-  */
- int hashbin_clear( hashbin_t* hashbin, FREE_FUNC free_func)
- {
--	queue_t* queue;
-+	irda_queue_t* queue;
- 	int i;
- 	
- 	ASSERT(hashbin != NULL, return -1;);
-@@ -89,12 +89,12 @@ int hashbin_clear( hashbin_t* hashbin, F
- 	 * Free the entries in the hashbin
- 	 */
- 	for (i = 0; i < HASHBIN_SIZE; i ++ ) {
--		queue = dequeue_first( (queue_t**) &hashbin->hb_queue[i]);
-+		queue = dequeue_first( (irda_queue_t**) &hashbin->hb_queue[i]);
- 		while (queue) {
- 			if (free_func)
- 				(*free_func)(queue);
- 			queue = dequeue_first( 
--				(queue_t**) &hashbin->hb_queue[i]);
-+				(irda_queue_t**) &hashbin->hb_queue[i]);
+@@ -408,13 +407,11 @@ static void irlap_recv_discovery_xid_rsp
+ 	if ((info->saddr != self->saddr) && (info->saddr != BROADCAST)) {
+ 		IRDA_DEBUG(0, __FUNCTION__ 
+ 			   "(), frame is not addressed to us!\n");
+-		dev_kfree_skb(skb);
+ 		return;
+ 	}
+ 
+ 	if ((discovery = kmalloc(sizeof(discovery_t), GFP_ATOMIC)) == NULL) {
+ 		WARNING(__FUNCTION__ "(), kmalloc failed!\n");
+-		dev_kfree_skb(skb);
+ 		return;
+ 	}
+ 	memset(discovery, 0, sizeof(discovery_t));
+@@ -476,7 +473,6 @@ static void irlap_recv_discovery_xid_cmd
+ 	if ((info->saddr != self->saddr) && (info->saddr != BROADCAST)) {
+ 		IRDA_DEBUG(0, __FUNCTION__ 
+ 			   "(), frame is not addressed to us!\n");
+-		dev_kfree_skb(skb);
+ 		return;
+ 	}
+ 
+@@ -512,7 +508,6 @@ static void irlap_recv_discovery_xid_cmd
+ 		discovery = kmalloc(sizeof(discovery_t), GFP_ATOMIC);
+ 		if (!discovery) {
+ 			WARNING(__FUNCTION__ "(), unable to malloc!\n");
+-			dev_kfree_skb(skb);
+ 			return;
  		}
- 	}
- 	hashbin->hb_size = 0;
-@@ -112,7 +112,7 @@ int hashbin_clear( hashbin_t* hashbin, F
-  */
- int hashbin_delete( hashbin_t* hashbin, FREE_FUNC free_func)
- {
--	queue_t* queue;
-+	irda_queue_t* queue;
- 	int i;
- 
- 	ASSERT(hashbin != NULL, return -1;);
-@@ -123,12 +123,12 @@ int hashbin_delete( hashbin_t* hashbin, 
- 	 *  it has been shown to work
- 	 */
- 	for (i = 0; i < HASHBIN_SIZE; i ++ ) {
--		queue = dequeue_first((queue_t**) &hashbin->hb_queue[i]);
-+		queue = dequeue_first((irda_queue_t**) &hashbin->hb_queue[i]);
- 		while (queue ) {
- 			if (free_func)
- 				(*free_func)(queue);
- 			queue = dequeue_first( 
--				(queue_t**) &hashbin->hb_queue[i]);
-+				(irda_queue_t**) &hashbin->hb_queue[i]);
- 		}
- 	}
- 	
-@@ -210,7 +210,7 @@ void hashbin_unlock(hashbin_t* hashbin, 
-  *    Insert an entry into the hashbin
-  *
-  */
--void hashbin_insert(hashbin_t* hashbin, queue_t* entry, __u32 hashv, char* name)
-+void hashbin_insert(hashbin_t* hashbin, irda_queue_t* entry, __u32 hashv, char* name)
- {
- 	unsigned long flags = 0;
- 	int bin;
-@@ -250,7 +250,7 @@ void hashbin_insert(hashbin_t* hashbin, 
- 	 */
- 	if ( hashbin->hb_type & HB_SORTED) {
- 	} else {
--		enqueue_first( (queue_t**) &hashbin->hb_queue[ bin ],
-+		enqueue_first( (irda_queue_t**) &hashbin->hb_queue[ bin ],
- 			       entry);
- 	}
- 	hashbin->hb_size++;
-@@ -275,7 +275,7 @@ void* hashbin_find( hashbin_t* hashbin, 
- {
- 	int bin, found = FALSE;
- 	unsigned long flags = 0;
--	queue_t* entry;
-+	irda_queue_t* entry;
- 
- 	IRDA_DEBUG( 4, "hashbin_find()\n");
- 
-@@ -342,7 +342,7 @@ void* hashbin_find( hashbin_t* hashbin, 
- void *hashbin_remove_first( hashbin_t *hashbin)
- {
- 	unsigned long flags;
--	queue_t *entry = NULL;
-+	irda_queue_t *entry = NULL;
- 
- 	save_flags(flags);
- 	cli();
-@@ -367,7 +367,7 @@ void* hashbin_remove( hashbin_t* hashbin
- {
- 	int bin, found = FALSE;
- 	unsigned long flags = 0;
--	queue_t* entry;
-+	irda_queue_t* entry;
- 
- 	IRDA_DEBUG( 4, __FUNCTION__ "()\n");
- 
-@@ -421,8 +421,8 @@ void* hashbin_remove( hashbin_t* hashbin
- 	 * If entry was found, dequeue it
- 	 */
- 	if ( found ) {
--		dequeue_general( (queue_t**) &hashbin->hb_queue[ bin ],
--				 (queue_t*) entry );
-+		dequeue_general( (irda_queue_t**) &hashbin->hb_queue[ bin ],
-+				 (irda_queue_t*) entry );
- 		hashbin->hb_size--;
- 
- 		/*
-@@ -457,9 +457,9 @@ void* hashbin_remove( hashbin_t* hashbin
-  *    called before any calls to hashbin_get_next()!
-  *
-  */
--queue_t *hashbin_get_first( hashbin_t* hashbin) 
-+irda_queue_t *hashbin_get_first( hashbin_t* hashbin) 
- {
--	queue_t *entry;
-+	irda_queue_t *entry;
- 	int i;
- 
- 	ASSERT( hashbin != NULL, return NULL;);
-@@ -489,9 +489,9 @@ queue_t *hashbin_get_first( hashbin_t* h
-  *    NULL when all items have been traversed
-  * 
-  */
--queue_t *hashbin_get_next( hashbin_t *hashbin)
-+irda_queue_t *hashbin_get_next( hashbin_t *hashbin)
- {
--	queue_t* entry;
-+	irda_queue_t* entry;
- 	int bin;
- 	int i;
- 
-@@ -542,7 +542,7 @@ queue_t *hashbin_get_next( hashbin_t *ha
-  *    Insert item into end of queue.
-  *
-  */
--static void __enqueue_last( queue_t **queue, queue_t* element)
-+static void __enqueue_last( irda_queue_t **queue, irda_queue_t* element)
- {
- 	IRDA_DEBUG( 4, __FUNCTION__ "()\n");
- 
-@@ -566,7 +566,7 @@ static void __enqueue_last( queue_t **qu
- 	}	
+ 	      
+@@ -541,7 +536,7 @@ static void irlap_recv_discovery_xid_cmd
+ 		info->discovery = discovery;
+ 	} else
+ 		info->discovery = NULL;
+-	
++
+ 	irlap_do_event(self, RECV_DISCOVERY_XID_CMD, skb, info);
  }
  
--inline void enqueue_last( queue_t **queue, queue_t* element)
-+inline void enqueue_last( irda_queue_t **queue, irda_queue_t* element)
- {
- 	unsigned long flags;
- 	
-@@ -584,7 +584,7 @@ inline void enqueue_last( queue_t **queu
-  *    Insert item first in queue.
-  *
-  */
--void enqueue_first(queue_t **queue, queue_t* element)
-+void enqueue_first(irda_queue_t **queue, irda_queue_t* element)
- {
- 	
- 	IRDA_DEBUG( 4, __FUNCTION__ "()\n");
-@@ -616,9 +616,9 @@ void enqueue_first(queue_t **queue, queu
-  *    Insert a queue (list) into the start of the first queue
-  *
-  */
--void enqueue_queue( queue_t** queue, queue_t** list )
-+void enqueue_queue( irda_queue_t** queue, irda_queue_t** list )
- {
--	queue_t* tmp;
-+	irda_queue_t* tmp;
- 	
+@@ -734,7 +729,6 @@ void irlap_send_data_primary(struct irla
+ 		/* Copy buffer */
+ 		tx_skb = skb_clone(skb, GFP_ATOMIC);
+ 		if (tx_skb == NULL) {
+-			dev_kfree_skb(skb);
+ 			return;
+ 		}
+ 		
+@@ -747,7 +741,7 @@ void irlap_send_data_primary(struct irla
+ 		/* 
+ 		 *  Insert frame in store, in case of retransmissions 
+ 		 */
+-		skb_queue_tail(&self->wx_list, skb);
++		skb_queue_tail(&self->wx_list, skb_get(skb));
+ 		
+ 		self->vs = (self->vs + 1) % 8;
+ 		self->ack_required = FALSE;		
+@@ -756,7 +750,7 @@ void irlap_send_data_primary(struct irla
+ 		irlap_send_i_frame( self, tx_skb, CMD_FRAME);
+ 	} else {
+ 		IRDA_DEBUG(4, __FUNCTION__ "(), sending unreliable frame\n");
+-		irlap_send_ui_frame(self, skb, self->caddr, CMD_FRAME);
++		irlap_send_ui_frame(self, skb_get(skb), self->caddr, CMD_FRAME);
+ 		self->window -= 1;
+ 	}
+ }
+@@ -781,7 +775,6 @@ void irlap_send_data_primary_poll(struct
+ 		/* Copy buffer */
+ 		tx_skb = skb_clone(skb, GFP_ATOMIC);
+ 		if (tx_skb == NULL) {
+-			dev_kfree_skb(skb);
+ 			return;
+ 		}
+ 		
+@@ -794,7 +787,7 @@ void irlap_send_data_primary_poll(struct
+ 		/* 
+ 		 *  Insert frame in store, in case of retransmissions 
+ 		 */
+-		skb_queue_tail(&self->wx_list, skb);
++		skb_queue_tail(&self->wx_list, skb_get(skb));
+ 		
+ 		/*  
+ 		 *  Set poll bit if necessary. We do this to the copied
+@@ -819,12 +812,12 @@ void irlap_send_data_primary_poll(struct
+ 		del_timer(&self->poll_timer);
+ 
+ 		if (self->ack_required) {
+-			irlap_send_ui_frame(self, skb, self->caddr, CMD_FRAME);
++			irlap_send_ui_frame(self, skb_get(skb), self->caddr, CMD_FRAME);
+ 			irlap_send_rr_frame(self, CMD_FRAME);
+ 			self->ack_required = FALSE;
+ 		} else {
+ 			skb->data[1] |= PF_BIT;
+-			irlap_send_ui_frame(self, skb, self->caddr, CMD_FRAME);
++			irlap_send_ui_frame(self, skb_get(skb), self->caddr, CMD_FRAME);
+ 		}
+ 		self->window = self->window_size;
+ 		irlap_start_final_timer(self, self->final_timeout);
+@@ -857,7 +850,6 @@ void irlap_send_data_secondary_final(str
+ 		
+ 		tx_skb = skb_clone(skb, GFP_ATOMIC);
+ 		if (tx_skb == NULL) {
+-			dev_kfree_skb(skb);
+ 			return;
+ 		}		
+ 
+@@ -865,7 +857,7 @@ void irlap_send_data_secondary_final(str
+ 			skb_set_owner_w(tx_skb, skb->sk);
+ 		
+ 		/* Insert frame in store */
+-		skb_queue_tail(&self->wx_list, skb);
++		skb_queue_tail(&self->wx_list, skb_get(skb));
+ 		
+ 		tx_skb->data[1] |= PF_BIT;
+ 		
+@@ -878,12 +870,12 @@ void irlap_send_data_secondary_final(str
+ 		irlap_send_i_frame(self, tx_skb, RSP_FRAME); 
+ 	} else {
+ 		if (self->ack_required) {
+-			irlap_send_ui_frame(self, skb, self->caddr, RSP_FRAME);
++			irlap_send_ui_frame(self, skb_get(skb), self->caddr, RSP_FRAME);
+ 			irlap_send_rr_frame(self, RSP_FRAME);
+ 			self->ack_required = FALSE;
+ 		} else {
+ 			skb->data[1] |= PF_BIT;
+-			irlap_send_ui_frame(self, skb, self->caddr, RSP_FRAME);
++			irlap_send_ui_frame(self, skb_get(skb), self->caddr, RSP_FRAME);
+ 		}
+ 		self->window = self->window_size;
+ 
+@@ -912,7 +904,6 @@ void irlap_send_data_secondary(struct ir
+ 		
+ 		tx_skb = skb_clone(skb, GFP_ATOMIC);
+ 		if (tx_skb == NULL) {
+-			dev_kfree_skb(skb);
+ 			return;
+ 		}		
+ 		
+@@ -920,7 +911,7 @@ void irlap_send_data_secondary(struct ir
+ 			skb_set_owner_w(tx_skb, skb->sk);
+ 		
+ 		/* Insert frame in store */
+-		skb_queue_tail(&self->wx_list, skb);
++		skb_queue_tail(&self->wx_list, skb_get(skb));
+ 		
+ 		self->vs = (self->vs + 1) % 8;
+ 		self->ack_required = FALSE;		
+@@ -928,7 +919,7 @@ void irlap_send_data_secondary(struct ir
+ 
+ 		irlap_send_i_frame(self, tx_skb, RSP_FRAME); 
+ 	} else {
+-		irlap_send_ui_frame(self, skb, self->caddr, RSP_FRAME);
++		irlap_send_ui_frame(self, skb_get(skb), self->caddr, RSP_FRAME);
+ 		self->window -= 1;
+ 	}
+ }
+@@ -1023,6 +1014,7 @@ void irlap_resend_rejected_frames(struct
+ 			} else {
+ 				irlap_send_data_primary_poll(self, skb);
+ 			}
++			kfree_skb(skb);
+ 		}
+ 	}
+ #endif
+@@ -1259,7 +1251,6 @@ static void irlap_recv_test_frame(struct
+ 		if (skb->len < sizeof(struct test_frame)) {
+ 			IRDA_DEBUG(0, __FUNCTION__ 
+ 				   "() test frame to short!\n");
+-			dev_kfree_skb(skb);
+ 			return;
+ 		}
+ 		
+@@ -1270,7 +1261,6 @@ static void irlap_recv_test_frame(struct
+ 		/* Make sure frame is addressed to us */
+ 		if ((info->saddr != self->saddr) && 
+ 		    (info->saddr != BROADCAST)) {
+-			dev_kfree_skb(skb);
+ 			return;
+ 		}
+ 	}
+@@ -1323,8 +1313,7 @@ int irlap_driver_rcv(struct sk_buff *skb
+ 	/*  First we check if this frame has a valid connection address */
+ 	if ((info.caddr != self->caddr) && (info.caddr != CBROADCAST)) {
+ 		IRDA_DEBUG(0, __FUNCTION__ "(), wrong connection address!\n");
+-		dev_kfree_skb(skb);
+-		return 0;
++		goto out;
+ 	}
+ 	/*  
+ 	 *  Optimize for the common case and check if the frame is an
+@@ -1332,7 +1321,7 @@ int irlap_driver_rcv(struct sk_buff *skb
+ 	 */
+ 	if (~control & 0x01) {
+ 		irlap_recv_i_frame(self, skb, &info, command);
+-		return 0;
++		goto out;
+ 	}
  	/*
- 	 * Check if queue is empty
-@@ -643,7 +643,7 @@ void enqueue_queue( queue_t** queue, que
-  *
-  */
- #if 0
--static void enqueue_second(queue_t **queue, queue_t* element)
-+static void enqueue_second(irda_queue_t **queue, irda_queue_t* element)
- {
- 	IRDA_DEBUG( 0, "enqueue_second()\n");
- 
-@@ -674,9 +674,9 @@ static void enqueue_second(queue_t **que
-  *    Remove first entry in queue
-  *
-  */
--queue_t *dequeue_first(queue_t **queue)
-+irda_queue_t *dequeue_first(irda_queue_t **queue)
- {
--	queue_t *ret;
-+	irda_queue_t *ret;
- 
- 	IRDA_DEBUG( 4, "dequeue_first()\n");
- 	
-@@ -715,9 +715,9 @@ queue_t *dequeue_first(queue_t **queue)
-  *
-  *
-  */
--static queue_t *dequeue_general(queue_t **queue, queue_t* element)
-+static irda_queue_t *dequeue_general(irda_queue_t **queue, irda_queue_t* element)
- {
--	queue_t *ret;
-+	irda_queue_t *ret;
- 	
- 	IRDA_DEBUG( 4, "dequeue_general()\n");
- 	
-diff -urpN old-linux/net/irda/irttp.c linux/net/irda/irttp.c
---- old-linux/net/irda/irttp.c	Tue Mar 21 11:17:28 2000
-+++ linux/net/irda/irttp.c	Thu Nov  9 14:44:44 2000
-@@ -185,7 +185,7 @@ struct tsap_cb *irttp_open_tsap(__u8 sts
- 	self->notify = *notify;
- 	self->lsap = lsap;
- 
--	hashbin_insert(irttp->tsaps, (queue_t *) self, (int) self, NULL);
-+	hashbin_insert(irttp->tsaps, (irda_queue_t *) self, (int) self, NULL);
- 
- 	if (credit > TTP_MAX_QUEUE)
- 		self->initial_credit = TTP_MAX_QUEUE;
-@@ -1002,7 +1002,7 @@ struct tsap_cb *irttp_dup(struct tsap_cb
- 	skb_queue_head_init(&new->tx_queue);
- 	skb_queue_head_init(&new->rx_fragments);
- 
--	hashbin_insert(irttp->tsaps, (queue_t *) new, (int) new, NULL);
-+	hashbin_insert(irttp->tsaps, (irda_queue_t *) new, (int) new, NULL);
- 
- 	return new;
+ 	 *  We now check is the frame is an S(upervisory) frame. Only 
+@@ -1360,10 +1349,9 @@ int irlap_driver_rcv(struct sk_buff *skb
+ 			WARNING(__FUNCTION__ 
+ 				"() Unknown S-frame %02x received!\n",
+ 				info.control);
+-			dev_kfree_skb(skb);
+ 			break;
+ 		}
+-		return 0;
++		goto out;
+ 	}
+ 	/* 
+ 	 *  This must be a C(ontrol) frame 
+@@ -1399,8 +1387,9 @@ int irlap_driver_rcv(struct sk_buff *skb
+ 	default:
+ 		WARNING(__FUNCTION__ "(), Unknown frame %02x received!\n", 
+ 			info.control);
+-		dev_kfree_skb(skb); 
+ 		break;
+ 	}
++out:
++	dev_kfree_skb(skb); 
+ 	return 0;
  }
 
 

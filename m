@@ -1,41 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315484AbSECAJo>; Thu, 2 May 2002 20:09:44 -0400
+	id <S315485AbSECANU>; Thu, 2 May 2002 20:13:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315485AbSECAJn>; Thu, 2 May 2002 20:09:43 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:14020 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315484AbSECAJl>; Thu, 2 May 2002 20:09:41 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: rwhron@earthlink.net, linux-kernel@vger.kernel.org
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: O(1) scheduler gives big boost to tbench 192 
-In-Reply-To: Your message of Fri, 03 May 2002 01:14:19 BST.
-             <E173QiK-0005Bd-00@the-village.bc.nu> 
+	id <S315486AbSECANT>; Thu, 2 May 2002 20:13:19 -0400
+Received: from mx2.ews.uiuc.edu ([130.126.161.238]:49822 "EHLO
+	mx2.ews.uiuc.edu") by vger.kernel.org with ESMTP id <S315485AbSECANS>;
+	Thu, 2 May 2002 20:13:18 -0400
+Message-ID: <005e01c1f237$4f88e820$e6f7ae80@ad.uiuc.edu>
+From: "Wanghong Yuan" <wyuan1@ews.uiuc.edu>
+To: "Ingo Oeser" <ingo.oeser@informatik.tu-chemnitz.de>,
+        "Andrew Morton" <akpm@zip.com.au>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020427.194302.02285733.davem@redhat.com><467685860.avixxmail@nexxnet.epcnet.de> <20020428.204911.63038910.davem@redhat.com> <001001c1ef3d$890a6d50$e6f7ae80@ad.uiuc.edu> <005d01c1efcb$561b8c10$e6f7ae80@ad.uiuc.edu> <001a01c1f094$8d572850$e6f7ae80@ad.uiuc.edu> <3CCF1B39.94CF0152@zip.com.au> <20020502174423.L696@nightmaster.csn.tu-chemnitz.de>
+Subject: Re: what replaces tq_scheduler in 2.4
+Date: Thu, 2 May 2002 19:13:10 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <3050.1020388134.1@us.ibm.com>
-Date: Thu, 02 May 2002 18:08:54 -0700
-Message-Id: <E173RZ9-0000nF-00@w-gerrit2>
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <E173QiK-0005Bd-00@the-village.bc.nu>, > : Alan Cox writes:
-> 
-> > Rumor is that on some workloads MQ it outperforms O(1), but it
-> > may be that the latest (post K3?) O(1) is catching up?
-> 
-> I'd be interested to know what workloads ?
- 
-AIM on large CPU count machines was the most significant I had heard
-about.  Haven't measured recently on database load - we made a cut to
-O(1) some time back for simplicity.  Supposedly volanomark was doing
-better for a while but again we haven't cut back to MQ in quite a while;
-trying instead to refine O(1).  Volanomark is something of a scheduling
-anomaly though - sender/receiver timing on loopback affects scheduling
-decisions and overall throughput in ways that may or may not be consistent
-with real workloads.  AIM is probably a better workload for "real life"
-random scheduling testing.
+HI, Ingo
 
-gerrit
+Did you get the answer? Please cc me
+
+
+> Hi Andrew,
+> hi others,
+>
+> On Tue, Apr 30, 2002 at 03:31:21PM -0700, Andrew Morton wrote:
+> > Wanghong Yuan wrote:
+> > > It seems that tq_scheduler disappears in Linux 2.4. SO what can I do
+if I
+> > > need to do something when the scheduler wakes up. The old code likes
+> > >
+> >
+> > All users of tq_scheduler were using it as a way of running
+> > process-context code shortly after the occurrence of an
+> > interrupt.  They were moved over to using schedule_task().
+> > Probably, that is what you want.
+>
+> What is the main difference between tq_immediate and the former
+> tq_scheduler?
+>
+> I would like to know, whether I can convert my old bh routines[1] to
+> that new mechanism.
+>
+> Thanks & Regards
+>
+> Ingo Oeser
+>
+> [1] Note to German readers: I mean interrupt backends! Nothing
+>    else :-)
+> --
+> Science is what we can tell a computer. Art is everything else. ---
+D.E.Knuth
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

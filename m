@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263222AbREWTKG>; Wed, 23 May 2001 15:10:06 -0400
+	id <S263225AbREWTNg>; Wed, 23 May 2001 15:13:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263221AbREWTJ4>; Wed, 23 May 2001 15:09:56 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:51066 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S263223AbREWTJu>; Wed, 23 May 2001 15:09:50 -0400
-Date: Wed, 23 May 2001 21:09:23 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "G. Hugh Song" <ghsong@kjist.ac.kr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Swap strangeness using 2.4.5pre2aa1
-Message-ID: <20010523210923.A730@athlon.random>
-In-Reply-To: <3B0BFE90.CE148B7@kjist.ac.kr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B0BFE90.CE148B7@kjist.ac.kr>; from ghsong@kjist.ac.kr on Thu, May 24, 2001 at 03:16:48AM +0900
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S263224AbREWTN1>; Wed, 23 May 2001 15:13:27 -0400
+Received: from cr845378-a.rchrd1.on.wave.home.com ([24.157.76.7]:18440 "EHLO
+	mielke.cc") by vger.kernel.org with ESMTP id <S263223AbREWTNN>;
+	Wed, 23 May 2001 15:13:13 -0400
+Date: Wed, 23 May 2001 15:11:41 -0400 (EDT)
+From: Dave Mielke <dave@mielke.cc>
+To: "Linux Kernel (mailing list)" <linux-kernel@vger.kernel.org>
+Subject: nfs mount by label not working.
+Message-ID: <Pine.LNX.4.30.0105231505330.995-100000@dave.private.mielke.cc>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 24, 2001 at 03:16:48AM +0900, G. Hugh Song wrote:
-> The following is the output from "free"
-> =========================================================================
->              total       used       free     shared    buffers    
-> cached
-> Mem:       1023128    1015640       7488          0        544    
-> 948976
-> -/+ buffers/cache:      66120     957008
-> Swap:      1021936    1021936          0
-> ==========================================================================
+Using kernel 2.2.17-14 as supplied by RedHat, and using mount from
+mount-2.9u-4, mounting by label using the -L option does not work.
 
-I get the same with egcs. To me it sounds broken VM (I shouldn't have
-changed anything that can confuse the VM so this should be reproducible
-with 2.4.5pre5 vanilla and infact you also said you reproduced
-previously in 2.4.4).
+    mount -L backup1 /a
+    mount: no such partition found
 
-Is it possible you booted with 'mem=something'? It seems to me that when
-I boot with 'mem=something' the VM bad beahaviour become more visible.
+The mount man page says that "/proc/partitions" must exist.
 
-> I think I should back down to Kernel 2.2.20pre2aa1.
+    ls -l /proc/partitions
+    -r--r--r--   1 root     root            0 May 23 15:10 /proc/partitions
 
-definitely a good idea until somebody fixes the VM in mainline.
+Does something need to be enabled to make this work? What else might I be doing
+wrong?
 
-Andrea
+-- 
+Dave Mielke           | 2213 Fox Crescent | I believe that the Bible is the
+Phone: 1-613-726-0014 | Ottawa, Ontario   | Word of God. Please contact me
+EMail: dave@mielke.cc | Canada  K2A 1H7   | if you're concerned about Hell.
+

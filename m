@@ -1,66 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275365AbTHMTrS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 15:47:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275352AbTHMTqM
+	id S275387AbTHMTwj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 15:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275420AbTHMTwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 15:46:12 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9398 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S275342AbTHMTo6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 15:44:58 -0400
-Message-ID: <3F3A952C.4050708@pobox.com>
-Date: Wed, 13 Aug 2003 15:44:44 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Wed, 13 Aug 2003 15:52:39 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:36874 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S275387AbTHMTvt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 15:51:49 -0400
+Message-ID: <3F3A9A43.4080801@techsource.com>
+Date: Wed, 13 Aug 2003 16:06:27 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: Greg KH <greg@kroah.com>, "David S. Miller" <davem@redhat.com>,
-       rddunlap@osdl.org, davej@redhat.com, willy@debian.org,
-       linux-kernel@vger.kernel.org,
-       kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: C99 Initialisers
-References: <3F3986ED.1050206@pobox.com> <20030812173742.6e17f7d7.rddunlap@osdl.org> <20030813004941.GD2184@redhat.com> <32835.4.4.25.4.1060743746.squirrel@www.osdl.org> <3F39AFDF.1020905@pobox.com> <20030813031432.22b6a0d6.davem@redhat.com> <20030813173150.GA3317@kroah.com> <3F3A79CA.6010102@pobox.com> <20030813180245.GC3317@kroah.com> <3F3A82C3.5060006@pobox.com> <20030813193855.E20676@flint.arm.linux.org.uk>
-In-Reply-To: <20030813193855.E20676@flint.arm.linux.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [Fwd: Re: generic strncpy - off-by-one error]
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Wed, Aug 13, 2003 at 02:26:11PM -0400, Jeff Garzik wrote:
-> 
->>Again, my philosophy:  put the data in its most natural form.  In 
->>CS-speak, domain-specific languages.  So, just figure out what you want 
->>the data files to look like, and I'll volunteer to write the parser for it.
-> 
-> 
-> But what's the point of the extra complexity?  People already put
-> references to other structures in the driver_data element, and
-> enums, so completely splitting the device IDs from the module
-> source is not going to be practical.
+  This may appear twice.  Due to the length of the recipient list, my 
+reply to the list got blocked by the server.
 
-enums are easy  putting direct references would be annoying, but I also 
-argue it's potentially broken and wrong to store and export that 
-information publicly anyway.  The use of enums instead of pointers is 
-practically required because there is a many-to-one relationship of ids 
-to board information structs.
+Erik Andersen wrote:
+
+> char *strncpy(char * s1, const char * s2, size_t n)
+> {
+>     register char *s = s1;
+>     while (n) {
+> 	if ((*s = *s2) != 0) s2++;
+> 	++s;
+> 	--n;
+>     }
+>     return s1;
+> }
 
 
-> Are you thinking of a parser which outputs C code for the module to
-> include?  That might be made to work, but it doesn't sound as elegant
-> as the solution being described previously in this thread.
-> 
-> "Make the easy things easy (PCI_DEVICE(vendor,device)) and make the
-> not so easy things possible (the long form)"
 
-That ignores the people who also need to get at the data, which must 
-first be compiled from C into object code, then extracted via modutils, 
-then turned into a computer readable form again, then used.
+Nice!
 
-	Jeff
+
+
+How about this:
+
+
+char *strncpy(char * s1, const char * s2, size_t n)
+{
+	register char *s = s1;
+
+	while (n && *s2) {
+		n--;
+		*s++ = *s2++;
+	}
+	while (n--) {
+		*s++ = 0;
+	}
+	return s1;
+}
+
+
+
+This reminds me a lot of the ORIGINAL, although I didn't pay much 
+attention to it at the time, so I don't remember.  It may be that the 
+original had "n--" in the while () condition of the first loop, rather 
+than inside the loop.
+
+I THINK the original complaint was that n would be off by 1 upon exiting 
+the first loop.  The fix is to only decrement n when n is nonzero.
+
+If s2 is short enough, then we'll exit the first loop on the nul byte 
+and fill in the rest in the second loop.  Since n is only decremented 
+with we actually write to s, we will only ever write n bytes.  No 
+off-by-one.
+
+If s2 is too long, the first loop will exit on n being zero, and since 
+it doesn't get decremented in that case, it'll be zero upon entering the 
+second loop, thus bypassing it properly.
+
+Erik's code is actually quite elegant, and its efficiency is probably 
+essentially the same as my first loop.  But my second loop would 
+probably be faster at doing the zero fill.
+
+
+Now, consider this for the second loop!
+
+	while (n&3) {
+		*s++ = 0;
+		n--;
+	}
+	l = n>>2;
+	while (l--) {
+		*((int *)s)++ = 0;
+	}
+	n &= 3;
+	while (n--) {
+		*s++ = 0;
+	}
+
+
+This is only a win for relatively long nul padding.  How often is the 
+padding long enough?
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
 
 
 

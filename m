@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130270AbRB1RHb>; Wed, 28 Feb 2001 12:07:31 -0500
+	id <S130271AbRB1RTq>; Wed, 28 Feb 2001 12:19:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130271AbRB1RHV>; Wed, 28 Feb 2001 12:07:21 -0500
-Received: from tmpsmtp704.honeywell.com ([199.64.7.104]:41478 "HELO
-	tmpsmtp704.honeywell.com") by vger.kernel.org with SMTP
-	id <S130270AbRB1RHP>; Wed, 28 Feb 2001 12:07:15 -0500
-Date: Wed, 28 Feb 2001 17:07:07 +0000 (UTC)
-From: matthew.copeland@honeywell.com
-To: linux-kernel@vger.kernel.org
-Subject: drivers/block/rd.c under 2.2.16
-Message-ID: <Pine.LNX.4.21.0102281704130.8868-100000@fisb.gaa.aro.allied.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130274AbRB1RTh>; Wed, 28 Feb 2001 12:19:37 -0500
+Received: from [199.239.160.155] ([199.239.160.155]:28175 "EHLO
+	tenchi.datarithm.net") by vger.kernel.org with ESMTP
+	id <S130271AbRB1RTZ>; Wed, 28 Feb 2001 12:19:25 -0500
+Date: Wed, 28 Feb 2001 09:18:59 -0800
+From: Robert Read <rread@datarithm.net>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] set kiobuf io_count once, instead of increment
+Message-ID: <20010228091859.A9540@tenchi.datarithm.net>
+Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010227162222.A6389@tenchi.datarithm.net> <Pine.LNX.4.21.0102272234380.7124-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0102272234380.7124-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Tue, Feb 27, 2001 at 10:50:54PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 27, 2001 at 10:50:54PM -0300, Marcelo Tosatti wrote:
+> 
+> 
+> It seems your patch breaks bh allocation failure handling. If
+> get_unused_buffer_head() fails, iobuf->io_count never reaches 0, so
+> processes waiting on kiobuf_wait_for_io() will block forever.
+> 
 
-I am attempting to get something figured out dealing with the ramdisk
-under Linux 2.2.16.  I am trying to figure out whether you can use the
-ramdisk to act as a RAM filesystem doing normal file creations and
-deletion.  I noticed that within the code it makes comments about not
-having to free stuff up.  Does that mean you can't delete things off the
-ramdisk filesystem?  I have created a ramdisk, formatted ext2, and mounted
-it.  When I create stuff on there, and then I delete it, I notice that if
-I do a df, the size doesn't go back down after I have deleted the file.  
-I am trying to figure out if that is how it was intended to happen, or
-whether I have just done something not quite correctly and you can't
-really use it as a RAM file system.
-
-Thanks,
-Matthew M. Copeland
+This is true, but it looks like the brw_kiovec allocation failure
+handling is broken already; it's calling __put_unused_buffer_head on
+bhs without waiting for them to complete first.  Also, the err won't
+be returned if the previous batch of bhs finished ok.  It looks like
+brw_kiovec needs some work, but I'm going to need some coffee first...
 
 
-
-
-
+robert

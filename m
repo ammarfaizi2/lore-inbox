@@ -1,70 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261714AbSJZAhI>; Fri, 25 Oct 2002 20:37:08 -0400
+	id <S261732AbSJZAnl>; Fri, 25 Oct 2002 20:43:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261718AbSJZAhI>; Fri, 25 Oct 2002 20:37:08 -0400
-Received: from smtp08.iddeo.es ([62.81.186.18]:27111 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id <S261714AbSJZAhH>;
-	Fri, 25 Oct 2002 20:37:07 -0400
-Date: Sat, 26 Oct 2002 02:43:20 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: Robert Love <rml@tech9.net>, "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S261742AbSJZAnl>; Fri, 25 Oct 2002 20:43:41 -0400
+Received: from 3-090.ctame701-1.telepar.net.br ([200.193.161.90]:62599 "EHLO
+	3-090.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261732AbSJZAnk>; Fri, 25 Oct 2002 20:43:40 -0400
+Date: Fri, 25 Oct 2002 22:49:16 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Nakajima, Jun" <jun.nakajima@intel.com>, Robert Love <rml@tech9.net>,
        "'Dave Jones'" <davej@codemonkey.org.uk>,
        "'akpm@digeo.com'" <akpm@digeo.com>,
        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
        "'chrisl@vmware.com'" <chrisl@vmware.com>,
        "'Martin J. Bligh'" <mbligh@aracnet.com>
-Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
-Message-ID: <20021026004320.GA1676@werewolf.able.es>
-References: <F2DBA543B89AD51184B600508B68D4000ECE70C8@fmsmsx103.fm.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <F2DBA543B89AD51184B600508B68D4000ECE70C8@fmsmsx103.fm.intel.com>; from jun.nakajima@intel.com on Sat, Oct 26, 2002 at 01:59:29 +0200
-X-Mailer: Balsa 1.4.1
+Subject: RE: [PATCH] hyper-threading information in /proc/cpuinfo
+In-Reply-To: <1035584076.13032.96.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44L.0210252248240.1697-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 25 Oct 2002, Alan Cox wrote:
+> On Fri, 2002-10-25 at 22:50, Nakajima, Jun wrote:
 
-On 2002.10.26 "Nakajima, Jun" wrote:
->RedHat 8.0 is using
->	"Physical processor ID\t:"
->	"Number of siblings\t:"
->This implies they need to change it anyway, because 2.4-ac is
->	"physical id\t:"
->	"siblings\t:"
->
+> > Can you please change "siblings\t" to "threads\t\t". SuSE 8.1, for example,
+> > is already doing it:
 
-Summary:
-- we have processor packages
-- each package can handle several (someone said 128+ ;) ) processor cores.
-  We really do not mind if they are really independent (power4) or not
-  (xeon, ht)
-- each core is a logical unit for Linux
-- can we have two packages with different number of cores ?
+> Im just wondering what we would then use to describe a true multiple cpu
+> on a die x86. Im curious what the powerpc people think since they have
+> this kind of stuff - is there a generic terminology they prefer ?
 
-Proposal for /proc/cpuinfo (sample box: an hypothetical TurboPower4 with
-4 cores, 2 units on an SMP box):
+Agreed.  Siblings is probably best for HT stuff and threads
+are probably best reserved for true SMT CPUs.
 
-processor : 0  processor : 2  processor : 4  processor  : 6 
-package   : 0  package   : 0  package   : 0  package    : 0  
-core      : 0  core      : 1  core      : 2  core       : 3  
+Then there's the SMP-on-a-chip, but we should probably just
+call those CPUs.
 
-processor : 1  processor : 3  processor : 5  processor  : 7 
-package   : 1  package   : 1  package   : 1  package    : 1  
-core      : 0  core      : 1  core      : 2  core       : 3  
+regards,
 
-So you can look for siblings based on package number, you can know if
-two precessors are in different packages (for sched...), etc.
-
-NOTE: do not know if 'core' name can give problems, perhaps you could use
-'unit' instead.
-
+Rik
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.20-pre11-jam2 (gcc 3.2 (Mandrake Linux 9.0 3.2-2mdk))
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+

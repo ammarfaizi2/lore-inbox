@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbULOC72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbULODGn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbULOC72 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 21:59:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbULOC72
+	id S261827AbULODGn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 22:06:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbULODGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 21:59:28 -0500
-Received: from out010pub.verizon.net ([206.46.170.133]:54665 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S261824AbULOC7Y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 21:59:24 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: USB making time drift [was Re: dynamic-hz]
-Date: Tue, 14 Dec 2004 21:59:23 -0500
-User-Agent: KMail/1.7
-Cc: Andrea Arcangeli <andrea@suse.de>, Pavel Machek <pavel@suse.cz>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Con Kolivas <kernel@kolivas.org>
-References: <20041213002751.GP16322@dualathlon.random> <20041214220239.GA19221@elf.ucw.cz> <20041214231649.GR16322@dualathlon.random>
-In-Reply-To: <20041214231649.GR16322@dualathlon.random>
+	Tue, 14 Dec 2004 22:06:42 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:28615 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261807AbULODGj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 22:06:39 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Subject: Re: [PATCH] add legacy I/O and memory access routines to /proc/bus/pci API
+Date: Tue, 14 Dec 2004 19:06:26 -0800
+User-Agent: KMail/1.7.2
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+References: <200412140941.56116.jbarnes@engr.sgi.com> <200412141655.04416.bjorn.helgaas@hp.com> <200412141611.32417.jbarnes@engr.sgi.com>
+In-Reply-To: <200412141611.32417.jbarnes@engr.sgi.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200412142159.23488.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [151.205.42.94] at Tue, 14 Dec 2004 20:59:23 -0600
+Message-Id: <200412141906.26809.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 December 2004 18:16, Andrea Arcangeli wrote:
->On Tue, Dec 14, 2004 at 11:02:39PM +0100, Pavel Machek wrote:
->> How much drift do you see?
+On Tuesday, December 14, 2004 4:11 pm, Jesse Barnes wrote:
+> > In this example, the particular device ("01/01.0") you open
+> > makes no difference, right?  The I/O port routing is determined
+> > by the chipset, not by which /proc/bus/pci/... file you open.
 >
->huge drift, minutes per hour or similar.
+> But the chipset can be programmed to route things correctly or remap the
+> correct legacy I/O port domain in the callback routine.
 
-Which way?  I was running quite fast here, several minutes an
-hour, then I discovered the tickadj command, found its default
-was 10000, and started reducing it.  At 9926, I'm staying within
-a sec an hour now.  I have no idea when this started, I didn't
-discover it till I had already been running Ingo's realtime
-patches for a while, then checked with a stock 2.6.9 and found it
-was doing it then.
+I should clarify here, the device *does* matter, since the legacy I/O port 
+space mapping will point at different addresses depending on the device.  
+Generally, devices on the same bus will get the same address, but two devices 
+on different busses will have different addresses mapped (at least on Altix).  
+In your case, where you can route I/O ports to arbitrary busses, you could do 
+the routing at the time of the call and return -EBUSY if another device was 
+already using the route and hadn't released it yet.
 
-[...]
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.30% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
-
+Jesse

@@ -1,100 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262531AbREZCC3>; Fri, 25 May 2001 22:02:29 -0400
+	id <S262537AbREZCAU>; Fri, 25 May 2001 22:00:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262535AbREZCCJ>; Fri, 25 May 2001 22:02:09 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:59496 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S262531AbREZCB6>; Fri, 25 May 2001 22:01:58 -0400
-Date: Fri, 25 May 2001 22:01:37 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>,
+	id <S262535AbREZCAL>; Fri, 25 May 2001 22:00:11 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:28722 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262531AbREZCAG>; Fri, 25 May 2001 22:00:06 -0400
+Date: Sat, 26 May 2001 03:59:36 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ben LaHaise <bcrl@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: [with-PATCH-really] highmem deadlock removal, balancing & cleanup
-In-Reply-To: <20010526034922.O9634@athlon.random>
-Message-ID: <Pine.LNX.4.33.0105252151160.3806-100000@toomuch.toronto.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.5
+Message-ID: <20010526035936.P9634@athlon.random>
+In-Reply-To: <Pine.LNX.4.31.0105251826290.1126-100000@penguin.transmeta.com> <Pine.LNX.4.33.0105252138550.3806-100000@toomuch.toronto.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0105252138550.3806-100000@toomuch.toronto.redhat.com>; from bcrl@redhat.com on Fri, May 25, 2001 at 09:39:36PM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 May 2001, Andrea Arcangeli wrote:
+On Fri, May 25, 2001 at 09:39:36PM -0400, Ben LaHaise wrote:
+> Sorry, this doesn't fix the problem.  It still hangs on highmem machines.
+> Try running cerberus on a PAE kernel sometime.
 
-> On Fri, May 25, 2001 at 09:38:36PM -0400, Ben LaHaise wrote:
-> > You're missing a few subtle points:
-> >
-> > 	1. reservations are against a specific zone
->
-> A single zone is not used only for one thing, period. In my previous
-> email I enlighted the only conditions under which a reserved pool can
-> avoid a deadlock.
+There can be more bugs of course, two patches I posted are only meant to
+fix deadlocks in the allocation fail path of alloc_bounces() and the
+second patch in getblk() allocation fail path, nothing more. Those are
+strictly necessary fixes as far I can tell, and their implementation was
+quite obviously right to my eyes.
 
-Well, until we come up with a better design for a zone allocator that
-doesn't involve walking lists and polluting the cache all over the place,
-it'll be against a single zone.
+Now if you send some debugging info with deadlocks you gets with 2.4.5
+vanilla I will be certainly interested to found their source. Also Rik
+just said to have a fix for other bugs in that area, I didn't checked
+that part.
 
-> > 	2. try_to_free_pages uses the swap reservation
->
-> try_to_free_pages has an huge stacking under it, bounce
-> bufferes/loop/nbd/whatever being just some of them.
+What I can say is that with my tree I didn't reproduced deadlocks
+highmem related with cerberus but I'm using highmem emulation not real
+highmem.
 
-Fine, then add one to the bounce buffer allocation code, it's all of about
-3 lines added.
-
-> > 	3. irqs can no longer eat memory allocations that are needed for
-> > 	   swap
->
-> you don't even need irq to still deadlock.
-
-I never said you didn't.  But Ingo's patch DOES NOT PROTECT AGAINST
-DEADLOCKS CAUSED BY INTERRUPT ALLOCATIONS.  Heck, it doesn't even fix the
-deadlock that started this discussion.  Think about what happens when
-your network interfaces start rapidly eating all of the memory kswapd is
-freeing.  Also, I haven't posted this patch previously exactly because it
-is against a specific kind of deadlock that nobody cares about right now,
-plus it touches the core of the page allocator, which isn't nescessarily a
-good idea during the 2.4 timeframe.
-
-That said, the reservation concept is generic code, which the bounce
-buffer patch most certainly isn't.  It can even be improved to overlap
-with the page cache pages in the zone, so it isn't even really "free" ram
-as currently implemented.
-
-
-> > Note that with this patch the current garbage in the zone structure with
-> > pages_min (which doesn't work reliably) becomes obsolete.
->
-> The "garbage" is just an heuristic to allow atomic allocation to work in
-> the common case dynamically. Anything deadlock related cannot rely on
-> pages_min.
-
-> I am talking about fixing the thing, of course I perfectly know you can
-> hide it pretty well, but I definitely hate those kind of hiding patches.
-
-Re-read the above and reconsider.  The reservation doesn't need to be
-permitted until after page_alloc has blocked.  Heck, do a schedule before
-attempting to use the reservation.
-
-> > > The only case where a reserved pool make sense is when you know that
-> > > waiting (i.e. running a task queue, scheduling and trying again to
-> > > allocate later) you will succeed the allocation for sure eventually
-> > > (possibly with a FIFO policy to make also starvation impossible, not
-> > > only deadlocks). If you don't have that guarantee those pools
-> > > atuomatically become only a sourcecode and runtime waste, possibly they
-> > > could hide core bugs in the allocator or stuff like that.
-> >
-> > You're completely wrong here.
->
-> I don't think so.
-
-Atomicity isn't what I care about.  It's about being able to keep memory
-around so that certain allocations can proceed, and those pools cannot be
-eaten into by other tasks.  Extend the concept a little further, and you
-can even reclaim higher order pages by having a reservation outstanding on
-that order.  But I'm just dreaming.
-
-		-ben
-
+Andrea

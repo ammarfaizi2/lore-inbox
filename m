@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263795AbTKLPWD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 10:22:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263801AbTKLPWD
+	id S262705AbTKLPO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 10:14:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263119AbTKLPO7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 10:22:03 -0500
-Received: from barclay.balt.net ([195.14.162.78]:45740 "EHLO barclay.balt.net")
-	by vger.kernel.org with ESMTP id S263795AbTKLPWA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 10:22:00 -0500
-Date: Wed, 12 Nov 2003 17:20:25 +0200
-From: Zilvinas Valinskas <zilvinas@gemtek.lt>
-To: linux-kernel@vger.kernel.org
-Subject: Crash in UNIX socket related code on 2.4.23-rc1 ?
-Message-ID: <20031112152024.GA23030@gemtek.lt>
-Reply-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+	Wed, 12 Nov 2003 10:14:59 -0500
+Received: from lists.us.dell.com ([143.166.224.162]:1166 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S262705AbTKLPO5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 10:14:57 -0500
+Date: Wed, 12 Nov 2003 09:14:07 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Mark Watts <m.watts@eris.qinetiq.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: aacraid
+Message-ID: <20031112091407.A30795@lists.us.dell.com>
+References: <200311111450.57432.m.watts@eris.qinetiq.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Attribution: Zilvinas
-X-Url: http://www.gemtek.lt/
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200311111450.57432.m.watts@eris.qinetiq.com>; from m.watts@eris.qinetiq.com on Tue, Nov 11, 2003 at 02:50:57PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
+> Are there any utilities available to query the aacraid driver for the status 
+> of its arrays? I've noticed messages get put into the syslog when drives 
+> fail, but it wouold be nice to get more info from the driver about its 
+> arrays.
 
-I am getting the same oops at sk_buff.c:174 line with identical
-backtrace. I coundn't capture the oops - so i wrote down the backtrace 
-addresses and fed through ksymoops -A "..." option.
+Please see http://domsch.com/linux/#aacraid
+for links to such utilities by Adaptec.
 
-$ ksymoops -A "0xc01a0f16, 0xc01a0f16, 0xc01a108f, 0xc01e1092, 0xc019ebd4,
-0xc019f913, 0xc011b635, 0xc011be2d, 0xc0110be6, 0xc011c507, 0xc019f94d,
-0xc01a00b6, 0xc0108703"
-ksymoops 2.4.5 on i686 2.4.23-rc1.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.23-rc1/ (default)
-     -m /boot/System.map-2.4.23-rc1 (default)
+Thanks,
+Matt
 
-Adhoc c01a0f16 <sock_alloc_send_pskb+72/1d4>	<-- #1
-Adhoc c01a0f16 <sock_alloc_send_pskb+72/1d4>	<-- #2 
-Adhoc c01a108f <sock_alloc_send_skb+17/1c>
-Adhoc c01e1092 <unix_bind+17e/2fc>
-Adhoc c019ebd4 <sock_sendmsg+68/88>
-Adhoc c019f913 <sys_sendto+cf/f0>
-Adhoc c011b635 <kill_something_info+119/124>
-Adhoc c011be2d <sys_kill+4d/58>
-Adhoc c0110be6 <schedule+2e2/30c>
-Adhoc c011c507 <sys_rt_sigaction+8f/154>
-Adhoc c019f94d <sys_send+19/20>
-Adhoc c01a00b6 <sys_socketcall+10e/1cc>
-Adhoc c0108703 <system_call+33/38>
-
-Any ideas what's going on ? 
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

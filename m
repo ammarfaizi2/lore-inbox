@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262899AbSJAWfv>; Tue, 1 Oct 2002 18:35:51 -0400
+	id <S262920AbSJAWrx>; Tue, 1 Oct 2002 18:47:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262900AbSJAWfv>; Tue, 1 Oct 2002 18:35:51 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:18903 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S262899AbSJAWfu>; Tue, 1 Oct 2002 18:35:50 -0400
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD0236DEE9@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Pavel Machek'" <pavel@ucw.cz>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: RE: ACPI sleep: stupid bug reintroduced
-Date: Tue, 1 Oct 2002 15:41:03 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S262918AbSJAWrv>; Tue, 1 Oct 2002 18:47:51 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:7062 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S262919AbSJAWrs>;
+	Tue, 1 Oct 2002 18:47:48 -0400
+Date: Tue, 1 Oct 2002 23:55:00 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCHSET] Linux 2.4.20-pre8-jam1
+Message-ID: <20021001225500.GA11744@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"J.A. Magallon" <jamagallon@able.es>,
+	Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <20021001224206.GB3927@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021001224206.GB3927@werewolf.able.es>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Pavel Machek [mailto:pavel@ucw.cz] 
-> There's extremely stupid bug in sleep.c -- it will only alow user to
-> enter *unsupported* states. What's even worse that I remember fixing
-> that once before, and *it was merged to mainline*.
+On Wed, Oct 02, 2002 at 12:42:06AM +0200, J.A. Magallon wrote:
+ > 17-cache-detection.bz2
+ > 	Fix cache detection (trace cache) in P3s.
+ > 	Author: Dave Jones <davej@codemonkey.org.uk>
 
-Cough cough Pat... ;-)
+s/P3/P4/
 
-It's (re-)fixed in my bk tree already. Didn't have this bit at the end so
-I'll apply that.
+</pendantic> :-)
 
-Regards -- Andy
+		Dave
 
-> +#else
-> +	return_VALUE(-ENODEV);
->  #endif
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

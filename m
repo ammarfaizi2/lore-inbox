@@ -1,103 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265402AbRGOA4p>; Sat, 14 Jul 2001 20:56:45 -0400
+	id <S265478AbRGOBUN>; Sat, 14 Jul 2001 21:20:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265408AbRGOA4f>; Sat, 14 Jul 2001 20:56:35 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:29482 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S265402AbRGOA41>; Sat, 14 Jul 2001 20:56:27 -0400
-Message-ID: <3B50EA33.1010900@blue-labs.org>
-Date: Sat, 14 Jul 2001 20:56:19 -0400
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010713
-X-Accept-Language: en-us
+	id <S265488AbRGOBUE>; Sat, 14 Jul 2001 21:20:04 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:31196 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S265478AbRGOBT4>; Sat, 14 Jul 2001 21:19:56 -0400
+Message-ID: <3B50F000.53EAB651@uow.edu.au>
+Date: Sun, 15 Jul 2001 11:21:04 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ross Biro <bir7@leland.stanford.edu>
-Subject: [PATCH] Re: 2.4.5+ hangs on boot
-In-Reply-To: <3B50AE0D.80002@blue-labs.org> <3B50C391.3050804@blue-labs.org>
-Content-Type: multipart/mixed;
- boundary="------------040702080305010709090106"
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-lvm@sistina.com
+Subject: Re: [PATCH] 64 bit scsi read/write
+In-Reply-To: <E15LL3Y-0000yJ-00@the-village.bc.nu> <20010715025001.B6722@weta.f00f.org>,
+		<20010715025001.B6722@weta.f00f.org> <0107142211300W.00409@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040702080305010709090106
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Daniel Phillips wrote:
+> 
+> On Saturday 14 July 2001 16:50, Chris Wedgwood wrote:
+> > On Sat, Jul 14, 2001 at 09:45:44AM +0100, Alan Cox wrote:
+> >
+> >     As far as I can tell none of them at least in the IDE world
+> >
+> > SCSI disk must, or at least some... if not, how to peopel like NetApp
+> > get these cool HA certifications?
+> 
+> Atomic commit.  The superblock, which references the updated version
+> of the filesystem, carries a sequence number and a checksum.  It is
+> written to one of two alternating locations.  On restart, both
+> locations are read and the highest numbered superblock with a correct
+> checksum is chosen as the new filesystem root.
 
-Ok, since net_dev_init() is called from genhd.c:53, I figured it'd work 
-just fine if I removed it from net/core/dev.c in register_netdev(). 
- Since I'm not as well steeped in this code, those who know better are 
-invited to correct me.
+But this assumes that it is the most-recently-written sector/block
+which gets lost in a power failure.
 
---- linux-2.4.6.orig/net/core/dev.c     Sat Jul 14 17:48:57 2001
-+++ linux-2.4.6/net/core/dev.c  Wed Jun 20 21:00:55 2001
-@@ -2405,6 +2401,9 @@
- #ifdef CONFIG_NET_FASTROUTE
-        dev->fastpath_lock=RW_LOCK_UNLOCKED;
- #endif
+The disk will be reordering writes - so when it fails it may have
+written the commit block but *not* the data which that block is
+committing.
+
+You need a barrier or a full synchronous flush prior to writing
+the commit block.  A `don't-reorder-past-me' barrier is very much
+preferable, of course.
+
 -
--       if (dev_boot_phase)
--               net_dev_init();
- 
- #ifdef CONFIG_NET_DIVERT
-        ret = alloc_divert_blk(dev);
-
-David
-
-David Ford wrote:
-
-> Ok, the problem is this.  I have TEQL packet scheduling in my config, 
-> the kernel runs through this sequence on boot:
->
-> net_dev_init()
->    pktsched_init()
->        teql_init()    [starts a lock with rtnl_lock()]
->            register_netdevice()
->                net_dev_init()
->                    pktsched_init()
->                        teql_init() [hangs here...]
->
-> Here is the problem.  We enter teql_init() again with a rtnl_lock() 
-> already being held.  Do any of the authors of these functions want to 
-> jump in here?
->
-> David
->
-> David Ford wrote:
->
->> [...]
->> I2O LAN OSM (C) 1999 University of Helsinki.
->> early initialization of device teql0 is deferred
->> loop: loaded (max 8 devices)
->> Linux Tulip driver version 0.9.15-pre3 (June 1, 2001)
->> PCI: Found IRQ 5 for device 00:10.0
->>
->> Any comments or suggestions?  2.4.5-ac19 is the last kernel I have 
->> that works.
->
-
-
---------------040702080305010709090106
-Content-Type: text/plain;
- name="dev.c-diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dev.c-diff"
-
---- linux-2.4.6.orig/net/core/dev.c	Sat Jul 14 17:48:57 2001
-+++ linux-2.4.6/net/core/dev.c	Wed Jun 20 21:00:55 2001
-@@ -2405,6 +2401,9 @@
- #ifdef CONFIG_NET_FASTROUTE
- 	dev->fastpath_lock=RW_LOCK_UNLOCKED;
- #endif
--
--	if (dev_boot_phase)
--		net_dev_init();
- 
- #ifdef CONFIG_NET_DIVERT
- 	ret = alloc_divert_blk(dev);
-
---------------040702080305010709090106--
-

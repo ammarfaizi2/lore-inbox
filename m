@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265333AbSJaU3U>; Thu, 31 Oct 2002 15:29:20 -0500
+	id <S262884AbSJaUSY>; Thu, 31 Oct 2002 15:18:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265334AbSJaU3U>; Thu, 31 Oct 2002 15:29:20 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:37039 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S265333AbSJaU3T>; Thu, 31 Oct 2002 15:29:19 -0500
-Date: Thu, 31 Oct 2002 17:59:14 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mitch Adair <mitch@theneteffect.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-rc1 and i810_audio
-In-Reply-To: <Pine.LNX.4.44L.0210301834590.10782-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.44L.0210311758370.13346-100000@freak.distro.conectiva>
+	id <S262906AbSJaUSY>; Thu, 31 Oct 2002 15:18:24 -0500
+Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:18323 "EHLO
+	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S262884AbSJaUSW>; Thu, 31 Oct 2002 15:18:22 -0500
+Date: Thu, 31 Oct 2002 13:17:43 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Rusty Russell <rusty@rustcorp.com.au>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>,
+       Peter Chubb <peter@chubb.wattle.id.au>, <tridge@samba.org>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: What's left over. 
+In-Reply-To: <Pine.GSO.4.21.0210311140310.15053-100000@vervain.sonytel.be>
+Message-ID: <Pine.LNX.4.33.0210311313420.1721-100000@maxwell.earthlink.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Wed, 30 Oct 2002, Marcelo Tosatti wrote:
-
->
->
-> On 29 Oct 2002, Alan Cox wrote:
->
-> > On Tue, 2002-10-29 at 17:33, Mitch Adair wrote:
-> > > I notice that rc1 doesn't have Juergen Sawinski's updates (0.23/0.24)
-> > > to i810_audio that allow ICH4 (i845) based chipsets to work.  They've
-> > > been in AC for a while (since pre5 I think) - just wondering if that is a
-> > > merge problem or if there is something else the matter (they seem to
-> > > work great on the i845E I've got.)
+> > > On Thu, 31 Oct 2002, Rusty Russell wrote:
+> > > > Fbdev Rewrite
+> > >
+> > > This one is just huge, and I have little personal judgement on it.
 > >
-> > They could go in, they seem to work fine. Marcelo ?
+> > It's been around for a while.  Geert, Russell?
 >
-> I'll take a look at those updates in -ac.
+> It's huge because it moves a lot of files around:
+>   1. drivers/char/agp/ -> drivers/video/agp/
+>   2. drivers/char/drm/ -> drivers/video/drm/
+>   3. console related files in drivers/video/ -> drivers/video/console/
+>
+> (1) and (2) should be reverted, but apparently they aren't reverted in the
+> patch at http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz yet. The patch
+> also seems to remove some drivers. Haven't checked the bk repo yet.
+>
+> James, can you please fix that (and the .Config files)?
 
-The patch looks fine, but we are in -rc.
+Done. I have a new version of that patch at the same place. It is against
+2.5.45.
 
-Queued for 2.4.21.
+http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+
+Its still pretty big. We can save the moving of the agp code for post
+halloween.
+
 
 
 

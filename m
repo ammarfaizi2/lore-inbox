@@ -1,74 +1,193 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUEUWxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264625AbUEUWxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264530AbUEUWxi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 18:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264561AbUEUWwt
+	id S264625AbUEUWxl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 18:53:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264828AbUEUWwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 18:52:49 -0400
-Received: from sun1000.pwr.wroc.pl ([156.17.250.2]:41109 "EHLO
-	sun1000.pwr.wroc.pl") by vger.kernel.org with ESMTP id S264530AbUEUWpl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 18:45:41 -0400
-Date: Sat, 22 May 2004 00:45:31 +0200
-From: Pawel Dziekonski <pawel.dziekonski@pwr.wroc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.6] [usb] bad: scheduling while atomic!
-Message-ID: <20040521224531.GA15538@sun1000.pwr.wroc.pl>
-Reply-To: Pawel Dziekonski <pawel.dziekonski@pwr.wroc.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Useless-Header: Vim powered ;^)
-X-00-Privacy-Policy: S/MIME encrypted e-mail is welcome.
-X-04-Privacy-Policy-My_SSL_Certificate: http://www.europki.pl/cgi-bin/dn-cert.pl?serial=000001D2&certdir=/usr/local/cafe/data/polish_ca/certs/user&type=email
-X-05-Privacy-Policy-CA_SSL_Certificate: http://www.europki.pl/polish_ca/ca_cert/en_index.html
-User-Agent: Mutt/1.5.6i
+	Fri, 21 May 2004 18:52:25 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:58829 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S265117AbUEUWra (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 18:47:30 -0400
+Message-ID: <2124.128.150.143.219.1085064414.squirrel@webmail.seven4sky.com>
+In-Reply-To: <40AC67F8.5010307@cs.up.ac.za>
+References: <40A9E239.4010909@cs.up.ac.za>
+    <1231.128.150.143.219.1084982960.squirrel@webmail.seven4sky.com>
+    <40AC67F8.5010307@cs.up.ac.za>
+Date: Thu, 20 May 2004 10:46:54 -0400 (EDT)
+Subject: Re: NFS deadlock
+From: "Sam Gill" <samg@seven4sky.com>
+To: "Jaco Kroon" <jkroon@cs.up.ac.za>
+Cc: samg@seven4sky.com, linux-kernel@vger.kernel.org
+Reply-To: samg@seven4sky.com
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jaco,
 
-vanilla 2.6.6, i'm trying to rmmod my adsl usb modem module.
-rmmod hangs. I can Control-C it, but is does not end - it takes 
-100% of cpu.
+sysstat is a package on debian, but includes the
+sar utilities
 
-logs:
+such as sadc.
 
-kernel: usbcore: deregistering driver eagle-usb
-kernel: bad: scheduling while atomic!
-kernel: Call Trace:
-kernel:  [schedule+1423/1440] <6>[eagle-usb] eu_irq : URB canceled by user.
-kernel: schedule+0x58f/0x5a0
-kernel:  [__pagevec_free+28/48] __pagevec_free+0x1c/0x30
-kernel:  [release_pages+119/368] release_pages+0x77/0x170
-kernel:  [wait_for_completion+120/208] wait_for_completion+0x78/0xd0
-kernel:  [default_wake_function+0/32] default_wake_function+0x0/0x20
-kernel:  [pg0+541813763/1070043136] ed_deschedule+0x33/0xf0 [ohci_hcd]
-kernel:  [default_wake_function+0/32] default_wake_function+0x0/0x20
-kernel:  [pg0+541943833/1070043136] hcd_unlink_urb+0x199/0x280 [usbcore]
-kernel:  [pg0+541812484/1070043136] ed_free+0x24/0x30 [ohci_hcd]
-kernel:  [pg0+542588608/1070043136] eu_irq+0x0/0x200 [eagle_usb]
-kernel:  [pg0+541945986/1070043136] usb_unlink_urb+0x32/0x70 [usbcore]
-kernel:  [pg0+542588542/1070043136] eu_disconnect_postfirm+0x29e/0x2e0 [eagle_usb]
-kernel:  [pg0+541949572/1070043136] usb_disable_endpoint+0x74/0x80 [usbcore]
-kernel:  [pg0+542587707/1070043136] eu_disconnect+0x10b/0x1b0 [eagle_usb]
-kernel:  [pg0+541925626/1070043136] usb_unbind_interface+0x7a/0x80 [usbcore]
-kernel:  [device_release_driver+100/112] device_release_driver+0x64/0x70
-kernel:  [driver_detach+32/48] driver_detach+0x20/0x30
-kernel:  [bus_remove_driver+61/128] bus_remove_driver+0x3d/0x80
-kernel:  [driver_unregister+19/40] driver_unregister+0x13/0x28
-kernel:  [pg0+541925842/1070043136] usb_deregister+0x32/0x40 [usbcore]
-kernel:  [pg0+542624920/1070043136] eu_exit+0x18/0x71 [eagle_usb]
-kernel:  [sys_delete_module+321/384] sys_delete_module+0x141/0x180
-kernel:  [generic_file_direct_IO+18/160] generic_file_direct_IO+0x12/0xa0
-kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-kernel: 
-kernel: [eagle-usb] ADSL device remove
+creates a directory in
+redhat: /var/log/sa
+debian: /var/log/sysstat
 
-any idea?
+it captures statistics on the boxes its installed on
+and saves them to a file saXX where XX is the day.
 
-thanks in advance, Pawel
--- 
-Pawel Dziekonski <pawel.dziekonski|@|pwr.wroc.pl>, KDM WCSS avatar:0:0:
-Wroclaw Networking & Supercomputing Center, HPC Department
--> See message headers for privacy policy and S/MIME info.
+once you get the sar files, a cron job usually generates
+a sar file sarXX, which you can then manually read, and it
+will give you statictics about ever 15minutes. you can also
+graph these numbers, on which I have been working on a program to
+do this, but it is not finished quite yet.
+
+You can change the frequency(cron), and manually generate the
+sarXX graphs. It helped me diagnosis the situation, of a couple
+failing computers. You have to know how to interpret the graphs,
+but if you send me the saXX or sarXX files I can decode them for you.
+
+I am planning on taking the project open-source, but I am not there
+quite yet.
+
+thanks,
+ -sam
+
+
+
+
+
+
+
+
+> Oh, sorry.
+>
+> The one box at home is running 2.6.5 currently with the intent of
+> upgrading to 2.6.6 as soon as I can find the time.  It is using an ext3
+> file system underlying.  The same goes to the single client it serves to.
+>
+> The one at the office that serves up to a hundred or so clients
+> currently runs 2.6.4 with a patch for the dpt_i2o driver, it has an ext3
+> partition but the one being served up via nfs is reiserfs.  The clients
+> are running 2.6.5 at the moment (anything between 0 and 320 clients max
+> at any time, usually between 20 and 50 clients depending on lab usage).
+> The other server is using 2.4.24 (waiting for the dpt_i2o driver in the
+> 2.6 kernel) with ext3 file systems and once again reiserfs for the nfs
+> exported part of the file system.  Variety of clients in this case, from
+> 2.4.20 kernels, right through to 2.6.6 kernels.
+>
+> The machine that died yesterday is also running a 2.6.5 kernel, ext3
+> file system.  It's two clients is the first of the two servers above and
+> the other runs kernel 2.6.6 as well.
+>
+> What affects the regulularity of the crashes seems to be the load placed
+> on it by clients.  In my case at home the client is considerably faster
+> that the server, which will enforce a relatively high load.  I wish I
+> had more time to check this out. I'm suspecting some kind of race
+> condition that gets triggered by either heavy system load or a heavy
+> skew between speeds on the client/server.  I might be totally wrong
+> though ...
+>
+> Transfers in our case is always between linus and linux (at least as far
+> as we can control it, we are not aware of any other clients and would
+> probably manage to get such a person expelled should we find him).
+>
+> The client lock-ups we've experienced as well.  It eventually times out
+> after a *long* time, we usually bounce the server before that happens.
+> This can be explained and is in my oppinion quite normal.
+>
+> What does sysstat and sar do?  How can I use them to analyse the problem?
+>
+> Jaco
+>
+> samg@seven4sky.com wrote:
+>
+>>Jaco,
+>>
+>>How are your boxes locking up, I have nfs in use every day,
+>>does rpc die?
+>>
+>>what kernel are you using?
+>>and are you transfering linux to linux, or to some other platform.
+>>
+>>The only time I had problems was when my client locked up
+>>because I disconnected the server, and it hung the client,
+>>the only solution (based on the way I connected), was to reboot.
+>>To make matters worse, I rean a script that used du every day, and
+>>so there were 12+ instances of du, all trying to run about.
+>>
+>>I would suggest using a program like sysstat, or sar, to help you
+>>analyse the issues at hand.
+>>
+>> -sam
+>>
+>>
+>>
+>>>Hello there
+>>>
+>>>I've once again got problems with the kernel locking up.  I'm now
+>>>convinced that it has something to do with NFS.
+>>>
+>>>Previously weve had 2 machines that locked up, plus my one at home,
+>>>resulting in three machines.  Sometimes they would recover by themselves
+>>>after some time, other times they could be left for 2 days or so without
+>>>recovering.  All three of these use NFS to export files to other
+>>>machines, it's the only thing we can find they have in common, other
+>>>that x86 architecture, but then other machines would be dying as well.
+>>>It should be noted that none of these runs on the newest hardware, but
+>>>that should not matter, neither does any of our other servers.  We have
+>>>a 3rd NFS server, which doesn't take nearly as heavy load via NFS.  I've
+>>>been wondering why it hasn't locked up either, and this morning (right
+>>>now in fact) it has decided that it is it's turn and is currently
+>>>unusable.
+>>>
+>>>If anybody else is experiencing similar problems, or have possible work
+>>>arounds, it would be appreciated if you could share your knowledge.
+>>>
+>>>Jaco
+>>>
+>>>===========================================
+>>>This message and attachments are subject to a disclaimer. Please refer
+>>> to
+>>>www.it.up.ac.za/documentation/governance/disclaimer/ for full details.
+>>>Hierdie boodskap en aanhangsels is aan 'n vrywaringsklousule onderhewig.
+>>>Volledige besonderhede is by
+>>>www.it.up.ac.za/documentation/governance/disclaimer/ beskikbaar.
+>>>===========================================
+>>>
+>>>
+>>>
+>>>
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+>> in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>
+>
+> --
+> "The strength of the Constitution lies entirely in the determination of
+> each
+> citizen to defend it.  Only if every single citizen feels duty bound to do
+> his share in this defense are the constitutional rights secure."
+> -- Albert Einstein
+> ===========================================
+> This message and attachments are subject to a disclaimer. Please refer to
+> www.it.up.ac.za/documentation/governance/disclaimer/ for full details.
+> Hierdie boodskap en aanhangsels is aan 'n vrywaringsklousule onderhewig.
+> Volledige besonderhede is by
+> www.it.up.ac.za/documentation/governance/disclaimer/ beskikbaar.
+> ===========================================
+>
+>
+

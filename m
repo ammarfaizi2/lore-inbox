@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUIDSHx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265230AbUIDSOl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265144AbUIDSHx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 14:07:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265230AbUIDSGW
+	id S265230AbUIDSOl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 14:14:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265275AbUIDSOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 14:06:22 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:10426 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S265144AbUIDSFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 14:05:02 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q9
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mark_H_Johnson@raytheon.com, Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>
-In-Reply-To: <1094316731.10586.35.camel@localhost.localdomain>
-References: <OFACA329EE.63AC9924-ON86256F04.00556E19-86256F04.00556E29@raytheon.com>
-	 <1094256256.6575.109.camel@krustophenia.net>
-	 <1094316731.10586.35.camel@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1094321108.6575.180.camel@krustophenia.net>
+	Sat, 4 Sep 2004 14:14:40 -0400
+Received: from host-63-144-52-41.concordhotels.com ([63.144.52.41]:65502 "EHLO
+	080relay.CIS.CIS.com") by vger.kernel.org with ESMTP
+	id S265230AbUIDSOk convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 14:14:40 -0400
+Subject: Re: [BUG] r200 dri driver deadlocks
+From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
+To: Patrick McFarland <diablod3@gmail.com>
+Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org, wli@holomorphy.com
+In-Reply-To: <d577e569040904021631344d2e@mail.gmail.com>
+References: <d577e569040904021631344d2e@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Date: Sat, 04 Sep 2004 14:14:55 -0400
+Message-Id: <1094321696.31459.103.camel@admin.tel.thor.asgaard.local>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 04 Sep 2004 14:05:08 -0400
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-09-04 at 12:52, Alan Cox wrote:
-> On Sad, 2004-09-04 at 01:04, Lee Revell wrote:
-> > This is looking more and more like a video driver problem:
+On Sat, 2004-09-04 at 05:16 -0400, Patrick McFarland wrote:
 > 
-> Not really. The delay is too small and X is smarter than this. (except a
-> VIA case that only recently got squished).
-> 
+> All of this was tested with a virgin 2.6.8.1 (with debug info and
+> frame pointers enabled) and Debian's XFree86 4.3.0.1, [...]
 
-True, the VIA problem did not cause long latency traces to appear on my
-machine.  This is a weird one.
-
-Lee
+What version of the DRI driver?
 
 
-
-
+-- 
+Earthling Michel Dänzer      |     Debian (powerpc), X and DRI developer
+Libre software enthusiast    |   http://svcs.affero.net/rm.php?r=daenzer

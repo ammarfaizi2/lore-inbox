@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVCONZA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVCON3U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbVCONZA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 08:25:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVCONZA
+	id S261222AbVCON3U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 08:29:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVCON3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 08:25:00 -0500
-Received: from galileo.bork.org ([134.117.69.57]:31694 "HELO galileo.bork.org")
-	by vger.kernel.org with SMTP id S261216AbVCONY5 (ORCPT
+	Tue, 15 Mar 2005 08:29:19 -0500
+Received: from gate.crashing.org ([63.228.1.57]:55458 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261222AbVCON2s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 08:24:57 -0500
-Date: Tue, 15 Mar 2005 08:24:58 -0500
-From: Martin Hicks <mort@sgi.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: "Luck, Tony" <tony.luck@intel.com>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: bad pgd/pmd in latest BK on ia64
-Message-ID: <20050315132458.GB19113@localhost>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F031272AF@scsmsx401.amr.corp.intel.com> <20050314143442.2ab086c9.davem@davemloft.net>
+	Tue, 15 Mar 2005 08:28:48 -0500
+Subject: Re: swsusp_restore crap
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200503151251.01109.rjw@sisk.pl>
+References: <1110857069.29123.5.camel@gaston>
+	 <1110857516.29138.9.camel@gaston> <20050315110309.GA1344@elf.ucw.cz>
+	 <200503151251.01109.rjw@sisk.pl>
+Content-Type: text/plain
+Date: Wed, 16 Mar 2005 00:26:44 +1100
+Message-Id: <1110893204.24296.6.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050314143442.2ab086c9.davem@davemloft.net>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, Mar 14, 2005 at 02:34:42PM -0800, David S. Miller wrote:
-> On Mon, 14 Mar 2005 14:06:09 -0800
-> "Luck, Tony" <tony.luck@intel.com> wrote:
+> It breaks compilation on i386 either, because nr_copy_pages_check
+> is static in swsusp.c.  May I propose the following patch instead (tested on
+> x86-64 and i386)?
 > 
-> > Trying to boot a build of the latest BK on ia64 I see
-> > a series of messages like this:
-> > 
-> > mm/memory.c:99: bad pgd e0000001feba4000.
-> > mm/memory.c:99: bad pgd e0000001febac000.
-> > mm/memory.c:99: bad pgd e0000001febc0d10.
+> Greets,
+> Rafael
 > 
-> Things are similarly busted on sparc64 for me as well.
-> Things instantly reboot right after the kernel tries
-> to open an initial console.
+> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+> 
+> diff -Nrup linux-2.6.11-bk10-a/arch/i386/power/cpu.c linux-2.6.11-bk10-b/arch/i386/power/cpu.c
+> --- linux-2.6.11-bk10-a/arch/i386/power/cpu.c	2005-03-15 09:20:53.000000000 +0100
+> +++ linux-2.6.11-bk10-b/arch/i386/power/cpu.c	2005-03-15 12:16:57.000000000 +0100
+> @@ -147,6 +147,15 @@ void restore_processor_state(void)
+>  	__restore_processor_state(&saved_context);
+>  }
+>  
+> +asmlinkage int __swsusp_flush_tlb(void)
+> +{
+> +	swsusp_restore_check();
+> +
 
-It's also busted on ia64 in 2.6.11-mm3 if that narrows thing down.
+Do we really need that check there ? Can't it be moved elsewhere ?
 
-mh
+Ben.
 
--- 
-Martin Hicks   ||   Silicon Graphics Inc.   ||   mort@sgi.com
+

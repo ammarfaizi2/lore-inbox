@@ -1,85 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265681AbUGGXYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265682AbUGGX2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265681AbUGGXYV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 19:24:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265682AbUGGXYV
+	id S265682AbUGGX2K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 19:28:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265690AbUGGX2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 19:24:21 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:23960 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S265681AbUGGXYS (ORCPT
+	Wed, 7 Jul 2004 19:28:09 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:53130 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S265682AbUGGX16 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 19:24:18 -0400
-Date: Thu, 8 Jul 2004 01:24:10 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Frediano Ziglio <freddyz77@tin.it>
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Subject: Re: EDD enhanchement patch
-Message-ID: <20040707232409.GC11556@apps.cwi.nl>
-References: <1089132808.4435.8.camel@freddy> <20040707174015.GB11556@apps.cwi.nl> <1089233331.6856.20.camel@freddy>
+	Wed, 7 Jul 2004 19:27:58 -0400
+Date: Thu, 8 Jul 2004 01:27:57 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: "David S. Miller" <davem@redhat.com>,
+       Stephen Hemminger <shemminger@osdl.org>, jamie@shareable.org,
+       netdev@oss.sgi.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, ALESSANDRO.SUARDI@ORACLE.COM
+Subject: preliminary conclusions regarding window size issues
+Message-ID: <20040707232757.GA14471@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	"David S. Miller" <davem@redhat.com>,
+	Stephen Hemminger <shemminger@osdl.org>, jamie@shareable.org,
+	netdev@oss.sgi.com, linux-net@vger.kernel.org,
+	linux-kernel@vger.kernel.org, ALESSANDRO.SUARDI@ORACLE.COM
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1089233331.6856.20.camel@freddy>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 07, 2004 at 10:48:51PM +0200, Frediano Ziglio wrote:
+Two things:
 
-> Did anyone forget about first fields? base-port and control-port ? If
-> you have an IDE disk they correspond with IDE port and with slave bit
-> you can know exactly which disk is. EDD 3.0 it's not required cause it's
-> EDD 2.0 (supported by most recent BIOSes).
+1) packages.gentoo.org is currently unreachable by 2.6.7-recent.
+This has been confirmed from several places, very easy to reproduce. Bug has
+been filed with gentoo to fix their firewall.
 
-True. Below a simple example for hda and hdb.
-Yes, having EDD 2.0 helps.
+2) What Alessandro Suardi sees is highly similar, except that he has it with
+*all* remotes, except for google.it and a very small number of other
+servers.
 
-> lba 0 ?? cursize 0 ?? sector > 63 ??
-> IMHO this disk doesn't exist...
+This is what Alessandro saw going out. We artificially lowered the MTU
+because of possible tunelling loss:
 
-It was hdh: IOMEGA ZIP 100 ATAPI, ATAPI FLOPPY drive, with geometry
-(probably 96/64/32, don't know why C and S are interchanged)
-obtained from HDIO_GET_IDENTITY.
+01:03:36.323132 192.168.1.3.33992 > 213.244.168.210.10000: S [tcp sum ok] 3497585848:3497585848(0) 
+	win 5440 <mss 1360,sackOK,timestamp 2311996 0,nop,wscale 7> 
+	(DF) (ttl 64, id 43908, len 60)
+01:03:36.396660 213.244.168.210.10000 > 192.168.1.3.33992: S [tcp sum ok] 3030562636:3030562636(0) 
+	ack 3497585849 win 5792 <mss 1452,sackOK,timestamp  2142457957 2311996,nop,wscale 0> 
+	(DF) (ttl 53, id 0, len 60)
+01:03:36.396719 192.168.1.3.33992 > 213.244.168.210.10000: . [tcp sum ok]
+	ack 1 win 42 <nop,nop,timestamp 2312084 2142457957> 
+	(DF) (ttl 64, id 43909, len 52)
 
-> For 0x84 it must be hda cause it's the first IDE.
+Perfect SYN, SYN|ACK, ACK.
 
-hda or hdb. Since that system boots from SCSI there is no reason to
-prefer seeing the first or second IDE disk in the BIOS setup.
-(Don't know anymore what the truth was.)
+01:03:36.397362 192.168.1.3.33992 > 213.244.168.210.10000: P 1:463(462) ack 1 win 42 
+	<nop,nop,timestamp 2312085 2142457957> 
+	(DF) (ttl 64, id 43910, len 514)
 
-> I know that some boot loader can however change disk order.
+The GET request.
 
-Also Linux can change disk order with boot option "ide=reverse".
+01:03:36.497588 213.244.168.210.10000 > 192.168.1.3.33992: . [tcp sum ok] ack 463 
+	win 6432 <nop,nop,timestamp 2142457967 2312085> 
+	(DF) (ttl 53, id 59171, len 52) 
 
-Andries
+And acked by my server. This trace is identical to what I see on the
+receiving end:
 
-----------------------------------------------------------------------------------------
-disk 0: len=30 api=0x1
-  flags 2, phys CHS 2100/255/63, totsecs 33736500, seclen 512
-iobase 0x1f0  controlport 0x3f6 irq 14 sector_count 16 dma 32 pio 4
-flags: 0xe0: LBA, Master; revision 1.1
+29.84 62.211.168.xx.33992 > 213.244.168.210.10000: S [tcp sum ok] 3497585848:3497585848(0) 
+	win 5440 <mss 1360,sackOK,timestamp 2311996 0,nop,wscale 7> 
+	(DF) (ttl 50, id 43908, len 60)
+29.84 213.244.168.210.10000 > 62.211.168.xx.33992: S [tcp sum ok] 3030562636:3030562636(0) 
+	ack 3497585849 win 5792 <mss 1460,sackOK,timestamp 2142457957 2311996,nop,wscale 0>  
+	(DF) (ttl 64, id 0, len 60)
+29.93 62.211.168.xx.33992 > 213.244.168.210.10000: . [tcp sum ok] 1:1(0) 
+	ack 1 win 42 <nop,nop,timestamp 2312084 2142457957> 
+	(DF) (ttl 50, id 43909, len 52)
 
-disk 1: len=30 api=0x1
-  flags 2, phys CHS 2100/255/63, totsecs 33736500, seclen 512
-iobase 0x1f0  controlport 0x3f6 irq 14 sector_count 16 dma 32 pio 4
-flags: 0xf0: LBA, Slave; revision 1.1
+29.95 62.211.168.xx.33992 > 213.244.168.210.10000: P [tcp sum ok] 1:463(462)
+	ack 1 win 42 <nop,nop,timestamp 2312085 2142457957> 
+	(DF) (ttl 50, id 43910, len 514)
+29.95 213.244.168.210.10000 > 62.211.168.xx.33992: . [tcp sum ok] 1:1(0) 
+	ack 463 win 6432 <nop,nop,timestamp 2142457967 2312085> 
+	(DF) (ttl 64, id 59171, len 52)
 
-Found 2 Linux disks
+Except for TTL and NAT, this is identical.
 
-hda: Size  33750864 LinuxCHS=2100/255/63 FdiskCHS=*/0/63
-  LBASize  33750864 CurSize  33750864  RawCHS=33483/16/63 CurCHS=2100/255/63
-hdb: Size  33750864 LinuxCHS=2100/255/63 FdiskCHS=*/255/63
-  LBASize  33750864 CurSize  33750864  RawCHS=33483/16/63 CurCHS=2100/255/63
+>From here, things start to differ. I measure that I send out:
 
-Found 2 BIOS disks
+29.95 213.244.168.210.10000 > 62.211.168.xx.33992: . [tcp sum ok] 1:1349(1348) 
+	ack 463 win 6432 <nop,nop,timestamp 2142457967 2312085> 
+	(DF) (ttl 64, id 59172, len 1400)
+29.95 213.244.168.210.10000 > 62.211.168.xx.33992: P [tcp sum ok] 1349:2697(1348) 
+	ack 463 win 6432 <nop,nop,timestamp 2142457967 2312085> 
+	(DF) (ttl 64, id 59173, len 1400)
 
-0 of 2:   33720435 sectors, C/H/S 1024 / 255 / 63 C*H*S=16450560
-1 of 2:   33720435 sectors, C/H/S 1024 / 255 / 63 C*H*S=16450560
+This next packet is a repeat, because no ACK:
 
+30.23 213.244.168.210.10000 > 62.211.168.xx.33992: . [tcp sum ok] 1:1349(1348) 
+	ack 463 win 6432 <nop,nop,timestamp 2142457996 2312085> 
+	(DF) (ttl 64, id 59174, len 1400)
 
-hda: 0x80
-hdb: 0x81
-----------------------------------------------------------------------------------------
+ad nauseam. Alessandro never sees these packets! After a while, he
+disconnects, which happens pretty normally. From another trace (NOTE!):
 
+00:38:21.326397 192.168.1.3.33285 > 213.244.168.210.10000: F 420:420(0) 
+	ack 1 win 45 <nop,nop,timestamp 796784 2142304361> 
+	(DF)
+00:38:21.410353 213.244.168.210.10000 > 192.168.1.3.33285: . 
+	ack 421 win 6432 <nop,nop,timestamp 2142306461 796784> 
+	(DF)
+	
+We've tried with wscale=0,1,2 and these all work. Things go wrong for
+wscale>=3. My current feeling is that some kind of QoS device is
+interfering, and that the 'wscale gets stuffed' theory is wrong in this
+case.
+
+I recall that 'Packeteer' QoS devices try to mess with windows.
+
+Alessandro has this DSL modem, which crashed once during testing.
+http://www.usr.com/support/product-template.asp?prod=9003
+
+So we're not done debugging.
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

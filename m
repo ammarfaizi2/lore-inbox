@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317751AbSIOE1Z>; Sun, 15 Sep 2002 00:27:25 -0400
+	id <S317755AbSIOEbL>; Sun, 15 Sep 2002 00:31:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317752AbSIOE1Z>; Sun, 15 Sep 2002 00:27:25 -0400
-Received: from dsl-213-023-043-058.arcor-ip.net ([213.23.43.58]:33952 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317751AbSIOE1Y>;
-	Sun, 15 Sep 2002 00:27:24 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@digeo.com>, Nicholas Miell <nmiell@attbi.com>
-Subject: Re: [patch] dump_stack(): arch-neutral stack trace
-Date: Sun, 15 Sep 2002 06:34:50 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>, Greg KH <greg@kroah.com>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.33.0209091714330.2069-100000@penguin.transmeta.com> <1031618129.1403.12.camel@entropy> <3D7D447B.D7BD1C33@digeo.com>
-In-Reply-To: <3D7D447B.D7BD1C33@digeo.com>
+	id <S317767AbSIOEbL>; Sun, 15 Sep 2002 00:31:11 -0400
+Received: from packet.digeo.com ([12.110.80.53]:13699 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S317755AbSIOEbK>;
+	Sun, 15 Sep 2002 00:31:10 -0400
+Message-ID: <3D8411E3.5A26621D@digeo.com>
+Date: Sat, 14 Sep 2002 21:51:47 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17qR7T-0001qf-00@starship>
+To: Daniel Phillips <phillips@arcor.de>
+CC: Nicholas Miell <nmiell@attbi.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] dump_stack(): arch-neutral stack trace
+References: <Pine.LNX.4.33.0209091714330.2069-100000@penguin.transmeta.com> <1031618129.1403.12.camel@entropy> <3D7D447B.D7BD1C33@digeo.com> <E17qR7T-0001qf-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Sep 2002 04:35:58.0786 (UTC) FILETIME=[635C7A20:01C25C71]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 September 2002 03:01, Andrew Morton wrote:
-> From Christoph Hellwig, also present in 2.4.
+Daniel Phillips wrote:
 > 
-> Create an arch-independent `dump_stack()' function.  So we don't need to do
+> On Tuesday 10 September 2002 03:01, Andrew Morton wrote:
+> > From Christoph Hellwig, also present in 2.4.
+> >
+> > Create an arch-independent `dump_stack()' function.  So we don't need to do
+> >
+> > #ifdef CONFIG_X86
+> >       show_stack(0);          /* No prototype in scope! */
+> > #endif
+> >
+> > any more.
+> >
+> > The whole dump_stack() implementation is delegated to the architecture.
+> > If it doesn't provide one, there is a default do-nothing library
+> > function.
 > 
-> #ifdef CONFIG_X86
-> 	show_stack(0);		/* No prototype in scope! */
-> #endif
-> 
-> any more.
-> 
-> The whole dump_stack() implementation is delegated to the architecture.
-> If it doesn't provide one, there is a default do-nothing library
-> function.
+> Is there a reason for not calling it "backtrace()" ?
 
-Is there a reason for not calling it "backtrace()" ?
+In retrospect, no.  But it's called dump_stack() in 2.4 now.
 
--- 
-Daniel
+-

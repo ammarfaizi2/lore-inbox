@@ -1,170 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263040AbUHIKNO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbUHIKNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263040AbUHIKNO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 06:13:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266435AbUHIKNO
+	id S263085AbUHIKNw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 06:13:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266450AbUHIKNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 06:13:14 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:52426 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S263040AbUHIKNB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 06:13:01 -0400
-Date: Mon, 9 Aug 2004 12:12:46 +0200 (MEST)
-Message-Id: <200408091012.i79ACjjG012582@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: akpm@osdl.org
-Subject: [PATCH][2.6.8-rc3-mm2] perfctr x86 update
-Cc: linux-kernel@vger.kernel.org
+	Mon, 9 Aug 2004 06:13:51 -0400
+Received: from mercury.sdinet.de ([193.103.161.30]:15049 "EHLO
+	mercury.sdinet.de") by vger.kernel.org with ESMTP id S263085AbUHIKNn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 06:13:43 -0400
+Date: Mon, 9 Aug 2004 12:13:37 +0200 (CEST)
+From: Sven-Haegar Koch <haegar@sdinet.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux-Kernel-Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend/Resume support for ati-agp
+In-Reply-To: <20040808195021.GB7765@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0408091203310.12175@mercury.sdinet.de>
+References: <Pine.LNX.4.58.0408080331490.15568@mercury.sdinet.de>
+ <20040808195021.GB7765@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some updates to perfctr's x86 low-level driver:
-- Use macros to clean up x86 per-cpu cache accesses.
-  This also allows me to minimise the differences between the driver
-  in the -mm kernel and the driver in the external perfctr-2.6 package
-  (perfctr-2.6 supports modular builds and 2.4 kernels).
-- Fix x86_tests to handle P4 in 64-bit mode.
-  This is needed for the Xeon with EM64T processor (Nocona).
+On Sun, 8 Aug 2004, Pavel Machek wrote:
 
-Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
+> > while trying to debug a strange resume problem with 2.6.8-rc3-mm1 and
+> > software suspend 2 I suspeced ati-agp, and created the following attached
+> > patch to add powermanagement support for it.
+> >
+> > I don't know if it's the completely right thing to do, I just copied the
+> > way via-agp and intel-agp do it - but perhaps you like it and want to send
+> > it upstream.
+>
+> Looks good to me.
+>
+> > ps:
+> > this did not fix the strange "weird vertical bars instead of movie in
+> > mplayer after resume" I have, but does not do any bad things either
+> > ;)
+>
+> Hmm, and does it fix anything?
 
- drivers/perfctr/x86.c       |   23 ++++++++++++-----------
- drivers/perfctr/x86_tests.c |    6 +++---
- 2 files changed, 15 insertions(+), 14 deletions(-)
+Nothing I could find.
 
-diff -ruN linux-2.6.8-rc3-mm2/drivers/perfctr/x86.c linux-2.6.8-rc3-mm2.perfctr-x86-updates/drivers/perfctr/x86.c
---- linux-2.6.8-rc3-mm2/drivers/perfctr/x86.c	2004-08-09 01:16:38.000000000 +0200
-+++ linux-2.6.8-rc3-mm2.perfctr-x86-updates/drivers/perfctr/x86.c	2004-08-09 10:57:36.000000000 +0200
-@@ -1,4 +1,4 @@
--/* $Id: x86.c,v 1.141 2004/05/31 18:13:42 mikpe Exp $
-+/* $Id: x86.c,v 1.146 2004/08/02 17:29:23 mikpe Exp $
-  * x86/x86_64 performance-monitoring counters driver.
-  *
-  * Copyright (C) 1999-2004  Mikael Pettersson
-@@ -36,6 +36,8 @@
- 	} control;
- } ____cacheline_aligned;
- static DEFINE_PER_CPU(struct per_cpu_cache, per_cpu_cache);
-+#define __get_cpu_cache(cpu) (&per_cpu(per_cpu_cache, cpu))
-+#define get_cpu_cache() (&__get_cpu_var(per_cpu_cache))
- 
- /* Structure for counter snapshots, as 32-bit values. */
- struct perfctr_low_ctrs {
-@@ -261,7 +263,7 @@
- 	cesr = state->k1.id;
- 	if (!cesr)	/* no PMC is on (this test doesn't work on C6) */
- 		return;
--	cache = &__get_cpu_var(per_cpu_cache);
-+	cache = get_cpu_cache();
- 	if (cache->k1.p5_cesr != cesr) {
- 		cache->k1.p5_cesr = cesr;
- 		wrmsr(MSR_P5_CESR, cesr, 0);
-@@ -360,7 +362,7 @@
- 
- 	if (perfctr_cstatus_nractrs(state->cstatus) == 0) /* no PMC is on */
- 		return;
--	cache = &__get_cpu_var(per_cpu_cache);
-+	cache = get_cpu_cache();
- 	cesr = state->k1.id;
- 	if (cache->k1.p5_cesr != cesr) {
- 		cache->k1.p5_cesr = cesr;
-@@ -453,7 +455,7 @@
- 
- 	cpu = smp_processor_id();
- 	set_isuspend_cpu(state, cpu); /* early to limit cpu's live range */
--	cache = &per_cpu(per_cpu_cache, cpu);
-+	cache = __get_cpu_cache(cpu);
- 	cstatus = state->cstatus;
- 	nrctrs = perfctr_cstatus_nrctrs(cstatus);
- 	for(i = perfctr_cstatus_nractrs(cstatus); i < nrctrs; ++i) {
-@@ -484,7 +486,7 @@
- 	int cpu;
- 
- 	cpu = smp_processor_id();
--	cache = &per_cpu(per_cpu_cache, cpu);
-+	cache = __get_cpu_cache(cpu);
- 	if (cache->k1.id == state->k1.id) {
- 		cache->k1.id = 0; /* force reload of cleared EVNTSELs */
- 		if (is_isuspend_cpu(state, cpu))
-@@ -527,7 +529,7 @@
- 	struct per_cpu_cache *cache;
- 	unsigned int nrctrs, i;
- 
--	cache = &__get_cpu_var(per_cpu_cache);
-+	cache = get_cpu_cache();
- 	if (cache->k1.id == state->k1.id)
- 		return;
- 	nrctrs = perfctr_cstatus_nrctrs(state->cstatus);
-@@ -826,7 +828,7 @@
- 	struct per_cpu_cache *cache;
- 	unsigned int nrctrs, i;
- 
--	cache = &__get_cpu_var(per_cpu_cache);
-+	cache = get_cpu_cache();
- 	if (cache->k1.id == state->k1.id)
- 		return;
- 	nrctrs = perfctr_cstatus_nrctrs(state->cstatus);
-@@ -960,7 +962,7 @@
- #ifdef CONFIG_SMP
- 	clear_isuspend_cpu(state);
- #else
--	__get_cpu_var(per_cpu_cache).k1.id = 0;
-+	get_cpu_cache()->k1.id = 0;
- #endif
- }
- 
-@@ -1137,7 +1139,7 @@
- 	old_mask = perfctr_cpus_forbidden_mask;
- 	clear_perfctr_cpus_forbidden_mask();
- 
--	cache = &__get_cpu_var(per_cpu_cache);
-+	cache = get_cpu_cache();
- 	memset(cache, 0, sizeof *cache);
- 	memset(&state, 0, sizeof state);
- 	state.cstatus =
-@@ -1424,8 +1426,7 @@
- 	 * All-bits-one works for all currently supported processors.
- 	 * The memset also sets the ids to -1, which is intentional.
- 	 */
--	memset(&__get_cpu_var(per_cpu_cache), ~0,
--	       sizeof(struct per_cpu_cache));
-+	memset(get_cpu_cache(), ~0, sizeof(struct per_cpu_cache));
- }
- 
- static void perfctr_cpu_init_one(void *ignore)
-diff -ruN linux-2.6.8-rc3-mm2/drivers/perfctr/x86_tests.c linux-2.6.8-rc3-mm2.perfctr-x86-updates/drivers/perfctr/x86_tests.c
---- linux-2.6.8-rc3-mm2/drivers/perfctr/x86_tests.c	2004-08-09 01:16:38.000000000 +0200
-+++ linux-2.6.8-rc3-mm2.perfctr-x86-updates/drivers/perfctr/x86_tests.c	2004-08-09 10:57:36.000000000 +0200
-@@ -1,4 +1,4 @@
--/* $Id: x86_tests.c,v 1.31 2004/07/26 12:02:32 mikpe Exp $
-+/* $Id: x86_tests.c,v 1.34 2004/08/08 19:54:40 mikpe Exp $
-  * Performance-monitoring counters driver.
-  * Optional x86/x86_64-specific init-time tests.
-  *
-@@ -252,13 +252,13 @@
- {
- 	measure_overheads(MSR_P6_EVNTSEL0+1, VC3_EVNTSEL1_VAL, MSR_P6_PERFCTR0+1, 0, 0);
- }
-+#endif /* !__x86_64__ */
- 
- static inline void perfctr_p4_init_tests(void)
- {
- 	measure_overheads(MSR_P4_CRU_ESCR0, P4_CRU_ESCR0_VAL, MSR_P4_IQ_COUNTER0,
- 			  MSR_P4_IQ_CCCR0, P4_IQ_CCCR0_VAL);
- }
--#endif /* !__x86_64__ */
- 
- static inline void perfctr_k7_init_tests(void)
- {
-@@ -290,10 +290,10 @@
- 	case PTT_VC3: /* VIA C3 */
- 		perfctr_vc3_init_tests();
- 		break;
-+#endif /* !__x86_64__ */
- 	case PTT_P4: /* Intel P4 */
- 		perfctr_p4_init_tests();
- 		break;
--#endif /* !__x86_64__ */
- 	case PTT_AMD: /* AMD K7, K8 */
- 		perfctr_k7_init_tests();
- 		break;
+suspend to disk with swsusp in 2.6.8-rc3-mm1 does not work at all for me,
+I just get a oops longer than screen height after resume, which I can't
+capture because my thinkpad r40e does not have a serial port.
+sorry, but I didnt test with it after creating this patch.
+
+suspend to disk with softwaresuspend 2 works mostly, I just need to
+remove and reload the snd_ali5154 soundmodule after resume, and mplayer
+output with -vo xv is broken.
+
+pmdisk in 2.6.7-mm5 worked with the same problems as softwaresuspend 2 in
+the newer kernel.
+
+
+>
+> 									Pavel
+>
+>
+> > --- linux/drivers/char/agp/ati-agp.c.orig	2004-08-08 02:53:10.000000000 +0200
+> > +++ linux/drivers/char/agp/ati-agp.c	2004-08-08 03:06:03.000000000 +0200
+> > @@ -505,6 +505,33 @@
+> >  	agp_put_bridge(bridge);
+> >  }
+> >
+> > +#ifdef CONFIG_PM
+> > +
+> > +static int agp_ati_suspend(struct pci_dev *pdev, u32 state)
+> > +{
+> > +	pci_save_state (pdev, pdev->saved_config_space);
+> > +	pci_set_power_state (pdev, 3);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int agp_ati_resume(struct pci_dev *pdev)
+> > +{
+> > +	struct agp_bridge_data *bridge = pci_get_drvdata(pdev);
+> > +
+> > +	/* set power state 0 and restore PCI space */
+> > +	pci_set_power_state (pdev, 0);
+> > +	pci_restore_state(pdev, pdev->saved_config_space);
+> > +
+> > +	/* reconfigure AGP hardware again */
+> > +	if (bridge->driver == &ati_generic_bridge)
+> > +		return ati_configure();
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +#endif /* CONFIG_PM */
+> > +
+> >  static struct pci_device_id agp_ati_pci_table[] = {
+> >  	{
+> >  	.class		= (PCI_CLASS_BRIDGE_HOST << 8),
+> > @@ -524,6 +551,10 @@
+> >  	.id_table	= agp_ati_pci_table,
+> >  	.probe		= agp_ati_probe,
+> >  	.remove		= agp_ati_remove,
+> > +#ifdef CONFIG_PM
+> > +	.suspend	= agp_ati_suspend,
+> > +	.resume		= agp_ati_resume,
+> > +#endif
+> >  };
+> >
+> >  static int __init agp_ati_init(void)
+>
+
+c'ya
+sven
+
+-- 
+
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)

@@ -1,59 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292229AbSCRTMM>; Mon, 18 Mar 2002 14:12:12 -0500
+	id <S292289AbSCRTOw>; Mon, 18 Mar 2002 14:14:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292289AbSCRTME>; Mon, 18 Mar 2002 14:12:04 -0500
-Received: from smtp1.extremenetworks.com ([216.52.8.6]:38276 "HELO
-	smtp1.extremenetworks.com") by vger.kernel.org with SMTP
-	id <S292130AbSCRTLx>; Mon, 18 Mar 2002 14:11:53 -0500
-Message-ID: <3C963BF2.C9D78479@extremenetworks.com>
-Date: Mon, 18 Mar 2002 11:11:46 -0800
-From: Jason Li <jli@extremenetworks.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: EXPORT_SYMBOL doesn't work
-In-Reply-To: <2643.1016433275@kao2.melbourne.sgi.com>
+	id <S292231AbSCRTOn>; Mon, 18 Mar 2002 14:14:43 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:19471 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S292130AbSCRTO0>;
+	Mon, 18 Mar 2002 14:14:26 -0500
+Date: Mon, 18 Mar 2002 20:13:52 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jari Ruusu <jari.ruusu@pp.inet.fi>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Herbert Valerio Riedel <hvr@hvrlab.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre3aa2
+Message-ID: <20020318191352.GF28487@suse.de>
+In-Reply-To: <20020314032801.C1273@dualathlon.random> <3C912ACF.AF3EE6F0@pp.inet.fi> <20020315105621.GA22169@suse.de> <3C9230C6.4119CB4C@pp.inet.fi>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
+On Fri, Mar 15 2002, Jari Ruusu wrote:
+> Jens Axboe wrote:
+> > On Fri, Mar 15 2002, Jari Ruusu wrote:
+> > > - No more illegal sleeping in generic_make_request().
+> > 
+> > I've told you this before -- sleeping in make_request is not illegal,
+> > heck it happens _all the time_. Safely sleeping requires a reserved pool
+> > of the units you wish to allocate, of course. In fact I think that would
+> > be much nicer than the path you are following here by delaying
+> > allocations to the loop thread (and still not using a reserved pool).
 > 
-> On Sun, 17 Mar 2002 22:25:16 -0800,
-> Jason Li <jli@extremenetworks.com> wrote:
-> >int (*fdbIoSwitchHook)(
-> >                           unsigned long arg0,
-> >                           unsigned long arg1,
-> >                           unsigned long arg2)=NULL;
-> >EXPORT_SYMBOL(fdbIoSwitchHook);
-> >gcc -D__KERNEL__ -I/home/jli/cvs2/exos/linux/include -Wall
-> >-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-> >-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
-> >-march=i686    -c -o br_ioctl.o br_ioctl.c
-> >br_ioctl.c:26: warning: type defaults to `int' in declaration of
-> >`EXPORT_SYMBOL'
+> Yes, I know you have told me that before, but I'm being overcareful. See:
 > 
-> #include <linux/module.h>
+> <quote> from device drivers book by Alessandro Rubini, chapter 12, page 331
+> The request function has one very important constraint: it must be atomic.
+> request is not usually called in direct response to user requests, and it is
+> not running in the context of any particular process. It can be called at
+> interrupt time, from tasklets, or from any number of other places. Thus, it
+> must not sleep while carrying out its tasks.
+> </quote>
+
+That's talking about the request_fn funtion, not related to
+make_request_fn that I rewrote loop to use. So that's not a valid point.
+
+> > -       if(!bh) return((struct buffer_head *)0);
+> > 
+> > eww!
+> > 
+> > - Also, please adher to the style. VaRiAbLe names can hurt the eyes, and
+> > stuff like
+> > 
+> >         if (something) break;
+> > 
+> >         return(val);
+> > 
+> > etc don't belong too. Could you fix that up?
+> > 
+> > That said, thanks for fixing it!
 > 
-> Also add br_ioctl.o to export-objs in Makefile.
+> If there is any chance of being merged to mainline kernel, I will fix these
+> "hurt the eyes" formatting issues.
 
-Thanks alot. It works.
+I think there is. At least I can safely say there's no chance it will be
+merged if these things aren't fixed. So take your pick :-)
 
-Now another problem with versioning. It seems even after I have the
-following in my module c file the symbol generated is not versioned:
+> > BTW, it looks like you are killing LO_FLAGS_BH_REMAP?! Why? This is a
+> > very worthwhile optimization.
+> 
+> Removing it simplified the code a lot. Doing remap direcly from
+> loop_make_request() would probably be more effective. Just remap and return
 
-#define MODULE
-#include <linux/modversions.h>
-#include <linux/kernel.h>
+LOTS more effective. Please don't kill this functionality. I don't buy
+the simplification argument.
 
-When I do nm on the module, fdbIoSwitchHook is still a pure name without
-the version info. Can you please tell me how to enable the versioning
-for the symbol fdbIoSwitchHook?
+> 1 from loop_make_request() like LVM code does.
 
-Appreciate your help!
+And like loop currently does...
 
--Jason
+-- 
+Jens Axboe
+

@@ -1,119 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVBFO34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVBFOgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261171AbVBFO34 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 09:29:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVBFO34
+	id S261177AbVBFOgI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 09:36:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVBFOgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 09:29:56 -0500
-Received: from cantor.suse.de ([195.135.220.2]:47071 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261171AbVBFO3l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 09:29:41 -0500
-Date: Sun, 6 Feb 2005 15:29:36 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org, drepper@redhat.com
-Subject: Re: [PROPOSAL/PATCH] Remove PT_GNU_STACK support before 2.6.11
-Message-ID: <20050206142936.GC30476@wotan.suse.de>
-References: <20050206120244.GA28061@elte.hu> <20050206124523.GA762@elte.hu> <20050206125002.GF30109@wotan.suse.de> <1107694800.22680.90.camel@laptopd505.fenrus.org> <20050206130152.GH30109@wotan.suse.de> <20050206130650.GA32015@infradead.org> <20050206131130.GJ30109@wotan.suse.de> <20050206133239.GA4483@elte.hu> <20050206134640.GB30476@wotan.suse.de> <20050206140802.GA6323@elte.hu>
+	Sun, 6 Feb 2005 09:36:07 -0500
+Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:26897 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261177AbVBFOgC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 09:36:02 -0500
+Date: Sun, 6 Feb 2005 15:36:00 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Alexey Dobriyan <adobriyan@mail.ru>, "Mark A. Greer" <mgreer@mvista.com>
+Cc: Greg KH <greg@kroah.com>, LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][I2C] Marvell mv64xxx i2c driver
+Message-Id: <20050206153600.2d8fb127.khali@linux-fr.org>
+In-Reply-To: <3s6eEus2.1107510325.6106480.khali@localhost>
+References: <4202BBF9.3020104@mvista.com>
+	<3s6eEus2.1107510325.6106480.khali@localhost>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050206140802.GA6323@elte.hu>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 06, 2005 at 03:08:02PM +0100, Ingo Molnar wrote:
-> * Andi Kleen <ak@suse.de> wrote:
-> 
-> > > RWE. But if it triggers it shows up immediately so it's not like you
-> > > have no sign that something wrong is going on. Only grub-install
-> > > triggers it and no boot/install kernel i know of defaults to
-> > > PAE-enabled, that's what caused grub-install being used in an NX
-> > > scenario so infrequently.)
-> > > 
-> > > anyway, this particular flamewar might have made more sense last Summer.
-> > 
-> > Last summer nobody did change the 32bit ABI on x86-64.
-> > 
-> > I only started it because the bug reports are appearing now and it's
-> > clear now that we have a problem. 
-> 
-> the vanilla 2.6.10 x64 kernel, using 32-bit fedora userland boots fine
-> here, and gives a noexec stack:
+Hi all,
 
-I'm not too concerned about the noexec stack (PT_GNU_STACK seems 
-to handle that well enough), more about the no exec heap which
-seems to cause all the problems.  The stack change is not very
-nice, but at least doesn't seem to cause wide spread breakage.
+Quoting myself:
+> I am as surprised as you are to see this here. I2C_ALGO_AU1550 should
+> really be made a different value. There is also a problem with
+> I2C_ALGO_PCA and I2C_ALGO_SIBYTE having the same value, which was
+> already reported to Greg some days ago if memory serves. I think I
+> will send a patch against 2.6.10-rc3 to Linus this evening, which
+> fixes the broken algo IDs. That way Mark can keep the algorithm ID he
+> is using right now, and each algorithm will get its own, unique ID, as
+> should be.
 
-Anyways, you're right I double checked and the problem was already
-in 2.6.10. I can just say that I didn't get any reports, maybe
-nobody tried grub with 2.6.10 or they didn't report it the problem
-properly.
+I've changed my mind since. There isn't anything critical here and
+pushing random patches to Linus right before he releases 2.6.11 wouldn't
+have been particularly subtle. So I instead sent a patch to Greg, as can
+be seen here:
+http://archives.andrew.net.au/lm-sensors/msg29405.html
 
-Probably my original patch was a bit too radical too, just setting 
-READ_IMPLIES_EXEC on all 32bit process unconditionally should be good enough. 
+So Mark, providing Greg accepts this patch, you can assume that
+I2C_ALGO_MV64XXX is already properly defined in Greg's tree (where your
+own patch will end up) so you don't need to add it yourself. You will
+still have to define I2C_HW_MV64XXX though.
 
-I still think it's something that needs to be addressed for 2.6.11.
-
-Here's a new patch that just sets READ_IMPLIES_EXEC unconditionally.
-
-It still has a bug that you cannot change it with personality()
-without getting overwritten later
-(that is a bug that was in the original changes, you would really 
-need two independent bits for this). But I'm not going to change
-that now so late in the game. It implies that you cannot 
-use personality to force READ_IMPLIES_EXEC for a 64bit process.
-
--Andi
-
-
-Force READ_IMPLIES_EXEC for all 32bit processes to fix
-the 32bit source compatibility.
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-
-diff -u linux-2.6.11rc3/include/asm-i386/elf.h-o linux-2.6.11rc3/include/asm-i386/elf.h
---- linux-2.6.11rc3/include/asm-i386/elf.h-o	2004-10-19 01:55:33.000000000 +0200
-+++ linux-2.6.11rc3/include/asm-i386/elf.h	2005-02-06 15:27:13.000000000 +0100
-@@ -117,7 +117,8 @@
- #define AT_SYSINFO_EHDR		33
- 
- #ifdef __KERNEL__
--#define SET_PERSONALITY(ex, ibcs2) do { } while (0)
-+#define SET_PERSONALITY(ex, ibcs2) \
-+	do { current->personality |= READ_IMPLIES_EXEC; } while (0)
- 
- /*
-  * An executable for which elf_read_implies_exec() returns TRUE will
-diff -u linux-2.6.11rc3/arch/x86_64/kernel/process.c-o linux-2.6.11rc3/arch/x86_64/kernel/process.c
---- linux-2.6.11rc3/arch/x86_64/kernel/process.c-o	2005-02-04 09:12:52.000000000 +0100
-+++ linux-2.6.11rc3/arch/x86_64/kernel/process.c	2005-02-06 15:26:45.000000000 +0100
-@@ -577,6 +577,11 @@
- 
- 	/* Make sure to be in 64bit mode */
- 	clear_thread_flag(TIF_IA32); 
-+
-+	/* Clear in case it was set from a 32bit parent.
-+	   Bug: this overwrites the user choice. Would need
-+	   a second bit too. */
-+	current->personality &= ~READ_IMPLIES_EXEC;
- }
- 
- asmlinkage long sys_fork(struct pt_regs *regs)
-diff -u linux-2.6.11rc3/arch/x86_64/ia32/ia32_binfmt.c-o linux-2.6.11rc3/arch/x86_64/ia32/ia32_binfmt.c
---- linux-2.6.11rc3/arch/x86_64/ia32/ia32_binfmt.c-o	2005-02-04 09:12:52.000000000 +0100
-+++ linux-2.6.11rc3/arch/x86_64/ia32/ia32_binfmt.c	2005-02-06 15:23:33.000000000 +0100
-@@ -262,6 +262,7 @@
- 		set_thread_flag(TIF_ABI_PENDING);		\
- 	else							\
- 		clear_thread_flag(TIF_ABI_PENDING);		\
-+	current->personality |= READ_IMPLIES_EXEC; 		\
- } while (0)
- 
- /* Override some function names */
-
-
+Thanks,
+-- 
+Jean Delvare

@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUHWU2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266879AbUHWUbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266663AbUHWU2I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 16:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267773AbUHWU0Q
+	id S266879AbUHWUbt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 16:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267764AbUHWU2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 16:26:16 -0400
-Received: from mail.kroah.org ([69.55.234.183]:16869 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266663AbUHWUAR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 16:00:17 -0400
-Date: Mon, 23 Aug 2004 12:47:17 -0700
-From: Greg KH <greg@kroah.com>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
-Message-ID: <20040823194717.GA2361@kroah.com>
-References: <10932860811635@kroah.com> <10932860812879@kroah.com> <20040823193013.GA9831@redhat.com>
+	Mon, 23 Aug 2004 16:28:21 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:38664 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267774AbUHWU0b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 16:26:31 -0400
+Date: Mon, 23 Aug 2004 21:26:23 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: James Morris <jmorris@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Stephen Smalley <sds@epoch.ncsc.mil>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][7/7] add xattr support to ramfs
+Message-ID: <20040823212623.A20995@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	viro@parcelfarce.linux.theplanet.co.uk,
+	Stephen Smalley <sds@epoch.ncsc.mil>, linux-kernel@vger.kernel.org
+References: <Xine.LNX.4.44.0408231420100.13728-100000@thoron.boston.redhat.com> <Xine.LNX.4.44.0408231421200.13728-100000@thoron.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040823193013.GA9831@redhat.com>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Xine.LNX.4.44.0408231421200.13728-100000@thoron.boston.redhat.com>; from jmorris@redhat.com on Mon, Aug 23, 2004 at 02:22:20PM -0400
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 23, 2004 at 08:30:14PM +0100, Dave Jones wrote:
-> On Mon, Aug 23, 2004 at 11:34:41AM -0700, Greg KH wrote:
->  > ChangeSet 1.1790.2.2, 2004/08/02 15:24:01-07:00, greg@kroah.com
->  > 
->  > PCI: update pci.ids from sf.net site.
->  > 
->  > Patch taken from http://www.codemonkey.org.uk/projects/pci/pci.ids-2004-08-02.diff
->  > and tweaked by hand to build with no warnings.
-> 
-> Did you push those tweaks back to the pciids.sf.net site ?
+On Mon, Aug 23, 2004 at 02:22:20PM -0400, James Morris wrote:
+> This patch adds xattr support to tmpfs, and a security xattr handler.
+> Original patch from: Chris PeBenito <pebenito@gentoo.org>
 
-I did not have the chance to do so yet, but will soon, thanks for
-reminding me.
+What's the point on doing this for ramfs?  And if you really want this
+the implementation could be shared with tmpfs easily and put into xattr.c
 
-greg k-h

@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262705AbTCPRwv>; Sun, 16 Mar 2003 12:52:51 -0500
+	id <S262706AbTCPR4S>; Sun, 16 Mar 2003 12:56:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262706AbTCPRwv>; Sun, 16 Mar 2003 12:52:51 -0500
-Received: from msp-24-163-212-250.mn.rr.com ([24.163.212.250]:16009 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S262705AbTCPRwu>; Sun, 16 Mar 2003 12:52:50 -0500
-Subject: constant Bitkeeper bitching
-From: Shawn <core@enodev.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047837820.3966.8.camel@localhost.localdomain>
+	id <S262708AbTCPR4S>; Sun, 16 Mar 2003 12:56:18 -0500
+Received: from smtp.terra.es ([213.4.129.129]:26457 "EHLO tsmtp1.mail.isp")
+	by vger.kernel.org with ESMTP id <S262706AbTCPR4S>;
+	Sun, 16 Mar 2003 12:56:18 -0500
+Date: Sun, 16 Mar 2003 18:48:23 +0100
+From: Arador <diegocg@teleline.es>
+To: Maxime <x@organigramme.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: make bzImage fails when LANG set
+Message-Id: <20030316184823.08778fbf.diegocg@teleline.es>
+In-Reply-To: <3E74AC1C.8010901@organigramme.net>
+References: <3E74AC1C.8010901@organigramme.net>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 16 Mar 2003 12:03:40 -0600
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Holy frelling frig-fest on a freighter of fruit-loops!
-
-I've never seen such ridiculous behavior.. Well, except all the time on
-LK...
-
-Anyway, folks, keep in mind the following. BK->CVS does not throw away
-any useful meta-data you would have had before using BK. You had
-patches, folks... That's it!! BK giveth, and giveth, and giveth, and all
-you see is taking away.
-
-Whatever your thoughts on Larry, or the language in his license, you get
-to take the data out, sans only the metadata cvs cannot handle. Plus,
-you get much more granular history tracking you ever had with patches.
-
-Now go sit and spin. I am neither a detractor or protractor... ;] I'm
-just sick of the bitching, as is everyone else.
+On Sun, 16 Mar 2003 11:53:48 -0500
+Maxime <x@organigramme.net> wrote:
 
 
+> export LANG=fr
+> export LC_ALL=fr_CA
+> 
+> By removing them, the kernel compiled just fine.  Stange bug!
+
+It works with es_ES@euro (debian sid environment, gcc 3.2.3)

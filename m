@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbUKSOLS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbUKSOM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbUKSOLS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 09:11:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUKSOLS
+	id S261425AbUKSOM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 09:12:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUKSOLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 19 Nov 2004 09:11:25 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:42246 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261417AbUKSOLS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 19 Nov 2004 09:11:18 -0500
-Received: from bgm-24-95-139-53.stny.rr.com ([24.95.139.53]:43172 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261412AbUKSOLN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 09:11:13 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041119100541.GA28243@elte.hu>
-References: <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu>
-	 <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu>
-	 <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu>
-	 <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu>
-	 <20041118164612.GA17040@elte.hu> <419D13D3.8020409@stud.feec.vutbr.cz>
-	 <20041119100541.GA28243@elte.hu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Kihon Technologies
-Date: Fri, 19 Nov 2004 09:11:12 -0500
-Message-Id: <1100873472.4051.31.camel@localhost.localdomain>
+Date: Fri, 19 Nov 2004 15:11:16 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, David Woodhouse <dwmw2@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: RFC: let x86_64 no longer define X86
+Message-ID: <20041119141116.GB5390@stusta.de>
+References: <20041119005117.GM4943@stusta.de> <20041119085132.GB26231@wotan.suse.de> <419DC922.1020809@pobox.com> <20041119103418.GB30441@wotan.suse.de> <1100863700.21273.374.camel@baythorne.infradead.org> <20041119115539.GC21483@wotan.suse.de> <1100865050.21273.376.camel@baythorne.infradead.org> <20041119120549.GD21483@wotan.suse.de> <419DE33E.2000208@pobox.com> <20041119121909.GF21483@wotan.suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041119121909.GF21483@wotan.suse.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting a bug print (really a warning) from enable_irq spawned from
-the e100 driver. The reason is that enable_irq is being called because
-the irq depth is zero.
+On Fri, Nov 19, 2004 at 01:19:10PM +0100, Andi Kleen wrote:
+> On Fri, Nov 19, 2004 at 07:12:46AM -0500, Jeff Garzik wrote:
+> > Andi Kleen wrote:
+> > >I don't know details about the driver, but it's not enabled on x86-64 
+> > >because x86-64 doesn't have ISA set.
+> > 
+> > 
+> > which I disagree with.  CONFIG_ISA should include southbridge devices 
+> > behind a PCI<->ISA bridge.  There is zero value to a more stricter 
+> > "there is a physical ISA bus in this machine" definition.
+> 
+> There is. It gets rid of many tens of drivers that are not and will never
+> be 64bit clean and have a snowball in hell chances to work on x86-64.
+>...
 
-Looking into this, it is because the e100 uses a shared interrupt.  On
-setup (see drivers/net/e100.c: e100_up) it disables the irq that it will
-use, and then calls request_irq which calls setup_irq which zeros out
-the depth of the irq if it is not shared.  So if the e100 is the first
-to be loaded, then you get this message. 
+If this was correctly annotated with (!64BIT || BROKEN), such a broken 
+driver wasn't offered on Alpha, too.
 
-I know that for now this doesn't hurt anything, but besides annoying me
-in my print outs (I can't stop panicking when I see it ;-),  is this
-really a bug and thus a design flaw of the e100? How else can a shared
-irq initialize without turning off the irq before setting itself up?
+> -Andi
 
-Should it enable the irq before it requests it, and thus open the race
-of a spurious interrupt, or just disable all interrupts?
-
-Thanks,
+cu
+Adrian
 
 -- 
-Steven Rostedt
-Senior Engineer
-Kihon Technologies
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

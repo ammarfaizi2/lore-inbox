@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278955AbRJVV1u>; Mon, 22 Oct 2001 17:27:50 -0400
+	id <S278949AbRJVVaU>; Mon, 22 Oct 2001 17:30:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278954AbRJVV1l>; Mon, 22 Oct 2001 17:27:41 -0400
-Received: from smtp2.libero.it ([193.70.192.52]:16113 "EHLO smtp2.libero.it")
-	by vger.kernel.org with ESMTP id <S278949AbRJVV1Z>;
-	Mon, 22 Oct 2001 17:27:25 -0400
-Message-ID: <3BD1F4B5.D8D74DBF@denise.shiny.it>
-Date: Sun, 21 Oct 2001 00:03:33 +0200
-From: Giuliano Pochini <pochini@denise.shiny.it>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.13-pre1 ppc)
-X-Accept-Language: en
+	id <S278960AbRJVV24>; Mon, 22 Oct 2001 17:28:56 -0400
+Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:29969 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S278949AbRJVV15>;
+	Mon, 22 Oct 2001 17:27:57 -0400
+Date: Mon, 22 Oct 2001 14:30:36 -0700 (PDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Gregory Ade <gkade@bigbrother.net>, bert hubert <ahu@ds9a.nl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre10
+In-Reply-To: <E15vlSw-0003BY-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10110221430090.16785-100000@innerfire.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: linuxppc-dev@lists.linuxppc.org
-Subject: hfs cdrom broken in 2.4.13pre
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 22 Oct 2001, Alan Cox wrote:
 
-Kernel 2.4.13pre1 on powerpc. I can no longer mount HFS-formatted cdroms.
-The last kernel I'm sure it worked fine is 2.4.7
+> > So, then, just to satisfy my curiosity, how long until users of Linux in
+> > the U.S.A. will no longer be allowed to download new kernels?
+> 
+> Potentially about 12 months after the SSSCA is passed. At which point you may
+> well find only a binary only OS with enforced copy management is legal in
+> the USA.
+> 
+> > I guess I was wrong about the Linux kernel being Open Source and freely
+> > available and distributable.
+> 
+> It is, subject to the law of the various countries concerned.
+> 
+> Alan
 
-Oct 20 23:58:51 Jay kernel: ll_rw_block: device 0b:00: only 2048-char blocks
-implemented (512) 
-Oct 20 23:58:51 Jay kernel: hfs_fs: unable to read block 0x00000002 from dev
-0b:00 
-Oct 20 23:58:51 Jay kernel: hfs_fs: Unable to read superblock 
-Oct 20 23:58:51 Jay kernel: ll_rw_block: device 0b:00: only 2048-char blocks
-implemented (512) 
-Oct 20 23:58:51 Jay kernel: hfs_fs: unable to read block 0x00000000 from dev
-0b:00 
-Oct 20 23:58:51 Jay kernel: hfs_fs: Unable to read block 0. 
+Has it become time for a non-us.vger.kernel.org ??
 
-Bye.
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
 

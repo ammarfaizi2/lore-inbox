@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278727AbRJVLd3>; Mon, 22 Oct 2001 07:33:29 -0400
+	id <S278722AbRJVLfj>; Mon, 22 Oct 2001 07:35:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278722AbRJVLdT>; Mon, 22 Oct 2001 07:33:19 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:22712 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S278727AbRJVLdJ>;
-	Mon, 22 Oct 2001 07:33:09 -0400
-Date: Mon, 22 Oct 2001 07:33:37 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12 
-In-Reply-To: <25634.1003749468@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.GSO.4.21.0110220724120.2294-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278729AbRJVLf3>; Mon, 22 Oct 2001 07:35:29 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:23950 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S278722AbRJVLfU>; Mon, 22 Oct 2001 07:35:20 -0400
+Date: Mon, 22 Oct 2001 13:35:54 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre10
+Message-ID: <20011022133554.A14759@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011022123733.A14457@outpost.ds9a.nl> <E15vdHO-0001ds-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15vdHO-0001ds-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Oct 22, 2001 at 12:30:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 22, 2001 at 12:30:02PM +0100, Alan Cox wrote:
 
-
-On Mon, 22 Oct 2001, Keith Owens wrote:
-
-> >MODULES_BLKDEV(), MODULE_LDISC(), etc. would be trivial wrappers around that.
+> > > o	Security fixes
+> > > 	| Details censored in accordance with the US DMCA
+> > 
+> > Care to elaborate?
 > 
-> Everything is a device and can be handled by the hotplug project.  It
-> is really a cunning plan by David Brownell and Greg Kroah-Hartman to
-> own the entire device subsystem ;).
+> On a list that reaches US citizens - no. File permissions and userids may
+> constitute and be used for rights management.
 
-No-go - we need that for filesystems.  But that's a separate story - if
-MODULE_CONF() is there life already becomes much easier.
- 
-> >Looks like the thing you mentioned would make quite a few people happy.
-> >Might be worth doing in 2.4...
-> 
-> Please, no more 2.4 changes.  Let Linus get 2.4 stable, fork 2.5 so we
-> can break it on a daily basis then backport to 2.4 when it works.
+I may be a bit simple today, but I still don't get it. In what way does the
+DMCA (horrible as it is) apply to our own software, which we in know way
+'reverse engineered'?
 
-I suspect that in this case s/2.5/2.4-ac/ might be a possibility.  Since
-we are talking about defaults, nothing is going to break if file simply
-doesn't exist.  So teaching modprobe to handle it if it's there would
-be a compatible change and would allow testing the kernel side of that
-stuff.  Alan?
+Are you saying that we can't divulge security problems in our own software
+anymore for fear of being sued by affected parties?
 
+Regards,
 
+bert
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+Trilab                                 The Technology People
+Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet

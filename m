@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVCCAtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVCCASu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261268AbVCCAtK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 19:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVCCApW
+	id S261297AbVCCASu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 19:18:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVCCAOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 19:45:22 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5822 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261372AbVCCAov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 19:44:51 -0500
-Message-ID: <42265DEA.1030004@pobox.com>
-Date: Wed, 02 Mar 2005 19:44:26 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 2 Mar 2005 19:14:53 -0500
+Received: from animx.eu.org ([216.98.75.249]:15252 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S261415AbVCCAON (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 19:14:13 -0500
+Date: Wed, 2 Mar 2005 19:20:17 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: RFD: Kernel release numbering
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20050303002017.GB15274@animx.eu.org>
+Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <422643F0.8050603@utah-nac.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <422643F0.8050603@utah-nac.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Wed, 2 Mar 2005, Jeff Garzik wrote:
-> 
->>30?  Try 310 changesets, in my netdev-2.6 pending queue.
-> 
-> 
-> Note that I don't think a 2.6.<even> would have problems with things like 
-> driver updates.
+I'm only emailing to the list, feel free to keep my in CC (this way I'll
+know what part of the thread was directed towards me)
 
-Nah, I agree with DaveJ -- there are definitely "dev" portions when it 
-comes to driver updates.
+Jeff V. Merkey wrote:
+> __Stable__ would be a good thing. The entire 2.6 development has been a 
+> disaster from
+> a stability viewpoint. I have to maintain a huge tree of patches in 
+> order to ship appliance
+> builds due to the lack of stability for 2.6. I think that the even 
+> number releases will take longer
+> but it's worth the wait.
 
-Judging from recent posting from Bart, it looks like he has an evil plot 
-to merge the IDE driver with libata.  libata will also eventually 
-[perhaps with Bart's changes?] make the SCSI portion optional, as I have 
-long promised.  And it's getting other new and destabilizing features.
+I agree about the stability of the 2.6 kernels.  The system I'm using now
+has always been 2.6 since I first installed it.  I have noticed there were
+stability issues with 2.6.  I remember 2.6.7 was fairly good and was a bit
+stable.  2.6.8.1 wasn't that stable (I'm sure I had the .1 patch on it,
+however, attempting to do a lock over NFS caused the system to hard freeze).
+2.6.9 was more unstable especially with USB.  2.6.10 (which I'm using now)
+has to be IMO the most stable 2.6 kernel produced.  I'm quite pleased with
+it (and to all the kernel hackers, thanks for a great kernel).
 
-There will be other changes in SCSI and block too, which want staging... 
-  Some of the stuff I've been putting off until "2.7" will be re-thought 
-into something that appears in the on-going 2.6 series.
+P.S.  System is a dual xeon 2.6ghz on a supermicro x5da8 1gb ram.
 
-If you don't have driver stability, you don't have a useful kernel...
-
-	Jeff
-
-
-
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

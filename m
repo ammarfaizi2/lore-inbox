@@ -1,175 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbVBPKCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbVBPKIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262000AbVBPKCH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 05:02:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbVBPKBE
+	id S261985AbVBPKIO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 05:08:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbVBPKIN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 05:01:04 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9995 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261998AbVBPJ7n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 04:59:43 -0500
-Date: Wed, 16 Feb 2005 10:59:41 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mike.miller@hp.com, iss_storagedev@hp.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/block/cciss*: misc cleanups
-Message-ID: <20050216095941.GF3272@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 16 Feb 2005 05:08:13 -0500
+Received: from viking.sophos.com ([194.203.134.132]:47627 "EHLO
+	viking.sophos.com") by vger.kernel.org with ESMTP id S261985AbVBPKIG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 05:08:06 -0500
+To: Matt Mackall <mpm@selenic.com>
+Cc: adaplas@pol.net, benh@kernel.crashing.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Radeon FB troubles with recent kernels
+MIME-Version: 1.0
+X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
+Message-ID: <OF22755359.1A0F5F7D-ON80256FAA.00377C11-80256FAA.0037ABDE@sophos.com>
+From: tvrtko.ursulin@sophos.com
+Date: Wed, 16 Feb 2005 10:08:02 +0000
+X-MIMETrack: S/MIME Sign by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12
+  |February 13, 2003) at 16/02/2005 10:08:04,
+	Serialize by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12  |February
+ 13, 2003) at 16/02/2005 10:08:04,
+	Serialize complete at 16/02/2005 10:08:04,
+	S/MIME Sign failed at 16/02/2005 10:08:04: The cryptographic key was not
+ found,
+	Serialize by Router on Mercury/Servers/Sophos(Release 6.5.2|June 01, 2004) at
+ 16/02/2005 10:08:05,
+	Serialize complete at 16/02/2005 10:08:05
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following cleanups:
-- make some needlesly global code static
-- cciss_scsi.c: remove the unused global function cciss_scsi_info
-- cciss.c:
-  - init_cciss_module -> cciss_init
-  - cleanup_cciss_module -> cciss_cleanup
+On 14/02/2005 20:39:02 linux-kernel-owner wrote:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>On my Thinkpad T30 with a Radeon Mobility M7 LW, I get interesting
+>console video corruption if I start GDM, switch back to text mode,
+>then stop it again. X is Xfree86 from Debian/unstable or X.org 6.8.2.
+>
+>The corruption shows up whenever the console scrolls after X has been
+>shut down and manifests as horizontal lines spaced about 4 pixel rows
+>apart containing contents recognizable as the X display. Switch from
+>vt1 to vt2 and back or visual bell clears things back to normal, but
+>corruption will reappear on the next scroll.
+>
+>This has appeared in at least 2.6.11-rc3-mm2 and rc4.
 
----
+Same problem here (same chip) for a long long time (at least 2.6.6) so I 
+don't think it appeared with latest changes.
 
-This patch was already sent on:
-- 29 Jan 2005
 
- drivers/block/cciss.c      |   15 +++++----------
- drivers/block/cciss_scsi.c |   35 ++++-------------------------------
- drivers/block/cciss_scsi.h |    1 -
- 3 files changed, 9 insertions(+), 42 deletions(-)
+-- 
+Tvrtko August Ursulin
+Software Engineer, Sophos
 
---- linux-2.6.11-rc2-mm1-full/drivers/block/cciss_scsi.h.old	2005-01-29 13:50:28.000000000 +0100
-+++ linux-2.6.11-rc2-mm1-full/drivers/block/cciss_scsi.h	2005-01-29 13:51:05.000000000 +0100
-@@ -39,7 +39,6 @@
- #define SCSI_CCISS_CAN_QUEUE 2
- 
- /* 
--	info:           	cciss_scsi_info,		\
- 
- Note, cmd_per_lun could give us some trouble, so I'm setting it very low.
- Likewise, SCSI_CCISS_CAN_QUEUE is set very conservatively.
---- linux-2.6.11-rc2-mm1-full/drivers/block/cciss_scsi.c.old	2005-01-29 13:50:40.000000000 +0100
-+++ linux-2.6.11-rc2-mm1-full/drivers/block/cciss_scsi.c	2005-01-29 13:51:05.000000000 +0100
-@@ -53,9 +53,7 @@
- 	int cmd_type);
- 
- 
--const char *cciss_scsi_info(struct Scsi_Host *sa);
--
--int cciss_scsi_proc_info(
-+static int cciss_scsi_proc_info(
- 		struct Scsi_Host *sh,
- 		char *buffer, /* data buffer */
- 		char **start, 	   /* where data in buffer starts */
-@@ -63,7 +61,7 @@
- 		int length, 	   /* length of data in buffer */
- 		int func);	   /* 0 == read, 1 == write */
- 
--int cciss_scsi_queue_command (struct scsi_cmnd *cmd, 
-+static int cciss_scsi_queue_command (struct scsi_cmnd *cmd, 
- 		void (* done)(struct scsi_cmnd *));
- 
- static struct cciss_scsi_hba_t ccissscsi[MAX_CTLR] = {
-@@ -712,8 +710,6 @@
- 	return 1;
- }
- 
--static void __exit cleanup_cciss_module(void);
--
- static void
- cciss_unmap_one(struct pci_dev *pdev,
- 		CommandList_struct *cp,
-@@ -1114,7 +1110,7 @@
- }
- 
- 
--int
-+static int
- cciss_scsi_proc_info(struct Scsi_Host *sh,
- 		char *buffer, /* data buffer */
- 		char **start, 	   /* where data in buffer starts */
-@@ -1149,29 +1145,6 @@
- 			buffer, length);	
- } 
- 
--/* this is via the generic proc support */
--const char *
--cciss_scsi_info(struct Scsi_Host *sa)
--{
--	static char buf[300];
--	ctlr_info_t *ci;
--
--	/* probably need to work on putting a bit more info in here... */
--	/* this is output via the /proc filesystem. */
--
--	ci = (ctlr_info_t *) sa->hostdata[0];
--
--	sprintf(buf, "%s %c%c%c%c\n",
--		ci->product_name, 
--		ci->firm_ver[0],
--		ci->firm_ver[1],
--		ci->firm_ver[2],
--		ci->firm_ver[3]);
--
--	return buf; 
--}
--
--
- /* cciss_scatter_gather takes a struct scsi_cmnd, (cmd), and does the pci 
-    dma mapping  and fills in the scatter gather entries of the 
-    cciss command, cp. */
-@@ -1225,7 +1198,7 @@
- }
- 
- 
--int 
-+static int 
- cciss_scsi_queue_command (struct scsi_cmnd *cmd, void (* done)(struct scsi_cmnd *))
- {
- 	ctlr_info_t **c;
---- linux-2.6.11-rc2-mm1-full/drivers/block/cciss.c.old	2005-01-29 13:50:55.000000000 +0100
-+++ linux-2.6.11-rc2-mm1-full/drivers/block/cciss.c	2005-01-29 14:25:31.000000000 +0100
-@@ -61,7 +61,7 @@
- #include <linux/cciss_ioctl.h>
- 
- /* define the PCI info for the cards we can control */
--const struct pci_device_id cciss_pci_device_id[] = {
-+static const struct pci_device_id cciss_pci_device_id[] = {
- 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISS,
- 			0x0E11, 0x4070, 0, 0, 0},
- 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSB,
-@@ -2878,7 +2878,7 @@
-  *  This is it.  Register the PCI driver information for the cards we control
-  *  the OS will call our registered routines when it finds one of our cards. 
-  */
--int __init cciss_init(void)
-+static int __init cciss_init(void)
- {
- 	printk(KERN_INFO DRIVER_NAME "\n");
- 
-@@ -2886,12 +2886,7 @@
- 	return pci_module_init(&cciss_pci_driver);
- }
- 
--static int __init init_cciss_module(void)
--{
--	return ( cciss_init());
--}
--
--static void __exit cleanup_cciss_module(void)
-+static void __exit cciss_cleanup(void)
- {
- 	int i;
- 
-@@ -2909,5 +2904,5 @@
- 	remove_proc_entry("cciss", proc_root_driver);
- }
- 
--module_init(init_cciss_module);
--module_exit(cleanup_cciss_module);
-+module_init(cciss_init);
-+module_exit(cciss_cleanup);
+Tel: 01235 559933
+Web: www.sophos.com
+Sophos - protecting businesses against viruses and spam
 

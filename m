@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262638AbSJBWg1>; Wed, 2 Oct 2002 18:36:27 -0400
+	id <S262640AbSJBWbP>; Wed, 2 Oct 2002 18:31:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262642AbSJBWg1>; Wed, 2 Oct 2002 18:36:27 -0400
-Received: from dp.samba.org ([66.70.73.150]:56286 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262638AbSJBWg0>;
-	Wed, 2 Oct 2002 18:36:26 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S262659AbSJBWbP>; Wed, 2 Oct 2002 18:31:15 -0400
+Received: from 111-245-ADSL.red.retevision.es ([80.224.245.111]:15447 "EHLO
+	quakers.net") by vger.kernel.org with ESMTP id <S262640AbSJBWau>;
+	Wed, 2 Oct 2002 18:30:50 -0400
+Message-ID: <3D9B75CA.3030504@eresmas.net>
+Date: Thu, 03 Oct 2002 00:40:10 +0200
+From: Manuel Clos <llanero@eresmas.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en, es-es
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: [2.5.40]: Various "sleeping function called ..." messages
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15771.30104.815144.546550@argo.ozlabs.ibm.com>
-Date: Thu, 3 Oct 2002 08:39:20 +1000 (EST)
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Snapshot of shared page tables
-In-Reply-To: <45850000.1033570655@baldur.austin.ibm.com>
-References: <45850000.1033570655@baldur.austin.ibm.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave McCracken writes:
+Hi all,
 
-> Ok, here it is.  This patch works for my simple tests, both under UP and
-> SMP, including under memory pressure.  I'd appreciate anyone who'd like to
-> take it and beat on it.  Please let me know of any problems you find.
+I'm not subscribed, so please CC me.
 
-Interesting.  I notice that you are using the _PAGE_RW bit in the
-PMDs.  Are you relying on the hardware to do anything with that bit,
-or is it only used by software?
+I got this messages at startup:
 
-(If you are relying on the hardware to do something different when
-_PAGE_RW is clear in the PMD, then your approach isn't portable.)
+hda: DMA disabled
+hdb: DMA disabled
+...
+Debug: sleeping function called from illegal context at slab.c:1374
+...
+Debug: sleeping function called from illegal context at slab.c:1374
+...
 
-Paul.
+dmesg > 2.5.40-boot.txt is at:
+
+http://llanero.eresmas.net/kernel/2.5.40-boot.txt
+
+
+-- 
+Manuel Clos
+llanero@eresmas.net
+
+TCPA y Palladium: http://bulmalug.net/body.phtml?nIdNoticia=1398
+TCPA and Palladium: http://www.cl.cam.ac.uk/~rja14/tcpa-faq.html
+

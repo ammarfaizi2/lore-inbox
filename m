@@ -1,72 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270630AbRHSQ7f>; Sun, 19 Aug 2001 12:59:35 -0400
+	id <S270640AbRHSRIO>; Sun, 19 Aug 2001 13:08:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270634AbRHSQ7Y>; Sun, 19 Aug 2001 12:59:24 -0400
-Received: from cpe.atm0-0-0-122182.bynxx2.customer.tele.dk ([62.243.2.100]:36191
-	"HELO marvin.athome.dk") by vger.kernel.org with SMTP
-	id <S270630AbRHSQ7M>; Sun, 19 Aug 2001 12:59:12 -0400
-Message-ID: <3B7FF06A.4090606@fugmann.dhs.org>
-Date: Sun, 19 Aug 2001 18:59:22 +0200
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: chuckw@ieee.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Looking for comments on Bottom-Half/Tasklet/SoftIRQ
-In-Reply-To: <20010818231704.A2388@ieee.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S270644AbRHSRIF>; Sun, 19 Aug 2001 13:08:05 -0400
+Received: from mail.fairlight.co.jp ([61.200.2.195]:21700 "HELO
+	mail.fairlight.co.jp") by vger.kernel.org with SMTP
+	id <S270640AbRHSRHz>; Sun, 19 Aug 2001 13:07:55 -0400
+Date: Sun, 19 Aug 2001 23:39:39 +0900
+Reply-To: <erasemeplease@c4.com>
+From: "sex-address@usa.com" <sex-address@usa.com>
+To: "0266@excite.com" <0266@excite.com>
+Message-ID: <0998228692.0526207898@usa-com.mr.outblaze.com>
+Subject: .Sex Domains available to register! 314989
+Content-Type: text/plain; charset="us-ascii";format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The newest domain name extensions are here .SEX!!!  It's the fresh ,new, 
+exciting web address that is taking the world by storm.
 
-chuckw@ieee.org wrote:
-> Greetings,
-> 	I was reading the unreliable guide to kernel hacking and was looking for
-> a little clarification on something.  2 Bottom halves cannot run at the same
-> time, why? 
+Why be .com when you can now be .SEX  
 
-Per linux definition of bottom halves, there can only run one buttom 
-half at one system wide. But dont use those - They are old and waists 
-resources. Try tasklets instead. Multible tasklets can run in parrallel 
-(but not the same tasklet)
+Register your .SEX domain name today exclusively at: 
 
-> 	Also, could someone give me an example of a service which is a bottom half/
-> tasklet/SoftIRQ?
-Simple.
-
-Imagine some hardware that generates interrupts.
-Now we want to write a driver that keeps the hardware busy, so we 
-implement a top half handler (IRQ-handler), and let it retrieve som data 
-from the hardware. Instead of processing it right away, we shedule a 
-tasklet to do that job. This way we can handle more interrupts/sec from 
-the card, and the hardware is kept busy.
+http://www.dotsex.com
 
 
-To summerize.
-Buttom halves are the strictest (only one at a time.)
-Takslets can run in parralel, but still no need to worry about reentrant 
-code.
-SoftIrq give no guarrentee at all, and should be used with great care
-(code need to be reentrant).
 
-Also try to readLinux device drivers by  A. Rubini:
-http://www.xml.com/ldd/chapter/book/index.html
 
-Hope it helps.
-Anders Fugmann
+-------------------------------------------------------------------------
+To be taken off the mailing list please click below:
+http://www.dotsex.com/unsubscribe.phtml
 
-> 
-> Thanks in advance,
-> Chuck
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-
+**********
 

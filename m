@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317342AbSGXPWk>; Wed, 24 Jul 2002 11:22:40 -0400
+	id <S317348AbSGXPkI>; Wed, 24 Jul 2002 11:40:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317347AbSGXPWk>; Wed, 24 Jul 2002 11:22:40 -0400
-Received: from dsl-65-188-226-101.telocity.com ([65.188.226.101]:4788 "EHLO
-	crown.reflexsecurity.com") by vger.kernel.org with ESMTP
-	id <S317342AbSGXPWk>; Wed, 24 Jul 2002 11:22:40 -0400
-Date: Wed, 24 Jul 2002 11:25:48 -0400
-From: Jason Lunz <lunz@reflexsecurity.com>
-To: Ben Greear <greearb@candelatech.com>
+	id <S317355AbSGXPkH>; Wed, 24 Jul 2002 11:40:07 -0400
+Received: from postfix2-2.free.fr ([213.228.0.140]:5540 "EHLO
+	postfix2-2.free.fr") by vger.kernel.org with ESMTP
+	id <S317348AbSGXPkH>; Wed, 24 Jul 2002 11:40:07 -0400
+Message-Id: <200207231847.g6NIlQf17967@fuji.home.perso>
+Date: Tue, 23 Jul 2002 20:47:23 +0200 (CEST)
+From: fchabaud@free.fr
+Reply-To: fchabaud@free.fr
+Subject: Re: [PATCH][swsusp] 2.4.19-pre10-ac2
+To: swsusp@lister.fornax.hu
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: DFE-580TX problems you posted on 05-24-02
-Message-ID: <20020724152548.GA3967@reflexsecurity.com>
-References: <20020723203037.GA29459@pobox.com> <3D3DCD2C.1050004@candelatech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D3DCD2C.1050004@candelatech.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20020723075940.GD116@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In gmane.linux.kernel, you wrote:
-> The fix for the DFE-580tx in Linux is to either download the driver
-> from dlink's site (I don't have the exact URL, but you can find it if
-> you look.), or perhaps use Becker's latest driver from www.scyld.com.
+Le 23 Jul, Pavel Machek a écrit :
+> Hi!
+> 
+>> > No, this is incorrect. I believe rpciod could submit packet for io in
+>> > time we are freezing devices. If it does that... bye bye to your data.
+>> 
+>> 
+>> I think so. At first I did freeze those two tasks but someone post a much simpler patch and... I think you're right. I'll fix that.
+>> 
+> 
+> Mail me a patch when you have that.
 
-That's not the whole story.
+That's in beta9. Have a look at the incremental patch.
 
-All the drivers I've tried will work if compiled with USE_IO_OPS
-defined, but will behave badly under load. That is, when heavily loaded
-they will lock up and reset after a several-second timeout expires. This
-is true for Becker's 1.09 driver, the latest in-kernel driver, and
-Edward Peng's napi sundance driver. (With the exception that the napi
-driver doesn't recover after it locks up). Peng's driver is at
-http://edward_peng.tripod.com/, and his email address from the dl2k
-driver indicates that he works for Dlink.
+> 
+>> > Fixing swap signatures should really be done in separate function.
+>> > 
+>> > 									Pavel
+>> > PS: This is what I did in response to your patch (it compiles,
+>> > otherwise untested). I'll try to fix noresume fixing signatures
+>> > somehow.
+>> 
+>> For 2.5 tree ?
+> 
+> Yep. [Actually noresume fixing signatures is harder than I expected.]
 
-I looked on dlink's web and ftp sites, but was unable to find any linux
-driver for the DFE-580TX. How did you find it?
+Astonishing. Actually with 2.4 I found it easier than I thought.
 
--- 
-Jason Lunz			Reflex Security
-lunz@reflexsecurity.com		http://www.reflexsecurity.com/
+> PS: Killed Alan from Cc, he reads lists anyway and I guess he's not
+> so much interested.
+
+OK.
+
+--
+Florent 
+

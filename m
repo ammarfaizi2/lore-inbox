@@ -1,104 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129696AbRBWVyH>; Fri, 23 Feb 2001 16:54:07 -0500
+	id <S129561AbRBWVxg>; Fri, 23 Feb 2001 16:53:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129753AbRBWVx5>; Fri, 23 Feb 2001 16:53:57 -0500
-Received: from ns1.qnet.fi ([194.251.131.5]:787 "EHLO qntsrv2.qnet.fi")
-	by vger.kernel.org with ESMTP id <S129696AbRBWVxo>;
-	Fri, 23 Feb 2001 16:53:44 -0500
-Message-ID: <3A96DC2B.1C943AD3@pp.qnet.fi>
-Date: Fri, 23 Feb 2001 23:54:51 +0200
-From: Martin Storsjö <martin.storsjo@pp.qnet.fi>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.2 i686)
+	id <S129696AbRBWVx0>; Fri, 23 Feb 2001 16:53:26 -0500
+Received: from cc600749-a.hwrd1.md.home.com ([65.1.217.252]:64952 "EHLO
+	entheal.com") by vger.kernel.org with ESMTP id <S129561AbRBWVxN>;
+	Fri, 23 Feb 2001 16:53:13 -0500
+Message-ID: <3A96DBC6.D02192AA@entheal.com>
+Date: Fri, 23 Feb 2001 16:53:10 -0500
+From: Jacob L E Blain Christen <dweomer@entheal.com>
+Reply-To: jacob.blain.christen@entheal.com
+Organization: Entheal LLC
+X-Mailer: Mozilla 4.75 [en] (WinNT; U)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] drivers/scsi/g_NCR5380.c, kernel 2.4.2
+To: Sourav Ghosh <sourav@cs.cmu.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: creation of sock
+In-Reply-To: <3A96C858.5C8FB714@cs.cmu.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+im a kernel newbie here so pardon "the blind leading the blind" ...
 
-I found out that passing boot parameters to the g_NCR5380-driver didn't
-work in the 2.4.x-series. It seems like other drivers might be affected,
-too. I don't know if this has been discussed before, or if I'm doing
-something completely wrong, but at least this patch of mine fixed the
-problem. My solution is actually a simple modification of what I found
-in aha152x.c. (It also fixes a very minor problem caused by using a
-compile-time parameter, which is probably almost never used.)
+doing a quick search for all calls to sk_alloc in the entire kernel
+sources
+yields only one call that sets the "zero out the allocated struct"
+boolean
+to false and that is:
+	net/ipv4/tcp_minisocks.c:tcp_create_openreq_child().
+this funtion in turn is only ever called from:
+	net/ipv[46]/tcp_ipv[46].c:tcp_v[46]_syn_recv_sock()
 
-I'm not subscribed to the list, so I'd be thankful for being personally
-contacted with follow-up on this.
+the comment above the ipv4 version is (verbatim):
 
-// Martin
+	/* 
+	 * The three way handshake has completed - we got a valid synack - 
+	 * now create the new socket. 
+	 */
 
+so if you need those experimental values of yours zeroed out on socket
+creation i suggest replacing this snippet from
+net/core/sock.c:sk_alloc()
 
+        if(sk && zero_it) {
+                memset(sk, 0, sizeof(struct sock));
+                sk->family = family;
+                sock_lock_init(sk);
+        }
 
---- linux/drivers/scsi/g_NCR5380.c.orig Thu Feb 22 19:11:42 2001
-+++ linux/drivers/scsi/g_NCR5380.c Fri Feb 23 23:33:38 2001
-@@ -139,7 +139,7 @@
-     int board; /* Use NCR53c400, Ricoh, etc. extensions ? */
- } overrides
- #ifdef GENERIC_NCR5380_OVERRIDE
--    [] __initdata = GENERIC_NCR5380_OVERRIDE
-+    [] __initdata = GENERIC_NCR5380_OVERRIDE;
- #else
-     [1] __initdata = {{0,},};
- #endif
-@@ -911,6 +911,53 @@
- MODULE_PARM(ncr_53c400, "i");
- MODULE_PARM(ncr_53c400a, "i");
- MODULE_PARM(dtc_3181e, "i");
-+
-+#else
-+
-+static int __init do_NCR5380_setup(char *str)
-+{
-+        int ints[10];
-+
-+        get_options(str, sizeof(ints)/sizeof(int), ints);
-+        generic_NCR5380_setup(str,ints);
-+
-+        return 1;
-+}
-+
-+static int __init do_NCR53C400_setup(char *str)
-+{
-+        int ints[10];
-+
-+        get_options(str, sizeof(ints)/sizeof(int), ints);
-+        generic_NCR53C400_setup(str,ints);
-+
-+        return 1;
-+}
-+
-+static int __init do_NCR53C400A_setup(char *str)
-+{
-+        int ints[10];
-+
-+        get_options(str, sizeof(ints)/sizeof(int), ints);
-+        generic_NCR53C400A_setup(str,ints);
-+
-+        return 1;
-+}
-+
-+static int __init do_DTC3181E_setup(char *str)
-+{
-+        int ints[10];
-+
-+        get_options(str, sizeof(ints)/sizeof(int), ints);
-+        generic_DTC3181E_setup(str,ints);
-+
-+        return 1;
-+}
-+
-+__setup("ncr5380=", do_NCR5380_setup);
-+__setup("ncr53c400=", do_NCR53C400_setup);
-+__setup("ncr53c400a=", do_NCR53C400A_setup);
-+__setup("dtc3181e=", do_DTC3181E_setup);
+with
 
- #endif
+        if(  sk  ) {
+		/* set your NULL init values here */
+		if(  zero_it  ) {
+	                memset(sk, 0, sizeof(struct sock));
+	                sk->family = family;
+	                sock_lock_init(sk);
+		}
+        }
 
+doh!  i just re-read your mail and realized youre using the 2.2.15
+kernel.
+my examples are from the 2.4.2 sources...
 
+looking at the 2.2.16 source (i have only 2.2.1[46] and not 2.2.15 for
+the
+2.2 series) the (roughly) congruent if block of code is:
+
+        if(sk) {
+                if (zero_it) 
+                        memset(sk, 0, sizeof(struct sock));
+                sk->family = family;
+        }
+
+and so if you're setting your init values to NULL under the "zero_it"
+condition you would get the behavior that you reported.
+
+hope that helps.

@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266959AbSKSQ4t>; Tue, 19 Nov 2002 11:56:49 -0500
+	id <S266999AbSKSQ6f>; Tue, 19 Nov 2002 11:58:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266917AbSKSQ4c>; Tue, 19 Nov 2002 11:56:32 -0500
-Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:50836 "EHLO
-	rrzs2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S265132AbSKSQ4P>; Tue, 19 Nov 2002 11:56:15 -0500
-Date: Tue, 19 Nov 2002 18:03:17 +0100
-From: Christian Guggenberger 
-	<Christian.Guggenberger@physik.uni-regensburg.de>
-To: Karsten Desler <soohrt@soohrt.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-rc1-ac4 HPT374 doesn't find connected ide drives
-Message-ID: <20021119180317.A2597@pc9391.uni-regensburg.de>
-References: <20021119105955.A23008@pc9391.uni-regensburg.de> <20021119102338.GA24510@sit0.ifup.net> <20021119113300.C23008@pc9391.uni-regensburg.de> <20021119152244.GA26989@sit0.ifup.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20021119152244.GA26989@sit0.ifup.net>; from soohrt@soohrt.org on Tue, Nov 19, 2002 at 16:22:44 +0100
-X-Mailer: Balsa 1.2.4
+	id <S267010AbSKSQ6f>; Tue, 19 Nov 2002 11:58:35 -0500
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:15314 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S266999AbSKSQ6T>; Tue, 19 Nov 2002 11:58:19 -0500
+Message-ID: <3DDA74D2.6080802@kegel.com>
+Date: Tue, 19 Nov 2002 09:28:50 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: Grant Taylor <gtaylor+lkml_ihdeh111902@picante.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] epoll interface change and glibc bits ...
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19.11.2002   16:22 Karsten Desler wrote:
-> ---
+Grant Taylor wrote:
+> Meanwhile, in the more important caveat department (Dan, this will
+> appeal to you), I found a while back that signals cause pain with
+> epoll.
 > 
-> > When I'm back home in about 7 hours, I'll check my bios settings, maybe
-> this
-> > could help you.
+> For example, sometimes TCP reads return EAGAIN when in fact they have
+> data.  This seems to stem from the case where the signal is found
+> before the first segment copy (from tcp.c circa 1425, there's even a
+> handy FIXME note there).  If you use epoll and get an EAGAIN, you have
+> no idea if it was a signal or a real empty socket unless you are also
+> very careful to notice when you got a signal during the read.
+ > ...
+> 		/* We need to check signals first, to get correct SIGURG
+> 		 * handling. FIXME: Need to check this doesnt impact 1003.1g
+> 		 * and move it down to the bottom of the loop
+> 		 */
+> 		if (signal_pending(current)) {
+> 			if (copied)
+> 				break;
+> 			copied = timeo ? sock_intr_errno(timeo) : -EAGAIN;
+> 			break;
+> 		}
+
+eek!  Thanks for noticing that!
+
+Jamie wrote:
+
+> Mark's right, it should be EINTR.  EAGAIN shouldn't break any
+> single-thread user state machines using poll/select, as a non-blocking
+> read is always allowed to return EAGAIN for any transient reason.
 > 
-> That would be great, thanks.
-> 
-okay, my brain really shrinks; with only one hdd attached, you can't create an 
-array. So here it seems to work out of the box. I just tried 2.4.20-rc-ac1, 
-which detects my drive connected to that hpt374 (hde).
+> I'm not sure if EAGAIN can cause a poll() wakeup event to be missed.
+> If so, that would be a TCP bug that breaks epoll, and it would also
+> break some user state machines using poll/select, when there are
+> multiple processes waiting on a socket.
 
-Maybe you can give this one a try?
+I guess we should scour the sources looking for ways read() and write()
+can return EAGAIN, and make sure that there is no chance this causes
+a hang in user state machines that rely on epoll.  (Sure would be nice
+if the Stanford Checker was up to this kind of thing.)
+- Dan
 
-Are using the latest BIOS for your mobo? About a week ago there was a new one 
-posted, somewhere at epox.com...
 
-Christian
+

@@ -1,65 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293130AbSBWMmZ>; Sat, 23 Feb 2002 07:42:25 -0500
+	id <S293131AbSBWMui>; Sat, 23 Feb 2002 07:50:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293131AbSBWMmP>; Sat, 23 Feb 2002 07:42:15 -0500
-Received: from mhw.ulib.iupui.edu ([134.68.164.123]:4058 "EHLO
-	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
-	id <S293130AbSBWMmM>; Sat, 23 Feb 2002 07:42:12 -0500
-Date: Sat, 23 Feb 2002 07:42:10 -0500 (EST)
-From: "Mark H. Wood" <mwood@IUPUI.Edu>
-X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
-To: "Dave Rattay [ITeX]" <Dave.Rattay@itexinc.com>
-cc: <linux-kernel@vger.kernel.org>,
-        ITeX Tech Support <techsupport@itexinc.com>
-Subject: RE: Dlink DSL PCI Card
-In-Reply-To: <E788BA1D236784409F3F7138F1EABFDDE4E2@iteusa-nt.itexinc.com>
-Message-ID: <Pine.LNX.4.33.0202230732040.15938-100000@mhw.ULib.IUPUI.Edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293132AbSBWMuQ>; Sat, 23 Feb 2002 07:50:16 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:57317 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S293131AbSBWMuM>; Sat, 23 Feb 2002 07:50:12 -0500
+Date: Sat, 23 Feb 2002 07:50:02 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] C exceptions in kernel
+Message-ID: <20020223075002.A23666@devserv.devel.redhat.com>
+In-Reply-To: <200202231011.g1NABaU10984@devserv.devel.redhat.com> <25097.1014467212@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <25097.1014467212@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Sat, Feb 23, 2002 at 11:26:52PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There oughta be a page somewhere on "How to Sell your Product in the Linux
-Market".
+> From: Keith Owens <kaos@ocs.com.au>
+> Date: Sat, 23 Feb 2002 23:26:52 +1100
 
-On Fri, 22 Feb 2002, Dave Rattay [ITeX] wrote:
->    I definitely agree that our worlds do not match.  While I would hate
-> to lose any customers there are some things that can not be avoided.
-> There are many things to be taken into consideration when we make our
-> drivers.  One the vast majority of our customers use Windows and
-> therefore we must devote most of our time there.
+> Kernel code already has exception tables to handle invalid addresses,
+> invalid opcodes etc.  See copy_to_user and wrmsr_eio for examples.
 
-Understood.
+I think you confuse hardware interrupts or exceptions with
+language exceptions (which are the topic of current discussion).
+Language exceptions constitute a fancy equivalent of return
+code checking. Every time you see the following code, an exception
+is handled:
 
->                                                   Second when a new OS
-> comes out from Microsoft (such as XP) we are given beta copies 6 months
-> in advance so that our drivers hit the market along side the new OS
-> release.  This just doesn't happen with Linux.
+int foo () {
+   int rc;
+   bar_t *x;
 
-Sure it does.  It happens right here on LKML and some other lists.  You
-can get early-release images of Linux 2.5 right now.  The distribution
-builders won't pick up 2.5 for many months.
+   if ((x = do_bar()) == NULL) { rc = -ENOMEM; goto out_nobar; }
+   if ((rc = quux()) != 0) goto out_noquux;
+   more_stuff();
+   return 0;
 
->                                                 I agree that this would
-> be much simpler if the source code was released and we had "help" in
-> driver development but as I said that just can't happen, end of story.
-> Now as to specs for the board itself you can check with sales because I
-> am not even sure what our policy is on that and I wish you luck in those
-> regards.
+ out_noquux;
+   undo_bar(x);
+ out_nobar:
+   return rc;
+}
 
-Board spec.s are largely irrelevant.  It's *chip* spec.s that driver
-writers need most.  There's no such thing as board drivers for Linux, but
-there are a number of chipset drivers.  For example, under Windows there's
-a separate driver for each company's NE2000 clone, but under Linux the ne
-driver handles them all.  Board-level differences are usually dismissed as
-"quirks", if they are significant at all.
+> The kernel model is "get it right the first time, so we don't need
+> exception handlers".  You have not given any reason why the existing
+> mechanisms are failing.
 
-(Stores need to understand this too.  A lot of sales have gone to one
-rather than another because store B told me what chipset was used in a
-board-level product, and store A would not.)
+If you understand that we are not talking about oopses here,
+you will see that we emulate quite a bit of stuff with gotos.
+The problem with current practice is that it takes a fair bit
+of discipline to prevent it from growing into spaghetti [*].
 
--- 
-Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
-Our lives are forever changed.  But *that* is exactly as it always was.
+Personally, I have no problem handling current practices.
+But I may see the point of the guy with the try/catch patch.
+Do not make me to defend him though. I am trying to learn
+is those exceptions are actually helpful. BTW, we all know
+where they come from (all of Cutler's NT is written that way),
+but let it not cloud our judgement.
 
+[*] List of subtlietes in the example, that a number of driver
+monkeys get wrong:
+1. rc must always be set right. Sometimes it's extracted from ERR_PTR,
+   sometimes other ways.
+2. You must have the Russian Doll commit-uncommit order. If you
+   cannot fall into this rigid scheme, you must use more functions.
+3. Names for labels correspond to what fails, not what has to be undone
+   (or else you cannot move stuff around).
+
+-- Pete

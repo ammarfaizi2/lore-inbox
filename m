@@ -1,42 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263815AbUEGWB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUEGWHM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263815AbUEGWB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 18:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbUEGWB2
+	id S263818AbUEGWHM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 18:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263817AbUEGWHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 18:01:28 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4554 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263817AbUEGWBX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 18:01:23 -0400
-Date: Fri, 7 May 2004 15:01:08 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Clay Haapala <chaapala@cisco.com>
-Cc: mroos@linux.ee, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] crypto/crc32c.c (was Re: CRC32c warning on sparc64)
-Message-Id: <20040507150108.7f909b3c.davem@redhat.com>
-In-Reply-To: <yqujr7tx1gzz.fsf@chaapala-lnx2.cisco.com>
-References: <Pine.GSO.4.44.0405061921290.21792-100000@math.ut.ee>
-	<yqujr7tx1gzz.fsf@chaapala-lnx2.cisco.com>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Fri, 7 May 2004 18:07:12 -0400
+Received: from cfcafw.sgi.com ([198.149.23.1]:63494 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S263818AbUEGWHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 18:07:09 -0400
+Date: Fri, 7 May 2004 17:06:54 -0500
+From: Jack Steiner <steiner@sgi.com>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RCU scaling on large systems
+Message-ID: <20040507220654.GA32208@sgi.com>
+References: <20040501120805.GA7767@sgi.com> <20040502182811.GA1244@us.ibm.com> <20040503184006.GA10721@sgi.com> <20040507205048.GB1246@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040507205048.GB1246@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 06 May 2004 14:40:32 -0500
-Clay Haapala <chaapala@cisco.com> wrote:
-
-> Well, it's my opinion that using "size_t" is correct usage of type in
-> this case.  So here's my thinking:
+On Fri, May 07, 2004 at 01:50:48PM -0700, Paul E. McKenney wrote:
+> On Mon, May 03, 2004 at 01:40:06PM -0500, Jack Steiner wrote:
+> > Paul - 
+> > 
 > 
-> * we leave lib/crc32c() as it is with size_t, as it is meant to be
-> derived from crc32() and that uses size_t.
+> Hmmm...  I took a quick glance, but don't see why an "ls" would
+> cause RCU to be invoked.  This should only happen if a dentry is
+> ejected from dcache.
 > 
-> * crypto/crc32c is a wrapper for lib/crc32c.  The interface it
-> presents to the rest of the crypto routines should agree.  My bad.
-> So, let us let it translate with a cast, as in the patch below.
+> Any enlightenment appreciated!
+> 
 
-This works for me, patch applied.
+
+The calls to RCU are coming from here:
+
+	[11]kdb> bt
+	Stack traceback for pid 3553
+	0xe00002b007230000     3553     3139  1   11   R  0xe00002b0072304f0 *ls
+	0xa0000001000feee0 call_rcu
+	0xa0000001001a3b20 d_free+0x80
+	0xa0000001001a3ec0 dput+0x340
+	0xa00000010016bcd0 __fput+0x210
+	0xa00000010016baa0 fput+0x40
+	0xa000000100168760 filp_close+0xc0
+	0xa000000100168960 sys_close+0x180
+	0xa000000100011be0 ia64_ret_from_syscall
+
+I see this same backtrace from numerous processes.
+
+
+-- 
+Thanks
+
+Jack Steiner (steiner@sgi.com)          651-683-5302
+Principal Engineer                      SGI - Silicon Graphics, Inc.
+
+

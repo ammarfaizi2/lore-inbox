@@ -1,29 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130325AbRBSEL4>; Sun, 18 Feb 2001 23:11:56 -0500
+	id <S130651AbRBSEMU>; Sun, 18 Feb 2001 23:12:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130684AbRBSELq>; Sun, 18 Feb 2001 23:11:46 -0500
-Received: from rhinocomputing.com ([161.58.241.147]:30478 "EHLO
-	rhinocomputing.com") by vger.kernel.org with ESMTP
-	id <S130442AbRBSELd>; Sun, 18 Feb 2001 23:11:33 -0500
+	id <S130944AbRBSEMI>; Sun, 18 Feb 2001 23:12:08 -0500
+Received: from server1.cosmoslink.net ([208.179.167.101]:14876 "EHLO
+	server1.cosmoslink.net") by vger.kernel.org with ESMTP
+	id <S130684AbRBSEL5>; Sun, 18 Feb 2001 23:11:57 -0500
+Message-ID: <01e701c09a2a$21e789a0$bba6b3d0@Toshiba>
+From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+To: <peterw@dascom.com.au>, "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: <linux-kernel@vger.kernel.org>,
+        "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+In-Reply-To: <XFMail.20010219124909.peterw@dascom.com.au>
+Subject: Re: Kernel executation from ROM
+Date: Sun, 18 Feb 2001 20:12:10 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <14992.40178.870916.407096@rhino.thrillseeker.net>
-Date: Sun, 18 Feb 2001 23:11:30 -0500
-From: Billy Harvey <Billy.Harvey@thrillseeker.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: ip_conntrack error under 2.4.1-ac18
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting multiple messages like:
+Dear Sirs,
 
-Feb 18 23:05:50 rhino kernel: ip_conntrack: maximum limit of 8184 entries exceeded
-Feb 18 23:05:52 rhino last message repeated 2 times
+Thanks for your help,
 
-while running nessus, with 100 simultaneous connections set, against a
-company machine.  This is the first time I've observed this error.
+I see . The biggest negative point of running kernel from ROM is that ROM
+speed is slow :(
 
-Billy
+Any how , thanks for your help,
+
+Best Regards,
+
+Jaswinder.
+--
+These are my opinions not 3Di.
+
+
+----- Original Message -----
+From: "Peter Waltenberg" <peterw@dascom.com.au>
+To: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+Sent: Sunday, February 18, 2001 6:49 PM
+Subject: RE: Kernel executation from ROM
+
+
+>
+> You can laod the kernel from ROM, but it'll need RAM to execute. If you
+get to
+> be very good with the linker and loader, you can probably make a large
+part of
+> the kernel ROM resident, but it will still need significant amounts of RAM
+to
+> be usable.
+> It's probably easier not to bother and do what everyone else does and copy
+from
+> ROM->RAM at startup.
+>
+> Peter
+>
+> On 19-Feb-2001 Jaswinder Singh wrote:
+> > Dear Kernel mailing list ,
+> >
+> > what changes i have to made in kernel so that i can
+> > run kernel from ROM, means i keep my kernel in ROM
+> > and i execute my kernel from ROM .
+> >
+> > Thanks ,
+> >
+> > Happy Hacking,
+> >
+> > Jaswinder.
+> > --
+> > These are my opinions not 3Di.
+>
+---------------------
+
+----- Original Message -----
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+To: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+Sent: Sunday, February 18, 2001 6:57 PM
+Subject: Re: Kernel executation from ROM
+
+
+> > what changes i have to made in kernel so that i can
+> > run kernel from ROM, means i keep my kernel in ROM
+> > and i execute my kernel from ROM .
+>
+> 1. write boot code to copy initialized variables into RAM
+> 2. adjust the linker script to know about the above
+> 3. adjust the linker script for other sections too
+>
+> For better performance, assuming ROM is slow and costly:
+>
+> 1. compress the "__init" code and data; use it in RAM
+> 2. profile your kernel; put the critical parts in RAM
+>
+> If you want the details, take Red Hat's embedded systems
+> development class. If you have a dozen people, get the class
+> done at your location and have it modified to fit your needs.
+> I just took the class; it was pretty good. It is "RHD248".
+>
+

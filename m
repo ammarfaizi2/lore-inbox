@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262271AbSIZJuq>; Thu, 26 Sep 2002 05:50:46 -0400
+	id <S262272AbSIZKVa>; Thu, 26 Sep 2002 06:21:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262283AbSIZJuq>; Thu, 26 Sep 2002 05:50:46 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:9871 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S262271AbSIZJuo>;
-	Thu, 26 Sep 2002 05:50:44 -0400
-Date: Thu, 26 Sep 2002 11:55:56 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-cc: Rusty Trivial Russell <trivial@rustcorp.com.au>
-Subject: [PATCH] __downgrade_write: wrong debug message
-Message-ID: <Pine.GSO.4.21.0209261154450.25364-100000@vervain.sonytel.be>
+	id <S262273AbSIZKV3>; Thu, 26 Sep 2002 06:21:29 -0400
+Received: from mx0.gmx.de ([213.165.64.100]:2639 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S262272AbSIZKV3>;
+	Thu, 26 Sep 2002 06:21:29 -0400
+Date: Thu, 26 Sep 2002 12:26:40 +0200 (MEST)
+From: Marco Schwarz <marco.schwarz@gmx.net>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <20020926095957.GC42048@niksula.cs.hut.fi>
+Subject: Serious Problems with diskless clients
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0012086198@gmx.net
+X-Authenticated-IP: [153.95.95.95]
+Message-ID: <3489.1033036000@www51.gmx.net>
+X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-Fix debug message in __downgrade_write()
+my diskless clients have some severe problems on one of my servers.
+Sometimes (right now most of the time) everything just hangs at the same place when
+starting up the kernel. Here are the last messages I get (right before this
+IP-Config is running and looks OK):
 
---- linux-2.5.38/lib/rwsem-spinlock.c	Sun Aug  4 15:58:58 2002
-+++ linux-m68k-2.5.38/lib/rwsem-spinlock.c	Mon Aug 12 17:03:31 2002
-@@ -290,7 +290,7 @@
-  */
- void __downgrade_write(struct rw_semaphore *sem)
- {
--	rwsemtrace(sem,"Entering __rwsem_downgrade");
-+	rwsemtrace(sem,"Entering __downgrade_write");
- 
- 	spin_lock(&sem->wait_lock);
- 
-@@ -300,7 +300,7 @@
- 
- 	spin_unlock(&sem->wait_lock);
- 
--	rwsemtrace(sem,"Leaving __rwsem_downgrade");
-+	rwsemtrace(sem,"Leaving __downgrade_write");
- }
- 
- EXPORT_SYMBOL(init_rwsem);
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0
+ds: no socket drivers loaded !
+Looking up port of RPC 100003/2 on 192.168.0.235
+portmap: server 192.168.0.235 mot responding, timed out !
+Root-NFS: Unable to get nfsd port number from server, using default
+Looking up port of RPC 100005/1 on 192.168.0.235
+portmap: server 192.168.0.235 mot responding, timed out !
+Root-NFS: Unable to get mountd port number from server, using default
+mount: server 192.168.0.235 not responding, timed out
+Root-NFS: Server returned error -5 while mounting /netclients/192.168.0.87
+VFS: Unable to mount root fs via NFS, trying floppy
+VFS: Insert root floppy and press ENTER
 
-Gr{oetje,eeting}s,
+I am thinking right now that we have some problems with network hardware,
+but maybe its a Software problem. Could someone tell me what the 'Looking up
+port of RPC 100003/2 on 192.168.0.235' in kernel startup is doing an why it
+could fail ?
 
-						Geert
+We have Kernel 2.4.10 on both server and clients (I also tried 2.4.19, but
+it changed nothing).
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Thanks,
+Marco Schwarz
 

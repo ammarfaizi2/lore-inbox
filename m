@@ -1,102 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262257AbUDDIQb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 04:16:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbUDDIQa
+	id S261752AbUDDIYN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 04:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbUDDIYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 04:16:30 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:686 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262257AbUDDIQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 04:16:28 -0400
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>, mj@ucw.cz,
-       jack@ucw.cz, "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cowlinks v2
-References: <20040402165440.GB24861@wohnheim.fh-wedel.de>
-	<20040402180128.GA363@elf.ucw.cz>
-	<20040402181707.GA28112@wohnheim.fh-wedel.de>
-	<20040402182357.GB410@elf.ucw.cz>
-	<20040402200921.GC653@mail.shareable.org>
-	<20040402213933.GB246@elf.ucw.cz>
-	<20040403010425.GJ653@mail.shareable.org>
-	<m1n05soqh2.fsf@ebiederm.dsl.xmission.com>
-	<20040403194344.GA5477@mail.shareable.org>
-	<m1ekr4olcv.fsf@ebiederm.dsl.xmission.com>
-	<20040403215941.GA6122@mail.shareable.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 04 Apr 2004 01:15:50 -0700
-In-Reply-To: <20040403215941.GA6122@mail.shareable.org>
-Message-ID: <m1vfkgma4p.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Sun, 4 Apr 2004 04:24:13 -0400
+Received: from A88da.a.pppool.de ([213.6.136.218]:16000 "EHLO susi.maya.org")
+	by vger.kernel.org with ESMTP id S261752AbUDDIYL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 04:24:11 -0400
+Message-ID: <406FC621.1090507@A88da.a.pppool.de>
+Date: Sun, 04 Apr 2004 10:24:01 +0200
+From: Andreas Hartmann <andihartmann@freenet.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040212
+X-Accept-Language: de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Mikhail Ramendik <mr@ramendik.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4 : 100% CPU use on EIDE disk operarion, VIA chipset
+References: <fa.g80v5s8.b2ofhi@ifi.uio.no> <fa.ljb660n.d2ofa9@ifi.uio.no>
+In-Reply-To: <fa.ljb660n.d2ofa9@ifi.uio.no>
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> writes:
-
-> Eric W. Biederman wrote:
-> > > We'd like cowlinks that are an invisible filesystem optimisation.
-> > > That means you "copy" a file and it behaves the same as if you copy a file.
-> > 
-> > Exactly so they would not share the same pages in RAM.
+Mikhail Ramendik wrote:
+> Hello,
 > 
-> That is one way to implement it.
+> Andreas Hartmann wrote:
 > 
-> > > Btw, I'm not suggesting sharing page cache entries.
-> > 
-> > It sounded like you assumed sharing of page cache entries above.  
-> > How do you get to step 2 if the cow copies don't share the same page
-> > cache entries?
+>> > It turned out that on disk-intensive operation, the "system" CPU usage
+>> > skyrockets. With a mere "cp" of a large file to the same direstory
+>> > (tested with ext3fs and FAT32 file systems), it is 100% practically all
+>> > of the time !
+>> But you're right, 2.6.4 is slower than 2.4.25. See the thread "Very poor 
+>> performance with 2.6.4" here in the list.
 > 
-> Ah.  A misunderstanding on my part.
+> As recommended there, I have tried 2.6.5-rc3-mm4.
 > 
-> I mean not sharing page cache entries between different
-> address_spaces, but sharing between different cowlinks which use the
-> same underlying address_space.
+> No change. Still 100% CPU usage; the performance seems teh same.
+
+Yes. But it's curious:
+Take a tar-file, e.g. tar the compiled 2.6 kernel directory. Than, untar 
+it again - the machine behaves total normaly. And the 2.6-kernel is about 
+23% faster than the 2.4-kernel.
+
+
+> Yours, Mikhail Ramendik
 > 
-> I had in mind that since each cowlink is a separate inode, but both
-> inodes point to a shared data structure in the filesystem, they would
-> map pages out of a shared address_space representing that data
-> structure.  You've pointed out that it isn't necessary to do that, and
-> it's probably simpler not to.
+> P.S. Sorry for making all comments into answers to your letter. I just
+> don't want to break the thread. 
 
-Especially since the VM layer has no concept of COW except for private
-anonymous pages.  Which does not map to a POSIX cow on files.
- 
-> Now I see your point.  Page sharing could be avoided completely, if
-> when mapping a cowlink the page was _copied_ from the shared
-> address_space to the cowlink's own address_space.  Copying also solves
-> the mlock() problem.  (A shared address_space is still required, because
-> you may cowlink a file which has dirty pages in RAM).
-
-Either that your you call fsync(file) as part of generating the cow
-copy.
-
-> Copying raises a different problem: what to do when a non-cowlink file
-> is mapped (PROT_READ), and then it's cowlinked while the mapping is in
-> place.  The non-cowlink inode gets converted to a cowlink inode.  The
-> pages are hashed in the original address_space, and you now have a
-> mapping of a cowlink file where the mapped pages are _not copies_ of
-> pages in the shared address_space.
-
-If you don't flush things to disk first there are certainly some sharing
-issues.  Flushing the data to the address_space of the shared inode
-should work just as well though.
-
-What you must have is a clear state change from caching a normal file
-to cache a cow file.  Where certain parts of the behavior changes.
-
-What this needs to do depends on the VFS at the time.  
-
-If sharing is introduced past that state change things get tricky to
-manage.  I just don't want to think about those issues just now...
-
-Eric
+No problem - it's easier to read with comment directly in the text.
 
 
-
-
+Regards,
+Andreas Hartmann

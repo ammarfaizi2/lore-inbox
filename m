@@ -1,63 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135245AbRDZJdm>; Thu, 26 Apr 2001 05:33:42 -0400
+	id <S135256AbRDZJhw>; Thu, 26 Apr 2001 05:37:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135249AbRDZJdg>; Thu, 26 Apr 2001 05:33:36 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:32780 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S135245AbRDZJdX>; Thu, 26 Apr 2001 05:33:23 -0400
-Date: Thu, 26 Apr 2001 11:33:18 +0200
-From: Jan Kara <jack@suse.cz>
-To: Chris Mason <mason@suse.com>
-Cc: Pavel Machek <pavel@suse.cz>, viro@math.psu.edu,
-        kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
-Subject: Re: [patch] linux likes to kill bad inodes
-Message-ID: <20010426113318.A2766@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20010425220120.A1540@bug.ucw.cz> <466810000.988230486@tiny>
+	id <S135251AbRDZJhd>; Thu, 26 Apr 2001 05:37:33 -0400
+Received: from [195.6.125.97] ([195.6.125.97]:43277 "EHLO looping.sycomore.fr")
+	by vger.kernel.org with ESMTP id <S135249AbRDZJh3>;
+	Thu, 26 Apr 2001 05:37:29 -0400
+Date: Thu, 26 Apr 2001 11:34:51 +0200
+From: =?ISO-8859-1?Q?s=E9bastien?= person <sebastien.person@sycomore.fr>
+To: liste noyau linux <linux-kernel@vger.kernel.org>
+Subject: Fw: Re: Fw: where can I find the IP address ?
+Message-Id: <20010426113451.0868493d.sebastien.person@sycomore.fr>
+X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.6; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <466810000.988230486@tiny>; from mason@suse.com on Wed, Apr 25, 2001 at 04:28:06PM -0400
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> 
-> On Wednesday, April 25, 2001 10:01:20 PM +0200 Pavel Machek <pavel@suse.cz>
-> wrote:
-> 
-> > Hi!
-> > 
-> >> > Hi!
-> >> > 
-> >> > I had a temporary disk failure (played with acpi too much). What
-> >> > happened was that disk was not able to do anything for five minutes
-> >> > or so. When disk recovered, linux happily overwrote all inodes it
-> >> > could not read while disk was down with zeros -> massive disk
-> >> > corruption.
-> >> > 
-> >> > Solution is not to write bad inodes back to disk.
-> >> > 
-> >> 
-> >> Wouldn't we rather make it so bad inodes don't get marked dirty at all?
-> > 
-> > I guess this is cheaper: we can mark inode dirty at 1000 points, but
-> > you only write it at one point.
-> 
-> Whoops, I worded that poorly.  To me, it seems like a bug to dirty a bad
-> inode.  If this patch works, it is because somewhere, somebody did
-> something with a bad inode, and thought the operation worked (otherwise,
-> why dirty it?).  
-> 
-> So yes, even if we dirty them in a 1000 different places, we need to find
-> the one place that believes it can do something worthwhile to a bad inode.
-  Yes checking those places where bad inode gets dirty is probably good
-idea. But I'd add test to write_inode anyway together with warning that
-this shouldn't happen.
 
-								Honza
 
---
-Jan Kara <jack@suse.cz>
-SuSE Labs
+Début du message transféré :
+
+Date: Wed, 25 Apr 2001 16:45:48 +0200
+From: sébastien person <sebastien.person@sycomore.fr>
+To: Helge Hafting <helgehaf@idb.hist.no>
+Subject: Re: Fw: where can I find the IP address ?
+
+
+Le Wed, 25 Apr 2001 15:17:59 +0200
+Helge Hafting <helgehaf@idb.hist.no> à écrit :
+
+> sébastien person wrote:
+> > 
+> > Début du message transféré :
+> > 
+> > Date: Tue, 24 Apr 2001 16:43:18 +0200
+> > From: sébastien person <sebastien.person@sycomore.fr>
+> > To: liste noyau linux <linux-kernel@vger.kernel.org>
+> > Subject: where can I find the IP address ?
+> > 
+> > I'm dealing with a driver wich need the IP address for specifics using.
+> > 
+> The IP address of what?
+> Rememeber, a computer can have an arbitrary number of different
+> IP addresses assigned to various interfaces.  It may even have
+> several IP addresses on the same network card.
+> 
+> So, which of them do you want?
+> 
+> Helge Hafting
+
+Yes that's right. In fact (excuse my bad english), my driver is 'iconfiged- up' with an
+IP in a script, and there is only one IP attach to the adapter. The adapter is a serial
+modem wich will work like an ethernet card, I'm working on the encapsulation of packets
+on the serial line and I need the IP that ifconfig attach to it.
+
+I've seen in the rubini linux device driver that it exists one field in the struture
+that contain the IP but it doesn't exist in my structure so I though that I can find it
+elsewhere. So the IP that I need for the driver of the device, is the one the device is
+attached to. I expect to explain myself clearly else don't hesitate to tell me more.
+
+thanks
+
+sebastien person
+

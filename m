@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbTKXV26 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 16:28:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbTKXV24
+	id S261733AbTKXVj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 16:39:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbTKXVj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 16:28:56 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:37510 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261538AbTKXV2y (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 16:28:54 -0500
-Message-Id: <200311242128.hAOLSqKL011458@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Tilo Lutz <TiloLutz@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can't login with kernel 2.6 
-In-Reply-To: Your message of "Mon, 24 Nov 2003 22:59:38 +0100."
-             <1069711178.2331.8.camel@tilo.rz.uni-karlsruhe.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <1069711178.2331.8.camel@tilo.rz.uni-karlsruhe.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_2123481556P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 24 Nov 2003 16:28:52 -0500
+	Mon, 24 Nov 2003 16:39:59 -0500
+Received: from nameserver1.brainwerkz.net ([209.251.159.130]:38308 "EHLO
+	nameserver1.mcve.com") by vger.kernel.org with ESMTP
+	id S261733AbTKXVj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 16:39:57 -0500
+Message-ID: <34020.209.251.159.140.1069710815.squirrel@mail.mainstreetsoftworks.com>
+Date: Mon, 24 Nov 2003 16:53:35 -0500 (EST)
+Subject: [PATCH 2.6.0-test10] libata sata_promise pci id pdc20376
+From: "Brad House" <brad_mssw@gentoo.org>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+Cc: <jgarzik@pobox.com>
+X-Mailer: SquirrelMail (version 1.2.11)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_2123481556P
-Content-Type: text/plain; charset=us-ascii
+For some reason I thought the pdc20376 PCI ID was already
+added, but none of the ones that existed worked for this
+user, but this addition did:
 
-On Mon, 24 Nov 2003 22:59:38 +0100, Tilo Lutz <TiloLutz@gmx.de>  said:
+(the patch can also be found at
+http://dev.gentoo.org/~brad_mssw/kernel_patches/2.6.0/genpatches-0.6/225_sata_promise_pdc20376_pciid.patch
+if it doesn't inline correctly)
 
-> A script to set up network has shown an error:
-> chown root:root user unknown.
-> I also get en error: /dev/tty unknown device.
+Please CC me on any replies
+-Brad House
+brad_mssw@gentoo.org
 
-Shot in the dark - you didn't accidentally enable the SElinux stuff
-and fail to make all the appropriate userspace changes, did you?
+Patch:
 
---==_Exmh_2123481556P
-Content-Type: application/pgp-signature
+diff -urN linux-2.6.0-test10-gentoo-r1.orig/drivers/scsi/sata_promise.c
+linux-2.6.0-test10-gentoo-r1/drivers/scsi/sata_promise.c
+---
+linux-2.6.0-test10-gentoo-r1.orig/drivers/scsi/sata_promise.c	2003-11-24
+14:23:41.687209888 -0500
++++ linux-2.6.0-test10-gentoo-r1/drivers/scsi/sata_promise.c	2003-11-24
+14:16:15.000000000 -0500
+@@ -213,6 +213,8 @@
+ 	  board_2037x },
+ 	{ PCI_VENDOR_ID_PROMISE, 0x3375, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 	  board_2037x },
++	{ PCI_VENDOR_ID_PROMISE, 0x3376, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_2037x },
+ 	{ PCI_VENDOR_ID_PROMISE, 0x3318, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 	  board_20319 },
+ 	{ PCI_VENDOR_ID_PROMISE, 0x3319, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE/wngUcC3lWbTT17ARAq68AKDodbKBDivTN83Zt6G01MR17wdq+wCfUiU+
-L9Bu85900M41k7n4bJmsp/4=
-=WFWN
------END PGP SIGNATURE-----
 
---==_Exmh_2123481556P--

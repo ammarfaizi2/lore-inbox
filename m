@@ -1,55 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261829AbSJ2L4S>; Tue, 29 Oct 2002 06:56:18 -0500
+	id <S261853AbSJ2L65>; Tue, 29 Oct 2002 06:58:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261836AbSJ2L4S>; Tue, 29 Oct 2002 06:56:18 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:24333 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261829AbSJ2L4R>; Tue, 29 Oct 2002 06:56:17 -0500
-Date: Tue, 29 Oct 2002 07:02:03 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: Rik van Riel <riel@conectiva.com.br>, lkml <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-Subject: Re: 2.5.44-mm6
-In-Reply-To: <3DBD7176.BAC2BCD3@digeo.com>
-Message-ID: <Pine.LNX.3.96.1021029065944.6113B-100000@gatekeeper.tmr.com>
+	id <S261854AbSJ2L65>; Tue, 29 Oct 2002 06:58:57 -0500
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:34001 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261853AbSJ2L64>; Tue, 29 Oct 2002 06:58:56 -0500
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: <chris@scary.beasts.org>, <linux-kernel@vger.kernel.org>,
+       Ulrich Drepper <drepper@redhat.com>, <bug-glibc@gnu.org>
+Subject: Re: __libc_enable_secure check (was: [PATCH][RFC] 2.5.44 (1/2):
+ Filesystem capabilities kernel patch)
+References: <Pine.LNX.4.33.0210282327520.8990-100000@sphinx.mythic-beasts.com>
+	<200210290323.09565.agruen@suse.de> <87n0oxmrhn.fsf@goat.bogus.local>
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Mail-Followup-To: <agruen@suse.de>, <chris@scary.beasts.org>,
+ <drepper@redhat.com>, <bug-glibc@gnu.org>,
+ <olaf.dietsche#list.linux-kernel@t-online.de>
+Date: Tue, 29 Oct 2002 13:04:58 +0100
+Message-ID: <87fzupmowl.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Oct 2002, Andrew Morton wrote:
+Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de> writes:
 
-> Rik van Riel wrote:
+> Andreas Gruenbacher <agruen@suse.de> writes:
+>
+>> On Tuesday 29 October 2002 00:36, chris@scary.beasts.org wrote:
+>>> I'm not sure what the current glibc security check is, but it used to be
+>>> simple *uid() vs. *euid() checks. This would not catch an executable with
+>>> filesystem capabilities.
+>>> Have a look at
+>>> http://security-archive.merton.ox.ac.uk/security-audit-199907/0192.html
+> [...]
+>>> I think the eventual plan was that we pass the kernel's current->dumpable
+>>> as an ELF note. Not sure if it got done. Alternatively glibc could use
+>>> prctl(PR_GET_DUMPABLE).
+>>
+>> Sorry, I don't know exactly what was your plan here. Could you please explain?
+>
+> Judging from the mail archive above: instead of checking uid vs. euid
+> and gid vs. egid, ask the kernel and grant or deny LD_PRELOAD
+> according to the dumpable flag (see prctl(2)). This flag is set to
+> false, if uid != euid, etc. So, this flag could be used/cleared by
+> capabilities as well.
 
-> > 1) 2.4 does have the failure modes you talk about ;)
-> 
-> Shock :)  How does one trigger them?
-> 
-> 
-> > 2) I have most of an explicit load control algorithm ready,
-> >    against an early 2.4 kernel, but porting it should be very
-> >    little work
-> > 
-> > Just let me know if you're interested in my load control mechanism
-> > and I'll send it to you.
-> 
-> It would be interesting if you could send out what you have.
-> 
-> It would also be interesting to know if we really care?  The
-> machine is already running 10x slower than it would be if it
-> had enough memory; perhaps it is just not a region of operation
-> for which we're interested in optimising.  (Just being argumentitive
-> here ;))
+I'm a bit lost in the glibc sources, but tried my best anyway :-).
+Here is an untested patch against glibc 2.3.1. Can someone from the
+glibc team please comment? Would this be acceptable or do you have any
+objections against it? Could this be included even into glibc 2.2.x?
 
-I think there is a need for keeping an overloaded machine in some way
-usable, not because anyone is really running it that way, but because the
-sysadmin needs a way to determine why a correctly sized machine is
-suddenly seeing a high load.
+TIA
+Regards, Olaf.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+--- glibc-2.3.1/sysdeps/generic/dl-sysdep.c~	Sat Jul 20 19:30:48 2002
++++ glibc-2.3.1/sysdeps/generic/dl-sysdep.c	Tue Oct 29 12:47:55 2002
+@@ -140,6 +140,9 @@
+   DL_SYSDEP_OSCHECK (dl_fatal);
+ #endif
+ 
++#ifdef DL_SECURE_INIT
++  DL_SECURE_INIT;
++#else
+   /* Fill in the values we have not gotten from the kernel through the
+      auxiliary vector.  */
+ #ifndef HAVE_AUX_XID
+@@ -154,6 +157,7 @@
+   /* If one of the two pairs of IDs does not mattch this is a setuid
+      or setgid run.  */
+   INTUSE(__libc_enable_secure) = uid | gid;
++#endif
+ 
+ #ifndef HAVE_AUX_PAGESIZE
+   if (GL(dl_pagesize) == 0)
+--- glibc-2.3.1/sysdeps/unix/sysv/linux/dl-sysdep.c~	Thu May 16 07:43:08 2002
++++ glibc-2.3.1/sysdeps/unix/sysv/linux/dl-sysdep.c	Tue Oct 29 12:47:53 2002
+@@ -20,9 +20,11 @@
+ /* Linux needs some special initialization, but otherwise uses
+    the generic dynamic linker system interface code.  */
+ 
++#include <sys/prctl.h>
+ #include <unistd.h>
+ 
+ #define DL_SYSDEP_INIT frob_brk ()
++#define DL_SECURE_INIT INTUSE(__libc_enable_secure) = prctl (PR_GET_DUMPABLE) == 0
+ 
+ static inline void
+ frob_brk (void)

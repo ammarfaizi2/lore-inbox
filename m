@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262488AbSJKPEz>; Fri, 11 Oct 2002 11:04:55 -0400
+	id <S262486AbSJKPDs>; Fri, 11 Oct 2002 11:03:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262506AbSJKPEz>; Fri, 11 Oct 2002 11:04:55 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:32524 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S262488AbSJKPEy>; Fri, 11 Oct 2002 11:04:54 -0400
-Date: Fri, 11 Oct 2002 16:10:34 +0100
-From: John Levon <levon@movementarian.org>
-To: Thierry Mallard <thierry.mallard@vawis.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: schedule_task still available in 2.5.41 ? (working on nvidia kernel module driver, but maybe not related)
-Message-ID: <20021011151033.GA13277@compsoc.man.ac.uk>
-References: <20021011150505.GA1684@d133.dhcp212-198-6.noos.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021011150505.GA1684@d133.dhcp212-198-6.noos.fr>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *1801Qw-000G80-00*B.32RtQjbSs* (Manchester Computing, University of Manchester)
+	id <S262488AbSJKPDs>; Fri, 11 Oct 2002 11:03:48 -0400
+Received: from moe.rice.edu ([128.42.5.4]:27611 "EHLO moe.rice.edu")
+	by vger.kernel.org with ESMTP id <S262486AbSJKPDs>;
+	Fri, 11 Oct 2002 11:03:48 -0400
+Message-ID: <00c701c27138$69de9fa0$2476a018@OMIT>
+From: "omit_ECE" <omit@rice.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Implementation problems in tcp
+Date: Fri, 11 Oct 2002 10:10:16 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 11, 2002 at 05:05:05PM +0200, Thierry Mallard wrote:
+Hi,
 
-> nv.c:1679: warning: implicit declaration of function `schedule_task'
+I have a project to implement some functions in TCP.
+First, I wanna calculate the one-way delay by time_stamp
+in TCP Acks; ie, rcv_tsval & rvc_tsecr in tcp_input.c. But 
+I am not quite sure in which functions, ex. tcp_rcv_established, 
+the two values (rcv_tsval & rvc_tsecr) are what I want.
 
-It's schedule_work() now. Read kernel/workqueue.c
+Second, I want to use ECN as an indicator and add some 
+conditions. But I really cannot figure out what is going on 
+in tcp_input.c. Could anyone give me some hints please?
+Thanks.
 
-john
-
--- 
-"That's just kitten-eating wrong."
-	- Richard Henderson
+YuZen

@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132691AbRAXVjY>; Wed, 24 Jan 2001 16:39:24 -0500
+	id <S132667AbRAXVlE>; Wed, 24 Jan 2001 16:41:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132630AbRAXVjO>; Wed, 24 Jan 2001 16:39:14 -0500
-Received: from ezri.xs4all.nl ([194.109.253.9]:63940 "HELO ezri.xs4all.nl")
-	by vger.kernel.org with SMTP id <S132691AbRAXVjJ>;
-	Wed, 24 Jan 2001 16:39:09 -0500
-Date: Wed, 24 Jan 2001 22:39:06 +0100 (CET)
-From: Eric Lammerts <eric@lammerts.org>
-To: Mark Longair <list-reader@ideaworks3d.com>
-cc: <linux-kernel@vger.kernel.org>,
-        "Richard B. Johnson" <root@chaos.analogic.com>
-Subject: Re: [2.2.18] outgoing connections getting stuck in SYN_SENT
-In-Reply-To: <871ytt1239.fsf@starfruit.iwks.multi.local>
-Message-ID: <Pine.LNX.4.32.0101242233300.26720-100000@ally.lammerts.org>
+	id <S132585AbRAXVky>; Wed, 24 Jan 2001 16:40:54 -0500
+Received: from [64.64.109.142] ([64.64.109.142]:15634 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S131882AbRAXVkm>; Wed, 24 Jan 2001 16:40:42 -0500
+Message-ID: <3A6F4BB6.2C305145@didntduck.org>
+Date: Wed, 24 Jan 2001 16:40:06 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.73 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jie Zhou <jiezhou@us.ibm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: question about compiling the kernel
+In-Reply-To: <OFF0DFC748.A1DDEA9C-ON852569DE.00754674@somers.hqregion.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jie Zhou wrote:
+> 
+> Hi, all,
+> 
+>  I got about 30 warning msgs like this during the process of "make
+> bzImage",   is it a fatal problem or not?
+>   "Warning: using '%eax' instead of '%ax' due to "l" suffix"
 
-On 24 Jan 2001, Mark Longair wrote:
-> It turned out that this was caused by using autofw to forward a range
-> of ports (2300-2400 in this case.)  It seems that these ports aren't
-> reserved in any way, so eventually the server tries to use one as a
-> local port on an outgoing connection.
->
-> I'm looking at finding fix for that.
+Nothing to worry about.
 
-Tell the kernel to use a different range for automatically
-assigned ports, that doesn't conflict with your forwarded ports.
-For example:
-echo "49152 59999" >/proc/sys/net/ipv4/ip_local_port_range
+>  2. after 'make bzImage', if I don't have any module to install, then I
+> don't need  to run either 'make modules' or 'make modules_install',
+> is this correct?
 
-Eric
+Correct.
 
--- 
-Eric Lammerts <eric@lammerts.org> | The best way to accelerate a computer
-http://www.lammerts.org           | running Windows is at 9.8 m/s^2.
+> 3. After I run the /sbin/lilo, it says the new kernel is added to the
+> system. HOwever when I restart the system and go into the labeled kernel
+> I choose, the system gets stucked after these two lines:
+> Loading kernel.......................
+> Uncompressing Linux...OK, booting the kernel.
+> 
+> Can you give me some advice on this. Thanks a lot for your kind reply..
 
+Make certain you compiled the kernel for the proper CPU type (ie. don't
+try to run a Pentium II kernel on a 486)
+
+--
+
+				Brian Gerst
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

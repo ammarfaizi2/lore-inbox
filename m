@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132514AbRDOX4q>; Sun, 15 Apr 2001 19:56:46 -0400
+	id <S132813AbRDPATx>; Sun, 15 Apr 2001 20:19:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132745AbRDOX4d>; Sun, 15 Apr 2001 19:56:33 -0400
-Received: from draco.cus.cam.ac.uk ([131.111.8.18]:746 "EHLO
-	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S132142AbRDOX4S>; Sun, 15 Apr 2001 19:56:18 -0400
-Message-Id: <5.0.2.1.2.20010416005604.00ac8ec0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Mon, 16 Apr 2001 00:58:03 +0100
-To: esr@thyrsus.com
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: CML2 1.1.2 is available
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010415143316.A6115@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S132815AbRDPATn>; Sun, 15 Apr 2001 20:19:43 -0400
+Received: from [203.117.131.2] ([203.117.131.2]:31985 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S132813AbRDPAT3>; Sun, 15 Apr 2001 20:19:29 -0400
+From: "Michael Clark" <michael@metaparadigm.com>
+To: <david_j_findlay@yahoo.com.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: IP Acounting Idea for 2.5
+Date: Mon, 16 Apr 2001 08:21:46 +0800
+Message-ID: <HBEEKENFCJOPCENEDAGHGEPBCBAA.michael@metaparadigm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <01041707532801.00352@workshop>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 19:33 15/04/2001, Eric S. Raymond wrote:
->The latest version is always available at http://www.tuxedo.org/~esr/cml2/
->Release 1.1.2: Sun Apr 15 14:26:07 EDT 2001
->         * Synchronized with 2.4.4-pre3.
->         * Screen flicker in menuconfig is gone.
->         * KEY_HOME and KEY_END now go to top or bottom of menu.
->         * Zack Weinberg's patch reorganizing the block devices menus.
->The screen flicker fix should also speed up general responsiveness.
+> In the 2.5 series of kernels, working towards 2.6, could you please make the
+> IP Accounting so that I can set a single rule that will make it watch all IP
+> traffic going from the local network, through the masquerading service to the
+> internet, and log local IP Addresses using it? This would allow me to set 1
+> rule, but have the information I want on a per IP address system.
 
-Few comments:
+You could try using a mature userspace traffic meter like 'NeTraMet' (uses
+libpcap).
 
-When .config is missing and error is emitted when running make menuconfig 
-(or any other I guess) for the first time. Should this be the case? It's 
-ignored so ok but still would be nice not to have an error.
+ftp://ftp.auckland.ac.nz/pub/iawg/NeTraMet/
 
-In ttyconfig: If type 'a' then enter then 'a' then enter then 'v' then 
-enter it crashes out... Might be specific to where you are at the time. 
-Sorry don't remember.
+> One other person I have talked to would like to see this too, and he
+> basically says we need a software version of the Cisco IP Accounting
+> server/router.
 
-Good performance going up/down in menuconfig now. Even on my Pentium 133S! 
-Excellent work! (fastmode on)
+NeTraMet can also account using Cisco Netflow accounting records.
 
-Best regards,
-
-         Anton
-
-
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+> Could you please add this to the next kernel? Please CC me your responses as
+> I am not a member of the kernel mailing list. Thanks,
+>
+> David
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 

@@ -1,83 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266818AbUBEVl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 16:41:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266881AbUBEVjV
+	id S266852AbUBEV1P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 16:27:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266881AbUBEV1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 16:39:21 -0500
-Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:5132
-	"EHLO muru.com") by vger.kernel.org with ESMTP id S266818AbUBEVc4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 16:32:56 -0500
-Date: Thu, 5 Feb 2004 13:33:03 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, davej@redhat.com
-Subject: Re: [PATCH] powernow-k8 max speed sanity check
-Message-ID: <20040205213303.GA9757@atomide.com>
-References: <20040131203512.GA21909@atomide.com> <20040203131432.GE550@openzaurus.ucw.cz> <20040205181704.GC7658@atomide.com> <20040205184841.GB590@elf.ucw.cz>
+	Thu, 5 Feb 2004 16:27:15 -0500
+Received: from mail.kroah.org ([65.200.24.183]:20153 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266852AbUBEV1K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 16:27:10 -0500
+Date: Thu, 5 Feb 2004 13:27:03 -0800
+From: Greg KH <greg@kroah.com>
+To: "Tillier, Fabian" <ftillier@infiniconsys.com>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, sean.hefty@intel.com,
+       linux-kernel@vger.kernel.org, hozer@hozed.org, woody@co.intel.com,
+       bill.magro@intel.com, woody@jf.intel.com,
+       infiniband-general@lists.sourceforge.net
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Message-ID: <20040205212703.GA15718@kroah.com>
+References: <08628CA53C6CBA4ABAFB9E808A5214CB01DB96CF@mercury.infiniconsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040205184841.GB590@elf.ucw.cz>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <08628CA53C6CBA4ABAFB9E808A5214CB01DB96CF@mercury.infiniconsys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel,
+A: No.
+Q: Should I include quotations after my reply?
 
-Here's some comments after trying out your 2 patches. 
+On Thu, Feb 05, 2004 at 03:32:09PM -0500, Tillier, Fabian wrote:
+> So which is more important to the "Linux kernel" project: i386 backwards
+> compatibility, or consistent API and functionality across processor
+> architectures? ;)
 
-First, the PCMCIA patch worked great, I can now plug/unplug power cord with
-yenta_socket loaded :) Maybe now I can _haul_ this laptop to a cafe and use 
-the WLAN, hehe. In case anybody else needs them, I'll put the patches 
-I'm using to:
+Anyway, why not describe what you are trying to accomplish that made you
+determine that you _had_ to have these kinds of functions.
 
-http://www.muru.com/linux/amd64/
+Basically, what is lacking in the current kernel locks that the
+infiniband project has to have in order to work properly.  We can work
+from there.
 
-The powernow-k8.c patch did not work, as my numpst is 8, not 3. So why not
-just ignore the numpst, as it is not used?
+thanks,
 
-Maybe replace this
-
- 		if (psb->numpst != 1) {
- 			printk(KERN_ERR BFX "numpst must be 1\n");
--			return -ENODEV;
-+			if (psb->numpst == 3) {
-+				printk(KERN_INFO PFX "assuming arima notebug\n");
-+				arima = 1;
-+			} else
-+				return -ENODEV;
- 		}
-
-With this instead:
- 
- 		dprintk(KERN_DEBUG PFX "numpst: 0x%x\n", psb->numpst);
- 		if (psb->numpst != 1) {
--			printk(KERN_ERR BFX "numpst must be 1\n");
--			return -ENODEV;
-+			printk(KERN_WARNING BFX "numpst listed as %i "
-+			       "should be 1. Using 1.\n", psb->numpst);
- 		}
- 
-Hmm, looks like that contains a bug, where it does not change psb->numpst to 1,
-but that's not used anyways, so it could all be actually chopped out?
-
-I see a little problem with hardcoding the values:
-
-+		if (arima) {
-+			ppst[1].fid = 0x8;
-+			ppst[1].vid = 0x6;
-+#ifdef THREE
-+			ppst[2].fid = 0xa;
-+			ppst[2].vid = 0x2;
-+#endif
- 		}
-
-This would fail if I upgraded my CPU, right? 
-
-What do you think about using module options maxfid and maxvid?
-
-Regards,
-
-Tony
+greg k-h

@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129289AbRBABQl>; Wed, 31 Jan 2001 20:16:41 -0500
+	id <S130044AbRBAEb4>; Wed, 31 Jan 2001 23:31:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129333AbRBABQb>; Wed, 31 Jan 2001 20:16:31 -0500
-Received: from ganymede.or.intel.com ([134.134.248.3]:32266 "EHLO
-	ganymede.or.intel.com") by vger.kernel.org with ESMTP
-	id <S129289AbRBABQR>; Wed, 31 Jan 2001 20:16:17 -0500
-Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE61E@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Pavel Machek'" <pavel@suse.cz>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: ACPI fix + comments
-Date: Wed, 31 Jan 2001 14:37:38 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S129547AbRBAEbq>; Wed, 31 Jan 2001 23:31:46 -0500
+Received: from atl2ims.interland.net ([63.96.156.17]:44044 "HELO
+	atl2ims.corp.interland.net") by vger.kernel.org with SMTP
+	id <S130044AbRBAEbb>; Wed, 31 Jan 2001 23:31:31 -0500
+From: <sadosd@brainstorm.fr>
+To: <linux-kernel@vger.kernel.org>
+Date: Wed, 31 Jan 2001 19:50:45
+Message-Id: <101.630009.718089@mail.wpgsun.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The problem the diff below fixes is a BIOS issue - the _STA 
-> control method
-> > should always be returning a value, but in this case it doesn't. The
-> > approach we're taking is "get everything working and THEN 
-> worry about broken
-> > ACPI implementations" and hopefully in the meantime, people 
-> will release
-> > fixed BIOSs ;-).
-> 
-> Where is that diff? I do not see it.
+GET YOUR OWN 100 MEG WEBSITE FOR ONLY $11.95 PER MONTH TODAY!
 
-I apologize, I was referring to your patch - i.e. your patch is a workaround
-for a bios issue.
+STOP PAYING $19.95 or more TODAY for your web site, WHEN YOU CAN 
+GET ONE FOR ONLY $11.95 PER MONTH!
 
--- Andy
+DO YOU ALREADY HAVE A WEBSITE? ALL YOU HAVE TO DO IS TRANSFER THE 
+DOMAIN TO OUR SERVERS AND UPLOAD YOUR DATA AND YOU ARE READY TO 
+GO! YOUR NEW WEB SPACE CAN BE CREATED INSTANTLY WITH JUST A 
+SIMPLE PHONE CALL TO  OUR OFFICE.
 
+YOU CAN CHANGE THE DESIGN OF YOUR SITE AS MUCH AS YOU WANT with 
+no extra charge!  UNLIMITED TRAFFIC -- no extra charge!
+
+FRONT PAGE EXTENSIONS are FULLY SUPPORTED.
+
+A SET UP FEE OF $40.00 APPLIES for FIRST TIME CUSTOMERS.
+
+ALL FEES PREPAID IN ADVANCE FOR THE YEAR PLUS A $40.00 SET UP 
+CHARGE.
+
+FOR DETAILS CALL 1 888 248 0765  if you are outside the USA,
+please fax 240 337 8325
+
+Webhosting International
+
+ 
+ 
+ 
+ 
+ 
+ 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

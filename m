@@ -1,69 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281382AbRKLMn2>; Mon, 12 Nov 2001 07:43:28 -0500
+	id <S281441AbRKLMrs>; Mon, 12 Nov 2001 07:47:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281383AbRKLMnU>; Mon, 12 Nov 2001 07:43:20 -0500
-Received: from ns1.baby-dragons.com ([199.33.245.254]:3200 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S281382AbRKLMnK> convert rfc822-to-8bit; Mon, 12 Nov 2001 07:43:10 -0500
-Date: Mon, 12 Nov 2001 07:42:39 -0500 (EST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Pavel Machek <pavel@suse.cz>
-cc: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        Thomas Foerster <puckwork@madz.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Module / Patch with implements "sshfs"
-In-Reply-To: <20011112013828.A359@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.40.0111120741490.579-100000@filesrv1.baby-dragons.com>
+	id <S281383AbRKLMri>; Mon, 12 Nov 2001 07:47:38 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56588 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S281438AbRKLMrZ>; Mon, 12 Nov 2001 07:47:25 -0500
+Subject: Re: Oops in reiserfs w/2.4.7-10
+To: reiser@namesys.com (Hans Reiser)
+Date: Mon, 12 Nov 2001 12:54:39 +0000 (GMT)
+Cc: brett@bad-sports.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3BEFBDE0.6080804@namesys.com> from "Hans Reiser" at Nov 12, 2001 03:17:36 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E163Gbn-0005kK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Please upgrade to a recent linus kernel.  I don't know what went into 
+> RedHat 7.2, but secondhand reports are that reiserfs is not stable in 
+> that kernel.
 
-	Hello Pavel ,  Does uservfs support encryption without /dev/loop ?
-		Tia ,  JImL
+I wouldnt upgrade to a Linus kernel. That lacks several drivers, ext3, 32bit
+uid capable quota and some other stuff. 2.4.15pre3 has some of that now.
 
-On Mon, 12 Nov 2001, Pavel Machek wrote:
+You should however grab the Red Hat errata (2.4.9 series) kernel either
+via up2date or from a Red Hat ftp archive. That fixes several things.
 
-> Hi!
->
-> > A simpler way is to use the kio_fish
-> >  http://apps.kde.com/na/2/info/id/1331
-> > (I had problem with compiling this under SuSE 7.1 but with
-> > SuSE 7.3 there were no problems)
-> >
-> > You browsing will look like:
-> >  fish://192.168.9.99/home/
-> > compare with
-> >  ftp://ftp.kernel.org/
-> >
-> > And since it is KDE all KDE programs will be able to use it :-)
-> > (To be sure I tried to create a file with advanced editor and save it
-> >  remote - it worked! :-)
-> >
-> > KDE port done by: Jörg Walter
-> > Originally for mc by: Pavel Machek
->
-> And if you use uservfs (.sourceforge.net), all programs can do
-> that. As good as if it was kernelspace, but it stays userland.
-> 								Pavel
->
-> --
-> STOP THE WAR! Someone killed innocent Americans. That does not give
-> U.S. right to kill people in Afganistan.
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
-
+Alan

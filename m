@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S282331AbUKBFIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S320251AbUKBFNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S282331AbUKBFIw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 00:08:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S771430AbUKBFIv
+	id S320251AbUKBFNw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 00:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S317689AbUKBFNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 00:08:51 -0500
-Received: from ozlabs.org ([203.10.76.45]:62357 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S318259AbUKBFIl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 00:08:41 -0500
-MIME-Version: 1.0
+	Tue, 2 Nov 2004 00:13:51 -0500
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:20406 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S286148AbUKAWee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 17:34:34 -0500
+Date: Mon, 1 Nov 2004 23:34:19 +0100
+From: Andrea Arcangeli <andrea@novell.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PG_zero
+Message-ID: <20041101223419.GG3571@dualathlon.random>
+References: <20041030141059.GA16861@dualathlon.random> <418671AA.6020307@yahoo.com.au> <161650000.1099332236@flay>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16775.5912.788675.644838@cargo.ozlabs.ibm.com>
-Date: Tue, 2 Nov 2004 16:11:52 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: nathanl@austin.ibm.com, anton@samba.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] PPC64 mmu_context_init needs to run earlier
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Disposition: inline
+In-Reply-To: <161650000.1099332236@flay>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is from Nathan Lynch <nathanl@austin.ibm.com>.
+On Mon, Nov 01, 2004 at 10:03:56AM -0800, Martin J. Bligh wrote:
+> [..] it was to stop cold
+> allocations from eating into hot pages [..]
 
-This patch changes mmu_context_init to be called as a core_initcall
-rather than an arch_initcall, since mmu_context_init needs to run
-before we try to run any userspace processes, and arch_initcall was
-found to be too late.
+exactly, and I believe that hurts. bouncing on the global lock is going to
+hurt more than preserving an hot page (at least on a 512-way). Plus the
+cold page may very soon become hot too.
 
-Signed-off-by: Nathan Lynch <nathanl@austin.ibm.com>
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+Plus you should at least allow an hot allocation to eat into the cold
+pages (which didn't happen IIRC).
 
-diff -puN arch/ppc64/mm/init.c~ppc64-make-mmu_context_init-core_initcall arch/ppc64/mm/init.c
---- linux-2.6.10-rc1-bk11/arch/ppc64/mm/init.c~ppc64-make-mmu_context_init-core_initcall	2004-11-01 19:51:46.000000000 -0600
-+++ linux-2.6.10-rc1-bk11-nathanl/arch/ppc64/mm/init.c	2004-11-01 19:53:24.000000000 -0600
-@@ -529,7 +529,7 @@ static int __init mmu_context_init(void)
- 
- 	return 0;
- }
--arch_initcall(mmu_context_init);
-+core_initcall(mmu_context_init);
- 
- /*
-  * Do very early mm setup.
+I simply believe using the lru ordering is a more efficient way to
+implement hot/cold behaviour and it will save some minor ram too (with
+big lists the reservation might even confuse the oom conditions, if the
+allocation is hot, but the VM frees in the cold "stopped" list). I know
+the cold list was a lot smaller so this is probably only a theoretical
+issue.
+
+> Yeah, we got bugger-all benefit out of it. The only think it might do
+> is lower the latency on inital load-spikes, but basically you end up
+> paying the cache fetch cost twice. But ... numbers rule - if you can come
+> up with something that helps a real macro benchmark, I'll eat my non-existant
+> hat ;-)
+
+I've no idea if it will help... I only knows it helps the micro ;), but I
+don't measure any slowdown.
+
+Note that my PG_zero will boost 200% the micro benchmark even without
+the idle zeroing enabled, if a big app quits all ptes will go in PG_zero
+quicklist and the next 2M allocation of anonymous memory won't require
+clearing. That has no downside at all. That's not something that can be
+achieved with slab, plus slab wastes ram as well and it has more
+overhead than PG_zero.

@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272127AbTGYO2H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 10:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272128AbTGYO2G
+	id S272125AbTGYOZU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 10:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272126AbTGYOZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 10:28:06 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:33470 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S272127AbTGYO17
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 10:27:59 -0400
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-From: Yury Umanets <umka@namesys.com>
-To: Daniel Egger <degger@fhm.edu>
-Cc: Nikita Danilov <Nikita@Namesys.COM>, Hans Reiser <reiser@namesys.com>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       reiserfs mailing list <reiserfs-list@namesys.com>
-In-Reply-To: <1059142851.6962.18.camel@sonja>
-References: <3F1EF7DB.2010805@namesys.com>
-	 <1059062380.29238.260.camel@sonja>
-	 <16160.4704.102110.352311@laputa.namesys.com>
-	 <1059093594.29239.314.camel@sonja>
-	 <16161.10863.793737.229170@laputa.namesys.com>
-	 <1059142851.6962.18.camel@sonja>
-Content-Type: text/plain
-Organization: NAMESYS
-Message-Id: <1059143985.19594.3.camel@haron.namesys.com>
+	Fri, 25 Jul 2003 10:25:19 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:29855 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S272125AbTGYOZO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 10:25:14 -0400
+Date: Fri, 25 Jul 2003 10:29:26 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Sam Bromley <sbromley@cogeco.ca>, Torrey Hoffman <thoffman@arnor.net>,
+       gaxt <gaxt@rogers.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux firewire devel <linux1394-devel@lists.sourceforge.net>
+Subject: Re: Firewire
+Message-ID: <20030725142926.GD1512@phunnypharm.org>
+References: <20030724223615.GN1512@phunnypharm.org> <20030724230928.GB23196@ruvolo.net> <1059095616.1897.34.camel@torrey.et.myrio.com> <20030725012723.GF23196@ruvolo.net> <20030725012908.GT1512@phunnypharm.org> <1059103424.24427.108.camel@daedalus.samhome.net> <20030725041234.GX1512@phunnypharm.org> <20030725053920.GH23196@ruvolo.net> <20030725133438.GZ1512@phunnypharm.org> <20030725142907.GI23196@ruvolo.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 25 Jul 2003 18:39:45 +0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030725142907.GI23196@ruvolo.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-07-25 at 18:20, Daniel Egger wrote:
-> Am Fre, 2003-07-25 um 15.02 schrieb Nikita Danilov:
 > 
-> > No special measures are taken to level block allocation. Wandered blocks
-> > are allocated to improve packing i.e., place blocks of the same file
-> > close to each other. Actually, it tries to place tree nodes in the
-> > parent-first order.
-
+> What does no_waiter indicate?  That a packet should not have a response?
 > 
-> So the new blocks are created as close as possible to the old blocks
-> instead of say spreading them as far as possible. This is pretty bad for
-> usage in the embedded world but I guess this is not the market you're
-> aiming at. :(
 
-Reiser4 has plugin-based architecture. So, anybody is able to write new
-block allocator plugin.
+Yeah. Which is usually the case for a successful ack packet. Something
+is clearing the list of pending packets, but I'm not sure what. Please
+revert the patches thus far and apply this patch. It should tell us
+where pending_packets is getting changed.
 
+My best guess right now is that abort_timedouts is killing packets from
+the pending list too quickly. We'll cross that bridge when we see the
+results here.
 
-Speaking about possible embedded usage... What kind of embedded devices
-do you mean. Reiser4 driver is big enough in size for some of them (for
-instance, for mine MPIO MP3 player :))
 -- 
-We're flying high, we're watching the world passes by...
-
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/

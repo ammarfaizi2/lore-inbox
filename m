@@ -1,83 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264853AbRGAAAY>; Sat, 30 Jun 2001 20:00:24 -0400
+	id <S264739AbRGAAGO>; Sat, 30 Jun 2001 20:06:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264738AbRGAAAO>; Sat, 30 Jun 2001 20:00:14 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:51136 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S264733AbRGAAAA>;
-	Sat, 30 Jun 2001 20:00:00 -0400
-Message-ID: <3B3E681F.D96AA0A9@mandrakesoft.com>
-Date: Sat, 30 Jun 2001 20:00:31 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: PALFFY Daniel <dpalffy@kkt.bme.hu>
-Cc: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5-acX, airo_cs
-In-Reply-To: <Pine.LNX.4.21.0106302244420.18632-100000@iris.kkt.bme.hu>
-Content-Type: multipart/mixed;
- boundary="------------1E781ABD88D71DCC759619AA"
+	id <S264860AbRGAAGE>; Sat, 30 Jun 2001 20:06:04 -0400
+Received: from vger.timpanogas.org ([207.109.151.240]:64268 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S264739AbRGAAFx>; Sat, 30 Jun 2001 20:05:53 -0400
+Date: Sat, 30 Jun 2001 18:12:26 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: linux-kernel@vger.kernel.org
+Cc: jmerkey@timpanogas.org
+Subject: Re: NWFS Submitted to Alan Cox
+Message-ID: <20010630181226.A8254@vger.timpanogas.org>
+In-Reply-To: <20010630173558.A8066@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010630173558.A8066@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Sat, Jun 30, 2001 at 05:35:58PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------1E781ABD88D71DCC759619AA
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Sat, Jun 30, 2001 at 05:35:58PM -0700, Jeff V. Merkey wrote:
 
-PALFFY Daniel wrote:
-> --- linux/drivers/net/wireless/airo.c~  Sat Jun 30 22:37:10 2001
-> +++ linux/drivers/net/wireless/airo.c   Sat Jun 30 22:37:33 2001
-> @@ -2988,9 +2988,7 @@
->          * fails with an error other than -ENODEV, instead of proceeding,
->          * if ISA devs are present.
->          */
-> -       if (have_isa_dev)
-> -               return 0;
-> -       return rc;
-> +       return 0;
->  }
+Alan,
 
-Thanks, I applied this patch manually, with a comment as well.  Here is
-what I have (attached).
+There is a very current version which I have not released that is 
+in great shape.  I have not posted it.  This is the version I 
+would be sending you.
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
---------------1E781ABD88D71DCC759619AA
-Content-Type: text/plain; charset=us-ascii;
- name="airo.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="airo.patch"
+Jeff
 
-Index: drivers/net/wireless/airo.c
-===================================================================
-RCS file: /cvsroot/gkernel/linux_2_4/drivers/net/wireless/Attic/airo.c,v
-retrieving revision 1.1.1.9
-diff -u -r1.1.1.9 airo.c
---- drivers/net/wireless/airo.c	2001/06/30 05:24:30	1.1.1.9
-+++ drivers/net/wireless/airo.c	2001/06/30 23:59:28
-@@ -2984,14 +2984,9 @@
- 	printk( KERN_INFO "airo:  Finished probing for PCI adapters\n" );
- #endif
- 
--	/* arguably, we should clean up and error exit if pci_module_init
--	 * fails with an error other than -ENODEV, instead of proceeding,
--	 * if ISA devs are present.
-+	/* Always exit with success, as we are a library module
-+	 * as well as a driver module
- 	 */
--	if (have_isa_dev)
--		return 0;
--	if (rc && (rc != -ENODEV))
--		return rc;
- 	return 0;
- }
- 
 
---------------1E781ABD88D71DCC759619AA--
-
+> 
+> 
+> Alan,
+> 
+> I would like for you to take over NWFS if you are willing.  I have dissolved
+> TRG as a Utah Corporation and I am now focused on a variety of projects 
+> for various clients related to Linux development.  Novell has recently 
+> threatened to try to take my house and assets if I post any more 
+> NWFS releases or MANOS.  
+> 
+> I am doing very well with my consulting projects, but to be honest, 
+> my family has sufferred horribly in the past four years fighting with
+> Novell every other week, and there's a very strong chance I will be 
+> moving shop to either New Mexico or Arizona, since they own the 
+> local courts here in Utah (all the judges are mormons in Utah Valley 
+> and pro-Novell).  
+> 
+> There are several areas that need restructuring and work, and I am 
+> available to answer questions, and assist with technical consulting,
+> but I can no longer post releases of NWFS on Linux.  My children 
+> need a house over their heads, and I believe what Novell says about 
+> taking it and putting us out on the street.  They are wounded in the 
+> market, and very dangerous at present, so I am trying very hard to 
+> stay out of their way.  If you choose to decline, it's up for grabs
+> with whomever else wants to take it over, but you have first dibs.  
+> 
+> If you elect take it over, I will have my attorneys prepare an 
+> agreement transferring legal ownership to you.  I will retain M2FS
+> and the clustered versions, since I have a clients abroad who want this 
+> technology, and it does not utilitze any NetWare specific technologies.
+> I would also retain IP rights to NWFS to use future incarnations in 
+> products should I set up in another state. 
+> 
+> I do not want to see NWFS fall by the wayside and not get supported,
+> so I would really like it if you would be willing to take it over 
+> and get it 2.4 clean.  
+> 
+> Please advise,
+> 
+> Jeff
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

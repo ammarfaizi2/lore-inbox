@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262040AbSKMQgS>; Wed, 13 Nov 2002 11:36:18 -0500
+	id <S262129AbSKMQmz>; Wed, 13 Nov 2002 11:42:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262046AbSKMQgS>; Wed, 13 Nov 2002 11:36:18 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:61096 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262040AbSKMQgR>;
-	Wed, 13 Nov 2002 11:36:17 -0500
-Date: Wed, 13 Nov 2002 08:37:10 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: <vda@port.imtp.ilyichevsk.odessa.ua>, "David S. Miller" <davem@redhat.com>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       <linux-kernel@vger.kernel.org>,
-       Alexander Vlasenko <intrnl_edu@ilyichevsk.odessa.ua>
-Subject: Re: dmesg of 2.5.45 boot on NFS client
-In-Reply-To: <3DD28036.5010607@pobox.com>
-Message-ID: <Pine.LNX.4.33L2.0211130836430.31388-100000@dragon.pdx.osdl.net>
+	id <S262147AbSKMQmz>; Wed, 13 Nov 2002 11:42:55 -0500
+Received: from mons.uio.no ([129.240.130.14]:15754 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S262129AbSKMQmy>;
+	Wed, 13 Nov 2002 11:42:54 -0500
+To: root@chaos.analogic.com
+Cc: Chuck Lever <cel@citi.umich.edu>, Dan Kegel <dank@kegel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] new timeout behavior for RPC requests on TCP sockets
+References: <Pine.LNX.3.95.1021113113943.2196A-100000@chaos.analogic.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 13 Nov 2002 17:49:30 +0100
+In-Reply-To: <Pine.LNX.3.95.1021113113943.2196A-100000@chaos.analogic.com>
+Message-ID: <shsd6p9mn39.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Nov 2002, Jeff Garzik wrote:
+>>>>> " " == Richard B Johnson <root@chaos.analogic.com> writes:
 
-| Randy.Dunlap wrote:
-|
-| > On Wed, 13 Nov 2002, Jeff Garzik wrote:
-| >
-| > | Addressing only this specific issue, and not the larger $thread issue...
-| > |
-| > | Depends on what driver and version you are using.  It is preferred these
-| > | days to force the media using ethtool.
-| >
-| > That's news to me.  "preferred" by whom?  certainly not by real users ??
-| > It should just work.
-|
-|
-| You missed quoting the operation he was performing:  forcing the media
-| using mii-tool.  He was forcing the media type by hand.  It's impossible
-| for that to just-work.
-|
-| I wasn't talking about setting media in general...
+     > If the application "chooses to drop the request", the kernel is
+     > not required to fix that application. The RPC cannot retransmit
+     > if it has been shut-down or disconnected, which is about the
+     > only way the application could "choose to drop the request". So
+     > something doesn't smell right here.
 
-Thanks.  I misread your statement then.
+An NFS server is perfectly free to drop an RPC request if it doesn't
+have the necessary free resources to service it (i.e. if it is out of
+memory). If the client doesn't time out + retry, you lose data. Not a
+good idea...
 
--- 
-~Randy
-  "I read part of it all the way through." -- Samuel Goldwyn
-
+Cheers,
+  Trond

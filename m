@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbULNWsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbULNW6q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbULNWsr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 17:48:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbULNWqs
+	id S261742AbULNW6q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 17:58:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbULNW5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 17:46:48 -0500
-Received: from fw.osdl.org ([65.172.181.6]:43146 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261709AbULNWo4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 17:44:56 -0500
-Date: Tue, 14 Dec 2004 14:44:47 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ulrich Drepper <drepper@redhat.com>
-cc: Roland McGrath <roland@redhat.com>, Christoph Lameter <clameter@sgi.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/7] cpu-timers: high-resolution CPU clocks for POSIX
- clock_* syscalls
-In-Reply-To: <41BF6879.3090900@redhat.com>
-Message-ID: <Pine.LNX.4.58.0412141441080.3279@ppc970.osdl.org>
-References: <200412142150.iBELoJc0011582@magilla.sf.frob.com>
- <Pine.LNX.4.58.0412141410150.3279@ppc970.osdl.org> <41BF6879.3090900@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Dec 2004 17:57:14 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28167 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261737AbULNW43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 17:56:29 -0500
+Date: Tue, 14 Dec 2004 22:56:26 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Dale Farnsworth <dale@farnsworth.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/6] mv643xx_eth: Remove use of MV_SET_REG_BITS macro
+Message-ID: <20041214225626.A970@flint.arm.linux.org.uk>
+Mail-Followup-To: Dale Farnsworth <dale@farnsworth.org>,
+	linux-kernel@vger.kernel.org
+References: <20041213220949.GA19609@xyzzy> <20041214225150.GA21869@xyzzy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041214225150.GA21869@xyzzy>; from dale@farnsworth.org on Tue, Dec 14, 2004 at 03:51:50PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 14 Dec 2004, Ulrich Drepper wrote:
+On Tue, Dec 14, 2004 at 03:51:50PM -0700, Dale Farnsworth wrote:
+> Oops, I missed this in my first set of patches for the mv643xx_eth driver.
 > 
-> Indeed.  It's so much easier to grant additional rights at a later time 
-> than to take something away for whatever reasons.
+> This patch removes the need for the MV_SET_REG_BITS macro in the mv643xx_eth
+> driver.
+> 
+> Signed-off-by: Dale Farnsworth <dale@farnsworth.org>
 
-Yes.
+I don't have any interest in this ethernet driver - could you stop
+copying me please?
 
-> Globally accessible clocks would need to have the semantic carefully 
-> defined, SELinux hooks would have to be added etc.
+Thanks.
 
-More interestingly (where "interesting" is defined as "could be really 
-nasty") it's likely to interact very badly in cases where we have some 
-_physically_ local clocks. Ie we might have some situation where we do 
-some node-local thing for intra-node scheduling, with some other clock for 
-inter-node scheduling. Exposing such a clock to a process that isn't 
-actually using it could result in the node-local clock source suddenly 
-needing to be exposed outside the node.
-
-Think single-image clusters etc.
-
-So in general, it's better to try to keep things as local as possible, 
-even if it's not a visibility issue today. Some day you might be happy you 
-did..
-
-		Linus
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

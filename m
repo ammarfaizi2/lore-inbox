@@ -1,39 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291449AbSCAWWd>; Fri, 1 Mar 2002 17:22:33 -0500
+	id <S292846AbSCAW2N>; Fri, 1 Mar 2002 17:28:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293111AbSCAWWX>; Fri, 1 Mar 2002 17:22:23 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48388 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292846AbSCAWWL>;
-	Fri, 1 Mar 2002 17:22:11 -0500
-Message-ID: <3C7FFEBA.CBC44AA@zip.com.au>
-Date: Fri, 01 Mar 2002 14:20:42 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
-X-Accept-Language: en
+	id <S292879AbSCAW2E>; Fri, 1 Mar 2002 17:28:04 -0500
+Received: from ja.mac.ssi.bg ([212.95.166.194]:32004 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S292846AbSCAW17>;
+	Fri, 1 Mar 2002 17:27:59 -0500
+Date: Sat, 2 Mar 2002 00:27:40 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+X-X-Sender: ja@u.domain.uli
+To: Kain <kain@kain.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Andi Kleen <ak@suse.de>
+Subject: Re: OOPS: Multipath routing 2.4.17
+Message-ID: <Pine.LNX.4.44.0203012316120.1420-100000@u.domain.uli>
 MIME-Version: 1.0
-To: andrea_ferraris@libero.it
-CC: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: 2.4.18 OOPSes
-In-Reply-To: <200203010955.BAA00986@adam.yggdrasil.com>,
-		<200203010955.BAA00986@adam.yggdrasil.com> <02030122482308.12079@af>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Ferraris wrote:
-> 
-> The PC is a P II 200Mhz with 128 MB RAM and a Promise ATA/66
-> ...
-> Unable to handle kernel NULL pointer dereference at virtual address 00000800
-> ...
-> >>EIP; c012e9c4 <__remove_from_queues+14/30>   <=====
-> 
 
-__remove_from_queues expected a null pointer, or a valid one.  0x00000800 is
-neither.  It's a null pointer which has had a bit flip.
+	Hello,
 
-Most likely, the poor old pII-200 is wearing out.
+Kain wrote:
 
--
+> impossible 888
+> divide error: 0000
+
+> > > EIP; c024c5ea <fib_select_multipath+5a/a0>   <=====
+> Trace; c02232e8 <ip_route_output_slow+318/670>
+
+	There is no write locking in fib_select_multipath,
+combined with high rate of route resolutions and ... boom,
+fi->fib_power is 0:
+
+w = jiffies % fi->fib_power;
+
+	What about a different algorithm to apply weighted
+round robin (idea mostly from LVS), something like
+this code (entirely not tested) where fi->fib_power is not used
+and where fib_sync_up and fib_sync_down don't need to play
+with nh_power on nh_flags change:
+
+void fib_select_multipath(const struct rt_key *key, struct fib_result *res)
+{
+	struct fib_info *fi = res->fi;
+	int w = -1, sel = 0;
+
+	write_lock(&fib_info_lock);
+
+	repeat:
+
+	change_nexthops(fi) {
+		if (nh->nh_power > w && !(nh->nh_flags&RTNH_F_DEAD)) {
+			w = nh->nh_power;
+			sel = nhsel;
+		}
+	} endfor_nexthops(fi);
+	if (w > 0) {
+		fi->fib_nh[sel].nh_power--;
+		write_unlock(&fib_info_lock);
+		res->nh_sel = sel;
+		return;
+	}
+
+	if (!w) {
+		change_nexthops(fi) {
+			if (!(nh->nh_flags&RTNH_F_DEAD)) {
+				nh->nh_power = nh->nh_weight;
+			}
+		} endfor_nexthops(fi);
+		w = -1;
+		goto repeat;
+	}
+
+	write_unlock(&fib_info_lock);
+
+#if 1
+	printk(KERN_CRIT "impossible 888\n");
+#endif
+	return;
+}
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
+

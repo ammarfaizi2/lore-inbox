@@ -1,35 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293037AbSBVXPW>; Fri, 22 Feb 2002 18:15:22 -0500
+	id <S293038AbSBVXQR>; Fri, 22 Feb 2002 18:16:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293038AbSBVXPM>; Fri, 22 Feb 2002 18:15:12 -0500
-Received: from sushi.toad.net ([162.33.130.105]:48596 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S293037AbSBVXPB>;
-	Fri, 22 Feb 2002 18:15:01 -0500
-Subject: Re: 2.4.17: oops in kapm-idled?   (on IBM Thinkpad A30P [2653-66U])
-From: Thomas Hood <jdthood@mail.com>
-To: Benedikt Heinen <beh@icemark.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0202222133570.1183-100000@berenium.icemark.ch>
-In-Reply-To: <Pine.LNX.4.44.0202222133570.1183-100000@berenium.icemark.ch>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 22 Feb 2002 18:15:25 -0500
-Message-Id: <1014419727.3977.3.camel@thanatos>
-Mime-Version: 1.0
+	id <S293040AbSBVXQD>; Fri, 22 Feb 2002 18:16:03 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:56332 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S293038AbSBVXPp>;
+	Fri, 22 Feb 2002 18:15:45 -0500
+Message-Id: <200202222315.AAA06074@webserver.ithnet.com>
+Cc: "Benjamin LaHaise" <bcrl@redhat.com>, <alan@lxorguk.ukuu.org.uk>,
+        <egberts@yahoo.com>, <lkml@secureone.com.au>,
+        <linux-kernel@vger.kernel.org>,
+        "ITeX Tech Support" <techsupport@itexinc.com>
+Date: Sat, 23 Feb 2002 00:15:15 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+In-Reply-To: <E788BA1D236784409F3F7138F1EABFDDE4DF@iteusa-nt.itexinc.com>
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Dlink DSL PCI Card
+To: "Dave Rattay [ITeX]" <Dave.Rattay@itexinc.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+User-Agent: IMHO/0.97.1 (Webmail for Roxen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-02-22 at 15:43, Benedikt Heinen wrote: 
-> Apparently, that's where you're wrong... I tried removing some
-> modules, until I found the one causing the trouble:
-> 
-> 	snd-card-intel8x0
-> I guess it's time to check for newer version on that... :/
-
-ALSA device drivers have routines that save and restore 
-the state of sound chips across suspend & resume. 
-That's where I'd go a-hunting for bugs. 
-
-
+> Stephan,                                                            
+> [...]                                                               
+> Due to previous licensing                                           
+> agreements we cannot release our source code to anyone including our
+> direct customers and there is no way around that.  Sorry.           
+                                                                      
+Hello Dave,                                                           
+                                                                      
+first of all: thank you for your clear statement.                     
+Unfortunately your world and our (linux-) world do not match (in my   
+eyes). If you cannot provide either docs or source code chances will  
+be very high that your product  line (chips) will be disliked by a big
+percentage of linux using people. Most of them do not like w*ndows    
+because they cannot control what the system is doing, you are _never_ 
+sure what it does to your (personal) data and where it will be spread.
+If you - being a linux user - would be willing to use binary-only     
+drivers you are just about in the same situation - you lost control.  
+Your statement - for me - makes one thing absolutely clear: I will    
+never use your chips.                                                 
+                                                                      
+>  Now if you                                                         
+> have a request for a driver please let me know the kernel version   
+being                                                                 
+> used as well as the ADSL protocol that you have.  I will see what I 
+can                                                                   
+> do to get you a usable driver.                                      
+                                                                      
+I do not want a useable driver. I want to have full control over my   
+system where my personal data resides on. You deny this. I cannot     
+certify a customer system including your drivers either. Simply       
+because I cannot check out the code. This is why my customers will not
+buy your chips either.                                                
+In fact I would not even take them as free gift. Their use is a severe
+security issue.                                                       
+I have no doubts though that you might sell a lot of pieces in the    
+w*ndows market.                                                       
+                                                                      
+Regards,                                                              
+Stephan                                                               
+                                                                      
+                                                                      

@@ -1,66 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268564AbTGTVkF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 17:40:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268577AbTGTVkF
+	id S268626AbTGTVqi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 17:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268644AbTGTVqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 17:40:05 -0400
-Received: from mail.tlink.de ([217.9.16.16]:23823 "EHLO chewie.terralink.de")
-	by vger.kernel.org with ESMTP id S268564AbTGTVj7 (ORCPT
+	Sun, 20 Jul 2003 17:46:38 -0400
+Received: from main.gmane.org ([80.91.224.249]:39870 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S268626AbTGTVqg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 17:39:59 -0400
-Subject: Re: 2.6.0-test1-mm2 music skips
-From: Lukas Kolbe <lucky@knup.de>
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3F1B05D7.8060303@wmich.edu>
-References: <1058733270.1169.32.camel@tigris.chaoswg>
-	 <3F1B05D7.8060303@wmich.edu>
-Content-Type: text/plain
-Message-Id: <1058738207.17387.14.camel@tigris.chaoswg>
+	Sun, 20 Jul 2003 17:46:36 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?Leandro_Guimar=E3es_Faria_Corsetti_Dutra?= 
+	<lgcdutra@terra.com.br>
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+Date: Mon, 21 Jul 2003 00:00:57 +0200
+Organization: =?ISO-8859-1?Q?=20Fam=C3=ADlia?= Dutra
+Message-ID: <pan.2003.07.20.22.00.49.627117@terra.com.br>
+References: <E18aQ99-0006Uw-00@fencepost.gnu.org> <Pine.LNX.4.44.0301192021580.24967-100000@xanadu.home> <pan.2003.07.20.02.42.00.289327@terra.com.br> <20030720193053.GA4213@mcgroarty.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 20 Jul 2003 23:56:48 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Son, 2003-07-20 um 23.12 schrieb Ed Sweetman:
-> Too many times music skipping is blamed on the kernel.  This is not 
-> always the case.  Bad userspace programming can cause audio skipping. 
-[...]
+On Sun, 20 Jul 2003 14:30:53 -0500, Brian McGroarty wrote:
 
-I didn't want to 'blame the kernel' for the audio-skipping, I just
-followed Andrew Morton's call for feedback. One of three things I find
-annoying in 2.5/2.6 is the audio-skipping, as far as I remember it 'felt
-better' with the late 2.2 to middle 2.4 kernels on older hardware.
+> On Sun, Jul 20, 2003 at 04:42:00AM +0200, Leandro Guimar?es Faria Corsetti Dutra wrote:
+>> 
+>> 	He's not deciding, he's requesting.  There is a difference, and there
+>> must be a reason why so many people get so incensed at such a simple,
+>> rational, reasonable request.
+> 
+> The whole blowup over RMS requesting the GNU/Linux tag is that a lot
+> of folks think he's talking about the kernel, and not Linux
+> distributions.
 
-But I also have to say that interactivity (with heavy multitasking, many
-apps, massive window-moving etc. pp) on my desktop-system has improved
-very very much compared to 2.4. Though I don't have figures to back that
-:).
+	I doubt if it is so simple... there's the obvious personality
+crash, but I feel there's something more than just Larry piggybacking
+on free software and people feeling pressured by an ethical instance
+which makes their consciences hurt.
+
+	Regarding Larry, his position must he hard, though: he knows
+he's toast if someone does to BK what Linus did to SysV, especially
+given how much he alienated principled GNU believers.  Funny thing is
+that he was wiser ten years ago, when he proposed to free Solaris so
+as to get ahead of the free software game; now he just want to have
+his piece of cake and eat it too.  Obviously he's entitled to it under
+the current system of government-granted private monopolies on
+artificial scarcity, AKA copyrights; it is just disconcentingly
+incoherent he chooses free software as a showroom...
 
 
-> I'm not saying xmms is entirely at fault for the skips. But i've written 
-> other ogg decoders for zinf that skipped as well doing those things. 
-> Also, i moved to fluxbox as my window manager because other equally 
-> functional window managers caused major X lag during redraws, fluxbox 
-> does not.  Also, make sure you have dma enabled on your hdds, swap on a 
-> non-dma drive can easily crawl the system.  And by the way, my x is 
+> Even many folks "in the know" seem to miss this distinction: RMS
+> hasn't ever asked that the kernel be called GNU/Linux. He asks that
+> "Linux distributions," which are called "Linux" by the public at
+> large, carry the extra tag.
 
-Yay, hd's have dma enabled (udma5). And Metacity is indeed a problem, it
-is damn lagging behind most other window managers, but it's gnome2's
-default. 
+	I know one shouldn't presume ill faith when incompetence
+suffices... but these issues have been hashed to death, and still
+people seem to hate RMS even more than they love their own confort.
+Kinda like it was said of the Left she would be more effective if she
+loved the poors as much as she hated the rich.  Just here we're
+talking morals, not money.
 
-> In short, it's not always the kernel that's the problem, but in the 
-> implimentation the program uses for playing and  decoding audio. They 
-> may need to be redone since what they used to be able to get away with 
-> in older kernels doesn't work anymore now that it's more strict and fair 
->    and thus better at doing it's job.
+	Asbestos up.
 
-ACK.
 
 -- 
-bye
-  Lukas
+ _   Leandro Guimarães Faria Corsetti Dutra     +41 (21) 648 11 34
+/ \  http://br.geocities.com./lgcdutra/         +41 (78) 778 11 34
+\ /  Answer to the list, not to me directly!    +55 (11) 5686 2219
+/ \  Rate this if helpful: http://svcs.affero.net/rm.php?r=leandro
+
 

@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264841AbSJVRt0>; Tue, 22 Oct 2002 13:49:26 -0400
+	id <S264784AbSJVRp4>; Tue, 22 Oct 2002 13:45:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264845AbSJVRt0>; Tue, 22 Oct 2002 13:49:26 -0400
-Received: from main.gmane.org ([80.91.224.249]:1946 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S264841AbSJVRtZ>;
-	Tue, 22 Oct 2002 13:49:25 -0400
+	id <S264821AbSJVRpP>; Tue, 22 Oct 2002 13:45:15 -0400
+Received: from mercury.linuxguru.net ([209.173.6.49]:26245 "EHLO
+	comet.linuxguru.net") by vger.kernel.org with ESMTP
+	id <S264784AbSJVRnx>; Tue, 22 Oct 2002 13:43:53 -0400
 To: linux-kernel@vger.kernel.org
-X-Injected-Via-Gmane: http://gmane.org/
-Path: not-for-mail
-From: Nicholas Wourms <nwourms@netscape.net>
-Subject: Re: Linux 2.5.44-ac1
-Date: Tue, 22 Oct 2002 13:56:30 -0400
-Message-ID: <ap43co$uer$1@main.gmane.org>
-References: <200210221727.g9MHR6128999@devserv.devel.redhat.com>
-Reply-To: nwourms@netscape.net
-NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: main.gmane.org 1035309272 31195 130.127.121.177 (22 Oct 2002 17:54:32 GMT)
-X-Complaints-To: usenet@main.gmane.org
-NNTP-Posting-Date: Tue, 22 Oct 2002 17:54:32 +0000 (UTC)
-User-Agent: KNode/0.7.2
+Cc: reiser@namesys.com (Hans Reiser)
+Subject: Re: Listmaster request: Do not blacklist rms@gnu.org
+In-Reply-To: <3DB555D5.7090904@namesys.com>
+References: <20021021182737.A23371@infradead.org> <20021022014015.GB23958@Master.Wizards> <3DB4AEC1.1060906@pobox.com> <3DB4B455.921467D3@digeo.com> <20021021193131.G20688@work.bitmover.com> <E183sO7-0003td-00@comet.linuxguru.net> <3DB555D5.7090904@namesys.com>
+Date: Tue, 22 Oct 2002 13:50:01 -0400
+Message-Id: <E1843AH-0001D2-00@comet.linuxguru.net>
+From: James Blackwell <jblack@linuxguru.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+In lists.linux.kernel.development, you wrote:
+> James Blackwell wrote:
+> 
+>>Do you think Hans Reiser
+>>felt like you were doing the right thing when he had to change his
+>>timeline on Reiserfs so as to avoid competing with your project as long
+>>as possible? 
+>>
+>>  
+>>
+> I did not change my timeline. Though I was tempted to move version 
+> control up in the priority queue, it nonetheless will remain low until 
+> the right developer comes along, or other things that also need doing 
+> are moved out of that queue.
 
-[SNIP]
-> o     Fix dm includes                                 (me)
-> | I've not merged any of the DM updates yet
+I'm very sorry. I could have sworn you had said something along the
+lines of 'Some day I want to put version control into reiser, which
+could technically be considered a competitor to bitkeeper. I have a lot
+of other things to do with reiserfs as well so I'll do those first'. But
+when I went back through the list, I couldn't find it. 
 
-Would it be possible to provide the patch you used to merge them in the 
-first place?  Joe has since junked the ones on his webpage which you used, 
-so it would be helpful for those of us who might want to back it out and 
-try the newer updates.  Thanks in advance!
+The closest to that I could find was the following: 
 
-Cheers,
-Nicholas
+> reiser4 will not contain version control.  I don't know when version
+> control will go into ReiserFS.  I do think it should go in eventually
+> though, as it makes distributed filesystems more effective if there is
+> version control functionality.  We would do something that in no way
+> resembled BK.  We would do it after implementing the core distributed
+> tree algorithms.  Probably not going to happen in less than 3-5 years.
+> ...
+> There are so many features missing from ReiserFS, and I am not really
+> picky about what order they go in.....  With Reiser4 we finally have
 
+I must have gotten the issues involved with reiserfs confused with
+another project.
 
+Again, I'm sorry I got your position wrong.
+
+-- 
+GnuPG fingerprint AAE4 8C76 58DA 5902 761D  247A 8A55 DA73 0635 7400
+James Blackwell  --  Director http://www.linuxguru.net

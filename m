@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292857AbSCOQSC>; Fri, 15 Mar 2002 11:18:02 -0500
+	id <S292852AbSCOQRv>; Fri, 15 Mar 2002 11:17:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292858AbSCOQRv>; Fri, 15 Mar 2002 11:17:51 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:55006 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S292857AbSCOQRc>; Fri, 15 Mar 2002 11:17:32 -0500
-Date: Fri, 15 Mar 2002 17:17:13 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Larry McVoy <lm@work.bitmover.com>, David Woodhouse <dwmw2@infradead.org>,
-        Ben Greear <greearb@candelatech.com>, Larry McVoy <lm@bitmover.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4 and BitKeeper
-Message-ID: <20020315161712.GC3662@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Larry McVoy <lm@work.bitmover.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Ben Greear <greearb@candelatech.com>, Larry McVoy <lm@bitmover.com>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C90E994.2030702@candelatech.com> <Pine.LNX.4.21.0203140141450.4725-100000@freak.distro.conectiva> <3C904437.7080603@candelatech.com> <20020313224255.F9010@work.bitmover.com> <3C90E994.2030702@candelatech.com> <2865.1016190641@redhat.com> <20020315080408.D11940@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020315080408.D11940@work.bitmover.com>
-User-Agent: Mutt/1.3.25i
+	id <S292858AbSCOQRc>; Fri, 15 Mar 2002 11:17:32 -0500
+Received: from ns1.advfn.com ([212.161.99.144]:53010 "EHLO mail.advfn.com")
+	by vger.kernel.org with ESMTP id <S292852AbSCOQRW>;
+	Fri, 15 Mar 2002 11:17:22 -0500
+Message-Id: <200203151617.g2FGHKs28765@mail.advfn.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Kay <timk@advfn.com>
+Reply-To: timk@advfn.com
+Organization: Advfn.com
+To: Matt_Domsch@Dell.com
+Subject: Re: Advanced Programmable Interrupt Controller (APIC)?
+Date: Fri, 15 Mar 2002 16:18:58 +0000
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <71714C04806CD51193520090272892170452B462@ausxmrr502.us.dell.com>
+In-Reply-To: <71714C04806CD51193520090272892170452B462@ausxmrr502.us.dell.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 15, 2002 at 08:04:08AM -0800, Larry McVoy wrote:
+Matt,
+	I'll repeat this here too:
 
-> > Type 'make config'. Make is clever enough to get the Makefile from SCCS for 
-> > you. Add the missing dependencies to the Makefile so that make will fetch 
-> > stuff like scripts/Configure before trying to run it, etc. 
-> 
-> Has anyone done this and made it work?  It would save a lot of disk space
-> and performance if someone were to so.
 
-IIRC, make *config should be doable, but make dep should require quite
-a bit of work (scripts/mkdep.c).
+IO APIC - APIC_IO: Testing 8254 interrupt delivery
+APIC_IO: Broken MP table detected: 8254 is not connected to IOAPIC #0 intpin 
+2 
+APIC_IO: routing 8254 via 8259 and IOAPIC #0 intpin 0 
 
-Stelian.
+The above is a diagnostic from a FreeBSD box bootup, this would seem to 
+suggest that the motherboard rather than Linux is at fault....
+
+Tim
+
+On Friday 15 Mar 2002 16:06, Matt_Domsch@Dell.com wrote:
+> > Now I've
+> > also heard that DELL does not properly setup the APIC chip in
+> > the bios because MS os's don't use it. Have no idea if this
+> > is true or not.
+>
+> To the best of my knowledge, BIOS and Linux work together to set up the
+> APICs properly on the PowerEdge 6400 (and all our other servers too).  If
+> someone has proof that we don't, and what should be done instead, please
+> let me know.
+>
+> Thanks,
+> Matt
+
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+----------------
+Tim Kay
+systems administrator
+Advfn.com Plc - http://www.advfn.com/
+timk@advfn.com
+Tel: 020 7070 0941
+Fax: 020 7070 0959

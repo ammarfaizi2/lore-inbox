@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266279AbUALVQo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 16:16:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUALVQn
+	id S266239AbUALU7o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 15:59:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266235AbUALU7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 16:16:43 -0500
-Received: from 204.Red-213-96-224.pooles.rima-tde.net ([213.96.224.204]:18438
-	"EHLO betawl.net") by vger.kernel.org with ESMTP id S266279AbUALVOr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 16:14:47 -0500
-Date: Mon, 12 Jan 2004 22:14:44 +0100
-From: Santiago Garcia Mantinan <manty@manty.net>
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: Takashi Iwai <tiwai@suse.de>, linux-kernel@vger.kernel.org,
-       Adam Belay <ambx1@neo.rr.com>
-Subject: Re: [PATCH] Re: ALSA in 2.6 failing to find the OPL chip of the sb cards
-Message-ID: <20040112211443.GA1574@man.manty.net>
-References: <20040107212916.GA978@man.manty.net> <s5hy8sixsor.wl@alsa2.suse.de> <20040109171715.GA933@man.manty.net> <s5hn08xgh06.wl@alsa2.suse.de> <20040109201423.GA1677@man.manty.net> <3FFFA8C3.6040609@keyaccess.nl> <4000E030.2020500@keyaccess.nl>
+	Mon, 12 Jan 2004 15:59:21 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:23190 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S266239AbUALU7L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 15:59:11 -0500
+Date: Wed, 7 Jan 2004 10:57:44 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, Daniel Jacobowitz <dan@debian.org>,
+       Andries Brouwer <aebr@win.tue.nl>, Rob Love <rml@ximian.com>,
+       rob@landley.net, Pascal Schmidt <der.eremit@email.de>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040107095743.GA467@openzaurus.ucw.cz>
+References: <20040104034934.A3669@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031856130.2162@home.osdl.org> <20040104142111.A11279@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org> <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105035037.GD4176@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0401041954010.2162@home.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4000E030.2020500@keyaccess.nl>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <Pine.LNX.4.58.0401041954010.2162@home.osdl.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The attached patch works for me:
+Hi!
 
-Yes, your patch made my sb16pnp fully work again.
+> If nothing else, things like SATA will end up meaning that the device you 
+> were used to seeign as /dev/hdc will suddenly show up as /dev/scd0 
+> instead. Just because you changed the cabling while you upgraded to a 
 
-Thanks!
+I do not see easy solution for cdroms... UUID is not going to work there...
+				Pavel
 
-Regards...
--- 
-Manty/BestiaTester -> http://manty.net

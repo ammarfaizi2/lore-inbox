@@ -1,164 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285633AbRLGWzW>; Fri, 7 Dec 2001 17:55:22 -0500
+	id <S285644AbRLGW4w>; Fri, 7 Dec 2001 17:56:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285635AbRLGWzN>; Fri, 7 Dec 2001 17:55:13 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:25104 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S285633AbRLGWzA>; Fri, 7 Dec 2001 17:55:00 -0500
-Date: Fri, 7 Dec 2001 19:38:23 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: Linux 2.4.17-pre6
-Message-ID: <Pine.LNX.4.21.0112071935050.22884-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285639AbRLGW4n>; Fri, 7 Dec 2001 17:56:43 -0500
+Received: from adsl-64-168-153-221.dsl.snfc21.pacbell.net ([64.168.153.221]:42640
+	"EHLO unifiedcomputing.com") by vger.kernel.org with ESMTP
+	id <S285635AbRLGW4b>; Fri, 7 Dec 2001 17:56:31 -0500
+Message-Id: <4.2.2.20011207142839.00b48fe8@slither>
+X-Mailer: QUALCOMM Windows Eudora Pro Version 4.2.2 
+Date: Fri, 07 Dec 2001 14:47:22 -0800
+To: "Stephen C. Tweedie" <sct@redhat.com>
+From: "S. Parker" <linux@sparker.net>
+Subject: Re: [PATCH] VM system in 2.4.16 doesn't try hard enough for
+  user memory...
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20011206124830.C2029@redhat.com>
+In-Reply-To: <4.2.2.20011205174951.00ab0e20@slither>
+ <4.2.2.20011205174951.00ab0e20@slither>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Stephen,
 
-Hi, 
+At 04:48 AM 12/6/2001 , Stephen C. Tweedie wrote:
+>Yes, over-commit protection is far from perfect.  However, it's a
+>difficult problem to get right.
 
-Some critical stuff this time: Notably the multithread coredump deadlock
-fix and the copy_user_highpage fix for some architectures...
-
-pre6:
-
-- ISDN fixes					(Kai Germaschewski)
-- Eicon driver updates				(Kai Germaschewski)
-- ymfpci update					(Pete Zaitcev)
-- Fix multithread coredump deadlock		(Manfred Spraul)
-- Support /dev/kmem access to vmalloc space	(Marc Boucher)
-- ext3 fixes/enhancements			(Andrew Morton)	
-- Add IT8172G driver to Config.in/Makefile	(Giacomo Catenazzi)
-- Configure.help update				(Eric S. Raymond)
-- Create __devexit_p() function and use that on 
-  drivers which need it to make it possible to 
-  use newer binutils				(Keith Owens) 
-- Make PCMCIA compile without PCI support	(Paul Mackerras)
-- Use copy_user_highpage instead copy_highpage
-  on COW path.					(David S. Miller)
-- Cacheline align some more performance
-  critical spinlocks				(Anton Blanchard)
-- sonypi driver update				(Michael C.B. Ashley/Bob Donnelly)
-- direct render for some SiS cards		(Torsten Duwe/Alan Cox)
-- full handling of the NFSv3 'jukebox' feature  (Trond Myklebust)
-- NFS performance improvements			(Trond Myklebust)
-- More parport fixes				(Tim Waugh)
-- Fix lots of core NCR5380 bugs			(Alan Cox)
-- NCR5380/PAS driver update			(Alan Cox)
-- Add aacraid to the SCSI list			(Alan Cox)
-- fdomain driver fixes				(Alan Cox)
+Um, at what % solution?  As long as the goal isn't that you under-commit
+by more than a small percentage of pages, IMHO, it's an acceptable solution.
 
 
-pre5:
+> > Also attached is my proposed fix for this problem.  It has the following
+> > changes:
+> >
+> > 1.  Do a better job estimating how much VM is available
+> >          vm_enough_memory() was changed to take the sum of all free RAM
+> >          and all free swap, subtract up to 1/8th of physical RAM (but not
+> >          more than 16MB) as a reserve for system buffers to prevent 
+> deadlock,
+> >          and compare this to the request.  If the VM request is <= the
+> >          available free stuff, then we're set.
+>
+>That's still just a guestimate: do you have any hard data to back
+>up the magic numbers here?
 
-- 8139too fixes					(Andreas Dilger)
-- sym53c8xx_2 update				(Gerard Roudier)
-- loopback deadlock bugfix			(Jan Kara)
-- Yet another devfs update			(Richard Gooch)	
-- Enable K7 SSE					(John Clemens)
-- Make grab_cache_page return NULL instead 
-  ERR_PTR: callers expect NULL on failure	(Christoph Hellwig)
-- Make ide-{disk-floppy} compile without 
-  PROCFS support				(Robert Love)
-- Another ymfpci update				(Pete Zaitcev)
-- indent NCR5380.{c,h}, g_NCR5380.{c,h}, plus 
-  NCR5380 fix					(Alan Cox)
-- SPARC32/64 update				(David S. Miller)
-- Fix atyfb warnings				(David S. Miller)
-- Make bootmem init code correctly align 
-  bootmem data					(David S. Miller)
-- Networking updates				(David S. Miller)
-- Fix scanning luns > 7 on SCSI-3 devices 	(Michael Clark)
-- Add sparse lun hint for Chaparral G8324 
-	Fibre-SCSI controller			(Michael Clark)
-- Really apply sg changes			(me)
-- Parport updates				(Tim Waugh)
-- ReiserFS updates				(Vladimir V. Saveliev)
-- Make AGP code scan all kinds of devices:
-  they are not always video ones		(Alan Cox)
-- EXPORT_NO_SYMBOLS in floppy.c			(Alan Cox)
-- Pentium IV Hyperthreading support		(Alan Cox)
+A guestimate of what exactly?  What I did was, using top, verify that
+most of the available VM got put to use.  (95%+ on my systems.)
+Would hard data such as what
+percentage of potential VM resources didn't get used impress you?
 
-pre4:
+While you're right that I haven't done a concrete, deductive, and provably
+correct sort of thing, I've done something which seems to me moderately
+intuitive and empirically effective.  I recognize that some amount of memory
+resources must remain available for the operating system to page in/out, and
+otherwise do I/O with, and refuse to commit that to user processes.
 
-- Added missing tcp_diag.c and tcp_diag.h	(me)
+Admittedly better solutions are possible, and indeed although I haven't
+looked in detail at the code in Eduardo Horvath's March 2000 patch prop
+[Really disabling overcommit.], I'd certainly agree that a patch with
+an approach like that would be technically superior.  Is such a patch
+being seriously considered for inclusion in 2.4?
 
-pre3:
+For me this problem is a serious one.  It's trivial to hit in real life,
+and get your process killed.  And I can't have that.  The OS needs to err
+on the conservative side, or it's not a usable system for me.
 
-- Enable ppro errata workaround                 (Dave Jones)
-- Update tmpfs documentation                    (Christoph Rohland)
-- Fritz!PCIv2 ISDN card support                 (Kai Germaschewski)
-- Really apply ymfpci changes                   (Pete Zaitcev)
-- USB update                                    (Greg KH)
-- Adds detection of more eepro100 cards         (Troy A. Griffitts)
-- Make ftruncate64() compliant with SuS         (Andrew Morton)
-- ATI64 fb driver update                        (Geert Uytterhoeven)
-- Coda fixes                                    (Jan Harkes)
-- devfs update                                  (Richard Gooch)
-- Fix ad1848 breakage in -pre2                  (Alan Cox)
-- Network updates                               (David S. Miller)
-- Add cramfs locking                            (Christoph Hellwig)
-- Move locking of page_table_lock on expand_stack
-  before accessing any vma field                (Manfred Spraul)
-- Make time monotonous with gettimeofday        (Andi Kleen)
-- Add MODULE_LICENSE(GPL) to ide-tape.c         (Mikael Pettersson)
-- Minor cs46xx ioctl fix                        (Thomas Woller)
 
-pre2:
+> > 2.  Be willing to sleep for memory chunks larger than 8 pages.
+> >          __alloc_pages had an uncommented piece of code, that I couldn't
+> >          see any reason to have.  It doesn't matter how big the piece of
+> >          memory is--if we're low, and it's a sleepable request, we should
+> >          sleep.  Now it does.  (Can anyone explain to me why this coded was
+> >          added originally??)
+>
+>That's totally separate: *all* user VM allocations are done with
+>order-0 allocations, so this can't have any effect on VM overcommit.
 
-- Remove userland header from bonding driver	(David S. Miller)
-- Create a SLAB for page tables on i386		(Christoph Hellwig)
-- Unregister devices at shaper unload time	(David S. Miller)
-- Remove several unused variables from various
-  places in the kernel				(David S. Miller)
-- Fix slab code to not blindly trust cc_data():
-  it may be not valid on some platforms		(David S. Miller)
-- Fix RTC driver bug				(David S. Miller)
-- SPARC 32/64 update				(David S. Miller)
-- W9966 V4L driver update			(Jakob Jemi)
-- ad1848 driver fixes				(Alan Cox/Daniel T. Cobra)
-- PCMCIA update					(David Hinds)
-- Fix PCMCIA problem with multiple PCI busses 	(Paul Mackerras)
-- Correctly free per-process signal struct	(Dave McCracken)
-- IA64 PAL/signal headers cleanup		(Nathan Myers)
-- ymfpci driver cleanup 			(Pete Zaitcev)
-- Change NLS "licenses" to be "GPL/BSD" instead 
-  only BSD.					(Robert Love)
-- Fix serial module use count			(Russell King)
-- Update sg to 3.1.22				(Douglas Gilbert)
-- ieee1394 update				(Ben Collins)
-- ReiserFS fixes				(Nikita Danilov)
-- Update ACPI documentantion			(Patrick Mochel)
-- Smarter atime update				(Andrew Morton)
-- Correctly mark ext2 sb as dirty and sync it	(Andrew Morton) 
-- IrDA update					(Jean Tourrilhes)
-- Count locked buffers at
-  balance_dirty_state(): Helps interactivity under
-  heavy IO workloads				(Andrew Morton)
-- USB update					(Greg KH)
-- ide-scsi locking fix                          (Christoph Hellwig)
+Well, I'll go back and check where they were coming from, but I *was* seeing
+12-page allocation requests when running the test program I posted, on an
+otherwise idle system.
 
-pre1:
+But I still think my change, and question remain valid:  These are not handling
+GFP_ATOMIC requests, so the kernel is allowed to sleep, why doesn't 
+it?  Getting
+memory is always better than being refused, it seems to me.  This code which
+makes it not sleep was recently touched (it had been checking for order > 1,
+now it's order > 3?, if my memory is correct.)  My question is:  why was this
+done, and why keep it at all?
 
-- Change USB maintainer 			(Greg Kroah-Hartman)
-- Speeling fix for rd.c				(From Ralf Baechle's tree)
-- Updated URL for bigphysmem patch in v4l docs  (Adrian Bunk)
-- Add buggy 440GX to broken pirq blacklist 	(Arjan Van de Ven)
-- Add new entry to Sound blaster ISAPNP list	(Arjan Van de Ven)
-- Remove crap character from Configure.help	(Niels Kristian Bech Jensen)
-- Backout erroneous change to lookup_exec_domain (Christoph Hellwig)
-- Update osst sound driver to 1.65		(Willem Riede)
-- Fix i810 sound driver problems		(Andris Pavenis)
-- Add AF_LLC define in network headers		(Arnaldo Carvalho de Melo)
-- block_size cleanup on some SCSI drivers	(Erik Andersen)
-- Added missing MODULE_LICENSE("GPL") in some   (Andreas Krennmair)
-  modules
-- Add ->show_options() to super_ops and 
-  implement NFS method				(Alexander Viro)
-- Updated i8k driver				(Massimo Dal Zoto)
-- devfs update  				(Richard Gooch)
 
+>Ultimately, your patch still doesn't protect against overcommit: if
+>you run two large, lazy memory using applications in parallel, you'll
+>still get each of them being told there's enough VM left at the time
+>of sbrk/mmap, and they will both later on find out at page fault time
+>that there's not enough memory to go round.
+
+Interestingly, even if I run many of my test program in parallel, it does
+*not* over-commit.  (At least, it certainly never calls on the OOM killer.
+Perhaps it is over-commiting on some level, but if it is, I don't notice it...)
+
+Do you have a test case which causes over-commit (and therefore OOM kill)
+against my patch?
+
+Thanks,
+
+         ~sparker
 

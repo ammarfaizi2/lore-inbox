@@ -1,96 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262227AbTEHXLd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 19:11:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbTEHXLd
+	id S262235AbTEHXO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 19:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbTEHXO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 19:11:33 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:15016 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S262227AbTEHXLb (ORCPT
+	Thu, 8 May 2003 19:14:27 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:51332 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262235AbTEHXO0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 19:11:31 -0400
-Date: Fri, 9 May 2003 01:22:26 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "David S. Miller" <davem@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
-Message-ID: <20030508232226.GA156@elf.ucw.cz>
-References: <20030507104008$12ba@gated-at.bofh.it> <1052323484.9817.14.camel@rth.ninka.net> <20030508203313.GA2787@elf.ucw.cz> <200305090048.05081.arnd@arndb.de>
+	Thu, 8 May 2003 19:14:26 -0400
+Date: Thu, 8 May 2003 16:23:41 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: jt@hpl.hp.com, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
+       jgarzik@pobox.com
+Subject: Re: The magical mystical changing ethernet interface order
+Message-Id: <20030508162341.555a18bf.rddunlap@osdl.org>
+In-Reply-To: <1052430385.13567.17.camel@dhcp22.swansea.linux.org.uk>
+References: <20030508193245.GA26721@bougret.hpl.hp.com>
+	<1052430385.13567.17.camel@dhcp22.swansea.linux.org.uk>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305090048.05081.arnd@arndb.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 08 May 2003 22:46:26 +0100 Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-> > > BTW, need to extend this to netdev->do_ioctl as well for the
-> > > handling of SIOCDEVPRIVATE based stuff.  Oh goody, we can finally
-> > > fix up that crap :))))
-> >
-> > There's a *lot* of structs that contain *ioctl:
-> 
-> > atmdev.h:       int (*ioctl)(struct atm_dev *dev,unsigned int cmd,void *arg);
-> > atmdev.h:       int (*ioctl)(struct atm_dev *dev,unsigned int cmd,void *arg);
-> > fs.h:   int (*ioctl) (struct inode *, struct file *, unsigned, unsigned long);
-> > fs.h:   int (*ioctl) (struct inode *, struct file *, unsigned int, unsigned long); 
-> > hdlc.h: int (*ioctl)(struct net_device *dev, struct ifreq *ifr, int cmd); 
-> > ...
-> 
-> There are even some more that your grep did not catch. However, only 
-> few of them actually need to be changed if we add ->compat_ioctl(). 
+| On Iau, 2003-05-08 at 20:32, Jean Tourrilhes wrote:
+| > 	My belief is that configuration scripts should be specified in
+| > term of MAC address (or subset) and not in term of device name. Just
+| > like the Pcmcia scripts are doing it.
+| > 	And let's go the extra mile : ifconfig should accept a MAC
+| > address as the argument instead of a device name. And in the long
+| > term, just get rid of device name from the user view.
+| 
+| Current Red Hat supports naming interfaces by their mac address. That
+| keeps most people happy except some sparc and embedded users who have
+| one mac per host not per card (and yes that *is* allowed by the
+| 802.x spec)
 
-Having few structs with ->ioctl() and few with both ->ioctl() and
-->compat_ioctl() seems pretty ugly to me...
+Yep, found it in IEEE Std 802-2001.  It's just not the recommended
+method for device address assignment.
 
-> For those subsystems that have a clearly defined set of ioctls that 
-> are implemented by the specific drivers, the compatibility code can
-> be put in a higher level ioctl handler, e.g. atm_ioctl() instead of
-> each of the atm drivers.
-
-If it is clearly defined, it should not be an ioctl() in the first
-place. Yep, you are right ioctl is probably abused for that at few
-points... And finding out where it ->compat_ioctl() is going to be
-"interesting".
-
-> Finding out exactly which interfaces need to be extended can be done
-> in the process.
-
-> > What about this one: redefine it to (*ioctl)( ...., unsigned *long*,
-> > unsinged long). That means we can add
-> >
-> > #define IOCTL_COMPAT 0x1 0000 0000
-> 
-> I had the same idea before but in addition to the problem that davem
-> mentioned, this would require changing every single ioctl handler
-> in the kernel and in third party drivers to use 'long' numbers.
-
-Oops; yep, that's a showstopper.
-
-> Not really something we want to do during the current freeze.
-> 
-> The three options that currently make sense to me are:
-> 
-> a) keep using register_ioctl32_conversion() for everything
-
-I believe this makes sense: its too close to 2.6 to do anything else.
-
-> b) add a compat_task() function that handlers may use to decide
->    if they should use the compat data structures, list those ioctls
->    as COMPATIBLE_IOCTL()
-
-Unfortunately missing compat handler silently does the wrong thing in
-this case.
-
-> c) add ->compat_ioctl() to some interfaces, with HANDLE_IOCTL() as
->    fallback
-
-Seems like too much rewriting to me...
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+--
+~Randy

@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262353AbUBYBqP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 20:46:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbUBYBnN
+	id S262565AbUBYBuI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 20:50:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbUBYBmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 20:43:13 -0500
-Received: from gate.crashing.org ([63.228.1.57]:63156 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262359AbUBYBgZ (ORCPT
+	Tue, 24 Feb 2004 20:42:39 -0500
+Received: from fw.osdl.org ([65.172.181.6]:19651 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262596AbUBYBmC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 20:36:25 -0500
-Subject: Re: [Linux-fbdev-devel] fbdv/fbcon pending problems
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Otto Solares <solca@guug.org>, Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0402250118210.24952-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0402250118210.24952-100000@phoenix.infradead.org>
-Content-Type: text/plain
-Message-Id: <1077672591.978.49.camel@gaston>
+	Tue, 24 Feb 2004 20:42:02 -0500
+Date: Tue, 24 Feb 2004 17:43:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: [PATCH 2.6.3-mm3] serialize_writeback_fdatawait patch
+Message-Id: <20040224174354.517b1d23.akpm@osdl.org>
+In-Reply-To: <1077671733.1956.247.camel@ibm-c.pdx.osdl.net>
+References: <20040222172200.1d6bdfae.akpm@osdl.org>
+	<1077671733.1956.247.camel@ibm-c.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 25 Feb 2004 12:29:52 +1100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-25 at 12:21, James Simmons wrote:
-> > Sure, hopefully fbdev drivers became more 'intelligent', with just a
-> > 
-> > echo "1024x768x16-75" > /sys/class/fbdev/0/geometry
-> > 
-> > they will compute internally the timings or get it from EDID and
-> > glad the user with something correct for the hardware.
-> > 
-> > cat /sys/class/fbdev/0/modes
-> > 
-> > will give you the modes supported by the card.
+Daniel McNeil <daniel@osdl.org> wrote:
+>
+> This patch moves the serializing of writebacks up one level to before
+> where the dirty_pages are moved to the io_pages list.  This prevents
+> writebacks from missing any pages that are moved back to the
+> dirty list by an SYNC_NONE writeback.  I have not seen this race in
+> testing -- just by looking at the code.  It also skips the serialization
+> for blockdevs.
 > 
-> Yes.
+> Also this patch changes filemap_fdatawrite() to leave the page on the
+> locked_pages list until the i/o has finished.  This prevents
+> parallel filemap_fdatawait()s from missing a page that should be
+> waited on.  I have not seen this in testing, either.
 
-Note that "the modes supported by the card" means nothing.
+hm, OK.  I've converted all the down_read_trylock() things into a sinple
+down_read(), to address the pdflush-busywait problem which Hugh identified.
 
-They depend on something fundamentally dynamic, which is what is
-connected to what output, mixed with some card-spcific limitations
-(like bandwidth limitations when using 2 very big monitors, vram
-limitations, etc...)
+This does mean that pdflush can get blocked by ongoing sync activity but
+that's probably insignificant and we have per-spindle pdflush collision
+avoidance which will help a bit.
 
-You can not really know a-priori what modes will be available for
-sure. You can provide a list of modes that are considered as valid
-for a given output, but the whole mode setting scheme cannot be
-anything else but non-deterministic. You setup a global configuration,
-send it down the driver, and obtain a new configuration which may or
-may not be what you asked for.
-
-I'm trying to address the API issues as part of the userland library
-I'm talking about in the other email. The actual interface to the
-kernel driver should ultimately be hidden, and eventually private
-between card-specific kernel driver and card-specific module in
-the userland API.
-
-Ben.
-
+Call me lazy, but could you please work out the ranking of wb_rwsem with
+respect to the other VFS locks, update the locking documentation in
+mm/filemap.c and make sure that we're actually adhering to it?  Thanks.
 

@@ -1,70 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317957AbSFNQzv>; Fri, 14 Jun 2002 12:55:51 -0400
+	id <S310190AbSFNRKA>; Fri, 14 Jun 2002 13:10:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317958AbSFNQzu>; Fri, 14 Jun 2002 12:55:50 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:2450 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S317957AbSFNQzt>; Fri, 14 Jun 2002 12:55:49 -0400
-Date: Fri, 14 Jun 2002 10:55:47 -0600
-Message-Id: <200206141655.g5EGtlT01389@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Tigran Aivazian <tigran@aivazian.name>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [VERY OFFTOPIC] (was VIRUS MAKER !
-In-Reply-To: <Pine.LNX.4.33.0206141004150.2127-100000@einstein.homenet>
+	id <S310206AbSFNRJz>; Fri, 14 Jun 2002 13:09:55 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:12460 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S310190AbSFNRJw>;
+	Fri, 14 Jun 2002 13:09:52 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 14 Jun 2002 19:09:40 +0200 (MEST)
+Message-Id: <UTC200206141709.g5EH9eG29898.aeb@smtp.cwi.nl>
+To: axboe@suse.de, dalecki@evision-ventures.com
+Subject: Re: [PATCH] 2.5.21 IDE 91
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian writes:
-> here is an opportunity to expose a sick muslim mind from Iraq to the
-> world, so why not do it... ah, I will press ^X to send and see what
-> happens :)
+> Frankly, _I'm_ too scared to run 2.5 IDE currently.
 
-Sure, you can argue that this virus maker "idea" is sick. However, at
-the very least, it's completely uninteresting in this forum. Yes, I
-know you marked it as off-topic. Better not to post it in the first
-place.
+Backups, that is what you need. Or a scratch machine.
 
-But of course the real reason you felt compelled to post this is as
-"evidence" of the inferiority/sickness of Islam compared to your own
-religion, Christianity. You demonstrated a lack of tolerance. A good
-Christian is supposed to show love and tolerance, regardless of
-whether you agree with someone's views, ideas or lifestyle. It doesn't
-look like you measure up. An issue for you to resolve with your Lord.
+This is what vanilla 2.5.21 can do to your filesystem
+(after a reboot and a e2fsck -a):
 
-You also demonstrated a lack of clear thinking. Every religion has
-it's share of extremists and "sick" minds, and Christianity is no
-exception. You seem to have missed that minor detail. I'm sure that if
-you received that message from a Christian, you *would not* have
-bothered posting the message here, and certainly would not have said:
+% ls /lost+found
+#10416
+#104719
+#104724
+#10537
+#10540
+#10547
+#10548
+#10549
+#10550
+#10551
+#106768
+#108545
+#108550
+#108576
+...
+(thousands and thousands of files - not lost, only their
+names suffered a bit...)
 
-"here is an opportunity to expose a sick christian mind from America
-to the world, so why not do it..."
+But, to be fair, only a small part of the damage is due
+to the kernel. Afterwards, e2fsck made things much worse.
 
-because that would be embarrasing to your religion. So you're also a
-hypocrite. Think how many Muslims are embarrased by those who share
-their religion but have taken it to extremes.
+Andries
 
-> This reminds me of one thing a friend who attended English course in
-> some college told me. The students from Iraq, when asked "what is
-> your name?", "what is your mother's name?", "what is your
-> occupation?" only took a deep breath and shouted with all their
-> might "Saddam Hussein!!!"...
 
-And this is relevant how? Oh, of course. More "evidence" of the
-sickness of Islam. I expect you felt superior, but really you should
-feel ashamed.
-
-Jesus didn't say "love thy Christian neighbour". He said "love thy
-neighbour". And he said that for a *reason*. Time for you to re-learn
-the faith you claim to have.
-
-BTW: my response is not an invitation to a long, tedious discussion
-laced with "clarifications", back-pedalling and self-justification.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+(Vanilla 2.5.21 does not compile, you say?
+OK, 2.5.21 together with the addition of the #include lines
+that make it compile.)

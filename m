@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266595AbUH0Qyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266616AbUH0Q6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266595AbUH0Qyg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 12:54:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUH0Qyg
+	id S266616AbUH0Q6u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 12:58:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266622AbUH0Q6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 12:54:36 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:42429 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266595AbUH0Qyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 12:54:31 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P9
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Scott Wood <scott@timesys.com>, manas.saksena@timesys.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1093556379.5678.109.camel@krustophenia.net>
-References: <20040823221816.GA31671@yoda.timesys>
-	 <20040824061459.GA29630@elte.hu>
-	 <1093556379.5678.109.camel@krustophenia.net>
+	Fri, 27 Aug 2004 12:58:50 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:39563 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S266616AbUH0Q6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 12:58:48 -0400
+Subject: Re: Summarizing the PWC driver questions/answers
+From: David Woodhouse <dwmw2@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20040827162613.GB32244@kroah.com>
+References: <20040827162613.GB32244@kroah.com>
 Content-Type: text/plain
-Message-Id: <1093625672.837.25.camel@krustophenia.net>
+Message-Id: <1093625925.14552.16180.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 27 Aug 2004 12:54:32 -0400
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Fri, 27 Aug 2004 17:58:46 +0100
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-26 at 17:39, Lee Revell wrote:
-> On Tue, 2004-08-24 at 02:14, Ingo Molnar wrote:
-> 
-> >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P9
-> > 
-> 
-> Hmm, it seems that those strange ~1ms latencies are back.  This was
-> triggered by mounting an NTFS volume:
-> 
-> http://krustophenia.net/testresults.php?dataset=2.6.8.1-P9#/var/www/2.6.8.1-P9/trace5.txt
-> 
+On Fri, 2004-08-27 at 09:26 -0700, Greg KH wrote:
+> Q: But you took away my freedom!  Isn't Linux about freedom?
 
-I think vger was messed up yesterday, as this did not get through the
-first time I sent it, and I did not get any messages from the list for
-4-5 hours last night.
+The GPL provides is a very _specific_ kind of freedom. It has its own
+restrictions -- in many ways it's less free than if we were to just
+release our code to the public domain, or under a BSD-style licence.
 
-I am seeing large latencies (600-2000 usec) latencies in
-dcache_readdir.  This started when the machine became a Samba server and
-the dcache presumably got large.  Traces are at the above url (8 and 9 I
-believe).  I think this patch fixes it.
+That is intentional.
 
---- fs/libfs.c~	2004-08-14 06:54:47.000000000 -0400
-+++ fs/libfs.c	2004-08-27 00:44:17.000000000 -0400
-@@ -140,6 +140,7 @@
- 			}
- 			for (p=q->next; p != &dentry->d_subdirs; p=p->next) {
- 				struct dentry *next;
-+				voluntary_resched_lock(&dcache_lock);
- 				next = list_entry(p, struct dentry, d_child);
- 				if (d_unhashed(next) || !next->d_inode)
- 					continue;
+> Q: You are keeping companies from wanting to write binary drivers for
+>    Linux.
 
+Again, that is intentional. People are free to go use BSD if the GPL is
+not compatible with their desires. Or Windows, perhaps.
 
-Lee
+People seem to be whining that Linux is released under the GPL instead
+of a BSD licence. Perhaps the users concerned should be gently
+encouraged to go elsewhere?
+
+Linus was _joking_ when he said 'world domination'.
+
+-- 
+dwmw2
 

@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316739AbSERBXx>; Fri, 17 May 2002 21:23:53 -0400
+	id <S316742AbSERBeA>; Fri, 17 May 2002 21:34:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316742AbSERBXw>; Fri, 17 May 2002 21:23:52 -0400
-Received: from slip-202-135-75-205.ca.au.prserv.net ([202.135.75.205]:48265
-	"EHLO wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S316739AbSERBXw>; Fri, 17 May 2002 21:23:52 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: AUDIT: copy_from_user is a deathtrap. 
-In-Reply-To: Your message of "Fri, 17 May 2002 15:52:20 +0100."
-             <E178j5g-0006en-00@the-village.bc.nu> 
-Date: Sat, 18 May 2002 11:26:48 +1000
-Message-Id: <E178t00-0006e2-00@wagner.rustcorp.com.au>
+	id <S316743AbSERBd7>; Fri, 17 May 2002 21:33:59 -0400
+Received: from ns.suse.de ([213.95.15.193]:58126 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S316742AbSERBd7>;
+	Fri, 17 May 2002 21:33:59 -0400
+Date: Sat, 18 May 2002 03:33:58 +0200
+From: Dave Jones <davej@suse.de>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
+Message-ID: <20020518033358.A15417@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Andrea Arcangeli <andrea@suse.de>, Keith Owens <kaos@ocs.com.au>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.44.0205030131470.11340-100000@epic7.Stanford.EDU> <11840.1020427634@ocs3.intra.ocs.com.au> <20020518011410.GD29509@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <E178j5g-0006en-00@the-village.bc.nu> you write:
-> > We could do that, or, we could fix the actual problem, which is the
-> > HUGE FUCKING BEARTRAP WHICH CATCHES EVERY SINGLE NEW PROGRAMMER ON THE
-> > WAY THROUGH.
-> 
-> Capital letters versus content. I'd prefer content
+On Sat, May 18, 2002 at 03:14:10AM +0200, Andrea Arcangeli wrote:
+ > you're right if we need a make clean it's because the buildsystem is
+ > broken. However one thing that happens all the time to me, is that I
+ > change an header like mm.h or sched.h and ~everything needs to be
+ > rebuilt then.
 
-1) Returning 0 on success, and -errno on error is a common kernel
-   convention.
+Yep. Our includes dependancies suck bigtime.  Some work has been
+done already in untangling the mess, but a lot more needs to be
+done to really make a real difference.
 
-2) Following kernel conventions makes it easier for other programmers
-   to use your code.
+Whats scary is that if you look at the dependancy graphs[1] of the
+'best of the worst' includes, it's the same ugly mess we've
+come to know and expect, and yet this is *after* some cleanups
+already happened.
 
-3) You should only violate kernel conventions when there is a
-   compelling reason.
+The 'dump everything into sched.h and friends' things really
+needs splitting up some more, but it's a lot of work, and I don't
+think kbuild2.5 alone is going to make that much difference
+in this regard. Pulling out the component parts of the bigger
+includes is probably the only way around this.
 
-	1a) If you're going to break a convention, do it in a way that
-	    breaks compile, or 
-	1b) If you can't do that, make it reliably break at runtime.
+A driver that needs 'jiffies' defined should not be
+inadvertantly pulling in a hundred include files.
 
-4) The single case which requires this information can be fixed by a
-   simple 10-line wrapper function.
+    Dave.
 
-I do not believe this is a compelling reason to violate kernel
-convention in a way which is almost impossible to notice.  I furthur
-believe that it speaks very poorly about the thought put into kernel
-interface design.
 
-> All the cases I looked at where replications of existing bugs copied from
-> old drivers.
+[1] ftp://ftp.kernel.org/pub/linux/kernel/people/davej/misc/graphs/
 
-Try looking at intermezzo, or the s390 and s390x ports.  New code, new
-coders, same trap.
-
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

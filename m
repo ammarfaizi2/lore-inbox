@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbUHGNO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUHGNSf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbUHGNO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 09:14:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUHGNO4
+	id S262062AbUHGNSf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 09:18:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUHGNSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 09:14:56 -0400
-Received: from mail.dif.dk ([193.138.115.101]:4844 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262006AbUHGNOz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 09:14:55 -0400
-Date: Sat, 7 Aug 2004 14:54:10 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: mj@ucw.cz, James.Bottomley@steeleye.com, axboe@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-In-Reply-To: <200408071128.i77BSNCd006957@burner.fokus.fraunhofer.de>
-Message-ID: <Pine.LNX.4.61.0408071450590.2825@dragon.hygekrogen.localhost>
-References: <200408071128.i77BSNCd006957@burner.fokus.fraunhofer.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 7 Aug 2004 09:18:35 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3589 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262062AbUHGNSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 09:18:33 -0400
+Date: Sat, 7 Aug 2004 14:18:29 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       linux-mtd@lists.infradead.org
+Subject: [BUG] 2.6.8-rc3 jffs2 unable to read filesystems
+Message-ID: <20040807141829.D2805@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	linux-mtd@lists.infradead.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Aug 2004, Joerg Schilling wrote:
+The following two messages sum up the problem:
 
-> 
-> >From: Martin Mares <mj@ucw.cz>
-> 
-> >> >Well, so could you please enlighten the Linux people and say in a couple
-> >> >of words how it could be done?
-> >> 
-> >> 1)	Fetch the Solaris install CD images from:
-> >> 	http://wwws.sun.com/software/solaris/solaris-express/get.html
-> 
-> >Grrr!  I wanted you to describe the solution, not how to install Solaris!
-> 
-> You wanted to get a description in 'a few words' - this cannot be done.
-> 
-> .... So I instucted you how to get the full desciption. 
-> 
-> You may of course look yourself for the documentation at docs.sun.com.......
-> 
-For those looking for a link to the man page in question  path_to_inst(4) 
-: http://docs.sun.com/db/doc/816-5174/6mbb98uhn?q=path_to_inst&a=view
+JFFS2 compression type 0x5a06 not avaiable.
+Error: jffs2_decompress returned -5
 
+It appears that a jffs2 change committed on July 15th has caused recent
+2.6.8-rc kernels to be incompatible with jffs2 filesystems modified by
+previous kernel versions.
 
---
-Jesper Juhl <juhl-lkml@dif.dk>
+The "new format" jffs2 filesystem uses both "compr" and "usercompr"
+of the jffs2_raw_inode structure, whereas previous implementations
+left "usercompr" uninitialised and thus contains random data.
+
+This can be seen by tracing through the code from jffs2_alloc_raw_inode()
+and noticing that previous implementations do not initialise this field -
+AFAICS kmem_cache_alloc() does not guarantee that memory returned by
+this function will be initialised.
+
+Therefore, recent 2.6.8-rc kernels must _NOT_ use this field if they
+wish to remain compatible with existing jffs2 filesystems.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

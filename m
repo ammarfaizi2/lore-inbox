@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUHJKco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264307AbUHJKeI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263893AbUHJKco (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 06:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264261AbUHJKcn
+	id S264307AbUHJKeI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 06:34:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbUHJKeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 06:32:43 -0400
-Received: from holomorphy.com ([207.189.100.168]:65255 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263893AbUHJKcj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 06:32:39 -0400
-Date: Tue, 10 Aug 2004 03:32:22 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [patch] preempt-timing-on-2.6.8-rc3-O4.patch
-Message-ID: <20040810103222.GQ11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-	Florian Schmidt <mista.tapas@gmx.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-References: <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu> <20040809130558.GA17725@elte.hu> <20040809190201.64dab6ea@mango.fruits.de> <1092103522.761.2.camel@mindpipe> <1092117141.761.15.camel@mindpipe> <20040810080933.GA26081@elte.hu> <1092125864.848.2.camel@mindpipe> <20040810101232.GA2706@elte.hu> <20040810102019.GP11200@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040810102019.GP11200@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 10 Aug 2004 06:34:08 -0400
+Received: from chiark.greenend.org.uk ([193.201.200.170]:17880 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S264261AbUHJKd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 06:33:57 -0400
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Fix Device Power Management States
+In-Reply-To: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net>
+Date: Tue, 10 Aug 2004 11:33:55 +0100
+Message-Id: <E1BuTx5-0003NI-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10, 2004 at 12:13:03PM +0200, Ingo Molnar wrote:
->> i've uploaded a new version of the preempt-timing patch:
->> http://redhat.com/~mingo/voluntary-preempt/preempt-timing-on-2.6.8-rc3-O4.patch
->> this patch fixes a number of false positives and false negatives. In
->> particular it fixes the idle-task false positives, and it now correctly
->> measures preemption delays in softirq and hardirq contexts and in
->> bh-disabled process contexts. Maybe this sheds a light on some of the
->> more mysterious delays that we've seen. (and which were never directly
->> measured before.)
->> (the patch also got alot simpler, which should help portability.)
+Patrick Mochel <mochel@digitalimplant.org> wrote:
 
-On Tue, Aug 10, 2004 at 03:20:19AM -0700, William Lee Irwin III wrote:
-> Looks really good, this thing is really starting to look slick from all
-> the time you've put in on it.
-> The adding in of the FOOIRQ_OFFSET bits were a rather major oversisght
-> on my part!  Very good catch.
+> Ok, the patch below attempts to fix up the device power management
+> handling, taking into account (hopefully) everything that has been said
+> over the last week+, and lessons learned over the years. It's only been
+> compile-tested, and is meant just to prove that the framework is possible.
+> There are likely to be some missing pieces, mainly because it's late. :)
 
-Feh, there has to be a way to say "this is a good patch" without sounding
-like I'm reviewing freshman code. This is a good patch.
+At the moment I'm struggling with the fact that the order of resumption
+of system devices appears significant (ie, I get hangs on resume with
+the stock kernel, but changing the list_for_each_entry in sysdev_resume
+to list_for_each_entry_reverse makes things work) but there doesn't seem
+to be any mechanism for providing proper ordering when there isn't a
+tree structure. This also crops up with resuming my wireless hardware -
+it tries to do a hotplug firmware load, but the IDE bus hasn't been
+woken up yet.
 
+Do we need a more fine-grained dependency structure than the current
+tree?
 
--- wli
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

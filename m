@@ -1,98 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129284AbRBTCkp>; Mon, 19 Feb 2001 21:40:45 -0500
+	id <S129309AbRBTCmf>; Mon, 19 Feb 2001 21:42:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129309AbRBTCkg>; Mon, 19 Feb 2001 21:40:36 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:16901 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129284AbRBTCkT>; Mon, 19 Feb 2001 21:40:19 -0500
-Date: Mon, 19 Feb 2001 22:51:36 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] exclusive wakeup for lock_buffer
-In-Reply-To: <Pine.LNX.4.10.10102191757330.28351-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0102192245340.3338-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129485AbRBTCmZ>; Mon, 19 Feb 2001 21:42:25 -0500
+Received: from [209.102.105.34] ([209.102.105.34]:18956 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S129309AbRBTCmJ>;
+	Mon, 19 Feb 2001 21:42:09 -0500
+Date: Mon, 19 Feb 2001 18:41:29 -0800
+From: Tim Wright <timw@splhi.com>
+To: Juergen Schoew <Juergen.Schoew@unix-ag.uni-siegen.de>
+Cc: Thomas Lau <lkthomas@hkicable.com>, linux-kernel@vger.kernel.org
+Subject: Re: finding Tekram SCSI dc395U linux patch driver:
+Message-ID: <20010219184129.A1075@kochanski.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: Juergen Schoew <Juergen.Schoew@unix-ag.uni-siegen.de>,
+	Thomas Lau <lkthomas@hkicable.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3A8C3DA1.F8E2CE09@hkicable.com> <XFMail.010215224622.Juergen.Schoew@unix-ag.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <XFMail.010215224622.Juergen.Schoew@unix-ag.org>; from Juergen.Schoew@unix-ag.uni-siegen.de on Thu, Feb 15, 2001 at 10:46:22PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I asked Kurt why it was not submitted to the mainstream kernel. He said that
+some people are still experiencing problems with the card/driver and he doesn't
+feel it's stable enough to go in. I'm personally using it with no issues, but
+I'm only driving a CD-RW - not exactly stressing things.
 
+It sounds like the people having issues need to debug the problems, or maybe
+it could go in under CONFIG_EXPERIMENTAL ?
 
-On Mon, 19 Feb 2001, Linus Torvalds wrote:
+Tim
 
+On Thu, Feb 15, 2001 at 10:46:22PM +0100, Juergen Schoew wrote:
+> Hi,
+> On 15-Feb-01 Thomas Lau wrote:
+> > hey, I found this driver on mandrake kernel sources, it's ac3, but I
+> > need ac14 code, also, why still not port this driver into kernel?
+> > the patch file already released 1 years ago
 > 
+> Have you checked http://www.garloff.de/kurt/linux/dc395/index.html
+> there ist a driver Version 1.32 (2000-12-02).
 > 
-> On Mon, 19 Feb 2001, Marcelo Tosatti wrote:
-> > 
-> > The following patch makes lock_buffer() use the exclusive wakeup scheme
-> > added in 2.3.
+> Regards 
 > 
-> Ugh, This is horrible.
-> 
-> You should NOT have one function that does two completely different things
-> depending on a flag. That way lies madness and bad coding habits.
-> 
-> Just do two different functions - make one be "__wait_on_buffer()", and
-> the other be "__lock_buffer()". See how the page functions work.
-> 
-> 		Linus
+> Juergen Schoew
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Ok. 
-
---- linux/include/linux/locks.h.orig	Mon Feb 19 23:16:50 2001
-+++ linux/include/linux/locks.h	Mon Feb 19 23:21:48 2001
-@@ -13,6 +13,7 @@
-  * lock buffers.
-  */
- extern void __wait_on_buffer(struct buffer_head *);
-+extern void __lock_buffer(struct buffer_head *);
- 
- extern inline void wait_on_buffer(struct buffer_head * bh)
- {
-@@ -22,8 +23,8 @@
- 
- extern inline void lock_buffer(struct buffer_head * bh)
- {
--	while (test_and_set_bit(BH_Lock, &bh->b_state))
--		__wait_on_buffer(bh);
-+	if (test_and_set_bit(BH_Lock, &bh->b_state))
-+		__lock_on_buffer(bh);
- }
- 
- extern inline void unlock_buffer(struct buffer_head *bh)
---- linux/fs/buffer.c.orig	Mon Feb 19 23:09:31 2001
-+++ linux/fs/buffer.c	Mon Feb 19 23:31:25 2001
-@@ -161,6 +161,30 @@
- 	atomic_dec(&bh->b_count);
- }
- 
-+void __lock_on_buffer(struct buffer_head * bh)
-+{
-+	struct task_struct *tsk = current;
-+	DECLARE_WAITQUEUE(wait, tsk);
-+
-+	atomic_inc(&bh->b_count);
-+	add_wait_queue_exclusive(&bh->b_wait, &wait);
-+	for(;;) { 
-+		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
-+		if (test_bit(BH_Lock, &bh->b_state)) {
-+			run_task_queue(&tq_disk);
-+			schedule();
-+			continue;
-+		}
-+
-+		if (!test_and_set_bit(BH_Lock, &bh->b_state))
-+			break;
-+	} 
-+	tsk->state = TASK_RUNNING;
-+	remove_wait_queue(&bh->b_wait, &wait);
-+	atomic_dec(&bh->b_count);
-+}
-+
-+
- /* Call sync_buffers with wait!=0 to ensure that the call does not
-  * return until all buffer writes have completed.  Sync() may return
-  * before the writes have finished; fsync() may not.
-
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+Interested in Linux scalability ? Look at http://lse.sourceforge.net/
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI

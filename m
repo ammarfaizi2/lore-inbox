@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263633AbRFARkx>; Fri, 1 Jun 2001 13:40:53 -0400
+	id <S263635AbRFARon>; Fri, 1 Jun 2001 13:44:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263634AbRFARkn>; Fri, 1 Jun 2001 13:40:43 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:46857 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263633AbRFARk2>; Fri, 1 Jun 2001 13:40:28 -0400
-Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (for
-To: mark@somanetworks.com (Mark Frazer)
-Date: Fri, 1 Jun 2001 18:37:48 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        bogdan.costescu@iwr.uni-heidelberg.de (Bogdan Costescu),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        zaitcev@redhat.com (Pete Zaitcev),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <20010601103749.C5248@somanetworks.com> from "Mark Frazer" at Jun 01, 2001 10:37:49 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263638AbRFARod>; Fri, 1 Jun 2001 13:44:33 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:11936 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S263635AbRFARoT>;
+	Fri, 1 Jun 2001 13:44:19 -0400
+Message-ID: <3B17D471.D636E208@mandrakesoft.com>
+Date: Fri, 01 Jun 2001 13:44:17 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.5 still breaks dhcpcd with 8139too
+In-Reply-To: <20010529215647.A3955@greenhydrant.com> <3B147F80.31EC7520@mandrakesoft.com> <20010531104437.C10057@emma1.emma.line.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E155srs-0000nu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'd argue for rate limiting as the application only gets back new data,
-> never a cached value n times in a row.
+Matthias Andree wrote:
+> 
+> On Wed, 30 May 2001, Jeff Garzik wrote:
+> 
+> > > I see that Alan has reverted back to the 2.4.3 driver for his ac-series for
+> > > other reasons, hopefully either the old driver will going in to 2.4.6 or the
+> > > new one will get fixed?
+> >
+> > I've got one of the two problems fixed here at the test lab, and am
+> > working on the second.  Hopefully this week I'll have this sorted out,
+> > and a driver for you guys to test.
+> 
+> Will that 8139too be able to share its IRQ with a bttv card (Hauppauge
+> WinTV in my case)? With 2.2.19, it's currently possible, at least after
+> unloading and reloading the 8139too module, but it's a no-go with 2.4.5.
 
-No the application gets back no data, ever, because a third party application
-keeps beating it. You don't even need maliciousness for this, synchronization
-effects and locking on the file will ensure it gets you in the end
+Can you be more explicit than "no-go"?  8139too should share interrupts
+just fine.
 
-> With caching, you'd have to let the application know when the cached
-> value was last read and how long it will be cached for.  With rate
-
-fstat() mtime. That seems easy enough
-
+-- 
+Jeff Garzik      | Disbelief, that's why you fail.
+Building 1024    |
+MandrakeSoft     |

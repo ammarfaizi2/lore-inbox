@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263949AbTCWWDx>; Sun, 23 Mar 2003 17:03:53 -0500
+	id <S263951AbTCWWFf>; Sun, 23 Mar 2003 17:05:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263951AbTCWWDx>; Sun, 23 Mar 2003 17:03:53 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:56210 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S263949AbTCWWDt>; Sun, 23 Mar 2003 17:03:49 -0500
-Date: Sun, 23 Mar 2003 14:14:54 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 492] New: Zip drive parallel-port driver causes segfault in 2.5.x
-Message-ID: <2070000.1048457694@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S263953AbTCWWFe>; Sun, 23 Mar 2003 17:05:34 -0500
+Received: from a089148.adsl.hansenet.de ([213.191.89.148]:1922 "EHLO
+	ds666.starfleet") by vger.kernel.org with ESMTP id <S263951AbTCWWFd>;
+	Sun, 23 Mar 2003 17:05:33 -0500
+Message-ID: <3E7E3248.7070307@portrix.net>
+Date: Sun, 23 Mar 2003 23:16:40 +0100
+From: Jan Dittmer <j.dittmer@portrix.net>
+Organization: portrix.net GmbH
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030305
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Dominik Brodowski <linux@brodo.de>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: ide: indeed, using list_for_each_entry_safe removes endless looping
+ / hang [Was: Re: 2.5.65-ac2 -- hda/ide trouble on ICH4]
+References: <20030322140337.GA1193@brodo.de> <1048350905.9219.1.camel@irongate.swansea.linux.org.uk> <20030322162502.GA870@brodo.de> <1048354921.9221.17.camel@irongate.swansea.linux.org.uk> <20030323010338.GA886@brodo.de> <1048434472.10729.28.camel@irongate.swansea.linux.org.uk> <20030323145915.GA865@brodo.de> <1048444868.10729.54.camel@irongate.swansea.linux.org.uk> <20030323181532.GA6819@brodo.de> <20030323182554.GA1270@brodo.de>
+In-Reply-To: <20030323182554.GA1270@brodo.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=492
+Dominik Brodowski wrote:
+> On Sun, Mar 23, 2003 at 07:15:33PM +0100, Dominik Brodowski wrote:
+>>Just got it to boot :) -- the while(!list_empty...) { list_entry ... looks
+>>suspicious. Might be better to use list_for_each_safe() which is designed
+>>exactly for this purpouse. I'm currently recompiling
+>>2.5.65-bk-current-as-of-yesterday with the attached patch. Let's see whether
+>>it works with this kernel, too...
+> 
+> 
+> Yes, it also works with 2.5.65-bkX.
+> 
 
-           Summary: Zip drive parallel-port driver causes segfault in 2.5.x
-    Kernel Version: 2.5.x
-            Status: NEW
-          Severity: high
-             Owner: andmike@us.ibm.com
-         Submitter: wa1ter@myrealbox.com
+Yes, my system also boots again :)
 
+Thanks,
 
-Distribution:gentoo linux 1.4
-Hardware Environment:soyo k7via/single Athlon mb
-Software Environment:gcc3.2.2/module-init-tools 0.9.10-r4
-Problem Description: ppa module doesn't work properly and, if compiled into
-kernel it causes a kernel panic at boot.
-Steps to reproduce:compile ppa.ko as a module and modprobe ppa:
-
-Error messages include 'scheduling while atomic' and 'oops: 0004 [#2]'
-and 'unable to handle kernel paging request' and 'modprobe exited with
-preempt_count 1'.
-
-This same problem has existed at least since kernel 2.5.49 when I
-started trying the 2.5 series, and I suspect that ppa has never
-worked with 2.5 kernels, but I don't know for sure.  The driver
-works fine with 2.4 kernels.
-
-Note:  it is NOT necessary to have a parallel Zip drive to test this
-kernel module.  The ppa module should load without error even with no
-Zip drive connected!
-
+Jan
 

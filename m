@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268955AbUIBUWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269505AbUICDhR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268955AbUIBUWM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 16:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268989AbUIBUVD
+	id S269505AbUICDhR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 23:37:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268989AbUIBUZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 16:21:03 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:42213 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268955AbUIBUSs (ORCPT
+	Thu, 2 Sep 2004 16:25:44 -0400
+Received: from mail.enyo.de ([212.9.189.167]:55314 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S268986AbUIBUWr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 16:18:48 -0400
-Date: Thu, 02 Sep 2004 13:16:35 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Spam <spam@tnonline.net>, Steve Bergman <steve@rueb.com>
-cc: Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
-       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       reiserfs <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives
-Message-ID: <90660000.1094156195@flay>
-In-Reply-To: <16310213029.20040902220603@tnonline.net>
-References: <20040826150202.GE5733@mail.shareable.org><200408282314.i7SNErYv003270@localhost.localdomain><20040901200806.GC31934@mail.shareable.org><Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org><20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com><Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org><4136A14E.9010303@slaphack.com><Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org><4136C876.5010806@namesys.com><Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org><4136E0B6.4000705@namesys.com>  <14260000.1094149320@flay><1094154744.12730.64.camel@voyager.localdomain> <16310213029.20040902220603@tnonline.net>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Thu, 2 Sep 2004 16:22:47 -0400
+To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Identify security-related patches
+References: <4136C6E1.4090404@bio.ifi.lmu.de>
+From: Florian Weimer <fw@deneb.enyo.de>
+Date: Thu, 02 Sep 2004 22:22:43 +0200
+In-Reply-To: <4136C6E1.4090404@bio.ifi.lmu.de> (Frank Steiner's message of
+	"Thu, 02 Sep 2004 09:08:17 +0200")
+Message-ID: <87y8jsto8c.fsf@deneb.enyo.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 1. The file as directory thing adds complexity that the administrator
->> has to deal with.  Symlinks are useful, but it's still aggravating to
->> tar off a directory structure, take it somewhere, and then realize that
->> all you have is links to something not in the archive because you didn't
->> get your tar switches just right.  Now we're talking about adding
->> another set of "files which are not really files" to the semantics.
->> More complexity.  I'll take simplicity over some ivory tower ideal of
->> "unified name space" any day.
-> 
->   Are you afraid to learn something new? ;) Just joking. But really,
->   it doesn't have to be very difficult. The extra streams etc would
->   just be saved as files. If tar is patched then it would be no
->   problem and no extra stuff but perhaps a switch --save-metas.
+* Frank Steiner:
 
-If they're saved as files, and the app has to be changed to use them
-anyway, then what's the point? Just change the app to use new files
-instead.
+> is there an easy way to identify all security-related patches out of the
+> mass of patches floating around  on linux.bkbits.net or the kernel bugzilla?
+>
+> I'm running 2.6.8.1 and would like to keep it as stable as possible, thus,
+> only apply security patches. Currently I'm searching for "security" and
+> alike on bitkeeper, but there seems to be no consistent marking.
 
->   I would agree with tunnel vision. The kernel should provide the
->   tools and options. Users and developers can then invent new things
->   to use them. :)
+No, there isn't.  You won't see any official kernel.org advisories
+that could serve as guide, either.
 
-Ugh. Change for changes sake is not a good thing. There's enough real
-problems in the world without inventing random features. More complexity
-without gain is a Bad Thing (tm).
+However, your concentration might be a bit short-sighted.  Issues such
+as stability (random crashes under load), data corruption (file
+systems are corrupted on unmount) and performance (poor throughtput
+with some USB devices) could be as important to your users as security
+fixes.  In this area, vendor kernels can serve as a guide, too.
 
-I'm not saying streams is bad ... just that there don't seem to have
-been very many convincing (to me) arguments raised for it yet. The 
-versioning stuff would be nice, IMHO, because the stuff mainly using it 
-wouldn't need to be modified in many instances ... "vi /etc/configfile" 
-would keep old copies for you (only the recovery tool would need to
-understand it). Saving icons seems easy enough to do with "foo.icon"
-as another file.
-
-M.
-
+Unfortunately, there is no distributed source code management system
+used by all these forks, so relating all those changes appears to be
+quite complicated.

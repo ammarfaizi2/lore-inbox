@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281062AbRKKOZC>; Sun, 11 Nov 2001 09:25:02 -0500
+	id <S281063AbRKKOfd>; Sun, 11 Nov 2001 09:35:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281063AbRKKOYw>; Sun, 11 Nov 2001 09:24:52 -0500
-Received: from pop.gmx.de ([213.165.64.20]:49810 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S281062AbRKKOYm>;
-	Sun, 11 Nov 2001 09:24:42 -0500
+	id <S281064AbRKKOfX>; Sun, 11 Nov 2001 09:35:23 -0500
+Received: from smtp-rt-8.wanadoo.fr ([193.252.19.51]:27088 "EHLO
+	lantana.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S281063AbRKKOfL>; Sun, 11 Nov 2001 09:35:11 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Helge Deller <deller@gmx.de>
-To: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Teles isdn 16c plug and play
-Date: Sun, 11 Nov 2001 15:24:00 +0100
-X-Mailer: KMail [version 1.3.6]
-In-Reply-To: <EXCH01SMTP01iCP3PLv0006143a@smtp.netcabo.pt>
-In-Reply-To: <EXCH01SMTP01iCP3PLv0006143a@smtp.netcabo.pt>
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: linux-kernel@vger.kernel.org
+Subject: tasklets and finalization
+Date: Sun, 11 Nov 2001 15:34:46 +0100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20011111142447Z281062-17408+13283@vger.kernel.org>
+Message-Id: <E162vh8-0000E9-00@baldrick>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 11 November 2001 15:01, Miguel Maria Godinho de Matos wrote:
-> i am running red hat 7.2 with the 2.4.7 kernel, can someone tell me how can
-> i configure my isdn card: teles isdn 16c plug and play ?
->
-> This would be very appreciated thanks for your attention.
->
-> Astinus
+Hi!  In the driver I'm working on, a tasklet is scheduled
+from time to time.  Are there any guarantees as to when
+it will run?  I'm worried, for example, about module
+unloading: how to be sure that the scheduled tasklet runs
+before the module is unloaded?
 
-Hi Astinus,
+Thanks,
 
-Give it an io address and interrupt with the isapnp tools 
-(preferrable io=0x580 and irq 5).
-After that start the tool isdnconfig and use the HiSax 
-ISDN driver type 14 (HFC-S based cards), e.g.:
-options hisax io=0x580 irq=5 type=14 protocol=2
+Duncan.
 
-Greetings,
-Helge
+PS: My first thought was to use tasklet_kill, but according
+to "Linux device drivers" (2nd ed) that may hang if the
+tasklet isn't pending.
 
+PPS: Another thought was to call schedule(), hoping that
+all pending asklets will get run then, but is that reliable?

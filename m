@@ -1,88 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262394AbTHYW6f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 18:58:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262396AbTHYW6e
+	id S262373AbTHYW4z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 18:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTHYW4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 18:58:34 -0400
-Received: from zok.sgi.com ([204.94.215.101]:16621 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S262394AbTHYW6X (ORCPT
+	Mon, 25 Aug 2003 18:56:54 -0400
+Received: from fw.osdl.org ([65.172.181.6]:57063 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262373AbTHYW4u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 18:58:23 -0400
-Subject: Re: [BUG] 2.6.0-test4-mm1: NFS+XFS=data corruption
-From: Steve Lord <lord@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Barry K. Nathan" <barryn@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       linux-xfs@oss.sgi.com
-In-Reply-To: <20030825124543.413187a5.akpm@osdl.org>
-References: <20030824171318.4acf1182.akpm@osdl.org>
-	 <20030825193717.GC3562@ip68-4-255-84.oc.oc.cox.net>
-	 <20030825124543.413187a5.akpm@osdl.org>
+	Mon, 25 Aug 2003 18:56:50 -0400
+Subject: Re: Linux 2.6.0-test4 (compile statistics)
+From: John Cherry <cherry@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0308221732170.4677-100000@home.osdl.org>
+References: <Pine.LNX.4.44.0308221732170.4677-100000@home.osdl.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1061852050.25892.195.camel@jen.americas.sgi.com>
+Message-Id: <1061852209.32079.22.camel@cherrytest.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 25 Aug 2003 17:54:11 -0500
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 25 Aug 2003 15:56:49 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-08-25 at 14:45, Andrew Morton wrote:
-> "Barry K. Nathan" <barryn@pobox.com> wrote:
-> >
-> > I'm really short on time right now, so this bug report might be vague,
-> > but it's important enough for me to try:
-> > 
-> > I have an NFS fileserver (running 2.6.0-test4-mm1) exporting stuff from
-> > three filesystems: ReiserFS, ext3, and XFS. I'm seeing no problems with
-> > my ReiserFS and ext3 filesystems. XFS is a different story.
-> > 
-> > My client machine is running 2.4.21bkn1 (my own kernel, not released to
-> > the public; the differences from vanilla 2.4.21 are XFS and Win4Lin). 
-> > 
-> > If I use my client machine to sign RPM packages (rpm --addsign ...),
-> > using rpm-4.2-16mdk, and the packages are on the XFS partition on the
-> > NFS server, about half of the packages are truncated by a couple hundred
-> > bytes afterwards (and GPG sig verification fails on those packages).
-> > 
-> > It's always the same packages that get truncated by the same amounts of
-> > data. This is 100% reproducible. It doesn't matter whether I compile the
-> > kernel with gcc 2.95.3 or 3.1.1. If I perform the operation on my non-XFS
-> > filesystem the problem doesn't happen. If I run 2.6.0-test4-bk2 instead of
-> > test4-mm1 on the NFS server, the problem goes away. (I have never run
-> > any previous -mm kernels on this server.)
-> > 
-> > Hmmm... If I sign the packages on the NFS server itself, even with
-> > test4-mm1 on the XFS partition, I can't reproduce the problem.
-> > *However*, that's a different version of RPM (4.0.4).
-> > 
-> > Is this enough information to help find the cause of the bug? If not,
-> > it might be several days (if I'm unlucky, maybe even a week or two)
-> > before I have time to do anything more...
-> > 
-> 
-> -mm kernels have O_DIRECT-for-NFS patches in them.  And some versions of
-> RPM use O_DIRECT.  Whether O_DIRECT makes any difference at the server end
-> I do not know, but it would be useful if you could repeat the test on stock
-> 2.6.0-test4.
-> 
-> Alternatively, run
-> 
-> 	export LD_ASSUME_KERNEL=2.2.5
-> 
-> before running RPM.  I think that should tell RPM to not try O_DIRECT.
+Compile statistics: 2.6.0-test4
+Compiler: gcc 3.2.2
+Script: http://developer.osdl.org/~cherry/compile/compregress.sh
 
-I doubt the NFS client is O_DIRECT capable here, I have run some rpm
-builds over nfs to 2.6.0-test4 and an xfs filesystem, everything is
-behaving so far. I will try mm1 tomorrow.
+               bzImage       bzImage        modules
+             (defconfig)  (allmodconfig) (allmodconfig)
 
-Do we know if this NFS V3 or V2 by the way?
+2.6.0-test4  0 warnings     3 warnings   1016 warnings
+             0 errors       0 errors       34 errors
 
-Steve
+2.6.0-test3  0 warnings     7 warnings    984 warnings
+             0 errors       9 errors       42 errors
 
--- 
+2.6.0-test2  0 warnings     7 warnings   1201 warnings
+             0 errors       9 errors       43 errors
 
-Steve Lord                                      voice: +1-651-683-3511
-Principal Engineer, Filesystem Software         email: lord@sgi.com
+2.6.0-test1  0 warnings     8 warnings   1319 warnings
+             0 errors       9 errors       38 errors
+
+
+
+Compile statistics for 2.5 kernels and 2.6 kernels are at:
+http://developer.osdl.org/~cherry/compile/
+
+
+Failure summary:
+
+   drivers/block: 2 warnings, 1 errors
+   drivers/isdn: 257 warnings, 6 errors
+   drivers/media: 5 warnings, 5 errors
+   drivers/mtd: 25 warnings, 1 errors
+   drivers/net: 208 warnings, 8 errors
+   drivers/net: 36 warnings, 8 errors
+   drivers/scsi/aic7xxx: 0 warnings, 3 errors
+   drivers/scsi: 97 warnings, 7 errors
+   drivers/video: 8 warnings, 3 errors
+   sound/oss: 49 warnings, 1 errors
+   sound/pcmcia: 0 warnings, 2 errors
+   sound: 0 warnings, 3 errors
+
+Warning summary:
+
+   drivers/atm: 12 warnings, 0 errors
+   drivers/cdrom: 26 warnings, 0 errors
+   drivers/char: 244 warnings, 0 errors
+   drivers/i2c: 3 warnings, 0 errors
+   drivers/ide: 30 warnings, 0 errors
+   drivers/md: 2 warnings, 0 errors
+   drivers/message: 1 warnings, 0 errors
+   drivers/pcmcia: 3 warnings, 0 errors
+   drivers/scsi/pcmcia: 4 warnings, 0 errors
+   drivers/scsi/sym53c8xx_2: 2 warnings, 0 errors
+   drivers/serial: 1 warnings, 0 errors
+   drivers/telephony: 5 warnings, 0 errors
+   drivers/usb: 5 warnings, 0 errors
+   drivers/video/aty: 3 warnings, 0 errors
+   drivers/video/console: 2 warnings, 0 errors
+   drivers/video/matrox: 5 warnings, 0 errors
+   drivers/video/sis: 1 warnings, 0 errors
+   fs/afs: 2 warnings, 0 errors
+   fs/intermezzo: 1 warnings, 0 errors
+   fs/smbfs: 2 warnings, 0 errors
+   net: 13 warnings, 0 errors
+   sound/isa: 3 warnings, 0 errors
+
+
+John
+
+

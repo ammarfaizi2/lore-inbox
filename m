@@ -1,44 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263884AbTDDR2I (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 12:28:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263887AbTDDRXO (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 12:23:14 -0500
-Received: from smtp01.web.de ([217.72.192.180]:34832 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S263881AbTDDRWo (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 12:22:44 -0500
-From: Michael Buesch <freesoftwaredeveloper@web.de>
-To: Burton Windle <bwindle@fint.org>
-Subject: Re: 2.5.66-bk9 compile problem
-Date: Fri, 4 Apr 2003 19:32:19 +0200
-User-Agent: KMail/1.5
-References: <Pine.LNX.4.43.0304041217230.1464-100000@morpheus>
-In-Reply-To: <Pine.LNX.4.43.0304041217230.1464-100000@morpheus>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id S263732AbTDDOsf (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 09:48:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263710AbTDDOn3 (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 09:43:29 -0500
+Received: from [61.11.16.46] ([61.11.16.46]:15372 "EHLO mailpune.cygnet.co.in")
+	by vger.kernel.org with ESMTP id S263711AbTDDO3w (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 09:29:52 -0500
+Subject: Re: Strange e1000
+From: Abhishek Agrawal <abhishek@abhishek.agrawal.name>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <043501c2faaf$da061e10$3f00a8c0@witbe>
+References: <043501c2faaf$da061e10$3f00a8c0@witbe>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304041932.19272.freesoftwaredeveloper@web.de>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10)
+Date: 04 Apr 2003 19:49:28 +0530
+Message-Id: <1049465969.3324.40.camel@abhilinux.cygnet.co.in>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 April 2003 19:17, you wrote:
-> CONFIG_I2C_SENSOR=m
->
-> Set this to y and recompile.
+On Fri, 2003-04-04 at 19:11, Paul Rolland wrote:
 
-When I set this to y and do a
-make bzImage
-or a
-make menuconfig
-it's automatically reset to m.
-
-What's the options for CONFIG_I2C_SENSOR in menuconfig (I didn't find it).
-
-Regards
-Michael Buesch.
-
--- 
-My homepage: http://www.8ung.at/tuxsoft
-fighting for peace is like fu**ing for virginity
+> Could it be possible that the 1000MBps FD on the e1000 side is
+> a local configuration, and that it needs some time to discuss with
+> the Netgear switch to negotiate correctly speed and duplex before
+> working correctly ? (i.e. 20 sec = negotiation time)
+Autoneg must be completed within 2 sec, or else it is considered as
+failed.
 

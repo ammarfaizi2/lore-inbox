@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbTI3JvD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 05:51:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbTI3JvD
+	id S261263AbTI3JjO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 05:39:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbTI3JjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 05:51:03 -0400
-Received: from ns.suse.de ([195.135.220.2]:43716 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261304AbTI3JvB (ORCPT
+	Tue, 30 Sep 2003 05:39:13 -0400
+Received: from main.gmane.org ([80.91.224.249]:39317 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261263AbTI3JjM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 05:51:01 -0400
-To: Gabriel Paubert <paubert@iram.es>
-Cc: jamie@shareable.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Athlon Prefetch workaround for 2.6.0test6
-References: <20030929125629.GA1746@averell.suse.lists.linux.kernel>
-	<20030929170323.GC21798@mail.jlokier.co.uk.suse.lists.linux.kernel>
-	<20030929174910.GA90905@colin2.muc.de.suse.lists.linux.kernel>
-	<20030929200820.GA23444@mail.jlokier.co.uk.suse.lists.linux.kernel>
-	<20030930093556.GB12970@iram.es.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 30 Sep 2003 11:50:53 +0200
-In-Reply-To: <20030930093556.GB12970@iram.es.suse.lists.linux.kernel>
-Message-ID: <p73fziey58i.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 Sep 2003 05:39:12 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andreas Schwarz <usenet.2117@andreas-s.net>
+Subject: ERR in /proc/interrupts
+Date: Tue, 30 Sep 2003 09:39:10 +0000 (UTC)
+Message-ID: <slrnbnijq7.41m.usenet.2117@home.andreas-s.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-TCPA-ist-scheisse: yes
+User-Agent: slrn/0.9.8.0 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gabriel Paubert <paubert@iram.es> writes:
+I get a very high ERR count in /proc/interrupts. If I move my USB mouse
+the number increases.
 
-> On Mon, Sep 29, 2003 at 09:08:20PM +0100, Jamie Lokier wrote:
-> > Btw, you assume that regs->xcs is a valid segment value.  I think that
-> > the upper 16 bits are not guaranteed to be zero in general on the
-> > IA32, although they clearly are zero for the majority of IA-32 chips.
-> > Are they guaranteed to be zero on AMD's processors?
-> 
-> At least for pushes of segment registers a 486 decrements
-> the stack pointer by 4 but only writes the 2 least significant
-> bytes, leaving garbage in the upper half. 
+What does ERR mean? Nothing good, I suppose?
 
-The code only runs on newer AMD CPUs (K7/K8)
+Kernel: 2.6.0-test6-mm1
 
--Andi
+/proc/interrupts:
+====================================================
+
+           CPU0       
+  0:    1924793          XT-PIC  timer
+  1:       9571          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  5:       1561          XT-PIC  ohci-hcd, eth1
+  8:          2          XT-PIC  rtc
+  9:          0          XT-PIC  acpi
+ 10:          0          XT-PIC  ehci_hcd, ohci-hcd, eth0
+ 11:      31910          XT-PIC  EMU10K1, uhci-hcd, uhci-hcd
+ 14:      12483          XT-PIC  ide0
+ 15:         41          XT-PIC  ide1
+NMI:          0 
+LOC:    1924399 
+ERR:      15255
+MIS:          0
+
+-- 
+AVR-Tutorial, über 350 Links
+Forum für AVRGCC und MSPGCC
+-> http://www.mikrocontroller.net
+

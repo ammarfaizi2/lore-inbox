@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314049AbSEAVBn>; Wed, 1 May 2002 17:01:43 -0400
+	id <S314052AbSEAVHl>; Wed, 1 May 2002 17:07:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314052AbSEAVBm>; Wed, 1 May 2002 17:01:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42767 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314049AbSEAVBl>;
-	Wed, 1 May 2002 17:01:41 -0400
-Message-ID: <3CD057BE.2050603@mandrakesoft.com>
-Date: Wed, 01 May 2002 17:01:50 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/00200203
-X-Accept-Language: en-us, en
+	id <S314056AbSEAVHk>; Wed, 1 May 2002 17:07:40 -0400
+Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:41106 "HELO
+	pc.kolivas.net") by vger.kernel.org with SMTP id <S314052AbSEAVHk>;
+	Wed, 1 May 2002 17:07:40 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Con Kolivas <conman@kolivas.net>
+Reply-To: conman@kolivas.net
+To: dmarkh@cfl.rr.com
+Subject: Re: Combined low latency & performance patches for 2.4.18
+Date: Thu, 2 May 2002 07:07:36 +1000
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020429142443.A62481333@pc.kolivas.net> <20020430230105.D5CA01A0AA@pc.kolivas.net> <3CCFA3BD.664EE747@cfl.rr.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] alternative API for raw devices
-In-Reply-To: <Pine.GSO.4.21.0205011555450.12640-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020501210737.3C40218A8C@pc.kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
+Mark
 
->Actual IO code is pretty much copied from old driver.  The main differences:
->	* device is originally created with ownership/permissions of the
->	  block device we'd used; you can chmod/chown it at any time,
->	  obviously.
+On Wed, 1 May 2002 18:13, you wrote:
+> Con Kolivas wrote:
+> > On Tue, 30 Apr 2002 02:51, you wrote:
+> > > After applying it, if you ever do a make mrproper oldconfig dep bzImage
+> > > it fails to compile sched.c as follows
+> > >
+> > > If I don't  do an mrproper it compiles ok. Haven't tested yet.
+> >
+> > Hmm
+> > I used a make mrproper && make clean followed by manual configuration
+> > without any problems but thanks for your input. I'm not claiming to be a
+> > patch or kernel guru. Just offering what worked for me.
+> >
+> > > It's the O1 sched patch. Not your fault....
+> >
+> > Thanks thats kinda reassuring :)
+> >
+> > Con.
 >
+> I take that back. It's the low-latency patch. You must have said no to
+> it in your .config.
+> I do not think all these patches play well together with the O(1)
 
-Tangent a little bit to partitions.
+Here is the relevant section from my .config:
 
-Consider a filesystem which creates device nodes for N partitions on a 
-spindle, "msdos_partition_fs".  In a discussion a while back on 
-permissions, you suggested that inheriting permissions from the base 
-block device was the wrong way to go, and that (for now)  'uid' and 
-'gid' mount options were the best route.
+# Processor type and features
+#
+CONFIG_LOLAT=y
+# CONFIG_LOLAT_SYSCTL is not set
 
-Is inheriting permissions coming back into style?  Or am I reading too 
-much into the permissions scheme you describe above?
+CONFIG_PREEMPT=y
 
-    Jeff
+As you can see, the low latency is enabled. I didn't see any point in 
+enabling sysctl so I havent tried that. Perhaps that is it? The other thing 
+is, I don't believe it works well with SMP which I am not using. 
 
-
-
-
+Con.

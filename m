@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVADJBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVADJEi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbVADJBD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 04:01:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVADJBD
+	id S261570AbVADJEi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 04:04:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbVADJEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 04:01:03 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:24968 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261567AbVADJA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 04:00:59 -0500
-Date: Tue, 4 Jan 2005 09:00:57 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Domen Puncer <domen@coderock.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] maintainers: remove moderated arm list
-Message-ID: <20050104090057.GA2035@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Erik Mouw <erik@harddisk-recovery.com>,
-	Adrian Bunk <bunk@stusta.de>, Domen Puncer <domen@coderock.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20041225170825.GA31577@nd47.coderock.org> <20041225172155.A26504@flint.arm.linux.org.uk> <20050103175438.GL2980@stusta.de> <20050104085437.GA26584@harddisk-recovery.com>
+	Tue, 4 Jan 2005 04:04:38 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:25003 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261570AbVADJEd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 04:04:33 -0500
+Date: Tue, 4 Jan 2005 10:04:08 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-mm1
+Message-ID: <20050104090408.GA12197@elte.hu>
+References: <20050103011113.6f6c8f44.akpm@osdl.org> <20050103115120.GB18408@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050104085437.GA26584@harddisk-recovery.com>
+In-Reply-To: <20050103115120.GB18408@infradead.org>
 User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 09:54:37AM +0100, Erik Mouw wrote:
-> On Mon, Jan 03, 2005 at 06:54:38PM +0100, Adrian Bunk wrote:
-> > I'm sometimes doing patches that cover many files, and I want to Cc the 
-> > patches to the developers in question.
-> > 
-> > If after sending 10 patches I get 5 "this is a subscribers-only list" 
-> > mails, I'm not going to subscribe to 5 lists, forward the patches to 
-> > them and unsubscribe again after this (and repeat this if there's some 
-> > discussion regarding one of these patches).
+
+* Christoph Hellwig <hch@infradead.org> wrote:
+
+> > remove-the-bkl-by-turning-it-into-a-semaphore.patch
+> >   remove the BKL by turning it into a semaphore
 > 
-> Note that Mailman lists allow you to be subscribed without getting mail
-> from the list (except the monthly notice on mailman day).
+> This _smp_processor_id() mess is horribly ugly.  Do you really need
+> that debug check?
 
-Which is still totally annoying.  I don't want to use some damn web (or even
-email-based) interface just to send a single mail to some list.
+wrt. necessity, it's quite handy: check out the 2.6.10 changelog, almost
+all preemption bugs wrt. smp_processor_id() were found this way.
 
+what precisely is the 'mess' you are referring to?
+
+is it the way the include file falls back to the original
+smp_processor_id() definition if an arch doesnt define
+__smp_processor_id()? I could get rid of that and just require every
+arch to define __smp_processor_id().
+
+or is it the addition of _smp_processor_id() as a way to signal 'this
+smp_processor_id() call in a preemptible region is fine, trust me'? We
+could do smp_processor_id_preempt() or some other name - any better
+suggestions?
+
+	Ingo

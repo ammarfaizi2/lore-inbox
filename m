@@ -1,74 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVCRP5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVCRP7r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261658AbVCRP5y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 10:57:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbVCRP5y
+	id S261655AbVCRP7r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 10:59:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbVCRP6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 10:57:54 -0500
-Received: from everest.2mbit.com ([24.123.221.2]:29333 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S261658AbVCRP52 (ORCPT
+	Fri, 18 Mar 2005 10:58:20 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:6290 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261661AbVCRP5t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 10:57:28 -0500
-Message-ID: <423AFA35.8000401@lovecn.org>
-Date: Fri, 18 Mar 2005 23:56:37 +0800
-From: Coywolf Qi Hunt <coywolf@lovecn.org>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: coywolf@gmail.com, "Rafael J. Wysocki" <rjw@sisk.pl>, akpm@osdl.org,
+	Fri, 18 Mar 2005 10:57:49 -0500
+Date: Fri, 18 Mar 2005 07:57:53 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Bill Huey <bhuey@lnxw.com>
+Cc: mingo@elte.hu, dipankar@in.ibm.com, shemminger@osdl.org, akpm@osdl.org,
+       torvalds@osdl.org, rusty@au1.ibm.com, tgall@us.ibm.com,
+       jim.houston@comcast.net, manfred@colorfullife.com, gh@us.ibm.com,
        linux-kernel@vger.kernel.org
-References: <20050316202800.GA22750@everest.sosdg.org> <20050318113957.GC32253@elf.ucw.cz>
-In-Reply-To: <20050318113957.GC32253@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Broken-Reverse-DNS: no host name for for IP address 218.24.168.26
-X-Scan-Signature: e39eceae6eb4554774934c39b07fdc9c
-X-SA-Exim-Connect-IP: 218.24.168.26
-X-SA-Exim-Mail-From: coywolf@lovecn.org
-Subject: Re: [patch] SUSPEND_PD_PAGES-fix
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-	*  4.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
-	*      [218.24.168.26 listed in cnkrbl.ahbl.org]
-X-SA-Exim-Version: 4.2 (built Sun, 13 Feb 2005 18:23:43 -0500)
+Subject: Re: Real-Time Preemption and RCU
+Message-ID: <20050318155753.GD1299@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050318002026.GA2693@us.ibm.com> <20050318125641.GA5107@nietzsche.lynx.com> <20050318131729.GB5107@nietzsche.lynx.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050318131729.GB5107@nietzsche.lynx.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
+On Fri, Mar 18, 2005 at 05:17:29AM -0800, Bill Huey wrote:
+> On Fri, Mar 18, 2005 at 04:56:41AM -0800, Bill Huey wrote:
+> > On Thu, Mar 17, 2005 at 04:20:26PM -0800, Paul E. McKenney wrote:
+> > > 5. Scalability -and- Realtime Response.
+> > ...
+> > 
+> > > 	void
+> > > 	rcu_read_lock(void)
+> > > 	{
+> > > 		preempt_disable();
+> > > 		if (current->rcu_read_lock_nesting++ == 0) {
+> > > 			current->rcu_read_lock_ptr =
+> > > 				&__get_cpu_var(rcu_data).lock;
+> > > 			read_lock(current->rcu_read_lock_ptr);
+> > > 		}
+> > > 		preempt_enable();
+> > > 	}
+> > 
+> > Ok, here's a rather unsure question...
+> > 
+> > Uh, is that a sleep violation if that is exclusively held since it
+> > can block within an atomic critical section (deadlock) ?
 > 
+> I'd like to note another problem. Mingo's current implementation of rt_mutex
+> (super mutex for all blocking synchronization) is still missing reader counts
+> and something like that would have to be implemented if you want to do priority
+> inheritance over blocks.
 > 
-> 
->>This fixes SUSPEND_PD_PAGES, which wastes one page under most cases.
+> This is going to throw a wrench into your implementation if you assume that.
 
--This fixes SUSPEND_PD_PAGES, which wastes one page under most cases.
-+This fixes SUSPEND_PD_PAGES, which, in rare instances, would waste a signle page.
+If we need to do priority inheritance across the memory allocator, so
+that high-priority tasks blocked waiting for memory pass their priority
+on to RCU readers, agreed.  But I don't see any sign that real-time
+preempt does this.
 
+In absence of this, as Ingo noted, the fact that readers don't block
+each other should make things be safe.  I think...
 
-I see rafael is going to drop it. Anyway, my description was wrong.
-
-	Coywolf
-
-> 
-> 
-> Ok, applied to my tree, will eventually propagate it. (I hope it looks
-> okay to you, rafael).
-> 
-> 
->>Signed-off-by: Coywolf Qi Hunt <coywolf@gmail.com>
->>diff -pruN 2.6.11-mm4/include/linux/suspend.h 2.6.11-mm4-cy/include/linux/suspend.h
->>--- 2.6.11-mm4/include/linux/suspend.h	2005-03-17 01:22:16.000000000 +0800
->>+++ 2.6.11-mm4-cy/include/linux/suspend.h	2005-03-17 04:14:16.000000000 +0800
->>@@ -34,7 +34,7 @@ typedef struct pbe {
->> #define SWAP_FILENAME_MAXLENGTH	32
->> 
->> 
->>-#define SUSPEND_PD_PAGES(x)     (((x)*sizeof(struct pbe))/PAGE_SIZE+1)
->>+#define SUSPEND_PD_PAGES(x)     (((x)*sizeof(struct pbe)+PAGE_SIZE-1)/PAGE_SIZE)
->> 
->> extern dev_t swsusp_resume_device;
->>    
-> 
-> 
-
+						Thanx, Paul

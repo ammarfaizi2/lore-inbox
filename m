@@ -1,84 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265001AbTFYSja (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 14:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265002AbTFYSja
+	id S264946AbTFYSln (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 14:41:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264949AbTFYSlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 14:39:30 -0400
-Received: from blanch.math.uwaterloo.ca ([129.97.204.29]:411 "EHLO
-	blanch.math.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S265001AbTFYSj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 14:39:28 -0400
-From: Andrew Miklas <public@mikl.as>
-Reply-To: public@mikl.as
-To: davids@webmaster.com
-Subject: RE: GPL violations by wireless manufacturers
-Date: Wed, 25 Jun 2003 14:53:21 -0400
-User-Agent: KMail/1.5
-Cc: vanstadentenbrink@ahcfaust.nl, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 25 Jun 2003 14:41:42 -0400
+Received: from 82-43-130-207.cable.ubr03.mort.blueyonder.co.uk ([82.43.130.207]:13787
+	"EHLO efix.biz") by vger.kernel.org with ESMTP id S264946AbTFYSlk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 14:41:40 -0400
+Subject: Re: AMD MP, SMP, Tyan 2466
+From: Edward Tandi <ed@efix.biz>
+To: joe briggs <jbriggs@briggsmedia.com>
+Cc: Artur Jasowicz <kernel@mousebusiness.com>,
+       Brian Jackson <brian@brianandsara.net>,
+       Bart SCHELSTRAETE <Bart.SCHELSTRAETE@dhl.com>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200306251501.14207.jbriggs@briggsmedia.com>
+References: <BB1F47F5.17533%kernel@mousebusiness.com>
+	 <200306251501.14207.jbriggs@briggsmedia.com>
+Content-Type: text/plain
+Message-Id: <1056567378.31260.9.camel@wires.home.biz>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 25 Jun 2003 19:56:18 +0100
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306251453.21684.public@mikl.as>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2003-06-25 at 20:01, joe briggs wrote:
+> Forgot to mention - 
+> I tried this board with PC2100 bought from the local computer store (don't 
+> know the name) and I got all kinds of weird problems like boot failure, file 
+> system corruption, everything except a memory error.  I then tried a 512 mb 
+> stick of kingston pc2100 and it completely solved the problems.
 
-David Schwartz wrote:
->  Perhaps it's not a separate work from the programs that access it, but it's
->  certainly a separate work from the kernel. The kernel can operate just fine
->  without the module. The module extends the kernel through a well-defined
->  boundary.
+Yes, for SMP mode you absolutely need to use 'registered' RAM. Normal
+PC2100 ram will work OK with one processor but quickly fails with two (I
+had the same problems). Apparently, DDR RAM uses one clock edge to
+transfer in one direction and the opposite edge to transfer back again
+so the registers do synchronisation between one processor writing to the
+same location that the other one reads from. That's how it was explained
+to me anyway.
 
-I'm not sure this is entirely accurate.  A quick look at the module in 
-question (wl.o) with "nm" reveals quite a few interesting imports and 
-exports.
+Ed-T.
 
-The module, for example, makes approximately 50 imports from the kernel where 
-the import doesn't seem to be part of the regular kernel tree (ie. I searched 
-using http://lxr.linux.no to no avail).  However, these symbols seem to be  
-defined in the kernel included with the device.  That is to say, the symbols 
-aren't provided by another module.  Therefore, it would appear that this 
-module will not work with a "stock" Linux kernel.
+> On Wednesday 25 June 2003 01:37 pm, Artur Jasowicz wrote:
+> > To make sure that I have a clean environment I've reinstalled RedHat 9
+> > workstation. This is supposed to give a complete set of tools for software
+> > development. It did not install kernel sources though, so I've installed
+> > that RPM. It installed sources for 2.4.20.
+> >
+> > Then I've downloaded kernel 2.4.21 from vger. I placed the decompressed
+> > source in /home/linux2.4.21/. I based my configuration on RedHat's config
+> > for AMD SMP (included in kernel source RPM) and on
+> > linux-2.4.21/arch/i386/defconfig. Recompiled the kernel.
+> >
+> > On first attempt to boot from that new kernel the machine started acting up
+> > and eventually froze. I've tried rebooting from RedHat installed non-SMP
+> > kernel a couple of times and kept getting stuck in various places during
+> > the boot.
+> >
+> > I started suspecting the RAM. I replaced the Corsair PC2100 1GB module with
+> > a 512M module. The machine started working fine under RedHat kernel.
+> > Switched to my SMP kernel - it ran fine except for one time when it simply
+> > logged me out while I was in the middle of typing a bash command.
+> >
+> > I've logged back in, recompiled Promise driver while running in SMP. This
+> > was the first time I was able to do that in SMP. I've loaded the driver,
+> > left machine running overnight. Came in this morning - machine was still
+> > up. I attempted to copy some files to Promise Raid volume. The machine
+> > locked up in the middle of transfer. I tried to reboot in SMP and it failed
+> > each time. I rebooted with RedHat's 2.4.20-8smp kernel but with nosmp boot
+> > parameter and it came up ok. Rebooted the same kernel without the nosmp
+> > parameter and it did this...
 
-These symbols (they all appear to be routines) begin with the following 
-prefixes: bcm, dma, osl, pkt, sb.
-
-The purpose of some of these routines can be determined by the function name.  
-For example, the 'sb' series of functions seem to be used for manipulating 
-the Sonics SiliconBackplane that is used by the BCM43xx.  The DMA routines 
-might be used to handle the TX and RX ring buffers.  Some of the others I am 
-not so sure about.  (By the way, this was also discovered by Lex Winter, 
-whose post to LKML seems to show up in groups.google, but not in the other 
-archives.)
-
-Additionally, the module exports (ie. shows up with 'T' in an nm listing) no 
-less than 117 symbols.  Some of these appear pretty low-level: 
-
-read_radio_reg
-wlc_set_11a_txpower
-wlc_set_11b_radiopwr
-wlc_set_channel
-wlc_aphy_temp_sense
-write_radio_reg
-
-to name just a few.
-
-
-Admittingly, I don't know very much about what constitutes the standard kernel 
-to wireless driver interface for Linux.  Also, I don't know if all these 
-exported functions are actually called externally.  However, after looking 
-through some other wireless driver modules (airo, hermes, orinoco) I can't 
-seem to find an example where a module exports nearly as many functions.
-
-If anyone would like a copy of the symbol list for wl.o (it requires a MIPS 
-binutils), please drop me an e-mail, and I'd be happy to send it out.  
-Additionally, if I've made any mistakes in these conclusions, please also let 
-me know.
-
-
-
--- Andrew

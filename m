@@ -1,85 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262931AbUDBHxC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 02:53:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263317AbUDBHxB
+	id S263315AbUDBH6K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 02:58:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbUDBH6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 02:53:01 -0500
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:2225 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262931AbUDBHw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 02:52:58 -0500
-Message-ID: <406D1BCB.3090304@yahoo.com.au>
-Date: Fri, 02 Apr 2004 17:52:43 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Fri, 2 Apr 2004 02:58:10 -0500
+Received: from ore.jhcloos.com ([64.240.156.239]:3087 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id S263315AbUDBH6H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 02:58:07 -0500
+To: linux-kernel@vger.kernel.org
+Cc: Jamie Lokier <jamie@shareable.org>, Paul Eggert <eggert@gnu.org>,
+       Andi Kleen <ak@suse.de>, gcc@gcc.gnu.org, bug-coreutils@gnu.org
+Subject: Re: Linux 2.6 nanosecond time stamp weirdness breaks GCC build
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <20040402011411.GE28520@mail.shareable.org> (Jamie Lokier's
+ message of "Fri, 2 Apr 2004 02:14:11 +0100")
+References: <200404011928.VAA23657@faui1d.informatik.uni-erlangen.de>
+	<20040401220957.5f4f9ad2.ak@suse.de> <7w3c7nb4jb.fsf@sic.twinsun.com>
+	<20040402011411.GE28520@mail.shareable.org>
+X-Hashcash: 0:040402:linux-kernel@vger.kernel.org:ab8b3e4f065b58fa
+X-Hashcash: 0:040402:jamie@shareable.org:c550f695296a5468
+X-Hashcash: 0:040402:eggert@gnu.org:2be7e5241be54e2e
+X-Hashcash: 0:040402:ak@suse.de:e431523a0e755dd2
+X-Hashcash: 0:040402:gcc@gcc.gnu.org:e4366a58331c0085
+X-Hashcash: 0:040402:bug-coreutils@gnu.org:ac8642d50f28e771
+Date: Fri, 02 Apr 2004 02:57:41 -0500
+Message-ID: <m3isgi4xsa.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-To: Rick Lindsley <ricklind@us.ibm.com>
-CC: Ingo Molnar <mingo@redhat.com>, John Hawkes <hawkes@sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler balancing statistics
-References: <200404020735.i327Zk604510@owlet.beaverton.ibm.com>
-In-Reply-To: <200404020735.i327Zk604510@owlet.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rick Lindsley wrote:
-> The important thing, as always, is that collecting the stats not impact
-> the action being taken.  If you stick with incrementing counters and
-> not taking additional locks, then you've probably done what you can to
-> minimize any impact.
-> 
+>>>>> "Jamie" == Jamie Lokier <jamie@shareable.org> writes:
 
-Yes, they're all simple increments without the need for any
-locking.
+Jamie> When re-reading an inode, rounding the time up is done by
+Jamie> setting the tv_nsec field to 999999999.
 
->>From an analysis standpoint it would be nice to know which of the major
-> features are being activated for a particular load.  So imbalance-driven
-> moves, power-driven moves, and the number of times each domain tried
-> to balance and failed would all be useful.  I think your output covered
-> those.
-> 
+Jamie> If the on-disk timestamp is "now", i.e. the current second if
+Jamie> it's a 1-second resolution, then we can avoid setting the
+Jamie> timestamp to a future time by setting the tv_nsec field to the
+Jamie> current wall time's nanosecond value.  There is no need to
+Jamie> round the time up any more than that.
 
-It doesn't get into the finer points of how the imbalance
-is derived, but maybe it should...
+Given how much time it will take to compare the file's timestamp to
+current before choosing 999999999 or now for the tv_nsec field, is
+it a reasonable shortcut to just always use now's nsec value?
 
-> Another useful stat might be how many times the self-adjusting fields
-> (min, max) adjusted themselves.  That might yield some insights on
-> whether that's working well (or correctly).
-> 
+Obviously it is not *that* many cycles to do the compare, but we are
+talking about a nanoseconds field, and the current tv_sec could
+increment during the compare....
 
-Might be a good idea.
+-JimC
 
-> When I started thinking about these stats, I started thinking about how to
-> identify the domains.  "domain0" and "domain1" do uniquely identify some
-> data structures, but especially as they get hierarchical, can we easily
-> tie them to the cpus they manage?  Perhaps the stats should include a
-> bitmap of what cpus are covered by the domain too.
-> 
-
-Well, every domain that is reported here will cover the entire
-system because it simply takes the sum of statistics from all
-domains.
-
-It is a good overview, but it probably would be a good idea to
-be able to break down the views and zoom in a bit.
-
-> Looks very useful for those times when some workload causes the scheduler
-> to burp -- between scheduler stats and domain stats we may find it much
-> easier to track down issues.
-> 
-> Would you say these would be in addition to the schedstats or would
-> these replace them?
-
-It will replace some of them, I think.
-For example, all load_balance operations are done within the
-context of a sched domain, so you would use the sched domain's
-statistics there. However you have other statistics that are
-specific to the runqueue, for example, which would stay where
-they are.
-
-Thanks
-Nick

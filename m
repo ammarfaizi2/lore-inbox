@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135427AbRDMHAL>; Fri, 13 Apr 2001 03:00:11 -0400
+	id <S135428AbRDMHET>; Fri, 13 Apr 2001 03:04:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135428AbRDMG77>; Fri, 13 Apr 2001 02:59:59 -0400
-Received: from service.sh.cvut.cz ([147.32.127.214]:6412 "EHLO
-	service.sh.cvut.cz") by vger.kernel.org with ESMTP
-	id <S135427AbRDMG7m>; Fri, 13 Apr 2001 02:59:42 -0400
-From: Jan Gregor <J.Gregor@sh.cvut.cz>
-Date: Fri, 13 Apr 2001 08:56:23 +0200
-To: linux-kernel@vger.kernel.org
-Subject: bug in kernel 2.2.19
-Message-ID: <20010413085623.A280@pisidlo.sh.cvut.cz>
-Reply-To: J.Gregor@sh.cvut.cz
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S135430AbRDMHEJ>; Fri, 13 Apr 2001 03:04:09 -0400
+Received: from aeon.tvd.be ([195.162.196.20]:42476 "EHLO aeon.tvd.be")
+	by vger.kernel.org with ESMTP id <S135428AbRDMHD4>;
+	Fri, 13 Apr 2001 03:03:56 -0400
+Date: Fri, 13 Apr 2001 09:02:56 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: lomarcan@tin.it
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SCSI Tape Corruption - update
+In-Reply-To: <20010412084318.LESP2878.fep02-svc.tin.it@fep41-svc.tin.it>
+Message-ID: <Pine.LNX.4.05.10104130858220.2653-100000@callisto.of.borg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
- Kernel 2.2.19 downloaded from www.kernel.org sometimes when I boot from lilo
-reports after "uncompressing linux ..." and blank line shows "crc error"
-and halts. I looked at the sources and found that this means that uncompressed
-kernel has bad crc. I tried compile it under debian potato (gcc 2.95) and
-redhat 6.1 (egcs 1.1.2) but result was same. Kernel 2.2.18-pre21 too sometimes
-halts (compiled on debian) but after "uncompressing linux ...". I think that
-it is a bug because kernel 2.2.16 never halts on startup like 2.2.18 or 2.2.19
-(it actually never stops on startup).
- My board is tomato 5dhx (intel hx chipset) and cyrix 150+ (revision 2.6).
-Graphics is s3 trio64v+, ethercard 3com 509b and soundcard olp3-sax.
- Bios doesn't set processor on startup (sleep on halt instruction, avoid
-comma bug and things like these). It is interesting that when I boot from
-loadlin this things (with 2.2.18pre21 and 2.2.19) never matter. I looked
-at the autoexec.bat I found that I set here cyrix (sleep on halt ...).
+On Thu, 12 Apr 2001 lomarcan@tin.it wrote:
+> Still experimenting with my SDT-9000... tried connecting it to another
+> controller
+> (2940AU in place of 2904, sorry but I've only Adaptec stuff :). Same
+> problem.
+> Tried with another tape (even with an old DDS-2 tape). Same. Even tried
+> another
+> cable/removing the CDWR drive from the bus.
+> 
+> It seems that the tape is written incorrectly. I wrote some large file
+> (300MB)
+> and read it back four time. The read copies are all the same. They differ
+> from the original only in 32 consecutive bytes (the replaced values SEEM
+> random). Of course, 32 bytes in 300MB tar.gz files are TOO MUCH to be 
+> accepted :)
 
+As Gérard already replied, I have the same problem on my PPC box (cfr. my
+postings last month) with DDS-1 tape drive. It has 2 SCSI adapters (MESH and
+Sym53c875), and it seems to happen with the '875 only (but the MESH sucks
+anyway and has other problems making it unusable for my DDS-1).
 
-                                                    Bye, Jan Gregor
+In my case, the 32 bad bytes are always a copy of the 32 bytes 10K before (10K
+= blocksize of tar). Can you verify that's the case for you as well? For
+reference, I have approx. 6 sequences of corrupted data when writing 256 MB to
+tape. Reading gives no problems.
+
+The problem does not appear in 2.2.13 (yep, that's old, but so far the latest
+2.2.x kernel that runs on my CHRP LongTrail). I have to fix later kernels
+first.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

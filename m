@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286757AbRLVKxM>; Sat, 22 Dec 2001 05:53:12 -0500
+	id <S281165AbRLVKzc>; Sat, 22 Dec 2001 05:55:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286762AbRLVKxC>; Sat, 22 Dec 2001 05:53:02 -0500
-Received: from evil.netppl.fi ([195.242.209.201]:49384 "EHLO evil.netppl.fi")
-	by vger.kernel.org with ESMTP id <S286761AbRLVKwy>;
-	Sat, 22 Dec 2001 05:52:54 -0500
-Date: Sat, 22 Dec 2001 12:53:00 +0200
-From: =?iso-8859-1?Q?Pekka_Pietik=E4inen?= <pp@netppl.fi>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in?Configure.help.
-Message-ID: <20011222125300.A19605@netppl.fi>
-In-Reply-To: <3C234CC100020E25@mta13n.bluewin.ch> <200112220214.fBM2EsSr022402@svr3.applink.net>
-Mime-Version: 1.0
+	id <S286759AbRLVKzX>; Sat, 22 Dec 2001 05:55:23 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:44039 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S281165AbRLVKzK>;
+	Sat, 22 Dec 2001 05:55:10 -0500
+Message-ID: <XFMail.20011222114206.ast@domdv.de>
+X-Mailer: XFMail 1.5.1 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200112220214.fBM2EsSr022402@svr3.applink.net>; from timothy.covell@ashavan.org on Fri, Dec 21, 2001 at 08:11:11PM -0600
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <1008992132.805.6.camel@thanatos>
+Date: Sat, 22 Dec 2001 11:42:06 +0100 (CET)
+Organization: D.O.M. Datenverarbeitung GmbH
+From: Andreas Steinmetz <ast@domdv.de>
+To: Thomas Hood <jdthood@mail.com>
+Subject: Re: APM driver patch summary
+Cc: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>, rmk@arm.linux.org.uk,
+        linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 21, 2001 at 08:11:11PM -0600, Timothy Covell wrote:
+I'll have a look over the weekend.
+
+On 22-Dec-2001 Thomas Hood wrote:
+> I wrote:
+> ---------------------------------------------------------------------
+> Here is an updated list of the patches:
+> 1. Notify listener of suspend before drivers        (Russell King, me)
+>     (appended)
+> 2. Fix idle handling                                (Andreas Steinmetz)
+>     http://marc.theaimsgroup.com/?l=linux-kernel&m=100754277600661&w=2
+> 3. Control apm idle calling by runtime parameter    (Andrej Borsenkow)
+>     http://marc.theaimsgroup.com/?l=linux-kernel&m=100852862320955&w=2
+> 4. Detect failure to stop CPU on apm idle call      (Andrej Borsenkow)
+>     http://marc.theaimsgroup.com/?l=linux-kernel&m=100869841008117&w=2
+> ---------------------------------------------------------------------
 > 
-> Finally, Farhenheit units are smaller so that they make more convenient
-> divisions: Eg.
+> I have just tried to combine these and I have run into trouble.
+> Patch 4 applies on top of patch 3, but neither of these applies
+> on top of patch 2.  Can you guys sort these out into one big
+> "fix idle calling" patch that includes a runtime parameter
+> to control idle calling, which overrides a default selected
+> either by CONFIG_APM_CPU_IDLE or by a bit of code that checks
+> for CPU stoppage?
 > 
-> 10-20 is downright frigid
-> 20-30 degrees is Freezing!
-> 30-40 is very cold
-> 40-50 is cold
-> 50-60 is blustery
-> 60-70 is brisk
-> 70-80 is confortable
-> 80-90 is warm
-> 90-100 is very hot
-> 100+ is Texas in summertime, WAY too hot !!!  ;-)
+> Or has someone already done this?
 > 
-Blah, Celsius is obviously more natural:
+> The latest Russell King (modified by me) patch is now at:
+>    http://panopticon.csustan.edu/thood/apm.html
+> 
+> --
+> Thomas Hood
+> 
+> 
+> 
 
--50	Ok, this is what I'd call _REALLY_ cold
--40	With proper gear it's survivable but not much fun
--30	Time to put on a fur hat
--20	Long underwear is a good idea
--15	Nice winter day
--10	Slightly warm winter day
--5	Nice warm winter day
-0	Slippery as hell outside, beware!
-5	Cool summer day
-10	Slightly cool summer day
-15	Nice summer day
-20	Very nice summer day
-30	Better apply some sunscreen/take some water with you when going outside
-40	With sunblock & lots of water it's survivable but not much fun
-50	WAY too hot!!!
--- 
-Pekka Pietikainen
-
-
-
-
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH

@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267377AbUIWVUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267378AbUIWV2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267377AbUIWVUz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 17:20:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUIWVOp
+	id S267378AbUIWV2d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 17:28:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267423AbUIWVZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 17:14:45 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:6860 "EHLO baikonur.stro.at")
-	by vger.kernel.org with ESMTP id S267378AbUIWVIn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 17:08:43 -0400
-Subject: [patch 09/20]  dvb/grundig_29504-401: replace 	schedule_timeout() with msleep()
+	Thu, 23 Sep 2004 17:25:17 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:54448 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267378AbUIWVWk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 17:22:40 -0400
+Subject: [patch 1/3]  __FUNCTION__ string concatenation 	deprecated
 To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
-       janitor@sternwelten.at, nacc@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, drizzd@aon.at
 From: janitor@sternwelten.at
-Date: Thu, 23 Sep 2004 23:08:42 +0200
-Message-ID: <E1CAapW-0003ew-MO@sputnik>
+Date: Thu, 23 Sep 2004 23:22:40 +0200
+Message-ID: <E1CAb32-0005nS-Is@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
 
+Description: __FUNCTION__ string concatenation is deprecated
 
+Diff against linux-2.6 up to ChangeSet@1.1938 (04/09/18 20:30:01)
 
+Status: untested
 
-I would appreciate any comments from the janitor@sternweltens list.
+Signed-off-by: Clemens Buchacher <drizzd@aon.at>
 
-Thanks,
-Nish
-
-
-
-Description: Replace dvb_delay() with msleep() to guarantee the
-task delays the desired time.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+# arch/mips/au1000/db1x00/mirage_ts.c
+#   2004/09/20 14:52:26+02:00 drizzd@aon.at +1 -1
+#   __FUNCTION__ string concatenation is deprecated
 Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-
 ---
 
- linux-2.6.9-rc2-bk7-max/drivers/media/dvb/frontends/grundig_29504-401.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
+ linux-2.6.9-rc2-bk7-max/arch/mips/au1000/db1x00/mirage_ts.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-diff -puN drivers/media/dvb/frontends/grundig_29504-401.c~msleep-drivers_media_dvb_frontends_grundig_29504-401 drivers/media/dvb/frontends/grundig_29504-401.c
---- linux-2.6.9-rc2-bk7/drivers/media/dvb/frontends/grundig_29504-401.c~msleep-drivers_media_dvb_frontends_grundig_29504-401	2004-09-21 20:50:16.000000000 +0200
-+++ linux-2.6.9-rc2-bk7-max/drivers/media/dvb/frontends/grundig_29504-401.c	2004-09-21 20:50:16.000000000 +0200
-@@ -27,6 +27,7 @@
- #include <linux/module.h>
- #include <linux/string.h>
- #include <linux/slab.h>
-+#include <linux/delay.h>
+diff -puN arch/mips/au1000/db1x00/mirage_ts.c~function-string-arch_mips_au1000_db1x00_mirage_ts arch/mips/au1000/db1x00/mirage_ts.c
+--- linux-2.6.9-rc2-bk7/arch/mips/au1000/db1x00/mirage_ts.c~function-string-arch_mips_au1000_db1x00_mirage_ts	2004-09-21 21:07:15.000000000 +0200
++++ linux-2.6.9-rc2-bk7-max/arch/mips/au1000/db1x00/mirage_ts.c	2004-09-21 21:07:15.000000000 +0200
+@@ -68,7 +68,7 @@ int wm97xx_comodule_present = 1;
+ #define err(format, arg...) printk(KERN_ERR TS_NAME ": " format "\n" , ## arg)
+ #define info(format, arg...) printk(KERN_INFO TS_NAME ": " format "\n" , ## arg)
+ #define warn(format, arg...) printk(KERN_WARNING TS_NAME ": " format "\n" , ## arg)
+-#define DPRINTK(format, arg...) printk(__FUNCTION__ ": " format "\n" , ## arg)
++#define DPRINTK(format, arg...) printk("%s: " format "\n", __FUNCTION__ , ## arg)
  
- #include "dvb_frontend.h"
- #include "dvb_functions.h"
-@@ -546,7 +547,7 @@ int grundig_29504_401_ioctl (struct dvb_
- 		res = init (i2c);
- 		if ((res == 0) && (state->first)) {
- 			state->first = 0;
--			dvb_delay(200);
-+			msleep(200);
- 		}
- 		return res;
  
+ #define PEN_DOWN_IRQ	AU1000_GPIO_7
 _

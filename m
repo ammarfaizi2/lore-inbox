@@ -1,99 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbTJGNcR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 09:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbTJGNcR
+	id S262344AbTJGNuP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 09:50:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbTJGNuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 09:32:17 -0400
-Received: from gemini.smart.net ([205.197.48.109]:28941 "EHLO gemini.smart.net")
-	by vger.kernel.org with ESMTP id S262121AbTJGNcO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 09:32:14 -0400
-Message-ID: <3F82C05A.71F72E72@smart.net>
-Date: Tue, 07 Oct 2003 09:32:10 -0400
-From: "Daniel B." <dsb@smart.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18+dsb+smp+ide i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IDE DMA errors, massive disk corruption: Why? Fixed Yet? Why not 
- re-do failed op?
-References: <785F348679A4D5119A0C009027DE33C105CDB20A@mcoexc04.mlm.maxtor.com> <3F81CE9A.851806B8@smart.net> <200310062045.h96KjxJP008005@turing-police.cc.vt.edu> <3F81D995.D9C13F33@smart.net> <3F81DE1D.6070304@pobox.com>
-	            <3F824E03.C309F2BE@smart.net> <200310070603.h97631Yl011804@turing-police.cc.vt.edu>
+	Tue, 7 Oct 2003 09:50:15 -0400
+Received: from mailout.zma.compaq.com ([161.114.64.105]:51204 "EHLO
+	zmamail05.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S262344AbTJGNuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 09:50:05 -0400
+Date: Tue, 7 Oct 2003 09:04:49 -0500
+From: mike.miller@hp.com
+To: axboe@suse.de
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org, fred.harris@hp.com
+Subject: cciss update for 2.4.23-pre6
+Message-ID: <20031007140449.GA11102@beardog.cca.cpqcorp.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> 
-> On Tue, 07 Oct 2003 01:24:19 EDT, "Daniel B." said:
-> 
-> > So if some command/batch/etc. wasn't acknowledged, why can't the
-> > kernel retry the command/batch/etc.?
-> 
-> The problem is that the disk ack'ed the command when the block went into the
-> write cache.  
+The patch below adds support for a new intregrated cciss based controller. It also bumps the version to 2.4.50. It was built and tested against the 2.4.23-pre6 kernel tree.
+Please consider this patch for inclusion.
 
-That's the acknowledgment I'm talking about.
+Thanks,
+mikem
+-------------------------------------------------------------------------------
 
-
-> You *DONT* in general get back another ack when the block
-> actually hits the platters.
-
-I know.  I wasn't talking about any acknowledge after actually writing
-the data to the medium.
-
-> > Given the serious of disk data corruption, why isn't the Linux kernel
-> > more reliable here?  Hasn't this family of IDE problems been around
-> > for a couple of years now?
-> 
-> It's hard for the kernel to be more reliable unless you just disable the write cache.
-
-Again, I'm NOT talking about write-cache problems.  I'm talking about
-problems in the communication/handshaking between the kernel and
-the drive.
-
-
-> The biggest reason we don't see more issues like this is that the average MTBF
-> really is up in the 100K hours and up range
-
-That reliability figure is for the _drives_.
-
-That figure obviously does not apply to kernel-to-drive communication,
-because I've had dozens of DMA-interrupt corruptions in the last two
-or so years.
-
-
-
-> Yes, this family of problems has been around ever since write caches were
-> introduced. 
-
-I'm not talking about problems related to write caches.  I'm talking 
-about DMA interrupt problems.  Why do you think I'm talking about
-inside-the-black-box write-cache problems?
-
-
-> It's just taken until now that we've got file system code that's
-> rock solid enough 
-
-Rock solid?  Hah!  If file system (and other disk-related) code is so 
-solid why did my root partition get screwed so badly it can't boot?  
-
-(Even if it's bad hardware's fault that an interrupt got lost, and 
-even if it's unreasonably complicated (or impossible) for the
-kernel to retry an unacknowledged command, why didn't the kernel
-stop writing to that disk after the first unacknowledged command?)
-
-
-> that the write cache is a major reliability issue - for the
-> longest time, one kernel bug or another has been more of a concern.
-
-It's not "has been"--it is still a problem, in the newest (is .22 
-still the newest) released stable kernel.  
-
-Daniel
--- 
-Daniel Barclay
-dsb@smart.net
+diff -burN lx2423-pre6.orig/Documentation/cciss.txt lx2423-pre6/Documentation/cciss.txt
+--- lx2423-pre6.orig/Documentation/cciss.txt	2003-10-07 08:29:59.000000000 -0500
++++ lx2423-pre6/Documentation/cciss.txt	2003-10-07 08:40:05.000000000 -0500
+@@ -13,6 +13,7 @@
+ 	* SA 642
+ 	* SA 6400
+ 	* SA 6400 U320 Expansion Module
++	* SA 6i
+ 
+ If nodes are not already created in the /dev/cciss directory
+ 
+diff -burN lx2423-pre6.orig/drivers/block/cciss.c lx2423-pre6/drivers/block/cciss.c
+--- lx2423-pre6.orig/drivers/block/cciss.c	2003-10-07 08:29:59.000000000 -0500
++++ lx2423-pre6/drivers/block/cciss.c	2003-10-07 08:39:39.000000000 -0500
+@@ -45,13 +45,13 @@
+ #include <linux/genhd.h>
+ 
+ #define CCISS_DRIVER_VERSION(maj,min,submin) ((maj<<16)|(min<<8)|(submin))
+-#define DRIVER_NAME "HP CISS Driver (v 2.4.47)"
+-#define DRIVER_VERSION CCISS_DRIVER_VERSION(2,4,47)
++#define DRIVER_NAME "HP CISS Driver (v 2.4.50)"
++#define DRIVER_VERSION CCISS_DRIVER_VERSION(2,4,50)
+ 
+ /* Embedded module documentation macros - see modules.h */
+ MODULE_AUTHOR("Hewlett-Packard Company");
+-MODULE_DESCRIPTION("Driver for HP SA5xxx SA6xxx Controllers version 2.4.47");
+-MODULE_SUPPORTED_DEVICE("HP SA5i SA5i+ SA532 SA5300 SA5312 SA641 SA642 SA6400"); 
++MODULE_DESCRIPTION("Driver for HP SA5xxx SA6xxx Controllers version 2.4.50");
++MODULE_SUPPORTED_DEVICE("HP SA5i SA5i+ SA532 SA5300 SA5312 SA641 SA642 SA6400 6i"); 
+ MODULE_LICENSE("GPL");
+ 
+ #include "cciss_cmd.h"
+@@ -76,6 +76,8 @@
+                         0x0E11, 0x409C, 0, 0, 0},
+ 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
+                         0x0E11, 0x409D, 0, 0, 0},
++	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
++                        0x0E11, 0x4091, 0, 0, 0},
+ 	{0,}
+ };
+ MODULE_DEVICE_TABLE(pci, cciss_pci_device_id);
+@@ -95,6 +97,7 @@
+ 	{ 0x409B0E11, "Smart Array 642", &SA5_access},
+ 	{ 0x409C0E11, "Smart Array 6400", &SA5_access},
+ 	{ 0x409D0E11, "Smart Array 6400 EM", &SA5_access},
++	{ 0x40910E11, "Smart Array 6i", &SA5_access},
+ };
+ 
+ /* How long to wait (in millesconds) for board to go into simple mode */

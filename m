@@ -1,29 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263346AbTCUS3O>; Fri, 21 Mar 2003 13:29:14 -0500
+	id <S263740AbTCUS0B>; Fri, 21 Mar 2003 13:26:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263689AbTCUS2a>; Fri, 21 Mar 2003 13:28:30 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:58499
-	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263757AbTCUS10>; Fri, 21 Mar 2003 13:27:26 -0500
-Date: Fri, 21 Mar 2003 19:42:37 GMT
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200303211942.h2LJgbE1025911@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: typo fix for tulip
-Cc: jgarzik@redhat.com
+	id <S263732AbTCUSZD>; Fri, 21 Mar 2003 13:25:03 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:9143 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S263728AbTCUSYU>;
+	Fri, 21 Mar 2003 13:24:20 -0500
+Message-ID: <3E7B5B41.2070308@us.ibm.com>
+Date: Fri, 21 Mar 2003 10:34:41 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mel Gorman <mel@csn.ul.ie>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Poor performance with pcnet32 on SMP
+References: <Pine.LNX.4.53.0303202346220.3340@skynet>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/net/tulip/winbond-840.c linux-2.5.65-ac2/drivers/net/tulip/winbond-840.c
---- linux-2.5.65/drivers/net/tulip/winbond-840.c	2003-03-06 17:04:27.000000000 +0000
-+++ linux-2.5.65-ac2/drivers/net/tulip/winbond-840.c	2003-03-20 18:48:31.000000000 +0000
-@@ -17,7 +17,7 @@
- 	Support and updates available at
- 	http://www.scyld.com/network/drivers.html
- 
--	Do not remove the copyright infomation.
-+	Do not remove the copyright information.
- 	Do not change the version information unless an improvement has been made.
- 	Merely removing my name, as Compex has done in the past, does not count
- 	as an improvement.
+Mel Gorman wrote:
+> I have being noticing some seriously poor network performance with SMP
+> enabled. The machine is a xSeries 350 with quad xeon procesors. Under UP,
+> I get decent transfer rates but with SMP enabled, it won't get over 2kB/s.
+
+I have the same kind of machine.  I've seen the same problems, but
+they're intermittent; I haven't been able to really discern a pattern.
+I have the feeling that part of the problem may be with the machine on
+the other side of the connection.
+
+I have no problems copying between two 2.5.65 machines.  In fact, my
+speeds are ~10 MBytes/sec.  (yes, megabytes)
+
+> I tried binding interrupts to one processor with
+> 
+> echo 1 > /proc/irq/16/smp_affinity
+> 
+> which, according to mail archives fixed the problem for other people, but
+> the result is the same. A CVS checkout from a server on the local lan of a
+> source tree less than 1MB took over an hour to complete but under UP
+> completes in about 2 seconds. This occurs with both 2.4.20 and 2.5.64.
+
+Yeah, kirq was causing that and it _was_ broken for a bit.  It should
+have been fixed by 2.5.64, though.
+
+> In case it is relevant, the dmesg output related to the card on 2.5.64 is
+> 
+> pcnet32.c:v1.27b 01.10.2002 tsbogend@alpha.franken.de
+> pcnet32: PCnet/FAST III 79C975 at 0x2200, 00 02 55 fc 6d 21 assigned IRQ 16.
+> eth0: registered as PCnet/FAST III 79C975
+> pcnet32: 1 cards_found.
+> eth0: link up, 10Mbps, half-duplex, lpa 0x0021
+> Module pcnet32 cannot be unloaded due to unsafe usage in include/linux/module.h:457
+
+I'm running on a full-duplex 100Mbps network, so maybe these things have
+some kind of issue with 10Mbps.  I'll try plugging an old hub in and see
+what happens.
+
+Here's mine:
+
+pcnet32.c:v1.27b 01.10.2002 tsbogend@alpha.franken.de
+pcnet32: PCnet/FAST III 79C975 at 0x2240, 00 02 55 fc 43 20 assigned IRQ 16.
+eth2: registered as PCnet/FAST III 79C975
+pcnet32: 1 cards_found.
+eth2: link up, 100Mbps, full-duplex, lpa 0x45E1
+
+-- 
+Dave Hansen
+haveblue@us.ibm.com
+

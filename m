@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130150AbQKTL7E>; Mon, 20 Nov 2000 06:59:04 -0500
+	id <S129308AbQKTME0>; Mon, 20 Nov 2000 07:04:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129308AbQKTL6y>; Mon, 20 Nov 2000 06:58:54 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:6922
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129210AbQKTL6m>; Mon, 20 Nov 2000 06:58:42 -0500
-Date: Mon, 20 Nov 2000 03:28:28 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Andries Brouwer <aeb@veritas.com>
-cc: Taisuke Yamada <tai@imasy.or.jp>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Large "clipped" IDE disk support for 2.4 when using old
- BIOS
-In-Reply-To: <20001120032615.A1540@veritas.com>
-Message-ID: <Pine.LNX.4.10.10011200326060.22419-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129670AbQKTMEQ>; Mon, 20 Nov 2000 07:04:16 -0500
+Received: from atlantis.hlfl.org ([213.41.91.231]:53253 "HELO
+	atlantis.hlfl.org") by vger.kernel.org with SMTP id <S129308AbQKTMEB>;
+	Mon, 20 Nov 2000 07:04:01 -0500
+Date: Mon, 20 Nov 2000 12:33:58 +0100
+From: "Arnaud S . Launay" <asl@launay.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.18pre22
+Message-ID: <20001120123358.A17268@profile4u.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E13xJ14-0002Do-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E13xJ14-0002Do-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Nov 19, 2000 at 01:11:33AM +0000
+X-PGP-Key: http://launay.org/pgpkey.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Le Sun, Nov 19, 2000 at 01:11:33AM +0000, Alan Cox a écrit:
+> Bugs to go: PS/2 mouse detection
+> Anything which isnt a strict bug fix or previously agreed is now 2.2.19
+> material.
 
-Andries,
+Once again, I needed this patch by Dave Miller to compile the
+kernel:
 
-Don't you mean
 
-(drive->id->cfs_enable_1 & 0x0400)		word85
-and not
-(drive->id->command_set_1 & 0x0400)		word82
+--- kernel/sysctl.c.~1~	Thu Nov  9 19:41:52 2000
++++ kernel/sysctl.c	Fri Nov 10 02:52:30 2000
+@@ -1173,6 +1173,13 @@
+ 	return -ENOSYS;
+ }
+ 
++int sysctl_jiffies(ctl_table *table, int *name, int nlen,
++		void *oldval, size_t *oldlenp,
++		void *newval, size_t newlen, void **context)
++{
++	return -ENOSYS;
++}
++
+ int proc_dostring(ctl_table *table, int write, struct file *filp,
+ 		  void *buffer, size_t *lenp)
+ {
 
-Because when bit 10 of word 85 is not set then clip or HPArea is not enabled.
-
-Cheers,
-
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
-
+	Arnaud.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264614AbSJVQfE>; Tue, 22 Oct 2002 12:35:04 -0400
+	id <S264755AbSJVQmc>; Tue, 22 Oct 2002 12:42:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264649AbSJVQfE>; Tue, 22 Oct 2002 12:35:04 -0400
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:40260 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S264614AbSJVQfD>; Tue, 22 Oct 2002 12:35:03 -0400
-Date: Tue, 22 Oct 2002 09:49:20 -0700 (PDT)
-From: "Matt D. Robinson" <yakker@aparity.com>
-To: Christoph Hellwig <hch@sgi.com>
-cc: Piet Delaney <piet@www.piet.net>, <linux-kernel@vger.kernel.org>,
-       Keith Owens <kaos@ocs.com.au>, <steiner@sgi.com>,
-       <jeremy@classic.engr.sgi.com>
-Subject: Re: [PATCH] 2.5.44: lkcd (9/9): dump driver and build files
-In-Reply-To: <20021022144745.A7367@sgi.com>
-Message-ID: <Pine.LNX.4.44.0210220943290.24156-100000@nakedeye.aparity.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264764AbSJVQmc>; Tue, 22 Oct 2002 12:42:32 -0400
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:22539 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S264755AbSJVQmb>;
+	Tue, 22 Oct 2002 12:42:31 -0400
+Date: Tue, 22 Oct 2002 09:47:26 -0700
+From: Greg KH <greg@kroah.com>
+To: Brad Hards <bhards@bigpond.net.au>
+Cc: Take Vos <Take.Vos@binary-magic.com>, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: USB mouse does not apear in /dev/input
+Message-ID: <20021022164726.GA6471@kroah.com>
+References: <200210221046.46700.Take.Vos@binary-magic.com> <200210221909.10753.bhards@bigpond.net.au> <200210221148.30286.Take.Vos@binary-magic.com> <200210222003.36872.bhards@bigpond.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210222003.36872.bhards@bigpond.net.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Oct 2002, Christoph Hellwig wrote:
-|>On Mon, Oct 21, 2002 at 03:06:59PM -0700, Piet Delaney wrote:
-|>> > Shouldn't much of this be static? again volatile is seldomly a good idea.
-|>> 
-|>> I suppose  with 'bio_complete' being an int changing it's value is
-|>> atomic as long as it's treated a a volatile.Using a spinlock might
-|>> be cleaner.
-|>
-|>an atomic_t or set_bit/test_bit/etc is used to be atomic in the kernel
-|>if you don't want a lock.  And in this case a lock looks like overkill.
+On Tue, Oct 22, 2002 at 08:03:36PM +1000, Brad Hards wrote:
+> On Tue, 22 Oct 2002 19:48, Take Vos wrote:
+> > T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=1.5 MxCh= 0
+> > D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+> > P:  Vendor=046d ProdID=c00c Rev= 6.20
+> > S:  Manufacturer=Logitech
+> > S:  Product=USB Mouse
+> > C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=100mA
+> > I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=02 Driver=(none)
+> > E:  Ad=81(I) Atr=03(Int.) MxPS=   4 Ivl=10ms
+> So it looks like you don't have a driver for the mouse loaded (should be hid). 
+> Can you check this in driverfs? (You used to be able to do this in 
+> /proc/bus/usb/drivers,  but the maintainer knew better :-{)
 
-All of the volatile/atomic, C99, typedef, data format, return format,
-u64/32/16/etc, are all addressed and fixed in the latest patches.  The
-dump_bp() is removed for now, to be considered later if/when it makes
-sense.
+The maintainer didn't have a choice :)
+That info isn't known to the usb core anymore, only the driver core.
 
-We'd want to keep the ioctl() interface, given the number of programs
-using it across multiple platforms (and is being considered for
-multiple OSes).  DUMP_MAJOR has changed to CRASH_DUMP_MAJOR and is
-now standard in major.h.  Finally, the MAINTAINERS and Config.help
-files are updated.
+Do a:
+	ls <driverfs_mount_point>/bus/usb/drivers
+to see what USB drivers are registered.
 
-We're correcting a few more issues with the mem_map[], page_is_ram(),
-etc., usage, but those shouldn't take long.
+thanks,
 
-If anyone needs a preliminary patch this morning, let me know.
-
---Matt
-
-P.S.  Pete, we can go through the dump_bp() stuff on the mailing list.
-
+gre k-h

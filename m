@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274133AbRIXSY3>; Mon, 24 Sep 2001 14:24:29 -0400
+	id <S274131AbRIXS3t>; Mon, 24 Sep 2001 14:29:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274132AbRIXSYL>; Mon, 24 Sep 2001 14:24:11 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:58724 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S274131AbRIXSX4>; Mon, 24 Sep 2001 14:23:56 -0400
-To: Dave McCracken <dmccr@us.ibm.com>
+	id <S274143AbRIXS33>; Mon, 24 Sep 2001 14:29:29 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:19217 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S274131AbRIXS3W>; Mon, 24 Sep 2001 14:29:22 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: Linux VM design
+Date: Mon, 24 Sep 2001 20:37:17 +0200
+X-Mailer: KMail [version 1.3.1]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview
-In-Reply-To: <46458FB0D75@vcnet.vc.cvut.cz> <87110000.1001354585@baldur>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 24 Sep 2001 12:15:13 -0600
-In-Reply-To: <87110000.1001354585@baldur>
-Message-ID: <m1sndc78we.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+In-Reply-To: <20010916204528.6fd48f5b.skraw@ithnet.com> <20010922105332Z16449-2757+1233@humbolt.nl.linux.org> <6514162334.20010924123631@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <6514162334.20010924123631@port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010924182948Z16175-2757+1593@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave McCracken <dmccr@us.ibm.com> writes:
-
-> --On Monday, September 24, 2001 19:52:13 +0000 Petr Vandrovec
-> <VANDROVE@vc.cvut.cz> wrote:
+On September 24, 2001 11:36 am, VDA wrote:
+> Daniel Phillips <phillips@bonn-fries.net> wrote:
+> DP> The arguments in support of aging over LRU that I'm aware of are:
 > 
-> >> > Yes, but the modules are not binary-only.
-> >> > The sourcecode is in the package, although it is not GPL.
-> >>
-> >> I believe they only provide source for an interface layer that can be
-> >> compiled against a specific version of the kernel.  I think the core
-> >> drivers are binary only.
-> >
-> > VMnet and VMppuser drivers are completely standalone and can work
-> > without VMware. You can persuade VMmon module to load and execute
-> > arbitrary code on kernel level - it just provides virtual machine
-> > environment (switches CPU context), but as it even does not link to
-> > anything else, I do not see any problem here. DRI drivers also allows
-> > you to smash arbitrary piece of memory...
-
-Providing an interface to run arbitrary code in kernel space is definentily
-against kernel policy.  As adding syscalls from modules have long been
-officially off limits.  If the DRI code allows you to smash arbitrary pieces
-of memory it probably needs a few checks.  DRI should be an interface
-layer that makes it as safe as possible to directly access the video
-card from user space.
-
-> >
-> > As for license on these modules - I was under impression that they are
-> > under GPL, but I'll ask VMware for clarification.
+> DP>   - incrementing an age is more efficient than resetting several LRU 
+> DP>     list links
+> DP>   - also captures some frequency-of-use information
 > 
-> As a couple of people pointed out privately to me, I was mistaken.  VMware does
-> include the complete source to its drivers.
+> Of what use this info can be? If one page is accessed 100 times/second
+> and other one once in 10 seconds, they both have to stay in RAM.
+> VM should take 'time since last access' into account whan deciding
+> which page to swap out, not how often it was referenced.
 
-VMmon where it basically allows you to run arbitrary code at the kernel level
-does appear to be complete source to me.  Complete source to an interface
-layer yes, but not complete source.
+You might want to have a look at this:
 
-> A quick check of the file headers shows a VMware copyright with no mention of
-> GPL.  Granted, that's not definitive, but it's a data point.
+   http://archi.snu.ac.kr/jhkim/seminar/96-004.ps
+   (lrfu algorithm)
 
-Well whatever is loaded with VMmon counts as a binary only kernel module.
+To tell the truth, I don't really see why the frequency information is all
+that useful either.  Rik suggested it's good for streaming IO but we already 
+have effective means of dealing with that that don't rely on any frequency 
+information.
 
-Eric
+So the list of reasons why aging is good is looking really short.
+
+--
+Daniel

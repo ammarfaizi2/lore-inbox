@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263246AbRFGVdV>; Thu, 7 Jun 2001 17:33:21 -0400
+	id <S263250AbRFGVgv>; Thu, 7 Jun 2001 17:36:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263250AbRFGVdL>; Thu, 7 Jun 2001 17:33:11 -0400
-Received: from pec-28-242.tnt3.me2.uunet.de ([149.225.28.242]:22175 "EHLO
-	localhost.homeip.net") by vger.kernel.org with ESMTP
-	id <S263246AbRFGVdD> convert rfc822-to-8bit; Thu, 7 Jun 2001 17:33:03 -0400
-X-Sending-Host: ecce.homeip.net
-X-Copyright: (c) 2001 Thorsten Glaser <mirabilos@ePOST.de> - All rights reserved. Forwarding with permission only!
-Date: Thu, 7 Jun 2001 21:30:54 +0000 (UTC)
-From: mirabilos {Thorsten Glaser} <isch@ecce.homeip.net>
-Reply-To: <mirabilos@ePOST.de>
-To: "L. K." <lk@Aniela.EU.ORG>
-cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: temperature standard - global config option?
-In-Reply-To: <Pine.LNX.4.21.0106080022570.1875-100000@ns1.Aniela.EU.ORG>
-Message-ID: <Pine.BSO.4.33.0106072128580.13090-100000@localhost>
+	id <S263251AbRFGVgl>; Thu, 7 Jun 2001 17:36:41 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:22023 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S263250AbRFGVgd>; Thu, 7 Jun 2001 17:36:33 -0400
+Date: Thu, 7 Jun 2001 17:00:42 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Shane Nay <shane@minirl.com>
+Cc: "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
+        Sean Hunter <sean@dev.sportingbet.com>,
+        Xavier Bestel <xavier.bestel@free.fr>, linux-kernel@vger.kernel.org
+Subject: Re: Break 2.4 VM in five easy steps
+In-Reply-To: <0106071431441C.32519@compiler>
+Message-ID: <Pine.LNX.4.21.0106071659400.1156-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It was posted by L. K. where I now add my 0.02 EUR...
-> On Thu, 7 Jun 2001, Albert D. Cahalan wrote:
-> > Negative temperatures do not really exist.
-> Are you really sure about this ?
 
-I am. I made Abitur (german degree after 13yrs of school)
-with physics being an important course, and there can not
-be any temperature less than 0 K (or -273.15°C if you want).
-This is because temperature is nothing but the movement of
-pieces of materie (and even photons, ergo energy).
 
--mirabilos
--- 
-C:\>debug
--e100 EA F0 FF 00 F0
--g
---->Enjoy!
+On Thu, 7 Jun 2001, Shane Nay wrote:
+
+> (Oh, BTW, I really appreciate the work that people have done on the VM, but 
+> folks that are just talking..., well, think clearly before you impact other 
+> people that are writing code.)
+
+If all the people talking were reporting results we would be really happy. 
+
+Seriously, we really lack VM reports.
 

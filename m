@@ -1,168 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272302AbTHFU6b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 16:58:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272325AbTHFU6b
+	id S272120AbTHFU47 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 16:56:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272302AbTHFU47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 16:58:31 -0400
-Received: from 64-60-75-69.cust.telepacific.net ([64.60.75.69]:5640 "EHLO
-	racerx.ixiacom.com") by vger.kernel.org with ESMTP id S272302AbTHFU6M
+	Wed, 6 Aug 2003 16:56:59 -0400
+Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:25094 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S272120AbTHFU43
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 16:58:12 -0400
-Message-ID: <3F316ACC.7080008@ixiacom.com>
-Date: Wed, 06 Aug 2003 13:53:32 -0700
-From: Dan Kegel <dkegel@ixiacom.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030617
-X-Accept-Language: en
+	Wed, 6 Aug 2003 16:56:29 -0400
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+To: Russell King <rmk@arm.linux.org.uk>, Pavel Roskin <proski@gnu.org>
+Subject: Re: [PATCH 2.6] ToPIC specific init for yenta_socket
+Date: Wed, 6 Aug 2003 22:50:55 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-pcmcia <linux-pcmcia@lists.infradead.org>
+References: <200308062025.08861.daniel.ritz@gmx.ch> <20030806194430.D16116@flint.arm.linux.org.uk>
+In-Reply-To: <20030806194430.D16116@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: Steve Dickson <SteveD@redhat.com>
-CC: util-linux@math.uio.no, nfs@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [NFS] NFS Mount Patch: Support servers that don't support portmapper
- over TCP
-References: <3F316446.3020808@RedHat.com>
-In-Reply-To: <3F316446.3020808@RedHat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308062250.55885.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Dickson wrote:
-> This patch changes the default transport of NFS mounts
-> from UDP to TCP, iff the transport not explicitly
-> specified and the server support TCP mounts.
+On Wed August 6 2003 20:44, Russell King wrote:
+> On Wed, Aug 06, 2003 at 08:25:08PM +0200, Daniel Ritz wrote:
+> > this patch adds override functions for the ToPIC family of controllers.
+> > also adds the device id for ToPIC100 and (untested) support for zoom
+> > video for ToPIC97/100.
+> > 
+> > tested with start/stop and suspend/resume.
 > 
-> This patch is backwards compatible with servers that
-> don't support TCP mounts since it quarries the server
-> (which was already happening for the mount version)
-> to see if the server support TCP mounts.
+> We currently have some fairly serious IRQ problems with yenta at the
+> moment.  I'm holding all patches until we get this problem resolved -
+> it seems to be caused by several bad changes over the past couple of
+> years accumulating throughout the 2.5 series.
 
-Say, as long as we're on the subject of supporting servers
-that don't support TCP mounts, I've found the following
-patch neccessary to support servers that don't support
-TCP even for enumrating services.  (Hint: some operating systems
-have an arbitrary limit on TCP sessions.)
+yep, i saw the mails on lkml...
 
-Tested in busybox nfsmount, rediffed against util-linux-2.12pre,
-compiles ok.  I don't know if the change in meaning of the
-udp mount option is a good idea in general, but it sure helped
-us here.
-- Dan
+> 
+> Therefore, I don't want to add any further changes into the mix just
+> yet.
 
---- util-linux-2.12pre/mount/nfsmount.c.old	Wed Aug  6 13:39:24 2003
-+++ util-linux-2.12pre/mount/nfsmount.c	Wed Aug  6 13:46:51 2003
-@@ -74,6 +74,9 @@
+ok. the topic code is low-prio as these chips works mostly w/o the patch.
+my craptop just fucks up in 1 of 30 boots or so.
 
-  static char *nfs_strerror(int stat);
+> 
+> Also, assigning to socket->socket.ops->init modifies the global
+> yenta_socket_operations structure, which I'm far from happy about.
 
-+static struct pmaplist *
-+pmap_getmaps_udp (struct sockaddr_in *address);
-+
-  #define MAKE_VERSION(p,q,r)	(65536*(p) + 256*(q) + (r))
+yes, i saw that too, but copy-pasted from the other overrides to fix up
+in the next patch...i think ->init should always point to yenta_init,
+the additional init function should be called from inside there, before
+activating the interrupts...wanna have a patch?
 
-  #define MAX_NFSPROT ((nfs_mount_version >= 4) ? 3 : 2)
-@@ -148,7 +151,10 @@
-  	p.pm_port = port;
+-daniel
 
-  	server_addr->sin_port = PMAPPORT;
--	pmap = pmap_getmaps(server_addr);
-+	if (proto == IPPROTO_TCP)
-+		pmap = pmap_getmaps(server_addr);
-+	else
-+		pmap = pmap_getmaps_udp(server_addr);
 
-  	while (pmap) {
-  		if (pmap->pml_map.pm_prog != prog)
-@@ -883,3 +889,91 @@
-          return port;
-  }
-  #endif
-+
-+/* added 30 June 2003, dkegel@ixiacom.com, to support true udp-only mounts */
-+
-+/* @(#)pmap_getmaps.c	2.2 88/08/01 4.0 RPCSRC */
-+/*
-+ * Sun RPC is a product of Sun Microsystems, Inc. and is provided for
-+ * unrestricted use provided that this legend is included on all tape
-+ * media and as a part of the software program in whole or part.  Users
-+ * may copy or modify Sun RPC without charge, but are not authorized
-+ * to license or distribute it to anyone else except as part of a product or
-+ * program developed by the user.
-+ *
-+ * SUN RPC IS PROVIDED AS IS WITH NO WARRANTIES OF ANY KIND INCLUDING THE
-+ * WARRANTIES OF DESIGN, MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
-+ * PURPOSE, OR ARISING FROM A COURSE OF DEALING, USAGE OR TRADE PRACTICE.
-+ *
-+ * Sun RPC is provided with no support and without any obligation on the
-+ * part of Sun Microsystems, Inc. to assist in its use, correction,
-+ * modification or enhancement.
-+ *
-+ * SUN MICROSYSTEMS, INC. SHALL HAVE NO LIABILITY WITH RESPECT TO THE
-+ * INFRINGEMENT OF COPYRIGHTS, TRADE SECRETS OR ANY PATENTS BY SUN RPC
-+ * OR ANY PART THEREOF.
-+ *
-+ * In no event will Sun Microsystems, Inc. be liable for any lost revenue
-+ * or profits or other special, indirect and consequential damages, even if
-+ * Sun has been advised of the possibility of such damages.
-+ *
-+ * Sun Microsystems, Inc.
-+ * 2550 Garcia Avenue
-+ * Mountain View, California  94043
-+ */
-+#if !defined(lint) && defined(SCCSIDS)
-+static char sccsid[] = "@(#)[copy of] pmap_getmaps.c 1.10 87/08/11 Copyr 1984 Sun Micro";
-+#endif
-+
-+/*
-+ * [copy of] pmap_getmap.c
-+ * Client interface to pmap rpc service.
-+ * contains pmap_getmaps, which is only tcp service involved
-+ *
-+ * Copyright (C) 1984, Sun Microsystems, Inc.
-+ */
-+
-+#include <rpc/rpc.h>
-+#include <rpc/pmap_prot.h>
-+#include <rpc/pmap_clnt.h>
-+#include <sys/socket.h>
-+#include <netdb.h>
-+#include <stdio.h>
-+#include <errno.h>
-+
-+/*
-+ * Get a copy of the current port maps.
-+ * Calls the pmap service remotely to do get the maps.
-+ */
-+struct pmaplist *
-+pmap_getmaps_udp(struct sockaddr_in *address)
-+{
-+	struct pmaplist *head = (struct pmaplist *) NULL;
-+	int fd = -1;
-+	struct timeval minutetimeout;
-+	struct timeval retry;
-+	CLIENT *client;
-+
-+	minutetimeout.tv_sec = 60;
-+	minutetimeout.tv_usec = 0;
-+	address->sin_port = htons(PMAPPORT);
-+#if 0
-+	client = clnttcp_create(address, PMAPPROG, PMAPVERS, &fd, 50, 500);
-+#else
-+	/* FIXME: this retry interval's a bit arbitrary...*/
-+	retry.tv_sec = 5;
-+	retry.tv_usec = 0;
-+	client = clntudp_create(address, PMAPPROG, PMAPVERS, retry, &fd);
-+#endif
-+	if (client != (CLIENT *) NULL) {
-+		if (CLNT_CALL(client, PMAPPROC_DUMP, (xdrproc_t) xdr_void, NULL,
-+				(xdrproc_t) xdr_pmaplist, (caddr_t) & head, minutetimeout) != RPC_SUCCESS) {
-+			clnt_perror(client, _("pmap_getmaps rpc problem"));
-+		}
-+		CLNT_DESTROY(client);
-+	}
-+	/* (void)close(fd); CLNT_DESTROY already closed it */
-+	address->sin_port = 0;
-+	return head;
-+}
-+
+ps: in a few days, when i get my other laptop back, i have access to one of
+those TI chips with all the nice problems (ie. under FreeBigStinkyDaemon the
+machine dies under an interrupt storm when activating the socket) so i could
+also test the irq routing and other fixes a bit. 
 

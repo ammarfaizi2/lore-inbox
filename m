@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261711AbTHZRZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 13:25:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbTHZRZz
+	id S261896AbTHZR1R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 13:27:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbTHZR1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 13:25:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42974 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261711AbTHZRZy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 13:25:54 -0400
-Message-ID: <3F4B9814.2090202@pobox.com>
-Date: Tue, 26 Aug 2003 13:25:40 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: Francois Romieu <romieu@fr.zoreil.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [bk patches] net driver updates
-References: <20030817183137.GA18521@gtf.org> <20030823154231.A11381@electric-eye.fr.zoreil.com> <20030826171754.GD16831@matchmail.com>
-In-Reply-To: <20030826171754.GD16831@matchmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 26 Aug 2003 13:27:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:58071 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261896AbTHZR1O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 13:27:14 -0400
+Date: Tue, 26 Aug 2003 10:29:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: mulix@mulix.org, arjanv@redhat.com, mingo@redhat.com,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] Futex non-page-pinning fix
+Message-Id: <20030826102931.28ecb5aa.akpm@osdl.org>
+In-Reply-To: <20030826104535.GR4306@holomorphy.com>
+References: <20030825231449.7de28ba6.akpm@osdl.org>
+	<Pine.LNX.4.44.0308260233550.20822-100000@devserv.devel.redhat.com>
+	<20030826000218.2ceaea1d.akpm@osdl.org>
+	<1061884611.2982.4.camel@laptop.fenrus.com>
+	<20030826080759.GK13390@actcom.co.il>
+	<20030826103833.GX1715@holomorphy.com>
+	<20030826034458.35c54fbf.akpm@osdl.org>
+	<20030826104535.GR4306@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
-> On Sat, Aug 23, 2003 at 03:42:31PM +0200, Francois Romieu wrote:
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+>  William Lee Irwin III <wli@holomorphy.com> wrote:
+>  >> except you have the usual intractable disaster
+>  >>  whenever file-backed pages are anonymized via truncate().
 > 
->>Jeff Garzik <jgarzik@pobox.com> :
->>[net-drivers-2.6 update]
->>
->>> drivers/net/sis190.c              | 2094 +++++++++++++++++++++++++++++---------
->>
->>
->>synchronize_irq() requires an argument when built with CONFIG_SMP.
+>  On Tue, Aug 26, 2003 at 03:44:58AM -0700, Andrew Morton wrote:
+>  > They only arose due to races between major faults and truncate.
+>  > That got fixed.
 > 
-> 
-> Shouldn't it also require it for the UP case?  Or is this one of those
-> subtle things that tells you it's not working on SMP?
+>  Then it sounds relatively easy to localize the search structure (if you
+>  care to do so),
 
+The "group of all processes which could potentially (or really do) share a
+chunk of anon memory" thing sounds tricky.
 
-the latter :)
+> apart from a policy decision about what on earth to do
+>  about waiters on truncated futexes.
 
-	Jeff
-
+erk, screwed.
 
 

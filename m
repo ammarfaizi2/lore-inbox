@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130448AbRCCLO4>; Sat, 3 Mar 2001 06:14:56 -0500
+	id <S130449AbRCCLza>; Sat, 3 Mar 2001 06:55:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130449AbRCCLOh>; Sat, 3 Mar 2001 06:14:37 -0500
-Received: from 13dyn216.delft.casema.net ([212.64.76.216]:49929 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S130448AbRCCLO2>; Sat, 3 Mar 2001 06:14:28 -0500
-Message-Id: <200103031114.MAA13672@cave.bitwizard.nl>
-Subject: Re: 2.4 and 2GB swap partition limit
-In-Reply-To: <Pine.LNX.4.21.0103030113520.17415-100000@benatar.snurgle.org> from
- William T Wilson at "Mar 3, 2001 01:14:28 am"
-To: William T Wilson <fluffy@snurgle.org>
-Date: Sat, 3 Mar 2001 12:14:22 +0100 (MET)
-CC: Matt_Domsch@Dell.com, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S130451AbRCCLzU>; Sat, 3 Mar 2001 06:55:20 -0500
+Received: from kerberos.suse.cz ([195.47.106.10]:50698 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S130449AbRCCLzI>;
+	Sat, 3 Mar 2001 06:55:08 -0500
+Date: Sat, 3 Mar 2001 12:54:36 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VT82C586B USB PCI card, Linux USB
+Message-ID: <20010303125436.A803@suse.cz>
+In-Reply-To: <200103030503.f2353PQ21936@513.holly-springs.nc.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200103030503.f2353PQ21936@513.holly-springs.nc.us>; from rothwell@holly-springs.nc.us on Sat, Mar 03, 2001 at 12:13:49AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William T Wilson wrote:
-> On Fri, 2 Mar 2001 Matt_Domsch@Dell.com wrote:
+On Sat, Mar 03, 2001 at 12:13:49AM -0500, Michael Rothwell wrote:
+> I have a USB PCI card, which shows up as this in `lspci`:
 > 
-> > Linus has spoken, and 2.4.x now requires swap = 2x RAM.
+> 00:09.0 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 04)
 > 
-> I think I missed this.  What possible value does this have?  (Not even
-> Sun, the original purveyors of the 2x RAM rule, need this any more).
+> ... it appears that they tossed the whole southbridge chip onto a pci
+> board, and disabled everything but USB.
 
-RAM is still about 100x more expensive than HD. So I always recommend
-you use about 2% of the money you spent on RAM to pay for the HD space
-to handle swap.
-
-Actually the deal is: either use enough swap (about 2x RAM) or use
-none at all. 
-
-A "good" operating system will want to use say half your memory for
-buffers, even if there are processes using that half of your RAM. Not
-when they are actively using it, but only after they have NOT used it
-for say an hour. Then the users of the machine will see efficient use
-of the resources. It does have the disadvantage that when you come back 
-in the morning, your xterm may have been swapped out because of the
-nightly backups and stuff....
-
-				Roger. 
+No, they have a separate USB chip, but it has the same PCI ID as the
+builtin silicon in the southbridge.
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+Vojtech Pavlik
+SuSE Labs

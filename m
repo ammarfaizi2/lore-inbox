@@ -1,113 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVB1TGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbVB1TGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbVB1TGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 14:06:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVB1TEn
+	id S261721AbVB1TGS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 14:06:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbVB1TDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 14:04:43 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:30120 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261717AbVB1S4x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 13:56:53 -0500
-Message-ID: <42236979.5030702@sgi.com>
-Date: Mon, 28 Feb 2005 10:56:57 -0800
-From: Jay Lan <jlan@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: zh-tw, en-us, en, zh-cn, zh-hk
+	Mon, 28 Feb 2005 14:03:37 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:31144 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S261721AbVB1TCA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 14:02:00 -0500
+Date: Mon, 28 Feb 2005 19:01:53 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       clameter@sgi.com
+Subject: Re: [PATCH] 2/2 Prezeroing large blocks of pages during allocation
+In-Reply-To: <1109609180.6921.22.camel@localhost>
+Message-ID: <Pine.LNX.4.58.0502281858520.29288@skynet>
+References: <20050227134316.2D0F1ECE4@skynet.csn.ul.ie> <1109609180.6921.22.camel@localhost>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>, kaigai@ak.jp.nec.com,
-       jbarnes@sgi.com
-Subject: Re: [PATCH 2.6.11-rc4-mm1] end-of-proces handling for acct-csa
-References: <421EA8FF.1050906@sgi.com>	 <20050224204646.704680e9.akpm@osdl.org> <1109314660.1738.206.camel@frecb000711.frec.bull.fr>
-In-Reply-To: <1109314660.1738.206.camel@frecb000711.frec.bull.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On Mon, 28 Feb 2005, Dave Hansen wrote:
 
-You asked:
- >
- > In other words: given that ELSA can do its thing via existing accounting
- > interfaces and a fork notifier, why does CSA need to add lots more kernel
- > code?
+> On Sun, 2005-02-27 at 13:43 +0000, Mel Gorman wrote:
+> > +		/*
+> > +		 * If this is a request for a zero page and the page was
+> > +		 * not taken from the USERZERO pool, zero it all
+> > +		 */
+> > +		if ((flags & __GFP_ZERO) && alloctype != ALLOC_USERZERO) {
+> > +			int zero_order=order;
+> > +
+> > +			/*
+> > +			 * This is important. We are about to zero a block
+> > +			 * which may be larger than we need so we have to
+> > +			 * determine do we zero just what we need or do
+> > +			 * we zero the whole block and put the pages in
+> > +			 * the zero page.
+> > +			 *
+> > +			 * We zero the whole block in the event we are taking
+> > +			 * from the KERNNORCLM pools and otherwise zero just
+> > +			 * what we need. The reason we do not always zero
+> > +			 * everything is because we do not want unreclaimable
+> > +			 * pages to leak into the USERRCLM and KERNRCLM
+> > +			 * pools
+> > +			 *
+> > +			 */
+> > +			if (alloctype != ALLOC_USERRCLM &&
+> > +			    alloctype != ALLOC_KERNRCLM) {
+> > +				area = zone->free_area_lists[ALLOC_USERZERO] +
+> > +					current_order;
+> > +				zero_order = current_order;
+> > +			}
+> > +
+> > +
+> > +			spin_unlock_irqrestore(&zone->lock, *irq_flags);
+> > +			prep_zero_page(page, zero_order, flags);
+> > +			inc_zeroblock_count(zone, zero_order, flags);
+> > +			spin_lock_irqsave(&zone->lock, *irq_flags);
+> > +
+> > +		}
+> > +
+> >  		return expand(zone, page, order, current_order, area);
+> >  	}
+> >
+>
+> I think it would make sense to put that in its own helper function.
+> When comments get that big, they often reduce readability.  The only
+> outside variable that gets modified is "area", I think.
+>
+> So, a static inline:
+>
+> 	area = my_new_function_with_the_huge_comment(zone, ..., area);
+>
 
-And i explained:
- > Here are some codes from do_exit() starting line 813 (based on
- > 2.6.11-rc4-mm1):
- >
- > 813        acct_update_integrals(tsk);
- > 814        update_mem_hiwater(tsk);
- > 815        group_dead = atomic_dec_and_test(&tsk->signal->live);
- > 816        if (group_dead) {
- > 817                del_timer_sync(&tsk->signal->real_timer);
- > 818                acct_process(code);
- > 819        }
- > 820        exit_mm(tsk);
- >
- > The acct_process() is called to save off BSD accounting data at
- > line 818. The next statement at 820, tsk->mm is disposed and all
- > data saved at tsk->mm is gone, including memory hiwater marks
- > information saved at line 814. The complete tsk is disposed
- > before exit of do_exit() routine.
+Will make that change in the next version. It makes perfect sense.
 
-I was hoping Guilluame could jump in himself...
-But, in a separate discussion thread, he wrote:
- >> (Jay asked)
- >> I spent some time trying to understand how ELSA save the per-process
- >> accounting data before the task_struct data structure gets disposed,
- >> but failed to find anything. My assumption would be that ELSA does
- >> not collection those data in the kernel itself? Instead, it would
- >> read the pacct file created by either BSD or CSA?
- >
- > Yes you're right, ELSA reads accounting file created by BSD or CSA. We
- > don't make accounting. I think that the communication problem is here
+> BTW, what kernel does this apply against?  Is linux-2.6.11-rc4-v18 the
+> same as bk18?
+>
 
-Guilluame's reply should answer your question. ELSA does not collect
-accounting data in the kernel as BSD/CSA does. It uses accounting
-data collected by BSD/CSA.
+It applies on top of 2.6.11-rc4 with the latest version of the placement
+policy. Admittedly, the naming of the tree is not very obvious.
 
-The exit hook is essential for CSA to save off data before the data
-is gone, A netlink type of thing does not help. BSD is in the same
-situation. You can not replace the acct_process() call with a netlink.
-If ELSA is to use the enhanced accounting data, it needs the CSA
-eop handling at exit as well.
-
-Thanks,
-  - jay
-
-
-Guillaume Thouvenin wrote:
-> On Thu, 2005-02-24 at 20:46 -0800, Andrew Morton wrote:
-> 
->>Jay Lan <jlan@sgi.com> wrote:
->>
->>>Since my idea of providing an accounting framework was considered
->>> 'overkill', here i submit a tiny patch just to allow CSA to
->>> handle end-of-process (eop) situation by saving off accounting
->>> data before a task_struct is disposed.
->>>
->>> This patch is to modify the acct_process() in acct.c, which is
->>> invoked from do_exit() to handle eop for BSD accounting. Now
->>> the acct_process() wrapper will also take care of CSA, if it has
->>> been loaded. If the CSA module has been loaded, a CSA routine
->>> will be invoked to construct a CSA job record and to write the
->>> record to the CSA accounting file.
->>
->>I really don't want to have to (and shouldn't need to) become an accounting
->>person, but as there seems to be a communication problem somewhere..
->>
->>Please, you guys are the subject matter experts.  Put your heads together
->>and come up with something.
-> 
-> 
-> I completely agree with that and we will continue this conversation in
-> private with Jay and all people involved to come up with an appropriate
-> solution.
-> 
-> Guillaume
-
+-- 
+Mel Gorman

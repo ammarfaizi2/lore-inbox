@@ -1,62 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290074AbSAWUvI>; Wed, 23 Jan 2002 15:51:08 -0500
+	id <S290075AbSAWUw6>; Wed, 23 Jan 2002 15:52:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290072AbSAWUu7>; Wed, 23 Jan 2002 15:50:59 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:28683 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S290074AbSAWUuw>; Wed, 23 Jan 2002 15:50:52 -0500
-Message-ID: <3C4F20A5.F88EA471@zip.com.au>
-Date: Wed, 23 Jan 2002 12:44:21 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre4 i686)
-X-Accept-Language: en
+	id <S290078AbSAWUwv>; Wed, 23 Jan 2002 15:52:51 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:55305 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S290075AbSAWUwl>; Wed, 23 Jan 2002 15:52:41 -0500
+Message-ID: <3C4F218F.1070706@namesys.com>
+Date: Wed, 23 Jan 2002 23:48:15 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Urban Widmark <urban@teststation.com>
-CC: Martin Eriksson <nitrax@giron.wox.org>, Justin A <justin@bouncybouncy.net>,
-        Andy Carlson <naclos@swbell.net>, linux-kernel@vger.kernel.org,
-        Stephan von Krawczynski <skraw@ithnet.com>
-Subject: Re: via-rhine timeouts
-In-Reply-To: <004101c1a3f9$dea1bb90$0201a8c0@HOMER> <Pine.LNX.4.33.0201231255180.6354-100000@cola.teststation.com>
-Content-Type: text/plain; charset=us-ascii
+To: "Stephen C. Tweedie" <sct@redhat.com>
+CC: Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@zip.com.au>,
+        Andreas Dilger <adilger@turbolabs.com>, Chris Mason <mason@suse.com>,
+        Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org,
+        ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] Re: Possible Idea with filesystem buffering.
+In-Reply-To: <3C4DB256.172F8D6A@zip.com.au> <Pine.LNX.4.33L.0201221649430.32617-100000@imladris.surriel.com> <20020123203500.L1930@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Urban Widmark wrote:
-> 
->     writeb(readb(ioaddr + TxConfig) | 0x80, ioaddr + TxConfig);
->     np->tx_thresh = 0x20;
-> (linuxfet.c)
-> 
->         writeb(0x20, ioaddr + TxConfig);
->         np->tx_thresh = 0x20;
-> (via-rhine.c)
-> 
-> Note how the linuxfet driver sets a higher value but does not make the
-> tx_thresh follow, so if it later gets a "IntrTxUnderrun" it will lower the
-> threshold. But the chosen value is probably large enough.
-> 
-> Those of you with this problem could try changing the 0x80 to 0x20 in the
-> linuxfet.c driver and see if the problem returns (or the other way around
-> in the via-rhine.c driver).
-> 
+Stephen C. Tweedie wrote:
 
-That would certainly explain why people are seeing success
-with linuxfet.
+>Hi,
+>
+>On Tue, Jan 22, 2002 at 05:03:02PM -0200, Rik van Riel wrote:
+>
+>>On Tue, 22 Jan 2002, Andrew Morton wrote:
+>>
+>>>Hans Reiser wrote:
+>>>
+>>>Note that writepage() doesn't get used much.  Most VM-initiated
+>>>filesystem writeback activity is via try_to_release_page(), which
+>>>has somewhat more vague and flexible semantics.
+>>>
+>>We may want to change this though, or at the very least get
+>>rid of the horrible interplay between ->writepage and
+>>try_to_release_page() ...
+>>
+>
+>This is actually really important --- writepage on its own cannot
+>distinguish between requests to flush something to disk (eg. msync or
+>fsync), and requests to evict dirty data from memory.
+>
+>This is really important for ext3's data journaling mode --- syncing
+>to disk only requires flushing as far as the journal, but evicting
+>dirty pages requires a full writeback too.  That's one place where our
+>traditional VM notion of writepage just isn't quite fine-grained
+>enough.
+>
+>Cheers,
+> Stephen
+>
+>
+I think this is a good point Stephen is making.
 
-Here's the test patch which you describe.  It would be
-useful if people could try it..
+So we have:
 
---- linux-2.4.18-pre6/drivers/net/via-rhine.c	Tue Jan 22 12:38:30 2002
-+++ linux-akpm/drivers/net/via-rhine.c	Wed Jan 23 12:42:18 2002
-@@ -965,7 +965,7 @@ static void init_registers(struct net_de
- 	/* Initialize other registers. */
- 	writew(0x0006, ioaddr + PCIBusConfig);	/* Tune configuration??? */
- 	/* Configure the FIFO thresholds. */
--	writeb(0x20, ioaddr + TxConfig);	/* Initial threshold 32 bytes */
-+	writeb(0x80, ioaddr + TxConfig);	/* Initial threshold 32 bytes */
- 	np->tx_thresh = 0x20;
- 	np->rx_thresh = 0x60;			/* Written in via_rhine_set_rx_mode(). */
- 
--
+* write this particular page at this particular memory address (for DMA 
+setup or other reasons).
+
+* write the data on this page
+
+* apply X units of aging pressure to the subcache if it is distinct from 
+the general cache and supports a pressure operation.
+
+as the three distinct needs we are needing to serve in the design of the 
+interface.
+
+
+Rik, are you comfortable now with this cache plugin approach I am 
+advocating now that I have explained it is motivated by the need to 
+handle objects that are not flushed in pages?  You have had another day 
+to think about it, and you didn't quite say yes (though it did seem you 
+no longer think me crazy).
+
+Hans
+

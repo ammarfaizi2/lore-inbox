@@ -1,58 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261693AbSKTWYY>; Wed, 20 Nov 2002 17:24:24 -0500
+	id <S261934AbSKTW0y>; Wed, 20 Nov 2002 17:26:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbSKTWYY>; Wed, 20 Nov 2002 17:24:24 -0500
-Received: from p50829436.dip.t-dialin.net ([80.130.148.54]:27662 "EHLO
-	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
-	id <S261693AbSKTWYX>; Wed, 20 Nov 2002 17:24:23 -0500
-Date: Wed, 20 Nov 2002 22:30:56 +0000
-From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
-To: George France <france@handhelds.org>
-Cc: linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Subject: Re: [Patch] 2.5.48 Trivial to ../asm-alpha/suspend.h
-Message-ID: <20021120223056.A650@Marvin.DL8BCU.ampr.org>
-Reply-To: dl8bcu@dl8bcu.de
-Mail-Followup-To: George France <france@handhelds.org>,
-	linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-References: <02112016143302.13910@shadowfax.middleearth>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <02112016143302.13910@shadowfax.middleearth>; from france@handhelds.org on Wed, Nov 20, 2002 at 04:14:33PM -0500
+	id <S261950AbSKTW0y>; Wed, 20 Nov 2002 17:26:54 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:17796 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S261934AbSKTW0w>; Wed, 20 Nov 2002 17:26:52 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 20 Nov 2002 14:34:34 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@digeo.com>
+Subject: [rfc] new poll callback'd wake up hell ...
+Message-ID: <Pine.LNX.4.44.0211201354210.1989-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 20, 2002 at 04:14:33PM -0500, George France wrote:
-> Fix compilation failure.
-> 
-> Best Regards,
-> 
-> 
-> --George
-> 
-> --- linux/include/asm-alpha/suspend.h.orig      Wed Dec 31 19:00:00 1969
-> +++ linux/include/asm-alpha/suspend.h   Wed Nov 20 03:55:57 2002
-> @@ -0,0 +1,4 @@
-> +#ifdef _ASMALPHA_SUSPEND_H
 
-#ifndef I suppose?
+With the new wake_up() mechanism and wait queue that supports callbacks, a
+wake_up() function call might end up calling another function. This
+function might be the poll callback that someone else installed on the
+first device. The callback invocation will make the one that installed the
+callback on the first device to think that events are avalable, and it'll
+very likely go ahead and wake_up() its own poll wait queue. See the
+problem ? We can cycle through and we can either have a deadlock or a
+stack blow up. An easy like ineffective solution would be to avoid the
+insertion inside an epoll fd on other epoll fds. But this won't prevent
+that another device that will use a similar technique will born tomorrow.
+This is waht I was thinking to solve those problems :
 
-> +#define _ASMALPHA_SUSPEND_H
-> + 
-> +#endif
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+1) Move the wake_up() call done inside the poll callback outside the lock
 
-Thorsten
+void poll_cb(xxx *data)
+{
+	int pwake = 0;
 
--- 
-| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
-| Mobile: ++49 170 1876134       Snail: Niemannsweg 30, 49201 Dissen, Germany |
-| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |
+	lock(data);
+	...
+	if (wait_queue_active(&data->poll_wait))
+		pwake++;
+	unlock(data)
+	if (pwake)
+		ep_poll_safe_wakeup(&data->psw, &data->poll_wait)
+}
+
+
+
+2) Use this infrastructure to perform safe poll wakeups
+
+/*
+ * This is used to implement the safe poll wake up avoiding to reenter
+ * the poll callback from inside wake_up().
+ */
+struct poll_safewake {
+        int wakedoor;	/* Init = 1, can do wake up */
+        atomic_t count;	/* Init = 0, wake up count */
+};
+
+/* Perform a safe wake up of the poll wait list */
+static void ep_poll_safe_wakeup(struct poll_safewake *psw, wait_queue_head_t *wq)
+{
+        atomic_inc(&psw->count);
+        do {
+                if (!xchg(&psw->wakedoor, 0))
+                        break;
+                wake_up(wq);
+                xchg(&psw->wakedoor, 1);
+        } while (!atomic_dec_and_test(&psw->count));
+}
+
+
+
+Does anyone foresee problem in this implementation ?
+Another ( crappy ) solution might be to avoid the epoll fd to drop inside
+its poll wait queue head, wait queues that has the function pointer != NULL
+
+
+
+
+- Davide
+
+
+

@@ -1,84 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129213AbQKIInx>; Thu, 9 Nov 2000 03:43:53 -0500
+	id <S129371AbQKIIoX>; Thu, 9 Nov 2000 03:44:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129371AbQKIIno>; Thu, 9 Nov 2000 03:43:44 -0500
-Received: from d06lmsgate-3.uk.ibm.com ([195.212.29.3]:33965 "EHLO
-	d06lmsgate-3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S129213AbQKIIn1>; Thu, 9 Nov 2000 03:43:27 -0500
-From: richardj_moore@uk.ibm.com
-X-Lotus-FromDomain: IBMGB
-To: Christoph Rohland <cr@sap.com>
-cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
+	id <S129870AbQKIIoP>; Thu, 9 Nov 2000 03:44:15 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:46002 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S129371AbQKIIoB>; Thu, 9 Nov 2000 03:44:01 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Michael Rothwell <rothwell@holly-springs.nc.us>, richardj_moore@uk.ibm.com,
         linux-kernel@vger.kernel.org
-Message-ID: <80256992.002FE358.00@d06mta06.portsmouth.uk.ibm.com>
-Date: Thu, 9 Nov 2000 07:43:09 +0000
 Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <80256991.007632DE.00@d06mta06.portsmouth.uk.ibm.com>
+	<3A09C725.6CFA0EE2@holly-springs.nc.us> <qwwn1f9lhdg.fsf@sap.com>
+	<20001108235312.H22781@work.bitmover.com>
+Organisation: SAP LinuxLab
+Date: 09 Nov 2000 09:43:18 +0100
+In-Reply-To: Larry McVoy's message of "Wed, 8 Nov 2000 23:53:12 -0800"
+Message-ID: <qwwzoj9k02h.fsf@sap.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Larry,
 
+On Wed, 8 Nov 2000, Larry McVoy wrote:
+> On Thu, Nov 09, 2000 at 08:44:11AM +0100, Christoph Rohland wrote:
+>> *Are you crazy?* =:-0 
+>> 
+>> Proposing proprietary kernel extensions to establish an enterprise
+>> kernel? No thanks!
+> 
+> Actually, I think this idea is a good one.  I'm a big opponent of
+> all the big iron feature bloat getting into the kernel, and if SGI
+> et al want to go off and do their own thing, that's fine with me.
+> As long as Linus continues in his current role, I doubt much of
+> anything that the big iron boys do will really make it back into the
+> generic kernel.  Linus is really smart about that stuff, are least
+> it seems so to me; he seems to be well aware that 99.9999% of the
+> hardware in the world isn't big iron and never will be, so something
+> approximating 99% of the effort should be going towards the common
+> platforms, not the uncommon ones.
 
-Let be clear about one thing: the GKHI make no statement about enabling
-proprietary extensions and that's a common misconception. GKHI is intended
-to make optional facilities easier to co-install and change. We designed it
-for DProbes, and when modularised will remain a GPL opensource offering.
+If we would not allow binary only modules I would not have such a big
+problem with that...
 
-The only motivation for providing GKHI is to make the kernel more
-acceptable to the enterprise customer, but allowing, for example, RAS
-capabilities to be brough in easily and dynmaically. This type of customer
-will not readily succome to on-the-fly kernel rebuilds to diagnose problems
-that occur only in complex production environments.
+I understand that the one size fits all approach has some limitations
+if you want to run on PDAs up to big iron. But a framework to overload
+core kernel functions with modules smells a lot of binary only, closed
+source, vendor specific Linux on high end machines. 
 
-If anything opens the door to proprietary extensions it's the loadable
-kernel modules capability or perhaps the loose wording of the GPL which
-doesn't catch loadable kernel modules, or whatever... Bottom line GKHI
-really has no bearing on this.
-
-
-Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
-
-http://oss.software.ibm.com/developerworks/opensource/linux
-Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
-IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
-
-
-Christoph Rohland <cr@sap.com> on 09/11/2000 07:44:11
-
-Please respond to Christoph Rohland <cr@sap.com>
-
-To:   Michael Rothwell <rothwell@holly-springs.nc.us>
-cc:   Richard J Moore/UK/IBM@IBMGB, linux-kernel@vger.kernel.org
-Subject:  Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-
-
-
-
-Hi Michael,
-
-On Wed, 08 Nov 2000, Michael Rothwell wrote:
-> Sounds great; unfortunately, the core group has spoken out against a
-> modular kernel.
->
-> Perhaps IBM should get together with SGI, HP and other interested
-> parties and start an Advanced Linux Kernel Project. Then they can
-> run off and make their scalable, modular, enterprise kernel and the
-> Linus Version can always merge back in features from it.
-
-*Are you crazy?* =:-0
-
-Proposing proprietary kernel extensions to establish an enterprise
-kernel? No thanks!
+And then I don't see the value of Linux anymore.
 
 Greetings
-          Christoph
-
-
-
-
+		Christoph
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

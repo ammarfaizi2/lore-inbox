@@ -1,58 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263343AbTHVPxN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 11:53:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbTHVPxM
+	id S264619AbTHVQDn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 12:03:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264627AbTHVQDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 11:53:12 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:16795 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S263343AbTHVPxI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 11:53:08 -0400
-Date: Fri, 22 Aug 2003 08:52:31 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: michal-bugzilla@logix.cz
-Subject: [Bug 1131] New: Unable to compile without "Software Suspend" (AMD 64)
-Message-ID: <18140000.1061567551@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 22 Aug 2003 12:03:43 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:19372 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264619AbTHVQDk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 12:03:40 -0400
+Date: Fri, 22 Aug 2003 18:03:25 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] add a couple pci ids to pci_ids.h
+In-Reply-To: <200308221202.h7MC2dW0028913@hera.kernel.org>
+Message-ID: <Pine.GSO.4.21.0308221801120.13238-100000@waterleaf.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1131
+On Fri, 22 Aug 2003, Linux Kernel Mailing List wrote:
+> ChangeSet 1.1104, 2003/08/22 08:53:10-03:00, jgarzik@pobox.com
+> 
+> 	[PATCH] add a couple pci ids to pci_ids.h
+> 
+> diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+> --- a/include/linux/pci_ids.h	Fri Aug 22 05:02:40 2003
+> +++ b/include/linux/pci_ids.h	Fri Aug 22 05:02:40 2003
+> @@ -1648,6 +1648,9 @@
+>  #define PCI_DEVICE_ID_TIGON3_5703	0x1647
 
-           Summary: Unable to compile without "Software Suspend"
-    Kernel Version: 2.6.0-test3-bk9
-            Status: NEW
-          Severity: high
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: michal-bugzilla@logix.cz
+0x1647 = 5703
 
+>  #define PCI_DEVICE_ID_TIGON3_5704	0x1648
 
-Hardware Environment: AMD64
-Software Environment: gcc-3.3
-Problem Description:
+0x1648 = 5704
 
-It's impossible to compile kernel without "Software Suspend" on AMD64. At the
-linking time it complains:
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-arch/x86_64/kernel/built-in.o(.text+0xc6bf): In function `do_suspend_lowlevel':
-: undefined reference to `save_processor_state'
-arch/x86_64/kernel/built-in.o(.text+0xc6c6): In function `do_suspend_lowlevel':
-: undefined reference to `saved_context_esp'
-arch/x86_64/kernel/built-in.o(.text+0xc6cd): In function `do_suspend_lowlevel':
-: undefined reference to `saved_context_eax'
+>  #define PCI_DEVICE_ID_TIGON3_5702FE	0x164d
+> +#define PCI_DEVICE_ID_TIGON3_5705	0x1653
 
-Steps to reproduce:
-On AMD64 deselect "Power management options" -> "Software Suspend" and compile.
+0x1653 != 5705 -> *** BEEP ***
+0x1653 = 5715
 
+> +#define PCI_DEVICE_ID_TIGON3_5705M	0x165d
+> +#define PCI_DEVICE_ID_TIGON3_5782	0x1696
+
+0x1696 = 5782
+
+Or am I too paranoid?
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263164AbUCMSuX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 13:50:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbUCMSuX
+	id S263165AbUCMTO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 14:14:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbUCMTO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 13:50:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:15017 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263164AbUCMSuV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 13:50:21 -0500
-Date: Sat, 13 Mar 2004 10:57:01 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Rik van Riel <riel@redhat.com>
-cc: Hugh Dickins <hugh@veritas.com>, Andrea Arcangeli <andrea@suse.de>,
+	Sat, 13 Mar 2004 14:14:26 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:17283 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S263165AbUCMTOZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 14:14:25 -0500
+Date: Sat, 13 Mar 2004 19:14:25 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Rik van Riel <riel@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
        William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@elte.hu>,
        Andrew Morton <akpm@osdl.org>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: anon_vma RFC2
-In-Reply-To: <Pine.LNX.4.44.0403131227210.15971-100000@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.58.0403131048340.900@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0403131227210.15971-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.58.0403131048340.900@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.44.0403131902070.3730-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 13 Mar 2004, Rik van Riel wrote:
+On Fri, 12 Mar 2004, Linus Torvalds wrote:
 > 
-> No, Linus is right.
+> The absolute _LAST_ thing we want to have is a "remnant" rmap 
+> infrastructure that only gets very occasional use. That's a GUARANTEED way 
+> to get bugs, and really subtle behaviour.
+
+On Sat, 13 Mar 2004, Linus Torvalds wrote:
 > 
-> If a child process uses mremap(), it stands to reason that
-> it's about to use those pages for something.
+> I just think that if mremap() causes so many problems for reverse mapping,
+> we should make _that_ the expensive operation, instead of making
+> everything else more complicated.
 
-That's not necessarily true, since it's entirely possible that it's just a 
-realloc(), and the old part of the allocation would have been left alone.
+Friday's Linus has a good point, but I agree more with Saturday's:
+mremap MAYMOVE is a very special case, and I believe it would hurt
+the whole to put it at the centre of the design.  But all power to
+Andrea to achieve that.
 
-That said, I suspect that
- - mremap() isn't all _that_ common in the first place
- - it's even more rare to do a fork() and then a mremap() (ie most of the 
-   time I suspect the page count will be 1, and no COW is necessary). Most
-   apps tend to exec() after a fork.
- - I agree that in at least part of the remaining cases we _would_ COW the
-   pages anyway.
+Hugh
 
-I suspect that the only common "no execve after fork" usage is for a few 
-servers, especially the traditional UNIX kind (ie using processes are 
-fairly heavy-weight threads). It could be interesting to see numbers.
-
-But basically I'm inclined to believe that the "unnecessary COW" case is
-_so_ rare, that if it allows us to make other things simpler (and thus
-more stable and likely faster) it is worth it. Especially the simplicity
-just appeals to me.
-
-I just think that if mremap() causes so many problems for reverse mapping,
-we should make _that_ the expensive operation, instead of making
-everything else more complicated. After all, if it turns out that the
-"early COW" behaviour I suggest can be a performance problem for some
-(rare) circumstances, then the fix for that is likely to just let
-applications know that mremap() can be expensive.
-
-(It's still likely to be a lot cheaper than actually doing a new
-mmap+memcpy+munmap, so it's not like mremap would become pointless).
-
-			Linus

@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284204AbRLTLYG>; Thu, 20 Dec 2001 06:24:06 -0500
+	id <S284242AbRLTLaR>; Thu, 20 Dec 2001 06:30:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284199AbRLTLX5>; Thu, 20 Dec 2001 06:23:57 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:19475 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S284181AbRLTLXm>;
-	Thu, 20 Dec 2001 06:23:42 -0500
-Date: Thu, 20 Dec 2001 12:23:25 +0100
-From: Jens Axboe <axboe@suse.de>
-To: A Guy Called Tyketto <tyketto@wizard.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 'eject' process stuck in "D" state
-Message-ID: <20011220122325.A710@suse.de>
-In-Reply-To: <20011220111249.GA15692@wizard.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011220111249.GA15692@wizard.com>
+	id <S284243AbRLTLaH>; Thu, 20 Dec 2001 06:30:07 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:7942 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S284242AbRLTL3y>;
+	Thu, 20 Dec 2001 06:29:54 -0500
+Date: Thu, 20 Dec 2001 09:29:28 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <torvalds@transmeta.com>, <bcrl@redhat.com>, <alan@lxorguk.ukuu.org.uk>,
+        <davidel@xmailserver.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler ( was: Just a second ) ...
+In-Reply-To: <20011219.213956.26276011.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33L.0112200928110.15741-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 20 2001, A Guy Called Tyketto wrote:
-> 
->         Hate to be an old bugger and bring this up again, but I just had this 
-> old problem show up again, with 2.5.1-dj3. The scoop:
+On Wed, 19 Dec 2001, David S. Miller wrote:
+> From: Rik van Riel <riel@conectiva.com.br>
+>    On Tue, 18 Dec 2001, Linus Torvalds wrote:
+>
+>    > The thing is, I'm personally very suspicious of the "features for that
+>    > exclusive 0.1%" mentality.
+>
+>    Then why do we have sendfile(), or that idiotic sys_readahead() ?
+>
+> Sending files over sockets are %99 of what most network servers are
+> actually doing today, it is much more than 0.1% :-)
 
-Were you using sr or ide-cd when this happened? There seems to be stuff
-missing from the kernel messages you included, could you please check
-dmesg for all of it.
+The same could be said for AIO, there are a _lot_ of
+server programs which are heavily overthreaded because
+of a lack of AIO...
 
-Don't worry, it's no shocker if eject isn't working :-)
+cheers,
 
+Rik
 -- 
-Jens Axboe
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

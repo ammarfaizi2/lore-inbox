@@ -1,70 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268183AbUHaMtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268197AbUHaMtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268183AbUHaMtA (ORCPT <rfc822;willy@w.ods.org>);
+	id S268197AbUHaMtA (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 31 Aug 2004 08:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268325AbUHaMrG
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268144AbUHaMrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 08:47:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62662 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268144AbUHaMl7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 08:41:59 -0400
-Date: Tue, 31 Aug 2004 08:16:21 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Corey Minyard <minyard@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IPMI driver updates for 2.4
-Message-ID: <20040831111621.GE4615@logos.cnet>
-References: <411EB8F1.5040209@acm.org> <20040823132820.GB2157@logos.cnet> <4132A17A.8060607@acm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4132A17A.8060607@acm.org>
-User-Agent: Mutt/1.5.5.1i
+	Tue, 31 Aug 2004 08:47:17 -0400
+Received: from lax-gate3.raytheon.com ([199.46.200.232]:21359 "EHLO
+	lax-gate3.raytheon.com") by vger.kernel.org with ESMTP
+	id S268326AbUHaMqi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 08:46:38 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF05BA5553.2755D604-ON86256F01.00456420@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Tue, 31 Aug 2004 07:46:08 -0500
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 08/31/2004 07:46:12 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>in theory the patch is more or less equivalent to setting
+>netdev_max_backlog to a value of 1 - could you try that setting too?
+>(with the patch unapplied.)
 
-Hi Corey, 
+Ugh. That setting is VERY BAD. Just a quick test without
+doing anything complex...
+  # echo 1 > /proc/sys/net/core/netdev_max_backlog
+  # ping dws7
+  PING dws7 (192.52.215.17) 56(84) bytes of data.
+[so the DNS lookup worked]
+  From dws77... (192.52.215.87) icmp_seq=0 Destination Host Unreachable
+  From dws77... (192.52.215.87) icmp_seq=1 Destination Host Unreachable
+  From dws77... (192.52.215.87) icmp_seq=2 Destination Host Unreachable
+  ...
+[NOTE - these are plugged into the same 10/100 Ethernet switch]
+  # echo 8 > /proc/sys/net/core/netdev_max_backlog
+  # ping dws7
+  PING dws7 (192.52.215.17) 56(84) bytes of data.
+[so the DNS lookup worked]
+  From dws77... (192.52.215.87) icmp_seq=0 ttl=64 time=2210 ms
+  From dws77... (192.52.215.87) icmp_seq=1 ttl=64 time=1210 ms
+  From dws77... (192.52.215.87) icmp_seq=2 ttl=64 time=210 ms
+  From dws77... (192.52.215.87) icmp_seq=2 ttl=64 time=0.355 ms
+  From dws77... (192.52.215.87) icmp_seq=2 ttl=64 time=0.397 ms
+  ...
+I tried again with 2, 3, and 4. Two appears to be "way too small" with
+a ping of 1000 ms and nominal values of 0.800 ms. Three does not appear
+to be good either with nominal values of 0.500 ms. Four has similar
+results to eight (8).
 
-You wrote a nice changelog entry - thanks for that.
 
-I'm not sure if we should apply all of this in v2.4. It looks like a
-big driver revamp to me. 
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
 
-Is is all this critical for being merged in v2.4.x now? 
-
-Would it be very painful/unwanted to maintain only the bugfixes 
-and not only new features? What you think about that?
-
-On Sun, Aug 29, 2004 at 10:39:38PM -0500, Corey Minyard wrote:
-> Marcelo Tosatti wrote:
-> 
-> >Corey,
-> >
-> >Care to write a detailed changelog so we can apply this?
-> >
-> >Thanks
-> >
-> > 
-> >
-> I'm sorry this took so long, I have been dealing with disasters at work.
-> 
-> Ok, a detailed changelog:
-> 
-> * Add a new "system interface" driver that supports all the standard
->  IPMI system interfaces (SMIC, BT, and KCS, see the IPMI spec for
->  more details if you care).  This driver will auto-detect the interface
->  type and parameters via SMBIOS or ACPI tables.
-> * Deprecate the old KCS-only interface.
-> * Support non-contiguous registers for system interfaces.
-> * Add support for IPMI LAN bridging so messages can be received
->  from and sent to system software connected to a LAN interface.
-> * Add support for powering off the system on a halt via the IPMI
->  interface.
-> * Add support for storing panic logs in the IPMI event log.
-> * Allow control of message parameters (resends, timeouts)
-> 
-> I've also re-attached the patch.
-> 
-> Thanks,

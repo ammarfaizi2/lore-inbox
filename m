@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132807AbREEPbU>; Sat, 5 May 2001 11:31:20 -0400
+	id <S132825AbREEPiK>; Sat, 5 May 2001 11:38:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132825AbREEPbL>; Sat, 5 May 2001 11:31:11 -0400
-Received: from 4dyn183.delft.casema.net ([195.96.105.183]:40204 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S132807AbREEPbC>; Sat, 5 May 2001 11:31:02 -0400
-Message-Id: <200105051529.RAA16274@cave.bitwizard.nl>
-Subject: Re: dhcp problem with realtek 8139 clone with rh 7.1
-In-Reply-To: <E14vj1d-0007es-00@the-village.bc.nu> from Alan Cox at "May 4, 2001
- 06:05:51 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Sat, 5 May 2001 17:29:47 +0200 (MEST)
-CC: Adam <adam@vbfx.com>, linux-kernel@vger.kernel.org,
-        "Michael K. Johnson"@cave.bitwizard.nl, johnsonm@redhat.com,
-        jgarzik@mandrakesoft.com
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S132834AbREEPiB>; Sat, 5 May 2001 11:38:01 -0400
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:46096 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S132825AbREEPht>; Sat, 5 May 2001 11:37:49 -0400
+Date: Sun, 6 May 2001 03:37:46 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Peter Rival <frival@zk3.dec.com>
+Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CPU hot swap for 2.4.3 + s390 support
+Message-ID: <20010506033746.A30690@metastasis.f00f.org>
+In-Reply-To: <20010505063726.A32232@va.samba.org> <3AF4118F.330C3E86@zk3.dec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AF4118F.330C3E86@zk3.dec.com>; from frival@zk3.dec.com on Sat, May 05, 2001 at 10:43:27AM -0400
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > I've had the same problem with the 8139too drivers and DHCP.  The reason
-> > I figure it must be the drivers is because in the 2.4.3 kernel, I'm able
-> > to use the 8139too drivers with DHCP without any problems.  In 2.4.4 it
-> > locks my system.
- 
-> Multiple such reports - seems the 8139too update broke stuf - any
-> ideas Jeff, should I revert to the 2.4.3 one ?
+On Sat, May 05, 2001 at 10:43:27AM -0400, Peter Rival wrote:
 
-Ack!
+    Has anyone looked into memory hot swap/hot add support? 
 
-I have two diskless systems that with 2.4.4 end up with VERY slow
-network interfaces. I then do a 
+Adding memory probably isn't going to be too hard... but taking
+existing memory off line is tricky. You have to find some way of
+finding all the pages that are in use and then dealing with them
+appropriately, and when some are locked or contain kernel data this
+would be extremely difficult I should think.
 
-	cp ../linux-2.4.2.clean/drivers/net/8139too.c drivers/net
+    Especially with systems with Chipkill coming out, this would be
+    great to support...
 
-and rebuild. Fixes my problems.... 
+Chipkill?
 
-Jeff, my offer of acess to a box that has this problem still stands.
 
-				Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+  --cw

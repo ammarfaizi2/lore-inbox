@@ -1,97 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266169AbUBCXDS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 18:03:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266185AbUBCXDS
+	id S266153AbUBCWy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 17:54:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266156AbUBCWy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 18:03:18 -0500
-Received: from wblv-254-118.telkomadsl.co.za ([165.165.254.118]:30600 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S266169AbUBCXDP
+	Tue, 3 Feb 2004 17:54:57 -0500
+Received: from pirx.hexapodia.org ([65.103.12.242]:58279 "EHLO
+	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S266153AbUBCWyz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 18:03:15 -0500
-Subject: Re: [ANNOUNCE] udev 016 release
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <1075843712.7473.60.camel@nosferatu.lan>
-References: <20040203201359.GB19476@kroah.com>
-	 <1075843712.7473.60.camel@nosferatu.lan>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ytucyVbZdnneM8/4jC7m"
-Message-Id: <1075849413.11322.6.camel@nosferatu.lan>
+	Tue, 3 Feb 2004 17:54:55 -0500
+Date: Tue, 3 Feb 2004 16:54:53 -0600
+From: Andy Isaacson <adi@hexapodia.org>
+To: linux-kernel@vger.kernel.org
+Subject: avoiding dirty code pages with fixups
+Message-ID: <20040203225453.GB18320@hexapodia.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 04 Feb 2004 01:03:33 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The discussion of vsyscall got me thinking along a slightly different
+line.  Since disks are *so* slow, and CPUs are so damn fast, the
+tradeoff between computation and IO is different today than it was ten
+years ago.  This means it can be fruitful to revisit issues which were
+solved in a particular way, back then.
 
---=-ytucyVbZdnneM8/4jC7m
-Content-Type: multipart/mixed; boundary="=-ifVfywCxR0+pou2FJFIg"
+I think I just came up with a novel way to handle code fixups.  First, I
+need a way to make a private "throwaway" copy of a page.  Define a new
+mmap flag, MAP_SCRATCH.  This is sorta like MAP_PRIVATE, but instead of
+writing the dirty page out to the swapfile, I want the page never to
+leave RAM.  If the kernel decides to evict the page, it should just drop
+it and invalidate the virtual address range.  When my program faults it
+back in, provide me with the contents of the page *as they exist in the
+backing file*.
 
-
---=-ifVfywCxR0+pou2FJFIg
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 2004-02-03 at 23:28, Martin Schlemmer wrote:
-> On Tue, 2004-02-03 at 22:13, Greg KH wrote:
->=20
-> Except if I miss something major, udevsend and udevd still do not
-> work:
->=20
-
-Skip that, it does work if SEQNUM is set :P
-
-Anyhow, is it _really_ needed for SEQNUM to be set?  What about
-the attached patch?
-
-Then, order I have not really checked yet, but there are two things
-that bother me:
-
-1) latency is even higher than before (btw Greg, is there going to be
-more sysfs/whatever fixes to get udev even faster, or is this the
-limit?)
-
-2) events gets missing.  If you for example use udevsend in the
-initscript that populate /dev (/udev), the amount of nodes/links
-created is off with about 10-50 (once about 250) entries.
+Next, I need a way to read and write sizeof(void*) bytes atomicly (with
+respect to the above eviction protocol).  Ideally, all icache reads and
+all aligned sizeof(void*) reads would be atomic WRT MAP_SCRATCH.
 
 
-Thanks,
+The technique is as follows.  Suppose we have a library which contains a
+page which contains a jmp that needs a fixup.  Map the library with
+MAP_SCRATCH, and have the un-fixed-up code contain a jmp to the
+appropriate code in ld.so which will perform the fixup.  The first time
+the code is executed, ld.so writes into the page, triggering a COW, and
+cloning a scratch copy of the page, which can then be populated with all
+the needed fixups.  Until the kernel evicts the page, further
+invocations of the code will result in direct jumps to the fixed-up
+addresses.
 
+When the kernel evicts the page, all the fixups are lost.
 
---=20
-Martin Schlemmer
+When the app faults the page back in, the fixups are gone.  The fixup
+code executes again, exactly as it did in the first time the app invoked
+that library page, giving correct results.
 
---=-ifVfywCxR0+pou2FJFIg
-Content-Disposition: attachment; filename=udev-016-udevsend-missing-seqnum.patch
-Content-Type: text/x-patch; name=udev-016-udevsend-missing-seqnum.patch; charset=UTF-8
-Content-Transfer-Encoding: base64
+The benefit over standard MAP_PRIVATE fixups is that we can avoid IO
+when many processes have fixups on the same page of libc.so (for
+example).  With the current MAP_PRIVATE scheme, the page is written out
+to swap *once for every process that has it fixed-up*.  With
+MAP_SCRATCH, the page is never written out to swap.  Instead it's read
+off the filesystem, once, when the first process faults it in; the
+cached copy is used for every process that needs it.
 
-LS0tIHVkZXYtMDE2L3VkZXZzZW5kLmMJMjAwNC0wMi0wNCAwMDo1NToyMy41MjI0MjgzMTIgKzAy
-MDANCisrKyB1ZGV2LTAxNi5zZXFudW0vdWRldnNlbmQuYwkyMDA0LTAyLTA0IDAwOjU3OjM3Ljg5
-ODAwMDEyMCArMDIwMA0KQEAgLTE0OSwxMCArMTQ5LDE0IEBADQogDQogCXNlcW51bSA9IGdldF9z
-ZXFudW0oKTsNCiAJaWYgKHNlcW51bSA9PSBOVUxMKSB7DQorI2lmIDANCiAJCWRiZygibm8gc2Vx
-bnVtIik7DQogCQlnb3RvIGV4aXQ7DQorI2VuZGlmDQorCQlzZXEgPSAxOw0KKwl9IGVsc2Ugew0K
-KwkJc2VxID0gYXRvaShzZXFudW0pOw0KIAl9DQotCXNlcSA9IGF0b2koc2VxbnVtKTsNCiANCiAJ
-c29jayA9IHNvY2tldChBRl9MT0NBTCwgU09DS19TVFJFQU0sIDApOw0KIAlpZiAoc29jayA9PSAt
-MSkgew0K
+The downside is the additional computation on page-in.  It is a function
+of how many fixups there are per page, and of how much work ld.so does
+to satisfy a fixup.  I don't have a good feel for how expensive ld.so's
+fixup mechanism is... any comments?
 
---=-ifVfywCxR0+pou2FJFIg--
+(Now I just need to find somebody to code this.)
 
---=-ytucyVbZdnneM8/4jC7m
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAICjFqburzKaJYLYRAkwkAJ0cXgp53g7p5c3d9eN25W0HZo2P9gCeOQTs
-TFptpxsaE8TvTSQVNmRN0zc=
-=Cob5
------END PGP SIGNATURE-----
-
---=-ytucyVbZdnneM8/4jC7m--
-
+-andy

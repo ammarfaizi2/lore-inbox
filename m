@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261559AbSKXS32>; Sun, 24 Nov 2002 13:29:28 -0500
+	id <S261574AbSKXSsH>; Sun, 24 Nov 2002 13:48:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261573AbSKXS32>; Sun, 24 Nov 2002 13:29:28 -0500
-Received: from r2f53.mistral.cz ([62.245.69.53]:23936 "EHLO ppc.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S261559AbSKXS31>;
-	Sun, 24 Nov 2002 13:29:27 -0500
-Date: Sun, 24 Nov 2002 19:36:25 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Ed Tomlinson <tomlins@cam.org>
+	id <S261581AbSKXSsH>; Sun, 24 Nov 2002 13:48:07 -0500
+Received: from dsl-67-48-44-237.telocity.com ([67.48.44.237]:61238 "EHLO
+	lnuxlab.ath.cx") by vger.kernel.org with ESMTP id <S261574AbSKXSsG>;
+	Sun, 24 Nov 2002 13:48:06 -0500
+Date: Sun, 24 Nov 2002 14:11:52 -0500
+To: "Murray J. Root" <murrayr@brain.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix some module format errors
-Message-ID: <20021124183625.GE1542@ppc.vc.cvut.cz>
-References: <200211241314.31413.tomlins@cam.org>
+Subject: Re: 2.4.20-rc3 keyboard & mouse lost in X
+Message-ID: <20021124191152.GA2894@lnuxlab.ath.cx>
+References: <20021124101043.GA1597@Master.Wizards>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200211241314.31413.tomlins@cam.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20021124101043.GA1597@Master.Wizards>
+User-Agent: Mutt/1.3.28i
+From: khromy@lnuxlab.ath.cx (khromy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 24, 2002 at 01:14:31PM -0500, Ed Tomlinson wrote:
-> This patch adds no_module_init to a few modules - those I need...
-> This lets the new module code load them.
+On Sun, Nov 24, 2002 at 05:10:43AM -0500, Murray J. Root wrote:
+> I've mentioned it before many times, (since 2.4.20-pre8) so I'll just
+> mention - it still happens.
+> Going to X mouse and keyboard stop responding.
+> 
+> Not a good thing, since most users like using X.
 
-I believe that no_module_init; was vetoed... I.e. you can
-have this patch in your kernel, but do not send it to Linus.
-At least not matroxfb_* parts.
+Are you sure it isn't an XF86Config problem?  Does 2.4.19 work?
 
-If no_module_init will be solution, I'll just link all matroxfb
-modules together to one large object, again forgetting about
-no_module_init.
-				Thanks,
-					Petr Vandrovec
-					vandrove@vc.cvut.cz 
-
+-- 
+L1:	khromy		;khromy(at)lnuxlab.ath.cx

@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287149AbSABWlF>; Wed, 2 Jan 2002 17:41:05 -0500
+	id <S287109AbSABWkF>; Wed, 2 Jan 2002 17:40:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287110AbSABWkR>; Wed, 2 Jan 2002 17:40:17 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52494 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287116AbSABWkI>; Wed, 2 Jan 2002 17:40:08 -0500
-Subject: Re: ISA slot detection on PCI systems?
-To: esr@thyrsus.com
-Date: Wed, 2 Jan 2002 22:50:47 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davej@suse.de (Dave Jones),
-        linux-kernel@vger.kernel.org (Linux Kernel List)
-In-Reply-To: <20020102172448.A18153@thyrsus.com> from "Eric S. Raymond" at Jan 02, 2002 05:24:48 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S287116AbSABWkA>; Wed, 2 Jan 2002 17:40:00 -0500
+Received: from kiruna.synopsys.com ([204.176.20.18]:14475 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP
+	id <S287109AbSABWjU>; Wed, 2 Jan 2002 17:39:20 -0500
+From: Joe Buck <jbuck@synopsys.COM>
+Message-Id: <200201022239.OAA21717@atrus.synopsys.com>
+Subject: Re: [PATCH] C undefined behavior fix
+To: dwmw2@infradead.org (David Woodhouse)
+Date: Wed, 2 Jan 2002 14:39:13 -0800 (PST)
+Cc: VANDROVE@vc.cvut.cz (Petr Vandrovec), pkoning@equallogic.com (Paul Koning),
+        trini@kernel.crashing.org, velco@fadata.bg,
+        linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
+        linuxppc-dev@lists.linuxppc.org
+In-Reply-To: <21991.1010010254@redhat.com> from "David Woodhouse" at Jan 02, 2002 10:24:14 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16LuDf-0005pp-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But you're thinking like a developer, not a user.  The right question
-> is which approach requires the lowest level of *user* privilege to get
-> the job done.  Comparing world-readable /proc files versus a setuid app,
-> the answer is obvious.  This sort of thing is exactly what /proc is *for*.
+VANDROVE@vc.cvut.cz said:
+> > (and for CONSTANT < 5 it of course generated correct code to fill dst
+> > with string contents; and yes, I know that code will sigsegv on run
+> > because of dst is not initialized - but it should die at runtime, not
+> > at compile time). 
+> 
+> An ICE, while it's not quite what was expected and it'll probably get fixed,
+> is nonetheless a perfectly valid implementation of 'undefined behaviour'.
 
-Both require the same level of user privilege. 
+Not for GCC it isn't.  Our standards say that a compiler crash, for any
+input whatsoever, no matter how invalid (even if you feed in line noise),
+is a bug.  Other than that we shouldn't make promises, though the old gcc1
+behavior of trying to launch a game of rogue or hack when encountering a
+#pragma was cute.
 
-	cat /proc/wasteofmemory/dmi | dmidecoder
-v
-	/sbin/dmidump | dmidecoder
 

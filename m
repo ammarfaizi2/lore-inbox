@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVCOTiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVCOTi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbVCOTiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 14:38:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVCOTiX
+	id S261839AbVCOTi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 14:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbVCOTei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 14:38:23 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:46537 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261834AbVCOThH (ORCPT
+	Tue, 15 Mar 2005 14:34:38 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:62094 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261793AbVCOTdv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 14:37:07 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
+	Tue, 15 Mar 2005 14:33:51 -0500
+Date: Tue, 15 Mar 2005 14:33:36 -0500
+From: Dave Jones <davej@redhat.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: drm lockups since 2.6.11-bk2
-Date: Tue, 15 Mar 2005 11:36:31 -0800
-User-Agent: KMail/1.7.2
-Cc: davej@redhat.com, airlied@linux.ie, andrew@digital-domain.net,
-       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-References: <Pine.LNX.4.58.0503151033110.22756@skynet> <200503151003.39636.jbarnes@engr.sgi.com> <20050315112530.21bb0922.akpm@osdl.org>
-In-Reply-To: <20050315112530.21bb0922.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Cc: dtor_core@ameritech.net, dmitry.torokhov@gmail.com,
+       helge.hafting@aitel.hist.no, linux-kernel@vger.kernel.org,
+       vojtech@suse.cz
+Subject: Re: 2.6.11-mm3 mouse oddity
+Message-ID: <20050315193336.GA10748@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, dtor_core@ameritech.net,
+	dmitry.torokhov@gmail.com, helge.hafting@aitel.hist.no,
+	linux-kernel@vger.kernel.org, vojtech@suse.cz
+References: <20050312034222.12a264c4.akpm@osdl.org> <4236D428.4080403@aitel.hist.no> <d120d50005031506252c64b5d2@mail.gmail.com> <20050315110146.4b0c5431.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503151136.32013.jbarnes@engr.sgi.com>
+In-Reply-To: <20050315110146.4b0c5431.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, March 15, 2005 11:25 am, Andrew Morton wrote:
-> Jesse Barnes <jbarnes@engr.sgi.com> wrote:
-> > I'd be happy to test and fix things, but the page table walker patches
-> > broke ia64...  Once that's cleared up I can go digging.
->
-> We're hoping that davem's fix (committed yesterday) fixed that.
->
->
-> ChangeSet 1.2181.1.2, 2005/03/14 21:16:17-08:00, davem@sunset.davemloft.net
->
->  [MM]: Restore pgd_index() iteration to clear_page_range().
+On Tue, Mar 15, 2005 at 11:01:46AM -0800, Andrew Morton wrote:
 
-Yep, seems to have worked (at least my system boots).  I only saw it in BK 
-today (I was waiting for a post to Tony's thread with the fix so I didn't see 
-it as soon as I might have).
+ > > Vojtech, is is possible to detect whether a keyboard has scroll
+ > > wheel(s) by its ID?
+ > 
+ > What sort of keyboard has a scroll wheel??
 
-Now to test AGP stuff.
+Quite a few of them.
+http://froogle.google.com/froogle?q=keyboard%20scroll%20wheel
 
-Jesse
+They seem to be gaining in popularity, and seem to do all sorts
+of other silly things (some of them even throb different colours
+when idle for some reason).
+
+		Dave
+

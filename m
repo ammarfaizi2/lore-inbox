@@ -1,40 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272061AbRHVRaY>; Wed, 22 Aug 2001 13:30:24 -0400
+	id <S272049AbRHVRdz>; Wed, 22 Aug 2001 13:33:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272049AbRHVRaO>; Wed, 22 Aug 2001 13:30:14 -0400
-Received: from h131s117a129n47.user.nortelnetworks.com ([47.129.117.131]:56737
-	"HELO pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
-	id <S272062AbRHVRaC>; Wed, 22 Aug 2001 13:30:02 -0400
-Message-ID: <3B83EC7B.B10F59C6@nortelnetworks.com>
-Date: Wed, 22 Aug 2001 13:31:39 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: adding accuracy to random timers on PPC - new config option or runtime 
- overhead?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S272065AbRHVRdo>; Wed, 22 Aug 2001 13:33:44 -0400
+Received: from hall.mail.mindspring.net ([207.69.200.60]:42813 "EHLO
+	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S272060AbRHVRdg>; Wed, 22 Aug 2001 13:33:36 -0400
+Date: Wed, 22 Aug 2001 12:33:50 -0500
+From: Tim Walberg <twalberg@mindspring.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Travis Shirk <travis@pobox.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Locking Up
+Message-ID: <20010822123350.D20693@mindspring.com>
+Reply-To: Tim Walberg <twalberg@mindspring.com>
+Mail-Followup-To: Tim Walberg <twalberg@mindspring.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Travis Shirk <travis@pobox.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0108220938390.1152-100000@puddy.travisshirk.net> <E15ZbjI-0001s2-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7DO5AaGCk89r4vaK"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15ZbjI-0001s2-00@the-village.bc.nu> from Alan Cox on 08/22/2001 12:23
+X-PGP-RSA-Key: 0x0C8BA2FD at www.pgp.com (pgp.ai.mit.edu)
+X-PGP-RSA-Fingerprint: FC08 4026 8A62 C72F 90A9 FA33 6EEA 542D
+X-PGP-DSS-Key: 0x6DAB2566 at www.pgp.com (pgp.ai.mit.edu)
+X-PGP-DSS-Fingerprint: 4E1B CD33 46D0 F383 1579  1CCA C3E5 9C8F 6DAB 2566
+X-URL: http://www.concentric.net/~twalberg
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I'm looking at putting in PPC-specific code in add_timer_randomness() that would
-be similar to the x86-specific stuff.
+--7DO5AaGCk89r4vaK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The problem is that the PPC601 uses real time clock registers while the other
-PPC chips use a timebase register, so two different versions will be required.
-Should I try and identify at runtime which it is (which would be extra
-overhead), or should I add another config option to the kernel?
+Yes, I have seen it happen a couple times before
+I started X, within a couple minutes of boot completing.
 
-Thanks,
+		tw
 
-Chris
+On 08/22/2001 18:23 +0100, Alan Cox wrote:
+>>	> The symptons are total lock-up of the machine.  No mouse
+>>	> movement, all GUI monoitors freeze, and I cannot switch to a
+>>	> virtual console.  I'm not able to ping the locked machine or
+>>	> ssh/telnet into it either.  So I'm left wondering....how and
+>>	> the hell to I debug this problem.  It'd be nice to have some
+>>	> more information to go on or post to the list.
+>>=09
+>>	Can you get it to crash when you are not in X11 at all ?
+>>	-
+>>	To unsubscribe from this list: send the line "unsubscribe linux-kernel" =
+in
+>>	the body of a message to majordomo@vger.kernel.org
+>>	More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>	Please read the FAQ at  http://www.tux.org/lkml/
+End of included message
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+
+
+--=20
+twalberg@mindspring.com
+
+--7DO5AaGCk89r4vaK
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.1i
+
+iQA/AwUBO4Ps8sPlnI9tqyVmEQJl7ACgzNXoqSv39I3aVCqSTq3VHbhVrjMAnAgs
+JPNdawt6ZOVnI33h5sPkGOhM
+=3lT8
+-----END PGP SIGNATURE-----
+
+--7DO5AaGCk89r4vaK--

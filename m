@@ -1,65 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268274AbUHKWWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268279AbUHKWXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268274AbUHKWWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 18:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268277AbUHKWWI
+	id S268279AbUHKWXo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 18:23:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268278AbUHKWXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 18:22:08 -0400
-Received: from mail.tpgi.com.au ([203.12.160.113]:15302 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S268274AbUHKWUK (ORCPT
+	Wed, 11 Aug 2004 18:23:43 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:4291 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S268279AbUHKWXR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 18:20:10 -0400
-Subject: Re: [PATCH] SCSI midlayer power management
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Nathan Bryant <nbryant@optonline.net>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       "'James Bottomley'" <James.Bottomley@steeleye.com>,
-       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jgarzik@pobox.com
-In-Reply-To: <411A1B72.1010302@optonline.net>
-References: <4119611D.60401@optonline.net>
-	 <20040811080935.GA26098@elf.ucw.cz>  <411A1B72.1010302@optonline.net>
+	Wed, 11 Aug 2004 18:23:17 -0400
+Subject: Re: 2.6.8-rc4-mm1 doesn't boot
+From: Len Brown <len.brown@intel.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040811215105.GK26174@fs.tum.de>
+References: <566B962EB122634D86E6EE29E83DD808182C2B33@hdsmsx403.hd.intel.com>
+	 <1092259920.5021.117.camel@dhcppc4>  <20040811215105.GK26174@fs.tum.de>
 Content-Type: text/plain
-Message-Id: <1092262602.3553.14.camel@laptop.cunninghams>
+Organization: 
+Message-Id: <1092262929.7765.132.camel@dhcppc4>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 12 Aug 2004 08:16:42 +1000
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 11 Aug 2004 18:22:09 -0400
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Does the system have any BIOS settings to enable/disable the floppy?
+Is the floppy physically present on the system?
 
-On Wed, 2004-08-11 at 23:13, Nathan Bryant wrote:
-> >>ACPI S1 and S4/swsusp are untested, but I think there should be no
-> >>regressions with S1. To do S1 properly, we probably need to tell the
-> >>drive to spin down, and I don't know what the SCSI command is for
-> >>that... For S4, the call to scsi_device_quiesce might pose a problem for
-> >>the subsequent state dump to disk. But I'm not sure swsusp ever worked
-> >>for SCSI.
+ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 *6 7 10 11 12 14 15)
+        ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 6
 
-I tried it on an OSDL machine and could suspend (suspend 2), but only
-resume as far as copying back the original kernel. The problem then
-looked to me like it was request ids not matching what the drive was
-expecting (but I'm ignorant of scsi, so might be completely wrong
-there).
+I assert it is a BIOS bug for the BIOS to set LNKD to
+IRQ6 if there is a floppy present and enabled; but fair
+game if there is no floppy.  Though perhaps floppy.c
+doesn't understand that.
 
-> answer is NO. For purposes of not suspending the drivers, I haven't 
-> looked into how swsusp would see which host adapter owns which drive, 
-> but some of the required information seems to be present in sysfs.
+-Len
 
-With my 'device tree' code, I'm getting the struct dev of the device
-we're using via the struct block_device in the swap_info struct.
-
-Nigel
--- 
-Nigel Cunningham
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Many today claim to be tolerant. But true tolerance can cope with others
-being intolerant.
+On Wed, 2004-08-11 at 17:51, Adrian Bunk wrote:
+> On Wed, Aug 11, 2004 at 05:32:00PM -0400, Len Brown wrote:
+> > I've never understood this floppy IRQ6 business.
+> > Apparently it requests IRQ6, but doesn't show up in /proc/interrupts
+> > 
+> > In any case, dropping a PCI interrupt on IRQ6 would surely break it
+> > b/c that would set that IRQ6 to level trigger.
+> > 
+> > Before this change, did LNKD get set to something other than IRQ6?
+> 
+> Yes, this is my 2.6.8-rc3-mm1 /proc/interrupts :
+> 
+> <--  snip  -->
+> 
+>            CPU0       
+>   0:   17615908          XT-PIC  timer
+>   1:      22333          XT-PIC  i8042
+>   2:          0          XT-PIC  cascade
+>   6:      94751          XT-PIC  eth0
+>   8:          4          XT-PIC  rtc
+>   9:          0          XT-PIC  acpi
+>  10:       5119          XT-PIC  ehci_hcd
+>  11:    1329292          XT-PIC  Ensoniq AudioPCI, radeon@PCI:1:0:0
+>  12:     118130          XT-PIC  i8042
+>  14:      44614          XT-PIC  ide0
+>  15:         24          XT-PIC  ide1
+> NMI:          0 
+> ERR:          8
+> 
+> <--  snip  -->
+> 
+> 
+> > -Len
+> 
+> cu
+> Adrian
+> 
+> -- 
+> 
+>        "Is there not promise of rain?" Ling Tan asked suddenly out
+>         of the darkness. There had been need of rain for many days.
+>        "Only a promise," Lao Er said.
+>                                        Pearl S. Buck - Dragon Seed
+> 
 

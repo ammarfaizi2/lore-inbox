@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318518AbSGaWsJ>; Wed, 31 Jul 2002 18:48:09 -0400
+	id <S318520AbSGaWya>; Wed, 31 Jul 2002 18:54:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318519AbSGaWsJ>; Wed, 31 Jul 2002 18:48:09 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:32765 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318518AbSGaWsI>; Wed, 31 Jul 2002 18:48:08 -0400
-Subject: Re: [PATCH] 2.5.29: some compilation fixes for irq frenzy [OSS +
-	i8x0 audio]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andy Pfiffer <andyp@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1028152202.964.84.camel@andyp>
-References: <1028062608.964.6.camel@andyp> 
-	<1028067951.8510.44.camel@irongate.swansea.linux.org.uk> 
-	<1028063953.964.13.camel@andyp> 
-	<1028069255.8510.46.camel@irongate.swansea.linux.org.uk> 
-	<1028152202.964.84.camel@andyp>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 01 Aug 2002 01:08:12 +0100
-Message-Id: <1028160492.13008.7.camel@irongate.swansea.linux.org.uk>
+	id <S318526AbSGaWya>; Wed, 31 Jul 2002 18:54:30 -0400
+Received: from maroon.csi.cam.ac.uk ([131.111.8.2]:7388 "EHLO
+	maroon.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S318520AbSGaWy3>; Wed, 31 Jul 2002 18:54:29 -0400
+Message-Id: <5.1.0.14.2.20020731235235.00b14ab0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 31 Jul 2002 23:58:15 +0100
+To: Matt_Domsch@Dell.com
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: RE: 2.5.28 and partitions
+Cc: peter@chubb.wattle.id.au, pavel@ucw.cz, viro@math.psu.edu,
+       Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <F44891A593A6DE4B99FDCB7CC537BBBBB839AC@AUSXMPS308.aus.amer
+ .dell.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-07-31 at 22:50, Andy Pfiffer wrote:
-> After reading the code in question, it appears to me that the existing
-> save_flags/cli constructs are being used to atomically query/modify
-> elements of an audio_devs[N] entry.  I can see how it might be possible
-> for the patch to break SMP.
+At 23:47 31/07/02, Matt_Domsch@Dell.com wrote:
+> > Maybe we need to roll our own?
+>
+>What's wrong with EFI GUID scheme (GPT) (other than it wasn't invented by
+>Linux folks)?
+[snip]
+>Unless there's something that GPT doesn't do well, I'd prefer not to make
+>yet another partitioning scheme.  If there is something else it needs, it
+>can be extended.
 
-The cli() is doing a lock across all processors. The local_irqsave won't
-protect other processors against the modifications. The ISA side of the
-OSS audio world is midbogglingly ugly for this and for lock_kernel
-horrors but the PCI side isnt too bad.
+And if there is something GPT doesn't do then there is Veritas LDM (also 
+used in simplified form by Windows LDM) and the kernel understands it 
+today. Admittedly none of the Linux partitioning tools support it yet but 
+that is subject to change. (-; LDM is journalled, supports large numbers of 
+disks, huge disks, all sorts of RAID, etc... I don't think you will find 
+anything missing in that one...
 
-The DMA pointers in ISA OSS are also touched by interrupt handling code
-- which again cli() locked across all processors and lock_irq* doesn't.
+So I fully agree that inventing yet another partitioning scheme is silly in 
+view of the multitude of existing ones which do the job just fine. Feel 
+free to prove me I am wrong by showing me something that GPT/LDM can't do...
 
-Rusty submitted a much better patch for this - deleting all the old OSS
-ISA drivers, so that people can just fix and use the ALSA code instead.
-I'm not saying don't analyse the locks and interrupt paths and fix the
-OSS audio for ISA stuff, just that it might not be the best use of time
-even if you do get it sorted out.
+Best regards,
 
+         Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,94 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265100AbSJWRVZ>; Wed, 23 Oct 2002 13:21:25 -0400
+	id <S265106AbSJWR0R>; Wed, 23 Oct 2002 13:26:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265103AbSJWRVZ>; Wed, 23 Oct 2002 13:21:25 -0400
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:29659 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S265100AbSJWRVY>;
-	Wed, 23 Oct 2002 13:21:24 -0400
-Message-ID: <3DB6DBF1.4060009@candelatech.com>
-Date: Wed, 23 Oct 2002 10:27:13 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
+	id <S265108AbSJWR0R>; Wed, 23 Oct 2002 13:26:17 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:22596 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S265106AbSJWR0Q>; Wed, 23 Oct 2002 13:26:16 -0400
+Date: Wed, 23 Oct 2002 10:40:35 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: Christoph Hellwig <hch@infradead.org>
+cc: linux-kernel@vger.kernel.org, <lkcd-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] LKCD for 2.5.44 (6/8): dump trace/dump calls/dump_in_progress
+In-Reply-To: <20021023180105.B16547@infradead.org>
+Message-ID: <Pine.LNX.4.44.0210231023130.28800-100000@nakedeye.aparity.com>
 MIME-Version: 1.0
-To: jt@hpl.hp.com
-CC: Slavcho Nikolov <snikolov@okena.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: feature request - why not make netif_rx() a pointer?
-References: <20021023003959.GA23155@bougret.hpl.hp.com> <004c01c27a99$927b8a30$800a140a@SLNW2K> <20021023164808.GG24123@bougret.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Tourrilhes wrote:
-> On Wed, Oct 23, 2002 at 09:39:12AM -0400, Slavcho Nikolov wrote:
-> 
->>Unfortunately, I cannot assume that every L2 (or maybe I can, we'll see) is
->>ethernet and I definitely cannot know in advance that every L3 is IP.
->>Nor can the assumption be made that netfilter has been built into the
->>kernel.
-> 
-> 
-> 	So, you thing assuming a modified netif_rx is different than
-> assuming netfilter support ?
-> 	Your idea is just too dangerous.
+Yes -- I don't know how this didn't get picked up, this
+was probably the result of the volatile->atomic_t->volatile
+code changes.
 
-If you added something like this to netif_rx, I think it would accomplish
-the goals of those who want to add their own hooks.  It would probably not
-please the folks who want to keep this code out for GPL/political/legal/moral
-reasons.
+The patch change should be:
 
-Note that the hook basically exists already in the bridging code.  It may
-be illegal for GPL reasons to assign your own method to this hook, but I'm
-sure you could put up a good legal fight if you wanted to (the bridge hook
-is not exported GPL)
+ #ifdef CONFIG_SMP
+    if (!dump_function_ptr) {
+        smp_send_stop();
+    }
+ #endif
 
-int netif_rx(struct sk_buff *skb)
-{
-	int this_cpu = smp_processor_id();
-	struct softnet_data *queue;
-	unsigned long flags;
+I'm copying the utils.patch file to the web site now:
 
-+#idfef EVIL_COMPANY_NETWORK_HOOK_HACK
-+       if (evil_hook) {
-+          int rv = evil_hook(skb);
-+          if (rv) { return; /* skb was consumed by evil hook, gawd help us all */ }
-+        }
-+#endif
+	http://lkcd.sourceforge.net/download/latest/
 
-	if (skb->stamp.tv_sec == 0)
-		do_gettimeofday(&skb->stamp);
+--Matt
 
-
-> 
-> 
->>If I define my own private protocol handler (to catch all), I see cloned
->>skb's
->>which is not what I want. I tried that and dropped each one of them in the
->>handler, yet traffic continued to flow unimpeded (so I must have dropped
->>clones).
-> 
-> 
-> 	For this to work, you need to modify the driver. The driver
-> generates a private packet type or protocol, and you will be the only
-> to to catch it.
-
-So, it would be ok to modify the driver to call a new hook, one that
-may be over-written by proprietary code?  Otherwise, you have to write
-a non-gpl driver....yuck!
-
-
-Thanks,
-Ben
-
+On Wed, 23 Oct 2002, Christoph Hellwig wrote:
+|>On Wed, Oct 23, 2002 at 02:44:43AM -0700, Matt D. Robinson wrote:
+|>> +#if !defined(CONFIG_CRASH_DUMP) && !defined(CONFIG_CRASH_DUMP_MODULE)
+|>>  #ifdef CONFIG_SMP
+|>>  	smp_send_stop();
+|>>  #endif
+|>> +#endif
+|>
+|>Again, is there a chance you could make this a runtime switch?
+|>This would allow to poweroff dump-enabled kernel not configured for
+|>dumping.
+|>
+|>-
+|>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+|>the body of a message to majordomo@vger.kernel.org
+|>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+|>Please read the FAQ at  http://www.tux.org/lkml/
+|>
 
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
 

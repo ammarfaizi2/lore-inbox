@@ -1,42 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbULAFbi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbULAFmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbULAFbi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 00:31:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbULAFbi
+	id S261226AbULAFmR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 00:42:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbULAFmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 00:31:38 -0500
-Received: from ems.hclinsys.com ([203.90.70.242]:64527 "EHLO ems.hclinsys.com")
-	by vger.kernel.org with ESMTP id S261189AbULAFbh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 00:31:37 -0500
-Subject: Query regarding current macro
-From: Jagadeesh Bhaskar P <jbhaskar@hclinsys.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1101879238.7423.13.camel@myLinux>
+	Wed, 1 Dec 2004 00:42:17 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:10203 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261231AbULAFmH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 00:42:07 -0500
+Subject: Re: [ACPI] Re: Fw: ACPI bug causes cd-rom lock-ups (2.6.10-rc2)
+From: Len Brown <len.brown@intel.com>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Linux kernel <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       Shaohua Li <shaohua.li@intel.com>
+In-Reply-To: <41A621DD.8060102@aknet.ru>
+References: <41990138.7080008@aknet.ru> <1101190148.19999.394.camel@d845pe>
+	 <41A4CF1C.6090503@aknet.ru> <1101336267.20008.5326.camel@d845pe>
+	 <41A621DD.8060102@aknet.ru>
+Content-Type: multipart/mixed; boundary="=-5ycK+gAFzk7SRJ0mB3Gt"
+Organization: 
+Message-Id: <1101879708.8028.62.camel@d845pe>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 01 Dec 2004 11:03:58 +0530
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 01 Dec 2004 00:41:49 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-	I was going through the explanation of the current macro, and found out
-that it was got by masking 13-bits LSB the esp register. So is it that
-always the process descriptor will start at a location with the last 13
-bits are 0??
 
-	I have read that both the kernel stack and process descriptor of a
-process is stored in together in an 8KB page. Now the offsets in the
-page should start from all bits 0, rite? So then why masking only the 13
-bits LSB?? What is the significance of keeping that length at 13??
+--=-5ycK+gAFzk7SRJ0mB3Gt
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Please do help!!
+Thanks for running the tests.
+Please confirm that this patch make the problem go away in the 
+CONFIG_PNP_ACPI=y configuration.
 
-TIA
--- 
-With regards,
+-Len
 
-Jagadeesh Bhaskar P
+
+--=-5ycK+gAFzk7SRJ0mB3Gt
+Content-Disposition: attachment; filename=pnp.patch
+Content-Type: text/plain; name=pnp.patch; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+===== drivers/acpi/pci_link.c 1.35 vs edited =====
+--- 1.35/drivers/acpi/pci_link.c	2004-11-09 03:08:36 -05:00
++++ edited/drivers/acpi/pci_link.c	2004-12-01 00:38:18 -05:00
+@@ -791,9 +791,16 @@
+ 	return 1;
+ }
+ 
++/*
++ * We'd like PNP to call this routine for the
++ * single ISA_USED value for each legacy device.
++ * But instead it calls us with each POSSIBLE setting.
++ * There is no ISA_POSSIBLE weight, so we simply use
++ * the (small) PCI_USING penalty.
++ */
+ void acpi_penalize_isa_irq(int irq)
+ {
+-	acpi_irq_penalty[irq] += PIRQ_PENALTY_ISA_USED;
++	acpi_irq_penalty[irq] += PIRQ_PENALTY_PCI_USING;
+ }
+ 
+ /*
+
+--=-5ycK+gAFzk7SRJ0mB3Gt--
 

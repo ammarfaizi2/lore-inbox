@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129043AbQKHG5w>; Wed, 8 Nov 2000 01:57:52 -0500
+	id <S129044AbQKHHGN>; Wed, 8 Nov 2000 02:06:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129044AbQKHG5d>; Wed, 8 Nov 2000 01:57:33 -0500
-Received: from piglet.twiddle.net ([207.104.6.26]:53510 "EHLO
-	piglet.twiddle.net") by vger.kernel.org with ESMTP
-	id <S129043AbQKHG53>; Wed, 8 Nov 2000 01:57:29 -0500
-Date: Tue, 7 Nov 2000 22:57:49 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Reto Baettig <baettig@scs.ch>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: Alpha SMP problem
-Message-ID: <20001107225749.B26542@twiddle.net>
-In-Reply-To: <3A08455E.F3583D1B@scs.ch>
-Mime-Version: 1.0
+	id <S129262AbQKHHGD>; Wed, 8 Nov 2000 02:06:03 -0500
+Received: from scaup.prod.itd.earthlink.net ([207.217.121.49]:42445 "EHLO
+	scaup.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S129163AbQKHHF4>; Wed, 8 Nov 2000 02:05:56 -0500
+To: greg@tcscs.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problems with grow_inodes: inode-max limit reached
+In-Reply-To: <Pine.LNX.4.21.0011080046520.9666-100000@ded-tscs.innovsoftd.com>
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: 07 Nov 2000 23:05:47 -0800
+In-Reply-To: <Pine.LNX.4.21.0011080046520.9666-100000@ded-tscs.innovsoftd.com>
+Message-ID: <m3em0nx7sk.fsf@matrix.mandrakesoft.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <3A08455E.F3583D1B@scs.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 07, 2000 at 10:09:34AM -0800, Reto Baettig wrote:
-> I have a problem whith Alpha SMP's which seems to be kernel-related. I
-> discussed this on the bug-glibc list but everybody seems to agree that
-> it cannot be a libc problem.
+"Gregory S. Youngblood" <greg@tcscs.com> writes:
 
-Indeed it does seem to be some sort of tlb flushing problem,
-but I've been unable to figure out exactly what.
+> The problem occurs with Mandrake 7.0 and 7.1 with kernels 2.2.14, 2.2.16,
+> and 2.2.17. These are the secure kernels that Mandrake provides.
 
+can you try with a 2.2.17 kernel rpm standard (no smp no secure) ?
 
-r~
+-- 
+MandrakeSoft Inc                     http://www.chmouel.org
+                      --Chmouel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

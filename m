@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266572AbUBRB7U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 20:59:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267017AbUBRB7U
+	id S267124AbUBRCJF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 21:09:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267128AbUBRCJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 20:59:20 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:23266 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S266572AbUBRB7S (ORCPT
+	Tue, 17 Feb 2004 21:09:05 -0500
+Received: from [212.28.208.94] ([212.28.208.94]:41739 "HELO dewire.com")
+	by vger.kernel.org with SMTP id S267124AbUBRCJB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 20:59:18 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Tue, 17 Feb 2004 21:09:01 -0500
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API
+Date: Wed, 18 Feb 2004 03:08:48 +0100
+User-Agent: KMail/1.6.1
+Cc: Stefan Smietanowski <stesmi@stesmi.com>,
+       Linus Torvalds <torvalds@osdl.org>, Marc Lehmann <pcg@schmorp.de>,
+       Jamie Lokier <jamie@shareable.org>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Linux kernel <linux-kernel@vger.kernel.org>
+References: <200402150107.26277.robin.rosenberg.lists@dewire.com> <40324741.4040707@stesmi.com> <4032BF78.70802@namesys.com>
+In-Reply-To: <4032BF78.70802@namesys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16434.50928.682219.187846@napali.hpl.hp.com>
-Date: Tue, 17 Feb 2004 17:59:12 -0800
-To: Matthew Wilcox <willy@debian.org>
-Cc: davidm@hpl.hp.com, torvalds@osdl.org, Michel D?nzer <michel@daenzer.net>,
-       Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: radeon warning on 64-bit platforms
-In-Reply-To: <20040218015423.GH11824@parcelfarce.linux.theplanet.co.uk>
-References: <16434.35199.597235.894615@napali.hpl.hp.com>
-	<1077054385.2714.72.camel@thor.asgaard.local>
-	<16434.36137.623311.751484@napali.hpl.hp.com>
-	<1077055209.2712.80.camel@thor.asgaard.local>
-	<16434.37025.840577.826949@napali.hpl.hp.com>
-	<1077058106.2713.88.camel@thor.asgaard.local>
-	<16434.41884.249541.156083@napali.hpl.hp.com>
-	<20040217234848.GB22534@krispykreme>
-	<16434.46860.429861.157242@napali.hpl.hp.com>
-	<20040218015423.GH11824@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Message-Id: <200402180308.48354.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 18 Feb 2004 01:54:23 +0000, Matthew Wilcox <willy@debian.org> said:
+On Wednesday 18 February 2004 02.27, Hans Reiser wrote:
+> ReiserFS 6 plans to allow files to be associated with arbitrary files 
+> and found by those associations.  Some of those files will consist of 
+> ascii keywords, some will be icon images, etc.....  Human readability 
+> should not be considered fundamental to a name component, especially 
+> since programs with no interest in readability may be the only direct 
+> users of the name.
 
-  >> I don't really see the point of that, given that pretty much all
-  >> existing Linux source code is formatted for 100 columns.  I don't feel
-  >> strongly about it, however, so I changed it.
+If the user never sees a name, it doesn't matter. However the user actually sees
+and reads the filenames in /home, portable media, networks devices and lots of
+places. However, when a user has named a component those characters are those
+that are important to the user because those form an "image" (since you introduced
+the term) or "sound" that the user remembers and associates with the content. A 
+character is the simplest form of image so it should always look the same.
 
-  Matthew> Um, only your crap.  Everybody else follows
-  Matthew> Documentation/CodingStyle.
-
-Wow.  Revisionists at work? ;-)
-
-I personally would be more than happy to reformat things to 80 cols,
-but it's a waste of time unless almost all Linux code gets
-reformatted.
-
-	--david
+-- robin

@@ -1,91 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268503AbUHaNyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268525AbUHaNyb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268503AbUHaNyP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 09:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbUHaNyO
+	id S268525AbUHaNyb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 09:54:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbUHaNyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 09:54:14 -0400
-Received: from users.linvision.com ([62.58.92.114]:26573 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S268503AbUHaNyE (ORCPT
+	Tue, 31 Aug 2004 09:54:31 -0400
+Received: from cantor.suse.de ([195.135.220.2]:21929 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268525AbUHaNyV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 09:54:04 -0400
-Date: Tue, 31 Aug 2004 15:54:03 +0200
-From: Rogier Wolff <R.E.Wolff@harddisk-recovery.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rogier Wolff <R.E.Wolff@harddisk-recovery.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: Re: Driver retries disk errors.
-Message-ID: <20040831135403.GB2854@bitwizard.nl>
-References: <20040830163931.GA4295@bitwizard.nl> <1093952715.32684.12.camel@localhost.localdomain>
+	Tue, 31 Aug 2004 09:54:21 -0400
+Date: Tue, 31 Aug 2004 15:54:20 +0200
+From: Andi Kleen <ak@suse.de>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: davem@redhat.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+       Dipankar <dipankar@in.ibm.com>, paulmck@us.ibm.com
+Subject: Re: [RFC] Use RCU for tcp_ehash lookup
+Message-ID: <20040831135419.GA17642@wotan.suse.de>
+References: <20040831125941.GA5534@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1093952715.32684.12.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.nl
+In-Reply-To: <20040831125941.GA5534@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 31, 2004 at 12:45:15PM +0100, Alan Cox wrote:
-> On Llu, 2004-08-30 at 17:39, Rogier Wolff wrote:
-> > We encounter "bad" drives with quite a lot more regularity than other
-> > people (look at the Email address). We're however, wondering why the
-> > IDE code still retries a bad block 8 times? By the time the drive
-> > reports "bad block" it has already tried it several times, including a
-> > bunch of "recalibrates" etc etc. For comparison, the Scsi-disk driver
-> > doesn't do any retrying.
+On Tue, Aug 31, 2004 at 06:29:41PM +0530, Srivatsa Vaddagiri wrote:
 > 
-> It helps for some things like magneto-opticals. For generic hard drives
-> its only relevant for older devices.
+>   I would be interested to know if anyone has seen high-rate of lock contention
+>   for hash bucket lock. Such workloads would benefit from the lock-free lookup.
+
+I would suspect something that does IO from multiple threads over 
+a single connection. However there is also the socket lock, which
+may prevent too much parallelism.
 > 
-> > (*) Note: Tested last month: The driver still works for MFM
-> > drives. However, the initialization apparently is not enough
-> > anymore. The drive did not work when the BIOS didn't think there was a
-> > drive.
-> 
-> Please file a bug report if 2.6 also shows that problem.
+>   In the absence of any workload which resulted in lock contention, I resorted
+>   to disabling NAPI and irq balance (noirqbalance) to study the effect of cache
+>   bouncing on the lookup routine. The result was that CPU usage of the stack
+>   was halved in lock-free case, which IMHO, is a strong enough reason for us
+>   to consider this seriously.
 
-Will try to test when we have time. 
+Yes, sounds very nice.
 
-So, can we agree on: 
-	- might be needed for 
-		- Floppies?
-		- MO drives
-		- older drives
+I bet also when you just do rdtsc timing for the TCP receive
+path the cycle numbers will be way down (excluding the copy).
 
-Can we auto-detect these cases (Linus doesn't like configurable
-parameters that need tweaking to work well, and I agree: 99% of the
-users want to have stuff that works (well) out of the box.)
+And it should also fix the performance problems with
+cat /proc/net/tcp on ppc64/ia64 for large hash tables because the rw locks 
+are gone.
 
+>   
+> - I presume that one of the reasons for keeping the hash table so big is to
+>   keep lock contention low (& to reduce the size of hash chains). If the lookup
+>   is made lock-free, then could the size of the hash table be reduced (without
+>   adversely impacting performance)?
 
-How about we set the num-retries to 1, and increase to 8 for
-"weird devices" (floppy, MO), and older drives. 
+Definitely worth trying IMHO. The current hash tables are far
+too big. I would do that as followon patches though.
 
-How do we detect: "Older drives"? Would "MFM": the user specified the
-geometry" be valid as a detection of "older drive"?
-
-Or do we want to include the 40Mb-1G generation drives as well? How
-do we detect those if we want to include them? 
-
-I do want to make the num_retries thing a configurable parameter,
-should the autodetect get it wrong: We get drives that we want to
-recover without the kernel-level retries...
-
-(still: I argue that you need to consider a "retry-works" error as an
-early warning that your media is going bad, and you need to get your
-data off ASAP! If the kernel silently retries and succeeds, the user
-won't notice a thing and continue using the drive (or MO media) until
-the error becomes irrecoverable. I recommend we put the retry at the
-user level. As in "person behind keyboard".)
-
-I'll try to make a patch as long as we work towards a feature set
-first.... 
+I haven't studied it in detail (yet), just two minor style 
+comments: 
 
 
-	Roger. 
+> -		sk_free(sk);
+> +sp_loop:
+> +	if (atomic_dec_and_test(&sk->sk_refcnt)) {
+> +		/* Restore ref count and schedule callback.
+> +		 * If we don't restore ref count, then the callback can be
+> +		 * scheduled by more than one CPU.
+> +		 */
+> +		atomic_inc(&sk->sk_refcnt);
+> +
+> +		if (atomic_read(&sk->sk_refcnt) == 1)
+> +			call_rcu(&sk->sk_rcu, sk_free_rcu);
+> +		else
+> +			goto sp_loop;
+> +	}
 
--- 
-+-- Rogier Wolff -- www.harddisk-recovery.nl -- 0800 220 20 20 --
-| Files foetsie, bestanden kwijt, alle data weg?!
-| Blijf kalm en neem contact op met Harddisk-recovery.nl!
+Can you rewrite that without goto? 
+> +tput_loop:
+>  	if (atomic_dec_and_test(&tw->tw_refcnt)) {
+> -#ifdef INET_REFCNT_DEBUG
+> -		printk(KERN_DEBUG "tw_bucket %p released\n", tw);
+> -#endif
+> -		kmem_cache_free(tcp_timewait_cachep, tw);
+> +		/* Restore ref count and schedule callback.
+> +		 * If we don't restore ref count, then the callback can be
+> +		 * scheduled by more than one CPU.
+> +		 */
+> +
+> +		atomic_inc(&tw->tw_refcnt);
+> +
+> +		if (atomic_read(&tw->tw_refcnt) == 1)
+> +			call_rcu(&tw->tw_rcu, tcp_tw_free);
+> +		else
+> +			goto tput_loop;
+
+And that too.
+
+
+-Andi

@@ -1,74 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268835AbRHKUeI>; Sat, 11 Aug 2001 16:34:08 -0400
+	id <S268842AbRHKUtk>; Sat, 11 Aug 2001 16:49:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268837AbRHKUd6>; Sat, 11 Aug 2001 16:33:58 -0400
-Received: from [24.64.63.13] ([24.64.63.13]:63680 "EHLO
-	smail-cal.shawcable.com") by vger.kernel.org with ESMTP
-	id <S268835AbRHKUdo>; Sat, 11 Aug 2001 16:33:44 -0400
-Date: Sat, 11 Aug 2001 13:32:00 -0700 (PDT)
-From: Daniel Bertrand <d.bertrand@ieee.org>
-Subject: Re: [Emu10k1-devel] [PATCH] emu10k1 againt kernel 2.4.8
-In-Reply-To: <Pine.LNX.4.33.0108111318420.847-100000@localhost.localdomain>
-X-X-Sender: <d_bertra@kilrogg>
-To: Rui Sousa <rui.p.m.sousa@clix.pt>
-Cc: linux-kernel@vger.kernel.org,
-        emu10k1-devel <emu10k1-devel@opensource.creative.com>
-Message-id: <Pine.LNX.4.33.0108111313450.959-100000@kilrogg>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	id <S268844AbRHKUtb>; Sat, 11 Aug 2001 16:49:31 -0400
+Received: from adsl-64-160-145-247.dsl.lsan03.pacbell.net ([64.160.145.247]:57416
+	"EHLO runner.pacbell.net") by vger.kernel.org with ESMTP
+	id <S268842AbRHKUtS>; Sat, 11 Aug 2001 16:49:18 -0400
+Message-Id: <200108112049.f7BKnYQ22817@runner.pacbell.net>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+From: rruth@computer.org
+Subject: Kernel 2.4.8 make modules fails in emu10k1 
+Reply-To: rruth@computer.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 11 Aug 2001 13:49:34 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+
+make bzImage worked
+
+make modules failed when attempting to make a module for my Sound Blaster Live.
+
+If you need to see my .config file, let me know.
+
+Here is the output from the 'end' of my make modules:
+
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.8/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=athlon  -DMODULE -DMODVERSIONS -include 
+/usr/src/linux-2.4.8/include/linux/modversions.h   -c -o voicemgr.o voicemgr.c
+rm -f emu10k1.o
+ld -m elf_i386  -r -o emu10k1.o audio.o cardmi.o cardmo.o cardwi.o cardwo.o 
+ecard.o efxmgr.o emuadxmg.o hwaccess.o irqmgr.o joystick.o main.o midi.o 
+mixer.o passthrough.o recmgr.o timer.o voicemgr.o
+main.o(.modinfo+0x40): multiple definition of `__module_author'
+joystick.o(.modinfo+0x80): first defined here
+ld: Warning: size of symbol `__module_author' changed from 67 to 81 in main.o
+main.o(.modinfo+0xa0): multiple definition of `__module_description'
+joystick.o(.modinfo+0xe0): first defined here
+ld: Warning: size of symbol `__module_description' changed from 83 to 96 in 
+main.o
+main.o: In function `init_module':
+main.o(.text+0x1880): multiple definition of `init_module'
+joystick.o(.text+0x210): first defined here
+main.o: In function `cleanup_module':
+main.o(.text+0x18c0): multiple definition of `cleanup_module'
+joystick.o(.text+0x250): first defined here
+make[3]: *** [emu10k1.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.8/drivers/sound/emu10k1'
+make[2]: *** [_modsubdir_emu10k1] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.8/drivers/sound'
+make[1]: *** [_modsubdir_sound] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.8/drivers'
+make: *** [_mod_drivers] Error 2
 
 
-On Sat, 11 Aug 2001, Rui Sousa wrote:
-
-> Are there any "beginner" instructions for the tools?
-
-Not yet, I'm working on it. The documentation included for now is for
-installation of the driver from CVS, anyone reading it should keep that in
-mind.
-
-> Will you be mantaining this tarball? If so we can point people
-> there from "Configure.help".
-
-The ~dbertrand/ link was a quick hack (as I don't have write access to the
-rest of the website). We should setup a proper download page linked from
-the front page.
+Richard
+rruth@computer.org
 
 
->
-> Rui Sousa
-> > Hi,
-> >
-> > Here's an 'emergency' tarball of the userland tools to go with it:
-> >
-> > http://opensource.creative.com/~dbertrand/emu-tools-0.9.tar.gz
-> >
-> >
-> >
-> >
-> > On Sat, 11 Aug 2001, Rui Sousa wrote:
-> >
-> > >
-> > > Patch against kernel 2.4.8:
-> > > 1. Fixes makefiles changes (can now be compiled as a module).
-> > > 2. Reverts addition of joystick.c
-> > > 3. Enables emu10k1 sequencer support.
-> > > 4. Adds documentation for the driver new features.
-> > >
-> > > Please apply,
-> > >
-> > > Rui Sousa
-> > >
-> >
-> >
->
->
-
--- 
-Daniel Bertrand
 

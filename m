@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131708AbQKJVMG>; Fri, 10 Nov 2000 16:12:06 -0500
+	id <S130657AbQKJVO4>; Fri, 10 Nov 2000 16:14:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131713AbQKJVL4>; Fri, 10 Nov 2000 16:11:56 -0500
-Received: from [151.4.188.87] ([151.4.188.87]:7172 "HELO home.bogus")
-	by vger.kernel.org with SMTP id <S131708AbQKJVLn>;
-	Fri, 10 Nov 2000 16:11:43 -0500
-From: Davide Libenzi <davidel@xmail.virusscreen.com>
-To: sendmail-bugs@sendmail.org, Claus Assmann <sendmail+ca@sendmail.org>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in /var/spool/mqueue]
-Date: Fri, 10 Nov 2000 23:28:29 +0100
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: root@chaos.analogic.com, Andrea Arcangeli <andrea@suse.de>,
-        linux-kernel@vger.kernel.org, sendmail-bugs@sendmail.org
-In-Reply-To: <Pine.LNX.3.95.1001110153916.6334A-100000@chaos.analogic.com> <3A0C5EDC.3F30BE9C@timpanogas.org> <20001110125902.A16027@sendmail.com>
-In-Reply-To: <20001110125902.A16027@sendmail.com>
+	id <S130892AbQKJVOq>; Fri, 10 Nov 2000 16:14:46 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:7172 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S130657AbQKJVOf>; Fri, 10 Nov 2000 16:14:35 -0500
+Message-ID: <3A0C6445.A75061F1@timpanogas.org>
+Date: Fri, 10 Nov 2000 14:10:29 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <00111023290401.00203@linux1.home.bogus>
-Content-Transfer-Encoding: 7BIT
+To: wmaton@ryouko.dgim.crc.ca
+CC: Andrea Arcangeli <andrea@suse.de>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in  
+ /var/spool/mqueue]
+In-Reply-To: <Pine.GSO.3.96LJ1.1b7.1001110160719.514B-100000@ryouko.dgim.crc.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Nov 2000, Claus Assmann wrote:
-> On Fri, Nov 10, 2000, Jeff V. Merkey wrote:
-> > Looks like your bug.  As an FYI, sendmail.rpms in Suse, RedHat, and
-> > OpenLinux all exhibit this behavior, which means they're all broken. 
+
+
+"William F. Maton" wrote:
 > 
-> Sorry, this is plain wrong. sendmail does NOT read the entire
-> file into memory.
+> On Fri, 10 Nov 2000, Jeff V. Merkey wrote:
+> 
+> > Andrea Arcangeli wrote:
+> > >
+> > > On Fri, Nov 10, 2000 at 03:07:46PM -0500, Richard B. Johnson wrote:
+> > > > It isn't a TCP/IP stack problem. It may be a memory problem. Every time
+> > > > sendmail spawns a child to send the file data, it crashes.  That's
+> > > > why the file never gets sent!
+> > >
+> > > Sure that could be the case. You should be able to verify the kernel kills the
+> > > task with `dmesg`.
+> > >
+> > > However Jeff said the problem happens over 400K and a 500K attachment shouldn't
+> > > really run any machine out of memory, so maybe this wasn't his same problem?
+> >
+> > I think it is.  So it looks like sendmail is bombing when it attempts to
+> > send large files.
+> 
+> Not to use the 'S-word', but we're receiving/sending biggish attachments
+> (7MB-9MB) under Solaris 2.6.  Could sendmail be triggering a linux bug, or
+> could something specific to linux be triggering a sendmail bug?
 
-Does sendmail use sendfile() ?
+Richard has determined that it's a low memory problem on Linux with
+sendmail.  Perhaps it affects Solaris as well, try it in low memory with
+a big file.
+
+Jeff
 
 
-- Davide
+> 
+> > Jeff
+> 
+> wfms
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

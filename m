@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263299AbTC0RCI>; Thu, 27 Mar 2003 12:02:08 -0500
+	id <S261895AbTC0Q7T>; Thu, 27 Mar 2003 11:59:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263305AbTC0RCH>; Thu, 27 Mar 2003 12:02:07 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:34030 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S263299AbTC0RBf>; Thu, 27 Mar 2003 12:01:35 -0500
-Date: Thu, 27 Mar 2003 09:10:58 -0800
-From: Chris Wright <chris@wirex.com>
-To: Jan Kasprzak <kas@informatics.muni.cz>
-Cc: Junfeng Yang <yjf@stanford.edu>, linux-kernel@vger.kernel.org,
-       mc@cs.stanford.edu
-Subject: Re: [CHECKER] potential dereference of user pointer errors
-Message-ID: <20030327091058.A22868@figure1.int.wirex.com>
-Mail-Followup-To: Jan Kasprzak <kas@informatics.muni.cz>,
-	Junfeng Yang <yjf@stanford.edu>, linux-kernel@vger.kernel.org,
-	mc@cs.stanford.edu
-References: <200303041112.h24BCRW22235@csl.stanford.edu> <Pine.GSO.4.44.0303202226230.24869-100000@elaine24.Stanford.EDU> <20030321155547.C646@figure1.int.wirex.com> <20030327090713.A19647@fi.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030327090713.A19647@fi.muni.cz>; from kas@informatics.muni.cz on Thu, Mar 27, 2003 at 09:07:13AM +0100
+	id <S261944AbTC0Q7T>; Thu, 27 Mar 2003 11:59:19 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:49285
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261895AbTC0Q7R>; Thu, 27 Mar 2003 11:59:17 -0500
+Date: Thu, 27 Mar 2003 18:16:46 GMT
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200303271816.h2RIGkgj019646@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH: DRIVERNAME SUPPRESSED DUE TO KERNEL.ORG FILTER BUGS
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jan Kasprzak (kas@informatics.muni.cz) wrote:
-> Chris Wright wrote:
-> : Both cosa_readmem and cosa_download don't seem to do any validation of
-> : the user supplied ptr at all before dereferncing it in get_user.  And
-> : it'd make sense to use 'code' in cosa_reamdme (as in cosa_download)
-> : instead of 'd->code'.  Jan, does this look OK?
-> 
-> 	Yes, you are right. I've missed this. However, it is not
-> as bad as it looks like, because you need the CAP_SYS_RAWIO to
-> exploit this. I agree this patch should be applied.
-
-Thanks for the confirmation.
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Add a comment that the irq_nosync stuff needs revisiting
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.66-bk3/drivers/ide/ide-iops.c linux-2.5.66-ac1/drivers/ide/ide-iops.c
+--- linux-2.5.66-bk3/drivers/ide/ide-iops.c	2003-03-27 17:13:18.000000000 +0000
++++ linux-2.5.66-ac1/drivers/ide/ide-iops.c	2003-03-26 20:05:24.000000000 +0000
+@@ -903,6 +903,14 @@
+          * Select the drive, and issue the SETFEATURES command
+          */
+ 	disable_irq_nosync(hwif->irq);
++	
++	/*
++	 *	FIXME: we race against the running IRQ here if
++	 *	this is called from non IRQ context. If we use
++	 *	disable_irq() we hang on the error path. Work
++	 *	is needed.
++	 */
++	 
+ 	udelay(1);
+ 	SELECT_DRIVE(drive);
+ 	SELECT_MASK(drive, 0);

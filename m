@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266308AbUBJSz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 13:55:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266175AbUBJSz2
+	id S265913AbUBJTMK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 14:12:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265975AbUBJTMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 13:55:28 -0500
-Received: from bart.one-2-one.net ([217.115.142.76]:13075 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S266308AbUBJSzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 13:55:24 -0500
-Date: Tue, 10 Feb 2004 19:59:23 +0100 (CET)
-From: Martin Diehl <lists@mdiehl.de>
-X-X-Sender: martin@notebook.home.mdiehl.de
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] dma_sync_to_device
-In-Reply-To: <20040210104250.11e95c87.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0402101955060.2349-100000@notebook.home.mdiehl.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Feb 2004 14:12:09 -0500
+Received: from h24-82-88-106.vf.shawcable.net ([24.82.88.106]:1421 "HELO
+	tinyvaio.nome.ca") by vger.kernel.org with SMTP id S265913AbUBJTMH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 14:12:07 -0500
+Date: Tue, 10 Feb 2004 11:12:34 -0800
+From: Mike Bell <kernel@mikebell.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: devfs vs udev, thoughts from a devfs user
+Message-ID: <20040210191233.GA4814@tinyvaio.nome.ca>
+References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040210170157.GA27421@kroah.com> <20040210175548.GN4421@tinyvaio.nome.ca> <20040210181932.GI28111@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040210181932.GI28111@kroah.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Feb 2004, David S. Miller wrote:
+On Tue, Feb 10, 2004 at 10:19:32AM -0800, Greg KH wrote:
+> ugh, and here I said I wouldn't respond.  But to be fair, he wrote me
+> this before I said that...
 
-> Believe it or not your work still sits deep in my inbox waiting for my backlog
-> to work on back to it.
-> 
-> I'll try to get to this again.
-
-Ok, Thanks.
-
-It's not particularly urgent but my concern was just the patch wouldn't 
-apply any longer once colliding dma stuff gets in...
-And the dma_pool stuff might be a good motivation for arch maintainers to 
-adopt this in one go ;-)
-
-Martin
-
+Also, since it's not intended to be a personal attack but rather an
+attempt to find the truth, whether you personally want to respond or not
+I'd still like to respond to the claims you made with why I think
+they're wrong.

@@ -1,112 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262227AbUKDOTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbUKDOWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262227AbUKDOTi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 09:19:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbUKDOTh
+	id S262236AbUKDOWo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 09:22:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbUKDOWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 09:19:37 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:9687 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262229AbUKDONs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 09:13:48 -0500
-Date: Thu, 4 Nov 2004 08:13:37 -0600
-From: Jack Steiner <steiner@sgi.com>
-To: Takayoshi Kochi <t-kochi@bq.jp.nec.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Externalize SLIT table
-Message-ID: <20041104141337.GA18445@sgi.com>
-References: <20041103205655.GA5084@sgi.com> <20041104.105908.18574694.t-kochi@bq.jp.nec.com>
+	Thu, 4 Nov 2004 09:22:43 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:31935 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262229AbUKDOWR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 09:22:17 -0500
+Date: Thu, 4 Nov 2004 15:23:17 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Michael J. Cohen" <mjc@unre.st>
+Cc: "K.R. Foley" <kr@cybsft.com>, sboyce@blueyonder.co.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.7
+Message-ID: <20041104142317.GA19476@elte.hu>
+References: <41897119.6030607@blueyonder.co.uk> <418988A6.4090902@cybsft.com> <20041104100634.GA29785@elte.hu> <1099563805.30372.2.camel@localhost> <1099567061.7911.4.camel@localhost> <20041104114545.GA3722@elte.hu> <1099573171.7876.0.camel@optie.uni.325i.org> <1099575262.8110.1.camel@optie.uni.325i.org> <20041104140528.GA16604@elte.hu> <1099577631.8090.4.camel@optie.uni.325i.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041104.105908.18574694.t-kochi@bq.jp.nec.com>
+In-Reply-To: <1099577631.8090.4.camel@optie.uni.325i.org>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 10:59:08AM +0900, Takayoshi Kochi wrote:
-> Hi,
-> 
-> For wider audience, added LKML.
-> 
-> From: Jack Steiner <steiner@sgi.com>
-> Subject: Externalize SLIT table
-> Date: Wed, 3 Nov 2004 14:56:56 -0600
-> 
-> > The SLIT table provides useful information on internode
-> > distances. Has anyone considered externalizing this
-> > table via /proc or some equivalent mechanism.
-> > 
-> > For example, something like the following would be useful:
-> > 
-> > 	# cat /proc/acpi/slit
-> > 	010 066 046 066
-> > 	066 010 066 046
-> > 	046 066 010 020
-> > 	066 046 020 010
-> > 
-> > If this looks ok (or something equivalent), I'll generate a patch....
-> 
-> For user space to manipulate scheduling domains, pinning processes
-> to some cpu groups etc, that kind of information is very useful!
-> Without this, users have no notion about how far between two nodes.
-> 
-> But ACPI SLIT table is too arch specific (ia64 and x86 only) and
-> user-visible logical number and ACPI proximity domain number is
-> not always identical.
-> 
-> Why not export node_distance() under sysfs?
-> I like (1).
-> 
-> (1) obey one-value-per-file sysfs principle
-> 
-> % cat /sys/devices/system/node/node0/distance0
-> 10
-> % cat /sys/devices/system/node/node0/distance1
-> 66
 
-I'm not familar with the internals of sysfs. For example, on a 256 node
-system, there will be 65536 instances of
-	 /sys/devices/system/node/node<M>/distance<N>
+* Michael J. Cohen <mjc@unre.st> wrote:
 
-Does this require any significant amount of kernel resources to
-maintain this amount of information.
+> config attached, and I'll try booting with nmi_watchdog=1 next time it
+> locks.
 
+i'd also suggest to turn CONFIG_RWSEM_DEADLOCK_DETECT on.
 
-
-
-> 
-> (2) one distance for each line
-> 
-> % cat /sys/devices/system/node/node0/distance
-> 0:10
-> 1:66
-> 2:46
-> 3:66
-> 
-> (3) all distances in one line like /proc/<PID>/stat
-> 
-> % cat /sys/devices/system/node/node0/distance
-> 10 66 46 66
-> 
-
-
-I like (3) the best.
-
-I think it would also be useful to have a similar cpu-to-cpu distance
-metric:
-	% cat /sys/devices/system/cpu/cpu0/distance
-	10 20 40 60 
-
-This gives the same information but is cpu-centric rather than
-node centric.
-
-
-
--- 
-Thanks
-
-Jack Steiner (steiner@sgi.com)          651-683-5302
-Principal Engineer                      SGI - Silicon Graphics, Inc.
-
-
+	Ingo

@@ -1,41 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S285595AbUKASP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263206AbUKASQ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S285595AbUKASP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 13:15:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S285594AbUKASP5
+	id S263206AbUKASQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 13:16:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269694AbUKASQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 13:15:57 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:19328 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S284719AbUKASEk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 13:04:40 -0500
-Subject: Re: [PATCH] [CPU-HOTPLUG] convert cpucontrol to be a rwsem
-From: Lee Revell <rlrevell@joe-job.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Dominik Brodowski <linux@dominikbrodowski.de>,
-       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-In-Reply-To: <Pine.LNX.4.61.0411010656380.19123@musoma.fsmlabs.com>
-References: <20041101084337.GA7824@dominikbrodowski.de>
-	 <Pine.LNX.4.61.0411010656380.19123@musoma.fsmlabs.com>
-Content-Type: text/plain
-Date: Mon, 01 Nov 2004 13:04:37 -0500
-Message-Id: <1099332277.3647.43.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Mon, 1 Nov 2004 13:16:28 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:41400 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S273775AbUKASEZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 13:04:25 -0500
+Date: Mon, 01 Nov 2004 10:03:56 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Andrea Arcangeli <andrea@novell.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: PG_zero
+Message-ID: <161650000.1099332236@flay>
+In-Reply-To: <418671AA.6020307@yahoo.com.au>
+References: <20041030141059.GA16861@dualathlon.random> <418671AA.6020307@yahoo.com.au>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-11-01 at 07:00 -0700, Zwane Mwaikambo wrote:
-> Agreed it makes a lot more sense, i think there could be some places where 
-> we use preempt_disable to protect against cpu offline which could 
-> converted, but that can come later.
+>> And there was no
+>> need of using two quicklists for cold and hot pages, less resources are
+>> wasted by just using the lru ordering to diferentiate from hot/cold
+>> allocations and hot/cold freeing. 
 > 
+> Not sure if this is wise. Reclaimed pages should definitely be cache
+> cold. Other freeing is assumed cache hot and LRU ordered on the hot
+> list which seems right... but I think you want the cold list for page
+> reclaim, don't you?
 
-You know I picked up Robert Love's book the other day and was surprised
-to read we are not supposed to be using preempt_disable, there is a
-per_cpu interface for exactly this kind of thing.  Which is currently
-recommended?
+You're completely correct about the hot vs cold, but I don't think that
+precludes what Andrea is suggesting ... merge into one list and use the
+hot/cold ends. Mmmm ... why did we do that? I think it was to stop cold
+allocations from eating into hot pages - we'd prefer them to fall back
+into the buddy instead.
 
-Lee
+>> Obvious improvements would be to implement a long_write_zero(ptr)
+>> operation that doesn't pollute the cache. IIRC it exists on the alpha, I
+>> assume it exists on x86/x86-64 too. But that's incremental on top of
+>> this.
+>> 
+>> It seems stable, I'm running it while writing this.
+>> 
+>> I guess testing on a memory bound architecture would be more interesting
+>> (more cpus will make it more memory bound somewhat).
+>> 
+>> Comments welcome.
+> 
+> I have the feeling that it might not be worthwhile doing zero on idle.
+> You've got chance of blowing the cache on zeroing pages that won't be
+> used for a while. If you do uncached writes then you've changed the
+> problem to memory bandwidth (I guess doesn't matter much on UP).
+
+Yeah, we got bugger-all benefit out of it. The only think it might do
+is lower the latency on inital load-spikes, but basically you end up
+paying the cache fetch cost twice. But ... numbers rule - if you can come
+up with something that helps a real macro benchmark, I'll eat my non-existant
+hat ;-)
+
+M.
 

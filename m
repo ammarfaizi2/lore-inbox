@@ -1,114 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267434AbTAWX5U>; Thu, 23 Jan 2003 18:57:20 -0500
+	id <S267267AbTAWXyq>; Thu, 23 Jan 2003 18:54:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267439AbTAWX5U>; Thu, 23 Jan 2003 18:57:20 -0500
-Received: from [209.184.141.189] ([209.184.141.189]:20548 "HELO ubergeek")
-	by vger.kernel.org with SMTP id <S267434AbTAWX5S>;
-	Thu, 23 Jan 2003 18:57:18 -0500
-Subject: Re: 2.4.20 CPU lockup - Now with OOPS message
-From: GrandMasterLee <masterlee@digitalroadkill.net>
-To: dk@webcluster.at
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <DIEGIJEABDDLMLKJFCKJMEFJCEAA.dk@webcluster.at>
-References: <DIEGIJEABDDLMLKJFCKJMEFJCEAA.dk@webcluster.at>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1043366749.28748.124.camel@UberGeek>
+	id <S267421AbTAWXyq>; Thu, 23 Jan 2003 18:54:46 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:28033 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267267AbTAWXyp>;
+	Thu, 23 Jan 2003 18:54:45 -0500
+Date: Fri, 24 Jan 2003 00:00:40 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@sourceforge.net
+Subject: Re: [PATCH] ACPI update (20030122)
+Message-ID: <20030124000040.GB18596@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Grover, Andrew" <andrew.grover@intel.com>,
+	linux-kernel@vger.kernel.org, acpi-devel@sourceforge.net
+References: <F760B14C9561B941B89469F59BA3A84725A131@orsmsx401.jf.intel.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 23 Jan 2003 18:05:49 -0600
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A131@orsmsx401.jf.intel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can I ask how you reproduced this? I've got several systems with TG3's
-and they only get lockups during network backups.
+On Thu, Jan 23, 2003 at 02:44:55PM -0800, Grover, Andrew wrote:
 
+ > The latest ACPI patch is now available at http://sf.net/projects/acpi .
+ > Non-Linux packages will be available within 24 hours from
+ > http://developer.intel.com/technology/iapc/acpi/downloads.htm .
 
-On Thu, 2003-01-23 at 17:30, Daniel Khan wrote:
-> Hello List,
-> 
-> I reported frequently system lockups today.
-> Now after some playing around (cause I don't know anything about kernel
-> debugging - Thanks to Mark Hahn for the tipps)
-> I found a way to reproduce the lock and to get the OOPS.
-> Dan Kegel told me after the last post that only kernels built from the
-> kernel.org sources can be supported
-> by this list. I now used the 2.4.20-2.25smp kernel from RawHide. And I
-> didn't build a kernel from kernel.org.
-> O.K. here's the deal:
-> The OOPS below looks like spanish to me but for the hackers the thing could
-> be very clear.
-> So if you think that is a common kernel issue please help. Otherwise I'll
-> report to RedHat immediately.
-> 
-> Scenario:
-> 2.4.20-2.25smp from RawHide
-> 
-> Doing a rsync from the crashing host _to_ another host over a 1000 Mbit 3com
-> (TG3).
-> The rsynced files include bigger files with about 1.5 gigs.
-> Heartbeat runs.
-> 
-> Below are the OOPS.
-> Please CC to dk@webcluster.at if you are wanting to help.
-> 
-> Thanks a lot
-> 
-> Daniel Khan
-> 
-> <------------------------CUT---------------------------->
-> NMI Watchdog detected LOCKUP on CPU0, eip c02499ac, registers:
-> via686a eeprom lm80 i2c-proc i2c-isa i2c-viapro i2c-core tg3 eepro100 mii
-> ipt_LOG ipt_limit ipt_state ipt_REJECT iptable_nat ip_cona
-> CPU:    0
-> EIP:    0060:[<c02499ac>]    Not tainted
-> EFLAGS: 00000086
-> 
-> EIP is at .text.lock.tcp_ipv4 [kernel] 0x182 (2.4.20-2.25smp)
-> eax: 00000001   ebx: d400010a   ecx: 00000000   edx: f78837d8
-> esi: f6f22ae0   edi: c3d3ad40   ebp: f74939f4   esp: f1335d8c
-> ds: 0068   es: 0068   ss: 0068
-> Process rsync (pid: 3151, stackpage=f1335000)
-> Stack: c3d3ad40 f3121f38 00000001 f1335e28 00000000 03ff0202 00000004
-> 000003ff
->        00000000 00000006 c3d3ad40 f74939e0 c022d67e c3d3ad40 f1335e28
-> c3d5a000
->        00000000 00000006 00000000 00000001 00000000 c022d530 c021ce67
-> c3d3ad40
-> Call Trace:   [<c022d67e>] ip_local_deliver_finish [kernel] 0x14e
-> (0xf1335dbc))
-> [<c022d530>] ip_local_deliver_finish [kernel] 0x0 (0xf1335de0))
-> [<c021ce67>] nf_hook_slow [kernel] 0x107 (0xf1335de4))
-> [<c022d530>] ip_local_deliver_finish [kernel] 0x0 (0xf1335e00))
-> [<c022d2b3>] ip_local_deliver [kernel] 0x53 (0xf1335e1c))
-> [<c022d530>] ip_local_deliver_finish [kernel] 0x0 (0xf1335e34))
-> [<c022d8b9>] ip_rcv_finish [kernel] 0x219 (0xf1335e38))
-> [<c022d6a0>] ip_rcv_finish [kernel] 0x0 (0xf1335e5c))
-> [<c022d6a0>] ip_rcv_finish [kernel] 0x0 (0xf1335e6c))
-> [<c021ce67>] nf_hook_slow [kernel] 0x107 (0xf1335e70))
-> [<c022d6a0>] ip_rcv_finish [kernel] 0x0 (0xf1335e8c))
-> [<c022d480>] ip_rcv [kernel] 0x1a0 (0xf1335ea8))
-> [<c022d6a0>] ip_rcv_finish [kernel] 0x0 (0xf1335ec0))
-> [<c021566e>] netif_receive_skb [kernel] 0x14e (0xf1335ed8))
-> [<f89d2c7c>] tg3_rx [tg3] 0x27c (0xf1335ef8))
-> [<f89d2e71>] tg3_poll [tg3] 0x81 (0xf1335f38))
-> [<c0215917>] net_rx_action [kernel] 0xa7 (0xf1335f58))
-> [<c01289f9>] do_softirq [kernel] 0xd9 (0xf1335f80))
-> [<c010b81b>] do_IRQ [kernel] 0xfb (0xf1335f9c))
-> [<c010e7c8>] call_do_IRQ [kernel] 0x5 (0xf1335fc0))
-> 
-> 
-> Code: 7e f8 e9 68 e5 ff ff e8 2c ed eb ff e9 c3 ee ff ff e8 22 ed
-> console shuts up ...
->  NMMI Watchdog detected LOCKUP on CPU1, eip f89d9f3b, registers:
-> <------------------------CUT---------------------------->
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I've noticed that with .59 some of my boxes no longer have
+functioning NICs unless I boot with acpi=off. Packets get
+transmitted, but nothing ever gets received.
+Seen this with a 3c509, an 8139, and an e100.
+
+Known bug? Fixed in this patch ?
+
+		Dave
+
 -- 
-GrandMasterLee <masterlee@digitalroadkill.net>
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

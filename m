@@ -1,46 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267510AbTBRBzF>; Mon, 17 Feb 2003 20:55:05 -0500
+	id <S267543AbTBRCAr>; Mon, 17 Feb 2003 21:00:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267513AbTBRBzF>; Mon, 17 Feb 2003 20:55:05 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39953 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267510AbTBRBzE>; Mon, 17 Feb 2003 20:55:04 -0500
-Date: Mon, 17 Feb 2003 18:02:03 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: Linux v2.5.62 --- spontaneous reboots
-In-Reply-To: <20030218015353.GA7844@f00f.org>
-Message-ID: <Pine.LNX.4.44.0302171752560.1754-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267548AbTBRCAr>; Mon, 17 Feb 2003 21:00:47 -0500
+Received: from scrye.com ([216.17.180.1]:37043 "EHLO scrye.com")
+	by vger.kernel.org with ESMTP id <S267543AbTBRCAp>;
+	Mon, 17 Feb 2003 21:00:45 -0500
+Date: 18 Feb 2003 02:10:39 -0000
+Message-ID: <20030218021039.28335.qmail@scrye.com>
+From: Kevin Fenzi <kevin-linux-kernel@scrye.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x end of tape handling error
+In-Reply-To: <200302101904.h1AJ4US05141@devserv.devel.redhat.com>
+References: <mailman.1044901620.21591.linux-kernel2news@redhat.com>
+	<200302101904.h1AJ4US05141@devserv.devel.redhat.com>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Mon, 17 Feb 2003, Chris Wedgwood wrote:
-> 
->   plain 2.5.59 does
-> 
->   59-mjb4 does NOT
+>>>>> "Pete" == Pete Zaitcev <zaitcev@redhat.com> writes:
 
-Can you check mjb 1-3 too? The better it gets pinpointed, the easier it's 
-going to be to find.
+>> I have had reported from a client that they are having problems
+>> with backups that span more than one tape. Instead of getting an
+>> EOT error or EOM, they are getting an I/O error wich requires the
+>> driver to be unloaded and reloaded before the tape will work again.
+>> 
+>> http://www.linuxtapecert.org/ Says that the redhat 2.4.9-34 kernel
+>> is the last one that had proper EOT handling. Indeed, if they use
+>> the 2.4.9-34 kernel, the tape works properly. Thats not a very good
+>> solution however.
 
-Also, if you can figure out _which_ part of the patch makes a difference,
-that would obviously be even better.  Part of the stuff in mjb is already
-merged in later kernels (ie things like using sequence locks for xtime is
-already there in 2.5.60, so clearly that doesn't seem to be the thing that
-helps your situation).
+Pete> You neglected to mention what kind of tape it is. There are
+Pete> several types of tapes, served by a jigsaw puzzle of various
+Pete> drivers.
 
-Martin cc'd, in case he has suggestions on how/what to split up the patch.
+The problem was reported to me on a LTO scsi drive, but they also said
+it happened on normal DAT drives. I am trying to get the exact model
+and such on that drive. 
 
-Do you use the starfire driver? That's a big part of the patch, for
-example.. And part of the patch just makes the timer interrupt happen much
-less often, if you havn't configured for 1000Hz - and it may well be that
-small perturbations like that are the things that matter to you.
+>> Is this fixed in the latest 2.4.21-pres? How about in 2.5.x?
 
-		Linus
+Pete> Why don't you try and verify it, then let us know? You may be
+Pete> the only guy in the world mad enough to use a tape with 2.5.x.
+Pete> Please share your valuable expirience.
 
+well, I have a HP dds2 drive here, so was happy to try and duplicate
+the problem. Starting with the 2.4.18-24.7.x-i686-smp redhat kernel. 
+
+In the interests of getting the problem to occur quickly, I
+partitioned the dds2 tape into 2 partitions, the second having only
+10mb in it. That doesn't show the problem. I get ENOSPC as expected at
+the end of the small partition. 
+
+Without partitions if I write more than can fit on a dds2 tape, I get: 
+
+...
+write(3, "r\342H\\5,\341\235\203\6\245`\264.C\303*\262\27qZ\343\305"..., 10240) = -1 EIO (Input/output error)
+write(2, "tar: ", 5)                    = 5
+write(2, "/dev/nst0: Wrote only 0 of 10240"..., 38) = 38
+write(2, "\n", 1)                       = 1
+write(2, "tar: ", 5)                    = 5
+write(2, "Error is not recoverable: exitin"..., 37) = 37
+write(2, "\n", 1)                       = 1
+munmap(0x4002e000, 4096)                = 0
+_exit(2)                                = ?
+
+st0: Error with sense data: Info fld=0x28000, Current st09:00: sense key Medium Error
+Additional sense indicates Write error
+st0: Error with sense data: Info fld=0x0, Current st09:00: sense key Medium Error
+Additional sense indicates Write error
+st0: Error on write filemark.
+st: Unloaded.
+
+Sounds like it might be this issue: 
+
+http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&frame=right&th=85f41070543a0b41&seekm=DHn4y1.49t%40temic-ech.spacenet.de#s
+
+I am trying another test with buffering off to see if that fixes it. 
+Nope. Tried loading st with everything set to 0, no dice. 
+
+Pete> -- Pete
+
+kevin
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
+
+iD8DBQE+UZYf3imCezTjY0ERAtaeAJsH7cwVy8HCkzHoUH+x4D0t1En0NACeMR91
+osNsXmVCPrvFCDRrUQ3NPPk=
+=9ji/
+-----END PGP SIGNATURE-----

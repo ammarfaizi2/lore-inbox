@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263858AbTDVUko (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 16:40:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263859AbTDVUko
+	id S263866AbTDVUn5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 16:43:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263867AbTDVUn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 16:40:44 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:10245 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263858AbTDVUkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 16:40:42 -0400
-Date: Tue, 22 Apr 2003 21:52:47 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: David Ford <david+cert@blue-labs.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: devfs_register(cpu/microcode): illegal mode: 8180
-Message-ID: <20030422215247.A12367@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Ford <david+cert@blue-labs.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <3EA56D99.8060300@blue-labs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Apr 2003 16:43:57 -0400
+Received: from smtp017.mail.yahoo.com ([216.136.174.114]:12043 "HELO
+	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263866AbTDVUnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 16:43:52 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: "Dave Mehler" <dmehler26@woh.rr.com>
+Subject: Re: 2.5 kernel hangs system
+Date: Tue, 22 Apr 2003 22:55:21 +0200
+User-Agent: KMail/1.5
+References: <000501c3090c$71683c60$0200a8c0@satellite>
+In-Reply-To: <000501c3090c$71683c60$0200a8c0@satellite>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3EA56D99.8060300@blue-labs.org>; from david+cert@blue-labs.org on Tue, Apr 22, 2003 at 12:28:09PM -0400
+Message-Id: <200304222255.21897.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 22, 2003 at 12:28:09PM -0400, David Ford wrote:
-> FYI, Still hasn't been fixed in 2.5.68 :)
+On Tuesday 22 April 2003 22:19, Dave Mehler wrote:
+>     Ok, i've got a 2.5.68 kernel compilation that when i try to boot it it
+> hangs the system. It gives me hex codes after it loads the kernel or if i
+> have it load an initrd, it loads that then gives hex codes and stops.
+>     I've got output from lspci -v and my config file at the following url:
+> www.davemehler.net
+>     Suggestions are desperately needed.
+> If there's missing information that i should post please let me know and i
+> will post it.
 
-There's no call to devfs_register in arch/i386/kernel/microcode.c
-in 2.5.68 anymore.
+please post all messages (The "hex-codes").
+You may need to read
+Documentation/serial-console.txt
+Documentation/oops-tracing.txt
+if you don't know how to catch them.
+
+-- 
+Regards Michael Buesch.
+http://www.8ung.at/tuxsoft
+
+$ cat /dev/zero > /dev/null
+/dev/null: That's *not* funny! :(
 

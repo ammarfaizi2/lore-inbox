@@ -1,129 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287289AbSAMBdj>; Sat, 12 Jan 2002 20:33:39 -0500
+	id <S287909AbSAMBjB>; Sat, 12 Jan 2002 20:39:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287436AbSAMBda>; Sat, 12 Jan 2002 20:33:30 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:19842 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S287289AbSAMBdN>;
-	Sat, 12 Jan 2002 20:33:13 -0500
-Date: Sat, 12 Jan 2002 17:15:31 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Jens Axboe <axboe@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: BIO Usage Error or Conflicting Designs
-In-Reply-To: <20020112210538.F19814@suse.de>
-Message-ID: <Pine.LNX.4.10.10201121714370.13034-200000@master.linux-ide.org>
+	id <S287907AbSAMBiu>; Sat, 12 Jan 2002 20:38:50 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:13468 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S287436AbSAMBik>;
+	Sat, 12 Jan 2002 20:38:40 -0500
+Date: Sat, 12 Jan 2002 20:38:27 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Juan Quintela <quintela@mandrakesoft.com>
+cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+        felix-dietlibc@fefe.de, andersen@codepoet.org
+Subject: Re: [RFC] klibc requirements, round 2
+In-Reply-To: <m2r8ovjpey.fsf@trasno.mitica>
+Message-ID: <Pine.GSO.4.21.0201122032250.24774-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; BOUNDARY="1430322656-1809950309-1010884531=:13034"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
-
---1430322656-1809950309-1010884531=:13034
-Content-Type: text/plain; charset=us-ascii
 
 
-Jens,
+On 12 Jan 2002, Juan Quintela wrote:
 
-Here is back at you sir.
+> >>>>> "greg" == Greg KH <greg@kroah.com> writes:
+> 
+> Hi
+> 
+> greg> To summarize, here's a partial list of the programs people want to run:
+> greg> - mount
 
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
+	I _really_ doubt it.  /init calling mount(2) - sure, but mount(8)?
+Not really.
 
---1430322656-1809950309-1010884531=:13034
-Content-Type: text/plain; charset=us-ascii; name="oops3.file"
-Content-Transfer-Encoding: base64
-Content-ID: <Pine.LNX.4.10.10201121715310.13034@master.linux-ide.org>
-Content-Description: 
-Content-Disposition: attachment; filename="oops3.file"
+> greg> - hotplug
+> greg> - busybox
+> greg> - dhcpcd
+> greg> - image viewer
+> greg> - mkreiserfs
+> greg> - partition discovery (currently in the kernel)
 
-a3N5bW9vcHMgMi4zLjUgb24gaTY4NiAyLjUuMi1wcmUxMS4gIE9wdGlvbnMg
-dXNlZA0KICAgICAtViAoZGVmYXVsdCkNCiAgICAgLWsgL3Byb2Mva3N5bXMg
-KGRlZmF1bHQpDQogICAgIC1sIC9wcm9jL21vZHVsZXMgKGRlZmF1bHQpDQog
-ICAgIC1vIC9saWIvbW9kdWxlcy8yLjUuMi1wcmUxMS8gKGRlZmF1bHQpDQog
-ICAgIC1tIC91c3Ivc3JjL2xpbnV4L1N5c3RlbS5tYXAgKHNwZWNpZmllZCkN
-Cg0KTm8gbW9kdWxlcyBpbiBrc3ltcywgc2tpcHBpbmcgb2JqZWN0cw0KV2Fy
-bmluZyAocmVhZF9sc21vZCk6IG5vIHN5bWJvbHMgaW4gbHNtb2QsIGlzIC9w
-cm9jL21vZHVsZXMgYSB2YWxpZCBsc21vZCBmaWxlPw0KY3B1OiAwLCBjbG9j
-a3M6IDI2NjAwNjcsIHNsaWNlOiA4ODY2ODkNCmNwdTogMSwgY2xvY2tzOiAy
-NjYwMDY3LCBzbGljZTogODg2Njg5DQprZXJuZWwgQlVHIGF0IGhpZ2htZW0u
-YzozNzQhDQppbnZhbGlkIG9wZXJhbmQ6IDAwMDANCkNQVTogICAgMQ0KRUlQ
-OiAgICAwMDEwOls8YzAxNDQ0Nzg+XSAgICBOb3QgdGFpbnRlZA0KVXNpbmcg
-ZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAtdCBlbGYzMi1pMzg2IC1hIGkzODYN
-CkVGTEFHUzogMDAwMTAyODYNCmVheDogMDAwMDAwMWQgICBlYng6IDAwMDAw
-MDcwICAgZWN4OiBjMDM3ODVhYyAgIGVkeDogMDAwMDNjZTgNCmVzaTogYzA0
-NWVhNjQgICBlZGk6IDAwMDM4MDAwICAgZWJwOiBmNzZiZjJjNCAgIGVzcDog
-ZjYzMjFkZTQNCmRzOiAwMDE4ICAgZXM6IDAwMTggICBzczogMDAxOA0KUHJv
-Y2VzcyBoZHBhcm0gKHBpZDogOTI0LCBzdGFja3BhZ2U9ZjYzMjEwMDApDQpT
-dGFjazogYzAyZmU1NTUgMDAwMDAxNzYgMDAwMDAwMDAgYzA0NWVhNjQgMDAw
-MDAwMDIgZjc2YmYyYzQgMDAwMDAwMDEgMDAwMDAyNDYgDQogICAgICAgYzFl
-ZmZlY2MgMDAwMDAwMDAgZjFhYWJkODQgMDAwMDAwMjAgMDAwMDAwMDAgMDAw
-MDAwMDAgYzAyMjA5MmUgMDAwMzgwMDAgDQogICAgICAgMDAwMDAwNzAgZjYz
-MjFlNjAgMDAwMDAwMDAgZjdjMzMzNDQgYzA0NWVhNjQgZjc2YmYyYzQgMDAw
-MDAwMDIgMDAwMDAwMDAgDQpDYWxsIFRyYWNlOiBbPGMwMjIwOTJlPl0gWzxj
-MDIwZjIxZT5dIFs8YzAyMjBmOWY+XSBbPGMwMjIxMGYxPl0gWzxjMDIyMTFk
-OT5dIA0KICAgWzxjMDE0YjMxYz5dIFs8YzAxNGY0NmY+XSBbPGMwMTRmM2Qw
-Pl0gWzxjMDEzNDc3ZT5dIFs8YzAxMzRjYzI+XSBbPGMwMTM0YmQwPl0gDQog
-ICBbPGMwMTQ3MDZlPl0gWzxjMDEwOTM1Zj5dIA0KQ29kZTogMGYgMGIgODMg
-YzQgMDggYzcgNDQgMjQgMjQgNzAgMDAgMDAgMDAgOGIgMWQgNjggYjkgNDMg
-YzAgOGIgDQoNCj4+RUlQOyBjMDE0NDQ3OCA8Y3JlYXRlX2JvdW5jZSs2OC8z
-MTA+ICAgPD09PT09DQpUcmFjZTsgYzAyMjA5MmUgPF9fbWFrZV9yZXF1ZXN0
-KzVlLzU5MD4NClRyYWNlOyBjMDIwZjIxZSA8c2V0X2N1cnNvcis2ZS84MD4N
-ClRyYWNlOyBjMDIyMGY5ZiA8Z2VuZXJpY19tYWtlX3JlcXVlc3QrMTNmLzFj
-MD4NClRyYWNlOyBjMDIyMTBmMSA8c3VibWl0X2Jpbys4MS85MD4NClRyYWNl
-OyBjMDIyMTFkOSA8c3VibWl0X2JoK2Q5L2UwPg0KVHJhY2U7IGMwMTRiMzFj
-IDxibG9ja19yZWFkX2Z1bGxfcGFnZSsxZWMvMjAwPg0KVHJhY2U7IGMwMTRm
-NDZmIDxibGtkZXZfcmVhZHBhZ2UrZi8yMD4NClRyYWNlOyBjMDE0ZjNkMCA8
-YmxrZGV2X2dldF9ibG9jayswLzQwPg0KVHJhY2U7IGMwMTM0NzdlIDxkb19n
-ZW5lcmljX2ZpbGVfcmVhZCszNGUvNTYwPg0KVHJhY2U7IGMwMTM0Y2MyIDxn
-ZW5lcmljX2ZpbGVfcmVhZCs5Mi8xOTA+DQpUcmFjZTsgYzAxMzRiZDAgPGZp
-bGVfcmVhZF9hY3RvciswLzYwPg0KVHJhY2U7IGMwMTQ3MDZlIDxzeXNfcmVh
-ZCs4ZS9kMD4NClRyYWNlOyBjMDEwOTM1ZiA8c3lzdGVtX2NhbGwrMzMvMzg+
-DQpDb2RlOyAgYzAxNDQ0NzggPGNyZWF0ZV9ib3VuY2UrNjgvMzEwPg0KMDAw
-MDAwMDAgPF9FSVA+Og0KQ29kZTsgIGMwMTQ0NDc4IDxjcmVhdGVfYm91bmNl
-KzY4LzMxMD4gICA8PT09PT0NCiAgIDA6ICAgMGYgMGIgICAgICAgICAgICAg
-ICAgICAgICB1ZDJhICAgICAgPD09PT09DQpDb2RlOyAgYzAxNDQ0N2EgPGNy
-ZWF0ZV9ib3VuY2UrNmEvMzEwPg0KICAgMjogICA4MyBjNCAwOCAgICAgICAg
-ICAgICAgICAgIGFkZCAgICAkMHg4LCVlc3ANCkNvZGU7ICBjMDE0NDQ3ZCA8
-Y3JlYXRlX2JvdW5jZSs2ZC8zMTA+DQogICA1OiAgIGM3IDQ0IDI0IDI0IDcw
-IDAwIDAwICAgICAgbW92bCAgICQweDcwLDB4MjQoJWVzcCwxKQ0KQ29kZTsg
-IGMwMTQ0NDg0IDxjcmVhdGVfYm91bmNlKzc0LzMxMD4NCiAgIGM6ICAgMDAg
-DQpDb2RlOyAgYzAxNDQ0ODUgPGNyZWF0ZV9ib3VuY2UrNzUvMzEwPg0KICAg
-ZDogICA4YiAxZCA2OCBiOSA0MyBjMCAgICAgICAgIG1vdiAgICAweGMwNDNi
-OTY4LCVlYngNCkNvZGU7ICBjMDE0NDQ4YiA8Y3JlYXRlX2JvdW5jZSs3Yi8z
-MTA+DQogIDEzOiAgIDhiIDAwICAgICAgICAgICAgICAgICAgICAgbW92ICAg
-ICglZWF4KSwlZWF4DQoNCg0KMSB3YXJuaW5nIGlzc3VlZC4gIFJlc3VsdHMg
-bWF5IG5vdCBiZSByZWxpYWJsZS4NCg0KW3Jvb3RAeGF0aHkgRGlza1BlcmYt
-MS4wLjddIyBoZHBhcm0gLXQgL2Rldi9oZGUNCg0KL2Rldi9oZGU6DQogVGlt
-aW5nIGJ1ZmZlcmVkIGRpc2sgcmVhZHM6ICBrZXJuZWwgQlVHIGF0IGhpZ2ht
-ZW0uYzozNzQhDQppbnZhbGlkIG9wZXJhbmQ6IDAwMDANCkNQVTogICAgMQ0K
-RUlQOiAgICAwMDEwOls8YzAxNDQ0Nzg+XSAgICBOb3QgdGFpbnRlZA0KRUZM
-QUdTOiAwMDAxMDI4Ng0KZWF4OiAwMDAwMDAxZCAgIGVieDogMDAwMDAwNzAg
-ICBlY3g6IGMwMzc4NWFjICAgZWR4OiAwMDAwM2NlOA0KZXNpOiBjMDQ1ZWE2
-NCAgIGVkaTogMDAwMzgwMDAgICBlYnA6IGY3NmJmMmM0ICAgZXNwOiBmNjMy
-MWRlNA0KZHM6IDAwMTggICBlczogMDAxOCAgIHNzOiAwMDE4DQpQcm9jZXNz
-IGhkcGFybSAocGlkOiA5MjQsIHN0YWNrcGFnZT1mNjMyMTAwMCkNClN0YWNr
-OiBjMDJmZTU1NSAwMDAwMDE3NiAwMDAwMDAwMCBjMDQ1ZWE2NCAwMDAwMDAw
-MiBmNzZiZjJjNCAwMDAwMDAwMSAwMDAwMDI0Ng0KICAgICAgIGMxZWZmZWNj
-IDAwMDAwMDAwIGYxYWFiZDg0IDAwMDAwMDIwIDAwMDAwMDAwIDAwMDAwMDAw
-IGMwMjIwOTJlIDAwMDM4MDAwDQogICAgICAgMDAwMDAwNzAgZjYzMjFlNjAg
-MDAwMDAwMDAgZjdjMzMzNDQgYzA0NWVhNjQgZjc2YmYyYzQgMDAwMDAwMDIg
-MDAwMDAwMDANCkNhbGwgVHJhY2U6IFs8YzAyMjA5MmU+XSBbPGMwMjBmMjFl
-Pl0gWzxjMDIyMGY5Zj5dIFs8YzAyMjEwZjE+XSBbPGMwMjIxMWQ5Pl0NCiAg
-IFs8YzAxNGIzMWM+XSBbPGMwMTRmNDZmPl0gWzxjMDE0ZjNkMD5dIFs8YzAx
-MzQ3N2U+XSBbPGMwMTM0Y2MyPl0gWzxjMDEzNGJkMD5dDQogICBbPGMwMTQ3
-MDZlPl0gWzxjMDEwOTM1Zj5dDQoNCkNvZGU6IDBmIDBiIDgzIGM0IDA4IGM3
-IDQ0IDI0IDI0IDcwIDAwIDAwIDAwIDhiIDFkIDY4IGI5IDQzIGMwIDhiDQog
-U2VnbWVudGF0aW9uIGZhdWx0DQoNCltyb290QHhhdGh5IERpc2tQZXJmLTEu
-MC43XSMgaGRwYXJtIC12IC9kZXYvaGRlDQoNCi9kZXYvaGRlOg0KIG11bHRj
-b3VudCAgICA9ICAwIChvZmYpDQogSS9PIHN1cHBvcnQgID0gIDAgKGRlZmF1
-bHQgMTYtYml0KQ0KIHVubWFza2lycSAgICA9ICAwIChvZmYpDQogdXNpbmdf
-ZG1hICAgID0gIDAgKG9mZikNCiBrZWVwc2V0dGluZ3MgPSAgMCAob2ZmKQ0K
-IG5vd2VyciAgICAgICA9ICAwIChvZmYpDQogcmVhZG9ubHkgICAgID0gIDAg
-KG9mZikNCiByZWFkYWhlYWQgICAgPSAgOCAob24pDQogZ2VvbWV0cnkgICAg
-ID0gNTU0ODgvMjU1LzYzLCBzZWN0b3JzID0gMzIwMTczMDU2LCBzdGFydCA9
-IDANCg0K
---1430322656-1809950309-1010884531=:13034--
+Assuming that it moves to userland, which is non-obvious.  Going other
+way (i.e. clean kernel API for parsing _and_ changing partitioning)
+might be better.  Current mechanisms for notifying kernel about partition
+table changes are really gross.
+
+> greg> - lots of other, existing in kernel code.
+
+nfsroot mounting (socket/sendto/recvfrom/open/close/read/write/malloc/free/
+snprintf/memcpy/strlen/mount).
+
+> I still think that fsck at this point will be great.  You will
+> minimize the need to have the kernel special case for fsck the root fs
+> with respect to the rest of fs.
+
+_Kernel_ has no special-casing of that kind.
+

@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267618AbSLNNxj>; Sat, 14 Dec 2002 08:53:39 -0500
+	id <S267617AbSLNOSg>; Sat, 14 Dec 2002 09:18:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267619AbSLNNxi>; Sat, 14 Dec 2002 08:53:38 -0500
-Received: from 195-219-31-160.sp-static.linix.net ([195.219.31.160]:10112 "EHLO
-	r2d2.office") by vger.kernel.org with ESMTP id <S267618AbSLNNxh>;
-	Sat, 14 Dec 2002 08:53:37 -0500
-Message-ID: <3DFB3983.3090602@walrond.org>
-Date: Sat, 14 Dec 2002 14:00:35 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
+	id <S267619AbSLNOSg>; Sat, 14 Dec 2002 09:18:36 -0500
+Received: from 5-048.ctame701-1.telepar.net.br ([200.193.163.48]:62340 "EHLO
+	5-048.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S267617AbSLNOSf>; Sat, 14 Dec 2002 09:18:35 -0500
+Date: Sat, 14 Dec 2002 12:26:02 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: mdew <mdew@orcon.net.nz>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: rmap and nvidia?
+In-Reply-To: <1039859196.771.18.camel@nirvana>
+Message-ID: <Pine.LNX.4.50L.0212141225320.32283-100000@imladris.surriel.com>
+References: <1039858571.559.15.camel@nirvana>  <20021214093831.GL9882@holomorphy.com>
+ <1039859196.771.18.camel@nirvana>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: John Bradford <john@bradfords.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Symlink indirection
-References: <200212141355.gBEDtb7q000952@darkstar.example.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, typo - thanks John.
+On Sat, 14 Dec 2002, mdew wrote:
+> On Sat, 2002-12-14 at 22:38, William Lee Irwin III wrote:
+> > On Sat, Dec 14, 2002 at 10:36:10PM +1300, mdew wrote:
+> > > nv.c: In function `nv_get_phys_address':
+> > > nv.c:2182: warning: implicit declaration of function `pte_offset'
+> > > nv.c:2182: invalid type argument of `unary *'
+> >
+> > Use pte_offset_map() with a corresponding pte_unmap().
+>
+> err pardon?
 
-Trying again...
+wli just gave you the information you need to create a patch
+for the nvidia driver.
 
-(contrived example with made-up mount option --overlay)
-
-mkdir a
-echo "a/x" > a/x
-echo "a/y" > a/y
-echo "a/z" > a/z
-
-mkdir b
-echo "b/y" > b/y
-
-mkdir c
-echo "c/z" > c/z
-
-mkdir d
-mount --bind a d
-mount --bind --overlay b d
-mount --bind --overlay c d
-
-cat d/x
-"a/x"
-
-cat d/y
-"b/y"
-
-cat d/z
-"c/z"
-
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

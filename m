@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVC0LYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVC0L03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261553AbVC0LYi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 06:24:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbVC0LYi
+	id S261620AbVC0L03 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 06:26:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbVC0L03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 06:24:38 -0500
-Received: from downeast.net ([204.176.212.2]:8673 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S261553AbVC0LYf (ORCPT
+	Sun, 27 Mar 2005 06:26:29 -0500
+Received: from smtp08.web.de ([217.72.192.226]:16347 "EHLO smtp08.web.de")
+	by vger.kernel.org with ESMTP id S261566AbVC0L0Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 06:24:35 -0500
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: alsa es1371's joystick functionality broken in 2.6.11-mm4
-Date: Sun, 27 Mar 2005 06:23:52 -0500
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <200503201557.58055.pmcfarland@downeast.net> <200503240100.32594.dtor_core@ameritech.net> <200503250929.11855.pmcfarland@downeast.net>
-In-Reply-To: <200503250929.11855.pmcfarland@downeast.net>
+	Sun, 27 Mar 2005 06:26:16 -0500
+From: Chuck <chunkeey@web.de>
+To: Marcin Dalecki <martin@dalecki.de>
+Subject: Re: How's the nforce4 support in Linux?
+Date: Sun, 27 Mar 2005 14:26:14 +0200
+User-Agent: KMail/1.7.2
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+References: <200503261701.08774.chunkeey@web.de> <1111850358.8042.34.camel@laptopd505.fenrus.org> <bf8a98cafc4141c67d3b4cabfde65ed2@dalecki.de>
+In-Reply-To: <bf8a98cafc4141c67d3b4cabfde65ed2@dalecki.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1251502.nIn3vqdAx9";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200503270624.02153.pmcfarland@downeast.net>
+Content-Disposition: inline
+Message-Id: <200503271426.14670.chunkeey@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1251502.nIn3vqdAx9
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Saturday, 26. March 2005 18:32, Marcin Dalecki wrote:
+> On 2005-03-26, at 16:19, Arjan van de Ven wrote:
+> > `
+> >
+> >> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> >> hda: dma_intr: error=0x84 { DriveStatusError BadCRC
+> >
+> > BadCRC is 99% sure a cabling issue; either a bad/overheated cable or a
+> > cable used at too high a speed for the cable.
+>
+> No. It is more likely that the timing programming between the disk and
+> host controller
+> are in a miss-match state. UDMA mode detection can come in to mind too.
+> It makes sense to experiment with hdparm to see if the problem goes
+> away in non
+> Ultra DMA modes.
 
-On Friday 25 March 2005 09:28 am, Patrick McFarland wrote:
-> Nope, 2.6.10 is broken too. Now, off to 2.6.9...
-
-Hrm, 2.6.9 is also broke. 2.6.8 is next. (I should be coming along a workin=
-g=20
-kernel any time now...)
-
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
-
---nextPart1251502.nIn3vqdAx9
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCRpfS8Gvouk7G1cURAh1NAKCXQTRqqDrJ9Oz1uAGX1luE3e/TjgCfQ1RV
-FDyTZNPbb2FpC88Ym+iz7Lo=
-=h37L
------END PGP SIGNATURE-----
-
---nextPart1251502.nIn3vqdAx9--
+Thanks, I tried the cable that came with the drive  (it was still sealed) and 
+experimented a little bit with hdparm...
+Now, the problem seems to be gone...  

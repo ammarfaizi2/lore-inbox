@@ -1,106 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289115AbSASNyE>; Sat, 19 Jan 2002 08:54:04 -0500
+	id <S288778AbSASNxO>; Sat, 19 Jan 2002 08:53:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289211AbSASNxz>; Sat, 19 Jan 2002 08:53:55 -0500
-Received: from [202.54.26.202] ([202.54.26.202]:63625 "EHLO hindon.hss.co.in")
-	by vger.kernel.org with ESMTP id <S289115AbSASNxg>;
-	Sat, 19 Jan 2002 08:53:36 -0500
-X-Lotus-FromDomain: HSS
-From: alad@hss.hns.com
-To: linux-kernel@vger.kernel.org
-Message-ID: <65256B46.004C44FE.00@sandesh.hss.hns.com>
-Date: Sat, 19 Jan 2002 19:17:49 +0530
-Subject: free_swap_and_cache() doubt
-Mime-Version: 1.0
-Content-type: multipart/mixed; 
-	Boundary="0__=r74OtHhBrgU6dojNPp7kRghFEN8MJorvzlmv2BmKrOzGjeemmyQ2L7aA"
-Content-Disposition: inline
+	id <S289115AbSASNxE>; Sat, 19 Jan 2002 08:53:04 -0500
+Received: from [202.87.41.13] ([202.87.41.13]:42177 "HELO postfix.baazee.com")
+	by vger.kernel.org with SMTP id <S288778AbSASNwx>;
+	Sat, 19 Jan 2002 08:52:53 -0500
+Message-ID: <001a01c1a0f0$c8416a50$3c00a8c0@baazee.com>
+Reply-To: "Anish Srivastava" <anishs@vsnl.com>
+From: "Anish Srivastava" <anishs@vsnl.com>
+To: "Rik van Riel" <riel@conectiva.com.br>
+Cc: <linux-kernel@vger.kernel.org>, <vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <Pine.LNX.4.33L.0201181741280.32617-100000@imladris.surriel.com>
+Subject: Re: kswapd kills linux box with kernel 2.4.17
+Date: Sat, 19 Jan 2002 19:24:10 +0530
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0__=r74OtHhBrgU6dojNPp7kRghFEN8MJorvzlmv2BmKrOzGjeemmyQ2L7aA
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi! Rik,
+
+Thanks for your help.
+I have successfully patched the kernel with your patches
+recompiled and installed it on my development system
+the hardware of which is identical to my Production machine (e.g. 8CPU, 8GB
+RAM)
+
+I compiled the kernel with glibc-2.2.2-10 (redhat)
+I did some performance testing on my box by doing a full oracle dump and
+running some
+big java jobs. Well Kswapd now seems to be behaving....(thankfully!!)
+
+When I do a top it shows me
+Mem:  8263740K av, 2967608K used, 5296132K free,       0K shrd,    6120K
+buff
+Swap: 2048248K av,       0K used, 2048248K free                 2530948K
+cached
+
+Now the cached part never gets freed and just keeps piling up & so does the
+used memory.
+On my production box with (kernel 2.4.13), both cached & memory used
+keet on increasing till it exhausts the entire physical RAM and the box
+falls over.
+It just doesn't swap.....(I thought with 8GB RAM I wouldnt need swap)
+
+Anyways, then I updated the bdflush parameters....after that the memory does
+get
+reclaimed but only by a small percentage, so it hardly made any
+difference..Memory still
+keeps on piling up...forcing me to reboot the box everyday.
+
+Do I need to make any changes to bdflush, freepages etc in /proc/sys/vm ??
+
+Also, is it normal for linux to just keep on eating memory even though most
+of the
+processes are sleeping and not reclaim memory till the physical RAM is
+exhausted
+
+Once, again I thank you for your response and assistance. I really look
+forward to
+hearing from you again!!
+
+Best regards,
+Anish Srivastava
+
+----- Original Message -----
+From: "Rik van Riel" <riel@conectiva.com.br>
+To: "Anish Srivastava" <anishs@vsnl.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Saturday, January 19, 2002 1:12 AM
+Subject: Re: kswapd kills linux box with kernel 2.4.17
 
 
-
-
-Hi,
-  I am reading 2.4.16, let us assume following scenario
-
-swap_map[offset] == 2;
-and page->count == 2; (before function execution)
-vm_swap is full (nr_swap_pages*2 > total_swap_pages);
-
-first question is the above case possible.
-
-if yes,
-  then
-    after execution of this function, we would have page->count == 1, i.e.
-mapped by some process, with good page->index and what we have is, the
-associated
-swap entry is already freed.
-
-Am i wrong somewhere ??
-
------
-Amol
-
-
-void free_swap_and_cache(swp_entry_t entry)
-{
-        struct swap_info_struct * p;
-        struct page *page = NULL;
-
-        p = swap_info_get(entry);
-        if (p) {
-                if (swap_entry_free(p, SWP_OFFSET(entry)) == 1)
-                        page = find_trylock_page(&swapper_space, entry.val);
-                swap_info_put(p);
-        }
-        if (page) {
-                page_cache_get(page);
-                /* Only cache user (+us), or swap space full? Free it! */
-                if (page_count(page) == 2 || vm_swap_full()) {
-                        delete_from_swap_cache(page);
-                        SetPageDirty(page);
-                }
-                UnlockPage(page);
-                page_cache_release(page);
-        }
-}
-
---0__=r74OtHhBrgU6dojNPp7kRghFEN8MJorvzlmv2BmKrOzGjeemmyQ2L7aA
-Content-type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-transfer-encoding: quoted-printable
-
-
-?
-
-
-"DISCLAIMER: This message is proprietary to Hughes Software Systmes Lim=
-ited
-(HSS) and/or its customers and intended solely for the use of the indiv=
-idual or
-organisation to whom it is addressed. It may contain  privileged or con=
-fidential
-information.  If you have received this message in error, please notify=
- the
-originator immediately. If you are not the intended recipient, you are =
-notified
-that you are strictly prohibited from using, copying, altering, or disc=
-losing
-the contents of this message. HSS accepts no responsibility for loss or=
- damage
-arising from the use of the information transimitted by this email incl=
-uding
-damage from virus."
-
-
-
-=
-
---0__=r74OtHhBrgU6dojNPp7kRghFEN8MJorvzlmv2BmKrOzGjeemmyQ2L7aA--
+> On Fri, 18 Jan 2002, Anish Srivastava wrote:
+>
+> > I am having a box with 8GB RAM and 8 CPU's.
+>
+> > Can any of you help??
+>
+> There are two kernel patches which could help you, either
+> Andrea Arcangeli's VM patch (available from kernel.org)
+> or my -rmap VM patch (available from surriel.com/patches).
+>
+> kind regards,
+>
+> Rik
+> --
+> "Linux holds advantages over the single-vendor commercial OS"
+>     -- Microsoft's "Competing with Linux" document
+>
+> http://www.surriel.com/ http://distro.conectiva.com/
+>
+>
 

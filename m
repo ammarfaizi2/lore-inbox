@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318047AbSIONuB>; Sun, 15 Sep 2002 09:50:01 -0400
+	id <S318058AbSIOOTa>; Sun, 15 Sep 2002 10:19:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318058AbSIONuB>; Sun, 15 Sep 2002 09:50:01 -0400
-Received: from users.linvision.com ([62.58.92.114]:11899 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S318047AbSIONuA>; Sun, 15 Sep 2002 09:50:00 -0400
-Date: Sun, 15 Sep 2002 15:54:08 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+	id <S318059AbSIOOTa>; Sun, 15 Sep 2002 10:19:30 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:10656 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S318058AbSIOOT3>;
+	Sun, 15 Sep 2002 10:19:29 -0400
+Date: Sun, 15 Sep 2002 16:30:19 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Brownell <david-b@pacbell.net>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-Message-ID: <20020915155408.C11949@bitwizard.nl>
-References: <1031683480.31787.107.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0209101156510.7106-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209101156510.7106-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] exit-fix-2.5.34-C0, BK-curr
+Message-ID: <Pine.LNX.4.44.0209151624080.4707-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 10, 2002 at 12:03:00PM -0700, Linus Torvalds wrote:
-> In other words, if a user is faced with a dead machine with no other way
-> to even know what BUG() triggered than to try to set up a cross debugger,
-> just how useful is that BUG()? I claim it is pretty useless - simply
-> because 99+% of all people won't even make a bug report in that case,
-> they'll just push the reset button and consider Linux unreliable.
 
+the attached patch (ontop of the previous exit.c patches), fixes one more
+exit-time resource accounting issue - and it's also a speedup and a
+thread-tree (to-be thread-aware pstree) visual improvement.
 
-I just had an idea: There are the periodic discussions about 
-dumping the oops-report somewhere where you can log it on the next 
-boot, right?
+in the current code we reparent detached threads to the init thread. This
+worked but was not very nice in ps output: threads showed up as being
+related to init. There was also a resource-accounting issue, upon exit
+they update their parent's (ie. init's) rusage fields - effectively losing
+these statistics. Eg. 'time' under-reports CPU usage if the threaded app
+is Ctrl-C-ed prematurely.
 
-Disk drivers may be unreliable etc etc. 
+the solution is to reparent threads to the group leader - this is now very
+easy since we have p->group_leader cached and it's also valid all the
+time. It's also somewhat faster for applications that use CLONE_THREAD but
+do not use the CLONE_DETACHED feature.
 
-Main memory is probably cleared on boot, right? (would have been too
-obvious). 
+	Ingo
 
-I'm pretty sure that my system has 16M of non-cleared memory: The
-video RAM. The state of my screen  before the crash always shows up 
-while X is starting.... (I was running a foolishly old 2.4.3-ac3 until
-a couple of weeks ago)
+--- linux/kernel/exit.c.orig	Sun Sep 15 15:01:48 2002
++++ linux/kernel/exit.c	Sun Sep 15 16:23:49 2002
+@@ -447,11 +447,7 @@
+ 	struct task_struct *p, *reaper = father;
+ 	struct list_head *_p;
+ 
+-	if (father->exit_signal != -1)
+-		reaper = prev_thread(reaper);
+-	else
+-		reaper = child_reaper;
+-
++	reaper = father->group_leader;
+ 	if (reaper == father)
+ 		reaper = child_reaper;
+ 
 
-Is my system special in that it doesn't clear video RAM? Can we 
-grab a pointer to video memory when we boot, check a magic 
-value, if OK, print the oops report from last crash, put in a new
-magic value ("No oops report"), and when we crash write in the 
-crash report with the special magic value? 
-
-
-
-			Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currenly in such an       * 
-* excursion: The stable situation does not include humans. ***************

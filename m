@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUFLKUB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264717AbUFLKe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264704AbUFLKUB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 06:20:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264705AbUFLKUA
+	id S264717AbUFLKe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 06:34:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264722AbUFLKe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 06:20:00 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:11100 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S264704AbUFLKT7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 06:19:59 -0400
-Subject: Re: [ANNOUNCE] -ar patchset
-From: Redeeman <lkml@metanurb.dk>
-To: LKML Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040612023928.A103F23C03@ws5-3.us4.outblaze.com>
-References: <20040612023928.A103F23C03@ws5-3.us4.outblaze.com>
-Content-Type: text/plain
-Message-Id: <1087035598.10652.1.camel@redeeman.kaspersandberg.com>
+	Sat, 12 Jun 2004 06:34:56 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:59569 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S264717AbUFLKez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 06:34:55 -0400
+Date: Sat, 12 Jun 2004 11:34:53 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IDE update for 2.6.7-rc3 [1/12]
+Message-ID: <20040612103453.GB26482@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <200406111750.30312.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 12 Jun 2004 12:19:58 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406111750.30312.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-06-12 at 04:39, Pokey the Penguin wrote:
-> > find the initial version of the patch, with staircase, 
-> > autoregulate-swappiness, supermount-ng, ext3 and reiser improvements, and a 
+On Fri, Jun 11, 2004 at 05:50:30PM +0200, Bartlomiej Zolnierkiewicz wrote:
 > 
-> I gather that supermount-ng is now quite dated and no longer maintained. Is 
-> submount (http://submount.sourceforge.net/) not the current favourite to 
-> provide such functionality?
+> Probably some drivers are still missed because I changed only
+> these drivers that I knew that there are PCI cards using them.
 > 
-> Looking at the two, submount definitely seems more ready for inclusion based 
-> on its non-invasive approach.
-i believe that having the automounting inside the kernel is a bad idea.
-i think there should be more people using HAL and D-BUS, together with a
-userspace automounter. like ivman, http://ivman.sf.net
+> If you know about PCI cards using other drivers please speak up.
 
--- 
-Regards, Redeeman
-redeeman@metanurb.dk
+IMHO the PCI ->probe methods should always be __devinit.  It's rather
+hard to make sure they're never every hotplugged in any way, especially
+with the dynamic id adding via sysfs thing.
 

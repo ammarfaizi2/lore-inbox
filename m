@@ -1,79 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270289AbUJTW3t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269177AbUJTTpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270289AbUJTW3t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 18:29:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267709AbUJTWYn
+	id S269177AbUJTTpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 15:45:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270482AbUJTTkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 18:24:43 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:29568 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S270551AbUJTWXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 18:23:05 -0400
-Subject: Re: Stop people including linux/irq.h
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20041020191626.G14627@flint.arm.linux.org.uk>
-References: <20041020191626.G14627@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1098310762.4989.78.camel@desktop.cunninghams>
+	Wed, 20 Oct 2004 15:40:52 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:17164 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S270483AbUJTTin (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 15:38:43 -0400
+Date: Wed, 20 Oct 2004 14:33:58 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       davem@davemloft.net
+Subject: [patch 2.6.9 1/11] tg3: Add MODULE_VERSION
+Message-ID: <20041020143358.O8775@tuxdriver.com>
+Mail-Followup-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+	jgarzik@pobox.com, davem@davemloft.net
+References: <20041020141146.C8775@tuxdriver.com> <20041020141440.D8775@tuxdriver.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 21 Oct 2004 08:19:23 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041020141440.D8775@tuxdriver.com>; from linville@tuxdriver.com on Wed, Oct 20, 2004 at 02:14:40PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Add MODULE_VERSION to tg3 driver.
 
-On Thu, 2004-10-21 at 04:16, Russell King wrote:
-> -struct hw_interrupt_type {
-> -	const char * typename;
-> -	unsigned int (*startup)(unsigned int irq);
-> -	void (*shutdown)(unsigned int irq);
-> -	void (*enable)(unsigned int irq);
-> -	void (*disable)(unsigned int irq);
-> -	void (*ack)(unsigned int irq);
-> -	void (*end)(unsigned int irq);
-> -	void (*set_affinity)(unsigned int irq, cpumask_t dest);
-> -};
-> -
-> -typedef struct hw_interrupt_type  hw_irq_controller;
-> -
-> -/*
-> - * This is the "IRQ descriptor", which contains various information
-> - * about the irq, including what kind of hardware handling it has,
-> - * whether it is disabled etc etc.
-> - *
-> - * Pad this out to 32 bytes for cache and indexing reasons.
-> - */
-> -typedef struct irq_desc {
-> -	unsigned int status;		/* IRQ status */
-> -	hw_irq_controller *handler;
-> -	struct irqaction *action;	/* IRQ action list */
-> -	unsigned int depth;		/* nested irq disables */
-> -	unsigned int irq_count;		/* For detecting broken interrupts */
-> -	unsigned int irqs_unhandled;
-> -	spinlock_t lock;
-> -} ____cacheline_aligned irq_desc_t;
-> -
-> -extern irq_desc_t irq_desc [NR_IRQS];
-> -
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
 
-Hmm. How about suspend-to-disk (and -ram?), lkcd and the like saving and
-restoring IRQ affinities?
+ drivers/net/tg3.c |    1 +
+ 1 files changed, 1 insertion(+)
 
-Regards,
+Re-send -- forgot Signed-off-by line...
 
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Many today claim to be tolerant. True tolerance, however, can cope with others
-being intolerant.
-
+--- linux-2.6.9/drivers/net/tg3.c.orig
++++ linux-2.6.9/drivers/net/tg3.c
+@@ -143,6 +143,7 @@ MODULE_DESCRIPTION("Broadcom Tigon3 ethe
+ MODULE_LICENSE("GPL");
+ MODULE_PARM(tg3_debug, "i");
+ MODULE_PARM_DESC(tg3_debug, "Tigon3 bitmapped debugging message enable value");
++MODULE_VERSION(DRV_MODULE_VERSION);
+ 
+ static int tg3_debug = -1;	/* -1 == use TG3_DEF_MSG_ENABLE as value */
+ 

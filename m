@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129988AbQJaBIn>; Mon, 30 Oct 2000 20:08:43 -0500
+	id <S129217AbQJaBn7>; Mon, 30 Oct 2000 20:43:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129993AbQJaBId>; Mon, 30 Oct 2000 20:08:33 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:30213 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129988AbQJaBIZ>; Mon, 30 Oct 2000 20:08:25 -0500
-Date: Tue, 31 Oct 2000 02:08:18 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Al Peat <al_kernel@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: hard_sector / hard_nr_sectors
-Message-ID: <20001031020818.A29519@athlon.random>
-In-Reply-To: <20001030185639.93318.qmail@web10105.mail.yahoo.com>
+	id <S129730AbQJaBnt>; Mon, 30 Oct 2000 20:43:49 -0500
+Received: from mnh-1-17.mv.com ([207.22.10.49]:49671 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S129217AbQJaBnk>;
+	Mon, 30 Oct 2000 20:43:40 -0500
+Message-Id: <200010310251.VAA05375@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Mirko.Klemm@t-online.de (Mirko Klemm)
+cc: linux-kernel@vger.kernel.org
+Subject: Re: request advice: how stable is devfs in 2.4.0-test9? 
+In-Reply-To: Your message of "Mon, 30 Oct 2000 22:45:48 +0100."
+             <00103022454801.00908@trabant> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001030185639.93318.qmail@web10105.mail.yahoo.com>; from al_kernel@yahoo.com on Mon, Oct 30, 2000 at 10:56:39AM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Date: Mon, 30 Oct 2000 21:51:30 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2000 at 10:56:39AM -0800, Al Peat wrote:
->   I was wondering if someone could give me a quick
-> overview of the differences between sector/nr_sectors
-> and hard_sector/hard_nr_sectors in blk_dev.h's request
-> structure, or point me to some
-> documentation/discussion on this?
+Mirko.Klemm@t-online.de said:
+> I am currently using 2.4.0-test* as an "ordinary user" and want to try
+> some  of the 2.4 specific new features out, but this is my only system
+> and I don't  want it to be messed up so much, so I'd like to hear some
+> comments first.
 
-The reason hard_nr_sectors is been introduced is that it allows all device
-drivers to handle merged I/O requests transparently. In 2.4.x we do merging at
-the highlevel layer unconditionally and so it was necessary to avoid breakage
-of lowlevel drivers.
+This is one of the things that user-mode Linux (http://user-mode-linux.sourcefo
+rge.net) is for.  I've been shipping kernels with devfs since devfs made it 
+into the mainline pool.
 
-This way device drivers can limit themself to look at
-current_request->buffer/current_nr_sectors/sector... and to call end_request(1)
-once the I/O is completed (end_that_request_first will take care of updating
-current->sector/nr_sector for the next pass of the request_fn without the need
-of ugly changes to the lowlevel drivers).
+With UML, you can boot up a virtual machine, and play with devfs all you want 
+without any chance of messing up the host.
 
-Andrea
+				Jeff
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

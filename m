@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265231AbUBEORD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 09:17:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265238AbUBEORD
+	id S265264AbUBEOJq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 09:09:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265289AbUBEOJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 09:17:03 -0500
-Received: from tristate.vision.ee ([194.204.30.144]:62180 "HELO mail.city.ee")
-	by vger.kernel.org with SMTP id S265231AbUBEORB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 09:17:01 -0500
-Message-ID: <4022505B.1020900@vision.ee>
-Date: Thu, 05 Feb 2004 16:16:59 +0200
-From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 5 Feb 2004 09:09:46 -0500
+Received: from law15-f55.law15.hotmail.com ([64.4.23.55]:22801 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S265264AbUBEOJo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 09:09:44 -0500
+X-Originating-IP: [195.129.19.203]
+X-Originating-Email: [tuxinvader@hotmail.com]
+From: "Tux Invader" <tuxinvader@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
-References: <20040205014405.5a2cf529.akpm@osdl.org> <200402051357.04005.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200402051357.04005.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: tuxinvader@hotmail.com
+Subject: Will Feisty Dunnart be appearing in proc??
+Date: Thu, 05 Feb 2004 14:09:43 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <Law15-F55rRVXR08ies00001bdb@hotmail.com>
+X-OriginalArrivalTime: 05 Feb 2004 14:09:43.0527 (UTC) FILETIME=[B3F41770:01C3EBF1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan wrote:
+Hi all,
 
->On Thursday 05 February 2004 09:44, Andrew Morton wrote:
->  
->
->Still doesn't boot on my nForce 2 system, hangs while probing PDC RAID card. 
->Confirmed from 2.6.2-rc3-mm1 that it was likely related to ACPI changes, but 
->reverting bk-acpi.patch makes no difference.
->
->I'd like to test mainline, but I'm using gcc 3.4 snapshot, so I'll try later 
->today with 2.6.2 + linus.patch.
->
->  
->
-Same here, hangs probing hpt366 ide controller. After some time says:
+I'm not all the list, please CC me.
 
-hde: lost interrupt
+Given the latest craze of thinking up imaginitive names for kernels, can we 
+expect to see them appearing in /proc/version or perhaps /proc/alias anytime 
+soon? May I also suggest "Offspring betwixt a Feisty Dunnart and a Geriatric 
+Wombat" for the 2.6.3 release?
 
-boots ok with pci=noacpi
+Thanks to everyone for such a great new kernel, you are all fantsactic.
 
-Lenar
+Cheers,
+Mark ( A Tux fan forever )
+
+_________________________________________________________________
+It's fast, it's easy and it's free. Get MSN Messenger today! 
+http://www.msn.co.uk/messenger
+

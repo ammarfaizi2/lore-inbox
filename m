@@ -1,77 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130142AbRCBX3u>; Fri, 2 Mar 2001 18:29:50 -0500
+	id <S130139AbRCBX1u>; Fri, 2 Mar 2001 18:27:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130143AbRCBX3k>; Fri, 2 Mar 2001 18:29:40 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:23080 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S130142AbRCBX3T>; Fri, 2 Mar 2001 18:29:19 -0500
-Date: Fri, 2 Mar 2001 23:29:02 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Russell King <rmk@arm.linux.org.uk>, "Theodore Ts'o" <tytso@mit.edu>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] alloc_tty_struct() wastage?
-In-Reply-To: <E14YteS-00020L-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0103022326070.1719-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130142AbRCBX13>; Fri, 2 Mar 2001 18:27:29 -0500
+Received: from [209.102.105.34] ([209.102.105.34]:40466 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S130139AbRCBX1Z>;
+	Fri, 2 Mar 2001 18:27:25 -0500
+Date: Fri, 2 Mar 2001 15:27:10 -0800
+From: Tim Wright <timw@splhi.com>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: mj@suse.cz, linux-kernel@vger.kernel.org, hulinsky@fel.cvut.cz
+Subject: Re: [PATCH] 2.4.2-acX does not recognize any bus on Intel Serverworks based motherboard
+Message-ID: <20010302152710.D1438@kochanski.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: Petr Vandrovec <vandrove@vc.cvut.cz>, mj@suse.cz,
+	linux-kernel@vger.kernel.org, hulinsky@fel.cvut.cz
+In-Reply-To: <20010302193444.A2154@vana.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010302193444.A2154@vana.vc.cvut.cz>; from vandrove@vc.cvut.cz on Fri, Mar 02, 2001 at 07:34:44PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been puzzling over alloc_tty_struct(), which seems determined
-to waste memory on a machine of page size 8KB.  I've come to the
-conclusion that it represents great caution on Russell's part
-when introducing ARM, not to interfere with existing code of
-other architectures - is that so, Russell?
+This has come up before a few times. The concensus seems to be that the PCI
+fixup code for Serverworks chipsets is currently broken (and it's less simple to
+fix than it should be due to lack of documentation - there have been some
+educated guesses but it would be nicer to know for sure). The suggestion was
+to simply kill the fixup code and believe the BIOS (i.e. kill the relevant
+lines in the pcibios_fixups[] array in arch/i386/kernel/pci-pc.c). That has
+worked on the systems I'm using that use the Serverworks chipset.
 
-But wouldn't we do better to use kmalloc() in all cases?  Unless
-you know some reason why a tty_struct is better on its own page:
-patch below against 2.4.2-ac9, applies with noise to 2.4.[012].
+Tim
 
-(I'm not about to follow this with a thousand patches,
-replacing page allocation by kmalloc() in sundry places:
-now's not the time, but this instance struck me as odd.)
+On Fri, Mar 02, 2001 at 07:34:44PM +0100, Petr Vandrovec wrote:
+> Hi Martin,
+>   what's idea behind 'pcibios_last_bus >= 0xff' ? On friend's STL2 Intel
+> motherboard Serverworks bridge contains 0x01 in reg. 0x44 (first bus behind
+> bridge) and 0xFF in reg. 0x45 (last bus behind bridge).
+>   This sets pcibios_last_bus to 0xFF in serverworks fixup code. After this
+> pcibios_fixup_peer_bridges() refuses to do anything, so devices connected
+> to secondary bus are not visible to system.
+>   With patch below system sees all devices again - patch is for 2.4.2-ac9.
+> 					Thanks,
+> 						Petr Vandrovec
+> 						vandrove@vc.cvut.cz
+> 
+> 
+> diff -urdN linux/arch/i386/kernel/pci-pc.c linux/arch/i386/kernel/pci-pc.c
+> --- linux/arch/i386/kernel/pci-pc.c	Fri Mar  2 17:55:05 2001
+> +++ linux/arch/i386/kernel/pci-pc.c	Fri Mar  2 17:56:50 2001
+> @@ -784,7 +784,7 @@
+>  	struct pci_dev dev;
+>  	u16 l;
+>  
+> -	if (pcibios_last_bus <= 0 || pcibios_last_bus >= 0xff)
+> +	if (pcibios_last_bus <= 0 || pcibios_last_bus > 0xff)
+>  		return;
+>  	DBG("PCI: Peer bridge fixup\n");
+>  	for (n=0; n <= pcibios_last_bus; n++) {
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Hugh
-
---- 2.4.2-ac9/drivers/char/tty_io.c	Fri Mar  2 18:22:36 2001
-+++ linux/drivers/char/tty_io.c	Fri Mar  2 18:23:42 2001
-@@ -173,22 +173,15 @@
- {
- 	struct tty_struct *tty;
- 
--	if (PAGE_SIZE > 8192) {
--		tty = kmalloc(sizeof(struct tty_struct), GFP_KERNEL);
--		if (tty)
--			memset(tty, 0, sizeof(struct tty_struct));
--	} else
--		tty = (struct tty_struct *)get_zeroed_page(GFP_KERNEL);
--
-+	tty = kmalloc(sizeof(struct tty_struct), GFP_KERNEL);
-+	if (tty)
-+		memset(tty, 0, sizeof(struct tty_struct));
- 	return tty;
- }
- 
- static inline void free_tty_struct(struct tty_struct *tty)
- {
--	if (PAGE_SIZE > 8192)
--		kfree(tty);
--	else
--		free_page((unsigned long) tty);
-+	kfree(tty);
- }
- 
- /*
-@@ -2239,9 +2232,6 @@
-  */
- void __init tty_init(void)
- {
--	if (sizeof(struct tty_struct) > PAGE_SIZE)
--		panic("size of tty structure > PAGE_SIZE!");
--
- 	/*
- 	 * dev_tty_driver and dev_console_driver are actually magic
- 	 * devices which get redirected at open time.  Nevertheless,
-
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+Interested in Linux scalability ? Look at http://lse.sourceforge.net/
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI

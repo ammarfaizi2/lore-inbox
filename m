@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVDDViz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVDDVi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261413AbVDDViz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 17:38:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbVDDVby
+	id S261377AbVDDVi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 17:38:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVDDVba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 17:31:54 -0400
-Received: from host201.dif.dk ([193.138.115.201]:6405 "EHLO
-	diftmgw2.backbone.dif.dk") by vger.kernel.org with ESMTP
-	id S261421AbVDDV3K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 17:29:10 -0400
-Date: Mon, 4 Apr 2005 23:31:35 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: David Howells <dhowells@redhat.com>
-Subject: [PATCH] no need to cast pointer to (void *) when passing it to
- kfree()
-Message-ID: <Pine.LNX.4.62.0504042326220.2496@dragon.hyggekrogen.localhost>
+	Mon, 4 Apr 2005 17:31:30 -0400
+Received: from alog0017.analogic.com ([208.224.220.32]:44759 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261420AbVDDV3J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 17:29:09 -0400
+Date: Mon, 4 Apr 2005 17:25:23 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+cc: Renate Meijer <kleuske@xs4all.nl>, Dag Arne Osvik <da@osvik.no>,
+       Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org,
+       Adrian Bunk <bunk@stusta.de>, Andreas Schwab <schwab@suse.de>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Grzegorz Kulewski <kangur@polcom.net>,
+       Kenneth Johansson <ken@kenjo.org>
+Subject: Re: Use of C99 int types
+In-Reply-To: <20050404205718.GZ8859@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.61.0504041718580.5550@chaos.analogic.com>
+References: <424FD9BB.7040100@osvik.no> <20050403220508.712e14ec.sfr@canb.auug.org.au>
+ <424FE1D3.9010805@osvik.no> <524d7fda64be6a3ab66a192027807f57@xs4all.nl>
+ <1112559934.5268.9.camel@tiger> <d5b47c419f6e5aa280cebd650e7f6c8f@mac.com>
+ <3821024b00b47598e66f504c51437f72@xs4all.nl> <42511BD8.4060608@osvik.no>
+ <c3057294a216d19047bdca201fc97e2f@xs4all.nl> <20050404205718.GZ8859@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 4 Apr 2005, Al Viro wrote:
 
-kfree() takes a void pointer argument, no need to cast.
+> On Mon, Apr 04, 2005 at 10:30:52PM +0200, Renate Meijer wrote:
+>
+>> When used improperly. The #define Al Viro objected to, is
+>> objectionable. It's highly
+>> misleading, as Mr. Viro pointed out. I fail to see where he made
+>> comments on stdint.h
+>> as such.
+>
+> Comments on stdint.h are very simple: ...fast... type names are misleading
+> in exactly the same way as that define.  The fact that they are in standard
+> does not outweight the confusion potential.
 
+I don't find stdint.h in the kernel source (up to 2.6.11). Is this
+going to be a new addition?
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+It would be very helpful to start using the uint(8,16,32,64)_t types
+because they are self-evident, a lot more than size_t or, my favorite
+wchar_t.
 
---- linux-2.6.12-rc1-mm4-orig/mm/nommu.c	2005-03-31 21:20:08.000000000 +0200
-+++ linux-2.6.12-rc1-mm4/mm/nommu.c	2005-04-04 23:25:23.000000000 +0200
-@@ -761,7 +761,7 @@ static void put_vma(struct vm_area_struc
- 			if (!(vma->vm_flags & (VM_IO | VM_SHARED)) && vma->vm_start) {
- 				realalloc -= kobjsize((void *) vma->vm_start);
- 				askedalloc -= vma->vm_end - vma->vm_start;
--				kfree((void *) vma->vm_start);
-+				kfree(vma->vm_start);
- 			}
- 
- 			realalloc -= kobjsize(vma);
-
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272516AbRIOTEK>; Sat, 15 Sep 2001 15:04:10 -0400
+	id <S271333AbRIOTRl>; Sat, 15 Sep 2001 15:17:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272517AbRIOTEA>; Sat, 15 Sep 2001 15:04:00 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:57861 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S272516AbRIOTDt>; Sat, 15 Sep 2001 15:03:49 -0400
-Date: Sat, 15 Sep 2001 21:04:07 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: volodya@mindspring.com
+	id <S272519AbRIOTRc>; Sat, 15 Sep 2001 15:17:32 -0400
+Received: from smtp6.mindspring.com ([207.69.200.110]:20798 "EHLO
+	smtp6.mindspring.com") by vger.kernel.org with ESMTP
+	id <S272518AbRIOTRR>; Sat, 15 Sep 2001 15:17:17 -0400
+Subject: Re: Feedback on preemptible kernel patch
+From: Robert Love <rml@tech9.net>
+To: phillips@bonn-fries.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: repeated nfs mounts..
-Message-ID: <20010915210407.J7988@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20010915123246.F7988@arthur.ubicom.tudelft.nl> <Pine.LNX.4.20.0109151220290.11838-100000@node2.localnet.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.09.14.18.39 (Preview Release)
+Date: 15 Sep 2001 15:18:16 -0400
+Message-Id: <1000581501.32705.46.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.20.0109151220290.11838-100000@node2.localnet.net>; from volodya@mindspring.com on Sat, Sep 15, 2001 at 12:21:19PM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 15, 2001 at 12:21:19PM -0400, volodya@mindspring.com wrote:
-> On Sat, 15 Sep 2001, Erik Mouw wrote:
-> > I think http://www.tux.org/lkml/#s14-6 answers your question.
-> 
-> But for a mount to succeed aren't we supposed to do this over an empty
-> directory ?
+On Sun, 2001-09-09 at 23:24, Daniel Phillips wrote:
+> This may not be your fault.  It's a GFP_NOFS recursive allocation - this
+> comes either from grow_buffers or ReiserFS, probably the former.  In
+> either case, it means we ran completely out of free pages, even though
+> the caller is willing to wait.  Hmm.  It smells like a loophole in vm
+> scanning.
 
-No, that has never been the case.
+Hi, Daniel.  If you remember, a few users of the preemption patch
+reported instability and/or syslog messages such as:
 
+Sep  9 23:08:02 sjoerd kernel: __alloc_pages: 0-order allocation failed (gfp=0x70/1).
+Sep  9 23:08:02 sjoerd last message repeated 93 times
+Sep  9 23:08:02 sjoerd kernel: cation failed (gfp=0x70/1).
+Sep  9 23:08:02 sjoerd kernel: __alloc_pages: 0-order allocation failed (gfp=0x70/1).
+Sep  9 23:08:02 sjoerd last message repeated 281 times
 
-Erik
+It now seems that all of them are indeed using ReiserFS.  There are no
+other reported problems with the preemption patch, except from those
+users...
+
+I am beginning to muse over the source, looking at when kmalloc is
+called with GFP_NOFS in ReiserFS, and then the path that code takes in
+the VM source.
+
+I assume the kernel VM code has a hole somewhere, and the request is
+falling through?  It should wait, even if no pages were free so, right? 
+
+Where should I begin looking?  How does it relate to ReiserFS?  How is
+preemption related?
+
+Thank you very much,
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

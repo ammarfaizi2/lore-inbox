@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314480AbSDWWoG>; Tue, 23 Apr 2002 18:44:06 -0400
+	id <S314454AbSDWWpr>; Tue, 23 Apr 2002 18:45:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314481AbSDWWoF>; Tue, 23 Apr 2002 18:44:05 -0400
-Received: from zero.tech9.net ([209.61.188.187]:49670 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S314480AbSDWWoD>;
-	Tue, 23 Apr 2002 18:44:03 -0400
-Subject: Re: [PATCH] 2.5: MAX_PRIO cleanup
-From: Robert Love <rml@tech9.net>
-To: mingo@elte.hu
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0204230948150.10873-100000@elte.hu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 23 Apr 2002 18:43:58 -0400
-Message-Id: <1019601843.1469.257.camel@phantasy>
-Mime-Version: 1.0
+	id <S314474AbSDWWpq>; Tue, 23 Apr 2002 18:45:46 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:37387 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S314454AbSDWWpo>; Tue, 23 Apr 2002 18:45:44 -0400
+Date: Tue, 23 Apr 2002 18:42:47 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Kent Borg <kentborg@borg.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Versioning File Systems?
+In-Reply-To: <20020418110558.A16135@borg.org>
+Message-ID: <Pine.LNX.3.96.1020423183559.31248D-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-04-23 at 03:53, Ingo Molnar wrote:
+On Thu, 18 Apr 2002, Kent Borg wrote:
 
-> >  /*
-> > - * Priority of a process goes from 0 to 139. The 0-99
-> > - * priority range is allocated to RT tasks, the 100-139
-> > - * range is for SCHED_OTHER tasks. Priority values are
-> > - * inverted: lower p->prio value means higher priority.
-> > + * Priority of a process goes from 0 to MAX_PRIO-1.  The
-> > + * 0 to MAX_RT_PRIO-1 priority range is allocated to RT tasks,
-> > + * the MAX_RT_PRIO to MAX_PRIO range is for SCHED_OTHER tasks.
-> > + * Priority values are inverted: lower p->prio value means higher
-> > + * priority.
+> I just read an article mentioned on Slashdot,
+> <http://www.sigmaxi.org/amsci/Issues/Comsci02/Compsci2002-05.html>.
 > 
-> this i dont agree with either. The point of comments is easy
-> understanding, so i intentionally kept the 'hard' constants and i'm
-> updating them constantly - it's much easier to understand how things
-> happen if it does not happen via a define. The code itself i agree should
-> stay abstract, but the comments should stay as humanly readable as
-> possible.
+> It is a fascinating short summary of the history of hard disks (they
+> still use the same fundamental design as the very first one) and an
+> update on current technology (disks are no longer aluminum).  It also
+> looks at today's 120 gigabyte disk and muses over the question of how
+> we might ever put an imagined 120 terabyte disk to use.  And the got
+> me thinking various thoughts, one turns into a question for this list:
+> It there any work going on to make a versioning file system?
+> 
+> I remember in VMS that I could accumulate "myfile.txt;1",
+> "myfilw.txt;2", etc., until the local admin got pissed at me for using
+> up all the disk space with my several megabytes of redundant files.
 
-Now that I am working on the configurable maximum RT value patch, I see
-why I did this: we can't hardcode the values like "0 to 99" because that
-99 is set now via a compile-time define.  Even if it defaults to 100, it
-can be a range of values so the comments should be specific and give the
-exact define.
+  I seem to remember that some CD filesystem does that, and you can see
+the versions with Linux if you mount with the right options.
 
-That is why I did it in the invariant patch, anyhow - and I think it
-makes the most sense to do it in this patch.
-
-	Robert Love
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

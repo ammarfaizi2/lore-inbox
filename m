@@ -1,177 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129404AbQKSUcJ>; Sun, 19 Nov 2000 15:32:09 -0500
+	id <S129853AbQKSUf3>; Sun, 19 Nov 2000 15:35:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129413AbQKSUb7>; Sun, 19 Nov 2000 15:31:59 -0500
-Received: from adonis.lbl.gov ([128.3.5.144]:21261 "EHLO adonis.lbl.gov")
-	by vger.kernel.org with ESMTP id <S129404AbQKSUbo>;
-	Sun, 19 Nov 2000 15:31:44 -0500
-To: Martin Mares <mj@suse.cz>
-Cc: Steven Walter <srwalter@hapablap.dyn.dhs.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: "No IRQ known for interrupt pin A..." error message
-In-Reply-To: <20001118181110.A424@hapablap.dyn.dhs.org>
-	<20001119202033.A272@albireo.ucw.cz>
-From: Alex Romosan <romosan@adonis.lbl.gov>
-Date: 19 Nov 2000 12:01:15 -0800
-In-Reply-To: <20001119202033.A272@albireo.ucw.cz> (message from Martin Mares on Sun, 19 Nov 2000 20:20:33 +0100)
-Message-ID: <877l5zg29g.fsf@adonis.lbl.gov>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
-MIME-Version: 1.0
+	id <S129870AbQKSUfU>; Sun, 19 Nov 2000 15:35:20 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:10245 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129413AbQKSUfA>;
+	Sun, 19 Nov 2000 15:35:00 -0500
+Date: Sat, 18 Nov 2000 17:00:45 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: test11-pre6 still very broken
+Message-ID: <20001118170045.A177@toy>
+In-Reply-To: <Pine.LNX.4.21.0011171935560.1796-100000@saturn.homenet> <20001117223137.A26341@wirex.com> <3A162EFE.A980A941@talontech.com> <20001117235624.B26341@wirex.com> <8v6h3d@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <8v6h3d@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Nov 18, 2000 at 10:17:17AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares <mj@suse.cz> writes:
+Hi!
 
-> > During boot, I get the message:
-> > 
-> > PCI: No IRQ known for interrupt pin A of device 00:00.1. Please try
-> > using pci=biosirq.
+> >One note for the archives, if you are presented a choice between a OHCI
+> >or a UHCI controller, go for the OHCI.  It has a "cleaner" interface,
+> >handles more of the logic in the silicon, and due to this provides
+> >faster transfers.
 > 
-> Can you send me 'lspci -vvx' output, please?
->  
+> I'd disagree.  UHCI has tons of advantages, not the least of which is
+> [Cthat it was there first and is widely available.  If OHCI hadn't been
+> done we'd have _one_ nice good USB controller implementation instead of
+> fighting stupid and unnecessary battles that shouldn't have existed in
+> the first place. 
 
-i am not the original poster, but i get the same message (save for the
-device number), i.e. "PCI: No IRQ known for interrupt pin A of device
- 05:00.0. Please try using pci=biosirq". this is on a dell latitude
-running 2.4.0-test11-pre7. the output from 'lspci -vvx' follows:
+UHCI has one bad disadvantage: the way it is designed, you can choose
+either slow USB or slow system.
 
-00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (AGP disabled) (rev 02)
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
-	Latency: 32
-	Region 0: Memory at d0000000 (32-bit, prefetchable) [size=256M]
-00: 86 80 92 71 06 01 00 a2 02 00 00 06 00 20 00 00
-10: 08 00 00 d0 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:02.0 VGA compatible controller: Neomagic Corporation NM2160 [MagicGraph 128XD] (rev 01) (prog-if 00 [VGA])
-	Subsystem: Dell Computer Corporation MagicGraph 128XD
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 11
-	Region 0: Memory at e0000000 (32-bit, prefetchable) [size=16M]
-	Region 1: Memory at fde00000 (32-bit, non-prefetchable) [size=2M]
-	Region 2: Memory at fdd00000 (32-bit, non-prefetchable) [size=1M]
-00: c8 10 04 00 03 00 80 02 01 00 00 03 00 20 00 00
-10: 08 00 00 e0 00 00 e0 fd 00 00 d0 fd 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 28 10 74 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 01 10 ff
-
-00:03.0 CardBus bridge: Texas Instruments PCI1131 (rev 01)
-	Subsystem: Dell Computer Corporation: Unknown device 0074
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 168, cache line size 08
-	Interrupt: pin A routed to IRQ 11
-	Region 0: Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=176
-	Memory window 0: 10400000-107ff000 (prefetchable)
-	Memory window 1: 10800000-10bff000
-	I/O window 0: 00001000-000010ff
-	I/O window 1: 00001400-000014ff
-	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite+
-	16-bit legacy interface ports at 0001
-00: 4c 10 15 ac 07 00 00 02 01 00 07 06 08 a8 82 00
-10: 00 00 00 10 00 00 00 02 00 01 01 b0 00 00 40 10
-20: 00 f0 7f 10 00 00 80 10 00 f0 bf 10 00 10 00 00
-30: fc 10 00 00 00 14 00 00 fc 14 00 00 0b 01 c0 05
-40: 28 10 74 00 01 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:03.1 CardBus bridge: Texas Instruments PCI1131 (rev 01)
-	Subsystem: Dell Computer Corporation: Unknown device 0074
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 168, cache line size 08
-	Interrupt: pin B routed to IRQ 11
-	Region 0: Memory at 10001000 (32-bit, non-prefetchable) [size=4K]
-	Bus: primary=00, secondary=05, subordinate=05, sec-latency=176
-	Memory window 0: 10c00000-10fff000 (prefetchable)
-	Memory window 1: 11000000-113ff000
-	I/O window 0: 00001800-000018ff
-	I/O window 1: 00001c00-00001cff
-	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt- PostWrite+
-	16-bit legacy interface ports at 0001
-00: 4c 10 15 ac 07 00 00 02 01 00 07 06 08 a8 82 00
-10: 00 10 00 10 00 00 00 02 00 05 05 b0 00 00 c0 10
-20: 00 f0 ff 10 00 00 00 11 00 f0 3f 11 00 18 00 00
-30: fc 18 00 00 00 1c 00 00 fc 1c 00 00 0b 02 00 05
-40: 28 10 74 00 01 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:07.0 Bridge: Intel Corporation 82371AB PIIX4 ISA (rev 01)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-00: 86 80 10 71 0f 01 80 02 01 00 80 06 00 00 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01) (prog-if 80 [Master])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32
-	Region 4: I/O ports at 0860 [size=16]
-00: 86 80 11 71 05 00 80 02 01 80 01 01 00 20 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 61 08 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32
-	Interrupt: pin D routed to IRQ 11
-	Region 4: I/O ports at ece0 [size=32]
-00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 20 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: e1 ec 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 04 00 00
-
-00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 01)
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-00: 86 80 13 71 03 00 80 02 01 00 80 06 00 00 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-05:00.0 Ethernet controller: 3Com Corporation 3c575 [Megahertz] 10/100 LAN CardBus (rev 01)
-	Subsystem: 3Com Corporation 3C575 Megahertz 10/100 LAN Cardbus PC Card
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64
-	Interrupt: pin A routed to IRQ 11
-	Region 0: I/O ports at 1800 [size=128]
-	Region 1: Memory at 11000000 (32-bit, non-prefetchable) [size=128]
-	Region 2: Memory at 11000080 (32-bit, non-prefetchable) [size=128]
-	Expansion ROM at 10c00000 [size=128K]
-	Capabilities: [50] Power Management version 1
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot+,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-00: b7 10 57 51 07 00 10 02 01 00 00 02 00 40 00 00
-10: 01 18 00 00 00 00 00 11 80 00 00 11 00 00 00 00
-20: 00 00 00 00 00 00 00 00 90 00 00 00 b7 10 57 5b
-30: 01 00 c0 10 50 00 00 00 00 00 00 00 0b 01 00 00
-
-if i bring up the eth0 interface by hand the card works fine and i can
-connect to the network.
-
---alex--
-
+If you are doing bulk usb transfers at high speed (faster than ISDN modem,
+or so), you need to make loop in the command "tree", which hogs down your
+PCI bus (leading to slow overall performance). It is called FSBR and its
+ugly. 50% system slowdown due to stupid UHCI.
+								Pavel
 -- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,76 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264605AbUBRLTA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 06:19:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbUBRLTA
+	id S264450AbUBRLVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 06:21:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUBRLVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 06:19:00 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:59050 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S264605AbUBRLS5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 06:18:57 -0500
-Date: Wed, 18 Feb 2004 11:16:12 +0000
-From: Dave Jones <davej@redhat.com>
-To: Marc Zyngier <mzyngier@freesurf.fr>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: EISA & sysfs.
-Message-ID: <20040218111612.GM6242@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Marc Zyngier <mzyngier@freesurf.fr>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20040217235431.GF6242@redhat.com> <wrpfzd87mg6.fsf@panther.wild-wind.fr.eu.org>
+	Wed, 18 Feb 2004 06:21:09 -0500
+Received: from absinthe.ifi.unizh.ch ([130.60.75.58]:57225 "EHLO
+	diamond.madduck.net") by vger.kernel.org with ESMTP id S264450AbUBRLVE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 06:21:04 -0500
+Date: Wed, 18 Feb 2004 12:20:53 +0100
+From: martin f krafft <madduck@madduck.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: the crux with DMA
+Message-ID: <20040218112052.GA8001@diamond.madduck.net>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OgqxwSJOaUobr8KG"
 Content-Disposition: inline
-In-Reply-To: <wrpfzd87mg6.fsf@panther.wild-wind.fr.eu.org>
-User-Agent: Mutt/1.4.1i
+X-OS: Debian GNU/Linux testing/unstable kernel 2.6.2-diamond i686
+X-Mailer: Mutt 1.5.5.1+cvs20040105i (2003-11-05)
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18, 2004 at 10:42:49AM +0100, Marc Zyngier wrote:
 
- > Dave> Wouldn't it make sense to have eisa_driver_register() check that the
- > Dave> root EISA bus actually got registered, and if not, -ENODEV
- > Dave> immediately ?
- > 
- > Most of the time, the bus driver kicks in *after* the device driver is
- > registered to the EISA framework (eisa is second to last in the driver
- > list, so if the driver is built-in, it is guaranted to init before the
- > root driver has a chance to discover the bus).
+--OgqxwSJOaUobr8KG
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-sounds like the initcall needs a different priority.
+Hi folks,
 
- > So, returning -ENODEV immediatly in this case prevents you from using
- > any built-in EISA driver. A possible solution to this problem would be
- > to move eisa just after the pci init (and even that would cause some
- > trouble, because the virtual_root driver would register before the
- > parisc root driver has a chance to be probed...).
- > 
- > So yes, this sucks, but I can't come up with a better solution...
+I have two machines with 7200 UPM ATA drives. Both are running the
+2.6.2 kernel. One has an AMD-768 IDE chipset and reiserfs, the other
+a combination of VT82C586 and Promise 20269 with ext3.
 
-This problem is not just cosmetic btw, it kills boxes.
-For example, hp100 is a net driver that supports multiple busses.
-Trying to modprobe it on a kernel that supports EISA on a box that
-doesn't gets a hung modprobe. Backtrace shows..
+Both machines seem to have a problem with DMA, which wasn't
+a problem with the 2.4 kernel series. The symptoms are simple: if
+I have DMA turned on, sustained high disk usage will cause complete
+freezes in both machines. Sometimes, one gets a couple of kernel
+oops before the eventual lockup, which is usually related to
+journaling code, but it's never really the same. With a 2.4 kernel,
+these lockups did not happen. With DMA turned off, I have also not
+been able to reproduce the crashes.
 
- modprobe      D 00000082     0 23407  15920                     (NOTLB)
-        c1fe3f2c 00000082 c031ba08 00000082 ffffffff c031bb90 cc318219 00000092
-        c6ee8ca0 c6ee8cc0 c111acc0 0040603e cc532c37 00000092 c267eca0 c267ee70
-        c6c6375c 00000001 000005a0 c035ffcc ffffffff c7c5e644 c267eca0 c01d4583
- Call Trace:
-  [<c01d4583>] rwsem_down_write_failed+0x141/0x15c
-  [<c01d3742>] .text.lock.kobject+0x36/0x74
-  [<c01d339a>] kobject_register+0x19/0x39
-  [<c0221a5c>] bus_add_driver+0x2e/0x83
-  [<c02622d4>] eisa_driver_register+0xf/0x19
-  [<c786e91e>] hp100_module_init+0x12/0x2e [hp100]
-  [<c013c0c0>] sys_init_module+0x14e/0x25e
-  [<c010b697>] syscall_call+0x7/0xb
+I know that neither, reiserfs nor ext3, are high-performance, and
+a switch to xfs has long been on my TODO list, but I first want to
+get this problem worked out -- I can't mirror the disk otherwise
+without crashing 40 times, so I can't create new filesystems.
 
-I've seen same exactly the same behaviour with quite a few other modules.
-For my 'modprobe/rmmod script-o-death', I just ended up disabling EISA
-in that test tree, as it was too painful to hit this issue over and over,
-but its a real situation that could bite users of for eg, vendor kernels.
+Any advice is appreciated!
 
-		Dave
+--=20
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
+=20
+"science without religion is lame,
+ religion without science is blind."
+                                                    -- albert einstein
 
+--OgqxwSJOaUobr8KG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAM0qUIgvIgzMMSnURAvKXAJ9yauUO3geKt13BaWPd35kgG4H79gCeLLMz
+a5yOzUWSdrJ9seHdJElZ76o=
+=faOh
+-----END PGP SIGNATURE-----
+
+--OgqxwSJOaUobr8KG--

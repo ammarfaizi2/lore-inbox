@@ -1,96 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262835AbTJ3VAi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 16:00:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262836AbTJ3VAi
+	id S262844AbTJ3VCA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 16:02:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbTJ3VCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 16:00:38 -0500
-Received: from fw.osdl.org ([65.172.181.6]:38046 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262835AbTJ3VAg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 16:00:36 -0500
-Date: Thu, 30 Oct 2003 13:00:23 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: "David Liontooth" <liontooth@post.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: [PATCH] Fix for ipx interface module_get panic.
-Message-Id: <20031030130023.44bd9b6a.shemminger@osdl.org>
-In-Reply-To: <20031028040421.98826.qmail@mail.com>
-References: <20031028040421.98826.qmail@mail.com>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 30 Oct 2003 16:02:00 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:41462 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262844AbTJ3VB6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 16:01:58 -0500
+Message-ID: <3FA17C43.5030709@mvista.com>
+Date: Thu, 30 Oct 2003 13:01:55 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: First Name <linuxquestasu@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Cyclic Scheduling for linux
+References: <20031030181510.5504.qmail@web12905.mail.yahoo.com>
+In-Reply-To: <20031030181510.5504.qmail@web12905.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the fix for the ipx module_get oops; it has been tested by acme.
-The problem was that ipx was trying to use module counts to keep from being
-unloaded when it had bottom half interfaces.  And one of these interfaces
-could be created automatically when packet was received and no sockets open
-(module ref count was zero).
+First Name wrote:
+> Hi there,
+> 
+> I am working on providing a cyclic scheduling policy
+> to the current non real time version of the linux to
+> support hard real time tasks as part of one of my
+> projects. This policy should be able to support
+> aperiodic, periodic and sporadic tasks too. Could any
+> one pour some light on how to go about achieving it?.
+> 
+> Any Helpful tips, project reports, links or advices
+> are greatly appreciated.
 
-The fix is to get rid of using module ref counts to control this, and instead
-cleanup the table on module exit.
+Instead of kernel changes, you might want to consider a user monitor task 
+running at high rt priority which changes the priority of the tasks you want to 
+use the new policy.  You could write an intercept routine for the scheduleset* 
+calls and pass the new policy to the monitor.  More thought would be needed to 
+make it inherit across a fork..
 
-diff -Nru a/net/ipx/af_ipx.c b/net/ipx/af_ipx.c
---- a/net/ipx/af_ipx.c	Thu Oct 30 12:01:21 2003
-+++ b/net/ipx/af_ipx.c	Thu Oct 30 12:01:21 2003
-@@ -326,7 +326,6 @@
- 	if (intrfc->if_dev)
- 		dev_put(intrfc->if_dev);
- 	kfree(intrfc);
--	module_put(THIS_MODULE);
- }
- 
- void ipxitf_down(struct ipx_interface *intrfc)
-@@ -358,6 +357,17 @@
- 	return NOTIFY_DONE;
- }
- 
-+
-+static __exit void ipxitf_cleanup(void)
-+{
-+	struct ipx_interface *i, *tmp;
-+
-+	spin_lock_bh(&ipx_interfaces_lock);
-+	list_for_each_entry_safe(i, tmp, &ipx_interfaces, node) 
-+		__ipxitf_put(i);
-+	spin_unlock_bh(&ipx_interfaces_lock);
-+}
-+
- static void ipxitf_def_skb_handler(struct sock *sock, struct sk_buff *skb)
- {
- 	if (sock_queue_rcv_skb(sock, skb) < 0)
-@@ -888,7 +898,6 @@
- 		INIT_HLIST_HEAD(&intrfc->if_sklist);
- 		atomic_set(&intrfc->refcnt, 1);
- 		spin_lock_init(&intrfc->if_sklist_lock);
--		__module_get(THIS_MODULE);
- 	}
- 
- 	return intrfc;
-@@ -1979,20 +1988,12 @@
- 
- static void __exit ipx_proto_finito(void)
- {
--	/*
--	 * No need to worry about having anything on the ipx_interfaces list,
--	 * when a interface is created we increment the module usage count, so
--	 * the module will only be unloaded when there are no more interfaces
--	 */
--	if (unlikely(!list_empty(&ipx_interfaces)))
--		BUG();
--	if (unlikely(!list_empty(&ipx_routes)))
--		BUG();
--
- 	ipx_proc_exit();
- 	ipx_unregister_sysctl();
- 
- 	unregister_netdevice_notifier(&ipx_dev_notifier);
-+
-+	ipxitf_cleanup();
- 
- 	unregister_snap_client(pSNAP_datalink);
- 	pSNAP_datalink = NULL;
+-g
+> 
+> Thanks and Regards,
+> LQ
+> 
+> __________________________________
+> Do you Yahoo!?
+> Exclusive Video Premiere - Britney Spears
+> http://launch.yahoo.com/promos/britneyspears/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

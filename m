@@ -1,88 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130920AbRCJDhD>; Fri, 9 Mar 2001 22:37:03 -0500
+	id <S130909AbRCJD0x>; Fri, 9 Mar 2001 22:26:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130921AbRCJDgy>; Fri, 9 Mar 2001 22:36:54 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:57104 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S130920AbRCJDgp>; Fri, 9 Mar 2001 22:36:45 -0500
-Message-Id: <200103100336.f2A3ZqO67658@aslan.scsiguy.com>
-To: linux-kernel@vger.kernel.org
-cc: torvalds@transmeta.com
-Subject: Version 6.1.6 of the aic7xxx driver availalbe
-Date: Fri, 09 Mar 2001 20:35:52 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S130906AbRCJD0n>; Fri, 9 Mar 2001 22:26:43 -0500
+Received: from saloma.stu.rpi.edu ([128.113.199.230]:35085 "EHLO incandescent")
+	by vger.kernel.org with ESMTP id <S130904AbRCJD03>;
+	Fri, 9 Mar 2001 22:26:29 -0500
+Date: Fri, 9 Mar 2001 22:25:29 -0500
+From: Andres Salomon <dilinger@mp3revolution.net>
+To: "Marco d'Itri" <md@Linux.IT>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: peer shrinks window
+Message-ID: <20010309222529.A28615@mp3revolution.net>
+In-Reply-To: <20010310004556.A7380@wonderland.linux.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010310004556.A7380@wonderland.linux.it>; from md@Linux.IT on Sat, Mar 10, 2001 at 12:45:56AM +0100
+X-Operating-System: Linux incandescent 2.4.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As always, the latest version of this driver is availalbe here:
+I've noticed this as well in my logs.  In linux/include/net/tcp.h,
+TCP_DEBUG is turned on; in linux/net/ipv4/tcp_input.c,
+tcp_ack_update_window() contains the following:
 
-http://people.FreeBSD.org/~gibbs/linux/
+#ifdef TCP_DEBUG
+<snip>
+printk(KERN_DEBUG "TCP: peer %u.%u.%u.%u:%u/%u shrinks window %u:%u:%u. Bad, what else can I say?\n",
+                               NIPQUAD(sk->daddr), htons(sk->dport), sk->num,
+                               tp->snd_una, tp->snd_wnd, tp->snd_nxt);
+<snip>
+#endif
 
-Complete CHANGELOG is now available at the above URL.
+Is it really necessary for TCP_DEBUG to be turned on by default?
 
-I try to filter though LK as often as I can, but for
-best response, please email issues regarding this driver to
-me directly.
+On Sat, Mar 10, 2001 at 12:45:56AM +0100, Marco d'Itri wrote:
+> 
+> In two days I've got 46 messages like:
+> 
+> Mar  7 08:00:55 attila kernel: TCP: peer 163.162.41.4:37582/20 shrinks window 752789960:5840:752797200. Bad, what else can I say?
+> 
+> If needed I can ask about the os running there, I think it's solaris.
+> (nmap confirms: Solaris 7)
+> 
+> Linux attila 2.4.0-test11 #11 Wed Dec 13 12:02:51 CET 2000 ppc unknown
+> 
+> -- 
+> ciao,
+> Marco
 
-Changes since 6.1.5 include:
-
-	o Firmware generation is now a tunable option
-	  defaulting to OFF.  Don't turn this on unless
-	  you really have a reason to re-agenerate the
-	  firmware (e.g. you are actively developing it).
-
-	o aicasm Makefile changes from Alan Cox that
-	  attempt to make aicasm compilable on more
-	  distributions.
-
-	o On some chips, at least the aic7856, the transition from
-	  MREQPEND to HDONE can take a full 4 clock cycles.  Test
-	  HDONE one more time to avoid this race.  We only want our
-	  FIFO hung recovery code to execute when the engine is
-	  really hung.  This makes the aic7856 work again on systems
-	  affected by the PCI 2.1 retry bug.
-
-	o Modify our interrupt handler so that optimizations
-	  that rely on level sensitive interrupts are disabled
-	  when edge triggered interrupts are in use.  This
-	  affected the 284X and some EISA installations where
-	  level sensitive interrupts are disabled.
-
-	o Staticize some rogue symbols.  All exported symbols
-	  have either an "ahc" or "aic7xxx" prefix to avoid
-	  potential conflicts with other modules.
-
-	o Fix the sorting of driver instances so that even
-	  if PCI devices are presented to the driver in a
-	  very strange order, it still works.  In the past,
-	  we relied on function 0 of a device being seen prior
-	  to function 1.  This should make the channel b primary
-	  BIOS option functional again.
-
-	o Add a crude hack to make modunload/modload cycles work
-	  now that we are using the new PCI methods.  We must
-	  detach our driver from each PCI device referenced by
-	  a call to our release method.  The PCI code doesn't have
-	  a method to do this, so we muck with the pci_dev ourselves.
-
-	o Deregister our PCI driver when aic7xxx_release releases
-	  the last host instance.
-
-	o Only adjust our goal negotiation settings if the device 
-	  is actually present.  This prevents a disconnected lun 
-	  that does not claim to support negotiations from messing
-	  up the settings for a successfully probed lun whose inquiry
-	  data properly reflects the abilities of the device.
-
-	o Set the device structure as releasable should the inquiry
-	  come back with anything other than lun connected.  We  
-	  should also do this if the device goes away as evidenced
-	  by a selection timeout, but as we can't know if this
-	  condition is persistant and there is no guarantee that
-	  the mid-layer will reissue the inquiry command we use 
-	  to validate the device, I've simply added a comment
-	  this effect.
-
---
-Justin
+-- 
+"... being a Linux user is sort of like living in a house inhabited
+by a large family of carpenters and architects. Every morning when
+you wake up, the house is a little different. Maybe there is a new
+turret, or some walls have moved. Or perhaps someone has temporarily
+removed the floor under your bed." - Unix for Dummies, 2nd Edition
+        -- found in the .sig of Rob Riggs, rriggs@tesser.com

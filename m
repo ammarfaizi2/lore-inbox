@@ -1,262 +1,385 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264907AbSLPD1j>; Sun, 15 Dec 2002 22:27:39 -0500
+	id <S264943AbSLPDaR>; Sun, 15 Dec 2002 22:30:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264908AbSLPD1j>; Sun, 15 Dec 2002 22:27:39 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2572 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264907AbSLPD1g>; Sun, 15 Dec 2002 22:27:36 -0500
-Date: Sun, 15 Dec 2002 19:34:09 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Linux v2.5.52
-Message-ID: <Pine.LNX.4.44.0212151930120.12906-100000@penguin.transmeta.com>
+	id <S264946AbSLPDaR>; Sun, 15 Dec 2002 22:30:17 -0500
+Received: from wiprom2mx2.wipro.com ([203.197.164.42]:9365 "EHLO
+	wiprom2mx2.wipro.com") by vger.kernel.org with ESMTP
+	id <S264943AbSLPDaL>; Sun, 15 Dec 2002 22:30:11 -0500
+From: "Sowmya Adiga" <sowmya.adiga@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] AIM benchmark result for kernel 2.5.51 with mm2 patch.
+Date: Mon, 16 Dec 2002 09:07:45 +0530
+Organization: Wipro Technologies
+Message-ID: <008801c2a4b4$7f6b6b50$6009720a@wipro.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Importance: Normal
+X-OriginalArrivalTime: 16 Dec 2002 03:37:46.0069 (UTC) FILETIME=[7F8B2850:01C2A4B4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+ 
+Here are the AIM benchmark result for kernel 2.5.51 with mm2 patch. 
+ 
+kernel 2.5.51 with mm2 patch performed better in following tests,when 
+compared with kernel 2.5.51mm1 patch:-
+1)File Creations and Closes/second 2) System Memory Allocations/second
+3) Task Creations/second 4)  Shared Memory Operations/second
+5)TCP/IPMessages/second 6) Pipe Messages/second.7)Program
+Loads/second.on the other side kernel 2.5.51mm2 could not do better in
+Dynamic Memory Operations/second  when compared to kernel 2.5.51mm1
+patch.
+ 
+kernel 2.5.51mm2 patch performed better in following tests,when compared
+with kernel 2.5.51 :-
+1) Program Loads/second 2)Task Creations/second 3) File Creations and
+Closes/second
+4)  Pipe Messages/second 
+At the same time 2.5.51mm2 patch had a drop in following performance
+when compared with kernel 2.5.51:- 
+1)  System Memory Allocations/second 2)  Dynamic Memory
+Operations/second 3)  UDP/IP DataGrams/second 4)  FIFO Messages/second 
+ 
+------------------------------------------------------------------------
 
-Various things here. Most noticeably more merges with Andrew, with a 
-lot of various small fixes.
+AIM Independent Resource Benchmark - Suite IX v1.1, January 22, 1996
+Copyright (c) 1996 - 2001 Caldera International, Inc. All Rights
+Reserved
+ 
+Machine's name                                    : access1
+Machine's configuration                           :PIII/868MHZ/128MB
+Number of seconds to run each test [2 to 1000]    : 60
+Path to disk files                                : /tmp
+------------------------------------------------------------------------
+----
+Test           Elapsed      Iteration    Iteration          Operation
 
-XFS, JFS, ACPI and USB updates. KConfig update, and Rusty's module
-parameter implementation. And fix the stupid nanosleep() thing that broke 
-some programs.
+Number         Time (sec)    Count      Rate (loops/sec)    Rate
+(ops/sec)
+&name
+------------------------------------------------------------------------
+----
+1 add_double       Thousand Double Precision Additions/second
+linux-2.5.51      60.02        716         11.92936          214728.42
+linux-2.5.51[mm1] 60.02        716         11.92936          214728.42
+linux-2.5.51[mm2] 60.01        716         11.93134          214764.21
+ 
+ 
+2 add_float         Thousand Single Precision Additions/second
+linux-2.5.51      60.05        1075        17.90175          214820.98 
+linux-2.5.51[mm1] 60.00        1074        17.90000          214800.00
+linux-2.5.51[mm2] 60.05        1075        17.90175          214820.98 
 
-I'm pushing this out, as I've tried to sync up the stuff I got while I was 
-away this week (hint hint: if it ain't here, it's not in my in-queue, and 
-you should re-send).
+3 add_long          Thousand Long Integer Additions/second
+linux-2.5.51      60.01        1768        29.46176          1767705.38
+linux-2.5.51[mm1] 60.01        1768        29.46176          1767705.38
+linux-2.5.51[mm2] 60.01        1768        29.46176          1767705.38
 
-		Linus
+4 add_int           Thousand Integer Additions/second
+linux-2.5.51      60.02        1768        29.45685          1767410.86
+linux-2.5.51[mm1] 60.01        1768        29.46176          1767705.38 
+linux-2.5.51[mm2] 60.01        1768        29.46176          1767705.38
 
----
+5 add_short       Thousand Short Integer Additions/second
+linux-2.5.51      60.00        4419        73.65000         1767600.00
 
-Summary of changes from v2.5.51 to v2.5.52
-============================================
+linux-2.5.51[mm1] 60.01        4419        73.63773         1767305.45
+linux-2.5.51[mm2] 60.00        4419        73.65000         1767600.00
 
-Dario Ballabio <ballabio_dario@emc.com>:
-  o eata driver update
+6 creat-clo       File Creations and Closes/second
+linux-2.5.51      60.02        2157       35.93802          35938.02 
+linux-2.5.51[mm1] 60.02        2142       35.68810          35688.10
+linux-2.5.51[mm2] 60.02        2176       36.25458          36254.58
 
-Peter Braam <braam@clusterfs.com>:
-  o intermezzo update
+7 page_test       System Allocations & Pages/second 
+linux-2.5.51      60.00        8822       147.03333         249956.67 
+linux-2.5.51[mm1] 60.01        8546       142.40960         242096.32
+linux-2.5.51[mm2] 60.00        8606       143.43333         243836.67
 
-James Simmons <jsimmons@infradead.org>:
-  o VT scrolling fix
+8 brk_test        System Memory Allocations/second
+linux-2.5.51      60.01        3404       56.72388          964305.95 
+linux-2.5.51[mm1] 60.01        3236       53.92435          916713.88
+linux-2.5.51[mm2] 60.01        3327       55.44076          942492.92
 
-<khaho@koti.soon.fi>:
-  o USB: start to remove static minor based arrays in drivers
+9 jmp_test        Non-local gotos/second
+linux-2.5.51      60.00        318154     5302.56667        5302566.67
+linux-2.5.51[mm1] 60.00        318197     5303.28333        5303283.33 
+linux-2.5.51[mm2] 60.00        318115     5301.91667        5301916.67
 
-<marekm@amelek.gda.pl>:
-  o Datafab KECF-USB / Sagatek DCS-CF / Simpletech UCF-100
+10 signal_test    Signal Traps/second
+linux-2.5.51      60.00        9573       159.55000         159550.00
+linux-2.5.51[mm1] 60.01        9517       158.59023         158590.23
+linux-2.5.51[mm2] 60.00        9529       158.81667         158816.67 
 
-<nobita@t-online.de>:
-  o support for Sony Cybershot F717 digital camera / usb-storage
+11 exec_test      Program Loads/second
+linux-2.5.51      60.03        2054       34.21623          171.08
+linux-2.5.51[mm1] 60.00        2082       34.70000          173.50
+linux-2.5.51[mm2] 60.01        2101       35.01083          175.05
 
-<romieu@fr.zoreil.com>:
-  o missing piece of Iphase atm driver update
+12 fork_test      Task Creations/second
+linux-2.5.51      60.04        1016       16.92205          1692.21
+linux-2.5.51[mm1] 60.03        1022       17.02482          1702.48 
+linux-2.5.51[mm2] 60.01        1099       18.31361          1831.36 
 
-Stelian Pop <stelian@popies.net>:
-  o sonypi driver update
+13 link_test      Link/Unlink Pairs/second
+linux-2.5.51      60.01        9963       166.02233         10459.41 
+linux-2.5.51[mm1] 60.00        9857       164.28333         10349.85
+linux-2.5.51[mm2] 60.00        9929       165.48333         10425.45 
 
-Andrew Morton <akpm@digeo.com>:
-  o Avoid recursion in the page allocator
-  o deprecate use of bdflush()
-  o create /proc/kmsg, remove sys_syslog()-based
-  o speed up read_zero() for !CONFIG_MMU
-  o Fix rmap locking for CONFIG_SWAP=n
-  o semtimedop - semop() with a timeout
-  o skip memory-backed filesystems in writeback
-  o Remove fail_writepage, redux
-  o show_free_areas extensions
-  o make sure all PMDs are allocated under PAE mode
-  o handle overflows in radix_tree_gang_lookup()
-  o Add a sync_fs super_block operation
-  o implement ext3_sync_fs
-  o copy_user checks in filldir()
-  o vm accounting fixes and addition
-  o hugetlb fixes
-  o fs-writeback rework
-  o Add /proc/sys/vm/lower_zone_protection
-  o Set a minimum hash table size for wait_on_page()
-  o Reserve an additional transaction block in
-  o remove PF_SYNC
-  o Don't inherit mm->def_flags across forks
-  o bootmem allocator merging fix
-  o ext2/ext3_free_blocks() extra check
-  o don't apply file size rlimits to blockdevs
-  o limit pinned memory due to readahead
-  o remove a vm debug check
-  o madvise_willneed() maximum readahead checking
-  o provide a default super_block_operations
-  o tidier atomic check in mempool_alloc()
-  o Fix off-by-one in the page allocator
-  o pad pte_chains out to a cacheline
-  o ext2 synchronous mount fix
-  o Add prefetching to get_page_state()
-  o ext3: fix error-path bh leak
-  o remove vm_area_struct.vm_raend
+14 disk_rr        Random Disk Reads (K)/second
+linux-2.5.51      60.00        496        8.26667           42325.33
+linux-2.5.51[mm1] 60.06        501        8.34166           42709.29
+linux-2.5.51[mm2] 60.06        489        8.14186           41686.31
 
-Andy Grover <agrover@groveronline.com>:
-  o ACPI: Get rid of progress dots if not in debug mode
-  o ACPI: update to 20021212
-  o ACPI: Fix write-related /proc entry functionality
+15 disk_rw        Random Disk Writes (K)/second
+linux-2.5.51      60.12        394        6.55356           33554.22
+linux-2.5.51[mm1] 60.17        387        6.43178           32930.70
+linux-2.5.51[mm2] 60.07        387        6.44248           32985.52
 
-Anton Blanchard <anton@samba.org>:
-  o 2.5 fix for > 25 disks
+16 disk_rd        Sequential Disk Reads (K)/second
+linux-2.5.51      60.02        2813       46.86771          239962.68 
+linux-2.5.51[mm1] 60.01        2795       46.57557          238466.92
+linux-2.5.51[mm2] 60.01        2822       47.02550          240770.54
 
-Art Haas <ahaas@airmail.net>:
-  o C99 initializers
+17 disk_wrt       Sequential Disk Writes (K)/second
+linux-2.5.51     60.07         646        10.75412          55061.10
+linux-2.5.51[mm1]60.07         644        10.72083          54890.63
+linux-2.5.51[mm2]60.06         633        10.53946          53962.04
 
-Ben Collins <bcollins@debian.org>:
-  o IEEE-1394/Firewire update
+18 disk_cp        Disk Copies (K)/second
+linux-2.5.51     60.10         509        8.46922           43362.40
+linux-2.5.51[mm1]60.06         501        8.34166           42709.29 
+linux-2.5.51[mm2]60.00         499        8.31667           42581.33
 
-Brian Gerst <bgerst@didntduck.org>:
-  o Remove Rules.make from Makefiles
+19 sync_disk_rw   Sync Random Disk Writes (K)/second
+linux-2.5.51     60.91         1          0.01642           42.03
+linux-2.5.51[mm1]60.11         1          0.01664           42.59
+linux-2.5.51[mm2]60.21         1          0.01661           42.52
 
-Christoph Hellwig <hch@sgi.com>:
-  o [XFS] final sendfile bits
-  o [XFS] fix small typo in rtdev mount code
-  o [XFS] don't include root_dev.h
-  o [XFS] remove linvfs_put_inode
-  o [XFS] rationalize pagebuf_iomove
-  o [XFS] add a new xfs_mount parameter to xfs_blkdev_get
-  o [XFS] get rid of pb_daemon/pagebuf_daemon_t
-  o [XFS] merge page_buf_private_t into page_buf_t
-  o [XFS] remove some dead code from pagebuf
-  o share some code between get_sb_bdev and xfs log/rtdev handling
-  o CREDITS update
+20 sync_disk_wrt  Sync Sequential Disk Writes (K)/second
+linux-2.5.51     76.81         2          0.02604           66.66
+linux-2.5.51[mm1]76.42         2          0.02617           67.00 
+linux-2.5.51[mm2]76.85         2          0.02602           66.62
 
-Dave Kleikamp <shaggy@shaggy.austin.ibm.com>:
-  o JFS: Fix off-by one error when symlink size == 256 bytes
-  o Add more statistics to /prod/fs/jfs/ to help performance tuning
-  o JFS: Move index table out of directory inode's address space
-  o JFS: Avoid writing partial log pages for lazy transactions
-  o jfs_truncate needs to call block_truncate_page
-  o JFS: Fix accounting of active allocation groups
-  o JFS: Remove COMMIT_Holdlock
+21 sync_disk_cp  Sync Disk Copies (K)/second
+linux-2.5.51     77.63         2          0.02576           65.95
+linux-2.5.51[mm1]77.86         2          0.02569           65.76
+linux-2.5.51[mm2]77.57         2          0.02578           66.00
 
-Davide Libenzi <davidel@xmailserver.org>:
-  o epoll bits forgot a nasty printk()
+22 disk_src       Directory Searches/second
+linux-2.5.51     60.00        10811      180.18333          13513.75
+linux-2.5.51[mm1]60.01        10741      178.98684          13424.01
+linux-2.5.51[mm2]60.01        10715      178.55357          13391.52
 
-Dominik Brodowski <linux@brodo.de>:
-  o cpufreq: clean up CPU information
-  o cpufreq: move x86 configuration to "Power Management"
+23 div_double    Thousand Double PrecisionDivides/second
+linux-2.5.51     60.01        1322       22.02966           66088.99 
+linux-2.5.51[mm1]60.01        1322       22.02966           66088.99
+linux-2.5.51[mm2]60.01        1322       22.02966           66088.99
 
-Greg Kroah-Hartman <greg@kroah.com>:
-  o USB: Added usb-serial driver core bus support
-  o Driver core: Fix class leak in class_hotplug
-  o USB: Moved usb-serial bus specific code to a separate file
-  o usbaudio.c: fix for urb callback function change
-  o USB: Fix compile errors with usb-skeleton driver
-  o USB: usb-skeleton: removed static array of devices
+24 div_float    Thousand Single Precision Divides/second
+linux-2.5.51     60.00        1322        22.03333          66100.00
+linux-2.5.51[mm1]60.00        1322        22.03333          66100.00
+linux-2.5.51[mm2]60.00        1322        22.03333          66100.00
 
-Greg Ungerer <gerg@snapgear.com>:
-  o m68knommu fix kstat_cpu usage int ints.c
-  o m68knommu add missing do_fork arg
-  o m68knommu spinlocks around signal api calls
-  o m68knommu remove sys_security
-  o m68knommu fix ELF_CORE_COPY_REGS macro
-  o m68knommu current include thread_info.h
-  o m68knommu hardirq.h include cache.h
-  o m68knommu definition of TASK_UNMAPPED_BASE
-  o m68knommu support restart_block
+25 div_long     Thousand Long Integer Divides/second
+linux-2.5.51     60.03        1592       26.52007           23868.07
+linux-2.5.51[mm1]60.03        1592       26.52007           23868.07
+linux-2.5.51[mm2]60.04        1592       26.51566           23864.09
 
-Ingo Molnar <mingo@elte.hu>:
-  o threaded coredumps, tcore-fixes-2.5.51-A0
-  o ptrace-sigfix-2.5.51-A1
+26 div_int      Thousand Integer Divides/second
+linux-2.5.51     60.03         1592      26.52007          23868.07 
+linux-2.5.51[mm1]60.03         1592      26.52007          23868.07 
+linux-2.5.51[mm2]60.01         1591      26.51225          23861.02
+ 
+27 div_short   Thousand Short Integer Divides/second
+linux-2.5.51     60.01         1591      26.51225          23861.02 
+linux-2.5.51[mm1]60.03         1592      26.52007          23868.07 
+linux-2.5.51[mm2]60.03         1592      26.52007          23868.07 
 
-Jeff Garzik <jgarzik@redhat.com>:
-  o [NET] support IPv6 over token ring (from lkml)
-  o [netdrvr tg3] a fix, a cleanup, and an optimization
+28 fun_cal     Function Calls (no arguments)/second 
+linux-2.5.51     60.01         4362      72.68789         37216197.30
+linux-2.5.51[mm1]60.01         4362      72.68789         37216197.30
+linux-2.5.51[mm2]60.01         4362      72.68789         37216197.30
 
-Kai Makisara <kai.makisara@kolumbus.fi>:
-  o SCSI tape driver fixes for 2.5.51
+29 fun_cal1   Function Calls (1 argument)/second
+linux-2.5.51     60.00         10231     170.51667       87304533.33
+linux-2.5.51[mm1]60.00         10230     170.50000       87296000.00
+linux-2.5.51[mm2]60.00         10231     170.51667       87304533.33
 
-Linus Torvalds <torvalds@home.transmeta.com>:
-  o Fix nanosleep() behaviour with NULL "remaining" argument
-  o Move intermezzo header files to its own private directory
-  o Remove bogus checkin file from xfs
+30 fun_cal2    Function Calls (2 arguments)/second
+linux-2.5.51     60.00         7971      132.85000         68019200.00
+linux-2.5.51[mm1]60.00         7968      132.80000         67993600.00
+linux-2.5.51[mm2]60.00         7970      132.83333         68010666.67
 
-Marcel Holtmann <marcel@holtmann.org>:
-  o Disable bluetty.o if Bluetooth subsystem is used
+31 fun_cal15   Function Calls (15 arguments)/second
+linux-2.5.51     60.03          2455     40.89622          20938863.90 
+linux-2.5.51[mm1]60.03          2455     40.89622          20938863.90
+linux-2.5.51[mm2]60.03          2455     40.89622          20938863.90 
 
-Martin Schwidefsky <schwidefsky@de.ibm.com>:
-  o s390: Makefiles
-  o s390: nanosleep restarting
-  o s390: io fixes
-  o s390: uaccess bug
-  o s390: old tape file
-  o s390: staticification
-  o s390: warnings
-  o s390: export sys_wait4
+32 sieve        Integer Sieves/second
+linux-2.5.51     60.47          41       0.67802           3.39
+linux-2.5.51[mm1]60.49          41       0.67780           3.39
+linux-2.5.51[mm2]60.46          41       0.67813           3.39
 
-Matthew Dobson <colpatch@us.ibm.com>:
-  o NUMA topology sysfs panic fix
+33 mul_double   Thousand Double Precision Multiplies/second
+linux-2.5.51     60.01          833      13.88102          166572.24
+linux-2.5.51[mm1]60.05          838      13.95504          167460.45
+linux-2.5.51[mm2]60.07          837      13.93374          167204.93
 
-Matthew Wilcox <willy@debian.org>:
-  o Remove test/set_bit from dl2k
+34 mul_float    Thousand Single Precision Multiplies/second
+linux-2.5.51     60.03          836      13.92637          167116.44
+linux-2.5.51[mm1]60.02          835      13.91203          166944.35
+linux-2.5.51[mm2]60.05          837      13.93838          167260.62
+ 
+35 mul_long     Thousand Long Integer Multiplies/second
+linux-2.5.51     60.00          75687    1261.45000        302748.00
+linux-2.5.51[mm1]60.00          75693    1261.55000        302772.00 
+linux-2.5.51[mm2]60.00          75675    1261.25000        302700.00
 
-Oleg Drokin <green@angband.namesys.com>:
-  o reiserfs: Take into account file information even when not doing
-    preallocation. Fixes a bug with displacing_large_files option
-  o reiserfs: Fix a problem with delayed unlinks and remounting RW
-    filesystem RW
-  o reiserfs: lock_kernel is replaced with its reiserfs variant
-  o reiserfs: C99 designated initializers, by Art Haas
-  o reiserfs: Fixed annoying warnings in fs/reiserfs/procfs.c
+36 mul_int      Thousand Integer Multiplies/second
+linux-2.5.51     60.00          76015     1266.91667       304060.00 
+linux-2.5.51[mm1]60.00          76013     1266.88333       304052.00
+linux-2.5.51[mm2]60.00          75978     1266.30000       303912.00
+ 
+37 mul_short     Thousand Short Integer Multiplies/second
+linux-2.5.51      60.00         60527     1008.78333       302635.00
+linux-2.5.51[mm1] 60.00         60564     1009.40000       302820.00
+linux-2.5.51[mm2] 60.00         60624     1010.40000       303120.00 
 
-Pavel Machek <pavel@ucw.cz>:
-  o ACPI/S3: fix gcc3.2 compatibility
-  o ACPI/S3: simplify assembly code a bit
+38 num_rtns_1                    Numeric Functions/second
+linux-2.5.51      60.00         32603      543.38333       54338.33
+linux-2.5.51[mm1] 60.00         32602      543.36667       54336.67
+linux-2.5.51[mm2] 60.00         32587      543.11667       54311.67
 
-Pete Zaitcev <zaitcev@redhat.com>:
-  o Patch for debounce in 2.5
+39 new_raph       Zeros Found/second
+linux-2.5.51       60.00        79903      1331.71667      266343.33
+linux-2.5.51[mm1]  60.00        79905      1331.75000      266350.00
+linux-2.5.51[mm2]  60.00        79890      1331.50000      266300.00
 
-Petko Manolov <petkan@users.sourceforge.net>:
-  o USB: pegasus kmalloc/kfree stuff
+40 trig_rtns     Trigonometric Functions/second
+linux-2.5.51       60.01        2160       35.99400       359940.01
+linux-2.5.51[mm1]  60.02        2168       36.12129       361212.93
+linux-2.5.51[mm2]  60.01        2168       36.12731       361273.12
 
-Randy Dunlap <rddunlap@osdl.org>:
-  o move console_loglevel scalars to array (resend)
+41 matrix_rtns    Point Transformations/second
+linux-2.5.51       60.00        349540     5825.66667     582566.67 
+linux-2.5.51[mm1]  60.00        349593     5826.55000     582655.00
+linux-2.5.51[mm2]  60.00        349515     5825.25000     582525.00
 
-Richard Henderson <rth@are.twiddle.net>:
-  o Revert bogus include workaround
+42 array_rtns     Linear Systems Solved/second
+linux-2.5.51       60.00         959       15.98333        319.67
+linux-2.5.51[mm1]  60.05         960       15.98668        319.73 
+linux-2.5.51[mm2]  60.03         959       15.97535        319.51 
+ 
+43 string_rtns     String Manipulations/second
+linux-2.5.51       60.01         851       14.18097       1418.10 
+linux-2.5.51[mm1]  60.06         852       14.18581       1418.58
+linux-2.5.51[mm2]  60.06         852       14.18581       1418.58
 
-Richard Henderson <rth@twiddle.net>:
-  o sr_ioctl fix
+44 mem_rtns_1      Dynamic Memory Operations/second
+linux-2.5.51       60.00         1640      27.33333       820000.00 
+linux-2.5.51[mm1]  60.02         1910      31.82273       954681.77
+linux-2.5.51[mm2]  60.04         1530      25.48301       764490.34
 
-Robert Love <rml@tech9.net>:
-  o remove error message on illegal ioctl
-  o printks in drivers/scsi/hosts.c missing return
+45 mem_rtns_2      Block Memory Operations/second
+linux-2.5.51       60.00         131025    2183.75000     218375.00 
+linux-2.5.51[mm1]  60.00         131053    2184.21667     218421.67
+linux-2.5.51[mm2]  60.00         131034    2183.90000     218390.00 
+ 
+46 sort_rtns_1     Sort Operations/second
+linux-2.5.51       60.02          2425     40.40320       404.03
+linux-2.5.51[mm1]  60.02          2425     40.40320       404.03 
+linux-2.5.51[mm2]  60.01          2424     40.39327       403.93 
+ 
+47 misc_rtns_1                 Auxiliary Loops/second
+linux-2.5.51       60.00          32379    539.65000      5396.50 
+linux-2.5.51[mm1]  60.00          31628    527.13333      5271.33 
+linux-2.5.51[mm2]  60.00          31911    531.85000      5318.50 
 
-Roman Zippel <zippel@linux-m68k.org>:
-  o kconfig: qt installation workaround
-  o kconfig: off-by-one error
-  o kconfig: config file parse update
-  o kconfig: dependencies for choices
-  o kconfig: symbol change notification
-  o kconfig: geometry defaults
-  o kconfig: updates
-  o kconfig: fix T_STRING usage
+48 dir_rtns_1      Directory Operations/second
+linux-2.5.51       60.00          13181    219.68333      2196833.33 
+linux-2.5.51[mm1]  60.00          12621    210.35000      2103500.00
+linux-2.5.51[mm2]  60.00          13128    218.80000      2188000.00 
 
-Rusty Russell <rusty@rustcorp.com.au>:
-  o Revert depmod and hierarchy changes
-  o Module init reentry fix
-  o Module Parameter Core Patch
-  o Parameter implementation for modules
-  o MODULE_PARM support for older modules
+49 shell_rtns_1    Shell Scripts/second
+linux-2.5.51       60.02          2472     41.18627       41.19
+linux-2.5.51[mm1]  60.01          2479     41.30978       41.31
+linux-2.5.51[mm2]  60.00          2470     41.16667       41.17 
 
-Stephen Rothwell <sfr@canb.auug.org.au>:
-  o nanosleep compatibility layer fix
-  o consolidate sys32_times - architecture independent
-  o mips64 compatibility syscall layer
-  o consolidate sys32_new[lf]stat - architecture independent
+50 shell_rtns_2    Shell Scripts/second
+linux-2.5.51       60.00          2479    41.31667       41.32
+linux-2.5.51[mm1]  60.01          2478    41.29312       41.29 
+linux-2.5.51[mm2]  60.02          2480    41.31956       41.32
 
-Trond Myklebust <trond.myklebust@fys.uio.no>:
-  o Fix buffer reservations in nfs4xdr.c
-  o NFSv4 cleanups
-  o Add helper routines for fixing up page alignment on xdr_buf
+51 shell_rtns_3    Shell Scripts/second
+linux-2.5.51       60.01          2479    41.30978       41.31 
+linux-2.5.51[mm1]  60.02          2480    41.31956       41.32 
+linux-2.5.51[mm2]  60.00          2478    41.30000       41.30
 
-Zwane Mwaikambo <zwane@holomorphy.com>:
-  o OSS ad1848 initialisation order
+52 series_1         Series Evaluations/second
+linux-2.5.51        60.00         1464266  24404.43333   2440443.33
+
+linux-2.5.51[mm1]   60.00         1464388  24406.46667   2440646.67
+linux-2.5.51[mm2]   60.00         1464074  24401.23333   2440123.33 
+
+53 shared_memory    Shared Memory Operations/second
+linux-2.5.51        60.00         168202    2803.36667   280336.67
+linux-2.5.51[mm1]   60.00         157980    2633.00000   263300.00
+linux-2.5.51[mm2]   60.00         166154    2769.23333   276923.33 
+ 
+54 tcp_test         TCP/IPMessages/second
+linux-2.5.51        60.01          11200    186.63556    16797.20
+linux-2.5.51[mm1]   60.00          10780    179.66667    16170.00
+linux-2.5.51[mm2]   60.00          10927    182.11667    16390.50
+
+55 udp_test          UDP/IP DataGrams/second
+linux-2.5.51         60.00         49319     821.98333   82198.33 
+linux-2.5.51[mm1]    60.00         47033     783.88333   78388.33
+linux-2.5.51[mm2]    60.00         46617     776.95000   77695.00
+
+56 fifo_test         FIFO Messages/second 
+linux-2.5.51         60.00         92331     1538.85000  153885.00
+linux-2.5.51[mm1]    60.00         88371     1472.85000  147285.00 
+linux-2.5.51[mm2]    60.00         89477     1491.28333  149128.33 
+ 
+57 stream_pipe       Stream Pipe Messages/second
+linux-2.5.51         60.00          70959    1182.65000  118265.00
+linux-2.5.51[mm1]    60.00          70192    1169.86667  116986.67
+linux-2.5.51[mm2]    60.00          70782    1179.70000  117970.00 
+
+58 dgram_pipe        DataGram Pipe Messages/second
+linux-2.5.51          60.00         69617    1160.28333  116028.33
+linux-2.5.51[mm1]     60.00         68397    1139.95000  113995.00
+linux-2.5.51[mm2]     60.00         70214    1170.23333  117023.33
+
+59 pipe_cpy           Pipe Messages/second
+linux-2.5.51          60.00         248370   4139.50000  413950.00
+linux-2.5.51[mm1]     60.00         236957   3949.28333  394928.33
+linux-2.5.51[mm2]     60.00         253724   4228.73333  422873.33 
+
+60 ram_copy           Memory to Memory Copy/second
+linux-2.5.51           60.00        1496002   24933.36667 623832834.00 
+linux-2.5.51[mm1]      60.00        1495745   24929.08333 623725665.00
+linux-2.5.51[mm2]      60.00        1495977   24932.95000 623822409.00
+------------------------------------------------------------------------
+
+Regards
+ 
+Sowmya Adiga
+Project Engineer
+Wipro Technologies
+53/1,Hosur Road,Madivala
+Bangalore-560 068,INDIA
+Tel: +91-80-5502001 Extn.5086
+sowmya.adiga@wipro.com
+ 
+ 
 

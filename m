@@ -1,92 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267734AbUHZHri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267751AbUHZHvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267734AbUHZHri (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 03:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267751AbUHZHri
+	id S267751AbUHZHvm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 03:51:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267743AbUHZHvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 03:47:38 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:26631 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S267734AbUHZHrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 03:47:31 -0400
-Message-ID: <412D968B.9030107@hist.no>
-Date: Thu, 26 Aug 2004 09:51:39 +0200
-From: Helge Hafting <helge.hafting@hist.no>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-References: <Pine.LNX.4.44.0408252052420.13240-100000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0408252052420.13240-100000@chimarrao.boston.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 26 Aug 2004 03:51:42 -0400
+Received: from smtp-vbr4.xs4all.nl ([194.109.24.24]:26376 "EHLO
+	smtp-vbr4.xs4all.nl") by vger.kernel.org with ESMTP id S267751AbUHZHvQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 03:51:16 -0400
+Subject: Time of process changes to earlier time in process list
+From: Norbert van Nobelen <Norbert@edusupport.nl>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1093506726.2331.34.camel@linux.local>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 26 Aug 2004 09:52:07 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+Hello,
 
->On Thu, 26 Aug 2004, Mikulas Patocka wrote:
->  
->
->>On Wed, 25 Aug 2004, Linus Torvalds wrote:
->>    
->>
->
->  
->
->>>One way to solve it is to just realize that a final slash at the end
->>>implies pretty strongly that you want to treat it as a directory. So what
->>>you do is:
->>>      
->>>
->>Stupid question: who will use it? And why?
->>    
->>
->
->I've got a stupid question too.  How do you back up these
->things ?
->
->If your backup program reads them as a file and restores
->them as a file, you might lose your directory-inside-the-file
->magic.
->
->If your backup program dives into the file despite stat()
->saying it's a file and you restore your backup, how are the
->"file is a file" semantics preserved ?
->
->  
->
->Obviously this is something that needs to be sorted out at
->the VFS layer.  A filesystem specific backup and restore
->program isn't desirable, if only because then there'd be
->no way for Hans's users to switch to reiser5 in 2010 ;)
->
->  
->
-Sure, this sort of thing must be sorted out at the VFS layer.
-And a backup program working on such a filesystem
-will need to know that something can be a file, a directory - or both.
+I did two times a 'ps -ef' on a red hat machine. The strange part was
+that the time of the following process changed to the past:
+First 'ps -ef':
+root     14527   902  0 07:17 ?        00:00:00 CROND
+root     14529 14527  0 07:17 ?        00:00:00 /bin/sh -c
+/root/runtracker.sh >/dev/null
+root     14531 14529  0 07:17 ?        00:00:00 /bin/sh -c
+/root/runtracker.sh >/dev/null
+root     14533 14531  5 07:17 ?        00:00:00 /usr/local/php5/bin/php
+/misc/tracker/track.php
+root     14536 14423  0 07:17 pts/0    00:00:00 ps -ef
 
-So an old "tar" won't get this right as it will assume that an object
-is either file or directory.  The change to get it right won't be
-that big - just notice that an object is both, then backup the
-ordinary file contents as usual, before recursing into the
-directory it also provides and backup stuff there as usual.
+The second process list:
+root     14527   902  0 07:16 ?        00:00:00 CROND
+root     14529 14527  0 07:16 ?        00:00:00 /bin/sh -c
+/root/runtracker.sh >/dev/null
+root     14531 14529  0 07:16 ?        00:00:00 /bin/sh -c
+/root/runtracker.sh >/dev/null
+root     14533 14531  2 07:16 ?        00:00:00 /usr/local/php5/bin/php
+/misc/tracker/track.php
+root     14537 14423  0 07:17 pts/0    00:00:00 ps -ef
 
-The resulting .tar can of course only be unpacked properly
-on a fs supporting file-as-directory, similiar to how a .tar of
-a fs with links only will unpack properly on a fs supporting links.
+Has anyone observed this behaviour before?
 
-I don't see much problems for userland.  Old apps will keep working,
-as the new features is a superset.  Those who care about
-file-as-directory extras will provide patches for "tar" and friends,
-after that the extras become useable.
+Is it behaviour of the kernel or of the 'ps' program?
 
-Helge Hafting
+Can it cause problems in anyway? (I don't know if the starttime
+registration does have any important value in the kernel or not)
+
+Other relevant system info:
+/proc/version
+Linux version 2.4.18-3smp (bhcompile@daffy.perf.redhat.com) (gcc version
+2.96 20000731 (Red Hat Linux 7.3 2.96-110)) #1 SMP Thu Apr 18 07:27:31
+EDT 2002
+
+2 cpus:
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 6
+cpu MHz         : 996.894
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat pse36 mmx fxsr sse
+bogomips        : 1985.74
+
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 6
+cpu MHz         : 996.894
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat pse36 mmx fxsr sse
+bogomips        : 1992.29
+
+Best regards,
+
+Norbert van Nobelen
+
+
+
+-- 
+Met vriendelijke groet,
+
+Norbert van Nobelen
+EduSupport
+
+Postbus 95963
+2509CZ Den Haag
+T: 070-3280200
+M: 06-43036586
+F: 070-3280029
+E: Norbert@edusupport.nl
+I: www.edusupport.nl
+B: ABN AMRO
+R: 47.38.00.411
+

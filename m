@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbTFJJGp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 05:06:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbTFJJGp
+	id S262490AbTFJJH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 05:07:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbTFJJH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 05:06:45 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:42405 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S262482AbTFJJGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 05:06:44 -0400
-Date: Tue, 10 Jun 2003 10:20:17 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Oleg Drokin <green@namesys.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 / reiserfs data corruption, 2.5-bk
-Message-ID: <20030610092017.GA24203@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Oleg Drokin <green@namesys.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030609193541.GA21106@suse.de> <20030610084323.GA16435@namesys.com>
+	Tue, 10 Jun 2003 05:07:28 -0400
+Received: from holomorphy.com ([66.224.33.161]:5334 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262490AbTFJJHV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 05:07:21 -0400
+Date: Tue, 10 Jun 2003 02:20:48 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, efault@gmx.de
+Subject: Re: 2.5.70-mm6
+Message-ID: <20030610092048.GB26348@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Maciej Soltysiak <solt@dns.toxicfilms.tv>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, efault@gmx.de
+References: <46580000.1055180345@flay> <Pine.LNX.4.51.0306092017390.25458@dns.toxicfilms.tv> <51250000.1055184690@flay> <Pine.LNX.4.51.0306092140450.32624@dns.toxicfilms.tv> <20030609200411.GA26348@holomorphy.com> <Pine.LNX.4.51.0306101052160.14891@dns.toxicfilms.tv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030610084323.GA16435@namesys.com>
+In-Reply-To: <Pine.LNX.4.51.0306101052160.14891@dns.toxicfilms.tv>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 10, 2003 at 12:43:23PM +0400, Oleg Drokin wrote:
+At some point in the past, I wrote:
+>> How about one or the other of these two? (not both at once, though,
+>> they appear to clash).
 
- > > 2.5 Bitkeeper tree as of last 24 hrs. Running a lot
- > > of disk IO stress (multiple fsstress, over 100 fsx instances,
- > > and random sync calling) produced failures on both reiserfs
- > > and ext3.
- > > Tests were done on seperate disks, but concurrently.
- > 
- > Do you have smp or preempt enabled?
+On Tue, Jun 10, 2003 at 10:54:55AM +0200, Maciej Soltysiak wrote:
+> Success, no audio skipps with galbraith.patch and mm6.
 
-# CONFIG_SMP is not set
-CONFIG_PREEMPT=y
+Mike, any chance you can turn your series of patches into one that
+applies atop mingo's intra-timeslice priority preemption patch? If
+not, I suppose someone else could.
 
-		Dave
+There also appears to be some kind of issue with using monotonic_clock()
+with timer_pit as well as some locking overhead concerns. Something
+should probably be done about those things before trying to merge the
+fine-grained time accounting patch.
 
+
+-- wli

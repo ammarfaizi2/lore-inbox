@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265592AbTLIHV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 02:21:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265596AbTLIHV7
+	id S265544AbTLIHUR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 02:20:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265547AbTLIHUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 02:21:59 -0500
-Received: from verein.lst.de ([212.34.189.10]:25737 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S265592AbTLIHVy (ORCPT
+	Tue, 9 Dec 2003 02:20:17 -0500
+Received: from fw.osdl.org ([65.172.181.6]:61878 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265544AbTLIHUN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 02:21:54 -0500
-Date: Tue, 9 Dec 2003 08:21:32 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Nathan Scott <nathans@sgi.com>
-Cc: pinotj@club-internet.fr, torvalds@osdl.org, hch@lst.de,
-       neilb@cse.unsw.edu.au, manfred@colorfullife.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-Message-ID: <20031209072131.GD24599@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Nathan Scott <nathans@sgi.com>, pinotj@club-internet.fr,
-	torvalds@osdl.org, neilb@cse.unsw.edu.au, manfred@colorfullife.com,
-	akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <mnet2.1070931455.23402.pinotj@club-internet.fr> <20031209020322.GA1798@frodo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031209020322.GA1798@frodo>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -5 () EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_MUTT
+	Tue, 9 Dec 2003 02:20:13 -0500
+Date: Mon, 8 Dec 2003 23:19:36 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jamie Lokier <jamie@shareable.org>
+cc: "H. Peter Anvin" <hpa@zytor.com>, Nikita Danilov <Nikita@Namesys.COM>,
+       Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
+Subject: Re: const versus __attribute__((const))
+In-Reply-To: <20031209034935.GA26987@mail.shareable.org>
+Message-ID: <Pine.LNX.4.58.0312082317450.18255@home.osdl.org>
+References: <200312081646.42191.arnd@arndb.de> <3FD4B9E6.9090902@zytor.com>
+ <16340.49791.585097.389128@laputa.namesys.com> <3FD4C375.2060803@zytor.com>
+ <20031209025952.GA26439@mail.shareable.org> <3FD53FC6.5080103@zytor.com>
+ <20031209034935.GA26987@mail.shareable.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 09, 2003 at 01:03:22PM +1100, Nathan Scott wrote:
-> [ Christoph, is this failure expected?  I think you/Steve made
-> some changes there to use __GFP_NOFAIL and assume it wont fail?
-> (in 2.4 we do memory allocations differently to better handle
-> failures, but that code was removed...) ]
 
-It looks like the slab allocator doesn't like __GFP_NOFAIL, we'll
-probably have to revert the XFS memory allocation wrappers to the
-2.4 versions.
 
+On Tue, 9 Dec 2003, Jamie Lokier wrote:
+>
+> (A long time ago there was a question about whether GCC could ever
+> copy the value associated with an "m" operand to a stack slot, and
+> pass the address of the stack slot.  After all, GCC _will_ copy the
+> value if the operand is an "r", and presumably gives mixed results
+> with "rm".  We seem to have concluded that it never will).
+
+We never never concluded that they never would, but we did (I think)
+convince the gcc people that a memory operand to an asm should always be
+considered a lvalue. That will effectively mean that we know a memory op
+will never be moved around - because then it wouldn't be the same lvalue
+any more (a lvalue is literally defined by its address).
+
+So yes, I think we can depend on it now, although we historically
+couldn't.
+
+		Linus

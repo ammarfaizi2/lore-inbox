@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316649AbSF0IAr>; Thu, 27 Jun 2002 04:00:47 -0400
+	id <S316756AbSF0IDR>; Thu, 27 Jun 2002 04:03:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316756AbSF0IAq>; Thu, 27 Jun 2002 04:00:46 -0400
-Received: from happy.kiev.ua ([193.109.241.145]:45581 "EHLO happy.kiev.ua")
-	by vger.kernel.org with ESMTP id <S316649AbSF0IAp>;
-	Thu, 27 Jun 2002 04:00:45 -0400
-Date: Thu, 27 Jun 2002 11:00:19 +0300
-From: Pavel Gulchouck <gul@gul.kiev.ua>
-To: James Stevenson <mistral@stev.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel crash
-Message-ID: <20020627080019.GA30350@happy.kiev.ua>
-Reply-To: gul@gul.kiev.ua
-References: <20020626110230.GA21100@happy.kiev.ua> <008901c21d44$231e5fd0$0501a8c0@Stev.org>
+	id <S316757AbSF0IDQ>; Thu, 27 Jun 2002 04:03:16 -0400
+Received: from stud.tb.fh-muenchen.de ([129.187.138.35]:778 "EHLO
+	mail.stud.fh-muenchen.de") by vger.kernel.org with ESMTP
+	id <S316756AbSF0IDP>; Thu, 27 Jun 2002 04:03:15 -0400
+Subject: ACPI / APM - Battery level not readable on HP Omnibook XE3 (again)
+From: Lars Duesing <ld@stud.fh-muenchen.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 27 Jun 2002 10:03:11 +0200
+Message-Id: <1025164995.25831.6.camel@ws1.intern.stud.fh-muenchen.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <008901c21d44$231e5fd0$0501a8c0@Stev.org>
-User-Agent: Mutt/1.3.24i
-X-Operating-System: Linux
-X-FTN-Address: 2:463/68
-X-Flames-To: /dev/null
-X-GC: GCC d- s+: a31 C+++ UL++++ UB P+ L++ E--- W++ N++ o-- K- w--- O++
-X-GC: M? V- PS PE+ Y+ PGP+ t? 5? X? R? !tv b+ DI? D? G e h--- r+++ y+++
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi!
+Hi People!
 
-On Wed, Jun 26, 2002 at 08:03:20PM +0100, James Stevenson writes:
+I sent a question regarding this in early December.
+( http://www.cs.helsinki.fi/linux/linux-kernel/2001-48/0691.html )
+Since then I got many questions whether this is already fixed or not.
+Latest 2.4-Kernel is still not fixed. 
 
-> > Jun 20 04:33:30 gate kernel: ------------[ cut here ]------------
-> > Jun 20 04:33:30 gate kernel: kernel BUG at inode.c:1066!
-> > Jun 20 04:33:30 gate kernel: invalid operand: 0000
-> > Jun 20 04:33:30 gate kernel: ip_nat_ftp ipt_REJECT ipt_REDIRECT cls_u32 sch_tbf sch_cbq autofs smbfs ne2k-p
-> > Jun 20 04:33:30 gate kernel: CPU:    0
-> > Jun 20 04:33:31 gate kernel: EIP:    0010:[iput+47/496]    Tainted: P
-> > Jun 20 04:33:31 gate kernel: EIP:    0010:[<c0148cdb>]    Tainted: P
-> > Jun 20 04:33:31 gate kernel: EFLAGS: 00010286
-> 
-> what makes your kernel tainted ?
+Is there so much trouble in this?
 
-It's a question for me.
+regards,
 
-> do you have some binary only drivers ?
+	Lars Duesing
 
-No.
-
--- 
-                                Lucky carrier,
-                                                  Pavel.

@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282112AbRKWK1k>; Fri, 23 Nov 2001 05:27:40 -0500
+	id <S282108AbRKWKWU>; Fri, 23 Nov 2001 05:22:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282116AbRKWK1a>; Fri, 23 Nov 2001 05:27:30 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:32019 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S282112AbRKWK1V>;
-	Fri, 23 Nov 2001 05:27:21 -0500
-Date: Fri, 23 Nov 2001 11:27:12 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
+	id <S282112AbRKWKWK>; Fri, 23 Nov 2001 05:22:10 -0500
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:20000 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S282108AbRKWKV7>; Fri, 23 Nov 2001 05:21:59 -0500
+Date: Fri, 23 Nov 2001 05:27:08 -0500 (EST)
+From: rpjday <rpjday@mindspring.com>
+X-X-Sender: <rpjday@localhost.localdomain>
 To: <linux-kernel@vger.kernel.org>
-cc: <davem@redhat.com>
-Subject: 2.4.15 does not compile on sparc64
-Message-ID: <Pine.LNX.4.33.0111231115290.26247-100000@Expansa.sns.it>
+Subject: Re: is 2.4.15 really available at www.kernel.org?
+In-Reply-To: <7xpu69sttm.fsf@colargol.tihlde.org>
+Message-ID: <Pine.LNX.4.33.0111230523340.8063-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 23 Nov 2001, Christian Haugan Toldnes wrote:
 
-HI,
-I'm trying to compile linux kernel 2.4.15 on SUN ultra 2
-monoprocessor, 1GB RAM>
+> rpjday <rpjday@mindspring.com> writes:
+> 
+>  
+> > i swear, i am not making this up.  i just tried again, through mozilla,
+> > to download the file 
+> > www.kernel.org/pub/linux/kernel/v2.4/linux-2.4.15.tar.bz2, and it 
+> > completed after downloading *exactly* 155312 bytes, just as before.
+> > 
+> > getting it via ftp works fine -- it's http that's giving me this
+> > weird problem.   is it just me?
+> > 
+> > rday
+> 
+> I experienced no problems at all:
+> (first one with ftp, second with mozilla)
+> 
+> 23747061 Nov 23 07:18 linux-2.4.15.tar.bz2
+> 23747061 Nov 23 10:45 linux-2.4.15.tar.bz2-2
+> 
+then i'm just plain baffled.  using mozilla, i've tried downloading both 
+2.4.15 and 2.5.0, from the main www.kernel.org page, and from the kernel
+subpage.  in *every* case, the download window starts off fine with
+"0K of 28716K", so it knows the right size at the beginning.
 
-I get this error message:
+the download progresses until it reads 115K of ...K, there is a several
+second pause, a brief flurry of activity, and the download terminates.
+in *every* case, the final downloaded file is 155312 bytes long.
 
-sparc64-linux-gcc -D__KERNEL__ -I/usr/src/linux-2.4.15/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -m64 -pipe -mno-fpu -mcpu=ultrasparc
--mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7 -Wno-sign-compare
--Wa,--undeclared-regs    -c -o ioctl32.o ioctl32.c
-ioctl32.c: In function `do_lvm_ioctl':
-ioctl32.c:2636: warning: assignment makes pointer from integer without a
-cast
-ioctl32.c:2670: structure has no member named `inode'
-ioctl32.c:2711: warning: assignment from incompatible pointer type
-ioctl32.c:2712: structure has no member named `inode'
-ioctl32.c:2719: structure has no member named `inode'
-ioctl32.c:2732: structure has no member named `inode'
-ioctl32.c:2611: warning: `v' might be used uninitialized in this function
-make[1]: *** [ioctl32.o] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.4.15/arch/sparc64/kernel'
-make: *** [_dir_arch/sparc64/kernel] Error 2
+as i said, i can ftp just fine, but it sure is puzzling me why mozilla
+is doing this.
 
+ok, i'll shut up now.
 
-this bug was already there in 2.4.15-pre5|6.
-
-willing to test any patch.
-
-Luigi Genoni
-
+rday
 

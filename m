@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131251AbRACXKI>; Wed, 3 Jan 2001 18:10:08 -0500
+	id <S129324AbRACXKS>; Wed, 3 Jan 2001 18:10:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131413AbRACXJ6>; Wed, 3 Jan 2001 18:09:58 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30987 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131251AbRACXJs>; Wed, 3 Jan 2001 18:09:48 -0500
-Subject: Re: Yet more benchmarks for 2.4.0-prerelease and -ac[4,5]
-To: scole@lanl.gov
-Date: Wed, 3 Jan 2001 23:11:55 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01010315250600.01807@spc.esa.lanl.gov> from "Steven Cole" at Jan 03, 2001 03:25:06 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131413AbRACXKI>; Wed, 3 Jan 2001 18:10:08 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:51186 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131400AbRACXKA>; Wed, 3 Jan 2001 18:10:00 -0500
+Date: Wed, 3 Jan 2001 21:09:01 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dcache 2nd chance replacement
+In-Reply-To: <20010103221221.I32185@athlon.random>
+Message-ID: <Pine.LNX.4.21.0101032107550.1917-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Dx4X-0004nO-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> recent kernels.  It looks like there may be a slight drop
-> in performance for -ac5.  For -ac4 and -ac5, the throughput
+On Wed, 3 Jan 2001, Andrea Arcangeli wrote:
+> On Wed, Jan 03, 2001 at 05:47:39PM -0200, Rik van Riel wrote:
+> > Not really. Under very high VFS loads we'd just scan
+> > through the list twice and free the entries anyway.
+> 
+> You're obviously wrong.
+> 
+> The higher was the load, the faster your working set was getting
+> dropped from the dcache. (with the patch the working set will
+> have a chance to remains in cache also with polluting going on
+> instead,
 
--ac5 touches stuff which would have performance effects. That would be 
-reasonable to suspect.
+> The example with only pollution in the cache doesn't make sense,
 
-	-	Rik's partial page changes
-	-	A couple of other minor vm touches
+Ever heard of slocate / updatedb ?
 
-If it is relaed to those then you should see the same loss of speed on the
-testing/prerelease file on ftp.kernel.org. 
+regards,
 
-> dropped on run #3.  That's probably just a fluke.  I'll repeat
-> these runs later when I get a chance.
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
 
-4 doesnt change anything except for FATfs and writing raw off end of disks
-so for now lets assume fluke
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
-Alan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136049AbRAJTtT>; Wed, 10 Jan 2001 14:49:19 -0500
+	id <S129406AbRAJT6n>; Wed, 10 Jan 2001 14:58:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135889AbRAJTtJ>; Wed, 10 Jan 2001 14:49:09 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:64261 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S136049AbRAJTs7>;
-	Wed, 10 Jan 2001 14:48:59 -0500
-Date: Wed, 10 Jan 2001 20:48:56 +0100
-From: Andi Kleen <ak@suse.de>
+	id <S129436AbRAJT6d>; Wed, 10 Jan 2001 14:58:33 -0500
+Received: from penguin.engin.umich.edu ([141.213.33.36]:34828 "EHLO
+	penguin.engin.umich.edu") by vger.kernel.org with ESMTP
+	id <S129406AbRAJT6T>; Wed, 10 Jan 2001 14:58:19 -0500
+Date: Wed, 10 Jan 2001 14:57:27 -0500 (EST)
+From: Chris Wing <wingc@engin.umich.edu>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Daniel Phillips <phillips@innominate.de>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Subtle MM bug
-Message-ID: <20010110204856.A5443@gruyere.muc.suse.de>
-In-Reply-To: <20010110204308.A5303@gruyere.muc.suse.de> <E14GRE7-0000p5-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14GRE7-0000p5-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Jan 10, 2001 at 07:48:04PM +0000
+Message-ID: <Pine.LNX.4.21.0101101445500.9483-100000@penguin.engin.umich.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10, 2001 at 07:48:04PM +0000, Alan Cox wrote:
-> > As the thread started it's not only only needed for pthreads, but also for NFS
-> > and setuid (actually NFS already implements it privately), and probably other network
-> > file systems too.  So it's far from being only a "bad standard corner case". 
-> 
-> I wonder how Linux 2.2 worked, that doesnt have them. Now if its a clean way
-> of sorting out a pile of other things and it does pthreads as a side effect
+Alan:
 
-Linux 2.2 setuid in nfs never worked quite like traditional Unix, and there
-were lots of reports because users were regularly rediscovering it.
+> I've seen exactly nil cases where there are any security holes in apps caused
+> by that pthreads api non adherance. 
 
-I think the nfs patches merged in 2.2.18 fixed it (?) 
+I don't know of any exploitable bugs that were found in it, but the identd
+server included in Red Hat 6.1 (pidentd 3.0.10) unintentionally ran as
+root instead of nobody because its programmer used pthreads and assumed
+that setuid() would affect all threads.
 
-> I've no problem, but arguing for it because of a tiny pthreads corner case
-> is coming from the wrong end
+I pointed this out to the author and Red Hat, and it was fixed in
+pidentd 3.0.11 and Red Hat 6.2.
 
-I'm not so sure the thread corner case is that tiny. 
-
--Andi
+-Chris Wing
+wingc@engin.umich.edu
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

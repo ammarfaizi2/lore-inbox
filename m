@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266630AbUBQVhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 16:37:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266627AbUBQVdx
+	id S266646AbUBQV7f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 16:59:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266639AbUBQV7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 16:33:53 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:7576 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S266630AbUBQVai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 16:30:38 -0500
-Date: Tue, 17 Feb 2004 21:28:07 +0000
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: perex@suse.cz
-Subject: alsa gus driver blows up on modprobe.
-Message-ID: <20040217212807.GC6242@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, perex@suse.cz
+	Tue, 17 Feb 2004 16:59:33 -0500
+Received: from ln33.neoplus.adsl.tpnet.pl ([83.30.25.33]:32906 "EHLO
+	uran.kolkowski.no-ip.org") by vger.kernel.org with ESMTP
+	id S266719AbUBQV6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 16:58:23 -0500
+Date: Tue, 17 Feb 2004 22:57:38 +0100
+From: Damian Kolkowski <damian@kolkowski.no-ip.org>
+To: Kronos <kronos@kronoz.cjb.net>
+Cc: linux-kernel@vger.kernel.org,
+       Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
+Subject: Re: Radeonfb problem
+Message-ID: <20040217215738.ALLYOURBASEAREBELONGTOUS.B9706@kolkowski.no-ip.org>
+Mail-Followup-To: Kronos <kronos@kronoz.cjb.net>,
+	linux-kernel@vger.kernel.org,
+	Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
+References: <200402172008.39887.vergata@stud.fbi.fh-darmstadt.de> <20040217203604.GA19110@dreamland.darkstar.lan> <20040217211120.ALLYOURBASEAREBELONGTOUS.A8392@kolkowski.no-ip.org> <20040217213441.GA22103@dreamland.darkstar.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040217213441.GA22103@dreamland.darkstar.lan>
+X-GPG-Key: 0xB2C5DE03 (http://kolkowski.no-ip.org/damian.asc x-hkp://wwwkeys.eu.pgp.net)
+X-Girl: 1 will be enough!
+X-Age: 24 (1980.09.27 - libra)
+X-IM: JID:damian@kolkowski.no-ip.org ICQ:59367544 GG:88988
+X-Operating-System: Slackware GNU/Linux, kernel 2.4.25-rc3, up  8:27
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simple modprobe snd-interwave is enough to trigger this here..
-(Actual card for this driver isn't in this box), but it still
-shouldn't oops.
+* Kronos <kronos@kronoz.cjb.net> [2004-02-17 22:51]:
+> > 2.6.3-rc4 with new radeonfb looks better, but in lilo.con append for radeonfb
+> > wont work.
+> 
+> What do you mean? What are passing to the kernel?
 
-		Dave
+For example:
 
-Unable to handle kernel paging request at virtual address c7a401c0
- printing eip:
-c01fa8fd
-*pde = 06f3d067
-*pte = 00000000
-Oops: 0002 [#1]
-CPU:    0
-EIP:    0060:[<c01fa8fd>]    Not tainted
-EFLAGS: 00010246
-EIP is at pnp_register_card_driver+0x6d/0xd7
-eax: c7a401c0   ebx: c7b83460   ecx: c031acf8   edx: 00000001
-esi: 00000000   edi: 00000000   ebp: c2d4e000   esp: c2d4ff88
-ds: 007b   es: 007b   ss: 0068
-Process modprobe (pid: 2273, threadinfo=c2d4e000 task=c2806000)
-Stack: 00000001 00000001 00000008 00000000 c031acd8 c780706c c031acf8 c7b83580
-       c013c0c0 000427b2 000427b2 b7f72008 00000002 080573a0 c010b697 b7f72008
-       000427b2 08b2c088 00000002 080573a0 bff3d7b8 00000080 0000007b 0000007b
-Call Trace:
- [<c780706c>] alsa_card_interwave_init+0x6c/0x91 [snd_interwave_stb]
- [<c013c0c0>] sys_init_module+0x14e/0x25e
- [<c010b697>] syscall_call+0x7/0xb
-                                                                                
-Code: 89 18 89 43 04 81 3d 74 ff 34 c0 ad 4e ad de 74 08 0f 0b 4a
+append = "video=radeon:1024x768-32@100" works for 2.4.x
+append = "video=radeonfb:1024x768-32@100 works for 2.6.x
 
+but for new radeonfb _radeonfb_ in append won't work, my screean start with
+small res on 36 Hz ;-) So I need to use fbset.
+
+Besides don't use 2.6.x even on desktop, that was only a test with new
+radeonfb from Ben H.
+
+-- 
+# Damian *dEiMoS* Ko³kowski # http://kolkowski.no-ip.org/ #

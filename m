@@ -1,134 +1,96 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268156AbUHQIaa (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 17 Aug 2004 04:30:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268146AbUHQIaa
+	id S268229AbUHQNZf (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 17 Aug 2004 09:25:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268222AbUHQNYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 04:30:30 -0400
-Received: from pop114-mtl.zid.com ([207.253.126.114]:37124 "EHLO oemcomputer")
-	by vger.kernel.org with ESMTP id S268170AbUHQI0R convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 04:26:17 -0400
-From: formation.quatre@laposte.net
-To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?Gestion=20des=20Approvisionnements=20et=20N=E9gociation?=
-Date: Tue, 17 Aug 2004 01:05:04 -0400
-MIME-Version: 1.0 (produced by Synapse)
-x-mailer: Synapse - Delphi & Kylix TCP/IP library by Lukas Gebauer
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Content-Disposition: inline
-Content-Description: Message text
-Message-Id: <S268170AbUHQI0R/20040817082617Z+1846@vger.kernel.org>
+	Tue, 17 Aug 2004 09:24:44 -0400
+Received: from 192.197.110.221.netprevia.net ([192.197.110.221]:58302 "EHLO
+	kgb02.kgbinternet.com") by vger.kernel.org with ESMTP
+	id S268230AbUHQNYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 09:24:06 -0400
+Date: Tue, 17 Aug 2004 07:19:21 -0600
+Message-Id: <200408171319.i7HDJLwV010196@kgb02.kgbinternet.com>
+Subject: LOTTERY WINNING NOTIFICATION.
+From: Premier_lotteryuk <promolotto1@winninglottery.net>
+X-Priority: 3 (Normal)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Mailer: RLSP Mailer
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S268156AbUHQIaa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S268229AbUHQNZf@vger.kernel.org>
 
-Formation         =20
-=20
-=20
-=20
-Aux acheteurs et responsables des approvisionnements
-=20
-GESTION DES APPROVISIONNEMENTS=20
-=20
 
-R=E9glez vos probl=E8mes de:=20
-Retard concernant le moment appropri=E9 d'acheter=20
-Retard des fournisseurs=20
-Retard des transporteurs=20
-Retard des sous-traitants=20
-Gestion et r=E9ception des bonnes quantit=E9s=20
-Contr=F4le de la qualit=E9 =E0 la r=E9ception=20
-Gestion des commandes en souffrance "Back order"=20
-N=E9gociation des items pour les meilleures quantit=E9s - aux meilleurs=
- prix - dans les=20
-meilleurs d=E9lais=20
-=20
-=20
-en suivant notre formation
-=20
-Date de formation : Les 13-14 et 15 Septembre 2004 =E0 Qu=E9bec=20
-ou les 20 -21 et 22 Septembre 2004 =E0 Montr=E9al
-=20
-Plan de cours
-=20
-Institution:
-Compu-Finder
-=20
-Dur=E9e:
-3 jours=20
-=20
-Public vis=E9:
-Acheteurs et responsables des approvisionnements
-=20
-Sujets trait=E9s:
-R=F4les et responsabilit=E9s de l_approvisionnement=20
-Les comp=E9tences d_un acheteur=20
-Les r=E8gles de l_approvisionnement=20
-La d=E9termination des besoins: les diff=E9rentes m=E9thodes d'=E9valua=
-tion
-de la demande d=E9pendante (r=E9sultat direct des ventes de produits fi=
-nis)
-et de la demande ind=E9pendante (fournitures g=E9n=E9rales, pi=E8ces de
-rechanges, etc.)=20
-Les d=E9clencheurs de r=E9approvisionnement=20
-L'utilisation des statistiques des achats=20
-L_achat d_un bien, d_un service, d_un contrat, d_une location=20
-L_organisation des achats=20
-Les relations internes=20
-La gestion des 7 param=E8tres de l_approvisionnement=20
-Temps=20
-Qualit=E9 (analyse de la valeur, =E9valuation des fournisseurs)=20
-Quantit=E9 (gestion des stocks, demande d=E9pendante et ind=E9pendante,=
- rotation des=20
-stocks, lot =E9conomique =E0 commander)=20
-Lieu=20
-Service=20
-Source ( relation fournisseurs)=20
-Co=FBt=20
-Les types de r=E9approvisionnement=20
-Le bon de commande=20
-Les impacts l=E9gaux=20
-La relance=20
-Le commerce =E9lectronique=20
-Le transport et l_entreposage (incoterms)=20
-La gestion des retours=20
-La gestion des engagements=20
-Le juste =E0 temps=20
-L_impartition=20
-Partenariat=20
-Alliance strat=E9gique=20
-La n=E9gociation (les techniques utilis=E9es,et  les pi=E8ges)=20
-Les R=E8gles de base=20
-Enjeux =E0 n=E9gocier=20
-Type de n=E9gociateurs=20
-Tactiques de n=E9gociation=20
-Simulation et travail d'=E9quipe=20
-=20
-Lieu de la formation:
-Best Western Laval (Chateauneuf), 3655, Aut. des Laurentides =E0 Laval
-Hotel Plaza Qu=E9bec 3031, boulevard Laurier Ste-Foy Qu=E9bec=20
-=20
-=20
-Pour inscription, veuillez contacter Maryse Morin au 450-226-2238 ou 1-=
-800-861-6618
-=20
-=20
-COMPU-FINDER - Conseiller en Sciences de gestion et technologies avanc=E9=
-es
-450-226-2238 ou 1-800-861-6618
-=20
-www.compufinder.com
-=20
-Pour vous d=E9sabonner de notre liste d'envoi =E9crire =E0=20
-=20
-info.compufinder@quebecemail.com
-=20
-merci
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+MEMO FROM: THE PRIZE AWARD DEPARTMENT
+PREMIER LOTTERY
+
+Congratulations Category A prize winner! You have been
+selected as one of two winners of the PREMIER LOTTERY,
+computer ballot draws and thus will be a
+privileged recipient of the grand draw prize of £
+6,500,000 (Six million five hundred thousand Great
+Britain Pounds only). Winning File Reference number
+for your prize is PLUK/2030/0181/08; ticket number
+101-OIO-77/A.
+
+We in the PREMIER LOTTERY,is by this program,
+launching our model computer balloting lottery draws,
+developed and designed to satisfy the cravings of the
+ever growing number of participants in our various
+lottery programs. with funds accrued exclusively from
+previous draws, payouts to all Winners are guaranteed
+and will be transferred in record time.
+
+After randomly selecting 15,000 participants from an
+initial database of 300,000 emails and zoning all
+participants by their respective continents from
+across the globe, we produced an extensive list from
+which you have emerged as one of the winners of the
+Grand Draw prize.
+
+To ensure a smooth collection of your winnings, the
+transfer of your prize is to be handled by your Claims
+Director. You are to contact our agent by email and/or
+fax within a week of receiving this notice. Please
+find full contact details below:
+
+MRS.Susan EDWARDS
+FINANCIAL DIRECTOR
+LINK FINANCE LTD
+EMAIL:findire2_linkfinance@postmaster.co.uk
+TEL: +88 216 2122 0059
+FAX: +44 709 204 4665
+
+Also find all other relevant winning lottery
+information below:
+Draw Serial No: 55/849177
+Batch No: 01-A223
+Zonal Draw No: A1-101
+Grand Draw No: 56748
+
+You are seriously advised to keep all winning lottery
+information and numbers from the public in line with
+our company security protocol to avoid double claiming
+and unwarranted abuse of this program by unscrupulous
+individuals.
+
+Please direct all further correspondences and queries
+to your respective category Prize Transfer handlers.
+Congratulations once again from the PREMIER LOTTERY
+Family.
+
+Sincerely,
+THE LOTTERY COORDINATOR,
+PREMIER LOTTERY,
+12 BRIDGE STREET,
+STAINES MIDDLESEX TW18 4TP UK
+UNITED KINGDOM
+TEL/FAX: 44 70928998613
+website: www.premierlottery.itgo.com
+
+___________________________________________________________________________
+Mail sent from WebMail service at East Coast Compacts
+- http://www.eccompacts.ca

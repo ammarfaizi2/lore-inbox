@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319117AbSIKRqu>; Wed, 11 Sep 2002 13:46:50 -0400
+	id <S319249AbSIKRor>; Wed, 11 Sep 2002 13:44:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319250AbSIKRqu>; Wed, 11 Sep 2002 13:46:50 -0400
-Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:56454 "EHLO
-	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S319117AbSIKRqt>; Wed, 11 Sep 2002 13:46:49 -0400
-Message-ID: <0b3101c259bb$df4458f0$1125a8c0@wednesday>
-From: "jdow" <jdow@earthlink.net>
-To: "Davide Libenzi" <davidel@xmailserver.org>
-Cc: "Xuan Baldauf" <xuan--lkml@baldauf.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0209111011330.1576-100000@blue1.dev.mcafeelabs.com>
-Subject: Re: Heuristic readahead for filesystems
-Date: Wed, 11 Sep 2002 10:51:35 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S319250AbSIKRor>; Wed, 11 Sep 2002 13:44:47 -0400
+Received: from angband.namesys.com ([212.16.7.85]:25984 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S319249AbSIKRoq>; Wed, 11 Sep 2002 13:44:46 -0400
+Date: Wed, 11 Sep 2002 21:49:34 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Jens Axboe <axboe@suse.de>, Robert Love <rml@tech9.net>,
+       Thomas Molina <tmolina@cox.net>, linux-kernel@vger.kernel.org,
+       andre@linux-ide.org
+Subject: Re: 2.5 Problem Status Report
+Message-ID: <20020911214934.A1488@namesys.com>
+References: <20020911193829.A851@namesys.com> <Pine.LNX.4.44.0209111745530.19474-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0209111745530.19474-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Davide Libenzi" <davidel@xmailserver.org>
+Hello!
 
-> On Wed, 11 Sep 2002, jdow wrote:
->
-> > Davide, when was the patent on readahead taken out? It has either
-expired
-> > or I can prove prior art I did myself on the old StarDrive and HardFrame
-> > controllers for the Amiga made by Microbotics, Inc.
->
-> I'm definitely not a patent attorney :) but since there's the tendency to
-> patent almost everything in big corporations ( my Co. gives $ 2K for each
-> patent filed, plus another $ 1K if it's approved ) I bet that there's a
-> patent pending somewhere about this. Even if someone have prior art about
-> hw prefecting, imho there's the possibility to patent a software ( kernel
-> ) based version of the art. I also do not think M$ to be so dumb to adopt
-> a technique that is described inside a someone else owned patent in US.
-> But again, i'm not a patent attorney ...
+On Wed, Sep 11, 2002 at 05:46:21PM +0200, Ingo Molnar wrote:
+> > -	preempt_count()--; \
+> > +	if ( --preempt_count()) \
+> > +		BUG(); \
+> actually, the correct patch is to:
+>  -	preempt_count()--; \
+>  +	if (!--preempt_count()) \
+>  +		BUG(); \
+> (note the '!').
 
-This was kernel software. It was committed in the mid 80s. (Hm, so a patent
-MIGHT not be expired by a year or two.) The predecessor device was used to
-overturn a patent a company claimed on parallel port to SCSI converters. The
-Microbotics units were rather forward looking for their day.
+Ah, yes. My bad.
 
-{^_^}    Joanne Dow, jdow@earthlink.net
-
-
+Bye,
+    Oleg

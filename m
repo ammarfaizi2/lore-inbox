@@ -1,67 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269585AbUHZUSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269529AbUHZUJZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269585AbUHZUSW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:18:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269567AbUHZUNw
+	id S269529AbUHZUJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:09:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269555AbUHZUGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:13:52 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:50659 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S269494AbUHZUE5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:04:57 -0400
-Date: Thu, 26 Aug 2004 22:04:44 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.4 patch][5/6] asm-i386/smpboot.h: fix gcc 3.4 compilation
-Message-ID: <20040826200444.GG12772@fs.tum.de>
-References: <20040826195133.GB12772@fs.tum.de>
+	Thu, 26 Aug 2004 16:06:47 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:39576 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269553AbUHZUBJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 16:01:09 -0400
+Date: Thu, 26 Aug 2004 13:00:24 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Thomas Zehetbauer <thomasz@hostmaster.org>
+Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
+Subject: Re: netfilter IPv6 support
+Message-Id: <20040826130024.6ff83dff.davem@redhat.com>
+In-Reply-To: <1093546367.3497.23.camel@hostmaster.org>
+References: <1093546367.3497.23.camel@hostmaster.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040826195133.GB12772@fs.tum.de>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following compile error when trying to build 2.4.28-pre2 using
-gcc 3.4:
+On Thu, 26 Aug 2004 20:52:47 +0200
+Thomas Zehetbauer <thomasz@hostmaster.org> wrote:
 
-<--  snip  -->
+> Although linux was one of the first to support IPv6 it seems to me that
+> netfilter support has almost stuck. There is still not even a REJECT
+> target not to mention stateful filtering for IPv6.
 
-...
-gcc-3.4 -D__KERNEL__ 
--I/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon 
--fno-unit-at-a-time   -nostdinc -iwithprefix include 
--DKBUILD_BASENAME=process  -c -o process.o process.c
-In file included from process.c:47:
-/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/include/asm/smpboot.h: 
-In function `target_cpus':
-/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/include/asm/smpboot.h:133: 
-error: label at end of compound statement
-make[1]: *** [process.o] Error 1
-make[1]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/arch/i386/kernel'
+Why not ask the netfilter development lists such questions?
 
-<--  snip  -->
-
-
-The patch below fixes this issue.
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.4.28-pre2-full/include/asm-i386/smpboot.h.old	2004-08-26 19:45:06.000000000 +0200
-+++ linux-2.4.28-pre2-full/include/asm-i386/smpboot.h	2004-08-26 19:48:47.000000000 +0200
-@@ -130,8 +130,8 @@
- 			cpu = (cpu+1)%smp_num_cpus;
- 			return cpu_to_physical_apicid(cpu);
- 		default:
-+			return cpu_online_map;
- 	}
--	return cpu_online_map;
- }
- #else
- #define target_cpus() (cpu_online_map)
-
+Stateful netfilter is not there because it's a total waste
+to completely duplicate all of the connection tracking et al.
+code into ipv6 counterparts when %80 of the code is roughly
+the same.  People are working on a consolidation of these
+things so that there is no code duplication but it is a lot
+of work and there are bigger fires to put out at the moment.

@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270725AbTG0Ktp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 06:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270728AbTG0Ktp
+	id S270735AbTG0K6N (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 06:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270737AbTG0K6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 06:49:45 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:49306 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S270725AbTG0Kto (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 06:49:44 -0400
-Date: Sun, 27 Jul 2003 13:04:56 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: jmorris@intercode.com.au, davem@redhat.com, kuznet@ms2.inr.ac.ru,
-       netdev@oss.sgi.com, lartc@mailman.ds9a.nl, linux-kernel@vger.kernel.org
-Subject: setting up an IPSEC on Linux mailinglist?
-Message-ID: <20030727110456.GB6556@outpost.ds9a.nl>
-Reply-To: ahu@ds9a.nl
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	jmorris@intercode.com.au, davem@redhat.com, kuznet@ms2.inr.ac.ru,
-	netdev@oss.sgi.com, lartc@mailman.ds9a.nl,
-	linux-kernel@vger.kernel.org
+	Sun, 27 Jul 2003 06:58:13 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:49283
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S270735AbTG0K6M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 06:58:12 -0400
+Subject: Re: [PATCH] Remove module reference counting.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       "David S. Miller" <davem@redhat.com>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030726193743.B20667@devserv.devel.redhat.com>
+References: <20030726172139.348342C24B@lists.samba.org>
+	 <Pine.LNX.4.44.0307261230110.1841-100000@home.osdl.org>
+	 <20030726193743.B20667@devserv.devel.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1059304166.12759.14.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 27 Jul 2003 12:09:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[crossposted, private replies appreciated to prevent massive list pollution,
- lartc@mailman.ds9a.nl is closed for non-subscribers]
+On Sad, 2003-07-26 at 20:37, Arjan van de Ven wrote:
+> > It's not just a developer thing. At least installers etc used to do some 
+> > device probing by loading modules and depending on the result.
+> 
+> yes but those same installers couldn't care less if the kernel
+> completely frees the memory of the module text or if it leaks that.
+> It won't even notice the difference....
 
-I'm pondering setting up a mailinglist for native Linux 2.6 IPSEC users and
-I'm wondering is such a list exists already and what your feelings are. 
+On a 64Mb box the Red Hat installer would crash in this situation if you
+do the maths
 
-This list would be a place for end-users to discuss, where problems found
-could be thrown over the fence to netdev if needed. Interoperability with
-FreeS/WAN would also be an appropriate subject.
-
-This list could also have a webpage listing all available tools, a FAQ,
-whatever.
-
-Thanks.
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

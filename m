@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264956AbSLIJA6>; Mon, 9 Dec 2002 04:00:58 -0500
+	id <S264990AbSLIJA5>; Mon, 9 Dec 2002 04:00:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264733AbSLIJA1>; Mon, 9 Dec 2002 04:00:27 -0500
-Received: from redrock.inria.fr ([138.96.248.51]:51916 "HELO redrock.inria.fr")
-	by vger.kernel.org with SMTP id <S264990AbSLII7c>;
-	Mon, 9 Dec 2002 03:59:32 -0500
-Date: Mon, 9 Dec 2002 09:55:04 +0100
-From: Manuel Serrano <Manuel.Serrano@sophia.inria.fr>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, Manuel.Serrano@sophia.inria.fr
-Subject: Re: Fw: Troubles with Sony PCG-C1MHP (crusoe based and ALIM 1533 drivers)
-Message-Id: <20021209095504.0c5e1062.Manuel.Serrano@sophia.inria.fr>
-References: <20021120094121.7b6c7d34.Manuel.Serrano@sophia.inria.fr>
-	<1037800851.3241.10.camel@irongate.swansea.linux.org.uk>
-Organization: Inria
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
+	id <S264956AbSLIJAb>; Mon, 9 Dec 2002 04:00:31 -0500
+Received: from holomorphy.com ([66.224.33.161]:50583 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S264978AbSLII6q>;
+	Mon, 9 Dec 2002 03:58:46 -0500
+Date: Mon, 9 Dec 2002 01:06:05 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.50-mjb1 (scalability / NUMA patchset)
+Message-ID: <20021209090605.GC9882@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <19270000.1038270642@flay> <134580000.1039414279@titus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <134580000.1039414279@titus>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Alan,
+On Sun, Dec 08, 2002 at 10:11:19PM -0800, Martin J. Bligh wrote:
+> Speed up page init on boot (Bill Irwin)
 
-I have tried linux-2.4.20-ac1 on my Sony Vaoi (PCG-C1MHP, a computer equipped
-with a Crusoe and an ALIM 1533 ide driver). Your patches are not sufficient
-enough to make the machine booting with the non-generic IDE drivers. I have
-had to apply a patch sent by Ogawa Hirofumi (I don't know exactly who's
-the author of this patch). Please find it enclosed at the end of this mail. 
-With this setting the machine boot up correctly and the DMA are enabled.
+This needs a one-liner to go from fls() to ffs() since alignment is
+required and things falling on alignment boundaries have fls(n) == ffs(n)
 
-Sincerely,
+Very straightforward indeed; one-liners off from the 3rd or 4th boot
+must be very obvious observations.
 
--- 
-Manuel
 
-*** ide-probe-2.4.20-ac1.c Mon Dec  9 09:52:12 2002
---- ide-probe-2.4.20-ac1-ms.c      Mon Dec  9 09:55:35 2002
-***************
-*** 635,638 ****
---- 635,643 ----
-         * we'll install our IRQ driver much later...
-         */
-+       /* OGAWA Hirofumi --> */
-+       if (hwif->irq == 255)
-+               hwif->irq = 0;
-+       irqd = hwif->irq;
-+       /* OGAWA Hirofumi <-- */
-        irqd = hwif->irq;
-        if (irqd)
+Bill

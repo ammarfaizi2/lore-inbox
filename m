@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVBJUeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVBJUkm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbVBJUeO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 15:34:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbVBJUeO
+	id S261899AbVBJUkm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 15:40:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbVBJUkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 15:34:14 -0500
-Received: from gw01.mail.saunalahti.fi ([195.197.172.115]:61349 "EHLO
-	gw01.mail.saunalahti.fi") by vger.kernel.org with ESMTP
-	id S261841AbVBJUcf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 15:32:35 -0500
-Date: Thu, 10 Feb 2005 22:32:32 +0200
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Bill Davidsen <davidsen@tmr.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
-       ncunningham@linuxmail.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Reliable video POSTing on resume (was: Re: [ACPI] Samsung P35, S3, black screen (radeon))
-Message-ID: <20050210203232.GA27482@sci.fi>
-Mail-Followup-To: Jon Smirl <jonsmirl@gmail.com>,
-	Matthew Garrett <mjg59@srcf.ucam.org>,
-	Bill Davidsen <davidsen@tmr.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
-	ncunningham@linuxmail.org,
-	Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-	ACPI List <acpi-devel@lists.sourceforge.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1107695583.14847.167.camel@localhost.localdomain> <420BB267.8060108@tmr.com> <20050210192554.GA15726@sci.fi> <1108066096.4085.69.camel@tyrosine> <9e473391050210121756874a84@mail.gmail.com>
+	Thu, 10 Feb 2005 15:40:42 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:35697
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S261902AbVBJUk2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 15:40:28 -0500
+Date: Thu, 10 Feb 2005 21:40:25 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Subject: Re: [RFC] Changing COW detection to be memory hotplug friendly
+Message-ID: <20050210204025.GS18573@opteron.random>
+References: <20050203035605.C981A7046E@sv1.valinux.co.jp> <Pine.LNX.4.61.0502072041130.30212@goblin.wat.veritas.com> <Pine.LNX.4.61.0502081549320.2203@goblin.wat.veritas.com> <20050210190521.GN18573@opteron.random> <Pine.LNX.4.61.0502101953190.6194@goblin.wat.veritas.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <9e473391050210121756874a84@mail.gmail.com>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <Pine.LNX.4.61.0502101953190.6194@goblin.wat.veritas.com>
+X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
+X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
+X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 10, 2005 at 03:17:47PM -0500, Jon Smirl wrote:
-> On Thu, 10 Feb 2005 20:08:15 +0000, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> > It also explicitly states that Windows 2000 and XP don't support this,
-> > which leads me to suspect that vendors no longer expect POSTing to be
-> > possible after initial system boot.
+On Thu, Feb 10, 2005 at 08:19:47PM +0000, Hugh Dickins wrote:
+> On Thu, 10 Feb 2005, Andrea Arcangeli wrote:
+> > 
+> > The reason pinned pages cannot be unmapped is that if they're being
+> > unmapped while a rawio read is in progress, a cow on some shared
+> > swapcache under I/O could happen.
+> > 
+> > If a try_to_unmap + COW over a shared swapcache happens during a rawio
+> > read, then the rawio reads will get lost generating data corruption.
 > 
-> No, it means that some of my ATI cards don't function as secondary
-> adapters on 2K and XP.
+> Yes, but...
+> 
+> get_user_pages broke COW in advance of the I/O.  The reason for
+> subsequent COW if the page gets unmapped is precisely because
+> can_share_swap_page used page_count to judge exclusivity, and
+> get_user_pages has bumped that up, so the page appears (in danger
+> of being) non-exclusive when actually it is exclusive.  By changing
+> can_share_swap_page to use page_mapcount, that frustration vanishes.
 
-So you can suspend with one of these and the card gets resumed properly? 
-If so I wonder why they don't allow POSTing of secondary cards.
-
--- 
-Ville Syrjälä
-syrjala@sci.fi
-http://www.sci.fi/~syrjala/
+What if a second thread does a fork() while the rawio is in progress?
+The page will be again no shareable, and if you unmap it the rawio will
+be currupt if the thread that executed the fork while the I/O is in
+progress writes to a part of the page again after it has been unmapped
+(obviously the part of the page that isn't under read-rawio, rawio works
+with the hardblocksize, not on the whole page). 

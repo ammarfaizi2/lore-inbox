@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282993AbRLHRTG>; Sat, 8 Dec 2001 12:19:06 -0500
+	id <S282978AbRLHR1q>; Sat, 8 Dec 2001 12:27:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284664AbRLHRS4>; Sat, 8 Dec 2001 12:18:56 -0500
-Received: from ppp-RAS1-2-139.dialup.eol.ca ([64.56.225.139]:4100 "EHLO
-	node0.opengeometry.ca") by vger.kernel.org with ESMTP
-	id <S283617AbRLHRSf>; Sat, 8 Dec 2001 12:18:35 -0500
-Date: Sat, 8 Dec 2001 12:18:17 -0500
-From: William Park <opengeometry@yahoo.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 119.5% CPU load
-Message-ID: <20011208121817.A350@node0.opengeometry.ca>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0112081433280.1658-100000@ghost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0112081433280.1658-100000@ghost>; from brain@artax.karlin.mff.cuni.cz on Sat, Dec 08, 2001 at 04:43:30PM +0100
+	id <S282966AbRLHR1g>; Sat, 8 Dec 2001 12:27:36 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:9696 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S282978AbRLHR1c>;
+	Sat, 8 Dec 2001 12:27:32 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 8 Dec 2001 17:26:55 GMT
+Message-Id: <UTC200112081726.RAA247456.aeb@cwi.nl>
+To: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com
+Subject: Re: Linux/Pro  -- clusters
+Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 08, 2001 at 04:43:30PM +0100, brain@artax.karlin.mff.cuni.cz wrote:
->   PID USER     PRI  NI  SIZE  RSS SHARE STAT  LIB %CPU %MEM   TIME COMMAND
->  1632 brain     20   0  1724 1724   992 R       0 33.4  2.7   1:19 mc
->  1654 brain     20   0   784  784   576 R       0 32.2  1.2   0:49 mpg123
->  1652 root      14   0   500  500   368 R       0 21.4  0.7   0:40 top
->    84 root       0   0   244  224   192 S       0 15.7  0.3   0:03 gpm
+    From: Linus Torvalds <torvalds@transmeta.com>
 
-Now, that's a mighty mouse!
+    The sad thing is that along the whole path, we actually end
+    up needing the structure pointer in different places, so the IO code
+    (which is supposed to be timing-critical) ends up doing various lookups on
+    the kdev_t several times (both at a higher level and deep down in the IO
+    submit layer).
 
->  1655 root      20   0   624  624   476 R       0 10.6  0.9   0:02 vi
->     3 root       0   0     0    0     0 SW      0  5.0  0.0   0:18 kupdate
->   121 root       2   0   844  844   588 S       0  0.6  1.3   0:00 bash
->     4 root       0   0     0    0     0 SW      0  0.2  0.0   0:08 kswapd
+    So now we have to do "bdfind()" *kdev_t -> block_device", and
+    "get_gendisk()" for "kdev_t -> struct gendisk" and about 5 different
+    "index various arrays using the MAJOR number" on the way to actually doing
+    the IO.
 
--- 
-William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>.
-8 CPU cluster, NAS, (Slackware) Linux, Python, LaTeX, Vim, Mutt, Tin
+    Even though the filesystems that want to _do_ the IO actually already have
+    the structure pointer available, and all the indexing off major would
+    actually fairly trivially just be about reading off the fields off that
+    structure.
+
+    Oh, well. It _is_ going to be quite painful to switch things around.
+
+I don't understand at all. It is not painful at all.
+Things are completely straightforward.
+
+A kdev_t is a pointer to all information needed, nowhere a lookup,
+except at open time.
+
+You make it kbdev_t, and then call it struct block_device *.
+OK, the name doesnt matter as long as the struct it points to has all
+information needed. In my version that is the case, and I would
+be rather surprised if it were otherwise in Al's version.
+
+The changes are only of the easy, provably correct, mechanical kind.
+Boring work, and a bit slow - each step requires a grep over the
+kernel source and there are about a hundred steps.
+
+I am sure also Al will tell you that there is no problem.
+
+Andries

@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265449AbRFVR17>; Fri, 22 Jun 2001 13:27:59 -0400
+	id <S265309AbRFVR0S>; Fri, 22 Jun 2001 13:26:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265474AbRFVR1u>; Fri, 22 Jun 2001 13:27:50 -0400
-Received: from mail.mediaways.net ([193.189.224.113]:51840 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP
-	id <S265449AbRFVR1j>; Fri, 22 Jun 2001 13:27:39 -0400
-Date: Fri, 22 Jun 2001 19:27:32 +0200
-From: Walter Hofmann <walter.hofmann@physik.stud.uni-erlangen.de>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Alan Cox <laughing@shared-source.org>
-Subject: Re: Linux 2.4.5-ac15 / 2.4.6-pre5
-Message-ID: <20010622192732.A11019@frodo.uni-erlangen.de>
-In-Reply-To: <20010622160821.A7032@frodo.uni-erlangen.de> <Pine.LNX.4.33.0106221747090.782-100000@mikeg.weiden.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265449AbRFVR0J>; Fri, 22 Jun 2001 13:26:09 -0400
+Received: from mail8.bigmailbox.com ([209.132.220.39]:59914 "EHLO
+	mail8.bigmailbox.com") by vger.kernel.org with ESMTP
+	id <S265309AbRFVR0B>; Fri, 22 Jun 2001 13:26:01 -0400
+Date: Fri, 22 Jun 2001 10:25:54 -0700
+Message-Id: <200106221725.KAA16317@mail8.bigmailbox.com>
+Content-Type: text/plain
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.33.0106221747090.782-100000@mikeg.weiden.de>; from mikeg@wen-online.de on Fri, Jun 22, 2001 at 05:50:19PM +0200
+Content-Transfer-Encoding: binary
+X-Mailer: MIME-tools 4.104 (Entity 4.116)
+Mime-Version: 1.0
+X-Originating-Ip: [198.253.22.146]
+From: "Jonathan Day" <jd9812@my-deja.com>
+To: linux-kernel@vger.kernel.org
+Subject: ANN: FOLK kernel patch collection
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith schrieb am Freitag, den 22. Juni 2001:
+Hi,
 
-> >  6  5  1  77232   2692   2136  47004 560 892  2048  1524 10428 285529   2  98   0
->                                                            ^^^^^
-> Was disk running?  (I bet not.. bet it stopped just after stall began)
+   Thought I'd drop a line to say that I've started a project, over
+on Sourceforge, entitled FOLK (Functionally Overloaded Linux Kernel),
+which basically aims to stuff as many patches as humanly possible
+into the Linux kernel, just to see what happens. :)
 
-There was no disk activity during the stall.
+   This is NOT intended as a project in elegence, clean design, or
+any other such carp. The patches are sheer bloat. Their sole excuse
+for existing on the planet is that they -do- offer a chance for
+developers to showcase ideas alongside other people's code, and the
+FOLK developers (read: me) take the heat for getting things merged.
 
-Walter
+   If you're interested in this Cthuloid-inspired insanity, the
+project site is over at: http://sourceforge.net/projects/folk
+
+   If you're actually crazy enough to want to help out (even if just
+to offer patches, make suggestions, etc) PLEASE do!
+
+   I read the list (and even sometimes post) but unless it's
+list-specific, I'm probably going to be reached fastest if you e-mail
+me direct to my development e-mail address: jd9812@my-deja.com.
+
+
+
+
+------------------------------------------------------------
+--== Sent via Deja.com ==--
+http://www.deja.com/

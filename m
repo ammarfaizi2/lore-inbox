@@ -1,48 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267381AbUHRW70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265489AbUHRXCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267381AbUHRW70 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 18:59:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267600AbUHRW70
+	id S265489AbUHRXCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 19:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266306AbUHRXCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 18:59:26 -0400
-Received: from holomorphy.com ([207.189.100.168]:40634 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267381AbUHRW7Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 18:59:25 -0400
-Date: Wed, 18 Aug 2004 15:59:15 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "David S. Miller" <davem@redhat.com>, pj@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Does io_remap_page_range() take 5 or 6 args?
-Message-ID: <20040818225915.GQ11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"David S. Miller" <davem@redhat.com>, pj@sgi.com,
-	linux-kernel@vger.kernel.org
-References: <20040818133348.7e319e0e.pj@sgi.com> <20040818205338.GF11200@holomorphy.com> <20040818135638.4326ca02.davem@redhat.com> <20040818210503.GG11200@holomorphy.com> <20040818143029.23db8740.davem@redhat.com> <20040818214026.GL11200@holomorphy.com> <20040818220001.GN11200@holomorphy.com>
+	Wed, 18 Aug 2004 19:02:25 -0400
+Received: from mailfe04.swip.net ([212.247.154.97]:16520 "EHLO
+	mailfe04.swip.net") by vger.kernel.org with ESMTP id S265489AbUHRXCO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 19:02:14 -0400
+X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
+Date: Thu, 19 Aug 2004 01:02:11 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [samuel.thibault@ens-lyon.org: Re: warning: comparison is always false due to limited range of  data type]
+Message-ID: <20040818230211.GG22559@bouh.is-a-geek.org>
+Mail-Followup-To: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040818220001.GN11200@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 18, 2004 at 03:00:01PM -0700, William Lee Irwin III wrote:
-> Or, if not pgoff_t, introduce a pfn_t for this purpose, an unsigned
-> arithmetic type of architecture-dependent width (such systems may not
-> want 64-bit page indices and the like for various reasons). But
-> exhibiting a system with the need for such is yet to be done, and in
-> fact, even with a 32B struct page, 16TB RAM (the minimum required to
-> trigger more physical address bits >= BITS_PER_LONG + PAGE_SHIFT) has
-> a 128GB mem_map[] with 4KB pages, an 8GB mem_map[] with 64KB pages,
-> and so will have far, far deeper support issues than pfn overflows.
-> Even supposing a kernel could be made to boot and the like, the massive
-> internal fragmentation from using a large enough emulated PAGE_SIZE to
-> get mem_map[] to fit within virtualspace will surely render such a
-> machine completely useless, likely to the point of being unable to run
-> userspace, or panicking much earlier from boot-time allocation failures.
+Hi,
 
-Given this, will a pfn suffice?
+Le lun 09 aoû 2004 à 04:50:04 +0200, Paul Jackson a tapoté sur son clavier :
+> Unfortunately, this patch uses the notorious "gcc warning suppression
+> by obfuscation" technique.
+> 
+> --- 2.6.8-rc2-mm2.orig/include/linux/highuid.h	2004-08-04 19:27:48.000000000 -0700
+> +++ 2.6.8-rc2-mm2/include/linux/highuid.h	2004-08-08 19:03:47.000000000 -0700
+> @@ -44,8 +44,8 @@ extern void __bad_gid(void);
+>  #ifdef CONFIG_UID16
+>  
+>  /* prevent uid mod 65536 effect by returning a default value for high UIDs */
+> -#define high2lowuid(uid) ((uid) > 65535 ? (old_uid_t)overflowuid : (old_uid_t)(uid))
+> -#define high2lowgid(gid) ((gid) > 65535 ? (old_gid_t)overflowgid : (old_gid_t)(gid))
+> +#define high2lowuid(uid) ((uid) & ~0xFFFF ? (old_uid_t)overflowuid : (old_uid_t)(uid))
+> +#define high2lowgid(gid) ((gid) & ~0xFFFF ? (old_gid_t)overflowgid : (old_gid_t)(gid))
+>  /*
+> ...
 
+Here is another approach. This should never warning, and should get
+optimized away as needed.
 
--- wli
+Regards,
+Samuel
+
+--- linux-2.6.8.1-orig/include/linux/highuid.h	2003-10-08 22:20:06.000000000 +0200
++++ linux-2.6.8.1-perso/include/linux/highuid.h	2004-08-19 00:47:31.000000000 +0200
+@@ -44,8 +44,8 @@
+ #ifdef CONFIG_UID16
+ 
+ /* prevent uid mod 65536 effect by returning a default value for high UIDs */
+-#define high2lowuid(uid) ((uid) > 65535 ? (old_uid_t)overflowuid : (old_uid_t)(uid))
+-#define high2lowgid(gid) ((gid) > 65535 ? (old_gid_t)overflowgid : (old_gid_t)(gid))
++#define high2lowuid(uid) ((sizeof(uid) > 2 ? (uid) : 0) > 65535 ? (old_uid_t)overflowuid : (old_uid_t)(uid))
++#define high2lowgid(gid) ((sizeof(gid) > 2 ? (gid) : 0) > 65535 ? (old_gid_t)overflowgid : (old_gid_t)(gid))
+ /*
+  * -1 is different in 16 bits than it is in 32 bits
+  * these macros are used by chown(), setreuid(), ...,
+@@ -89,8 +89,8 @@
+  * Since these macros are used in architectures that only need limited
+  * 16-bit UID back compatibility, we won't use old_uid_t and old_gid_t
+  */
+-#define fs_high2lowuid(uid) ((uid) > 65535 ? (uid16_t)fs_overflowuid : (uid16_t)(uid))
+-#define fs_high2lowgid(gid) ((gid) > 65535 ? (gid16_t)fs_overflowgid : (gid16_t)(gid))
++#define fs_high2lowuid(uid) ((sizeof(uid) > 2 ? (uid) : 0) > 65535 ? (uid16_t)fs_overflowuid : (uid16_t)(uid))
++#define fs_high2lowgid(gid) ((sizeof(gid) > 2 ? (gid) : 0) > 65535 ? (gid16_t)fs_overflowgid : (gid16_t)(gid))
+ 
+ #define low_16_bits(x)	((x) & 0xFFFF)
+ #define high_16_bits(x)	(((x) & 0xFFFF0000) >> 16)
+

@@ -1,78 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261701AbTBFGFa>; Thu, 6 Feb 2003 01:05:30 -0500
+	id <S264986AbTBFGNs>; Thu, 6 Feb 2003 01:13:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264986AbTBFGFa>; Thu, 6 Feb 2003 01:05:30 -0500
-Received: from [209.195.52.121] ([209.195.52.121]:40579 "HELO
-	warden2b.diginsite.com") by vger.kernel.org with SMTP
-	id <S261701AbTBFGF3>; Thu, 6 Feb 2003 01:05:29 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Larry McVoy <lm@work.bitmover.com>, Ben Collins <bcollins@debian.org>,
-       Larry McVoy <lm@bitmover.com>, Andrea Arcangeli <andrea@e-mind.com>,
-       linux-kernel@vger.kernel.org
-Date: Wed, 5 Feb 2003 22:14:40 -0800 (PST)
-Subject: Re: openbkweb-0.0
-In-Reply-To: <20030206060223.GB6859@alpha.home.local>
-Message-ID: <Pine.LNX.4.44.0302052213070.29263-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265506AbTBFGNs>; Thu, 6 Feb 2003 01:13:48 -0500
+Received: from packet.digeo.com ([12.110.80.53]:53426 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264986AbTBFGNr>;
+	Thu, 6 Feb 2003 01:13:47 -0500
+Date: Wed, 5 Feb 2003 22:23:50 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: thunder7@xs4all.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.59 won't boot, 2.5.58 will, how to I use bitkeeper to get
+ 'in between' ?
+Message-Id: <20030205222350.77e50934.akpm@digeo.com>
+In-Reply-To: <20030206060742.GA6458@middle.of.nowhere>
+References: <20030206060742.GA6458@middle.of.nowhere>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Feb 2003 06:23:17.0891 (UTC) FILETIME=[3CD9ED30:01C2CDA8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-remember that any bk repository will have all the info in it, so just
-access that instead of bkbits.org (yes this will require someone to run
-the evil propriatary software ;-), but it will avoid the load on Larry's
-server)
+Jurriaan <thunder7@xs4all.nl> wrote:
+>
+> Until now, all 2.5.59-based kernels (2.5.59 vanilla, 2.5.59 + vmlinux
+> patch, 2.5.59-mm[1-8]) hang very early in the boot-process on my system,
+> right after 'Uncompressing Linux...'
+> 
+> I am willing to try which patch between 2.5.58 and 2.5.59 caused this,
+> but I can't find out how to extract these patches. If I browse the
+> linux-2.5 repository on the web-interface @ bitkeeper, I don't see a
+> message 'And with this patch-set, we've reached 2.5.58 - any patches
+> after this apply to 2.5.58 and will create 2.5.59 in due time'.
+> 
+> /usr/src/linux/Documentation/BK-usage/ seems to focus more on uploading
+> patches. There is something on getting the diff between two kernel
+> versions, but I need finer patches/revisions/changesets. I can see how
+> to download the initial tree, but what do I do next?
+> 
 
-David Lang
+I've been regularly snarfing the rollups from 
+http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/
+for this very purpose.
 
-On Thu, 6 Feb 2003, Willy Tarreau wrote:
+Over at http://www.zip.com.au/~akpm/linux/patches/2.5/x/
 
-> Date: Thu, 6 Feb 2003 07:02:23 +0100
-> From: Willy Tarreau <willy@w.ods.org>
-> To: Larry McVoy <lm@work.bitmover.com>, Ben Collins <bcollins@debian.org>,
->      Larry McVoy <lm@bitmover.com>, Andrea Arcangeli <andrea@e-mind.com>,
->      linux-kernel@vger.kernel.org
-> Subject: Re: openbkweb-0.0
->
-> On Wed, Feb 05, 2003 at 08:37:37PM -0800, Larry McVoy wrote:
-> > > You may want to enable mod_deflate, and then scripts can easily make use
-> > > of gzip compressed data. May not be an end-all, but something to
-> > > consider.
-> >
-> > Gzip will give 4:1 what these scripts are doing is more like 1000:1.
-> > So gzipping the data gets you down to 250:1.  That's still way more
-> > bandwidth, way too much to be acceptable.
->
-> Larry, would it be acceptable/possible to regularly push some data/metadata
-> to sites like kernel.org that people already consult for kernel development ?
-> This way, Andrea's tool would only have to check kernel.org, and not bkbits.net.
->
-> Another solution is to fetch from a reverse proxy-cache on a high-bandwidth
-> site, provided that we know what to cache, of course. This could even reduce
-> your current HTTP usage since nearly everything should be cacheable for a very
-> long period.
->
-> You know, sometimes I fetch changesets from bkbits.net with my browser, and
-> I later convert them from html to text with a very trivial sed script. And it
-> happens that I remember you saying that the bandwidth costs you very much, then
-> I feel a bit guilty (although about once a week may not be too much) and I
-> wonder what would happen if everyone did the same regularly.
->
-> You may also try to cap the bandwidth from the web server, to dissuade people
-> from using it, but still not closing it. This could also help you not to pay
-> for the extra bytes.
->
-> Just some suggestions, of course. I wouldn't like your http service to be
-> closed since I sometimes use it.
->
-> Cheers,
-> Willy
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+You will find 15 patches, spread across the lifetime of the 2.5.58->2.5.59
+cycle.
+
+If you can identify which of those patches introduced the failure...
+
+

@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbULQWKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbULQWPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262173AbULQWKc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 17:10:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbULQWKc
+	id S262145AbULQWPS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 17:15:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbULQWPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 17:10:32 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:51466 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262173AbULQWKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 17:10:20 -0500
-Date: Fri, 17 Dec 2004 22:52:30 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: James Pearson <james-p@moving-picture.com>, linux-kernel@vger.kernel.org
-Subject: Re: Reducing inode cache usage on 2.4?
-Message-ID: <20041217215230.GK17946@alpha.home.local>
-References: <41C316BC.1020909@moving-picture.com> <20041217151228.GA17650@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041217151228.GA17650@logos.cnet>
-User-Agent: Mutt/1.4i
+	Fri, 17 Dec 2004 17:15:18 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:58004 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262145AbULQWPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 17:15:08 -0500
+Message-ID: <41C35A45.7090206@sgi.com>
+Date: Fri, 17 Dec 2004 16:14:29 -0600
+From: Patrick Gefre <pfg@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] 2.6.10 Altix : ioc4 serial driver support
+References: <200412162224.iBGMOQ52284713@fsgi900.americas.sgi.com> <20041216231519.GA16249@infradead.org>
+In-Reply-To: <20041216231519.GA16249@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+Christoph Hellwig wrote:
+> On Thu, Dec 16, 2004 at 04:24:26PM -0600, Pat Gefre wrote:
+> 
+>>I have a serial driver for Altix I'd like to submit.
+>>
+>>The code is at:
+>>ftp://oss.sgi.com/projects/sn2/sn2-update/033-ioc4-support
+>>
+>>Signed-off-by: Patrick Gefre <pfg@sgi.com>
+> 
+> 
+> I took a very short look and what spring to mind first is that the
+> device probing/remoal is rather bogus.  The ->probe/->remove callbacks
+> of a PCI driver can be called at any time, and any initialization /
+> teardown actions must happen from those.  A logical consequence of that
+> is that a proper PCI driver should have no global state.
+> 
 
-On Fri, Dec 17, 2004 at 01:12:28PM -0200, Marcelo Tosatti wrote:
-(...)
-> The default kernel shrinking ratio can be tuned for enhanced reclaim efficiency.
+Christoph,
 
-Thanks for having explained this. Up to now, after several series of find or
-other FS-intensive tasks, I often launched a simple home-made program to which
-I tell how much memory I want it to allocate (and touch), then it exits freeing
-this amount of memory. A bit dangerous but really effective indeed !
+I'm not sure what you mean here. I don't have an entry for ->remove and the driver is self-contained.
 
-I too will try to play with vm_vfs_scan_ratio, it seems appealing.
-
-Cheers,
-Willy
-
+-- Pat

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267129AbTAURmi>; Tue, 21 Jan 2003 12:42:38 -0500
+	id <S267144AbTAUSIo>; Tue, 21 Jan 2003 13:08:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267134AbTAURmi>; Tue, 21 Jan 2003 12:42:38 -0500
-Received: from mta1.srv.hcvlny.cv.net ([167.206.5.4]:17870 "EHLO
-	mta1.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S267129AbTAURmh>; Tue, 21 Jan 2003 12:42:37 -0500
-Date: Tue, 21 Jan 2003 12:51:38 -0500
-From: Mace Moneta <mace@monetafamily.org>
-Subject: Re: [Problem] PCI resource conflicts in recent 2.4 kernels -	second try
-In-reply-to: <20030121185222.A1359@jurassic.park.msu.ru>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: linux-kernel@vger.kernel.org
-Reply-to: mmoneta@optonline.net
-Message-id: <1043171498.20312.27.camel@optonline.net>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.0
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <1042989167.7294.31.camel@optonline.net>
- <1043154817.25168.4.camel@optonline.net>
- <20030121185222.A1359@jurassic.park.msu.ru>
+	id <S267145AbTAUSIo>; Tue, 21 Jan 2003 13:08:44 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:30099 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S267144AbTAUSIn>; Tue, 21 Jan 2003 13:08:43 -0500
+From: Richard Stallman <rms@gnu.org>
+To: Nicolas Pitre <nico@cam.org>
+CC: mark@mark.mielke.cc, galibert@pobox.com, linux-kernel@vger.kernel.org,
+       dax@gurulabs.com, lm@bitmover.com, root@chaos.analogic.com,
+       pollard@admin.navo.hpc.mil, R.E.Wolff@BitWizard.nl, jalvo@mbay.net
+In-reply-to: <Pine.LNX.4.44.0301192021580.24967-100000@xanadu.home> (message
+	from Nicolas Pitre on Sun, 19 Jan 2003 20:46:01 -0500 (EST))
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+Reply-to: rms@gnu.org
+References: <Pine.LNX.4.44.0301192021580.24967-100000@xanadu.home>
+Message-Id: <E18b2xq-0007rw-00@fencepost.gnu.org>
+Date: Tue, 21 Jan 2003 13:17:34 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, confirming that this corrected the problem.  Tested in 2.4.21-pre3.
-Thanks for your help!
+    Solely from your own point of view again.  Sorry, you just managed to lose 
+    your credibility on this whole matter.
+
+With all due respect, I doubt it.  I could not lose any credibility
+with you, because I had none to start with.  You demanded explanations
+for this and that with an unfriendly tone.  I figured that even if I
+gave good answers to all those accusations, it would be unlikely to
+win your good opinion.  So I decided it was not worth trying to do
+that.  Insted I responded to the points that seemed worth responding
+to for the sake of other readers starting with a more neutral
+attitude.
+
+As for what other people think now, none of us knows--we could only
+speculate.  I think that such speculation is not very interesting.
 
 
-On Tue, 2003-01-21 at 10:52, Ivan Kokshaysky wrote:
-> On Tue, Jan 21, 2003 at 08:13:38AM -0500, Mace Moneta wrote:
-> > > 00:06.0 PCI bridge: Toshiba America Info Systems: Unknown device 0605 (rev 04)
-> > > (prog-if 00 [Normal decode])
-> 
-> Yet another broken bridge...
-> Does this patch help?
-> 
-> Ivan.
-> 
-> --- linux/drivers/pci/quirks.c.orig	Tue Jan 21 18:45:55 2003
-> +++ linux/drivers/pci/quirks.c	Tue Jan 21 18:43:13 2003
-> @@ -586,6 +586,7 @@ static struct pci_fixup pci_fixups[] __i
->  	 * instead of 0x01.
->  	 */
->  	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82380FB,	quirk_transparent_bridge },
-> +	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_TOSHIBA,	0x605,				quirk_transparent_bridge },
->  
->  	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_CYRIX,	PCI_DEVICE_ID_CYRIX_PCI_MASTER, quirk_mediagx_master },
->  
 

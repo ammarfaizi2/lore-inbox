@@ -1,78 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265072AbSJRL3Q>; Fri, 18 Oct 2002 07:29:16 -0400
+	id <S265074AbSJRLcI>; Fri, 18 Oct 2002 07:32:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265074AbSJRL3Q>; Fri, 18 Oct 2002 07:29:16 -0400
-Received: from zero.aec.at ([193.170.194.10]:39953 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id <S265072AbSJRL3P>;
-	Fri, 18 Oct 2002 07:29:15 -0400
-To: "Samium Gromoff" <_deepfire@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5 and lowmemory boxens
-References: <E182V29-000Pfa-00@f15.mail.ru>
-From: Andi Kleen <ak@muc.de>
-Date: 18 Oct 2002 13:35:04 +0200
-In-Reply-To: <E182V29-000Pfa-00@f15.mail.ru>
-Message-ID: <m37kggyo7r.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265075AbSJRLcI>; Fri, 18 Oct 2002 07:32:08 -0400
+Received: from unthought.net ([212.97.129.24]:54455 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S265074AbSJRLcH>;
+	Fri, 18 Oct 2002 07:32:07 -0400
+Date: Fri, 18 Oct 2002 13:38:06 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Joe Thornber <joe@fib011235813.fsnet.co.uk>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Device-mapper submission 6/7
+Message-ID: <20021018113806.GD7875@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Joe Thornber <joe@fib011235813.fsnet.co.uk>, Andi Kleen <ak@muc.de>,
+	linux-kernel@vger.kernel.org
+References: <20021015175858.GA28170@fib011235813.fsnet.co.uk> <3DAC5B47.7020206@pobox.com> <20021015214420.GA28738@fib011235813.fsnet.co.uk> <3DAD75AE.7010405@pobox.com> <20021016152047.GA11422@fib011235813.fsnet.co.uk> <3DAD8CC9.9020302@pobox.com> <20021017080552.GA2418@fib011235813.fsnet.co.uk> <m3fzv5pj23.fsf@averell.firstfloor.org> <20021017085045.GA2651@fib011235813.fsnet.co.uk> <3DAEEB59.2000000@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3DAEEB59.2000000@pobox.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Samium Gromoff" <_deepfire@mail.ru> writes:
+On Thu, Oct 17, 2002 at 12:54:49PM -0400, Jeff Garzik wrote:
+...
+> Preferred method of data input is always ASCII, but if that is 
+> unreasonable, make sure your binary data is fixed-endian and fixed-size 
+> on all architectures.
 
->    first: i`ve successfully ran 2.5.43 on a 386sx20/4M ram notebook.
-> 
->  the one problem was the ppp over serial not working, but i suspect
->  that it just needs to be recompiled with 2.5 headers (am i right?).
-> 
->  the other was, well, the fact that ultra-stripped 2.5.43
->  still used 200k more memory than 2.4.19, and thats despite it was
->  compiled with -Os instead of -O2.
->  actually it was 2000k free with 2.4 vs 1800k  free with 2.5
-> 
->  i know Rik had plans of some ultra bloody embedded/lowmem
->  changes for such cases. i`d like to hear about things in the area :)
+But Jeff, won't the kernel end up with a myriad of
+sort-of-similar-but-all-different parsers, with each their set of
+overflows, *(int*)0, etc. etc. ??
 
-I would start with clamping down all the hash tables. A lot of code
-does something like: 
+This sounds like /proc - just the other way around. Today the kernel
+generates everything from one-value-per-file to friggin ASCII art in
+it's proc files, and userspace is cluttered beyond belief with myriads
+of parsers, sort of similar but all different.
 
-        mempages *= sizeof(struct list_head);
-        for (order = 0; ((1UL << order) << PAGE_SHIFT) < mempages; order++)
-                ;
+And now you want parsers in the kernel?  Not just a few, but like
+*myriads*...
 
-        do {
-                unsigned long tmp;
+I really like the idea with having
+  mv  volume1 volume42
+as a way of renaming a volume.
 
-                nr_hash = (1UL << order) * PAGE_SIZE /
-                        sizeof(struct list_head);
-                d_hash_mask = (nr_hash - 1);
+Compare that to
+  echo "rename-volume volume1 volume42" > volume_command_file
 
-                tmp = nr_hash;
-                d_hash_shift = 0;
-                while ((tmp >>= 1UL) != 0UL)
-                        d_hash_shift++;
+I doubt that there will be much that cannot be mapped to standard
+filesystem semantics. Plan9 has TCP *connections* as files...
 
-                dentry_hashtable = (struct list_head *)
-                        __get_free_pages(GFP_ATOMIC, order);
-        } while (dentry_hashtable == NULL && --order >= 0);
+At least I think that this should be considered thoroughly. I fear that
+we will end up with something worse than procfs in a year from now, if
+the current trend is "just make a command file and a parser in the
+kernel" now.
 
-which usually results in too big hash tables.
+Just my 0.02 Euro.
 
-Unfortunately this isn't a common function that can be tuned centrally
-(it *really* should be). But you could grep for hash and change them
-all to only use a single page or even less. 
-
-More text size could be saved by going through the header files and
-uninlining bigger functions.
-
-When you have lots of daemons that hang around in select() or poll()
-then it's possible to save 8K for each of them by applying a patch
-that allocates data for small select on the stack.
-
-Also Linux by default doesn't use the area in 640k-1MB. If you know
-the exact mappings there on your box or trust your e820 table then
-you can change setup.c to use the free areas in there.
-
--Andi
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

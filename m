@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262951AbUCKBpb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 20:45:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262944AbUCKBok
+	id S262949AbUCKBpc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 20:45:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbUCKBoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 20:44:40 -0500
-Received: from mail.kroah.org ([65.200.24.183]:28077 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262946AbUCKBn2 (ORCPT
+	Wed, 10 Mar 2004 20:44:20 -0500
+Received: from mail.kroah.org ([65.200.24.183]:36013 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262949AbUCKBnu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 20:43:28 -0500
-Date: Wed, 10 Mar 2004 17:33:42 -0800
+	Wed, 10 Mar 2004 20:43:50 -0500
+Date: Wed, 10 Mar 2004 17:29:11 -0800
 From: Greg KH <greg@kroah.com>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       Andy Lutomirski <luto@myrealbox.com>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Oliver Neukum <oliver@neukum.org>
-Subject: Re: [PATCH] usblp.c (Was: usblp_write spins forever after an error)
-Message-ID: <20040311013342.GH13045@kroah.com>
-References: <402FEAD4.8020602@myrealbox.com> <20040216035834.GA4089@kroah.com> <4030DEC5.2060609@grupopie.com> <1078399532.4619.129.camel@hades.cambridge.redhat.com> <4047221E.9050500@grupopie.com> <1078479692.12176.32.camel@imladris.demon.co.uk> <40488E45.7070901@grupopie.com> <4048C2E7.8050907@grupopie.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Patch to hook up PPP to simple class sysfs support
+Message-ID: <20040311012911.GA13045@kroah.com>
+References: <200403032328.i23NSwlv009796@orion.dwf.com> <22370000.1078362205@w-hlinder.beaverton.ibm.com> <20040303195539.S22989@build.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4048C2E7.8050907@grupopie.com>
+In-Reply-To: <20040303195539.S22989@build.pdx.osdl.net>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 05, 2004 at 06:11:51PM +0000, Paulo Marques wrote:
+On Wed, Mar 03, 2004 at 07:55:39PM -0800, Chris Wright wrote:
+> * Hanna Linder (hannal@us.ibm.com) wrote:
+> > +		ppp_class = class_simple_create(THIS_MODULE, "ppp");
+> > +		class_simple_device_add(ppp_class, MKDEV(PPP_MAJOR, 0), NULL, "ppp");
 > 
-> Here it is.
+> What happens if that class_simple_create() fails?  Actually,
+> class_simple_device_add could fail too, but doesn't seem anybody is
+> checking for that.
 > 
-> The patch is only one line for 2.6.4-rc2. (I also did a little formatting 
-> adjustment to better comply with CodingStyle)
+> >  		err = devfs_mk_cdev(MKDEV(PPP_MAJOR, 0),
+> >  				S_IFCHR|S_IRUSR|S_IWUSR, "ppp");
+> > -		if (err)
+> > +		if (err) {
+> >  			unregister_chrdev(PPP_MAJOR, "ppp");
+> > +			class_simple_device_remove(MKDEV(PPP_MAJOR,0));
+> > +		}
 > 
-> For the 2.4.26-pre1 kernel, I also backported the return codes correction 
-> patch from Oliver Neukum.
+> need to destroy the class on error path to avoid leak.
+> 
+> > @@ -2540,6 +2547,7 @@ static void __exit ppp_cleanup(void)
+> >  	if (unregister_chrdev(PPP_MAJOR, "ppp") != 0)
+> >  		printk(KERN_ERR "PPP: failed to unregister PPP device\n");
+> >  	devfs_remove("ppp");
+> > +	class_simple_device_remove(MKDEV(PPP_MAJOR, 0));
+> 
+> ditto.  this will leak and would cause oops on reload of module.
+> 
+> something like below.
 
-Thanks, I've applied this to both the 2.4 and 2.6 usb trees.
+Applied, thanks.
 
 greg k-h

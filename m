@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264076AbTJ1SSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 13:18:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264073AbTJ1SSJ
+	id S264081AbTJ1SZv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 13:25:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264082AbTJ1SZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 13:18:09 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:60677 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264076AbTJ1SSF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 13:18:05 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: how do file-mapped (mmapped) pages become dirty?
-Date: 28 Oct 2003 18:07:52 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bnmb9o$r2q$1@gatekeeper.tmr.com>
-References: <006901c39d50$0b1313d0$2501a8c0@CARTMAN>
-X-Trace: gatekeeper.tmr.com 1067364472 27738 192.168.12.62 (28 Oct 2003 18:07:52 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 28 Oct 2003 13:25:51 -0500
+Received: from yakov.inr.ac.ru ([193.233.7.111]:15517 "HELO yakov.inr.ac.ru")
+	by vger.kernel.org with SMTP id S264081AbTJ1SZt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 13:25:49 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200310281825.VAA23218@yakov.inr.ac.ru>
+Subject: Re: Linux 2.6.0-test9
+To: tommy.christensen@tpack.net (Tommy Christensen)
+Date: Tue, 28 Oct 2003 21:25:15 +0300 (MSK)
+Cc: torvalds@osdl.org (Linus Torvalds), akpm@osdl.org, Andries.Brouwer@cwi.nl,
+       linux-kernel@vger.kernel.org (Kernel Mailing List), netdev@oss.sgi.com,
+       davem@redhat.com (David S. Miller)
+In-Reply-To: <3F9DBB7F.7030309@tpack.net> from "Tommy Christensen" at Oct 28, 2003 01:42:39 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <006901c39d50$0b1313d0$2501a8c0@CARTMAN>,
-Amir Hermelin <amir@montilio.com> wrote:
+Hello!
 
-| When a process mmaps a file, how does the kernel know the memory has been
-| written to (and hence the page is dirty)? Is this done by setting the
-| protected flag, and when the memory is first written to it's set to dirty?
-| What function is responsible for this setting? And when will the page be
-| written back to disk (i.e. where's the flusher located)?
+> I think the patch breaks things because it consumes (or rather skips)
+> the urgent data ( in the code after the label found_ok_skb: ).
+> 
+> Since this happens before the SIGURG handler is run, it won't find
+> any urgent data.
+> 
+> What do you think?
 
-At least on x86, the CPU sets the dirty bit on write, although once
-upon a time less capable CPUs did it the way you suggest. That said, I
-think copy on write is still done the way you suggest, but look at the
-code if you really care. Or wait for someone to tell me I'm wrong ;-)
+Yes, you are absolutely right. I missed exactly this thing.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+
+> The patch by Linus seems to be fine though.
+
+I think the patch suggested by Linus is 100% correct and
+in fact it is the only solution.
+
+Alexey

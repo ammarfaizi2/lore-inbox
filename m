@@ -1,118 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282491AbRLFSeV>; Thu, 6 Dec 2001 13:34:21 -0500
+	id <S282483AbRLFSfN>; Thu, 6 Dec 2001 13:35:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282495AbRLFSeJ>; Thu, 6 Dec 2001 13:34:09 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:56978 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S282489AbRLFSc4>; Thu, 6 Dec 2001 13:32:56 -0500
-Date: Thu, 6 Dec 2001 11:37:34 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: lm@bitmover.com, davidel@xmailserver.org, rusty@rustcorp.com.au,
-        Martin.Bligh@us.ibm.com, riel@conectiva.com.br, lars.spam@nocrew.org,
-        alan@lxorguk.ukuu.org.uk, hps@intermeta.de,
-        linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: SMP/cc Cluster description
-Message-ID: <20011206113734.A22810@vger.timpanogas.org>
-In-Reply-To: <Pine.LNX.4.40.0112051915440.1644-100000@blue1.dev.mcafeelabs.com> <20011205.235617.23011309.davem@redhat.com> <20011206000216.B18034@work.bitmover.com> <20011206.000932.95504991.davem@redhat.com> <20011206112731.C22534@vger.timpanogas.org>
+	id <S282489AbRLFSeO>; Thu, 6 Dec 2001 13:34:14 -0500
+Received: from t2.redhat.com ([199.183.24.243]:6133 "EHLO
+	dhcp-177.hsv.redhat.com") by vger.kernel.org with ESMTP
+	id <S282491AbRLFSdt>; Thu, 6 Dec 2001 13:33:49 -0500
+Date: Thu, 6 Dec 2001 12:33:42 -0600
+From: Tommy Reynolds <reynolds@redhat.com>
+To: m.loskot@chello.pl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange problem with 2.4.x kernel
+Message-Id: <20011206123342.42179ed3.reynolds@redhat.com>
+In-Reply-To: <20011206190454.B848@cheetah.chello.pl>
+In-Reply-To: <20011206190454.B848@cheetah.chello.pl>
+Organization: Red Hat Software, Inc. / Embedded Development
+X-Mailer: Sylpheed version 0.6.5cvs3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011206112731.C22534@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Thu, Dec 06, 2001 at 11:27:31AM -0700
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.HsyC3s(16+)nA8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 06, 2001 at 11:27:31AM -0700, Jeff V. Merkey wrote:
+--=.HsyC3s(16+)nA8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-And also, if you download the SCI drivers in my area, and order
-some SCI adapters from Dolphin in Albquerque, NM, you can set up 
-a ccNUMA system with standard PCs.  Dolphin has 66Mhz versions (and
-a 133Mhz coming in the future) that run at almost a gigabyte per 
-second node-2-node over a parallel fabric.  The cross-sectional
-SCI fabric bandwidth scales at (O)(2N) as you add nodes.  
+Uttered "Mateusz " <m.loskot@chello.pl>, spoke thus:
 
-If you want to play around with ccNUMA with Standard PCs, these 
-cards are relatively inepxensive, and allow you to setup some 
-powerful cc/SMP systems with explicit coherence.  The full 
-ccNUMA boxes from DG are expensive, however.  That way, instead
-of everyone talking about it, you guys could get some cool 
-hardware and experiment with some of your rather forward 
-looking and interesting ideas.
+> Hello, 
+> I'm writing first time to you, so let me say HELLO !
+> 
+> I installed Slackware 8.0 month ago, it is my firewall with NAT (iptables).
+> I have two kernels: 2.2.19 and 2.4.5 - this is my default kernel.
+> Everything went fine but three days ago I tried to compile some 2.4.x kernel (2.4.0, 2.4.4, 2.4.5, ...., 2.4.12, 2.4.16).
+> I went to ftp.kernel.org and got some kernels (zipped and bzipped)
+> (transfered in BINARY mode, not ASCII).
+> So the problem is:
+> When I tried to gunzip or bunzip2 any ftp'd kernel I got terrible ;) message:
+> 
+> invalid compressed data: CRC-ERROR 
 
-:-)
+You should validate the files you download before trying to use them.  Check the
+information at:
 
-Jeff
+	http://www.kernel.org/signature.html
 
+for how to go about this.  
 
+Use ftp(1) or wget(1) to do the downloads.  Do _not_ try to get the files using
+any web browser, such as Netscape, because they are known to mangle files that
+they don't understand.
 
-> 
-> 
-> Guys,
-> 
-> I am the maintaner of SCI, the ccNUMA technology standard.  I know
-> alot about this stuff, and have been involved with SCI since 
-> 1994.  I work with it every day and the Dolphin guys on some huge 
-> supercomputer accounts, like Los Alamos and Sandia Labs in NM.  
-> I will tell you this from what I know.
-> 
-> A shared everything approach is a programmers dream come true,
-> but you can forget getting reasonable fault tolerance with it.  The 
-> shared memory zealots want everyone to believe ccNUMA is better 
-> than sex, but it does not scale when compared to Shared-Nothing
-> programming models.  There's also a lot of tough issues for dealing 
-> with failed nodes, and how you recover when peoples memory is 
-> all over the place across a nuch of machines.  
-> 
-> SCI scales better in ccNUMA and all NUMA technoogies scale very 
-> well when they are used with "Explicit Coherence" instead of 
-> "Implicit Coherence" which is what you get with SMP systems.  
-> Years of research by Dr. Justin Rattner at Intel's High 
-> performance labs demonstrated that shared nothing models scaled
-> into the thousands of nodes, while all these shared everything
-> "Super SMP" approaches hit the wall at 64 processors generally.
-> 
-> SCI is the fastest shared nothing interface out there, and it also
-> can do ccNUMA.  Sequent, Sun, DG and a host of other NUMA providers
-> use Dolphin's SCI technology and have for years.   ccNUMA is useful 
-> for applications that still assume a shared nothing approach but that
-> use the ccNUMA and NUMA capabilities for better optimization.
-> 
-> Forget trying to recreate the COMA architecture of Kendall-Square.  
-> The name was truly descriptive of what happened in this architecture
-> when a node fails -- goes into a "COMA".  This whole discussion I have
-> lived through before and you will find that ccNUMA is virtually 
-> unimplementable on most general purpose OSs.  And yes, there are 
-> a lot of products and software out there, but when you look under 
-> the cover (like ServerNet) you discover their coherence models 
-> for the most part relay on push/pull explicit coherence models.
-> 
-> My 2 cents.
-> 
-> Jeff 
-> 
-> 
-> 
-> On Thu, Dec 06, 2001 at 12:09:32AM -0800, David S. Miller wrote:
-> >    From: Larry McVoy <lm@bitmover.com>
-> >    Date: Thu, 6 Dec 2001 00:02:16 -0800
-> >    
-> >    Err, Dave, that's *exactly* the point of the ccCluster stuff.  You get
-> >    all that seperation for every data structure for free.  Think about
-> >    it a bit.  Aren't you going to feel a little bit stupid if you do all
-> >    this work, one object at a time, and someone can come along and do the
-> >    whole OS in one swoop?  Yeah, I'm spouting crap, it isn't that easy,
-> >    but it is much easier than the route you are taking.  
-> > 
-> > How does ccClusters avoid the file system namespace locking issues?
-> > How do all the OS nodes see a consistent FS tree?
-> > 
-> > All the talk is about the "magic filesystem, thread it as much as you
-> > want" and I'm telling you that is the fundamental problem, the
-> > filesystem name space locking.
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- + -- -- -- -- -- -- -- -- -- --
+Tommy Reynolds                               | mailto: <reynolds@redhat.com>
+Red Hat, Inc., Embedded Development Services | Phone:  +1.256.704.9286
+307 Wynn Drive NW, Huntsville, AL 35805 USA  | FAX:    +1.256.837.3839
+Senior Software Developer                    | Mobile: +1.919.641.2923
+
+--=.HsyC3s(16+)nA8
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iEYEARECAAYFAjwPugoACgkQWEn3bOOMcuq20QCgrsMaFmek2B1cnH31bxqNyWVv
+KgEAn2zKW406g+J+nE1PCk7EId1NRS8h
+=OMrB
+-----END PGP SIGNATURE-----
+
+--=.HsyC3s(16+)nA8--
+

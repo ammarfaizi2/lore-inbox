@@ -1,107 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263244AbTK3VPa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 16:15:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263262AbTK3VPa
+	id S263228AbTK3Vh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 16:37:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263262AbTK3Vh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 16:15:30 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:31716 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S263244AbTK3VP2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 16:15:28 -0500
-Subject: Re: Silicon Image 3112A SATA trouble
-From: Craig Bradney <cbradney@zip.com.au>
-To: Luis Miguel =?ISO-8859-1?Q?Garc=EDa?= <ktech@wanadoo.es>
+	Sun, 30 Nov 2003 16:37:29 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:22705 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S263228AbTK3Vh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 16:37:27 -0500
+Date: Sun, 30 Nov 2003 21:30:52 +0000
+From: Dave Jones <davej@redhat.com>
+To: Brad House <brad_mssw@gentoo.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3FCA39C2.9070907@wanadoo.es>
-References: <3FCA39C2.9070907@wanadoo.es>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1070226920.28166.31.camel@athlonxp.bradney.info>
+Subject: Re: [PATCH 2.6.0-test11] agpgart [amd64] fix (off by one)
+Message-ID: <20031130213052.GA10414@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Brad House <brad_mssw@gentoo.org>, linux-kernel@vger.kernel.org
+References: <35356.68.105.173.45.1070219694.squirrel@mail.mainstreetsoftworks.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 30 Nov 2003 22:15:20 +0100
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <35356.68.105.173.45.1070219694.squirrel@mail.mainstreetsoftworks.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-11-30 at 19:41, Luis Miguel García wrote:
-> so definitely, 32 MB/s is almost half the speed that you get. I'm in 
-> 2.6-test11. I don't know more options to try. The next will be booting 
-> with "noapic nolapic". Some people reported better results with this.
-> 
-> by the way, I have booted with "doataraid noraid" (no drives connected, 
-> only SATA support in bios), and nothing is shown in the boot messages 
-> (nor dmesg) about libata being loaded. I don't know if I must connect a 
-> hard drive and then the driver shows up, but I don't think that.
+On Sun, Nov 30, 2003 at 02:14:54PM -0500, Brad House wrote:
+ > AGPGart would report "Too many northbridges" without this
+ > patch. The problem was that 'i' was incremented before being
+ > checked against the MAX GARTS, just making the check > instead
+ > of == fixes the problems.  Patch here:
 
-Depends on a lot of things, especially what else is on that controller.
-The way I found things was my involvement in the Scribus DTP project. I
-upgraded to the Athlon 2600 from a Duron 900. 
+Already fixed slightly differently in agpgart bitkeeper tree.
+I've been trying to get Linus to take this and a few other
+similar bits for a while, but they just haven't been 
+important enough I guess, so its probably post 2.6.0 material.
 
-That took me from 30+mins from a Scribus compile to 2 mins (!) if there
-is no secondary drive. When I had my old 20gb drive plugged in to do
-copies off of it.. 11mins. Do you have anything else plugged in there?
-Of course, I guess in that case the 8mb drive cache is helping a lot.
-
-Craig
-
-
-> 
-> 
-> Thanks!
-> 
-> LuisMi Garcia
-> 
-> 
-> Craig Bradney wrote:
-> 
-> > On the topic of speeds.. hdparm -t gives me 56Mb/s on my Maxtor 80Mb 8mb
-> > cache PATA drive. I got that with 2.4.23 pre 8 which was ATA100 and get
-> > just a little more on ATA133 with 2.6. Not sure what people are
-> > expecting on SATA.
-> >
-> > Craig
-> >
-> > On Sun, 2003-11-30 at 18:52, Luis Miguel García wrote:
-> >  
-> >
-> >> hello:
-> >>
-> >> I have a Seagate Barracuda IV (80 Gb) connected to parallel ata on a 
-> >> nforce-2 motherboard.
-> >>
-> >> If any of you want for me to test any patch to fix the "seagate 
-> >> issue", please, count on me. I have a SATA sis3112 and a 
-> >> parallel-to-serial converter. If I'm of any help to you, drop me an 
-> >> email.
-> >>
-> >> By the way, I'm only getting 32 MB/s   (hdparm -tT /dev/hda) on my 
-> >> actual parallel ata. Is this enough for an ATA-100 device?
-> >>
-> >> Thanks a lot.
-> >>
-> >> LuisMi García
-> >> Spain
-> >>
-> >> -
-> >> To unsubscribe from this list: send the line "unsubscribe 
-> >> linux-kernel" in
-> >> the body of a message to majordomo@vger.kernel.org
-> >> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >> Please read the FAQ at  http://www.tux.org/lkml/
-> >>
-> >>   
-> >
-> >
-> >
-> >  
-> >
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+		Dave
 

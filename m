@@ -1,79 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270215AbUJTCvm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267923AbUJTCvY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270215AbUJTCvm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 22:51:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267979AbUJTCty
+	id S267923AbUJTCvY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 22:51:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270215AbUJTCuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 22:49:54 -0400
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:12742 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S270278AbUJTCeI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 22:34:08 -0400
-Date: Tue, 19 Oct 2004 19:33:56 -0700
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Jeff Dike <jdike@addtoit.com>
-Subject: [PATCH] UML: build fix for .config w/o CONFIG_MODE_SKAS
-Message-ID: <20041020023356.GC8597@taniwha.stupidest.org>
+	Tue, 19 Oct 2004 22:50:23 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:63716 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S270292AbUJTCnn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 22:43:43 -0400
+Date: Wed, 20 Oct 2004 04:43:42 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: LKML <linux-kernel@vger.kernel.org>,
+       Vserver <vserver@list.linux-vserver.org>
+Subject: Re: [Vserver] PROBLEM: Oops in log_do_checkpoint, using vserver
+Message-ID: <20041020024342.GA9260@mail.13thfloor.at>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>,
+	Vserver <vserver@list.linux-vserver.org>
+References: <20041018032511.GY21419@ns.snowman.net> <20041018115523.GA2352@mail.13thfloor.at> <20041018122025.GA28813@ns.snowman.net> <20041019220100.GB12780@ns.snowman.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-From: cw@f00f.org (Chris Wedgwood)
+In-Reply-To: <20041019220100.GB12780@ns.snowman.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a hacky (ie. fix properly) changes to make things build w/o
-CONFIG_MODE_SKAS.  I think it's probably acceptable as-is for now
-since a good chunk of that code will probably change in the not too
-far off future anyhow.
+On Tue, Oct 19, 2004 at 06:01:00PM -0400, Stephen Frost wrote:
+> * Stephen Frost (sfrost@snowman.net) wrote:
+> > * Herbert Poetzl (herbert@13thfloor.at) wrote:
+> > > have seen that too, once in a while, but there where
+> > > some changes in 2.6.9, so maybe trying 2.6.9-rc4
+> > > (or soon final) with vs1.9.3-rc3 (not much changed
+> > > here, see delta for details) would be a good check
+> > 
+> > Ok.  I had been planning on moving to 2.6.9 and 1.9.3 as soon as both
+> > were final.  Guess I can try the RC releases though. :)
+> 
+> Alright, I got the same oops w/ 2.6.9 and vs1.9.3-rc3:
+> 
+> Assertion failure in log_do_checkpoint() at fs/jbd/checkpoint.c:361: 
+> "drop_count != 0 || cleanup_ret != 0"
 
-Signed-off-by: cw@f00f.org
+you can split up this assertion into
 
-diff -Nru a/arch/um/kernel/process.c b/arch/um/kernel/process.c
---- a/arch/um/kernel/process.c	2004-10-19 17:47:59 -07:00
-+++ b/arch/um/kernel/process.c	2004-10-19 17:47:59 -07:00
-@@ -202,6 +202,11 @@
- 		"    To make it working, you need a kernel patch for your host, too.\n"
- 		"    See http://perso.wanadoo.fr/laurent.vivier/UML/ for further information.\n");
- 
-+/* Ugly hack for now... */
-+#ifndef PTRACE_SYSEMU
-+#define PTRACE_SYSEMU 31
-+#endif
-+
- static void __init check_sysemu(void)
- {
- 	void *stack;
-@@ -211,7 +216,9 @@
- 		return;
- 
- 	printk("Checking syscall emulation patch for ptrace...");
-+#ifdef CONFIG_MODE_SKAS
- 	sysemu_supported = 0;
-+#endif /* CONFIG_MODE_SKAS */
- 	pid = start_ptraced_child(&stack);
- 	if(ptrace(PTRACE_SYSEMU, pid, 0, 0) >= 0) {
- 		struct user_regs_struct regs;
-@@ -233,17 +240,23 @@
- 
- 		stop_ptraced_child(pid, stack, 0);
- 
-+#ifdef CONFIG_MODE_SKAS
- 		sysemu_supported = 1;
-+#endif /* CONFIG_MODE_SKAS */
- 		printk("found\n");
- 	}
- 	else
- 	{
- 		stop_ptraced_child(pid, stack, 1);
-+#ifdef CONFIG_MODE_SKAS
- 		sysemu_supported = 0;
-+#endif /* CONFIG_MODE_SKAS */
- 		printk("missing\n");
- 	}
- 
-+#ifdef CONFIG_MODE_SKAS
- 	set_using_sysemu(!force_sysemu_disabled);
-+#endif
- }
- 
- void __init check_ptrace(void)
+ - drop_count != 0
+ - cleanup_ret != 0
+
+and fail on that (or just output those values
+before you panic) ... this might give some
+deeper insight into the issue ...
+
+> 
+> I noticed someone else had this problem too:
+> 
+> http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=123137
+
+hmm, so that kernel should not be vserver related
+at all, so I'd say something with the ext3 journal
+is broken ...
+
+> I also followed up on that w/ my oops from 2.6.8.1.
+> 
+> I also upgraded to 0.30.195, though I don't think that (or vserver in
+> general, really) is related to this oops.
+
+yeah, probably not, I think the vserver changes 
+just make the oops more likely (or simply the 
+increased load does)
+
+> If there's anything else I can do to help get this resolved, please let
+> me know..  This is the only problem I'm having with this server now,
+> other than this it's behaving pretty nicely. :)
+
+maybe until it gets fixed, mounting the ext3
+without journal might help here?
+
+best,
+Herbert
+
+> 	Thanks,
+> 
+> 		Stephen
+
+
+
+> _______________________________________________
+> Vserver mailing list
+> Vserver@list.linux-vserver.org
+> http://list.linux-vserver.org/mailman/listinfo/vserver
+

@@ -1,53 +1,51 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S156713AbPLUEFZ>; Mon, 20 Dec 1999 23:05:25 -0500
-Received: by vger.rutgers.edu id <S156603AbPLUEFP>; Mon, 20 Dec 1999 23:05:15 -0500
-Received: from va-su-137.valinux.com ([209.81.8.137]:14548 "EHLO mail.valinux.com") by vger.rutgers.edu with ESMTP id <S156531AbPLUEE5>; Mon, 20 Dec 1999 23:04:57 -0500
-Date: Mon, 20 Dec 1999 20:04:53 -0800
-From: Marc Merlin <merlin_news@valinux.com>
-To: "H . J . Lu" <hjl@valinux.com>
-Cc: Russell King <rmk@arm.linux.org.uk>, nfs@mail1.sourceforge.net, linux kernel <linux-kernel@vger.rutgers.edu>, alan@lxorguk.ukuu.org.uk
-Subject: Re: [NFS] nfs-utils 0.1.5 is released.
-Message-ID: <19991220200453.E10472@valinux.com>
-References: <199912190029.AAA08880@raistlin.arm.linux.org.uk> <19991219094136.A4016@valinux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0i
-In-Reply-To: <19991219094136.A4016@valinux.com>; from hjl@valinux.com on Sun, Dec 19, 1999 at 09:41:36AM -0800
-X-Sysadmin: BOFH
-X-URL: http://marc.merlins.org/
-X-Operating-System: Proudly running Linux 2.2.12-24.1/Debian potato
+Received: by vger.rutgers.edu via listexpand id <S156908AbPLUXtH>; Tue, 21 Dec 1999 18:49:07 -0500
+Received: by vger.rutgers.edu id <S156737AbPLUXsr>; Tue, 21 Dec 1999 18:48:47 -0500
+Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:44166 "HELO tsx-prime.MIT.EDU") by vger.rutgers.edu with SMTP id <S156749AbPLUXs3>; Tue, 21 Dec 1999 18:48:29 -0500
+Date: Tue, 21 Dec 1999 18:48:18 -0500
+Message-Id: <199912212348.SAA10433@tsx-prime.MIT.EDU>
+From: "Theodore Y. Ts'o" <tytso@mit.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jes Sorensen <Jes.Sorensen@cern.ch>, wendling@ganymede.isdn.uiuc.edu, linux-kernel@vger.rutgers.edu
+In-reply-to: Linus Torvalds's message of Sat, 18 Dec 1999 15:50:19 -0800 (PST), <Pine.LNX.4.10.9912181546480.1964-100000@penguin.transmeta.com>
+Subject: Re: [patch] read[bwl] and ioremap problem
+Address: 1 Amherst St., Cambridge, MA 02139
+Phone: (617) 253-8091
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Sun, Dec 19, 1999 at 09:41:36AM -0800, H . J . Lu wrote:
-> 1. Set the environment variable, CVS_RSH, to ssh.
-> 2. Login to the Linux NFS CVS server:
-> 
-> # cvs -z 3 -d:pserver:anonymous@cvs.linuxnfs.sourceforge.org:/cvsroot/nfs login
-> 
-> without password if it is your first time.
- 
-While the above will work for now, the correct name for the cvs server is now:
-cvs -d:pserver:anonymous@cvs.nfs.sourceforge.net:/cvsroot/nfs login
+   Date:   Sat, 18 Dec 1999 15:50:19 -0800 (PST)
+   From: Linus Torvalds <torvalds@transmeta.com>
 
-You can bookmark this page which has the above info if you want:
-http://www.sourceforge.net/cvs/?group_id=14
+   THAT case is certainly a rather strong argument for using something
+   like "gsc_read[bwl]()" on HP-PA.
 
-> ftp://ftp.linuxnfs.sourceforge.org/pub/nfs/nfs-utils-0.1.5.tar.gz
-> ftp://ftp.linuxnfs.sourceforge.org/pub/nfs/nfs-utils-0.1.4-0.1.5.diff.gz
- 
-The URL you'll want to use and bookmark is now:
-ftp://nfs.sourceforge.net/pub/nfs/
+The other strong reason for doing gsc_read[bwl] on HP-PA is that some
+PA-RISC boxes have both a GSC bus *and* a PCI bus, and you need to
+access devices on both buses....
 
-As a reminder,  the Email for the list is  nfs@lists.sourceforge.net and not
-nfs@valinux.com anymore.
+Something to consider is that for certain drivers, such as the serial
+driver, I'm already having to do a serial_inp() which dispatches to the
+proper {inb,readb,gsc_readb} already.  Yes I take a overhead/performance
+hit for doing this, but it's the only clean way to support both ISA and
+PCI serial boards in a single i386 box, or to support multiple buses in
+the HP-PA scenario.
 
-Thanks,
-Marc
--- 
-VA Linux Systems Linux IA64/Engineering Sysadmin. 408 542 8661
- 
-Home page: http://marc.merlins.org/ (friendly to non IE browsers)
-Finger marc_f@merlins.org for PGP key and other contact information
+We've historically said that this kind of thing is horrible for
+performance reasons, and the SCO and NetBSD approaches of doing
+parameterized I/O has been derided for that reason.  However, it's
+something that perhaps we should rethink; on modern CPU's, the extra
+procedure activation/deactivation isn't *that* expensive, and it ends up
+making the drivers much more portable and easier to support multiple
+architectures.  The alternative is that each driver author ends up
+writing their own I/O dispatch routines, such as what's currently in the
+serial driver.  While this approach does have some advantages, in that
+each driver author can decide whether or not he/she wishes to pay the
+indirection overhead, it can mean code duplication and a delay before
+certain devices get supported on non-mainline architectures.
+
+Something to think about.
+
+						- Ted
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbTJHAzw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 20:55:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262938AbTJHAzw
+	id S262918AbTJHBJh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 21:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262938AbTJHBJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 20:55:52 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:40414 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262930AbTJHAzu
+	Tue, 7 Oct 2003 21:09:37 -0400
+Received: from smtp12.eresmas.com ([62.81.235.112]:19947 "EHLO
+	smtp12.eresmas.com") by vger.kernel.org with ESMTP id S262918AbTJHBJg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 20:55:50 -0400
-Date: Tue, 7 Oct 2003 21:51:35 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Xose Vazquez Perez <xose@wanadoo.es>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       syn uw <syn_uw@hotmail.com>, <linux-kernel@vger.kernel.org>,
-       <marcelo.tosatti@cyclades.com.br>, <atulm@lsil.com>,
-       <linux-megaraid-devel@dell.com>
-Subject: Re: Megaraid does not work with 2.4.22
-In-Reply-To: <3F82FB91.20207@wanadoo.es>
-Message-ID: <Pine.LNX.4.44.0310072151220.27859-100000@logos.cnet>
+	Tue, 7 Oct 2003 21:09:36 -0400
+Message-ID: <3F8363B0.60301@wanadoo.es>
+Date: Wed, 08 Oct 2003 03:09:04 +0200
+From: Xose Vazquez Perez <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: syn uw <syn_uw@hotmail.com>, linux-kernel@vger.kernel.org, atulm@lsil.com,
+       linux-megaraid-devel@dell.com
+Subject: Re: Megaraid does not work with 2.4.22
+References: <Pine.LNX.4.44.0310072151220.27859-100000@logos.cnet>
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcelo Tosatti wrote:
 
-
-On Tue, 7 Oct 2003, Xose Vazquez Perez wrote:
-
-> Marcelo Tosatti wrote:
+>>Here go some trivial fixes(add menu entry, list all compatibles
+>>boards in help and put tab instead spaces) for megaraid2.
 > 
-> > Fine. I agree on adding in to mainline 2.4.x.
 > 
-> Here go some trivial fixes(add menu entry, list all compatibles
-> boards in help and put tab instead spaces) for megaraid2.
+> Those are already in the merged megaraid2
 
-Those are already in the merged megaraid2
+This is a patch against 2.4.22-bk30, and it's
+necessary to be able to compile megaraid2 and to
+get help text from menuconfig.
 
-thanks
+-thanks-
 

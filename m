@@ -1,65 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135699AbRD2Ik4>; Sun, 29 Apr 2001 04:40:56 -0400
+	id <S135700AbRD2IsR>; Sun, 29 Apr 2001 04:48:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135700AbRD2Ikq>; Sun, 29 Apr 2001 04:40:46 -0400
-Received: from magician.bunzy.net ([206.245.168.220]:19726 "HELO
-	magician.bunzy.net") by vger.kernel.org with SMTP
-	id <S135699AbRD2Iki>; Sun, 29 Apr 2001 04:40:38 -0400
-Date: Sun, 29 Apr 2001 04:40:59 -0400 (EDT)
-From: tc lewis <tcl@bunzy.net>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: RE: i2o/dpt/adaptec - SmartRAID V?
-In-Reply-To: <XFMail.20010426173340.davidel@xmailserver.org>
-Message-ID: <Pine.LNX.4.33L2.0104290436260.4409-100000@magician.bunzy.net>
+	id <S135701AbRD2IsI>; Sun, 29 Apr 2001 04:48:08 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:25494 "EHLO
+	c0mailgw03.prontomail.com") by vger.kernel.org with ESMTP
+	id <S135700AbRD2Iru>; Sun, 29 Apr 2001 04:47:50 -0400
+Message-ID: <3AEBD4F7.D5B2517F@mvista.com>
+Date: Sun, 29 Apr 2001 01:46:47 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mike Galbraith <mikeg@wen-online.de>
+CC: Nigel Gamble <nigel@nrg.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: #define HZ 1024 -- negative effects?
+In-Reply-To: <Pine.LNX.4.33.0104280646140.430-100000@mikeg.weiden.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 26 Apr 2001, Davide Libenzi wrote:
-> On 27-Apr-2001 tc lewis wrote:
+Mike Galbraith wrote:
+> 
+> On Fri, 27 Apr 2001, Nigel Gamble wrote:
+> 
+> > On Fri, 27 Apr 2001, Mike Galbraith wrote:
+> > > On Fri, 27 Apr 2001, Nigel Gamble wrote:
+> > > > > What about SCHED_YIELD and allocating during vm stress times?
+> > >
+> > > snip
+> > >
+> > > > A well-written GUI should not be using SCHED_YIELD.  If it is
+> > >
+> > > I was refering to the gui (or other tasks) allocating memory during
+> > > vm stress periods, and running into the yield in __alloc_pages()..
+> > > not a voluntary yield.
 > >
-> > i saw a few messages in the archive about these, but i'm still unclear on
-> > the current situation.
+> > Oh, I see.  Well, if this were causing the problem, then running the GUI
+> > at a real-time priority would be a better solution than increasing the
+> > clock frequency, since SCHED_YIELD has no effect on real-time tasks
+> > unless there are other runnable real-time tasks at the same priority.
+> > The call to schedule() would just reschedule the real-time GUI task
+> > itself immediately.
 > >
-> > according to /proc/pci, i'm working with a:
-> >   Bus  0, device   9, function  1:
-> >     I2O: Distributed Processing Technology SmartRAID V Controller (rev 2).
-> >       IRQ 9.
-> >       Master Capable.  Latency=64.  Min Gnt=1.Max Lat=1.
-> >       Prefetchable 32 bit memory at 0xf8000000 [0xf9ffffff].
-> >
-> > in the linux-kernel archive there was a recent message from someone noting
-> > that the eata driver does not handle this card.  it looks like adaptec has
-> > drivers for this for use with certain versions of linux 2.2, but not for
-> > linux 2.4.
-> >
-> > are these cards supported at all in linux 2.4?
-> >
-> > i think someone mentioned there were licensing issues on including this
-> > driver in the kernel tree, but it was available via some other means /
-> > someone hacked it up from dpt/adaptec for use with 2.4...can i get more
-> > info on this?  much appreciated.
->
-> The attached file is what I'm currently using and, as far as I can tell, it
-> works fine ( on a 2 way SMP PIII server ).
-> The driver developer @adaptec.com told me that a newer version should be issued
-> in a few days to be included in the mainstream code.
-> This new version should have code fixes requested by Alan.
->
+> > However, in times of vm stress it is more likely that GUI performance
+> > problems would be caused by parts of the GUI having been paged out,
+> > rather than by anything which could be helped by scheduling differences.
+> 
+> Agreed.  I wasn't thinking about swapping, only kswapd not quite keeping
+> up with laundering, and then user tasks having to pick up some of the
+> load.  Anyway, I've been told that for most values of HZ the slice is
+> 50ms, so my reasoning wrt HZ/SCHED_YIELD was wrong.  (begs the question
+> why do some archs use higher HZ values?)
+> 
+Well, almost.  Here is the scaling code:
 
-thanks, Davide.  i used the patch you sent with 2.4.3, also on a dual p3
-system, and so far it's been working flawlessly as far as i can tell for a
-day or two now.
+#if HZ < 200
+#define TICK_SCALE(x)	((x) >> 2)
+#elif HZ < 400
+#define TICK_SCALE(x)	((x) >> 1)
+#elif HZ < 800
+#define TICK_SCALE(x)	(x)
+#elif HZ < 1600
+#define TICK_SCALE(x)	((x) << 1)
+#else
+#define TICK_SCALE(x)	((x) << 2)
+#endif
 
-i'll be watching the list for future developments and in case it gets
-added to linus' source.  are there any other lists about this driver?
-might it be wise to contact adaptec for info/notification on its
-progression?
+#define NICE_TO_TICKS(nice)	(TICK_SCALE(20-(nice))+1)
 
--tcl.
+This, by the way, is new with 2.4.x.  As to why, it has more to do with
+timer resolution than anything else.  Timer resolution is 1/HZ so higher
+HZ => better resolution.  Of course, you must pay for it.  Nothing is
+free :)  Higher HZ means more interrupts => higher overhead.
 
-
+George

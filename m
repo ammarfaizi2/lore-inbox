@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbUBXNOH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 08:14:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbUBXNOG
+	id S262244AbUBXNWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 08:22:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbUBXNWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 08:14:06 -0500
-Received: from mbox.serv4.servweb.de ([80.239.142.80]:10888 "EHLO
-	serv4.servweb.de") by vger.kernel.org with ESMTP id S262254AbUBXNMV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 08:12:21 -0500
-Date: Tue, 24 Feb 2004 14:14:59 +0100
-From: Patrick Plattes <patrick@erdbeere.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: radeonfb starts only with 640x480
-Message-ID: <20040224131458.GB2805@erdbeere.net>
-References: <20040222143658.GA557@erdbeere.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TakKZr9L6Hm6aLOc"
-Content-Disposition: inline
-In-Reply-To: <20040222143658.GA557@erdbeere.net>
-User-Agent: Mutt/1.5.4i
+	Tue, 24 Feb 2004 08:22:25 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:49937 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S262244AbUBXNWY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 08:22:24 -0500
+Message-ID: <403B5257.2030305@techsource.com>
+Date: Tue, 24 Feb 2004 08:32:07 -0500
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: John Heil <kerndev@sc-software.com>
+CC: Thomas Zehetbauer <thomasz@hostmaster.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Intel vs AMD x86-64
+References: <Pine.LNX.4.58.0402171739020.2686@home.osdl.org>  <16435.14044.182718.134404@alkaid.it.uu.se>  <Pine.LNX.4.58.0402180744440.2686@home.osdl.org>  <20040222025957.GA31813@MAIL.13thfloor.at>  <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org> <1077584461.8414.164.camel@hostmaster.org> <Pine.LNX.4.58.0402231707220.13525@scsoftware.sc-software.com>
+In-Reply-To: <Pine.LNX.4.58.0402231707220.13525@scsoftware.sc-software.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---TakKZr9L6Hm6aLOc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-hello,
+John Heil wrote:
 
-i'm so sorry, to get on your nerve's, it was just a stupid configuration
-problem. i used the radeonfb as modules and i don't saw it.=20
+> 
+> 
+> I'll second that.
+> 
+> For whatever it's worth I replaced all my intel business boxes w AMD
+> w the advent of the K7/Athlon's and haven't looked back since,
+> including SMP. Next up for us will be dual Opteron. I cannot see
+> ever returning to Intel.
+> 
 
-i'm so ashamed
-patrick
 
+This is not a comment in favor of Intel... just a lament...
 
-On Sun, Feb 22, 2004 at 03:36:58PM +0100, Patrick Plattes wrote:
-> hello,
->=20
-> i try to use the 2.6.3. and i have a problem with the radeonfb. to start
-> linux with my favorite resolution i use the following line:
+Things may have changed, but when I last built a Linux box (Athlon XP 
+2800+), I was not able to find a motherboard for recent AMD processors 
+with 64bit/66mhz PCI slots.  If I'd needed that, I would have had to go 
+with Intel.
 
---TakKZr9L6Hm6aLOc
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAO05SQ7Xfys5M9aQRAkR5AKC7QL1Tg7OEvsUfIsEjXdPf2Sf9YQCfSrW9
-hSnb1Y8RGB5QeywzHA4ZBoQ=
-=IM3t
------END PGP SIGNATURE-----
-
---TakKZr9L6Hm6aLOc--

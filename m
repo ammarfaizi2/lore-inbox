@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267907AbUBRT1s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 14:27:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267909AbUBRT1n
+	id S267994AbUBRUCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 15:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267995AbUBRUCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 14:27:43 -0500
-Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:13578 "EHLO
-	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
-	id S267907AbUBRT1e convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 14:27:34 -0500
-Subject: Re: [REALLY STUPID] Re: Linux 2.6.3
-From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-To: =?ISO-8859-1?Q?Fr=E9d=E9ric?= "L. W. Meunier" <1@pervalidus.net>
-Cc: linux-kernel@vger.kernel.org, fcamara@prefeitura.sp.gov.br
-In-Reply-To: <Pine.LNX.4.58.0402181612140.670@pervalidus.dyndns.org>
-References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org>
-	 <yw1xad3gd7l5.fsf@ford.guide><200402181417.06553.ianh@iahastie.local.net>
-	 <yw1x1xoscvl8.fsf@ford.guide> <002f01c3f632$29783f90$0e25fe96@pysiak>
-	 <Pine.LNX.4.58.0402181342030.670@pervalidus.dyndns.org>
-	 <1077130933.31049.11.camel@telecentrolivre>
-	 <Pine.LNX.4.58.0402181612140.670@pervalidus.dyndns.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Organization: Governo Eletronico - SP
-Message-Id: <1077132367.30936.16.camel@telecentrolivre>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 18 Feb 2004 16:26:08 -0300
-Content-Transfer-Encoding: 8BIT
+	Wed, 18 Feb 2004 15:02:09 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4613 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S267994AbUBRUCE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 15:02:04 -0500
+Message-ID: <4033C48E.8020409@zytor.com>
+Date: Wed, 18 Feb 2004 12:01:18 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Tomas Szepe <szepe@pinerecords.com>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API
+References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.58.0402161141140.30742@home.osdl.org> <20040216202142.GA5834@outpost.ds9a.nl> <c0ukd2$3uk$1@terminus.zytor.com> <Pine.LNX.4.58.0402171910550.2686@home.osdl.org> <4032DA76.8070505@zytor.com> <Pine.LNX.4.58.0402171927520.2686@home.osdl.org> <4032F861.3080304@zytor.com> <Pine.LNX.4.58.0402180716180.2686@home.osdl.org> <20040218194744.GB1537@louise.pinerecords.com>
+In-Reply-To: <20040218194744.GB1537@louise.pinerecords.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Qua, 2004-02-18 às 16:14, Frédéric L. W. Meunier escreveu:
-
-> >  Me and some (brazilian) friends suggest "Cebolinha":
-> >
-> > http://www.kalizinha.net/monica/imagens/monica05.gif
-> >
-> >  It's a comic character created by Mauricio de Sousa. :)
+Tomas Szepe wrote:
+> On Feb-18 2004, Wed, 07:35 -0800
+> Linus Torvalds <torvalds@osdl.org> wrote:
 > 
-> And Cascão for the -mm series ?
+>>But it makes perfect sense to use a policy of:
+>> - escape valid UTF-8 characters as '\u7777'
 
-:)
+[And e.g. \U00017777 for characters above \uFFFF]
 
-> BTW, what about replacing the Tux framebuffer logo with them ?
+>> - escape _invalid_ UTF-8 characters as their hex byte sequence (ie 
+>>   '\xC0\x80\x80', whatever)
+>> - (and, obviously, escape the valid UTF-8 character '\' as '\\').
+>>
+>>Don't you agree? It clearly allows all the cases, and you can re-generate 
+>>the _exact_ original stream of bytes from the above (ie it is nicely 
+>>reversible, which in my opinion is a requirement).
+> 
+> I really really hope this is _exactly_ what we're going to see in practice.
+> 
 
- Actually, there is license problems with that.
+Same here.  This is clearly The Right Thing[TM].
 
--- 
-Luiz Fernando N. Capitulino
-<lcapitulino@prefeitura.sp.gov.br>
-<http://www.telecentros.sp.gov.br>
+	-hpa
 

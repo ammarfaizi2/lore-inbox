@@ -1,102 +1,486 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267425AbUHXCKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266487AbUHWS4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267425AbUHXCKA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 22:10:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269077AbUHXCI3
+	id S266487AbUHWS4A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 14:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266476AbUHWSyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 22:08:29 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:39329 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268194AbUHXCFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 22:05:48 -0400
-Message-ID: <412AA25E.8060509@yahoo.com.au>
-Date: Tue, 24 Aug 2004 12:05:18 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Massimo Cetra <mcetra@navynet.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Production comparison between 2.4.27 and 2.6.8.1
-References: <000001c48906$d70bf270$0600640a@guendalin>
-In-Reply-To: <000001c48906$d70bf270$0600640a@guendalin>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Aug 2004 14:54:31 -0400
+Received: from mail.kroah.org ([69.55.234.183]:16580 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267335AbUHWShM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 14:37:12 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <10932860903579@kroah.com>
+Date: Mon, 23 Aug 2004 11:34:50 -0700
+Message-Id: <1093286090580@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Massimo Cetra wrote:
-> Nick Piggin wrote:
-> 
->>>#**********************************************
->>>It is my first experience with 2.6 branch kernels, because 
->>
->>i am trying 
->>
->>>to figure out if the tree is performing well to switch 
->>
->>everithing in 
->>
->>>production, so my ideas may be wrong...
->>>
->>>Raid tests may be faked because of the overhead caused by 
->>
->>md sync (and 
->>
->>>probably raid is better on 2.6). However it seems that libsata has 
->>>better performance on 2.4 (hdparm) xfs tests shows that 2.4 
->>
->>has better 
->>
->>>performance if compared to 2.6 and the difference, in my 
->>
->>opinion, is 
->>
->>>not linked on libsata better performance.
->>>
->>>What is your opinion ?
->>>What can I try to improve performance ?
->>>
->>
->>I wouldn't worry too much about hdparm measurements. If you 
->>want to test the streaming throughput of the disk, run dd 
->>if=big-file of=/dev/null or a large write+sync.
->>
->>Regarding your worse non-RAID XFS database results, try 
->>booting 2.6 with elevator=deadline and test again. If yes, 
->>are you using queueing (TCQ) on your disks?
-> 
-> 
-> 
-> Tried even with 2.6.8.1-mm and 2.6.8.1-ck
-> No performance improvement.
-> 
->>From Documentation/block/as-iosched.txt i read:
-> 
-> #--------------------------------------
-> Attention! Database servers, especially those using "TCQ" disks should
-> investigate performance with the 'deadline' IO scheduler. Any system
-> with high
-> disk performance requirements should do so, in fact.
-> 
-> If you see unusual performance characteristics of your disk systems, or
-> you
-> see big performance regressions versus the deadline scheduler, please
-> email
-> me. Database users don't bother unless you're willing to test a lot of
-> patches
-> from me ;) its a known issue.
-> #--------------------------------------
-> 
-> So it's probably known that 2.6 performance with databases and heavy HD
-> access is an issue.
-> I don't believe that 2.6.x tree is performing as well as 2.4.x(-lck) on
-> server tasks.
-> 
-> Is this issue being analyzed ?
-> Should we hope in an improvement sometime?
-> Or I'll have to use 2.4 to have good performance ?
-> 
+ChangeSet 1.1807.59.4, 2004/08/05 14:02:46-07:00, adrian@humboldt.co.uk
 
-You booted with elevator=deadline and things still didn't improve
-though, correct? If so, then the problem should be found and fixed.
+[PATCH] I2C: bus driver for multiple PowerPCs
+
+The attached patch for Linux 2.6 adds an I2C driver for the MPC107 host
+bridge, plus the integrated controllers in the MPC824x, MPC85xx, and
+MPC52xx PowerPCs.  The driver has been tested on a variety of systems,
+by people on the linuxppc-embedded list.
+
+
+Signed-off-by: Adrian Cox <adrian@humboldt.co.uk>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+
+ drivers/i2c/busses/Kconfig   |   12 +
+ drivers/i2c/busses/Makefile  |    1 
+ drivers/i2c/busses/i2c-mpc.c |  392 +++++++++++++++++++++++++++++++++++++++++++
+ include/asm-ppc/fsl_ocp.h    |    2 
+ 4 files changed, 406 insertions(+), 1 deletion(-)
+
+
+diff -Nru a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+--- a/drivers/i2c/busses/Kconfig	2004-08-23 11:05:27 -07:00
++++ b/drivers/i2c/busses/Kconfig	2004-08-23 11:05:27 -07:00
+@@ -407,4 +407,16 @@
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-voodoo3.
+ 
++config I2C_MPC
++	tristate "MPC107/824x/85xx/52xx"
++	depends on I2C && FSL_OCP
++	help
++	  If you say yes to this option, support will be included for the
++	  built-in I2C interface on the MPC107/Tsi107/MPC8240/MPC8245 and
++	  MPC85xx family processors. The driver may also work on 52xx
++	  family processors, though interrupts are known not to work.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called i2c-mpc.
++
+ endmenu
+diff -Nru a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+--- a/drivers/i2c/busses/Makefile	2004-08-23 11:05:27 -07:00
++++ b/drivers/i2c/busses/Makefile	2004-08-23 11:05:27 -07:00
+@@ -33,6 +33,7 @@
+ obj-$(CONFIG_I2C_VOODOO3)	+= i2c-voodoo3.o
+ obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
+ obj-$(CONFIG_SCx200_I2C)	+= scx200_i2c.o
++obj-$(CONFIG_I2C_MPC)	+= i2c-mpc.o
+ 
+ ifeq ($(CONFIG_I2C_DEBUG_BUS),y)
+ EXTRA_CFLAGS += -DDEBUG
+diff -Nru a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/drivers/i2c/busses/i2c-mpc.c	2004-08-23 11:05:27 -07:00
+@@ -0,0 +1,392 @@
++/*
++ * (C) Copyright 2003-2004
++ * Humboldt Solutions Ltd, adrian@humboldt.co.uk.
++ 
++ * This is a combined i2c adapter and algorithm driver for the
++ * MPC107/Tsi107 PowerPC northbridge and processors that include
++ * the same I2C unit (8240, 8245, 85xx). 
++ *
++ * Release 0.6
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/config.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/sched.h>
++#include <linux/init.h>
++#include <linux/pci.h>
++#include <asm/io.h>
++#include <asm/ocp.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++
++#define MPC_I2C_ADDR  0x00
++#define MPC_I2C_FDR 	0x04
++#define MPC_I2C_CR	0x08
++#define MPC_I2C_SR	0x0c
++#define MPC_I2C_DR	0x10
++#define MPC_I2C_DFSRR 0x14
++#define MPC_I2C_REGION 0x20
++
++#define CCR_MEN  0x80
++#define CCR_MIEN 0x40
++#define CCR_MSTA 0x20
++#define CCR_MTX  0x10
++#define CCR_TXAK 0x08
++#define CCR_RSTA 0x04
++
++#define CSR_MCF  0x80
++#define CSR_MAAS 0x40
++#define CSR_MBB  0x20
++#define CSR_MAL  0x10
++#define CSR_SRW  0x04
++#define CSR_MIF  0x02
++#define CSR_RXAK 0x01
++
++struct mpc_i2c {
++	char *base;
++	struct ocp_def *ocpdef;
++	u32 interrupt;
++	wait_queue_head_t queue;
++	struct i2c_adapter adap;
++};
++
++static __inline__ void writeccr(struct mpc_i2c *i2c, u32 x)
++{
++	writeb(x, i2c->base + MPC_I2C_CR);
++}
++
++static irqreturn_t mpc_i2c_isr(int irq, void *dev_id, struct pt_regs *regs)
++{
++	struct mpc_i2c *i2c = dev_id;
++	if (readb(i2c->base + MPC_I2C_SR) & CSR_MIF) {
++		/* Read again to allow register to stabilise */
++		i2c->interrupt = readb(i2c->base + MPC_I2C_SR);
++		writeb(0, i2c->base + MPC_I2C_SR);
++		wake_up_interruptible(&i2c->queue);
++	}
++	return IRQ_HANDLED;
++}
++
++static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
++{
++	DECLARE_WAITQUEUE(wait, current);
++	unsigned long orig_jiffies = jiffies;
++	u32 x;
++	int result = 0;
++
++	if (i2c->ocpdef->irq == OCP_IRQ_NA) {
++		while (!(readb(i2c->base + MPC_I2C_SR) & CSR_MIF)) {
++			schedule();
++			if (time_after(jiffies, orig_jiffies + timeout)) {
++				pr_debug("I2C: timeout\n");
++				result = -EIO;
++				break;
++			}
++		}
++		x = readb(i2c->base + MPC_I2C_SR);
++		writeb(0, i2c->base + MPC_I2C_SR);
++	} else {
++		add_wait_queue(&i2c->queue, &wait);
++		while (!(i2c->interrupt & CSR_MIF)) {
++			set_current_state(TASK_INTERRUPTIBLE);
++			if (signal_pending(current)) {
++				pr_debug("I2C: Interrupted\n");
++				result = -EINTR;
++				break;
++			}
++			if (time_after(jiffies, orig_jiffies + timeout)) {
++				pr_debug("I2C: timeout\n");
++				result = -EIO;
++				break;
++			}
++			schedule_timeout(timeout);
++		}
++		current->state = TASK_RUNNING;
++		remove_wait_queue(&i2c->queue, &wait);
++		x = i2c->interrupt;
++		i2c->interrupt = 0;
++	}
++
++	if (result < -0)
++		return result;
++
++	if (!(x & CSR_MCF)) {
++		pr_debug("I2C: unfinished\n");
++		return -EIO;
++	}
++
++	if (x & CSR_MAL) {
++		pr_debug("I2C: MAL\n");
++		return -EIO;
++	}
++
++	if (writing && (x & CSR_RXAK)) {
++		pr_debug("I2C: No RXAK\n");
++		/* generate stop */
++		writeccr(i2c, CCR_MEN);
++		return -EIO;
++	}
++	return 0;
++}
++
++static void mpc_i2c_setclock(struct mpc_i2c *i2c)
++{
++	struct ocp_fs_i2c_data *i2c_data = i2c->ocpdef->additions;
++	/* Set clock and filters */
++	if (i2c_data && (i2c_data->flags & FS_I2C_SEPARATE_DFSRR)) {
++		writeb(0x31, i2c->base + MPC_I2C_FDR);
++		writeb(0x10, i2c->base + MPC_I2C_DFSRR);
++	} else if (i2c_data && (i2c_data->flags & FS_I2C_CLOCK_5200))
++		writeb(0x3f, i2c->base + MPC_I2C_FDR);
++	else
++		writel(0x1031, i2c->base + MPC_I2C_FDR);
++}
++
++static void mpc_i2c_start(struct mpc_i2c *i2c)
++{
++	/* Clear arbitration */
++	writeb(0, i2c->base + MPC_I2C_SR);
++	/* Start with MEN */
++	writeccr(i2c, CCR_MEN);
++}
++
++static void mpc_i2c_stop(struct mpc_i2c *i2c)
++{
++	writeccr(i2c, CCR_MEN);
++}
++
++static int mpc_write(struct mpc_i2c *i2c, int target,
++		     const u8 * data, int length, int restart)
++{
++	int i;
++	unsigned timeout = HZ;
++	u32 flags = restart ? CCR_RSTA : 0;
++
++	/* Start with MEN */
++	if (!restart)
++		writeccr(i2c, CCR_MEN);
++	/* Start as master */
++	writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_MTX | flags);
++	/* Write target byte */
++	writeb((target << 1), i2c->base + MPC_I2C_DR);
++
++	if (i2c_wait(i2c, timeout, 1) < 0)
++		return -1;
++
++	for (i = 0; i < length; i++) {
++		/* Write data byte */
++		writeb(data[i], i2c->base + MPC_I2C_DR);
++
++		if (i2c_wait(i2c, timeout, 1) < 0)
++			return -1;
++	}
++
++	return 0;
++}
++
++static int mpc_read(struct mpc_i2c *i2c, int target,
++		    u8 * data, int length, int restart)
++{
++	unsigned timeout = HZ;
++	int i;
++	u32 flags = restart ? CCR_RSTA : 0;
++
++	/* Start with MEN */
++	if (!restart)
++		writeccr(i2c, CCR_MEN);
++	/* Switch to read - restart */
++	writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_MTX | flags);
++	/* Write target address byte - this time with the read flag set */
++	writeb((target << 1) | 1, i2c->base + MPC_I2C_DR);
++
++	if (i2c_wait(i2c, timeout, 1) < 0)
++		return -1;
++
++	if (length) {
++		if (length == 1)
++			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_TXAK);
++		else
++			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA);
++		/* Dummy read */
++		readb(i2c->base + MPC_I2C_DR);
++	}
++
++	for (i = 0; i < length; i++) {
++		if (i2c_wait(i2c, timeout, 0) < 0)
++			return -1;
++
++		/* Generate txack on next to last byte */
++		if (i == length - 2)
++			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_TXAK);
++		/* Generate stop on last byte */
++		if (i == length - 1)
++			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_TXAK);
++		data[i] = readb(i2c->base + MPC_I2C_DR);
++	}
++
++	return length;
++}
++
++static int mpc_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
++{
++	struct i2c_msg *pmsg;
++	int i;
++	int ret = 0;
++	unsigned long orig_jiffies = jiffies;
++	struct mpc_i2c *i2c = i2c_get_adapdata(adap);
++
++	mpc_i2c_start(i2c);
++
++	/* Allow bus up to 1s to become not busy */
++	while (readb(i2c->base + MPC_I2C_SR) & CSR_MBB) {
++		if (signal_pending(current)) {
++			pr_debug("I2C: Interrupted\n");
++			return -EINTR;
++		}
++		if (time_after(jiffies, orig_jiffies + HZ)) {
++			pr_debug("I2C: timeout\n");
++			return -EIO;
++		}
++		schedule();
++	}
++
++	for (i = 0; ret >= 0 && i < num; i++) {
++		pmsg = &msgs[i];
++		pr_debug("Doing %s %d bytes to 0x%02x - %d of %d messages\n",
++			 pmsg->flags & I2C_M_RD ? "read" : "write",
++			 pmsg->len, pmsg->addr, i + 1, num);
++		if (pmsg->flags & I2C_M_RD)
++			ret =
++			    mpc_read(i2c, pmsg->addr, pmsg->buf, pmsg->len, i);
++		else
++			ret =
++			    mpc_write(i2c, pmsg->addr, pmsg->buf, pmsg->len, i);
++	}
++	mpc_i2c_stop(i2c);
++	return (ret < 0) ? ret : num;
++}
++
++static u32 mpc_functionality(struct i2c_adapter *adap)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++}
++
++static struct i2c_algorithm mpc_algo = {
++	.name = "MPC algorithm",
++	.id = I2C_ALGO_MPC107,
++	.master_xfer = mpc_xfer,
++	.functionality = mpc_functionality,
++};
++
++static struct i2c_adapter mpc_ops = {
++	.owner = THIS_MODULE,
++	.name = "MPC adapter",
++	.id = I2C_ALGO_MPC107 | I2C_HW_MPC107,
++	.algo = &mpc_algo,
++	.class = I2C_CLASS_HWMON,
++	.timeout = 1,
++	.retries = 1
++};
++
++static int __devinit mpc_i2c_probe(struct ocp_device *ocp)
++{
++	int result = 0;
++	struct mpc_i2c *i2c;
++
++	if (!(i2c = kmalloc(sizeof(*i2c), GFP_KERNEL))) {
++		return -ENOMEM;
++	}
++	i2c->ocpdef = ocp->def;
++	init_waitqueue_head(&i2c->queue);
++
++	if (!request_mem_region(ocp->def->paddr, MPC_I2C_REGION, "i2c-mpc")) {
++		printk(KERN_ERR "i2c-mpc - resource unavailable\n");
++		return -ENODEV;
++	}
++
++	i2c->base = ioremap(ocp->def->paddr, MPC_I2C_REGION);
++
++	if (!i2c->base) {
++		printk(KERN_ERR "i2c-mpc - failed to map controller\n");
++		result = -ENOMEM;
++		goto fail_map;
++	}
++
++	if (ocp->def->irq != OCP_IRQ_NA)
++		if ((result = request_irq(ocp->def->irq, mpc_i2c_isr,
++					  0, "i2c-mpc", i2c)) < 0) {
++			printk(KERN_ERR
++			       "i2c-mpc - failed to attach interrupt\n");
++			goto fail_irq;
++		}
++
++	i2c->adap = mpc_ops;
++	i2c_set_adapdata(&i2c->adap, i2c);
++	if ((result = i2c_add_adapter(&i2c->adap)) < 0) {
++		printk(KERN_ERR "i2c-mpc - failed to add adapter\n");
++		goto fail_add;
++	}
++
++	mpc_i2c_setclock(i2c);
++	ocp_set_drvdata(ocp, i2c);
++	return result;
++
++      fail_add:
++	if (ocp->def->irq != OCP_IRQ_NA)
++		free_irq(ocp->def->irq, 0);
++      fail_irq:
++	iounmap(i2c->base);
++      fail_map:
++	release_mem_region(ocp->def->paddr, MPC_I2C_REGION);
++	kfree(i2c);
++	return result;
++}
++static void __devexit mpc_i2c_remove(struct ocp_device *ocp)
++{
++	struct mpc_i2c *i2c = ocp_get_drvdata(ocp);
++	ocp_set_drvdata(ocp, NULL);
++	i2c_del_adapter(&i2c->adap);
++
++	if (ocp->def->irq != OCP_IRQ_NA)
++		free_irq(i2c->ocpdef->irq, i2c);
++	iounmap(i2c->base);
++	release_mem_region(i2c->ocpdef->paddr, MPC_I2C_REGION);
++	kfree(i2c);
++}
++
++static struct ocp_device_id mpc_iic_ids[] __devinitdata = {
++	{.vendor = OCP_VENDOR_FREESCALE,.function = OCP_FUNC_IIC},
++	{.vendor = OCP_VENDOR_INVALID}
++};
++
++MODULE_DEVICE_TABLE(ocp, mpc_iic_ids);
++
++static struct ocp_driver mpc_iic_driver = {
++	.name = "iic",
++	.id_table = mpc_iic_ids,
++	.probe = mpc_i2c_probe,
++	.remove = __devexit_p(mpc_i2c_remove)
++};
++
++static int __init iic_init(void)
++{
++	return ocp_register_driver(&mpc_iic_driver);
++}
++
++static void __exit iic_exit(void)
++{
++	ocp_unregister_driver(&mpc_iic_driver);
++}
++
++module_init(iic_init);
++module_exit(iic_exit);
++
++MODULE_AUTHOR("Adrian Cox <adrian@humboldt.co.uk>");
++MODULE_DESCRIPTION
++    ("I2C-Bus adapter for MPC107 bridge and MPC824x/85xx/52xx processors");
++MODULE_LICENSE("GPL");
+diff -Nru a/include/asm-ppc/fsl_ocp.h b/include/asm-ppc/fsl_ocp.h
+--- a/include/asm-ppc/fsl_ocp.h	2004-08-23 11:05:27 -07:00
++++ b/include/asm-ppc/fsl_ocp.h	2004-08-23 11:05:27 -07:00
+@@ -48,7 +48,7 @@
+ 
+ /* Flags for I2C */
+ #define FS_I2C_SEPARATE_DFSRR	0x02
+-#define FS_I2C_32BIT		0x01
++#define FS_I2C_CLOCK_5200	0x01
+ 
+ #endif	/* __ASM_FS_OCP_H__ */
+ #endif	/* __KERNEL__ */
+

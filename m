@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281194AbRKTR7v>; Tue, 20 Nov 2001 12:59:51 -0500
+	id <S281184AbRKTSC5>; Tue, 20 Nov 2001 13:02:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281193AbRKTR7h>; Tue, 20 Nov 2001 12:59:37 -0500
-Received: from dns.isp.htn.de ([193.254.18.42]:1755 "EHLO mail.htp-tel.de")
-	by vger.kernel.org with ESMTP id <S281192AbRKTR70>;
-	Tue, 20 Nov 2001 12:59:26 -0500
-Date: Tue, 20 Nov 2001 13:24:49 +0100
-From: Ingo Saitz <Ingo.Saitz@stud.uni-hannover.de>
+	id <S281196AbRKTSCr>; Tue, 20 Nov 2001 13:02:47 -0500
+Received: from mo.kasei.com ([212.250.176.40]:29188 "HELO soto.kasei.com")
+	by vger.kernel.org with SMTP id <S281184AbRKTSCd>;
+	Tue, 20 Nov 2001 13:02:33 -0500
+Date: Tue, 20 Nov 2001 18:02:31 +0000
+From: Marty Pauley <kernel@kasei.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: radeonfb bug: text ends up scrolling in the middle of tux.
-Message-ID: <20011120132449.A13506@pinguin.subspace.exe>
-In-Reply-To: <200111200133.fAK1XT2J000773@vulpine.ao.net>
+Subject: Re: [PATCH] OOPS in i810_audio during resume
+Message-ID: <20011120180231.A20222@soto.kasei.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <linux.kernel.12220000.1004834654@araucaria.SOMEWHERE>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200111200133.fAK1XT2J000773@vulpine.ao.net>
+In-Reply-To: <linux.kernel.12220000.1004834654@araucaria.SOMEWHERE>
 User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 19, 2001 at 08:33:29PM -0500, Dan Merillat wrote:
-> Ok, I've poked around but I can't find a penguin or tux bitmap to
-> figure out why scrolling is so broken.  I've got to login blind and type
-> reset to get the console back.  Needless to say, no kernel messages
-> are readable after the mode-switch (they all overwrite themselves on
-> a single line)
+Hello
 
-Yes, I encontered the same. See my previous message for a patch:
+When resuming from APM suspend with the i810_audio loaded I got an OOPS that
+killed apmd.  This simple patch stops the OOPS (so APM keeps working) but it
+doesn't solve the problem.
 
-Message-ID: <20011118163244.A1100@pinguin.subspace.exe>
-Subject: Debugging (?) output in 2.4.14 breaks radeon framebuffer
+'codec' is null is because it previously failed to initialise in
+i810_ac97_init: i810_ac97_probe_and_powerup fails for the second codec; Alex
+Bligh mentioned this a few weeks ago.
 
-The offending code seems to have entered the kernel at 2.4.14,
-2.4.13 was OK on my box.
 
-    Ingo
+--- /usr/src/linux/drivers/sound/i810_audio.c.orig      Thu Nov 15 01:38:31 2001
++++ /usr/src/linux/drivers/sound/i810_audio.c   Thu Nov 15 01:45:07 2001
+@@ -2873,6 +2873,10 @@
+                if(!i810_ac97_exists(card,num_ac97)) {
+                        if(num_ac97) continue;
+                        else BUG();
++               }
++               if(!codec) {
++                       printk("i810_audio: cannot resume null codec %d\n", num_ac97);
++                       continue;
+                }
+                if(!i810_ac97_probe_and_powerup(card,codec)) BUG();
+ 
 -- 
-Gzip is Evil!
- - Gzip is described in RCF 1952
- - 1+9+5+2 = 23 - 2*3
+Marty

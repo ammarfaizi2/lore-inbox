@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293138AbSB1CXm>; Wed, 27 Feb 2002 21:23:42 -0500
+	id <S292997AbSB1CYX>; Wed, 27 Feb 2002 21:24:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293145AbSB1CXA>; Wed, 27 Feb 2002 21:23:00 -0500
-Received: from wren.mail.pas.earthlink.net ([207.217.121.64]:59837 "EHLO
-	wren.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S293138AbSB1CWi>; Wed, 27 Feb 2002 21:22:38 -0500
-From: "Karl" <ktatgenhorst@earthlink.net>
-To: "Larry McVoy" <lm@bitmover.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel module ethics.
-Date: Wed, 27 Feb 2002 20:38:57 -0500
-Message-ID: <NDBBJHDEALBBOIDJGBNNKEOGCFAA.ktatgenhorst@earthlink.net>
+	id <S293146AbSB1CXn>; Wed, 27 Feb 2002 21:23:43 -0500
+Received: from 216-42-72-159.ppp.netsville.net ([216.42.72.159]:40394 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S293141AbSB1CWo>; Wed, 27 Feb 2002 21:22:44 -0500
+Date: Wed, 27 Feb 2002 21:21:48 -0500
+From: Chris Mason <mason@suse.com>
+To: Oliver.Schersand@BASF-IT-Services.com, linux-kernel@vger.kernel.org
+Subject: Re: Kernel Hangs 2.4.16 on heay io on a reiserfs mounted on a lvm partition
+Message-ID: <3426050000.1014862908@tiny>
+In-Reply-To: <OFBD35F27E.C229DA29-ONC1256B6D.0049B834@bcs.de>
+In-Reply-To: <OFBD35F27E.C229DA29-ONC1256B6D.0049B834@bcs.de>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20020227181333.A25723@work.bitmover.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
->Like I said before, unless your code is potentially worth at least a
->million bucks, it's almost certainly not worth anything financially,
->so GPL it.  If you think it could be worth $1M, isn't it worth $.015M
->to figure out your rights?
---
----
->Larry McVoy
+On Wednesday, February 27, 2002 02:26:53 PM +0100 Oliver.Schersand@BASF-IT-Services.com wrote:
 
+> 
+> On heavy load ( ADSM BAckup / Oracle Online Backup to disk with rman System
+> hangs.
+> You can ping the server but you cannot login local or over network. It is
+> not possible
+> to switch localy to an other loginscreen. ( Alt-f1 Alt-f2). There is no log
+> information on the
+> server an no kernel messages send to other server (loghost ) via syslogd.
 
-   Very well said. Thanks for your insight, and thank you Erik for your
-response as well. As I said this was merely a curiosity, but it was very
-informative.
+Is is possible to put this machine on a serial console?  That would make
+it much easier to get a stack trace and try to debug this further.
 
-Karl
+-chris
 

@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132815AbRADMUX>; Thu, 4 Jan 2001 07:20:23 -0500
+	id <S132592AbRADMeI>; Thu, 4 Jan 2001 07:34:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132963AbRADMUN>; Thu, 4 Jan 2001 07:20:13 -0500
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:36612 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S132815AbRADMTz>; Thu, 4 Jan 2001 07:19:55 -0500
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200101041219.NAA03487@green.mif.pg.gda.pl>
-Subject: [PATCH] ide patch problem
-To: andre@suse.com (Andre M. Hedrick)
-Date: Thu, 4 Jan 2001 13:19:10 +0100 (CET)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
+	id <S132676AbRADMd7>; Thu, 4 Jan 2001 07:33:59 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:56580 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S132592AbRADMdn>; Thu, 4 Jan 2001 07:33:43 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Thu, 4 Jan 2001 23:32:11 +1100
+To: Andi Kleen <ak@suse.de>
+Cc: Daniel Phillips <phillips@innominate.de>,
+        ludovic fernandez <ludovic.fernandez@sun.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.0-prerelease: preemptive kernel.
+Message-ID: <20010104233211.A20942@linuxcare.com>
+In-Reply-To: <3A53D863.53203DF4@sun.com> <3A5427A6.26F25A8A@innominate.de> <20010104091118.A18973@gruyere.muc.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010104091118.A18973@gruyere.muc.suse.de>; from ak@suse.de on Thu, Jan 04, 2001 at 09:11:18AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   Your ide.2.2.18.1221.patch does not compile on alpha:
+ 
+> I think a better way to proceed would be to make semaphores a bit more 
+> intelligent and turn them into something like adaptive spinlocks and use
+> them more where appropiate (currently using semaphores usually causes
+> lots of context switches where some could probably be avoided). Problem
+> is that for some cases like your producer-consumer pattern (which has been
+> used previously in unreleased kernel code BTW) it would be a pessimization
+> to spin, so such adaptive locks would probably need a different name.
 
-cc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
--fomit-frame-pointer -fno-strict-aliasing -pipe -mno-fp-regs -ffixed-8
--mcpu=ev56 -Wa,-m21164a -DBWIO_ENABLED   -c -o ide-geometry.o ide-geometry.c
-In file included from ide-geometry.c:5:
-/usr/src/linux/include/linux/mc146818rtc.h:29: parse error before `rtc_lock'
-/usr/src/linux/include/linux/mc146818rtc.h:29: warning: type defaults to
-`int' in declaration of `rtc_lock'
-/usr/src/linux/include/linux/mc146818rtc.h:29: warning: data definition has
-no type or storage class
-make[3]: *** [ide-geometry.o] Error 1
-make[3]: Leaving directory /usr/src/linux/drivers/block'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory /usr/src/linux/drivers/block'
-make[1]: *** [_subdir_block] Error 2
-make[1]: Leaving directory /usr/src/linux/drivers'
-make: *** [_dir_drivers] Error 2
+Like solaris adaptive mutexes? It would be interesting to test,
+however considering read/write semaphores are hardly ever used these
+days we want to be sure they are worth it before adding yet another
+synchronisation primitive.
 
-The following patch fixes the problem, but I'm not sure whether it is
-correct :
-
---- drivers/block/ide-geometry.c.old	Thu Jan  4 12:51:29 2001
-+++ drivers/block/ide-geometry.c	Thu Jan  4 13:18:02 2001
-@@ -2,6 +2,7 @@
-  * linux/drivers/ide/ide-geometry.c
-  */
- #include <linux/config.h>
-+#include <linux/mm.h>
- #include <linux/mc146818rtc.h>
- #include <linux/ide.h>
- #include <asm/io.h>
-
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+Anton
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

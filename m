@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261305AbSKGPe6>; Thu, 7 Nov 2002 10:34:58 -0500
+	id <S261290AbSKGPhy>; Thu, 7 Nov 2002 10:37:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261306AbSKGPe6>; Thu, 7 Nov 2002 10:34:58 -0500
-Received: from gateway.cinet.co.jp ([210.166.75.129]:41006 "EHLO
-	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261305AbSKGPe5>; Thu, 7 Nov 2002 10:34:57 -0500
-Message-ID: <3DCA89A0.E6B6DDEF@cinet.co.jp>
-Date: Fri, 08 Nov 2002 00:41:20 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.45-ac1-pc98smp i686)
-X-Accept-Language: ja, en
+	id <S261291AbSKGPhx>; Thu, 7 Nov 2002 10:37:53 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45069 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261290AbSKGPhx>; Thu, 7 Nov 2002 10:37:53 -0500
+Date: Thu, 7 Nov 2002 07:44:51 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Werner Almesberger <wa@almesberger.net>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Andy Pfiffer <andyp@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <lkcd-general@lists.sourceforge.net>,
+       <lkcd-devel@lists.sourceforge.net>
+Subject: Re: [lkcd-devel] Re: What's left over.
+In-Reply-To: <m14ratepbf.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.44.0211070731200.5567-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] 2.5.45-ac1 CardBus compile Fix
-Content-Type: multipart/mixed;
- boundary="------------A1F21475D43E4AB34680EB7E"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------A1F21475D43E4AB34680EB7E
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
 
-I couldn't compile cistpl.c, that call obsolete function.
+On 7 Nov 2002, Eric W. Biederman wrote:
+> 
+> There are currently 2 cases that it would be nice to have work.
+> 1) Load a new kernel and immediately execute it.
+> 2) Load a new kernel and execute it on panic.
 
-Here is trivial patch. This works fine for me.
+I really don't think (1) is _ever_ a valid thing to do.
 
-Regards,
-Osamu Tomita
---------------A1F21475D43E4AB34680EB7E
-Content-Type: text/plain; charset=iso-2022-jp;
- name="2.5.45-ac1-cardbus-compile.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.5.45-ac1-cardbus-compile.patch"
+The fact is, loading a new kernel wants filesystems and a fully working 
+system. While executing it wants the filesystems quiescent.
 
---- linux-2.5.45-ac1/drivers/pcmcia/cistpl.c.orig	Thu Oct 31 09:42:24 2002
-+++ linux-2.5.45-ac1/drivers/pcmcia/cistpl.c	Thu Nov  7 01:03:55 2002
-@@ -429,7 +429,7 @@
- #ifdef CONFIG_CARDBUS
-     if (s->state & SOCKET_CARDBUS) {
- 	u_int ptr;
--	pcibios_read_config_dword(s->cap.cb_dev->subordinate->number, 0, 0x28, &ptr);
-+	pci_bus_read_config_dword(s->cap.cb_dev->bus, 0, 0x28, &ptr);
- 	tuple->CISOffset = ptr & ~7;
- 	SPACE(tuple->Flags) = (ptr & 7);
-     } else
+> panic does not call sys_reboot it rolls that functionality by hand.
 
---------------A1F21475D43E4AB34680EB7E--
+Forget about panic for now. It's a design issue - it should be possible to 
+work, but somebody else can do it if the infrastructure is done right.
+
+> In a unified design I can buffer the image in the anonymous pages of a
+> user space process just as well as I can in locked down kernel memory.
+
+And in a unified design, I won't apply the patches. It's that simple.
+
+		Linus
 

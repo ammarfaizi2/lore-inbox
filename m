@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276669AbRJKSYl>; Thu, 11 Oct 2001 14:24:41 -0400
+	id <S276654AbRJKSZV>; Thu, 11 Oct 2001 14:25:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276665AbRJKSYb>; Thu, 11 Oct 2001 14:24:31 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:59145 "EHLO toyota.com")
-	by vger.kernel.org with ESMTP id <S276670AbRJKSYT>;
-	Thu, 11 Oct 2001 14:24:19 -0400
-Message-ID: <3BC5E3AF.588D0A55@lexus.com>
-Date: Thu, 11 Oct 2001 11:23:44 -0700
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.11 i686)
-X-Accept-Language: en
+	id <S276665AbRJKSZB>; Thu, 11 Oct 2001 14:25:01 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:5770 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S276654AbRJKSY6>;
+	Thu, 11 Oct 2001 14:24:58 -0400
+Date: Thu, 11 Oct 2001 14:25:27 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Guest section DW <dwguest@win.tue.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.11 loses sda9
+In-Reply-To: <20011011202242.A7283@win.tue.nl>
+Message-ID: <Pine.GSO.4.21.0110111424520.24742-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Tim Moore <timothymoore@bigfoot.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Which kernel (Linus or ac)?
-In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E152.3D81631@bigfoot.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Moore wrote:
-
-> Any special reason to use 2.4?
-
-er... scalability, performance, features?
-
-> I only use 2.2.19p8 and 2.2.20p10 where
-> stability is important.
-
-experimental pre-releases? interesting...
-
-All my 2.4 based servers are running quite
-reliably - the oldest now have over180 days
-uptime, all have been up since install or last
-kernel with no hint of instability.
-
-Red Hat and Late -ac kernels are especially
-stable examples of 2.4 -
-
-cu
-
-jjs
 
 
+On Thu, 11 Oct 2001, Guest section DW wrote:
 
+> On Thu, Oct 11, 2001 at 01:07:22AM -0400, Alexander Viro wrote:
+> 
+> > If you have sfdisk, sfdisk /dev/sda -O /tmp/foo + mailing the result would
+> > make debugging the thing much simpler (that one - from the 2.4.10).
+> 
+> Probably you mean sfdisk -d /dev/sda > /tmp/foo or so?
+> My favourite tends to be sfdisk -l -uS -x /dev/sda
+> 
+> The -O option saves the sectors that are changed by the sfdisk call
+> to some file, so that a later undo is possible.
 
-
+... and the contents of these sectors is precisely what I would like to see.
 

@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310549AbSCVAL3>; Thu, 21 Mar 2002 19:11:29 -0500
+	id <S310637AbSCVASK>; Thu, 21 Mar 2002 19:18:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310598AbSCVALT>; Thu, 21 Mar 2002 19:11:19 -0500
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:4503 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S310549AbSCVALE>;
-	Thu, 21 Mar 2002 19:11:04 -0500
-Message-ID: <3C9A758D.103@acm.org>
-Date: Thu, 21 Mar 2002 18:06:37 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Tom Rini <trini@kernel.crashing.org>, "H. Peter Anvin" <hpa@zytor.com>,
+	id <S312568AbSCVASA>; Thu, 21 Mar 2002 19:18:00 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:58272 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S310637AbSCVARt>; Thu, 21 Mar 2002 19:17:49 -0500
+Date: Thu, 21 Mar 2002 17:33:11 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Christoph Hellwig <hch@vger.timpanogas.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Hari Gadi <HGadi@ecutel.com>,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zlib double-free bug
-In-Reply-To: <E16oAoJ-0006RH-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: module (kernel) debugging
+Message-ID: <20020321173311.A25805@vger.timpanogas.org>
+In-Reply-To: <AF2378CBE7016247BC0FD5261F1EEB210B6A93@EXCHANGE01.domain.ecutel.com> <E16oBVq-0006Z6-00@the-village.bc.nu> <20020321163015.A25688@vger.timpanogas.org> <20020321232955.A20289@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Thu, Mar 21, 2002 at 11:29:55PM +0000, Christoph Hellwig wrote:
+> On Thu, Mar 21, 2002 at 04:30:15PM -0700, Jeff V. Merkey wrote:
+> > 
+> > One more:
+> > 
+> > MDB - source level kernel debugger.  
+> 
+> Where?
 
->>It's getting there.  The 'issue' is that the best way to fix it (maybe
->>2.4.20-pre1 even) is to backport the 2.5 zlib which doesn't have this
->>
->
->2.4.19ac has the shared zlib already. The zlib sharing stuff wasnt a 2.5
->patch backported - its a 2.4 fix that went forward
->
-Since I did the original shared zlib patch and I did it to 2.5, either 
-we have two patches floating around or you are incorrect.  If we have 
-two patches, we need to resolve the situation.
 
--Corey
+www.kdebug.com.  They are still setting up the website and docs.  I 
+completed the debugger a few weeks ago.  I have been working on 
+it for several months now.  If you want a copy to play 
+with, I can send after I ask permission.  I do not own it and was
+hired to write it as a work for hire, so it's not open source, it's
+a commercial product for Linux.  
 
+:-)
+
+Jeff
 

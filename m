@@ -1,39 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVCGUd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVCGUd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbVCGUd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 15:33:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVCGUcQ
+	id S261292AbVCGUd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 15:33:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVCGUci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 15:32:16 -0500
-Received: from mailer.campus.mipt.ru ([194.85.82.4]:6321 "EHLO
+	Mon, 7 Mar 2005 15:32:38 -0500
+Received: from mailer.campus.mipt.ru ([194.85.82.4]:7601 "EHLO
 	mailer.campus.mipt.ru") by vger.kernel.org with ESMTP
-	id S261775AbVCGUMc convert rfc822-to-8bit (ORCPT
+	id S261777AbVCGUMd convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 15:12:32 -0500
+	Mon, 7 Mar 2005 15:12:33 -0500
 Cc: Fruhwirth Clemens <clemens@endorphin.org>,
        Herbert Xu <herbert@gondor.apana.org.au>, cryptoapi@lists.logix.cz,
        James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>,
        Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Subject: [12/many] acrypto: crypto_route.h
-In-Reply-To: <11102278541439@2ka.mipt.ru>
+Subject: [10/many] acrypto: crypto_lb.h
+In-Reply-To: <1110227854957@2ka.mipt.ru>
 X-Mailer: gregkh_patchbomb
 Date: Mon, 7 Mar 2005 23:37:34 +0300
-Message-Id: <11102278541968@2ka.mipt.ru>
+Message-Id: <11102278543541@2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 To: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7BIT
 From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (mailer.campus.mipt.ru [194.85.82.4]); Mon, 07 Mar 2005 23:11:25 +0300 (MSK)
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (mailer.campus.mipt.ru [194.85.82.4]); Mon, 07 Mar 2005 23:11:24 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- /tmp/empty/crypto_route.h	1970-01-01 03:00:00.000000000 +0300
-+++ ./acrypto/crypto_route.h	2005-03-07 20:35:36.000000000 +0300
-@@ -0,0 +1,242 @@
+--- /tmp/empty/crypto_lb.h	1970-01-01 03:00:00.000000000 +0300
++++ ./acrypto/crypto_lb.h	2005-03-07 20:35:36.000000000 +0300
+@@ -0,0 +1,63 @@
 +/*
-+ * 	crypto_route.h
++ * 	crypto_lb.h
 + *
 + * Copyright (c) 2004 Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 + * 
@@ -53,225 +53,46 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 + */
 +
-+#ifndef __CRYPTO_ROUTE_H
-+#define __CRYPTO_ROUTE_H
-+
-+#include <linux/types.h>
-+#include <linux/slab.h>
-+#include <linux/spinlock.h>
++#ifndef __CRYPTO_LB_H
++#define __CRYPTO_LB_H
 +
 +#include "acrypto.h"
 +
-+static inline struct crypto_route *crypto_route_alloc_direct(struct crypto_device *dev,
-+							     struct crypto_session_initializer *ci)
++#define CRYPTO_LB_NAMELEN	32
++
++struct crypto_lb 
 +{
-+	struct crypto_route *rt;
++	struct list_head 	lb_entry;
 +
-+	rt = kmalloc(sizeof(*rt), GFP_ATOMIC);
-+	if (!rt) {
-+		crypto_device_put(dev);
-+		return NULL;
-+	}
++	char 			name[CRYPTO_LB_NAMELEN];
 +
-+	memset(rt, 0, sizeof(*rt));
-+	memcpy(&rt->ci, ci, sizeof(*ci));
++	void 			(*rehash)(struct crypto_lb *);
++	struct crypto_device *	(*find_device) (struct crypto_lb *,
++						struct crypto_session_initializer *, 
++						struct crypto_data *);
 +
-+	rt->dev = dev;
++	spinlock_t 		lock;
 +
-+	return rt;
-+}
++	spinlock_t 		*crypto_device_lock;
++	struct list_head 	*crypto_device_list;
 +
-+static inline struct crypto_route *crypto_route_alloc(struct crypto_device *dev,
-+							struct crypto_session_initializer *ci)
-+{
-+	struct crypto_route *rt;
++	struct device_driver 	*driver;
++	struct device 		device;
++	struct class_device 	class_device;
++	struct completion 	dev_released;
 +
-+	if (!match_initializer(dev, ci))
-+		return NULL;
++};
 +
-+	rt = crypto_route_alloc_direct(dev, ci);
++int crypto_lb_register(struct crypto_lb *lb, int set_current, int set_default);
++void crypto_lb_unregister(struct crypto_lb *);
 +
-+	return rt;
-+}
++inline void crypto_lb_rehash(void);
++struct crypto_device *crypto_lb_find_device(struct crypto_session_initializer *, struct crypto_data *);
 +
-+static inline void crypto_route_free(struct crypto_route *rt)
-+{
-+	crypto_device_put(rt->dev);
-+	rt->dev = NULL;
-+	kfree(rt);
-+}
++void crypto_wake_lb(void);
 +
-+static inline void __crypto_route_del(struct crypto_route *rt, struct crypto_route_head *list)
-+{
-+	struct crypto_route *next, *prev;
++int crypto_lb_init(void);
++void crypto_lb_fini(void);
 +
-+	list->qlen--;
-+	next = rt->next;
-+	prev = rt->prev;
-+	rt->next = rt->prev = NULL;
-+	rt->list = NULL;
-+	next->prev = prev;
-+	prev->next = next;
-+}
-+
-+static inline void crypto_route_del(struct crypto_route *rt)
-+{
-+	struct crypto_route_head *list = rt->list;
-+
-+	if (list) {
-+		spin_lock_irq(&list->lock);
-+		if (list == rt->list)
-+			__crypto_route_del(rt, rt->list);
-+		spin_unlock_irq(&list->lock);
-+
-+		crypto_route_free(rt);
-+	}
-+}
-+
-+static inline struct crypto_route *__crypto_route_dequeue(struct crypto_route_head *list)
-+{
-+	struct crypto_route *next, *prev, *result;
-+
-+	prev = (struct crypto_route *)list;
-+	next = prev->next;
-+	result = NULL;
-+	if (next != prev) {
-+		result = next;
-+		next = next->next;
-+		list->qlen--;
-+		next->prev = prev;
-+		prev->next = next;
-+		result->next = result->prev = NULL;
-+		result->list = NULL;
-+	}
-+	return result;
-+}
-+
-+static inline struct crypto_route *crypto_route_dequeue(struct crypto_session *s)
-+{
-+	struct crypto_route *rt;
-+
-+	spin_lock_irq(&s->route_list.lock);
-+
-+	rt = __crypto_route_dequeue(&s->route_list);
-+
-+	spin_unlock_irq(&s->route_list.lock);
-+
-+	return rt;
-+}
-+
-+static inline void __crypto_route_queue(struct crypto_route *rt, struct crypto_route_head *list)
-+{
-+	struct crypto_route *prev, *next;
-+
-+	rt->list = list;
-+	list->qlen++;
-+	next = (struct crypto_route *)list;
-+	prev = next->prev;
-+	rt->next = next;
-+	rt->prev = prev;
-+	next->prev = prev->next = rt;
-+}
-+
-+static inline void crypto_route_queue(struct crypto_route *rt, struct crypto_session *s)
-+{
-+
-+	spin_lock_irq(&s->route_list.lock);
-+
-+	__crypto_route_queue(rt, &s->route_list);
-+
-+	spin_unlock_irq(&s->route_list.lock);
-+}
-+
-+static inline int crypto_route_add(struct crypto_device *dev, struct crypto_session *s, 
-+						struct crypto_session_initializer *ci)
-+{
-+	struct crypto_route *rt;
-+
-+	rt = crypto_route_alloc(dev, ci);
-+	if (!rt)
-+		return -ENOMEM;
-+
-+	crypto_route_queue(rt, s);
-+
-+	return 0;
-+}
-+
-+static inline int crypto_route_add_direct(struct crypto_device *dev, struct crypto_session *s,
-+						struct crypto_session_initializer *ci)
-+{
-+	struct crypto_route *rt;
-+
-+	rt = crypto_route_alloc_direct(dev, ci);
-+	if (!rt)
-+		return -ENOMEM;
-+
-+	crypto_route_queue(rt, s);
-+
-+	return 0;
-+}
-+
-+static inline int crypto_route_queue_len(struct crypto_session *s)
-+{
-+	return s->route_list.qlen;
-+}
-+
-+static inline void crypto_route_head_init(struct crypto_route_head *list)
-+{
-+	spin_lock_init(&list->lock);
-+	list->prev = list->next = (struct crypto_route *)list;
-+	list->qlen = 0;
-+}
-+
-+static inline struct crypto_route *__crypto_route_current(struct crypto_route_head *list)
-+{
-+	struct crypto_route *next, *prev, *result;
-+
-+	prev = (struct crypto_route *)list;
-+	next = prev->next;
-+	result = NULL;
-+	if (next != prev)
-+		result = next;
-+
-+	return result;
-+}
-+
-+static inline struct crypto_route *crypto_route_current(struct crypto_session *s)
-+{
-+	struct crypto_route_head *list;
-+	struct crypto_route *rt = NULL;
-+
-+	list = &s->route_list;
-+
-+	if (list) {
-+		spin_lock_irq(&list->lock);
-+
-+		rt = __crypto_route_current(list);
-+
-+		spin_unlock_irq(&list->lock);
-+	}
-+
-+	return rt;
-+}
-+
-+static inline struct crypto_device *crypto_route_get_current_device(struct crypto_session *s)
-+{
-+	struct crypto_route *rt = NULL;
-+	struct crypto_device *dev = NULL;
-+	struct crypto_route_head *list = &s->route_list;
-+
-+	spin_lock_irq(&list->lock);
-+
-+	rt = __crypto_route_current(list);
-+	if (rt) {
-+		dev = rt->dev;
-+		crypto_device_get(dev);
-+	}
-+
-+	spin_unlock_irq(&list->lock);
-+
-+	return dev;
-+}
-+
-+#endif				/* __CRYPTO_ROUTE_H */
++#endif				/* __CRYPTO_LB_H */
 

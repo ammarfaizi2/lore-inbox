@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268565AbUJJXZt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268576AbUJJXiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268565AbUJJXZt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 19:25:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268568AbUJJXZt
+	id S268576AbUJJXiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 19:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268577AbUJJXiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 19:25:49 -0400
-Received: from smtp07.auna.com ([62.81.186.17]:38875 "EHLO smtp07.retemail.es")
-	by vger.kernel.org with ESMTP id S268565AbUJJXZr convert rfc822-to-8bit
+	Sun, 10 Oct 2004 19:38:25 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:15037 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S268576AbUJJXiX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 19:25:47 -0400
-Date: Sun, 10 Oct 2004 23:25:46 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: udev: what's up with old /dev ?
-To: Hacksaw <hacksaw@hacksaw.org>
-Cc: linux-kernel@vger.kernel.org
-References: <200410102315.i9ANF7OI019460@hacksaw.org>
-In-Reply-To: <200410102315.i9ANF7OI019460@hacksaw.org> (from
-	hacksaw@hacksaw.org on Mon Oct 11 01:15:07 2004)
-X-Mailer: Balsa 2.2.5
-Message-Id: <1097450746l.5993l.0l@werewolf.able.es>
+	Sun, 10 Oct 2004 19:38:23 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: "Aboo Valappil" <aboo@ABOOSPLANET.com>
+Subject: Re: how do you call userspace syscalls (e.g. sys_rename) from inside kernel
+Date: Mon, 11 Oct 2004 01:35:16 +0200
+User-Agent: KMail/1.6.2
+Cc: "Luke Kenneth Casson Leighton" <lkcl@lkcl.net>,
+       "Fabiano Ramos" <ramos_fabiano@yahoo.com.br>,
+       <linux-kernel@vger.kernel.org>
+References: <3D6FC8DFDDD0CE44A3BE652A27AD42A54569@naya.aboosplanet.com>
+In-Reply-To: <3D6FC8DFDDD0CE44A3BE652A27AD42A54569@naya.aboosplanet.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_4ccaBOKKkFiFwaO";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410110135.20747.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2004.10.11, Hacksaw wrote:
-> >The very first thing init does is open /dev/console, and if it doesn't
-> >exist the entire boot hangs.
-> 
-> This raises a question: Would it be a useful thing to make a modified init 
-> that could run udev before it does anything else?
+--Boundary-02=_4ccaBOKKkFiFwaO
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I don't think it is needed. There is no problem (i am thinking on rootles
-nodes and PXE and so on...) on building a simple initrd with /dev/console,
-/dev/null and half a dozen standard devices if they are needed. Just
-to get udev run and have your real devices mounted there and overwrite
-them.
+On Maandag 11 Oktober 2004 01:13, Aboo Valappil wrote:
+> I also wanted not associate the file with the current/any
+> processes.=20
+>=20
+> Any ideas on this ?
+>=20
+> Then I thought of using a work around and avoid opening files in kernel
+> mode.
 
-I just remember one other oddity. To clean up my system, I copied the
-running /dev to /dev-new, moved /dev to /dev-old and /dev-new to /dev.
-But on 'reboot', I got a complaint about /dev/initctl not opening.
-This could happen also with init. It opens real /dev/initctl on boot,
-mounts /dev and tries to use new /dev/inittclt on shutdown...
+Most of the code that traditionally used to read files from inside the
+kernel can be converted to calling request_firmware(). The basic
+idea is that you have a user space helper that writes the data into
+the kernel instead of the other way round.
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.1 (Community) for i586
-Linux 2.6.9-rc3-mm3 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #2
+	Arnd <><
 
+--Boundary-02=_4ccaBOKKkFiFwaO
+Content-Type: application/pgp-signature
+Content-Description: signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBacc45t5GS2LDRf4RAhkpAJ9TfP6dUbxsJeU1BqS3FleCStQmWQCeOPbp
+pNb6BZf9fIsylkYxBML9eB4=
+=Ari/
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_4ccaBOKKkFiFwaO--

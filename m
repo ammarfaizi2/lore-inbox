@@ -1,68 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267450AbSLFAD1>; Thu, 5 Dec 2002 19:03:27 -0500
+	id <S267473AbSLFAQA>; Thu, 5 Dec 2002 19:16:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267465AbSLFACI>; Thu, 5 Dec 2002 19:02:08 -0500
-Received: from dp.samba.org ([66.70.73.150]:43725 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267450AbSLFACB>;
-	Thu, 5 Dec 2002 19:02:01 -0500
-Date: Fri, 6 Dec 2002 11:01:16 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] generic device DMA implementation
-Message-ID: <20021206000116.GR1500@zax.zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	James Bottomley <James.Bottomley@steeleye.com>,
-	linux-kernel@vger.kernel.org
-References: <200212041747.gB4HlEF03005@localhost.localdomain> <20021205004744.GB2741@zax.zax> <1039086496.651.65.camel@zion>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1039086496.651.65.camel@zion>
-User-Agent: Mutt/1.4i
+	id <S267475AbSLFAQA>; Thu, 5 Dec 2002 19:16:00 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:25482 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267473AbSLFAP7>;
+	Thu, 5 Dec 2002 19:15:59 -0500
+Date: Thu, 5 Dec 2002 18:05:57 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Pavel Machek <pavel@suse.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Re: [2.5.50, ACPI] link error
+In-Reply-To: <20021206000618.GB15784@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.33.0212051752060.974-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 05, 2002 at 12:08:16PM +0100, Benjamin Herrenschmidt wrote:
-> On Thu, 2002-12-05 at 01:47, David Gibson wrote:
-> > Do you have an example of where the second option is useful?  Off hand
-> > the only places I can think of where you'd use a consistent_alloc()
-> > rather than map_single() and friends is in cases where the hardware's
-> > behaviour means you absolutely positively have to have consistent
-> > memory.
+
+> > S3 support is a subset of what is need for S4 support. 
 > 
-> Looking at our implementation (ppc32 on non-coherent CPUs like 405) of
-> pci_map_single, which just flushes the cache, I still feel we need a
-> consistent_alloc, that is an implementation that _disables_ caching for
-> the area.
+> That's not true. acpi_wakeup.S is nasty piece of code, needed for S3
+> but not for S4. Big part of driver support is only needed for S3.
 
-No question there: that's James's first option.  
+Ok, acpi_wakeup.S is only for S3.
 
-> A typical example is an USB OHCI driver. You really don't want to play
-> cache tricks with the shared area here. That will happen each time you
-> have a shared area in memory in which both the CPU and the device may
-> read/write in the same cache line.
+As for drivers, I'm dubious of swsusp's handling of device and driver
+support. A suspend cycle is supposed to leave devices in the same state
+they were in before the cycle.  So, you need suspend and resume hooks in
+the drivers, even for S4 support, to capture and restore context in the
+devices themselves. Then again, I've no proof that swsusp doesn't get 
+everything right as is.
+
+> > CONFIG_ACPI_SLEEP should give you S3 support, and the ACPI side of S4 
+> > support. 
 > 
-> For things like ring descriptors of a net driver, I feel it's very much
-> simpler (and possibly more efficient too) to also allocate non-cacheable
-> space for consistent instead of continuously flushing/invalidating.
-> Actually, flush/invalidate here can also have nasty side effects if
-> several descriptors fit in the same cache line.
+> What's ACPI side of S4 good for when you can not do S4?
+
+To not litter the code with #ifdefs. 
+
+> > The comment in the config option should tell the user that they 
+> > must choose a suspend implementation (e.g. CONFIG_SUSPEND, which should 
+> > prolly be CONFIG_SWAP_SUSPEND) in order to get complete S4 support. (The 
+> > ACPI side can make an empty call to swsusp if no implementation is 
+> > selected). 
 > 
-> The data buffers, of course (skbuffs typically) would preferably use
-> pci_map_* like APIs (hrm... did we ever make sure skbuffs would _not_
-> mix the data buffer with control datas in the same cache line ? This
-> have been a problem with non-coherent CPUs in the past).
+> S3 needs process stopper from kernel/suspend.c. I did not want to have
+> #ifdefs all over suspend.c...
 
-Indeed - the 405GP ethernet driver, which I've worked on, uses exactly
-this approach.  consistent_alloc() is used for the descriptor ring
-buffer, and DMA syncs are used for the data buffers.
+Then break it up into separate files in a separate directory.
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+> > Some time ago, I made a BK repo for suspend support. I axed it, since no 
+> > one ever used it. But, it's back again, and I'll be integrating your 
+> > patches and try to dedicate a few extra cycles to resolving some of the 
+> > issues. I'll send an announcement to the list once I've integrated your 
+> > patches. 
+> 
+> I probably will not persuade you to make it CVS, right? [Sorry, I'm
+> not going to touch bitkeeper.]
+
+I know, and that's fine. I won't touch CVS again, unless there's a hefty 
+sum and a lot of good beer involved. (Or, after I've consumed a lot of 
+good beer). Patches can be made from the repo, most easily after merging 
+to a new kernel version.
+
+	-pat
+

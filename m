@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262115AbVCHV4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262139AbVCHV7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262115AbVCHV4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 16:56:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVCHV4B
+	id S262139AbVCHV7a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 16:59:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVCHV7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 16:56:01 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26560 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262115AbVCHVzw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 16:55:52 -0500
-Date: Tue, 8 Mar 2005 22:55:37 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au, jgarzik@pobox.com,
-       linux-net@vger.kernel.org
-Subject: Re: Fix suspend/resume problems with b44
-Message-ID: <20050308215537.GD24188@elf.ucw.cz>
-References: <20050308094655.GA16775@elf.ucw.cz> <20050308101739.371968be.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050308101739.371968be.davem@davemloft.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 8 Mar 2005 16:59:14 -0500
+Received: from alog0447.analogic.com ([208.224.222.223]:33920 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262139AbVCHV4w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 16:56:52 -0500
+Date: Tue, 8 Mar 2005 16:55:07 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Mount on Linux-2.6.10
+Message-ID: <Pine.LNX.4.61.0503081643310.15389@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > @@ -1934,6 +1936,9 @@
-> >  	if (!netif_running(dev))
-> >  		return 0;
-> >  
-> > +	if (request_irq(dev->irq, b44_interrupt, SA_SHIRQ, dev->name, dev))
-> > +		printk(KERN_ERR PFX "%s: request_irq failed\n", dev->name);
-> > +
-> 
-> This is a hard error and means that bringup of the chip
-> will totally fail.  It definitely deserves something harder
-> than a printk(), but unfortunately ->resume() has no way
-> to cleanly fail.
+When I mount the root file-system and the proc file-system on
+an embedded system, I use MS_NOATIME|MS_NODIRTIME for the flags.
+No errors are reported and the file-systems are mounted.
 
-Any idea what to do there? I'd say that request_irq is very unlikely
-to fail given that it worked okay before suspend...
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+However, the (struct stat) st_mtime of the /proc directory
+is updated at every access and the st_mtime of any special
+files like terminals are also updated. In fact, the time
+appears to be updated on every keystroke when a terminal
+is active on the file-systems.
+
+How do I prevent this from occurring? These files were
+NOT modified and st_mtime is supposed to show the
+modification times, not the time at which it was
+accessed.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,51 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275061AbRJFO0C>; Sat, 6 Oct 2001 10:26:02 -0400
+	id <S275041AbRJFOp6>; Sat, 6 Oct 2001 10:45:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275041AbRJFOZw>; Sat, 6 Oct 2001 10:25:52 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:58618 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274684AbRJFOZs>;
-	Sat, 6 Oct 2001 10:25:48 -0400
-Date: Sat, 6 Oct 2001 16:26:17 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Christian =?iso-8859-1?Q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: OOM-Killer in 2.4.11pre4
-Message-ID: <20011006162617.A724@athlon.random>
-In-Reply-To: <E15plMj-0002eK-00@mrvdom01.schlund.de>
+	id <S275173AbRJFOps>; Sat, 6 Oct 2001 10:45:48 -0400
+Received: from adsl-64-109-89-110.chicago.il.ameritech.net ([64.109.89.110]:13134
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S275041AbRJFOp3>; Sat, 6 Oct 2001 10:45:29 -0400
+Message-Id: <200110061445.f96Ej5S01591@localhost.localdomain>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: paulus@samba.org
+cc: "David S. Miller" <davem@redhat.com>, jes@sunsite.dk,
+        James.Bottomley@HansenPartnership.com, linuxopinion@yahoo.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: how to get virtual address from dma address 
+In-Reply-To: Message from Paul Mackerras <paulus@samba.org> 
+   of "Sat, 06 Oct 2001 22:18:42 +1000." <15294.63138.941581.771248@cargo.ozlabs.ibm.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <E15plMj-0002eK-00@mrvdom01.schlund.de>; from linux-kernel@borntraeger.net on Sat, Oct 06, 2001 at 08:53:30AM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 06 Oct 2001 09:45:05 -0500
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 06, 2001 at 08:53:30AM +0200, Christian Bornträger wrote:
-> I reported __alloc_pages: 0-order allocation failed errors in 2.4.10 with a 
-> memory eating program. 
-> 
-> These errors are gone with 2.4.11pre4. The OOM-Killer works __correct__.  it 
-> seems that Marcelos Patch works correct for me.
+paulus@samba.org said:
+> I look at all the hash-table stuff in the usb-ohci driver and I think
+> to myself about all the complexity that is there (and I haven't
+> managed to convince myself yet that it is actually SMP-safe) and all
+> the time wasted doing that stuff, when on probably 95% of the machines
+> that use the usb-ohci driver, the hashing stuff is totally
+> unnecessary.  I am talking about powermacs, which don't have an iommu,
+> and where the reverse mapping is as simple as adding a constant.
 
-to test the oom killer you should try to run out of memory sometime.
-It's not the oom killer that cured the oom faliures, it is the deadlock
-prone infinite loop in the allocator that did.
+> That was my second argument, which you didn't reply to - that doing
+> the reverse mapping is very simple on some platforms, and so the right
+> place to do reverse mapping is in the platform-aware code, not in the
+> drivers.  On other platforms the reverse mapping is more complex, but
+> the complexity is bounded by the complexity that is already there in
+> drivers like the usb-ohci driver. 
 
-Now I identified various issues that can explain the oom faliures on the
-highmem boxes (I don't have any highmem box so it wasn't possible to
-trigger them here, the higher memory ia32 machine that I own is my
-UP desktop with 512mbyte of ram), and I will be able to verify my fixes
-as soon as I can get a login on a 4/8G box. I created this project for
-this purpose:
+This is precisely my point as well:  You've made all the drivers that must be 
+able to do this type of mapping assume the worst case because we cannot now 
+have any window into the iommu if there is one.
 
-	http://www.osdlab.org/cgi-bin/eidetic.cgi?command=display&modulename=projects&on=60
+Worse still, every driver that needs this feature is doing it on its own, so 
+the code for doing this in usb-ohci is different from the code in the 
+sym53c8xx driver etc.  We're now duplicating this fairly subtle and complex 
+code all over the driver base.
 
-After I get the login and after verifying my fixes I'll release a new
--aa that will be meant primarly to fix the allocation faliures.
+At the very least, providing an API to do this will get us away from all the 
+error prone duplication.  And if it's going to be an API, it might as well be 
+architecture specific and iommu aware so it functions in the simplest and 
+fastest way.
 
-Andrea
+davem@redhat.com said:
+> The argument against it is that if you provide such an easy way out,
+> people will just blindly transform bus_to_virt/virt_to_bus without
+> considering more straightforward methods when they exist. 
+
+> I can not even count on one hand how many people I've helped
+> converting, who wanted a bus_to_virt() and when I showed them how to
+> do it with information the device provided already they said "oh wow,
+> I never would have thought of that".  That process won't happen as
+> often with the suggested feature. 
+
+I agree that some people are very prone to abusing the tools provided to them. 
+ I cannot agree that this is a good reason not to provide the tools in the 
+first place.  This is the type of argument usually heard from lawmakers and 
+politicians.  The linux community is better than that:  we have a review 
+process for new drivers.  We even have a bunch of people who trawl through the 
+old code looking for mistakes and problems who would probably be more that 
+willing to send in patches for abuse of this API.  Can we not educate the 
+community (document the API properly) and rely on it to make the correct 
+choices?
+
+James Bottomley
+
+

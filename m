@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261621AbSJUUb4>; Mon, 21 Oct 2002 16:31:56 -0400
+	id <S261625AbSJUUcP>; Mon, 21 Oct 2002 16:32:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261625AbSJUUb4>; Mon, 21 Oct 2002 16:31:56 -0400
-Received: from mx13.sac.fedex.com ([199.81.197.53]:5386 "EHLO
-	mx13.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S261621AbSJUUbz>; Mon, 21 Oct 2002 16:31:55 -0400
-Date: Tue, 22 Oct 2002 04:36:37 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.44 console keyboard dead
-Message-ID: <Pine.LNX.4.44.0210220434280.23048-100000@boston.corp.fedex.com>
+	id <S261624AbSJUUcP>; Mon, 21 Oct 2002 16:32:15 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:16600 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261625AbSJUUcO>; Mon, 21 Oct 2002 16:32:14 -0400
+Message-ID: <3DB464B9.7B44EB48@us.ibm.com>
+Date: Mon, 21 Oct 2002 13:34:01 -0700
+From: mingming cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/22/2002
- 04:37:59 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/22/2002
- 04:38:01 AM,
-	Serialize complete at 10/22/2002 04:38:01 AM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Hugh Dickins <hugh@veritas.com>
+CC: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]IPC locks breaking down with RCU
+References: <Pine.LNX.4.44.0210212056390.17270-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hugh Dickins wrote:
+> 
+> In the original design, Mingming nicely split up the locks (greatly
+> reducing contention), but had them in an array (causing lots of bounce,
+> I believe): 
+I am not an expert of cacheline bouncing, so please point me if I miss
+something.  I wonder if we could reduce the bounce even with current
+design (the spinlock is in the data it protects).  We have to go through
+that array anyway to get access to the data (and the spinlock).
 
-I can't type anything on the console keyboard on 2.5.44
-
-rlogin works ok.
-
-
-Thanks,
-Jeff
-[ jchua@fedex.com ]
-
+> I'm resisting a return to that design.
+OK, I will back to original design.

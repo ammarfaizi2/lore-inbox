@@ -1,94 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270275AbTGMQhX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 12:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270281AbTGMQhW
+	id S270283AbTGMQor (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 12:44:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270289AbTGMQor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 12:37:22 -0400
-Received: from smtp-2.concepts.nl ([213.197.30.52]:17668 "EHLO
-	smtp-2.concepts.nl") by vger.kernel.org with ESMTP id S270275AbTGMQhJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 12:37:09 -0400
-Subject: [2.5.x] doesn't boot at all on one computer
-From: Ronald Bultje <rbultje@ronald.bitfreak.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1058115160.2200.7.camel@shrek.bitfreak.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 13 Jul 2003 18:52:41 +0200
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Jul 2003 12:44:47 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:18438 "EHLO
+	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S270283AbTGMQon (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 12:44:43 -0400
+Date: Sun, 13 Jul 2003 12:58:47 -0400 (EDT)
+From: Paul Clements <kernel@steeleye.com>
+Reply-To: Paul.Clements@steeleye.com
+To: Paul Rolland <rol@as2917.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.75] Oops at boot : kobject_get from nbd_init
+In-Reply-To: <010a01c3493d$ebec23e0$2101a8c0@witbe>
+Message-ID: <Pine.LNX.4.10.10307131253280.764-100000@clements.sc.steeleye.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey there,
+On Sun, 13 Jul 2003, Paul Rolland wrote:
 
-I've got an issue where 2.5.74 (and all previous ones, tested until
-2.5.72) don't boot for me (and I didn't test 2.5.75 because it won't
-work either). The config is known to be right, because it boots fine for
-other people, it boots on other systems, and I've booted previous
-kernels (up to 2.5.67) with the same config earlier on. I've tested
-three configs in total, one where everything needed to boot is in the
-kernel (that one worked in 2.5.67 and earlier), and another similar one
-(which boots fine for other people), and another one copied from my
-2.4.21 kernel (and yes, VT/VGA/CONSOLE etc. are all set to 'y'). I've
-tried both with and without FB enabled, and in all cases, I get either a
-black screen or I get grub's message telling me that it's about to start
-booting the relevant kernel image, and nothing after that.
+> Hello,
+> 
+> I've the following when booting a vanilla 2.5.75, no module configured,
+> just plain stock kernel.
+> 
+> EIP:    0060:[<c0256509>]    Not tainted
+> EFLAGS: 00010206
+> EIP is at kobject_get+0xf/0x4e
+> eax: 33cc33d4   ebx: 33cc33d4   ecx: c04725cd   edx: c049a8bc
+> esi: dfd8fd3c   edi: dfd8fd3c   ebp: 00000440   esp: dff8df3c
+> ds: 007b   es: 007b   ss: 0068
+> Process swapper (pid: 1, threadinfo=dff8c000 task=dff8f880)
+> Stack: dfd90bfc dfd90bfc dfd90bfc ffffffff dfd8fd3c c0256227 33cc33d4 dfd8fc00 
+>        c02563dd dfd8fd3c dfd8fd3c 00000014 dfd8fc00 c05ee1e8 c02c7e5f dfd8fd3c 
+>        00000014 c049a8ba c04725c8 dfd90b80 c05ee1e8 00000010 c0580430 dfd90b80 
+> Call Trace:
+>  [<c0256227>] kobject_init+0x2d/0x48
+>  [<c02563dd>] kobject_register+0x1b/0x5a
+>  [<c02c7e5f>] blk_register_queue+0x83/0xa8
+>  [<c0580430>] nbd_init+0x154/0x1ac
+>  [<c02c8cd8>] exact_match+0x0/0x8
+>  [<c056871b>] do_initcalls+0x27/0x94
+>  [<c012c689>] init_workqueues+0xf/0x26
+>  [<c010509a>] init+0x36/0x194
+>  [<c0105064>] init+0x0/0x194
+>  [<c0108a09>] kernel_thread_helper+0x5/0xc
 
-In short, I have no clue what could be wrong, but since the exact same
-configs work for other people and worked for me in the past, I'm
-guessing there's a conflict with some recent patches and either my
-compiler (well, gcc-2.96 isn't really ideal) or with some hardware
-specifically in that machine. I cannot tell which of the two, I don't
-have another compiler there. I'm trying to find out if anyone has seen
-similar things on similar hardware. If not, I'm willing to test with
-another compiler, but I'd rather not (I hate messing around with all
-that on my system).
+This has been patched in Andrew Morton's -mm tree. I think the fix is on the way
+to Linus. In the meantime, I guess you can either configure nbd out if you don't
+need it, or you can get the patch from kernel.org:
 
-First, software:
-RedHat-7.3
-gcc-2.96-113
-module-init-tools 0.9.12, 0.9.13-pre and 0.9.11 (tried several of 'em)
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.74/2.5.74-mm3/broken-out/nbd-kobject-oops-fix.patch
 
-System:
-P-2 400 MHz and P-3 500 MHz (I had the p3 lying around and swapped them
-to see if it was the CPU, but both didn't work)
-Intel 440BX-based mainboard (Abit BH6)
-256 MB RAM
-
-Relevant lines from grub.conf
-title Red Hat Linux unstable (2.5.74)
-        root (hd0,0)
-        kernel /vmlinuz-2.5.74 ro root=/dev/hdc1 hdd=ide-scsi noapic
-        initrd /initrd-2.5.74.img
-
-I've tried without the initrd, I've tried with vga=792 (for fb support).
-I've also tried without the noapic, I found the noapic suggestion on one
-of the 2.5 FAQs around on the net (without it, my networking card didn't
-work in 2.5.66).
-
-config files:
-http://213.197.11.65/ronald/config-2.5.74-initrd
-http://213.197.11.65/ronald/config-2.5.74-worksfor66
-http://213.197.11.65/ronald/config-2.5.74-worksforothers
-
-the initrd one uses initrd, the worksfor66 has everything needed to boot
-statically linked in, so does the worksforothers. The first of these two
-was tested with 2.5.66, 2.5.67 and some earlier ones and booted fine
-there. The second one was copied from someone else trying to help me
-with this issue, and worked fine for him.
-
-Well, this is about all the info I can give here, I'm affraid. Anything
-more I should try? Anyone recognizes something similar, maybe with a
-solution? Any help is very much appreciated.
-
-Please [CC] me, I'm not subscribed.
-
-Thanks,
-
-Ronald
-
--- 
-Ronald Bultje <rbultje@ronald.bitfreak.net>
+--
+Paul
 

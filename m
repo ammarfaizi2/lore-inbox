@@ -1,89 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281214AbRLQQuV>; Mon, 17 Dec 2001 11:50:21 -0500
+	id <S280814AbRLQQoL>; Mon, 17 Dec 2001 11:44:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281255AbRLQQuL>; Mon, 17 Dec 2001 11:50:11 -0500
-Received: from pop.gmx.net ([213.165.64.20]:59224 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S281214AbRLQQuA>;
-	Mon, 17 Dec 2001 11:50:00 -0500
-Date: Mon, 17 Dec 2001 17:52:06 +0100
-From: Sebastian =?ISO-8859-1?Q?Dr=F6ge?= <sebastian.droege@gmx.de>
-To: Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: your mail
-Message-Id: <20011217175206.193d02e0.sebastian.droege@gmx.de>
-In-Reply-To: <Pine.LNX.4.33.0112171717010.28670-100000@Appserv.suse.de>
-In-Reply-To: <20011217170740.74a1cb95.sebastian.droege@gmx.de>
-	<Pine.LNX.4.33.0112171717010.28670-100000@Appserv.suse.de>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S281214AbRLQQoB>; Mon, 17 Dec 2001 11:44:01 -0500
+Received: from mail.spylog.com ([194.67.35.220]:56227 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S280814AbRLQQnm>;
+	Mon, 17 Dec 2001 11:43:42 -0500
+Date: Mon, 17 Dec 2001 19:15:38 +0300
+From: Andrey Nekrasov <andy@spylog.ru>
+To: Hubert Mantel <mantel@suse.de>, linux-kernel@vger.kernel.org
+Subject: amber/mars & ext3
+Message-ID: <20011217161538.GA17099@spylog.ru>
+Mail-Followup-To: Hubert Mantel <mantel@suse.de>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.Fd.uRJK)t83+S4"
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.3.24i
+Organization: SpyLOG ltd.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.Fd.uRJK)t83+S4
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Hello.
 
-Ok...
-2.4.16-2.4.17-rc1 works perfectly
-2.5.0-2.5.1 works perfectly
-Only 2.5.1-dj1 has this 2 errors (ISA-PnP non-detection and USB only root hub detection)
-All have the same .config
-If you need some more information feel free to ask me ;)
+1. /dev/ide/host0/bus1/target0/lun0/part1 on /b1 type ext3
+(rw,noatime,errors=remount-ro)
 
-Bye
+2. dmesg
 
-PS: 2.5.1 (dj1 or not ;) has one problem more on my pc:
-INIT can't send the TERM signal to all processes...
-Nothing happens... no error message no nothing
-SysRQ works
-I don't know when it went into 2.5 but I think it wasn't there in -pre10 (don't try -pre11)
-PPS: What the hell is APIC (no I don't mean ACPI)? ;) I've enabled it on my UP machine but don't know what it does...
-Does anyone have informations about it?
+...
+end_request: I/O error, dev 16:01 (hdc), sector 4160
+end_request: I/O error, dev 16:01 (hdc), sector 4160
+end_request: I/O error, dev 16:01 (hdc), sector 4160
+end_request: I/O error, dev 16:01 (hdc), sector 4160
+end_request: I/O error, dev 16:01 (hdc), sector 4160
+end_request: I/O error, dev 16:01 (hdc), sector 4160
+end_request: I/O error, dev 16:01 (hdc), sector 4160
+end_request: I/O error, dev 16:01 (hdc), sector 4160
+end_request: I/O error, dev 16:01 (hdc), sector 4160
+end_request: I/O error, dev 16:01 (hdc), sector 4160
+end_request: I/O error, dev 16:01 (hdc), sector 4160
+EXT3-fs error (device ide1(22,1)): ext3_readdir: directory #2 contains a hole at
+offset 0
+end_request: I/O error, dev 16:01 (hdc), sector 4160
+EXT3-fs error (device ide1(22,1)): ext3_readdir: directory #2 contains a hole at
+offset 0
+end_request: I/O error, dev 16:01 (hdc), sector 4160
+EXT3-fs error (device ide1(22,1)): ext3_readdir: directory #2 contains a hole at
+offset 0
+end_request: I/O error, dev 16:01 (hdc), sector 4160
+EXT3-fs error (device ide1(22,1)): ext3_readdir: directory #2 contains a hole at
+offset 0
+end_request: I/O error, dev 16:01 (hdc), sector 4160
+...
 
-On Mon, 17 Dec 2001 17:22:14 +0100 (CET)
-Dave Jones <davej@suse.de> wrote:
+2. 
 
-> On Mon, 17 Dec 2001, Sebastian Dröge wrote:
-> 
-> > Attached you find my .config, lspci -vvv and dmesg output
-> > I'll test 2.4.17-rc1 in a few minutes and will report what happens ;)
-> 
-> Thanks. Right now getting 2.4 into a better shape is more
-> important than fixing 2.5, so if you find any problems repeatable
-> in 2.4.17rc1, Marcelo really needs to know about it.
-> 
-> The only USB changes in my tree are __devinit_p changes, which
-> really shouldn't be causing a problem, but there could be some
-> other unrelated-to-usb patch which is causing this..
-> 
-> 2.4 info would be appreciated.
-> 
-> Dave.
-> 
-> -- 
-> | Dave Jones.        http://www.codemonkey.org.uk
-> | SuSE Labs
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+2.4.16.SuSE-0
 
---=.Fd.uRJK)t83+S4
-Content-Type: application/pgp-signature
+3. 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
+/dev/ide/host0/bus1/target0/lun0/part1
+                       70G   55G   16G  77% /b1
+4.
 
-iD8DBQE8HiK8vIHrJes3kVIRAvdIAJsE4AK9YCjxWEHoFzM7l3uTFAj8qACgoOvT
-vyt1nn/MuV/3AOM/WxDIZMY=
-=+S85
------END PGP SIGNATURE-----
+amber:/b1 # ls -la /b1
+total 0
+amber:/b1 #
 
---=.Fd.uRJK)t83+S4--
-
+-- 
+bye.
+Andrey Nekrasov, SpyLOG.

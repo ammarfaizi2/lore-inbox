@@ -1,86 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262072AbVCNDZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVCNDmp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262072AbVCNDZS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 22:25:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVCNDXl
+	id S261499AbVCNDmp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 22:42:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbVCNDmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 22:23:41 -0500
-Received: from smtpout1.uol.com.br ([200.221.4.192]:63443 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261745AbVCNDXM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 22:23:12 -0500
-Date: Mon, 14 Mar 2005 00:23:03 -0300
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Matt Mackall <mpm@selenic.com>
-Cc: zippel@linux-m68k.org, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Serious problems with HFS+
-Message-ID: <20050314032303.GA29808@ime.usp.br>
-Mail-Followup-To: Matt Mackall <mpm@selenic.com>, zippel@linux-m68k.org,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20050313203604.GF3163@waste.org>
+	Sun, 13 Mar 2005 22:42:45 -0500
+Received: from rproxy.gmail.com ([64.233.170.200]:57439 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261499AbVCNDmm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 22:42:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ZA2MrWNNfiaNWpb4Rql0RlC3KQWThQo6UeBgWAFfXJT5EZA+Urch4TEU/MH8mYr84FPAdk8HbbnKJ1PtY8UnDTRrRcVv2Z6IG1QGNAfwmwP+3JPdsnp9xbK1ToD3W/NTMBCuNfS87QTeClZbL5nWFAojk15iYSo4qCNwXiaEUY4=
+Message-ID: <9e4733910503131755509a9364@mail.gmail.com>
+Date: Sun, 13 Mar 2005 20:55:10 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Subject: Re: User mode drivers: part 1, interrupt handling (patch for 2.6.11)
+Cc: Peter Chubb <peterc@gelato.unsw.edu.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <Pine.LNX.4.61.0503121009130.2166@montezuma.fsmlabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050313203604.GF3163@waste.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
+	 <9e473391050312075548fb0f29@mail.gmail.com>
+	 <Pine.LNX.4.61.0503121009130.2166@montezuma.fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 13 2005, Matt Mackall wrote:
-> I've noticed a few problems with HFS+ support in recent kernels on
-> another user's machine running Ubuntu (Warty) running 2.6.8.1-3-powerpc.
+On Sat, 12 Mar 2005 10:11:18 -0700 (MST), Zwane Mwaikambo
+<zwane@arm.linux.org.uk> wrote:
+> Alan's proposal sounds very plausible and additionally if we find that
+> we have an irq line screaming we could use the same supplied information
+> to disable userspace interrupt handled devices first.
 
-I also saw some of the things that you reported with Debian proper (sarge).
-Unfortunately, I haven't been able to use my HFS+ formatted system with
-Linux for a while, I may do so, if necessary to fix the bugs.
+I like it too and it would help Xen. Now we just need to modify 800
+device drivers to use it.
 
-> I'm not in a position to extensively test or fix either of these problem
-> because of the fs tools situation so I'm just passing this on.
-
-I, OTOH, can test fixes on the next weekend, since I have a full backup
-scheduled for this week.
-
-> First, it reports inappropriate blocks to stat(2). It uses 4096 byte
-> blocks rather than 512 byte blocks which stat callers are expecting.
-> This seriously confuses du(1) (and me, for a bit). Looks like it may
-> be forgetting to set s_blocksize_bits.
-
-I had not noticed what are the size of the blocks that HFS+ seems to use,
-but indeed I saw both very confused du and ls outputs. I don't know what
-may be the cause.
-
-> Second, if an HFS+ filesystem mounted via Firewire or USB becomes
-> detached, the filesystem appears to continue working just fine.
-
-That's the only way that I am using a HFS+ fs (fia Firewire or USB), since
-the drive in question is in an enclosure.
-
-> I can find on the entire tree, despite memory pressure. I can even create
-> new files that continue to appear in directory listings! Writes to
-> such files succeed (they're async, of course) and the typical app is
-> none the wiser. It's only when apps attempt to read later that they
-> encounter problems. It turns out that various apps including scp
-> ignore IO errors on read and silently copy zero-filled files to the
-> destination. So I got this report as "why aren't the pictures I took
-> off my camera visible on my website?"
-
-I haven't seen this behaviour for lack of testing, but I will try to
-reproduce it with an HFS+ fs on a file mounted via loopback.
-
-> This is obviously a really nasty failure mode. At the very least, open
-> of new files should fail with -EIO. Preferably the fs should force a
-> read-only remount on IO errors. Given that the vast majority of HFS+
-> filesystems Linux is likely to be used with are on hotpluggable media,
-> I think this FS should be marked EXPERIMENTAL until such integrity
-> problems are addressed.
-
-I agree. This is, indeed, very scary.
-
-
-Just another data point, Rogério.
+>         Zwane
+> 
 
 -- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Jon Smirl
+jonsmirl@gmail.com

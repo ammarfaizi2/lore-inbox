@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266698AbUGVQHh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266701AbUGVQKt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266698AbUGVQHh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 12:07:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266701AbUGVQHh
+	id S266701AbUGVQKt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 12:10:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266702AbUGVQKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 12:07:37 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:46232 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S266698AbUGVQHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 12:07:35 -0400
-Message-ID: <40FFD64B.8040304@kegel.com>
-Date: Thu, 22 Jul 2004 07:59:23 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en, de-de
-MIME-Version: 1.0
-To: Hollis Blanchard <hollisb@us.ibm.com>
-CC: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>,
-       crossgcc <crossgcc@sources.redhat.com>,
-       "'linuxppc-dev@lists.linuxppc.org'" <linuxppc-dev@lists.linuxppc.org>,
-       "'Andrew Morton'" <akpm@osdl.org>, "'bert hubert'" <ahu@ds9a.nl>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: case-sensitive file names during build
-References: <313680C9A886D511A06000204840E1CF08F43052@whq-msgusr-02.pit.comms.marconi.com> <0C006758-DBEE-11D8-9AB1-000A95A0560C@us.ibm.com>
-In-Reply-To: <0C006758-DBEE-11D8-9AB1-000A95A0560C@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jul 2004 12:10:49 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:35533 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S266701AbUGVQKs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 12:10:48 -0400
+Date: Thu, 22 Jul 2004 18:10:47 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: Video memory corruption during suspend
+Message-ID: <20040722161047.GB15145@atrey.karlin.mff.cuni.cz>
+References: <20040718225247.GA30971@hell.org.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040718225247.GA30971@hell.org.pl>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hollis Blanchard wrote:
-> On Jul 22, 2004, at 4:25 AM, Povolotsky, Alexander wrote:
->>> make[3]: *** No rule to make target
->>>  `net/ipv4/netfilter/ipt_ecn.o', needed by 
->>> `net/ipv4/netfilter/built-in.o'.
->>> Stop.
->>
->> This is the (somewhat questionable) use of ipt_ECN.c and ipt_ecn.c in the
->> linux kernel. Windows filesystems are case insensitive, and see this 
->> as one file.
+Hi!
+
+> My setup is:
+> ASUS L3800C laptop, Radeon M7, i845 chipset, using DRI and radeonfb.
 > 
-> I had not seen the ECN/ecn problem, but you will also be bitten by .S -> 
-> .s preprocessing. That's right about the point that I gave up  ...
+> Note that this is not specific to the kernel used, as I've been seeing 
+> similar corruption every now and then, most recently under 2.6.7 +
+> ACPICA20040715 + swsusp2.0.0.100 (S3, S4), but also under 2.4 with S1 (but 
+> not with S4/swsusp2).
+> 
+> I have a very simple script I use to suspend (i.e. basically echo $arg >
+> /proc/acpi/sleep), which is usually started by acpid. Once the script is
+> triggered (by pressing power / sleep button) and an X session is running, 
+> various red and green patches appear on the screen (the background image
+> and the tinted terminal emulator), followed by the VT switch the PM code
+> does. After resume and subsequent VT switch by the PM code the corruption
+> is still visible. The screen is properly restored by a manual VT switch.
+> The corruption is clearly related to the existing background pixmap, as
+> moving the windows does not change its pattern. Oddly enough, starting a GL
+> app such as glxgears and moving it into and out of focus also properly
+> restores the screen.
 
-I maintain patches that allow building glibc on Cygwin and MacOSX.
-The main patch deals with exactly this issue (S vs. s)
-http://kegel.com/crosstool/crosstool-0.28-rc26/patches/glibc-2.3.2/glibc-2.3.2-cygwin.patch
-I have to maintain it separately as the glibc maintainer dislikes the
-idea of catering to Cygwin users (though maybe if I present it
-as a MacOSX support patch he'd reconsider... naaah, probably not :-).
+So what happens on 2.6.7 with swsusp1? Can you try vesafb (and fbdev
+Xserver)?
 
-With the advent of linux-2.6, I also have a patch
-to get kconfig to not use shared libraries (since I use kconfig
-to help install the kernel headers, and shared libraries are tricky
-to build on those two platforms).
-
-It wouldn't be a big leap for me or someone else to also maintain
-a patch to allow compiling the whole kernel on Cygwin or MacOSX.
-If anyone puts it together, I'll carry it in crosstool.
-- Dan
-
-
+								Pavel
 -- 
-My technical stuff: http://kegel.com
-My politics: see http://www.misleader.org for examples of why I'm for regime change
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

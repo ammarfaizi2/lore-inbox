@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263602AbUDFDDu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 23:03:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263604AbUDFDDt
+	id S263604AbUDFDEU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 23:04:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263606AbUDFDET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 23:03:49 -0400
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:38598 "EHLO
-	openlab.rtlab.org") by vger.kernel.org with ESMTP id S263602AbUDFDDq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 23:03:46 -0400
-Date: Mon, 5 Apr 2004 23:03:45 -0400 (EDT)
-From: "Calin A. Culianu" <calin@ajvar.org>
-X-X-Sender: <calin@rtlab.med.cornell.edu>
-To: Tony Breeds <tony@bakeyournoodle.com>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: Stupid question re: register_cdrom()
-In-Reply-To: <20040405230351.GR3445@bakeyournoodle.com>
-Message-ID: <Pine.LNX.4.33L2.0404052301550.16268-100000@rtlab.med.cornell.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Apr 2004 23:04:19 -0400
+Received: from fire.osdl.org ([65.172.181.4]:25832 "EHLO fire-2.osdl.org")
+	by vger.kernel.org with ESMTP id S263604AbUDFDEM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 23:04:12 -0400
+Subject: New compiler warning: 2.6.4->2.6.5
+From: John Cherry <cherry@osdl.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1081220649.13965.15.camel@lightning>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 05 Apr 2004 20:04:09 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Apr 2004, Tony Breeds wrote:
+9 new compiler warnings between 2.6.4 and 2.6.5.
 
-> On Mon, Apr 05, 2004 at 04:53:16PM -0400, Calin A. Culianu wrote:
-> >
-> > Let's say I was coding a cdrom emulator in software for kernel 2.4.  I
-> > am unclear about register_cdrom().  Does register_cdrom() in
-> > cdrom.c take care of telling the kernel that my kdev_t major/minor
-> > combination in fact leads to a real driver?  Or do I need to take care of
-> > that outside of regsiter_cdrom()?
-> >
-> > If not.. how do I tell the kernel data structures that my driver's major
-> > number does in fact point to a cdrom driver.  Basically, I want my
-> > driver's major number to show up in /proc/devices..
-> >
-> > This might be a stupid question, but I am not a linux kernel expert...
->
-> Neither am I, therefore I hope you get a reply from someone else
-> refuting or acknowledging my claims.
->
->
-> I looks to me that the code that does the actual registration of the
-> driver is in drivers/ide/ide-cd.c NOT cdrom.c.  Specifically
-> ide_cdrom_attach().  Said function eventually calls the register_cdrom()
-> you ask about.
->
-> For writing a cdrom emulator  You may want to look more closely at the
-> non-IDE/SCSI devices as they seem to register their driver data
-> themselves  I had a quick read of aztcd.c, I think between cdrom.c and
-> aztcd.c you should be able to piece together what you want.
->
-> Also Try reading http://www.xml.com/ldd/chapter/book/ for details on 2.4
-> drivers
->
+gcc: 3.2.2
+arch: i386
 
-This is actually very good advice.  I need to look at sample code to more
-quickly bring myself up to speed on the kernel API. Having a good example
-in aztcd.c would probably do it.  Thanks! (I have yet to read the code,
-but I just wanted to thank you for replying).
+drivers/acpi/events/evmisc.c:143: warning: too many arguments for format
+drivers/char/applicom.c:523:2: warning: #warning "Je suis stupide. DW. -
+copy*user in cli"
+drivers/char/watchdog/cpu5wdt.c:305: warning: initialization discards
+qualifiers from pointer target type
+drivers/char/watchdog/cpu5wdt.c:305: warning: return discards qualifiers
+from pointer target type
+drivers/media/dvb/frontends/tda1004x.c:191: warning: `errno' defined but
+not used
+drivers/pcmcia/i82365.c:71: warning: `version' defined but not used
+drivers/pcmcia/tcic.c:64: warning: `version' defined but not used
+sound/isa/wavefront/wavefront_synth.c:1923: warning: `errno' defined but
+not used
+sound/oss/wavfront.c:2498: warning: `errno' defined but not used
 
--Calin
+John
+
+
 

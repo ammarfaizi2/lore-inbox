@@ -1,62 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318119AbSGMHqM>; Sat, 13 Jul 2002 03:46:12 -0400
+	id <S318120AbSGMH6o>; Sat, 13 Jul 2002 03:58:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318120AbSGMHqL>; Sat, 13 Jul 2002 03:46:11 -0400
-Received: from mail.actcom.co.il ([192.114.47.13]:33964 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S318119AbSGMHqK>; Sat, 13 Jul 2002 03:46:10 -0400
-Date: Sat, 13 Jul 2002 10:43:54 +0300
-From: Muli Ben-Yehuda <mulix@actcom.co.il>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: compile the kernel with -Werror
-Message-ID: <20020713104354.L739@alhambra.actcom.co.il>
-References: <20020713102615.H739@alhambra.actcom.co.il> <Pine.LNX.4.44.0207131001460.3808-100000@linux-box.realnet.co.sz>
+	id <S318121AbSGMH6n>; Sat, 13 Jul 2002 03:58:43 -0400
+Received: from mail14.speakeasy.net ([216.254.0.214]:35975 "EHLO
+	mail.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S318120AbSGMH6n>; Sat, 13 Jul 2002 03:58:43 -0400
+Subject: Re: kbd not functioning in 2.5.25-dj2
+From: Ed Sweetman <safemode@speakeasy.net>
+To: A Guy Called Tyketto <tyketto@wizard.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020713073717.GA9203@wizard.com>
+References: <1026545050.1203.116.camel@psuedomode> 
+	<20020713073717.GA9203@wizard.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 13 Jul 2002 04:01:32 -0400
+Message-Id: <1026547292.1224.132.camel@psuedomode>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="HBg0C3yr6HVa1ZCc"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0207131001460.3808-100000@linux-box.realnet.co.sz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.5.18 is the last time it worked for me I have basically the same exact
+config, the new input system seems to have undergone some changes since
+then though and now it's not behaving.  I will try setting the XTKBD
+setting and PS2SEDKBD or whatever it is.  
 
---HBg0C3yr6HVa1ZCc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jul 13, 2002 at 10:02:19AM +0200, Zwane Mwaikambo wrote:
-> On Sat, 13 Jul 2002, Muli Ben-Yehuda wrote:
->=20
-> > stops. Compiling 2.5.25 with -Werror with my .config found only three
-> > warnings (quite impressive, IMHO), and patches for those were sent to
-> > trivial@rusty.
->=20
-> You need to add more drivers to your config ;)
+On Sat, 2002-07-13 at 03:37, A Guy Called Tyketto wrote:
+> On Sat, Jul 13, 2002 at 03:24:09AM -0400, Ed Sweetman wrote:
+> > Same config as in my last post about the issue linking with this
+> > kernel.  I'm having my keyboard just not respond from boot.  I've got
+> > Input Device support built in and i had it as module and the keyboard is
+> > ps/2.  No idea what's going on here 
+> > 
+> 
+>         Just a "me too" here.. I've had this problem since around 2.5.15-dj 
+> and later, and have had input and keyboard support compiled into the kernel. 
+> Luckily I was able to get into the box via ssh, and check things. both 
+> keyboard and mouse are PS/2. If possible, see if you can do this, and check if 
+> IRQ 1 is not listed in /proc/interrupts. That is what is happening with me, 
+> while my mouse is working. For me to get my keyboard to work, I have to have 
+> the following set:
+> 
+> CONFIG_INPUT=y
+> CONFIG_INPUT_KEYBDEV=y
+> CONFIG_INPUT_MOUSEDEV=y
+> CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+> CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+> CONFIG_INPUT_EVDEV=y
+> CONFIG_INPUT_EVBUG=y
+> CONFIG_SERIO=y
+> CONFIG_SERIO_SERPORT=m
+> CONFIG_INPUT_KEYBOARD=y
+> CONFIG_KEYBOARD_ATKBD=y
+> CONFIG_KEYBOARD_XTKBD=y
+> CONFIG_INPUT_MOUSE=y
+> CONFIG_MOUSE_PS2=y
+> 
+>         This leaves me without using the new Input API, but with a working 
+> keyboard. with using the new API, mouse will work, keyboard will not. you can 
+> try these, and use the old setup (I assume will be made legacy by the time 2.6 
+> comes out), and let me know if they work. The new API seems to be working for 
+> some people, but not all.
+> 
+>                                                         BL.
+> -- 
+> Brad Littlejohn                         | Email:        tyketto@wizard.com
+> Unix Systems Administrator,             |           tyketto@ozemail.com.au
+> Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
+>   PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I'm doing something better - make allyesconfig, minus things like
-intermezzo which are totally broken in 2.5.25.=20
 
-Next up: -pedantic ;)
---=20
-http://vipe.technion.ac.il/~mulix/
-http://syscalltrack.sf.net/
-
---HBg0C3yr6HVa1ZCc
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9L9o6KRs727/VN8sRAnoEAJ9+qUyvF45R6pSqSdVsz+mL1wT/SACcDTs6
-evXR8bc70ZWjKOmDEVi/6D0=
-=tNTH
------END PGP SIGNATURE-----
-
---HBg0C3yr6HVa1ZCc--

@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317026AbSGNTQx>; Sun, 14 Jul 2002 15:16:53 -0400
+	id <S317018AbSGNTSy>; Sun, 14 Jul 2002 15:18:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317030AbSGNTQw>; Sun, 14 Jul 2002 15:16:52 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:14054 "EHLO
+	id <S317020AbSGNTSx>; Sun, 14 Jul 2002 15:18:53 -0400
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:43750 "EHLO
 	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S317026AbSGNTQv>; Sun, 14 Jul 2002 15:16:51 -0400
-Date: Sun, 14 Jul 2002 21:18:08 +0200 (CEST)
+	id <S317018AbSGNTSw>; Sun, 14 Jul 2002 15:18:52 -0400
+Date: Sun, 14 Jul 2002 21:20:09 +0200 (CEST)
 From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207141918.g6EJI8kj019362@burner.fokus.gmd.de>
+Message-Id: <200207141920.g6EJK9qm019370@burner.fokus.gmd.de>
 To: andersen@codepoet.org, schilling@fokus.gmd.de
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: IDE/ATAPI in 2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 >From: Erik Andersen <andersen@codepoet.org>
 
->> We don't need just another unrelated interface but a generic
->> transort. CDROM_SEND_PACKET is not a generic interface, it is limited
->> to ATAPI CD-ROM's.
+>> >cdrecord should use the CDROM_SEND_PACKET ioctl, then it would
+>> >work regardless,
+>> 
+>> This only prooves that you are uninformed :-(
 
->Wrong.  It is a _generic CD-ROM packet interface.  Thanks for not even
->spending the two seconds it would take reading the kernel source code
->to discover this.
+>No.  This only proves _you_ have not tried it.  I've used the
+>CDROM_SEND_PACKET ioctl on both SCSI and ATAPI cdrom devices.
+>What do you need to do in cdrecord that cannot be done with it?
 
->$ grep -l CDC_GENERIC_PACKET drivers/scsi/sr.c drivers/ide/ide-cd.c 
->drivers/scsi/sr.c
->drivers/ide/ide-cd.c
-
-That does not change anything.
-
-Having a transport of limited usability is a problem for libscg.
-
-BTW: If it turns out that people are interested in useful discussions, 
-I may put more effort in reading current Linux kernel sources.
+The only reason, why I did add support for it was to be able
+to use a CD writer in my notbook circumventing the driver bugs
+that prevent to use ise-scsi on top of PCATA.
 
 Jörg
 

@@ -1,56 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289007AbSANTxy>; Mon, 14 Jan 2002 14:53:54 -0500
+	id <S289009AbSANUBo>; Mon, 14 Jan 2002 15:01:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288955AbSANTw1>; Mon, 14 Jan 2002 14:52:27 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:56307 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S288952AbSANTvh>; Mon, 14 Jan 2002 14:51:37 -0500
-Message-ID: <3C433695.A9188FF2@mvista.com>
-Date: Mon, 14 Jan 2002 11:50:45 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: arjanv@redhat.com
-CC: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <20020114104532.59950d86.skraw@ithnet.com>; from skraw@ithnet.com on lun ene 14 2002 at 10:45:32 +0100 <20020114160256.A2922@werewolf.able.es> <3C42F33C.88F423F6@redhat.com>
+	id <S288999AbSANUAR>; Mon, 14 Jan 2002 15:00:17 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:59148 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S288969AbSANT5E>;
+	Mon, 14 Jan 2002 14:57:04 -0500
+Date: Mon, 14 Jan 2002 11:53:48 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        linux-usb-devel@lists.sourceforge.net,
+        Linux-usb-users@lists.sourceforge.net
+Subject: [ANNOUNCE] 2002-01-14 release of hotplug scripts
+Message-ID: <20020114195348.GA21076@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> 
-> "J.A. Magallon" wrote:
-> >
-> > On 20020114 Stephan von Krawczynski wrote:
-> > >
-> > >Hm, obviously the ll-patches look simple, but their pure required number makes
-> > >me think they are as well stupid as simple. This whole story looks like making
-> > >an old mac do real multitasking, just spread around scheduling points
-> >
-> > Yup. That remind me of...
-> > Would there be any kernel call every driver is doing just to hide there
-> > a conditional_schedule() so everyone does it even without knowledge of it ?
-> > Just like Apple put the SystemTask() inside GetNextEvent()...
-> 
-> Well the preempt patch sort of does this in every spin_unlock*() .....
-> -
-Gosh, not really.  The nature of the preempt patch is to allow
-preemption on completion of the interrupt that put the contending task
-back in the run list.  This can not be done if a spin lock is held, so
-yes, there is a test on exit from the spin lock, but the point is that
-this is only needed when the lock is release, not in unlocked code.
+I've just packaged up the latest Linux hotplug scripts into a release,
+which can be found at:
+ 	http://sourceforge.net/project/showfiles.php?group_id=17679
 
-The utility of most of the ll patches is that they address the problem
-within locked regions.  This is why there is a lock-break patch that is
-designed to augment the preempt patch.  It picks up several of the long
-held spin locks and pops out of them early to allow preemption, and then
-relocks and continues (after picking up the pieces, of course).
--- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+Or from your favorite kernel.org mirror at:
+	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2001_09_19.tar.gz
+
+I've also packaged up some Red Hat 7.2 based rpms:
+	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2002_01_14-1.noarch.rpm
+	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-fxload-2002_01_14-1.i386.rpm
+
+The source rpms are available if you want to rebuild them for other
+distros at:
+	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2002_01_14-1.src.rpm
+	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-fxload-2002_01_14-1.src.rpm
+
+The main web site for the linux-hotplug project can be found at:
+	http://linux-hotplug.sf.net/
+which contains lots of documentation on the whole linux-hotplug
+process.  There are also links to kernel patches, not currently in the
+main kernel tree, that provide hotplug functionality to new subsystems
+(like CPU, SCSI, Memory, etc.)
+
+Here's the changes (and who made them) from the last release:
+
+  Changes from me:
+	- created hotplug-fxload.spec to split the .rpm up into two
+	  packages which lets the hotplug rpm be "noarch" again.
+	- changed hotplug.spec to only be one package again.
+	- fixed type on ieee1394.agent that prevented version matches
+	  from working properly.
+
+  Changes from Fumitoshi UKAI
+	- usb.agent: fix work around 2.2 brokenness. it didn't handle
+	  ab.c or ab.cd propoerly (it becomes PRODUCT=X/Y/ab.c0,
+	  X/Y/ab.cd) It should be PRODUCT=X/Y/abc0, X/Y/abcd
+	- usb.agent: define REMOVER for system without usbdevfs
+	- update debian/ files
+
+  Changes from David Brownell
+	- updated the hotplug.8 man page
+	- rmmod boot protocol drivers too
+	- mention environment variables in the hotplug core script's
+	  comments
+	- created the fxload.8 man page
+	- fxload changes:
+		- fail on firmware download errors; add "-v" flag
+		- merge adjacent hex records, and optionally show writes
+		- Add sanity check: reject requests to load off-chip
+		  memory, The EZ-USB devices just fail silently in these
+		  cases.
+
+thanks,
+
+greg k-h

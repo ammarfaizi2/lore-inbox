@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263406AbREXHpY>; Thu, 24 May 2001 03:45:24 -0400
+	id <S263404AbREXHxZ>; Thu, 24 May 2001 03:53:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263404AbREXHpO>; Thu, 24 May 2001 03:45:14 -0400
-Received: from www.inreko.ee ([195.222.18.2]:22761 "EHLO www.inreko.ee")
-	by vger.kernel.org with ESMTP id <S263400AbREXHo4>;
-	Thu, 24 May 2001 03:44:56 -0400
-Date: Thu, 24 May 2001 09:47:17 +0200
-From: Marko Kreen <marko@l-t.ee>
-To: Edgar Toernig <froese@gmx.de>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Oliver Xymoron <oxymoron@waste.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]device arguments from lookup)
-Message-ID: <20010524094717.A23722@l-t.ee>
-In-Reply-To: <Pine.LNX.4.30.0105220957400.19818-100000@waste.org> <0105221851200C.06233@starship> <3B0B3A4C.FD7143F9@gmx.de> <0105231550390K.06233@starship> <3B0C547F.DE9E9214@gmx.de>
-Mime-Version: 1.0
+	id <S263407AbREXHxP>; Thu, 24 May 2001 03:53:15 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:61872 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S263404AbREXHw7>;
+	Thu, 24 May 2001 03:52:59 -0400
+Message-ID: <3B0CBDB3.3E062D3A@mandrakesoft.com>
+Date: Thu, 24 May 2001 03:52:19 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Praveen Srinivasan <praveens@stanford.edu>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk, mingo@redhat.com
+Subject: Re: [PATCH] md.c - null ptr fixes for 2.4.4
+In-Reply-To: <200105240732.f4O7WLH23332@smtp2.Stanford.EDU>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B0C547F.DE9E9214@gmx.de>; from froese@gmx.de on Thu, May 24, 2001 at 02:23:27AM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 24, 2001 at 02:23:27AM +0200, Edgar Toernig wrote:
-> Daniel Phillips wrote:
-> > > > It's going to be marked 'd', it's a directory, not a file.
-> > >
-> > > Aha.  So you lose the S_ISCHR/BLK attribute.
-> > 
-> > Readdir fills in a directory type, so ls sees it as a directory and does
-> > the right thing.  On the other hand, we know we're on a device
-> > filesystem so we will next open the name as a regular file, and find
-> > ISCHR or ISBLK: good.
-> 
-> ??? The kernel may know it, but the app?  Or do you really want to
-> give different stat data on stat(2) and fstat(2)?  These flags are
-> currently used by archive/backup prgs.  It's a hint that these files
-> are not regular files and shouldn't be opened for reading.
-> Having a 'd' would mean that they would really try to enter the
-> directory and save it's contents.  Don't know what happens in this
-> case to your "special" files ;-)
+Praveen Srinivasan wrote:
+> @@ -3773,7 +3774,12 @@
+>                         ainfo.spare_disks = 0;
+>                         ainfo.layout = 0;
+>                         ainfo.chunk_size = md_setup_args.chunk[minor];
+> -                       err = set_array_info(mddev, &ainfo);
+> +                       if(mddev==NULL){
+> +                           err=1;
+> +                         }
+> +                       else {
+> +                         err = set_array_info(mddev, &ainfo);
+> +                       }
+>                         for (i = 0; !err && (dev = md_setup_args.devices[minor][i]); i++) {
+>                                 dinfo.number = i;
+>                                 dinfo.raid_disk = i;
+> @@ -3797,9 +3803,12 @@
+>                 if (!err)
+>                         err = do_md_run(mddev);
+>                 if (err) {
+> -                       mddev->sb_dirty = 0;
+> -                       do_md_stop(mddev, 0);
+> -                       printk("md: starting md%d failed\n", minor);
+> +                 if(mddev !=NULL){
+> +                   mddev->sb_dirty = 0;
+> +                   do_md_stop(mddev, 0);
+> +                 }
+> +
+> +                 printk("md: starting md%d failed\n", minor);
 
-IMHO the CHR/BLK is not needed.  Think of /proc.  In the future,
-the backup tools will be told to ignore /dev, that's all.
+coding style of changes totally different from surrounding code, and
+Documentation/CodingStyle
+
+ditto for other patches... i didn't check all, only several
 
 -- 
-marko
-
+Jeff Garzik      | "Are you the police?"
+Building 1024    | "No, ma'am.  We're musicians."
+MandrakeSoft     |

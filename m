@@ -1,61 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269076AbUJERuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269120AbUJERwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269076AbUJERuo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 13:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269127AbUJERun
+	id S269120AbUJERwE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 13:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269127AbUJERu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 13:50:43 -0400
-Received: from fw.osdl.org ([65.172.181.6]:44944 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269076AbUJERts (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 13:49:48 -0400
-Date: Tue, 5 Oct 2004 10:47:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-Cc: jeffpc@optonline.net, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       trivial@rustcorp.com.au, rusty@rustcorp.com.au, greg@kroah.com
-Subject: Re: [PATCH 2.6][resend] Add DEVPATH env variable to hotplug helper
- call
-Message-Id: <20041005104744.59177aea.akpm@osdl.org>
-In-Reply-To: <20041005102706.A27795@unix-os.sc.intel.com>
-References: <20041003100857.GB5804@optonline.net>
-	<20041003162012.79296b37.akpm@osdl.org>
-	<20041004102220.A3304@unix-os.sc.intel.com>
-	<20041004123725.58f1e77c.akpm@osdl.org>
-	<20041004124355.A17894@unix-os.sc.intel.com>
-	<20041005012556.A22721@unix-os.sc.intel.com>
-	<20041005101823.223573d9.akpm@osdl.org>
-	<20041005102706.A27795@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Oct 2004 13:50:58 -0400
+Received: from smtp07.auna.com ([62.81.186.17]:55500 "EHLO smtp07.retemail.es")
+	by vger.kernel.org with ESMTP id S269093AbUJERuT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 13:50:19 -0400
+Date: Tue, 05 Oct 2004 17:50:15 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: [PATCH] Kill get/put_cpu_ptr
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+X-Mailer: Balsa 2.2.5
+Message-Id: <1096998615l.5347l.1l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com> wrote:
->
-> On Tue, Oct 05, 2004 at 10:18:23AM -0700, Andrew Morton wrote:
->  > Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com> wrote:
->  > >
->  > > 	Here is what I have come up with(please take a look at this patch).
->  > >  I was successfully able to get rid of cpu_run_sbin_hotplug() function, but
->  > >  when I call kobject_hotplug() function, it is finding 
->  > >  top_kobj->kset->hotplug_ops set to NULL and hence returns without calling
->  > >  call_usermodehelper(). Not sure if this is a bug in kobject_hotplug(), 
->  > >  I feel kobject_hotplug() function should continue even if 
->  > >  top_kobj->kset-hotplug_ops is NULL.
->  > 
->  > Yes, it doesn't seem necessary.  We could give cpu_sysdev_class a
->  > valid-but-empty hotplug_ops but it seems simpler and more general to do it
->  > in kobject_hotplug().
-> 
->  I tried that, but I found that parent "cpu" directory i.e
->  /sys/devices/system/cpu itself was not getting created. Any clues?
+Someone asked for this in the list...
+Against rc3-mm2, compiled and booted:
 
-I don't see why the change to kobject_hotplug() would cause that directory
-to not be created.
+--- linux-2.6.9-rc3-mm2-cln/include/linux/percpu.h	2004-06-16 07:20:03.000000000 +0200
++++ linux-2.6.9-rc3-mm2/include/linux/percpu.h	2004-10-05 13:57:58.000000000 +0200
+@@ -24,8 +24,7 @@
+ 
+ /* 
+  * Use this to get to a cpu's version of the per-cpu object allocated using
+- * alloc_percpu.  If you want to get "this cpu's version", maybe you want
+- * to use get_cpu_ptr... 
++ * alloc_percpu.
+  */ 
+ #define per_cpu_ptr(ptr, cpu)                   \
+ ({                                              \
+@@ -58,26 +57,4 @@
+ #define alloc_percpu(type) \
+ 	((type *)(__alloc_percpu(sizeof(type), __alignof__(type))))
+ 
+-/* 
+- * Use these with alloc_percpu. If
+- * 1. You want to operate on memory allocated by alloc_percpu (dereference
+- *    and read/modify/write)  AND 
+- * 2. You want "this cpu's version" of the object AND 
+- * 3. You want to do this safely since:
+- *    a. On multiprocessors, you don't want to switch between cpus after 
+- *    you've read the current processor id due to preemption -- this would 
+- *    take away the implicit  advantage to not have any kind of traditional 
+- *    serialization for per-cpu data
+- *    b. On uniprocessors, you don't want another kernel thread messing
+- *    up with the same per-cpu data due to preemption
+- *    
+- * So, Use get_cpu_ptr to disable preemption and get pointer to the 
+- * local cpu version of the per-cpu object. Use put_cpu_ptr to enable
+- * preemption.  Operations on per-cpu data between get_ and put_ is
+- * then considered to be safe. And ofcourse, "Thou shalt not sleep between 
+- * get_cpu_ptr and put_cpu_ptr"
+- */
+-#define get_cpu_ptr(ptr) per_cpu_ptr(ptr, get_cpu())
+-#define put_cpu_ptr(ptr) put_cpu()
+-
+ #endif /* __LINUX_PERCPU_H */
+diff -ruN linux-2.6.9-rc3-mm2-cln/mm/slab.c linux-2.6.9-rc3-mm2/mm/slab.c
+--- linux-2.6.9-rc3-mm2-cln/mm/slab.c	2004-10-05 13:59:56.436888255 +0200
++++ linux-2.6.9-rc3-mm2/mm/slab.c	2004-10-05 13:58:44.000000000 +0200
+@@ -2435,8 +2435,7 @@
+ /**
+  * __alloc_percpu - allocate one copy of the object for every present
+  * cpu in the system, zeroing them.
+- * Objects should be dereferenced using per_cpu_ptr/get_cpu_ptr
+- * macros only.
++ * Objects should be dereferenced using per_cpu_ptr macro only.
+  *
+  * @size: how many bytes of memory are required.
+  * @align: the alignment, which can't be greater than SMP_CACHE_BYTES.
 
-With your patch and mine applied, /sys/devices/system/cpu is present and
-populated on my test box.
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.1 (Community) for i586
+Linux 2.6.9-rc3-mm2 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #1
+
 

@@ -1,40 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVAGXdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVAGXnN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261736AbVAGXdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 18:33:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVAGXcq
+	id S261731AbVAGXnN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 18:43:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVAGXdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 18:32:46 -0500
-Received: from smtp-out4.iol.cz ([194.228.2.92]:30672 "EHLO smtp-out4.iol.cz")
-	by vger.kernel.org with ESMTP id S261731AbVAGXcG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 18:32:06 -0500
-Message-ID: <41DECD02.2000102@stud.feec.vutbr.cz>
-Date: Fri, 07 Jan 2005 18:55:14 +0100
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-os@analogic.com
-Cc: Andries Brouwer <aebr@win.tue.nl>, Ron Peterson <rpeterso@mtholyoke.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: /dev/random vs. /dev/urandom
-References: <20050107190536.GA14205@mtholyoke.edu> <20050107213943.GA6052@pclin040.win.tue.nl> <Pine.LNX.4.61.0501071729330.22391@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0501071729330.22391@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+	Fri, 7 Jan 2005 18:33:32 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:55682 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261737AbVAGXcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 18:32:24 -0500
+Subject: RE: [PATCH 2.6] cciss typo fix
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF107DC0185@cceexc23.americas.cpqcorp.net>
+References: <D4CFB69C345C394284E4B78B876C1CF107DC0185@cceexc23.americas.cpqcorp.net>
+Content-Type: text/plain
+Date: Fri, 07 Jan 2005 18:32:02 -0500
+Message-Id: <1105140722.4151.28.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os wrote:
-> Also, the following shows that the AND operation will destroy
-> the randomness of the data. In this case I AND with 1, which
-> should produce as many '1's as '0's, ... and clearly does not.
-> 
+On Fri, 2005-01-07 at 17:24 -0600, Miller, Mike (OS Dev) wrote:
+> Hmmm, SuSE complained that __be32 was not defined in the kernel. Any other thoughts, anyone?
 
-It should not. If it always resulted in exactly the same number of '0's 
-and '1's then it wouldn't be random. But the relative rate of '0's and 
-'1's will approach 50% if the number of tries is statistically 
-significant. 32 tries isn't.
+Erm, well it might not be defined in the SuSE kernel ... that's based on
+2.6.5, I believe.  These symbols are definitely defined in the mainline
+kernel.
 
-Michal
+James
+
+

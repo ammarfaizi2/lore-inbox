@@ -1,46 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262812AbUJ1Gj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262872AbUJ1Ged@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262812AbUJ1Gj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 02:39:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262869AbUJ1Ggb
+	id S262872AbUJ1Ged (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 02:34:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262871AbUJ1Gec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 02:36:31 -0400
-Received: from cantor.suse.de ([195.135.220.2]:40330 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262811AbUJ1GdK (ORCPT
+	Thu, 28 Oct 2004 02:34:32 -0400
+Received: from mxc.rambler.ru ([81.19.66.31]:46352 "EHLO mxc.rambler.ru")
+	by vger.kernel.org with ESMTP id S262810AbUJ1G3q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 02:33:10 -0400
-To: Sorav Bansal <sbansal@stanford.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG REPORT: User/Kernel Pointer bug in sys_poll
-References: <20041028052218.52478.qmail@web50207.mail.yahoo.com.suse.lists.linux.kernel>
-	<Pine.GSO.4.44.0410272246240.7124-100000@elaine9.Stanford.EDU.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 28 Oct 2004 08:32:58 +0200
-In-Reply-To: <Pine.GSO.4.44.0410272246240.7124-100000@elaine9.Stanford.EDU.suse.lists.linux.kernel>
-Message-ID: <p73d5z31het.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Oct 2004 02:29:46 -0400
+Date: Thu, 28 Oct 2004 10:26:50 +0400
+From: Pavel Fedin <sonic_amiga@rambler.ru>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, luther@debian.org
+Subject: Re: [PATCH] VIA8231 support for parallel port driver
+Message-Id: <20041028102650.7a8173b0.sonic_amiga@rambler.ru>
+In-Reply-To: <20041027231331.5b2b637d.akpm@osdl.org>
+References: <20041027093529.15ff1a31.sonic_amiga@rambler.ru>
+	<417F4528.9030408@pobox.com>
+	<20041027171758.7399d9db.akpm@osdl.org>
+	<20041028093610.5a7e34b7.sonic_amiga@rambler.ru>
+	<20041027224530.464982fa.akpm@osdl.org>
+	<20041028100755.0158c2e6.sonic_amiga@rambler.ru>
+	<20041027231331.5b2b637d.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Thu__28_Oct_2004_10_26_50_+0400_dlt6QenEb0JWO/E6"
+X-Auth-User: sonic_amiga, whoson: (null)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorav Bansal <sbansal@stanford.edu> writes:
+This is a multi-part message in MIME format.
 
-> Older x86 architectures (386 and before) allow the kernel to write to any
-> user location regardless of the write-protect bits.
+--Multipart=_Thu__28_Oct_2004_10_26_50_+0400_dlt6QenEb0JWO/E6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Actually it's only some early steppings of 386 and Linux never ran on
-a 286 or earlier. I think the best would be to just ignore it, the affected
-user base is very likely zero or very near it. I suspect the 
-probability of one of these machines still used as a multiuser
-machine is very definitely nil.
+On Wed, 27 Oct 2004 23:13:31 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-Cue is that 386 got occassionally broken, and it often took 
-months to be noticed.
+> >   Too late, i already made new version as Jeff asked. Integrated with
+> >  via686a code, duplicating parts removed.
+> 
+> You can simply edit the diff.
 
-These machines already have other exploitable bugs BTW that have been
-ignored for a long time and only been fixed in 2.6.
+ Ok, here is edited version. Hope it's okay now.
 
-So just ignore it. It's a non issue, really.
+-- 
+Best regards,
+Pavel Fedin,									mailto:sonic_amiga@rambler.ru
 
--Andi
+--Multipart=_Thu__28_Oct_2004_10_26_50_+0400_dlt6QenEb0JWO/E6
+Content-Type: application/x-gzip;
+ name="parport_pc-via8231.diff.gz"
+Content-Disposition: attachment;
+ filename="parport_pc-via8231.diff.gz"
+Content-Transfer-Encoding: base64
+
+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
+5dd4I1vIG2y081/Y6dRNHDQAAA==
+
+--Multipart=_Thu__28_Oct_2004_10_26_50_+0400_dlt6QenEb0JWO/E6--

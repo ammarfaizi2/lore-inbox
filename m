@@ -1,107 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265127AbUIMDA4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUIMDDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265127AbUIMDA4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 23:00:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUIMDA4
+	id S265144AbUIMDDU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 23:03:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUIMDDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 23:00:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:22507 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265127AbUIMDAw (ORCPT
+	Sun, 12 Sep 2004 23:03:20 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:24248 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265144AbUIMDDQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 23:00:52 -0400
-Date: Sun, 12 Sep 2004 20:00:48 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Add sparse "__iomem" infrastructure to check PCI address usage
-In-Reply-To: <414508F6.7020301@pobox.com>
-Message-ID: <Pine.LNX.4.58.0409121945500.13491@ppc970.osdl.org>
-References: <200409110726.i8B7QTGn009468@hera.kernel.org> <4144E93E.5030404@pobox.com>
- <Pine.LNX.4.58.0409121922450.13491@ppc970.osdl.org> <414508F6.7020301@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 12 Sep 2004 23:03:16 -0400
+Date: Sun, 12 Sep 2004 20:02:53 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>, Brent Casavant <bcasavan@sgi.com>,
+       Andi Kleen <ak@suse.de>
+Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: more numa maxnode confusions
+Message-Id: <20040912200253.3d7a6ff5.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I believe that a merge error on my part is contributing further to the
+confusions over the meaning of the 'maxnode' parameter to the numa
+mbind/set_mempolicy/get_mempolicy calls.  The question is whether
+maxnode should be passed in as the number of bits, or one more than the
+number of bits (64 or 65 if MAX_NUMNODES is 64, for example).
 
+I will call these two choices the N64 and N65 choices.
 
-On Sun, 12 Sep 2004, Jeff Garzik wrote:
-> 
-> > No, although it's likely to be a strange combination. If you want to force 
-> > a static address space conversion to a volatile pointer, you can do so. I 
-> > don't see _why_ you'd want to do it ;)
-> 
-> Well the reason I ask....
-> 
-> static inline void writeb(unsigned char b, volatile void __iomem *addr)
-> {
->          *(volatile unsigned char __force *) addr = b;
-> }
+As best as I can reconstruct the events, the following has happened over
+the last month:
 
-Right. Let's look a bit closer (more of an explanation than you need, but 
-hey, maybe somebody else is also wondering):
+ 1) In the beginning, Andi designed this numa interface to be N65.
 
- - for gcc, none of this matters one whit. We're just passing in a 
-   "volatile void *", and we're storing the value "b" to the byte pointed
-   by it. Which is correct on x86, since memory-mapped PCI-space just 
-   looks like memory on x86.
+ 2) About Aug 9, Brent Casavant sent in a patch changing the set (not get)
+    side calls, sys_mbind and sys_set_mempolicy, to N64.  This patch
+    removed the following line from the implementation of get_nodes() in
+    mm/mempolicy.c:
 
-   This is important to remember: for gcc, the sparse annotations are 
-   meaningless. They can still be useful just to tell the _programmer_ 
-   that "hey, that pointer you got wasn't a normal pointer" in a fairly 
-   readable manner, but in the end, unless you use sparse, they don't 
-   actually _do_ anything.
+	--maxnode;
 
-HOWEVER. When you _do_ use parse, it is another matter entirely. For
-"sparse", that "__iomem"  has lots of meaning:
+ 3) Due presumably to a merge confusion on my part, my subsequent
+    cpuset patch (the original, largest one now dated Sept 2)
+    put this line back in, making the interface N65 again.
 
-	# define __iomem       __attribute__((noderef, address_space(2)))
+So currently, a quick reading of the code (could easily be wrong) tells
+me that the compat interfaces and the 'get' side (get_mempolicy) are
+always N65, but that the native 'set' side is N64 without my cpuset
+patch (but with Brent's patch), but N65 with my cpuset patch, which adds
+back in the "--maxnode" line to get_nodes().
 
-ie "iomem" means two separate things: it means that sparse should complain 
-if the pointer is ever dereferenced (it's a "noderef" pointer) directly, 
-and it's in "address space 2" as opposed to the normal address space (0).
+Currently, by my reading, Linus' bk tree has the mixed N64/N65
+interfaces, since it has Brent's patch, but not my cpuset patch.
+Andrew's *-mm tree has the pure N65 interface, due to my cpuset patch
+reversing Brent's patch.
 
-Now, that means that _sparse_ will complain if such a pointer is ever
-passed into a function that wants a regular pointer (because it is _not_ a
-normal pointer, and you obviously shouldn't do things like "strcmp()" etc 
-on it), and sparse will also complain if you try to cast it to another 
-pointer in another address space.
+My guess is that Andi wants this all N65, and that he didn't agree to
+Brent's patch.  If Andi understands different, that's fine -- I'm not
+trying to reopen that battle.
 
-So if you compile and install sparse, and build with "make C=1", you'll 
-get warnings like
+Andi:
 
-	drivers/video/aty/radeon_base.c:1725:42: warning: incorrect type in argument 2 (different address spaces)
-	drivers/video/aty/radeon_base.c:1725:42:    expected void const *from
-	drivers/video/aty/radeon_base.c:1725:42:    got void [noderef] *[assigned] base_addr<asn:2>
+ 0) Are my above statements anywhere close to correct?
 
-which is just another way sparse tells you that there is a bug in the 
-source code (in this case, we try to copy from PCI memory-mapped space 
-directly to user space using "copy_to_user()", which is a _bad_ idea).
+ 1) Should the "--maxnode" be re-inserted in get_nodes()?
 
-So not only can you not dereference it by mistake, you can't even _turn_
-it into a pointer that you could dereference by mistake. Sparse will
-complain. Sparse will complain even if you use an explicit cast to make it 
-a normal "(void *)".
+ 2) Should it be re-inserted by a separate patch from you,
+    rather than as a hidden side affect of my cpuset patch?
+    I will gladly remove that line from my cpuset patch, in
+    favor of a one-liner from you that re-inserts that line.
 
-And that's good, because on some other architectures, if you try to 
-dereference the pointer, the machine just oopses. You need to do all the 
-special magic to actually read from memory-mapped PCI space.
+Brent:
 
-HOWEVER. On x86, it just so happens that dereferencing the pointer _is_ 
-actually the right thing to do, as long as you only do it with the proper 
-interfaces (ie readb/writeb and friends). And so that sparse won't be 
-upset, we use the "__force" directive - we're telling sparse that "I know 
-what I'm doing". And so sparse will quietly allow us to dereference that 
-pointer that was originally not dereferencable.
+ 1) Would you agree to having your partial N64 patch reversed,
+    if my efforts to channel Andi's thoughts have succeeded,
+    and he wants the "--maxnode" in the code?
 
-Generally, you shouldn't ever use __force in a driver or anything like 
-that. It's usually a valid thing to do only in the code that is defined 
-for that particular type. By definition, a driver isn't an entity that 
-should understand how architecture-specific data structures work, so it 
-shouldn't try to force things.
+Andrew:
 
-So a good use of "__force" is exactly the usage you quote: the 
-arch-specific code that actually really _knows_ what the magic address 
-space means, and knows what to do about it.
+ 1) Once it's settled on where we (Andi, mostly) wants to go,
+    how do you want the patch(es)?  It seems silly for me to
+    send in a patch that undoes the re-insertion, just so Andi
+    can send in another patch that redoes it.  I will gladly do
+    pretty much anything you and Andi agree to here, but you may
+    have to spell it out to me in small, simple words ;).
 
-		Linus
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

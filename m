@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130541AbRASSet>; Fri, 19 Jan 2001 13:34:49 -0500
+	id <S135256AbRASTAW>; Fri, 19 Jan 2001 14:00:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135473AbRASSek>; Fri, 19 Jan 2001 13:34:40 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:4880 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S130541AbRASSe2>;
-	Fri, 19 Jan 2001 13:34:28 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200101191818.VAA24360@ms2.inr.ac.ru>
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Fri, 19 Jan 2001 21:18:04 +0300 (MSK)
-Cc: mingo@elte.hu, torvalds@transmeta.com, raj@cup.hp.com,
-        linux-kernel@vger.kernel.org, davem@redhat.com
-In-Reply-To: <20010119162552.D3447@athlon.random> from "Andrea Arcangeli" at Jan 19, 1 04:25:52 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S132967AbRASTAD>; Fri, 19 Jan 2001 14:00:03 -0500
+Received: from 3dyn148.com21.casema.net ([212.64.94.148]:29203 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S132367AbRASS77>;
+	Fri, 19 Jan 2001 13:59:59 -0500
+Date: Fri, 19 Jan 2001 20:52:26 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: multi-queue scheduler update
+Message-ID: <20010119205226.B12031@home.ds9a.nl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <OF50B8511C.DA424B45-ON852569D9.0061881B@pok.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre4i
+In-Reply-To: <OF50B8511C.DA424B45-ON852569D9.0061881B@pok.ibm.com>; from frankeh@us.ibm.com on Fri, Jan 19, 2001 at 01:03:05PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, Jan 19, 2001 at 01:03:05PM -0500, Hubertus Franke wrote:
+> 
+> Mike sounds good, we will do all our measurements from now on with thread
+> count for the entire range from 1 to 16 and
+> then in power of twos upto 2048 and for maxcpus=1,2,4,6,8. Do you think
+> that 4096 is overkill ? So far the numbers you got and we got over here are
+> the same. Andi suggested that <pre8> has some problems with IO scheduling.
 
-> The "uncork" won't push the last skb on the wire if there is not acknowledged
-> data in the write_queue and the payload of the last skb in the write_queue
-> isn't large MSS. This because the `uncork' will only re-evaluate the
-> write_queue in function of the _nagle_ algorithm, quite correctly because the
-> "uncork" will move frok "cork" to "nagle" (not from "cork" to "nodelay").
+I have used up to 3000 threads in serious non-frivolous programs. Although I
+have since been flamed over at #kernelnewbies that I should have been using
+a statemachine :-)
 
-At least for your own implementation of SIOCPUSH has "1" among
-arguments of push_pending_frames, so that this does not happen. 8)8)
+Regards,
 
-The second thing, which makes argument above wrong is that
-both classic Nagle and linux-2.4 Nagle (extended by Minshall),
-do not have this problem. Your argument applies to buggy flavor
-of nagling specific to 2.2.
+bert hubert
 
-
-However, SIOCPUSH really affects latency badly in some curcumstances.
-Actually, Ingo already learned this from bad experience with TUX. 8)
-Namely, when push cannot push anything due to congestion window
-or receiver window, http/1.0 style synchronous connections suffer.
-The lesson is that when reply is better to be disabled.
-
-Alexey
+-- 
+PowerDNS                     Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

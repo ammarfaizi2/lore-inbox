@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264572AbSIQVA0>; Tue, 17 Sep 2002 17:00:26 -0400
+	id <S264543AbSIQU5E>; Tue, 17 Sep 2002 16:57:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264580AbSIQVA0>; Tue, 17 Sep 2002 17:00:26 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:13443 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264572AbSIQVAC>;
-	Tue, 17 Sep 2002 17:00:02 -0400
-Date: Tue, 17 Sep 2002 13:56:02 -0700 (PDT)
-Message-Id: <20020917.135602.19253755.davem@redhat.com>
-To: johnstul@us.ibm.com
-Cc: anton.wilson@camotion.com, linux-kernel@vger.kernel.org, george@mvista.com
-Subject: Re: do_gettimeofday vs. rdtsc in the scheduler
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1032296233.22815.192.camel@cog>
-References: <1032294559.22815.180.camel@cog>
-	<20020917.133933.69057655.davem@redhat.com>
-	<1032296233.22815.192.camel@cog>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S264565AbSIQU5E>; Tue, 17 Sep 2002 16:57:04 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:1664 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
+	id <S264543AbSIQU5D>; Tue, 17 Sep 2002 16:57:03 -0400
+Subject: Re: [PATCH] BUG(): sched.c: Line 944
+From: Steven Cole <elenstev@mesatop.com>
+To: Robert Love <rml@tech9.net>
+Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1032293199.4588.235.camel@phantasy>
+References: <Pine.LNX.4.44.0209172055550.13829-100000@localhost.localdomain> 
+	<1032290611.4592.206.camel@phantasy> 
+	<1032292468.11907.44.camel@spc9.esa.lanl.gov> 
+	<1032293199.4588.235.camel@phantasy>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 17 Sep 2002 14:58:04 -0600
+Message-Id: <1032296284.12257.66.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: john stultz <johnstul@us.ibm.com>
-   Date: 17 Sep 2002 13:57:13 -0700
+On Tue, 2002-09-17 at 14:06, Robert Love wrote:
+> On Tue, 2002-09-17 at 15:54, Steven Cole wrote:
+> 
+> Thank you for the testing, Steven.
+> 
+> > Running dbench 3 resulted in the dbench clients hanging and being
+> > unkillable with kill -9 in the D state.
+> 
+> Hrm, I cannot reproduce this.  I just successfully completed a `dbench
+> 16'.  Can you find where they are hanging?  You can get a trace via
+> sysrq.  You can also see where they are in the kernel via the wchan
+> field of ps: "ps -ewo user,pid,priority,%cpu,stat,command,wchan" is a
+> favorite of mine.
+Sorry, it hung so badly that it didn't respond to that.
+> 
+> Sure it does not happen with a stock kernel (no preempt)?
 
-   On Tue, 2002-09-17 at 13:39, David S. Miller wrote:
-   > It would have been really nice if x86 had specified a "system tick"
-   > register that incremented based upon the system bus cycles and thus
-   > were immune the processor rates.
-   
-   Some systems do, if I'm understanding you properly. Summit based boxes
-   have an on-chipset performance counter that runs at 100Mhz. My
-   cyclone-timer patch uses this as a gettimeofday/__delay time source in
-   the 2.4 kernel. Additionally George Anzinger has patches that allow the
-   ACPI PM timer to be used as well. Intel's HPET should also provide
-   another time source.
+I just began testing plain vanilla 2.5.35-bk3 without preempt, and the
+box has run up to 24 clients so far. So far so good.
 
-If any of these need to go beyond the cpu to get the tick value,
-they are misimplemented.
+> 
+> What if you replace the printk() and dump_stack() in schedule() with a
+> no-op (but not something that will optimize away the conditional, i.e.
+> try a cpu_relax()).
 
-The cpu gets the system bus tick input at it's bus pins, therefore
-it can implement the system tick register locally obviating the need
-to go to a south bridge or memory controller or whatever else external
-to the cpu to get at the value.
+I'll try that in a bit.
+
+Steven
+

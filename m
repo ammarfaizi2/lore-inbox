@@ -1,51 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261387AbSIZP0i>; Thu, 26 Sep 2002 11:26:38 -0400
+	id <S261386AbSIZPZv>; Thu, 26 Sep 2002 11:25:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261390AbSIZP0h>; Thu, 26 Sep 2002 11:26:37 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:14598 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S261387AbSIZP0f>; Thu, 26 Sep 2002 11:26:35 -0400
-Date: Thu, 26 Sep 2002 09:31:12 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>, Jens Axboe <axboe@suse.de>
-cc: Mathieu Chouquet-Stringer <mathieu@newview.com>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Warning - running *really* short on DMA buffers while doing
- file transfers
-Message-ID: <3870780000.1033054272@aslan.scsiguy.com>
-In-Reply-To: <3D92B17C.9030504@myrealbox.com>
-References: <20020925232736.A19209@shookay.newview.com>
- <20020926061419.GA12862@suse.de> <3D92B17C.9030504@myrealbox.com>
-X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261387AbSIZPZv>; Thu, 26 Sep 2002 11:25:51 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:33785
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261386AbSIZPZu>; Thu, 26 Sep 2002 11:25:50 -0400
+Subject: Re: kernel: invalid operand: 0000
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bernard Paris <Bernard.Paris@psp.ucl.ac.be>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <p0510030ab9b5e75abfeb@[130.104.83.120]>
+References: <p0510030ab9b5e75abfeb@[130.104.83.120]>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Sep 2002 16:36:06 +0100
+Message-Id: <1033054566.1348.41.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     I reported this same problem some weeks ago -
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=103069116227685&w=2 .
-> 2.4.20pre kernels solved the error messages flooding the console, and
-> improved things a bit, but system load still got very high and disk read
-> and write performance was lousy. Adding more memory and using a
-> completely different machine didn't help. What did? Changing the Adaptec
-> scsi driver to aic7xxx_old . The performance was up 50% for writes and
-> 90% for reads, and the system load was acceptable. And i didn't even had
-> to change the RedHat kernel (2.4.18-10) for a custom one. The storage was
-> two external Arena raid boxes, btw.
+On Tue, 2002-09-24 at 11:03, Bernard Paris wrote:
+> Hi from Belgium,
+> 
+> I told you Aug 27 about many severe crashes I encounter on several 
+> identical servers running RH7.3 with almost all kernel 2.4.x 
+> successively.
+> There was a new crash with kernel 2.4.18-3 this weekend with this log:
 
-I would be interested in knowing if reducing the maximum tag depth for
-the driver improves things for you.  There is a large difference in the
-defaults between the two drivers.  It has only reacently come to my
-attention that the SCSI layer per-transaction overhead is so high that
-you can completely starve the kernel of resources if this setting is too
-high.  For example, a 4GB system installing RedHat 7.3 could not even
-complete an install on a 20 drive system with the default of 253 commands.
-The latest version of the aic7xxx driver already sent to Marcelo drops the
-default to 32.
-
---
-Justin
+Do you see the same problem with the 7.3 errata kernels ?
 

@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267359AbUIJLGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267363AbUIJLJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267359AbUIJLGV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 07:06:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267365AbUIJLGV
+	id S267363AbUIJLJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 07:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267365AbUIJLJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 07:06:21 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:15796 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S267359AbUIJLFy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 07:05:54 -0400
-Message-ID: <41418A90.5050303@free.fr>
-Date: Fri, 10 Sep 2004 13:05:52 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Petko Manolov <petkan@nucleusys.com>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc1-mm4 badness in rtl8150.c ethernet driver : fixed
-References: <413DB68C.7030508@free.fr> <4140256C.5090803@free.fr> <20040909152454.14f7ebc9.akpm@osdl.org> <20040909223605.GA17655@kroah.com> <Pine.LNX.4.61.0409101212420.22115@bender.nucleusys.com>
-In-Reply-To: <Pine.LNX.4.61.0409101212420.22115@bender.nucleusys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Sep 2004 07:09:57 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60422 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S267363AbUIJLJy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 07:09:54 -0400
+Date: Fri, 10 Sep 2004 12:09:50 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: seems to be impossible to disable CONFIG_SERIAL [2.6.7]
+Message-ID: <20040910120950.D22599@flint.arm.linux.org.uk>
+Mail-Followup-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+	linux-kernel@vger.kernel.org
+References: <20040910110819.GE14060@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040910110819.GE14060@lkcl.net>; from lkcl@lkcl.net on Fri, Sep 10, 2004 at 12:08:19PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petko Manolov wrote:
+On Fri, Sep 10, 2004 at 12:08:19PM +0100, Luke Kenneth Casson Leighton wrote:
+> hi,
+> 
+> has anyone noticed that it's impossible (without hacking) to remove
+> CONFIG_SERIAL?
+> 
+> remove the entries or set all SERIAL config entries to "n"...
+> hit make...
+> CONFIG_SERIAL_8250 gets set to "m", CONFIG_SERIAL gets set to "y"!
+> 
+> seeerrrriiialllll muuuusssstttt dieeeeeee kill kill kill.
 
-> Steven Hein <ssh@sgi.com> sent me a patch that supposedly fix device 
-> registers misinitialization when it is being frequently reseted.
+No idea - you've given very little information to go on.  I doubt
+you're building an x86 kernel... Mind giving some clues and maybe
+a copy of your .config file?
 
-I never saw traces showing the card should be resetted. It hung 
-occasionnaly in the past but did not know who to really blame (USB vs 
-drivers). It is now  working well for quite a long time now allthough I 
-periodically transfers more than 100mb via ftp...
+I regularly moan about overuse of the Kconfig "select" statement
+and at a guess you've just been bitten by this.  Feel free to moan
+like merry hell about it.
 
-> I would say lets wait for some time and see if we'll break someone else's
-> heart and then reverse the patch.  Another solution is to restore the 
-> original value and add new module parameter, so whoever thinks
-> anything != 0x10 work better for him will be free to change it.
+> there are 64 serial devices created.
 
-I'm not sure 2.6.9-rcx-mmx will provide valuable data, we will probably 
-have to wait until distro incoporates this code to get some reasonnable 
-hints... Do you have some well known driver users you could ping to get 
-feedback more quickly?
-
-
-Anyway, you are aware of the problem and I know how to fix my problem so 
-all is fine.
-
-Have a nice day,
+Why are you seeing 64 serial devices created?  You should only see
+about 16 or so in most sane configurations.
 
 -- 
-    __
-   /  `                   	Eric Valette
-  /--   __  o _.          	6 rue Paul Le Flem
-(___, / (_(_(__         	35740 Pace
-
-Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
-E-mail: eric.valette@free.fr
-
-
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

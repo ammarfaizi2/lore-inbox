@@ -1,79 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVAGDax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVAGDlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbVAGDax (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 22:30:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVAGDaw
+	id S261178AbVAGDlt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 22:41:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVAGDls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 22:30:52 -0500
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:21709 "EHLO
-	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
-	id S261269AbVAGDal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 22:30:41 -0500
-Date: Thu, 06 Jan 2005 22:30:27 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-In-reply-to: <20050107002624.GA29006@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       paulmck@us.ibm.com, arjan@infradead.org, linux-kernel@vger.kernel.org,
-       jtk@us.ibm.com, wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
-       greghk@us.ibm.com, torvalds@osdl.org
-Message-id: <41DE0253.6090208@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <20050106190538.GB1618@us.ibm.com>
- <1105039259.4468.9.camel@laptopd505.fenrus.org>
- <20050106201531.GJ1292@us.ibm.com>
- <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk>
- <20050106210408.GM1292@us.ibm.com>
- <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk>
- <20050106152621.395f935e.akpm@osdl.org> <20050106234123.GA27869@infradead.org>
- <20050106162928.650e9d71.akpm@osdl.org> <20050107002624.GA29006@infradead.org>
+	Thu, 6 Jan 2005 22:41:48 -0500
+Received: from holomorphy.com ([207.189.100.168]:49092 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261178AbVAGDlr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 22:41:47 -0500
+Date: Thu, 6 Jan 2005 19:41:45 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: torvalds@osdl.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Make pipe data structure be a circular list of pages, rather than
+Message-ID: <20050107034145.GI9636@holomorphy.com>
+References: <200501070313.j073DCaQ009641@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501070313.j073DCaQ009641@hera.kernel.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Jan 07, 2005 at 12:29:13AM +0000, Linux Kernel Mailing List wrote:
+> ChangeSet 1.2229.1.1, 2005/01/06 16:29:13-08:00, torvalds@ppc970.osdl.org
+> 	Make pipe data structure be a circular list of pages, rather than
+> 	a circular list of one page.
+> 	This improves pipe throughput, and allows us to (eventually)
+> 	use these lists of page buffers for moving data around efficiently.
 
-Christoph Hellwig wrote:
-> On Thu, Jan 06, 2005 at 04:29:28PM -0800, Andrew Morton wrote:
-> 
->>Fine.  Completely agree.  Sometimes people do need to be forced to make
->>such changes - I don't think anyone would disagree with that.
->>
->>What's under discussion here is "how to do it".  Do we just remove things
->>when we notice them, or do we give (say) 12 months notice?
-> 
-> 
-> Remove when we notice with a short (measured in weeks) period where that
-> removal happens only in -mm.  It's a price people have to pay for not
-> submitting their code upstream.
+Interesting; how big a gain did you see?
 
-Not everyone has cycles to follow to -mm.
 
-I'd much rather see deprecation warnings in mainline releases for at
-least one if not two releases.
-
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB3gJTdQs4kOxk3/MRAq9uAKCRHF7aF/vviLfIQl3fvv4eZSYpCACgh82/
-5aTd4a6BqeGISYPZDDUvhSg=
-=mhET
------END PGP SIGNATURE-----
+-- wli

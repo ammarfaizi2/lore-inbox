@@ -1,108 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262185AbTE0Frm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 01:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262638AbTE0Frm
+	id S262645AbTE0Fyg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 01:54:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbTE0Fyg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 01:47:42 -0400
-Received: from [164.164.89.245] ([164.164.89.245]:64015 "EHLO
-	snblrm01.scandentgroup.com") by vger.kernel.org with ESMTP
-	id S262185AbTE0Frk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 01:47:40 -0400
-Subject: Re: [bug] 2.5.68: USB
-To: Nico Schottelius <schottelius@wdt.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-kernel-owner@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF2A9B6A94.2AB03675-ON65256D33.00210116@scandentgroup.com>
-From: satyakumar.y@scandentgroup.com
-Date: Tue, 27 May 2003 11:33:35 +0530
-X-MIMETrack: Serialize by Router on snblrm01/Scandent(Release 5.0.8 |June 18, 2001) at
- 05/27/2003 11:33:44 AM
+	Tue, 27 May 2003 01:54:36 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23500 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262645AbTE0Fye
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 01:54:34 -0400
+Message-ID: <3ED300A8.4000405@pobox.com>
+Date: Tue, 27 May 2003 02:07:36 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: multipart/mixed; 
-	Boundary="0__=65256D33002101168f9e8a93df938690918c65256D3300210116"
-Content-Disposition: inline
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCHES] add ata scsi driver
+References: <Pine.LNX.4.44.0305261306500.12186-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0305261306500.12186-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0__=65256D33002101168f9e8a93df938690918c65256D3300210116
-Content-type: text/plain; charset=us-ascii
+Linus Torvalds wrote:
+> On Mon, 26 May 2003, Jeff Garzik wrote:
+> 
+>>Correct, but precisely by saying that, you're missing something.
+> 
+> 
+> You're missing _my_ point.
+> 
+> 
+>>The SCSI midlayer provides infrastructure I need -- which is not 
+>>specific to SCSI at all.
+> 
+> 
+> If it isn't specific to SCSI, then it sure as hell shouldn't BE THERE!
+> 
+> My point is that it's _wrong_ to make non-SCSI drivers use the SCSI layer, 
+> because that shows that something is misdesigned.
+> 
+> And I bet there isn't all that much left that really helps.
+> 
+> You adding more "pseudo-SCSI" crap just _makes_things_worse. It does not 
+> advance anything, it regresses. 
 
 
+As you see from Alan's message and others, it isn't pseudo-SCSI.
 
-recompile the kernel   selecting the
-usb device  file system   option    in   usb support
-
-
-
-
-
-                                                                                                                             
-                    Nico Schottelius                                                                                         
-                    <schottelius@wdt.de>           To:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>          
-                    Sent by:                       cc:                                                                       
-                    linux-kernel-owner@vger.       Subject:     [bug] 2.5.68: USB                                            
-                    kernel.org                                                                                               
-                                                                                                                             
-                                                                                                                             
-                    05/26/2003 07:11 PM                                                                                      
-                                                                                                                             
-                                                                                                                             
+Besides what he mentioned, there is Serial Attached SCSI (SAS), where a 
+host controller can simultaneously support SAS disks and SATA disks.  So 
+it's either an IDE driver that does SCSI, or a SCSI driver that does 
+IDE, or a driver that's in both IDE and SCSI subsystems, or... ?  Having 
+fun yet?  :)
 
 
+> On 27 May 2003, Alan Cox wrote:
+>>> I actually think thats a positive thing. It means 2.5 drivers/scsi is
+>>> now very close to being the "native queueing driver" with some
+>>> additional default plugins for doing scsi scanning, scsi error recovery 
+>>> and a few other scsi bits.
+> 
+> Hey, that may well be the way to go, in which case the core stuff should
+> be renamed and moved off somewhere else. Leaving drivers/scsi with just 
+> the actual low-level SCSI drivers. 
+
+For all these reasons, I continue to maintain that starting out as a 
+SCSI driver, and then evolving, is the best route.  The non-SCSI parts 
+leave drivers/scsi, as they should.  The SCSI parts stay.  The SCSI 
+mid-layer gets smaller.  All the while, the driver continues to work. 
+Everybody wins.
+
+Starting out as a native block driver and _then_ adding SCSI support and 
+native queueing and jazz does not sound even remotely like a good path 
+to follow.
+
+	Jeff
 
 
-Hello!
-
-When attaching usb devices to my box, no new entries in /dev/ are
-created (tried with usbstick, harddisk in a box)..so I can't acces any
-of them!
-
-------------------
-flapp:/usr # lsmod
-Module                  Size  Used by
-usb_storage            99536  0
-scsi_mod               48132  1 usb_storage
-ohci_hcd               13152  0
-usbcore                73436  4 usb_storage,ohci_hcd
-...
-
-flapp:/usr # ls /dev/usb/
-.  ..
-flapp:/usr # ls /dev/scsi/
-.  ..
-
-flapp:/usr # cat /proc/scsi/scsi
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: HITACHI_ Model: DK23AA-12        Rev: 0811
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-
-(which is the usb harddisk)
-
-Or do I have to load the scsi disk driver ?
-
-Nico
-
---
-Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt
-mails
-to mailing list!). If you don't know what pgp is visit www.gnupg.org.
-(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
-(See attached file: attkklzr.dat)
-
-
---0__=65256D33002101168f9e8a93df938690918c65256D3300210116
-Content-type: application/octet-stream; 
-	name="attkklzr.dat"
-Content-Disposition: attachment; filename="attkklzr.dat"
-Content-transfer-encoding: base64
-
-LS0tLS1CRUdJTiBQR1AgU0lHTkFUVVJFLS0tLS0NClZlcnNpb246IEdudVBHIHYxLjAuNyAoR05V
-L0xpbnV4KQ0KDQppRDhEQlFFKzBobDh0bmxVZ2dMSnNYMFJBdG9iQUo5ekY1d2NjUmNRNXppUEdN
-bCtPc29lVks3Mit3Q2RFYjhHDQpLUEpYS2RXR3NLc094ZjZLRXFLRkFxbz0NCj0xWkF6DQotLS0t
-LUVORCBQR1AgU0lHTkFUVVJFLS0tLS0NCg==
-
---0__=65256D33002101168f9e8a93df938690918c65256D3300210116--
 

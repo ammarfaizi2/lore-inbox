@@ -1,1113 +1,399 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263249AbSJJFH2>; Thu, 10 Oct 2002 01:07:28 -0400
+	id <S263293AbSJJFMl>; Thu, 10 Oct 2002 01:12:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263256AbSJJFHS>; Thu, 10 Oct 2002 01:07:18 -0400
-Received: from SNAP.THUNK.ORG ([216.175.175.173]:61843 "EHLO snap.thunk.org")
-	by vger.kernel.org with ESMTP id <S263249AbSJJFEl>;
-	Thu, 10 Oct 2002 01:04:41 -0400
+	id <S263302AbSJJFMl>; Thu, 10 Oct 2002 01:12:41 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:23571 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S263293AbSJJFMd>; Thu, 10 Oct 2002 01:12:33 -0400
+Message-Id: <200210100513.g9A5Dhp01050@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
 To: linux-kernel@vger.kernel.org
-cc: ext2-devel@sourceforge.net
-Subject: [RFC] [PATCH 5/5] ACL support for ext2/3
-From: tytso@mit.edu
-Message-Id: <E17zVab-00069o-00@snap.thunk.org>
-Date: Thu, 10 Oct 2002 01:10:25 -0400
+Subject: lk maintainers
+Date: Thu, 10 Oct 2002 08:07:08 -0200
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This document is mailed to lkml regularly and will be modified
+whenever new victim wishes to be listed in it or someone can
+no longer devote his time to maintainer work.
 
-This patch adds ACL support to the ext2 filesystem.
+If you want your entry added/updated/removed, contact me.
+
+BTW, requests to move your entry to the top of the list
+without actually changing the text are fine too: that
+will indicate that entry is not outdated, so don't be shy ;-)
+--
+vda
+------- cut here ------ cut here ------ cut here ------ cut here ------
+
+So, you are new to Linux kernel hacking and want to submit a kernel bug
+report or a patch but don't know how to do it and _where_ to report it?
+
+Preparing bug report:
+=====================
+*** Remember: bad/incomplete bug report ONLY wastes bandwidth! ***
+How To Ask Questions The Smart Way:
+    http://www.tuxedo.org/~esr/faqs/smart-questions.html
+	Anybody who has written software for public use will
+	probably have received at least one bad bug report.
+	Reports that say nothing ("It doesn't work!");
+	reports that make no sense; reports that don't give
+	enough information; reports that give wrong information.
+How to Report Bugs Effectively:
+    http://www.chiark.greenend.org.uk/~sgtatham/bugs.html
+	Before asking a technical question by email, or in
+	a newsgroup, or on a website chat board, do the following:
+	* Try to find an answer by searching the Web.
+	* Try to find an answer by reading the manual.
+	* Try to find an answer by reading a FAQ.
+	* Try to find an answer by inspection or experimentation.
+	* Try to find an answer by reading the source code.
+Compile problems: report GCC output and result of "grep '^CONFIG_' .config"
+Oops: decode it with ksymoops.
+Unkillable process: Alt-SysRq-T and ksymoops relevant part.
+Yes it means you should have ksymoops installed and tested,
+which is easy to get wrong. I've done that too often.
+
+Sending bug report/patch:
+=========================
+* Some device drivers have active developers, try to contact them first.
+* Otherwise find a subsystem maintainer to which your report pertains
+  and send report to his address.
+* Small fixes and device driver updates are best directed to subsystem
+  maintainers and "small bits" integrators.
+* It never hurts to CC: Linux kernel mailing list, but without specific
+  maintainer address in To: field there is high probability that your
+  patch won't be noticed. You have been warned.
+* Do not send it to all addresses at once! This will annoy lots of people
+  and isn't useful at all. It's a spam.
+* Do NOT send small fixes to Linus, he just can't handle _everything_.
+  He will eventually receive it from maintainers/integrators, send it
+  their way.
+* If your patch is something big and new, announce it on lkml and try
+  to attract testers. After it has been tested and discussed, you can
+  expect Linus to consider inclusion in mainline.
 
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-#
-# fs/Config.help           |    2 
-# fs/Config.in             |    1 
-# fs/ext2/Makefile         |    1 
-# fs/ext2/acl.c            |  581 +++++++++++++++++++++++++++++++++++++++++++++++
-# fs/ext2/ext2.h           |    6 
-# fs/ext2/file.c           |    4 
-# fs/ext2/ialloc.c         |   36 +-
-# fs/ext2/inode.c          |   17 +
-# fs/ext2/namei.c          |   13 -
-# fs/ext2/super.c          |   48 +++
-# fs/ext2/xattr_user.c     |    4 
-# include/linux/ext2_acl.h |  106 ++++++++
-# include/linux/ext2_fs.h  |    1 
-# 13 files changed, 797 insertions(+), 23 deletions(-)
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/10	tytso@snap.thunk.org	1.673
-# Port of 0.8.50 acl-ext2 to 2.5.
-# --------------------------------------------
-#
-diff -Nru a/fs/Config.help b/fs/Config.help
---- a/fs/Config.help	Thu Oct 10 00:59:02 2002
-+++ b/fs/Config.help	Thu Oct 10 00:59:02 2002
-@@ -142,6 +142,8 @@
-   the kernel or by users (see the attr(5) manual page, or visit
-   <http://acl.bestbits.at/> for details).
- 
-+  You need this for POSIX ACL support on ext2.
-+
-   If unsure, say N.
- 
- Ext2 extended attribute block sharing
-diff -Nru a/fs/Config.in b/fs/Config.in
---- a/fs/Config.in	Thu Oct 10 00:59:02 2002
-+++ b/fs/Config.in	Thu Oct 10 00:59:02 2002
-@@ -104,6 +104,7 @@
-   define_tristate CONFIG_EXT2_FS_XATTR $CONFIG_EXT2_FS
-   define_bool CONFIG_EXT2_FS_XATTR_SHARING y
-   define_bool CONFIG_EXT2_FS_XATTR_USER y
-+  define_bool CONFIG_EXT2_FS_POSIX_ACL y
- fi
- 
- tristate 'System V/Xenix/V7/Coherent file system support' CONFIG_SYSV_FS
-diff -Nru a/fs/ext2/Makefile b/fs/ext2/Makefile
---- a/fs/ext2/Makefile	Thu Oct 10 00:59:02 2002
-+++ b/fs/ext2/Makefile	Thu Oct 10 00:59:02 2002
-@@ -10,5 +10,6 @@
- export-objs += xattr.o
- obj-$(CONFIG_EXT2_FS_XATTR) += xattr.o
- obj-$(CONFIG_EXT2_FS_XATTR_USER) += xattr_user.o
-+obj-$(CONFIG_EXT2_FS_POSIX_ACL) += acl.o
- 
- include $(TOPDIR)/Rules.make
-diff -Nru a/fs/ext2/acl.c b/fs/ext2/acl.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/ext2/acl.c	Thu Oct 10 00:59:02 2002
-@@ -0,0 +1,581 @@
-+/*
-+ * linux/fs/ext2/acl.c
-+ *
-+ * Copyright (C) 2001 by Andreas Gruenbacher, <a.gruenbacher@computer.org>
-+ */
-+
-+#include "ext2.h"
-+#include <linux/module.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/fs.h>
-+
-+/*
-+ * Convert from filesystem to in-memory representation.
-+ */
-+static struct posix_acl *
-+ext2_acl_from_disk(const void *value, size_t size)
-+{
-+	const char *end = (char *)value + size;
-+	int n, count;
-+	struct posix_acl *acl;
-+
-+	if (!value)
-+		return NULL;
-+	if (size < sizeof(ext2_acl_header))
-+		 return ERR_PTR(-EINVAL);
-+	if (((ext2_acl_header *)value)->a_version !=
-+	    cpu_to_le32(EXT2_ACL_VERSION))
-+		return ERR_PTR(-EINVAL);
-+	value = (char *)value + sizeof(ext2_acl_header);
-+	count = ext2_acl_count(size);
-+	if (count < 0)
-+		return ERR_PTR(-EINVAL);
-+	if (count == 0)
-+		return NULL;
-+	acl = posix_acl_alloc(count, GFP_KERNEL);
-+	if (!acl)
-+		return ERR_PTR(-ENOMEM);
-+	for (n=0; n < count; n++) {
-+		ext2_acl_entry *entry =
-+			(ext2_acl_entry *)value;
-+		if ((char *)value + sizeof(ext2_acl_entry_short) > end)
-+			goto fail;
-+		acl->a_entries[n].e_tag  = le16_to_cpu(entry->e_tag);
-+		acl->a_entries[n].e_perm = le16_to_cpu(entry->e_perm);
-+		switch(acl->a_entries[n].e_tag) {
-+			case ACL_USER_OBJ:
-+			case ACL_GROUP_OBJ:
-+			case ACL_MASK:
-+			case ACL_OTHER:
-+				value = (char *)value +
-+					sizeof(ext2_acl_entry_short);
-+				acl->a_entries[n].e_id = ACL_UNDEFINED_ID;
-+				break;
-+
-+			case ACL_USER:
-+			case ACL_GROUP:
-+				value = (char *)value + sizeof(ext2_acl_entry);
-+				if ((char *)value > end)
-+					goto fail;
-+				acl->a_entries[n].e_id =
-+					le32_to_cpu(entry->e_id);
-+				break;
-+
-+			default:
-+				goto fail;
-+		}
-+	}
-+	if (value != end)
-+		goto fail;
-+	return acl;
-+
-+fail:
-+	posix_acl_release(acl);
-+	return ERR_PTR(-EINVAL);
-+}
-+
-+/*
-+ * Convert from in-memory to filesystem representation.
-+ */
-+static void *
-+ext2_acl_to_disk(const struct posix_acl *acl, size_t *size)
-+{
-+	ext2_acl_header *ext_acl;
-+	char *e;
-+	int n;
-+
-+	*size = ext2_acl_size(acl->a_count);
-+	ext_acl = (ext2_acl_header *)kmalloc(sizeof(ext2_acl_header) +
-+		acl->a_count * sizeof(ext2_acl_entry), GFP_KERNEL);
-+	if (!ext_acl)
-+		return ERR_PTR(-ENOMEM);
-+	ext_acl->a_version = cpu_to_le32(EXT2_ACL_VERSION);
-+	e = (char *)ext_acl + sizeof(ext2_acl_header);
-+	for (n=0; n < acl->a_count; n++) {
-+		ext2_acl_entry *entry = (ext2_acl_entry *)e;
-+		entry->e_tag  = cpu_to_le16(acl->a_entries[n].e_tag);
-+		entry->e_perm = cpu_to_le16(acl->a_entries[n].e_perm);
-+		switch(acl->a_entries[n].e_tag) {
-+			case ACL_USER:
-+			case ACL_GROUP:
-+				entry->e_id =
-+					cpu_to_le32(acl->a_entries[n].e_id);
-+				e += sizeof(ext2_acl_entry);
-+				break;
-+
-+			case ACL_USER_OBJ:
-+			case ACL_GROUP_OBJ:
-+			case ACL_MASK:
-+			case ACL_OTHER:
-+				e += sizeof(ext2_acl_entry_short);
-+				break;
-+
-+			default:
-+				goto fail;
-+		}
-+	}
-+	return (char *)ext_acl;
-+
-+fail:
-+	kfree(ext_acl);
-+	return ERR_PTR(-EINVAL);
-+}
-+
-+/*
-+ * Inode operation get_posix_acl().
-+ *
-+ * inode->i_sem: down
-+ * BKL held [before 2.5.x]
-+ */
-+struct posix_acl *
-+ext2_get_acl(struct inode *inode, int type)
-+{
-+	int name_index;
-+	char *value;
-+	struct posix_acl *acl, **p_acl;
-+	const size_t size = ext2_acl_size(EXT2_ACL_MAX_ENTRIES);
-+	int retval;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+
-+	switch(type) {
-+		case ACL_TYPE_ACCESS:
-+			p_acl = &EXT2_I(inode)->i_acl;
-+			name_index = EXT2_XATTR_INDEX_POSIX_ACL_ACCESS;
-+			break;
-+
-+		case ACL_TYPE_DEFAULT:
-+			p_acl = &EXT2_I(inode)->i_default_acl;
-+			name_index = EXT2_XATTR_INDEX_POSIX_ACL_DEFAULT;
-+			break;
-+
-+		default:
-+			return ERR_PTR(-EINVAL);
-+	}
-+	if (*p_acl != EXT2_ACL_NOT_CACHED)
-+		return posix_acl_dup(*p_acl);
-+	value = kmalloc(size, GFP_KERNEL);
-+	if (!value)
-+		return ERR_PTR(-ENOMEM);
-+
-+	retval = ext2_xattr_get(inode, name_index, "", value, size);
-+
-+	if (retval == -ENODATA || retval == -ENOSYS)
-+		*p_acl = acl = NULL;
-+	else if (retval < 0)
-+		acl = ERR_PTR(retval);
-+	else {
-+		acl = ext2_acl_from_disk(value, retval);
-+		if (!IS_ERR(acl))
-+			*p_acl = posix_acl_dup(acl);
-+	}
-+	kfree(value);
-+	return acl;
-+}
-+
-+/*
-+ * Inode operation set_posix_acl().
-+ *
-+ * inode->i_sem: down
-+ * BKL held [before 2.5.x]
-+ */
-+int
-+ext2_set_acl(struct inode *inode, int type, struct posix_acl *acl)
-+{
-+	int name_index;
-+	void *value = NULL;
-+	struct posix_acl **p_acl;
-+	size_t size;
-+	int error;
-+
-+	if (S_ISLNK(inode->i_mode))
-+		return -EOPNOTSUPP;
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+
-+	switch(type) {
-+		case ACL_TYPE_ACCESS:
-+			name_index = EXT2_XATTR_INDEX_POSIX_ACL_ACCESS;
-+			p_acl = &EXT2_I(inode)->i_acl;
-+			if (acl) {
-+				mode_t mode = inode->i_mode;
-+				error = posix_acl_equiv_mode(acl, &mode);
-+				if (error < 0)
-+					return error;
-+				else {
-+					inode->i_mode = mode;
-+					mark_inode_dirty(inode);
-+					if (error == 0)
-+						acl = NULL;
-+				}
-+			}
-+			break;
-+
-+		case ACL_TYPE_DEFAULT:
-+			name_index = EXT2_XATTR_INDEX_POSIX_ACL_DEFAULT;
-+			p_acl = &EXT2_I(inode)->i_default_acl;
-+			if (!S_ISDIR(inode->i_mode))
-+				return acl ? -EACCES : 0;
-+			break;
-+
-+		default:
-+			return -EINVAL;
-+	}
-+ 	if (acl) {
-+		if (acl->a_count > EXT2_ACL_MAX_ENTRIES)
-+			return -EINVAL;
-+		value = ext2_acl_to_disk(acl, &size);
-+		if (IS_ERR(value))
-+			return (int)PTR_ERR(value);
-+	}
-+
-+	error = ext2_xattr_set(inode, name_index, "", value, size, 0);
-+
-+	if (value)
-+		kfree(value);
-+	if (!error) {
-+		if (*p_acl && *p_acl != EXT2_ACL_NOT_CACHED)
-+			posix_acl_release(*p_acl);
-+		*p_acl = posix_acl_dup(acl);
-+	}
-+	return error;
-+}
-+
-+static int
-+__ext2_permission(struct inode *inode, int mask, int lock)
-+{
-+	int mode = inode->i_mode;
-+
-+	/* Nobody gets write access to a read-only fs */
-+	if ((mask & MAY_WRITE) && IS_RDONLY(inode) &&
-+	    (S_ISREG(mode) || S_ISDIR(mode) || S_ISLNK(mode)))
-+		return -EROFS;
-+	/* Nobody gets write access to an immutable file */
-+	if ((mask & MAY_WRITE) && IS_IMMUTABLE(inode))
-+	    return -EACCES;
-+	if (current->fsuid == inode->i_uid) {
-+		mode >>= 6;
-+	} else if (test_opt(inode->i_sb, POSIX_ACL)) {
-+		/* ACL can't contain additional permissions if
-+		   the ACL_MASK entry is 0 */
-+		if (!(mode & S_IRWXG))
-+			goto check_mode;
-+		if (EXT2_I(inode)->i_acl == EXT2_ACL_NOT_CACHED) {
-+			struct posix_acl *acl;
-+
-+			if (lock) {
-+				down(&inode->i_sem);
-+				acl = ext2_get_acl(inode, ACL_TYPE_ACCESS);
-+				up(&inode->i_sem);
-+			} else
-+				acl = ext2_get_acl(inode, ACL_TYPE_ACCESS);
-+
-+			if (IS_ERR(acl))
-+				return PTR_ERR(acl);
-+			posix_acl_release(acl);
-+			if (EXT2_I(inode)->i_acl == EXT2_ACL_NOT_CACHED)
-+				return -EIO;
-+		}
-+		if (EXT2_I(inode)->i_acl) {
-+			int error = posix_acl_permission(inode,
-+				EXT2_I(inode)->i_acl, mask);
-+			if (error == -EACCES)
-+				goto check_capabilities;
-+			return error;
-+		} else
-+			goto check_groups;
-+	} else {
-+check_groups:
-+		if (in_group_p(inode->i_gid))
-+			mode >>= 3;
-+	}
-+check_mode:
-+	if ((mode & mask & S_IRWXO) == mask)
-+		return 0;
-+
-+check_capabilities:
-+	/* Allowed to override Discretionary Access Control? */
-+	if ((mask & (MAY_READ|MAY_WRITE)) || (inode->i_mode & S_IXUGO))
-+		if (capable(CAP_DAC_OVERRIDE))
-+			return 0;
-+	/* Read and search granted if capable(CAP_DAC_READ_SEARCH) */
-+	if (capable(CAP_DAC_READ_SEARCH) && ((mask == MAY_READ) ||
-+	    (S_ISDIR(inode->i_mode) && !(mask & MAY_WRITE))))
-+		return 0;
-+	return -EACCES;
-+}
-+
-+/*
-+ * Inode operation permission().
-+ *
-+ * inode->i_sem: up
-+ * BKL held [before 2.5.x]
-+ */
-+int
-+ext2_permission(struct inode *inode, int mask)
-+{
-+	return __ext2_permission(inode, mask, 1);
-+}
-+
-+/*
-+ * Used internally if i_sem is already down.
-+ */
-+int
-+ext2_permission_locked(struct inode *inode, int mask)
-+{
-+	return __ext2_permission(inode, mask, 0);
-+}
-+
-+/*
-+ * Initialize the ACLs of a new inode. Called from ext2_new_inode.
-+ *
-+ * dir->i_sem: down
-+ * inode->i_sem: up (access to inode is still exclusive)
-+ * BKL held [before 2.5.x] 
-+ */
-+int
-+ext2_init_acl(struct inode *inode, struct inode *dir)
-+{
-+	struct posix_acl *acl = NULL;
-+	int error = 0;
-+
-+	if (!S_ISLNK(inode->i_mode)) {
-+		if (test_opt(dir->i_sb, POSIX_ACL)) {
-+			acl = ext2_get_acl(dir, ACL_TYPE_DEFAULT);
-+			if (IS_ERR(acl))
-+				return PTR_ERR(acl);
-+		}
-+		if (!acl) {
-+			inode->i_mode &= ~current->fs->umask;
-+			mark_inode_dirty(inode);
-+		}
-+	}
-+	if (test_opt(inode->i_sb, POSIX_ACL) && acl) {
-+               struct posix_acl *clone;
-+	       mode_t mode;
-+
-+		if (S_ISDIR(inode->i_mode)) {
-+			error = ext2_set_acl(inode, ACL_TYPE_DEFAULT, acl);
-+			if (error)
-+				goto cleanup;
-+		}
-+		clone = posix_acl_clone(acl, GFP_KERNEL);
-+		error = -ENOMEM;
-+		if (!clone)
-+			goto cleanup;
-+		mode = inode->i_mode;
-+		error = posix_acl_create_masq(clone, &mode);
-+		if (error >= 0) {
-+			inode->i_mode = mode;
-+			mark_inode_dirty(inode);
-+			if (error > 0) {
-+				/* This is an extended ACL */
-+				error = ext2_set_acl(inode,
-+						     ACL_TYPE_ACCESS, clone);
-+			}
-+		}
-+		posix_acl_release(clone);
-+	}
-+cleanup:
-+       posix_acl_release(acl);
-+       return error;
-+}
-+
-+/*
-+ * Does chmod for an inode that may have an Access Control List. The
-+ * inode->i_mode field must be updated to the desired value by the caller
-+ * before calling this function.
-+ * Returns 0 on success, or a negative error number.
-+ *
-+ * We change the ACL rather than storing some ACL entries in the file
-+ * mode permission bits (which would be more efficient), because that
-+ * would break once additional permissions (like  ACL_APPEND, ACL_DELETE
-+ * for directories) are added. There are no more bits available in the
-+ * file mode.
-+ *
-+ * inode->i_sem: down
-+ * BKL held [before 2.5.x]
-+ */
-+int
-+ext2_acl_chmod(struct inode *inode)
-+{
-+	struct posix_acl *acl, *clone;
-+        int error;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+	if (S_ISLNK(inode->i_mode))
-+		return -EOPNOTSUPP;
-+	acl = ext2_get_acl(inode, ACL_TYPE_ACCESS);
-+	if (IS_ERR(acl) || !acl)
-+		return PTR_ERR(acl);
-+	clone = posix_acl_clone(acl, GFP_KERNEL);
-+	posix_acl_release(acl);
-+	if (!clone)
-+		return -ENOMEM;
-+	error = posix_acl_chmod_masq(clone, inode->i_mode);
-+	if (!error)
-+		error = ext2_set_acl(inode, ACL_TYPE_ACCESS, clone);
-+	posix_acl_release(clone);
-+	return error;
-+}
-+
-+/*
-+ * Extended attribut handlers
-+ */
-+static size_t
-+ext2_xattr_list_acl_access(char *list, struct inode *inode,
-+			   const char *name, int name_len)
-+{
-+	const size_t len = sizeof(XATTR_NAME_ACL_ACCESS)-1;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+	if (list)
-+		memcpy(list, XATTR_NAME_ACL_ACCESS, len);
-+	return len;
-+}
-+
-+static size_t
-+ext2_xattr_list_acl_default(char *list, struct inode *inode,
-+			    const char *name, int name_len)
-+{
-+	const size_t len = sizeof(XATTR_NAME_ACL_DEFAULT)-1;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+	if (list)
-+		memcpy(list, XATTR_NAME_ACL_DEFAULT, len);
-+	return len;
-+}
-+
-+static int
-+ext2_xattr_get_acl(struct inode *inode, int type, void *buffer, size_t size)
-+{
-+	struct posix_acl *acl;
-+	int error;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return -EOPNOTSUPP;
-+
-+	acl = ext2_get_acl(inode, type);
-+	if (IS_ERR(acl))
-+		return PTR_ERR(acl);
-+	if (acl == NULL)
-+		return -ENODATA;
-+	error = posix_acl_to_xattr(acl, buffer, size);
-+	posix_acl_release(acl);
-+
-+	return error;
-+}
-+
-+static int
-+ext2_xattr_get_acl_access(struct inode *inode, const char *name,
-+			  void *buffer, size_t size)
-+{
-+	if (strcmp(name, "") != 0)
-+		return -EINVAL;
-+	return ext2_xattr_get_acl(inode, ACL_TYPE_ACCESS, buffer, size);
-+}
-+
-+static int
-+ext2_xattr_get_acl_default(struct inode *inode, const char *name,
-+			   void *buffer, size_t size)
-+{
-+	if (strcmp(name, "") != 0)
-+		return -EINVAL;
-+	return ext2_xattr_get_acl(inode, ACL_TYPE_DEFAULT, buffer, size);
-+}
-+
-+static int
-+ext2_xattr_set_acl(struct inode *inode, int type, const void *value, size_t size)
-+{
-+	struct posix_acl *acl;
-+	int error;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return -EOPNOTSUPP;
-+	if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
-+		return -EPERM;
-+
-+	if (value) {
-+		acl = posix_acl_from_xattr(value, size);
-+		if (IS_ERR(acl))
-+			return PTR_ERR(acl);
-+		else if (acl) {
-+			error = posix_acl_valid(acl);
-+			if (error)
-+				goto release_and_out;
-+		}
-+	} else
-+		acl = NULL;
-+
-+	error = ext2_set_acl(inode, type, acl);
-+
-+release_and_out:
-+	posix_acl_release(acl);
-+	return error;
-+}
-+
-+static int
-+ext2_xattr_set_acl_access(struct inode *inode, const char *name,
-+			  const void *value, size_t size, int flags)
-+{
-+	if (strcmp(name, "") != 0)
-+		return -EINVAL;
-+	return ext2_xattr_set_acl(inode, ACL_TYPE_ACCESS, value, size);
-+}
-+
-+static int
-+ext2_xattr_set_acl_default(struct inode *inode, const char *name,
-+			   const void *value, size_t size, int flags)
-+{
-+	if (strcmp(name, "") != 0)
-+		return -EINVAL;
-+	return ext2_xattr_set_acl(inode, ACL_TYPE_DEFAULT, value, size);
-+}
-+
-+struct ext2_xattr_handler ext2_xattr_acl_access_handler = {
-+	prefix:	XATTR_NAME_ACL_ACCESS,
-+	list:	ext2_xattr_list_acl_access,
-+	get:	ext2_xattr_get_acl_access,
-+	set:	ext2_xattr_set_acl_access,
-+};
-+
-+struct ext2_xattr_handler ext2_xattr_acl_default_handler = {
-+	prefix:	XATTR_NAME_ACL_DEFAULT,
-+	list:	ext2_xattr_list_acl_default,
-+	get:	ext2_xattr_get_acl_default,
-+	set:	ext2_xattr_set_acl_default,
-+};
-+
-+void
-+exit_ext2_acl(void)
-+{
-+	ext2_xattr_unregister(EXT2_XATTR_INDEX_POSIX_ACL_ACCESS,
-+			      &ext2_xattr_acl_access_handler);
-+	ext2_xattr_unregister(EXT2_XATTR_INDEX_POSIX_ACL_DEFAULT,
-+			      &ext2_xattr_acl_default_handler);
-+}
-+
-+int __init
-+init_ext2_acl(void)
-+{
-+	int error;
-+
-+	error = ext2_xattr_register(EXT2_XATTR_INDEX_POSIX_ACL_ACCESS,
-+				    &ext2_xattr_acl_access_handler);
-+	if (error)
-+		goto fail;
-+	error = ext2_xattr_register(EXT2_XATTR_INDEX_POSIX_ACL_DEFAULT,
-+				    &ext2_xattr_acl_default_handler);
-+	if (error)
-+		goto fail;
-+	return 0;
-+
-+fail:
-+	exit_ext2_acl();
-+	return error;
-+}
-diff -Nru a/fs/ext2/ext2.h b/fs/ext2/ext2.h
---- a/fs/ext2/ext2.h	Thu Oct 10 00:59:02 2002
-+++ b/fs/ext2/ext2.h	Thu Oct 10 00:59:02 2002
-@@ -1,6 +1,7 @@
- #include <linux/fs.h>
- #include <linux/ext2_fs.h>
- #include <linux/ext2_xattr.h>
-+#include <linux/ext2_acl.h>
- 
- /*
-  * second extended file system inode data in memory
-@@ -20,6 +21,10 @@
- 	__u32	i_prealloc_block;
- 	__u32	i_prealloc_count;
- 	__u32	i_dir_start_lookup;
-+#ifdef CONFIG_EXT2_FS_POSIX_ACL
-+	struct posix_acl	*i_acl;
-+	struct posix_acl	*i_default_acl;
-+#endif
- 	rwlock_t i_meta_lock;
- 	struct inode	vfs_inode;
- };
-@@ -79,6 +84,7 @@
- extern int ext2_sync_inode (struct inode *);
- extern void ext2_discard_prealloc (struct inode *);
- extern void ext2_truncate (struct inode *);
-+extern int ext2_setattr (struct dentry *, struct iattr *);
- 
- /* ioctl.c */
- extern int ext2_ioctl (struct inode *, struct file *, unsigned int,
-diff -Nru a/fs/ext2/file.c b/fs/ext2/file.c
---- a/fs/ext2/file.c	Thu Oct 10 00:59:02 2002
-+++ b/fs/ext2/file.c	Thu Oct 10 00:59:02 2002
-@@ -57,4 +57,8 @@
- 	.getxattr	= ext2_getxattr,
- 	.listxattr	= ext2_listxattr,
- 	.removexattr	= ext2_removexattr,
-+	.setattr	= ext2_setattr,
-+	.permission	= ext2_permission,
-+	.get_posix_acl	= ext2_get_acl,
-+	.set_posix_acl	= ext2_set_acl,
- };
-diff -Nru a/fs/ext2/ialloc.c b/fs/ext2/ialloc.c
---- a/fs/ext2/ialloc.c	Thu Oct 10 00:59:02 2002
-+++ b/fs/ext2/ialloc.c	Thu Oct 10 00:59:02 2002
-@@ -301,7 +301,6 @@
- 	struct ext2_super_block * es;
- 	struct ext2_inode_info *ei;
- 	int err;
--	struct inode *ret;
- 
- 	sb = dir->i_sb;
- 	inode = new_inode(sb);
-@@ -322,7 +321,6 @@
- 		goto fail;
- 
- 	err = -EIO;
--	brelse(bitmap_bh);
- 	bitmap_bh = read_inode_bitmap(sb, group);
- 	if (!bitmap_bh)
- 		goto fail2;
-@@ -338,6 +336,7 @@
- 		ll_rw_block(WRITE, 1, &bitmap_bh);
- 		wait_on_buffer(bitmap_bh);
- 	}
-+	brelse(bitmap_bh);
- 
- 	ino = group * EXT2_INODES_PER_GROUP(sb) + i + 1;
- 	if (ino < EXT2_FIRST_INO(sb) || ino > le32_to_cpu(es->s_inodes_count)) {
-@@ -392,21 +391,27 @@
- 		inode->i_flags |= S_DIRSYNC;
- 	inode->i_generation = EXT2_SB(sb)->s_next_generation++;
- 	insert_inode_hash(inode);
--	mark_inode_dirty(inode);
- 
- 	unlock_super(sb);
--	ret = inode;
- 	if(DQUOT_ALLOC_INODE(inode)) {
- 		DQUOT_DROP(inode);
--		inode->i_flags |= S_NOQUOTA;
--		inode->i_nlink = 0;
--		iput(inode);
--		ret = ERR_PTR(-EDQUOT);
--	} else {
--		ext2_debug("allocating inode %lu\n", inode->i_ino);
--		ext2_preread_inode(inode);
-+		goto fail3;
-+	}
-+	err = ext2_init_acl(inode, dir);
-+	if (err) {
-+		DQUOT_FREE_INODE(inode);
-+		goto fail3;
- 	}
--	goto out;
-+	mark_inode_dirty(inode);
-+	ext2_debug("allocating inode %lu\n", inode->i_ino);
-+	ext2_preread_inode(inode);
-+	return inode;
-+
-+fail3:
-+	inode->i_flags |= S_NOQUOTA;
-+	inode->i_nlink = 0;
-+	iput(inode);
-+	return ERR_PTR(err);
- 
- fail2:
- 	desc = ext2_get_group_desc (sb, group, &bh2);
-@@ -420,10 +425,10 @@
- 	unlock_super(sb);
- 	make_bad_inode(inode);
- 	iput(inode);
--	ret = ERR_PTR(err);
--	goto out;
-+	return ERR_PTR(err);
- 
- bad_count:
-+	brelse(bitmap_bh);
- 	ext2_error (sb, "ext2_new_inode",
- 		    "Free inodes count corrupted in group %d",
- 		    group);
-@@ -436,9 +441,6 @@
- 	desc->bg_free_inodes_count = 0;
- 	mark_buffer_dirty(bh2);
- 	goto repeat;
--out:
--	brelse(bitmap_bh);
--	return ret;
- }
- 
- unsigned long ext2_count_free_inodes (struct super_block * sb)
-diff -Nru a/fs/ext2/inode.c b/fs/ext2/inode.c
---- a/fs/ext2/inode.c	Thu Oct 10 00:59:02 2002
-+++ b/fs/ext2/inode.c	Thu Oct 10 00:59:02 2002
-@@ -986,6 +986,8 @@
- 	struct ext2_inode * raw_inode = ext2_get_inode(inode->i_sb, ino, &bh);
- 	int n;
- 
-+	ei->i_acl = EXT2_ACL_NOT_CACHED;
-+	ei->i_default_acl = EXT2_ACL_NOT_CACHED;
- 	if (IS_ERR(raw_inode))
-  		goto bad_inode;
- 
-@@ -1174,3 +1176,18 @@
- {
- 	return ext2_update_inode (inode, 1);
- }
-+
-+int ext2_setattr(struct dentry *dentry, struct iattr *iattr)
-+{
-+	struct inode *inode = dentry->d_inode;
-+	int error;
-+
-+	error = inode_change_ok(inode, iattr);
-+	if (error)
-+		return error;
-+	inode_setattr(inode, iattr);
-+	if (iattr->ia_valid & ATTR_MODE)
-+		error = ext2_acl_chmod(inode);
-+	return error;
-+}
-+
-diff -Nru a/fs/ext2/namei.c b/fs/ext2/namei.c
---- a/fs/ext2/namei.c	Thu Oct 10 00:59:02 2002
-+++ b/fs/ext2/namei.c	Thu Oct 10 00:59:02 2002
-@@ -137,7 +137,10 @@
- 	struct inode * inode = ext2_new_inode (dir, mode);
- 	int err = PTR_ERR(inode);
- 	if (!IS_ERR(inode)) {
--		init_special_inode(inode, mode, rdev);
-+		init_special_inode(inode, inode->i_mode, rdev);
-+#ifdef CONFIG_EXT2_FS_EXT_ATTR
-+		inode->i_op = &ext2_special_inode_operations;
-+#endif
- 		mark_inode_dirty(inode);
- 		err = ext2_add_nondir(dentry, inode);
- 	}
-@@ -372,6 +375,10 @@
- 	.getxattr	= ext2_getxattr,
- 	.listxattr	= ext2_listxattr,
- 	.removexattr	= ext2_removexattr,
-+	.setattr	= ext2_setattr,
-+	.permission	= ext2_permission,
-+	.get_posix_acl	= ext2_get_acl,
-+	.set_posix_acl	= ext2_set_acl,
- };
- 
- struct inode_operations ext2_special_inode_operations = {
-@@ -379,4 +386,8 @@
- 	.getxattr	= ext2_getxattr,
- 	.listxattr	= ext2_listxattr,
- 	.removexattr	= ext2_removexattr,
-+	.setattr	= ext2_setattr,
-+	.permission	= ext2_permission,
-+	.get_posix_acl	= ext2_get_acl,
-+	.set_posix_acl	= ext2_set_acl,
- };
-diff -Nru a/fs/ext2/super.c b/fs/ext2/super.c
---- a/fs/ext2/super.c	Thu Oct 10 00:59:02 2002
-+++ b/fs/ext2/super.c	Thu Oct 10 00:59:02 2002
-@@ -158,6 +158,8 @@
- 	ei = (struct ext2_inode_info *)kmem_cache_alloc(ext2_inode_cachep, SLAB_KERNEL);
- 	if (!ei)
- 		return NULL;
-+	ei->i_acl = EXT2_ACL_NOT_CACHED;
-+	ei->i_default_acl = EXT2_ACL_NOT_CACHED;
- 	return &ei->vfs_inode;
- }
- 
-@@ -194,6 +196,26 @@
- 		printk(KERN_INFO "ext2_inode_cache: not all structures were freed\n");
- }
- 
-+#ifdef CONFIG_EXT2_FS_POSIX_ACL
-+
-+static void ext2_clear_inode(struct inode *inode)
-+{
-+	struct ext2_inode_info *ei = EXT2_I(inode);
-+
-+	if (ei->i_acl && ei->i_acl != EXT2_ACL_NOT_CACHED) {
-+		posix_acl_release(ei->i_acl);
-+		ei->i_acl = EXT2_ACL_NOT_CACHED;
-+	}
-+	if (ei->i_default_acl && ei->i_default_acl != EXT2_ACL_NOT_CACHED) {
-+		posix_acl_release(ei->i_default_acl);
-+		ei->i_default_acl = EXT2_ACL_NOT_CACHED;
-+	}
-+}
-+
-+#else
-+# define ext2_clear_inode NULL
-+#endif
-+
- static struct super_operations ext2_sops = {
- 	.alloc_inode	= ext2_alloc_inode,
- 	.destroy_inode	= ext2_destroy_inode,
-@@ -205,6 +227,7 @@
- 	.write_super	= ext2_write_super,
- 	.statfs		= ext2_statfs,
- 	.remount_fs	= ext2_remount,
-+	.clear_inode	= ext2_clear_inode,
- };
- 
- /* Yes, most of these are left as NULL!!
-@@ -241,6 +264,13 @@
- 			clear_opt (*mount_options, XATTR_USER);
- 		else
- #endif
-+#ifdef CONFIG_EXT2_FS_POSIX_ACL
-+		if (!strcmp(this_char, "acl"))
-+			set_opt(*mount_options, POSIX_ACL);
-+		else if (!strcmp(this_char, "noacl"))
-+			clear_opt(*mount_options, POSIX_ACL);
-+		else
-+#endif
- 		if (!strcmp (this_char, "bsddf"))
- 			clear_opt (*mount_options, MINIX_DF);
- 		else if (!strcmp (this_char, "nouid32")) {
-@@ -498,10 +528,17 @@
- #ifdef CONFIG_EXT2_FS_XATTR_USER
- 	set_opt (EXT2_SB(sb)->s_mount_opt, XATTR_USER);
- #endif
-+#ifdef CONFIG_EXT2_FS_POSIX_ACL
-+	/* set_opt (sb->u.ext2_sb.s_mount_opt, POSIX_ACL); */
-+#endif
- 	if (!parse_options ((char *) data, &sb_block, &resuid, &resgid,
- 	    &sbi->s_mount_opt))
- 		goto failed_sbi;
- 
-+	sb->s_flags = (sb->s_flags & ~MS_POSIXACL) |
-+		((EXT2_SB(sb)->s_mount_opt & EXT2_MOUNT_POSIX_ACL) ?
-+		 MS_POSIXACL : 0);
-+
- 	blocksize = sb_min_blocksize(sb, BLOCK_SIZE);
- 	if (!blocksize) {
- 		printk ("EXT2-fs: unable to set blocksize\n");
-@@ -791,6 +828,9 @@
- 			    &new_mount_opt))
- 		return -EINVAL;
- 
-+	sb->s_flags = (sb->s_flags & ~MS_POSIXACL) |
-+		((new_mount_opt & EXT2_MOUNT_POSIX_ACL) ? MS_POSIXACL : 0);
-+
- 	sbi->s_mount_opt = new_mount_opt;
- 	sbi->s_resuid = resuid;
- 	sbi->s_resgid = resgid;
-@@ -899,6 +939,9 @@
- 		return err;
- 	err = init_ext2_xattr_user();
- 	if (err)
-+		goto out3;
-+	err = init_ext2_acl();
-+	if (err)
- 		goto out2;
- 	err = init_inodecache();
- 	if (err)
-@@ -910,8 +953,10 @@
- out:
- 	destroy_inodecache();
- out1:
--	exit_ext2_xattr_user();
-+	exit_ext2_acl();
- out2:
-+	exit_ext2_xattr_user();
-+out3:
- 	exit_ext2_xattr();
- 	return err;
- }
-@@ -920,6 +965,7 @@
- {
- 	unregister_filesystem(&ext2_fs_type);
- 	destroy_inodecache();
-+	exit_ext2_acl();
- 	exit_ext2_xattr_user();
- 	exit_ext2_xattr();
- }
-diff -Nru a/fs/ext2/xattr_user.c b/fs/ext2/xattr_user.c
---- a/fs/ext2/xattr_user.c	Thu Oct 10 00:59:02 2002
-+++ b/fs/ext2/xattr_user.c	Thu Oct 10 00:59:02 2002
-@@ -9,10 +9,6 @@
- #include <linux/module.h>
- #include <linux/string.h>
- 
--#ifdef CONFIG_EXT2_FS_POSIX_ACL
--# include <linux/ext2_acl.h>
--#endif
--
- #define XATTR_USER_PREFIX "user."
- 
- static size_t
-diff -Nru a/include/linux/ext2_acl.h b/include/linux/ext2_acl.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/ext2_acl.h	Thu Oct 10 00:59:02 2002
-@@ -0,0 +1,106 @@
-+/*
-+  File: linux/ext2_acl.h
-+
-+  (C) 2001 Andreas Gruenbacher, <a.gruenbacher@computer.org>
-+*/
-+
-+#include <linux/init.h>
-+#include <linux/posix_acl.h>
-+#include <linux/xattr_acl.h>
-+
-+#define EXT2_ACL_VERSION	0x0001
-+#define EXT2_ACL_MAX_ENTRIES	32
-+
-+typedef struct {
-+	__u16		e_tag;
-+	__u16		e_perm;
-+	__u32		e_id;
-+} ext2_acl_entry;
-+
-+typedef struct {
-+	__u16		e_tag;
-+	__u16		e_perm;
-+} ext2_acl_entry_short;
-+
-+typedef struct {
-+	__u32		a_version;
-+} ext2_acl_header;
-+
-+static inline size_t ext2_acl_size(int count)
-+{
-+	if (count <= 4) {
-+		return sizeof(ext2_acl_header) +
-+		       count * sizeof(ext2_acl_entry_short);
-+	} else {
-+		return sizeof(ext2_acl_header) +
-+		       4 * sizeof(ext2_acl_entry_short) +
-+		       (count - 4) * sizeof(ext2_acl_entry);
-+	}
-+}
-+
-+static inline int ext2_acl_count(size_t size)
-+{
-+	ssize_t s;
-+	size -= sizeof(ext2_acl_header);
-+	s = size - 4 * sizeof(ext2_acl_entry_short);
-+	if (s < 0) {
-+		if (size % sizeof(ext2_acl_entry_short))
-+			return -1;
-+		return size / sizeof(ext2_acl_entry_short);
-+	} else {
-+		if (s % sizeof(ext2_acl_entry))
-+			return -1;
-+		return s / sizeof(ext2_acl_entry) + 4;
-+	}
-+}
-+
-+#ifdef __KERNEL__
-+# ifdef CONFIG_EXT2_FS_POSIX_ACL
-+
-+/* Value for inode->u.ext2_i.i_acl and inode->u.ext2_i.i_default_acl
-+   if the ACL has not been cached */
-+# define EXT2_ACL_NOT_CACHED ((void *)-1)
-+
-+/* acl.c */
-+extern int ext2_permission (struct inode *, int);
-+extern int ext2_permission_locked (struct inode *, int);
-+extern struct posix_acl *ext2_get_acl (struct inode *, int);
-+extern int ext2_set_acl (struct inode *, int, struct posix_acl *);
-+extern int ext2_acl_chmod (struct inode *);
-+extern int ext2_init_acl (struct inode *, struct inode *);
-+
-+extern int init_ext2_acl(void) __init;
-+extern void exit_ext2_acl(void);
-+
-+# else
-+#  include <linux/sched.h>
-+#  define ext2_permission NULL
-+#  define ext2_get_acl	NULL
-+#  define ext2_set_acl	NULL
-+
-+static inline int
-+ext2_acl_chmod (struct inode *inode)
-+{
-+	return 0;
-+}
-+
-+static inline int ext2_init_acl (struct inode *inode, struct inode *dir)
-+{
-+	inode->i_mode &= ~current->fs->umask;
-+	return 0;
-+}
-+
-+static inline int
-+init_ext2_acl(void)
-+{
-+	return 0;
-+}
-+
-+static inline void
-+exit_ext2_acl(void)
-+{
-+}
-+
-+# endif
-+#endif
-+
-diff -Nru a/include/linux/ext2_fs.h b/include/linux/ext2_fs.h
---- a/include/linux/ext2_fs.h	Thu Oct 10 00:59:02 2002
-+++ b/include/linux/ext2_fs.h	Thu Oct 10 00:59:02 2002
-@@ -308,6 +308,7 @@
- #define EXT2_MOUNT_MINIX_DF		0x0080	/* Mimics the Minix statfs */
- #define EXT2_MOUNT_NO_UID32		0x0200  /* Disable 32-bit UIDs */
- #define EXT2_MOUNT_XATTR_USER		0x4000	/* Extended user attributes */
-+#define EXT2_MOUNT_POSIX_ACL		0x8000	/* POSIX Access Control Lists */
- 
- #define clear_opt(o, opt)		o &= ~EXT2_MOUNT_##opt
- #define set_opt(o, opt)			o |= EXT2_MOUNT_##opt
+		Current Linux kernel people
+
+Note that this list is sorted in reversed date order, most recent
+entries first. This means than entries at bottom can be outdated :-(
+
+
+Linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Post anything related to Linux kernel here, but nothing else :-)
+
+Andre Hedrick <andre@linux-ide.org> [02 oct 2002]
+	ATA/ATAPI Storage Architect [2.0,2.2,2.4,2.5]
+	HBA interface developer
+	Serial ATA Architect [future release]
+	Voting NCITS member AT-Attachment Committee
+
+Jeff Garzik <jgarzik@mandrakesoft.com> [24 sep 2002]
+	I am the network-card-drivers guy (8139 for instance).
+	CC me and Andrew Morton <akpm@zip.com.au> on network driver patches.
+
+Jan-Benedict Glaw <jbglaw@lug-owl.de> [18 sep 2002]
+	I'm responsible for Alpha's srm_env driver, providing access to
+	SRM's firmware variables.
+
+Stuart MacDonald <stuartm@connecttech.com> [13 sep 2002]
+	Connect Tech's linux kernel guy. Currently includes hacking on
+	drivers/char/serial.c (Blue Heat, Xtreme, Dflex) and maintaining
+	drivers/usb/serial/whiteheat.c (WhiteHEAT)
+
+Vojtech Pavlik <vojtech@ucw.cz> [13 sep 2002]
+	Feel free to send me bug reports and patches to input device drivers
+	(drivers/input/*, drivers/char/joystick/*)
+	I also want to receive bug reports and patches for following
+	USB drivers: printer, acm, catc, hid*, usbmouse, usbkbd, wacom.
+	All other (not in the list) USB driver changes should go to USB
+	maintainer (hopefully there is one listed here :-).
+	Also CC me if you are posting VIA IDE driver related message
+	(although I am not IDE subsystem maintainer).
+
+Robert Love <rml@tech9.net> [12 sep 2002]
+	Preemptible kernel maintainer.
+	I am also interesting in anything related to scheduling or locking
+	primitives.
+
+Jan Kara <jack@suse.cz> [22 aug 2002]
+	quota subsystem maintainer
+
+Paul Larson <plars@linuxtestproject.org> [20 aug 2002]
+	I'm a maintainer for the Linux Test Project and it would be nice
+	if people knew to send their test programs, etc. to me.  I see
+	a lot of them flying around on lkml and try to catch them when
+	I can, but it's a lot to keep up with.  It would be even better
+	if people just knew to send them our way so we could clean
+	them up and put them in LTP for regression testing.
+
+Dave Engebretsen <engebret@vnet.ibm.com> [15 aug 2002]
+	PPC64 architecture maintainer.  Please send PPC64 patches to me
+	and our mailing list at <linuxppc64-dev@lists.linuxppc.org>
+
+Ingo Molnar <mingo@elte.hu> [30 jul 2002]
+	Ingo wrote the new scheduler for 2.5.
+
+Ralf Baechle <ralf@uni-koblenz.de> [30 jul 2002]
+	I am maintainer of the AX.25 code
+
+Victor Yodaiken <yodaiken@fsmlabs.com> [30 jul 2002]
+	RTLinux patches, updates, contributions, drivers.
+	Please send first to the list: rtl@rtlinux.org
+
+Pavel Machek <pavel@ucw.cz> [27 jul 2002]
+	I am network block device maintainer. Visit http://nbd.sf.net.
+	(see Steven Whitehouse <steve@gw.chygwyn.com> entry)
+	I am working on software suspend.
+
+William Irwin <wli@holomorphy.com> [02 jul 2002]
+	Send bug reports and/or feature requests related to many tasks,
+	rmap, space consumption, or allocators to me. I'm involved in
+	* rmap
+	* memory allocators
+	* reducing space consumed by data structures (e.g. struct page)
+	* issues arising in workloads with many tasks
+	* kernel janitoring
+	See also:
+	Rik van Riel <riel@surriel.com>
+	Andrea Arcangeli <andrea@suse.de>
+	Martin Bligh <Martin.Bligh@us.ibm.com>
+	Andrew Morton <akpm@zip.com.au>
+
+Dave Jones <davej@suse.de> [23 apr 2002]
+	I collect various bits and pieces for inclusion in 2.5,
+	especially small and trivial ones and driver updates.
+	I'll feed them to Linus when (and if) they
+	are proved to be worthy.
+
+Andrea Arcangeli <andrea@suse.de> [28 mar 2002]
+	Send VM related bug reports and patches to me.
+	I'm especially interested in VM issues with:
+	* lots of RAM and CPUs
+	* NUMA
+	* heavy swap scenarios
+	* performance of I/O intensive workloads (in particular
+	  with lots of async buffer flushing involved)
+	See also Martin J. Bligh <Martin.Bligh@us.ibm.com> entry
+	Mail also:
+	Arjan van de Ven <arjanv@redhat.com>
+
+Martin J. Bligh <Martin.Bligh@us.ibm.com> [28 mar 2002]
+	I'm interested in VM issues with lots (>4G for i386)
+	of RAM, lots of CPUs, NUMA
+
+Steven Whitehouse <steve@chygwyn.com> [27 mar 2002]
+	I am the Linux DECnet network stack maintainer
+	Visit http://www.chygwyn.com/decnet/
+
+Arnaldo Carvalho de Melo <acme@conectiva.com.br> [26 mar 2002]
+	IPX, 802.2 LLC, NetBEUI, http://kerneljanitors.org,
+	cyclom2x sync card driver
+
+John Cagle <jcagle@kernel.org> [19 mar 2002]
+	The current maintainer of devices.txt, the list of
+	assigned device numbers for LANANA.  Consult the web
+	site (www.lanana.org) for instructions on submitting
+	requests for new device numbers.  Send all device
+	related email to <device@lanana.org>.
+
+Tigran Aivazian <tigran@veritas.com>
+	I am author and maintainer of BFS filesystem and IA32
+	microcode update driver.
+
+Rogier Wolff <R.E.Wolff@BitWizard.nl> [12 mar 2002]
+	I do "specialix serial ports":
+	drivers/char/specialix.c (IO8+)
+	drivers/char/sx.c        (SX, SI, SIO)
+	drivers/char/rio/*.c     (RIO)
+
+Martin Dalecki <martin@dalecki.de> [11 mar 2002]
+	IDE subsystem maintainer for 2.5
+	(mail Vojtech Pavlik <vojtech@suse.cz> too)
+
+Ed Vance <serial24@macrolink.com> [05 mar 2002]
+	Maintainer for the generic serial driver, serial.c,
+	for 2.2 and 2.4 kernels.  Please post patches to
+	linux-serial@vger.kernel.org for tested bug
+	fixes or to add support for a new serial device.
+	Limited to time available. If I have not responded
+	in a week, yell at serial24@macrolink.com
+
+netfilter/iptables development <netfilter-devel@lists.samba.org> [23 feb 2002]
+	Please report all netfilter/iptables related problems
+	to this mailinglist, where all netfilter developers are present.
+	See also http://www.netfilter.org/contact.html
+
+Hans Reiser <reiser@namesys.com> [16 feb 2002]
+	Send me all reiserfs related patches with a cc to
+	reiserfs-dev@namesys.com, send bug reports to
+	reiserfs-dev@namesys.com, send paid support requests to
+	support@namesys.com after going to www.namesys.com/support.html
+	to pay, send discussions (not bug reports unless they are
+	interesting to most persons) to reiserfs-list@namesys.com.
+	If we sit on your patch for a week without responding,
+	yell at us, we deserve it.  Look at our web page
+	at www.namesys.com for more about sending us code,
+	working with us, and our patch submission and tracking system.
+
+Paul Bristow <paul@paulbristow.net> [16 feb 2002]
+	I am an ide-floppy driver maintainer
+	(ATAPI ZIP, LS-120/240 Superdisk, Clik! drives).
+
+Mike Phillips <phillim2@comcast.net> [15 feb 2002]
+	Token ring subsystem and drivers.
+
+Anton Altaparmakov <aia21@cam.ac.uk> [15 feb 2002]
+	I am the NTFS guy.
+
+https://bugzilla.redhat.com/bugzilla [14 feb 2002]
+	Reports of problems with the Red Hat shipped kernels.
+
+Alan Cox <alan@lxorguk.ukuu.org.uk> [14 feb 2002]
+	Linux 2.2 maintainer (maintenance fixes only).
+	Collator of patches for unmaintained things in 2.2/2.4.
+	Maintainer of the 2.4-ac (2.4 plus stuff being tested) tree.
+	I2O, sound, 3c501 maintainer for 2.2/2.4.
+
+ALSA development <alsa-devel@alsa-project.org> [12 feb 2002]
+Jaroslav Kysela <perex@perex.cz> [12 feb 2002]
+	Advanced Linux Sound Architecture
+	ALSA patches are available at
+	ftp://ftp.alsa-project.org/pub/kernel-patches/*
+
+Neil Brown <neilb@cse.unsw.edu.au> [08 feb 2002]
+	I am interested in any issues with the code in:
+	NFS server    (fs/nfsd/*)
+	software RAID (drivers/md/{md,raid,linear}*)
+	or related include files.
+
+Maksim Krasnyanskiy <maxk@qualcomm.com> [08 feb 2002]
+	I'm author and maintainer of the Bluetooth subsystem
+	and Universal TUN/TAP device driver.
+	These days mostly working on Bluetooth stuff.
+
+Rik van Riel <riel@conectiva.com.br> [07 feb 2002]
+	Send me VM related stuff, please CC to linux-mm@kvack.org
+
+Geert Uytterhoeven <geert@linux-m68k.org> [07 feb 2002]
+	I work on the frame buffer subsystem, the m68k port (Amiga part),
+	and the PPC port (CHRP LongTrail part).
+	Unfortunately I barely have spare time to really work on these
+	things. My job is not Linux-related (so far :-). I can not
+	promise anything about my maintainership performance.
+
+H. Peter Anvin <hpa@zytor.com> [07 feb 2002]
+	i386 boot and feature code, i386 boot protocol, autofs3,
+	compressed iso9660 (but I'll accept all iso9660-related
+	changes).  kernel.org site manager; please contact me
+	for sponsorship-related issues.
+
+kernel.org admins <ftpadmin@kernel.org> [07 feb 2002]
+	Kernel.org sysadmins.  Contact us if you notice something breaks,
+	or if you want a change make sure you give us at least 1-2 weeks.
+	Please note that we got a lot of feature requests, a lot of
+	which conflict or simply aren't practical; we don't have time to
+	respond to all requests.
+
+Greg KH <greg@kroah.com> [07 feb 2002]
+	I am USB and PCI Hotplug maintainer.
+
+Trond Myklebust <trond.myklebust@fys.uio.no> [07 feb 2002]
+	I am NFS client maintainer.
+
+James Simmons <jsimmons@transvirtual.com> [07 feb 2002]
+	Console and framebuffer sybsustems.
+	I also play around with the input layer.
+
+Richard Gooch <rgooch@atnf.csiro.au> [07 feb 2002]
+	I maintain devfs. I want people to Cc: me when reporting devfs
+	problems, since I don't read all messages on linux-kernel.
+	Send devfs related patches to me directly, rather than
+	bypassing me and sending to Linus/Marcelo/Alan/Dave etc.
+
+Russell King <rmk@arm.linux.org.uk> [06 feb 2002]
+	ARM architecture maintainer.  Please send all ARM patches through
+	the patch system at http://www.arm.linux.org.uk/developer/patches/
+	New serial drivers maintainer for 2.5.  Submit patches to
+	rmk+serial@arm.linux.org.uk
+
+Andrew Morton <akpm@zip.com.au> [05 feb 2002]
+	I'm receptive to any reproducible bug anywhere in the 2.4 kernel.
+	Specialising in ext2, ext3 and network drivers.
+	Not thinking about 2.5.x at this time.
+
+Petr Vandrovec <vandrove@vc.cvut.cz> [05 feb 2002]
+	ncpfs filesystem, matrox framebuffer driver, problems related
+	to VMware - in all of 2.2.x, 2.4.x and 2.5.x.
+
+Reiserfs developers list <reiserfs-dev@namesys.com> [05 feb 2002]
+	Send all reiserfs-related stuff here including but not limited to bug
+	reports, fixes, suggestions.
+
+Oleg Drokin <green@linuxhacker.ru> [05 feb 2002]
+	SA11x0 USB-ethernet and SA11x0 watchdog are mine.
+
+======= These entries are suggested by lkml folks ========
+
+Ralf Baechle <ralf@gnu.org> [27 mar 2002]
+	I am mips/mips64 maintainer.
+
+David S. Miller <davem@redhat.com> [07 feb 2002]
+	I am Sparc64 and networking core maintainer.
+
+======= These ones I made myself ========
+======= I am waiting confirmation/correction from these people ========
+
+Urban Widmark <urban@teststation.com> [13 feb 2002]
+	smbfs
+
+video4linux list <video4linux-list@redhat.com> [12 feb 2002]
+Gerd Knorr <kraxel@bytesex.org> [12 feb 2002]
+	video4linux
+
+Tim Waugh <twaugh@redhat.com> [08 feb 2002]
+	> Who is maintaining the linux iomega stuff?
+	For 2.4.x, me (in theory). I don't have time for 2.5.x at the moment.
+
+Alexander Viro <viro@math.psu.edu> [5 feb 2002]
+	I am NOT a fs subsystem maintainer. But I won't kill
+	you if you send me some generic fs bug reports and (hopefully) patches.
+
+Eric S. Raymond <esr@thyrsus.com> [5 feb 2002]
+	Send kernel configuration bug reports and suggestions to me.
+	Also I'll be more than happy to accept help enties for kernel config
+	options (Configure.help).
+
+G?rard Roudier <groudier@free.fr> [5 feb 2002]
+	I am SCSI guy.
+
+Jens Axboe <axboe@suse.de> [5 feb 2002]
+	I am block device subsystem maintainer.
+
+Linus Torvalds <torvalds@transmeta.com> [5 feb 2002]
+	Do not send anything to me unless it is for 2.5, well tested,
+	discussed on lkml and is used by significant number of people.
+	In general it is a bad idea to send me small fixes and driver
+	updates, send them to subsystem maintainers and/or
+	"small stuff" integrator (currently Dave Jones <davej@suse.de>,
+	see his entry). Sorry, I can't do everything.
+
+Marcelo Tosatti <marcelo@conectiva.com.br> [5 feb 2002]
+	Do not send anything to me unless it is for 2.4 and well tested.
+	If you are sending me small fixes and driver updates, send
+	a copy to subsystem maintainers and/or "small stuff" integrators:
+	- Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	- Rusty Russell <trivial@rustcorp.com.au>.
+
+Rusty Russell <rusty@rustcorp.com.au> [5 feb 2002]
+	> Here are some cleanups of whitespace in .....
+	Want me to add this to the trivial patch collection for tracking?
+	If so just send (or cc:) it to trivial@rustcorp.com.au.

@@ -1,91 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281795AbRLQSMh>; Mon, 17 Dec 2001 13:12:37 -0500
+	id <S281817AbRLQSN5>; Mon, 17 Dec 2001 13:13:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281811AbRLQSMT>; Mon, 17 Dec 2001 13:12:19 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:6931 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S281795AbRLQSL6>; Mon, 17 Dec 2001 13:11:58 -0500
-Date: Mon, 17 Dec 2001 10:05:42 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Andrey Nekrasov <andy@spylog.ru>
-cc: Hubert Mantel <mantel@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: amber/mars & ext3
-In-Reply-To: <20011217161538.GA17099@spylog.ru>
-Message-ID: <Pine.LNX.4.10.10112171004270.17715-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S281841AbRLQSNj>; Mon, 17 Dec 2001 13:13:39 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:35665 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S281817AbRLQSNb>; Mon, 17 Dec 2001 13:13:31 -0500
+Date: Mon, 17 Dec 2001 19:13:00 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: GOTO Masanori <gotom@debian.org>, Andrew Morton <akpm@zip.com.au>,
+        Suresh Gopalakrishnan <gsuresh@cs.rutgers.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: O_DIRECT wierd behavior..
+Message-ID: <20011217191300.L2431@athlon.random>
+In-Reply-To: <20011217181840.G2431@athlon.random> <Pine.LNX.4.21.0112171757530.2812-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.21.0112171757530.2812-100000@localhost.localdomain>; from hugh@veritas.com on Mon, Dec 17, 2001 at 06:07:47PM +0000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 17, 2001 at 06:07:47PM +0000, Hugh Dickins wrote:
+> On Mon, 17 Dec 2001, Andrea Arcangeli wrote:
+> > 
+> > I'm unsure (it's basically a matter of API, not something a kernel
+> > developer can choose liberally), and the SuSv2 is not saying anything about
+> > O_SYNC failures in the write(2) manapge, but I guess it would be at
+> > least saner to put the "pos" backwards if we fail osync but we just
+> > written something (so if we previously advanced pos).
+> 
+> I don't have references to back me up, don't take my word for it:
+> but I'm sure that the correct behaviour for a partially successful
+> read or write in any UNIX is that it return the count done, O_SYNC
+> or not, and file position should match that count; only when none
+> has been done is -1 returned with errno set.  Most implementations will
+> get this wrong in one corner or another, but that's how it should be.
 
-How about I provide you the final patch for a domain validated driver.
-This will then allow one to isolate and point back up the path to the real
-problem.
+that's how linux handles it and as said incidentally it really looked
+intentional to me as well (and Andrew's patch to return error even if
+something was written without at least updating "pos" looked wrong). but
+without any change ala Andrew, we cannot get errors back from O_SYNC if
+at least one byte was written successfully to the cache (not to disk).
+So I also see Andrew's point in doing those changes...
 
-Regards,
-
-On Mon, 17 Dec 2001, Andrey Nekrasov wrote:
-
-> Hello.
-> 
-> 1. /dev/ide/host0/bus1/target0/lun0/part1 on /b1 type ext3
-> (rw,noatime,errors=remount-ro)
-> 
-> 2. dmesg
-> 
-> ...
-> end_request: I/O error, dev 16:01 (hdc), sector 4160
-> end_request: I/O error, dev 16:01 (hdc), sector 4160
-> end_request: I/O error, dev 16:01 (hdc), sector 4160
-> end_request: I/O error, dev 16:01 (hdc), sector 4160
-> end_request: I/O error, dev 16:01 (hdc), sector 4160
-> end_request: I/O error, dev 16:01 (hdc), sector 4160
-> end_request: I/O error, dev 16:01 (hdc), sector 4160
-> end_request: I/O error, dev 16:01 (hdc), sector 4160
-> end_request: I/O error, dev 16:01 (hdc), sector 4160
-> end_request: I/O error, dev 16:01 (hdc), sector 4160
-> end_request: I/O error, dev 16:01 (hdc), sector 4160
-> EXT3-fs error (device ide1(22,1)): ext3_readdir: directory #2 contains a hole at
-> offset 0
-> end_request: I/O error, dev 16:01 (hdc), sector 4160
-> EXT3-fs error (device ide1(22,1)): ext3_readdir: directory #2 contains a hole at
-> offset 0
-> end_request: I/O error, dev 16:01 (hdc), sector 4160
-> EXT3-fs error (device ide1(22,1)): ext3_readdir: directory #2 contains a hole at
-> offset 0
-> end_request: I/O error, dev 16:01 (hdc), sector 4160
-> EXT3-fs error (device ide1(22,1)): ext3_readdir: directory #2 contains a hole at
-> offset 0
-> end_request: I/O error, dev 16:01 (hdc), sector 4160
-> ...
-> 
-> 2. 
-> 
-> 2.4.16.SuSE-0
-> 
-> 3. 
-> 
-> /dev/ide/host0/bus1/target0/lun0/part1
->                        70G   55G   16G  77% /b1
-> 4.
-> 
-> amber:/b1 # ls -la /b1
-> total 0
-> amber:/b1 #
-> 
-> -- 
-> bye.
-> Andrey Nekrasov, SpyLOG.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
-
+Andrea

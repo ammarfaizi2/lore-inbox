@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275382AbTHITR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 15:17:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275385AbTHITR6
+	id S275359AbTHIT0U (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 15:26:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275370AbTHIT0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 15:17:58 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:11382 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S275382AbTHITRu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 15:17:50 -0400
-Date: Sat, 9 Aug 2003 15:17:48 -0400
-From: Matt Wilson <msw@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-       Roland McGrath <roland@redhat.com>, manfred@colorfullife,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] zap_other_threads() detaches thread group leader
-Message-ID: <20030809151748.B26520@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	Sat, 9 Aug 2003 15:26:20 -0400
+Received: from sinma-gmbh.17.mind.de ([212.21.92.17]:47364 "EHLO gw.enyo.de")
+	by vger.kernel.org with ESMTP id S275359AbTHIT0T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 15:26:19 -0400
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test3 and earlier] no keyboard
+References: <87ptjebwb8.fsf@deneb.enyo.de>
+	<20030809203852.A9000@pclin040.win.tue.nl>
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: Andries Brouwer <aebr@win.tue.nl>,
+ linux-kernel@vger.kernel.org
+Date: Sat, 09 Aug 2003 21:26:16 +0200
+In-Reply-To: <20030809203852.A9000@pclin040.win.tue.nl> (Andries Brouwer's
+ message of "Sat, 9 Aug 2003 20:38:52 +0200")
+Message-ID: <874r0qaazr.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Andries Brouwer <aebr@win.tue.nl> writes:
 
-The change to detach the threads in zap_other_threads() broke the case
-where the non-thread-group-leader is the cause of de_thread().  In
-this case the group leader will be detached and freed before
-switch_exec_pids() is complete and invalid data will be used.
-This is a patch that makes sure that the group leader does not get
-detached and reaped.
+>> atkbd.c: Unknown key (set 0, scancode 0xed, on isa0060/serio0) pressed.          
 
-Thought that Ingo or Roland submitted this for me, but since it's
-still not in test3 I figured I would send it myself.  Please CC: me on
-replies.
+> Set 0 is "impossible", certainly a bug.
+> So what are the boot messages about the keyboard?
 
-Cheers,
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
 
-Matt
-msw@redhat.com
-
---- linux-2.6.0-test3/kernel/signal.c.zap	2003-08-09 14:58:50.000000000 -0400
-+++ linux-2.6.0-test3/kernel/signal.c	2003-08-09 14:59:42.000000000 -0400
-@@ -1011,9 +1011,11 @@ void zap_other_threads(struct task_struc
- 		 * killed as part of a thread group due to another
- 		 * thread doing an execve() or similar. So set the
- 		 * exit signal to -1 to allow immediate reaping of
--		 * the process.
-+		 * the process.  But don't detach the thread group
-+		 * leader.
- 		 */
--		t->exit_signal = -1;
-+		if (t != p->group_leader)
-+			t->exit_signal = -1;
- 
- 		sigaddset(&t->pending.signal, SIGKILL);
- 		rm_from_queue(SIG_KERNEL_STOP_MASK, &t->pending);
+I hope these lines are the correct ones.

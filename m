@@ -1,93 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135968AbREJBRa>; Wed, 9 May 2001 21:17:30 -0400
+	id <S135977AbREJBWU>; Wed, 9 May 2001 21:22:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135971AbREJBRV>; Wed, 9 May 2001 21:17:21 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:25156 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S135968AbREJBRI>; Wed, 9 May 2001 21:17:08 -0400
-Date: Thu, 10 May 2001 03:16:52 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Kurt Garloff <garloff@suse.de>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nfs MAP_SHARED corruption fix
-Message-ID: <20010510031652.G2506@athlon.random>
-In-Reply-To: <20010510020819.F2506@athlon.random> <Pine.LNX.4.21.0105091931410.15959-100000@freak.distro.conectiva>
-Mime-Version: 1.0
+	id <S135978AbREJBWK>; Wed, 9 May 2001 21:22:10 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:6797 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S135977AbREJBV7>;
+	Wed, 9 May 2001 21:21:59 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0105091931410.15959-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Wed, May 09, 2001 at 07:38:01PM -0300
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-ID: <15097.60691.888764.916294@pizda.ninka.net>
+Date: Wed, 9 May 2001 18:21:23 -0700 (PDT)
+To: "Svenning Soerensen" <svenning@post5.tele.dk>
+Cc: <linux-kernel@vger.kernel.org>, <linux-ipsec@freeswan.org>
+Subject: RE: Problem with PMTU discovery on ICMP packets
+In-Reply-To: <016e01c0d68b$51da19a0$1400a8c0@sss.intermate.com>
+In-Reply-To: <15092.31381.395563.889405@pizda.ninka.net>
+	<016e01c0d68b$51da19a0$1400a8c0@sss.intermate.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 09, 2001 at 07:38:01PM -0300, Marcelo Tosatti wrote:
-> 
-> 
-> On Thu, 10 May 2001, Andrea Arcangeli wrote:
-> 
-> > On Wed, May 09, 2001 at 07:02:16PM -0300, Marcelo Tosatti wrote:
-> > > Why don't you clean I_DIRTY_PAGES ? 
-> > 
-> > we don't have visibilty on the inode_lock from there, we could make a
-> > function in fs/inode.c or export the inode_lock to do that, but the flag
-> > will be collected when the inode is released anyways, and it's only an
-> > hint to make the common case fast (the common case is when nobody ever
-> > did a MAP_SHARED on the inode). Other places msync/fsync doesn't even
-> > check for such bit but they fdatasync/fdatawait unconditionally. 
-> 
-> Actually msync/fsync _can't_ rely on this bit because there is no
-> guarantee that data is fully synced on disk even if the bit is cleared.
-> (__sync_one (fs/inode.c) clears the bit _before_ starting the writeout,
-> and thats it).
 
-correct sorry, fsync/msync cannot check that bit of course.
+Svenning Soerensen writes:
+ > I've done a bit more testing. The behaviour doesn't change across reboots.
+ > Instead, it seems to be the case that:
+ > If the packet fits within the MTU of the outgoing interface, DF is set.
+ > If the packet doesn't fit, and thus gets fragmented, DF is clear on all
+ > fragments.
+ > Does this make sense?
 
-> You have the same problem with your code, so I guess its better to just
-> remove the I_DIRTY_PAGES check. 
+Yes.  I've put the following patch into my tree.
+Thanks for doing the detective work.
 
-The point you have to clarify before claming we should remove the check
-is if the munmap flush needs to be synchronous or not. In general munmap
-doesn't need to be synchronous. If you want to commit the writes an
-explicit msync(MS_SYNC) or fsync on the file is required.  Otherwise the
-updates will hit the platter in a rasonable amount of finite time
-asynchronously. If somebody just intiated the fdatasync he will have to
-finish before we can collect away the inode and in turn drop all its
-cache, so those dirty pages cannot get lost in iput if somebody started
-doing the flush under us either, and the guy doing the fdatasync under
-us will have to wait synchronously for the stuff to be committed before
-it can return.
-
-If some page wasn't yet visible in the dirty_pages list by the time
-__sync_one started, we'll find I_DIRTY_PAGES set. This is enforced by
-the locking order (sync_one first clears the I_DIRTY_PAGES and then
-it starts browsing the dirty_pages list while set_page_dirty first make the
-page visible and then marks the inode dirty).
-
-So the I_DIRTY_PAGES check guarantees that those dirty pages cannot be
-lost in iput, that was the _only_ object of the patch and that is
-certainly enough to fix the nfs fs data corruption reported.
-
-Now if you claim that munmap needs to be synchronous for nfs that's a
-completly different matter. I didn't even tried to make it synchronous.
-It is possible it has to be synchronous, even write(2) (in theory ;) has
-to behave like O_SYNC with nfs, but I'm not sure.
-
-
-Another thing (completly unrelated to the above issues) that I noticed
-while looking over this nfs code is that the __sync_one() for example
-called by generic_file_write(O_SYNC) will recall fdatasync but no nfs_wb_all
-is put before the fdatawait, and I'm not sure that the nfs_sync_page
-called by the fdatawait is enough to rapidly flush the writepaged stuff
-to the nfs server. nfs_sync_page apparently only cares about speculative
-reads, not at all about committing writebacks. It would look much saner
-to me if nfs_sync_page also does a nfs_wb_all() on the inode, so that
-the ->sync_page callback gets the same semantics it has for the real
-filesystems.
-
-Comments?
-
-Andrea
+--- net/ipv4/icmp.c.~1~	Sun Apr 29 21:40:40 2001
++++ net/ipv4/icmp.c	Wed May  9 18:20:58 2001
+@@ -3,7 +3,7 @@
+  *	
+  *		Alan Cox, <alan@redhat.com>
+  *
+- *	Version: $Id: icmp.c,v 1.75 2001/04/30 04:40:40 davem Exp $
++ *	Version: $Id: icmp.c,v 1.76 2001/05/10 01:20:58 davem Exp $
+  *
+  *	This program is free software; you can redistribute it and/or
+  *	modify it under the terms of the GNU General Public License
+@@ -1006,6 +1006,7 @@
+ 	icmp_socket->sk->allocation=GFP_ATOMIC;
+ 	icmp_socket->sk->sndbuf = SK_WMEM_MAX*2;
+ 	icmp_socket->sk->protinfo.af_inet.ttl = MAXTTL;
++	icmp_socket->sk->protinfo.af_inet.pmtudisc = IP_PMTUDISC_DONT;
+ 
+ 	/* Unhash it so that IP input processing does not even
+ 	 * see it, we do not wish this socket to see incoming

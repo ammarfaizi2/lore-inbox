@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRAIB0X>; Mon, 8 Jan 2001 20:26:23 -0500
+	id <S129632AbRAIB0r>; Mon, 8 Jan 2001 20:26:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129632AbRAIB0N>; Mon, 8 Jan 2001 20:26:13 -0500
-Received: from [139.102.15.43] ([139.102.15.43]:59566 "EHLO
-	online.indstate.edu") by vger.kernel.org with ESMTP
-	id <S129267AbRAIB0B>; Mon, 8 Jan 2001 20:26:01 -0500
-From: "Rich Baum" <baumr1@coral.indstate.edu>
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>, linux-kernel@vger.kernel.org
-Date: Mon, 8 Jan 2001 20:23:56 -0500
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] More compile warning fixes for 2.4.0
-Reply-to: richbaum@acm.org
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3A5A21DC.11296.5CFA3C@localhost>
-In-Reply-To: <20010108205001.S3472@arthur.ubicom.tudelft.nl>
-In-Reply-To: <3A5790E3.18256.963C79@localhost>; from baumr1@coral.indstate.edu on Sat, Jan 06, 2001 at 09:40:51PM -0500
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+	id <S129775AbRAIB0X>; Mon, 8 Jan 2001 20:26:23 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:2055 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S129324AbRAIB0N>; Mon, 8 Jan 2001 20:26:13 -0500
+From: Rusty Russell <rusty@linuxcare.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cramfs is ro only, so honour this in inode->mode 
+In-Reply-To: Your message of "Mon, 08 Jan 2001 09:37:03 PDT."
+             <Pine.LNX.4.10.10101080930410.3750-100000@penguin.transmeta.com> 
+Date: Tue, 09 Jan 2001 12:25:58 +1100
+Message-Id: <E14FnXz-0000oy-00@halfway>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 Jan 2001, at 20:50, Erik Mouw wrote:
+In message <Pine.LNX.4.10.10101080930410.3750-100000@penguin.transmeta.com> you
+ write:
+> I've been thinking of doing a cramfs2, and the only thing I'd change is
+> (a) slightly bigger blocksize (maybe 8k or 16k) and (b) re-order the
+> meta-data and the real data so that I could easily compress the metadata
+> too. cramfs doesn't have any traditional meta-data (no bitmap blocks or
+> anything like that), but it wouldn't be that hard to put the directory
+> structure in the page cache and just compress the directories the same way
+> the real data is compressed.
 
-> On Sat, Jan 06, 2001 at 09:40:51PM -0500, Rich Baum wrote:
-> > Here's a patch that fixes more of the compile warnings with gcc 
-> > 2.97.
-> 
-> > -    case FORE200E_STATE_BLANK:
-> > +    case FORE200E_STATE_BLANK:;
-> 
-> Is this really a kernel bug? This is common idiom in C, so gcc
-> shouldn't warn about it. If it does, it is a bug in gcc IMHO.
-> 
-> 
-> Erik
-> (compiling a GCC CVS snapshot to see if it really breaks)
-> 
-> -- 
-> J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-> of Electrical Engineering, Faculty of Information Technology and Systems,
-> Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-> Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-> WWW: http://www-ict.its.tudelft.nl/~erik/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+And you'd still be worse than compressed loopback w/32k blocks, and
+more complex.  Now most of the loopback bugs seem fixed in 2.4, I'll
+port the cloop stuff, and we can compare.
 
-It still compiles and works just as well as it does without the patch. 
- Without the patch it says: 
-warning: deprecated use of label at end of compound statement
-
-My patches are basically telling the compiler to be quiet.  If you 
-use egcs it won't give these warnings even if the code hasn't been 
-patched.
+Time to stop this cramfs madness!
+Rusty.
+--
+http://linux.conf.au The Linux conference Australia needed.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264863AbTAJKwZ>; Fri, 10 Jan 2003 05:52:25 -0500
+	id <S264844AbTAJKu2>; Fri, 10 Jan 2003 05:50:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264867AbTAJKwZ>; Fri, 10 Jan 2003 05:52:25 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:25489
+	id <S264863AbTAJKu2>; Fri, 10 Jan 2003 05:50:28 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:24465
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264863AbTAJKwY>; Fri, 10 Jan 2003 05:52:24 -0500
-Subject: Re: Are linux network drivers really affected by this?
+	id <S264844AbTAJKu1>; Fri, 10 Jan 2003 05:50:27 -0500
+Subject: Re: Problem:  kernel BUG at page_alloc.c:217!
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: andrea.glorioso@binary-only.com
+To: t.widjaja1@ugrad.unimelb.edu.au
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <87iswx4eaw.fsf@topo.binary-only.priv>
-References: <1042116723.2556.3.camel@station3>
-	 <87iswx4eaw.fsf@topo.binary-only.priv>
+In-Reply-To: <200301100825.TAA17664@cassius.its.unimelb.edu.au>
+References: <200301100825.TAA17664@cassius.its.unimelb.edu.au>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1042199207.28469.49.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1042199118.28469.47.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 10 Jan 2003 11:46:48 +0000
+Date: 10 Jan 2003 11:45:18 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-10 at 08:08, andrea.glorioso@binary-only.com wrote:
-> The paper presented by Olaf Arkin (amongst other) points to some parts
-> of the linux code where this "vulnerability" exists.  I think Alan Cox
-> is working on some patches for his tree.  I wonder whether it's better
-> to null-pad  ethernet packets  or   to fill  them with  random  values
-> (possibly an overkill, but more resiliant against fingerprinting).
-
-Most of them will pad with zero. We have a couple of drivers that already
-pad with something along the lines of "NetBSD is a cool OS too.."
-
-The -ac tree should have the problem fixed for all the drivers I know have
-the problem or may do.
+Remove the Nvidia driver, boot from scratch and duplicate the problem, otherwise since Nvidia
+have our source and we don't have theirs only they can help you
 

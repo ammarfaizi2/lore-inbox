@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261936AbUJYPKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbUJZALS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261936AbUJYPKO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 11:10:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbUJYPIZ
+	id S261154AbUJZALS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 20:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbUJYPHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 11:08:25 -0400
-Received: from ip22-176.tor.istop.com ([66.11.176.22]:425 "EHLO
-	crlf.tor.istop.com") by vger.kernel.org with ESMTP id S261878AbUJYOtY convert rfc822-to-8bit
+	Mon, 25 Oct 2004 11:07:10 -0400
+Received: from ip22-176.tor.istop.com ([66.11.176.22]:1961 "EHLO
+	crlf.tor.istop.com") by vger.kernel.org with ESMTP id S261882AbUJYOtz convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 10:49:24 -0400
+	Mon, 25 Oct 2004 10:49:55 -0400
 Cc: raven@themaw.net
-Subject: [PATCH 21/28] HOTPLUG: Hack to allow for call to execve
-In-Reply-To: <10987157204162@sun.com>
+Subject: [PATCH 22/28] VFS: Export put_namespace
+In-Reply-To: <1098715750856@sun.com>
 X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Mon, 25 Oct 2004 10:49:10 -0400
-Message-Id: <1098715750856@sun.com>
-References: <10987157204162@sun.com>
+Date: Mon, 25 Oct 2004 10:49:40 -0400
+Message-Id: <10987157802675@sun.com>
+References: <1098715750856@sun.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
@@ -24,47 +24,22 @@ From: Mike Waychison <michael.waychison@sun.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is a hack while we don't have a proper way for code to call
-execve. It simply introduces call_usermodehelper_execve(path, argv, envp)
-that call the execve syscall with an errno set.
-
-We need to figure out a proper way for code to call execve!
+This patch exports the __put_namespace symbol so that autofsng can call it as
+a module (used as part of the call-out mechanism).
 
 Signed-off-by: Mike Waychison <michael.waychison@sun.com>
 ---
 
- include/linux/kmod.h |    1 +
- kernel/kmod.c        |    7 +++++++
- 2 files changed, 8 insertions(+)
+ namespace.c |    1 +
+ 1 files changed, 1 insertion(+)
 
-Index: linux-2.6.9-quilt/kernel/kmod.c
+Index: linux-2.6.9-quilt/fs/namespace.c
 ===================================================================
---- linux-2.6.9-quilt.orig/kernel/kmod.c	2004-10-22 17:17:44.279732600 -0400
-+++ linux-2.6.9-quilt/kernel/kmod.c	2004-10-22 17:17:44.879641400 -0400
-@@ -278,6 +278,13 @@ int call_usermodehelper_cb(call_usermode
+--- linux-2.6.9-quilt.orig/fs/namespace.c	2004-10-22 17:17:41.368175224 -0400
++++ linux-2.6.9-quilt/fs/namespace.c	2004-10-22 17:17:45.491548376 -0400
+@@ -1733,3 +1733,4 @@ void __put_namespace(struct namespace *n
+ 	mntput(namespace->root);
+ 	kfree(namespace);
  }
- EXPORT_SYMBOL(call_usermodehelper_cb);
- 
-+/* This is an ugly hack while the __KERNEL_SYSCALLS__ cleanup occurs */
-+int call_usermodehelper_execve(char *path, char *argv[], char *envp[])
-+{
-+	return execve(path, argv, envp);
-+}
-+EXPORT_SYMBOL(call_usermodehelper_execve);
-+
- static int call_usermodehelper_simple(void *cbdata)
- {
- 	struct simple_usermodehelper_info *info = cbdata;
-Index: linux-2.6.9-quilt/include/linux/kmod.h
-===================================================================
---- linux-2.6.9-quilt.orig/include/linux/kmod.h	2004-10-22 17:17:44.279732600 -0400
-+++ linux-2.6.9-quilt/include/linux/kmod.h	2004-10-22 17:17:44.879641400 -0400
-@@ -36,6 +36,7 @@ static inline int request_module(const c
- #define try_then_request_module(x, mod...) ((x) ?: (request_module(mod), (x)))
- typedef int (*call_usermodehelper_cb_t)(void *cbdata);
- extern int call_usermodehelper_cb(call_usermodehelper_cb_t cb, void *cbdata, int wait);
-+extern int call_usermodehelper_execve(char *path, char *argv[], char *envp[]);
- extern int call_usermodehelper(char *path, char *argv[], char *envp[], int wait);
- 
- #ifdef CONFIG_HOTPLUG
++EXPORT_SYMBOL(__put_namespace);
 

@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263563AbUDMLpW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 07:45:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbUDMLpW
+	id S263565AbUDMLwk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 07:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbUDMLwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 07:45:22 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:54765 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263563AbUDMLpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 07:45:18 -0400
-Date: Tue, 13 Apr 2004 13:36:59 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>,
-       Raghavendra Koushik <raghavendra.koushik@s2io.com>, jgarzik@pobox.com
+	Tue, 13 Apr 2004 07:52:40 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:14916 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S263565AbUDMLwj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 07:52:39 -0400
+Date: Tue, 13 Apr 2004 13:59:44 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Emiliano 'AlberT' Gabrielli" <AlberT@SuperAlberT.it>
 Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.5-mm5: no help text for S2IO_NAPI
-Message-ID: <20040413113659.GN27003@fs.tum.de>
-References: <20040412221717.782a4b97.akpm@osdl.org>
+Subject: Re: [TRIVIAL PATCH] make Documentation
+Message-ID: <20040413115944.GA2064@mars.ravnborg.org>
+Mail-Followup-To: Emiliano 'AlberT' Gabrielli <AlberT@SuperAlberT.it>,
+	linux-kernel@vger.kernel.org
+References: <200404131304.21080.AlberT@SuperAlberT.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040412221717.782a4b97.akpm@osdl.org>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <200404131304.21080.AlberT@SuperAlberT.it>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 12, 2004 at 10:17:17PM -0700, Andrew Morton wrote:
->...
-> All 215 patches:
->...
-> bk-netdev.patch
->...
+On Tue, Apr 13, 2004 at 01:02:17PM +0200, Emiliano 'AlberT' Gabrielli wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> makeing docs raise this error:
 
-There is no help text for S2IO_NAPI in the Kconfig file, please add one.
+Already fixed in Linus' latest. See:
+http://linus.bkbits.net:8080/linux-2.5/cset@407b1151a0BsL0EqGXMbOaDQlMedxg?nav=index.html|ChangeSet@-2d
 
-TIA
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Sam

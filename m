@@ -1,49 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270484AbUJUO2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264881AbUJUO1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270484AbUJUO2j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 10:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUJUO2A
+	id S264881AbUJUO1r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 10:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268526AbUJUOXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 10:28:00 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:6275 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S270679AbUJUOZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 10:25:46 -0400
-Date: Thu, 21 Oct 2004 16:26:53 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: "O.Sezer" <sezeroz@ttnet.net.tr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory leak in 2.4.27 kernel, using mmap raw packet sockets
-Message-ID: <20041021142653.GK8756@dualathlon.random>
-References: <4177BBFD.5090300@ttnet.net.tr>
+	Thu, 21 Oct 2004 10:23:33 -0400
+Received: from dsl017-059-236.wdc2.dsl.speakeasy.net ([69.17.59.236]:61131
+	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
+	id S264881AbUJUOVe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 10:21:34 -0400
+Date: Thu, 21 Oct 2004 10:27:45 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Instances of visor us devices are not deleted (2.6.9-rc4-mm1)
+Message-ID: <20041021142745.GB24257@kurtwerks.com>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4177BBFD.5090300@ttnet.net.tr>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.9
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 04:39:09PM +0300, O.Sezer wrote:
-> I can't find to which suse kernel these patch(es) apply. I assume
-> your first one comes down to the attached one-liner for vanilla-2.4,
-> can you confirm?
+On Wed, Oct 20, 2004 at 12:00:56AM -0700, Greg KH took 41 lines to write:
+> On Wed, Oct 20, 2004 at 08:16:47AM +0200, Norbert Preining wrote:
+> > Hi USB developers!
+> > 
+> > I have the following problem with 2.6.9-rc4-mm1 which includes bk-usb:
+> > 
+> > Everytime I sync my palm I get a new device id:
+> > 
+> > ...start sync...
+> > usb 4-2.1: new full speed USB device using address 8
+> > visor 4-2.1:1.0: Handspring Visor / Palm OS converter detected
+> > usb 4-2.1: Handspring Visor / Palm OS converter now attached to ttyUSB2
+> > usb 4-2.1: Handspring Visor / Palm OS converter now attached to ttyUSB3
+> > ...
+> > ...many usb usb2: string descriptor 0 read error: -113 ...
+> > ...
+> > ...end of sync...
+> > usb 4-2.1: USB disconnect, address 8
+> > visor 4-2.1:1.0: device disconnected
+> > visor ttyUSB3: visor_write - usb_submit_urb(write bulk) failed with status = -19
+> > ...new sync...
+> > usb 4-2.1: new full speed USB device using address 9
+> > visor 4-2.1:1.0: Handspring Visor / Palm OS converter detected
+> > usb 4-2.1: Handspring Visor / Palm OS converter now attached to ttyUSB4
+> > usb 4-2.1: Handspring Visor / Palm OS converter now attached to ttyUSB5
+> > 
+> > etc etc.
+> > 
+> > Is this a known problem?
+> 
+> Hm, no it isn't.  Are you sure that userspace doesn't still have the
+> device nodes open?  If they do, the ttyUSB number will not be released
+> until that happens.
 
-yes.
+I'm seeing the same thing here, but without the read errors:
 
-> For your second: I think it needs your 9999_z-get_user_pages_pte_pin-1
-> patch applied beforehand?. Without that patch, are there any problems
+drivers/usb/serial/usb-serial.c: USB Serial support registered for
+Handspring Visor / Palm OS
+drivers/usb/serial/usb-serial.c: USB Serial support registered for Sony
+Clie 3.5
+drivers/usb/serial/usb-serial.c: USB Serial support registered for Sony
+Clie 5.0
+usbcore: registered new driver visor
+drivers/usb/serial/visor.c: USB HandSpring Visor / Palm OS driver v2.1
+usb 1-2: new full speed USB device using address 2
+visor 1-2:1.0: Handspring Visor / Palm OS converter detected
+usb 1-2: Handspring Visor / Palm OS converter now attached to ttyUSB0
+usb 1-2: Handspring Visor / Palm OS converter now attached to ttyUSB1
+usb 1-2: USB disconnect, address 2
+visor ttyUSB0: Handspring Visor / Palm OS converter now disconnected from
+ttyUSB0
+visor ttyUSB1: Handspring Visor / Palm OS converter now disconnected from
+ttyUSB1
+visor 1-2:1.0: device disconnected
 
-... plus yet another incremental patch not yet in 2.4.23aa3.  I'll
-upload an aa4 soon with all of this included.
-
-> to be fixed? Can you post patches for vanilla kernels, please?
-
-I'll upload an aa4, then the future 9999_z-get_user_pages_pte_pin-2 will
-included every known fix to get_user_pages. I hope it's the same for
-you. I've a set of incremental fixes, and I'll join all of them together
-in 9999_z-get_user_pages_pte_pin-2 (the PageReserved fix will get mixed
-into it too, I hope that's not too confusing, the idea is that such
-patch will fix all issues in get_user_pages in 2.4).
+Kurt
+-- 
+Furious activity is no substitute for understanding.
+	-- H. H. Williams

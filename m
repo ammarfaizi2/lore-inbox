@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVAMDkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVAMDlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261388AbVAMDkI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 22:40:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVAMDkI
+	id S261396AbVAMDlW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 22:41:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbVAMDlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 22:40:08 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:38317 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261388AbVAMDkD (ORCPT
+	Wed, 12 Jan 2005 22:41:22 -0500
+Received: from gate.crashing.org ([63.228.1.57]:22425 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261396AbVAMDlR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 22:40:03 -0500
-Date: Wed, 12 Jan 2005 22:37:55 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
-       Chris Wright <chrisw@osdl.org>, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: thoughts on kernel security issues
-In-Reply-To: <20050112161227.GF32024@logos.cnet>
-Message-ID: <Pine.LNX.4.61.0501122235240.27051@chimarrao.boston.redhat.com>
-References: <20050112094807.K24171@build.pdx.osdl.net>
- <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com>
- <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 12 Jan 2005 22:41:17 -0500
+Subject: Re: [PATCH] ppc64: xtime <-> gettimeofday can get out of sync
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Anton Blanchard <anton@samba.org>
+Cc: Andrew Morton <akpm@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050110132429.GS14239@krispykreme.ozlabs.ibm.com>
+References: <20050110132429.GS14239@krispykreme.ozlabs.ibm.com>
+Content-Type: text/plain
+Date: Thu, 13 Jan 2005 14:40:55 +1100
+Message-Id: <1105587656.27435.10.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Jan 2005, Marcelo Tosatti wrote:
 
-> The only reason for this is to have "time for the vendors to catch up", 
-> which can be defined by the kernel security office. Nothing more - no 
-> vendor politics involved.
+> Note that the time_sync_xtime check only stops the seconds from going
+> backwards, the ns component still could couldnt it? Considering this
+> is hard to get right, should we switch to the time interpolator stuff?
+> The only problem there is it might be trouble for systemcfg (which
+> exports stuff to do userspace gettimeofday).
 
-There are other good reasons, too.  One could be:
+My userland implementation in the vDSO also relies on our current
+algorithm. It's not merged yet and could be changed of course, but I
+ended up quite liking our current code ;) 
 
-"Lets not make this security bug public on christmas eve,
-  because many system administrators won't get around to
-  applying patches, while the script kiddies have lots of
-  time over their christmas holidays."
+The interesting thing with it is we are basically lock-less
+(and even barrier-less on reads).
 
-IMHO it will be good to coordinate things like this, based on
-common sense, and trying to minimise the impact on users of
-the software.  I do agree with Linus' "no politics" point,
-though ;)
+Ben.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+

@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263647AbTKKTVd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 14:21:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbTKKTVc
+	id S263703AbTKKTYh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 14:24:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbTKKTWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 14:21:32 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:15573 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263647AbTKKTVb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 14:21:31 -0500
-Date: Sat, 1 Nov 2003 19:08:23 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Anthony DiSante <orders@nodivisions.com>
+	Tue, 11 Nov 2003 14:22:51 -0500
+Received: from dp.samba.org ([66.70.73.150]:45016 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263698AbTKKTWQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 14:22:16 -0500
+Date: Wed, 12 Nov 2003 06:19:25 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Erik Jacobson <erikj@subway.americas.sgi.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Audio skips when RAM is ~full
-Message-ID: <20031101180822.GS643@openzaurus.ucw.cz>
-References: <3FA34523.30902@nodivisions.com>
+Subject: Re: 2.6 /proc/interrupts fails on systems with many CPUs
+Message-ID: <20031111191924.GR930@krispykreme>
+References: <Pine.SGI.4.53.0311111116440.360387@subway.americas.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FA34523.30902@nodivisions.com>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <Pine.SGI.4.53.0311111116440.360387@subway.americas.sgi.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-Check your sound driver's sources . Perhaps it allocates GFP_ATOMIC
-memory nd drops data on the floor if it is not available.
+> On systems with lots of processors (512 for example), catting
+> /proc/interrupts fails with a "not enough memory" error.
 
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+FYI we are seeing this on ppc64 too (less cpus but probably more
+interrupt sources).
 
+Anton

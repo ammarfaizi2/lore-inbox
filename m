@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261305AbSLBIxx>; Mon, 2 Dec 2002 03:53:53 -0500
+	id <S261663AbSLBJAc>; Mon, 2 Dec 2002 04:00:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261663AbSLBIxx>; Mon, 2 Dec 2002 03:53:53 -0500
-Received: from f130.law3.hotmail.com ([209.185.241.130]:45061 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id <S261305AbSLBIxw>;
-	Mon, 2 Dec 2002 03:53:52 -0500
-X-Originating-IP: [192.115.130.1]
-From: "Nadav Rotem" <nadav256@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Date: Mon, 02 Dec 2002 01:01:15 -0800
+	id <S261689AbSLBJAc>; Mon, 2 Dec 2002 04:00:32 -0500
+Received: from ns.suse.de ([213.95.15.193]:9231 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261663AbSLBJAb>;
+	Mon, 2 Dec 2002 04:00:31 -0500
+Date: Mon, 2 Dec 2002 10:07:56 +0100
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>, ak@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Start of compat32.h (again)
+Message-ID: <20021202090756.GA26034@wotan.suse.de>
+References: <Pine.LNX.4.44.0212011047440.12964-100000@home.transmeta.com.suse.lists.linux.kernel> <1038804400.4411.4.camel@rth.ninka.net.suse.lists.linux.kernel> <p737kesu9bt.fsf@oldwotan.suse.de> <20021202.002815.58826951.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F1306u7WP0YpGmx3qmM0001808b@hotmail.com>
-X-OriginalArrivalTime: 02 Dec 2002 09:01:15.0914 (UTC) FILETIME=[5EEDF6A0:01C299E1]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021202.002815.58826951.davem@redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-to whom it may concern,
+> The data is where I'd say the bloat would be, and lo and behold is a
+> nearly 7-fold increase for the sample you give us _only_ in the .data
+> section.
 
-I am having some problems with recent kernels. The SIS DRI module since 
-2.4.18 through 2.4.20 will not compile ^H ^H ^H Link properly. The Error I 
-get is undefined reference to sis_free() and sis_malloc(). I believe it has 
-to do with the dependencies or make file linking with a missing .o file.
+.data is normally not a significant part of programs, because few programs
+use global variables that heavily (yes, there are exceptions, like that emacs 
+thing, but it's not common) 
 
-The problem occures whenever I try to compile the module into the kernel ( 
-[*] sis ).
-when I try to compile it as a module it fails when I go through "make 
-modules_install" with the same error.
+It appear big in ls because it's a very small program, but even there
+are absolute numbers don't make much difference (1K vs 7K, even 1K 
+data needs one 4K page so the actual bloat is only another 4K) 
 
-The problem is in the Xfree 4.1 DRI driver (I didnt try Xfree 4.0 DRI 
-driver). The regular kernel X sis driver works just fine just with no DRI 
-support.
+Regarding the stack use: we're using 6.3K kernel stack + separate interrupt
+stack in the kernel. While there were a few problems with stack overflow 
+it was usually very stupid bugs (like someone declaring a big long/pointer
+array that just fit on 32bit, but exceeded it on 64bit). The normal
+stack frame tend to be not that much bigger.
 
-I am running Redhat 7.3 - 2.4.18 &&  2.4.20.
-I believe it is not a local problem since I "make clean" or "make mrproper" 
-and I had no problems with compiling older kernels. It also happens on new 
-downloaded kernels. A friend also told me that he had some problems with the 
-Sis module when compiling the frame buffer. I am not sure if it is related 
-but he said that it does produce similar errors. (debian-current)
+There is some heap bloat from pointers, but the effects are fairly
+limited and I doubt ls will suffer from it significantly. Of course
+when you're performance limited on a given problem it may be a good
+idea to benchmark both -m32 and -m64, just to see if it's cache bound
+by pointers. But I think -m64 is a good default nevertheless, simply
+because the generated code is much better.
 
+> BTW, I bet your dynamic relocation tables are a bit larger too.
 
-Thanks,
-Nadav
-
-
+Somewhat, but does it matter?  They are not kept in memory anyways.
 
 
-_________________________________________________________________
-Add photos to your e-mail with MSN 8. Get 2 months FREE*. 
-http://join.msn.com/?page=features/featuredemail
-
+-Andi

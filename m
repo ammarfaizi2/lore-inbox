@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265642AbSJXUHA>; Thu, 24 Oct 2002 16:07:00 -0400
+	id <S265638AbSJXUSs>; Thu, 24 Oct 2002 16:18:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265643AbSJXUHA>; Thu, 24 Oct 2002 16:07:00 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:27830 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265642AbSJXUG7>;
-	Thu, 24 Oct 2002 16:06:59 -0400
-Subject: [RFC] shared credentials with vfs snapshotting
-From: "David C. Hansen" <haveblue@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Dave McCracken <dmccr@us.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 24 Oct 2002 13:12:40 -0700
-Message-Id: <1035490360.9081.73.camel@nighthawk>
+	id <S265639AbSJXUSs>; Thu, 24 Oct 2002 16:18:48 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:64139 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265638AbSJXUSr>;
+	Thu, 24 Oct 2002 16:18:47 -0400
+Date: Thu, 24 Oct 2002 21:26:54 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [CFT] faster athlon/duron memory copy implementation
+Message-ID: <20021024202654.GA14351@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Ed Sweetman <ed.sweetman@wmich.edu>, linux-kernel@vger.kernel.org
+References: <3DB82ABF.8030706@colorfullife.com> <200210242048.36859.earny@net4u.de> <3DB85385.6030302@wmich.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DB85385.6030302@wmich.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch combines the ideas from two others:  Dave McCracken's 
-combination of task credentials into a single structure which is 
-shared between threads:
-http://marc.theaimsgroup.com/?t=102830918300009&r=1&w=2
-And Trond Myklebust's snapshotting of the vfs-specific parts of
-the cred structure which are passed down into vfs and are strictly
-copy-on-write. 
-http://marc.theaimsgroup.com/?t=103081191900001&r=1&w=2
-http://marc.theaimsgroup.com/?t=103074984200004&r=1&w=2
-http://www.fys.uio.no/~trondmy/src/2.5.32-alpha
+On Thu, Oct 24, 2002 at 04:09:41PM -0400, Ed Sweetman wrote:
+ > 
+ > I seem to be seeing compiler optimizations come into play with the 
+ > numbers and not any mention of them that i've seen has been talked 
+ > about. That could be causing any discrepencies with predicted values. So 
+ > not only would we have to look at algorithms, but also the compilers and 
+ > what optimizations we plan on using them with.  Some do better on 
+ > certain compilers+flags than others. It's a mixmatch that seems to only 
+ > get complicated the more realistic you make it.
 
-Implementing the appearance of shared credentials to userspace requires
-large amounts of code to be added in the threading libraries.  The
-addition of code here is reasonalbly small.  
+The functions being benchmarked are written in assembly.
+gcc will not change these in any way, making compiler flags
+or revision irrelevant.
 
-This patch is by no means complete or correct.  It completely ignores
-the credential sharing flag for now.  It is just here to demonstrate the
-combination of the two ideas.  Please don't go applying it to anything
-;)
-
-I think that the core of what is needed is in the attached patch.  Most
-of what is left can be accomplished with s/->uid/->cred->uid/ and
-s/->fsuid/->cred->vfscred->uid/
-
-And, as Trond says:
-> Unfortunately there's still a bit more to do. I need to get
-> the file creation ops (i_op->create()/symlink()/mknod()/mkdir()) to
-> take a vfs_cred* argument. If not, you risk having the
-> inode->i_uid/i_gid set to values that differ from the ones checked by
-> the calls to ->permission().
-
+		Dave
 
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
+| Dave Jones.        http://www.codemonkey.org.uk

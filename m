@@ -1,55 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317438AbSFRPAs>; Tue, 18 Jun 2002 11:00:48 -0400
+	id <S317437AbSFRPA3>; Tue, 18 Jun 2002 11:00:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317439AbSFRPAr>; Tue, 18 Jun 2002 11:00:47 -0400
-Received: from ns2.arlut.utexas.edu ([129.116.174.1]:20747 "EHLO
-	ns2.arlut.utexas.edu") by vger.kernel.org with ESMTP
-	id <S317438AbSFRPAp>; Tue, 18 Jun 2002 11:00:45 -0400
-Date: Tue, 18 Jun 2002 10:00:46 -0500
-From: Jonathan Abbey <jonabbey@arlut.utexas.edu>
-To: linux-kernel@vger.kernel.org
-Subject: oops in 2.4.18-3 kswapd?
-Message-ID: <20020618100046.A23353@arlut.utexas.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S317438AbSFRPA2>; Tue, 18 Jun 2002 11:00:28 -0400
+Received: from h-64-105-35-162.SNVACAID.covad.net ([64.105.35.162]:33932 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S317437AbSFRPA2>; Tue, 18 Jun 2002 11:00:28 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 18 Jun 2002 08:00:23 -0700
+Message-Id: <200206181500.IAA00339@baldur.yggdrasil.com>
+To: kai@tp1.ruhr-uni-bochum.de
+Subject: Re: Various kbuild problems in 2.5.22
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got the following on a RedHat 7.3 system with, yes, the NVidia driver
-added.
+>On Tue, 18 Jun 2002, Adam J. Richter wrote:
 
-Jun 18 04:03:38 greatland kernel: ------------[ cut here ]------------
-Jun 18 04:03:38 greatland kernel: kernel BUG at page_alloc.c:117!
-Jun 18 04:03:38 greatland kernel: invalid operand: 0000
-Jun 18 04:03:38 greatland kernel: sr_mod es1371 ac97_codec gameport soundcore agpgart NVdriver binfmt_misc autof
-Jun 18 04:03:38 greatland kernel: CPU:    0
-Jun 18 04:03:38 greatland kernel: EIP:    0010:[<c0132dc7>]    Tainted: P 
-Jun 18 04:03:38 greatland kernel: EFLAGS: 00010282
-Jun 18 04:03:38 greatland kernel: 
-Jun 18 04:03:38 greatland kernel: EIP is at __free_pages_ok [kernel] 0x57 (2.4.18-3)
-Jun 18 04:03:38 greatland kernel: eax: 00000020   ebx: c1128170   ecx: 00000001   edx: 0001f4fb
-Jun 18 04:03:38 greatland kernel: esi: 00000000   edi: c02ccf5c   ebp: 00000000   esp: c1715f58
-Jun 18 04:03:38 greatland kernel: ds: 0018   es: 0018   ss: 0018
-Jun 18 04:03:38 greatland kernel: Process kswapd (pid: 5, stackpage=c1715000)
-Jun 18 04:03:38 greatland kernel: Stack: c0229d95 00000075 d03a01c0 c1128170 c013e783 dfe90200 c130a3e0 00000030 
-Jun 18 04:03:38 greatland kernel:        c013c8da c1128170 c112818c c02ccf5c d03a01c0 c0130844 c1128170 00000030 
-Jun 18 04:03:38 greatland kernel:        c1128170 c112818c c02ccf5c 000002b8 c0131e06 ffffe762 c1714000 c02ccf84 
-Jun 18 04:03:38 greatland kernel: Call Trace: [<c013e783>] try_to_free_buffers [kernel] 0xb3 
-Jun 18 04:03:38 greatland kernel: [<c013c8da>] try_to_release_page [kernel] 0x3a 
-Jun 18 04:03:38 greatland kernel: [<c0130844>] drop_page [kernel] 0x34 
-Jun 18 04:03:38 greatland kernel: [<c0131e06>] refill_inactive_zone [kernel] 0x206 
-Jun 18 04:03:38 greatland kernel: [<c0132770>] kswapd [kernel] 0x280 
-Jun 18 04:03:38 greatland kernel: [<c0105000>] stext [kernel] 0x0 
-Jun 18 04:03:38 greatland kernel: [<c0107136>] kernel_thread [kernel] 0x26 
-Jun 18 04:03:38 greatland kernel: [<c01324f0>] kswapd [kernel] 0x0 
-Jun 18 04:03:38 greatland kernel: 
-Jun 18 04:03:38 greatland kernel: 
-Jun 18 04:03:38 greatland kernel: Code: 0f 0b 5d 58 8b 3d d0 17 34 c0 89 d8 29 f8 69 c0 b7 6d db b6 
+>> 	I would like to note the following problems with the
+>> kernel build process in 2.5.22, after applying the patch that
+>> Kai Germaschewski posted that enabled modversions to work again.
+>> All but the first one are spurious dependencies.
 
--- 
--------------------------------------------------------------------------------
-Jonathan Abbey 				              jonabbey@arlut.utexas.edu
-Applied Research Laboratories                 The University of Texas at Austin
-Ganymede, a GPL'ed metadirectory for UNIX     http://www.arlut.utexas.edu/gash2
+>> #define __ver_pcmcia_get_mem_page_Rsmp_3d2ded54 smp_ba03375b
+>> #define pcmcia_get_mem_page_Rsmp_3d2ded54       _set_ver(pcmcia_get_mem_page_Rsmp_3d2ded54)
+
+>Yes, the fix I posted was not complete. I submitted a corrected one 
+>already.
+
+>> 	2. "make bzImage" does not build a bzImage if any module fails
+>> to compile.  Really, it should not attempt to buidl modules or even
+>> descend into directories that contain only modules.  To build a bzImage,
+>> I have to edit the Makefile and comment out "BUILD_MODULES:=1".
+
+>That's intentional. If you don't want to build modules, use "make 
+>KBUILD_MODULES= bzImage". Or you can just ignore errors using "make -k".
+
+	No, "make -k" still will not build bzImage if a module
+fails to compile.
+
+	Also, I do not understand why this is "intentional."  Normally,
+if one does a "make" of a file in a source tree, build problems with
+unneeded files do not effect it.
+
+
+>> 	3. make include/linux/modversios.h aborts if any .c file has
+>> a #error or #include's a .h that is not present (for example, because
+>> the .h is built by the process, as is the case with one scsi driver).
+
+>The fact that it aborts is intentional.
+
+	We have adopted a convention of putting #error into lots
+of device drivers to encourage people to port them.  Linus has
+also recently integrated chagnes to support compiling with "all
+modules" and "all yes" configurations.  This change makes that
+facility useless.
+
+	I do not think it improves anyone's prioritization to
+require everyone to either make custom kernel configurations or
+give top priority to fixing random drivers ahead of whatever
+else depends on their getting the new kernel to build.
+
+
+>That it doesn't build the .h in that case is a bug. Which driver is it?
+
+	53c700.  The generated header file is drivers/scsi/53c700_d.h.
+
+>> 	4. "make -k modules" will not build perfectly buildable modules
+>> in a directory that has a subdirectory where a compile error occurs.
+
+>Well, I can fix that, I'll look into it.
+
+	Great.  Thanks.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

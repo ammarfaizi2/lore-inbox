@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318428AbSHKW01>; Sun, 11 Aug 2002 18:26:27 -0400
+	id <S318435AbSHKWlv>; Sun, 11 Aug 2002 18:41:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318432AbSHKW01>; Sun, 11 Aug 2002 18:26:27 -0400
-Received: from shill.XCF.Berkeley.EDU ([128.32.112.247]:7955 "EHLO
-	wilber.gimp.org") by vger.kernel.org with ESMTP id <S318428AbSHKW00>;
-	Sun, 11 Aug 2002 18:26:26 -0400
-Date: Sun, 11 Aug 2002 15:30:11 -0700
-From: Joshua Uziel <uzi@uzix.org>
-To: Kieran <kieran@esperi.demon.co.uk>
+	id <S318436AbSHKWlv>; Sun, 11 Aug 2002 18:41:51 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:57361 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S318435AbSHKWlu>; Sun, 11 Aug 2002 18:41:50 -0400
+Date: Sun, 11 Aug 2002 19:45:30 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Frank Davis <fdavis@si.rr.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ultrasparc 1 network freeze
-Message-ID: <20020811223010.GB16890@uzix.org>
-References: <Pine.LNX.4.43.0208112110500.391-100000@amaterasu.srvr.nix>
+Subject: Re: 2.5.31 : net/network.o error
+Message-ID: <20020811224530.GB3890@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Frank Davis <fdavis@si.rr.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0208111252530.11441-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.43.0208112110500.391-100000@amaterasu.srvr.nix>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.44.0208111252530.11441-100000@localhost.localdomain>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Kieran <kieran@esperi.demon.co.uk> [020811 13:58]:
-> I've got an ultra 1 with on-board HME that I'm trying to install linux
-> on via the serial console.
-...
-> NETDEV WATCHDOG: eth0: transmit timed out
-> eth0: transmit timed out, resetting
-> eth0: Happy Status 03030000 TX[000003ff:00000101]
-... 
-> Reboot seems to cure the problem (via break on the console and then
-> issuing a boot command at the prom monitor), until further stress is
-> applied.
+Em Sun, Aug 11, 2002 at 12:54:36PM -0400, Frank Davis escreveu:
+> Hello all,
+>   While 'make bzImage', I received the following error.
+> Regards,
+> Frank
+> 
+> net/network.o: In function `unregister_8022_client':
+> net/network.o(.text+0x13ab0): undefined reference to `save_flags'
+> net/network.o(.text+0x13ab5): undefined reference to `cli'
+> net/network.o(.text+0x13aea): undefined reference to `restore_flags'
+> net/network.o: In function `unregister_snap_client':
+> net/network.o(.text+0x13c96): undefined reference to `save_flags'
+> net/network.o(.text+0x13c9b): undefined reference to `cli'
+> net/network.o(.text+0x13cf9): undefined reference to `restore_flags'
+> make: *** [vmlinux] Error 1
 
-Yep... known issue with the sunhme driver.  AFAIK, it only affects the
-HME onboard the U1E systems and no other HMEs.  The quick band-aid
-work-around is at the end of this email... seems to be some weirdo
-timing issue.  This patch has resolved the issue for several people with
-U1E's.  (E == enterprise... UPA (for a Creator3D), wide scsi and hme
-(insted of an le on the non-E models)).
+SMP, these functions are going to die, nowadays they still work on UP, but
+they, AFAIK, will be nuked. In this specific case I have already merged a
+fix with DaveM, wait for 2.5.32 8) They now use BR_NETPROTO_LOCK and use
+the new LLC.
 
---- drivers/net/sunhme.c.orig	Mon Jul 15 02:38:27 2002
-+++ drivers/net/sunhme.c	Mon Jul 15 03:09:03 2002
-@@ -1983,6 +1983,7 @@
- 	}
- 	hp->tx_old = elem;
- 	TXD((">"));
-+	udelay(1);
- 
- 	if (netif_queue_stopped(dev) &&
- 	    TX_BUFFS_AVAIL(hp) > (MAX_SKB_FRAGS + 1))
-
+- Arnaldo

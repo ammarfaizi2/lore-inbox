@@ -1,28 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318133AbSGRPPS>; Thu, 18 Jul 2002 11:15:18 -0400
+	id <S318135AbSGRPdB>; Thu, 18 Jul 2002 11:33:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318132AbSGRPPS>; Thu, 18 Jul 2002 11:15:18 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:30592 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S318122AbSGRPPR>;
-	Thu, 18 Jul 2002 11:15:17 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200207181517.TAA00426@sex.inr.ac.ru>
-Subject: Re: Networking question
-To: Jack.Bloch@icn.siemens.com (Bloch, Jack)
-Date: Thu, 18 Jul 2002 19:17:45 +0400 (MSD)
-Cc: maxk@qualcomm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <180577A42806D61189D30008C7E632E87939A6@boca213a.boca.ssc.siemens.com> from "Bloch, Jack" at Jul 18, 2 11:11:31 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S318138AbSGRPdB>; Thu, 18 Jul 2002 11:33:01 -0400
+Received: from kaboom.dsl.xmission.com ([166.70.87.226]:3257 "EHLO
+	mail.oobleck.net") by vger.kernel.org with ESMTP id <S318135AbSGRPdB>;
+	Thu, 18 Jul 2002 11:33:01 -0400
+Date: Thu, 18 Jul 2002 09:36:11 -0600 (MDT)
+From: Chris Ricker <kaboom@gatech.edu>
+X-X-Sender: kaboom@hanuman.oobleck.net
+Reply-To: Chris Ricker <kaboom@gatech.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: devik <devik@cdi.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.18 is not SMP friendly
+In-Reply-To: <1026999905.9727.13.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0207180934310.1807-100000@hanuman.oobleck.net>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On 18 Jul 2002, Alan Cox wrote:
 
-> code code of netif_rx_ni seems to be logically the most correct way since it
-> will trigger do_softirq directly after the call to netif_rx.
+> On Thu, 2002-07-18 at 11:51, devik wrote:
+> > I someone here running 2.4.18 on PII SMP successfully ?
+> 
+> PPro in my case but yes. 2.4.18 ought to be pretty solid except for some
+> annoying bugs you'll only hit if you use smbfs. 
 
-Yes, of course. I simply forgot that _ni was evetually added.
+Or if you use data=journal w/ ext3....
 
-Alexey
+later,
+chris
+
+

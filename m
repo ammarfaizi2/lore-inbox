@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265488AbTFMSdS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 14:33:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbTFMSdS
+	id S265470AbTFMSav (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 14:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265475AbTFMSav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 14:33:18 -0400
-Received: from the-penguin.otak.com ([65.37.126.18]:4993 "EHLO
-	the-penguin.otak.com") by vger.kernel.org with ESMTP
-	id S265488AbTFMSdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 14:33:09 -0400
-Date: Fri, 13 Jun 2003 11:46:49 -0700
-From: Lawrence Walton <lawrence@the-penguin.otak.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: CD-ROM not showing up in /dev with devfs
-Message-ID: <20030613184649.GA12113@the-penguin.otak.com>
-Mail-Followup-To: Lawrence Walton <lawrence@the-penguin.otak.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
+	Fri, 13 Jun 2003 14:30:51 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:17092 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265470AbTFMSau (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 14:30:50 -0400
+Date: Fri, 13 Jun 2003 11:42:48 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: James Bourne <jbourne@hardrock.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-uv1 patch released
+Message-Id: <20030613114249.6769b3fc.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0306131232460.9166-100000@cafe.hardrock.org>
+References: <Pine.LNX.4.44.0306131232460.9166-100000@cafe.hardrock.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux 2.5.70-mm9 on an i686
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SCSI CD-ROM not showing up in /dev with devfs
-Compiled in or as a module no cdrom device is shown.
+On Fri, 13 Jun 2003 12:37:30 -0600 (MDT) James Bourne <jbourne@hardrock.org> wrote:
 
-lawrence@the-penguin:~$ cat /proc/scsi/scsi 
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-Vendor: IBM      Model: DCAS-34330W      Rev: S65A
-Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 02 Lun: 00
-Vendor: IBM      Model: DCAS-34330W      Rev: S65A
-Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 03 Lun: 00
-Vendor: IBM      Model: DNES-318350W     Rev: SA30
-Type:   Direct-Access                    ANSI SCSI revision:
-03
-Host: scsi0 Channel: 00 Id: 04 Lun: 00
-Vendor: HP       Model: CD-Writer+ 9600  Rev: 1.0a
-Type:   CD-ROM                           ANSI SCSI
-revision: 04
-Host: scsi0 Channel: 00 Id: 06 Lun: 00
-Vendor: IBM      Model: IC35L018UWD210-0 Rev: S5CQ
-Type:   Direct-Access                    ANSI SCSI
-revision: 03
+| Hi all,
+| I've placed the update version 1 (2.4.21-uv1) patch at
+| http://www.hardrock.org/kernel/current-updates/ for those who require it.
+| 
+| The current version contains only the NFS silly rename patch as posted for
+| -rc7 and the updated of EXTRAVERSION.
+| 
+| Please send bug reports to jbourne@hardrock.org.
 
+I can't boot 2.4.21 without the latest aic7xyz tarball applied,
+from http://people.FreeBSD.org/~gibbs/linux/SRC/
 
-lawrence@the-penguin:~$ ls /dev/scsi/host0/bus0/target4/lun0/
-generic
+The 2.4.21 driver just hangs during boot.
 
-This seems to be true in all of the 70-mm series.
-
-
--- 
-*--* Mail: lawrence@otak.com
-*--* Voice: 425.739.4247
-*--* Fax: 425.827.9577
-*--* HTTP://the-penguin.otak.com/~lawrence/
---------------------------------------
-- - - - - - O t a k  i n c . - - - - - 
-
-
+--
+~Randy

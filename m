@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267453AbSLLJKu>; Thu, 12 Dec 2002 04:10:50 -0500
+	id <S267435AbSLLJOj>; Thu, 12 Dec 2002 04:14:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267454AbSLLJKu>; Thu, 12 Dec 2002 04:10:50 -0500
-Received: from smtp006.mail.tpe.yahoo.com ([202.1.238.137]:51767 "HELO
-	smtp006.mail.tpe.yahoo.com") by vger.kernel.org with SMTP
-	id <S267453AbSLLJKt>; Thu, 12 Dec 2002 04:10:49 -0500
-Message-ID: <002e01c2a1bf$4bfde0b0$3716a8c0@taipei.via.com.tw>
-From: "Joseph" <jospehchan@yahoo.com.tw>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0212111151410.1397-100000@twin.uoregon.edu>
-Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
-Date: Thu, 12 Dec 2002 17:17:29 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+	id <S267447AbSLLJOj>; Thu, 12 Dec 2002 04:14:39 -0500
+Received: from cmailg3.svr.pol.co.uk ([195.92.195.173]:2056 "EHLO
+	cmailg3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S267435AbSLLJOj>; Thu, 12 Dec 2002 04:14:39 -0500
+Date: Thu, 12 Dec 2002 09:22:21 +0000
+To: Jens Axboe <axboe@suse.de>
+Cc: Wil Reichert <wilreichert@yahoo.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: "bio too big" error
+Message-ID: <20021212092221.GB1299@reti>
+References: <1039572597.459.82.camel@darwin> <3DF6A673.D406BC7F@digeo.com> <1039577938.388.9.camel@darwin> <20021211072139.GF16003@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021211072139.GF16003@suse.de>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for all response. :)
-I think I know more why it downgrades.
-But one more curious question.
-In the file, arch/i386/Makefile, under kernel 2.5.51.
-I found the C3 alignments , $(call check_gcc, -march=c3,-march=i486).
-Does the C3 CPU type be included in gcc compile option??
-I've downloaded the latest gcc 3.2.1 version.
-But I don't find the c3 options in the file gcc/config/i396/i386.c, i386.h
-or etc.
-BR,
-  Joseph
+On Wed, Dec 11, 2002 at 08:21:39AM +0100, Jens Axboe wrote:
+> On Tue, Dec 10 2002, Wil Reichert wrote:
+> > Exact error with debug is:
+> > 
+> > darwin:/a01/mp3s/Skinny Puppy/Too Dark Park# ogg123 -q 01\ -\
+> > Convulsion.ogg
+> > bio too big device ide0(3,4) (256 > 255)
+> 
+> looks like a one-off in the dm merge_bvec function.
 
------------------------------------------------------------------
-< ¨C¤Ñ³£ Yahoo!©_¼¯ >  www.yahoo.com.tw
+Nope, we're not using merge_bvec yet.  Kevin Corry has convinced me
+that there is a bug in dms bv splitting code, I'll put out a new
+patchset later.  However the known bug wouldn't have a stack trace
+like this.
+
+- Joe

@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbVACWyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbVACWyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261923AbVACWyS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 17:54:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVACWwE
+	id S261928AbVACWyp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 17:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVACWye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 17:52:04 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:12978 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261896AbVACWsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 17:48:47 -0500
-Subject: Re: [ide] clean up error path in do_ide_setup_pci_device()
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-In-Reply-To: <58cb370e050103142269e1f67f@mail.gmail.com>
-References: <200412310343.iBV3hqvd015595@hera.kernel.org>
-	 <1104773262.13302.3.camel@localhost.localdomain>
-	 <58cb370e050103142269e1f67f@mail.gmail.com>
-Content-Type: text/plain
+	Mon, 3 Jan 2005 17:54:34 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:35481 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261928AbVACWxa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 17:53:30 -0500
+Message-ID: <41D9CCF5.1030809@tmr.com>
+Date: Mon, 03 Jan 2005 17:53:41 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rik van Riel <riel@redhat.com>
+CC: Andries Brouwer <aebr@win.tue.nl>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+References: <20050102212427.GG2818@pclin040.win.tue.nl><1697129508.20050102210332@dns.toxicfilms.tv> <Pine.LNX.4.61.0501031011410.25392@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.61.0501031011410.25392@chimarrao.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1104788671.13302.63.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 03 Jan 2005 21:44:33 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-01-03 at 22:22, Bartlomiej Zolnierkiewicz wrote:
-> > Nothing in the IDE specification requires the PCI IDE controller be the
-> > only use of that PCI function. The damage is probably minimal as it
-> > deals with error paths but this change should be reverted (and will be
-> > for -ac).
+Rik van Riel wrote:
+> On Sun, 2 Jan 2005, Andries Brouwer wrote:
 > 
-> Different PCI functions should have different struct pci_dev instances
-> so is this really a problem?
+>> You change some stuff. The bad mistakes are discovered very soon.
+>> Some subtler things or some things that occur only in special
+>> configurations or under special conditions or just with
+>> very low probability may not be noticed until much later.
+> 
+> 
+> Some of these subtle bugs are only discovered a year
+> after the distribution with some particular kernel has
+> been deployed - at which point the kernel has moved on
+> so far that the fix the distro does might no longer
+> apply (even in concept) to the upstream kernel...
+> 
+> This is especially true when you are talking about really
+> big database servers and bugs that take weeks or months
+> to trigger.
+> 
+There is a reason why people pay big bucks to Redhat (and others) for a 
+five year contract to back port the bug fixes to the original kernel and 
+software. Barring some huge change I need, I expect to run AS3.0 for 
+four more years for one application, "learning experiences" are not a 
+good thing.
 
-Different PCI functions are but nothing requires that the PCI function
-that is the IDE controller is only the IDE controller. In some cases
-other logic lives in the "spare" BAR register areas of the device.
-
-One example where the weird design makes it obvious is the CS5520. Here
-the 5520 bridge has the IDE in one BAR and all sorts of other logic
-(including the xBUS virtual ISA environment) in the same PCI function.
-On that chip a pci_disable_device on the IDE pci_dev turns off mundane
-things like the timer chips keyboard and mouse 8).
-
-Other vendors do equally evil things and providing the chip reports IDE
-class and has the IDE BARs set up nobody else is any the wiser and
-presumably gate count goes down.
-
-Alan
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

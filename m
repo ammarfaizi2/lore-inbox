@@ -1,58 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264345AbTLBUxl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 15:53:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264369AbTLBUxl
+	id S264377AbTLBUmU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 15:42:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbTLBUmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 15:53:41 -0500
-Received: from mx1.verat.net ([217.26.64.139]:43725 "EHLO mx1.verat.net")
-	by vger.kernel.org with ESMTP id S264345AbTLBUxh (ORCPT
+	Tue, 2 Dec 2003 15:42:19 -0500
+Received: from imap.gmx.net ([213.165.64.20]:12420 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264377AbTLBUlw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 15:53:37 -0500
-From: snpe <snpe@snpe.co.yu>
-To: Wilmer van der Gaast <lintux@lintux.cx>, Patrick McHardy <kaber@trash.net>
-Subject: Re: 2.4.23 masquerading broken?
-Date: Tue, 2 Dec 2003 20:18:03 +0000
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-References: <20031202165653.GJ615@gaast.net> <3FCCCB02.5070203@trash.net> <20031202173358.GK615@gaast.net>
-In-Reply-To: <20031202173358.GK615@gaast.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Dec 2003 15:41:52 -0500
+X-Authenticated: #14985714
+Date: Tue, 2 Dec 2003 21:38:53 +0100
+From: "Stefan J. Betz" <stefan_betz@gmx.net>
+To: burton windle <bwindle@fint.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: include/linux/version.h
+References: <S263281AbTLBSis/20031202183848Z+2508@vger.kernel.org> <Pine.LNX.4.58.0312021447160.896@morpheus>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
 Content-Disposition: inline
-Message-Id: <200312022018.03078.snpe@snpe.co.yu>
+In-Reply-To: <Pine.LNX.4.58.0312021447160.896@morpheus>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Debian GNU/Linux 3.0r1
+X-Programming-Language: Python
+X-Office-Software: OpenOffice 1.1.0
+X-Nickname: [ENC]BladeXP
+X-Kernel-Version: 2.4.22
+X-Desktop: FVWM 2.4.6
+X-Jabber-Id: stefan_betz@jabber.org
+X-Host: encbladexp.homelinux.net
+Message-Id: <S264377AbTLBUlw/20031202204209Z+2518@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It work for me
-(2.4.23 with linux abi, gcc 3.2 from RedHat 8.0 - netfilter like modules)
-regards
-Haris Peco
-On Tuesday 02 December 2003 05:33 pm, Wilmer van der Gaast wrote:
-> Patrick McHardy (kaber@trash.net) wrote:
-> > Can you check the ringbuffer for error messages ? What happens
-> > to the packets when masquerading fails ?
->
-> Hmm. Damn, forgot about the syslogs completely. :-(
->
-> Dec  2 16:42:30 tosca kernel: MASQUERADE: Route sent us somewhere else.
-> Dec  2 16:42:44 tosca last message repeated 11 times
-> Dec  2 16:42:47 tosca kernel: NET: 1 messages suppressed.
-> Dec  2 16:42:47 tosca kernel: MASQUERADE: Route sent us somewhere else.
-> Dec  2 16:42:51 tosca kernel: NET: 5 messages suppressed.
-> Dec  2 16:42:51 tosca kernel: MASQUERADE: Route sent us somewhere else.
-> Dec  2 16:42:57 tosca kernel: NET: 4 messages suppressed.
-> Dec  2 16:42:57 tosca kernel: MASQUERADE: Route sent us somewhere else.
->
-> And, well, it goes on like that. dmesg is full of messages like this.
->
-> The packages seem to get lost completely. At least I don't see them
-> going out on eth1 (where they should go to).
->
->
-> Wilmer van der Gaast.
 
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Am Tue, Dec 02, 2003 um 20:47:44 CET, burton windle schrieb:
+> I believe include/linux/version.h gets dynamically generated.
+>=20
+> What does the Makefile say for the version? Everything gets its numbers
+> from the Makefile.
+
+Oh... Ups...
+
+Why i have never readed that a simple "make distclean" does make such
+things :-(
+
+I have now maked a "make distclean", and now all is correct...
+
+Sorry for consuming our time...
+
+Thanks for all...
+
+--=20
+Das Telefonnetz... Unendliche Weiten... Dies sind die Abenteuer eines
+genervten Internet-Surfers... Weit von zu Hause entfernt st=F6=DFt er in
+Bereiche des Systems vor, die vorher noch niemand gesehen hat...
+
+--SLDf9lqlvOQaIe6s
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Weitere Infos: siehe http://www.gnupg.org
+
+iEYEARECAAYFAj/M+F0ACgkQYnMYCLxgMrziZgCeO/7MWmh3eGptGBtwOfASZ0uI
+2TQAnjVZgZu+Zjt5IkRX82c0wdPqY3E2
+=EKp9
+-----END PGP SIGNATURE-----
+
+--SLDf9lqlvOQaIe6s--

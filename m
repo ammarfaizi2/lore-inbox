@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131369AbRADBYA>; Wed, 3 Jan 2001 20:24:00 -0500
+	id <S132353AbRADBYL>; Wed, 3 Jan 2001 20:24:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132357AbRADBXv>; Wed, 3 Jan 2001 20:23:51 -0500
+	id <S132348AbRADBYB>; Wed, 3 Jan 2001 20:24:01 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:15631 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S132282AbRADBXl>;
-	Wed, 3 Jan 2001 20:23:41 -0500
-Date: Wed, 3 Jan 2001 16:34:25 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Dan Hollis <goemon@anime.net>
-cc: Dan Aloni <karrde@callisto.yi.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>, mark@itsolve.co.uk
-Subject: Re: [RFC] prevention of syscalls from writable segments, breaking
- bug exploits
-In-Reply-To: <Pine.LNX.4.30.0101031557270.981-100000@anime.net>
-Message-ID: <Pine.LNX.4.10.10101031624070.2894-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by vger.kernel.org with ESMTP id <S132296AbRADBXm>;
+	Wed, 3 Jan 2001 20:23:42 -0500
+Date: Thu, 4 Jan 2001 01:32:01 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dcache 2nd chance replacement
+Message-ID: <20010104013201.B6256@athlon.random>
+In-Reply-To: <20010103221221.I32185@athlon.random> <Pine.LNX.4.21.0101032107550.1917-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0101032107550.1917-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Wed, Jan 03, 2001 at 09:09:01PM -0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jan 2001, Dan Hollis wrote:
+On Wed, Jan 03, 2001 at 09:09:01PM -0200, Rik van Riel wrote:
+> Ever heard of slocate / updatedb ?
 
-> On Wed, 3 Jan 2001, Gerhard Mack wrote:
-> > Your comparing actual security with stack guarding? Stack guarding mearly
-> > makes the attack diffrent.. rootkits are already available to defeat it.
-> 
-> url?
+ever heard of somebody killing all other tasks while updatedb is running?
 
-Ugh do you have any idea how hard it is to find 2 year old exploits?
-
-Heres the best I could find on short notice:
-
-http://www.insecure.org/sploits/non-executable.stack.problems.html
-http://darwin.bio.uci.edu/~mcoogan/bugtraq/msg00335.html
-
- 
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

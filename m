@@ -1,61 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314288AbSEFIzW>; Mon, 6 May 2002 04:55:22 -0400
+	id <S314289AbSEFI4e>; Mon, 6 May 2002 04:56:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314291AbSEFIzW>; Mon, 6 May 2002 04:55:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63749 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314288AbSEFIzT>;
-	Mon, 6 May 2002 04:55:19 -0400
-Message-ID: <3CD64562.9AB4D3D7@zip.com.au>
-Date: Mon, 06 May 2002 01:57:06 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S314291AbSEFI4d>; Mon, 6 May 2002 04:56:33 -0400
+Received: from basfegw1.basf-ag.de ([141.6.1.21]:26021 "EHLO
+	basfegw1.basf-ag.de") by vger.kernel.org with ESMTP
+	id <S314289AbSEFI4a>; Mon, 6 May 2002 04:56:30 -0400
+Subject: Review: Servercrash with kernel SuSE 2.4.16
+To: chris.mason@suse.com, alessandro.suardi@oracle.com
+Cc: sbrand@mainz.ibm.com, reiser@namesys.com, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Version 5.0 (Intl)   14. April 1999
+Message-ID: <OF10FE0462.9B5B7937-ONC1256BB1.002ADC0F@bcs.de>
+From: Oliver.Schersand@BASF-IT-Services.com
+Date: Mon, 6 May 2002 10:57:15 +0200
+X-MIMETrack: Serialize by Router on EUROPE-Gw03/EUROPE/BASF(Release 5.0.8 |June 18, 2001) at
+ 06/05/2002 10:56:11
 MIME-Version: 1.0
-To: Brian Gerst <bgerst@didntduck.org>
-CC: Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>,
-        Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] percpu updates
-In-Reply-To: <3CD06ACE.1090402@didntduck.org> <3CD4B042.A4355FD3@zip.com.au> <3CD55FF0.2030909@didntduck.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Gerst wrote:
-> 
-> Andrew Morton wrote:
-> > Brian Gerst wrote:
-> >
-> >>These patches convert some of the existing arrays based on NR_CPUS to
-> >>use the new per cpu code.
-> >>
-> ...
-> Andrew, could you try this patch?  I suspect something in setup_arch()
-> is touching the per cpu area before it gets copied for the other cpus.
-> This patch makes certain the boot cpu area is setup ASAP.
+Hi,
 
-This little recidivist is still using gcc-2.91.66.  It is not
-placing the percpu data in the correct section.  It is not 
-entirely obvious why.
+This is the actual result of the analys of our oracle server crashes on
+linux servers with suse Enterprise Server 7 and Kernel 2.4.16
 
-I downgraded to 2.95.3 (build time went from 2:45 to 3:15, giving
-nothing in return) and Brian's patch worked OK.
+The reason for theses crashes where  the compaq remote inside and compaq
+health drivers. These drivers are deliverd from compaq. On stardup of these
+agents, they load binary kernel modules, which are very version sensitive.
+This modules  corrupt the virtual memory management of the server on heavy
+load
 
-ho hum.  So.  2.91.66, rest in peace.  I shall miss you.
+This shows us a main problem of Linux in datacenter environment. The
+automatic guarding of the local attached storage and the hardware is very
+importend in this environments. In this environment we use expensive high
+performance hardware. These hardware is not  good  supported by the
+standard linux kernel. The companies which sell these hardware deliver not
+all features of these hardware to the community of linux.  There drivers
+and guarding agents are not distributed under GPL.
 
 
---- linux-2.5.14/init/main.c	Tue Apr 30 17:56:30 2002
-+++ 25/init/main.c	Mon May  6 01:55:32 2002
-@@ -51,7 +51,7 @@
-  * To avoid associated bogus bug reports, we flatly refuse to compile
-  * with a gcc that is known to be too old from the very beginning.
-  */
--#if __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 91)
-+#if __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 95)
- #error Sorry, your GCC is too old. It builds incorrect kernels.
- #endif
- 
+Here is the statement of Compaq ( HPQ)
 
--
+   The new health driver that can be run on any re-compiled kernel is due
+   out in the SmartStart 5.50 timeframe (3Q02).  The reason for this is
+   that it also provides support for new servers as well.
+   The delivery method will be via the Compaq web site and the SmartStart
+   Cd.
+
+   The customer expectation is that it will work with any re-compiled
+   kernel.  Most likely that will be true however it will be impossible for
+   us to validate it with every possibility due to the open source nature
+   of Linux.
+
+   Today, customers actually can run the existing health driver on
+   re-compiled kernels by evoking a "fix-up" script that will be available
+   on our website.  This is not an ideal solution but it will work in a
+   majority of the situations.
+
+
+Thank you very much for all the help with this problem
+
+Oliver Schersand
+

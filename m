@@ -1,495 +1,279 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131480AbRECPoB>; Thu, 3 May 2001 11:44:01 -0400
+	id <S132057AbRECPsb>; Thu, 3 May 2001 11:48:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131481AbRECPnw>; Thu, 3 May 2001 11:43:52 -0400
-Received: from pak218.pakuni.net ([207.91.34.218]:32018 "EHLO linuxtr.net")
-	by vger.kernel.org with ESMTP id <S131480AbRECPns>;
-	Thu, 3 May 2001 11:43:48 -0400
-Date: Thu, 3 May 2001 11:32:37 -0500 (CDT)
-From: Mike Phillips <mikep@linuxtr.net>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] Remove obsolete drivers/net/tokenring/ibmtr.h
-Message-ID: <Pine.LNX.4.10.10105031125460.12677-100000@www.linuxtr.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132478AbRECPsW>; Thu, 3 May 2001 11:48:22 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:1028 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S132057AbRECPsL>; Thu, 3 May 2001 11:48:11 -0400
+Date: Thu, 3 May 2001 19:47:47 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Richard Henderson <rth@twiddle.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] 2.4.4 alpha semaphores optimization
+Message-ID: <20010503194747.A552@jurassic.park.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neither ibmtr.c or ibmtr_cs.c use the drivers/net/tokenring/ibmtr.h header
-file anymore. They both use include/linux/ibmtr.h 
+Initially I tried to use __builtin_expect in the rwsem.h, but found
+that it doesn't help at all in the small inline functions - it works
+as expected only in a reasonably large block of code. Converting these
+functions into the macros won't help, as callers are inline
+functions also.
+On the other hand, gcc 3.0 generates quite a good code for
+conditional branches (comparisons like value < 0, value == 0
+predicted as false etc.). In the cases where expected value is 0,
+we can use cmpeq instruction.
+Other changes:
+ - added atomic_add_return_prev() for __down_write()
+ - removed some mb's for non-SMP
+ - removed non-inline up()/down_xx() when semaphore/waitqueue debugging
+   isn't enabled.
 
-Here is the patch to remove the obsolete file.
+Ivan.
 
-This is the start of the updates to bring ibmtr/ibmtr_cs up to date. I'll
-try to break each patch down to as small a size as possible. 
-
-Or, of course, a swift rm drivers/net/tokenring/ibmtr.h would do just as
-nicely.
-
-Thanks
-Mike Phillips
-Linux Token Ring Project
-http://www.linuxtr.net
-
-diff --exclude-from=dontdiff -urN linux-2.4.4.clean/drivers/net/tokenring/ibmtr.h linux/drivers/net/tokenring/ibmtr.h
---- linux-2.4.4.clean/drivers/net/tokenring/ibmtr.h	Thu Mar  2 13:15:30 2000
-+++ linux/drivers/net/tokenring/ibmtr.h	Wed Dec 31 19:00:00 1969
-@@ -1,454 +0,0 @@
--/* Definitions for an IBM Token Ring card. */
--/* This file is distributed under the GNU GPL   */
--
--/* ported to the Alpha architecture 02/20/96 (just used the HZ macro) */
--
--#define TR_RETRY_INTERVAL (5*HZ) /* 500 on PC = 5 s */
--#define TR_RESET_INTERVAL (HZ/20) /* 5 on PC = 50 ms */
--#define TR_BUSY_INTERVAL (HZ/5) /* 5 on PC = 200 ms */
--#define TR_SPIN_INTERVAL (3*HZ) /* 3 seconds before init timeout */
--#define TR_RETRIES 6            /* number of open retries */ 
--
--#define TR_ISA 1
--#define TR_MCA 2
--#define TR_ISAPNP 3
--#define NOTOK 0
--#define TOKDEBUG 1
--
--#define IBMTR_SHARED_RAM_SIZE 0x10000
--#define IBMTR_IO_EXTENT 4
--#define IBMTR_MAX_ADAPTERS 2
--
--#define CHANNEL_ID      0X1F30
--#define AIP             0X1F00
--#define AIPCHKSUM1      0X1F60
--#define AIPCHKSUM2      0X1FF0
--#define AIPADAPTYPE     0X1FA0
--#define AIPDATARATE     0X1FA2
--#define AIPEARLYTOKEN   0X1FA4
--#define AIPAVAILSHRAM   0X1FA6
--#define AIPSHRAMPAGE    0X1FA8
--#define AIP4MBDHB       0X1FAA
--#define AIP16MBDHB      0X1FAC
--#define AIPFID		0X1FBA
--
--/* Note, 0xA20 == 0x220 since motherboard decodes 10 bits.  I left everything
--   the way my documentation had it, ie: 0x0A20.     */
--#define ADAPTINTCNTRL   0x02f0  /* Adapter interrupt control */
--#define ADAPTRESET      0x1     /* Control Adapter reset (add to base) */
--#define ADAPTRESETREL   0x2     /* Release Adapter from reset ( """)  */
--#define ADAPTINTREL	0x3 	/* Adapter interrupt release */
--
--#define MMIOStartLocP   0x0a20  /* Primary adapter's starting MMIO area */
--#define MMIOStartLocA   0x0a24  /* Alternate adapter's starting MMIO area */
--
--#define GLOBAL_INT_ENABLE 0x02f0
--
--/* MMIO bits 0-4 select register */
--#define RRR_EVEN        0x00    /* Shared RAM relocation registers - even and odd */
--/* Used to set the starting address of shared RAM  */
--/* Bits 1 through 7 of this register map to bits 13 through 19 of the shared RAM address.*/
--/* ie: 0x02 sets RAM address to ...ato!  issy su wazzoo !! GODZILLA!!! */
--#define RRR_ODD         0x01
--/* Bits 2 and 3 of this register can be read to determine shared RAM size */
--/* 00 for 8k, 01 for 16k, 10 for 32k, 11 for 64k  */
--#define WRBR_EVEN       0x02    /* Write region base registers - even and odd */
--#define WRBR_ODD        0x03
--#define WWOR_EVEN       0x04    /* Write window open registers - even and odd */
--#define WWOR_ODD        0x05
--#define WWCR_EVEN       0x06    /* Write window close registers - even and odd */
--#define WWCR_ODD        0x07
--
--/* Interrupt status registers - PC system  - even and odd */
--#define ISRP_EVEN       0x08
--
--#define TCR_INT 0x10    /* Bit 4 - Timer interrupt.  The TVR_EVEN timer has
--                                                                   expired. */
--#define ERR_INT 0x08    /* Bit 3 - Error interrupt.  The adapter has had an
--                                                                   internal error. */
--#define ACCESS_INT 0x04    /* Bit 2 - Access interrupt.  You have attempted to
--                                                           write to an invalid area of shared RAM or an invalid
--                                                                   register within the MMIO. */
--/*      In addition, the following bits within ISRP_EVEN can be turned on or off by you */
--/*      to control the interrupt processing:   */
--#define INT_IRQ 0x80    /* Bit 7 - If 0 the adapter will issue a CHCK, if 1 and
--                                                              IRQ.  This should normally be set (by you) to 1.  */
--#define INT_ENABLE 0x40 /* Bit 6 - Interrupt enable.  If 0, no interrupts will
--                                                                   occur.  If 1, interrupts will occur normally.
--                                                                   Normally set to 1.  */
--/* Bit 0 - Primary or alternate adapter.  Set to zero if this adapter is the primary adapter,*/
--/*         1 if this adapter is the alternate adapter. */
--
--
--#define ISRP_ODD        0x09
--
--#define ADAP_CHK_INT 0x40 /* Bit 6 - Adapter check.  the adapter has
--                             encountered a serious problem and has closed
--                             itself.  Whoa.  */
--#define SRB_RESP_INT 0x20 /* Bit 5 - SRB response.  The adapter has accepted
--                             an SRB request and set the return code within
--                             the SRB. */
--#define ASB_FREE_INT 0x10 /* Bit 4 - ASB free.  The adapter has read the ASB
--                                                                          and this area can be safely reused. This interrupt
--                                                                          is only used if your application has set the ASB
--                                                                          free request bit in ISRA_ODD or if an error was
--                                                                detected in your response. */
--#define ARB_CMD_INT  0x08 /* Bit 3 - ARB command.  The adapter has given you a
--                                                                          command for action.  The command is located in the
--                                                                          ARB area of shared memory. */
--#define SSB_RESP_INT 0x04 /* Bit 2 - SSB response.  The adapter has posted a
--                                                                          response to your SRB (the response is located in
--                                                                          the SSB area of shared memory). */
--/* Bit 1 - Bridge frame forward complete. */
--
--
--
--#define ISRA_EVEN       0x0A    /* Interrupt status registers - adapter  - even and odd */
--/* Bit 7 - Internal parity error (on adapter's internal bus) */
--/* Bit 6 - Timer interrupt pending */
--/* Bit 5 - Access interrupt (attempt by adapter to access illegal address) */
--/* Bit 4 - Adapter microcode problem (microcode dead-man timer expired) */
--/* Bit 3 - Adapter processor check status */
--/* Bit 2 - Reserved */
--/* Bit 1 - Adapter hardware interrupt mask (prevents internal interrupts) */
--/* Bit 0 - Adapter software interrupt mask (prevents internal software interrupts) */
--
--#define ISRA_ODD        0x0B
--#define CMD_IN_SRB 0x20 /* Bit 5  - Indicates that you have placed a new
--                           command in the SRB and are ready for the adapter to
--                           process the command. */
--#define RESP_IN_ASB 0x10 /* Bit 4 - Indicates that you have placed a response
--                                                                    (an ASB) in the shared RAM which is available for
--                                                                         the adapter's use. */
--/* Bit 3 - Indicates that you are ready to put an SRB in the shared RAM, but that a previous */
--/*         command is still pending.  The adapter will then interrupt you when the previous */
--/*         command is completed */
--/* Bit 2 - Indicates that you are ready to put an ASB in the shared RAM, but that a previous */
--/*         ASB is still pending.  The adapter will then interrupt you when the previous ASB */
--/*         is copied.  */
--#define ARB_FREE 0x2
--#define SSB_FREE 0x1
--
--#define TCR_EVEN        0x0C    /* Timer control registers - even and odd */
--#define TCR_ODD         0x0D
--#define TVR_EVEN        0x0E    /* Timer value registers - even and odd */
--#define TVR_ODD         0x0F
--#define SRPR_EVEN       0x18    /* Shared RAM paging registers - even and odd */
--#define SRPR_ENABLE_PAGING 0xc0
--#define SRPR_ODD        0x19 /* Not used. */
--#define TOKREAD         0x60
--#define TOKOR           0x40
--#define TOKAND          0x20
--#define TOKWRITE        0x00
--
--/* MMIO bits 5-6 select operation */
--/* 00 is used to write to a register */
--/* 01 is used to bitwise AND a byte with a register */
--/* 10 is used to bitwise OR a byte with a register  */
--/* 11 is used to read from a register */
--
--/* MMIO bits 7-8 select area of interest.. see below */
--/* 00 selects attachment control area. */
--/* 01 is reserved. */
--/* 10 selects adapter identification area A containing the adapter encoded address. */
--/* 11 selects the adapter identification area B containing test patterns. */
--
--#define PCCHANNELID 5049434F3631313039393020
--#define MCCHANNELID 4D4152533633583435313820
--
--#define ACA_OFFSET 0x1e00
--#define ACA_SET 0x40
--#define ACA_RESET 0x20
--#define ACA_RW 0x00
--
--#ifdef ENABLE_PAGING
--#define SET_PAGE(x) (isa_writeb((x), \
--  ti->mmio + ACA_OFFSET + ACA_RW + SRPR_EVEN))
--#else
--#define SET_PAGE(x)
--#endif
--
--typedef enum { IN_PROGRESS, SUCCESS, FAILURE, CLOSED } open_state;
--
--/* do_tok_int possible values */
--#define FIRST_INT 1
--#define NOT_FIRST 2
--
--struct tok_info {
--	unsigned char irq;
--	__u32 mmio;
--	unsigned char hw_address[32];
--	unsigned char adapter_type;
--	unsigned char data_rate;
--	unsigned char token_release;
--	unsigned char avail_shared_ram;
--	unsigned char shared_ram_paging;
--	unsigned short dhb_size4mb;
--	unsigned short rbuf_len4;
--	unsigned short rbuf_cnt4;
--	unsigned short maxmtu4;
--	unsigned short dhb_size16mb;
--	unsigned short rbuf_len16;
--	unsigned short rbuf_cnt16;
--	unsigned short maxmtu16;
--	/* Additions by David Morris       */
--	unsigned char do_tok_int;
--	wait_queue_head_t wait_for_tok_int;
--	wait_queue_head_t wait_for_reset;
--	unsigned char sram_base;
--	/* Additions by Peter De Schrijver */
--	unsigned char page_mask;          /* mask to select RAM page to Map*/
--	unsigned char mapped_ram_size;    /* size of RAM page */
--	__u32 sram;                       /* Shared memory base address */
--	__u32 init_srb;                   /* Initial System Request Block address */
--	__u32 srb;                        /* System Request Block address */
--	__u32 ssb;                        /* System Status Block address */
--	__u32 arb;                        /* Adapter Request Block address */
--	__u32 asb;                        /* Adapter Status Block address */
--        __u8  init_srb_page;
--        __u8  srb_page;
--        __u8  ssb_page;
--        __u8  arb_page;
--        __u8  asb_page;
--	unsigned short exsap_station_id;
--	unsigned short global_int_enable;
--	struct sk_buff *current_skb;
--	struct net_device_stats tr_stats;
--	unsigned char auto_ringspeedsave;
--	open_state open_status;
--	unsigned char readlog_pending;
--	unsigned short adapter_int_enable; /* Adapter-specific int enable */
--        struct timer_list tr_timer;
--	unsigned char ring_speed;
--	__u32 func_addr;
--	unsigned int retry_count;
--	spinlock_t lock;		/* SMP protection */
--};
--
--/* token ring adapter commands */
--#define DIR_INTERRUPT 		0x00 /* struct srb_interrupt */
--#define DIR_MOD_OPEN_PARAMS 	0x01
--#define DIR_OPEN_ADAPTER 	0x03 /* struct dir_open_adapter */
--#define DIR_CLOSE_ADAPTER   	0x04
--#define DIR_SET_GRP_ADDR    	0x06
--#define DIR_SET_FUNC_ADDR   	0x07 /* struct srb_set_funct_addr */
--#define DIR_READ_LOG 		0x08 /* struct srb_read_log */
--#define DLC_OPEN_SAP 		0x15 /* struct dlc_open_sap */
--#define DLC_CLOSE_SAP       	0x16
--#define DATA_LOST 		0x20 /* struct asb_rec */
--#define REC_DATA 		0x81 /* struct arb_rec_req */
--#define XMIT_DATA_REQ 		0x82 /* struct arb_xmit_req */
--#define DLC_STATUS 		0x83 /* struct arb_dlc_status */
--#define RING_STAT_CHANGE    	0x84 /* struct dlc_open_sap ??? */
--
--/* DIR_OPEN_ADAPTER options */
--#define OPEN_PASS_BCON_MAC 0x0100
--#define NUM_RCV_BUF 2
--#define RCV_BUF_LEN 1024
--#define DHB_LENGTH 2048
--#define NUM_DHB 2
--#define DLC_MAX_SAP 2
--#define DLC_MAX_STA 1
--
--/* DLC_OPEN_SAP options */
--#define MAX_I_FIELD 0x0088
--#define SAP_OPEN_IND_SAP 0x04
--#define SAP_OPEN_PRIORITY 0x20
--#define SAP_OPEN_STATION_CNT 0x1
--#define XMIT_DIR_FRAME 0x0A
--#define XMIT_UI_FRAME  0x0d
--#define XMIT_XID_CMD   0x0e
--#define XMIT_TEST_CMD  0x11
--
--/* srb close return code */
--#define SIGNAL_LOSS  0x8000
--#define HARD_ERROR   0x4000
--#define XMIT_BEACON  0x1000
--#define LOBE_FAULT   0x0800
--#define AUTO_REMOVAL 0x0400
--#define REMOVE_RECV  0x0100
--#define LOG_OVERFLOW 0x0080
--#define RING_RECOVER 0x0020
--
--struct srb_init_response {
--	unsigned char command;
--	unsigned char init_status;
--	unsigned char init_status_2;
--	unsigned char reserved[3];
--	__u16 bring_up_code;
--	__u16 encoded_address;
--	__u16 level_address;
--	__u16 adapter_address;
--	__u16 parms_address;
--	__u16 mac_address;
--};
--
--struct dir_open_adapter {
--	unsigned char command;
--	char reserved[7];
--	__u16 open_options;
--	unsigned char node_address[6];
--	unsigned char group_address[4];
--	unsigned char funct_address[4];
--	__u16 num_rcv_buf;
--	__u16 rcv_buf_len;
--	__u16 dhb_length;
--	unsigned char num_dhb;
--	char reserved2;
--	unsigned char dlc_max_sap;
--	unsigned char dlc_max_sta;
--	unsigned char dlc_max_gsap;
--	unsigned char dlc_max_gmem;
--	unsigned char dlc_t1_tick_1;
--	unsigned char dlc_t2_tick_1;
--	unsigned char dlc_ti_tick_1;
--	unsigned char dlc_t1_tick_2;
--	unsigned char dlc_t2_tick_2;
--	unsigned char dlc_ti_tick_2;
--	unsigned char product_id[18];
--};
--
--struct srb_open_response {
--	unsigned char command;
--	unsigned char reserved1;
--	unsigned char ret_code;
--	unsigned char reserved2[3];
--	__u16 error_code;
--	__u16 asb_addr;
--	__u16 srb_addr;
--	__u16 arb_addr;
--	__u16 ssb_addr;
--};
--
--struct dlc_open_sap {
--	unsigned char command;
--	unsigned char reserved1;
--	unsigned char ret_code;
--	unsigned char reserved2;
--	__u16 station_id;
--	unsigned char timer_t1;
--	unsigned char timer_t2;
--	unsigned char timer_ti;
--	unsigned char maxout;
--	unsigned char maxin;
--	unsigned char maxout_incr;
--	unsigned char max_retry_count;
--	unsigned char gsap_max_mem;
--	__u16 max_i_field;
--	unsigned char sap_value;
--	unsigned char sap_options;
--	unsigned char station_count;
--	unsigned char sap_gsap_mem;
--	unsigned char gsap[0];
--};
--
--struct srb_xmit {
--	unsigned char command;
--	unsigned char cmd_corr;
--	unsigned char ret_code;
--	unsigned char reserved1;
--	__u16 station_id;
--};
--
--struct srb_interrupt {
--	unsigned char command;
--	unsigned char cmd_corr;
--	unsigned char ret_code;
--};
--
--struct srb_read_log {
--	unsigned char command;
--	unsigned char reserved1;
--	unsigned char ret_code;
--	unsigned char reserved2;
--	unsigned char line_errors;
--	unsigned char internal_errors;
--	unsigned char burst_errors;
--	unsigned char A_C_errors;
--	unsigned char abort_delimiters;
--	unsigned char reserved3;
--	unsigned char lost_frames;
--	unsigned char recv_congest_count;
--	unsigned char frame_copied_errors;
--	unsigned char frequency_errors;
--	unsigned char token_errors;
--};
--
--struct asb_xmit_resp {
--	unsigned char command;
--	unsigned char cmd_corr;
--	unsigned char ret_code;
--	unsigned char reserved;
--	__u16 station_id;
--	__u16 frame_length;
--	unsigned char hdr_length;
--	unsigned char rsap_value;
--};
--
--struct arb_xmit_req {
--	unsigned char command;
--	unsigned char cmd_corr;
--	unsigned char reserved1[2];
--	__u16 station_id;
--	__u16 dhb_address;
--};
--
--struct arb_rec_req {
--	unsigned char command;
--	unsigned char reserved1[3];
--	__u16 station_id;
--	__u16 rec_buf_addr;
--	unsigned char lan_hdr_len;
--	unsigned char dlc_hdr_len;
--	__u16 frame_len;
--	unsigned char msg_type;
--};
--
--struct asb_rec {
--	unsigned char command;
--	unsigned char reserved1;
--	unsigned char ret_code;
--	unsigned char reserved2;
--	__u16 station_id;
--	__u16 rec_buf_addr;
--};
--
--struct rec_buf {
--  /*	unsigned char reserved1[2]; */
--	__u16 buf_ptr;
--	unsigned char reserved2;
--	__u16 buf_len;
--	unsigned char data[0];
--};
--
--struct arb_dlc_status {
--	unsigned char command;
--	unsigned char reserved1[3];
--	__u16 station_id;
--	__u16 status;
--	unsigned char frmr_data[5];
--	unsigned char access_prio;
--	unsigned char rem_addr[TR_ALEN];
--	unsigned char rsap_value;
--};
--
--struct arb_ring_stat_change {
--	unsigned char command;
--	unsigned char reserved1[5];
--	__u16 ring_status;
--};
--
--struct srb_close_adapter {
--	unsigned char command;
--	unsigned char reserved1;
--	unsigned char ret_code;
--};
--
--struct srb_set_funct_addr {
--	unsigned char command;
--	unsigned char reserved1;
--	unsigned char ret_code;
--	unsigned char reserved2[3];
--	unsigned char funct_address[4];
--};
--
-
+--- 2.4.4/include/asm-alpha/rwsem.h	Sun Feb  7 06:28:16 2106
++++ linux/include/asm-alpha/rwsem.h	Thu May  3 13:01:34 2001
+@@ -0,0 +1,105 @@
++#ifndef _ALPHA_RWSEM_H
++#define _ALPHA_RWSEM_H
++
++/*
++ * Written by Ivan Kokshaysky <ink@jurassic.park.msu.ru>, 2001.
++ * Based on asm-alpha/semaphore.h and asm-i386/rwsem.h
++ */
++
++#ifndef _LINUX_RWSEM_H
++#error please dont include asm/rwsem.h directly, use linux/rwsem.h instead
++#endif
++
++#ifdef __KERNEL__
++
++#include <linux/list.h>
++#include <linux/spinlock.h>
++
++struct rwsem_waiter;
++
++extern struct rw_semaphore *rwsem_down_read_failed(struct rw_semaphore *sem);
++extern struct rw_semaphore *rwsem_down_write_failed(struct rw_semaphore *sem);
++extern struct rw_semaphore *rwsem_wake(struct rw_semaphore *);
++
++/*
++ * the semaphore definition
++ */
++struct rw_semaphore {
++	atomic_t		count;
++#define RWSEM_UNLOCKED_VALUE		0x00000000
++#define RWSEM_ACTIVE_BIAS		0x00000001
++#define RWSEM_ACTIVE_MASK		0x0000ffff
++#define RWSEM_WAITING_BIAS		(-0x00010000)
++#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
++#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
++	spinlock_t		wait_lock;
++	struct list_head	wait_list;
++#if RWSEM_DEBUG
++	int			debug;
++#endif
++};
++
++#if RWSEM_DEBUG
++#define __RWSEM_DEBUG_INIT      , 0
++#else
++#define __RWSEM_DEBUG_INIT	/* */
++#endif
++
++#define __RWSEM_INITIALIZER(name) \
++	{ ATOMIC_INIT(RWSEM_UNLOCKED_VALUE), SPIN_LOCK_UNLOCKED, \
++	LIST_HEAD_INIT((name).wait_list) __RWSEM_DEBUG_INIT }
++
++#define DECLARE_RWSEM(name) \
++	struct rw_semaphore name = __RWSEM_INITIALIZER(name)
++
++static inline void init_rwsem(struct rw_semaphore *sem)
++{
++	sem->count.counter = RWSEM_UNLOCKED_VALUE;
++	spin_lock_init(&sem->wait_lock);
++	INIT_LIST_HEAD(&sem->wait_list);
++#if RWSEM_DEBUG
++	sem->debug = 0;
++#endif
++}
++
++static inline void __down_read(struct rw_semaphore *sem)
++{
++	long count;
++	count = atomic_inc_return(&sem->count);
++	if (count < 0)
++		rwsem_down_read_failed(sem);
++}
++
++static inline void __down_write(struct rw_semaphore *sem)
++{
++	long prev, cmp;
++	prev = atomic_add_return_prev(RWSEM_ACTIVE_WRITE_BIAS, &sem->count);
++	__asm__ __volatile__("cmpeq	%1,0,%0\n" : "=r" (cmp) : "r" (prev));
++	if (!cmp)
++		rwsem_down_write_failed(sem);
++}
++
++static inline void __up_read(struct rw_semaphore *sem)
++{
++	long count;
++	count = atomic_dec_return(&sem->count);
++	if (count < 0)
++		if ((count & RWSEM_ACTIVE_MASK) == 0)
++			rwsem_wake(sem);
++}
++
++static inline void __up_write(struct rw_semaphore *sem)
++{
++	long count, cmp;
++	count = atomic_sub_return(RWSEM_ACTIVE_WRITE_BIAS, &sem->count);
++	__asm__ __volatile__("cmpeq	%1,0,%0\n" : "=r" (cmp) : "r" (count));
++	if (!cmp)
++		if ((count & RWSEM_ACTIVE_MASK) == 0)
++			rwsem_wake(sem);
++}
++
++#define rwsem_atomic_add(val, sem)	atomic_add(val, &(sem)->count)
++#define rwsem_atomic_update(val, sem)	atomic_add_return(val, &(sem)->count)
++
++#endif /* __KERNEL__ */
++#endif /* _ALPHA_RWSEM_H */
+--- 2.4.4/include/asm-alpha/atomic.h	Fri Apr 27 20:33:29 2001
++++ linux/include/asm-alpha/atomic.h	Fri Apr 27 20:33:41 2001
+@@ -70,7 +70,9 @@ static __inline__ long atomic_add_return
+ 	"	addl %0,%3,%0\n"
+ 	"	stl_c %0,%1\n"
+ 	"	beq %0,2f\n"
++#ifdef CONFIG_SMP
+ 	"	mb\n"
++#endif
+ 	".subsection 2\n"
+ 	"2:	br 1b\n"
+ 	".previous"
+@@ -88,11 +90,35 @@ static __inline__ long atomic_sub_return
+ 	"	subl %0,%3,%0\n"
+ 	"	stl_c %0,%1\n"
+ 	"	beq %0,2f\n"
++#ifdef CONFIG_SMP
+ 	"	mb\n"
++#endif
+ 	".subsection 2\n"
+ 	"2:	br 1b\n"
+ 	".previous"
+ 	:"=&r" (temp), "=m" (v->counter), "=&r" (result)
++	:"Ir" (i), "m" (v->counter) : "memory");
++	return result;
++}
++
++/*
++ * Same as above, but return the previous value
++ */
++static __inline__ long atomic_add_return_prev(int i, atomic_t * v)
++{
++	long temp, result;
++	__asm__ __volatile__(
++	"1:	ldl_l %0,%1\n"
++	"	addl %0,%3,%2\n"
++	"	stl_c %2,%1\n"
++	"	beq %2,2f\n"
++#ifdef CONFIG_SMP
++	"	mb\n"
++#endif
++	".subsection 2\n"
++	"2:	br 1b\n"
++	".previous"
++	:"=&r" (result), "=m" (v->counter), "=&r" (temp)
+ 	:"Ir" (i), "m" (v->counter) : "memory");
+ 	return result;
+ }
+--- 2.4.4/include/asm-alpha/semaphore.h	Fri Apr 27 20:33:29 2001
++++ linux/include/asm-alpha/semaphore.h	Thu May  3 13:04:47 2001
+@@ -11,7 +11,6 @@
+ #include <asm/current.h>
+ #include <asm/system.h>
+ #include <asm/atomic.h>
+-#include <linux/compiler.h>
+ #include <linux/wait.h>
+ #include <linux/rwsem.h>
+ 
+@@ -92,14 +91,14 @@ extern void __up_wakeup(struct semaphore
+ static inline void __down(struct semaphore *sem)
+ {
+ 	long count = atomic_dec_return(&sem->count);
+-	if (__builtin_expect(count < 0, 0))
++	if (count < 0)
+ 		__down_failed(sem);
+ }
+ 
+ static inline int __down_interruptible(struct semaphore *sem)
+ {
+ 	long count = atomic_dec_return(&sem->count);
+-	if (__builtin_expect(count < 0, 0))
++	if (count < 0)
+ 		return __down_failed_interruptible(sem);
+ 	return 0;
+ }
+@@ -201,7 +200,7 @@ static inline void __up(struct semaphore
+ 		: "m"(*sem), "r"(0x0000000100000000)
+ 		: "memory");
+ 
+-	if (__builtin_expect(ret <= 0, 0))
++	if (ret <= 0)
+ 		__up_wakeup(sem);
+ }
+ 
+--- 2.4.4/arch/alpha/kernel/alpha_ksyms.c	Fri Apr 27 20:33:29 2001
++++ linux/arch/alpha/kernel/alpha_ksyms.c	Thu May  3 12:32:29 2001
+@@ -169,14 +169,12 @@ EXPORT_SYMBOL(__strnlen_user);
+ EXPORT_SYMBOL(__down_failed);
+ EXPORT_SYMBOL(__down_failed_interruptible);
+ EXPORT_SYMBOL(__up_wakeup);
++#if WAITQUEUE_DEBUG || DEBUG_SEMAPHORE
+ EXPORT_SYMBOL(down);
+ EXPORT_SYMBOL(down_interruptible);
+ EXPORT_SYMBOL(down_trylock);
+ EXPORT_SYMBOL(up);
+-EXPORT_SYMBOL(down_read);
+-EXPORT_SYMBOL(down_write);
+-EXPORT_SYMBOL(up_read);
+-EXPORT_SYMBOL(up_write);
++#endif
+ 
+ /* 
+  * SMP-specific symbols.
+--- 2.4.4/arch/alpha/kernel/semaphore.c	Wed Apr 18 04:19:24 2001
++++ linux/arch/alpha/kernel/semaphore.c	Thu May  3 14:41:29 2001
+@@ -201,6 +201,8 @@ __up_wakeup(struct semaphore *sem)
+ 	wake_up(&sem->wait);
+ }
+ 
++#if WAITQUEUE_DEBUG || DEBUG_SEMAPHORE
++
+ void
+ down(struct semaphore *sem)
+ {
+@@ -263,3 +265,5 @@ up(struct semaphore *sem)
+ #endif
+ 	__up(sem);
+ }
++
++#endif
+--- 2.4.4/arch/alpha/config.in	Fri Apr 27 20:33:29 2001
++++ linux/arch/alpha/config.in	Fri Apr 27 20:33:41 2001
+@@ -5,8 +5,8 @@
+ 
+ define_bool CONFIG_ALPHA y
+ define_bool CONFIG_UID16 n
+-define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
+-define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
++define_bool CONFIG_RWSEM_GENERIC_SPINLOCK n
++define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM y
+ 
+ mainmenu_name "Kernel configuration of Linux for Alpha machines"
+ 

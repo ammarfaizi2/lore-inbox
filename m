@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbUDLVGu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 17:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbUDLVGt
+	id S263117AbUDLVHd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 17:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbUDLVHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 17:06:49 -0400
-Received: from imap.gmx.net ([213.165.64.20]:63449 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263107AbUDLVGq (ORCPT
+	Mon, 12 Apr 2004 17:07:33 -0400
+Received: from adsl-207-214-87-84.dsl.snfc21.pacbell.net ([207.214.87.84]:50831
+	"EHLO lade.trondhjem.org") by vger.kernel.org with ESMTP
+	id S263117AbUDLVH3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 17:06:46 -0400
-X-Authenticated: #11437207
-Date: Tue, 13 Apr 2004 00:06:08 +0200
-From: Tim Blechmann <TimBlechmann@gmx.net>
-To: "Ivica Ico Bukvic" <ico@fuse.net>
-Cc: "'Russell King'" <rmk+lkml@arm.linux.org.uk>, <daniel.ritz@gmx.ch>,
-       "'Thomas Charbonnel'" <thomas@undata.org>, <ccheney@debian.org>,
-       <linux-pcmcia@lists.infradead.org>, <alsa-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-audio-user] snd-hdsp+cardbus+M6807 notebook=distortion
- -- FIXED!
-Message-Id: <20040413000608.0489b896@laptop>
-In-Reply-To: <20040412144103.PIXB8029.smtp1.fuse.net@64BitBadass>
-References: <20040412082801.A3972@flint.arm.linux.org.uk>
-	<20040412144103.PIXB8029.smtp1.fuse.net@64BitBadass>
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 12 Apr 2004 17:07:29 -0400
+Subject: Re: NFS file handle cached incorrectly
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: David Mansfield <lkml@dm.cobite.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1081803713.7181.26.camel@lade.trondhjem.org>
+References: <Pine.LNX.4.58.0404121407530.23214@dhcp07.cobite.com>
+	 <1081803713.7181.26.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1081804045.7181.30.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 12 Apr 2004 14:07:25 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
+På m , 12/04/2004 klokka 14:01, skreiv Trond Myklebust:
+> The problem here is rather that you are making remote modifications to
+> the NFS server's directory within < 1second (which is the resolution on
+> "mtime" on Linux 2.4.x) of the previous modification. Linux (and all
+> other NFS clients that I'm aware of) uses the mtime in order to decide
+> whether or not a file/directory/... has been modified since the cache
+> was last updated (unless it is a modification that was made by this
+> client).
 
-i installed windows to check if there is anything happening to the
-cardbus registers when working on a supported system... the cardbus
-registers, beside the pci registers, are the same as on the linux system
-... 
-i haven't been able to play back some sounds, because rme's driver disc
-only contains the win2k driver ...
+Clarification: the problem is IOW the fact that the server will not
+update mtime for any changes that are made within 1 second of one
+another. The same client will work fine with any server that has better
+resolution on mtime. Hence the suggestion:
 
-i have no idea, what this might tell us ... it's not a very good feeling
-if someone who seem to have the same problem as yourself finds the
-reason for his problem, but it doesn't seem to be the reason of your
-problem ... anyway, let's hope the best...
+> The only "solution" to your problem here is to upgrade the *server* to
+> Linux-2.6.x: the latter has 1 nanosecond resolution on the "mtime", and
+> so can register modifications that are far smaller than 1second.
 
-cheers...
-
- Tim                          mailto:TimBlechmann@gmx.de
-                              ICQ: 96771783
---
-The only people for me are the mad ones, the ones who are mad to live,
-mad to talk, mad to be saved, desirous of everything at the same time,
-the ones who never yawn or say a commonplace thing, but burn, burn,
-burn, like fabulous yellow roman candles exploding like spiders across
-the stars and in the middle you see the blue centerlight pop and
-everybody goes "Awww!"
-                                                          Jack Kerouac
-
+Cheers,
+  Trond

@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbUD1TRQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUD1TYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbUD1TRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 15:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUD1TRP
+	id S261610AbUD1TYv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 15:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbUD1TYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 15:17:15 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:11537 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264939AbUD1Qie (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 12:38:34 -0400
-Date: Wed, 28 Apr 2004 17:38:11 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@osdl.org>, sgoel01@yahoo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc{1,2} bad VM/NFS interaction in case of dirty page writeback
-Message-ID: <20040428173811.A1505@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Andrew Morton <akpm@osdl.org>, sgoel01@yahoo.com,
-	linux-kernel@vger.kernel.org
-References: <20040427011237.33342.qmail@web12824.mail.yahoo.com> <20040426191512.69485c42.akpm@osdl.org> <1083035471.3710.65.camel@lade.trondhjem.org> <20040426205928.58d76dbc.akpm@osdl.org> <1083043386.3710.201.camel@lade.trondhjem.org> <20040426225834.7035d2c1.akpm@osdl.org> <1083080207.2616.31.camel@lade.trondhjem.org> <20040428062942.A27705@infradead.org> <1083169062.2856.36.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1083169062.2856.36.camel@lade.trondhjem.org>; from trond.myklebust@fys.uio.no on Wed, Apr 28, 2004 at 12:17:42PM -0400
+	Wed, 28 Apr 2004 15:24:39 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:4624 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S265002AbUD1RdA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 13:33:00 -0400
+Message-ID: <408FEBCA.70607@techsource.com>
+Date: Wed, 28 Apr 2004 13:37:14 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Marc Boucher <marc@linuxant.com>
+CC: David Gibson <david@gibson.dropbear.id.au>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+References: <20040427165819.GA23961@valve.mbsi.ca> <1083107550.30985.122.camel@bach> <47B669B0-98A7-11D8-85DF-000A95BCAC26@linuxant.com> <20040428002516.GC3272@zax> <677BC9FC-98B1-11D8-85DF-000A95BCAC26@linuxant.com>
+In-Reply-To: <677BC9FC-98B1-11D8-85DF-000A95BCAC26@linuxant.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 28, 2004 at 12:17:42PM -0400, Trond Myklebust wrote:
-> On Wed, 2004-04-28 at 01:29, Christoph Hellwig wrote:
-> > There's nothing speaking against probing for more dirty pages before and
-> > after the one ->writepage wants to write out and send the big request
-> > out.  XFS does this to avoid creating small extents when converting from
-> > delayed allocated space to real extents.
+
+
+Marc Boucher wrote:
 > 
-> You are referring to xfs_probe_unmapped_page()?
 
-Yes, and the two other functions doing similar stuff.
+> 
+> In an enterprise, customers always come first. Nonetheless, I don't
+> believe that this issue had a significant impact on kernel developers.
+> Had their support burden been significantly increased by our products,
+> the issue would have come up much sooner.
+> 
 
-> True: we could do
-> that... In fact we could do it a lot more efficiently now that we have
-> the pagevec_lookup_tag() interface.
+This has all deteriorated into childish bickering rather than meaningful 
+debate.
 
-Yes pagevec are much more efficient for that.  In fact I have a workarea
-switching over XFS to use pagevec for that probing.
+The problem is that Linuxant or whoever has done something which is 
+misleading and violates a tenet of the GPL and the module interface of 
+the Linux kernel.
 
-I'm not yet sure where I'm heading with revamping xfs_aops.c, but what
-I'd love to see in the end is more or less xfs implementing only
-writepages and some generic implement writepage as writepages wrapper.
+There may be technical reasons which excuse this, but in the end, 
+Linuxant needs to correct their (unintentional) error and move on.  In 
+this society, if you violate copyright and get caught, you get slammed. 
+  You've been caught and slammed.  Fortunately, no one is suing you over 
+it.
+
+But spending your time arguing about it rather than making it right is 
+only making you look like a jerk.  At this point, no one cares about 
+your excuses for why you did it -- excuses accepted, technical reasons 
+understood, we don't blame you for what you did in the PAST.
+
+If I were in your position, I would say, "I'm sorry.  I understand the 
+problem, and I will fix it as soon as possible."  THAT would be a 
+professional and ethical thing to do.  It's also a good way to get on 
+the GOOD side of the Linux community.  Everyone makes mistakes; what 
+matters is how they DEAL with those mistakes.
+

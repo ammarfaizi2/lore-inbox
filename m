@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262532AbUCRLhe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 06:37:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbUCRLhY
+	id S262550AbUCRLlu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 06:41:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbUCRLlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 06:37:24 -0500
-Received: from isp17.tpi.pl ([193.110.121.246]:5046 "EHLO conecto.pl")
-	by vger.kernel.org with ESMTP id S262532AbUCRLgN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 06:36:13 -0500
-From: =?iso-8859-2?q?Micha=B3_Roszka?= <michal@roszka.pl>
-Reply-To: michal@roszka.pl
-To: Giuliano Pochini <pochini@denise.shiny.it>
-Subject: Re: [.config] CONFIG_THERM_WINDTUNNEL
-Date: Thu, 18 Mar 2004 12:36:06 +0100
-User-Agent: KMail/1.6.1
-Cc: Samuel Rydh <samuel@ibrium.se>, linux-kernel@vger.kernel.org
-References: <200403180821.44199.michal@roszka.pl> <20040318112057.GC3686@ibrium.se> <Pine.LNX.4.58.0403181221580.1392@denise.shiny.it>
-In-Reply-To: <Pine.LNX.4.58.0403181221580.1392@denise.shiny.it>
+	Thu, 18 Mar 2004 06:41:50 -0500
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:62617 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id S262550AbUCRLlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 06:41:47 -0500
+From: Bernd Schubert <bernd-schubert@web.de>
+To: ross@datscreative.com.au, linux-kernel@vger.kernel.org
+Subject: Re: idle Athlon with IOAPIC is 10C warmer since 2.6.3-bk1
+Date: Thu, 18 Mar 2004 12:41:42 +0100
+User-Agent: KMail/1.5.4
+References: <200403181019.02636.ross@datscreative.com.au>
+In-Reply-To: <200403181019.02636.ross@datscreative.com.au>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200403181236.06019.michal@roszka.pl>
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403181241.42439.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giuliano Pochini, wiadomo¶æ z dnia: czw 18. marca 2004 12:27
+Hi,
 
-> The author has a dual-1.2 and I tested it on another dual-1.2. I don't
-> know if it has been tested on other mathines.
+I'm just testing your IdleC1Halt patch (didn't reboot yet) with 2.6.4, but 
+there is a problem if apm is enabled in the configuration: 
 
-I also have a dual-1.25 and I do not know anybody with Linux on the Power Mac 
-Dual :(.
+arch/i386/kernel/built-in.o(.text+0x10b65): In function `apm_cpu_idle':
+: undefined reference to `default_idle'
 
--- 
-Micha³ Roszka
-michal@roszka.pl
+Your patch sets default_idle() static, so its not available in apm.c file. 
+
+Usually I compile with acpi and apm support to switch between both in case of 
+an unsual problem, and I think many people also do so.
+
+
+> http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-02/6520.html
+> The KERNEL ARG to invoke it is "idle=C1halt".
+>
+
+Thanks,
+	Bernd
+

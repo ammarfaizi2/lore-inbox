@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317142AbSG1TPE>; Sun, 28 Jul 2002 15:15:04 -0400
+	id <S317165AbSG1TP2>; Sun, 28 Jul 2002 15:15:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317152AbSG1TPE>; Sun, 28 Jul 2002 15:15:04 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:24581 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S317142AbSG1TPD>; Sun, 28 Jul 2002 15:15:03 -0400
-Date: Sun, 28 Jul 2002 20:18:22 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Anton Altaparmakov <aia21@cantab.net>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
+	id <S317169AbSG1TP2>; Sun, 28 Jul 2002 15:15:28 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:48096 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S317165AbSG1TP1>;
+	Sun, 28 Jul 2002 15:15:27 -0400
+Date: Sun, 28 Jul 2002 12:17:38 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Jens Axboe <axboe@suse.de>
+cc: Andrew Morton <akpm@zip.com.au>,
        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH 2.5] fs/binfmt_aout.c: Use PAGE_ALIGN_LL() on 64-bit values
-Message-ID: <20020728201821.A16713@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Anton Altaparmakov <aia21@cantab.net>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <E17YRsD-0006Hw-00@storm.christs.cam.ac.uk> <E17YRsD-0006Hw-00@storm.christs.cam.ac.uk> <m1wurfhgxd.fsf@frodo.biederman.org> <5.1.0.14.2.20020728194633.04207dd0@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <5.1.0.14.2.20020728194633.04207dd0@pop.cus.cam.ac.uk>; from aia21@cantab.net on Sun, Jul 28, 2002 at 07:55:51PM +0100
+Subject: Re: [PATCH] block/elevator updates + deadline i/o scheduler
+In-Reply-To: <20020728211204.A3203@suse.de>
+Message-ID: <Pine.LNX.4.33L2.0207281216060.20127-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 28, 2002 at 07:55:51PM +0100, Anton Altaparmakov wrote:
-> I thought (intel) CPUs did 48-bit addressing? How do we support 32GiB of 
-> RAM? With pure 32-bit addressing it would be limited to 4GiB only... No? 
-> (Of course I am probably confusing varius types of addresses...)
+On Sun, 28 Jul 2002, Jens Axboe wrote:
 
-P6+ support 36bit _physical_ addressing.
+| Cool. I'd be interested in latency and throughput results at this point,
+| I have none of these. BTW, does anyone know of a good benchmark that
+| also cares about latency?
+
+Danger, use of 'good' and 'benchmark' together.
+Nevertheless, tiobench (tiobench.sf.net) tries to care about &
+measure latency.
+
+-- 
+~Randy
 

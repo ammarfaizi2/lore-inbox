@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbUDCNPw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 08:15:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbUDCNPw
+	id S261744AbUDCN1i (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 08:27:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbUDCN1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 08:15:52 -0500
-Received: from mail.shareable.org ([81.29.64.88]:41878 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261741AbUDCNPv
+	Sat, 3 Apr 2004 08:27:38 -0500
+Received: from mail.shareable.org ([81.29.64.88]:43670 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261744AbUDCN1g
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 08:15:51 -0500
-Date: Sat, 3 Apr 2004 14:15:39 +0100
+	Sat, 3 Apr 2004 08:27:36 -0500
+Date: Sat, 3 Apr 2004 14:27:25 +0100
 From: Jamie Lokier <jamie@shareable.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+To: Pavel Machek <pavel@suse.cz>
+Cc: andersen@codepoet.org,
        =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>, mj@ucw.cz,
        jack@ucw.cz, "Patrick J. LoPresti" <patl@users.sourceforge.net>,
        linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] cowlinks v2
-Message-ID: <20040403131539.GA4706@mail.shareable.org>
-References: <20040329231635.GA374@elf.ucw.cz> <20040402165440.GB24861@wohnheim.fh-wedel.de> <20040402180128.GA363@elf.ucw.cz> <20040402181707.GA28112@wohnheim.fh-wedel.de> <20040402182357.GB410@elf.ucw.cz> <20040402200921.GC653@mail.shareable.org> <20040402213933.GB246@elf.ucw.cz> <406DE280.6050109@nortelnetworks.com> <20040403004947.GI653@mail.shareable.org> <20040403082303.GA1316@elf.ucw.cz>
+Message-ID: <20040403132725.GB4706@mail.shareable.org>
+References: <20040402165440.GB24861@wohnheim.fh-wedel.de> <20040402180128.GA363@elf.ucw.cz> <20040402181707.GA28112@wohnheim.fh-wedel.de> <20040402182357.GB410@elf.ucw.cz> <20040402200921.GC653@mail.shareable.org> <20040402213933.GB246@elf.ucw.cz> <20040403010425.GJ653@mail.shareable.org> <20040403012112.GA6499@codepoet.org> <20040403015920.GA2857@mail.shareable.org> <20040403090917.GD1316@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040403082303.GA1316@elf.ucw.cz>
+In-Reply-To: <20040403090917.GD1316@elf.ucw.cz>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Pavel Machek wrote:
-> > > Could you not change it back to a normal inode when refcount becomes 1? 
+> > > > Here's a tricky situation:
+> > > > 
+> > > >    1. A file is cowlinked.  Then each cowlink is mmap()'d, one per process.
+> > > > 
+> > > >    2. At this point both mappings share the same pages in RAM.
+> > > > 
+> > > >    3. Then one of the cowlinks is written to...
+> > > 
+> > > Using mmap with PROT_WRITE on a cowlink must preemptively
+> > > break the link.
 > > 
-> > You can only do that if the cowid object has a pointer to the last
-> > remaining reference to it.  That's possible, but more complicated and
-> > would incur a little more I/O per cow operation.
+> > I forget to mention, they are PROT_READ shared mappings.
 > 
-> You'd have to have pointers to all references to it... because you
-> can't tell in advance which one will be the last to go away.
+> I'm not mm guru, but... with rmap, we should be able to find all the
+> users of that shared memory, and unmap their pages, right?
 
-Exactly.  Each of the cow pointers would need to be linked in a doubly
-linked list containing them all.
+Yes.  I bring it up only because it's tricky, and the simple cowlink
+implementations so far don't deal with it.
+
+A page can only exist in one address_space.  So if pages are shared
+before the cow is broken, the address_space must be of the shared
+cowid object, not an individual address_space per cowlink.
+Afterwards, the copied pages are in the non-shared cowlink object's
+address_space.
+
+> Until copy is done, we don't do anything, because write is not allowed
+> to progress until copy is done. When copy is done we should unmap all
+> the pages that still point to "old" copy, let write progress, and make
+> users fault in.
+
+I agree.
+
+(Ross suggested using COW pages.  While technically possible, that
+would be pretty complicated to implemented as it implies pages shared
+among more than one address_space, and the facility for write() to
+break COW sharing in the page cache, and update page tables when that
+happens.)
 
 -- Jamie

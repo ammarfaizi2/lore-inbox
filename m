@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129311AbRA0CB6>; Fri, 26 Jan 2001 21:01:58 -0500
+	id <S129396AbRA0CHM>; Fri, 26 Jan 2001 21:07:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129396AbRA0CBj>; Fri, 26 Jan 2001 21:01:39 -0500
-Received: from srv12-sao.sao.terra.com.br ([200.246.248.67]:63244 "EHLO
-	srv12-sao.sao.terra.com.br") by vger.kernel.org with ESMTP
-	id <S129311AbRA0CBg>; Fri, 26 Jan 2001 21:01:36 -0500
-From: Rafael Diniz <rafael2k@terra.com.br>
-Reply-To: rafael2k@terra.com.br
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4 hangs on PowerBook 150(m68k)
-Date: Fri, 26 Jan 2001 23:52:19 -0200
-X-Mailer: KMail [version 1.0.29]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <3A7BB6B1.ABF71834@austin.rr.com>
-In-Reply-To: <3A7BB6B1.ABF71834@austin.rr.com>
+	id <S129413AbRA0CHB>; Fri, 26 Jan 2001 21:07:01 -0500
+Received: from blackdog.wirespeed.com ([208.170.106.25]:32272 "EHLO
+	blackdog.wirespeed.com") by vger.kernel.org with ESMTP
+	id <S129396AbRA0CGs>; Fri, 26 Jan 2001 21:06:48 -0500
+Message-ID: <3A722DF7.60609@redhat.com>
+Date: Fri, 26 Jan 2001 20:09:59 -0600
+From: Joe deBlaquiere <jadb@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01012623575600.01138@rafael>
-Content-Transfer-Encoding: 7BIT
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Is it possible to force don't fragment on a socket?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.4.0 hangs in my PowerBook 150(m68030 without fpu, 8Mb ram, 122Mb HD
-quantum IDE, adb keyboard and mouse) when it is loading the adb driver(after
-the scsi driver load).
-The 2.2 boot normally, but I can't acess keyboard nor mouse because it does not
-have adb support...
+I'm trying to test a communications path to a remote system and was 
+wondering if I could force the DF bit on some UDP traffic. Does anybody 
+know of a way to do this??
 
-Thanks
-Rafael Diniz
-Brazil
-=================================================
-Conectiva Linux 6.0 (2.2.17)  XFree86-4.0.1
-PII 233mhz 96Mb ram
-SB16, USR56k, S3 VirgeDX/GX 4Mb, CD creative48X 
-HDa 10Gb Quantum  HDb 4.1Gb Fujitsu
-MSX2.0 256k MegaRam 256k Mapper 128k Vram
-MSX is the future
-=================================================
+TIA,
+Joe
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

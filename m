@@ -1,47 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbVC2NUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262290AbVC2Ntk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262262AbVC2NUa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 08:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVC2NUa
+	id S262290AbVC2Ntk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 08:49:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVC2Ntk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 08:20:30 -0500
-Received: from mail1.upco.es ([130.206.70.227]:60106 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S262262AbVC2NUZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 08:20:25 -0500
-Date: Tue, 29 Mar 2005 15:20:22 +0200
-From: Romano Giannetti <romanol@upco.es>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: swsusp not working for me on a PREEMPT 2.6.12-rc1 and 2.6.12-rc1-mm3 kernel
-Message-ID: <20050329132022.GA26553@pern.dea.icai.upco.es>
-Reply-To: romano@dea.icai.upco.es
-Mail-Followup-To: romano@dea.icai.upco.es,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	Pavel Machek <pavel@ucw.cz>
-References: <20050329110309.GA17744@pern.dea.icai.upco.es>
+	Tue, 29 Mar 2005 08:49:40 -0500
+Received: from 104.engsoc.carleton.ca ([134.117.69.104]:59603 "EHLO
+	certainkey.com") by vger.kernel.org with ESMTP id S262282AbVC2Nth
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 08:49:37 -0500
+Date: Tue, 29 Mar 2005 08:48:19 -0500
+From: Jean-Luc Cooke <jlcooke@certainkey.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Andrew Morton <akpm@osdl.org>,
+       James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+       cryptoapi@lists.logix.cz, Jeff Garzik <jgarzik@pobox.com>,
+       David McCullough <davidm@snapgear.com>
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
+Message-ID: <20050329134819.GA24697@certainkey.com>
+References: <1111728804.23532.137.camel@uganda> <4243A86D.6000408@pobox.com> <1111731361.20797.5.camel@uganda> <20050325061311.GA22959@gondor.apana.org.au> <20050329102104.GB6496@elf.ucw.cz> <20050329103049.GB19541@gondor.apana.org.au> <1112093428.5243.88.camel@uganda> <20050329104627.GD19468@gondor.apana.org.au> <1112096525.5243.98.camel@uganda> <20050329113921.GA20174@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050329110309.GA17744@pern.dea.icai.upco.es>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050329113921.GA20174@gondor.apana.org.au>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29, 2005 at 01:03:09PM +0200, Romano Giannetti wrote:
-> Hi all,
-> 
->    swsusp is not working for me with 2.6.12rc1. I compiled the kernel
->    preempt, I am compiling now without preempt to test it. -mm3 has a
->    similar behaviour.
+On Tue, Mar 29, 2005 at 09:39:21PM +1000, Herbert Xu wrote:
+> Well when you get 55mb/s from /dev/random please get back to me.
 
-Tested with no-preempt -rc1-mm3. No joy; the suspend stops exactly at the
-same point. 
+I will add you to my list for notification of Fortuna Patch to /dev/random
+(/dev/urandom)
 
-If you need more info, just tell me. 
-
-Romano 
-
--- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+JLC

@@ -1,91 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263962AbUGHLpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264482AbUGHLrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263962AbUGHLpL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 07:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264482AbUGHLpL
+	id S264482AbUGHLrb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 07:47:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264610AbUGHLrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 07:45:11 -0400
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:39054 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S263962AbUGHLpC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 07:45:02 -0400
-Date: Thu, 8 Jul 2004 13:44:59 +0200
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: Michael Buesch <mbuesch@freenet.de>
-Cc: root@chaos.analogic.com, Herbert Xu <herbert@gondor.apana.org.au>,
-       Chris Wright <chrisw@osdl.org>, akpm@osdl.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, jmorris@redhat.com,
-       mika@osdl.org
-Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
-Message-Id: <20040708134459.6970a20b@phoebee>
-In-Reply-To: <200407081328.40545.mbuesch@freenet.de>
-References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
-	<Pine.LNX.4.53.0407080707010.21439@chaos>
-	<200407081328.40545.mbuesch@freenet.de>
-X-Mailer: Sylpheed-Claws 0.9.12cvs6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
- CPU 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
+	Thu, 8 Jul 2004 07:47:31 -0400
+Received: from mail5.tpgi.com.au ([203.12.160.101]:48811 "EHLO
+	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S264482AbUGHLra
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 07:47:30 -0400
+Subject: GCC 3.4 and broken inlining.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1089287198.3988.18.camel@nigel-laptop.wpcb.org.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Thu__8_Jul_2004_13_44_59_+0200_hgbQRhHLi.jyLATC"
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 08 Jul 2004 21:46:39 +1000
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Thu__8_Jul_2004_13_44_59_+0200_hgbQRhHLi.jyLATC
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Hi.
 
-On Thu, 8 Jul 2004 13:28:38 +0200
-Michael Buesch <mbuesch@freenet.de> bubbled:
+In response to a user report that suspend2 was broken when compiled with
+gcc 3.4, I upgraded my compiler to 3.4.1-0.1mdk. I've found that the
+restore_processor_context, defined as follows:
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Quoting "Richard B. Johnson" <root@chaos.analogic.com>:
-> > Because NULL is a valid pointer value. 0 is not. If you were
-> > to make 0 valid, you would use "(void *)0", which is what
-> > NULL just happens to be in all known architectures so far,
-> > although that could change in an alternate universe.
-> 
-> No, that is not true.
-> In C/C++ this is true:
-> NULL == 0
+static inline void restore_processor_context(void)
 
+doesn't get inlined. GCC doesn't complain when compiling the file, and
+so far as I can see, there's no reason for it not to inline the routine.
+But that leaves me confused because some other inlined functions do seem
+to get inlined. Can someone tell me what I'm missing?
 
-hmm...
+Regards,
 
-include/linux/stddef.h:
+Nigel
 
-#undef NULL
-#if defined(__cplusplus)
-#define NULL 0
-#else
-#define NULL ((void *)0)
-#endif
-
--- 
-MyExcuse:
-fractal radiation jamming the backbone
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---Signature=_Thu__8_Jul_2004_13_44_59_+0200_hgbQRhHLi.jyLATC
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA7TO7mjLYGS7fcG0RAly5AJ9h62B9yIoo90eVZZXyxma8KtRgfACgl+ey
-bZkWiTMUJpTqmDBYxHScwec=
-=iJ3T
------END PGP SIGNATURE-----
-
---Signature=_Thu__8_Jul_2004_13_44_59_+0200_hgbQRhHLi.jyLATC--

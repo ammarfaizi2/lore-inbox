@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264722AbTE1NJN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 09:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264723AbTE1NJN
+	id S264723AbTE1NQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 09:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264729AbTE1NQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 09:09:13 -0400
-Received: from dodge.jordet.nu ([217.13.8.142]:57785 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id S264722AbTE1NJK (ORCPT
+	Wed, 28 May 2003 09:16:56 -0400
+Received: from mail.cid.net ([193.41.144.34]:56518 "EHLO mail.cid.net")
+	by vger.kernel.org with ESMTP id S264723AbTE1NQ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 09:09:10 -0400
-Subject: RE: [PATCH] Re: ALSA problems: sound lockup, modules, 2.5.70
-From: Stian Jordet <liste@jordet.nu>
-To: "Downing, Thomas" <Thomas.Downing@ipc.com>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <170EBA504C3AD511A3FE00508BB89A92021C90DC@exnanycmbx4.ipc.com>
-References: <170EBA504C3AD511A3FE00508BB89A92021C90DC@exnanycmbx4.ipc.com>
-Content-Type: text/plain
-Message-Id: <1054128212.614.7.camel@chevrolet.hybel>
+	Wed, 28 May 2003 09:16:56 -0400
+Date: Wed, 28 May 2003 15:25:52 +0200
+From: Stefan Foerster <stefan@stefan-foerster.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Andrew Morton <akpm@digeo.com>, kernel@kolivas.org,
+       matthias.mueller@rz.uni-karlsruhe.de, manish@storadinc.com,
+       andrea@suse.de, marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Message-ID: <20030528132552.GA12914@in-ws-001.cid-net.de>
+References: <3ED2DE86.2070406@storadinc.com> <200305281305.44073.m.c.p@wolk-project.de> <20030528042700.47372139.akpm@digeo.com> <200305281331.26959.m.c.p@wolk-project.de> <20030528125312.GV845@suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
-Date: 28 May 2003 15:23:32 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030528125312.GV845@suse.de>
+User-Agent: Mutt/1.3.28i
+X-Now-Playing: Dusty Springfield - Son of a Preacher Man
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ons, 28.05.2003 kl. 14.55 skrev Downing, Thomas:
-> -----Original Message-----
-> From: Stian Jordet [mailto:liste@jordet.nu]
-> >
-> > tir, 27.05.2003 kl. 20.51 skrev viro@parcelfarce.linux.theplanet.co.uk:
-> >> 	Argh.  Missing initialization in char_dev.c - it's definitely
-> >> responsible for crap on unload.  Load side appears to be something >else,
-> >> though...
-> >
-> > This did not fix my problem. When I unload one ALSA-modules after the
-> > other, the system hangs when I come to the "snd" module. No oops or
-> > panic, it just freezes. Other than that, ALSA works fine for me, just
-> > frustrating when I reboot.
-> >
-> > Best regards,
-> > Stian
+* Jens Axboe <axboe@suse.de> wrote:
+> On Wed, May 28 2003, Marc-Christian Petersen wrote:
+>>> Guys, you're the ones who can reproduce this.  Please spend more time
+>>> working out which chunk (or combination thereof) actually fixes the
+>>> problem.  If indeed any of them do.
+>> As I said, I will test it this evening. ATM I don't have time to
+>> recompile and reboot. This evening I will test extensively, even on
+>> SMP, SCSI, IDE and so on.
 > 
-> For what it's worth, maybe as a point to start to look for differences...
-> 
-> I am running 2.5.70-mm1, with snd-intel8x0 module.  Also SMP on Xeon P4
-> (2up), Intel chipset.  I am not having any problems with unloading snd.
-> 
-> So maybe the difference is between -mm1 and (IIRC) -bk1.
+> May I ask how you are reproducing the bad results? I'm trying in vain
+> here...
 
-Hmm. I will try -mm1 later today, but my problems started with
-2.5.68-bk18 (IIRC). This is also a SMP-system, Dual P3 (But VIA
-chipset): But it's a pity you don't see the problem. I was hoping
-everyone had it :) Well, I'll try to insert some printk's and stuff, and
-see what happens. And try -mm1
+It is easily reproducable by using dd with an appropriate blocksize
+reading from /dev/zero.
 
-Best regards,
-Stian
+With chunk #3 from Andrew, I do not get pauses, but I noticed text
+scrolling in an xterm stopping for like a second.
+
+I did not get any zombie processes.
+
+Ciao
+Stefan
 

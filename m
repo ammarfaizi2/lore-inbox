@@ -1,33 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270808AbRHNUb0>; Tue, 14 Aug 2001 16:31:26 -0400
+	id <S270814AbRHNUdZ>; Tue, 14 Aug 2001 16:33:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270817AbRHNUbJ>; Tue, 14 Aug 2001 16:31:09 -0400
-Received: from archive.osdlab.org ([65.201.151.11]:16534 "EHLO fire.osdlab.org")
-	by vger.kernel.org with ESMTP id <S270825AbRHNUa7>;
-	Tue, 14 Aug 2001 16:30:59 -0400
-Message-ID: <3B798977.AB3E1EE3@osdlab.org>
-Date: Tue, 14 Aug 2001 13:26:31 -0700
-From: "Randy.Dunlap" <rddunlap@osdlab.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac5 i686)
-X-Accept-Language: en
+	id <S270817AbRHNUdF>; Tue, 14 Aug 2001 16:33:05 -0400
+Received: from smtp1.one.net ([216.23.22.220]:62983 "HELO us.net")
+	by vger.kernel.org with SMTP id <S270826AbRHNUcU>;
+	Tue, 14 Aug 2001 16:32:20 -0400
+Message-ID: <057801c12500$52ebd720$b214860a@amdmb>
+From: "Ryan Shrout" <linux-kernel@amdmb.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Slow SCSI Disk Access on AMI Elite 1600 controller
+Date: Tue, 14 Aug 2001 16:33:06 -0400
 MIME-Version: 1.0
-To: Bart Trojanowski <bart@jukie.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: apm, swsuspend.
-In-Reply-To: <20010814160812.I29740@jukie.net>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bart Trojanowski wrote:
-...
-> In the intrem... I have run across many mentions of a 'swsuspend' patch.
-> Where can I find this patch?
+Okay, I am fairly new to all this, so bear with me as I try to explain the
+problem fully.  :)
 
-http://sourceforge.net/projects/swsusp/
+First, my problem was centered around Mysql.  I had a problem of processes
+spawning and spawning (sometimes over 100 of them at a time).  A simply
+mysqld restart would solve the matter for most of the day, but the problem
+always persisited.  One the people in the mysql list pointed me to check my
+disk performance.  I came up with this:
 
--- 
-~Randy
+[root@dagger /root]# hdparm -Tt /dev/sda
+
+/dev/sda:
+ Timing buffer-cache reads:   128 MB in  0.93 seconds =137.63 MB/sec
+ Timing buffered disk reads:  64 MB in 13.92 seconds =  4.60 MB/sec
+
+My systems specs are:
+Tyan Thunder K7 Dual-Athlon (non-Via chipsets) motherboard
+2 - 1.2 Ghz Athlon MP CPUs
+1 GB PC2100 Registered DDR DRAM
+AMI Elite 1600 SCSI RAID controller with 64 MB SDRAM
+4 - 15K RPM Cheetah SCSI HDDs
+Red Hat Linux 7.2
+
+Obivously, 4.60 MB/sec is WAY too slow for this setup, and the mysql people
+assumed this was probably what was causing the Mysqld server to crap out.
+
+So, I then started trying to figure out to raise the buffered disk read
+speed.  My only solution I came across -- find out if the SCSI
+controllers/drives were in asynchronous mode and if they are, change them to
+synchronous mode.
+
+Now, how can I tell what mode my SCSI disks are in and how can I change it
+to synchronous if it isn't set that way already?
+
+Thank you!!!
+
+Ryan Shrout
+Owner - Amdmb.com
+http://www.amdmb.com/
+rshrout@amdmb.com
+
+

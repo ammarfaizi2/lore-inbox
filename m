@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262813AbSLIFem>; Mon, 9 Dec 2002 00:34:42 -0500
+	id <S262877AbSLIFn3>; Mon, 9 Dec 2002 00:43:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262877AbSLIFel>; Mon, 9 Dec 2002 00:34:41 -0500
-Received: from web14608.mail.yahoo.com ([216.136.224.88]:50091 "HELO
-	web14608.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262813AbSLIFel>; Mon, 9 Dec 2002 00:34:41 -0500
-Message-ID: <20021209054222.8792.qmail@web14608.mail.yahoo.com>
-Date: Sun, 8 Dec 2002 21:42:22 -0800 (PST)
-From: Santhosh Kumar <linuxkern@yahoo.com>
-Subject: Kernel compiled for PPro+, requires PGE feature
+	id <S262887AbSLIFn3>; Mon, 9 Dec 2002 00:43:29 -0500
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:52161 "EHLO
+	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S262877AbSLIFn2>; Mon, 9 Dec 2002 00:43:28 -0500
+Date: Sun, 8 Dec 2002 21:56:01 -0800 (PST)
+From: Michal Zalewski <lcamtuf@dione.ids.pl>
+X-X-Sender: lcamtuf@nimue.bos.bindview.com
 To: linux-kernel@vger.kernel.org
+Subject: mmap() on /proc/pid/mem
+Message-ID: <Pine.LNX.4.42.0212082147050.726-100000@nimue.bos.bindview.com>
+X-Nmymbofr: Nir Orb Buk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hey,
 
-I installed RedHat Linux 8.0 (Kernel Version
-2.4.18-14) on my Pentium 4, 1.5GHz system with 2GB
-RAM. Everything is working fine. After compiling the
-source for 2.4.19, the system does not come up with
-the 2.4.19 kernel and gave the error "Kernel compiled
-for PPro+, requires PGE feature". How can I get rid of
-this ? 
+I'm trying to determine what was the reason for mmap() on /proc/pid/mem
+being removed somewhere down the road between 2.2 and 2.4. I tried to do
+my homework, but Google and 2.4 changelogs do not give too many clues. I
+found several other posts on this and other groups from people complaining
+it's gone, but that's all...
 
-Is there any option that I have to specify for this.
->From "make menuconfig", I have chosen the processor
-type to be "Pentium III(Coppermine)" and Highmem
-support to be "4GB". I don't want to enable "386"
-mode. 
+So - where is it? Is it coming back in the future? The feature was pretty
+useful for debugging and some other purposes.
 
-Is there any way by which I can find out the
-configuration options for the kernel 2.4.18-14 used by
-RedHat 8.0 ? 
+Thanks,
+-- 
+------------------------- bash$ :(){ :|:&};: --
+ Michal Zalewski * [http://lcamtuf.coredump.cx]
+    Did you know that clones never use mirrors?
+--------------------------- 2002-12-08 21:47 --
 
-Thanks
-Santhosh
-
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-http://mailplus.yahoo.com

@@ -1,78 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbTKLXIy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 18:08:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTKLXIy
+	id S261748AbTKLXMP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 18:12:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbTKLXMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 18:08:54 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:3850 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261667AbTKLXIw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 18:08:52 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-Date: 12 Nov 2003 22:58:14 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <boudu6$k3j$1@gatekeeper.tmr.com>
-References: <Pine.LNX.4.44.0311102136280.2881-100000@home.osdl.org> <20031111184919.43a93a88.diegocg@teleline.es>
-X-Trace: gatekeeper.tmr.com 1068677894 20595 192.168.12.62 (12 Nov 2003 22:58:14 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Wed, 12 Nov 2003 18:12:15 -0500
+Received: from oobleck.astro.cornell.edu ([132.236.6.230]:5337 "EHLO
+	oobleck.astro.cornell.edu") by vger.kernel.org with ESMTP
+	id S261748AbTKLXMK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 18:12:10 -0500
+Date: Wed, 12 Nov 2003 18:12:01 -0500
+Message-Id: <200311122312.hACNC1B23224@oobleck.astro.cornell.edu>
+From: Joe Harrington <jh@oobleck.astro.cornell.edu>
+To: cory.bell@usa.net
+CC: linux-kernel@vger.kernel.org, Patricio Rojo <pato@astro.cornell.edu>
+In-reply-to: <1068657190.4255.21.camel@homer.oit.pdx.edu> (message from Cory
+	Bell on Wed, 12 Nov 2003 09:13:10 -0800)
+Subject: Re: Via KT600 support?
+CC: jh@oobleck.astro.cornell.edu, Sven Pedersen <sventech@yahoo.com>
+Reply-To: jh@oobleck.astro.cornell.edu
+References: <1068657190.4255.21.camel@homer.oit.pdx.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031111184919.43a93a88.diegocg@teleline.es>,
-Diego Calleja =?ISO-8859-15?Q?Garc=EDa?=  <diegocg@teleline.es> wrote:
-| El Mon, 10 Nov 2003 21:40:58 -0800 (PST) Linus Torvalds <torvalds@osdl.org>
-| escribió:
-| 
-| > Now it's your turn. Instead of wasting my time complaining, how about you
-| > put up or shut up? Show me the code. THEN post it. Until you do, there's 
-| > no point to your mails.
-| 
-| Until then, I'd suggest this patch to avoid more complains about this:
+> I also have an Asus A7V600. I'm unsure of the board revision, but I'm
+> running BIOS 1005.
+ 
+I am glad to see a positive report with this botherboard (actually,
+that was a typo but it's perfectly true, so I'll leave it).  The
+problem has turned out to be faulty memory, so I apologize to the list
+for wasting your time.  So nobody complains, I used 4 different sticks
+of SimpleTech memory in this machine, all with the same results.  They
+passed 24 hours of memtest86 with no errors.  But, replacing them with
+some Corsair memory fixed the problem.  A Simpletech rep says the
+batch that my 4 sticks come from was not a particularly bad batch, but
+they are sending boards from another batch that they use in more
+applications in hope that it fixes the problem.  They also say this
+chipset is particularly finicky about memory.  Needless to say, I
+won't be sending them any more of my hard-earned cash: If it says
+PC2700 on it, it should perform that way.  This was not "value RAM" to
+me.
 
-The object is not to avoid complaints, the object is to get the
-capability working again. I presume eventually one of the commercial
-vendors will fix it, since it's easier than rewriting all the SCSI
-applications in the world. oddly there are people writing useful things
-using other operating systems, under 2.4 almost all of those work.
+In case anyone else has similar trouble, I'll answer some of your
+questions so it's easier to identify:
 
-I hope to pick up another IDE tape drive so I can look at this problem,
-the one I have is on a production system, which at the moment has no
-reason to go to 2.6 even if it worked, which it doesn't. It also has
-software to read ZIP drives in odd ways, and I'm not about to look for a
-SCSI 100MB ZIP drive :-(
+> > VC messages indicate problems in different programs each time.
+> > Generally the failure happens during package installation, but
+> > sometimes it happens earlier.  After the first indication of a
+> > problem, one can generally still switch VCs, but eventually that stops
+> > working, too.  Frequently, there are several programs indicating
+> > problems in the VC screens.
 
-| 
-| diff -puN drivers/ide/Kconfig~idescsi-broken drivers/ide/Kconfig
-| --- tim/drivers/ide/Kconfig~idescsi-broken	2003-11-11 18:35:23.000000000 +0100
-| +++ tim-diego/drivers/ide/Kconfig	2003-11-11 18:36:07.000000000 +0100
-| @@ -247,7 +247,7 @@ config BLK_DEV_IDEFLOPPY
-|  
-|  config BLK_DEV_IDESCSI
-|  	tristate "SCSI emulation support"
-| -	depends on SCSI
-| +	depends on SCSI && BROKEN
-|  	---help---
-|  	  This will provide SCSI host adapter emulation for IDE ATAPI
-| devices, 	  and will allow you to use a SCSI device driver instead of
-| a native
-| 
-| _
-| 
-| -
-| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-| the body of a message to majordomo@vger.kernel.org
-| More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| Please read the FAQ at  http://www.tux.org/lkml/
-| 
+> What are you seeing? Segfaults? Panics? Have you tried the memtest86
+> boot option (from the FC1 CDs)?
 
+I ran memtest86 for a day with no errors.  Is there something that can
+be done to make its tests more definitive?  Clearly this tool didn't
+find the problem, but a few minutes of transferring files did.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+VC4 gave messages including:
+EIP is at (some process or kernel routine name, different each time)
+then a stack and call trace (again, different each time)
+then sometimes
+Kernel panic: 
+also sometimes
+Kernel BUG in buffer.c:
+sometimes there are several sets of data including the EIP message,
+stack trace, etc. for different programs/kernel routines at once.
+
+Sometimes the installer just quits, saying it exited abnormally, and
+it does a graceful shutdown without any VC4 errors.
+
+The clues in your report will help a lot now that I have this thing
+working.  I wish there were a website for such info, like there is for
+laptops.
+
+Thanks again for your report.
+
+--jh--

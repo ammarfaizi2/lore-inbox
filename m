@@ -1,231 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267068AbSLDUOU>; Wed, 4 Dec 2002 15:14:20 -0500
+	id <S267065AbSLDULx>; Wed, 4 Dec 2002 15:11:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267070AbSLDUOU>; Wed, 4 Dec 2002 15:14:20 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:21516 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S267068AbSLDUOR>;
-	Wed, 4 Dec 2002 15:14:17 -0500
-Message-ID: <3DEE6533.8070805@domdv.de>
-Date: Wed, 04 Dec 2002 21:27:31 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20021020
-X-Accept-Language: en-us, en
+	id <S267068AbSLDULx>; Wed, 4 Dec 2002 15:11:53 -0500
+Received: from pop015pub.verizon.net ([206.46.170.172]:44684 "EHLO
+	pop015.verizon.net") by vger.kernel.org with ESMTP
+	id <S267065AbSLDULu>; Wed, 4 Dec 2002 15:11:50 -0500
+From: "Guillaume Boissiere" <boissiere@adiglobal.com>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 04 Dec 2002 15:18:44 -0500
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, sct@redhat.com,
-       akpm@zip.com.au, adilger@clusterfs.com
-Subject: [RESEND] 2.4.20: ext3: Assertion failure in journal_forget()/Oops
- on another system
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------050108060303020109030508"
+Subject: [STATUS 2.5]  December 4, 2002
+Message-ID: <3DEE1CD4.3794.8F165F3@localhost>
+X-mailer: Pegasus Mail for Windows (v4.02)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at pop015.verizon.net from [64.152.17.166] at Wed, 4 Dec 2002 14:19:14 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050108060303020109030508
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Of note this week the merge of the syscall compatibility layer.
+Also more bug reports in bugzilla (http://bugme.odsl.org/), 
+which probably means more people are testing 2.5 these days.
 
-It seems that either my previous post (below) was to vague or it either 
-got lost or ignored. Anyway I did hope for a spurious hardware error.
+Full status list is at http://www.kernelnewbies.org/status/
+Please let me know if anything is inaccurate or missing.
+Cheers,
 
-Unfortunately today I got an Oops from a completely different system 
-using ext3 on software raid 0 and raid 1 with data=ordered that again 
-points to a problem with ext3. The ksymoops output is attached. I'm 
-really beginning to get worried.
-
-Below is my previous post.
---------------------------
-
-This started to happen during larger (10MB-420MB) rsync based writes to
-a striped ext3 partition (/dev/md11) residing on 4 scsi disks which is
-mounted with defaults, i.e. data=ordered (rsync over 100Mbps link):
-
-Dec  1 12:25:43 pollux kernel: EXT3-fs error (device md(9,11)):
-ext3_new_block:
-Allocating block in system zone - block = 114696
-Dec  1 12:25:43 pollux kernel: EXT3-fs error (device md(9,11)):
-ext3_new_block:
-Allocating block in system zone - block = 114697
-Dec  1 12:25:43 pollux kernel: EXT3-fs error (device md(9,11)):
-ext3_new_block:
-Allocating block in system zone - block = 114700
-Dec  1 12:25:43 pollux kernel: EXT3-fs error (device md(9,11)):
-ext3_new_block:
-Allocating block in system zone - block = 114701
-Dec  1 12:25:43 pollux kernel: EXT3-fs error (device md(9,11)):
-ext3_new_block:
-Allocating block in system zone - block = 114702
-Dec  1 12:25:43 pollux kernel: EXT3-fs error (device md(9,11)):
-ext3_new_block:
-Allocating block in system zone - block = 114706
-
-<snip>
-
-Dec  1 22:17:55 pollux kernel: EXT3-fs error (device md(9,11)):
-ext3_free_blocks
-: Freeing blocks in system zones - Block = 573501, count = 2
-Dec  1 22:17:55 pollux kernel: EXT3-fs error (device md(9,11)):
-ext3_free_blocks
-: Freeing blocks in system zones - Block = 573552, count = 14
-Dec  1 22:17:55 pollux kernel: Assertion failure in journal_forget() at
-transaction.c:1225: "!jh->b_committed_data"
+-- Guillaume
 
 
+--------------------------------------
+Linux Kernel 2.5 Status - December 4th, 2002
+(Latest kernel release is 2.5.50)
 
-Trying to access the partition resulted in processes hanging in D state:
-
-5336 pts/0    D      0:00 ls -a -N --color=tty -T 0 -l /mnt/data8
-
-e2fstools version is 1.32 and the partition was created with this
-version using 'mke2fs -j -b 2048 -i 4096 -R stride=16 /dev/md11'.
-
-An earlier dump of the partition data using tune2fs -l gave:
-
-tune2fs 1.32 (09-Nov-2002)
-Filesystem volume name:   <none>
-Last mounted on:          <not available>
-Filesystem UUID:          7c8d7827-4b25-40ab-a3b8-1c4c6e286868
-Filesystem magic number:  0xEF53
-Filesystem revision #:    1 (dynamic)
-Filesystem features:      has_journal filetype needs_recovery sparse_super
-Default mount options:    (none)
-Filesystem state:         clean with errors
-Errors behavior:          Continue
-Filesystem OS type:       Linux
-Inode count:              2621440
-Block count:              5236992
-Reserved block count:     261849
-Free blocks:              4855697
-Free inodes:              2621416
-First block:              0
-Block size:               2048
-Fragment size:            2048
-Blocks per group:         16384
-Fragments per group:      16384
-Inodes per group:         8192
-Inode blocks per group:   512
-Last mount time:          Sat Nov 30 11:23:59 2002
-Last write time:          Sun Dec  1 14:09:55 2002
-Mount count:              2
-Maximum mount count:      -1
-Last checked:             Fri Dec  1 19:18:16 2000
-Check interval:           0 (<none>)
-Reserved blocks uid:      0 (user root)
-Reserved blocks gid:      0 (group root)
-First inode:              11
-Inode size:               128
-Journal UUID:             <none>
-Journal inode:            8
-Journal device:           0x0000
-First orphan inode:       0
+o before 2.6.0  Rewrite of the console layer  (James Simmons)  
+o before 2.6.0  Support insane number of groups  (Tim Hockin)  
+o before 2.6.0  Worldclass support for IPv6  (Alexey Kuznetsov, Dave Miller, Jun Murai, Yoshifuji Hideaki, USAGI team)  
+o before 2.6.0  Reiserfs v4  (Reiserfs team)  
+o before 2.6.0  32bit dev_t  (Al Viro)  
+o before 2.6.0  Fix device naming issues  (Patrick Mochel, Greg Kroah-Hartman)  
+o before 2.6.0  Change all drivers to new driver model  (All maintainers)  
+o before 2.6.0  USB gadget support  (Stuart Lynne, Greg Kroah-Hartman)  
+o before 2.6.0  Improved AppleTalk stack  (Arnaldo Carvalho de Melo)  
+o before 2.6.0  ext2/ext3 online resize support  (Andreas Dilger)  
 
 
-Trying 'e2fsck -y /dev/md11' after a reboot showed so many errors and
-continued to run for minutes that I aborted e2fsck and do assume that
-the file system was completely destroyed.
-
-After recreation of the filesystem on /dev/md11 a rsync run completed
-without errors.
-
-As a side note: the system having the rsync sources has an identical
-formatted partition (the systems are hardware twins) and doesn't show
-any errors.
-
-Some final information about the raid configuration of /dev/md11:
-
-raiddev /dev/md11
-           raid-level              0
-           nr-raid-disks           4
-           nr-spare-disks          0
-           chunk-size              32
-           persistent-superblock   1
-           device                  /dev/sda13
-           raid-disk               0
-           device                  /dev/sdb13
-           raid-disk               1
-           device                  /dev/sdc15
-           raid-disk               2
-           device                  /dev/sdd15
-           raid-disk               3
--- 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
-
-
-
---------------050108060303020109030508
-Content-Type: text/plain;
- name="ext3-oops.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ext3-oops.txt"
-
-ksymoops 2.4.8 on i686 2.4.20.  Options used
-     -V (default)
-     -k /proc/ksyms (specified)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.20/ (default)
-     -m /boot/System.map (default)
-
-Dec  4 16:19:59 tux kernel: Unable to handle kernel paging request at virtual address 6574616c
-Dec  4 16:19:59 tux kernel: c0185102
-Dec  4 16:19:59 tux kernel: *pde = 00000000
-Dec  4 16:19:59 tux kernel: Oops: 0000
-Dec  4 16:19:59 tux kernel: CPU:    0
-Dec  4 16:19:59 tux kernel: EIP:    0010:[<c0185102>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Dec  4 16:19:59 tux kernel: EFLAGS: 00013a87
-Dec  4 16:19:59 tux kernel: eax: 00000001   ebx: 65746144   ecx: c12c09bc   edx: 65746144
-Dec  4 16:19:59 tux kernel: esi: c0007e00   edi: 00000001   ebp: 00000000   esp: c1595ef0
-Dec  4 16:19:59 tux kernel: ds: 0018   es: 0018   ss: 0018
-Dec  4 16:19:59 tux kernel: Process kswapd (pid: 5, stackpage=c1595000)
-Dec  4 16:19:59 tux kernel: Stack: c010bb08 c0512890 c102c01c 00003202 00003296 00000000 c12c09bc 000001d0 
-Dec  4 16:19:59 tux kernel:        00003d6d c0512890 c017bccd c4119680 c12c09bc 000001d0 c014d672 c12c09bc 
-Dec  4 16:19:59 tux kernel:        000001d0 00000000 c12c09bc c0140895 c12c09bc 000001d0 c1594000 00000200 
-Dec  4 16:19:59 tux kernel: Call Trace:    [<c010bb08>] [<c017bccd>] [<c014d672>] [<c0140895>] [<c0140a93>]
-Dec  4 16:19:59 tux kernel:   [<c0140b16>] [<c0140c2c>] [<c0140ca8>] [<c0140ddd>] [<c0105000>] [<c010578e>]
-Dec  4 16:19:59 tux kernel:   [<c0140d40>]
-Dec  4 16:19:59 tux kernel: Code: 8b 5b 28 f6 42 19 02 75 26 39 f3 75 f1 f7 44 24 34 50 00 00 
-
-
->>EIP; c0185102 <journal_try_to_free_buffers+32/c0>   <=====
-
->>ecx; c12c09bc <_end+d15204/2038c8a8>
->>esp; c1595ef0 <_end+fea738/2038c8a8>
-
-Trace; c010bb08 <call_do_IRQ+5/d>
-Trace; c017bccd <ext3_releasepage+2d/40>
-Trace; c014d672 <try_to_release_page+52/70>
-Trace; c0140895 <shrink_cache+265/310>
-Trace; c0140a93 <shrink_caches+63/b0>
-Trace; c0140b16 <try_to_free_pages_zone+36/50>
-Trace; c0140c2c <kswapd_balance_pgdat+5c/b0>
-Trace; c0140ca8 <kswapd_balance+28/40>
-Trace; c0140ddd <kswapd+9d/c0>
-Trace; c0105000 <_stext+0/0>
-Trace; c010578e <kernel_thread+2e/40>
-Trace; c0140d40 <kswapd+0/c0>
-
-Code;  c0185102 <journal_try_to_free_buffers+32/c0>
-00000000 <_EIP>:
-Code;  c0185102 <journal_try_to_free_buffers+32/c0>   <=====
-   0:   8b 5b 28                  mov    0x28(%ebx),%ebx   <=====
-Code;  c0185105 <journal_try_to_free_buffers+35/c0>
-   3:   f6 42 19 02               testb  $0x2,0x19(%edx)
-Code;  c0185109 <journal_try_to_free_buffers+39/c0>
-   7:   75 26                     jne    2f <_EIP+0x2f>
-Code;  c018510b <journal_try_to_free_buffers+3b/c0>
-   9:   39 f3                     cmp    %esi,%ebx
-Code;  c018510d <journal_try_to_free_buffers+3d/c0>
-   b:   75 f1                     jne    fffffffe <_EIP+0xfffffffe>
-Code;  c018510f <journal_try_to_free_buffers+3f/c0>
-   d:   f7 44 24 34 50 00 00      testl  $0x50,0x34(%esp,1)
-Code;  c0185116 <journal_try_to_free_buffers+46/c0>
-  14:   00 
-
-
---------------050108060303020109030508--
-
+BUGZILLA (bugs ordered by severity level):
+13  blo  mbligh@aracnet.com  OPEN   user-mode-linux (ARCH=um) compile broken in 2.5.47  
+44  blo  khoa@us.ibm.com  OPEN   radeonfb does not compile at all - seems incomplete? or w...  
+118  blo  mbligh@aracnet.com  OPEN   Load IDE-SCSI module causes OOPS in 2.5.49  
+66  blo  zaitcev@yahoo.com  ASSI   SMP Kernel Compile for Sparc32 fails  
+123  blo  alan@lxorguk.ukuu.org.uk  ASSI   SiL 680 IDE controller has "issues"  
+35  hig  mbligh@aracnet.com  OPEN   Riva Framebuffer doesn't compile  
+111  hig  wli@holomorphy.com  OPEN   hugetlbfs does not align pages  
+113  hig  alan@lxorguk.ukuu.org.uk  OPEN   CMD649 or ALI15X3 problem under 2.5.49 and since many pre...  
+129  hig  greg@kroah.com  OPEN   usb-storage crashes my pc when i plug in a SIIG Compact F...  
+10  hig  andrew.grover@intel.com  ASSI   USB HCs may have improper interrupt configuration with AC...  
+71  hig  andrew.grover@intel.com  ASSI   RTL8100BL (8139) do not work on acpi UP without local apic  
+84  hig  zippel@linux-m68k.org  ASSI   qconf crashes when setting default NLS  
+130  hig  green@namesys.com  ASSI   problems mounting root partition with 2.5.48+ kernels  
+11  nor  mbligh@aracnet.com  OPEN   Intermezzo Compile Failure  
+18  nor  mbligh@aracnet.com  OPEN   Synaptics touchpad driver  
+19  nor  khoa@us.ibm.com  OPEN   aty128fb does not compile  
+32  nor  khoa@us.ibm.com  OPEN   framebuffer drivers dont compile  
+46  nor  mbligh@aracnet.com  OPEN   Two mice: unwanted double-clicks & erratic behavior  
+48  nor  mbligh@aracnet.com  OPEN   APM suspend and PCMCIA not cooperating  
+49  nor  mbligh@aracnet.com  OPEN   register_console() called in illegal context  
+54  nor  mbligh@aracnet.com  OPEN   100% reproduceable "null TTY for (####) in tty_fasync"  
+58  nor  mbligh@aracnet.com  OPEN   OHCI-1394: sleeping function called from illegal context ...  
+63  nor  wli@holomorphy.com  OPEN   compile error with CONFIG_HUGETLB_PAGE yes  
+69  nor  mbligh@aracnet.com  OPEN   Framebuffer bug  
+72  nor  khoa@us.ibm.com  OPEN   Framebuffer scrolls at the wrong times/places  
+79  nor  khoa@us.ibm.com  OPEN   Framebuffer scrolling problem  
+94  nor  mbligh@aracnet.com  OPEN   file remain locked after sapdb process exist.  
+104  nor  khoa@us.ibm.com  OPEN   MIPS fails to build: asm/thread_info.h doesn't exist  
+106  nor  mochel@osdl.org  OPEN   sysfs hierarchy can begin to disintegrate  
+110  nor  khoa@us.ibm.com  OPEN   Current bk Linux-2.5, VFS Kernel Panic from Devfs + NO UN...  
+115  nor  mbligh@aracnet.com  OPEN   Kernel modules won't load  
+116  nor  rth@twiddle.net  OPEN   all mounts oops  
+117  nor  mbligh@aracnet.com  OPEN   build failure: arch/ppc/kernel/process.c  
+119  nor  andrew.grover@intel.com  OPEN   2.5.49 - Dell Latitude weirdness at shutdown  
+122  nor  mbligh@aracnet.com  OPEN   emu10k1 OSS troubles  
+126  nor  mbligh@aracnet.com  OPEN   bzImage build failure on input devices support as module  
+128  nor  mbligh@aracnet.com  OPEN   2.5.50 CONFIG_ACPI_SLEEP fails to build without  
+131  nor  alan@lxorguk.ukuu.org.uk  OPEN   "hda: lost interrupt"; "hda: dma_intr: bad DMA status" on...  
+132  nor  acme@conectiva.com.br  OPEN   windows ip check ARP packet replied by kernel when proxy_...  
+134  nor  mbligh@aracnet.com  OPEN   2.5.50 breaks pcmcia cards  
+135  nor  mbligh@aracnet.com  OPEN   SB16/Alsa doesn't work  
+136  nor  akpm@digeo.com  OPEN   FSID returned from statvfs always 0  
+5  nor  mbligh@aracnet.com  ASSI   64GB highmem BUG()  
+7  nor  willy@debian.org  ASSI   file lock accounting broken  
+9  nor  dbrownell@users.sourceforge...  ASSI   Ehci do not leave system in a sensible state for bios on ...  
+15  nor  alan@lxorguk.ukuu.org.uk  ASSI   No dma on first hard drive  
+16  nor  willy@debian.org  ASSI   reproduceable oops in lock_get_status  
+36  nor  andmike@us.ibm.com  ASSI   Long tape rewind causes abort on aic7xxx  
+37  nor  alan@lxorguk.ukuu.org.uk  ASSI   IDE problems on old pre-PCI HW  
+39  nor  alan@lxorguk.ukuu.org.uk  ASSI   undefined reference to `boot_gdt_table'  
+42  nor  alan@lxorguk.ukuu.org.uk  ASSI   8139too ifconfig causes oops  
+43  nor  jgarzik@pobox.com  ASSI   e100 drivers crashes on non cache-coherent platforms  
+51  nor  paul@laufernet.com  ASSI   isapnp does not register devices in /proc/isapnp  
+52  nor  andmike@us.ibm.com  ASSI   aic7xxx driver fails to boot on netfinity 7000  
+53  nor  alan@lxorguk.ukuu.org.uk  ASSI   IDE cd-rom I/O error  
+100  nor  johnstul@us.ibm.com  ASSI   LTP - gettimeofday02 fails (time is going backwards)  
+105  nor  johnstul@us.ibm.com  ASSI   gettimeofday cripples system running with notsc  
+20  low  khoa@us.ibm.com  OPEN   Kernel AGP support needs to be initialized sooner  
+8  low  alan@lxorguk.ukuu.org.uk  ASSI   i2o_scsi does not handle reset properly  
+28  low  jgarzik@pobox.com  ASSI   Compile time warnings from starfire driver (with PAE enab...  
+29  low  akpm@digeo.com  ASSI   Debug: sleeping function called from illegal context at m...  
+78  low  zippel@linux-m68k.org  ASSI   make dep on lk configuration exit  
+83  low  zippel@linux-m68k.org  ASSI   Wish: ability to quickly cycle through (NEW) config options  
+63 bugs found.

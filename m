@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289573AbSA2LnJ>; Tue, 29 Jan 2002 06:43:09 -0500
+	id <S289566AbSA2LlR>; Tue, 29 Jan 2002 06:41:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289588AbSA2Lmc>; Tue, 29 Jan 2002 06:42:32 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:56079 "HELO
+	id <S289580AbSA2LlJ>; Tue, 29 Jan 2002 06:41:09 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:53775 "HELO
 	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S289517AbSA2Lkr>; Tue, 29 Jan 2002 06:40:47 -0500
-Date: Mon, 28 Jan 2002 20:52:27 +0300
-Message-Id: <200201281752.g0SHqRb23188@bitshadow.namesys.com>
+	id <S289564AbSA2Lkp>; Tue, 29 Jan 2002 06:40:45 -0500
+Date: Mon, 28 Jan 2002 20:51:16 +0300
+Message-Id: <200201281751.g0SHpGc23162@bitshadow.namesys.com>
 From: Hans Reiser <reiser@namesys.com>
 To: torvalds@transmeta.com
 CC: reiser@namesys.com, reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] ReiserFS 2.5 Update Patch Set 25 of 25
+Subject: [PATCH] ReiserFS 2.5 Update Patch Set 21 of 25
 MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -21,9 +21,9 @@ This set of patches of which this is one will update ReiserFS in 2.5
 to contain all bugfixes applied to 2.4 plus allow relocating the journal plus
 uuid support plus fix the kdev_t compilation failure.
 
-25-mount-convert-fix.diff
-    Fixes a case where v3.6 filesystem can get wrong magic after converting
-    from v3.5 one.
+21-reiserfs-inode_cache-fixed.diff
+    reiserfs_inode_cache seems to be too long. converting it to
+    reiser_inode_cache.
 
 
 The other patches in this set are:
@@ -174,14 +174,15 @@ The other patches in this set are:
 
 
 diff -u -r linux/fs/reiserfs/super.c linux-patched/fs/reiserfs/super.c
---- linux/fs/reiserfs/super.c	Mon Jan 28 18:10:37 2002
-+++ linux-patched/fs/reiserfs/super.c	Mon Jan 28 18:05:20 2002
-@@ -1066,6 +1066,7 @@
- 	    /* and -o conv is given */ 
- 	    reiserfs_warning ("reiserfs: converting 3.5 filesystem to the 3.6 format\n") ;
- 	    
-+	    if (is_reiserfs_3_5 (rs))
- 	      /* put magic string of 3.6 format. 2.2 will not be able to
- 		 mount this filesystem anymore */
- 	      memcpy (rs->s_v1.s_magic, reiserfs_3_6_magic_string, 
+--- linux/fs/reiserfs/super.c	Thu Jan 24 18:27:11 2002
++++ linux-patched/fs/reiserfs/super.c	Thu Jan 24 18:23:10 2002
+@@ -425,7 +425,7 @@
+  
+ static int init_inodecache(void)
+ {
+-	reiserfs_inode_cachep = kmem_cache_create("reiserfs_inode_cache",
++	reiserfs_inode_cachep = kmem_cache_create("reiser_inode_cache",
+ 					     sizeof(struct reiserfs_inode_info),
+ 					     0, SLAB_HWCACHE_ALIGN,
+ 					     init_once, NULL);
 

@@ -1,33 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314096AbSHKSii>; Sun, 11 Aug 2002 14:38:38 -0400
+	id <S318032AbSHKSkL>; Sun, 11 Aug 2002 14:40:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318042AbSHKSii>; Sun, 11 Aug 2002 14:38:38 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:32785 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314096AbSHKSii>; Sun, 11 Aug 2002 14:38:38 -0400
-Message-ID: <3D56AECA.8020402@evision.ag>
-Date: Sun, 11 Aug 2002 20:36:58 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.1) Gecko/20020724
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: martin@dalecki.de, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] 2.5.30 IDE 115
-References: <3D53AE13.7060907@evision.ag> <20020809134839.GO2243@suse.de> <3D54279B.2050500@evision.ag> <20020811101709.GI8755@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318042AbSHKSkL>; Sun, 11 Aug 2002 14:40:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4880 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318032AbSHKSkK>;
+	Sun, 11 Aug 2002 14:40:10 -0400
+Date: Sun, 11 Aug 2002 19:43:56 +0100
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: linux-kernel@vger.kernel.org, debian-alpha@lists.debian.org
+Subject: Re: 2.4.19 eat my disc (contents)
+Message-ID: <20020811184356.GC755@gallifrey>
+References: <20020811175252.GB755@gallifrey> <20020811182832.GA21639@wurtel.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020811182832.GA21639@wurtel.net>
+User-Agent: Mutt/1.4i
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.4.18 (i686)
+X-Uptime: 19:42:46 up  8:29,  1 user,  load average: 2.23, 2.26, 2.18
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
->
+* Paul Slootman (paul@debian.org) wrote:
+> On Sun 11 Aug 2002, Dr. David Alan Gilbert wrote:
 > 
-> No, I would appreciate it if you would keep your hands out of the block
-> code.
+> >   I've just lost the contents of my disc on my Alpha to 2.4.19 - be
+> 
+> That's not absolutely sure...
+> 
+> > All tools were from Debian/unstable; updated immediatly prior to the 
+> > kernel build.
+> 
+> It could of course be that during the update something trashed some
+> part of the disk, which only made itself apparent after the reboot.
+> 
+> Golden rule: only change one thing at a time...
 
-OK. I have enough.
+Sure; it was just a standard apt-get dist-upgrade (since I'd not run the
+upgrade for a few weeks); not a major potato->woody transition or
+anything.
 
+> My alpha's been running 2.4.19-rc2 for more than 3 weeks now without any
+> problems (the kernel also has my patches against unaligned accesses in
+> the kernel, for the packet filter and for netfilter).  I don't think
+> anything big would have been changed between rc2 and the final release,
+> so unless it's specific to the IDE driver (I use SCSI) I doubt the
+> kernel is the culprit.
+
+I suspect the IDE driver; but that is difficult to tell.
+
+Dave
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

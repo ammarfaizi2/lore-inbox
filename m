@@ -1,70 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289589AbSBEPdj>; Tue, 5 Feb 2002 10:33:39 -0500
+	id <S289583AbSBEPcs>; Tue, 5 Feb 2002 10:32:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289598AbSBEPda>; Tue, 5 Feb 2002 10:33:30 -0500
-Received: from ns1.intercarve.net ([216.254.127.221]:20743 "HELO
-	ceramicfrog.intercarve.net") by vger.kernel.org with SMTP
-	id <S289594AbSBEPdT>; Tue, 5 Feb 2002 10:33:19 -0500
-Date: Tue, 5 Feb 2002 10:29:59 -0500 (EST)
-From: "Drew P. Vogel" <dvogel@intercarve.net>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: opening a bzImage?
-In-Reply-To: <Pine.LNX.4.30.0202051613010.13539-100000@mustard.heime.net>
-Message-ID: <Pine.LNX.4.33.0202051029430.20545-100000@northface.intercarve.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289589AbSBEPci>; Tue, 5 Feb 2002 10:32:38 -0500
+Received: from mail.internet-factory.de ([195.122.142.5]:49888 "EHLO
+	mail.internet-factory.de") by vger.kernel.org with ESMTP
+	id <S289583AbSBEPcV>; Tue, 5 Feb 2002 10:32:21 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Holger Lubitz <h.lubitz@internet-factory.de>
+Newsgroups: lists.linux.kernel
+Subject: Re: 2.5.3 - (IDE) hda: drive not ready for command errors
+Date: Tue, 05 Feb 2002 16:32:19 +0100
+Organization: Internet Factory AG
+Message-ID: <3C5FFB03.3F33DF7F@internet-factory.de>
+In-Reply-To: <20020201153303.A1508@prester.hh59.org> <5.1.0.14.2.20020201160018.026603b0@pop.cus.cam.ac.uk>
+NNTP-Posting-Host: bastille.internet-factory.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Trace: darkstar.internet-factory.de 1012923139 6675 195.122.142.158 (5 Feb 2002 15:32:19 GMT)
+X-Complaints-To: usenet@internet-factory.de
+NNTP-Posting-Date: 5 Feb 2002 15:32:19 GMT
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre3-ac2 i686)
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Have you reported the details to the FSF?
+(Tried posting this before, but apparently it didn't get through.
+Apologies if it did.)
 
---Drew Vogel
+Anton Altaparmakov proclaimed:
+> I was about to send the drive (IBM 7200rpm 41GiB) back for replacement when
+> I as last resort tried to upgrade the firmware of the drive.
 
-On Tue, 5 Feb 2002, Roy Sigurd Karlsbakk wrote:
+Just out of curiosity - where do you get firmware updates for hard
+drives? I know that most can be flashed with newer firmware, yet i never
+saw an actual update available.
 
->They don't even want to give me the source. I keep trying to force them
->the legal way, as they're breaking the GPL
->
->On Tue, 5 Feb 2002, Drew P. Vogel wrote:
->
->> Ahh, just a guess. May I ask why you need to know the contents of the
->> image? The way it sounds is that you are performing a service for the
->> company. If you are, I don't see any reason they would object to giving
->> you the .config.
->>
->> --Drew Vogel
->>
->> On Tue, 5 Feb 2002, Roy Sigurd Karlsbakk wrote:
->>
->> >> I've never tried this, but could you do something like
->> >>
->> >> bunzip2 -c bzImage > zImage && ar -t zImage
->> >
->> >Doesn't work
->> >
->> >bzcat: dist/images/kernel-nfs is not a bzip2 file.
->> >
->> >
->> >--
->> >Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
->> >
->> >Computers are like air conditioners.
->> >They stop working when you open Windows.
->> >
->> >
->>
->>
->>
->
->--
->Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
->
->Computers are like air conditioners.
->They stop working when you open Windows.
->
->
+I have two IBM DTLA that sometimes make the "funny IBM noises",
+occasionally accompanied by ide resets. They haven't hung the bus, yet,
+but I'd like to be on the safe side.
 
-
-
+Holger

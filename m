@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVAJPrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbVAJPvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262297AbVAJPrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 10:47:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262295AbVAJPrQ
+	id S262295AbVAJPvP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 10:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVAJPvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 10:47:16 -0500
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:42246 "EHLO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S262297AbVAJPpv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 10:45:51 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 10 Jan 2005 10:51:15 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:50833
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S262295AbVAJPvH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 10:51:07 -0500
+Message-ID: <53311.212.184.22.162.1105372175.squirrel@www.tglx.de>
+In-Reply-To: <20050110145615.GC2226@smtp.west.cox.net>
+References: <20050110013508.1.patchmail@tglx>
+    <1105318804.17853.5.camel@tglx.tec.linutronix.de>
+    <20050110145615.GC2226@smtp.west.cox.net>
+Date: Mon, 10 Jan 2005 16:49:35 +0100 (CET)
+Subject: Re: [PATCH 2.6.10-mm2] Use the new preemption code [3/3]
+From: tglx@linutronix.de
+To: "Tom Rini" <trini@kernel.crashing.org>
+Cc: "Thomas Gleixner" <tglx@linutronix.de>, "Ingo Molnar" <mingo@elte.hu>,
+       "LKML" <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH 2.6] cciss typo fix
-Date: Mon, 10 Jan 2005 09:45:44 -0600
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF107DC0188@cceexc23.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6] cciss typo fix
-Thread-Index: AcT1Xdn4+asr/rMURwq+l3tFxkbfogBzSFSQ
-From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-To: "Jens Axboe" <axboe@suse.de>
-Cc: "James Bottomley" <James.Bottomley@SteelEye.com>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "SCSI Mailing List" <linux-scsi@vger.kernel.org>
-X-OriginalArrivalTime: 10 Jan 2005 15:45:50.0374 (UTC) FILETIME=[75B61C60:01C4F72B]
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > -		*block_size = be32_to_cpu(*((__be32 *) 
-> > &buf->block_size[0]));
-> > > +		*total_size = be32_to_cpu(*((__u32 *) 
-> > &buf->total_size[0]))+1;
+> On Mon, Jan 10, 2005 at 02:00:04AM +0100, Thomas Gleixner wrote:
+>
+>> This patch adjusts the PPC entry code to use the fixed up
+>> preempt_schedule() handling in 2.6.10-mm2
+>>
+>> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+>>
+>> ---
+>>  entry.S |    4 ++--
+>>  1 files changed, 2 insertions(+), 2 deletions(-)
+>> ---
+>> Index: 2.6.10-mm1/arch/ppc/kernel/entry.S
+>> ===================================================================
+>> --- 2.6.10-mm1/arch/ppc/kernel/entry.S  (revision 141)
+>> +++ 2.6.10-mm1/arch/ppc/kernel/entry.S  (working copy)
+>> @@ -624,12 +624,12 @@
+>>         beq+    restore
+>>         andi.   r0,r3,MSR_EE    /* interrupts off? */
+>>         beq     restore         /* don't schedule if so */
+>> -1:     lis     r0,PREEMPT_ACTIVE@h
+>> +1:     li      r0,1
+>
+> Perhaps I just don't have enough context, but is there good reason to
+> use a magic constant instead of a define ?
 >
 
+True. I will wait for Ingo's final solution and fix this proper.
 
-> From: Jens Axboe [mailto:axboe@suse.de]
-> Hmm odd, no one should have complained, it should just have been added
-> to the compat header.
+tglx
 
-Even if it were added to the compat header; is using __be32 correct in this context?
 
-mikem
+

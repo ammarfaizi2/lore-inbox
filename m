@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130531AbQLGTlM>; Thu, 7 Dec 2000 14:41:12 -0500
+	id <S129595AbQLGTnw>; Thu, 7 Dec 2000 14:43:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130536AbQLGTlC>; Thu, 7 Dec 2000 14:41:02 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:46092 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130531AbQLGTkx>;
-	Thu, 7 Dec 2000 14:40:53 -0500
-Date: Thu, 7 Dec 2000 19:55:40 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Bernd Kischnick <kisch@mindless.com>, "Theodore Ts'o" <tytso@mit.edu>
-Subject: patch: test12-pre7 cd stuff
-Message-ID: <20001207195539.P6832@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S129669AbQLGTnn>; Thu, 7 Dec 2000 14:43:43 -0500
+Received: from smtp.lax.megapath.net ([216.34.237.2]:1542 "EHLO
+	smtp.lax.megapath.net") by vger.kernel.org with ESMTP
+	id <S129595AbQLGTni>; Thu, 7 Dec 2000 14:43:38 -0500
+Message-ID: <3A2FE0DA.5080100@megapathdsl.net>
+Date: Thu, 07 Dec 2000 11:11:22 -0800
+From: Miles Lane <miles@megapathdsl.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12 i686; en-US; m18) Gecko/20001206
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Russell King <rmk@arm.linux.org.uk>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0-test12-pre7
+In-Reply-To: <Pine.LNX.4.10.10012070923210.2370-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Linus Torvalds wrote:
 
-I've put up a modified cd patch set against 2.4.0-test12-pre7. The
-changes are roughly as follows:
+> probably vote for getting rid of the device enables in
+> pci_assign_unassigned_resources() (for all the reasons already mentioned
+> by others - scribbling over memory due to not being quiescent etc). But
+> it's not worth breaking now. 2.5.x material. Most PCI drivers may already
+> do the right thing, but I bet that the USB driver wasn't the only one who
+> forgot..
 
-o Fix SCSI CD-ROM on fs with < 2KB block size. I've briefly tested
-  with ext2 (1KB) and msdos (512b) and it appears to work. Would
-  the HFS folks try this too?
-o Per command timeout for CD-ROM generic packet
-o Per command quiet bit, as not to print a lot of sense stuff when
-  we know that something may fail
-o Major CDROM_SEND_PACKET cleanup
-o ide-cd shut up stuff (- sense logging in some cases)
-o Make sure that cdrom_sleep actually does that, sleeps
-o Let sr retry a PLAYTRKIND command with PLAYMSF for ide-scsi
-  and ATAPI.
-o Minor sr cleanups
+Is anyone compiling these change lists for 2.5?  I seem to see a few
+of these ideas mentioned on LKML each week.  It would be nice to not
+have these ideas fade away.
 
-*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.0-test12-pre7/cd-2.bz2
+	Miles
 
-In addition I made another small fix after uploading this one. Audio
-ripping can fail with the vm failing to allocate enough contigous
-pages, if ripping programs specify large bites of frames to be ripped.
-Always default to allocating just a single page.
-
-*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.0-test12-pre7/cd-2-cdda_alloc.bz2
-
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265791AbSL3T4l>; Mon, 30 Dec 2002 14:56:41 -0500
+	id <S265819AbSL3UAT>; Mon, 30 Dec 2002 15:00:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265800AbSL3T4l>; Mon, 30 Dec 2002 14:56:41 -0500
-Received: from tomts21-srv.bellnexxia.net ([209.226.175.183]:61134 "EHLO
-	tomts21-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S265791AbSL3T4l>; Mon, 30 Dec 2002 14:56:41 -0500
-Date: Mon, 30 Dec 2002 15:01:27 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: my observations about 2.4.21-pre2
-In-Reply-To: <1041279053.13684.41.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0212301500370.28062-100000@dell>
+	id <S265830AbSL3UAT>; Mon, 30 Dec 2002 15:00:19 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:263 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265819AbSL3UAS>; Mon, 30 Dec 2002 15:00:18 -0500
+Date: Mon, 30 Dec 2002 12:03:24 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: linux-kernel@vger.kernel.org, James Simmons <jsimmons@infradead.org>
+Subject: Re: [PATCH] 2.5 fix link with fbcon built-in
+In-Reply-To: <1041244796.4330.14.camel@zion.wanadoo.fr>
+Message-ID: <Pine.LNX.4.44.0212301201090.2812-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 Dec 2002, Alan Cox wrote:
 
-> On Mon, 2002-12-30 at 18:18, Robert P. J. Day wrote:
-> > Why can't I deactivate all gigabit ethernet settings in one click,
-> >   like I can with 10/100 Mbit settings?  as the choices for 
-> >   gigabit ethernet grow, that list is going to get inconveniently
-> >   long.  a single top option to deselect all of them would be nice.
-> 
-> Follow the example for 10/100 and fix it then send a patch
+On 30 Dec 2002, Benjamin Herrenschmidt wrote:
+>
+> In current bk 2.5, drivers/video/console/fonts.c exports an
+> init_module() symbol when built-in, which prevents the kernel from
+> linking. Here's a quick fix.
 
-asking someone who's never created a kernel patch to send one in?
-boy, you *do* have a lot of faith in your fellow man.  ok,
-i'll give it a shot.
+This is not correct.
 
-rday
+The functions should either be removed completely (preferred, since they 
+aren't even proper C syntax in the first place - since when do we put 
+semicolons at the end of a function?) or the file should be taught to use 
+proper "module_init()/module_exit()" semantics that work _correctly_ for 
+both modules and built-in.
+
+The patch just hides just _how_ crap this file is, and as such should not 
+be applied. Crap doesn't get better from being hidden.
+
+		Linus
+
+> +#ifdef MODULE
+>  int init_module(void) { return 0; };
+>  void cleanup_module(void) {};
+> +#endif
 

@@ -1,63 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317101AbSGCRXi>; Wed, 3 Jul 2002 13:23:38 -0400
+	id <S317102AbSGCRfy>; Wed, 3 Jul 2002 13:35:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317102AbSGCRXh>; Wed, 3 Jul 2002 13:23:37 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:8426 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S317101AbSGCRXe>; Wed, 3 Jul 2002 13:23:34 -0400
-Date: Wed, 3 Jul 2002 19:25:59 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Ulrich Wiederhold <U.Wiederhold@gmx.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-rc1 and devfs
-In-Reply-To: <20020703164004.GB10269@sky.net>
-Message-ID: <Pine.NEB.4.44.0207031856540.14934-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317107AbSGCRfy>; Wed, 3 Jul 2002 13:35:54 -0400
+Received: from hall.mail.mindspring.net ([207.69.200.60]:39469 "EHLO
+	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S317102AbSGCRfx>; Wed, 3 Jul 2002 13:35:53 -0400
+Date: Wed, 3 Jul 2002 13:38:29 -0400
+From: Kareem Dana <kareemy@earthlink.net>
+To: linux-kernel@vger.kernel.org
+Subject: SiS645DX Chipset and agpgart support
+Message-Id: <20020703133829.738c63cd.kareemy@earthlink.net>
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jul 2002, Ulrich Wiederhold wrote:
+Hello,
 
->...
-> > 2. Your .config
-> Hmmm, I don't know whether to attach or to paste it, I think to attach
-> is better, so it's attached.
+I have an ASUS P4S533 motherboard with the sis645dx chipset. I need agpgart support for dri to work correctly, so in my kernel I enabled agpgart support (made the /dev entry) and enabled Generic SiS Chipset support under it.
 
-<--  snip  -->
+When my kernel boots up it complains "Unsupported SiS chipset (device id: 0646), you might want to try agp_try_unsupported=1. no supported devices found."
 
-...
-# CONFIG_MTRR=y
-...
-CONFIG_SCSI_DEBUG_QUEUES=Y
-...
-#CONFIG_EXT3_FS=y
-#CONFIG_JBD=y
-...
-#CONFIG_RAMFS=y
-...
-# CONFIG_SOUND_BT878=m
-...
+Is the 645dx chipset completely unsupported? It is fairly popular. I believe it uses the same agp controller as the regular sis 645. Is that unsupported as well?
 
-<--  snip  -->
+btw, I am using kernel 2.4.18
 
-It does _NOT_ work to edit a .config by hand without running a
-"make oldconfig" after editing it.
-
-After running "make oldconfig" 2.4.19-rc1 compiles fine with your .config
-
-> Uli
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
-
-
+Thanks,
+Kareem

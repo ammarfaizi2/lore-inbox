@@ -1,97 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130607AbRACTxE>; Wed, 3 Jan 2001 14:53:04 -0500
+	id <S129749AbRACUF3>; Wed, 3 Jan 2001 15:05:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130568AbRACTwy>; Wed, 3 Jan 2001 14:52:54 -0500
-Received: from ganymede.or.intel.com ([134.134.248.3]:63236 "EHLO
-	ganymede.or.intel.com") by vger.kernel.org with ESMTP
-	id <S130606AbRACTwm>; Wed, 3 Jan 2001 14:52:42 -0500
-Message-ID: <3A537C2A.A17DCB94@intel.com>
-Date: Wed, 03 Jan 2001 11:23:22 -0800
-From: Randy Dunlap <randy.dunlap@intel.com>
-X-Mailer: Mozilla 4.51 [en] (X11; I; Linux 2.4.0-test12 i686)
+	id <S129853AbRACUFU>; Wed, 3 Jan 2001 15:05:20 -0500
+Received: from femail1.rdc1.on.home.com ([24.2.9.88]:2981 "EHLO
+	femail1.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S129601AbRACUFC>; Wed, 3 Jan 2001 15:05:02 -0500
+Message-ID: <3A537EA8.45889173@home.net>
+Date: Wed, 03 Jan 2001 14:34:01 -0500
+From: Shawn Starr <shawn.starr@home.net>
+Reply-To: shawn.starr@home.net
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-prerelease i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: josh <skulcap@mammoth.org>
-CC: linux-kernel@vger.kernel.org, david-b@pacbell.net,
-        l-u-d <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: usb dc2xx quirk
-In-Reply-To: <Pine.LNX.4.20.0101031155240.2682-100000@www>
-Content-Type: multipart/mixed;
- boundary="------------7D38FE84CE4832C932CF7ED0"
+To: linux-kernel@vger.kernel.org
+Subject: SHM Not working in 2.4.0-prerelease
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------7D38FE84CE4832C932CF7ED0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+I have created the shm directory in /dev
 
-Hi,
+drwxrwxrwt   1 root     root            0 Jan  3 09:51 shm/
 
-Looks like dc2xx.c shouldn't use __devinit/__devexit
-[patch attached]
-or you should enable CONFIG_HOTPLUG under General Setup.
+in my fstab i have:
 
-David?
+shmfs /dev/shm shm defaults 0 0
 
-The ov511 (usb) driver is the only other USB device driver
-that uses __devinit/__devexit.
 
-~Randy
+when I display with top:
 
-josh wrote:
-> 
-> Kernel Version: 2.4.0-test11 - 2.4.0-prerelease
-> Platform: ix86 (PIII)
-> Problem Hardware: Kodac DC280, firmware 1.01
-> 
-> Ever since test10 or after, removing my dc280 from the usb
-> bus causes khubd to crash.  I have tried both UHCI drivers
-> and they produce the same effect.
-> 
-> dmesg, syslog, messages, and .config can be found at:
-> http://mammoth.org/~skulcap/usb-problem
-> 
-> I have looked throug the archives and havent found anything
-> like this, so I'm sorry if it has been covered already.
-> 
-> Thanks in advance!
--- 
-_______________________________________________
-|randy.dunlap_at_intel.com        503-677-5408|
-|NOTE: Any views presented here are mine alone|
-|& may not represent the views of my employer.|
------------------------------------------------
---------------7D38FE84CE4832C932CF7ED0
-Content-Type: text/plain; charset=us-ascii;
- name="dc2xx-dev.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dc2xx-dev.patch"
 
---- linux/drivers/usb/dc2xx.c.org	Sun Nov 12 20:40:42 2000
-+++ linux/drivers/usb/dc2xx.c	Wed Jan  3 11:15:11 2001
-@@ -353,7 +353,7 @@
- 
- 
- 
--static void * __devinit
-+static void *
- camera_probe (struct usb_device *dev, unsigned int ifnum, const struct usb_device_id *camera_info)
- {
- 	int				i;
-@@ -451,7 +451,7 @@
- 	return camera;
- }
- 
--static void __devexit camera_disconnect(struct usb_device *dev, void *ptr)
-+static void camera_disconnect(struct usb_device *dev, void *ptr)
- {
- 	struct camera_state	*camera = (struct camera_state *) ptr;
- 	int			subminor = camera->subminor;
+Mem:    62496K av,   61248K used,    1248K free,       0K shrd,    1868K
+buff
+Swap:   64252K av,   20016K used,   44236K free                   27900K
+cached
 
---------------7D38FE84CE4832C932CF7ED0--
+[spstarr@coredump /etc]$ free
+             total       used       free     shared    buffers
+cached
+Mem:         62496      61264       1232          0       1248
+28848
+
+
+There's no shared memory being used?
+
+mount
+...
+shmfs on /dev/shm type shm (rw)
+
+the shmfs is mounted. Is there any configuration i need to get shm
+memory activiated?
+
+Thanks,
+
+Shawn Starr.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

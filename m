@@ -1,98 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263179AbRE1WL4>; Mon, 28 May 2001 18:11:56 -0400
+	id <S263188AbRE1WQ0>; Mon, 28 May 2001 18:16:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263182AbRE1WLq>; Mon, 28 May 2001 18:11:46 -0400
-Received: from Sarah.SomeSites.com ([208.44.57.7]:53514 "HELO
-	MoveAlong.SomeSites.com") by vger.kernel.org with SMTP
-	id <S263179AbRE1WLi>; Mon, 28 May 2001 18:11:38 -0400
-Message-ID: <002101c0e7c3$18cdbfb0$0100a8c0@SomeSites.com>
-From: "James Turinsky" <lkml@SomeSites.com>
-To: "Mark Hahn" <hahn@coffee.psychology.mcmaster.ca>,
-        "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Jens Axboe" <axboe@suse.de>, <andre@linux-ide.org>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <E154UJT-0003XV-00@the-village.bc.nu>
+	id <S263185AbRE1WQQ>; Mon, 28 May 2001 18:16:16 -0400
+Received: from kathy-geddis.astound.net ([24.219.123.215]:27908 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S263182AbRE1WP6>; Mon, 28 May 2001 18:15:58 -0400
+Date: Mon, 28 May 2001 15:15:45 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
 Subject: Re: [patch]: ide dma timeout retry in pio
-Date: Mon, 28 May 2001 18:11:05 -0400
+In-Reply-To: <20010528223733.O9102@suse.de>
+Message-ID: <Pine.LNX.4.10.10105281501100.366-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 28 May 2001, Jens Axboe wrote:
 
------ Original Message -----
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-To: "Mark Hahn" <hahn@coffee.psychology.mcmaster.ca>
-Cc: "Jens Axboe" <axboe@suse.de>; <andre@linux-ide.org>;
-<alan@lxorguk.ukuu.org.uk>; <linux-kernel@vger.kernel.org>
-Sent: Monday, May 28, 2001 5:12 PM
-Subject: Re: [patch]: ide dma timeout retry in pio
-
-
-> > really?  do we know the nature of the DMA engine problem well
-enough?
->
-> I can categorise some of them:
->
-> 1. Hardware that just doesnt support it.
-> 2. Timeouts that are false positives caused by disks having problems
-> and being very slow to recover
-> 3. Bad cabling
-> 4. Stalls caused by heavy PCI traffic
->
+> On Mon, May 28 2001, Mark Hahn wrote:
+> > > request, when we hit a dma timout. In this case, what we really want to
+> > > do is retry the request in pio mode and revert to normal dma operations
+> > > later again.
+> > 
+> > really?  do we know the nature of the DMA engine problem well enough?
 > > is there a reason to believe that it'll work better "later"?
->
-> #1 will go fail, fail, fail -> PIO now (or should do Im about to try
-it)
-> #2 and #4 will be transient
-> #3 could go either way
+> > I guess I was surprised at resorting to PIO - couldn't we just
+> > break the request up into smaller chunks, still using DMA?
+> 
+> That is indeed possible, it will require some surgery to the dma request
+> path though. IDE has no concept of doing part of a request for dma
+> currently, it's an all-or-nothing approach. That's why it falls back to
+> pio right now.
+> 
+> > I seem to recall Andre saying that the problem arises when the 
+> > ide DMA engine looses PCI arbitration during a burst.  shorter 
+> > bursts would seem like the best workaround if this is the problem...
+> 
+> It's worth a shot. My patch was not meant as the end-all solution,
+> however we need something _now_. Loosing sectors is not funny.
+> Dynamically limiting general request size for to make dma work is a
+> piece of cake, that'll be about a one-liner addition to the current
+> patch. So the logic could be something of the order of:
+> 
+> 	- 1st dma timeout
+> 	- scale max size down from 128kB (127.5kB really) to half that
+> 	...
+> 	- things aren't working, 2nd dma timeout. Scale down to 32kB.
+> 
+> and so forth, revert to pio and reset full size if it's really no good.
+> If limiting transfer sizes solves the problem, this would be the way to
+> go. I'll do another version that does this.
+> 
+> Testers? Who has frequent ide dma timeout problems??
+> 
+> > resorting to PIO would be such a shame, not only because it eats
+> > CPU so badly, but also because it has no checksum like UDMA...
+> 
+> Look at the patch -- we resort to pio for _one_ hunk. That's 8 sectors
+> tops, then back to dma. Hardly a big issue.
 
+Unless we reissue the entire request from scratch you have no idea what if
+anything is on the platters.  Since one can generally only get control
+over the device with a soft reset, you have to assume that anything and
+everything about that request was lost at the device level and begin
+again.
 
-Where does the "'DMA Timeout -> disable DMA' then lose all
-responsiveness when I issue 'hdparm -d1' while it tries and fails to
-re-enable DMA" fit in?  The disk will happily run for several days in
-UDMA33 and then at some point it craps out with a DMA timeout which
-results 1) DMA being turned off and 2) all attempts to re-enable DMA
-failing?
+<RANT>
+This is why it is so important to change to TFAM, because we carry a copy
+of the setup-seek operations with the request, and not unless we error out
+do we change that content.  Thus is a timeout fault not a error case we
+have all the info to re-issue or copy into a retry queue.  But as we all
+know the proper fix can not be even attempted until 2.5...
+</RANT>
 
-And what's up with this:
+One thing that I have been trying is to pop the local ISR at a timeout and
+that looks to handle much if the problem; however, I need to reassemble my
+one test box that I can reproduce the fault 100% of the time.
 
-[root@MoveAlong james]# hdparm /dev/hda
+As I recall, there is a way to reinsert the faulted request, but that
+means the request_struct needs fault counter.  If it is truly a DMA error
+because of re-seeks then the timeout value for that request must be
+expanded.
 
-/dev/hda:
- multcount    =  0 (off)
- I/O support  =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  1 (on)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 19590/16/63, sectors = 19746720, start = 0
-[root@MoveAlong james]# hdparm -tT /dev/hda
+Now the final issue could be that the value of the calculated get-out
+timer may be to short for other reason and the driver is jumping the gun
+to notify and recover.
 
-/dev/hda:
- Timing buffer-cache reads:   128 MB in  6.98 seconds = 18.34 MB/sec
- Timing buffered disk reads:  64 MB in  5.77 seconds = 11.09 MB/sec
-Hmm.. suspicious results: probably not enough free memory for a proper
-test.
-[root@MoveAlong james]# free
-             total       used       free     shared    buffers
-cached
-Mem:        126800     123460       3340          0      67284
-41572
--/+ buffers/cache:      14604     112196
-Swap:       394624      32816     361808
+Cheers,
 
-I used to get ~33MB/sec on buffer-cache and ~10MB/sec on buffered disk
-reads in 2.2...
-
---JT
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
 

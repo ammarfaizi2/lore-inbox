@@ -1,75 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291316AbSBGVX6>; Thu, 7 Feb 2002 16:23:58 -0500
+	id <S291327AbSBGV0R>; Thu, 7 Feb 2002 16:26:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291320AbSBGVXr>; Thu, 7 Feb 2002 16:23:47 -0500
-Received: from stingr.net ([212.193.33.37]:10882 "EHLO stingr.net")
-	by vger.kernel.org with ESMTP id <S291316AbSBGVX3>;
-	Thu, 7 Feb 2002 16:23:29 -0500
-Date: Fri, 8 Feb 2002 00:23:24 +0300
-From: Paul P Komkoff Jr <i@stingr.net>
-To: linux-kernel@vger.kernel.org
+	id <S291332AbSBGV0I>; Thu, 7 Feb 2002 16:26:08 -0500
+Received: from bitmover.com ([192.132.92.2]:50654 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S291324AbSBGVZ7>;
+	Thu, 7 Feb 2002 16:25:59 -0500
+Date: Thu, 7 Feb 2002 13:25:58 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Tom Lord <lord@regexps.com>
+Cc: jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org
 Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-Message-ID: <20020208002324.C423@stingr.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+Message-ID: <20020207132558.D27932@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Tom Lord <lord@regexps.com>, jaharkes@cs.cmu.edu,
+	linux-kernel@vger.kernel.org
 In-Reply-To: <Pine.LNX.4.44.0202052328470.32146-100000@ash.penguinppc.org> <20020207165035.GA28384@ravel.coda.cs.cmu.edu> <200202072306.PAA08272@morrowfield.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200202072306.PAA08272@morrowfield.home>
-User-Agent: Agent Tanya
-X-Mailer: Roxio Easy CD Creator 5.0
-X-RealName: Stingray Greatest Jr
-Organization: Bedleham International
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200202072306.PAA08272@morrowfield.home>; from lord@regexps.com on Thu, Feb 07, 2002 at 03:06:11PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replying to Tom Lord:
 > Arch will certainly need to be tuned for kernel hackers and perhaps
-> customized.  Some systems are still effected by portability bugs (arch
-> has been out for barely a month) Yes: because it is new, it isn't as
-> "off the shelf" a solution as bk.  Nevertheless, arch is self hosting,
-> rich in features, and has properties that I think are ideal for
-> projects such as the kernel.  So if there is to be a shift among
-> kernel developers to coordinating with a source code management tool,
-> one question is whether the effort should be directed toward deploying
-> bk, or towards helping to optimize arch for their use.
+> customized.  
 
-Today I played some interesting games with source code control systems since
-I'vent got a sexual partner to play with him. But I don't satisfied with
-ever :(((
+{Note: I'm not going be drawn into a BK is better or worse than arch
+discussion.  It's not fair to Tom, and it would really need to be a BK now
+vs arch in 5 years discussion to be remotely apples to apples.  So here
+are my thoughts and then I'll leave this to the rest of you to discuss.}
 
-First, cvs. Marcelo uses cvs :))) I using cvs in some places ... just to use
-it. It lacks renaming, it lacks ... many features :(
+An interesting experiment would be to take every kernel revision,
+including all the pre-patches, and import it into arch and report the
+resulting size of the repository and the time to generate each version
+of the tree from that repository.  I suspect that this will demonstrate
+the most serious issue that I have with the arch design.
 
-BitKeeper ... maybe larry should consider increasing single user repository
-from 1000 files to at least 12000 ? the kernel will fit well in it - I don't
-wanna my experiments be published on site. It will confuse people browsing
-it - believe me :)
+In essence arch isn't that different from RCS in that arch is
+fundamentally a diff&patch based system with all of the limitations that
+implies.  There are very good reasons that BK, ClearCase, Aide De Camp,
+and other high end systems, are *not* diff&patch based revision histories,
+they are weave based.  Doing a weave based system is substantially
+harder but has some nice attributes.  Simple things like extracting any
+version of the file takes constant time, regardless of which version.
+Annotated listings work correctly in the face of multiple branches and
+multiple merges.  The revision history files are typically smaller,
+and are much smaller than arch's context diff based patches.
 
-Also bitkeeper ... I don't use X. and without damn renametool I cannot do
-proper renaming :(((
+But most importantly, BK at least, has great merge tools.  At the end of
+the day, what most people spend their time on is merging.  Everything else
+is just accounting and how the system does that is interesting to the
+designers and noone else.  What users care about is how much time they
+spend merging.  It's technically impossible to get arch or CVS or RCS or
+any diff&patch based system to give you the same level of merge support.
 
-aegis cruiser is a good unit in Red Alret 2, and I fear aegis. Installed it,
-and just removed ...
+On the other hand, I like parts of arch.  I have to like the distributed
+repository nature of it, that's a clear reimplementation of BitKeeper
+and Teamware.  I've been waiting for someone to do that for 10 years.
+If arch were weave based, had good merge tools, was started 6 years ago,
+and had a commercial company backing it, BitKeeper probably wouldn't
+exist, we'd be using arch and working on Linux clusters.
 
-... and finally, arch. translate it deutch-to-english, please
+Looking forward, I wonder about money issues, as politically incorrect
+that may be.  We spent millions developing BitKeeper with no end in sight.
+Tom has done a lot of work, but he has to eat as well.  I doubt very
+much that arch will ever generate enough revenue to pay for its ongoing
+development.  Companies simply won't pay for a product in this space
+if they can get it for free.  And the problem with that is there are an
+endless number of corner cases which need to be handled, aren't fun, and
+aren't going to happen for free.  That means arch has a natural growth
+path, it will evolve to a certain point much like CVS has, and then stop.
+It will be a useful point, but it won't be remotely close to covering
+the same problem space that ClearCase or BK or any other professional
+SCM system does.
 
-What I need definitely - to have several branches in scs - one for
-marcelo's, one for ac, one for mjc and several for my experiments
+Before you yell at me, remember that source management is not the same
+as the kernel.  Everyone has to use the kernel, the computer doesn't work
+without it.  Take that set of people and remove everyone who doesn't use
+source management.  Out of a potential space of billions of people, you
+are left with a market of about .5 - 2 million, world wide.  And there
+are 300 SCM systems fighting over that space.  The top 3 have 50% of the
+space.  So 297 systems fighting over maybe a million users.  That's 3300
+users per system.  OK, so if each of those people were willing to pay
+$500 for arch support/whatever, that's a total of 1.6 million dollars.
+Which isn't remotely close enough to get the job done.  And don't forget
+that those people have to volunteer that money, it can't be pried out
+of them.
 
-say, marcelo release new patch -pre2 against base-0, but I already have
-base-0 and patch-1 (pre1), WHAT exactly I must do to add patch-2 to marcelo
-branch ?
+It's just math.  Projects that aren't universally used have a much harder
+time getting funding than projects that everyone uses.  It doesn't matter
+what the value is to you, it matters what the costs are to the developers.
+This is why microsoft is so rich, they build apps that the masses use.
+It's also why clearcase+clearquest is $8000/seat.  It's not because
+that's what the value is, it's because that's what the cost has to be
+or Rational starts to die.
 
-when I derive my branch from for example patch-1 what I must do to attempt
-to update my branch and (prompt to resolve merge conflicts) and then
-continue working on my patch ?
-
-And finally - I got the patch against some revision. Maybe I know it's order
-(this is -pre8 it's after -pre7 but patch is against base), maybe not, maybe
-unknown at all. Where is the handle to pull ?
-
+So before you start talking about support contracts, and grants, and
+whatever, realize that the pool of people interested in paying those
+dollars is very small.  Are _you_ going to send Tom $500?
 -- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
-  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

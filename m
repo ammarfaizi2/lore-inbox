@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318999AbSHST4I>; Mon, 19 Aug 2002 15:56:08 -0400
+	id <S319002AbSHST5e>; Mon, 19 Aug 2002 15:57:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319002AbSHST4I>; Mon, 19 Aug 2002 15:56:08 -0400
-Received: from dsl-213-023-038-214.arcor-ip.net ([213.23.38.214]:25476 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318999AbSHST4I>;
-	Mon, 19 Aug 2002 15:56:08 -0400
+	id <S319007AbSHST5d>; Mon, 19 Aug 2002 15:57:33 -0400
+Received: from dsl-213-023-038-214.arcor-ip.net ([213.23.38.214]:27012 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319002AbSHST5d>;
+	Mon, 19 Aug 2002 15:57:33 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@arcor.de>
-To: Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: [PATCH] rmap bugfix, try_to_unmap
-Date: Mon, 19 Aug 2002 22:01:35 +0200
+To: Mel <mel@csn.ul.ie>, Scott Kaplan <sfkaplan@cs.amherst.edu>
+Subject: Re: [PATCH] rmap 14
+Date: Mon, 19 Aug 2002 21:50:33 +0200
 X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
-References: <Pine.LNX.4.44L.0208121156160.23404-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.44L.0208121156160.23404-100000@imladris.surriel.com>
+Cc: Bill Huey <billh@gnuppy.monkey.org>, Rik van Riel <riel@conectiva.com.br>,
+       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+References: <Pine.LNX.4.44.0208162247590.874-100000@skynet>
+In-Reply-To: <Pine.LNX.4.44.0208162247590.874-100000@skynet>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E17gsiW-0000rS-00@starship>
+Message-Id: <E17gsXp-0000rJ-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 August 2002 16:58, Rik van Riel wrote:
->  	case SWAP_FAIL:
->  		ret = SWAP_FAIL;
-> -		break;
-> +		goto give_up;
+On Saturday 17 August 2002 01:02, Mel wrote:
+> On Fri, 16 Aug 2002, Scott Kaplan wrote:
+> The measure is the time when the script asked the module to read a page.
+> The page is read by echoing to a mapanon_read proc entry. It's looking
+> like it takes about 350 microseconds to enter the module and perform the
+> read. I don't call schedule although it is possible I get scheduled. The only
+> way to be sure would be to collect all timing information within the module
+> which is perfectly possible. The only trouble is that if the module collects,
+> only one test instance can run at a time.
 
-Yes, I looked at that many times while reading the break as a 'break
-from loop' every time.  Using the same keyword to mean 'stop looping'
-and 'endcase' was, by any measure, a stupid idea.
+It sounds like you want to try the linux trace toolkit:
+
+   http://www.opersys.com/LTT/
 
 -- 
 Daniel

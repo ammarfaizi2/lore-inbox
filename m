@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVCOMBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVCOMC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVCOMBE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 07:01:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbVCOMBE
+	id S261188AbVCOMC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 07:02:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVCOMC5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 07:01:04 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:61653 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261179AbVCOMBD (ORCPT
+	Tue, 15 Mar 2005 07:02:57 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:38624 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261185AbVCOMCk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 07:01:03 -0500
-Date: Tue, 15 Mar 2005 13:00:53 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
-Message-ID: <20050315120053.GA4686@elte.hu>
-References: <Pine.LNX.4.58.0503110754240.19798@localhost.localdomain> <20050311153817.GA32020@elte.hu> <Pine.LNX.4.58.0503111440190.22043@localhost.localdomain> <1110574019.19093.23.camel@mindpipe> <1110578809.19661.2.camel@mindpipe> <Pine.LNX.4.58.0503140214360.697@localhost.localdomain> <Pine.LNX.4.58.0503140427560.697@localhost.localdomain> <Pine.LNX.4.58.0503140509170.697@localhost.localdomain> <Pine.LNX.4.58.0503141024530.697@localhost.localdomain> <Pine.LNX.4.58.0503150641030.6456@localhost.localdomain>
+	Tue, 15 Mar 2005 07:02:40 -0500
+Date: Tue, 15 Mar 2005 13:02:18 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: swsusp_restore crap
+Message-ID: <20050315120217.GE1344@elf.ucw.cz>
+References: <1110857069.29123.5.camel@gaston> <1110857516.29138.9.camel@gaston> <20050315110309.GA1344@elf.ucw.cz> <200503151251.01109.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503150641030.6456@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <200503151251.01109.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+> > > > Please kill that swsusp_restore() call that itself calls
+> > > > flush_tlb_global(), it's junk. First, the flush_tlb_global() thing is
+> > > > arch specific, and that's all swsusp_restore() does. Then, the asm just
+> > > > calls this before returning to C code, so it makes no sense to have a
+> > > > hook there. The x86 asm can have it's own call to some arch stuff if it
+> > > > wants or just do the tlb flush in asm...
+> > > 
+> > > Better, here is a patch... (note: flush_tlb_global() is an x86'ism,
+> > > doesn't exist on ppc, thus breaks compile, and that has nothing to do in
+> > > the generic code imho, it should be clearly defined as the
+> > > responsibility of the asm code).
+> > 
+> > x86-64 needs this, too.... Otherwise it looks okay.
+> 
+> It breaks compilation on i386 either, because nr_copy_pages_check
+> is static in swsusp.c.  May I propose the following patch instead (tested on
+> x86-64 and i386)?
 
-> I've realized that my previous patch had too many problems with the
-> way the journaling system works.  So I went back to my first approach
-> but added the journal_head lock as one global lock to keep the buffer
-> head size smaller. I only added the state lock to the buffer head.
-> I've tested this for some time now, and it works well (for the test at
-> least). I'll recompile it with PREEMPT_DESKTOP to see if that works
-> too.
 
-good progress - but the global lock may be a scalability worry on
-upstream though. Would it be possible to just mirror much of the current
-lock logic, but with spinlocks instead of bitlocks? And there should be
-no #ifdefs on PREEMPT_RT.
+> +asmlinkage int __swsusp_flush_tlb(void)
+> +{
+> +	swsusp_restore_check();
 
-	Ingo
+Someone will certainly forget this one, and it is probably
+nicer/easier to just move BUG_ON into swsusp_suspend(), just after
+restore_processor_state() or something like that...
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

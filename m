@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269835AbUH0AD6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269814AbUH0AD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269835AbUH0AD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 20:03:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269817AbUH0AAt
+	id S269814AbUH0AD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 20:03:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269827AbUH0ABe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 20:00:49 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:56499 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S269802AbUHZXyN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 19:54:13 -0400
-Message-ID: <412E7821.7020100@namesys.com>
-Date: Thu, 26 Aug 2004 16:54:09 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Thu, 26 Aug 2004 20:01:34 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:39107 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S269761AbUHZX55 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 19:57:57 -0400
+Date: Fri, 27 Aug 2004 00:57:56 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: linux-kernel@vger.kernel.org
+Subject: maintaining DRM and using bitkeeper..
+Message-ID: <Pine.LNX.4.58.0408270043170.25111@skynet>
 MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>, wichert@wiggy.net,
-       jra@samba.org, torvalds@osdl.org, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-References: <Pine.LNX.4.44.0408260935130.26316-100000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0408260935130.26316-100000@chimarrao.boston.redhat.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
 
->On Thu, 26 Aug 2004, Andrew Morton wrote:
->
->  
->
->>All of which can be handled in userspace library code.
->>
->>What compelling reason is there for doing this in the kernel?
->>    
->>
->
->There's a compelling reason to do it in userspace.  If an
->unaware program copies or moves such a file with streams
->inside, it doesn't break the streams and aware programs will
->continue to see them.
->
->OTOH, if we had the streams in the kernel, unaware applications
->would continuously break the metadata and streams that the
->streams aware programs expect !
->
->  
->
-Well, first off, you don't want streams in the kernel, you want all the 
-little pieces that can be composed together into a stream if you so 
-choose.  Streams are ugly, the pieces are all cool.
+Okay I want to ask other groups of developers how they are maintaining
+subsystems away from linux-kernel list and how they get things merged?
+
+The biggest problem we are facing with the DRM is getting things tested
+before submitting them to Linus as the last thing we want to happen is to
+destabilise the DRM code in the kernel, the two testing paths are
+a) DRM CVS, this gets picked up in DRI snapshots and tested quite heavily
+- this is by far the most successful testing path for the DRM
+b) the -mm tree is more useful for picking out non-x86 (sparc usually)
+users,
+
+At the moment I put patches into the BK CVS first, we stabilise them, I
+take the CVS changes and patch them into bitkeeper, Andrew picks them up,
+we find more bugs I fix em in bitkeeper and put em back in CVS, now
+however the bk tree hasn't got a unique patch for a fix, it has a bunch of
+changesets that are the initial patch plus the fixes for it,
+
+Now if I submit to Linus via the -bk tree I'm screwed when he either a)
+rejects an idea in the tree or b) doesn't respond at all, as I can't just
+have him pull up the changesets that matter as a lot of them have been
+crossed over by core kernel cleanup patches and bk is getting very shirty
+with me about undo and excluding things...if I submit patches to Linus and
+he puts them into his tree then I'll be continually dumping my bk trees
+and starting again - it takes most of an evening to clone a tree to my
+machine at home and I have time to work on this 2 or 3 evenings.. so
+should I abandon bk and go it the old way, this means I submit every patch
+to Linus and the DRM doesn't stay stable, (if we had 2.7 I would be happy
+with this but we don't so .. :-(
+
+So I'm asking is there a better way, considering at this stage I'm not
+*trusted*, the DRM is an unholy mess and I'm the only one stupid enough to
+step up and do anything about it ... (you should see the DRM in CVS at the
+moment it is so much easier to work with without a lot of macros,
+unfortunately it won't go into the kernel anytime soon....)
+
+Dave.
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
+

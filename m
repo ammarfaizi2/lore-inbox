@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129430AbQJ3OIs>; Mon, 30 Oct 2000 09:08:48 -0500
+	id <S129428AbQJ3OLS>; Mon, 30 Oct 2000 09:11:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129470AbQJ3OIi>; Mon, 30 Oct 2000 09:08:38 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:64524 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129430AbQJ3OIT>;
-	Mon, 30 Oct 2000 09:08:19 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux_developer@hotmail.com (Linux Kernel Developer),
-        linux-kernel@vger.kernel.org
-Subject: Re: Need info on the use of certain datastructures and the first C++ keyword patch for 2.2.17 
-In-Reply-To: Your message of "Mon, 30 Oct 2000 14:02:38 -0000."
-             <E13qFWK-0006uI-00@the-village.bc.nu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 31 Oct 2000 01:08:13 +1100
-Message-ID: <4793.972914893@ocs3.ocs-net>
+	id <S129337AbQJ3OLJ>; Mon, 30 Oct 2000 09:11:09 -0500
+Received: from ganymede.or.intel.com ([134.134.248.3]:49677 "EHLO
+	ganymede.or.intel.com") by vger.kernel.org with ESMTP
+	id <S129408AbQJ3OKy>; Mon, 30 Oct 2000 09:10:54 -0500
+Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B27077@hasmsx52.iil.intel.com>
+From: "Hen, Shmulik" <shmulik.hen@intel.com>
+To: "'LKML'" <linux-kernel@vger.kernel.org>,
+        "'LNML'" <linux-net@vger.kernel.org>
+Subject: Locking Between User Context and Soft IRQs in 2.4.0
+Date: Mon, 30 Oct 2000 06:10:44 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2000 14:02:38 +0000 (GMT), 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->> As part of the 2.5 kbuild redesign, symbol versions will be completely
->> redone.  One of the things on my todo list is to detect this mismatch.
->> There are some problems in doing that which I may or may not be able to
->> overcome, but if the field names are different between C and C++ then I
->> can never detect this mismatch correctly.
->
->The symbol generation code never sees the C++ names, never will and never can.
->I still don't see any problem.
+Hello,
 
-2.4 symbol generation code never sees the C++ names, 2.5 code might.
-To detect a mismatch between kernel headers and the module version
-file, I have to generate the checksum for the consumer of the symbol
-(C++) as well as the generator of the symbol (C) and compare them.
+We are trying to port a network driver from 2.2.x to 2.4.x and have some
+question regarding locks.
+According to the kernel locking HOWTO, we have to take extra care when
+locking between user context threads and BH/tasklet/softIRQ,
+so we learned (the hard way ;-) that when running the ioctl system call from
+an application we should use spin_lock/unlock_bh() and not
+spin_lock/unlock() inside dev->do_ioctl().
 
-There are issues involving partially defined structures which might
-make this impossible to do, although I have some ideas on that front.
-But if kernel code uses C names and module code uses C++ names there
-will always be a spurious mismatch.  That would prevent symbol versions
-from picking up some user errors.
+*	What about the other entry points implemented in net_device ? 
+*	We've got dev->get_stats, dev->set_mac_address,
+dev->set_mutlicast_list and others that are all called from running
+'ifconfig' which is an application. Are they considered user context too ?
+*	What about dev->open and dev->stop ?
+*	We figured that dev->hard_start_xmit() and timer callbacks are not
+considered user context, but how can I find out if they are being run as
+SoftIRQ or as tasklets or as Bottom Halves ? (their different definitions
+require different types of protections)
+
+Our driver is actually an intermediate driver bound on top of a regular net
+driver. It behaves both as a network adapter driver and a protocol at the
+same time. I can safely assume that it will have to handle both transmits
+and receives simultaneously (no hardware interrupts are involved). We've
+decided that for the first stage we are going to implement "wide" locks that
+wrap entire operations from top to bottom. For example, our
+dev->hard_start_xmit() will have a spin_lock() at the beginning and a
+spin_unlock() at the end of the function.
+*	Will it be safe to keep the lock until after the call to the base
+driver's hard_start_xmit, or do I have to release the lock just before that
+?
+*	Or, in our receive function, will I have to release the lock before
+or after the call to netif_rx() ?
+*	What about other calls to the kernel ? can the running thread be
+switched out of context when calling kernel entries and not be switched back
+in when they finish ? should I beware of deadlocks in such case ?
+
+
+	Thanks in advance,
+	Shmulik Hen,
+      	Software Engineer
+	Linux Advanced Networking Services
+	Network Communications Group, Israel (NCGj)
+	Intel Corporation Ltd.
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

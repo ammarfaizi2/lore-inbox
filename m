@@ -1,70 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264373AbRFGKDf>; Thu, 7 Jun 2001 06:03:35 -0400
+	id <S262406AbRFGKQh>; Thu, 7 Jun 2001 06:16:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262406AbRFGKD0>; Thu, 7 Jun 2001 06:03:26 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:6351 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S262400AbRFGKDQ>; Thu, 7 Jun 2001 06:03:16 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister table
-Date: Thu, 7 Jun 2001 10:03:12 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9fnjh0$d1c$1@forge.intermeta.de>
-In-Reply-To: <200106051659.LAA20094@em.cig.mot.com> <15134.49211.159673.522020@pizda.ninka.net>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 991908192 4191 212.34.181.4 (7 Jun 2001 10:03:12 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 7 Jun 2001 10:03:12 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S264386AbRFGKQ1>; Thu, 7 Jun 2001 06:16:27 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:50406 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S262421AbRFGKQJ>;
+	Thu, 7 Jun 2001 06:16:09 -0400
+Message-ID: <3B1F51DB.54BE78CA@iph.to>
+Date: Thu, 07 Jun 2001 13:05:15 +0300
+From: Philips <philips@iph.to>
+Organization: Enformatica Ltd. UK
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: temperature standard - global config option?
+In-Reply-To: <20010606155026.A28950@bug.ucw.cz> <B74421C0.F6F7%bootc@worldnet.fr> <20010606224203.A2044@atrey.karlin.mff.cuni.cz> <20010606235213.C1136@werewolf.able.es>
+Content-Type: multipart/mixed;
+ boundary="------------5195CADA6EA02E183D529ED5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
+This is a multi-part message in MIME format.
+--------------5195CADA6EA02E183D529ED5
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
->And my current understanding is that allowing proprietary
->reimplementations of the VM, VFS, and core networking, is not one of
->the things which is allowed.
+Hello All!
 
-...is wanted (by you and possibly Linus). Not ...is allowed. 
- 
-It _is_ already allowed. Someone can use the posted patch which is GPL
-open source, put it into the kernel and use their proprietary module.
+	Kelvins good idea in general - it is always positive ;-)
 
-And this is legal according to the "Kernel GPL, Linus Torvalds edition
-(TM)" which says "any loadable module can be binary only". Not "only
-loadable modules which are drivers". It may not be the intention but
-it is the fact.
+	0.01*K fits in 16 bits and gives reasonable range.
 
-The cat is already out of the box. Ok, someone will have to maintain
-the small glue patch separate from the kernel but you're already
-screwed. You, as a nay-sayer, just make work a little harder for some
-of the really useful uses of such an addition and life a little easier
-for companies that supply such a feature with their OS and say that
-Linux, oops, DaveM stifles and hinders inovation because of ego. And
-that a "shared source" model avoids single persons jumping up and down
-until they're blue in their face to block others. And that their code
-base will not fork over such a minor issue.
+	but may be something like K<<6 could be a option? (to allow use of shifts
+instead of muls/divs). It would be much more easier to extract int part.
 
-And all this is still a part of "freedom".
+	just my 2 eurocents.
+--------------5195CADA6EA02E183D529ED5
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="philips.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for Philips
+Content-Disposition: attachment;
+ filename="philips.vcf"
 
-	Regards
-		Henning
+begin:vcard 
+n:Filiapau;Ihar
+tel;pager:+375 (0) 17 2850000#6683
+tel;fax:+375 (0) 17 2841537
+tel;home:+375 (0) 17 2118441
+tel;work:+375 (0) 17 2841371
+x-mozilla-html:TRUE
+url:www.iph.to
+org:Enformatica Ltd.;Linux Developement Department
+adr:;;Kalinine str. 19-18;Minsk;BY;220012;Belarus
+version:2.1
+email;internet:philips@iph.to
+title:Software Developer
+note:(none)
+x-mozilla-cpt:;18368
+fn:Philips
+end:vcard
 
-[ I consider your position a good and valid one from a "pure" view and
-I really like it. But reality is different. And you should _work_ with
-the people, and help them to keep their stuff in the open source and
-not insult them. ]
+--------------5195CADA6EA02E183D529ED5--
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

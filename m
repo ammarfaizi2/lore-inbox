@@ -1,53 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263244AbTLSO07 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 09:26:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbTLSO07
+	id S263062AbTLSOqc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 09:46:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbTLSOqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 09:26:59 -0500
-Received: from holomorphy.com ([199.26.172.102]:11415 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263244AbTLSO06 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 09:26:58 -0500
-Date: Fri, 19 Dec 2003 06:26:54 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Kevin Douglas <kevindouglas@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Compiler error for 2.6.0 in fs/proc/array.c
-Message-ID: <20031219142654.GQ31393@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Kevin Douglas <kevindouglas@yahoo.com>,
-	linux-kernel@vger.kernel.org
-References: <20031219141531.13031.qmail@web40809.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031219141531.13031.qmail@web40809.mail.yahoo.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Fri, 19 Dec 2003 09:46:32 -0500
+Received: from cafe.hardrock.org ([142.179.182.80]:21376 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP id S263062AbTLSOq3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 09:46:29 -0500
+Date: Fri, 19 Dec 2003 07:46:28 -0700 (MST)
+From: James Bourne <jbourne@hardrock.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.23-uv2 patch set released
+Message-ID: <Pine.LNX.4.51.0312190733320.1524@cafe.hardrock.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 19, 2003 at 06:15:31AM -0800, Kevin Douglas wrote:
-> Compiler error for 2.6.0 in fs/proc/array.c with gcc-2.95 and binutils
-> 2.13.
-> I received the following error while trying to compile the new 2.6.0
-> (no -test anything) on my RH 7.3 box.  I have gcc version 2.95.3
-> installed in addion to the yuckie 2.96 from RH.  While search the
-> mailing list archives, I found some patches for the -test7 and/or
-> -test8 series that claim they fix a gcc 2.96 bug.  I applied the patch
-> on the original 2.6.0 source tree and the compile went through.  The
-> patch I'm talking about involved making the tty_nr variable into a
-> volatile int in the file fs/proc/array.c line number 298.  There are
-> other patches that attempt to break up the huge sprintf() statement on
-> line 347 into smaller chucks.  I'm not sure which would be preferable
-> to the maintainer.
-> The point of this email is to hopefully bring to your attention a
-> compilation bug in the 2.6.0 source.  If I made a mistake and don't
-> have my environment set up correctly, please accept my appologies.
-> Hope this helps,
-> -kevin
+The Update Version patchset is a set of patches which include only fatal
+compile/runtime bug fixes and security updates for the current kernel
+version.  This patch set can be used in production environments for those
+who wish to run 2.4.23, but do not use vendor kernels and at the same time
+require patches which add to the stability of the current release kernel
+version.  This is a patch set only, it does not include kernel source.
 
-What you have found is actually a gcc bug. Upgrade gcc!
+Current version is 2.4.23-uv2 and contains many patches pulled from bit
+keeper including some ppc64 and a sparc32 build fix.
 
--- wli
+The complete URL to the patch set is
+http://www.hardrock.org/kernel/current-updates/linux-2.4.23-updates.patch
+
+Individual patches can be viewed and downloaded from
+http://www.hardrock.org/kernel/current-updates/
+
+This patch set only contains and will only contain security updates and
+fixes for the latest kernel version.  Each individual patch contains text
+WRT the patch itself and the creator of the patch, I will try to keep doing
+that as standard reference for the complete collection.
+
+Please send bug reports to jbourne@hardrock.org and CC
+linux-kernel@vger.kernel.org.
+
+Patch specifics are:
+linux-2.4.23-updates.patch: Contains all the patches below.         
+
+linux-2.4.23-extraversion.patch: Updated the extraversion in the Makefile
+
+linux-2.4.23-file_lock_acct.patch: Remove broken file lock accounting
+
+linux-2.4.23-ht-detect.patch: Fixup smb_boot_cpus(): Fix HT detection bug
+
+linux-2.4.23-ipfw_compat_oops.patch: fix for a known bug in the netfilter
+
+linux-2.4.23-ll_rw_blk_race_fix.patch: from -aa tree: Fix potential fsync()
+	race condition
+
+linux-2.4.23-lockd_reclaim.patch: Drop module count if lockd reclaimer
+	thread failed to start
+
+linux-2.4.23-no_idt.patch: fix reboot/no_idt bug
+
+linux-2.4.23-oom_kill.patch: out_of_memory() locking issue
+
+linux-2.4.23-rbs_clobber.patch: ia64: Fix a bug in sigtramp() which
+	corrupted ar.rnat when unwinding across a signal trampoline
+	(in user space).  Reported by Laurent Morichetti.
+
+linux-2.4.23-root_rlim.patch: Make root a special case for per-user process
+	limits.
+
+linux-2.4.23-rtc-compile.patch: Patch to allow RTC to compile properly on
+	some systems, see http://lkml.org/lkml/2003/12/1/150
+
+duplicate-pid-fix-2.4.23.patch: Without this, duplicate pids can be
+	allocated, which will make one of them unkillable (signals are
+	deliverd to only one of them), and this can be exploitable (I don't
+	know for sure, but maybe, like brk()).
+
+irda-log-buster-2.4.23.patch: I just ran 2.4.23, and after a few min the
+	disk reached 100% capacity. A quick check lead to to oversized
+	kernel log, and to the following changeset.
+
+iseries-saverestore-flags-2.4.23.patch: [PPC64] Fix save_flags/restore_flags
+	on iSeries.
+
+mct_u232-baudratefix-2.4.23.patch: Fix a problem in the 'mct_u232' driver
+	whereby output data gets held up in the USB/RS-232 adapter for RS-232
+	devices which don't assert the 'CTS' signal.
+
+odirect-offset-2.4.23.patch: here's an obvious mistake i made in the NFS
+	O_DIRECT implementation.  A missing type cast causes the offset of direct
+	read and write requests to wrap at 4GB.
+
+ppc64-pmc-compile-fix-2.4.23.patch: [PPC64] Fix compile error in
+	arch/ppc64/kernel/pmc.c
+
+ppc64-smp_call_function_late_ipi-2.4.23.patch: [PPC64] Fix smp_call_function
+	so we don't crash if an IPI is very late.
+
+rtc-leak-2.4.23.patch: [PATCH] Fix rtc leak
+
+sparc32-build-fix-2.4.23.patch: [SPARC32]: Fix build after asm/system.h
+	include was added to linux/spinlock.h
+
+usb-serial-edgeport-counter-and-alignment-2.4.23.patch: [PATCH] USB: fix bug
+	when errors happen in ioedgeport driver
+
+Regards
+James Bourne
+
+-- 
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  

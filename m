@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261272AbTEHKDT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 06:03:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbTEHKDT
+	id S261201AbTEHKIN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 06:08:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbTEHKIN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 06:03:19 -0400
-Received: from routeree.utt.ro ([193.226.8.102]:29060 "EHLO klesk.etc.utt.ro")
-	by vger.kernel.org with ESMTP id S261272AbTEHKDS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 06:03:18 -0400
-Message-ID: <52559.194.138.39.56.1052389206.squirrel@webmail.etc.utt.ro>
-Date: Thu, 8 May 2003 13:20:06 +0300 (EEST)
-Subject: Q: Anticipatory scheduler docs
-From: "Szonyi Calin" <sony@etc.utt.ro>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-Mailer: SquirrelMail (version 1.2.8)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
-X-MailScanner-Information: Please contact the ISP for more information
+	Thu, 8 May 2003 06:08:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63379 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261201AbTEHKIM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 06:08:12 -0400
+Date: Thu, 8 May 2003 11:20:47 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Terje Eggestad <terje.eggestad@scali.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Steffen Persvold <sp@scali.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The disappearing sys_call_table export.
+Message-ID: <20030508102047.GT10374@parcelfarce.linux.theplanet.co.uk>
+References: <200305071507_MC3-1-37CF-FE32@compuserve.com> <1052387912.4849.43.camel@pc-16.office.scali.no> <20030508095943.B22255@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030508095943.B22255@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone
+On Thu, May 08, 2003 at 09:59:43AM +0000, Arjan van de Ven wrote:
+> On Thu, May 08, 2003 at 11:58:33AM +0200, Terje Eggestad wrote:
+> > I guess something like this:
+> > 
+> > typedef int (*syscall_hook_t)(void * arg1, void * arg2, void * arg3,
+> > void * arg4, void * arg5, void * arg6);
+> > 
+> > #define HOOK_IN_FLAG 0x1
+> > #define HOOK_OUT_FLAG 0x2
+> > 
+> > opaquehandle = int register_syscall_hook(int syscall_nr, syscall_hook_t
+> > hook_function, int flags);
+> > int unregister(int opaquehandle);
+> > 
+> > I'd make a stab at it if I knew that it stood a chance of getting
+> > accepted. 
+> 
+> I dont think it has.
 
-Where can I find documentation about the anticipatory scheduler
-and about tuning it ?
-
-Thanks
-
-Bye
-Calin
-
--- 
-# fortune
-fortune: write error on /dev/null --- please empty the bit bucket
-
-
------------------------------------------
-This email was sent using SquirrelMail.
-   "Webmail for nuts!"
-http://squirrelmail.org/
-
-
+I think it could, actually - who maintains fortunes these days?  It's
+a bit too long, though...

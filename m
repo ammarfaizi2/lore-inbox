@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbTLUBZj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 20:25:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTLUBZj
+	id S261973AbTLUBUO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 20:20:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbTLUBUN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 20:25:39 -0500
-Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:48814 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262130AbTLUBZe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 20:25:34 -0500
-Date: Sun, 21 Dec 2003 02:25:31 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: 2.6.0-test11 BK: sg and scanner modules not auto-loaded?
-Message-ID: <20031221012531.GB30123@merlin.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20031219181039.GI3017@kroah.com> <20031221003020.63E6A2C0B8@lists.samba.org>
+	Sat, 20 Dec 2003 20:20:13 -0500
+Received: from mail.kroah.org ([65.200.24.183]:43932 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261973AbTLUBUL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 20:20:11 -0500
+Date: Sat, 20 Dec 2003 17:19:54 -0800
+From: Greg KH <greg@kroah.com>
+To: =?iso-8859-1?Q?Ga=EBl?= Deest <GUtopiste@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops while unloading module
+Message-ID: <20031221011954.GA3507@kroah.com>
+References: <3FE43FD9.3010509@free.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20031221003020.63E6A2C0B8@lists.samba.org>
-User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3FE43FD9.3010509@free.fr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Dec 2003, Rusty Russell wrote:
+On Sat, Dec 20, 2003 at 01:26:01PM +0100, Gaël Deest wrote:
+> I first apologize for my approximative english.
+> 
+> I will soon get a Logitech Quickcam pro 4000, so I compiled my kernel 
+> with the PWC driver for Philips webcams (built-in). In addition, I tried 
+> to load the external (and closed-source) pwcx module (without the webcam 
+> plugged-in, of course). When I wanted to unload it with rmmod, it ended 
+> with "Segmentation fault" and I got the following Oops :
 
-> It's been argued that kmod should place a request with the hotplug
-> subsystem, rather than call modprobe, but that's a little too radical
-> for me just yet.
+You'll have to ask the pwcx driver author about this, sorry.
 
-Hotplug works for 2.4, I don't know what is different in 2.6 - are there
-hotplug relevant kernel changes? Stupid question maybe, but I'm asking
-nonetheless :-)
-
--- 
-Matthias Andree
-
-Encrypt your mail: my GnuPG key ID is 0x052E7D95
+greg k-h

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267925AbTBELln>; Wed, 5 Feb 2003 06:41:43 -0500
+	id <S267932AbTBEMMM>; Wed, 5 Feb 2003 07:12:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267926AbTBELln>; Wed, 5 Feb 2003 06:41:43 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:8206 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S267925AbTBELln>; Wed, 5 Feb 2003 06:41:43 -0500
-Message-Id: <200302051143.h15BhGs18013@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Andreas Schwab <schwab@suse.de>
-Subject: Re: gcc 2.95 vs 3.21 performance
-Date: Wed, 5 Feb 2003 13:41:34 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-References: <200302042011.h14KBuG6002791@darkstar.example.net> <200302050717.h157HTs16569@Port.imtp.ilyichevsk.odessa.ua> <jevfzzj9ov.fsf@sykes.suse.de>
-In-Reply-To: <jevfzzj9ov.fsf@sykes.suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S267934AbTBEMML>; Wed, 5 Feb 2003 07:12:11 -0500
+Received: from [217.167.51.129] ([217.167.51.129]:59385 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S267932AbTBEMMJ>;
+	Wed, 5 Feb 2003 07:12:09 -0500
+Subject: Re: 2.4.21-pre4: PDC ide driver problems with shared interrupts
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20030205123951.54207275.skraw@ithnet.com>
+References: <20030202161837.010bed14.skraw@ithnet.com>
+	 <3E3D4C08.2030300@pobox.com> <20030202185205.261a45ce.skraw@ithnet.com>
+	 <3E3D6367.9090907@pobox.com> <20030205104845.17a0553c.skraw@ithnet.com>
+	 <1044443761.685.44.camel@zion.wanadoo.fr>
+	 <20030205123951.54207275.skraw@ithnet.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044447738.685.113.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 05 Feb 2003 13:22:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 February 2003 12:36, Andreas Schwab wrote:
-> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
-> |> I am damn sure that if you compile with less sadistic alignment
-> |> you will get smaller *and* faster kernel.
->
-> So why don't you try it out?  GCC offers everything you need for this
-> experiment.
 
-I did. Others did it too on occasion.
+> I have to give a short note on this one:
+> indeed is the system currently running with a single CPU, _but_ since it is a
+> dual-mb the kernel is already compiled for SMP. It is started with "nosmp"
+> option though. I wanted to mention this not knowing if it is important for the
+> codepath.
 
-My argument was against overusing optimization techniques.
-You cannot speed up kernel by aligning *everything* to 32 bytes,
-or by unrolling all loops, or by aggressive inlining.
-That's too easy to work. You get kernel which is bigger
-*and* slower.
---
-vda
+Shouldn be an issue. I suppose you don't use fancy stuff like preempt or
+IDE taskfile IO, right ?
+
+Ben.
+

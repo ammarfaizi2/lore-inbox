@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264432AbTF2UWU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 16:22:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264449AbTF2UWT
+	id S264088AbTF2UXN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 16:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264025AbTF2UXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 16:22:19 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:33422
+	Sun, 29 Jun 2003 16:23:13 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:34190
 	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264432AbTF2UWP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 16:22:15 -0400
-Subject: Re: 2.5.73-mm2 - odd audio problem, bad intel8x0/ac97 clocking.
+	id S264736AbTF2UWq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 16:22:46 -0400
+Subject: Re: HELP! Mysterious oops around PIPE code, kernel 2.4.18
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Valdis.Kletnieks@vt.edu
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       davej@codemonkey.org.uk
-In-Reply-To: <200306291810.h5TIApEA002032@turing-police.cc.vt.edu>
-References: <200306282131.h5SLVjGk001833@turing-police.cc.vt.edu>
-	 <20030628171036.4af51e08.akpm@digeo.com>
-	 <200306291810.h5TIApEA002032@turing-police.cc.vt.edu>
+To: Ned Ren <nedren@yahoo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030629175836.64302.qmail@web10901.mail.yahoo.com>
+References: <20030629175836.64302.qmail@web10901.mail.yahoo.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1056918812.16255.15.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1056918855.16255.17.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 29 Jun 2003 21:33:33 +0100
+Date: 29 Jun 2003 21:34:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-06-29 at 19:10, Valdis.Kletnieks@vt.edu wrote:
-> > It could be that do_gettimeofday() has gone silly.  Could you
-> > add this patch and see what it says?
-> 
-> Woo woo.  Good catch, Andrew.  It says:
-> 
-> intel8x0_measure_ac97_clock: measured 39909 usecs
-> 
-> Hmm.. wonder why it's 40K rather than the expected 50K...
+On Sul, 2003-06-29 at 18:58, Ned Ren wrote:
+> I am running out of ideas about this problem. Our system keeps crashing near the pipe code
+> (pipe_write, pipe_release etc), even within some very innocent system calls like date or grep. I
+> have found a thread mentioning gcc bug and we have recompiled the kernel using both gcc-2.95 and
+> gcc-3.3 (on redhat 9) but didn't help.
 
-Lots of laptops clock the i810 audio off an existing clock and software
-fix up the difference. Saves components.
+Do the problems occur without the ipsec/ip_ids and other odd modules
+loaded ?
 
 

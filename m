@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130202AbRAXIpJ>; Wed, 24 Jan 2001 03:45:09 -0500
+	id <S130172AbRAXIsR>; Wed, 24 Jan 2001 03:48:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130685AbRAXIoi>; Wed, 24 Jan 2001 03:44:38 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:51373 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S130172AbRAXIoZ>; Wed, 24 Jan 2001 03:44:25 -0500
-Date: Wed, 24 Jan 2001 08:44:23 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: Sasi Peter <sape@iq.rulez.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <Pine.LNX.4.30.0101240156150.3522-100000@iq.rulez.org>
-Message-ID: <Pine.SOL.4.21.0101240843270.27813-100000@green.csi.cam.ac.uk>
+	id <S130329AbRAXIsI>; Wed, 24 Jan 2001 03:48:08 -0500
+Received: from oldftp.webmaster.com ([209.10.218.74]:55473 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S130172AbRAXIrz>; Wed, 24 Jan 2001 03:47:55 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Chris Wedgwood" <cw@f00f.org>,
+        "Leslie Donaldson" <donaldlf@hermes.cs.rose-hulman.edu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Question: Memory change request
+Date: Wed, 24 Jan 2001 00:47:53 -0800
+Message-ID: <NCBBLIEPOCNJOAEKBEAKIEPFNDAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20010124210500.B7029@metastasis.f00f.org>
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jan 2001, Sasi Peter wrote:
 
-> On 14 Jan 2001, Linus Torvalds wrote:
+> mprotect the page(s) you are interested in so you can't write to them
+> and catch SEGV -- when someone attempts to write you can pull apart
+> the stack frame mark the page(s) RO and continue.
 > 
-> > The only obvious use for it is file serving, and as high-performance
-> > file serving tends to end up as a kernel module in the end anyway (the
-> > only hold-out is samba, and that's been discussed too), "sendfile()"
-> > really is more a proof of concept than anything else.
-> 
-> No plans for samba to use sendfile? Even better make it a tux-like module?
-> (that would enable Netware-Linux like performance with the standard
-> kernel... would be cool afterall ;)
+> if you are really stuck i think i have example code to do this
+> somewhere for ia32 (stack frame is arch. dependent)
 
-AIUI, Jeff Merkey was working on loading "userspace" apps into the kernel
-to tackle this sort of problem generically. I don't know if he's tried it
-with Samba - the forking would probably be a problem...
+	I bet ElectricFence would serve as example code.
 
-
-James.
+	DS
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

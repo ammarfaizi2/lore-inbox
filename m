@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293557AbSCKCfF>; Sun, 10 Mar 2002 21:35:05 -0500
+	id <S293577AbSCKCgF>; Sun, 10 Mar 2002 21:36:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293558AbSCKCe4>; Sun, 10 Mar 2002 21:34:56 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:3258 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S293557AbSCKCes>;
-	Sun, 10 Mar 2002 21:34:48 -0500
-Date: Sun, 10 Mar 2002 18:31:30 -0800 (PST)
-Message-Id: <20020310.183130.69987871.davem@redhat.com>
-To: bcollins@debian.org
-Cc: rgooch@ras.ucalgary.ca, laforge@gnumonks.org, skraw@ithnet.com,
-        joe@tmsusa.com, linux-kernel@vger.kernel.org, elsner@zrz.TU-Berlin.DE
+	id <S293576AbSCKCf4>; Sun, 10 Mar 2002 21:35:56 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:5306 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S293558AbSCKCfg>;
+	Sun, 10 Mar 2002 21:35:36 -0500
+Date: Sun, 10 Mar 2002 18:32:20 -0800 (PST)
+Message-Id: <20020310.183220.31058484.davem@redhat.com>
+To: mfedyk@matchmail.com
+Cc: bcrl@redhat.com, whitney@math.berkeley.edu, rgooch@ras.ucalgary.ca,
+        linux-kernel@vger.kernel.org
 Subject: Re: Broadcom 5700/5701 Gigabit Ethernet Adapters
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020311022212.GC528@blimpo.internal.net>
-In-Reply-To: <20020311020452.GB528@blimpo.internal.net>
-	<20020310.181308.88443156.davem@redhat.com>
-	<20020311022212.GC528@blimpo.internal.net>
+In-Reply-To: <20020311022821.GB311@matchmail.com>
+In-Reply-To: <20020310.180456.91344522.davem@redhat.com>
+	<20020310212210.A27870@redhat.com>
+	<20020311022821.GB311@matchmail.com>
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -24,13 +24,14 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ben Collins <bcollins@debian.org>
-   Date: Sun, 10 Mar 2002 21:22:12 -0500
+   From: Mike Fedyk <mfedyk@matchmail.com>
+   Date: Sun, 10 Mar 2002 18:28:21 -0800
    
-   Ahh...so now I can ditch their driver :) You may want to update the
-   description so that's more clear.
+   What is happening with NAPI anyway?
+   
+Pending inclusion into 2.5.x once I get my existing networking patches
+pushed to Linus first.
 
-There are many boards based upon the Tigon3 chipset, I don't
-mention any of them specifically in any of the documentation.
-I don't even know what the full list is.
-
+It may be backported to 2.4.x one day, but I personally don't think
+that is such a great idea for the time being.  Maybe in a month or
+two, but not right now.

@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVALIxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVALJNu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbVALIxu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 03:53:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVALIxu
+	id S261303AbVALJNu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 04:13:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVALJNt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 03:53:50 -0500
-Received: from web60607.mail.yahoo.com ([216.109.118.245]:21070 "HELO
-	web60607.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261300AbVALIxq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 03:53:46 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=XWbDHQBD7Azht/u0TUIgp5sDk0mC3lp16QWucHTR66JHuvowrXaNPMyJkxfaQEDXMlFXfzGW+5nhmYKyF9FjjrZ1WutElvOI6Ml6bC0wMH2hSif3KMIyPfo8Co3SDZGHMWvXFdrSM/cX/zxE35IS+XqV/Hb3IshXRSRLUjxyDQM=  ;
-Message-ID: <20050112085345.88349.qmail@web60607.mail.yahoo.com>
-Date: Wed, 12 Jan 2005 00:53:45 -0800 (PST)
-From: selvakumar nagendran <kernelselva@yahoo.com>
-Subject: Removing a module even if use count is not zero
-To: linux-kernel@vger.kernel.org
+	Wed, 12 Jan 2005 04:13:49 -0500
+Received: from info.elf.stuba.sk ([147.175.111.14]:48142 "EHLO
+	info.elf.stuba.sk") by vger.kernel.org with ESMTP id S261303AbVALJNs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 04:13:48 -0500
+Message-ID: <41E4EB04.50705@kasr.elf.stuba.sk>
+Date: Wed, 12 Jan 2005 10:16:52 +0100
+From: peto <fodrek@kasr.elf.stuba.sk>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: ATX Power Off(down) without APM. Is it possible?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanned: by AntiVirus filter AVilter (msg.7Q9WKDdh@delta.elf.stuba.sk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello linux-experts,
-    I inserted my module into the running kernel that
-intercepts read system call. I am using kernel 2.4.28.
-Now, I am unable to remove it since each and every
-time, the module is used by some process. How can I
-remove the module even if the usecount is not zero?
-    Can anyone help me regarding this?
+Dear kernel hackers,
 
-Thanks,
-selva
+I am to use RT Linux and it used kernel patch that requires kernel.org 
+version of the kernel and APM and ACPI to be switched Off. But I am to 
+Power Off my ATX machine when program finiseh, so I does not used RT 
+Linux, yet. Can you recommend me how to do so, and hoe to do so 
+correctly,please?
+adding kernel parameters viac lilo as append="apm power-off" just 
+switches power form HDD, but not form the ATX board (Via Apollo KT800 
+ans Athlon XP 2200 Thoroghbred). It prints just Power down and doest not 
+"switch off" power. I was found in source this text but it was followed 
+by call never declared funcion machine_power_down and it seems to be 
+BIOS function.
+
+Can anyone help me?
 
 
-		
-__________________________________ 
-Do you Yahoo!? 
-Take Yahoo! Mail with you! Get it on your mobile phone. 
-http://mobile.yahoo.com/maildemo 
+Thank  you for any help
+
+
+Yours faithfully
+
+Peter Fodrek
+
+P.S. Slackware 9.0 is my distribution

@@ -1,28 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289815AbSAKAv3>; Thu, 10 Jan 2002 19:51:29 -0500
+	id <S286521AbSAKA7J>; Thu, 10 Jan 2002 19:59:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289816AbSAKAvT>; Thu, 10 Jan 2002 19:51:19 -0500
-Received: from mtiwmhc23.worldnet.att.net ([204.127.131.48]:16284 "EHLO
-	mtiwmhc23.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S289815AbSAKAvQ>; Thu, 10 Jan 2002 19:51:16 -0500
-Date: Thu, 10 Jan 2002 19:52:16 -0500
+	id <S289816AbSAKA6u>; Thu, 10 Jan 2002 19:58:50 -0500
+Received: from host213-1-172-96.btinternet.com ([213.1.172.96]:25477 "EHLO
+	x.nat") by vger.kernel.org with ESMTP id <S286521AbSAKA6k>;
+	Thu, 10 Jan 2002 19:58:40 -0500
+Date: Fri, 11 Jan 2002 00:59:35 +0000
+From: acrimon.beet@gmx.co.uk
 To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] O(1) scheduler, -H4 - 2.4.17 problems
-Message-ID: <20020111005216.GA17847@lnuxlab.ath.cx>
-In-Reply-To: <20020111004305.99D2F6C3C6@oscar.casa.dyndns.org>
+Subject: via sound acting very dodgy
+Message-ID: <20020111005935.C5983@x.nat>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020111004305.99D2F6C3C6@oscar.casa.dyndns.org>
-User-Agent: Mutt/1.3.24i
-From: khromy@lnuxlab.ath.cx (khromy)
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10, 2002 at 07:43:04PM -0500, Ed Tomlinson wrote:
-> Incase I messed up removing and repatch I tried from a clean kernel with the same results.
-> Any one else seeing this?
+Are there any known problems with via82cxxx_audio.c in 2.4.17?
 
-Yes.. This is a PII350 with 128MiB... If anybody needs any more info let
-me know.
+Yesterday when I tried to record from my sound card, my machine
+locked up completely. It did the same thing when I tried again
+after reboot.
+
+Today I was careful not to try and record from the soundcard. But
+after playing a couple of samples, playback went silent. The following
+message started appearing repeatedly in /var/log/messages:
+
+kernel: Assertion failed! chan->is_active == sg_active(chan->iobase),via82cxxx_audio.c,via_chan_maybe_start,line=1198
+
+At the moment I'm pretty much assuming I've got broken hardware, but
+I'd be interested to know if there are any known problems with
+the driver.
+
+Thanks,
+
+ABeet.

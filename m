@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268824AbUJPUDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268834AbUJPUFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268824AbUJPUDc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 16:03:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268817AbUJPUBi
+	id S268834AbUJPUFs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 16:05:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268817AbUJPUDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 16:01:38 -0400
-Received: from relay.pair.com ([209.68.1.20]:42760 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S268824AbUJPUBC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 16:01:02 -0400
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <417170BE.9030906@kegel.com>
-Date: Sat, 16 Oct 2004 12:04:30 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, de-de
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Martin Schaffner <schaffner@gmx.li>, Kevin Hilman <kjh@hilman.org>,
-       bertrand marquis <bertrand.marquis@sysgo.com>
-Subject: Re: Building on case-insensitive systems and systems where -shared
- doesn't work well
-References: <414FC41B.7080102@kegel.com> <58517.194.237.142.24.1095763849.squirrel@194.237.142.24> <4164DAC9.8080701@kegel.com> <20041016210024.GB8306@mars.ravnborg.org> <20041016200627.A20488@flint.arm.linux.org.uk> <20041016212440.GA8765@mars.ravnborg.org> <20041016204001.B20488@flint.arm.linux.org.uk>
-In-Reply-To: <20041016204001.B20488@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 16 Oct 2004 16:03:42 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:665 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268831AbUJPUDX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 16:03:23 -0400
+Subject: gcc 3.4 "makes pointer from integer without a cast" warnings in
+	via-rhine-c
+From: Lee Revell <rlrevell@joe-job.com>
+To: rluethi@hellgate.ch
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1097955967.2148.12.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 16 Oct 2004 15:46:07 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
->>Btw. this is not about "case-challenged" filesystems in general. This is
->>about making the kernel usefull out-of-the-box for the increasing
->>embedded market.
->>Less work-around patces needed the better. And these people are often
->>bound to Windoze boxes - for different reasons. And the individual
->>developer may not be able to change this.
+I get these warnings compiling via-rhine with gcc 3.4.  What is the
+correct way to fix this?  This came up in another thread and someone
+mentioned that just adding a cast is not a "real fix" but just hides the
+problem.
 
-Hear, hear!
+drivers/net/via-rhine.c: In function `get_intr_status':
+drivers/net/via-rhine.c:536: warning: passing arg 1 of `readw' makes pointer from integer without a cast
+drivers/net/via-rhine.c:539: warning: passing arg 1 of `readb' makes pointer from integer without a cast
+drivers/net/via-rhine.c: In function `rhine_power_init':
+drivers/net/via-rhine.c:555: warning: passing arg 1 of `readb' makes pointer from integer without a cast
+drivers/net/via-rhine.c:555: warning: passing arg 2 of `writeb' makes pointer from integer without a cast
+drivers/net/via-rhine.c:558: warning: passing arg 2 of `writeb' makes pointer from integer without a cast
 
-> You still need a case-sensitive filesystem to be able to create a root
-> filesystem for their embedded device. 
+etc
 
-A case-preserving filesystem should be enough.  Or do you have a counterexample?
+Lee
 
-In any case, when I was building embedded filesystems,
-I used an ext2 image file with genext2fs regardless of which operating
-system I was running; made it a heck of a lot easier to
-do things like create device files.
-- Dan
-
-
--- 
-Trying to get a job as a c++ developer?  See http://kegel.com/academy/getting-hired.html

@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129495AbRCLFAP>; Mon, 12 Mar 2001 00:00:15 -0500
+	id <S129478AbRCLErX>; Sun, 11 Mar 2001 23:47:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129496AbRCLFAF>; Mon, 12 Mar 2001 00:00:05 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:53757 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S129495AbRCLE7z>;
-	Sun, 11 Mar 2001 23:59:55 -0500
-Date: Sun, 11 Mar 2001 21:03:09 -0800
-From: Greg KH <greg@wirex.com>
-To: Martin Bruchanov <bruchm@pytlik.racom.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail
-Message-ID: <20010311210309.D19626@wirex.com>
-Mail-Followup-To: Greg KH <greg@wirex.com>,
-	Martin Bruchanov <bruchm@hnilux.racom.cz>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200103111706.SAA18394@hnilux.racom.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200103111706.SAA18394@hnilux.racom.cz>; from bruchm@hnilux.racom.cz on Sun, Mar 11, 2001 at 06:06:24PM +0100
-X-Operating-System: Linux 2.4.2-ac14 (i686)
+	id <S129486AbRCLErM>; Sun, 11 Mar 2001 23:47:12 -0500
+Received: from [203.197.249.146] ([203.197.249.146]:62191 "EHLO
+	indica.wipsys.stph.net") by vger.kernel.org with ESMTP
+	id <S129478AbRCLErI>; Sun, 11 Mar 2001 23:47:08 -0500
+From: "Rama Krishna Mandava" <ramakrishna.mandava@wipro.com>
+Organization: wipro
+To: linux-kernel@vger.kernel.org
+Subject: params of register_netdev
+Date: Mon, 12 Mar 2001 15:39:02 +0530
+X-Mailer: KMail [version 1.0.29]
+Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Message-Id: <01031215464802.06445@elinux.wipsys>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 11, 2001 at 06:06:24PM +0100, Martin Bruchanov wrote:
-> 
-> Bug report from Martin Bruchanov (bruxy@kgb.cz, bruchm@racom.cz)
-> 
-> ############################################################################
-> [1.] One line summary of the problem:    
-> USB doesn't work properly with SMP kernel on dual-mainboard or with APIC.
+hi all,
+         In my module the code as below ...syntax code from alasandro rubini
+...I hope all arguments are not necessary to be initialised ....          
 
-What kind of motherboard is this?
+	struct device my_dev =
+			{
+			  myne_name,
+			0,0,0,0,
+			0x000,
+			0,
+			0,0,0,
+			NULL,
+			myne_init,
+			};
 
-And does USB work in SMP mode with "noapic" given on the kernel command
-line?
 
-thanks,
+int   init_module(void)
+		{
+			register_netdev(my_dev);
+		}
 
-greg k-h
 
--- 
-greg@(kroah|wirex).com
-http://immunix.org/~greg
+the compile error generated is  :    incompatible type for argument 1 of 
+				'register_netdev'..        
+
+	Please help me out.
+
+Thank u
+srinivas
+
+

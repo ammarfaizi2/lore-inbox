@@ -1,118 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbUCFDwX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 22:52:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbUCFDwW
+	id S261586AbUCFEd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 23:33:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbUCFEd3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 22:52:22 -0500
-Received: from mail004.syd.optusnet.com.au ([211.29.132.145]:16811 "EHLO
-	mail004.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261580AbUCFDwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 22:52:19 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] smt-nice-opt 2.6.4-rc1-mm2
-Date: Sat, 6 Mar 2004 14:51:58 +1100
+	Fri, 5 Mar 2004 23:33:29 -0500
+Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:20670 "HELO
+	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261586AbUCFEd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 23:33:26 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: [PATCH 1/2] NET: fix class reporting in TBF qdisc
+Date: Fri, 5 Mar 2004 23:33:21 -0500
 User-Agent: KMail/1.6
-Cc: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Jesper Dangaard Brouer <hawk@diku.dk>,
+       marek cervenka <cer20um@axpsu.fpf.slu.cz>, linux-net@vger.kernel.org,
+       James Morris <jmorris@intercode.com.au>
+References: <Pine.LNX.4.58.0403031323140.6655@ask.diku.dk> <200403050148.22964.dtor_core@ameritech.net> <4048E9C0.6010707@matchmail.com>
+In-Reply-To: <4048E9C0.6010707@matchmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_erUSAzvuwnyTl4k"
-Message-Id: <200403061452.03118.kernel@kolivas.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403052333.21567.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 05 March 2004 03:57 pm, Mike Fedyk wrote:
+> Dmitry Torokhov wrote:
+> > ===================================================================
+> > 
+> > 
+> > ChangeSet@1.1649, 2004-03-05 01:18:18-05:00, dtor_core@ameritech.net
+> >   NET: TBF trailing whitespace cleanup
+> > 
+> > 
+> >  sch_tbf.c |   68 +++++++++++++++++++++++++++++++-------------------------------
+> >  1 files changed, 34 insertions(+), 34 deletions(-)
+> > 
+> > 
+> > ===================================================================
+> > 
+> > 
+> > 
+> > diff -Nru a/net/sched/sch_tbf.c b/net/sched/sch_tbf.c
+> > --- a/net/sched/sch_tbf.c	Fri Mar  5 01:26:58 2004
+> > +++ b/net/sched/sch_tbf.c	Fri Mar  5 01:26:58 2004
+> > @@ -62,7 +62,7 @@
+> >  
+> >  	Algorithm.
+> >  	----------
+> > -	
+> > +
+> 
+> That's a lot of whitespace cleanup in there too.
+> 
 
---Boundary-00=_erUSAzvuwnyTl4k
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+It's only whitespace cleanup... See the changeset comment. Ahh, I see...
+I have the same subject on both emails. Doh! Well, it was almost 2AM...
 
-=2D----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-This patch optimises the smt-nice branch points
-
-The first hunk removes one unnecessary if() and rearranges the order from=20
-least to most likely.
-
-The second hunk improves the "reschedule sibling task" logic substantially =
-by=20
-only rescheduling it if it is supposed to be put to sleep as well. This=20
-causes far less context switching of low priority tasks.
-
-
-Consequently the benchmark results are substantial:
-
-up is uniprocessor
-mm1 is before the smt nice patch
-sn is with smt nice patch
-opt is with this optimise patch
-
-Time is in seconds
-
-Concurrent kernel compiles, one make, the other nice +19 make
-		Nice0	Nice19
-up		183	235
-mm1		208	211
-sn		180	237
-opt		178	222
-
-As can be seen the original patch simply changed the performance to that of=
-=20
-running in uniprocessor when there was a nice difference. With this patch t=
-he=20
-overall throughput is improved compared to up as is desired by smt=20
-processing.
-
-Con
-=2D----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFASUreZUg7+tp6mRURArj2AJ43WSCKOoKTjgXThNmizm1u2+bbGgCfXSWQ
-25D55s+73IVd1/ap0QmayZk=3D
-=3D5rc/
-=2D----END PGP SIGNATURE-----
-
---Boundary-00=_erUSAzvuwnyTl4k
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="sched-smt-nice-opt.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="sched-smt-nice-opt.patch"
-
---- linux-2.6.4-rc1-mm2/kernel/sched.c	2004-03-06 02:17:25.000000000 +1100
-+++ linux-2.6.4-rc1-mm2-so/kernel/sched.c	2004-03-06 14:28:10.094227754 +1100
-@@ -2002,11 +2002,9 @@ static inline int dependent_sleeper(runq
- 		 * task from using an unfair proportion of the
- 		 * physical cpu's resources. -ck
- 		 */
--		if (p->mm && smt_curr->mm && !rt_task(p) &&
--			((p->static_prio > smt_curr->static_prio &&
--			(smt_curr->time_slice * (100 - sd->per_cpu_gain) /
--			100) > task_timeslice(p)) ||
--			rt_task(smt_curr)))
-+		if (((smt_curr->time_slice * (100 - sd->per_cpu_gain) / 100) >
-+			task_timeslice(p) || rt_task(smt_curr)) &&
-+			p->mm && smt_curr->mm && !rt_task(p))
- 				ret |= 1;
- 
- 		/*
-@@ -2014,9 +2012,9 @@ static inline int dependent_sleeper(runq
- 		 * or wake it up if it has been put to sleep for priority
- 		 * reasons.
- 		 */
--		if ((smt_curr != smt_rq->idle &&
--			smt_curr->static_prio > p->static_prio) ||
--			(rt_task(p) && !rt_task(smt_curr)) ||
-+		if ((((p->time_slice * (100 - sd->per_cpu_gain) / 100) > 
-+			task_timeslice(smt_curr) || rt_task(p)) && 
-+			smt_curr->mm && p->mm && !rt_task(smt_curr)) ||
- 			(smt_curr == smt_rq->idle && smt_rq->nr_running))
- 				resched_task(smt_curr);
- 	}
-
---Boundary-00=_erUSAzvuwnyTl4k--
+-- 
+Dmitry

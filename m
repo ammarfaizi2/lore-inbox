@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270806AbTHFRIy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 13:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270813AbTHFRIy
+	id S270803AbTHFRGB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 13:06:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270804AbTHFRGB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 13:08:54 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:21671 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S270806AbTHFRIS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 13:08:18 -0400
-Date: Wed, 6 Aug 2003 13:08:01 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Steve Dickson <SteveD@redhat.com>
-cc: Neil Brown <neilb@cse.unsw.edu.au>, <nfs@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [NFS] [PATCH] kNFSd: Fixes a problem with inode clean up for
- vxfs
-In-Reply-To: <3F3128A4.8030305@RedHat.com>
-Message-ID: <Pine.LNX.4.44.0308061306380.18793-100000@chimarrao.boston.redhat.com>
+	Wed, 6 Aug 2003 13:06:01 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:1285 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S270803AbTHFRFw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 13:05:52 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: any DRM update scheduled for 2.4.23-pre?
+Date: Wed, 6 Aug 2003 18:59:47 +0200
+User-Agent: KMail/1.5.3
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, <faith@valinux.com>,
+       <dri-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
+       <Mitch@0Bits.COM>
+References: <Pine.LNX.4.44.0308061357480.4381-100000@logos.cnet>
+In-Reply-To: <Pine.LNX.4.44.0308061357480.4381-100000@logos.cnet>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308061859.47419.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Aug 2003, Steve Dickson wrote:
+On Wednesday 06 August 2003 18:58, Marcelo Tosatti wrote:
 
-> This a patch I've received from Veritas. Supposedly they have
-> already submitted this but I can't seem to find it in any 2.4 trees..
-> 
-> Does anybody recognize this and are there any known issues with it?
+Hi Marcelo,
 
-It makes me wonder what is so special about vxfs that they need
-to modify GPL code in order for it to work ...
+> Does DRM 4.3 work with both XFree 4.2 and 4.3 ?
+> I dont so, right?
+it will work for both.
 
-Not that I'm against this change in principle, but I'd just like
-it to be useful for GPL software too, otherwise it'd just be a
-hook for non-GPL software and a fine line to a GPL violation.
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+ciao, Marc
 

@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbTLJAPa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 19:15:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbTLJAPa
+	id S262707AbTLJAQL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 19:16:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbTLJAQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 19:15:30 -0500
-Received: from hibernia.jakma.org ([213.79.33.168]:37005 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S262610AbTLJAP2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 19:15:28 -0500
-Date: Wed, 10 Dec 2003 00:15:17 +0000 (GMT)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Joe Thornber <thornber@sistina.com>, linux-kernel@vger.kernel.org
-Subject: Re: Device-mapper submission for 2.4
-In-Reply-To: <20031209235823.GT8039@holomorphy.com>
-Message-ID: <Pine.LNX.4.56.0312100005270.30298@fogarty.jakma.org>
-References: <Pine.LNX.4.44.0312092047450.1289-100000@logos.cnet>
- <Pine.LNX.4.56.0312092329280.30298@fogarty.jakma.org> <20031209235823.GT8039@holomorphy.com>
-X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 9 Dec 2003 19:16:05 -0500
+Received: from gprs145-126.eurotel.cz ([160.218.145.126]:40578 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262707AbTLJAQB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 19:16:01 -0500
+Date: Wed, 10 Dec 2003 01:16:52 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jeremy Maitin-Shepard <jbms@attbi.com>
+Cc: linux-kernel@vger.kernel.org, Kendrick Hamilton <hamilton@sedsystems.ca>
+Subject: Re: Linux Kernel and GPL section 2c
+Message-ID: <20031210001652.GC618@elf.ucw.cz>
+References: <3FD4BF6E.7070503@sedsystems.ca> <87ptezgnfv.fsf@jay.local.invalid>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87ptezgnfv.fsf@jay.local.invalid>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Dec 2003, William Lee Irwin III wrote:
+Hi!
 
-> Just apply the patch if you're for some reason terrified of 2.6.
+> > Hello all,
+> >     I noticed the discussion about linux kernel modules that happened last
+> >     week. I was wondering about something with regards to the linux kernel and
+> >     Section 2c of the GPL. Why doesn't the kernel on booting print something
+> >     about the kernel being free software licensed under the GPL, and shouldn't
+> >     it?
+> 
+> Presumably, 1) the kernel as a whole is not a "modified" work, but
+> rather at least parts of it are the original work, 2) it does not read
+> commands interactively when run, 3) it does not normally print such
+> announcements.
 
-Or get RedHat or Fedora to apply the patch.
+I see such announcements. I think we should just kill them all:
 
-Its a slightly safer bet though to have it in stock 2.4, guarantees
-it will be there if one needs it 2 years down the road when upgrading
-some box. (and non-LVM users wont be compiling it in).
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+CSLIP: code copyright 1989 Regents of the University of California.
+Linux agpgart interface v0.100 (c) Dave Jones
+ip_tables: (C) 2000-2002 Netfilter core team
 
-So personally I'd rather Marcelo included it, being paranoid about
-having support for access to data.
-
-> -- wli
-
-regards,
+Or perhaps we can replace 'POSIX conformance testing by UNIFIX' with
+'Distribute under GPLv2'?
+									Pavel
 -- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-	warning: do not ever send email to spam@dishone.st
-Fortune:
-"If you want to travel around the world and be invited to speak at a lot
-of different places, just write a Unix operating system."
-(By Linus Torvalds)
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

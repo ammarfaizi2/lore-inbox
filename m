@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263535AbTFGUPN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 16:15:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263547AbTFGUPN
+	id S263547AbTFGUUT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 16:20:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263624AbTFGUUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 16:15:13 -0400
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:1753 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S263535AbTFGUPF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 16:15:05 -0400
-Message-ID: <20030607202725.22992.qmail@email.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "dan carpenter" <error27@email.com>
-To: chris@memtest86.com
+	Sat, 7 Jun 2003 16:20:19 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:38539 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S263547AbTFGUUQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 16:20:16 -0400
+Date: Sat, 7 Jun 2003 22:33:11 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Date: Sat, 07 Jun 2003 15:27:25 -0500
-Subject: memtest86 on the opteron
-X-Originating-Ip: 66.127.101.73
-X-Originating-Server: ws3-2.us4.outblaze.com
+Subject: Re: [RFC] New system device API
+Message-ID: <20030607203304.GB667@elf.ucw.cz>
+References: <Pine.LNX.4.44.0306061749200.11379-100000@cherise>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0306061749200.11379-100000@cherise>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there anyone working on Memtest86 for the AMD Opteron?
+Hi!
 
-What would be involved with making that work?
+> For things like CPUs, generic code will register the class, but other 
+> architecture-specific or otherwise configurable drivers may register 
+> auxillary drivers, that look like: 
+> 
+> struct sysdev_driver {
+>         struct list_head        entry;
+>         int     (*add)(struct sys_device *);
+>         int     (*remove)(struct sys_device *);
+>         int     (*shutdown)(struct sys_device *);
+>         int     (*suspend)(struct sys_device *, u32 state);
+>         int     (*resume)(struct sys_device *);
+> };
 
-regards,
-dan carpenter
+System devices may be special, but they should not be so special not
+to require u32 level.  All current system devices need to be
+suspended last, but that's pure coincidence, I believe.
 
-
+As mikpe noted, hierarchy is still needed between "system" devices:
+nmi watchdog depends on lapic...
+							Pavel
 -- 
-_______________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

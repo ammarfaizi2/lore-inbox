@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262958AbTKEOms (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 09:42:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbTKEOmr
+	id S262910AbTKEOjH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 09:39:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbTKEOjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 09:42:47 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:33669 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262958AbTKEOmq (ORCPT
+	Wed, 5 Nov 2003 09:39:07 -0500
+Received: from ns.suse.de ([195.135.220.2]:906 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262928AbTKEOhl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 09:42:46 -0500
-MIME-Version: 1.0
+	Wed, 5 Nov 2003 09:37:41 -0500
+Date: Wed, 5 Nov 2003 14:56:18 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix rq->flags use in ide-tape.c
+Message-ID: <20031105135618.GT1477@suse.de>
+References: <200311041718.hA4HIBmv027100@hera.kernel.org> <20031105084004.GY1477@suse.de> <200311051300.47039.bzolnier@elka.pw.edu.pl> <200311051454.27514.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16297.3166.937468.9288@alkaid.it.uu.se>
-Date: Wed, 5 Nov 2003 15:42:38 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Klaus Umbach <Klaus.Umbach@doppelhertz.homelinux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-scsi and SMP does not work together.
-In-Reply-To: <20031104234828.GA1641@DualPrinzip>
-References: <20031104234828.GA1641@DualPrinzip>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <200311051454.27514.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Klaus Umbach writes:
- > Hello Support Center :-)
- > 
- > Since I have 2 CPUs on my mainboard and compiled the SMP-support in, I
- > cannot use ide-scsi anymore. I guess it must have something to do with
- > apic, because when I use "Local APIC support on uniprocessors", I have
- > the same problem. With no SMP and no local APIC everything works fine.
- > (except the second CPU, of course). Normal ide-cdrom support works, but
- > recording CDs over atapi is not really what I want at the moment.
- > 
- > Mainboard: MSI 694D pro
- > 
- > 00:07.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 10)
+On Wed, Nov 05 2003, Bartlomiej Zolnierkiewicz wrote:
+> On Wednesday 05 of November 2003 13:00, Bartlomiej Zolnierkiewicz wrote:
+> > On Wednesday 05 of November 2003 09:40, Jens Axboe wrote:
+> > > On Tue, Nov 04 2003, Linux Kernel Mailing List wrote:
+> > > > ChangeSet 1.1413, 2003/11/04 08:01:30-08:00,
+> > > > B.Zolnierkiewicz@elka.pw.edu.pl
+> > > >
+> > > > 	[PATCH] fix rq->flags use in ide-tape.c
+> > > >
+> > > > 	Noticed by Stuart_Hayes@Dell.com:
+> > >
+> > > Guys, this is _way_ ugly. We definitely dont need more crap in ->flags
+> > > for private driver use, stuff them somewhere else in the rq. rq->cmd[0]
+> > > usage would be a whole lot better. This patch should never have been
+> > > merged. If each and every driver needs 5 private bits in ->flags,
+> > > well...
+> >
+> > Yeah, it is ugly.  Using rq->cmd is also ugly as it hides the problem in
+> > ide-tape.c, but if you prefer this way I can clean it up.  I just wanted
+> > minimal changes to ide-tape.c to make it working.
+> 
+> Also putting these flags in rq->cmd[0] makes it hard to later convert
+> ide-tape.c to use rq->cmd[] for storing packet commands.
 
-SMP by default uses the I/O-APIC, and may (depending on kernel version
-and .config) also use ACPI, which in turn may trigger ACPI-controlled
-PCI IRQ routing.
+What's wrong with just looking at the opcode instead of inventing magic
+flags. Seems like _just_ the right thing to do, convert to really using
+rq and killing the private command stuff as much as possible. The latter
+can wait though, the flag thing really has to go right now.
 
-Try "acpi=off", "pci=noacpi" (or however that don't-use-ACPI-for-PCI
-option is spelled), and "noapic" (don't use I/O-APIC).
+ide-*.c driver by Gadi are all completely over designed and attempts to
+basically implement everything themselves. Horrible.
 
-/Mikael
+-- 
+Jens Axboe
+

@@ -1,36 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271584AbRHQUjj>; Fri, 17 Aug 2001 16:39:39 -0400
+	id <S271586AbRHQUjJ>; Fri, 17 Aug 2001 16:39:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271559AbRHQUja>; Fri, 17 Aug 2001 16:39:30 -0400
-Received: from WARSL401PIP3.highway.telekom.at ([195.3.96.75]:36165 "HELO
-	email02.aon.at") by vger.kernel.org with SMTP id <S271584AbRHQUjX>;
-	Fri, 17 Aug 2001 16:39:23 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Peter Klotz <peter.klotz@aon.at>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Error on fs unmount
-Date: Fri, 17 Aug 2001 22:42:26 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01081718390800.01143@localhost.localdomain> <5.1.0.14.2.20010817190012.04579580@pop.cus.cam.ac.uk>
-In-Reply-To: <5.1.0.14.2.20010817190012.04579580@pop.cus.cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
+	id <S271559AbRHQUi7>; Fri, 17 Aug 2001 16:38:59 -0400
+Received: from mail.erisksecurity.com ([208.179.59.234]:58194 "EHLO
+	Tidal.eRiskSecurity.com") by vger.kernel.org with ESMTP
+	id <S271584AbRHQUil>; Fri, 17 Aug 2001 16:38:41 -0400
+Message-ID: <3B7D80CE.1070303@blue-labs.org>
+Date: Fri, 17 Aug 2001 16:38:38 -0400
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010815
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Message-Id: <01081722422601.01143@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+To: klink@clouddancer.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: "VM watchdog"? [was Re: VM nuisance]
+In-Reply-To: <3B748AA8.4010105@blue-labs.org>    <20010814140011.B38@toy.ucw.cz> <20010817002420.C30521@unthought.net> <3B7C72CE.60601@blue-labs.org> <9li6sf$h5$1@ns1.clouddancer.com> <20010817090440.4A63B783F6@mail.clouddancer.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Peter,
 >
->Could you tell me whether on startup (or whenever you mount the NTFS
->volume) it doesn't give a message but saying: "Trying to open system file
->9!" or "Opening system file 9!".
+>
+>>The kernel allocates memory within itself.  We will still reach OOM 
+>>conditions.  It can't be avoided.
+>>
+>
+>That doesn't sound good.
+>
+>What bugs me about this statement was that until 2.4, I never had
+>lockups.  I sometimes had a LOT of swapping and slow response, but I
+>also knew that running a complex numeric simulation when RAM <
+>'program needs' does that.  I accepted it and tended to arrange such
+>runs in my absence.  Now I find that I get some process nuked (or
+>worse - partially nuked) even after increasing to 4x swap and
+>eliminating lazy habits that would leave some idle process up for a
+>few days in case I needed it again (worked fine in 2.0.36).  There are
+>_alot_ of good things in 2.4, but sometimes....
+>
+>
+>Does your statement imply that a machine left "alone" must eventually
+>OOM given enough runtime??  It seems that it must.
+>
 
-You were right. I found the message you mentioned several times in 
-/var/log/messages:
-Aug 17 08:16:50 localhost kernel: Trying to open system file 9!   
+Nope, not at all.  The kernel acquires and releases memory as it goes. 
+ My statement is to the fact that we can reach a point where we have 
+exhausted all the memory resources by the time we start a particular 
+code path but in order to complete that code path we need more memory. 
+ I.e. journaled filesystems.  We have reached 0 memory but we need to 
+start down a code path to update data on the disk.  That means we may 
+have to allocate memory to read and update the journal as we start 
+writing regular file data to disk.
 
-Thanks a lot for your quick and helpful response.
+This only occurs when we ride right on the very edge of OOM.  This will 
+also be fixed when we implement all the desired bean counting.
 
-Bye, Peter.
+David
+
+

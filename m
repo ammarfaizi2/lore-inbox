@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265085AbTAHQNU>; Wed, 8 Jan 2003 11:13:20 -0500
+	id <S265266AbTAHQM6>; Wed, 8 Jan 2003 11:12:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267613AbTAHQNU>; Wed, 8 Jan 2003 11:13:20 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:27329 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265085AbTAHQNS>;
-	Wed, 8 Jan 2003 11:13:18 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Arnd Bergmann <arndb@de.ibm.com>
-Reply-To: arnd@bergmann-dalldorf.de
-To: kiran@in.ibm.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [IPV6]: Convert mibstats to use kmalloc_percpu
-Date: Wed, 8 Jan 2003 17:18:37 +0100
-User-Agent: KMail/1.4.3
-Organization: IBM Deutschland Entwicklung GmbH
-Cc: Trivial Patches <trivial@rustcorp.com.au>
+	id <S265085AbTAHQM5>; Wed, 8 Jan 2003 11:12:57 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:57869
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S265266AbTAHQM5>; Wed, 8 Jan 2003 11:12:57 -0500
+Date: Wed, 8 Jan 2003 08:20:01 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: =?ISO-8859-1?Q?Stefan_G=F6rling?= <stefan@gorling.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: A humble request for help
+In-Reply-To: <3E1C4215.5080306@gorling.se>
+Message-ID: <Pine.LNX.4.10.10301080814360.31168-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200301081718.37263.arndb@de.ibm.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changeset 1.879.9.7 from kiran@in.ibm.com contains:
 
-> @@ -765,6 +847,7 @@
->  #ifdef CONFIG_SYSCTL
->         ipv6_sysctl_unregister();       
->  #endif
-> +       cleanup_ipv6_mibs();
->  }
->  module_exit(inet6_exit);
->  #endif /* MODULE */
+Andre Hedrick,SuSe  -- the past.
 
-This does not work when cleanup_ipv6_mibs() is marked __exit,
-the fix below is needed to build a kernel with ipv6.
+Andre Hedrick, Self Funded.
 
-===== net/ipv6/af_inet6.c 1.18 vs edited =====
---- 1.18/net/ipv6/af_inet6.c	Tue Jan  7 11:19:42 2003
-+++ edited/net/ipv6/af_inet6.c	Wed Jan  8 17:08:52 2003
-@@ -684,7 +684,7 @@
- 	
- }
- 
--static void __exit cleanup_ipv6_mibs(void)
-+static void cleanup_ipv6_mibs(void)
- {
- 	kfree_percpu(ipv6_statistics[0]);
- 	kfree_percpu(ipv6_statistics[1]);
+I am one of the few who have tried to make a business model out of
+selling services which strictly promote open source.  Contracts where it
+is all or nothing and they still have to pay.  The services are to write
+only opensource drivers for contract.  Well that day is coming to an end,
+and not by my choice.
+
+If you want the decenting view, I may be your poster child.
+
+Regards,
+
+Andre Hedrick
+LAD Storage Consulting Group
+

@@ -1,78 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310646AbSCSLQf>; Tue, 19 Mar 2002 06:16:35 -0500
+	id <S310912AbSCSLrO>; Tue, 19 Mar 2002 06:47:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310647AbSCSLQZ>; Tue, 19 Mar 2002 06:16:25 -0500
-Received: from mail49-s.fg.online.no ([148.122.161.49]:12421 "EHLO
-	mail49.fg.online.no") by vger.kernel.org with ESMTP
-	id <S310646AbSCSLQO>; Tue, 19 Mar 2002 06:16:14 -0500
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Colin Leroy <colin@colino.net>, linux-kernel@vger.kernel.org
-Subject: Re: question about 2.4.18 and ext3
-In-Reply-To: <20020318180158.2886dd4a.colin@colino.net>
-	<3C96510A.24CDE6BC@zip.com.au>
-From: hakon@cyberglobe.net (=?iso-8859-1?q?H=E5kon?= Alstadheim)
-Date: 19 Mar 2002 08:57:51 +0100
-Message-ID: <m0r8mhq9a8.fsf@alstadhome.online.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S310864AbSCSLrG>; Tue, 19 Mar 2002 06:47:06 -0500
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:34728 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S310829AbSCSLrD>; Tue, 19 Mar 2002 06:47:03 -0500
+Message-ID: <3C972505.4080001@antefacto.com>
+Date: Tue, 19 Mar 2002 11:46:13 +0000
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: S W <egberts@yahoo.com>
+CC: linux-kernel@vger.kernel.org, davej@suse.de, alan@lxorguk.ukuu.org.uk
+Subject: Re: 2.4.19-pre2 Cyrix III SEGFAULT (Cyrix II redux?)
+In-Reply-To: <20020316180705.34916.qmail@web10506.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@zip.com.au> writes:
+We're noticing weirdness here also.
+Certain apps are SEGFAULTing. Some apps much
+more than others. An important point is that
+the apps SEGFAULTed in the exact same place
+each time. Doing a trace of the core didn't
+show anything weird being executed, it just
+SEGFAULTed. Does this suggest a cache issue?
+A power cycle changed things (made the faults
+more/less frequent). The particular app we were
+having trouble with was snmpd (net-snmp). Also
+much less frequent was vim and bash. When these
+crashed, it was also in the same place. An
+important note is that snmpd would crash in
+exactly the same place across power cycles.
+Recompiling a later version of snmpd "fixed"
+the problem. I.E. SEGFAULTs are now very infrequent.
+We saved the particular snmpd binary that was
+causing trouble, for testing.
 
-> Colin Leroy wrote:
-> > 
-> > Hello all,
-> > 
-> > I really hope I'm not asking a FAQ, i looked in the archives since 15 Feb
-> > and didn't see anything about this.
-> > 
-> > I upgraded from 2.2.20 to 2.4.18 on my powerbook two weeks ago, and
-> > compiled ext3 in the kernel in order to quietly crash :)
-> > 
-> > However, I had about a dozen strange crashes, sometimes when the computer
-> > woke up from sleep, sometimes when launching a program : every visible
-> > soft died, then X, then blackscreen, and the computer didn't even answer
-> > pings. So I reset the computer and here, each time, yaboot (ppc equivalent
-> > of lilo) told me that "cannot load image". Booting and fscking from a
-> > rescue CD showed that superblock was corrupt.
+We tested with Samuel II & Ezra & Celeron CPUs on
+both Advantech PCM9576 & Ibase M700 motherboards.
+Celeron was OK, Samuel II was OK, ezra caused segfaults.
+
+We also passed memtest86 (RAM is also ECC) and
+multiple kernel compiles worked OK also.
+
+Kernel 2.4.16
+gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)
+glibc 2.2.4
+
+Padraig.
+
+S W wrote:
+> In compiling the kernel, I've been experiencing the
+> same gcc-2.96 (and gcc-3.0+) SEGFAULT again on Cyrix
+> III GigaPro (733Mhz, Samuel II core chipset).
 > 
-> It may be a yaboot/ext3 incompatibility.  Your version of yaboot
-> may not know how to mount a needs-recovery ext3 filesystem.
-> There are some words on this at
-> http://www.zip.com.au/~akpm/linux/ext3/ext3-usage.html
+> But I recalled Linux 2.2 having a bug fix for broken
+> L2 cache in Cyrix II.  So, it got me thinking again...
+> (did Cyrix fix this L2 cache in certain subsequential
+> core?)
 > 
-> I am told that yaboot 1.3.5 and later will do the right thing.
-> What version are you using?
+> Does anyone recall where exactly are the Cyrix II L2
+> cache bug fix in the kernelso that I can experiement
+> them toward the Cyrix III?
+> 
+> Assuming no else sees VM bugs, I'll assume that this
+> is Cyrix-specific.  I've seen various VM BUGs for each
+> patch releases since 2.4.17 particularly when
+> compiling.
+> 
+> MOBO DETAILS:
+> Soyo 7VEM motherboard (686A PL133, despite having an
+> ALL VIA-chipsets (Cyrix III-733Mhz, VIA-VT82C596A
+> multifunctional audio/AGPvideo/modem, Rhine Ethernet,
+> Trident APG), no drivers are loaded into the kernel
+> except for EXT2, Trident Video (no framebuffer
+> support) and IDE (via82cxxx.c).  BARE KERNEL.  (BTW,
+> it was a $250 Fry's special running a barebone
+> multimedia Linux, so no snickering please.).
+> Passed memtest86.
 
-One way to work around this is to keep your kernels in /boot and have
-/boot be a separate ext2 filesystem that you normally mount ro. That
-way it will not need to be recovered after a crash. During install of
-a new kernel you will of course need to do "/bin/mount -o remount,rw
-/boot" and then afterwards "/bin/mount -o remount,ro /boot" .
-
-Your /etc/fstab will then look something like:
-
-[...]
-/dev/hde3 /      ext3 # your usual parameters here
-/dev/hda6 /boot  ext2 ro,exec   1   2
-[...]
-
-Remember to make sure you know which devices are / and /boot/
-respectively, and also which device holds the bootsector. Make sure
-you know which one to give to your bootloader where.
-
-I run grub-install like this:
-/usr/local/sbin/grub-install /dev/hda --root-directory=/boot
-
-Which tells grub to install its loader into the MBR of my first hd,
-and then look for the kernel and the second stage boot-loader on
-/dev/hda6 (which is mounted as /boot/). I seem to remember that grub
-copied the files it needed into /boot/boot/grub/ itself. It looks
-funny, but I left it at that.
-
--- 
-Håkon Alstadheim, hjemmepappa.

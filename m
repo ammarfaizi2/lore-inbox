@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271653AbRHUNRq>; Tue, 21 Aug 2001 09:17:46 -0400
+	id <S271652AbRHUNRG>; Tue, 21 Aug 2001 09:17:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271654AbRHUNRj>; Tue, 21 Aug 2001 09:17:39 -0400
-Received: from mx3.port.ru ([194.67.57.13]:27657 "EHLO mx3.port.ru")
-	by vger.kernel.org with ESMTP id <S271653AbRHUNRY>;
-	Tue, 21 Aug 2001 09:17:24 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.8/2.4.8-ac7 sound crashes
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.34.27.195]
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15ZBP3-000FKK-00@f12.port.ru>
-Date: Tue, 21 Aug 2001 17:17:09 +0400
+	id <S271653AbRHUNQq>; Tue, 21 Aug 2001 09:16:46 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:47634 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S271652AbRHUNQf>;
+	Tue, 21 Aug 2001 09:16:35 -0400
+Date: Tue, 21 Aug 2001 15:14:22 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: "Peter J. Braam" <braam@clusterfilesystem.com>
+Cc: TUX Development Mailing List <tux-list@redhat.com>,
+        <intermezzo-devel@lists.sourceforge.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: large & fragmented TUX requests
+In-Reply-To: <20010802161214.E1498@lustre.clusterfilesystem.com>
+Message-ID: <Pine.LNX.4.33.0108211505470.4500-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> no problems like this for me.
-> GCC 2.95.3, SB16 "Value" (don't ask me why they named > it that, it's just
-> like a regular SB16 ISA as far as I can tell), > vanilla 2.4.8, mpg123 is
-> version 0.59r, says june 15th 1999, I'll see if there's a newer version.
-> I also use XMMS and it works fine.
-> 
-> What motherboard are you using? is the SB16 PCI or ISA? if it's ISA do
-> you have persistant DMA buffers enabled in the kernel? (not sure if that
-> would cause this or not)
+On Thu, 2 Aug 2001, Peter J. Braam wrote:
 
-  ISA Creative SB16/ Zida 5DVX/ NO persistant DMA buffers.
-But i think its all unrelated, due to the fact, that
-2.4.7 is okay for me since it came out...
+> I have two basic questions about the code (looking at 2.4.6-3.1)
+>
+> 1) input.c
+>
+> If a request arrives in multiple pieces, req->proto->parse_message
+> returns 0 and read_request is called multiple times.  Why is read
+> request not overwriting data that was already received?
 
----
+because the parser uses linear strings. Parsers are one of the main cause
+of security problems, so i tried to keep the TUX parser as simple and
+robust as possible.
 
+> 2) large requests
+>
+> Some of the RPC's I want to handle are for receiving file data. Would
+> it make sense when it is known that a large page aligned buffer with
+> file data is coming, to simply allocate buffers of the right size (say
+> up to 64K max) and point req->req_headers at it?
+>
+> In that way I can read the chunk in and later map the pages into a
+> file to get it to disk.
 
-cheers,
+there is /proc/sys/net/tux/max_header_len, which you can set to any
+(reasonable) size. Right now the interface is kmalloc(), which has a
+per-CPU cache so allocation/deallocation is very fast and SMP-friendly.
+You can set the value of max_header_len to 64k, but there could be kmalloc
+related fragmentation issues. (If you ever encounter this fragmentation
+problem then we can cache header buffers within the tux-request cache,
+and/or can fall back to vmalloc().)
 
+right now TUX assumes that req_headers is a kmalloc-ed buffer, so you
+cannot simply replace the pointer with a page-aligned (and possible
+gfp()-allocated) memory buffer.
 
-   Samium Gromoff
+> There is no standard "recv_file" (ala sendfile) api, right?
+
+there is none at the moment - but TUX does an effective zero-copy
+recv_file() for small requests: it takes the raw skbs and parses them, if
+the skb is 'simple' (nonfragmented, nonoffsetted). (which they are in 99%
+of the cases)
+
+	Ingo
+

@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262397AbUKRDEq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262392AbUKRDI2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262397AbUKRDEq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 22:04:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUKRDCm
+	id S262392AbUKRDI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 22:08:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUKRDI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 22:02:42 -0500
-Received: from fw.osdl.org ([65.172.181.6]:22751 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262388AbUKRDCV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 22:02:21 -0500
-Date: Wed, 17 Nov 2004 19:01:58 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org, Ian.Pratt@cl.cam.ac.uk,
-       Keir.Fraser@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk
-Subject: Re: [patch 4/4] Xen core patch : /dev/mem calls io_remap_page_range
-Message-Id: <20041117190158.690fe458.akpm@osdl.org>
-In-Reply-To: <E1CUZfD-00059Q-00@mta1.cl.cam.ac.uk>
-References: <E1CUZfD-00059Q-00@mta1.cl.cam.ac.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 17 Nov 2004 22:08:27 -0500
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:21921 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S262387AbUKRDIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 22:08:20 -0500
+Date: Thu, 18 Nov 2004 04:08:18 +0100
+From: Andrea Arcangeli <andrea@novell.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Hugh Dickins <hugh@veritas.com>, ak@suse.de, 76306.1226@compuserve.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Dropped patch: mm/mempolicy.c:sp_lookup()
+Message-ID: <20041118030818.GE28571@dualathlon.random>
+References: <20041117111336.608409ef.akpm@osdl.org> <Pine.LNX.4.44.0411171938210.1809-100000@localhost.localdomain> <20041117122123.6162fa70.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041117122123.6162fa70.akpm@osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Pratt <Ian.Pratt@cl.cam.ac.uk> wrote:
->
-> 
-> This patch modifies /dev/mem to call io_remap_page_range rather than
-> remap_page_range under CONFIG_XEN.
+On Wed, Nov 17, 2004 at 12:21:23PM -0800, Andrew Morton wrote:
+> Sigh.  OK, I'll split the patch into three and will feed the `<=' fix and
+> the symlink fix into 2.6.10. [..]
 
-And this patch has tabs replaced with whitespace and also does not apply.
+thanks.
 
-> diff -Nurp pristine-linux-2.6.9/drivers/char/mem.c linux-2.6.9-xen0/drivers/char/mem.c
+> [..] The mempolicy optimisation can await 2.6.11.
 
-linux-2.6.9 is very very old in kernel time.
+sure.
 
->         if (remap_page_range(vma, vma->vm_start, offset, vma->vm_end-vma->vm_start,
+About Hugh's version of the shmem.c part, I'm fine with it, but I find
+more robust to destroy the mpol in the delete_inode callback than in
+delete_inode (for shmfs is the same due the dcache pin), since delete_inode
+is normally associated with the unlink operation, but the mpol must go
+away before the inode is freed, and the inode is freed in the
+destroy_inode (again for shmfs it's the same as delete_inode), plus I
+find my version a bit simpler.
 
-There is no mention of `remap_page_range' in current kernels.
-
-
-Please, always generate patches against current kernels.  You can use
-Linus's bk tree or the latest snapshot from
-ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots.
-
-Sort out what's going on with your email client, email the patches to
-yourself first, make sure they still apply, then resend.
-
-Thanks.
+As Hugh said as far as one of the two ges merged I'm fine of course ;).

@@ -1,86 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282831AbRK0HPM>; Tue, 27 Nov 2001 02:15:12 -0500
+	id <S282832AbRK0HQc>; Tue, 27 Nov 2001 02:16:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282832AbRK0HO5>; Tue, 27 Nov 2001 02:14:57 -0500
-Received: from sj1-3-1-20.iserver.com ([128.121.122.117]:59403 "EHLO
-	sj1-3-1-20.iserver.com") by vger.kernel.org with ESMTP
-	id <S282834AbRK0HOV>; Tue, 27 Nov 2001 02:14:21 -0500
-Date: Tue, 27 Nov 2001 07:14:20 +0000
-From: Nathan Myers <ncm-nospam@cantrip.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] omnibus header cleanup, certification
-Message-ID: <20011127071420.A45036@cantrip.org>
-Mail-Followup-To: Nathan Myers <ncm-nospam@cantrip.org>,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011127061714.A41881@cantrip.org> <3C03315C.5060203@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3C03315C.5060203@zytor.com>; from hpa@zytor.com on Mon, Nov 26, 2001 at 10:23:24PM -0800
+	id <S282833AbRK0HQN>; Tue, 27 Nov 2001 02:16:13 -0500
+Received: from ns.suse.de ([213.95.15.193]:63759 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S282832AbRK0HQE>;
+	Tue, 27 Nov 2001 02:16:04 -0500
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
+Subject: Re: Fix knfsd readahead cache in 2.4.15
+In-Reply-To: <15362.18626.303009.379772@charged.uio.no.suse.lists.linux.kernel> <15362.53694.192797.275363@esther.cse.unsw.edu.au.suse.lists.linux.kernel> <20011126.155347.45872112.davem@redhat.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 27 Nov 2001 08:16:03 +0100
+In-Reply-To: "David S. Miller"'s message of "27 Nov 2001 00:58:40 +0100"
+Message-ID: <p73r8qksmz0.fsf@amdsim2.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 26, 2001 at 10:23:24PM -0800, H. Peter Anvin wrote:
-> Nathan Myers wrote:
-> > Please review at least the portion that you are responsible for,
-> > and verify that the changes are safe and cannot change the semantics 
-> > of otherwise-correct code that uses the affected macros.  (That will
-> > be easy, they're all trivial parenthesizations.  It seems worth noting 
-> > here that in the C grammar, "-1" is not a numeric literal, but a unary 
-> > expression.) 
+"David S. Miller" <davem@redhat.com> writes:
 > 
-> It's also worth noting that there is nothing that it can get confused 
-> with and still have a compilable expression.
+> There are other problems remaining, this function is a logical
+> mess.
 
-Not true, in principle.  E.g.
+It is also broken by design. It forces file systems that need more
+state to maintain read/write ahead to maintain their own cache (e.g. XFS
+which needs to cache extent allocations) 
+Better would be to just fix nfsd to cache open file handles, then all
+this mess would be done by the VFS. In addition it would be faster
+because it wouldn't need to execute an "open()" for every rpc operation.
 
-  #define foo -1
-  ...
-  char f(char* a) { return foo[a]; }  // -a[1] or a[-1]?
-
-Such an expression should, of course, be taken out and shot (although
-it's far less bad than "(x = x++ % y)" that appeared in a macro until
-very recently).  
-
-The only compound expressions that are strictly safe have one of 
-the forms 
-
-  (...)
-  a.b
-  a->b
-  a[...]
-
-because those are the only operators at the top precedence level.   
-Even with those, an ill-defined macro that replaces "a" or "b"
-(such as are found in de4x5.h) can cause confusion.
-  
-> I don't believe the unary-expression patches are necessary.  
-
-One #define found in a mips header is identical to another that was in
-an i386 header and already caused a bug.  That was what motivated me to 
-see if there were other cases, too.  
-
-If this patch is accepted, I will be motivated to report more subtle
-sources of bugs, which remain numerous.   If we can't even be bothered
-with the basics, who can care about subtleties?
-
-> They are, 
-> of course, harmless, except for the fact that my eyes glazed over 
-> staring at page after page of these, which very few actual potential (!) 
-> bugs (there were a couple, like the iopage+ ones...)
-
-I assure you it was no less boring making the patch.  I hope not to 
-have to keep re-making it as the existing patch rots.
-
-The point of making a wholesale change including even "unnecessary" 
-definitions that are "unlikely" to result in bugs (such as "-1"), 
-is to establish a convention so that people who don't necessarily 
-understand all the nuances will do the right thing anyhow.  There
-is certainly plenty of code from such people in the kernel, heaven
-help us.
-
-Nathan Myers
-ncm at cantrip dot org
+-Andi

@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312590AbSEVXcb>; Wed, 22 May 2002 19:32:31 -0400
+	id <S315423AbSEVXcw>; Wed, 22 May 2002 19:32:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314278AbSEVXca>; Wed, 22 May 2002 19:32:30 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49678 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S312590AbSEVXc2>; Wed, 22 May 2002 19:32:28 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] 2.5.17 /dev/port
-Date: 22 May 2002 16:32:04 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <ach9pk$ced$1@cesium.transmeta.com>
-In-Reply-To: <UTC200205222246.g4MMkNL26024.aeb@smtp.cwi.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S315411AbSEVXcv>; Wed, 22 May 2002 19:32:51 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:48393 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S314278AbSEVXct>;
+	Wed, 22 May 2002 19:32:49 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Eric Weigle <ehw@lanl.gov>
+Cc: "Linux kernel mailing list (lkml)" <linux-kernel@vger.kernel.org>
+Subject: Re: Safety of -j N when building kernels? 
+In-Reply-To: Your message of "Wed, 22 May 2002 10:53:20 CST."
+             <20020522165320.GC18059@lanl.gov> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 23 May 2002 09:32:38 +1000
+Message-ID: <344.1022110358@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <UTC200205222246.g4MMkNL26024.aeb@smtp.cwi.nl>
-By author:    Andries.Brouwer@cwi.nl
-In newsgroup: linux.dev.kernel
-> 
-> In my eyes /dev/port is a rather unimportant corner
-> of the kernel. Removing it does not streamline anything,
-> we hear that it saves 454 bytes. A worthy goal, but..
-> 
-> Today a few things use /dev/port. Some low level mouse,
-> keyboard and console utilities. kbdrate. hwclock.
-> 
-> Is it needed? Hardly - most uses can be replaced by inb()
-> and outb(). But I am not sure why that would be better.
-> And I seem to recall that hwclock on some flavours of Alpha
-> really needed the /dev/port way. But I may be mistaken.
-> 
+On Wed, 22 May 2002 10:53:20 -0600, 
+Eric Weigle <ehw@lanl.gov> wrote:
+>So are the kernel's current Makefiles really SMP safe -- can one really
+>run multiple jobs when building Linux kernels? Any horror stories, or am
+>I just paranoid?
 
-On non-Intel platforms, with no dedicated IOIO opcodes, IOIO is
-usually implemented as a specific memory range.  In that case, the
-only way to allow user-space access to it would be to mmap() that
-range... which means iopl() inb() and outb() on those platforms might
-be implemented either as open, readp and writep, respectively, or by
-iopl() being open() followed by mmap().
+make dep is not parallel safe.  On some architectures make -jN dep will
+generate corrupt data, especially with module symbol versions.  You
+might get away with it.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+It is not safe on any architecture to make -jN *config dep bzImage
+modules in one command, you need three separate commands for make -jN
+*config, make -jN dep and make -jN bzImage modules.  The install step
+must also be a separate command.
+
+Building bzImage and modules should be parallel safe, as long as your
+machine can take the cpu load and has enough file descriptors.
+Sometimes people do not understand makefiles so the odd driver may not
+build correctly.  aic7xxx around 2.4.19-pre5 was not parallel safe.
+
+Of course, in kbuild 2.5, all of this is parallel safe.  make -j
+*config install works fine.
+

@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263023AbTE0JXL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 05:23:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbTE0JXL
+	id S263103AbTE0JYe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 05:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbTE0JYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 05:23:11 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:48395 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S263131AbTE0JWe (ORCPT
+	Tue, 27 May 2003 05:24:34 -0400
+Received: from smtp4.vol.cz ([195.250.128.43]:8969 "EHLO majordomo.vol.cz")
+	by vger.kernel.org with ESMTP id S263103AbTE0JXu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 05:22:34 -0400
-Subject: Re: OUPS 2.5.69-bk19 coda-inode.c/slab.c
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030527004322.GA1690@delft.aura.cs.cmu.edu>
-References: <1053971135.1968.6.camel@nalesnik.localhost>
-	 <20030527004322.GA1690@delft.aura.cs.cmu.edu>
-Content-Type: text/plain
-Organization: K4 labs
-Message-Id: <1054027420.1861.1.camel@nalesnik.localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 27 May 2003 10:23:43 +0100
+	Tue, 27 May 2003 05:23:50 -0400
+MIME-Version: 1.0
+Subject: bugs in tdfxfb
+From: cijoml@volny.cz
+To: linux-kernel@vger.kernel.org
+Date: Tue, 27 May 2003 11:36:57 +0200 (CEST)
+Message-ID: <f5495ccde3ab84a15473b0a32e6aa05f@www1.mail.volny.cz>
+X-Mailer: Volny.cz Webmail2 1.21
+X-Originating-Ip: 147.32.194.63
+X-Originating-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
+X-Priority: 3
+X-MSMail-Priority: Normal
+Content-Type: text/plain; charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-27 at 01:43, Jan Harkes wrote:
-> On Mon, May 26, 2003 at 06:45:40PM +0100, Grzegorz Jaskiewicz wrote:
-> > following BUG() is started when coda is included into kernel. I have not
-> > tried module, but i bet it will couse the same error.
-> 
-> Although I don't run the -bkXX releases, as far as I can see this is not
-> related to anything in Coda bug, but probably a missing change to slab.c.
-> 
-> A flag was added to the slabcache to identify reclaimable slabs. I can
-> see how this BUG would get triggered if your kernel was linked with an
-> old version of slab.o or is missing the SLAB_RECLAIM_ACCOUNT related
-> changes in slab.c.
-> 
-> Maybe "make clean ; make bzImage modules" will fix it?
-I am allways doing that in case of problems. So this is not a case, I
-bet this is missing patch for slab.c. Becouse this part i showed (along
-with mine two debug lines) does not look to good.
- 
+Hello,
+
+after Alan's cool fixing of this part of code (tdfxfb) tux works
+perfectly, but Alan did little bug.
+
+Console now works in 1024x768-16,24bit colors only at 43 Hz!!
+This can man uses :(
+
+Thanks for fixing before 2.4.21-final
+
+CIJOML
+
 -- 
-Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-K4 labs
+Ziskejte kvalitu, kterou si zaslouzite. Za minimalni mesicni
+poplatek vam nabizime Antivir, Antispam nebo dalsi kapacitu pro
+vas Mailbox. Vice na: http://sluzby.volny.cz/product/mailpaid/
 

@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132641AbRA0KPE>; Sat, 27 Jan 2001 05:15:04 -0500
+	id <S132668AbRA0KUf>; Sat, 27 Jan 2001 05:20:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132668AbRA0KOz>; Sat, 27 Jan 2001 05:14:55 -0500
-Received: from Huntington-Beach.blue-labs.org ([208.179.0.198]:49962 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S132641AbRA0KOS>; Sat, 27 Jan 2001 05:14:18 -0500
-Message-ID: <3A729F76.4A9170E6@linux.com>
-Date: Sat, 27 Jan 2001 10:14:14 +0000
-From: David Ford <david@linux.com>
-Organization: Blue Labs Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i686)
-X-Accept-Language: en
+	id <S132726AbRA0KUZ>; Sat, 27 Jan 2001 05:20:25 -0500
+Received: from 13dyn73.delft.casema.net ([212.64.76.73]:32777 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S132668AbRA0KUM>; Sat, 27 Jan 2001 05:20:12 -0500
+Message-Id: <200101271020.LAA22568@cave.bitwizard.nl>
+Subject: Re: Linux Post codes during runtime, possibly OT
+In-Reply-To: <94q96s$9b2$1@cesium.transmeta.com> from "H. Peter Anvin" at "Jan
+ 25, 2001 02:26:36 pm"
+To: "H. Peter Anvin" <hpa@zytor.com>
+Date: Sat, 27 Jan 2001 11:20:04 +0100 (MET)
+CC: linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Looking for comparison data on network stack prowess
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<noflame=1>
-I'm looking for some authoritative comparisons and discussions of the
-current network stacks in *BSD and Linux.  I.e. NET4 in Linux and
-whatever is most current in *BSD.
+H. Peter Anvin wrote:
+> Followup to:  <3A709E99.25ADE5F6@echostar.com>
+> By author:    "Ian S. Nelson" <ian.nelson@echostar.com>
+> In newsgroup: linux.dev.kernel
+> >
+> > I'm curious.  Why does Linux make that friendly 98/9a/88 looking
+> > postcode pattern when it's running?  DOS and DOS95 don't do that.
+> > 
+> > I'm begining to feel like I can tell the system health by observing it,
+> > kind of like "seeing the matrix."
+ 
+> It output garbage to the 80h port in order to enforce I/O delays.
+> It's one of the safe ports to issue outs to.
 
-_PLEASE_ no flaming, no causing flamewar, nadda.
+Yes, because it is reserved for POST codes. You can get "POST
+debugging cards" that simply have a BIN -> 7segement encoder and two 7
+segment displays on them. They decode 0x80. That's what it's for. 
 
-I am writing an article for Linux.com and I am attempting to debunk
-longstanding fallacies on both sides of the camp.  I am aiming for a
-truely neutral article which means I want to hear about the bad as well
-as the good for both camps.
+Roger. 
 
-I am no master, and haven't played with *BSD in a few.  I would
-appreciate any of you who can cooly speak their mind and provide
-insightful information.
-
-I am looking for:
-    articles
-    benchmarks
-    commentary
-    references
-    etc..
-
-Thank you,
--d
-
---
-  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
-  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
-
-
-
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,94 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264961AbTFYTQa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 15:16:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264965AbTFYTQa
+	id S264952AbTFYTUr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 15:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264965AbTFYTUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 15:16:30 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:15764 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264961AbTFYTQV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 15:16:21 -0400
-Date: Wed, 25 Jun 2003 21:30:02 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: SOLVED - Testing IDE-TCQ and Taskfile - doesn't work nicely:)
-In-Reply-To: <20030625190515.GJ29233@lug-owl.de>
-Message-ID: <Pine.SOL.4.30.0306252117240.25993-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+	Wed, 25 Jun 2003 15:20:47 -0400
+Received: from relay.pair.com ([209.68.1.20]:62992 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S264952AbTFYTUq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 15:20:46 -0400
+X-pair-Authenticated: 65.247.36.27
+Subject: Re: patch O1int for 2.5.73 - interactivity work
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+In-Reply-To: <5.2.0.9.2.20030625204242.00ceda90@pop.gmx.net>
+References: <5.2.0.9.2.20030625204242.00ceda90@pop.gmx.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1056569692.1594.30.camel@athena.fprintf.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4- 
+Date: 25 Jun 2003 15:34:53 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-06-25 at 15:00, Mike Galbraith wrote:
+> At 02:09 AM 6/26/2003 +1000, Con Kolivas wrote:
+> 
+> >I'm still working on something for the "xmms stalls if started during very
+> >heavy load" as a different corner case.
+> 
+<snip scheduler suggestion>
+> Just a couple random thoughts, both of which I can see problems with ;-)
+> 
 
-On Wed, 25 Jun 2003, Jan-Benedict Glaw wrote:
+At least on 2.4 (I use 21-ck3), it appears to be I/O starvation that
+gets xmms, not scheduler starvation.  When xmms skips for me, there's
+load, but there's also usually some idle time.  The common thread seems
+to be heavy I/O on the drive xmms is using, possibly combined with a
+(formerly?) interactive process (evolution rebuilding my LKML index, for
+example) doing the disk I/O.  Because of the assorted I/O scheduler
+changes in 2.5, this is unlikley to be the problem there.
 
-> On Wed, 2003-06-25 20:44:19 +0200, Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-> wrote in message <Pine.SOL.4.30.0306252040570.11992-100000@mion.elka.pw.edu.pl>:
-> > On Wed, 25 Jun 2003, Jan-Benedict Glaw wrote:
-> > > On Wed, 2003-06-25 01:08:13 +0200, Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-> > > wrote in message <Pine.SOL.4.30.0306250107180.17106-100000@mion.elka.pw.edu.pl>:
-> > > > On Wed, 25 Jun 2003, Jan-Benedict Glaw wrote:
-> > > > > On Tue, 2003-06-24 15:44:36 +0200, Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-> > > > > wrote in message <Pine.SOL.4.30.0306241543050.23584-100000@mion.elka.pw.edu.pl>:
->
-> > > However, allow me to ask why this occured never bevore (for other
-> > > people)? Do they all have only one drive? Does nobody use TCQ? Nobody
-> > > with old hardware (though, your patch hasn't touched the core PIIX
-> > > parts...)?
-> >
-> > nobody is stupid^H^Hbrave enough to use TCQ ;-)
->
-> Well... I knew that it was, erm, brave to use it at some time (this box
-> isn't really important - if I kill its filesystems, I'll simply
-> re-install and recover my mirror scripts:) ,  but new, where 2.5.x
-> starts to be really useable, I'd suggest to face users with upcoming
-> problems:
-
-I think 2.5.x is really useable.
-
-> CONFIG_IDE_TASKFILE_IO
-> 	It is safe to say Y to this question, in most cases.
->
-> 	(By the way, exactly which cases are ment?)
-
-Ehh... 3 weird bugreports (all are oopses):
-- on x86_64 with 32 bit userspace when reading /proc/ide/hdx/identify
-- in task_mulout_intr() on access to freed rq->bio
-- "bad: scheduling while atomic"
-
-I don't have any ideas how to find&fix these bugs...
-
-> CONFIG_BLK_DEV_IDE_TCQ
-> 	If you have such a drive, say Y here.
-
-TCQ is marked (EXPERIMENTAL) but there should be warning
-about potential risk... :-)
-
-> CONFIG_BLK_DEV_IDE_TCQ_DEFAULT
-> 	Generally say Y here.
->
->
-> CONFIG_BLK_DEV_IDE_TCQ_DEPTH
-> 	You probably just want the default of 32 here.
->
-> 	(Default queue depth is 8, not 32...)
-
-Jens did some testing ages ago and 8 was optimal...
-
-> Right now, I'm building 2.5.73-bk3 + your 2nd patch. Let's face it:)
-
-Okay. :-)
---
-Bartlomiej
-
-> MfG, JBG
->
-> --
->    Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
->    "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
->     fuer einen Freien Staat voll Freier Bürger" | im Internet! |   im Irak!
->       ret = do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+Daniel
+-- 
+Daniel Gryniewicz <dang@fprintf.net>
 

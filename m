@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261842AbTDXSuA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 14:50:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263791AbTDXSuA
+	id S263429AbTDXSsg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 14:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbTDXSsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 14:50:00 -0400
-Received: from mx12.arcor-online.net ([151.189.8.88]:22467 "EHLO
-	mx12.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261842AbTDXSt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 14:49:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Linus Torvalds <torvalds@transmeta.com>, John Bradford <john@grabjohn.com>
-Subject: Re: Flame Linus to a crisp!
-Date: Thu, 24 Apr 2003 21:03:27 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Jamie Lokier <jamie@shareable.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0304240741530.20549-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0304240741530.20549-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030424190207.319431257A9@mx12.arcor-online.net>
+	Thu, 24 Apr 2003 14:48:36 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:57357 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263429AbTDXSse
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 14:48:34 -0400
+Date: Thu, 24 Apr 2003 21:02:48 +0200
+To: Timothy Miller <miller@techsource.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Strange behavior in out-of-memory situation
+Message-ID: <20030424190248.GA2766@hh.idb.hist.no>
+References: <3EA83396.4040904@techsource.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EA83396.4040904@techsource.com>
+User-Agent: Mutt/1.5.3i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 24 Apr 03 16:45, Linus Torvalds wrote:
-> If open hardware is what you want, FPGA's are actually getting to the
-> point where you can do real CPU's with them. They won't be gigahertz, and
-> they won't have big nice caches (but hey, you might make something that
-> clocks fairly close to memory speeds, so you might not care about the
-> latter once you have the former).
->
-> They're even getting reasonably cheap.
+On Thu, Apr 24, 2003 at 02:57:26PM -0400, Timothy Miller wrote:
+> I'm using Red Hat kernel 2.4.18-26.7.x.
+> 
+> I ran a program which is trying to suck up all of memory.  I would like 
+> to kill the process, but "top", "vmstat", and "ps" all hang when I try 
+> to use them.  Also, pressing ctrl-c in the terminal where I can the 
+> program won't kill it.
+> 
+> To an extent, however, the system was still usable, albeit EXTREMELY 
+> unresponsive.  Eventually, the program dumped core, and everything 
+> returned to norma.
+> 
+> Is this a known problem?
 
-The big problem with FPGAs at the moment is that the vendors want you to use 
-their tools, which come with license agreements that limit your options in 
-arbitrary ways, otherwise this would be peachy.
+Your system seems to be in normal working order. There is no problem here.
+A program using up all memory _will_ make the machine very unresponsive
+as everything goes into swap (or discards all executable code for
+those who think they can fool the system by not having swap).
 
-Regards,
+You may indeed be unable to run other programs like top, because
+there aren't enough memory left to run them.  Your program probably
+dumped core when it ran the system completely out of memory and
+trigged the Out-Of-Memory killer.
 
-Daniel
+The only unusual here is that ctrl+c didn't work, but some
+programs block that signal. Perhaps your program does too.
+
+You can use ulimit if you don't want your machine to become
+sluggish.  The effect is that your memory eater will be killed
+earlier, before it uses up so much memory that nothing else
+will run.
+
+Helge Hafting
+

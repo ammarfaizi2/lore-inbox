@@ -1,99 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267974AbTBSEYb>; Tue, 18 Feb 2003 23:24:31 -0500
+	id <S267973AbTBSEm6>; Tue, 18 Feb 2003 23:42:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267975AbTBSEYb>; Tue, 18 Feb 2003 23:24:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3593 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267974AbTBSEYa>;
-	Tue, 18 Feb 2003 23:24:30 -0500
-Message-ID: <3E53093F.5050502@pobox.com>
-Date: Tue, 18 Feb 2003 23:34:07 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-Subject: netdevices.txt update
-Content-Type: multipart/mixed;
- boundary="------------040403030109020202050704"
+	id <S268883AbTBSEm6>; Tue, 18 Feb 2003 23:42:58 -0500
+Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:60039 "EHLO
+	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id <S267973AbTBSEm5>; Tue, 18 Feb 2003 23:42:57 -0500
+Message-Id: <200302190452.h1J4qoGi002198@locutus.cmf.nrl.navy.mil>
+To: Matthew Wilcox <willy@debian.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.5] convert atm_dev_lock from spinlock to semaphore 
+In-reply-to: Your message of "Wed, 19 Feb 2003 02:53:47 GMT."
+             <20030219025347.D22992@parcelfarce.linux.theplanet.co.uk> 
+X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
+X-mailer: nmh 1.0
+Date: Tue, 18 Feb 2003 23:52:50 -0500
+From: chas williams <chas@locutus.cmf.nrl.navy.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040403030109020202050704
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In message <20030219025347.D22992@parcelfarce.linux.theplanet.co.uk>,Matthew Wilcox writes:
+>you seem to be under the impression that <linux/sem.h> has something
+>to do with linux semaphores.  this is not the case; they're sysv semaphores.
 
-Just made a minor update to Documentation/networking/netdevices.txt, and 
-thought I would take the opportunity to pass it around once again.
+sorry about that.  i just picked what seemed like likely culprits for
+header files.
 
-Even though this doc has existed for quite a while now, I still come 
-across code that loves to violate these locking rules in various ways.
+>apart from this, i think it's a pretty bad idea to just replace the
+>spinlocks with semaphores.  atm really needs fixing properly.
 
-Comments and additions welcome
-
-	Jeff
-
-
-
---------------040403030109020202050704
-Content-Type: text/plain;
- name="netdevices.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="netdevices.txt"
-
-
-Network Devices, the Kernel, and You!
-
-
-Introduction
-============
-The following is a random collection of documentation regarding
-network devices.
-
-
-
-struct net_device synchronization rules
-=======================================
-dev->open:
-	Synchronization: rtnl_lock() semaphore.
-	Context: process
-
-dev->stop:
-	Synchronization: rtnl_lock() semaphore.
-	Context: process
-	Note1: netif_running() is guaranteed false
-	Note2: dev->poll() is guaranteed to be stopped
-
-dev->do_ioctl:
-	Synchronization: rtnl_lock() semaphore.
-	Context: process
-
-dev->get_stats:
-	Synchronization: dev_base_lock rwlock.
-	Context: nominally process, but don't sleep inside an rwlock
-
-dev->hard_start_xmit:
-	Synchronization: dev->xmit_lock spinlock.
-	Context: BHs disabled
-	Notes: netif_queue_stopped() is guaranteed false
-
-dev->tx_timeout:
-	Synchronization: dev->xmit_lock spinlock.
-	Context: BHs disabled
-	Notes: netif_queue_stopped() is guaranteed true
-
-dev->set_multicast_list:
-	Synchronization: dev->xmit_lock spinlock.
-	Context: BHs disabled
-
-dev->poll:
-	Synchronization: __LINK_STATE_RX_SCHED bit in dev->state.  See
-		dev_close code and comments in net/core/dev.c for more info.
-	Context: softirq
-
-
---------------040403030109020202050704--
-
+yes, atm_dev_lock is wrapped around large chunks of the code. however,
+it should probably never have been a spinlock--it certainly doesnt need
+to be one.  as a mutex its far less offensive.  i am willing to take
+suggestions as to what would need to be done to fix atm properly?

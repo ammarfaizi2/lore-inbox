@@ -1,82 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130187AbQL1PEh>; Thu, 28 Dec 2000 10:04:37 -0500
+	id <S129868AbQL1PP2>; Thu, 28 Dec 2000 10:15:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130159AbQL1PE1>; Thu, 28 Dec 2000 10:04:27 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:25584 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129692AbQL1PEL>; Thu, 28 Dec 2000 10:04:11 -0500
-Date: Thu, 28 Dec 2000 12:33:01 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Dan Aloni <karrde@callisto.yi.org>, Zlatko Calusic <zlatko@iskon.hr>,
-        "Marco d'Itri" <md@Linux.IT>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alexander Viro <viro@math.psu.edu>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: innd mmap bug in 2.4.0-test12
-In-Reply-To: <Pine.LNX.4.21.0012281210480.14052-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0012281227570.14052-100000@duckman.distro.conectiva>
+	id <S130095AbQL1PPS>; Thu, 28 Dec 2000 10:15:18 -0500
+Received: from femail3.rdc1.on.home.com ([24.2.9.90]:24563 "EHLO
+	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S129868AbQL1PPB>; Thu, 28 Dec 2000 10:15:01 -0500
+Message-ID: <3A4B51AC.E27FF483@home.net>
+Date: Thu, 28 Dec 2000 09:43:56 -0500
+From: Shawn Starr <shawn.starr@home.net>
+Reply-To: shawn.starr@home.net
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre2 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan.Cox@linux.org, linux-kernel@vger.kernel.org
+Subject: Linux kernel 2.2.19ac2
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2000, Rik van Riel wrote:
-> On Wed, 27 Dec 2000, Linus Torvalds wrote:
-> > On Wed, 27 Dec 2000, Rik van Riel wrote:
-> > > 
-> > > The (trivial) patch below should fix this problem.
-> > 
-> > It must be wrong.
-> > 
-> > If we have a dirty page on the LRU lists, that page _must_ have
-> > a mapping.
-> 
-> Hmm, last I looked buffercache pages didn't have
-> page->mapping set ...
+Dec 28 09:31:59 coredump kernel: Filesystem panic (dev 03:41).
+Dec 28 09:31:59 coredump kernel:   FAT error
+Dec 28 09:31:59 coredump kernel:   File system has been set read-only
+Dec 28 09:31:59 coredump kernel: Directory 401: bad FAT
+Dec 28 09:32:16 coredump kernel: Filesystem panic (dev 03:41).
+Dec 28 09:32:16 coredump kernel:   FAT error
+Dec 28 09:32:16 coredump kernel:   File system has been set read-only
+Dec 28 09:32:16 coredump kernel: Directory 503: bad FAT
 
-OK, you're right ;)
+hmmm, there appears to be a problem with the fat or vfat driver. Im
+using Windows 2000 on a different hard drive which is using FAT32 for
+the filesystem.
 
-We never set PG_dirty for buffercache pages, so a
-pure buffercache page shouldn't be caught here...
+When I rebooted into Win2k the system did not detect a corrupt FAT.
 
-I've made a small debugging patch that simply checks
-for this illegal state in add_page_to_active_list and
-add_page_to_inactive_dirty_list.
+Im going to compile 2.2.19ac3 today and see if this was a known issue or
+not.
 
-regards,
+I dont know what information I can give you other then what the log
+shows.
 
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
+Thanks,
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+Shawn Starr.
 
-
---- include/linux/swap.h.orig	Thu Dec 28 12:29:29 2000
-+++ include/linux/swap.h	Thu Dec 28 12:31:29 2000
-@@ -206,7 +206,11 @@
- #define ZERO_PAGE_BUG \
- 	if (page_count(page) == 0) BUG();
- 
-+#define DIRTY_NO_MAPPING \
-+	if (PageDirty(page) && !page->mapping) BUG();
-+
- #define add_page_to_active_list(page) { \
-+	DIRTY_NO_MAPPING \
- 	DEBUG_ADD_PAGE \
- 	ZERO_PAGE_BUG \
- 	SetPageActive(page); \
-@@ -215,6 +219,7 @@
- }
- 
- #define add_page_to_inactive_dirty_list(page) { \
-+	DIRTY_NO_MAPPING \
- 	DEBUG_ADD_PAGE \
- 	ZERO_PAGE_BUG \
- 	SetPageInactiveDirty(page); \
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

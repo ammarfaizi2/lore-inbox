@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266443AbTA2QoI>; Wed, 29 Jan 2003 11:44:08 -0500
+	id <S266527AbTA2Qqi>; Wed, 29 Jan 2003 11:46:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266478AbTA2QoI>; Wed, 29 Jan 2003 11:44:08 -0500
-Received: from aloggw.analogic.com ([204.178.40.2]:8201 "EHLO
-	aloggw.analogic.com") by vger.kernel.org with ESMTP
-	id <S266443AbTA2QoH>; Wed, 29 Jan 2003 11:44:07 -0500
-Message-ID: <61C1E83D9DA9D311A871009027D617F0017DE6A1@PEAEXCH1>
-From: "Pocrovsky, Lev" <LPocrovsky@analogic.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "Pocrovsky, Lev" <LPocrovsky@analogic.com>
-Subject: .align help
-Date: Wed, 29 Jan 2003 11:53:22 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain
+	id <S266535AbTA2Qqi>; Wed, 29 Jan 2003 11:46:38 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:56259 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S266527AbTA2Qqh>;
+	Wed, 29 Jan 2003 11:46:37 -0500
+Date: Wed, 29 Jan 2003 16:52:48 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Stephan von Krawczynski <skraw@ithnet.com>,
+       Mark Hahn <hahn@physics.mcmaster.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: no more MTRRs available ?
+Message-ID: <20030129165248.GC1856@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	Mark Hahn <hahn@physics.mcmaster.ca>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030129162354.55f2ace4.skraw@ithnet.com> <Pine.LNX.4.44.0301291025240.18828-100000@coffee.psychology.mcmaster.ca> <20030129164552.182e0cb8.skraw@ithnet.com> <20030129161446.GB32294@codemonkey.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030129161446.GB32294@codemonkey.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody,
+On Wed, Jan 29, 2003 at 04:14:46PM +0000, Dave Jones wrote:
 
-I am building up a library using xmm and mmx registers in Linux environment.
-At the begin of this activity I was given a sample routine,  which contains
-a line
+ >  > # cat /proc/mtrr
+ >  > reg00: base=0x00000000 (   0MB), size=2048MB: write-back, count=1
+ >  > reg01: base=0x80000000 (2048MB), size=1024MB: write-back, count=1
+ >  > reg02: base=0xc0000000 (3072MB), size= 512MB: write-back, count=1
+ >  > reg03: base=0xe0000000 (3584MB), size= 256MB: write-back, count=1
+ >  > reg04: base=0xf0000000 (3840MB), size= 128MB: write-back, count=1
+ >  > reg05: base=0xf7000000 (3952MB), size=  16MB: uncachable, count=1
+ > Due to this 16MB hole, your BIOS has to set up a write-back range
+ > covering 2048-16 (2032MB).
 
-.align   16
+Dummies guide to maths. This should be 4096-16=4080 of course
 
-in a text segment.
-As far as I can understand the line of the sort does not have any sense and
-GCC-compiler must ignore it. Nevertheless I noticed by running test programs
-that unpredictably some times the line does impact on execution time,
-sometimes it does not.
+		Dave
 
-Any explanation ?
-
-Thanks, Lev
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

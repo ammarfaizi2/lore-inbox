@@ -1,65 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280500AbRJaUtk>; Wed, 31 Oct 2001 15:49:40 -0500
+	id <S280503AbRJaUxk>; Wed, 31 Oct 2001 15:53:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280499AbRJaUtb>; Wed, 31 Oct 2001 15:49:31 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:36881 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S280500AbRJaUtS>; Wed, 31 Oct 2001 15:49:18 -0500
-Message-Id: <200110312049.f9VKnqY24522@aslan.scsiguy.com>
-To: JP Navarro <navarro@mcs.anl.gov>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Raid/Adaptec/SCSI errors, obvious explanation isn't 
-In-Reply-To: Your message of "Wed, 31 Oct 2001 14:02:48 CST."
-             <3BE058E8.F9DC0FC1@mcs.anl.gov> 
-Date: Wed, 31 Oct 2001 13:49:52 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S280501AbRJaUxb>; Wed, 31 Oct 2001 15:53:31 -0500
+Received: from web20405.mail.yahoo.com ([216.136.226.124]:62225 "HELO
+	web20405.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S280503AbRJaUxY>; Wed, 31 Oct 2001 15:53:24 -0500
+Message-ID: <20011031205401.80286.qmail@web20405.mail.yahoo.com>
+Date: Wed, 31 Oct 2001 12:54:01 -0800 (PST)
+From: Brad Chapman <jabiru_croc@yahoo.com>
+Subject: Re: Digest message 28, subject: 2.4.14-pre6
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <200110311858.f9VIw2E07379@lists.us.dell.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->We can consistently generate 1-2 of the following errors per hour:
+Everyone,
+
+--- linux-kernel-digest-request@lists.us.dell.com wrote:
+> Today's Topics:
 >
->Oct 31 10:08:30 ccfs2 kernel: SCSI disk error : host 2 channel 0 id 9 lun 0
->return code = 800
->Oct 31 10:08:30 ccfs2 kernel: Current sd08:51: sense key Hardware Error
->Oct 31 10:08:30 ccfs2 kernel: Additional sense indicates Internal target failu
->re
->Oct 31 10:08:30 ccfs2 kernel:  I/O error: dev 08:51, sector 35371392
-
-...
->Previous postings have suggested hardware (disk) failures or a bug in the RAID
-><-> Adaptec driver interaction.  We think disk failures are unlikely since
->they are happening on multiple disks and only after a software upgrade.
+>   28. Re: 2.4.14-pre6 (Linus Torvalds)
 >
->We once tested 15K drives on these EXP15 JBODs and encountered SCSI disks/driv
->er errors, so we've suspected some type of JBOD problem under high load.
+>--__--__--
 >
->Anyhow, does anyone have a clue as to what might be causing these errors, what
->tests we could conduct to shed light on the problem, or additional information
->we could provide that would be useful.
+> Message: 28
+> Date:   Wed, 31 Oct 2001 11:38:44 -0800 (PST)
+> From: Linus Torvalds <torvalds@transmeta.com>
+> To: Michael Peddemors <michael@wizard.ca>
+> CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+> Subject: Re: 2.4.14-pre6
+>
+>
+> On 31 Oct 2001, Michael Peddemors wrote:
+>
+>> Lets' let this testing cycle go a little longer before making any
+>> changes.. Let developers catch up..
+>
+> My not-so-cunning plan is actually to try to figure out the big problems
+> now, then release a reasonable 2.4.14, and then just stop for a while,
+> refusing to take new features.
+>
+> Then, 2.4.15 would be the point where I start 2.5.x, and where Alan gets
+> to do whatever he wants to do with 2.4.x. Including, of course, just
+> reverting all my and Andrea's VM changes ;)
+>
+> I'm personally convinced that my tree does the right thing VM-wise, but
+> Alan _will_ be the maintainer, and I'm not going to butt in on his
+> decisions. The last thing I want to be is a micromanaging pointy-haired
+> boss.
 
-Its hard for me to believe that the aic7xxx driver could "make up" sense
-information returned from a drive that actually parsed correctly into a
-valid set of error codes.  What I can believe is that after one error
-occurs, this error shows up in commands that completed normally.  The
-Linux SCSI mid-layer assumes that if the first byte of the sense buffer
-is non-zero, it has been filled in regardless of the SCSI status byte
-that is returned by the driver.  Up until the 6.2.0 aic7xxx driver, the
-sense buffer's first byte was not zeroed out prior to executing a new
-command.  This could result in false positives in certain situations.
-If you ask me, the DRIVER_SENSE flag should only be set by the low level
-driver in the case of auto-sense, or by the mid-layer when manual sense
-recovery is successful (this latter case is somewhat questionable since
-a driver that can do autosense but failed may have cleared the real sense
-info already).  Poking around in a potentially unused buffer and guesing
-that its contents imply one thing or the other is bad design.
+	Let me speak out now and say that IM3VHO opinion, Alan
+should keep the Linus VM alive in the 2.4 series, and he should also
+maintain 2.4-ac with Rik's VM. IM3VHO, both VMs are good at different
+things; thus, both of them should be hung onto, and maintained until
+a general vote of either Linux's users or the top kernel maintainers
+for either VM. The same goes for other differences between virgin
+Linus and -ac.
 
-Anyway, the hardware error is in part real.  If you modify the code that
-prints out the error information to include the ASC and ASCQ code, the
-drive vendor may be able to tell you exactly what is going wrong with your
-drive.  If you upgrade to a later version of the aic7xxx driver (6.2.4 is
-the lastest), the number of errors you encounter may decrease due to the
-bug I listed above.
+>
+> (2.5.x will obviously use the new VM regardless, and I actually believe
+> that the new VM simply is better. I think that Alan will see the light
+> eventually, but at the same time I clearly admit that Alan was right on a
+> stability front for the last month or two ;)
 
---
-Justin
+	Quick note: Andrea's VM and Linus's kernel have been a very good
+combination. My 900MHz Athlon box with 256MB RAM and about 100MB swap
+ran very badly on 2.4.9. With 2.4.10 it runs much nicer (more responsive,
+less swapping, actual paging, etc.)
+	
+>
+>> My own kernel patches I had to stop because I couldn't keep up ....  Can
+>> we go a full month with you just hitting us over the head with a bat
+>> yelling 'test, dammit, test', until this is tested fully before
+>> releasing another production release?
+>
+> I think we're really close.
+
+	Really close? How close is really close? Can it be quantified?
+	
+>
+> [ I'd actually like to thank Gary Sandine from laclinux.com who made the
+>   "Ultimate Linux Box" for an article by Eric Raymond for Linux Journal.
+>   They sent me one too, and the 2GB box made it easier to test some real
+>   highmem loads. This has given me additional load environments to test,
+>   and made me able to see some of the problems people reported.. ]
+>
+> But I do want to make a real 2.4.14, not just another "final" pre-kernel,
+> and let that be the base for a reasonably orderly switch-over at 2.4.15
+> (ie I'd still release 2.4.15, everything from then on is Alan).
+>
+>                Linus
+
+Brad
+
+P.S: You guys have done an absolutely wonderful job. Despite the occassional
+flamewar holocaust, Linux 2.4 (in any form, -linus -ac -aa) is the best
+Linux ever.
+
+=====
+Brad Chapman
+
+Permanent e-mails: kakadu_croc@yahoo.com
+		   jabiru_croc@yahoo.com
+Alternate e-mails: kakadu@adelphia.net
+		   kakadu@netscape.net
+
+__________________________________________________
+Do You Yahoo!?
+Make a great connection at Yahoo! Personals.
+http://personals.yahoo.com

@@ -1,94 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263613AbVBEBGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266628AbVBDWKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263613AbVBEBGR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 20:06:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263490AbVBEBGQ
+	id S266628AbVBDWKy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 17:10:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266412AbVBDWH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 20:06:16 -0500
-Received: from gannet.scg.man.ac.uk ([130.88.94.110]:61202 "EHLO
-	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
-	id S266468AbVBDWEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 17:04:24 -0500
-Message-ID: <4203F22D.5070200@gentoo.org>
-Date: Fri, 04 Feb 2005 22:07:41 +0000
+	Fri, 4 Feb 2005 17:07:57 -0500
+Received: from curlew.cs.man.ac.uk ([130.88.13.7]:62477 "EHLO
+	curlew.cs.man.ac.uk") by vger.kernel.org with ESMTP id S266224AbVBDWBj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 17:01:39 -0500
+Message-ID: <4203F188.5050509@gentoo.org>
+Date: Fri, 04 Feb 2005 22:04:56 +0000
 From: Daniel Drake <dsd@gentoo.org>
 User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-CC: benh@kernel.crashing.org, linux-kernel@vger.kernel.org, linux-pm@osdl.org
-Subject: [-mm PATCH] driver model: PM type conversions in drivers/macintosh
+CC: linux-kernel@vger.kernel.org, linux-pm@osdl.org
+Subject: [-mm PATCH] driver model: PM type conversions in drivers/char
 X-Enigmail-Version: 0.89.5.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: multipart/mixed;
- boundary="------------020000020903040405070106"
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CxBYs-000Ksu-92*6k56ICxM3xc*
+ boundary="------------050909010800060108070206"
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CxBWE-000Krj-Ma*3GZovODLfJA*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------020000020903040405070106
+--------------050909010800060108070206
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-This fixes PM driver model type checking for drivers/macintosh.
+This fixes PM driver model type checking for drivers/char.
 Acked by Pavel Machek.
 
 Signed-off-by: Daniel Drake <dsd@gentoo.org>
 
---------------020000020903040405070106
+--------------050909010800060108070206
 Content-Type: text/x-patch;
- name="macintosh-pm-type-safety.patch"
+ name="char-pm-type-safety.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="macintosh-pm-type-safety.patch"
+ filename="char-pm-type-safety.patch"
 
-diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/macintosh/macio_asic.c linux-dsd/drivers/macintosh/macio_asic.c
---- linux-2.6.11-rc2-mm2/drivers/macintosh/macio_asic.c	2004-12-24 21:34:31.000000000 +0000
-+++ linux-dsd/drivers/macintosh/macio_asic.c	2005-02-02 21:30:44.000000000 +0000
-@@ -106,7 +106,7 @@ static void macio_device_shutdown(struct
- 		drv->shutdown(macio_dev);
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/char/agp/efficeon-agp.c linux-dsd/drivers/char/agp/efficeon-agp.c
+--- linux-2.6.11-rc2-mm2/drivers/char/agp/efficeon-agp.c	2005-02-02 21:55:19.000000000 +0000
++++ linux-dsd/drivers/char/agp/efficeon-agp.c	2005-02-02 21:45:01.000000000 +0000
+@@ -408,7 +408,7 @@ static void __devexit agp_efficeon_remov
+ 	agp_put_bridge(bridge);
  }
  
--static int macio_device_suspend(struct device *dev, u32 state)
-+static int macio_device_suspend(struct device *dev, pm_message_t state)
+-static int agp_efficeon_suspend(struct pci_dev *dev, u32 state)
++static int agp_efficeon_suspend(struct pci_dev *dev, pm_message_t state)
  {
- 	struct macio_dev * macio_dev = to_macio_device(dev);
- 	struct macio_driver * drv = to_macio_driver(dev->driver);
-diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/macintosh/mediabay.c linux-dsd/drivers/macintosh/mediabay.c
---- linux-2.6.11-rc2-mm2/drivers/macintosh/mediabay.c	2004-12-24 21:34:26.000000000 +0000
-+++ linux-dsd/drivers/macintosh/mediabay.c	2005-02-02 21:56:29.000000000 +0000
-@@ -710,7 +710,7 @@ static int __devinit media_bay_attach(st
- 
+ 	return 0;
  }
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/char/s3c2410-rtc.c linux-dsd/drivers/char/s3c2410-rtc.c
+--- linux-2.6.11-rc2-mm2/drivers/char/s3c2410-rtc.c	2005-02-02 21:54:16.000000000 +0000
++++ linux-dsd/drivers/char/s3c2410-rtc.c	2005-02-02 21:44:26.000000000 +0000
+@@ -514,7 +514,7 @@ static struct timespec s3c2410_rtc_delta
  
--static int __pmac media_bay_suspend(struct macio_dev *mdev, u32 state)
-+static int __pmac media_bay_suspend(struct macio_dev *mdev, pm_message_t state)
+ static int ticnt_save;
+ 
+-static int s3c2410_rtc_suspend(struct device *dev, u32 state, u32 level)
++static int s3c2410_rtc_suspend(struct device *dev, pm_message_t state, u32 level)
  {
- 	struct media_bay_info	*bay = macio_get_drvdata(mdev);
+ 	struct rtc_time tm;
+ 	struct timespec time;
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/char/sonypi.c linux-dsd/drivers/char/sonypi.c
+--- linux-2.6.11-rc2-mm2/drivers/char/sonypi.c	2005-02-02 21:54:16.000000000 +0000
++++ linux-dsd/drivers/char/sonypi.c	2005-02-02 21:44:45.000000000 +0000
+@@ -693,7 +693,7 @@ static int sonypi_disable(void)
+ #ifdef CONFIG_PM
+ static int old_camera_power;
  
-@@ -729,8 +729,8 @@ static int __pmac media_bay_resume(struc
+-static int sonypi_suspend(struct device *dev, u32 state, u32 level)
++static int sonypi_suspend(struct device *dev, pm_message_t state, u32 level)
  {
- 	struct media_bay_info	*bay = macio_get_drvdata(mdev);
- 
--	if (mdev->ofdev.dev.power.power_state != 0) {
--		mdev->ofdev.dev.power.power_state = 0;
-+	if (mdev->ofdev.dev.power.power_state != PMSG_ON) {
-+		mdev->ofdev.dev.power.power_state = PMSG_ON;
- 
- 	       	/* We re-enable the bay using it's previous content
- 	       	   only if it did not change. Note those bozo timings,
-diff -urNpX dontdiff linux-2.6.11-rc2-mm2/include/asm-ppc/macio.h linux-dsd/include/asm-ppc/macio.h
---- linux-2.6.11-rc2-mm2/include/asm-ppc/macio.h	2004-12-24 21:34:01.000000000 +0000
-+++ linux-dsd/include/asm-ppc/macio.h	2005-02-02 21:34:30.000000000 +0000
-@@ -126,7 +126,7 @@ struct macio_driver
- 	int	(*probe)(struct macio_dev* dev, const struct of_match *match);
- 	int	(*remove)(struct macio_dev* dev);
- 
--	int	(*suspend)(struct macio_dev* dev, u32 state);
-+	int	(*suspend)(struct macio_dev* dev, pm_message_t state);
- 	int	(*resume)(struct macio_dev* dev);
- 	int	(*shutdown)(struct macio_dev* dev);
- 
+ 	if (level == SUSPEND_DISABLE) {
+ 		old_camera_power = sonypi_device.camera_power;
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/char/tpm/tpm.c linux-dsd/drivers/char/tpm/tpm.c
+--- linux-2.6.11-rc2-mm2/drivers/char/tpm/tpm.c	2005-02-02 21:55:20.000000000 +0000
++++ linux-dsd/drivers/char/tpm/tpm.c	2005-02-02 21:45:18.000000000 +0000
+@@ -564,7 +564,7 @@ static u8 savestate[] = {
+  * We are about to suspend. Save the TPM state
+  * so that it can be restored.
+  */
+-int tpm_pm_suspend(struct pci_dev *pci_dev, u32 pm_state)
++int tpm_pm_suspend(struct pci_dev *pci_dev, pm_message_t pm_state)
+ {
+ 	struct tpm_chip *chip = pci_get_drvdata(pci_dev);
+ 	if (chip == NULL)
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/char/tpm/tpm.h linux-dsd/drivers/char/tpm/tpm.h
+--- linux-2.6.11-rc2-mm2/drivers/char/tpm/tpm.h	2005-02-02 21:55:20.000000000 +0000
++++ linux-dsd/drivers/char/tpm/tpm.h	2005-02-02 21:45:52.000000000 +0000
+@@ -88,5 +88,5 @@ extern ssize_t tpm_write(struct file *, 
+ 			 loff_t *);
+ extern ssize_t tpm_read(struct file *, char __user *, size_t, loff_t *);
+ extern void __devexit tpm_remove(struct pci_dev *);
+-extern int tpm_pm_suspend(struct pci_dev *, u32);
++extern int tpm_pm_suspend(struct pci_dev *, pm_message_t);
+ extern int tpm_pm_resume(struct pci_dev *);
 
---------------020000020903040405070106--
+--------------050909010800060108070206--

@@ -1,75 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266011AbUFVUuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265920AbUFVU6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266011AbUFVUuG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 16:50:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266018AbUFVUtp
+	id S265920AbUFVU6h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 16:58:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266001AbUFVUta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 16:49:45 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6558 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265900AbUFVUnd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 16:43:33 -0400
-Message-ID: <40D899E6.5060409@pobox.com>
-Date: Tue, 22 Jun 2004 16:43:18 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Tue, 22 Jun 2004 16:49:30 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:22493 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S266021AbUFVUlG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 16:41:06 -0400
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>, Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [NET]: Fix dev_queue_xmit build with older gcc.
-References: <200406221816.i5MIG9jZ024996@hera.kernel.org>
-In-Reply-To: <200406221816.i5MIG9jZ024996@hera.kernel.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16600.39256.669322.177553@alkaid.it.uu.se>
+Date: Tue, 22 Jun 2004 22:40:56 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.6.7-mm1] perfctr ppc32 update
+In-Reply-To: <1087935661.1855.10.camel@gaston>
+References: <200406212014.i5LKElHD019224@alkaid.it.uu.se>
+	<1087928274.1881.4.camel@gaston>
+	<16600.37372.473221.988885@alkaid.it.uu.se>
+	<1087935661.1855.10.camel@gaston>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List wrote:
-> ChangeSet 1.1822, 2004/06/21 09:32:44-07:00, akm@osdl.org
-> 
-> 	[NET]: Fix dev_queue_xmit build with older gcc.
-> 	
-> 	Signed-off-by: Andrew Morton <akpm@osdl.org>
-> 	Signed-off-by: David S. Miller <davem@redhat.com>
-> 
-> 
-> 
->  dev.c |    7 +++----
->  1 files changed, 3 insertions(+), 4 deletions(-)
-> 
-> 
-> diff -Nru a/net/core/dev.c b/net/core/dev.c
-> --- a/net/core/dev.c	2004-06-22 11:16:18 -07:00
-> +++ b/net/core/dev.c	2004-06-22 11:16:18 -07:00
-> @@ -1406,13 +1406,12 @@
->  	   Either shot noqueue qdisc, it is even simpler 8)
->  	 */
->  	if (dev->flags & IFF_UP) {
-> -		preempt_disable();
-> -		int cpu = smp_processor_id();
-> +		int cpu = get_cpu();
->  
->  		if (dev->xmit_lock_owner != cpu) {
->  
->  			HARD_TX_LOCK_BH(dev, cpu);
-> -			preempt_enable();
-> +			put_cpu();
->  
->  			if (!netif_queue_stopped(dev)) {
->  				if (netdev_nit)
-> @@ -1430,7 +1429,7 @@
->  				       "queue packet!\n", dev->name);
->  			goto out_enetdown;
->  		} else {
-> -			preempt_enable();
-> +			put_cpu();
+Benjamin Herrenschmidt writes:
+ > On Tue, 2004-06-22 at 15:09, Mikael Pettersson wrote:
+ > > Benjamin Herrenschmidt writes:
+ > >  > Hrm... your code will not work with externally clocked timebases
+ > >  > (like the G5) and I'm not sure you get the core freq. right with
+ > >  > CPU that can do clock slewing or machines that can switch the
+ > >  > core/bus ratio (laptops).
+ > > 
+ > > Do you mean the PLL_CFG code that's been in -mm for the last couple
+ > > of weeks, or just the recently posted update? The update replaced
+ > > in-kernel /proc/cpuinfo parsing (gross) with OF queries taken straight
+ > > from the pmac code in arch/ppc/platform/.
+ > > 
+ > > I'm ignoring 970/G5 until IBM releases the damn documentation.
+ > 
+ > Well, the G5 can have it's own tb but can also be externally clocked and
+ > that's how Apple does. I'm not sure about all G4 models.
 
+So what you're saying is that PLL_CFG may not reflect the true
+relationship between the TB frequency and the core frequency?
 
-Has this been tested with preempt?
+That shouldn't be a problem as long as there's _some_ in-kernel
+interface for finding that out. If querying OF isn't the correct
+approach, then what is?
 
-It looks right, but I'm paranoid...
-
-	Jeff
-
-
+/Mikael

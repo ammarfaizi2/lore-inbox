@@ -1,29 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292539AbSBTWKs>; Wed, 20 Feb 2002 17:10:48 -0500
+	id <S292543AbSBTWOI>; Wed, 20 Feb 2002 17:14:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292540AbSBTWKf>; Wed, 20 Feb 2002 17:10:35 -0500
-Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:29364 "EHLO
-	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S292539AbSBTWKQ>;
-	Wed, 20 Feb 2002 17:10:16 -0500
-Date: Wed, 20 Feb 2002 22:08:44 GMT
-Message-Id: <200202202208.g1KM8if07634@fenrus.demon.nl>
-From: arjan@fenrus.demon.nl
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Subject: Re: ioremap()/PCI sickness in 2.4.18-rc2 (FIXED ALMOST)
-In-Reply-To: <20020220151053.A1198@vger.timpanogas.org>
-cc: linux-kernel@vger.kernel.org
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.9-21 (i586))
+	id <S292545AbSBTWN6>; Wed, 20 Feb 2002 17:13:58 -0500
+Received: from tomts22.bellnexxia.net ([209.226.175.184]:18879 "EHLO
+	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S292540AbSBTWNj>; Wed, 20 Feb 2002 17:13:39 -0500
+Date: Wed, 20 Feb 2002 17:13:16 -0800
+From: Jason Yan <jasonyanjk@yahoo.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: initialize page tables --  Re: paging question
+X-mailer: FoxMail 4.0 beta 2 [cn]
+Message-Id: <20020220221431.DCHM785.tomts22-srv.bellnexxia.net@abc337>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020220151053.A1198@vger.timpanogas.org> you wrote:
+>It's set in vmlinux.lds, and is the same for all kernels unless patched
+>to change the user:kernel vm split.
+>    Brian Gerst
 
-> unsigned long + unsigned long)  Last time I checked, unsigned long
-> was a construct for a 32 bit value in any gcc compiler version, ia64 
-> or not.
+Brian,
 
-16 bit msdos mode doesn't count; otherwise it really is 64 bit on 64 bit
-machines.... as per ansi C definition: unsigned long is big enough to
-hold a data pointer....
+Thank you so much, now I totally understand. I'm a real newbie, :-) I've been tortured for almost 2 weeks until I find  this list. 
+
+And thank you all,
+
+Jason
+
+

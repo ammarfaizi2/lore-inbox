@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263799AbRFMOjy>; Wed, 13 Jun 2001 10:39:54 -0400
+	id <S263823AbRFMOmo>; Wed, 13 Jun 2001 10:42:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263948AbRFMOjo>; Wed, 13 Jun 2001 10:39:44 -0400
-Received: from firewall.ocs.com.au ([203.34.97.9]:65523 "EHLO ocs4.ocs-net")
-	by vger.kernel.org with ESMTP id <S263799AbRFMOj0>;
-	Wed, 13 Jun 2001 10:39:26 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Bill Pringlemeir <bpringle@sympatico.ca>
-cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.6-pre3 unresolved symbol do_softirq 
-In-Reply-To: Your message of "13 Jun 2001 10:31:22 -0400."
-             <m2zobcxxhh.fsf@sympatico.ca> 
-Mime-Version: 1.0
+	id <S263903AbRFMOme>; Wed, 13 Jun 2001 10:42:34 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:23563 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S263823AbRFMOm0>;
+	Wed, 13 Jun 2001 10:42:26 -0400
+To: Felix von Leitner <leitner@fefe.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: diff for ipv6 RFC compatibility
+In-Reply-To: <20010608204207.A8838@fefe.de>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 13 Jun 2001 16:42:14 +0200
+In-Reply-To: Felix von Leitner's message of "Fri, 8 Jun 2001 20:42:07 +0200"
+Message-ID: <d3ae3cqw55.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 14 Jun 2001 00:39:09 +1000
-Message-ID: <10690.992443149@ocs4.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Jun 2001 10:31:22 -0400, 
-Bill Pringlemeir <bpringle@sympatico.ca> wrote:
->Try ye' olde STRINGIFY and string concatenation?  Well, at least I try...
->
->     #define my_symbol my_symbol_versioned
->     #define STRINGIFY(a) STRINGIFY1(a)
->     #define STRINGIFY1(a) #a
->     extern void my_symbol(void);
->
->     void foo(void)
->     {
->         __asm__("call " STRINGIFY(my_symbol) "\n");
->     }
->
->     [bpringle@localhost bpringle]$ gcc -o x x.c
->     /usr/lib/crt1.o(.text+0x18): undefined reference to `main'
->     /tmp/ccIj9Cit.o: In function `foo':
->     /tmp/ccIj9Cit.o(.text+0x4): undefined reference to `my_symbol_versioned'
+>>>>> "Felix" == Felix von Leitner <leitner@fefe.de> writes:
 
-Only at the cost of polluting every .h file that calls a symbol from
-__asm__.  The whole pre-processor kludge for symbol versions goes away
-in 2.5 so live with _novers for now.
+Felix> I have been told that I should send a diff rather than complain
+Felix> and expect others to make a diff.  Oops ,)
 
+Felix> So attached is a diff.
+
+A diff against glibc sent to the glibc list would be a lot more
+useful.
+
+Felix> Oh boy oh boy will I now become part of the Linux Changelog? ;)
+
+Probably not, but you are likely to get into the glibc ChangeLog file.
+
+Jes

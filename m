@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275813AbRJBECS>; Tue, 2 Oct 2001 00:02:18 -0400
+	id <S273053AbRJBEOt>; Tue, 2 Oct 2001 00:14:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275805AbRJBECI>; Tue, 2 Oct 2001 00:02:08 -0400
-Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:19335 "EHLO
-	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S275803AbRJBEB7>; Tue, 2 Oct 2001 00:01:59 -0400
-Date: Mon, 1 Oct 2001 22:50:52 -0500
-From: J Troy Piper <jtp@dok.org>
+	id <S275806AbRJBEOj>; Tue, 2 Oct 2001 00:14:39 -0400
+Received: from h24-78-175-24.vn.shawcable.net ([24.78.175.24]:34193 "EHLO
+	oof.localnet") by vger.kernel.org with ESMTP id <S275805AbRJBEOd>;
+	Tue, 2 Oct 2001 00:14:33 -0400
+Date: Mon, 1 Oct 2001 21:14:59 -0700
+From: Simon Kirby <sim@netnation.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] when accessing ide-scsi emulated cd-rw
-Message-ID: <20011001225052.B623@dok.org>
-In-Reply-To: <20011001205643.C548@dok.org> <20011002050932.A14625@bart>
+Subject: Re: [PATCH] Stateful Magic Sysrq Key
+Message-ID: <20011001211459.A6957@netnation.com>
+In-Reply-To: <20011001234437.A10994@mueller.datastacks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011002050932.A14625@bart>; from rosenfel@informatik.hu-berlin.de on Tue, Oct 02, 2001 at 05:09:32AM +0200
+In-Reply-To: <20011001234437.A10994@mueller.datastacks.com>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 02, 2001 at 05:09:32AM +0200, Viktor Rosenfeld wrote:
-> J Troy Piper wrote:
-> 
-> > paranoia kernel: hdd: timeout waiting for DMA
-> > paranoia kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-> 
-> I had the same problem.  Deactivating DMA on the CD RW (hdparm -d 0
-> <device) fixed it for me, although the drive is supposed to support DMA
-> transfers.
-> 
-> Good luck,
-> Viktor
-> -- 
-> Viktor Rosenfeld
-> WWW: http://www.informatik.hu-berlin.de/~rosenfel/
+On Mon, Oct 01, 2001 at 11:44:37PM -0400, Crutcher Dunnavant wrote:
 
-This appears to have fixed my problem.  Thanks, Viktor!
+> This patch was developed to handle crappy KVM-alikes, which did one key
+> at a time, and had no SysRq key. However, it gives a good solution to a
+> common problem. Many keyboards are made cheaply, and do not support
+> having large numbers of keys pressed simultaneously, making the current
+> SysRq code almost useless on them.
 
----
+This iss sort of funny...A number of people at the office thought SysRq
+was already stateful because there are a number of keyboards that do not
+send a release event when alt+sysrq+another key are pressed
+simultaneously....It actually makes it look like alt-sysrq is pressed
+until alt-sysrq is actually pressed again without any keys following it. 
+I suppose this patch makes this cheap keyboard flaw transparent. :)
 
-/************************/
-/*    J. Troy Piper     */
-/*    <jtp@dok.org>     */
-/* Ignotum per Ignotius */
-/************************/
+Simon-
 
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270779AbRHSU6c>; Sun, 19 Aug 2001 16:58:32 -0400
+	id <S270783AbRHSVLP>; Sun, 19 Aug 2001 17:11:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270783AbRHSU6W>; Sun, 19 Aug 2001 16:58:22 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:42211 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S270779AbRHSU6G>;
-	Sun, 19 Aug 2001 16:58:06 -0400
-Date: Sun, 19 Aug 2001 21:58:17 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Oliver Xymoron <oxymoron@waste.org>, Robert Love <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
-Message-ID: <477033435.998258297@[169.254.45.213]>
-In-Reply-To: <Pine.LNX.4.30.0108181839130.31188-100000@waste.org>
-In-Reply-To: <Pine.LNX.4.30.0108181839130.31188-100000@waste.org>
-X-Mailer: Mulberry/2.1.0b3 (Win32)
+	id <S270784AbRHSVLF>; Sun, 19 Aug 2001 17:11:05 -0400
+Received: from relay01.cablecom.net ([62.2.33.101]:63503 "EHLO
+	relay01.cablecom.net") by vger.kernel.org with ESMTP
+	id <S270783AbRHSVKu>; Sun, 19 Aug 2001 17:10:50 -0400
+Message-ID: <3B802B68.ADA545DB@bluewin.ch>
+Date: Sun, 19 Aug 2001 23:11:02 +0200
+From: Otto Wyss <otto.wyss@bluewin.ch>
+Reply-To: otto.wyss@bluewin.ch
+X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
+X-Accept-Language: de,en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Why don't have bits the same rights as humans! (flushing to disk waiting 
+ time)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> obviously some people fear NICs feeding entropy provides a hazard.  for
->> those who dont, or are increadibly low on entropy, enable the
->> configuration option.
->
-> Why don't those who aren't worried about whether they _really_ have enough
-> entropy simply use /dev/urandom?
+I recently wrote some small files to the floppy disk and noticed almost nothing
+happened immediately but after a certain time the floppy actually started
+writing. So this action took more than 30 seconds instead just a few. This
+remembered me of the elevator problem in the kernel. To transfer this example
+into real live: A person who wants to take the elevator has to wait 8 hours
+before the elevator even starts. While probably everyone agrees this is
+ridiculous in real live astonishingly nobody complains about it in case of a disk.
 
-This is not the issue; some of use _are_ worried whether or not we
-have enough entropy (and want a read that blocks until sufficient
-additional entropy arrives if entropy is insufficient), but don't have
-sources of enough sources of entropy (e.g. on an idling machine where
-everything is cached) if one does not allow network IRQ's to
-generate entropy. In doing the latter, we do (admittedly) make
-the assumption that they are valid sources of entropy (see discussion
-past as to why this might or might not be the case), but using /dev/urandom
-rather /dev/random will ALWAYS give a less random result in low entropy
-situations.
+Why don't have bits the same rights as humans! ;-) 
 
-IE I want to use the entropy calcs; I consider network IRQ spacing to be
-sufficiently random and unobservable for them to be a valid source
-of entropy, and (as the advantages doing so for various configs have
-been widely documentated elsewhere) think that there should be a
-config option (or /proc option) to support this. I do /not/ want to
-ignore entropy calcs entirely (i.e. use /dev/urandom).
+I know this waiting period should help the elevator algorithm to choose a better
+service. But is this really true? Lets assume the following situations:
 
---
-Alex Bligh
+1. Just a few persons/time period wants to use the elevator. The elevator just
+service each person since no other is waiting for its service.
+
+2. A rather lot of persons/time period wants to use the elevator, of course the
+elevator can't now service all immediately. But now since accumulation starts
+the elevator can improve its service which of course reduces the accumulation
+which decreases its service and so on.
+
+3. More persons/time period than the elevator can service wants to use it, the
+accumulation always gets higher. Now the elevator works as if it has been given
+a large accumulation time. Hopefully this situations doesn't persist or the
+system itself gets broke.
+
+Now of course a waiting time helps to push the elevator service into situation 3
+even if service request are still in situation 2 or 1. Also real elevators have
+this waiting time, it's starts when the first person enters and choose his
+destination until it has missed the next person (either direction or already
+passed). A rough estimate gives a waiting time in the range of about an average
+service time.
+
+If I assume an average service time for bits (disk access) of about 10ms around
+3000 service requests could be accumulated before any service starts. Now I dare
+to question that even the best elevator algorithm is able to optimize more than
+20 service requests on a usefull base, so any waiting time above 200ms is simply useless.
+
+Lets go back to situation 2. As we see accumulation happens on a "natural" way
+which imposes a certain waiting time. I guess this alone gives a service which
+is at least as good as halve of the best service.
+
+Could anybody produce any real figures to prove/disprove my theory? Could
+anybody benchmark the disk access for the 3 waiting times (0, 200ms 30sec) with
+different loads?
+
+O. Wyss
+
+Please CC, thanks.

@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267936AbUGaKcr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267943AbUGaLCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267936AbUGaKcr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 06:32:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267938AbUGaKcr
+	id S267943AbUGaLCx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 07:02:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267944AbUGaLCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 06:32:47 -0400
-Received: from [38.113.3.51] ([38.113.3.51]:40891 "EHLO snickers.hotpop.com")
-	by vger.kernel.org with ESMTP id S267936AbUGaKcp (ORCPT
+	Sat, 31 Jul 2004 07:02:52 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:58269 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S267943AbUGaLCv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 06:32:45 -0400
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH 5/5] [I810FB]: i810fb fixes
-Date: Sat, 31 Jul 2004 18:32:29 +0800
-User-Agent: KMail/1.5.4
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-References: <200407290955.29735.adaplas@hotpop.com> <20040731000754.GF2746@fs.tum.de>
-In-Reply-To: <20040731000754.GF2746@fs.tum.de>
+	Sat, 31 Jul 2004 07:02:51 -0400
+Date: Sat, 31 Jul 2004 12:02:25 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Eric Anholt <eta@lclark.edu>
+Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org,
+       DRI <dri-devel@lists.sourceforge.net>
+Subject: Re: drm - first steps towards 64-bit correctness..
+In-Reply-To: <1091267836.425.46.camel@leguin>
+Message-ID: <Pine.LNX.4.58.0407311157090.11228@skynet>
+References: <Pine.LNX.4.58.0407310940540.6368@skynet>  <1091266345.425.34.camel@leguin>
+  <1091267687.2819.3.camel@laptop.fenrus.com> <1091267836.425.46.camel@leguin>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407311832.29250.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, forgot the X86_64 dependency.
 
-Tony
+> > can you explain why u32 would be outlawed? Surely it's trivial to do a
+> > typedef for u32 on BSD for drm ??
+>
+> If there are nice standard types (uint32_t or u_int32_t, can't remember
+> which at the moment, I mentioned it in an email some time ago) out there
+> already that linux has too, why not use those?
+>
 
-1. Make i810fb depend on X86 but not X86_64
-2. Fixed typo in i810_init_monspecs(). Reported by Manuel Lauss <slauss@resi.at>.
+Lets get this bit of the discussion over with :-), the kernel has uint*_t
+in it in a few places, this is now a standard type so we will use it, if
+someone is going to work on the DRM they'll see the surrounding uint32_t
+so they'll know what it looks like and I'll make sure none of the others
+sneak in....
 
-Signed-off-by: Antonino Daplas <adaplas@pol.net>
----
+Dave.
 
-diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/i810/i810_main.c linux-2.6.8-rc2-mm1/drivers/video/i810/i810_main.c
---- linux-2.6.8-rc2-mm1-orig/drivers/video/i810/i810_main.c	2004-07-31 16:52:12.341681400 +0800
-+++ linux-2.6.8-rc2-mm1/drivers/video/i810/i810_main.c	2004-07-31 16:53:18.937557288 +0800
-@@ -1656,7 +1656,7 @@ static void __devinit i810_init_monspecs
- 		info->monspecs.hfmax = hsync2;
- 	if (!info->monspecs.hfmin)
- 		info->monspecs.hfmin = hsync1;
--	if (hsync1 < hsync2) 
-+	if (hsync2 < hsync1) 
- 		info->monspecs.hfmin = hsync2;
- 
- 	if (!vsync1)
-diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/Kconfig linux-2.6.8-rc2-mm1/drivers/video/Kconfig
---- linux-2.6.8-rc2-mm1-orig/drivers/video/Kconfig	2004-07-31 16:52:12.337682008 +0800
-+++ linux-2.6.8-rc2-mm1/drivers/video/Kconfig	2004-07-31 18:29:37.812034832 +0800
-@@ -457,7 +457,7 @@ config FB_RIVA_DEBUG
- 
- config FB_I810
- 	tristate "Intel 810/815 support (EXPERIMENTAL)"
--	depends on FB && EXPERIMENTAL && PCI	
-+	depends on FB && EXPERIMENTAL && PCI && X86 && !X86_64	
- 	select AGP
- 	select AGP_INTEL
- 	help
-
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 

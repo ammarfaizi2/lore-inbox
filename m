@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271471AbRHPEq4>; Thu, 16 Aug 2001 00:46:56 -0400
+	id <S271468AbRHPEv4>; Thu, 16 Aug 2001 00:51:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271468AbRHPEqh>; Thu, 16 Aug 2001 00:46:37 -0400
-Received: from trained-monkey.org ([209.217.122.11]:36600 "EHLO
+	id <S271474AbRHPEvq>; Thu, 16 Aug 2001 00:51:46 -0400
+Received: from trained-monkey.org ([209.217.122.11]:38648 "EHLO
 	savage.trained-monkey.org") by vger.kernel.org with ESMTP
-	id <S271465AbRHPEqa>; Thu, 16 Aug 2001 00:46:30 -0400
-Date: Thu, 16 Aug 2001 00:44:48 -0400
-Message-Id: <200108160444.f7G4imA19523@savage.trained-monkey.org>
+	id <S271475AbRHPEvi>; Thu, 16 Aug 2001 00:51:38 -0400
+Date: Thu, 16 Aug 2001 00:49:56 -0400
+Message-Id: <200108160449.f7G4nu619552@savage.trained-monkey.org>
 From: <jes@trained-monkey.org>
-To: jamesg@filanet.com
-CC: torvalds@transmeta.com, alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: [patch] 64 bit bug in ohci1394.c
+To: alan@redhat.com
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [patch] 64 bit bug in video1394.c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi
 
-drivers/ieee1394/sbp.c has a couple of instances where it saved
-cpu flags in 'int' which breaks on 64 bit boxes.
+drivers/message/i2o/i2o_block.c cpu flags in 'int' which breaks on 64
+bit boxes.
 
 Here's a patch.
 
 Jes
 
---- drivers/ieee1394/sbp2.c~	Wed Aug  8 00:08:04 2001
-+++ drivers/ieee1394/sbp2.c	Thu Aug 16 00:43:54 2001
-@@ -984,7 +984,7 @@
- static void sbp2_add_host(struct hpsb_host *host)
+--- drivers/message/i2o/i2o_block.c~	Wed Aug  8 00:08:04 2001
++++ drivers/message/i2o/i2o_block.c	Thu Aug 16 00:48:19 2001
+@@ -721,7 +721,7 @@
+ static int i2ob_evt(void *dummy)
  {
- 	struct sbp2scsi_host_info *hi;
+ 	unsigned int evt;
 -	unsigned int flags;
 +	unsigned long flags;
- 
- 	SBP2_DEBUG("sbp2: sbp2_add_host");
- 
-@@ -1067,7 +1067,7 @@
- {
- 	struct sbp2scsi_host_info *hi;
+ 	int unit;
  	int i;
--	unsigned int flags;
+ 	//The only event that has data is the SCSI_SMART event.
+@@ -1706,7 +1706,7 @@
+ {	
+ 	int unit = 0;
+ 	int i = 0;
+-	int flags;
 +	unsigned long flags;
  
- 	SBP2_DEBUG("sbp2: sbp2_remove_host");
+ 	spin_lock_irqsave(&io_request_lock, flags);
  

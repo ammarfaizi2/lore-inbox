@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284929AbRLPXsU>; Sun, 16 Dec 2001 18:48:20 -0500
+	id <S284934AbRLQABB>; Sun, 16 Dec 2001 19:01:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284933AbRLPXsK>; Sun, 16 Dec 2001 18:48:10 -0500
-Received: from adsl-67-36-120-14.dsl.klmzmi.ameritech.net ([67.36.120.14]:8891
-	"HELO tabris.net") by vger.kernel.org with SMTP id <S284929AbRLPXry>;
-	Sun, 16 Dec 2001 18:47:54 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Adam Schrotenboer <adam@tabris.net>
-Organization: Dome-S-Isle Data
-To: =?iso-8859-1?q?Ra=FAl=20N=FA=F1ez=20de=20Arenas=20Coronado?= 
-	<raul@viadomus.com>,
-        rml@tech9.net
-Subject: Re: Is /dev/shm needed?
-Date: Sun, 16 Dec 2001 18:47:47 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16Fkqc-0001Z0-00@DervishD.viadomus.com>
-In-Reply-To: <E16Fkqc-0001Z0-00@DervishD.viadomus.com>
+	id <S284938AbRLQAAv>; Sun, 16 Dec 2001 19:00:51 -0500
+Received: from pat.uio.no ([129.240.130.16]:36255 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S284934AbRLQAAd>;
+	Sun, 16 Dec 2001 19:00:33 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20011216234748.3EDE9FB80D@tabris.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15389.13714.559348.873531@charged.uio.no>
+Date: Mon, 17 Dec 2001 01:00:18 +0100
+To: Dave Jones <davej@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: More fun with fsx.
+In-Reply-To: <Pine.LNX.4.33.0112162226460.16845-100000@Appserv.suse.de>
+In-Reply-To: <15389.4070.855955.296791@charged.uio.no>
+	<Pine.LNX.4.33.0112162226460.16845-100000@Appserv.suse.de>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 December 2001 18:37, Raúl Núñez de Arenas Coronado wrote:
->     Hello Adam :))
->
-> >> have lots of memory to spare, give it a try.  Mount /tmp or all of /var
-> >> in tmpfs.
-> >
-> >Unfortunately, some(many?) distros are b0rken in re /var/. There is
-> >stuff put there that is needed across boots (for example, mandrake
-> >puts the DNS master files in /var/named.)
+>>>>> " " == Dave Jones <davej@suse.de> writes:
 
-Thank you for this correction of my understanding of /var
-I now am under the impression that it merely means that /var must be mounted 
-rw. It is for variables, but not discardable data.
+     > On Sun, 16 Dec 2001, Trond Myklebust wrote:
+    >> In that case, I'll need a tcpdump of the point at which the
+    >> error occurs.
 
-This still means that the concept of a tmpfs /var is _severely_ broken. DON'T 
-DO IT.
+     > Sure no problem... any particular preferred options ?  Want
+     > client and server, or just client ?
 
-I may be wrong about /tmp as well, but I have come to think that it is data 
-that ought be discarded after logout, and have sometimes considered writing a 
-script for it in the login/logout scripts.
+Client should suffice. If you could start something like
 
->
->     Moreover, didn't the LHS say that /var/tmp is supposed to be
-> maintained across reboots? I'm not sure about this, but anyway /var
-> is supposed to hold temporary data, not boot-throwable data, isn't
-> it?
->
->     Raúl
+tcpdump -s 256 -w tcpdump.out
 
--- 
-tabris
+close to the point at which the error occurs, and send me the
+resulting file, then that should be OK. I'm mainly out to check
+whether or not the server is the one returning the EIO error, or
+possibly if it is returning bad post-op attributes. Those are the only
+remaining possibilities if hard mounts are being used.
 
-   Once I swore I would die for you, but I never meant like this.
+BTW: could you also tell me a bit about the server? Is this an ext[23]
+partition and knfsd? I'm still a bit wary of ReiserFS...
 
-                                              Shame, by Stabbing Westward
-
+Cheers,
+   Trond

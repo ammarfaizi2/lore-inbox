@@ -1,50 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbULJUpi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbULJUre@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbULJUpi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 15:45:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbULJUpi
+	id S261167AbULJUre (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 15:47:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbULJUrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 15:45:38 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:64932 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261157AbULJUpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 15:45:34 -0500
-Subject: Re: RCU question
-From: Lee Revell <rlrevell@joe-job.com>
-To: dipankar@in.ibm.com
-Cc: George Anzinger <george@mvista.com>, ganzinger@mvista.com,
-       Manfred Spraul <manfred@colorfullife.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041210204003.GC4073@in.ibm.com>
-References: <41B8E6F1.4070007@mvista.com> <20041210043102.GC4161@in.ibm.com>
-	 <41B9FC3F.50601@mvista.com>  <20041210204003.GC4073@in.ibm.com>
-Content-Type: text/plain
-Date: Fri, 10 Dec 2004 15:45:31 -0500
-Message-Id: <1102711532.29919.35.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Dec 2004 15:47:33 -0500
+Received: from thumbler.kulnet.kuleuven.ac.be ([134.58.240.45]:27072 "EHLO
+	thumbler.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id S261167AbULJUrJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 15:47:09 -0500
+Message-ID: <41BA0B77.9000902@mech.kuleuven.ac.be>
+Date: Fri, 10 Dec 2004 21:47:51 +0100
+From: Panagiotis Issaris <panagiotis.issaris@mech.kuleuven.ac.be>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: XGI Volari XP5 PCI device ID
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------020904060305040409030301"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-12-11 at 02:10 +0530, Dipankar Sarma wrote:
-> On Fri, Dec 10, 2004 at 11:42:55AM -0800, George Anzinger wrote:
-> > Dipankar Sarma wrote:
-> > >And yes, RCU processing in softirq context can re-raise the softirq.
-> > >AFAICS, it is perfectly normal.
-> > 
-> > My assumption was that, this being the idle task, RCU would be more than 
-> > happy to finish all its pending tasks.
-> 
-> We try to avoid really long running softirqs (RCU tasklet in this case)
-> for better scheduling latency. A long running rcu tasklet during
-> an idle cpu may delay running of an RT process that becomes runnable
-> during the rcu tasklet.
-> 
+This is a multi-part message in MIME format.
+--------------020904060305040409030301
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Well, softirqs should really be preemptible if you care about RT task
-latency.  Ingo's patches have had this for months.  Works great.  Maybe
-it's time to push it upstream.
+Hi,
 
-Lee
+Some Dell Inspiron 5160s are now shipped with a
+XGI Volari XP5. The card's PCI vendor identifier
+is 1023, which represents Trident. XGI bought Trident
+in june 2003.
 
+This trivial patch adds the PCI device ID to the database.
+
+With friendly regards,
+Takis
+
+-- 
+------------------------------------------------------------------------
+Panagiotis Issaris
+Katholieke Universiteit Leuven
+Division Production Engineering,
+Machine Design and Automation
+Celestijnenlaan 300B              panagiotis.issaris@mech.kuleuven.ac.be
+B-3001 Leuven Belgium                 http://www.mech.kuleuven.ac.be/pma
+------------------------------------------------------------------------
+
+
+--------------020904060305040409030301
+Content-Type: text/x-patch;
+ name="pi-200412120-linux-pci_volari_xp5.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pi-200412120-linux-pci_volari_xp5.diff"
+
+diff -ru /home/pissaris/livecd/linux-2.6.9/drivers/pci/pci.ids linux-2.6.9/drivers/pci/pci.ids
+--- /home/pissaris/livecd/linux-2.6.9/drivers/pci/pci.ids	2004-11-29 00:24:21.000000000 +0100
++++ linux-2.6.9/drivers/pci/pci.ids	2004-12-10 18:30:42.000000000 +0100
+@@ -1133,6 +1133,7 @@
+ 	2001  4DWave NX
+ 		122d 1400  Trident PCI288-Q3DII (NX)
+ 	2100  CyberBlade XP4m32
++	2200  Volari XP5
+ 	8400  CyberBlade/i7
+ 		1023 8400  CyberBlade i7 AGP
+ 	8420  CyberBlade/i7d
+
+--------------020904060305040409030301--

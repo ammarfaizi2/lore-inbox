@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267343AbUGNJuW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267344AbUGNKH0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267343AbUGNJuW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 05:50:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267344AbUGNJuW
+	id S267344AbUGNKH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 06:07:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267345AbUGNKH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 05:50:22 -0400
-Received: from gate.corvil.net ([213.94.219.177]:35594 "EHLO corvil.com")
-	by vger.kernel.org with ESMTP id S267343AbUGNJuU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 05:50:20 -0400
-Message-ID: <40F50181.7070900@draigBrady.com>
-Date: Wed, 14 Jul 2004 10:48:49 +0100
-From: P@draigBrady.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Jeff Garzik <jgarzik@pobox.com>, Ricky Beam <jfbeam@bluetronic.net>,
-       "Eric D. Mudama" <edmudama@bounceswoosh.org>,
-       "Robert M. Stockmann" <stock@stokkie.net>, linux-kernel@vger.kernel.org
-Subject: Re: SATA disk device naming ?
-References: <20040713064645.GA1660@bounceswoosh.org> <Pine.GSO.4.33.0407131221000.25702-100000@sweetums.bluetronic.net> <20040713164911.GA947@havoc.gtf.org> <20040713223541.GB7980@taniwha.stupidest.org>
-In-Reply-To: <20040713223541.GB7980@taniwha.stupidest.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 14 Jul 2004 06:07:26 -0400
+Received: from smtp-b2c.tiscali.nl ([195.241.80.19]:63721 "EHLO
+	ha-smtp0.tiscali.nl") by vger.kernel.org with ESMTP id S267344AbUGNKHZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 06:07:25 -0400
+Subject: Saitek X45 Joystick broken in kernelversions > 2.6.5-rc1
+	(hid-core.c)
+From: Paul Heldens <pheldens@tiscali.nl>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 14 Jul 2004 12:04:43 +0200
+Message-Id: <1089799483.293.18.camel@borgir.sleepynet>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> On Tue, Jul 13, 2004 at 12:49:11PM -0400, Jeff Garzik wrote:
-> 
-> 
->>For LABEL to work on root filesystem, you need an initrd.
-> 
-> 
-> initrd is such a PITA at times, I wondered about something hacky like
-> sticking LABEL parsing for rootfs (marked init) into the kernel but
-> it's really gross.
-> 
-> Ideally the initrd/initramfs process just needs better (userspace)
-> infrastructure to make it more reliable/easier.
+The stick gets Initialized properly, as dmesg shows. But then when
+running an application like for instance "js_demo" the stick does not
+respond to axial or button input, several of the axes are locked solid
+in weird (-1) positions. (Calibrating does not fix this, nor does the
+stick need to be manually calibrated normally)
 
-Something like this?
-http://www-124.ibm.com/pipermail/evms/2001-March/000119.html
+The problem seems to be in a change of usb/input/hid-core.c that
+appeared in 2.6.5-rc2. When I use rc1's hid-core.c with some minor
+editing to force it to build with the rest of the rc2 kernel, the
+joystick works. I've tested every release kernel since and none of those
+worked.
 
-initrd is awkward but I've found I need the flexibility.
-For e.g. I modified nash to support an index as well as
-a label so one could have multiple redundant filesystem
-images to choose from.
+Another two X45 users confirmed a non working stick in atleast 2.6.7,
+and there's also a Saitek P750 joypaduser that might be suffering the
+same problem.
 
-Pádraig.
+my stick's serial number:
+SZ00169829
+
+
+

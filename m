@@ -1,32 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbUL0To3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbUL0TpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261954AbUL0To3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 14:44:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbUL0To3
+	id S261955AbUL0TpE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 14:45:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbUL0TpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 14:44:29 -0500
-Received: from f16.mail.ru ([194.67.57.46]:30476 "EHLO f16.mail.ru")
-	by vger.kernel.org with ESMTP id S261954AbUL0ToV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 14:44:21 -0500
-From: Samium Gromoff <_deepfire@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: gen_init_cpio vs. symlink support
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: 192.168.1.102 via proxy [80.92.98.198]
-Date: Mon, 27 Dec 2004 22:44:18 +0300
-Reply-To: Samium Gromoff <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1Cj0mw-0006y3-00._deepfire-mail-ru@f16.mail.ru>
+	Mon, 27 Dec 2004 14:45:03 -0500
+Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:15061 "EHLO
+	admin.rnl.ist.utl.pt") by vger.kernel.org with ESMTP
+	id S261955AbUL0Too (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 14:44:44 -0500
+Message-ID: <41D06629.2060401@rnl.ist.utl.pt>
+Date: Mon, 27 Dec 2004 19:44:41 +0000
+From: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>
+User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Fryderyk Mazurek <dedyk@go2.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems with 2.6.10
+References: <20041227171159.51454193BFA@r10.go2.pl>
+In-Reply-To: <20041227171159.51454193BFA@r10.go2.pl>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It sucks that gen_init_cpio treats symlinks as regular files. 
-It is even dictated by the initramfs format description which has no 
-special case for symlinks. 
- 
-Makes the whole thing useless for some major scenarios. 
- 
-regards, Samium Gromoff 
+Fryderyk Mazurek wrote:
+> Hi everyone!
+> 
+> I have so strange problem with kernel 2.6.10. Kernel works good, but
+> problem starts when I do reboot. On boot screen my bios can't detect
+> my disk. Bios stops and nothing. So without end. Button reset on my
+> towel can't fix it. To fix this situation I must turn off and turn
+> on my computer. Only it helps. With kernel 2.6.9 wasn't so problem.
+> How to fix it?
+
+at first glance, I'd say hardware problem.
+
+Are you positive you can't reproduce it with 2.6.9 or other kernels?
+
+regards,
+pedro venda.
+-- 
+Pedro João Lopes Venda
+email: pjvenda@rnl.ist.utl.pt
+http://maxwell.rnl.ist.utl.pt
+
+Equipa de Administração de Sistemas
+Rede das Novas Licenciaturas (RNL)
+Instituto Superior Técnico
+http://www.rnl.ist.utl.pt
+http://mega.ist.utl.pt

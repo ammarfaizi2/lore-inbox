@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310619AbSCMOrF>; Wed, 13 Mar 2002 09:47:05 -0500
+	id <S310637AbSCMO6S>; Wed, 13 Mar 2002 09:58:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310625AbSCMOq4>; Wed, 13 Mar 2002 09:46:56 -0500
-Received: from sproxy.gmx.de ([213.165.64.20]:14313 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S310619AbSCMOqh>;
-	Wed, 13 Mar 2002 09:46:37 -0500
-Date: Wed, 13 Mar 2002 15:50:56 +0100
-From: Sebastian Droege <sebastian.droege@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [2.5.7-pre1] Reiserfs mounting oops patch
-Message-Id: <20020313155056.3918d052.sebastian.droege@gmx.de>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S310644AbSCMO6I>; Wed, 13 Mar 2002 09:58:08 -0500
+Received: from chmls16.ne.ipsvc.net ([24.147.1.151]:60401 "EHLO
+	chmls16.mediaone.net") by vger.kernel.org with ESMTP
+	id <S310637AbSCMO5u>; Wed, 13 Mar 2002 09:57:50 -0500
+Date: Wed, 13 Mar 2002 09:37:20 -0500
+To: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+Cc: Hans Reiser <reiser@namesys.com>, James Antill <james@and.org>,
+        Larry McVoy <lm@bitmover.com>, Tom Lord <lord@regexps.com>,
+        jaharkes@cs.cmu.edu,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+Message-ID: <20020313143720.GA32244@pimlott.ne.mediaone.net>
+Mail-Followup-To: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>,
+	Hans Reiser <reiser@namesys.com>, James Antill <james@and.org>,
+	Larry McVoy <lm@bitmover.com>, Tom Lord <lord@regexps.com>,
+	jaharkes@cs.cmu.edu,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020312223738.GB29832@pimlott.ne.mediaone.net> <Pine.GSO.4.21.0203131037240.17582-100000@vervain.sonytel.be>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.:yG7pxqY9b7Jo9"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0203131037240.17582-100000@vervain.sonytel.be>
+User-Agent: Mutt/1.3.27i
+From: Andrew Pimlott <andrew@pimlott.ne.mediaone.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.:yG7pxqY9b7Jo9
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Wed, Mar 13, 2002 at 10:39:28AM +0100, Geert Uytterhoeven wrote:
+> On Tue, 12 Mar 2002, Andrew Pimlott wrote:
+> > This is misleading--Clearcase stores versions on top a normal
+> > filesystem (like most other RCS's), and all manipulation is entirely
+>                                                               ^^^^^^^^
+> > in user-space (over the network to server processes).  There only
+>   ^^^^^^^^^^^^^
+> > filesystem magic is that there are directories you cannot list (plus
+> > permission semantics are a little funny).
+> 
+> So what's that ClearCase file system driver doing in kernel space?
 
-Hi,
-here is a patch somebody has posted some time ago (Oleg Drokin I think), but it isn't included in 2.5.7-pre1 and some people might miss it first (like me ;) )
-I think the patch is really important, because you can't mount a reiserfs partition without it
-It fixes an oops when mounting a reiserfs partition and it works for me
+Just providing a convenient view on the repository.  The only write
+operation you can do through the filesystem is write to the checked
+out version.  Checkin, checkout, branch, label, create new
+file/directory, rename, link, chmod, etc are all user-space.
 
-Bye
+Also, you can use ClearCase without the filesystem (snapshot view)
+and get all the same functionality.
 
---- fs/reiserfs/journal.c.old   Wed Mar 13 15:40:14 2002
-+++ fs/reiserfs/journal.c       Wed Mar 13 15:41:23 2002
-@@ -1958,8 +1958,7 @@
-                SB_ONDISK_JOURNAL_DEVICE( super ) ?
-                to_kdev_t(SB_ONDISK_JOURNAL_DEVICE( super )) : super -> s_dev;
-        /* there is no "jdev" option and journal is on separate device */
--       if( ( !jdev_name || !jdev_name[ 0 ] ) && 
--           SB_ONDISK_JOURNAL_DEVICE( super ) ) {
-+       if( ( !jdev_name || !jdev_name[ 0 ] ) ) {
-                journal -> j_dev_bd = bdget( kdev_t_to_nr( jdev ) );
-                if( journal -> j_dev_bd )
-                        result = blkdev_get( journal -> j_dev_bd, 
-@@ -1974,9 +1973,6 @@
-                return result;
-        }
- 
--       /* no "jdev" option and journal is on the host device */
--       if( !jdev_name || !jdev_name[ 0 ] )
--               return 0;
-        journal -> j_dev_file = filp_open( jdev_name, 0, 0 );
-        if( !IS_ERR( journal -> j_dev_file ) ) {
-                struct inode *jdev_inode;
---=.:yG7pxqY9b7Jo9
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE8j2dXe9FFpVVDScsRAuQ2AKD0tAqUkbvP9f7pz70rKdGohDwhgwCg1DND
-KaWltWPkUfGEBgenHoetbus=
-=lUeV
------END PGP SIGNATURE-----
-
---=.:yG7pxqY9b7Jo9--
-
+Andrew

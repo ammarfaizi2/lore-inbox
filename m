@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263931AbTEGPME (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 11:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263967AbTEGPME
+	id S263861AbTEGPH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 11:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263869AbTEGPH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 11:12:04 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:20356
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263931AbTEGPLE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 11:11:04 -0400
-Subject: Re: [RFC][PATCH] linux-2.5.69_clear-smi-fix_A0
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: James Cleverdon <jamesclv@us.ibm.com>
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrew Grover <andrew.grover@intel.com>
-In-Reply-To: <200305070754.08881.jamesclv@us.ibm.com>
-References: <1052258319.4503.7.camel@w-jstultz2.beaverton.ibm.com>
-	 <200305070754.08881.jamesclv@us.ibm.com>
-Content-Type: text/plain
+	Wed, 7 May 2003 11:07:58 -0400
+Received: from watch.techsource.com ([209.208.48.130]:177 "EHLO techsource.com")
+	by vger.kernel.org with ESMTP id S263861AbTEGPHr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 11:07:47 -0400
+Message-ID: <3EB9250A.8030306@techsource.com>
+Date: Wed, 07 May 2003 11:23:54 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Torsten Landschoff <torsten@debian.org>,
+       J?rn Engel <joern@wohnheim.fh-wedel.de>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: top stack (l)users for 2.5.69
+References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305070933450.11740@chaos> <20030507135657.GC18177@wohnheim.fh-wedel.de> <20030507143315.GA6879@stargate.galaxy> <20030507144736.GE8978@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052317498.3061.25.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 May 2003 15:24:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-05-07 at 15:54, James Cleverdon wrote:
-> (I believe there was at least one such system, the Intel Xpress box.  It 
-> contained a 486 and seperate APIC chips.)
 
-There are a very very small number with external APIC setups. If I
-remember rightly these have a unique APIC version (1 ?) so we can
-tell them
+
+William Lee Irwin III wrote:
+
+> 
+> The kernel stack is (in Linux) unswappable memory that persists
+> throughout the lifetime of a thread. It's basically how many threads
+> you want to be able to cram into a system, and it matters a lot for
+> 32-bit.
+> 
+> 
+
+The point that may or may not have been obvious is that more than one 
+kernel stack is hanging around.  One single 8k stack versus one single 
+4k stack is a trivial difference, even for most embedded systems.  But 
+this becomes a huge problem when you have numerous concurrent threads 
+hanging around, one of which can be swapped out.  That eats memory fast.
+
+Or am I getting it wrong?
+
 

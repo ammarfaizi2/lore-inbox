@@ -1,63 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265394AbTIJR43 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 13:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265403AbTIJR43
+	id S265319AbTIJSD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 14:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265323AbTIJSD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 13:56:29 -0400
-Received: from 015.atlasinternet.net ([212.9.93.15]:2790 "EHLO
-	ponti.gallimedina.net") by vger.kernel.org with ESMTP
-	id S265394AbTIJR42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 13:56:28 -0400
-From: Ricardo Galli <gallir@uib.es>
-To: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH-fixed] 2.6.0-test5 was Re: [RETRY] 2.6-test5 =?iso-8859-15?q?didn't=09included=20it=20yet?= (old sk98lin driver makes eth unusable)
-Date: Wed, 10 Sep 2003 19:56:24 +0200
-User-Agent: KMail/1.5.3
-References: <200309090221.33445.gallir@mnm.uib.es> <1063078780.3477.150.camel@spc>
-In-Reply-To: <1063078780.3477.150.camel@spc>
-Organization: UIB
+	Wed, 10 Sep 2003 14:03:57 -0400
+Received: from hstntx01.bsius.com ([64.246.32.38]:25031 "EHLO mx1.bsius.com")
+	by vger.kernel.org with ESMTP id S265319AbTIJSDz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 14:03:55 -0400
+From: "Bill Church" <bill@bsius.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: PROBLEM: PIIXn DMA errors
+Date: Wed, 10 Sep 2003 14:03:52 -0400
+Organization: Bayside Solution, Inc.
+Message-ID: <000601c377c5$e4c11e70$6900000a@bsi000>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-15"
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309101956.24448.gallir@uib.es>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 September 2003 05:39, Steven Cole shaped the electrons to 
-say:
-> On Mon, 2003-09-08 at 18:21, Ricardo Galli wrote:
-> > Just to recall Linus and Andrew:
-> >    http://lkml.org/lkml/2003/8/24/65
-> >
-> > The patch works flawlessly since test4 was born (altough is reverting
-> > a lot of "invalid's" back to "illegal").
->
-> I was the original author of the illegal->invalid substitution patch.
->
-> Here is Richard's patch with the invalid->illegal reversion redacted.
-> (Changes to drivers/net/sk98lin/h/skgeinit.h removed).
->
-> This patch is made against the current 2.6-test tree.
-...
+I'm reposting this because I never saw it come through, if it's
+duplicate I apologize in advance... Also, I saw *some* mention about a
+similar issue in the archives which mentioned that 2.4.22 would fix this
+problem, but doesn't seem to work for me. :(
 
-It works flawless in my (buggy?) motherboard, at least at 100 mbps.
+I have a GigaByte GA-8IGX with an Intel 845G chipset.
 
-...
-eth0: network connection up using port A
-    speed:           100
-    autonegotiation: yes
-    duplex mode:     full
-    flowctrl:        symmetric
-    scatter-gather:  enabled
-...
+Two new Hitachi 180GXP 80G DeskStar drives. Both set as master on two
+ATA/100 channels (/dev/hda and /dev/hdc).
 
-Thanks,
+P4 2.53 Processor at 533FSB
 
+2 Sticks of 512MB Corsair 333MHz DDR Ram
 
--- 
-  ricardo galli       GPG id C8114D34
-  http://mnm.uib.es/~gallir/
+My issue:
+
+Started out with Gentoo gs-sources Kernel (2.4.22_pre2-gss). When I
+would boot with both drives connected, /dev/hdc would timeout and hang
+when enumerating the partitions. If I disabled DMA, the system would
+boot with out error. I disabled ACPI also, but that seemed to have no
+effect.
+
+I reverted to the vanilla-sources Kernel (2.4.22) with the same config
+file and experienced the same results. However, /dev/hdc would time out
+several times but no hang. Upon investigation I found that /dev/hda had
+DMA enabled but /dev/hdc had DMA disabled. So with hdparm I enabled dma
+on /dev/hdc and tried some operations on that drive. Just an fdisk
+/dev/hdc produced timeouts. Checking hdparm again on /dev/hdc revealed
+that it was again disabled.
+
+I then tried setting both drives on the same channel, manually setting
+master on one drive and slave on another. Same issues as before. I also
+tried swapping cables and drive positions. Moving /dev/hdc drive to
+/dev/hda and vice-versa.
+
+So I decided to revert to 2.4.20, I experienced the same results as did
+originally (time out on /dev/hdc to lockup).
+
+I then decided to try 2.6.0-test4, same results...
+
+I am using 80 conductor 40 pin ATA-100 cables. And I'm using the PIIXn
+option under ATA/IDE/MFM/RLL support.
+
+Thanks in advance...
+
+-Bill
+bill at bsius dot com
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in the body of a message to majordomo@vger.kernel.org More majordomo
+info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268155AbUH3QZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267649AbUH3QdE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268155AbUH3QZm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 12:25:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267649AbUH3QZm
+	id S267649AbUH3QdE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 12:33:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268156AbUH3QdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 12:25:42 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:26754 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268155AbUH3QZi convert rfc822-to-8bit (ORCPT
+	Mon, 30 Aug 2004 12:33:04 -0400
+Received: from fw.osdl.org ([65.172.181.6]:53675 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267649AbUH3QdC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 12:25:38 -0400
-Subject: Re: Problem accessing Sandisk CompactFlash Cards (Connected to the
-	IDE bus)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marc =?ISO-8859-1?Q?Str=E4mke?= <marcstraemke.work@gmx.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <cgvi5l$t0d$1@sea.gmane.org>
-References: <cgs2c1$ccg$1@sea.gmane.org> <4131DC5D.8060408@redhat.com>
-	 <cgsuq2$7cb$1@sea.gmane.org> <41326FE1.2050508@redhat.com>
-	 <20040830010712.GC12313@logos.cnet> <cguj7n$gur$1@sea.gmane.org>
-	 <41333879.2040902@redhat.com>  <cgvi5l$t0d$1@sea.gmane.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1093879414.30188.18.camel@localhost.localdomain>
+	Mon, 30 Aug 2004 12:33:02 -0400
+Date: Mon, 30 Aug 2004 09:29:48 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Yuval Turgeman <yuvalt@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: searching for parameters in 'make menuconfig'
+Message-Id: <20040830092948.6cccc7eb.rddunlap@osdl.org>
+In-Reply-To: <9ae345c004083002282ec691a9@mail.gmail.com>
+References: <9ae345c004083002282ec691a9@mail.gmail.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 30 Aug 2004 16:23:35 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-30 at 16:49, Marc Strämke wrote:
-> Both Cards, the old and the new on dont get to the ATAPI probing (which 
-> seems correct to me, or is compactflash an ATAPI device???)
+On Mon, 30 Aug 2004 12:28:07 +0300 Yuval Turgeman wrote:
 
-CF cards in IDE mode appear as ATA disk not ATAPI
+| Hello,
+| I added the ability to search for parameters in make menuconfig (find
+| a given parameter's location in the tree).
+| The patch is for the 2.6.8.1 release.
 
-> So the data the does return indeed marks it as an ATA harddisk, and not 
-> as a compactflash card, the real question then is why doesnt it work as 
-> a harddisk, which according to the specifications it should? Iam not 
-> really experienced in the ide stuff, so iam not sure what the 
-> CompactFlash detection in linux changes in behaviour.
+That's nice.  Thanks.
 
-It basically changes the removable drive behaviour. It could
-also be useful for knowing when we need to be careful as
-CF cards are both fragile and have some different commands.
-
-What is the CF card connected to. One possibility is that
-something after boot is powering the CF card off and on or
-switching its mode before we see it.
-
+--
+~Randy

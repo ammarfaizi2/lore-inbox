@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262454AbTJXSmU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 14:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbTJXSmU
+	id S262449AbTJXShr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 14:37:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbTJXShr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 14:42:20 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:62917 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S262454AbTJXSmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 14:42:18 -0400
-Date: Fri, 24 Oct 2003 20:38:52 +0200
-From: Dominik Brodowski <linux@brodo.de>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Moore, Robert" <robert.moore@intel.com>, Pavel Machek <pavel@ucw.cz>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       linux-acpi <linux-acpi@intel.com>, cpufreq@www.linux.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 3/3 Dynamic cpufreq governor and updates to ACPI P-state driver
-Message-ID: <20031024183852.GE28421@brodo.de>
-References: <88056F38E9E48644A0F562A38C64FB60077914@scsmsx403.sc.intel.com> <20031023141703.GG643@openzaurus.ucw.cz> <CFF522B18982EA4481D3A3E23B83141C24B4DF@orsmsx407.jf.intel.com> <7F740D512C7C1046AB53446D3720017304B04F@scsmsx402.sc.intel.com>
+	Fri, 24 Oct 2003 14:37:47 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:11136 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262449AbTJXShq (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 14:37:46 -0400
+Message-Id: <200310241837.h9OIbjlf003495@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: "C. David Shaffer" <cdshaffer@acm.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: non-root pthread code (attached) "crashes" 2.4.20-8 on Intel...how about 2.4.22 
+In-Reply-To: Your message of "Fri, 24 Oct 2003 13:44:17 EDT."
+             <16281.25841.66888.498987@aslan.cs.westminster.edu> 
+From: Valdis.Kletnieks@vt.edu
+References: <16281.25841.66888.498987@aslan.cs.westminster.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031023141703.GG643@openzaurus.ucw.cz> <CFF522B18982EA4481D3A3E23B83141C24B4DF@orsmsx407.jf.intel.com> <7F740D512C7C1046AB53446D3720017304B04F@scsmsx402.sc.intel.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: multipart/signed; boundary="==_Exmh_533209984P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 24 Oct 2003 14:37:45 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vetoed.
+--==_Exmh_533209984P
+Content-Type: text/plain; charset=us-ascii
 
-cpufreq_dynamic is too generic, there are different approaches == different
-governors in the work which are all "dynamic".
+On Fri, 24 Oct 2003 13:44:17 EDT, "C. David Shaffer" <cdshaffer@acm.org>  said:
 
-	Dominik
+> Attached is an incorrect solution to a classroom problem which
+> reliably crashes (more later) every linux machine that I've tried it
+> on.  crash = machine becomes unresponsive to user input, no external
 
-On Thu, Oct 23, 2003 at 02:50:06PM -0700, Nakajima, Jun wrote:
-> Me too, because it would be consistent with the other ones; i.e. how the
-> user perceives them.
+Two words:  "fork bomb".  Known problem since Ritchie, Kernighan, and
+Thompson were coding the fork() syscall 30 years ago.
 
-On Thu, Oct 23, 2003 at 01:47:49PM -0700, Moore, Robert wrote:
-> 
-> I would vote for "cpufreq_dynamic"
-> 
-> Bob
+'man ulimit' and look at 'max user processes' (-u).
 
-On Thu, Oct 23, 2003 at 04:17:04PM +0200, Pavel Machek wrote:
-> Could you name it cpufreq_demand? We have enough
-> TLAs as is.
-> 				Pavwl
+And before anybody flames about why this is the default value for that ulimit,
+ask yourself "what value should be used by default instead?" and be prepared to
+justify your answer.
 
+
+--==_Exmh_533209984P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/mXF4cC3lWbTT17ARAvRWAJ9OGsf3b2GakNO4te3G4h3dPRUpJgCgrKRg
+o1hKJrSojmudk5uY1Nrtkis=
+=Swub
+-----END PGP SIGNATURE-----
+
+--==_Exmh_533209984P--

@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265841AbUEZWoC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265845AbUEZWr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265841AbUEZWoC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 18:44:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265843AbUEZWoB
+	id S265845AbUEZWr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 18:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265843AbUEZWr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 18:44:01 -0400
-Received: from mail.tpgi.com.au ([203.12.160.113]:26270 "EHLO
-	mail6.tpgi.com.au") by vger.kernel.org with ESMTP id S265841AbUEZWny
+	Wed, 26 May 2004 18:47:29 -0400
+Received: from ws3.netA.ort.spb.ru ([195.70.200.211]:57537 "EHLO
+	gate-n.ort.spb.ru") by vger.kernel.org with ESMTP id S265845AbUEZWr0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 18:43:54 -0400
-Message-ID: <40B51C53.7050602@linuxmail.org>
-Date: Thu, 27 May 2004 08:38:11 +1000
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
+	Wed, 26 May 2004 18:47:26 -0400
+Date: Thu, 27 May 2004 02:47:21 +0400 (MSD)
+From: Andrew Shirrayev <andrews@gate.ort.spb.ru>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: e100 or e1000 on SMP kernel freeze system (ipx+ncp)
+In-Reply-To: <200405262227.18949.roger.larsson@norran.net>
+Message-ID: <Pine.LNX.4.33.0405270209350.31415-100000@gate.ort.spb.ru>
 MIME-Version: 1.0
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-CC: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp fails short on memory
-References: <1085582116.1785.6.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1085582116.1785.6.camel@teapot.felipe-alfaro.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score-Gate: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> Might be related to subject
+>
+> "Re: Hard Hang with __alloc_pages: 0-order allocation failed (gfp=0x20/1) -
+> Not out of memory"?
+Ok, thanks.
 
-FWIW, it's talking about pages of memory, not on disk.
+My problem very different, but maybe have common source.
 
-Regards,
+My problem can repeat on simple system (some kernel
+thread and one bash... 1Gb RAM) and very quiet... :-(
 
-Nigel
--- 
-Nigel & Michelle Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6254 0216 (home)
+Yes, SMP and e10x required :-)
 
-Evolution (n): A hypothetical process whereby infinitely improbable events occur
-with alarming frequency, order arises from chaos, and no one is given credit.
+Infinit loop?
+
+>
+> e1000 and SMP...
+>
+> /RogerL
+

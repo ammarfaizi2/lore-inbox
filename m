@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbULIRkD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbULIRlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbULIRkD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 12:40:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbULIRkD
+	id S261566AbULIRlq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 12:41:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbULIRlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 12:40:03 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:41168 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S261567AbULIRjs (ORCPT
+	Thu, 9 Dec 2004 12:41:46 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:6286 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261566AbULIRll (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 12:39:48 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E57057A1B87@exa-atlanta>
-From: "Mukker, Atul" <Atulm@lsil.com>
-To: "'Patrick Mansfield'" <patmans@us.ibm.com>
-Cc: "'James Bottomley'" <James.Bottomley@steeleye.com>,
-       "Bagalkote, Sreenivas" <sreenib@lsil.com>,
-       "'Matt Domsch'" <Matt_Domsch@Dell.com>,
-       "'brking@us.ibm.com'" <brking@us.ibm.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'SCSI Mailing List'" <linux-scsi@vger.kernel.org>,
-       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
-       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>
-Subject: RE: How to add/drop SCSI drives from within the driver?
-Date: Thu, 9 Dec 2004 12:31:37 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+	Thu, 9 Dec 2004 12:41:41 -0500
+Date: Thu, 9 Dec 2004 18:41:07 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Florian Schmidt <mista.tapas@gmx.net>, Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
+Message-ID: <20041209174107.GF7975@elte.hu>
+References: <OF8CB9B8EE.C928A668-ON86256F65.0058B4C3@raytheon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF8CB9B8EE.C928A668-ON86256F65.0058B4C3@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> > 8. So, all driver has to do to assist applications is to 
-> provide the 
-> > logical drive number to scsi address mapping. Application 
-> would say, 
-> > hey! I added/removed logical drive number 5, driver 
-> reverts, here is 
-> > the scsi address for it "host:2, channel:5, target:5 lun:0" :-)
-> 
-> How does the driver supply the mapping if it does not know 
-> about the "change"? Is it reserving or telling user space the 
-> hctl that will be used?
-This point was thoroughly explained in my previous post item 2. Yes, driver
-reserves a virtual bus on which all logical drives would be exported.
 
-> 
-> If so, why can't the driver call scsi_add_device(h,c,t,l) 
-> after the ioctl to create the logical drive completes?
-This idea was already turned down, see mails on linux-scsi on 12/3
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-> 
-> Though I am all for using hotplug to initiate scanning from 
-> user space.
-good
+> Don't take this message the wrong way. I strongly support what Ingo is
+> doing with the 2.6 kernel. Its just sometimes the measurements don't
+> seem to show the improvements everyone wants to see.
+
+just in case it wasnt obvious ... your feedback is really useful, no
+matter in what direction it goes. You have one of the most complex test
+setups, so i pretty much expect your setup to trigger the most problems
+as well (and it is also the hardest to analyze). I think we are fine as
+long as constant progress is made (which i believe we are making, even
+if seemingly not for your particular workload =B-).
+
+	Ingo

@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265778AbSKAVrT>; Fri, 1 Nov 2002 16:47:19 -0500
+	id <S265772AbSKAVst>; Fri, 1 Nov 2002 16:48:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265772AbSKAVrT>; Fri, 1 Nov 2002 16:47:19 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:13062 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265778AbSKAVrS>;
-	Fri, 1 Nov 2002 16:47:18 -0500
-Date: Fri, 1 Nov 2002 13:50:38 -0800
-From: Greg KH <greg@kroah.com>
-To: Matthew Harrell 
-	<mharrell-dated-1036592872.f6edc2@bittwiddlers.com>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.4[3-5] usb problems
-Message-ID: <20021101215038.GB18015@kroah.com>
-References: <20021101142751.GA908@bittwiddlers.com>
+	id <S265783AbSKAVst>; Fri, 1 Nov 2002 16:48:49 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:35777 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S265782AbSKAVss>; Fri, 1 Nov 2002 16:48:48 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Fri, 1 Nov 2002 23:43:27 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: 2.5.45: initrd broken?
+Message-ID: <20021101224327.GA3303@bytesex.org>
+References: <20021101123132.GA30901@bytesex.org> <Pine.GSO.4.21.0211011117450.20793-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021101142751.GA908@bittwiddlers.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.GSO.4.21.0211011117450.20793-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 01, 2002 at 09:27:51AM -0500, Matthew Harrell wrote:
+> Patch below fixes these.  It also changes order of blkdev_put()/del_gendisk()
+> in initrd_release() - better safe than sorry.
 > 
-> A few different problems.  First, when I use my USB hub then I get this 
-> 
->   drivers/usb/core/hub.c: new USB device 00:11.2-1, assigned address 2
->   drivers/usb/core/hub.c: USB hub found at 1
->   drivers/usb/core/hub.c: 9 ports detected
->   drivers/usb/core/hub.c: new USB device 00:11.2-1.4, assigned address 3
->   drivers/usb/core/hub.c: USB hub found at 1.4
->   drivers/usb/core/hub.c: 3 ports detected
->   drivers/usb/core/hub.c: new USB device 00:11.2-1.7, assigned address 4
->   drivers/usb/core/hub.c: new USB device 00:11.2-1.8, assigned address 5
->   drivers/usb/input/hid-core.c: ctrl urb status -32 received
->   drivers/usb/input/hid-core.c: usb_submit_urb(ctrl) failed
-> 
-> and none of the USB devices show up at all.  But, when I plug the keyboard
-> and mouse in without the hub they work fine.
+> It got initrd working on my boxen...
 
-I'm seeing some strange USB hub issues here too (hubs that work fine on
-2.4, not working on 2.5, hubs that only work on boot, but not attaching
-later), so you aren't alone.
+[ patch snipped ]
 
-It's time now for some serious USB debugging to get on, now that we have
-the main feature freeze done.
+Initrd works now, thanks.
 
-thanks,
+The box still doesn't boot through, the initrd fails to load the ext3
+module due to unresolved symbols (mb_cache_*).  That issue looks like a
+kbuild problem to me:  I have ACL's enabled (which builds the mbcache.o
+module).  I also have the nfs server with v4 support enabled (which
+doesn't build currently).  Running "make -k modules_install" does _not_
+install the mbcache.o in /lib/modules/2.5.45.  I suspect this happens
+due to the build error in the nfsd subdirectory.
 
-greg k-h
+  Gerd
+
+-- 
+You can't please everybody.  And usually if you _try_ to please
+everybody, the end result is one big mess.
+				-- Linus Torvalds, 2002-04-20

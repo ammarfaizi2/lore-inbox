@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277237AbRJDVXE>; Thu, 4 Oct 2001 17:23:04 -0400
+	id <S277238AbRJDVZo>; Thu, 4 Oct 2001 17:25:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277234AbRJDVWy>; Thu, 4 Oct 2001 17:22:54 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:58030 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S277237AbRJDVWg>;
-	Thu, 4 Oct 2001 17:22:36 -0400
-Date: Thu, 04 Oct 2001 22:22:56 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Robert Olsson <Robert.Olsson@data.slu.se>, jamal <hadi@cyberus.ca>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Benjamin LaHaise <bcrl@redhat.com>, netdev@oss.sgi.com,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-Message-ID: <302417729.1002234175@[195.224.237.69]>
-In-Reply-To: <15291.5314.595897.458571@robur.slu.se>
-In-Reply-To: <15291.5314.595897.458571@robur.slu.se>
-X-Mailer: Mulberry/2.1.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S277234AbRJDVZe>; Thu, 4 Oct 2001 17:25:34 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:63648 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S277240AbRJDVZ1>;
+	Thu, 4 Oct 2001 17:25:27 -0400
+Date: Thu, 04 Oct 2001 14:25:23 -0700 (PDT)
+Message-Id: <20011004.142523.54186018.davem@redhat.com>
+To: arjan@fenrus.demon.nl
+Cc: kravetz@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: Context switch times
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E15pFor-0004sC-00@fenrus.demon.nl>
+In-Reply-To: <20011004140417.C1245@w-mikek2.des.beaverton.ibm.com>
+	<E15pFor-0004sC-00@fenrus.demon.nl>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > The paper is at: http://www.cyberus.ca/~hadi/usenix-paper.tgz
->  > Robert can point you to the latest patches.
->
->
->  Current code... there are still some parts we like to better.
->
->  Available via ftp from robur.slu.se:/pub/Linux/net-development/NAPI/
->  2.4.10-poll.pat
+   From: arjan@fenrus.demon.nl
+   Date: Thu, 04 Oct 2001 22:14:13 +0100
+   
+   > Comments?
+   
+   2.4.x supports SSE on pentium III/athlons, so the SSE registers need to be
+   saved/restored on a taskswitch as well.... that's not exactly free.
 
-I seem to remember jamal saying the NAPI stuff was available
-since 2.(early). Is there a stable 2.2.20 patch?
+lat_ctx doesn't execute any FPU ops.  So at worst this happens once
+on GLIBC program startup, but then never again.
 
---
-Alex Bligh
+This assumes I understand how lazy i387 restores work in the kernel
+:-)
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

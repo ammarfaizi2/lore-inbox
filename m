@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261806AbRE1Xn4>; Mon, 28 May 2001 19:43:56 -0400
+	id <S261783AbRE1Xlq>; Mon, 28 May 2001 19:41:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261808AbRE1Xnq>; Mon, 28 May 2001 19:43:46 -0400
-Received: from mailf.telia.com ([194.22.194.25]:52443 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id <S261806AbRE1Xnh>;
-	Mon, 28 May 2001 19:43:37 -0400
-Date: Tue, 29 May 2001 01:44:07 +0200
-From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <anedah-9@sm.luth.se>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.5-ac2
-Message-ID: <20010529014406.A320@sm.luth.se>
-Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0105281802290.1261-100000@freak.distro.conectiva>
+	id <S261800AbRE1Xlg>; Mon, 28 May 2001 19:41:36 -0400
+Received: from [203.34.97.3] ([203.34.97.3]:38157 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S261783AbRE1XlT>;
+	Mon, 28 May 2001 19:41:19 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: George France <france@handhelds.org>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jay Thorne <Yohimbe@userfriendly.org>
+Subject: Re: PATCH - ksymoops on Alpha - 2.4.5-ac3 
+In-Reply-To: Your message of "Mon, 28 May 2001 17:05:45 -0400."
+             <01052817054503.17841@shadowfax.middleearth> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.21.0105281802290.1261-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.18i
-X-Unexpected-Header: The Spanish Inquisition
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 29 May 2001 09:40:02 +1000
+Message-ID: <4172.991093202@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+On Mon, 28 May 2001 17:05:45 -0400, 
+George France <france@handhelds.org> wrote:
+>Here is a trivial patch that will make ksymoops work again on Alpha.
 
-> Just to confirm this is what happening in your case:  Can you please try
-> 2.4.4-ac5 and see if the _swap usage_ is still as badly?
+Thanks for that.  Now if you can just persuade the Alpha people to
+print the 'Code:' line in the same format as other architectures then
+ksymoops can decode the instructions as well.  If Alpha wants to
+include its own instruction decoder as well then that is up to them but
+I would appreciate a standard 'Code:' line being printed first.
 
-2.4.4-ac5 seams to use the swap about as much as 2.4.4, which is less than
-2.4.5-ac2. In my simple "freesly boot kernel, start X and Mozilla" test
-2.4.4-ac5 showed almost identical 'free' output as 2.4.4:
-
-             total       used       free     shared    buffers     cached
-Mem:         62760      61368       1392          0       1828      28760
--/+ buffers/cache:      30780      31980
-Swap:       160608          0     160608
-
-> Back to the interactivity issue, I suppose you've "felt" bad interactivity
-> with 2.4.* kernels, right ?
-
-Yes, I feel bad interactivety with later 2.4.4-acX kernels, and 2.4.5
-kernels. Switching between apps and such feels a lot slower.
-
-Let me know if you want me to do more tests.
--- 
-
-André Dahlqvist <anedah-9@sm.luth.se>

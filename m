@@ -1,87 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265856AbUFDQAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265865AbUFDQBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265856AbUFDQAw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 12:00:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265851AbUFDP6T
+	id S265865AbUFDQBR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 12:01:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265845AbUFDQBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 11:58:19 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:63394 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265856AbUFDPy4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 11:54:56 -0400
-Date: Fri, 4 Jun 2004 09:03:14 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
-       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       mikpe@csd.uu.se, Simon.Derr@bull.net, wli@holomorphy.com
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
- implementation
-Message-Id: <20040604090314.56d64f4d.pj@sgi.com>
-In-Reply-To: <16576.16748.771295.988065@alkaid.it.uu.se>
-References: <20040603094339.03ddfd42.pj@sgi.com>
-	<20040603101010.4b15734a.pj@sgi.com>
-	<1086313667.29381.897.camel@bach>
-	<40BFD839.7060101@yahoo.com.au>
-	<20040603221854.25d80f5a.pj@sgi.com>
-	<16576.16748.771295.988065@alkaid.it.uu.se>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 4 Jun 2004 12:01:05 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:34470 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265847AbUFDP7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 11:59:07 -0400
+Date: Fri, 4 Jun 2004 16:59:06 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] exec-shield patch for 2.6.7-rc2-bk2, integrated with NX
+Message-ID: <20040604155906.GA1378@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <20040602210421.GA22011@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040602210421.GA22011@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael writes:
-> Case in point: the perfctr kernel extension needs to communicate ...
+On Wed, Jun 02, 2004 at 11:04:21PM +0200, Ingo Molnar wrote:
+> 
+> Here's the latest exec-shield patch for 2.6.7-rc2-bk2, integrated with
+> the 'NX' feature (see the announcement from earlier today):
+> 
+>   http://redhat.com/~mingo/exec-shield/exec-shield-on-nx-2.6.7-rc2-bk2-A7
 
-Nice example.  Thank-you.
+Any chance to split this up a bit?  Having the pure non-exec stack
+(and maybe heap) would be really nice while the randomization feature are
+a litte bit too much security by obscurity for my taste.
 
-Yes - doing that 1-bit at a time in a per-cpu loop would be ugly.
-
-We should leave cpus_addr() around, at least until such time as the
-cpumask ADT provided routines to support exactly what you are doing -
-copying up masks to user space as length specified arrays of uint.
-
-==
-
-Aside - be careful here not to get the two halves of 64 bit longs,
-on 64 bit big endian machines, backwards.
-
->From the depths of my email archives (Joe Korty might recognize this)
-comes the following snippet of code and commentary, never put to use,
-which ponders the handling of such masks:
-
-+/*
-+ * Bitops apply to arrays of unsigned long.  This is almost
-+ * the same as an array of unsigned ints, except on 64 bit big
-+ * endian architectures, in which the two 32-bit int halves of
-+ * each long are reversed (big 32-bit halfword first, naturally).
-+ *
-+ * Use this BIT32X (for "BITop 32-bit indeX") macro to index the
-+ * i-th word of a bit mask declared as an array of 32 bit words.
-+ *
-+ * Usage example accessing 32-bit words in mask[] in order,
-+ * smallest first:
-+ *    u32 mask[MASKLENGTH];
-+ *    int i;
-+ *    for (i = 0; i < MASKLENGTH; i++)
-+ *        ... mask[BIT32X(i)] ...
-+ */
-+#ifndef BIT32X
-+#include <asm/byteorder.h>
-+#if BITS_PER_LONG == 64 && defined(__BIG_ENDIAN)
-+#define BIT32X(i) ((i)^1)
-+#elif BITS_PER_LONG == 32 || defined(__LITTLE_ENDIAN)
-+#define BIT32X(i) (i)
-+#endif
-+#endif
-
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373

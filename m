@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264966AbUGTM5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265841AbUGTNRu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264966AbUGTM5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 08:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265840AbUGTM5Q
+	id S265841AbUGTNRu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 09:17:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbUGTNRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 08:57:16 -0400
-Received: from ip47-168.ott.istop.com ([66.11.168.47]:16256 "EHLO
-	midnight.ucw.cz") by vger.kernel.org with ESMTP id S264966AbUGTM5H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 08:57:07 -0400
-Date: Tue, 20 Jul 2004 14:58:03 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.4 Backport] x445 usb legacy fix
-Message-ID: <20040720125802.GA395@ucw.cz>
-References: <1090289222.1388.461.camel@cog.beaverton.ibm.com> <20040719200608.280d17a1@lembas.zaitcev.lan> <20040720051353.GD313@ucw.cz> <20040719225104.7defc877@lembas.zaitcev.lan>
+	Tue, 20 Jul 2004 09:17:50 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:14980 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S265841AbUGTNRs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 09:17:48 -0400
+Date: Tue, 20 Jul 2004 15:17:48 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: =?iso-8859-2?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: swsuspend not working
+Message-ID: <20040720131748.GI27492@atrey.karlin.mff.cuni.cz>
+References: <20040715121042.GB9873@lps.ens.fr> <20040715121825.GC22260@elf.ucw.cz> <20040715132348.GA9939@lps.ens.fr> <20040719191906.GA7053@lps.ens.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040719225104.7defc877@lembas.zaitcev.lan>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040719191906.GA7053@lps.ens.fr>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 19, 2004 at 10:51:04PM -0700, Pete Zaitcev wrote:
+Hi!
 
-> On Tue, 20 Jul 2004 07:13:53 +0200
-> Vojtech Pavlik <vojtech@suse.cz> wrote:
-> 
-> > Actually USB Legacy SMM emulation triggers problems on many many more
-> > systems. The quirk does exactly the same thing the USB HCI drivers do in
-> > their init code, it only does it early in the boot process, so that
-> > even if the USB drivers are modules, the i8042 controller and PS/2 mouse
-> > and keyboard initialization proceeds correctly.
-> 
-> I guessed it, but I hoped it wasn't "many more systems", but rather
-> "a few", so matching would made sense.
-> 
-> It would be comforting to know that we ran this in 2.6 or elsewhere
-> before recommending it for Marcelo. Did you guys actually ship it
-> with SLES or something? For how long?
+> Ok, it is not surprising that the fedora kernel does not suspend to disk;
+> suspend to disk is not compiled in. What a weird decision from them.
 
-It's being shipped in SL9.1 and SLES9, since may. 
+Oops.
 
+> If, instead of unloading/reloading the modules, I unplug and replug the
+> radio emiter of the mouse, I get it back working. If I unplug the memory
+> key, the device REMAINS as managed by the ehci controller. If I plug it
+> back again, the memory key appears A SECOND TIME in the list of usb
+> device, but as an uhci device, this time.
+
+Ok, someone needs to fix usb.
+
+> Another device is not working after resume: it is an old realtek 8029
+> 100 Mb LAN pci card. If I try to ping something on the LAN, I get a
+> ? Destination Host Unreachable ? and nothing more. The interrupt count of
+> the card is increasing, however. Unloading and reloading ne2k_pci fixes
+> that.
+
+Teach ne2k_pci to do on suspend what it does on unload, and to do on
+resume what it does on load. Should be easy.
+
+Oh and maybe "noapic".
+									Pavel
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

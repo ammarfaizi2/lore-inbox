@@ -1,117 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264928AbUELLZu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265002AbUELLcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264928AbUELLZu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 07:25:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265019AbUELLZu
+	id S265002AbUELLcn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 07:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265019AbUELLcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 07:25:50 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:5318 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S264928AbUELLZm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 07:25:42 -0400
-Message-ID: <40A20A08.9EAAD8E@nospam.org>
-Date: Wed, 12 May 2004 13:27:04 +0200
-From: Zoltan Menyhart <Zoltan.Menyhart_AT_bull.net@nospam.org>
-Reply-To: Zoltan.Menyhart@bull.net
-Organization: Bull S.A.
-X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
-X-Accept-Language: fr, en
+	Wed, 12 May 2004 07:32:43 -0400
+Received: from [213.133.118.2] ([213.133.118.2]:16035 "EHLO
+	mail.shadowconnect.com") by vger.kernel.org with ESMTP
+	id S265002AbUELLcl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 07:32:41 -0400
+Message-ID: <40A20C76.40204@shadowconnect.com>
+Date: Wed, 12 May 2004 13:37:26 +0200
+From: Markus Lidel <Markus.Lidel@shadowconnect.com>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Who owns those locks ? (2)
-Content-Type: multipart/mixed;
- boundary="------------0866B09AA21AF112BB5F74E4"
+To: linux-kernel@vger.kernel.org
+CC: Alan Cox <alan@redhat.com>, Warren Togami <wtogami@redhat.com>,
+       Al Viro <viro@redhat.com>
+Subject: [PATCH 2.6] i2o_proc converting from proc_read to seq_file with problems
+ and request for help
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------0866B09AA21AF112BB5F74E4
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Hello,
 
-I have forgotten the function "_raw_spin_trylock()" :-(
+first, i didn't attach the patch because the size is 120k and it doesn't 
+work at the moment. If you want it by e-mail, please let me know. 
+Meanwhile you could download the patch from:
 
-Zoltán
---------------0866B09AA21AF112BB5F74E4
-Content-Type: text/plain; charset=us-ascii;
- name="n475"
-Content-Disposition: inline;
- filename="n475"
-Content-Transfer-Encoding: 7bit
+http://i2o.shadowconnect.com/testing/i2o_proc-seq_file.patch
 
---- 2.6.5.ref/include/asm-ia64/spinlock.h	Sun Apr  4 05:36:17 2004
-+++ 2.6.5.new/include/asm-ia64/spinlock.h	Wed May 12 13:17:50 2004
-@@ -45,7 +45,8 @@
- 	asm volatile ("{\n\t"
- 		      "  mov ar.ccv = r0\n\t"
- 		      "  mov r28 = ip\n\t"
--		      "  mov r30 = 1;;\n\t"
-+		      /* "  mov r30 = 1;;\n\t" */
-+		      "  shr.u r30 = r13, 12;;\n\t"	/* Current task pointer */
- 		      "}\n\t"
- 		      "cmpxchg4.acq r30 = [%1], r30, ar.ccv\n\t"
- 		      "movl r29 = ia64_spinlock_contention_pre3_4;;\n\t"
-@@ -57,7 +58,8 @@
- 	asm volatile ("{\n\t"
- 		      "  mov ar.ccv = r0\n\t"
- 		      "  mov r28 = ip\n\t"
--		      "  mov r30 = 1;;\n\t"
-+		      /* "  mov r30 = 1;;\n\t" */
-+		      "  shr.u r30 = r13, 12;;\n\t"	/* Current task pointer */
- 		      "}\n\t"
- 		      "cmpxchg4.acq r30 = [%1], r30, ar.ccv;;\n\t"
- 		      "cmp4.ne p14, p0 = r30, r0\n"
-@@ -68,7 +70,8 @@
- # ifdef CONFIG_ITANIUM
- 	/* don't use brl on Itanium... */
- 	/* mis-declare, so we get the entry-point, not it's function descriptor: */
--	asm volatile ("mov r30 = 1\n\t"
-+	asm volatile (/* "  mov r30 = 1;;\n\t" */
-+		      "  shr.u r30 = r13, 12;;\n\t"	/* Current task pointer */
- 		      "mov ar.ccv = r0;;\n\t"
- 		      "cmpxchg4.acq r30 = [%0], r30, ar.ccv\n\t"
- 		      "movl r29 = ia64_spinlock_contention;;\n\t"
-@@ -77,7 +80,8 @@
- 		      "(p14) br.call.spnt.many b6 = b6"
- 		      : "=r"(ptr) : "r"(ptr) : IA64_SPINLOCK_CLOBBERS);
- # else
--	asm volatile ("mov r30 = 1\n\t"
-+	asm volatile (/* "  mov r30 = 1;;\n\t" */
-+		      "  shr.u r30 = r13, 12;;\n\t"	/* Current task pointer */
- 		      "mov ar.ccv = r0;;\n\t"
- 		      "cmpxchg4.acq r30 = [%0], r30, ar.ccv;;\n\t"
- 		      "cmp4.ne p14, p0 = r30, r0\n\t"
-@@ -89,14 +93,17 @@
- #else /* !ASM_SUPPORTED */
- # define _raw_spin_lock(x)								\
- do {											\
--	__u32 *ia64_spinlock_ptr = (__u32 *) (x);					\
--	__u64 ia64_spinlock_val;							\
--	ia64_spinlock_val = ia64_cmpxchg4_acq(ia64_spinlock_ptr, 1, 0);			\
-+	__u32	*ia64_spinlock_ptr = (__u32 *) (x);					\
-+	__u64	ia64_spinlock_val;							\
-+	__u32	new_spinlock_val = (__u32)((__u64) current >> 12);			\
-+											\
-+	ia64_spinlock_val = ia64_cmpxchg4_acq(ia64_spinlock_ptr, new_spinlock_val, 0);	\
- 	if (unlikely(ia64_spinlock_val)) {						\
- 		do {									\
- 			while (*ia64_spinlock_ptr)					\
- 				ia64_barrier();						\
--			ia64_spinlock_val = ia64_cmpxchg4_acq(ia64_spinlock_ptr, 1, 0);	\
-+			ia64_spinlock_val = ia64_cmpxchg4_acq(ia64_spinlock_ptr,	\
-+								new_spinlock_val, 0);	\
- 		} while (ia64_spinlock_val);						\
- 	}										\
- } while (0)
-@@ -104,7 +111,7 @@
- 
- #define spin_is_locked(x)	((x)->lock != 0)
- #define _raw_spin_unlock(x)	do { barrier(); ((spinlock_t *) x)->lock = 0; } while (0)
--#define _raw_spin_trylock(x)	(cmpxchg_acq(&(x)->lock, 0, 1) == 0)
-+#define _raw_spin_trylock(x)	(cmpxchg_acq(&(x)->lock, 0, (__u32)((__u64) current >> 12)) == 0)
- #define spin_unlock_wait(x)	do { barrier(); } while ((x)->lock)
- 
- typedef struct {
+The patch converts the proc_read function to the seq_file function 
+(thanks to Al Viro for helping).
 
---------------0866B09AA21AF112BB5F74E4--
+Only some functions are working without any problem (e. g. i2o_*_lct). 
+But some others get a Segmentation fault (e. g. i2o_*_claimed). Strange 
+about it is that the Segmentation fault occur after the function returns 
+and the output is displayed normally.
+
+If you want the output of the kernel for 32-bit UP and 64-bit SMP 
+system, look at http://i2o.shadowconnect.com/testing/.
+
+Any help what i done wrong would be appreciated.
+
+Thank you very much.
+
+
+Markus Lidel
+------------------------------------------
+Markus Lidel (Senior IT Consultant)
+
+Shadow Connect GmbH
+Carl-Reisch-Weg 12
+D-86381 Krumbach
+Germany
+
+Phone:  +49 82 82/99 51-0
+Fax:    +49 82 82/99 51-11
+
+E-Mail: Markus.Lidel@shadowconnect.com
+URL:    http://www.shadowconnect.com
 

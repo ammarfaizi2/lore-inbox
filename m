@@ -1,152 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbTHYEFS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 00:05:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbTHYEFS
+	id S261409AbTHYD7j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 23:59:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbTHYD7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 00:05:18 -0400
-Received: from [208.49.116.17] ([208.49.116.17]:52386 "EHLO diesel.grid4.com")
-	by vger.kernel.org with ESMTP id S261451AbTHYEFA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 00:05:00 -0400
-Date: Sun, 24 Aug 2003 23:30:04 -0400
-From: Paul <set@pobox.com>
-To: linux-kernel@vger.kernel.org
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Andrew Morton <akpm@digeo.com>
-Subject: [patch 2.6] 3c509.c Fix printed dev id. with patch;(
-Message-ID: <20030825033004.GB2062@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>, linux-kernel@vger.kernel.org,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Andrew Morton <akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="HlL+5n6rz5pIUxbD"
-Content-Disposition: inline
+	Sun, 24 Aug 2003 23:59:39 -0400
+Received: from ms-smtp-03.texas.rr.com ([24.93.36.231]:1973 "EHLO
+	ms-smtp-03.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261409AbTHYD7h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 23:59:37 -0400
+Message-ID: <3F4989A7.2000104@austin.rr.com>
+Date: Sun, 24 Aug 2003 22:59:35 -0500
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: via rhine network failure on 2.6.0-test4
+References: <3F491E69.5090206@austin.rr.com> <3F497614.4090600@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff is probably right - /proc/interrupts is similar on both the failing 
+(test4) and working (test3) except for the eth0 entry (the via rhine 
+chipset on the motherboard) assigned to IRQ11 in test3 and IRQ5 in test4.
 
---HlL+5n6rz5pIUxbD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Differences in the boot.msg between test3 and test4 start with an entry 
+"PM Adding info for No Bus: legacy" in the working one which is not 
+found in the failing (test4) boot.msg.   There are differences in the 
+"ACPI Subsystem revision" number that is logged.  Various ACPI related 
+messages are found in the failing boot.msg before "ACPI interpreter 
+enabled"    In the good one (test3) following the PCI: Probing PCI 
+hardware line are a series of "PM: Adding info for ..". messages which 
+look like they are finding  various PCI devices (these are not found in 
+the failing test4 case).
 
-	This time with the patch attached...
+I am experimenting with disabling ACPI on test4 to see if that bypasses 
+the problem.
 
-Paul
-set@pobox.com
 
---HlL+5n6rz5pIUxbD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="3c509.c.patch"
+Jeff Garzik wrote:
 
---- drivers/net/3c509.c.orig	2003-08-24 18:16:28.000000000 -0400
-+++ drivers/net/3c509.c	2003-08-24 22:33:32.000000000 -0400
-@@ -300,10 +300,11 @@
-  *
-  * Both call el3_common_init/el3_common_remove. */
- 
--static void __init el3_common_init(struct net_device *dev)
-+static int __init el3_common_init(struct net_device *dev)
- {
- 	struct el3_private *lp = dev->priv;
- 	short i;
-+	int err;
- 
- 	spin_lock_init(&lp->lock);
- 
-@@ -314,10 +315,29 @@
- 		dev->if_port |= (dev->mem_start & 0x08);
- 	}
- 
-+	/* The EL3-specific entries in the device structure. */
-+	dev->open = &el3_open;
-+	dev->hard_start_xmit = &el3_start_xmit;
-+	dev->stop = &el3_close;
-+	dev->get_stats = &el3_get_stats;
-+	dev->set_multicast_list = &set_multicast_list;
-+	dev->tx_timeout = el3_tx_timeout;
-+	dev->watchdog_timeo = TX_TIMEOUT;
-+	dev->do_ioctl = netdev_ioctl;
-+
-+	err = register_netdev(dev);
-+	if (err) {
-+		printk(KERN_ERR "Failed to register 3c5x9 at %#3.3lx, IRQ %d.\n",
-+			dev->base_addr, dev->irq);
-+		release_region(dev->base_addr, EL3_IO_EXTENT);
-+		return err;
-+	}
-+
- 	{
- 		const char *if_names[] = {"10baseT", "AUI", "undefined", "BNC"};
--		printk("%s: 3c5x9 at %#3.3lx, %s port, address ",
--			dev->name, dev->base_addr, if_names[(dev->if_port & 0x03)]);
-+		printk("%s: 3c5x9 found at %#3.3lx, %s port, address ",
-+			dev->name, dev->base_addr, 
-+			if_names[(dev->if_port & 0x03)]);
- 	}
- 
- 	/* Read in the station address. */
-@@ -327,16 +347,8 @@
- 
- 	if (el3_debug > 0)
- 		printk(KERN_INFO "%s" KERN_INFO "%s", versionA, versionB);
-+	return 0;
- 
--	/* The EL3-specific entries in the device structure. */
--	dev->open = &el3_open;
--	dev->hard_start_xmit = &el3_start_xmit;
--	dev->stop = &el3_close;
--	dev->get_stats = &el3_get_stats;
--	dev->set_multicast_list = &set_multicast_list;
--	dev->tx_timeout = el3_tx_timeout;
--	dev->watchdog_timeo = TX_TIMEOUT;
--	dev->do_ioctl = netdev_ioctl;
- }
- 
- static void el3_common_remove (struct net_device *dev)
-@@ -564,9 +576,8 @@
- #if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
- 	lp->dev = &idev->dev;
- #endif
--	el3_common_init(dev);
-+	err = el3_common_init(dev);
- 
--	err = register_netdev(dev);
- 	if (err)
- 		goto out1;
- 
-@@ -588,7 +599,6 @@
- 	return 0;
- 
- out1:
--	release_region(ioaddr, EL3_IO_EXTENT);
- #if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
- 	if (idev)
- 		pnp_device_detach(idev);
-@@ -662,11 +672,9 @@
- 		lp->dev = device;
- 		lp->type = EL3_MCA;
- 		device->driver_data = dev;
--		el3_common_init(dev);
-+		err = el3_common_init(dev);
- 
--		err = register_netdev(dev);
- 		if (err) {
--			release_region(ioaddr, EL3_IO_EXTENT);
- 			return -ENOMEM;
- 		}
- 
-@@ -723,11 +731,9 @@
- 	lp->dev = device;
- 	lp->type = EL3_EISA;
- 	eisa_set_drvdata (edev, dev);
--	el3_common_init(dev);
-+	err = el3_common_init(dev);
- 
--	err = register_netdev(dev);
- 	if (err) {
--		release_region(ioaddr, EL3_IO_EXTENT);
- 		return err;
- 	}
- 
+> Steve French wrote:
+>
+>> The via rhine driver fails to get a dhcp address on my test system on 
+>> 2.6.0-test4.   ethereal shows no dhcp request leaving the box but 
+>> ifconfig does show the device and it is detected in /proc/pci.   
+>> Switching from the test3 vs.  test4 snapshots built with equivalent 
+>> configure options on the same system (SuSE 8.2) - test3 works but 
+>> test4 does not.   This is using essentially the default config for 
+>> both the test3 and test4 cases - the only changes are SMP disabled, 
+>> scsi devices disabled, Athlon, via-rhine enabled in network devices 
+>> and a handful of additional filesystems enabled, debug memory 
+>> allocations enabled.   This is the first time in many months that I 
+>> have seen problems with the via-rhine driver on 2.6
+>>
+>> Analyzing the code differences between 2.6.0-test3 and test4 (in 
+>> via-rhine.c) is not very promising since the only line that has 
+>> changed (kfree to free_netdev) is in the routine via_rhine_remove_one 
+>> that seems unlikely to cause problems sending data on the network.
+>>
+>> Ideas as to what could have caused the regression?
+>
+>
+>
+> Does /proc/interrupts show any interrupts being received on your eth 
+> device?  Does dmesg report any irq assignment problems, or similar?
+>
+> This sounds like ACPI or irq routing related.
+>
+>     Jeff
+>
+>
+>
+>
 
---HlL+5n6rz5pIUxbD--
+

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262194AbUDKCcU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 22:32:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbUDKCcU
+	id S262205AbUDKCor (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 22:44:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbUDKCor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 22:32:20 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:64157 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S262194AbUDKCcT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 22:32:19 -0400
-Date: Sun, 11 Apr 2004 03:32:17 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, dri-devel@lists.sf.net
-Subject: DRM bk tree moved to bkbits.net
-Message-ID: <Pine.LNX.4.58.0404110329180.15428@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 Apr 2004 22:44:47 -0400
+Received: from ipcop.bitmover.com ([192.132.92.15]:63881 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S262205AbUDKCoq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Apr 2004 22:44:46 -0400
+Date: Sat, 10 Apr 2004 19:44:43 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Ben Collins <bcollins@debian.org>
+Cc: Larry McVoy <lm@bitmover.com>, bitkeeper-users@work.bitmover.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: bkbits.net back up
+Message-ID: <20040411024443.GA23731@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Ben Collins <bcollins@debian.org>, Larry McVoy <lm@bitmover.com>,
+	bitkeeper-users@work.bitmover.com, linux-kernel@vger.kernel.org
+References: <200404100329.i3A3TsxI004736@work.bitmover.com> <20040410170212.GB1947@phunnypharm.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040410170212.GB1947@phunnypharm.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Apr 10, 2004 at 01:02:12PM -0400, Ben Collins wrote:
+> On Fri, Apr 09, 2004 at 08:29:54PM -0700, Larry McVoy wrote:
+> > Both bkbits.net and openlogging.org are back up.  If you see any problems
+> > mail support@bitmover.com.
+> > 
+> > Other addresses associated with bitmover.com are still having problems,
+> > i.e., our website is down.  I think that's an aliasing/routing/iptables
+> > problem that we hope to have fixed today or tomorrow.
+> 
+> I can't pull from linux.bkbits.net. Is the IP still 192.132.92.3?
 
-The drm-2.6 tree is now hosted on bkbits.net,
-http://drm.bkbits.net/drm-2.6
-
-I'll remove the server from freedesktop.org now...
-
-And just in case anyone is wondering, DRM development will still go on in
-the CVS tree at freedesktop.org, this tree is only a place to sync with
-the Linux kernel and so patches go both ways..
-
-Dave.
-
+It crashed last night "unable to handle paging request at ...".  It's up now.
 -- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
-
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

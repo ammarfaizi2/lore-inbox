@@ -1,47 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264097AbUFKP4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264096AbUFKQOJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264097AbUFKP4s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 11:56:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264096AbUFKP4s
+	id S264096AbUFKQOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 12:14:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264101AbUFKQOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 11:56:48 -0400
-Received: from [141.156.69.115] ([141.156.69.115]:19108 "EHLO
-	mail.infosciences.com") by vger.kernel.org with ESMTP
-	id S264098AbUFKP4d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 11:56:33 -0400
-Message-ID: <40C9D630.3090905@infosciences.com>
-Date: Fri, 11 Jun 2004 11:56:32 -0400
-From: nardelli <jnardelli@infosciences.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sean Fao <Sean.Fao@capitalgenomix.com>
-Cc: Tobias Hirning <Tobias.Hirning@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: Insults in the kernel-sources
-References: <8D4D7D09D4DA5F41BF3905582CF84ACB5D722D@tbanausc3a.dynextechnologies.com>
-In-Reply-To: <8D4D7D09D4DA5F41BF3905582CF84ACB5D722D@tbanausc3a.dynextechnologies.com>
+	Fri, 11 Jun 2004 12:14:09 -0400
+Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:64670 "EHLO
+	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
+	id S264096AbUFKQOF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 12:14:05 -0400
+Date: Fri, 11 Jun 2004 10:17:01 -0600
+From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Ed Tomlinson <edt@aei.ca>, Andrew Morton <akpm@osdl.org>
+Subject: Re: flush cache range proposal (was Re: ide errors in 7-rc1-mm1 and later)
+Message-ID: <20040611161701.GB11095@bounceswoosh.org>
+Mail-Followup-To: Jens Axboe <axboe@suse.de>,
+	Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+	"Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	Ed Tomlinson <edt@aei.ca>, Andrew Morton <akpm@osdl.org>
+References: <1085689455.7831.8.camel@localhost> <20040605092447.GB13641@suse.de> <20040606161827.GC28576@bounceswoosh.org> <200406100238.11857.bzolnier@elka.pw.edu.pl> <20040610061141.GD13836@suse.de> <20040610164135.GA2230@bounceswoosh.org> <40C89F4D.4070500@pobox.com> <40C8A241.50608@pobox.com> <20040611075515.GR13836@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20040611075515.GR13836@suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean Fao wrote:
->>Hi people,
->>have you ever tried a 
->>grep "insult" -i -r ./*
->>in the sourcetree of the kernel?
->>(insult must be replaced by an insult)
->>Haven't?
->>So do and think about, because the you can find to much of insults in 
->>the sources.
->>Tobias
-> 
-> 
-> http://www.vidarholen.net/contents/wordcount/
-> -
+On Fri, Jun 11 at  9:55, Jens Axboe wrote:
+>Proposal looks fine, but please lets not forget that flush cache range
+>is really a band-aid because we don't have a proper ordered write in the
+>first place. Personally, I'd much rather see that implemented than flush
+>cache range. It would be way more effective.
 
-This is by far the best source code metrics page that I've ever seen :-)
+So something like:
+
+WRITE FIRST PARTY DMA QUEUED BARRIER EXT
+READ FIRST PARTY DMA QUEUED BARRIER EXT
+READ DMA QUEUED BARRIER EXT
+READ DMA QUEUED BARRIER
+WRITE DMA QUEUED BARRIER
+WRITE DMA QUEUED BARRIER EXT
+
+
+...
+
+If the drive receives a queued barrier write (NCQ or Legacy), it will
+finish processing all previously-received queued commands and post
+good status for them, then it will process the barrier operation, post
+status for that barrier operation, then it will continue processing
+queued commands in the order received.
+
+Multiple barrier operations can be in the queue at the same time.  A
+barrier operation has an implied FUA associated with it, such that the
+command (and all previous-in-time commands) must be pushed to the
+media before command completetion can be indicated.
+
+
+Is that what would be most useful?
+
+--eric
+
+
 
 -- 
-Joe Nardelli
-jnardelli@infosciences.com
+Eric D. Mudama
+edmudama@mail.bounceswoosh.org
+

@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266731AbUGUUpD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266732AbUGUUqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266731AbUGUUpD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 16:45:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266732AbUGUUpD
+	id S266732AbUGUUqT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 16:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266737AbUGUUqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 16:45:03 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:55422 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S266731AbUGUUpA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 16:45:00 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix sparc64 build with CONFIG_COMPAT=n
-X-Message-Flag: Warning: May contain useful information
-References: <52fz808qwy.fsf@topspin.com>
-	<20040720200352.5c17b3f7.davem@redhat.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Wed, 21 Jul 2004 13:43:53 -0700
-In-Reply-To: <20040720200352.5c17b3f7.davem@redhat.com> (David S. Miller's
- message of "Tue, 20 Jul 2004 20:03:52 -0700")
-Message-ID: <52llhd2ira.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Wed, 21 Jul 2004 16:46:19 -0400
+Received: from web50906.mail.yahoo.com ([206.190.38.126]:39072 "HELO
+	web50906.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266732AbUGUUqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 16:46:07 -0400
+Message-ID: <20040721204602.35891.qmail@web50906.mail.yahoo.com>
+Date: Wed, 21 Jul 2004 13:46:02 -0700 (PDT)
+From: sankarshana rao <san_wipro@yahoo.com>
+Subject: Re: Inode question
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1090441528.17486.25.camel@shaggy.austin.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 21 Jul 2004 20:43:53.0186 (UTC) FILETIME=[6F3BEC20:01C46F63]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    David> I like the big fix, and it allowed some cleanups too.  I've
-    David> munged your patch a bit and this is what I'm currently
-    David> testing.
+Thx for the reply...
+When I try to call lookup() from my kernel module, it
+gives undefined symbol error during INSMOD..
+any clues???
 
-Cool, my allnoconfig compile tests thank you.
+--- Dave Kleikamp <shaggy@austin.ibm.com> wrote:
+> On Wed, 2004-07-21 at 13:39, sankarshana rao wrote:
+> > Hi,
+> > I want to call namei() function in order to derive
+> an
+> > inode from a path name. Can I do this inside a
+> kernel
+> > module???
+> 
+> >From a kernel module, you should probably call
+> path_lookup().
+> 
+> Shaggy
+> -- 
+> David Kleikamp
+> IBM Linux Technology Center
+> 
+> 
 
-Just out of curiousity, is there any practical use for sparc64 without
-CONFIG_COMPAT?  My impression was that everyone used 32-bit userspace
-(except for possibly a few executables).
 
- - R.
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Vote for the stars of Yahoo!'s next ad campaign!
+http://advision.webevents.yahoo.com/yahoo/votelifeengine/

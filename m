@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129108AbRBKMy0>; Sun, 11 Feb 2001 07:54:26 -0500
+	id <S129181AbRBKNCi>; Sun, 11 Feb 2001 08:02:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129109AbRBKMyR>; Sun, 11 Feb 2001 07:54:17 -0500
-Received: from 2-095.cwb-adsl.brasiltelecom.net.br ([200.193.161.95]:15609
-	"HELO brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S129108AbRBKMyJ>; Sun, 11 Feb 2001 07:54:09 -0500
-Date: Sun, 11 Feb 2001 09:12:19 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+	id <S129182AbRBKNCS>; Sun, 11 Feb 2001 08:02:18 -0500
+Received: from smtp-rt-1.wanadoo.fr ([193.252.19.151]:60388 "EHLO
+	anagyris.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S129181AbRBKNCJ>; Sun, 11 Feb 2001 08:02:09 -0500
+Message-ID: <3A868CFE.858E50FC@wanadoo.fr>
+Date: Sun, 11 Feb 2001 14:00:46 +0100
+From: Jean-luc Coulon <jean-luc.coulon@wanadoo.fr>
+Organization: personal system
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.19pre9 i586)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
 To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: davej@suse.de, Alan Cox <alan@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] More network pci_enable cleanups.
-Message-ID: <20010211091218.B26207@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>, davej@suse.de,
-	Alan Cox <alan@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.31.0102111159430.6348-100000@athlon.local> <3A86819F.799C4311@mandrakesoft.com>
-Mime-Version: 1.0
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Power off 2.4.xx and ACPI / APM
+In-Reply-To: <3A85A692.E3FE8DAF@wanadoo.fr> <3A85A881.FC161D3C@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.14i
-In-Reply-To: <3A86819F.799C4311@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sun, Feb 11, 2001 at 07:12:15AM -0500
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sun, Feb 11, 2001 at 07:12:15AM -0500, Jeff Garzik escreveu:
-> davej@suse.de wrote:
-> > > > -       int     cards_found = 0;
-> > > > +       int     cards_found;
-> > > Rejected.  Introduces bug.  That zero is required!
-> > 
-> > Refresh my memory here. I thought unitialised vars go to bss,
-> > and get zeroed at boot time ?
-> 
-> cards_found is on the stack, which can contain random crap..
+Jeff Garzik wrote:
 
-Dave, only static/globals goes to the bss and are thus zeroed, the locals
-are in the stack, like Jeff said
+>
+> Does this ACPI problem occur with 2.4.2-pre3?  (patch available from
+> ftp://ftp.fr.kernel.org/pub/linux/kernel/testing/)
+>
 
-- Arnaldo
+Yep! The same problem with all the 2.4.x  and 2.4.x-prey.
+
+My .config is :
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_APM=m
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set
+# CONFIG_APM_DO_ENABLE is not set
+CONFIG_APM_CPU_IDLE=y
+# CONFIG_APM_DISPLAY_BLANK is not set
+CONFIG_APM_RTC_IS_GMT=y
+# CONFIG_APM_ALLOW_INTS is not set
+# CONFIG_APM_REAL_MODE_POWER_OFF is not set
+
+------
+
+Regards
+
+        Jean-Luc
+
+>
+> --
+> Jeff Garzik       | "You see, in this world there's two kinds of
+> Building 1024     |  people, my friend: Those with loaded guns
+> MandrakeSoft      |  and those who dig. You dig."  --Blondie
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263584AbTIHVuT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 17:50:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263593AbTIHVuT
+	id S263668AbTIHVxw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 17:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263698AbTIHVxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 17:50:19 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:32270 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263584AbTIHVuQ
+	Mon, 8 Sep 2003 17:53:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24807 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263668AbTIHVxv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 17:50:16 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: BUG: in 2.6.0-test4-bk8 and bk9 involving handling of ethernet interfaces
-Date: 8 Sep 2003 21:41:26 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bjit26$a3c$1@gatekeeper.tmr.com>
-References: <3F5B87E2.6040501@open.org>
-X-Trace: gatekeeper.tmr.com 1063057286 10348 192.168.12.62 (8 Sep 2003 21:41:26 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Mon, 8 Sep 2003 17:53:51 -0400
+Message-ID: <3F5CFA62.3030206@pobox.com>
+Date: Mon, 08 Sep 2003 17:53:38 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>
+CC: Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Andries Brouwer <aebr@win.tue.nl>, willy@debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use size_t for the broken ioctl numbers
+References: <20030908195329.GA5720@gtf.org> <Pine.LNX.4.44.0309081313260.1666-100000@home.osdl.org> <20030908202635.GB681@redhat.com>
+In-Reply-To: <20030908202635.GB681@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3F5B87E2.6040501@open.org>, Hal  <pshbro@open.org> wrote:
-| When i was finishing up using a cross over cable to transfer data from 
-| my desktop to my labtop I notied an odd thing. After I ifconfig eth0 
-| down to close the interface on my desktop runing 2.6.0-test4-bk8 it 
-| froze all my ttys and ptys. I upgraded to bk9 and got the same thing.
-| 
-| To repeat the bug one will need two computers and a cross over cable. 
-| Connect the two computers, ifconfig the interfaces on each computer. 
-| Give them both an ip and then ifconfig up them both. Now to get the bug 
-| ifconfig the interface on the computer runing a 2.6 kernel down and 
-| hopefully there will be a system freeze.
-| 
-| For more information im using a Net Gear fa311 ethernet NIC with the 
-| Natsemi ethernet drivers.
+Dave Jones wrote:
+> Then the snapshot robot will continue to make them available for
+> non-bk users at http://www.codemonkey.org.uk/projects/sparse
 
-Did you config as nodes on a whole network or use point-to-point config?
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Cool, thanks!
+
+
+> Right now, it deletes snapshots after a week. I figure anyone who wanted
+> to find regressions, or step back through the history could extract it
+> from the bk web frontend (or use bk).  If anyone would prefer me to keep
+> them there longer, shout and I'll change the script.
+
+Any chance you can dump the top-of-tree key and changelog too? 
+Something like
+
+	cd sparse
+	bk changes -k | head -1 > sparse-2003-09-08.key
+	bk changes > sparse-2003-09-08.log
+
+

@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135931AbREBFNs>; Wed, 2 May 2001 01:13:48 -0400
+	id <S135961AbREBGYM>; Wed, 2 May 2001 02:24:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135942AbREBFNi>; Wed, 2 May 2001 01:13:38 -0400
-Received: from ns1.crl.go.jp ([133.243.3.1]:20868 "EHLO ns1.crl.go.jp")
-	by vger.kernel.org with ESMTP id <S135931AbREBFN0>;
-	Wed, 2 May 2001 01:13:26 -0400
-Date: Wed, 2 May 2001 14:13:22 +0900 (JST)
-From: Tom Holroyd <tomh@po.crl.go.jp>
-To: kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Unknown HZ value! (2000) Assume 1024.
-Message-ID: <Pine.LNX.4.30.0105021348480.27862-100000@holly.crl.go.jp>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135962AbREBGYD>; Wed, 2 May 2001 02:24:03 -0400
+Received: from juicer39.bigpond.com ([139.134.6.96]:36293 "EHLO
+	mailin8.bigpond.com") by vger.kernel.org with ESMTP
+	id <S135961AbREBGX7>; Wed, 2 May 2001 02:23:59 -0400
+Message-Id: <m14uoi4-001QJwC@mozart>
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: IPv4 NAT doesn't compile in 2.4.4 
+In-Reply-To: Your message of "Sat, 28 Apr 2001 17:25:54 +0100."
+             <20010428172554.H21792@flint.arm.linux.org.uk> 
+Date: Wed, 02 May 2001 14:57:55 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alpha.  2.4.1.  Hz = 1024.  Uptime > 48.54518 days (low idle).
-(Subject message from ps and friends.)
+In message <20010428172554.H21792@flint.arm.linux.org.uk> you write:
+> net/network.o: In function `init_or_cleanup':
+> net/network.o(.text+0x4a530): relocation truncated to fit: R_ARM_PC24 ip_nat_
+cleanup
 
-/proc/uptime:
-4400586.27 150439.36
+My bad: Russell, you're absolutely right.
 
-/proc/stat:
-cpu  371049158 3972370867 8752820 4448994822
-     (user,    nice,      system, idle)
+Obvious fix below.
 
-In .../fs/proc/proc_misc.c:kstat_read_proc(), the cpu line is being
-computed by:
+Thanks!
+Rusty.
 
-        len = sprintf(page, "cpu  %u %u %u %lu\n", user, nice, system,
-                      jif * smp_num_cpus - (user + nice + system));
-
-The user, nice, and system values add up to 4352172845 > 2^32, and jif is
-4400586.27 * 1024 = 4506200340, leading to the incorrect idle time (1
-cpu).  It should be calculated this way:
-
-        len = sprintf(page, "cpu  %u %u %u %lu\n", user, nice, system,
-                      jif * smp_num_cpus - ((unsigned long)user + nice + system));
-
-or just declare those as unsigned longs instead of ints.  I notice also
-that since kstat.per_cpu_nice is an int, it's going to overflow in another
-3.6 days anyhow.  I'll let you know what blows up then.  Any chance of
-making those guys longs?
-
-The ps program, of course, is trying to calculate HZ by inverting the
-above calculation, and it gets a bogus value.  I suppose it could use
-(uptime[0] - uptime[1]) / (user + nice + system) instead of trying to
-calculate jif first, but it'll still fail when the ints roll over.
-
+diff -urN -I \$.*\$ -X /tmp/kerndiff.guovnD --minimal linux-2.4.4-official/net/ipv4/netfilter/ip_nat_core.c tmp/net/ipv4/netfilter/ip_nat_core.c
+--- linux-2.4.4-official/net/ipv4/netfilter/ip_nat_core.c	Tue May  1 12:27:32 2001
++++ tmp/net/ipv4/netfilter/ip_nat_core.c	Wed May  2 14:55:01 2001
+@@ -890,13 +890,14 @@
+ }
+ 
+ /* Clear NAT section of all conntracks, in case we're loaded again. */
+-static int __exit clean_nat(const struct ip_conntrack *i, void *data)
++static int clean_nat(const struct ip_conntrack *i, void *data)
+ {
+ 	memset((void *)&i->nat, 0, sizeof(i->nat));
+ 	return 0;
+ }
+ 
+-void __exit ip_nat_cleanup(void)
++/* Not __exit: called from ip_nat_standalone.c:init_or_cleanup() --RR */
++void ip_nat_cleanup(void)
+ {
+ 	ip_ct_selective_cleanup(&clean_nat, NULL);
+ 	ip_conntrack_destroyed = NULL;
+--
+Premature optmztion is rt of all evl. --DK

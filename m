@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314078AbSHQPrO>; Sat, 17 Aug 2002 11:47:14 -0400
+	id <S315416AbSHQQMv>; Sat, 17 Aug 2002 12:12:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314514AbSHQPrO>; Sat, 17 Aug 2002 11:47:14 -0400
-Received: from protactinium.btinternet.com ([194.73.73.176]:16783 "EHLO
-	protactinium.btinternet.com") by vger.kernel.org with ESMTP
-	id <S314078AbSHQPrN>; Sat, 17 Aug 2002 11:47:13 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Benjamin Geer <ben@beroul.uklinux.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 ATAPI cdrom I/O errors when reading CD-R
-Date: Sat, 17 Aug 2002 16:45:14 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: "Adrian Bunk" <bunk@fs.tum.de>, "Jean Delvare" <khali@linux-fr.org>
+	id <S315430AbSHQQMv>; Sat, 17 Aug 2002 12:12:51 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:22936 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S315416AbSHQQMu>;
+	Sat, 17 Aug 2002 12:12:50 -0400
+Date: Sat, 17 Aug 2002 18:17:45 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Boot failure in 2.5.31 BK with new TLS patch 
+In-Reply-To: <200208171516.g7HFGpK03104@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0208171810260.29714-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17g5r5-0005LJ-00@protactinium.btinternet.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Aug 2002, Adrian Bunk wrote:
-> 3. it costs much time to compile try let's say 40 different kernels
 
-I actually don't mind compiling and trying lots of different kernels.  
-It's a fast machine; I could set it up to compile a lot of kernels 
-overnight, and in the morning it would just take a few minutes per kernel 
-to install, reboot, and see if the problem is still there.
+On Sat, 17 Aug 2002, James Bottomley wrote:
 
-> Someone with a better knowledge of ATAPI might be able to understand 
-> what the error messages say and to either understand the problem or to
-> tell how to trace it down.
+> The boot problem only happens with my quad pentium cards, the dyad
+> pentium and 486 are fine.  Originally, a voyager system with quad cards
+> just wouldn't boot (this was in the 2.2.x days).  Eventually, by trial
+> and error and long debug of the boot process I discovered it would boot
+> if the GDT was 8 bytes aligned (actually, the manuals say it should be
+> 16 byte aligned, so perhaps we should also add this to the Linux
+> setup.S?). [...]
 
-That would be really helpful.  This problem seems to occur for me with 
-all CD-Rs burnt under Windows using Adaptec DirectCD.
+indeed it's not aligned:
 
-I would also be happy to apply kernel patches and retest.  Is there 
-anyone familiar with the ATAPI code in the kernel who could provide some 
-guidance?
+	c010025c T cpu_gdt_descr
 
-Ben
+could you align it by adding this line replacing the ALIGN line that
+preceeds the cpu_gdt_descr definition in head.S:
+
+	.align 32
+
+we want to align the GDT to 32 bytes anyway, we have optimized it for
+cache layout, and didnt realize that it wasnt aligned to begin with ...
+
+> However, the general point that we should keep the boot sequence as
+> simple as possible (just in case we run across any other wierd quirks
+> even in modern PCs) still remains.
+
+i agree, so unless you can find the source of the problem and we can fix
+the generic GDT, your patch is the right solution.
+
+but, the right GDT layout might affect things like APM or PNP BIOS
+compatibility, so it would be useful to figure out what's wrong with the
+main GDT nevertheless.
+
+	Ingo
 

@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279228AbRKSPIe>; Mon, 19 Nov 2001 10:08:34 -0500
+	id <S279303AbRKSPNo>; Mon, 19 Nov 2001 10:13:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279233AbRKSPIO>; Mon, 19 Nov 2001 10:08:14 -0500
-Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:34065 "HELO
-	yucs.org") by vger.kernel.org with SMTP id <S279228AbRKSPIK>;
-	Mon, 19 Nov 2001 10:08:10 -0500
-Subject: Re: x bit for dirs: misfeature?
-From: Shaya Potter <spotter@cs.columbia.edu>
+	id <S279317AbRKSPNf>; Mon, 19 Nov 2001 10:13:35 -0500
+Received: from wallext.webflex.nl ([212.115.150.250]:22192 "EHLO
+	palm.webflex.nl") by vger.kernel.org with ESMTP id <S279303AbRKSPNb>;
+	Mon, 19 Nov 2001 10:13:31 -0500
+Message-ID: <XFMail.20011119161221.mathijs@knoware.nl>
+X-Mailer: XFMail 1.5.1 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <01111916225301.00817@nemo>
+Date: Mon, 19 Nov 2001 16:12:21 +0100 (CET)
+From: Mathijs Mohlmann <mathijs@knoware.nl>
 To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <01111917034005.00817@nemo>
-In-Reply-To: <Pine.GSO.4.21.0111190927100.17210-100000@weyl.math.psu.edu> 
-	<01111917034005.00817@nemo>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1 (Preview Release)
-Date: 19 Nov 2001 10:07:30 -0500
-Message-Id: <1006182451.4633.5.camel@zaphod>
-Mime-Version: 1.0
+Subject: RE: x bit for dirs: misfeature?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-11-19 at 12:03, vda wrote:
-> On Monday 19 November 2001 14:46, Alexander Viro wrote:
-> > On Mon, 19 Nov 2001, vda wrote:
-> > > Everytime I do 'chmod -R a+rX dir' and wonder are there
-> > > any executables which I don't want to become world executable,
-> > > I think "Whatta hell with this x bit meaning 'can browse'
-> > > for dirs?! Who was that clever guy who invented that? Grrrr"
-> > >
-> > > Isn't r sufficient? Can we deprecate x for dirs?
-> > > I.e. make it a mirror of r: you set r, you see x set,
-> > > you clear r, you see x cleared, set/clear x = nop?
-> >
-> > See UNIX FAQ.  Ability to read != ability to lookup.
-> >
-> > Trivial example: you have a directory with a bunch of subdirectories.
-> > You want owners of subdirectories to see them.  You don't want them
-> > to _know_ about other subdirectories.
+
+On 19-Nov-2001 vda wrote:
+> Everytime I do 'chmod -R a+rX dir' and wonder are there
+> any executables which I don't want to become world executable,
+> I think "Whatta hell with this x bit meaning 'can browse'
+> for dirs?! Who was that clever guy who invented that? Grrrr"
 > 
-> Security through obscurity, that is.
+> Isn't r sufficient? Can we deprecate x for dirs?
+> I.e. make it a mirror of r: you set r, you see x set,
+> you clear r, you see x cleared, set/clear x = nop?
 > 
-> Do you have even a single dir on your boxes with r!=x?
+> Benefits:
+> chmod -R go-x dir (ensure there is no executables)
+> chmod -R a+r dir (make tree world readable)
+> mount -t vfat -o umask=644 /dev/xxx dir
+>       (I don't want all files to be flagged as executables there)
 
-I've seen this a lot with html directories for web servers.
+This is all userspace:
+find . -type d -exec chmod a+rx {} \;
+
+make an alias for it and stop considering changing one of the earliest
+unix standards. I'm sure if you really want this policy you can write your
+own chmod executable.
+
+        me
 
 
+-- 
+        me

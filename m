@@ -1,45 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268153AbTBYRhG>; Tue, 25 Feb 2003 12:37:06 -0500
+	id <S268209AbTBYRjk>; Tue, 25 Feb 2003 12:39:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268156AbTBYRhG>; Tue, 25 Feb 2003 12:37:06 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:38673 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S268153AbTBYRhE>;
-	Tue, 25 Feb 2003 12:37:04 -0500
-Date: Tue, 25 Feb 2003 09:39:15 -0800
-From: Greg KH <greg@kroah.com>
-To: engidudu <usbhc_dev@nergal.it>
+	id <S268211AbTBYRjk>; Tue, 25 Feb 2003 12:39:40 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:8905 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S268209AbTBYRjg>; Tue, 25 Feb 2003 12:39:36 -0500
+Date: Tue, 25 Feb 2003 18:49:46 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: linux-scsi@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: SL811HS driver
-Message-ID: <20030225173914.GD8648@kroah.com>
-References: <004501c2dcf0$8e2757c0$570610ac@pclab1>
+Subject: [2.5 patch] fix compilation of g_NCR5380.c
+Message-ID: <20030225174945.GP7685@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <004501c2dcf0$8e2757c0$570610ac@pclab1>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2003 at 06:08:45PM +0100, engidudu wrote:
-> Hi,
-> 
-> we have modified the linux driver for SL811 USB HOST Controller by CYPRESS.
-> We have improved the program's flow:
-> - interrupt handler,
-> - double buffering.
-> It works well during writing transactions, but we still have problems
-> implementing
-> double buffering during reading transactions.
-> We would like to send you our source code to attend the next kernel release.
-> These codes work on uClinux (kernel 2.4) too.
-> 
-> How do we have to send these codes?
+In 2.5.63 I get the following compile error in drivers/scsi/g_NCR5380.c:
 
-Please read Documentation/SubmittingPatches and then send the patch to
-me and the linux-usb-devel mailing list.  You can also copy linux-kernel
-if you really want to.
+<--  snip  -->
 
-thanks,
+...
+  gcc -Wp,-MD,drivers/scsi/.g_NCR5380.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=k6 
+-Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
+-DKBUILD_BASENAME=g_NCR5380 -DKBUILD_MODNAME=g_NCR5380 -c -o 
+drivers/scsi/g_NCR5380.o drivers/scsi/g_NCR5380.c
+drivers/scsi/g_NCR5380.c: In function `generic_NCR5380_detect':
+drivers/scsi/g_NCR5380.c:326: too many arguments to function 
+`pnp_activate_dev'
+...
+make[2]: *** [drivers/scsi/g_NCR5380.o] Error 1
 
-greg k-h
+<--  snip  -->
+
+
+The following patch fixes it:
+
+
+--- linux-2.5.63-notfull/drivers/scsi/g_NCR5380.c.old	2003-02-25 18:33:38.000000000 +0100
++++ linux-2.5.63-notfull/drivers/scsi/g_NCR5380.c	2003-02-25 18:33:55.000000000 +0100
+@@ -323,7 +323,7 @@
+ 				printk(KERN_ERR "dtc436e probe: attach failed\n");
+ 				continue;
+ 			}
+-			if (pnp_activate_dev(dev, NULL) < 0) {
++			if (pnp_activate_dev(dev) < 0) {
+ 				printk(KERN_ERR "dtc436e probe: activate failed\n");
+ 				pnp_device_detach(dev);
+ 				continue;
+
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

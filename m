@@ -1,38 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbUKICb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbUKICc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbUKICb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 21:31:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbUKICb1
+	id S261353AbUKICc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 21:32:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbUKICc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 21:31:27 -0500
-Received: from smtp1.ensim.com ([65.164.64.254]:57967 "EHLO smtp1.ensim.com")
-	by vger.kernel.org with ESMTP id S261347AbUKICb0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 21:31:26 -0500
-From: Borislav Deianov <borislav@users.sourceforge.net>
-Date: Mon, 8 Nov 2004 18:31:19 -0800
-To: Chris Wright <chrisw@osdl.org>
-Cc: len.brown@intel.com, Karsten Wiese <annabellesgarden@yahoo.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, acpi-devel@lists.sourceforge.net
-Subject: Re: [PATCH] ibm-acpi-0.8 (was Re: 2.6.10-rc1-mm3)
-Message-ID: <20041109023119.GB21832@aero.ensim.com>
-References: <200411081334.18751.annabellesgarden@yahoo.de> <200411082240.02787.annabellesgarden@yahoo.de> <20041108153022.N14339@build.pdx.osdl.net> <20041109013013.GA21832@aero.ensim.com> <20041108181224.F2357@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 8 Nov 2004 21:32:58 -0500
+Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:39759 "HELO
+	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261353AbUKICct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 21:32:49 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
+Date: Mon, 8 Nov 2004 21:32:46 -0500
+User-Agent: KMail/1.6.2
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, davids@webmaster.com,
+       =?utf-8?q?Rapha=C3=ABl_Rigo_LKML?= <lkml@twilight-hall.net>
+References: <MDEHLPKNGKAHNMBLJOLKIECMPKAA.davids@webmaster.com> <1099954836.14146.0.camel@localhost.localdomain>
+In-Reply-To: <1099954836.14146.0.camel@localhost.localdomain>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20041108181224.F2357@build.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
-X-OriginalArrivalTime: 09 Nov 2004 02:30:26.0859 (UTC) FILETIME=[12AB1FB0:01C4C604]
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411082132.46728.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 06:12:24PM -0800, Chris Wright wrote:
+On Monday 08 November 2004 06:00 pm, Alan Cox wrote:
+> On Llu, 2004-11-08 at 20:53, David Schwartz wrote:
+> > > I don't see the problem. If I ship you GPL code then you have no "right"
+> > > to updates from me.
+> > 
+> > 	Correct, but you do have the right to distribute the GPL'd code that you
+> > received.
 > 
-> Ah, even better.  Thanks Boris.  BTW, you could probably mark ibm_init()
-> and ibm_handle_init() as __init.
+> You do with Sveasoft. 
+> 
+> > 	Can I say, "I'll ship you a copy to my privately-made derivative of the
+> > Linux kernel, but only if you first sign a contract promising not to
+> > distribute it".
+> 
+> No but you can say "if you redistribute this I'm not interested in
+> working with you any more"
+> 
 
-Good point, I'll do it in the next version.
+Well, this is from their web page:
 
-Thanks,
-Boris
+"The $20 USD subscription fee includes unlimited priority support,
+full access to the Sveasoft forums, and unlimited access to new
+firmware versions and upgrades."
+
+So it looks like "if you exersize your right for the software in quesion
+I terminate the contract we have entered into" as opposed to "I will not
+extend your contract beyond initial term".
+
+Isn't that an additional restriction? My rights for updates are revoked
+if I distribute GPLed code.
+
+-- 
+Dmitry

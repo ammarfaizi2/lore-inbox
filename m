@@ -1,70 +1,157 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261574AbSIZXxD>; Thu, 26 Sep 2002 19:53:03 -0400
+	id <S261580AbSIZX4P>; Thu, 26 Sep 2002 19:56:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261579AbSIZXxD>; Thu, 26 Sep 2002 19:53:03 -0400
-Received: from thunk.org ([140.239.227.29]:64672 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S261574AbSIZXxC>;
-	Thu, 26 Sep 2002 19:53:02 -0400
-Date: Thu, 26 Sep 2002 19:57:41 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Ryan Cumming <ryan@completely.kicks-ass.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
-Message-ID: <20020926235741.GC10551@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Ryan Cumming <ryan@completely.kicks-ass.org>,
-	linux-kernel@vger.kernel.org
-References: <E17uINs-0003bG-00@think.thunk.org> <200209261208.59020.ryan@completely.kicks-ass.org> <20020926220432.GB10551@think.thunk.org> <200209261553.07593.ryan@completely.kicks-ass.org>
+	id <S261582AbSIZX4P>; Thu, 26 Sep 2002 19:56:15 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:33249 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S261580AbSIZX4N>;
+	Thu, 26 Sep 2002 19:56:13 -0400
+Date: Thu, 26 Sep 2002 17:01:15 -0700
+To: Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Oops in device_shutdown()
+Message-ID: <20020927000115.GA19172@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200209261553.07593.ryan@completely.kicks-ass.org>
 User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 03:53:02PM -0700, Ryan Cumming wrote:
-> The one mildly interesting thing was:
-> Sep 26 11:49:06 (none) kernel: EXT3-fs: INFO: recovery required on readonly 
-> filesystem.
-> Sep 26 11:49:06 (none) kernel: EXT3-fs: write access will be enabled during 
-> recovery.
-> Sep 26 11:49:06 (none) kernel: EXT3-fs warning (device ide0(3,2)): 
-> ext3_clear_journal_err: Filesystem error recorded from previous mount: IO 
-> failure
-> Sep 26 11:49:06 (none) kernel: EXT3-fs warning (device ide0(3,2)): 
-> ext3_clear_journal_err: Marking fs in need of filesystem check.
-> Sep 26 11:49:06 (none) kernel: EXT3-fs: ide0(3,2): orphan cleanup on readonly 
-> fs
-> Sep 26 11:49:06 (none) kernel: EXT3-fs: recovery complete.
-> Sep 26 11:49:06 (none) kernel: EXT3-fs: mounted filesystem with ordered data 
-> mode.
-> Sep 26 11:49:06 (none) kernel: EXT3 FS 2.4-0.9.18, 14 May 2002 on ide0(3,2), 
-> internal journal
+	Hi,
 
-Wait a second.  These messages would occur only if you had done a
-read-only mount at 11:49:06.  Did you do a manual mount at that time?
-Do you have one or more filesystems in your /etc/fstab (in particular
-/dev/hda2) that are set to be mounted read-only?  That's the only
-thing that would explain the "write access enabled during recovery of
-readonly filesystem" warning message.  That message means that
-/dev/hda2 was readonly because the mount command *requested* that it
-be mounted read-only, not because of some error.  
+	Since I upgraded to 2.5.37/2.5.38, my SMP computer has decided
+every night to hang without giving any Oops or error message. I've
+also found the following Oops while rebooting the same computer (and
+people wonder why I have serial cables between my PCs). My hope is
+that fixing the second problem would fix the first ;-)
 
-The other strange thing from these syslog messages is that, (a) they
-indicate that the filesystem wasn't checked by e2fsck before they were
-mounted --- which is what I generally recommend: let e2fsck run the
-journal take take care of the recovery, and (b) the reason why the
-filesystem was marked as being "in error" is because the previous time
-the filesystem was mounted, something reported an IO error.  That
-could be a hardware problem, but it's also used as a generic error by
-much of the exte filesystem code, so we really need the log entry,
-which should have been the previous time this filesystem had been
-mounted.
+1) Step to reproduce :
+--------------------
+	<There might be simpler, didn't bother to trim down>
+	o boot
+	o modprobe ohci-hcd
+	o modprobe irda-usb
+	o start the irda stack
+	o stop the irda stack
+	o rmmod irda-usb irda
+	o rmmod ohci-hcd usbcore
+	o sync
+	o reboot
 
-How is your system configured vis-a-vis the /etc/fstab entry for
-/dev/hda2?
+2) In the log :
+-------------
 
-						- Ted
+Stopping deferred execution scheduler: atd.
+Stopping kernel log daemon: klogd.
+Stopping system log daemon: syslogd.
+Stopping portmap daemon: portmap.
+Sending all processes the TERM signal... done.
+Sending all processes the KILL signal... done.
+Saving random seed... done.
+Unmounting remote filesystems... done.
+Deconfiguring network interfaces: done.
+Deactivating swap... done.
+Unmounting local filesystems... done.
+Rebooting... Unable to handle kernel paging request at virtual address 72702f3d
+ printing eip:
+c0179cfa
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0060:[<c0179cfa>]    Not tainted
+EFLAGS: 00010246
+eax: 72702f3d   ebx: c7472494   ecx: c11ae4e8   edx: 00000002
+esi: c7472494   edi: 72702f3d   ebp: bffffd8c   esp: c6a51e9c
+ds: 0068   es: 0068   ss: 0068
+Process reboot (pid: 519, threadinfo=c6a50000 task=c6bec7c0)
+Stack: 01234567 c6a50000 fee1dead c0122bfd c02f8188 00000001 00000000 c6a50000 
+       08049960 c74b5de0 00000000 00000001 000001d0 c118b600 c01c1eca 00000010 
+       c118b600 00001000 c6a51f40 c6a51f45 c7933f44 c7d933c0 c01f1115 c118b600 
+Call Trace: [<c0122bfd>] [<c01c1eca>] [<c01f1115>] [<c01f1454>] [<c01ba147>] 
+   [<c014fcf2>] [<c01508d4>] [<c014e4c9>] [<c013c8d2>] [<c013c80c>] [<c013af9d>] 
+   [<c013b005>] [<c0107023>] 
+
+Code: 8b 38 3d e0 c7 28 c0 75 ad b0 01 86 05 f0 c7 28 c0 85 f6 74 
+ /etc/rc6.d/S90reboot: line 11:   519 Segmentation fault      reboot -d -f -i
+<1>Unable to handle kernel paging request at virtual address c8800087
+ printing eip:
+c01a8763
+*pde = 01315067
+*pte = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0060:[<c01a8763>]    Not tainted
+EFLAGS: 00010046
+eax: c8800000   ebx: c131016c   ecx: c1333206   edx: c1333200
+esi: c130c2c0   edi: c1333200   ebp: 0000000b   esp: c6c0bc08
+ds: 0068   es: 0068   ss: 0068
+Process init (pid: 520, threadinfo=c6c0a000 task=c6bef7e0)
+Stack: c133fd40 c1333200 00000000 00000000 c130c2c0 c1333210 41000002 c1190002 
+       c1198a00 c01a80d3 c1333200 c133e160 00000293 c1333400 c1198a00 00000000 
+       c019379c c1198a00 c0193c24 c1198a00 c12fa660 c1341400 c6c0bce4 c01994ac 
+Call Trace: [<c01a80d3>] [<c019379c>] [<c0193c24>] [<c01994ac>] [<c0190780>] 
+   [<c01908f1>] [<c01384c7>] [<c01385be>] [<c012aecf>] [<c012b46b>] [<c012b1b0>] 
+   [<c012b524>] [<c0131e41>] [<c01439e8>] [<c01443d5>] [<c014489a>] [<c0105b67>] 
+   [<c0107023>] 
+
+Code: 88 88 87 00 00 00 eb 16 90 8d 74 26 00 8b 5c 24 28 88 c8 0f 
+
+3) ksymoops (after a reboot)
+----------------------------
+
+ksymoops 2.4.4 on i686 2.5.38.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.38/ (default)
+     -m /usr/src/linux/System.map (default)
+
+>>EIP; c0179cfa <device_shutdown+72/94>   <=====
+Trace; c0122bfd <sys_reboot+e5/288>
+Trace; c01c1eca <dev_change_flags+fa/104>
+Trace; c01f1115 <devinet_ioctl+331/6d8>
+Trace; c01f1454 <devinet_ioctl+670/6d8>
+Trace; c01ba147 <sock_destroy_inode+13/18>
+Trace; c014fcf2 <destroy_inode+3a/50>
+Trace; c01508d4 <generic_forget_inode+ec/f4>
+Trace; c014e4c9 <dput+19/168>
+Trace; c013c8d2 <__fput+c2/e8>
+Trace; c013c80c <fput+14/18>
+Trace; c013af9d <filp_close+a1/ac>
+Trace; c013b005 <sys_close+5d/7c>
+Trace; c0107023 <syscall_call+7/b>
+Code;  c0179cfa <device_shutdown+72/94>
+00000000 <_EIP>:
+Code;  c0179cfa <device_shutdown+72/94>   <=====
+   0:   8b 38                     mov    (%eax),%edi   <=====
+Code;  c0179cfc <device_shutdown+74/94>
+   2:   3d e0 c7 28 c0            cmp    $0xc028c7e0,%eax
+Code;  c0179d01 <device_shutdown+79/94>
+   7:   75 ad                     jne    ffffffb6 <_EIP+0xffffffb6> c0179cb0 <device_shutdown+28/94>
+Code;  c0179d03 <device_shutdown+7b/94>
+   9:   b0 01                     mov    $0x1,%al
+Code;  c0179d05 <device_shutdown+7d/94>
+   b:   86 05 f0 c7 28 c0         xchg   %al,0xc028c7f0
+Code;  c0179d0b <device_shutdown+83/94>
+  11:   85 f6                     test   %esi,%esi
+Code;  c0179d0d <device_shutdown+85/94>
+  13:   74 00                     je     15 <_EIP+0x15> c0179d0f <device_shutdown+87/94>
+
+4) And...
+---------
+	If you want, I can ksymoops the second oops, but I don't think
+it's necessary.
+	The IrDA stack is very old fashioned and doesn't use any of
+the new device stuff.
+	Only two IrDA-USB dongles on the OHCI card.
+
+	Have fun...
+
+	Jean
 

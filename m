@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUIVGXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267446AbUIVHM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266613AbUIVGXN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 02:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266561AbUIVGXN
+	id S267446AbUIVHM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 03:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267595AbUIVHM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 02:23:13 -0400
-Received: from web52507.mail.yahoo.com ([206.190.39.132]:35485 "HELO
-	web52507.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266613AbUIVGXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 02:23:07 -0400
-Message-ID: <20040922062305.52594.qmail@web52507.mail.yahoo.com>
-Date: Tue, 21 Sep 2004 23:23:05 -0700 (PDT)
-From: Shobhit Mathur <shobhitmmathur@yahoo.com>
-Subject: SCSI /proc query ...
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+	Wed, 22 Sep 2004 03:12:27 -0400
+Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:51868 "HELO
+	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267446AbUIVHMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 03:12:25 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH 0/3] New input patches
+Date: Wed, 22 Sep 2004 02:12:23 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <200409162358.27678.dtor_core@ameritech.net> <20040921121040.GA1603@ucw.cz> <200409210815.34509.dtor_core@ameritech.net>
+In-Reply-To: <200409210815.34509.dtor_core@ameritech.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409220212.23110.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tuesday 21 September 2004 08:15 am, Dmitry Torokhov wrote:
+> On Tuesday 21 September 2004 07:10 am, Vojtech Pavlik wrote:
 
-I intend to implement /proc interface for a SCSI HBA.
-The proc_info() entry-point in Scsi_Host_Template 
-structure automatically takes care of creating a 
-proc-dir for each host [HBA] as in :
-/proc/scsi/<mydriver>/<HBAnumber>.
+> > So the condition needs to be inverted. However, it's not necessary at
+> > all, since the input layer will not pass the RAW events when the MSC_RAW
+> > bit is not set.
+> 
+> I see, my bad. I will drop that bit.
+> 
+> Thanks for the comments!
+> 
 
-I have been able to implement the above stage. Now, I 
-am interested in having separate proc-folders for each
+Vojtech,
 
-SCSI target detected as in :
+I have fixed the aforementioned bug and re-diffed the patches against your
+latest tree. Please do:
 
-/proc/scsi/<mydriver>/<HBAnumber1>/<target1>
-/proc/scsi/<mydriver>/<HBAnumber1>/<target2>
-/proc/scsi/<mydriver>/<HBAnumber1>/<target3> ....
+	bk pull bk://dtor.bkbits.net/input
 
-Under each of the target-folders, I would like to
-print
-relevant information specific to each target.
+Thanks!
 
-How do I go about achieving the above objective ? Some
-clarifications/insights would be gratifying.
-
-- Thank you
-
-- Shobhit
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+-- 
+Dmitry

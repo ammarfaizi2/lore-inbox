@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267622AbUG3Gae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267633AbUG3Gbi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267622AbUG3Gae (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 02:30:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267633AbUG3Gad
+	id S267633AbUG3Gbi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 02:31:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267641AbUG3Gbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 02:30:33 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:29117 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S267635AbUG3GaU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 02:30:20 -0400
-Subject: Re: Recent 2.6 kernels can't read an entire ATAPI CD or DVD
-From: Robert Love <rml@ximian.com>
-To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-Cc: Jens Axboe <axboe@suse.de>, "Bryan O'Sullivan" <bos@serpentine.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Dave Jones <davej@redhat.com>,
-       Edward Angelo Dayao <edward.dayao@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4109E9F8.9080600@gmx.de>
-References: <20040728065319.GD11690@suse.de>
-	 <20040728145228.GA9316@redhat.com>
-	 <20040728145543.GB18846@devserv.devel.redhat.com>
-	 <20040728163353.GJ10377@suse.de> <20040728170507.GK10377@suse.de>
-	 <1091051858.13651.1.camel@camp4.serpentine.com>
-	 <20040729084928.GR10377@suse.de> <1091166553.1982.9.camel@localhost>
-	 <20040730055333.GC7925@suse.de> <1091167031.1982.13.camel@localhost>
-	 <20040730061005.GF18347@suse.de>  <4109E9F8.9080600@gmx.de>
-Content-Type: text/plain
-Date: Fri, 30 Jul 2004 02:30:21 -0400
-Message-Id: <1091169021.2009.3.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 (1.5.91-1) 
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jul 2004 02:31:38 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:57354 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S267635AbUG3GbU convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 02:31:20 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: "Reinder" <tser@dwaal.net>, <linux-kernel@vger.kernel.org>
+Subject: RE: --- (or anyone else) one small i2c question.
+Date: Fri, 30 Jul 2004 09:30:51 +0300
+X-Mailer: KMail [version 1.4]
+References: <20040730063749.B9E5F14DC10A@nemiahone.tser.org>
+In-Reply-To: <20040730063749.B9E5F14DC10A@nemiahone.tser.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200407300930.51517.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-30 at 08:26 +0200, Prakash K. Cheemplavam wrote:
+On Friday 30 July 2004 08:40, Reinder wrote:
+> Hm, Greg must be on virtual holiday.
+>
+> Yoo-hoo?
+>
+> Anyone else, then alive?
+>
+> I hope open source doesn't mean "Closed community :)"
 
-> Could it be famd?
+We're not closed :)
 
-I thought about that, killed it, still happens.
+However, this does not mean that each and every mail is answered here.
 
-The only "something is poking the drive" theory does not make sense,
-though, since it consistently works with some CD's and not others.
+> Here I am. I want to contribute some code. But I need some help, because
+> not everything can be done alone on this planet. Sometimes you need
+> guidance.
+>
+> It's better to talk, and send people away on a search, then to ignore
+> people.
+>
+> And all I want is some small help with i2c.
 
-	Robert Love
-
-
+Sorry, I don't have any experience with 12c.
+--
+vda

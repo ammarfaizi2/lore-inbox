@@ -1,30 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277859AbRJWQMz>; Tue, 23 Oct 2001 12:12:55 -0400
+	id <S277861AbRJWQNZ>; Tue, 23 Oct 2001 12:13:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277861AbRJWQMp>; Tue, 23 Oct 2001 12:12:45 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35590 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277859AbRJWQMf>; Tue, 23 Oct 2001 12:12:35 -0400
-Subject: Re: SiS/Trident 4DWave sound driver oops
-To: sgy@amc.com.au (Stuart Young)
-Date: Tue, 23 Oct 2001 17:19:00 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.0.20011023154226.00a20ba0@mail.amc.localnet> from "Stuart Young" at Oct 23, 2001 04:15:52 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S277867AbRJWQNQ>; Tue, 23 Oct 2001 12:13:16 -0400
+Received: from pop3.telenet-ops.be ([195.130.132.40]:15306 "EHLO
+	pop3.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S277861AbRJWQNK>; Tue, 23 Oct 2001 12:13:10 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: DevilKin <DevilKin@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: More memory == better?
+Date: Tue, 23 Oct 2001 18:10:38 +0200
+X-Mailer: KMail [version 1.3.1]
+X-Cats: All your linux' belong to us!
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15w4Ga-0006Q0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011023161340.02EAC9BD76@pop3.telenet-ops.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This kernel oops is totally reproducible (on every occasion) in 2.4.9, 
-> 2.4.10, and 2.4.12. I have not tried earlier kernels in the 2.4 series, but 
-> have tried 2.2.19pre17 (will explain other SiS Chipset funny business in 
-> another message). All kernels were compiled while the machine was running 
-> 2.2.19pre17.
+Hello All,
 
-Does this problem go away if you build the driver modular.  Im wondering
-if it matches another mysterious and similar report
+Currently I've got myself a nice setup (amd 1.4ghz, abit kg7raid etc etc) 
+with 512mb ram... (DDR). I'm wondering if increasing this to 1gb has 
+advantages (speedwise or anything), since I can get my hands on it at a very 
+low price...
+
+I must say that even with most of my applications loaded/running, the system 
+never even touches the swap partition.
+
+So, would it be wise?
+
+Thanks for any info
+
+DevilKin
+-- 
+devilkin@gmx.net

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263214AbUKUMZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261944AbUKUMag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263214AbUKUMZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 07:25:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbUKUMZ2
+	id S261944AbUKUMag (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 07:30:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbUKUMaf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 07:25:28 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:44507 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263214AbUKUMZP (ORCPT
+	Sun, 21 Nov 2004 07:30:35 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:32477 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261944AbUKUMaa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 07:25:15 -0500
-Date: Sun, 21 Nov 2004 14:27:32 +0100
+	Sun, 21 Nov 2004 07:30:30 -0500
+Date: Sun, 21 Nov 2004 14:32:28 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: Lee Revell <rlrevell@joe-job.com>
 Cc: linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>,
@@ -23,12 +23,12 @@ Cc: linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>,
        Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
        Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
-Message-ID: <20041121132732.GA16170@elte.hu>
-References: <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <1100920963.1424.1.camel@krustophenia.net> <20041120125536.GC8091@elte.hu> <1100971141.6879.18.camel@krustophenia.net> <20041120191403.GA16262@elte.hu> <1100977765.6879.53.camel@krustophenia.net> <20041121124720.GB7972@elte.hu>
+Message-ID: <20041121133228.GA16928@elte.hu>
+References: <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <1100920963.1424.1.camel@krustophenia.net> <20041120125536.GC8091@elte.hu> <1100971141.6879.18.camel@krustophenia.net> <20041120191403.GA16262@elte.hu> <1100977765.6879.53.camel@krustophenia.net> <20041121124720.GB7972@elte.hu> <20041121132732.GA16170@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041121124720.GB7972@elte.hu>
+In-Reply-To: <20041121132732.GA16170@elte.hu>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -43,18 +43,22 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Ingo Molnar <mingo@elte.hu> wrote:
 
-> * Lee Revell <rlrevell@joe-job.com> wrote:
+> * Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> > > i only tried the !PREEMPT version though - does that one work for you? 
-> > > Also, please send me the .config that produces the failing kernel.
+> > * Lee Revell <rlrevell@joe-job.com> wrote:
 > > 
-> > OK it allows me to set PREEMPT_NONE, PREEMPT_SOFTIRQS, and
-> > PREEMPT_HARDIRQS.  This should be an illegal combination, right?
+> > > > i only tried the !PREEMPT version though - does that one work for you? 
+> > > > Also, please send me the .config that produces the failing kernel.
+> > > 
+> > > OK it allows me to set PREEMPT_NONE, PREEMPT_SOFTIRQS, and
+> > > PREEMPT_HARDIRQS.  This should be an illegal combination, right?
+> > 
+> > in theory it should work just fine.
 > 
-> in theory it should work just fine.
+> hm, in practice it doesnt work - this is that causes the boot-time
+> hang you saw during PREEMPT_VOLUNTARY. I'll make irq threading depend
+> on PREEMPT, for the time being.
 
-hm, in practice it doesnt work - this is that causes the boot-time hang
-you saw during PREEMPT_VOLUNTARY. I'll make irq threading depend on
-PREEMPT, for the time being.
+this change is in the -5 kernel i just uploaded.
 
 	Ingo

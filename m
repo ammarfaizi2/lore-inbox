@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261528AbTCOTPf>; Sat, 15 Mar 2003 14:15:35 -0500
+	id <S261529AbTCOTS6>; Sat, 15 Mar 2003 14:18:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261529AbTCOTPe>; Sat, 15 Mar 2003 14:15:34 -0500
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:13982 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S261528AbTCOTPe>; Sat, 15 Mar 2003 14:15:34 -0500
-Message-Id: <200303151926.h2FJQLnB103490@pimout1-ext.prodigy.net>
-Content-Type: text/plain; charset=US-ASCII
-From: dan carpenter <d_carpenter@sbcglobal.net>
-To: Zwane Mwaikambo <zwane@holomorphy.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Any hope for ide-scsi (error handling)?
-Date: Sat, 15 Mar 2003 03:05:46 +0100
-X-Mailer: KMail [version 1.3.2]
-References: <Pine.LNX.4.50.0303151343140.9158-100000@montezuma.mastecende.com>
-In-Reply-To: <Pine.LNX.4.50.0303151343140.9158-100000@montezuma.mastecende.com>
-Cc: wrlk@riede.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S261530AbTCOTS6>; Sat, 15 Mar 2003 14:18:58 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:10960 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S261529AbTCOTS6>;
+	Sat, 15 Mar 2003 14:18:58 -0500
+Message-Id: <200303151824.h2FIOdPU005307@eeyore.valparaiso.cl>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: linux@lundell-bros.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63)) 
+In-Reply-To: Your message of "Thu, 13 Mar 2003 20:29:06 PST."
+             <33130.4.64.238.61.1047616146.squirrel@www.osdl.org> 
+Date: Sat, 15 Mar 2003 14:24:39 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 15 March 2003 07:55 pm, Zwane Mwaikambo wrote:
->
-> bad: scheduling while atomic!
-> Call Trace:
->
+"Randy.Dunlap" <rddunlap@osdl.org> said:
 
-   887          spin_lock_irqsave(&ide_lock, flags);
-   888          while (HWGROUP(drive)->handler) {
-   889                  HWGROUP(drive)->handler = NULL;
-   890                  schedule_timeout(1);
-   891          }
+[...]
 
-Here is at least one bad call to schedule() in 
-static int idescsi_reset (Scsi_Cmnd *cmd)
+> > If you've got a symbol some reasonable distance before EIP,
 
-regards,
-dan
-
-
-
+What is a "reasonable distance"? What if no such symbol is found? What if
+it data?
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

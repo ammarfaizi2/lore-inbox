@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263082AbUACN0f (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 08:26:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263130AbUACN0c
+	id S263325AbUACNj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 08:39:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263357AbUACNj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 08:26:32 -0500
-Received: from lapd.cj.edu.ro ([193.231.142.101]:13441 "HELO lapd.cj.edu.ro")
-	by vger.kernel.org with SMTP id S262913AbUACN0b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 08:26:31 -0500
-Date: 3 Jan 2004 15:26:30 +0200
-Date: Sat, 3 Jan 2004 15:26:30 +0200 (EET)
-From: "Cosmin Matei \(lkml\)" <linux@lapd.cj.edu.ro>
+	Sat, 3 Jan 2004 08:39:57 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:52205 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S263325AbUACNj4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 08:39:56 -0500
+Date: Sat, 3 Jan 2004 14:39:46 +0100
+From: Tobias Diedrich <ranma@gmx.at>
 To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.24-pre3 and ip_gre module ...
-Message-ID: <Pine.LNX.4.51L0.0401031512090.2488@lapd.cj.edu.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Strange IDE performance change in 2.6.1-rc1 (again)
+Message-ID: <20040103133945.GB396@melchior.yamamaya.is-a-geek.org>
+Mail-Followup-To: Tobias Diedrich <ranma@gmx.at>,
+	linux-kernel@vger.kernel.org
+References: <200401021658.41384.ornati@lycos.it> <3FF5B3AB.5020309@wmich.edu> <200401022200.22917.ornati@lycos.it> <20040103033327.GA413@melchior.yamamaya.is-a-geek.org> <200401030415.i034FJoc006230@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401030415.i034FJoc006230@turing-police.cc.vt.edu>
+X-GPG-Fingerprint: 7168 1190 37D2 06E8 2496  2728 E6AF EC7A 9AC7 E0BC
+X-GPG-Key: http://studserv.stud.uni-hannover.de/~ranma/gpg-key
+User-Agent: Mutt/1.5.4i
+X-Seen: false
+X-ID: TzmEL8ZdZeOAht9x528jXc8r59-wyACkTv6ZFW+LjFB+QA2OngtBoK@t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Valdis.Kletnieks@vt.edu wrote:
 
-Hi,
+> 'cat' is probably doing a stat() on stdout and seeing it's connected
+> to /dev/null and not even bothering to do the write() call.  I've seen
+> similar behavior in other GNU utilities.
 
-I'm trying to use the new kernel 2.4.23 + 2.4.24-pre3 patch and the first 
-impression is very good. Just one problem appears to make me to reconsider 
-using 2.4.24-pre3: ip_gre module it's not working!!! The module is 
-loading, the interface it's bringing up but no packets pass thru ... what 
-can I do? There is any modifications from 2.4.21-rc6?
+I can't see any special casing for /dev/null in cat's source, but I
+forgot to check dd with bigger block size. It's ok with bs=4096...
 
-Thank you,
-Cosmin
+-- 
+Tobias						PGP: http://9ac7e0bc.2ya.com
+This mail is made of 100% recycled bits.

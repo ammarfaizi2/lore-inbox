@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286687AbSCFAMq>; Tue, 5 Mar 2002 19:12:46 -0500
+	id <S292130AbSCFAN4>; Tue, 5 Mar 2002 19:13:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286322AbSCFAM1>; Tue, 5 Mar 2002 19:12:27 -0500
-Received: from monk.debian.net ([216.185.54.61]:33716 "EHLO monk.verbum.org")
-	by vger.kernel.org with ESMTP id <S293728AbSCFALh>;
-	Tue, 5 Mar 2002 19:11:37 -0500
-Subject: Re: [opensource] Re: Petition Against Official Endorsement of
-	BitKeeper by Linux Maintainers
-From: Colin Walters <walters@verbum.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-In-Reply-To: <E16iOoo-0004mw-00@the-village.bc.nu>
-In-Reply-To: <E16iOoo-0004mw-00@the-village.bc.nu>
-Content-Type: text/plain
+	id <S291043AbSCFANr>; Tue, 5 Mar 2002 19:13:47 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50186 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290806AbSCFANm>; Tue, 5 Mar 2002 19:13:42 -0500
+Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Wed, 6 Mar 2002 00:28:14 +0000 (GMT)
+Cc: aia21@cam.ac.uk (Anton Altaparmakov),
+        zwane@linux.realnet.co.sz (Zwane Mwaikambo),
+        linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <3C84BBE1.3020906@evision-ventures.com> from "Martin Dalecki" at Mar 05, 2002 01:36:49 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 05 Mar 2002 19:11:04 -0500
-Message-Id: <1015373464.25855.25.camel@space-ghost>
-Mime-Version: 1.0
+Message-Id: <E16iPHy-0004sU-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-03-05 at 18:58, Alan Cox wrote:
-> Right from the start Linus has always said he isn't going to force anyone
-> to use bitkeeper. End of story. If you think its free enough -  use it, if
-> you don't (or you just think its crap software, dont use it)
+> > I can't quote you the post but I am sure you could find it in the 
+> > archives if you tried to look.
+> 
+> It can't be older then 2.5.4 becouse before it just wasn't there.
 
-The petition never mentioned "force".  And even if Linus (and the other
-core maintainers) wanted to, they couldn't *force* anyone to use
-BitKeeper.  The issue at hand is the strong pressure the official
-advocacy places on the perhipheral developers.  We (the signers of the
-petition), and others are unhappy with this.  That's what the petition
-says.
-
-> In fact if it offends you enough to start a petition take the list of
-> names you get at the end and between you go write a better one under a
-> licence you prefer between the signatures.
-
-There are already replacements under development.
-
+Wrong. Its been in the 2.4 IDE patches that anyone doing serious IDE work
+has been using for oh 9 months or more..

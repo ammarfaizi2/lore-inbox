@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbUDEBmW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 21:42:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbUDEBmW
+	id S262910AbUDEBmk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 21:42:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbUDEBmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 21:42:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50103 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261203AbUDEBmV
+	Sun, 4 Apr 2004 21:42:40 -0400
+Received: from smtp2.world-net.co.nz ([203.96.119.37]:2061 "HELO
+	mail.world-net.co.nz") by vger.kernel.org with SMTP id S262910AbUDEBmg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 21:42:21 -0400
-Message-ID: <4070B96F.9010403@pobox.com>
-Date: Sun, 04 Apr 2004 21:42:07 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Wichmann, Mats D" <mats.d.wichmann@intel.com>
-CC: linux-kernel@vger.kernel.org, device-naming@osdl.org
-Subject: Re: List created to discuss device naming
-References: <A06801158AE07847B27A52C1A074BC1D04C90E2B@fmsmsx404.fm.intel.com>
-In-Reply-To: <A06801158AE07847B27A52C1A074BC1D04C90E2B@fmsmsx404.fm.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 4 Apr 2004 21:42:36 -0400
+Subject: Re: Kernel panic in 2.4.25
+From: Matt Brown <matt@mattb.net.nz>
+To: marcelo.tosatti@cyclades.com
+Cc: kernel@linuxace.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, dlstevens@ibm.com, davem@redhat.com
+Content-Type: text/plain
+Message-Id: <1081129354.1611.44.camel@argon.shr.crc.net.nz>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 05 Apr 2004 13:42:34 +1200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wichmann, Mats D wrote:
-> This note is to announce creation of a single-topic
-> mailing list on common device naming.
-> 
-> As LSB project lead, I've been asked about specifying
-> Linux device naming in the LSB.  We're not set up to do
-> that; the LSB can only specify what is already "best
-> practice".  
-> 
-> A number of people think that getting this right in
-> the new world of userspace device naming (e.g. udev)
-> is important enough that they'd like to get together
-> and try to achieve common ground between those
-> shipping distributions with the 2.6 kernel.
+> IIRC a similar problem was in v2.6.
+>
+> I'll dig it up.
 
-Please keep linux-kernel posted on developments and key decisions... 
-There are certainly people who are interested, but do not have time to 
-subscribe to 1001 topic-specific lists... :)
+Was any progress made on this problem?
 
-	Jeff
+I am seeing the same panic as was originally reported using both kernel
+2.4.25 and 2.4.26-rc1, I can easily reproduce it under the same
+conditions as Hasso described in the original email. 
 
+With quagga/ospfd running I simply execute
+ifconfig eth0 down
+ifconfig eth0 up 
+in quick succession and a panic follows within 20 seconds. 
 
+The panic does not occur if ospfd is not running, or if i pause for at
+least 10 seconds between the two commands. 
 
+Let me know if I can provide any more information that would be helpful
+in solving this problem. 
+
+Regards
+
+-- 
+Matt Brown
+Email: matt@mattb.net.nz
+GSM  : 021 611 544
 

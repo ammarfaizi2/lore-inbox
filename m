@@ -1,71 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269518AbUHZU25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269494AbUHZU24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269518AbUHZU25 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:28:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269562AbUHZUMi
+	id S269494AbUHZU24 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269589AbUHZUZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:12:38 -0400
-Received: from mail.shareable.org ([81.29.64.88]:62150 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S269232AbUHZTyJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 15:54:09 -0400
-Date: Thu, 26 Aug 2004 20:53:57 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Hans Reiser <reiser@namesys.com>, viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826195357.GY5733@mail.shareable.org>
-References: <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org> <412DA40B.5040806@namesys.com> <20040826183532.GP1501@ca-server1.us.oracle.com>
+	Thu, 26 Aug 2004 16:25:50 -0400
+Received: from mout.perfora.net ([217.160.230.41]:16320 "EHLO mout.perfora.net")
+	by vger.kernel.org with ESMTP id S269592AbUHZUXA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 16:23:00 -0400
+X-Provags-ID: perfora.net abuse@perfora.net f6539cf98449d0c71ae4cb6bf16e71fe
+Message-Id: <4.3.2.7.2.20040826123833.0188e068@popmail.compuserve.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Thu, 26 Aug 2004 13:22:47 -0700
+To: linux-kernel@vger.kernel.org
+From: Clive Levinson <clivel@bundu.com>
+Subject: Physical memory mapping with nopage handler
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040826183532.GP1501@ca-server1.us.oracle.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joel Becker wrote:
-> On Thu, Aug 26, 2004 at 01:49:15AM -0700, Hans Reiser wrote:
-> > Yes, this was part of the plan, tar file-directory plugins would be cute.
-> 
-> 	Question:  Is "cat /foo/bar/baz.tar.gz/metas" the attribute
-> directory or a directory in the tarball named "metas"?
+Hi,
+I have been stuck for a few days trying to map physical memory
+in my framebuffer driver using the nopage handler on a strongArm.
 
-This needs to be designed.
+The hardware is physically at address 0x2C000000, iotable_init()
+maps it to 0XF1000000.
 
-Perhaps /foo/bar/baz.tar.gz/tar/metas is the directory in the tarball
-named "metas".
+Within my driver, writing directly to 0XF1000000 will set pixels
+on the screen. However for, a user application that calls mmap
+to map the framebuffer, I need to do something like:
+io_remap_page_range(vma->vm_start, 0x2c000000,
+                     vma->vm_end - vma->vm_start,
+                     vma->vm_page_prot)
 
-Or perhaps /foo/bar/baz.tar.gz/x/metas is: it's independent of archive
-format, and I personally tend to extract things into a directory
-called "x". [*]
+This works, and the user level application then is able to write
+to the framebuffer.
 
-Or perhaps /foo/bar/baz.tar.gz/metas is, and the attribute directory
-is /foo/bar/baz.tar.gz/../metas, to be perverse ;)
+My first point of confusion, is what is the relationship between
+the physical address at 0x2C000000, and the 0XF1000000 ?
 
-I prefer the second one, ("x/metas"), but not with any conviction.
+The real problem is that my hardware has banked memory,
+using  mmap,  I can only write to the first 64K of the framebuffer.
+I decided to get around this by using a nopage handler, so that I
+can handle the bank switching.
 
--- Jamie
+This is basically what I have:
 
+static struct vm_operations_struct myfb_vm_ops = {
+   nopage: myfb_nopage,
+};
 
-[*] Actually I prefer:
+static int myfb_mmap(struct fb_info *info,
+                      struct file *file,
+                      struct vm_area_struct *vma)
+{
+   vma->vm_flags = vma->vm_flags|VM_IO|VM_RESERVED;
+   vma->vm_ops = &myfb_vm_ops;
+   return 0;
+}
 
-      /foo/bar/baz.tar.gz/content/metas
-      /foo/bar/baz-0.01.tar.gz/content/baz-0.01/metas
+static struct page * myfb_nopage(struct vm_area_struct * vma,
+                                  unsigned long address,
+                                  int unused)
+{
 
-           Archives always in "content".  One layer of decompression
-           always tried for .tar files and other uncompressed archive
-           formats.
+   pte_t pte;
 
-      /foo/bar/baz.tar.gz/x -> content/
-      /foo/bar/baz-0.01.tar.gz/x -> content/baz-0.01/
+   //ignore the address offset at this point, assume it is the
+   //same as vma->vm_start
 
-           If the root of the archive contains a single directory, "x"
-           is a symlink to it.  Otherwise "x" is a symlink to the root
-           directory of the archive.  This is comfortable with the
-           common practice by which archives are distributed, without
-           making a mess when someone forgets to put everything in a
-           top-level directory.
+   //pte=mk_pte_phys( 0x2c000000, PAGE_SHARED); //Generates an error
+   pte=mk_pte_phys( 0xf1000000, PAGE_SHARED); //No error
+   pageptr=pte_page( pte );
+   get_page( pageptr );
+   return pageptr;
+}
+
+If I use mk_pte_phys( 0x2c000000, PAGE_SHARED), I get an internal
+error. If use pte=mk_pte_phys( 0xf1000000, PAGE_SHARED), it
+satisfies the page request, however, the write is not actually
+happening to the actual framebuffer, I am not sure where it
+is going. Any suggestions or tips please?
+
+I am using Linux V2.4.18, I would appreciate any replies CC'd
+directly to me, as I am not subscribed to the list.
+Thanks,
+Clive
+

@@ -1,81 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVDEJJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVDEJLi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261634AbVDEJJp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 05:09:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVDEJJ1
+	id S261639AbVDEJLi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 05:11:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVDEJLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 05:09:27 -0400
-Received: from black.click.cz ([62.141.0.10]:49367 "EHLO click.cz")
-	by vger.kernel.org with ESMTP id S261634AbVDEJJI (ORCPT
+	Tue, 5 Apr 2005 05:11:37 -0400
+Received: from ozlabs.org ([203.10.76.45]:59804 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261639AbVDEJL1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 05:09:08 -0400
-From: Michal Rokos <michal@rokos.info>
-To: Jean Tourrilhes <jt@hpl.hp.com>, linux-kernel@vger.kernel.org
-Subject: [IrDA] Oops with NULL deref in irda_device_set_media_busy
-Date: Tue, 5 Apr 2005 11:02:26 +0200
-User-Agent: KMail/1.8
+	Tue, 5 Apr 2005 05:11:27 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504051102.27533.michal@rokos.info>
+Message-ID: <16978.22078.532831.667378@cargo.ozlabs.ibm.com>
+Date: Tue, 5 Apr 2005 19:11:26 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, Dave Airlie <airlied@linux.ie>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm1
+In-Reply-To: <20050405074405.GE26208@infradead.org>
+References: <20050405000524.592fc125.akpm@osdl.org>
+	<20050405074405.GE26208@infradead.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Christoph Hellwig writes:
 
-I've problems with IrDA - when debug is off, I'm getting oops for obvious 
-reason...
-(I don't have a log, this is just rewrite from screen:
-EIP: irda_device_set_media_busy+0x15/0x40 [irda]
-ali_ircc_sir_receive+0x4a/0x70
-ali_ircc_sir_interrupt+0x66/0x70
-ali_ircc_interrupt+0x5e/0x80
-.....
-)
-When I turn debug on, I get just
-Assertion failed! net/irda/irda_device.c:irda_device_set_media_busy:128 
-self != NULL
+> Those DRI callers aren't in mainline but introduced in bk-drm.patch,
+> looks like the DRI folks need beating with a big stick..
 
-The obvious reason is that I don't have irlap module in that inits 
-dev->atalk_ptr, so I'm getting assertion exception in irda_device.c:489.
+Settle down Christoph, the compat_ioctl method is less than 3 months
+old, has only been in one official 2.6.x release, and isn't documented
+at all in the Documentation directory AFAICS.  Don't be so impatient.
 
-A few info that could be handy:
+Anyway, I did the 32-bit ioctl conversion stuff for the DRM.  I'll
+look at changing it to use compat_ioctl.  The big question of course
+is whether the DRM code will work correctly without the BKL held.
 
-$ uname -a # It's yesterday bk snapshot
-Linux csas 2.6.12-rc1-mr #14 Mon Apr 4 13:42:14 CEST 2005 i686 GNU/Linux
-
-$ lsmod | grep ir
-ircomm_tty             39176  3
-ircomm                 22404  1 ircomm_tty
-ali_ircc               26032  0
-irda                  192316  3 ircomm_tty,ircomm,ali_ircc
-crc_ccitt               2176  2 ppp_async,irda
-
-$ grep IR .config
-CONFIG_IRDA=m
-# CONFIG_IRLAN is not set
-CONFIG_IRNET=m
-CONFIG_IRCOMM=m
-CONFIG_IRDA_ULTRA=y
-CONFIG_IRDA_CACHE_LAST_LSAP=y
-CONFIG_IRDA_FAST_RR=y
-CONFIG_IRDA_DEBUG=y
-# SIR device drivers
-# CONFIG_IRTTY_SIR is not set
-# Old SIR device drivers
-# CONFIG_IRPORT_SIR is not set
-# FIR device drivers
-# CONFIG_USB_IRDA is not set
-# CONFIG_SIGMATEL_FIR is not set
-# CONFIG_NSC_FIR is not set
-# CONFIG_WINBOND_FIR is not set
-# CONFIG_TOSHIBA_FIR is not set
-# CONFIG_SMC_IRCC_FIR is not set
-CONFIG_ALI_FIR=m
-# CONFIG_VLSI_FIR is not set
-# CONFIG_VIA_FIR is not set
-# CONFIG_USB_SERIAL_IR is not set
-
- Michal
+Paul.

@@ -1,404 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbTEaQmW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 12:42:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264383AbTEaQmW
+	id S264381AbTEaQvg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 12:51:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264380AbTEaQvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 12:42:22 -0400
-Received: from [216.148.213.132] ([216.148.213.132]:21795 "EHLO
-	smtp.mailix.net") by vger.kernel.org with ESMTP id S261757AbTEaQmO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 12:42:14 -0400
-Date: Sat, 31 May 2003 18:55:23 +0200
-From: Alex Riesen <fork0@users.sf.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.70-bk4+: oops by mc -v /proc/bus/pci/00/00.0
-Message-ID: <20030531165523.GA18067@steel.home>
-Reply-To: Alex Riesen <fork0@users.sf.net>
+	Sat, 31 May 2003 12:51:36 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:14561
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264386AbTEaQvf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 12:51:35 -0400
+Subject: Re: Any experience with Promise PDC20376 and SATA RAID?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+Cc: Andre Hedrick <andre@linux-ide.org>, reid@reidspencer.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+In-Reply-To: <3ED8D709.9060807@gmx.net>
+References: <20030528160001.21400.75235.Mailman@listman.rdu-colo.redhat.com>
+	 <1054139205.1257.11.camel@bashful.x10sys.com>  <3ED8D709.9060807@gmx.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054397191.27312.11.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 31 May 2003 17:06:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MC (Midnight Commander 4.6.0 Gentoo) segfaults trying to mmap files
-under /proc/bus/pci. The oops, strace output prior the
-segfault and the config are attached.
+On Sad, 2003-05-31 at 17:23, Carl-Daniel Hailfinger wrote:
+> Reid Spencer wrote:
+> > I think the kernel doesn't know about the device number (105a:3376 =
+> > PDC20376) since it isn't in the kernel's drivers/pci/pci.ids file
+> > (latest device is 7275 PDC20277)and it doesn't recognize the device when
+> > it processes the IDE devices at boot up. All I get is:
 
--alex
+20376 is not currently supported. Promise do have their own GPL driver
+which handles this device as if it were a scsi adapter. In the same way
+that Jeff Garzik has realised we need to go this path for smart SATA 
+stuff so have promise.
 
-open("/proc/bus/pci/00/00.0", O_RDONLY|O_NONBLOCK|O_LARGEFILE) = 4
-fstat64(4, {st_dev=makedev(0, 3), st_ino=4338, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=2, st_size=256, st_atime=2003/05/31-18:26:38, st_mtime=2003/05/31-18:26:38, st_ctime=2003/05/31-18:26:38}) = 0
-fcntl64(3, F_GETFL)                     = 0x2 (flags O_RDWR)
-fcntl64(3, F_SETFL, O_RDWR)             = 0
-read(4, "\6\21\5\6", 4)                 = 4
-mmap2(NULL, 256, PROT_READ, MAP_SHARED, 4, 0 <unfinished ...>
-+++ killed by SIGSEGV +++
+Figuring out what to do about all this for 2.4 is on my pending pile
+still - do we merge a minimal support into base 2.4.x as FreeBSD did
+with their support or do we merge a scsi layer driver that can actually
+make use of the command queueing (not neccessarily tagged) on the device
+and/or the hardware XOR engine.
 
-
-Unable to handle kernel paging request at virtual address 6b6b6b6f
- printing eip:
-c0159a79
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c0159a79>]    Not tainted
-EFLAGS: 00010202
-EIP is at unmap_vmas+0xf9/0x360
-eax: 4048b000   ebx: 00001000   ecx: d9508f90   edx: 6b6b6b6b
-esi: 4048b000   edi: 4048b000   ebp: d8cdbef8   esp: d8cdbeb8
-ds: 007b   es: 007b   ss: 0068
-Process mc (pid: 18038, threadinfo=d8cda000 task=d5a18100)
-Stack: c03b107c d9508f90 4048a000 4048b000 d94cbd54 c780a080 08091630 d8cda000 
-       d8cda000 d94cbd54 4048b000 00000001 000ff000 4048b000 d94cbd54 4048a000 
-       d8cdbf30 c0159dbf d8cdbf1c d94cbd54 d9508f90 4048a000 4048b000 d8cdbf20 
-Call Trace:
- [<c0159dbf>] zap_page_range+0xdf/0x210
- [<c015e5ec>] do_mmap_pgoff+0x35c/0x6b0
- [<c0112afb>] sys_mmap2+0x9b/0xe0
- [<c010a4ab>] syscall_call+0x7/0xb
-
-Code: 39 42 04 72 22 89 f6 89 55 10 85 d2 74 0e 8b 52 04 3b 55 18 
- <6>note: mc[18038] exited with preempt_count 1
-mm/mmap.c:1438: spin_lock(kernel/fork.c:d94cbd98) already locked by mm/memory.c/604
-bad: scheduling while atomic!
-Call Trace:
- [<c011e821>] schedule+0x6d1/0x6e0
- [<c010a618>] common_interrupt+0x18/0x20
- [<c0159b7e>] unmap_vmas+0x1fe/0x360
- [<c015f8e9>] exit_mmap+0xc9/0x2c0
- [<c0121ce2>] mmput+0xa2/0x130
- [<c01280ef>] do_exit+0x27f/0xaa0
- [<c010adec>] die+0x21c/0x220
- [<c011c52d>] do_page_fault+0x15d/0x4dc
- [<c014817a>] find_get_page+0x7a/0x170
- [<c0149707>] filemap_nopage+0x1e7/0x2e0
- [<c011c3d0>] do_page_fault+0x0/0x4dc
- [<c010a655>] error_code+0x2d/0x38
- [<c0159a79>] unmap_vmas+0xf9/0x360
- [<c0159dbf>] zap_page_range+0xdf/0x210
- [<c015e5ec>] do_mmap_pgoff+0x35c/0x6b0
- [<c0112afb>] sys_mmap2+0x9b/0xe0
- [<c010a4ab>] syscall_call+0x7/0xb
-
-Debug: sleeping function called from illegal context at include/asm/semaphore.h:119
-Call Trace:
- [<c0120e81>] __might_sleep+0x61/0x80
- [<c015897d>] clear_page_tables+0xad/0xb0
- [<c015d779>] remove_shared_vm_struct+0x39/0xa0
- [<c015f9fb>] exit_mmap+0x1db/0x2c0
- [<c0121ce2>] mmput+0xa2/0x130
- [<c01280ef>] do_exit+0x27f/0xaa0
- [<c010adec>] die+0x21c/0x220
- [<c011c52d>] do_page_fault+0x15d/0x4dc
- [<c014817a>] find_get_page+0x7a/0x170
- [<c0149707>] filemap_nopage+0x1e7/0x2e0
- [<c011c3d0>] do_page_fault+0x0/0x4dc
- [<c010a655>] error_code+0x2d/0x38
- [<c0159a79>] unmap_vmas+0xf9/0x360
- [<c0159dbf>] zap_page_range+0xdf/0x210
- [<c015e5ec>] do_mmap_pgoff+0x35c/0x6b0
- [<c0112afb>] sys_mmap2+0x9b/0xe0
- [<c010a4ab>] syscall_call+0x7/0xb
-
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_PREEMPT=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MSR=y
-CONFIG_EDD=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_BUTTON=m
-CONFIG_ACPI_FAN=m
-CONFIG_ACPI_PROCESSOR=m
-CONFIG_ACPI_THERMAL=m
-CONFIG_ACPI_DEBUG=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_APM=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_PCI_NAMES=y
-CONFIG_HOTPLUG=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-CONFIG_PARPORT_SERIAL=m
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_PC_SUPERIO=y
-CONFIG_PARPORT_1284=y
-CONFIG_BLK_DEV_FD=m
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDESCSI=m
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=m
-CONFIG_BLK_DEV_SD=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_INET_ECN=y
-CONFIG_SYN_COOKIES=y
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_PKTTYPE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_ECN=m
-CONFIG_IP_NF_MATCH_DSCP=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_HELPER=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_MATCH_UNCLEAN=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_MIRROR=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_NAT_SNMP_BASIC=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IPV6=m
-CONFIG_XFRM_USER=m
-CONFIG_IPV6_SCTP__=m
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CBQ=m
-CONFIG_NET_SCH_HTB=m
-CONFIG_NET_SCH_CSZ=m
-CONFIG_NET_SCH_PRIO=m
-CONFIG_NET_SCH_RED=m
-CONFIG_NET_SCH_SFQ=m
-CONFIG_NET_SCH_TEQL=m
-CONFIG_NET_SCH_TBF=m
-CONFIG_NET_SCH_GRED=m
-CONFIG_NET_SCH_DSMARK=m
-CONFIG_NET_SCH_INGRESS=m
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_TCINDEX=m
-CONFIG_NET_CLS_ROUTE4=m
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=m
-CONFIG_NET_CLS_U32=m
-CONFIG_NET_CLS_RSVP=m
-CONFIG_NET_CLS_RSVP6=m
-CONFIG_NET_CLS_POLICE=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_TUN=m
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=m
-CONFIG_NET_TULIP=y
-CONFIG_DE2104X=m
-CONFIG_TULIP=m
-CONFIG_TULIP_MWI=y
-CONFIG_TULIP_MMIO=y
-CONFIG_DE4X5=m
-CONFIG_NET_PCI=y
-CONFIG_NATSEMI=m
-CONFIG_8139TOO=m
-CONFIG_8139TOO_TUNE_TWISTER=y
-CONFIG_8139TOO_8129=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=m
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_EVDEV=m
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=m
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_RTC=m
-CONFIG_GEN_RTC=m
-CONFIG_GEN_RTC_X=y
-CONFIG_AGP=m
-CONFIG_AGP_VIA=m
-CONFIG_DRM=y
-CONFIG_DRM_RADEON=m
-CONFIG_HANGCHECK_TIMER=m
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=m
-CONFIG_AUTOFS4_FS=m
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=m
-CONFIG_UDF_FS=m
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_NTFS_FS=m
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=m
-CONFIG_SUNRPC=m
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_CODEPAGE_852=y
-CONFIG_NLS_CODEPAGE_855=m
-CONFIG_NLS_CODEPAGE_866=m
-CONFIG_NLS_CODEPAGE_1250=m
-CONFIG_NLS_CODEPAGE_1251=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_NLS_ISO8859_2=m
-CONFIG_NLS_ISO8859_5=m
-CONFIG_NLS_ISO8859_15=y
-CONFIG_NLS_KOI8_R=m
-CONFIG_NLS_KOI8_U=m
-CONFIG_NLS_UTF8=m
-CONFIG_VIDEO_SELECT=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_SOUND=m
-CONFIG_SND=m
-CONFIG_SND_SEQUENCER=m
-CONFIG_SND_SEQ_DUMMY=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=m
-CONFIG_SND_DUMMY=m
-CONFIG_SND_VIRMIDI=m
-CONFIG_SND_ENS1371=m
-CONFIG_SOUND_PRIME=m
-CONFIG_USB=m
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_UHCI_HCD=m
-CONFIG_USB_PRINTER=m
-CONFIG_USB_STORAGE=m
-CONFIG_USB_STORAGE_DATAFAB=y
-CONFIG_USB_STORAGE_DPCM=y
-CONFIG_USB_STORAGE_SDDR09=y
-CONFIG_USB_STORAGE_SDDR55=y
-CONFIG_USB_STORAGE_JUMPSHOT=y
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_SCANNER=m
-CONFIG_DEBUG_KERNEL=y
-CONFIG_DEBUG_STACKOVERFLOW=y
-CONFIG_DEBUG_SLAB=y
-CONFIG_DEBUG_IOVIRT=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_DEBUG_SPINLOCK=y
-CONFIG_KALLSYMS=y
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-CONFIG_FRAME_POINTER=y
-CONFIG_CRC32=m
-CONFIG_ZLIB_INFLATE=m
-CONFIG_X86_BIOS_REBOOT=y

@@ -1,122 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261316AbREOTnp>; Tue, 15 May 2001 15:43:45 -0400
+	id <S261314AbREOThp>; Tue, 15 May 2001 15:37:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261319AbREOTnf>; Tue, 15 May 2001 15:43:35 -0400
-Received: from quattro.sventech.com ([205.252.248.110]:7955 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S261316AbREOTn1>; Tue, 15 May 2001 15:43:27 -0400
-Date: Tue, 15 May 2001 15:43:26 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S261306AbREOThf>; Tue, 15 May 2001 15:37:35 -0400
+Received: from geos.coastside.net ([207.213.212.4]:8872 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S261314AbREOThZ>; Tue, 15 May 2001 15:37:25 -0400
+Mime-Version: 1.0
+Message-Id: <p05100316b7272cdfd50c@[207.213.214.37]>
+In-Reply-To: <Pine.LNX.4.21.0105151107290.2112-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0105151107290.2112-100000@penguin.transmeta.com>
+Date: Tue, 15 May 2001 12:36:32 -0700
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: LANANA: To Pending Device Number Registrants
 Cc: James Simmons <jsimmons@transvirtual.com>,
-        Alexander Viro <viro@math.psu.edu>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
         "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-Message-ID: <20010515154325.Z5599@sventech.com>
-In-Reply-To: <20010515145830.Y5599@sventech.com> <Pine.LNX.4.21.0105151208540.2339-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <Pine.LNX.4.21.0105151208540.2339-100000@penguin.transmeta.com>; from Linus Torvalds on Tue, May 15, 2001 at 12:17:11PM -0700
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 15, 2001, Linus Torvalds <torvalds@transmeta.com> wrote:
-> 
-> On Tue, 15 May 2001, Johannes Erdfelt wrote:
-> > 
-> > Even bulk has issues because USB pipe's aren't necessarily streams, they
-> > can packetized in the psuedo weird way that USB does things.
-> 
-> This is ok. "pipe" does not mean that the write data doesn't have
-> boundaries.
-> 
-> Think about UDP. It's done with file desriptors, yet it is very much
-> packetized. 
-> 
-> Even a regular "pipe" actually has packet behaviour: a single write of <
-> PIPEBUF is guaranteed by UNIX to complete atomically, which is exactly so
-> that people can use pipes in a "packet" environment.
-> 
-> A file descriptor does NOT imply that the data you read or write must be
-> one mushy stream of bytes. It's ok to honour write() packet boundaries
-> etc.
-> 
-> You should absolutely NOT think that "we cannot send a packet down the
-> control pipe because multiple writers might confuse each other". You can
-> still require that separate packets be cleanly delimeted.
-> 
-> It's a huge mistake to think that you _have_ to use ioctl's to get
-> "packet" behaviour, or to get structured reads/writes. 
+At 11:15 AM -0700 2001-05-15, Linus Torvalds wrote:
+>The part I absolutely detest is when the information becomes more than
+>just "information", and is used to enforce a world-view. Anybody who uses
+>physical location for naming devices (ie you have to know where the hell
+>the thing is in order to look it up), is so far out to lunch that it's not
+>even funny. And the sad fact is that this is pretty much how ALL unixes
+>have historically done things ("Oh, you want to see the disk? Sure. It's
+>on scsi bus 1, channel 2, ID 3, lun 0, so you just open /dev/s1c3l0 and
+>you're done! Easy as pie!").
+>
+>Keep it informational. And NEVER EVER make it part of the design.
 
-We never made that assumption. We used ioctl's since it was the easiest
-and consistent way of solving the problem at the moment. We never said
-it was the pefect solution :)
+What about:
 
-> The advantage of read/write is that it doesn't _force_ a packet on you,
-> but the kernel really doesn't care if you have some structure to your read
-> and write requests.
+1 (network domain). I have two network interfaces that I connect to 
+two different network segments, eth0 & eth1; they're ifconfig'd to 
+the appropriate IP and MAC addresses. I really do need to know 
+physically which (physical) hole to plug my eth0 cable into. 
+(Extension: same situation, but it's a firewall and I've got 12 ports 
+to connect.) (Extension #2: if I add a NIC to the system and reboot, 
+I'd really prefer that the NICs already in use didn't get renumbered.)
 
-No argument here. I completely agree.
+2 (disk domain). I have multiple spindles on multiple SCSI adapters. 
+I want to allocate them to more than one RAID0/1/5 set, with the 
+usual considerations of putting mirrors on different adapters, 
+spreading my RAID5 drives optimally, ditto stripes. I need (eg) SCSI 
+paths to config all this, and I further need real physical locations 
+to identify failed drives that need to be hot-replaced. The mirror 
+members will move around as drives are replaced and hot spares come 
+into play.
 
-The problem with the shared control pipe is not 2 writers stomping on
-each other, it's permissions. You can have 2 interfaces on one device
-which are completely seperate from each other and you'd like 2 seperate
-users/programs to have access to each interface. Each endpoint is
-guaranteed to be unique to an interface, except for the default control
-pipe.
+Seems like more that merely informational.
 
-A simple solution would be to clone the default control pipe for each
-interface and manage the permissions independantly.
-
-The major problem with read/write and USB is that while it can solve the
-problem for control and bulk pipes, it can't for interrupt and
-isochronous pipes.
-
-> > > or possibly you take a more socket-like approach and do
-> > > 
-> > > 	fd = socket(part-of-the-structure);
-> > > 	bind(fd, more-of-the-structure)
-> > > 	connect(fd, last-part-of-the-structure);
-> > 
-> > I don't like socket's since we do have a well bound set of endpoints. We
-> > don't have 4 billion IP's with 64k ports to choose from. We have x
-> > endpoints that the device tells us about ahead of time.
-> 
-> Note that "sockets" != "IPv4". Sockets just have names, they can be IPv4
-> (4+2 byte things), they can be pathnames (UNIX domain) and they can be
-> large IPv6 (16+2 or whatever). Or they could be small USB names. There's
-> nothing fundamentally wrong with "binding" a one-byte address and a
-> one-byte "interface" name. You'd just create a AF_USB layer ;)
-
-I had always made the assumption that sockets were created because you
-couldn't easily map IPv4 semantics onto filesystems. It's unreasonable
-to have a file for every possible IP address/port you can communicate
-with.
-
-It's not so unreasonable with USB however since the data set (endpoints)
-is significantly smaller and manageable. It can be placed in the
-filesystem namespace without any problems.
-
-That being said, we can't solve all of USB's problems that way. AF_USB
-would probably solve them all however.
-
-> But no, I don't actually like sockets all that much myself. They are hard
-> to use from scripts, and many more people are familiar with open/close and
-> read/write.
-
-Agreed.
-
-It would be nice to use open/close/read/write for control and bulk and
-sockets for interrupt and isochronous.
-
-Although I think that's just too complicated. It's probably easier to
-make everything a socket and deal with it that way.
-
-JE
-
+(A side observation: PCI or SCSI bus/device/lun/etc paths are not 
+physical locations; you also need external hardware-specific 
+knowledge to be able to talk about real physical locations in a way 
+that does the system operator any good.)
+-- 
+/Jonathan Lundell.

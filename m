@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281284AbRKZAk5>; Sun, 25 Nov 2001 19:40:57 -0500
+	id <S281283AbRKZAuT>; Sun, 25 Nov 2001 19:50:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281283AbRKZAks>; Sun, 25 Nov 2001 19:40:48 -0500
-Received: from rigel.neo.shinko.co.jp ([210.225.91.71]:16611 "EHLO
-	rigel.neo.shinko.co.jp") by vger.kernel.org with ESMTP
-	id <S281270AbRKZAkf>; Sun, 25 Nov 2001 19:40:35 -0500
-Message-ID: <3C018F7F.FBEDCAAE@neo.shinko.co.jp>
-Date: Mon, 26 Nov 2001 09:40:31 +0900
-From: nakai <nakai@neo.shinko.co.jp>
-X-Mailer: Mozilla 4.78 [ja] (WinNT; U)
-X-Accept-Language: ja,en,pdf
-MIME-Version: 1.0
-To: Sven.Riedel@tu-clausthal.de, kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.14 Oops during boot (KT133A Problem?)
-In-Reply-To: <20011115021142.A12923@moog.heim1.tu-clausthal.de> <20011124185408.A13437@moog.heim1.tu-clausthal.de>
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+	id <S281289AbRKZAuJ>; Sun, 25 Nov 2001 19:50:09 -0500
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:49673 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S281270AbRKZAt6>;
+	Sun, 25 Nov 2001 19:49:58 -0500
+Message-Id: <200111260049.fAQ0nlb3016876@sleipnir.valparaiso.cl>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.16-pre1 
+In-Reply-To: Your message of "Sat, 24 Nov 2001 13:32:30 -0800."
+             <3C0011EE.3010401@transmeta.com> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Sun, 25 Nov 2001 21:49:46 -0300
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Congratulations!
+"H. Peter Anvin" <hpa@transmeta.com> said:
 
-Sven.Riedel@tu-clausthal.de wrote:
-> Well, the problem got solved (although not in a way I'd consider
-> satisfactory). After my machine started random segfaulting the day
-> before yesterday, I memcheck86'ed it again (the last check is a mere two
-> months ago), and lo - all three RAM chips were broken. Unfortunately, I
-> discovered this, after this broken RAM caused my /usr partition to go
-> fubar, resulting in me spending yesterday with a nice little reinstall.
-> After the reinstall, 2.4.14 booted fine off the harddisk. No more
-> oopses.
+[...]
 
-During this holidays, I guessed, and I thought it because of
-harddisk or PCI chip erro. Memory error! Was it found when booting
-matherboard by BIOS? I think motherboard always check memories when
-booting.  
+> To summarize:
+> 
+> I'll expect v2.5 prepatches in v2.5/testing; v2.4 prepatches in 
+> v2.4/testing, and nothing else...
 
+How about 2.2, and 2.0? I understand they are still being maintained...
 -- 
--=-=-=-=  SHINKO ELECTRIC INDUSTRIES CO., LTD.           =-=-=-=-
-=-=-=-=-    Core Technology Research & Laboratory,       -=-=-=-=
--=-=-=-=      Infomation Technology Research Dept.       =-=-=-=-
-=-=-=-=-  Name:Hisakazu Nakai          TEL:026-283-2866  -=-=-=-=
--=-=-=-=  Mail:nakai@neo.shinko.co.jp  FAX:026-283-2820  =-=-=-=-
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616

@@ -1,54 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbUC2T75 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 14:59:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263120AbUC2T75
+	id S263120AbUC2UAM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 15:00:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbUC2UAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 14:59:57 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:25613 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S263117AbUC2T7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 14:59:55 -0500
-Date: Mon, 29 Mar 2004 21:57:36 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Len Brown <len.brown@intel.com>,
-       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
-Message-ID: <20040329195736.GC18399@alpha.home.local>
-References: <A6974D8E5F98D511BB910002A50A6647615F6939@hdsmsx402.hd.intel.com> <1080535754.16221.188.camel@dhcppc4> <20040329052238.GD1276@alpha.home.local> <200403290901.47695.vda@port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403290901.47695.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.4i
+	Mon, 29 Mar 2004 15:00:12 -0500
+Received: from mail.gmx.de ([213.165.64.20]:33250 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263120AbUC2UAA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 15:00:00 -0500
+X-Authenticated: #4512188
+Message-ID: <4068803B.5010208@gmx.de>
+Date: Mon, 29 Mar 2004 21:59:55 +0200
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+CC: ross@datscreative.com.au, Len Brown <len.brown@intel.com>,
+       Thomas Schlichter <thomas.schlichter@web.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: idle Athlon with IOAPIC is 10C warmer since 2.6.3-bk1
+References: <200403181019.02636.ross@datscreative.com.au> <1079738422.7279.308.camel@dhcppc4> <405C0EF1.1060104@gmx.de> <200403202019.44612.ross@datscreative.com.au> <405C1C0D.9050108@gmx.de>
+In-Reply-To: <405C1C0D.9050108@gmx.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 29, 2004 at 09:01:47AM +0200, Denis Vlasenko wrote:
-> > > 4. re-implement locks for the 80386 case.
-> >
-> > I like this one, but a simpler way : don't support SMP in this case, so
-> > that we won't have to play with locks. This would lead to something like
-> > this :
+Prakash K. Cheemplavam wrote:
+> Ross Dickson wrote:
 > 
-> Yes, SMP makes sense only on 486+
+>> On Saturday 20 March 2004 19:29, Prakash K. Cheemplavam wrote:
+>>
+>>> Len Brown wrote:
+>>>
+>>>> On Fri, 2004-03-19 at 14:22, Prakash K. Cheemplavam wrote:
+>>>>
+>>>>
+>>>>
+>>>>> Hmm, I just did a cat /proc/acpi/processor/CPU0/power:
+>>>>> active state:            C1
+>>>>> default state:           C1
+>>>>> bus master activity:     00000000
+>>>>> states:
+>>>>>   *C1:                  promotion[--] demotion[--] latency[000] 
+>>>>> usage[00000000]
+>>>>>    C2:                  <not supported>
+>>>>>    C3:                  <not supported>
+>>>>>
+>>>>> I am currently NOT using APIC mode (nforce2, as well) and using 
+>>>>> vanilla 2.6.4. It seems C1 halt state isn't used, which exlains why 
+>>>>> I am having 
+>>>
+>>>
+>>> [snip]
+>>>
+>>>>
+>>>> Actually I think it is that we don't _count_ C1 usage.
+>>>
+>>>
+>>> Hmm, OK, then I am really puzzled what specifically about mm sources 
+>>> make my idle temps hotter, as I still couldn't properly resolve it 
+>>> what is causing it. I thought ACPI, but no, using APM only does the 
+>>> same (apm only with vanilla is low temp though.)
+>>
+>>
+>>
+>> Have you seen this thread, it may be relevant?
+>> Re: [2.6.4-rc2] bogus semicolon behind if()
+>> http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-03/4170.html
+> 
+> 
 
-Indeed, Andi made a good point : some people compile for 386 as a generic
-target which can potentially run on more recent hardware with ACPI support.
-May be we should consider this behaviour broken anyway, since there are
-other features that will never be available, such as TSC. So why not simply
-disable ACPI for 386 ?
+So, I seem to have found the bugger causing higher temps: It is NVidia 
+binary driver, or rather its AGP part of the 53.36 driver. Using AGPGART 
+and Nvidia driver leaves my system cool. Using NVAGP it seems as though 
+C1 state isn't actually used anymore thus making the CPU hotter.
 
-> Inline func please. We definitely don't want to evaluate
-> lock and old expressions several times.
+Tested with (and without) ACPI and APIC (and Ross' tack patch). 
+Currently running in PIC mode (with ACPI) and idle temp of 44°C (instead 
+of about 50°C...). But it was as cool in APIC mode.
 
-That's right. But I'm too lazy this evening for something which has too few
-chances of being the definitive solution :-)
+Of course I have to test few more days, but at least currently I am 
+happy again. :-)
 
-Cheers,
-willy
-
+Prakash

@@ -1,89 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274899AbTHFHed (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 03:34:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274903AbTHFHed
+	id S274903AbTHFHjN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 03:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274905AbTHFHjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 03:34:33 -0400
-Received: from dm1-31.slc.aros.net ([66.219.220.31]:21399 "EHLO cyprus")
-	by vger.kernel.org with ESMTP id S274899AbTHFHe2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 03:34:28 -0400
-Message-ID: <3F30AF81.4070308@aros.net>
-Date: Wed, 06 Aug 2003 01:34:25 -0600
-From: Lou Langholtz <ldl@aros.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Clements <Paul.Clements@SteelEye.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] 2.6.0 NBD driver: remove send/recieve race for request
-References: <3F2FE078.6020305@aros.net> <3F300760.8F703814@SteelEye.com> <3F303430.1080908@aros.net> <3F30510A.E918924B@SteelEye.com>
-In-Reply-To: <3F30510A.E918924B@SteelEye.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Aug 2003 03:39:12 -0400
+Received: from mail7.speakeasy.net ([216.254.0.207]:63904 "EHLO
+	mail.speakeasy.net") by vger.kernel.org with ESMTP id S274903AbTHFHjI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 03:39:08 -0400
+Date: Wed, 6 Aug 2003 00:39:06 -0700
+Message-Id: <200308060739.h767d6407156@magilla.sf.frob.com>
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: Ingo Molnar <mingo@redhat.com>, Daniel Jacobowitz <drow@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix spinlock deadlock in ptrace-reaping of detached thread
+X-Windows: even not doing anything would have been better than nothing.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Clements wrote:
-
-> . . .
->
->>Except that in the error case, the send basically didn't succeed. So no
->>need to worry about recieving a reply and no race possibility in that case.
->>    
->>
->
->As long as the request is on the queue, it is possible for nbd-client to
->die, thus freeing the request (via nbd_clear_que -> nbd_end_request),
->and leaving us with a race between the free and do_nbd_request()
->accessing the request structure.
->
->--
->Paul
->  
->
-Quite right. I missed that case in this last patch (when nbd_do_it has 
-returned and NBD_DO_IT is about to call nbd_clear_que [1]). Just moving 
-the errors increment (near the end of nbd_send_req) to within the 
-semaphore protected region would fix this particular case. An even 
-larger race window exists with the request getting free'd when 
-nbd-client is used to disconnect in which it calls NBD_CLEAR_QUE before 
-NBD_DISCONNECT [2]. In this case, moving the errors increment doesn't 
-help of course since the nbd_clear_queue in 2.6.0-test2 doesn't bother 
-to check the tx_lock semaphore anyway. I believe reference counting the 
-request (as you suggest) would protect against both these windows though.
-
-It's ironic that I'd fixed both these races [1+2] a ways back in an 
-earlier patch and had forgotten about these cases in this last patch I 
-submitted. The earlier patch p6.2 against linux-2.5.73 looks about 
-right. By that patch, the call to clear the queue before NBD_DO_IT 
-returned was gone and it made sure the clear_queue functionality would 
-return -EBUSY if invoked when the socket wasn't NULL (and potentially 
-while nbd_send_req functionality could be called). Not that I'm arguing 
-we should roll in these ealier patches again. That would re-introduce 
-the compatibility break which I wouldn't want either.
-
-Will you be working on closing the other clear-queue race also then? 
-Here's the comments I shared on this in one of these earlier patches 
-that didn't make it into the mainstream distro (from patch #7):
-
-                /*
-
-                 * Don't allow queue to be cleared while device is running!
-
-                 * Device must be stopped (disconnected) first. Otherwise
-
-                 * clearing is meaningless & can lock up processes: it's a
-
-                 * race with users who may queue up more requests after the
-
-                 * clearing is done that may then never be freed till the
-
-                 * system reboots or clear que is run again which just
-
-                 * opens the race yet again.
-
-                 */
+When a dead detached thread has been temporarily zombified because it's
+ptraced and its tracer tries to reap it, it deadlocks on SMP.  Here's a fix.
 
 
+Thanks,
+Roland
+
+
+--- linux-2.5/kernel/exit.c	6 Aug 2003 05:30:45 -0000	1.109
++++ linux-2.5/kernel/exit.c	6 Aug 2003 06:04:02 -0000
+@@ -898,13 +898,19 @@ static int wait_task_zombie(task_t *p, u
+ 			__ptrace_unlink(p);
+ 			p->state = TASK_ZOMBIE;
+ 			/* If this is a detached thread, this is where it goes away.  */
+-			if (p->exit_signal == -1)
++			if (p->exit_signal == -1) {
++				/* release_task takes the lock itself.  */
++				write_unlock_irq(&tasklist_lock);
+ 				release_task (p);
+-			else
++			}
++			else {
+ 				do_notify_parent(p, p->exit_signal);
++				write_unlock_irq(&tasklist_lock);
++			}
+ 			p = NULL;
+ 		}
+-		write_unlock_irq(&tasklist_lock);
++		else
++			write_unlock_irq(&tasklist_lock);
+ 	}
+ 	if (p != NULL)
+ 		release_task(p);

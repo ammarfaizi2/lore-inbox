@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264697AbUFLKBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUFLKUB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264697AbUFLKBo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 06:01:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUFLKBo
+	id S264704AbUFLKUB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 06:20:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264705AbUFLKUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 06:01:44 -0400
-Received: from zulo.virutass.net ([62.151.20.186]:45504 "EHLO
-	mx.larebelion.net") by vger.kernel.org with ESMTP id S264697AbUFLKBn
+	Sat, 12 Jun 2004 06:20:00 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:11100 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S264704AbUFLKT7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 06:01:43 -0400
-From: Manuel Arostegui Ramirez <manuel@todo-linux.com>
-To: linux-kernel@vger.kernel.org
-Subject: new kernel bug
-Date: Sat, 12 Jun 2004 11:59:28 +0200
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 12 Jun 2004 06:19:59 -0400
+Subject: Re: [ANNOUNCE] -ar patchset
+From: Redeeman <lkml@metanurb.dk>
+To: LKML Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040612023928.A103F23C03@ws5-3.us4.outblaze.com>
+References: <20040612023928.A103F23C03@ws5-3.us4.outblaze.com>
+Content-Type: text/plain
+Message-Id: <1087035598.10652.1.camel@redeeman.kaspersandberg.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 12 Jun 2004 12:19:58 +0200
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406121159.28406.manuel@todo-linux.com>
-X-Virus: by Larebelion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Somebody know a patch to solved this new bug?
-http://reviewed.homelinux.org/news/2004-06-11_kernel_crash/index.html.en
-Affected versions:
-    * Linux 2.6.x
-          o Linux 2.6.7-rc2
-          o Linux 2.6.6 (all versions)
-          o Linux 2.6.6 SMP (verified by riven)
-          o Linux 2.6.5-gentoo (verified by RatiX)
-          o Linux 2.6.5-mm6 - (verified by Mariux) 
-    * Linux 2.4.2x
-          o Linux 2.4.26 vanilla
-          o Linux 2.4.26-rc1 vanilla
-          o Linux 2.4.26-gentoo-r1
-          o Linux 2.4.22 
-
-Cheers
+On Sat, 2004-06-12 at 04:39, Pokey the Penguin wrote:
+> > find the initial version of the patch, with staircase, 
+> > autoregulate-swappiness, supermount-ng, ext3 and reiser improvements, and a 
+> 
+> I gather that supermount-ng is now quite dated and no longer maintained. Is 
+> submount (http://submount.sourceforge.net/) not the current favourite to 
+> provide such functionality?
+> 
+> Looking at the two, submount definitely seems more ready for inclusion based 
+> on its non-invasive approach.
+i believe that having the automounting inside the kernel is a bad idea.
+i think there should be more people using HAL and D-BUS, together with a
+userspace automounter. like ivman, http://ivman.sf.net
 
 -- 
-Manuel Arostegui Ramirez #Linux Registered User 200896
+Regards, Redeeman
+redeeman@metanurb.dk
 

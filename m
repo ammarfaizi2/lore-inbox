@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263601AbUDFDBe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 23:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263604AbUDFDBe
+	id S263605AbUDFDC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 23:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263604AbUDFDC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 23:01:34 -0400
-Received: from tomts36.bellnexxia.net ([209.226.175.93]:44743 "EHLO
-	tomts36-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S263601AbUDFDBb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 23:01:31 -0400
-From: "Kevin B. Hendricks" <kevin.hendricks@sympatico.ca>
-To: Ulrich Drepper <drepper@redhat.com>
-Subject: Re: Catching SIGSEGV with signal() in 2.6
-Date: Mon, 5 Apr 2004 23:01:27 -0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200404052040.54301.kevin.hendricks@sympatico.ca> <4072101F.3010603@redhat.com>
-In-Reply-To: <4072101F.3010603@redhat.com>
+	Mon, 5 Apr 2004 23:02:27 -0400
+Received: from web40501.mail.yahoo.com ([66.218.78.118]:6920 "HELO
+	web40501.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263605AbUDFDCO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 23:02:14 -0400
+Message-ID: <20040406030200.37338.qmail@web40501.mail.yahoo.com>
+Date: Mon, 5 Apr 2004 20:02:00 -0700 (PDT)
+From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+Subject: Re: kernel stack challenge
+To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+Cc: Timothy Miller <miller@techsource.com>, John Stoffel <stoffel@lucent.com>,
+       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+In-Reply-To: <200404060255.40219.robin.rosenberg.lists@dewire.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404052301.28021.kevin.hendricks@sympatico.ca>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-> If the code would be correct you'd see the expected behavior.
-> Since you jump out of a signal handling you must use siglongmp
-> And sigsetjmp(check_env, 1) here.
+--- Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+wrote:
+> On Tuesday 06 April 2004 00:52, Sergiy Lozovsky
+> wrote:
+> > (I don't want to start Holly War :-) but I think,
+> that
+> > Java is lower lavel than C, I recognize, that I
+> can be
+> > wrong)
+> Yes, you could..., but that's OT. Isn't LISP lower
+> level. Just
+> the names of it's instructions (Content of Address
+> part of Register and 
+> Content of Decrement part of Register) imply that.
+> Shudddrdrrddrr. :-)
+> 
+> I like Lisp, it's a hacker language, or was at
+> least.
+> 
+> -- robin
 
-So the code has been wrong since the beginning and we were just "lucky" it 
-worked in all pre-2.6 kernels?
 
-I have no doubt you are right but forgiving my ignorance here, please explain 
-why must we use siglongjmp when longjmping out of a signal handler given that 
+Sounds like music to  me :-) If I would not be (very)
+familiar with LISP prior to that project, I would not
+chose it probably. It's syntax is so simple (it is a
+marvel :-) I would think twice to put in the kernel
+something with more complex syntax.
 
-1. before the next use of the handler we use signal again to properly set the 
-signal handler (and the set of masked signals).
+After all Emacs uses LISP, too :-) Though it is this
+big one - Common Lisp :-)
 
-and 
+Serge.
 
-2. the mask of blocked signals will include sigsegv upon entry to the signal 
-handler and therefore it will be masked after the normal longjmp since a 
-normal longjmp wil not change the set of masked symbols.
-
-What am I missing that makes sigsetjmp and siglongjmp a requirement, or is 
-this just part of some specification someplace?
-
-Kevin
-
+__________________________________
+Do you Yahoo!?
+Yahoo! Small Business $15K Web Design Giveaway 
+http://promotions.yahoo.com/design_giveaway/

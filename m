@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275836AbRJFXmy>; Sat, 6 Oct 2001 19:42:54 -0400
+	id <S275839AbRJFXqo>; Sat, 6 Oct 2001 19:46:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275827AbRJFXmp>; Sat, 6 Oct 2001 19:42:45 -0400
-Received: from SSH.ChaoticDreams.ORG ([64.162.95.164]:29370 "EHLO
-	ssh.chaoticdreams.org") by vger.kernel.org with ESMTP
-	id <S275841AbRJFXmf>; Sat, 6 Oct 2001 19:42:35 -0400
-Date: Sat, 6 Oct 2001 16:42:44 -0700
-From: Paul Mundt <lethal@ChaoticDreams.ORG>
-To: Rajendra Mishra <r_p_m_007@yahoo.com>
+	id <S275841AbRJFXqe>; Sat, 6 Oct 2001 19:46:34 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:31751 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S275839AbRJFXqV>;
+	Sat, 6 Oct 2001 19:46:21 -0400
+Date: Sat, 6 Oct 2001 16:40:03 -0700
+From: Greg KH <greg@kroah.com>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: project
-Message-ID: <20011006164244.A26380@ChaoticDreams.ORG>
-In-Reply-To: <20011006223443.23511.qmail@web12707.mail.yahoo.com>
+Subject: Re: 2.4.10 + ibmcam : hard freeze on read()
+Message-ID: <20011006164003.A11417@kroah.com>
+In-Reply-To: <1002396347.2125.5.camel@gromit>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <20011006223443.23511.qmail@web12707.mail.yahoo.com>; from r_p_m_007@yahoo.com on Sat, Oct 06, 2001 at 03:34:43PM -0700
-Organization: Chaotic Dreams Development Team
+In-Reply-To: <1002396347.2125.5.camel@gromit>
+User-Agent: Mutt/1.3.21i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 06, 2001 at 03:34:43PM -0700, Rajendra Mishra wrote:
->    Sorry for the out of context question. I am looking
-> for a project in linux kernel. I have full idea of the
-> working of the file system and the kernel. I have a
-> humble request to all of you to send me something that
-> you find has not been done or not implemented.
+On Sat, Oct 06, 2001 at 03:25:46PM -0400, Michael Rothwell wrote:
 > 
-Why not take a look at the kernel janitor project?
-http://www.kerneljanitor.org I believe..
+> Has anyone else seen any USB, v4l, or ibmcam problems in 2.4.10?
 
-Regards,
+Known problem with usb-uhci.  Please use 2.4.11-pre4 or uhci.o.
 
--- 
-Paul Mundt <lethal@chaoticdreams.org>
+thanks,
 
+greg k-h

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263311AbRFASYP>; Fri, 1 Jun 2001 14:24:15 -0400
+	id <S263659AbRFAS0Z>; Fri, 1 Jun 2001 14:26:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263395AbRFASX4>; Fri, 1 Jun 2001 14:23:56 -0400
-Received: from pille1.addcom.de ([62.96.128.35]:4618 "HELO pille1.addcom.de")
-	by vger.kernel.org with SMTP id <S263311AbRFASXn>;
-	Fri, 1 Jun 2001 14:23:43 -0400
-Date: Fri, 1 Jun 2001 20:23:24 +0200 (CEST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: <kai@vaio>
-To: CZUCZY Gergely <phoemix@mayday.hu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: isdn connecting error(auth failed) with 2.4.4-ac9 and
- 2.4.5
-In-Reply-To: <Pine.LNX.4.21.0105312020010.20643-100000@hirosima.martos.bme.hu>
-Message-ID: <Pine.LNX.4.33.0106011728360.1481-100000@vaio>
+	id <S263536AbRFAS0P>; Fri, 1 Jun 2001 14:26:15 -0400
+Received: from mons.uio.no ([129.240.130.14]:35987 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S263395AbRFAS0C>;
+	Fri, 1 Jun 2001 14:26:02 -0400
+To: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [newbie] NFS client: port-unreachable
+In-Reply-To: <Pine.LNX.4.31.0106011855520.13429-100000@pc40.e18.physik.tu-muenchen.de>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 01 Jun 2001 20:22:03 +0200
+In-Reply-To: Roland Kuhn's message of "Fri, 1 Jun 2001 19:04:32 +0200 (CEST)"
+Message-ID: <shsd78o2h84.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 May 2001, CZUCZY Gergely wrote:
+>>>>> " " == Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de> writes:
 
-> May 27 15:00:50 kign kernel: ippp0: dialing 1 0651201201...
-> May 27 15:00:51 kign kernel: isdn_net: ippp0 connected
-> May 27 15:00:51 kign ipppd[391]: Local number: 2536889, Remote
-> number: 0651201201, Type: outgoing
-> May 27 15:00:51 kign ipppd[391]: PHASE_WAIT -> PHASE_ESTABLISHED,
-> ifunit: 0, linkunit: 0, fd: 7
-> May 27 15:00:52 kign ipppd[391]: Remote message: Access Denied
-> May 27 15:00:52 kign ipppd[391]: PAP authentication failed
-> May 27 15:00:52 kign ipppd[391]: LCP terminated by peer
+     > Hi folks!  When I lstat64 a directory on an nfs mount the
+     > answer to GETATTR is received by the network interface but
+     > dropped (not seen by the client) afterwards. Only 50musec after
+     > the receive of the answer an icmp-destination-unreachable
+     > (port-unreachable) goes out to the server.  This is annoying
+     > since it blocks all access to that directory.  The request in
+     > question is sent and received at port 772.
 
-That really looks more like an authentication problem. Is this problem
-reproducible, and does it vanish if you go back to 2.4.4?
+     > I'm using kernel 2.4.4.
 
-If the problem persists, contact me off list, and I'll try to sort it
-out.
+You probably have set ipchains or ipfilter to block port 772 on your
+client.
 
---Kai
-
-
-
+Cheers,
+  Trond

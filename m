@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267567AbSLSBOE>; Wed, 18 Dec 2002 20:14:04 -0500
+	id <S267403AbSLSBT1>; Wed, 18 Dec 2002 20:19:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267569AbSLSBOE>; Wed, 18 Dec 2002 20:14:04 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:40412 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S267567AbSLSBOD>;
-	Wed, 18 Dec 2002 20:14:03 -0500
-Date: Wed, 18 Dec 2002 17:21:28 -0800
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re : Linux 2.4.21-pre2 - unresolved
-Message-ID: <20021219012127.GA1281@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S267437AbSLSBT1>; Wed, 18 Dec 2002 20:19:27 -0500
+Received: from holomorphy.com ([66.224.33.161]:14015 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267403AbSLSBTY>;
+	Wed, 18 Dec 2002 20:19:24 -0500
+Date: Wed, 18 Dec 2002 17:25:49 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: David Lang <dlang@diginsite.com>
+Cc: Till Immanuel Patzschke <tip@inw.de>,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 15000+ processes -- poor performance ?!
+Message-ID: <20021219012549.GK31800@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	David Lang <dlang@diginsite.com>,
+	Till Immanuel Patzschke <tip@inw.de>,
+	lse-tech <lse-tech@lists.sourceforge.net>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <20021219011541.GI31800@holomorphy.com> <Pine.LNX.4.44.0212181711200.7848-100000@dlang.diginsite.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+In-Reply-To: <Pine.LNX.4.44.0212181711200.7848-100000@dlang.diginsite.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eyal Lebedinsky wrote :
-> 
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.21-pre2/kernel/net/irda/irda.o
-> depmod:         irlmp_lap_tx_queue_full
+On Wed, Dec 18, 2002 at 05:12:41PM -0800, David Lang wrote:
+> also top is very inefficant with large numbers of processes. use vmstat
+> or cat out the files in /proc to get the info more efficiantly (it won't
+> get you per process info, but it son't cause the interferance with your
+> desired load that top gives you.)
 
-	It looks like Marcelo did drop some of my IrDA patches (the
-LAP scheduler to be exact). You can find the necessary patch on my web
-page.
-	I'll compile 21-pre2 and I'll deal with that with Marcelo.
+It's mostly just the fact top(1) doesn't scan /proc/ incrementally and
+that proc_pid_readdir() is quadratic in the number of tasks.
 
-	Have fun...
 
-	Jean
+Bill

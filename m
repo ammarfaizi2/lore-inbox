@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261643AbREOWTS>; Tue, 15 May 2001 18:19:18 -0400
+	id <S261653AbREOW0I>; Tue, 15 May 2001 18:26:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261629AbREOWTI>; Tue, 15 May 2001 18:19:08 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22277 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261643AbREOWS5>; Tue, 15 May 2001 18:18:57 -0400
+	id <S261654AbREOW0A>; Tue, 15 May 2001 18:26:00 -0400
+Received: from mta1.snfc21.pbi.net ([206.13.28.122]:19634 "EHLO
+	mta1.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S261653AbREOWZu>; Tue, 15 May 2001 18:25:50 -0400
+Date: Tue, 15 May 2001 15:21:28 -0700
+From: David Brownell <david-b@pacbell.net>
 Subject: Re: LANANA: To Pending Device Number Registrants
-To: rgooch@ras.ucalgary.ca (Richard Gooch)
-Date: Tue, 15 May 2001 23:14:07 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
-        torvalds@transmeta.com (Linus Torvalds),
-        neilb@cse.unsw.edu.au (Neil Brown),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        hpa@transmeta.com (H. Peter Anvin),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-        viro@math.psu.edu
-In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca> from "Richard Gooch" at May 15, 2001 03:41:41 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14zn4x-0003CZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Message-id: <045a01c0dd8d$6377d9a0$6800000a@brownell.org>
+MIME-version: 1.0
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Content-type: text/plain; charset="iso-8859-1"
+Content-transfer-encoding: 7bit
+X-MSMail-Priority: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Priority: 3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > 	if (strcmp (buffer + len - 2, "cd") != 0) {
-> > > 		fprintf (stderr, "Not a CD-ROM! Bugger off.\n");
-> > > 		exit (1);
-> > 
-> > And on my box cd is the cabbage dicer whoops
-> 
-> Actually, no, because it's guaranteed that a trailing "/cd" is a
-> CD-ROM. That's the standard.
+> And my opinion is that the "hot-plugged" approach works for devices even 
+> if they are soldered down ...
 
-And its back to /dev/disc versus /dev/disk. Dont muddle user picked file
-names with kernel namespace bindings please.
+Yep.  Though I tend to look at the whole problem as "autoconfiguration"
+lately.  Solving device naming (even the major/minor subproblem) is only
+one part of having a complete autoconfiguration infrastructure.
+
+
+> Now, if we just fundamentally try to think about any device as being 
+> hot-pluggable, you realize that things like "which PCI slot is this device 
+> in" are completely _worthless_ as device identification, because they 
+> fundamentally take the wrong approach, and they don't fit the generic 
+> approach at all. 
+
+Well, "completely" goes too far IMO.  Unless by "identifier" you imply
+something of which there's only one?  In my book, devices can have many
+kinds of identifiers.
+
+The reason is that such "physical" identifiers (or "device topology" IDs)
+may be all that's available to distinguish some devices.  For example,
+network adapters (no major/minor numbers :) and parallel/printer/serial
+ports may have no better "stable" (over reboots) identifier available.
+
+Without "stable" names, it's too easy to have bad things happen, like
+your "confidential materials" printer output get redirected into the
+lobby printer, or trust your network DMZ as if it were the internal
+network.  Given hotplugging, I think the best solution to such issues
+does involve exposing topological IDs such as PCI slot names.
+(What IDs the different applications use is a different issue.)
+
+- Dave
 
 

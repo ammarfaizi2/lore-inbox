@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263864AbUDZOMv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263843AbUDZOMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263864AbUDZOMv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 10:12:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbUDZOF1
+	id S263843AbUDZOMw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 10:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263860AbUDZOE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 10:05:27 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60394 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263945AbUDZNvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 09:51:45 -0400
-Date: Mon, 26 Apr 2004 15:11:53 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Roland Stigge <stigge@antcom.de>,
-       234976@bugs.debian.org, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Bug#234976: kernel-source-2.6.4: Software Suspend doesn't work
-Message-ID: <20040426131152.GN2595@openzaurus.ucw.cz>
-References: <1080310299.2108.10.camel@atari.stigge.org> <20040326142617.GA291@elf.ucw.cz> <1080315725.2951.10.camel@atari.stigge.org> <20040326155315.GD291@elf.ucw.cz> <1080317555.12244.5.camel@atari.stigge.org> <20040326161717.GE291@elf.ucw.cz> <1080325072.2112.89.camel@atari.stigge.org> <20040426094834.GA4901@gondor.apana.org.au> <20040426104015.GA5772@gondor.apana.org.au> <opr6193np1ruvnp2@laptop-linux.wpcb.org.au>
+	Mon, 26 Apr 2004 10:04:57 -0400
+Received: from users.linvision.com ([62.58.92.114]:48046 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S263979AbUDZNvB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 09:51:01 -0400
+Date: Mon, 26 Apr 2004 15:50:58 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: andersen@codepoet.org, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] prevent module unloading for legacy IDE chipset drivers
+Message-ID: <20040426135058.GC14074@harddisk-recovery.com>
+References: <200404212219.24622.bzolnier@elka.pw.edu.pl> <200404220250.15078.bzolnier@elka.pw.edu.pl> <20040422103355.GC15176@harddisk-recovery.com> <200404221635.12490.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <opr6193np1ruvnp2@laptop-linux.wpcb.org.au>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <200404221635.12490.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >>A simple solution is to copy the pages in reverse.  This way the
-> >>top page table is filled in last which should resolve this 
-> >>particular
-> >>issue.  The following patch does exactly that and fixes the problem
-> >>for me.
-> >
-> >Of course this doesn't work for machines without PSE.  But then the
-> >original code didn't work either.  Since resuming from 486's isn't
-> >that cool anyway, IMHO someone should just add a PSE check in the
-> >swsusp/pmdisk init code on i386.
+On Thu, Apr 22, 2004 at 04:35:12PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> On Thursday 22 of April 2004 12:33, Erik Mouw wrote:
+> > What makes IDE sufficiently different from SCSI that we can't unload
+> > IDE host drivers?
 > 
-> There used to be such a check. Centrinos, however, if I recall 
-> correctly,  don't have PSE but can suspend with our current method. 
-> Perhaps we can  come up with a more nuanced test? Better still, 
+> - no reference counting
+> - lack of release() method
+> - insufficient locking
 
-Test should still be there. Switching to temporary page tables
-seems to be tbe solution.
+Do you plan to fix the module unloading in the current code, or is it
+easier to write a new driver based on libata (assuming it has been
+fixed in libata)? If I understood Jeff's latest libata update
+correctly, it should be possible Real Soon Now [tm], right?
+
+
+Erik
+
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

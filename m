@@ -1,55 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262471AbUDAQei (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 11:34:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbUDAQeh
+	id S262238AbUDAQrt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 11:47:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbUDAQrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 11:34:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:55743 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262471AbUDAQde (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 11:33:34 -0500
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ulrich Drepper <drepper@redhat.com>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0404010750100.1116@ppc970.osdl.org>
-References: <1080771361.1991.73.camel@sisko.scot.redhat.com>
-	 <Pine.LNX.4.58.0403311433240.1116@ppc970.osdl.org>
-	 <1080776487.1991.113.camel@sisko.scot.redhat.com>
-	 <Pine.LNX.4.58.0403311550040.1116@ppc970.osdl.org>
-	 <1080834032.2626.94.camel@sisko.scot.redhat.com>
-	 <Pine.LNX.4.58.0404010750100.1116@ppc970.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1080837208.2626.111.camel@sisko.scot.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 Apr 2004 17:33:28 +0100
+	Thu, 1 Apr 2004 11:47:49 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:4998 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262238AbUDAQrq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 11:47:46 -0500
+Date: Thu, 1 Apr 2004 11:50:02 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Jamie Lokier <jamie@shareable.org>
+cc: Arjan van de Ven <arjanv@redhat.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Peter Williams <peterw@aurema.com>,
+       ak@muc.de, Richard.Curnow@superh.com, aeb@cwi.nl,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: finding out the value of HZ from userspace
+In-Reply-To: <20040401163047.GD25502@mail.shareable.org>
+Message-ID: <Pine.LNX.4.53.0404011146490.21282@chaos>
+References: <1079453698.2255.661.camel@cube> <20040320095627.GC2803@devserv.devel.redhat.com>
+ <1079794457.2255.745.camel@cube> <405CDA9C.6090109@aurema.com>
+ <20040331134009.76ca3b6d.rddunlap@osdl.org> <1080776817.2233.2326.camel@cube>
+ <20040401155420.GB25502@mail.shareable.org> <20040401160132.GB13294@devserv.devel.redhat.com>
+ <20040401163047.GD25502@mail.shareable.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 1 Apr 2004, Jamie Lokier wrote:
 
-On Thu, 2004-04-01 at 17:02, Linus Torvalds wrote:
+> Arjan van de Ven wrote:
+> > HZ doesn't mean nothing, esp when we go to a tickless kernel...
+>
+> As explained several times in this thread, HZ is meaningful because it
+> affects the rounding in select/poll/epoll/setitimer.  A few userspace
+> programs with low jitter soft-RT timing requirements need to
+> compensate for that rounding and/or deliberately synchronise
+> themselves with the tick.
+>
+> Such programs can determine HZ experimentally and lock onto the tick
+> in the manner of a PLL, but it would be nice to simply be able to
+> have the value, to reduce the number of control variables.
+>
+> When we go to a tickless kernel and offer high-resolution timers to
+> userspace, then it will be irrelevant.  Until then, or if the kernel
+> goes tickless but limits the resolution of timers for efficiency, the
+> value of HZ is still relevant.
+>
+> Not to get irritatingly back to the subject of this thread or
+> anything, but...  is the value of HZ reported to userspace anywhere?
+>
+> Thanks :)
+> -- Jamie
 
-> > Worse, it doesn't seem to be implemented consistently either.  I've been
-> > trying on a few other Unixen while writing this.  First on a Tru64 box,
-> > and it is _not_ kicking off any IO at all for MS_ASYNC, except for the
-> > 30-second regular sync.  The same appears to be true on FreeBSD.  And on
-> > HP-UX, things go in the other direction: the performance of MS_ASYNC is
-> > identical to MS_SYNC, both in terms of observed disk IO during the sync
-> > and the overall rate of the msync loop.
-> 
-> If you check HP-UX, make sure it's a recent one. HPUX has historically 
-> been just too broken for words when it comes to mmap() (ie some _really_ 
-> strange semantics, like not being able to unmap partial mappings etc).
+I may be naive, but what's the matter with:
 
-I'm not sure what counts as "recent" for that, but this was on HP-UX
-11.  That's the most recent I've got access to.
+#include <stdio.h>
+#include <sys/param.h>   // Required to be here!
+int main()
+{
+    printf("HZ=%d\n", HZ);
+    return 0;
+}
+It works for me.
 
---Stephen
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

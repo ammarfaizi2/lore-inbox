@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVCDICV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVCDIDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbVCDICV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 03:02:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262631AbVCDICU
+	id S262527AbVCDIDl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 03:03:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262619AbVCDIDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 03:02:20 -0500
-Received: from smtp1.Stanford.EDU ([171.67.16.123]:36266 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S262610AbVCDICF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 03:02:05 -0500
-Date: Fri, 4 Mar 2005 00:01:42 -0800 (PST)
-From: Junfeng Yang <yjf@stanford.edu>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <ext2-devel@lists.sourceforge.net>,
-       <jfs-discussion@www-124.southbury.usf.ibm.com>, <reiser@namesys.com>,
-       <mc@cs.Stanford.EDU>
-Subject: Re: [CHECKER] Do ext2, jfs and reiserfs respect mount -o sync/dirsync
- option?
-In-Reply-To: <Pine.LNX.4.61.0503040831470.7350@yvahk01.tjqt.qr>
-Message-ID: <Pine.GSO.4.44.0503032352410.8740-100000@elaine24.Stanford.EDU>
+	Fri, 4 Mar 2005 03:03:41 -0500
+Received: from mail.portrix.net ([212.202.157.208]:16038 "EHLO
+	zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S262527AbVCDIDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 03:03:35 -0500
+Message-ID: <42281626.8010306@ppp0.net>
+Date: Fri, 04 Mar 2005 09:02:46 +0100
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050116 Thunderbird/1.0 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew James Wade 
+	<ajwade@cpe0020e06a7211-cm0011ae8cd564.cpe.net.cable.rogers.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302165830.0a74b85c.davem@davemloft.net> <200503022114.20214.gene.heskett@verizon.net> <200503032223.05172.ajwade@cpe0020e06a7211-cm0011ae8cd564.cpe.net.cable.rogers.com>
+In-Reply-To: <200503032223.05172.ajwade@cpe0020e06a7211-cm0011ae8cd564.cpe.net.cable.rogers.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It may happen that FISC reads the disk before the write command even finished.
-> With all the HD head movement optimization in the kernel (block layer,
-> boiling down to TCQ/NCQ), this sounds possible.
+Andrew James Wade wrote:
+> I've just done a bit of looking for scripts to automate the process of
+> installing a new kernel, and I haven't come up with much of much. So
+> right now I'm writing my own. If there are tools to help automate this
+> they need to be more prominent on www.kernel.org and
+> www.kernelnewbies.org, to make casual testing even easier.
 
-FiSC "crashes" the kernel immediately after a file system operation
-(creat, mkdir, write, etc) returns.  Presumably, if a file system is
-mounted -o sync, all the FS operations should be done synchronously. i.e.,
-if creat("foo") returns, the file "foo" better be on disk.  It turns out
-not the case for ext2, jfs and reiserfs.
+Try ketchup from here: http://www.selenic.com/ketchup/
+`ketchup 2.6-mm` for example will download and patch the newest 2.6-mm
+kernel (also try ketchup 2.6-pre, ketchup 2.6-bk, ...).
 
--Junfeng
+Jan
 
+-- 
+http://l4x.org/k/

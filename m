@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265682AbUEULWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265820AbUEULXV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265682AbUEULWW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 07:22:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265819AbUEULWV
+	id S265820AbUEULXV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 07:23:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265821AbUEULXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 07:22:21 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:10505 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S265682AbUEULWQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 07:22:16 -0400
-Date: Fri, 21 May 2004 21:22:09 +1000
-To: Pavel Machek <pavel@ucw.cz>
+	Fri, 21 May 2004 07:23:21 -0400
+Received: from gprs214-11.eurotel.cz ([160.218.214.11]:35200 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265820AbUEULXO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 07:23:14 -0400
+Date: Fri, 21 May 2004 13:23:06 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Herbert Xu <herbert@gondor.apana.org.au>, Andrew Morton <akpm@zip.com.au>,
+       Patrick Mochel <mochel@digitalimplant.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: swsusp: fix swsusp with intel-agp
-Message-ID: <20040521112209.GA951@gondor.apana.org.au>
-References: <20040521100734.GA31550@elf.ucw.cz> <E1BR7pl-0000Br-00@gondolin.me.apana.org.au> <20040521111612.GA976@elf.ucw.cz> <20040521111828.GA870@gondor.apana.org.au>
+Subject: swsusp vs. pmdisk [was Re: swsusp: fix swsusp with intel-agp]
+Message-ID: <20040521112306.GC976@elf.ucw.cz>
+References: <20040521100734.GA31550@elf.ucw.cz> <E1BR7pl-0000Br-00@gondolin.me.apana.org.au> <20040521111612.GA976@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040521111828.GA870@gondor.apana.org.au>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <20040521111612.GA976@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 21, 2004 at 09:18:28PM +1000, herbert wrote:
-> On Fri, May 21, 2004 at 01:16:13PM +0200, Pavel Machek wrote:
+Hi!
+
+> > > --- tmp/linux/arch/i386/mm/init.c       2004-05-20 23:08:05.000000000 +0200
+> > > +++ linux/arch/i386/mm/init.c   2004-05-20 23:10:50.000000000 +0200
+> > > @@ -331,6 +331,13 @@
+> > > void zap_low_mappings (void)
+> > > {
+> > >        int i;
+> > > +
+> > > +#ifdef CONFIG_SOFTWARE_SUSPEND
 > > 
-> > > > --- tmp/linux/arch/i386/mm/init.c       2004-05-20 23:08:05.000000000 +0200
-> > > > +++ linux/arch/i386/mm/init.c   2004-05-20 23:10:50.000000000 +0200
-> > > > @@ -331,6 +331,13 @@
-> > > > void zap_low_mappings (void)
-> > > > {
-> > > >        int i;
-> > > > +
-> > > > +#ifdef CONFIG_SOFTWARE_SUSPEND
-> > > 
-> > > Can you please define this for CONFIG_PM_DISK as well? Alternatively,
-> > > you can do the same as you did in cpu.c and define this for
-> > > CONFIG_PM.
+> > Can you please define this for CONFIG_PM_DISK as well? Alternatively,
+> > you can do the same as you did in cpu.c and define this for
+> > CONFIG_PM.
+> 
+> That would need few more parts to actually do something usefull on
+> pmdisk, right? Lowlevel code needs to know how to switch.
 
-Would you object to a patch that converted current uses of
-CONFIG_SOFTWARE_SUSPEND/CONFIG_PM to a new symbol that is
-turned on iff one of CONFIG_SOFTWARE_SUSPEND/CONFIG_PM_DISK
-is enabled?
+What about killing pmdisk code, instead?
 
-Perhaps we can call it CONFIG_PM_DISK_COMMON?
+Its old, its not maintained any more, and it is unneccessary duplicity
+of swsusp code.
+
+Patrick, in middle of april you claimed you'll have something "by the
+end of month". Can you either start looking after your code or give up
+and let me remove it?
+								Pavel
 -- 
-Visit Openswan at http://www.openswan.org/
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+934a471f20d6580d5aad759bf0d97ddc

@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313401AbSDLEwx>; Fri, 12 Apr 2002 00:52:53 -0400
+	id <S312576AbSDLFp5>; Fri, 12 Apr 2002 01:45:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313402AbSDLEww>; Fri, 12 Apr 2002 00:52:52 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:21696 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S313401AbSDLEwv>;
-	Fri, 12 Apr 2002 00:52:51 -0400
-From: Paul Mackerras <paulus@au1.ibm.com>
-MIME-Version: 1.0
+	id <S312616AbSDLFp4>; Fri, 12 Apr 2002 01:45:56 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:32773 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S312576AbSDLFp4>;
+	Fri, 12 Apr 2002 01:45:56 -0400
+Date: Fri, 12 Apr 2002 07:40:42 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
+        andrea@suse.de
+Subject: Re: [patch 2.5.8] bounce/swap stats
+Message-ID: <20020412054042.GD16203@suse.de>
+In-Reply-To: <Pine.LNX.4.33L2.0204111807070.28475-400000@dragon.pdx.osdl.net> <Pine.LNX.4.21.0204112314290.16284-100000@freak.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15542.26636.857088.97277@argo.ozlabs.ibm.com>
-Date: Fri, 12 Apr 2002 14:52:28 +1000 (EST)
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Tom Rini <trini@kernel.crashing.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove compiler.h from mmap.c
-In-Reply-To: <Pine.LNX.4.44L.0204111457100.31387-100000@duckman.distro.conectiva>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel writes:
+On Thu, Apr 11 2002, Marcelo Tosatti wrote:
+> On Thu, 11 Apr 2002, Randy.Dunlap wrote:
+> 
+> > I'll generate the patch for 2.4.teens + highmem if anyone
+> > is interested in it, or after highmem is merged into 2.4.
+> > ...it will be added to 2.4, right?
+> 
+> highmem IO will be merged in 2.4.20pre1.
 
-> Absolutely agreed, but likely/unlikely is such low-level
-> stuff that it shouldn't be included directly into .c files,
-> IMHO.
+Thanks Marcelo, I'll personally polish a version for you once 2.4.19
+final is out.
 
-mm/mmap.c uses unlikely (line 570).  Therefore it should include
-compiler.h itself IMHO, not rely on some other header to include it.
-I think that each .c and .h file should include the headers that
-define the things it uses, but should not have to include headers just
-to define things that subsequent headers use.
+-- 
+Jens Axboe
 
-Regards,
-Paul.

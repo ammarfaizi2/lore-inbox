@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266081AbTBGSIe>; Fri, 7 Feb 2003 13:08:34 -0500
+	id <S266199AbTBGSI6>; Fri, 7 Feb 2003 13:08:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266199AbTBGSIe>; Fri, 7 Feb 2003 13:08:34 -0500
-Received: from ool-4351594a.dyn.optonline.net ([67.81.89.74]:58897 "EHLO
-	badula.org") by vger.kernel.org with ESMTP id <S266081AbTBGSId>;
-	Fri, 7 Feb 2003 13:08:33 -0500
-Date: Fri, 7 Feb 2003 13:18:05 -0500
-Message-Id: <200302071818.h17II5901915@gonzales.badula.org>
-From: Ion Badulescu <ionut@badula.org>
-To: Jakob Oestergaard <jakob@unthought.net>
-Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: Race in RPC code
-In-Reply-To: <20030207134446.GB25807@unthought.net>
-User-Agent: tin/1.5.12-20020427 ("Sugar") (UNIX) (Linux/2.4.19 (i686))
+	id <S266274AbTBGSI6>; Fri, 7 Feb 2003 13:08:58 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:8089 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S266199AbTBGSI4>;
+	Fri, 7 Feb 2003 13:08:56 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 7 Feb 2003 19:18:36 +0100 (MET)
+Message-Id: <UTC200302071818.h17IIaJ29578.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, brand@jupiter.cs.uni-dortmund.de
+Subject: Re: syscall documentation
+Cc: brand@eeyore.valparaiso.cl, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jakob, Trond,
+> How about saying in CONFORMING TO
 
-On Fri, 7 Feb 2003 14:44:46 +0100, Jakob Oestergaard <jakob@unthought.net> wrote:
+Done.
 
-> The panic has happened once, just today.
+> And as this was during the current development series,
+> what is the point of manpages anyway?
 
-I've seen this multiple times, and even reported it to the nfs mailing list.
+Historical documentation is also useful.
+And the page contains a reference to hugetlbfs, which
+is not obsolete.
+And 2.4.20 contains the names (with ENOSYS) - no doubt
+some people will wonder what they are.
 
-I'm just glad someone else is seeing the same kind of oops with a vanilla 
-kernel, because I was seeing it with a heavily patched 
-redhat+nfs2.4.20+nfsall2.4.20 kernel and wasn't sure if that had anything
-to do with it.
+Andries
 
-I have at least 5-6 such oopsen recorded, if anyone cares.
-
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+[If you have recent man pages, try "man ttyslot"]

@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267486AbUGNRuL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267491AbUGNRwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267486AbUGNRuL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 13:50:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267488AbUGNRuL
+	id S267491AbUGNRwT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 13:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267492AbUGNRwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 13:50:11 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:52354 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267486AbUGNRuG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 13:50:06 -0400
-Date: Wed, 14 Jul 2004 23:19:49 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: Ravikiran G Thirumalai <kiran@in.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Refcounting of objects part of a lockfree collection
-Message-ID: <20040714174948.GA3935@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20040714045345.GA1220@obelix.in.ibm.com> <20040714070700.GA12579@kroah.com> <20040714082621.GA4291@in.ibm.com> <20040714142614.GA15742@kroah.com> <20040714152235.GA5956@in.ibm.com> <20040714170336.GB4636@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 14 Jul 2004 13:52:19 -0400
+Received: from maceio.ic.unicamp.br ([143.106.7.31]:34183 "EHLO
+	maceio.ic.unicamp.br") by vger.kernel.org with ESMTP
+	id S267491AbUGNRwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 13:52:09 -0400
+From: Rafael =?iso-8859-1?q?=C1vila_de_Esp=EDndola?= 
+	<rafael.espindola@ic.unicamp.br>
+To: linux-kernel@vger.kernel.org
+Subject: ppc64 compile error
+Date: Wed, 14 Jul 2004 14:55:34 -0300
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040714170336.GB4636@kroah.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407141455.34674.rafael.espindola@ic.unicamp.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 14, 2004 at 10:03:37AM -0700, Greg KH wrote:
-> On Wed, Jul 14, 2004 at 08:52:35PM +0530, Dipankar Sarma wrote:
-> > And I suspect that Andrew thwak me for trying to increase dentry size :)
-> > Anyway, the summary is this - Kiran is not trying to introduce
-> > a new refcounting API.
-> 
-> Yes he is.  He's calling it refcount.h, and creating a typedef called
-> refcount_t.  Sure looks like a new refcount API to me :)
+I was trying to compile a kernel for ppc64 and had the following problems:
 
-OK, in terms of code, it is new API. Just the refcounting mechanism
-is same as existing non-kref refcounts.
+1)
 
-> > He is just adding lock-free support from an existing refcounting
-> > mechanism that is used in VFS.
-> 
-> If this is true, then I strongly object to the naming of this file, and
-> the name of the typedef (which shouldn't be a typedef at all) and this
-> should be made a private data structure to the vfs so no one else tries
-> to use it.  Otherwise it will be used.
+rivers/video/imsttfb.c uses the function "nvram_read_byte"  but it is not 
+defined in this architecture.
+2)
 
-I am reasonably sure that when that patch was done (months ago) kref wasn't
-there. Now that kref.[ch] is around, everything can be put there.
+the ppc64 architecture doesn't have agp.h. This prevents 
+drivers/char/agp/backend.c from compiling.
 
-Now, if struct kref is shrinked (want patch ? ;-), all this 
-can possibly be nicely collapsed into one set of APIs for refcounting.
-There aren't many users of kref yet, so this seems like a good
-time to do it. Was there any objection to shrinking it ?
+3)
+sound/ppc/pmac.c includes asm/feture.h but it could not be found:
+sound/ppc/pmac.c:36:25: asm/feature.h: No such file or directory
 
+Removing the corresponding options from .config results in a successful 
+compilation.
 
-Thanks
-Dipankar
+Rafael

@@ -1,60 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280947AbRKYRUC>; Sun, 25 Nov 2001 12:20:02 -0500
+	id <S280952AbRKYSDn>; Sun, 25 Nov 2001 13:03:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280939AbRKYRTw>; Sun, 25 Nov 2001 12:19:52 -0500
-Received: from f05s15.cac.psu.edu ([128.118.141.58]:20947 "EHLO
-	f05n15.cac.psu.edu") by vger.kernel.org with ESMTP
-	id <S280938AbRKYRTn>; Sun, 25 Nov 2001 12:19:43 -0500
-Subject: Re: Severe Linux 2.4 kernel memory leakage
-From: Phil Sorber <aafes@psu.edu>
-To: Chris Chabot <chabotc@reviewboard.com>
-Cc: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1006703464.1316.6.camel@gandalf.chabotc.com>
-In-Reply-To: <1006699767.1178.0.camel@gandalf.chabotc.com> 
-	<tgy9kuevtw.fsf@mercury.rus.uni-stuttgart.de> 
-	<1006702226.1316.2.camel@gandalf.chabotc.com> 
-	<1006702918.3088.3.camel@praetorian> 
-	<1006703464.1316.6.camel@gandalf.chabotc.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-rbxRiIi6B2M21u/UmxmY"
-X-Mailer: Evolution/0.16 (Preview Release)
-Date: 25 Nov 2001 12:17:30 -0500
-Message-Id: <1006708651.3088.5.camel@praetorian>
-Mime-Version: 1.0
+	id <S280954AbRKYSDd>; Sun, 25 Nov 2001 13:03:33 -0500
+Received: from back.airtel.net ([212.73.32.158]:877 "EHLO
+	psismtp2.psi.airtel.es") by vger.kernel.org with ESMTP
+	id <S280952AbRKYSDT>; Sun, 25 Nov 2001 13:03:19 -0500
+From: <gonzalo.ab@navegalia.com>
+To: linux-kernel@vger.kernel.org
+Message-ID: <8508783beb.83beb85087@navegalia.com>
+Date: Sun, 25 Nov 2001 19:03:12 +0100
+X-Mailer: Netscape Webmail
+MIME-Version: 1.0
+Content-Language: es
+Subject: Kernel Bug
+X-Accept-Language: es
+X-Priority: 1 (Highest)
+Content-Type: multipart/mixed; boundary="--6f717d44614e55"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
---=-rbxRiIi6B2M21u/UmxmY
-Content-Type: text/plain
+----6f717d44614e55
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, 2001-11-25 at 10:51, Chris Chabot wrote:
-> Nov 24 10:46 bzImage-2.4.15
+See the attached file about a bug in the 2=2E4=2E14 kernel in loop=2Ec fi=
+le=2E
 
-are you running this now? cause it has a major bug too :) i am running
-it, but i patched. just a heads up if you didn't see this on the list
-already...
 
---=20
-Phil Sorber
-AIM: PSUdaemon
-IRC: irc.openprojects.net #psulug PSUdaemon
-GnuPG: keyserver - pgp.mit.edu
+=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=
+=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=
+=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F=5F
+ Personaliza tu m=F3vil con los logos y melod=EDas m=E1s divertidos=2E =
 
---=-rbxRiIi6B2M21u/UmxmY
-Content-Type: application/pgp-signature
+ Pincha en  http=3A//www=2Evizzavi=2Ees/portal/ofiweb/melodias/index=2Eht=
+m
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+----6f717d44614e55
+Content-Type: text/plain
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="kernel-2.4.14.bug"
 
-iD8DBQA8ASeqXm6Gwek+iaQRAtB1AJsHCnwu4WmWTTBZM3asUgvGQOgfmwCeP+Ua
-1EgYk6/pcGV0ZHNfgCIla/o=
-=xU7c
------END PGP SIGNATURE-----
+TWFpbCBmb3IgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZwoKQXMgeW91IHByb2JhYmx5
+IGtub3csIGNhdXNlIHRoaXMgdmVyc2lvbiBvZiB0aGUga2VybmVsIGhhcyBiZWVuIHJ1bm5p
+bmcgZm9yIHNvIGxvbmcgdGhlIGxvb3BiYWNrIGJsb2NrIGRyaXZlciBmYWlscy4KCkluIHRo
+ZSBsb29wLmMgZmlsZSB0aGVyZSBhcmUgMyBjYWxscyB0byAyIGZ1bmN0aW9ucyB0aGF0IGFy
+ZSBub3QgaW1wbGVtZW50ZWQgYWxsIG92ZXIgdGhlIGtlcm5lbC4gVGhlc2UgZnVuY2lvbnMg
+YXJlOgoKCWRlYWN0aXZhdGVfcGFnZSAgKFVzZWQgaW4gbGluZXMgMjEwIGFuZCAyMjEpCglC
+VUcgICAgICAgICAgICAgIChVc2VkIGluIGxpbmUgNDUzIGluc2lkZSBvZiBhIHNpbXBsZSBj
+b25kaXRpb25hbCBzZW50ZW5jZSkKClRvIHNvbHZlIHRoaXMgZmFpbHVyZSBpIGp1c3QgY29t
+bWVudGVkIHRoZXNlIGxpbmVzIGFuZCBzZWVtcyB0aGF0IHdvcmtzIGFzIGEgbW9kdWxlIGFu
+ZCBhcyBwYXJ0IG9mIHRoZSBrZXJuZWwgdG9vLgoKVGhpcyBpcyB0aGUgb3V0cHV0IG9mIHRo
+ZSB2ZXJfbGludXggc2NyaXB0OgoKPklmIHNvbWUgZmllbGRzIGFyZSBlbXB0eSBvciBsb29r
+IHVudXN1YWwgeW91IG1heSBoYXZlIGFuIG9sZCB2ZXJzaW9uLgo+Q29tcGFyZSB0byB0aGUg
+Y3VycmVudCBtaW5pbWFsIHJlcXVpcmVtZW50cyBpbiBEb2N1bWVudGF0aW9uL0NoYW5nZXMu
+Cj4gCj5MaW51eCBHdWlubmVzcyAyLjQuMTQgIzE4IHPhYiBub3YgMjQgMTQ6MjI6MDQgRVNU
+IDIwMDEgaTY4NiB1bmtub3duCj4gCj5HbnUgQyAgICAgICAgICAgICAgICAgIDIuOTYKPkdu
+dSBtYWtlICAgICAgICAgICAgICAgMy43OS4xCj5iaW51dGlscyAgICAgICAgICAgICAgIDIu
+MTAuMS4wLjIKPnV0aWwtbGludXggICAgICAgICAgICAgMi4xMHMKPm1vdW50ICAgICAgICAg
+ICAgICAgICAgMi4xMWIKPm1vZHV0aWxzICAgICAgICAgICAgICAgMi40LjUKPmUyZnNwcm9n
+cyAgICAgICAgICAgICAgMS4xOQo+UFBQICAgICAgICAgICAgICAgICAgICAyLjQuMAo+TGlu
+dXggQyBMaWJyYXJ5ICAgICAgICAyLjIuMgo+RHluYW1pYyBsaW5rZXIgKGxkZCkgICAyLjIu
+Mgo+UHJvY3BzICAgICAgICAgICAgICAgICAyLjAuNwo+TmV0LXRvb2xzICAgICAgICAgICAg
+ICAxLjU5Cj5Db25zb2xlLXRvb2xzICAgICAgICAgIDAuMi4zCj5TaC11dGlscyAgICAgICAg
+ICAgICAgIDIuMAo+TW9kdWxlcyBMb2FkZWQgICAgICAgICBsb29wIHNiIHNiX2xpYiB1YXJ0
+NDAxIHNvdW5kIHNvdW5kY29yZQoKVGhhbmtzIGZvciBhbGwuCgogICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgR29uemFsbyBBbHZhcmV6IEJhcnJpbwoJCQkgICAgIDxnb256YWxv
+LmFiQG5hdmVnYWxpYS5jb20+CgkJCSAgICAgVGVsZWNvbSBVbml2LiwgVmlnbywgU3BhaW4K
+Cg==
 
---=-rbxRiIi6B2M21u/UmxmY--
+----6f717d44614e55--
 

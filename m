@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269116AbUJQNUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269117AbUJQNau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269116AbUJQNUV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 09:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269117AbUJQNUU
+	id S269117AbUJQNau (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 09:30:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269119AbUJQNau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 09:20:20 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:52396 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S269116AbUJQNUF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 09:20:05 -0400
-Date: Sun, 17 Oct 2004 15:21:07 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Daniel Walker <dwalker@mvista.com>, Bill Huey <bhuey@lnxw.com>,
-       Andrew Morton <akpm@osdl.org>, Adam Heath <doogie@debian.org>,
-       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
-       Andrew Rodland <arodland@entermail.net>
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
-Message-ID: <20041017132107.GA18462@elte.hu>
-References: <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <1097888438.6737.63.camel@krustophenia.net> <1097894120.31747.1.camel@krustophenia.net> <20041016064205.GA30371@elte.hu> <1097917325.1424.13.camel@krustophenia.net> <20041016103608.GA3548@elte.hu> <32801.192.168.1.5.1098018846.squirrel@192.168.1.5>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <32801.192.168.1.5.1098018846.squirrel@192.168.1.5>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 17 Oct 2004 09:30:50 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50157 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269117AbUJQNat
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 09:30:49 -0400
+Message-ID: <417273F9.6050605@pobox.com>
+Date: Sun, 17 Oct 2004 09:30:33 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de,
+       axboe@suse.de
+Subject: Re: Hang on x86-64, 2.6.9-rc3-bk4
+References: <41719537.1080505@pobox.com>	<417196AA.3090207@pobox.com>	<20041016154818.271a394b.akpm@osdl.org>	<4171B23F.6060305@pobox.com>	<20041016171458.4511ad8b.akpm@osdl.org>	<4171C20D.1000105@pobox.com> <20041016182116.33b3b788.akpm@osdl.org> <4171E978.6060207@pobox.com> <41720740.2030901@yahoo.com.au>
+In-Reply-To: <41720740.2030901@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick Piggin wrote:
+> Hi Jeff, my patch has gone to Linus... but if you have time can
+> you just verify that it works without the added cond_resched()
+> please?
+> 
+> Thanks.
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
-> The point where the boot/init sequence stalls is marked with a
-> "<<<---STALL--->>>" line mark. Then it follows the output of SysRq-S
-> (Sync), SysRq-T (Trace), another SysRq-S (Sync), and finally a SysRq-B
-> (reBoot).
+Wouldn't akpm's patch be better?
 
-thanks. Could you send me the full successful bootlog of -U4 with
-PREEMPT_REALTIME disabled (but otherwise the same .config)?
+I would tend to prefer that a one-liner hang fix go into -final, as it's 
+easier to review and verify at this late stage.
 
-this looks suspicious:
+	Jeff
 
-eth0: -- ERROR --
-        Class:  internal Software error
-        Nr:  0x1ae
-        Msg:  General: Driver release date not initialized
-eth0: -- ERROR --
-        Class:  internal Software error
-        Nr:  0x1ae
-        Msg:  General: Driver release date not initialized
-eth0: 3Com Gigabit LOM (3C940)
-eth0: network connection down
-      PrefPort:A  RlmtMode:Check Link State
 
-is this normal? Could the stall simply be a bootup stall due to no
-network available?
-
-	Ingo

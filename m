@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263956AbTLATuL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 14:50:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263957AbTLATuL
+	id S263957AbTLATvV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 14:51:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263969AbTLATvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 14:50:11 -0500
-Received: from havoc.gtf.org ([63.247.75.124]:28394 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S263956AbTLATuF (ORCPT
+	Mon, 1 Dec 2003 14:51:21 -0500
+Received: from vitelus.com ([64.81.243.207]:28874 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id S263957AbTLATvR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 14:50:05 -0500
-Date: Mon, 1 Dec 2003 14:49:05 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Thomas Babut <thomas.babut@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Clean up older Kernels
-Message-ID: <20031201194905.GB7273@gtf.org>
-References: <000001c3b843$04f94330$5f00a8c0@tomek.lan>
+	Mon, 1 Dec 2003 14:51:17 -0500
+Date: Mon, 1 Dec 2003 11:50:32 -0800
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: linux-kernel@vger.kernel.org
+Subject: USB timeout with printer
+Message-ID: <20031201195032.GC3385@vitelus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <000001c3b843$04f94330$5f00a8c0@tomek.lan>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 01, 2003 at 08:40:47PM +0100, Thomas Babut wrote:
-> Hi,
-> 
-> perhaps my question is unusual, but why do you not clean up the older Linux
-> Kernels?
-> 
-> The Kernel 2.0.39 is the last stable one, but there is also a 2.0.40-rc6. So
-> why not releasing it as stable 2.0.40 (final)? And Alan Cox isn't active any
-> more for some time and the ac-Patches are very old. They could be removed,
-> or not?
+I have a HP LaserJet 1300 that I'm using over USB.
 
-2.0.x has a maintainer, David Winehall(sp?) IIRC.  Poke him...  :)
+(drivers/usb/class/usblp.c: usblp0: USB Bidirectional printer dev 8 if 0 alt 1 proto 2 vid 0x03F0 pid 0x1017)
 
-I agree, might as well put out 2.0.40...
+What's getting to be very annoying is that usually within a day after
+printing something, I get the message usb 1-2: control timeout on
+ep0in, and the printer needs to be power cycled. I get other weird
+errors sometimes, like "drivers/usb/class/usblp.c: usblp0: error -110
+reading printer status". I don't have any evidence that this is
+Linux's fault, but it seems like a fairly likely possibility, at least
+if you consider it an incompatibility with the printer rather than a bug.
+My mouse uses USB and it works fine. I'm using an expensive Belkin
+USB cable. The kernel version is 2.6.0-test9-bk17. Here is some
+information on my USB controller:
 
-	Jeff
+00:11.2 USB Controller: VIA Technologies, Inc. USB (rev 23) (prog-if 00 [UHCI])
+        Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
+        Flags: bus master, medium devsel, latency 32, IRQ 10
+        I/O ports at c800 [size=32]
+        Capabilities: <available only to root>
 
-
-
+I think this may have started a few -test revisions ago, but I'm not
+sure. I only purchased the printer fairly recently so it's not like I
+can say that it's worked for years.

@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261919AbUCIOcE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 09:32:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbUCIOcE
+	id S261955AbUCIOgE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 09:36:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbUCIOgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 09:32:04 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:20749 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261955AbUCIOcB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 09:32:01 -0500
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] give root=/dev/ram special handling, needed for root fs on ramdisk
-Date: Tue, 9 Mar 2004 16:31:14 +0200
-X-Mailer: KMail [version 1.4]
+	Tue, 9 Mar 2004 09:36:04 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:27872 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261955AbUCIOgB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 09:36:01 -0500
+Date: Tue, 9 Mar 2004 15:35:59 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Adrian Cox <adrian@humboldt.co.uk>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_2CCBC5YH0VOGGGY77BWS"
-Message-Id: <200403091631.14392.vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: cdromaudio patch gives up too easily
+Message-ID: <20040309143559.GO23525@suse.de>
+References: <1078841242.995.24.camel@newt> <20040309141616.GN23525@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040309141616.GN23525@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 09 2004, Jens Axboe wrote:
+> On Tue, Mar 09 2004, Adrian Cox wrote:
+> > The patch for DMA based CD reading worked well for me until I tried to
+> > read the audio from a badly damaged CDR.  At this point the code dropped
+> > back to the old mechanism and stayed that way for further CDs.
+> > 
+> > The logs below show what happened, running 2.6.4-rc2 with just that
+> > patch:
+> > 
+> > cdrom: open failed.
+> > hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
+> > hdc: packet command error: error=0x30
+> > ATAPI device hdc:
+> >   Error: Medium error -- (Sense key=0x03)
+> >   (reserved error code) -- (asc=0x57, ascq=0x00)
+> >   The failed "Prevent/Allow Medium Removal" packet command was:
+> >   "1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
+> > cdrom: open failed.
+> > hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
+> > hdc: packet command error: error=0x30
+> > ATAPI device hdc:
+> >   Error: Medium error -- (Sense key=0x03)
+> >   (reserved error code) -- (asc=0x57, ascq=0x00)
+> >   The failed "Prevent/Allow Medium Removal" packet command was:
+> >   "1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
+> > cdrom: cdda rip sense 03/02/00
+> > cdrom: dropping to old style cdda
+> 
+> Ok, it's pretty harmful. I was just telling Andrew last week that I
 
---------------Boundary-00=_2CCBC5YH0VOGGGY77BWS
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Harmless, of course :-)
 
-This fixes a regression versus 2.4 reported earlied,
-see http://lkml.org/lkml/2004/3/5/45
---=20
-vda
---------------Boundary-00=_2CCBC5YH0VOGGGY77BWS
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="dev_ram.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="dev_ram.patch"
-
-diff -urN linux-2.6.3.orig/init/do_mounts.c linux-2.6.3/init/do_mounts.c
---- linux-2.6.3.orig/init/do_mounts.c	Tue Mar  9 16:17:14 2004
-+++ linux-2.6.3/init/do_mounts.c	Tue Mar  9 16:18:42 2004
-@@ -163,6 +163,9 @@
- 	res = Root_NFS;
- 	if (strcmp(name, "nfs") == 0)
- 		goto done;
-+	res = Root_RAM0;
-+	if (strcmp(name, "ram") == 0)
-+		goto done;
- 
- 	if (strlen(name) > 31)
- 		goto fail;
-
---------------Boundary-00=_2CCBC5YH0VOGGGY77BWS--
+-- 
+Jens Axboe
 

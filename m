@@ -1,71 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129249AbQKJK0Y>; Fri, 10 Nov 2000 05:26:24 -0500
+	id <S129383AbQKJK0y>; Fri, 10 Nov 2000 05:26:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129383AbQKJK0O>; Fri, 10 Nov 2000 05:26:14 -0500
-Received: from pop08-1-ras1-p27.barak.net.il ([212.150.109.27]:16388 "EHLO
-	champ.linuxnet.org.il") by vger.kernel.org with ESMTP
-	id <S129249AbQKJK0C>; Fri, 10 Nov 2000 05:26:02 -0500
-Message-ID: <3A0BCB67.2EDE5825@xpert.com>
-Date: Fri, 10 Nov 2000 12:18:15 +0200
-From: Constantine Gavrilov <const-g@xpert.com>
-Reply-To: Constantine Gavrilov <const-g@xpert.com>
-Organization: Xpert
-X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.2.16pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: willy tarreau <wtarreau@yahoo.fr>
-CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.18pre21
-In-Reply-To: <20001110092846.29847.qmail@web1102.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129878AbQKJK0q>; Fri, 10 Nov 2000 05:26:46 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:61312 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129383AbQKJK0d>;
+	Fri, 10 Nov 2000 05:26:33 -0500
+Date: Fri, 10 Nov 2000 02:12:01 -0800
+Message-Id: <200011101012.CAA11999@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: ben@zeus.com
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0011100951300.11412-100000@artemis.cam.zeus.com>
+	(message from Ben Mansell on Fri, 10 Nov 2000 10:13:21 +0000 (GMT))
+Subject: Re: Missing ACKs with Linux 2.2/2.4?
+In-Reply-To: <Pine.LNX.4.30.0011100951300.11412-100000@artemis.cam.zeus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-willy tarreau wrote:
-> 
-> > Anything which isnt a strict bug fix or previously
-> > agreed is now 2.2.19 material.
-> 
-> Alan, do you consider it as a bugfix if I tell you
-> that
-> we can't get anymore oops with the new bonding code,
-> even in SMP ?
-> 
-> I've had reports of it working very well, and faster,
-> for a long time now and the link detection seems
-> completely OK now. I'd like to specially thank
-> Constantine Gavrilov for all the tests he has done and
-> the time he spent in enhancing the documentation.
-> 
-> Please find the patch against 2.2.18pre20 in
-> attachment, in case you agree.
-> 
-> Regards,
-> Willy
+   Date: Fri, 10 Nov 2000 10:13:21 +0000 (GMT)
+   From: Ben Mansell <ben@zeus.com>
 
-I do think the new code is much better. Anyone who is considering using trunking
-for their projects should use the new code since it has link monitoring and
-active backup mode. However, I am a maniac when it comes to kernel testing. If I
-say it really works, it usually works. This code has been tested much and bugs
-were fixed. However, it has not been tested enough that I may bet by head on
-saying there are no known issues. This is because I did not have access to all
-hardware that was needed to complete the tests in time.
+   This is a resend of the data sent on line 8 of the trace:
 
-The code is not worse than the old code. However, a clear note must be made that
-this is experimental code and probably has small issues. So if it is included,
-it must me marked as experimental.
+   10:10:15.845002 cobalt-box.echo > hydra.3700: P 1:1449(1448) ack 1449 win 31856 <nop,nop,timestamp 0 268081751> (DF)
 
+   It looks like hydra didn't ACK this data, so the server eventually
+   re-sent it?
 
-----------------------------------------
-Constantine Gavrilov
-Unix System Administrator and Programmer
-Xpert Integrated Systems
-1 Shenkar St, Herzliya 46725, Israel
-Phone: (972-8)-952-2361
-Fax:   (972-9)-952-2366
-----------------------------------------
+Maybe hydra didn't even receive it. :-)
+
+There are two things to make to solve this riddle.
+
+First, reproduce this as you have been, and afterwards
+check if various network error statistic counters have been
+incremented.  Here is a short list:
+
+1) On the line from /proc/net/dev for the device used in the
+   transfer, any counter other than bytes or packets.
+
+2) From /proc/net/snmp
+
+	Ip: InHdrErrors
+	Ip: InDiscards
+	Tcp: InErrs
+
+Next, reproduce the problem and trace the session using tcpdump
+simultaneously from both sides of the connection.  This will answer
+the "did the packets even make it to the other end" questions.
+
+Thanks a lot for helping to hunt this down.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

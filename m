@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbTHJKdU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 06:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbTHJKdU
+	id S262273AbTHJKlI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 06:41:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbTHJKlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 06:33:20 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:26044 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S262254AbTHJKdT (ORCPT
+	Sun, 10 Aug 2003 06:41:08 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:41923 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262273AbTHJKlF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 06:33:19 -0400
-Message-ID: <3F361F5E.10106@colorfullife.com>
-Date: Sun, 10 Aug 2003 12:33:02 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
+	Sun, 10 Aug 2003 06:41:05 -0400
+Date: Sun, 10 Aug 2003 12:40:49 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Stephen Smalley <sds@epoch.ncsc.mil>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test3
+In-Reply-To: <Pine.LNX.4.44.0308082228470.1852-100000@home.osdl.org>
+Message-ID: <Pine.GSO.4.21.0308101238570.19901-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: 4GB+DEBUG_PAGEALLOC oopses with 2.6.0-test3-mm1
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+On Fri, 8 Aug 2003, Linus Torvalds wrote:
+> Merging the SELinux security architecture also ends up growing the patch, 
+> even though it may not be all that noticeable for most normal users.
 
-I'm running into crashes in copy_mount_options with 
-CONFIG_DEBUG_PAGEALLOC and 4GB in 2.6.0-test3-mm1:
+I need these patches to make it compile for m68k:
 
-The functions in mm/usercopy assume that no exception handling is 
-required if fs is KERNEL_DS. This is not true: at least the mount 
-options copy and the i386 traps handler assume exception handling with 
-fs==KERNEL_DS.
+--- linux-2.6.0-test3/security/selinux/avc.c	Sat Aug  9 21:43:41 2003
++++ linux-m68k-2.6.0-test3/security/selinux/avc.c	Sun Aug 10 11:09:44 2003
+@@ -16,6 +16,7 @@
+ #include <linux/slab.h>
+ #include <linux/fs.h>
+ #include <linux/dcache.h>
++#include <linux/init.h>
+ #include <linux/skbuff.h>
+ #include <net/sock.h>
+ #include <linux/un.h>
+--- linux-2.6.0-test3/security/selinux/ss/global.h	Sat Aug  9 21:43:41 2003
++++ linux-m68k-2.6.0-test3/security/selinux/ss/global.h	Sun Aug 10 11:22:59 2003
+@@ -7,7 +7,7 @@
+ #include <linux/ctype.h>
+ #include <linux/in.h>
+ #include <linux/spinlock.h>
+-#include <asm/semaphore.h>
++#include <linux/sched.h>
+ 
+ #include "flask.h"
+ #include "avc.h"
 
-How should this be fixed? I don't see a simple, portable way to 
-implement exception handling for the kernel address space.
+Gr{oetje,eeting}s,
+
+						Geert
 
 --
-    Manfred
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

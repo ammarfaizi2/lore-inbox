@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310835AbSCSXyg>; Tue, 19 Mar 2002 18:54:36 -0500
+	id <S310858AbSCSXzQ>; Tue, 19 Mar 2002 18:55:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310913AbSCSXy0>; Tue, 19 Mar 2002 18:54:26 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47634 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310835AbSCSXyS>; Tue, 19 Mar 2002 18:54:18 -0500
+	id <S310913AbSCSXzH>; Tue, 19 Mar 2002 18:55:07 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:65036 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S310858AbSCSXyr>; Tue, 19 Mar 2002 18:54:47 -0500
+Date: Tue, 19 Mar 2002 23:54:34 +0000 (GMT)
+From: Matthew Kirkwood <matthew@hairy.beasts.org>
+X-X-Sender: <matthew@sphinx.mythic-beasts.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: <lm@bitmover.com>, <pavel@suse.cz>, <davej@suse.de>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: Bitkeeper licence issues
-To: trini@kernel.crashing.org (Tom Rini)
-Date: Wed, 20 Mar 2002 00:09:31 +0000 (GMT)
-Cc: lm@work.bitmover.com (Larry McVoy), pavel@suse.cz (Pavel Machek),
-        davej@suse.de (Dave Jones), linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <20020319233432.GS3762@opus.bloom.county> from "Tom Rini" at Mar 19, 2002 04:34:32 PM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <20020319.154502.18227426.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0203192353540.1903-100000@sphinx.mythic-beasts.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16nTfX-0000je-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I hate to jump in here (really I do) but 'a' probably happens alot.  All
-> of the recommended locations are system directories.  As for 'b' and
-> 'c', I think those are considered trivial things to do, since this would
-> be a relativly easy thing to expliot (search some of the security list
-> archives, this isn't quite as easy as the buffer overflow on x86
-> problem, but still trivial).
+On Tue, 19 Mar 2002, David S. Miller wrote:
 
-'c' is a piece of cake. People wrote tools using directory notifiers that
-do nothing but try and subvert every /tmp/ file as it appears. Neat and
-novel [ab]use of it. 
+>    Hey Dave, are you suggesting that no such exploits exist in Red Hat's
+>    rpm system?  In order for that to be true, rpm would have to be making
+>    sure that each and every directory along any path that it writes is
+>    not writable except by priviledged users.  I just checked, it doesn't.
+>
+> We should be using mktemp() to make temporary files, and if we don't
+> that is a bug and I'd ask you to please submit a bugzilla entry about
+> it if so because that would be a serious hole.
 
-This is however a kernel list. Security notifications ought to go to the
-vendor and if they dont respond after a while to bugtraq where it would
-be on topic and score you leetness bonuses
+I trust you mean mkstemp(3) here (or mktemp(1), but not
+much of RPM is in shell).
 
-Alan
+Matthew.
+

@@ -1,75 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271172AbTGQQJt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 12:09:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271163AbTGQQJt
+	id S267724AbTGQQOf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 12:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271162AbTGQQOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 12:09:49 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:35715 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S271172AbTGQQJr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 12:09:47 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 17 Jul 2003 18:37:15 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Greg KH <greg@kroah.com>
-Cc: Kernel List <linux-kernel@vger.kernel.org>,
-       video4linux list <video4linux-list@redhat.com>
-Subject: Re: [RFC/PATCH] sysfs'ify video4linux
-Message-ID: <20030717163715.GA19258@bytesex.org>
-References: <20030715143119.GB14133@bytesex.org> <20030715212714.GB5458@kroah.com> <20030716084448.GC27600@bytesex.org> <20030716161924.GA7406@kroah.com> <20030716202018.GC26510@bytesex.org> <20030716210800.GE2279@kroah.com> <20030717120121.GA15061@bytesex.org> <20030717145749.GA5067@kroah.com>
+	Thu, 17 Jul 2003 12:14:35 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:25510 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S267724AbTGQQOe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 12:14:34 -0400
+Date: Thu, 17 Jul 2003 18:29:06 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Antonio Vargas <wind@cocodriloo.com>,
+       Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+       root@mauve.demon.co.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend on one machine, resume elsewhere [was Re: [Swsusp-devel] RE:Re: Thoughts wanted on merging Softwa]
+Message-ID: <20030717162906.GB446@elf.ucw.cz>
+References: <20030716083758.GA246@elf.ucw.cz> <200307161037.LAA01628@mauve.demon.co.uk> <20030716104026.GC138@elf.ucw.cz> <20030716195129.A9277@informatik.tu-chemnitz.de> <20030716181551.GD138@elf.ucw.cz> <1058383043.6600.53.camel@dhcp22.swansea.linux.org.uk> <20030716223935.GF2684@wind.cocodriloo.com> <1058442562.8620.24.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030717145749.GA5067@kroah.com>
+In-Reply-To: <1058442562.8620.24.camel@dhcp22.swansea.linux.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > ... if a ->release() callback is required anyway to fix it?  I see two
-> > ways to handle it:
+Hi!
+
+> > > Would it not be a lot easier to tackle that with qemu, and teach qemu to
+> > > freeze/restore virtual machines ?
 > > 
-> >   (1) mandatory ->release() callback, drivers must make sure the stuff
-> >       is not freed before the callback was called.  In that case the
-> >       class_device can be left embedded inside the drivers provate
-> >       structs.
+> > AFAIK, qemu does virtual processes, but not virtual machines. Running init(1)
+> > from qemu could be fun, anyways ;)
 > 
-> That sounds fine, and is the same as what I did for usb host devices.
+> qemu moves on release by release. It can run an entire virtualised linux kernel
+> nowdays, although its performance still needs some work.
 
-Ok.
-
-> >   (2) optional ->release() callback (for those drivers which want add
-> >       private attributes), "struct video_device" must be moved out of
-> >       the drivers private structs then and released in a new function
-> >       (which also calls the drivers ->release callback if present).
-> >       Should probably also be allocated by videodev.c for symmetry.
-> 
-> That's "prettier", but probably requires a lot more work in every v4l
-> driver, right?
-
-Not sure which of them is actually more work.
-
-Version (1) can be done without breaking the build, with a hack along 
-the lines "if (no release callback) printk(KERN_WARN please fix your
-driver)", so the drivers can be fixed step-by-step afterwards.
-
-Fixing the drivers might be non-trivial through.  Some drivers are
-hot-pluggable (usb cams), some drivers register more than one v4l device
-(bttv wants up to three).  Those drivers can't just call kfree() in the
-->release callback because there might be other references, some open
-file handle for a unplugged usb cam, another not-yet unregistered
-v4l device, whatever.  Probably they must implement some reference
-counting scheme to get that right.  The very simple ones (in
-drivers/media/radio for example) likely just need the kfree() moved
-from the ->remove function into the new ->release() callback.
-
-Version (2) needs every v4l driver touched to make it compile again.
-Not sure how hard it is to fixup them.  I'd guess it is pretty straigt
-forward to do the conversion, it's just alot of work.  I also could do
-a number of other cleanups along the way.  Maybe I trap into some hidden
-pitfalls through, havn't looked at all the drivers in detail yet.
-
-  Gerd
-
+I guess qemu is way too slow for this.
+									Pavel
 -- 
-sigfault
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

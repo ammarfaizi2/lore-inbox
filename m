@@ -1,123 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289450AbSAOJt3>; Tue, 15 Jan 2002 04:49:29 -0500
+	id <S289469AbSAOJ7t>; Tue, 15 Jan 2002 04:59:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289460AbSAOJtS>; Tue, 15 Jan 2002 04:49:18 -0500
-Received: from mgw-x2.nokia.com ([131.228.20.22]:26497 "EHLO mgw-x2.nokia.com")
-	by vger.kernel.org with ESMTP id <S289450AbSAOJtH>;
-	Tue, 15 Jan 2002 04:49:07 -0500
-Message-ID: <3C43FAA9.3070600@nokia.com>
-Date: Tue, 15 Jan 2002 11:47:21 +0200
-From: Dmitri Kassatkine <dmitri.kassatkine@nokia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
+	id <S289461AbSAOJ7k>; Tue, 15 Jan 2002 04:59:40 -0500
+Received: from mail.fido.net ([194.70.36.10]:50050 "EHLO
+	monty.test.eng.fido.net") by vger.kernel.org with ESMTP
+	id <S289460AbSAOJ71>; Tue, 15 Jan 2002 04:59:27 -0500
+X-Header: FidoNet Virus Scanned
+Message-ID: <002a01c19dab$4de66dc0$a52efea9@tosh>
+Reply-To: "Shaf Ali" <shaf@shaf.net>
+From: "Shaf Ali" <shaf@shaf.net>
+To: <linux-admin@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <1010951831.3241.0.camel@penarol01> <15425.60130.574569.697952@cerise.nosuchdomain.co.uk>
+Subject: 2.4.17 instability with i2c ?
+Date: Tue, 15 Jan 2002 09:59:21 -0000
+Organization: ContentFusion.com
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: "Kassatkine Dmitri (NRC/Helsinki)" <dmitri.kassatkine@nokia.com>
-Subject: usb.c patch -> successfuly read usb descriptors on some USB device
-Content-Type: multipart/mixed;
- boundary="------------080902060200060608020203"
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080902060200060608020203
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi again,
 
-Hi,
+I am having problems with a machine and cannot pin down why it's abruptly
+rebooting...
+I can find no messages in any of the logs !
 
-Sometimes USB subsystem cannot get USB descriptor.
+My theories are pointing the blame towards the following configuration :
+Redhat 7.2
+kernel 2.4.17 patched with i2c-2.6.2.tar.gz.
 
-Jan 15 10:44:21 selma kernel: hub.c: USB new device connect on bus1/1, 
-assign
-ed device number 25
-Jan 15 10:44:21 selma kernel: usb.c: couldn't get all of config descriptors
-Jan 15 10:44:21 selma kernel: usb.c: unable to get device 25 
-configuration (e
-rror=-110)
+I am about to attempt building a a fresh kernel... can anyone recommmend a
+stable kernel or has anyone experienced problems with 2.4.17 patched with
+i2c ?
 
-
-Here is patch how to fix it for 2.4.17. It works for 2.4.16 as well.
- It necassary to read descriptor at once, not first 8 byte first.
-
-It works well now for NSM USB Bluetooth dongle.
-
-br, DMitri
-
--- 
- Dmitri Kassatkine
- Nokia Research Center / Helsinki
- Mobile: +358 50 4836365
- E-Mail: dmitri.kassatkine@nokia.com
+Many thanks in advance,
+Shaf
 
 
---------------080902060200060608020203
-Content-Type: text/plain;
- name="usb.c.patch-2.4.17"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="usb.c.patch-2.4.17"
-
---- usb.c.orig	Wed Nov 21 19:59:11 2001
-+++ usb.c	Tue Jan 15 11:38:35 2002
-@@ -2041,7 +2041,7 @@
- 		return -ENOMEM;
- 	}
- 
--	buffer = kmalloc(8, GFP_KERNEL);
-+	buffer = kmalloc(255, GFP_KERNEL);
- 	if (!buffer) {
- 		err("unable to allocate memory for configuration descriptors");
- 		return -ENOMEM;
-@@ -2049,9 +2049,9 @@
- 	desc = (struct usb_config_descriptor *)buffer;
- 
- 	for (cfgno = 0; cfgno < dev->descriptor.bNumConfigurations; cfgno++) {
--		/* We grab the first 8 bytes so we know how long the whole */
-+		/* We grab the first 255 bytes so we know how long the whole */
- 		/*  configuration is */
--		result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, buffer, 8);
-+		result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, buffer, 255);
- 		if (result < 8) {
- 			if (result < 0)
- 				err("unable to get descriptor");
-@@ -2072,19 +2072,24 @@
- 			goto err;
- 		}
- 
--		/* Now that we know the length, get the whole thing */
--		result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, bigbuffer, length);
--		if (result < 0) {
--			err("couldn't get all of config descriptors");
--			kfree(bigbuffer);
--			goto err;
--		}	
-+		if (length > 255) {
-+			/* Now that we know the length, get the whole thing */
-+			result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, bigbuffer, length);
-+			if (result < 0) {
-+				err("couldn't get all of config descriptors");
-+				kfree(bigbuffer);
-+				goto err;
-+			}	
- 	
--		if (result < length) {
--			err("config descriptor too short (expected %i, got %i)", length, result);
--			result = -EINVAL;
--			kfree(bigbuffer);
--			goto err;
-+			if (result < length) {
-+				err("config descriptor too short (expected %i, got %i)", length, result);
-+				result = -EINVAL;
-+				kfree(bigbuffer);
-+				goto err;
-+			}
-+		}
-+		else {
-+			memcpy(bigbuffer, buffer, length);
- 		}
- 
- 		dev->rawdescriptors[cfgno] = bigbuffer;
-
---------------080902060200060608020203--
 

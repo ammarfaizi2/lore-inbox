@@ -1,145 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267523AbUG2Ssl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267431AbUG2Ssk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267523AbUG2Ssl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 14:48:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265031AbUG2Ooo
+	id S267431AbUG2Ssk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 14:48:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264954AbUG2SnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 10:44:44 -0400
-Received: from styx.suse.cz ([82.119.242.94]:10390 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S264815AbUG2OIJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 10:08:09 -0400
-To: torvalds@osdl.org, vojtech@suse.cz, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=US-ASCII
-Subject: [PATCH 10/47] Disable the AUX LoopBack command in i8042.c on Compaq ProLiant
-Content-Transfer-Encoding: 7BIT
-Date: Thu, 29 Jul 2004 16:09:54 +0200
-X-Mailer: gregkh_patchbomb_levon_offspring
-In-Reply-To: <10911101943643@twilight.ucw.cz>
-From: Vojtech Pavlik <vojtech@suse.cz>
-Message-Id: <1091110194629@twilight.ucw.cz>
+	Thu, 29 Jul 2004 14:43:19 -0400
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:5017 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S266635AbUG2Onu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 10:43:50 -0400
+Date: Thu, 29 Jul 2004 07:43:47 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Giuliano Pochini <pochini@shiny.it>
+Cc: Kumar Gala <kumar.gala@freescale.com>, Sylvain Munaut <tnt@246tNt.com>,
+       linuxppc-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org,
+       olh@suse.de, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][PPC32] Makefile cleanups and gcc-3.4+binutils-2.14 c
+Message-ID: <20040729144347.GE16468@smtp.west.cox.net>
+References: <20040728220733.GA16468@smtp.west.cox.net> <XFMail.20040729100549.pochini@shiny.it>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <XFMail.20040729100549.pochini@shiny.it>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can pull this changeset from:
-	bk://kernel.bkbits.net/vojtech/input
+On Thu, Jul 29, 2004 at 10:05:49AM +0200, Giuliano Pochini wrote:
 
-===================================================================
+> On 28-Jul-2004 Tom Rini wrote:
+> 
+> > I've taken the binutils-2.14+gcc-3.4 bit out (and none of the other
+> > cleanups) as it seems like we get 1-2 reports a week from this bad tools
+> > combination:
+> 
+> I had no time to do a lot of testing, but it seems that binutils 2.15 +
+> gcc 3.3.3 is a bad one too. I didn't try to compile the kernel (which
+> may also break), but at least I couldn't compile gcc 3.4.1 with the
+> above combination. It seems that as doesn't get the -mxxx parameter
+> required to compile altivec stuff. Hacking the Makefile to make it
+> pass -Wa,-m7455 helped a little, but it eventually failed in another
+> weird way. I hadn't time to investigate further, sorry.
 
-ChangeSet@1.1722.85.1, 2004-06-02 13:44:20+02:00, vojtech@suse.cz
-  input: Disable the AUX LoopBack command in i8042.c on Compaq ProLiant
-         8-way Xeon ProFusion systems, as it causes crashes and reboots
-         on these machines. DMI data is used for determining if the
-         workaround should be enabled.
-  
-  Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
+Stock gcc-3.3.3 or from the hammer branch?  There is, I think, a second
+problem that was left out.  The problem with gcc-3.4 + binutils-2.14 is
+that -many gets passed, which zeros out previous flags.  -many is fine
+in binutils-2.15 (and 2.13 and 2.12 and 2.12.1 it seems), but 2.15 does
+require -maltivec to be passed in order to handle altivec instructions.
+Getting this right was part of the cleanup that conflicted with the
+mpc52xx changes (Andrew: trying to take care of getting this into Linus'
+tree now).
 
-
- arch/i386/kernel/dmi_scan.c |   31 +++++++++++++++++++++++++++++++
- drivers/input/serio/i8042.c |   14 +++++++++++++-
- 2 files changed, 44 insertions(+), 1 deletion(-)
-
-===================================================================
-
-diff -Nru a/arch/i386/kernel/dmi_scan.c b/arch/i386/kernel/dmi_scan.c
---- a/arch/i386/kernel/dmi_scan.c	Thu Jul 29 14:41:45 2004
-+++ b/arch/i386/kernel/dmi_scan.c	Thu Jul 29 14:41:45 2004
-@@ -15,6 +15,9 @@
- unsigned long dmi_broken;
- EXPORT_SYMBOL(dmi_broken);
- 
-+unsigned int i8042_dmi_noloop = 0;
-+EXPORT_SYMBOL(i8042_dmi_noloop);
-+
- int is_sony_vaio_laptop;
- int is_unsafe_smbus;
- int es7000_plat = 0;
-@@ -401,6 +404,17 @@
- }
- 
- /*
-+ * Several HP Proliant (and maybe other OSB4/ProFusion) systems
-+ * shouldn't use the AUX LoopBack command, or they crash or reboot.
-+ */
-+
-+static __init int set_8042_noloop(struct dmi_blacklist *d)
-+{
-+	i8042_dmi_noloop = 1;
-+	return 0;
-+}
-+
-+/*
-  * This bios swaps the APM minute reporting bytes over (Many sony laptops
-  * have this problem).
-  */
-@@ -874,6 +888,23 @@
- 			MATCH(DMI_BIOS_VERSION, "3A71"),
- 			NO_MATCH, NO_MATCH,
- 			} },
-+
-+	/*      
-+	 * Several HP Proliant (and maybe other OSB4/ProFusion) systems
-+	 * can't use i8042 in mux mode, or they crash or reboot.
-+	 */                     
-+
-+	{ set_8042_noloop, "Compaq Proliant 8500", {
-+			MATCH(DMI_SYS_VENDOR, "Compaq"),
-+			MATCH(DMI_PRODUCT_NAME , "ProLiant"),
-+			MATCH(DMI_PRODUCT_VERSION, "8500"),
-+			NO_MATCH }},
-+
-+	{ set_8042_noloop, "Compaq Proliant DL760", {
-+			MATCH(DMI_SYS_VENDOR, "Compaq"),
-+			MATCH(DMI_PRODUCT_NAME , "ProLiant"),
-+			MATCH(DMI_PRODUCT_VERSION, "DL760"),
-+			NO_MATCH }},
- 
- #ifdef	CONFIG_ACPI_BOOT
- 	/*
-diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
---- a/drivers/input/serio/i8042.c	Thu Jul 29 14:41:45 2004
-+++ b/drivers/input/serio/i8042.c	Thu Jul 29 14:41:45 2004
-@@ -1,7 +1,7 @@
- /*
-  *  i8042 keyboard and mouse controller driver for Linux
-  *
-- *  Copyright (c) 1999-2002 Vojtech Pavlik
-+ *  Copyright (c) 1999-2004 Vojtech Pavlik
-  */
- 
- /*
-@@ -52,6 +52,8 @@
- module_param_named(dumbkbd, i8042_dumbkbd, bool, 0);
- MODULE_PARM_DESC(dumbkbd, "Pretend that controller can only read data from keyboard");
- 
-+static unsigned int i8042_noloop;
-+
- __obsolete_setup("i8042_noaux");
- __obsolete_setup("i8042_nomux");
- __obsolete_setup("i8042_unlock");
-@@ -154,6 +156,9 @@
- 	unsigned long flags;
- 	int retval = 0, i = 0;
- 
-+	if (i8042_noloop && command == I8042_CMD_AUX_LOOP)
-+		return -1;
-+
- 	spin_lock_irqsave(&i8042_lock, flags);
- 
- 	retval = i8042_wait_write();
-@@ -954,6 +959,13 @@
- 
- 	if (i8042_dumbkbd)
- 		i8042_kbd_port.write = NULL;
-+
-+#ifdef __i386__
-+	if (i8042_dmi_noloop) {
-+		printk(KERN_INFO "i8042.c: AUX LoopBack command disabled by DMI.\n");
-+		i8042_noloop = 1;
-+	}
-+#endif
- 
- 	if (!i8042_noaux && !i8042_check_aux(&i8042_aux_values)) {
- 		if (!i8042_nomux && !i8042_check_mux(&i8042_aux_values))
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,28 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272670AbTHKO7f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 10:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272691AbTHKO7e
+	id S272731AbTHKOv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 10:51:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272708AbTHKOuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 10:59:34 -0400
-Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:61342 "EHLO
-	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S272670AbTHKO7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 10:59:32 -0400
-Message-Id: <200308111459.h7BExOsG008795@ginger.cmf.nrl.navy.mil>
-To: "David S. Miller" <davem@redhat.com>
-cc: Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
-Reply-To: chas3@users.sourceforge.net
-Subject: Re: [PATCH] TRY #2 - 2.6.0-test2-bk8 - seq_file conversion of /proc/net/atm 
-In-reply-to: Your message of "Sat, 09 Aug 2003 02:05:27 PDT."
-             <20030809020527.7b242e0b.davem@redhat.com> 
-Date: Mon, 11 Aug 2003 10:56:30 -0400
-From: chas williams <chas@cmf.nrl.navy.mil>
-X-Spam-Score: () hits=-0.9
+	Mon, 11 Aug 2003 10:50:39 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:18887
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S272680AbTHKOte
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 10:49:34 -0400
+Date: Mon, 11 Aug 2003 10:49:33 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: davej@redhat.com
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, jgarzik@redhat.com
+Subject: Re: [PATCH] misc 3c505 bits
+Message-ID: <20030811144933.GC32180@gtf.org>
+References: <E19mCuP-0003dp-00@tetrachloride>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E19mCuP-0003dp-00@tetrachloride>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030809020527.7b242e0b.davem@redhat.com>,"David S. Miller" writes:
->Chas, I trust you'll look at these?
+On Mon, Aug 11, 2003 at 02:40:25PM +0100, davej@redhat.com wrote:
+> - Remove unneeded breaks
+> - Fix double spin_unlock_irqrestore problem
+> 
+> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/net/3c505.c linux-2.5/drivers/net/3c505.c
+> --- bk-linus/drivers/net/3c505.c	2003-05-26 12:57:43.000000000 +0100
+> +++ linux-2.5/drivers/net/3c505.c	2003-06-04 14:07:40.000000000 +0100
+> @@ -449,18 +449,18 @@ static int send_pcb(struct net_device *d
+>  		case ASF_PCB_ACK:
+>  			adapter->send_pcb_semaphore = 0;
+>  			return TRUE;
+> -			break;
+> +
+>  		case ASF_PCB_NAK:
+>  #ifdef ELP_DEBUG
+>  			printk(KERN_DEBUG "%s: send_pcb got NAK\n", dev->name);
+>  #endif
+>  			goto abort;
+> -			break;
 
-yes -- i should have some comments this week.
+Disagree:  borks message.  You receive an ACK, and print "got NAK".
+
+	Jeff
+
+
+

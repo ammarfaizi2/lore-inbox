@@ -1,27 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267452AbTACHsD>; Fri, 3 Jan 2003 02:48:03 -0500
+	id <S267455AbTACHvG>; Fri, 3 Jan 2003 02:51:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267456AbTACHsD>; Fri, 3 Jan 2003 02:48:03 -0500
-Received: from coffee.Psychology.mcmaster.ca ([130.113.218.59]:45723 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S267452AbTACHsC>; Fri, 3 Jan 2003 02:48:02 -0500
-Date: Fri, 3 Jan 2003 02:56:20 -0500 (EST)
-From: Mark Hahn <hahn@physics.mcmaster.ca>
-X-X-Sender: hahn@coffee.psychology.mcmaster.ca
-To: linux-kernel@vger.kernel.org
-cc: Richard Stallman <rms@gnu.org>
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-In-Reply-To: <E18UMb1-0001Zo-00@fencepost.gnu.org>
-Message-ID: <Pine.LNX.4.44.0301030252480.25684-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267457AbTACHvG>; Fri, 3 Jan 2003 02:51:06 -0500
+Received: from rth.ninka.net ([216.101.162.244]:58014 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S267456AbTACHvF>;
+	Fri, 3 Jan 2003 02:51:05 -0500
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+From: "David S. Miller" <davem@redhat.com>
+To: andersen@codepoet.org
+Cc: Larry McVoy <lm@work.bitmover.com>, Richard Stallman <rms@gnu.org>,
+       mark@mark.mielke.cc, billh@gnuppy.monkey.org, paul@clubi.ie,
+       riel@conectiva.com.br, Hell.Surfers@cwctv.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030103050042.GA5123@codepoet.org>
+References: <20030102013736.GA2708@gnuppy.monkey.org>
+	<Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org>
+	<20030102055859.GA3991@gnuppy.monkey.org>
+	<20030102061430.GA23276@mark.mielke.cc>
+	<E18UIZS-0006Cr-00@fencepost.gnu.org>
+	<20030103040612.GA10651@work.bitmover.com> 
+	<20030103050042.GA5123@codepoet.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Jan 2003 00:31:27 -0800
+Message-Id: <1041582687.8648.6.camel@rth.ninka.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> other programs for GNU that are not tools.  But GNU is not just a
-> collection of various programs; it's an operating system which in 1992
+On Thu, 2003-01-02 at 21:00, Erik Andersen wrote:
+> If they are worried their competitors might try to do the same
+> nifty things with competing hardware, they should patent the
+> methods used by their nifty 3D hardware.  And if you go take a
+> look, Nvidia has done exactly that.
 
-GNU is a flag of convenience: there's little sign that the many people 
-who contribute to GNU projects share the depth of RMS's political zeal.
+Hehe, maybe the issue is just that... other people's patents :-)
 

@@ -1,82 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268465AbUH3UYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268914AbUH3U1C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268465AbUH3UYK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 16:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268755AbUH3UYK
+	id S268914AbUH3U1C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 16:27:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268929AbUH3U1C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 16:24:10 -0400
-Received: from postfix4-1.free.fr ([213.228.0.62]:2528 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S268465AbUH3UX7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 16:23:59 -0400
-Date: Mon, 30 Aug 2004 20:23:57 +0000 (UTC)
-From: dulle <dulle@free.fr>
-Reply-To: dulle@free.fr
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: reverse engineering pwcx
-In-Reply-To: <1093870332.434.6983.camel@cube>
-Message-ID: <Pine.LNX.4.60.0408301918420.3067@ganymede.chateauneuf.fr>
-References: <1093709838.434.6797.camel@cube>  <20040829210436.GA24350@hh.idb.hist.no>
-  <Pine.LNX.4.61.0408300836010.2441@fogarty.jakma.org> <1093870332.434.6983.camel@cube>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811839-350937542-1093896296=:3067"
-Content-ID: <Pine.LNX.4.60.0408302013500.3067@ganymede.chateauneuf.fr>
+	Mon, 30 Aug 2004 16:27:02 -0400
+Received: from fw.osdl.org ([65.172.181.6]:44163 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268914AbUH3U0p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 16:26:45 -0400
+Date: Mon, 30 Aug 2004 13:26:32 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: TCP Window Scaling problem with buggy routers FIX works
+Message-Id: <20040830132632.4c34f336@dell_ss3.pdx.osdl.net>
+In-Reply-To: <512805293.20040830130037@dns.toxicfilms.tv>
+References: <512805293.20040830130037@dns.toxicfilms.tv>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Mon, 30 Aug 2004 13:00:37 +0200
+Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
 
----1463811839-350937542-1093896296=:3067
-Content-Type: TEXT/PLAIN; CHARSET=X-UNKNOWN; FORMAT=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Content-ID: <Pine.LNX.4.60.0408302013501.3067@ganymede.chateauneuf.fr>
+> Hi,
+> 
+> I am just letting you guys know that the fix for
+> tcp window scaling problem with buggy routers works.
 
-On Mon, 30 Aug 2004, Albert Cahalan wrote:
+As mentioned in the patch to automatically manage tcp window
+scale size. This was an (mostly unwanted) side-effect.
 
-> On Mon, 2004-08-30 at 03:42, Paul Jakma wrote:
->> On Sun, 29 Aug 2004, Helge Hafting wrote:
->>
->>> There's no need for faith or speculation here.
->>> Put the chip under a microscope and count the pixels,
->>> or rather measure their size and estimate their number.
->>
->> The lavarnd guy did and counted 160x120:
->>
->>  =09http://slashdot.org/comments.pl?sid=3D119578&cid=3D10091208
->
-> Unless he explains a bit better, there's no reason
-> to assume he counted correctly. There may be a larger
-> pattern that was counted by mistake. For example,
-> there may be 160x120 red-sensing sub-pixels. He could
-> have counted only that.
->
-> Also, there is more than one type of sensor that can
-> be fitted to these webcam chips. They may vary.
+> There were people (including me) reporting that tcp traffic
+> through some buggy (eg. cisco) routers in linux-2.6.8 slows
+> down to a crawl.
 
-Yes, some have cmos, some have CCDs.
+Find and fix the problem. It may come back.
 
-Beside, I am a bit puzzled by the credit that has been
-given to that slashdot comment, when a simple search  on
-"ccd chip logitech 3000 pro"  provides  a  link  on  the
-description of the CCD chip inside that  cam  in  a  few
-clicks :
+> A workaround was to zero tcp_window_scaling sysctl knob.
+> 
+> With this patch:
+> http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/cset-shemminger@osdl.org|ChangeSet|20040826205608|22084.txt
+> 
+> sitting in 2.6.9-rc1 BK repository the linux box can have
+> fast transfers again.
+> 
+> Note that they are not that fast as with tcp_window_scaling disabled.
+> But they are certainly fast and will not cause problems like
+> ssh sessions hangning, etc.
 
-http://www.sony.net/Products/SC-HP/new_tec/ccd/icx098.html
+That is because every time the linux box says the window size is N.
+The other side is thinking the window is N/4 because the router in
+the middle corrupted the initial connection requuest.
 
-2  more  clicks  on  Sony's  site  give  acces  to   the
-datasheets of  the  different  versions  of  the  icx098
-(color or b/w).
 
-And that was the hard  way:  if  you  search  "ccd  chip
-philips webcam" you have the  reference  on  the  result
-page and access to the specs on the first site returned.
+> Thanks for the workaround for buggy routers netdev!
 
-http://www.astrosurf.com/benschop/APEquipment.htm
+Don't expect the default Linux kernel configuration to work
+on broken networks.
 
-Did I mention icx098 is a 640x480 CCD chip, whatever the
-version ?
 
--- Fran=E7ois Meyer
-http://dulle.free.fr/alidade/galerie.php?maxim=3D12
----1463811839-350937542-1093896296=:3067--
+-- 
+Stephen Hemminger 		mailto:shemminger@osdl.org
+Open Source Development Lab	http://developer.osdl.org/shemminger

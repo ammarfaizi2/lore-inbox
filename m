@@ -1,93 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262698AbVDAKno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbVDAKsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262698AbVDAKno (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 05:43:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262699AbVDAKno
+	id S262700AbVDAKsH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 05:48:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262699AbVDAKsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 05:43:44 -0500
-Received: from fire.osdl.org ([65.172.181.4]:2235 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262698AbVDAKnj (ORCPT
+	Fri, 1 Apr 2005 05:48:07 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:55996 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262700AbVDAKsD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 05:43:39 -0500
-Date: Fri, 1 Apr 2005 02:43:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: johnpol@2ka.mipt.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cn_queue.c
-Message-Id: <20050401024312.641946e2.akpm@osdl.org>
-In-Reply-To: <1112351791.9334.208.camel@uganda>
-References: <20050331173215.49c959a0.akpm@osdl.org>
-	<1112341236.9334.97.camel@uganda>
-	<20050331235706.5b5981db.akpm@osdl.org>
-	<1112344811.9334.146.camel@uganda>
-	<20050401004804.52519e17.akpm@osdl.org>
-	<1112348048.9334.174.camel@uganda>
-	<20050401015027.047783eb.akpm@osdl.org>
-	<1112351791.9334.208.camel@uganda>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 1 Apr 2005 05:48:03 -0500
+Date: Fri, 1 Apr 2005 12:47:24 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
+Message-ID: <20050401104724.GA31971@elte.hu>
+References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050331085541.GA21306@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
->
-> On Fri, 2005-04-01 at 01:50 -0800, Andrew Morton wrote:
-> > Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> > >
-> > > cn_queue_free_dev() will wait until dev->refcnt hits zero 
-> > >  before freeing any resources,
-> > >  but it can happen only after cn_queue_del_callback() does 
-> > >  it's work on given callback device [actually when all callbacks 
-> > >  are removed].
-> > >  When new callback is added into device, it's refcnt is incremented
-> > >  [before adition btw, if addition fails in the middle, reference is
-> > >  decremented], when callbak is removed, device's reference counter
-> > >  is decremented aromically after all work is finished.
-> > 
-> > hm.
-> > 
-> > How come cn_queue_del_callback() uses all those barriers if no other CPU
-> > can grab new references against cbq->cb->refcnt?
-> 
-> The work may be already assigned to that callback device, 
-> new work cant, barriers are there to ensure that
-> reference counters are updated in proper places, but not 
-> before.
 
-What are the "proper places"?  What other control paths could be inspecting
-the refcount at this time?  (That's the problem with barriers - you can't
-tell what they are barriering against).
+i have released the -V0.7.43-00 Real-Time Preemption patch, which can be 
+downloaded from the usual place:
 
-> It would be a bug to update dev->refcnt before assigned work is finished
-> and callback removed.
-> 
-> > cn_queue_free_callback() forgot to do flush_workqueue(), so
-> > cn_queue_wrapper() can still be running while cn_queue_free_callback()
-> > frees up the cn_callback_entry, I think.
-> 
-> cn_queue_wrapper() atomically increments cbq->cb->refcnt if runs, so it
-> will
-> be caught in 
-> while (atomic_read(&cbq->cb->refcnt)) 
->   msleep(1000);
-> in cn_queue_free_callback().
-> If it does not run, then all will be ok.
+  http://redhat.com/~mingo/realtime-preempt/
 
-But there's a time window on entry to cn_queue_wrapper() where the recsount
-hasn't been incremented yet, and there's no locking.  If
-cn_queue_free_callback() inspects the refcount in that window it will free
-the cn_callback_entry() while cn_queue_wrapper() is playing with it?
+this release too is a step towards more robustness. I found a bug that
+caused an infinite recursion and subsequent spontaneous reboot. The bug
+was once again related to lock->debug locks, so i decided to get rid of
+them altogether: from now on every lock in the -RT domain is debugged.
 
-> Btw, it looks like comments for del_timer_sync() and cancel_delayed_work
-> ()
-> are controversial - del_timer_sync() says that pending timer
-> can not run on different CPU after returning, 
-> but cancel_delayed_work() says, that work to be cancelled still 
-> can run after returning.
+To be able to use code that relies on incompatible properties of stock
+Linux semaphores (and rwsems), i've added a new compile-time
+semaphore-type mechanism that enables the easy switching from RT
+semaphores to stock semaphores. I've done this conversion for all
+subsystems that needed it - e.g. XFS, firewire, USB and SCSI. XFS seems
+to be working much better with this approach - BYMMV.
 
-Not controversial - the timer can have expired and have been successfully
-deleted but the work_struct which the timer handler scheduled is still
-pending, or has just started to run.
+but an unavoidable side-effect is that the whole codebase got turned 
+upside down once again, so be careful and expect a few rough edges.  In 
+particular keep an eye on new compile-time warnings related to 
+semaphores - code that gives a warning might build but it will almost 
+certainly not work.
 
+to create a -V0.7.43-00 tree from scratch, the patching order is:
+
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.11.tar.bz2
+  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.12-rc1.bz2
+  http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.12-rc1-V0.7.43-00
+
+	Ingo

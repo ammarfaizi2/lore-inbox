@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265107AbSKERv7>; Tue, 5 Nov 2002 12:51:59 -0500
+	id <S265143AbSKESHy>; Tue, 5 Nov 2002 13:07:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265108AbSKERv7>; Tue, 5 Nov 2002 12:51:59 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:38037 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265107AbSKERv4>; Tue, 5 Nov 2002 12:51:56 -0500
-Subject: Re: 2.5 vi .config ; make oldconfig not working
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S265146AbSKESHy>; Tue, 5 Nov 2002 13:07:54 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:63471 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S265143AbSKESHx>; Tue, 5 Nov 2002 13:07:53 -0500
+Date: Tue, 5 Nov 2002 10:14:04 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
 To: Jens Axboe <axboe@suse.de>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021105172617.GC1830@suse.de>
-References: <20021105165024.GJ13587@suse.de> <3DC7FB11.10209@pobox.com>
-	<20021105171409.GA1137@suse.de>
-	<1036517201.5601.0.camel@localhost.localdomain> 
-	<20021105172617.GC1830@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Nov 2002 18:20:35 +0000
-Message-Id: <1036520436.4791.114.camel@irongate.swansea.linux.org.uk>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 vi .config ; make oldconfig not working
+Message-ID: <20021105181403.GG17573@nic1-pc.us.oracle.com>
+References: <20021105165024.GJ13587@suse.de> <3DC7FB11.10209@pobox.com> <20021105171409.GA1137@suse.de> <3DC7FD95.5000903@pobox.com> <20021105172110.GB1830@suse.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021105172110.GB1830@suse.de>
+User-Agent: Mutt/1.4i
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-05 at 17:26, Jens Axboe wrote:
-> You're wrong, it's always worked. I've never used anything but that.
+On Tue, Nov 05, 2002 at 06:21:10PM +0100, Jens Axboe wrote:
+> > '=n' is wrong, that should be "# CONFIG_NFSD_V4 is not set" still...
 > 
-> > # CONFIG_NFSD_V4 is not set
-> 
-> Come on, you really expect me to type the whole damn thing? That's
-> silly.
+> Why is that wrong? It worked before.
 
-So write a sed script to turn n into "is not set" or submit a change to
-cover it. Its luck =n ever did what you expected though.
+	I've run into kernels where '=n' didn't work.  The old-skool
+canonical answer was "# CONFIG_FOO is not set", and that worked reliably
+in <2.5
 
+Joel
+
+-- 
+
+ print STDOUT q
+ Just another Perl hacker,
+ unless $spring
+	- Larry Wall
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

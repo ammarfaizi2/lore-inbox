@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbVBVGkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbVBVGma@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262217AbVBVGkV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 01:40:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbVBVGkU
+	id S262220AbVBVGma (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 01:42:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbVBVGma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 01:40:20 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:12010 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262217AbVBVGkP (ORCPT
+	Tue, 22 Feb 2005 01:42:30 -0500
+Received: from rproxy.gmail.com ([64.233.170.197]:34490 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262220AbVBVGmY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 01:40:15 -0500
-Message-ID: <421AD4E4.9050701@sgi.com>
-Date: Tue, 22 Feb 2005 00:44:52 -0600
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Paul Jackson <pj@sgi.com>, ak@muc.de, raybry@austin.rr.com,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
- II
-References: <20050215214831.GC7345@wotan.suse.de> <4212C1A9.1050903@sgi.com> <20050217235437.GA31591@wotan.suse.de> <4215A992.80400@sgi.com> <20050218130232.GB13953@wotan.suse.de> <42168FF0.30700@sgi.com> <20050220214922.GA14486@wotan.suse.de> <20050220143023.3d64252b.pj@sgi.com> <20050220223510.GB14486@wotan.suse.de> <42199EE8.9090101@sgi.com> <20050221121010.GC17667@wotan.suse.de>
-In-Reply-To: <20050221121010.GC17667@wotan.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 22 Feb 2005 01:42:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=IAknri463ST+x5ECP8joBa0Pql2B/e0/Ggh4RmfuL0TiC9QsY0RBCo5zBWw+yizlb/x31I4xSpRhr2AX4OYOf230AptmvKid89noZsii+dXSF8INAfyFaDybLKsFn66MZFjMZSaI1Hqh63eOhCQVQQcM0RYXJoS+9gg7Pk+jQHU=
+Message-ID: <9e473391050221224269186140@mail.gmail.com>
+Date: Tue, 22 Feb 2005 01:42:23 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: POSTing of video cards (WAS: Solo Xgl..)
+Cc: Alex Deucher <alexdeucher@gmail.com>, Dave Airlie <airlied@linux.ie>,
+       dri-devel@lists.sourceforge.net,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       xorg@lists.freedesktop.org
+In-Reply-To: <1109053960.5326.91.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0502201049480.18753@skynet>
+	 <1108973275.5326.8.camel@gaston>
+	 <9e47339105022111082b2023c2@mail.gmail.com>
+	 <1109019855.5327.28.camel@gaston>
+	 <9e4733910502211717116a4df3@mail.gmail.com>
+	 <1109041968.5412.63.camel@gaston>
+	 <a728f9f9050221205634a3acf0@mail.gmail.com>
+	 <1109049217.5412.79.camel@gaston>
+	 <9e4733910502212203671eec73@mail.gmail.com>
+	 <1109053960.5326.91.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+On Tue, 22 Feb 2005 17:32:40 +1100, Benjamin Herrenschmidt
+<benh@kernel.crashing.org> wrote:
+> And even if we did, then we could have the vga "legacy" driver use the
+> firmware loader to "boot" them. And again, you seem to dismiss all my
+> other arguments...
 
-Oops.  It's late.  The pargraph below in my previous note confused
-cpus and nodes.  It should have read as follows:
+I'm not dismissing them, I'm in agreement with with doing it in the
+drivers if we are sure we have thought through all of the different
+cases where we might need to post.
 
-Let's suppose that nodes 0-1 of a 64 node [was: CPU] system have graphics
-pipes.  To keep it simple, we will assume that there are 2 cpus
-per node like an Altix [128 CPUS in this system]. Let's suppose that jobs
-arrive as follows:
-. . .
-
-Sorry about that.
 -- 
-Best Regards,
-Ray
------------------------------------------------
-                   Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-            so I installed Linux.
------------------------------------------------
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,77 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264223AbTDPEYE (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 00:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264225AbTDPEYE 
+	id S264225AbTDPEaM (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 00:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264226AbTDPEaM 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 00:24:04 -0400
-Received: from haw-66-102-130-200.vel.net ([66.102.130.200]:32197 "HELO
-	mx100.mysite4now.com") by vger.kernel.org with SMTP id S264223AbTDPEYD 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 00:24:03 -0400
-From: Udo Hoerhold <maillists@goodontoast.com>
-To: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: SoundBlaster Live! with kernel 2.5.x
-Date: Wed, 16 Apr 2003 00:34:11 -0400
-User-Agent: KMail/1.5.1
-References: <200304152001.35975.maillists@goodontoast.com> <1050457791.3664.188.camel@localhost> <200304152228.11010.maillists@goodontoast.com>
-In-Reply-To: <200304152228.11010.maillists@goodontoast.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Apr 2003 00:30:12 -0400
+Received: from dhcp160176008.columbus.rr.com ([24.160.176.8]:17167 "EHLO
+	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
+	id S264225AbTDPEaK (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 16 Apr 2003 00:30:10 -0400
+From: "Joseph Fannin" <jhf@rivenstone.net>
+Date: Wed, 16 Apr 2003 00:41:48 -0400
+To: Florin Iucha <florin@iucha.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernels since 2.5.60 upto 2.5.67 freeze when X server terminates
+Message-ID: <20030416044144.GA32400@rivenstone.net>
+Mail-Followup-To: Florin Iucha <florin@iucha.net>,
+	linux-kernel@vger.kernel.org
+References: <20030415133608.A1447@cuculus.switch.gts.cz> <20030415125507.GA29143@iucha.net> <3E9C03DD.3040200@oracle.com> <20030415164435.GA6389@rivenstone.net> <20030415182057.GC29143@iucha.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
 Content-Disposition: inline
-Message-Id: <200304160034.11567.maillists@goodontoast.com>
+In-Reply-To: <20030415182057.GC29143@iucha.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 April 2003 09:49 pm, Robert Love wrote:
-> On Tue, 2003-04-15 at 20:01, Udo Hoerhold wrote:
-> > I've been running Debian woody with 2.4.20 kernel.  I'm trying to
-> > switch to 2.5.  I built 2.5.67 with emu10k driver in the kernel (same
-> > as I had with 2.4.20), but I get only a lot of popping sounds from the
-> > sound card. I also tried 2.5.50 and 2.5.67-mm3, with the same result. 
-> > I googled for emu10k and soundblaster with 2.5, but I haven't seen
-> > anyone else with the same problem. Does anyone know what this problem
-> > is?
->
-> Not sure.  It seems to work fine here.
->
-> Are you using ALSA or OSS?  Best bet is ALSA.  You want something like:
->
->         CONFIG_SND=y
->         CONFIG_SND_SEQUENCER=y
->         CONFIG_SND_OSSEMUL=y
->         CONFIG_SND_MIXER_OSS=y
->         CONFIG_SND_PCM_OSS=y
->         CONFIG_SND_SEQUENCER_OSS=y
->         CONFIG_SND_EMU10K1=y
->
-> And then do not include any of the OSS stuff.
->
-> Then a normal audio playback on /dev/audio or whatever should work fine.
->
-> If not, do you see any errors during boot?
->
-> 	Robert Love
 
-I have the exact configuration you have above.  The soundcard is detected,
-but I do get one error:
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Apr 15 22:17:45 hobbiton kernel: Advanced Linux Sound Architecture Driver
-Version 0.9.2 (Thu Mar 20$
-Apr 15 22:17:45 hobbiton kernel: request_module: failed /sbin/modprobe --
-snd-card-0. error = -16
-Apr 15 22:17:45 hobbiton kernel: PCI: Found IRQ 10 for device 02:0b.0
-Apr 15 22:17:45 hobbiton kernel: PCI: Sharing IRQ 10 with 00:1f.2
-Apr 15 22:17:45 hobbiton kernel: ALSA device list:
-Apr 15 22:17:45 hobbiton kernel:   #0: Sound Blaster Live! (rev.7) at
-0xdf80, irq 10
+On Tue, Apr 15, 2003 at 01:20:57PM -0500, Florin Iucha wrote:
+> On Tue, Apr 15, 2003 at 12:44:40PM -0400, Joseph Fannin wrote:
+> > On Tue, Apr 15, 2003 at 03:06:37PM +0200, Alessandro Suardi wrote:
+> > <snip>
+> > > I surely hit bug 543 in 2.5.65 IIRC, and guess what...
+> > >  ATI Radeon 7500 Mobile - XFree 4.2.1
+> > >=20
+> > > According to other emails on lkml, it appears that DRM and/or AGP
+> > >  new kernel code might be at fault. I don't actually remember
+> > >  seeing non-Radeon cards being hit by such problems though...
+> >=20
+> >     I've seen this problem too many times, but haven't tried to track
+> > it down.  The video is ATI Rage 128 Pro.
+> >=20
+> >     A common bit seems to be ATI cards, judging from this thread.  I'm
+> > also using the aty128fb framebuffer driver.  My motherboard is Aladdin V
+> > based and so uses the ali-agp module.
+>=20
+> I think it has to do with the interaction between XFree86 4.3.0 and
+> the AGP code.
+>=20
+> I have wdm as my display manager. I am able to login, but when logging
+> out the system dies. These are the last two messages printed on the
+> serial console:
+>    agpgart: Putting AGP V2 device at 00:00.0 into 4x mode
+>    agpgart: Putting AGP V2 device at 01:00.0 into 4x mode
+> and then, hard freeze.
+>=20
+> These lines do not appear when using XFree86 4.2.1 .
+>=20
+> I have a Radeon 8500 and AGP 4x is enabled in BIOS. The motherboard is
+> ECS K7S5A (SIS 735 chipset).
 
-I've been ignoring modprobe errors because I know there are some issues
-with 2.5 kernel and modules, and I'm compiling everything into the kernel. 
-Could this be causing a problem, though?
+    Except that I'm seeing the very same sort of freeze on with a
+ Rage128 card with XFree86 4.2.1.
 
-Thanks,
+    Are we all Debian sid users, perhaps?
 
-Udo Hoerhold
+    Or maybe the Rage128 needs a similar patch to the Radeon one you
+posted.
 
+
+--=20
+Joseph Fannin
+jhf@rivenstone.net
+
+"Bull in pure form is rare; there is usually some contamination by data."
+    -- William Graves Perry Jr.
+
+--2fHTh5uZTiUOsy+g
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+nN8IWv4KsgKfSVgRAnT6AJ9+fVYtNK0HxPgIH0xq6QnN4g9FGQCePyu/
+Cgg77B6RjOwfIbSwEZ7lYSs=
+=LYBA
+-----END PGP SIGNATURE-----
+
+--2fHTh5uZTiUOsy+g--

@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263709AbUGHPVB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264129AbUGHPZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263709AbUGHPVB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 11:21:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263725AbUGHPVB
+	id S264129AbUGHPZF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 11:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbUGHPZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 11:21:01 -0400
-Received: from mail.kroah.org ([69.55.234.183]:15590 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263709AbUGHPUs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 11:20:48 -0400
-Date: Thu, 8 Jul 2004 08:12:10 -0700
-From: Greg KH <greg@kroah.com>
-To: linas@austin.ibm.com
-Cc: linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [Pcihpd-discuss] [PATCH] 2.6 PCI Hotplug: receive PPC64 EEH events
-Message-ID: <20040708151210.GA12854@kroah.com>
-References: <20040707155907.G21634@forte.austin.ibm.com> <20040707211656.GA4105@kroah.com> <20040707164739.I21634@forte.austin.ibm.com> <20040708052603.GA548@kroah.com> <20040708100433.K21634@forte.austin.ibm.com>
+	Thu, 8 Jul 2004 11:25:05 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:55012 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264129AbUGHPZC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 11:25:02 -0400
+Date: Thu, 8 Jul 2004 10:24:25 -0500
+From: linas@austin.ibm.com
+To: Greg KH <greg@kroah.com>
+Cc: Linda Xie <lxiep@us.ibm.com>, linuxppc64-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [PATCH] 2.6 PCI Hotplug: receive PPC64 EEH events
+Message-ID: <20040708102425.L21634@forte.austin.ibm.com>
+References: <20040707155907.G21634@forte.austin.ibm.com> <40EC9A02.1000507@us.ibm.com> <20040707190642.J21634@forte.austin.ibm.com> <20040708060933.GE548@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040708100433.K21634@forte.austin.ibm.com>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040708060933.GE548@kroah.com>; from greg@kroah.com on Wed, Jul 07, 2004 at 11:09:33PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 08, 2004 at 10:04:33AM -0500, linas@austin.ibm.com wrote:
-> On Wed, Jul 07, 2004 at 10:26:04PM -0700, Greg KH wrote:
-> > On Wed, Jul 07, 2004 at 04:47:39PM -0500, linas@austin.ibm.com wrote:
-> > 
-> > > ===== drivers/pci/hotplug/rpaphp.h 1.9 vs edited =====
-> > > +extern void init_eeh_handler (void);
-> > > +extern void exit_eeh_handler (void);
-> > 
-> > This belongs in the eeh header file, not the rpaphp.h file.
-> 
-> But these are implemented in rpaphp_pci.c and are called 
-> in rpaphp_core.c.  Perchance a different function name, such as
-> init_rpaphp_eeh_handler() be better?
+On Wed, Jul 07, 2004 at 11:09:33PM -0700, Greg KH wrote:
+> > pci_scan_child_bus() is currently ...
+>
+> It's in the latest -bk tree, right?
 
-Ah, yes, see I didn't even catch that :)
+yes, it looks correct in the current tree (it wasn't when 
+I'd previously cloned).    It's possible I'm not using bk correctly;
+once I've modified a file, 'bk pull' never merges in newer changes 
+made upstream.  So I have to 'bk clone' all the time, which is a 
+pain in the neck. What am I doing wrong?
 
-They should start with "rpaphp" as they are global symbols.
-
-thanks,
-
-greg k-h
+--linas

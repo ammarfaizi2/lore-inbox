@@ -1,84 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261456AbSJYP57>; Fri, 25 Oct 2002 11:57:59 -0400
+	id <S261454AbSJYPz2>; Fri, 25 Oct 2002 11:55:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261457AbSJYP56>; Fri, 25 Oct 2002 11:57:58 -0400
-Received: from ns.suse.de ([213.95.15.193]:34064 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261456AbSJYP55>;
-	Fri, 25 Oct 2002 11:57:57 -0400
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SuSE Linux AG
-To: "Theodore Ts'o" <tytso@mit.edu>, Andrew Morton <akpm@digeo.com>
-Subject: [2.5.44-mm5] Missing exports in ext23-acl-xattr-07.patch
-Date: Fri, 25 Oct 2002 18:03:12 +0200
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
+	id <S261455AbSJYPz2>; Fri, 25 Oct 2002 11:55:28 -0400
+Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:14215 "EHLO
+	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S261454AbSJYPz1>; Fri, 25 Oct 2002 11:55:27 -0400
+Date: Fri, 25 Oct 2002 09:01:37 -0700 (PDT)
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Reply-To: whitney@math.berkeley.edu
+To: LKML <linux-kernel@vger.kernel.org>
+cc: jgarzik@mandrakesoft.com
+Subject: 2.5.44-ac2 8139too WOL: can't power down onboard device
+Message-ID: <Pine.LNX.4.44.0210250846300.28368-100000@mf1.private>
 MIME-Version: 1.0
-Message-Id: <200210251759.26991.agruen@suse.de>
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_CLOJZXS5PA2AGVJ1HZYE"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---------------Boundary-00=_CLOJZXS5PA2AGVJ1HZYE
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+I'm using 2.5.44-ac2 with the 8139too driver on an ECS K7VT3A motherboard
+with onboard Ethernet:
 
-Hello Ted and Andrew,
+00:0e.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10).  
 
-The ext23-acl-xattr-07.patch is missing some exports in fs/posix_acl.c th=
-at=20
-are necessary if modules use the functions in that file. Please include/m=
-erge=20
-in the attached patch.
+I find that whenever I power down this machine, the Ethernet controller
+stays powered on according to my hub.  This is even though ethtool says
+that WOL is disabled, as below.  Is there any way to power down the
+Ethernet controller on this board?  Any suggestions would be appreciated.
 
---Andreas.
+Cheers,
+Wayne
+
+[root@pizza root]# ethtool eth0
+Settings for eth0:
+        Supported ports: [ TP MII ]
+        Supported link modes:   10baseT/Half 10baseT/Full
+                                100baseT/Half 100baseT/Full
+        Supports auto-negotiation: Yes
+        Advertised link modes:  10baseT/Half 10baseT/Full
+                                100baseT/Half 100baseT/Full
+        Advertised auto-negotiation: Yes
+        Speed: 100Mb/s
+        Duplex: Full
+        Port: MII
+        PHYAD: 32
+        Transceiver: internal
+        Auto-negotiation: on
+        Supports Wake-on: pumbg
+        Wake-on: d
+        Current message level: 0xffffffff (-1)
+        Link detected: yes
 
 
---------------Boundary-00=_CLOJZXS5PA2AGVJ1HZYE
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="missing-exports.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="missing-exports.patch"
 
---- linux-2.5.44.patch0/fs/posix_acl.c	2002-10-25 16:39:32.000000000 +0200
-+++ linux-2.5.44.patch/fs/posix_acl.c	2002-10-25 16:35:13.000000000 +0200
-@@ -18,9 +18,20 @@
- #include <linux/fs.h>
- #include <linux/sched.h>
- #include <linux/posix_acl.h>
-+#include <linux/module.h>
- 
- #include <linux/errno.h>
- 
-+EXPORT_SYMBOL(posix_acl_alloc);
-+EXPORT_SYMBOL(posix_acl_clone);
-+EXPORT_SYMBOL(posix_acl_valid);
-+EXPORT_SYMBOL(posix_acl_equiv_mode);
-+EXPORT_SYMBOL(posix_acl_from_mode);
-+EXPORT_SYMBOL(posix_acl_create_masq);
-+EXPORT_SYMBOL(posix_acl_chmod_masq);
-+EXPORT_SYMBOL(posix_acl_masq_nfs_mode);
-+EXPORT_SYMBOL(posix_acl_permission);
-+
- /*
-  * Allocate a new ACL with the specified number of entries.
-  */
---- linux-2.5.44.patch0/fs/Makefile	2002-10-25 16:39:32.000000000 +0200
-+++ linux-2.5.44.patch/fs/Makefile	2002-10-25 16:33:03.000000000 +0200
-@@ -6,7 +6,8 @@
- # 
- 
- export-objs :=	open.o dcache.o buffer.o bio.o inode.o dquot.o mpage.o aio.o \
--                fcntl.o read_write.o dcookies.o mbcache.o xattr_acl.o
-+                fcntl.o read_write.o dcookies.o mbcache.o xattr_acl.o \
-+                posix_acl.o
- 
- obj-y :=	open.o read_write.o devices.o file_table.o buffer.o \
- 		bio.o super.o block_dev.o char_dev.o stat.o exec.o pipe.o \
 
---------------Boundary-00=_CLOJZXS5PA2AGVJ1HZYE--
+
 

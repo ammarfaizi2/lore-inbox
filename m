@@ -1,101 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271987AbRIDRu0>; Tue, 4 Sep 2001 13:50:26 -0400
+	id <S272043AbRIDRyp>; Tue, 4 Sep 2001 13:54:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272034AbRIDRuP>; Tue, 4 Sep 2001 13:50:15 -0400
-Received: from jive.SoftHome.net ([204.144.231.93]:29901 "EHLO softhome.net")
-	by vger.kernel.org with ESMTP id <S271987AbRIDRuG>;
-	Tue, 4 Sep 2001 13:50:06 -0400
-From: "John L. Males" <jlmales@softhome.net>
-Organization: Toronto, Ontario, Canada
-To: Doug McNaught <doug@wireboard.com>
-Date: Tue, 4 Sep 2001 13:49:51 -0500
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Question Re AC Patch with VM Tuneable Parms for now
-Reply-to: jlmales@softhome.net
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3B94DBFF.1248.396225@localhost>
-In-Reply-To: "John L. Males"'s message of "Tue, 4 Sep 2001 02:30:08 -0500"
-In-Reply-To: <m37kvfovbo.fsf@belphigor.mcnaught.org>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+	id <S272034AbRIDRyf>; Tue, 4 Sep 2001 13:54:35 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:2450 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S272043AbRIDRy1>; Tue, 4 Sep 2001 13:54:27 -0400
+Date: Tue, 4 Sep 2001 13:54:27 -0400
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: page_launder() on 2.4.9/10 issue
+Message-ID: <20010904135427.A30503@cs.cmu.edu>
+Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010904131349.B29711@cs.cmu.edu> <Pine.LNX.4.21.0109041253510.2038-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0109041253510.2038-100000@freak.distro.conectiva>
+User-Agent: Mutt/1.3.20i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Doug,
-
-Thanks for taking the time to reply and refreshing my memory about
-menu oldconfig.
-
-I imply from your reply that there is no carry forward feature via
-the menu xconfig.  I guess it was wishful thinking in my original
-message there might be.  Not an big issue, just thought I ask in case
-I missed something in reading and searching the kernel doc.
-
-Thanks for tip that the tuneable VM items may be implemented via
-/proc.
-
-
-Regards,
-
-John L. Males
-Willowdale, Ontario
-Canada
-04 September 2001 14:49
-mailto:jlmales@softhome.net
-
-
-To:             	jlmales@softhome.net
-Copies to:      	linux-kernel@vger.kernel.org
-Subject:        	Re: Question Re AC Patch with VM Tuneable Parms for
-now
-From:           	Doug McNaught <doug@wireboard.com>
-Date sent:      	04 Sep 2001 10:59:55 -0400
-
-> "John L. Males" <jlmales@softhome.net> writes:
+On Tue, Sep 04, 2001 at 12:56:32PM -0300, Marcelo Tosatti wrote:
+> On Tue, 4 Sep 2001, Jan Harkes wrote:
+> > One other observation, we should add anonymously allocated memory to the
+> > active-list as soon as they are allocated in do_nopage. At the moment a
+> > large part of memory is not aged at all until we start swapping things
+> > out.
 > 
-> > Can someone advise me if the "Make several vm behaviours tunable
-> > for now" as of the 2.4.9-ac4 patch are implemented in the kernel
-> > .config file?  If so is there an easy way to carry forward a
-> > 2.4.8 version of the .config file using "make xconfig" so that I
-> > do not have to set all the setting I have made from scratch?  I
-> > get the sense from the Kernel documentation that one can run a
-> > process that will ask one only those parameters that have been
-> > changed or added rather that all of them, but best I can tell
-> > this is a console y/n/?? type response.
+> With reverse mappings we can completly remove the "swap_out()" loop logic
+> and age pte's at refill_inactive_scan(). 
 > 
-> You have to do the carry-forward on the command line, using 
-> 'make oldconfig'.  It will prompt you to answer any questions that
-> aren't in the old config file, which will usually be fairly few. 
-> So it's not that bad, and you only have to do it once per upgrade.
+> All that with anon memory added to the active-list as soon as allocated,
+> of course.
 > 
-> Once you've done it, you can use 'menuconfig' as usual to tune your
-> configuration.  
-> 
-> BTW, it's quite likely (though I haven't looked at it) that the
-> VM tunables are in /proc rather than being config options.
-> 
-> -Doug
-> -- 
-> Free Dmitry Sklyarov! 
-> http://www.freesklyarov.org/ 
-> 
-> We will return to our regularly scheduled signature shortly.
+> Jan, I suggest you to take a look at the reverse mapping code. 
 
+I'm getting pretty sick and tired of these endless discussion. People
+have been reporting problems and they are pretty much alway met with the
+answer, "it works here, if you can do better send a patch".
 
------BEGIN PGP SIGNATURE-----
-Version: PGPfreeware 6.5.8 for non-commercial use 
-<http://www.pgp.com>
+Now for the past _9_ stable kernel releases, page aging hasn't worked
+at all!! Nobody seems to even have bothered to check. I send in a patch
+and you basically answer with "Ohh, but we know about that one. Just
+apply patch wizzbangfoo#105 which basically does everything differently".
 
-iQA/AwUBO5UiNeAqzTDdanI2EQIPigCgoEPsa9QqvFPcZ/TbGZUPCxaLe20AnRN6
-PJ60mqjFcKquI2lqGD4daWKb
-=yLPc
------END PGP SIGNATURE-----
+Yeah I'll have a look at that code, and I'll check what the page ages
+look like when I actually run it (if it doesn't crash the system first).
 
+Jan
 
-
-"Boooomer ... Boom Boom, how are you Boom Boom" Boomer 1985 - February/2000

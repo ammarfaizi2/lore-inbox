@@ -1,41 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266298AbSLTKT5>; Fri, 20 Dec 2002 05:19:57 -0500
+	id <S267767AbSLTKTK>; Fri, 20 Dec 2002 05:19:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266307AbSLTKT5>; Fri, 20 Dec 2002 05:19:57 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:30882 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266298AbSLTKTz>;
-	Fri, 20 Dec 2002 05:19:55 -0500
-Date: Fri, 20 Dec 2002 10:27:15 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Michael Milligan <milli@acmeps.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20: Broken AGP initialization for i845G chipset [patch]
-Message-ID: <20021220102715.GE24782@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Michael Milligan <milli@acmeps.com>, linux-kernel@vger.kernel.org
-References: <3E025858.4000404@acmeps.com>
-Mime-Version: 1.0
+	id <S267771AbSLTKTJ>; Fri, 20 Dec 2002 05:19:09 -0500
+Received: from packet.digeo.com ([12.110.80.53]:16528 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267767AbSLTKTG>;
+	Fri, 20 Dec 2002 05:19:06 -0500
+Message-ID: <3E02F073.BF57207C@digeo.com>
+Date: Fri, 20 Dec 2002 02:26:59 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: george anzinger <george@mvista.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH]Timer list init is done AFTER use
+References: <3E02D81F.13A5A59D@mvista.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E025858.4000404@acmeps.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Dec 2002 10:27:03.0537 (UTC) FILETIME=[56966610:01C2A812]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 19, 2002 at 04:38:00PM -0700, Michael Milligan wrote:
- > 
- > Patch below.  Calls the 845 initialization function instead of the 830MP,
- > and a small formatting cleanup.  This is verified working.
+george anzinger wrote:
+> 
+> On SMP systems the timer list init is done by way of a
+> cpu_notifier call.  This has two problems:
+> 
+> 1.) Timers are started WAY before the cpu_notifier call
+> chain is executed.  In particular the console blanking timer
+> is deleted and inserted every time printk() is called.  That
+> this does not fail is only because the kernel has yet to
+> protect location zero.
 
-With testgart/some other AGP using app ?
+But init_timers() directly calls timer_cpu_notify(), which directly
+calls init_timers_cpu().
+
+So your patch appears to be a no-op for the boot CPU.
  
-It looks totally logical. I'm just wondering if it was a cut-n-paste
-accident, or someone had a genuine reason for doing that in the
-first place.
+> 2.) This notifier is called when a cpu comes up.  I suspect
+> that initializing the timer list when a hot swap of a cpu is
+> done is NOT the right thing to do.  In any case, if this is
+> a desired action, the list still needs to be initialized
+> prior to its use.
 
-		Dave
+It should be OK as-is?  The CPU_UP_PREPARE callout is performed
+before the secondary starts doing things.  Its timers are initialised.
+ 
+> The attached patch initializes all the timer lists at
+> init_timers time and does not put code in the notify list.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+But the patch assumes that the per-cpu data exists for all CPUs - even
+the !cpu_possible() ones.
+
+This is true at present.  But the intent here is that the per-cpu
+storage be allocated as the CPUs come up, and in their node-local
+memory.  That saves memory and presumably having the cpu-local timers
+in the cpu-local memory is a good thing.
+
+I have working code which did all that, but it sort-of got lost
+because there was a lot going on at the time.
+
+
+Have you actually observed any problem?

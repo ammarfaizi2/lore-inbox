@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262602AbSJ0UNX>; Sun, 27 Oct 2002 15:13:23 -0500
+	id <S262528AbSJ0UTa>; Sun, 27 Oct 2002 15:19:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262604AbSJ0UNX>; Sun, 27 Oct 2002 15:13:23 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:1554 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262602AbSJ0UNW>; Sun, 27 Oct 2002 15:13:22 -0500
-Message-ID: <3DBC4A4F.4C00CB41@linux-m68k.org>
-Date: Sun, 27 Oct 2002 21:19:27 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: linux kernel conf 1.2
-Content-Type: text/plain; charset=us-ascii
+	id <S262536AbSJ0UT3>; Sun, 27 Oct 2002 15:19:29 -0500
+Received: from dclient217-162-232-203.hispeed.ch ([217.162.232.203]:3207 "EHLO
+	trivadis.com") by vger.kernel.org with ESMTP id <S262528AbSJ0UT3>;
+	Sun, 27 Oct 2002 15:19:29 -0500
+Envelope-to: linux-kernel@vger.kernel.org
+Date: Sun, 27 Oct 2002 21:13:00 +0100
+From: Tim Tassonis <timtas@cubic.ch>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Swap doesn't work
+In-Reply-To: <20021027200308.A26047@infradead.org>
+References: <E185tHb-0002mq-00@trivadis.com>
+	<20021027200308.A26047@infradead.org>
+X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Message-Id: <E185tmO-0002mu-00@trivadis.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Sorry, tons of people that have absolute no clue about the package
+> internals set up their systems themselves and make mistakes.  nothing
+> spectacular, but they just don't have those people who know the
+> packages in detail and can notice and fix the bugs.  Just get binary
+> rpm/deb whatever of the toolchain and reproduce.
 
-At http://www.xs4all.nl/~zippel/lc/ you can find the latest version of
-the new config system.
-Changes:
-- qconf ui improvements.
-- the parser is compiled as a single file (which includes the other
-source files), which should speed up the compile a bit and might
-simplify kbuild.
+As I said, I can't reproduce it even on my lfs system, maybe because my
+disks are scsi. So reproducing on my Red Hat wouldn't really help, would
+it?
 
-A small comment on how I plan to merge this. I will send the patch
-(maybe slightly splitted) to Linus. At first the old config files won't
-be removed, so Linus can continue to apply other patches, he just can't
-configure all the new features. I will rsync periodically his tree and
-send him updates. Arch maintainers have a bit time to convert their
-trees, they can either use my converter or send me patches relativ to
-2.5.4[45] and I'll do it. The old config files will be removed with
-2.5.4[67].
-This means Linus only needs to apply all the patches and I have all the
-work. :)
+> > lfs has a manual with clearly specified package versions, patches and
+> > order of "toolchaining". It might well be a bug in that chain, but
+> > other distros have bugs, too. Signing software doesn't make it
+> > superior, after all.
+> 
+> but having people who understand the software maintain the
+> packages sometimes helps :)
 
-bye, Roman
+As far as I know, lfs does not maintain the packages. binutils and gcc are
+maintained by FSF to my knowledge.
+
+Bye
+Tim

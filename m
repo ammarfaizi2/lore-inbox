@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261854AbTAIHlt>; Thu, 9 Jan 2003 02:41:49 -0500
+	id <S261874AbTAIH5V>; Thu, 9 Jan 2003 02:57:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261857AbTAIHlt>; Thu, 9 Jan 2003 02:41:49 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:1227 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S261854AbTAIHlt>;
-	Thu, 9 Jan 2003 02:41:49 -0500
-Date: Thu, 9 Jan 2003 02:50:26 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Richard Stallman <rms@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Gauntlet Set NOW!
-Message-ID: <20030109075026.GA26580@gtf.org>
-References: <Pine.LNX.4.10.10301031425590.421-100000@master.linux-ide.org> <E18WX7P-0001cV-00@fencepost.gnu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E18WX7P-0001cV-00@fencepost.gnu.org>
-User-Agent: Mutt/1.3.28i
+	id <S261894AbTAIH5V>; Thu, 9 Jan 2003 02:57:21 -0500
+Received: from 115.8.237.216.globalpac.com ([216.237.8.115]:24504 "EHLO
+	mail.yessos.com") by vger.kernel.org with ESMTP id <S261874AbTAIH5U>;
+	Thu, 9 Jan 2003 02:57:20 -0500
+Message-ID: <3E1D2D60.5010304@tmsusa.com>
+Date: Thu, 09 Jan 2003 00:05:52 -0800
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Val Henson <val@nmt.edu>
+CC: Miles Bader <miles@gnu.org>, dpaun@rogers.com, rms@gnu.org,
+       lm@bitmover.com, acahalan@cs.uml.edu, linux-kernel@vger.kernel.org
+Subject: Re: "Mother" == "computer-illiterate"
+References: <200301050802.h0582u4214558@saturn.cs.uml.edu> <20030106173705.GP1386@work.bitmover.com> <E18Vtxy-0002c2-00@fencepost.gnu.org> <200301071118.41059.dpaun@rogers.com> <buofzs474ro.fsf@mcspd15.ucom.lsi.nec.co.jp> <20030109072043.GE26010@boardwalk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 09, 2003 at 02:28:47AM -0500, Richard Stallman wrote:
-> That's not the FSF's view.  Our view is that just using structure
-> definitions, typedefs, enumeration constants, macros with simple
-> bodies, etc., is NOT enough to make a derivative work.  It would take
-> a substantial amount of code (coming from inline functions or macros
-> with substantial bodies) to do that.
 
-Richard,
 
-Thanks much for posting this.  I admit I have been skipping this entire
-thread pretty much :) but the above is worth highlighting.
+Val Henson wrote:
 
-Unfortunately, while helpful, this doesn't necessarily solve the problem
-in Linux; the things that are inlined are quite often fairly "smart"
-pieces of code and not just things as simple as wrapper functions, or
-structures and typedefs.
+>  
+>
+>Can we quit with the "clueless mother" examples already?  My own
+>mother has installed more distributions of Linux than I've even logged
+>into.  I know quite a few mothers who have PhDs in CS, own several
+>CS-related patents, and/or made important fundamental discoveries in
+>CS.  Hint: Find out who invented the spanning tree algorithm for
+>ethernet bridges, $10 ThinkGeek gift certificate to the first person
+>who emails me the correct answer.
+>
+Radia Perlman
 
-Regardless, thanks again to posting the above.
-
-Regards,
-
-	Jeff
+Joe
 
 

@@ -1,67 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262445AbREaRXE>; Thu, 31 May 2001 13:23:04 -0400
+	id <S262312AbREaRWX>; Thu, 31 May 2001 13:22:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263120AbREaRWz>; Thu, 31 May 2001 13:22:55 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:17417 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S262445AbREaRWo>;
-	Thu, 31 May 2001 13:22:44 -0400
-Date: Thu, 31 May 2001 13:24:54 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Cc: torvalds@transmeta.com, laughing@shared-source.org
-Subject: Configure.help is complete
-Message-ID: <20010531132454.A8361@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com,
-	laughing@shared-source.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S262445AbREaRWN>; Thu, 31 May 2001 13:22:13 -0400
+Received: from panther.noc.ucla.edu ([169.232.10.21]:4836 "EHLO
+	panther.noc.ucla.edu") by vger.kernel.org with ESMTP
+	id <S262312AbREaRV6>; Thu, 31 May 2001 13:21:58 -0400
+Message-ID: <3B167DF6.7020804@ucla.edu>
+Date: Thu, 31 May 2001 10:23:02 -0700
+From: Benjamin Redelings I <bredelin@ucla.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4-ac9 i686; en-US; rv:0.9+) Gecko/20010529
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Plain 2.4.5 VM... (and 2.4.5-ac3)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It gives me great pleasure to announce that the Configure.help master
-file is now complete with respect to 2.4.5.  Every single one of the
-2699 configuration symbols actually used in the 2.4.5 codebase's C
-source files or Makefiles now has an entry in Configure.help.
-
-This does not, of course, mean the job of maintaining Configure.help
-is done; symbols will be added and dropped in the future (there are a
-handful of new ones in ac5, all now documented), and some existing
-entries could stand to be rewritten and expanded.  But we have passed
-a milestone -- maintainance will now be a matter of keeping the boat
-bailed rather than trying to ignore a hole in the side. 
-
-Thanks to all the contributors who helped put together the over 550 
-entries necessary to catch up, too many to name here.  The result
-is available at:
-
-	http://www.tuxedo.org/~esr/cml2/Configure.help.gz
-
-Though carried on the CML2 project page, it can be used with CML1 and
-is current with respect to both Linus's tree and Alan's.
-
-I now have two requests of Linus and Alan:
-
-1. Please pick up this work now.  It is a really substantial improvement
-   on what you have in your trees, incorporating it cannot break anything,
-   and you'll help prevent unnecessary hassles due to clashing patches
-   in the future.
-
-2. Please make a policy of rejecting patches that add new configuration 
-   symbols without also adding an explanatory Configure.help entry --
-   and please *announce* that you will do so.  We can raise our standards
-   now, and for the sake of having a well-documentated kernel and
-   configuration system I submit that we ought to.
+Vincent Stemen wrote:
+ > The problem is, that's not true.  These problems are not slipping
+ > through because of lack of testers.
+	Just to add some sanity to this thread, I have been using the 2.4.x 
+kernels ever since they came out, on my personal workstation and on some 
+workstations that I administrate for fellow students in my department 
+here at UCLA.  They have basically worked fine for me.  They are not 
+perfect, but many of the 2.4.x releases have been a big improvement over 
+the 2.2.x releases.  For one, 2.4.x actually can tell which pages are 
+not used, and swap out unused daemons, which helps a lot on a 64Mb box :)
+	
+-BenR
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Einstein did not prove that everything is relative.
+Einstein explained how the speed of light could be constant.
+Benjamin Redelings I      <><     http://www.bol.ucla.edu/~bredelin/
 
-Never could an increase of comfort or security be a sufficient good to be
-bought at the price of liberty.
-	-- Hillaire Belloc

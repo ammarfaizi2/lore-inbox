@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263903AbTCUTqs>; Fri, 21 Mar 2003 14:46:48 -0500
+	id <S263936AbTCUTyJ>; Fri, 21 Mar 2003 14:54:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263895AbTCUTpW>; Fri, 21 Mar 2003 14:45:22 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:21777
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263892AbTCUTow>; Fri, 21 Mar 2003 14:44:52 -0500
-Subject: Re: Preempt switchable.
-From: Robert Love <rml@tech9.net>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.51.0303212047100.11545@dns.toxicfilms.tv>
-References: <Pine.LNX.4.51.0303212047100.11545@dns.toxicfilms.tv>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048276554.4908.31.camel@phantasy.awol.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 21 Mar 2003 14:55:55 -0500
-Content-Transfer-Encoding: 7bit
+	id <S263867AbTCUTdz>; Fri, 21 Mar 2003 14:33:55 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:61828
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263863AbTCUTdO>; Fri, 21 Mar 2003 14:33:14 -0500
+Date: Fri, 21 Mar 2003 20:48:30 GMT
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200303212048.h2LKmUnU026509@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH: fix aec proc handling
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-21 at 14:48, Maciej Soltysiak wrote:
-
-> would it be possible to turn on/off CONFIG_PREEMPT at runtime, eg. via
-> sysctl ?
-
-Sure, make a sysctl and check it in preempt_schedule() and
-ret_from_kernel in entry.S before invoking schedule().
-
-But that is not pretty, and I do not think it should go in mainline. 
-Linus has said as much, too.
-
-	Robert Love
-
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/ide/pci/aec62xx.c linux-2.5.65-ac2/drivers/ide/pci/aec62xx.c
+--- linux-2.5.65/drivers/ide/pci/aec62xx.c	2003-03-03 19:20:09.000000000 +0000
++++ linux-2.5.65-ac2/drivers/ide/pci/aec62xx.c	2003-03-07 17:35:41.000000000 +0000
+@@ -38,6 +38,7 @@
+ 	char *chipset_nums[] = {"error", "error", "error", "error",
+ 				"error", "error", "850UF",   "860",
+ 				 "860R",   "865",  "865R", "error"  };
++	int len;
+ 	int i;
+ 
+ 	for (i = 0; i < n_aec_devs; i++) {
+@@ -170,7 +171,11 @@
+ #endif /* DEBUG_AEC_REGS */
+ 		}
+ 	}
+-	return p-buffer;/* => must be less than 4k! */
++	/* p - buffer must be less than 4k! */
++	len = (p - buffer) - offset;
++	*addr = buffer + offset;
++	
++	return len > count ? count : len;
+ }
+ #endif	/* defined(DISPLAY_AEC62xx_TIMINGS) && defined(CONFIG_PROC_FS) */
+ 
+@@ -324,7 +329,7 @@
+ 	ide_hwif_t *hwif	= HWIF(drive);
+ 	struct hd_driveid *id	= drive->id;
+ 
+-	if (id && (id->capability & 1) && drive->autodma) {
++	if ((id->capability & 1) && drive->autodma) {
+ 		/* Consult the list of known "bad" drives */
+ 		if (hwif->ide_dma_bad_drive(drive))
+ 			goto fast_ata_pio;

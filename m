@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVBPCpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVBPDAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbVBPCpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 21:45:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVBPCpZ
+	id S261869AbVBPDAx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 22:00:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbVBPDAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 21:45:25 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:964 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261973AbVBPCpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 21:45:18 -0500
-Subject: Re: [ACPI] Re: Call for help: list of machines with working S3
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
+	Tue, 15 Feb 2005 22:00:53 -0500
+Received: from [205.233.219.253] ([205.233.219.253]:21693 "EHLO
+	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
+	id S261869AbVBPDAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 22:00:45 -0500
+Date: Tue, 15 Feb 2005 17:12:42 -0500
+From: Jody McIntyre <scjody@steamballoon.com>
 To: Pavel Machek <pavel@suse.cz>
-Cc: Alistair John Strachan <alistair@devzero.co.uk>,
-       Lorenzo Colitti <lorenzo@colitti.com>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, seife@suse.de,
-       rjw@sisk.pl
-In-Reply-To: <20050216015418.GC13753@elf.ucw.cz>
-References: <20050214211105.GA12808@elf.ucw.cz>
-	 <1108500194.12031.21.camel@elrond.flymine.org>
-	 <42126506.8020407@colitti.com> <200502160141.11633.alistair@devzero.co.uk>
-	 <20050216015418.GC13753@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1108522024.3712.44.camel@desktop.cunningham.myip.net.au>
+Cc: Andrew Morton <akpm@osdl.org>, bcollins@debian.org,
+       ncunningham@cyclades.com, bernard@blackham.com.au, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: FIx u32 vs. pm_message_t confusion in firewire
+Message-ID: <20050215221242.GO9231@conscoop.ottawa.on.ca>
+References: <20050214134658.324076c9.akpm@osdl.org> <20050215004759.GE5415@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 16 Feb 2005 13:47:04 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050215004759.GE5415@elf.ucw.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Wed, 2005-02-16 at 12:54, Pavel Machek wrote:
-> > Also, is USB suspend/resume supposed to work? My brief trials involved 
-> > modprobing the USB HCD modules, which still allowed me to suspend/resume, but 
-> > my USB mouse was non-functional on resume.
+On Tue, Feb 15, 2005 at 01:47:59AM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> Yes, it seems to work quite okay. You may need to unplug/replug
-> devices after resume, but it should be basically ok.
+> This should fix u32 vs. pm_message_t confusion in firewire. No code
+> changes. Please apply,
+> 							Pavel
 
-We still have plenty of people for whom the best option is to build as
-modules, unload prior to suspending and reload afterwards. It seems to
-depend on what type your controller is: I do this for uhci_hcd and get
-fully functional usb post resume (-rc4).
+Applied to 1394 SVN and development bitkeeper.  I will send this
+upstream sometime after 2.6.11.
 
-Regards,
+Thanks,
+Jody
 
-Nigel
+> Signed-off-by: Pavel Machek <pavel@suse.cz>
+> 
+> --- clean-mm/drivers/ieee1394/nodemgr.c	2005-02-15 00:46:40.000000000 +0100
+> +++ linux-mm/drivers/ieee1394/nodemgr.c	2005-02-15 01:04:10.000000000 +0100
+> @@ -1284,7 +1284,7 @@
+>  
+>  		if (ud->device.driver &&
+>  		    (!ud->device.driver->suspend ||
+> -		      ud->device.driver->suspend(&ud->device, 0, 0)))
+> +		      ud->device.driver->suspend(&ud->device, PMSG_SUSPEND, 0)))
+>  			device_release_driver(&ud->device);
+>  	}
+>  	up_write(&ne->device.bus->subsys.rwsem);
+> --- clean-mm/drivers/ieee1394/ohci1394.c	2005-02-15 00:46:40.000000000 +0100
+> +++ linux-mm/drivers/ieee1394/ohci1394.c	2005-02-15 01:04:10.000000000 +0100
+> @@ -3546,7 +3546,7 @@
+>  }
+>  
+>  
+> -static int ohci1394_pci_suspend (struct pci_dev *pdev, u32 state)
+> +static int ohci1394_pci_suspend (struct pci_dev *pdev, pm_message_t state)
+>  {
+>  #ifdef CONFIG_PMAC_PBOOK
+>  	{
+> 
+> 
+> -- 
+> People were complaining that M$ turns users into beta-testers...
+> ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+
 -- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-
-Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
-

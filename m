@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310776AbSCPVvy>; Sat, 16 Mar 2002 16:51:54 -0500
+	id <S310974AbSCPV5o>; Sat, 16 Mar 2002 16:57:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310788AbSCPVvp>; Sat, 16 Mar 2002 16:51:45 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61706 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310776AbSCPVva> convert rfc822-to-8bit; Sat, 16 Mar 2002 16:51:30 -0500
-Date: Sat, 16 Mar 2002 13:49:05 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: <yodaiken@fsmlabs.com>
-cc: Andi Kleen <ak@suse.de>, Paul Mackerras <paulus@samba.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-In-Reply-To: <20020316143916.A23204@hq.fsmlabs.com>
-Message-ID: <Pine.LNX.4.33.0203161342190.24457-100000@home.transmeta.com>
+	id <S310940AbSCPV5e>; Sat, 16 Mar 2002 16:57:34 -0500
+Received: from ptldme-mls2.maine.rr.com ([24.93.159.133]:30448 "EHLO
+	ptldme-mls2.maine.rr.com") by vger.kernel.org with ESMTP
+	id <S310912AbSCPV50>; Sat, 16 Mar 2002 16:57:26 -0500
+Message-ID: <3C93BEDC.32F15E3E@maine.rr.com>
+Date: Sat, 16 Mar 2002 16:53:32 -0500
+From: "David B. Stevens" <dsteven3@maine.rr.com>
+Organization: Penguin Preservation Society
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre3-ac1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id g2GLncN29178
+To: Alexander Hoogerhuis <alexh@ihatent.com>
+CC: Platinum Control Computer <pcc@boneserver.analogic.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Information
+In-Reply-To: <Pine.LNX.3.95.1020315101925.9425A-100000@boneserver.analogic.com> <m3g031z9y4.fsf@lapper.ihatent.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Or fifty weeks late;-)
 
+Alexander Hoogerhuis wrote:
+> 
+> Ever noticed you're two weeks early with this one?
+> 
+> ttfn,
+> A
+> 
+> Platinum Control Computer <pcc@boneserver.analogic.com> writes:
+> 
+> > From:     Universal(r) News(tm)
+> > Dateline: Santa Clara, California
+> >           March 14, 2002
+> >
+> >        Linus Torvalds,  the  creator of the  world's  second most
+> >        common Operating System, Linux, will soon become the owner
+> >        of the world's largest software company, Microsoft.
+> >
+> >        William Gates, the present CEO of Microsoft, announced today
+> >        that because of  an  accounting  error in  Microsoft  Money,
+> >        a program developed and distributed by Microsoft,  it became
+> >        possible for  an outsider to  gain control of the company by
+> >        acquiring a negative amount of outstanding stock.
+> >
+> >        Through his attorney,  Melvin Beli,  Linus announced  that he
+> >        had no intention of selling his  negative shares of Microsoft
+> >        stock which caused the  accounting overflow.  As soon  as  he
+> >        is able  to  take  a  short leave-of-absence  from  Transmeta,
+> >        Linus plans to move the Redmond operation to Afghanistan.
+> >
 
-On Sat, 16 Mar 2002 yodaiken@fsmlabs.com wrote:
->
-> If you want to optimize for gnome, you get a very different
-> layout. But Hammer and ia64 are supposedly designed for huge
-> databases, routing tables, and images.
-
-Yeah, and I'm claiming that databases etc count for a whole lot less than
-most other apps.
-
-> What's the "common case" for 64 bit ? Do you really think it will
-> be on desktop soon?
-
-Oh, not Itanium for sure. But if AMD succeeds even reasonably with Hammer,
-Intel will certainly see the error of its ways (except they won't admit
-it) and make their version of a 64-bit P4 core available. They're
-reportedly working on it already, just in case the Itanic sinks (and
-judging by current market behaviour it certainly isn't flying).
-
-> > In short, youäre
->
-> Don't use umlauts unless you are ready to back it up.
-
-That's not an umlaut, that's an "ä", which is a real letter in Finnish and
-Swedish (it just _looks_ like an a with an umlaut to you uncultured
-people), and it happens to be a letter that is just left of the ' mark on
-a Finnish keyboard.
-
-		Linus
-
+> Alexander Hoogerhuis                               | alexh@ihatent.com
+> CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+> "You have zero privacy anyway. Get over it."  --Scott McNealy
+> -

@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317341AbSFLDcC>; Tue, 11 Jun 2002 23:32:02 -0400
+	id <S317344AbSFLDrR>; Tue, 11 Jun 2002 23:47:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317344AbSFLDcB>; Tue, 11 Jun 2002 23:32:01 -0400
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:42372 "EHLO
-	completely") by vger.kernel.org with ESMTP id <S317341AbSFLDbX>;
-	Tue, 11 Jun 2002 23:31:23 -0400
-From: Ryan Cumming <ryan@completely.kicks-ass.org>
-To: Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH] tmpfs 2/4 mknod times
-Date: Tue, 11 Jun 2002 20:31:20 -0700
-User-Agent: KMail/1.4.5
-In-Reply-To: <Pine.LNX.4.21.0206120423200.1290-100000@localhost.localdomain>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200206112031.23257.ryan@completely.kicks-ass.org>
+	id <S317347AbSFLDrQ>; Tue, 11 Jun 2002 23:47:16 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:55756 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317344AbSFLDrQ>;
+	Tue, 11 Jun 2002 23:47:16 -0400
+Date: Tue, 11 Jun 2002 20:41:19 -0700 (PDT)
+Message-Id: <20020611.204119.58650447.davem@redhat.com>
+To: davidsen@tmr.com
+Cc: greearb@candelatech.com, mark@mark.mielke.cc, cfriesen@nortelnetworks.com,
+        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: RFC: per-socket statistics on received/dropped packets
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.3.96.1020611183218.29598A-100000@gatekeeper.tmr.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+   From: Bill Davidsen <davidsen@tmr.com>
+   Date: Tue, 11 Jun 2002 18:41:16 -0400 (EDT)
 
-On June 11, 2002 20:25, Hugh Dickins wrote:
-> On Tue, 11 Jun 2002, Ryan Cumming wrote:
-> > On June 11, 2002 19:54, Hugh Dickins wrote:
-> > > +               dir->i_ctime = dir->i_mtime = CURRENT_TIME;
-> >
-> > I'm probably misreading this, but why does shmem_mknod modify the
-> > directory's ctime?
->
-> Hmmm, good question.  Perhaps I'll have dreamt up an answer by morning.
-Well, lets see if the list has any ideas while you're sleeping.
+     Actually your arguments sound like you have a solution to your problem
+   and you want everyone to use it even if it doesn't help them. Have you
+   some emotional tie to SNMP, like being an author?
+   
+After a comment like this, I have no interest in listening to anything
+else you have to say.  I've been maintaining the Linux networking for
+5 or more years now, and the most important thing I do is say no to
+changes.
 
-- -Ryan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9BsCLLGMzRzbJfbQRAic3AJ9hh76od28Ic5OzB2PU8hLsV5vogACfbITB
-8FyDd6i5BeMtk3xLzt1Y5ns=
-=7+h9
------END PGP SIGNATURE-----
+Franks a lot,
+David S. Miller
+davem@redhat.com

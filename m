@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135616AbRDSKxO>; Thu, 19 Apr 2001 06:53:14 -0400
+	id <S135615AbRDSK5O>; Thu, 19 Apr 2001 06:57:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135615AbRDSKxE>; Thu, 19 Apr 2001 06:53:04 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:30981 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S135616AbRDSKwr>;
-	Thu, 19 Apr 2001 06:52:47 -0400
-Date: Thu, 19 Apr 2001 12:51:40 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: block devices don't work without plugging in 2.4.3
-Message-ID: <20010419125140.M16822@suse.de>
-In-Reply-To: <200104191039.f3JAdvq15198@oboe.it.uc3m.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200104191039.f3JAdvq15198@oboe.it.uc3m.es>; from ptb@it.uc3m.es on Thu, Apr 19, 2001 at 12:39:57PM +0200
+	id <S135617AbRDSK5E>; Thu, 19 Apr 2001 06:57:04 -0400
+Received: from gate.terreactive.ch ([212.90.202.121]:26353 "HELO
+	toe.terreactive.ch") by vger.kernel.org with SMTP
+	id <S135615AbRDSK44>; Thu, 19 Apr 2001 06:56:56 -0400
+Message-ID: <3ADEC3CE.CC58F06A@tac.ch>
+Date: Thu, 19 Apr 2001 12:54:06 +0200
+From: Roberto Nibali <ratz@tac.ch>
+Organization: terreActive
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
+X-Accept-Language: en, de-CH, zh-CN
+MIME-Version: 1.0
+To: Ion Badulescu <ionut@cs.columbia.edu>
+CC: Steve Hill <steve@navaho.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Fix for Donald Becker's DP83815 network driver (v1.07)
+In-Reply-To: <Pine.LNX.4.33.0104181330200.32629-100000@age.cs.columbia.edu>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 19 2001, Peter T. Breuer wrote:
-> Sorry to repeat .. I didn't see this go out on the list and I haven't
-> had any reply. So let's ask again. Is this a new coding error in ll_rw_blk?
-> 
->  -----------------
-> 
-> The following has been lost from __make_request() in ll_rw_blk.c since
-> 2.4.2 (incl):
-> 
->  out:
-> -       if (!q->plugged)
-> -               (q->request_fn)(q);
->         if (freereq)
-> 
-> The result is that a block device that doesn't do plugging doesn't
-> work.
-> 
-> If it has called blk_queue_pluggable() to register a no-op plug_fn,
-> then q->plugged will never be set (it's the duty of the plug_fn), and
-> the devices registered request function will never be called.
-> 
-> This behaviour is distinct from 2.4.0, where registering a no-op
-> plug_fn made things work fine.
-> 
-> Is this a coding oversight?
+Hello,
 
-Check the archives, I replied to this days ago. But since I'm taking the
-subject up anyway, let me expand on it a bit further.
+> True, I plead guilty to the "replying at 3:30am" sin. :-) I meant to reply
+> to Roberto's mail, and accidentally replied to yours..
 
-Not using plugging is gone, blk_queue_pluggable has been removed from
-the current 2.4.4-pre series if you check that. The main reason for
-doing this, is that there are generally no reasons for _not_ using
-plugging in the 2.4 series kernels. In 2.2 and previous, not using the
-builtin plugging was generally done to disable request merging. In 2.4,
-the queues have good control over what happens there with the
-back/front/request merging functions -- so drivers can just use that.
+That's what I thought ...
+ 
+> Anyway, Roberto, if you could give the starfire driver in 2.2.19 a try,
+> I'd appreciate it. You mentioned looking at the code, did you actually
+> test it?
 
-Besides, the above hunk was removed because it is wrong. For devices
-using plugging, we would re-call the request_fn while the device was
-already active and serving requests. Not only is this a performance hit
-we don't need to take, it also gave problems on some drivers.
+Today I started testing it and indeed, as the code shows, I works now. The
+main problem was that if you compiled the driver into the kernel and only
+had one Quadboard, it would get initialized twice. It worked but was nasty
+to configure ;).
+Now I started my tests with the new driver from plain vanilla 2.2.19 kernel
+and it worked for my problem above. I've you're interested I could send you
+some dmesg and proc-fs outputs. I'm working on a Intel L440GX+ SMP board 
+but with one processor, a stopper card and SMP disabled. Unfortunately a
+guy back here destroyed the board by trying to hotplug the Quadboard and
+touching the motherboard's voltage regulator. I have to get a new one to
+continue my tests with 3 or 4 Quadboards. Will be back in a few hours with
+the remaining results.
+
+Best regards,
+Roberto Nibali, ratz
 
 -- 
-Jens Axboe
-
+mailto: `echo NrOatSz@tPacA.cMh | sed 's/[NOSPAM]//g'`

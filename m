@@ -1,340 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVC3BCI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbVC3BGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261703AbVC3BCI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 20:02:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbVC3BCH
+	id S261689AbVC3BGR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 20:06:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVC3BGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 20:02:07 -0500
-Received: from mail.renesas.com ([202.234.163.13]:12731 "EHLO
-	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S261703AbVC3BAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 20:00:19 -0500
-Date: Wed, 30 Mar 2005 09:59:48 +0900 (JST)
-Message-Id: <20050330.095948.412902706.takata.hirokazu@renesas.com>
-To: rmk+lkml@arm.linux.org.uk
-Cc: takata@linux-m32r.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.12-rc1-mm3] m32r: m32r_sio driver update (was Re:
- [PATCH] Re: Bitrotting serial drivers)
-From: Hirokazu Takata <takata@linux-m32r.org>
-In-Reply-To: <20050324121746.A4189@flint.arm.linux.org.uk>
-References: <20050319172101.C23907@flint.arm.linux.org.uk>
-	<20050324.191424.233669632.takata.hirokazu@renesas.com>
-	<20050324121746.A4189@flint.arm.linux.org.uk>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
+	Tue, 29 Mar 2005 20:06:16 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:60651 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261689AbVC3BF2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 20:05:28 -0500
+Date: Tue, 29 Mar 2005 17:05:00 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: Jay Lan <jlan@engr.sgi.com>
+Cc: guillaume.thouvenin@bull.net, johnpol@2ka.mipt.ru, akpm@osdl.org,
+       greg@kroah.com, linux-kernel@vger.kernel.org, efocht@hpce.nec.com,
+       linuxram@us.ibm.com, gh@us.ibm.com, elsa-devel@lists.sourceforge.net
+Subject: Re: [patch 1/2] fork_connector: add a fork connector
+Message-Id: <20050329170500.66d047b9.pj@engr.sgi.com>
+In-Reply-To: <4249A206.4010506@engr.sgi.com>
+References: <1111745010.684.49.camel@frecb000711.frec.bull.fr>
+	<20050328134242.4c6f7583.pj@engr.sgi.com>
+	<1112079856.5243.24.camel@uganda>
+	<20050329004915.27cd0edf.pj@engr.sgi.com>
+	<1112087822.8426.46.camel@frecb000711.frec.bull.fr>
+	<20050329072335.52b06462.pj@engr.sgi.com>
+	<4249A206.4010506@engr.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
+[ Hmmm .. the following pertains more to accounting than to fork_connector,
+  as have my other remarks earlier today.  I notice just now I am on a thread
+  whose Subject is "fork_connector".   Oh well.  Sorry.          - pj ]
 
-Here is an additional patch to update m32r_sio driver.
-This patch is against 2.6.12-rc1-mm3.
+Jay wrote:
+> You probably can look at it this way: the accounting data being
+> written out by BSD are per process data and the fork connector
+> provides information needed to group processes into process
+> aggregates.
 
-m32r_sio driver updates:
-- Move m32r_sio specific description from asm-m32r/serial.h to 
-  driver/serial/m32r_sio.c.
-- Remove __register_m32r_sio, register_m32r_sio and unregister_m32r_sio
-  from driver/serial/m32r_sio.c.
+I guess so.  Though that doesn't provide any explicit guidance as to
+what the necessary dataflow must be -- who (which essential piece(s) of
+software) needs the data when, to accomplish what purposes that some
+Linux users will desire.
 
-Thank you.
+Well, maybe to someone expert in Process Aggregates, it provides
+such guidance, implicitly.  That's definitely not I.
 
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [PATCH] Re: Bitrotting serial drivers
-Date: Thu, 24 Mar 2005 12:17:46 +0000
-> On Thu, Mar 24, 2005 at 07:14:24PM +0900, Hirokazu Takata wrote:
-> > diff -ruNp a/include/asm-m32r/serial.h b/include/asm-m32r/serial.h
-> > --- a/include/asm-m32r/serial.h	2004-12-25 06:35:40.000000000 +0900
-> > +++ b/include/asm-m32r/serial.h	2005-03-24 17:25:05.812651363 +0900
-> 
-> Can m32r accept PCMCIA cards?  If so, this may mean that 8250.c gets
-> built, which will use this file to determine where it should look for
-> built-in 8250 ports.
-> 
-> If this file is used to describe non-8250 compatible ports, you could
-> end up with a nasty mess.  Therefore, I recommend that you do not use
-> asm-m32r/serial.h to describe your SIO ports.
-> 
-> Instead, since these definitions are private to your own driver, you
-> may consider moving them into the driver, or a header file closely
-> associated with your driver in drivers/serial.
+  Let me step back a minute here.
 
+  What's needed to is work from the actual user requirements down
+  to what technical pieces are needed.  There's an old saying
+  that if you want something done bad enough, do it yourself.
 
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
+  Or, on usenet and now on mailing lists, this has become:
+  if you want something done, post a sufficiently botched
+  example yourself, and someone who actually knows will become
+  sufficiently annoyed to post a useful answer.
 
- drivers/serial/m32r_sio.c |  131 ++++++++++------------------------------------
- include/asm-m32r/serial.h |   41 --------------
- 2 files changed, 31 insertions(+), 141 deletions(-)
+  So here goes my botched effort to work from user requirements
+  down to actual technical pieces needed.  I look forward to
+  being shot down in flames.
 
+My current understanding of the 'system accounting' requirement
+is that users of large shared resource servers want to determine,
+after the fact, what was the usage by or for various
+tasks/jobs/users/groups/time-periods of various compute
+resources, in order to perform such tasks as billing and sizing
+of future equipment needs, and to identify patterns of over or
+under utilized system resources that might present other
+opportunities for useful action, or causes for remedial action.
 
-diff -ruNp a/include/asm-m32r/serial.h b/include/asm-m32r/serial.h
---- a/include/asm-m32r/serial.h	2005-03-29 21:47:12.912822762 +0900
-+++ b/include/asm-m32r/serial.h	2005-03-29 18:15:37.000000000 +0900
-@@ -1,47 +1,10 @@
- #ifndef _ASM_M32R_SERIAL_H
- #define _ASM_M32R_SERIAL_H
- 
--/*
-- * include/asm-m32r/serial.h
-- */
-+/* include/asm-m32r/serial.h */
- 
- #include <linux/config.h>
--#include <asm/m32r.h>
- 
--/*
-- * This assumes you have a 1.8432 MHz clock for your UART.
-- *
-- * It'd be nice if someone built a serial card with a 24.576 MHz
-- * clock, since the 16550A is capable of handling a top speed of 1.5
-- * megabits/second; but this requires the faster clock.
-- */
--#define BASE_BAUD ( 1843200 / 16 )
--
--/* Standard COM flags */
--#define STD_COM_FLAGS (ASYNC_BOOT_AUTOCONF | ASYNC_SKIP_TEST)
--
--/* Standard PORT definitions */
--#if defined(CONFIG_PLAT_USRV)
--
--#define STD_SERIAL_PORT_DEFNS						\
--       /* UART  CLK     PORT   IRQ            FLAGS */			\
--	{ 0, BASE_BAUD, 0x3F8, PLD_IRQ_UART0, STD_COM_FLAGS }, /* ttyS0 */ \
--	{ 0, BASE_BAUD, 0x2F8, PLD_IRQ_UART1, STD_COM_FLAGS }, /* ttyS1 */
--
--#else /* !CONFIG_PLAT_USRV */
--
--#if defined(CONFIG_SERIAL_M32R_PLDSIO)
--#define STD_SERIAL_PORT_DEFNS						\
--	{ 0, BASE_BAUD, ((unsigned long)PLD_ESIO0CR), PLD_IRQ_SIO0_RCV,	\
--	  STD_COM_FLAGS }, /* ttyS0 */
--#else
--#define STD_SERIAL_PORT_DEFNS						\
--	{ 0, BASE_BAUD, M32R_SIO_OFFSET, M32R_IRQ_SIO0_R,		\
--	  STD_COM_FLAGS }, /* ttyS0 */
--#endif
--
--#endif /* !CONFIG_PLAT_USRV */
--
--#define SERIAL_PORT_DFNS	STD_SERIAL_PORT_DEFNS
-+#define BASE_BAUD	115200
- 
- #endif  /* _ASM_M32R_SERIAL_H */
-diff -ruNp a/drivers/serial/m32r_sio.c b/drivers/serial/m32r_sio.c
---- a/drivers/serial/m32r_sio.c	2005-03-29 21:47:12.924820913 +0900
-+++ b/drivers/serial/m32r_sio.c	2005-03-29 21:56:38.001930365 +0900
-@@ -54,13 +54,6 @@
- #include "m32r_sio_reg.h"
- 
- /*
-- * Configuration:
-- *   share_irqs - whether we pass SA_SHIRQ to request_irq().  This option
-- *                is unsafe when used on edge-triggered interrupts.
-- */
--unsigned int share_irqs_sio = M32R_SIO_SHARE_IRQS;
--
--/*
-  * Debugging.
-  */
- #if 0
-@@ -86,15 +79,36 @@ unsigned int share_irqs_sio = M32R_SIO_S
- 
- #include <asm/serial.h>
- 
-+/* Standard COM flags */
-+#define STD_COM_FLAGS (ASYNC_BOOT_AUTOCONF | ASYNC_SKIP_TEST)
-+
- /*
-  * SERIAL_PORT_DFNS tells us about built-in ports that have no
-  * standard enumeration mechanism.   Platforms that can find all
-  * serial ports via mechanisms like ACPI or PCI need not supply it.
-  */
--#ifndef SERIAL_PORT_DFNS
--#define SERIAL_PORT_DFNS
-+#undef SERIAL_PORT_DFNS
-+#if defined(CONFIG_PLAT_USRV)
-+
-+#define SERIAL_PORT_DFNS						\
-+       /* UART  CLK     PORT   IRQ            FLAGS */			\
-+	{ 0, BASE_BAUD, 0x3F8, PLD_IRQ_UART0, STD_COM_FLAGS }, /* ttyS0 */ \
-+	{ 0, BASE_BAUD, 0x2F8, PLD_IRQ_UART1, STD_COM_FLAGS }, /* ttyS1 */
-+
-+#else /* !CONFIG_PLAT_USRV */
-+
-+#if defined(CONFIG_SERIAL_M32R_PLDSIO)
-+#define SERIAL_PORT_DFNS						\
-+	{ 0, BASE_BAUD, ((unsigned long)PLD_ESIO0CR), PLD_IRQ_SIO0_RCV,	\
-+	  STD_COM_FLAGS }, /* ttyS0 */
-+#else
-+#define SERIAL_PORT_DFNS						\
-+	{ 0, BASE_BAUD, M32R_SIO_OFFSET, M32R_IRQ_SIO0_R,		\
-+	  STD_COM_FLAGS }, /* ttyS0 */
- #endif
- 
-+#endif /* !CONFIG_PLAT_USRV */
-+
- static struct old_serial_port old_serial_port[] = {
- 	SERIAL_PORT_DFNS	/* defined in asm/serial.h */
- };
-@@ -581,10 +595,7 @@ static void serial_unlink_irq_chain(stru
- }
- 
- /*
-- * This function is used to handle ports that do not have an
-- * interrupt.  This doesn't work very well for 16450's, but gives
-- * barely passable results for a 16550A.  (Although at the expense
-- * of much CPU overhead).
-+ * This function is used to handle ports that do not have an interrupt.
-  */
- static void m32r_sio_timeout(unsigned long data)
- {
-@@ -966,7 +977,7 @@ static struct uart_ops m32r_sio_pops = {
- 
- static struct uart_sio_port m32r_sio_ports[UART_NR];
- 
--static void __init m32r_sio_isa_init_ports(void)
-+static void __init m32r_sio_init_ports(void)
- {
- 	struct uart_sio_port *up;
- 	static int first = 1;
-@@ -986,8 +997,6 @@ static void __init m32r_sio_isa_init_por
- 		up->port.iotype   = old_serial_port[i].io_type;
- 		up->port.regshift = old_serial_port[i].iomem_reg_shift;
- 		up->port.ops      = &m32r_sio_pops;
--		if (share_irqs_sio)
--			up->port.flags |= UPF_SHARE_IRQ;
- 	}
- }
- 
-@@ -995,7 +1004,7 @@ static void __init m32r_sio_register_por
- {
- 	int i;
- 
--	m32r_sio_isa_init_ports();
-+	m32r_sio_init_ports();
- 
- 	for (i = 0; i < UART_NR; i++) {
- 		struct uart_sio_port *up = &m32r_sio_ports[i];
-@@ -1129,7 +1138,7 @@ static int __init m32r_sio_console_init(
- {
- 	sio_reset();
- 	sio_init();
--	m32r_sio_isa_init_ports();
-+	m32r_sio_init_ports();
- 	register_console(&m32r_sio_console);
- 	return 0;
- }
-@@ -1151,81 +1160,6 @@ static struct uart_driver m32r_sio_reg =
- 	.cons			= M32R_SIO_CONSOLE,
- };
- 
--/*
-- * register_serial and unregister_serial allows for 16x50 serial ports to be
-- * configured at run-time, to support PCMCIA modems.
-- */
--
--static int __register_m32r_sio(struct serial_struct *req, int line)
--{
--	struct uart_port port;
--
--	port.iobase   = req->port;
--	port.membase  = req->iomem_base;
--	port.irq      = req->irq;
--	port.uartclk  = req->baud_base * 16;
--	port.fifosize = req->xmit_fifo_size;
--	port.regshift = req->iomem_reg_shift;
--	port.iotype   = req->io_type;
--	port.flags    = req->flags | UPF_BOOT_AUTOCONF;
--	port.mapbase  = req->iomap_base;
--	port.line     = line;
--
--	if (share_irqs_sio)
--		port.flags |= UPF_SHARE_IRQ;
--
--	if (HIGH_BITS_OFFSET)
--		port.iobase |= (long) req->port_high << HIGH_BITS_OFFSET;
--
--	/*
--	 * If a clock rate wasn't specified by the low level
--	 * driver, then default to the standard clock rate.
--	 */
--	if (port.uartclk == 0)
--		port.uartclk = BASE_BAUD * 16;
--
--	return uart_register_port(&m32r_sio_reg, &port);
--}
--
--/**
-- *	register_m32r_sio - configure a 16x50 serial port at runtime
-- *	@req: request structure
-- *
-- *	Configure the serial port specified by the request. If the
-- *	port exists and is in use an error is returned. If the port
-- *	is not currently in the table it is added.
-- *
-- *	The port is then probed and if necessary the IRQ is autodetected
-- *	If this fails an error is returned.
-- *
-- *	On success the port is ready to use and the line number is returned.
-- */
--int register_m32r_sio(struct serial_struct *req)
--{
--	return __register_m32r_sio(req, -1);
--}
--
--int __init early_serial_setup(struct uart_port *port)
--{
--	m32r_sio_isa_init_ports();
-- 	m32r_sio_ports[port->line].port = *port;
--	m32r_sio_ports[port->line].port.ops = &m32r_sio_pops;
--
--	return 0;
--}
--
--/**
-- *	unregister_m32r_sio - remove a 16x50 serial port at runtime
-- *	@line: serial line number
-- *
-- *	Remove one serial port.  This may be called from interrupt
-- *	context.
-- */
--void unregister_m32r_sio(int line)
--{
--	uart_unregister_port(&m32r_sio_reg, line);
--}
--
- /**
-  *	m32r_sio_suspend_port - suspend one serial port
-  *	@line: serial line number
-@@ -1252,8 +1186,7 @@ static int __init m32r_sio_init(void)
- {
- 	int ret, i;
- 
--	printk(KERN_INFO "Serial: M32R SIO driver $Revision: 1.9 $ "
--		"IRQ sharing %sabled\n", share_irqs_sio ? "en" : "dis");
-+	printk(KERN_INFO "Serial: M32R SIO driver $Revision: 1.11 $ ");
- 
- 	for (i = 0; i < NR_IRQS; i++)
- 		spin_lock_init(&irq_lists[i].lock);
-@@ -1278,14 +1211,8 @@ static void __exit m32r_sio_exit(void)
- module_init(m32r_sio_init);
- module_exit(m32r_sio_exit);
- 
--EXPORT_SYMBOL(register_m32r_sio);
--EXPORT_SYMBOL(unregister_m32r_sio);
- EXPORT_SYMBOL(m32r_sio_suspend_port);
- EXPORT_SYMBOL(m32r_sio_resume_port);
- 
- MODULE_LICENSE("GPL");
--MODULE_DESCRIPTION("Generic M32R SIO serial driver $Revision: 1.9 $");
--
--module_param(share_irqs_sio, bool, 0400);
--MODULE_PARM_DESC(share_irqs_sio, "Share IRQs with other non-M32R SIO devices"
--	" (unsafe)");
-+MODULE_DESCRIPTION("Generic M32R SIO serial driver $Revision: 1.11 $");
+I am working under the assumption that there is some accounting
+(of computer users and resources, not of money ;) software
+(runnacct, CSA, and ELSA, for example) that runs, after the fact
+in some post-processing mode, that reads records of actual usage
+details from disk files and does useful stuff (like generate
+reports useful to the above requirements) with what it can glean
+from those records and from other configuration information
+it can find about the current system (by reading other disk
+files, typically).  This processing can be and often is done
+in batch mode, and is often scheduled out of a cron job for some
+time when the system is normally under relatively lighter load,
+such as late at night.
 
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/
+I assume that the information needed by this accounting software
+includes both the classic BSD accounting records and the
+<parent_pid, child_pid> information at fork.
+
+I am not aware of any other uses of the <parent_pid, child_pid>
+information from fork, though it would not surprise me to learn
+that there other such uses - you're welcome to educate me on
+this matter.
+
+I suspect that there is other information, or will be, in
+addition to the specific details collected by the classic bsd
+accounting kernel hooks, and in addition to the <parent_pid,
+child_pid> information at fork, which will also be needed by CSA
+and/or ELSA, and which also needs to be written to disk files
+as the data is collected, for subsequent processing by such
+accounting software as CSA and ELSA, or the classic runacct(1M)
+daily accounting software and variants.
+
+If the above is all true, then the basic problem to solve
+regarding the <parent_pid, child_pid> information collected at
+fork is how to get it into a disk file, with close to minimum
+impact on the system.
+
+Since the data is not needed in anything like realtime (or
+if it is, I don't realize that yet) therefore there is an
+opportunity to combine the data records into buffers of data,
+so as to amortize some of the costs of writing the data to
+disk over several records.  The classic bsd accounting hooks
+do this merging aggressively, in the context of the process
+doing the exit.
+
+The classic accounting hooks may have a problem that they are not
+NUMA friendly - having all the nodes in a big system trying to
+simultaneously add small (64 bytes, typically) snippets to the
+same shared file buffers at the same time might not scale well.
+These hooks were designed over 25 years ago, when multiprocessing
+was in its infancy, and may need overhaul.
+
+The fork_connector mechanism is being proposed to get the
+particular bit of information <parent_pid, child_pid> from
+fork moved to what I presume is a data collector daemon user
+process, which will I presume then write merged records of
+this data to disk.  This may have the problem that it moves
+the individual records between various contexts on the system,
+more than is necessary, before it can be merged into buffers
+and written.  While such data motion does not happen inline
+to the fork itself, it still has to occur in near realtime
+(minutes) of the fork event, so still impacts system performance
+(both CPU cycles and memory footprint) during peak usage hours.
+Performance impact numbers have been presented to show that
+this impact is minimal, but my direct question as to whether
+these numbers include the load of the data collector and writer
+daemon has gone unanswered, so far as I know.
+
+So this is what I understand the problems and the requirements
+to be.
+
+Most likely I misunderstand important parts of this - I invite
+corrections.  I don't actually have a horse in this race; I'm just
+doing the color commentary.  So if someone wants to rip this apart,
+then go for it.  I will enjoy the show along with everyone else.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

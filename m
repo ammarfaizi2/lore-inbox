@@ -1,70 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263713AbTDGWY6 (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 18:24:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263715AbTDGWY6 (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 18:24:58 -0400
-Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:3284 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id S263713AbTDGWYz (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 18:24:55 -0400
-Date: Tue, 8 Apr 2003 00:36:25 +0200
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Greg KH <greg@kroah.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [OOPS] : Linux 2.5.67
-Message-Id: <20030408003625.51a788a0.us15@os.inf.tu-dresden.de>
-In-Reply-To: <Pine.LNX.4.44.0304071051190.1385-100000@penguin.transmeta.com>
-References: <Pine.LNX.4.44.0304071051190.1385-100000@penguin.transmeta.com>
-Organization: Disorganized
-X-Mailer: Sylpheed version 0.8.11claws3 (GTK+ 1.2.10; Linux 2.4.21-pre7)
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.UyxXkU92guAL:?"
+	id S263711AbTDGWYf (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 18:24:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263713AbTDGWYf (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 18:24:35 -0400
+Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:14269 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S263711AbTDGWYd convert rfc822-to-8bit 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 18:24:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Richard J Moore <rasman@uk.ibm.com>
+Organization: Linux Technoilogy Centre
+Subject: Re: Debugging hard lockups (hardware?)
+Date: Mon, 7 Apr 2003 23:24:32 +0000
+User-Agent: KMail/1.4.1
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200304072324.32050.rasman@uk.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.UyxXkU92guAL:?
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Sun 6 April 2003 8:31 pm, Dave Jones wrote:
+> On Sun, Apr 06, 2003 at 07:34:09PM +0100, Alan Cox wrote:
+>  > > 02:0a.0 RAID bus controller: CMD Technology Inc PCI0680 (rev 01)
+>  > > 02:0b.0 RAID bus controller: CMD Technology Inc PCI0680 (rev 01)
+>  >
+>  > ...
+>  > Your choice of components looks fine, its all stuff I trust, even if the
+>  > ethernet card is not good for performance it ought to be fine in
+>  > general. If it is a faulty part most likely its a one off fault.
+>
+> Note the IDE controller, and 2.5 bugzilla #123
+> That controller has been nothing but trouble for me.
+>
+> 		Dave
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-On Mon, 7 Apr 2003 10:53:43 -0700 (PDT) Linus Torvalds (LT) wrote:
+Do you know that your platform support a watchdog timer. Not every thing
+ does, thought most do. It's probably worh verifying (cli; hlt;).
+Is it possible you have experiennced a triple-fault? Most CPUs reset but some
+have been known to freeze and require a manual reset. This can be verified
+relatively easily (make int 8 descriptor NP then loop recursively - does the
+system hang or reboot?).
 
-LT> v2.5.67
+--
+Richard J Moore
+IBM Linux Technology Centre
 
-Hello,
 
-Below is the backtrace of a USB oops which has has been freezing my system
-since around 2.5.65 and which I've only just spotted. I have a monitor with
-built-in USB hub. When the monitor is turned off, the USB hub disconnects from
-its upstream hub and when the monitor is turned on again, the hub reconnects.
-I can't tell if the oops happens on disconnect or reconnect though. I don't
-have a serial cable atm, but I hope the information is sufficient. If not,
-please let me know. Or you can send me a patch to try out.
-
-Regards,
--Udo.
-
-EIP is at hub_irq + 0xaa/0x120
-
-Trace:
-usb_hcd_giveback_urb + 0x25/0x40
-uhci_finish_completion + 0x73/0xc0
-usb_hcd_irq + 0x2d/0x60
-handle_IRQ_event + 0x38/0x60
-do_IRQ + 0x97/0x120
-common_interrupt + 0x18/0x20
-
-Code: 0b 80 bc 00 00 00 8b 00 c7 04 24 4b 87 3d c0 89 44 24 04 e8
-
---=.UyxXkU92guAL:?
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.3.1 (GNU/Linux)
-
-iD8DBQE+kf1snhRzXSM7nSkRAj+lAJ4pZ2JItT9BIomvnC+Xtj1cLpuhogCeKS62
-1pZeZUideO63zuxY6/zMUCQ=
-=31Vn
------END PGP SIGNATURE-----
-
---=.UyxXkU92guAL:?--

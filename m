@@ -1,111 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275339AbTHSEh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 00:37:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275336AbTHSEh7
+	id S275332AbTHSEr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 00:47:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275335AbTHSEr1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 00:37:59 -0400
-Received: from [216.52.22.10] ([216.52.22.10]:52651 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S275339AbTHSEh4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 00:37:56 -0400
-Date: Mon, 18 Aug 2003 22:04:35 +0530 (IST)
-From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
-X-X-Sender: tomar@localhost.localdomain
-Reply-To: nagendra_tomar@adaptec.com
-To: Jamie Lokier <jamie@shareable.org>
-cc: Paolo Ornati <javaman@katamail.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Documentation for PC Architecture
-In-Reply-To: <20030819010205.GE11081@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.44.0308182202550.27238-100000@localhost.localdomain>
-Organization: Adaptec
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 19 Aug 2003 00:47:27 -0400
+Received: from h80ad2781.async.vt.edu ([128.173.39.129]:32641 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S275332AbTHSErZ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 00:47:25 -0400
+Message-Id: <200308190447.h7J4l0Vq004410@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Narayan Desai <desai@mcs.anl.gov>
+Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: weird pcmcia problem 
+In-Reply-To: Your message of "Mon, 18 Aug 2003 19:34:59 CDT."
+             <87u18efpsc.fsf@mcs.anl.gov> 
+From: Valdis.Kletnieks@vt.edu
+References: <87u18efpsc.fsf@mcs.anl.gov>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_456587320P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 19 Aug 2003 00:47:00 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie,
-	What is this 2nd address translation you are mentioning. 
-I always thought that for the sake of cleanliness we just forget about the 
-384K of memory starting from 640K. RAM anyway is cheap.
-Pl correct me if I'm missing something.
+--==_Exmh_456587320P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <4399.1061268420.1@turing-police.cc.vt.edu>
 
-Thanx
-tomar
+On Mon, 18 Aug 2003 19:34:59 CDT, Narayan Desai <desai@mcs.anl.gov>  said:
+> Running 2.6.0-test3 (both with and without your recent yenta socket
+> patches) pcmcia cards present during boot don't show up until they are
+> removed and reinserted. Once reinserted, they work fine. This only
+> seems to occur if yenta_socket is build into the kernel; if support is
+> modular, cards appear to be recognized properly at boot time. I am
+> running on a thinkpad t21.  Let me know if I can help with this
+> problem in any way...  thanks
 
-On Tue, 19 Aug 2003, Jamie Lokier wrote:
+Same issue on 2.6.0-test3-mm2 on a Dell Latitude C840 with a TrueMobile 1150
+wireless (uses orinoco_cs driver) - card is recognized at boot, and somewhat
+configured:
 
-> Herbert Pötzl wrote:
-> > On Mon, Aug 18, 2003 at 11:11:53PM +0200, Paolo Ornati wrote:
-> > > >
-> > > > > Curiosity: since the memory addresses from 640KB to 1MB are
-> reserved for
-> > > > > memory mapped I/O (video memory) and BIOS ROM... the
-> corrispondent range
-> > > > > in
-> > > >
-> > > > uh oh ...
-> > > >
-> > > > > the REAL MEMORY isn't usable and so we lost 384KB of memory. Is
-> this
-> > > > > right?
-> > > >
-> > > > for DOS, withouth upper memory manager yes ;)
-> > > 
-> > > I'm talking about an OS in protected mode... in any case how 
-> > > can I access to this memory region if it's mapped for other things?
-> > 
-> > this is usually done via the MMU which can do miracolous
-> > things to memory and addresses ...
-> > 
-> > > I've done some tests with a simple kernel which I wrote: all that
-> region 
-> > > (except video memory at 0xb8000) results "read only"...
-> > 
-> > because it is usually designated as rom area, which naturally
-> > is read only ... 
-> > 
-> > > So I THINK YOU mean: "you can use more than 640KB in real mode using
-> 
-> > > a memory manager that "remap" 0xC0000 (for example) to 0x100000 or 
-> > > something like it"
-> > 
-> > basically a memory manager (depending on the processors 
-> > capabilities) does either use memory mapping or simple
-> > memory exchanging between designated regions and above
-> > 1M+64k memory ...
-> 
-> The MMU _is_ used to remap memory addresses.  It is part of the CPU
-> itself.
-> But it translates what's called "virtual address" space to "physical
-> address space".  Physical addresses seemingly map directly to RAM and
-> memory-mapped I/O.
-> 
-> Paolo's question is, what happens to the 384k of _physical_ addresses
-> starting at 0xa0000, which should correspond with 384k of actual
-> physical RAM?
-> 
-> If you use the MMU to map a virtual address to the physical addresses
-> from
-> 0xa0000..0xfffff, then whichever virtual addresses you chose will map to
-> video memory, ROM, BIOS etc.
-> 
-> The answer is that after the MMU has translated, a _second_ address
-> translation takes place, outside the CPU, which maps the physical
-> addresses
-> so that a hole is created in the RAM without any RAM going missing.
-> This
-> second translation is done by the motherboard chipset.
-> 
-> Enjyo,
-> -- Jamie
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Aug 18 11:16:52 turing-police kernel: eth1: Station identity 001f:0001:0008:000a
+Aug 18 11:16:53 turing-police kernel: eth1: Looks like a Lucent/Agere firmware version 8.10
+Aug 18 11:16:53 turing-police kernel: eth1: Ad-hoc demo mode supported
+Aug 18 11:16:53 turing-police kernel: eth1: IEEE standard IBSS ad-hoc mode supported
+Aug 18 11:16:53 turing-police kernel: eth1: WEP supported, 104-bit key
+Aug 18 11:16:53 turing-police kernel: eth1: MAC address 00:02:2D:5C:11:48
+Aug 18 11:16:53 turing-police kernel: eth1: Station name "HERMES I"
+Aug 18 11:16:53 turing-police kernel: eth1: ready
+Aug 18 11:16:53 turing-police kernel: eth1: index 0x01: Vcc 3.3, irq 11, io 0x0100-0x013f
 
+but it takes a 'cardctl eject 2;cardctl insert 2' to actually finish the job
+and get things started (actually popping the card out not required, and not
+possible, it's a built-in). Relevant .config:
+
+CONFIG_YENTA=y
+CONFIG_HERMES=y
+# CONFIG_PLX_HERMES is not set
+# CONFIG_TMD_HERMES is not set
+CONFIG_PCI_HERMES=y
+CONFIG_PCMCIA_HERMES=y
+
+I'm wondering if this is a cardmgr/hotplug bug - if they can't insmod the Yenta
+support, they don't realize that it could already be onboard so they don't even
+try to start the cards?
+
+
+--==_Exmh_456587320P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/QavEcC3lWbTT17ARAnqYAKDIBso6jjSlZXolOFyCwnSnJ4jSbgCfWczh
+IqMUNOaShfFOaKCxDF+5izE=
+=u2xp
+-----END PGP SIGNATURE-----
+
+--==_Exmh_456587320P--

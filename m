@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131679AbQKWAn2>; Wed, 22 Nov 2000 19:43:28 -0500
+        id <S132194AbQKWAni>; Wed, 22 Nov 2000 19:43:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132283AbQKWAnR>; Wed, 22 Nov 2000 19:43:17 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63757 "EHLO
-        www.linux.org.uk") by vger.kernel.org with ESMTP id <S131679AbQKWAnL>;
-        Wed, 22 Nov 2000 19:43:11 -0500
+        id <S132190AbQKWAn2>; Wed, 22 Nov 2000 19:43:28 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64013 "EHLO
+        www.linux.org.uk") by vger.kernel.org with ESMTP id <S132194AbQKWAnP>;
+        Wed, 22 Nov 2000 19:43:15 -0500
 From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200011230010.AAA02797@raistlin.arm.linux.org.uk>
-Subject: Re: silly [< >] and other excess
-To: acahalan@cs.uml.edu (Albert D. Cahalan)
-Date: Thu, 23 Nov 2000 00:10:03 +0000 (GMT)
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <200011222354.eAMNs1564115@saturn.cs.uml.edu> from "Albert D. Cahalan" at Nov 22, 2000 06:54:01 PM
+Message-Id: <200011230006.AAA02777@raistlin.arm.linux.org.uk>
+Subject: Re: Modutils 2.3.14 / Kernel 2.4.0-test11 incompatibility
+To: kaos@ocs.com.au (Keith Owens)
+Date: Thu, 23 Nov 2000 00:06:34 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4589.974935487@ocs3.ocs-net> from "Keith Owens" at Nov 23, 2000 10:24:47 AM
 X-Location: london.england.earth.mulky-way.universe
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
@@ -21,22 +21,32 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan writes:
-> > c1e97ee0:                                                        c00251f8 c280007c
-> > c1e97f00: 60000013 ffffffff c1e97fac c1e97f18  c0026194 c280006c c1e37000 c1e38000
+Keith Owens writes:
+> On Wed, 22 Nov 2000 23:12:25 +0000 (GMT), 
+> Russell King <rmk@arm.linux.org.uk> wrote:
+> >        if (copy_from_user(mod+1, mod_user+1, mod->size-sizeof(*mod))) {
 > 
-> [ --- CHOP --- ]
+> Using sizeof(struct module) is a nono in sys_init_module(), the code
+> has to use the user space size.  Does this untested patch fix the
+> problem?  Against 2.4.0-test11-pre6 but should fit test11.
 > 
-> All these numbers get looked up.
+> 
+> Index: 0-test11-pre6.1/kernel/module.c
+> --- 0-test11-pre6.1/kernel/module.c Wed, 08 Nov 2000 11:52:15 +1100 kaos (linux-2.4/j/28_module.c 1.1.2.1.1.1.7.1.1.1 644)
+> +++ 0-test11-pre6.1(w)/kernel/module.c Thu, 23 Nov 2000 10:22:26 +1100 kaos (linux-2.4/j/28_module.c 1.1.2.1.1.1.7.1.1.1 644)
+> @@ -480,7 +480,9 @@ sys_init_module(const char *name_user, s
+>  
+>  	/* Ok, that's about all the sanity we can stomach; copy the rest.  */
+>  
+> -	if (copy_from_user(mod+1, mod_user+1, mod->size-sizeof(*mod))) {
+> +	if (copy_from_user((char *)mod+mod_user_size,
+> +			   (char *)mod_user+mod_user_size,
+> +			   mod->size-mod_user_size)) {
+>  		error = -EFAULT;
+>  		goto err3;
+>  	}
 
-These numbers should NOT get looked up - if they are, then very
-useful information will be lost; they are not only references to
-kernel functions, but also kernel data and read only data within
-the kernel text segment.  The result will be a totally undeciperal
-garbage.
-
-Again, care to put the effort into klogd/ksymoops to handle the
-architecture special cases?
+This also works!
    _____
   |_____| ------------------------------------------------- ---+---+-
   |   |         Russell King        rmk@arm.linux.org.uk      --- ---

@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264036AbTEGQZz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 12:25:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264037AbTEGQZz
+	id S264042AbTEGQaN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 12:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbTEGQaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 12:25:55 -0400
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:4569 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP id S264036AbTEGQZy
+	Wed, 7 May 2003 12:30:13 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:58242 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264042AbTEGQaM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 12:25:54 -0400
-Date: Wed, 7 May 2003 09:38:22 -0700
-Subject: Re: [ANNOUNCE] HFS+ driver
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: linux-kernel@vger.kernel.org
-To: Jeffrey Baker <jwbaker@acm.org>
-From: Miles Lane <miles.lane@attbi.com>
-In-Reply-To: <20030507155508.GA18037@noodles>
-Message-Id: <5114102E-80AA-11D7-B6A8-000393A337FC@attbi.com>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.552)
+	Wed, 7 May 2003 12:30:12 -0400
+Date: Wed, 7 May 2003 12:45:04 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: petter wahlman <petter@bluezone.no>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The disappearing sys_call_table export.
+In-Reply-To: <1052323711.3739.750.camel@badeip>
+Message-ID: <Pine.LNX.4.53.0305071243400.12878@chaos>
+References: <1052321673.3727.737.camel@badeip>  <Pine.LNX.4.53.0305071147510.12652@chaos>
+ <1052323711.3739.750.camel@badeip>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 7 May 2003, petter wahlman wrote:
 
-On Wednesday, May 7, 2003, at 08:55  AM, Jeffrey Baker wrote:
-
->> I'm proud to announce a complete new version of the HFS+ fs
->> driver. This work was made possible by Ardis Technologies
->> (www.ardistech.com).  It's based on the driver by Brad Boyer
->> (http://sf.net/projects/linux-hfsplus).
+> On Wed, 2003-05-07 at 18:00, Richard B. Johnson wrote:
+> > On Wed, 7 May 2003, petter wahlman wrote:
+> >
+> > >
+> > > It seems like nobody belives that there are any technically valid
+> > > reasons for hooking system calls, but how should e.g anti virus
+> > > on-access scanners intercept syscalls?
+> > > Preloading libraries, ptracing init, patching g/libc, etc. are
+> >   ^^^^^^^^^^^^^^^^^^^
+> >                     |________  Is the way to go. That's how
+> > you communicate every system-call to a user-mode daemon that
+> > does whatever you want it to do, including phoning the National
+> > Security Administrator if that's the policy.
+> >
+> > > obviously not the way to go.
+> > >
+> >
+> > Oviously wrong.
 >
-> This is a huge development for iPod and other mac users.
+>
+> And how would you force the virus to preload this library?
+>
+> -p.
+>
 
-Yes!  Will this driver be accepted into the 2.4 and 2.5 trees any time
-soon?
+I wouldn't.
 
-Thanks,
-	Miles
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

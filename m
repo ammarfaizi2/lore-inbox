@@ -1,38 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbVCaFqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbVCaFsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261991AbVCaFqW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 00:46:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbVCaFqV
+	id S261800AbVCaFsR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 00:48:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbVCaFsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 00:46:21 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:32904 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261991AbVCaFqT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 00:46:19 -0500
-Date: Thu, 31 Mar 2005 07:46:03 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Wiktor <victorjan@poczta.onet.pl>
-cc: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFD] 'nice' attribute for executable files
-In-Reply-To: <424B090F.3090508@poczta.onet.pl>
-Message-ID: <Pine.LNX.4.61.0503310745430.9253@yvahk01.tjqt.qr>
-References: <fa.ed33rit.1e148rh@ifi.uio.no> <E1DGNaV-0005LG-9m@be1.7eggert.dyndns.org>
- <424ACEA9.6070401@poczta.onet.pl> <yw1xpsxhvzsz.fsf@ford.inprovide.com>
- <424AE18B.1080009@poczta.onet.pl> <yw1xll85vtva.fsf@ford.inprovide.com>
- <424B090F.3090508@poczta.onet.pl>
+	Thu, 31 Mar 2005 00:48:17 -0500
+Received: from digitalimplant.org ([64.62.235.95]:46828 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S261800AbVCaFsB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 00:48:01 -0500
+Date: Wed, 30 Mar 2005 21:47:48 -0800 (PST)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+cc: Alan Stern <stern@rowland.harvard.edu>,
+       David Brownell <david-b@pacbell.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: klists and struct device semaphores
+In-Reply-To: <200503302201.53487.dtor_core@ameritech.net>
+Message-ID: <Pine.LNX.4.50.0503302146420.20992-100000@monsoon.he.net>
+References: <Pine.LNX.4.44L0.0503291055560.1038-100000@ida.rowland.org>
+ <Pine.LNX.4.50.0503301814090.20992-100000@monsoon.he.net>
+ <200503302201.53487.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> You could wrap /lib/ld-linux.so, and get all dynamically linked
->> programs done in one sweep.
 
-That does not handle static binaries :)
+On Wed, 30 Mar 2005, Dmitry Torokhov wrote:
+
+> Will the lock be exported (via helper functions)? I always felt dirty using
+> subsys.rwsem because it I think it was supposed to be implementation detail.
+
+Sure, why not? See the attached patch for helpers, exported GPL only of
+course.
+
+Thanks,
 
 
+	Pat
 
-Jan Engelhardt
--- 
-No TOFU for me, please.
+===== drivers/base/core.c 1.97 vs edited =====
+--- 1.97/drivers/base/core.c	2005-03-24 19:07:33 -08:00
++++ edited/drivers/base/core.c	2005-03-30 21:20:54 -08:00
+@@ -196,6 +196,33 @@
+
+
+ /**
++ *	device_lock - lock device by taking its semaphore
++ *	@dev:	Device to lock
++ */
++
++void device_lock(struct device * dev)
++{
++	if (dev)
++		down(&dev->sem);
++}
++
++EXPORT_SYMBOL_GPL(device_lock);
++
++
++/**
++ *	device_unlock - unlock device
++ *	@dev:	Device we're unlocking
++ */
++
++void device_unlock(struct device * dev)
++{
++	if (dev)
++		up(&dev->sem);
++}
++
++EXPORT_SYMBOL_GPL(device_unlock);
++
++/**
+  *	device_initialize - init device structure.
+  *	@dev:	device.
+  *
+===== include/linux/device.h 1.147 vs edited =====
+--- 1.147/include/linux/device.h	2005-03-24 19:07:33 -08:00
++++ edited/include/linux/device.h	2005-03-30 21:17:28 -08:00
+@@ -325,6 +325,9 @@
+ extern int device_for_each_child(struct device *, void *,
+ 		     int (*fn)(struct device *, void *));
+
++extern void device_lock(struct device * dev);
++extern void device_unlock(struct device * dev);
++
+ /*
+  * Manual binding of a device to driver. See drivers/base/bus.c
+  * for information on use.

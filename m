@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264901AbUAIWRA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 17:17:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbUAIWRA
+	id S264893AbUAIWOl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 17:14:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUAIWOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 17:17:00 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:39665 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S264901AbUAIWQ6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 17:16:58 -0500
-Message-ID: <3FFF2851.4060501@mvista.com>
-Date: Fri, 09 Jan 2004 14:16:49 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	Fri, 9 Jan 2004 17:14:41 -0500
+Received: from [81.3.4.101] ([81.3.4.101]:57533 "HELO localhost")
+	by vger.kernel.org with SMTP id S264893AbUAIWOj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 17:14:39 -0500
+From: "Christian Kivalo" <valo@valo.at>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: stability problems with 2.4.24/Software RAID/ext3
+Date: Fri, 9 Jan 2004 23:14:38 +0100
+Message-ID: <NMEHJKFGFEGJPIPOLFFEEEPODDAA.valo@valo.at>
 MIME-Version: 1.0
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-CC: Andrew Morton <akpm@osdl.org>, jim.houston@comcast.net, discuss@x86-64.org,
-       ak@suse.de, shivaram.upadhyayula@wipro.com,
-       lkml <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: [discuss] Re: kgdb for x86_64 2.6 kernels
-References: <000e01c3d476$2ebe03a0$4008720a@shivram.wipro.com> <1073603622.993.353.camel@new.localdomain> <20040108153243.11e45156.akpm@osdl.org> <200401091031.41493.amitkale@emsyssoft.com>
-In-Reply-To: <200401091031.41493.amitkale@emsyssoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-reply-to: <20040109185348.GA24499@piper.madduck.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit,
+On Friday, January 09, 2004 7:54 PM, martin f krafft wrote:
+> Well, I can't find any other suitable ones, really. I can't seem to
+> find HighPoints, there is 3ware and DawiControl, but I don't know
+> which ones are supported by Linux.
+>
+> Maybe someone can give me a suggestion for a non-promise EIDE 133
+> PCI controller that's natively supported by Linux.
 
-The base line kgdb code in the mm patches was offered by me.  It derives from (a 
-long time ago) a kgdb I got from the RTIA (or was it the RTLINUX) folks.  Prio 
-to that, well, your name is on it as well as others.
+Hi!
 
-As you may have noted there have been a lot of changes, mostly for the better, I 
-hope.  I think we have slightly different objectives in our work.  I debug 
-kernels, not drivers, so I am interested in getting into kgdb as early as 
-possible.  To this end the current mm patch allows one to put a breakpoint() as 
-the first line of C code in the kernel.  This required a few adjustments, such 
-as configuring the I/O port at CONFIG time, for example.
+3ware cards are hardware raidcontrollers, they are supported.
 
-I would like for the two versions of kgdb to merge while keeping the features of 
-both.  The work on seperating the common code is something I like and, while I 
-never do modules, the automatic module stuff in gdb sound good.
-
-May I suggest that we compare and contrast the two versions and take a look at 
-the differences and the overlaps and settle on one way of doing the various things.
-
-George
+I can get a dawicontrol card here in austria with a silicon image 680
+chip on it. I use 3 cards with sil680 chip (because these are not as
+expensive as the 3ware cards) with linux-2.4.23 and connected 6 disks as
+master holding a raid5 array. Have'nt had any problems till yet (I have
+this setup for ~2 month's now).
 
 
+Christian
 
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+(sorry for broken mua, am currently forced to use this)
 

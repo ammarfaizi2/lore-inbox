@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274291AbRITBKl>; Wed, 19 Sep 2001 21:10:41 -0400
+	id <S272712AbRITBgS>; Wed, 19 Sep 2001 21:36:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274295AbRITBKc>; Wed, 19 Sep 2001 21:10:32 -0400
-Received: from mx5.sac.fedex.com ([199.81.194.37]:31753 "EHLO
-	mx5.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S274291AbRITBKS>; Wed, 19 Sep 2001 21:10:18 -0400
-Date: Thu, 20 Sep 2001 09:12:16 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: Andrea Arcangeli <andrea@suse.de>,
-        "Daniel T. Chen" <crimsun@email.unc.edu>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: pre12 VM doubts and patch
-In-Reply-To: <20010920030536.I720@athlon.random>
-Message-ID: <Pine.LNX.4.33.0109200911070.23427-100000@boston.corp.fedex.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/20/2001
- 09:10:39 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/20/2001
- 09:10:41 AM,
-	Serialize complete at 09/20/2001 09:10:42 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/20/2001
- 09:10:42 AM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274294AbRITBgI>; Wed, 19 Sep 2001 21:36:08 -0400
+Received: from f177.law7.hotmail.com ([216.33.237.177]:9993 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S272712AbRITBfz>;
+	Wed, 19 Sep 2001 21:35:55 -0400
+X-Originating-IP: [211.210.69.171]
+From: "Tobin Park" <shinywind@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Network buffer allocation
+Date: Thu, 20 Sep 2001 01:36:14 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F177WQejqpRI7aIrq0400001a8c@hotmail.com>
+X-OriginalArrivalTime: 20 Sep 2001 01:36:14.0996 (UTC) FILETIME=[A302B540:01C14174]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+I am a newbie of linux kernel and studying network kernel source.
+when network device driver receives packet and allocates buffer,
+what is the default size of allocation?
+and is there any reallocation happened when upper layer(ip/tcp) manipulates
+buffer which was allocated by device driver?
 
-On Thu, 20 Sep 2001, Andrea Arcangeli wrote:
+Thank you.
 
-> On Thu, Sep 20, 2001 at 09:04:40AM +0800, Jeff Chua wrote:
-> >
-> > I still can't find pre12. The latest I've seen is pre11.
-> >
-> > Where can I get pre12?
->
-> 	http://kernel.dk/testing
->
-> Andrea
-
-
-Thanks for the quick response. I'll test it right away.
-
-Jeff
-
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
 

@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265390AbUEZJw1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUEZJyG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265390AbUEZJw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 05:52:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265392AbUEZJw1
+	id S265395AbUEZJyG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 05:54:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265394AbUEZJyG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 05:52:27 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:59782 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S265390AbUEZJw0 (ORCPT
+	Wed, 26 May 2004 05:54:06 -0400
+Received: from cantor.suse.de ([195.135.220.2]:23260 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265395AbUEZJxz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 05:52:26 -0400
-Date: Wed, 26 May 2004 11:52:22 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Rob Landley <rob@landley.net>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCEMENT PATCH COW] proof of concept impementation of cowlinks
-Message-ID: <20040526095222.GA12142@wohnheim.fh-wedel.de>
-References: <20040506131731.GA7930@wohnheim.fh-wedel.de> <200405251655.43185.rob@landley.net> <20040525220826.GC1609@elf.ucw.cz> <200405251816.05497.rob@landley.net>
+	Wed, 26 May 2004 05:53:55 -0400
+Date: Wed, 26 May 2004 11:53:51 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: very low performance on SCSI disks if device node is in tmpfs
+Message-ID: <20040526095351.GC28430@suse.de>
+References: <20040525184732.GB26661@suse.de> <20040525144836.1af59a96.akpm@osdl.org> <20040525145923.68af0ad8.akpm@osdl.org> <20040525154107.053b9ef6.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <200405251816.05497.rob@landley.net>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040525154107.053b9ef6.akpm@osdl.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 May 2004 18:16:05 -0500, Rob Landley wrote:
+ On Tue, May 25, Andrew Morton wrote:
+
+> Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > Everything there is consistent with "not doing readahead".
+> >
 > 
-> [a lot]
+> 
+> 
+> We need to set file->f_ra _after_ calling blkdev_open(), when inode->i_mapping
+> points at the right thing.  And we need to get it from
+> inode->i_mapping->host->i_mapping too, which represents the underlying device.
 
-Sorry, you didn't have the time to make it short and I don't have the
-time to read it all. ;)
-
-Anyway, it sounds as if you really want a connect_files() or similar
-that shortens a chain of pipes.  Similar to removing an element from a
-doubly linked list.  Should be possible and not too hard either, iff
-you can point to a decent user.
-
-Right now, I don't care at all since it is just an optimization for
-what's possible in userspace already and is rarely used.  Root of all
-evil an such...
-
-Jörn
+That fixed it, thanks for the patch and the award!
+I will take the patch and pass the award to the guy who found the bug.
 
 -- 
-The strong give up and move away, while the weak give up and stay.
--- unknown
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÃœRNBERG

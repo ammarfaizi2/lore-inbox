@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271765AbRHRD6O>; Fri, 17 Aug 2001 23:58:14 -0400
+	id <S271769AbRHREGZ>; Sat, 18 Aug 2001 00:06:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271767AbRHRD6F>; Fri, 17 Aug 2001 23:58:05 -0400
-Received: from mailout5-1.nyroc.rr.com ([24.92.226.169]:61674 "EHLO
-	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S271765AbRHRD5t>; Fri, 17 Aug 2001 23:57:49 -0400
-Message-Id: <200108180358.XAA08108@pb.home>
+	id <S271770AbRHREGP>; Sat, 18 Aug 2001 00:06:15 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:29468 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S271769AbRHREGJ>; Sat, 18 Aug 2001 00:06:09 -0400
+Date: Sat, 18 Aug 2001 06:06:31 +0200
+From: Andrea Arcangeli <andrea@suse.de>
 To: linux-kernel@vger.kernel.org
-Subject: strangeness writing CDs (ide and scsi)
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <8105.998107081.1@pb>
-Date: Fri, 17 Aug 2001 23:58:01 -0400
-From: "Marty Leisner" <leisner@rochester.rr.com>
+Subject: 2.2.20pre9aa2
+Message-ID: <20010818060631.B1719@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just got an HP9600 cdwriter (scsi, external).
+Diff between 2.2.20pre9aa1 and 2.2.20pre9aa2:
 
-No problem...
+Only in 2.2.20pre9aa1: 00_poll-nfds-1
+Only in 2.2.20pre9aa2: 00_poll-nfds-2
 
-I made a CDROM and did a cmp against an ISO master...
+	Fixed off by one error in the rlimit check.
 
-then when I tried to read it on an IDE cdrom drive, I get:
-hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-hda: cdrom_decode_status: error=0x30
-hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-hda: cdrom_decode_status: error=0x30
+Only in 2.2.20pre9aa1: 40_lfs-2.2.19pre16aa1-26.bz2
+Only in 2.2.20pre9aa2: 40_lfs-2.2.20pre9aa2-27.bz2
 
+	Drop obsolete (and duplicated) fcntl64 definition in the sparc
+	unistd.h. (this was a lonstanding bug, it never triggered yet because
+	glibc gets compiled with the 2.4 headers)
 
-I tried 3 different CD-ROM drives on 2 systems (one running redhat 7.1,
-the other 6.2).
-
-Same results.
-
-So for grunts, I have a NEC SCSI CD changer...I put the one I wrote
-in there...did the cmp...no problem...
-
-(It also would be very, very useful if the error messages would
-include the sectors in cdrom_decode_status).
-
-I'm somewhat puzzled...
-
-
-Marty Leisner
-leisner@rochester.rr.com
+Andrea

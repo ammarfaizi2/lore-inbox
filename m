@@ -1,75 +1,160 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262167AbTICNb2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 09:31:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbTICNb2
+	id S262188AbTICNgW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 09:36:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbTICNgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 09:31:28 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:55263 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262167AbTICNbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 09:31:25 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Russell King <rmk@arm.linux.org.uk>, Pavel Machek <pavel@suse.cz>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-In-Reply-To: <1062594137.19058.23.camel@dhcp23.swansea.linux.org.uk>
-References: <20030831232812.GA129@elf.ucw.cz>
-	 <Pine.LNX.4.44.0309010925230.7908-100000@home.osdl.org>
-	 <20030901211220.GD342@elf.ucw.cz>
-	 <20030901225243.D22682@flint.arm.linux.org.uk>
-	 <20030901221920.GE342@elf.ucw.cz>
-	 <20030901233023.F22682@flint.arm.linux.org.uk>
-	 <1062498096.757.45.camel@gaston>
-	 <1062594137.19058.23.camel@dhcp23.swansea.linux.org.uk>
-Message-Id: <1062595873.1785.23.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 03 Sep 2003 15:31:14 +0200
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-Subject: Re: Fix up power managment in 2.6
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+	Wed, 3 Sep 2003 09:36:22 -0400
+Received: from paiol.terra.com.br ([200.176.3.18]:29902 "EHLO
+	paiol.terra.com.br") by vger.kernel.org with ESMTP id S262188AbTICNgK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 09:36:10 -0400
+Message-ID: <3F55EEA2.9030605@terra.com.br>
+Date: Wed, 03 Sep 2003 10:37:38 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] kill unneeded versio.h include
+Content-Type: multipart/mixed;
+ boundary="------------020409020407090208090608"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-09-03 at 15:02, Alan Cox wrote:
-> On Maw, 2003-09-02 at 11:21, Benjamin Herrenschmidt wrote:
-> > The whole point was to get rid of the old 2 step save_state, then
-> > suspend model which didn't make sense. A saved state is only meaningful
-> > as long as that state doesn't get modified afterward, so saving state
-> > and suspending are an atomic operation.
-> 
-> Very old myth. In fact just about every scheduler on the planet exploits
-> the fact this is untrue.
-> 
-> 		save state
-> 		continue running doing scheduler stuff
-> 		restore other state losing the state in the middle we dont need
-> 
-> Ditto with a lot of I/O devices. My audio save state and suspend can be
-> seperated - I might play a little bit of a song twice but is that a bug
+This is a multi-part message in MIME format.
+--------------020409020407090208090608
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-It is in lots of case with IO. Especially if your state don't match
-between different devices that rely on each other (parent/child
-typically), or if some of that state information matches something
-persistent on the HW (devices don't necessarily get fully powered
-off during suspend).
+	Hi,
 
-Note that in most case, there isn't really a notion of "state" to
-store or save anyway, that is "state" is just whatever is in your
-net_device structure for a network driver, or whatever private
-structure in your whatever-other driver, so you just have to restore
-a couple of things on wakeup, but really nothing to save on suspend.
+	Patch against 2.6-test4.
 
-The single callback is much simpler, and will avoid lots of mistakes
-imho.
+	Based on Randy's checkversion.pl script.
 
-Ben.
+	Please consider applying.
 
+	Cheers,
+
+Felipe
+
+--------------020409020407090208090608
+Content-Type: text/plain;
+ name="sound-checkversion.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sound-checkversion.patch"
+
+diff -ur -X ./dontdiff linux-2.6.0-test4/sound/core/memalloc.c linux-2.6.0-test4-fwd/sound/core/memalloc.c
+--- linux-2.6.0-test4/sound/core/memalloc.c	Fri Aug 22 21:01:48 2003
++++ linux-2.6.0-test4-fwd/sound/core/memalloc.c	Wed Sep  3 10:09:47 2003
+@@ -22,7 +22,6 @@
+  */
+ 
+ #include <linux/config.h>
+-#include <linux/version.h>
+ #include <linux/module.h>
+ #include <linux/proc_fs.h>
+ #include <linux/init.h>
+diff -ur -X ./dontdiff linux-2.6.0-test4/sound/core/oss/pcm_oss.c linux-2.6.0-test4-fwd/sound/core/oss/pcm_oss.c
+--- linux-2.6.0-test4/sound/core/oss/pcm_oss.c	Fri Aug 22 20:58:59 2003
++++ linux-2.6.0-test4-fwd/sound/core/oss/pcm_oss.c	Wed Sep  3 10:09:07 2003
+@@ -27,7 +27,6 @@
+ #endif
+ 
+ #include <sound/driver.h>
+-#include <linux/version.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/time.h>
+diff -ur -X ./dontdiff linux-2.6.0-test4/sound/core/pcm_native.c linux-2.6.0-test4-fwd/sound/core/pcm_native.c
+--- linux-2.6.0-test4/sound/core/pcm_native.c	Fri Aug 22 20:54:17 2003
++++ linux-2.6.0-test4-fwd/sound/core/pcm_native.c	Wed Sep  3 10:09:20 2003
+@@ -20,7 +20,6 @@
+  */
+ 
+ #include <sound/driver.h>
+-#include <linux/version.h>
+ #include <linux/mm.h>
+ #include <linux/file.h>
+ #include <linux/slab.h>
+diff -ur -X ./dontdiff linux-2.6.0-test4/sound/core/sound.c linux-2.6.0-test4-fwd/sound/core/sound.c
+--- linux-2.6.0-test4/sound/core/sound.c	Fri Aug 22 20:57:49 2003
++++ linux-2.6.0-test4-fwd/sound/core/sound.c	Wed Sep  3 10:09:29 2003
+@@ -20,7 +20,6 @@
+  */
+ 
+ #include <sound/driver.h>
+-#include <linux/version.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/time.h>
+diff -ur -X ./dontdiff linux-2.6.0-test4/sound/drivers/dummy.c linux-2.6.0-test4-fwd/sound/drivers/dummy.c
+--- linux-2.6.0-test4/sound/drivers/dummy.c	Fri Aug 22 20:59:42 2003
++++ linux-2.6.0-test4-fwd/sound/drivers/dummy.c	Wed Sep  3 10:09:57 2003
+@@ -19,7 +19,6 @@
+  */
+ 
+ #include <sound/driver.h>
+-#include <linux/version.h>
+ #include <linux/init.h>
+ #include <linux/jiffies.h>
+ #include <linux/slab.h>
+diff -ur -X ./dontdiff linux-2.6.0-test4/sound/oss/ac97_codec.c linux-2.6.0-test4-fwd/sound/oss/ac97_codec.c
+--- linux-2.6.0-test4/sound/oss/ac97_codec.c	Fri Aug 22 20:52:22 2003
++++ linux-2.6.0-test4-fwd/sound/oss/ac97_codec.c	Wed Sep  3 10:07:58 2003
+@@ -46,7 +46,6 @@
+  *	Isolated from trident.c to support multiple ac97 codec
+  */
+ #include <linux/module.h>
+-#include <linux/version.h>
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/string.h>
+diff -ur -X ./dontdiff linux-2.6.0-test4/sound/oss/ali5455.c linux-2.6.0-test4-fwd/sound/oss/ali5455.c
+--- linux-2.6.0-test4/sound/oss/ali5455.c	Fri Aug 22 20:58:43 2003
++++ linux-2.6.0-test4-fwd/sound/oss/ali5455.c	Wed Sep  3 10:08:45 2003
+@@ -47,7 +47,6 @@
+  */
+ 
+ #include <linux/module.h>
+-#include <linux/version.h>
+ #include <linux/string.h>
+ #include <linux/ctype.h>
+ #include <linux/ioport.h>
+diff -ur -X ./dontdiff linux-2.6.0-test4/sound/oss/au1000.c linux-2.6.0-test4-fwd/sound/oss/au1000.c
+--- linux-2.6.0-test4/sound/oss/au1000.c	Fri Aug 22 20:57:21 2003
++++ linux-2.6.0-test4-fwd/sound/oss/au1000.c	Wed Sep  3 10:08:27 2003
+@@ -50,7 +50,6 @@
+  *                channels [stevel].
+  *
+  */
+-#include <linux/version.h>
+ #include <linux/module.h>
+ #include <linux/string.h>
+ #include <linux/ioport.h>
+diff -ur -X ./dontdiff linux-2.6.0-test4/sound/oss/ite8172.c linux-2.6.0-test4-fwd/sound/oss/ite8172.c
+--- linux-2.6.0-test4/sound/oss/ite8172.c	Fri Aug 22 20:53:03 2003
++++ linux-2.6.0-test4-fwd/sound/oss/ite8172.c	Wed Sep  3 10:08:35 2003
+@@ -54,7 +54,6 @@
+  *    07.30.2003  Removed initialisation to zero for static variables
+  *		   (spdif[NR_DEVICE], i2s_fmt[NR_DEVICE], and devindex)
+  */
+-#include <linux/version.h>
+ #include <linux/module.h>
+ #include <linux/string.h>
+ #include <linux/ioport.h>
+diff -ur -X ./dontdiff linux-2.6.0-test4/sound/oss/swarm_cs4297a.c linux-2.6.0-test4-fwd/sound/oss/swarm_cs4297a.c
+--- linux-2.6.0-test4/sound/oss/swarm_cs4297a.c	Fri Aug 22 20:56:28 2003
++++ linux-2.6.0-test4-fwd/sound/oss/swarm_cs4297a.c	Wed Sep  3 10:08:12 2003
+@@ -59,7 +59,6 @@
+ *******************************************************************************/
+ 
+ #include <linux/list.h>
+-#include <linux/version.h>
+ #include <linux/module.h>
+ #include <linux/string.h>
+ #include <linux/ioport.h>
+
+--------------020409020407090208090608--
 

@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312325AbSCUAr7>; Wed, 20 Mar 2002 19:47:59 -0500
+	id <S312328AbSCUAwa>; Wed, 20 Mar 2002 19:52:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312327AbSCUArj>; Wed, 20 Mar 2002 19:47:39 -0500
-Received: from ns01.passionet.de ([62.153.93.33]:8085 "HELO
-	mail.cgn.kopernikus.de") by vger.kernel.org with SMTP
-	id <S312325AbSCUArQ> convert rfc822-to-8bit; Wed, 20 Mar 2002 19:47:16 -0500
-Date: Thu, 21 Mar 2002 01:47:09 +0100
-From: Manon Goo <manon@manon.de>
-Reply-To: Manon Goo <manon@manon.de>
-To: "Cameron, Steve" <Steve.Cameron@COMPAQ.com>, linux-kernel@vger.kernel.org
-Subject: RE: Hooks for random device entropy generation missing incpqarray.c
-Message-ID: <130041.1016675229@[212.18.27.11]>
-In-Reply-To: <45B36A38D959B44CB032DA427A6E106401281374@cceexc18.americas.cpqcorp.net>
-X-Mailer: Mulberry/2.2.0b3 (Mac OS X)
-X-manon-file: sentbox
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	id <S312327AbSCUAwV>; Wed, 20 Mar 2002 19:52:21 -0500
+Received: from zero.tech9.net ([209.61.188.187]:15371 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S312326AbSCUAwK>;
+	Wed, 20 Mar 2002 19:52:10 -0500
+Subject: Re: [PATCH] 2.4: BUG_ON (2/2)
+From: Robert Love <rml@tech9.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <E16nqci-0003ra-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 20 Mar 2002 19:52:16 -0500
+Message-Id: <1016671937.15333.292.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK I'll try tell you tomorrwo how iz worked out
+On Wed, 2002-03-20 at 19:40, Alan Cox wrote:
 
---On Mittwoch, 20. März 2002 15:59 Uhr -0600 "Cameron, Steve" 
-<Steve.Cameron@COMPAQ.com> wrote:
+> Can we get Andrew's "oh look my kernel is 100Kb smaller" changes in first,
+> there are some clashes here and I think the 100K one is more important
+> personally 8)
 
->
->> I have not tried your patch.  but this is in cpqarray_init()
->> and it is only
->> called when the driver is initilaized.
->> How is the entropy-pool further updated ?
->
-> It's done in linux/arch/*/kernel/irq.c.
-> for i386, in handle_IRQ_event() function.
->
-> -- steve
->
+If we must. :)
 
+	Robert Love
 

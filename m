@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262863AbSJAXWm>; Tue, 1 Oct 2002 19:22:42 -0400
+	id <S262524AbSJAXcd>; Tue, 1 Oct 2002 19:32:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262853AbSJAXWm>; Tue, 1 Oct 2002 19:22:42 -0400
-Received: from cibs9.sns.it ([192.167.206.29]:60682 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S262863AbSJAXWS>;
-	Tue, 1 Oct 2002 19:22:18 -0400
-Date: Wed, 2 Oct 2002 01:25:58 +0200 (CEST)
-From: venom@sns.it
-To: Matthias Andree <matthias.andree@gmx.de>
-cc: linux-kernel@vger.kernel.org, Dave Jones <davej@codemonkey.org.uk>,
-       Alexander Viro <viro@math.psu.edu>,
-       Joe Thornber <joe@fib011235813.fsnet.co.uk>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
-In-Reply-To: <20021001191249.GJ15537@merlin.emma.line.org>
-Message-ID: <Pine.LNX.4.43.0210020124240.16927-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262883AbSJAXcd>; Tue, 1 Oct 2002 19:32:33 -0400
+Received: from bitmover.com ([192.132.92.2]:63702 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S262524AbSJAXcd>;
+	Tue, 1 Oct 2002 19:32:33 -0400
+Date: Tue, 1 Oct 2002 16:37:57 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: mau@oscar.prima.de, linux-kernel@vger.kernel.org
+Subject: Re: LMbench results for 2.5.40
+Message-ID: <20021001163757.J13270@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"David S. Miller" <davem@redhat.com>, mau@oscar.prima.de,
+	linux-kernel@vger.kernel.org
+References: <20021001220853.GA20022@oscar.dorf.de> <20021001.161554.66190770.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021001.161554.66190770.davem@redhat.com>; from davem@redhat.com on Tue, Oct 01, 2002 at 04:15:54PM -0700
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>    From: Patrick Mau <mau@oscar.prima.de>
+>    Date: Wed, 2 Oct 2002 00:08:54 +0200
+>    
+>    Could someone explain the results I marked with '???' ?
+>    The ones under 'Local Communication Bandwidth'.
 
-EVMS is powerfull, but actually has a so ugly command line...
-fortunatelly EVMS architecture command line could be exchanged...
+By the way, the place you will probably see variance in LMbench is in the
+context switch benchmarks, it's almost certainly due to randomness in 
+cache layout and there isn't a thing we can do about it.  You can run a
+zillion runs to get an average but please realize that is an *average*.
+The context switch number are accurate, the low ones represent no cache
+collisions and the high ones represent lots of cache collisions.
 
-
-
-On Tue, 1 Oct 2002, Matthias Andree wrote:
-
-> Date: Tue, 1 Oct 2002 21:12:49 +0200
-> From: Matthias Andree <matthias.andree@gmx.de>
-> To: linux-kernel@vger.kernel.org
-> Cc: Dave Jones <davej@codemonkey.org.uk>, venom@sns.it,
->      Alexander Viro <viro@math.psu.edu>,
->      Joe Thornber <joe@fib011235813.fsnet.co.uk>,
->      Linus Torvalds <torvalds@transmeta.com>
-> Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
->
-> On Tue, 01 Oct 2002, Dave Jones wrote:
->
-> > On Tue, Oct 01, 2002 at 04:52:44PM +0200, venom@sns.it wrote:
-> >  > A Logical Volume Manager is needed on Unix servers, and so it is needed
-> >  > also on Linux.
-> >  > If this LVM is obsoleted, then when will LVM2 be merged?
-> >  > really we cannot have a 2.6 or 3.0 tree without a Volume Manager, it would
-> >  > be a big fault.
-> >
-> > No-one suggested 2.6.0 shipping without /something/, but having a dead
-> > LVM1 in _2.5_ doesn't help anyone. We've gone 6 months with it being in
-> > a broken/uncompilable state, going another month without it isn't a big
-> > deal. Getting something in before halloween is however a goal the
-> > Sistina folks should be aiming for.
->
-> How about EVMS kernel-space merge instead?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+FYI.  I don't like it either.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

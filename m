@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267471AbSLFAzi>; Thu, 5 Dec 2002 19:55:38 -0500
+	id <S267467AbSLFAwr>; Thu, 5 Dec 2002 19:52:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267476AbSLFAzh>; Thu, 5 Dec 2002 19:55:37 -0500
-Received: from ip68-4-86-174.oc.oc.cox.net ([68.4.86.174]:20468 "EHLO
-	ip68-4-86-174.oc.oc.cox.net") by vger.kernel.org with ESMTP
-	id <S267471AbSLFAzh>; Thu, 5 Dec 2002 19:55:37 -0500
-Date: Thu, 5 Dec 2002 17:03:12 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Robert Love <rml@tech9.net>
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.5: ext3 bug or dying drive?
-Message-ID: <20021206010312.GC17498@ip68-4-86-174.oc.oc.cox.net>
-References: <1039123660.1433.12.camel@phantasy>
-Mime-Version: 1.0
+	id <S267471AbSLFAwr>; Thu, 5 Dec 2002 19:52:47 -0500
+Received: from packet.digeo.com ([12.110.80.53]:36517 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267467AbSLFAwq>;
+	Thu, 5 Dec 2002 19:52:46 -0500
+Message-ID: <3DEFF69F.481AB823@digeo.com>
+Date: Thu, 05 Dec 2002 17:00:15 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.50 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Norman Gaywood <norm@turing.une.edu.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Maybe a VM bug in 2.4.18-18 from RH 8.0?
+References: <20021206111326.B7232@turing.une.edu.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1039123660.1433.12.camel@phantasy>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Dec 2002 01:00:15.0484 (UTC) FILETIME=[D66CD3C0:01C29CC2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 05, 2002 at 04:27:40PM -0500, Robert Love wrote:
-> IBM U2W drive on a 2940U2W if it matters.  UP kernel.
+Norman Gaywood wrote:
+> 
+> I think I have a trigger for a VM bug in the RH kernel-bigmem-2.4.18-18
+> 
+> 16GB
+> ...
+>    tar cf /dev/tape .
+> 
 
-http://www.storage.ibm.com/hdd/support/download.htm
+This machine will die due to buffer_heads which are attached
+to highmem pagecache, and due to inodes which are pinned by
+highmem pagecache.
 
-Download the Drive Fitness Test "Linux disk creator" (which isn't
-actually a "disk creator" like the Windows version, but simply a file
-you dd onto a 1.44MB floppy), then boot off that and try the Quick test.
-If that doesn't show anything wrong, try the Advanced test or whatever
-the longer one is called.
+> ...
+> while [ `expr $COUNT - 1` != 0 ]
+> do
+>    date
+>    # 2000 by 1_000_000 seems to be a 1.8G process
+>    perl -e '$i=2000;while ($i--){ $a[$i]="x"x1_000_000; }' &
+> ...
 
-If DFT doesn't fail outright and instead offers to erase part of the
-drive for you to "repair" it, that means there are bad sectors.
-Conversely, if the Advanced test shows Disposition Code 00, that means
-the drive is probably OK. (I think another way of interpreting the
-results is that OK results are text on a green background, and failures
-are text on red.) Anyway, this stuff will seem more obvious once you try
-it.
+This will evict the highmem pagecache.  That frees the buffer_heads
+and unpins the inodes.
 
--Barry K. Nathan <barryn@pobox.com>
+> So what do I do now?
+
+I guess talk to Red Hat.  These are well-known problems and there
+should be fixes for them in a "bigmem" kernel.
+
+Otherwise, the -aa kernels have patches to address these problems.
+One option would be to roll your own kernel, based on a kernel.org
+kernel and a matching patch from
+http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/
+
+> ...
+> Anyone have some patches for me to
+> try that won't take me too far from the RH 8.0 base system.
+
+Hard.  The relevant patches are:
+
+http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20aa1/05_vm_16_active_free_zone_bhs-1
+and
+http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20aa1/10_inode-highmem-2
+
+The first one will not come vaguely close to applying to an
+RH 2.4.18 kernel.
+
+The second one may well apply, and will probably fix the problem.

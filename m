@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbUJ0BdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbUJ0Ber@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261531AbUJ0BdI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 21:33:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbUJ0BdI
+	id S261557AbUJ0Ber (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 21:34:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbUJ0Ber
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 21:33:08 -0400
-Received: from jpnmailout02.yamato.ibm.com ([203.141.80.82]:7645 "EHLO
-	jpnmailout02.yamato.ibm.com") by vger.kernel.org with ESMTP
-	id S261531AbUJ0BdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 21:33:02 -0400
-In-Reply-To: <1098766257.8433.7.camel@sli10-desk.sh.intel.com>
-Subject: Re: [ACPI] [Proposal]Another way to save/restore PCI config space for
- suspend/resume
-To: Li Shaohua <shaohua.li@intel.com>
-Cc: ACPI-DEV <acpi-devel@lists.sourceforge.net>, greg@kroah.com,
-       Len Brown <len.brown@intel.com>, lkml <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>
-X-Mailer: Lotus Notes Release 6.0.2CF2 July 23, 2003
-Message-ID: <OF7E38C2D0.FC23B846-ON49256F3A.000672D1-49256F3A.0007BB88@jp.ibm.com>
-From: Hiroshi 2 Itoh <HIROIT@jp.ibm.com>
-Date: Wed, 27 Oct 2004 10:32:18 +0900
-X-MIMETrack: Serialize by Router on D19ML115/19/M/IBM(Release 6.51HF338 | June 21, 2004) at
- 2004/10/27 10:32:19
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Tue, 26 Oct 2004 21:34:47 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:8379 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S261557AbUJ0Be0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 21:34:26 -0400
+Date: Wed, 27 Oct 2004 03:35:22 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: lowmem_reserve (replaces protection)
+Message-ID: <20041027013522.GR14325@dualathlon.random>
+References: <417DCFDD.50606@yahoo.com.au> <Pine.LNX.4.44.0410262029210.21548-100000@chimarrao.boston.redhat.com> <20041027005425.GO14325@dualathlon.random> <20041027005637.GP14325@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041027005637.GP14325@dualathlon.random>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+this _incremental_ 2/? patch should fix the longtanding kswapd issue
+vs protection algorithm, now lowmem_reserve (partly hidden by the lack
+of lowmem_reserve/protection or equivalent band-aid enabled in 2.6.9).
 
-
-
-
-Hi,
-
-acpi-devel-admin@lists.sourceforge.net wrote on 2004/10/26 13:50:57:
-
-> Hi,
-> We suffer from PCI config space issue for a long time, which causes many
-> system can't correctly resume. Current Linux mechanism isn't sufficient.
-> Here is a another idea:
-> Record all PCI writes in Linux kernel, and redo all the write after
-> resume in order. The idea assumes Firmware will restore all PCI config
-> space to the boot time state, which is true at least for IA32.
->
-
-I think a basic problem of current Linux device model is that there is no
-effective message path from sibling devices to their root device.
-Although the message direction from a root device to sibling devices is
-natural from the viewpoint of device enumeration, the direction from
-sibling devices to a root device is required for effective arbitration for
-device configuration and power management.
-
-The Windows driver model uses the direction from sibling drivers to a root
-bus driver mainly, i.e. sibling drivers are layered on a root bus driver.
-While we need a kind of callback mechanism from PCI (sibling) devices to
-PCI bus (root) device instead because their normal call interface is from a
-root device to sibling devices.
-
-- Hiro.
-
+--- 2-kswapd-balance/include/linux/mmzone.h.~1~	2004-10-27 03:17:07.207812600 +0200
++++ 2-kswapd-balance/include/linux/mmzone.h	2004-10-27 03:26:22.673369000 +0200
+@@ -273,7 +273,7 @@ void __get_zone_counts(unsigned long *ac
+ void get_zone_counts(unsigned long *active, unsigned long *inactive,
+ 			unsigned long *free);
+ void build_all_zonelists(void);
+-void wakeup_kswapd(struct zone *zone);
++void wakeup_kswapd(struct zone *zone, int classzone_idx);
+ 
+ /*
+  * zone_idx() returns 0 for the ZONE_DMA zone, 1 for the ZONE_NORMAL zone, etc.
+--- 2-kswapd-balance/mm/page_alloc.c.~1~	2004-10-27 03:17:07.215811384 +0200
++++ 2-kswapd-balance/mm/page_alloc.c	2004-10-27 03:24:31.351292528 +0200
+@@ -641,7 +641,7 @@ __alloc_pages(unsigned int gfp_mask, uns
+ 	}
+ 
+ 	for (i = 0; (z = zones[i]) != NULL; i++)
+-		wakeup_kswapd(z);
++		wakeup_kswapd(z, classzone_idx);
+ 
+ 	/*
+ 	 * Go through the zonelist again. Let __GFP_HIGH and allocations
+--- 2-kswapd-balance/mm/vmscan.c.~1~	2004-10-27 03:14:22.563842288 +0200
++++ 2-kswapd-balance/mm/vmscan.c	2004-10-27 03:26:57.462080312 +0200
+@@ -1169,11 +1169,11 @@ static int kswapd(void *p)
+ /*
+  * A zone is low on free memory, so wake its kswapd task to service it.
+  */
+-void wakeup_kswapd(struct zone *zone)
++void wakeup_kswapd(struct zone *zone, int classzone_idx)
+ {
+ 	if (zone->present_pages == 0)
+ 		return;
+-	if (zone->free_pages > zone->pages_low)
++	if (zone->free_pages > zone->pages_low + zone->lowmem_reserve[classzone_idx])
+ 		return;
+ 	if (!waitqueue_active(&zone->zone_pgdat->kswapd_wait))
+ 		return;

@@ -1,39 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbULGECm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbULGE3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbULGECm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 23:02:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbULGECl
+	id S261742AbULGE3c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 23:29:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbULGE3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 23:02:41 -0500
-Received: from quickstop.soohrt.org ([81.2.155.147]:40904 "EHLO
-	quickstop.soohrt.org") by vger.kernel.org with ESMTP
-	id S261755AbULGECk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 23:02:40 -0500
-Date: Tue, 7 Dec 2004 05:02:35 +0100
-From: Karsten Desler <kdesler@soohrt.org>
-To: jamal <hadi@cyberus.ca>
-Cc: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
-       "David S. Miller" <davem@davemloft.net>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: _High_ CPU usage while routing (mostly) small UDP packets
-Message-ID: <20041207040235.GA10501@soohrt.org>
-References: <20041206224107.GA8529@soohrt.org> <E1CbSf8-00047p-00@calista.eckenfels.6bone.ka-ip.net> <20041207002012.GB30674@quickstop.soohrt.org> <1102387595.1088.48.camel@jzny.localdomain> <20041207025456.GA525@soohrt.org> <1102389533.1089.51.camel@jzny.localdomain> <20041207032438.GA7767@soohrt.org> <1102390241.1093.59.camel@jzny.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 6 Dec 2004 23:29:32 -0500
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:48523 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261742AbULGE33
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 23:29:29 -0500
+From: David Brownell <david-b@pacbell.net>
+To: florian_kr@gmx.de
+Subject: Re: [<02282da7>] (usb_hcd_irq+0x0/0x4b) Disabling IRQ #5 - USB Devices
+Date: Mon, 6 Dec 2004 20:27:33 -0800
+User-Agent: KMail/1.7.1
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1102390241.1093.59.camel@jzny.localdomain>
-User-Agent: Mutt/1.5.6+20040722i
+Message-Id: <200412062027.33561.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* jamal wrote:
-> Beats me. Make sure it boots NAPI. Also if you can turn off ITR; intel
-> loves to turn on that silly feature.
+Hi,
 
-ITR was in fact activated. I think i've disabled it now
-(e1000.InterruptThrottleRate=0 in the kernel cmdline).
-And as I'm reading the e1000 code, there is no way to enable/disable
-NAPI without a recompile. So the fact that ethtool spat out -NAPI in
-the version string means that NAPI is actually used.
+> My Questions:
+> 
+> How can I enable "USB Legacy Support" without errors?
 
-- Karsten
+As a rule, Linux will be happier without it.
+Why do you want to enable it?
+
+
+> How can I resolve the problem with the USB devices?
+
+Have you tried adding "usb-handoff" to your
+kernel command line?  That was added specifically
+to help work around BIOS bugs like those you've
+run into ...
+
+
+> I've found via google some BIOS Bugs for "USB Legacy Support", but this
+> bug occurs only on Windows XP (I don't found this for Linux). I tried
+> allready to update my BIOS and now USB is disabled for all devices
+> (Mouse, Printer, Scanner, USB-FlashMemory)
+
+As a rule, if BIOS bugs affect XP I'd not be surprised
+if to find them affecting Linux too.
+
+
+> irq 12: nobody cared! (screaming interrupt?)
+> irq 12: Please try booting with acpi=off and report a bug
+> Stack pointer is garbage, not printing trace
+> handlers:
+> [<0223aede>] (i8042_interrupt+0x0/0x251)
+> Disabling IRQ #12
+
+That was interesting ... not directly related to USB,
+looks like maybe the "legacy" support didn't work
+very well either; maybe that's what the BIOS update
+was solving.
+
+- Dave
+

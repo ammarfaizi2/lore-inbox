@@ -1,125 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270827AbRHXBx0>; Thu, 23 Aug 2001 21:53:26 -0400
+	id <S270847AbRHXCN2>; Thu, 23 Aug 2001 22:13:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270841AbRHXBxR>; Thu, 23 Aug 2001 21:53:17 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:9453 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S270827AbRHXBxD>; Thu, 23 Aug 2001 21:53:03 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 23 Aug 2001 18:53:16 -0700
-Message-Id: <200108240153.SAA12447@adam.yggdrasil.com>
-To: alan@lxorguk.ukuu.org.uk
-Subject: PATCH: remove fusion_init from linux-2.4.9/drivers/block/genhd.c
-Cc: linux-kernel@vger.kernel.org, Steve.Ralston@lsil.com
+	id <S270848AbRHXCNT>; Thu, 23 Aug 2001 22:13:19 -0400
+Received: from vp226158.uac62.hknet.com ([202.71.226.158]:4369 "EHLO
+	main.coppice.org") by vger.kernel.org with ESMTP id <S270847AbRHXCNM>;
+	Thu, 23 Aug 2001 22:13:12 -0400
+Message-ID: <3B85B88C.4610C2D@coppice.org>
+Date: Fri, 24 Aug 2001 10:14:36 +0800
+From: Steve Underwood <steveu@coppice.org>
+Organization: Me? Organised?
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19-6.2.7 i686)
+X-Accept-Language: en, zh-TW
+MIME-Version: 1.0
+To: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: releasing driver to kernel in source+binary format
+In-Reply-To: <FEEBE78C8360D411ACFD00D0B7477971880B3E@xsj02.sjs.agilent.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+"MEHTA,HIREN (A-SanJose,ex1)" wrote:
+> 
+> Hi list,
+> 
+> We want to release a linux scsi hba-driver for our fibre-channel
+> HBAs and make it part of the kernel source tree. Because of IP
+> related issues, we can only release one part of the sources with
+> GPL. We want to release the other part in the binary format (.o)
+> as a library which needs to be linked with the first part.
+> If somebody can advise me on how to go about this, I would
+> appreciate it.
+> 
+> I went through the "SubmittingDrivers" file
+> which does not talk about this kind of special cases.
 
-	Could you please remove the fusion_init() call from
-drivers/block/genhd.c in your -ac tree and forward the change to Linus
-at your convenience?  (If you'd rather I follow some other procedure, please
-let me know.)  I have appended the following to this message:
+I for one would not buy such a thing, for the most practical of reasons.
+Open source advocates are often seem as idealists. In general they are
+the most pragmatic of people.
 
-	1. Email from Steve Ralston tepidly approving integration of
-	   the change by you and Linus.
+In the past year 90% of my serious problems have come from three pieces
+of software - 2 text to speech packages, and Dialogic's driver from
+Linux. These are the only three "binary only" things I have used, and I
+am powerless to fix any of the issues causing me grief. My experience is
+not unique - its commonplace.
 
-	2. My original email to Steve Ralson (fusion driver maintainer)
-	   justifying the change.
+If there is an open source alternative I think most serious Linux users
+will choose that over any closed option. The closed option seldom has
+enough advantage to overcome the severe risk inherent in an option that
+means trusting someone who does not have your best interests at heart.
+If you make your driver completely open source, we would still have to
+trust your hardware. Experience says that isn't such a big problem. Few
+pieces of computer hardware, which actually reach the market, have
+proven so bad that the problems cannot be worked around (perhaps with a
+little performance loss) in software. Closed hardware doesn't scare
+seasoned users like closed software.
 
-	3. A (fake) patch to remove fusion_init from
-	   linux-2.4.9/drivers/block/genhd.c for clarity and convenience.
+That said.... If your closed code actually consists of something
+dwownloaded to the card, you may still be able to supply a GPL kernel
+bit, and a binary only downloaded bit. If you want an integral part of
+your host driver code to be binary only, you can't do that.
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
-
-
->From sralston@lsil.com Wed Aug 22 11:25:23 2001
-
->Hi Adam,
-
->Offhand, your removal of the fusion_init() call from drivers/block/genhd.c
->seems Ok.  I'm trying to remember the history/sequence on how and why
->it got put in there in the first place:-)  It may be that an early version
->of the
->fusion driver didn't have the code which automatically calls fusion_init()
->if
->mpt_register is called first, and a no longer needed call of fusion_init
->from
->genhd.c never got cleaned up.
-
->I want to check a few more things on my end, but unless you hear otherwise,
->it looks Ok to go ahead and remove any external calls to fusion_init
->(other than via module_init).  You can relay the request to Alan and/or
->Linus.
-
->Regards,
->-SteveR
-
->PS: I may be blind, otherwise I sure didn't see a patch included in your
->posting:-)
-
->> -----Original Message-----
->> From:	Adam J. Richter [SMTP:adam@yggdrasil.com]
->> Sent:	Monday, August 20, 2001 6:54 PM
->> To:	Steve.Ralston@lsil.com
->> Cc:	linux-kernel@vger.kernel.org
->> Subject:	PATCH: linux-2.4.9/drivers/block/genhd.c eliminating
->> unnecessary fusion_init call
->> 
->> 	linux-2.4.9/drivers/block/genhd.c calls fusion_init, but
->> fusion_init is again called unconditionally due to the
->> module_init() call at the end of drivers/message/fusion/mptbase.c.
->> The only effect of the second call is to possibly generate a printk,
->> since the fusion driver has code to protect against this case.  However,
->> the fusion driver also has code that automatically calls fusion_init
->> if mpt_register is called before fusion_init, so there does not
->> seem to be a need to an early call in drivers/block/genhd.c.
->> 
->> 	So, the following patch removes the unnecessary call
->> from genhd.c.  I believe no changes to the fusion driver or
->> the initialization order in linux/Makefile are necessary.
->> 
->> 	By the way, this is a fake patch.  The kernel that I am
->> actually using has no drivers/block/genhd.c anymore, since I
->> have eliminating all of its calls.
->> 
->> 	Steven: could you please comment on this patch?  If you
->> see no problems with it, I would like to ask Alan and Linus to
->> integrate it into their kernels (or you can do so, or we can
->> follow whatever procedure you prefer).  Please let me know.
->> Thanks in advance.
->> 
->> -- 
->> Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite
->> 104
->> adam@yggdrasil.com     \ /                  San Jose, California
->> 95129-1034
->> +1 408 261-6630         | g g d r a s i l   United States of America
->> fax +1 408 261-6631      "Free Software For The Rest Of Us."
-
---- linux-2.4.9/drivers/block/genhd.c	Thu Jul 19 17:48:15 2001
-+++ linux/drivers/block/genhd.c	Thu Aug 23 18:42:49 2001
-@@ -21,9 +21,6 @@
- #ifdef CONFIG_BLK_DEV_DAC960
- extern void DAC960_Initialize(void);
- #endif
--#ifdef CONFIG_FUSION_BOOT
--extern int fusion_init(void);
--#endif
- extern int net_dev_init(void);
- extern void console_map_init(void);
- extern int soc_probe(void);
-@@ -40,9 +37,6 @@
- #endif
- #ifdef CONFIG_BLK_DEV_DAC960
- 	DAC960_Initialize();
--#endif
--#ifdef CONFIG_FUSION_BOOT
--	fusion_init();
- #endif
- #ifdef CONFIG_FC4_SOC
- 	/* This has to be done before scsi_dev_init */
+Regards,
+Steve

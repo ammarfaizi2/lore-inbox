@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130698AbRCEWBG>; Mon, 5 Mar 2001 17:01:06 -0500
+	id <S130702AbRCEWIH>; Mon, 5 Mar 2001 17:08:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130702AbRCEWA5>; Mon, 5 Mar 2001 17:00:57 -0500
-Received: from smtp7.us.dell.com ([143.166.224.233]:27154 "EHLO
-	smtp7.us.dell.com") by vger.kernel.org with ESMTP
-	id <S130698AbRCEWAq>; Mon, 5 Mar 2001 17:00:46 -0500
-Date: Mon, 5 Mar 2001 16:00:19 -0600 (CST)
-From: Matt Domsch <Matt_Domsch@Dell.com>
-X-X-Sender: <mdomsch@localhost.localdomain>
-Reply-To: Matt Domsch <Matt_Domsch@Dell.com>
-To: <luna-list@luna.huntsville.al.us>
+	id <S130705AbRCEWH5>; Mon, 5 Mar 2001 17:07:57 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:40177 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130702AbRCEWHk>; Mon, 5 Mar 2001 17:07:40 -0500
+Date: Mon, 5 Mar 2001 19:04:00 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: <henning@mail.intermeta.de>
 cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [jford@tusc.net: LUNA: Megaraid problems]
-In-Reply-To: <20010305153514.A789@frednet.dyndns.org>
-Message-ID: <Pine.LNX.4.33.0103051559350.29433-100000@localhost.localdomain>
+Subject: Re: anti-spam regexps
+In-Reply-To: <200103052131.f25LVBP09293@forge.intermeta.de>
+Message-ID: <Pine.LNX.4.33.0103051846200.1409-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Consider trying the megaraid driver megaraid.[ch] in 2.4.2-ac11 and above.
-It's v1.14g-ac.
+On Mon, 5 Mar 2001 henning@mail.intermeta.de wrote:
 
-Thanks,
-Matt
+> >I think I could even setup something where we keep the
+> >anti-spam regexps in a publicly accessible CVS tree (with
+> >of course a nice script to automatically generate the
+> >majordomo.cf).
+>
+> Cool. Sooner or later, some fun-loving script-kiddie will put suse.de
+> or redhat.com or debian.org in this automatically generated thing.
+>
+> Ah, the fun of automatisms. ;-)
 
--- 
-Matt Domsch
-Dell Linux Systems Group
-Linux OS Development
-www.dell.com/linux
+Of course anonymous CVS access will be read-only ...
 
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

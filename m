@@ -1,143 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262905AbUDANTG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 08:19:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbUDANTG
+	id S262906AbUDANU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 08:20:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbUDANTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 08:19:06 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:54917 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262905AbUDANRa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 08:17:30 -0500
-Date: Thu, 1 Apr 2004 08:17:06 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-cc: Jamie Lokier <jamie@shareable.org>, Bill Davidsen <davidsen@tmr.com>,
-       Len Brown <len.brown@intel.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Willy Tarreau <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
-In-Reply-To: <Pine.LNX.4.55.0404011423070.3675@jurand.ds.pg.gda.pl>
-Message-ID: <Pine.LNX.4.53.0404010814420.15020@chaos>
-References: <4069A359.7040908@nortelnetworks.com> <1080668673.989.106.camel@dhcppc4>
- <4069D3D2.2020402@tmr.com> <Pine.LNX.4.55.0403311305000.24584@jurand.ds.pg.gda.pl>
- <20040331150219.GC18990@mail.shareable.org> <Pine.LNX.4.55.0404011423070.3675@jurand.ds.pg.gda.pl>
+	Thu, 1 Apr 2004 08:19:31 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:2827 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262903AbUDANR3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 08:17:29 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: "Nikita V. Youshchenko" <yoush@cs.msu.su>, linux-kernel@vger.kernel.org
+Subject: Re: Strange 'zombie' problem both in 2.4 and 2.6
+Date: Thu, 1 Apr 2004 16:17:08 +0300
+X-Mailer: KMail [version 1.4]
+References: <200404011442.18078@zigzag.lvk.cs.msu.su>
+In-Reply-To: <200404011442.18078@zigzag.lvk.cs.msu.su>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200404011617.08261.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Apr 2004, Maciej W. Rozycki wrote:
-
-> On Wed, 31 Mar 2004, Jamie Lokier wrote:
+On Thursday 01 April 2004 13:42, Nikita V. Youshchenko wrote:
+> Hello.
 >
-> > >  Well, "cmpxchg", "xadd", etc. can be easily emulated with an aid of a
-> > > spinlock.  With SMP operation included.
-> >
-> > Nope.  Len Brown wrote:
-> >
-> > > Linux uses this locking mechanism to coordinate shared access
-> > > to hardware registers with embedded controllers,
-> > > which is true also on uniprocessors too.
-> >
-> > You can't do that with a spinlock.  The embedded controllers would
-> > need to know about the spinlock.
+> Some time ago I was faced with a strange problem in 2.4 kernel.
+> I could reproduce in only on one system - a production 2-CPU server that is
+> used as LTSP server here and also runs tons of services and MUST be always
+> up.
 >
->  Hmm, does it mean we support x86 systems where an iomem resource has to
-> be atomically accessible by a CPU and a peripheral controller?
+> The problem is the following.
+> Server runs normally (and uptime may be already several weeks, but may be
+> only several hours).
+> Suddenly something happens.
+> And process table becomes full of zombies.
+> Looks like any thread created by any program becomes a zombie when
+> finished. Same programs (actually, same running processes) join()ed
+> finished threads correctly before Something Happened. So it looks very
+> much that Something happens inside the kernel.
+> Affected programs include mozilla, clamav, mysqld, licq and anything else
+> that creates short-living threads, or at least threads that live shorter
+> than program itself.
+
+How does ps -AH e looks like?
+
+> It looks like at some moment kernel looses the abitily to inform process
+> that their threads are over. AKAIK, this is done by SIGCHLD? Anyway,
+> manual sending SIGCHLD to the parent of zombies does not help.
+
+Did you try stracing parent process? It can receive SIGCHLD but
+ignore/mishandle it.
+
+> After the problem happens, server becomes unusable (because of process
+> table overflow) in several minutes. One time Something Else happened, and
+> all those zombies disappeared. In all other cases a reboot was required.
 >
-> --
-> +  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-> +--------------------------------------------------------------+
-> +        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+> If the process that created those "zombie thread" is terminated (i.e.
+> sevice stopped), all his zombies disappear. However, after service is
+> restarted, zombies become to appear again.
 
+Probably they get reparented to init and it wait()'s for them,
+ending their afterlife. So SIGCHLD works (at least in this case).
 
-Of course they all can be emulated. And some "embedded
-controllers" don't care and won't have a clue.
+> Athough I tried, I could not find any correlation between making system to
+> this "zombie-keeping" state and anything else happenning with the system.
+> Looks like that running java apps (with blackdown jdk) makes this happen
+> more often, bot still no direct correlation.
+>
+> The problem happened with official 2.4.23, 2.4.24 and 2.4.25 kernels,
+> compiled from kernel.org sources.
+>
+> Yestedray I was tired with this zombie problem (it arised twice during this
+> week), and decided to upgrade server to kernel 2.6.
+> I installed 2.6.4 kernel from the Debain kernel-image-2.6.4-1-k7-smp
+> package.
+>
+> Unfortunately, this did not eliminate the problem: it happened today again.
+> The difference is that when running in 2.6, most binaries use NPTL libs
+> from /lib/i686/cmov/, and seem not to be affected by the problem (i.e. no
+> zombies from them). However, users need to run some statically-linked
+> binaries (without source available) that have non-NPTL libs statically
+> linked and so still use linuxthreads; those are affected (i.e. do create
+> zombies). So problem is not rendering server unusable (so it no longer
+> that critical), but it still exists in the 2.6 kernel.
 
-The whole idea of atomic operations is to have the specific
-operation complete entirely so there is no intermediate
-state that can catch you with your pants down.
+Sounds like userspace problem in threading libraries.
+What version of glibc/linuxthreads was in use before?
+Maybe post your report on linuxthreads mailing list.
 
-For instance, If I code something in 'C' as:
-
-	x++;
-
-I would expect that the value of x after the sequence-
-point is exactly one more than it was before. However,
-if x happens to be a long long in ix86 machines, you
-are screwed because the operation occurs in two stages.
-
-	addl	$1,(x)		# Low word
-	adcl	$0,4(x)		# CY into high word
-
-If you got interrupted between the first and second operation,
-AND if the result of the operation was used before it was
-completed, the user gets the wrong value.
-
-In Intel machines ALL memory operations are atomic. What
-the means is that if I make code that does:
-
-	addl	%eax,(memory)
-
-... what's in memory will always be the sum of what it was
-before and the value in the EAX register. However, if I
-made code that did:
-
-	movl	(memory), %ecx	# Get value from memory
-	addl	%eax, %ecx	# Add from EAX
-	movl	%ecx, (memory)	# Put value back into memory
-
-... such operations are not atomic even though they do the
-same thing.
-
-A long time ago, somebody invented the 'lock' instruction
-for Intel machines. It turns out that the first ones locked
-the whole bus during an operation. Eventually somebody looked
-at that, and by the time the '486 came out, they no longer
-locked the whole bus. Then somebody else said; "WTF...
-Why do we even need this stuff". It was a throw-back to
-early primitive machines where there were only load and
-store operations in memory. All arithmetic had to be done
-in registers. Now, there are only a couple instructions you
-can use the lock prefix with, or you get an invalid opcode
-trap, and they are really no-ops because the instruction
-itself is atomic.
-
-To make the:
-
-	movl	(memory), %ecx	# Get value from memory
-	addl	%eax, %ecx	# Add from EAX
-	movl	%ecx, (memory)	# Put value back into memory
-
-... code atomic, you need only to prevent it from being
-interrupted. On a non-SMP machine, it's easy.
-
-	pushf			# Save flags
-	cli			# Clear interrupt bit
-	movl	(memory), %ecx	# Get value from memory
-	addl	%eax, %ecx	# Add from EAX
-	movl	%ecx, (memory)	# Put value back into memory
-	popf			# Restore flags (and interrupt bit)
-
-It's a bit more complicated on SMP machines because CLI only
-affects the CPU that fetched it. You need a spin-lock for
-that.
-
-Now, if my memory operand happens to be some bits that
-control a machine, we are not talking about atomic operations
-at all, but the order of operations. This could take a
-whole chapter in a book.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+> I can't reproduce the problem on any other host. And the affected system is
+> a production server that is somewhat difficult to use for debugging :(
+> It is a dual-K7 server with Tyan Tiger MPX S2466 motherboard and 2 Gb of
+> ram. Output of 'lspci -vv' and 'cat /proc/cpuinfo' is attached. I may
+> provide any other technical information.
+>
+> I'm a seasoned unix developer and sysadmin, and have some kernel hacking
+> experience. However, I don't work with the kernel currently, so I am not
+> "in context of" kernel internals.
+> So I'm looking either for a fix :), or for some advice on what to do with
+> this (i.e. where to look in the kernel code and what to look for).
+-- 
+vda

@@ -1,52 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbTKTPXa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 10:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbTKTPXa
+	id S261914AbTKTPdT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 10:33:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbTKTPdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 10:23:30 -0500
-Received: from pa91.banino.sdi.tpnet.pl ([213.76.211.91]:33747 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP id S261930AbTKTPX3
+	Thu, 20 Nov 2003 10:33:19 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:52211 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261914AbTKTPdR convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 10:23:29 -0500
-Date: Thu, 20 Nov 2003 16:23:26 +0100
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.4.x parport_serial link order bug (only works as a module)
-Message-ID: <20031120152326.GA26003@amelek.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
+	Thu, 20 Nov 2003 10:33:17 -0500
+Content-Type: text/plain;
+  charset="utf-8"
+From: Daniel Stekloff <dsteklof@us.ibm.com>
+To: Olaf Hering <olh@suse.de>, Greg KH <greg@kroah.com>
+Subject: Re: [ANNOUNCE] udev 006 release
+Date: Thu, 20 Nov 2003 07:25:34 -0800
+User-Agent: KMail/1.4.1
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       christophe.varoqui@free.fr, patmans@us.ibm.com
+References: <20031119162912.GA20835@kroah.com> <20031119234708.GC23529@kroah.com> <20031120065920.GC14930@suse.de>
+In-Reply-To: <20031120065920.GC14930@suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200311200725.34868.dsteklof@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wednesday 19 November 2003 10:59 pm, Olaf Hering wrote:
+>  On Wed, Nov 19, Greg KH wrote:
+> > 	- I've added two external programs to the udev tarball, under
+> > 	  the extras/ directory.  They are the scsi-id program from Pat
+> > 	  Mansfield, and the multipath program from Christophe Varoqui.
+> > 	  Both of them can work as CALLOUT programs.  I don't think they
+> > 	  currently build properly within the tree, by linking against
+> > 	  klibc, but patches to their Makefiles to fix this would be
+> > 	  gladly accepted :)
+>
+> There is no make install target for the headers and the libs. Both
+> packages disgree on the location. I use the patch below. Can you make a
+> decision where the headers should be located?
 
-I've just looked at the 2.4.x changelog (up to 2.4.23-rc2) and still
-don't see any fix for the parport_serial link order bug fix.  Without
-it, the driver (which handles various PCI multi I/O serial+parallel
-cards) only works as a module (broken when compiled into the kernel,
-because parport_serial must be initialised after serial).
 
-I've tried to submit the fix a few times since 2.4.19 or so, with
-no success so far.  Is there any hope that it would go into 2.4.23?
-
-The patch is here (can be updated to 2.4.23-rc if you are interested):
-
-http://www.amelek.gda.pl/linux-patches/2.4.21/00_parport_serial
-
-Quite big, but the largest part of it simply moves parport_serial.c
-from drivers/parport/ to drivers/char/ without changing a single line
-inside the file.  Really, no 2-line local root backdoors inserted ;-)
-
-In the same directory, you can also find the NetMos patch, which should
-be applied after the parport_serial link order bugfix patch.  Yes, I'm
-still using a few NM9835 cards, no problems except having to patch each
-kernel version forever.  This boring task would be easier for me if at
-least the simple parport_serial link order fix would be accepted...
+As a note, the package sysfsutils that contains libsysfs installs the headers 
+into /usr/include/sysfs. Are we going to have conflicts since udev has its 
+own private libsysfs statically included? Should the extra programs build off 
+udev's libsysfs, since they are included with the package? Or, should they 
+require a shared libsysfs from sysfsutils? If udev is to have its own static 
+edition of libsysfs, perhaps it'd be best if it didn't install headers and 
+the extras either used its static version or required the shared libsysfs to 
+be installed.
 
 Thanks,
-Marek
+
+Dan
+
+
+> --- scsi_id/scsi_id.c
+> +++ scsi_id/scsi_id.c	2003/11/19 21:25:38
+> @@ -33,7 +33,7 @@
+>  #include <stdarg.h>
+>  #include <ctype.h>
+>  #include <sys/stat.h>
+> -#include <sys/libsysfs.h>
+> +#include <libsysfs.h>
+>  #include "scsi_id.h"
+>
+>  #ifndef VERSION
+> --- scsi_id/scsi_serial.c
+> +++ scsi_id/scsi_serial.c	2003/11/19 21:25:42
+> @@ -31,7 +31,7 @@
+>  #include <unistd.h>
+>  #include <syslog.h>
+>  #include <scsi/sg.h>
+> -#include <sys/libsysfs.h>
+> +#include <libsysfs.h>
+>  #include "scsi_id.h"
+>  #include "scsi.h"
 

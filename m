@@ -1,54 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbUC0BIa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 20:08:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbUC0BIa
+	id S261551AbUC0BKf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 20:10:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbUC0BKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 20:08:30 -0500
-Received: from mail.kroah.org ([65.200.24.183]:50074 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261541AbUC0BI2 (ORCPT
+	Fri, 26 Mar 2004 20:10:35 -0500
+Received: from cable219a244.usuarios.retecal.es ([212.183.219.244]:29919 "EHLO
+	debian") by vger.kernel.org with ESMTP id S261551AbUC0BKa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 20:08:28 -0500
-Date: Fri, 26 Mar 2004 16:48:42 -0800
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, scott.feldman@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add PCI_DMA_{64,32}BIT constants
-Message-ID: <20040327004842.GA13611@kroah.com>
-References: <20040323052305.GA2287@havoc.gtf.org> <20040327002935.GB13097@kroah.com> <4064CDB2.10001@pobox.com>
+	Fri, 26 Mar 2004 20:10:30 -0500
+Subject: [PATCH] Re: 2.6.5-rc2-mm4
+From: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040326131816.33952d92.akpm@osdl.org>
+References: <20040326131816.33952d92.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ZIHsCzJD5kVInKHEHx6P"
+Message-Id: <1080349825.9689.9.camel@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4064CDB2.10001@pobox.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 27 Mar 2004 02:10:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 26, 2004 at 07:41:22PM -0500, Jeff Garzik wrote:
-> Greg KH wrote:
-> >On Tue, Mar 23, 2004 at 12:23:05AM -0500, Jeff Garzik wrote:
-> >
-> >>Been meaning to do this for ages...
-> >>
-> >>Another one for the janitors.
-> >>
-> >>Please do a
-> >>
-> >>	bk pull bk://kernel.bkbits.net/jgarzik/pci-dma-mask-2.6
-> >>
-> >>This will update the following files:
-> >
-> >
-> >Nice, I've pulled this to my pci tree and will forward it on to Linus in
-> >the next round of pci patches after 2.6.5 is out.
-> 
-> Yeah well...  in the intervening time, somebody on IRC commented
-> 
-> "so what is so PCI-specific about those constants?"
-> 
-> They probably ought to be DMA_{32,64}BIT_MASK or somesuch.
 
-Heh, ok, care to make up another patch for this?  :)
+--=-ZIHsCzJD5kVInKHEHx6P
+Content-Type: multipart/mixed; boundary="=-+wtZxbjysY3QDuD6mIVO"
 
-greg k-h
+
+--=-+wtZxbjysY3QDuD6mIVO
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+A small fix to make the kernel compile.
+--=20
+Ram=C3=B3n Rey Vicente       <ramon dot rey at hispalinux dot es>
+        jabber ID       <rreylinux at jabber dot org>
+GPG public key ID       0xBEBD71D5 -> http://pgp.escomposlinux.org/
+
+--=-+wtZxbjysY3QDuD6mIVO
+Content-Disposition: inline; filename=profile_fix.patch
+Content-Type: text/x-patch; name=profile_fix.patch; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+LS0tIGluY2x1ZGUvbGludXgvcHJvZmlsZS5oLm9yaWcJMjAwNC0wMy0yNyAwMjowNTozMS4wMDAw
+MDAwMDAgKzAxMDANCisrKyBpbmNsdWRlL2xpbnV4L3Byb2ZpbGUuaAkyMDA0LTAzLTI3IDAyOjA1
+OjU4LjAwMDAwMDAwMCArMDEwMA0KQEAgLTY5LDcgKzY5LDcgQEANCiAjZGVmaW5lIHByb2ZpbGVf
+ZXhlY191bm1hcChhKSBkbyB7IH0gd2hpbGUgKDApDQogI2RlZmluZSBwcm9maWxlX2V4aXRfbW1h
+cChhKSBkbyB7IH0gd2hpbGUgKDApDQogDQotc3RhdGljIGlubGluZSBpbnQgcmVnaXN0ZXJfcHJv
+ZmlsZV9ub3RpZmllcipzdHJ1Y3Qgbm90aWZpZXJfYmxvY2sgKiBuYikNCitzdGF0aWMgaW5saW5l
+IGludCByZWdpc3Rlcl9wcm9maWxlX25vdGlmaWVyKHN0cnVjdCBub3RpZmllcl9ibG9jayAqIG5i
+KQ0KIHsNCiAJcmV0dXJuIC1FTk9TWVM7DQogfQ0K
+
+--=-+wtZxbjysY3QDuD6mIVO--
+
+--=-ZIHsCzJD5kVInKHEHx6P
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAZNSBRGk68b69cdURAu9pAJ9oa3PbEPWQIgs+tGXGZXhU3medWwCfZpBJ
+ezU496ZscB9Uhsw1BwbK5TI=
+=Xv5j
+-----END PGP SIGNATURE-----
+
+--=-ZIHsCzJD5kVInKHEHx6P--

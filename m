@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283646AbRLCXqZ>; Mon, 3 Dec 2001 18:46:25 -0500
+	id <S283653AbRLCXq0>; Mon, 3 Dec 2001 18:46:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280999AbRLCXhr>; Mon, 3 Dec 2001 18:37:47 -0500
-Received: from zcamail03.zca.compaq.com ([161.114.32.103]:10256 "EHLO
-	zcamail03.zca.compaq.com") by vger.kernel.org with ESMTP
-	id <S284624AbRLCOof>; Mon, 3 Dec 2001 09:44:35 -0500
-From: <Support@compaq.com>
-Message-ID: <D52B3991.E7F9.11D5.9EED.00508B69DC060@compaq.com>
-Date: Mon, 3 Dec 2001 08:44:23 -0600
-Reply-To: Support@compaq.com
-To: <alan@lxorguk.ukuu.org.uk>
-Cc: <ARRAYS@unknown.domain>, <linux-kernel@vger.kernel.org>
-Subject: RE:  Re: [PATCH] missing gendisk initialization in cpqarray.c (Linux-2.2.20) P-srvr <ID:NAD01120273418-268634881>
-X-Priority: 3 (Normal)
-X-Mailer: Delano e-Business Interaction Server, Send E-mail Action v2.17
+	id <S282984AbRLCXof>; Mon, 3 Dec 2001 18:44:35 -0500
+Received: from FSG1.nws.noaa.gov ([140.90.20.103]:20656 "EHLO
+	fsg1.nws.noaa.gov") by vger.kernel.org with ESMTP
+	id <S284937AbRLCSjy>; Mon, 3 Dec 2001 13:39:54 -0500
+Date: Mon, 3 Dec 2001 13:39:53 -0500 (EST)
+From: Brian McEntire <brianm@fsg1.nws.noaa.gov>
+To: Ingo Molnar <mingo@redhat.com>
+cc: <linux-kernel@vger.kernel.org>, <systems@clifford.nws.noaa.gov>
+Subject: Re: PROBLEM: system hangs on dual 1GHz PIII system with 2.4.13-ac8
+In-Reply-To: <Pine.LNX.4.33.0112031332490.28071-100000@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.33.0112031336100.25875-100000@fsg1.nws.noaa.gov>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary=-------cf182d0ff9cf182d0ff9
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'll gladly try it, I prefer running stock Redhat released kernels anyway, 
+but last time I checked, only 2.4.9-13 was out and it didn't fix the crash 
+problem. So I went with the latest stable -ac kernel.
 
-This is a multi-part message in MIME format
+I can't boot kernels except for -ac patched kernels (because I have ext3 
+file systems that I converted during the 7.1 -> 7.2 upgrade.)
 
----------cf182d0ff9cf182d0ff9
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: base64
+Where can I get the 2.4.17-2 kernel or RPM?
 
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NClBsZWFzZSByZXRhaW4gdGhpcyBsaW5lIGlu
-IGFsbCByZXBsaWVzOiA8SUQ6TkFEMDExMjAyNzM0MTgtMjY4NjM0ODgxPg0KLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0NCg0KRGVhciBzaXIsDQoNCldlIGFyZSB3YXJyYW50eSBzdXBw
-b3J0IGdyb3VwLiBQbGVhc2UgZGlyZWN0IHlvdXIgY29tbWVudHMgdG8gaHR0cDovL29wZW5z
-b3VyY2UuY29tcGFxLmNvbS8NCg0KDQpUaGFuayB5b3UsDQpDb21wYXEgZVNlcnZpY2VzLi4N
-Cg0KDQogICAgID4gVGhlIGZvbGxvd2luZyBwYXRjaCBhZGRzIGNvZGUgdG8gaW5pdGlhbGl6
-ZSBnZW5kaXNrLmZvcHMNCiAgICAgPiBpbiBjcHFhcnJheS5jLiBJdCdzIG5lZWRlZCB0byBh
-dm9pZCBhIGtlcm5lbCB3YXJuaW5nIG1lc3NhZ2UNCiAgICAgPiB3aGVuIHVzaW5nIGRldmZz
-IHdpdGggdGhlIENvbXBhcSBSQUlEIENvbnRyb2xsZXIuDQogICAgID4gDQogICAgID4gLS0t
-IGxpbnV4LTIuMi4yMC9kcml2ZXJzL2Jsb2NrL2NwcWFycmF5LmMgICAgICAgRnJpIE5vdiAg
-Mg0KMTc6Mzk6MDYNCiAgICAgPiAyMDAxDQogICAgIA0KICAgICBJbSBjb25mdXNlZC4gTGlu
-dXggMi4yIGRvZXNuJ3QgaW5jbHVkZSBkZXZmcy4gVGhpcyBwYXRjaCB0aGVyZWZvcmUNCnNl
-ZW1zDQogICAgIG5vbnNlbnNlDQogICAgIA0KDQoNCg0K
+Thanks!
+  Brian
 
----------cf182d0ff9cf182d0ff9--
+On Mon, 3 Dec 2001, Ingo Molnar wrote:
+
+> 
+> i'd strongly suggest for you to try something like 2.4.17-2, does it lock
+> up as well?
+> 
+> 	Ingo
+> 
 

@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272644AbRHaNa0>; Fri, 31 Aug 2001 09:30:26 -0400
+	id <S272686AbRHaN0r>; Fri, 31 Aug 2001 09:26:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272683AbRHaNaQ>; Fri, 31 Aug 2001 09:30:16 -0400
-Received: from nbd.it.uc3m.es ([163.117.139.192]:55824 "EHLO nbd.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S272644AbRHaNaF>;
-	Fri, 31 Aug 2001 09:30:05 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200108311329.PAA12559@nbd.it.uc3m.es>
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
-In-Reply-To: <Pine.LNX.4.33.0108311433070.24580-100000@serv> "from Roman Zippel
- at Aug 31, 2001 02:58:21 pm"
-To: Roman Zippel <zippel@linux-m68k.org>
-Date: Fri, 31 Aug 2001 15:29:41 +0200 (CEST)
-CC: "Peter T. Breuer" <ptb@it.uc3m.es>,
-        "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>,
-        linux-kernel@vger.kernel.org
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL89 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	id <S272683AbRHaN0g>; Fri, 31 Aug 2001 09:26:36 -0400
+Received: from smtp-server3.tampabay.rr.com ([65.32.1.41]:31733 "EHLO
+	smtp-server3.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S272644AbRHaN0X>; Fri, 31 Aug 2001 09:26:23 -0400
 Content-Type: text/plain; charset=US-ASCII
+From: Phillip Susi <psusi@cfl.rr.com>
+Reply-To: psusi@cfl.rr.com
+To: Dan Hollis <goemon@anime.net>
+Subject: Re: Athlon doesn't like Athlon optimisation?
+Date: Fri, 31 Aug 2001 09:21:36 +0000
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.30.0108302117150.16904-100000@anime.net>
+In-Reply-To: <Pine.LNX.4.30.0108302117150.16904-100000@anime.net>
+Cc: David Hollister <david@digitalaudioresources.org>,
+        Jan Niehusmann <jan@gondor.com>, <linux-kernel@vger.kernel.org>,
+        <rgooch@atnf.csiro.au>, "Albert D. Cahalan" <acahalan@cs.uml.edu>
+MIME-Version: 1.0
+Message-Id: <0108310921360A.00999@faldara>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Roman Zippel wrote:"
-> On Fri, 31 Aug 2001, Peter T. Breuer wrote:
-> > Try reading the last 10 days kernel messages. The last 48 hours are
-> > particularly rewarding.
-> 
-> I have, but I only get the feeling, we're hunting here for imaginary bugs.
+I have just such a system and thought I'd note that the stock smp kernels 
+that redhat 7.1 and slackware 8.0 installed would lock up intermitently.  I 
+couldn't get through a build of the kernel.  I ended up booting into the UP 
+kernel, got and built the 2.4.9 kernel, and have not had any trouble since.  
+For the processor type, I selected athlon, that enables the optimizations you 
+are talking about right?
 
-As I said, nobody has been too precise about the bugs to me either! I
-just want to provide an alternative to the 3arg min/max that would
-otherwise have been imposed. Whether we really need either of these
-alternatives is another argument.
+System specs: dual Athlon MP 1.2 Ghz on Tyan's mobo with the dual ethernet 
+and u160 scsi, 512 megs corsair cas 2.5 registered pc2100 ddr sdram, and 
+seagate's second generation 15,000 rpm cheetah, using the NMB 460 watt power 
+supply that tyan recomended.  
 
-> Real bugs could be found with -Wsign-compare, but nobody wants to use it
-> because our master doesn't want it...
-> Please define the bugs first, you're trying to fix! If you don't like
-> -Wsign-compare, consider defining rules for the Stanford checker. This way
-
-Stanford checker? Is that a programmable C type checker? If so, lemmee
-at it. Have you a URL, btw?
-
-Peter
+On Friday 31 August 2001 04:20 am, Dan Hollis wrote:
+>
+> So what happens when someone is able to duplicate the problem on say AMD
+> 760MP chipset with registered ECC PC2100 ram and 450W power supply?
+>
+> Not to say it has happened yet (I havent got my dual Tyan Tiger MP yet :-)
+> but where would the finger start pointing then?
+>
+> -Dan

@@ -1,50 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264545AbUABExB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 23:53:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264601AbUABExA
+	id S264894AbUABFI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 00:08:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbUABFI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 23:53:00 -0500
-Received: from mail.ms.so-net.ne.jp ([202.238.82.30]:55792 "EHLO
-	mx03.ms.so-net.ne.jp") by vger.kernel.org with ESMTP
-	id S264545AbUABEw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 23:52:57 -0500
-Message-ID: <3FF4F8EA.6090602@turbolinux.co.jp>
-Date: Fri, 02 Jan 2004 13:51:54 +0900
-From: Go Taniguchi <go@turbolinux.co.jp>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ja-JP; rv:1.4) Gecko/20030925
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: vojtech@suse.cz
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.1-rc1 with JP106 keyboard
-References: <Pine.LNX.4.58.0312310033110.30995@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0312310033110.30995@home.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Jan 2004 00:08:58 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:37053 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264894AbUABFI4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 00:08:56 -0500
+Date: Fri, 2 Jan 2004 10:44:22 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Daniel McNeil <daniel@osdl.org>, janetmor@us.ibm.com, pbadari@us.ibm.com,
+       linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH linux-2.6.1-rc1-mm1] aiodio_fallback_bio_count.patch
+Message-ID: <20040102051422.GB3311@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20031231015913.34fc0176.akpm@osdl.org> <20031231100949.GA4099@in.ibm.com> <20031231021042.5975de04.akpm@osdl.org> <20031231104801.GB4099@in.ibm.com> <20031231025309.6bc8ca20.akpm@osdl.org> <20031231025410.699a3317.akpm@osdl.org> <20031231031736.0416808f.akpm@osdl.org> <1072910061.712.67.camel@ibm-c.pdx.osdl.net> <1072910475.712.74.camel@ibm-c.pdx.osdl.net> <20031231154648.2af81331.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031231154648.2af81331.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+On Wed, Dec 31, 2003 at 03:46:48PM -0800, Andrew Morton wrote:
+> Daniel McNeil <daniel@osdl.org> wrote:
+> >
+> > This is an update of AIO fallback patch and with the bio_count race
+> >  fixed by changing bio_list_lock into bio_lock and using that for all
+> >  the bio fields.  I changed bio_count and bios_in_flight from atomics
+> >  into int.  They are now proctected by the bio_lock.  I fixed the race,
+> >  by in finished_one_bio() by leaving the bio_count at 1 until after the
+> >  dio_complete() and then do the bio_count decrement and wakeup holding
+> >  the bio_lock.
 > 
-> Vojtech Pavlik:
->   o Fixes for keyboard 2.4 compatibility
+> Sob.  Daniel, please assume that I have an extremely small brain and forget
+> things very easily.  And that 2,000 patches have passed under my nose since
+> last I contemplated the direct-io code, OK?
 > 
+> What bio_count race?
+> 
+> And the patch seems to be doing more than your description describes?
+> --
 
-Hi,
-2.6.1-rc1 with JP106 keybord. keycode was changed....
-                                         2.6.0 -> 2.6.1-rc1
-lower-right backslash (scancode 0x73)   89    -> 181
-upper-right backslash (scancode 0x7d)   183   -> 182
+We need to combine this with my original patch description of the
+aio-dio-fallback + follow on patch which had the race that Daniel
+fixed and then rolled together into one working patch.
 
-at atkbd_set2_keycode in drivers/input/keyboard/atkbd.c
+Does the following sound better as complete description ?
 
--       122, 89, 40,120, 26, 13,  0,  0, 58, 54, 28, 27,  0, 43,  0,  0,
-+         0,181, 40,  0, 26, 13,  0,  0, 58, 54, 28, 27,  0, 43,  0,194,
-              ^ scancode 0x73
+-----------------------------------------------------------------
 
--        85, 86, 90, 91, 92, 93, 14, 94, 95, 79,183, 75, 71,121,  0,123,
-+         0, 86,193,192,184,  0, 14,185,  0, 79,182, 75, 71,124,  0,  0,
-                                                  ^ scancode 0x7d
-Is this correct?
-2.6.0 is OK, but 2.6.1-rc1 does not get [|/_] keys.
+This patch ensures that when the DIO code falls back to buffered i/o 
+after having submitted part of the i/o, then buffered i/o is issued only
+for the remaining part of the request (i.e. the part not already
+covered by DIO), rather than redo the entire i/o.
+
+We need to careful not to access dio fields if its possible that 
+the dio could already have been freed asynchronously during i/o 
+completion. A tricky part of this involves plugging the window between 
+the decrement of bio_count and accessing dio->waiter during i/o 
+completion where the dio could get freed by the submission path. 
+This potential "bio_count race" was tackled (by Daniel) by changing 
+bio_list_lock into bio_lock and using that for all the bio fields. 
+Now bio_count and bios_in_flight have been converted from atomics 
+into int and are both protected by the bio_lock. The race in 
+finished_one_bio() could thus be fixed by leaving the bio_count at 1 
+until after the dio_complete() and then doing the bio_count decrement 
+and wakeup holding the bio_lock. It appears that shifting to the
+spin_lock instead of atomic_inc/decs is ok performance wise as 
+well.
+
+Regards
+Suparna
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 

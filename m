@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135774AbRD3QrB>; Mon, 30 Apr 2001 12:47:01 -0400
+	id <S135852AbRD3Qrb>; Mon, 30 Apr 2001 12:47:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135852AbRD3Qqv>; Mon, 30 Apr 2001 12:46:51 -0400
-Received: from garnet.INS.CWRU.Edu ([129.22.8.233]:47307 "EHLO
-	garnet.INS.cwru.edu") by vger.kernel.org with ESMTP
-	id <S135774AbRD3Qqe>; Mon, 30 Apr 2001 12:46:34 -0400
-Date: Mon, 30 Apr 2001 12:44:17 -0400
-From: Chet Ramey <chet@nike.ins.cwru.edu>
-To: adam@yggdrasil.com
-Subject: Re: Patch(?): bash-2.05/jobs.c loses interrupts
-Cc: bug-bash@gnu.org, linux-kernel@vger.kernel.org, chet@po.cwru.edu
-Reply-To: chet@po.cwru.edu
-Message-ID: <010430164417.AA94167.SM@nike.ins.cwru.edu>
-Read-Receipt-To: chet@po.CWRU.Edu
+	id <S135869AbRD3QrX>; Mon, 30 Apr 2001 12:47:23 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3081 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135852AbRD3QrF>; Mon, 30 Apr 2001 12:47:05 -0400
+Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
+To: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
+Date: Mon, 30 Apr 2001 17:46:41 +0100 (BST)
+Cc: rgooch@ras.ucalgary.ca (Richard Gooch), davem@redhat.com (David S. Miller),
+        jgarzik@mandrakesoft.com (Jeff Garzik), hpa@zytor.com (H. Peter Anvin),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010429221159.U706@nightmaster.csn.tu-chemnitz.de> from "Ingo Oeser" at Apr 29, 2001 10:11:59 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-In-Reply-To: Message from adam@yggdrasil.com of Sun, 29 Apr 2001 00:14:31 -0700 (id <20010429001431.A3729@adam.yggdrasil.com>)
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14uGov-0008HN-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	Linux-2.4.4 has a change, for which I must accept blame,
-> where fork() runs the child first, reducing unnecessary copy-on-write
-> page duplications, because the child will usually promptly do an
-> exec().  I understand this is pretty standard in most unixes.
-> 
-> 	Peter Osterlund noticed an annoying side effect of this,
-> which I think is a bash bug.  He wrote:
-> 
-> > Another thing is that the bash loop "while true ; do /bin/true ; done" is
-> > not possible to interrupt with ctrl-c.
-> 
-> 	I have reproduced this problem on a single CPU system.
-> I also modified my kernel to sometimes run the fork child first
-> and sometimes not.  In that case, that loop would sometimes
-> abort on a control-C and sometimes ignore it, but ignoring it
-> would not make the loop less likely to abort on another control-C.
-> I'm pretty sure the control-C was being delivered only to the child
-> due to a race condition in bash, which may be mandated by posix.
+> The point is: The code in that "magic page" that considers the
+> tradeoff is KERNEL code, which is designed to care about such
+> trade-offs for that machine. Glibc never knows this stuff and
+> shouldn't, because it is already bloated.
 
-Did you reconfigure and rebuild bash on your machine running the 2.4
-kernel, or just use a bash binary built on a previous kernel version?
+glibc is bloated because it cares about such stuff and complex standards.
+There is no reason to make a mess of the kernel when you can handle more
+stuff nicely with the libraries.
 
-Bash has an autoconf test that will, if it detects the need to do so,
-force the job control code to synchronize between parent and child
-when setting up the process group for a new pipeline.  It may be the
-case that you have to reconfigure and rebuild bash to enable that code.
+Since glibc inlines most memcpy calls you'd need to build an MXT glibc,
+which is doable. Uninlining most memcpy calls is a loss on some processors
+and often a loss anyway as the copies are so small
 
-Look for PGRP_PIPE in config.h.
 
--- 
-``The lyf so short, the craft so long to lerne.'' - Chaucer
-( ``Discere est Dolere'' -- chet)
-
-Chet Ramey, CWRU    chet@po.CWRU.Edu    http://cnswww.cns.cwru.edu/~chet/

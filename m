@@ -1,60 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261924AbUCXV6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 16:58:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbUCXV6Q
+	id S262044AbUCXV6q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 16:58:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUCXV6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 16:58:16 -0500
-Received: from turing-police.cirt.vt.edu ([128.173.54.129]:7299 "EHLO
-	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
-	id S261924AbUCXV6P (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 16:58:15 -0500
-Message-Id: <200403242158.i2OLwDtc009086@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Fabian Frederick <Fabian.Frederick@skynet.be>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: root_plug questions under 2.6.5rc2-mm2 
-In-Reply-To: Your message of "Wed, 24 Mar 2004 22:44:22 +0100."
-             <1080164662.3033.9.camel@linux.local> 
-From: Valdis.Kletnieks@vt.edu
-References: <1080164662.3033.9.camel@linux.local>
+	Wed, 24 Mar 2004 16:58:46 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:32416 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262044AbUCXV6l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 16:58:41 -0500
+Date: Wed, 24 Mar 2004 15:58:32 -0600
+From: linas@austin.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: linux-hotplug-devel@lists.sourceforge.net
+Subject: Enhanced PCI Error Recovery
+Message-ID: <20040324155832.A64292@forte.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1396615208P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 24 Mar 2004 16:58:13 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1396615208P
-Content-Type: text/plain; charset=us-ascii
 
-On Wed, 24 Mar 2004 22:44:22 +0100, Fabian Frederick <Fabian.Frederick@skynet.be>  said:
-> Hi,
-> 
-> 	When trying 'modprobe root_plug vendor_id=xxxx product_id=yyyy' on a
-> workable usb storage device, I get all commands locked (which should
-> appear when I remove it) ... I also get 'cannot execute /sbin/mingetty'
-> from new console login tries then 'respawning too fast, disabled for 5
-> minutes' ....
+Hi,
 
-/sbin/mingetty isn't running because it's a command as well.
+I'm trying to implement some enhanced PCI error recovery features
+for some of the PCI chipsets on IBM pSeries (powerpc64) boxes.
+I'm lead to beleive that other chipsets (in particular PCI Express
+chipsets) might have similar features, and thus I'd like to find 
+out who else is working on something like this & could share in 
+the discussion/design/implementation.
 
-Can you try with root_plug.debug=1 (or add debug=1 to the modprobe)
-so we get some debugging messages back?
+The IBM pSeries boxes have something called "EEH" (Enhanced Error 
+Handling) that deals with the kinds of errors that the older PCI
+spec explicitly ignored (except to check-stop the cpu, which would
+be a bad thing to do on a big server).  EEH handled errors that
+couldn't otherwise be "reported", such as parity errors on posted 
+writes, or io adapters that assert SERR (system error) back to 
+the host bridge.  It handled these errors by (synchronously) 
+cutting off all i/o to the adapter (writes are dropped on the 
+floor, reads return all foxes).  It provides a way of 'recovering' 
+from these, in a rather blunt fashion: for all practical purposes, 
+its equivalent to toggling the power for that PCI slot, and 
+restarting the device driver.
 
+I've been told that PCI Express provides roughly similar function
+(although that's far from obvious) and that there are people working
+on implementing it for the linux kernel.   I'm reading the PCI Express 
+spec; it talks about "fatal errors": these are handled by interrupting 
+the cpu, and putting the error status in various registers.   The spec 
+does not seem to talk about how the software can recover from 
+the "unrecoverable" errors, nor does it seem to mention what happens
+if a device driver continues to try to access a device after an
+unrecoverable error occurred. 
 
+I was hoping to write the pSeries code so that it mostly sat in
+the arch/ppc64 directory... but if there are really other efforts
+then maybe we should talk about sharing code/design.
 
---==_Exmh_1396615208P
-Content-Type: application/pgp-signature
+(My goal is to reset the device, be it a scsi card or an ethernet card,
+re-init the device driver, and go on, ideally without letting the 
+block device or sockets layer up above to ever find out there was 
+any problem.  So that e.g. an unrecoverable error under your root
+partition doesn't have to end in a kernel panic).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Due to the high traffic on LKML, and some superficial similarity
+between this and pci-hotplug, I recommend continuing discussion on 
 
-iD8DBQFAYgR0cC3lWbTT17ARAppiAJwI+G7+zUdCqZAkCf1jxQtBjEQxdACfdgRa
-k4KqkEb4fe331xeJ7Tg7Smw=
-=WDT8
------END PGP SIGNATURE-----
+linux-hotplug-devel@lists.sourceforge.net
+http://linux-hotplug.sourceforge.net
 
---==_Exmh_1396615208P--
+--linas

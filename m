@@ -1,107 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265266AbTFZAh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 20:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265252AbTFZAgb
+	id S265287AbTFZA6s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 20:58:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265252AbTFZA5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 20:36:31 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:21911 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S265253AbTFZAfG convert rfc822-to-8bit
+	Wed, 25 Jun 2003 20:57:18 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:56026 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S265291AbTFZAzy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 20:35:06 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10565884931018@kroah.com>
-Subject: Re: [PATCH] More PCI fixes for 2.5.73
-In-Reply-To: <10565884933148@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 25 Jun 2003 17:48:13 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+	Wed, 25 Jun 2003 20:55:54 -0400
+Date: Wed, 25 Jun 2003 18:09:36 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Robert White <rwhite@casabyte.com>, Timothy Miller <miller@techsource.com>,
+       David Woodhouse <dwmw2@infradead.org>, Larry McVoy <lm@bitmover.com>,
+       Werner Almesberger <wa@almesberger.net>,
+       Stephan von Krawczynski <skraw@ithnet.com>, miquels@cistron-office.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-ID: <20030626010936.GA17417@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	David Lang <david.lang@digitalinsight.com>,
+	Robert White <rwhite@casabyte.com>,
+	Timothy Miller <miller@techsource.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Larry McVoy <lm@bitmover.com>,
+	Werner Almesberger <wa@almesberger.net>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	miquels@cistron-office.nl, linux-kernel@vger.kernel.org
+References: <PEEPIDHAKMCGHDBJLHKGGEEJDBAA.rwhite@casabyte.com> <Pine.LNX.4.44.0306251718120.1870-100000@dlang.diginsite.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0306251718120.1870-100000@dlang.diginsite.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1429.2.3, 2003/06/24 15:40:24-07:00, willy@debian.org
+On Wed, Jun 25, 2003 at 05:27:42PM -0700, David Lang wrote:
+> Robert, nobody is disagreeing with this part of the discussion, that I
+> hear Larry saying is that this process isn't producing innovations, it is
+> almost exclusivly producing copies.
+> 
+> the companies doing propriatatry work are doing the innovation and the
+> fact that their ideas get copied quickly is reducing/eliminating their
+> return on investment and is killing them (some slowly some quickly)
+> 
+> one big reason why innovation is so much more expensive then copying is
+> that when you are innovating you spend a lot of time going down dead-ends,
+> you have to cover all that time spent and thrown away in the cost of the
+> product that you produce. when you are copying you get to avoid a lot of
+> these dead-ends becouse you know what the final product looks like, it's
+> much easier to work towards a known goal then to work towards something
+> that you think will work.
+> 
+> Then Larry asks the question 'what will we do if we kill off the companies
+> that are paying people to do this innovation and there isn't any more
+> software to copy'
+> 
+> David Lang
 
-[PATCH] PCI documentation
-
-Update the PCI Documentation to reflect some of the functions which have
-recently been added and removed.
-
-Index: Documentation/pci.txt
-===================================================================
-RCS file: /var/cvs/linux-2.5/Documentation/pci.txt,v
-retrieving revision 1.4
-
-
- Documentation/pci.txt |   37 ++++++++++++++++++++++---------------
- 1 files changed, 22 insertions(+), 15 deletions(-)
-
-
-diff -Nru a/Documentation/pci.txt b/Documentation/pci.txt
---- a/Documentation/pci.txt	Wed Jun 25 17:38:17 2003
-+++ b/Documentation/pci.txt	Wed Jun 25 17:38:17 2003
-@@ -155,17 +155,11 @@
- VENDOR_ID or DEVICE_ID.  This allows searching for any device from a
- specific vendor, for example.
- 
--   In case you need to decide according to some more complex criteria,
--you can walk the list of all known PCI devices yourself:
--
--	struct pci_dev *dev;
--	pci_for_each_dev(dev) {
--		... do anything you want with dev ...
--	}
--
--For compatibility with device ordering in older kernels, you can also
--use pci_for_each_dev_reverse(dev) for walking the list in the opposite
--direction.
-+Note that these functions are not hotplug-safe.  Their hotplug-safe
-+replacements are pci_get_device(), pci_get_class() and pci_get_subsys().
-+They increment the reference count on the pci_dev that they return.
-+You must eventually (possibly at module unload) decrement the reference
-+count on these devices by calling pci_dev_put().
- 
- 
- 3. Enabling devices
-@@ -193,6 +187,10 @@
- string by pcibios_strerror. Most drivers expect that accesses to valid PCI
- devices don't fail.
- 
-+   If you don't have a struct pci_dev available, you can call
-+pci_bus_(read|write)_config_(byte|word|dword) to access a given device
-+and function on that bus.
-+
-    If you access fields in the standard portion of the config header, please
- use symbolic names of locations and bits declared in <linux/pci.h>.
- 
-@@ -253,14 +251,23 @@
- 
- 8. Obsolete functions
- ~~~~~~~~~~~~~~~~~~~~~
--There are several functions kept only for compatibility with old drivers
--not updated to the new PCI interface. Please don't use them in new code.
-+There are several functions which you might come across when trying to
-+port an old driver to the new PCI interface.  They are no longer present
-+in the kernel as they aren't compatible with hotplug or PCI domains or
-+having sane locking.
- 
--pcibios_present()		Since ages, you don't need to test presence
--				of PCI subsystem when trying to talk with it.
-+pcibios_present() and		Since ages, you don't need to test presence
-+pci_present()			of PCI subsystem when trying to talk to it.
- 				If it's not there, the list of PCI devices
- 				is empty and all functions for searching for
- 				devices just return NULL.
- pcibios_(read|write)_*		Superseded by their pci_(read|write)_*
- 				counterparts.
- pcibios_find_*			Superseded by their pci_find_* counterparts.
-+pci_for_each_dev()		Superseded by pci_find_device()
-+pci_for_each_dev_reverse()	Superseded by pci_find_device_reverse()
-+pci_for_each_bus()		Superseded by pci_find_next_bus()
-+pci_find_device()		Superseded by pci_get_device()
-+pci_find_subsys()		Superseded by pci_get_subsys()
-+pcibios_find_class()		Superseded by pci_find_class()
-+pci_(read|write)_*_nodev()	Superseded by pci_bus_(read|write)_*()
-
+Perfect summary.  Thanks.  I know my point of view is somewhat extreme
+but I've always done that.  One of the things I've learned is to ignore
+small adjustments to what is going on right now, look for the asymptote.
+Where are we going if we ignore the next 10 years and look out beyond
+that?  So looking at the place where free software has killed off their
+"hosts" isn't a near term event but it is a fairly likely long term event.
+If the free software doesn't start figuring out how to backfill the
+development efforts which produce new things, the future looks like a
+very dull gray sort of world where all the programmers are the moral
+equivalents of today's COBOL programmers.  Not a place I want to be,
+dunno about you.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

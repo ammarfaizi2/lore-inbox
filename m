@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317971AbSIERzp>; Thu, 5 Sep 2002 13:55:45 -0400
+	id <S317947AbSIERyR>; Thu, 5 Sep 2002 13:54:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317977AbSIERzo>; Thu, 5 Sep 2002 13:55:44 -0400
-Received: from hanford.psnw.com ([209.107.130.9]:12165 "HELO hanford.psnw.com")
-	by vger.kernel.org with SMTP id <S317971AbSIERzn>;
-	Thu, 5 Sep 2002 13:55:43 -0400
-Subject: nic driver
-From: kyi <kyi@kyi.sytes.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 05 Sep 2002 11:01:09 -0700
-Message-Id: <1031248870.973.6.camel@Jayson>
+	id <S317950AbSIERyR>; Thu, 5 Sep 2002 13:54:17 -0400
+Received: from bof.de ([195.4.223.10]:24215 "HELO oknodo.bof.de")
+	by vger.kernel.org with SMTP id <S317947AbSIERyQ>;
+	Thu, 5 Sep 2002 13:54:16 -0400
+Date: Thu, 5 Sep 2002 19:55:47 +0200
+From: Patrick Schaaf <bof@bof.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+       Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>,
+       Harald Welte <laforge@gnumonks.org>,
+       Netfilter Mailing List <netfilter-devel@lists.netfilter.org>,
+       Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+       Patrick Schaaf <bof@bof.de>
+Subject: Re: ip_conntrack_hash() problem
+Message-ID: <20020905195547.A21899@oknodo.bof.de>
+References: <1031210342.9785.159.camel@biker.pdb.fsc.net> <20020905115208.4D0A02C064@lists.samba.org> <20020905135440.A10805@wotan.suse.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020905135440.A10805@wotan.suse.de>; from ak@suse.de on Thu, Sep 05, 2002 at 01:54:40PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I relize that this isn't the correct list for this, but I can't seem to
-find and anwser anywhere. Could someone please tell me what driver the
+On Thu, Sep 05, 2002 at 01:54:40PM +0200, Andi Kleen wrote:
+> > I'll feed this through 2.5, once it's had some more testing (hint
+> > hint!).  Then Harald will make a call on 2.4.
+> 
+> I would propose to include Martin's simple patch as a short term fix 
+> for 2.4 until Rusty's full work can get in. It fixes an bad performance
+> problems in some not too uncommon cases.
 
+As a short time fix, seeing that it's mostly even hash bucket counts
+that give a problem, I would still propose just making the bucket count
+the nearest odd number, i.e. basically htable_size |= 1 in the startup code.
 
-Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
+I don't expect any user to notice such a miniscule change.
 
-uses. The Realtek kernel drivers don't mention this card. Thanks in
-advance for any help.
-
-- Jayson Garrell
-
-
+best regards
+  Patrick
 

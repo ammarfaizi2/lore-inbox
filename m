@@ -1,65 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315611AbSGPLit>; Tue, 16 Jul 2002 07:38:49 -0400
+	id <S315805AbSGPLk0>; Tue, 16 Jul 2002 07:40:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315779AbSGPLis>; Tue, 16 Jul 2002 07:38:48 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:23689 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S315611AbSGPLis>;
-	Tue, 16 Jul 2002 07:38:48 -0400
-Date: Tue, 16 Jul 2002 13:41:39 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: HZ, preferably as small as possible
-Message-ID: <20020716134139.A7352@ucw.cz>
-References: <59885C5E3098D511AD690002A5072D3C02AB7F88@orsmsx111.jf.intel.com> <agtl95$ihe$1@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <agtl95$ihe$1@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Jul 15, 2002 at 05:06:45AM +0000
+	id <S315806AbSGPLkZ>; Tue, 16 Jul 2002 07:40:25 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:15366 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315805AbSGPLkX> convert rfc822-to-8bit; Tue, 16 Jul 2002 07:40:23 -0400
+Message-ID: <3D3406D4.8010403@evision-ventures.com>
+Date: Tue, 16 Jul 2002 13:43:16 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
+X-Accept-Language: pl, en-us
+MIME-Version: 1.0
+To: Joerg Schilling <schilling@fokus.gmd.de>
+CC: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
+References: <200207161128.g6GBSJPE021316@burner.fokus.gmd.de>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 15, 2002 at 05:06:45AM +0000, Linus Torvalds wrote:
-> In article <59885C5E3098D511AD690002A5072D3C02AB7F88@orsmsx111.jf.intel.com>,
-> Grover, Andrew <andrew.grover@intel.com> wrote:
-> >
-> >But on the other hand, increasing HZ has perf/latency benefits, yes? Have
-> >these been quantified?
+U¿ytkownik Joerg Schilling napisa³:
+>>From James.Bottomley@steeleye.com Mon Jul 15 18:09:52 2002
 > 
-> I've never had good reason to believe the latency/perf benefits myself,
-> but I was approached at OLS about problems with something as simple as
-> DVD playing, where a 100Hz timer means that the DVD player ends up
-> having to busy-loop on gettimeofday() because it cannot sanely sleep due
-> to the lack in sufficient sleeping granularity.
 > 
-> You apparently end up visibly missing frames - a frame is just 3 timer
-> ticks at 100 Hz, and considering that the kernel has to round up by one
-> due to POSIX requirements _and_ considering that you lose roughly one
-> for actually processing the frame itself, that doesn't sound _that_
-> outlandish. 
+>>Actually, the diagram is very similar to what we possess internally today.
+> 
+> 
+>>This represents where I think the SCSI stack is going:
+> 
+> 
+>>                  User Level
+>>--------------------------------------------------------------
+> 
+> 
+>>+----------------+   +---------------------+
+>>| Block Interface|   | Character Interface |
+>>+----------------+   +---------------------+
+>>        |                        |
+>>        |   +--------------------+
+> 
+> 
+> Why should the character interface be connected to the block layer?
+> This would contradict UNIX rules.
 
-Actually, this example is pretty much false I believe.
+Bullshit. UNIX sees even every single block device as both: char and block
+even under the same major number. The reason above is - tape devices.
 
-Since there is always the screen refresh rate going at say 85 Hz, you'll
-be missing frames anyway.
+> Why should the error handlers interface with the block layer?
+> This is not true for UNIX and it would not help. However, it would
+> be nice to have a way to make the blocklayer find out that e.g. 
+> only the last sector  of a multi sector read ahead instruction 
+> did fail.
 
-The really correct solution would be to use the vertical blank
-interrupt, which all recent cards provide, to wake the X process to tell
-it that it should flip it's xvideo double-buffer (*), and to tell the
-DVD player to supply another frame to it, which it would then preferably
-DMA over AGP straight into the video card memory.
+You answer yourself.
 
-Now, if you wanted a real smooth video, you'd set your screen refresh
-rate to 100 Hz in Europe and 120 Hz in US. (Without that it never can be
-100% smooth anyway). And it also has the nice side effect of eliminating
-the screen flicker caused by fluorescent lamp interference.
+>>The driving vision for this is to move into the generic block layer as much of 
+>>the individual transport stack as makes sense (i.e. if other transports can 
+>>make use of the functions), so, for example, Tag command queueing is already 
+>>in there and shared between IDE and SCSI.
+> 
+> 
+> AFAIK, tagged command queuing is a SCSI specific property, why should this
+> be part of a generif block layer?
 
-(*) If our interrupt-to-wake latency is too large for X to do the buffer
-flip in the vblank, then we'll probably need some more kernel support
-for that.
+Becouse it is not SCSI specific. SerialATA will *nearly* require it.
+And there are ATA disks out there which do it *right now* too.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+>>The ultimate end point will be when the correct balance between what belongs 
+>>in the generic block layer and what belongs in the transport helpers is 
+>>achieved.  I speculate that, for CDROMS, this will lead to two small request 
+>>prep modules sharing quite a large helper library (The helper library would do 
+>>SCSI command translation, and probably the IDE prep module would fix up the 
+>>transport command for the specific device).  However, I don't rule out that it 
+>>would lead to a single prep module for both IDE and SCSI.
+> 
+> 
+> With my proposal, anything that speaks SCSI is used via SCSI commands and a 
+> generic SCSI driver like scg.c could access the SCSI transport aware drives
+> of any type. An important (communication baesed) feature of my SCSI glue layer 
+> would be to make it possible to insert SCSI commands from scg.c without making 
+> sd.c believe that something strange and unexpected happened to one of it's drives.
+
+Your proposal has one flaw - it thinks that SCSI is the mother of
+all block devices and thinks that the kernel should have a SCSI driver
+with some kind of direct translation for any other devices. This is
+wrong becouse you go:
+
+1. abstract access.
+2. SCSI access.
+3. back to abstract access.
+4. ATA access.
+
+This is at least not fine. The proposal by James takes in to
+account that dealing with ATAPI ver. SCSI MMC shouldn't be done
+on any kind of "layer" it fits better in the abstraction
+of an utility library supposed to help unify code. But not an
+additional layer between the generic one and the device transfer.
+You have to have an independant transport layer for IDE attached
+devices becouse the whole handling of the transfer works significantly
+different from SCSI.
+
+The proposal for pushing much of the SCSI-midlayer is simple
+due to the realization that the generic BIO layer became more
+intelligent in the time between. See recent SCSI TCQ handling changes.
+

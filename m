@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262794AbSJEXKF>; Sat, 5 Oct 2002 19:10:05 -0400
+	id <S262801AbSJEXOL>; Sat, 5 Oct 2002 19:14:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262797AbSJEXKE>; Sat, 5 Oct 2002 19:10:04 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:13044 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262794AbSJEXKE>; Sat, 5 Oct 2002 19:10:04 -0400
-Subject: Re: Asus CUV4X crashed at boot
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Maykel Moya <mike@icc-cuba.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <03ee01c26cb5$83dd1620$1401010a@icccuba.com>
-References: <03ee01c26cb5$83dd1620$1401010a@icccuba.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Oct 2002 00:23:44 +0100
-Message-Id: <1033860224.4103.23.camel@irongate.swansea.linux.org.uk>
+	id <S262802AbSJEXOL>; Sat, 5 Oct 2002 19:14:11 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:49932 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S262801AbSJEXOK>; Sat, 5 Oct 2002 19:14:10 -0400
+Date: Sun, 6 Oct 2002 00:19:40 +0100
+From: John Levon <levon@movementarian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5 Problem Report Status
+Message-ID: <20021005231939.GA58546@compsoc.man.ac.uk>
+References: <200210052021.WAA04976@harpo.it.uu.se> <Pine.LNX.4.44.0210051707550.13901-100000@dad.molina>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210051707550.13901-100000@dad.molina>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *17xyCy-000GFF-00*h21sUX2WQfA* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-10-05 at 22:23, Maykel Moya wrote:
-> I would like to know if anyone is enduring this problem and if it's currently
-> addressed on -ac tree.
-> 
-> My system (Asus CUV4X, 2.4.19 or 2.4.20-pre8, UP P3 600MHz)
+On Sat, Oct 05, 2002 at 05:10:58PM -0500, Thomas Molina wrote:
 
-Since more recent bioses appeared the CUV4X ASUS problem seems to have
-gone quiet (note that we never saw the same reports on other vendors
-boards with this chipset so it was almost certainly bios issues in the
-early days)
+> I misunderstood the timing of Al Viro's proposed fix for the problem.  I 
+> thought it was going in right away and the issue would be moot.  I've 
+> added it to my list.  Unfortunately, I'm getting connection refused 
+> messages when trying to connect to bkbits, so I'm unable to browse the 
+> comments like I usually do when researching this stuff.
 
+The log seems to be down. You can look at the short form changelog in
+kernel.org's snapshots/ dir though...
+
+john
+
+-- 
+"Me and my friends are so smart, we invented this new kind of art:
+ Post-modernist throwing darts"
+	- the Moldy Peaches

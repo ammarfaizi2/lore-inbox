@@ -1,75 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263770AbUDFLNq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 07:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbUDFLMd
+	id S263763AbUDFLNp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 07:13:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263779AbUDFLMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 07:12:33 -0400
-Received: from postit.mail.adnap.net.au ([203.6.132.68]:40203 "EHLO
-	postit.mail.adnap.net.au") by vger.kernel.org with ESMTP
-	id S263764AbUDFLIC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 07:08:02 -0400
-Date: Tue, 6 Apr 2004 20:47:28 +0930
-From: David Lloyd <lloy0076@adam.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Text Console Mode && Sync on Green 60 Hz Monitors with 2.6.4
-Message-Id: <20040406204728.1f028e85.lloy0076@adam.com.au>
-Organization: David Lloyd
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Apr 2004 07:12:44 -0400
+Received: from mail3.dada.it ([195.110.100.3]:38405 "HELO mail.dada.it")
+	by vger.kernel.org with SMTP id S263763AbUDFLHY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 07:07:24 -0400
+From: Fabio Coatti <cova@ferrara.linux.it>
+Organization: FerraraLUG
+To: "Dirk Herzhauser" <Dirk.Herzhauser@web.de>
+Subject: Re: PROBLEM: BLUETOOTH Dongle causes freeze of System or error Message
+Date: Tue, 6 Apr 2004 13:07:16 +0200
+User-Agent: KMail/1.6.1
+References: <1205335994@web.de>
+In-Reply-To: <1205335994@web.de>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200404061307.16499.cova@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alle 11:00, martedì 6 aprile 2004, hai scritto:
 
-Hi There,
+> I've got a problem with Linux and Kernel 2.6.[0-5] with hotplugin of an
+> BLUETOOTH dongle. If I start up the System with the DONGLE the System works
+> fine, even if BLUETOOTH did not work, if I remove the Dongle the systems
+> hangs. If I plug the Dongle into an running System I receive the following
+> messages:
 
-I have a special card that is able to run my ancient Sync on Green, 60
-Hz (vertical) monitor. It's a 21", genuine trinitron tube monitor with
-excellent colour definition and I like it - it's my precioussss and
-we're not going to stop using it.
+I've the very same problem, noticed for the first time in the last 2.5.X and 
+first 2.6.0-pre releases.
 
-Now, this monitor and my video card display the following
-characteristics:
+I'll can recover my e-mail on this list, or make new tests.
 
- * if it runs in graphical mode the scan modelines MUST be 60 Hz
-   (vertical) _and_ it must be within about 1% of 60Hz
+Have you tried to turn off SCO support? IIRC the bug is related to this 
+feature.
 
- ModeLine "Left 1280x1024"   108.00 1280 1284 1452 1680 1024 1030 1033
- 1066 -hsync -vsync
+I've also some oopses obtained with serial console, but I'll try to reproduce 
+this issue and capture new oopses with 2.6.5 kernels.
 
- - if the values change or go "wrong" the video card and adapter get
-   totally confused and essentially I lose sync and can't get it back
-   again
 
- * if it runs in text mode it runs fine
 
-It does NOT run in Framebuffer mode nicely.
 
-Now, I've downloaded:
 
-  2.6.4 (from the Debian source tree)
-  
-  and
+-- 
+Fabio Coatti       http://www.ferrara.linux.it/members/cova     
+Ferrara Linux Users Group           http://ferrara.linux.it
+GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
+Old SysOps never die... they simply forget their password.
 
-  2.6.4 (from a kernel.org mirror)
-
-  ...now I've turned off framebuffer support but 2.6.4 sends my
-  monitor/card combo into no-sync. I've set the "video=vga16:off" in
-  lilo.
-
-Funnily enough, I've basically imported the settings from my older
-2.6.0-test9 [a Debian version] which DOES work and it still upsets my
-monitor. It works under 2.4.18-bf2.4.
-
-I am wondering what might have changed if anything...
-
-DSL
-
---
-Open Source Business Network SA
- http://osbn.inetd.com.au/
-
-Open Source Industry Australia
- http://osia.net.au/

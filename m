@@ -1,61 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbTJJKvl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 06:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbTJJKvl
+	id S262040AbTJJKwk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 06:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbTJJKwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 06:51:41 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:27321 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S262038AbTJJKvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 06:51:39 -0400
-X-Sender-Authentication: net64
-Date: Fri, 10 Oct 2003 12:51:37 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Stuart Longland <stuartl@longlandclan.hopto.org>
-Cc: lgb@lgb.hu, Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
-Subject: Re: 2.7 thoughts
-Message-Id: <20031010125137.4080a13b.skraw@ithnet.com>
-In-Reply-To: <3F864F82.4050509@longlandclan.hopto.org>
-References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be>
-	<20031009115809.GE8370@vega.digitel2002.hu>
-	<20031009165723.43ae9cb5.skraw@ithnet.com>
-	<3F864F82.4050509@longlandclan.hopto.org>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Oct 2003 06:52:40 -0400
+Received: from math.ut.ee ([193.40.5.125]:30675 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S262040AbTJJKwj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 06:52:39 -0400
+Date: Fri, 10 Oct 2003 13:52:37 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org
+Subject: megaraid2 compilation failure in 2.4
+Message-ID: <Pine.GSO.4.44.0310101351420.1585-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Oct 2003 16:19:46 +1000
-Stuart Longland <stuartl@longlandclan.hopto.org> wrote:
+cc -D__KERNEL__ -I/home/mroos/compile/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include /home/mroos/compile/linux-2.4/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=megaraid2  -c -o megaraid2.o megaraid2.c
+megaraid2.c: In function `mega_find_card':
+megaraid2.c:403: error: structure has no member named `lock'
+megaraid2.c:618: warning: integer constant is too large for "long" type
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Stephan von Krawczynski wrote:
-> > * hotplug CPU
-> > * hotplug RAM
-> 
-> * hotplug motherboard & entire computer too I spose ;-)
-> 
-> Although sarcasm aside, a couple of ideas that have been bantered around 
-> on this list (and a few of my own ideas):
+This is todays 2.4.23-pre7+BK.
 
-You are obviously not quite familiar with industrial boxes where this is
-state-of-the-art. 
-
-My thinking is:
-* CPU hotplug: should not be too hard
-* RAM hotplug: has already been discussed in several threads, sure needs brain,
-but must be doable.
-
-Generally spoken every part of a computer should be thought of as a "resource"
-that can be added or removed at any time during runtime. CPU or RAM is in no
-way different.
-
-Regards,
-Stephan
+-- 
+Meelis Roos (mroos@linux.ee)
 

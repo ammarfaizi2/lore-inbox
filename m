@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266138AbUALNdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 08:33:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266164AbUALNdQ
+	id S266170AbUALNj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 08:39:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUALNj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 08:33:16 -0500
-Received: from s2.smtp.oleane.net ([195.25.12.6]:26639 "EHLO
-	s2.smtp.oleane.net") by vger.kernel.org with ESMTP id S266138AbUALNdK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 08:33:10 -0500
-Subject: Re: removable media revalidation - udev vs. devfs or static /dev
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0ASeltTB7UjtO74PPW8a"
-Organization: Adresse personnelle
-Message-Id: <1073912540.16804.10.camel@ulysse.olympe.o2t>
+	Mon, 12 Jan 2004 08:39:59 -0500
+Received: from dp.samba.org ([66.70.73.150]:52377 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266170AbUALNj5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 08:39:57 -0500
+Date: Tue, 13 Jan 2004 00:32:24 +1100
+From: Anton Blanchard <anton@samba.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Limit hash table size
+Message-ID: <20040112133224.GA7287@krispykreme>
+References: <B05667366EE6204181EABE9C1B1C0EB5802444@scsmsx401.sc.intel.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Mon, 12 Jan 2004 14:02:21 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <B05667366EE6204181EABE9C1B1C0EB5802444@scsmsx401.sc.intel.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-0ASeltTB7UjtO74PPW8a
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> We don't have any data to justify any size change for x86, that was the
+> main reason we limit the size by page order.
 
-Matt Mackall wrote :
+Well x86 isnt very interesting here, its all the 64bit archs that will
+end up with TBs of memory in the future.
 
-> Then the dumb devices (which should be a small minority) just show up
-> with a harmless excess of partitions.
+> If I read them correctly, most of the distribution is in the first 2
+> buckets, so it doesn't matter whether you have 100 buckets or 1 million
+> buckets, only first 2 are being hammered hard.  So are we wasting memory
+> on the buckets that are not being used?
 
-You are underestimating the hardware manufacturers ingenuity. Cheap stuff
-(camera card readers...) will always be dumb. In fact people have not even
-been discussing there how dumb it can get. I happen to own a dual CF/SM
-reader (was cheaper than the single SM reader I needed at the time). It
-doesn't appear to support media change notification. In fact the reader
-chip seems to simple to process both card slots at the same time. The
-manufacturer solved this problem by using a mechanical plastic flap that
-prevents insertion of a second card when there is already one in the
-reader. There is no notification on what slot is in use to the OS. Both
-windows and linux treat it as a dual reader (even though there can only be
-a single card inserted at any point of time), export two drives and do
-continuous polling just to find out which slot is in use.
+But look at the horrid worst case there. My point is limiting the hash
+without any data is not a good idea. In 2.4 we raised MAX_ORDER on ppc64
+because we spent so much time walking pagecache chains, id hate to see
+us limit the icache and dcache hash in 2.6 and end up with a similar
+problem.
 
-Since the SM card is slot two, every single time I plug the reader I see
-the CF part errorring out before the driver take a look at the SM one.
+Why cant we do something like Andrews recent min_free_kbytes patch and
+make the rate of change non linear. Just slow the increase down as we
+get bigger. I agree a 2GB hashtable is pretty ludicrous, but a 4MB one
+on a 512GB machine (which we sell at the moment) could be too :)
 
-Cheers,
-
---=20
-Nicolas Mailhot
-
---=-0ASeltTB7UjtO74PPW8a
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAAprcI2bVKDsp8g0RAqZPAJ9shYV8oMRhb51iqVz6pGtvRmXcGQCfcEbS
-IwZWg9SkppbxIvd1tBwUK4c=
-=bWR4
------END PGP SIGNATURE-----
-
---=-0ASeltTB7UjtO74PPW8a--
-
+Anton

@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317375AbSGZIWf>; Fri, 26 Jul 2002 04:22:35 -0400
+	id <S317367AbSGZI1P>; Fri, 26 Jul 2002 04:27:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317366AbSGZIWf>; Fri, 26 Jul 2002 04:22:35 -0400
-Received: from 62-190-203-159.pdu.pipex.net ([62.190.203.159]:21764 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S317375AbSGZIWe>; Fri, 26 Jul 2002 04:22:34 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200207260824.g6Q8OqxV000989@darkstar.example.net>
-Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
-To: thunder@ngforever.de (Thunder from the hill)
-Date: Fri, 26 Jul 2002 09:24:51 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0207242348380.3347-100000@hawkeye.luckynet.adm> from "Thunder from the hill" at Jul 25, 2002 12:03:47 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317374AbSGZI1P>; Fri, 26 Jul 2002 04:27:15 -0400
+Received: from dsl-213-023-020-025.arcor-ip.net ([213.23.20.25]:15326 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317367AbSGZI1P>;
+	Fri, 26 Jul 2002 04:27:15 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: "David Luyer" <david@luyer.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.18-rc3-ac3: bug with using whole disks as filesystems
+Date: Fri, 26 Jul 2002 10:31:38 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <004a01c233ba$1a764f50$638317d2@pacific.net.au> <E17Xxjj-0005XT-00@starship>
+In-Reply-To: <E17Xxjj-0005XT-00@starship>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17Y0Vf-0006iv-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It became a buzzword soon, it was used all over. Then came up the 
-> technicians. Remembering the german word "furchtbar" (meaning "terrible", 
-> actually) they introduced the term fubar, fucked up beyond all repair. It 
-> later transformed to the well-known foobar. Actually, think of foobar as a 
-> foo with a bar over it - foo inverted.
-> 
-> Later it was used in its current meaning by e.g. dec in their decsys 
-> manuals, go read it if you like, I don't have them handy.
+On Friday 26 July 2002 07:33, I wrote:
+> There is no fundamental reason why we can't handle the larger
+> blocksizes.  It just didn't make it to the top of the list of things
+> to do for this cycle.  For now, all the mkfs's have to accomodate
+> this shortcoming.
 
-DEC also used fubar to refer to the Failed UniBus Access Register on a VAX, but I think that was either a backronym, or thought up by somebody who wasn't already aware of the other meaning.
+Whoops, correction, the correct behaviour is to refuse to mount a
+filesystem that has oversize blocks.  Mkfs can and should go ahead and
+create such things if asked to.
+
+-- 
+Daniel

@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbUL2F64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbUL2GE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbUL2F64 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 00:58:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbUL2F64
+	id S261325AbUL2GE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 01:04:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbUL2GE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 00:58:56 -0500
-Received: from pat.uio.no ([129.240.130.16]:59614 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261324AbUL2F6y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 00:58:54 -0500
-Subject: Re: [sunrpc] remove xdr_kmap()
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20041228194925.3443fbd3.davem@davemloft.net>
-References: <20041228230416.GM771@holomorphy.com>
-	 <20041228171246.496f3eab.davem@davemloft.net>
-	 <20041229020938.GN771@holomorphy.com>
-	 <20041228194925.3443fbd3.davem@davemloft.net>
-Content-Type: text/plain
-Date: Wed, 29 Dec 2004 06:57:32 +0100
-Message-Id: <1104299852.3976.12.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
+	Wed, 29 Dec 2004 01:04:26 -0500
+Received: from sweetums.bluetronic.net ([24.199.150.42]:7823 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S261325AbUL2GEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 01:04:24 -0500
+Date: Wed, 29 Dec 2004 01:00:31 -0500 (EST)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK] disconnected operation
+In-Reply-To: <C8A13912-5958-11D9-AA77-000393ACC76E@mac.com>
+Message-ID: <Pine.GSO.4.33.0412290052030.6921-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ty den 28.12.2004 Klokka 19:49 (-0800) skreiv David S. Miller:
+On Wed, 29 Dec 2004, Kyle Moffett wrote:
+>So what would happen to somebody who put their BK files on a portable
+>drive and carried it from home to work.  That's a perfectly reasonable
+>thing to do, both for security and for speed reasons, but it would appear
+>to cause problems.
 
-> There is a flush_dcache_page() call for xdr_partial_copy_from_skb()
-> but calls are also needed in _copy_to_pages() and
-> _shift_data_right_pages().
+First, the license(s) are stored in the user's home directory (~/.bk/lease)
+per hostname.  If you move to a completely different machine, then, yes,
+there will need to be a lease for that machine.
 
-Will do.
+What you are describing is no different from the NFS case.  It doesn't
+matter that the media has physically moved; it's still visible to multiple,
+unique hosts.  Each host(name) will need it's own lease.
 
-Cheers,
-  Trond
+--Ricky
 
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
 

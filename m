@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263129AbTGAR2c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 13:28:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTGAR2b
+	id S263103AbTGAR1l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 13:27:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbTGAR1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 13:28:31 -0400
-Received: from ns.suse.de ([213.95.15.193]:12 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263129AbTGAR2X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 13:28:23 -0400
-Date: Tue, 1 Jul 2003 19:42:41 +0200
-From: Andi Kleen <ak@suse.de>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: axboe@suse.de, grundler@parisc-linux.org, davem@redhat.com,
-       suparna@in.ibm.com, linux-kernel@vger.kernel.org,
-       alex_williamson@hp.com, bjorn_helgaas@hp.com
-Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode
-Message-Id: <20030701194241.368a6a9c.ak@suse.de>
-In-Reply-To: <1057080529.2003.62.camel@mulgrave>
-References: <1057077975.2135.54.camel@mulgrave>
-	<20030701190938.2332f0a8.ak@suse.de>
-	<1057080529.2003.62.camel@mulgrave>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 1 Jul 2003 13:27:41 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:39880 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S263103AbTGAR1k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 13:27:40 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Mel Gorman <mel@csn.ul.ie>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: What to expect with the 2.6 VM
+Date: Mon, 30 Jun 2003 19:43:04 +0200
+User-Agent: KMail/1.5.2
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.53.0307010238210.22576@skynet>
+In-Reply-To: <Pine.LNX.4.53.0307010238210.22576@skynet>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306301943.04326.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01 Jul 2003 12:28:47 -0500
-James Bottomley <James.Bottomley@steeleye.com> wrote:
+On Tuesday 01 July 2003 03:39, Mel Gorman wrote:
+> I'm writing a small paper on the 2.6 VM for a conference.
 
+Nice stuff, and very timely.
 
-> Could you elaborate more on the amd64 IOMMU window.  Is this a window
-> where IOMMU mapping always takes place?
+>    In 2.4, Page Table Entries (PTEs) must be allocated from ZONE_ NORMAL as
+>    the kernel needs to address them directly for page table traversal. In a
+>    system with many tasks or with large mapped memory regions, this can
+>    place significant pressure on ZONE_ NORMAL so 2.6 has the option of
+>    allocating PTEs from high memory.
 
-Yes.
+You probably ought to mention that this is only needed by 32 bit architectures 
+with silly amounts of memory installed.  On that topic, you might mention 
+that the VM subsystem generally gets simpler and in some cases faster (i.e., 
+no more highmem mapping cost) in the move to 64 bits.
 
-K8 doesn't have a real IOMMU. Instead it extended the AGP aperture to work
-for PCI devices too.  The AGP aperture is a hole in memory configured 
-at boot, normally mapped directly below 4GB, but it can be elsewhere
-(it's actually an BIOS option on machines without AGP chip and when 
-the BIOS option is off Linux allocates some memory and puts the hole
-on top of it. This allocated hole can be anywhere in the first 4GB) 
-Inside the AGP aperture memory is always remapped, you get a bus abort
-when you access an area in there that is not mapped.
+You also might want to mention pdflush.
 
-In short to detect it it needs to test against an address range, 
-a mask is not enough.
+Regards,
 
-> 
-> I'm a bit reluctant to put a function like this in because the block
-> layer does a very good job of being separate from the dma layer. 
-> Maintaining this separation is one of the reasons I added a dma_mask to
-> the request_queue, not a generic device pointer.
-
-Not sure I understand why you want to do this in the block layer.
-It's a generic extension of the PCI DMA API. The block devices/layer itself
-has no business knowing such intimate details about the pci dma 
-implementation, it should just ask.
-
--Andi
+Daniel
 

@@ -1,27 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266165AbRF2TiU>; Fri, 29 Jun 2001 15:38:20 -0400
+	id <S266163AbRF2Tl6>; Fri, 29 Jun 2001 15:41:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266164AbRF2TiI>; Fri, 29 Jun 2001 15:38:08 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:50840 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S266163AbRF2Thy>;
-	Fri, 29 Jun 2001 15:37:54 -0400
-Date: Fri, 29 Jun 2001 21:37:52 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200106291937.VAA463690.aeb@vlet.cwi.nl>
-To: jordan.breeding@inet.com, ledzep37@home.com
-Subject: Re: USB Keyboard errors with 2.4.5-ac
+	id <S266164AbRF2Tls>; Fri, 29 Jun 2001 15:41:48 -0400
+Received: from femail7.sdc1.sfba.home.com ([24.0.95.87]:35270 "EHLO
+	femail7.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S266163AbRF2Tlh>; Fri, 29 Jun 2001 15:41:37 -0400
+Message-Id: <5.1.0.14.2.20010629124207.00a534e0@mail.abac.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 29 Jun 2001 12:47:36 -0700
+To: "Clayton, Mark" <mark.clayton@netplane.com>
+From: Android <android@abac.com>
+Subject: RE: The latest Microsoft FUD. This time from BillG, himself.
 Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <87009604743AD411B1F600508BA0F95994C8DF@XOVER.dedham.mindsp
+ eed.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> is it totally hopeless to want to try and get a USB keyboard to work
-> as the systems only keyboard and have it work under X
-> and also not freeze the whole system when hitting certain keys?
 
-I just tried, and everything works flawlessly here [2.4.6pre5].
+>
+>I still have my 3.1 package all boxed up in the basement.  I remember
+>impatiently waiting for its arrival.  What a disappointment it turned
+>out to be.
+>
+>Mark
 
-In case you see strange things for some keys but not for others,
-try finding out what the keycodes are (say, with showkey).
+To say the least. The big thing in the current Windows OS's these days is 
+FAT 32.
+NT 3.1 and NT 3.5 won't even acknowledge this file system. And the ATAPI.SYS
+file they used is a joke. The first thing you need to do when you install NT is
+to install a new ATAPI.SYS that would at least see all your partitions.
+Windows 2000 is far better in this respect, but it's a bloated pig. And I 
+won't even
+talk about XP. Minimum memory required for XP is 128 Megs.
+And this license bullsh*t is just an insult to the consumers.
+Thank the Heavens for Linux!
 
-Andries
+                              -- Ted
+
+

@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318369AbSGYI5J>; Thu, 25 Jul 2002 04:57:09 -0400
+	id <S318371AbSGYI5K>; Thu, 25 Jul 2002 04:57:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318374AbSGYI5J>; Thu, 25 Jul 2002 04:57:09 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:15050 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S318369AbSGYI5I>;
+	id <S318374AbSGYI5K>; Thu, 25 Jul 2002 04:57:10 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:15306 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S318371AbSGYI5I>;
 	Thu, 25 Jul 2002 04:57:08 -0400
-Date: Thu, 25 Jul 2002 18:08:31 +1000
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] new module interface
-Message-Id: <20020725180831.3b0b2449.rusty@rustcorp.com.au>
-In-Reply-To: <Pine.LNX.4.44.0207242128030.8911-100000@serv>
-References: <Pine.LNX.4.44.0207242128030.8911-100000@serv>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Cc: kaos@ocs.com.au, zippel@linux-m68k.org
+Subject: [PATCH] New minimal module loader for testing...
+Date: Thu, 25 Jul 2002 18:57:15 +1000
+Message-Id: <20020725090126.6589F4112@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jul 2002 22:02:36 +0200 (CEST)
-Roman Zippel <zippel@linux-m68k.org> wrote:
+Hi all,
 
-> The patch below is for 2.4 but it's easily ported to 2.5, beside of this I
-> think the core is stable and will allow a more flexible module handling
-> in the future. After updating to 2.5 and updating some more archs I will
-> submit the patch officially, so any feedback now would be very welcome.
-> (The patch requires no new modutils, although a new version could avoid
-> some workarounds, but that can wait.)
+	Updated my in-kernel module loader patch.  Importantly, it
+lacks almost all features, but it serves as a guide for the curious.
+Non-x86 parts not even compiled (but tested in userspace previously,
+so just some bitrot).
 
-Hi Roman!
+Name: New Module Loader Base
+Author: Rusty Russell
+Status: Tested on 2.5.27
 
-	Firstly, I give up: what kernel is this patch against?  It's
-hard to read a patch this big which doesn't apply to any kernel I can find 8(
+D: This patch is a rewrite of the kernel module code, simplifying it
+D: into an in-kernel module loader.  Note that this patch does not
+D: contain any arch-specific modifications (see separate per-arch
+D: patches).  Nor does it support:
+D:  o Module unloading
+D:  o Modversions
+D:  o Module parameters.
+D:  o Boot parameters.
+D: To use it, you will need the trivial replacement module tools from
+D: http://www.kernel.org/pub/linux/people/rusty/module-init-tools-0.2.tar.gz
 
-> DEFINE_MODULE
-> 	.start =	start_affs_fs,
-> 	.stop =		stop_affs_fs,
-> 	.exit =		exit_affs_fs,
-> 	.usecount =	usecount_affs_fs,
-> DEFINE_MODULE_END
+http://www.kernel.org/pub/linux/kernel/people/rusty/patches/Module/module-base.patch.gz
+http://www.kernel.org/pub/linux/kernel/people/rusty/patches/Module/module-base-i386.patch.gz
 
-Interesting approach.  Splitting init and start and stop and exit is
-normal, but encapsulating the usecount is different.  I made start
-and exit return void, though.
-
-Hmmm... you sidestepped the "rmmod -f" problem, by running module->start()
-again if module->exit() fails.  I decided against this because module
-authors have to make sure this works.
-
-I chose the more standard "INIT(init, start)" & "EXIT(stop, exit)" which
-makes it easier to drop the exit part if it's built-in.
-
-My favorite part is including the builtin-modules.  I assume this means
-that "request_module("foo")" returns success if CONFIG_DRIVER_FOO=y now?
-
-Sorry I've been slack in posting my patch: will do tonight I promise 8)
-
-Cheers!
 Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131205AbREEJQn>; Sat, 5 May 2001 05:16:43 -0400
+	id <S131157AbREEJPN>; Sat, 5 May 2001 05:15:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131246AbREEJQe>; Sat, 5 May 2001 05:16:34 -0400
-Received: from smtp.mountain.net ([198.77.1.35]:27396 "EHLO riker.mountain.net")
-	by vger.kernel.org with ESMTP id <S131205AbREEJQU>;
-	Sat, 5 May 2001 05:16:20 -0400
-Message-ID: <3AF3C4AD.FCC037F0@mountain.net>
-Date: Sat, 05 May 2001 05:15:25 -0400
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.3 i486)
-X-Accept-Language: English/United, States, en-US, English/United, Kingdom, en-GB, English, en, French, fr, Spanish, es, Italian, it, German, de, , ru
+	id <S131205AbREEJPD>; Sat, 5 May 2001 05:15:03 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41233 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131157AbREEJOy>; Sat, 5 May 2001 05:14:54 -0400
+Subject: Linux 2.2.20pre1
+To: linux-kernel@vger.kernel.org
+Date: Sat, 5 May 2001 10:18:52 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-CC: Seth Goldberg <bergsoft@home.com>, linux-kernel@vger.kernel.org
-Subject: Re: Athlon and fast_page_copy: What's it worth ? :)
-In-Reply-To: <Pine.LNX.4.10.10105050155020.15185-100000@coffee.psychology.mcmaster.ca>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14vyDG-0000PM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hahn wrote:
-> 
-> On Fri, 4 May 2001, Seth Goldberg wrote:
-> 
-> > Hi,
-> >
-> >   Before I go any further with this investigation, I'd like to get an
-> > idea
-> > of how much of a performance improvement the K7 fast_page_copy will give
-> > me.
-> > Can someone suggest the best benchmark to test the speed of this
-> > routine?
-> 
-> Arjan van de Ven did the code, and he wrote a little test harness.
-> I've hacked it a bit (http://brain.mcmaster.ca/~hahn/athlon.c);
-> on my duron/600, kt133, pc133 cas2, it looks like this:
-> 
-> clear_page by 'normal_clear_page'        took 7221 cycles (324.6 MB/s)
-> clear_page by 'slow_zero_page'           took 7232 cycles (324.1 MB/s)
-> clear_page by 'fast_clear_page'          took 6110 cycles (383.6 MB/s)
-> clear_page by 'faster_clear_page'        took 2574 cycles (910.6 MB/s)
-> 
-> copy_page by 'normal_copy_page'  took 7224 cycles (324.4 MB/s)
-> copy_page by 'slow_copy_page'    took 7223 cycles (324.5 MB/s)
-> copy_page by 'fast_copy_page'    took 4662 cycles (502.7 MB/s)
-> copy_page by 'faster_copy'       took 2746 cycles (853.5 MB/s)
-> copy_page by 'even_faster'       took 2802 cycles (836.5 MB/s)
-> 
-> 70% faster!
-> 
 
-I've played with this some, too. I find that Arjan's tests are very delicate
-about the number of hw interrupts serviced. On UP I see 2-3 interrupts per
-page copy on average with my normal workload. On Athlon, interrupts hit 'rep
-mov' (looong interruptable vector path insn) much worse than they do mmx
-movq (direct path) instructions.
+Linux 2.2 is now firmly into maintainance state. Patches for neat new ideas
+belong in 2.4. Generally new drivers belong in 2.4 (possibly in 2.2 as well
+after 2.4 shows them stable). Expect me to be very picky on changes to the
+core code now. 
 
-With hands off and no networking, breakeven is about the canonical 512
-bytes, and page copy is about 30% better, as Alan says. With ethers up and X
-running mmx gets better by comparison -- 40-60% for me. I haven't seen 70%
-better, but I'd like to.
+2.2.20pre1
+o	Fix SMP deadlock in NFS				(Trond Myklebust)
+o	Fix missing printk in bluesmoke handler		(me)
+o	Fix sparc64 nfs					(Dave Miller)
+o	Update io_apic code to avoid breaking dual	(Johannes Erdfelt)
+	Athlon 760MP
+o	Fix includes bugs in toshiba driver		(Justin Keene,
+							 Greg Kroah-Hartmann)
+o	Fix wanpipe cross compile			(Phil Blundell)
+o	AGPGART copy_from_user fix			(Dawson Engler)
+o	Fix alpha resource setup error			(Allan Frank)
+o	Eicon driver updates				(Armind Schindler)
+o	PC300 driver update				(Daniela Squassoni)
+o	Show lock owner on flocks			(Jim Mintha)
+o	Update cciss driver to 1.0.3			(Charles White)
+o	Backport cciss/cpqarray security fixes		(me)
+o	Update i810 random number generator		(Jeff Garzik)
+o	Update sk98 driver				(Mirko Lindner)
+o	Update sis900 ethernet driver			(Hui-Fen Hsu)
+o	Fix checklist glitch in make menuconfig		(Moritz Schulte)
+o	Update synclink driver				(Paul Fulghum)
+o	Update advansys scsi driver			(Bob Frey)
+o	Ver_linux fixes for 2.2				(Steven Cole)
+o	Bring 2.2 back into line with the master ISDN	(Kai Germaschewski)
+o	Whiteheat usb driver update			(Greg Kroah-Hartmann)
+o	Fix via_rhine byte counters			(Adam Lackorzynski)
+o	Fix modem control on rio serial			(Rogier Wolff)
+o	Add more Iomega Zip to the usb storage list	(Wim Coekaerts)
+o	Add ZF Micro watchdog 				(Fernando Fuganti)
 
-Cheers,
-Tom
-
--- 
-The Daemons lurk and are dumb. -- Emerson

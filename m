@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268335AbUIQGXz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268435AbUIQGdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268335AbUIQGXz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 02:23:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268397AbUIQGXz
+	id S268435AbUIQGdY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 02:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268446AbUIQGdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 02:23:55 -0400
-Received: from mail.gmx.net ([213.165.64.20]:4502 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268335AbUIQGXx (ORCPT
+	Fri, 17 Sep 2004 02:33:24 -0400
+Received: from ozlabs.org ([203.10.76.45]:52129 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268435AbUIQGdW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 02:23:53 -0400
-Date: Fri, 17 Sep 2004 08:23:52 +0200 (MEST)
-From: "Alexander Stohr" <Alexander.Stohr@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
-MIME-Version: 1.0
-Subject: How about a new development series kernel?
-X-Priority: 3 (Normal)
-X-Authenticated: #15156664
-Message-ID: <28141.1095402232@www21.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Sep 2004 02:33:22 -0400
+Date: Fri, 17 Sep 2004 16:20:42 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Miller <davem@redhat.com>, trivial@rustcorp.com.au,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: [TRIVIAL] Fix recent bug in fib_semantics.c
+Message-ID: <20040917062042.GE6523@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, David Miller <davem@redhat.com>,
+	trivial@rustcorp.com.au, linux-kernel@vger.kernel.org,
+	netdev@oss.sgi.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The below quotes do originate from the linux-usb-devel
-mailing list. They were created in respect to the code
-for ub.c and its releated files.
+Andrew, please apply:
 
-> > I really wonder how such a yet unfinished module
-> > ever made it to merge into a stable kernel series.
-> 
-> And where would our "development series" kernel be?  :)
+When fib_create_info() allocates new hash tables, it neglects to
+initialize them.  This leads to an oops during boot on at least
+machine I use.  This patch addresses the problem.
 
-Other than that i observed some other rather more 
-critical code like the nfs implementation got broken 
-which in turn lead to the usage of a brown paperbag. 
+Signed-off-by: David Gibson <dwg@au1.ibm.com>
 
-How about cloning a Linux-2.7.0 tree
-from maybe the upcoming 2.6.9 release?
+Index: working-2.6/net/ipv4/fib_semantics.c
+===================================================================
+--- working-2.6.orig/net/ipv4/fib_semantics.c	2004-09-17 09:20:04.000000000 +1000
++++ working-2.6/net/ipv4/fib_semantics.c	2004-09-17 16:24:42.634638304 +1000
+@@ -604,8 +604,12 @@
+ 		if (!new_info_hash || !new_laddrhash) {
+ 			fib_hash_free(new_info_hash, bytes);
+ 			fib_hash_free(new_laddrhash, bytes);
+-		} else
++		} else {
++			memset(new_info_hash, 0, bytes);
++			memset(new_laddrhash, 0, bytes);
++
+ 			fib_hash_move(new_info_hash, new_laddrhash, new_size);
++		}
+ 
+ 		if (!fib_hash_size)
+ 			goto failure;
 
--Alex.
 
-PS: I am reading this list via the MARC servers.
-Feel free if you want to CC me in your replys.
 
 -- 
-NEU: GMX ProMail mit bestem Virenschutz http://www.gmx.net/de/go/mail
-+++ Empfehlung der Redaktion +++ Internet Professionell 10/04 +++
-
+David Gibson			| For every complex problem there is a
+david AT gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261496AbTHSXgD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 19:36:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbTHSXgD
+	id S261530AbTHSXcF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 19:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbTHSXcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 19:36:03 -0400
-Received: from zero.aec.at ([193.170.194.10]:37382 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261496AbTHSXgB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 19:36:01 -0400
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.22-rc2] x86-64 register_ioctl32_conversion() breakage
-From: Andi Kleen <ak@muc.de>
-Date: Wed, 20 Aug 2003 01:35:52 +0200
-In-Reply-To: <mnM6.1z1.7@gated-at.bofh.it> (Mikael Pettersson's message of
- "Wed, 20 Aug 2003 01:10:10 +0200")
-Message-ID: <m31xvhrzjb.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <mnM6.1z1.7@gated-at.bofh.it>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 19 Aug 2003 19:32:05 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:62744 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S261530AbTHSXcE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 19:32:04 -0400
+Subject: Re: SCO's "proof"
+From: "Andrei Barbu \"T'Eval\"" <teval@myrealbox.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <3F422809.7080806@yahoo.com>
+References: <3F422809.7080806@yahoo.com>
+Content-Type: text/plain
+Message-Id: <1061336053.6603.2.camel@quantum.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 19 Aug 2003 19:34:14 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson <mikpe@csd.uu.se> writes:
+The first image seems usless
+Comments are not acceptable in this type of case, that was ruled in
+court before over AT&T vs Berkely.
+So.. it's completely irrelevant in the real world. As for the 2nd they'd
+still have to go a long way twoards proving they didn't steal it.
 
-> Either ia32_ioctl.c or the comment in ioctl32.h is wrong and should
-> be fixed. I'd prefer the code to work as in 2.6 since that avoids
-> #if LINUX_VERSION_CODE crap and dummy ioctl handlers.
 
-I fixed it in x86-64.org CVS for 2.4, but it will take some time
-to propagate into the various trees. I doubt it will be in 
-2.4.22-final.
-
--Andi
-
-P.S.: The better list would be discuss@x86-64.org, not l-k

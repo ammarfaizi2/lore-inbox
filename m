@@ -1,84 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbVBOLlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbVBOLxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261687AbVBOLlj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 06:41:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbVBOLlj
+	id S261689AbVBOLxL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 06:53:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbVBOLxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 06:41:39 -0500
-Received: from hornet.berlios.de ([195.37.77.140]:13514 "EHLO
-	hornet.berlios.de") by vger.kernel.org with ESMTP id S261687AbVBOLlg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 06:41:36 -0500
-Date: Tue, 15 Feb 2005 12:41:35 +0100
-From: mhf@berlios.de
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] 2.6.11-rc[234] setfont fails on i810 after resume from 
- ACPI-S3
-Message-ID: <4211DFEF.nailM9Q14C1G0@berlios.de>
-User-Agent: nail 10.5 4/27/03
-MIME-Version: 1.0
+	Tue, 15 Feb 2005 06:53:11 -0500
+Received: from news.suse.de ([195.135.220.2]:46817 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261689AbVBOLxG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 06:53:06 -0500
+Date: Tue, 15 Feb 2005 12:53:03 +0100
+From: Andi Kleen <ak@suse.de>
+To: Ray Bryant <raybry@sgi.com>
+Cc: Andi Kleen <ak@muc.de>, Ray Bryant <raybry@austin.rr.com>,
+       linux-mm <linux-mm@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, stevel@mvista.com
+Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
+Message-ID: <20050215115302.GB19586@wotan.suse.de>
+References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com> <m1vf8yf2nu.fsf@muc.de> <42114279.5070202@sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <42114279.5070202@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HW info
+> (1)  You really don't want to migrate the code pages of shared libraries
+>      that are mapped into the process address space.  This causes a
+>      useless shuffling of pages which really doesn't help system
+>      performance.  On the other hand, if a shared library is some
+>      private thing that is only used by the processes being migrated,
+>      then you should move that.
 
-Hardware Celeron 433 with i810 chipset:
+I think the better solution for this would be to finally integrate Steve L.'s 
+file attribute code (and find some solution to make it persistent,
+e.g. using xattrs with a new inode flag) and then "lock" the shared 
+libraries to their policy using a new attribute flag.
 
-0000:00:00.0 Host bridge: Intel Corp. 82810E DC-133 GMCH [Graphics Memory C=
-ontroller Hub] (rev 03)
-=A0 =A0 =A0 =A0 Subsystem: Intel Corp. 82810E DC-133 GMCH [Graphics Memory =
-Controller Hub]
-=A0 =A0 =A0 =A0 Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-=
- ParErr- Stepping- SERR+ FastB2B-
-=A0 =A0 =A0 =A0 Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dfast >TA=
-bort- <TAbort-<MAbort+ >SERR- <PERR-
-=A0 =A0 =A0 =A0 Latency: 0
+> 
+> (2)  You really only want to migrate pages once.  If a file is mapped
+>      into several of the pid's that are being migrated, then you want
+>      to figure this out and issue one call to have it moved wrt one of
+>      the pid's.
+>      (The page migration code from the memory hotplug patch will handle
+>      updating the pte's of the other processs (thank goodness for
+>      rmap...))
 
-0000:00:01.0 VGA compatible controller: Intel Corp. 82810E DC-133 CGC [Chip=
-set Graphics Controller] (rev 03) (prog-if 00 [VGA])
-=A0 =A0 =A0 =A0 Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device=
- 9980
-=A0 =A0 =A0 =A0 Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-=
- ParErr- Stepping- SERR- FastB2B-
-=A0 =A0 =A0 =A0 Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >=
-TAbort- <TAbort- <MAbort- >SERR- <PERR-
-=A0 =A0 =A0 =A0 Latency: 0
-=A0 =A0 =A0 =A0 Interrupt: pin A routed to IRQ 9
-=A0 =A0 =A0 =A0 Region 0: Memory at e8000000 (32-bit, prefetchable) [size=
-=3D64M]
-=A0 =A0 =A0 =A0 Region 1: Memory at eff80000 (32-bit, non-prefetchable) [si=
-ze=3D512K]
-=A0 =A0 =A0 =A0 Capabilities: [dc] Power Management version 1
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 Flags: PMEClk- DSI+ D1- D2- AuxCurrent=3D0m=
-A PME(D0-,D1-,D2-,D3hot-,D3cold-)
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 Status: D0 PME-Enable- DSel=3D0 DScale=3D0 =
-PME-
+I don't get this. Surely the migration code will check if a page
+is already in the target node, and when that is the case do nothing.
 
-Software:
+How could this "double migration" happen? 
 
-Gentoo current.
+> 
+> (3)  In the case where a particular file is mapped into different
+>      processes at different file offsets (and we are migrating both
+>      of the processes), one has to examine the file offsets to figure
+>      out if the mappings overlap or not. If they overlap, then you've
+>      got to issue two calls, each of which describes a non-overlapping
+>      region; both calls taken together would cover the entire range
+>      of pages mapped to the file.  Similarly if the ranges do not
+>      overlap.
 
-Using vga=3D0xf07, default8x16 font, display has 30 lines
+That sounds like a quite obscure corner case which I'm not sure
+is worth all the complexity.
 
-On powerup from S3 console has only 25 lines but still scrolls=20
-at 30 lines. Setfont historically fixes it.=20
+-Andi
 
-Tested with 2.6.10, 2.6.11-rc1: OK
-
-Tested with 2.6.11-rc2-Vanilla and 2.6.11-rc[234]+swsusp2.
-When using setfont, screen goes blank. Power up after S3
-returns console in 25 lines mode with 30 lines scroll.=20
-Several attempts - same result.
-
-Another bug I see only on this HW and only with 2.6 is that
-when - and only when - using gentoo emerge --usepackage in
-text console, scroll area resets to _25_ when portage=20
-"dumps" the (binary) package contents which scrolls pretty
-fast. I was unable to reproduce this in any other way.=20
-Tried also echo loop in bash but perhaps it is too slow
-or not random enough. Note that 2.4.2[789] no problem.
-
-Regards
-Michael

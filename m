@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261993AbUDSUOt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 16:14:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbUDSUOt
+	id S262009AbUDSUPj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 16:15:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbUDSUPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 16:14:49 -0400
-Received: from spc1-brig1-3-0-cust85.lond.broadband.ntl.com ([80.0.159.85]:7864
-	"EHLO ppgpenguin.kenmoffat.uklinux.net") by vger.kernel.org with ESMTP
-	id S261993AbUDSUOo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 16:14:44 -0400
-Date: Mon, 19 Apr 2004 21:14:41 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: Jurriaan <thunder7@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: KVM issues with recent 2.6 kernels
-In-Reply-To: <20040419181159.GA10708@middle.of.nowhere>
-Message-ID: <Pine.LNX.4.58.0404192104590.1572@ppg_penguin>
-References: <Pine.LNX.4.58.0404191216020.31750@ppg_penguin>
- <20040419181159.GA10708@middle.of.nowhere>
+	Mon, 19 Apr 2004 16:15:39 -0400
+Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:46499 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S262009AbUDSUPd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 16:15:33 -0400
+Message-ID: <40843363.4070903@backtobasicsmgmt.com>
+Date: Mon, 19 Apr 2004 13:15:31 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back To Basics Network Management
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+To: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+CC: John Pesce <pescej@sprl.db.erau.edu>, linux-kernel@vger.kernel.org
+Subject: Re: How to make Linux route multicast traffic bi-directionly between
+ multible subnets
+References: <1082389059.1982.15.camel@inferno> <20040419200739.GA3020@localhost>
+In-Reply-To: <20040419200739.GA3020@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Apr 2004, Jurriaan wrote:
+Jose Luis Domingo Lopez wrote:
 
-> Does your KVM also have keys on the kvm to switch? If so, does the
-> problem go away if you use those?
->
+> So, to summarize, your best bet is to get "mrouted" or something like
+> that, and have a look at the documentation bundled. You are quite right,
+> multicast routing documentation for Linux seems to be quite old, rather
+> short, and maybe out of date.
 
- I was about to say the problem doesn't appear like that (it just takes
-an age to cycle through all 4 boxes), but I thought I'd better try it -
-guess what, the alt key is no longer functioning on the duron/2.6.5 box
-when I go to it like that.  I've now gone back to it using key presses
-and it sorted itself out after I threw in an extra press of the scroll
-lock (the xterm was responding, unlike console sessions, it was only the
-alt key that seemed to be swallowed).  At least I've now found out a way
-to fix the immediate "loss of alt key" problem - thanks !
-
-> Otherwise, perhaps hack drivers/input/keyboard/atkbd.c (dunno if that is
-> the correct path) to log when a scroll-lock is received) and then throw
-> away that keypress?
->
-
- Interesting idea, but I've got enough trouble with userspace apps
-without hacking the kernel, and anyway /some/ of the scroll-lock
-keypresses are needed to get directly to the desired session.
-
-> Good luck,
-> Jurriaan
->
-
--- 
- das eine Mal als Tragödie, das andere Mal als Farce
-
+That it is, but if you use the mrouted source and patches from the 
+Debian distribution it's fairly easy to get a basic network working. It 
+took me a few days to get it all set up, but I now have a router that 
+routes multicast between local devices and two remotes over OpenVPN 
+tunnels. Setting up mrouted was actually pretty easy, once I figured out 
+that's what I needed and got the Debian patches so it would compile.

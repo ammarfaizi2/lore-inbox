@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268670AbTGIXiu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 19:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268762AbTGIXhE
+	id S268821AbTGIXtt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 19:49:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268807AbTGIXsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 19:37:04 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:24707 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S268760AbTGIXg0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 19:36:26 -0400
-Date: Wed, 9 Jul 2003 16:51:00 -0700
-To: Jeff Garzik <jgarzik@pobox.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5 IrDA] irnet cast
-Message-ID: <20030709235100.GE12747@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	Wed, 9 Jul 2003 19:48:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39048 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268732AbTGIXmd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 19:42:33 -0400
+Message-ID: <3F0CABCD.6020608@pobox.com>
+Date: Wed, 09 Jul 2003 19:57:01 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "J.A. Magallon" <jamagallon@able.es>
+CC: Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] 2.4.22-pre3: P3 and P4 for chekc_gcc
+References: <20030709223355.GA2604@werewolf.able.es> <3F0C9EE8.2050005@pobox.com> <20030709230754.GA18564@werewolf.able.es>
+In-Reply-To: <20030709230754.GA18564@werewolf.able.es>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir254_irnet_cast-2.diff :
-~~~~~~~~~~~~~~~~~~~~~~~
-		<Suggested by David S. Miller>
-	o [FEATURE] remove pointer casting in IrNET debug code missed by David.
+J.A. Magallon wrote:
+> Just curious, what can go wrong ? Only if gcc has a bug when scheduling
+> insns for P4, for example, or if gcc spits some special that does not
+> work as supposed...
 
 
-diff -u -p linux/net/irda/irnet/irnet_irda.d1.c linux/net/irda/irnet/irnet_irda.c
---- linux/net/irda/irnet/irnet_irda.d1.c	Wed Jul  9 11:49:58 2003
-+++ linux/net/irda/irnet/irnet_irda.c	Wed Jul  9 11:50:34 2003
-@@ -953,7 +953,7 @@ irnet_setup_server(void)
- 		      (void *) &irnet_server.s);
- #endif
- 
--  DEXIT(IRDA_SERV_TRACE, " - self=0x%X\n", (unsigned int) &irnet_server.s);
-+  DEXIT(IRDA_SERV_TRACE, " - self=0x%p\n", &irnet_server.s);
-   return 0;
- }
- 
+Well, any number of things, but I admit it's mostly just general 
+paranoia / conservatism on my part.
+
+In the past, on rare occasions, modification of the global CFLAGS or use 
+of new gcc features has led to silent miscompilation of a few drivers.
+
+	Jeff
+
+
+

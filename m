@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292738AbSBUTfB>; Thu, 21 Feb 2002 14:35:01 -0500
+	id <S292739AbSBUT55>; Thu, 21 Feb 2002 14:57:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292737AbSBUTew>; Thu, 21 Feb 2002 14:34:52 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:46285 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S292738AbSBUTel>; Thu, 21 Feb 2002 14:34:41 -0500
-Date: Thu, 21 Feb 2002 20:29:04 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: "Andreas Herrmann" <AHERRMAN@de.ibm.com>
+	id <S292741AbSBUT5q>; Thu, 21 Feb 2002 14:57:46 -0500
+Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:28843 "EHLO
+	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S292739AbSBUT5c>; Thu, 21 Feb 2002 14:57:32 -0500
+Date: Thu, 21 Feb 2002 14:57:24 -0500
+To: Shawn Starr <spstarr@sh0n.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch: netfilter ipv6
-Message-ID: <20020221202904.F23307@sunbeam.de.gnumonks.org>
-In-Reply-To: <OF56179CF1.BE50D71D-ONC1256B67.004B342F@de.ibm.com>
+Subject: Re: [PROBLEM]: 2.4.18-rc1 - Unable to mount CD-ROM/RW
+Message-ID: <20020221195724.GA11435@opeth.ath.cx>
+In-Reply-To: <LI5YSPXWYTY04431V32LFIF97042TP.3c7534b4@jss> <1014316330.8812.27.camel@unaropia>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <OF56179CF1.BE50D71D-ONC1256B67.004B342F@de.ibm.com>; from AHERRMAN@de.ibm.com on Thu, Feb 21, 2002 at 04:26:41PM +0100
-X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.17
-X-Date: Today is Setting Orange, the 50th day of Chaos in the YOLD 3168
+In-Reply-To: <1014316330.8812.27.camel@unaropia>
+User-Agent: Mutt/1.3.27i
+From: Dan Chen <crimsun@email.unc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 21, 2002 at 04:26:41PM +0100, Andreas Herrmann wrote:
-> Hi,
-> 
-> enclosed is a patch (against version 2.4.17
-> of the kernel) for netfilter module ip6_tables.
 
-[..]
+--envbJBWh7q8WU6mo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks for the bugfix, this is indeed a bug caused by a typo in the original
-ip6_tables code.  
+On Thu, Feb 21, 2002 at 01:31:42PM -0500, Shawn Starr wrote:
+> It's an LFS distribution i built. The problem is 2.4.17 didn't have this
+> problem. Something introduced into 2.4.18-pre/rc.
 
-I (a linux kernel firewalling maintainer) will forward your bugfix for
-inclusion to the stock kernel.
+Hmm, when I spoke with you this morning on #kn I forgot to mention I'm
+using rc2-ac1, which as someone else mentioned, doesn't exhibit the
+symptoms you describe. Were the sg changes/updates ever applied to 2.4
+mainline? I know they went into Alan's tree in .12 or .13 ...
 
-BTW: In case you don't know, the netfilter project has a scoreboard for
-contributions.  Your Score will be added to http://www.netfilter.org/scoreboard/
+--=20
+Dan Chen                 crimsun@email.unc.edu
+GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
 
-> Regards,
-> Andreas
+--envbJBWh7q8WU6mo
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--- 
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
-============================================================================
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M+ 
-V-- PS++ PE-- Y++ PGP++ t+ 5-- !X !R tv-- b+++ !DI !D G+ e* h--- r++ y+(*)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8dVEkMwVVFhIHlU4RAuZQAJ9EdjbM8VnIng76DepMJrniOu5XeQCbBaJT
+gM8zdUwi4KdASuQFRyVFGeE=
+=/BZy
+-----END PGP SIGNATURE-----
+
+--envbJBWh7q8WU6mo--

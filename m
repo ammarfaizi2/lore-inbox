@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316732AbSERAl2>; Fri, 17 May 2002 20:41:28 -0400
+	id <S316727AbSERAlI>; Fri, 17 May 2002 20:41:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316730AbSERAl1>; Fri, 17 May 2002 20:41:27 -0400
-Received: from waste.org ([209.173.204.2]:58536 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S316729AbSERAlZ>;
-	Fri, 17 May 2002 20:41:25 -0400
-Date: Fri, 17 May 2002 19:41:20 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-        Andrew Morton <akpm@zip.com.au>, <Wayne.Brown@altec.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
-In-Reply-To: <Pine.LNX.4.44.0205171707510.26436-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.44.0205171940000.28917-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316729AbSERAlH>; Fri, 17 May 2002 20:41:07 -0400
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:54278 "HELO
+	ns.higherplane.net") by vger.kernel.org with SMTP
+	id <S316727AbSERAlG>; Fri, 17 May 2002 20:41:06 -0400
+Date: Sat, 18 May 2002 10:42:06 +1000
+From: john slee <indigoid@higherplane.net>
+To: Halil Demirezen <halild@bilmuh.ege.edu.tr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: To start up
+Message-ID: <20020518004206.GB20992@higherplane.net>
+In-Reply-To: <Pine.LNX.4.44.0205102313240.8807-100000@bilmuh.ege.edu.tr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 May 2002, Kai Germaschewski wrote:
+On Fri, May 10, 2002 at 11:16:04PM +0300, Halil Demirezen wrote:
+> I have started to be interested in developing kernels code in a such way .
+> But i am interested in the network source codes .. Do i have to know all
+> kernel code or just the network section to be a devoloper for the kernel-
+> network section-
 
-> On Fri, 17 May 2002, William Lee Irwin III wrote:
->
-> > On Fri, May 17, 2002 at 02:14:38PM -0700, Andrew Morton wrote:
-> > > The deteriorating performance of gcc and the tendency of
-> > > the current build system to needlessly recompile stuff are
-> > > acute problems.  ccache saves me probably one hour per day.
-> >
-> > A build on my laptop takes well over an hour. This is not useful
-> > for actually getting things done. I'm all for mitigating build
-> > time in such cases, by kbuild-2.5 and perhaps other methods.
->
-> I suppose you want ccache then. kbuild-2.5 may save two minutes of your
-> one hour build.
+i don't think anyone really knows "all" kernel code.  have you looked at
+just how much code there is?  certainly you should try to understand as
+much of the "core" code as possible, as that part is reasonably small
+and important.  the rest is either architecture-specific stuff (i386,
+sparc), major subsystems (networking, vfs), or drivers (eepro100,
+serial).
 
-That's assuming you have to build from scratch. The whole point is to
-reduce the need to do that by making dependencies more accurate.
+whats important is gaining a general understanding of how things are
+done/what to watch out for in linux kernelville.  for example if you
+want to write a network card driver you'd look at how an existing
+driver[1] interacts with the rest of the kernel and use that as an
+example.  same can be said everywhere else.
+
+hope that helps,
+
+j.
+
+[1] picking the right example is an exercise in itself, maybe look at
+    http://kerneljanitor.org/ for some idea of what could be a bad
+    example
+
 
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+R N G G   "Well, there it goes again... And we just sit 
+ I G G G   here without opposable thumbs." -- gary larson

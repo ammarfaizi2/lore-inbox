@@ -1,93 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129228AbQK1QPP>; Tue, 28 Nov 2000 11:15:15 -0500
+        id <S129573AbQK1QRp>; Tue, 28 Nov 2000 11:17:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129295AbQK1QPF>; Tue, 28 Nov 2000 11:15:05 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:1920 "EHLO
-        chaos.analogic.com") by vger.kernel.org with ESMTP
-        id <S129228AbQK1QOz>; Tue, 28 Nov 2000 11:14:55 -0500
-Date: Tue, 28 Nov 2000 10:44:29 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Tigran Aivazian <tigran@veritas.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: bug in count_open_files() or a strange granularity?
-In-Reply-To: <Pine.LNX.4.21.0011281459080.1254-100000@penguin.homenet>
-Message-ID: <Pine.LNX.3.95.1001128103938.365A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S129575AbQK1QRf>; Tue, 28 Nov 2000 11:17:35 -0500
+Received: from unthought.net ([212.97.129.24]:38803 "HELO mail.unthought.net")
+        by vger.kernel.org with SMTP id <S129573AbQK1QRX>;
+        Tue, 28 Nov 2000 11:17:23 -0500
+Date: Tue, 28 Nov 2000 16:47:21 +0100
+From: Jakob Østergaard <jakob@unthought.net>
+To: Kevin Krieser <kkrieser@delphi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: out of swap
+Message-ID: <20001128164721.I21902@unthought.net>
+Mail-Followup-To: Jakob Østergaard <jakob@unthought.net>,
+        Kevin Krieser <kkrieser@delphi.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3A22EC94.2A434703@mindspring.com> <000b01c058ec$6791abe0$0701a8c0@thinkpad>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <000b01c058ec$6791abe0$0701a8c0@thinkpad>; from kkrieser@delphi.com on Mon, Nov 27, 2000 at 09:36:33PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Nov 2000, Tigran Aivazian wrote:
+On Mon, Nov 27, 2000 at 09:36:33PM -0600, Kevin Krieser wrote:
+> 
+> > What would I like it to do?  Warn me maybe before my swap goes to
+> > zero.  Kill the
+> > program that is doing this possibly.  Allow me to set a per
+> > process memory / swap
+> > limit so that no one process can suck up my system resources.
+> >
+> 
+> There are several programs available with the typical Linux installation
+> that allows you to monitor swap space.  For example, xosview.
 
-> Hi,
-> 
-> A simple experiment:
-> 
-> a) insert a code like this in the open() routine of some driver:
-> 
->        struct files_struct *files = current->files;
->        extern int count_open_files(struct files_struct *, int);
-> 
->        printk(KERN_ERR "%s has %d files open\n",
->                         current->comm, count_open_files(files, files->max_fdset));
-> 
-> b) write a program that opens that device and sleeps indefinitely. Run it,
-> you will see:
-> 
-> op has 32 files open
-> 
-> c)  # lsof -p 659 | nl
->      1  COMMAND PID   USER   FD   TYPE DEVICE    SIZE   NODE NAME
->      2  op      659 tigran  cwd    DIR    3,6    4096 225730
-> /home/tigran/C/files
->      3  op      659 tigran  rtd    DIR    3,6    4096      2 /
->      4  op      659 tigran  txt    REG    3,6   14142 225732
-> /home/tigran/C/files/op
->      5  op      659 tigran  mem    REG    3,6  434945 295227
-> /lib/ld-2.1.92.so
->      6  op      659 tigran  mem    REG    3,6 4776568 295234
-> /lib/libc-2.1.92.so
->      7  op      659 tigran    0u   CHR    4,9         348027 /dev/tty9
->      8  op      659 tigran    1u   CHR    4,9         348027 /dev/tty9
->      9  op      659 tigran    2u   CHR    4,9         348027 /dev/tty9
->     10  op      659 tigran    3r   CHR 10,184          98313
-> /dev/cpu/microcode
-> 
-> so, we see that the process has only 9 files open and yet
-> count_open_files() claims there are 32. Is this a bug of
-> count_open_files() or is this a minimal granularity (because there are 32
-> builtin descriptors in files_struct->fd_array[])?
-> 
-> I know that there is no problem due to the way it is called in
-> copy_files() -- it would only be above 32. But for what I want to use it,
-> I need the _correct_ number of open file descriptors and not some "rounded
-> up to 32" one.   
-> 
-> (kernel assumed test12-pre2)
-> 
-> Regards,
-> Tigran
-> 
+Yep
 
-Yes. This is probably related to the previously-reported MOD_INC_USE_COUNT
-macro in the drivers. The open count is now handled in the call to
-the driver's open(). The MOD_INC_USE_COUNT and the MOD_DEC_USE_COUNT
-should now be defined to do nothing for kernels that already handle
-the counts in the calls.
- 
+> 
+> There are also settings you can make in Netscape that supposedly limit disk
+> space usage and memory usage.
 
-Cheers,
-Dick Johnson
+But this doesn't help this particular problem, I think. The problem is probably
+not the in-memory cache, but the resource consumption caused by netscape
+loading the pictures.
 
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+You can use ulimit (or pam) to set memory consumption limits for each process,
+and that would usually do the trick (see /etc/pam.d/ and
+/etc/security/limits.conf at least on RedHat).
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+Unfortunately, Netscape sends the images to the X server, so usually you will
+see that Netscape's memory consumption stays fairly constant, while your X
+server will start consuming lots of memory.   If you set the resource limits,
+your X server will be the obvious choice for the OOM killer (I guess -
+comments, Riel or Andrea ?).  I don't know of any good solution to this problem
+other than just having enough swap space - after all, seriously, with today's
+disks, who can't spare an extra few hundred megs (which would usually be more
+than enough).
 
-
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

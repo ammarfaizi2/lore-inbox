@@ -1,338 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265107AbUFBW4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265168AbUFBW6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265107AbUFBW4W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 18:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265168AbUFBW4W
+	id S265168AbUFBW6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 18:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265230AbUFBW6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 18:56:22 -0400
-Received: from gprs214-9.eurotel.cz ([160.218.214.9]:11138 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265107AbUFBW4F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 18:56:05 -0400
-Date: Thu, 3 Jun 2004 00:55:49 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Cc: vojtech@ucw.cz
-Subject: SMP support for swsusp, and strange serio/i8042 problems
-Message-ID: <20040602225549.GA16454@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Wed, 2 Jun 2004 18:58:24 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:52420 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S265168AbUFBW5u
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 18:57:50 -0400
+Message-ID: <40BE5B68.2050100@dlfp.org>
+Date: Thu, 03 Jun 2004 00:57:44 +0200
+From: Benoit Dejean <TazForEver@dlfp.org>
+Reply-To: TazForEver@free.fr
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040528)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [Oops] Unable to handle kernel NULL pointer / bad: scheduling while
+ atomic!
+Content-Type: multipart/mixed;
+ boundary="------------090508000500070107080004"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format.
+--------------090508000500070107080004
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Here's experimental (works-for-me-mostly) SMP support for
-swsusp. While debugging it, I hit strange problem with i8042
-driver. If I change #if 0 to #if 1 *and* kernel is CONFIG_SMP, it dies
-during first schedule(). Ouch.
+here's what i've found back to home tonight.
 
-Why is 8042 marked as system device, btw? Stopping timer for system
-device is likely useless; first resume is called and only after that
-interrupts are reenabled.
+--------------090508000500070107080004
+Content-Type: application/x-bzip;
+ name="st.txt.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="st.txt.bz2"
 
-								Pavel
-
---- clean.amd/drivers/base/power/shutdown.c	2004-04-05 16:50:19.000000000 +0200
-+++ linux/drivers/base/power/shutdown.c	2004-06-02 22:27:03.000000000 +0200
-@@ -8,6 +8,7 @@
-  *
-  */
- 
-+#define DEBUG
- #include <linux/config.h>
- #include <linux/device.h>
- #include <asm/semaphore.h>
-@@ -52,14 +53,14 @@
- 	struct device * dev;
- 	
- 	down_write(&devices_subsys.rwsem);
-+	printk("Shutting down devices: ");
- 	list_for_each_entry_reverse(dev,&devices_subsys.kset.list,kobj.entry) {
--		pr_debug("shutting down %s: ",dev->bus_id);
- 		if (dev->driver && dev->driver->shutdown) {
--			pr_debug("Ok\n");
-+			printk("%s, ",dev->bus_id);
- 			dev->driver->shutdown(dev);
--		} else
--			pr_debug("Ignored.\n");
-+		}
- 	}
-+	printk("ok\n");
- 	up_write(&devices_subsys.rwsem);
- 
- 	sysdev_shutdown();
---- clean.amd/drivers/base/power/suspend.c	2003-09-28 22:05:43.000000000 +0200
-+++ linux/drivers/base/power/suspend.c	2004-06-02 22:38:56.000000000 +0200
-@@ -113,10 +113,13 @@
- 	int error = 0;
- 	struct device * dev;
- 
-+	printk("Powering down devices: ");
- 	list_for_each_entry_reverse(dev,&dpm_off_irq,power.entry) {
-+		printk("%s ", dev->bus_id);
- 		if ((error = suspend_device(dev,state)))
- 			break;
- 	} 
-+	printk("ok?\n"); 
- 	if (error)
- 		goto Error;
- 	if ((error = sysdev_suspend(state)))
---- clean.amd/drivers/base/sys.c	2004-04-05 16:50:19.000000000 +0200
-+++ linux/drivers/base/sys.c	2004-06-02 23:13:07.000000000 +0200
-@@ -302,18 +302,17 @@
- {
- 	struct sysdev_class * cls;
- 
--	pr_debug("Suspending System Devices\n");
-+	printk("Suspending System Devices: ");
- 
- 	list_for_each_entry_reverse(cls,&system_subsys.kset.list,
- 				    kset.kobj.entry) {
- 		struct sys_device * sysdev;
- 
--		pr_debug("Suspending type '%s':\n",
--			 kobject_name(&cls->kset.kobj));
-+		printk("%s: ", kobject_name(&cls->kset.kobj));
- 
- 		list_for_each_entry(sysdev,&cls->kset.list,kobj.entry) {
- 			struct sysdev_driver * drv;
--			pr_debug(" %s\n",kobject_name(&sysdev->kobj));
-+			printk(" %s, ",kobject_name(&sysdev->kobj));
- 
- 			/* Call global drivers first. */
- 			list_for_each_entry(drv,&global_drivers,entry) {
-@@ -332,6 +331,7 @@
- 				cls->suspend(sysdev,state);
- 		}
- 	}
-+	printk("ok\n");
- 	return 0;
- }
- 
-@@ -349,17 +349,16 @@
- {
- 	struct sysdev_class * cls;
- 
--	pr_debug("Resuming System Devices\n");
-+	printk("Resuming System Devices: ");
- 
- 	list_for_each_entry(cls,&system_subsys.kset.list,kset.kobj.entry) {
- 		struct sys_device * sysdev;
- 
--		pr_debug("Resuming type '%s':\n",
--			 kobject_name(&cls->kset.kobj));
-+		printk("%s: ", kobject_name(&cls->kset.kobj));
- 
- 		list_for_each_entry(sysdev,&cls->kset.list,kobj.entry) {
- 			struct sysdev_driver * drv;
--			pr_debug(" %s\n",kobject_name(&sysdev->kobj));
-+			printk(" %s, ",kobject_name(&sysdev->kobj));
- 
- 			/* First, call the class-specific one */
- 			if (cls->resume)
-@@ -379,6 +378,7 @@
- 
- 		}
- 	}
-+	printk("ok\n");
- 	return 0;
- }
- 
---- clean.amd/drivers/input/serio/i8042.c	2004-04-05 16:50:21.000000000 +0200
-+++ linux/drivers/input/serio/i8042.c	2004-06-02 23:32:15.000000000 +0200
-@@ -832,12 +833,13 @@
- 		return -1;
- 	}
- 
-+#if 0
- 	if (i8042_mux_present)
- 		if (i8042_enable_mux_mode(&i8042_aux_values, NULL) ||
- 		    i8042_enable_mux_ports(&i8042_aux_values)) {
- 			printk(KERN_WARNING "i8042: failed to resume active multiplexor, mouse won't work.\n");
- 		}
--
-+#endif
- /*
-  * Reconnect anything that was connected to the ports.
-  */
-@@ -845,12 +847,15 @@
- 	if (i8042_kbd_values.exists && i8042_activate_port(&i8042_kbd_port) == 0)
- 		serio_reconnect(&i8042_kbd_port);
- 
-+#if 0
- 	if (i8042_aux_values.exists && i8042_activate_port(&i8042_aux_port) == 0)
- 		serio_reconnect(&i8042_aux_port);
- 
- 	for (i = 0; i < 4; i++)
- 		if (i8042_mux_values[i].exists && i8042_activate_port(i8042_mux_port + i) == 0)
- 			serio_reconnect(i8042_mux_port + i);
-+#endif
-+
- /*
-  * Restart timer (for polling "stuck" data)
-  */
---- clean.amd/include/linux/suspend.h	2004-05-20 23:11:46.000000000 +0200
-+++ linux/include/linux/suspend.h	2004-06-01 12:53:43.000000000 +0200
-@@ -81,6 +81,14 @@
- }
- #endif	/* CONFIG_PM */
- 
-+#ifdef CONFIG_SMP
-+extern void smp_freeze(void);
-+extern void smp_restart(void);
-+#else
-+static inline void smp_freeze(void) {}
-+static inline void smp_restart(void) {}
-+#endif
-+
- asmlinkage void do_magic(int is_resume);
- asmlinkage void do_magic_resume_1(void);
- asmlinkage void do_magic_resume_2(void);
---- clean.amd/kernel/power/Makefile	2003-09-28 22:06:44.000000000 +0200
-+++ linux/kernel/power/Makefile	2004-06-01 12:53:43.000000000 +0200
-@@ -1,4 +1,5 @@
- obj-y				:= main.o process.o console.o pm.o
-+obj-$(CONFIG_SMP)		+= smp.o
- obj-$(CONFIG_SOFTWARE_SUSPEND)	+= swsusp.o
- obj-$(CONFIG_PM_DISK)		+= disk.o pmdisk.o
- 
---- clean.amd/kernel/power/console.c	2004-02-20 12:39:39.000000000 +0100
-+++ linux/kernel/power/console.c	2004-06-01 14:34:38.000000000 +0200
-@@ -7,6 +7,7 @@
- #include <linux/vt_kern.h>
- #include <linux/kbd_kern.h>
- #include <linux/console.h>
-+#include <linux/delay.h>
- #include "power.h"
- 
- static int new_loglevel = 10;
---- clean.amd/kernel/power/smp.c	2004-05-21 11:49:20.000000000 +0200
-+++ linux/kernel/power/smp.c	2004-06-03 00:22:43.000000000 +0200
-@@ -1 +1,66 @@
-+/*
-+ * drivers/power/smp.c - Functions for stopping other CPUs.
-+ *
-+ * Copyright 2004 Pavel Machek <pavel@suse.cz>
-+ * Copyright (C) 2002-2003 Nigel Cunningham <ncunningham@clear.net.nz>
-+ *
-+ * This file is released under the GPLv2.
-+ */
-+
-+#undef DEBUG
-+
-+#include <linux/smp_lock.h>
-+#include <linux/interrupt.h>
-+#include <linux/suspend.h>
-+#include <linux/module.h>
-+#include <asm/atomic.h>
-+#include <asm/tlbflush.h>
-+
-+static atomic_t cpu_counter, freeze;
-+
-+static void smp_pause(void * data)
-+{
-+	atomic_inc(&cpu_counter);
-+	while (atomic_read(&freeze)) {
-+		cpu_relax();
-+		barrier();
-+	}
-+	atomic_dec(&cpu_counter);
-+	__flush_tlb_global();		/* CPU now wakes up into completely different system. Update its caches. */
-+	/* Ahha, we might be expected to have different FPU registers etc. Ouch. */
-+}
-+
-+void smp_freeze(void)
-+{
-+	printk("Freezing CPUs\n");
-+	set_cpus_allowed(current, cpumask_of_cpu(0));
-+	schedule();
-+	printk("...");
-+	BUG_ON(smp_processor_id() != 0);
-+
-+	/* FIXME: for this to work, all the CPUs must be running
-+	 * "idle" thread (or we deadlock). Is that guaranteed? */
-+
-+	atomic_set(&cpu_counter, 0);
-+	atomic_set(&freeze, 1);
-+	smp_call_function(smp_pause, NULL, 0, 0);
-+	while (atomic_read(&cpu_counter) < (num_online_cpus() - 1)) {
-+		cpu_relax();
-+		barrier();
-+	}
-+	printk("ok\n");
-+}
-+
-+void smp_restart(void)
-+{
-+	printk("Restarting CPUs...");
-+	atomic_set(&freeze, 0);
-+	while (atomic_read(&cpu_counter)) {
-+		cpu_relax();
-+		barrier();
-+	}
-+	printk("ok\n");
-+	/* FIXME: we probably should make this task go back to "any cpu" mode */
-+}
-+
- 
---- clean.amd/kernel/power/swsusp.c	2004-05-21 12:26:43.000000000 +0200
-+++ linux/kernel/power/swsusp.c	2004-06-02 23:46:56.000000000 +0200
-@@ -851,8 +851,11 @@
- 
- 		free_some_memory();
- 		
--		/* Save state of all device drivers, and stop them. */		   
--		if ((res = device_suspend(4))==0)
-+		mdelay(1000);
-+		smp_freeze();
-+		/* Save state of all device drivers, and stop them. */
-+		printk("Suspending devices... ");
-+		if ((res = device_suspend(4))==0) {
- 			/* If stopping device drivers worked, we proceed basically into
- 			 * suspend_save_image.
- 			 *
-@@ -862,8 +865,16 @@
- 			 * unsuspends all device drivers, and writes memory to disk
- 			 * using normal kernel mechanism.
- 			 */
-+			printk("ok\n");
-+#if 1
- 			do_magic(0);
-+#else
-+			device_resume();
-+#endif
-+		}
- 		thaw_processes();
-+		printk("Processes thawed\n");
-+		smp_restart();
- 	} else
- 		res = -EBUSY;
- 	software_suspend_enabled = 1;
-@@ -1187,8 +1198,7 @@
- static int __init software_resume(void)
- {
- 	if (num_online_cpus() > 1) {
--		printk(KERN_WARNING "Software Suspend has malfunctioning SMP support. Disabled :(\n");	
--		return -EINVAL;
-+		printk(KERN_WARNING "SMP support is very experimental.\n");	
- 	}
- 	/* We enable the possibility of machine suspend */
- 	software_suspend_enabled = 1;
-@@ -1215,6 +1225,8 @@
- 	printk( "resuming from %s\n", resume_file);
- 	if (read_suspend_image(resume_file, 0))
- 		goto read_failure;
-+	mdelay(1000);
-+	smp_freeze();
- 	device_suspend(4);
- 	do_magic(1);
- 	panic("This never returns");
-
-
-
--- 
-934a471f20d6580d5aad759bf0d97ddc
+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
+--------------090508000500070107080004--

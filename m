@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284953AbRLQBVT>; Sun, 16 Dec 2001 20:21:19 -0500
+	id <S284950AbRLQBW3>; Sun, 16 Dec 2001 20:22:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284952AbRLQBVJ>; Sun, 16 Dec 2001 20:21:09 -0500
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:38665 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S284950AbRLQBU7>; Sun, 16 Dec 2001 20:20:59 -0500
-Message-ID: <3C1D4871.82053E7A@zk3.dec.com>
-Date: Sun, 16 Dec 2001 20:20:49 -0500
-From: Peter Rival <frival@zk3.dec.com>
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Michal Jaegermann <michal@harddata.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17-rc1 does not boot my Alphas
-In-Reply-To: <20011216160404.A2945@mail.harddata.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S284955AbRLQBWK>; Sun, 16 Dec 2001 20:22:10 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:33449 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S284952AbRLQBV7>; Sun, 16 Dec 2001 20:21:59 -0500
+Date: Sun, 16 Dec 2001 18:21:39 -0700
+Message-Id: <200112170121.fBH1Ldp32763@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v199.5 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try again, this time adding "srmcons" to the boot flags.  You're croaking
-before we get the console set up under Linux so none of the boot messages are
-getting out; srmcons uses the SRM console to print its messages.  This won't
-fix the bugs, but at least we'll be able to see exactly where you die.
+  Hi, all. Version 199.5 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
- - Pete
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
 
-Michal Jaegermann wrote:
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
 
-> I just happen to have an access right now to two Alpha machines,
-> UP1100 and UP1500, both with Nautilus chipset.  Neither of these
-> can be booted with 2.4.16 or 2.4.17rc1. On an attempt to boot
-> I can see only messages from a boot loader (aboot):
-> .....
-> zero-filling 155872 bytes at 0xffffc0000ad1308
-> starting kernel vmlinux.......
->
-> and that is it.  The only thing which works now is a power switch.
-> The same happens if I try 2.4.17aa1rc1 (Andrea patches).
->
-> A kernel with the highest version which I managed to boot so far,
-> on both machines, is 2.4.13-ac8.  Anybody with a handly on what is
-> going on?  I did not check yet if various Alpha specific patches
-> which were present in "ac" were merged into mainline.  But so
-> far things seem to be quite thorougly broken for Alpha (or at
-> least Nautilus).
->
->   Michal
->   michal@harddata.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+NOTE: this is the patch that I'll be sending to Marcelo soon. PLEASE
+TEST this patch if you use devfs, otherwise don't complain if there
+are lingering problems. This patch should fix all known remaining
+problems, including the devfs/blkdev races that Al Viro has mentioned.
 
+This is against 2.4.17-rc1. Highlights of this release:
+
+- Added clarifying comments in response to preliminary EMC code review
+  (missed in ChangeLog in devfs-patch-v199.4)
+
+- Added poisoning to <devfs_put>
+
+- Improved debugging messages
+
+- Fixed unregister bugs in drivers/md/lvm-fs.c
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,105 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262580AbVAPUYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262599AbVAPU0t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbVAPUYG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 15:24:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbVAPUYG
+	id S262599AbVAPU0t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 15:26:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbVAPU0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 15:24:06 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:35709 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262593AbVAPUXU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 15:23:20 -0500
-Date: Sun, 16 Jan 2005 21:23:35 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH-RFC] arch/i386/kernel/: kill some sparse warnings
-Message-ID: <20050116202335.GA11791@mars.ravnborg.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>
+	Sun, 16 Jan 2005 15:26:48 -0500
+Received: from almesberger.net ([63.105.73.238]:42252 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S262599AbVAPU0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 15:26:13 -0500
+Date: Sun, 16 Jan 2005 17:25:50 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Rik van Riel <riel@redhat.com>
+Cc: christos gentsis <christos_gentsis@yahoo.co.uk>, Valdis.Kletnieks@vt.edu,
+       root <root@mail.gadugi.org>, linux-kernel@vger.kernel.org
+Subject: Re: Cherokee Nation Posts Open Source Legisation - Invites comments from Community Members
+Message-ID: <20050116172550.B22646@almesberger.net>
+References: <20050106180414.GA11597@mail.gadugi.org> <200501061836.j06IakHo030551@turing-police.cc.vt.edu> <20050106183725.GA12028@mail.gadugi.org> <200501061935.j06JZMq4013855@turing-police.cc.vt.edu> <41E4CBC3.4070302@yahoo.co.uk> <Pine.LNX.4.61.0501161112190.31402@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <Pine.LNX.4.61.0501161112190.31402@chimarrao.boston.redhat.com>; from riel@redhat.com on Sun, Jan 16, 2005 at 11:13:03AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When running
-make C=2 arch/i386/kernel/
-sparse complains about access past end of variable ''
+Rik van Riel wrote:
+> Only secrets can be trade secrets.
 
-The following patch silence these sparse warnings.
-RELOC_HIDE uses an asm("") trick to hide the size of the variable for
-sparse. I've cheched the generated code and with -O2 the code does not
-change with or without RELOC_HIDE.
+I think he's just trying to re-invent patents under a different
+name. IMHO, this isn't necessarily an outright lunatic idea, but
+I wouldn't be surprised if it received a friendlier reception if
+contradictory naming could be avoided.
 
-loadsegment take the pointer to second argument and cast it to unsigned
-int *. Using a properly sized variable as argument to loadsegment kills
-this warning.
-For this fix I wonder what happened to the upper bits in the old
-implmentation - they were undefined per definition.
+- Werner
 
-This is the relevant code smippet from system.h:
-		".align 4\n\t"			\
-		".long 1b,3b\n"			\
-		".previous"			\
-		: :"m" (*(unsigned int *)&(value)))
-
-'value' is the variable passed as second argument to loadsegment.
-
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
----
-
-===== arch/i386/kernel/ioport.c 1.14 vs edited =====
---- 1.14/arch/i386/kernel/ioport.c	2004-09-17 08:58:37 +02:00
-+++ edited/arch/i386/kernel/ioport.c	2005-01-16 20:24:09 +01:00
-@@ -129,7 +129,7 @@
- 
- asmlinkage long sys_iopl(unsigned long unused)
- {
--	volatile struct pt_regs * regs = (struct pt_regs *) &unused;
-+	volatile struct pt_regs * regs = (struct pt_regs *) RELOC_HIDE(&unused, 0);
- 	unsigned int level = regs->ebx;
- 	unsigned int old = (regs->eflags >> 12) & 3;
- 
-===== arch/i386/kernel/signal.c 1.51 vs edited =====
---- 1.51/arch/i386/kernel/signal.c	2005-01-12 01:42:47 +01:00
-+++ edited/arch/i386/kernel/signal.c	2005-01-16 21:16:43 +01:00
-@@ -120,7 +120,7 @@
- sys_sigaltstack(unsigned long ebx)
- {
- 	/* This is needed to make gcc realize it doesn't own the "struct pt_regs" */
--	struct pt_regs *regs = (struct pt_regs *)&ebx;
-+	struct pt_regs *regs = (struct pt_regs *) RELOC_HIDE(&ebx, 0);
- 	const stack_t __user *uss = (const stack_t __user *)ebx;
- 	stack_t __user *uoss = (stack_t __user *)regs->ecx;
- 
-@@ -154,8 +154,10 @@
- 
- #define GET_SEG(seg)							\
- 	{ unsigned short tmp;						\
-+	  unsigned int tmp2;						\
- 	  err |= __get_user(tmp, &sc->seg);				\
--	  loadsegment(seg,tmp); }
-+	  tmp2 = tmp;							\
-+	  loadsegment(seg,tmp2); }
- 
- #define	FIX_EFLAGS	(X86_EFLAGS_AC | X86_EFLAGS_OF | X86_EFLAGS_DF | \
- 			 X86_EFLAGS_TF | X86_EFLAGS_SF | X86_EFLAGS_ZF | \
-@@ -208,7 +210,7 @@
- 
- asmlinkage int sys_sigreturn(unsigned long __unused)
- {
--	struct pt_regs *regs = (struct pt_regs *) &__unused;
-+	struct pt_regs *regs = (struct pt_regs *) RELOC_HIDE(&__unused, 0);
- 	struct sigframe __user *frame = (struct sigframe __user *)(regs->esp - 8);
- 	sigset_t set;
- 	int eax;
-@@ -238,7 +240,7 @@
- 
- asmlinkage int sys_rt_sigreturn(unsigned long __unused)
- {
--	struct pt_regs *regs = (struct pt_regs *) &__unused;
-+	struct pt_regs *regs = (struct pt_regs *) RELOC_HIDE(&__unused, 0);
- 	struct rt_sigframe __user *frame = (struct rt_sigframe __user *)(regs->esp - 4);
- 	sigset_t set;
- 	int eax;
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

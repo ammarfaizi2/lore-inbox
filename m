@@ -1,51 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281267AbRKHCHB>; Wed, 7 Nov 2001 21:07:01 -0500
+	id <S281277AbRKHCMm>; Wed, 7 Nov 2001 21:12:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281277AbRKHCGv>; Wed, 7 Nov 2001 21:06:51 -0500
-Received: from zero.tech9.net ([209.61.188.187]:34064 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S281267AbRKHCGm>;
-	Wed, 7 Nov 2001 21:06:42 -0500
-Subject: Re: [RFC] bootmem for 2.5
-From: Robert Love <rml@tech9.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011107164400.G26577@holomorphy.com>
-In-Reply-To: <20011102140207.V31822@w-wli.des.beaverton.ibm.com>
-	<1005017025.897.0.camel@phantasy>  <20011107164400.G26577@holomorphy.com>
-Content-Type: text/plain
+	id <S281284AbRKHCMY>; Wed, 7 Nov 2001 21:12:24 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:34574 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S281277AbRKHCML>; Wed, 7 Nov 2001 21:12:11 -0500
+Message-ID: <3BE9E8B6.235E16A8@zip.com.au>
+Date: Wed, 07 Nov 2001 18:06:46 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: ext2-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext2-devel] ext2/ialloc.c cleanup
+In-Reply-To: <20011107123430.D5922@lynx.no> <Pine.GSO.4.21.0111071446020.4283-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.07.16.47 (Preview Release)
-Date: 07 Nov 2001 21:06:04 -0500
-Message-Id: <1005185194.939.20.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-11-07 at 19:44, William Lee Irwin III wrote:
-> I've managed to reproduce the problem, and I heard from you elsewhere
-> that you've verified the fix (although it appeared to reduce the memory
-> savings to 4KB).
+Alexander Viro wrote:
+> 
+> Right now I'm doing alternative strategy for directory allocation, as soon
+> as I finish that I'll put the result on usual place.
 
-Fix does indeed work. Tested on:
+I'll be interested in seeing the algorithm.
 
-	P3-733 i815-based, gained 4KB from 384MB
-	PPro-200 i440FX-based, gained 4KB from 64MB
-	Celeron-500 i440BX-based, gained 8KB from 512MB
+Keith Smith has kindly directed me to the current location of
+his testing workload.  This attempts to replay ten months' worth
+of real file server activity.  It's described in his paper, at
 
-No problem on any system -- no difference, in fact, except the gain in
-total system memory.  Most importantly, however, the new design is quite
-nice. :>
+	http://www.eecs.harvard.edu/~keith/usenix96
 
-I bet the previous ~100KB gain came from not using APIC.  I was
-comparing APIC without new bootmem to new bootmem without APIC.  The
-much more realistic and modest 4KB is within range of what I would
-expect, and I bet if I compared with and without bootmem on a non-APIC
-kernel I would see the same results.
+It's all set up for a 512 megabyte filesystem.  So I ran
+it sixteen times in succession on sixteen different directories
+at the top level of an eight-gig filesystem.  It takes about
+five hours.  The filesystem ends up 76% full.
 
-Would you expect problems from laptops or other things with flakey
-mappings/reservations?  I can test it on a couple of laptops if you
-want...
+I did this on two filesystems: one with stock 2.4.14 and the other
+with the `if (0 &&' change.  The patched kernel was consistently
+10-15% faster at running the workload.
 
-	Robert Love
+Now, lots of researchers seem to define lots of different ways of measuring
+fragmentation and they are all rather unconvincing - they don't take into
+account the extreme non-linear behaviour of modern disks.
 
+So I simply measured how long it took to read some files.  Which doesn't
+give any insight into the nature and sources of fragmentation, but it
+is the bottom line.
+
+And reading nine thousand files containing three hundred megs of
+data from the filesystem which was populated with the `if (0 &&'
+patch takes 1.5x to 2x as long as it does from stock 2.4.14.
+
+So that idea is a non-starter.
+
+This seems to be a pretty good fragmentation test and I'm inclined
+to stick with it.
+
+I suspect that the current algorithm, with some hysteresis to make it
+less inclined to hop into a different block group is the way to go.
+
+=

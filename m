@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277231AbRJLFzY>; Fri, 12 Oct 2001 01:55:24 -0400
+	id <S277246AbRJLGHr>; Fri, 12 Oct 2001 02:07:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277241AbRJLFzO>; Fri, 12 Oct 2001 01:55:14 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:9738 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S277231AbRJLFy5>; Fri, 12 Oct 2001 01:54:57 -0400
-Date: Fri, 12 Oct 2001 07:54:29 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "John L. Males" <jlmales@softhome.net>
-Cc: Rik van Riel <riel@conectiva.com.br>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [CFT][PATCH] smoother VM for -ac
-Message-ID: <20011012075429.N714@athlon.random>
-In-Reply-To: <1002861682.866.3.camel@phantasy>; <20011012070930.J714@athlon.random> <3BC64882.27834.2D200B0@localhost>
-Mime-Version: 1.0
+	id <S277247AbRJLGHi>; Fri, 12 Oct 2001 02:07:38 -0400
+Received: from [24.0.193.171] ([24.0.193.171]:41858 "EHLO mirai.cx")
+	by vger.kernel.org with ESMTP id <S277246AbRJLGHf>;
+	Fri, 12 Oct 2001 02:07:35 -0400
+Message-ID: <3BC688A2.4C7640B7@pobox.com>
+Date: Thu, 11 Oct 2001 23:07:30 -0700
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "T. A." <tkhoadfdsaf@hotmail.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Re: Which kernel (Linus or ac)?
+In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E152.3D81631@bigfoot.com> <3BC5E3AF.588D0A55@lexus.com> <3BC5EB56.21B4EF88@bigfoot.com> <3BC5FA12.F8E5C91E@lexus.com> <OE64cxtniFKULPEhGD100007fff@hotmail.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BC64882.27834.2D200B0@localhost>; from jlmales@softhome.net on Fri, Oct 12, 2001 at 01:33:54AM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 12, 2001 at 01:33:54AM -0500, John L. Males wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> - -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Andrea,
-> 
-> I can do.  I see this is a VM is of keen interest.  Question for you.
->  To really compare apples to apples I could spider a web site or two
-> just find.  Then the challenge is to replay the "test" on the gui,
-> say KDE for example.  Do you know of any good tools that would alow
-> me to do a GUI record/playback?  I can then do an A vs B comparison.
+"T. A." wrote:
 
-For testing the repsonsiveness I usually check the startup time of
-applications like netscape with cold cache, later I just start an high
-vm load on my desktop and I see how long can I keep working without
-being too hurted. the first is certainly a measurable test, the second
-isn't reliable since it doesn't generate raw numbers and it's too much
-in function of the human feeling but it shows very well any patological
-problem of the code. But they may not be the best tests.
+> Rock solid?  You must have better luck than I and many acquaintances with
+> Redhat.  We've tried out many Redhat distros just to be caught in an
+> avalanche of bug and other "issues".
 
-> Also, remind me, can I find your kernel to test on the SuSE FTP site
-> or via kernel.org.  I had tried a few of the SuSE 2.4 kernels a few
-> levels back and I recall I was going to the people directory of the
-> FTP site and getting them from mantel I seem to recollect.
+That's odd, my Red Hat servers have been
+almost like appliances. Not perfect, but all
+the problems I've seen could be dealt with.
 
-That's still fine procedure, only make sure to pick the latest 2.4.12
-one based on 2.4.12aa1 before running the tests. thanks,
+I've seen worse problems in commercial
+unices, e.g. unixware - yuk - and hpux.
 
-> I will search about on internet to see if I can find a
-> record/playback too to get some sort of good A vs B comparison.
-> 
-> 
-> Regards,
-> 
-> John L. Males
-> Willowdale, Ontario
-> Canada
-> 12 October 2001 01:33
-> mailto:jlmales@softhome.net
+> Furthermore they appear to just love
+> beta or alpha software.
 
-Andrea
+They do break new ground, and are often the
+first distro to implement new technology.
+
+You have to know the red hat pattern:
+
+x.0 release: New stuff, interesting, buggy
+x.1 release: A passable cleanup of the bugs in .0
+x.2 release: A smooth, polished, evolution of .1
+
+> I still cannot believe that they used an ALPHA
+> version of vim 6.0 as the default system text editor.
+
+(shrug) I had no idea it was alpha - it works
+well for me, and I'm a vi man.
+
+cu
+
+jjs
+

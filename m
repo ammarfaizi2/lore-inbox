@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbSLCOHX>; Tue, 3 Dec 2002 09:07:23 -0500
+	id <S261456AbSLCOIj>; Tue, 3 Dec 2002 09:08:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261446AbSLCOHX>; Tue, 3 Dec 2002 09:07:23 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:15365 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261427AbSLCOHW>; Tue, 3 Dec 2002 09:07:22 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: lkml, bugme.osdl.org?
-Date: 3 Dec 2002 14:13:33 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <asie6d$5dr$1@gatekeeper.tmr.com>
-References: <200212030724.gB37O4DL001318@turing-police.cc.vt.edu> <20021203121521.GB30431@suse.de>
-X-Trace: gatekeeper.tmr.com 1038924813 5563 192.168.12.62 (3 Dec 2002 14:13:33 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	id <S261451AbSLCOIj>; Tue, 3 Dec 2002 09:08:39 -0500
+Received: from mail-1.ricochet.nethere.net ([66.63.158.19]:16655 "EHLO
+	mail-1.ricochet.nethere.net") by vger.kernel.org with ESMTP
+	id <S261456AbSLCOIh>; Tue, 3 Dec 2002 09:08:37 -0500
+Message-ID: <3DECBCA7.2010502@earthlink.net>
+Date: Tue, 03 Dec 2002 07:16:07 -0700
+From: "Ian S. Nelson" <nelsonis@earthlink.net>
+Reply-To: nelsonis@earthlink.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Quad ethernet card getting assigned different channels every install
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20021203121521.GB30431@suse.de>,
-Dave Jones  <davej@codemonkey.org.uk> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-| "xxx doesn't work in 2.5.47", then Rusty's module rewrite happened,
-| and the tester didn't (or couldn't) see if it got fixed in subsequent
-| kernels. I'll send out pings to such reports when they get to something
-| like 5 kernels old. If the problem then doesn't get re-ACKed, I'll
-| close it. Any objections?
 
-  Since you are doing the work, you should set your own policy. I might
-suggest that if we revert the module stuff to something working in
-fewer than five versions you might ping then, and you might wait to
-drop stuff of the "xxx fails in 2.5.47 as a module" until modules work
-again or we officially go to a monolythic kernel.
+The kernel is 2.4.18, from Redhat. I've looked at some of the code and I 
+think this might actually be a hardware bug.  I'm helping setup a 3 port 
+firewall, I'm remote so I haven't been hands on,  the guy has a quad 
+ethernet card in it.  Between kernel installs eth0, eth1, eth2, and eth3 
+seem to change which socket on the card they are.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Anyone seen anything like this before?  The hardware didn't change and 
+to my knowledge no BIOS changes have happened.  I'd assume that the PCI 
+bus would be enumerated the same each time and that the kernel, barring 
+changes to PCI device discovery, would give the same ethernet channel to 
+the same socket each time.  It boots consistently when we figure out 
+what port is what.
+
+In this particular case it's potentially a big security concern, if we 
+swapped the DMZ and protected zones and didn't notice then his network 
+might be exposed.
+
+
+thanks,
+Ian
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE97LykV28blwDT2YMRAribAJ9N/kevyPK2ALbZqplzRnW2pp/mEACfe/cN
+ug4c/2WZtGH7g5MzPBkU0xs=
+=wykB
+-----END PGP SIGNATURE-----
+
+

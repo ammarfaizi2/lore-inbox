@@ -1,73 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268677AbTGOPow (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 11:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268586AbTGOPow
+	id S268751AbTGOPrn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 11:47:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268755AbTGOPrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 11:44:52 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:19866 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S268677AbTGOPkX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 11:40:23 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 15 Jul 2003 08:47:47 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Mike Galbraith <efault@gmx.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy    
- ...
-In-Reply-To: <5.2.1.1.2.20030715054158.01b19b48@pop.gmx.net>
-Message-ID: <Pine.LNX.4.55.0307150830480.4825@bigblue.dev.mcafeelabs.com>
-References: <5.2.1.1.2.20030714174719.01bce3f8@pop.gmx.net>
- <5.2.1.1.2.20030714100438.01be5008@pop.gmx.net> <5.2.1.1.2.20030714063443.01bcc5f0@pop.gmx.net>
- <5.2.1.1.2.20030714063443.01bcc5f0@pop.gmx.net> <5.2.1.1.2.20030714100438.01be5008@pop.gmx.net>
- <5.2.1.1.2.20030714174719.01bce3f8@pop.gmx.net> <5.2.1.1.2.20030715054158.01b19b48@pop.gmx.net>
+	Tue, 15 Jul 2003 11:47:43 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:65257 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268751AbTGOPrf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 11:47:35 -0400
+From: Tom Zanussi <zanussi@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16148.9560.602996.872584@gargle.gargle.HOWL>
+Date: Tue, 15 Jul 2003 11:01:28 -0500
+To: Gianni Tedesco <gianni@scaramanga.co.uk>
+Cc: Tom Zanussi <zanussi@us.ibm.com>, linux-kernel@vger.kernel.org,
+       karim@opersys.com, bob@watson.ibm.com
+Subject: Re: [RFC][PATCH 0/5] relayfs
+In-Reply-To: <1058282847.375.3.camel@sherbert>
+References: <16148.6807.578262.720332@gargle.gargle.HOWL>
+	<1058282847.375.3.camel@sherbert>
+X-Mailer: VM(ViewMail) 7.01 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Jul 2003, Mike Galbraith wrote:
+Gianni Tedesco writes:
+ > On Tue, 2003-07-15 at 16:15, Tom Zanussi wrote:
+ > > The following 5 patches implement relayfs, adding a dynamic channel
+ > > resizing capability to the previously posted version.
+ > > 
+ > > relayfs is a filesystem designed to provide an efficient mechanism for
+ > > tools and facilities to relay large amounts of data from kernel space
+ > > to user space.  Full details can be found in Documentation/filesystems/
+ > > relayfs.txt.  The current version can always be found at
+ > > http://www.opersys.com/relayfs.
+ > 
+ > Could this be used to replace mmap() packet socket, how does it compare?
 
-> At 10:22 AM 7/14/2003 -0700, Davide Libenzi wrote:
-> >On Mon, 14 Jul 2003, Mike Galbraith wrote:
-> >
-> > > Yes, and it worked fine.  No cpu load I tossed at it caused a skip.
-> >
-> >I tried yesterday a thud.c load and it did not get a single skip here
-> >either. It is interesting what thud.c can do to latency (let's not talk
-> >about irman because things get really nasty). With a simple `thud 5` the
-> >latency rised to more then one full second, as you can see by the graphs
-> >inside the SOFTRR page. No buffer size can cope with that.
->
-> Yes, thud is well named.  It's easy to kill, but not so easy to kill
-> without hurting important dynamic response characteristics and/or
-> interactivity.
+I think so - you could send high volumes of packet traffic to a bulk
+relayfs channel and read it from the mmap'ed relayfs file in user
+space.  The Linux Trace Toolkit does the same thing with large volumes
+of trace data - you could look at that code as an example
+(http://www.opersys.com/relayfs/ltt-on-relayfs.html).
 
-The problem with thud and irman is not the sound. If it was only that I'd
-be rather happy. Try to get the simplified version of the irman I dropped
-inside the SOFTRR (didn't try to original, it's maybe even worse) page and
-run it with '-n 40 -b 350' for example. Then try to buld a kernel.
-Yesterday on my Athlon 1GHz 768MB of RAM where usually the kernel takes
-8:33 to build (2.5), after 15 minutes I had only two lines printed on my
-screen. We can easily say that sound can break under those corner cases,
-but we cannot say that anything but super-interactive tasks will run on
-such a system. This is Unix and ppl still uses it in a multiuser fashion.
-In every system (not only in computer science) where there is no fairness,
-there will be someone ready to take advantage (exploit) of it. We use to
-sacrify fairness for interactivity, and this is good since interactivity
-is a good thing. Whatever you tune your sleep->burn cycle, someone will be
-able to exploit it by trying to get the more CPU you give away to
-interactive tasks. This multiplied for a limited number of tasks will make
-the system to hugely suck away CPU from anything but super-interactive
-tasks. We need to have a limit to the CPU that we assign to interactive
-tasks (something like 70/30 or whatever), so that we don't completely
-starve the non-interactive world (see "Scheduler woes" post). This is
-critical for multiuser systems IMHO.
+Tom
 
 
+ > 
+ > -- 
+ > // Gianni Tedesco (gianni at scaramanga dot co dot uk)
+ > lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
+ > 8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+ > 
 
+-- 
+Regards,
 
-- Davide
+Tom Zanussi <zanussi@us.ibm.com>
+IBM Linux Technology Center/RAS
 

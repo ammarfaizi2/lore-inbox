@@ -1,125 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264059AbTEGP21 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 11:28:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264058AbTEGP21
+	id S263998AbTEGPO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 11:14:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264005AbTEGPO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 11:28:27 -0400
-Received: from rth.ninka.net ([216.101.162.244]:64427 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S264053AbTEGP2R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 11:28:17 -0400
-Subject: Re: [ANNOUNCE] HFS+ driver
-From: "David S. Miller" <davem@redhat.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-hfsplus-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0305071643030.5042-100000@serv>
-References: <Pine.LNX.4.44.0305071643030.5042-100000@serv>
-Content-Type: multipart/mixed; boundary="=-pUeidopqKuvo4oWj3ZC9"
+	Wed, 7 May 2003 11:14:57 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:21636
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263998AbTEGPOy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 11:14:54 -0400
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: hps@intermeta.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030507164434.6b891b14.skraw@ithnet.com>
+References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com>
+	 <20030428115740.3a6c2a97.skraw@ithnet.com>
+	 <b98m2a$bih$1@tangens.hometree.net>
+	 <20030507164434.6b891b14.skraw@ithnet.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1052322035.9817.10.camel@rth.ninka.net>
+Message-Id: <1052317727.3065.28.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 May 2003 08:40:35 -0700
+Date: 07 May 2003 15:28:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mer, 2003-05-07 at 15:44, Stephan von Krawczynski wrote:
+> This is not completely true. You can be imprisoned (and "handed over") even as
+> E.U. citizen to US for violation of US laws. E.U. signed a respective
+> agreement. As far as I know no case was filed up to now, but that does not mean
+> it weren't possible.
 
---=-pUeidopqKuvo4oWj3ZC9
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Only if the crime in question is also a crime in the EU, and a whole
+list of other conditions about who/where the crime was committed against
+(and that it doesnt cover crimes with a death sentence). Also even
+within the EU certain kinds of financial crimes are exempted so that
+the italians would sign it
 
-On Wed, 2003-05-07 at 08:06, Roman Zippel wrote:
-> The driver can be downloaded from http://www.ardistech.com/hfsplus/ .
-> The README describes how to build the driver.
+> > Copying a CD for private use is perfectly legal here in Germany. 
+> 
+> Just wait 6 month and see...
 
-This patch fixes 64-bit bugs (in extent code) and warnings
-(in directory handling).
+Indeed
 
--- 
-David S. Miller <davem@redhat.com>
-
---=-pUeidopqKuvo4oWj3ZC9
-Content-Disposition: attachment; filename=diff
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; name=diff; charset=UTF-8
-
---- extents.c.~1~	Fri May  2 04:25:09 2003
-+++ extents.c	Wed May  7 08:34:55 2003
-@@ -216,7 +216,7 @@
- 					break;
- 			}
- 			data[off] =3D cpu_to_be32(~word);
--			m =3D 1 << (8 * sizeof(unsigned long) - 1);
-+			m =3D 1UL << (8 * sizeof(unsigned long) - 1);
- 		} while (++off < size);
- 	done:
- 		mark_buffer_dirty_inode(bh, anode);
-@@ -341,7 +341,7 @@
- 			word =3D be32_to_cpu(data[off]);
- 			if (!~word)
- 				continue;
--			m =3D 1 << (sizeof(unsigned long) * 8 - 1);
-+			m =3D 1UL << (sizeof(unsigned long) * 8 - 1);
- 			for (i =3D 0; m; i++, m >>=3D 1) {
- 				if (word & m)
- 					continue;
---- dir.c.~1~	Fri May  2 07:32:04 2003
-+++ dir.c	Wed May  7 08:36:06 2003
-@@ -69,14 +69,14 @@
- 				inode =3D NULL;
- 				goto out;
- 			}
--			dentry->d_fsdata =3D (void *)cnid;
-+			dentry->d_fsdata =3D (void *)(unsigned long)cnid;
- 			linkid =3D be32_to_cpu(entry.file.permissions.dev);
- 			str.len =3D sprintf(name, "iNode%d", linkid);
- 			str.name =3D name;
- 			hfsplus_fill_cat_key(fd.search_key, HFSPLUS_SB(sb).hidden_dir->i_ino, &=
-str);
- 			goto again;
- 		} else if (!dentry->d_fsdata)
--			dentry->d_fsdata =3D (void *)cnid;
-+			dentry->d_fsdata =3D (void *)(unsigned long)cnid;
- 	} else {
- 		printk("HFS+-fs: Illegal catalog entry type in lookup\n");
- 		err =3D -EIO;
-@@ -267,7 +267,7 @@
- 	if (HFSPLUS_IS_RSRC(inode))
- 		return -EPERM;
-=20
--	if (inode->i_ino =3D=3D (u32)src_dentry->d_fsdata) {
-+	if (inode->i_ino =3D=3D (u32)(unsigned long)src_dentry->d_fsdata) {
- 		for (;;) {
- 			get_random_bytes(&id, sizeof(cnid));
- 			id &=3D 0x3fffffff;
-@@ -283,7 +283,7 @@
- 		}
- 		HFSPLUS_I(inode).dev =3D id;
- 		cnid =3D HFSPLUS_SB(sb).next_cnid++;
--		src_dentry->d_fsdata =3D (void *)cnid;
-+		src_dentry->d_fsdata =3D (void *)(unsigned long)cnid;
- 		res =3D hfsplus_create_cat(cnid, src_dir, &src_dentry->d_name, inode);
- 		if (res)
- 			/* panic? */
-@@ -296,7 +296,7 @@
- 		return res;
-=20
- 	inode->i_nlink++;
--	dst_dentry->d_fsdata =3D (void *)cnid;
-+	dst_dentry->d_fsdata =3D (void *)(unsigned long)cnid;
- 	d_instantiate(dst_dentry, inode);
- 	atomic_inc(&inode->i_count);
- 	inode->i_ctime =3D CURRENT_TIME;
-@@ -319,7 +319,7 @@
- 	if (HFSPLUS_IS_RSRC(inode))
- 		return -EPERM;
-=20
--	cnid =3D (u32)dentry->d_fsdata;
-+	cnid =3D (u32)(unsigned long)dentry->d_fsdata;
- 	if (inode->i_ino =3D=3D cnid &&
- 	    atomic_read(&HFSPLUS_I(inode).opencnt)) {
- 		str.name =3D name;
-
---=-pUeidopqKuvo4oWj3ZC9--

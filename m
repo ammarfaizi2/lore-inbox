@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268338AbSIRRsM>; Wed, 18 Sep 2002 13:48:12 -0400
+	id <S268510AbSIRRyV>; Wed, 18 Sep 2002 13:54:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268344AbSIRRsL>; Wed, 18 Sep 2002 13:48:11 -0400
-Received: from holomorphy.com ([66.224.33.161]:35819 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S268338AbSIRRrm>;
-	Wed, 18 Sep 2002 13:47:42 -0400
-Date: Wed, 18 Sep 2002 10:47:29 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andries Brouwer <aebr@win.tue.nl>,
+	id <S268514AbSIRRyU>; Wed, 18 Sep 2002 13:54:20 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:45272 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S268510AbSIRRyS>;
+	Wed, 18 Sep 2002 13:54:18 -0400
+From: Cort Dougan <cort@fsmlabs.com>
+Date: Wed, 18 Sep 2002 11:57:10 -0600
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
+       Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,
+       William Lee Irwin III <wli@holomorphy.com>,
        linux-kernel@vger.kernel.org
 Subject: Re: [patch] lockless, scalable get_pid(), for_each_process() elimination, 2.5.35-BK
-Message-ID: <20020918174729.GW3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Ingo Molnar <mingo@elte.hu>, Andries Brouwer <aebr@win.tue.nl>,
-	linux-kernel@vger.kernel.org
-References: <20020918173653.GV3530@holomorphy.com> <Pine.LNX.4.44.0209181044240.1384-100000@home.transmeta.com>
+Message-ID: <20020918115710.A656@host110.fsmlabs.com>
+References: <20020918113551.A654@host110.fsmlabs.com> <343149182.1032346081@[10.10.2.3]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209181044240.1384-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <343149182.1032346081@[10.10.2.3]>; from mbligh@aracnet.com on Wed, Sep 18, 2002 at 10:48:03AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Sep 2002, William Lee Irwin III wrote:
->> There were only 10K tasks, with likely consecutively-allocated PID's,
->> and some minor background fork()/exit() activity, but there are more
->> offenders on the read side than get_pid() itself.
->> There is no question of PID space: the full 2^30 was configured in
->> the tests done after the PID space expansion. 
+I'm also a big fan of "Do that crap outside the kernel until it works
+properly" type projects.  If you want to talk about real-time scheduling as
+an example... looks at the trouble it's causing now.  I think it makes my
+point for me very strongly.
 
-On Wed, Sep 18, 2002 at 10:46:35AM -0700, Linus Torvalds wrote:
-> I bet the lockup was something else. There have been other bugs recently 
-> with the task state changes, and the lockup may just have been a regular 
-> plain lockup. Thread exit has been kind of fragile lately, although it 
-> looks better now.
-> 		Linus
+The Linux view should not be that N-way boxes are its manifest destiny.
+The same goes for thousands of threads.  Linux works pretty well on 95% of
+the boxes that it is being run on.  Lets not screw that up to fix the other
+5%.  Try some fixes _outside_ the main kernel for a while, find a workable
+solution and then merge it in.
 
-Pretty much the same tasklist iteration issues have been visible
-running benchmarks on kernels from 2.4.early up. 2.5.x activity on this
-front was somewhat stymied by architecture support issues whose causes
-were not discovered until 2.5.20 or thereabouts, and perhaps also the
-fact little time was specifically allocated to addressing it.
+The Linux bus is getting really top-heavy because of some macho-features.
 
-
-Bill
+} Like real time scheduling or embedded systems for example?
+} Be careful what you ask for ....

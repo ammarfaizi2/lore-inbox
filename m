@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271005AbRINUjY>; Fri, 14 Sep 2001 16:39:24 -0400
+	id <S270795AbRINUhz>; Fri, 14 Sep 2001 16:37:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270825AbRINUjO>; Fri, 14 Sep 2001 16:39:14 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:4348
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S270848AbRINUjA>; Fri, 14 Sep 2001 16:39:00 -0400
-Date: Fri, 14 Sep 2001 13:39:17 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+	id <S270825AbRINUho>; Fri, 14 Sep 2001 16:37:44 -0400
+Received: from relay01.cablecom.net ([62.2.33.101]:52747 "EHLO
+	relay01.cablecom.net") by vger.kernel.org with ESMTP
+	id <S270795AbRINUhg>; Fri, 14 Sep 2001 16:37:36 -0400
+Message-ID: <3BA26AA6.CAC6D2D9@bluewin.ch>
+Date: Fri, 14 Sep 2001 22:37:58 +0200
+From: Otto Wyss <otto.wyss@bluewin.ch>
+Reply-To: otto.wyss@bluewin.ch
+X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
+X-Accept-Language: de,en
+MIME-Version: 1.0
+To: Alex Stewart <alex@foogod.com>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
 Subject: Re: How errorproof is ext2 fs?
-Message-ID: <20010914133917.A8737@mikef-linux.matchmail.com>
-Mail-Followup-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <E15hebh-0007QK-00@the-village.bc.nu> <3BA257A5.E74DDBAB@bluewin.ch>
-Mime-Version: 1.0
+In-Reply-To: <3BA1258F.5CC18A2C@bluewin.ch> <3BA1E670.9010300@foogod.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BA257A5.E74DDBAB@bluewin.ch>
-User-Agent: Mutt/1.3.20i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 14, 2001 at 09:16:53PM +0200, Otto Wyss wrote:
-> > Ext3 is a journalled ext2. Its in the 2.4-ac kernel trees. Reiserfs in the
-> > -ac tree also supports big endian boxes.
-> > 
-> At least ext2 and probably all the journalling fs lacks a feature the HFS+ from
-> the Mac has (bad tongues might say "needs"), to keep open files without activity
-> in a state where a crash has no effect. I don't know how it is done since I'm no
-> fs expert but my experience with my Mac (resetting about once a month without
-> loosing anything) shows that it's possible.
+> > it does not need a good  error proof fs. Still can't ext2 be made a little more
+> > error proof?
 > 
-> I'd rather like to see this feature appear in one fs for Linux (preferable
-> ext2). I think it's always better to not have error instead of fixing them afterwards.
+> First, you seem to be making quite a few assumptions which are not
+> necessarily correct:
 > 
+> 1) Just because an OS does not _tell_ you there was a problem does not
+> necessarily mean there wasn't one.  In particular, MacOS is notorious
+> for not "bothering" users with detailed (or in many cases any)
+> information about problems.  I don't know about HFS fragility in
+> 
+Well I can assure you I used DiskFirstAid and Norton Utilities on the Mac.
+Neither found any problems. Since I use MacOS9, my Mac crashes at least once a
+month but I never ever lost anything. Most of the time my USB-keyboard/-mouse
+doesn't react anymore after switching back from my Linux system. Usually I
+simply press the reset switch after a few minutes. 
 
-You can.  Make sure that all mounts use the "sync" flag in /etc/fstab.
+Besides Linux also does not react occasionally when switching my
+USB-keyboard/-mouse but since I also have an AT-keyboard handy I don't have to
+reset it.
 
-You need to remember that unix systems are designed to be in a stable
-environment, and enable optimizations that rely on those conditions.  That
-way, it can do more work in RAM which is faster than the disks.
+> 3) You're basing your linux experience on (apparently) only one
+> incident.  As a professional sysadmin, I've experienced many many
 
-If you expect to be in unstable conditions, you should take the speed hit,
-and enable the sync flag.
+I'm not bashing linux, I'm only stating that MacOS9 (or HFS+) has a nice feature
+Linux (or its fs's) lacks. My experience shows clearly that I had at least 10
+craches on the Mac durning the last year but I never lost anything. During the
+same time I had 2 crashes on my linux, one due to the USB-problem without a
+handy AT-keyboard, the second now due to a malfunction el3diag.
 
-Also remember, XFS, JFS, ReiserFS, and especially EXT3 take steps to do the
-work for you without requiring the sync flag.
-
-Mike
+O. Wyss

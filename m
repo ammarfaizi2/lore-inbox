@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263018AbVDBCce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVDBCkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263018AbVDBCce (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 21:32:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbVDBCce
+	id S261665AbVDBCkL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 21:40:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262980AbVDBCkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 21:32:34 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:57051 "EHLO
-	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S263015AbVDBCcR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 21:32:17 -0500
-Date: Fri, 01 Apr 2005 20:32:04 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: AMD64 Machine hardlocks when using memset
-In-reply-to: <3Oy8m-74-15@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <424E0424.7080308@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <3NZDp-4yY-7@gated-at.bofh.it> <3OmgF-6HV-17@gated-at.bofh.it>
- <3OmgF-6HV-15@gated-at.bofh.it> <3Oy8m-74-15@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Fri, 1 Apr 2005 21:40:11 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:36813 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261665AbVDBCkH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 21:40:07 -0500
+Date: Fri, 1 Apr 2005 18:38:24 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Industry db benchmark result on recent 2.6 kernels
+Message-Id: <20050401183824.1576a518.pj@engr.sgi.com>
+In-Reply-To: <200504020205.j32256g05369@unix-os.sc.intel.com>
+References: <20050401174435.4117c940.pj@engr.sgi.com>
+	<200504020205.j32256g05369@unix-os.sc.intel.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ray Lee wrote:
-> On Thu, 2005-03-31 at 22:37 -0600, Robert Hancock wrote:
-> 
->>This is getting pretty ridiculous.. I've tried memory timings down to 
->>the slowest possible, ran Memtest86 for 4 passes with no errors, and 
->>it's been stable in Windows for a few months now. Still something is 
->>blowing up in Linux with this test though..
-> 
-> 
-> Have you run the same memset test under windows?
-> 
-> I've traced a lot of oddball problems down to bad or marginal power
-> supplies.
+Kenneth wrote:
+> I recommend buying the following:
 
-I've now built a similar test program for Windows. I've let it run over 
-2000 iterations of 512MB memsets with no problems. On Linux it usually 
-blew up with under 200 iterations. It does run visibly slower than the 
-Linux version though - this is after all 32 bit Windows and it was 
-compiled with crufty old Visual C++ 6.0 so it is probably not that 
-optimized for this CPU. I will see if I can get a more optimized build 
-of this to try in Mingw32 or something.. after all if it's related to 
-some instruction combination or something it may not show up in the 
-build I have.
+ah so ... I think I'll skip running the industry db benchmark
+for now, if that's all the same.
+
+What sort of feedback are you looking for from my running this
+patch?
 
 -- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

@@ -1,37 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312497AbSDNXn6>; Sun, 14 Apr 2002 19:43:58 -0400
+	id <S312498AbSDNXqd>; Sun, 14 Apr 2002 19:46:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312498AbSDNXn5>; Sun, 14 Apr 2002 19:43:57 -0400
-Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:7684
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S312497AbSDNXn5>; Sun, 14 Apr 2002 19:43:57 -0400
-Subject: Is this right?
-From: Shawn Starr <spstarr@sh0n.net>
-To: Linux <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S312499AbSDNXqc>; Sun, 14 Apr 2002 19:46:32 -0400
+Received: from 39.159.252.64.snet.net ([64.252.159.39]:3712 "EHLO
+	stinkfoot.org") by vger.kernel.org with ESMTP id <S312498AbSDNXqc>;
+	Sun, 14 Apr 2002 19:46:32 -0400
+Message-ID: <3CBA14E0.7080600@stinkfoot.org>
+Date: Sun, 14 Apr 2002 19:46:40 -0400
+From: Ethan <e-d0uble@stinkfoot.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020310
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Segfaulting programs with CONFIG_HIMEM on SMP PowerPC
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1.99 (Preview Release)
-Date: 14 Apr 2002 18:45:49 -0400
-Message-Id: <1018824351.290.1.camel@coredump>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Should Buffers/Memshared be 0 kB? Is this memory buffers/shared or disk
-buffers/shared?
+Greetings,
 
-I'm using XFS filesystem.
+I've noticed recently that kernels >=2.4.18 on my SMP G4 began to say 
+this at boottime:
+Apr 13 15:03:20 spicymeatball kernel: Memory BAT mapping: BAT2=256Mb, 
+BAT3=256Mb, residual: 256Mb
+Apr 13 15:03:20 spicymeatball kernel: Warning, memory limited to 512 Mb, 
+use CONFIG_HIGHMEM to reach 512 Mb
+Apr 13 15:03:20 spicymeatball kernel: Total memory = 512MB; using 2048kB 
+for hash table (at c0400000)
 
-[spstarr@coredump spstarr]$ cat /proc/meminfo 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  62586880 61825024   761856        0        0 35803136
-Swap: 186654720 35758080 150896640
-MemTotal:        61120 kB
-MemFree:           744 kB
-MemShared:           0 kB
-Buffers:             0 kB
+This machine has 768M, so I happily checked CONFIG_HIMEM (although I 
+thought CONFIG_HIMEM was for systems with >2G but I suppose that only 
+applies on x86), recompiled, and got the full 768M.  
 
-Shawn.
+Memory BAT mapping: BAT2=256Mb, BAT3=256Mb, residual: 256Mb
+Total memory = 768MB; using 2048kB for hash table (at c0400000)
+Linux version 2.4.18 (root@spicymeatball) (gcc version 2.95.3 19991030 
+(prerelease/franzo/20001125)) #2  SMP Sat Apr 13 15:06:45 EDT 2002
+
+A few hours later, I fired up dig to do a query.. it subsequently dumped 
+a core..
+I was a little suprised by this.. so I ran it again.. no crash this 
+time.  Looking around the system, I found a few more core files.. one 
+from bash here, another from sshd there.. it began to get a little 
+unnerving.. they all weren't signal 11's either.. Some were SIGILL, some 
+were SIGTRAP, etc. odd. So, after deleting the various cores.. I 
+rebooted to the non config_himem kernel and tried to get these utilities 
+to crash.. no dice.. everything was hunky-dory (except that I only had 
+512M..)  How should I proceed here?  So far I've gone back to a 
+bitkeeper pull of 2.4.18-pre1, which doesn't ask me to use CONFIG_HIMEM, 
+detects all of my memory and seems rock-solid.  Newer kernels that want 
+CONFIG_HIMEM all behave the same, with seemingly random coredumping 
+executables.
+I'm using glibc-2.2.4, gcc version 2.95.3 19991030 
+(prerelease/franzo/20001125), BFD 2.11.2
+
+Pleas CC me any replies, as I don't subscribe to the list.
+
+thanks,
+
+Ethan
 
 

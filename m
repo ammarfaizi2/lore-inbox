@@ -1,114 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbUDTIDk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262347AbUDTIJy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbUDTIDk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 04:03:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbUDTIDj
+	id S262347AbUDTIJy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 04:09:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbUDTIJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 04:03:39 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:21392 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262208AbUDTIDa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 04:03:30 -0400
-Date: Tue, 20 Apr 2004 10:03:25 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Warren Togami <wtogami@redhat.com>
-Cc: Markus Lidel <Markus.Lidel@shadowconnect.com>,
-       Arjan van de Ven <arjanv@redhat.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
-Subject: Re: [PATCH] i2o_block Fix, possible CFQ elevator problem?
-Message-ID: <20040420080325.GD25806@suse.de>
-References: <4083BA03.1090606@redhat.com> <20040419121225.GT1966@suse.de> <408471E2.8060201@redhat.com> <40848159.7090605@togami.com> <20040420070805.GC25806@suse.de> <4084D83D.8060405@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4084D83D.8060405@redhat.com>
+	Tue, 20 Apr 2004 04:09:54 -0400
+Received: from ip-64-32-173-177.dsl.sca.megapath.net ([64.32.173.177]:62125
+	"EHLO mail.zaptech.com") by vger.kernel.org with ESMTP
+	id S262347AbUDTIJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 04:09:51 -0400
+Message-ID: <4084DAFB.7060805@zaptech.com>
+Date: Tue, 20 Apr 2004 01:10:35 -0700
+From: Fred Shaul <info@zaptech.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: info@howtolabs.net
+Subject: Re: 2.5.66-bk12 causes "rpm" errors
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 19 2004, Warren Togami wrote:
-> Jens Axboe wrote:
-> >>>http://togami.com/~warren/archive/2004/i2o_cfq_quad_bonnie.txt
-> >>
-> >>Next we tested cfq with the following section of code commented out. 
-> >>With this change the kernel no longer panics and seems to survive with 
-> >>four simultaneous bonnie++'s on all four block devices.
-> >>
-> >>--- cfq-iosched.c       2004-04-20 13:52:55.000000000 -1000
-> >>+++ /root/linux-2.6.5-1.326/drivers/block/cfq-iosched.c 2004-04-20 
-> >>14:09:43.000000000 -1000
-> >>@@ -401,10 +401,12 @@
-> >>dispatch:
-> >>               rq = list_entry_rq(cfqd->dispatch->next);
-> >>
-> >>+/*
-> >>               BUG_ON(q->last_merge == rq);
-> >>               crq = RQ_DATA(rq);
-> >>               if (crq)
-> >>                       BUG_ON(ON_MHASH(crq));
-> >>+*/
-> >>
-> >>               return rq;
-> >>       }
-> >
-> >
-> >This is not safe, the BUG_ON is there for a reason. If the request in on
-> >the merge hash when handed to the driver, you risk corrupting data. The
-> >fix would be figuring out why this is happening. Maybe it's looking at
-> >bad data, could you test with this patch applied and see if the oops
-> >still triggers?
-> >
-> >===== drivers/block/cfq-iosched.c 1.1 vs edited =====
-> >--- 1.1/drivers/block/cfq-iosched.c	Mon Apr 12 19:55:20 2004
-> >+++ edited/drivers/block/cfq-iosched.c	Tue Apr 20 09:07:20 2004
-> >@@ -403,7 +403,7 @@
-> > 
-> > 		BUG_ON(q->last_merge == rq);
-> > 		crq = RQ_DATA(rq);
-> >-		if (crq)
-> >+		if (blk_fs_request(rq) && crq)
-> > 			BUG_ON(ON_MHASH(crq));
-> > 
-> > 		return rq;
-> >
+Wow, I just got this to happen with Fedora Core 1!
+
+# uname -a
+Linux bilbo.scalix.local 2.4.22-1.2115.nptl #1
+Wed Oct 29 15:42:51 EST 2003 i686 i686 i386 GNU/Linux
+
+
+Error I was having ...
+
+# rpm -q rpm
+rpmdb: unable to join the environment
+error: db4 error(11) from dbenv->open: Resource temporarily unavailable
+error: cannot open Packages index using db3 - Resource temporarily
+unavailable (11)
+error: cannot open Packages database in /var/lib/rpm
+package rpm is not installed
+
+Now it works when the following is done!!!!!
+
+# rm /var/lib/rpm/__*
+
+# export LD_ASSUME_KERNEL=2.2.5
+
+# rpm -q rpm
+rpm-4.2.1-0.30
+
+Please cc any replies to me
+
+- Fred Shaul
+   zap technologies
+   http://zaptech.com/
+
+On 6 Apr 2003, Robert Love wrote:
+> ok, based on messing around this morning with this, here's what i've 
+> found.
 > 
-> We figured removing error handling was not safe, the previous post was 
-> only reporting test results to ask for more suggestions.  I have now 
-> tested your suggested patch above and it seems to crash in the same way 
-> as originally.
+> (first, apologies to andrew morton; when i said his patch applied on 
+> top of bk12, i was just confused. it's a "battle tactic". :-)
 > 
-> http://togami.com/~warren/archive/2004/i2o_cfq_quad_bonnie2.txt
+> all of this is based on my RH 9 (shrike) box, running on a dell 
+> inspiron 8100.
+> 
+> first, the rpm flaw exists using all three variations of the kernel i
+>  tested:
+> 
+> 2.5.66 
+> 2.5.66-bk12
+> 2.5.66-bk12-mm (bk12 minus andrew's filemap patch)
+> 
+> the interesting part is that doing something simple like "rpm -q rpm"
+>  works for a non-root user; it fails only when root tries it, even 
+> though the operation is only a query. go figure.
+> 
+> next, backing out from rpm-4.2-0.69 to rpm-4.2-0.66 didn't seem to 
+> fix the problem (at least, not for me -- a previous poster claimed 
+> that it fixed it for him, but it didn't solve the problem here).
+> 
+> finally, using:
+> 
+> LD_ASSUME_KERNEL=2.2.5 rpm -q rpm
+> 
+> solves the problem (at least under the 2.5.66-bk12-mm kernel i'm 
+> running at the moment -- i'll assume it does the same under the 
+> others).
 
-As a temporary safe work-around, you can apply this patch.
 
-> This makes me curious, the other elevators lacked this type of error 
-> checking.  Did this mean they were possibly allowing data corruption to 
-> happen with buggy drivers like this?  Kind of scary!  We were lucky to 
-> test this now, because this was one of the first FC kernels that 
-> included cfq by default.
-
-Not necessarily, it's most likely a CFQ bug. Otherwise it would have
-surfaced before :-)
-
-> Do you have any advice regarding the atomic type removal problem that we 
-> experienced from our previous post?
-
-Just change the type to an unsigned integer instead. Double check that
-all decrements/increments and reads of that integer are inside the
-device lock, it looked like they were.
-
-===== drivers/block/cfq-iosched.c 1.1 vs edited =====
---- 1.1/drivers/block/cfq-iosched.c	Mon Apr 12 19:55:20 2004
-+++ edited/drivers/block/cfq-iosched.c	Tue Apr 20 10:02:01 2004
-@@ -404,7 +404,7 @@
- 		BUG_ON(q->last_merge == rq);
- 		crq = RQ_DATA(rq);
- 		if (crq)
--			BUG_ON(ON_MHASH(crq));
-+			cfq_remove_merge_hints(q, crq);
- 
- 		return rq;
- 	}
-
--- 
-Jens Axboe
 

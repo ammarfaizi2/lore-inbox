@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVCFWpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVCFWpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261593AbVCFWpd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 17:45:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVCFWnA
+	id S261596AbVCFWpa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 17:45:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVCFWoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 17:43:00 -0500
-Received: from coderock.org ([193.77.147.115]:14768 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261589AbVCFWiZ (ORCPT
+	Sun, 6 Mar 2005 17:44:04 -0500
+Received: from coderock.org ([193.77.147.115]:8880 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261585AbVCFWiM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 17:38:25 -0500
-Subject: [patch 6/8] drivers/isdn/hisax/* - compile warning cleanup
+	Sun, 6 Mar 2005 17:38:12 -0500
+Subject: [patch 3/8] isdn/isdn_common: replace interruptible_sleep_on() with wait_event()
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
-       domen@coderock.org, yrgrknmxpzlk@gawab.com
+       domen@coderock.org, nacc@us.ibm.com
 From: domen@coderock.org
-Date: Sun, 06 Mar 2005 23:38:15 +0100
-Message-Id: <20050306223816.667791EFA4@trashy.coderock.org>
+Date: Sun, 06 Mar 2005 23:38:06 +0100
+Message-Id: <20050306223806.C0E071EDA4@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-compile warning cleanup - handle copy_to/from_user error 
-returns
+Incorrect subject line, sorry.
 
-Signed-off-by: Stephen Biggs <yrgrknmxpzlk@gawab.com>
+
+Use wait_event() instead of the deprecated
+interruptible_sleep_on(). Current code does not check for signals, so
+interruptible seems unnecessary. Patch is compile-tested.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj-domen/drivers/isdn/hisax/config.c |   14 ++++++++++++--
- 1 files changed, 12 insertions(+), 2 deletions(-)
+ kj-domen/drivers/isdn/i4l/isdn_common.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-diff -puN drivers/isdn/hisax/config.c~return_code-drivers_isdn_hisax drivers/isdn/hisax/config.c
---- kj/drivers/isdn/hisax/config.c~return_code-drivers_isdn_hisax	2005-03-05 16:13:06.000000000 +0100
-+++ kj-domen/drivers/isdn/hisax/config.c	2005-03-05 16:13:06.000000000 +0100
-@@ -631,7 +631,12 @@ int HiSax_readstatus(u_char __user *buf,
- 		count = cs->status_end - cs->status_read + 1;
- 		if (count >= len)
- 			count = len;
--		copy_to_user(p, cs->status_read, count);
-+		if (copy_to_user(p, cs->status_read, count)) {
-+			printk(KERN_ERR
-+				"HiSax:%s: copy_to_user failed!\n",
-+				__FUNCTION__);
-+			return -EFAULT;
-+		}
- 		cs->status_read += count;
- 		if (cs->status_read > cs->status_end)
- 			cs->status_read = cs->status_buf;
-@@ -642,7 +647,12 @@ int HiSax_readstatus(u_char __user *buf,
- 				cnt = HISAX_STATUS_BUFSIZE;
- 			else
- 				cnt = count;
--			copy_to_user(p, cs->status_read, cnt);
-+			if (copy_to_user(p, cs->status_read, cnt)) {
-+				printk(KERN_ERR
-+					"HiSax:%s: copy_to_user failed!\n",
-+					__FUNCTION__);
-+				return -EFAULT;
-+			}
- 			p += cnt;
- 			cs->status_read += cnt % HISAX_STATUS_BUFSIZE;
- 			count -= cnt;
+diff -puN drivers/isdn/i4l/isdn_common.c~int_sleep_on-drivers_isdn_i4l_isdn_common drivers/isdn/i4l/isdn_common.c
+--- kj/drivers/isdn/i4l/isdn_common.c~int_sleep_on-drivers_isdn_i4l_isdn_common	2005-03-05 16:11:37.000000000 +0100
++++ kj-domen/drivers/isdn/i4l/isdn_common.c	2005-03-05 16:11:37.000000000 +0100
+@@ -19,6 +19,7 @@
+ #include <linux/vmalloc.h>
+ #include <linux/isdn.h>
+ #include <linux/smp_lock.h>
++#include <linux/wait.h>
+ #include "isdn_common.h"
+ #include "isdn_tty.h"
+ #include "isdn_net.h"
+@@ -1066,8 +1067,8 @@ isdn_write(struct file *file, const char
+ 			goto out;
+ 		}
+ 		chidx = isdn_minor2chan(minor);
+-		while (isdn_writebuf_stub(drvidx, chidx, buf, count) != count)
+-			interruptible_sleep_on(&dev->drv[drvidx]->snd_waitq[chidx]);
++		wait_event(dev->drv[drvidx]->snd_waitq[chidx],
++				(isdn_writebuf_stub(drvidx, chidx, buf, count) == count));
+ 		retval = count;
+ 		goto out;
+ 	}
 _

@@ -1,57 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbUE3SgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264061AbUE3Shw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262322AbUE3SgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 14:36:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264061AbUE3SgP
+	id S264061AbUE3Shw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 14:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264159AbUE3Shw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 14:36:15 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:4369 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S262322AbUE3SgO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 14:36:14 -0400
-Date: Sun, 30 May 2004 20:36:09 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andries Brouwer <aeb@cwi.nl>,
-       Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: 2.6.x partition breakage and dual booting
-Message-ID: <20040530183609.GB5927@pclin040.win.tue.nl>
-References: <40BA2213.1090209@pobox.com>
+	Sun, 30 May 2004 14:37:52 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:18181 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S264061AbUE3Shv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 14:37:51 -0400
+Subject: Re: Why is proper NTFS-driver difficult?
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Martin Olsson <mnemo@minimum.se>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <40BA1FD5.9080902@minimum.se>
+References: <40BA1FD5.9080902@minimum.se>
+Content-Type: text/plain
+Message-Id: <1085942265.1677.1.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40BA2213.1090209@pobox.com>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: dmv.com: mailhost.tue.nl 1181; Body=1 Fuz1=1 Fuz2=1
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
+Date: Sun, 30 May 2004 20:37:45 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 30, 2004 at 02:04:03PM -0400, Jeff Garzik wrote:
+On Sun, 2004-05-30 at 19:54, Martin Olsson wrote:
 
-> So it seems that the 2.6.x geometry code breaks dual booting, since 
-> Windows wants "sane" CHS values.  See the thread on slashdot, or 
-> http://www.redhat.com/archives/fedora-devel-list/2004-May/msg00908.html
-> 
-> Although Fedora Core is current taking grief for this, it's really a 
-> 2.6.x kernel problem AFAICT.
-> 
-> Has anybody taken the time to hunt down the csets that cause this 
-> massive partition table breakage?  If so, it will save me some time 
-> tracking this down.
+> I was wondering why is there no Linux NTFS-driver which allows full 
+> writing etc? Is there something that makes this particular difficult to 
+> implement? I mean Linux supports so many file systems, why has proper 
+> NTFS support been neglected?
 
-Hi Jeff,
-
-The link you give describes a user space problem.
-The fdisk versions that I maintain all work fine - apparently
-Fedora Core uses something else to change partition tables,
-and that something else makes assumptions that are invalid.
-(Maybe it uses parted?)
-
-I can tell you in great detail all about disk geometry,
-and the 2.4 situation and the 2.6 situation.
-
-Andries
-aeb@cwi.nl
-
+Maybe because our favorite monopolistic company wants to keep its
+internals well hidden to the public? The reason they are doing this is
+completely unknown to me.
 

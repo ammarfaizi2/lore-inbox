@@ -1,56 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266102AbTFWTDY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 15:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266109AbTFWTDY
+	id S266111AbTFWTHu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 15:07:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266112AbTFWTHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 15:03:24 -0400
-Received: from almesberger.net ([63.105.73.239]:18451 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S266102AbTFWTDX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 15:03:23 -0400
-Date: Mon, 23 Jun 2003 16:16:39 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Larry McVoy <lm@work.bitmover.com>,
-       Stephan von Krawczynski <skraw@ithnet.com>,
-       Larry McVoy <lm@bitmover.com>, coyote@coyotegulch.com,
-       dwmw2@infradead.org, jgarzik@pobox.com, lawrence@the-penguin.otak.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Message-ID: <20030623161639.C1418@almesberger.net>
-References: <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com> <20030620143012.GC14404@work.bitmover.com> <20030620163349.GG17563@work.bitmover.com> <20030623150616.GA20103@work.bitmover.com> <20030623174317.0d937ee4.skraw@ithnet.com> <20030623155956.GD20103@work.bitmover.com>
+	Mon, 23 Jun 2003 15:07:50 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50911 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266111AbTFWTHr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 15:07:47 -0400
+Date: Mon, 23 Jun 2003 20:21:54 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: [willy@debian.org: [PATCH] Missing Kconfig dependencies]
+Message-ID: <20030623192154.GB25982@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030623155956.GD20103@work.bitmover.com>; from lm@bitmover.com on Mon, Jun 23, 2003 at 08:59:56AM -0700
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> Red Hat: $1B market cap (not bad), $25M/quarter revenues, running at a loss.
-> Microsoft: $275B market cap, $7.8B/quarter revenues, running at $2.7B/quarter
-> profit.
 
-Here's an idea: most Linux users occasionally buy a product
-that includes a bundled Microsoft product (e.g. a notebook with
-Windows preinstalled.) This is often referred to as the
-"Microsoft tax".
+DavidM wants these to go via you, Russell.
 
-So, why not make MS act as our tax collector ? If we assume that
-there are about 10 millions of Linux users worldwide, each
-spending USD 100 "MS tax" every decade, this makes USD 100
-millions per year. With this, one could quite comfortably pay a
-thousand Linux developers working on the base OS (kernel, system
-programs, window system, etc.).
+----- Forwarded message from Matthew Wilcox <willy@debian.org> -----
 
-So all you need to do is to lobby your government into passing
-some law that forces companies to re-distribute revenue gained
-by bundling products not used by the (de facto captive) customer.
-(Give it a catchy name, like "Fair Compensation Bill", or such.)
+Date:	Mon, 23 Jun 2003 20:11:47 +0100
+From:	Matthew Wilcox <willy@debian.org>
+To:	linux-ia64@vger.kernel.org
+Subject: [PATCH] Missing Kconfig dependencies
+User-Agent: Mutt/1.4.1i
+Precedence: bulk
+X-Mailing-List:	linux-ia64@vger.kernel.org
 
-- Werner
+
+If one turns off SERIAL_8250, these items shouldn't be selectable.
+Also gets the indentation right in `make oldconfig'.
+
+Index: drivers/serial/Kconfig
+===================================================================
+RCS file: /var/cvs/linux-2.5/drivers/serial/Kconfig,v
+retrieving revision 1.13
+diff -u -p -r1.13 Kconfig
+--- a/drivers/serial/Kconfig	23 Jun 2003 03:30:31 -0000	1.13
++++ b/drivers/serial/Kconfig	23 Jun 2003 19:01:59 -0000
+@@ -80,14 +80,14 @@ config SERIAL_8250_CS
+ config SERIAL_8250_ACPI
+ 	bool "8250/16550 device discovery via ACPI namespace"
+ 	default y if IA64
+-	depends on ACPI_BUS
++	depends on ACPI_BUS && SERIAL_8250
+ 	---help---
+ 	  If you wish to enable serial port discovery via the ACPI
+ 	  namespace, say Y here.  If unsure, say N.
+ 
+ config SERIAL_8250_HCDP
+ 	bool "8250/16550 device discovery support via EFI HCDP table"
+-	depends on IA64
++	depends on IA64 && SERIAL_8250
+ 	---help---
+ 	  If you wish to make the serial console port described by the EFI
+ 	  HCDP table available for use as serial console or general
 
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+-
+To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+
+----- End forwarded message -----
+
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

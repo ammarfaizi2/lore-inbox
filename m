@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVCJDYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVCJDaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261676AbVCJDYl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 22:24:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVCJBIr
+	id S261480AbVCJDaA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 22:30:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVCJD17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 20:08:47 -0500
-Received: from mail.kroah.org ([69.55.234.183]:49567 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262618AbVCJAm1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 19:42:27 -0500
-Cc: kay.sievers@vrfy.org
-Subject: [PATCH] videodev: pass dev_t to the class core
-In-Reply-To: <11104148823637@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 9 Mar 2005 16:34:43 -0800
-Message-Id: <11104148831572@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Wed, 9 Mar 2005 22:27:59 -0500
+Received: from fire.osdl.org ([65.172.181.4]:19947 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261480AbVCJD0M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 22:26:12 -0500
+Date: Wed, 9 Mar 2005 19:28:00 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: bk commits and dates
+In-Reply-To: <1110422519.32556.159.camel@gaston>
+Message-ID: <Pine.LNX.4.58.0503091924170.2530@ppc970.osdl.org>
+References: <1110422519.32556.159.camel@gaston>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2044, 2005/03/09 09:52:10-08:00, kay.sievers@vrfy.org
-
-[PATCH] videodev: pass dev_t to the class core
-
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
- drivers/media/video/videodev.c |   11 +----------
- 1 files changed, 1 insertion(+), 10 deletions(-)
+On Thu, 10 Mar 2005, Benjamin Herrenschmidt wrote:
+> 
+> I don't know if I'm the only one to have a problem with that, but it
+> would be nice if it was possible, when you pull a bk tree, to have the
+> commit messages for the csets in that tree be dated from the day you
+> pulled, and not the day when they went in the source tree.
 
+Nope, that's against how BK works. It's really distributed, so "my" tree 
+has no special meaning, and as such the fact that I pull has no meaning 
+either - it doesn't trigger as anything special.
 
-diff -Nru a/drivers/media/video/videodev.c b/drivers/media/video/videodev.c
---- a/drivers/media/video/videodev.c	2005-03-09 16:29:20 -08:00
-+++ b/drivers/media/video/videodev.c	2005-03-09 16:29:20 -08:00
-@@ -46,15 +46,7 @@
- 	return sprintf(buf,"%.*s\n",(int)sizeof(vfd->name),vfd->name);
- }
- 
--static ssize_t show_dev(struct class_device *cd, char *buf)
--{
--	struct video_device *vfd = container_of(cd, struct video_device, class_dev);
--	dev_t dev = MKDEV(VIDEO_MAJOR, vfd->minor);
--	return print_dev_t(buf,dev);
--}
--
- static CLASS_DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
--static CLASS_DEVICE_ATTR(dev,  S_IRUGO, show_dev, NULL);
- 
- struct video_device *video_device_alloc(void)
- {
-@@ -347,12 +339,11 @@
- 	if (vfd->dev)
- 		vfd->class_dev.dev = vfd->dev;
- 	vfd->class_dev.class       = &video_class;
-+	vfd->class_dev.devt       = MKDEV(VIDEO_MAJOR, vfd->minor);
- 	strlcpy(vfd->class_dev.class_id, vfd->devfs_name + 4, BUS_ID_SIZE);
- 	class_device_register(&vfd->class_dev);
- 	class_device_create_file(&vfd->class_dev,
- 				 &class_device_attr_name);
--	class_device_create_file(&vfd->class_dev,
--				 &class_device_attr_dev);
- 
- #if 1 /* needed until all drivers are fixed */
- 	if (!vfd->release)
+The only thing that ends up being special is when it hits the public tree
+which has the trigger to send out the emails. IOW, the date of the _email_
+is special (in that it says when a commit hit the public tree), not not
+the commits changesets themselves.
 
+Now, if James trigger scripts set the date of the email by the date of the 
+commit, that sounds like a misfeature, but you'd better talk to James, not 
+me, since he's the one doing that part..
+
+		Linus

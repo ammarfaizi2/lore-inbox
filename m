@@ -1,104 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263207AbTJZPdC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 10:33:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263210AbTJZPdC
+	id S263214AbTJZPmg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 10:42:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263221AbTJZPmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 10:33:02 -0500
-Received: from aeimail.aei.ca ([206.123.6.14]:26334 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S263207AbTJZPc5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 10:32:57 -0500
-Subject: Re: Linux 2.6.0-test9
-From: Shane Shrybman <shrybman@aei.ca>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-W5ndiius3UV4fAaOBl/l"
-Organization: 
-Message-Id: <1067182375.17710.11.camel@mars.goatskin.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 26 Oct 2003 10:32:55 -0500
+	Sun, 26 Oct 2003 10:42:36 -0500
+Received: from napo.bezeqint.net ([192.115.106.23]:26253 "EHLO
+	napo.bezeqint.net") by vger.kernel.org with ESMTP id S263214AbTJZPmf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 10:42:35 -0500
+From: Okrain Genady <mafteah@mafteah.co.il>
+Reply-To: mafteah@mafteah.co.il
+Organization: Mafteah
+To: linux-kernel@vger.kernel.org
+Subject: supermount with >2.6.0-test6
+Date: Sun, 26 Oct 2003 17:43:27 +0200
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_uu+m/I6PoQw1Am0";
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200310261743.42996.mafteah@mafteah.co.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-W5ndiius3UV4fAaOBl/l
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+--Boundary-02=_uu+m/I6PoQw1Am0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
 
-Hi,
+I can't patch supermount with test7,8,9 and i dont see any update there :(
+Can someone fix it to work with test9 ?
 
-gcc2.96, from Mandrake 8.2 (I would suspect that Redhat 7.* releases are
-in this boat too) has a bug that prevents the compilation -test9.
+http://supermount-ng.sourceforge.net/
+http://easynews.dl.sourceforge.net/sourceforge/supermount-ng/
+supermount-2.0.2-2.6.0-test5.patch.gz
+=2D-=20
+|=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D|
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0Okr=
+ain Genady
+|=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D|
+=A0E-Mail=A0=A0=A0=A0=A0=A0=A0=A0=A0: mafteah@mafteah.co.il
+=A0ICQ=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0: 1222424
+=A0Home Page=A0=A0=A0=A0=A0=A0: http://www.mafteah.co.il/
+=A0GnuGP=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0: 0x4F892EE6 At http://pgp.mit.edu/
+=A0Fingerprint=A0=A0=A0=A0: 5853 E821 5EF2 69BC A9AE 3F24 1F7C F79F 408D 4A=
+EE
+|=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D|
 
-fs/proc/array.c: In function `proc_pid_stat':
-fs/proc/array.c:398: Unrecognizable insn:
-(insn/i 1337 1673 1667 (parallel[ 
-            (set (reg:SI 0 eax)
-                (asm_operands ("") ("=a") 0[ 
-                        (reg:DI 1 edx)
-                    ] 
-                    [ 
-                        (asm_input:DI ("A"))
-                    ]  ("include/linux/times.h") 37))
-            (set (reg:SI 1 edx)
-                (asm_operands ("") ("=d") 1[ 
-                        (reg:DI 1 edx)
-                    ] 
-                    [ 
-                        (asm_input:DI ("A"))
-                    ]  ("include/linux/times.h") 37))
-            (clobber (reg:QI 19 dirflag))
-            (clobber (reg:QI 18 fpsr))
-            (clobber (reg:QI 17 flags))
-        ] ) -1 (insn_list 1331 (nil))
-    (nil))
-fs/proc/array.c:398: confused by earlier errors, bailing out
-make[2]: *** [fs/proc/array.o] Error 1
-make[1]: *** [fs/proc] Error 2
-make: *** [fs] Error 2
+--Boundary-02=_uu+m/I6PoQw1Am0
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-and a little patch that resolves it for me
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-diff -ur linux-2.6.0-test9/fs/proc/array.c
-linux-2.6.0-test9-A/fs/proc/array.c
---- linux-2.6.0-test9/fs/proc/array.c   Sat Oct 25 18:21:46 2003
-+++ linux-2.6.0-test9-A/fs/proc/array.c Sat Oct 25 19:14:15 2003
-@@ -295,7 +295,8 @@
- {
-        unsigned long vsize, eip, esp, wchan;
-        long priority, nice;
--       int tty_pgrp = -1, tty_nr = 0;
-+       int tty_pgrp = -1;
-+       volatile int tty_nr = 0;
-        sigset_t sigign, sigcatch;
-        char state;
-        int res;
+iD8DBQA/m+uuH3z3n0CNSu4RAn0bAKChhCAXtKS/3XLjiKvUv7p2BX7UIwCeMhpb
+NLC75xqQoRnugUoxuLkOaJE=
+=COvu
+-----END PGP SIGNATURE-----
 
-Attached as well in case it gets mangled.
-
-Regards,
-
-Shane
-
---=-W5ndiius3UV4fAaOBl/l
-Content-Disposition: attachment; filename=gcc2.96.patch
-Content-Type: text/x-patch; name=gcc2.96.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-diff -ur linux-2.6.0-test9/fs/proc/array.c linux-2.6.0-test9-A/fs/proc/array.c
---- linux-2.6.0-test9/fs/proc/array.c	Sat Oct 25 18:21:46 2003
-+++ linux-2.6.0-test9-A/fs/proc/array.c	Sat Oct 25 19:14:15 2003
-@@ -295,7 +295,8 @@
- {
- 	unsigned long vsize, eip, esp, wchan;
- 	long priority, nice;
--	int tty_pgrp = -1, tty_nr = 0;
-+	int tty_pgrp = -1;
-+	volatile int tty_nr = 0;
- 	sigset_t sigign, sigcatch;
- 	char state;
- 	int res;
-
---=-W5ndiius3UV4fAaOBl/l--
+--Boundary-02=_uu+m/I6PoQw1Am0--
 

@@ -1,105 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbUJYUnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262019AbUJYUsk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbUJYUnU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 16:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbUJYUlR
+	id S262019AbUJYUsk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 16:48:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbUJYUs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 16:41:17 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36325 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261997AbUJYUfE
+	Mon, 25 Oct 2004 16:48:29 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:2566 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262043AbUJYUrE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 16:35:04 -0400
-Message-ID: <417D6365.3020609@pobox.com>
-Date: Mon, 25 Oct 2004 16:34:45 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Mon, 25 Oct 2004 16:47:04 -0400
+Date: Mon, 25 Oct 2004 21:47:01 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Corey Minyard <minyard@acm.org>, linux-kernel@vger.kernel.org
+Subject: Re: Race betwen the NMI handler and the RTC clock in practially all
+ kernels
+In-Reply-To: <20041025201758.GG9142@wotan.suse.de>
+Message-ID: <Pine.LNX.4.58L.0410252143530.10974@blysk.ds.pg.gda.pl>
+References: <417D2305.3020209@acm.org.suse.lists.linux.kernel>
+ <p73u0sik2fa.fsf@verdi.suse.de> <Pine.LNX.4.58L.0410252054370.24374@blysk.ds.pg.gda.pl>
+ <20041025201758.GG9142@wotan.suse.de>
 MIME-Version: 1.0
-To: Timothy Miller <miller@techsource.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Some discussion points open source friendly graphics [was: HARDWARE:
- Open-Source-Friendly Graphics Cards -- Viable?]
-References: <417D21C8.30709@techsource.com>
-In-Reply-To: <417D21C8.30709@techsource.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller wrote:
-> Also, I'm thinking of starting my own yahoo groups list specifically for 
-> this chip.  Is that a good idea?
+On Mon, 25 Oct 2004, Andi Kleen wrote:
 
-In theory it's useful; in reality at you'll have to balance what's 
-public and what's not, and it's easy to allow yourself to get bogged 
-down into "digesting", so much so that the "doing" is put off.
-
-My only request is that you (a) make the graphics interface as simple 
-and high level as feasible and (b) you publish the hardware interface 
-specification as soon as possible, so that driver work can occur in 
-parallel.
-
-
-> Next, I'm getting lots of ideas from people.  Some of them are core to 
-> the product, and some of them would be nice for follow-on products.  For 
-> instance, dual-video would not be on the first model released.  However, 
-> it is important that analog output always have crisp rise and fall times 
-> and be free of noise in order to maximize display quality.
-
-Once you have a core design, it's easier to dicker about specific 
-features.  I would put this stuff on the "worry about it later" list.
-
-
-> The reprogramability of the FPGA has many advantages, but 
-> reprogramability is not its primary purpose.  The primary reason to use 
-> an FPGA is to minimize NRE for manufacturing.  However, as a result, 
-> users will be able to download updates.  Additionally, those who are 
-
-Will the capability to apply these updates be included with the base card?
-Will users need to purchase additional "update FPGA" hardware to do the 
-reprogramming?
-
-
-> Ok, now on to some design stuff:
+> >  It's not the dummy read that causes the problem.  It's the index write
+> > that does.  It can be solved pretty easily by not changing the index.  It
 > 
-> The picture I have in my head at this time expands on the idea of the 
-> setup engine seen in most GPU's.  What I'm thinking is that the setup 
-> engine will be general-purpose-ish CPU with special vector and matrix 
-> instructions.  This way, the transformation stage will occur in 
-> "software" executed by a specialized processor.  Additionally, the 
-> lighting phase might be done here as well.
+> True. It has to be cached once.
+
+ You mean once per write, don't you?  The index is w/o, unfortunately.
+
+> >  The use is correct.  Bit #7 at I/O port 0x70 controls the NMI line
+> > pass-through flip-flop.  "0" means "pass-through" and "1" means "force
+> > inactive."  As the NMI line is level-driven and the NMI input is
+> > edge-triggered, the sequence is needed to regenerate an edge if another
+> > NMI arrives via the line (not via the APIC) while the handler is running.
 > 
-> The setup engine would produce triangle parameters which are fed to a 
-> rasterizer which does Gouraud shading and texture-mapping.  That feeds 
-> pixels into something that handles antialiasing and alpha blending, etc.
-> 
-> The advantages are:
-> 
-> - The community can customize the setup engine as they please, just by 
-> writing code.
-> - This also includes the 2D emulation
-> - Anything "missing" can be emulated.
-> 
-> The disadvantages are:
-> 
-> - Triangle rate limited by speed of processor
-> - T&L is serialized, rather than being parallelized in dedicated hardware
-> - Phong shading and bump mapping may be impossible or too slow
+> At least in the datasheet I'm reading (AMD 8111) it is just a global
+> enable/disable bit.
 
-Well, I certainly like it :)
+ The flip-flop is expected to be connected to the NMI input of the
+processor, which for systems using local APICs means their LINT1 inputs (I
+think it's broadcasted for all existing systems, although in principle
+only the BSP needs to be connected).  But from the local APIC's point of
+view LINT1 is just another local interrupt line which may or may not be
+programmed for the NMI delivery mode and moreover, NMIs may arrive via the
+LINT0 input or from the performance counter interrupt if programmed so
+(this is the case with the NMI watchdog) or from another APIC as an IPI or
+an ordinary interrupt.  These alternative sources are of course unaffected
+by the flip-flop unless you have a strange implementation of the local
+APIC.
 
-I think that a more generic approach allows you to recognize performance 
-bottlenecks, and update the IP core to support instructions specific to 
-(say) triangles.
-
-Random closing notes:
-
-* data movement will be an everpresent issue
-
-* in graphics you really have a number of data types (16-bit float, 
-etc.) that are specific to graphics.  Supporting these natively should 
-be quite helpful, if not an already-obvious prerequisite
-
-	Jeff
-
-
+  Maciej

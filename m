@@ -1,35 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269189AbUIYCdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269186AbUIYCbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269189AbUIYCdo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 22:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269190AbUIYCdo
+	id S269186AbUIYCbx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 22:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269189AbUIYCbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 22:33:44 -0400
-Received: from quechua.inka.de ([193.197.184.2]:911 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S269189AbUIYCdl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 22:33:41 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: mlock(1)
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <200409250147.i8P1kxtm016914@turing-police.cc.vt.edu>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
-Message-Id: <E1CB2NY-0000q6-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Sat, 25 Sep 2004 04:33:40 +0200
+	Fri, 24 Sep 2004 22:31:53 -0400
+Received: from web51807.mail.yahoo.com ([206.190.38.238]:14939 "HELO
+	web51807.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S269186AbUIYCbu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 22:31:50 -0400
+Message-ID: <20040925023149.73704.qmail@web51807.mail.yahoo.com>
+Date: Fri, 24 Sep 2004 19:31:49 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
+Subject: Re: resource provisioning
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040924112328.V1973@build.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200409250147.i8P1kxtm016914@turing-police.cc.vt.edu> you wrote:
-> If the mkswap doesn't nuke the filesystem, the first time we actually
-> send a page to swap will do the job.
+Thanks for the information Chris.  This is a good
+starting point.
 
-You do not send a page to a device with no swap signature, and you do not
-attach swap in a cryptoloop without a valid content.
+Phy
+--- Chris Wright <chrisw@osdl.org> wrote:
 
-Gruss
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+> * Phy Prabab (phyprabab@yahoo.com) wrote:
+> > I would like to know if the linux kernel has a
+> > mechanism to control computing resources at a uid
+> > level, which I will call "resource provisioning". 
+> For
+> > example, I would like to define on a multi cpu
+> machine
+> > that a list of uid's can not consume more than 1
+> cpu
+> > and no more than 1G RAM, irregardless or how many
+> jobs
+> > they launch on or to the system.
+> 
+> You can already do this in some pretty crude fashion
+> via rlimits and
+> sched_setaffinity (although the later doesn't have
+> direct pam support
+> that I know of, so you'd have to manage that on your
+> own).
+> 
+> > So I guess, is this the correct term and is there
+> a
+> > posibilitity to do this now?
+> 
+> Otherwise, you must look at out of tree patches. 
+> Linux-vserver does
+> this, CKRM will allow you resource control, and PAGG
+> + other module
+> (perhaps job?) will give you this as well.
+> 
+> > I would like to avoid the virtual servers method
+> as I
+> > do not want to carve the machines in question into
+> > more machines.
+> 
+> Note: the vserver method above doesn't create actual
+> virtual machines,
+> more like a software construct that you could
+> consider a resource domain.
+> 
+> thanks,
+> -chris
+> -- 
+> Linux Security Modules     http://lsm.immunix.org   
+>  http://lsm.bkbits.net
+> 
+
+
+
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - 50x more storage than other providers!
+http://promotions.yahoo.com/new_mail

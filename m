@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286334AbRLTTBJ>; Thu, 20 Dec 2001 14:01:09 -0500
+	id <S286327AbRLTTFT>; Thu, 20 Dec 2001 14:05:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286331AbRLTTBA>; Thu, 20 Dec 2001 14:01:00 -0500
-Received: from ns.suse.de ([213.95.15.193]:61708 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S286327AbRLTTAm>;
-	Thu, 20 Dec 2001 14:00:42 -0500
-Date: Thu, 20 Dec 2001 20:00:34 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Randolph Bentson <bentson@grieg.holmsjoen.com>
-Cc: Matt Bernstein <matt@theBachChoir.org.uk>, Steven Cole <scole@lanl.gov>,
-        <esr@thyrsus.com>, <linux-kernel@vger.kernel.org>
+	id <S286331AbRLTTFK>; Thu, 20 Dec 2001 14:05:10 -0500
+Received: from svr3.applink.net ([206.50.88.3]:30483 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S286327AbRLTTE4>;
+	Thu, 20 Dec 2001 14:04:56 -0500
+Message-Id: <200112201904.fBKJ4bSr016705@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: Michael Dunsky <michael.dunsky@p4all.de>,
+        Matt Bernstein <matt@theBachChoir.org.uk>
 Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-In-Reply-To: <20011220104226.A5716@grieg.holmsjoen.com>
-Message-ID: <Pine.LNX.4.33.0112201955570.2519-100000@Appserv.suse.de>
+Date: Thu, 20 Dec 2001 13:00:54 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: Steven Cole <scole@lanl.gov>, esr@thyrsus.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.43.0112201810340.16545-100000@nick.dcs.qmul.ac.uk> <3C223255.5020107@p4all.de>
+In-Reply-To: <3C223255.5020107@p4all.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Dec 2001, Randolph Bentson wrote:
+On Thursday 20 December 2001 12:47, Michael Dunsky wrote:
+> Hi!
+>
+> You are close - he uses "MiB" as short for "mebi" - Mega-binary.
+> Don't laugh - this is official! It's exactly for what you said:
+>
+> What is 1 MB?
+> 1.000.000 Byte
+> or
+> 1.048.576 Byte
+>
+>
+> For a short reading I recommend this:
+>
+> http://physics.nist.gov/cuu/Units/binary.html
+>
+>
+> ciao
 
-> I'm afraid I have to disagree with you.  Not enough people
-> know that KB stands for 1000B.  I know through experience that
-> KB is often used for 1024B.  The introduction of KiB makes it
-> clear that 1024B is intended.
-
-Given the confusion its raised in this thread already, this strikes
-me as a particularly bad change. Some of those definitions in
-Configure.help have been there for the better part of 10 years
-now, and I don't recall anyone in the past few years needing to
-ask for clarification.
-
-Is this really that important ?
-
-Dave.
+Tebi or not Tebi? That is the question. Mebi this is a good idea, 
+but I doubt it.   How many understand people (Americans at least) 
+understand SI units before this change??   I say, gibe a break!
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+timothy.covell@ashavan.org.

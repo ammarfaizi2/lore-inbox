@@ -1,59 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263426AbTJLG3p (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 02:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263427AbTJLG3p
+	id S263425AbTJLG6e (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 02:58:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263427AbTJLG6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 02:29:45 -0400
-Received: from cartman.gtsi.sk ([62.168.96.9]:59573 "EHLO cartman.gtsi.sk")
-	by vger.kernel.org with ESMTP id S263426AbTJLG3o (ORCPT
+	Sun, 12 Oct 2003 02:58:34 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:3511 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S263425AbTJLG6c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 02:29:44 -0400
-Subject: Oops on APM wakeup on 2.4.22/23-pre, works with 2.6.0-test
-To: linux-kernel@vger.kernel.org
-Date: Sun, 12 Oct 2003 08:29:41 +0200 (CEST)
-Cc: sfr@canb.auug.org.au, apmd-list@lists.nit.ca
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
+	Sun, 12 Oct 2003 02:58:32 -0400
+Message-ID: <3F88FB90.7080801@colorfullife.com>
+Date: Sun, 12 Oct 2003 08:58:24 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E1A8ZjZ-0000gQ-00@trillian.meduna.org>
-From: Stanislav Meduna <stano@meduna.org>
+To: Mike Galbraith <efault@gmx.de>
+CC: Zwane Mwaikambo <zwane@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test7 DEBUG_PAGEALLOC oops
+References: <5.2.1.1.2.20031011172153.01e49948@pop.gmx.net> <5.2.1.1.2.20031011120059.01e81718@pop.gmx.net> <5.2.1.1.2.20031011120059.01e81718@pop.gmx.net> <5.2.1.1.2.20031011172153.01e49948@pop.gmx.net> <5.2.1.1.2.20031012060658.01e3b840@pop.gmx.net>
+In-Reply-To: <5.2.1.1.2.20031012060658.01e3b840@pop.gmx.net>
+Content-Type: multipart/mixed;
+ boundary="------------060503030806000307050403"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------060503030806000307050403
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I am trying to get the suspend to RAM working on an old
-Compaq Armada 1592 notebook.
+Could you try the attached patch?
+It updates the end of stack detection to handle unaligned stacks.
 
-With the kernel 2.4.22 from Debian unstable or with vanilla
-2.4.23-pre7 I am getting an Oops on wakeup in apmd.
-Unfortunately I am not able to capture it, as there
-is an endless series of Oopsen with stacks longer
-than tens of screens - judging from the patterns in
-the addresses this actually looks like some recursive
-call somewhere. It is completely reproducible. Nothing
-is logged on the disk - the machine never comes up
-enough to be able to write something to disk.
+--
+    Manfred
 
-With 2.6.0-test7 the wakeup works fine - unfortunately I can't
-use 2.6.0 due to other problems such as unstable PCMCIA
-when removing devices and inability to compile standalone
-pcmcia-cs modules against it (I think both are known).
+--------------060503030806000307050403
+Content-Type: text/plain;
+ name="patch-end-of-stack"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-end-of-stack"
 
-apmd is 3.2.0 from Debian unstable.
+// $Header$
+// Kernel Version:
+//  VERSION = 2
+//  PATCHLEVEL = 6
+//  SUBLEVEL = 0
+//  EXTRAVERSION = -test7
+--- 2.6/include/asm-i386/thread_info.h	2003-10-09 21:20:00.000000000 +0200
++++ build-2.6/include/asm-i386/thread_info.h	2003-10-12 08:50:12.000000000 +0200
+@@ -101,6 +101,16 @@
+ 
+ #endif
+ 
++static inline int kstack_end(void *addr)
++{
++	unsigned long offset = (unsigned long)addr & (THREAD_SIZE-1);
++
++	/* Some APM bios versions misalign the stack */
++	if (offset == 0 || offset > (THREAD_SIZE-sizeof(void*)))
++			return 1;
++	return 0;
++}
++
+ /*
+  * thread information flags
+  * - these are process state flags that various assembly files may need to access
+--- 2.6/mm/slab.c	2003-10-09 21:23:19.000000000 +0200
++++ build-2.6/mm/slab.c	2003-10-12 08:51:13.000000000 +0200
+@@ -862,7 +862,7 @@
+ 		unsigned long *sptr = &caller;
+ 		unsigned long svalue;
+ 
+-		while (((long) sptr & (THREAD_SIZE-1)) != 0) {
++		while (!kstack_end(sptr)) {
+ 			svalue = *sptr++;
+ 			if (kernel_text_address(svalue)) {
+ 				*addr++=svalue;
+--- 2.6/arch/i386/kernel/traps.c	2003-10-09 21:23:03.000000000 +0200
++++ build-2.6/arch/i386/kernel/traps.c	2003-10-12 08:50:41.000000000 +0200
+@@ -104,7 +104,7 @@
+ #ifdef CONFIG_KALLSYMS
+ 	printk("\n");
+ #endif
+-	while (((long) stack & (THREAD_SIZE-1)) != 0) {
++	while (!kstack_end(stack)) {
+ 		addr = *stack++;
+ 		if (kernel_text_address(addr)) {
+ 			printk(" [<%08lx>] ", addr);
+@@ -138,7 +138,7 @@
+ 
+ 	stack = esp;
+ 	for(i = 0; i < kstack_depth_to_print; i++) {
+-		if (((long) stack & (THREAD_SIZE-1)) == 0)
++		if (kstack_end(stack))
+ 			break;
+ 		if (i && ((i % 8) == 0))
+ 			printk("\n       ");
 
-Getting the oops through a serial console is a bit complicated
-right now (have to solder null-modem cable first etc), so I would
-like to know first whether this kind of problem is known
-and whether there are some other suggested things/patches
-to try.
-
-Please, Cc: the followups to me, I don't read the lists
-regularly.
-
-Thanks
--- 
-                                  Stano
+--------------060503030806000307050403--
 

@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263304AbUCNG0y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 01:26:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263306AbUCNG0y
+	id S263307AbUCNGd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 01:33:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbUCNGd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 01:26:54 -0500
-Received: from [213.227.237.65] ([213.227.237.65]:45952 "EHLO
-	berloga.shadowland") by vger.kernel.org with ESMTP id S263304AbUCNG0x convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 01:26:53 -0500
-Subject: Re: possible kernel bug in signal transit.
-From: Alex Lyashkov <shadow@psoft.net>
-To: Andrew Morton <akpm@osdl.org>
+	Sun, 14 Mar 2004 01:33:58 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:26589 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263307AbUCNGd4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 01:33:56 -0500
+Date: Sat, 13 Mar 2004 22:33:49 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Ron Peterson <rpeterso@mtholyoke.edu>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040313220901.64dcd003.akpm@osdl.org>
-References: <1079197336.13835.15.camel@berloga.shadowland>
-	 <20040313171856.37b32e52.akpm@osdl.org>
-	 <1079239159.8186.24.camel@berloga.shadowland>
-	 <20040313210051.6b4a2846.akpm@osdl.org>
-	 <1079241668.8186.33.camel@berloga.shadowland>
-	 <20040313214700.387c4ff3.akpm@osdl.org>
-	 <1079243761.8186.46.camel@berloga.shadowland>
-	 <20040313220901.64dcd003.akpm@osdl.org>
-Content-Type: text/plain; charset=KOI8-R
-Content-Transfer-Encoding: 8BIT
-Organization: PSoft
-Message-Id: <1079245606.8186.51.camel@berloga.shadowland>
+Subject: Re: network/performance problem
+Message-Id: <20040313223349.3dcbfb61.davem@redhat.com>
+In-Reply-To: <20040312225606.GA19722@mtholyoke.edu>
+References: <20040311152728.GA11472@mtholyoke.edu>
+	<20040311151559.72706624.akpm@osdl.org>
+	<20040311233525.GA14065@mtholyoke.edu>
+	<20040312164704.GA17969@mtholyoke.edu>
+	<20040312225606.GA19722@mtholyoke.edu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Sun, 14 Mar 2004 08:26:47 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-В Вск, 14.03.2004, в 08:09, Andrew Morton пишет:
-> Alex Lyashkov <shadow@psoft.net> wrote:
-> >
-> > > Well we can only return one error code.  Or are you suggesting that we
-> >  > should terminate the loop early on error?  If so, why?
-> >  You say me can return _last_ error core. but this function return
-> >  _first_. 
-> 
-> It doesn't matter, really.  Other parts of the kernel will generally return
-> the first-encountered error because at times it _does_ matter.  But here it
-> doesn't.
-okey. second question.
-a really need extra variable instead change conditions in return ?
+On Fri, 12 Mar 2004 17:56:06 -0500
+Ron Peterson <rpeterso@mtholyoke.edu> wrote:
 
+> ...just in case ...since my sense of humor is suspect ...that was a
+> joke.  Same problem persists after reboot.  I haven't installed a
+> different kernel or otherwise changed anything on 'sam' yet.  Not sure
+> what would be good to try next.
 
--- 
-Alex Lyashkov <shadow@psoft.net>
-PSoft
+FInd out what's adding all of the netfilter rules like crazy.
+
+It is obvious this is happening, from your profiles.  I know you
+say that you have no idea what might be doing it, but your description
+matches every other one that was reported in the past of gradual
+networking slowdown, and in each of those cases it was something
+poking netfilter in some way, and your profiles basically
+confirm that this is what is happening somehow on your box.
+

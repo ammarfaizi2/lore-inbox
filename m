@@ -1,66 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267329AbTBKJRn>; Tue, 11 Feb 2003 04:17:43 -0500
+	id <S267335AbTBKJWd>; Tue, 11 Feb 2003 04:22:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267330AbTBKJRn>; Tue, 11 Feb 2003 04:17:43 -0500
-Received: from h80ad257a.async.vt.edu ([128.173.37.122]:44424 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267329AbTBKJRm>; Tue, 11 Feb 2003 04:17:42 -0500
-Message-Id: <200302110927.h1B9R0jB006474@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6 02/09/2003 with nmh-1.0.4+dev
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Frank Davis <fdavis@si.rr.com>,
-       Vineet M Abraham <vmabraham@hotmail.com>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: [PATCH] 2.5.59 : drivers/net/fc/iph5526.c 
-In-Reply-To: Your message of "Tue, 11 Feb 2003 10:01:37 +0100."
-             <200302110901.h1B91cfa013400@eeyore.valparaiso.cl> 
-From: Valdis.Kletnieks@vt.edu
-References: <200302110901.h1B91cfa013400@eeyore.valparaiso.cl>
+	id <S267334AbTBKJWc>; Tue, 11 Feb 2003 04:22:32 -0500
+Received: from desnol.ru ([217.150.58.11]:40457 "EHLO desnol.ru")
+	by vger.kernel.org with ESMTP id <S267332AbTBKJW3>;
+	Tue, 11 Feb 2003 04:22:29 -0500
+Date: Tue, 11 Feb 2003 12:33:57 +0300
+From: =?ISO-8859-1?Q?=F7=C9=D4=C1=CC=C9=CA?= <manushkinvv@desnol.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: allocate more than 2 GB on IA32
+Message-Id: <20030211123357.54f9de94.manushkinvv@desnol.ru>
+In-Reply-To: <200302111015.54223.manz@intes.de>
+References: <200302111015.54223.manz@intes.de>
+Organization: =?ISO-8859-1?Q?=E4=C5=D3=CE=CF=CC?=
+X-Mailer: Sylpheed version 0.8.5claws (GTK+ 1.2.9; )
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_593412642P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 11 Feb 2003 04:26:59 -0500
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.ESdQwWr)Q/1(M_"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_593412642P
-Content-Type: text/plain; charset=us-ascii
+--=.ESdQwWr)Q/1(M_
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Tue, 11 Feb 2003 10:01:37 +0100, Horst von Brand said:
+> I tought it should be possible to allocate up to 2.9 GB of memory to a
+> process, with this kernel settings.
+Obviously, No.
+Unfortunatly kernel do not use segments (fully). So even you have HIMEM at the kernel it's not possible to user program to address more than 4 gb a ram at the same time. And as far as i know program can not have more than 1 gm of usable readwrite memory.
 
-> > > > > -	for (i = 0; i < clone_list[i].vendor_id != 0; i++)
+THe only way for u is to use 64 bit architecture... or remap default address range splitting increase address range for pgrogram data (it's require to recompile all programs).
 
-> It isn't, as written. Something is very wrong in any case, as it should
-> have blown up somewhere before.
+Agri
 
-Well, currently, there's only like 3 entries in the table - two clones
-and a null. So for i=0 and i=1, 'i<vendor_id' happens to be true, and we
-compare that to a zero. Then for i=2, i is greater than the terminating
-null in the table, and we compare THAT to zero.
+On Tue, 11 Feb 2003 10:15:54 +0100
+Hartmut Manz <manz@intes.de> wrote:
 
-> In any case, the != 0 is redundant, idiomatic C is to just go:
+> Hello,
 > 
->      for (i=0; clone_list[i].vendor_id; i++) {...
+> i would like to allocate more than 2 GB of memory on an IA32 architecture.
+> 
+> The machine is a dual XEON_DP with 3 GB of Ram and 4 GB of swap space.
+> 
+> I have tried with the default SUSE 8.1 kernel as well as with a
+> 2.4.20-pre4aa1 Kernel compile by my own using these Options:
+> 
+> CONFIG_HIGHMEM4G=y
+> CONFIG_HIGHMEM=y
+> CONFIG_1GB=y
+> 
+> but I am only able to allocate 2 GB with a single malloc call.
+> I tought it should be possible to allocate up to 2.9 GB of memory to a
+> process, with this kernel settings.
+> 
+> Thank You for any help
+> 
+> Hartmut Manz
+> 
+> -- 
+> -----------------------------------------------------------------------------
+> Hartmut Manz                                      WWW:    http://www.intes.de
+> INTES GmbH                                        Phone:  +49-711-78499-29
+> Schulze-Delitzsch-Str. 16                         Fax:    +49-711-78499-10
+> D-70565 Stuttgart                                 E-mail: manz@intes.de
+>    Ein Mensch sieht, was vor Augen ist; der Herr aber sieht das Herz an.
+> ------------------------------------------------------- 1. Samuel 16, 7 -----
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-True.  Notice I said "what was intended", not "what is idiomatic". ;)
--- 
-				Valdis Kletnieks
-				Computer Systems Senior Engineer
-				Virginia Tech
 
-
---==_Exmh_593412642P
+--=.ESdQwWr)Q/1(M_
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-iD8DBQE+SMHjcC3lWbTT17ARAjdaAKCBi35XmTxLZt4V0tVkI5x9U7slpQCfQZzG
-EMLcY+u6zabp68cS7iWF2yo=
-=zZWr
+iD8DBQE+SMOIXLqYWeM+eNsRAkU8AJ0fsbBfOHnYE1+DOCXEsnNXi38eQACeLXCG
+fxt354Mq+DNP6pbzkjEHbWs=
+=YDTC
 -----END PGP SIGNATURE-----
 
---==_Exmh_593412642P--
+--=.ESdQwWr)Q/1(M_--

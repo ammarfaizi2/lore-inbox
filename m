@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262368AbSJOLMc>; Tue, 15 Oct 2002 07:12:32 -0400
+	id <S262385AbSJOLRI>; Tue, 15 Oct 2002 07:17:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262382AbSJOLMc>; Tue, 15 Oct 2002 07:12:32 -0400
-Received: from thunk.org ([140.239.227.29]:38349 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S262368AbSJOLMc>;
-	Tue, 15 Oct 2002 07:12:32 -0400
-Date: Tue, 15 Oct 2002 07:18:08 -0400
+	id <S262440AbSJOLRH>; Tue, 15 Oct 2002 07:17:07 -0400
+Received: from thunk.org ([140.239.227.29]:41165 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S262385AbSJOLRH>;
+	Tue, 15 Oct 2002 07:17:07 -0400
+Date: Tue, 15 Oct 2002 07:22:53 -0400
 From: "Theodore Ts'o" <tytso@mit.edu>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, ext2-devel@lists.sourceforge.net,
-       Matt Reppert <arashi@arashi.yi.org>
-Subject: Re: [Ext2-devel] [PATCH] Compile without xattrs
-Message-ID: <20021015111808.GA29988@think.thunk.org>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Dax Kelson <dax@gurulabs.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Modern Ext3 for 2.2.21 (Playstation 2 Linux)?
+Message-ID: <20021015112253.GA31190@think.thunk.org>
 Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Andreas Gruenbacher <agruen@suse.de>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, ext2-devel@lists.sourceforge.net,
-	Matt Reppert <arashi@arashi.yi.org>
-References: <3DABA351.7E9C1CFB@digeo.com> <20021015005733.3bbde222.arashi@arashi.yi.org> <200210151211.19353.agruen@suse.de>
+	Tomas Szepe <szepe@pinerecords.com>, Dax Kelson <dax@gurulabs.com>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1034665566.1944.9.camel@mentor> <20021015071415.GC507@louise.pinerecords.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200210151211.19353.agruen@suse.de>
+In-Reply-To: <20021015071415.GC507@louise.pinerecords.com>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15, 2002 at 12:11:19PM +0200, Andreas Gruenbacher wrote:
-> On Tuesday 15 October 2002 07:57, Matt Reppert wrote:
-> > On Mon, 14 Oct 2002 22:10:41 -0700
-> >
-> > Andrew Morton <akpm@digeo.com> wrote:
-> > > - merge up the ext2/3 extended attribute code, convert that to use
-> > >   the slab shrinking API in Linus's current tree.
-> >
-> > Trivial patch for the "too chicken to enable xattrs for now" case, but I
-> > need this to compile:
+On Tue, Oct 15, 2002 at 09:14:15AM +0200, Tomas Szepe wrote:
+> > I have a Playstation 2 running Linux. Currently it runs the 2.2.21
+> > kernel.
+> > 
+> > I would like to upgrade from ext2 to ext3.
+> > 
+> > Is there a modern port of ext3 for the 2.2 kernel?
 > 
-> Please add this to include/linux/errno.h instead:
-> 
-> #define ENOTSUP EOPNOTSUPP      /* Operation not supported */
-> 
-> ENOTSUPP is distinct from (EOPNOTSUPP = ENOTSUP)
+> ext3-0.0.7a is known to work flawlessly.
 
-Actually, what I've been doing is just using EOPNOTSUPP directly in
-the patches; I just missed those error returns in ext[23]_xattr.h.
+Err, I wouldn't go that far.  In particular, error handling in the
+case of I/O errors, out-of-memory errors, etc. may not work completely
+correctly with ext3-0.0.7a.
 
-							- Ted
+It would be possible to try to backport a more recent version of ext3
+to the 2.2 kernel, but it would probably be less work to forward port
+the necessary drivers, etc. for the Playstation 2 to 2.4 or 2.5.....
+
+						- Ted

@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbTDXIfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 04:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbTDXIfZ
+	id S261835AbTDXIdy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 04:33:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbTDXIdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 04:35:25 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:45704 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261832AbTDXIfW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 04:35:22 -0400
-Date: Thu, 24 Apr 2003 10:47:17 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Badness in as-iosched:1210
-Message-ID: <20030424084717.GF8775@suse.de>
-References: <Pine.LNX.4.50.0304222259300.2085-100000@montezuma.mastecende.com> <3EA7A0CC.50005@cyberone.com.au>
-Mime-Version: 1.0
+	Thu, 24 Apr 2003 04:33:53 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:10624 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261835AbTDXIdx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 04:33:53 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304240848.h3O8meB2000455@81-2-122-30.bradfords.org.uk>
+Subject: Re: Fix SWSUSP & !SWAP
+To: akpm@digeo.com (Andrew Morton)
+Date: Thu, 24 Apr 2003 09:48:40 +0100 (BST)
+Cc: rddunlap@osdl.org (Randy.Dunlap), ncunningham@clear.net.nz, cat@zip.com.au,
+       pavel@ucw.cz, mbligh@aracnet.com, gigerstyle@gmx.ch,
+       geert@linux-m68k.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20030423173837.08202f0b.akpm@digeo.com> from "Andrew Morton" at Apr 23, 2003 05:38:37 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EA7A0CC.50005@cyberone.com.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 24 2003, Nick Piggin wrote:
-> Zwane Mwaikambo wrote:
+> > That may be simple for you, but for lots of users, adding a partition
+> > (to a ususally full disk drive) isn't simple.  It means backups,
+> > shrink a filesystem, shrink a partition, add a partition, and run
+> > mkswap on it.   Yes, the latter 2 are simple, but the former ones
+> > are not.
 > 
-> >I'm not sure wether you want this, it was during error handling from the 
-> >HBA driver (source was disk error).
-> >
-> >scsi1: ERROR on channel 0, id 3, lun 0, CDB: Read (10) 00 00 7f de 60 00 
-> >00 80 00 Info fld=0x7fdeb2, Current sdd: sense key Medium Error
-> >Additional sense: Unrecovered read error
-> >end_request: I/O error, dev sdd, sector 8380032
-> >Badness in as_add_request at drivers/block/as-iosched.c:1210
-> >
-> Thanks I'll have a look.
+> Yeah.  swsusp is pretty much the only reason why you would want to have a
+> swap partition at all in a 2.5/2.6 kernel.
 
-The debug check looks broken, request could have come from somewhere
-else than the block pool.
+A lot of users still follow the 'swap space twice the size of physical
+RAM' rule of thumb.
 
--- 
-Jens Axboe
+Now that physical RAM sizes have increased by an order of magnitude
+since that advice was given, there are a lot of systems with far more
+swap than they need, which provides the solution to our problem - if
+there is a single swap partition which is twice the size of physical
+RAM, just split it in to SWAP and SWSUSP slices, (not separate
+partitions, slices in the same way BSD subdivides a partition).
 
+2.4 kernels will see a big swap area, and use all of it as swap, 2.5
+kernels will see a smaller swap area, (equal to physical RAM size, and
+therefore sufficient in a lot of cases), and a SWSUSP area the same
+size as physical RAM.
+
+John.

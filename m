@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264509AbRFJIxA>; Sun, 10 Jun 2001 04:53:00 -0400
+	id <S264512AbRFJJDX>; Sun, 10 Jun 2001 05:03:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264511AbRFJIwu>; Sun, 10 Jun 2001 04:52:50 -0400
-Received: from beasley.gator.com ([63.197.87.202]:59409 "EHLO
-	beasley.gator.com") by vger.kernel.org with ESMTP
-	id <S264509AbRFJIwf>; Sun, 10 Jun 2001 04:52:35 -0400
+	id <S264511AbRFJJDN>; Sun, 10 Jun 2001 05:03:13 -0400
+Received: from beasley.gator.com ([63.197.87.202]:274 "EHLO beasley.gator.com")
+	by vger.kernel.org with ESMTP id <S264512AbRFJJDB>;
+	Sun, 10 Jun 2001 05:03:01 -0400
 From: "George Bonser" <george@gator.com>
 To: "Rik van Riel" <riel@conectiva.com.br>
 Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
 Subject: RE: [PATCH] 2.4.6-pre2 page_launder() improvements
-Date: Sun, 10 Jun 2001 01:52:19 -0700
-Message-ID: <CHEKKPICCNOGICGMDODJOEJMDEAA.george@gator.com>
+Date: Sun, 10 Jun 2001 02:06:09 -0700
+Message-ID: <CHEKKPICCNOGICGMDODJKEJNDEAA.george@gator.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
@@ -29,8 +29,15 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > That sounds like the machine just gets a working set
 > larger than the amount of available memory. It should
 > work better with eg. 96, 128 or more MBs of memory.
->
 
-Right, I run them with 256M ... thought I would try to squeeze it a bit to
-see what broke.
+Now that I think about it a little more ... once I took it out of the
+balancer and I got control back, I had over 500 apache kids alive and it was
+responsive.  Also, when top -q starting giving out, it was still updating
+the screen though it started getting slower and slower ... at that point I
+only had MAYBE 300 apache processes. It almost felt like the system could
+not catch up as fast as the new connections were arriving. Lets say it "goes
+dead" at about 300 or so connections, I let it run for a while then take it
+out of the rotation and it "comes back" and shows me it has about 500
+processes and its interactive response is fine and it is only about 100MB
+into swap. It just feels like it can't get out of its own way fast enough.
 

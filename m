@@ -1,57 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272720AbRINRgP>; Fri, 14 Sep 2001 13:36:15 -0400
+	id <S272860AbRINRiZ>; Fri, 14 Sep 2001 13:38:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272727AbRINRgG>; Fri, 14 Sep 2001 13:36:06 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:44413 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S272720AbRINRfs>;
-	Fri, 14 Sep 2001 13:35:48 -0400
-Message-ID: <20010914193628.A27889@win.tue.nl>
-Date: Fri, 14 Sep 2001 19:36:28 +0200
-From: Guest section DW <dwguest@win.tue.nl>
-To: Lukas Ruf <ruf@tik.ee.ethz.ch>,
-        Linux Kernel ml <linux-kernel@vger.kernel.org>
-Subject: Re: man pages: howto create a man page ?
-In-Reply-To: <20010914161004.C8351@tik.ee.ethz.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20010914161004.C8351@tik.ee.ethz.ch>; from Lukas Ruf on Fri, Sep 14, 2001 at 04:10:04PM +0200
+	id <S272820AbRINRiP>; Fri, 14 Sep 2001 13:38:15 -0400
+Received: from [207.196.96.3] ([207.196.96.3]:52923 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S272982AbRINRiE>; Fri, 14 Sep 2001 13:38:04 -0400
+Date: Fri, 14 Sep 2001 13:51:39 -0400 (EDT)
+From: Chris Meadors <clubneon@hereintown.net>
+To: Matt Bernstein <matt@theBachChoir.org.uk>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4, 2.4-ac and quotas
+In-Reply-To: <Pine.LNX.4.33.0109141815020.30680-100000@nick.dcs.qmul.ac.uk>
+Message-ID: <Pine.LNX.4.31.0109141350460.11635-100000@rc.priv.hereintown.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 14, 2001 at 04:10:04PM +0200, Lukas Ruf wrote:
+On Fri, 14 Sep 2001, Matt Bernstein wrote:
 
-> can anyone give me a hint what the easiest way could be to create a man
-> page out of some text?  Is there a latex to man page converter around?
-> Is it required that I must learn SGML?
+> OK.. so I download and build quota-3.01-pre9 on my woody box and I still
+> get EINVAL (2.4.9-ac10 + ext3 0.9.9 + ext3 speedup + ext3 experimental VM
+> patch + jfs 1.0.4). Can you tell me where the updated tools are please?
 
-Old-fashioned man pages are written in *roff.
-For example,
+That is the package I'm using with 2.4.9-ac10.  Did you convertquota?
 
-.TH example 0 2001-09-14 "" ""
-.SH NAME
-example \- how to write a man page
-.SH SYNOPSIS
-how to invoke
-.SH DESCRIPTION
-what it does
-.SH "RETURN VALUE"
-what it returns
-.SH "CONFORMING TO"
-standards
-.SH NOTES
-interesting tidbits
-.SH "SEE ALSO"
-related stuff
-
-In man(7) you can read about the macros used.
-The easiest way to start is to copy some other man page.
-
-These days it is frowned upon if you really use detailed knowledge
-of *roff. Man pages are produced by conversion from other formats,
-and conversely other formats are produced by conversion from *roff
-(e.g., by man2html). Knowing more about *roff than what is documented
-in man(7) may be bad for you - these automatic converters have only
-a limited knowledge.
+-Chris
+-- 
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
 

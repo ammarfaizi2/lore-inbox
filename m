@@ -1,61 +1,192 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311519AbSCXD7M>; Sat, 23 Mar 2002 22:59:12 -0500
+	id <S311530AbSCXEGM>; Sat, 23 Mar 2002 23:06:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311520AbSCXD6w>; Sat, 23 Mar 2002 22:58:52 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:27652
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S311519AbSCXD6o>; Sat, 23 Mar 2002 22:58:44 -0500
-Date: Sat, 23 Mar 2002 19:58:24 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: OOPS: ide-cd, 2.4.19-pre3-ac5
-In-Reply-To: <20020324023007.GB12678@conectiva.com.br>
-Message-ID: <Pine.LNX.4.10.10203231956370.2377-200000@master.linux-ide.org>
+	id <S311523AbSCXEGD>; Sat, 23 Mar 2002 23:06:03 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:46605 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S311530AbSCXEFw>;
+	Sat, 23 Mar 2002 23:05:52 -0500
+Date: Sat, 23 Mar 2002 20:05:49 -0800 (PST)
+From: <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@osdlab.pdx.osdl.net>
+To: <linux-kernel@vger.kernel.org>
+cc: <davej@suse.de>
+Subject: [patch 2.5] seq_file for /proc/partitions
+Message-ID: <Pine.LNX.4.33.0203231920420.23956-100000@osdlab.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; BOUNDARY="1430322656-557674451-1016942304=:2377"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Dave,
 
---1430322656-557674451-1016942304=:2377
-Content-Type: text/plain; charset=us-ascii
+This change uses seq_file interfaces for /proc/partitions.
+
+Al reviewed the 2.4.18 version of the patch and said
+that it looked sane.  Hopefully it still does.
+
+Please include in next 2.5.x-dj and push to Linus.
+
+Thanks,
+-- 
+~Randy
 
 
-Arnaldo,
 
-We did this last night :-/
+--- ./drivers/block/genhd.c.PART	Mon Mar 18 12:37:14 2002
++++ ./drivers/block/genhd.c	Sat Mar 23 17:01:26 2002
+@@ -22,6 +22,7 @@
+ #include <linux/blk.h>
+ #include <linux/init.h>
+ #include <linux/spinlock.h>
++#include <linux/seq_file.h>
 
---andre
 
-On Sat, 23 Mar 2002, Arnaldo Carvalho de Melo wrote:
+ static rwlock_t gendisk_lock;
+@@ -142,39 +143,58 @@
+ }
 
-> Hi,
-> 
-> 	I got this while trying to mount /dev/hdc without ide-cd loaded,
-> while it was auto-loading and with no CD on the CD unit.
-> 
-> Error (regular_file): read_system_map stat /usr/src/linux/System.map failed
-> kernel BUG at ide-cd.c:790!
-> invalid operand: 0000
+ #ifdef CONFIG_PROC_FS
+-int
+-get_partition_list(char *page, char **start, off_t offset, int count)
++/* iterator */
++static void *part_start(struct seq_file *part, loff_t *pos)
+ {
+-	struct gendisk *gp;
+-	char buf[64];
+-	int len, n;
++	loff_t k = *pos;
++	struct gendisk *sgp;
 
---1430322656-557674451-1016942304=:2377
-Content-Type: text/plain; charset=us-ascii; name="ide-cd-typo.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <Pine.LNX.4.10.10203231958240.2377@master.linux-ide.org>
-Content-Description: 
-Content-Disposition: attachment; filename="ide-cd-typo.patch"
+-	len = sprintf(page, "major minor  #blocks  name\n\n");
+ 	read_lock(&gendisk_lock);
+-	for (gp = gendisk_head; gp; gp = gp->next) {
+-		for (n = 0; n < (gp->nr_real << gp->minor_shift); n++) {
+-			if (gp->part[n].nr_sects == 0)
+-				continue;
+-
+-			len += snprintf(page + len, 63,
+-					"%4d  %4d %10d %s\n",
+-					gp->major, n, gp->sizes[n],
+-					disk_name(gp, n, buf));
+-			if (len < offset)
+-				offset -= len, len = 0;
+-			else if (len >= offset + count)
+-				goto out;
+-		}
++	for (sgp = gendisk_head; sgp; sgp = sgp->next) {
++		if (!k--)
++			return sgp;
+ 	}
++	return NULL;
++}
 
-LS0tIGxpbnV4L2RyaXZlcnMvaWRlL2lkZS1jZC5jLm9yaWcJRnJpIE1hciAy
-MiAwMToxMTo1MSAyMDAyDQorKysgbGludXgvZHJpdmVycy9pZGUvaWRlLWNk
-LmMJRnJpIE1hciAyMiAwMToxMToxOCAyMDAyDQpAQCAtNzg2LDcgKzc4Niw3
-IEBADQogCQkJcmV0dXJuIHN0YXJ0c3RvcDsNCiAJfQ0KIA0KLQlpZiAoSFdH
-Uk9VUChkcml2ZSktPmhhbmRsZXIgPT0gTlVMTCkJLyogcGFyYW5vaWEgY2hl
-Y2sgKi8NCisJaWYgKEhXR1JPVVAoZHJpdmUpLT5oYW5kbGVyICE9IE5VTEwp
-CS8qIHBhcmFub2lhIGNoZWNrICovDQogCQlCVUcoKTsNCiANCiAJLyogQXJt
-IHRoZSBpbnRlcnJ1cHQgaGFuZGxlci4gKi8NCg==
---1430322656-557674451-1016942304=:2377--
+-out:
++static void *part_next(struct seq_file *part, void *v, loff_t *pos)
++{
++	++*pos;
++	return part_start(part, pos);
++}
++
++static void part_stop(struct seq_file *part, void *v)
++{
+ 	read_unlock(&gendisk_lock);
+-	*start = page + offset;
+-	len -= offset;
+-	if (len < 0)
+-		len = 0;
+-	return len > count ? count : len;
+ }
++
++static int show_partition(struct seq_file *part, void *v)
++{
++	struct gendisk *sgp = v;
++	int n;
++	char buf[64];
++
++	if (sgp == gendisk_head)
++		seq_puts(part, "major minor  #blocks  name\n\n");
++
++	/* show all non-0 size partitions of this disk */
++	for (n = 0; n < (sgp->nr_real << sgp->minor_shift); n++) {
++		if (sgp->part[n].nr_sects == 0)
++			continue;
++		seq_printf(part, "%4d  %4d %10d %s\n",
++			sgp->major, n, sgp->sizes[n],
++			disk_name(sgp, n, buf));
++	}
++
++	return 0;
++}
++
++struct seq_operations partitions_op = {
++	start:	part_start,
++	next:	part_next,
++	stop:	part_stop,
++	show:	show_partition
++};
+ #endif
+
+
+--- ./fs/proc/proc_misc.c.PART	Mon Mar 18 12:37:06 2002
++++ ./fs/proc/proc_misc.c	Sat Mar 23 16:34:07 2002
+@@ -51,7 +51,6 @@
+  * wrappers, but this needs further analysis wrt potential overflows.
+  */
+ extern int get_device_list(char *);
+-extern int get_partition_list(char *, char **, off_t, int);
+ extern int get_filesystem_list(char *);
+ extern int get_exec_domain_list(char *);
+ extern int get_dma_list(char *);
+@@ -199,6 +198,18 @@
+ 	release:	seq_release,
+ };
+
++extern struct seq_operations partitions_op;
++static int partitions_open(struct inode *inode, struct file *file)
++{
++	return seq_open(file, &partitions_op);
++}
++static struct file_operations proc_partitions_operations = {
++	open:		partitions_open,
++	read:		seq_read,
++	llseek:		seq_lseek,
++	release:	seq_release,
++};
++
+ #ifdef CONFIG_MODULES
+ extern struct seq_operations modules_op;
+ static int modules_open(struct inode *inode, struct file *file)
+@@ -323,14 +334,6 @@
+ 	return proc_calc_metrics(page, start, off, count, eof, len);
+ }
+
+-static int partitions_read_proc(char *page, char **start, off_t off,
+-				 int count, int *eof, void *data)
+-{
+-	int len = get_partition_list(page, start, off, count);
+-	if (len < count) *eof = 1;
+-	return len;
+-}
+-
+ static void *single_start(struct seq_file *p, loff_t *pos)
+ {
+ 	return NULL + (*pos == 0);
+@@ -538,7 +541,6 @@
+ 		{"version",	version_read_proc},
+ 		{"stat",	kstat_read_proc},
+ 		{"devices",	devices_read_proc},
+-		{"partitions",	partitions_read_proc},
+ 		{"filesystems",	filesystems_read_proc},
+ 		{"dma",		dma_read_proc},
+ 		{"ioports",	ioports_read_proc},
+@@ -562,6 +564,7 @@
+ 	if (entry)
+ 		entry->proc_fops = &proc_kmsg_operations;
+ 	create_seq_entry("cpuinfo", 0, &proc_cpuinfo_operations);
++	create_seq_entry("partitions", 0, &proc_partitions_operations);
+ 	create_seq_entry("interrupts", 0, &proc_interrupts_operations);
+ 	create_seq_entry("slabinfo",S_IWUSR|S_IRUGO,&proc_slabinfo_operations);
+ #ifdef CONFIG_MODULES
+
+

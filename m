@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263216AbTDGDXp (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 23:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263217AbTDGDXp (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 23:23:45 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:16900
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S263216AbTDGDXo 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 23:23:44 -0400
-Subject: Re: 2.5.66-bk12 causes "rpm" errors
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@digeo.com>
-Cc: rpjday@mindspring.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20030406202926.762754ea.akpm@digeo.com>
-References: <20030406183234.1e8abd7f.akpm@digeo.com>
-	 <Pine.LNX.4.44.0304062200570.1604-100000@localhost.localdomain>
-	 <20030406182815.65dd9304.akpm@digeo.com> <1049685316.894.5.camel@localhost>
-	 <20030406202926.762754ea.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049686511.894.10.camel@localhost>
+	id S263225AbTDGD0z (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 23:26:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263226AbTDGD0y (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 23:26:54 -0400
+Received: from chii.cinet.co.jp ([61.197.228.217]:41345 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP id S263225AbTDGD0x (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 23:26:53 -0400
+Date: Mon, 7 Apr 2003 12:36:27 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5.66-ac2] PC-9800 sub architecture support (0/9) summary
+Message-ID: <20030407033627.GA4798@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 06 Apr 2003 23:35:11 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-04-06 at 23:29, Andrew Morton wrote:
+This is the patchset to support NEC PC-9800 subarchitecture
+against 2.5.66-ac2.
 
-> But that's a different error.  Robert (Day) reported:
-> 
->  rpmdb: unable to join the environment
->  error: db4 error(11) from dbenv->open: Resource temporarily unavailable
->  error: cannot open Packages index using db3 - Resource temporarily unavailable (11)
->  error: cannot open Packages database in /var/lib/rpm
-> 
-> but then again, there's no way in which the patch which we're discussing
-> could cause EAGAIN.
+Comments and test reports are wellcome.
 
-Oh, sorry for not mentioning. I see both... I think it depends whether a
-previous error left a stale lock around.  Its the same problem, trust
-me.
+Description:
+ o arch.patch (1/9)
+   Add selection for CONFIG_X86_PC9800.
 
-> Has anyone straced a failing rpm command?
+ o console.patch (2/9)
+   PC98 Standard console support (without japanese kanji character).
 
-I sent one out...
+ o core-misc.patch (3/9)
+   Small patches for PC98 support core.
 
-	Robert Love
+ o dma.patch (4/9)
+   DMA support for PC98.
+
+ o ide.patch (5/9)
+   PC98 standard IDE I/F support.
+
+ o kanji.patch (6/9)
+   japanese kanji character support for PC98 console.
+
+ o pci.patch (7/9)
+   Small changes for PCI support.
+
+ o pcmcia.patch (8/9)
+   Small change for PCMCIA (16bits) support.
+
+ o scsi.patch (9/9)
+   SCSI host adapter support.
+
+Regards,
+Osamu Tomita <tomita@cinet.co.jp>
 

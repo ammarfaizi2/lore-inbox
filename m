@@ -1,93 +1,215 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291224AbSBHAhj>; Thu, 7 Feb 2002 19:37:39 -0500
+	id <S291226AbSBHAhu>; Thu, 7 Feb 2002 19:37:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291248AbSBHAh3>; Thu, 7 Feb 2002 19:37:29 -0500
-Received: from jalon.able.es ([212.97.163.2]:3277 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S291224AbSBHAhO>;
-	Thu, 7 Feb 2002 19:37:14 -0500
-Date: Fri, 8 Feb 2002 01:37:05 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Justin Piszcz <war@starband.net>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Information & Install Kernel Script
-Message-ID: <20020208013705.A21496@werewolf.able.es>
-In-Reply-To: <3C6267B7.30A3020D@starband.net> <a3ut0u$f60$1@cesium.transmeta.com> <3C62FB81.E053B660@starband.net>
+	id <S291248AbSBHAhk>; Thu, 7 Feb 2002 19:37:40 -0500
+Received: from holomorphy.com ([216.36.33.161]:54415 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S291226AbSBHAh2>;
+	Thu, 7 Feb 2002 19:37:28 -0500
+Date: Thu, 7 Feb 2002 16:37:11 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: riel@surriel.com
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: for_each_zone cleanup
+Message-ID: <20020208003711.GE11971@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	riel@surriel.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3C62FB81.E053B660@starband.net>; from war@starband.net on jue, feb 07, 2002 at 23:11:13 +0100
-X-Mailer: Balsa 1.3.1
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Well, this has been floating around for a while, but here it is.
+Others will shortly follow.
 
-On 20020207 Justin Piszcz wrote:
->Perhaps, however I began ik in December 2000.
->No /sbin/installkernel existed at the time.
->And /sbin/installkernel doesn't support grub on my rh72 box.
->Nor does it check dependencies, etc, etc.
->
+Cheers,
+Bill
 
-You should really take a look at /sbin/installkernel from Mandrake.
-Bootloader autodetection (lilo-grub), old kernel backup, adds entries in
-loader config file... a bunch of features. Do not reinvent
-the whell.
-
-Perhaps it is time for RedHat to turn heads towards Mandrake.
-
-
->"H. Peter Anvin" wrote:
->
->> Followup to:  <3C6267B7.30A3020D@starband.net>
->> By author:    Justin Piszcz <war@starband.net>
->> In newsgroup: linux.dev.kernel
->> >
->> > New site: http://www.installkernel.com/
->> > It is very light at the moment.
->> >
->> > 1] Latest news about the kernel:
->> >    http://www.installkernel.com/kernel.html
->> >    Anything else I should add under 2.4.17?
->> >
->> > 2] Install Kernel (bash script which I am working on)
->> >     http://www.installkernel.com/ik/index.html
->> >     ik-0.8.9: Adds -b option, you can build and install the kernel from
->> > the current directory with -b.
->> >     Summary of ik:
->> >     Install Kernel (ik) is a bash script that installs the Linux kernel
->> > and automatically sets up LILO or GRUB.
->> >     It also saves your kernel configuration each time you do an install.
->> > This allows you to restore the newest
->> >     configuration file when you make a new kernel. This script is
->> > intended for two groups of people; people
->> >     new to compiling kernels, and people who are tired of moving files
->> > around and editing their bootloader
->> >     configurations every time they install a new kernel.
->> >
->>
->> Sounds like you should make this work as /sbin/installkernel.
->>
->>         -hpa
->> --
->> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
->> "Unix gives you enough rope to shoot yourself in the foot."
->> http://www.zytor.com/~hpa/puzzle.txt    <amsp@zytor.com>
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-pre8-slb #1 SMP Tue Feb 5 01:43:29 CET 2002 i686
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Long-term Linux VM development
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.190   -> 1.191  
+#	include/linux/mm_inline.h	1.13    -> 1.14   
+#	include/linux/mmzone.h	1.12    -> 1.13   
+#	         mm/vmscan.c	1.93    -> 1.94   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/02/07	wli@tisifone.holomorphy.com	1.191
+# Cleanup of for_each_zone() specifically addressing
+# (1) call by reference instead of returning a value in __next_zone()
+# (2) the use of an unnecessary pg_data_t state variable in for_each_zone()
+# -- wli
+# --------------------------------------------
+#
+diff --minimal -Nru a/include/linux/mm_inline.h b/include/linux/mm_inline.h
+--- a/include/linux/mm_inline.h	Thu Feb  7 16:30:27 2002
++++ b/include/linux/mm_inline.h	Thu Feb  7 16:30:27 2002
+@@ -126,13 +126,12 @@
+ static inline int free_limit(struct zone_struct * zone, int limit)
+ {
+ 	int shortage = 0, local;
+-	pg_data_t * pgdat;
+ 
+ 	if (zone == ALL_ZONES) {
+-		for_each_zone(pgdat, zone)
++		for_each_zone(zone)
+ 			shortage += zone_free_limit(zone, limit);
+ 	} else if (zone == ANY_ZONE) {
+-		for_each_zone(pgdat, zone) {
++		for_each_zone(zone) {
+ 			local = zone_free_limit(zone, limit);
+ 			shortage += max(local, 0);
+ 		}
+@@ -222,13 +221,12 @@
+ static inline int inactive_limit(struct zone_struct * zone, int limit)
+ {
+ 	int shortage = 0, local;
+-	pg_data_t * pgdat;
+ 
+ 	if (zone == ALL_ZONES) {
+-		for_each_zone(pgdat, zone)
++		for_each_zone(zone)
+ 			shortage += zone_inactive_limit(zone, limit);
+ 	} else if (zone == ANY_ZONE) {
+-		for_each_zone(pgdat, zone) {
++		for_each_zone(zone) {
+ 			local = zone_inactive_limit(zone, limit);
+ 			shortage += max(local, 0);
+ 		}
+diff --minimal -Nru a/include/linux/mmzone.h b/include/linux/mmzone.h
+--- a/include/linux/mmzone.h	Thu Feb  7 16:30:27 2002
++++ b/include/linux/mmzone.h	Thu Feb  7 16:30:27 2002
+@@ -162,28 +162,31 @@
+ extern pg_data_t contig_page_data;
+ 
+ /*
+- * __next_zone - helper magic for for_each_zone()
++ * next_zone - helper magic for for_each_zone()
+  * Thanks to William Lee Irwin III for this piece of ingenuity.
+  */
+-static inline void __next_zone(pg_data_t **pgdat, zone_t **zone)
++static inline zone_t *next_zone(zone_t *zone)
+ {
+-	(*zone)++;
+-	if(*zone - (*pgdat)->node_zones >= MAX_NR_ZONES) {
+-		*pgdat = (*pgdat)->node_next;
+-		if(*pgdat)
+-			*zone = (*pgdat)->node_zones;
+-		else
+-			*zone = NULL;
+-	}
++	pg_data_t *pgdat = zone->zone_pgdat;
++
++	if (zone - pgdat->node_zones < MAX_NR_ZONES - 1)
++		zone++;
++
++	else if (pgdat->node_next) {
++		pgdat = pgdat->node_next;
++		zone = pgdat->node_zones;
++	} else
++		zone = NULL;
++
++	return zone;
+ }
+ 
+ /**
+  * for_each_zone - helper macro to iterate over all memory zones
+- * @pgdat - pg_data_t * variable
+  * @zone - zone_t * variable
+  *
+- * The user only needs to declare both variables, for_each_zone
+- * fills them in. This basically means for_each_zone() is an
++ * The user only needs to declare the zone variable, for_each_zone
++ * fills it in. This basically means for_each_zone() is an
+  * easier to read version of this piece of code:
+  *
+  * for(pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
+@@ -193,10 +196,8 @@
+  * 	}
+  * }
+  */
+-#define for_each_zone(pgdat, zone)				\
+-	for(pgdat = pgdat_list, zone = pgdat->node_zones;	\
+-			pgdat && zone;				\
+-			__next_zone(&pgdat, &zone))
++#define for_each_zone(zone) \
++	for(zone = pgdat_list->node_zones; zone; zone = next_zone(zone))
+ 
+ 
+ #ifndef CONFIG_DISCONTIGMEM
+diff --minimal -Nru a/mm/vmscan.c b/mm/vmscan.c
+--- a/mm/vmscan.c	Thu Feb  7 16:30:27 2002
++++ b/mm/vmscan.c	Thu Feb  7 16:30:27 2002
+@@ -421,18 +421,17 @@
+ {
+ 	int maxtry = 1 << DEF_PRIORITY;
+ 	struct zone_struct * zone;
+-	pg_data_t * pgdat;
+ 	int freed = 0;
+ 
+ 	/* Global balancing while we have a global shortage. */
+ 	while (maxtry-- && free_high(ALL_ZONES) >= 0) {
+-		for_each_zone(pgdat, zone)
++		for_each_zone(zone)
+ 			if (free_plenty(zone) >= 0)
+ 				freed += page_launder_zone(zone, gfp_mask, 6);
+ 	}
+ 	
+ 	/* Clean up the remaining zones with a serious shortage, if any. */
+-	for_each_zone(pgdat, zone)
++	for_each_zone(zone)
+ 		if (free_min(zone) >= 0)
+ 			freed += page_launder_zone(zone, gfp_mask, 0);
+ 
+@@ -524,20 +523,19 @@
+ int refill_inactive(void)
+ {
+ 	int maxtry = 1 << DEF_PRIORITY;
+-	pg_data_t * pgdat;
+ 	zone_t * zone;
+ 	int ret = 0;
+ 
+ 	/* Global balancing while we have a global shortage. */
+ 	while (maxtry-- && inactive_low(ALL_ZONES) >= 0) {
+-		for_each_zone(pgdat, zone) {
++		for_each_zone(zone) {
+ 			if (inactive_high(zone) >= 0)
+ 				ret += refill_inactive_zone(zone, DEF_PRIORITY);
+ 		}
+ 	}
+ 
+ 	/* Local balancing for zones which really need it. */
+-	for_each_zone(pgdat, zone) {
++	for_each_zone(zone) {
+ 		if (inactive_min(zone) >= 0)
+ 			ret += refill_inactive_zone(zone, 0);
+ 	}
+@@ -558,9 +556,8 @@
+ static inline void background_aging(int priority)
+ {
+ 	struct zone_struct * zone;
+-	pg_data_t * pgdat;
+ 
+-	for_each_zone(pgdat, zone)
++	for_each_zone(zone)
+ 		if (inactive_high(zone) > 0)
+ 			refill_inactive_zone(zone, priority);
+ }
+@@ -624,10 +621,9 @@
+ static void refill_freelist(void)
+ {
+ 	struct page * page;
+-	pg_data_t * pgdat;
+ 	zone_t * zone;
+ 
+-	for_each_zone(pgdat, zone) {
++	for_each_zone(zone) {
+ 		if (!zone->size || zone->free_pages >= zone->pages_min)
+ 			continue;
+ 

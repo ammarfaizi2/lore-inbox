@@ -1,66 +1,314 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVCYFix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVCYFr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261319AbVCYFix (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 00:38:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVCYFix
+	id S261363AbVCYFr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 00:47:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVCYFr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 00:38:53 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:47810 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261319AbVCYFis (ORCPT
+	Fri, 25 Mar 2005 00:47:59 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:30695 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S261335AbVCYFrX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 00:38:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=d3Jf0Z13Kq9u1D7y2Qok7aQBAiyZxqP5UsP+xKMgE0yvQyxAPe2G0pE61DVfOG86c/dKSk9gHYz5mQglaZDNzKqkMu+VAFG5Zjvad96Ypelie/rv/ttE0/ZYdiVyGlIcl3cX+5a6mnrtrR8jKVVQgMMPi/NwC9elB3PiS1UwIW4=
-Date: Fri, 25 Mar 2005 14:38:43 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH scsi-misc-2.6 08/08] scsi: fix hot unplug sequence
-Message-ID: <20050325053842.GA24499@htj.dyndns.org>
-References: <20050323021335.960F95F8@htj.dyndns.org> <20050323021335.4682C732@htj.dyndns.org> <1111550882.5520.93.camel@mulgrave> <4240F5A9.80205@gmail.com> <20050323071920.GJ24105@suse.de> <1111591213.5441.19.camel@mulgrave> <20050323152550.GB16149@suse.de> <1111711558.5612.52.camel@mulgrave> <20050325031511.GA22114@htj.dyndns.org> <1111726965.5612.62.camel@mulgrave>
+	Fri, 25 Mar 2005 00:47:23 -0500
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy
+	(2.6.11)
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: David McCullough <davidm@snapgear.com>
+Cc: cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       James Morris <jmorris@redhat.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <1111665551.23532.90.camel@uganda>
+References: <20050315133644.GA25903@beast>  <20050324042708.GA2806@beast>
+	 <1111665551.23532.90.camel@uganda>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7mNxw/gZlShPvoOou4C3"
+Organization: MIPT
+Date: Fri, 25 Mar 2005 08:52:51 +0300
+Message-Id: <1111729971.20797.1.camel@uganda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1111726965.5612.62.camel@mulgrave>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.4 (2.0.4-1) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Fri, 25 Mar 2005 08:46:35 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hi,
 
-On Thu, Mar 24, 2005 at 11:02:45PM -0600, James Bottomley wrote:
-> On Fri, 2005-03-25 at 12:15 +0900, Tejun Heo wrote:
-> >  I think I found the cause.  Special requests submitted using
-> > scsi_do_req() never initializes ->end_io().  Normally, SCSI midlayer
-> > terminates special requests inside the SCSI midlayer without passing
-> > through the blkdev layer.  However, if a device is going away or taken
-> > offline, blkdev layer gets to terminate special requests and, as
-> > ->end_io() is never set-up, nothing happens and the completion gets
-> > lost.
-> 
-> The analysis is exactly correct, well done!  I think your patch is a bit
-> overly complex, though.  We can achieve the same effect simply by
-> executing the completion without changing the rq_status like the patch
-> below.
-> 
-> Jens,  To go back to the original problem, except when I hit the usb-
-> storage error handling oops, I can plug and unplug to my hearts content
-> and everything works.
+--=-7mNxw/gZlShPvoOou4C3
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
- We have users of scsi_do_req() other than scsi_wait_req() and they
-use different done() functions to do different things.  I've checked
-other done functions and none uses contents inside the passed
-scsi_cmnd, so using a dummy command should be okay with them.  Am I
-missing something here?
+On Thu, 2005-03-24 at 14:59 +0300, Evgeniy Polyakov wrote:
 
- Oh, and I would really appreciate if you can fill me in / give a
-pointer about the scsi_request/scsi_cmnd distinction.
+> For example here is patch to enable acrypto support for hw_random.c
+> It is very simple and support only upto 4 bytes request, of course it
+> is not interested for anyone, but it is only 2-minutes example:
 
- Thanks a lot.
+Full port.
 
--- 
-tejun
+--- ./drivers/char/hw_random.c.orig     2005-03-24 13:36:05.000000000 +0300
++++ ./drivers/char/hw_random.c  2005-03-25 08:46:03.841601032 +0300
+@@ -34,6 +34,10 @@
+ #include <linux/smp_lock.h>
+ #include <linux/mm.h>
+ #include <linux/delay.h>
++#include <linux/acrypto.h>
++#include <linux/crypto_def.h>
++#include <linux/crypto_stat.h>
++#include <linux/highmem.h>
+
+ #ifdef __i386__
+ #include <asm/msr.h>
+@@ -73,6 +77,8 @@
+ #endif
+
+ #define RNG_MISCDEV_MINOR              183 /* official */
++
++static DEFINE_SPINLOCK(rng_lock);
+
+ static int rng_dev_open (struct inode *inode, struct file *filp);
+ static ssize_t rng_dev_read (struct file *filp, char __user *buf, size_t s=
+ize,
+@@ -482,7 +488,6 @@
+ static ssize_t rng_dev_read (struct file *filp, char __user *buf, size_t s=
+ize,
+                                loff_t * offp)
+ {
+-       static DEFINE_SPINLOCK(rng_lock);
+        unsigned int have_data;
+        u32 data =3D 0;
+        ssize_t ret =3D 0;
+@@ -526,7 +531,163 @@
+        return ret;
+ }
+
++#ifdef CONFIG_ACRYPTO
++static struct crypto_device *hwr_cdev;
++static struct crypto_capability hwr_caps[] =3D   {
++       {CRYPTO_OP_RNG, 0, 0, 100},
++};
++static int hwr_pid, hwr_need_exit;
++static struct completion hwr_thread_exited;
++static DECLARE_WAIT_QUEUE_HEAD(hwr_wait);
++
++
++static void hwr_data_ready(struct crypto_device *dev)
++{
++       wake_up(&hwr_wait);
++}
++
++static int hwr_process(void *data)
++{
++       struct crypto_device *dev =3D data;
++       struct crypto_session *s, *n;
++       u32 rng_data =3D 0;
++       unsigned int have_data, size;
++       int i;
++       u8 *ptr;
++
++       daemonize("%s", dev->name);
++       allow_signal(SIGTERM);
++
++       while (!hwr_need_exit) {
++               interruptible_sleep_on_timeout(&hwr_wait, 10);
++
++               list_for_each_entry_safe(s, n, &dev->session_list, dev_queu=
+e_entry) {
++                       if (!session_completed(s) && !session_is_processed(=
+s)) {
++                               start_process_session(s);
++
++                               if (s->data.sg_src_num !=3D s->data.sg_dst_=
+num) {
++                                       dprintk("%s: session %llu [%llu]: d=
+ifferent src/dst sg numbers: %d %d.\n",
++                                                       dev->name, s->ci.id=
+, s->ci.dev_id,
++                                                       s->data.sg_src_num,=
+ s->data.sg_dst_num);
++                                       broke_session(s);
++                                       goto out_complete_session;
++                               }
++
++                               for (i=3D0; i<s->data.sg_src_num; ++i) {
++                                       if (s->data.sg_dst[i].length !=3D s=
+->data.sg_src[i].length) {
++                                               dprintk("%s: session %llu [=
+%llu]: sg %d different src/dst lengths: %u %u.\n",
++                                                               dev->name, =
+s->ci.id, s->ci.dev_id, i,
++                                                               s->data.sg_=
+src[i].length, s->data.sg_dst[i].length);
++                                               if (s->data.sg_dst[i].lengt=
+h)
++                                                       s->data.sg_src[i].l=
+ength =3D s->data.sg_dst[i].length;
++                                               else
++                                                       s->data.sg_dst[i].l=
+ength =3D s->data.sg_src[i].length;
++
++                                       }
++
++                                       size =3D s->data.sg_dst[i].length;
++
++                                       while (size) {
++                                               spin_lock(&rng_lock);
++                                               have_data =3D 0;
++                                               if (rng_ops->data_present()=
+) {
++                                                       rng_data =3D rng_op=
+s->data_read();
++                                                       have_data =3D rng_o=
+ps->n_bytes;
++                                               }
++                                               spin_unlock (&rng_lock);
++
++                                               ptr =3D kmap_atomic(s->data=
+.sg_dst[i].page, KM_USER0) + s->data.sg_dst[i].offset +
++                                                       s->data.sg_dst[i].l=
+ength - size;
++
++                                               while (size && have_data) {
++                                                       *ptr =3D rng_data &=
+ 0xff;
++                                                       size--;
++                                                       have_data--;
++                                                       rng_data >>=3D 8;
++                                               }
++                                               kunmap_atomic(ptr, KM_USER0=
+);
++
++                                               if (size)
++                                                       msleep_interruptibl=
+e(1);
++                                       }
++                               }
++
++                               crypto_stat_complete_inc(s);
++
++out_complete_session:
++                               crypto_session_dequeue_route(s);
++                               complete_session(s);
++                               stop_process_session(s);
++                       }
++               }
++       }
++
++       complete_and_exit(&hwr_thread_exited, 0);
++}
++
++static int hwr_acrypto_init(struct rng_operations *ops)
++{
++       int err;
++
++       hwr_cdev =3D kmalloc(sizeof(*hwr_cdev), GFP_KERNEL);
++       if (!hwr_cdev) {
++               printk(KERN_ERR "Failed to allocate new crypto_device struc=
+ture.\n");
++               return -ENOMEM;
++       }
++
++       memset(hwr_cdev, 0, sizeof(*hwr_cdev));
++
++       hwr_cdev->cap           =3D hwr_caps;
++       hwr_cdev->cap_number    =3D sizeof(hwr_caps)/sizeof(hwr_caps[0]);
++       hwr_cdev->priv          =3D ops;
++       hwr_cdev->data_ready    =3D &hwr_data_ready;
++       snprintf(hwr_cdev->name, sizeof(hwr_cdev->name), "%s", "hwr");
++
++       init_completion(&hwr_thread_exited);
++       hwr_pid =3D kernel_thread(hwr_process, hwr_cdev, CLONE_FS | CLONE_F=
+ILES);
++       if (hwr_pid < 0) {
++               err =3D hwr_pid;
++               goto err_out_free_cdev;
++       }
+
++       err =3D crypto_device_add(hwr_cdev);
++       if (err)
++               goto err_out_remove_thread;
++
++       printk(KERN_INFO "%s acrypto support is turned on.\n", hwr_cdev->na=
+me);
++
++err_out_remove_thread:
++       hwr_need_exit =3D 1;
++       kill_proc(hwr_pid, SIGTERM, 0);
++       wait_for_completion(&hwr_thread_exited);
++err_out_free_cdev:
++       kfree(hwr_cdev);
++       hwr_cdev =3D NULL;
++       return err;
++}
++
++static void hwr_acrypto_fini(void)
++{
++       crypto_device_remove(hwr_cdev);
++       printk(KERN_INFO "%s acrypto support is turned off.\n", hwr_cdev->n=
+ame);
++
++       hwr_need_exit =3D 1;
++       kill_proc(hwr_pid, SIGTERM, 0);
++       wait_for_completion(&hwr_thread_exited);
++
++       kfree(hwr_cdev);
++       hwr_cdev =3D NULL;
++}
++#else
++static int hwr_acrypto_init(struct rng_operations *ops)
++{
++       return 0;
++}
++
++static void hwr_acrypto_fini(void)
++{
++}
++#endif
+
+ /*
+  * rng_init_one - look for and attempt to init a single RNG
+@@ -549,9 +710,15 @@
+                goto err_out_cleanup_hw;
+        }
+
++       rc =3D hwr_acrypto_init(rng_ops);
++       if (rc)
++               goto err_out_misc_unregister;
++
+        DPRINTK ("EXIT, returning 0\n");
+        return 0;
+
++err_out_misc_unregister:
++       misc_deregister(&rng_miscdev);
+ err_out_cleanup_hw:
+        rng_ops->cleanup();
+ err_out:
+@@ -617,6 +784,8 @@
+ {
+        DPRINTK ("ENTER\n");
+
++       hwr_acrypto_fini();
++
+        misc_deregister (&rng_miscdev);
+
+        if (rng_ops->cleanup)
+
+
+--=20
+        Evgeniy Polyakov
+
+Crash is better than data corruption -- Arthur Grabowski
+
+--=-7mNxw/gZlShPvoOou4C3
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCQ6czIKTPhE+8wY0RAiDGAKCUXrEAZSXotvN1hBtEplu2s6+u8gCcDMOG
+2rVsgtPfIsd8GCW1uYSJeqE=
+=lNVC
+-----END PGP SIGNATURE-----
+
+--=-7mNxw/gZlShPvoOou4C3--
 

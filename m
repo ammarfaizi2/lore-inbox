@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311575AbSDSGlq>; Fri, 19 Apr 2002 02:41:46 -0400
+	id <S311647AbSDSGmi>; Fri, 19 Apr 2002 02:42:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311587AbSDSGlp>; Fri, 19 Apr 2002 02:41:45 -0400
-Received: from holomorphy.com ([66.224.33.161]:43936 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S311575AbSDSGlp>;
-	Fri, 19 Apr 2002 02:41:45 -0400
-Date: Thu, 18 Apr 2002 23:40:52 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Erich Focht <efocht@ess.nec.de>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] migration thread fix
-Message-ID: <20020419064052.GB21206@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>, Erich Focht <efocht@ess.nec.de>,
-	linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0204182043110.2453-100000@beast.local> <Pine.LNX.4.44.0204190629360.3799-100000@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S311618AbSDSGmf>; Fri, 19 Apr 2002 02:42:35 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:31207 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S311587AbSDSGmd>;
+	Fri, 19 Apr 2002 02:42:33 -0400
+Date: Fri, 19 Apr 2002 06:38:40 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: mingo@elte.hu
+To: Dave Olien <oliendm@us.ibm.com>
+Cc: davidsen@tmr.com, <jbourne@MtRoyal.AB.CA>, <linux-kernel@vger.kernel.org>,
+        <Molnar@tmr.com>
+Subject: Re: SMP P4 APIC/interrupt balancing
+In-Reply-To: <200204181748.g3IHm4K08649@eng2.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.44.0204190635060.3975-100000@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 19, 2002 at 06:31:15AM +0200, Ingo Molnar wrote:
-> looks perfectly good to me. Even with wli's patch i saw some migration
-> thread initialization weirdnesses.
 
-It's a bit of a moot point, but I'd be interested in knowing what sort
-of weirdnesses those might be for my own edification.
+On Thu, 18 Apr 2002, Dave Olien wrote:
 
+> Cache warmth in handling interrupts is good.  In fact, this is one of
+> the reasons to use interrupt affinity.
 
-Cheers,
-Bill
+and in fact this is why IRQ handlers in the irqbalance patch stay affine
+to a single CPU for at least 10 msecs. So for most practical purposes when
+there is no direct affinity between tasks and IRQs, this brings us very
+close the highest possible affinity that can be achieved.
+
+/proc/irq/*/smp_affinity is still preserved for those workloads when some
+direct relationship can be established between process activity and IRQ
+load. (such as perfectly partitioned server workloads.)
+
+> But, directing all interrupts to single processor penalizes unfairly any
+> tasks that are scheduled to run on that processor.  Under heavy
+> interrupt load, a tasks can become effectively "pinned" onto that
+> processor, unable to get cpu time to make progress, and unable to be
+> scheduled somewhere else.
+> 
+> Under really heavy interrupt load, it's good to have many processors
+> handling interrupts.  It increases rate the system can handle
+> interrupts, and it reduces the latency of individual interrupts.
+
+yes, this is why the irqbalance patch goes to great lengths to assure that
+distribution of IRQs is as random as possible, with the following
+variation: idle CPUs are more likely to be used by the IRQ balancing
+mechanism than busy CPUs.
+
+	Ingo
+

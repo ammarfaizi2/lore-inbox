@@ -1,58 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265966AbUFTWXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265970AbUFTWYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265966AbUFTWXd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 18:23:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265970AbUFTWXd
+	id S265970AbUFTWYo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 18:24:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUFTWYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 18:23:33 -0400
-Received: from netrider.rowland.org ([192.131.102.5]:25867 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP id S265966AbUFTWXT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 18:23:19 -0400
-Date: Sun, 20 Jun 2004 18:23:15 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: James Bottomley <James.Bottomley@steeleye.com>
-cc: Greg KH <greg@kroah.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: BUG(?): class_device_driver_link()
-In-Reply-To: <1087615720.2134.233.camel@mulgrave>
-Message-ID: <Pine.LNX.4.44L0.0406201816380.19414-100000@netrider.rowland.org>
+	Sun, 20 Jun 2004 18:24:44 -0400
+Received: from cantor.suse.de ([195.135.220.2]:6813 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265970AbUFTWYg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 18:24:36 -0400
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SUSE Labs
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+Subject: Re: [PATCH 0/2] kbuild updates
+Date: Mon, 21 Jun 2004 00:26:43 +0200
+User-Agent: KMail/1.6.2
+Cc: arjanv@redhat.com, Sam Ravnborg <sam@ravnborg.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Kai Germaschewski <kai@germaschewski.name>
+References: <20040620211905.GA10189@mars.ravnborg.org> <1087767752.2805.18.camel@laptop.fenrus.com> <1087768362.14794.53.camel@nosferatu.lan>
+In-Reply-To: <1087768362.14794.53.camel@nosferatu.lan>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406210026.43988.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Jun 2004, James Bottomley wrote:
+On Sunday 20 June 2004 23:52, Martin Schlemmer wrote:
+> On Sun, 2004-06-20 at 23:42, Arjan van de Ven wrote:
+> > > Given, but to 'use' the kbuild infrastructure, you must still call it
+> > > via:
+> > >
+> > >   make -C _path_to_sources M=`pwd`
+> >
+> > I see no problem with requiring this though; requiring a correct
+> > makefile is perfectly fine with me, and this is the only and documented
+> > way for 2.6 already.
+> > (And it's also the only way to build modules against Fedora Core 2
+> > kernels by the way)
+>
+> I did not mean I have a problem with that.  Say you take svgalib, and
+> you want the build system to automatically compile the kernel module,
+> you might do something like:
+>
+> ---
+> build_2_6_module:
+> 	@make -C /lib/modules/`uname -r`/build M=`PWD`
+> ---
+>
+> will break with proposed patch ...
 
-> Well, the SCSI model for using these things isn't exactly the same as a
-> more standard entity like a PCI device.
-> 
-> For every SCSI device the mid-layer scans, we allocate a generic device.
-> 
-> We have various drivers in the driver model corresponding to our Upper
-> Layer Drivers (disc[sd] tape[st] etc), although there are SCSI devices
-> (like processors) that will get no driver at all bound.
-> 
-> We then use classes to export *device* interfaces, like one class of all
-> devices, another for Parallel interface devices, another for Fibre
-> Channel devices and so on.
-> 
-> We expect the class interface to work whether or not a driver is
-> present, because the class as we've implemented it is an interface to a
-> device property, not a driver property (and we also expect the class
-> interface to span multiple drivers...tapes and discs may all be attached
-> to a parallel bus, etc).
-> 
-> It sounds like the mismatch is interface on device rather than interface
-> on driver, but I don't see a way we could make the interface on driver
-> work for us because we need the interface even if a driver isn't bound.
+No it won't.
 
-You could change things so that the "driver" exported to the driver-model
-core really lives in the SCSI mid-layer and simply contains stubs that
-reflect things like remove(), shutdown(), and so on to the actual
-upper-layer driver.  Or am I missing some fundmental reason why this 
-wouldn't be a good idea?
+You always need to figure out $(objtree) to build external modules, with or 
+without a separate output directory. Many modules don't need to know 
+$(srctree) explicitly at all.
 
-Alan Stern
+In case you want to do something depending on the sources/confguration, there 
+are two ways:
+  - follow the new source symlink,
+  - let kbuild take you to $(srctree): When the makefile in the M directory
+    is included, the current working directory is $(srctree). besides, all the
+    usual variables like $(srctree), $(objtree), CONFIG_* variables, etc. are
+    all available. That's a good time to check for features, etc.
 
+> And the point I wanted to make was that AFIAK
+> '/lib/modules/`uname -r`/build' is an interface to figure
+> out where the _sources_ for the current running kernel are
+> located.
+
+That's a misconception. At the minimum, you want to be able to build the 
+module. Directly messing with the sources is usually wrong. I know external 
+module authors like to do that nevertheless; in a few cases it's actually 
+useful. Most of the time it really is not. Most external modules have totally 
+braindead/broken makefiles.
+
+Regards,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG

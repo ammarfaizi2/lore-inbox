@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319294AbSHNUiH>; Wed, 14 Aug 2002 16:38:07 -0400
+	id <S319344AbSHNVIL>; Wed, 14 Aug 2002 17:08:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319287AbSHNUhO>; Wed, 14 Aug 2002 16:37:14 -0400
-Received: from donkeykong.gpcc.itd.umich.edu ([141.211.2.163]:24793 "EHLO
-	donkeykong.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
-	id <S319280AbSHNUgE>; Wed, 14 Aug 2002 16:36:04 -0400
-Date: Wed, 14 Aug 2002 16:39:55 -0400 (EDT)
-From: "Kendrick M. Smith" <kmsmith@umich.edu>
-X-X-Sender: kmsmith@vanguard.gpcc.itd.umich.edu
-To: linux-kernel@vger.kernel.org, <nfs@lists.sourceforge.net>
-Subject: REPOST patch 08/38: CLIENT: change fsid in 'struct nfs_fattr' 
-Message-ID: <Pine.SOL.4.44.0208141639310.1834-100000@vanguard.gpcc.itd.umich.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319342AbSHNVHB>; Wed, 14 Aug 2002 17:07:01 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:20156 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
+	id <S319315AbSHNVFi>; Wed, 14 Aug 2002 17:05:38 -0400
+Subject: Re: Linux 2.4.20-pre2-ac1
+From: Steven Cole <elenstev@mesatop.com>
+To: Greg Louis <glouis@dynamicro.on.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020814162924.6a4203ef.glouis@dynamicro.on.ca>
+References: <200208141634.g7EGYGO29387@devserv.devel.redhat.com>
+	<1029346932.2045.128.camel@spc9.esa.lanl.gov> 
+	<20020814162924.6a4203ef.glouis@dynamicro.on.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 14 Aug 2002 15:06:32 -0600
+Message-Id: <1029359192.2051.155.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2002-08-14 at 14:29, Greg Louis wrote:
+> On 14 Aug 2002 11:42:11 -0600,
+>  Steven Cole <elenstev@mesatop.com> wrote:
+> 
+> > On Wed, 2002-08-14 at 10:34, Alan Cox wrote:
+> > 
+> > > 
+> > > Linux 2.4.20-pre2-ac1
+> > 
+> > With CONFIG_NFSD=y I got this:
+> > 
+> > fs/fs.o: In function `nfsd':
+> > fs/fs.o(.text+0x43fb1): undefined reference to `exp_readunlock'
+> > fs/fs.o: In function `sys_nfsservctl':
+> > fs/fs.o(.text+0x445e8): undefined reference to `exp_readunlock'
+> > fs/fs.o(.text+0x44692): undefined reference to `exp_readunlock'
+> > fs/fs.o(.data+0x261c): undefined reference to `exp_readunlock'
+> > make: *** [vmlinux] Error 1
+> > 
+> This looks as though it ought to work (though I'm not at all familiar
+> with the code), and seems to be working for me on one box where I've
+> run it:
+[patch snipped]
 
-In NFSv4, an fsid is a 64-bit major number together with a 64-bit
-minor number.  In previous versions, an fsid is a single number.
-This patch changes 'struct nfs_fattr' accordingly.
+Yep, that allowed it to build with CONFIG_NFSD=y.  I just can't test
+it as I've got my test box busy doing other things for a while.
 
---- old/include/linux/nfs_xdr.h	Sun Aug 11 20:27:40 2002
-+++ new/include/linux/nfs_xdr.h	Sun Aug 11 20:28:56 2002
-@@ -22,13 +22,20 @@ struct nfs_fattr {
- 		} nfs3;
- 	} du;
- 	__u32			rdev;
--	__u64			fsid;
-+	union {
-+		__u64		nfs3;		/* also nfs2 */
-+		struct {
-+			__u64	major;
-+			__u64	minor;
-+		} nfs4;
-+	} fsid_u;
- 	__u64			fileid;
- 	__u64			atime;
- 	__u64			mtime;
- 	__u64			ctime;
- 	unsigned long		timestamp;
- };
-+#define fsid			fsid_u.nfs3
+Thanks,
+Steven
 
- #define NFS_ATTR_WCC		0x0001		/* pre-op WCC data    */
- #define NFS_ATTR_FATTR		0x0002		/* post-op attributes */
 

@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262719AbTKEC5v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 21:57:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbTKEC5v
+	id S262740AbTKEDHa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 22:07:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbTKEDHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 21:57:51 -0500
-Received: from mail-09.iinet.net.au ([203.59.3.41]:1170 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262719AbTKEC5u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 21:57:50 -0500
-Message-ID: <3FA86645.7030302@cyberone.com.au>
-Date: Wed, 05 Nov 2003 13:53:57 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Tue, 4 Nov 2003 22:07:30 -0500
+Received: from drifthost.com ([66.28.242.251]:39564 "EHLO drifthost.com")
+	by vger.kernel.org with ESMTP id S262740AbTKEDH2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 22:07:28 -0500
+Message-ID: <1805.61.88.244.7.1068001546.squirrel@mail.drifthost.com>
+Date: Wed, 5 Nov 2003 14:05:46 +1100 (EST)
+Subject: hda: no DRQ after issuing WRITE
+From: <steve@drifthost.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <200311042029.38749.andy@asjohnson.com>
+References: <200311042029.38749.andy@asjohnson.com>
+X-Priority: 3
+Importance: Normal
+X-Mailer: SquirrelMail (version 1.2.9)
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: john stultz <johnstul@us.ibm.com>, Joel Becker <Joel.Becker@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: get_cycles() on i386
-References: <Pine.LNX.4.44.0311041545030.20373-100000@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0311041545030.20373-100000@home.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hey guys,
 
+i keep getting things like this in my dmesg
 
-Linus Torvalds wrote:
+============================================
+hda: status timeout: status=0xd0 { Busy }
 
->On 4 Nov 2003, john stultz wrote:
->
->>CONFIG_X86_TSC be the devil. Personally, I'd much prefer dropping the
->>compile time option and using dynamic detection. Something like (not
->>recently tested and i believe against 2.5.something, but you get the
->>idea):
->>
->
->Some of the users are really timing-critical (eg scheduler).
->
+hda: no DRQ after issuing WRITE
+ide0: reset: success
+hda: status timeout: status=0xd0 { Busy }
 
-The scheduler uses its own sched_clock which only gives jiffies
-resolution if CONFIG_NUMA is defined. Unfortunate because I think
-its interactive behaviour isn't so good with ms resolution.
+hda: no DRQ after issuing WRITE
+ide0: reset: success
+=============================================
 
-The scheduler does not need to have synchronised TSCs though, I think.
-It just means 2 more calls to sched_clock in a slow path (smp migration).
+>From hdparm
+============================================
+/dev/hda:
+
+ Model=IC35L080AVVA07-0, FwRev=VA4OA52A, SerialNo=VNC402A4CBRJLA
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=52
+ BuffType=DualPortCache, BuffSize=1863kB, MaxMultSect=16, MultSect=off
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=160836480
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5
+ AdvancedPM=yes: disabled (255) WriteCache=enabled
+ Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:  2 3 4 5
+=================================================
+
+Ive searched high and low to try find out what this means, all ive found
+it people keep saying its all different kinds of things..
+
+I was wondering if this means my hdd is drying or is ti a setting?
+
+Thanks guys,
+Steve
 
 

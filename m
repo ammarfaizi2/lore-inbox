@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbULHLXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbULHLc7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbULHLXK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 06:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbULHLXK
+	id S261188AbULHLc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 06:32:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbULHLc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 06:23:10 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:13475 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261186AbULHLXI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 06:23:08 -0500
-Message-ID: <41B6E415.4000602@cyberone.com.au>
-Date: Wed, 08 Dec 2004 22:23:01 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Lukas Hejtmanek <xhejtman@hell.sks3.muni.cz>
-CC: Andrew Morton <akpm@osdl.org>, zaphodb@zaphods.net,
-       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
-References: <20041202122546.59ff814f.akpm@osdl.org> <20041202210348.GD20771@mail.muni.cz> <20041202223146.GA31508@zaphods.net> <20041202145610.49e27b49.akpm@osdl.org> <20041202231837.GB15185@mail.muni.cz> <20041202161839.736352c2.akpm@osdl.org> <20041203121129.GC27716@mail.muni.cz> <41B6343A.9060601@cyberone.com.au> <20041207225932.GB12030@mail.muni.cz> <41B63738.2010305@cyberone.com.au> <20041208111832.GA13592@mail.muni.cz>
-In-Reply-To: <20041208111832.GA13592@mail.muni.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Dec 2004 06:32:59 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:19371 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S261188AbULHLc5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 06:32:57 -0500
+Date: Wed, 8 Dec 2004 22:32:41 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: "Zou, Nanhai" <nanhai.zou@intel.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, tony.luck@intel.com,
+       ak@suse.de, ralf@linux-mips.org, paulus@au.ibm.com,
+       schwidefsky@de.ibm.com, Davem@davemloft.net
+Subject: Re: [Compatibilty patch] sigtimedwait
+Message-Id: <20041208223241.4ff5a60c.sfr@canb.auug.org.au>
+In-Reply-To: <894E37DECA393E4D9374E0ACBBE7427013C9FB@pdsmsx402.ccr.corp.intel.com>
+References: <894E37DECA393E4D9374E0ACBBE7427013C9FB@pdsmsx402.ccr.corp.intel.com>
+X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Wed__8_Dec_2004_22_32_41_+1100_H8AKtOeLZLjAwvX4"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Signature=_Wed__8_Dec_2004_22_32_41_+1100_H8AKtOeLZLjAwvX4
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-
-Lukas Hejtmanek wrote:
-
->On Wed, Dec 08, 2004 at 10:05:28AM +1100, Nick Piggin wrote:
+On Wed, 8 Dec 2004 08:48:56 +0800 "Zou, Nanhai" <nanhai.zou@intel.com> wrote:
 >
->>If you are able to test 2.6.10-rc3, that would be nice.
->>
->
->No better. min_free_kb is set by default to 3831 but I can still reproduce this:
->
->swapper: page allocation failure. order:0, mode:0x20
->
+> 
+> This patch also merges all 6 32 bit layer sys_rt_sigtimedwait in IA64,
+> X86_64, PPC64, Sparc64, S390 and MIPS into 1 compat_rt_sigtimedwait.
 
-What value do you have to raise min_free_kb to in order to be unable to
-reproduce the warnings?
+I think compat_siginfo_t/struct compat_siginfo should be the preferred
+name for the structure like all the other comptibility types.
 
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+--Signature=_Wed__8_Dec_2004_22_32_41_+1100_H8AKtOeLZLjAwvX4
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBtuZi4CJfqux9a+8RAhf3AKCVrpVcPFML2USks10VnG0A82p8HwCfTBGc
+SNaaUc7kf/evpRoMLMhmNI8=
+=tYEe
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__8_Dec_2004_22_32_41_+1100_H8AKtOeLZLjAwvX4--

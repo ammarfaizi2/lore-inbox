@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263579AbTEMVdv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 17:33:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263576AbTEMVdu
+	id S261917AbTEMVgw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 17:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbTEMVgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 17:33:50 -0400
-Received: from windlord.Stanford.EDU ([171.64.19.147]:909 "HELO
-	windlord.stanford.edu") by vger.kernel.org with SMTP
-	id S263572AbTEMVdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 17:33:47 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       David Howells <dhowells@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
-Subject: Re: [OpenAFS-devel] Re: [PATCH] in-core AFS multiplexor and PAG
- support
-References: <Pine.LNX.4.44.0305130849480.1562-100000@home.transmeta.com>
-	<1052840663.463.64.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1052840663.463.64.camel@dhcp22.swansea.linux.org.uk> (Alan
- Cox's message of "13 May 2003 16:44:24 +0100")
-From: Russ Allbery <rra@stanford.edu>
-Organization: The Eyrie
-Date: Tue, 13 May 2003 14:46:27 -0700
-Message-ID: <ylu1byo6z0.fsf@windlord.stanford.edu>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Portable Code,
- sparc-sun-solaris2.6)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 May 2003 17:36:51 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:62850 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261917AbTEMVge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 17:36:34 -0400
+Subject: Re: status of Centrino wireless support
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Anders Karlsson <anders@trudheim.com>
+Cc: Andrew Baumann <andrewb@cse.unsw.edu.au>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1052387087.3172.15.camel@tor.trudheim.com>
+References: <200305081530.08818.andrewb@cse.unsw.edu.au>
+	 <1052387087.3172.15.camel@tor.trudheim.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Open Source Development Lab, Inc.
+Message-Id: <1052862196.1674.259.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 13 May 2003 14:43:17 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+  I am also working on getting something to address this issue.
 
-> How does AFS currently handle this, can two logins of the same user have
-> seperate PAGs ?
+Tim
 
-Yes.  In fact, that's the default situation and it requires some work to
-get two logins of the same user into the same PAG.
-
-AFS currently handles PAGs by creating "random" high-numbered groups and
-putting the user into them, and then associating the token with that group
-in the kernel.
-
-One could debate whether it's best to put a user into the same PAG as
-their other logins by default, but it's imperative that a user be able to
-create a separate PAG when they wish to (so, for example, they can acquire
-separate credentials in that new PAG without affecting the credentials and
-PAG for their other running processes).
-
+On Thu, 2003-05-08 at 02:44, Anders Karlsson wrote:
+> Morning,
+> 
+> On Thu, 2003-05-08 at 06:30, Andrew Baumann wrote:
+> > does anyone know anything more than "Intel have a driver internally, depending 
+> > who you ask, and might release it at at unspecified time, if they feel like 
+> > it" about the Centrino wireless adapter (Intel PRO/Wireless 2100 LAN MiniPCI 
+> > Adapter).
+> 
+> That is about the sum of it. I sent e-mails to Scott McLaughlin at Intel
+> and he said he forwarded my queries and comments to some internal team
+> looking into what they were doing.
+> 
+> From what I can gather, there is little happening from Intel to make the
+> drivers available.
+> 
+> > I've heard several interesting rumours along those lines, but nothing more. 
+> > Just wondering if anyone knows about or is working on support for this 
+> > device.
+> 
+> Not heard anything, will let you/LKML know if I hear anything.
+> 
+> /Anders
 -- 
-Russ Allbery (rra@stanford.edu)             <http://www.eyrie.org/~eagle/>
+Timothy D. Witham - Lab Director - wookie@osdlab.org
+Open Source Development Lab Inc - A non-profit corporation
+15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
+

@@ -1,75 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130380AbRBHOCB>; Thu, 8 Feb 2001 09:02:01 -0500
+	id <S129078AbRBHOJY>; Thu, 8 Feb 2001 09:09:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129961AbRBHOBl>; Thu, 8 Feb 2001 09:01:41 -0500
-Received: from oberon.gaumina.lt ([193.219.244.227]:34319 "HELO
-	oberon.gaumina.lt") by vger.kernel.org with SMTP id <S129388AbRBHOBa> convert rfc822-to-8bit;
-	Thu, 8 Feb 2001 09:01:30 -0500
-From: Andrius Adomaitis <charta@gaumina.lt>
+	id <S129173AbRBHOJP>; Thu, 8 Feb 2001 09:09:15 -0500
+Received: from mail.inup.com ([194.250.46.226]:516 "EHLO www.inup.com")
+	by vger.kernel.org with ESMTP id <S129078AbRBHOJE>;
+	Thu, 8 Feb 2001 09:09:04 -0500
+Date: Thu, 8 Feb 2001 15:08:59 +0100
+From: christophe barbe <christophe.barbe@inup.com>
 To: linux-kernel@vger.kernel.org
-Subject: Problems with 2.4.2-pre1 & reiser & vfs
-Date: Thu, 8 Feb 2001 16:00:26 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-MIME-Version: 1.0
-Message-Id: <0102081600260I.32334@castle.gaumina.lt>
-Content-Transfer-Encoding: 7BIT
+Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
+Message-ID: <20010208150859.A19950@pc8.inup.com>
+In-Reply-To: <20010208004021.D189@bug.ucw.cz> <Pine.LNX.4.33.0102080736190.5431-100000@asdf.capslock.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.33.0102080736190.5431-100000@as
+ df.capslock.lan>; from mharris@opensourceadvoca
+ te.org on jeu, fév 08, 2001 at 13:37:48 +0100
+X-Mailer: Balsa 1.1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ok it seems not important to have a nice boot process but each time you show a linux machine to a M$ normal user (normal = not a programmer) his first reaction is something like ""what are all these strange output lines?". And it's the first thing that keep Windows user in the dark side. 
+Windows hides (or try to do) all messages by a blue screen (light blue, when you are lucky). 
 
-Hello,
+For these reason, I use LPP (linux patch progress). It's a little patch. The main idea is : redirect all boot messages on the second console, display on the first one a bigger framebuffer logo (screen size) and draw on it the progress bar, progress text and warning messages. A proc interface is provided for the second part of the boot process (echo "starting X Font Server" > /proc/progress).
 
-I have  dual PIII 800 machine running as mail server on DAC 960 RAID & 
-reiserfs comming with 2.4.1kernel.
+The boot is not significantly longer (and with a well fitted kernel, is really faster than M$ Wx) and suddendly the first linux impression is really good.
 
-Under very high loads I get  following messages in my kernel log:
+I hope this kind of patch can be integrated in the kernel.
 
-kernel: vs-13060: reiserfs_update_sd: stat data of object [7906789 
-7906806 0x0 SD](nlink == 1) not found (pos 23)
-kernel: vs-13060: reiserfs_update_sd: stat data of object [7906789 
-7906806 0x0 SD] (nlink == 1) not found (pos 23)
-kernel: PAP-5660: reiserfs_do_truncate: wrong result -1 of search for 
-[7906789 7906806 0xfffffffffffffff DIRECT]
-kernel: vs-13060: reiserfs_update_sd: stat data of object [7906789 
-7906806 0x0 SD] (nlink == 1) not found (pos 23)
-kernel: PAP-5660: reiserfs_do_truncate: wrong result -1 of search for 
-[7906789 7906806 0xfffffffffffffff DIRECT]
-.....
+Christophe Barbé
 
-and afterwards come these:
 
-kernel: vs-3050: wait_buffer_until_released: nobody releases buffer 
-(dev 30:09, size 4096, blocknr 1661732, count 16,
-kernel: vs-3050: wait_buffer_until_released: nobody releases buffer 
-(dev 30:09, size 4096, blocknr 1661732, count 16,
-...
-and so on.
-
-The interesting thing is that system is still operational, but load 
-jumps up to 260 or so, and any attempts to reboot system fail. ps aux 
-shows that there exists imortal (kill -9 $PID doesn't kill it) qmail 
-process that consumes 97% of one CPU's resources.  Also `vmstat` shows 
-tons of processes in uninterruptable sleep, but `free` reports that it 
-is still enough memory (no swap used) and huge buffers... Machine gets 
-slugish but works for a while (0.5-2h dependent on mail request rate).
-
-System is Debian potato, 
-gcc version 2.95.2 20000220 (Debian GNU/Linux),
-reiserfs utils 3.6.25.
-
-Any patches or suggestions to fix that would be appreciated...
-
-P.S. Also I thought wouldn't it be good to have some sysctl entry in 
-proc that rebooted machine dependent on the value in control file when 
-proper software reboot is impossible (like in situation described 
-above)? Or probably there already exist(s) such thing(s)?
-
-Thanks.
+On jeu, 08 fév 2001 13:37:48 Mike A. Harris wrote:
+> On Thu, 8 Feb 2001, Pavel Machek wrote:
+> 
+> >> I've created a patch for kernel 2.4.1 that adds some fancy options for
+> >> the framebuffer console driver concerning the boot logo.
+> >> I've added logo animation and logo centering.
+> >> People may find this not very useful but nice to look at. :-)
+> >
+> >Long time ago I joked that win2000 will have 30-minute film at the
+> >bootup. [3.1 had picture, 95+ had static logo with moving line...] And
+> >now it looks like _linux_ is getting that feature...
+> >								Pavel,
+> >wondering when linux boot gets so long that mpeg2 player gets
+> >integrated into kernel.
+> 
+> ;o)
+> 
+> I doubt strongly that that is technically possible. In fact I'm
+> sure it is not.
+> 
+> 
+> ----------------------------------------------------------------------
+>     Mike A. Harris  -  Linux advocate  -  Free Software advocate
+>           This message is copyright 2001, all rights reserved.
+>   Views expressed are my own, not necessarily shared by my employer.
+> ----------------------------------------------------------------------
+> "Facts do not cease to exist because they are ignored."
+>                                                - Aldous Huxley
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 -- 
-Andrius
-charta@gaumina.lt
+Christophe Barbé
+Software Engineer
+Lineo High Availability Group
+42-46, rue Médéric
+92110 Clichy - France
+phone (33).1.41.40.02.12
+fax (33).1.41.40.02.01
+www.lineo.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,85 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbUCKVcp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 16:32:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbUCKVcp
+	id S261752AbUCKVeN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 16:34:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbUCKVeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 16:32:45 -0500
-Received: from main.gmane.org ([80.91.224.249]:9872 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261741AbUCKVci (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 16:32:38 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Pasi Savolainen <psavo@iki.fi>
-Subject: Unable to set reading speed with newer DVD -reader.
-Date: Thu, 11 Mar 2004 21:32:33 +0000 (UTC)
-Message-ID: <slrnc51mnh.s2s.psavo@varg.dyndns.org>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: a11a.mannikko1.ton.tut.fi
-User-Agent: slrn/0.9.8.0 (Linux)
+	Thu, 11 Mar 2004 16:34:13 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:50677 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261752AbUCKVdr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 16:33:47 -0500
+Message-ID: <4050DB34.8060704@mvista.com>
+Date: Thu, 11 Mar 2004 13:33:40 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tom Rini <trini@kernel.crashing.org>
+CC: "Amit S. Kale" <amitkale@emsyssoft.com>, Pavel Machek <pavel@ucw.cz>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kgdb-bugreport@lists.sourceforge.net
+Subject: Re: [Kgdb-bugreport] [PATCH] Kill kgdb_serial
+References: <20040302213901.GF20227@smtp.west.cox.net> <200403031113.02822.amitkale@emsyssoft.com> <20040303151628.GQ20227@smtp.west.cox.net> <200403041011.39467.amitkale@emsyssoft.com> <20040304152729.GC26065@smtp.west.cox.net> <4047B67A.4050609@mvista.com> <20040304231737.GJ26065@smtp.west.cox.net>
+In-Reply-To: <20040304231737.GJ26065@smtp.west.cox.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-There is a problem with setting DVD reading speed. 
-I found a thread[1] dealing with this, but there is only a scarse mention
-about SET_STREAMING in <linux/cdrom.h>.
+Tom Rini wrote:
+~
 
-[1] http://groups.google.com/groups?threadm=20010627194127.H17905%40suse.de
+>>I am afraid I don't quite understand what he was saying other than early 
+>>init stuff.  On of the problems with trying early init stuff, by the way, 
+>>is that a lot of things depend on having alloc up and that happens rather 
+>>late in the game.
+> 
+> 
+> I assume you aren't talking about kgdb stuff here (or what would be the
+> point of going so early) but I believe he was talking about allowing for
+> stuff that could be done early, to be done early.
 
-Thanks.
-- -
-# uname -a
-Linux tienel 2.6.4-rc1-mm2 #1 SMP Fri Mar 5 18:22:38 EET 2004 i686 GNU/Linux
-- -
-# # Without DVD-Video -disk in reader
-# hdparm -E 4 /dev/dvd
-
-/dev/dvd:
-setting cdrom speed to 4
-
-- -
-# # With DVD-Video -disk in reader.
-# hdparm -E 4 /dev/dvd
-
-/dev/dvd:
-setting cdrom speed to 4
- CDROM_SELECT_SPEED failed: Input/output error
-- -
-# tail /var/log/messages
-...
-Mar 11 23:11:07 tienel kernel: hdb: packet command error: status=0x51 { DriveReady SeekComplete Error }
-Mar 11 23:11:07 tienel kernel: hdb: packet command error: error=0x54
-Mar 11 23:11:07 tienel kernel: ATAPI device hdb:
-Mar 11 23:11:07 tienel kernel:   Error: Illegal request -- (Sense key=0x05)
-Mar 11 23:11:07 tienel kernel:   Invalid field in command packet -- (asc=0x24, ascq=0x00)
-Mar 11 23:11:07 tienel kernel:   The failed "Set Speed" packet command was: 
-Mar 11 23:11:07 tienel kernel:   "bb 00 02 c4 00 00 00 00 00 00 00 00 00 00 00 00 "
-- -
-# hdparm -I /dev/dvd
-
-/dev/dvd:
-
-ATAPI CD-ROM, with removable media
-        Model Number:       SAMSUNG DVD-ROM SD-616E                 
-        Serial Number:      
-        Firmware Revision:  F502    
-Standards:
-        Used: ATAPI for CD-ROMs, SFF-8020i, r2.5
-        Supported: CD-ROM ATAPI-2 
-Configuration:
-        DRQ response: 50us.
-        Packet size: 12 bytes
-Capabilities:
-        LBA, IORDY(can be disabled)
-        DMA: sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 udma0 udma1 udma2 (?)
-             Cycle time: min=120ns recommended=120ns
-        PIO: pio0 pio1 pio2 pio3 pio4 
-             Cycle time: no flow control=120ns  IORDY flow control=120ns
-- -
-
+One of the issues with the UART set up is registering the interrupt handler with 
+the kernel.  It will fail if alloc is not up.  The -mm patch does two things 
+with this.  a) It tries every getchar to register the interrupt handler, and b) 
+it has a module init entry to register it.  This last will happen late in the 
+bring up and is safe.  a) is there to get it ASAP if you are actually using kgdb 
+during the bring up.
+> 
+> 
+~
 
 -- 
-   Psi -- <http://www.iki.fi/pasi.savolainen>
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

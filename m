@@ -1,70 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbVBPSF4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbVBPSKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262059AbVBPSF4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 13:05:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbVBPSFz
+	id S262060AbVBPSKf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 13:10:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbVBPSKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 13:05:55 -0500
-Received: from mail-ash.bigfish.com ([206.16.192.253]:1596 "EHLO
-	mail83-ash-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S262059AbVBPSF1 convert rfc822-to-8bit (ORCPT
+	Wed, 16 Feb 2005 13:10:35 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:47691 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262060AbVBPSKP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 13:05:27 -0500
-X-BigFish: VP
-From: "Haven Skys" <hskys@frontbridge.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Help: kernel option root=/dev/nfs failing 2.6.10
-Date: Wed, 16 Feb 2005 10:05:18 -0800
-Message-ID: <004201c51452$131a6d60$2401a8c0@internal.bigfish.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
+	Wed, 16 Feb 2005 13:10:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=JgbBBgiamGnhru5a9gNizhvNUcf2Qs1qpJ5QA8pBP8YSiXUBvnKTrZsZMou34aEtdnf3+mnoMLI/3IH3lHz4jvonFtk+AbQO2abbQUUBT9RyCK3Dep1JsvcVOlL3NH0vN7sbZxwkoKmZwy1byx2h9k45+bSuCG5XEvb85RZ/IUg=
+Message-ID: <712fce105021610105eca9ca5@mail.gmail.com>
+Date: Wed, 16 Feb 2005 10:10:14 -0800
+From: Martin Bogomolni <martinbogo@gmail.com>
+Reply-To: Martin Bogomolni <martinbogo@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel 2.4 inode/dentry cache not clearing on umount?
+In-Reply-To: <712fce105021610034a189430@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <712fce1050216082847bec092@mail.gmail.com>
+	 <Pine.LNX.4.61.0502161151370.10018@chaos.analogic.com>
+	 <712fce105021609163a605f51@mail.gmail.com>
+	 <712fce105021610034a189430@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am attempting to create network bootable system with 2.6.10 and nfs and am
-having trouble.
+Also .. David :
 
-I am using grub and the boot goes without a hitch until the kernel attempts
-to use the commands I've sent.
+Are you saying that, on a system with 256Megs of ram, of which the
+kernel is reporting only 3-4Mb free because the inode/dentry caches
+are taking up most of the memory, and NO page/swap file....
 
-<SNIP from grub.conf>
-bootp
-root (nd)
-kernel (nd)/redhat-2.6.10/kernel root=/dev/nfs ip=bootp
-nfsroot=10.0.120.1:/diskless/redhat-2.6.10/
-baseos
-</SNIP>
+char *p;
+p = (char *) malloc( 64*1024*1024 );
 
-Network booting machine X does fine until. It attempts to open the root
-device.
+I assure you that under these conditions, the malloc( ) will fail with NULL.
 
-<SNIP>
-VFS: Cannot open root device "nfs" or unknown-block(0,255) Please append a
-correct "root=" boot option Kernel panic - not syncing: VFS: Unable to mount
-root fs on unknown-block(0,255) </SNIP>
+---------------------------------
 
-It looks like the kernel isn't recognizing the virtual device /dev/nfs but
-I've enabled all the NFS options and everything is compiled into the kernel.
+Now, in the meantime I have discovered that merely unmounting the
+filesystem is not enough to clear the dcache and icache.
 
-Any ideas?
+However, if I unmount the filesystem then run:
 
+cat /dev/hda > /dev/null
 
-Thanks
-Haven
- 
- 
-
-
-
-
-FrontBridge introduces Message Archive and Secure Email. Get leading Enterprise Message Security services from FrontBridge. www.frontbridge.com.
-
-
-
+This causes the inode/dentry cache to finally shrink and the amount of
+available free memory increases back to ~200Mb.   However, this
+reduction does not immediately take place when the filesystem is
+unmounted, and while the filesystem is mounted .. the inode/dentry
+cache does not shrink and leaves only 3Mb of available free memory.

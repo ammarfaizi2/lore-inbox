@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277053AbRJHSCU>; Mon, 8 Oct 2001 14:02:20 -0400
+	id <S277064AbRJHSFV>; Mon, 8 Oct 2001 14:05:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277052AbRJHSCM>; Mon, 8 Oct 2001 14:02:12 -0400
-Received: from D8FA50AA.ptr.dia.nextlink.net ([216.250.80.170]:48814 "EHLO
-	tetsuo.applianceware.com") by vger.kernel.org with ESMTP
-	id <S277044AbRJHSB6>; Mon, 8 Oct 2001 14:01:58 -0400
-Date: Mon, 8 Oct 2001 10:38:05 -0700
-From: Mike Panetta <mpanetta@applianceware.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 3ware discontinuing the Escalade Series
-Message-ID: <20011008103805.F24464@tetsuo.applianceware.com>
-Mail-Followup-To: Mike Panetta <mpanetta@applianceware.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E15pYUF-00071y-00@the-village.bc.nu> <Pine.LNX.4.33.0110051013340.4761-100000@twin.uoregon.edu>
-Mime-Version: 1.0
+	id <S277060AbRJHSFK>; Mon, 8 Oct 2001 14:05:10 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55311 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277052AbRJHSE6>; Mon, 8 Oct 2001 14:04:58 -0400
+Subject: Re: Whining about NUMA. :)  [Was whining about 2.5...]
+To: Martin.Bligh@us.ibm.com
+Date: Mon, 8 Oct 2001 19:10:13 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), landley@trommello.org,
+        riel@conectiva.com.br (Rik van Riel), linux-kernel@vger.kernel.org
+In-Reply-To: <1811287155.1002538667@mbligh.des.sequent.com> from "Martin J. Bligh" at Oct 08, 2001 10:57:47 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0110051013340.4761-100000@twin.uoregon.edu>; from joelja@darkwing.uoregon.edu on Fri, Oct 05, 2001 at 10:21:28AM -0700
-Organization: ApplianceWare
-X-Mailer: mutt (ruff!  ruff!)
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15qeqz-0001Ne-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe IDE RAID was never ment to be? ;-|
-
-Mike
-
-On Fri, Oct 05, 2001 at 10:21:28AM -0700, Joel Jaeggli wrote:
-> Seems like everytime you find something nice they go and discontinue it...
+> > speculate on how the 2.4.10 vm works anyway
 > 
-> joelja
-> 
--- 
+> Can you describe why it's N! ? Are you talking about the worst possible case, 
+> or a two level local / non-local problem?
+
+Worst possible. I dont think in reality it will be nearly that bad

@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262047AbTCLVSI>; Wed, 12 Mar 2003 16:18:08 -0500
+	id <S262051AbTCLVUf>; Wed, 12 Mar 2003 16:20:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262051AbTCLVSI>; Wed, 12 Mar 2003 16:18:08 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:16390 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S262047AbTCLVSG>;
-	Wed, 12 Mar 2003 16:18:06 -0500
-Date: Wed, 12 Mar 2003 22:28:46 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: torvalds@transmeta.com (Linus Torvalds)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bio too big device
-Message-ID: <20030312212846.GA4925@win.tue.nl>
-References: <20030312090943.GA3298@suse.de> <Pine.LNX.4.10.10303120205250.391-100000@master.linux-ide.org> <20030312101414.GB3950@suse.de> <20030312154440.GA4868@win.tue.nl> <b4nsh7$eg0$1@penguin.transmeta.com>
+	id <S262052AbTCLVUf>; Wed, 12 Mar 2003 16:20:35 -0500
+Received: from crack.them.org ([65.125.64.184]:41114 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S262051AbTCLVUe>;
+	Wed, 12 Mar 2003 16:20:34 -0500
+Date: Wed, 12 Mar 2003 16:31:08 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
+Message-ID: <20030312213108.GA7700@nevyn.them.org>
+Mail-Followup-To: Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <20030312174244.GC13792@work.bitmover.com> <Pine.LNX.4.44.0303121324510.14172-100000@xanadu.home> <20030312195120.GB7275@work.bitmover.com> <20030312210513.GA6948@nevyn.them.org> <20030312211832.GA6587@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <b4nsh7$eg0$1@penguin.transmeta.com>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <20030312211832.GA6587@work.bitmover.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 12, 2003 at 05:59:03PM +0000, Linus Torvalds wrote:
-
-> >We have seen *zero* drives that do not understand 256 sector commands.
-> >Maybe such drives exist, but so far there is zero evidence.
+On Wed, Mar 12, 2003 at 01:18:32PM -0800, Larry McVoy wrote:
+> > Larry, this brings up something I was meaning to ask you before this
+> > thread exploded.  What happens to those "logical change" numbers over
+> > time?
 > 
-> That is definitely not true.  We definitely _have_ had drives that
-> misconstrue the 256-sector case. It's been a long time, but they
-> definitely exist.
+> They are stable in the CVS tree because the CVS tree isn't distributed.
+> So "Logical change 1.900" in the context of the exported CVS tree is 
+> always the same thing.  That's one advantage centralized has, things
+> don't shift around on you.
 
-I disagree. If you have any proof, please show it.
+OK, so the logical change numbers there are only related to the CVS
+tree, not related to revision numbers in the BK tree being converted? 
+That makes more sense, thank you.
 
-Let me repeat:
-We have seen *zero* drives that do not understand 256 sector commands.
-
-We have seen *one* drive (a six years old Maxtor 7850AV) that could not
-sustain heavy load with max # secs set to 256, while it behaved better
-with max set to 255.
-
-But we have seen lots of old old drives that show all kinds of errors.
-
-> The right limit for IDE is 255 sectors, and doing 256 sectors WILL fail
-> on some setups.
-
-Paul remarked: "So the 255 (or even the old 128) fixes things vs. 256,
-but I'd feel better being 100% sure why. Is 255 a "fix" or a perturbation
-that happens to paper over something else?"
-
-I think there is no good reason to limit us to 255 sectors.
-
-(And no reason for blacklists either - there is just no good evidence
-that something is systematically wrong with 256 sectors for any brand or
-model. Things would change if a second Maxtor 7850AV owner could confirm.)
-
-Andries
-
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

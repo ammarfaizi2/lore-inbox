@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261306AbSJ1Pdy>; Mon, 28 Oct 2002 10:33:54 -0500
+	id <S261302AbSJ1Pew>; Mon, 28 Oct 2002 10:34:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261307AbSJ1Pdy>; Mon, 28 Oct 2002 10:33:54 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:32482 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S261306AbSJ1Pdx>; Mon, 28 Oct 2002 10:33:53 -0500
-Date: Mon, 28 Oct 2002 16:40:33 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Andi Kleen <ak@suse.de>, eggert@twinsun.com, linux-kernel@vger.kernel.org
-Subject: Re: nanosecond file timestamp resolution in filesystems, GNU make, etc.
-In-Reply-To: <20021028151309.GB16546@bjl1.asuk.net>
-Message-ID: <Pine.GSO.3.96.1021028161702.977I-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S261307AbSJ1Pew>; Mon, 28 Oct 2002 10:34:52 -0500
+Received: from pimout4-ext.prodigy.net ([207.115.63.103]:26602 "EHLO
+	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S261302AbSJ1Peu> convert rfc822-to-8bit; Mon, 28 Oct 2002 10:34:50 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+To: Andrew Walrond <andrew@walrond.org>
+Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge candidate list.
+Date: Mon, 28 Oct 2002 05:40:58 -0500
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <200210272017.56147.landley@trommello.org> <3DBD1182.1000402@walrond.org>
+In-Reply-To: <3DBD1182.1000402@walrond.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210280440.58403.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Oct 2002, Jamie Lokier wrote:
+On Monday 28 October 2002 04:29, Andrew Walrond wrote:
+> A concise and very useful summary of upcoming/potential features, not
+> only for you kernel hackers but also for people using linux and trying
+> to keep half an eye on whats brewing...
+>
+> I wish something like this was available all the time and not just in
+> the run-up to a freeze
+>
+> Andrew
 
-> >  Well, possibly more stuff could benefit from new stat syscalls, like a
-> > st_gen member for inode generations.  And as someone suggested, a version
-> > number or a length could be specified by the calls this time to permit
-> > less disturbing expansion in the future. 
-> 
-> It's already there.  The kernel stat64() syscall has a flags argument,
-> which is unused at the moment.  I presume it's for this purpose.
+Thanks.
 
- Hmm, I haven't thought of this argument to be used this way.  Actually it
-isn't currently initialized by glibc in any way, which makes its utility
-questionable.
+Ordinarily there's Guillaume's 2.5 status list 
+(http://kernelnewbies.org/status), and you might be able to bug Rusty into 
+doing something like this on a more regular basis, since he seems inclined.
 
-> Glibc aleady uses a version number for its stat() calls, to permit
-> binary compatible extensions on the user side.
-
- Well, it used to use xstat() functions that provided versioning since the
-old days and now ELF symbol versioning is used, too, so the userland is
-long prepared.
+Rob
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
+CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?

@@ -1,313 +1,560 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVARPgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVARPj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbVARPgl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 10:36:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVARPgl
+	id S261325AbVARPj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 10:39:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVARPj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 10:36:41 -0500
-Received: from az33egw01.freescale.net ([192.88.158.102]:4827 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S261324AbVARPfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 10:35:07 -0500
-Date: Tue, 18 Jan 2005 09:35:00 -0600 (CST)
+	Tue, 18 Jan 2005 10:39:57 -0500
+Received: from az33egw02.freescale.net ([192.88.158.103]:59623 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S261325AbVARPfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 10:35:22 -0500
+Date: Tue, 18 Jan 2005 09:35:13 -0600 (CST)
 From: Kumar Gala <galak@freescale.com>
 X-X-Sender: galak@blarg.somerset.sps.mot.com
 To: torvalds@osdl.org, akpm@osdl.org
 cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
-Subject: [PATCH 1/4] ppc32: platform_device conversion from OCP
-Message-ID: <Pine.LNX.4.61.0501172304390.9340@blarg.somerset.sps.mot.com>
+Subject: [PATCH 3/4] ppc32: platform_device conversion from OCP
+Message-ID: <Pine.LNX.4.61.0501180932140.11311@blarg.somerset.sps.mot.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-System platform_device description, discovery and management:
-
-On most embedded PPC systems we either have a core CPU and chipset 
-(MPC10x, TSI10x, Marvell, etc.) or a system-on-chip device (4xx, 8xx, 
-82xx, 85xx, etc.).  Some of these sub-archs have been using the On Chip 
-Peripheral (OCP) driver model.  The functionality that OCP provide has 
-been replaced by the generic driver model and platform_device.  Also, some 
-of these device may exist across a number of architectures (PPC, MIPS, 
-ARM) such that some information that is shared between the architecture 
-and driver needs to exist outside of either.
-
-The ppc_sys changes add a standard way for PowerPC systems to describe the 
-devices and systems that exist in the sub-arch.  Additionally, we are able 
-to discover which system we are and manage which devices are actually 
-registered and any platform specific fixups that may be needed.
+Convert MPC8540 ADS, MPC8560 ADS, MPC8555 CDS and SBC8560 reference boards 
+from using OCP to platform_device.
 
 Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
 ---
-diff -Nru a/arch/ppc/syslib/Makefile b/arch/ppc/syslib/Makefile
---- a/arch/ppc/syslib/Makefile	2005-01-17 22:31:44 -06:00
-+++ b/arch/ppc/syslib/Makefile	2005-01-17 22:31:44 -06:00
-@@ -92,7 +92,8 @@
- obj-$(CONFIG_MPC10X_OPENPIC)	+= open_pic.o
- obj-$(CONFIG_40x)		+= dcr.o
- obj-$(CONFIG_BOOKE)		+= dcr.o
--obj-$(CONFIG_85xx)		+= open_pic.o ppc85xx_common.o ppc85xx_setup.o
-+obj-$(CONFIG_85xx)		+= open_pic.o ppc85xx_common.o ppc85xx_setup.o \
-+					ppc_sys.o
- ifeq ($(CONFIG_85xx),y)
- obj-$(CONFIG_PCI)		+= indirect_pci.o pci_auto.o
- endif
-diff -Nru a/arch/ppc/syslib/ppc_sys.c b/arch/ppc/syslib/ppc_sys.c
---- /dev/null	Wed Dec 31 16:00:00 196900
-+++ b/arch/ppc/syslib/ppc_sys.c	2005-01-17 22:31:44 -06:00
-@@ -0,0 +1,103 @@
-+/*
-+ * arch/ppc/syslib/ppc_sys.c
-+ *
-+ * PPC System library functions
-+ *
-+ * Maintainer: Kumar Gala <kumar.gala@freescale.com>
-+ *
-+ * Copyright 2005 Freescale Semiconductor Inc.
-+ *
-+ * This program is free software; you can redistribute  it and/or modify it
-+ * under  the terms of  the GNU General  Public License as published by the
-+ * Free Software Foundation;  either version 2 of the  License, or (at your
-+ * option) any later version.
-+ */
-+
+diff -Nru a/arch/ppc/platforms/85xx/mpc8540_ads.c b/arch/ppc/platforms/85xx/mpc8540_ads.c
+--- a/arch/ppc/platforms/85xx/mpc8540_ads.c	2005-01-17 22:31:44 -06:00
++++ b/arch/ppc/platforms/85xx/mpc8540_ads.c	2005-01-17 22:31:44 -06:00
+@@ -32,6 +32,7 @@
+ #include <linux/serial_core.h>
+ #include <linux/initrd.h>
+ #include <linux/module.h>
++#include <linux/fsl_devices.h>
+ 
+ #include <asm/system.h>
+ #include <asm/pgtable.h>
+@@ -48,50 +49,11 @@
+ #include <asm/irq.h>
+ #include <asm/immap_85xx.h>
+ #include <asm/kgdb.h>
+-#include <asm/ocp.h>
 +#include <asm/ppc_sys.h>
+ #include <mm/mmu_decl.h>
+ 
+-#include <syslib/ppc85xx_common.h>
+ #include <syslib/ppc85xx_setup.h>
+ 
+-struct ocp_gfar_data mpc85xx_tsec1_def = {
+-	.interruptTransmit = MPC85xx_IRQ_TSEC1_TX,
+-	.interruptError = MPC85xx_IRQ_TSEC1_ERROR,
+-	.interruptReceive = MPC85xx_IRQ_TSEC1_RX,
+-	.interruptPHY = MPC85xx_IRQ_EXT5,
+-	.flags = (GFAR_HAS_GIGABIT | GFAR_HAS_MULTI_INTR
+-			| GFAR_HAS_RMON
+-			| GFAR_HAS_PHY_INTR | GFAR_HAS_COALESCE),
+-	.phyid = 0,
+-	.phyregidx = 0,
+-};
+-
+-struct ocp_gfar_data mpc85xx_tsec2_def = {
+-	.interruptTransmit = MPC85xx_IRQ_TSEC2_TX,
+-	.interruptError = MPC85xx_IRQ_TSEC2_ERROR,
+-	.interruptReceive = MPC85xx_IRQ_TSEC2_RX,
+-	.interruptPHY = MPC85xx_IRQ_EXT5,
+-	.flags = (GFAR_HAS_GIGABIT | GFAR_HAS_MULTI_INTR
+-			| GFAR_HAS_RMON
+-			| GFAR_HAS_PHY_INTR | GFAR_HAS_COALESCE),
+-	.phyid = 1,
+-	.phyregidx = 0,
+-};
+-
+-struct ocp_gfar_data mpc85xx_fec_def = {
+-	.interruptTransmit = MPC85xx_IRQ_FEC,
+-	.interruptError = MPC85xx_IRQ_FEC,
+-	.interruptReceive = MPC85xx_IRQ_FEC,
+-	.interruptPHY = MPC85xx_IRQ_EXT5,
+-	.flags = 0,
+-	.phyid = 3,
+-	.phyregidx = 0,
+-};
+-
+-struct ocp_fs_i2c_data mpc85xx_i2c1_def = {
+-	.flags = FS_I2C_SEPARATE_DFSRR,
+-};
+-
+ /* ************************************************************************
+  *
+  * Setup the architecture
+@@ -100,10 +62,9 @@
+ static void __init
+ mpc8540ads_setup_arch(void)
+ {
+-	struct ocp_def *def;
+-	struct ocp_gfar_data *einfo;
+ 	bd_t *binfo = (bd_t *) __res;
+ 	unsigned int freq;
++	struct gianfar_platform_data *pdata;
+ 
+ 	/* get the core frequency */
+ 	freq = binfo->bi_intfreq;
+@@ -130,23 +91,30 @@
+ 	invalidate_tlbcam_entry(NUM_TLBCAMS - 1);
+ #endif
+ 
+-	def = ocp_get_one_device(OCP_VENDOR_FREESCALE, OCP_FUNC_GFAR, 0);
+-	if (def) {
+-		einfo = (struct ocp_gfar_data *) def->additions;
+-		memcpy(einfo->mac_addr, binfo->bi_enetaddr, 6);
+-	}
+-
+-	def = ocp_get_one_device(OCP_VENDOR_FREESCALE, OCP_FUNC_GFAR, 1);
+-	if (def) {
+-		einfo = (struct ocp_gfar_data *) def->additions;
+-		memcpy(einfo->mac_addr, binfo->bi_enet1addr, 6);
+-	}
+-
+-	def = ocp_get_one_device(OCP_VENDOR_FREESCALE, OCP_FUNC_GFAR, 2);
+-	if (def) {
+-		einfo = (struct ocp_gfar_data *) def->additions;
+-		memcpy(einfo->mac_addr, binfo->bi_enet2addr, 6);
+-	}
++	/* setup the board related information for the enet controllers */
++	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC1);
++	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
++	pdata->phyid = 0;
++	/* fixup phy address */
++	pdata->phy_reg_addr += binfo->bi_immr_base;
++	memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
 +
-+int (*ppc_sys_device_fixup) (struct platform_device * pdev);
++	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC2);
++	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
++	pdata->phyid = 1;
++	/* fixup phy address */
++	pdata->phy_reg_addr += binfo->bi_immr_base;
++	memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
 +
-+static int ppc_sys_inited;
++	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_FEC);
++	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
++	pdata->phyid = 3;
++	/* fixup phy address */
++	pdata->phy_reg_addr += binfo->bi_immr_base;
++	memcpy(pdata->mac_addr, binfo->bi_enet2addr, 6);
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	if (initrd_start)
+@@ -158,8 +126,6 @@
+ #else
+ 		ROOT_DEV = Root_HDA1;
+ #endif
+-
+-	ocp_for_each_device(mpc85xx_update_paddr_ocp, &(binfo->bi_immr_base));
+ }
+ 
+ /* ************************************************************************ */
+@@ -205,6 +171,8 @@
+ 		*(char *) (r7 + KERNELBASE) = 0;
+ 		strcpy(cmd_line, (char *) (r6 + KERNELBASE));
+ 	}
 +
-+void __init identify_ppc_sys_by_id(u32 id)
-+{
-+	unsigned int i = 0;
-+	while (1) {
-+		if ((ppc_sys_specs[i].mask & id) == ppc_sys_specs[i].value)
-+			break;
-+		i++;
-+	}
++	identify_ppc_sys_by_id(mfspr(SVR));
+ 
+ 	/* setup the PowerPC module struct */
+ 	ppc_md.setup_arch = mpc8540ads_setup_arch;
+diff -Nru a/arch/ppc/platforms/85xx/mpc8555_cds.h b/arch/ppc/platforms/85xx/mpc8555_cds.h
+--- a/arch/ppc/platforms/85xx/mpc8555_cds.h	2005-01-17 22:31:44 -06:00
++++ b/arch/ppc/platforms/85xx/mpc8555_cds.h	2005-01-17 22:31:44 -06:00
+@@ -18,7 +18,7 @@
+ #define __MACH_MPC8555CDS_H__
+ 
+ #include <linux/config.h>
+-#include <linux/serial.h>
++#include <syslib/ppc85xx_setup.h>
+ #include <platforms/85xx/mpc85xx_cds_common.h>
+ 
+ #define CPM_MAP_ADDR	(CCSRBAR + MPC85xx_CPM_OFFSET)
+diff -Nru a/arch/ppc/platforms/85xx/mpc8560_ads.c b/arch/ppc/platforms/85xx/mpc8560_ads.c
+--- a/arch/ppc/platforms/85xx/mpc8560_ads.c	2005-01-17 22:31:44 -06:00
++++ b/arch/ppc/platforms/85xx/mpc8560_ads.c	2005-01-17 22:31:44 -06:00
+@@ -32,6 +32,7 @@
+ #include <linux/serial_core.h>
+ #include <linux/initrd.h>
+ #include <linux/module.h>
++#include <linux/fsl_devices.h>
+ 
+ #include <asm/system.h>
+ #include <asm/pgtable.h>
+@@ -48,7 +49,7 @@
+ #include <asm/irq.h>
+ #include <asm/immap_85xx.h>
+ #include <asm/kgdb.h>
+-#include <asm/ocp.h>
++#include <asm/ppc_sys.h>
+ #include <asm/cpm2.h>
+ #include <mm/mmu_decl.h>
+ 
+@@ -58,34 +59,6 @@
+ 
+ extern void cpm2_reset(void);
+ 
+-struct ocp_gfar_data mpc85xx_tsec1_def = {
+-        .interruptTransmit = MPC85xx_IRQ_TSEC1_TX,
+-        .interruptError = MPC85xx_IRQ_TSEC1_ERROR,
+-        .interruptReceive = MPC85xx_IRQ_TSEC1_RX,
+-        .interruptPHY = MPC85xx_IRQ_EXT5,
+-        .flags = (GFAR_HAS_GIGABIT | GFAR_HAS_MULTI_INTR
+-			| GFAR_HAS_RMON | GFAR_HAS_COALESCE
+-                        | GFAR_HAS_PHY_INTR),
+-        .phyid = 0,
+-        .phyregidx = 0,
+-};
+-
+-struct ocp_gfar_data mpc85xx_tsec2_def = {
+-        .interruptTransmit = MPC85xx_IRQ_TSEC2_TX,
+-        .interruptError = MPC85xx_IRQ_TSEC2_ERROR,
+-        .interruptReceive = MPC85xx_IRQ_TSEC2_RX,
+-        .interruptPHY = MPC85xx_IRQ_EXT5,
+-        .flags = (GFAR_HAS_GIGABIT | GFAR_HAS_MULTI_INTR
+-			| GFAR_HAS_RMON | GFAR_HAS_COALESCE
+-                        | GFAR_HAS_PHY_INTR),
+-        .phyid = 1,
+-        .phyregidx = 0,
+-};
+-
+-struct ocp_fs_i2c_data mpc85xx_i2c1_def = {
+-	.flags = FS_I2C_SEPARATE_DFSRR,
+-};
+-
+ /* ************************************************************************
+  *
+  * Setup the architecture
+@@ -95,11 +68,10 @@
+ static void __init
+ mpc8560ads_setup_arch(void)
+ {
+-	struct ocp_def *def;
+-	struct ocp_gfar_data *einfo;
+ 	bd_t *binfo = (bd_t *) __res;
+ 	unsigned int freq;
+-
++	struct gianfar_platform_data *pdata;
++	
+ 	cpm2_reset();
+ 
+ 	/* get the core frequency */
+@@ -117,17 +89,22 @@
+ 	mpc85xx_setup_hose();
+ #endif
+ 
+-	def = ocp_get_one_device(OCP_VENDOR_FREESCALE, OCP_FUNC_GFAR, 0);
+-	if (def) {
+-		einfo = (struct ocp_gfar_data *) def->additions;
+-		memcpy(einfo->mac_addr, binfo->bi_enetaddr, 6);
+-	}
+-
+-	def = ocp_get_one_device(OCP_VENDOR_FREESCALE, OCP_FUNC_GFAR, 1);
+-	if (def) {
+-		einfo = (struct ocp_gfar_data *) def->additions;
+-		memcpy(einfo->mac_addr, binfo->bi_enet1addr, 6);
+-	}
++	/* setup the board related information for the enet controllers */
++	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC1);
++	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
++	pdata->phyid = 0;
++	/* fixup phy address */
++	pdata->phy_reg_addr += binfo->bi_immr_base;
++	memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
 +
-+	cur_ppc_sys_spec = &ppc_sys_specs[i];
++	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC2);
++	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
++	pdata->phyid = 1;
++	/* fixup phy address */
++	pdata->phy_reg_addr += binfo->bi_immr_base;
++	memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	if (initrd_start)
+@@ -139,8 +116,6 @@
+ #else
+ 		ROOT_DEV = Root_HDA1;
+ #endif
+-
+-	ocp_for_each_device(mpc85xx_update_paddr_ocp, &(binfo->bi_immr_base));
+ }
+ 
+ static irqreturn_t cpm2_cascade(int irq, void *dev_id, struct pt_regs *regs)
+@@ -221,6 +196,8 @@
+ 		*(char *) (r7 + KERNELBASE) = 0;
+ 		strcpy(cmd_line, (char *) (r6 + KERNELBASE));
+ 	}
 +
-+	return;
-+}
++	identify_ppc_sys_by_id(mfspr(SVR));
+ 
+ 	/* setup the PowerPC module struct */
+ 	ppc_md.setup_arch = mpc8560ads_setup_arch;
+diff -Nru a/arch/ppc/platforms/85xx/mpc85xx_ads_common.c b/arch/ppc/platforms/85xx/mpc85xx_ads_common.c
+--- a/arch/ppc/platforms/85xx/mpc85xx_ads_common.c	2005-01-17 22:31:44 -06:00
++++ b/arch/ppc/platforms/85xx/mpc85xx_ads_common.c	2005-01-17 22:31:44 -06:00
+@@ -43,7 +43,6 @@
+ #include <asm/mpc85xx.h>
+ #include <asm/irq.h>
+ #include <asm/immap_85xx.h>
+-#include <asm/ocp.h>
+ 
+ #include <mm/mmu_decl.h>
+ 
+diff -Nru a/arch/ppc/platforms/85xx/mpc85xx_cds_common.c b/arch/ppc/platforms/85xx/mpc85xx_cds_common.c
+--- a/arch/ppc/platforms/85xx/mpc85xx_cds_common.c	2005-01-17 22:31:44 -06:00
++++ b/arch/ppc/platforms/85xx/mpc85xx_cds_common.c	2005-01-17 22:31:44 -06:00
+@@ -32,6 +32,7 @@
+ #include <linux/initrd.h>
+ #include <linux/tty.h>
+ #include <linux/serial_core.h>
++#include <linux/fsl_devices.h>
+ 
+ #include <asm/system.h>
+ #include <asm/pgtable.h>
+@@ -48,7 +49,7 @@
+ #include <asm/irq.h>
+ #include <asm/immap_85xx.h>
+ #include <asm/immap_cpm2.h>
+-#include <asm/ocp.h>
++#include <asm/ppc_sys.h>
+ #include <asm/kgdb.h>
+ 
+ #include <mm/mmu_decl.h>
+@@ -129,32 +130,6 @@
+ #endif
+ };
+ 
+-struct ocp_gfar_data mpc85xx_tsec1_def = {
+-        .interruptTransmit = MPC85xx_IRQ_TSEC1_TX,
+-        .interruptError = MPC85xx_IRQ_TSEC1_ERROR,
+-        .interruptReceive = MPC85xx_IRQ_TSEC1_RX,
+-        .interruptPHY = MPC85xx_IRQ_EXT5,
+-        .flags = (GFAR_HAS_GIGABIT | GFAR_HAS_MULTI_INTR |
+-                        GFAR_HAS_PHY_INTR),
+-        .phyid = 0,
+-        .phyregidx = 0,
+-};
+-
+-struct ocp_gfar_data mpc85xx_tsec2_def = {
+-        .interruptTransmit = MPC85xx_IRQ_TSEC2_TX,
+-        .interruptError = MPC85xx_IRQ_TSEC2_ERROR,
+-        .interruptReceive = MPC85xx_IRQ_TSEC2_RX,
+-        .interruptPHY = MPC85xx_IRQ_EXT5,
+-        .flags = (GFAR_HAS_GIGABIT | GFAR_HAS_MULTI_INTR |
+-                        GFAR_HAS_PHY_INTR),
+-        .phyid = 1,
+-        .phyregidx = 0,
+-};
+-
+-struct ocp_fs_i2c_data mpc85xx_i2c1_def = {
+-	.flags = FS_I2C_SEPARATE_DFSRR,
+-};
+-
+ /* ************************************************************************ */
+ int
+ mpc85xx_cds_show_cpuinfo(struct seq_file *m)
+@@ -335,11 +310,10 @@
+ static void __init
+ mpc85xx_cds_setup_arch(void)
+ {
+-        struct ocp_def *def;
+-        struct ocp_gfar_data *einfo;
+         bd_t *binfo = (bd_t *) __res;
+         unsigned int freq;
+-
++	struct gianfar_platform_data *pdata;
++	
+         /* get the core frequency */
+         freq = binfo->bi_intfreq;
+ 
+@@ -372,17 +346,23 @@
+ 	invalidate_tlbcam_entry(NUM_TLBCAMS - 1);
+ #endif
+ 
+-        def = ocp_get_one_device(OCP_VENDOR_FREESCALE, OCP_FUNC_GFAR, 0);
+-        if (def) {
+-                einfo = (struct ocp_gfar_data *) def->additions;
+-                memcpy(einfo->mac_addr, binfo->bi_enetaddr, 6);
+-        }
++	/* setup the board related information for the enet controllers */
++	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC1);
++	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
++	pdata->phyid = 0;
++	/* fixup phy address */
++	pdata->phy_reg_addr += binfo->bi_immr_base;
++	memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
 +
-+void __init identify_ppc_sys_by_name(char *name)
-+{
-+	/* TODO */
-+	return;
-+}
++	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC2);
++	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++	pdata->interruptPHY = MPC85xx_IRQ_EXT5;
++	pdata->phyid = 1;
++	/* fixup phy address */
++	pdata->phy_reg_addr += binfo->bi_immr_base;
++	memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
+ 
+-        def = ocp_get_one_device(OCP_VENDOR_FREESCALE, OCP_FUNC_GFAR, 1);
+-        if (def) {
+-                einfo = (struct ocp_gfar_data *) def->additions;
+-                memcpy(einfo->mac_addr, binfo->bi_enet1addr, 6);
+-        }
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+         if (initrd_start)
+@@ -394,8 +374,6 @@
+ #else
+                 ROOT_DEV = Root_HDA1;
+ #endif
+-
+-	ocp_for_each_device(mpc85xx_update_paddr_ocp, &(binfo->bi_immr_base));
+ }
+ 
+ /* ************************************************************************ */
+@@ -443,6 +421,8 @@
+                 *(char *) (r7 + KERNELBASE) = 0;
+                 strcpy(cmd_line, (char *) (r6 + KERNELBASE));
+         }
 +
-+/* Update all memory resources by paddr, call before platform_device_register */
-+void __init
-+ppc_sys_fixup_mem_resource(struct platform_device *pdev, phys_addr_t paddr)
-+{
-+	int i;
-+	for (i = 0; i < pdev->num_resources; i++) {
-+		struct resource *r = &pdev->resource[i];
-+		if ((r->flags & IORESOURCE_MEM) == IORESOURCE_MEM) {
-+			r->start += paddr;
-+			r->end += paddr;
-+		}
-+	}
-+}
++	identify_ppc_sys_by_id(mfspr(SVR));
+ 
+         /* setup the PowerPC module struct */
+         ppc_md.setup_arch = mpc85xx_cds_setup_arch;
+diff -Nru a/arch/ppc/platforms/85xx/sbc8560.c b/arch/ppc/platforms/85xx/sbc8560.c
+--- a/arch/ppc/platforms/85xx/sbc8560.c	2005-01-17 22:31:44 -06:00
++++ b/arch/ppc/platforms/85xx/sbc8560.c	2005-01-17 22:31:44 -06:00
+@@ -32,6 +32,7 @@
+ #include <linux/serial_core.h>
+ #include <linux/initrd.h>
+ #include <linux/module.h>
++#include <linux/fsl_devices.h>
+ 
+ #include <asm/system.h>
+ #include <asm/pgtable.h>
+@@ -48,37 +49,12 @@
+ #include <asm/irq.h>
+ #include <asm/immap_85xx.h>
+ #include <asm/kgdb.h>
+-#include <asm/ocp.h>
++#include <asm/ppc_sys.h>
+ #include <mm/mmu_decl.h>
+ 
+ #include <syslib/ppc85xx_common.h>
+ #include <syslib/ppc85xx_setup.h>
+ 
+-struct ocp_gfar_data mpc85xx_tsec1_def = {
+-	.interruptTransmit = MPC85xx_IRQ_TSEC1_TX,
+-	.interruptError = MPC85xx_IRQ_TSEC1_ERROR,
+-	.interruptReceive = MPC85xx_IRQ_TSEC1_RX,
+-	.interruptPHY = MPC85xx_IRQ_EXT6,
+-	.flags = (GFAR_HAS_GIGABIT | GFAR_HAS_MULTI_INTR | GFAR_HAS_PHY_INTR),
+-	.phyid = 25,
+-	.phyregidx = 0,
+-};
+-
+-struct ocp_gfar_data mpc85xx_tsec2_def = {
+-	.interruptTransmit = MPC85xx_IRQ_TSEC2_TX,
+-	.interruptError = MPC85xx_IRQ_TSEC2_ERROR,
+-	.interruptReceive = MPC85xx_IRQ_TSEC2_RX,
+-	.interruptPHY = MPC85xx_IRQ_EXT7,
+-	.flags = (GFAR_HAS_GIGABIT | GFAR_HAS_MULTI_INTR | GFAR_HAS_PHY_INTR),
+-	.phyid = 26,
+-	.phyregidx = 0,
+-};
+-
+-struct ocp_fs_i2c_data mpc85xx_i2c1_def = {
+-	.flags = FS_I2C_SEPARATE_DFSRR,
+-};
+-
+-
+ #ifdef CONFIG_SERIAL_8250
+ static void __init
+ sbc8560_early_serial_map(void)
+@@ -125,10 +101,9 @@
+ static void __init
+ sbc8560_setup_arch(void)
+ {
+-	struct ocp_def *def;
+-	struct ocp_gfar_data *einfo;
+ 	bd_t *binfo = (bd_t *) __res;
+ 	unsigned int freq;
++	struct gianfar_platform_data *pdata;
+ 
+ 	/* get the core frequency */
+ 	freq = binfo->bi_intfreq;
+@@ -153,18 +128,22 @@
+ 	invalidate_tlbcam_entry(NUM_TLBCAMS - 1);
+ #endif
+ 
+-	/* Set up MAC addresses for the Ethernet devices */
+-	def = ocp_get_one_device(OCP_VENDOR_FREESCALE, OCP_FUNC_GFAR, 0);
+-	if (def) {
+-		einfo = (struct ocp_gfar_data *) def->additions;
+-		memcpy(einfo->mac_addr, binfo->bi_enetaddr, 6);
+-	}
+-
+-	def = ocp_get_one_device(OCP_VENDOR_FREESCALE, OCP_FUNC_GFAR, 1);
+-	if (def) {
+-		einfo = (struct ocp_gfar_data *) def->additions;
+-		memcpy(einfo->mac_addr, binfo->bi_enet1addr, 6);
+-	}
++	/* setup the board related information for the enet controllers */
++	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC1);
++	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++	pdata->interruptPHY = MPC85xx_IRQ_EXT6;
++	pdata->phyid = 25;
++	/* fixup phy address */
++	pdata->phy_reg_addr += binfo->bi_immr_base;
++	memcpy(pdata->mac_addr, binfo->bi_enetaddr, 6);
 +
-+/* Get platform_data pointer out of platform device, call before platform_device_register */
-+void *__init ppc_sys_get_pdata(enum ppc_sys_devices dev)
-+{
-+	return ppc_sys_platform_devices[dev].dev.platform_data;
-+}
++	pdata = (struct gianfar_platform_data *) ppc_sys_get_pdata(MPC85xx_TSEC2);
++	pdata->board_flags = FSL_GIANFAR_BRD_HAS_PHY_INTR;
++	pdata->interruptPHY = MPC85xx_IRQ_EXT7;
++	pdata->phyid = 26;
++	/* fixup phy address */
++	pdata->phy_reg_addr += binfo->bi_immr_base;
++	memcpy(pdata->mac_addr, binfo->bi_enet1addr, 6);
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	if (initrd_start)
+@@ -176,8 +155,6 @@
+ #else
+ 		ROOT_DEV = Root_HDA1;
+ #endif
+-
+-	ocp_for_each_device(mpc85xx_update_paddr_ocp, &(binfo->bi_immr_base));
+ }
+ 
+ /* ************************************************************************ */
+@@ -220,6 +197,8 @@
+ 		*(char *) (r7 + KERNELBASE) = 0;
+ 		strcpy(cmd_line, (char *) (r6 + KERNELBASE));
+ 	}
 +
-+void ppc_sys_device_remove(enum ppc_sys_devices dev)
-+{
-+	unsigned int i;
-+
-+	if (ppc_sys_inited) {
-+		platform_device_unregister(&ppc_sys_platform_devices[dev]);
-+	} else {
-+		if (cur_ppc_sys_spec == NULL)
-+			return;
-+		for (i = 0; i < cur_ppc_sys_spec->num_devices; i++)
-+			if (cur_ppc_sys_spec->device_list[i] == dev)
-+				cur_ppc_sys_spec->device_list[i] = -1;
-+	}
-+}
-+
-+static int __init ppc_sys_init(void)
-+{
-+	unsigned int i, dev_id, ret = 0;
-+
-+	BUG_ON(cur_ppc_sys_spec == NULL);
-+
-+	for (i = 0; i < cur_ppc_sys_spec->num_devices; i++) {
-+		dev_id = cur_ppc_sys_spec->device_list[i];
-+		if (dev_id != -1) {
-+			if (ppc_sys_device_fixup != NULL)
-+				ppc_sys_device_fixup(&ppc_sys_platform_devices
-+						     [dev_id]);
-+			if (platform_device_register
-+			    (&ppc_sys_platform_devices[dev_id])) {
-+				ret = 1;
-+				printk(KERN_ERR
-+				       "unable to register device %d\n",
-+				       dev_id);
-+			}
-+		}
-+	}
-+
-+	ppc_sys_inited = 1;
-+	return ret;
-+}
-+
-+subsys_initcall(ppc_sys_init);
-diff -Nru a/include/asm-ppc/ppc_sys.h b/include/asm-ppc/ppc_sys.h
---- /dev/null	Wed Dec 31 16:00:00 196900
-+++ b/include/asm-ppc/ppc_sys.h	2005-01-17 22:31:44 -06:00
-@@ -0,0 +1,65 @@
-+/*
-+ * include/asm-ppc/ppc_sys.h
-+ *
-+ * PPC system definitions and library functions
-+ *
-+ * Maintainer: Kumar Gala <kumar.gala@freescale.com>
-+ *
-+ * Copyright 2005 Freescale Semiconductor, Inc
-+ *
-+ * This program is free software; you can redistribute  it and/or modify it
-+ * under  the terms of  the GNU General  Public License as published by the
-+ * Free Software Foundation;  either version 2 of the  License, or (at your
-+ * option) any later version.
-+ */
-+
-+#ifdef __KERNEL__
-+#ifndef __ASM_PPC_SYS_H
-+#define __ASM_PPC_SYS_H
-+
-+#include <linux/init.h>
-+#include <linux/device.h>
-+#include <linux/types.h>
-+
-+#if defined(CONFIG_85xx)
-+#include <asm/mpc85xx.h>
-+#else
-+#error "need definition of ppc_sys_devices"
-+#endif
-+
-+struct ppc_sys_spec {
-+	/* PPC sys is matched via (ID & mask) == value, id could be
-+	 * PVR, SVR, IMMR, * etc. */
-+	u32 			mask;
-+	u32 			value;
-+	u32 			num_devices;
-+	char 			*ppc_sys_name;
-+	enum ppc_sys_devices 	*device_list;
-+};
-+
-+/* describes all specific chips and which devices they have on them */
-+extern struct ppc_sys_spec ppc_sys_specs[];
-+extern struct ppc_sys_spec *cur_ppc_sys_spec;
-+
-+/* determine which specific SOC we are */
-+extern void identify_ppc_sys_by_id(u32 id) __init;
-+extern void identify_ppc_sys_by_name(char *name) __init;
-+
-+/* describes all devices that may exist in a given family of processors */
-+extern struct platform_device ppc_sys_platform_devices[];
-+
-+/* allow any platform_device fixup to occur before device is registered */
-+extern int (*ppc_sys_device_fixup) (struct platform_device * pdev);
-+
-+/* Update all memory resources by paddr, call before platform_device_register */
-+extern void ppc_sys_fixup_mem_resource(struct platform_device *pdev,
-+				       phys_addr_t paddr) __init;
-+
-+/* Get platform_data pointer out of platform device, call before platform_device_register */
-+extern void *ppc_sys_get_pdata(enum ppc_sys_devices dev) __init;
-+
-+/* remove a device from the system */
-+extern void ppc_sys_device_remove(enum ppc_sys_devices dev);
-+
-+#endif				/* __ASM_PPC_SYS_H */
-+#endif				/* __KERNEL__ */
-diff -Nru a/include/linux/fsl_devices.h b/include/linux/fsl_devices.h
---- /dev/null	Wed Dec 31 16:00:00 196900
-+++ b/include/linux/fsl_devices.h	2005-01-17 22:31:44 -06:00
-@@ -0,0 +1,78 @@
-+/*
-+ * include/linux/fsl_devices.h
-+ *
-+ * Definitions for any platform device related flags or structures for
-+ * Freescale processor devices
-+ *
-+ * Maintainer: Kumar Gala (kumar.gala@freescale.com)
-+ *
-+ * Copyright 2004 Freescale Semiconductor, Inc
-+ *
-+ * This program is free software; you can redistribute  it and/or modify it
-+ * under  the terms of  the GNU General  Public License as published by the
-+ * Free Software Foundation;  either version 2 of the  License, or (at your
-+ * option) any later version.
-+ */
-+
-+#ifdef __KERNEL__
-+#ifndef _FSL_DEVICE_H_
-+#define _FSL_DEVICE_H_
-+
-+#include <linux/types.h>
-+
-+/*
-+ * Some conventions on how we handle peripherals on Freescale chips
-+ *
-+ * unique device: a platform_device entry in fsl_plat_devs[] plus
-+ * associated device information in its platform_data structure.
-+ *
-+ * A chip is described by a set of unique devices.
-+ *
-+ * Each sub-arch has its own master list of unique devices and
-+ * enumerates them by enum fsl_devices in a sub-arch specific header
-+ *
-+ * The platform data structure is broken into two parts.  The
-+ * first is device specific information that help identify any
-+ * unique features of a peripheral.  The second is any
-+ * information that may be defined by the board or how the device
-+ * is connected externally of the chip.
-+ *
-+ * naming conventions:
-+ * - platform data structures: <driver>_platform_data
-+ * - platform data device flags: FSL_<driver>_DEV_<FLAG>
-+ * - platform data board flags: FSL_<driver>_BRD_<FLAG>
-+ *
-+ */
-+
-+struct gianfar_platform_data {
-+	/* device specific information */
-+	u32 device_flags;
-+	u32 phy_reg_addr;
-+
-+	/* board specific information */
-+	u32 board_flags;
-+	u32 phyid;
-+	u32 interruptPHY;
-+	u8 mac_addr[6];
-+};
-+
-+/* Flags related to gianfar device features */
-+#define FSL_GIANFAR_DEV_HAS_GIGABIT		0x00000001
-+#define FSL_GIANFAR_DEV_HAS_COALESCE		0x00000002
-+#define FSL_GIANFAR_DEV_HAS_RMON		0x00000004
-+#define FSL_GIANFAR_DEV_HAS_MULTI_INTR		0x00000008
-+
-+/* Flags in gianfar_platform_data */
-+#define FSL_GIANFAR_BRD_HAS_PHY_INTR	0x00000001	/* if not set use a timer */
-+
-+struct fsl_i2c_platform_data {
-+	/* device specific information */
-+	u32 device_flags;
-+};
-+
-+/* Flags related to I2C device features */
-+#define FSL_I2C_DEV_SEPARATE_DFSRR	0x00000001
-+#define FSL_I2C_DEV_CLOCK_5200		0x00000002
-+
-+#endif				/* _FSL_DEVICE_H_ */
-+#endif				/* __KERNEL__ */
++	identify_ppc_sys_by_id(mfspr(SVR));
+ 
+ 	/* setup the PowerPC module struct */
+ 	ppc_md.setup_arch = sbc8560_setup_arch;
+diff -Nru a/arch/ppc/platforms/85xx/sbc85xx.c b/arch/ppc/platforms/85xx/sbc85xx.c
+--- a/arch/ppc/platforms/85xx/sbc85xx.c	2005-01-17 22:31:44 -06:00
++++ b/arch/ppc/platforms/85xx/sbc85xx.c	2005-01-17 22:31:44 -06:00
+@@ -42,7 +42,6 @@
+ #include <asm/mpc85xx.h>
+ #include <asm/irq.h>
+ #include <asm/immap_85xx.h>
+-#include <asm/ocp.h>
+ 
+ #include <mm/mmu_decl.h>
+ 
+

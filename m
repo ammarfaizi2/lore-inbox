@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132008AbRCVN2R>; Thu, 22 Mar 2001 08:28:17 -0500
+	id <S132014AbRCVNah>; Thu, 22 Mar 2001 08:30:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132013AbRCVN2H>; Thu, 22 Mar 2001 08:28:07 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:46809 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S132008AbRCVN2C>;
-	Thu, 22 Mar 2001 08:28:02 -0500
-Message-ID: <3AB9FD99.F601EDE0@mandrakesoft.com>
-Date: Thu, 22 Mar 2001 08:26:49 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre6 i686)
-X-Accept-Language: en
+	id <S132015AbRCVNaR>; Thu, 22 Mar 2001 08:30:17 -0500
+Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:44651 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id <S132014AbRCVNaG>; Thu, 22 Mar 2001 08:30:06 -0500
+Date: Thu, 22 Mar 2001 14:29:18 +0100 (CET)
+From: Nils Philippsen <nils@fht-esslingen.de>
+Reply-To: <nils@fht-esslingen.de>
+To: Brian Dushaw <dushaw@munk.apl.washington.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: VIA vt82c686b  and UDMA(100)
+In-Reply-To: <Pine.LNX.4.30.0103220224160.3867-100000@munk.apl.washington.edu>
+Message-ID: <Pine.LNX.4.32.0103221423240.12167-100000@rhlx01.fht-esslingen.de>
 MIME-Version: 1.0
-To: Ulrich Windl <Ulrich.Windl@rz.uni-regensburg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18: e100.c (SuSE 7.1): udelay() used in a wrong way?
-In-Reply-To: <3ABA0537.18043.146E671@localhost>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Windl wrote:
-> void
-> Phy82562EHDelayMilliseconds(int Time)
-> {
->     udelay(Time);
-> }
-> 
-> AFAIK, udelay() delays microseconds, not milliseconds.
+On Thu, 22 Mar 2001, Brian Dushaw wrote:
 
-Yep, you are correct, and the code is incorrect.
+> And for the record:
+>
+> "hdparm -d1 -t -X69 /dev/hda" gives:
 
-mdelay() delays milliseconds.
+My current hdparm line looks like this:
 
+hdparm -m16 -c1 -u1 -k1 -X69 /dev/...
+
+With this, I can get 28.x MB/s instead of 15.y with just -X69.
+
+Nils
 -- 
-Jeff Garzik       | May you have warm words on a cold evening,
-Building 1024     | a full mooon on a dark night,
-MandrakeSoft      | and a smooth road all the way to your door.
+ Nils Philippsen / Berliner Straﬂe 39 / D-71229 Leonberg // +49.7152.209647
+nils@wombat.dialup.fht-esslingen.de / nils@fht-esslingen.de / nils@redhat.de
+   The use of COBOL cripples the mind; its teaching should, therefore, be
+   regarded as a criminal offence.                  -- Edsger W. Dijkstra
+

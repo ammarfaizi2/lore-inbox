@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262808AbSLBMmi>; Mon, 2 Dec 2002 07:42:38 -0500
+	id <S262821AbSLBMpi>; Mon, 2 Dec 2002 07:45:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262821AbSLBMmi>; Mon, 2 Dec 2002 07:42:38 -0500
-Received: from 5-106.ctame701-1.telepar.net.br ([200.193.163.106]:7055 "EHLO
+	id <S262877AbSLBMph>; Mon, 2 Dec 2002 07:45:37 -0500
+Received: from 5-106.ctame701-1.telepar.net.br ([200.193.163.106]:59792 "EHLO
 	5-106.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S262808AbSLBMmh>; Mon, 2 Dec 2002 07:42:37 -0500
-Date: Mon, 2 Dec 2002 10:50:03 -0200 (BRST)
+	id <S262821AbSLBMph>; Mon, 2 Dec 2002 07:45:37 -0500
+Date: Mon, 2 Dec 2002 10:52:54 -0200 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: riel@imladris.surriel.com
-To: Javier Marcet <jmarcet@pobox.com>
+To: Santhosh Kumar <linuxkern@yahoo.com>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rmap15a incremental diff against 2.4.20-ac1
-In-Reply-To: <20021202032448.GA26608@jerry.marcet.dyndns.org>
-Message-ID: <Pine.LNX.4.44L.0212021048520.15981-100000@imladris.surriel.com>
+Subject: Re: Interrupting __free_pages_OK results in OOPS
+In-Reply-To: <20021202070501.27876.qmail@web14610.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.44L.0212021052230.15981-100000@imladris.surriel.com>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
-Content-ID: <Pine.LNX.4.44L.0212021048522.15981@imladris.surriel.com>
-Content-Disposition: INLINE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Dec 2002, Javier Marcet wrote:
+On Sun, 1 Dec 2002, Santhosh Kumar wrote:
 
-> There was no inconsistency but in three spots.
+> My device driver has an interrupt handler which
+> handles interrupts at a very high priority. Sometimes
+> the interrupt handler OOPS in __free_pages_OK. Any
+> idea why it happens.
 
-Your changes look good. Maybe the lookup_swapcache() thing would
-be more beautiful, but it's equivalent to the code you've got in
-place. Your patch should just work.
+> OOPS happens as follows.
 
-> Feel free to try it. I'm running it right now and so far no problems.
-> The vm usage has definitely improved, but there are still slight stalls
-> when there's a high disk io. Say, in periods of ~2-3s the system stopped
-> responding for a few cents of a sec, as if it had tachycardia.
-
-That's probably the disk IO scheduler.
+Could you please give us the full oops output, decoded with
+ksymoops ?
 
 Rik
 -- 

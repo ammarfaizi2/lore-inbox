@@ -1,39 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266273AbUIARRi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267165AbUIARZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266273AbUIARRi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 13:17:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267368AbUIAPzy
+	id S267165AbUIARZL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 13:25:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267361AbUIARYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 11:55:54 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:60338 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S267338AbUIAPvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 11:51:46 -0400
-Date: Wed, 1 Sep 2004 16:51:21 +0100
-Message-Id: <200409011551.i81FpLVF000615@delerium.codemonkey.org.uk>
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix another PNP leak.
+	Wed, 1 Sep 2004 13:24:39 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:13045 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S267165AbUIAPzP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 11:55:15 -0400
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: f_ops flag to speed up compatible ioctls in linux kernel
+X-Message-Flag: Warning: May contain useful information
+References: <20040901072245.GF13749@mellanox.co.il>
+	<20040901073218.GQ16297@parcelfarce.linux.theplanet.co.uk>
+From: Roland Dreier <roland@topspin.com>
+Date: Wed, 01 Sep 2004 08:55:11 -0700
+In-Reply-To: <20040901073218.GQ16297@parcelfarce.linux.theplanet.co.uk> (viro@parcelfarce.linux.theplanet.co.uk's
+ message of "Wed, 1 Sep 2004 08:32:19 +0100")
+Message-ID: <52zn4a0ysg.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 01 Sep 2004 15:55:11.0453 (UTC) FILETIME=[1006B8D0:01C4903C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Spotted with the source checker from Coverity.com.
+This thread raises the issue of the best way for a driver to handle
+commands from userspace.  The typical situation is where the driver
+needs to process commands from multiple processes and return a status
+for each command.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+I happen to work on the same type of drivers as Michael (InfiniBand),
+and there are a fairly large number of operations that userspace would
+like to call into the kernel for.  User applications ask the kernel
+driver to do things like "create completion queue."  One would like to
+make this call in a clean, simple, efficient way.
 
+I can think of four ways to do this:
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/pnp/pnpbios/core.c linux-2.6/drivers/pnp/pnpbios/core.c
---- bk-linus/drivers/pnp/pnpbios/core.c	2004-07-14 00:00:48.000000000 +0100
-+++ linux-2.6/drivers/pnp/pnpbios/core.c	2004-08-23 14:08:16.000000000 +0100
-@@ -252,8 +252,10 @@ static int pnpbios_set_resources(struct 
- 	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
- 	if (!node)
- 		return -1;
--	if (pnp_bios_get_dev_node(&nodenum, (char )PNPMODE_DYNAMIC, node))
-+	if (pnp_bios_get_dev_node(&nodenum, (char )PNPMODE_DYNAMIC, node)) {
-+		kfree(node);
- 		return -ENODEV;
-+	}
- 	if(pnpbios_write_resources_to_node(res, node)<0) {
- 		kfree(node);
- 		return -1;
+ - ioctl on char device:
+     Nice because it is synchronous and allows for the kernel to
+     return a status value easily.  Has a well-defined mechanism for
+     handling 32-bit/64-bit compatibility.  Unfortunately ioctl
+     methods run under the BKL.
+
+ - read/write on char device:
+     OK, except requires some mechanism (tag #) for matching requests
+     and responses.  Nowhere clean to put 32/64 compatibility code.
+
+ - netlink:
+     Similar to read/write except it adds the possibility of dropping
+     messages.
+
+ - syscall:
+     Syscalls are great in some ways.  They are the most direct way
+     into the kernel, they allow 
+
+     However: syscalls can't be added from modules; it's (quite
+     correctly) very hard to get new syscalls added to the kernel;
+     every arch numbers its syscalls differently.  Let's forget about
+     syscalls.
+
+ioctls end up looking like the least bad solution, although I'm open
+to other opinions and I'd love to hear better ideas.  I'd be happy
+with a policy of only accepting ioctls that are sparse and 32/64 clean
+and generally maintainable-looking, but I don't think driver authors
+have much alternative to ioctl right now.
+
+Thanks,
+  Roland

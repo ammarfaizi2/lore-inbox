@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274162AbRJPIaX>; Tue, 16 Oct 2001 04:30:23 -0400
+	id <S275485AbRJPJHR>; Tue, 16 Oct 2001 05:07:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274133AbRJPIaM>; Tue, 16 Oct 2001 04:30:12 -0400
-Received: from mail.loewe-komp.de ([62.156.155.230]:46606 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S274102AbRJPI3z>; Tue, 16 Oct 2001 04:29:55 -0400
-Message-ID: <3BCBF0DF.EE6657B8@loewe-komp.de>
-Date: Tue, 16 Oct 2001 10:33:35 +0200
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Organization: LOEWE. Hannover
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.9-ac3 i686)
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Dale Amon <amon@vnl.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Compressed fs's
-In-Reply-To: <OF24A34168.0F477E02-ON85256B29.0052E00A@raleigh.ibm.com> <20010829015050.F27869@vnl.com> <20010828205929.C1878@mindspring.com> <20011015222843.A7971@vnl.com>
+	id <S275571AbRJPJHI>; Tue, 16 Oct 2001 05:07:08 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:530 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S275485AbRJPJG7>; Tue, 16 Oct 2001 05:06:59 -0400
+Date: Tue, 16 Oct 2001 11:07:09 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.13pre3aa1
+Message-ID: <20011016110708.D2380@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dale Amon wrote:
-> 
-> Does anyone know what happened to the CBD project?
-> 
-> Or if there is a version of the cloop kernel module
-> updated to work with 2.4.x?
-> 
+Only in 2.4.13pre2aa1: 00_lvm-1.0.1-rc4-1.bz2
+Only in 2.4.13pre3aa1: 00_lvm-1.0.1-rc4-2.bz2
 
-BCL: block compression layer
+	Rediffed merging the unsigned long change in the blkdev size ioctl.
 
-http://bcl.tuxia.org/
+Only in 2.4.13pre2aa1: 00_vm-3.1
+Only in 2.4.13pre3aa1: 00_vm-3.2
 
-it does not unload correctly as module
+	Further vm minor updates. In particular make sure not to overstimate
+	the amount of buffers available during balance_dirty(), by using the
+	exact per-classzone active/inactive info.
+
+Only in 2.4.13pre2aa1: 50_uml-patch-2.4.12-1-1.bz2
+Only in 2.4.13pre3aa1: 50_uml-patch-2.4.12-3-1.bz2
+
+	Latest update from Jeff.
+
+Only in 2.4.13pre2aa1: 60_tux-2.4.10-ac10-F5.bz2
+Only in 2.4.13pre3aa1: 60_tux-2.4.10-ac12-H1.bz2
+
+	Latest update from Ingo.
+
+Andrea

@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbTJAGsD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 02:48:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbTJAGsD
+	id S262063AbTJAHCb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 03:02:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbTJAHCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 02:48:03 -0400
-Received: from ns.suse.de ([195.135.220.2]:59090 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262016AbTJAGsB (ORCPT
+	Wed, 1 Oct 2003 03:02:31 -0400
+Received: from gate.perex.cz ([194.212.165.105]:1167 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S262063AbTJAHC3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 02:48:01 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: jamie@shareable.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata  patch
-References: <7F740D512C7C1046AB53446D3720017304AFCF@scsmsx402.sc.intel.com.suse.lists.linux.kernel>
-	<20031001053833.GB1131@mail.shareable.org.suse.lists.linux.kernel>
-	<20030930224853.15073447.akpm@osdl.org.suse.lists.linux.kernel>
-	<20031001061348.GE1131@mail.shareable.org.suse.lists.linux.kernel>
-	<20030930233258.37ed9f7f.akpm@osdl.org.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 01 Oct 2003 08:47:58 +0200
-In-Reply-To: <20030930233258.37ed9f7f.akpm@osdl.org.suse.lists.linux.kernel>
-Message-ID: <p73k77pzc69.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Wed, 1 Oct 2003 03:02:29 -0400
+Date: Wed, 1 Oct 2003 09:01:16 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Joshua Kwan <joshk@triplehelix.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [ALSA PATCH] OSS emulation fixes
+In-Reply-To: <20030930233654.GC10262@triplehelix.org>
+Message-ID: <Pine.LNX.4.53.0310010859350.13267@pnote.perex-int.cz>
+References: <Pine.LNX.4.53.0309301247030.1362@pnote.perex-int.cz>
+ <20030930233654.GC10262@triplehelix.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On Tue, 30 Sep 2003, Joshua Kwan wrote:
 
-> Looking at Andi's patch, it is also a dead box if the fault happens inside
-> down_write(mmap_sem).  That should be fixed, methinks.
+> Hi Jaroslav,
+>
+> On Tue, Sep 30, 2003 at 12:51:52PM +0200, Jaroslav Kysela wrote:
+> > The pull command will update the following files:
+> >
+> >  include/sound/pcm_oss.h      |    1
+> >  include/sound/rawmidi.h      |    1
+> ...
+>
+> In 2.6.0-test6-mm1 with OSS emulation I encountered a problem where xine
+> would use the sound card in OSS mode and no other application would be
+> able to use it after that until I rebooted. Do any of these fixes
+> address this problem?
 
-The only way to fix all that would be to move the instruction checks early
-into the fast path.
+Yes, it will fix oops when an application releases the OSS emulation
+device.
 
-[On a P4 the overhead is 3.7268 vs 3.6594 microseconds for a fault that 
-doesn't hit as measured by lmbench2's lat_sig. This was before the latest 
-changes which added more checking, so the overhead is probably bigger now]
+> By the way - something you folks did during -test5 improved the quality
+> of snd-intel8x0 by leaps and bounds. It used to crackle a lot at certain
+> frequencies and works great now. :)
 
--Andi
+Yes, the method to obtain the current position in the DMA buffer was
+changed.
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SuSE Labs

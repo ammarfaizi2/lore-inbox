@@ -1,48 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273748AbRI0R4P>; Thu, 27 Sep 2001 13:56:15 -0400
+	id <S273751AbRI0SCF>; Thu, 27 Sep 2001 14:02:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273749AbRI0R4G>; Thu, 27 Sep 2001 13:56:06 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:6160 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S273748AbRI0Rzv>; Thu, 27 Sep 2001 13:55:51 -0400
-Date: Thu, 27 Sep 2001 10:56:07 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Jason McMullan <jmcmullan@linuxcare.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Why is Device3Dfx driver (voodoo1/2) not in the kernel?
-In-Reply-To: <20010927115710.A23248@jmcmullan.evillabs.net>
-Message-ID: <Pine.LNX.4.10.10109271040150.20787-100000@transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273754AbRI0SBz>; Thu, 27 Sep 2001 14:01:55 -0400
+Received: from c2.e0bed1.client.atlantech.net ([209.190.224.194]:26374 "EHLO
+	crb.crb-web.com") by vger.kernel.org with ESMTP id <S273751AbRI0SBw>;
+	Thu, 27 Sep 2001 14:01:52 -0400
+Date: Thu, 27 Sep 2001 14:12:38 -0500
+From: Wayne Cuddy <wcuddy@crb-web.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Synchronization Techniques in 2.2 Kernel
+Message-ID: <20010927141238.E5125@crb-web.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am working on a custom driver for a project at work.  We are working with
+Debian 2.2, the code is compiled as a module.  At this time I am not able to
+switch our project to the 2.4.x kernels so I require a solution using 2.2.x.
 
-> 	Mode changing - Now there I can get into an argument. I
-> still (after all these years) feel that the Kernel is the best
-> place to put video mode control. That way 'killall -9 X' isn't
-> nearly as nasty... The kernel could at least get you back to
-> a text console.
+The driver has the capability to control many cards at once.  It is written
+such that when the read system call is invoked data available on any card is
+returned, so we don't use a separate file descriptor for each card.
 
-Can we say framebuffer devices. As graphics cards are placed into more 
-and more different types of systems we need to have a way to make these
-cards workable on different platforms. This requires us to write
-drivers that can initialize a mode without firmware. I have reworked the
-console layer to deal with this and with allowing different modes on
-different VCs. The current system allows it too but it is more of a later
-add on hack. I have a much cleaner implementation which does what you ask 
-of the above.         
- 
-> 	And now that XFree86 4 has a vm86 system to 'run the
-> Video BIOS' for certain cards, it shouldn't be to hard to 
-> emulate the old OS/2 system - in a vm86 session, use the BIOS
-> to switch to all the supported modes, and record (via vm86
-> io traps) everything the BIOS does. Then, in the driver,
-> just 'play back' the scripts... Worked beatifully for OS/2
-> back in the day for 2D framebuffers...
+I believe I have a "race condition" in the drivers read method when blocking
+I/O is used and there is no data in the DMA buffers.  Here is some very basic
+pseudo code for the driver's read method:
 
-Really. I have my own personal compain to make all the graphics drivers
-firmware independent. I even like to see the VGA console driver also
-firmware independent.
+driver_read()
+{
+	start_card = x;
+	
+	while(1)
+	{
+		if(card_has_data(x))
+			return data;
+
+		x = next_card(x);
+		
+		if(start_card == x)
+		{
+			/* none of the cards has any data, sleep
+			 * on a wait queue */
+			interruptible_sleep_on.....
+		}
+	}
+}
+
+After the device performs the DMA it will wake the driver via the interrupt
+handler.  The problem is how to handle the situation where the driver checks a
+card for data, no data is available and it moves on to the next card.  While
+checking the rest of the cards data may arrive on the 1st card, the interrupt
+handler will fire and complete before the driver goes to sleep on the wait
+queue.
+
+If I understand wait_queues correctly the process has to be sleeping before a
+wake_up call will have any effect (I.E. they are not queued).  Can this be
+worked around with semaphores or some other method?  I am open to ideas here.
+
+Any and all help is appreciated.
+
+Wayne
+
 

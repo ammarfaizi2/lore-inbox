@@ -1,38 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314458AbSFISwg>; Sun, 9 Jun 2002 14:52:36 -0400
+	id <S314475AbSFISxm>; Sun, 9 Jun 2002 14:53:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314475AbSFISwf>; Sun, 9 Jun 2002 14:52:35 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:22462 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S314458AbSFISwe>; Sun, 9 Jun 2002 14:52:34 -0400
-Date: Sun, 9 Jun 2002 20:50:54 +0200
-From: Andi Kleen <ak@muc.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andi Kleen <ak@muc.de>, "David S. Miller" <davem@redhat.com>, lord@sgi.com,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org, bcrl@redhat.com
-Subject: Re: [RFC] 4KB stack + irq stack for x86
-Message-ID: <20020609205054.A1329@averell>
-In-Reply-To: <20020604225539.F9111@redhat.com> <1023315323.17160.522.camel@jen.americas.sgi.com> <20020605183152.H4697@redhat.com> <20020605.161342.71552259.davem@redhat.com> <m3d6v5mcm2.fsf@averell.firstfloor.org> <20020602155202.F219@toy.ucw.cz>
+	id <S314500AbSFISxl>; Sun, 9 Jun 2002 14:53:41 -0400
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:48325 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S314475AbSFISxh>; Sun, 9 Jun 2002 14:53:37 -0400
+Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
+From: Nicholas Miell <nmiell@attbi.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Jan Pazdziora <adelton@informatics.muni.cz>, christoph@lameter.com,
+        linux-kernel@vger.kernel.org, adelton@fi.muni.cz
+In-Reply-To: <E17H6ja-0003Ye-00@starship>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 09 Jun 2002 11:53:32 -0700
+Message-Id: <1023648813.1188.19.camel@entropy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 02, 2002 at 05:52:02PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > The scenario Steve outlined was rather optimistic - more pessimistic
-> > case would be e.g:
-> > you run NBD which calls the network stack with an complex file system on top
-> > of it called by something else complex that does a GFP_KERNEL alloc and VM 
-> > wants to flush a page via the NBD file system - 
-> 
-> Actually, at this point we are dead anyway because of locks in NBD. NBD should
-> be carefull to use GFP_NOIO.
+On Sun, 2002-06-09 at 10:44, Daniel Phillips wrote:
 
-Reread what I wrote. It does not involve NBD recursing.
+> Personally, it sounds like support for shortcuts as symlinks is a natural and 
+> needed improvement, though I haven't looked at the the internal details.  
+> (Shortcuts arrived in Microsoft-land at about the time I lost interest.)  I'm 
+> kind of surprised the support isn't already there.  Perhaps you could briefy 
+> describe how shortcuts work on vfat?
+> 
 
--Andi
+Putting shortcut support into the VFAT driver is as bad a decision as
+the automatic text-file CRLF->LF conversions was, for several reasons.
+
+First of all, some programs (WINE) will actually want to use the .lnk
+files, and transparently converting them to symlinks will complicate
+that.
+
+More importantly, shortcuts are a hell of a lot more complicated than
+has been implied. Not only can they point to local files or UNCs (the
+\\server\share\path notation), they can also point to any object in the
+(Windows) shell's namespace, which includes lots of virtual objects that
+don't actually exist on disk. With the release of the Windows Installer
+package manager, Microsoft has also added support for shortcuts that
+will either invoke the target application or prompt for that
+application's installation when they're activiated, leading to much more
+complexity to either deal with such a shortcut, or to recognize it and
+ignore it.
+
+Finally, I haven't seen any justification for why symlinks on VFAT are
+needed, beyond some vague statements that it's useful when dual booting.
+Face it, VFAT isn't a Unix filesystem and introducing ugly hacks to make
+it more similar to one will only cause problems in the long run. If you
+want symlinks, use a real filesystem or use umsdos on your favorite FAT
+filesystem. (Assuming that umsdos still works...).
+
+- Nicholas
+
+P.S. As to how shortcuts actually work, they're just ordinary files on
+disk in some undocumented, proprietary, and frequently changing format
+that the Windows Shell knows how to interpret.
+

@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270990AbTGVSdd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 14:33:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270991AbTGVSdd
+	id S270991AbTGVSdl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 14:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270992AbTGVSdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 14:33:33 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:52487 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S270990AbTGVSdb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 14:33:31 -0400
-Subject: Re: Scheduler starvation (2.5.x, 2.6.0-test1)
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Apurva Mehta <apurva@gmx.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030722172858.GB2880@home.woodlands>
-References: <20030722013443.GA18184@netnation.com>
-	 <20030722172858.GB2880@home.woodlands>
-Content-Type: text/plain
-Message-Id: <1058899713.733.6.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 22 Jul 2003 20:48:34 +0200
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Jul 2003 14:33:41 -0400
+Received: from web41906.mail.yahoo.com ([66.218.93.157]:60597 "HELO
+	web41906.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S270991AbTGVSdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 14:33:38 -0400
+Message-ID: <20030722184842.76569.qmail@web41906.mail.yahoo.com>
+Date: Tue, 22 Jul 2003 11:48:42 -0700 (PDT)
+From: Xiaoji Liu <xiaoji14@yahoo.com>
+Subject: 2.6.0-test1: kernel image compile ok, but modules compile failed
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-07-22 at 19:28, Apurva Mehta wrote:
-> * Simon Kirby <sim@netnation.com> [2003-07-22 11:50]:
-> > I keep seeing cases where browsing in mozilla / galeon will suck away all
-> > CPU from X updating the mouse, xmms playing, etc., for about a second as
-> > Mozilla renders a page (which should take 50 ms to render, but anyway..).
-> 
-> I do not have any problems with mouse response, but xmms sure does
-> skip a whole lot more on my 2.6.0-test1 running on a PIII 500 MHz, 192
-> MB RAM. 
-> 
-> I usually run Opera and the skipping occurs often while switching
-> between tabs with the mouse (not when it is done with the keyboard).
-> 
-> Also, severe xmms skipping occurs while scrolling through PDF files
-> (in Acrobat) while the first few seconds of a song are playing. The
-> song virtually stops while I scroll. After the song plays for a bit,
-> scrolling through a PDF makes no difference.
-> 
-> Sometimes, xmms pops up in between songs saying that it could not
-> detect the audio device! This occurs mainly during heavy disk i/o or
-> cpu usage.
+Hello,
 
-Could you please test 2.6.0-test1-mm2 instead? It has additional
-scheduler fixes which should improve your overall experience.
+when i compile kernel 2.6.0-test1
+It gave 'parse error' message when compiling file
+drivers/mtd/devices/blkmtd.c
+(around line 700)
 
-Thanks!
+I opened the source file and saw this:
 
+static int blkmtd_write(struct mtd_info *mtd, loff_t
+to, size_t len,
+size_t *retlen, const u_char *buf)
+{
+mtd_raw_dev_data_t *rawdevice = mtd->priv;
+int err = 0;
+int offset;
+int pagenr;
+size_t len1 = 0, len2 = 0, len3 = 0;
+struct page **pages;
+int pagecnt = 0;
+char b[BDEVNAME_SIZE];
+21 e3
+*retlen = 0;
+DEBUG(2, "blkmtd: write: dev = `%s' to = %ld len = %d
+buf = %p\n",
+bdevname(rawdevice->binding, b), (long int)to, len,
+buf);
+
+/* handle readonly and out of range numbers */
+
+Notice there is a line : 21 e3
+
+please give some suggestion
+THX
+
+
+__________________________________
+Do you Yahoo!?
+The New Yahoo! Search - Faster. Easier. Bingo.
+http://search.yahoo.com

@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262803AbSKMS4J>; Wed, 13 Nov 2002 13:56:09 -0500
+	id <S261393AbSKMTOR>; Wed, 13 Nov 2002 14:14:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262804AbSKMS4J>; Wed, 13 Nov 2002 13:56:09 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:29707 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262803AbSKMS4J>; Wed, 13 Nov 2002 13:56:09 -0500
-Date: Wed, 13 Nov 2002 20:02:29 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Modules and the Interfaces who Love Them (Take I)
-In-Reply-To: <20021113101924.104F92C0B0@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0211131430190.2109-100000@serv>
-References: <20021113101924.104F92C0B0@lists.samba.org>
+	id <S262250AbSKMTOR>; Wed, 13 Nov 2002 14:14:17 -0500
+Received: from packet.digeo.com ([12.110.80.53]:47800 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261393AbSKMTOQ>;
+	Wed, 13 Nov 2002 14:14:16 -0500
+Message-ID: <3DD2A61E.F0647BD4@digeo.com>
+Date: Wed, 13 Nov 2002 11:21:02 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: kronos@kronoz.cjb.net
+CC: lord@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.5.47] Unable to load XFS module
+References: <20021113184805.GA777@dreamland.darkstar.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Nov 2002 19:21:02.0215 (UTC) FILETIME=[CDD7F170:01C28B49]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Kronos wrote:
+> 
+> Hi,
+> I'm playing with kernel 2.5.47. XFS support is compiled as module and at
+> boot time, while mounting /home, I get this:
+> 
+> insmod /lib/modules/2.5.47/kernel/fs/xfs/xfs.o failed
+> 
+> Then, trying to modprobe xfs by hand:
+> 
+> /lib/modules/2.5.47/kernel/fs/xfs/xfs.o: unresolved symbol page_states__per_cpu
+> /lib/modules/2.5.47/kernel/fs/xfs/xfs.o: insmod /lib/modules/2.5.47/kernel/fs/xfs/xfs.o failed
+> /lib/modules/2.5.47/kernel/fs/xfs/xfs.o: insmod xfs failed
+> 
 
-On Wed, 13 Nov 2002, Rusty Russell wrote:
-
-> Feedback appreciated.  It's aimed at driver writers.
-
-If that's your audience, I expect a very confused audience.
-You can make it very simple: There are safe interfaces and there are 
-broken interfaces and you shall never write or use broken interfaces.
-For the majority of driver writers that's good enough.
-Any documentation about module writing should also include/point to a 
-chapter about resource management. The user has to understand anyway, by 
-whom the module resources are used, otherwise he has more problems than 
-just module unloading. Module management is just a small part of this 
-whole picture or could be part of it, but right now the current module 
-code is desperate attempt at keeping it out of it.
-I would prefer if the user would be teached about proper resource 
-management at kernel level. As soon as the user gets that right he will 
-also have no problems to get module unloading right _if_ that would follow 
-the same rules, but currently it involves lots of black magic instead.
-Rusty, I'm not impressed by the new module code, maybe I'm missing 
-something, but it doesn't fix anything and only encourages to write more 
-broken interfaces.
-
-bye, Roman
+You'll need to disable module symbol versioning, or apply this
+patch from Rusty:
 
 
+
+ include/asm-generic/percpu.h |    6 ++++++
+ 1 files changed, 6 insertions(+)
+
+--- 25/include/asm-generic/percpu.h~genksyms-fix	Wed Nov 13 00:57:06 2002
++++ 25-akpm/include/asm-generic/percpu.h	Wed Nov 13 00:57:06 2002
+@@ -35,4 +35,10 @@ extern unsigned long __per_cpu_offset[NR
+ #define EXPORT_PER_CPU_SYMBOL(var) EXPORT_SYMBOL(var##__per_cpu)
+ #define EXPORT_PER_CPU_SYMBOL_GPL(var) EXPORT_SYMBOL_GPL(var##__per_cpu)
+ 
++/* Genksyms can't follow the percpu declaration.  Give it a fake one. */
++#ifdef __GENKSYMS__
++#undef DEFINE_PER_CPU
++#define DEFINE_PER_CPU(type, name) type name##__per_cpu
++#endif /*__GENKSYMS__*/
++
+ #endif /* _ASM_GENERIC_PERCPU_H_ */
+
+_

@@ -1,107 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265094AbTA2Hto>; Wed, 29 Jan 2003 02:49:44 -0500
+	id <S265134AbTA2HzA>; Wed, 29 Jan 2003 02:55:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265097AbTA2Hto>; Wed, 29 Jan 2003 02:49:44 -0500
-Received: from webmail10.rediffmail.com ([202.54.124.179]:28623 "HELO
-	rediffmail.com") by vger.kernel.org with SMTP id <S265094AbTA2Htn>;
-	Wed, 29 Jan 2003 02:49:43 -0500
-Date: 29 Jan 2003 08:05:26 -0000
-Message-ID: <20030129080526.25423.qmail@webmail10.rediffmail.com>
-MIME-Version: 1.0
-From: "nitin  kumbhar" <nkumbhar@rediffmail.com>
-Reply-To: "nitin  kumbhar" <nkumbhar@rediffmail.com>
-To: "Richard B.Johnson" <root@chaos.analogic.com>
+	id <S265139AbTA2HzA>; Wed, 29 Jan 2003 02:55:00 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:4992 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id <S265134AbTA2Hy7>;
+	Wed, 29 Jan 2003 02:54:59 -0500
+Date: Wed, 29 Jan 2003 00:04:20 -0800
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Anuradha Ratnaweera <ARatnaweera@virtusa.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: driver address space
-Content-type: text/plain;
-	format=flowed
+Subject: Re: Where are the matroxfb updates?
+Message-ID: <20030129080420.GB4950@vana.vc.cvut.cz>
+References: <20030129020639.GA10213@aratnaweera.virtusa.com> <20030129053159.GA5999@platan.vc.cvut.cz> <20030129073629.GA26091@aratnaweera.virtusa.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20030129073629.GA26091@aratnaweera.virtusa.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 29, 2003 at 01:36:29PM +0600, Anuradha Ratnaweera wrote:
+> On Wed, Jan 29, 2003 at 06:31:59AM +0100, Petr Vandrovec wrote:
+> > 
+> > Though I'm not sure why you just do not upgrade to 2.4.21-pre4.
+> 
+> -pre3 and -pre4 don't build matroxfb_g450 and matroxfb_crtc2 as modules.
+> I have FB_MATROX_G450 set to "m", so these modules don't get added to
+> obj-m.  The "ifeq"s in the Makefile now check only for the value "y" of
+> this symbol, not for "m".
 
-On Tue, 28 Jan 2003 Richard B. Johnson wrote :
->On 28 Jan 2003, nitin  kumbhar wrote:
->
-> > Hello,
-> >   I have a small query about kernel image organization. i am
-> > using
-> > 2.4.7 kernel version.Is there any data structure in kernel 
->which
-> > will give
-> > information about _all_ kernel symbols? i could get the data
-> > structure
-> > which gives _exported_ symbols only. But not all symbols. 
->Using
-> > this
-> > structure i want to access information about functions present 
->in
-> > a driver,
-> > which can be used to find out address range(_start_address_ 
->&
-> > _end_address_) of the driver in kernel address space.
-> >   It is possible to get this information about functions in 
->a
-> > driver
-> > using System.map. to get this information into kernel can we 
->push
-> > the
-> > content of this file into kernel image? i think this can be 
->done
-> > either by
-> > putting it at specific address or appending the image. Will it 
->be
-> > OK to
-> > access System.map(all kernel symbols) in this way from 
->kernel?
-> > Could
-> > this cause any security or some other problems?
-> >   Or apart from this is there any other way to find out 
->driver's
-> > address range in the kernel?
-> >
-> >   I hope this not something totally out of context. Thank 
->You.
-> >
-> > Regards,
-> > Nitin
-> >
->
->Since it's dynamic, i.e., the addresses depends upon other
->drivers/modules being loaded before yours, you just make an 
->ioctl()
->that returns anything you want, including the virtual or even 
->physical
->address of anything in your driver.
-
-hi Richard,
-
-You are true if the driver is a module. But i think the same case 
-is not with
-drivers present in the kernel image(when built with kernel). The 
-position
-in the kernel address space where the drivers are loaded is fixed. 
-it can
-change only if you recompile the kernel. correct me if i am going 
-wrong
-somewhere.
-
-About ioctl, ioctls can return the required values from the 
-driver. But if the
-driver is present in the kernel (not as a module) where to find 
-these
-return values(in this case start & end addresses of the driver). 
-Here i am
-not getting the place or method to find the addresses.
-
-it will be very helpful if someone could push me forward in 
-correct direction.
-
-Thank You.
-
-Regards,
-Nitin
-
-
+You did not run 'make oldconfig', did you? G450 cannot be set to module
+anymore, either you build core with gX50 support, or without. By default
+people use secondary output on g550 and they were complaining that they see
+nothing. So you do not have choice to screw up things now.
+								Petr
 

@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269305AbUHZRpS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269243AbUHZRTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269305AbUHZRpS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 13:45:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269295AbUHZRoH
+	id S269243AbUHZRTc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 13:19:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269163AbUHZRSw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 13:44:07 -0400
-Received: from smtp.terra.es ([213.4.129.129]:3835 "EHLO tsmtp7.mail.isp")
-	by vger.kernel.org with ESMTP id S269310AbUHZRkY convert rfc822-to-8bit
+	Thu, 26 Aug 2004 13:18:52 -0400
+Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:43202 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S269269AbUHZRIz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 13:40:24 -0400
-Date: Thu, 26 Aug 2004 19:40:10 +0200
-From: Diego Calleja <diegocg@teleline.es>
-To: Rik van Riel <riel@redhat.com>
-Cc: jamie@shareable.org, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-Id: <20040826194010.548e4a4c.diegocg@teleline.es>
-In-Reply-To: <Pine.LNX.4.44.0408261315240.27909-100000@chimarrao.boston.redhat.com>
-References: <20040826190548.3e67726f.diegocg@teleline.es>
-	<Pine.LNX.4.44.0408261315240.27909-100000@chimarrao.boston.redhat.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Thu, 26 Aug 2004 13:08:55 -0400
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Reiser 4
+Date: Thu, 26 Aug 2004 14:08:46 -0300
+User-Agent: KMail/1.7
+Cc: "Rodrigo FGV" <rodrigof@bifgv.com.br>
+References: <006601c48bad$00c4b130$0700a8c0@ti10>
+In-Reply-To: <006601c48bad$00c4b130$0700a8c0@ti10>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408261408.46998.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 26 Aug 2004 13:16:22 -0400 (EDT) Rik van Riel <riel@redhat.com> escribió:
+Rodrigo FGV wrote:
+> how i convert reiser3.6 to reiser4. 
 
-> So all I need to do is "cat /bin | gzip -9 > /path/to/backup.tar.gz" ?
+Backup. Reformat. Restore.
 
-/bin could be separated (like linus said) but cat /bin/.compound could do
-it. This is the /etc/passwd Hans' example, I think:
+> this update is safe??? 
 
-"If /new_syntax_access_path/big_directory_of_small_files/.glued is a plugin that
-aggregates every file in big_directory_of_small_files with a delimiter
-separating every file within the aggregation, then one can simply type emacs
-/new_syntax_access_path/big_directory_of_small_files/.glued, and the filesystem
-has done all the work emacs needs to be effective at this. Not a line of emacs
-needs to be changed."
+Dunno. Many people is using it, so I guess it is.
+
+> the reiser4 have any critical bug?? 
+
+Doesn't like 4KSTACKS :(
+
+> anyone recommend this update??? 
+
+Hans does ;)
+And I would if it compiled with 4KSTACKS.
+
+Best Regards,
+Norberto

@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312939AbSDCAt2>; Tue, 2 Apr 2002 19:49:28 -0500
+	id <S312935AbSDCAvS>; Tue, 2 Apr 2002 19:51:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312935AbSDCAtS>; Tue, 2 Apr 2002 19:49:18 -0500
-Received: from xyzzy.dsl.speakeasy.net ([216.254.8.100]:54792 "EHLO
-	xyzzy.dsl.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S312917AbSDCAtK>; Tue, 2 Apr 2002 19:49:10 -0500
-Date: Tue, 2 Apr 2002 16:48:49 -0800 (PST)
-From: Trent Piepho <xyzzy@speakeasy.org>
-To: jim@rubylane.com
-cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: Update on Promise 100TX2 + Serverworks IDE issues -- 2.2.20
-In-Reply-To: <20020402233842.25600.qmail@london.rubylane.com>
-Message-ID: <Pine.LNX.4.04.10204021623420.5141-100000@xyzzy.dsl.speakeasy.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312995AbSDCAvJ>; Tue, 2 Apr 2002 19:51:09 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:35834
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S312991AbSDCAvD>; Tue, 2 Apr 2002 19:51:03 -0500
+Date: Tue, 2 Apr 2002 16:52:44 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Mark Cooke <mpc@star.sr.bham.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Raid5 resync slow with one linear array
+Message-ID: <20020403005244.GE952@matchmail.com>
+Mail-Followup-To: Mark Cooke <mpc@star.sr.bham.ac.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020402022822.GA961@matchmail.com> <Pine.LNX.4.44.0204020630140.1152-100000@pc24.sr.bham.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Apr 2002 jim@rubylane.com wrote:
-> 2. The MB IDE ports transfer data at about 18000K/sec while doing
-> cat /dev/hda >/dev/null and looking at vmstat.
+On Tue, Apr 02, 2002 at 06:35:29AM +0100, Mark Cooke wrote:
+> Hi Mike,
+> 
+> Have you checked individual transfer rates to the drives / md devices ?
 
-I think the serverworks IDE is only mode4, not even UDMA33.  I heard a lot of
-bad things about it, and removed all the IDE drives from our serverworks
-system's controller.
+Each drive transfers 18-20MB/sec, and all have been tested with badblocks -w.
 
-> hdk.  In a 32-bit slot, cat /dev/hdx >/dev/null shows 31300K/sec.  But
-> doing cat /dev/hde4 (a specific partition) for example gives
-> 8400K/sec.  That makes no sense to me.
+> 
+> I saw (non-reproducible unfortunately) a bad-transfer rate between one 
+> of my drives in an ide raid setup, where the drive was only pushing ~ 
+> 2MB/sec, even after being explictly zapped with hdparm.  A power cycle 
+> fixed it, and it hasn't happenned since.
+> 
 
-The outer cylinders of a drive are faster than the inner cylinders.  Try
-repartitioning the drive so that hde4 starts at cylinder 1, and see if that
-changes the speed.
+Hmm, I don't think I'm dealing with bad hardware.  All are SCA SCSI and tested.
 
-> 6. If the Promise card is installed in one of the two 64-bit/66MHz
-> slots on the Supermicro MB, then hde (the first ide port) behaves the
-> same: 31300K/sec if catting /dev/hde, but only 8400K/sec if catting
-> /dev/hde4.  HOWEVER, the master drive on the second port, hdg, yields
-> 31300K/sec for both cat /dev/hdg and cat /dev/hdg4.  I have swapped
+> Did you try building it with different chunk sizes ?
+>
 
-How is hdg partitioned?  You should expect to see a significant speed
-difference between the inner and outer cylinders of a drive.
+No, my root filesystem is on this array.  I think 32k chunks are ok.
 
-> I dunno.  This is all getting way too confusing so I am going to find
-> a configuration that works and stop trying to make it work perfectly
-> and understand the ins and outs.
-
-We have a supermicro 370DE6 (serverworks HE-sl) with a 3ware escalade 7850. 
-It's very fast, faster than the mylex extremeraid 2000 with much more
-expensive drives in the same computer.  The 3ware hasn't been used much yet in
-that machine, but so far we have had no problems.  Maybe the promise cards and
-the serverworks IDE controller are just crappy hardware, and are never going
-to work correctly?
-
+Mike

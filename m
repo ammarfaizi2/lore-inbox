@@ -1,84 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263380AbUDGAvu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 20:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbUDGAvu
+	id S263379AbUDGBCy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 21:02:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbUDGBCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 20:51:50 -0400
-Received: from boggle.pobox.com ([208.58.1.193]:9095 "EHLO boggle.pobox.com")
-	by vger.kernel.org with ESMTP id S263380AbUDGAvr (ORCPT
+	Tue, 6 Apr 2004 21:02:54 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:36490 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S263379AbUDGBCw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 20:51:47 -0400
-Date: Tue, 6 Apr 2004 17:50:12 -0700
-From: Jeff Lightfoot <jeffml@pobox.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6] net/sk98lin: correct buggy VPD in ASUS MB
-Message-Id: <20040406175012.64fe9d7c.jeffml@pobox.com>
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i386-pc-linux-gnu)
-X-Face: $n=Rh`fC)-'~T?N4{k<m#PDTgj\,OYTK+D(!TTIdBm&(^y:ydlx9:~xe.1@_]/h!~a]D.Ja
- T)qLF2A(b!G{>=V~zorpO2&"J`qbq{|eiZ&k.#tAz{{7.3M_}Y?qY1sB}1,-F
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Tue__6_Apr_2004_17_50_12_-0700_U_OhkD.N/eBLNeGo"
+	Tue, 6 Apr 2004 21:02:52 -0400
+Message-Id: <200404070102.i3712nDe002647@eeyore.valparaiso.cl>
+To: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel stack challenge 
+In-Reply-To: Your message of "Tue, 06 Apr 2004 10:44:12 MST."
+             <20040406174412.7850.qmail@web40511.mail.yahoo.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Tue, 06 Apr 2004 21:02:49 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Sergiy Lozovsky <serge_lozovsky@yahoo.com> said:
+> If stack will shrink - i'll come up with something.
 
---Multipart=_Tue__6_Apr_2004_17_50_12_-0700_U_OhkD.N/eBLNeGo
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Good luck! When it is done shrinking, there won't be much (if any) left for
+you to play with.
 
-The following patch to net/sk98lin/skvpd.c was put together by Marc
-Bouget, mbouget at club-internet.fr.  He currently doesn't have time to
-interface with linux-kernel so I offered to work that front.
+> Rearchitecture of LISP interpreter - is too much work.
 
-This patch works around a corrupt EEPROM (VPD?) in the ASUS K8V Deluxe
-SE motherboard ethernet chipset and allows the network driver to work
-correctly.  We have written to ASUS and the sk98lin maintainers but have
-not heard anything back.
+Implement a kernel-side LISP interpreter isn't...
 
-Does this have a chance to be included in mainline or is there a
-preferable way to fix these kind of issues?
+> (and I'm lazy - I prefer computer to do a work, not me
+> :-)
 
-  -- Jeff Lightfoot
+Nodz. But even better is _not_ doing it at all ;-)
 
---Multipart=_Tue__6_Apr_2004_17_50_12_-0700_U_OhkD.N/eBLNeGo
-Content-Type: text/plain;
- name="skvpd.c.diff"
-Content-Disposition: attachment;
- filename="skvpd.c.diff"
-Content-Transfer-Encoding: 7bit
+> I checked what is going on with the stack - it is used
+> to pass parameters, some functions have one or two
+> local variables (4 bytes each) and that's it.
 
---- drivers/net/sk98lin/skvpd.c.orig	2004-04-05 17:32:59.000000000 -0700
-+++ drivers/net/sk98lin/skvpd.c	2004-04-05 17:33:26.000000000 -0700
-@@ -468,6 +468,16 @@
- 	
- 	pAC->vpd.vpd_size = vpd_size;
- 
-+	/* Asus K8V Se Deluxe bugfix. Correct VPD content */
-+	/* MBo April 2004 */
-+	if( ((unsigned char)pAC->vpd.vpd_buf[0x3f] == 0x38) &&
-+	    ((unsigned char)pAC->vpd.vpd_buf[0x40] == 0x3c) &&
-+	    ((unsigned char)pAC->vpd.vpd_buf[0x41] == 0x45) ) {
-+		printk("sk98lin : humm... Asus mainboard with buggy VPD ? correcting data.\n");
-+		(unsigned char)pAC->vpd.vpd_buf[0x40] = 0x38;
-+	}
-+
-+
- 	/* find the end tag of the RO area */
- 	if (!(r = vpd_find_para(pAC, VPD_RV, &rp))) {
- 		SK_DBG_MSG(pAC, SK_DBGMOD_VPD, SK_DBGCAT_ERR | SK_DBGCAT_FATAL,
-
-
-
---Multipart=_Tue__6_Apr_2004_17_50_12_-0700_U_OhkD.N/eBLNeGo--
+Why do you think it has been 2 pages (8KiB) for as long as I remember
+(essentially forever in Linux), and it has taken a _lot_ of work to shrink
+it to 4KiB (- size of *current)?
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267268AbRGKJ5b>; Wed, 11 Jul 2001 05:57:31 -0400
+	id <S267267AbRGKJwv>; Wed, 11 Jul 2001 05:52:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267266AbRGKJ5V>; Wed, 11 Jul 2001 05:57:21 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:31498 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S267268AbRGKJ5D>;
-	Wed, 11 Jul 2001 05:57:03 -0400
-Date: Wed, 11 Jul 2001 11:56:41 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: linux-kernel@vger.kernel.org, isdn4linux@listserv.isdn4linux.de
-Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-        kai@tp1.ruhr-uni-bochum.de
-Subject: [PATCH 2.4.6-any] ISDN TurboPam driver fix.
-Message-ID: <20010711115641.E31044@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.4i
+	id <S267266AbRGKJwl>; Wed, 11 Jul 2001 05:52:41 -0400
+Received: from rcum.uni-mb.si ([164.8.2.10]:59661 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S267264AbRGKJw1>;
+	Wed, 11 Jul 2001 05:52:27 -0400
+Date: Wed, 11 Jul 2001 11:52:26 +0200
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: Switching Kernels without Rebooting?
+To: cslater@wcnet.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-id: <3B4C21DA.5FFCBE2@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This small attached patch fixes a showstopper bug in the TurboPam
-ISDN driver. The patch applies to 2.4.7-pre kernels as well as
--ac kernels.
+C. Slater (cslater@wcnet.org) wrote :
 
-Linus, Alan, please apply.
+> Hi, i was just thinking about if it would be possible to switch kernels 
+> without haveing to restart the entire system. Sort of a "Live kernel 
+> replacement". It sort of goes along with the hot-swap-everything ideas. I 
+> was thinking something like 
+> - Take all the structs related to userspace memory and processes 
+> - Save them to a reserved area of memory 
+> - Halt the kernel, mostly 
+> - Wipe kernel-space memory clean to avoid confusion 
+> - Load new kernel into memory 
+> - Replace all saved structures 
+> - Start kernel running agin 
+> 
+> This seems like the easiest way to do it. The biggest problem is that there 
+> would be somewhere about 30 seconds where all processes would be frozen. 
 
-Stelian.
+This is not a problem at all, because UNIX does not guarantee that
+a process will get at least one CPU slice every X seconds.
+( read : UNIX is not a real time system )
 
-diff -uNr --exclude-from=dontdiff linux-2.4.6-ac2.orig/drivers/isdn/tpam/tpam_main.c linux-2.4.6-ac2/drivers/isdn/tpam/tpam_main.c
---- linux-2.4.6-ac2.orig/drivers/isdn/tpam/tpam_main.c	Mon Jul  2 23:07:55 2001
-+++ linux-2.4.6-ac2/drivers/isdn/tpam/tpam_main.c	Mon Jul  9 12:42:46 2001
-@@ -148,7 +148,8 @@
- 	card->interface.features = 
- 		ISDN_FEATURE_P_EURO |
- 		ISDN_FEATURE_L2_HDLC |
--		ISDN_FEATURE_L2_MODEM;
-+		ISDN_FEATURE_L2_MODEM |
-+		ISDN_FEATURE_L3_TRANS;
- 	card->interface.hl_hdrlen = 0;
- 	card->interface.command = tpam_command;
- 	card->interface.writebuf_skb = tpam_writebuf_skb;
+soft-suspend "freezes" processes for several hours anyway ...
+
+Note that there is a patch for hot replacing a kernel, which is equivalent
+to rebooting, but much faster :
+Two Kernel Monte (Linux loading Linux on x86)
+http://www.scyld.com/products/beowulf/software/monte.html
+
+
+> This could cause problems with tcp/ip connections timeing out say on a 
+> webserver, but it would be more managable than a few minutes downtime to 
+> restart the machine.
+
+[ rest snipped ]
+
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|---------------- Free Software Engineer -----------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|------------- Alcôve, liberating software ---------------|
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

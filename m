@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282373AbRLVUce>; Sat, 22 Dec 2001 15:32:34 -0500
+	id <S282271AbRLVUiD>; Sat, 22 Dec 2001 15:38:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282276AbRLVUcY>; Sat, 22 Dec 2001 15:32:24 -0500
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:47099 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S282271AbRLVUcL>; Sat, 22 Dec 2001 15:32:11 -0500
-Mime-Version: 1.0
-Message-Id: <p05101000b84a980dd9e1@[10.0.0.42]>
-Date: Sat, 22 Dec 2001 12:32:04 -0800
-To: linux-kernel@vger.kernel.org
-From: "Timothy A. Seufert" <tas@mindspring.com>
-Subject: Re: Configure.help editorial policy
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S282276AbRLVUhx>; Sat, 22 Dec 2001 15:37:53 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:1963 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S282271AbRLVUhj>;
+	Sat, 22 Dec 2001 15:37:39 -0500
+Date: Sat, 22 Dec 2001 23:35:10 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Ashok Raj <ashokr2@attbi.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: affinity and tasklets...
+In-Reply-To: <PPENJLMFIMGBGDDHEPBBIEKFCAAA.ashokr2@attbi.com>
+Message-ID: <Pine.LNX.4.33.0112222327410.10048-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlich wrote:
 
->4Mbit bandwidth is usually 4 * 10^3 * 2^10 bits per second.
->20GB harddrive is usually 20 * 10^6 * 2^10 bytes.
+On Sat, 22 Dec 2001, Ashok Raj wrote:
 
-A 20 GB hard drive is always 20 * 10^9 bytes.  I'm not sure why so 
-many people on the linux-kernel list think otherwise, but the hard 
-drive industry is quite consistent in its use of power-of-10 units to 
-describe capacity.  See:
+> The natual affinity of tasklet execution is really the one iam trying
+> to get away from.
 
-http://www.seagate.com/support/kb/disc/bytes.html
-   ("all major disc drive manufactures use decimal values when discussing
-     storage capacity")
+some form of interrupt source is needed to load-balance IRQ load to other
+CPUs - some other, unrelated processor wont just start executing the
+necessery function, without that CPU getting interrupted in some way.
+(polling is an option too, but that's out of question for a generic
+solution.)
 
-Answer ID 336 in Maxtor's "Knowledge Base"
-   ("Hard drives are marketed in terms of decimal (base 10) capacity.
-     In decimal notation, one megabyte (MB) is equal to 1,000,000 bytes,
-     and one Gigabyte (GB) is equal to 1,000,000,000 bytes.")
+there are a number of solutions to this problem.
 
-Answer ID 68 in Western Digital's "Knowledge Base"
-   ("Drive manufacturers have always defined a megabyte as one million
-     bytes.")
+0) is it truly necessery to process the 3 virtual devices in parallel? Are
+they independent and is the processing needed heavy enough that it demands
+distribution between CPUs?
 
-http://www.storage.ibm.com/hdd/support/hddfaqs.htm#11
+1) the hardware could generate real IRQs for the virtual devices too,
+which would get load-balanced automatically. I suspect this is not an
+option in your case, right?
 
--- 
-Tim Seufert
+2) the 'hard' IRQ you generate could be broadcasted to multiple CPUs at
+once. Your IRQ handler would have the target CPU number hardcoded. This is
+pretty inflexible and needs some lowlevel APIC code changes.
+
+3) upon receiving the hard-IRQ, you could also trigger execution on other
+CPUs, via smp_call_function().
+
+i think #3 is the most generic solution. You'll have to do the
+load-balancing by determining the target CPU of smp_call_function().
+
+	Ingo
+

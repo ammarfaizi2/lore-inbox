@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266250AbSL1SCT>; Sat, 28 Dec 2002 13:02:19 -0500
+	id <S266270AbSL1SFI>; Sat, 28 Dec 2002 13:05:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266256AbSL1SCT>; Sat, 28 Dec 2002 13:02:19 -0500
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:39058 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S266250AbSL1SCS>; Sat, 28 Dec 2002 13:02:18 -0500
-Date: Sat, 28 Dec 2002 10:16:38 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [RFT][PATCH] generic device DMA implementation
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3E0DEA86.8050804@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <200212281618.gBSGI7Q02415@localhost.localdomain>
+	id <S266274AbSL1SFI>; Sat, 28 Dec 2002 13:05:08 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:47376 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S266270AbSL1SFH>; Sat, 28 Dec 2002 13:05:07 -0500
+Message-Id: <200212281813.gBSIDNP02885@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFT][PATCH] generic device DMA implementation 
+In-Reply-To: Message from Manfred Spraul <manfred@colorfullife.com> 
+   of "Sat, 28 Dec 2002 18:54:49 +0100." <3E0DE569.9070108@colorfullife.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 28 Dec 2002 12:13:23 -0600
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> david-b@pacbell.net said:
-> 
->>The indirection is getting from the USB device (or interface) to the
->>object representing the USB controller.  ...
-> 
-> This sounds like a mirror of the problem of finding the IOMMU on parisc (there 
-> can be more than one).
+manfred@colorfullife.com said:
+> You are aware that "users" is not one or two drivers that noone uses,
+> it's the whole networking stack. 
 
-Wouldn't it be straightforward to package that IOMMU solution using the
-"call dev->whatsit->dma_op()" approach I mentioned?  Storing data in
-the "whatsit" seems more practical than saying driver_data is no longer
-available to the device's driver.  (I'll be agnostic on platform_data.)
+I am aware of this.  I'm also aware that it is *currently* broken with the old 
+API on all non-coherent arch's bar the one you point out.
 
-This problem seems to me to be a common layering requirement.  All the
-indirections are known when the device structure is being initted, so it
-might as well be set up then.  True for PARISC (right?), as well as USB,
-SCSI, and most other driver stacks.  I suspect it'd even allow complex
-voodoo for multi-path I/O too...
+All I actually did was document the existing problem, I think.
 
-- Dave
+How bad actually is it?  Networking seems to work fine for me on non-coherent 
+parisc.  Whereas, when I had this cache line overlap problem in a SCSI driver, 
+I was seeing corruption all over the place.
 
+The problem really only occurs if the CPU can modify part of a cache line 
+while a device has modified memory belonging to another part.  Now a flush 
+from the CPU will destroy the device data (or an invalidate from the driver 
+destroy the CPU's data).  The problem is effectively rendered harmless if only 
+data going in the same direction shares a cache line (even if it is for 
+different devices).  It strikes me that this is probably true for network data 
+and would explain the fact that I haven't seen any obvious network related 
+corruption.
 
-> The way parisc solves this is to look in dev->platform_data and if that's null 
-> walk up the dev->parent until the IOMMU is found and then cache the IOMMU ops 
-> in the current dev->platform_data.  Obviously, you can't use platform_data, 
-> but you could use driver_data for this.  The IOMMU's actually lie on a parisc 
-> specific bus, so the ability to walk up the device tree without having to know 
-> the device types was crucial to implementing this.
-> 
-> James
-> 
-> 
-> 
-
+James
 
 

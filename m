@@ -1,88 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbTIKXEz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 19:04:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbTIKXEz
+	id S261598AbTIKWyD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 18:54:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbTIKWyD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 19:04:55 -0400
-Received: from fed1mtao03.cox.net ([68.6.19.242]:50399 "EHLO
-	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S261606AbTIKXEu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 19:04:50 -0400
-Date: Thu, 11 Sep 2003 16:04:48 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Adrian Bunk <bunk@fs.tum.de>, Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 2.6.0-test5: serio config broken?
-Message-ID: <20030911230448.GA13672@ip68-0-152-218.tc.ph.cox.net>
-References: <20030910185902.GE4559@ip68-0-152-218.tc.ph.cox.net> <20030910191038.GK27368@fs.tum.de> <20030910193158.GF4559@ip68-0-152-218.tc.ph.cox.net> <20030910195544.GL27368@fs.tum.de> <20030910210443.GG4559@ip68-0-152-218.tc.ph.cox.net> <20030910215136.GP27368@fs.tum.de> <20030910220552.GJ4559@ip68-0-152-218.tc.ph.cox.net> <20030910221710.GT27368@fs.tum.de> <20030910222918.GL4559@ip68-0-152-218.tc.ph.cox.net> <Pine.LNX.4.44.0309111037050.19512-100000@serv>
+	Thu, 11 Sep 2003 18:54:03 -0400
+Received: from mail.kroah.org ([65.200.24.183]:63120 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261598AbTIKWx6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 18:53:58 -0400
+Date: Thu, 11 Sep 2003 15:54:18 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] PCI fixes for 2.6.0-test5
+Message-ID: <20030911225418.GA14551@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309111037050.19512-100000@serv>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 11, 2003 at 10:38:58AM +0200, Roman Zippel wrote:
+Hi,
 
-> Hi,
-> 
-> On Wed, 10 Sep 2003, Tom Rini wrote:
-> 
-> > > Let me paraphrase the dependency the other way round (I'm not sure 
-> > > whether the syntax is 100% correct):
-> > > 
-> > > config KEYBOARD_ATKBD
-> > > 	tristate "AT keyboard support" if EMBEDDED || !X86 
-> > > 	default y
-> > > 	depends on INPUT_KEYBOARD
-> > > 	select SERIO=m
-> > > 	select SERIO=y if KEYBOARD_ATKBD=y
-> > > 	help
-> > > 	  ...
-> > 
-> > Ah yes.
-> > 
-> > This is similar (the same, even?) to the test3 problem.  Roman, can we
-> > get select to somehow pay attention to depend as well?  I do believe
-> > it's possible to have A select B, have C depend on Z and end up with:
-> > A=y
-> > B=y
-> > C=n
-> 
-> Could you give me a complete example, I don't understand yet, what it's 
-> exactly supposed to do.
+Here are some PCI patches against 2.6.0-test5.  They fix the problem
+with PCI drivers declaring their probe function as __init or __devinit
+and then not selecting CONFIG_HOTPLUG.  When a user would try to add a
+new device id by using the "new_id" file in the driver's sysfs
+directory, it would cause an oops.  So now the "new_id" file is only
+enabled if CONFIG_HOTPLUG is selected, and we've fixed up all of the PCI
+drivers to mark their probe functions (and child functions and data) as
+__devinit.
 
-Okay.  The following Kconfig illustrates what I claim to be a bug.
-config A
-	bool "This is A"
-	select B
-	
-config B
-	bool "This is B"
-	# Or, depends C=y
-	depends C
+Thanks to Matt Domsch for the big patch, and all of the other people who
+helped figure this out.
 
-config C
-	bool "This is C"
+Please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/pci-2.6
+
+thanks,
+
+greg k-h
+
+p.s. I'll send these as patches in response to this email to lkml for
+those who want to see them.
 
 
-Running oldconfig will give:
-This is A (A) [N/y] (NEW) y
-This is C (C) [N/y] (NEW) n
-...
-And in .config:
-CONFIG_A=y
-CONFIG_B=y
-# CONFIG_C is not set
+ drivers/atm/firestream.c                |   18 -
+ drivers/block/cciss.c                   |    4 
+ drivers/char/epca.c                     |    2 
+ drivers/char/watchdog/wdt_pci.c         |    2 
+ drivers/net/hamachi.c                   |    6 
+ drivers/net/irda/via-ircc.c             |    6 
+ drivers/net/tc35815.c                   |    4 
+ drivers/net/tokenring/abyss.c           |    4 
+ drivers/net/tokenring/tmspci.c          |    4 
+ drivers/net/tulip/de2104x.c             |    4 
+ drivers/net/tulip/de4x5.c               |    8 
+ drivers/net/wan/dscc4.c                 |    2 
+ drivers/pci/hotplug/acpiphp.h           |   12 -
+ drivers/pci/hotplug/acpiphp_core.c      |   12 -
+ drivers/pci/hotplug/acpiphp_glue.c      |    6 
+ drivers/pci/hotplug/acpiphp_pci.c       |   12 -
+ drivers/pci/hotplug/acpiphp_res.c       |   12 -
+ drivers/pci/hotplug/cpci_hotplug.h      |    6 
+ drivers/pci/hotplug/cpci_hotplug_core.c |    6 
+ drivers/pci/hotplug/cpci_hotplug_pci.c  |    2 
+ drivers/pci/hotplug/cpqphp.h            |    6 
+ drivers/pci/hotplug/cpqphp_core.c       |    6 
+ drivers/pci/hotplug/cpqphp_ctrl.c       |    6 
+ drivers/pci/hotplug/cpqphp_nvram.c      |    6 
+ drivers/pci/hotplug/cpqphp_nvram.h      |    4 
+ drivers/pci/hotplug/cpqphp_pci.c        |    6 
+ drivers/pci/hotplug/cpqphp_sysfs.c      |    6 
+ drivers/pci/hotplug/fakephp.c           |    6 
+ drivers/pci/hotplug/ibmphp.h            |    4 
+ drivers/pci/hotplug/ibmphp_core.c       |    4 
+ drivers/pci/hotplug/ibmphp_ebda.c       |    4 
+ drivers/pci/hotplug/ibmphp_hpc.c        |    2 
+ drivers/pci/hotplug/ibmphp_pci.c        |    4 
+ drivers/pci/hotplug/ibmphp_res.c        |    4 
+ drivers/pci/hotplug/pci_hotplug.h       |    6 
+ drivers/pci/hotplug/pci_hotplug_core.c  |    4 
+ drivers/pci/hotplug/pcihp_skeleton.c    |    4 
+ drivers/pci/pci-driver.c                |  334 +++++++++++++++++---------------
+ drivers/pcmcia/i82092.c                 |    2 
+ drivers/video/i810/i810_main.c          |   20 -
+ drivers/video/i810/i810_main.h          |    4 
+ drivers/video/riva/fbdev.c              |    4 
+ 42 files changed, 304 insertions(+), 274 deletions(-)
+-----
 
-I claim that this should in fact be:
-CONFIG_A=y
-CONFIG_B=y
-CONFIG_C=y
+Greg Kroah-Hartman:
+  o PCI: fix up some pci drivers that had marked their probe functions with __init
+  o PCI: remove compiler warning from previous new_id patch
+  o PCI hotplug: fix up a bunch of copyrights that were incorrectly declared
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Matt Domsch:
+  o PCI: make new_id rely on CONFIG_HOTPLUG
+

@@ -1,108 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266331AbSKGE2m>; Wed, 6 Nov 2002 23:28:42 -0500
+	id <S266337AbSKGEgW>; Wed, 6 Nov 2002 23:36:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266335AbSKGE2m>; Wed, 6 Nov 2002 23:28:42 -0500
-Received: from dp.samba.org ([66.70.73.150]:1995 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266331AbSKGE2l>;
-	Wed, 6 Nov 2002 23:28:41 -0500
-From: Paul Mackerras <paulus@samba.org>
+	id <S266343AbSKGEgW>; Wed, 6 Nov 2002 23:36:22 -0500
+Received: from mail.mtroyal.ab.ca ([142.109.10.24]:26518 "EHLO
+	brynhild.mtroyal.ab.ca") by vger.kernel.org with ESMTP
+	id <S266337AbSKGEgV>; Wed, 6 Nov 2002 23:36:21 -0500
+Date: Wed, 6 Nov 2002 21:42:58 -0700 (MST)
+From: James Bourne <jbourne@mtroyal.ab.ca>
+To: Matt Simonsen <matt_lists@careercast.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: build kernel for server farm
+In-Reply-To: <1036620009.1332.12.camel@mattsworkstation>
+Message-ID: <Pine.LNX.4.44.0211062136280.10755-100000@skuld.mtroyal.ab.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15817.60772.305789.777076@argo.ozlabs.ibm.com>
-Date: Thu, 7 Nov 2002 15:34:44 +1100
-To: jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: [PATCH] update BMAC and MACE ethernet drivers
-X-Mailer: VM 7.07 under Emacs 20.7.2
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.12.2 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below contains some minor updates to the bmac and mace
-ethernet drivers used on powermacs.  The bmac.c change is just to
-remove some compile warnings.  The mace.c change is to move an inline
-function definition to before the point where it is used.
+On 6 Nov 2002, Matt Simonsen wrote:
 
-Jeff, will you forward this to Linus or should I?
+> I am pretty familiar with the build process and kernel install for a
+> single Linux box, but I wanted to confirm I'm doing things in a sane way
+> for a large deployment. All the machines are the same hardware and
+> running standard setups.
+> 
+> First, I plan on compiling the kernel on a development box. From there
+> my plan is basically tar /usr/src/linux, copy to each box, untar, copy
+> bzImage and System.map to /boot, run make modules_install, edit
+> lilo.conf, run lilo.
 
-Thanks,
-Paul.
+If all of your systems are *identical*, try something like rsync
+or rdist (both can be told to use ssh too).  
 
-diff -urN linux-2.5/drivers/net/bmac.c pmac-2.5/drivers/net/bmac.c
---- linux-2.5/drivers/net/bmac.c	2002-11-06 23:10:51.000000000 +1100
-+++ pmac-2.5/drivers/net/bmac.c	2002-11-07 08:43:00.000000000 +1100
-@@ -25,10 +25,10 @@
- #include <asm/pgtable.h>
- #include <asm/machdep.h>
- #include <asm/pmac_feature.h>
-+#include <asm/irq.h>
- #ifdef CONFIG_PMAC_PBOOK
- #include <linux/adb.h>
- #include <linux/pmu.h>
--#include <asm/irq.h>
- #endif
- #include "bmac.h"
- 
-@@ -1053,7 +1053,7 @@
- {
- 	struct dev_mc_list *dmi = dev->mc_list;
- 	char *addrs;
--	int i, j, bit, byte;
-+	int i;
- 	unsigned short rx_cfg;
- 	u32 crc;
- 
-diff -urN linux-2.5/drivers/net/mace.c pmac-2.5/drivers/net/mace.c
---- linux-2.5/drivers/net/mace.c	2002-05-25 10:21:39.000000000 +1000
-+++ pmac-2.5/drivers/net/mace.c	2002-08-28 09:14:31.000000000 +1000
-@@ -362,6 +362,24 @@
-     return 0;
- }
- 
-+static inline void mace_clean_rings(struct mace_data *mp)
-+{
-+    int i;
-+
-+    /* free some skb's */
-+    for (i = 0; i < N_RX_RING; ++i) {
-+	if (mp->rx_bufs[i] != 0) {
-+	    dev_kfree_skb(mp->rx_bufs[i]);
-+	    mp->rx_bufs[i] = 0;
-+	}
-+    }
-+    for (i = mp->tx_empty; i != mp->tx_fill; ) {
-+	dev_kfree_skb(mp->tx_bufs[i]);
-+	if (++i >= N_TX_RING)
-+	    i = 0;
-+    }
-+}
-+
- static int mace_open(struct net_device *dev)
- {
-     struct mace_data *mp = (struct mace_data *) dev->priv;
-@@ -432,24 +450,6 @@
-     return 0;
- }
- 
--static inline void mace_clean_rings(struct mace_data *mp)
--{
--    int i;
--
--    /* free some skb's */
--    for (i = 0; i < N_RX_RING; ++i) {
--	if (mp->rx_bufs[i] != 0) {
--	    dev_kfree_skb(mp->rx_bufs[i]);
--	    mp->rx_bufs[i] = 0;
--	}
--    }
--    for (i = mp->tx_empty; i != mp->tx_fill; ) {
--	dev_kfree_skb(mp->tx_bufs[i]);
--	if (++i >= N_TX_RING)
--	    i = 0;
--    }
--}
--
- static int mace_close(struct net_device *dev)
- {
-     struct mace_data *mp = (struct mace_data *) dev->priv;
+1) build your kernel and install it on your development box
+2) do a test boot.  Ensure everything is there for you as needed
+3) build a Distfile like so:
+##################
+HOSTS = (
+host1
+host2
+host3
+)
+
+KERNEL = (
+/boot
+/etc/lilo.conf
+/etc/grub.conf
+)
+
+kernel:
+${KERNEL} -> ${HOSTS}
+	install ;
+# could use a cmdspecial after this to run lilo if needed
+
+modules:
+/lib/modules -> ${HOSTS}
+	install ;
+
+################
+
+Now, run rdist -P/usr/bin/ssh -overify -f Distfile
+
+You should see it verify what will be updated on hosts[1234...]
+
+Once that's done run a shell loop to reboot the systems as required
+
+for i in host1 host2 host3 host4 ; do
+	ssh $i "shutdown -r now"
+done
+
+If they are not identical, you can do the same thing, only different /boot
+and /lib/module directories to each host would be required as well
+as seperate Distfile rules for each host or group of hosts.
+
+Hope that helps.
+
+Regards
+James Bourne
+
+> 
+> Tips? Comments?
+> 
+> Thanks 
+> Matt
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+James Bourne, Supervisor Data Centre Operations
+Mount Royal College, Calgary, AB, CA
+www.mtroyal.ab.ca
+
+******************************************************************************
+This communication is intended for the use of the recipient to which it is
+addressed, and may contain confidential, personal, and or privileged
+information. Please contact the sender immediately if you are not the
+intended recipient of this communication, and do not copy, distribute, or
+take action relying on it. Any communication received in error, or
+subsequent reply, should be deleted or destroyed.
+******************************************************************************
+
+
+"There are only 10 types of people in this world: those who
+understand binary and those who don't."
+
+

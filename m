@@ -1,48 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265810AbRFYACX>; Sun, 24 Jun 2001 20:02:23 -0400
+	id <S265813AbRFYAIy>; Sun, 24 Jun 2001 20:08:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265811AbRFYACN>; Sun, 24 Jun 2001 20:02:13 -0400
-Received: from jalon.able.es ([212.97.163.2]:61069 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S265810AbRFYACB>;
-	Sun, 24 Jun 2001 20:02:01 -0400
-Date: Mon, 25 Jun 2001 02:05:30 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Larry McVoy <lm@bitmover.com>
-Cc: "J . A . Magallon" <jamagallon@able.es>, landley@webofficenow.com,
-        Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        Timur Tabi <ttabi@interactivesi.com>,
-        "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Message-ID: <20010625020530.A10509@werewolf.able.es>
-In-Reply-To: <Pine.LNX.3.96.1010622162213.32091B-100000@artax.karlin.mff.cuni.cz> <0106220929490F.00692@localhost.localdomain> <20010624234101.A1619@werewolf.able.es> <01062412555901.03436@localhost.localdomain> <20010625003002.A1767@werewolf.able.es> <20010624165024.H8832@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20010624165024.H8832@work.bitmover.com>; from lm@bitmover.com on Mon, Jun 25, 2001 at 01:50:24 +0200
-X-Mailer: Balsa 1.1.6-1
+	id <S265814AbRFYAIn>; Sun, 24 Jun 2001 20:08:43 -0400
+Received: from mail2.ameuro.de ([62.208.90.8]:11027 "EHLO mail2.ameuro.de")
+	by vger.kernel.org with ESMTP id <S265813AbRFYAIb>;
+	Sun, 24 Jun 2001 20:08:31 -0400
+Message-ID: <3B36808A.70A74B97@alarsen.net>
+Date: Mon, 25 Jun 2001 02:06:12 +0200
+From: Anders Larsen <anders@alarsen.net>
+Organization: syst.eng. A.Larsen (http://www.alarsen.net/)
+MIME-Version: 1.0
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Is it useful to support user level drivers
+In-Reply-To: <Pine.LNX.3.95.1010621203455.6995A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Richard B. Johnson" wrote:
+> 
+> On Fri, 22 Jun 2001, Anders Larsen wrote:
+> 
+> > "Richard B. Johnson" wrote:
+> > >
+> > > QNX does not have any difference between user-space and kernel space.
+> > > It's not paged-virtual. It's just one big sheet of address space
+> > > with no memory protection (everything is shared). All procedures
+> > > to be executed are known at compile time.
+> >
+> > That's completely, utterly untrue.
+> > QNX does indeed sport paged-virtual memory with memory protection;
+> > (although QNX4 does not support swap).
+> 
+> Then QNX is not the QNX that I have used.
 
-On 20010625 Larry McVoy wrote:
->
->One for the quotes page, eh?  We're terribly sorry, we'll get busy on adding
->some delay loops in Linux so it too can be slow.
->-- 
+Or you haven't used it recently (= within the past 10 years)
 
-I was afraid someone would tell that...
+> > User-mode interrupts are standard procedure; the deadlock problems
+> > Alan has mentioned do not apply, since any running process is
+> > always resident in memory.
+> > Shared regions have to be explicitly created; access is *not* open
+> > to anybody.
+> >
+> > Nothing has to be known at "compile time"; QNX is a full-featured
+> > OS with dynamic loading.
+> >
+> 
+> The QNX that I have used, advertised as QNX, and been around since
+> 32-bit ix86 was available, is EXACTLY as I stated.
 
-I just want to say that the 'problem' is not that threads are slow in linux,
-but that others ways are faster than they 'should be if done the standard
-way'.
+Dynamic loading of executables has been in QNX for as long as I know
+it (fifteen years).
+With the appearance of QNX version 4 some ten years ago came 32-bit
+address space, full memory management/protection etc.
 
-BTW, after all I have read all POSIX threads library should be no more than
-a wrapper over fork(), clone and so on. Why are they so bad then ?
-I am going to get glibc source to see what is inside pthread_create...
+> > > Therefore, any piece of code can do anything it wants including
+> > > handling hardware directly.
+> >
+> > Again not true; only privileged processes can enter kernel mode
+> > to execute port I/O instructions directly.
+> 
+> The QNX that I have used, again is EXACTLY as stated.
 
+It must have been an early QNX version 2, then.
+QNX 2 did not have any memory protection.
+
+> If you have used a different QNX, then QNX has either changed
+> radically, or is a different company/QNX than what I used.
+> And, I had a lot of good experiences with it since standard
+> I/O was provided, as was boot, but it was an open book otherwise
+> in which you were not prevented from doing anything you wanted
+> to do, at any instant you wanted to do it.
+
+Of course QNX has changes radically over the decades (it's been
+around for some twenty years now); what I frowned at was that
+you made your statements as if they would apply to the *current*
+state of affairs, which they certainly do not.
+
+cheers
+Anders
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.1 (Cooker) for i586
-Linux werewolf 2.4.5-ac17 #2 SMP Fri Jun 22 01:36:07 CEST 2001 i686
+"In theory there is no difference between theory and practice.
+ In practice there is." - Yogi Berra

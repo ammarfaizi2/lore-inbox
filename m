@@ -1,58 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262403AbSJDUOd>; Fri, 4 Oct 2002 16:14:33 -0400
+	id <S262715AbSJDVCc>; Fri, 4 Oct 2002 17:02:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262402AbSJDUOM>; Fri, 4 Oct 2002 16:14:12 -0400
-Received: from [198.149.18.6] ([198.149.18.6]:33202 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S262383AbSJDUNK>;
-	Fri, 4 Oct 2002 16:13:10 -0400
-Subject: 2.5 O)DIRECT problem
-From: Steve Lord <lord@sgi.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 04 Oct 2002 15:17:54 -0500
-Message-Id: <1033762674.2457.73.camel@jen.americas.sgi.com>
+	id <S262720AbSJDVCc>; Fri, 4 Oct 2002 17:02:32 -0400
+Received: from bitmover.com ([192.132.92.2]:31187 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S262715AbSJDVCb>;
+	Fri, 4 Oct 2002 17:02:31 -0400
+Date: Fri, 4 Oct 2002 14:08:02 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: tom_gall@mac.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New BK License Problem?
+Message-ID: <20021004140802.E24148@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>, tom_gall@mac.com,
+	linux-kernel@vger.kernel.org
+References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com>; from tom_gall@mac.com on Fri, Oct 04, 2002 at 03:55:55PM -0500
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+> I noticed Larry recently changed the license on bk.  Once clause in 
 
-I ran into a problem with 2.5's O_DIRECT read path,
+This isn't a recent change at all, I know it is at least 6 months old
+because it was included in 
 
-	generic_file_direct_IO usually ends up in generic_direct_IO
-	this does bounds checking on the I/O and then flushes any
-	cached data.
+BitKeeper version is bk-2.1.6-pre5 20020330075529 for x86-glibc22-linux
+Built by: lm@redhat71.bitmover.com in /build/bk-2.1.x-lm/src
+Built on: Sat Mar 30 00:14:45 PST 2002
 
-	Once we return to generic_file_direct_IO we unconditionally
-	call invalidate_inode_pages2 if there are any cached pages.
+>         (d)  Notwithstanding any other terms in this License, this
+>              License is not available to You if  You  and/or  your
+>              employer  develop,  produce,  sell,  and/or  resell a
+>              product which contains substantially similar capabil-
+>              ities  of  the BitKeeper Software, or, in the reason-
+>              able opinion of BitMover, competes with the BitKeeper
+>              Software.
+> 
+> Doesn't this affect maintainers all across the map that work for 
+> distros such as RedHat, SuSE, Connectiva, etc?  Obviously these distros 
+> SELL as part of their respective products CVS and similar tools. Or 
+> even non-distro open source shops, you even resell CVS or the like in 
+> some way and you'd be in trouble.
 
-If we make a non-aligned O_DIRECT read call, the end result is we
-call invalidate_inode_pages2, but we do not do the filemap_fdatawrite,
-filemap_fdatawait calls. End result is we throw the buffered data away.
+Distributions do not *SELL* CVS, they distribute CVS.  We choose those
+words with care for exactly that reason.  All the clause is saying is
+that if you are a competitor you don't get to use our product for free.
+That it, in our opinion, a perfectly reasonable position to take.
 
-Either the flush needs to happen before the bounds checks, or the
-invalidate should only be done on a successful write. It looks 
-pretty hard to detect the latter case with the current structure,
-we can get EINVAL from the bounds check and possibly from an
-aligned, but invalid memory address being passed in.
+> While I am all for Larry having a profitable business, this would seem 
+> to be a change which is not Open Source developer friendly.
 
-This is worse for xfs than for other filesystems since if we do the
-invalidate without the flush first, we end up with a delayed allocate
-extent in memory and no data to flush into it. Various spots in the
-filesystem dislike this.
-
-I can fix it inside xfs by doing my own flush and invalidate first, but
-the generic code should really be fixed.
-
-Thoughts?
-
-Steve
-
+The clause is specifically designed to target those companies which 
+produce or sell commercial SCM systems.  That's why we explicitly 
+left out "distribute".  The open source developers have nothing to
+worry about.
 -- 
-
-Steve Lord                                      voice: +1-651-683-3511
-Principal Engineer, Filesystem Software         email: lord@sgi.com
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

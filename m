@@ -1,149 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264053AbTJ1Rrc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 12:47:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbTJ1Rrc
+	id S264063AbTJ1RnC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 12:43:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264065AbTJ1RnC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 12:47:32 -0500
-Received: from smtp2.dei.uc.pt ([193.137.203.229]:15294 "EHLO smtp2.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S264053AbTJ1Rr2 (ORCPT
+	Tue, 28 Oct 2003 12:43:02 -0500
+Received: from null.rsn.bth.se ([194.47.142.3]:51416 "EHLO null.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S264063AbTJ1Rm5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 12:47:28 -0500
-Date: Tue, 28 Oct 2003 17:40:37 +0000 (WET)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Joachim Bremer <joachim.bremer@ricardo.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23pre8 - ACPI Kernel Panic on boot
-In-Reply-To: <200310281332.h9SDW2708105@sarah.ricardo.de>
-Message-ID: <Pine.LNX.4.58.0310281738450.13347@student.dei.uc.pt>
-References: <200310281332.h9SDW2708105@sarah.ricardo.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-DEI-MailScanner: Found to be clean
+	Tue, 28 Oct 2003 12:42:57 -0500
+Subject: Re: 2.6.0-test8/test9 io scheduler needs tuning?
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Michael Frank <mhf@linuxmail.org>, cliff white <cliffw@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Nigel Cunningham <ncunningham@clear.net.nz>
+In-Reply-To: <3F9DF0D3.60707@cyberone.com.au>
+References: <200310261201.14719.mhf@linuxmail.org>
+	 <20031027145531.2eb01017.cliffw@osdl.org>
+	 <3F9DAF2C.8010308@cyberone.com.au> <200310281213.31709.mhf@linuxmail.org>
+	 <3F9DF0D3.60707@cyberone.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-VcPFLn8idIPXPvwcFnIu"
+Message-Id: <1067362972.13998.13.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 28 Oct 2003 18:42:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The same happens wit me in my Asus M3N Laptop...
+--=-VcPFLn8idIPXPvwcFnIu
+Content-Type: multipart/mixed; boundary="=-Pt7hJK71LcweSJ036wOj"
 
-Mind
 
---
-==================================================
-Marcos Daniel Marado Torres AKA Mind Booster Noori
-/"\               http://student.dei.uc.pt/~marado
-\ /                       marado@student.dei.uc.pt
- X   ASCII Ribbon Campaign
-/ \  against HTML e-mail and Micro$oft attachments
-==================================================
+--=-Pt7hJK71LcweSJ036wOj
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 28 Oct 2003, Joachim Bremer wrote:
+On Tue, 2003-10-28 at 05:30, Nick Piggin wrote:
 
-> Hi,
->
-> on my laptop HP NX9005 2.4.23pre8 will panic on boot. Tracing
-> down the differences between 2.4.23pre7 and pre8 a found that
-> the problems is in patchset 1.1063.43.26. Backing out this patch
-> lets the laptop boot again. Decode oops follows.
->
-> Joachim
->
-> No modules in ksyms, skipping objects
-> No ksyms, skipping lsmod
-> kernel BUG at slab.c:1130!
-> invalid operand: 0000
-> CPU:    0
-> EIP:    0010:[<c012df25>]    Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010202
-> eax: 000001f0   ebx: c1797270   ecx: 000001f0   edx: c02db798
-> esi: c1797278   edi: c1797270   ebp: 000001f0   esp: c031da84
-> ds: 0018   es: 0018   ss: 0018
-> Process swapper (pid: 0, stackpage=c031d000)
-> Stack: c031dac0 00000388 c01ca227 00200000 00000388 c1797270 c1797278 00000246
->        000001f0 c012e2a3 c1797270 000001f0 00000009 c031dad8 00000001 00000001
->        c01a5cde 00000060 000001f0 c01c8ebc 00000060 00000001 c02a78c1 c02a7884
-> Call trace:    [<c01ca227>] [<c012e2a3>] [<c01a5cde>] [<c01c8ebc>] [<c01c8fad>]
->   [<c01c8c82>] [<c01ca153>] [<c01cc793>] [<c01c168f>] [<c01c0dec>] [<c01c0f3c>]
->   [<c01c8c36>] [<c01ca1d4>] [<c01ac6bf>] [<c01c1408>] [<c01c141d>] [<c01a8073>]
->   [<c01c1454>] [<c01c207a>] [<c01bcabc>] [<c01bc995>] [<c01bc71d>] [<c01ba804>]
->   [<c01bf28d>] [<c01d1b49>] [<c01d1bc5>] [<c01ad11d>] [<c01acf2e>] [<c01af467>]
->   [<c01a5e0f>] [<c01087c5>] [<c01a5e03>] [<c0108944>] [<c010ac98>] [<c01d591f>]
->   [<c01d5843>] [<c0105372>] [<c0105000>]
-> Code: 0f 0b 6a 04 0e 4d 29 c0 89 c8 c7 44 24 0c 01 00 00 00 25 f0
->
->
-> >>EIP; c012df25 <kmem_cache_grow+45/1f0>   <=====
->
-> >>edx; c02db798 <cache_sizes+18/c0>
-> >>esp; c031da84 <init_task_union+1a84/2000>
->
-> Trace; c01ca227 <acpi_ut_status_exit+49/55>
-> Trace; c012e2a3 <kmalloc+e3/110>
-> Trace; c01a5cde <acpi_os_allocate+e/11>
-> Trace; c01c8ebc <acpi_ut_callocate+75/e5>
-> Trace; c01c8fad <acpi_ut_callocate_and_track+20/81>
-> Trace; c01c8c82 <acpi_ut_acquire_from_cache+cf/e3>
-> Trace; c01ca153 <acpi_ut_trace_ptr+2c/30>
-> Trace; c01cc793 <acpi_ut_create_generic_state+c/15>
-> Trace; c01c168f <acpi_ps_push_scope+3c/b0>
-> Trace; c01c0dec <acpi_ps_parse_loop+4ce/a40>
-> Trace; c01c0f3c <acpi_ps_parse_loop+61e/a40>
-> Trace; c01c8c36 <acpi_ut_acquire_from_cache+83/e3>
-> Trace; c01ca1d4 <acpi_ut_exit+1d/27>
-> Trace; c01ac6bf <acpi_ds_push_walk_state+4a/51>
-> Trace; c01c1408 <acpi_ps_parse_aml+aa/242>
-> Trace; c01c141d <acpi_ps_parse_aml+bf/242>
-> Trace; c01a8073 <acpi_ds_call_control_method+171/261>
-> Trace; c01c1454 <acpi_ps_parse_aml+f6/242>
-> Trace; c01c207a <acpi_psx_execute+226/2b0>
-> Trace; c01bcabc <acpi_ns_execute_control_method+e5/104>
-> Trace; c01bc995 <acpi_ns_evaluate_by_handle+df/121>
-> Trace; c01bc71d <acpi_ns_evaluate_relative+141/192>
-> Trace; c01ba804 <acpi_hw_low_level_read+10f/11c>
-> Trace; c01bf28d <acpi_evaluate_object+179/282>
-> Trace; c01d1b49 <acpi_ec_gpe_query+104/11b>
-> Trace; c01d1bc5 <acpi_ec_gpe_handler+65/93>
-> Trace; c01ad11d <acpi_ev_gpe_dispatch+7e/1bb>
-> Trace; c01acf2e <acpi_ev_gpe_detect+119/16a>
-> Trace; c01af467 <acpi_ev_sci_xrupt_handler+37/4d>
-> Trace; c01a5e0f <acpi_irq+c/e>
-> Trace; c01087c5 <handle_IRQ_event+45/70>
-> Trace; c01a5e03 <acpi_irq+0/e>
-> Trace; c0108944 <do_IRQ+64/a0>
-> Trace; c010ac98 <call_do_IRQ+5/d>
-> Trace; c01d591f <acpi_processor_idle+dc/1cf>
-> Trace; c01d5843 <acpi_processor_idle+0/1cf>
-> Trace; c0105372 <cpu_idle+42/60>
-> Trace; c0105000 <_stext+0/0>
->
-> Code;  c012df25 <kmem_cache_grow+45/1f0>
-> 00000000 <_EIP>:
-> Code;  c012df25 <kmem_cache_grow+45/1f0>   <=====
->    0:   0f 0b                     ud2a      <=====
-> Code;  c012df27 <kmem_cache_grow+47/1f0>
->    2:   6a 04                     push   $0x4
-> Code;  c012df29 <kmem_cache_grow+49/1f0>
->    4:   0e                        push   %cs
-> Code;  c012df2a <kmem_cache_grow+4a/1f0>
->    5:   4d                        dec    %ebp
-> Code;  c012df2b <kmem_cache_grow+4b/1f0>
->    6:   29 c0                     sub    %eax,%eax
-> Code;  c012df2d <kmem_cache_grow+4d/1f0>
->    8:   89 c8                     mov    %ecx,%eax
-> Code;  c012df2f <kmem_cache_grow+4f/1f0>
->    a:   c7 44 24 0c 01 00 00      movl   $0x1,0xc(%esp,1)
-> Code;  c012df36 <kmem_cache_grow+56/1f0>
->   11:   00
-> Code;  c012df37 <kmem_cache_grow+57/1f0>
->   12:   25 f0 00 00 00            and    $0xf0,%eax
->
->  <0>Kernel panic: Aiee, killing interrupt handler!
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> The bi / bo fields in vmstat aren't exactly what the disk is doing, rathe=
+r
+> the requests the queue is taking. The interesting thing is how your final
+> measurement compares with 2.4.
+
+I've attached a small script I made to investigate some weird I/O
+problems I'm seeing with both AS and deadline. Maybe the script can be
+of some help, who knows.
+
+It produces vmstat-like one line per second output.
+It takes the data from /proc/diskstats (output should be the same order
+as in that file, it's described in Documentation/iostats.txt)
+
+Example output (from one of my tests that showed the problem):
+
+$diskstat.sh hde
+row     reads   rmerge  rsect   rms     writes  wmerge  wsect   wms     io =
+     ms      ms2
+1       0       0       0       0       0       0       0       0       163=
+     0       0
+2       3       0       24      46      751     530     10032   241626  135=
+     1463    223510
+3       1       0       64      15      590     402     8056    147398  149=
+     1019    148466
+4       1       0       160     16      599     593     9592    144204  156=
+     1016    147806
+5       1       0       8       21      522     485     7896    134072  133=
+     1016    152418
+6       1       0       8       14      541     265     6504    163212  139=
+     1014    149101
+7       3       0       264     63      495     153     5248    127999  147=
+     1016    145554
+.....
+
+It's a sequential write, only one writer, lots of I/O-requests for a
+very small number of sectors and the drive isn't very active.
+It's a file recieved via network and written to disk.
+
+Corresponding 'vmstat 1' output (not at the same time as the output
+above):
+
+24  procs -----------memory---------- ---swap-- -----io---- --system-- ----=
+cpu----
+25   r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us s=
+y id wa
+26   2  5  20400   2256  42956 297704    0    0    12  2300 4452  6010  4 2=
+5  0 71
+27   3  4  20544   2524  42536 298276    0  144    16  3476 3605  4366  3 2=
+1  0 76
+28   0 10  20544   2104  41876 299380    0    0    16  2996 4094  5107  4 2=
+2  0 74
+29   1 10  20548   2456  40656 300252    0    4    40  3228 4389  5725  4 2=
+7  0 69
+30   0  5  20832   2176  40108 301252    0  288    16  2780 4530  6889  5 2=
+6  0 69
+
+Normally I see bursts of >30MB/s with a few seconds interval.
+In this example there's some swapping but I havn't seen any indication
+that swapping is the cause since it happens when there's no swapping
+going on as well.
+
+When this happens (not all the time) the machine freezes for 1-2 seconds
+every 3-15 seconds. X freezes and if I ssh into the machine that freezes
+as well at these intervals.
+
+I've tried profiling when this happens but it just shows all time in
+default_idle.
+
+Maybe my problem is related, or maybe not...
+
+--=20
+/Martin
+
+--=-Pt7hJK71LcweSJ036wOj
+Content-Disposition: attachment; filename=diskstat.sh
+Content-Type: text/x-sh; name=diskstat.sh; charset=iso-8859-15
+Content-Transfer-Encoding: base64
+
+Iy9iaW4vYmFzaA0KDQpudW09MA0KZm9yIGxvb3AgaW4gYSBiIGMgZCBlIGYgZyBoIGkgaiBrDQpk
+bw0KCW9sZFskbnVtXT0wDQoJbnVtPSQoKCRudW0gKyAxKSkNCmRvbmUNCg0Kcm93PTANCg0Kd2hp
+bGUgdHJ1ZTsgZG8gZ3JlcCAiJDEgIiAvcHJvYy9kaXNrc3RhdHMgfCBhd2sgJ3twcmludCAkNCwk
+NSwkNiwkNywkOCwkOSwkMTAsJDExLCQxMiwkMTMsJDE0fSc7IHNsZWVwIDE7IGRvbmUgfCB3aGls
+ZSByZWFkIGEgYiBjIGQgZSBmIGcgaCBpIGogaw0KZG8NCglpZiBbICQoKCRyb3cgJSAzMCkpID09
+IDAgXTsgdGhlbg0KCQkjZWNobyAtZSAicm93XHRyZWFkc1x0cm1lcmdlXHRyc2VjdFx0cm1zXHRc
+dHdyaXRlc1x0d21lcmdlXHR3c2VjdFx0d21zXHRcdGlvXHRtc1x0bXMyIg0KCQllY2hvIC1lICJy
+b3dcdHJlYWRzXHRybWVyZ2VcdHJzZWN0XHRybXNcdHdyaXRlc1x0d21lcmdlXHR3c2VjdFx0d21z
+XHRpb1x0bXNcdG1zMiINCglmaQ0KCXJvdz0kKCgkcm93ICsgMSkpDQoNCgludW09MA0KCWZvciBs
+b29wIGluIGEgYiBjIGQgZSBmIGcgaCBpIGogaw0KCWRvDQoJCWlmIFsgJHtvbGRbJG51bV19ID09
+IDAgXTsgdGhlbg0KCQkJb2xkWyRudW1dPSR7IWxvb3B9DQoJCQlkaWZmWyRudW1dPTANCgkJZWxz
+ZQ0KCQkJZGlmZlskbnVtXT0kKCgkeyFsb29wfSAtICR7b2xkWyRudW1dfSkpDQoJCQlvbGRbJG51
+bV09JHshbG9vcH0NCgkJZmkNCgkJbnVtPSQoKCRudW0gKyAxKSkNCglkb25lDQoNCgllY2hvIC1l
+ICIkcm93XHQke2RpZmZbMF19XHQke2RpZmZbMV19XHQke2RpZmZbMl19XHQke2RpZmZbM119XHQk
+e2RpZmZbNF19XHQke2RpZmZbNV19XHQke2RpZmZbNl19XHQke2RpZmZbN119XHQkaVx0JHtkaWZm
+WzldfVx0JHtkaWZmWzEwXX0iDQpkb25lDQo=
+
+--=-Pt7hJK71LcweSJ036wOj--
+
+--=-VcPFLn8idIPXPvwcFnIu
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/nqqcWm2vlfa207ERAjxLAJ9bmoClz8sy65dp7I0ZWVnTkgn1MACfRV5w
+S4tTYIw4MmdJZHgPKN2dXvw=
+=h5ej
+-----END PGP SIGNATURE-----
+
+--=-VcPFLn8idIPXPvwcFnIu--

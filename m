@@ -1,122 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267687AbTAHFtN>; Wed, 8 Jan 2003 00:49:13 -0500
+	id <S267690AbTAHF6F>; Wed, 8 Jan 2003 00:58:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267690AbTAHFtN>; Wed, 8 Jan 2003 00:49:13 -0500
-Received: from adsl-67-121-154-100.dsl.pltn13.pacbell.net ([67.121.154.100]:4832
-	"EHLO localhost") by vger.kernel.org with ESMTP id <S267687AbTAHFtM>;
-	Wed, 8 Jan 2003 00:49:12 -0500
-Date: Tue, 7 Jan 2003 21:56:30 -0800
-From: Joshua Kwan <joshk@ludicrus.ath.cx>
-To: dhinds@sonic.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.54-dj1-bk] Some interesting experiences...
-Message-Id: <20030107215630.6f8bd876.joshk@ludicrus.ath.cx>
-In-Reply-To: <20030107204303.2dd901ca.joshk@ludicrus.ath.cx>
-References: <20030107172147.3c53efa8.joshk@ludicrus.ath.cx>
-	<20030107175801.A23794@sonic.net>
-	<20030107204303.2dd901ca.joshk@ludicrus.ath.cx>
-X-Mailer: Sylpheed version 0.8.8claws65 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.PltjiIf2sJljfy"
+	id <S267714AbTAHF6F>; Wed, 8 Jan 2003 00:58:05 -0500
+Received: from 24.213.60.109.up.mi.chartermi.net ([24.213.60.109]:13001 "EHLO
+	front3.chartermi.net") by vger.kernel.org with ESMTP
+	id <S267690AbTAHF6E>; Wed, 8 Jan 2003 00:58:04 -0500
+Date: Wed, 8 Jan 2003 01:07:09 -0500 (EST)
+From: Nathaniel Russell <reddog83@chartermi.net>
+X-X-Sender: reddog83@reddog.example.net
+To: alan@redhat.com
+cc: linux-kernel@vger.kernel.org
+Subject: New Via 8233 Sound concerns
+Message-ID: <Pine.LNX.4.44.0301080101130.1017-200000@reddog.example.net>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1805570035-1042006029=:1017"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.PltjiIf2sJljfy
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Ok, the problem is with scsi.h.
-In a typedef for SCSI LUNs 'u8' is used, but not defined - either
-'typedef u_int8_t u8' outside of the struct, or changing the
-declaration to u_int8_t works. Thanks Misha...
+--8323328-1805570035-1042006029=:1017
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Not sure whose repository this bug belongs to, it's either
-linux-dj/linux-2.5 or linux/linux-2.5. The error is at line 185 of
-scsi.h.
+Hi Alan,
+I figured i wouldn't bother you until after New Year's. I'm having a brnad
+new problem when playing mp3 with XMMS and changing songs work's until
+i start to load other program's like LimeWire and Yahoo! Messenger. All
+deal with  sound so i shut those off but i let XMMS keep playing
+and then my audio from XMMS just shut's down and doesn't wanna play after that.
+I don't know if i'm sending to many packets of audio to my sound card at
+one time or if i'm just the lucky one with all the problems.
+Nathaniel
 
-Regards
-Josh
+CC me at reddog83@chartermi.net
 
-Rabid cheeseburgers forced Joshua Kwan<joshk@ludicrus.ath.cx> to write
-this on Tue, 7 Jan 2003 20:43:03-0800:	
+--8323328-1805570035-1042006029=:1017
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="audio.log"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0301080107090.1017@reddog.example.net>
+Content-Description: Via 8233 Audio
+Content-Disposition: attachment; filename="audio.log"
 
-> No, it's not fixed...
-> 
-> joshk@fuuma:~/pcmcia-cs-3.2.4$ make all
-> cc  -MD -O3 -Wall -Wstrict-prototypes -pipe -Wa,--no-warn
-> -I../include/static -I/usr/src/linux-2.5/include -I../include
-> -I../modules -c cardmgr.c In file included from cardmgr.c:200:
-> /usr/src/linux-2.5/include/scsi/scsi.h:185: parse error before "u8"
-> /usr/src/linux-2.5/include/scsi/scsi.h:185: warning: no semicolon at
-> end of struct or union
-> /usr/src/linux-2.5/include/scsi/scsi.h:186: warning: type defaults to
-> `int' in declaration of `ScsiLun'
-> /usr/src/linux-2.5/include/scsi/scsi.h:186: warning: data
-> definition has no type or storage class
-> make[1]: *** [cardmgr.o] Error 1
-> make[1]: Leaving directory `/home/joshk/pcmcia-cs-3.2.4/cardmgr'
-> 
-> But is this a problem with scsi.h itself?
-> 
-> Regards
-> Josh
-> 
-> Rabid cheeseburgers forced dhinds <dhinds@sonic.net> to write this on
-> Tue, 7 Jan 2003 17:58:01 -0800:	
-> 
-> > On Tue, Jan 07, 2003 at 05:21:46PM -0800, Joshua Kwan wrote:
-> > 
-> > > 2. [linux-2.5] pcmcia-cs 3.2.3 will no longer build: here is the
-> > > build log, pertinent details only.
-> > > 
-> > > cc  -MD -O3 -Wall -Wstrict-prototypes -pipe -Wa,--no-warn
-> > > -I../include/static -I/usr/src/linux-2.5/include -I../include
-> > > -I../modules -c cardmgr.c
-> > > In file included from cardmgr.c:200:
-> > > /usr/src/linux-2.5/include/scsi/scsi.h:185: parse error before
-> > > "u8"
-> > 
-> > This should be fixed in the current beta for 3.2.4 available from
-> > http://pcmcia-cs.sourceforge.net/ftp/NEW.
-> > 
-> > -- Dave
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe
-> > linux-kernel" in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> 
-> -- 
-> Joshua Kwan
-> joshk@mspencer.net
-> pgp public key at http://joshk.mspencer.net/pubkey_gpg.asc
->  
-> It's hard to keep your shirt on when you're getting something off your
-> chest.
-> 
-
-
--- 
-Joshua Kwan
-joshk@mspencer.net
-pgp public key at http://joshk.mspencer.net/pubkey_gpg.asc
- 
-It's hard to keep your shirt on when you're getting something off your
-chest. 
-
---=.PltjiIf2sJljfy
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+G72Q6TRUxq22Mx4RAqYNAKCLh10xmlxJbCH2HsDPr9qHH/r9vQCgpSux
-ungyRDxnURi1Y3uoXZTMPAU=
-=FIOI
------END PGP SIGNATURE-----
-
---=.PltjiIf2sJljfy--
+TGludXggdmVyc2lvbiAyLjQuMjAgKHJvb3RAcmVkZG9nKSAoZ2NjIHZlcnNp
+b24gMy4yLjEpICMxIEZyaSBEZWMgNiAwMToyODo1NyBFU1QgMjAwMg0KW1NO
+SVBFRF0NClZpYSA2ODZhLzgyMzMvODIzNSBhdWRpbyBkcml2ZXIgMS45LjEt
+YWMyDQpQQ0k6IEZvdW5kIElSUSAxMSBmb3IgZGV2aWNlIDAwOjExLjUNClBD
+STogU2hhcmluZyBJUlEgMTEgd2l0aCAwMDowOS4xDQpQQ0k6IFNoYXJpbmcg
+SVJRIDExIHdpdGggMDA6MGEuMA0KdmlhODJjeHh4OiBTaXggY2hhbm5lbCBh
+dWRpbyBhdmFpbGFibGUNClBDSTogU2V0dGluZyBsYXRlbmN5IHRpbWVyIG9m
+IGRldmljZSAwMDoxMS41IHRvIDY0DQphYzk3X2NvZGVjOiBBQzk3IEF1ZGlv
+IGNvZGVjLCBpZDogSUNFMTcoSUNFMTIzMikNCnZpYTgyY3h4eDogYm9hcmQg
+IzEgYXQgMHhFNDAwLCBJUlEgMTENCnZpYV9hdWRpbzogaWdub3JpbmcgZHJh
+aW4gcGxheWJhY2sgZXJyb3IgLTExDQp2aWFfYXVkaW86IGlnbm9yaW5nIGRy
+YWluIHBsYXliYWNrIGVycm9yIC0xMQ0KdmlhX2F1ZGlvOiBpZ25vcmluZyBk
+cmFpbiBwbGF5YmFjayBlcnJvciAtMTENCnZpYV9hdWRpbzogaWdub3Jpbmcg
+ZHJhaW4gcGxheWJhY2sgZXJyb3IgLTExDQp2aWE4MmN4eHg6IHVua25vd24g
+bnVtYmVyIG9mIGNoYW5uZWxzDQp2aWE4MmN4eHg6IHRpbWVvdXQgd2hpbGUg
+cmVhZGluZyBBQzk3IGNvZGVjICgweDlBMDAwMCkNCg==
+--8323328-1805570035-1042006029=:1017--

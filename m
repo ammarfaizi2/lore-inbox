@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284178AbRLFUKL>; Thu, 6 Dec 2001 15:10:11 -0500
+	id <S282670AbRLFUMl>; Thu, 6 Dec 2001 15:12:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284164AbRLFUKB>; Thu, 6 Dec 2001 15:10:01 -0500
-Received: from dsl-213-023-038-110.arcor-ip.net ([213.23.38.110]:1542 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S283924AbRLFUJr>;
-	Thu, 6 Dec 2001 15:09:47 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Larry McVoy <lm@bitmover.com>
-Subject: Re: SMP/cc Cluster description
-Date: Thu, 6 Dec 2001 21:10:51 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
-        davidel@xmailserver.org, rusty@rustcorp.com.au,
-        Martin.Bligh@us.ibm.com, riel@conectiva.com.br, lars.spam@nocrew.org,
-        alan@lxorguk.ukuu.org.uk, hps@intermeta.de,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20011206135224.12c4b123.rusty@rustcorp.com.au> <E16C4PM-0000qu-00@starship.berlin> <20011206115338.E27589@work.bitmover.com>
-In-Reply-To: <20011206115338.E27589@work.bitmover.com>
+	id <S284164AbRLFUMW>; Thu, 6 Dec 2001 15:12:22 -0500
+Received: from [199.29.68.123] ([199.29.68.123]:19729 "EHLO MailAndNews.com")
+	by vger.kernel.org with ESMTP id <S282670AbRLFUMN>;
+	Thu, 6 Dec 2001 15:12:13 -0500
+X-WM-Posted-At: MailAndNews.com; Thu, 6 Dec 01 15:12:07 -0500
+Message-ID: <001701c17e92$4775c4f0$0500a8c0@myroom>
+From: "Matt Schulkind" <mschulkind@mailandnews.com>
+To: "lkml" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] GeForce3 support for rivafb
+Date: Thu, 6 Dec 2001 15:12:06 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16C4r8-0000r0-00@starship.berlin>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 6, 2001 08:53 pm, Larry McVoy wrote:
-> On Thu, Dec 06, 2001 at 08:42:05PM +0100, Daniel Phillips wrote:
-> > On December 6, 2001 09:02 am, Larry McVoy wrote:
-> > > On Wed, Dec 05, 2001 at 11:56:17PM -0800, David S. Miller wrote:
-> > > > These lockless algorithms, instructions like CAS, DCAS, "infinite
-> > > > consensus number", it's all crap.  You have to seperate out the access
-> > > > areas amongst different cpus so they don't collide, and none of these
-> > > > mechanisms do that.
-> > > 
-> > > Err, Dave, that's *exactly* the point of the ccCluster stuff.  You get
-> > > all that seperation for every data structure for free.  Think about
-> > > it a bit.  Aren't you going to feel a little bit stupid if you do all
-> > > this work, one object at a time, and someone can come along and do the
-> > > whole OS in one swoop?  Yeah, I'm spouting crap, it isn't that easy,
-> > > but it is much easier than the route you are taking.  
-> > 
-> > What I don't get after looking at your material, is how you intend to do the 
-> > locking.  Sharing a mmap across OS instances is fine, but how do processes on 
-> > the two different OS's avoid stepping on each other when they access the same 
-> > file?
-> 
-> Exactly the same way they would if they were two processes on a traditional
-> SMP OS.
+the original e-mail should have said 2.4.17-pre2 so it should have looked
+like:
 
-They'd use locks internal to the VFS and fs, plus Posix-style locks and
-assorted other userland serializers, which don't come for free.  As davem 
-said, you'll have to present a coherent namespace, that's just one of the 
-annoying details.  So far you haven't said much about how such things are 
-going to be handled.
+I basically just copied the source files from the xfree86 4.1.0 nv driver
+and
+then tweaked the rest of the rivafb files to get it to work. The patch is
+against the 2.4.17-pre2 tree. I'd like anyone with a geforce3 card at their
+disposal to please test this out and lemme know what you think.
 
---
-Daniel
+-Matt Schulkind
+

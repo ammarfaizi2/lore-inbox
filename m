@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129319AbRBSV6G>; Mon, 19 Feb 2001 16:58:06 -0500
+	id <S129243AbRBSV7G>; Mon, 19 Feb 2001 16:59:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129243AbRBSV54>; Mon, 19 Feb 2001 16:57:56 -0500
-Received: from balu.sch.bme.hu ([152.66.224.40]:36753 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S129310AbRBSV5m>;
-	Mon, 19 Feb 2001 16:57:42 -0500
-Date: Mon, 19 Feb 2001 22:57:32 +0100 (MET)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [IDE] meaningless #ifndef?
-Message-ID: <Pine.GSO.4.30.0102192252130.7963-100000@balu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129813AbRBSV65>; Mon, 19 Feb 2001 16:58:57 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:49682 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S129243AbRBSV6u>; Mon, 19 Feb 2001 16:58:50 -0500
+Message-Id: <200102192158.f1JLwhO13390@aslan.scsiguy.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Peter Samuelson <peter@cadcamlab.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx (and sym53c8xx) plans 
+In-Reply-To: Your message of "Mon, 19 Feb 2001 14:27:14 CST."
+             <14993.33186.622147.313411@wire.cadcamlab.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 19 Feb 2001 14:58:43 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-from drivers/ide/ide-features.c:
+>BTW, is there really enough common ground between the whole series of
+>AIC chips to justify a single huge driver?  I know they ship three
+>separate NT drivers to cover this range..
 
-/*
- *  All hosts that use the 80c ribbon mus use!
- */
-byte eighty_ninty_three (ide_drive_t *drive)
-{
-        return ((byte) ((HWIF(drive)->udma_four) &&
-#ifndef CONFIG_IDEDMA_IVB
-                        (drive->id->hw_config & 0x4000) &&
-#endif /* CONFIG_IDEDMA_IVB */
-                        (drive->id->hw_config & 0x6000)) ? 1 : 0);
-}
+The chips are very similar.  I think the single driver for Linux is
+actually a smaller binary than any of the individual drivers for NT. 8-)
 
-If i see well, then this is always same whether CONFIG_IDEDMA_IVB is
-defined or not.
-What's the clue?
-
--- 
-pozsy.
-
+--
+Justin

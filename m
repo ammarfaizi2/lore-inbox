@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262152AbTJXL1y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 07:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbTJXL1y
+	id S262153AbTJXLit (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 07:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbTJXLit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 07:27:54 -0400
-Received: from poup.poupinou.org ([195.101.94.96]:38663 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP id S262152AbTJXL1x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 07:27:53 -0400
-Date: Fri, 24 Oct 2003 13:27:48 +0200
-To: "Moore, Robert" <robert.moore@intel.com>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       cpufreq@www.linux.org.uk, "Nakajima, Jun" <jun.nakajima@intel.com>,
-       linux-acpi <linux-acpi@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       linux-kernel@vger.kernel.org, Dominik Brodowski <linux@brodo.de>
-Subject: Re: [PATCH] 3/3 Dynamic cpufreq governor and updates to ACPI P-state driver
-Message-ID: <20031024112748.GB28351@poupinou.org>
-References: <CFF522B18982EA4481D3A3E23B83141C24B4DF@orsmsx407.jf.intel.com>
-Mime-Version: 1.0
+	Fri, 24 Oct 2003 07:38:49 -0400
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:1962 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S262153AbTJXLis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 07:38:48 -0400
+Message-Id: <200310241136.NAA30555@fire.malware.de>
+Date: Fri, 24 Oct 2003 13:38:23 +0200
+From: malware@t-online.de (Michael Mueller)
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: mj@ucw.cz, linux-kernel@vger.kernel.org
+Subject: Re: [2.4] PCI chipset Opti Viper M/N+
+References: <200310240956.h9O9uDK27733@winbloz.malware.de> <md5:FBD343F3435F79857BDF1297AFE82D42>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CFF522B18982EA4481D3A3E23B83141C24B4DF@orsmsx407.jf.intel.com>
-User-Agent: Mutt/1.5.4i
-From: Ducrot Bruno <ducrot@poupinou.org>
+Content-Transfer-Encoding: 7bit
+X-Seen: false
+X-ID: Ekxy8rZGweC0Nn3Mahq7ihqaGMul4scYn1VD3s2VAXJqzBSoXMM9rm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 23, 2003 at 01:47:49PM -0700, Moore, Robert wrote:
-> 
-> I would vote for "cpufreq_dynamic"
-> 
+Hi Martin and linux-kernel readers,
 
-Name is too generic IMHO.  There are a lot
-of other ways to do dynamic switching.
+I wrote:
+> it should read:
+>    val |= newval << (3*(pirq-1));
+> 
+> With this changed it still works with the PCMCIA card, but I still need
+> to gain access to a CardBus card to test it with.
+
+Ok, tested it with a LevelOne 10/100MBit CardBus card in a local
+computer store. It works fine.
+
+
+Michael
 
 -- 
-Ducrot Bruno
-
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.
+Linux@TekXpress
+http://www-users.rwth-aachen.de/Michael.Mueller4/tekxp/tekxp.html

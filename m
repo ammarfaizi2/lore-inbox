@@ -1,46 +1,233 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289598AbSA2LqB>; Tue, 29 Jan 2002 06:46:01 -0500
+	id <S289550AbSA2LqB>; Tue, 29 Jan 2002 06:46:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289578AbSA2Lo7>; Tue, 29 Jan 2002 06:44:59 -0500
-Received: from pc-80-195-34-66-ed.blueyonder.co.uk ([80.195.34.66]:23937 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S289516AbSA2Lma>; Tue, 29 Jan 2002 06:42:30 -0500
-Date: Tue, 29 Jan 2002 11:42:22 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: "Yann E. MORIN" <yann.morin.1998@anciens.enib.fr>
-Cc: lkml <linux-kernel@vger.kernel.org>, ext2-devel@lists.sourceforge.net
-Subject: Re: Assertion failure / do_get_write_acess() / loop / samba
-Message-ID: <20020129114222.B2298@redhat.com>
-In-Reply-To: <008f01c1a815$d8cdcc70$8a140237@rennes.si.fr.atosorigin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <008f01c1a815$d8cdcc70$8a140237@rennes.si.fr.atosorigin.com>; from yann.morin.1998@anciens.enib.fr on Mon, Jan 28, 2002 at 05:07:12PM +0100
+	id <S289521AbSA2Lo5>; Tue, 29 Jan 2002 06:44:57 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:61711 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S289582AbSA2Lkv>; Tue, 29 Jan 2002 06:40:51 -0500
+Date: Mon, 28 Jan 2002 20:28:34 +0300
+Message-Id: <200201281728.g0SHSYa22958@bitshadow.namesys.com>
+From: Hans Reiser <reiser@namesys.com>
+To: torvalds@transmeta.com
+CC: reiser@namesys.com, reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] ReiserFS 2.5 Update Patch Set 3 of 25
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, Jan 28, 2002 at 05:07:12PM +0100, Yann E. MORIN wrote:
-> 
-> I've encountered a reproductible 'Assertion failure' in 2.4.17.
-> It happens on pure vanilla, as well as on sched O1-J0, and also on
+This set of patches of which this is one will update ReiserFS in 2.5
+to contain all bugfixes applied to 2.4 plus allow relocating the journal plus
+uuid support plus fix the kdev_t compilation failure.
 
-> I'm able to write a bit of data on it (about a few Mib), and then I
-> got this Assertion failure:
-> 
-> --8<-- Begin --8<--
-> Assertion failure in do_get_write_access() at transaction.c:728:
-> "(((jh2bh(jh))->b_state & (1UL << BH_Uptodate)) != 0)"
+03-check_nlink_in_reiserfs_read_inode2.diff
+    It is possible that knfsd is trying to access inode of a file
+    that is being removed from the disk by some other thread. As we
+    update sd on unlink all that is required is to check for nlink
+    here. This bug was first found by Sizif when debugging
+    SquidNG/Butterfly, forgotten, and found again after Philippe
+    Gramoulle <philippe.gramoulle@mmania.com> reproduced it.
 
-Are there any other log messages in the kernel log?
+    More logical fix would require changes in fs/inode.c:iput() to
+    remove inode from hash-table _after_ fs cleaned disk stuff up and
+    in iget() to return NULL if I_FREEING inode is found in
+    hash-table.  We await Al Viro doing the more logical fix, and we
+    provide this fix so that users can work while we wait for the
+    better fix.
 
-The only easy way I can see for this to be triggered is if there is a
-bad block on disk being accessed.  That ought to appear in the log.
 
-Could you also please run ksymoops to decode the log trace?
+The other patches in this set are:
 
-Cheers,
- Stephen
+
+01-reiserfs-kdev-fixed.diff
+    kdev_t fixes to comply with new interface.
+
+02-reiserfs-journal-relocation.diff
+    Support for relocated journals.
+
+03-check_nlink_in_reiserfs_read_inode2.diff
+    It is possible that knfsd is trying to access inode of a file
+    that is being removed from the disk by some other thread. As we
+    update sd on unlink all that is required is to check for nlink
+    here. This bug was first found by Sizif when debugging
+    SquidNG/Butterfly, forgotten, and found again after Philippe
+    Gramoulle <philippe.gramoulle@mmania.com> reproduced it.
+
+    More logical fix would require changes in fs/inode.c:iput() to
+    remove inode from hash-table _after_ fs cleaned disk stuff up and
+    in iget() to return NULL if I_FREEING inode is found in
+    hash-table.  We await Al Viro doing the more logical fix, and we
+    provide this fix so that users can work while we wait for the
+    better fix.
+
+04-bitmap-range-checking.diff
+    Check that block number are going to free in a bitmap makes sense.
+    This avoids oops after trying to access bitmap for wild block number.
+
+05-prepare_for_delete_or_cut-cleanup.diff
+    Patch by Chris Mason <Mason@Suse.COM>.
+    prepare_for_delete_or_cut() tries to find the unformatted node in
+    the buffer cache to make sure it isn't in use.  Since unformatted
+    nodes are never in the buffer cache, this check is useless.  The
+    page locking done by mm/vmscan.c:vmtruncate protects us from
+    truncating away pages that are in use, so it is safe to just remove
+    the bogus check from our code.
+
+    Since the get_hash_table was also the reason for the repeat loop,
+    this patch removes it as well.  
+
+    This should make file deletes faster, at the very least it cuts down
+    on CPU overhead for deletes/truncates.
+
+06-E-cleanup.diff
+    There is always place for Yet Another Cleanup of Reiserfs Code.
+
+07-mmaped_data_loss_fix.diff
+    fixes a bug first noticed using a Freebsd nfs testing tool. When writing to
+    a previously mmaped-filled hole in file, and then writing with write() there
+    again, page that write() hits loses mmap-written content.
+
+08-unlink-truncate-opened.diff
+    Fixes long-standing problem in reiserfs, when disk space gets leaked
+    if crash occurred when some process hold a reference to unlinked file.
+
+    It's possible to unlink file that is still opened by some
+    process. In this case, body of file is actually removed at the time
+    of last close. If crash occurs in between last unlink (when
+    directory entry for this file is removed) and last close, body
+    doesn't get unlinked and "disk-space-leak" occurs. To prevent this,
+    unlink-truncate-opened patch stores in the tree a special record at the
+    time of last unlink. This record is a form of logical logging and
+    will be either removed during following close, or replayed during
+    next mount after a crash.
+
+09-chown-32-bit-fix.diff
+        Reiserfs 3.5 disk format can only store 16 bit uid/gid inside
+        stat-data. This patch adds error checking so that EINVAL is returned
+        on attempt to change uid/gid of an old file to value that doesn't
+        fit into 16 bit, in stead of silently truncating it into 16 bit.
+
+10-journal-preallocated.diff
+    Patch by Chris Mason for bug found and debugged by Anne Milicia
+    (milicia@missioncriticallinux.com): don't run preallocated blocks
+    through journal_mark_freed() and don't corrupt i_prealloc_block during
+    __discard_prealloc().
+
+11-double-replay.diff
+    Patch by Chris Mason to avoid duplicate replay of last flushed
+    transaction.
+
+12-infinite-replay.diff
+    Patch to break infinite loop in journal_read() in the case when the
+    journal log area is completely filled with transactions.
+
+13-scan_magic_cleanup.diff
+    Fixes a problem with v3.6 fs mounted readonly and then remounted rw.
+    
+14-map_block_for_writepage_highmem_fix.diff
+    Fixes erroroneous page access before making sure page is really accessable.
+    Bug can be triggered only on highmem sysetms.
+
+15-long_symlinks_fix.diff
+    Symlink-body length check was made against an incorrect value, allowing for
+    too long nodes to be inserted into tree. This might lead to obscure 
+    warnings in some cases.
+
+16-tail_data_corruption_on_mempressure.diff
+    Fixes a bug when mmap-write to a file tail and subsequent read cause written
+    data to be lost due to page-cache interacting mistake in low number of free 
+    buffers situation.
+
+17-kreiserfsd-sleep-timeout.diff
+    Correct a typo in fs/reiserfs/journal.c:
+    interruptible_sleep_on_timeout() takes timeout in jiffies, rather
+    than seconds.
+
+18-corrupted_fs_panic_on_lookup_fix.diff
+    Certain disk corruptions and i/o errors may cause lookup() to panic, which
+    is wrong.
+
+19-big-endian-const.diff
+    Suppress compilation warnings on big endian platform.
+
+20-rename_stale_item_bug.diff
+    This patch fixes 2 bugs in reiserfs_rename(). First one being attempt to
+    access item before verifying it was not moved since last access. Second
+    is a window, where old filename may be written to disk with 'visible'
+    flag unset without these changes be journaled.
+
+21-reiserfs-inode_cache-fixed.diff
+    reiserfs_inode_cache seems to be too long. converting it to
+    reiser_inode_cache.
+
+22-expanding-truncate-5.diff
+    This patch makes sure that indirect pointers for holes are correctly filled
+    in by zeroes at
+    hole-creation time. (Author is Chris Mason. fs/buffer.c
+    (generic_cont_expand) were written by Alexander Viro)
+
+23-romount-nobug-onclose.diff
+    Somebody introduced a bug in reiserfs_release_file() leading to corrupting
+    journal for ro filesystems.
+
+24-reiserfs-boot-verbose.diff
+    Do not print unsuccesful superblocks read warnings 
+    (if old or new one cannot be found). Print verbose journal info. 
+    Convert warnings to standard format.
+
+25-mount-convert-fix.diff
+    Fixes a case where v3.6 filesystem can get wrong magic after converting
+    from v3.5 one.
+
+
+
+
+
+--- linux-2.5.3-pre4.o/fs/reiserfs/inode.c	Thu Jan 24 10:45:26 2002
++++ linux-2.5.3-pre4/fs/reiserfs/inode.c	Thu Jan 24 11:12:24 2002
+@@ -1135,6 +1135,30 @@
+     }
+ 
+     init_inode (inode, &path_to_sd);
++   
++    /* It is possible that knfsd is trying to access inode of a file
++       that is being removed from the disk by some other thread. As we
++       update sd on unlink all that is required is to check for nlink
++       here. This bug was first found by Sizif when debugging
++       SquidNG/Butterfly, forgotten, and found again after Philippe
++       Gramoulle <philippe.gramoulle@mmania.com> reproduced it. 
++
++       More logical fix would require changes in fs/inode.c:iput() to
++       remove inode from hash-table _after_ fs cleaned disk stuff up and
++       in iget() to return NULL if I_FREEING inode is found in
++       hash-table. */
++    /* Currently there is one place where it's ok to meet inode with
++       nlink==0: processing of open-unlinked and half-truncated files
++       during mount (fs/reiserfs/super.c:finish_unfinished()). */
++    if( ( inode -> i_nlink == 0 ) && 
++	! inode -> i_sb -> u.reiserfs_sb.s_is_unlinked_ok ) {
++	    reiserfs_warning( "vs-13075: reiserfs_read_inode2: "
++			      "dead inode read from disk %K. "
++			      "This is likely to be race with knfsd. Ignore\n", 
++			      &key );
++	    make_bad_inode( inode );
++    }
++
+     reiserfs_check_path(&path_to_sd) ; /* init inode should be relsing */
+ 
+ }
+--- linux-2.5.3-pre4.o/include/linux/reiserfs_fs_sb.h	Thu Jan 24 11:11:41 2002
++++ linux-2.5.3-pre4/include/linux/reiserfs_fs_sb.h	Thu Jan 24 11:12:24 2002
+@@ -360,6 +360,10 @@
+     int s_bmaps_without_search;
+     int s_direct2indirect;
+     int s_indirect2direct;
++	/* set up when it's ok for reiserfs_read_inode2() to read from
++	   disk inode with nlink==0. Currently this is only used during
++	   finish_unfinished() processing at mount time */
++    int s_is_unlinked_ok;
+     reiserfs_proc_info_data_t s_proc_info_data;
+     struct proc_dir_entry *procdir;
+ };
+

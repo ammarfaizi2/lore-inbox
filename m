@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbUKOUtq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbUKOUr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbUKOUtq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 15:49:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbUKOUse
+	id S261708AbUKOUr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 15:47:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUKOUqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 15:48:34 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:13899 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261693AbUKOUqd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 15:46:33 -0500
-Date: Mon, 15 Nov 2004 20:45:32 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] -mm check_rlimit oops on p->signal
-Message-ID: <Pine.LNX.4.44.0411152043250.4131-100000@localhost.localdomain>
+	Mon, 15 Nov 2004 15:46:15 -0500
+Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:51654 "EHLO
+	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S261693AbUKOUpr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 15:45:47 -0500
+Message-ID: <41991511.1080006@ttnet.net.tr>
+Date: Mon, 15 Nov 2004 22:44:01 +0200
+From: "O.Sezer" <sezeroz@ttnet.net.tr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.3) Gecko/20041003
+X-Accept-Language: tr, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: "John W. Linville" <linville@redhat.com>
+CC: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [netdrvr] netdev-2.4 queue updated
+References: <4198C64A.6050900@ttnet.net.tr> <4198E20E.5070305@pobox.com> <20041115173245.GI14381@redhat.com>
+In-Reply-To: <20041115173245.GI14381@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The p->signal check in account_system_time is insufficient.  If the
-timer interrupt hits near the end of exit_notify, after EXIT_ZOMBIE has
-been set, another cpu may release_task (NULLifying p->signal) in between
-account_system_time's check and check_rlimit's dereference.  Nor should
-account_it_prof risk send_sig.  But surely account_user_time is safe?
+John W. Linville wrote:
+> On Mon, Nov 15, 2004 at 12:06:22PM -0500, Jeff Garzik wrote:
+> 
+>>O.Sezer wrote:
+>>
+>>>>John W. Linville:
+>>>> o 3c59x: resync with 2.6
+>>>>
+>>>
+>>>Any specific reason that the following two are not included ?
+>>>
+>>>3c59x: reload EEPROM values at rmmod for needy cards:
+>>>http://marc.theaimsgroup.com/?l=linux-kernel&m=109726032213947&w=2
+>>>
+>>>3c59x: remove EEPROM_RESET for 3c905 :
+>>>http://marc.theaimsgroup.com/?l=linux-kernel&m=109802672909516&w=2
+>>
+>>Ask John Linville...  IIRC they caused problems?
+> 
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+I have two machines with 3c905's (Boomerang series) running with
+Linville's 3 patches without any problems for more than 10 days I
+think. But that's only me.
 
---- 2.6.10-rc1-mm5/kernel/sched.c	2004-11-11 12:40:12.000000000 +0000
-+++ linux/kernel/sched.c	2004-11-14 20:41:26.851384984 +0000
-@@ -2333,8 +2333,7 @@ void account_user_time(struct task_struc
- 	p->utime = cputime_add(p->utime, cputime);
- 
- 	/* Check for signals (SIGVTALRM, SIGPROF, SIGXCPU & SIGKILL). */
--	if (likely(p->signal))
--		check_rlimit(p, cputime);
-+	check_rlimit(p, cputime);
- 	account_it_virt(p, cputime);
- 	account_it_prof(p, cputime);
- 
-@@ -2362,9 +2361,10 @@ void account_system_time(struct task_str
- 	p->stime = cputime_add(p->stime, cputime);
- 
- 	/* Check for signals (SIGPROF, SIGXCPU & SIGKILL). */
--	if (likely(p->signal))
-+	if (likely(p->signal && p->exit_state < EXIT_ZOMBIE)) {
- 		check_rlimit(p, cputime);
--	account_it_prof(p, cputime);
-+		account_it_prof(p, cputime);
-+	}
- 
- 	/* Add system time to cpustat. */
- 	tmp = cputime_to_cputime64(cputime);
+> Actually, the second one was there to correct the first one.
+> (Only PART of the first patch was undone by the second one.)
+
+I'm aware of that, thanks.
+
+> They are additive, so they should be applied in the order above.
+> If you'd prefer, I could gen-up a single patch?
+> 
+> Thanks,
+> 
+> John
+
+Ozkan Sezer
 

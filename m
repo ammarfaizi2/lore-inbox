@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317211AbSHBVeD>; Fri, 2 Aug 2002 17:34:03 -0400
+	id <S317112AbSHBVdx>; Fri, 2 Aug 2002 17:33:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317217AbSHBVeD>; Fri, 2 Aug 2002 17:34:03 -0400
-Received: from pD952AC04.dip.t-dialin.net ([217.82.172.4]:23233 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317211AbSHBVeC>; Fri, 2 Aug 2002 17:34:02 -0400
-Date: Fri, 2 Aug 2002 15:36:44 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Mike Touloumtzis <miket@bluemug.com>
-cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-       Alexander Viro <viro@math.psu.edu>,
-       Thunder from the hill <thunder@ngforever.de>,
-       Peter Chubb <peter@chubb.wattle.id.au>, Pavel Machek <pavel@ucw.cz>,
-       <Matt_Domsch@Dell.com>, <Andries.Brouwer@cwi.nl>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] 2.5.28 and partitions
-In-Reply-To: <20020802212149.GC4528@bluemug.com>
-Message-ID: <Pine.LNX.4.44.0208021532020.5119-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
+	id <S317211AbSHBVdx>; Fri, 2 Aug 2002 17:33:53 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:30619 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317112AbSHBVdw>; Fri, 2 Aug 2002 17:33:52 -0400
+To: "Aneesh Kumar K.V" <aneesh.kumar@digital.com>
+Cc: Camm Maguire <camm@enhanced.com>,
+       debian-alpha <debian-alpha@lists.debian.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SA_SIGINFO in Linux 2.4.x
+References: <E17aOg0-0002ub-00@intech19.enhanced.com>
+	<1028281936.17352.42.camel@satan.xko.dec.com>
+From: Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>
+Date: 02 Aug 2002 23:36:40 +0200
+In-Reply-To: <1028281936.17352.42.camel@satan.xko.dec.com>
+Message-ID: <87wur92b9z.fsf@mrvn.homelinux.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"Aneesh Kumar K.V" <aneesh.kumar@digital.com> writes:
 
-On Fri, 2 Aug 2002, Mike Touloumtzis wrote:
-> fprintf(f, "%u %u %u%c", foo, bar, baz, '\0');
+> On Fri, 2002-08-02 at 04:14, Camm Maguire wrote:
+> > Greetings!  The 2.4.x kernels on alpha don't appear to be filling in
+> > the si_addr element of the siginfo_t structure when a signal handler
+> > is setup with SA_SIGINFO.  Is this right?  Any other way to get this
+> > address in the handler?
+> > 
+> > Take care,
+> > 
+> > -- 
+> > Camm Maguire			     			camm@enhanced.com
+> 
+> 
+> Hi, 
+> 
+>  Try the following patch  for arch/alpha/mm/fault.c 
 
-Yes, that's crap... However, what about the following partition table 
-format:
+Thats no based on the patch I did a while back, is it?
 
-<size>\0<part1>\n<part2>\n<part...>\n<partn>\0
-
-Size represents the complete size of the partition table. partx defines 
-the partitions that we have, part1 starts at
-		(size % BLOCK_SIZE			?
-		 drive_start+(size/BLOCK_SIZE)		: 
-		 drive_start+(SIZE/BLOCK_SIZE)+1)
-
-String encoding is possible, not a requirement...
-
-			Thunder
--- 
-.-../../-./..-/-..- .-./..-/.-.././.../.-.-.-
-
+MfG
+        Goswin

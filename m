@@ -1,41 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263181AbTC1WjP>; Fri, 28 Mar 2003 17:39:15 -0500
+	id <S263178AbTC1Whe>; Fri, 28 Mar 2003 17:37:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263185AbTC1WjP>; Fri, 28 Mar 2003 17:39:15 -0500
-Received: from sponsa.its.UU.SE ([130.238.7.36]:1740 "EHLO sponsa.its.uu.se")
-	by vger.kernel.org with ESMTP id <S263181AbTC1WjJ>;
-	Fri, 28 Mar 2003 17:39:09 -0500
-Date: Fri, 28 Mar 2003 23:50:01 +0100 (MET)
-Message-Id: <200303282250.h2SMo1V7019959@harpo.it.uu.se>
-From: mikpe@csd.uu.se
-To: linux-kernel@vger.kernel.org, rbultje@ronald.bitfreak.net
-Subject: Re: some 2.5.66 issues
+	id <S263179AbTC1Whe>; Fri, 28 Mar 2003 17:37:34 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:31494 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S263178AbTC1Whc>;
+	Fri, 28 Mar 2003 17:37:32 -0500
+Date: Fri, 28 Mar 2003 23:48:43 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: jgarzik@pobox.com, aeb@cwi.nl
+Subject: Re: NICs trading places ?
+Message-ID: <20030328224843.GA11980@win.tue.nl>
+References: <20030328221037.GB25846@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030328221037.GB25846@suse.de>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Mar 2003 00:24:14 +0100, Ronald Bultje wrote:
->people are asking for comments on 2.5.x, so here goes. gcc-2.96, RH-7.3,
->kernel 2.5.66 with module-init-tools-0.9.10.
-...
->* module_request() is still broken - it returns 0 but the specified
->module isn't loaded
+On Fri, Mar 28, 2003 at 10:10:37PM +0000, Dave Jones wrote:
 
-To summarise: RH user-space, 2.5 kernel, modules don't autoload.
+> I just upgraded a box with 2 NICs in it to 2.5.66, and found
+> that what was eth0 in 2.4 is now eth1, and vice versa.
+> Is this phenomenon intentional ? documented ?
+> What caused it to do this ?
+> 
+> The box in question has a DEC Tulip and a 3com 3c905,
+> but I imagine this would affect any system with >1 NIC
+> of different vendors/drivers ?
 
-This is a well-known user-space (*) bug. Fix below.
+Intentional? No.
+Documented? I suppose you can find complaints from others
+mentioning the same thing.
+Cause? eth discovery order is not well-defined.
 
-(*) Well, unless "dropping /proc/ksyms for no good reason" counts
-as a 2.5 kernel bug.
+Once or twice I have submitted patches to rectify.
+They help for a while and then someone breaks things again.
+I am not quite sure, apologies in case I misremember, but
+maybe the most recent breakage was caused by Marc Zyngier
+with EISA bus changes.
 
---- /etc/rc.d/rc.sysinit.~1~	2002-08-22 23:10:52.000000000 +0200
-+++ /etc/rc.d/rc.sysinit	2003-01-14 03:04:57.000000000 +0100
-@@ -334,7 +334,7 @@
-     IN_INITLOG=
- fi
+Google turns up
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0301.2/1139.html
+
+Let me add the patch referred to there. Maybe Jeff likes it this time.
+
+ Andries
+
+
+diff -u --recursive --new-file -X /linux/dontdiff a/drivers/net/3c59x.c b/drivers/net/3c59x.c
+--- a/drivers/net/3c59x.c	Sat Jan 18 23:54:39 2003
++++ b/drivers/net/3c59x.c	Tue Jan 21 18:36:25 2003
+@@ -1439,8 +1439,14 @@
+  		acpi_set_WOL(dev);
+ 	}
+ 	retval = register_netdev(dev);
+-	if (retval == 0)
++	if (retval == 0) {
++		int i;
++		printk("%s: 3c59x, address", dev->name);
++		for (i = 0; i < 6; i++)
++			printk("%c%2.2x", i ? ':' : ' ', dev->dev_addr[i]);
++		printk("\n");
+ 		return 0;
++	}
  
--if ! grep -iq nomodules /proc/cmdline 2>/dev/null && [ -f /proc/ksyms ]; then
-+if ! grep -iq nomodules /proc/cmdline 2>/dev/null && [ -f /proc/modules ]; then
-     USEMODULES=y
- fi
- 
+ free_ring:
+ 	pci_free_consistent(pdev,
+
+

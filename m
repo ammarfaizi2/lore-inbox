@@ -1,103 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129045AbQKOAHR>; Tue, 14 Nov 2000 19:07:17 -0500
+	id <S129040AbQKOAK6>; Tue, 14 Nov 2000 19:10:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129873AbQKOAHH>; Tue, 14 Nov 2000 19:07:07 -0500
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:34829 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S129045AbQKOAHC>; Tue, 14 Nov 2000 19:07:02 -0500
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200011142337.AAA18765@green.mif.pg.gda.pl>
-Subject: Re: [PATCH] CONFIG_EISA note in Documentation/Configure.help
-To: aeb@veritas.com
-Date: Wed, 15 Nov 2000 00:37:09 +0100 (CET)
-Cc: elenstev@mesatop.com, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL0pre8]
+	id <S129045AbQKOAKu>; Tue, 14 Nov 2000 19:10:50 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:63709 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id <S129040AbQKOAKd>;
+	Tue, 14 Nov 2000 19:10:33 -0500
+Date: Wed, 15 Nov 2000 00:42:07 +0100 (CET)
+From: Gert Wollny <wollny@cns.mpg.de>
+To: James M <dart@windeath.2y.net>
+cc: linux-kernel@vger.kernel.org, twaugh@redhat.com
+Subject: Re: Parport/IMM/Zip Oops Revisited -- Filesys problem? Viro please
+ look
+In-Reply-To: <3A11C123.84DE0A95@windeath.2y.net>
+Message-ID: <Pine.LNX.4.10.10011150012390.684-100000@bolide.beigert.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, Nov 13, 2000 at 05:07:22PM -0700, Steven Cole wrote:
-> > +EISA support
-> > +CONFIG_EISA
-> > +  The Extended Industry Standard Architecture (EISA) bus was
-> 
-> (i) I am a bit unhappy about adding configuration options
-> like this. It regularly happens that I want to compile some kernel
 
-You are unhappy, I am happy.
-Now I can disable some drivers, which I am sure I don't need setting a single
-option instead of few.
-Also it anables better separation of architecture specyfic drivers:
-do you know of Amiga with EISA ?  Does my mips support it ?
 
-# grep drivers/net/Config.in arch/*/config.in
-arch/alpha/config.in:    source drivers/net/Config.in
-arch/arm/config.in:      source drivers/net/Config.in
-arch/i386/config.in:      source drivers/net/Config.in
-arch/ia64/config.in:    source drivers/net/Config.in
-arch/mips/config.in:     source drivers/net/Config.in
-arch/mips64/config.in:      source drivers/net/Config.in
-arch/ppc/config.in:    source drivers/net/Config.in
-arch/sh/config.in:      source drivers/net/Config.in
+On Tue, 14 Nov 2000, James M wrote:
+>    Was just trying to find out why I can mount in 11pre1 and 11pre2 when
+> Gert can't mount at all, so I removed my VFAT factory formatted zipdisk
+> and put in an Ext2 formatted one.....**BOOM**
 
-> for some machine and have to grep the source and look at the config
-> files how to enable something. A machine with RTL-8139? Let me see,
-> that requires CONFIG_EXPERIMENTAL. (Not today, but until recently.)
-> How do I get FireWire? Also requires CONFIG_EXPERIMENTAL. This
-> CONFIG_EXPERIMENTAL is a very strange option. I know about my hardware,
-> perhaps, but there is no reason to suppose that I know about the
-> progress in development of Linux drivers for this hardware.
-> Instead of having a global CONFIG_EXPERIMENTAL we should have
-> a warning at each place that the driver is alpha.
+Actually i never tried to mount in my testings, just did "modprobe imm". I
+did not even load sd.o, which reads the size of the medium. Output after 
+successfull modprobe:
+kernel: imm: Version 2.04 (for Linux 2.4.0) 
+kernel: imm_connect 1 
+kernel: imm: Found device at ID 6, Attempting to use EPP 32 bit 
+kernel: imm: Found device at ID 6, Attempting to use PS/2 
+kernel: imm: Communication established at 0x378 with ID 6 using PS/2 
+kernel: device_check 0 
+kernel: scsi1 : Iomega VPI2 (imm) interface 
+kernel: scsi : 2 hosts. 
+kernel:   Vendor: IOMEGA    Model: ZIP 250           Rev: J.45 
+kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02 
 
-Look at CML2 project. It supports a function showing all possible options,
-if you choose... But it is project for Linux 2.5.
+Even without a disk this works (if parport_pc is preloaded).  
 
-> If one does "make xconfig" then one sees a greyed out area,
-> and the sometimes nontrivial puzzle is how to enable it.
-> But with "make menuconfig" one never even sees the option,
 
-But in "make config" you see much more than you want...
+Anyway the disk in the drive was a 250MB vfat formatted one. But OTOH, the
+oops trace points to ext2. 
 
-> (ii) In particular about this CONFIG_EISA and the given explanation.
-> I have a computer, yes, several. But do I know whether it has
-> an EISA bus? A week ago I hardly knew what EISA was, and would have
-> been unable to answer. Today I know the answer for a handful of them
-> but have not yet investigated the others.
+For completeness: With the disk "modprobe sd"  gives 
 
-OK. I tried to build an universal kernel, which supports every hardware &
-software kernel drivers I ever needed on i386. It was much too big to
-boot... (6 MB compressed)
+kernel: Detected scsi removable disk sda at scsi1, channel 0, id 6, lun 0 
+kernel: SCSI device sda: hdwr sector= 512 bytes. Sectors= 489532 [239 MB] [0.2 GB] 
+kernel: sda: Write Protect is off 
+kernel:  sda: sda4 
 
-> Now, if this knowledge was of major importance for the kernel
-> then perhaps I had to learn about such details.
-> However, CONFIG_EISA is almost completely superfluous, is not
-> required at compile time, can easily be tested at run time,
-> in other words adding such an option is a very stupid thing to do.
+Refering to my last message - so far i didn't check, if an ext2 formated
+disk works with test6. But "modprobe imm" worked.
 
-If you have too much memory, you can always choose CONFIG_EISA=y by default.
- 
-> [Steven, you understand that I would have written under CONFIG_EISA:
-> say Y here - there is never any reason to say N, unless there exists
-> hardware where the canonical probing hangs the machine.]
-> 
-> The number of configuration options should be minimized.
-> That is good for the user - fewer questions to answer.
 
-Note, that "number of configuration options should be minimized"
-and "fewer questions to answer" are not equivalent.
 
-BTW,  CONFIG_MCA needs some cleaning, also.
-
-Andrzej
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  tel.  (0-58) 347 14 61
-Wydz.Fizyki Technicznej i Matematyki Stosowanej Politechniki Gdanskiej
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

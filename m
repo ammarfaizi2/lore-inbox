@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265129AbUELQ7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265134AbUELRQM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265129AbUELQ7E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 12:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265140AbUELQ7E
+	id S265134AbUELRQM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 13:16:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265136AbUELRQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 12:59:04 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:61854 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S265129AbUELQ6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 12:58:52 -0400
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, fastboot@lists.osdl.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
-References: <20040511212625.28ac33ef.rddunlap@osdl.org>
-	<40A1AF53.3010407@redhat.com>
-	<m13c66qicb.fsf@ebiederm.dsl.xmission.com> <40A243C8.401@redhat.com>
-	<m1brktod3f.fsf@ebiederm.dsl.xmission.com>
-	<40A2517C.4040903@redhat.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 12 May 2004 10:57:27 -0600
-In-Reply-To: <40A2517C.4040903@redhat.com>
-Message-ID: <m17jvhoa6g.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Wed, 12 May 2004 13:16:12 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:28584 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S265134AbUELRQJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 13:16:09 -0400
+Date: Wed, 12 May 2004 19:14:33 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: linux-kernel@vger.kernel.org, moqua@kurtenba.ch
+Subject: Re: cpufreq and p4 prescott
+Message-ID: <20040512171433.GA10481@dominikbrodowski.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.de>,
+	linux-kernel@vger.kernel.org, moqua@kurtenba.ch
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper <drepper@redhat.com> writes:
+> i have problems scaling down my p4 prescott 2.8 GHz.
+You can't scale a prescott, you can only throttle it.
 
-> Eric W. Biederman wrote:
-> 
-> > As a first draft we should be able to use the standard ELF mechanisms
-> > for this.  It is not like PIC shared libraries were new.   Or is
-> > there some specific problem you are thinking of with respect to
-> > randomization?
-> 
-> The official kernel does not have vdso randomization.  Ingo has a patch
-> for the Red Hat kernel which is used in the FC2 kernel.  The patch
-> effectively only changes the location at which the vdso is mapped.  It
-> does not change the vdso content.  So the __kernel_vsyscall symbol in
-> the vdso's symbol table is not changed.
-> 
-> AT_SYSINFO is the right way to go forward but it is not directly
-> accessible to userlevel code.  And it is no pointer which will make
-> architectures with function descriptors unhappy.
+> [ck@holodeck:cpufreq] cat /proc/cpuinfo | grep Mhz
+> cpu MHz         : 2807.131
+> cpu MHz         : 2807.131
+The cpu MHz entry in /proc/cpuinfo is the same for all CPUs, and no reliable
+source to detect the current cpu frequency anyway. Use
+/sys/devices/system/cpu/cpu0/scaling_cur_freq or even cpuinfo_cur_freq for
+that.[*] So p4-clockmod-throttling does work on your p4 prescott.
 
-It sounds like the vdso just needs to be treated as a prelinked
-vdso.  You can find everything you need with AT_SYSINFO_EHDR.
+	Dominik
 
-In the case of function descriptors they should be in a data segment
-that can get copied to another page, and corrected.  Leaving the code
-segment at it's randomized location.
-
-Eric
-
+[*] Available in 2.6.7, hopefully, if Linus merges the latest cpufreq-bk
+tree from Dave. It'll be in the next -mm release, though.

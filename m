@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278770AbRKEAKC>; Sun, 4 Nov 2001 19:10:02 -0500
+	id <S280075AbRKEAPo>; Sun, 4 Nov 2001 19:15:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280060AbRKEAJv>; Sun, 4 Nov 2001 19:09:51 -0500
-Received: from humbolt.nl.linux.org ([131.211.28.48]:9195 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S278770AbRKEAJn>; Sun, 4 Nov 2001 19:09:43 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alexander Viro <viro@math.psu.edu>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Date: Mon, 5 Nov 2001 01:10:19 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Jakob ?stergaard <jakob@unthought.net>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        John Levon <moz@compsoc.man.ac.uk>, linux-kernel@vger.kernel.org,
-        Tim Jansen <tim@tjansen.de>
-In-Reply-To: <Pine.GSO.4.21.0111041841480.21449-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0111041841480.21449-100000@weyl.math.psu.edu>
+	id <S280071AbRKEAPe>; Sun, 4 Nov 2001 19:15:34 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41994 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280064AbRKEAPV>; Sun, 4 Nov 2001 19:15:21 -0500
+Subject: Re: Special Kernel Modification
+To: lonnie@outstep.com (Lonnie Cumberland)
+Date: Mon, 5 Nov 2001 00:22:27 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BE5D6EC.8040204@outstep.com> from "Lonnie Cumberland" at Nov 04, 2001 07:01:48 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011105000933Z17055-18972+28@humbolt.nl.linux.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E160XX1-0003ZC-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 5, 2001 12:42 am, Alexander Viro wrote:
-> On Sun, 4 Nov 2001, Daniel Phillips wrote:
-> 
-> > Doing 'top -d .1' eats 18% of a 1GHz cpu, which is abominable.  A kernel
-> > profile courtesy of sgi's kernprof shows that scanning pages does not move
-> > the needle, whereas sprintf does.  Notice that the biggest chunk of time
-> 
-> Huh?  Scanning pages is statm_pgd_range().  I'd say that it takes
-> seriously more than vsnprintf() - look at your own results.
+> I have look into using things like "chroot" to restrict the users for 
+> this very special server, but that solution is not what we need.
 
-Yes, true, 2.6 seconds for the statm_pgd_range vs 1.2 for sprintf.  Still, 
-sprintf is definitely burning cycles, pretty much the whole 1.2 seconds would 
-be recovered with a binary interface.
+It sounds like it is to me
 
-Now look at the total time we spend in the kernel: 10.4 seconds, 4 times the 
-page scanning overhead.  This is really wasteful.
+> My problem is that I need to find a way to prevent the user from 
+> navigating out of their home directories.
 
-For top does it really matter?  (yes, think slow computer)  What happens when 
-proc stabilizes and applications start relying on it heavily as a kernel 
-interface?  If we're still turning in this kind of stunningly poor 
-performance, it won't be nice.
+Then you must put al the files in their home directories. Alternatively
+with later 2.4 you can use bind mounts to remount the application file
+systems below the user.
 
-It's not that it doesn't work, it's just that it isn't the best.
+> Is there someone who might be able to give me some information on how I 
+> could add a few lines to the VFS filesystem so that I might set some 
+> type of extended attribute to prevent users from navigating out of the 
+> locations.
 
---
-Daniel
+It isnt down to attributes - how you can run a binary or load a shared
+library you cant see.
+
+You might also want to see http://www.nsa.gov/selinux, but that would
+require a lot of careful policy setup

@@ -1,73 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbUKPJSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbUKPJVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261953AbUKPJSp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 04:18:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUKPJSp
+	id S261951AbUKPJVG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 04:21:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUKPJVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 04:18:45 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:40200 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261949AbUKPJSl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 04:18:41 -0500
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-From: Arjan van de Ven <arjan@infradead.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu>
-References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
-	 <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org>
-	 <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Message-Id: <1100596704.2811.17.camel@laptop.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Tue, 16 Nov 2004 10:18:24 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?ip=80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 16 Nov 2004 04:21:05 -0500
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:17838 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S261951AbUKPJU7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 04:20:59 -0500
+Date: Tue, 16 Nov 2004 10:20:38 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: john stultz <johnstul@us.ibm.com>
+cc: Andries Brouwer <Andries.Brouwer@cwi.nl>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] __init and i386 timers
+In-Reply-To: <1100545499.21267.29.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.53.0411161019210.590@gockel.physik3.uni-rostock.de>
+References: <20041113232203.GA23484@apps.cwi.nl> <1100545499.21267.29.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-11-16 at 10:08 +0100, Miklos Szeredi wrote:
-> Linus,
+On Mon, 15 Nov 2004, john stultz wrote:
+
+> On Sat, 2004-11-13 at 15:22, Andries Brouwer wrote:
+> > The i386 timers use a struct timer_opts that has a field init
+> > pointing at a __init function. The rest of the struct is not __init.
+> > 
+> > Nothing is wrong, but if we want to avoid having references to init stuff
+> > in non-init sections, some reshuffling is needed.
 > 
-> I did send a pointer to the cleaned up patch, maybe this wasn't
-> explicit enough:
+> Ugh. I understand the goal, but the resulting code indirection turns my
+> stomach a bit. 
 > 
->   http://fuse.sourceforge.net/kernel_patches/fuse-2.1-2.6.10-rc2.patch
-+static void request_wait_answer(struct fuse_req *req)
-+{
-+	spin_unlock(&fuse_lock);
-+	wait_event(req->waitq, req->finished);
-+	spin_lock(&fuse_lock);
-+}
+> Although do take my criticism lightly, as right off I don't have a
+> better suggestion other then to just yank the __init attribute from the
+> initialization functions. I'm just not sure the savings is worth the
+> added staple-gunned complexity. Might there be a better way?
 
-+	spin_lock(&fuse_lock);
-+	req->out.h.error = -ENOTCONN;
-+	if (fc->file) {
-+		req->in.h.unique = get_unique(fc);		
-+		list_add_tail(&req->list, &fc->pending);
-+		wake_up(&fc->waitq);
-+		request_wait_answer(req);
-+		list_del(&req->list);
-+	}
-+	spin_unlock(&fuse_lock);
+I'd second. We already have too much complexity in the time related code.
 
-somehow I find dropping the lock and then doing a list_del() without any kind of verification very suspicious. 
-Either you need the lock or you don't. If you do, the code is wrong. If you don't... don't take the lock :)
-
-
-
-
+Tim

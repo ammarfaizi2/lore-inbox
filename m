@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264443AbTLLBJY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 20:09:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264449AbTLLBJY
+	id S264409AbTLLBYn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 20:24:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264449AbTLLBYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 20:09:24 -0500
-Received: from dp.samba.org ([66.70.73.150]:45015 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264443AbTLLBJX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 20:09:23 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>, Anton Blanchard <anton@samba.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
-Subject: Re: [CFT][RFC] HT scheduler 
-In-reply-to: Your message of "Thu, 11 Dec 2003 19:57:31 +1100."
-             <3FD8317B.4060207@cyberone.com.au> 
-Date: Fri, 12 Dec 2003 11:58:59 +1100
-Message-Id: <20031212010922.BA8B12C15F@lists.samba.org>
+	Thu, 11 Dec 2003 20:24:43 -0500
+Received: from out001pub.verizon.net ([206.46.170.140]:32236 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S264409AbTLLBYl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 20:24:41 -0500
+Message-ID: <3FD918D8.7020100@verizon.net>
+Date: Thu, 11 Dec 2003 20:24:40 -0500
+From: RunNHide <res0g1ta@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5.1) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test11 intio.o build errors
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [4.4.161.12] at Thu, 11 Dec 2003 19:24:41 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3FD8317B.4060207@cyberone.com.au> you write:
-> 
-> 
-> Nick Piggin wrote:
-> 
-> >
-> > Don't ask me why it runs out of steam at 150 rooms. hackbench does
-> > something similar. I think it might be due to some resource running
-> > short, or a scalability problem somewhere else.
-> 
-> 
-> OK, it is spinning on .text.lock.futex. The following results are
-> top 10 profiles from a 120 rooms run and a 150 rooms run. The 150
-> room run managed only 24.8% the throughput of the 120 room run.
-> 
-> Might this be a JVM problem?
+okay - I'm not a n00b but I'm no C programmer or driver developer, 
+either - figured I'd post this - understand there's not a lot of this 
+hardware out there so maybe this will be helpful:
 
-Not if hackbench is showing it.
+  CC [M]  drivers/scsi/ini9100u.o
+drivers/scsi/ini9100u.c:111:2: #error Please convert me to 
+Documentation/DMA-mapping.txt
+drivers/scsi/ini9100u.c:146: warning: initialization from incompatible 
+pointer type
+drivers/scsi/ini9100u.c:151: warning: initialization from incompatible 
+pointer type
+drivers/scsi/ini9100u.c:152: warning: initialization from incompatible 
+pointer type
+drivers/scsi/ini9100u.c: In function `i91uAppendSRBToQueue':
+drivers/scsi/ini9100u.c:241: error: structure has no member named `next'
+drivers/scsi/ini9100u.c:246: error: structure has no member named `next'
+drivers/scsi/ini9100u.c: In function `i91uPopSRBFromQueue':
+drivers/scsi/ini9100u.c:268: error: structure has no member named `next'
+drivers/scsi/ini9100u.c:269: error: structure has no member named `next'
+drivers/scsi/ini9100u.c: In function `i91uBuildSCB':
+drivers/scsi/ini9100u.c:507: error: structure has no member named `address'
+drivers/scsi/ini9100u.c:516: error: structure has no member named `address'
+make[2]: *** [drivers/scsi/ini9100u.o] Error 1
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
 
-> I'm using Sun Java HotSpot(TM) Server VM (build 1.4.2_01-b06, mixed mode)
-> 
->             ROOMS          120             150
-> PROFILES
-> total                   100.0%          100.0%
-> default_idle             81.0%           66.8%
-> .text.lock.rwsem          4.6%            1.3%
-> schedule                  1.9%            1.4%
-> .text.lock.futex          1.5%           19.1%
+Thanks,
+RunNHide
 
-Increase FUTEX_HASHBITS?
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277564AbRJHWbp>; Mon, 8 Oct 2001 18:31:45 -0400
+	id <S277573AbRJHWcP>; Mon, 8 Oct 2001 18:32:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277570AbRJHWbf>; Mon, 8 Oct 2001 18:31:35 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11795 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277200AbRJHWbZ>; Mon, 8 Oct 2001 18:31:25 -0400
-Subject: Re: linux-2.4.10-acX
-To: mfedyk@matchmail.com (Mike Fedyk)
-Date: Mon, 8 Oct 2001 23:36:57 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011008152822.A7156@mikef-linux.matchmail.com> from "Mike Fedyk" at Oct 08, 2001 03:28:22 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S277572AbRJHWcG>; Mon, 8 Oct 2001 18:32:06 -0400
+Received: from node181b.a2000.nl ([62.108.24.27]:14342 "EHLO ddx.a2000.nu")
+	by vger.kernel.org with ESMTP id <S277568AbRJHWcC>;
+	Mon, 8 Oct 2001 18:32:02 -0400
+Date: Tue, 9 Oct 2001 00:32:52 +0200 (CEST)
+From: kernel@ddx.a2000.nu
+To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+cc: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>,
+        "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>,
+        <sparclinux@vger.kernel.org>
+Subject: Re: sun + gigabit nic
+In-Reply-To: <Pine.LNX.4.33.0110081518370.17654-100000@twin.uoregon.edu>
+Message-ID: <Pine.LNX.4.40.0110090031000.28619-100000@ddx.a2000.nu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15qj17-00028g-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > -	Elevator flow control
-> 
-> Where can I find more information on this?
+On Mon, 8 Oct 2001, Joel Jaeggli wrote:
+>
+> the 620t is the netgear gig-card based on the acenic, it' optical, sx or
+> lx.
+>
+hmms think you mean also copper ?
+i found the ga620t card on shopper.com, for about $300, while the ga622t
+is
+about $100, no change it will be supported ? (don't like to pay 3* more
+when support is comming)
 
-Read the ll_rw_blk diff. Basically it tries to avoid too many locked buffers
-clogging up memory and killing the box. I'm not totally sure its the
-right approach 
+

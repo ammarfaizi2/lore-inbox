@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263125AbUD2D4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263182AbUD2D5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263125AbUD2D4z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 23:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbUD2D4z
+	id S263182AbUD2D5r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 23:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbUD2D5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 23:56:55 -0400
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:5480 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263125AbUD2D4v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 23:56:51 -0400
-Date: Wed, 28 Apr 2004 22:55:42 -0500 (CDT)
-From: Brent Cook <busterbcook@yahoo.com>
-X-X-Sender: busterb@ozma.hauschen
-Reply-To: busterbcook@yahoo.com
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: busterbcook@yahoo.com, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: pdflush eating a lot of CPU on heavy NFS I/O
-In-Reply-To: <1083187174.2856.162.camel@lade.trondhjem.org>
-Message-ID: <Pine.LNX.4.58.0404282254290.13673@ozma.hauschen>
-References: <Pine.LNX.4.58.0404280009300.28371@ozma.hauschen> 
- <20040427230203.1e4693ac.akpm@osdl.org>  <Pine.LNX.4.58.0404280826070.31093@ozma.hauschen>
-  <20040428124809.418e005d.akpm@osdl.org>  <Pine.LNX.4.58.0404281534110.3044@ozma.hauschen>
- <1083187174.2856.162.camel@lade.trondhjem.org>
+	Wed, 28 Apr 2004 23:57:42 -0400
+Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:37745 "HELO
+	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263173AbUD2D5g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 23:57:36 -0400
+Message-ID: <40907D23.7000103@yahoo.com.au>
+Date: Thu, 29 Apr 2004 13:57:23 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Paul Mackerras <paulus@samba.org>, brettspamacct@fastclick.com,
+       jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+References: <409021D3.4060305@fastclick.com>	<20040428170106.122fd94e.akpm@osdl.org>	<409047E6.5000505@pobox.com>	<40905127.3000001@fastclick.com>	<20040428180038.73a38683.akpm@osdl.org>	<16528.23219.17557.608276@cargo.ozlabs.ibm.com> <20040428185342.0f61ed48.akpm@osdl.org>
+In-Reply-To: <20040428185342.0f61ed48.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Apr 2004, Trond Myklebust wrote:
+Andrew Morton wrote:
+> Paul Mackerras <paulus@samba.org> wrote:
+> 
+>>Andrew Morton writes:
+>>
+>>
+>>>My point is that decreasing the tendency of the kernel to swap stuff out is
+>>>wrong.  You really don't want hundreds of megabytes of BloatyApp's
+>>>untouched memory floating about in the machine.  Get it out on the disk,
+>>>use the memory for something useful.
+>>
+>>What I have noticed with 2.6.6-rc1 on my dual G5 is that if I rsync a
+>>gigabyte or so of data over to another machine, it then takes several
+>>seconds to change focus from one window to another.  I can see it
+>>slowly redraw the window title bars.  It looks like the window manager
+>>is getting swapped/paged out.
+>>
+>>This machine has 2.5GB of ram, so I really don't see why it would need
+>>to swap at all.  There should be plenty of page cache pages that are
+>>clean and not in use by any process that could be discarded.  It seems
+>>like as soon as there is any memory shortage at all it picks on the
+>>window manager and chucks out all its pages. :(
+>>
+> 
+> 
+> I suspect rsync is taking two passes across the source files for its
+> checksumming thing.  If so, this will defeat the pagecache use-once logic. 
+> The kernel sees the second touch of the pages and assumes that there will
+> be a third touch.
+> 
 
-> On Wed, 2004-04-28 at 16:39, Brent Cook wrote:
-> > > Could you please capture the contents of /proc/meminfo and /proc/vmstats
-> > > when it's happening?
-> > >
-> > > Thanks.
-> > >
-> >
-> > Here is the top of top for one machine:
-> >
-> >  15:36:55  up  7:09,  1 user,  load average: 1.00, 1.00, 1.00
-> > 48 processes: 46 sleeping, 2 running, 0 zombie, 0 stopped
-> > CPU states:   0.1% user  99.8% system   0.0% nice   0.0% iowait   0.0% idle
-> > Mem:   256992k av,  117644k used,  139348k free,       0k shrd,   36464k buff
-> >         50968k active,              51592k inactive
-> > Swap:  514040k av,       0k used,  514040k free                   61644k cached
-> >
-> >   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME CPU COMMAND
-> >     7 root      25   0     0    0     0 RW   99.4  0.0 415:26   0 pdflush
->
-> Could you please also supply the mount options you are using as well as
-> the contents of /proc/mounts corresponding to your NFS partition.
->
-> Cheers,
->   Trond
-
-Here is /proc/mounts on the aforementioned test system:
-
-rootfs / rootfs rw 0 0
-/dev/root / reiserfs rw 0 0
-devpts /dev/pts devpts rw 0 0
-proc /proc proc rw,nodiratime 0 0
-none /sys sysfs rw 0 0
-usbfs /proc/bus/usb usbfs rw 0 0
-ozma:/home /home nfs rw,v3,rsize=8192,wsize=8192,hard,udp,lock,addr=ozma 0 0
-
- - Brent
+I'm not very impressed with the pagecache use-once logic, and I
+have a patch to remove it completely and treat non-mapped touches
+(IMO) more sanely.

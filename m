@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263112AbTCWQjJ>; Sun, 23 Mar 2003 11:39:09 -0500
+	id <S263108AbTCWQhI>; Sun, 23 Mar 2003 11:37:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263113AbTCWQjJ>; Sun, 23 Mar 2003 11:39:09 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:52749 "EHLO
+	id <S263112AbTCWQhI>; Sun, 23 Mar 2003 11:37:08 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:50189 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S263112AbTCWQjI>; Sun, 23 Mar 2003 11:39:08 -0500
-Date: Sun, 23 Mar 2003 16:50:12 +0000 (GMT)
+	id <S263108AbTCWQhH>; Sun, 23 Mar 2003 11:37:07 -0500
+Date: Sun, 23 Mar 2003 16:48:11 +0000 (GMT)
 From: James Simmons <jsimmons@infradead.org>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-cc: Jurriaan <thunder7@xs4all.nl>, <linux-kernel@vger.kernel.org>,
-       <vandrove@vc.cvut.cz>
-Subject: Re: 2.6.65 + matrox framebuffer: life is good!
-In-Reply-To: <20030323120949.GA5002@hh.idb.hist.no>
-Message-ID: <Pine.LNX.4.44.0303231649170.5720-100000@phoenix.infradead.org>
+To: Alan Cox <alan@redhat.com>
+cc: Jeff Garzik <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.65-ac3
+In-Reply-To: <200303231346.h2NDkeB02551@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0303231645580.5720-100000@phoenix.infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> On Fri, Mar 21, 2003 at 07:43:37PM +0100, Jurriaan wrote:
-> > Just to let people know there's a new version of Petr's ongoing work
-> > with the matrox framebuffer available:
-> > 
-> > ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/
-> > 
-> > the file is called mga-2.5.65.gz, and it works wonderfully.
-> > 
-> > As far as I know, this patch was only announced on the fbdev-developers
-> > mailing-list. I assume there are more matrox-users here.
-> > 
-> It applies fine to 2.5.65-mm3 too.
-> Is this something that could be mergerd?  The current
-> matrox driver don't even compile.
+> > The framebuffer code needs alot of work. I have most of it done. I hope 
+> > linus pulls my latest changes soon.
+> 
+> If not you can send me framebuffer stuff to run into the -ac pile of
+> device driver patches, but if you do please send me updates as well.
 
-Its for testing and it hasn't been fully ported over yet. Its close. 
-I was busy fixing higher level bugs but now that most are fixed I can work 
-on the matrox driver again.
+Sure. Thank you for intergrating my patches. I get a much larger audience
+to test the new code and alot of bug have been found and fixed.
+
+
+
 
 

@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132686AbRECTYM>; Thu, 3 May 2001 15:24:12 -0400
+	id <S132859AbRECTYM>; Thu, 3 May 2001 15:24:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132859AbRECTYD>; Thu, 3 May 2001 15:24:03 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:13523 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S132686AbRECTXy>; Thu, 3 May 2001 15:23:54 -0400
-Date: Thu, 3 May 2001 14:23:25 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200105031923.OAA68942@tomcat.admin.navo.hpc.mil>
-To: Venkateshr@ami.com, "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-        Venkatesh Ramamurthy <Venkateshr@ami.com>
-Subject: RE: [RFC] Direct Sockets Support??
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+	id <S132853AbRECTYC>; Thu, 3 May 2001 15:24:02 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:7428 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S132801AbRECTX6>;
+	Thu, 3 May 2001 15:23:58 -0400
+Date: Tue, 1 May 2001 20:16:08 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Igor Bukanov <boukanov@fi.uib.no>, linux-kernel@vger.kernel.org
+Subject: Re: Can eject mounted zip disk after suspend/resume (2.4.4)
+Message-ID: <20010501201606.A32@(none)>
+In-Reply-To: <3AEE05AE.1090101@fi.uib.no> <E14uOJr-0000pC-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E14uOJr-0000pC-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, May 01, 2001 at 01:47:08AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-> 	> Define 'direct sockets' firstly.
-> 	Direct Sockets is the ablity by which the application(using sockets)
-> can use the hardwares features to provide connection, flow control,
-> etc.,instead of the TCP and IP software module. A typical hardware
-> technology is Infiniband . In Infiniband, the hardware supports IPv6 . For
-> this type of devices there is no need for software TCP/IP. But for
-> networking application, which mostly uses sockets, there is a performance
-> penalty with using software TCP/IP over this hardware. 
+> > If I hit an eject button on internal IDE IOMEGA zip drive after 
+> > resume/suspend to memory on my Dell Inspiron 7500 notebook, then the 
+> > disk will be ejected even if it is mounted. This behavior happens ONLY 
+> > if I suspend my system with the mounted zip. Could I fix this somehow?
 > 
-> > I have seen several lines of attack on very high bandwidth devices.
-> > Firstly
-> > the linux projects a while ago doing usermode message passing directly
-> > over
-> > network cards for ultra low latency. Secondly there was a VI based project
-> > that was mostly driven from userspace.
-> > 
-> 	The application needs to rewritten to use VIPL, but if we could
-> provide a sockets over VI (or Sockets over IB), then the existing
-> applications can run with a known environment. 
-> 
-> 
-> > One thing that remains unresolved is the question as to whether the very
-> > low
-> > cost Linux syscalls and zero copy are enough to achieve this using a
-> > conventional socket API and the kernel space, or whether a hybrid direct 
-> > access setup is actually needed.
-> > 
-> 	My point is that if the hardware is capable of doing TCP/IP , we
-> should let the sockets layer talk directly to it (direct sockets). Thereby
-> the application which uses the sockets will get better performance.
+> Its an Inspiron bios bug - they fail to preserve the locked stat of the zip
+> drive across a suspend. Its not the worst bug in the world. In theory the
+> scsi/ide layer could use a PM notifier to check the locked stat is right
+> and force the drive into the right state. I'd take patches for it but lets
+> say its not high on my 'urgent problem' list
 
-Doesn't this bypass all of the network security controls? Granted - it is
-completely reasonable in a dedicated environment, but I would think the
-security loss would prevent it from being used for most usage.
+That would not work. If someone pressed eject while resuming....
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+[Fact that zips like to remember button presses might make this pretty
+bad.]
 
-Any opinions expressed are solely my own.
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

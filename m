@@ -1,86 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268344AbUJDUN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267633AbUJDUUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268344AbUJDUN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 16:13:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268323AbUJDUN1
+	id S267633AbUJDUUw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 16:20:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268323AbUJDUUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 16:13:27 -0400
-Received: from pD9FF1A09.dip.t-dialin.net ([217.255.26.9]:2564 "EHLO
-	timbaland.dnsalias.org") by vger.kernel.org with ESMTP
-	id S268344AbUJDUMk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 16:12:40 -0400
-From: Borislav Petkov <petkov@uni-muenster.de>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: Fw: Re: 2.6.9-rc2-mm4
-Date: Mon, 4 Oct 2004 22:12:31 +0200
-User-Agent: KMail/1.7
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
-       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040929214637.44e5882f.akpm@osdl.org> <200410041754.25677.petkov@uni-muenster.de> <20041004173620.GA5707@suse.de>
-In-Reply-To: <20041004173620.GA5707@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Oct 2004 16:20:52 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:25100 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S267633AbUJDUUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 16:20:50 -0400
+Date: Mon, 4 Oct 2004 22:20:16 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: eyal@eyal.emu.id.au, linux-kernel@vger.kernel.org,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: 2.6.9-rc3-mm2: error: `u64' used prior to declaration
+Message-ID: <20041004202016.GH18190@stusta.de>
+References: <416160FE.2090107@eyal.emu.id.au> <20041004153515.GB12736@stusta.de> <20041004125937.7836e605.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410042212.32106.petkov@uni-muenster.de>
+In-Reply-To: <20041004125937.7836e605.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 October 2004 19:36, Jens Axboe wrote:
-> On Mon, Oct 04 2004, Borislav Petkov wrote:
-> > Ok here we go,
+On Mon, Oct 04, 2004 at 12:59:37PM -0700, Andrew Morton wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
 > >
-> > final results:
-> >
-> >  2.6.8-rc1: OK
-> >  2.6.8-rc2: OK
-> >  2.6.8-rc3: OK
-> >  2.6.8-rc3-bk1: OK
-> >  2.6.8-rc3-bk2: OK
-> >  2.6.8-rc3-bk3: OK
-> >  2.6.8-rc3-bk4: OK
-> >  2.6.8-rc4: BUG!
-> >
-> > So, assuming that everything went fine during testing, the bug got
-> > introduced in the transition between 2.6.8-rc3-bk4 and 2.6.8-rc4.
->
-> That's some nice testing, thank you. Try backing out this hunk:
->
-> diff -urp linux-2.6.8-rc3-bk4/drivers/block/scsi_ioctl.c
-> linux-2.6.8-rc4/drivers/block/scsi_ioctl.c ---
-> linux-2.6.8-rc3-bk4/drivers/block/scsi_ioctl.c 2004-08-03
-> 23:28:51.000000000 +0200 +++
-> linux-2.6.8-rc4/drivers/block/scsi_ioctl.c 2004-08-10 04:24:08.000000000
-> +0200 @@ -90,7 +90,7 @@ static int sg_set_reserved_size(request_
->   if (size < 0)
->    return -EINVAL;
->   if (size > (q->max_sectors << 9))
-> -  return -EINVAL;
-> +  size = q->max_sectors << 9;
->
->   q->sg_reserved_size = size;
->   return 0;
->
-> It's the only thing that sticks out, and it could easily explain it if
-> your cd ripper starts issuing requests that are too big. Maybe even add
-> a printk() here, so it will look like this in the kernel you test:
->
->  if (size > (q->sectors << 9)) {
->   printk("%u rejected\n", size);
->   return -EINVAL;
->  }
->
-> to verify.
+> >  Would you accept a patch that changes all #include <asm/bitops.h> to
+> >  #include <linux/bitops.h> ?
+> 
+> I have an easier solution - I'll drop
+> 
+> add-rotate-left-right-ops-to-bitopsh.patch
+> add-rotate-left-right-ops-to-bitopsh-build-fix.patch
+> sha512-use-asm-optimized-bit-rotation.patch
 
-Yeah, that was it. Two lines in the log:
+I have no specific opinion on them, but at least in my test builds they 
+caused only exactly the one reported compile failure.
 
-Oct 4 22:07:04 zmei kernel: 3145728 rejected
-Oct 4 22:07:04 zmei kernel: 3145728 rejected
+The #include change was meant as a simple general cleanup which would 
+as a side effect remove this problem.
 
-Hmm, so this means that my dvd drive is sending too big requests. What do we 
-do: firmware upgrade?
+cu
+Adrian
 
-Regards,
-Boris.
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

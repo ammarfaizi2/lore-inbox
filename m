@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270827AbTGNU2z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 16:28:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270829AbTGNU1v
+	id S270799AbTGNUdM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 16:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270824AbTGNU1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 16:27:51 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:11716
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S270827AbTGNU1P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 16:27:15 -0400
-Subject: Re: [RFC][PATCH] Posix Message Queues
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Michal Wronski <wrona@mat.uni.torun.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@lst.de>
-In-Reply-To: <3F130F94.2030903@colorfullife.com>
-References: <3F130F94.2030903@colorfullife.com>
+	Mon, 14 Jul 2003 16:27:44 -0400
+Received: from rrzd2.rz.uni-regensburg.de ([132.199.1.12]:56742 "EHLO
+	rrzd2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S270829AbTGNU1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 16:27:16 -0400
+Subject: Intel 865G Chipset, agpgart and 2.4.21
+From: Christian Guggenberger 
+	<christian.guggenberger@physik.uni-regensburg.de>
+Reply-To: christian.guggenberger@physik.uni-regensburg.de
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058215159.606.157.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1058215324.601.5.camel@bonnie79>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Jul 2003 21:39:19 +0100
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 14 Jul 2003 22:42:04 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-07-14 at 21:16, Manfred Spraul wrote:
-> Hi Michal,
-> 
-> You've implemented mq_open() in user space by combining open()+ioctl() 
-> syscalls. I think it's racy:
-> 
-> What if two processes call
-> {
->     fd = mq_open("dummy",O_CREAT,0777,{.mq_maxmsg=10000});
->     mq_send = mq_send(fd,buf,10000,0);
-> }
-> 
-> I think setting the queue options and creating a new queue must be 
-> atomic, i.e. we need a new syscall.
+Hi everyone,
 
-O_EXCL lets you know if you are the real creator. That means you can
-create it 000, fix it up, fchmod it and go
+I'm looking for some agpgart patches against 2.4.21 to get support for
+the i865G chipset. (try_unsupported=yes doesn't work...) I'm hoping,
+that one of you could come up with an suggestion where to grab such a
+patch from.
+
+thanks 
+Christian
+
 

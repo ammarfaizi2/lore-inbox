@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266900AbUHCWVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266853AbUHCW0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266900AbUHCWVN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 18:21:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266882AbUHCWVN
+	id S266853AbUHCW0a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 18:26:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265743AbUHCW03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 18:21:13 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:9684 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266853AbUHCWVL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 18:21:11 -0400
-To: Rik van Riel <riel@redhat.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [patch] mlock-as-nonroot revisted 
-In-reply-to: Your message of Tue, 03 Aug 2004 17:31:08 EDT.
-             <Pine.LNX.4.44.0408031729100.5948-100000@dhcp83-102.boston.redhat.com> 
+	Tue, 3 Aug 2004 18:26:29 -0400
+Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:26577 "EHLO
+	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S266853AbUHCW02 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 18:26:28 -0400
+Message-ID: <411010D6.5000301@ttnet.net.tr>
+Date: Wed, 04 Aug 2004 01:25:26 +0300
+From: "O.Sezer" <sezeroz@ttnet.net.tr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: tr, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <26283.1091571485.1@us.ibm.com>
-Date: Tue, 03 Aug 2004 15:18:05 -0700
-Message-Id: <E1Bs7bj-0006pz-00@w-gerrit2>
+To: linux-kernel@vger.kernel.org
+CC: mikpe@csd.uu.se
+Subject: Re: updated gcc-3.4 patches for 2.4.27-rc4
+Content-Type: text/plain;
+	charset=ISO-8859-9;
+	format=flowed
+Content-Transfer-Encoding: 8BIT
+X-ESAFE-STATUS: Mail clean
+X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 03 Aug 2004 17:31:08 EDT, Rik van Riel wrote:
-> On Tue, 3 Aug 2004, Andrea Arcangeli wrote:
-> 
-> > I agree there aren't security issues, but it's still very wrong to
-> > charge the old user if the admin gives the locked ram to a new user.
-> > This erratic behaviour shows how much the rlimit approch is flawed for
-> > named fs objects that have nothing to do with the transient task that
-> > created them.
-> 
-> If root wants to screw over a user, there's nothing we
-> can do.  I am not worried about the scenario you describe
-> because hugetlbfs seems to be used only by Oracle anyway,
-> so you won't run into issues like you describe.
-> 
-> It would be different for a general purpose filesystem,
-> but I'd like to see a usage case for your scenario before
-> making the code overly complex.
+ > 
+http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc34-misc-fixes-2.4.27-rc4
 
-DB2, JVM also use hugetlbfs, other uses have been tried with
-some success.
+Does /drivers/usb/gadget/net2280.c line 794 not need the same
+change for min() ?
+FWIW: The -pac tree does a #define MIN(x,y) ((x) > (y) ? (y) : (x))
+at the beginning and then changes the three instances of min() to
+MIN()
 
-gerrit
+Özkan Sezer

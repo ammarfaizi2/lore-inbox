@@ -1,82 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263469AbUKZV4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263949AbUKZV4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263469AbUKZV4X (ORCPT <rfc822;willy@w.ods.org>);
+	id S263949AbUKZV4X (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 26 Nov 2004 16:56:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263999AbUKZVur
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263469AbUKZTvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 16:50:47 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:14260 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S263948AbUKZVrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 16:47:40 -0500
-Subject: Re: Suspend 2 merge: 35/51: Code always built in to the kernel.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041125233243.GB2909@elf.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101298112.5805.330.camel@desktop.cunninghams>
-	 <20041125233243.GB2909@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1101427035.27250.161.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 26 Nov 2004 10:57:15 +1100
+	Fri, 26 Nov 2004 14:51:05 -0500
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:61899 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S262420AbUKZT3d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:29:33 -0500
+From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+To: Badari Pulavarty <pbadari@us.ibm.com>,
+       Hariprasad Nellitheertha <hari@in.ibm.com>
+Subject: Re: [PATCH] kdump: Fix for boot problems on SMP
+Date: Fri, 26 Nov 2004 02:21:49 +0900
+User-Agent: KMail/1.5.4
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       varap@us.ibm.com
+References: <419CACE2.7060408@in.ibm.com> <41A20DB5.2050302@in.ibm.com> <1101170617.4987.268.camel@dyn318077bld.beaverton.ibm.com>
+In-Reply-To: <1101170617.4987.268.camel@dyn318077bld.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-2022-jp"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411260221.49888.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Tuesday 23 November 2004 09:43, Badari Pulavarty wrote:
+> gdb is not showing the stack info properly, on my saved vmcore.
+> I thought vmlinux is not matching the vmcore, so I verified that
+> vmcore and vmlinux matchup. But still no luck...
+>
+> # gdb  ../linux-2.6.9/vmlinux vmcore.2
 
-On Fri, 2004-11-26 at 10:32, Pavel Machek wrote:
-> You have your own abstraction on the top of /proc? That's no-no.
+[...]
 
-You'd prefer the same code repeated 20 times?
+> (gdb) bt
+> #0  default_idle () at arch/i386/kernel/process.c:108
+> #1  0xc04cdff8 in init_thread_union ()
+> #2  0xc0101b86 in cpu_idle () at arch/i386/kernel/process.c:196
+> #3  0xc04cea20 in start_kernel () at init/main.c:523
+> #4  0xc0100211 in L6 () at /tmp/cch2z2jk.s:2054
+> Cannot access memory at address 0x550007
 
-> ...aha, you do that to enable plugin system. Take it as another reason
-> why plugins have to go.
 
-No, it's just useful. The /proc abstraction predated the plugins. What I
-really want to do is switch to kobjects for the plugins. But that can
-wait a little longer.
+I think the panic was happened on the CPU except for CPU#0.
 
-> And your own keyboard driver :-(.
+Currently vmcore contains only CPU#0's register contents.
+Therefore, GDB always shows backtrace of CPU#0.
 
-It's not really a keyboard driver. We're just making serial console and
-local keypresses into the same key codes and letting them be handled by
-the relevant plugin.
 
-> > +		say("BIG FAT WARNING!! %s\n\n", suspend_print_buf);
-> > +		if (can_erase_image) {
-> > +			say("If you want to use the current suspend image, reboot and try\n");
-> > +			say("again with the same kernel that you suspended from. If you want\n");
-> > +			say("to forget that image, continue and the image will be erased.\n");
-> > +		} else {
-> > +			say("If you continue booting, note that any image WILL NOT BE REMOVED.\n");
-> > +			say("Suspend is unable to do so because the appropriate modules aren't\n");
-> > +			say("loaded. You should manually remove the image to avoid any\n");
-> > +			say("possibility of corrupting your filesystem(s) later.\n");
-> > +		}
-> > +		say("Press SPACE to reboot or C to continue booting with this kernel\n");
-> 
-> Plus kernel now actually expects user interaction to solve problems
-> during boot. No, no.
+fs/proc/vmcore.c:
 
-You want your cake and to eat it too? :> We don't want to warn the user
-before they shoot themselves in the foot, but not loudly enough that
-they can't help notice and choose to do something before the damage is
-done?
+static void elf_vmcore_store_hdr(char *bufp, int nphdr, int dataoff)
+{
+...
+        /* 1 - Get the registers from the reserved memory area */
+        reg_ppos = BACKUP_END + CRASH_RELOCATE_SIZE;
+        read_from_oldmem(reg_buf, REG_SIZE, &reg_ppos, 0);
+        elf_core_copy_regs(&prstatus.pr_reg, (struct pt_regs *)reg_buf);
+        buf = storenote(&notes[0], buf);
 
-Regards,
 
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+In this place, "reg_ppos" is the pointer to the copy of relocated
+crash_smp_regs[0].
+kdump should save the "crash_smp_regs[**panic_cpu**]".
 
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
+Or, it is better to save all crash_smp_regs[NR_CPUS].
+In other words:
+
+# readelf --note /proc/vmcore
+
+Notes at offset 0x00000074 with length 0x0000069c:
+  Owner         Data size       Description
+  CORE          0x00000090      NT_PRSTATUS (prstatus structure)
+  CORE          0x0000007c      NT_PRPSINFO (prpsinfo structure)
+  CORE          0x00000560      NT_TASKSTRUCT (task structure)
+  :
+  :
+  :
+  ...(repeat NR_CPU times)
+
+
+
 

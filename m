@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132831AbRDPBxf>; Sun, 15 Apr 2001 21:53:35 -0400
+	id <S132834AbRDPCAp>; Sun, 15 Apr 2001 22:00:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132830AbRDPBxZ>; Sun, 15 Apr 2001 21:53:25 -0400
-Received: from tomts6.bellnexxia.net ([209.226.175.26]:9880 "EHLO
-	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S132826AbRDPBxJ>; Sun, 15 Apr 2001 21:53:09 -0400
-Date: Sun, 15 Apr 2001 21:53:09 -0400 (EDT)
-From: Scott Murray <scott@spiteful.org>
-X-X-Sender: <scottm@godzilla.spiteful.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Can't free the ramdisk (initrd, pivot_root)
-In-Reply-To: <9bdi3t$th3$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0104152146520.4284-100000@godzilla.spiteful.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132832AbRDPCAg>; Sun, 15 Apr 2001 22:00:36 -0400
+Received: from lange.hostnamen.sind-doof.de ([212.15.192.219]:16657 "HELO
+	xena.sind-doof.de") by vger.kernel.org with SMTP id <S132834AbRDPCA0>;
+	Sun, 15 Apr 2001 22:00:26 -0400
+Date: Mon, 16 Apr 2001 03:54:56 +0200
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: rgooch@atnf.csiro.au
+Cc: linux-kernel@vger.kernel.org
+Subject: devfs weirdnesses in 2.4.3 (-ac5)
+Message-ID: <20010416035456.A29398@kallisto.sind-doof.de>
+Mail-Followup-To: rgooch@atnf.csiro.au, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Debian GNU/Linux (Linux 2.4.3-ac5-int1-nf20010413-dc1 i686)
+X-Disclaimer: Are you really taking me serious?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Apr 2001, H. Peter Anvin wrote:
+Hi,
 
-> Followup to:  <3ADA0B50.8030301@muppetlabs.com>
-> By author:    Amit D Chaudhary <amit@muppetlabs.com>
-> In newsgroup: linux.dev.kernel
-> >
-> > On the same topic, I have not found any change in free memory
-> > reported before and after the ioctl call. Though umount /initrd does
-> > free around 2 MB.
-> >
->
-> With Scott's patch applied, I get substantially better performance on
-> low-memory machines, so I'm guessing it's doing its job.  Also, just
-> umount /initrd for me made it still possible to mount it, so it
-> clearly did not go away.
+I recently noticed some weird behaviour in devfs.
 
-I can't take credit for the patch, just the (mis)fortune of having to
-track down its existence. :)  All mentions of it in Alan's older change
-logs have it uncredited, so I'm unsure if he or someone else fixed it.
+- some symlinks not showing up in directory listings, although they
+  are surely existing. I noticed this with symlinks created by devfsd
+  for IDE devices (/dev/hda{9,10,11} showing in normal ls, other hda
+  entries are hidden). If I explicitly give the name of one of the
+  hidden symlinks (for example "ls -l /dev/hda"), it shows the
+  symlink, and I can see that the symlink is absolutely correct (as
+  far as ls output goes...). Sadly I'm not able to reproduce this
+  behaviour now, but read on.
+- same thing with ippp*. Some ippp symlinks are now hidden. If I do a
+  "rm ippp*" in /dev, the visible symlinks are removed, and
+  the hidden entries become visible. With a second "rm ippp*", the
+  originally hidden symlinks are also removed.
 
-Scott
+The kernel version used is 2.4.3-ac5, but as the ac patches only
+change one line in devfs code, related to devfsd notification, I think
+the problem should exist in non-ac kernel also.
 
-
+Andreas
 -- 
-=============================================================================
-Scott Murray                                        email: scott@spiteful.org
-http://www.spiteful.org (coming soon)                 ICQ: 10602428
------------------------------------------------------------------------------
-     "Good, bad ... I'm the guy with the gun." - Ash, "Army of Darkness"
+Our missions are peaceful -- not for conquest.  When we do battle, it
+is only because we have no choice.
+		-- Kirk, "The Squire of Gothos", stardate 2124.5
 

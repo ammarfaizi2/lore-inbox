@@ -1,51 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265830AbTAFDHT>; Sun, 5 Jan 2003 22:07:19 -0500
+	id <S265901AbTAFDTw>; Sun, 5 Jan 2003 22:19:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265844AbTAFDHT>; Sun, 5 Jan 2003 22:07:19 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:13771 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S265830AbTAFDHS>; Sun, 5 Jan 2003 22:07:18 -0500
-Date: Mon, 06 Jan 2003 16:14:31 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: "Trever L. Adams" <tadams-lists@myrealbox.com>
-cc: Andre Hedrick <andre@linux-ide.org>,
-       "Adam J. Richter" <adam@yggdrasil.com>, lm@bitmover.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, paul@clubi.ie
-Subject: Re: Honest does not pay here ...
-Message-ID: <1790000.1041822871@localhost.localdomain>
-In-Reply-To: <1041812124.1052.10.camel@aurora.localdomain>
-References: <Pine.LNX.4.10.10301051223130.421-100000@master.linux-ide.org>	
- <1041805731.1052.4.camel@aurora.localdomain>	
- <2209530000.1041811301@localhost.localdomain>
- <1041812124.1052.10.camel@aurora.localdomain>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+	id <S265987AbTAFDTv>; Sun, 5 Jan 2003 22:19:51 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8456 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265865AbTAFDSV>; Sun, 5 Jan 2003 22:18:21 -0500
+Date: Sun, 5 Jan 2003 19:21:38 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Luca Barbieri <ldb@ldb.ods.org>
+cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Introduce TIF_IRET and use it to disable sysexit
+In-Reply-To: <20030106021250.GB8074@ldb>
+Message-ID: <Pine.LNX.4.44.0301051921080.1403-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Mon, 6 Jan 2003, Luca Barbieri wrote:
+>
+> This patch introduces a new flag called TIF_IRET and uses it in place
+> of TIF_SIGPENDING when that flag is used to force return via iret.
 
---On Sunday, January 05, 2003 19:15:24 -0500 "Trever L. Adams" 
-<tadams-lists@myrealbox.com> wrote:
+Thanks. Both (this and the %ebp fix) patches applied, looks fine.
 
-> On Sun, 2003-01-05 at 19:01, Andrew McGregor wrote:
->> I've had some discussion with an ex-NVidia guy who was there while they
->> were doing the driver release.
+		Linus
 
-> I expect that IP is expensive to buy.  Anyway, thank you for explaining
-> the Nvidia situation to me.  I really hope they do figure out some
-> things soon.  (Even if that is just how to make kernels with their
-> modules loaded more stable and easier to debug.)
-
-Well, there are people working on it.  I seem to be one of the few people 
-for whom a 2.5.x + nvidia kernel really scratches an itch.  (for me, it's 
-my laptop + kernel IPSEC)
-
-There are patches at www.minion.de that make things stable up to 2.5.53. 
-.54 broke it again, but that will be fixed shortly.
-
-Andrew

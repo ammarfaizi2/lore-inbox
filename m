@@ -1,82 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315518AbSECERr>; Fri, 3 May 2002 00:17:47 -0400
+	id <S315541AbSECEVj>; Fri, 3 May 2002 00:21:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315541AbSECERq>; Fri, 3 May 2002 00:17:46 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:5 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S315518AbSECERq>;
-	Fri, 3 May 2002 00:17:46 -0400
-Date: Thu, 2 May 2002 21:17:43 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Keith Owens <kaos@ocs.com.au>
-cc: <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
-In-Reply-To: <20507.1020263013@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.33L2.0205022102570.11832-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315550AbSECEVi>; Fri, 3 May 2002 00:21:38 -0400
+Received: from ns.crrstv.net ([209.128.25.4]:32165 "EHLO mail.crrstv.net")
+	by vger.kernel.org with ESMTP id <S315541AbSECEVh>;
+	Fri, 3 May 2002 00:21:37 -0400
+Date: Fri, 3 May 2002 01:22:05 -0300
+From: "skidley" <skidley@crrstv.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: thumb stuff
+Message-ID: <20020503042205.GA1618@crrstv.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020503022859.516708ee.spyro@armlinux.org> <20020503040220.1b3057f0.spyro@armlinux.org> <20020503033502.GA1606@crrstv.net> <20020502234019.J30294@marta>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Keith-
+On Thu, May 02, 2002 at 11:40:19PM -0400, Kurt Wall wrote:
+> Scribbling feverishly on May 03, skidley managed to emit:
+> > On Fri, May 03, 2002 at 04:02:20AM +0100, Ian Molton wrote:
+> > > 
+> > > Shit, wrong list. please ignore :)
+> > > -
+> > how the hell does one do that????? Realize you have the wrong 
+> > list while yer writing the email yet you still send it????
+> > Doesn't make sense!
+> 
+> Take yer clue pill:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=102038900914628&w=2
+> 
+> Kurt
 
-On Thu, 2 May 2002, Keith Owens wrote:
-
-[snipped]
-
-| Linus, kbuild 2.5 is ready for inclusion in the main 2.5 kernel tree.
-| It is faster, better documented, easier to write build rules in, has
-| better install facilities, allows separate source and object trees, can
-| do concurrent builds from the same source tree and is significantly
-| more accurate than the existing kernel build system.
-
-I kinda like to do 'make bzImage' without making modules also.
-Would that be difficult to do in kbuild 2.5?
-Oh, but then I would also (still) need 'make modules'...
-
-| Before I send you the kbuild 2.5 patch, how do you want to handle it?
-|
-| * Coexist with the existing kernel build for one or two releases or
-|   delete the old build system when kbuild 2.5 goes in?
-|
-|   Coexistence for a few days gives a backout, just in case.  It also
-|   gives a kernel release where the old and new code can be compared,
-|   useful for architectures that have not been converted yet.
-
-So is there a downside to the coexisting method?
-If not, let's do it.  (One reason: see below.)
-
-| I would like kbuild 2.5 to go in in the near future.  Keeping up to
-| date with kernel changes is a significant effort, Makefiles change all
-| the time, especially when major subsystems like sound and usb are
-| reorganised.  There are also some changes to architecture code to do it
-| right under kbuild 2.5 and tracking those against kernel changes can be
-| painful.
-
-For sure.
-
-Any ideas about this error?  user error??
-
-$ make oldconfig menuconfig
-
-... and then
-
-[rddunlap@midway linux-2513-pv]$ make -f Makefile-2.5
-spec value %p not found
-Using ARCH='i386' AS='as' LD='ld' CC='/usr/bin/gcc' CPP='/usr/bin/gcc
--E' AR='ar' HOSTAS='as' HOSTLD='gcc' HOSTCC='gcc' HOSTAR='ar'
-Generating global Makefile
-  phase 1 (find all inputs)
-Error: The CML input files have changed since .config was created.
-       Always make one of xconfig menuconfig oldconfig defconfig
-config randconfig allyes allno allmod after changing CML files
-make: *** [/usr/linsrc/linux-2513-pv/.config] Error 1
-[rddunlap@midway linux-2513-pv]$
-
-I removed all .tmp* files & dir., reran 'make oldconfig menuconfig',
-and got the same results.
-
+ok sorry my mistake :P
 -- 
-~Randy
-
+Chad Young
+Linux User #195191 

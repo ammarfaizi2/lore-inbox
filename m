@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269028AbRGaHps>; Tue, 31 Jul 2001 03:45:48 -0400
+	id <S269203AbRGaHv6>; Tue, 31 Jul 2001 03:51:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269032AbRGaHpk>; Tue, 31 Jul 2001 03:45:40 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:40605 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S269028AbRGaHp3>; Tue, 31 Jul 2001 03:45:29 -0400
+	id <S269205AbRGaHvj>; Tue, 31 Jul 2001 03:51:39 -0400
+Received: from mailhost.lineo.fr ([194.250.46.226]:26116 "EHLO
+	mailhost.lineo.fr") by vger.kernel.org with ESMTP
+	id <S269203AbRGaHvf>; Tue, 31 Jul 2001 03:51:35 -0400
+Date: Tue, 31 Jul 2001 09:51:41 +0200
+From: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@lineo.fr>
 To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-Date: Tue, 31 Jul 2001 07:45:36 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9k5nn0$54q$1@forge.intermeta.de>
-In-Reply-To: <200107281645.f6SGjA620666@ns.caldera.de> <3B653211.FD28320@namesys.com> <20010730210644.A5488@caldera.de> <3B65C3D4.FF8EB12D@namesys.com> <20010730224930.A18311@caldera.de> <3B65CC07.24E3EF4C@namesys.com> <20010730232956.A20969@caldera.de> <3B65D613.E8A0F4BF@namesys.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 996565536 27454 212.34.181.4 (31 Jul 2001 07:45:36 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 31 Jul 2001 07:45:36 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+Subject: Re: serial console and kernel 2.4
+Message-ID: <20010731095141.A28761@pc8.lineo.fr>
+In-Reply-To: <200107301520.f6UFKtT06867@localhost.localdomain> <20010731045527.A5863@weta.f00f.org> <996525392.3352.4.camel@tduffy-lnx.afara.com> <20010731094118.B6318@weta.f00f.org> <9k4mqg$1ch$1@ncc1701.cistron.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <9k4mqg$1ch$1@ncc1701.cistron.net>; from miquels@cistron-office.nl on mar, jui 31, 2001 at 00:24:16 +0200
+X-Mailer: Balsa 1.1.7-cvs20010726
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hans Reiser <reiser@namesys.com> writes:
+On Debian/Sid, sysinit is uptodate as usual. 
+Unfortunately I've also to deal with RHbox. 
+In RedHat Rawhide the current version is SysVinit-2.78-18 and is patched
+for the CREAD bug.
+So If you have a RedHat box, update your SysInit package up to 2.78-18.
 
->I also don't consider any 2.4 prior to 2.4.4 to be stable, and I don't consider
->2.4.4 to be especially stable but it is usable.
+Thank you Miguel for your work (and for your fortune, I like it).
 
->Shipping 2.4.2 is something you and RedHat did for understandable marketing
->reasons.  SuSE waited for 2.4.4.
+Christophe
 
-Well, SuSE shipped 2.4.2 on their 7.1 release and I didn't see you
-jumping up and down in anger for "shipping an unstable release":
 
-ftp://ftp.suse.com/pub/suse/i386/7.1/full-names/i386/k_i386_24-2.4.2-12.i386.rpm
-
-Ah, but then again, you got money from them... He who pays the piper,
-calls the tune. And you're a fine piper.
-
-Sorry, but I can't take you seriously. Especially as you're _so_
-_obviously_ vendor biased, that it stinks.
-
-	Regards
-		Henning
-
+Le mar, 31 jui 2001 00:24:16, Miquel van Smoorenburg a écrit :
+> In article <20010731094118.B6318@weta.f00f.org>,
+> Chris Wedgwood  <cw@f00f.org> wrote:
+> >On Mon, Jul 30, 2001 at 01:36:32PM -0700, Thomas Duffy wrote:
+> >
+> >    to what?  and which version is broken?
+> >
+> >No idea, whatever debian ships with.
+> >
+> >The reason I use debian is 'things just work' --- presumably redhat
+> >has an update for sysvinit, so just snarf the latest and see if that
+> >helps.
+> 
+> sysvinit 2.80 is now in debian unstable, it fixes the CREAD bug.
+> It might take 1 or 2 days for the alpha/mips/etc autobuilders to
+> catch up and produce a .deb for those platforms.
+> 
+> Mike.
+> -- 
+> "dselect has a user interface which scares small children"
+> 	-- Theodore Tso, on debian-devel
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Christophe Barbé
+Software Engineer - christophe.barbe@lineo.fr
+Lineo France - Lineo High Availability Group
+42-46, rue Médéric - 92110 Clichy - France
+phone (33).1.41.40.02.12 - fax (33).1.41.40.02.01
+http://www.lineo.com

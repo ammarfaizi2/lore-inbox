@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284744AbRLEV3Q>; Wed, 5 Dec 2001 16:29:16 -0500
+	id <S284414AbRLEVh0>; Wed, 5 Dec 2001 16:37:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284745AbRLEV3H>; Wed, 5 Dec 2001 16:29:07 -0500
-Received: from [202.135.142.196] ([202.135.142.196]:9484 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S284744AbRLEV3B>; Wed, 5 Dec 2001 16:29:01 -0500
-Date: Thu, 6 Dec 2001 08:29:49 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] scalable timers implementation, 2.4.16, 2.5.0
-Message-Id: <20011206082949.400dffd5.rusty@rustcorp.com.au>
-In-Reply-To: <Pine.LNX.4.33.0111271543410.16419-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.33.0111271543410.16419-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S284529AbRLEVhR>; Wed, 5 Dec 2001 16:37:17 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:61859 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S284687AbRLEVg5>; Wed, 5 Dec 2001 16:36:57 -0500
+Date: Wed, 05 Dec 2001 13:36:19 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Larry McVoy <lm@bitmover.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Lars Brinkhoff <lars.spam@nocrew.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, hps@intermeta.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: SMP/cc Cluster description [was Linux/Pro]
+Message-ID: <2537032729.1007559379@mbligh.des.sequent.com>
+In-Reply-To: <20011205132532.Y11801@work.bitmover.com>
+X-Mailer: Mulberry/2.0.8 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Nov 2001 15:57:03 +0100 (CET)
-Ingo Molnar <mingo@elte.hu> wrote:
+> What I'm trying to do is avoid having Linux go down some paths that I 
+> have seen other people go down because those paths have *all* resulted
+> in a kernel that none of us would want.  You can assert all you like 
+> that you'll not make those mistakes, but having seen those same assertions
+> a half a dozen times before from a half a dozen different OS efforts, all
+> of which were staffed with talented and careful people, you'll forgive
+> my skepticism.
 
-> 
-> the 'ultra scalable timers' patch, against 2.4.16 or 2.5.0 is available
-> at:
-> 
->   http://redhat.com/~mingo/scalable-timers-patches/smptimers-2.4.16-A0
+You're right to point out the pitfalls that others have found in such paths
+before - it's informative, and it's interesting. Personally I think I'd rather 
+walk down that path, trying to avoid known pitfalls, than try your new
+path, but I'll be delighted to see how your concept works out in practice. 
+Good luck to you.
 
-Hi Ingo,
+I still think (see my previous email) that we're actually heading to more or
+less the same place from different directions, which was actually my main
+point.
 
-	Hmm... there are some ugly hoops there to make sure that they don't
-conflict with bottom halves or cli().  I assume you want to take that out:
-what will break if that happens, and do we need a disable_timers() interface
-to move code over?
+Time will tell ;-)
 
-Cheers,
-Rusty.
-PS.  Also would be nice to #define del_timer del_timer_sync, and have a
-     del_timer_async for those (very few) cases who really want this.
---
-  Anyone who quotes me is an idiot -- Rusty Russell.
+Martin.
+

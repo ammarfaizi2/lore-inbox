@@ -1,92 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVCQBVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262918AbVCQBWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261730AbVCQBVX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 20:21:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbVCQBVV
+	id S262918AbVCQBWd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 20:22:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262948AbVCQBWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 20:21:21 -0500
-Received: from vms046pub.verizon.net ([206.46.252.46]:24312 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S262958AbVCQBPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 20:15:42 -0500
-Date: Wed, 16 Mar 2005 20:15:37 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: tvtime audio vs pcHDTV-3000 card and pvHDTV-1.6 software
-To: linux-kernel@vger.kernel.org,
-       Linux and Kernel Video <video4linux-list@redhat.com>
-Reply-to: gene.heskett@verizon.net
-Message-id: <200503162015.37331.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-User-Agent: KMail/1.7
+	Wed, 16 Mar 2005 20:22:33 -0500
+Received: from v-1635.easyco.net ([69.26.169.185]:17668 "EHLO
+	mail.intworks.biz") by vger.kernel.org with ESMTP id S262918AbVCQBQg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 20:16:36 -0500
+Date: Wed, 16 Mar 2005 17:16:25 -0800
+From: jayalk@intworks.biz
+Message-Id: <200503170116.j2H1GPVr024354@intworks.biz>
+To: gregkh@suse.de
+Subject: [PATCH 2.6.11.2 1/1] PCI Allow OutOfRange PIRQ table address
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+Hi Greg, PCI folk,
 
-I've spent a goodly part of the last 3 hours rebooting, to find out 
-where this audio control function died, and I think now I can point 
-an accusatory finger at the 2.6.11.2 patch with some degree of 
-certainty.
+In our hardware situation, the BIOS is unable to store or generate it's PIRQ
+table in the F0000h-100000h standard range. This patch adds a pci kernel
+parameter, pirqaddr to allow the bootloader (or BIOS based loader) to inform
+the kernel where the PIRQ table got stored. A beneficial side-effect is that,
+if one's BIOS uses a static address each time for it's PIRQ table, then
+pirqaddr can be used to avoid the $pirq search through that address block each
+time at boot for normal PIRQ BIOSes.
 
-The scenario goes like this:
+Signed-off-by:	Jaya Kumar	<jayalk@intworks.biz>
 
-reboot to 2.6.11-rc5, everything works flawlessly except the 1394 
-stuff, that kernel didn't have it built in yet.
-
-reboot to 2.6.11+bk-ieee1394.patch  everything works flawlessly
-
-reboot to 2.6.11.1+bk-ieee1394.patch everything works flawlessly
-
-reboot to 2.6.11.2+bk-ieee1394.patch tvtime has no volume control, and 
-the sound gets very very tinny about 1 second after it starts
-
-This scenario continues up to and includeing 2.6.11.4.
-
-So now my next question is, how to I clean up those src trees so that 
-a diff actually outputs only the src code differences, thereby 
-allowing a simple diff -urN (or whatever is the recommended command 
-line to do a recursive diff on the whole maryann) to disclose the 
-real diffs.  In other words, is a simple 'make clean' sufficient?
-
-I got the impression from a comment that was made, that quite a body 
-of work was actually done, in the i2c area, that somehow does not 
-show in the changelog, nor in that simple little 10 line patch that 
-was 2.6.11.2.  And how that little patch could be responsible for 
-breaking this boggles what tiny little miniscule piece of a mind I 
-have left at this point.
-
-If thats the case, then how did it get into my src code tree since the 
-exact same 2.6.11.tar.gz was used as the base for applying each of 
-the incrementals to each of the src trees I now have sitting 
-in /usr/src?  Good question that...
-
-Unforch, the 2.6.11 plain tree has not, in this case been built yet as 
-it got accidently nuked by a missfire of my 'buildit26' script, which 
-normally moves a base version tree out of the way before it unpacks a 
-fresh copy, and then renames that tree to be the current version and 
-then restores the base tree to its original name.
-
-Thats not the one I want to use as the 'gold standard' anyway. 
-2.6.11.1 works, and 2.6.11.2 doesn't.  So at this point, 2.6.11.1 is 
-the 'gold standard'.
-
-But, both the 2.6.11.1 and the 2.6.11.2 trees are as built, and the
-diff I got was far larger than forgetting to apply the 
-bk-ieee1394.patch to one of them would account for.  Many tens of 
-kilobytes in fact.
-
-Please throw me a bone here folks.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/common.c linux-2.6.11.2/arch/i386/pci/common.c
+--- linux-2.6.11.2-vanilla/arch/i386/pci/common.c	2005-03-10 16:31:25.000000000 +0800
++++ linux-2.6.11.2/arch/i386/pci/common.c	2005-03-10 16:56:09.000000000 +0800
+@@ -25,6 +25,7 @@ unsigned int pci_probe = PCI_PROBE_BIOS 
+ 
+ int pci_routeirq;
+ int pcibios_last_bus = -1;
++unsigned int pirq_table_addr = 0;
+ struct pci_bus *pci_root_bus = NULL;
+ struct pci_raw_ops *raw_pci_ops;
+ 
+@@ -188,6 +189,9 @@ char * __devinit  pcibios_setup(char *st
+ 	} else if (!strcmp(str, "biosirq")) {
+ 		pci_probe |= PCI_BIOS_IRQ_SCAN;
+ 		return NULL;
++	} else if (!strncmp(str, "pirqaddr=", 9)) {
++		pirq_table_addr = simple_strtol(str+9, NULL, 0);
++		return NULL;
+ 	}
+ #endif
+ #ifdef CONFIG_PCI_DIRECT
+diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/irq.c linux-2.6.11.2/arch/i386/pci/irq.c
+--- linux-2.6.11.2-vanilla/arch/i386/pci/irq.c	2005-03-10 16:31:25.000000000 +0800
++++ linux-2.6.11.2/arch/i386/pci/irq.c	2005-03-10 20:43:02.479487640 +0800
+@@ -58,6 +58,35 @@ struct irq_router_handler {
+ int (*pcibios_enable_irq)(struct pci_dev *dev) = NULL;
+ 
+ /*
++ *  Check passed address for the PCI IRQ Routing Table signature 
++ *  and perform checksum verification.
++ */
++
++static inline struct irq_routing_table * __init pirq_check_routing_table(u8 *addr)
++{
++	struct irq_routing_table *rt;
++	int i;
++	u8 sum;
++
++	rt = (struct irq_routing_table *) addr;
++	if (rt->signature != PIRQ_SIGNATURE ||
++	    rt->version != PIRQ_VERSION ||
++	    rt->size % 16 ||
++	    rt->size < sizeof(struct irq_routing_table))
++		return NULL;
++	sum = 0;
++	for(i=0; i<rt->size; i++)
++		sum += addr[i];
++	if (!sum) {
++		DBG("PCI: Interrupt Routing Table found at 0x%p\n", rt);
++		return rt;
++	}
++	return NULL;
++}
++
++
++
++/*
+  *  Search 0xf0000 -- 0xfffff for the PCI IRQ Routing Table.
+  */
+ 
+@@ -65,21 +94,16 @@ static struct irq_routing_table * __init
+ {
+ 	u8 *addr;
+ 	struct irq_routing_table *rt;
+-	int i;
+-	u8 sum;
+ 
++	if (pirq_table_addr) {
++		rt = pirq_check_routing_table((u8 *) __va(pirq_table_addr));
++		if (rt) {
++			return rt;
++		}
++	}
+ 	for(addr = (u8 *) __va(0xf0000); addr < (u8 *) __va(0x100000); addr += 16) {
+-		rt = (struct irq_routing_table *) addr;
+-		if (rt->signature != PIRQ_SIGNATURE ||
+-		    rt->version != PIRQ_VERSION ||
+-		    rt->size % 16 ||
+-		    rt->size < sizeof(struct irq_routing_table))
+-			continue;
+-		sum = 0;
+-		for(i=0; i<rt->size; i++)
+-			sum += addr[i];
+-		if (!sum) {
+-			DBG("PCI: Interrupt Routing Table found at 0x%p\n", rt);
++		rt = pirq_check_routing_table(addr);
++		if (rt) {
+ 			return rt;
+ 		}
+ 	}
+diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/pci.h linux-2.6.11.2/arch/i386/pci/pci.h
+--- linux-2.6.11.2-vanilla/arch/i386/pci/pci.h	2005-03-10 16:31:25.000000000 +0800
++++ linux-2.6.11.2/arch/i386/pci/pci.h	2005-03-10 16:52:09.000000000 +0800
+@@ -27,6 +27,7 @@
+ #define PCI_ASSIGN_ALL_BUSSES	0x4000
+ 
+ extern unsigned int pci_probe;
++extern unsigned int pirq_table_addr;
+ 
+ /* pci-i386.c */
+ 
+diff -uprN -X dontdiff linux-2.6.11.2-vanilla/Documentation/kernel-parameters.txt linux-2.6.11.2/Documentation/kernel-parameters.txt
+--- linux-2.6.11.2-vanilla/Documentation/kernel-parameters.txt	2005-03-10 16:31:44.000000000 +0800
++++ linux-2.6.11.2/Documentation/kernel-parameters.txt	2005-03-10 16:45:48.000000000 +0800
+@@ -967,6 +967,10 @@ running once the system is up.
+ 		irqmask=0xMMMM		[IA-32] Set a bit mask of IRQs allowed to be assigned
+ 					automatically to PCI devices. You can make the kernel
+ 					exclude IRQs of your ISA cards this way.
++		pirqaddr=0xAAAAA	[IA-32] Specify the physical address
++					of the PIRQ table (normally generated
++					by the BIOS) if it is outside the .  
++					F0000h-100000h range.
+ 		lastbus=N		[IA-32] Scan all buses till bus #N. Can be useful
+ 					if the kernel is unable to find your secondary buses
+ 					and you want to tell it explicitly which ones they are.

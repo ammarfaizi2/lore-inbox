@@ -1,65 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263346AbTJOOtD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 10:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263351AbTJOOtD
+	id S262841AbTJOPD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 11:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263367AbTJOPD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 10:49:03 -0400
-Received: from mail.midmaine.com ([66.252.32.202]:32951 "HELO
-	mail.midmaine.com") by vger.kernel.org with SMTP id S263346AbTJOOs5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 10:48:57 -0400
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: Josh Litherland <josh@temp123.org>, linux-kernel@vger.kernel.org
-Subject: Re: Transparent compression in the FS
-X-Eric-Conspiracy: There Is No Conspiracy
-References: <1066163449.4286.4.camel@Borogove>
-	<20031015133305.GF24799@bitwizard.nl>
-	<16269.20654.201680.390284@laputa.namesys.com>
-	<20031015142738.GG24799@bitwizard.nl>
-From: Erik Bourget <erik@midmaine.com>
-Date: Wed, 15 Oct 2003 10:47:42 -0400
-In-Reply-To: <20031015142738.GG24799@bitwizard.nl> (Erik Mouw's message of
- "Wed, 15 Oct 2003 16:27:38 +0200")
-Message-ID: <87wub6o8vl.fsf@loki.odinnet>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+	Wed, 15 Oct 2003 11:03:26 -0400
+Received: from dci.doncaster.on.ca ([66.11.168.194]:29387 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S262841AbTJOPDZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 11:03:25 -0400
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, Greg Stark <gsstark@mit.edu>,
+       Joel Becker <Joel.Becker@oracle.com>,
+       Jamie Lokier <jamie@shareable.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: statfs() / statvfs() syscall ballsup...
+References: <Pine.LNX.4.44.0310120909050.12190-100000@home.osdl.org>
+	<878ynq3y7n.fsf@stark.dyndns.tv> <3F8A661B.80909@aitel.hist.no>
+	<200310151525.40470.ioe-lkml@rameria.de>
+In-Reply-To: <200310151525.40470.ioe-lkml@rameria.de>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 15 Oct 2003 11:03:23 -0400
+Message-ID: <87llrmbl1g.fsf@stark.dyndns.tv>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw <erik@harddisk-recovery.com> writes:
+Ingo Oeser <ioe-lkml@rameria.de> writes:
 
-> On Wed, Oct 15, 2003 at 05:50:38PM +0400, Nikita Danilov wrote:
->> Erik Mouw writes:
->>  > Nowadays disks are so incredibly cheap, that transparent compression
->>  > support is not realy worth it anymore (IMHO).
->> 
->> But disk bandwidth is so incredibly expensive that compression becoming
->> more and more useful: on compressed file system bandwidth of user-data
->> transfers can be larger than raw disk bandwidth. It is the same
->> situation as with allocation of disk space for files: disks are cheap,
->> but storing several files in the same block becomes more advantageous
->> over time.
->
-> You have a point, but remember that modern IDE drives can do about
-> 50MB/s from medium. I don't think you'll find a CPU that is able to
-> handle transparent decompression on the fly at 50MB/s, even not with a
-> simple compression scheme as used in NTFS (see the NTFS docs on
-> SourceForge for details).
->
-> Erik
->
-> PS: let me guess: among other things, reiser4 comes with transparent
->     compression? ;-)
+> On Monday 13 October 2003 10:45, Helge Hafting wrote:
+> 
+> > This is easier than trying to tell the kernel that the job is
+> > less important, that goes wrong wether the job runs too much
+> > or too little.  Let that job  sleep a little when its services
+> > aren't needed, or when you need the disk bandwith elsewhere.
 
-Reiser4 made my coffee this morning, it's wonderful :)
+Actually I think that's exactly backwards. The problem is that if the
+user-space tries to throttle the process it doesn't know how much or when.
+The kernel knows exactly when there are other higher priority writes, it can
+schedule just enough writes from vacuum to not interfere.
 
-Seriously, though, (and getting off the topic), has anyone started to use
-reiser4 in a high-load environment?  I've got a mail system that shoots a few
-million messages through it every day and a filesystem that's faster with
-creating and deleting tons of ~4kb qmail queue files (with data journaling!)
-would be verrry innnteresting.
+So if vacuum slept a bit, say every 64k of data vacuumed. It could end up
+sleeping when the disks are actually idle. Or it could be not sleeping enough
+and still be interfering with transactions.
 
-- Erik Bourget
+Though actually this avenue has some promise. It would not be nearly as ideal
+as a kernel based solution that could take advantage of the idle times between
+transactions, but it would still work somewhat as a work-around.
+
+> The questions are: How IO-intensive vacuum? How fast can a throttling
+> free disk bandwidth (and memory)?
+
+It's purely i/o bound on large sequential reads. Ideally it should still have
+large enough sequential reads to not lose the streaming advantage, but not so
+large that it preempts the more random-access transactions.
+
+-- 
+greg
 

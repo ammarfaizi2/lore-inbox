@@ -1,78 +1,230 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268626AbTGTVqi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 17:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268644AbTGTVqi
+	id S268689AbTGTVsj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 17:48:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268700AbTGTVsj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 17:46:38 -0400
-Received: from main.gmane.org ([80.91.224.249]:39870 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S268626AbTGTVqg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 17:46:36 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Sun, 20 Jul 2003 17:48:39 -0400
+Received: from smtp3.wanadoo.fr ([193.252.22.25]:45812 "EHLO
+	mwinf0603.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S268689AbTGTVsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 17:48:30 -0400
+Date: Mon, 21 Jul 2003 00:03:32 +0200 (CEST)
+From: Philippe Biondi <biondi@cartel-securite.fr>
+X-X-Sender: pbi@deneb.intranet.cartel-securite.net
 To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?Leandro_Guimar=E3es_Faria_Corsetti_Dutra?= 
-	<lgcdutra@terra.com.br>
-Subject: Re: [OFFTOPIC] RMS and reactions to him
-Date: Mon, 21 Jul 2003 00:00:57 +0200
-Organization: =?ISO-8859-1?Q?=20Fam=C3=ADlia?= Dutra
-Message-ID: <pan.2003.07.20.22.00.49.627117@terra.com.br>
-References: <E18aQ99-0006Uw-00@fencepost.gnu.org> <Pine.LNX.4.44.0301192021580.24967-100000@xanadu.home> <pan.2003.07.20.02.42.00.289327@terra.com.br> <20030720193053.GA4213@mcgroarty.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
+Subject: [PATCH] linux 2.6.0-test1: do_fork() return value for ARCH=um,m68k,s390,h8300
+Message-ID: <Pine.LNX.4.44.0307210003170.8505-100000@deneb.intranet.cartel-securite.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Jul 2003 14:30:53 -0500, Brian McGroarty wrote:
+Hi all,
 
-> On Sun, Jul 20, 2003 at 04:42:00AM +0200, Leandro Guimar?es Faria Corsetti Dutra wrote:
->> 
->> 	He's not deciding, he's requesting.  There is a difference, and there
->> must be a reason why so many people get so incensed at such a simple,
->> rational, reasonable request.
-> 
-> The whole blowup over RMS requesting the GNU/Linux tag is that a lot
-> of folks think he's talking about the kernel, and not Linux
-> distributions.
+I tried to compile linux-2.6.0-test1 with ARCH=um.
 
-	I doubt if it is so simple... there's the obvious personality
-crash, but I feel there's something more than just Larry piggybacking
-on free software and people feeling pressured by an ethical instance
-which makes their consciences hurt.
+First, I noticed that some functions expected do_fork() to return a
+task_struct *. I don't know why. I find this really strange, did I miss
+something ?
 
-	Regarding Larry, his position must he hard, though: he knows
-he's toast if someone does to BK what Linus did to SysV, especially
-given how much he alienated principled GNU believers.  Funny thing is
-that he was wiser ten years ago, when he proposed to free Solaris so
-as to get ahead of the free software game; now he just want to have
-his piece of cake and eat it too.  Obviously he's entitled to it under
-the current system of government-granted private monopolies on
-artificial scarcity, AKA copyrights; it is just disconcentingly
-incoherent he chooses free software as a showroom...
+Here is the patch :
+
+diff -Nrup linux-2.6.0-test1-ori/arch/h8300/kernel/process.c linux-2.6.0-test1/arch/h8300/kernel/process.c
+--- linux-2.6.0-test1-ori/arch/h8300/kernel/process.c	2003-07-14 05:28:54.000000000 +0200
++++ linux-2.6.0-test1/arch/h8300/kernel/process.c	2003-07-20 17:58:56.000000000 +0200
+@@ -172,25 +172,20 @@ asmlinkage int h8300_fork(struct pt_regs
+
+ asmlinkage int h8300_vfork(struct pt_regs *regs)
+ {
+-	struct task_struct *p;
+-	p = do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, rdusp(), regs, 0, NULL, NULL);
+-	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
++	return do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, rdusp(), regs, 0, NULL, NULL);
+ }
+
+ asmlinkage int h8300_clone(struct pt_regs *regs)
+ {
+ 	unsigned long clone_flags;
+ 	unsigned long newsp;
+-	struct task_struct *p;
+
+ 	/* syscall2 puts clone_flags in er1 and usp in er2 */
+ 	clone_flags = regs->er1;
+ 	newsp = regs->er2;
+ 	if (!newsp)
+ 		newsp  = rdusp();
+-	p = do_fork(clone_flags & ~CLONE_IDLETASK, newsp, regs, 0, NULL, NULL);
+-	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
+-
++	return do_fork(clone_flags & ~CLONE_IDLETASK, newsp, regs, 0, NULL, NULL);
+ }
+
+ int copy_thread(int nr, unsigned long clone_flags,
+diff -Nrup linux-2.6.0-test1-ori/arch/m68k/kernel/process.c linux-2.6.0-test1/arch/m68k/kernel/process.c
+--- linux-2.6.0-test1-ori/arch/m68k/kernel/process.c	2003-07-14 05:39:32.000000000 +0200
++++ linux-2.6.0-test1/arch/m68k/kernel/process.c	2003-07-20 17:55:34.000000000 +0200
+@@ -202,24 +202,19 @@ void flush_thread(void)
+
+ asmlinkage int m68k_fork(struct pt_regs *regs)
+ {
+-	struct task_struct *p;
+-	p = do_fork(SIGCHLD, rdusp(), regs, 0, NULL, NULL);
+-	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
++	return do_fork(SIGCHLD, rdusp(), regs, 0, NULL, NULL);
+ }
+
+ asmlinkage int m68k_vfork(struct pt_regs *regs)
+ {
+-	struct task_struct *p;
+-	p = do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, rdusp(), regs, 0, NULL,
++	return do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, rdusp(), regs, 0, NULL,
+ 		    NULL);
+-	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
+ }
+
+ asmlinkage int m68k_clone(struct pt_regs *regs)
+ {
+ 	unsigned long clone_flags;
+ 	unsigned long newsp;
+-	struct task_struct *p;
+ 	int *parent_tidptr, *child_tidptr;
+
+ 	/* syscall2 puts clone_flags in d1 and usp in d2 */
+@@ -229,9 +224,8 @@ asmlinkage int m68k_clone(struct pt_regs
+ 	child_tidptr = (int *)regs->d4;
+ 	if (!newsp)
+ 		newsp = rdusp();
+-	p = do_fork(clone_flags & ~CLONE_IDLETASK, newsp, regs, 0,
++	return do_fork(clone_flags & ~CLONE_IDLETASK, newsp, regs, 0,
+ 		    parent_tidptr, child_tidptr);
+-	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
+ }
+
+ int copy_thread(int nr, unsigned long clone_flags, unsigned long usp,
+diff -Nrup linux-2.6.0-test1-ori/arch/s390/kernel/compat_linux.c linux-2.6.0-test1/arch/s390/kernel/compat_linux.c
+--- linux-2.6.0-test1-ori/arch/s390/kernel/compat_linux.c	2003-07-14 05:37:14.000000000 +0200
++++ linux-2.6.0-test1/arch/s390/kernel/compat_linux.c	2003-07-20 17:59:34.000000000 +0200
+@@ -2809,7 +2809,6 @@ asmlinkage int sys32_clone(struct pt_reg
+ {
+         unsigned long clone_flags;
+         unsigned long newsp;
+-	struct task_struct *p;
+ 	int *parent_tidptr, *child_tidptr;
+
+         clone_flags = regs.gprs[3] & 0xffffffffUL;
+@@ -2818,7 +2817,6 @@ asmlinkage int sys32_clone(struct pt_reg
+ 	child_tidptr = (int *) (regs.gprs[5] & 0x7fffffffUL);
+         if (!newsp)
+                 newsp = regs.gprs[15];
+-        p = do_fork(clone_flags & ~CLONE_IDLETASK, newsp, &regs, 0,
+-		    parent_tidptr, child_tidptr);
+-	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
++       return do_fork(clone_flags & ~CLONE_IDLETASK, newsp, &regs, 0,
++		       parent_tidptr, child_tidptr);
+ }
+diff -Nrup linux-2.6.0-test1-ori/arch/um/kernel/process_kern.c linux-2.6.0-test1/arch/um/kernel/process_kern.c
+--- linux-2.6.0-test1-ori/arch/um/kernel/process_kern.c	2003-07-14 05:34:33.000000000 +0200
++++ linux-2.6.0-test1/arch/um/kernel/process_kern.c	2003-07-20 18:00:42.000000000 +0200
+@@ -103,13 +103,13 @@ unsigned long alloc_stack(int order, int
+
+ int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+ {
+-	struct task_struct *p;
+-
++	long pid;
++
+ 	current->thread.request.u.thread.proc = fn;
+ 	current->thread.request.u.thread.arg = arg;
+-	p = do_fork(CLONE_VM | flags, 0, NULL, 0, NULL, NULL);
+-	if(IS_ERR(p)) panic("do_fork failed in kernel_thread");
+-	return(p->pid);
++	pid = do_fork(CLONE_VM | flags, 0, NULL, 0, NULL, NULL);
++	if (pid < 0) panic("do_fork failed in kernel_thread");
++	return (pid);
+ }
+
+ void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+diff -Nrup linux-2.6.0-test1-ori/arch/um/kernel/smp.c linux-2.6.0-test1/arch/um/kernel/smp.c
+--- linux-2.6.0-test1-ori/arch/um/kernel/smp.c	2003-07-14 05:31:57.000000000 +0200
++++ linux-2.6.0-test1/arch/um/kernel/smp.c	2003-07-20 17:58:20.000000000 +0200
+@@ -135,13 +135,15 @@ static int idle_proc(void *cpup)
+
+ static struct task_struct *idle_thread(int cpu)
+ {
+-	struct task_struct *new_task;
+ 	unsigned char c;
++	long new_pid;
++	struct task_struct *new_task;
+
+         current->thread.request.u.thread.proc = idle_proc;
+         current->thread.request.u.thread.arg = (void *) cpu;
+-	new_task = do_fork(CLONE_VM | CLONE_IDLETASK, 0, NULL, 0, NULL, NULL);
+-	if(IS_ERR(new_task)) panic("do_fork failed in idle_thread");
++	new_pid = do_fork(CLONE_VM | CLONE_IDLETASK, 0, NULL, 0, NULL, NULL);
++	if (new_pid < 0) panic("do_fork failed in idle_thread");
++	new_task = find_task_by_pid(new_pid);
+
+ 	cpu_tasks[cpu] = ((struct cpu_task)
+ 		          { .pid = 	new_task->thread.mode.tt.extern_pid,
+diff -Nrup linux-2.6.0-test1-ori/arch/um/kernel/syscall_kern.c linux-2.6.0-test1/arch/um/kernel/syscall_kern.c
+--- linux-2.6.0-test1-ori/arch/um/kernel/syscall_kern.c	2003-07-14 05:36:35.000000000 +0200
++++ linux-2.6.0-test1/arch/um/kernel/syscall_kern.c	2003-07-20 17:53:54.000000000 +0200
+@@ -35,32 +35,32 @@ long um_mount(char * dev_name, char * di
+
+ long sys_fork(void)
+ {
+-	struct task_struct *p;
++	long pid;
+
+ 	current->thread.forking = 1;
+-        p = do_fork(SIGCHLD, 0, NULL, 0, NULL, NULL);
++        pid = do_fork(SIGCHLD, 0, NULL, 0, NULL, NULL);
+ 	current->thread.forking = 0;
+-	return(IS_ERR(p) ? PTR_ERR(p) : p->pid);
++	return pid;
+ }
+
+ long sys_clone(unsigned long clone_flags, unsigned long newsp)
+ {
+-	struct task_struct *p;
++	long pid;
+
+ 	current->thread.forking = 1;
+-	p = do_fork(clone_flags, newsp, NULL, 0, NULL, NULL);
++	pid = do_fork(clone_flags, newsp, NULL, 0, NULL, NULL);
+ 	current->thread.forking = 0;
+-	return(IS_ERR(p) ? PTR_ERR(p) : p->pid);
++	return pid;
+ }
+
+ long sys_vfork(void)
+ {
+-	struct task_struct *p;
++	long pid;
+
+ 	current->thread.forking = 1;
+-	p = do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, 0, NULL, 0, NULL, NULL);
++	pid = do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, 0, NULL, 0, NULL, NULL);
+ 	current->thread.forking = 0;
+-	return(IS_ERR(p) ? PTR_ERR(p) : p->pid);
++	return pid;
+ }
+
+ /* common code for old and new mmaps */
 
 
-> Even many folks "in the know" seem to miss this distinction: RMS
-> hasn't ever asked that the kernel be called GNU/Linux. He asks that
-> "Linux distributions," which are called "Linux" by the public at
-> large, carry the extra tag.
 
-	I know one shouldn't presume ill faith when incompetence
-suffices... but these issues have been hashed to death, and still
-people seem to hate RMS even more than they love their own confort.
-Kinda like it was said of the Left she would be more effective if she
-loved the poors as much as she hated the rich.  Just here we're
-talking morals, not money.
 
-	Asbestos up.
+
 
 
 -- 
- _   Leandro GuimarÃ£es Faria Corsetti Dutra     +41 (21) 648 11 34
-/ \  http://br.geocities.com./lgcdutra/         +41 (78) 778 11 34
-\ /  Answer to the list, not to me directly!    +55 (11) 5686 2219
-/ \  Rate this if helpful: http://svcs.affero.net/rm.php?r=leandro
+Philippe Biondi <biondi@ cartel-securite.fr> Cartel Sécurité
+Security Consultant/R&D                      http://www.cartel-securite.fr
+PGP KeyID:3D9A43E2  FingerPrint:C40A772533730E39330DC0985EE8FF5F3D9A43E2
+
+
 
 

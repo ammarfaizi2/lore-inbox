@@ -1,32 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267000AbRGSHf4>; Thu, 19 Jul 2001 03:35:56 -0400
+	id <S267040AbRGSHmG>; Thu, 19 Jul 2001 03:42:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267009AbRGSHfg>; Thu, 19 Jul 2001 03:35:36 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:63418 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S267000AbRGSHfc>;
-	Thu, 19 Jul 2001 03:35:32 -0400
-Date: Thu, 19 Jul 2001 00:35:04 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 64 bit SCSI read/write
-Message-ID: <Pine.LNX.4.10.10107190032320.9036-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267046AbRGSHl4>; Thu, 19 Jul 2001 03:41:56 -0400
+Received: from t2.redhat.com ([199.183.24.243]:26351 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S267040AbRGSHlk>; Thu, 19 Jul 2001 03:41:40 -0400
+To: "Brian J. Watson" <Brian.J.Watson@compaq.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] read/write semaphore trylock routines - 2.4.6 
+In-Reply-To: Message from "Brian J. Watson" <Brian.J.Watson@compaq.com> 
+   of "Wed, 18 Jul 2001 16:22:56 PDT." <3B561A50.A1B35FBC@compaq.com> 
+Date: Thu, 19 Jul 2001 08:41:43 +0100
+Message-ID: <2297.995528503@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Well to answer AC's question...we changed the rules in ATA-ATAPI-6 such
-that all ATA (harddrives) devices are required to support write/flush
-cache commands.
+> Is this patch ready to go into the kernel? Is there anything else I
+> should do to get it ready? I noticed it didn't make it into
+> 2.4.7-pre7.
 
+It looks reasonable, though I haven't tried it myself (I presume you have
+though). You might want to try sending it direct to Linus.
 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
-
+David

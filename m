@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270309AbRHTLKK>; Mon, 20 Aug 2001 07:10:10 -0400
+	id <S270711AbRHTL22>; Mon, 20 Aug 2001 07:28:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270267AbRHTLJu>; Mon, 20 Aug 2001 07:09:50 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:7695 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S270309AbRHTLJo>; Mon, 20 Aug 2001 07:09:44 -0400
-Message-ID: <3B80EFB3.7F52B40D@idb.hist.no>
-Date: Mon, 20 Aug 2001 13:08:35 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: no, en
+	id <S270741AbRHTL2R>; Mon, 20 Aug 2001 07:28:17 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55302 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270711AbRHTL2E>; Mon, 20 Aug 2001 07:28:04 -0400
+Subject: Re: [2.4.8-ac5 and earlier] fatal mount-problem
+To: viro@math.psu.edu (Alexander Viro)
+Date: Mon, 20 Aug 2001 12:30:23 +0100 (BST)
+Cc: andihartmann@freenet.de (Andreas Hartmann),
+        linux-kernel@vger.kernel.org (Kernel-Mailingliste)
+In-Reply-To: <Pine.GSO.4.21.0108200602010.1313-100000@weyl.math.psu.edu> from "Alexander Viro" at Aug 20, 2001 06:03:20 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-To: root@chaos.analogic.com, linux-kernel@vger.kernel.org
-Subject: Re: Encrypted Swap
-In-Reply-To: <Pine.LNX.3.95.1010819211427.28054B-100000@chaos.analogic.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15YnGB-0005sr-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-[...]
-> If you want some kind of security, you need to at least
-> hit the reset button before the feds carry it away.
-> The normal initialization of SDRAM will wipe out whatever
-> it has, and you can't get it back on-line without this
-> sequence.
+> > (as modules) and you do the same mount again on the same (not unmounted)
+> > device, the mount-programm hangs up and never comes back. It doesn't
+> > recognize, that the device is allready mounted.
+> 
+> strace, please. -ac5 and 2.4.9 have the same code in fs/super.c, so
+> I really wonder what the hell is happening...
 
-This initialization may be a requirement, that don't mean
-it is going to happen.  Someone might crack your machine
-and burn a new bios for you without RAM initialization.
-Then they physically break in and take the box when
-they believe there's something worth stealing in it.
-(I.e. something interesting is on the disk, and the
-decryption keys is in memory.)
+Duplicated here with 2.4.8-ac6
+Booted with ide-scsi as the cd driver
 
-Non-erasable bioses can of course be replaced too.
-This can be done "live", as modern os'es don't use
-the bios much after booting anyway.
+mount /dev/scd0 /mnt
+umount /dev/scs0
+mount /dev/scd0 /mnt
+umount /dev/scd0
 
-Helge Hafting
+works fine
+
+mount /dev/scd0 /mnt
+mount /dev/scd0 /mmt
+
+hangs (D state)
+
+mount /dev/scd0 /mnt
+mount /dev/scd0 /tmp
+
+hangs (D state)
+

@@ -1,78 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272811AbRIGTeK>; Fri, 7 Sep 2001 15:34:10 -0400
+	id <S272838AbRIGUbv>; Fri, 7 Sep 2001 16:31:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272817AbRIGTeB>; Fri, 7 Sep 2001 15:34:01 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:59331 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S272811AbRIGTdu>; Fri, 7 Sep 2001 15:33:50 -0400
-Date: Fri, 7 Sep 2001 13:33:51 -0600
-Message-Id: <200109071933.f87JXp913517@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: "Giacomo A. Catenazzi" <cate@dplanet.ch>
-Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: OOPS[devfs]: reproducible in vfs_follow_link 2.4.9,2.4.10-pre4
-In-Reply-To: <3B993207.787B0D5@dplanet.ch>
-In-Reply-To: <3B97744E.7020007@dplanet.ch>
-	<Pine.GSO.4.21.0109061454480.7097-100000@weyl.math.psu.edu>
-	<200109061941.f86Jfak01921@vindaloo.ras.ucalgary.ca>
-	<3B993207.787B0D5@dplanet.ch>
+	id <S272837AbRIGUbl>; Fri, 7 Sep 2001 16:31:41 -0400
+Received: from mailgate5.cinetic.de ([217.72.192.165]:44210 "EHLO
+	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
+	id <S272838AbRIGUbZ>; Fri, 7 Sep 2001 16:31:25 -0400
+Message-ID: <3B992EC4.ED1F82CB@web.de>
+Date: Fri, 07 Sep 2001 22:32:04 +0200
+From: Olaf Zaplinski <olaf.zaplinski@web.de>
+X-Mailer: Mozilla 4.78 [en] (Win98; U)
+X-Accept-Language: de,en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: AIC + RAID1 error? (was: Re: aic7xxx errors)
+In-Reply-To: <200109050621.f856LAK00824@ambassador.mathewson.int> <3B95DB22.866EDCA3@mediascape.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giacomo A. Catenazzi writes:
-> Richard Gooch wrote:
-> > 
-> > Alexander Viro writes:
-> > >
-> > >
-> > > On Thu, 6 Sep 2001, Giacomo Catenazzi wrote:
-> > >
-> > > > Hello.
-> > > >
-> > > > Since yesterdey, every time I run a 2.4.9 or 2.4.10pre-4 without the
-> > > > "devfs=nomount" I
-> > > > have two oops + /usr, /home /boot not mounted (all (also /): ext2).
-> > >
-> > >       Don't use devfs. One of the known bugs - devfs passes a string
-> > > to vfs_follow_link() and doesn't care to preserve it until
-> > > vfs_follow_link() is done.
-[I said it was fixed for UP in recent devfs patches]
-> > If people could test the latest devfs patch, that would be really
-> > helpful. Linus isn't applying it because he's concerned that the many
-> > SD support may break something. Even if you don't have many SD's,
-> > please apply the patch and send a message to the list (and Cc: me)
-> > stating whether or not your system still works.
+Olaf Zaplinski wrote:
 > 
-> No, your patch  didn't work.
-> I have still the oops.
+> Joseph Mathewson wrote:
+> >
+> > I've just woken up this morning to find my internet gateway machine only
+> > responding to pings, and on giving it a keyboard & monitor, a load of
+> >
+> > scsi0:0:1:0: Attempting to queue an ABORT message
+> > scsi0:0:1:0: Cmd aborted from QINFIFO
+> > aic7xxx_abort returns 8194
+> >
+> > errors.
+> [...]
+> 
+> /me too. I had this while booting 2.4.9 with a fresh installed SCSI card
+> (AHA2940) + harddisk. What worked for me was to compile the kernel with the
+> old Adaptec driver, so it's a driver issue.
 
-Hm! Is this a UP or SMP kernel?
+Okay, I had it again today:
 
-> I investigates, and the oops come in the mountall script (in init.d),
-> when running: mount -avt nonfs,nosmbfs.
-> (I noticed thet at this point kernel load floppy modules, but when I
-> removed also the floppy module, the oops reappers.)
+Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
+message
+Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Cmd aborted from QINFIFO
+Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
+message
+Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Command not found
+Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
+message
+Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Cmd aborted from QINFIFO
+Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
+message
+Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Command not found
+Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
+message
+Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Cmd aborted from QINFIFO
+Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
+message
+Sep  7 19:15:19 binky kernel: scsi0:0:0:0: Command not found
 
-Hm. I've had one other bug report which initially seemed to be
-devfs-related, but it was also related to the floppy driver as
-well. IIRC, elsewhere Alan noted there seemed to be some problems with
-the floppy driver. I suspect the bug you (and the other person) are
-having is related to the floppy driver and not devfs.
+Kernel was 2.4.9ac9 with (new) AIC driver 6.2.1, compiled with "Maximum
+Number of TCQ Commands per Device" set to 64. I was lucky since it's a RAID1
+system (mirror disk is hda). Distro is SuSE 7.2 Professional, machine
+K6-2/300 with 128 MB EDO RAM, FS is reiser 3.6.25. Average load is low, it's
+a small smtp/imap/www system.
 
-Please try renaming/removing your floppy driver and see if the problem
-persists. I bet it goes away. As Al mused, it was odd that the problem
-only appears now. While there are known races in devfs, no-one has
-ever encountered these in real life (targetted exploits are not "real
-life"). So I too am surprised that suddenly there appears a problem
-with devfs.
+So I compiled the same kernel with the old AIC driver, and it works fine.
 
-In the meantime, my tree is getting closer to the stage where I will
-attempt a compile. Soon I will be able to dispel this dark cloud of
-"devfs races" that Al keeps muttering about :-)
+I should mention that it is a rather old PCI AHA-2940 Fast SCSI card with an
+also older harddisk IBM 0662S12 (that's the whole SCSI chain).
+My other machine (AIC-something U2W with Tandberg SLR (U2W) and SCSI CDR
+(SE) attached, no HDDs) works fine with the new driver. I just guess when
+saying that it seems to me that the driver developers were focused on
+up-to-date cards but not the older ones.
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Olaf

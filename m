@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130834AbRC3GhH>; Fri, 30 Mar 2001 01:37:07 -0500
+	id <S130873AbRC3GzU>; Fri, 30 Mar 2001 01:55:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130831AbRC3Gg5>; Fri, 30 Mar 2001 01:36:57 -0500
-Received: from mail-klh.telecentrum.de ([213.69.31.130]:52236 "EHLO
-	mail-klh.telecentrum.de") by vger.kernel.org with ESMTP
-	id <S130824AbRC3Ggo>; Fri, 30 Mar 2001 01:36:44 -0500
-Message-ID: <3AC424A2.DF6485DF@topit.de>
-Date: Fri, 30 Mar 2001 08:16:02 +0200
-From: Ronald Jeninga <rj@topit.de>
-Reply-To: rj@topit.de
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: hugang <linuxhappy@etang.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [ISDN-ERR]
-In-Reply-To: <20010330100323.791a25c8.linuxhappy@etang.com>
+	id <S130900AbRC3GzL>; Fri, 30 Mar 2001 01:55:11 -0500
+Received: from agnus.shiny.it ([194.20.232.6]:58641 "EHLO agnus.shiny.it")
+	by vger.kernel.org with ESMTP id <S130873AbRC3Gy7>;
+	Fri, 30 Mar 2001 01:54:59 -0500
+Message-ID: <XFMail.010330085217.pochini@shiny.it>
+X-Mailer: XFMail 1.3 [p0] on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <3AC3A6C9.991472C0@chromium.com>
+Date: Fri, 30 Mar 2001 08:52:17 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Fabio Riccardi <fabio@chromium.com>
+Subject: RE: linux scheduler limitations?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-man isdn_cause 
-says
-E  = EDSS1
-00 = User Message
-1B = Destination out of order
-
-The other end seems to have a problem
-Doesn't seem to be a kernel issue though
-
-Ronald Jeninga
-
-hugang wrote:
+On 29-Mar-01 Fabio Riccardi wrote:
+> Hello,
 > 
-> Hello all:
+> I'm working on an enhanced version of Apache and I'm hitting my head
+> against something I don't understand.
 > 
-> ---------------------------------------
-> OPEN: 10.0.0.2 -> 202.99.16.1 UDP, port: 1024 -> 53
-> ippp0: dialing 1 86310163...
-> isdn: HiSax,ch0 cause: E001B                    <--- error !!
-> isdn_net: local hangup ippp0
-> ippp0: Chargesum is 0
-> ---------------------------------------
->         Can someone tell me ,howto fix it ??
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> I've found a (to me) unexplicable system behaviour when the number of
+> Apache forked instances goes somewhere beyond 1050, the machine
+> suddently slows down almost top a halt and becomes totally unresponsive,
+> until I stop the test (SpecWeb).
+
+Are you using 2.2.x ?  I had the same problem here until I switched
+to 2.4.x. 2.2 internal locks are not fine grained enough.
+
+
+Bye.
+    Giuliano Pochini ->)|(<- Shiny Network {AS6665} ->)|(<-
+

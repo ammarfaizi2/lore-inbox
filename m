@@ -1,28 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136290AbRD1Am2>; Fri, 27 Apr 2001 20:42:28 -0400
+	id <S136291AbRD1Aoj>; Fri, 27 Apr 2001 20:44:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136284AbRD1AmI>; Fri, 27 Apr 2001 20:42:08 -0400
-Received: from vitelus.com ([64.81.36.147]:57866 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S136283AbRD1Al6>;
-	Fri, 27 Apr 2001 20:41:58 -0400
-Date: Fri, 27 Apr 2001 17:41:56 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Fabio Riccardi <fabio@chromium.com>
+	id <S136284AbRD1Ao3>; Fri, 27 Apr 2001 20:44:29 -0400
+Received: from dhcp065-024-133-248.columbus.rr.com ([65.24.133.248]:36356 "EHLO
+	hunley.homeip.net") by vger.kernel.org with ESMTP
+	id <S136283AbRD1AoT>; Fri, 27 Apr 2001 20:44:19 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: "Douglas J. Hunley" <root@hunley.homeip.net>
+Organization: Like I have time to be organized
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+Subject: Re: 2.2.19 and ide.2.2.19.04092001.patch error
+Date: Fri, 27 Apr 2001 20:44:14 -0400
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.10.10104272020490.8177-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.10.10104272020490.8177-100000@coffee.psychology.mcmaster.ca>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: X15 alpha release: as fast as TUX but in user space
-Message-ID: <20010427174155.B22408@vitelus.com>
-In-Reply-To: <3AEA0C52.FA7CE1F1@chromium.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3AEA0C52.FA7CE1F1@chromium.com>; from fabio@chromium.com on Fri, Apr 27, 2001 at 05:18:26PM -0700
+MIME-Version: 1.0
+Message-Id: <01042720441401.02263@hunley.homeip.net>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 27, 2001 at 05:18:26PM -0700, Fabio Riccardi wrote:
-> You can download X15 Alpha 1 from here:
-> http://www.chromium.com/X15-Alpha-1.tgz
+On Friday 27 April 2001 20:21, Mark Hahn babbled:
+> > Kernel config is attached. So is a description of my computer. Anyone got
+> > any ideas?
+>
+> your disk has bad errors.  why do you think software changes will help?
 
-Where's the source?
+ I know the disk has errors. Hence I run fsck. This is a brand new drive. I 
+thought the kernel messages were indicative of an issue w/ the IDE patch.
+-- 
+Douglas J. Hunley (Linux User #174778)
+http://hunley.homeip.net/
+
+"Where do you want to go today?" Outside

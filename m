@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVBOWIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbVBOWNJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbVBOWIG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 17:08:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbVBOWHn
+	id S261914AbVBOWNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 17:13:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbVBOWNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 17:07:43 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:13187 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261913AbVBOWHd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 17:07:33 -0500
-Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and
-	give	dev=/dev/hdX as device
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David =?ISO-8859-1?Q?G=F3mez?= <david@pleyades.net>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, sergio@sergiomb.no-ip.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050215174824.GA32536@fargo>
-References: <1108426832.5015.4.camel@bastov>
-	 <1108434128.5491.8.camel@bastov> <42115DA2.6070500@osdl.org>
-	 <1108486952.4618.10.camel@localhost.localdomain>
-	 <20050215174824.GA32536@fargo>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1108505147.4620.16.camel@localhost.localdomain>
+	Tue, 15 Feb 2005 17:13:08 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:65233 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261914AbVBOWNF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 17:13:05 -0500
+Date: Tue, 15 Feb 2005 14:10:22 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+Cc: holt@sgi.com, haveblue@us.ibm.com, raybry@sgi.com, taka@valinux.co.jp,
+       hugh@veritas.com, akpm@osdl.org, marcello@cyclades.com,
+       raybry@austin.rr.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC 2.6.11-rc2-mm2 7/7] mm: manual page migration --
+ sys_page_migrate
+Message-Id: <20050215141022.3b99df87.pj@sgi.com>
+In-Reply-To: <16914.28795.316835.291470@wombat.chubb.wattle.id.au>
+References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
+	<20050212032620.18524.15178.29731@tomahawk.engr.sgi.com>
+	<1108242262.6154.39.camel@localhost>
+	<20050214135221.GA20511@lnx-holt.americas.sgi.com>
+	<1108407043.6154.49.camel@localhost>
+	<20050214220148.GA11832@lnx-holt.americas.sgi.com>
+	<20050215074906.01439d4e.pj@sgi.com>
+	<20050215162135.GA22646@lnx-holt.americas.sgi.com>
+	<20050215083529.2f80c294.pj@sgi.com>
+	<20050215185943.GA24401@lnx-holt.americas.sgi.com>
+	<16914.28795.316835.291470@wombat.chubb.wattle.id.au>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 15 Feb 2005 22:05:49 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-02-15 at 17:48, David Gómez wrote:
-> Is going to be merged soon to the mainline 2.6 kernel? I guess this
-> bad error handling from ide-cd has something to do with recent messages
-> about kernel hanging with bad dvd media.
+Dr Peter Chubb writes:
+> Can page migration be done lazily, instead of all at once?
 
-Up to the maintainer. I've been very busy on thesis stuff but I'll try
-and split it out for 2.6.12pre if Bartlomiej wants the changes.
+That might be a useful option.  Not my area to comment on.
 
-As to the DVD media hang - I think that is unrelated. The ide-cd fixes
-deal with end of media error handling primarily and better reporting of
-sense data. That affects multisession discs, readahead and some other
-oddments rather than any hang cases
+We would also require, at least as an option, to be able to force the
+migration on demand.  Some of our big honkin iron parallel jobs run with
+a high degree of parallelism, and nearly saturate each node being used. 
+For jobs like that, it can be better to get everything in place, before
+resuming execution.
 
-
-Alan
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401

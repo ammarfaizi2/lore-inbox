@@ -1,78 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266289AbUFRRdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266317AbUFRRiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266289AbUFRRdG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 13:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266341AbUFRRdF
+	id S266317AbUFRRiL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 13:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266292AbUFRRiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 13:33:05 -0400
-Received: from wblv-235-33.telkomadsl.co.za ([165.165.235.33]:7860 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S266292AbUFRRbh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 13:31:37 -0400
+	Fri, 18 Jun 2004 13:38:11 -0400
+Received: from gw.compusonic.fi ([195.255.196.126]:490 "EHLO gw.compusonic.fi")
+	by vger.kernel.org with ESMTP id S266317AbUFRRhy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 13:37:54 -0400
+Date: Fri, 18 Jun 2004 20:37:53 +0300 (EEST)
+From: Hannu Savolainen <hannu@opensound.com>
+X-X-Sender: hannu@zeus.compusonic.fi
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: 4Front Technologies <dev@opensound.com>, linux-kernel@vger.kernel.org
 Subject: Re: Stop the Linux kernel madness
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <1087573691.19400.116.camel@winden.suse.de>
-References: <40D232AD.4020708@opensound.com> <3217460000.1087518092@flay>
-	 <40D23701.1030302@opensound.com>
-	 <1087573691.19400.116.camel@winden.suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-iJF76a483jVs4ClJvCqq"
-Message-Id: <1087579854.14905.54.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 18 Jun 2004 19:30:55 +0200
+In-Reply-To: <Pine.LNX.4.58.0406181205500.13079@scrub.local>
+Message-ID: <Pine.LNX.4.58.0406182006060.20336@zeus.compusonic.fi>
+References: <40D232AD.4020708@opensound.com> <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk>
+ <40D23EBD.50600@opensound.com> <Pine.LNX.4.58.0406180313350.10292@scrub.local>
+ <40D2464D.2060202@opensound.com> <Pine.LNX.4.58.0406181205500.13079@scrub.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 18 Jun 2004, Roman Zippel wrote:
 
---=-iJF76a483jVs4ClJvCqq
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> To quote from your previous mail:
+>
+> > make -C /lib/modules/`uname -r`/build scripts scripts_basic include/linux/version.h
+>
+> That doesn't really like documented interfaces to me.
+Right. The documented command is "make install". However an undocumented
+detail is that that doesn't work with "virgin" kernel sources (nothing
+compiled yet). The above command seems to be needed to prepare the source
+tree for building the module. The "documented" alternative would be full
+make in the kernel source tree but that is massive overkill (in addition
+it doesn't work with most distribution kernels).
 
-On Fri, 2004-06-18 at 17:48, Andreas Gruenbacher wrote:
+The actual problem is that there is no standardized way to compile modules
+outside the kernel source tree. There will be serious problems if
+different distributions need slightly different installation procedure.
+Who is going to be able to tell the customer what exactly he should do?
 
-Hi,
+So even as hardware vendor releases an open source drivers for their
+hardware nobody can use them before the driver gets included to the
+distribution kernels. Ok, this is not a problem as long as every single
+driver for every single device in the world is included in the kernel.
+However I bet this will break kernel (and distribution) maintainers' necks
+within not so many years.
 
-> This means that a single /lib/modules/$(uname
-> -r)/build symlink is not sufficient anymore. Therefore we have the build
-> symlink pointing to the output files, and a new source symlink pointing
-> to the real source tree. This change hasn't found its way into mainline
-> yet, which is unfortunate. For the discussion, see
-> http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D108628265102121&w=3D2 =
-and
-> follow-ups. I keep pinging Sam Ravnborg (the kbuild maintainer), but
-> apparently he is busy with other projects at the moment.
->=20
+Best regards,
 
-Once again, please do not do this.  As some others already have pointed
-out already, many (of not most) projects out there that builds against
-the running kernel use '/lib/modules/$(uname-r)/build' to locate the
-SOURCE, and will be broken.  Rather use an 'output' or some such symlink
-to store the object files, but keep the meaning of 'build' intact.
-
-If, then please treat it like any other stable interface, and depreciate
-it in 2.7, and change (but better, remove it, so that there will be no
-misunderstanding) in 2.8.
-=20
-
-Thanks,
-
---=20
-Martin Schlemmer
-
---=-iJF76a483jVs4ClJvCqq
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA0ybOqburzKaJYLYRAsWqAJ9Gxmdv+i2O9mItIgtdj5qy0ghcVwCgivaU
-kX1/nvvN02+bAOiM6CJTPyI=
-=sr2q
------END PGP SIGNATURE-----
-
---=-iJF76a483jVs4ClJvCqq--
-
+Hannu
+-----
+Hannu Savolainen (hannu@opensound.com)
+http://www.opensound.com (Open Sound System (OSS))
+http://www.compusonic.fi (Finnish OSS pages)
+OH2GLH QTH: Karkkila, Finland LOC: KP20CM

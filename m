@@ -1,70 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbUK1QPd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbUK1QT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261504AbUK1QPd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 11:15:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbUK1QPd
+	id S261306AbUK1QT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 11:19:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbUK1QT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 11:15:33 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:39824 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261504AbUK1QPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 11:15:23 -0500
-Subject: Re: [2.6 patch] small MCA cleanups (fwd)
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: David Weinehall <tao@acc.umu.se>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041124075932.GJ28432@khan.acc.umu.se>
-References: <20041124020427.GM2927@stusta.de> 
-	<20041124075932.GJ28432@khan.acc.umu.se>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 28 Nov 2004 10:13:49 -0600
-Message-Id: <1101658435.2426.5.camel@mulgrave>
-Mime-Version: 1.0
+	Sun, 28 Nov 2004 11:19:26 -0500
+Received: from mail.dif.dk ([193.138.115.101]:407 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261306AbUK1QTU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 11:19:20 -0500
+Date: Sun, 28 Nov 2004 17:29:04 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Gadi Oxman <gadio@netvision.net.il>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH][0/2] ide-tape: small cleanups
+Message-ID: <Pine.LNX.4.61.0411281725110.3389@dragon.hygekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-24 at 01:59, David Weinehall wrote:
-> Being waaaaaay to busy at work to care about MCA-related things anymore,
-> combined with the fact that I didn't bring along any of my old
-> MCA-machines when I moved the last time, I've asked James Bottomley to
-> take over the MCA maintainership.
-> 
-> I don't have anything to object against these patches, but I'm not able
-> to test them...
 
-OK .. I said I'd do it, so here is the formal change of the maintainer. 
-Note that I too only have a limited subset of MCA hardware ... the
-voyager systems have a kind of super MCA bus that didn't have any of the
-MCA bus limitations in the original IBM spec, so a lot of the MCA HW I
-have doesn't work on ordinary MCA busses.  The only standard MCA cards I
-have are networking ones.
+Small cleanups for ide-tape.
 
-James
+Patch 1:
+-----
+The patch removes a bunch of unnessesary parantheses from return
+statements. There are tons of return statements that look like this: 
+return (-EIO);   return (fn());  etc. 
+The patch removes these unneeded parentheses.
+The patch also removes a lot of spaces from function declarations. There 
+is some inconsistency in the file, some functions are declared as  
+  void fn() { }
+and some as
+  void fn () { }
+So, the patch changes them to all use a common style. I picked the 
+  void fn() { }
+form, since (a) it seems to be the most common form used in the kernel as 
+a whole, (b) it is the form used in Documentation/CodingStyle, and (c) it 
+is the form that reduces the filesize a bit :)
 
---
 
-Change MCA maintainer
+Patch 2 (cut on top of Patch 1): 
+-----
+This patch ensures that copy_to|from_user() return values get checked and 
+dealt with by returning -EFAULT if they fail. Aside from the fact that we 
+really want to handle these failures, this patch also silences these 
+warnings: 
+drivers/ide/ide-tape.c: In function `idetape_copy_stage_from_user': 
+drivers/ide/ide-tape.c:2613: warning: ignoring return value of `copy_from_user', declared with attribute warn_unused_result 
+drivers/ide/ide-tape.c: In function `idetape_copy_stage_to_user': 
+drivers/ide/ide-tape.c:2640: warning: ignoring return value of `copy_to_user', declared with attribute warn_unused_result
 
-Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
 
-===== MAINTAINERS 1.256 vs edited =====
---- 1.256/MAINTAINERS	2004-11-11 02:34:32 -06:00
-+++ edited/MAINTAINERS	2004-11-28 10:09:19 -06:00
-@@ -1451,11 +1451,8 @@
- S:	Maintained
- 
- MISCELLANEOUS MCA-SUPPORT
--P:	David Weinehall
--M:	Project MCA Team <mcalinux@acc.umu.se>
--M:	David Weinehall <tao@acc.umu.se>
--W:	http://www.acc.umu.se/~tao/
--W:	http://www.acc.umu.se/~mcalinux/
-+P:	James Bottomley
-+M:	jejb@steeleye.com
- L:	linux-kernel@vger.kernel.org
- S:	Maintained
- 
+Please review these patches. I don't have the hardware to actually test 
+them myself. All I have been able to do is compile test them and try to 
+convince myself that they are OK by reading the code.
+
+
+-- 
+Jesper Juhl <juhl-lkml@dif.dk>
+
 

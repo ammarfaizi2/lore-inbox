@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266505AbUJAUqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266626AbUJAUqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266505AbUJAUqU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 16:46:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbUJAUl6
+	id S266626AbUJAUqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 16:46:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266505AbUJAUli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 16:41:58 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:37767 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266561AbUJAUk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 16:40:26 -0400
-Subject: Re: [PATCH] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Chris Wright <chrisw@osdl.org>,
-       Jody McIntyre <realtime-lsm@modernduck.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
-In-Reply-To: <87k6ubcccl.fsf@sulphur.joq.us>
-References: <1094967978.1306.401.camel@krustophenia.net>
-	 <20040920202349.GI4273@conscoop.ottawa.on.ca>
-	 <20040930211408.GE4273@conscoop.ottawa.on.ca>
-	 <1096581213.24868.19.camel@krustophenia.net>
-	 <87pt43clzh.fsf@sulphur.joq.us> <20040930182053.B1973@build.pdx.osdl.net>
-	 <87k6ubcccl.fsf@sulphur.joq.us>
+	Fri, 1 Oct 2004 16:41:38 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:45649 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S263743AbUJAUhK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 16:37:10 -0400
+Subject: RE: Serial driver hangs
+From: Paul Fulghum <paulkf@microgate.com>
+To: Stuart MacDonald <stuartm@connecttech.com>
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'Russell King'" <rmk+lkml@arm.linux.org.uk>,
+       "'Roland =?ISO-8859-1?Q?Ca=DFebohm=27?=" 
+	<roland.cassebohm@VisionSystems.de>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <010101c4a7f3$1ef63540$294b82ce@stuartm>
+References: <010101c4a7f3$1ef63540$294b82ce@stuartm>
 Content-Type: text/plain
-Message-Id: <1096663225.27818.12.camel@krustophenia.net>
+Message-Id: <1096662993.2757.29.camel@deimos.microgate.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 01 Oct 2004 16:40:25 -0400
+Date: Fri, 01 Oct 2004 15:36:34 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-01 at 00:05, Jack O'Quin wrote:
-> Chris Wright <chrisw@osdl.org> writes:
-> 
-> > This uses the basic rlimits infrastructure.  You can manage it manually
-> > in a shell with ulimit -l, or you can use pam (pam_limits) to configure
-> > per uid limits.  There's a pam doc that describes limits, and a manpage
-> > for ulimit.  It's really easy to use, and should eliminate the need for
-> > the mlock part of that module.
-> 
-> Thanks for the pointer, Chris.
-> 
-> I'll see if I can figure out a way to make that useable for musicians.
-> 
-> The ulimit approach is way too cumbersome.
+On Fri, 2004-10-01 at 15:13, Stuart MacDonald wrote:
+> I've come late to this discussion. Not sure what the scope of this
+> cleanup is, but I'd like to see the flip buffers done away with
+> entirely, to be replaced by a single buffer with proper r/w locking.
+> Or keep the flip arrangement, but move it out of tty_struct so that it
+> can be made larger. Some of our high speed products find the rx buffer
+> to be less than sufficient.
 
-Agreed.  The whole point of getting realtime-lsm in the kernel is to
-make it _easier_ to get a linux audio (or other realtime system) up and
-running.  Would it be feasible to use rlimits to let users run
-SCHED_FIFO processes?  The ulimit approach would probably be acceptable
-if it subsumed all the functionality of the realtime-lsm module.
+This started as a bug report of a lockup under high load.
+(2 ports @ 921600bps)
 
-Lee
+The cause was serial.c (kernel 2.4) not clearing
+the receive IRQ if the flip buffer was full.
+The ISR simply returned without flushing the
+receive FIFO or disabling receive interrupts.
+The short term cure for the lock up is to
+flush the receive FIFO and discard the data.
+
+The discussion then descended into analysis of the
+flip buffer scheme in general. Everyone seems to agree
+it should be eliminated or replaced.
+It has synchronization problems for SMP.
+
+Alan is busy reworking other tty locking
+issues, and it probably annoyed by the noise
+created by this thread :-)
+
+I suspect when those issues are resovled there
+will be an opportunity to submit suggestions and patches.
+
+-- 
+Paul Fulghum
+paulkf@microgate.com
 

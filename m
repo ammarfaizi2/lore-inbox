@@ -1,61 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261419AbSKBUsb>; Sat, 2 Nov 2002 15:48:31 -0500
+	id <S261406AbSKBUdi>; Sat, 2 Nov 2002 15:33:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261424AbSKBUsb>; Sat, 2 Nov 2002 15:48:31 -0500
-Received: from smtp2.sooninternet.net ([212.246.17.84]:47283 "EHLO
-	smtp2.sooninternet.net") by vger.kernel.org with ESMTP
-	id <S261419AbSKBUsa>; Sat, 2 Nov 2002 15:48:30 -0500
-Date: Sat, 2 Nov 2002 22:54:48 +0200
-From: Kari Hameenaho <khaho@koti.soon.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Logitech wheel and 2.5? (PS/2)
-Message-Id: <20021102225448.6be90473.khaho@koti.soon.fi>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S261407AbSKBUdi>; Sat, 2 Nov 2002 15:33:38 -0500
+Received: from inet-mail2.oracle.com ([148.87.2.202]:14835 "EHLO
+	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
+	id <S261406AbSKBUdg>; Sat, 2 Nov 2002 15:33:36 -0500
+Message-ID: <7312677.1036269363155.JavaMail.nobody@web55.us.oracle.com>
+Date: Sat, 2 Nov 2002 12:36:03 -0800 (PST)
+From: "ALESSANDRO.SUARDI" <ALESSANDRO.SUARDI@oracle.com>
+To: jt@hpl.hp.com, alessandro.suardi@oracle.com
+Subject: Re: 2.5.42: IrDA issues
+Cc: linux-kernel@vger.kernel.org, irda-users@lists.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-Mailer: Oracle Webmail Client
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gregoire Favre wrote:
+> On Thu, Oct 24, 2002 at 11:14:41AM +0200, Alessandro Suardi wrote:
+> > Jean Tourrilhes wrote:
 
->patched, but I got:
->
->  drivers/input/mouse/psmouse.c drivers/input/mouse/psmouse.c: In
->  function `psmouse_process_packet': drivers/input/mouse/psmouse.c:90:
->  label `out' used but not defined make[3]: ***
->  [drivers/input/mouse/psmouse.o] Error 1 make[2]: ***
->  [drivers/input/mouse] Error 2 make[1]: *** [drivers/input] Error 2
-make: *** [drivers] Error 2
+[snip]
 
-There was a line +out: in my patch, maybe you did not apply it correctly
-or the mail caused some changes to patch part. Note that it is against 
-2.5.45. All os the patch is in one function, so it is quite possible to do 
-patching manually (it is only 5 lines anyway), if it somehow gets 
-corrupted.
+> > 09:03:01.369859 xid:rsp 589c38b5 < bb700000 S=6 s=5 Nokia 6310 hint=b125 
+> > [ PnP Modem Fax Telephony IrCOMM IrOBEX ] (27)
+> > 09:03:01.382763 xid:cmd 589c38b5 > ffffffff S=6 s=* dolphin hint=0400 [ 
+> > Computer ] (23)
+> > 09:03:01.422691 snrm:cmd ca=fe pf=1 589c38b5 > bb700000 new-ca=66 (33)
+> > 09:03:01.524835 ua:rsp ca=66 pf=1 589c38b5 < bb700000 (31)
+> > 09:03:01.524997 rr:cmd > ca=66 pf=1 nr=0 (2)
+> > 09:03:01.774694 rr:cmd > ca=66 pf=1 nr=0 (2)
+> > 09:03:02.274609 rr:cmd > ca=66 pf=1 nr=0 (2)
+> > 09:03:02.774533 rr:cmd > ca=66 pf=1 nr=0 (2)
+> > --------------------------------------------------------
+> > 
+> > Then hangs (all this is with the 20021007 driver).
+> > 
+> > 
+> > Hope it's helpful, ciao,
+> > 
+> > --alessandro
+>      That's a speed problem (1152000 is MIR). You are supposed to
+> select the proper module parameters to get speed changes to MIR/FIR to
+> work properly (check IrDA mailing list messages from Daniele). Another
+> solution is to limit the speed of the stack to 115200 (115k - see my
+> web page for details).
 
-Here it is again:
+OK... found finally time to re-test, I ran today the 10/30 smsc-ircc2 driver
+ under RedHat 8.0, kernel 2.5.45 and the 115200 limit (after patching the
+ few remaining uses of __FUNCTION__ in smsc-ircc.c), and the GPRS
+ link stays up instead of going down after < 3 minutes. Speed is definitely
+ slower (using the GPRS link) than the current 2.4.20-rc1 / smc-ircc combo
+ but given the record of GPRS performance 'round here I do know it's not
+ meaningful yet - I'll repost with irdadump logs if performance stays on the
+ low end (my "fast" transfers peak at 3.9KB/s, the slowness of today's
+ tests was about 0.2KB/s).
 
---- linux-2.5.45/drivers/input/mouse/psmouse.c	Thu Oct 31 02:42:20 2002
-+++ linux-2.5.45-usb/drivers/input/mouse/psmouse.c	Fri Nov  1 22:28:25 2002
-@@ -85,6 +85,11 @@
- 
- 	if (psmouse->type == PSMOUSE_PS2PP || psmouse->type == PSMOUSE_PS2TPP) {
- 
-+		/* Logitech radio/battery status or strangeness ?????? */
-+		if (packet[0] == 0xd8) {
-+			goto out;
-+		}
-+
- 		if ((packet[0] & 0x40) == 0x40 && (int) packet[1] - (int) ((packet[0] & 0x10) << 4) > 191 ) {
- 
- 			switch (((packet[1] >> 4) & 0x03) | ((packet[0] >> 2) & 0xc0)) {
-@@ -157,6 +162,7 @@
- 	input_report_rel(dev, REL_X, packet[1] ? (int) packet[1] - (int) ((packet[0] << 4) & 0x100) : 0);
- 	input_report_rel(dev, REL_Y, packet[2] ? (int) ((packet[0] << 3) & 0x100) - (int) packet[2] : 0);
- 
-+out:
- 	input_sync(dev);
- }
- 
+Under 2.5 I keep being spammed by
+
+Nov  2 17:02:52 dolphin kernel: IrLAP, no activity on link!
+Nov  2 17:03:37 dolphin last message repeated 2 times
+Nov  2 17:04:52 dolphin last message repeated 8 times
+Nov  2 17:05:58 dolphin last message repeated 5 times
+Nov  2 17:07:03 dolphin last message repeated 10 times
+Nov  2 17:08:08 dolphin last message repeated 4 times
+Nov  2 17:09:11 dolphin last message repeated 6 times
+Nov  2 17:10:28 dolphin last message repeated 5 times
+Nov  2 17:12:37 dolphin last message repeated 8 times
+Nov  2 17:13:43 dolphin last message repeated 3 times
+
+while a substantially lower amount of spam under 2.4 tells me
+
+Nov  2 21:28:31 dolphin kernel: NETDEV WATCHDOG: irda0: transmit timed out
+Nov  2 21:28:31 dolphin kernel: irda0: transmit timed out
+Nov  2 21:28:38 dolphin kernel: NETDEV WATCHDOG: irda0: transmit timed out
+Nov  2 21:28:38 dolphin kernel: irda0: transmit timed out
+Nov  2 21:29:05 dolphin kernel: NETDEV WATCHDOG: irda0: transmit timed out
+Nov  2 21:29:05 dolphin kernel: irda0: transmit timed out
+
+
+Thanks for now & ciao,
+
+--alessandro

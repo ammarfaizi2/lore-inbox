@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315695AbSEZETA>; Sun, 26 May 2002 00:19:00 -0400
+	id <S315721AbSEZEUh>; Sun, 26 May 2002 00:20:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315711AbSEZES7>; Sun, 26 May 2002 00:18:59 -0400
-Received: from bitmover.com ([192.132.92.2]:28373 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S315695AbSEZES4>;
-	Sun, 26 May 2002 00:18:56 -0400
-Date: Sat, 25 May 2002 21:18:57 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "Kevin O'Connor" <kevin@koconnor.net>
-Cc: Erwin Rol <erwin@muffin.org>, linux-kernel@vger.kernel.org,
-        RTAI users <rtai@rtai.org>
-Subject: Re: RTAI/RtLinux
-Message-ID: <20020525211857.C20253@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Kevin O'Connor <kevin@koconnor.net>, Erwin Rol <erwin@muffin.org>,
-	linux-kernel@vger.kernel.org, RTAI users <rtai@rtai.org>
-In-Reply-To: <1022317532.15111.155.camel@rawpower> <20020525090537.G28795@work.bitmover.com> <20020526000337.A31674@arizona.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S315720AbSEZEUh>; Sun, 26 May 2002 00:20:37 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11027 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315718AbSEZEUf>; Sun, 26 May 2002 00:20:35 -0400
+Date: Sat, 25 May 2002 21:20:32 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Oliver Xymoron <oxymoron@waste.org>
+cc: Robert Schwebel <robert@schwebel.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+In-Reply-To: <Pine.LNX.4.44.0205252159380.2614-100000@waste.org>
+Message-ID: <Pine.LNX.4.44.0205252116240.1028-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 26, 2002 at 12:03:37AM -0400, Kevin O'Connor wrote:
-> Using an analogy, consider what would occur if a company revealed it had a
-> patent on some key part of the Linux dcache - a patent free for all GPL
-> users, but requiring a license for any commercial code.  In theory this
-> isn't a problem, but what happens when that company starts demanding
-> licensing fees from application developers like Oracle, IBM, and even
-> BitKeeper Inc?  What if the patent holder was Rational Inc and they were
-> not eager to license the patent to some companies?  
 
-If you think that we don't worry about this, you're wrong.  That's why we
-write our own code here and don't depend on outside code, and it's also
-why we are constantly spending time in the patent database.  We've made
-changes to BK to avoid Rational patents.  Actually, that may not be true,
-I just assumed that Rational had the merge alg they use patented but I
-never actually found a patent for it.  No worries, we came up with a 
-much nicer way to do it that I'm positive they do not have patented
-because their system can't do it.
 
-And that's what the RTAI guys or anyone else would have to do as well.
-That's why real engineering is so expensive, it's not enough to just
-build it, you have to build it in a way that hasn't been covered by
-some patent.  The only real way I know to do that cheaply is to be
-ahead of everyone else.  Otherwise you have to do your homework.  And 
-at this point, it's virtually impossible to be ahead of everyone else,
-too much ground has been covered.  So you watch the patent database,
-you think about how other people solve the problems, you do what you
-can.  It's not pleasant.  That's way they pay you to do it.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+On Sat, 25 May 2002, Oliver Xymoron wrote:
+>
+> I'm sure you know this route is not very useful - there's practically
+> nothing that we can push across the hard RT divide anyway. We can't do
+> meaningful filesystem I/O, memory allocation, networking, or VM fiddling -
+> what's left?
+
+Atomic memory allocation, for one. Potentially very useful.
+
+> Cleaning up soft RT latencies will make the vast majority of people who
+> think they want hard RT happy anyway.
+
+I certainly personally agree with you, but the hard-liners don't.
+Remember: it took the hard-RT community a long time to accept radical new
+things like CPU caches, and some of them _still_ like the ability to lock
+down cachelines..
+
+		Linus
+
+

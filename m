@@ -1,61 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314146AbSDLV3A>; Fri, 12 Apr 2002 17:29:00 -0400
+	id <S314149AbSDLVjc>; Fri, 12 Apr 2002 17:39:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314147AbSDLV27>; Fri, 12 Apr 2002 17:28:59 -0400
-Received: from ahmler1.mail.eds.com ([192.85.154.71]:46560 "EHLO
-	ahmler1.mail.eds.com") by vger.kernel.org with ESMTP
-	id <S314146AbSDLV26>; Fri, 12 Apr 2002 17:28:58 -0400
-Message-ID: <564DE4477544D411AD2C00508BDF0B6A0C9DD15F@usahm018.exmi01.exch.eds.com>
-From: "Post, Mark K" <mark.post@eds.com>
-To: "'Andries.Brouwer@cwi.nl'" <Andries.Brouwer@cwi.nl>,
-        linux-kernel@vger.kernel.org
-Subject: RE: PROBLEM: kernel mount of initrd fails unless mke2fs uses 1024
-	 byte blocks
-Date: Fri, 12 Apr 2002 17:28:48 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.51)
-Content-Type: text/plain
+	id <S314150AbSDLVjc>; Fri, 12 Apr 2002 17:39:32 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:35556 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S314149AbSDLVjb>;
+	Fri, 12 Apr 2002 17:39:31 -0400
+Date: Fri, 12 Apr 2002 14:31:50 -0700 (PDT)
+Message-Id: <20020412.143150.74519563.davem@redhat.com>
+To: lk@tantalophile.demon.co.uk
+Cc: ak@suse.de, taka@valinux.co.jp, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zerocopy NFS updated
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020412222252.A25184@kushida.apsleyroad.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries,
+   From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+   Date: Fri, 12 Apr 2002 22:22:52 +0100
+   
+   I'm not advocating more locking in read() -- there's no need, and it is
+   quite important that it is fast!  But I would very much appreciate an
+   understanding of the rules that relate reading, writing and truncating
+   processes.  How much ordering & atomicity can I depend on?  Anything at all?
 
-That won't be possible.  Since this initrd is my root file system, when the
-kernel fails to mount it, it goes into a panic and I'm dead.  Any other
-suggestions?
+Basically none it appears :-)
 
-Mark
-
------Original Message-----
-From: Andries.Brouwer@cwi.nl [mailto:Andries.Brouwer@cwi.nl]
-Sent: Friday, April 12, 2002 5:17 PM
-To: Andries.Brouwer@cwi.nl; linux-kernel@vger.kernel.org;
-mark.post@eds.com
-Subject: RE: PROBLEM: kernel mount of initrd fails unless mke2fs uses
-1024 byt e blocks
-
-
-        The kernel does set_blocksize() to change the blocksize of your
-        device. This set_blocksize() throws away all buffers with the
-        now incorrect size. But your device is a ramdisk, and throwing
-        out these buffers kills all your data.
-
-    Andries,
-
-    Thanks for the update.  So, what do I do now?
-    Wait for a fix for 2.2?  Send my problem report to someone else?
-
-First you check whether my analysis is correct:
-check that after the failed mount attempt the ramdisk
-does not hold any data anymore. (Say with od or so.)
-
-Now we have a known problem. You can avoid meeting it
-by only using blocksize 1024. On the kernel side this
-of course will have to be fixed some time.
-I think Adam Richter once submitted a patch to fix this,
-but apparently it was not taken.
-For 2.5 I think the aim must be to get rid of set_blocksize()
-entirely. I don't know whether 2.2 and 2.4 will be fixed.
-
-Andries
+If you need to depend upon a consistent snapshot of what some other
+thread writes into a file, you must have some locking protocol to use
+to synchronize with that other thread.

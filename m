@@ -1,67 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317329AbSGJW2v>; Wed, 10 Jul 2002 18:28:51 -0400
+	id <S317649AbSGJWis>; Wed, 10 Jul 2002 18:38:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317648AbSGJW2u>; Wed, 10 Jul 2002 18:28:50 -0400
-Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:21518 "EHLO
-	mail.tv-sign.ru") by vger.kernel.org with ESMTP id <S317329AbSGJW2t>;
-	Wed, 10 Jul 2002 18:28:49 -0400
-Message-ID: <3D2CB668.8CC739B6@tv-sign.ru>
-Date: Thu, 11 Jul 2002 02:34:16 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	id <S317652AbSGJWis>; Wed, 10 Jul 2002 18:38:48 -0400
+Received: from pD952AE71.dip.t-dialin.net ([217.82.174.113]:24707 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317649AbSGJWir>; Wed, 10 Jul 2002 18:38:47 -0400
+Date: Wed, 10 Jul 2002 16:41:23 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Andrew Morton <akpm@zip.com.au>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       Linux <linux-kernel@vger.kernel.org>
+Subject: Re: HZ, preferably as small as possible
+In-Reply-To: <Pine.LNX.4.44.0207101559460.5067-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.44.0207101640340.5067-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: mingo@elte.hu
-Subject: Re: [patch] sched-2.5.24-D3, batch/idle priority scheduling, SCHED_BATCH
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Hi,
 
-> > > > And users of __KERNEL_SYSCALLS__ and kernel_thread() should not
-> > > > have policy == SCHED_BATCH.
-> >
-> > well, there's one security consequence here - module loading
-> > (request_module()), which spawns a kernel thread must not run as
-> > SCHED_BATCH. I think the right solution for that path is to set the
-> > policy to SCHED_OTHER upon entry, and restore it to the previous one
-> > afterwards - this way the helper thread has SCHED_OTHER priority.
->
-> i've solved this problem by making kernel_thread() spawned threads drop
-> back to SCHED_NORMAL:
+On Wed, 10 Jul 2002, Thunder from the hill wrote:
+> Want a config option? Either int or bool (CONFIG_LOW_HZ). It's not too 
+> much effort.
 
-Note that request_module() also does waitpid(). So it's better to change
-policy upon entry, as You suggested.
+I guess I forgot the half of it...
 
-> I believe this is the secure way of doing it - independently of
-> SCHED_BATCH - a RT task should not spawn a RT kernel thread 'unwillingly'.
+What arches do we want?
 
-Yes, but this semantic change should be ported to all archs
-independently of
-low level microoptimizations, for consistency. Rename all definitions to
-arch_kernel_thread() ?
+Index: arch/i386/Config.help
+===================================================================
+RCS file: /var/cvs/thunder-2.5/arch/i386/Config.help,v
+retrieving revision 1.4
+diff -p -u -r1.4 Config.help
+--- arch/i386/Config.help	7 Jul 2002 09:59:46 -0000	1.4
++++ arch/i386/Config.help	10 Jul 2002 22:40:17 -0000
+@@ -991,3 +991,13 @@ CONFIG_X86_EARLY_PRINTK
+   to the console  much earlier in the boot  process than printk.  This
+   is useful when  debugging fatal problems early in  the boot sequence
+   (e.g. within setup_arch).  If unsure, say N.
++
++Low kernel scheduler rate
++CONFIG_SCHED_LOW_HZ
++  Enable this  if you care about  your CPU sleeping  time. The current
++  interval for  scheduling processes in  the kernel has  recently been
++  increased. The advantage is less latency for many things that depend
++  on the  timer, the disadvantage is  that your cpu  will probably not
++  go to sleep in time (so  CPU power management will possibly not work
++  at all)
++
+Index: include/asm-i386/param.h
+===================================================================
+RCS file: /var/cvs/thunder-2.5/include/asm-i386/param.h,v
+retrieving revision 1.2
+diff -p -u -r1.2 param.h
+--- include/asm-i386/param.h	6 Jul 2002 18:17:30 -0000	1.2
++++ include/asm-i386/param.h	10 Jul 2002 22:40:17 -0000
+@@ -2,7 +2,11 @@
+ #define _ASMi386_PARAM_H
+ 
+ #ifdef __KERNEL__
+-# define HZ		1000		/* Internal kernel timer frequency */
++# ifdef CONFIG_SCHED_LOW_HZ
++#  define HZ		100		/* Internal kernel timer frequency */
++# else
++#  define HZ		1000		/* Internal kernel timer frequency */
++# endif
+ # define USER_HZ	100		/* .. some user interfaces are in "ticks" */
+ # define CLOCKS_PER_SEC	(USER_HZ)	/* like times() */
+ #endif
 
-Btw, how about this tiny bit of cleanup:
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 
-asmlinkage void schedule_userspace(void)
-{
-    /*
-     * Only handle batch tasks that are runnable.
-     */
-    if (current->policy == SCHED_BATCH &&
-        current->state == TASK_RUNNING) {
-        runqueue_t *rq = this_rq_lock();
-        deactivate_batch_task(current, rq);
-
-        // we can keep irqs disabled:
-        spin_unlock(&rq->lock);
-    }
-
-    schedule();
-}
-
-Oleg.

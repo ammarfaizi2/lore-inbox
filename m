@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312279AbSD0NqN>; Sat, 27 Apr 2002 09:46:13 -0400
+	id <S314093AbSD0Nv1>; Sat, 27 Apr 2002 09:51:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313818AbSD0NqM>; Sat, 27 Apr 2002 09:46:12 -0400
-Received: from ns1.baby-dragons.com ([199.33.245.254]:37611 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S312279AbSD0NqL>; Sat, 27 Apr 2002 09:46:11 -0400
-Date: Sat, 27 Apr 2002 09:45:46 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [OFF TOPIC] BK license change
-In-Reply-To: <878z79fpzv.fsf@CERT.Uni-Stuttgart.DE>
-Message-ID: <Pine.LNX.4.44.0204270939010.5500-100000@filesrv1.baby-dragons.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314096AbSD0NvZ>; Sat, 27 Apr 2002 09:51:25 -0400
+Received: from ns.suse.de ([213.95.15.193]:11794 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S314093AbSD0NvS>;
+	Sat, 27 Apr 2002 09:51:18 -0400
+Date: Sat, 27 Apr 2002 15:51:16 +0200
+From: Dave Jones <davej@suse.de>
+To: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.10-dj1
+Message-ID: <20020427155116.I14743@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Rudmer van Dijk <rudmer@legolas.dynup.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020427030823.GA21608@suse.de> <200204271313.g3RDD4024060@smtp1.wanadoo.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Apr 27, 2002 at 02:51:21PM +0200, Rudmer van Dijk wrote:
 
-	Hello Florian (&all) ,  BK is (primarily in this community) used
-	by the kernel maintainers .  What happens to the little guy who
-	may make a once a year contribution & uses BK ?  Also what methods
-	of announcement for New BK versions are there ?  Because as soon
-	as a new version is advertised the copy I am using even if I am
-	unaware of the newer version I do not have a valid license to use
-	it .  This is per your remarks below .
-	I'd -really- like to see what would happen if something like this
-	were placed on the GCC sources .  Me thinks linus et-al would be
-	creating their own compiler .  Just some food for thought .
-		Twyl ,  JimL
+ > compiled fine, but after booting the system does not respond to the keyboard 
+ > (I can see the message "serio: i8042 KBD port at 0x60,0x64 irq 1" om my 
+ > screen)
 
-On Sat, 27 Apr 2002, Florian Weimer wrote:
+There are some reports that ACPI is having a bad interaction with the
+keyboard controller. For now, disabling it may fix this.
 
-> Pavel Machek <pavel@suse.cz> writes:
->
-> > Oh and btw how can you change licence retroactively? Those "abusers" have
-> > right to continue to use old versions under old licences...
->
-> BK licenses become invalid as soon as a new BK version is released
-> which contains bug fixes or behaves differently in any way.
->
-> --
-> Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
-> University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
-> RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+ > The system also hangs after fscking my root partition (fsck completed without 
+ > errors)
+ > After my harddisks went to sleep I switched the system off and after booting 
+ > the kernel (2.4.19-pre7) panics (and the caps- and scroll-lock leds are 
+ > blinking) as it can not mount the root fs due to the following errors:
+ > EXT2-fs error (device ide0(3,1)): ext2_check_descriptors: Block bitmap for 
+ > group 0 not in group (block 0)!
+ > EXT2-fs: group descriptors corrupted!
 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+This is somewhat disturbing. I'll look over the VFS changes, but I'm not
+aware of anything added specifically to my tree that could cause this,
+so it may be either an ext2 issue in mainline, or one of the drivers.
 
+IDE ? SCSI ?
+
+    Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

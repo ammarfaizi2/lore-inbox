@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268064AbUHTJH1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267891AbUHTJKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268064AbUHTJH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 05:07:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265099AbUHTJF2
+	id S267891AbUHTJKL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 05:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268098AbUHTJHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 05:05:28 -0400
-Received: from pop.gmx.net ([213.165.64.20]:38620 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267737AbUHTJCk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 05:02:40 -0400
-Date: Fri, 20 Aug 2004 11:02:36 +0200 (MEST)
-From: "Michael Kerrisk" <mtk-lkml@gmx.net>
-To: "Michael Kerrisk" <mtk-lkml@gmx.net>
-Cc: roland@redhat.com, torvalds@osdl.org, akpm@osdl.org, drepper@redhat.com,
-       linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net
+	Fri, 20 Aug 2004 05:07:44 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:1645 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267891AbUHTJGc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 05:06:32 -0400
+Message-ID: <4125BF0F.6080803@yahoo.com.au>
+Date: Fri, 20 Aug 2004 19:06:23 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
 MIME-Version: 1.0
-References: <28571.1092981652@www22.gmx.net>
-Subject: Re: [PATCH] waitid system call
-X-Priority: 3 (Normal)
-X-Authenticated: #23581172
-Message-ID: <20310.1092992556@www22.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+To: Oliver Neukum <oliver@neukum.org>
+CC: Hugh Dickins <hugh@veritas.com>, Pete Zaitcev <zaitcev@redhat.com>,
+       arjanv@redhat.com, alan@redhat.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org, riel@redhat.com, sct@redhat.com
+Subject: Re: PF_MEMALLOC in 2.6
+References: <Pine.LNX.4.44.0408191320320.17508-100000@localhost.localdomain> <200408200956.50972.oliver@neukum.org> <4125B111.2040308@yahoo.com.au> <200408201052.51178.oliver@neukum.org>
+In-Reply-To: <200408201052.51178.oliver@neukum.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland,
-
-Just to follow up with one more data point.
-
-> I did some more investigaton and testing:
+Oliver Neukum wrote:
+> Am Freitag, 20. August 2004 10:06 schrieb Nick Piggin:
 > 
-> -- Tru64 5.1 behaves like Solaris 8 -- si_pid == 0 for
->    the WNOHANG with no children case.
+>>>>So I'd say try to find a way to only use PF_MEMALLOC on behalf of
+>>>>a PF_MEMALLOC thread or use a mempool or something.
+>>>
+>>>
+>>>Then the SCSI layer should pass down the flag.
+>>>
+>>
+>>It would be ideal from the memory allocator's point of view to do it
+>>on a per-request basis like that.
+>>
+>>When the rubber hits the road, I think it is probably going to be very
+>>troublesome to do it right that way. For example, what happens when
+>>your usb-thingy-thread blocks on a memory allocation while handling a
+>>read request, then the system gets low on memory and someone tries to
+>>free some by submitting a write request to the USB device?
 > 
-> -- HP-UX 11 is different -- not even POSIX compliant.  It
->    returns -1 with ECHILD in this scenario.  
 > 
-> -- According to the man pages, waitid() is also present on
->    Irix 6.5 and UnixWare 7, but I don't have access to 
->    those systems to run a test (my earlier test program
->    would be sufficient to test on those systems).
+> The write request will have to wait. Storage cannot do concurrent IO.
+> But all memory allocated in the read request will be GFP_NOIO or
+> GFP_ATOMIC so the conclusion of the memory allocation should not
+> wait for IO. Either it fails and we report that to the SCSI layer or it
+> is completed and the write serviced in turn.
+> At least that's the intent.
 > 
-> So, discounting the non-compliant HP-UX, on other 
-> implementations we have 2 out of 2 for the "si_pid == 0"
-> behavior.  (I will see if I can get access to other
-> systems for further testing.)  So, how about 
-> reconsidering the approach for Linux?
 
-Someone has supplied with me with a data point for Irix 6.5 
-(and 6.2).  Irix behaves like Solaris 8.  So that's 3 out 
-of 3 for the "si_pid == 0" behavior (plus a buggy HP-UX 11).
-I will try to get a Unixware data point, but that will 
-probably take several days.  (I wonder if anyone can supply 
-an AIX data point?)
+In that case, having the SCSI layer pass down the flag may be a viable
+option.
 
-Cheers,
-
-Michael
-
-Cheers,
-
-Michael
-
--- 
-NEU: Bis zu 10 GB Speicher für e-mails & Dateien!
-1 GB bereits bei GMX FreeMail http://www.gmx.net/de/go/mail
-
+Just FYI, non atomic allocations need to be __GFP_NORETRY otherwise they
+won't fail (unless order >= 3). I suspect this detail is fairly important.

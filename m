@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVAPQQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbVAPQTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbVAPQQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 11:16:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbVAPQQY
+	id S262532AbVAPQTE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 11:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbVAPQTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 11:16:24 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:56618 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262123AbVAPQQI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 11:16:08 -0500
-Date: Sun, 16 Jan 2005 17:16:22 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: changing local version requires full rebuild
-Message-ID: <20050116161622.GC3090@mars.ravnborg.org>
-Mail-Followup-To: "Michael S. Tsirkin" <mst@mellanox.co.il>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-References: <20050116152242.GA4537@mellanox.co.il>
+	Sun, 16 Jan 2005 11:19:04 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:7369 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262532AbVAPQSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 11:18:47 -0500
+Date: Sun, 16 Jan 2005 16:18:37 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tim Bird <tim.bird@am.sony.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11-rc1-mm1
+Message-ID: <20050116161836.GB26144@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Tim Bird <tim.bird@am.sony.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <20050114002352.5a038710.akpm@osdl.org> <1105742791.13265.3.camel@tglx.tec.linutronix.de> <41E8543A.8050304@am.sony.com> <1105748656.13265.90.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050116152242.GA4537@mellanox.co.il>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1105748656.13265.90.camel@tglx.tec.linutronix.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 16, 2005 at 05:22:42PM +0200, Michael S. Tsirkin wrote:
-> Hi!
-> Is it just me, or does changing the local version always require
-> a full kernel rebuild?
+On Sat, Jan 15, 2005 at 01:24:16AM +0100, Thomas Gleixner wrote:
+> Putting a 200k patch into the kernel for limited usage and maybe
+> restricting a generic simple non intrusive and more generic
+> implementation by its mere presence is making it inapplicable enough.
 > 
-> If so, I'd like to fix it, since I like copying
-> my kernel source with --preserve and changing the
-> local version, then going back to the old version in case of
-> a crash.
-> Its important to change the local version to force 
-> make install and make modules_install to put things in a separate
-> directory.
+> Merge the instrumentation points from ltt and other projects like DSKI
+> and the places where in kernel instrumentation for specific purposes is
+> already available and use a simple and effective framework which moves
+> the burden into postprocessing and provides a simple postmortem dump
+> interface, is the goal IMHO.
+> 
+> When this is available, trace tool developers can concentrate on
+> postprocessing improvement rather than moving postprocessing
+> incapabilities into the kernel.
 
-Just tried it out here.
-After cp -Ra only a limited part of the kernel rebuilds.
-o oiu.c in ieee directory - because it dependson the shell script
-o A number of drivers that include version.h
-	- This should be changed so local version does not affect
-	  the reast of version.h.
-o Other stuff that is always build if kernel has changed
+I completely agree with that statement.  We've been working in most
+areas of the kernel to move or keep complexity and policy in userspace.
+The same should be true for a tracing framework.
 
-Do you use "echo -mylocalver > localversion" to change the local version?
-
-	Sam

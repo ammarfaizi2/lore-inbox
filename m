@@ -1,58 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262866AbTDIHEz (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 03:04:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbTDIHEz (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 03:04:55 -0400
-Received: from grunt5.ihug.co.nz ([203.109.254.45]:55482 "EHLO
-	grunt5.ihug.co.nz") by vger.kernel.org with ESMTP id S262866AbTDIHEy (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 03:04:54 -0400
-Message-ID: <002e01c2ff18$2f043ca0$0b721cac@stacy>
-From: "dave" <davekern@ihug.co.nz>
-To: <linux-kernel@vger.kernel.org>
-Subject: help DMA FIFO buffer
-Date: Wed, 9 Apr 2003 21:18:01 -0700
+	id S262868AbTDIHFz (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 03:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262872AbTDIHFz (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 03:05:55 -0400
+Received: from [212.209.119.90] ([212.209.119.90]:42251 "HELO
+	mail.pricerunner.com") by vger.kernel.org with SMTP id S262868AbTDIHFy (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 03:05:54 -0400
+Message-ID: <3E93C876.6040201@gorling.se>
+Date: Wed, 09 Apr 2003 09:15:02 +0200
+From: =?ISO-8859-1?Q?Stefan_G=F6rling?= <stefan@gorling.se>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.5.xx boot floppys
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 1
-X-MSMail-Priority: High
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi I am writing a device driver LNVRM is uses DMA for commands and data
-i need a function that will wait until their is enough room in the FIFO for
-the new
-data this function works but their must be a better way I need a formula
-that dose
-not have if's in it
+Hi,
 
-Like this
+I'm struggling with a troublesome machine, just for the sake of it I 
+though I'd try booting it with a 2.5 floppy, is there someone out there 
+providing standard boot/resuce discs with 2.5 and aic79xx support?
 
-#define NV04_DMA_WAIT_FREE(free)                 while((dma->size -
-(dma->put - dma->control->get)) < free)
+Yeah, I know I'm lazy..
 
-thank you .
-
-also it thear is no way can this be made inline ?
-
-void lnvrm_dmaNv04WaitFree(struct _nvxf_dmaChannel dma , unsigned long)
-{
-  unsigned long get , put = dma->put , size = dma->mask + 1 , free , f = 0 ;
-
- loop1:
-  get = dma->control->Get ;
-
-  if(put < get)
-    free = size - (size - get + put) ;
-  else
-    free = size - (put - get) ;
-
-  if(count <= free) return ; /* Get out as quick as possible */
-
-  if(f) { ErrorF("lnvrm_dmaNv04WaitFree: FIFO FULL free = %8.8lX needed =
-%8.8lX\n",free,count) ; f++ }
-  goto loop1 ;
-}
+/Stefan
 

@@ -1,42 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262991AbVCXC7C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbVCXDEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262991AbVCXC7C (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 21:59:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262992AbVCXC7B
+	id S261692AbVCXDEG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 22:04:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbVCXDEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 21:59:01 -0500
-Received: from mail.renesas.com ([202.234.163.13]:41717 "EHLO
-	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S262991AbVCXC67 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 21:58:59 -0500
-Date: Thu, 24 Mar 2005 11:58:54 +0900 (JST)
-Message-Id: <20050324.115854.420522549.takata.hirokazu@renesas.com>
-To: akpm@osdl.org
-Cc: takata@linux-m32r.org, linux-kernel@vger.kernel.org, sugai@isl.melco.co.jp,
-       ysato@users.sourceforge.jp, inaoka.kazuhiro@renesas.com,
-       fujiwara@linux-m32r.org
-Subject: Re: [PATCH 2.6.12-rc1] m32r: Update MMU-less support (0/3)
-From: Hirokazu Takata <takata@linux-m32r.org>
-In-Reply-To: <20050323183535.658d4faf.akpm@osdl.org>
-References: <20050324.104815.304093279.takata.hirokazu@renesas.com>
-	<20050323183535.658d4faf.akpm@osdl.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 23 Mar 2005 22:04:06 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:13972 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261692AbVCXDDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 22:03:50 -0500
+Message-ID: <42422E40.5080703@comcast.net>
+Date: Wed, 23 Mar 2005 22:04:32 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Triffid Hunter <triffid_hunter@funkmunch.net>
+CC: ubuntu-devel <ubuntu-devel@lists.ubuntu.com>, linux-kernel@vger.kernel.org
+Subject: Re: vfat broken in 2.6.10?
+References: <4241E3EA.4080501@comcast.net> <42420858.8020404@funkmunch.net>
+In-Reply-To: <42420858.8020404@funkmunch.net>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-From: Andrew Morton <akpm@osdl.org>
-> I'd prefer it if you could avoid sending multiple patches with the same
-> title in future, please.  It mucks up my patch naming and tracking system,
-> and surely all three patches weren't doing the same thing?
+
+
+Triffid Hunter wrote:
+> i've seen the same problems with a fat32 partition image after an
+> unclean shutdown. reading certain files would cause the filesystem to
+> spontaneously become read-only with error messages similar to the ones
+> you list below.
+
+Clean umount, not unclean.  Not even removing the device, no shutdown.
+I'm not damaging the filesystem except by actually using it.
+
+It's remniscent of using NTFS with "full read-write" under Linux, where
+you have lots of damage afterwards even though you didn't do anything
+nasty to damage it.
+
 > 
-> More at http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt, thanks.
+> my solution was to copy all the files off, rename the offending
+> directory, and copy the relevant files back. unfortunately i can't
+> remove the "dead" folder, as attempting to remove it sets the filesystem
+> read-only :(
 > 
 
-Sorry for the inconvinience, and many thanks for your elaboration.
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
 
--- Takata
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCQi5AhDd4aOud5P8RAiedAJ40CyoAYYdu1jbSnl1j8J7/iXH2dQCbBuND
+uZX0j3qIZe3TYQ2NMMelgks=
+=XMEH
+-----END PGP SIGNATURE-----

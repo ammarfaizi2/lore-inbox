@@ -1,35 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269156AbUJEP02@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269103AbUJEP3w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269156AbUJEP02 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 11:26:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269059AbUJEPYD
+	id S269103AbUJEP3w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 11:29:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269102AbUJEP3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 11:24:03 -0400
-Received: from dsl254-100-205.nyc1.dsl.speakeasy.net ([216.254.100.205]:64759
-	"EHLO memeplex.com") by vger.kernel.org with ESMTP id S269008AbUJEPRM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 11:17:12 -0400
-From: "Andrew A." <aathan-linux-kernel-1542@cloakmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: High Resolution Timer patches crash with slower DDR memory?
-Date: Tue, 5 Oct 2004 11:16:55 -0400
-Message-ID: <NFBBICMEBHKIKEFBPLMCEEJGIMAA.aathan-linux-kernel-1542@cloakmail.com>
+	Tue, 5 Oct 2004 11:29:52 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:53671 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S269103AbUJEP3U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 11:29:20 -0400
+Date: Tue, 5 Oct 2004 17:28:59 +0200 (CEST)
+From: Simon Derr <Simon.Derr@bull.net>
+X-X-Sender: derrs@openx3.frec.bull.fr
+To: Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] cpusets : fix cpuset_get_dentry()
+Message-ID: <Pine.LNX.4.61.0410051727400.19964@openx3.frec.bull.fr>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does it make sense to anyone that when I run a 2.6.8.1 system patched with HRT using 2 sticks of PC3200 DDR memory (512Meg total) it
-works fine, but when I add a stick of PC2700 DDR memory (3 sticks total to 1024Meg) it throws kernel panics and page fault errors?
-Same system running an unpatched kernel has no problems.
 
-A.
+Hi Andrew,
 
+This patch fixes a trivial bug, triggered when using the cpusets as a 
+non-root user.
 
+Against 2.6.9-rc2-mm1.
+
+	Simon.
+
+Signed-off-by: Paul Jackson <pj@sgi.com>
+Signed-off-by: Simon Derr <simon.derr@bull.net>
+
+Index: 269rc2mm1/kernel/cpuset.c
+===================================================================
+--- 269rc2mm1.orig/kernel/cpuset.c	2004-10-05 16:35:32.751926987 +0200
++++ 269rc2mm1/kernel/cpuset.c	2004-10-05 16:36:27.769504438 +0200
+@@ -235,7 +235,7 @@ static struct dentry *cpuset_get_dentry(
+ 	qstr.len = strlen(name);
+ 	qstr.hash = full_name_hash(name, qstr.len);
+ 	d = lookup_hash(&qstr, parent);
+-	if (d)
++	if (!IS_ERR(d))
+ 		d->d_op = &cpuset_dops;
+ 	return d;
+ }

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263021AbSJBJmV>; Wed, 2 Oct 2002 05:42:21 -0400
+	id <S263017AbSJBJkn>; Wed, 2 Oct 2002 05:40:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263022AbSJBJmV>; Wed, 2 Oct 2002 05:42:21 -0400
-Received: from [212.3.242.3] ([212.3.242.3]:24817 "HELO mail.vt4.net")
-	by vger.kernel.org with SMTP id <S263021AbSJBJmU>;
-	Wed, 2 Oct 2002 05:42:20 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.40: neofb: danger danger - Oopsen imminent
-Date: Wed, 2 Oct 2002 11:47:39 +0200
-User-Agent: KMail/1.4.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200210021147.39338.devilkin-lkml@blindguardian.org>
+	id <S263018AbSJBJkm>; Wed, 2 Oct 2002 05:40:42 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:28947 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S263017AbSJBJkm>; Wed, 2 Oct 2002 05:40:42 -0400
+Date: Wed, 02 Oct 2002 18:46:07 +0900 (JST)
+Message-Id: <20021002.184607.73791540.yoshfuji@wide.ad.jp>
+To: ajtuomin@morphine.tml.hut.fi
+Cc: davem@redhat.com, kuznet@ms2.inr.ac.ru, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] Mobile IPv6 for 2.5.40 (request for kernel inclusion)
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@wide.ad.jp>
+In-Reply-To: <20021002092111.GB17010@morphine.tml.hut.fi>
+References: <20021002092111.GB17010@morphine.tml.hut.fi>
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I use the neofb on my laptop, using the following audio/graphics chip:
+In article <20021002092111.GB17010@morphine.tml.hut.fi> (at Wed, 2 Oct 2002 12:21:11 +0300), Antti Tuominen <ajtuomin@morphine.tml.hut.fi> says:
 
-01:00.0 VGA compatible controller: Neomagic Corporation [MagicMedia 256AV] 
-(rev 12) (prog-if 00 [VGA])
-        Subsystem: Dell Computer Corporation: Unknown device 0088
-        Flags: bus master, medium devsel, latency 32, IRQ 11
-        Memory at f9000000 (32-bit, prefetchable) [size=16M]
-        Memory at fdc00000 (32-bit, non-prefetchable) [size=4M]
-        Memory at fdb00000 (32-bit, non-prefetchable) [size=1M]
-        Capabilities: [dc] Power Management version 1
+> Diff against latest BK bits can be downloaded from:
+> 	http://www.mipl.mediapoli.com/download/linux-2.5+mipv6.diff
 
-When I shut down my system, it is the last message I get. It happens after 
-everything has been unmounted. 
+% wget http://www.mipl.mediapoli.com/download/linux-2.5+mipv6.diff
+--18:45:25--  http://www.mipl.mediapoli.com/download/linux-2.5+mipv6.diff
+           => `linux-2.5+mipv6.diff'
+Resolving www.mipl.mediapoli.com... done.
+Connecting to www.mipl.mediapoli.com[212.68.2.195]:80... connected.
+HTTP request sent, awaiting response... 403 Forbidden
+18:45:25 ERROR 403: Forbidden.
 
-After this message the system is locked solid.
-
-DK
 -- 
-Fudd's First Law of Opposition:
-	Push something hard enough and it will fall over.
-
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

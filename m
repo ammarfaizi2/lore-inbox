@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276073AbRJBSCu>; Tue, 2 Oct 2001 14:02:50 -0400
+	id <S276074AbRJBSFA>; Tue, 2 Oct 2001 14:05:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276074AbRJBSCb>; Tue, 2 Oct 2001 14:02:31 -0400
-Received: from mail.case.pt ([194.65.97.60]:35592 "EHLO case_primary.case.pt")
-	by vger.kernel.org with ESMTP id <S276073AbRJBSCV> convert rfc822-to-8bit;
-	Tue, 2 Oct 2001 14:02:21 -0400
-Message-ID: <01C14B73.9F052000.rui.ribeiro@case.pt>
-From: Rui Ribeiro <rui.ribeiro@case.pt>
-Reply-To: "rui.ribeiro@case.pt" <rui.ribeiro@case.pt>
-To: "'Petr Titera'" <Petr.Titera@quick.cz>,
-        "haiquy@yahoo.com" <haiquy@yahoo.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: linux kernel 2.4.10 possibly breaks LILO
-Date: Tue, 2 Oct 2001 18:54:10 +0100
-Organization: Case, S.A.
-X-Mailer: Microsoft Internet E-mail/MAPI - 8.0.0.4211
+	id <S276081AbRJBSEu>; Tue, 2 Oct 2001 14:04:50 -0400
+Received: from web13102.mail.yahoo.com ([216.136.174.147]:24332 "HELO
+	web13102.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S276074AbRJBSEe>; Tue, 2 Oct 2001 14:04:34 -0400
+Message-ID: <20011002180502.25799.qmail@web13102.mail.yahoo.com>
+Date: Tue, 2 Oct 2001 11:05:02 -0700 (PDT)
+From: Chris Rankin <rankincj@yahoo.com>
+Subject: Which is currently the most stable 2.4 kernel?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using LILO 21.6.1 w/ 2.4.10 and Reiserfs in my two notebooks: a Compaq Armada 1500c and a Compaq Armada 100S.
+Hi,
 
-Rui
+I have 2 servers which might need to go unattended for
+several weeks at a time. They are currently running
+vanilla 2.4.10 but my confidence in this (SMP) kernel
+has been shaken when it spontaneously froze solid the
+other day while I was viewing a web-page in Mozilla.
+(And all I was doing was using the scrollbar on an
+already-loaded page! No oops messages, no chance to
+use Alt-SysRq, nothing.)
 
------Original Message-----
-From:	Petr Titera [SMTP:owl@volny.cz]
-Sent:	Terça-feira, 2 de Outubro de 2001 18:55
-To:	haiquy@yahoo.com
-Cc:	linux-kernel@vger.kernel.org
-Subject:	Re: linux kernel 2.4.10 possibly breaks LILO
+All that the servers would be doing would be
+connecting to the Internet periodically using PPPoE
+and DSL (with NAT), forwarding emails and performing
+various CPU-bound tasks. They should both have ample
+available memory and should not need to swap much, if
+at all.
 
-Possitive here. Just try to change to new kernel image. I was forced to
-install grub after upgrading to 2.4.10.
+Does anyone have any kernel recommendations /
+counter-recommendations, please? One server is SMP,
+the other is UP, and both are Intel architecture.
 
-Petr
+Cheers,
+Chris
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+
+__________________________________________________
+Do You Yahoo!?
+Listen to your Yahoo! Mail messages from any phone.
+http://phone.yahoo.com

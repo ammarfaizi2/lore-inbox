@@ -1,40 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267489AbTACLCk>; Fri, 3 Jan 2003 06:02:40 -0500
+	id <S267491AbTACLJX>; Fri, 3 Jan 2003 06:09:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267490AbTACLCk>; Fri, 3 Jan 2003 06:02:40 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:25555 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267489AbTACLCj>;
-	Fri, 3 Jan 2003 06:02:39 -0500
-Date: Fri, 3 Jan 2003 11:09:01 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: odd phenomenon.
-Message-ID: <20030103110901.GC2567@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030103103816.GA2567@codemonkey.org.uk> <20030103104809.GD9704@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030103104809.GD9704@holomorphy.com>
-User-Agent: Mutt/1.4i
+	id <S267492AbTACLJX>; Fri, 3 Jan 2003 06:09:23 -0500
+Received: from cibs9.sns.it ([192.167.206.29]:531 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id <S267491AbTACLJW>;
+	Fri, 3 Jan 2003 06:09:22 -0500
+Date: Fri, 3 Jan 2003 12:17:29 +0100 (CET)
+From: venom@sns.it
+To: Richard Stallman <rms@gnu.org>
+cc: mark@mark.mielke.cc, <efault@gmx.de>, <Hell.Surfers@cwctv.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+In-Reply-To: <E18UMb1-0001Zo-00@fencepost.gnu.org>
+Message-ID: <Pine.LNX.4.43.0301031208260.3887-100000@cibs9.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 03, 2003 at 02:48:09AM -0800, William Lee Irwin III wrote:
- > > It's almost 100% reproducable here.  Only seen it do it on this box
- > > though which is a P4 with HT, so it could be SMP related..
- > > Ideas ?
- > (1) strace?
+On Fri, 3 Jan 2003, Richard Stallman wrote:
 
-That was my first thought. Everything works as expected though
-when you try to strace it.
+> Date: Fri, 03 Jan 2003 02:50:23 -0500
+> From: Richard Stallman <rms@gnu.org>
+> To: mark@mark.mielke.cc
+> Cc: efault@gmx.de, Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
+> Subject: Re: Nvidia and its choice to read the GPL "differently"
+>
+>     Actually, since Linux is the kernel, and GNU/Linux (or GNU+Linux) is
+>     the collection of tools that make the full system,
+>
+> That's almost correct, but not quite.  GNU/Linux is the whole system,
+> the combination of GNU and Linux.
 
-		Dave
+err, excuse me, but where are XFree86 or KDE and so on?
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+they are not included in the GNU, I suppose.
+
+So we should talk about Xfree86/KDE/GNU/whatever/Linux... too long...
+
+should we focus just on what is mandatory for a basic networked system?
+
+Basically, I could use a libc4/5 based system, withouth gcc and so on, with BSD
+inetutils and BSD fileutils (ls cp and so on), ksh anc csh as shells, and linux
+kernel.
+How should I call this system? (and I have also
+systems not running glibc right now, depending on when I installed them.)
+
+I can understand your reasons, and I can also agree with them, but
+I am quite impressed reading a nominalistic discussion on lkml, with almost the
+same argumentations and logical plant of medioeval nominalistic
+syllogismi.
+
+It is quite interesting, the story of culture is quite a wheel, and
+people mental attitude, storically, seems to be recurisive (not evolutionary).
+
+Luigi
+
+>
+> Many people think GNU is a collection of tools, because the best known
+> among the programs we developed for GNU are tools.  We also developed
+> other programs for GNU that are not tools.  But GNU is not just a
+> collection of various programs; it's an operating system which in 1992
+> was mostly complete.  (See http://www.gnu.org/gnu/the-gnu-project.html.)
+>
+>     it would be
+>     *inaccurate* to say anything but "Linux" when talking about "Linux,
+>     the operating system."
+>
+> The term "operating system" has sometimes been used with the same
+> meaning as "kernel", but nowadays when people speak of operating
+> systems they typically mean complete systems such as HPUX, Solaris,
+> Windows, MacOS, GNU, and GNU/Linux.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

@@ -1,33 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279524AbRJ2VIQ>; Mon, 29 Oct 2001 16:08:16 -0500
+	id <S279529AbRJ2VM4>; Mon, 29 Oct 2001 16:12:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279529AbRJ2VIG>; Mon, 29 Oct 2001 16:08:06 -0500
-Received: from pacujo.datastreet.com ([208.179.44.95]:46865 "EHLO
-	lumo.pacujo.nu") by vger.kernel.org with ESMTP id <S279524AbRJ2VHz>;
-	Mon, 29 Oct 2001 16:07:55 -0500
-Date: Mon, 29 Oct 2001 13:07:25 -0800
-From: Marko Rauhamaa <marko@pacujo.nu>
-Message-Id: <200110292107.NAA09665@lumo.pacujo.nu>
-To: linux-kernel@vger.kernel.org
-Subject: Need blocking /dev/null
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S279531AbRJ2VMr>; Mon, 29 Oct 2001 16:12:47 -0500
+Received: from cnexch.calix.com ([12.43.50.35]:27409 "EHLO cnexch.calix.com")
+	by vger.kernel.org with ESMTP id <S279529AbRJ2VMi>;
+	Mon, 29 Oct 2001 16:12:38 -0500
+Message-ID: <1D7F262B87C0D31180C800508BDCDEC79142F3@petntm02>
+From: Chris Rumpf <Chris.Rumpf@calix.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: join?
+Date: Mon, 29 Oct 2001 13:13:08 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I would like to join this mailing list.
 
-I noticed that I need a pseudodevice that opens normally but blocks all
-reads (and writes). The only way out would be through a signal. Neither
-/dev/zero nor /dev/null block, but is there some other standard device
-that would do the job?
+/* ---
+     Christopher M. Rumpf
+     707.766.3390
+     --- */
 
-If there isn't, writing such a pseudodevice would be trivial. What
-should it be called? Any chance of including that in the kernel?
-
-
-Marko
-
--- 
-Marko Rauhamaa    mailto:marko@pacujo.nu     http://www.pacujo.nu/marko/

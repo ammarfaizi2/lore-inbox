@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280961AbRLSSKE>; Wed, 19 Dec 2001 13:10:04 -0500
+	id <S280817AbRLSSGd>; Wed, 19 Dec 2001 13:06:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280971AbRLSSJy>; Wed, 19 Dec 2001 13:09:54 -0500
-Received: from donna.siteprotect.com ([64.41.120.44]:28177 "EHLO
-	donna.siteprotect.com") by vger.kernel.org with ESMTP
-	id <S280961AbRLSSJs>; Wed, 19 Dec 2001 13:09:48 -0500
-Date: Wed, 19 Dec 2001 13:09:34 -0500 (EST)
-From: John Clemens <john@deater.net>
-X-X-Sender: <john@pianoman.cluster.toy>
-To: "Martin A. Brooks" <martin@jtrix.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: asynchronus multiprocessing
-In-Reply-To: <1008777560.431.19.camel@unhygienix>
-Message-ID: <Pine.LNX.4.33.0112191303420.10093-100000@pianoman.cluster.toy>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280960AbRLSSGX>; Wed, 19 Dec 2001 13:06:23 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:60678 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S280817AbRLSSGO>; Wed, 19 Dec 2001 13:06:14 -0500
+Date: Wed, 19 Dec 2001 12:06:09 -0600
+From: Ken Brownfield <brownfld@irridia.com>
+To: Dead2 <dead2@circlestorm.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The direction linux is taking
+Message-ID: <20011219120609.B18888@asooo.flowerfire.com>
+In-Reply-To: <E16GLmv-0007d4-00@the-village.bc.nu> <026701c187d5$ec2472c0$67c0ecd5@dead2> <20011218123724.A32316@asooo.flowerfire.com> <01121909274103.01840@manta> <003301c18873$7d06f8b0$6c2876d9@dead2>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <003301c18873$7d06f8b0$6c2876d9@dead2>; from dead2@circlestorm.org on Wed, Dec 19, 2001 at 10:56:53AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-I looked into this a little while ago... never got a patch working
-100% correctly...there was some discussions about it on the SGI Linux
-Scalability list (as far as i can tell, it was the -only- discussion on
-the SGI list, as the IBM list started about the same time.. ahhh, orphaned
-mailing lists..).. It was a quick-n-dirty hack, and only the beginnings of
-one at that...
-
-i put a quick page up about it at
-http://www.deater.net/john/processorgroups.html
-
-Conclusion: Could be done, not worth it for miniscule speed gains, could
-be much more of a benefit on NUMA machines, but the linux scalable
-scheduler's out there are probably a much better approach to doing the
-same thing...
-
-john.c
-
-On 19 Dec 2001, Martin A. Brooks wrote:
-
-> On Wed, 2001-12-19 at 15:40, Martin A. Brooks wrote:
-> > Has there been any talk of (or work on) AMP support in the kernel?
->
-> I meant /asymmetric/ MP. Sorry.
->
->
+That's one of the specific options I proposed.  I think it would be best
+if it were focussed on lkml reports rather than noise from everywhere,
+and also if it kept the maintainers' interface as simple and explicit as
+possible.  And yes, who is the question that I'm pondering as well.
 
 -- 
-John Clemens          http://www.deater.net/john
-john@deater.net     ICQ: 7175925, IM: PianoManO8
-      "I Hate Quotes" -- Samuel L. Clemens
+Ken.
+brownfld@irridia.com
 
-
+On Wed, Dec 19, 2001 at 10:56:53AM +0100, Dead2 wrote:
+|  > What might take out a few birds with one stone is to have someone on
+| > > lkml become an "LKML MAINTAINER": collect patches and bug reports in a
+| > > central place.  This would include:
+| > >
+| > > 1) The patch and/or bug report
+| > > 2) The entire LKML thread, with "important" messages marked
+| > > 3) Personal input, prioritization, severity info, etc.
+| >
+| > Good idea but _who_ will do that?
+| 
+| Just a thought that popped into my head..
+| What about using some kind of BugTrack system for this?
+| Where people can report a bug, and file patches for them.
+| There would indeed be some situations where 2-3-4 maybe
+| more patches are filed to fix one bug. Then the maintainer
+| can easily look through the patches and descide what to use..
+| 
+| -=Dead2=-
+| 
+| 
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263953AbTKTXcl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 18:32:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbTKTXcl
+	id S263504AbTKTX0P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 18:26:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263119AbTKTX0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 18:32:41 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:1038 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263953AbTKTXci
+	Thu, 20 Nov 2003 18:26:15 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:43447 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S263895AbTKTXZe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 18:32:38 -0500
-Date: Thu, 20 Nov 2003 18:21:47 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Michal Semler (volny.cz)" <cijoml@volny.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: HT enable on BIOS which doesn't supports it?
-In-Reply-To: <200311181645.02744.cijoml@volny.cz>
-Message-ID: <Pine.LNX.3.96.1031120181555.11021E-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 20 Nov 2003 18:25:34 -0500
+Date: Thu, 20 Nov 2003 23:25:32 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: transmeta cpu code question
+Message-ID: <20031120232532.GA8229@mail.shareable.org>
+References: <20031120020218.GJ3748@schottelius.org> <200311201210.04780.ben@jeeves.bpa.nu> <20031120083827.GL3748@schottelius.org> <bpitsu$732$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bpitsu$732$1@cesium.transmeta.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Nov 2003, Michal Semler (volny.cz) wrote:
+H. Peter Anvin wrote:
+> It's also not faster in any meaningful way, since the dynamic
+> translator does optimistic optimization.
 
-> Hi, in my laptop Acer TravelMate242 I have HT enabled CPU,
-> 
-> but when I try start up with SMP or LocalAPIC kernel enabled, kernel freezes 
-> during boot time.
-> 
-> Is there any possibility to run HT enabled CPU on my laptop without BIOS 
-> support?
+Statically compiled code for the Crusoe chips may not be faster.
+(Arguably statically compiled code for _any_ CPU is not the best
+strategy for fast code).
 
-You have HT, but only one sibling. You have the ability to share resources
-and no other sibling with whom to share them.
+But if someone is able to write better code morphing software than
+Transmeta, that would be faster :)
 
-Think of it as a bicycle built for two with only one rider. You can pedal
-from either seat but it won't go any faster.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+-- Jamie

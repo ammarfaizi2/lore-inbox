@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318151AbSIJV34>; Tue, 10 Sep 2002 17:29:56 -0400
+	id <S318145AbSIJV3Q>; Tue, 10 Sep 2002 17:29:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318152AbSIJV34>; Tue, 10 Sep 2002 17:29:56 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:22188 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318151AbSIJV3z>;
-	Tue, 10 Sep 2002 17:29:55 -0400
-Date: Tue, 10 Sep 2002 14:26:46 -0700 (PDT)
-Message-Id: <20020910.142646.97775138.davem@redhat.com>
-To: steve@neptune.ca
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre6 tg3 compile errors
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0209101732350.17602-100000@triton.neptune.on.ca>
-References: <20020910.142108.08824481.davem@redhat.com>
-	<Pine.LNX.4.44.0209101732350.17602-100000@triton.neptune.on.ca>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S318151AbSIJV3Q>; Tue, 10 Sep 2002 17:29:16 -0400
+Received: from node-c-067b.a2000.nl ([62.194.6.123]:2413 "HELO
+	pipc.pipsels.pip") by vger.kernel.org with SMTP id <S318145AbSIJV3N>;
+	Tue, 10 Sep 2002 17:29:13 -0400
+Date: Tue, 10 Sep 2002 23:33:49 +0200
+From: Remco Post <r.post@sara.nl>
+To: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
+Subject: [TRIVIAL PATCH] typo in svclock.c (linuxppc-2.5 tree)
+Message-Id: <20020910233349.613c01ae.r.post@sara.nl>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Steve Mickeler <steve@neptune.ca>
-   Date: Tue, 10 Sep 2002 17:33:15 -0400 (EDT)
-   
-   Yes, all I patched was tg3.c and tg3.h
+Hi,
 
-That isn't going to work, the current driver uses NAPI
-which means you need the rest of the 2.4.20-X networking
-bits too.
+did a rr in vi and then some diff -c:
+
+*** linuxppc-2.5/fs/lockd/svclock.c.org	Tue Sep 10 23:13:29 2002
+--- linuxppc-2.5/fs/lockd/svclock.c	Tue Sep 10 23:16:37 2002
+***************
+*** 467,473 ****
+   * the block to the head of nlm_blocked where it can be picked up by lockd.
+   */
+  static void
+! nlmsvc_notify_blocked(stsuct file_lock *fl)
+  {
+  	struct nlm_block	**bp, *block;
+  
+--- 467,473 ----
+   * the block to the head of nlm_blocked where it can be picked up by lockd.
+   */
+  static void
+! nlmsvc_notify_blocked(struct file_lock *fl)
+  {
+  	struct nlm_block	**bp, *block;
+  

@@ -1,334 +1,149 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279231AbRJZVYQ>; Fri, 26 Oct 2001 17:24:16 -0400
+	id <S279305AbRJZVQr>; Fri, 26 Oct 2001 17:16:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279277AbRJZVYI>; Fri, 26 Oct 2001 17:24:08 -0400
-Received: from mpdr0.detroit.mi.ameritech.net ([206.141.239.206]:32167 "EHLO
-	mailhost.det.ameritech.net") by vger.kernel.org with ESMTP
-	id <S279231AbRJZVXz>; Fri, 26 Oct 2001 17:23:55 -0400
-Date: Fri, 26 Oct 2001 17:28:08 -0400 (EDT)
-From: volodya@mindspring.com
-Reply-To: volodya@mindspring.com
-To: Gerd Knorr <kraxel@bytesex.org>
-cc: video4linux-list@redhat.com, livid-gatos@linuxvideo.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [V4L] Re: [RFC] alternative kernel multimedia API
-In-Reply-To: <200110261752.f9QHqxoM007951@bytesex.masq.in-berlin.de>
-Message-ID: <Pine.LNX.4.20.0110261611500.12062-100000@node2.localnet.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279277AbRJZVQg>; Fri, 26 Oct 2001 17:16:36 -0400
+Received: from peabody.ximian.com ([141.154.95.10]:16644 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP
+	id <S279229AbRJZVQV>; Fri, 26 Oct 2001 17:16:21 -0400
+Subject: Re: Seg fault when syncing Sony Clie 760 with USB cradle
+From: "Peter A. Goodall" <pete@ximian.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011025205538.A25032@kroah.com>
+In-Reply-To: <1004062619.1406.29.camel@localhost.localdomain> 
+	<20011025205538.A25032@kroah.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.25.15.53 (Preview Release)
+Date: 26 Oct 2001 17:16:50 -0400
+Message-Id: <1004131018.2425.164.camel@192.168.10-148.masq>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 26 Oct 2001, Gerd Knorr wrote:
-
-> > > what exactly is bad with the v4l2 controls?
-> >  
-> >  a) no way to use them to set non-integer data (like gamma tables)
+> Does the oops happen at the end of the sync, or at the beginning?
 > 
-> Yes, they aren't designed for complex stuff.  They can do boolean,
-> multiple choice and integer options.  These ones an application can
-> easily present a reasonable GUI to the user without knowing what the
-> control exactly is good for.  For more complex stuff like gamma tables
-> (list of integers?) it is IMHO nearly impossible to build a reasonable
-> GUI without knowing what these values are actually good for.  Or even
-> know whenever it is useful to build a GUI for it or not.
+> Can you run that oops through ksymoops for me?
+>  
 
-First of all such a GUI is relatively easy to build: see gamma controls in
-XV. Secondly, you are presenting a shaky argument: GUI is hard to built
-hence do not let user adjust them at all..
+Hopefully this will help.  I'll paste output below:
 
-> 
-> >  b) labels are limited to 32 chars, no way to provide "comment" fields.
-> >    (I would like the driver to provide a short label and longer,
-> >     user-readable and understable comment field).
-> 
-> IMHO this isn't the job of the device driver.  Think about translations
-> of these descriptions for example ...
-> 
+ksymoops 2.4.0 on i686 2.4.12-xfs.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.12-xfs/ (default)
+     -m /boot/System.map-2.4.12-xfs (default)
 
-I think it is a job of the interface presented to the user. Since we want
-the application to find this information from the driver it should know
-it.
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-> >  c) no way to present control dependencies.
-> 
-> I don't see how your approach handles this.
+Warning (compare_maps): ksyms_base symbol
+__start___kallsyms_R__ver___start___kallsyms not found in System.map. 
+Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol
+__stop___kallsyms_R__ver___stop___kallsyms not found in System.map. 
+Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol
+create_bounce_R__ver_create_bounce not found in System.map.  Ignoring
+ksyms_base entry
+Warning (compare_maps): ksyms_base symbol
+highmem_start_page_R__ver_highmem_start_page not found in System.map. 
+Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol
+kallsyms_address_to_symbol_R__ver_kallsyms_address_to_symbol not found
+in System.map.  Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol
+kallsyms_symbol_to_address_R__ver_kallsyms_symbol_to_address not found
+in System.map.  Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol kmap_high_R__ver_kmap_high not
+found in System.map.  Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol kunmap_high_R__ver_kunmap_high
+not found in System.map.  Ignoring ksyms_base entry
+Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base
+says c021b700, System.map says c0151640.  Ignoring ksyms_base entry
+Warning (compare_maps): mismatch on symbol usb_devfs_handle  , usbcore
+says c8854080, /lib/modules/2.4.12-xfs/kernel/drivers/usb/usbcore.o says
+c8853b40.  Ignoring /lib/modules/2.4.12-xfs/kernel/drivers/usb/usbcore.o
+entry
+Oct 26 11:42:45 localhost kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 00000014
+Oct 26 11:42:45 localhost kernel: c88c6103
+Oct 26 11:42:45 localhost kernel: *pde = 00000000
+Oct 26 11:42:45 localhost kernel: Oops: 0002
+Oct 26 11:42:45 localhost kernel: CPU:    0
+Oct 26 11:42:45 localhost kernel: EIP:   
+0010:[fat:__insmod_fat_S.bss_L2264+389699/11025069]    Not tainted
+Oct 26 11:42:45 localhost kernel: EIP:    0010:[<c88c6103>]    Not
+tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+Oct 26 11:42:45 localhost kernel: EFLAGS: 00210202
+Oct 26 11:42:45 localhost kernel: eax: c658fc00   ebx: c6fa1094   ecx:
+c6fa10f0   edx: 00000000
+Oct 26 11:42:45 localhost kernel: esi: c6fa1000   edi: 00000000   ebp:
+c2f57edc   esp: c2f57ea4
+Oct 26 11:42:45 localhost kernel: ds: 0018   es: 0018   ss: 0018
+Oct 26 11:42:45 localhost kernel: Process coldsync (pid: 1092,
+stackpage=c2f5700
+Oct 26 11:42:45 localhost kernel: Stack: c53b9000 c45953a0 0000bc01
+c88c03f4 c6fa1094 c45953a0 c53b9000 00000000 
+Oct 26 11:42:45 localhost kernel:        c01cf995 c53b9000 c45953a0
+c019e29b c421fa30 00000002 c53b9000 c01b579f 
+Oct 26 11:42:45 localhost kernel:        c421f9a4 00000008 c421f9a4
+00000180 00000000 c421f9a4 00000008 c2e99240 
+Oct 26 11:42:45 localhost kernel: Call Trace:
+[fat:__insmod_fat_S.bss_L2264+365876/11048892] [tty_open+565/960]
+[xfs_iunlock+75/128] [xfs_access+47/64] [linvfs_permission+33/48] 
+Oct 26 11:42:45 localhost kernel: Call Trace: [<c88c03f4>] [<c01cf995>]
+[<c019e29b>] [<c01b579f>] [<c01c0051>] 
+Oct 26 11:42:45 localhost kernel:    [<c013bcbd>] [<c0133e26>]
+[<c0132e76>] [<c0132d7d>] [<c013bb3e>] [<c01330a4>] 
+Oct 26 11:42:45 localhost kernel:    [<c0106f0b>] 
+Oct 26 11:42:45 localhost kernel: Code: 89 42 14 8b 4e 04 0f b6 53 24 8b
+01 c1 e2 0f c1 e0 08 09 d0 
 
-Ahh, it is not there yet. I did not want to do it until there is a simple
-driver to experiment with. It would be along the lines of
-HUE_DEPENDENT_ON=....
+>>EIP; c88c6103 <[xircom_cb]trigger_transmit+3/20>   <=====
+Trace; c88c03f4 <[ide-cd].data.end+2d35/7941>
+Trace; c01cf995 <tty_open+235/3c0>
+Trace; c019e29b <xfs_iunlock+4b/80>
+Trace; c01b579f <xfs_access+2f/40>
+Trace; c01c0051 <linvfs_permission+21/30>
+Trace; c013bcbd <permission+1d/30>
+Trace; c0133e26 <chrdev_open+36/40>
+Trace; c0132e76 <dentry_open+e6/190>
+Trace; c0132d7d <filp_open+4d/60>
+Trace; c013bb3e <getname+5e/a0>
+Trace; c01330a4 <sys_open+34/90>
+Trace; c0106f0b <system_call+33/38>
+Code;  c88c6103 <[xircom_cb]trigger_transmit+3/20>
+00000000 <_EIP>:
+Code;  c88c6103 <[xircom_cb]trigger_transmit+3/20>   <=====
+   0:   89 42 14                  mov    %eax,0x14(%edx)   <=====
+Code;  c88c6106 <[xircom_cb]trigger_transmit+6/20>
+   3:   8b 4e 04                  mov    0x4(%esi),%ecx
+Code;  c88c6109 <[xircom_cb]trigger_transmit+9/20>
+   6:   0f b6 53 24               movzbl 0x24(%ebx),%edx
+Code;  c88c610d <[xircom_cb]trigger_transmit+d/20>
+   a:   8b 01                     mov    (%ecx),%eax
+Code;  c88c610f <[xircom_cb]trigger_transmit+f/20>
+   c:   c1 e2 0f                  shl    $0xf,%edx
+Code;  c88c6112 <[xircom_cb]trigger_transmit+12/20>
+   f:   c1 e0 08                  shl    $0x8,%eax
+Code;  c88c6115 <[xircom_cb]trigger_transmit+15/20>
+  12:   09 d0                     or     %edx,%eax
 
-> 
-> >    For example in ATI cards there are several ways you can control gamma:
-> >    gamma table, gamma overlay setting, gamma setting in the decoder chip.
-> >    same goes for brightness. I would rather expose all the controls and
-> >    show their relationship then bundle them up in one control
-> 
-> ... and thus trying to make the driver tell the applications how the GUI
-> should present the controls to the user?
 
-No, but allow the driver to expose the structure to the application. 
+11 warnings issued.  Results may not be reliable.
 
-> 
-> > > Ok, you replace the '#define V4L2_CID_HUE 0x???' with the magic string
-> > > "HUE" then.  The point is?
-> >  
-> >  ioctl are kernel specific. My scheme proposes a set of mmaped buffers and
-> >  character stream. The plus is that I can make Xmultimedia extension that
-> >  also presents a set of shared buffers and character stream. The
-> >  application code will be exactly the same.
-> 
-> That's your main point I assume?  You are trying to kill the ioctls
-> because you want to use the same protocol between application + driver
-> and application + other application (say a X-Server)?
-> 
 
-One of them. The cards I am writing v4l driver for are graphics cards with
-integrated capture. You get:
-  * v4l/v4l2 capture
-  * Xv video overlay
-  * interfaces not supported by current infrastructure
-
-This is too complex, if you consider that all these things do is adjust
-some values and transfer chunks of data.
-
-> >  Additionally nonone will need to include kernel headers to compile the
-> >  application.
-> 
-> Why do you want to avoid this?
-> 
-
-So I can distribute the driver and the application to use it and not
-depend on the kernel version.
-
-> >  Also magic string HUE is a bigger namespace then an
-> >  integer number. 
-> 
-> I doubt we will ever run out of space with 2^32 integer numbers.  I have
-> yet to see a v4l2 driver which has more than 2^8 controls ...
-> 
-
-We did run out of TCP/IP addresses and major/minor numbers. I can see
-myself introducing GAMMA_xxx which start from 0x10000000 and go another
-0x1000 numbers.
-
-> > > >         * be compatible with a wide range of applications
-> > > 
-> > > ???
-> > > Sorry, but I don't see why your approach handles this better than v4l2.
-> >  
-> >  Since the application accesses the driver symbolically they only have to
-> >  worry about agreeing on semantics. For example the driver can layout its
-> >  control structs any way it likes (say, to mirror hardware registers) and 
-> >  the application will bind to them. 
-> 
-> I don't see any difference to v4l2 here ...
-> 
-> >  Also, mmaped buffers + character device fits a larger category then just
-> >  the devices mentioned in v4l2 specifications. Granted the specification
-> >  can be extended, but the new driver will have to distribute not only its
-> >  source but a patch to the kernel headers. The scheme will avoid this.
-> 
-> And why this is better?  You likely still have to teach the applications
-> about the new features of the driver if you actually want to use them
-> (unless there are just a few new controls, but this case can easily
-> handled with v4l2 too).
-> 
-
-You don't have to invent a new kernel header just to support a new set of
-devices.
-
-> > > >         * introduce support for new features without the need to modify
-> > > >           kernel interfaces
-> > > 
-> > > Hmm.  I don't like the idea to add new stuff that easily.  People tend
-> > > to do quick&dirty hacks + crazy stuff with it, leading to more
-> > > incompatibilies between drivers and applications.
-> >  
-> >  And people will always be able to write a driver outside video4linux
-> >  framework. In fact, plenty of drivers and applications are incompatible as
-> >  is. The same is true about audio drivers. 
-> 
-> Yes, these incompatibility issues are bad.  But I doubt the situation
-> will become better if every driver can easily add new stuff.
-> 
-
-If this does not interfere with other drivers -  yes.
-
-> >  The compatibility is achived best by specifications that are clear and
-> >  easy to implement. This proposal helps it by providing a well defined
-> >  interface and by separating semantic meaning from actual interface. 
-> 
-> The semantic needs to be documented too, otherwise it easily gets worse
-> than v4l2.  One big plus for v4l2 is that it actually has very good API
-> specs.
-
-v4l2 is quite a lot bettern than v4l. But it is quite static. Think about
-what needs to be done to enable gamma tables for video out - this is not
-trivial..
-
-> 
-> >  First the internal kernel library will insure that the control interface
-> >  is standard across drivers. Secondly, the drivers are free to use whatever
-> >  fields they want - no restriction their.  Thirdly, the way the applications
-> >  know they deal, say, with a grabber device is when the driver says it
-> >  supports a certain INTERFACE_CLASS. Hence, to make sure the drivers
-> >  behave, all we have to do is bar any driver which declares itself
-> >  compliant with a certain INTERFACE_CLASS but isn't from entering the
-> >  kernel.
-> 
-> I don't see how this is different from the v4l2 ioctl interface.  We
-> have capability flags, ...
-> 
-> >  And the added advantage is that we can have many INTERFACE_CLASSes
-> >  which vary in implementation difficulty, so that BASIC_GRABBER-YUV422
-> >  would be very easy to implement (just expose the buffers) and something
-> >  more advanced could be added later. This solves the conflict of people
-> >  wanting to have _some_ driver and the time consumption of writing a driver
-> >  that supports all features.
-> 
-> I doubt this fixes the problem (driver devel time) you've mentioned.
-> Most of the time of the driver development is needed for the code which
-> talks to the hardware.  Building a simple v4l(2) ioctl interface which
-> just says "I can nothing but capture, and the format list is YUV422" is
-> easy compared to the other work which needs to be done for a working
-> driver.  v4l(2) doesn't force you to wait with the release until you
-> have a full-featured driver ...
-
-It's not. What I want to be able to do is to release a driver that
-supports basic functionality plus a bunch of device-specific stuff for
-which no API exists. Then, with more experience, we can make an API. 
-With current approach we make an API first, and then write the
-driver. That's why we need v4l2: v4l was an API designed for bt848 cards
-which was impossible to extend without breaking applications.
-
-> 
-> > > >  The last point is the very important in my opinion. For example, in
-> > > >  current specification, v4l2 has no support for TV-out in graphics cards.
-> > > >  It has no support for setting complex parameters like gamma tables. 
-> > > >  Using memory-mapped buffers requires device specific ioctls.
-> > > 
-> > > Which device specific ioctls?  They are common for _all_ v4l2 devices.
-> >  
-> >  Quote from http://www.thedirks.org/v4l2/v4l2dev.htm :
-> >  
-> >  A common use for memory-mapped buffers is for streaming data to and from
-> >  drivers with minimum overhead. Drivers will maintain internal queues of
-> >  buffers and process them asynchonously. The ioctl commands for doing that
-> >  are described in the device-specific documents. Memory-mapping can also be
-> >  used for a variety of other purposes. Drivers can define hardware-specific
-> >  memory buffer types if needed. Use V4L2_BUF_TYPE_PRIVATE_BASE and greater
-> >  values for such buffer types. 
-> 
-> Ok, for different device types.  Currently only capture drivers exist
-> for v4l2 btw.  I doubt that your application will use the _same_ code
-> path for a _different_ device type.
-> 
-
-A good deal of the code path could be preserved. What I want more is to
-eliminate patching generic kernel interfaces to implement support
-for new devices.
-
-> > > >  The goal is to create an interface that does not rely on structures
-> > > >  defined in kernel headers for communication. 
-> > > 
-> > > Why do you want to do that?
-> >  
-> >   * not elegant
-> 
-> "elegant" is hardly a argument because it is subjective.
-> 
-
-But explains why I want it ;)
-
-> >   * kernel structures force a specific model onto a driver
-> 
-> The control strings you want to read() and write() to the driver do
-> exactly the same, because they must have some clear defined semantic to
-> make the whole model actually workable.
-> 
-
-The benifit is that we dont have to define it in the kernel headers. Right
-now if I want to add a new ioctl I have tons of problems:
-
-      * how do I communicate to the application source the new structs
-        I am using ?
-      * what do I do if someone uses the same ioctl in the kernel source
-      * what happens if I want to add a new field during driver
-        development ? (users will see crashing applications..)
-
-> >   * can cause problems with different compilers
-> 
-> Then your compiler is buggy.
-
-No, I may have simply used different compilers for the kernel and the
-application.
-
-> 
-> >   * confuse applications when a driver does not implement a field
-> 
-> With v4l2 controls this shouldn't be a issue any more.
-
-What if the driver does not support counting dropped frames ? What if
-there is a control with no min/max limits ?
-
-> 
-> >  However, this is hard to implement with ioctl's as they rely on fixed
-> >  length structures. You would have to call first to find out the size of
-> >  the buffer you need (which the driver would have to compute) and then the
-> >  second time to get the data. Eeeks.
-> 
-> Wrong.  Look at the specs for the v4l2 controls.
-
-Can I return a string as a value ? (For a device specific control).
-Can I set/read gamma values ?
-
-> 
-> >  Now what is left are the structs describing the format of memory buffers. 
-> >  But the driver typically has this info in a struct itself. Instead of
-> >  getting it via ioctl simply mmap the area - you'll be getting the exact
-> >  same information yourself with less context switches.
-> 
-> read() + write() need context switches too.  And ioctl() can actually
-> pass informations in both directions, there are cases where you need
-> _more_ context switches with read()/write() than with ioctl() because
-> with ioctl one system calls does the job, but with read()/write() you
-> need two:  one for the request and one to get back the actual data.
-> 
-
-control interface is not meant to be high bandwidth. this pefectly fine +
-the benifits mentioned earlier.
-
-> >  This gets rid of the structs. 
-> 
-> Using strings instead adds a overhead to both driver and applications
-> for string parsing.  And the application likely puts the parsed data
-> into a struct again anyway ...
-> 
-
-I don't think this true as parsing is really not that hard. I don't expect
-you to believe me though until there is some code to work with.
-
-> >  What is left of v4l now are synchronization ioctls. But we can replace
-> >  them with read/writes on the control device. With the added benifit that
-> >  we can select on it to wait for an event.
-> 
-> v4l2 expects drivers to support select too, so you can wait for your
-> capture requests using select.
-
-Which means one more thing in the driver to support.
-
-                         Vladimir Dergachev
-
-> 
->   Gerd
-> 
-> -- 
-> Netscape is unable to locate the server localhost:8000.
-> Please check the server name and try again.
-> 
-
+-- 
+Pete Goodall
+  Support Tech
+  Ximian, Inc.
+  pete@ximian.com
 

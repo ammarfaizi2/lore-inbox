@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285427AbRLNR2t>; Fri, 14 Dec 2001 12:28:49 -0500
+	id <S285430AbRLNRfJ>; Fri, 14 Dec 2001 12:35:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285429AbRLNR2b>; Fri, 14 Dec 2001 12:28:31 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:40200 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S285427AbRLNR2R>; Fri, 14 Dec 2001 12:28:17 -0500
-Message-ID: <3C1A3652.52B989E4@zip.com.au>
-Date: Fri, 14 Dec 2001 09:26:42 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: Johan Ekenberg <johan@ekenberg.se>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        jack@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: Lockups with 2.4.14 and 2.4.16
-In-Reply-To: <000a01c1829f$75daf7a0$050010ac@FUTURE>,
-		<000a01c1829f$75daf7a0$050010ac@FUTURE> <3825380000.1008348567@tiny>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S285433AbRLNRe7>; Fri, 14 Dec 2001 12:34:59 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:10973 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S285430AbRLNRew>;
+	Fri, 14 Dec 2001 12:34:52 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 14 Dec 2001 17:34:48 GMT
+Message-Id: <UTC200112141734.RAA20953.aeb@cwi.nl>
+To: torvalds@transmeta.com
+Subject: [PATCH] kill(-1,sig)
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason wrote:
-> 
-> Ok, Johan sent along stack traces, and the deadlock works a little like this:
-> 
-> linux-2.4.16 + reiserfs + quota v2
-> 
-> kswapd ->
-> prune_icache->dispose_list->dquot_drop->commit_dquot->generic_file_write->
-> mark_inode_dirty->journal_begin-> wait for trans to end
+The new POSIX 1003.1-2001 is explicit about what kill(-1,sig)
+is supposed to do. Maybe we should follow it.
 
-uh-huh.
+Andries
 
-> Some process in the transaction is waiting on kswapd to free ram.
-
-This is unfamiliar.  Where does a process block on kswapd in this
-manner?  Not __alloc_pages I think.
+--- signal.c~	Thu Nov 22 01:26:27 2001
++++ signal.c	Fri Dec 14 18:27:34 2001
+@@ -649,8 +649,10 @@
+ /*
+  * kill_something_info() interprets pid in interesting ways just like kill(2).
+  *
+- * POSIX specifies that kill(-1,sig) is unspecified, but what we have
+- * is probably wrong.  Should make it like BSD or SYSV.
++ * POSIX (2001) specifies "If pid is -1, sig shall be sent to all processes
++ * (excluding an unspecified set of system processes) for which the process
++ * has permission to send that signal."
++ * So, probably the process should also signal itself.
+  */
  
-> So, this will hit any journaled FS that uses quotas and logs inodes under
-> during a write.  ext3 doesn't seem to do special things for quota anymore, so
-> it should be affected too.
-
-mm.. most of the ext3 damage-avoidance hacks are around writepage().
-
-> The only fix I see is to make sure kswapd doesn't run shrink_icache, and to
-> have it done via a dedicated daemon instead.  Does anyone have a better idea?
-
-Well, we already need to do something like that to prevent the
-abuse of keventd in there.  It appears that somebody had a
-problem with deadlocks doing the inode writeout in kswapd but
-missed the quota problem.
-
-Is it possible for the quota code to just bale out if PF_MEMALLOC
-is set?  To leave the dquot dirty?
-
--
+ static int kill_something_info(int sig, struct siginfo *info, int pid)
+@@ -663,7 +665,7 @@
+ 
+ 		read_lock(&tasklist_lock);
+ 		for_each_task(p) {
+-			if (p->pid > 1 && p != current) {
++			if (p->pid > 1) {
+ 				int err = send_sig_info(sig, info, p);
+ 				++count;
+ 				if (err != -EPERM)

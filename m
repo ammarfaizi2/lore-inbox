@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265215AbUGQQpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266182AbUGQQxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265215AbUGQQpA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 12:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266182AbUGQQpA
+	id S266182AbUGQQxN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 12:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266546AbUGQQxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 12:45:00 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:29390 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S265215AbUGQQo7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 12:44:59 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH] reduce inter-node balancing frequency
-Date: Sat, 17 Jul 2004 12:44:11 -0400
-User-Agent: KMail/1.6.2
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       John Hawkes <hawkes@sgi.com>
-References: <200407151829.20069.jbarnes@engr.sgi.com> <200407161045.38983.jbarnes@engr.sgi.com> <40F8965E.6070809@yahoo.com.au>
-In-Reply-To: <40F8965E.6070809@yahoo.com.au>
-MIME-Version: 1.0
+	Sat, 17 Jul 2004 12:53:13 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:63681 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266182AbUGQQxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jul 2004 12:53:10 -0400
+Date: Sat, 17 Jul 2004 18:53:04 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: coreteam@netfilter.org
+Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
+Subject: [2.6 patch] ipv4/netfilter/Kconfig: simplify dependencies
+Message-ID: <20040717165303.GE4759@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407171244.11008.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, July 16, 2004 11:00 pm, Nick Piggin wrote:
-> Out of interest, what sort of performance problems are you seeing with
-> this high rate of global balancing? I have a couple of patches to cut down
-> runqueue locking to almost zero in interrupt paths, although I imagine the
-> main problem you are having is pulling a cacheline off every remote CPU
-> when calculating runqueue loads?
+It seems that originating from the automatic Kconfig transition, some 
+dependencies in ipv4/netfilter/Kconfig are correct, but too complicated.
 
-John might remember the details, I didn't get a backtrace this time.  When we 
-boot with the default values on a 512p system, it livelocks shortly after 
-init starts.  I *think* what's happening is that a the global rebalance value 
-is shorter than the time it takes to do the global rebalance, due to 
-cacheline contention.
+The patch below makes them a bit more simple.
 
-Jesse
+--- linux-2.6.8-rc1-mm1-full/net/ipv4/netfilter/Kconfig.old	2004-07-17 17:43:55.000000000 +0200
++++ linux-2.6.8-rc1-mm1-full/net/ipv4/netfilter/Kconfig	2004-07-17 18:12:43.000000000 +0200
+@@ -307,7 +307,7 @@
+ 
+ config IP_NF_NAT_NEEDED
+ 	bool
+-	depends on IP_NF_CONNTRACK!=y && IP_NF_IPTABLES!=y && (IP_NF_COMPAT_IPCHAINS!=y && IP_NF_COMPAT_IPFWADM || IP_NF_COMPAT_IPCHAINS) || IP_NF_IPTABLES && IP_NF_CONNTRACK && IP_NF_NAT
++	depends on IP_NF_COMPAT_IPFWADM || IP_NF_COMPAT_IPCHAINS || IP_NF_NAT
+ 	default y
+ 
+ config IP_NF_TARGET_MASQUERADE
+@@ -392,19 +392,19 @@
+ # or $CONFIG_IP_NF_FTP (m or y), whichever is weaker.  Argh.
+ config IP_NF_NAT_FTP
+ 	tristate
+-	depends on IP_NF_IPTABLES!=n && IP_NF_CONNTRACK!=n && IP_NF_NAT!=n
++	depends on IP_NF_NAT!=n
+ 	default IP_NF_NAT if IP_NF_FTP=y
+ 	default m if IP_NF_FTP=m
+ 
+ config IP_NF_NAT_TFTP
+ 	tristate
+-	depends on IP_NF_IPTABLES!=n && IP_NF_CONNTRACK!=n && IP_NF_NAT!=n
++	depends on IP_NF_NAT!=n
+ 	default IP_NF_NAT if IP_NF_TFTP=y
+ 	default m if IP_NF_TFTP=m
+ 
+ config IP_NF_NAT_AMANDA
+ 	tristate
+-	depends on IP_NF_IPTABLES!=n && IP_NF_CONNTRACK!=n && IP_NF_NAT!=n
++	depends on IP_NF_NAT!=n
+ 	default IP_NF_NAT if IP_NF_AMANDA=y
+ 	default m if IP_NF_AMANDA=m
+ 
+

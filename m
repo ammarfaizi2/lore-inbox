@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265661AbSLFTWX>; Fri, 6 Dec 2002 14:22:23 -0500
+	id <S265711AbSLFT0y>; Fri, 6 Dec 2002 14:26:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265670AbSLFTWX>; Fri, 6 Dec 2002 14:22:23 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:62424 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265661AbSLFTWW>;
-	Fri, 6 Dec 2002 14:22:22 -0500
-Date: Fri, 6 Dec 2002 13:10:16 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: James Bottomley <James.Bottomley@steeleye.com>
-cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [BKPATCH] bus notifiers for the generic device model 
-In-Reply-To: <200212051614.gB5GEUN02667@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0212061307590.1010-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265713AbSLFT0y>; Fri, 6 Dec 2002 14:26:54 -0500
+Received: from 216-42-72-140.ppp.netsville.net ([216.42.72.140]:8073 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id <S265711AbSLFT0x>;
+	Fri, 6 Dec 2002 14:26:53 -0500
+Subject: Re: [patch] fix the ext3 data=journal unmount bug
+From: Chris Mason <mason@suse.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       "ext3-users@redhat.com" <ext3-users@redhat.com>
+In-Reply-To: <3DF0F69E.FF0E513A@digeo.com>
+References: <3DF03B35.AA5858DC@digeo.com> <1039197769.7939.46.camel@tiny> 
+	<3DF0F69E.FF0E513A@digeo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 06 Dec 2002 14:34:47 -0500
+Message-Id: <1039203287.9244.97.camel@tiny>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Just to follow up..
-
-> I'm happy with keeping probe and remove in the bus specific driver template 
-> and having the <bustype>_add_driver install generic device probe and remove 
-> routines to handle these cases.  My point was that the docs implied I should 
-> use the generic driver probe and remove routines, which I can't without some 
-> type of functionality like this.
+On Fri, 2002-12-06 at 14:12, Andrew Morton wrote:
 > 
-> If you envisage us never eliminating the driver specific probe and remove 
-> routines, I'm happy.  I'm less happy if there will come a day when I have to 
-> revisit all the converted drivers to do the elimination.
+> It won't.  There isn't really a sane way of doing this properly unless
+> we do something like:
+> 
+> 1) Add a new flag to the superblock
+> 2) Set that flag against all r/w superblocks before starting the sync
+> 3) Use that flag inside the superblock walk.
+> 
+> That would provide a reasonable solution, but I don't believe we
+> need to go to those lengths in 2.4, do you?
 
-I don't see us eliminating the bus-specific probe() and remove() methods. 
-At least not for a very long time.
+Grin, I'm partial to changing sync_supers to allow the FS to leave
+s_dirt set in its write_super call.
 
-	-pat
+I see what ext3 gains from your current patch in the unmount case, but
+the sync case is really unchanged because of interaction with kupdate. 
+
+Other filesystems trying to use the sync_fs() call might think adding
+one is enough to always get called on sync, and I think that will lead
+to unreliable sync implementations.
+
+-chris
+
 

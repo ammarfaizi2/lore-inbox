@@ -1,46 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263898AbTFHV14 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 17:27:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263897AbTFHV1z
+	id S263945AbTFHVbq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 17:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTFHVbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 17:27:55 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:48892 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263898AbTFHV1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 17:27:54 -0400
-Date: Sun, 8 Jun 2003 23:41:24 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Andrew Morton <akpm@digeo.com>, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.5.70-mm6: ethertap.c doesn't compile
-Message-ID: <20030608214123.GJ16164@fs.tum.de>
-References: <20030607151440.6982d8c6.akpm@digeo.com> <20030608155623.GG16164@fs.tum.de> <20030608160055.GI11552@conectiva.com.br>
+	Sun, 8 Jun 2003 17:31:46 -0400
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:34693 "EHLO
+	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S263915AbTFHVbm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 17:31:42 -0400
+Date: Sun, 8 Jun 2003 22:45:04 +0100
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: Alan Cox <alan@redhat.com>
+Cc: Samuel Flory <sflory@rackable.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, andre@linux-ide.org
+Subject: Re: [PATCH][RFC] Add support for Adaptec 1210SA (was: Re: SiI3112 (Adaptec 1210SA): no devices)
+Message-ID: <20030608214504.GA5754@carfax.org.uk>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	Alan Cox <alan@redhat.com>, Samuel Flory <sflory@rackable.com>,
+	linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+	andre@linux-ide.org
+References: <20030607175637.GA1266@carfax.org.uk> <200306071802.h57I2Yb07842@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="82I3+IH0IqGh5yIs"
 Content-Disposition: inline
-In-Reply-To: <20030608160055.GI11552@conectiva.com.br>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200306071802.h57I2Yb07842@devserv.devel.redhat.com>
+X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+X-GPG-Key: 1C335860
+X-Parrot: It is no more. It has joined the choir invisible.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 08, 2003 at 01:00:55PM -0300, Arnaldo Carvalho de Melo wrote:
 
-> Thanks for the patch, but it was already submitted by Martin@gentoo and I
-> pushed to Linus that already has this in his tree.
+--82I3+IH0IqGh5yIs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Ups, yes, I missed this patch...
+On Sat, Jun 07, 2003 at 02:02:34PM -0400, Alan Cox wrote:
+> >    I've assumed that it's exactly like a SiI3112 in making these
+> > changes. The kernel now recognises the device, and I can (e.g.) run
+> > cfdisk. However, any read or write on the disk causes huge delays, and
+> > these:
+> 
+> Its clearly clos in that it works in PIO although DMA is failing
 
-> - Arnaldo
+   Given that there appear to be problems with DMA in the plain SiI
+driver, would it be worth my while waiting until those are sorted out
+before continuing?
 
-cu
-Adrian
+> >    I don't have the knowledge to determine whether this is similar to
+> > the SiI3112 problems people have been having elsewhere, or if it's a
+> 
+> It is
+
+   That's good to know.
+
+> >  Model=ST3120026AS, FwRev=3.05, SerialNo=3JT059GT
+> 
+> According to the info I have that drive should be working ok
+
+   I recall Andre Hedrick commenting apparently disparagingly on the
+80Gb version of the Seagate drives[1], although I don't get the errors
+seen in that post.
+
+> This is a very good starting point anyway
+
+   What would be the next steps in getting this thing working?  Should
+I try to obtain the board/chip specifications from Adaptec? Or start
+poking stuff into arbitrary registers? :)
+
+   Hugo.
+
+[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=105013509721375&w=2
 
 -- 
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+              --- The future isn't what it used to be. ---               
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--82I3+IH0IqGh5yIs
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+465gssJ7whwzWGARAo2qAJ9TiFEqwquk3IbLkytmu57pH9cCOQCgskdI
+0Z3CCQ18CVIk5EC41FP2pRo=
+=rnSA
+-----END PGP SIGNATURE-----
+
+--82I3+IH0IqGh5yIs--

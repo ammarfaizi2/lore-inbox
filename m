@@ -1,56 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbULaDdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbULaDhC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261815AbULaDdS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 22:33:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbULaDdS
+	id S261828AbULaDhC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 22:37:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbULaDhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 22:33:18 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:51346 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261815AbULaDdA (ORCPT
+	Thu, 30 Dec 2004 22:37:02 -0500
+Received: from scrye.com ([216.17.180.1]:56459 "EHLO mail.scrye.com")
+	by vger.kernel.org with ESMTP id S261828AbULaDgp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 22:33:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=hNH4QW9DpRgi3CG9cqcAlNkJkGhMsiH5mscFSZGP9t21rh1gMLLQkG4ExiD33AZjkeaEoXLWwg/c/kgzfu+VEcITPkLeAxOtye4VNQWpdWxiz3TNPfIhRgaWQACJqkz3DQzYWCnCFPvmgxZQ48NoUzyV/LJEj+s5WSKxp7SxzCY=
-Message-ID: <169c13c404123019322a766f64@mail.gmail.com>
-Date: Fri, 31 Dec 2004 04:32:59 +0100
-From: Felipe Erias <charles.swann@gmail.com>
-Reply-To: Felipe Erias <charles.swann@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Queues when accessing disks
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 30 Dec 2004 22:36:45 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Date: Thu, 30 Dec 2004 20:41:03 -0700
+From: Kevin Fenzi <kevin@tummy.com>
+To: linux-kernel@vger.kernel.org
+Subject: PATCH: scripts/package/mkspec (2)
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Message-Id: <20041231034104.0BA3395DF8@voldemort.scrye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I'm trying to apply queuing theory to the study of the GNU/Linux kernel.
-Right now, I'm focusing in the queue of processes that appears when they
-try to access an I/O device (specifically, an IDE HD). When they want to
-read data, it behaves as a usual queue: several clients (processes) that
-require attention from a server (disk / driver / ...). The case when they want
-to write data is a bit more tricky, because of the cache buffers used by the OS,
-and maybe could be modelized by a network of queues. Both cases are
-interesting for my work, but I'll take the reading one first, just
-because it seems
-a bit more simple 'a priori'.
+Here's another patch to mkspec. 
+This one was coipied from the Fedora kernel spec file. 
+(I'm not sure who to attibute it to. arjanv@redhat.com ? )
 
-To modelize the queue, I need to get some information:
- - what processes claim attention from the disk
- - when they do it
- - when they begin to be served
- - when they finish being served
+Currently when you do a 'make rpm' on a kernel.org kernel, and then
+later want to build a non-included module, you have to have the entire
+kernel source tree available to build against. 
 
-To get all this information, maybe I could hack my kernel a bit to write
-a line to a log on every access to the HD, or account the IRQs from
-the IDE channels... I also have the feeling that this queuing problem could
-dissappear o became more hidden if DMA were enabled.
+This patch copies the needed files to
+/lib/modules/<kernelversion>/build 
+so you can build modules against that area instead of needing the
+entire build tree available. 
 
-To be true, I'm a bit lost and that's why I ask for your help.
+Again, I use a fedora based setup, so I would be interested to hear if
+this setup works ok for other systems. 
 
-Yours sincerely,
+Comments?
 
-  Felipe Erias
+kevin
+--
+diff -Nru linux-2.6.10.orig/scripts/package/mkspec linux-2.6.10/scripts/package/mkspec
+--- linux-2.6.10.orig/scripts/package/mkspec    2004-12-24 14:33:49.000000000 -0700
++++ linux-2.6.10/scripts/package/mkspec 2004-12-30 20:31:33.954485598 -0700
+@@ -70,6 +70,33 @@
+ echo 'cp System.map $RPM_BUILD_ROOT'"/boot/System.map-$KERNELRELEASE"
+
+ echo 'cp .config $RPM_BUILD_ROOT'"/boot/config-$KERNELRELEASE"
++echo '    rm -f $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build'
++echo '    rm -f $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/source'
++echo '    mkdir -p $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build'
++echo '    (cd $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE ; ln -s build source)'
++echo '    # first copy everything'
++echo '    cp --parents `find  -type f -name Makefile -o -name "Kconfig*"` $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build'
++echo '    cp Module.symvers $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build'
++echo '    # then drop all but the needed Makefiles/Kconfig files'
++echo '    rm -rf $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build/Documentation'
++echo '    rm -rf $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build/scripts'
++echo '    rm -rf $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build/include'
++echo '    cp arch/%{_arch}/kernel/asm-offsets.s $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build/arch/%{_arch}/kernel || :'
++echo '    cp .config $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build'
++echo '    cp -a scripts $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build'
++echo '    cp -a arch/%{_arch}/scripts $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build/arch/%{_arch} || :'
++echo '    cp -a arch/%{_arch}/*lds $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build/arch/%{_arch}/|| :'
++echo '    rm -f $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build/scripts/*.o'
++echo '    rm -f $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build/scripts/*/*.o'
++echo '    mkdir -p $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build/include'
++echo '    cd include'
++echo '    cp -a acpi config linux math-emu media net pcmcia rxrpc scsi sound video asm asm-generic$RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build/include'
++echo '    cp -a `readlink asm` $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build/include'
++echo '    # Make sure the Makefile and version.h have a matching timestamp so that'
++echo '    # external modules can be built'
++echo '    touch -r $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build/Makefile $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build/include/linux/version.h'
++echo '    touch -r $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build/.config $RPM_BUILD_ROOT/lib/modules/$KERNELRELEASE/build/include/linux/autoconf.h'
++echo '    cd ..'
+ echo ""
+ echo "%clean"
+ echo '#echo -rf $RPM_BUILD_ROOT'

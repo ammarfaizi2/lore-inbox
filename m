@@ -1,42 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbUC0Mct (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 07:32:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbUC0Mct
+	id S261719AbUC0MsV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 07:48:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbUC0MsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 07:32:49 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:8919 "EHLO dns.toxicfilms.tv")
-	by vger.kernel.org with ESMTP id S261710AbUC0Mcs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 07:32:48 -0500
-Date: Sat, 27 Mar 2004 13:32:51 +0100
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-X-Mailer: The Bat! (v2.04.7) UNREG / CD5BF9353B3B7091
-Reply-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-X-Priority: 3 (Normal)
-Message-ID: <1926398703.20040327133251@dns.toxicfilms.tv>
+	Sat, 27 Mar 2004 07:48:21 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:55168
+	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S261719AbUC0MsV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 07:48:21 -0500
+Date: Sat, 27 Mar 2004 07:59:18 -0500
+From: Wakko Warner <wakko@animx.eu.org>
 To: linux-kernel@vger.kernel.org
-Subject: [OT] Re[2]: [ANNOUNCE] new reiser4 snapshot released.
-In-Reply-To: <16484.29281.375363.39808@laputa.namesys.com>
-References: <16484.24086.167505.94478@laputa.namesys.com>
- <1080321833.19218.7.camel@localhost.localdomain>
- <16484.29281.375363.39808@laputa.namesys.com>
-MIME-Version: 1.0
+Subject: Can't eject jaz disk on 2.6
+Message-ID: <20040327075918.A2232@animx.eu.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.95.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ND> Why, of course one has to understand it. Reiser4 refuses to mount unless
-ND> supplied with the homotopy group of the tangent bundle of hard drive,
-ND> for sure.
-Oh man! Is reiser4 a part of some alien or future technology? From what I read
-and hear it seems so new, fresh and advanced, it seems _obvious_ :-)
-this code has been inspired by aliens or time travellers from the
-future. Or maybe it's just me being not so knowledgible as reiser4
-gurus.
+I've used 2.6.0 to 2.6.4 on a computer with a jaz drive.
+Using eject 2.0.13, I'm unable to eject the disk.  I have tested on 2.4.24
+and it does eject.
 
-Regards,
-Maciej
-
-
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

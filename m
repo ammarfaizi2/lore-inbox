@@ -1,48 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317431AbSG1XjN>; Sun, 28 Jul 2002 19:39:13 -0400
+	id <S317457AbSG1Xku>; Sun, 28 Jul 2002 19:40:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317435AbSG1XjN>; Sun, 28 Jul 2002 19:39:13 -0400
-Received: from h-64-105-136-34.SNVACAID.covad.net ([64.105.136.34]:55725 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S317431AbSG1XjN>; Sun, 28 Jul 2002 19:39:13 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 28 Jul 2002 16:42:20 -0700
-Message-Id: <200207282342.QAA03809@adam.yggdrasil.com>
-To: andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Patch?: initial ramdisks did not work in 2.5.28-29
+	id <S317458AbSG1Xku>; Sun, 28 Jul 2002 19:40:50 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:1285 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S317457AbSG1Xku>; Sun, 28 Jul 2002 19:40:50 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200207282343.g6SNhse21139@devserv.devel.redhat.com>
+Subject: Re: SiS 5513 ATA133 support patch for 2.4.19-rc3-ac3
+To: Lionel.Bouton@inet6.fr (Lionel Bouton)
+Date: Sun, 28 Jul 2002 19:43:54 -0400 (EDT)
+Cc: alan@redhat.com (Alan Cox), lcchang@sis.com.tw (Lei-Chun Chang),
+       andre@linuxdiskcert.org (Andre Hedrick),
+       marcelo@conectiva.com.br (Marcelo Tosatti),
+       linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <3D448052.4070805@inet6.fr> from "Lionel Bouton" at Jul 29, 2002 01:37:54 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Initial ramdisks do not work in linux-2.5.2{8,9}, because
-fs/block_dev.c in these kernels has a new version of bd_open()
-that does not set bdev->bd_inode->i_size when bdev->bd_openers is
-non-zero.
+>  From past experiences we need 2 weeks of availability of code in
+> the AC/pre kernels before the wave of meaningful bugreports ends.
 
-	I would appreciate information on whether this change in
-bd_open's behavior is intended.  If it is, then the following
-patch makes updates the ramdisk driver to work again.
-
-	Also, I would appreciate knowing if anyone is acting as
-maintainer for drivers/block/rd.c, or if I should just send
-patches for rd.c directly to Linus if nobody complains on
-the linux-kernel mailing list.  I have some other minor patches for rd.c
-to reduce its use of minor device numbers, and a patch that someone
-whose name I don't remember posted long ago for dropping pages that
-contiain all zeroes.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
-
---- linux-2.5.29/drivers/block/rd.c	2002-07-26 19:58:39.000000000 -0700
-+++ linux/drivers/block/rd.c	2002-07-28 16:28:03.000000000 -0700
-@@ -379,6 +404,7 @@
- 		rd_bdev[unit]->bd_openers++;
- 		rd_bdev[unit]->bd_block_size = rd_blocksize;
- 		rd_bdev[unit]->bd_inode->i_mapping->a_ops = &ramdisk_aops;
-+		rd_bdev[unit]->bd_inode->i_size = rd_kbsize[unit] << 10;
- 		rd_bdev[unit]->bd_queue = &blk_dev[MAJOR_NR].request_queue;
- 	}
- 
+Then I think ripping out the problem idents is safest

@@ -1,49 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262563AbUKECZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbUKECgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262563AbUKECZv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 21:25:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbUKECZv
+	id S262536AbUKECgS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 21:36:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbUKECgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 21:25:51 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32167 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262563AbUKECZg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 21:25:36 -0500
-Message-ID: <418AE490.1010304@pobox.com>
-Date: Thu, 04 Nov 2004 21:25:20 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Thu, 4 Nov 2004 21:36:18 -0500
+Received: from ns1.g-housing.de ([62.75.136.201]:41116 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S262536AbUKECgE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 21:36:04 -0500
+Message-ID: <418AE70E.80302@g-house.de>
+Date: Fri, 05 Nov 2004 03:35:58 +0100
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-To: Stelian Pop <stelian@popies.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH RESEND] pcmcia network drivers cleanup
-References: <20041104112736.GT3472@crusoe.alcove-fr>
-In-Reply-To: <20041104112736.GT3472@crusoe.alcove-fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: LKML <linux-kernel@vger.kernel.org>
+CC: alsa-devel@lists.sourceforge.net, perex@suse.cz
+Subject: Re: [Alsa-devel] Oops in 2.6.10-rc1
+References: <4180F026.9090302@g-house.de> <Pine.LNX.4.58.0410281526260.31240@pnote.perex-int.cz> <4180FDB3.8080305@g-house.de> <418A47BB.5010305@g-house.de>
+In-Reply-To: <418A47BB.5010305@g-house.de>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian Pop wrote:
-> Hi,
-> 
-> The attached patch:
->   * cleans up the parameter passing (module_param() instead of MODULE_PARM()
->   * makes debugging work (PCMCIA_DEBUG does not exist anymore, make the
->     Makefile test for CONFIG_PCMCIA_DEBUG and activate DEBUG in CFLAGS)
->     and use the same debugging macros for every driver through code
->     reuse.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Comments:
+hi again,
 
-1) Can you please separate module_param() and PCMCIA_DEBUG patches?
+i *think* i found the ChangeSet leading to the bug i tried to report in
+ http://marc.theaimsgroup.com/?l=linux-kernel&m=109888178603516&w=2
 
-2) why not use pr_debug()?
+the error is sill present here (and only here? strange...), the latest -BK
+does not fix it. i had some difficulties in telling BK to do the right
+thing. to summarise the error:
 
-	Jeff
+- - upon loading of snd_ens1371 the Oops occurs. system is still stable
+then, but no sound available.
+- - this occured somewhere between 2.6.9 (released 15-Oct-2004) and 2.6.9-10
+(released 22-Oct-2004)
 
+one interesting changeset was:
 
+ChangeSet@1.2000.7.1, 2004-10-20 20:33:06+02:00, perex@suse.cz
+  Merge suse.cz:/home/perex/bk/linux-sound/linux-2.5
+  into suse.cz:/home/perex/bk/linux-sound/linux-sound
 
+i tried to back it out:
+
+$ bk clone -r1.2000.7.1 linux-2.6-BK linux-2.6-BK-test
+
+but the said ChangeSet was still there (of course). i tried to back it out
+(now for sure):
+
+$ bk undo -a1.2010
+(hm: the changesets get renumbered everytime i "do" something with the
+tree) this one reverted quite a few ChangeSets but i let it happen.
+
+compiling & booting this thing goes fine and i am now running 2,6,9-BK(?)
+with working snd_ens1371.
+
+if someone could give me a hint here what to do next or perhaps tell me
+that the whole things was totally pointless - please say so.
+i am somehow lost as to which is the right person to bug here.
+
+thank you for your time,
+Christian.
+- --
+BOFH excuse #328:
+
+Fiber optics caused gas main leak
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBiucN+A7rjkF8z0wRAkpKAJ0bbevHqmpU/Ut3r5TbWgfu42cGBACgsrhm
+X8euqIjgc8KNCWl50oys/Yw=
+=8VM9
+-----END PGP SIGNATURE-----

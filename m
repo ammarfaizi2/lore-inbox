@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129657AbQLCHEf>; Sun, 3 Dec 2000 02:04:35 -0500
+	id <S129811AbQLCHrv>; Sun, 3 Dec 2000 02:47:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129811AbQLCHE0>; Sun, 3 Dec 2000 02:04:26 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:20888 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129657AbQLCHEO>; Sun, 3 Dec 2000 02:04:14 -0500
-Message-ID: <3A29E92F.119BC47B@haque.net>
-Date: Sun, 03 Dec 2000 01:33:19 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S130688AbQLCHrm>; Sun, 3 Dec 2000 02:47:42 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:40976 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129811AbQLCHrb>; Sun, 3 Dec 2000 02:47:31 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: /dev/random probs in 2.4test(12-pre3)
+Date: 2 Dec 2000 23:16:20 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <90cs04$6td$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10012021108350.31306-100000@sphinx.mythic-beasts.com> <Pine.LNX.4.21.0012021955570.11787-100000@server.serve.me.nl>
 MIME-Version: 1.0
-To: Saber Taylor <aquabrake@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: lost dirs after fsck-1.18 (kt133, ide, dma, test10, test11)
-In-Reply-To: <F231OceuLyR1mDxJr5D0000c3f6@hotmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You saying that you were running test kernels on a production box and
-seriously didn't expect something bad to happen?
+Followup to:  <Pine.LNX.4.21.0012021955570.11787-100000@server.serve.me.nl>
+By author:    Igmar Palsenberg <maillist@chello.nl>
+In newsgroup: linux.dev.kernel
+>
+> > Indeed, you are correct.  Is vpnd broken then, for assuming
+> > that it can gather the required randomness in one read?
+> 
+> Yep. It assumes that if the required randommness numbers aren't met a read
+> to /dev/random will block.
+> 
+> And it's not the only program that assumes this : I also did. 
+> 
+> /dev/random is called a blocking random device, which more or less implies
+> that it will totally block. I suggest we put this somewhere in the kernel
+> docs, since lots of people out there assume that it totally blocks.
+> 
 
-Filesystem corruptions arent things you can recover files from. You're
-confusing accidentally deleting files and undeleting them later.
+That's pretty much ALWAYS wrong -- for pipes, sockets, you name it.  A
+blocking read() will only block if there is nothing to read at all.
 
-What would be useful is if you noted where/why you ran 'fsck -y'. Did
-you crash and fs check at boot failed? What?
-
-Saber Taylor wrote:
-> 
-> Well that's the last time I run a devel kernel with a nontest
-> system.  sigh.
-> 
-> Had one directory replaced with a different directory
-> and also a directory replaced with a file. Possible further
-> corruption.
-> 
-> I don't think I lost the directories until I did a 'fsck -y'
-> on the partition. Something to remember.
-> 
-> If anyone has advice on recovering the directories other than
-> the following links, I'm all ears:
-> 
-> http://www.datafoundation.org/lde/
-> http://www.linuxdoc.org/HOWTO/mini/Ext2fs-Undeletion.html
-> (last updated February 1999)
-> http://www.linuxdoc.org/HOWTO/mini/Ext2fs-Undeletion-Dir-Struct/
-> 
-> Saber Taylor
-
+	-hpa
 -- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

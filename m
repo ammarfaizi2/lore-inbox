@@ -1,74 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318250AbSGQFh0>; Wed, 17 Jul 2002 01:37:26 -0400
+	id <S318228AbSGQG3s>; Wed, 17 Jul 2002 02:29:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318251AbSGQFhZ>; Wed, 17 Jul 2002 01:37:25 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:42698 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S318250AbSGQFhX>;
-	Wed, 17 Jul 2002 01:37:23 -0400
-Date: Wed, 17 Jul 2002 07:40:06 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jari Ruusu <jari.ruusu@pp.inet.fi>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@zip.com.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BUG] loop.c oopses
-Message-ID: <20020717054006.GZ811@suse.de>
-References: <20020716163636.GW811@suse.de> <Pine.LNX.4.44L.0207161349100.3009-100000@duckman.distro.conectiva> <20020716170921.GX811@suse.de> <3D34773C.F61E7C0F@pp.inet.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D34773C.F61E7C0F@pp.inet.fi>
+	id <S318229AbSGQG3r>; Wed, 17 Jul 2002 02:29:47 -0400
+Received: from dsl-213-023-020-188.arcor-ip.net ([213.23.20.188]:24754 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318228AbSGQG3q>;
+	Wed, 17 Jul 2002 02:29:46 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Jesse Barnes <jbarnes@sgi.com>
+Subject: Re: spinlock assertion macros
+Date: Wed, 17 Jul 2002 08:34:05 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Arnd Bergmann <arnd@bergmann-dalldorf.de>, linux-kernel@vger.kernel.org,
+       kernel-janitor-discuss@lists.sourceforge.net
+References: <200207102128.g6ALS2416185@eng4.beaverton.ibm.com> <E17T4Qj-0002fN-00@starship> <20020717022213.GA734386@sgi.com>
+In-Reply-To: <20020717022213.GA734386@sgi.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17UiO0-0004Jn-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 16 2002, Jari Ruusu wrote:
-> Jens Axboe wrote:
-> > On Tue, Jul 16 2002, Rik van Riel wrote:
-> > > On Tue, 16 Jul 2002, Jens Axboe wrote:
-> > > > On Tue, Jul 16 2002, Rik van Riel wrote:
-> > > > Given the finite size of the pool and the possibly infinite stacking
-> > > > level, yes that is possible. You may just run out of loop minors before
-> > > > this happens [1]. Also note that you need more than a simple remapping,
-> > > > crypto setup for instance.
-> > >
-> > > Or maybe SMP, with multiple CPUs submitting requests at the
-> > > same time ?
-> > 
-> > It would still require a totally pathetic loop setup. More than 2 or 3
-> > stacked loop devices that are not using remapping would crawl
+On Wednesday 17 July 2002 04:22, Jesse Barnes wrote:
+> On Fri, Jul 12, 2002 at 07:42:09PM +0200, Daniel Phillips wrote:
+> > So far, only the MUST_HOLD style of executable locking documentation has 
+> > really survived scrutiny.  It needs some variants: MUST_HOLD_READ, 
+> > MUST_HOLD_WRITE, MUST_HOLD_SEM, MUST_HOLD_READ_SEM and MUST_HOLD_WRITE_SEM, 
+> > or names to that effect.
 > 
-> remapping?
-> 
-> > performance wise. Now make that eg 32 "indirections" (allocations and
-> > copies on _each_ i/o), and I think you'll find that the system would be
-> > impossible to use long before this theoretical dead lock would be hit.
-> 
-> Jens,
-> 
-> Your remapping code has _never_ worked. This is because your remapping is
-> supposedly enabled in none_status(), but init hook of type 0 transfer is
-> never called (check the code in loop_init_xfer). And, even if were enabled,
-> you would quickly notice that lo->lo_pending count is never decremented in
-> your 'remap' code.
+> I'm not quite sure where to put the semaphore versions of the MUST_*
+> macros, I guess they'd have to go in each of the arch-specific header
+> files?
 
-That might be so for the 2.5 code base, I know for a fact that it worked
-when it was implemented in 2.4. Maybe with the same lo_pending bug, I
-dunno.
+You could create linux/semaphore.h which includes asm/semaphore.h, making
+the whole arrangement more similar to spinlocks.  That would be the manly
+thing to do, however, manliness not necessarily being the fashion at the
+moment, putting them in the arch-specific headers seems like the route of
+least resistance.  One day, a prince on a white horse will come along and
+clean up all the header files...
 
-> The patch below fixes that remap issue, plus uncounted number of other loop
-> issues. For example, device backed loops use pre-allocated pages for zero VM
-> pressure.
+> Anyway, I've got spinlock and rwlock versions of them below,
+> maybe they're useful enough to go in as a start?  I only coded the
+> ia64 version of rwlock_is_*_locked since it was easy--the i386
+> versions were a little intimidating...
 > 
-> Too bad you seem to be filtering my emails.
+> I thought Oliver's suggestion for tracking the order of spinlock
+> acquisition was good, hopefully someone will take a stab at it along
+> with Dave's FUNCTION_SLEEPS() implementation.
 
-Please calm down. You sent me two mails that I haven't gotten around to
-yet, excuse me for not making loop my top priority.
+Indeed, it's a nice realization of Dave's idea, very clever.
 
-That said, please do split up the patches as Andrew/wli suggested. For
-the 2.5 one I'd be inclined to just take it as-is, but the 2.4 patch
-definitely needs to be split.
+On the minor niggle side, I think "MUST_HOLD" scans better than
+"MUST_HOLD_SPIN", since the former is closer to the way we say it when
+we're talking amongst ourselves.
 
 -- 
-Jens Axboe
-
+Daniel

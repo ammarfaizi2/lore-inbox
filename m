@@ -1,82 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262677AbTJTRcN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 13:32:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTJTRcN
+	id S262687AbTJTRdC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 13:33:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbTJTRdC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 13:32:13 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:18407 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262677AbTJTRcL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 13:32:11 -0400
-Message-ID: <3F941C19.7030902@namesys.com>
-Date: Mon, 20 Oct 2003 21:32:09 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Mon, 20 Oct 2003 13:33:02 -0400
+Received: from bart.one-2-one.net ([217.115.142.76]:57353 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S262687AbTJTRc6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 13:32:58 -0400
+Date: Mon, 20 Oct 2003 19:30:33 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+X-X-Sender: martin@notebook.home.mdiehl.de
+To: "Noah J. Misch" <noah@caltech.edu>
+cc: irda-users@lists.sourceforge.net, <netdev@oss.sgi.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [irda-users] [PATCH] Make VLSI FIR depend on X86
+In-Reply-To: <Pine.GSO.4.58.0310171456080.13905@blinky>
+Message-ID: <Pine.LNX.4.44.0310201138020.4246-100000@notebook.home.mdiehl.de>
 MIME-Version: 1.0
-To: "Mudama, Eric" <eric_mudama@Maxtor.com>
-CC: Norman Diamond <ndiamond@wta.att.ne.jp>,
-       "'Wes Janzen '" <superchkn@sbcglobal.net>,
-       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
-       "'John Bradford '" <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-       nikita@namesys.com, "'Pavel Machek '" <pavel@ucw.cz>,
-       "'Justin Cormack '" <justin@street-vision.com>,
-       "'Russell King '" <rmk+lkml@arm.linux.org.uk>,
-       "'Vitaly Fertman '" <vitaly@namesys.com>,
-       "'Krzysztof Halasa '" <khc@pm.waw.pl>
-Subject: Re: Blockbusting news, results are in
-References: <785F348679A4D5119A0C009027DE33C105CDB30C@mcoexc04.mlm.maxtor.com>
-In-Reply-To: <785F348679A4D5119A0C009027DE33C105CDB30C@mcoexc04.mlm.maxtor.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mudama, Eric wrote:
+On Sun, 19 Oct 2003, Noah J. Misch wrote:
 
->>-----Original Message-----
->>From: Hans Reiser [mailto:reiser@namesys.com]
->>Sent: Sunday, October 19, 2003 2:25 AM
->>To: Norman Diamond
->>Cc: Mudama, Eric; 'Wes Janzen '; 'Rogier Wolff '; 'John Bradford ';
->>linux-kernel@vger.kernel.org; nikita@namesys.com; 'Pavel Machek ';
->>'Justin Cormack '; 'Russell King '; 'Vitaly Fertman '; 
->>'Krzysztof Halasa
->>'
->>Subject: Re: Blockbusting news, results are in
->>
->>
->>Norman Diamond wrote:
->>
->>    
->>
->>>>What would you like "us disk makers" to say?
->>>>   
->>>>
->>>>        
->>>>
->>>How to force reallocations even when data are lost, 
->>>
->>>      
->>>
->>buy Maxtor and write to them, thereby triggering the remap.
->>    
->>
->
->It isn't necessarilly that simple. ]
->
-Can you explain? 
+> This is a trivial patch against the Kconfig entry for the VLSI FIR driver to
+> make it depend on X86.  The in-tree code guarantees that the driver will only
+> build on X86, and according to the comments therein no machine of another
+> architecture has this hardware anyway.
 
->However, if the drive is still alive, it
->has written your data to a place where it can get at it again.  
->
->
->  
->
+Well, it would work with any arch, _if_ there was a way to sync the 
+streaming pci dma buffers before giving them back to hardware. Last time I 
+checked there was no pci_dma api call to achieve this on all platforms. 
+For X86 however it's trivial due to cache coherency.
 
+The guy is used with X86 notebooks only - unless whoever owns the 
+controller design decides to make some CardBus PC-Card for people with 
+notebooks lacking IrDA-support.
 
--- 
-Hans
+> Granted, no human intelligently configuring a kernel for his or her particular
+> system would make this mistake, but perhaps someone building a distribution
+> kernel would.  I suggest this patch because it keeps the signal to noise ratio
+> for those testing allyesconfig builds low.
 
+Valid point, yes.
+
+> This patch applies to the linux-2.5 BK tree as of 0400 UTC 10/20/2003, and for
+> some time before that as well.  Please consider for eventual inclusion.  It may
+> be too much of a fringe case until 2.6.0 begins its stable series.
+
+Thanks, second this.
+
+Martin
 

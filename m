@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264692AbTF0S05 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 14:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264695AbTF0S05
+	id S264687AbTF0S3z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 14:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264683AbTF0S3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 14:26:57 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:4992
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S264692AbTF0S04
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 14:26:56 -0400
-Date: Fri, 27 Jun 2003 14:41:11 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove IO APIC newline
-Message-ID: <20030627184111.GB4333@gtf.org>
-References: <200306271836.h5RIakGD026159@hera.kernel.org>
+	Fri, 27 Jun 2003 14:29:55 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:7594 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264687AbTF0S3x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 14:29:53 -0400
+Subject: Re: [BENCHMARK] 2.5.73-bk3, -bk4, -mjb1 regression test results
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Mark Peloquin <peloquin@austin.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linstab <linstab@osdl.org>,
+       ltp-results <ltp-results@lists.sourceforge.net>
+In-Reply-To: <3EFC8E3D.6050505@austin.ibm.com>
+References: <3EFC8E3D.6050505@austin.ibm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1056739431.9085.21.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200306271836.h5RIakGD026159@hera.kernel.org>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 27 Jun 2003 11:43:51 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 27, 2003 at 04:43:13PM +0000, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1490.1.28, 2003/06/27 09:43:13-07:00, randy.dunlap@verizon.net
-> 
-> 	[PATCH] remove IO APIC newline
-> 	
-> 	This patch is to 2.5.73-bk4 and is purely cosmetic.  Please apply.
-> 	It removes the blank line after "testing the IO APIC....":
+On Fri, 2003-06-27 at 11:34, Mark Peloquin wrote:
+> Nightly Regression Summary
+> for
+...
 
-Personally the IO-APIC gunk is gunk that should be hidden behind
-DPRINTK... SMP machines spam dmesg _way_ too much.  Especially once you
-get above 4 processors.
+Have you ever had these regression tests run against the same kernel?  
+say, 2.5.73 vs 2.5.73
 
-	Jeff
+How often do you see improvements or regressions reported then?
 
-
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

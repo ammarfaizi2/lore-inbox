@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266132AbUGTSka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266174AbUGTSkd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266132AbUGTSka (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 14:40:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266174AbUGTSj6
+	id S266174AbUGTSkd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 14:40:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266166AbUGTSjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 14:39:58 -0400
-Received: from nl-ams-slo-l4-01-pip-8.chellonetwork.com ([213.46.243.27]:4936
-	"EHLO amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S266132AbUGTSiG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 14:39:53 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:27201 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S266131AbUGTSiG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 20 Jul 2004 14:38:06 -0400
-Date: Tue, 20 Jul 2004 20:38:00 +0200
-Message-Id: <200407201838.i6KIc0sc015374@anakin.of.borg>
+Date: Tue, 20 Jul 2004 20:37:57 +0200
+Message-Id: <200407201837.i6KIbvQo015369@anakin.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 461] M68k ifpsp060
+Subject: [PATCH 460] M68k 68060 errata I14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-68060 Integer Support Package: Fix _060_real_lock_page(): test %d0 before
-actually using it (from Roman Zippel)
+M68k: gcc lately manages to generate the code sequence described in the 060
+errata I14, so use the described workaround (from Roman Zippel)
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
---- linux-2.6.8-rc2/arch/m68k/ifpsp060/iskeleton.S	2004-06-21 20:20:00.000000000 +0200
-+++ linux-m68k-2.6.8-rc2/arch/m68k/ifpsp060/iskeleton.S	2004-07-04 22:03:48.000000000 +0200
-@@ -204,11 +204,12 @@
- _060_real_lock_page:
- 	move.l	%d2,-(%sp)
- 	| load sfc/dfc
--	moveq	#5,%d0
- 	tst.b	%d0
- 	jne	1f
- 	moveq	#1,%d0
--1:	movec.l	%dfc,%d2
-+	jra	2f
-+1:	moveq	#5,%d0
-+2:	movec.l	%dfc,%d2
- 	movec.l	%d0,%dfc
- 	movec.l	%d0,%sfc
+--- linux-2.6.8-rc2/arch/m68k/kernel/setup.c	2004-05-24 11:13:22.000000000 +0200
++++ linux-m68k-2.6.8-rc2/arch/m68k/kernel/setup.c	2004-07-04 22:03:49.000000000 +0200
+@@ -238,6 +238,18 @@
+ 	}
+ #endif
  
++	if (CPU_IS_060) {
++		u32 pcr;
++
++		asm (".chip 68060; movec %%pcr,%0; .chip 68k"
++		     : "=d" (pcr));
++		if (((pcr >> 8) & 0xff) <= 5) {
++			printk("Enabling workaround for errata I14\n");
++			asm (".chip 68060; movec %0,%%pcr; .chip 68k"
++			     : : "d" (pcr | 0x20));
++		}
++	}
++
+ 	init_mm.start_code = PAGE_OFFSET;
+ 	init_mm.end_code = (unsigned long) &_etext;
+ 	init_mm.end_data = (unsigned long) &_edata;
 
 Gr{oetje,eeting}s,
 

@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264925AbTCCOfD>; Mon, 3 Mar 2003 09:35:03 -0500
+	id <S265423AbTCCOcM>; Mon, 3 Mar 2003 09:32:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265135AbTCCOfC>; Mon, 3 Mar 2003 09:35:02 -0500
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:64709 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S264925AbTCCOfC> convert rfc822-to-8bit; Mon, 3 Mar 2003 09:35:02 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Dan Kegel <dank@kegel.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Protecting processes from the OOM killer
-Date: Mon, 3 Mar 2003 08:45:00 -0600
-User-Agent: KMail/1.4.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3E5EB9A8.3010807@kegel.com> <1046439618.16599.22.camel@irongate.swansea.linux.org.uk> <3E5F8985.60606@kegel.com>
-In-Reply-To: <3E5F8985.60606@kegel.com>
+	id <S265446AbTCCOcM>; Mon, 3 Mar 2003 09:32:12 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:27793 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S265423AbTCCOcL>; Mon, 3 Mar 2003 09:32:11 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200303031442.h23EgbR02502@devserv.devel.redhat.com>
+Subject: Re: Tighten up serverworks workaround.
+To: skraw@ithnet.com (Stephan von Krawczynski)
+Date: Mon, 3 Mar 2003 09:42:37 -0500 (EST)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20030303134650.584c9f11.skraw@ithnet.com> from "Stephan von Krawczynski" at Mar 03, 2003 01:46:50 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200303030845.00097.pollard@admin.navo.hpc.mil>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 February 2003 10:08 am, Dan Kegel wrote:
-> Alan Cox wrote:
-snip
-> > Everything else is armwaving "works half the time" stuff. By the time
-> > the OOM kicks in the game is already over.
->
-> Even with overcommit disallowed, the OOM killer is going to run
-> when my users try to run too big a job, so I would still like
-> the OOM killer to behave "well".
+> We are a bit astonished since we expected serverworks-based hardware to perform
+> _better_ than VIA...
 
-Shouldn't - the process the user tries to run will not be started since
-it must reserve the space first. malloc will fail immediately, allowing the
-process to handle the even gracefully and exit.
+My experience is that in general it does.
 
-Anything else is a bug in the application.
+> The email you commented is only a small hint that within -pre5 there are still
+> declared-unknown parts of the chipset. Based on the theory that they are named
+> "unknown" because nobody around here knows them, it might have been an adequate
+> idea to ask someone from serverworks, or not? This is in no way meant offensive.
 
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
+Sure, but lets not give senior folks at Serverworks a full blast of l/k.
+Its better to sumarise the issues. In some cases vendors do have docs,
+so the unknown device ids missing from lspci for example can be dealt with
+outside already

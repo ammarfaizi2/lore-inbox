@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316248AbSEVQc3>; Wed, 22 May 2002 12:32:29 -0400
+	id <S316250AbSEVQhK>; Wed, 22 May 2002 12:37:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316251AbSEVQc2>; Wed, 22 May 2002 12:32:28 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:24300
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S316248AbSEVQc0>; Wed, 22 May 2002 12:32:26 -0400
-Date: Wed, 22 May 2002 12:41:36 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Oliver Pitzeier <o.pitzeier@uptime.at>
-Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>,
-        axp-kernel-list@redhat.com
-Subject: Re: Mylex DAC 960 Patch
-Message-ID: <20020522124136.A2313@animx.eu.org>
-In-Reply-To: <001601c201a7$b69eecb0$010b10ac@sbp.uptime.at> <001a01c201ac$626e6580$010b10ac@sbp.uptime.at>
-Mime-Version: 1.0
+	id <S316255AbSEVQhJ>; Wed, 22 May 2002 12:37:09 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:48877 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S316250AbSEVQhI>; Wed, 22 May 2002 12:37:08 -0400
+Date: Wed, 22 May 2002 09:36:35 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: "M. Edward Borasky" <znmeb@aracnet.com>, linux-kernel@vger.kernel.org,
+        andrea@suse.de, riel@surriel.com, torvalds@transmeta.com,
+        akpm@zip.com.au
+Subject: Re: Have the 2.4 kernel memory management problems on large machines been fixed?
+Message-ID: <1406543793.1022060194@[10.10.2.3]>
+In-Reply-To: <20020522160731.GC14918@holomorphy.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Hi volks/Linus/Alan!
-> > 
-> > I would suggest to add this patch to the kernel tree.
-> > It works with 2.4.18 and 2.4.18-grsec-1.9.4.
+> pte-highmem isn't enough. On an 8GB machine it's already dead. Sharing
+> is required just to avoid running out of space period. IIRC Dave
+> McCracken has been working on daniel's original pte sharing patch.
 
-Be nice if it would get in.
+Depends on the workload, but yes.
 
-> > Without this I was not able to boot from my Mylex DAC960PD 
-> > and maybe someone else has this problem as well!? I guess so, 
-> > because I read about many people having problems installing 
-> > Linux on an Alpha AS1000, which normally comes with the 
-> > controller mentioned above...
+>> 5. kmap
+>> 	Persistent kmap sucks, and the global systemwide TLB flushes
+>> 	scale as O(1/N^2) with the number of CPUs. Enlarging the kmap 
+>> 	area helps a little, but really we need to stop doing this to
+>> 	ourselves. I will have a patch (hopefully within a week) to do 
+>> 	per-task kmap, based on the	UKVA patch that Dave McCracken has
+>> 	already implemented.
+> 
+> O(1/N^2)? wouldn't that get progressively better as the number of cpu's
+> grows without bound?
 
-I also have an as1000a and an as800 with a dac960 card.  However, I'm
-booting with root=3001
+Cost of TLB flush on 1 cpu = 1. Number of CPUs = N. Cost of systemwide
+TLB flush = N. Assuming we actually use those CPUs in a comparable way, 
+we do N times as many global tlbflushes per second with N cpus. This N^2.
+Or that's my reckoning, anyway.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+M.
+

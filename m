@@ -1,59 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264865AbTFQRVi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 13:21:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264868AbTFQRVi
+	id S264407AbTFQRtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 13:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264426AbTFQRtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 13:21:38 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:23769 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264865AbTFQRVg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 13:21:36 -0400
-Date: Tue, 17 Jun 2003 10:33:44 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Patrick Mochel <mochel@osdl.org>, Russell King <rmk@arm.linux.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Flaw in the driver-model implementation of attributes
-Message-ID: <20030617173343.GB3841@kroah.com>
-References: <20030616233651.GB27033@kroah.com> <Pine.LNX.4.44L0.0306171318090.621-100000@ida.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Jun 2003 13:49:09 -0400
+Received: from [213.24.247.63] ([213.24.247.63]:7609 "EHLO
+	mail.techsupp.relex.ru") by vger.kernel.org with ESMTP
+	id S264407AbTFQRtG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 13:49:06 -0400
+From: Yaroslav Rastrigin <yarick@relex.ru>
+Organization: RELEX Inc.
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Subject: Re: ACPI broken... again!
+Date: Tue, 17 Jun 2003 22:02:47 +0400
+User-Agent: KMail/1.5.1
+References: <F760B14C9561B941B89469F59BA3A84725A2F1@orsmsx401.jf.intel.com>
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A2F1@orsmsx401.jf.intel.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0306171318090.621-100000@ida.rowland.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200306172202.47579.yarick@relex.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 17, 2003 at 01:29:31PM -0400, Alan Stern wrote:
-> On Mon, 16 Jun 2003, Greg KH wrote:
-> 
-> > All disk info is in the /sys/block directory, does that work for you?
-> 
-> Not scsi disk info.  (Or maybe it should be there but it isn't.)  And no,
-> it doesn't work for me because it's owned by the scsi core, not my driver.
-> 
-> > I think the scsi core will create you a directory that you can use that
-> > will have the proper lifetime that you are looking for.  If not, I can
-> > look into doing something else for some of the other USB devices that
-> > are not using the USB major.
-> 
-> I don't think it would be appropriate to use that directory, since my 
-> driver wouldn't own it.
-> 
-> How about creating a /sys/class/usb/usb-storage/ directory, under which
-> there could be a directory for each USB mass-storage device?  Or would it 
-> be better to create a usb-storage.# directory under the interface's 
-> directory in /sys/devices/ ?
+Hi !
+> "Again." Are you saying it used to work on these machines and then it
+> stopped? If so I think we have a fix to try in the next ACPI release
+> (which may or may not make it into the next kernel release.)
+Well, I, for myself, didn't needed ACPI for my desktops/servers - they 
+were/are working fine without it. When I've dumped processing power for 
+mobility, however - as much power management as possible is (almost) a 
+requirement (for me). How/where could I find your fix to test (yes, I'm 
+reading acpi-devel, but installing bitkeeper to pull these 'assorted fixes' 
+is somewhat like an overkill. Diff ?)
+>
+> > The symptom is that eth0 does not see the others.
+> > /proc/interrupts has
+> > the correct interrupt listed, so it took me a while to suspect ACPI.
+> > agpgart also crashes, and firewire and USB didn't find any devices.
+> >
+> > Why oh why is ACPI so horrendously broken?
+>
+> Do I hear violins playing? Poor, poor you! :)
+If only he was alone...
+>
+> The ACPI PCI routing code still isn't 100% correct. Have you tried
+> pci=noacpi? Have you diagnosed exactly what is going wrong on your
+Yes. Doesn't helps (well, my particular problem is miniPCI 3c556 fails to be 
+detected properly with ACPI enabled. Seems base io addr is detected 
+incorrectly, and subsequent calls to read data return 0xFF instead of actual 
+values. I've posted message here few days ago, and I didn't intend to repost 
+it, but this discussion took me by heart.).
+> system? Have you checked bugzilla for similar bugs? Have you sent a
+Yes. Nothing similar (I'm wondering if ThinkPad T2x series are so unpopular 
+among linux users/developers, and nobody stepped on this bug before, or I'm 
+so very special...).
+> > patch fixing the problem on your system?
+Well, 3c59x driver source is 100K of tightly hardware-bound code (as almost 
+every other driver). Looks I'll need another three or four months just to 
+grok what's happening there - I'm not a Donald Becker (:-)
+>
+> So don't compile it in for now. When you buy a system in a few years
+> that won't work properly without ACPI, and it *works* because of the
+> work everyone on acpi-devel is doing, then you'll change your tune.
+Well. Probably. Is there some kind of ACPI HCL ?
 
-class/usb-storage/ would be fine with me.
+-- 
+With all the best, yarick at relex dot ru.
 
-> It's worth pointing out that both the OHCI and EHCI drivers also do the
-> same wrong thing.  They create their attribute files in a directory
-> owned by the PCI driver.
-
-Yup, you are correct, time to add class/usb-host/ :)
-
-thanks,
-
-greg k-h

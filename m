@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129773AbQLNXKW>; Thu, 14 Dec 2000 18:10:22 -0500
+	id <S135232AbQLNXLC>; Thu, 14 Dec 2000 18:11:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133089AbQLNXKM>; Thu, 14 Dec 2000 18:10:12 -0500
-Received: from gherkin.sa.wlk.com ([192.158.254.49]:58372 "HELO
-	gherkin.sa.wlk.com") by vger.kernel.org with SMTP
-	id <S129773AbQLNXKJ>; Thu, 14 Dec 2000 18:10:09 -0500
-Message-Id: <m146h2G-0005keC@gherkin.sa.wlk.com>
-From: rct@gherkin.sa.wlk.com (Bob_Tracy)
-Subject: Re: ip_defrag is broken (was: Re: test12 lockups -- need feedback)
-To: linux-kernel@vger.kernel.org
-Date: Thu, 14 Dec 2000 16:39:36 -0600 (CST)
-CC: davem@redhat.com, mhaque@haque.net, ionut@moisil.cs.columbia.edu
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	id <S135233AbQLNXKs>; Thu, 14 Dec 2000 18:10:48 -0500
+Received: from raven.toyota.com ([205.180.183.200]:18948 "EHLO
+	raven.toyota.com") by vger.kernel.org with ESMTP id <S133089AbQLNXKY>;
+	Thu, 14 Dec 2000 18:10:24 -0500
+Message-ID: <3A394C2F.C2895995@toyota.com>
+Date: Thu, 14 Dec 2000 14:39:43 -0800
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [lkml]Re: VM problems still in 2.2.18
+In-Reply-To: <E146h1W-000081-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ion Badulescu wrote:
-> On Thu, 14 Dec 2000 07:15:04 -0500, Mohammad A. Haque <mhaque@haque.net> wrote:
-> > Were you connected to a network or receiving/sending anything?
-> 
-> ip_defrag is broken -- there is an obvious NULL pointer dereference
-> in it, introduced in test12. It doesn't hit normally, because of
-> path MTU discovery, but using NFS causes instant death.
+Alan Cox wrote:
 
-...and then I wrote:
-> This is consistent with the lockup I reported several hours ago.
-> In the case of my "unstable" 2.4.0-test12 machine where "startx"
-> worked fine for "root" but not for a normal user, the "root"
-> account is local.  The normal user account home directories are
-> NFS mounted :-(.
+> > slrnpull --expire on a news-spool of about 600 Mb in 200,000 files gave
+> > a lot of 'trying_to_free..' errors.
+> >
+> > 2.2.18 + VM-global, booted with mem=32M:
+> >
+> > slrnpull --expire on the same spool worked fine.
+>
+> I think Andrea just earned his official God status ;)
 
-I tried the submitted patch for ip_fragment.c, and there's still
-no joy on that one unstable machine in my sample set.  At this
-point, I should probably go back through all the pre-12 patches
-and see if the problem scope can be narrowed a bit.
+So, maybe his divine VM patches will make it into 2.2.19?
 
--- 
-Bob Tracy
-rct@frus.com
+jjs
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266968AbSLWUW4>; Mon, 23 Dec 2002 15:22:56 -0500
+	id <S266970AbSLWUej>; Mon, 23 Dec 2002 15:34:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266969AbSLWUW4>; Mon, 23 Dec 2002 15:22:56 -0500
-Received: from ns.netrox.net ([64.118.231.130]:27568 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S266968AbSLWUWz>;
-	Mon, 23 Dec 2002 15:22:55 -0500
-Subject: Re: [PROBLEM 2.5.52] PREEMPT broken (was "bad: scheduling while
-	atomic!" errors during boot)
-From: Robert Love <rml@tech9.net>
-To: Simon Michael <simon@joyful.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87vg1kwnv2.fsf_-_@joyful.com>
-References: <87znqxabgm.fsf@joyful.com> <87ptrt2lk3.fsf@joyful.com>
-	 <87vg1kwnv2.fsf_-_@joyful.com>
+	id <S266971AbSLWUej>; Mon, 23 Dec 2002 15:34:39 -0500
+Received: from rth.ninka.net ([216.101.162.244]:17554 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S266970AbSLWUej>;
+	Mon, 23 Dec 2002 15:34:39 -0500
+Subject: Re: [Linux-fbdev-devel] Type confusion in fbcon
+From: "David S. Miller" <davem@redhat.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Russell King <rmk@arm.linux.org.uk>,
+       James Simmons <jsimmons@infradead.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.GSO.4.21.0212231014460.12134-100000@vervain.sonytel.be>
+References: <Pine.GSO.4.21.0212231014460.12134-100000@vervain.sonytel.be>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1040675593.962.6.camel@icbm>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 23 Dec 2002 15:33:13 -0500
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 23 Dec 2002 13:11:43 -0800
+Message-Id: <1040677903.21606.0.camel@rth.ninka.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-23 at 14:12, Simon Michael wrote:
-
-> Yup, that's what I meant. Thanks to another private emailer for the idea.
+On Mon, 2002-12-23 at 01:18, Geert Uytterhoeven wrote:
+> That's because originally there was no fix.line_length field, and the line
+> length was derived from var.xres_virtual and var.bits_per_pixel.
 > 
-> Robert, I think you are the one who'll want to hear of this.
+> With some hardware, the line length must be a multiple of 32 or 64 bits, and we
+> needed a way to specify that, so fix.line_length was introduced. If it was
+> zero, user code should fallback to the old behavior.
 
-The problem is actually unrelated to preempt, but only with preempt can
-we detect it.  So, yes, disabling CONFIG_PREEMPT merely hides the debug
-message.
+And with some cards, the line length is constant.  Ie. to get to
+"X, Y + 1" for a given "X, Y" you add a constant to your current
+frame buffer pointer.
 
-I got your post from earlier, thanks.  The relevant maintainers need to
-work on it.
-
-	Robert Love
+That is what fix.line_length is for right?
 

@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269824AbUIDGws@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269818AbUIDGxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269824AbUIDGws (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 02:52:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269818AbUIDGwr
+	id S269818AbUIDGxL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 02:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269825AbUIDGxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 02:52:47 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47261 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269824AbUIDGv6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 02:51:58 -0400
-Subject: Re: [IA64] allow OEM written modules to make calls to ia64 OEM SAL
-	functions.
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: dcn@sgi.com
-In-Reply-To: <200409032207.i83M7CKj015068@hera.kernel.org>
-References: <200409032207.i83M7CKj015068@hera.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-oVpllR8NkDjT82+yN3Xd"
-Organization: Red Hat UK
-Message-Id: <1094280707.2801.0.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 04 Sep 2004 08:51:47 +0200
+	Sat, 4 Sep 2004 02:53:11 -0400
+Received: from smtp-out.hotpop.com ([38.113.3.61]:43739 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S269818AbUIDGxF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 02:53:05 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Thomas Winischhofer <thomas@winischhofer.net>, adaplas@pol.net
+Subject: Re: [PATCH 4/5][RFC] fbdev: Clean up framebuffer initialization
+Date: Sat, 4 Sep 2004 14:53:01 +0800
+User-Agent: KMail/1.5.4
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+References: <200409041108.40276.adaplas@hotpop.com> <41393829.6020302@winischhofer.net>
+In-Reply-To: <41393829.6020302@winischhofer.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409041453.01644.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 04 September 2004 11:36, Thomas Winischhofer wrote:
+> > 5. Because driver initialization will be dependent on the link order,
+> > hardware that depends on other subsystems (agpgart, usb, serial, etc) may
+> > choose to initialize after the subsystems they depend on.
+> >
+> > Signed-off-by: Antonino Daplas <adaplas@pol.net>
+>
+> I don't really see a benefit but it's ok with me.
+>
 
---=-oVpllR8NkDjT82+yN3Xd
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Mainly cleanup, but also point #5.  The i810fb, for instance, depends on agpgart, but
+agpgart gets initialized way after fbdev.  The workaround is for i810fb to explicitly
+call intel_agp_init().  Besides the ugliness, forcibly initializing the agpgart subsystem
+out of sequence may cause problems.
 
-On Wed, 2004-08-25 at 20:27, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1803.128.1, 2004/08/25 18:27:33+00:00, dcn@sgi.com
->=20
-> 	[IA64] allow OEM written modules to make calls to ia64 OEM SAL functions=
-.
-> =09
-> 	Add wrapper functions for SAL_CALL(), SAL_CALL_NOLOCK(), and
-> 	SAL_CALL_REENTRANT() that allow OEM written modules to make
-> 	calls to ia64 OEM SAL functions.
-> =09
+With this change, in theory, I can move i810fb's link order so it gets initialized after
+agpgart.
 
-are there any such modules? Are they GPL licensed or all proprietary ?
+> (Thanks for considering the "unified" nature of sisfb, by the way. Very
+> considarate. Very much appreciated.)
+>
+> I assume that you tested this stuff before posting it here.
 
---=-oVpllR8NkDjT82+yN3Xd
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Yes, with hardware that I have.  I did try to at least compile test what I can.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Tony
 
-iD8DBQBBOWYDxULwo51rQBIRAv+QAJ9H9kFo8Ral8RdJ8oLaRFkxkDOw+ACgmLXd
-Vi1laELlGerW2ebZG7uPR3M=
-=4nEr
------END PGP SIGNATURE-----
-
---=-oVpllR8NkDjT82+yN3Xd--
 

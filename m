@@ -1,69 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315478AbSECAC4>; Thu, 2 May 2002 20:02:56 -0400
+	id <S315483AbSECAFc>; Thu, 2 May 2002 20:05:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315482AbSECACy>; Thu, 2 May 2002 20:02:54 -0400
-Received: from horkos.telenet-ops.be ([195.130.132.45]:2534 "EHLO
-	horkos.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S315478AbSECACL>; Thu, 2 May 2002 20:02:11 -0400
-Date: Fri, 3 May 2002 02:02:08 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] UFS compile fix.
-Message-ID: <20020503020208.A6228@ping.be>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="BOKacYhQ+x31HxR3"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S315480AbSECAEf>; Thu, 2 May 2002 20:04:35 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:48903
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S315484AbSECADh>; Thu, 2 May 2002 20:03:37 -0400
+Date: Thu, 2 May 2002 17:02:49 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Kjartan Maraas <kmaraas@online.no>
+cc: Samuel Flory <sflory@rackable.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.19pres and IDE DMA
+In-Reply-To: <1020374480.3134.1.camel@sevilla.gnome.no>
+Message-ID: <Pine.LNX.4.10.10205021702030.2107-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Kjartan,
 
-Seems that someone forgot to add some commas in ufs/super.c.
+You used a beta that has been I made general and not specific, but I broke
+it :-(.
 
+On 2 May 2002, Kjartan Maraas wrote:
 
-Kurt
+> tor, 2002-05-02 kl. 22:41 skrev Samuel Flory:
+> >   I'm having issues with a Tyan 2720 and post 2.4.18 boards with a 
+> > Maxtor 4G120J6.  Under 2.4.18 I can turn on dma via "hdparm -d 1". 
+> >  Under 2.4.19pre7 I get "HDIO_SET_DMA fail ed: Operation not permitted". 
+> >  On a side note the same thing occurs with the RH 2.4.18-0.13 kernel. 
+> >  It appears both kernels merged an ide update from the ac kernel line.
+> > 
+> > PS-There is also some issue with a resource conflict that occurs under 
+> > every kernel I've tried.
+> 
+> I had the exact same problem myself with a brand new Compaq N600c
+> laptop. It was fixed for me by using Andre's patch from
+> http://linuxdiskcert.org/
+> 
+> Cheers
+> Kjartan
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
+Andre Hedrick
+LAD Storage Consulting Group
 
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ufs.diff"
-
---- fs/ufs/super.c.bak	Fri May  3 01:53:30 2002
-+++ fs/ufs/super.c	Fri May  3 01:53:54 2002
-@@ -663,12 +663,12 @@
- 		goto failed;
- 	}
- 	if (uspi->s_bsize < 512) {
--		printk("ufs_read_super: fragment size %u is too small\n"
-+		printk("ufs_read_super: fragment size %u is too small\n",
- 			uspi->s_fsize);
- 		goto failed;
- 	}
- 	if (uspi->s_bsize > 4096) {
--		printk("ufs_read_super: fragment size %u is too large\n"
-+		printk("ufs_read_super: fragment size %u is too large\n",
- 			uspi->s_fsize);
- 		goto failed;
- 	}
-@@ -678,12 +678,12 @@
- 		goto failed;
- 	}
- 	if (uspi->s_bsize < 4096) {
--		printk("ufs_read_super: block size %u is too small\n"
-+		printk("ufs_read_super: block size %u is too small\n",
- 			uspi->s_fsize);
- 		goto failed;
- 	}
- 	if (uspi->s_bsize / uspi->s_fsize > 8) {
--		printk("ufs_read_super: too many fragments per block (%u)\n"
-+		printk("ufs_read_super: too many fragments per block (%u)\n",
- 			uspi->s_bsize / uspi->s_fsize);
- 		goto failed;
- 	}
-
---BOKacYhQ+x31HxR3--

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132641AbQKWHas>; Thu, 23 Nov 2000 02:30:48 -0500
+        id <S132647AbQKWHdt>; Thu, 23 Nov 2000 02:33:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132649AbQKWHaj>; Thu, 23 Nov 2000 02:30:39 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:52750 "HELO mail.ocs.com.au")
-        by vger.kernel.org with SMTP id <S132641AbQKWHa0>;
-        Thu, 23 Nov 2000 02:30:26 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: Patch(?): pci_device_id tables for drivers/scsi in 2.4.0-test11 
-In-Reply-To: Your message of "Thu, 23 Nov 2000 00:02:07 MDT."
-             <20001123000207.O2918@wire.cadcamlab.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 23 Nov 2000 18:00:19 +1100
-Message-ID: <882.974962819@ocs3.ocs-net>
+        id <S132649AbQKWHdi>; Thu, 23 Nov 2000 02:33:38 -0500
+Received: from argo.anu.edu.au ([150.203.5.57]:11648 "EHLO argo.anu.edu.au")
+        by vger.kernel.org with ESMTP id <S132647AbQKWHd0>;
+        Thu, 23 Nov 2000 02:33:26 -0500
+Message-Id: <200011230703.eAN73J300192@argo.anu.edu.au>
+Date: Thu, 23 Nov 2000 18:03:19 +1100 (EST)
+To: linux-kernel@vger.kernel.org
+From: bregor@anusf.anu.edu.au
+Subject: boot failure since 2.4.0-test10
+X-Mailer: Ishmail 1.9.12-20000718-i686-Bregor-linux-gnu <http://ishmail.sourceforge.net>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Adam J. Richter]
-> +static struct pci_device_id atp870u_pci_tbl[] __initdata = {
-> +{vendor: 0x1191, device: 0x8002, subvendor: PCI_ANY_ID, subdevice: PCI_ANY_ID},
-> +{vendor: 0x1191, device: 0x8010, subvendor: PCI_ANY_ID, subdevice: PCI_ANY_ID},
 
-It would make it easier to read and safer to type if you used a macro
-to generate the fields.
+  Others have reported similar problems, i.e.
+  NOTHING after the "booting kernel message".
 
-#define PCITBL(v,d,sv,sd) \
- { PCI_VENDOR_ID_##v, PCI_DEVICE_ID_##d, \
-   PCI_VENDOR_ID_##sv, PCI_DEVICE_ID_##sd }
+  My case is:
+  Dual P-II Xeons, Intel 440GX chipset.
+  Booting with loadlin or syslinux-1.50
+  root-partition: /dev/hdc3
+  Kernel freatures:  
+    CPU set to Pentium-II
+    No module support
+    No plug "n" play
+    Nothing unusual at all.  (I've tried many variations)
 
-#define PCITBL_END {0,0,0,0}
+  I've built many kernels in the past and can still boot
+  linux-2.4.0-test10.pre??? versions.
 
-static struct pci_device_id foo_pci_tbl[] __initdata = {
-  PCITBL(INTEL, INTEL_82437VX, ANY, ANY),
-  PCITBL_END
-}
+  Any advice would be most welcome.
 
-Shorter is easier to read.  Using a prefix on the fields makes it much
-harder for somebody to accidentally swap device and vendor codes.  If
-they swap the parameters and type
-  PCITBL(INTEL_82437VX, INTEL, ANY, ANY),
-by mistake then they get compile errors, PCI_VENDOR_ID_INTEL_82437VX
-and PCI_DEVICE_ID_INTEL are undefined.
+  Roger Brown      bregor at anusf dot anu dot edu dot au
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,33 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267401AbSKPXej>; Sat, 16 Nov 2002 18:34:39 -0500
+	id <S267402AbSKPXi0>; Sat, 16 Nov 2002 18:38:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267402AbSKPXei>; Sat, 16 Nov 2002 18:34:38 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:36273 "EHLO
+	id <S267403AbSKPXiZ>; Sat, 16 Nov 2002 18:38:25 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:37297 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267401AbSKPXei>; Sat, 16 Nov 2002 18:34:38 -0500
-Subject: Re: [PATCH] ide.h cleanup, 2.5.47
+	id <S267402AbSKPXiZ>; Sat, 16 Nov 2002 18:38:25 -0500
+Subject: Re: [lart] /bin/ps output
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matti Annala <gval@mbnet.fi>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@suse.de>
-In-Reply-To: <001b01c28d51$fd9a2400$5ca464c2@windows>
-References: <001b01c28d51$fd9a2400$5ca464c2@windows>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021116092424.GY22031@holomorphy.com>
+References: <3DA798B6.9070400@us.ibm.com> 
+	<20021116092424.GY22031@holomorphy.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 17 Nov 2002 00:08:28 +0000
-Message-Id: <1037491709.24769.22.camel@irongate.swansea.linux.org.uk>
+Date: 17 Nov 2002 00:11:35 +0000
+Message-Id: <1037491895.24777.26.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-11-16 at 09:24, Matti Annala wrote:
-> The patch below performs minor cleanups on the include/linux/ide.h header. It
-> simplifies the use of endianness #ifdefs and removes a chunk of duplicated
-> code.
-> 
-> Comments?
+Bill - so what happens if you trim down the aio, event and ksoftirqd
+threads to a sane size (you might also want to do something about the
+fact 2.5 still runs ksoftirq too easily). Intuitively I'd go for a
+square root of the number of processors + 1 sort of function but what do
+the benchmarks say ?
 
-Why are you deleting chunks of comments ?
 

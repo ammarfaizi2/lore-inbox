@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268702AbTHJOdj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 10:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269559AbTHJOdj
+	id S269523AbTHJOqS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 10:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269555AbTHJOqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 10:33:39 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:55803 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S268702AbTHJOdh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 10:33:37 -0400
-Date: Sun, 10 Aug 2003 16:33:00 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] IDE (& PowerMac): Let an hwif have a real parent
-In-Reply-To: <1060524726.595.13.camel@gaston>
-Message-ID: <Pine.SOL.4.30.0308101630280.1330-100000@mion.elka.pw.edu.pl>
+	Sun, 10 Aug 2003 10:46:18 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:50700 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S269523AbTHJOqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 10:46:17 -0400
+Date: Mon, 11 Aug 2003 00:46:01 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: "David S. Miller" <davem@redhat.com>
+cc: Matt Mackall <mpm@selenic.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
+In-Reply-To: <20030809131715.17a5be2e.davem@redhat.com>
+Message-ID: <Mutt.LNX.4.44.0308110035090.7218-100000@excalibur.intercode.com.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 9 Aug 2003, David S. Miller wrote:
 
-On 10 Aug 2003, Benjamin Herrenschmidt wrote:
+> > Also, I posted to cryptoapi-devel that I need a way to disable the
+> > unconditional padding on the hash functions.
+> 
+> James, comments?
 
-> Hi Linus & Bart !
->
-> This patch allows an IDE hwif to be set a "parent" field so it
-> can really descend from any struct device, typically the macio_device
-> I use on pmac, and not only a PCI device or the legacy stuff.
->
-> This should work fine as long as hwif->gendev.parent doesn't
-> contain junk, but so far, it seems it really only contains
-> NULL unless specifically set by the host driver.
->
-> Without that, the pmac driver will not appear in it's proper
-> location in the device tree, which is a real problem for power
-> management as it won't be ordered properly with it's hosting
-> asic (and mediabay if any), thus breaking suspend/resume.
+Yes, a flag could be added for crypto_alloc_tfm() which disables padding
+for digests (e.g. CRYPTO_TFM_DIGEST_NOPAD).
 
-Looks good.
+Given that there are a still a number of unresolved issues, e.g. making
+the crypto api (or a subset thereof) mandatory, perhaps it would be more 
+appropriate to slate these changes for 2.7 and then backport to 2.6 once 
+stable.
 
-> Please apply,
-> Ben.
 
-Can you fix intendation, or I should do it?
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 
-> --- a/drivers/ide/ide-probe.c	Sun Aug 10 16:07:40 2003
-> +++ b/drivers/ide/ide-probe.c	Sun Aug 10 16:07:40 2003
-> @@ -650,10 +650,12 @@
->  	strlcpy(hwif->gendev.bus_id,hwif->name,BUS_ID_SIZE);
->  	snprintf(hwif->gendev.name,DEVICE_NAME_SIZE,"IDE Controller");
->  	hwif->gendev.driver_data = hwif;
-> +	if (hwif->gendev.parent == NULL) {
->  	if (hwif->pci_dev)
->  		hwif->gendev.parent = &hwif->pci_dev->dev;
->  	else
->  		hwif->gendev.parent = NULL; /* Would like to do = &device_legacy */
-> +	}
->  	device_register(&hwif->gendev);
->  }
-
---bartlomiej
 

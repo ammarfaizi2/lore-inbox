@@ -1,68 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315253AbSDWQov>; Tue, 23 Apr 2002 12:44:51 -0400
+	id <S315257AbSDWQxn>; Tue, 23 Apr 2002 12:53:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315257AbSDWQou>; Tue, 23 Apr 2002 12:44:50 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:59045 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S315253AbSDWQot>;
-	Tue, 23 Apr 2002 12:44:49 -0400
-Date: Tue, 23 Apr 2002 16:41:10 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: mingo@elte.hu
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] task cpu affinity syscalls for 2.4-O(1)
-In-Reply-To: <20020423093634.A1904@w-mikek2.des.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.44.0204231635410.12991-100000@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315261AbSDWQxm>; Tue, 23 Apr 2002 12:53:42 -0400
+Received: from zero.tech9.net ([209.61.188.187]:58385 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S315257AbSDWQxl>;
+	Tue, 23 Apr 2002 12:53:41 -0400
+Subject: Re: [PATCH] 2.5: MAX_PRIO cleanup
+From: Robert Love <rml@tech9.net>
+To: mingo@elte.hu
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204230948150.10873-100000@elte.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 23 Apr 2002 12:53:40 -0400
+Message-Id: <1019580821.2045.85.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-04-23 at 03:53, Ingo Molnar wrote:
 
-On Tue, 23 Apr 2002, Mike Kravetz wrote:
-
-> I don't have a suggestion for the locking yet, but rather a question
-> about the current code that you may be able to answer.  At the end of
-> set_cpus_allowed(), there is this block of code:
+> i agree that this area needs cleaning up, but i dont agree with all
+> aspects of your patch. I intentionally left the user-space API side
+> separate, MAX_RT can in fact be higher than 100 (without changing the
+> user-space API), the only rule is that it must not be smaller. We in fact
+> had such a situation once.  It's a perfectly valid goal to have 'super
+> high prio' kernel-space threads in the future that have in fact some
+> priority that cannot be reached by user-space threads.
 > 
->         init_MUTEX_LOCKED(&req.sem);
->         req.task = p;
->         list_add(&req.list, &rq->migration_queue);
->         task_rq_unlock(rq, &flags);
->         wake_up_process(rq->migration_thread);
+> so i've re-done a variation of your patch, which defines USER_MAX_RT_PRIO,
+> so the user-space API can still stay separate from the kernel-internal
+> representation.
+
+This is better.  I did not want to add another define or a new policy
+(i.e. user != kernel maximum priority) but doing so is valid.  Actually,
+I think there are a lot of kernel threads where we probably want to set
+a priority above the max user-space priority.
+
+There are circumstances in user programming where we want a larger
+maximum RT priority, too.  In serious RT programming it wouldn't be
+uncommon to see 100-1000 priority levels.  I think having such a wide
+range is partly to make programming easier (i.e. a lame crutch) but it
+does help to more readily layer real-time tasks.
+
+Now the hard part is abstracting sched_find_first_set for an arbitrary
+MAX_RT_PRIO.
+
+> i've also done some other changes:
 > 
->         down(&req.sem);
+> >  /*
+> > - * Priority of a process goes from 0 to 139. The 0-99
+> > - * priority range is allocated to RT tasks, the 100-139
+> > - * range is for SCHED_OTHER tasks. Priority values are
+> > - * inverted: lower p->prio value means higher priority.
+> > + * Priority of a process goes from 0 to MAX_PRIO-1.  The
+> > + * 0 to MAX_RT_PRIO-1 priority range is allocated to RT tasks,
+> > + * the MAX_RT_PRIO to MAX_PRIO range is for SCHED_OTHER tasks.
+> > + * Priority values are inverted: lower p->prio value means higher
+> > + * priority.
 > 
-> After releasing the runqueue lock, what prevents p from moving to (and
-> running on) another CPU via the load_balance() mechanism before the
-> migration thread is scheduled?  I couldn't find anything in the code to
-> prevent this, and it looks like bad things would happen if it did.  Of
-> course, this assumes we are not running in the context of p while
-> calling set_cpus_allowed() for p.
+> this i dont agree with either. The point of comments is easy
+> understanding, so i intentionally kept the 'hard' constants and i'm
+> updating them constantly - it's much easier to understand how things
+> happen if it does not happen via a define. The code itself i agree should
+> stay abstract, but the comments should stay as humanly readable as
+> possible.
 
-well, my goal was the following: the migration thread makes sure that the
-migrated thread will *not* run on that particular CPU. The only issue the
-migration thread is for is to 'push' the migrated thread from its current
-CPU.
+Whatever you prefer...
 
-so we first set the cpus_allowed mask, then we schedule the migration
-thread (which is a highest RT priority thread) if the thread is running on
-an invalid CPU.
+> (the set|get_affinity comment fixes i kept, plus the runqueue
+> double-lock/unlock comments as well, see the attached patch.)
 
-load_balance() moving a process to another CPU is in fact makes this job
-easier, and causes no problems. It will pull a process only to allowed
-runqueues.
+Great, thank you.
 
-this way it can be guaranteed that after the set_cpus_allowed() call the
-thread is not running on an invalid CPU.
+Linus, Ingo's patch is fine by me.  Apply?
 
-the affinity setting syscalls added by Robert's patch utilize this
-underlying mechanizm, but kernel threads call it directly as well. Eg. in
-the softirqd case it's of importance whether the thread is running on the
-right CPU or not, after calling set_cpus_allowed().
-
-is there anything else unclear in this area?
-
-	Ingo
+	Robert Love
 

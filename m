@@ -1,69 +1,389 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbTJVWRM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 18:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTJVWRM
+	id S261271AbTJVWlU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 18:41:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTJVWlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 18:17:12 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:57762 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261262AbTJVWRK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 18:17:10 -0400
-Message-ID: <3F970199.2050404@comcast.net>
-Date: Wed, 22 Oct 2003 15:15:53 -0700
-From: C S Rosenmund <gnuman@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.4) Gecko/20031010 Debian/1.4-6
-X-Accept-Language: en
-MIME-Version: 1.0
+	Wed, 22 Oct 2003 18:41:19 -0400
+Received: from dsl254-126-114.nyc1.dsl.speakeasy.net ([216.254.126.114]:30861
+	"EHLO chumak.ny.ranok.com") by vger.kernel.org with ESMTP
+	id S261271AbTJVWlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 18:41:04 -0400
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test8 backlight and sound problems (PMU) on PPC
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [2.6.0-test8-bk2] strange kbd behaviour at reboot
+Message-Id: <E1ACRnp-0000GO-00@Maya.ny.ranok.com>
+From: Vagn Scott <vagn@ranok.com>
+Date: Wed, 22 Oct 2003 18:50:05 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hardware is an early iBook (first gen - Clamshell)
 
-with 2.6.0-test8, sound does not recover from sleep when an application 
-is using it when the notebook is slept (can be reproduced: using pysol, 
-with sound enabled, close the lid to sleep the laptop, then anytime 
-after the sound stops (indicating that the laptop is sleeping) open the 
-lid. Sound does not return, and the application does not close) The 
-symptoms (indicated above) seem to point to the sound module (also when 
-compiled into the kernel) hanging up on sleep. Sound hardware is 
-pmac-dmasound.
+description:
+	strange kbd behaviour at reboot
 
-two problems on the backlight (probably related):
-the backlight control buttons do not work (the brightness of the 
-backlight does not change) and when the laptop goes to sleep, the 
-backlight does not turn off (it does turn off for console blanking as in 
-when the unit is left idle for some time, and the screen goes blank).
+	When I reboot the system from su session in an xterm
+	a number of line feeds scroll until the xterm is killed.
+	I wonder if this is a clue to the problems others were
+	reporting with sleep/suspend not happening on notebooks?
 
-I was unable to find any reference to this in the archives, so I'm not 
-sure if this has been noticed yet.
+	The scroll rate appears to be the keyboard repeat rate.
+	This happens on the console.
+	This does not happen from a remote xterm.
 
-Results of ver_linux:
-Linux Blueberry 2.6.0-test8 #10 Tue Oct 21 22:02:41 PDT 2003 ppc GNU/Linux
- 
-Gnu C                  3.3.2
-Gnu make               3.80
-util-linux             2.12
-mount                  2.12
-module-init-tools      0.9.15-pre2
-e2fsprogs              1.35-WIP
-PPP                    2.4.2b3
-nfs-utils              1.0.5
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 3.1.12
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               5.0.91
-Modules Loaded         dmasound_pmac dmasound_core soundcore
-Blueberry:/usr/src/linux-2.6.0-test8/scripts#
 
-do you need more info than this? If so, what?
+version:
+2.6.0-test8-bk2
+Linux Maya 2.6.0-test8-bk2 #2 Wed Oct 22 18:11:26 EDT 2003 i686 GNU/Linux
 
-Sanjay
-gnuman@comcast.net
+built from:
+linux-2.6.0-test8.tar.bz2
+http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.0-test8-bk2.bz2
+
+grep -v '^#' .config | uniq
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_STANDALONE=y
+CONFIG_BROKEN_ON_SMP=y
+
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+
+CONFIG_X86_PC=y
+CONFIG_MK7=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_PREEMPT=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+
+CONFIG_PM=y
+
+CONFIG_APM=y
+CONFIG_APM_RTC_IS_GMT=y
+
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_MISC=y
+
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_PC_SUPERIO=y
+CONFIG_PARPORT_1284=y
+
+CONFIG_PNP=y
+CONFIG_PNP_DEBUG=y
+
+CONFIG_ISAPNP=y
+CONFIG_PNPBIOS=y
+
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_CRYPTOLOOP=y
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
+
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_IDE_TASK_IOCTL=y
+CONFIG_IDE_TASKFILE_IO=y
+
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_AMD74XX=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_PDC202XX_OLD=y
+CONFIG_BLK_DEV_PDC202XX_NEW=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_CHR_DEV_SG=y
+
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_REPORT_LUNS=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+CONFIG_AIC7XXX_DEBUG_ENABLE=y
+CONFIG_AIC7XXX_DEBUG_MASK=0
+CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID5=y
+CONFIG_BLK_DEV_DM=y
+CONFIG_DM_IOCTL_V4=y
+
+CONFIG_I2O=y
+CONFIG_I2O_PCI=y
+CONFIG_I2O_BLOCK=y
+CONFIG_I2O_SCSI=y
+CONFIG_I2O_PROC=y
+
+CONFIG_NET=y
+
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_INET_ECN=y
+CONFIG_SYN_COOKIES=y
+
+CONFIG_NETFILTER=y
+
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_COMPAT_IPCHAINS=y
+
+CONFIG_IPV6_SCTP__=y
+CONFIG_NET_HW_FLOWCONTROL=y
+
+CONFIG_NETDEVICES=y
+
+CONFIG_DUMMY=y
+CONFIG_TUN=y
+
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+
+CONFIG_NET_PCI=y
+CONFIG_E100=y
+CONFIG_8139CP=y
+CONFIG_8139TOO=y
+
+CONFIG_INPUT=y
+
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_EVDEV=y
+
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_MOUSE_SERIAL=y
+
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=y
+
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+
+CONFIG_I2C_ALI1535=y
+CONFIG_I2C_ALI15X3=y
+CONFIG_I2C_AMD756=y
+CONFIG_I2C_AMD8111=y
+CONFIG_I2C_I801=y
+CONFIG_I2C_ISA=y
+CONFIG_I2C_NFORCE2=y
+CONFIG_I2C_PIIX4=y
+CONFIG_I2C_SIS96X=y
+CONFIG_I2C_VIAPRO=y
+
+CONFIG_I2C_SENSOR=y
+CONFIG_SENSORS_ADM1021=y
+CONFIG_SENSORS_IT87=y
+CONFIG_SENSORS_LM75=y
+CONFIG_SENSORS_LM78=y
+CONFIG_SENSORS_LM85=y
+CONFIG_SENSORS_VIA686A=y
+CONFIG_SENSORS_W83781D=y
+
+CONFIG_HW_RANDOM=y
+
+CONFIG_AGP=y
+CONFIG_AGP_AMD=y
+CONFIG_AGP_INTEL=y
+CONFIG_AGP_VIA=y
+CONFIG_DRM=y
+CONFIG_DRM_I810=y
+CONFIG_DRM_I830=y
+CONFIG_DRM_MGA=y
+CONFIG_RAW_DRIVER=y
+CONFIG_MAX_RAW_DEVS=256
+
+CONFIG_FB=y
+CONFIG_FB_VGA16=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_MATROX=y
+CONFIG_FB_MATROX_MILLENIUM=y
+CONFIG_FB_MATROX_MYSTIQUE=y
+CONFIG_FB_MATROX_G450=y
+CONFIG_FB_MATROX_G100=y
+CONFIG_FB_MATROX_MULTIHEAD=y
+
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONTS=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_VGA16=y
+
+CONFIG_USB=y
+CONFIG_USB_DEBUG=y
+
+CONFIG_USB_DEVICEFS=y
+
+CONFIG_USB_EHCI_HCD=y
+CONFIG_USB_UHCI_HCD=y
+
+CONFIG_USB_PRINTER=y
+CONFIG_USB_STORAGE=y
+CONFIG_USB_STORAGE_DEBUG=y
+CONFIG_USB_STORAGE_FREECOM=y
+
+CONFIG_USB_SERIAL=y
+CONFIG_USB_SERIAL_GENERIC=y
+
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=y
+CONFIG_REISERFS_PROC_INFO=y
+CONFIG_MINIX_FS=y
+CONFIG_QUOTA=y
+CONFIG_QFMT_V1=y
+CONFIG_QUOTACTL=y
+
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=y
+CONFIG_UDF_FS=y
+
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+CONFIG_SMB_FS=y
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_SMB_NLS_REMOTE="cp437"
+CONFIG_INTERMEZZO_FS=y
+
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_KOI8_U=y
+
+CONFIG_FRAME_POINTER=y
+
+CONFIG_CRYPTO=y
+
+CONFIG_CRC32=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_PC=y
+
+
+-- 
+         _~|__
+   >@   (vagn(     /
+    `-ooooooooo-'/
+  ^^^^^^^^^^^^^^^^^^^^^^^ The best pearls come from happy oysters.
 

@@ -1,94 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbTILLJM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 07:09:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbTILLJM
+	id S261306AbTILLTg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 07:19:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbTILLTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 07:09:12 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:54484 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261225AbTILLJH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 07:09:07 -0400
-Date: Fri, 12 Sep 2003 13:09:02 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 2.6.0-test5: serio config broken?
-Message-ID: <20030912110902.GF27368@fs.tum.de>
-References: <20030910191038.GK27368@fs.tum.de> <20030910193158.GF4559@ip68-0-152-218.tc.ph.cox.net> <20030910195544.GL27368@fs.tum.de> <20030910210443.GG4559@ip68-0-152-218.tc.ph.cox.net> <20030910215136.GP27368@fs.tum.de> <20030910220552.GJ4559@ip68-0-152-218.tc.ph.cox.net> <20030910221710.GT27368@fs.tum.de> <20030910222918.GL4559@ip68-0-152-218.tc.ph.cox.net> <Pine.LNX.4.44.0309111037050.19512-100000@serv> <20030911230448.GA13672@ip68-0-152-218.tc.ph.cox.net>
+	Fri, 12 Sep 2003 07:19:36 -0400
+Received: from thor.itep.ru ([194.85.69.254]:42676 "EHLO thor.itep.ru")
+	by vger.kernel.org with ESMTP id S261306AbTILLTb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 07:19:31 -0400
+Date: Fri, 12 Sep 2003 15:19:28 +0400
+From: Roman Kagan <Roman.Kagan@itep.ru>
+To: linux-kernel@vger.kernel.org
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Subject: Re: Problem: IDE data corruption with VIA chipsets on2.4.20-19.8+others
+Message-ID: <20030912111928.GA5641@panda.itep.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030911230448.GA13672@ip68-0-152-218.tc.ph.cox.net>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 11, 2003 at 04:04:48PM -0700, Tom Rini wrote:
+On Fri, Sep 12, 2003 at 04:14:54AM +0000, Rogier Wolff wrote:
+> Anyway, speaking about SMART, some "smartd" was interfering with
+> normal operation on one of our systems and we saw similar "nasty"
+> stuff on that system until I removed "smartd". 
 > 
-> Okay.  The following Kconfig illustrates what I claim to be a bug.
-> config A
-> 	bool "This is A"
-> 	select B
-> 	
-> config B
-> 	bool "This is B"
-> 	# Or, depends C=y
-> 	depends C
-> 
-> config C
-> 	bool "This is C"
-> 
-> 
-> Running oldconfig will give:
-> This is A (A) [N/y] (NEW) y
-> This is C (C) [N/y] (NEW) n
-> ...
-> And in .config:
-> CONFIG_A=y
-> CONFIG_B=y
-> # CONFIG_C is not set
-> 
-> I claim that this should in fact be:
-> CONFIG_A=y
-> CONFIG_B=y
-> CONFIG_C=y
+> Aug 10 06:54:25 falbala kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+> Aug 10 06:54:25 falbala kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+> Aug 10 06:54:25 falbala kernel: hdb: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+> Aug 10 06:54:25 falbala kernel: hdb: drive_cmd: error=0x04 { DriveStatusError }
+> Aug 10 07:24:25 falbala kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+> Aug 10 07:24:25 falbala kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+> Aug 10 07:24:25 falbala kernel: hdb: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+> Aug 10 07:24:25 falbala kernel: hdb: drive_cmd: error=0x04 { DriveStatusError }
+> Aug 10 08:24:25 falbala kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+> Aug 10 08:24:25 falbala kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+> Aug 10 08:24:25 falbala kernel: hdb: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+> Aug 10 08:24:25 falbala kernel: hdb: drive_cmd: error=0x04 { DriveStatusError }
 
-The problem is that select ignores dependencies.
+You probably have SMART disabled on those drives by BIOS, and smartd is
+not smart enough to enable it before trying to use it so the drives
+complain.  I had the same problem on my GigaByte mobo where the BIOS
+setup didn't even provide an option to turn SMART on (like earlier Award
+BIOSes did).
 
+Check with smartctl -i /dev/hdX.  Enable with smartctl -e /dev/hdX
+_before_ starting smartd.
 
-Unfortunately, your proposal wouldn't work easily, consider e.g.
+Sorry for OT.
 
-config A
-	bool "This is A"
-	select B
-
-config B
-	bool
-	depends C || D
-
-config C
-	bool "This is C"
-	depends D=n
-
-config D
-	bool "This is D"
-
-
-Do you want C or D to be selected?
-
-
-> Tom Rini
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+  Roman.

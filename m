@@ -1,47 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265533AbSJSGma>; Sat, 19 Oct 2002 02:42:30 -0400
+	id <S265539AbSJSG6L>; Sat, 19 Oct 2002 02:58:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265534AbSJSGma>; Sat, 19 Oct 2002 02:42:30 -0400
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:15569 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S265533AbSJSGm3>; Sat, 19 Oct 2002 02:42:29 -0400
-Reply-to: Wolfgang Fritz <wolfgang.fritz@gmx.net>
-To: linux-kernel@vger.kernel.org
-From: Wolfgang Fritz <wolfgang.fritz@gmx.net>
-Subject: Re: Exploit for the Kernel
-Date: Sat, 19 Oct 2002 08:39:34 +0200
-Organization: None
-Message-ID: <aoqun8$nf6$1@fritz38552.news.dfncis.de>
-References: <000d01c27710$c3a75260$cddea7c8@bsb.virtua.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-User-Agent: KNode/0.7.1
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.6; AVE: 6.16.0.0; VDF: 6.16.0.5; host: gurke)
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.6; AVE: 6.16.0.0; VDF: 6.16.0.5; host: gurke)
+	id <S265540AbSJSG6L>; Sat, 19 Oct 2002 02:58:11 -0400
+Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:19141 "EHLO
+	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S265539AbSJSG6K>; Sat, 19 Oct 2002 02:58:10 -0400
+Message-ID: <005601c2773d$b6fc65a0$6f1ee043@wizardess.wiz>
+From: "jdow" <jdow@earthlink.net>
+To: <root@chaos.analogic.com>, "Robert Love" <rml@tech9.net>
+Cc: "Neil Conway" <nconway.list@ukaea.org.uk>, <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.95.1021018152117.150B-100000@chaos.analogic.com>
+Subject: Re: [PATCH] 2.4: variable HZ
+Date: Sat, 19 Oct 2002 00:04:04 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Breno wrote:
+Richard, would you believe that this is essentially what is done with the
+GPS satellites in the dither process and in the clock correction process
+to make the drifty Rb standards as stable as ground standards?
 
-> 
-http://online.securityfocus.com/archive/1/295855/2002-10-15/2002-10-21/1
-> 
-> 
-> 
-> Breno
-> 
-See www.heise.de (in german):
+(You'd better. I designed the beastie involved.)
+{^_-}    Joanne, jdow@earthlink.net
+----- Original Message ----- 
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+To: "Robert Love" <rml@tech9.net>
+Cc: "Neil Conway" <nconway.list@ukaea.org.uk>; <linux-kernel@vger.kernel.org>
+Sent: Friday, October 18, 2002 12:38
+Subject: Re: [PATCH] 2.4: variable HZ
 
-http://www.heise.de/newsticker/data/pab-18.10.02-000/
 
-Wolfgang
-
+> On 18 Oct 2002, Robert Love wrote:
+> 
+> > On Fri, 2002-10-18 at 07:51, Neil Conway wrote:
+> > 
+> > > I was looking at your jiffies_to_clock_t() macro, and I notice that it
+> > > will screw up badly if the user chooses a HZ value that isn't a multiple
+> > > of the normal value (e.g. 1000 is OK, 512 isn't).
+> > 
+> > OK, sure, but why specify a power-of-two HZ?  There is absolutely no
+> > reason to, at least on x86.
+> > 
+> > Want 512?  500 will do just as well and has the benefit of (a) being a
+> > multiple of the previous HZ and (b) evenly dividing into our concept of
+> > time.
+> > 
+> > Robert Love
+> > 
+> 
+> At least on ix86, HZ needs to be something that CLOCK_TICK_RATE/LATCH
+> comes out fairly close. Remember, LATCH is the divisor for the PIT
+> and that PIT gets CLOCK_TICK_RATE for its input. If this number isn't
+> fairly 'exact' there will be much jumping of time in the sawtooth
+> corrector.
+> 
+> If you are not using ELAN, CLOCK_TICK_RATE is 1193180. If your HZ is
+> 100, you have 1193180/100 = 1193.18, not too exact. if you use
+> 500, you get 1193180/500 = 2386.36 which has twice as much round-off.
+> If you use 1193180/512 = 2330.43, even a higher fractional part.
+> 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+> The US military has given us many words, FUBAR, SNAFU, now ENRON.
+> Yes, top management were graduates of West Point and Annapolis.
+> 
 > -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
-
-

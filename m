@@ -1,57 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269698AbUIRXh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269730AbUIRXjD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269698AbUIRXh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 19:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269682AbUIRXex
+	id S269730AbUIRXjD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 19:39:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269687AbUIRXiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 19:34:53 -0400
-Received: from [63.227.221.253] ([63.227.221.253]:15237 "EHLO home.keithp.com")
-	by vger.kernel.org with ESMTP id S269690AbUIRXeb (ORCPT
+	Sat, 18 Sep 2004 19:38:05 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:11684 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S269684AbUIRXcA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 19:34:31 -0400
-X-Mailer: exmh version 2.3.1 11/28/2001 with nmh-1.1
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Mike Mestnik <cheako911@yahoo.com>,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Keith Packard <keithp@keithp.com>
-Subject: Re: Design for setting video modes, ownership of sysfs attributes 
-From: Keith Packard <keithp@keithp.com>
-In-Reply-To: Your message of "Sat, 18 Sep 2004 18:12:17 EDT."
-             <9e47339104091815125ef78738@mail.gmail.com> 
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_80760304P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 18 Sep 2004 16:33:54 -0700
-Message-Id: <E1C8oiI-0001xU-UG@evo.keithp.com>
+	Sat, 18 Sep 2004 19:32:00 -0400
+Date: Sat, 18 Sep 2004 16:31:29 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: akpm@osdl.org
+cc: "David S. Miller" <davem@davemloft.net>, benh@kernel.crashing.org,
+       wli@holomorphy.com, davem@redhat.com, raybry@sgi.com, ak@muc.de,
+       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, vrajesh@umich.edu, hugh@veritas.com
+Subject: page fault scalability patch V8: [7/7] atomic pte operations for
+ s390
+In-Reply-To: <B6E8046E1E28D34EB815A11AC8CA312902CD3243@mtv-atc-605e--n.corp.sgi.com>
+Message-ID: <Pine.LNX.4.58.0409181630480.24054@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com>
+ <20040816143903.GY11200@holomorphy.com>
+ <B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com>
+ <B6E8046E1E28D34EB815A11AC8CA3129027B67A9@mtv-atc-605e--n.corp.sgi.com>
+ <B6E8046E1E28D34EB815A11AC8CA3129027B67B4@mtv-atc-605e--n.corp.sgi.com>
+ <Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com>
+ <1094012689.6538.330.camel@gaston> <Pine.LNX.4.58.0409010938200.9907@schroedinger.engr.sgi.com>
+ <1094080164.4025.17.camel@gaston> <Pine.LNX.4.58.0409012140440.23186@schroedinger.engr.sgi.com>
+ <20040901215741.3538bbf4.davem@davemloft.net>
+ <Pine.LNX.4.58.0409020920570.26893@schroedinger.engr.sgi.com>
+ <20040902131057.0341e337.davem@davemloft.net>
+ <Pine.LNX.4.58.0409021358540.28182@schroedinger.engr.sgi.com>
+ <20040902140759.5f1003d5.davem@davemloft.net>
+ <B6E8046E1E28D34EB815A11AC8CA312902CD3243@mtv-atc-605e--n.corp.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_80760304P
-Content-Type: text/plain; charset=us-ascii
+Changelog
+	* Provide atomic pte operations for s390
 
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Around 18 o'clock on Sep 18, Jon Smirl wrote:
+Index: linus/include/asm-s390/pgtable.h
+===================================================================
+--- linus.orig/include/asm-s390/pgtable.h	2004-09-18 14:25:23.000000000 -0700
++++ linus/include/asm-s390/pgtable.h	2004-09-18 14:47:30.000000000 -0700
+@@ -783,6 +783,19 @@
 
-> The sysfs scheme has the advantage that there is no special user
-> command required. You just use echo or cp to set the mode.
+ #define kern_addr_valid(addr)   (1)
 
-But it makes it difficult to associate the sysfs entry with the particular 
-session.  Seems like permitting multiple opens of /dev/fb0 with mode 
-setting done on that file pointer will be easier to keep straight
++/* Atomic PTE operations */
++#define __HAVE_ARCH_ATOMIC_TABLE_OPS
++
++static inline pte_t ptep_xchg(struct mm_struct *mm, unsigned long address, pte_t *ptep, pte_t pteval)
++{
++	return __pte(xchg(ptep, pte_val(pteval)));
++}
++
++static inline int ptep_cmpxchg (struct mm_struct *mm, unsigned long address, pte_t *ptep, pte_t oldval, pte_t newval)
++{
++	return cmpxchg(ptep, pte_val(oldval), pte_val(newval)) == pte_val(oldval);
++}
++
+ /*
+  * No page table caches to initialise
+  */
+Index: linus/include/asm-s390/pgalloc.h
+===================================================================
+--- linus.orig/include/asm-s390/pgalloc.h	2004-09-18 14:25:23.000000000 -0700
++++ linus/include/asm-s390/pgalloc.h	2004-09-18 14:47:30.000000000 -0700
+@@ -97,6 +97,10 @@
+ 	pgd_val(*pgd) = _PGD_ENTRY | __pa(pmd);
+ }
 
++static inline int pgd_test_and_populate(struct mm_struct *mm, pdg_t *pgd, pmd_t *pmd)
++{
++	return cmpxchg(pgd, _PAGE_TABLE_INV, _PGD_ENTRY | __pa(pmd)) == _PAGE_TABLE_INV;
++}
+ #endif /* __s390x__ */
 
+ static inline void
+@@ -119,6 +123,18 @@
+ 	pmd_populate_kernel(mm, pmd, (pte_t *)((page-mem_map) << PAGE_SHIFT));
+ }
 
---==_Exmh_80760304P
-Content-Type: application/pgp-signature
++static inline int
++pmd_test_and_populate(struct mm_struct *mm, pmd_t *pmd, struct page *page)
++{
++	int rc;
++	spin_lock(&mm->page_table_lock);
++
++	rc=pte_same(*pmd, _PAGE_INVALID_EMPTY);
++	if (rc) pmd_populate(mm, pmd, page);
++	spin_unlock(&mm->page_table_lock);
++	return rc;
++}
++
+ /*
+  * page table entry allocation/free routines.
+  */
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Exmh version 2.3.1 11/28/2001
-
-iD8DBQFBTMXiQp8BWwlsTdMRAtWYAJ4+kF5fwJeEMohpFuApbpYeHErj7gCfZJMm
-LVLtoJ/py7g03vVZOOPGyZo=
-=t/TL
------END PGP SIGNATURE-----
-
---==_Exmh_80760304P--

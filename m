@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292289AbSCIBUz>; Fri, 8 Mar 2002 20:20:55 -0500
+	id <S292293AbSCIBXH>; Fri, 8 Mar 2002 20:23:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292293AbSCIBUp>; Fri, 8 Mar 2002 20:20:45 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32778 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S292289AbSCIBUf>; Fri, 8 Mar 2002 20:20:35 -0500
-Date: Fri, 8 Mar 2002 17:20:01 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: george anzinger <george@mvista.com>
-cc: <frankeh@watson.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-In-Reply-To: <3C894D87.FF70DD12@mvista.com>
-Message-ID: <Pine.LNX.4.33.0203081713300.5071-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292324AbSCIBWq>; Fri, 8 Mar 2002 20:22:46 -0500
+Received: from acolyte.thorsen.se ([193.14.93.247]:51718 "HELO
+	acolyte.hack.org") by vger.kernel.org with SMTP id <S292325AbSCIBWn>;
+	Fri, 8 Mar 2002 20:22:43 -0500
+From: Christer Weinigel <wingel@acolyte.hack.org>
+To: fryman@cc.gatech.edu
+Cc: davej@suse.de, gone@us.ibm.com, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+In-Reply-To: <20020308201518.533dc16a.fryman@cc.gatech.edu> (message from Josh
+	Fryman on Fri, 8 Mar 2002 20:15:18 -0500)
+Subject: Re: [RFC] modularization of i386 setup_arch and mem_init in 2.4.18
+In-Reply-To: <200203082108.g28L8I504672@w-gaughen.des.beaverton.ibm.com>
+	<20020308223330.A15106@suse.de>
+	<20020308234811.3F003F5B@acolyte.hack.org> <20020308201518.533dc16a.fryman@cc.gatech.edu>
+Message-Id: <20020309012240.84734F5B@acolyte.hack.org>
+Date: Sat,  9 Mar 2002 02:22:40 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Josh Fryman <fryman@cc.gatech.edu> wrote:
+> excuse me for intruding a bit, but in the restructuring of kernel 2.5.x, is
+> there any notion of separating the build directories from the source 
+> directories?  if you're all hacking up the tree org anyway, this would be a
+> nice feature... (somewhat like gcc, i guess)
 
-On Fri, 8 Mar 2002, george anzinger wrote:
-> 
-> Uh, just the pid would do.  Maybe reserve a bit to indicate
-> contention, but surly one word would be enough.
+<emulates Keith Owens>kbuild-2.5 will allow you to do that</>
 
-Not really.
+  /Christer
 
-The pid would mean that anybody who gets a lock would have to have its pid
-available (remember the fast-path is what we really care about), but
-there's also a fundamental race between getting the lock and writing the
-pid to the second word of the lock that you just won't avoid.
-
-And that's assuming you only use the semaphores for pure mutual exclusion. 
-That is the normal behaviour, but some people use semaphores for other 
-things (ie "N people can be active inside this region" where N != 1).
-
-And then you have to realize that doing the same for readers in a rwlock 
-is even worse.
-
-In short, it just cannot be done quickly and simply, and for many cases it 
-cannot be done at all.
-
-		Linus
-
+-- 
+"Just how much can I get away with and still go to heaven?"

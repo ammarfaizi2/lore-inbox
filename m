@@ -1,63 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268120AbTBWKLq>; Sun, 23 Feb 2003 05:11:46 -0500
+	id <S268166AbTBWJzC>; Sun, 23 Feb 2003 04:55:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268127AbTBWKLq>; Sun, 23 Feb 2003 05:11:46 -0500
-Received: from packet.digeo.com ([12.110.80.53]:28380 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S268120AbTBWKLm>;
-	Sun, 23 Feb 2003 05:11:42 -0500
-Date: Sun, 23 Feb 2003 02:21:48 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: James Harper <james.harper@bigpond.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP and CPU1 not showing interrupts in /proc/interrupts
-Message-Id: <20030223022148.7f71398b.akpm@digeo.com>
-In-Reply-To: <3E589799.3000105@bigpond.com>
-References: <3E589799.3000105@bigpond.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S268156AbTBWJxy>; Sun, 23 Feb 2003 04:53:54 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:13572 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S268118AbTBWJw1>; Sun, 23 Feb 2003 04:52:27 -0500
+Date: Sun, 23 Feb 2003 10:02:34 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: ak@suse.de, sim@netnation.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: Longstanding networking / SMP issue? (duplextest)
+Message-ID: <20030223100234.B15347@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"David S. Miller" <davem@redhat.com>, ak@suse.de, sim@netnation.com,
+	linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+References: <20030221102257.GA10108@wotan.suse.de> <20030221.021125.66547838.davem@redhat.com> <20030221104541.GA18417@wotan.suse.de> <20030223.011217.04700323.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Feb 2003 10:21:46.0372 (UTC) FILETIME=[5E649C40:01C2DB25]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030223.011217.04700323.davem@redhat.com>; from davem@redhat.com on Sun, Feb 23, 2003 at 01:12:17AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Harper <james.harper@bigpond.com> wrote:
->
-> somewhere between about 2.5.53 and 2.5.62 my /proc/interrupts has gone 
-> from an approximately even distribution of interrupts between CPU0 and 
-> CPU1 to grossly uneven:
-> 
->            CPU0       CPU1       
->   0:   13223321    2233217    IO-APIC-edge  timer
->   1:      13442          0    IO-APIC-edge  i8042
->   2:          0          0          XT-PIC  cascade
->   3:     291874          0    IO-APIC-edge  serial
->   8:          3          0    IO-APIC-edge  rtc
->   9:          0          0    IO-APIC-edge  acpi
->  14:      18932          0    IO-APIC-edge  ide0
->  15:         14          0    IO-APIC-edge  ide1
->  16:     190607          1   IO-APIC-level  eth0, nvidia
->  17:       3214          0   IO-APIC-level  bttv0
->  18:      14249          1   IO-APIC-level  ide2
->  19:     121942          0   IO-APIC-level  uhci-hcd, wlan0
-> NMI:          0          0
-> LOC:   15458218   15458423
-> ERR:          0
-> MIS:          0
-> 
-> if i really hit the system hard then CPU1 will start accruing interrupts 
-> but in a mostly idle state CPU1 just sits on its bum and lets CPU0 
-> handle them all, with the exception of irq #0, for some reason.
-> 
+On Sun, Feb 23, 2003 at 01:12:17AM -0800, David S. Miller wrote:
+> +static struct socket *__icmp_socket[NR_CPUS];
+> +#define icmp_socket	__icmp_socket[smp_processor_id()]
 
-That is a deliberate part of the new interrupt balancing code.
+This should be per-cpu data
 
-If the interrupt rate is low, it is better to keep all the interrupt
-processing code and data in the cache of a single CPU.
+> -static __inline__ int icmp_xmit_lock(void)
+> +static __inline__ void icmp_xmit_lock(void)
+>  {
+> -	int ret;
+>  	local_bh_disable();
+> -	ret = icmp_xmit_lock_bh();
+> -	if (ret)
+> -		local_bh_enable();
+> -	return ret;
+> -}
+>  
+> -static void icmp_xmit_unlock_bh(void)
+> -{
+> -	icmp_xmit_holder = -1;
+> -	spin_unlock(&icmp_socket->sk->lock.slock);
+> +	if (!spin_trylock(&icmp_socket->sk->lock.slock))
+> +		BUG();
 
-It is only if that CPU starts to run out of steam that it is worthwhile
-taking the hit of getting other CPUs to service interrupts as well.
+unlikely()?
 
-(I think.  At least, it sounds good and the benchmarks came out well).
+> -static __inline__ void icmp_xmit_unlock(void)
+> +static void icmp_xmit_unlock(void)
+>  {
+> -	icmp_xmit_unlock_bh();
+> +	spin_unlock(&icmp_socket->sk->lock.slock);
+>  	local_bh_enable();
+
+spin_unlock_bh
+
+> +	icmp_xmit_lock();
+
+Hmm, and I guess the code would be much more readable if you used
+the spin_lock call directly.  The impliclit icmp_socket doesn't
+really help readability either.
 

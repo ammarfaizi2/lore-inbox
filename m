@@ -1,51 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131418AbQLGX1e>; Thu, 7 Dec 2000 18:27:34 -0500
+	id <S131349AbQLGX2e>; Thu, 7 Dec 2000 18:28:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131503AbQLGX1Y>; Thu, 7 Dec 2000 18:27:24 -0500
-Received: from blackhole.compendium-tech.com ([206.55.153.26]:16638 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S131418AbQLGX1M>; Thu, 7 Dec 2000 18:27:12 -0500
-Date: Thu, 7 Dec 2000 14:56:30 -0800 (PST)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-To: James Bourne <jbourne@MtRoyal.AB.CA>
-cc: "Mike A. Harris" <mharris@opensourceadvocate.org>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: D-LINK DFE-530-TX
-In-Reply-To: <Pine.LNX.4.30.0012070705050.13857-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0012071456170.7716-100000@sol.compendium-tech.com>
+	id <S131692AbQLGX2Y>; Thu, 7 Dec 2000 18:28:24 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:46861 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131349AbQLGX2M>; Thu, 7 Dec 2000 18:28:12 -0500
+Subject: Re: 2.2.18 vs 2.4.0 proc_fs.c
+To: rothwell@holly-springs.nc.us (Michael Rothwell)
+Date: Thu, 7 Dec 2000 23:00:11 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <3A2FF454.373A5142@holly-springs.nc.us> from "Michael Rothwell" at Dec 07, 2000 03:34:28 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E144A1O-000371-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It uses the via-rhine driver on my system
+> Why is 2.2.18 proc_fs.c different than both 2.2.17 and 2.4.0? Cox, would
+> you accept a patch that makes 2.2.18 define create_proc_info_entry and
+> related functions the same way that 2.4.0 does?
 
-On Thu, 7 Dec 2000, James Bourne wrote:
-
-> On Wed, 6 Dec 2000, Mike A. Harris wrote:
-> 
-> > Which ethernet module works with this card?  2.2.17 kernel
-> 
-> Should be the rtl8139 driver.
-> 
-> Regards,
-> Jim
-> 
-> > ----------------------------------------------------------------------
-> >       Mike A. Harris  -  Linux advocate  -  Open source advocate
-> >           This message is copyright 2000, all rights reserved.
-> >   Views expressed are my own, not necessarily shared by my employer.
-> > ----------------------------------------------------------------------
-> 
-> 
-
--- 
- Kelsey Hudson                                           khudson@ctica.com 
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------     
-
+Send me a diff and I'll be happy to
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,94 +1,331 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263704AbTDXOUK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 10:20:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbTDXOUK
+	id S263742AbTDXOYU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 10:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTDXOYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 10:20:10 -0400
-Received: from marstons.services.quay.plus.net ([212.159.14.223]:39577 "HELO
-	marstons.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S263704AbTDXOUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 10:20:07 -0400
-Date: Thu, 24 Apr 2003 15:30:58 +0100
-From: Chris Sykes <chris@sigsegv.plus.com>
-To: Ian Jackson <ijackson@chiark.greenend.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: rename("a","b") succeeds multiple times race
-Message-ID: <20030424143058.GC23247@spackhandychoptubes.co.uk>
-Mail-Followup-To: Ian Jackson <ijackson@chiark.greenend.org.uk>,
-	linux-kernel@vger.kernel.org
-References: <16039.53523.533498.354359@chiark.greenend.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="sHrvAb52M6C8blB9"
-Content-Disposition: inline
-In-Reply-To: <16039.53523.533498.354359@chiark.greenend.org.uk>
-User-Agent: Mutt/1.4.1i
-x-gpg-fingerprint: 1D0A 139D DDA3 F02F 6FC0  B2CA CBC6 5EC0 540A F377
-x-gpg-key: wwwkeys.pgp.net
+	Thu, 24 Apr 2003 10:24:19 -0400
+Received: from lakemtao04.cox.net ([68.1.17.241]:19915 "EHLO
+	lakemtao04.cox.net") by vger.kernel.org with ESMTP id S263742AbTDXOYK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 10:24:10 -0400
+Message-ID: <3EA7F657.5050708@cox.net>
+Date: Thu, 24 Apr 2003 09:36:07 -0500
+From: David van Hoose <davidvh@cox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [2.4.21-rc1] Sound problem
+Content-Type: multipart/mixed;
+ boundary="------------000102040400030002090204"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------000102040400030002090204
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---sHrvAb52M6C8blB9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Attached is my kernel config.
+Everything boots up without error.
+But KDE says it cannot open /dev/dsp. I checked for the device, and it 
+does exist. Did RedHat botch the perms? They are 'crw-------'
+I tried sndconfig as root, but I don't get any sound.
 
-On Thu, Apr 24, 2003 at 12:57:07PM +0100, Ian Jackson wrote:
-> I'm running 2.2.25 on a dual PIII; I have a program that processes
-> mail messages which are left in a queue directory as uniquely named
-> files.  The queue runners each `claim' a message by renaming it away
-> from the initial filename, so that only one queue runner works on each
-> message.
->=20
-> However, this does not work because Linux erroneously allows several
-> processes to simultaneously and `successfully' rename the same file.
-> The filesystem in question is ext2.
->=20
-> I ran the system under strace, and saw (for example) the following, in
-> five straces of five different processes:
->=20
->  02:11:47.293131 rename("q1988na-000xqY", "proc.1988na-000xqY") =3D 0
->  02:11:47.354497 rename("q1988na-000xqY", "proc.1988na-000xqY") =3D 0
->  02:11:47.412207 rename("q1988na-000xqY", "proc.1988na-000xqY") =3D 0
->  02:11:47.414376 rename("q1988na-000xqY", "proc.1988na-000xqY") =3D 0
->  02:11:47.414559 rename("q1988na-000xqY", "proc.1988na-000xqY") =3D 0
+Thanks in advance,
+David
 
-In rename(2):
-[1] "If  newpath  already exists it will be atomically replaced
-    (subject to a few conditions - see ERRORS below), so  that
-    there  is  no point at which another process attempting to
-    access newpath will find it missing."
+--------------000102040400030002090204
+Content-Type: text/plain;
+ name="config-2.4.21-rc1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="config-2.4.21-rc1"
 
- ...
+CONFIG_X86=y
+CONFIG_UID16=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_MPENTIUM4=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_X86_HAS_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_F00F_WORKS_OK=y
+CONFIG_X86_MCE=y
+CONFIG_MICROCODE=y
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_HIGHIO=y
+CONFIG_MTRR=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=ywithFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PM=y
+CONFIG_APM=y
+CONFIG_APM_CPU_IDLE=y
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+CONFIG_PARPORT_SERIAL=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_PC_SUPERIO=y
+CONFIG_PARPORT_1284=y
+CONFIG_PNP=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_NBD=m
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK_DEV=y
+CONFIG_NETFILTER=y
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_NET_IPIP=m
+CONFIG_NET_IPGRE=m
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_AMANDA=y
+CONFIG_IP_NF_TFTP=y
+CONFIG_IP_NF_IRC=y
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_HELPER=y
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_UNCLEAN=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_NAT_AMANDA=y
+CONFIG_IP_NF_NAT_LOCAL=y
+CONFIG_IP_NF_NAT_SNMP_BASIC=m
+CONFIG_IP_NF_NAT_IRC=y
+CONFIG_IP_NF_NAT_FTP=y
+CONFIG_IP_NF_NAT_TFTP=y
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IP_NF_ARPFILTER=m
+CONFIG_IPV6=y
+CONFIG_IP6_NF_QUEUE=m
+CONFIG_IP6_NF_IPTABLES=y
+CONFIG_IP6_NF_MATCH_LIMIT=m
+CONFIG_IP6_NF_MATCH_MAC=m
+CONFIG_IP6_NF_MATCH_RT=m
+CONFIG_IP6_NF_MATCH_OPTS=m
+CONFIG_IP6_NF_MATCH_FRAG=m
+CONFIG_IP6_NF_MATCH_HL=m
+CONFIG_IP6_NF_MATCH_MULTIPORT=m
+CONFIG_IP6_NF_MATCH_OWNER=m
+CONFIG_IP6_NF_MATCH_MARK=m
+CONFIG_IP6_NF_MATCH_IPV6HEADER=m
+CONFIG_IP6_NF_MATCH_AHESP=m
+CONFIG_IP6_NF_MATCH_LENGTH=m
+CONFIG_IP6_NF_MATCH_EUI64=m
+CONFIG_IP6_NF_FILTER=y
+CONFIG_IP6_NF_TARGET_LOG=y
+CONFIG_IP6_NF_MANGLE=m
+CONFIG_IP6_NF_TARGET_MARK=m
+CONFIG_VLAN_8021Q=m
+CONFIG_IPX=m
+CONFIG_ATALK=m
+CONFIG_BRIDGE=m
+CONFIG_LLC=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDEFLOPPY=y
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_PCI_WIP=y
+CONFIG_BLK_DEV_SIS5513=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_PPA=y
+CONFIG_SCSI_IMM=m
+CONFIG_SCSI_SYM53C8XX=y
+CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=4
+CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
+CONFIG_SCSI_NCR53C8XX_SYNC=20
+CONFIG_IEEE1394=m
+CONFIG_IEEE1394_OHCI1394=m
+CONFIG_IEEE1394_VIDEO1394=m
+CONFIG_IEEE1394_SBP2=m
+CONFIG_IEEE1394_ETH1394=m
+CONFIG_IEEE1394_DV1394=m
+CONFIG_IEEE1394_RAWIO=m
+CONFIG_IEEE1394_CMP=m
+CONFIG_IEEE1394_AMDTP=m
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=y
+CONFIG_BONDING=m
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_PCI=y
+CONFIG_TULIP=m
+CONFIG_TULIP_MMIO=y
+CONFIG_SIS900=m
+CONFIG_INPUT=m
+CONFIG_INPUT_KEYBDEV=m
+CONFIG_INPUT_MOUSEDEV=m
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_JOYDEV=m
+CONFIG_INPUT_EVDEV=m
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=y
+CONFIG_BUSMOUSE=y
+CONFIG_ATIXL_BUSMOUSE=m
+CONFIG_LOGIBUSMOUSE=m
+CONFIG_MS_BUSMOUSE=m
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_82C710_MOUSE=m
+CONFIG_PC110_PAD=m
+CONFIG_MK712_MOUSE=m
+CONFIG_INPUT_GAMEPORT=m
+CONFIG_INPUT_NS558=m
+CONFIG_INPUT_EMU10K1=m
+CONFIG_INPUT_SERIO=y
+CONFIG_INPUT_SERPORT=y
+CONFIG_INPUT_ANALOG=m
+CONFIG_INTEL_RNG=m
+CONFIG_NVRAM=m
+CONFIG_RTC=y
+CONFIG_AGP=m
+CONFIG_AGP_SIS=y
+CONFIG_DRM=y
+CONFIG_DRM_NEW=y
+CONFIG_QUOTA=y
+CONFIG_AUTOFS_FS=m
+CONFIG_AUTOFS4_FS=m
+CONFIG_HFS_FS=m
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_JBD_DEBUG=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_EFS_FS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_NTFS_FS=m
+CONFIG_HPFS_FS=m
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_UDF_FS=m
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_TCP=y
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_SMB_FS=y
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_SMB_NLS_REMOTE="cp437"
+CONFIG_ZISOFS_FS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_15=y
+CONFIG_NLS_UTF8=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_SOUND=m
+CONFIG_SOUND_EMU10K1=m
+CONFIG_SOUND_ICH=m
+CONFIG_USB=m
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_UHCI=m
+CONFIG_USB_UHCI_ALT=m
+CONFIG_USB_OHCI=m
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_HIDDEV=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=m
 
-[2] "However, when overwriting there will probably be a  window
-    in  which both oldpath and newpath refer to the file being
-    renamed."
+--------------000102040400030002090204--
 
-Perhaps your program should link(2) the newpath to the oldpath, then
-on success unlink(2) the oldpath.  link(2) will fail should newpath
-already exist.  Of course this assumes that oldpath & newpath are on
-the same filesystem.
-
---=20
-
-(o-  Chris Sykes  -- GPG Key: http://www.sigsegv.plus.com/key.txt
-//\       "Don't worry. Everything is getting nicely out of control ..."
-V_/_                          Douglas Adams - The Salmon of Doubt
-
-
---sHrvAb52M6C8blB9
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+p/Uiy8ZewFQK83cRAvuuAJ9ApbNS3L1lwAnae/onrJGMxeHswQCgnSQ8
-jjbayP039RPXcqmrlVKNW6s=
-=Nvy7
------END PGP SIGNATURE-----
-
---sHrvAb52M6C8blB9--

@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261830AbTDKVpd (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 17:45:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbTDKVpd (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 17:45:33 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:6349 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261830AbTDKVpc (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 17:45:32 -0400
-Date: Fri, 11 Apr 2003 14:59:40 -0700
-From: Greg KH <greg@kroah.com>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: I2C, compile error: via686a_attach_adapter()
-Message-ID: <20030411215940.GY1821@kroah.com>
-References: <200304111751.07679.ivg2@cornell.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S261840AbTDKVs5 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 17:48:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbTDKVs5 (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 17:48:57 -0400
+Received: from [195.82.114.197] ([195.82.114.197]:65030 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id S261840AbTDKVs4 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 17:48:56 -0400
+Date: Fri, 11 Apr 2003 23:00:39 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Mike Dresser <mdresser_l@windsormachine.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net, message-bus-list@redhat.com,
+       Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [ANNOUNCE] udev 0.1 release
+Message-ID: <290394184.1050102039@[192.168.100.8]>
+In-Reply-To: <Pine.LNX.4.33.0304111553380.14943-100000@router.windsormachine.com>
+References: <Pine.LNX.4.33.0304111553380.14943-100000@router.windsormachine.
+ com>
+X-Mailer: Mulberry/2.2.1 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200304111751.07679.ivg2@cornell.edu>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 11, 2003 at 05:51:02PM -0400, Ivan Gyurdiev wrote:
-> : undefined reference to `i2c_detect'
 
-Build the driver as a module, or apply the patch to
-drivers/i2c/chips/Kconfig that I've posted to the list in the past few
-days.
 
-thanks,
+--On 11 April 2003 15:59 -0400 Mike Dresser <mdresser_l@windsormachine.com> 
+wrote:
 
-greg k-h
+>  now have 1 + 3 + 9 = 13 splitters, giving me 27 connections, out of 1.
+> etc, etc. Same numbers I'd have doing it your way, yours would be 13
+> levels deep instead.
+>
+> I think I just went for the massively parallel method of hooking
+> these up and from there got massively lost.
+
+Your 13 splitters have each added 2 connections to the 1, giving
+1 + 13 x 2 = 27. There is no multiplicative effect.
+
+Similarly to get to 4000 drives from 5, you need to add 3995
+connections, i.e. 1998 splitters (giving one spare for the
+floppy/cdrom).
+
+--
+Alex Bligh

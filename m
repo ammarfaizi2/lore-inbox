@@ -1,50 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262808AbVDBBKg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262809AbVDBBMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262808AbVDBBKg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 20:10:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262809AbVDBBKg
+	id S262809AbVDBBMK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 20:12:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbVDBBMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 20:10:36 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:915 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262808AbVDBBKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 20:10:30 -0500
-Date: Sat, 2 Apr 2005 02:10:23 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Greg K-H <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       gregkh@suse.de, prarit@sgi.com
-Subject: Re: PCI: fix an oops in some pci devices on hotplug remove when their resources are being freed.
-Message-ID: <20050402011023.GG21986@parcelfarce.linux.theplanet.co.uk>
-References: <11123992702166@kroah.com> <11123992703458@kroah.com>
+	Fri, 1 Apr 2005 20:12:10 -0500
+Received: from fire.osdl.org ([65.172.181.4]:5310 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262809AbVDBBLk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 20:11:40 -0500
+Subject: [PATCH] Direct IO async short read bug followup
+From: Daniel McNeil <daniel@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>, Andrew Morton <akpm@osdl.org>
+Cc: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
+       jean-pierre.dion@bull.net, gh@us.ibm.com, janetmor@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+In-Reply-To: <42442743.40600@us.ibm.com>
+References: <1111743607.1299.85.camel@frecb000686>
+	 <20050325014307.4395012e.akpm@osdl.org>
+	 <1111745400.1299.89.camel@frecb000686>
+	 <20050325022416.01c2535b.akpm@osdl.org>  <42442743.40600@us.ibm.com>
+Content-Type: text/plain
+Message-Id: <1112404259.29841.19.camel@ibm-c.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <11123992703458@kroah.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 01 Apr 2005 17:11:00 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 01, 2005 at 03:47:50PM -0800, Greg KH wrote:
-> PCI: fix an oops in some pci devices on hotplug remove when their resources are being freed.
-> 
-> As reported by Prarit Bhargava <prarit@sgi.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> 
-> diff -Nru a/drivers/pci/remove.c b/drivers/pci/remove.c
->  	for (i = 0; i < PCI_NUM_RESOURCES; i++) {
->  		struct resource *res = dev->resource + i;
-> -		if (res->parent)
-> +		if (res && res->parent)
->  			release_resource(res);
+On Fri, 2005-03-25 at 06:59, Badari Pulavarty wrote:
 
-I can't believe this fixes anything.  How can res possibly be NULL here?
-It's a pointer into a pci_dev.
+> Andrew,
+> 
+> When I debugged the problem, the issue seems to be only for the last 
+> block of the file. Filesize is not multiple of 4K blocks. (say 17K).
+> So, on the disk we have a 4K block for the last block. The test is
+> trying to read 20K.  Since we have a block on the disk, get_block()
+> won't complain and we do the IO. Once the IO is done, we can truncate
+> the result to match the filesize.
+> 
+> I tried fixing the problem by limiting the IO submits to the size of
+> the file - which became really ugly (since I have to adjust the
+> iovec[]).
+> 
+> Daniel McNeil wanted to take a stab at it. Dan what happend to the fix ?
+> 
+> Thanks,
+> Badari
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+I updated the patch to add an i_size element to the dio structure and
+sample i_size during i/o submission.  When i/o completes the result can
+be truncated to match the file size without using i_size_read(), thus
+the aio result now matches the number of bytes read to the end of file.
+
+Here's the patch.  It applies to 2.6.11 and the latest bk.
+
+Daniel
+
+--- linux-2.6.11.orig/fs/direct-io.c	2005-04-01 15:33:11.000000000 -0800
++++ linux-2.6.11/fs/direct-io.c	2005-03-31 16:59:15.000000000 -0800
+@@ -66,6 +66,7 @@ struct dio {
+ 	struct bio *bio;		/* bio under assembly */
+ 	struct inode *inode;
+ 	int rw;
++	ssize_t i_size;			/* i_size when submitted */
+ 	int lock_type;			/* doesn't change */
+ 	unsigned blkbits;		/* doesn't change */
+ 	unsigned blkfactor;		/* When we're using an alignment which
+@@ -230,17 +231,29 @@ static void finished_one_bio(struct dio 
+ 	spin_lock_irqsave(&dio->bio_lock, flags);
+ 	if (dio->bio_count == 1) {
+ 		if (dio->is_async) {
++			ssize_t transferred;
++			loff_t offset;
++
+ 			/*
+ 			 * Last reference to the dio is going away.
+ 			 * Drop spinlock and complete the DIO.
+ 			 */
+ 			spin_unlock_irqrestore(&dio->bio_lock, flags);
+-			dio_complete(dio, dio->block_in_file << dio->blkbits,
+-					dio->result);
++
++			/* Check for short read case */
++			transferred = dio->result;
++			offset = dio->iocb->ki_pos;
++
++			if ((dio->rw == READ) &&
++			    ((offset + transferred) > dio->i_size))
++				transferred = dio->i_size - offset;
++
++			dio_complete(dio, offset, transferred);
++
+ 			/* Complete AIO later if falling back to buffered i/o */
+ 			if (dio->result == dio->size ||
+ 				((dio->rw == READ) && dio->result)) {
+-				aio_complete(dio->iocb, dio->result, 0);
++				aio_complete(dio->iocb, transferred, 0);
+ 				kfree(dio);
+ 				return;
+ 			} else {
+@@ -951,6 +964,7 @@ direct_io_worker(int rw, struct kiocb *i
+ 	dio->page_errors = 0;
+ 	dio->result = 0;
+ 	dio->iocb = iocb;
++	dio->i_size = i_size_read(inode);
+ 
+ 	/*
+ 	 * BIO completion state.
+
+

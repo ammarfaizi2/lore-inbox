@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131669AbRCUSTw>; Wed, 21 Mar 2001 13:19:52 -0500
+	id <S131650AbRCUSNK>; Wed, 21 Mar 2001 13:13:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131722AbRCUSTm>; Wed, 21 Mar 2001 13:19:42 -0500
-Received: from nrg.org ([216.101.165.106]:16954 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S131669AbRCUST3>;
-	Wed, 21 Mar 2001 13:19:29 -0500
-Date: Wed, 21 Mar 2001 10:18:38 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: "David S. Miller" <davem@redhat.com>
-cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for 2.5] preemptible kernel
-In-Reply-To: <15032.30533.638717.696704@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.05.10103211012100.500-100000@cosmic.nrg.org>
+	id <S131669AbRCUSNB>; Wed, 21 Mar 2001 13:13:01 -0500
+Received: from www.wen-online.de ([212.223.88.39]:21508 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S131650AbRCUSMx>;
+	Wed, 21 Mar 2001 13:12:53 -0500
+Date: Wed, 21 Mar 2001 19:11:51 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: kswapd deadlock 2.4.3-pre6
+Message-ID: <Pine.LNX.4.33.0103211853420.2398-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Mar 2001, David S. Miller wrote:
-> Basically, anything which uses smp_processor_id() would need to
-> be holding some lock so as to not get pre-empted.
+Hi,
 
-Not necessarily.  Another solution for the smp_processor_id() case is
-to ensure that the task can only be scheduled on the current CPU for the
-duration that the value of smp_processor_id() is used.  Or, if the
-critical region is very short, to disable interrupts on the local CPU.
+I have a repeatable deadlock when SMP is enabled on my UP box.
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+>>EIP; c021e29a <stext_lock+1556/677b>   <=====
+Trace; c012dc58 <swap_out+b0/c8>
+Trace; c012ebe2 <refill_inactive+72/98>
+Trace; c012ec51 <do_try_to_free_pages+49/7c>
+Trace; c012eceb <kswapd+67/f4>
+Trace; c01074c4 <kernel_thread+28/38>
 
-MontaVista Software                             nigel@mvista.com
+Will try to chase it down.
+
+ac20+2.4.2-ac20-rwmmap_sem3 does not deadlock doing the same
+churn/burn via make -j30 bzImage.
+
+(I get darn funny looking time numbers though..
+real    9m45.641s
+user    14m55.710s
+sys     1m25.010s)
+
+	-Mike
 

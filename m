@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262334AbULMUXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbULMUSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262334AbULMUXM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 15:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbULMUS7
+	id S261337AbULMUSp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 15:18:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbULMUPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 15:18:59 -0500
-Received: from gprs215-194.eurotel.cz ([160.218.215.194]:43392 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261334AbULMUQT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 15:16:19 -0500
-Date: Mon, 13 Dec 2004 21:15:23 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: fix naming in swsusp
-Message-ID: <20041213201523.GA4613@elf.ucw.cz>
+	Mon, 13 Dec 2004 15:15:16 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36101 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262340AbULMULt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 15:11:49 -0500
+Date: Mon, 13 Dec 2004 20:11:43 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Stefan Seyfried <seife@suse.de>,
+       Con Kolivas <kernel@kolivas.org>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrea Arcangeli <andrea@suse.de>
+Subject: Re: dynamic-hz
+Message-ID: <20041213201142.G24748@flint.arm.linux.org.uk>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Stefan Seyfried <seife@suse.de>, Con Kolivas <kernel@kolivas.org>,
+	Pavel Machek <pavel@suse.cz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrea Arcangeli <andrea@suse.de>
+References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> <41BD483B.1000704@suse.de> <20041213135820.A24748@flint.arm.linux.org.uk> <1102949565.2687.2.camel@localhost.localdomain> <20041213162355.E24748@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041213162355.E24748@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Mon, Dec 13, 2004 at 04:23:55PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Dec 13, 2004 at 04:23:55PM +0000, Russell King wrote:
+> There is another twist here though - the Linux kernel kicks itself out
+> of idle mode and into some other thread multiple times a second while
+> the system is idle.  So far, in all my Linux kernel experience, I've
+> yet to see a kernel where it's possible to stay in the idle thread
+> for more than half a second.  (The ARM kernels I run are always
+> configured with IDLE LED support, so I can _see_ when it gets kicked
+> out of the idle thread.)
 
-At few points we still reference to swsusp as "pmdisk"... it might
-confuse someone not knowing full history. Please apply,
-								Pavel
+For futher information only, analysing this further, we keep switching
+to the events/0 thread, and it seems to be mainly for:
 
---- clean/kernel/power/swsusp.c	2004-10-19 14:16:29.000000000 +0200
-+++ linux/kernel/power/swsusp.c	2004-12-12 21:14:03.000000000 +0100
-@@ -1202,7 +1190,7 @@
- }
- 
- /**
-- *	pmdisk_read - Read saved image from swap.
-+ *	swsusp_read - Read saved image from swap.
-  */
- 
- int __init swsusp_read(void)
-@@ -1226,6 +1214,6 @@
- 	if (!error)
- 		pr_debug("Reading resume file was successful\n");
- 	else
--		pr_debug("pmdisk: Error %d resuming\n", error);
-+		pr_debug("swsusp: Error %d resuming\n", error);
- 	return error;
- }
+  - cursor handling every 200ms
+  - slab cache reaping about every 2s
+
+The cursor timer is firing all the time that you have a fbcon console
+registered, whether or not the cursor should be displayed.  Someone
+looking to save power should probably tackle this such that the cursor
+timer doesn't needlessly fire.
+
+But I guess the cellphone people would be more interested in this
+problem than the big iron desktop-breaking in-need-of-three-phase-supply
+boxen. 8)
 
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

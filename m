@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266135AbTBCIaX>; Mon, 3 Feb 2003 03:30:23 -0500
+	id <S266186AbTBCIl2>; Mon, 3 Feb 2003 03:41:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266161AbTBCIaX>; Mon, 3 Feb 2003 03:30:23 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:2230 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S266135AbTBCIaX>; Mon, 3 Feb 2003 03:30:23 -0500
-Date: Mon, 3 Feb 2003 09:39:11 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: "Martin K. Petersen" <mkp@mkp.net>
-Cc: Daniel Egger <degger@fhm.edu>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>
+	id <S266210AbTBCIl2>; Mon, 3 Feb 2003 03:41:28 -0500
+Received: from news.cistron.nl ([62.216.30.38]:59404 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S266186AbTBCIl1>;
+	Mon, 3 Feb 2003 03:41:27 -0500
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
 Subject: Re: Compactflash cards dying?
-Message-ID: <20030203083910.GB2287@wohnheim.fh-wedel.de>
-References: <20030202223009.GA344@elf.ucw.cz> <1044232591.545.8.camel@sonja> <yq1smv6qfvc.fsf@austin.mkp.net>
+Date: Mon, 3 Feb 2003 08:50:58 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <b1lahi$qvq$1@ncc1701.cistron.net>
+References: <20030202223009.GA344@elf.ucw.cz> <1044232591.545.8.camel@sonja>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yq1smv6qfvc.fsf@austin.mkp.net>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1044262258 27642 62.216.29.200 (3 Feb 2003 08:50:58 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 February 2003 21:04:23 -0500, Martin K. Petersen wrote:
-> >>>>> "Daniel" == Daniel Egger <degger@fhm.edu> writes:
-> 
-> Daniel> CF has limited write cycles. A few hundred if you're lucky.
-> 
-> However, I have yet to see a CF card which didn't survive beyond a
-> million writes.
-> 
-> Note that CF cards do transparent wear averaging inside.  So it's
-> obviously not a million writes to the same physical spot.  Also, most
-> vendors claim they have spare blocks for relocating areas that are
-> completely worn out.
+In article <1044232591.545.8.camel@sonja>,
+Daniel Egger  <degger@fhm.edu> wrote:
+>CF has limited write cycles. A few hundred if you're lucky.
+>And depending on the type of flash it's quite likely that every
+>changed byte will result in a whole block being written back.
 
-This apears to be the same statement, except that Daniel forgot to add
-"per block".
+Then why if I google for 'compact flash write cycles' all specs
+of flash cards I found say 100000 write cycles at least ?
 
-Jörn
-
+Mike.
 -- 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-GCS d- s+: a- C++ UL++++ P+(++) L++++$ !E W++ N+ o? K? w- O- M- V?
-PS+(++) PE++ Y+ PGP>+ t+@ 5? X+ R@ !tv b+ DI+ !D G- e h-- r y+
-------END GEEK CODE BLOCK------
+Anyone who is capable of getting themselves made President should
+on no account be allowed to do the job -- Douglas Adams.
+

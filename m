@@ -1,73 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277434AbRJRHQ1>; Thu, 18 Oct 2001 03:16:27 -0400
+	id <S277599AbRJRHiF>; Thu, 18 Oct 2001 03:38:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277599AbRJRHQS>; Thu, 18 Oct 2001 03:16:18 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:19463 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S277434AbRJRHQF>;
-	Thu, 18 Oct 2001 03:16:05 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S277601AbRJRHh4>; Thu, 18 Oct 2001 03:37:56 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:41186 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S277599AbRJRHhr>; Thu, 18 Oct 2001 03:37:47 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Ryan Mack <rmack@mackman.net>
+Date: Thu, 18 Oct 2001 16:49:00 +1000 (EST)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15310.33191.397106.8530@cargo.ozlabs.ibm.com>
-Date: Thu, 18 Oct 2001 17:15:51 +1000 (EST)
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: libz, libbz2, ramfs and cramfs
-In-Reply-To: <3BCE4BB5.8060603@zytor.com>
-In-Reply-To: <19978.1003206943@kao2.melbourne.sgi.com>
-	<3BCBE29D.CFEC1F05@alacritech.com>
-	<9qjfki$ob5$1@cesium.transmeta.com>
-	<15310.18125.367838.562789@cargo.ozlabs.ibm.com>
-	<3BCE4BB5.8060603@zytor.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Message-ID: <15310.31580.322324.824333@notabene.cse.unsw.edu.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [QUESTION] Stopping RAID devices from Magic SysRq?
+In-Reply-To: message from Ryan Mack on Thursday October 11
+In-Reply-To: <Pine.LNX.4.33.0110111739050.934-100000@mackman.net>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin writes:
+On Thursday October 11, rmack@mackman.net wrote:
+> I was curious if anyone has previosly considered adding a raid-stop
+> functionality to the magic sysrq command?  I realize that a full raid-stop
+> would make the partition unavailable for read-only access, which may
+> require the system to be immediately reset.  Is there a mechanism to
+> remount a raid device read-only if all mounts from it are read-only (i.e.,
+> marking the raid superblock clean, syncing, and then only allowing
+> read-only access)?
+> 
+> Thanks, Ryan
 
-> What kind of extensions?
+This is a nice idea... but awkward.
+Particularly if md.o is a module, setting the hooks up properly would
+not be tidy.
 
-/me pages that bit of his brain in...
+What we really need is a general concept of setting all drvies to
+read-only through the block-dev layer.... maybe in the big blockdev
+rewrite that is planned for 2.5...
 
-I added a Z_PACKET_FLUSH value for the `flush' parameter.  For deflate
-it is like Z_SYNC_FLUSH except that it omits the 00 00 ff ff bytes
-that Z_SYNC_FLUSH will put on the end of the output.  For inflate it
-checks that we are at a packet boundary once we have consumed all the
-input, i.e. that we have seen the "000" block type code (meaning a
-"stored" block) and we are waiting for the 2-byte length.
+NeilBrown
 
-I added a deflateOutputPending routine which returns the number of
-bytes of data that the compressor has pending to give to you.
-
-I added an inflateIncomp routine which takes uncompressed data and
-adds it to the decompressor history.  The reason this is needed is
-that if PPP-deflate goes to compress a packet and it expands, it sends
-the packet uncompressed instead.  The receiver still needs to add the
-packet data to the history though, since the packet data has been
-processed by the compressor on the sending end.
-
-I added a check so that it is legal to set strm->next_out to NULL and
-the de/compressor will just discard its output data.  This is useful
-on the sending side for PPP-deflate because there are situations where
-the transmitted data has to be added to the compressor's history but
-may not be transmitted in compressed form.
-
-I also made various other minor changes so it would all compile
-happily combined together into one file and in the kernel environment.
-
-None of these changes affect its behaviour if you use it in the normal
-way, i.e. if you don't use Z_PACKET_FLUSH and don't set strm->next_out
-to NULL.
-
-Most of these things are optimizations to reduce time and memory usage
-for PPP-deflate.  The one thing that I don't think could be done with
-the stock zlib is the check for the decompressor state that
-Z_PACKET_FLUSH on inflate() provides.  That is not *strictly*
-necessary since it is just a check, but it does give us some chance of
-detecting if we receive a corrupted compressed packet that still has
-the correct FCS.
-
-Paul.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

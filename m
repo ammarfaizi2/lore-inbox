@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135401AbRDRWDT>; Wed, 18 Apr 2001 18:03:19 -0400
+	id <S135397AbRDRWDJ>; Wed, 18 Apr 2001 18:03:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135399AbRDRWDK>; Wed, 18 Apr 2001 18:03:10 -0400
-Received: from www.transvirtual.com ([205.217.46.36]:45581 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S135398AbRDRWC5>; Wed, 18 Apr 2001 18:02:57 -0400
-Date: Wed, 18 Apr 2001 15:02:49 -0700 (PDT)
-From: James Simmons <jsimmons@linux-fbdev.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: ANNOUNCE New Open Source X server
-Message-ID: <Pine.LNX.4.10.10104181317440.1478-100000@www.transvirtual.com>
+	id <S135399AbRDRWDA>; Wed, 18 Apr 2001 18:03:00 -0400
+Received: from atlrel1.hp.com ([156.153.255.210]:41940 "HELO atlrel1.hp.com")
+	by vger.kernel.org with SMTP id <S135397AbRDRWCr>;
+	Wed, 18 Apr 2001 18:02:47 -0400
+From: Khalid Aziz <khalid@lyra.fc.hp.com>
+Message-Id: <200104182203.QAA09409@lyra.fc.hp.com>
+Subject: [PATCH] Incorrect command size for group 4 SCSI commands
+To: linux-kernel@vger.kernel.org
+Date: Wed, 18 Apr 2001 16:03:21 -0600 (MDT)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+SCSI subsystem defines the size of group 4 SCSI commands as 12. This is
+incorrect. SCSI-3 specs define group 4 command size as 16. Following
+patch fixes this. 
 
-   
-    The Linux GFX project grew out the need for a higher performance X
-server that has a much faster developement cycle. In the last few years
-the graphics card and multimedia environments have grow at such a rate 
-the current X solutions can no longer keep pace nor do they focus on
-producing high performance X servers specifically for linux. Also the
-community has demanded for specific functionality which has never come to
-light. 
-    This project looks to start from scratch to develope a new X
-enviroment that addresses these issues. I posted here because we will
-addressing several issues about hardware management between the kernel 
-and the X window enevironment. Of course the X enrvironment is extremly
-broad so this will require skills from several areas as well as many
-programmers. So we welcome anyone how would like to see a alternative to
-the current X implemenation. If you like to subscribe to our mailing
-list just follow the link below. Thank you.    
-	
-http://lists.sourceforge.net/lists/listinfo/linuxgfx-dev	
+Thanks, 
+Khalid
 
+====================================================================
+Khalid Aziz                             Linux Development Laboratory
+(970)898-9214                                        Hewlett-Packard
+khalid@fc.hp.com                                    Fort Collins, CO
+
+
+--- linux-2.4.3-orig/drivers/scsi/scsi.c	Fri Feb  9 12:30:23 2001
++++ linux-2.4.3/drivers/scsi/scsi.c	Wed Apr 18 14:22:00 2001
+@@ -104,7 +104,7 @@
+ const unsigned char scsi_command_size[8] =
+ {
+ 	6, 10, 10, 12,
+-	12, 12, 10, 10
++	16, 12, 10, 10
+ };
+ static unsigned long serial_number;
+ static Scsi_Cmnd *scsi_bh_queue_head;

@@ -1,56 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261506AbTAIDEq>; Wed, 8 Jan 2003 22:04:46 -0500
+	id <S261426AbTAIDLq>; Wed, 8 Jan 2003 22:11:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261518AbTAIDEq>; Wed, 8 Jan 2003 22:04:46 -0500
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:56335
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S261506AbTAIDEq>; Wed, 8 Jan 2003 22:04:46 -0500
-Message-ID: <3E1CE8B7.1080308@rackable.com>
-Date: Wed, 08 Jan 2003 19:12:55 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S261518AbTAIDLp>; Wed, 8 Jan 2003 22:11:45 -0500
+Received: from packet.digeo.com ([12.110.80.53]:5829 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261426AbTAIDLo>;
+	Wed, 8 Jan 2003 22:11:44 -0500
+Message-ID: <3E1CEA70.CE486C4D@digeo.com>
+Date: Wed, 08 Jan 2003 19:20:16 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.54 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Billy Rose <passive_induction@sbcglobal.net>
-CC: rms@gnu.org, lm@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: free software
-References: <5.2.0.9.0.20030108181618.00b28100@pop.sbcglobal.yahoo.com> <20030109023204.GB7420@louise.pinerecords.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: John Levon <levon@movementarian.org>
+CC: linux-kernel@vger.kernel.org, oprofile-list@lists.sourceforge.net
+Subject: Re: [PATCH] OProfile Pentium IV support
+References: <20030109000035.GA53798@compsoc.man.ac.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Jan 2003 03:13:19.0619 (UTC) FILETIME=[0F62A530:01C2B78D]
+X-OriginalArrivalTime: 09 Jan 2003 03:20:19.0653 (UTC) FILETIME=[09BEBF50:01C2B78E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomas Szepe wrote:
+John Levon wrote:
+> 
+> This is a compile-tested-only port of Graydon Hoare's driver. Please
+> give it a test and report back.
 
->>[passive_induction@sbcglobal.net]
->>
->>after growing tired of trying to sift through the emails for tidbits of 
->>useful code, i have come to the conclusion that this thread should be 
->>geared towards something more constructive, otherwise i fear people will 
->>begin to find `open source' and `free software' distasteful.
->>    
->>
->
->Would you guys *PLEASE* remove your earplugs and get this off lkml?
->You have been hinted->told->flamed->insulted and you still don't get it.
->
->Gear the thread towards whatever topics/issues/problems/points you find
->important, but please do so somewhere else!  linux-kernel is NOT the place
->for such discussions.
->
->  
->
+Below is a fix to make the kernel build when it is configured for
+something other than a p4.
 
-  More importantly quit starting new threads!!!  If you really must do 
-it here stay in the thread.
+> http://www.movement.uklinux.net/oprofile-0.5cvs.tar.gz
 
--- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+$./configure
+ ...
+checking for ld... ld
+checking for kernel OProfile support... no
+checking for kernel version... 2.5.54
+configure: error: Unsupported kernel version
 
 
 
+
+ arch/i386/oprofile/Makefile  |    3 ++-
+ arch/i386/oprofile/nmi_int.c |    8 ++++----
+ 2 files changed, 6 insertions(+), 5 deletions(-)
+
+--- linux-hype/arch/i386/oprofile/Makefile~op4-fix	Wed Jan  8 19:12:38 2003
++++ linux-hype-akpm/arch/i386/oprofile/Makefile	Wed Jan  8 19:12:38 2003
+@@ -7,4 +7,5 @@ DRIVER_OBJS = $(addprefix ../../../drive
+ 
+ oprofile-y				:= $(DRIVER_OBJS) init.o timer_int.o
+ oprofile-$(CONFIG_X86_LOCAL_APIC) 	+= nmi_int.o op_model_athlon.o \
+-					   op_model_ppro.o op_model_p4.o
++					   op_model_ppro.o
++oprofile-$(CONFIG_MPENTIUM4)		+= op_model_p4.o
+--- linux-hype/arch/i386/oprofile/nmi_int.c~op4-fix	Wed Jan  8 19:12:38 2003
++++ linux-hype-akpm/arch/i386/oprofile/nmi_int.c	Wed Jan  8 19:12:38 2003
+@@ -215,7 +215,7 @@ struct oprofile_operations nmi_ops = {
+ };
+  
+ 
+-#ifndef CONFIG_X86_64
++#if !defined(CONFIG_X86_64) && defined(CONFIG_MPENTIUM4)
+ 
+ static int __init p4_init(enum oprofile_cpu * cpu)
+ {
+@@ -263,7 +263,7 @@ static int __init ppro_init(enum oprofil
+ 	return 1;
+ }
+ 
+-#endif /* CONFIG_X86_64 */
++#endif
+  
+ int __init nmi_init(struct oprofile_operations ** ops, enum oprofile_cpu * cpu)
+ {
+@@ -282,7 +282,7 @@ int __init nmi_init(struct oprofile_oper
+ 			*cpu = OPROFILE_CPU_ATHLON;
+ 			break;
+  
+-#ifndef CONFIG_X86_64
++#if !defined(CONFIG_X86_64) && defined(CONFIG_MPENTIUM4)
+ 		case X86_VENDOR_INTEL:
+ 			switch (family) {
+ 				/* Pentium IV */
+@@ -301,7 +301,7 @@ int __init nmi_init(struct oprofile_oper
+ 					return 0;
+ 			}
+ 			break;
+-#endif /* CONFIG_X86_64 */
++#endif
+ 
+ 		default:
+ 			return 0;
+
+_

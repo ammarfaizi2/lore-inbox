@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbUKSVjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbUKSVlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261590AbUKSVjA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 16:39:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbUKSVjA
+	id S261592AbUKSVlH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 16:41:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbUKSVlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 16:39:00 -0500
-Received: from c7ns3.center7.com ([216.250.142.14]:8605 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S261590AbUKSViu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 16:38:50 -0500
-Message-ID: <419E6B44.8050505@devicelogics.com>
-Date: Fri, 19 Nov 2004 14:53:08 -0700
-From: "Jeff V. Merkey" <jmerkey@devicelogics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, jmerkey@drdos.com
-Subject: Linux 2.6.9 pktgen module causes INIT process respawning and sickness
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Nov 2004 16:41:06 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:59078 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S261592AbUKSVjH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 16:39:07 -0500
+Date: Fri, 19 Nov 2004 22:39:42 +0100
+From: Stelian Pop <stelian@popies.net>
+To: Christoph Hellwig <hch@infradead.org>, mdharm-usb@one-eyed-alien.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] usb-storage should enable scsi disk in Kconfig
+Message-ID: <20041119213942.GG2700@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Christoph Hellwig <hch@infradead.org>, mdharm-usb@one-eyed-alien.net,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <20041119193350.GE2700@deep-space-9.dsnet> <20041119195736.GA8466@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041119195736.GA8466@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 19, 2004 at 07:57:36PM +0000, Christoph Hellwig wrote:
 
-With pktgen.o configured to send 123MB/S on a gigabit on a system using 
-pktgen set to the following parms:
+> On Fri, Nov 19, 2004 at 08:33:50PM +0100, Stelian Pop wrote:
+> > As $subject says, usb-storage storage should automatically enable
+> > scsi disk support in Kconfig.
+> > 
+> > Please apply.
+> 
+> No, it shouldn't.  There's lots of usb storage devices that don't use
+> sd, as there are lots of SPI/FC/etc.. devices.
 
-pgset "odev eth1"
-pgset "pkt_size 1500"
-pgset "count 0"
-pgset "ipg 5000"
-pgset "src_min 10.0.0.1"
-pgset "src_max 10.0.0.254"
-pgset "dst_min 192.168.0.1"
-pgset "dst_max 192.168.0.254"
+Indeed, I should have checked more carefully. My bad.
 
-After 37 hours of continual packet generation into a gigabit 
-regeneration tap device,
-the server system console will start to respawn the INIT process about 
-every 10-12
-hours of continuous packet generation.
+Still, it is not obvious that one should go into a completly different
+config section and manually enable sd support, and I have been bitten
+by this more than one time.
 
-As a side note, this module in Linux is extremely useful and the "USE 
-WITH CAUTION" warnings
-are certainly will stated.  The performance of this tool is excellent.
+Maybe we should add, just below the 'USB storage' Kconfig option another
+one, let's say 'SCSI disk based USB storage support', which documentation
+would talk about 'usb keys, memory stick readers, USB floppy drives etc',
+which should just be a dummy option selecting  BLK_DEV_SD ?
 
-Jeff
+Or perhaps we should add something along the Debian's dpkg 'suggests' rule
+to Kconfig ? :)
 
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>

@@ -1,116 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290234AbSAOSb5>; Tue, 15 Jan 2002 13:31:57 -0500
+	id <S289595AbSAOSh1>; Tue, 15 Jan 2002 13:37:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290235AbSAOSbt>; Tue, 15 Jan 2002 13:31:49 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:4736 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S290234AbSAOSbp>; Tue, 15 Jan 2002 13:31:45 -0500
-Date: Tue, 15 Jan 2002 13:31:38 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Christian Thalinger <e9625286@student.tuwien.ac.at>
-cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: floating point exception
-In-Reply-To: <1011118755.13266.0.camel@sector17.home.at>
-Message-ID: <Pine.LNX.3.95.1020115132921.818A-100000@chaos.analogic.com>
+	id <S290241AbSAOShS>; Tue, 15 Jan 2002 13:37:18 -0500
+Received: from [216.151.155.108] ([216.151.155.108]:37132 "EHLO
+	varsoon.denali.to") by vger.kernel.org with ESMTP
+	id <S289595AbSAOShH>; Tue, 15 Jan 2002 13:37:07 -0500
+To: David Lang <dlang@diginsite.com>
+Cc: Felix von Leitner <felix-dietlibc@fefe.de>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>, Greg KH <greg@kroah.com>,
+        <linux-kernel@vger.kernel.org>, <andersen@codepoet.org>
+Subject: Re: [RFC] klibc requirements
+In-Reply-To: <Pine.LNX.4.40.0201151005430.24005-100000@dlang.diginsite.com>
+From: Doug McNaught <doug@wireboard.com>
+Date: 15 Jan 2002 13:36:59 -0500
+In-Reply-To: David Lang's message of "Tue, 15 Jan 2002 10:06:20 -0800 (PST)"
+Message-ID: <m34rlnzcj8.fsf@varsoon.denali.to>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Jan 2002, Christian Thalinger wrote:
+David Lang <dlang@diginsite.com> writes:
 
-> On Tue, 2002-01-15 at 15:34, Zwane Mwaikambo wrote:
-> > On 14 Jan 2002, Christian Thalinger wrote:
-[SNIPPED...]
-
+> On 15 Jan 2002, Doug McNaught wrote:
 > 
-> Tried this:
-> 
-> #define _GNU_SOURCE 1
-> #include <fenv.h>
-> 
-> main() {
->     double zero=0.0;
->     double one=1.0;
->     
->     feenableexcept(FE_ALL_EXCEPT);
->     
->     one /=zero;
-> }
-> 
-Well, that won't even link. The source I showed previously
-compiles and link fine. It also shows a FPU exception when
-one divides by zero:
+> >
+> > > as an example (not for the boot process, but an example of a replacement
+> > > libc use) I use the firewall toolkit, it has been around for a _loooong_
+> > > time (in software terms anyway) and has a firly odd licence (free for you
+> > > to use, source available, cannot sell it) which is not compatable with the
+> > > GPL. with glibc staticly linked this makes huge binaries, with libc5 they
+> > > were a lot smaller. I would like to try to use this small libc for these
+> > > proxies, but if the library is GPL, not LGPL I'm not allowed to.
+> >
+> > Hmm, I think you can; you just can't redistribute it.  Can you even
+> > redistribute fwtk on non-commercial terms?
+> >
+> nope, only allowed to get it from nai (and they sure don't make it easy to
+> find on their website)
 
-Script started on Tue Jan 15 13:27:05 2002
-# gcc -o zzz zzz.c -lm
-/tmp/ccjhyGHj.o: In function `main':
-/tmp/ccjhyGHj.o(.text+0x25): undefined reference to `feenableexcept'
-collect2: ld returned 1 exit status
-# gcc -o zzz fpu.c
-# zzz
-Floating point exception (core dumped)
-# cat fpu.c
-/*
- *  Note FPU control only exists per process. Therefore, you have
- *  to set up the FPU before you use it in any program.
- */
-#include <i386/fpu_control.h>
+Problem solved, then; you can link fwtk with a GPL'd libc on your own
+machines and use it all day.  You can't redistribute fwtk, so you
+aren't even tempted to violate the GPL.
 
-#define FPU_MASK (_FPU_MASK_IM |\
-                  _FPU_MASK_DM |\
-                  _FPU_MASK_ZM |\
-                  _FPU_MASK_OM |\
-                  _FPU_MASK_UM |\
-                  _FPU_MASK_PM)
-
-void fpu()
-{
-    __setfpucw(_FPU_DEFAULT & ~FPU_MASK);
-}
-
-
-main() {
-   double zero=0.0;
-   double one=1.0;
-   fpu();
-
-   one /=zero;
-}
-
-# cat zzz.c
-
-#define _GNU_SOURCE 1
-#include <fenv.h>
-
-main() {
-    double zero=0.0;
-    double one=1.0;
-    
-    feenableexcept(FE_ALL_EXCEPT);
-    
-    one /=zero;
-}
-
-
-You have new mail in /var/spool/mail/root
-# exit
-exit
-
-Script done on Tue Jan 15 13:28:32 2002
-
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+-Doug
+-- 
+Let us cross over the river, and rest under the shade of the trees.
+   --T. J. Jackson, 1863

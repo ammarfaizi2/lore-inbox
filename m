@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266298AbUA2RZY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 12:25:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266274AbUA2RZY
+	id S266293AbUA2RXM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 12:23:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266295AbUA2RXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 12:25:24 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:42644 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S266298AbUA2RYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 12:24:31 -0500
-Message-ID: <401941C4.4070502@nortelnetworks.com>
-Date: Thu, 29 Jan 2004 12:24:20 -0500
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, mj@ucw.cz
-Subject: question about PCI setup with multiple CPUs on the PCI bus(es)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 29 Jan 2004 12:23:12 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:25241 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266293AbUA2RXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 12:23:10 -0500
+Subject: SysV shm device number
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1075388721.15653.124.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 29 Jan 2004 10:05:22 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'd like to reliably identify SysV shared memory
+in the /proc/*/maps files. On one system, the entries
+look like this:
 
-We have an interesting scenario thats causing us some headaches, and 
-before we go and re-invent the wheel, I've been asked to see if there's 
-any others that have had to do something similar.
+40014000-40015000 r--s 00000000 00:04 0          /SYSV00000000 (deleted)
+40015000-40016000 rw-s 00000000 00:04 32769      /SYSV000000ff (deleted)
 
-We have a main board with a processor on it and a number of PCI buses 
-connected via bridges, with various devices on the buses.  There are a 
-number of PMC slots on two of the buses two which are connected PMC 
-processor boards, each of which has a cpu, memory, various devices, and 
-a PCI bridge.
+On my system, they look like this:
 
-The problem we are running into is as follows:
-1) the main board boots up, enumerates and configures the pci device 
-space, and boots the daughterboards
-2) the daughterboards boot up, enumerate and (re)configure the pci 
-device space (differently than the cpu on the mainboard), and screw 
-everything up
+30016000-30017000 r--s 00000000 00:06 870318096  /SYSV00000000\040(deleted)
+30017000-30018000 rw-s 00000000 00:06 870350865  /SYSV000000ff\040(deleted)
 
-We changed to kernel on the daughterboards to not touch PCI at all, and 
-everything worked fine.  However, one of the daughterboards (which is on 
-its own pci bus separate from the others) needs to control two PCI devices.
+So the key number is in the name, and the shmid
+number is the inode number. The device major number
+is 0, and the device minor number is 4 or 6.
 
-We tried to modify the PCI code to just go out and discover what was in 
-PCI space, not configure any of it.  However, as it did this it 
-reprogrammed the PCI bridges, wrecking the configuration that the cpu on 
-the main board expected.
+Other than by creating my own SysV shared memory,
+is there a way to tell what the minor number
+should be?
 
-Surely we aren't the only people that want to put multiple CPUs on a 
-single PCI space.  How have people handled this in the past?  Ideally 
-what I'm looking for is a CONFIG_NO_MANGLE_PCI or something to that 
-effect. As a last resort we are considering hardcoding the bus/device 
-topology for the two drivers on special daughterboard, but this seems 
-really kludgy.
-
-Anyone have any advice?
-
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

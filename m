@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262458AbTK2FiQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 00:38:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263650AbTK2FiQ
+	id S263662AbTK2Fqo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 00:46:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263675AbTK2Fqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 00:38:16 -0500
-Received: from h80ad279a.async.vt.edu ([128.173.39.154]:9121 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262458AbTK2FiP (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 00:38:15 -0500
-Message-Id: <200311290538.hAT5c702013700@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: John Zielinski <grim@undead.cc>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Rootfs mounted from user space - problem with umount 
-In-Reply-To: Your message of "Sat, 29 Nov 2003 00:24:31 EST."
-             <3FC82D8F.9030100@undead.cc> 
-From: Valdis.Kletnieks@vt.edu
-References: <3FC82D8F.9030100@undead.cc>
+	Sat, 29 Nov 2003 00:46:44 -0500
+Received: from holomorphy.com ([199.26.172.102]:52164 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263662AbTK2Fqn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Nov 2003 00:46:43 -0500
+Date: Fri, 28 Nov 2003 21:46:35 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Shawn Willden <shawn-lkml@willden.org>
+Cc: Misha Nasledov <misha@nasledov.com>,
+       Nigel Cunningham <ncunningham@clear.net.nz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: APM Suspend Problem
+Message-ID: <20031129054635.GG8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Shawn Willden <shawn-lkml@willden.org>,
+	Misha Nasledov <misha@nasledov.com>,
+	Nigel Cunningham <ncunningham@clear.net.nz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20031127062057.GA31974@nasledov.com> <20031129021712.GA13798@nasledov.com> <20031129022005.GE8039@holomorphy.com> <200311282238.21420.shawn-lkml@willden.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-30935206P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 29 Nov 2003 00:38:07 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200311282238.21420.shawn-lkml@willden.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-30935206P
-Content-Type: text/plain; charset=us-ascii
+On Friday 28 November 2003 07:20 pm, William Lee Irwin III wrote:
+>> There is an oddity I forgot to report: it doesn't suspend when I close
+>> the lid if I still have the power plugged in. Also, I tried the suspend
+>> button, and it works perfectly fine here for both suspend and resume on
+>> a standard LTC issue Stinkpad T21, again with the power cord proviso.
 
-On Sat, 29 Nov 2003 00:24:31 EST, John Zielinski <grim@undead.cc>  said:
+On Fri, Nov 28, 2003 at 10:38:18PM -0700, Shawn Willden wrote:
+> Do you also have a PCMCIA card in the slot?
+> I've always found that my Thinkpads (about three different models, 
+> currently a T21) will not suspend with power connected and a PCMCIA card 
+> in.  If I remove either power or my PC cards, then closing the lids will 
+> trigger a suspend.
+> I stumbled across something a while back that indicated this was a Thinkpad 
+> BIOS bug, but I have no idea if that is correct.
 
-> +	  This option switches rootfs so that it uses tmpfs rather than ramfs
-> +	  for it's file storage.  This makes rootfs swappable so having a large
-> +	  initrd or initramfs image won't eat up valuable RAM.
+No, I rarely have PCMCIA cards in. Just the power cord being plugged in
+is enough to break it here.
 
-I'm missing something - why not use an initrd and pivot_root and then
-unmount the old root?  Seems to work here.
 
---==_Exmh_-30935206P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/yDC/cC3lWbTT17ARAnuEAJ9BK8d9wAGg+qJCcE5Y2wI2r4w9fACfRW1d
-M8iKdS1b6uQqtUOK+1CIXwQ=
-=AxFd
------END PGP SIGNATURE-----
-
---==_Exmh_-30935206P--
+-- wli

@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265645AbTFSA1f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 20:27:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265648AbTFSA1f
+	id S265648AbTFSA2t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 20:28:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265654AbTFSA2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 20:27:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44525 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265645AbTFSA1e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 20:27:34 -0400
-Date: Thu, 19 Jun 2003 01:41:30 +0100
-From: Joel Becker <jlbec@evilplan.org>
-To: John Myers <jgmyers@netscape.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-Subject: Re: [PATCH 2.5.71-mm1] aio process hang on EINVAL
-Message-ID: <20030619004130.GP7895@parcelfarce.linux.theplanet.co.uk>
-Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
-	John Myers <jgmyers@netscape.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	"linux-aio@kvack.org" <linux-aio@kvack.org>
-References: <1055810609.1250.1466.camel@dell_ss5.pdx.osdl.net> <3EEE6FD9.2050908@netscape.com> <20030617085408.A1934@in.ibm.com> <1055884008.1250.1479.camel@dell_ss5.pdx.osdl.net> <3EEFAC58.905@netscape.com> <20030618001534.GJ7895@parcelfarce.linux.theplanet.co.uk> <3EEFB165.5070208@netscape.com> <20030618004214.GK7895@parcelfarce.linux.theplanet.co.uk> <3EF104D7.5050905@netscape.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EF104D7.5050905@netscape.com>
-User-Agent: Mutt/1.4.1i
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+	Wed, 18 Jun 2003 20:28:49 -0400
+Received: from fed1mtao05.cox.net ([68.6.19.126]:1982 "EHLO fed1mtao05.cox.net")
+	by vger.kernel.org with ESMTP id S265648AbTFSA2r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 20:28:47 -0400
+Message-ID: <3EF10705.9090609@cox.net>
+Date: Wed, 18 Jun 2003 17:42:45 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030603
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Oliver Neukum <oliver@neukum.org>, Robert Love <rml@tech9.net>,
+       Patrick Mochel <mochel@osdl.org>, Andrew Morton <akpm@digeo.com>,
+       sdake@mvista.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] udev enhancements to use kernel event queue
+References: <3EE8D038.7090600@mvista.com> <1055459762.662.336.camel@localhost> <20030612232523.GA1917@kroah.com> <200306132201.47346.oliver@neukum.org> <20030618225913.GB2413@kroah.com> <3EF10002.7020308@cox.net> <20030619002039.GA2866@kroah.com>
+In-Reply-To: <20030619002039.GA2866@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 18, 2003 at 05:33:27PM -0700, John Myers wrote:
-> The kernel would have to be substantially more complex to report all 
-> errors that could possibly be detected during queuing.  The kernel could 
-> even detect success during queuing if it really tried.
+Greg KH wrote:
 
-	The slippery slope isn't important.  POSIX specifies EAGAIN
-(you concede that), EBADF, and EINVAL against nbytes|offset|reqprio.
-The kernel does these checks already (where applicable).
-	Anyway, a caller of io_submit() already has to handle errors.
-Just like a short read, you always have to be wary of them.
+> But you also have to "hold" events for a bit of time in order to
+> determine that things are out of order, or we have a gap.  So a bit of
+> "complex" logic is in the works, but it's much less complex than if we
+> didn't have that sequence number.
+> 
 
-Joel
+OK, so the important point here is that while you probably delay events 
+for a small amount of time (1-3 seconds maybe) to ensure that you aren't 
+processing steps out of order, it's not likely that userspace is going 
+hold event #1321 for an indefinite period of time just because it has 
+never seen event #1320.
 
--- 
+I can't wait to see this implementation; it's going to be interesting, 
+to say the least. However, without the sequence numbers, it would very 
+likely be impossible.
 
-"Glory is fleeting, but obscurity is forever."  
-         - Napoleon Bonaparte
-
-			http://www.jlbec.org/
-			jlbec@evilplan.org

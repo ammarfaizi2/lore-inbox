@@ -1,80 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132101AbRCVRIR>; Thu, 22 Mar 2001 12:08:17 -0500
+	id <S130903AbRCVRVr>; Thu, 22 Mar 2001 12:21:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132111AbRCVRII>; Thu, 22 Mar 2001 12:08:08 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:57912 "EHLO
-	amsmta06-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S132101AbRCVRH4>; Thu, 22 Mar 2001 12:07:56 -0500
-Date: Thu, 22 Mar 2001 18:05:28 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: Ishikawa <ishikawa@yk.rim.or.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Interesting post from the MC project to linux-kernel. :block while spinlock held...
-Message-ID: <20010322180528.B6264@garloff.casa-etp.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Ishikawa <ishikawa@yk.rim.or.jp>, linux-kernel@vger.kernel.org
-In-Reply-To: <3AB8E3E8.F3204180@yk.rim.or.jp>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="m51xatjYGsM+13rf"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AB8E3E8.F3204180@yk.rim.or.jp>; from ishikawa@yk.rim.or.jp on Thu, Mar 22, 2001 at 02:24:56AM +0900
-X-Operating-System: Linux 2.2.16 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TUE/NL, SuSE/FRG
+	id <S131279AbRCVRVi>; Thu, 22 Mar 2001 12:21:38 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:5297 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130903AbRCVRVc>;
+	Thu, 22 Mar 2001 12:21:32 -0500
+Date: Thu, 22 Mar 2001 12:20:48 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: lock_kernel() usage and sync_*() functions
+In-Reply-To: <20010322154544.B11126@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <Pine.GSO.4.21.0103221207110.5619-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---m51xatjYGsM+13rf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 22, 2001 at 02:24:56AM +0900, Chiaki Ishikawa wrote:
-> --- begin quote ---
-> > enclosed are 163 potential bugs in 2.4.1 where blocking functions are
-> > called with either interrupts disabled or a spin lock held. The
-> > checker works by:
->=20
-> Here's the file manifest. Apologies.
->=20
-> drivers/atm/idt77105.c
-> drivers/atm/iphase.c
-> drivers/atm/uPD98402.c
-> drivers/block/cciss.c
-> drivers/block/cpqarray.c
-> drivers/char/applicom.c
->     ...
-> drivers/scsi/aha1542.c            <--- some scsi files
-> drivers/scsi/atp870u.c             <----
-> drivers/scsi/psi240i.c               <----
-> drivers/scsi/sym53c416.c        <----
-> drivers/scsi/tmscsim.c              <----
-  ^^^^^^^^^^^^^^^^^^^^^^
- =20
-How do I fond about about details?
+On Thu, 22 Mar 2001, Ingo Oeser wrote:
 
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, FRG                               SCSI, Security
+> Could we remove the "magic" sync_flag from the exported interface?
 
---m51xatjYGsM+13rf
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Sure. But I seriously suspect that sync_dev() is wrong in 100% of cases.
+So "flag" is eventually going to become "do we want to sync it or not?"
+thing. However, I don't want to deal with that sort of analysis right now -
+callers are in drivers/* and we are in even branch.
+ 
+> Do sth. like renaming your invalidate_dev() to
+> _invalidate_dev() and adding 3 defines:
+> 
+> #define invalidate_dev(dev) _invalidate_dev(dev,0)
+> #define invalidate_dev_sync(dev) _invalidate_dev(dev,1)
+> #define invalidate_dev_fsync(dev) _invalidate_dev(dev,2)
+> 
+> This would make it quite clear, what will be done.
+> 
+> AFAIR Linus dosn't like these magic numers either, right?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+I also don't like them. I _don't_ believe that magic #defines are
+any better, though. And I would rather localize the get_super() to
+kernel proper preserving the current behaviour and left dealing
+with the sync vs. fsync to 2.5. It's easy to grep and if my gut
+feeling is correct your invalidate_dev_sync() is going to be a ballast.
 
-iD8DBQE6ujDXxmLh6hyYd04RAkpsAJ9/KPl6Vvy1QxqD05v398u/k5n95wCgj44b
-DVcZC1TO9dWWX+n6xC+5akE=
-=5lDk
------END PGP SIGNATURE-----
+Again, for 2.4 I would rather do a change that obviously doesn't
+change behaviour of drivers, doesn't add functions without need
+and is easy to review once drivers become a fair game again (== in 2.5).
+Comments?
+							Cheers,
+								Al
 
---m51xatjYGsM+13rf--

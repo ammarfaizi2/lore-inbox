@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265920AbUFVU6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265956AbUFVU6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265920AbUFVU6h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 16:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266001AbUFVUta
+	id S265956AbUFVU6j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 16:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265902AbUFVUs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 16:49:30 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:22493 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S266021AbUFVUlG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 16:41:06 -0400
+	Tue, 22 Jun 2004 16:48:59 -0400
+Received: from web51809.mail.yahoo.com ([206.190.38.240]:54354 "HELO
+	web51809.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265956AbUFVUgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 16:36:48 -0400
+Message-ID: <20040622190018.10371.qmail@web51809.mail.yahoo.com>
+Date: Tue, 22 Jun 2004 12:00:18 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
+Subject: slow performance w/patch-2.6.7-mjb1
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16600.39256.669322.177553@alkaid.it.uu.se>
-Date: Tue, 22 Jun 2004 22:40:56 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.6.7-mm1] perfctr ppc32 update
-In-Reply-To: <1087935661.1855.10.camel@gaston>
-References: <200406212014.i5LKElHD019224@alkaid.it.uu.se>
-	<1087928274.1881.4.camel@gaston>
-	<16600.37372.473221.988885@alkaid.it.uu.se>
-	<1087935661.1855.10.camel@gaston>
-X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt writes:
- > On Tue, 2004-06-22 at 15:09, Mikael Pettersson wrote:
- > > Benjamin Herrenschmidt writes:
- > >  > Hrm... your code will not work with externally clocked timebases
- > >  > (like the G5) and I'm not sure you get the core freq. right with
- > >  > CPU that can do clock slewing or machines that can switch the
- > >  > core/bus ratio (laptops).
- > > 
- > > Do you mean the PLL_CFG code that's been in -mm for the last couple
- > > of weeks, or just the recently posted update? The update replaced
- > > in-kernel /proc/cpuinfo parsing (gross) with OF queries taken straight
- > > from the pmac code in arch/ppc/platform/.
- > > 
- > > I'm ignoring 970/G5 until IBM releases the damn documentation.
- > 
- > Well, the G5 can have it's own tb but can also be externally clocked and
- > that's how Apple does. I'm not sure about all G4 models.
+Hello,
 
-So what you're saying is that PLL_CFG may not reflect the true
-relationship between the TB frequency and the core frequency?
+To the mbligh, maintainer of mjb patch sets:
 
-That shouldn't be a problem as long as there's _some_ in-kernel
-interface for finding that out. If querying OF isn't the correct
-approach, then what is?
+I am trying to track down why I am seeing 2x in run
+time with patch-2.6.7-mjb1.  I would like to get the
+4g/4g patch, hence the use of this patch set, however,
+something within this patch has more than doubled the
+run time for a test executable I have so I would like
+to see what component might be the cause.  Is there a
+list of the various patches that went into this patch
+set and if so, are the patches in a broken out format?
 
-/Mikael
+Thanks!
+Phy
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

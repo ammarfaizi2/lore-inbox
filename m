@@ -1,45 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293603AbSCEEey>; Mon, 4 Mar 2002 23:34:54 -0500
+	id <S293607AbSCEEie>; Mon, 4 Mar 2002 23:38:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293604AbSCEEep>; Mon, 4 Mar 2002 23:34:45 -0500
-Received: from mail.gmx.de ([213.165.64.20]:23942 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S293603AbSCEEef>;
-	Mon, 4 Mar 2002 23:34:35 -0500
-Message-ID: <3C8449FE.830F881F@gmx.de>
-Date: Tue, 05 Mar 2002 05:30:54 +0100
-From: Edgar Toernig <froese@gmx.de>
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: Davide Libenzi <davidel@xmailserver.org>,
-        Hubertus Franke <frankeh@watson.ibm.com>,
-        Rusty Russell <rusty@rustcorp.com.au>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fast Userspace Mutexes III.
-In-Reply-To: <Pine.LNX.4.44.0203041305250.1561-100000@blue1.dev.mcafeelabs.com> <1015293007.882.87.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii
+	id <S293605AbSCEEiY>; Mon, 4 Mar 2002 23:38:24 -0500
+Received: from [202.135.142.196] ([202.135.142.196]:52228 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S293604AbSCEEiH>; Mon, 4 Mar 2002 23:38:07 -0500
+Date: Tue, 5 Mar 2002 15:41:23 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+Cc: torvalds@transmeta.com, matthew@hairy.beasts.org, bcrl@redhat.com,
+        david@mysql.com, wli@holomorphy.com, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+Subject: Re: [PATCH] Lightweight userspace semaphores...
+Message-Id: <20020305154123.078f0865.rusty@rustcorp.com.au>
+In-Reply-To: <20020304115143.B1116@elinux01.watson.ibm.com>
+In-Reply-To: <E16eT9h-0000kE-00@wagner.rustcorp.com.au>
+	<20020225100025.A1163@elinux01.watson.ibm.com>
+	<20020227112417.3a302d31.rusty@rustcorp.com.au>
+	<20020302095031.A1381@elinux01.watson.ibm.com>
+	<20020304003040.21ac02b7.rusty@rustcorp.com.au>
+	<20020304115143.B1116@elinux01.watson.ibm.com>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+On Mon, 4 Mar 2002 11:51:43 -0500
+Hubertus Franke <frankeh@watson.ibm.com> wrote:
+> > This is a definite advantage: my old fd-based code never looked at the
+> > userspace counter: it had a kernel sempahore to sleep on for each
+> > userspace lock. OTOH, this involves kernel allocation, with the complexity
+> > that brings.
+> > 
 > 
-> On Mon, 2002-03-04 at 17:15, Davide Libenzi wrote:
-> 
-> > That's great. What if the process holding the mutex dies while there're
-> > sleeping tasks waiting for it ?
-> 
-> I can't find an answer in the code (meaning the lock is lost...) and no
-> one has yet answered.  Davide, have you noticed anything?
-> 
-> I think this needs a proper solution..
+> ???, kernel allocation is only required in under contention. If you take a look 
+> at how I used the atomic word for semaphores and for rwlock_t, its different. 
+> If you recheck in the kernel you need to know how this is used.
+> In my approach I simply allocated two queues on demand.
 
-You can't do very much.  The futex holder has probably damaged some
-data.  The only thing you could do is to kill all current and future
-waiters too.  But the "future waiters" is difficult.  The process
-may hold other locks the kernel does not know anything about.
+Yes, but no allocation is even better than on-demand allocation, if you can
+get away with it.
 
-The only thing one could do is to kill all processes that share a
-MAP_SEM page with a dying process.
+> I am OK with only supplying semaphores and rwlocks, if there is a general consent
+> about it. Nevertheless, I think the multiqueue approach is somewhat more elegant
+> and expandable.
 
-Ciao, ET.
+Well, it's pretty easy to allow other values than -1/1 later as required.
+I don't think the switch() overhead will be measurable for the first dozen
+lock types 8).
+
+> > > (h) how do you deal with signals ? E.g. SIGIO or something like it.
+> > 
+> > They're interruptible, so you'll get -ERESTARTSYS.  Should be fine.
+> >  
+> 
+> That's what I did too, but some folks pointed out they might want to 
+> interrupt a waking task, so that it can get back into user space and
+> fail with EAGAIN or so and do not automatically restart the syscall.
+
+Sorry, my bad.  I use -EINTR, so they don't get restarted, for exactly that
+reason (eg. implementing timeouts on mutexes).
+
+Cheers!
+Rusty.
+-- 
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,50 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129248AbQKAI7N>; Wed, 1 Nov 2000 03:59:13 -0500
+	id <S129055AbQKAJSS>; Wed, 1 Nov 2000 04:18:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129044AbQKAI7D>; Wed, 1 Nov 2000 03:59:03 -0500
-Received: from CPE-61-9-148-61.vic.bigpond.net.au ([61.9.148.61]:2812 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S129440AbQKAI66>; Wed, 1 Nov 2000 03:58:58 -0500
-Date: Wed, 1 Nov 2000 20:00:36 +1100
-From: john slee <indigoid@higherplane.net>
-To: linux-kernel@vger.kernel.org
-Subject: test10 dies very early in boot
-Message-ID: <20001101200036.D655@higherplane.net>
+	id <S129068AbQKAJSJ>; Wed, 1 Nov 2000 04:18:09 -0500
+Received: from wiiusc.wii.ericsson.net ([192.36.108.17]:53452 "EHLO
+	hell.wii.ericsson.net") by vger.kernel.org with ESMTP
+	id <S129055AbQKAJSB>; Wed, 1 Nov 2000 04:18:01 -0500
+From: aer-list@mailandnews.com
+Message-Id: <200011010916.KAA19911@hell.wii.ericsson.net>
+X-Mailer: exmh version 2.2_20001026 06/23/2000 with nmh-1.0.3
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: "H. Peter Anvin" <hpa@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: / on ramfs, possible? 
+In-Reply-To: Message from David Woodhouse <dwmw2@infradead.org> 
+   of "Mon, 30 Oct 2000 23:32:23 GMT." <Pine.LNX.4.21.0010302329140.16675-100000@imladris.demon.co.uk> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: multipart/signed; boundary="==_Exmh_-23702752P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 01 Nov 2000 10:16:16 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hardware:
-	*	abit be6-2 mainboard
-	*	533 celeron (not overclocked)
-	*	192mb sdram
-	* 	seagate 20gb ide disk (not on ata66 port)
+--==_Exmh_-23702752P
+Content-Type: text/plain; charset=us-ascii
 
-compiler: gcc version 2.95.2 20000220 (Debian GNU/Linux)
 
-it gets as far as uncompressing the kernel and trying to boot it.  no
-further.  (doesn't get as far as displaying the 'Linux version ...'
-message).  sysrq doesn't work (not suprising),  ctrl-alt-delete doesn't
-work either.  reset button does work :-)
+> On Mon, 30 Oct 2000, H. Peter Anvin wrote:
+> 
+> > Pardon?!  This doesn't make any sense...
+> > 
+> > The question was: how do switch from the initrd to using the ramfs as /? 
+> > Using pivot_root should do it (after the pivot, you can of course nuke
+> > the initrd ramdisk.)
+> 
+> My question is: What do you want to do that for? You can nuke the initrd
+> ramdisk, but you can't drop the rd.c code, or ll_rw_blk.c code, etc. So
+> why not just keep your root filesystem in the initrd where it started off?
+> 
 
-i did have an amateurish poke around comparing it to t10p7 (which boots
-and runs fine on a near identical machine here at home), and all i could
-turn up that seemed relevant was an a20 change in
-arch/i386/boot/setup.S... and reversing that change didn't let it boot.
-i have undoubtedly missed something.
+Because the stuff on the initrd is not at all what I want in the resultant filesystem. The machine(s) in question are some disk-based some disk-less. I have a system for remote installation/removal of packages (--> the "partition" _has_ to be able to grove/shrink). 
 
-i guess it had to happen eventually.  this is the first kernel i've had
-trouble booting in 3 years or so.
+The package builder should not have to worry about these details, so the directory hierarcy cannot contain any traces of _how_ the packges got there in the first place.
 
-that was with bzimage.. will try with zimage tomorrow.
+/Anders 
 
-2.4.x is extremely impressive.
 
-j.
+
+
+
+
+--==_Exmh_-23702752P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.2 (GNU/Linux)
+Comment: Exmh version 2.2_20000822 06/23/2000
+
+iD8DBQE5/99g/X4RQObd8qERAjQJAJ0Z9MZ3mFnjGVapIU8wvAqnf/aPyQCdH9j7
+Whufdw43UyQtYRrs+fRitGE=
+=h//7
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-23702752P--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

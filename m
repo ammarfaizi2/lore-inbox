@@ -1,67 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266678AbUGQBzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266680AbUGQB5H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266678AbUGQBzH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 21:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266680AbUGQBzH
+	id S266680AbUGQB5H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 21:57:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266707AbUGQB5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 21:55:07 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:24027 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S266678AbUGQBzA (ORCPT
+	Fri, 16 Jul 2004 21:57:07 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:41691 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S266681AbUGQB4j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 21:55:00 -0400
-Date: Sat, 17 Jul 2004 03:54:53 +0200 (MEST)
-Message-Id: <200407170154.i6H1srwB015007@harpo.it.uu.se>
+	Fri, 16 Jul 2004 21:56:39 -0400
+Date: Sat, 17 Jul 2004 03:56:33 +0200 (MEST)
+Message-Id: <200407170156.i6H1uXIM015042@harpo.it.uu.se>
 From: Mikael Pettersson <mikpe@csd.uu.se>
 To: akpm@osdl.org
-Subject: [PATCH][2.6.8-rc1-mm1] perfctr inheritance 0/3: summary
+Subject: [PATCH][2.6.8-rc1-mm1] perfctr inheritance 2/3: kernel updates
 Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
-
-This set of patches add "inheritance" support to the per-process
-performance counters code in 2.6.8-rc1-mm1, bringing it in sync
-with the stand-alone perfctr-2.7.4 package.
-
-Inheritance has the following semantics:
-- At fork()/clone(), the child gets the same perfctr control
-  settings (but fresh/reset counters) as its parent.
-- As an exited child is reaped, if it still uses the exact
-  same control as its parent, then its final counts (self plus
-  children) are merged into its parent's "children counts" state. 
-  This is analogous to how the kernel handles plain time etc.
-  If either parent or child has reprogrammed their counters since
-  the fork(), then the child's final counts are not merged back.
-
-This feature is one users have asked for repeatedly, and it's
-the only embarrasing feature omission in the current code. It's
-not perfect, since one cannot distinguish child 1 from child 2
-or some grandchild, but it's easy and cheap to implement.
-
-The implementation is as follows:
-- The per-process counters object is extended with "children counts".
-- To determine if the control in parent and child are related, each
-  new control setting gets a new 64-bit id. fork() copies control and
-  id to the child. release_task() checks the ids of child and parent
-  and only merges the final counts if the ids match.
-- The copy_task() callback is renamed to copy_thread(), and also
-  takes the "struct pt_regs *regs" as parameter. "regs" is needed to
-  check if the thread is created for a user-space fork()/clone(), or
-  a kernel-level thread; in the latter case the perfctr state is
-  _not_ inherited.
-- Adds callback to release_task(), invoked at the point where the
-  other child time etc values are propagated to the parent.
-- The tsk->thread.perfctr locking rules are strengthened to always
-  take task_lock(tsk). Previously it sufficed to disable preemption
-  when HT P4s couldn't occur.
-
-The updated perfctr-2.7.4 library and tools package is needed to
-actually use the updated kernel code.
-
-Three patches follow:
-1/3: updates to the driver
-2/3: updates to the kernel callbacks
-3/3: updates to the documentation
+- s/perfctr_copy_thread(&p->thread)/perfctr_copy_task(p, regs)/g
+  Needed to access to the task struct (for setting owner in new
+  perfctr state) and for accessing regs (for checking user_mode(regs))
+- Add perfctr_release_task() callback in kernel/exit.c
 
 Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
+
+ arch/i386/kernel/process.c   |    2 +-
+ arch/ppc/kernel/process.c    |    2 +-
+ arch/x86_64/kernel/process.c |    2 +-
+ kernel/exit.c                |    2 ++
+ 4 files changed, 5 insertions(+), 3 deletions(-)
+
+diff -ruN linux-2.6.8-rc1-mm1/arch/i386/kernel/process.c linux-2.6.8-rc1-mm1.perfctr-inheritance/arch/i386/kernel/process.c
+--- linux-2.6.8-rc1-mm1/arch/i386/kernel/process.c	2004-07-14 12:59:20.000000000 +0200
++++ linux-2.6.8-rc1-mm1.perfctr-inheritance/arch/i386/kernel/process.c	2004-07-17 00:28:21.832314000 +0200
+@@ -368,7 +368,7 @@
+ 	savesegment(fs,p->thread.fs);
+ 	savesegment(gs,p->thread.gs);
+ 
+-	perfctr_copy_thread(&p->thread);
++	perfctr_copy_task(p, regs);
+ 
+ 	tsk = current;
+ 	if (unlikely(NULL != tsk->thread.io_bitmap_ptr)) {
+diff -ruN linux-2.6.8-rc1-mm1/arch/ppc/kernel/process.c linux-2.6.8-rc1-mm1.perfctr-inheritance/arch/ppc/kernel/process.c
+--- linux-2.6.8-rc1-mm1/arch/ppc/kernel/process.c	2004-07-14 12:59:21.000000000 +0200
++++ linux-2.6.8-rc1-mm1.perfctr-inheritance/arch/ppc/kernel/process.c	2004-07-17 00:28:21.832314000 +0200
+@@ -464,7 +464,7 @@
+ 
+ 	p->thread.last_syscall = -1;
+ 
+-	perfctr_copy_thread(&p->thread);
++	perfctr_copy_task(p, regs);
+ 
+ 	return 0;
+ }
+diff -ruN linux-2.6.8-rc1-mm1/arch/x86_64/kernel/process.c linux-2.6.8-rc1-mm1.perfctr-inheritance/arch/x86_64/kernel/process.c
+--- linux-2.6.8-rc1-mm1/arch/x86_64/kernel/process.c	2004-07-14 12:59:21.000000000 +0200
++++ linux-2.6.8-rc1-mm1.perfctr-inheritance/arch/x86_64/kernel/process.c	2004-07-17 00:28:21.832314000 +0200
+@@ -367,7 +367,7 @@
+ 	asm("movl %%es,%0" : "=m" (p->thread.es));
+ 	asm("movl %%ds,%0" : "=m" (p->thread.ds));
+ 
+-	perfctr_copy_thread(&p->thread);
++	perfctr_copy_task(p, regs);
+ 
+ 	if (unlikely(me->thread.io_bitmap_ptr != NULL)) { 
+ 		p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
+diff -ruN linux-2.6.8-rc1-mm1/kernel/exit.c linux-2.6.8-rc1-mm1.perfctr-inheritance/kernel/exit.c
+--- linux-2.6.8-rc1-mm1/kernel/exit.c	2004-07-14 12:59:21.000000000 +0200
++++ linux-2.6.8-rc1-mm1.perfctr-inheritance/kernel/exit.c	2004-07-17 00:28:21.842314000 +0200
+@@ -23,6 +23,7 @@
+ #include <linux/mount.h>
+ #include <linux/proc_fs.h>
+ #include <linux/mempolicy.h>
++#include <linux/perfctr.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -94,6 +95,7 @@
+ 	p->parent->cmaj_flt += p->maj_flt + p->cmaj_flt;
+ 	p->parent->cnvcsw += p->nvcsw + p->cnvcsw;
+ 	p->parent->cnivcsw += p->nivcsw + p->cnivcsw;
++	perfctr_release_task(p);
+ 	sched_exit(p);
+ 	write_unlock_irq(&tasklist_lock);
+ 	spin_unlock(&p->proc_lock);

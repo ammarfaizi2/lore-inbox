@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132035AbRCVOsU>; Thu, 22 Mar 2001 09:48:20 -0500
+	id <S132042AbRCVOva>; Thu, 22 Mar 2001 09:51:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132040AbRCVOsK>; Thu, 22 Mar 2001 09:48:10 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:42880 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S132037AbRCVOrz>; Thu, 22 Mar 2001 09:47:55 -0500
-Date: Thu, 22 Mar 2001 09:45:55 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: nbecker@fred.net, linux-kernel@vger.kernel.org
-Subject: Re: regression testing
-In-Reply-To: <E14g6My-0002dw-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.95.1010322094517.21282A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132040AbRCVOuV>; Thu, 22 Mar 2001 09:50:21 -0500
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:62632 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S132037AbRCVOtt>; Thu, 22 Mar 2001 09:49:49 -0500
+Date: Thu, 22 Mar 2001 15:45:44 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: lock_kernel() usage and sync_*() functions
+Message-ID: <20010322154544.B11126@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <99bsbk$a6n$1@penguin.transmeta.com> <Pine.GSO.4.21.0103212354420.2632-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.GSO.4.21.0103212354420.2632-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Mar 22, 2001 at 12:18:27AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Mar 2001, Alan Cox wrote:
-
-> > Regression testing __is__ what happens when 10,000 testers independently
-> > try to break the software!
+On Thu, Mar 22, 2001 at 12:18:27AM -0500, Alexander Viro wrote:
 > 
-> Nope. Thats stress testing and a limited amount of coverage testing.
-> 
-> > Canned so-called "regression-test" schemes will fail to test at least
-> > 90 percent of the code paths, while attempting to "test" 100 percent
-> > of the code!
-> 
-> Then they are not well designed. Tools like gprof and the kernel profiling
-> will let you measure code path coverage of a test series
-> 
+> 	I started with adding 
+> void invalidate_dev(kdev_t dev, int sync_flag)
+> {
+>         struct super_block *sb = get_super(dev);
+>         if (sync_flag == 1)
+>                 sync_dev(dev);
+>         else if (sync_flag == 2)
+>                 fsync_dev(dev);
+>         if (sb) {
+>                 invalidate_inodes(sb);
+>                 /* drop_super(sb); here */
+>         }
+>         invalidate_buffers(dev);
+> }
 
-Alan's back! 
+Could we remove the "magic" sync_flag from the exported interface?
 
-Cheers,
-Dick Johnson
+Do sth. like renaming your invalidate_dev() to
+_invalidate_dev() and adding 3 defines:
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+#define invalidate_dev(dev) _invalidate_dev(dev,0)
+#define invalidate_dev_sync(dev) _invalidate_dev(dev,1)
+#define invalidate_dev_fsync(dev) _invalidate_dev(dev,2)
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+This would make it quite clear, what will be done.
 
+AFAIR Linus dosn't like these magic numers either, right?
 
+Regards
+
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

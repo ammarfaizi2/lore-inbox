@@ -1,38 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268894AbUI3GWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268886AbUI3G24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268894AbUI3GWX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 02:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268886AbUI3GWX
+	id S268886AbUI3G24 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 02:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268900AbUI3G2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 02:22:23 -0400
-Received: from ozlabs.org ([203.10.76.45]:4298 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S268894AbUI3GWO (ORCPT
+	Thu, 30 Sep 2004 02:28:55 -0400
+Received: from ozlabs.org ([203.10.76.45]:21194 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268886AbUI3G2q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 02:22:14 -0400
-Date: Thu, 30 Sep 2004 16:20:48 +1000
+	Thu, 30 Sep 2004 02:28:46 -0400
+Date: Thu, 30 Sep 2004 16:27:19 +1000
 From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Anton Blanchard <anton@samba.org>, Paul Mackerras <paulus@samba.org>,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PPC64] EEH checks mistakenly became no-ops
-Message-ID: <20040930062048.GA21889@zax>
+To: Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+       Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PPC64] EEH checks mistakenly became no-ops
+Message-ID: <20040930062719.GB21889@zax>
 Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
 	Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
 	Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
 	linux-kernel@vger.kernel.org
+References: <20040930062048.GA21889@zax>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20040930062048.GA21889@zax>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, please apply:
+On Thu, Sep 30, 2004 at 04:20:48PM +1000, David Gibson wrote:
+> Andrew, please apply:
+> 
+> Recent changes which removed the use of IO tokens for EEH enabled
+> devices had a bug, which mean we now never do EEH checks at all.  This
+> patch corrects the problem.  Unfortunately, it does mean we do EEH
+> checks on pSeries whenever any IO returns all 1s.
+> 
+> Signed-off-by: David Gibson <dwg@au1.ibm.com>
+
+Bother, forgot to refresh the patch before sending.  Here's a version
+which sucks less.
 
 Recent changes which removed the use of IO tokens for EEH enabled
-devices had a bug, which mean we now never do EEH checks at all.  This
-patch corrects the problem.  Unfortunately, it does mean we do EEH
-checks on pSeries whenever any IO returns all 1s.
+devices had a bug, which mean we now never do EEH checks at all.
+
+This patch corrects the problem.
 
 Signed-off-by: David Gibson <dwg@au1.ibm.com>
 

@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288051AbSAYWe1>; Fri, 25 Jan 2002 17:34:27 -0500
+	id <S288089AbSAYWao>; Fri, 25 Jan 2002 17:30:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288432AbSAYWeR>; Fri, 25 Jan 2002 17:34:17 -0500
-Received: from smtp1.libero.it ([193.70.192.51]:29857 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id <S288051AbSAYWeK>;
-	Fri, 25 Jan 2002 17:34:10 -0500
-From: Andrea Ferraris <andrea_ferraris@libero.it>
-Reply-To: andrea_ferraris@libero.it
-Date: Fri, 25 Jan 2002 23:32:43 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020125180149.GB45738@compsoc.man.ac.uk> <20020125133814.U763@lynx.adilger.int> <20020125231555.A22583@wotan.suse.de>
-In-Reply-To: <20020125231555.A22583@wotan.suse.de>
-Subject: eth0: NULL pointer encountered in RX ring, skipping
-MIME-Version: 1.0
-Message-Id: <0201252332430B.01074@af>
-Content-Transfer-Encoding: 8bit
+	id <S288051AbSAYWa2>; Fri, 25 Jan 2002 17:30:28 -0500
+Received: from zero.tech9.net ([209.61.188.187]:53258 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S287882AbSAYWaO>;
+	Fri, 25 Jan 2002 17:30:14 -0500
+Subject: Re: [PATCH] syscall latency improvement #1
+From: Robert Love <rml@tech9.net>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <18993.1011984842@warthog.cambridge.redhat.com>
+In-Reply-To: <18993.1011984842@warthog.cambridge.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 25 Jan 2002 17:35:19 -0500
+Message-Id: <1011998120.3505.29.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After such kernel message the network interface (kernel 2.4.2) replied to 
-ping from other network's machines with times varying between 200 and 2000 ms
-and it was almost impossible to use the network to transferring files to or 
-from this PC.
-The card is a SIS960 on the mboard on an Acer PC with a Celeron 666 Mhz 
-processor.
+On Fri, 2002-01-25 at 13:54, David Howells wrote:
 
-The problem was solved with a shutdown -h, powering down and powering up
-the PC.
+> The attached patch does the following to 2.5.3-pre5:
+> 
+>  * consolidates various status items that are found in the lower reaches of
+>    task_struct into one 32-bit word, thus allowing them to be tested
+>    atomically without the need to disable interrupts in entry.S.
+> 
+>  * optimises the instructions in the system_call path in entry.S
+> 
+>  * frees up a hole in the bottom part of the task_struct (on the 1st cache
+>    line).
+> 
+>  * improves base syscall latency by approximately 5.4% (dual PIII) or 3.6%
+>    (dual Athlon) as measured by lmbench's "lat_syscall null" command against
+>    the vanilla kernel.
 
-Can somebody explain the trouble?
+Mmm, I like it.  Ingo Molnar talked to me about this (he wants such a
+feature, too) earlier.  This is a real win.
 
-Best regards to all all and thx to replying people,
+This patch is beneficial to the kernel preemption patch.  I suspect
+other future ideas could be added now without hurting the common case,
+too.  I had planned to roll need_resched into our preemption counter,
+and I probably still can even with only 1 byte.
 
-Andrea
+Anyhow, I'm looking it over -- good code.
+
+	Robert Love
+

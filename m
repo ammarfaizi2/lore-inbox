@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbTEKDjs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 23:39:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbTEKDjs
+	id S262268AbTEKDn5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 23:43:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbTEKDn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 23:39:48 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9477 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262109AbTEKDjr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 23:39:47 -0400
-Date: Sat, 10 May 2003 20:50:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jamie Lokier <jamie@shareable.org>
-cc: Jos Hulzink <josh@stack.nl>, Andi Kleen <ak@muc.de>,
+	Sat, 10 May 2003 23:43:57 -0400
+Received: from host132.googgun.cust.cyberus.ca ([209.195.125.132]:58030 "EHLO
+	marauder.googgun.com") by vger.kernel.org with ESMTP
+	id S262268AbTEKDnz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 23:43:55 -0400
+Date: Sat, 10 May 2003 23:54:25 -0400 (EDT)
+From: Ahmed Masud <masud@googgun.com>
+To: Yoav Weiss <ml-lkml@unpatched.org>
+Cc: Muli Ben-Yehuda <mulix@mulix.org>, <arjanv@redhat.com>,
        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Use correct x86 reboot vector
-In-Reply-To: <20030510181056.GB29682@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.44.0305102043320.28287-100000@home.transmeta.com>
+Subject: Re: The disappearing sys_call_table export.
+In-Reply-To: <Pine.LNX.4.44.0305102301160.16611-100000@marcellos.corky.net>
+Message-ID: <Pine.LNX.4.33.0305102346340.25095-100000@marauder.googgun.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 10 May 2003, Jamie Lokier wrote:
-> Jos Hulzink wrote:
-> > For the sake of bad behaving BIOSes however, I'd vote for the f000:fff0 
-> > vector, unless someone can hand me a paper that says it is wrong.
-> 
-> I agree, for the simple reason that it is what the chip does on a
-> hardware reset signal.
 
-Hmm.. Doesnt' a _real_ hardware reset actually use a magic segment that
-isn't even really true real mode? I have this memory that the reset value
-for a i386 has CS=0xf000, but the shadow base register actually contains
-0xffff0000. In other words, the CPU actually starts up in "unreal" mode,
-and will fetch the first instruction from physical address 0xfffffff0.
+On Sat, 10 May 2003, Yoav Weiss wrote:
 
-At least that was true on an original 386. It's something that could 
-easily have changed since.
+> You're right, which is why I wouldn't offer it as a general mechanism.  I
+> was merely offering a method to solve the current issue and fix Masud's
+> problem.  This solution is good in many cases but dangerous in others.  It
+> can be used as long as you inspect the original syscall to make sure its
+> param is just a simple string/int.  True in most cases though.
 
-In other words, you're all wrong. Nyaah, nyaah.
+Like any security solution, if the vulnerabilities are identifiable and
+outlinable then the risk can be approximated. This is what is really
+needed in real-life situations, reallistically, we simply want an
+assessment of risk to clearly define what is and isn't acceptable level of
+protection.
 
-			Linus
+I will attempt to actually build attack scenarios based on these comments
+and post results to any one who is interested.
+
+Just as an aside, my solution isn't actually performing its control
+through user-space params requiring copy_from_user.
+
+Cheers,
+
+Ahmed.
 

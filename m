@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266341AbUJLRQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266316AbUJLROR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266341AbUJLRQq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 13:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266505AbUJLRQg
+	id S266316AbUJLROR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 13:14:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUJLRMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 13:16:36 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:30403 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S266357AbUJLRPv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 13:15:51 -0400
-Message-ID: <416C10D9.9090306@rtr.ca>
-Date: Tue, 12 Oct 2004 13:14:01 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Christoph Hellwig <hch@infradead.org>, Mark Lord <lsml@rtr.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
-References: <4165A85D.7080704@rtr.ca> <4165AB1B.8000204@pobox.com> <4165ACF8.8060208@rtr.ca> <20041007221537.A17712@infradead.org> <1097241583.2412.15.camel@mulgrave> <4166AF2F.6070904@rtr.ca> <1097249266.1678.40.camel@mulgrave> <4166B48E.3020006@rtr.ca> <1097250465.2412.49.camel@mulgrave> <416C0D55.1020603@rtr.ca> <20041012170333.GA9274@havoc.gtf.org>
-In-Reply-To: <20041012170333.GA9274@havoc.gtf.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Oct 2004 13:12:50 -0400
+Received: from mail.kroah.org ([69.55.234.183]:4317 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266465AbUJLRKf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 13:10:35 -0400
+Date: Tue, 12 Oct 2004 10:10:04 -0700
+From: Greg KH <greg@kroah.com>
+To: Oleksiy <Oleksiy@kharkiv.com.ua>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: pl2303/usb-serial driver problem in 2.4.27-pre6
+Message-ID: <20041012171004.GB11750@kroah.com>
+References: <416A6CF8.5050106@kharkiv.com.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <416A6CF8.5050106@kharkiv.com.ua>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
->
->>Yes.  The workqueue thread will invoke the mid-layer function,
->>which will do a queuecommand, which will return to the mid-layer,
->>which will then SLEEP waiting for the command to complete,
->>which will sleep that workqueue thread.
->>
->>As part of the interrupt processing to complete the command in the LLD,
->>it is possible that schedule_work may be necessary, requiring that
->>a workqueue thread be run.  If this means the same thread that is
->>already sleeping courtesy of the mid-layer, then we could have a problem.
->
-> The only schedule_work() call in the SCSI common code is for domain
-> validation.
+On Mon, Oct 11, 2004 at 02:22:32PM +0300, Oleksiy wrote:
+> Hi all,
+> 
+> I have a problem using GPRS inet vi my Siemens S55 attached with USB 
+> cable since kernel version 2.4.27-pre5, the link is established well, 
+> but then no packets get received, looking with tcpdump shows outgoing 
+> ping packets and just few per several minutes received back. I'm unable 
+> to ping, do nslookup, etc.
+> The problem started when i switched from kernel 2.4.26 (linux slackware 
+> 10.0) to 2.4.28-pre3. None of ppp otions haven't changed and all the 
+> same options were set during kerenel config. So i decided to test all 
+> kernels between 2.4.26 and 2.4.28-pre4 (also not working). Link works 
+> well in 2.4.27-pre5 and stop working in 2.4.27-pre6. No "strange" 
+> messages or errors in the logs. firewall is disabled (ACCEPT for all).
 
-This particulare schedule_work() would be invoked from
-the interrupt handler in the LLD -- part of the qstor driver.
+Can you enable CONFIG_DEBUG?
 
-Is there a single thread (per CPU) for doing work from schedule_work(),
-or are there multiple such threads created on demand?
+There were no pl2303 driver changes between 2.4.27-pre5 and pre6, so I
+don't think it's that driver...
 
-If there's just a single thread, then this scenario (described above)
-could indeed deadlock, in which case qstor cannot use schedule_work()
-to perform notification of drive hot insert/removal events.
+thanks,
 
-What do you think, Jeff?
---
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+greg k-h

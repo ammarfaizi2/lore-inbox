@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264334AbTKMPat (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 10:30:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264328AbTKMP3e
+	id S264332AbTKMP3W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 10:29:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264328AbTKMP2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 10:29:34 -0500
-Received: from pat.uio.no ([129.240.130.16]:23457 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264326AbTKMP2c (ORCPT
+	Thu, 13 Nov 2003 10:28:08 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:54251 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264326AbTKMP2A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 10:28:32 -0500
-To: root@chaos.analogic.com
-Cc: "martin.knoblauch " <"martin.knoblauch "@mscsoftware.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nfs_statfs: statfs error = 116
-References: <3FB391FC.2090406@mscsoftware.com>
-	<Pine.LNX.4.53.0311130927280.30784@chaos>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 13 Nov 2003 10:27:47 -0500
-In-Reply-To: <Pine.LNX.4.53.0311130927280.30784@chaos>
-Message-ID: <shssmks70gc.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-MIME-Version: 1.0
+	Thu, 13 Nov 2003 10:28:00 -0500
+Date: Thu, 13 Nov 2003 16:28:01 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Pascal Schmidt <der.eremit@email.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+Message-ID: <20031113152801.GM4441@suse.de>
+References: <RoMa.Mi.7@gated-at.bofh.it> <RpI1.2RG.5@gated-at.bofh.it> <RqNS.54j.11@gated-at.bofh.it> <E1AKJ20-0006Ek-00@neptune.local>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Disposition: inline
+In-Reply-To: <E1AKJ20-0006Ek-00@neptune.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Richard B Johnson <root@chaos.analogic.com> writes:
+On Thu, Nov 13 2003, Pascal Schmidt wrote:
+> On Thu, 13 Nov 2003 15:40:20 +0100, you wrote in linux.kernel:
+> 
+> >> My patch from yesterday should handle that situation. 
+> >> cdrom_get_last_written is allowed to override the capacity from
+> >> cdrom_read_capacity.
+> 
+> > Yep, that is fine.
+> 
+> Will you queue the patch or should I resend it after 2.6.0 gets released?
 
-     > ESTALE happens when a mounted file-system is on a server that
-     > went down or re-booted. The file-handles are then "stale".
+If Linus doesn't want to take it now, send it later :)
 
-Sort of. It means that the server is unable to find the file that
-corresponds to the filehandle that the client sent it. If the server
-strictly follows the NFS specs, then this is only supposed to happen
-if somebody else has deleted the file (and this is why designing a
-scheme for generating filehandles is such a difficult job).
+-- 
+Jens Axboe
 
-Some broken servers do, however, "lose" the file in other interesting
-and unpredictable ways.
-
-     > ERESTARTSYS is the error returned by a server that has
-     > re-booted that is supposed to tell the client-side software to
-     > get a new file-handle because of an attempt to access with a
-     > stale file-handle. When getting this error, the client should
-     > have reopened the file(s) to obtain a new handle.
-
-ERESTARTSYS actually just means that a signal was received while
-inside a system call. If this results in a interruption of that
-syscall, the kernel is supposed to translate ERESTARTSYS into the user
-error EINTR.
-
-Userland should therefore never have to handle ERESTARTSYS errors.
-
-Cheers,
-  Trond

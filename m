@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264616AbUDVSV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264622AbUDVSXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264616AbUDVSV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 14:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264623AbUDVSV5
+	id S264622AbUDVSXm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 14:23:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264619AbUDVSXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 14:21:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:3754 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264616AbUDVSVy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 14:21:54 -0400
-Date: Thu, 22 Apr 2004 11:15:52 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: kieran@ihateaol.co.uk, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: Why is CONFIG_SCSI_QLA2X_X always enabled?
-Message-Id: <20040422111552.5e14de00.rddunlap@osdl.org>
-In-Reply-To: <1082654926.1778.84.camel@mulgrave>
-References: <4087E95F.5050409@ihateaol.co.uk>
-	<20040422092853.55d0b011.rddunlap@osdl.org>
-	<1082651974.1778.52.camel@mulgrave>
-	<20040422101206.70133b42.rddunlap@osdl.org>
-	<1082654926.1778.84.camel@mulgrave>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 22 Apr 2004 14:23:42 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:59141 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S264622AbUDVSXg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 14:23:36 -0400
+Message-ID: <40880E48.1000509@techsource.com>
+Date: Thu, 22 Apr 2004 14:26:16 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: James Lamanna <jamesl@appliedminds.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: New Radeonfb (2.6.5) driver does not play nice with X (4.3.0)
+References: <4087EB5A.7040404@appliedminds.com>
+In-Reply-To: <4087EB5A.7040404@appliedminds.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Apr 2004 13:28:46 -0400 James Bottomley wrote:
 
-| On Thu, 2004-04-22 at 13:12, Randy.Dunlap wrote:
-| > As it is, for some large %age of users (say 99% ?), those 6 qla drivers
-| > show up in the config menu when they aren't needed or wanted.
-| > They get in the way.
-| 
-| So you want a "Do you want Qlogic drivers" question followed by the 6
-| drivers if Y?
-| 
-| I'm less enthused about that.  I know there's precedent for it in the
-| net drivers, but I've always thought it caused more confusion than it
-| removed.  Traditionally, in SCSI, we've always presented every possible
-| driver in our list.
-| 
-| I thought the initial complaint you were trying to fix was the "why does
-| this show up in my .config one"?
 
-The initial complaint was in $SUBJECT:
-.config file always contains CONFIG_SCSI_QLA2XXX=y
+James Lamanna wrote:
+> I'm having some serious issues with the "new" radeonfb driver.
+> The system boots up fine, but as soon as I start X windows,
+> I cannot switch to a virtual console.
+> 
+> If I do, the screen goes black with what looks like lines of really
+> tiny, squashed text? maybe, and the system totally hangs.
+> No keyboard input, can't ssh in, totally dead.
+> 
+> Please CC me for I am not subscribed.
+> Relevant information follows:
 
-and that's not needed, but the Kconfig file as is causes that.
-Then that causes the further noise.
+Are you using ATI's proprietary drivers?  I have also experienced this 
+sort of system hang when using their drivers.  When I would exit the X 
+server, I would get a screen full of vertical lines and the system would 
+be completely dead (could not ping).
 
---
-~Randy
+The short-term solutions are either to use the XFree's native drivers or 
+to use vesafb for the console.  The long term solution is for ATI to fix 
+their drivers.
+
+

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270287AbTGMQn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 12:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270283AbTGMQn3
+	id S270278AbTGMQfc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 12:35:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270275AbTGMQfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 12:43:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16052 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S270281AbTGMQn1
+	Sun, 13 Jul 2003 12:35:32 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28082 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S270273AbTGMQf0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 12:43:27 -0400
-Message-ID: <3F118F99.1020104@pobox.com>
-Date: Sun, 13 Jul 2003 12:58:01 -0400
+	Sun, 13 Jul 2003 12:35:26 -0400
+Message-ID: <3F118DB7.5060009@pobox.com>
+Date: Sun, 13 Jul 2003 12:49:59 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 Organization: none
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
@@ -35,17 +35,10 @@ Alan Cox wrote:
 > goes away.
 
 
-As an aside, I really like sendfile's semantics except for
+I had forgotten all about splice.
 
-* People occasionally want to add a receivefile(2).  I disagree... 
-sendfile(2) interface should be really be considered a universal 
-"fdcopy" interface, regardless of what the 'to' and 'from' file 
-descriptors are attached to.  File to socket.  Socket to file.  File to 
-file.  socket to socket.  All should be supported, even if the fallback 
-is a stupid (but small!) in-kernel copy loop.
-
-* Copy-until-EOF semantics are either undefined, or, unclear to me 
-personally.
+For interested readers, here is the link:
+http://www.bitmover.com/lm/papers/splice.ps
 
 	Jeff
 

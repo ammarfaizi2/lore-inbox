@@ -1,77 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317436AbSGTQXK>; Sat, 20 Jul 2002 12:23:10 -0400
+	id <S317435AbSGTQVh>; Sat, 20 Jul 2002 12:21:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317439AbSGTQXK>; Sat, 20 Jul 2002 12:23:10 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:57338 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S317436AbSGTQXJ>; Sat, 20 Jul 2002 12:23:09 -0400
-Date: Sat, 20 Jul 2002 18:26:07 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Leonardo Gomes Figueira <sabbath@planetarium.com.br>,
-       Christoph Hellwig <hch@infradead.org>
-cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Memory detection problem in 2.4.19-rc2
-In-Reply-To: <3D391A54.4020404@planetarium.com.br>
-Message-ID: <Pine.NEB.4.44.0207201806350.16962-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317436AbSGTQVh>; Sat, 20 Jul 2002 12:21:37 -0400
+Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:9865 "EHLO
+	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S317435AbSGTQVg>; Sat, 20 Jul 2002 12:21:36 -0400
+Date: Sat, 20 Jul 2002 18:20:44 +0200
+From: damsnet@free.fr
+To: ivangurdiev@linuxfreemail.com, rl@hellgate.ch, ShingChuang@via.com.tw
+Cc: linux-kernel@vger.kernel.org
+Subject: problem with via-rhine driver and VT6103 chipset
+Message-Id: <20020720182044.550f2cf0.damsnet@free.fr>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Jul 2002, Leonardo Gomes Figueira wrote:
+Hello
 
-> Hi,
->
-> i have a Toshiba K6-2 450 notebook with 32MB RAM onboard plus an 256MB chip.
->
-> I use kernel 2.4.18 with the mem param on the boot (mem=288M) and it
-> works fine. (Without the mem param it only detects 32MB).
->
-> I've been testing 2.4.19-preX (8,9,10 maybe others before, i don't
-> remember) and 2.4.19-rcX (1,2) but in this releases it don't detect more
-> than 32MB even with the mem param. I didn't test in 2.4.19-rc3 yet but i
-> read the changelog and didn't see any change in this area but i can test
-> if it helps.
->...
+I would like to report a bug, appearing in kernels 2.4.18 
+to 2.4.19-rc3 (I have not tested with previous ones). 
 
-It seems that the change Christoph introduced (from Red Hat's tree) in the
-lines around 810 (line number in -rc3) in arch/i386/kernel/setup.c didn't
-consider the case that someone want's to _in_crease the size of the memory
-by using the "mem="  parameter.
+It concerns the VIA-Rhine (ethernet) driver. I use it with
+a VT6103 ethernet adaptator, which seems not to be supported
+by the driver, but almost works.
 
-It's the following Changeset:
+When I use this driver in 10Mbps mode (not 100Mbps), it resets the
+ethernet card every few seconds and at the ends I have to reboot, 
+because the card does not work anymore. These are the messages
+I see with repetition:
 
-<--  snip  -->
+NETDEV WATCHDOG: eth0: transmit timed out
+eth0: Transmit timed out, status 0000, PHY status 786d, resetting...
+NETDEV WATCHDOG: eth0: transmit timed out
+eth0: Transmit timed out, status 0000, PHY status 786d, resetting...
+[etc, etc, ...]
 
-   Changeset details for 1.383.2.25
 
-   ChangeSet@1.383.2.25  2002-04-15 23:18:40-03:00  hch@infradead.org
-   all diffs
-   [PATCH] mem= command lines fixes.
-   Another patch from Red Hat's tree:
-     mem= command-line adapts itself to existing e820 values.
-     without this patch mem=xxxM ignores bios-reserved areas and uses
-     them as RAM. This patch makes the kernel skip these areas
-   arch/i386/kernel/setup.c@1.38  2001-04-05
-   21:19:09-03:00  hch@infradead.org
+In 100Mbps mode, everything work perfectly. But the problem appears
+all the time in 10Mbps mode. I made many tests, with differents 
+motherboards (the card is integrated in it) in different situations, 
+and it always appens.
 
-<--  snip  -->
+The weird thing is that it only happens when the data go to this 
+card, I mean if I copy a file *to* the computer with this card, it 
+happens. If I copy a file *from* it (to an other computer), it does
+not happen. I tested with ftp (proftpd running on the computer) by 
+uploading files, and with scp.
 
-> Thanks,
->
->     Leo
->...
+My ethernet card is integrated to the VIA Mini-ITX motherboard, aimed
+at embedded systems. The manual says it is a "VIA VT6103 Ethernet PHY".
 
-cu
-Adrian
+lspci shows this:
 
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+00:12.0 Ethernet controller: VIA Technologies, Inc. Ethernet Controller (rev 51)
+        Subsystem: VIA Technologies, Inc.: Unknown device 0102
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (750ns min, 2000ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at e800 [size=256]
+        Region 1: Memory at d4000000 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [40] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
 
 
+The processor is:
+
+processor       : 0
+vendor_id       : CentaurHauls
+cpu family      : 6
+model           : 7
+model name      : VIA Ezra
+stepping        : 8
+cpu MHz         : 800.047
+cache size      : 64 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu de tsc msr cx8 mtrr pge mmx 3dnow
+bogomips        : 1595.80
+
+
+I compiled everything into the kernel, no modules support.
+I tested with and without MMIO support, and the result is the same.
+
+
+
+Thanks in advance,
+regards.
+
+Damien

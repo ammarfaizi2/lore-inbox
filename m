@@ -1,126 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263837AbSJ3DlW>; Tue, 29 Oct 2002 22:41:22 -0500
+	id <S262641AbSJ3Duw>; Tue, 29 Oct 2002 22:50:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263899AbSJ3DlV>; Tue, 29 Oct 2002 22:41:21 -0500
-Received: from dp.samba.org ([66.70.73.150]:11227 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S263837AbSJ3DlT>;
-	Tue, 29 Oct 2002 22:41:19 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-       dhinds@zen.stanford.edu, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] Get rid of check_resource() before it becomes a problem 
-In-reply-to: Your message of "Tue, 29 Oct 2002 21:33:28 CDT."
-             <3DBF44F8.8010307@pobox.com> 
-Date: Wed, 30 Oct 2002 14:15:01 +1100
-Message-Id: <20021030034743.A05AA2C0DD@lists.samba.org>
+	id <S263366AbSJ3Duw>; Tue, 29 Oct 2002 22:50:52 -0500
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:15880 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S262641AbSJ3Duv>; Tue, 29 Oct 2002 22:50:51 -0500
+Message-ID: <3DBF5756.2010702@lougher.demon.co.uk>
+Date: Wed, 30 Oct 2002 03:51:50 +0000
+From: Phillip Lougher <phillip@lougher.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:0.9.9) Gecko/20020604
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Samuel Flory <sflory@rackable.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ANNOUNCEMENT: Squashfs released (a highly compressed filesystem)
+References: <3DBF43ED.70001@lougher.demon.co.uk> <3DBF4DBA.8060005@rackable.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3DBF44F8.8010307@pobox.com> you write:
-> Need to zap the export from kernel/ksyms.c too
+Samuel Flory wrote:
+> Phillip Lougher wrote:
+> 
+>> Hi,
+>>
+>> First release of squashfs.  Squashfs is a highly compressed read-only 
+>> filesystem for Linux (kernel 2.4.x).  It uses zlib compression to 
+>> compress both files, inodes and directories.  Inodes in the system are 
+>> very small and all blocks are packed to minimise data overhead. Block 
+>> sizes greater than 4K are supported up to a maximum of 32K.
+>>
+>> Squashfs is intended for general read-only filesystem use, for 
+>> archival use, and in embedded systems where low overhead is needed.
+>>
+>> Squashfs is available from http://squashfs.sourceforge.net.
+>>
+>> The patch file is currently against 2.4.19.  There is further info on 
+>> the filesystem design etc. in the README.
+>>
+>> I'l be interested in getting any feedback, advice etc. on it.
+>>
+> 
+>  What are the advantages of squashfs vs cramfs?
+> 
+> 
+> 
 
-Ack.
+Cramfs was the inspiration for squashfs.  Squashfs basically gives 
+better compression, bigger files/filesystem support, and more inode 
+information.
 
-Here it is, fresh against 2.5.44.
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+1. Blocks upto 32K are supported - data is compressed in units of 32K 
+which achieves better compression ratios than compressing in 4K blocks. 
+  Generally using bigger than 4K blocks are a bad idea, because the VFS 
+calls the filesystem in 4K pages.  Squashfs explictly pushes the extra 
+block data into the page cache.
 
-Name: Remove inherently racy check_resource
-Author: Rusty Russell
-Status: Trivial
+2. Squashfs compresses inode and directory information in addition to 
+file data.  Inodes/directories generally compress down to 50%, or say on 
+average 8 bytes or less per inode.
 
-D: The new resource interface foolishly replicated the (obsolete,
-D: racy) spirit of the check_region call as check_resource.  You
-D: should use request_resource/release_resource instead.
+3. All fs data is packed on byte alignments, saving a couple of bytes 
+per inode and directory.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8919-linux-2.5.45/drivers/pcmcia/rsrc_mgr.c .8919-linux-2.5.45.updated/drivers/pcmcia/rsrc_mgr.c
---- .8919-linux-2.5.45/drivers/pcmcia/rsrc_mgr.c	2002-10-15 15:29:59.000000000 +1000
-+++ .8919-linux-2.5.45.updated/drivers/pcmcia/rsrc_mgr.c	2002-10-30 14:03:09.000000000 +1100
-@@ -124,16 +124,36 @@ static struct resource *resource_parent(
- 	return &ioport_resource;
- }
- 
-+/* FIXME: Fundamentally racy. */
- static inline int check_io_resource(unsigned long b, unsigned long n,
- 				    struct pci_dev *dev)
- {
--	return check_resource(resource_parent(b, n, IORESOURCE_IO, dev), b, n);
-+	struct resource *region;
-+
-+	region = __request_region(resource_parent(b, n, IORESOURCE_IO, dev),
-+				  b, n, "check_io_resource");
-+	if (!region)
-+		return -EBUSY;
-+
-+	release_resource(region);
-+	kfree(region);
-+	return 0;
- }
- 
-+/* FIXME: Fundamentally racy. */
- static inline int check_mem_resource(unsigned long b, unsigned long n,
- 				     struct pci_dev *dev)
- {
--	return check_resource(resource_parent(b, n, IORESOURCE_MEM, dev), b, n);
-+	struct resource *region;
-+
-+	region = __request_region(resource_parent(b, n, IORESOURCE_MEM, dev),
-+				  b, n, "check_mem_resource");
-+	if (!region)
-+		return -EBUSY;
-+
-+	release_resource(region);
-+	kfree(region);
-+	return 0;
- }
- 
- static struct resource *make_resource(unsigned long b, unsigned long n,
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8919-linux-2.5.45/include/linux/ioport.h .8919-linux-2.5.45.updated/include/linux/ioport.h
---- .8919-linux-2.5.45/include/linux/ioport.h	2002-05-09 12:40:19.000000000 +1000
-+++ .8919-linux-2.5.45.updated/include/linux/ioport.h	2002-10-30 14:03:09.000000000 +1100
-@@ -85,7 +85,6 @@ extern struct resource iomem_resource;
- 
- extern int get_resource_list(struct resource *, char *buf, int size);
- 
--extern int check_resource(struct resource *root, unsigned long, unsigned long);
- extern int request_resource(struct resource *root, struct resource *new);
- extern int release_resource(struct resource *new);
- extern int allocate_resource(struct resource *root, struct resource *new,
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8919-linux-2.5.45/kernel/ksyms.c .8919-linux-2.5.45.updated/kernel/ksyms.c
---- .8919-linux-2.5.45/kernel/ksyms.c	2002-10-30 12:53:10.000000000 +1100
-+++ .8919-linux-2.5.45.updated/kernel/ksyms.c	2002-10-30 14:06:18.000000000 +1100
-@@ -445,7 +445,6 @@ EXPORT_SYMBOL(enable_hlt);
- EXPORT_SYMBOL(request_resource);
- EXPORT_SYMBOL(release_resource);
- EXPORT_SYMBOL(allocate_resource);
--EXPORT_SYMBOL(check_resource);
- EXPORT_SYMBOL(__request_region);
- EXPORT_SYMBOL(__check_region);
- EXPORT_SYMBOL(__release_region);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8919-linux-2.5.45/kernel/resource.c .8919-linux-2.5.45.updated/kernel/resource.c
---- .8919-linux-2.5.45/kernel/resource.c	2002-08-11 15:31:43.000000000 +1000
-+++ .8919-linux-2.5.45.updated/kernel/resource.c	2002-10-30 14:03:09.000000000 +1100
-@@ -131,20 +131,6 @@ int release_resource(struct resource *ol
- 	return retval;
- }
- 
--int check_resource(struct resource *root, unsigned long start, unsigned long len)
--{
--	struct resource *conflict, tmp;
--
--	tmp.start = start;
--	tmp.end = start + len - 1;
--	write_lock(&resource_lock);
--	conflict = __request_resource(root, &tmp);
--	if (!conflict)
--		__release_resource(&tmp);
--	write_unlock(&resource_lock);
--	return conflict ? -EBUSY : 0;
--}
--
- /*
-  * Find empty slot in the resource tree given range and alignment.
-  */
+4.  Full 32 bit uids/guids are stored (4 bits stored in inode, uses a 
+lookup table, to give 48 uids/16 gids).  File sizes upto 2^32 are 
+supported.  Timestamp info is stored. Cramfs truncates uids to 16 bits, 
+uids to 8 bits.  Cramfs files sizes are upto 2^24.  No timestamp info. 
+Squashfs takes advantage of metadata compression to have more info with 
+smaller metadata overhead.
+
+5 Symbolic link contents/file indexes are stored inside the inode table,
+giving better compression than if they were compressed individually, or 
+not compressed.
+
+6. The mksquashfs program doesn't store/mmap the filesystem as it is 
+created (it performs file duplicate checking against the partially 
+written out compressed fs), and so allows larger filesystems to be created.
+
+
+Further info on the fs is contained in the README...
+
+Phillip
+

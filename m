@@ -1,50 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268546AbTCAKjl>; Sat, 1 Mar 2003 05:39:41 -0500
+	id <S268547AbTCALmI>; Sat, 1 Mar 2003 06:42:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268547AbTCAKjl>; Sat, 1 Mar 2003 05:39:41 -0500
-Received: from mail.mediaways.net ([193.189.224.113]:48236 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP
-	id <S268546AbTCAKjl>; Sat, 1 Mar 2003 05:39:41 -0500
-Subject: re: Linux 2.4.21pre4-ac5 status report
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030301103234.GB22135@louise.pinerecords.com>
-References: <1046506460.1215.993.camel@sun>
-	 <20030301085704.GA22135@louise.pinerecords.com>
-	 <1046514580.15694.2.camel@sun>
-	 <20030301103234.GB22135@louise.pinerecords.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1046515658.15696.5.camel@sun>
-Mime-Version: 1.0
-Date: 01 Mar 2003 11:47:39 +0100
-Content-Transfer-Encoding: 7bit
+	id <S268548AbTCALmI>; Sat, 1 Mar 2003 06:42:08 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:49597 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S268547AbTCALmG>; Sat, 1 Mar 2003 06:42:06 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       linux-kernel@vger.kernel.org
+Date: Sat, 1 Mar 2003 03:51:04 -0800 (PST)
+Subject: Re: anticipatory scheduling questions
+In-Reply-To: <20030301024024.52aefd7a.akpm@digeo.com>
+Message-ID: <Pine.LNX.4.44.0303010350180.17904-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-01 at 11:32, Tomas Szepe wrote:
-> > [kernel@nn7.de]
-> > 
-> > > > [kernel@nn7.de]
-> > > > 
-> > > > The promise driver still freezes on my pdc20268 when using >mdma0.
-> > > 
-> > > Try upgrading the BIOS on the 20268.  Sounds incredible, but it
-> > > did solve all the problems I was seeing with the card in Linux.
-> > 
-> > I checked for new bioses 2 on thursday -> there where no newer bioses
-> > available. I guess you have a single pdc20268 which is full of disks
-> > (i.e. master and slave used?).
-> 
-> I've got a single pdc20268 with just one drive on each channel...
-> Works nicely with recent -ac kernels.
+wasn't there something about Evolution having problems with the change to
+child-runs-first-on-fork logic several months ago?
 
-As I guessed. I've got two pdc20268 with just one drive per channel
-(where the last drive is a cdrom-drive)
+David Lang
 
-So one pdc no problem >1 -> trouble.
+On Sat, 1 Mar 2003, Andrew Morton wrote:
 
-S.
-
+> Date: Sat, 1 Mar 2003 02:40:24 -0800
+> From: Andrew Morton <akpm@digeo.com>
+> To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: anticipatory scheduling questions
+>
+> "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org> wrote:
+> >
+> > ----- Original Message -----
+> > > > It wasn't a typo... In fact, both deadline and AS give roughly the same
+> > > > timings (one second up or down). But I
+> > > > still don't understand why 2.5 is performing so much worse than 2.4.
+> > >
+> > > Me either.  It's a bug.
+> > >
+> > > Does basic 2.5.63 do the same thing?  Do you have a feel for when it started
+> > > happening?
+> >
+> > This has happened since the moment I switched from 2.4 to 2.5.63-mm1.
+>
+> You have not actually said whether 2.5.63 base exhibits the same problem.
+> From the vmstat traces it appears that the answer is "yes"?
+>
+> > > > Could a "vmstat" or "iostat" dump be interesting?
+> > > 2.4 versus 2.5 would be interesting, yes.
+> >
+> > I have retested this with 2.4.20-2.54, 2.5.63 and 2.5.63-mm1...
+> > and have attached the files to this message
+>
+> Thanks.  Note how 2.4 is consuming a few percent CPU, whereas 2.5 is
+> consuming 100%.  Approximately half of it system time.
+>
+> It does appear that some change in 2.5 has caused evolution to go berserk
+> during this operation.
+>
+>
+> > (I think pasting them
+> > here would result in wrapping, making it harder to read).
+> >
+> > If you need more testing or benchmarking, ask for it :-)
+>
+> Thanks for your patience.
+>
+> The next step please is:
+>
+> a) run top during the operation, work out which process is chewing all
+>    that CPU.  Presumably it will be evolution or aspell
+>
+> b) Do it again and this time run
+>
+> 	strace -p $(pidof evolution)	# or aspell
+>
+> This will tell us what it is up to.
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

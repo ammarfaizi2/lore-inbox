@@ -1,35 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265353AbSJXI1V>; Thu, 24 Oct 2002 04:27:21 -0400
+	id <S265349AbSJXIai>; Thu, 24 Oct 2002 04:30:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265354AbSJXI1V>; Thu, 24 Oct 2002 04:27:21 -0400
-Received: from dsl-213-023-020-124.arcor-ip.net ([213.23.20.124]:20626 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S265353AbSJXI1V>;
-	Thu, 24 Oct 2002 04:27:21 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@digeo.com>, Benjamin LaHaise <bcrl@redhat.com>
-Subject: Re: 2.5.44-[mm3, ac2] time to tar zxf kernel tarball compared forvarious  fs.
-Date: Thu, 24 Oct 2002 10:34:11 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Steven Cole <elenstev@mesatop.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <1035402133.13140.251.camel@spc9.esa.lanl.gov> <20021023160450.E3750@redhat.com> <3DB70207.FBB38A0D@digeo.com>
-In-Reply-To: <3DB70207.FBB38A0D@digeo.com>
+	id <S265351AbSJXIai>; Thu, 24 Oct 2002 04:30:38 -0400
+Received: from packet.digeo.com ([12.110.80.53]:53247 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265349AbSJXIah>;
+	Thu, 24 Oct 2002 04:30:37 -0400
+Message-ID: <3DB7B11B.9E552CFF@digeo.com>
+Date: Thu, 24 Oct 2002 01:36:43 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E184dRY-0007Mx-00@starship>
+To: chrisl@vmware.com
+CC: andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: writepage return value check in vmscan.c
+References: <20021024082505.GB1471@vmware.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Oct 2002 08:36:43.0565 (UTC) FILETIME=[7B3B15D0:01C27B38]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 October 2002 22:09, Andrew Morton wrote:
-> ext3's five-second commit interval and limited journal size really
-> bite in this test.  We end up doing most of the writeback within
-> the measurement period rather than after it.
+chrisl@vmware.com wrote:
+> 
+> Hi Andrew,
+> 
+> It might be a silly question.
 
-The test results should include *both* the time the tar completes
-and the time a subsequent sync completes, to tell the whole story.
+It's an excellent question.
 
--- 
-Daniel
+> ...
+> I try to find out what happen if user memory map a sparse file then
+> kernel try to write it back to disk and hit a no disk space error.
+> To my surprise, it seems to me that both 2.4 and 2.5 kernel do not
+> check the return value of "writepage". If there is an error like ENOSPC
+> it will just drop it on the ground? Do I miss something obvious?
+
+Yup.  If the kernel cannot write back your MAP_SHARED page due to
+ENOSPC it throws your data away.
+
+The alternative would be to allow you to pin an arbitrary amount of
+unpageable memory.
+
+A few fixes have been discussed.  One way would be to allocate
+the space for the page when it is first faulted into reality and
+deliver SIGBUS if backing store for it could not be allocated.
+ 
+> BTW, I am amazed that there is so many way user can abuse the mmap system
+> call. e.g. open a file, ftruncate to a bigger size, unlink that file while
+> keep the file descriptor, mmap to some memory using that descriptor,
+> close that descriptor, you can still use that mmaped memory.
+
+Ayup.  MAP_SHARED is a crock.  If you want to write to a file, use write().
+
+View MAP_SHARED as a tool by which separate processes can attach
+to some shared memory which is identified by the filesystem namespace.
+It's not a very good way of performing I/O.
+
+That's not to say that you deserve to have the kernel silently throw
+your data away as punishment for having used it though.  Thanks for the
+prod.  We should do something about that.

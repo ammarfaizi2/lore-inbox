@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbTD2VlF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 17:41:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbTD2VlF
+	id S261873AbTD2Vui (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 17:50:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbTD2Vuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 17:41:05 -0400
-Received: from web41608.mail.yahoo.com ([66.218.93.108]:50046 "HELO
-	web41608.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261881AbTD2VlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 17:41:04 -0400
-Message-ID: <20030429215318.27252.qmail@web41608.mail.yahoo.com>
-Date: Tue, 29 Apr 2003 14:53:18 -0700 (PDT)
-From: Pawan Deepika <pawan_deepika@yahoo.com>
-Subject: 'tainting kernel' problem in linux-2.4.18
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Tue, 29 Apr 2003 17:50:37 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:27900 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261873AbTD2Vuh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 17:50:37 -0400
+Date: Tue, 29 Apr 2003 15:04:49 -0700
+From: Greg KH <greg@kroah.com>
+To: Max Krasnyansky <maxk@qualcomm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [Bluetooth] HCI USB driver update. Support for SCO over HCI USB.
+Message-ID: <20030429220449.GA9058@kroah.com>
+References: <5.1.0.14.2.20030429131303.10d7f330@unixmail.qualcomm.com> <200304290317.h3T3HOdA027579@hera.kernel.org> <200304290317.h3T3HOdA027579@hera.kernel.org> <5.1.0.14.2.20030429131303.10d7f330@unixmail.qualcomm.com> <5.1.0.14.2.20030429144842.10c95000@unixmail.qualcomm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5.1.0.14.2.20030429144842.10c95000@unixmail.qualcomm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 29, 2003 at 02:55:17PM -0700, Max Krasnyansky wrote:
+> >Ok, that works for me.  Does the patch below work out for you?
+> Yep. I'd make it return void though.
 
-Hi,
+Good point, I'll change that and send it off.
 
- I am trying LKM with linux-2.4.18. I have a problem
-here. When I load the module using 'insmod' command,
-module gets loaded but I get following error
+thanks,
 
-------------------------------------------------------
-/sbin/insmod ./hello.o
-Warning: loading ./hello.o will taint the kernel: no
-license
-  See http://www.tux.org/lkml/#export-tainted for
-information about tainted modules
-Module hello loaded, with warnings
-----------------------------------------------------
-
-Can anyone tell me why I am getting this problem and
-what is the impact of this error while module is
-running in kernel. 
-
-Thanks in advance.
-
-Regards,
-Deepika
-
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Search - Faster. Easier. Bingo.
-http://search.yahoo.com
+greg k-h

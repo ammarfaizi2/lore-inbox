@@ -1,61 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129753AbRAaXVM>; Wed, 31 Jan 2001 18:21:12 -0500
+	id <S129755AbRAaXUW>; Wed, 31 Jan 2001 18:20:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129770AbRAaXVD>; Wed, 31 Jan 2001 18:21:03 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:12744 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129753AbRAaXUY>; Wed, 31 Jan 2001 18:20:24 -0500
-Date: Wed, 31 Jan 2001 23:18:33 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: Grzegorz Sojka <grzes@prioris.mini.pw.edu.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG
-In-Reply-To: <Pine.BSF.4.21.0101312339170.38659-100000@prioris.mini.pw.edu.pl>
-Message-ID: <Pine.SOL.4.21.0101312317340.24868-100000@orange.csi.cam.ac.uk>
+	id <S129754AbRAaXUC>; Wed, 31 Jan 2001 18:20:02 -0500
+Received: from goalkeeper.d2.com ([198.211.88.26]:43094 "HELO
+	goalkeeper.d2.com") by vger.kernel.org with SMTP id <S129753AbRAaXUB>;
+	Wed, 31 Jan 2001 18:20:01 -0500
+Date: Wed, 31 Jan 2001 15:15:09 -0800
+From: Greg from Systems <chandler@d2.com>
+To: linux-kernel@vger.kernel.org
+Subject: Bummer...
+In-Reply-To: <3A6ED741.CACC619C@zk3.dec.com>
+Message-ID: <Pine.SGI.4.10.10101311509400.29904-100000@hell.d2.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001, Grzegorz Sojka wrote:
 
-> I am using kernel v2.4.0 on Abit BP6 with two Intel Pentium Celeron
-> 366@517Mhz + video based on Riva TNT2 M64 32Mb + network card 3com 3c905b
-> + Creative Sound Blaster 64 pnp isa and hercules video card. I'm geting
-> all over the time messages like that:
-> Jan 31 23:37:16 Zeus kernel: APIC error on CPU0: 02(02)
-> Jan 31 23:37:17 Zeus kernel: APIC error on CPU1: 02(08)
-> Jan 31 23:37:26 Zeus kernel: APIC error on CPU1: 08(08)
-> Jan 31 23:37:26 Zeus kernel: APIC error on CPU1: 08(08)
-> Jan 31 23:37:26 Zeus kernel: APIC error on CPU0: 02(04)
-> Jan 31 23:37:27 Zeus kernel: APIC error on CPU0: 04(02)
-> Jan 31 23:37:30 Zeus kernel: APIC error on CPU1: 08(08)
-> Jan 31 23:38:17 Zeus kernel: APIC error on CPU0: 02(08)
-> Jan 31 23:38:20 Zeus kernel: APIC error on CPU1: 08(08)
-> Jan 31 23:38:22 Zeus kernel: APIC error on CPU0: 08(02)
-> Jan 31 23:38:26 Zeus kernel: APIC error on CPU1: 08(08)
-> Jan 31 23:38:26 Zeus kernel: APIC error on CPU0: 02(02)
-> Jan 31 23:38:29 Zeus kernel: APIC error on CPU1: 08(02)
-> Jan 31 23:38:41 Zeus kernel: APIC error on CPU1: 02(08)
-> Jan 31 23:38:51 Zeus kernel: APIC error on CPU0: 02(02)
-> Jan 31 23:38:58 Zeus kernel: APIC error on CPU1: 08(08)
-> Jan 31 23:39:15 Zeus kernel: APIC error on CPU1: 08(02)
-> Jan 31 23:39:15 Zeus kernel: APIC error on CPU1: 02(08)
-> Jan 31 23:39:15 Zeus kernel: APIC error on CPU0: 02(04)
-> Jan 31 23:39:17 Zeus kernel: APIC error on CPU1: 08(08)
-> Jan 31 23:39:18 Zeus kernel: APIC error on CPU1: 08(02)
-> Jan 31 23:39:46 Zeus kernel: APIC error on CPU0: 04(02)
-> And when I was using kernels v2.2.x ther was no such messages. I am
-> wandering if it is hardware or software problem?
+I've been playing with the 2.4.0 kernel scince you gave me the patch for
+the alphas...  
 
-Hardware problem. You don't SEE these messages on 2.2 because it doesn't
-tell you about them :-)
+What I have found is that it tends to randomly hang...
+No Panic, no OOPs, no nothing...
+The machine is a PC164, Which falls under the EB164 class.
+It exhibits this behaviour on both the "generic" and "eb164" cpu types
+{compile option}  It doesn't even boot compiled as pc164..
+I'm also seeing this problem on my A/S 4100, "Rawhide"..
 
-(These are common, but fairly harmless FWIH, on BP6s.)
+My current working kernel is 2.2.18, and I am going to start playing with
+the 2.4.1
+
+Sometimes it hangs on boot {while loading network daemons} and sometimes
+it will boot fine, and I will be doing a compile or something and it will
+just hang...
+
+What kind of info can I send you to help troubleshoot this more?
+
+----------------------------------------------------------------------------
+
+IGNOTUM PER IGNOTIUS
+
+"Grasshopper always wrong in argument with chicken"
+
+The "socratic approach" is what you call starting an argument by
+asking questions.
+
+The human race will begin solving it's problems on the day that it 
+ceases taking itself so seriously.
+
+                                        PRINCIPIA DISCORDIA
 
 
-James.
+                Published by POEE Head Temple - San Francisco
+                      " On The Future Site of Beautiful
+                             San Andreas Canyon"
+
+
+                                                Please do not use this
+                                                document as toilet tissue
+Fnord
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

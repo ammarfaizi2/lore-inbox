@@ -1,60 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263460AbUCTQSR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 11:18:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbUCTQSR
+	id S263462AbUCTQWa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 11:22:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbUCTQW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 11:18:17 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:50901
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263460AbUCTQSO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 11:18:14 -0500
-Date: Sat, 20 Mar 2004 17:19:05 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] anobjrmap 1/6 objrmap
-Message-ID: <20040320161905.GT9009@dualathlon.random>
-References: <Pine.LNX.4.44.0403190642450.17899-100000@localhost.localdomain> <2663710000.1079716282@[10.10.2.4]> <20040320123009.GC9009@dualathlon.random> <2696050000.1079798196@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 20 Mar 2004 11:22:29 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:17810 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263462AbUCTQW0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 11:22:26 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jeff Garzik <jgarzik@pobox.com>, Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] barrier patch set
+Date: Sat, 20 Mar 2004 17:30:38 +0100
+User-Agent: KMail/1.5.3
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Chris Mason <mason@suse.com>
+References: <20040319153554.GC2933@suse.de> <20040320101929.GF2711@suse.de> <405C1EF2.9070201@pobox.com>
+In-Reply-To: <405C1EF2.9070201@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <2696050000.1079798196@[10.10.2.4]>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Message-Id: <200403201730.38266.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 20, 2004 at 07:56:37AM -0800, Martin J. Bligh wrote:
-> > I'm working on my code yes, I think my code is finished, I prefer my
-> > design for the various reasons explained in the other emails (you don't
-> > swap so you can't appreciate the benefits, you only have to check that
-> > performs as well as Hugh's code).
-> > 
-> > Hugh's and your code is unstable in objrmap, you can find the details in
-> > the email I sent to Hugh, mine is stable (running such simulation for a
-> > few days just fine on 4-way xeon, without my objrmap fixes it live locks
-> > as soon as it hits swap).
-> > 
-> > You find my anon_vma in 2.6.5-rc1aa2, it's rock solid, just apply the
-> > whole patch and compare it with your other below results. thanks.
-> 
-> Mmmm, if you have a broken out patch, it'd be preferable. If I were to 
-> apply the whole of -mjb, I'll get a damned sight better results than 
-> any of them, but that's not really a fair comparison ;-) I'll can at 
-> least check it's stable for me that way though. 
-> 
-> I did find your broken-out anon-vma patch, but it's against something
-> else, maybe half-way up your tree or something, and I didn't bother
-> trying to fix it ;-)
+On Saturday 20 of March 2004 11:37, Jeff Garzik wrote:
+> Jens Axboe wrote:
+> > On Sat, Mar 20 2004, Jeff Garzik wrote:
+> >>Jens Axboe wrote:
+> >>>I agree with Bart, it's usually never that clear. Quit harping the
+> >>>stupid LG issue, they did something brain dead in the firmware and I
+> >>>almost have to say that they got what they deserved for doing something
+> >>>as _stupid_ as that.
+> >>
+> >>I use it because it's an excellent illustration of what happens when you
+> >>ignore the spec.
+> >
+> > Really, I think it's a much better demonstration of exactly how stupid
+> > hardware developers are at times...
+>
+> No argument.  But their behavior, however awful, _was_ reported in
+> places where a spec-driven driver would have noticed... :)
+>
+> >>>Jeff, it's wonderful to think that you can always rely on checking spec
+> >>>bits, but in reality it never really 'just works out' for any given set
+> >>>of hardware.
+> >>
+> >>"just issue it and hope" is not a reasonable plan, IMO.
+> >
+> > I agree with that as well. I just didn't agree with your rosy idea of
+> > thinking everything would always work if you just check the bits
+> > according to spec.
+>
+> Everything _will_ always work, if you check the bits according to spec.
+>      Not reporting the flush-cache feature bit, when it really the
+> opcode exists, isn't a spec violation.  The opposite is, and I haven't
+> heard of any such drives :)
+>
+> AFAICS:
+> * for ATA versions where flush-cache is optional, you must check the
+> bit.  otherwise, issuing flush-cache would be very unwise.
 
-this one is against mainline, but you must use my objrmap patch too
-which is fixed so it doesn't crash in 2.6.5-rc1.
+There is not flush-cache bit in both ATA-4 (command optional)
+and ATA-5 (command mandatory).
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc1-aa2/00100_objrmap-core-1.gz
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc1-aa2/00101_anon_vma-2.gz
+> * for ATA versions where flush-cache is mandatory...  the argument can
+> be made that issuing a flush-cache in the absence of the bit isn't a bad
+> thing.  I'm not sure I agree with that, but I'm willing to be convinced.
+>
+> "just check the bits" always works because it is the conservative
+> choice...  but it can lead to suboptimal (but valid!) behavior by
+> ignoring some devices' flush-cache capability.
 
-just backout your objrmap and apply the above two, it should apply
-pretty well.
+It's just damn too conservative.
+
+> If it's only a few drives out there that misreport their flush-cache
+> bit, then who cares --> just more broken hardware, that we won't issue a
+> flush-cache on.  If it's a lot of drives, that changes things...
+
+They don't misreport!  They comply with the spec (ATA-4 or ATA-5).
+
+Jeff, please RTFSPEC. ;-)
+
+Cheers,
+Bartlomiej
+

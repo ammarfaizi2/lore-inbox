@@ -1,76 +1,168 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261977AbTIMQoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 12:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbTIMQoQ
+	id S261337AbTIMQl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 12:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbTIMQl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 12:44:16 -0400
-Received: from smtp1.globo.com ([200.208.9.168]:38399 "EHLO mail.globo.com")
-	by vger.kernel.org with ESMTP id S261977AbTIMQoL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 12:44:11 -0400
-From: Marcelo Penna Guerra <eu@marcelopenna.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SII SATA request size limit
-Date: Sat, 13 Sep 2003 13:43:52 -0300
-User-Agent: KMail/1.5.9
-MIME-Version: 1.0
+	Sat, 13 Sep 2003 12:41:57 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:17102 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261337AbTIMQlx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 12:41:53 -0400
+Date: Sat, 13 Sep 2003 18:41:46 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection
+Message-ID: <20030913164146.GI27368@fs.tum.de>
+References: <20030913125103.GE27368@fs.tum.de> <20030913161149.GA1750@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200309131344.02457.eu@marcelopenna.org>
+In-Reply-To: <20030913161149.GA1750@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, Sep 13, 2003 at 05:11:49PM +0100, Dave Jones wrote:
+> On Sat, Sep 13, 2003 at 02:51:03PM +0200, Adrian Bunk wrote:
+> 
+>  > This patch makes the bzImage for my computer (same .config, same 
+>  > compiler, same compiler options) a good 5 kB smaller.
+> 
+> For the invasiveness of the patch, 5KB really is a questionable gain..
 
-Alan Cox escreveu:
+I should have stated that the arch/i386/kernel/cpu{,/mtrr}/Makefile 
+parts are an example of what is possible with such a CPU selection 
+schema.
 
-> On Sad, 2003-09-13 at 00:07, Marcelo Penna Guerra wrote:
->> And I still don't know how to set this limit back to 128 with 2.6.x 
->kernels. 
->> It can't be done the same way as in 2.4.x, can it?
->
->I dont really track 2.6, if someone took reconfiguring it out of 2.6
->that would be unfortunate and suprising.
+I'll send a splitted patch where this is only an optional enhanchement.
 
-On 2.6.0-test4-mm6, /proc/ide/hde/settings:
+>  > In 2.4 selecting e.g. M486 has the semantics to get a kernel that runs 
+>  > on a 486 and above.
+>  > In 2.6 selecting M486 means that only the 486 is supported.
+> 
+> What are you basing this on ? This seems bogus to me.
+> Last I checked, I could for eg, boot a 386 kernel on an Athlon.
 
-name                    value           min             max             mode
-- ----                    -----           ---             ---             ----
-acoustic                0               0               254             rw
-address                 0               0               2               rw
-bios_cyl                65535           0               65535           rw
-bios_head               16              0               255             rw
-bios_sect               63              0               63              rw
-bswap                   0               0               1               r
-current_speed           69              0               70              rw
-failures                0               0               65535           rw
-init_speed              69              0               70              rw
-io_32bit                1               0               3               rw
-keepsettings            0               0               1               rw
-lun                     0               0               7               rw
-max_failures            1               0               65535           rw
-multcount               16              0               16              rw
-nice1                   1               0               1               rw
-nowerr                  0               0               1               rw
-number                  0               0               3               rw
-pio_mode                write-only      0               255             w
-slow                    0               0               1               rw
-unmaskirq               1               0               1               rw
-using_dma               1               0               1               rw
-wcache                  0               0               1               rw
+It currently works. The question is the exact semantics of X86_GENERIC. 
+If you read the description of X86_GENERIC it implicitely says a kernel 
+for a 386 isn't generic.
 
-Anyone know the reason why it's not there anymore? Shouldn't it be 
-reimplemented?
+>  > +config CPU_VIAC3_2
+>  >  	bool "VIA C3-2 (Nehemiah)"
+>  >  	help
+>  > -	  Select this for a VIA C3 "Nehemiah". Selecting this enables usage
+>  > -	  of SSE and tells gcc to treat the CPU as a 686.
+>  > -	  Note, this kernel will not boot on older (pre model 9) C3s.
+>  > +	  Select this for a VIA C3 "Nehemiah" (model 9 and above).
+> 
+> You lost an important part of helptext.
 
-Marcelo Penna Guerra
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+With the patch to the Makefile the "enables usage of SSE and tells gcc
+to treat the CPU as a 686" is only true if you don't compile support for 
+older CPUs.
 
-iD8DBQE/Y0lPD/U0kdg4PFoRAiV8AKCKjq2mUkt26uzS8lURWABNBM+dmACg4ZMF
-dNZW2uZxh0UM8+0hOv0vtZQ=
-=vDdg
------END PGP SIGNATURE-----
+>...
+>  > +
+>  > +ifdef CONFIG_CPU_K8
+>  > +  ifdef CONFIG_CPU_PENTIUM4
+>  > +    cpuflags-y	:= $(call check_gcc,-march=pentium3,-march=i686)
+>  > +  else
+>  > +    cpuflags-y	:= $(call check_gcc,-march=k8,$(call check_gcc,-march=athlon,-march=i686 $(align)-functions=4))
+>  > +  endif
+>  > +endif
+>  > +
+> 
+> These horrible nesting things are also a real PITA, as theres >1 case
+> that needs updating when something changes for a particular
+> vendor/family.  The cflags-$foo stuff in 2.6 was just starting to
+> become readable, and you want to undo that?
+
+The idea is to move the question "Which CPU option supports bot an
+Athlon and a Pentium 4?" from the user to the kernel. The user no longer 
+has to take care of this, he simply selects all CPUs he wants to 
+support.
+
+>  > --- linux-2.6.0-test5-cpu/arch/i386/lib/mmx.c.old	2003-09-13 11:14:00.000000000 +0200
+>  > +++ linux-2.6.0-test5-cpu/arch/i386/lib/mmx.c	2003-09-13 11:17:00.000000000 +0200
+>  > @@ -121,7 +121,7 @@
+>  >  	return p;
+>  >  }
+>  >  
+>  > -#ifdef CONFIG_MK7
+>  > +#ifndef CONFIG_CPU_CYRIXIII
+>  >  
+>  >  /*
+>  >   *	The K7 has streaming cache bypass load/store. The Cyrix III, K6 and
+> 
+> wtf ?
+
+It's logical considering the dependencies of X86_USE_3DNOW.
+
+But thinking about it a second time, it seems a CONFIG_CPU_ONLY_K7 does 
+the same and is less error prone.
+
+>  > --- linux-2.6.0-test5-cpu/arch/i386/mm/init.c.old	2003-09-13 14:18:04.000000000 +0200
+>  > +++ linux-2.6.0-test5-cpu/arch/i386/mm/init.c	2003-09-13 14:23:26.000000000 +0200
+>  > @@ -436,8 +436,12 @@
+>  >  	if (!mem_map)
+>  >  		BUG();
+>  >  #endif
+>  > -	
+>  > +
+>  > +#ifdef CONFIG_CPU_686
+>  >  	bad_ppro = ppro_with_ram_bug();
+>  > +#else
+>  > +	bad_ppro = 0;
+>  > +#endif
+>  >  
+> 
+> If we boot a 386 kernel on a ppro with that bug, this goes bang.
+
+ppro_with_ram_bug checks for one specific ppro bug.
+On a 386 this funtion returns 0.
+
+This is part of the (optional) part of this patch that selects only the 
+needed parts in arch/i386/kernel/cpu/Makefile. When compiling a kernel 
+without any support for Intel CPUs I got a linker error. It could be 
+CONFIG_CPU_INTEL (since that's when arch/i386/kernel/cpu/intel.c gets 
+compiled) but since this function returns 1 only for some ppro's I've 
+optimized it to ppro_with_ram_bug.
+
+>  >  static void __init init_ifs(void)
+>  >  {
+>  > +
+>  > +#if defined(CONFIG_CPU_K6)
+>  >  	amd_init_mtrr();
+>  > +#endif
+>  > +
+>  > +#if defined(CONFIG_CPU_586)
+>  >  	cyrix_init_mtrr();
+>  > +#endif
+>  > +
+>  > +#if defined(CONFIG_CPU_WINCHIP) || defined(CONFIG_CPU_CYRIXIII) || defined(CONFIG_CPU_VIAC3_2)
+>  >  	centaur_init_mtrr();
+>  > +#endif
+>  > +
+> 
+> For the handful of bytes saved in the mtrr driver, I'm more concerned
+> about ifdef noise, and the fact that we don't have a compile once-run
+> everywhere MTRR driver anymore unless you pick your options right
+
+You have a "compile once-run everywhere MTRR driver" if you select all 
+CPUs.
+
+As stated above, this isn't part of the core patch.
+
+> 		Dave
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312560AbSFQMeX>; Mon, 17 Jun 2002 08:34:23 -0400
+	id <S312601AbSFQMgl>; Mon, 17 Jun 2002 08:36:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312590AbSFQMeW>; Mon, 17 Jun 2002 08:34:22 -0400
-Received: from pa91.banino.sdi.tpnet.pl ([213.76.211.91]:31495 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
-	id <S312560AbSFQMeV>; Mon, 17 Jun 2002 08:34:21 -0400
-Subject: Re: "laptop mode" for floppies too?
-In-Reply-To: <3D0DB3A7.C32CCAE9@zip.com.au>
-To: Andrew Morton <akpm@zip.com.au>
-Date: Mon, 17 Jun 2002 14:34:12 +0200 (CEST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL95 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E17Jvi0-0007gl-00@alf.amelek.gda.pl>
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
+	id <S312619AbSFQMgk>; Mon, 17 Jun 2002 08:36:40 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:11688 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S312601AbSFQMgi>;
+	Mon, 17 Jun 2002 08:36:38 -0400
+Date: Mon, 17 Jun 2002 14:32:52 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200206171232.OAA00172@harpo.it.uu.se>
+To: kai@tp1.ruhr-uni-bochum.de
+Subject: 2.5.22 broke modversions
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Something in the 2.5.22 Makefile/Rule.make changes broke
+modversions on my P4 box. For some reason, a number of
+exporting objects, including arch/i386/kernel/i386_ksyms,
+weren't given -D__GENKSYMS__ at genksym-time, with the
+effect that the resulting .ver files became empty, and the
+kernel exported the symbols with unexpanded _R__ver_ suffixes.
 
-> The key idea of writing back all dirty data when the disk is spun up
-> for a read can be implemented by a userspace daemon which polls /proc/stat
-> anyway.
+Modversions worked in 2.5.21. I didn't see anything obvious
+in patch-2.5.22 what could explain this, but I did notice a
+tendency of touching files as a means of maintaining dependencies.
+This may not actually work, unless you have a slow CPU or a
+file system with millisecond or better st_mtime resolution --
+most only maintain whole-second resolution st_mtimes.
+(My modversions fix in the 2.4.0-test series, which moved the
+modversions.h creation/update to a separate rule after make dep,
+was due to this very problem.)
 
-Quite a lot of work to parse the /proc output that had to be nicely
-formatted by the kernel first...  And, that would be a global sync()
-not per-device - looks like a hack to me.
+For now, I'm using the workaround below.
 
-> A proper solution is not feasible with the 2.4 data structures.
-> In 2.5, making the "maximum age of dirty data" be a per-queue
-> tunable is in fact pretty simple.  The trickiest part would be
-> exposing the per-queue tunables to userspace, actually.
+/Mikael
 
-The "maximum age of dirty data" should be short (shorter than spin down
-timeout) if the disk is already spinning, but longer if not spinning
-so it won't spin up too often, otherwise there is little power saving.
-Perhaps let the driver itself tune that value, depending on the current
-state of the drive (spinning or not), easier than exposing to userspace.
-
-The floppy driver itself controls the motor, so could also somehow
-tell the kernel to write back all dirty data just before spinning down.
-IDE disks can spin down automatically after some idle time, but perhaps
-it would be more efficient if Linux could do that in software instead -
-tell the disk to go to sleep ("hdparm -y") if it has not been accessed
-for too long, but write all dirty data first (without resetting the idle
-timer - possible now that the timer is ours and not in the disk).
-
-OK, it's really a larger issue of more intelligent power management
-than the hardware itself can do without OS support...
-
-> I do need to revisit this stuff - we need a way of being able
-> to incorporate the nominal write bandwidth of the backing device
-> into the memory balancing decisions.  I'll take a look at your
-> idea when I get onto that.
-
-Thanks.  Yes, these days bandwidth can vary a lot between ATA100 disks
-and floppies :)
-
-Marek
-
+--- linux-2.5.22/Rules.make.~1~	Mon Jun 17 10:15:13 2002
++++ linux-2.5.22/Rules.make	Mon Jun 17 13:45:27 2002
+@@ -147,7 +147,7 @@
+ quiet_cmd_cc_ver_c = MKVER  include/linux/modules/$(RELDIR)/$*.ver
+ define cmd_cc_ver_c
+ 	mkdir -p $(dir $@); \
+-	$(CPP) $(c_flags) $< | $(GENKSYMS) $(genksyms_smp_prefix) \
++	$(CPP) $(c_flags) -D__GENKSYMS__ $< | $(GENKSYMS) $(genksyms_smp_prefix) \
+ 	  -k $(VERSION).$(PATCHLEVEL).$(SUBLEVEL) > $@.tmp; \
+ 	if [ ! -r $@ ] || cmp -s $@ $@.tmp; then \
+ 	  touch $(TOPDIR)/include/linux/modversions.h; \

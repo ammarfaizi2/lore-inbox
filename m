@@ -1,66 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291088AbSCLXzR>; Tue, 12 Mar 2002 18:55:17 -0500
+	id <S291102AbSCLX4R>; Tue, 12 Mar 2002 18:56:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291102AbSCLXzG>; Tue, 12 Mar 2002 18:55:06 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:64128 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S291088AbSCLXy6>;
-	Tue, 12 Mar 2002 18:54:58 -0500
-Date: Tue, 12 Mar 2002 15:52:38 -0800 (PST)
-Message-Id: <20020312.155238.21594857.davem@redhat.com>
-To: beezly@beezly.org.uk
+	id <S291148AbSCLXz6>; Tue, 12 Mar 2002 18:55:58 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:40362 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S291102AbSCLXzn>; Tue, 12 Mar 2002 18:55:43 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 12 Mar 2002 15:55:36 -0800
+Message-Id: <200203122355.PAA08344@adam.yggdrasil.com>
+To: rmk@arm.linux.org.uk
+Subject: Re: linux-2.5.6 scsi DMA mapping and compilation fixes (not yet working)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dropped packets on SUN GEM
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1015976181.2652.30.camel@monkey>
-In-Reply-To: <1015974664.2652.10.camel@monkey>
-	<20020312.151443.03370128.davem@redhat.com>
-	<1015976181.2652.30.camel@monkey>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Beezly <beezly@beezly.org.uk>
-   Date: 12 Mar 2002 23:36:21 +0000
+>> 		o The NCR53c80-based drivers (according to Alan Cox, there
+>> 		  is a new driver in the 2.4.x tree, and I don't want to
+>> 		  add a port of that driver to this already huge patch).
 
-   14 packets missing.
-   
-   325*84  = 27300
-   14*1500 = 21000
-   
-   Are these number relevant?
+>I believe changes to NCR53c80 were recently reverted back because
+>these "fixes" lead to massive data corruption.  It is preferable
+>that the driver remains unbuildable, and therefore doesn't cause
+>data corruption than to be buildable and case data corruption.
 
-The size of GEM's receive FIFO is 20K :-)
-(TX fifo is 9K)
+	Are you talking about an event that occurred in the 2.4
+tree or the 2.5 tree?  Are you saying that the newer driver in
+2.4 was reverted back to the older driver (i.e., the one that
+is in 2.5), or are you saying that someone made some attempt
+at porting the 2.5 tree's NCR53C80 driver the new DMA mapping
+interface and then backed them out?
 
-You say you are on 100Mbit, is this to a hub at half-duplex?
-That is basically the worst combination for GEM because without Pause
-(even my crappy Netgear 100Mbit switches negotiate pause to on with
-my GEMs) there is no way to throttle the sender so that the receive
-overflow condition will not occur.
-
-Thinking... I guess my gem_rxmac_reset() does not reset the
-receive FIFO so until it is filled up and reset none of the
-packets received actually make it past the card.
-
-How does it behave with the patch below added to what you are running
-right now?
-
---- drivers/net/sungem.c.~1~	Tue Mar 12 09:35:37 2002
-+++ drivers/net/sungem.c	Tue Mar 12 15:51:05 2002
-@@ -401,7 +401,11 @@
- 		gp->net_stats.rx_over_errors++;
- 		gp->net_stats.rx_fifo_errors++;
- 
-+#if 1
-+		return 1;
-+#else
- 		ret = gem_rxmac_reset(gp);
-+#endif
- 	}
- 
- 	if (rxmac_stat & MAC_RXSTAT_ACE)
-
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

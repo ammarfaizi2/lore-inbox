@@ -1,48 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265118AbTLWMh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 07:37:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265126AbTLWMh0
+	id S265119AbTLWMoA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 07:44:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbTLWMoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 07:37:26 -0500
-Received: from sec17.secrel.com.br ([200.194.96.14]:63393 "HELO
-	sec17.secrel.com.br") by vger.kernel.org with SMTP id S265118AbTLWMhY
+	Tue, 23 Dec 2003 07:44:00 -0500
+Received: from fep02.swip.net ([130.244.199.130]:20951 "EHLO
+	fep02-svc.swip.net") by vger.kernel.org with ESMTP id S265119AbTLWMn6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 07:37:24 -0500
-Subject: Re:  DevFS vs. udev
-From: Marcelo Bezerra <mosca@mosca.yi.org>
-To: Xavier Bestel <xavier.bestel@free.fr>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1072181538.672.23.camel@nomade>
-References: <E1AYl4w-0007A5-R3@O.Q.NET>  <1072181538.672.23.camel@nomade>
-Content-Type: text/plain; charset=ISO-8859-1
-Message-Id: <1072183068.1204.2.camel@ham>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 23 Dec 2003 09:37:48 -0300
-Content-Transfer-Encoding: 8bit
+	Tue, 23 Dec 2003 07:43:58 -0500
+Message-ID: <3FE8382E.9040701@free.fr>
+Date: Tue, 23 Dec 2003 13:42:22 +0100
+From: Jean-Luc Fontaine <jfontain@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.6b) Gecko/20031210
+X-Accept-Language: en-us, ja
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: IDE performance drop between 2.4.23 and 2.6.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-12-23 at 09:12, Xavier Bestel wrote:
-> Le mar 23/12/2003 à 12:51, Bradley W. Allen a écrit :
-> > DevFS was written by an articulate person who solved a lot of
-> > problems.  udev sounds more like a thug who's smug about winning,
-> > not explaining himself, saying things like "oh, the other guy
-> > disappeared, so who cares, you have to use my code, too bad it sucks".
-> [...]
-> > I've spent two hours on this problem, and that's absurd; 
-> 
-> Man, you've convinced me ! 
-> You've spent *two* hours on this problem ?  Woah, these K-H and Viro
-> guys must be dorks if they don't subscribe to your theories. Who are
-> they to think their opinion matters more than yours, who spent *two*
-> hours on this problem ?
-> 
-> Are you the new DevFS's maintainer ?
-In spite you trying to make him sound foolish, I still think he has some
-good points. DevFS works great and it never did something that was
-broken for me, so I see no point in replacing it. Maybe Greg K-H and Al
-Viro can step in an enlighten us once and for all.
+Using hdparm -Tt /dev/hdb:
 
+on 2.4:
+  Timing buffer-cache reads:   168 MB in  2.01 seconds =  83.58 MB/sec
+  Timing buffered disk reads:   44 MB in  3.12 seconds =  14.10 MB/sec
+on 2.6:
+  Timing buffer-cache reads:   172 MB in  2.02 seconds =  84.95 MB/sec
+  Timing buffered disk reads:   34 MB in  3.08 seconds =  11.04 MB/sec
+
+Note the big drop of of 3 MB/sec on disk reads.
+
+dmesg (edited) gives:
+
+on 2.4:
+  VP_IDE: VIA vt82c586b (rev 41) IDE UDMA33 controller on pci00:07.1
+  hdb: IC35L040AVVN07-0, ATA DISK drive
+  hdb: 80418240 sectors (41174 MB) w/1863KiB Cache, CHS=79780/16/63, 
+UDMA(33)
+on 2.6:
+  VP_IDE: VIA vt82c586b (rev 41) IDE UDMA33 controller on pci0000:00:07.1
+  hdb: IC35L040AVVN07-0, ATA DISK drive
+  hdb: 80418240 sectors (41174 MB) w/1863KiB Cache, CHS=65535/16/63, 
+UDMA(33)
+
+hdparm -i output is identical between the 2 kernels and hdparm settings 
+are identical as follows (except cylinders as above):
+
+  Model=IC35L040AVVN07-0, FwRev=VA2OAG0A, SerialNo=VNP210B2RAP0TB
+  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=52
+  BuffType=DualPortCache, BuffSize=1863kB, MaxMultSect=16, MultSect=16
+  CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=80418240
+  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+  PIO modes:  pio0 pio1 pio2 pio3 pio4
+  DMA modes:  mdma0 mdma1 mdma2
+  UDMA modes: udma0 udma1 *udma2 udma3 udma4 udma5
+  AdvancedPM=yes: disabled (255) WriteCache=enabled
+  Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:
+
+  multcount    = 16 (on)
+  IO_support   =  1 (32-bit)
+  unmaskirq    =  1 (on)
+  using_dma    =  1 (on)
+  keepsettings =  0 (off)
+  readonly     =  0 (off)
+  readahead    =  8 (on)
+  geometry     = 79780/16/63, sectors = 80418240, start = 0
+
+I noticed a difference in dmesg:
+on 2.4:
+  Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
+on 2.6:
+  Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+
+Could that make a difference?
+
+Please let me know if you'd like me to run more tests, patch kernels, 
+..., anything to regain the performance.
+
+
+Many thanks in advance,
+
+-- 
+Jean-Luc Fontaine
 

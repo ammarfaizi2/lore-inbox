@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263217AbRFJXrZ>; Sun, 10 Jun 2001 19:47:25 -0400
+	id <S263211AbRFJXkp>; Sun, 10 Jun 2001 19:40:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263218AbRFJXrP>; Sun, 10 Jun 2001 19:47:15 -0400
-Received: from web10408.mail.yahoo.com ([216.136.130.110]:11525 "HELO
-	web10408.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S263217AbRFJXrF>; Sun, 10 Jun 2001 19:47:05 -0400
-Message-ID: <20010610234704.43457.qmail@web10408.mail.yahoo.com>
-Date: Mon, 11 Jun 2001 09:47:04 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Re: [OT] gcc-3 problem (oops in df)
-To: Ken Moffat <ken@kenmoffat.uklinux.net>
-Cc: kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0106101944470.17998-300000@localhost.localdomain>
+	id <S263217AbRFJXkf>; Sun, 10 Jun 2001 19:40:35 -0400
+Received: from ns.suse.de ([213.95.15.193]:34575 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S263211AbRFJXkX>;
+	Sun, 10 Jun 2001 19:40:23 -0400
+Date: Mon, 11 Jun 2001 01:41:33 +0200 (CEST)
+From: egger@suse.de
+Reply-To: egger@suse.de
+Subject: Re: [PATCH 2.4.5-ac12] New Sony Vaio Motion Eye camera driver
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9g0ghj$1mb$1@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/plain; charset=us-ascii
+Message-Id: <20010611014012.CB4ABA6C6@Nicole.muc.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 10 Jun, Linus Torvalds wrote:
 
-I use gcc 2.96 from Mandrake 8.0 which according to
-one guy in Mandrake team , is a snapshot from gcc 3.0
-source tree.
+> I've not figured out why the ATI Xv stuff from gatos seems to not have
+> made it into the XFree86 CVS tree - it works better than much of the
+> Xv stuff for some other chipsets that _are_ in the CVS tree.
+ 
+> I imported it into the XFree86 CVS some months ago, it was trivial.  I
+> don't have the patches lying around any more, though. I can try to
+> re-create them if anybody needs help.
 
-compile 2.4.5-ac11 ; no problem, rub df is fine.
-I will try with 2.4.5-ac13 now and see...
+ Did it look endiansafe to you? The ATI Xv stuff from XFree86 4.1.0
+ produces psychadelic results for me on PPC.
+ If it's supposed to work I'd really like to give it a try.
 
-bye
+Servus,
+       Daniel
 
-=====
-S.KIEU
-
-_____________________________________________________________________________
-http://messenger.yahoo.com.au - Yahoo! Messenger
-- Voice chat, mail alerts, stock quotes and favourite news and lots more!

@@ -1,86 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbTJRSV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 14:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbTJRSV6
+	id S261877AbTJRSbe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 14:31:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbTJRSbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 14:21:58 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30345 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261939AbTJRSVz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 14:21:55 -0400
-Date: Sat, 18 Oct 2003 11:22:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Olivier NICOLAS <olivn@trollprod.org>
-Cc: linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>
-Subject: Re: 2.6.0-test8: panic on boot
-Message-Id: <20031018112217.19841708.akpm@osdl.org>
-In-Reply-To: <3F917EFC.7020102@trollprod.org>
-References: <3F917EFC.7020102@trollprod.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 18 Oct 2003 14:31:34 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:39412 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261877AbTJRSbc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 14:31:32 -0400
+Date: Sat, 18 Oct 2003 20:31:24 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Karsten Keil <kkeil@suse.de>, isdn4linux@listserv.isdn4linux.de,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test5: ISDN kcapi.c no longer compiles (fwd)
+Message-ID: <20031018183124.GK12423@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olivier NICOLAS <olivn@trollprod.org> wrote:
->
->  NULL pointer dereference at virtual address 00000004
->    printing eip:
->  c01de05e
->  *pde = 00000000
->  Oops: 0000 [#1]
->  CPU:    0
->  EIP:    0060:[<c01de05e>]    Not tainted
->  EFLAGS: 00010213
->  EIP is at vsnprintf+0x28e/0x4e0
->  eax: 00000004   ebx: 0000000a   ecx: 00000004   edx: 00000003
->  esi: c03efae7   edi: ffffffff   ebp: 00000000   esp: c114bac0
->  ds: 007b   es: 007b   ss: 0068
->  Process swapper (pid: 1, threadinfo=c114a000 task=c117b8c0)
->  Stack: c114bb08 ffffffff 000004a0 00000000 0000000a ffffffff 00000003 
->  00000002
->          00000004 00000004 ffffffff 00000001 c114bb68 c7f02c48 c7f02ee8 
->  c01de307
->          c03efac0 3fc10540 c03292ea c114bb60 c01e6579 c03efac0 c03292c0 
->  c114bb54
->  Call Trace:
->    [<c01de307>] vsprintf+0x27/0x30
->    [<c01e6579>] acpi_os_vprintf+0x12/0x2a
->    [<c020992b>] acpi_ut_debug_print+0x97/0x9d
->    [<c01e91d2>] acpi_ds_init_buffer_field+0x18d/0x20c
->    [<c01e93ac>] acpi_ds_eval_buffer_field_operands+0x15b/0x17d
->    [<c01e9f8f>] acpi_ds_exec_end_op+0x22c/0x409
+The trivial patch forwarded below by Karsten Keil is still needed in 
+-test8.
 
-Well clearly one of the strings in this debug message in
-acpi_ds_init_buffer_field() is null:
-
-	/* Entire field must fit within the current length of the buffer */
-
-	if ((bit_offset + bit_count) >
-		(8 * (u32) buffer_desc->buffer.length)) {
-		ACPI_DEBUG_PRINT ((ACPI_DB_ERROR,
-			"Field [%4.4s] size %d exceeds Buffer [%4.4s] size %d (bits)\n",
+Please apply
+Adrian
 
 
+----- Forwarded message from Karsten Keil <kkeil@suse.de> -----
 
-It is perhaps desirable to make printk() a bit more robust about this sort
-of thing.
+Date:	Mon, 15 Sep 2003 08:57:34 +0200
+From: Karsten Keil <kkeil@suse.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: isdn4linux@listserv.isdn4linux.de,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test5: ISDN kcapi.c no longer compiles
 
+On Wed, Sep 10, 2003 at 06:57:42PM +0200, Adrian Bunk wrote:
+> On Mon, Sep 08, 2003 at 01:32:05PM -0700, Linus Torvalds wrote:
+> >...
+> > Summary of changes from v2.6.0-test4 to v2.6.0-test5
+> > ============================================
+> >...
+> > Karsten Keil:
+> >...
+> >   o next fixes
+> >...
+> 
+> It seems this change broke the compilation of kcapi.c:
+> 
 
-diff -puN lib/vsprintf.c~printk-handle-bad-pointers lib/vsprintf.c
---- 25/lib/vsprintf.c~printk-handle-bad-pointers	2003-10-18 11:19:05.000000000 -0700
-+++ 25-akpm/lib/vsprintf.c	2003-10-18 11:19:25.000000000 -0700
-@@ -348,7 +348,7 @@ int vsnprintf(char *buf, size_t size, co
+Ah, with your .config now it's clear what was broken: none MODULE compile
+
+diff -ur -x '.built-in*' -x '.*cmd' linux-2.6.0-test5/drivers/isdn/capi/kcapi.c linux-2.6.0-test5-bk3/drivers/isdn/capi/kcapi.c
+--- linux-2.6.0-test5/drivers/isdn/capi/kcapi.c	2003-09-14 17:43:45.000000000 +0200
++++ linux-2.6.0-test5-bk3/drivers/isdn/capi/kcapi.c	2003-09-14 22:39:28.000000000 +0200
+@@ -77,17 +77,21 @@
+ static inline struct capi_ctr *
+ capi_ctr_get(struct capi_ctr *card)
+ {
++#ifdef MODULE
+ 	if (!try_module_get(card->owner))
+ 		return NULL;
+ 	DBG("Reserve module: %s", card->owner->name);
++#endif
+ 	return card;
+ }
  
- 			case 's':
- 				s = va_arg(args, char *);
--				if (!s)
-+				if ((unsigned long)s < PAGE_SIZE)
- 					s = "<NULL>";
+ static inline void
+ capi_ctr_put(struct capi_ctr *card)
+ {
++#ifdef MODULE
+ 	module_put(card->owner);
+ 	DBG("Release module: %s", card->owner->name);
++#endif
+ }
  
- 				len = strnlen(s, precision);
+ /* ------------------------------------------------------------- */
 
-_
+
+This should fix it.
+
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
 

@@ -1,35 +1,35 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160479AbQG1Nyk>; Fri, 28 Jul 2000 09:54:40 -0400
-Received: by vger.rutgers.edu id <S160458AbQG1NyQ>; Fri, 28 Jul 2000 09:54:16 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:2521 "EHLO smtp1.cern.ch") by vger.rutgers.edu with ESMTP id <S160450AbQG1Nw5>; Fri, 28 Jul 2000 09:52:57 -0400
-Date: Fri, 28 Jul 2000 16:11:55 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Cc: alan@lxorguk.ukuu.org.uk, "Theodore Y. Ts'o" <tytso@MIT.EDU>, Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.rutgers.edu
+Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160340AbQG2Kuh>; Sat, 29 Jul 2000 06:50:37 -0400
+Received: by vger.rutgers.edu id <S160261AbQG2KuM>; Sat, 29 Jul 2000 06:50:12 -0400
+Received: from mayfly.plus.net.uk ([195.166.128.28]:23130 "HELO mayfly.force9.net") by vger.rutgers.edu with SMTP id <S157289AbQG2KtQ>; Sat, 29 Jul 2000 06:49:16 -0400
+Date: Fri, 28 Jul 2000 23:10:40 +0100
+From: Adam Sampson <azz@gnu.org>
+To: linux-kernel@vger.rutgers.edu
 Subject: Re: RLIM_INFINITY inconsistency between archs
-Message-ID: <20000728161155.A4813@pcep-jamie.cern.ch>
-References: <E13HsBT-00033e-00@the-village.bc.nu> <200007281405.JAA101655@tomcat.admin.navo.hpc.mil>
+Message-ID: <20000728231040.A8868@gnu.org>
+Reply-To: azz@gnu.org
+Mail-Followup-To: Adam Sampson <azz@gnu.org>, linux-kernel@vger.rutgers.edu
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200007281405.JAA101655@tomcat.admin.navo.hpc.mil>; from pollard@tomcat.admin.navo.hpc.mil on Fri, Jul 28, 2000 at 09:05:27AM -0500
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <no.id>; from torvalds@transmeta.com on Thu, Jul 27, 2000 at 12:39:51AM -0700
+X-Homepage: http://cider.bnet-ibb.de/~azz/
+X-Planation: RSA in 2 lines Perl: see http://dcs.ex.ac.uk/~aba/x.html
+X-Munition-Export: print pack"C*",split/\D+/,`echo "16iII*o\U@{$/=$z;[(pop,pop,unpack"H*",<>)]}\EsMsKsN0[lN*1lK[d2%Sa2/d0<X+d*lMLa^*lN%0]dsXx++lMlN/dsM0<J]dsJxp"|dc`
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Jesse Pollard wrote:
-> > 	/lib/modules/2.2.14/build
-> 
-> Just an additional thought..
-> 
-> How about being able to set the link at boot time too - this is for those
-> sites that have multiple kernels installed (for instance: old reliable,
-> current reliable, and test). Then each kernel could use different modules
-> selected at boot time.
+On Thu, Jul 27, 2000 at 12:39:51AM -0700, Linus Torvalds wrote:
+> Is there some documentation file that I've not updated and that people
+> are slavishly following outdated information in? I don't read the
+> documentation myself, so I'd never notice ;)
 
-That's what the "2.2.14" is for.  Whatever mechanism you use to select
-version-dependent modules at boot time, you use that to find the
-appropriate "build" link too.
+Yes; the glibc installation instructions.
 
--- Jamie
+-- 
+
+Adam Sampson
+azz@gnu.org
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,97 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263792AbTLMFD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 00:03:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263846AbTLMFD0
+	id S263846AbTLMFNi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 00:13:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263868AbTLMFNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 00:03:26 -0500
-Received: from k-kdom.nishanet.com ([65.125.12.2]:25862 "EHLO
-	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
-	id S263792AbTLMFDY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 00:03:24 -0500
-Message-ID: <3FDA9D7E.2000806@nishanet.com>
-Date: Sat, 13 Dec 2003 00:02:54 -0500
-From: Bob <recbo@nishanet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Sat, 13 Dec 2003 00:13:35 -0500
+Received: from xavier.comcen.com.au ([203.23.236.73]:51216 "EHLO
+	xavier.etalk.net.au") by vger.kernel.org with ESMTP id S263846AbTLMFNc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 00:13:32 -0500
+From: Ross Dickson <ross@datscreative.com.au>
+Reply-To: ross@datscreative.com.au
+Organization: Dat's Creative Pty Ltd
+To: cbradney@zip.com.au
+Subject: Re: Working nforce2, was Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
+Date: Sat, 13 Dec 2003 15:16:51 +1000
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org, AMartin@nvidia.com,
+       Ian Kumlien <pomac@vapor.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4] Nforce2 oops and occasional hang (tried the lockups patch,
- no difference)
-References: <200312131225.34937.ross@datscreative.com.au>
-In-Reply-To: <200312131225.34937.ross@datscreative.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312131516.51777.ross@datscreative.com.au>
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ross Dickson wrote:
+<snip>
+>> The thing that strikes me funny is that you get no crashes with the 
+> > updated BIOS and Disconnect on, but without the updated BIOS we have 
+> > to turn disconnect off with athcool or the patch? This makes me think 
+> > that there is some voodoo going on in the BIOS update that they aren't 
+> > saying, surprise surprise, or something is just slowing down the time 
+> > it takes for it to crash. I say this because I have gone 5+ days 
+> > without any of the patches from these threads, acpi apic lapic 
+> > enabled, and CPU disconnect on as stated by athcool. This was with 
+> > much stress testing, idle time, etc. One day I just ran a grep that I 
+> > have done probably 30 times and boom, hang. 
+ 
+>> Good luck, hope the BIOS is the trick, now off to see how I can get 
+> > ASUS to put the C1 Disconnect in the next revision. 
+ 
 
->Oh, and the modules list: 
-> Module Size Used by Tainted: P 
-> i2c-dev 4548 0 (unused) 
-> i2c-core 13604 0 [i2c-dev]
-><snip>
->
->
->I am not certain your problems are nforce2 type specific.
->Standard response: I don't suppose you can try a different stick of ram?
->  
->
-Yes, and stock settings with tested ram may
-be necessary with nforce2, possibly related to our
-timing-related voodoo culture(might overclock
-later on in life as timing-related patches evolve).
 
-I have a via board that only recognizes two of
-four generic ram sticks, but second stick will cause
-an oops soon after. Another via setup will oops
-if any fast ram settings(4-way,csl2 etc) is attempted,
-though only using tested cas2 ram. "Try a different
-stick of ram".
 
-On nforce2 I'm able to use bios "performance"
-ram timing but if I manually tweak all the ram
-settings up like I can do on other systems, I
-get mem-related OOPS with nforce2.
+>Yes, thats how it was for me.. I was the only one here saying "no 
+> problems, la la la", then at about 5.25 days.. boom. Then the next day 
+> it crashed twice. Hopefully you make some progress with ASUS.. (for the 
+> A7N8X Deluxe as well as you mobo please :) ). 
+ 
 
-acpi apic lapic amd pre-empt nforce2ide
-(once you start you have to go all the way)
 
->The reason I say that is that oops were very uncommon on either the 
->epox 8rga+ or albatron km18G-pro MOBOS upon which I developed my
->patches. Hard lockups were pretty much all I experienced prior to the 
->patches except for an occasional X fail. Base OS flavour I
->use is Suse 8.2 including gcc version (web updates utilised)
->
->The udma patches are really just a cleanup on the address setup timing so
->I do not think that they are a factor. 
->
->The local apic ack delay timing patch needs athlon cpu and amd/nvidia ide on in 
->kern config to kick in. If you are using it then I highly recommend uniprocessor 
->ioapic config as well to go with it to route the 8254 timer irq0 through pin 0 of 
->ioapic as using the apic config alone leaves a lot of ints generated on irq7 
->which can cause problems. (Reason for 8259 making them spurious on irq7 
->is explained in 8259A data sheet)
->
->Also I now use a small patch to fixup proc info - only if you are using 
->the 64 bit jiffies var hz patch, avail here:
->
->http://linux.derkeiler.com/Mailing-Lists/Kernel/2003-12/0838.html
->
->If you try acpi=off on boot and it is then not very stable then I think it has 
->little to do with lockups patch as that is my fallback mode when I am 
->playing with apic ioapic code. 
->
->Another fallback I use at times is 
->
->hdparm -Xudma3 /dev/hda
->
->Hope this helps the confusion
->
->Regards
->Ross
->
->  
->
+>Ive been playing with hardware in the past few days (new quieter Zalman 
+> PSU, and Zalman 7000 Cu fan etc) so no uptime to speak of here now. I 
+> did compile KDE 3.2 beta 2 last night though.. 6 hours of solid 
+> compilation.. no hassles. I have never turned off Disconnect either. 
+ 
+
+
+>Thanks to all you guys who are working on this one. Seems to be getting 
+> somewhere. 
+ 
+
+
+>Craig 
+
+I wonder about the "voodoo" because my apic ack delay patch was developed
+without knowledge of the C1 disconnect bit and reports I have received so far
+are that the hard lockups go away when using it independent of the state of the 
+disconnect bit. Apparently the bit was on in my test systems. 
+
+Ian Kumlien pointed out the linkage with the northbridge timing signals 
+to the CPU to do with the connect disconnect handshake so I now wonder just how
+programmable the nforce2 northbridge is? Is it a bit fpga'ish in that they may be
+using the bios boot to alter the handshake timing enough to accomplish what
+the ack delay does but like it should be - transparent to the OS?
+
+Of course they -the makers- have access to knowledge we don't so it could be 
+something completely different that they are doing!
+
+In short I agree with the suggestion that the new bios options do more behind
+the scenes than what the athcool and disconnect patches do. 
+
+I am pretty sure that I read somewhere that when the epox boards 
+were first released the epox 8rda bios started out with it (the disconnect bit) off
+then the 8rga+ came out with it on by default? So back then people were wanting
+to turn it on in the 8rda to lower their CPU temperature - now some want it off
+in search of stability? Back then under win.... some experienced lockups depending
+on which IDE driver was used and which state the bit was in!
+
+Out of interest has anyone seen new disconnect bit options in the Pheonix bios or
+only in the award bios?
+
+Finally I have done some more work and found that the ack delay patch on my
+system is about 13 apic timer counts, about half that required to write a byte 
+directly outb(0x00, 0x378) to the printer port at 28 apic timer counts. 
+So the ack delay is about twice as quick as writing a single EOI to the 8259 in
+XTPIC mode provided the 8259 accesses are not souped up under the hood.
+In other words whilst it is a timing hit it is not much of one and it won't be
+needed once this is all fixed by the respective manufacturers -lets hope they
+can do it on the hardware we have already bought.
+
+Regards
+Ross Dickson
+
+
 

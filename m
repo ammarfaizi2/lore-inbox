@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317305AbSHYMF6>; Sun, 25 Aug 2002 08:05:58 -0400
+	id <S317312AbSHYMHa>; Sun, 25 Aug 2002 08:07:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317308AbSHYMF6>; Sun, 25 Aug 2002 08:05:58 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:57533 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S317305AbSHYMF6>; Sun, 25 Aug 2002 08:05:58 -0400
-Date: Sun, 25 Aug 2002 14:26:46 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: joerg.beyer@email.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: <no subject>
-In-Reply-To: <200208251107.g7PB7wX12648@mailgate5.cinetic.de>
-Message-ID: <Pine.LNX.4.44.0208251410000.28574-100000@linux-box.realnet.co.sz>
+	id <S317326AbSHYMHa>; Sun, 25 Aug 2002 08:07:30 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:61606 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S317312AbSHYMH3>;
+	Sun, 25 Aug 2002 08:07:29 -0400
+Date: Sun, 25 Aug 2002 14:10:51 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Sean Neakums <sneakums@zork.net>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre4-ac1
+In-Reply-To: <6ufzx3maak.fsf@zork.zork.net>
+Message-ID: <Pine.GSO.4.21.0208251410290.17500-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Aug 2002 joerg.beyer@email.de wrote:
-
-> you are right, I had no dma enabled. Now I recomiled the kernel with this
-> dma-related options:
+On Sun, 25 Aug 2002, Sean Neakums wrote:
+> commence  Thomas Molina quotation:
 > 
-> CONFIG_BLK_DEV_IDEDMA_PCI=y
-> # CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-> CONFIG_IDEDMA_PCI_AUTO=y
-> # CONFIG_IDEDMA_ONLYDISK is not set
-> CONFIG_BLK_DEV_IDEDMA=y
-> # CONFIG_IDEDMA_PCI_WIP is not set
-> # CONFIG_BLK_DEV_IDEDMA_TIMEOUT is not set
-> # CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
-> CONFIG_BLK_DEV_ADMA=y
-> # CONFIG_HPT34X_AUTODMA is not set
-> CONFIG_IDEDMA_AUTO=y
-> # CONFIG_IDEDMA_IVB is not set
-> # CONFIG_DMA_NONPCI is not set
+> > On Sun, 25 Aug 2002, Thunder from the hill wrote:
+> >
+> >> > > "Warning: Limiting speed since you did not use an 80-conductor cable"
+> >> 
+> >> "Warning: The speed was limited because the 80-conductor cable wasn't used 
+> >> (and got annoyed for that reason)."?
+> >> "Warning: 80-conductor cable wasn't, so it must have been the speed 
+> >> which got used to reducing itself."
+> >
+> > 80-conductor cable not detected.  Bus speed limited.
 > 
+> "80-conductor cable not detected; limiting bus speed."
 > 
-> and I still get many many errors on the nic. Do I need something more in .config?
+> Makes it clearer that they are not two independent statements.
 
-That should fix your slowdown during untarring/disk access, as for your 
-NIC problem looks like you might be having a receive FIFO overflow, so 
-perhaps the card stops processing incoming packets? I have no clue, 
-Jeff?
+"80-conductor cable not detected; limiting bus speed to UDMA2."
 
-	Zwane
+Gr{oetje,eeting}s,
 
--- 
-function.linuxpower.ca
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

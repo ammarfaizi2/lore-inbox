@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314495AbSEFQBS>; Mon, 6 May 2002 12:01:18 -0400
+	id <S314547AbSEFQIa>; Mon, 6 May 2002 12:08:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314547AbSEFQBR>; Mon, 6 May 2002 12:01:17 -0400
-Received: from mnh-1-03.mv.com ([207.22.10.35]:51464 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S314495AbSEFQBQ>;
-	Mon, 6 May 2002 12:01:16 -0400
-Message-Id: <200205061703.MAA03089@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Pavel Machek <pavel@suse.cz>
-cc: hugang <gang_hu@soul.com.cn>, glonnon@ridgerun.com, seasons@fornax.hu,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATH] Port software to UML. 
-In-Reply-To: Your message of "Mon, 06 May 2002 17:18:05 +0200."
-             <20020506151805.GD12131@atrey.karlin.mff.cuni.cz> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 06 May 2002 12:03:07 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S314548AbSEFQI3>; Mon, 6 May 2002 12:08:29 -0400
+Received: from adsl-65-64-154-233.dsl.stlsmo.swbell.net ([65.64.154.233]:5504
+	"HELO localhost.andyc") by vger.kernel.org with SMTP
+	id <S314547AbSEFQI3>; Mon, 6 May 2002 12:08:29 -0400
+Date: Mon, 6 May 2002 11:08:27 -0500 (CDT)
+From: Andy Carlson <naclos@andyc.dyndns.org>
+X-X-Sender: naclos@ancyc
+To: linux-kernel@vger.kernel.org
+Subject: Re: Tux in main kernel tree? (was khttpd rotten?)
+In-Reply-To: <Pine.LNX.4.44.0205061608300.26867-100000@mustard.heime.net>
+Message-ID: <Pine.LNX.4.44.0205061106050.2878-100000@ancyc>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pavel@suse.cz said:
-> PS: Jeff, any chance of uml going to 2.5. soon? 
+On Mon, 6 May 2002, Roy Sigurd Karlsbakk wrote:
 
-Any chance of Linus not dropping UML on the floor if I send it to him?
+> Perhaps it's about time to talk about pulling Tux into the main kernel 
+> tree, as khttpd once again has proved ususable.
+> 
 
-> It would be difficult
-> for me to merge swsusp/uml patches when uml is not in the kernel :-(. 
+Do the userspace tools still depend on Redhat or a derivative?  If this 
+is true, I would say that Tux should stay out of the kernel.  It is 
+aggravating when you want to try something new, and run into 
+dependencies on specific distros.
 
-Yeah, I know.  Sorry.
+-- 
+Andy Carlson                                    |\      _,,,---,,_
+naclos@swbell.net                         ZZZzz /,`.-'`'    -.  ;-;;,_
+Cat Pics: http://andyc.dyndns.org/animal.html  |,4-  ) )-,_. ,\ (  `'-'
+St. Louis, Missouri                           '---''(_/--'  `-'\_)
 
-I've been doing 2.4 pretty much exclusively, so the last UML that did 2.5
-was 2.5.1-something, so it needs to catch up some.
-
-				Jeff
 

@@ -1,39 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268742AbUIGXNl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268749AbUIGXRf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268742AbUIGXNl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 19:13:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268746AbUIGXNl
+	id S268749AbUIGXRf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 19:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268760AbUIGXRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 19:13:41 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:27828 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268742AbUIGXNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 19:13:40 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R5
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Florian Schmidt <mista.tapas@gmx.net>, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       felipe_alfaro@linuxmail.org, Rui Nuno Capela <rncbc@rncbc.org>
-In-Reply-To: <1094597710.16954.207.camel@krustophenia.net>
-References: <20040903120957.00665413@mango.fruits.de>
-	 <20040904195141.GA6208@elte.hu>  <20040905140249.GA23502@elte.hu>
-	 <1094597710.16954.207.camel@krustophenia.net>
-Content-Type: text/plain
-Message-Id: <1094598822.16954.219.camel@krustophenia.net>
+	Tue, 7 Sep 2004 19:17:23 -0400
+Received: from [12.177.129.25] ([12.177.129.25]:28355 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S268753AbUIGXOs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 19:14:48 -0400
+Message-Id: <200409080016.i880GlBP011581@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: Andrew Morton <akpm@osdl.org>
+cc: BlaisorBlade <blaisorblade_spam@yahoo.it>,
+       user-mode-linux-devel@lists.sourceforge.net, hch@infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] Re: [patch 1/1] uml: no extraversion in arch/um/Makefile for mainline 
+In-Reply-To: Your message of "Tue, 07 Sep 2004 14:26:13 PDT."
+             <20040907142613.2ab5775e.akpm@osdl.org> 
+References: <20040906173524.EE034B977@zion.localdomain> <20040906193620.A8502@infradead.org> <200409072016.01749.blaisorblade_spam@yahoo.it>  <20040907142613.2ab5775e.akpm@osdl.org> 
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 07 Sep 2004 19:13:43 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 07 Sep 2004 20:16:47 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-07 at 18:55, Lee Revell wrote:
-> Ingo, here is a report from a user (Rui) of a problem that seems to have
-> been introduced in Q5.
+akpm@osdl.org said:
+> Please, rewrite that piece of UML so we can again remove ghash.h.
 
-Ugh, I got Rui's address wrong in the first post, please use the one
-above for any followups.  Sorry.
+I am, I'll send you a patch when I'm done.
 
-Lee
+				Jeff
 

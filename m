@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265162AbSJWTIB>; Wed, 23 Oct 2002 15:08:01 -0400
+	id <S265154AbSJWTPD>; Wed, 23 Oct 2002 15:15:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265163AbSJWTIB>; Wed, 23 Oct 2002 15:08:01 -0400
-Received: from dhcp024-209-039-058.neo.rr.com ([24.209.39.58]:39822 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S265162AbSJWTHz>;
-	Wed, 23 Oct 2002 15:07:55 -0400
-Date: Wed, 23 Oct 2002 15:16:49 +0000
+	id <S265161AbSJWTPD>; Wed, 23 Oct 2002 15:15:03 -0400
+Received: from dhcp024-209-039-058.neo.rr.com ([24.209.39.58]:40846 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S265154AbSJWTPB>;
+	Wed, 23 Oct 2002 15:15:01 -0400
+Date: Wed, 23 Oct 2002 15:24:03 +0000
 From: Adam Belay <ambx1@neo.rr.com>
-To: greg@kroah.com, arne@arne-thomassen.de
+To: greg@kroah.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] PnP cleanups and resource changes - 2.5.44 (1/4)
-Message-ID: <20021023151648.GC10638@neo.rr.com>
+Subject: [PATCH] PnPBIOS changes - 2.5.44 (2/4)
+Message-ID: <20021023152403.GD10638@neo.rr.com>
 Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, greg@kroah.com,
-	arne@arne-thomassen.de, linux-kernel@vger.kernel.org
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,313 +21,178 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a number of things pointed out by Arne Thomassen.  Also it
-makes a few changes to the resource checking functions in that they now check to
-make sure that resources do not conflict within the same device instead of only 
-other devices.  Although it is rare for this to be a factor it's nice to be able 
-to deal with such situations properly.
+This patch adds compatible PnP ID support to the PnPBIOS protocol.  None of my 
+test systems take advantage of this feature but it is included in the 
+specifications so it makes sense to support it.  If anyone does get a compatible 
+ID listed for the PnPBIOS I'd be interested to hear about it (if more than 1 id 
+is listed when viewing the driverfs file 'id' within the PnPBIOS protocol).  Also
+it fixes the dma and mem resource problem.
 
-Applies against 2.5.44 with the pnp fix patch.
+Applies against 2.5.44 and the pnp fix patch.
 
 Thanks,
 Adam
 
 
 
-diff -ur a/drivers/pnp/core.c b/drivers/pnp/core.c
---- a/drivers/pnp/core.c	Sat Oct 19 04:01:17 2002
-+++ b/drivers/pnp/core.c	Sun Oct 20 13:02:12 2002
-@@ -82,7 +82,6 @@
- 	list_del_init(&protocol->protocol_list);
- 	spin_unlock(&pnp_lock);
- 	device_unregister(&protocol->dev);
--	return;
- }
+
+diff -ur a/drivers/pnp/pnpbios/core.c b/drivers/pnp/pnpbios/core.c
+--- a/drivers/pnp/pnpbios/core.c	Sat Oct 19 04:01:08 2002
++++ b/drivers/pnp/pnpbios/core.c	Mon Oct 21 16:51:32 2002
+@@ -680,7 +680,7 @@
  
- /**
-@@ -105,7 +104,6 @@
- 		pnp_free_resources(dev->res);
- 	pnp_free_ids(dev);
- 	kfree(dev);
--	return;
- }
- 
- /**
-@@ -118,7 +116,7 @@
- int pnp_add_device(struct pnp_dev *dev)
+ static void add_dmaresource(struct pnp_dev *dev, int dma)
  {
- 	int error = 0;
--	if (!dev && !dev->protocol)
-+	if (!dev || !dev->protocol)
- 		return -EINVAL;
- 	if (dev->card)
- 		sprintf(dev->dev.bus_id, "%02x:%02x.%02x", dev->protocol->number,
-@@ -158,7 +156,6 @@
- 	list_del_init(&dev->global_list);
- 	list_del_init(&dev->dev_list);
- 	spin_unlock(&pnp_lock);
--	return;
- }
+-	int i = 8;
++	int i = 0;
+ 	while (!(dev->dma_resource[i].flags & IORESOURCE_UNSET) && i < DEVICE_COUNT_DMA) i++;
+ 	if (i < DEVICE_COUNT_DMA) {
+ 		dev->dma_resource[i].start = (unsigned long) dma;
+@@ -701,7 +701,7 @@
  
- static int __init pnp_init(void)
-diff -ur a/drivers/pnp/driver.c b/drivers/pnp/driver.c
---- a/drivers/pnp/driver.c	Sat Oct 19 14:07:42 2002
-+++ b/drivers/pnp/driver.c	Sun Oct 20 12:54:27 2002
-@@ -150,7 +150,7 @@
- 
- int pnp_register_driver(struct pnp_driver *drv)
+ static void add_memresource(struct pnp_dev *dev, int mem, int len)
  {
--	int count = 0;
-+	int count;
- 	pnp_dbg("the driver '%s' has been registered", drv->name);
+-	int i = 0;
++	int i = 8;
+ 	while (!(dev->resource[i].flags & IORESOURCE_UNSET) && i < DEVICE_COUNT_RESOURCE) i++;
+ 	if (i < DEVICE_COUNT_RESOURCE) {
+ 		dev->resource[i].start = (unsigned long) mem;
+@@ -816,6 +816,7 @@
+         } /* while */
+ 	end:
+ 	if ((dev->resource[0].start == 0) &&
++	    (dev->resource[8].start == 0) &&
+ 	    (dev->irq_resource[0].start == -1) &&
+ 	    (dev->dma_resource[0].start == -1))
+ 		dev->active = 0;
+@@ -927,7 +928,6 @@
  
- 	drv->driver.name = drv->name;
-@@ -194,7 +194,6 @@
- 		struct pnp_id *pnp_id = to_pnp_id(pos);
- 		kfree(pnp_id);
- 	}
--	return;
- }
- 
- EXPORT_SYMBOL(pnp_register_driver);
-diff -ur a/drivers/pnp/isapnp/compat.c b/drivers/pnp/isapnp/compat.c
---- a/drivers/pnp/isapnp/compat.c	Sat Oct 19 14:07:42 2002
-+++ b/drivers/pnp/isapnp/compat.c	Sun Oct 20 13:02:42 2002
-@@ -23,7 +23,6 @@
- 			device & 0x0f,
- 			(device >> 12) & 0x0f,
- 			(device >> 8) & 0x0f);
--	return;
- }
- 
- struct pnp_card *pnp_find_card(unsigned short vendor,
-diff -ur a/drivers/pnp/names.c b/drivers/pnp/names.c
---- a/drivers/pnp/names.c	Sat Oct 19 04:00:43 2002
-+++ b/drivers/pnp/names.c	Sun Oct 20 13:03:36 2002
-@@ -37,7 +37,6 @@
- 			return;
- 		}
- 	}
--	return;
- }
- 
- #else
-diff -ur a/drivers/pnp/quirks.c b/drivers/pnp/quirks.c
---- a/drivers/pnp/quirks.c	Sat Oct 19 04:02:29 2002
-+++ b/drivers/pnp/quirks.c	Sun Oct 20 13:04:08 2002
-@@ -164,6 +164,5 @@
- 		}
- 		i++;
- 	}
--	return;
- }
- 
-diff -ur a/drivers/pnp/resource.c b/drivers/pnp/resource.c
---- a/drivers/pnp/resource.c	Sat Oct 19 04:01:57 2002
-+++ b/drivers/pnp/resource.c	Sun Oct 20 23:43:22 2002
-@@ -308,7 +308,7 @@
- 
- /* resource validity checking functions */
- 
--static int pnp_check_port(int port, int size)
-+static int pnp_check_port(int port, int size, int idx, struct pnp_cfg *config)
+ static unsigned char *node_possible_resource_data_to_dev(unsigned char *p, struct pnp_bios_node *node, struct pnp_dev *dev)
  {
- 	int i, tmp, rport, rsize;
- 	struct pnp_dev *dev;
-@@ -338,10 +338,20 @@
+-	unsigned char *lastp = NULL;
+ 	int len, depnum, dependent;
+ 
+ 	if ((char *)p == NULL)
+@@ -963,8 +963,7 @@
+ 				break;
  			}
- 		}
- 	}
-+	for (tmp = 0; tmp < 8 && tmp != idx; tmp++) {
-+		if (dev->resource[tmp].flags) {
-+			rport = config->request.resource[tmp].start;
-+			rsize = (config->request.resource[tmp].end - rport) + 1;
-+			if (port >= rport && port < rport + rsize)
-+				return 1;
-+			if (port + size > rport && port + size < (rport + rsize) - 1)
-+				return 1;
+ 			} /* switch */
+-                        lastp = p+3;
+-                        p = p + p[1] + p[2]*256 + 3;
++                        p += len + 3;
+                         continue;
+                 }
+ 		len = p[0] & 0x07;
+@@ -1030,6 +1029,70 @@
+         return NULL;
+ }
+ 
++/* pnp EISA ids */
++
++#define HEX(id,a) hex[((id)>>a) & 15]
++#define CHAR(id,a) (0x40 + (((id)>>a) & 31))
++//
++
++static void inline pnpid32_to_pnpid(u32 id, char *str)
++{
++	const char *hex = "0123456789abcdef";
++
++	id = be32_to_cpu(id);
++	str[0] = CHAR(id, 26);
++	str[1] = CHAR(id, 21);
++	str[2] = CHAR(id,16);
++	str[3] = HEX(id, 12);
++	str[4] = HEX(id, 8);
++	str[5] = HEX(id, 4);
++	str[6] = HEX(id, 0);
++	str[7] = '\0';
++
++	return;
++}
++//
++#undef CHAR
++#undef HEX
++
++static void node_id_data_to_dev(unsigned char *p, struct pnp_bios_node *node, struct pnp_dev *dev)
++{
++	int len;
++	struct pnp_id *dev_id;
++
++	if ((char *)p == NULL)
++		return;
++        while ( (char *)p < ((char *)node->data + node->size )) {
++
++                if( p[0] & 0x80 ) {// large item
++			len = (p[2] << 8) | p[1];
++                        p += len + 3;
++                        continue;
++                }
++		len = p[0] & 0x07;
++                switch ((p[0]>>3) & 0x0f) {
++		case 0x0f:
++		{
++        		return;
++			break;
 +		}
-+	}
++                case 0x03: // compatible ID
++                {
++			if (len != 4)
++				goto __skip;
++			dev_id =  pnpbios_kmalloc(sizeof (struct pnp_id), GFP_KERNEL);
++			if (!dev_id)
++				return;
++			pnpid32_to_pnpid(p[1] | p[2] << 8 | p[3] << 16 | p[4] << 24,dev_id->id);
++			pnp_add_id(dev_id, dev);
++			break;
++                }
++                } /* switch */
++		__skip:
++                p += len + 1;
++
++        } /* while */
++}
+ 
+ /* pnp resource writing functions */
+ 
+@@ -1314,31 +1377,6 @@
  	return 0;
  }
  
--static int pnp_check_mem(unsigned int addr, unsigned int size)
-+static int pnp_check_mem(unsigned int addr, unsigned int size, int idx, struct pnp_cfg *config)
- {
- 	int i, tmp;
- 	unsigned int raddr, rsize;
-@@ -360,7 +370,7 @@
- 	pnp_for_each_dev(dev) {
- 		if (dev->active) {
- 			for (tmp = 0; tmp < 4; tmp++) {
--				if (dev->resource[tmp].flags) {
-+				if (dev->resource[tmp + 8].flags) {
- 					raddr = dev->resource[tmp + 8].start;
- 					rsize = (dev->resource[tmp + 8].end - raddr) + 1;
- 					if (addr >= raddr && addr < raddr + rsize)
-@@ -371,6 +381,16 @@
- 			}
- 		}
- 	}
-+	for (tmp = 0; tmp < 4 && tmp != idx; tmp++) {
-+		if (dev->resource[tmp + 8].flags) {
-+			raddr = config->request.resource[tmp + 8].start;
-+			rsize = (config->request.resource[tmp + 8].end - raddr) + 1;
-+			if (addr >= raddr && addr < raddr + rsize)
-+				return 1;
-+			if (addr + size > raddr && addr + size < (raddr + rsize) - 1)
-+				return 1;
-+		}
-+	}
- 	return 0;
- }
- 
-@@ -453,10 +473,11 @@
- /* config generation functions */
- static int pnp_generate_port(struct pnp_cfg *config, int num)
- {
--	struct pnp_port *port = config->port[num];
-+	struct pnp_port *port;
- 	unsigned long *value1, *value2, *value3;
- 	if (!config || num < 0 || num > 7)
- 		return -EINVAL;
-+	port = config->port[num];
- 	if (!port)
- 		return 0;
- 	value1 = &config->request.resource[num].start;
-@@ -465,7 +486,7 @@
- 	*value1 = port->min;
- 	*value2 = *value1 + port->size -1;
- 	*value3 = port->flags | IORESOURCE_IO;
--	while (pnp_check_port(*value1, port->size)) {
-+	while (pnp_check_port(*value1, port->size, num, config)) {
- 		*value1 += port->align;
- 		*value2 = *value1 + port->size - 1;
- 		if (*value1 > port->max || !port->align)
-@@ -476,10 +497,11 @@
- 
- static int pnp_generate_mem(struct pnp_cfg *config, int num)
- {
--	struct pnp_mem *mem = config->mem[num];
-+	struct pnp_mem *mem;
- 	unsigned long *value1, *value2, *value3;
- 	if (!config || num < 0 || num > 3)
- 		return -EINVAL;
-+	mem = config->mem[num];
- 	if (!mem)
- 		return 0;
- 	value1 = &config->request.resource[num + 8].start;
-@@ -496,7 +518,7 @@
- 		*value3 |= IORESOURCE_RANGELENGTH;
- 	if (mem->flags & IORESOURCE_MEM_SHADOWABLE)
- 		*value3 |= IORESOURCE_SHADOWABLE;
--	while (pnp_check_mem(*value1, mem->size)) {
-+	while (pnp_check_mem(*value1, mem->size, num, config)) {
- 		*value1 += mem->align;
- 		*value2 = *value1 + mem->size - 1;
- 		if (*value1 > mem->max || !mem->align)
-@@ -507,7 +529,7 @@
- 
- static int pnp_generate_irq(struct pnp_cfg *config, int num)
- {
--	struct pnp_irq *irq = config->irq[num];
-+	struct pnp_irq *irq;
- 	unsigned long *value1, *value2, *value3;
- 	/* IRQ priority: this table is good for i386 */
- 	static unsigned short xtab[16] = {
-@@ -516,6 +538,7 @@
- 	int i;
- 	if (!config || num < 0 || num > 1)
- 		return -EINVAL;
-+	irq = config->irq[num];
- 	if (!irq)
- 		return 0;
- 	value1 = &config->request.irq_resource[num].start;
-@@ -536,16 +559,16 @@
- 
- static int pnp_generate_dma(struct pnp_cfg *config, int num)
- {
--	struct pnp_dma *dma = config->dma[num];
-+	struct pnp_dma *dma;
- 	unsigned long *value1, *value2, *value3;
- 	/* DMA priority: this table is good for i386 */
- 	static unsigned short xtab[16] = {
- 		1, 3, 5, 6, 7, 0, 2, 4
- 	};
- 	int i;
+-#define HEX(id,a) hex[((id)>>a) & 15]
+-#define CHAR(id,a) (0x40 + (((id)>>a) & 31))
+-//
 -
- 	if (!config || num < 0 || num > 1)
- 		return -EINVAL;
-+	dma = config->dma[num];
- 	if (!dma)
- 		return 0;
- 	value1 = &config->request.dma_resource[num].start;
-@@ -566,10 +589,11 @@
- 
- static int pnp_prepare_request(struct pnp_cfg *config)
+-static void inline pnpid32_to_pnpid(u32 id, char *str)
+-{
+-	const char *hex = "0123456789abcdef";
+-
+-	id = be32_to_cpu(id);
+-	str[0] = CHAR(id, 26);
+-	str[1] = CHAR(id, 21);
+-	str[2] = CHAR(id,16);
+-	str[3] = HEX(id, 12);
+-	str[4] = HEX(id, 8);
+-	str[5] = HEX(id, 4);
+-	str[6] = HEX(id, 0);
+-	str[7] = '\0';
+-
+-	return;
+-}
+-//
+-#undef CHAR
+-#undef HEX
+-
+-
+ static void __init build_devlist(void)
  {
--	struct pnp_dev *dev = &config->request;
-+	struct pnp_dev *dev;
- 	int idx;
- 	if (!config)
- 		return -EINVAL;
-+	dev = &config->request;
- 	if (dev == NULL)
- 		return -EINVAL;
- 	if (dev->active || dev->ro)
-@@ -629,21 +653,29 @@
+ 	u8 nodenum;
+@@ -1386,7 +1424,8 @@
+ 		memcpy(dev_id->id,id,8);
+ 		pnp_add_id(dev_id, dev);
+ 		pos = node_current_resource_data_to_dev(node,dev);
+-		node_possible_resource_data_to_dev(pos,node,dev);
++		pos = node_possible_resource_data_to_dev(pos,node,dev);
++		node_id_data_to_dev(pos,node,dev);
  
- static struct pnp_cfg * pnp_generate_config(struct pnp_dev *dev, int depnum)
- {
--	struct pnp_cfg * config = pnp_alloc(sizeof(struct pnp_cfg));
-+	struct pnp_cfg * config;
- 	int nport = 0, nirq = 0, ndma = 0, nmem = 0;
--	struct pnp_resources * res = dev->res;
--	struct pnp_port * port = res->port;
--	struct pnp_mem * mem = res->mem;
--	struct pnp_irq * irq = res->irq;
--	struct pnp_dma * dma = res->dma;
-+	struct pnp_resources * res;
-+	struct pnp_port * port;
-+	struct pnp_mem * mem;
-+	struct pnp_irq * irq;
-+	struct pnp_dma * dma;
- 	if (!dev)
- 		return NULL;
- 	if (depnum < 0)
- 		return NULL;
-+	config = pnp_alloc(sizeof(struct pnp_cfg));
- 	if (!config)
- 		return NULL;
+ 		dev->protocol = &pnpbios_protocol;
  
- 	/* independent */
-+	res = pnp_find_resources(dev, 0);
-+	if (!res)
-+		goto fail;
-+	port = res->port;
-+	mem = res->mem;
-+	irq = res->irq;
-+	dma = res->dma;
- 	while (port){
- 		config->port[nport] = port;
- 		nport++;
-@@ -669,6 +701,8 @@
- 	if (depnum == 0)
- 		return config;
- 	res = pnp_find_resources(dev, depnum);
-+	if (!res)
-+		goto fail;
- 	port = res->port;
- 	mem = res->mem;
- 	irq = res->irq;
-@@ -695,6 +729,10 @@
- 		dma = dma->next;
- 	}
- 	return config;
-+	
-+	fail:
-+	kfree(config);
-+	return NULL;
- }
- 
- /* PnP Device Resource Management */

@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293386AbSBRAOF>; Sun, 17 Feb 2002 19:14:05 -0500
+	id <S293184AbSBQQqD>; Sun, 17 Feb 2002 11:46:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293396AbSBRAN4>; Sun, 17 Feb 2002 19:13:56 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:39684 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S293386AbSBRANf>;
-	Sun, 17 Feb 2002 19:13:35 -0500
-Date: Sun, 17 Feb 2002 16:08:47 -0800
-From: Greg KH <greg@kroah.com>
-To: "Udo A. Steinberg" <reality@delusion.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: khubd blocking in D state with 2.5.5-pre1
-Message-ID: <20020218000847.GA17106@kroah.com>
-In-Reply-To: <3C702FE3.B914C0D@delusion.de>
+	id <S293186AbSBQQpx>; Sun, 17 Feb 2002 11:45:53 -0500
+Received: from peace.netnation.com ([204.174.223.2]:26560 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP
+	id <S293184AbSBQQph>; Sun, 17 Feb 2002 11:45:37 -0500
+Date: Sun, 17 Feb 2002 08:45:31 -0800
+From: Simon Kirby <sim@netnation.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: fsync delays for a long time.
+Message-ID: <20020217164531.GA19111@netnation.com>
+In-Reply-To: <20020215172436.GA6842@netnation.com> <Pine.LNX.3.96.1020217074231.30060G-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C702FE3.B914C0D@delusion.de>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sun, 20 Jan 2002 22:05:35 -0800
+In-Reply-To: <Pine.LNX.3.96.1020217074231.30060G-100000@gatekeeper.tmr.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 17, 2002 at 11:34:11PM +0100, Udo A. Steinberg wrote:
+On Sun, Feb 17, 2002 at 07:47:38AM -0500, Bill Davidsen wrote:
+
+> On Fri, 15 Feb 2002, Simon Kirby wrote:
 > 
-> My monitor acts as USB hub. When the monitor is switched off and then back
-> on the khubd kernel thread blocks in D state:
+> > On Thu, Feb 14, 2002 at 12:51:14PM -0800, Andrew Morton wrote:
+> > Not sure if this is related, but I still can't get 2.4 or 2.5 kernels to
+> > actually read and write at the same time during a large file copy between
+> > two totally separate devices (eg: from hda1 to hdc1).  "vmstat 1" shows
+> > reads with no writing for about 6-8 seconds followed by writes with no
+> > reading for about 5-6 seconds, repeat.
+> 
+> You don't have enough memory... you can probably tune bdflush to make the
+> system flush writes more aggressively, but one cause is that you fill all
+> available memory before bdflush even runs. Try setting the time way down,
+> say one sec, and see if things change.
+> 
+> Note that this may not make the system run faster in any significant way,
+> it may just get all the drive lights blinking.
 
-<snip>
+This is happening on boxes with 1 GB of memory, etc... Besides that,
+bdflush's first argument is a percentage, and that's what I was
+adjusting.  And yes, I've set the percentage way down and it has
+increased the rate at which it switches back and forth to make it look
+like it's reading and writing at the same time, but it's not.  Throughput
+never goes up.
 
-> Is this a known problem?
+This sort of thing works fine in 2.2 kernels...
 
-Yes it is.  See the lkml archives for some patches from me and Pat
-Mochel that fix this problem.  It is a combination of bugs in both the
-USB core, and the driverfs code that cause this.
+Simon-
 
-thanks,
-
-greg k-h
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267491AbSLLV4a>; Thu, 12 Dec 2002 16:56:30 -0500
+	id <S267506AbSLLV5W>; Thu, 12 Dec 2002 16:57:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267501AbSLLV4a>; Thu, 12 Dec 2002 16:56:30 -0500
-Received: from smtp-03.inode.at ([62.99.194.5]:1415 "EHLO smtp.inode.at")
-	by vger.kernel.org with ESMTP id <S267491AbSLLV4a> convert rfc822-to-8bit;
-	Thu, 12 Dec 2002 16:56:30 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Patrick Petermair <black666@inode.at>
-Reply-To: black666@inode.at
-To: Brendon Higgins <bh_doc@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: dvd-drive no longer works (2.4.20)
-Date: Thu, 12 Dec 2002 23:05:32 +0100
-User-Agent: KMail/1.4.3
-References: <200212051151.59330.bh_doc@users.sourceforge.net>
-In-Reply-To: <200212051151.59330.bh_doc@users.sourceforge.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212122305.32825.black666@inode.at>
+	id <S267502AbSLLV5W>; Thu, 12 Dec 2002 16:57:22 -0500
+Received: from trained-monkey.org ([209.217.122.11]:48398 "EHLO
+	trained-monkey.org") by vger.kernel.org with ESMTP
+	id <S267501AbSLLV5T>; Thu, 12 Dec 2002 16:57:19 -0500
+To: Stephan van Hienen <ultra@a2000.nu>
+Cc: sparclinux@vger.kernel.org, "" <linux-kernel@vger.kernel.org>
+Subject: Re: Alteon AceNIC Coper Seen as Fibre ? (and incorrect settings)
+References: <Pine.LNX.4.50.0212102157440.1634-100000@ddx.a2000.nu>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 12 Dec 2002 17:00:02 -0500
+In-Reply-To: Stephan van Hienen's message of "Tue, 10 Dec 2002 22:03:03 +0100 (CET)"
+Message-ID: <m37keej3tp.fsf@trained-monkey.org>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 5. Dezember 2002 02:51 schrieb Brendon Higgins:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Hello. I have a problem since upgrading linux from 2.4.19 to 2.4.20.
-> During boot, the kernel spits out several "status error" and other
-> messages about my dvd and cdrw drives (both on ide1).
->
-> I upgraded from 2.4.19 to 2.4.20 in the hope that DMA would finally
-> work with my vt8235 (MSI KT3 Ultra2 with VIA KT333). 
+>>>>> "Stephan" == Stephan van Hienen <ultra@a2000.nu> writes:
 
-Same here. I also have a MSI KT3 Ultra2 and the same problem with 2.4.20
+Stephan> Sun UltraSparc 10 kernel 2.4.20
 
-The -ac1 patch helped because it booted just fine and I had dma on my 
-harddisk. But then I had problems mounting my dvd drive ... I'll try 
-the new -ac2 patch today, let's see if it makes any difference.
+Stephan> eth2: Alteon AceNIC Gigabit Ethernet at 0x1ff02900000, irq
+Stephan> 6,7d0 Tigon II (Rev. 6), Firmware: 12.4.11, MAC:
+Stephan> 00:60:cf:20:92:fc PCI bus width: 32 bits, speed: 33MHz,
+Stephan> latency: 64 clks eth2: Firmware up and running
 
-Btw: I think it depends what cd/dvd drive you have. I've heard from 
-other people with MSI KT3 Ultra2 who have no problem with 2.4.20 
-(without ac1 patch) and dma on disks plus dvd/cd/cdrw.
+Stephan> unplugging the utp cable, and plugging back in gives :
 
-Patrick
+Stephan> eth2: 10/100BaseT link UP eth2: Optical link DOWN eth2:
+Stephan> 10/100BaseT link UP
 
+This is purely cosmetic. Basically the firmware sends a link down
+event but not media info with it. At the time I wrote the code copper
+cards weren't available and I just never got around to changing
+it. It's trivial to fix, but really makes no difference whatsoever.
 
-
+Jes

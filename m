@@ -1,128 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291279AbSCONak>; Fri, 15 Mar 2002 08:30:40 -0500
+	id <S292368AbSCON3O>; Fri, 15 Mar 2002 08:29:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292294AbSCONa0>; Fri, 15 Mar 2002 08:30:26 -0500
-Received: from mail.spylog.com ([194.67.35.220]:662 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S291279AbSCONaF>;
-	Fri, 15 Mar 2002 08:30:05 -0500
-Date: Fri, 15 Mar 2002 16:30:38 +0300
-From: Peter Zaitsev <pz@spylog.ru>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: Peter Zaitsev <pz@spylog.ru>
-Organization: SpyLOG
-X-Priority: 3 (Normal)
-Message-ID: <551905871007.20020315163038@spylog.ru>
-To: mysql@lists.mysql.com
-Cc: linux-kernel@vger.kernel.org
-Subject: MYSQL,Linux & large threads number
-MIME-Version: 1.0
+	id <S292339AbSCON3C>; Fri, 15 Mar 2002 08:29:02 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:64268 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S291279AbSCON2o>; Fri, 15 Mar 2002 08:28:44 -0500
+Date: Fri, 15 Mar 2002 13:28:37 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>, davej@suse.de
+Subject: [PATCH] 2.4 and 2.5: fix /proc/kcore
+Message-ID: <20020315132837.D24984@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello mysql,
+As mentioned on May 11 on LKML, here is a patch to fix /proc/kcore for
+architectures which do not have RAM located at physical address 0.
 
-  Some time ago I wrote about slow down of mysql with large number of
-  threads, which is quite common in Linux-Apache-Mysql-PHP enviroment.
+I did say I'd send this on Monday, however I only got feedback from the
+ia64 people, and /proc/kcore is already broken on their machines anyway.
+(They need to fix it up; they place modules below PAGE_OFFSET, which
+breaks our generated ELF core header).
 
-  The test was simulating the worst case of concurrency - all the
-  threads are modified global variable in a loop 5000000 times in
-  total, using standard mutex for synchronization. The yeild is used
-  in a loop to force even more fair distribution of lock usage by
-  threads and increase context switches, therefore it did not change
-  much with large number of threads. I.e with 64 threads time without
-  yeild is 1:33.5
+So I've decided to send it a few days early.
 
-  Test was run on PIII-500 1G RAM Kernel 2.4.18. 3 runs were made for
-  each number of threads and best results were taken:
+Please apply.
 
- Num threads.       Time      Peak cs rate.
-    2               53.4          179518
-    4               53.8          144828
-    16              1:06.3         85172
-    64              1:48.1         48394
-    256             8:10.6         10235
-    1000           36:46.2          2602
+--- orig/fs/proc/kcore.c	Fri Mar 15 10:14:44 2002
++++ linux/fs/proc/kcore.c	Fri Mar 15 11:18:21 2002
+@@ -381,8 +381,13 @@
+ 			return tsz;
+ 	}
+ #endif
+-	/* fill the remainder of the buffer from kernel VM space */
+-	start = (unsigned long)__va(*fpos - elf_buflen);
++	
++	/*
++	 * Fill the remainder of the buffer from kernel VM space.
++	 * We said in the ELF header that the data which starts
++	 * at 'elf_buflen' is virtual address PAGE_OFFSET. --rmk
++	 */
++	start = PAGE_OFFSET + (*fpos - elf_buflen);
+ 	if ((tsz = (PAGE_SIZE - (start & ~PAGE_MASK))) > buflen)
+ 		tsz = buflen;
+ 		
 
-
-The surprising thing is the time grows in less then linear way for up
-to 64 threads but later it stars to go linear way or even worse. May
-be this is because some other process are sleeping in the system which
-also is used in scheduling.
-
-
-For Next test I'll try to use Ingo's scheduler to see if it helps to
-solve the problem, also I'll try to test real mysql server to see
-which slowdown it will have.
-
-
-
-
-CODE: (Dumb one just for test)
-
-  
-#include <stdio.h>
-#include <pthread.h>
-#include <time.h>
-#define NUM_TH 1000
-
-#define TOTAL_VALUE 5000000
-
-#define LOOP (TOTAL_VALUE/NUM_TH)
-
-pthread_t th[NUM_TH];
-int thread_data[NUM_TH];
-
-int rc,rc2;
-
-int global=0;
-
-pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t start = PTHREAD_MUTEX_INITIALIZER;
-
-
-void f(int *thn)
- {
- int i;  
- pthread_mutex_lock(&start);
- pthread_mutex_unlock(&start);
- for (i=0;i<LOOP;i++)
-  { 
-   pthread_mutex_lock(&mut);
-   global++;
-   pthread_yield();
-   pthread_mutex_unlock(&mut);
-  }
- } 
-
-
-
-main()
- { 
-  int i;
-  pthread_mutex_lock(&start);                                                                                                 
-  for (i=0;i<NUM_TH;i++)
-  {
-   thread_data[i]=i;
-   rc=pthread_create(&th[i],NULL,f,&thread_data[i]);
-   if (rc!=0)
-    {
-      printf("Failed to create thread #%d errorcode:%d\n",i,rc);
-    } 
-  }
-  pthread_mutex_unlock(&start); 
-
- for (i=0;i<NUM_TH;i++)
-  {
-   rc2=pthread_join(th[i],NULL);    
-  }
- printf("Global Value: %d\n",global); 
-
- }   
 
 -- 
-Best regards,
- Peter                          mailto:pz@spylog.ru
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

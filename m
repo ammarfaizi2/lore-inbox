@@ -1,19 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261337AbSJPTKv>; Wed, 16 Oct 2002 15:10:51 -0400
+	id <S261335AbSJPTHE>; Wed, 16 Oct 2002 15:07:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261341AbSJPTKv>; Wed, 16 Oct 2002 15:10:51 -0400
-Received: from c3po.netscape.com ([205.217.237.46]:43979 "EHLO netscape.com")
-	by vger.kernel.org with ESMTP id <S261337AbSJPTKt>;
-	Wed, 16 Oct 2002 15:10:49 -0400
-Message-ID: <3DADBB15.9030200@netscape.com>
-Date: Wed, 16 Oct 2002 12:16:37 -0700
-From: jgmyers@netscape.com (John Myers)
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: Dan Kegel <dank@kegel.com>, Benjamin LaHaise <bcrl@redhat.com>,
+	id <S261337AbSJPTHD>; Wed, 16 Oct 2002 15:07:03 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:2701 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S261335AbSJPTGa>; Wed, 16 Oct 2002 15:06:30 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 16 Oct 2002 12:20:03 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: John Gardiner Myers <jgmyers@netscape.com>
+cc: Benjamin LaHaise <bcrl@redhat.com>, Dan Kegel <dank@kegel.com>,
        Shailabh Nagar <nagar@watson.ibm.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
@@ -21,119 +19,63 @@ CC: Dan Kegel <dank@kegel.com>, Benjamin LaHaise <bcrl@redhat.com>,
        Linus Torvalds <torvalds@transmeta.com>,
        Stephen Tweedie <sct@redhat.com>
 Subject: Re: [PATCH] async poll for 2.5
-References: <Pine.LNX.4.44.0210151608350.1554-100000@blue1.dev.mcafeelabs.com>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms050103010807030802060308"
+In-Reply-To: <3DADACD6.4000200@netscape.com>
+Message-ID: <Pine.LNX.4.44.0210161213520.1548-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+On Wed, 16 Oct 2002, John Gardiner Myers wrote:
 
---------------ms050103010807030802060308
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Davide Libenzi wrote:
-
->Typical
->applications that uses multiplex interfaces uses only one task (
->eventually for each CPU ) that handles many connections.
+> Davide Libenzi wrote:
 >
-As I mentioned before, this only works if you have the luxury of being 
-able to write your application and its supporting libraries from 
-scratch.  If you don't have that luxury, you need additional threads in 
-order to isolate the latency caused by blocking operations.
-
->Yes, you have
->a lock to be acquired but this is a price you have to pay as soon as you
->choose threads.
->  
+> >I knew you were going there, aka you do not understand how edge triggered
+> >API have to be used.
+> >
+> Nonsense.
 >
-You have to pay for the lock needed to receive the events.  What I am 
-objecting to is having to pay again for a second lock (and condition 
-variable) to redistribute those events from the thread they were 
-received on to the thread they will be processed on.  An interface that 
-supports multithreading well will permit events to be delivered directly 
-to the threads that need to process them.
+> >Even if the API will drop an event at registration
+> >time you still cannot use this code scheme :
+> >
+> >int my_io(...) {
+> >
+> >	if (event_wait(...))
+> >		do_io(...);
+> >
+> >}
+> >
+> >You CAN NOT. And look, it is not an API problem, it's your problem that
+> >you want to use the API like a poll()-like API.
+> >
+> You have insufficient basis upon which to claim I would write code as
+> broken as above.
 
-io_getevents() is an example of an interface that support multithreaded 
-callers well.  Since the divvying up is done in the kernel, the 
-information exists for its implementation to be later refined to be more 
-intelligent about when to deliver which events to which threads.  For 
-example, the interface can later implement CPU affinity of events and 
-concurrency control.
+Yes I have, look down 15 lines ...
 
 
---------------ms050103010807030802060308
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
+> >This because you have to consume the I/O space to push the level to 0 so
+> >that a transaction 0->1 can happen and you can happily receive your
+> >events.
+> >
+> >
+> Of course you have to consume the I/O space to push the level to 0.
+>  What do you think I am, stupid?
+>
+> This is done with something like:
+>
+> for (;;) {
+>      fd = event_wait(...);
+>      while (do_io(fd) != EAGAIN);
+> }
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIK7TCC
-A4UwggLuoAMCAQICAlvfMA0GCSqGSIb3DQEBBAUAMIGTMQswCQYDVQQGEwJVUzELMAkGA1UE
-CBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5l
-IEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2Vy
-dGlmaWNhdGUgQXV0aG9yaXR5MB4XDTAyMDYwMTIwMjIyM1oXDTAyMTEyODIwMjIyM1owfTEL
-MAkGA1UEBhMCVVMxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEXMBUGCgmSJomT8ixk
-AQETB2pnbXllcnMxIzAhBgkqhkiG9w0BCQEWFGpnbXllcnNAbmV0c2NhcGUuY29tMRMwEQYD
-VQQDEwpKb2huIE15ZXJzMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDsB5tbTLWFycke
-FKQwy1MTNx7SFtehB26RBx2gT+6+5/sYfXuLmBOuEOU2646fK0tz4rFOXfR8TcLfxOp3anh2
-3pKDAnBEOp5u75bEIwY5nteR0opdni/CTeyCfJ1uPuYdNKTYC088GwbpzhBRE8n1APHXCBgv
-bnGAuuYw/BqDtwIDAQABo4H8MIH5MA4GA1UdDwEB/wQEAwIFIDAdBgNVHSUEFjAUBggrBgEF
-BQcDAgYIKwYBBQUHAwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0
-aWZpY2F0ZSBNYW5hZ2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRz
-Y2FwZS5jb20wHwYDVR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEE
-NTAzMDEGCCsGAQUFBzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3Nw
-MA0GCSqGSIb3DQEBBAUAA4GBAHhQSSAs8Vmute2hyZulGeFAZewLIz+cDGBOikFTP0/mIPmC
-leog5JnWRqXOcVvQhqGg91d9imNdN6ONBE9dNkVDZPiVcgJ+J3wc+htIAc1duKc1CD3K6CM1
-ouBbe4h4dhLWvyLWIcPPXNiGIBhA0PqoZlumSN3wlWdRqMaTC4P0MIIDhjCCAu+gAwIBAgIC
-W+AwDQYJKoZIhvcNAQEEBQAwgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UE
-BxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQL
-ExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRo
-b3JpdHkwHhcNMDIwNjAxMjAyMjIzWhcNMDIxMTI4MjAyMjIzWjB9MQswCQYDVQQGEwJVUzEb
-MBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRcwFQYKCZImiZPyLGQBARMHamdteWVyczEj
-MCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRzY2FwZS5jb20xEzARBgNVBAMTCkpvaG4gTXll
-cnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMkrxhwWBuZImCjNet4bJ6Vdv/iXgHQs
-oXf8wdBaJZ2X6jJ17ZzlSha9mmwt3Z9H8LFfVdS+dz29ri1fBuvf0rcxPWdZkKi6HDag2yNV
-f3CV+650RlyzuQr2RNeirkKvaocmakRdplHRw81Txxoi5sCMrkVPmRWA35ILnNbn6sTvAgMB
-AAGjgf0wgfowDwYDVR0PAQH/BAUDAweAADAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUH
-AwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0aWZpY2F0ZSBNYW5h
-Z2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRzY2FwZS5jb20wHwYD
-VR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEENTAzMDEGCCsGAQUF
-BzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3NwMA0GCSqGSIb3DQEB
-BAUAA4GBAExH0StQaZ/phZAq9PXm8btBCaH3FQsH+P58+LZF/DYQRw/XL+a3ieI6O+YIgMrC
-sQ+vtlCGqTdwvcKhjjgzMS/ialrV0e2COhxzVmccrhjYBvdF8Gzi/bcDxUKoXpSLQUMnMdc3
-2Dtmo+t8EJmuK4U9qCWEFLbt7L1cLnQvFiM4MIID1jCCAz+gAwIBAgIEAgAB5jANBgkqhkiG
-9w0BAQUFADBFMQswCQYDVQQGEwJVUzEYMBYGA1UEChMPR1RFIENvcnBvcmF0aW9uMRwwGgYD
-VQQDExNHVEUgQ3liZXJUcnVzdCBSb290MB4XDTAxMDYwMTEyNDcwMFoXDTA0MDYwMTIzNTkw
-MFowgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmll
-dzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9n
-aWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwgZ8wDQYJKoZI
-hvcNAQEBBQADgY0AMIGJAoGBAOLvXyx2Q4lLGl+z5fiqb4svgU1n/71KD2MuxNyF9p4sSSYg
-/wAX5IiIad79g1fgoxEZEarW3Lzvs9IVLlTGbny/2bnDRtMJBYTlU1xI7YSFmg47PRYHXPCz
-eauaEKW8waTReEwG5WRB/AUlYybr7wzHblShjM5UV7YfktqyEkuNAgMBAAGjggGCMIIBfjBN
-BgNVHR8ERjBEMEKgQKA+hjxodHRwOi8vd3d3MS51cy1ob3N0aW5nLmJhbHRpbW9yZS5jb20v
-Y2dpLWJpbi9DUkwvR1RFUm9vdC5jZ2kwHQYDVR0OBBYEFCnbsi2Dfn+LI7vCzGa5Oegp8wKG
-MGYGA1UdIARfMF0wRgYKKoZIhvhjAQIBBTA4MDYGCCsGAQUFBwIBFipodHRwOi8vd3d3LmJh
-bHRpbW9yZS5jb20vQ1BTL09tbmlSb290Lmh0bWwwEwYDKgMEMAwwCgYIKwYBBQUHAgEwWAYD
-VR0jBFEwT6FJpEcwRTELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD0dURSBDb3Jwb3JhdGlvbjEc
-MBoGA1UEAxMTR1RFIEN5YmVyVHJ1c3QgUm9vdIICAaMwKwYDVR0QBCQwIoAPMjAwMTA2MDEx
-MjQ3MzBagQ8yMDAzMDkwMTIzNTkwMFowDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwQIMAYBAf8C
-AQEwDQYJKoZIhvcNAQEFBQADgYEASmIO2fpGdwQKbA3d/tIiOZkQCq6ILYY9V4TmEiQ3aftZ
-XuIRsPmfpFeGimkfBmPRfe4zNkkQIA8flxcsJ2w9bDkEe+JF6IcbVLZgQW0drgXznfk6NJrj
-e2tMcfjrqCuDsDWQTBloce3wYyJewlvsIHq1sFFz6QfugWd2eVP3ldQxggKmMIICogIBATCB
-mjCBkzELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3
-MRswGQYDVQQKExJBbWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dp
-ZXMxJzAlBgNVBAMTHkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICW+AwCQYFKw4D
-AhoFAKCCAWEwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDIx
-MDE2MTkxNjM3WjAjBgkqhkiG9w0BCQQxFgQUGxl5WBGA1sE3dPOQBygeSG/FS2owUgYJKoZI
-hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
-BwYFKw4DAgcwDQYIKoZIhvcNAwICASgwga0GCyqGSIb3DQEJEAILMYGdoIGaMIGTMQswCQYD
-VQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoT
-EkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UE
-AxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJb3zANBgkqhkiG9w0BAQEFAASB
-gI8sbyGpABO8c+rFgGhNX5MTk5Y7gyKh6WuAmafSbY8elaSaXTyLC1y2xsrtLgBa0uWIfJgP
-e61/LabcrX8vBhn/4XTK9nJolpTZNoH2E7y3FvvADH5wV7hP+15TxEl0noFzMnC45+PoyVR0
-1uJMiKLN1Gn72AeCPljp4MCdWl9qAAAAAAAA
---------------ms050103010807030802060308--
+I told you did not understand the API, this code won't work for edge
+triggered APIs. Please consider investigating a little bit more before
+shooting to perfectly working APIs.
+
+
+
+
+- Davide
+
 

@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbTISNDi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 09:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbTISNDi
+	id S261551AbTISNKc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 09:10:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbTISNKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 09:03:38 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:57563 "EHLO
+	Fri, 19 Sep 2003 09:10:32 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:3297 "EHLO
 	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S261554AbTISNDh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 09:03:37 -0400
-Date: Fri, 19 Sep 2003 14:02:08 +0100
+	id S261551AbTISNKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 09:10:31 -0400
+Date: Fri, 19 Sep 2003 14:09:25 +0100
 From: Dave Jones <davej@redhat.com>
-To: Bernhard Rosenkraenzer <bero@arklinux.org>,
-       Marcelo Tossati <marcelo.tosatti@cyclades.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: via-rhine apparently broken in 2.4.23-pre4
-Message-ID: <20030919130208.GA20814@redhat.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Marcelo Tossati <marcelo.tosatti@cyclades.com.br>, m.c.p@wolk-project.de
+Subject: Re: [PATCH] Allow sysrq() via /proc/sys/kernel/magickey
+Message-ID: <20030919130925.GA21000@redhat.com>
 Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Bernhard Rosenkraenzer <bero@arklinux.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Marcelo Tossati <marcelo.tosatti@cyclades.com.br>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.56.0309190254480.18687@dot.kde.org>
+	m.c.p@wolk-project.de
+References: <200308252003.h7PK3EQq024312@hera.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.56.0309190254480.18687@dot.kde.org>
+In-Reply-To: <200308252003.h7PK3EQq024312@hera.kernel.org>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 19, 2003 at 02:58:21AM +0200, Bernhard Rosenkraenzer wrote:
- > Unverified (due to lack of hardware) report from a user:
+On Mon, Aug 25, 2003 at 07:42:57PM +0000, Linux Kernel wrote:
+ > ChangeSet 1.1114, 2003/08/25 16:42:57-03:00, m.c.p@wolk-project.de
  > 
- > Updating from 2.4.22 to 2.4.23-pre4 breaks networking with an onboard VIA 
- > Rhine II chip.
- > 
- > It seems to transfer about 2 kB of data, then stall forever.
+ > 	[PATCH] Allow sysrq() via /proc/sys/kernel/magickey
+ > 	
+ > 	Hi Marcelo,
+ > 	
+ > 	sysrq() is a good thing to debug things, but unfortunately you need to have
+ > 	physical access to the keyboard. My company for instance maintains tons of
+ > 	remote machines and sometimes we need to do sysrq() too, but it's not
+ > 	possible to do so the remote way.
+ > 	
+ > 	Attached patch enables emulation of the Magic SysRq key (Alt-SysRq-key) via
+ > 	the /proc interface. Just echo the desired character into the file and there
+ > 	you go.
+ > 	
+ > 	Patch from Randy Dunlap!
+ > 	
+ > 	It's in -wolk for a long time and also in some other kernel tree forks.
+ > 	2.5/2.6 has almost the same (/proc/sysrq-trigger)
 
-It sends packets, but doesn't receive any.  To get it working I needed
-to apply Andrew de Quincey's ACPI IRQ fixes which are in -ac/-pac
-(These, or variants of are must-haves for 2.4.23).
-
-A workaround in the meantime is to boot with pci=noacpi
+So why not make this compatible with existing behaviour, and use the
+same name ? Seems this is deviating between 2.4 / 2.6 for no good reason.
 
 		Dave
 

@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264147AbUHBWF3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264213AbUHBWGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbUHBWF3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 18:05:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbUHBWF3
+	id S264213AbUHBWGS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 18:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUHBWGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 18:05:29 -0400
-Received: from puzzle.sasl.smtp.pobox.com ([207.8.226.4]:31152 "EHLO
-	puzzle.pobox.com") by vger.kernel.org with ESMTP id S264147AbUHBWFZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 18:05:25 -0400
-Date: Mon, 2 Aug 2004 15:05:21 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Steve Snyder <swsnyder@insightbb.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HIGHMEM4G config for 1GB RAM on desktop?
-Message-ID: <20040802220521.GA2179@ip68-4-98-123.oc.oc.cox.net>
-References: <200408021602.34320.swsnyder@insightbb.com>
+	Mon, 2 Aug 2004 18:06:18 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:29879 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S264213AbUHBWGQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 18:06:16 -0400
+Subject: Re: [PATCH] Configure IDE probe delays
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Tim Bird <tim.bird@am.sony.com>
+Cc: Todd Poynor <tpoynor@mvista.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dsingleton@mvista.com, vda@port.imtp.ilyichevsk.odessa.ua,
+       Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <410EB8A7.1090101@am.sony.com>
+References: <20040730191100.GA22201@slurryseal.ddns.mvista.com>
+	 <1091226922.5083.13.camel@localhost.localdomain>
+	 <410EB8A7.1090101@am.sony.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1091480458.1391.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408021602.34320.swsnyder@insightbb.com>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 02 Aug 2004 22:01:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 02, 2004 at 04:02:34PM -0500, Steve Snyder wrote:
-> There seems to be a controversy about the use of the CONFIG_HIGHMEM4G  
-> kernel configuration.  After reading many posts on the subject, I still 
-> don't know which setting is best for me.
+On Llu, 2004-08-02 at 22:56, Tim Bird wrote:
+> I'm still considering Jeff's comment, and I'll respond to that separately.
 
-On my own desktop system with 1GB RAM, any highmem slowdown seems to be
-outweighed by the fact that more disk data stays cached in RAM (so I hit
-the disk much less often).
+If it's done properly everyone wins, and I suspect if you are using
+things like CF you will win big time using the PPC spin up delay and not
+waiting for disk spin up in the boot firmware.
 
-Everyone else I know has also found the extra RAM to greatly outweigh
-the highmem slowdown, although those people are running clusters &
-servers, not desktops, with this much RAM.
-
--Barry K. Nathan <barryn@pobox.com>

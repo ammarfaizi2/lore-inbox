@@ -1,56 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbTFNW5H (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 18:57:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTFNW5H
+	id S261323AbTFNX2e (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 19:28:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbTFNX2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 18:57:07 -0400
-Received: from ethlife-a.ethz.ch ([129.132.202.7]:60059 "HELO lombi.mine.nu")
-	by vger.kernel.org with SMTP id S261292AbTFNW5F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 18:57:05 -0400
-Mime-Version: 1.0
-Message-Id: <p0432040bbb112c0ac508@[192.168.3.11]>
-In-Reply-To: <20030613202205.GB22032@namesys.com>
-References: <p04320407bb0f79fd523e@[192.168.3.11]>
- <20030613155634.GA18478@namesys.com> <20030613155934.GA19307@namesys.com>
- <p04320409bb0fb23f89f8@[192.168.3.11]>
- <20030613202205.GB22032@namesys.com>
-Date: Sun, 15 Jun 2003 01:10:51 +0200
-To: Oleg Drokin <green@namesys.com>
-From: Christian Jaeger <christian.jaeger@ethlife.ethz.ch>
-Subject: Re: Lockups with loop'ed sparse files on reiserfs?
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	Sat, 14 Jun 2003 19:28:34 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:16684 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S261323AbTFNX2d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 19:28:33 -0400
+Date: Sat, 14 Jun 2003 19:42:14 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrew Walrond <andrew@walrond.org>
+cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: Where is v2.4.21-rc8 and v2.4.21 in bk ?
+In-Reply-To: <3EEAB57B.9030808@walrond.org>
+Message-ID: <Pine.LNX.4.44.0306141941450.21148-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 0:22 Uhr +0400 14.06.2003, Oleg Drokin wrote:
->Read /usr/src/linux/Documentation/sysrq.txt
+On Sat, 14 Jun 2003, Andrew Walrond wrote:
 
-Done, new kernels now compiled with CONFIG_MAGIC_SYSRQ.
+> I don't see these tags, and bk pull says there is nothing to get.
+> Has Marcello forgotten to tag these?
 
->There were a known problem with reiserfs that it might sometimes
->deadlock in out-of-space situation.
->This is fixed in 2.4.21
+It looks like Marcelo forgot to do a 'bk push', since the
+changesets don't seem to be on linux.bkbits.net ...
 
-Good to know.
-
->  > There's also the case 1, using uml. In this case I'm sure there was
->>  no problem with space. The sparse filesystem image file I used is
->  > exactly 500'000'000 bytes, and there's 1675228 k free space on the
->  > partition where it is put on.
->
->Ok, that's where sysrq-T/sysrq-P traceswould be most useful.
->And if you'd try with 2.4.21 that would be even better.
-
-I've now compiled 2.4.21 from kernel.org with skas3 from debian, as 
-well as 2.4.21 with grsecurity (from grsecurity.net, with medium 
-setting) and skas3, and tried uml again with the same sparse image 
-multiple times under both. I haven't managed to lock the machine up 
-to now even while installing quite some stuff, so maybe the problem 
-is already solved. If not, I'll tell you when it happens again. (I 
-think I'll run 2.4.21-grsec-skas3 for the near future now.)
-
-Thanks for your help
-Christian.

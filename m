@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316664AbSFJFap>; Mon, 10 Jun 2002 01:30:45 -0400
+	id <S316672AbSFJFhC>; Mon, 10 Jun 2002 01:37:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316672AbSFJFao>; Mon, 10 Jun 2002 01:30:44 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:21236 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S316664AbSFJFan>; Mon, 10 Jun 2002 01:30:43 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Sun, 9 Jun 2002 23:28:07 -0600
-To: Dawson Engler <engler@csl.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-Subject: Re: [CHECKER] 54 missing null pointer checks in 2.4.17
-Message-ID: <20020610052807.GB20388@turbolinux.com>
-Mail-Followup-To: Dawson Engler <engler@csl.Stanford.EDU>,
-	linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-In-Reply-To: <200206100355.UAA17040@csl.Stanford.EDU>
+	id <S316674AbSFJFhB>; Mon, 10 Jun 2002 01:37:01 -0400
+Received: from violet.setuza.cz ([194.149.118.97]:53258 "EHLO violet.setuza.cz")
+	by vger.kernel.org with ESMTP id <S316672AbSFJFhB>;
+	Mon, 10 Jun 2002 01:37:01 -0400
+Subject: Re: kernel serial debugging question
+From: Frank Schaefer <frank.schafer@setuza.cz>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020607231856Z317361-22020+731@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 10 Jun 2002 07:37:02 +0200
+Message-Id: <1023687422.250.0.camel@ADMIN>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 09, 2002  20:55 -0700, Dawson Engler wrote:
-> 2	|	/fs/dcache.c
-> 1	|	/fs/sysctl.c
+On Sat, 2002-06-08 at 01:18, Stephane Charette wrote:
+> My question:
+> ------------
 > 
-> /u2/engler/mc/oses/linux/2.4.17/fs/intermezzo/dcache.c
-> /u2/engler/mc/oses/linux/2.4.17/fs/intermezzo/sysctl.c
+> Has any of this changed with the 2.4.x kernel?  I'm currently playing
+> with 2.4.19-pre9.  Is there a "serial debugger" patch that has to be
+> applied first, or is this support normally built-in?
 
-It looks like you are dropping part of the path out of the short list.
-There is a file fs/dcache.c, but also fs/intermezzo/dcache.c where the
-error is shown.  I have passed these errors on to the InterMezzo mailing
-list.
+I've set up kernel remote debugging for 2.4.18 not so far ago. The
+procedure is the same as for the 2.2.* series. You should simply use the
+patch for the kernel version you use.
 
-> /u2/engler/mc/oses/linux/2.4.17/fs/jbd/journal.c
-> 	 * Do we need to do a data copy?
-> 	 */
+> The reason I ask is because I don't see the option "Kernel support for
+> GDB", which leads me to think that maybe this functionality actually
+> came from a patch that was applied on top of 2.2.14.
 > 
-> 	if (need_copy_out && !done_copy_out) {
-> 		char *tmp;
-> Start --->
-> 		tmp = jbd_rep_kmalloc(jh2bh(jh_in)->b_size, GFP_NOFS);
-> 
-> 		jh_in->b_frozen_data = tmp;
-> Error --->
-> 		memcpy (tmp, mapped_data, jh2bh(jh_in)->b_size);
+> While I'm at it:  is there a "better", or perhaps a "more popular"
+> method of debugging the kernel?
 
-Note that jbd_rep_kmalloc() is a special case, and will not currently
-return NULL.  This macro calls  __jbd_rep_kmalloc(..., retry=1) which
-means "repeat the allocation until it succeeds" so the code path
-"if (!retry) return NULL" can never actually happen from this caller.
-The logic is somewhat convoluted, so it is not surprising that the
-checker didn't distinguish this case (it would have to have done the
-"constant" evaluation to drop the NULL return path from the code).
+On my development machine I've set up one kernel with the kgdb internal
+debugger, one kernel with the gdb-patch and one unpatched kernel with
+the usual debugging stuff enabled ( all kernels of the same version - of
+course ). Which kernel to run depends on the kind of problem to solve,
+and is IMHO more a question of personal taste.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+Regards
+Frank
+
 

@@ -1,31 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316562AbSEUIc5>; Tue, 21 May 2002 04:32:57 -0400
+	id <S316568AbSEUIeF>; Tue, 21 May 2002 04:34:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316568AbSEUIc4>; Tue, 21 May 2002 04:32:56 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:31431 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316562AbSEUIcz>;
-	Tue, 21 May 2002 04:32:55 -0400
-Date: Tue, 21 May 2002 01:18:58 -0700 (PDT)
-Message-Id: <20020521.011858.88884742.davem@redhat.com>
-To: beezly@beezly.org.uk
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: OOPS: ext3/sparc badness
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020521083004.GB18501@monkey.beezly.org.uk>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S316569AbSEUIeE>; Tue, 21 May 2002 04:34:04 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:41737 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S316568AbSEUIeD>; Tue, 21 May 2002 04:34:03 -0400
+Date: Tue, 21 May 2002 09:33:57 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: AUDIT: copy_from_user is a deathtrap.
+Message-ID: <20020521093357.A6641@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <mailman.1021642692.12772.linux-kernel2news@redhat.com> <200205191212.g4JCCLY25867@Port.imtp.ilyichevsk.odessa.ua> <20020520112232.A8983@devserv.devel.redhat.com> <200205210555.g4L5tfY29889@Port.imtp.ilyichevsk.odessa.ua> <20020521062118.GA13117@conectiva.com.br>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrew Beresford <beezly@beezly.org.uk>
-   Date: Tue, 21 May 2002 09:30:04 +0100
-   
-   Understood, but the reason I was using 3.0.4 was because sparc64-egcs
-   has been suspected of generating some bad code in the md.c (see the link
-   in the previous e-mail I sent).
+On Tue, May 21, 2002 at 03:21:18AM -0300, Arnaldo Carvalho de Melo wrote:
+> stay, but something like:
+> 
+> #define copyin(...) (copy_from_user(...) ? -EFAULT : 0)
+> #define copyout(...) (copy_to_user(...) ? -EFAULT : 0)
+> 
+> Like several drivers already have (with these names or with other names)
+> would be something interesting, that way we could clean up the ones that
+> use this construct and all the others that use the longer
+> 'copy_{to,from}_user(...) ? -EFAULT : 0' construct. If the powers that be
+> accept this, I'd do the work 8)
+> 
+> Is it *BSD that have copyin/copyout with this semantic? If so it'd even
+> have an extra bonus to make porting a little bit faster... 8)
 
-I don't think so... but please repost the link as I've deleted all of
-your emails.
+FreeBSD has:
+/* return 0 on success, EFAULT on failure */
+int copyin(const void *udaddr, void *kaddr, size_t len);
+int copyout(const void *kaddr, void *udaddr, size_t len);
+
+System V and derivates have:
+/* return 0 on success, -1 on failure */
+int  copyin(const  void  *userbuf, void *driverbuf, size_t cn);
+int  copyout(const  void *driverbuf, void *userbuf, size_t cn);
+
+OSF/1 has:
+/* return 0 on success, some non-specified error on failure) */
+int copyin(caddr_t user_src, caddr_t kernel_dest, u_int bcount);
+int copyout(caddr_t kernel_src, caddr_t user_dest, u_int bcount);
+

@@ -1,31 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285590AbRL1BE7>; Thu, 27 Dec 2001 20:04:59 -0500
+	id <S285608AbRL1BSV>; Thu, 27 Dec 2001 20:18:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284017AbRL1BEt>; Thu, 27 Dec 2001 20:04:49 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11271 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S283938AbRL1BEp>; Thu, 27 Dec 2001 20:04:45 -0500
+	id <S285591AbRL1BSL>; Thu, 27 Dec 2001 20:18:11 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:58575
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S285589AbRL1BSB>; Thu, 27 Dec 2001 20:18:01 -0500
+Date: Thu, 27 Dec 2001 20:02:38 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: ISA core vs. ISA card support
-To: esr@thyrsus.com
-Date: Fri, 28 Dec 2001 01:15:12 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel List)
-In-Reply-To: <20011227194444.A26341@thyrsus.com> from "Eric S. Raymond" at Dec 27, 2001 07:44:44 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Message-ID: <20011227200238.B26889@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011227194444.A26341@thyrsus.com> <E16Jlc8-0007ZK-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Jlc8-0007ZK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16Jlc8-0007ZK-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 28, 2001 at 01:15:12AM +0000
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> # There are PCI-only machines out there, but as of 2.4.0-test1 I'm told
-> # nobody has tested the kernel with an x86 lacking ISA.  Giacomo Catenazzi
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> I have tested on a couple of legacy free boxes. However they still have
+> what were once ISA devices lurking (IDE initial setup etc). Many PCI only
+> boxes have serial ports, parallel, floppy, even ISA style audio devices
+> on the mainboard internal busses
+> 
+> ISA slots I agree is a useful distinction however
 
-I have tested on a couple of legacy free boxes. However they still have
-what were once ISA devices lurking (IDE initial setup etc). Many PCI only
-boxes have serial ports, parallel, floppy, even ISA style audio devices
-on the mainboard internal busses
+Thanks, that's helpful.  I'll introduce an ISA_SLOTS private symbol, then.
+Later perhaps we can actually make this distinction in C code;  sounds
+like it would be a good idea.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-ISA slots I agree is a useful distinction however
+The biggest hypocrites on gun control are those who live in upscale
+developments with armed security guards -- and who want to keep other
+people from having guns to defend themselves.  But what about
+lower-income people living in high-crime, inner city neighborhoods?
+Should such people be kept unarmed and helpless, so that limousine
+liberals can 'make a statement' by adding to the thousands of gun laws
+already on the books?"
+	--Thomas Sowell

@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130036AbRAGLWO>; Sun, 7 Jan 2001 06:22:14 -0500
+	id <S130368AbRAGLYf>; Sun, 7 Jan 2001 06:24:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130368AbRAGLWF>; Sun, 7 Jan 2001 06:22:05 -0500
-Received: from james.kalifornia.com ([208.179.0.2]:2923 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S130036AbRAGLVt>; Sun, 7 Jan 2001 06:21:49 -0500
-Date: Sun, 7 Jan 2001 03:21:36 -0800 (PST)
-From: David Ford <david+nospam@killerlabs.com>
-Reply-To: David Ford <david+validemail@killerlabs.com>
-To: Matthias Juchem <juchem@uni-mannheim.de>
-cc: Brett <bpemberton@dingoblue.net.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new bug report script
-In-Reply-To: <Pine.LNX.4.30.0101071040250.7104-100000@gandalf.math.uni-mannheim.de>
-Message-ID: <Pine.LNX.4.10.10101070248180.4173-100000@Huntington-Beach.Blue-Labs.org>
+	id <S130526AbRAGLYY>; Sun, 7 Jan 2001 06:24:24 -0500
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:18446 "EHLO
+	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S130368AbRAGLYP>; Sun, 7 Jan 2001 06:24:15 -0500
+Message-ID: <001101c0789c$e006d7b0$0201a8c0@p3x2nt>
+From: oliver.kowalke@t-online.de (Oliver Kowalke)
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel 2.4.0 + software RAID causes problems
+Date: Sun, 7 Jan 2001 12:27:52 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2001, Matthias Juchem wrote:
-> I guess if you use a development version the above returns nothing. If I'm
-> right, a pre-release libc was recommended for use with 2.2.0 (I'm not
-> sure).
+Hi,
 
-Here is a random idea.
+on my machine (x86) I've debian2.2r2 with kernel 2.2.16 + raidtools 0.9
+running. No problems. Yesterday I installed kern 2.4.0 with the same
+configuration like 2.2.16. I added following to the boot params:
 
-get the pathname of the library(ies) then this sed expression:
+root=/dev/md0 md=0,/dev/hde1,/dev/hdg1
 
-sed \
- '/C [lL]ibrary /!d; s/[^0-9]*\([0-9.]*\).*/\1/' \
- /lib/libc.so.6
+If I boot 2.4.0 I can see following:
 
-For me it returns either 5.4.46 or 2.2 depending on what filename is fed to it.
-
-
-exp: the first regexp heavily filters the input data for the second so
-significantly less cpu is spent for the real matching.
-
-/C [lL]ibrary /!d  -- match example: "C Library "
-
-match #1:	[^0-9]*
-  match everything until we hit a digit
-match #2:	\([0-9.]*\)
-  match all digits and '.' and use pattern space #1
-match #3:	.*
-  match the remainder
-
-We're left with pattern space #1 holding the assumed library version number.
-
-This is done with sed version GNU 3.02.80, some versions differ, buyer beware.
-
-$ sed '/C [lL]ibrary /!d; s/[^0-9]*\([0-9.]*\).*/\1/' /lib/libc.so.6
-2.2
-$ sed '/C [lL]ibrary /!d; s/[^0-9]*\([0-9.]*\).*/\1/' /lib/libc.so.5
-5.4.46
-$ 
+...
+<init of raid>
+raid:0 md-size is 249728 blocks
+raid0: conf->smallest->size is 249728 blocks
+raid0: nb_zone is 1
+raid0: blocking 8 bytes for hash
+md: updating md0 RAID superblock on device                <<<------
+<...>
+... autorun DONE
+md: loading md0
+... md0 already autodetected -use raid=noautodetect
+<...>
+Parallelizing fsck version 1.18
+fsck.ext2: No such file or directory while trying to open /dev/md0 (null):
+The superblock could not be read or does not describe a correct ext2
+filesystem.
 
 
--d
+The filessystem is clean because I can mount it with kernel 2.2.16 without
+problems. Maybe kernel 2.4.0 does the wrong in updating the RAIS superblock
+on md0.
+Please help!
+
+with regards,
+Oliver
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

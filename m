@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261403AbSI3Slq>; Mon, 30 Sep 2002 14:41:46 -0400
+	id <S262835AbSI3SiZ>; Mon, 30 Sep 2002 14:38:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262834AbSI3Slq>; Mon, 30 Sep 2002 14:41:46 -0400
-Received: from pat.uio.no ([129.240.130.16]:37523 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S261403AbSI3Slp>;
-	Mon, 30 Sep 2002 14:41:45 -0400
+	id <S262836AbSI3SiZ>; Mon, 30 Sep 2002 14:38:25 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:52496 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S262835AbSI3SiY>;
+	Mon, 30 Sep 2002 14:38:24 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200209301843.g8UIhjZ151770@saturn.cs.uml.edu>
+Subject: Re: [ANNOUNCE] procps 2.0.9
+To: linux-kernel@vger.kernel.org
+Date: Mon, 30 Sep 2002 14:43:45 -0400 (EDT)
+In-Reply-To: <Pine.LNX.4.44L.0209301357500.22735-100000@imladris.surriel.com> from "Rik van Riel" at Sep 30, 2002 01:59:56 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15768.39971.417077.834216@charged.uio.no>
-Date: Mon, 30 Sep 2002 20:46:59 +0200
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Chuck Lever <cel@netapp.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux FSdevel <linux-fsdevel@vger.kernel.org>,
-       NFS maillist <nfs@lists.sourceforge.net>
-Subject: Re: [PATCH] 2.4.20 Direct IO patch for NFS. (Note: a trivial API change...)
-In-Reply-To: <20020930194227.A22095@infradead.org>
-References: <15768.39196.468797.249573@charged.uio.no>
-	<20020930194227.A22095@infradead.org>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Christoph Hellwig <hch@infradead.org> writes:
+> Procps is the package containing various system monitoring tools, like
+> ps, top, vmstat, free, kill, sysctl, uptime and more.  After a long
+> period of inactivity procps maintenance is active again and suggestions,
+> bugreports and patches are always welcome on the procps list.
 
-     > I don't think changing the filesystem entry points during 2.4
-     > is an option.
+It should be mentioned that this is a fork off of an obsolete
+code base. I was keeping quiet in hopes of resolving the fork.
+Many of the "fixes" have been in Debian's procps for years.
 
-DirectIO was added in the middle of the 2.4 'stable' period without
-any discussion. It should not benefit from the same protection that
-the standard APIs do.
+Debian's code has been fully maintained for years. It is
+available in CVS at SourceForge. Let us know what you think
+of the new "top" program.
 
-Cheers,
-  Trond

@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132471AbRDWWgM>; Mon, 23 Apr 2001 18:36:12 -0400
+	id <S132497AbRDWWgW>; Mon, 23 Apr 2001 18:36:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132488AbRDWWgI>; Mon, 23 Apr 2001 18:36:08 -0400
-Received: from t2.redhat.com ([199.183.24.243]:44281 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S132471AbRDWWfv>; Mon, 23 Apr 2001 18:35:51 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200104232225.f3NMPHrn001690@pincoya.inf.utfsm.cl> 
-In-Reply-To: <200104232225.f3NMPHrn001690@pincoya.inf.utfsm.cl> 
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Russell King <rmk@arm.linux.org.uk>, mythos <papadako@csd.uoc.gr>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Can't compile 2.4.3 with agcc 
-Mime-Version: 1.0
+	id <S132488AbRDWWgN>; Mon, 23 Apr 2001 18:36:13 -0400
+Received: from office.mandrakesoft.com ([195.68.114.34]:33274 "HELO
+	giants.mandrakesoft.com") by vger.kernel.org with SMTP
+	id <S132483AbRDWWgE>; Mon, 23 Apr 2001 18:36:04 -0400
+To: pawel.worach@mysun.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: i810_audio broken?
+In-Reply-To: <3804336226.3622638043@mysun.com>
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: 24 Apr 2001 00:34:33 +0100
+In-Reply-To: <3804336226.3622638043@mysun.com> ("Pawel Worach"'s message of "Mon, 23 Apr 2001 23:48:25 +0200")
+Message-ID: <m3n197ur5i.fsf@giants.mandrakesoft.com>
+User-Agent: Gnus/5.090002 (Oort Gnus v0.02) Emacs/21.0.100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 23 Apr 2001 23:35:38 +0100
-Message-ID: <4624.988065338@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Pawel Worach" <pworach@mysun.com> writes:
 
+> I was using mpg123 (xmms and c/o does exactly the same)
+> if I run it like this Moby sounds very stupid... :)
 
-vonbrand@inf.utfsm.cl said:
->  Your patch (tries to) transform a compile and link time check into a
-> runtime check. Not nice.
+i got the same problem when using mpg123 compiled with esd on my dell
+workstation (which has a need to have set explictely to a clocking of
+41194 via ftsodell option), compiling without esd seems fix the prob
+for me.
 
-It transforms a broken and cryptic compile-time check into a correct and
-informative runtime check.
-
-If you can provide a correct and informative compile-time check, that would 
-be wonderful.
-
---
-dwmw2
-
-
+-- 
+Chmouel

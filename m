@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132409AbRAIXBh>; Tue, 9 Jan 2001 18:01:37 -0500
+	id <S132277AbRAIXC5>; Tue, 9 Jan 2001 18:02:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132277AbRAIXB1>; Tue, 9 Jan 2001 18:01:27 -0500
-Received: from main.cyclades.com ([209.128.87.2]:11790 "EHLO cyclades.com")
-	by vger.kernel.org with ESMTP id <S130018AbRAIXBQ>;
-	Tue, 9 Jan 2001 18:01:16 -0500
-Date: Tue, 9 Jan 2001 15:01:07 -0800 (PST)
-From: Ivan Passos <lists@cyclades.com>
-To: David Weinehall <tao@acc.umu.se>
+	id <S130018AbRAIXCr>; Tue, 9 Jan 2001 18:02:47 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:34845 "EHLO
+	amsmta05-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S132277AbRAIXCg>; Tue, 9 Jan 2001 18:02:36 -0500
+Date: Wed, 10 Jan 2001 01:09:31 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Andries.Brouwer@cwi.nl
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [Announcement] linux-kernel v2.0.39
-In-Reply-To: <20010109234804.E18733@khan.acc.umu.se>
-Message-ID: <Pine.LNX.4.10.10101091500120.17710-100000@main.cyclades.com>
+Subject: Re: 2.2.18 and Maxtor 96147H6 (61 GB)
+In-Reply-To: <UTC200101081556.QAA147730.aeb@texel.cwi.nl>
+Message-ID: <Pine.LNX.4.21.0101100106280.12970-100000@server.serve.me.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 9 Jan 2001, David Weinehall wrote:
+> > 2.2.18 sometimes sees 61 GB, sometimes 32 GB.
+> > I don't call that hard to understand.
+> 
+> The same kernel has varying behaviour?
+> Maybe not hard to understand, but rather surprising.
+> You are the first to report nondeterministic behaviour.
 
-> Everyone laughs, I guess. The 2.0.39final didn't became the final
-> release (could've told you so...) The good thing? Well, some bugs were
-> found and removed. But this is it. Enjoy!
+You're not the only one that is suprised :
 
-<snip>
+1) Put disk in my machine (target machine hangs itself with the disk)
+2) use setmax to set the limit to 32 GB
+3) Put the disk in the target machine
+4) System boots, linux sees 64GB
+5) rebooted system, system hangs due to the soft clippig 'vanished'
 
-Well, where is it?? :)
+I even had occurences of the kernel setmax message showing up, and after a
+plain reboot it didn't.
 
-I tried ftp.us.kernel.org, but couldn't find it. Maybe it hasn't
-propagated thru the mirrors yet ...
+It beats me.. I can't explain, and the machine is rock solid now.
 
-Later,
-Ivan
+
+
+	Igmar
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

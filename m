@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265163AbUATHXW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 02:23:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265168AbUATHXW
+	id S265251AbUATHcn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 02:32:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265253AbUATHcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 02:23:22 -0500
-Received: from mail-10.iinet.net.au ([203.59.3.42]:7112 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265163AbUATHXU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 02:23:20 -0500
-Message-ID: <400CD4B5.6020507@cyberone.com.au>
-Date: Tue, 20 Jan 2004 18:11:49 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Tue, 20 Jan 2004 02:32:43 -0500
+Received: from [212.28.208.94] ([212.28.208.94]:29715 "HELO dewire.com")
+	by vger.kernel.org with SMTP id S265251AbUATHcm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 02:32:42 -0500
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Compiling C++ kernel module + Makefile
+Date: Tue, 20 Jan 2004 08:32:39 +0100
+User-Agent: KMail/1.5.94
+References: <20040116210924.61545.qmail@web12008.mail.yahoo.com> <200401200159.22693.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.58.0401192241080.2311@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0401192241080.2311@home.osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Tim Hockin <thockin@hockin.org>
-CC: Rusty Russell <rusty@au1.ibm.com>, vatsa@in.ibm.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
-       rml@tech9.net
-Subject: Re: CPU Hotplug: Hotplug Script And SIGPWR
-References: <20040116174446.A2820@in.ibm.com> <20040120060027.91CC717DE5@ozlabs.au.ibm.com> <20040120063316.GA9736@hockin.org> <400CCE2F.2060502@cyberone.com.au> <20040120065207.GA10993@hockin.org>
-In-Reply-To: <20040120065207.GA10993@hockin.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200401200832.39696.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+tisdagen den 20 januari 2004 07.46 skrev du:
+> On Tue, 20 Jan 2004, Robin Rosenberg wrote:
+> > 
+> > This is the "We've always used COBOL^H^H^H^H" argument. 
+> 
+> In fact, in Linux we did try C++ once already, back in 1992.
+> 
+> It sucks. Trust me - writing kernel code in C++ is a BLOODY STUPID IDEA.
+> 
+I know C++ in and out. I love it and hate it.  I had a nightmare once in which I
+a had convinced a friend how wonderful C++ is. A while later he came back., and
+he was mad.
 
+> The fact is, C++ compilers are not trustworthy. They were even worse in 
+> 1992, but some fundamental facts haven't changed:
+> [snip]
 
-Tim Hockin wrote:
+Now THAT is the reason.
 
->On Tue, Jan 20, 2004 at 05:43:59PM +1100, Nick Piggin wrote:
->
->>>I think the sanest thing for a CPU removal is to migrate everything off the
->>>processor in question, move unrunnable tasks into TASK_UNRUNNABLE state,
->>>then notify /sbin/hotplug.  The hotplug script can then find and handle the
->>>unrunnable tasks.  No SIGPWR grossness needed.
->>>
->>>Code against 2.4 at http://www.hockin.org/~thockin/procstate - it was
->>>heavily tested and I *think* it is all correct (for that kernel snapshot).
->>>
->>Seems less robust and more ad hoc than SIGPWR, however.
->>
->
->Disagree.  SIGPWR will kill any process that doesn't catch it.  That's
->policy.  It seems more robust to let the hotplug script decide what to do.
->If it wants to kill each unrunnable task with SIGPWR, it can.  But if it
->wants to let them live, it can.
->
-
-I thought hotplug is allowed to fail? Thus you can have a hung system.
-Or what if the hotplug script itself becomes TASK_UNRUNNABLE? What if the
-process needs a guaranteed scheduling latency?
-
-(I dropped lhcs-devel@lists.sourceforge.net because its moderated)
-
-
+-- robin

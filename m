@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265488AbUBAWhb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 17:37:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265493AbUBAWha
+	id S265533AbUBAWqd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 17:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265536AbUBAWqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 17:37:30 -0500
-Received: from hibernia.jakma.org ([213.79.33.168]:34182 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S265488AbUBAWh3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 17:37:29 -0500
-Date: Sun, 1 Feb 2004 22:36:52 +0000 (GMT)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: =?iso-8859-1?Q?Markus_H=E4stbacka?= <midian@ihme.org>
-cc: Christian Borntraeger <kernel@borntraeger.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Uptime counter
-In-Reply-To: <Pine.LNX.4.44.0402012314310.6574-100000@midi>
-Message-ID: <Pine.LNX.4.58.0402012235270.1071@fogarty.jakma.org>
-References: <Pine.LNX.4.44.0402012314310.6574-100000@midi>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+	Sun, 1 Feb 2004 17:46:32 -0500
+Received: from gprs158-128.eurotel.cz ([160.218.158.128]:34177 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265533AbUBAWqb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 17:46:31 -0500
+Date: Sun, 1 Feb 2004 23:46:22 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Huw Rogers <count0@localnet.com>
+Cc: linux-kernel@vger.kernel.org, ncunningham@users.sourceforge.net,
+       linux-laptop@mobilix.org, acpi-devel@lists.sourceforge.net
+Subject: Re: APM good, ACPI bad (2.6.2-rc1 / p4 HT / Uniwill N258SA0)
+Message-ID: <20040201224621.GA785@elf.ucw.cz>
+References: <1075231649.18386.34.camel@laptop-linux> <37778.199.172.169.20.1075236597.squirrel@webmail.localnet.com> <20040201151411.3A7B.COUNT0@localnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040201151411.3A7B.COUNT0@localnet.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Feb 2004, Markus Hästbacka wrote:
+Hi!
 
-> I know, but running a 2.0.x machine with that kind of uptime isn't
-> really that bad, thought if the machine has alot of accounts it
-> wouldn't be that great idea.
+> Got Uniwill N258SA0 laptop suspend/resume working (2.6.2-rc1-mm3) with
+> APM. Patch enclosed. CPU is desktop P4 with hyperthreading.
 
-2.0? 2.2 has been out more than long enough for boxes running such 
-kernels to have rolled over several times already.
+The patch is rather big. Can you get someone to test it with ACPI, and
+if it helps (or at least does not break things), submit to Andrew?
 
-security: if the box concerned is heavily firewalled and partitioned 
-away from rest of internet, whats the problem? :)
+[Do *not* enable suspend on SMP for mainline, unless you are willing
+to audit that code...]
 
-> But anyway, thanks for the information!
-> 
-> 	Markus
+								Pavel
 
-regards,
 -- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-	warning: do not ever send email to spam@dishone.st
-Fortune:
-"Probably the best operating system in the world is the [operating system]
- made for the PDP-11 by Bell Laboratories." - Ted Nelson, October 1977
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

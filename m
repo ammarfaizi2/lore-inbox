@@ -1,187 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267528AbUIUJOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267538AbUIUJPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267528AbUIUJOu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 05:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267538AbUIUJOu
+	id S267538AbUIUJPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 05:15:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267542AbUIUJPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 05:14:50 -0400
-Received: from camus.xss.co.at ([194.152.162.19]:46354 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id S267528AbUIUJOm (ORCPT
+	Tue, 21 Sep 2004 05:15:24 -0400
+Received: from cantor.suse.de ([195.135.220.2]:22226 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267538AbUIUJPB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 05:14:42 -0400
-Message-ID: <414FF0EB.6020505@xss.co.at>
-Date: Tue, 21 Sep 2004 11:14:19 +0200
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com, andrewm@uow.edu.au
-Subject: [PATCH][2.4.28-pre3] 3c59x builtin NIC on Asus Pundit-R
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------040209090006020707080303"
+	Tue, 21 Sep 2004 05:15:01 -0400
+Date: Tue, 21 Sep 2004 11:13:54 +0200
+From: Andi Kleen <ak@suse.de>
+To: Ray Bryant <raybry@sgi.com>
+Cc: Andi Kleen <ak@suse.de>, William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       Ray Bryant <raybry@austin.rr.com>, linux-mm <linux-mm@kvack.org>,
+       Jesse Barnes <jbarnes@sgi.com>, Dan Higgins <djh@sgi.com>,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       Brent Casavant <bcasavan@sgi.com>, Nick Piggin <piggin@cyberone.com.au>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Paul Jackson <pj@sgi.com>,
+       Dave Hansen <haveblue@us.ibm.com>, stevel@mwwireless.net
+Subject: Re: [PATCH 2.6.9-rc2-mm1 0/2] mm: memory policy for page cache allocation
+Message-ID: <20040921091353.GG8058@wotan.suse.de>
+References: <20040920190033.26965.64678.54625@tomahawk.engr.sgi.com> <20040920205509.GF4242@wotan.suse.de> <414F560E.7060207@sgi.com> <20040920223742.GA7899@wotan.suse.de> <414F8424.5080308@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <414F8424.5080308@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040209090006020707080303
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Mon, Sep 20, 2004 at 08:30:12PM -0500, Ray Bryant wrote:
+> Andi Kleen wrote:
+> >On Mon, Sep 20, 2004 at 05:13:34PM -0500, Ray Bryant wrote:
+> >
+> >>system wide memory allocation policy issue.  It seems cleaner to me to 
+> >>keep that all within the scope of the NUMA API rather than hiding details 
+> >>of it here and there in /proc.  And we need the full generality of the 
+> >>NUMA API, to, for example:
+> >
+> >
+> >True for cpuset you will need it.
+> >
+> >
+> >>>Well, you just have to change the callers to pass it in. I think
+> >>>computing the interleaving on a offset and perhaps another file
+> >>>identifier is better than having the global counter.
+> >>>
+> >>
+> >>In our case that means changing each and every call to page_cache_alloc()
+> >>to include an appropriate offset.  This is a change that richochets 
+> >>through the machine independent code and makes this harder to contain in 
+> >>the NUMA
+> >>subsystem.
+> >
+> >
+> >I count two callers of page_cache_alloc in 2.6.9rc2 (filemap.c and
+> >XFS pagebuf). Hardly seems like a big issue to change them both. 
+> >Of course getting the offset there might be tricky, but should be 
+> >doable.
+> >
+> 
+> Fair enough.  Another option I was thinking of was hiding a global counter
+> in page_cache_alloc itself and using it to provide a value for the offset
+> there.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Please don't. Just use an offset and a hash on (dev_t, inode number) 
 
-Hi Marcelo!
+> >
+> >Any allocation algorithm will have such a worst case, so I'm not
+> >too worried. Given ia hash function is not too bad it should
+> >be bearable.
+> >
+> >The nice advantage of the static offset is that it makes benchmarks
+> >actually repeatable and is completely lockless
+> >
+> 
+> I can see the advantages of that.  But the state of the page cache is still
+> something we have to deal with for benchmarks.
 
-(Sorry for crossposting, but contact adresses in driver
-documentation and MAINTAINERS file look a little bit
-outdated and I wanted the right persons to receive this
-mail. Methinks the maintainer infos could use some update,
-too... :-)
+Umounting the file systems with the data files usually works pretty
+well.
 
-The Asus Pundit-R is a nice barebone system useful to
-build small and compact desktop workstations. It uses
-an Asus P4R8L motherboard which has an ATI chipsed on
-board.
+Or longer term if it's a real issue one could write a workload manager
+that can actually change policies for existing pages. But I'm not 
+sure how such a beast would really work.
 
-root@install:~ {589} $ lspci
-00:00.0 Host bridge: ATI Technologies Inc Radeon 9100 IGP Host Bridge (rev 02)
-00:01.0 PCI bridge: ATI Technologies Inc Radeon 9100 IGP AGP Bridge
-00:13.0 USB Controller: ATI Technologies Inc: Unknown device 4347 (rev 01)
-00:13.1 USB Controller: ATI Technologies Inc: Unknown device 4348 (rev 01)
-00:13.2 USB Controller: ATI Technologies Inc: Unknown device 4345 (rev 01)
-00:14.0 SMBus: ATI Technologies Inc ATI SMBus (rev 18)
-00:14.1 IDE interface: ATI Technologies Inc: Unknown device 4349
-00:14.3 ISA bridge: ATI Technologies Inc: Unknown device 434c
-00:14.4 PCI bridge: ATI Technologies Inc: Unknown device 4342
-00:14.5 Multimedia audio controller: ATI Technologies Inc IXP150 AC'97 Audio Controller
-01:05.0 VGA compatible controller: ATI Technologies Inc Radeon 9100 IGP
-02:08.0 Ethernet controller: 3Com Corporation 3Com 3C920B-EMB-WNM Integrated Fast Ethernet Controller (rev 40)
-02:0a.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 80)
-02:0c.0 CardBus bridge: ENE Technology Inc CB710 Cardbus Controller (rev 02)
-02:0c.1 FLASH memory: ENE Technology Inc CB710 Memory Card Reader Controller
+> >>be MPOL_INTERLEAVE or potentially MPOL_ROUNDROBIN depending on the 
+> >>workload that the system is running.
+> >
+> >
+> >I think I'm still a bit confused by your terminology.
+> >I thought the page cache policy was per process? Now you
+> >are talking about another global unrelated policy?
+> >
+> 
+> 
+> I'm sorry if this is confusing, personal terminology usually gets in the 
+> way.
+> 
+> The idea is that just like for the page allocation policy (your current 
+> code), if you wanted, you would have a global, default page cache 
 
-With a standard Linux 2.4.x kernel (tested with x >= 26),
-every hardware component(*) works fine, except the built-in
-ethernet controller.
+Having both a per process page cache and a global page cache policy
+would seem like overkill to me.
 
-As you can see, lspci tells us that this is an 3Com 3c920
-integrated NIC. The standard 3c59x driver does not recognise
-this piece of hardware. But with a small patch applied, it does,
-and the network interface driver works without problems!
+And having both doesn't make much sense anyways, because when the 
+system admin wants to change the global policy to free memory
+on nodes he would still need to worry about conflicting per process policies 
+anyways. So as soon as you have process policy you cannot easily
+change global anymore.
 
-root@install:~ {602} $ ifconfig
-eth0      Link encap:Ethernet  HWaddr 00:0E:A6:C3:5A:76
-          inet addr:192.168.162.99  Bcast:192.168.162.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:7879510 errors:0 dropped:0 overruns:1 frame:0
-          TX packets:7220166 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000
-          RX bytes:4193721321 (3999.4 Mb)  TX bytes:496933951 (473.9 Mb)
-          Interrupt:18 Base address:0xec00
+> allocation policy, probably set at boot time or shortly thereafter, 
+> probably before any (or at least most) page cache pages have been 
+> allocated.  You could also have a per process policy setting that would 
+> override the global policy, for processes that needed it, but I honestly 
+> don't have a good case for this except for symmetry with the existing code.
 
-root@install:~ {604} $ mii-tool -v
-eth0: negotiated 100baseTx-FD, link ok
-  product info: vendor 00:00:20, model 32 rev 1
-  basic mode:   autonegotiation enabled
-  basic status: autonegotiation complete, link ok
-  capabilities: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
-  advertising:  100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
-  link partner: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD flow-control
+cpusets was the good case for it that you mentioned. 
+Or did I misunderstand you?
 
-dmesg output:
-[...]
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-See Documentation/networking/vortex.txt
-02:08.0: 3Com PCI 3c920B-EMB-WNM (ATI Radeon 9100 IGP) at 0xec00. Vers LK1.1.18-ac
- 00:0e:a6:c3:5a:76, IRQ 18
-  product code f800 rev 00.0 date 00-04-02
-  Internal config register is 1600000, transceivers 0x40.
-  8K byte-wide RAM 5:3 Rx:Tx split, autoselect/MII interface.
-  MII transceiver found at address 1, status 786d.
-  Enabling bus-master transmits and whole-frame receives.
-02:08.0: scatter/gather enabled. h/w checksums enabled
-[...]
+> >Anyways, I guess you could just add a high flag bit to the 
+> >mode argument of set_mempolicy. Something like
+> >
+> >set_mempolicy(MPOL_PAGECACHE | MPOL_INTERLEAVE, nodemask, len)
+> >
+> >That would work for setting the page cache policy of the current
+> >process. 
+> >
+> >
+> 
+> That's an idea.  Not they way I was planning on doing it, but that would
+> work.  I was thinking along the lines of:
+> 
+> set_mempolicy(MPOL_INTERLEAVE, nodemask, len, POLICY_PAGECACHE);
+> 
+> but either way can be made to work.
 
-Detailled PCI infos about this device:
-[...]
-02:08.0 Class 0200: 10b7:9202 (rev 40)
-        Subsystem: 1043:8108
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 (2500ns min, 2500ns max), cache line size 10
-        Interrupt: pin A routed to IRQ 18
-        Region 0: I/O ports at ec00 [size=128]
-        Region 1: Memory at fe200000 (32-bit, non-prefetchable) [size=128]
-        Expansion ROM at fe100000 [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-[...]
+That would be set_mempolicy2() essentially because the existing
+users don't pass this additional argument. I think passing the flags
+in the first argument is more compatible.
 
-I have tested this patch on three different Pundit-R
-barebones with a few different kernels for several weeks now.
-I started with linux-2.4.26 and have now 2.4.28pre3 running.
-It seems to work well with no ill sideffects. I have not
-tested all possible driver options, though.
-
-Note: This patch was not created originally be me, but I do
-not remember where I got it from in the first place. As it
-works well for me I would like to submit it for inclusion
-in the next kernel release.
-
-Please take a look at the patch and consider including it
-in the next 2.4 kernel. Thank you.
-
-- - andreas
-
-(*) I did not have the time to test the memory card reader,
-so I can't say if it works ;-)
-
-- --
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFBT/DYxJmyeGcXPhERAlhGAJ9WJK/Zj3h+8EtLSkularfmV8gqtgCbB+4T
-uQuMA/RaiSUurIK3hMxhZk0=
-=cSPQ
------END PGP SIGNATURE-----
-
---------------040209090006020707080303
-Content-Type: application/octet-string;
- name="013-3com_ati_radeon.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="013-3com_ati_radeon.patch"
-
-LS0tIGxpbnV4L2RyaXZlcnMvbmV0LzNjNTl4LmMub3JpZwkyMDA0LTA4LTA0IDExOjI2OjQ0
-LjAwMDAwMDAwMCArMDIwMAorKysgbGludXgvZHJpdmVycy9uZXQvM2M1OXguYwkyMDA0LTA4
-LTA0IDExOjI3OjMxLjAwMDAwMDAwMCArMDIwMApAQCAtNDI5LDYgKzQyOSw3IEBACiAJQ0hf
-M0M5MDVCXzIsCiAJQ0hfM0M5MDVCX0ZYLAogCUNIXzNDOTA1QywKKwlDSF8zQzkyMDIsCiAJ
-Q0hfM0M5ODAsCiAJQ0hfM0M5ODA1LAogCkBAIC01MDUsNiArNTA2LDggQEAKIAkgUENJX1VT
-RVNfSU98UENJX1VTRVNfTUFTVEVSLCBJU19DWUNMT05FfEhBU19IV0NLU00sIDEyOCwgfSwK
-IAl7IjNjOTA1QyBUb3JuYWRvIiwKIAkgUENJX1VTRVNfSU98UENJX1VTRVNfTUFTVEVSLCBJ
-U19UT1JOQURPfEhBU19OV0FZfEhBU19IV0NLU00sIDEyOCwgfSwKKwl7IjNjOTIwQi1FTUIt
-V05NIChBVEkgUmFkZW9uIDkxMDAgSUdQKSIsCisJUENJX1VTRVNfSU98UENJX1VTRVNfTUFT
-VEVSLCBJU19UT1JOQURPfEhBU19NSUl8SEFTX0hXQ0tTTSwgMTI4LCB9LAogCXsiM2M5ODAg
-Q3ljbG9uZSIsCiAJIFBDSV9VU0VTX0lPfFBDSV9VU0VTX01BU1RFUiwgSVNfQ1lDTE9ORXxI
-QVNfSFdDS1NNLCAxMjgsIH0sCiAJeyIzYzk4MEMgUHl0aG9uLVQiLApAQCAtNTgxLDYgKzU4
-NCw3IEBACiAJeyAweDEwQjcsIDB4OTA1OCwgUENJX0FOWV9JRCwgUENJX0FOWV9JRCwgMCwg
-MCwgQ0hfM0M5MDVCXzIgfSwKIAl7IDB4MTBCNywgMHg5MDVBLCBQQ0lfQU5ZX0lELCBQQ0lf
-QU5ZX0lELCAwLCAwLCBDSF8zQzkwNUJfRlggfSwKIAl7IDB4MTBCNywgMHg5MjAwLCBQQ0lf
-QU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCBDSF8zQzkwNUMgfSwKKwl7IDB4MTBCNywgMHg5
-MjAyLCBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCBDSF8zQzkyMDIgfSwKIAl7IDB4
-MTBCNywgMHg5ODAwLCBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCBDSF8zQzk4MCB9
-LAogCXsgMHgxMEI3LCAweDk4MDUsIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIENI
-XzNDOTgwNSB9LAogCg==
---------------040209090006020707080303--
-
+-andi

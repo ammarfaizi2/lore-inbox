@@ -1,51 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbUCIAaV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 19:30:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbUCIAaU
+	id S261398AbUCIAbS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 19:31:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbUCIAbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 19:30:20 -0500
-Received: from hera.kernel.org ([63.209.29.2]:61841 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261220AbUCIAaP (ORCPT
+	Mon, 8 Mar 2004 19:31:18 -0500
+Received: from fw.osdl.org ([65.172.181.6]:982 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261398AbUCIAbQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 19:30:15 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: [PATCH] UTF-8ifying the kernel source
-Date: Tue, 9 Mar 2004 00:30:05 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c2j36d$2ej$1@terminus.zytor.com>
-References: <20040304100503.GA13970@havoc.gtf.org> <20040305232425.GA6239@havoc.gtf.org> <c2b2o0$cbp$1@terminus.zytor.com> <1078571331.963.3.camel@bip.parateam.prv>
+	Mon, 8 Mar 2004 19:31:16 -0500
+Date: Mon, 8 Mar 2004 16:33:16 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Thomas Schlichter <thomas.schlichter@web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.4-rc2] bogus semicolon behind if()
+Message-Id: <20040308163316.47b8172b.akpm@osdl.org>
+In-Reply-To: <200403090014.03282.thomas.schlichter@web.de>
+References: <200403090014.03282.thomas.schlichter@web.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Trace: terminus.zytor.com 1078792205 2516 63.209.29.3 (9 Mar 2004 00:30:05 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Tue, 9 Mar 2004 00:30:05 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <1078571331.963.3.camel@bip.parateam.prv>
-By author:    Xavier Bestel <xavier.bestel@free.fr>
-In newsgroup: linux.dev.kernel
+Thomas Schlichter <thomas.schlichter@web.de> wrote:
 >
-> Le sam 06/03/2004 à 00:33, H. Peter Anvin a écrit :
-> > Followup to:  <20040305232425.GA6239@havoc.gtf.org>
-> > By author:    David Eger <eger@havoc.gtf.org>
-> > In newsgroup: linux.dev.kernel
-> > 
-> > > The third patch concerns 8-bit characters embedded in C strings.
-> > > These are almost always output to devfs or proc.  The characters used are
-> > > the degrees symbol (for ppc temp. sensors) and mu (for micro-seconds).
-> >
-> > I would highly vote for making those UTF-8 unless it breaks protocol.
-> 
-> ISO-8859-1 characters are mostly the same in UTF-8.
-> 
+> P.S.: Wouldn't it be nice if gcc complained about these mistakes?
 
-Unicode, yes.  UTF-8, no.  The ISO-8859-1 character "Å" (0xC5) does,
-indeed correspond to Unicode character U+00C5, but it's encoded 0xC3
-0x85 in UTF-8.
+It does, with -W.  But -W creates vast amounts of less useful warnings.
 
-	-hpa

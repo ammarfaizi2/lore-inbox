@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315282AbSGQQQP>; Wed, 17 Jul 2002 12:16:15 -0400
+	id <S315372AbSGQQRw>; Wed, 17 Jul 2002 12:17:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315358AbSGQQQP>; Wed, 17 Jul 2002 12:16:15 -0400
-Received: from ns.suse.de ([213.95.15.193]:48644 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S315282AbSGQQQN>;
-	Wed, 17 Jul 2002 12:16:13 -0400
-Date: Wed, 17 Jul 2002 18:19:02 +0200
-From: Dave Jones <davej@suse.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5]  July 17, 2002
-Message-ID: <20020717181901.G18170@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	Guillaume Boissiere <boissiere@adiglobal.com>,
-	linux-kernel@vger.kernel.org
-References: <3D34C75C.13697.11D651E4@localhost> <Pine.LNX.4.33L2.0207170908060.29653-100000@dragon.pdx.osdl.net>
+	id <S315370AbSGQQRw>; Wed, 17 Jul 2002 12:17:52 -0400
+Received: from plum.csi.cam.ac.uk ([131.111.8.3]:14792 "EHLO
+	plum.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S315372AbSGQQRn>; Wed, 17 Jul 2002 12:17:43 -0400
+Message-Id: <5.1.0.14.2.20020717171311.00b00380@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 17 Jul 2002 17:20:39 +0100
+To: Andrew Morton <akpm@zip.com.au>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: [patch 13/13] lseek speedup
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D3598F0.FBBA9DB6@zip.com.au>
+References: <3D35012B.EE9B1ABB@zip.com.au>
+ <5.1.0.14.2.20020717103038.00a8c7a0@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L2.0207170908060.29653-100000@dragon.pdx.osdl.net>
-User-Agent: Mutt/1.3.22.1i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 17, 2002 at 09:10:19AM -0700, Randy.Dunlap wrote:
- > | With the code freeze date approaching soon, it is obvious that many
- > Oct. 31 is feature freeze date, or so several of us understood.
+Hi Andrew,
 
-yep.
+At 17:18 17/07/02, Andrew Morton wrote:
+>Anton Altaparmakov wrote:
+> > At 06:31 17/07/02, Andrew Morton wrote:
+> > >This is a fairly dopey patch to fix up the i_sem contention in lseek.
+> > >Better ideas are welcome, but I'm offline until Monday so don't think
+> > >I'm ignoring them...
+> >
+> > I am afraid I don't have any better ideas but I don't think your patch is
+> > safe. )-:
+>
+>It wasn't a very good idea in the first place.  Forgot to take
+>the new lock over in the updaters of f_pos.
+>
+>And it's attempting to cater for a buggy application on a 32-bit
+>machine, SMP, where the fd is shared.  It's hard to justify
+>putting any locking in lseek for that.  (Then again, people
+>should use pread() more..)
+>
+>Except for readdir().  Now, why are we taking i_sem for lseek/readdir
+>exclusion and not a per-file lock?
 
- > | of these projects will not get merged in the next 3 months.
- > | What would you rather me do?  Keep them in here just for reference,
- > | mark them as post-code freeze or just delete them?
- > I think that you have more than 3 months to continue updating this.  :)
+Because it also excludes against directory modifications, etc. Just imagine 
+what "rm somefile" or "mv somefile otherfile" or "touch newfile" would do 
+to the directory contents and what a concurrent readdir() would do... A 
+very loud *BANG* is the only thing that springs to mind...
 
-It would actually be useful to have some more people propose input
-on Guillaume's list at some point, or even to suggest removal of
-items unlikely to happen.
+btw. the directory modification locking rules are written up in 
+Documentation/filesystems/directory-locking by our very own VFS maintainer 
+Al Viro himself... (-;
 
- > | o Started     Reorder x86 initialization                      (Dave Jones,
- > | Randy Dunlap)
- > Please change this one to Pat Mochel.
+Cheers,
 
-There's also a lot of cross-over with this item and the
-x86 subarch support which James Bottomley has been working on.
-I've been kicking that patch around a little the last few days,
-and I'll be merging it soon, so we can get a taste for how
-arch/i386/ *could* look.
+         Anton
 
-        Dave
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

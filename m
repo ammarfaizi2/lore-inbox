@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265981AbSKDIAJ>; Mon, 4 Nov 2002 03:00:09 -0500
+	id <S265980AbSKDICY>; Mon, 4 Nov 2002 03:02:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265982AbSKDIAJ>; Mon, 4 Nov 2002 03:00:09 -0500
-Received: from gzp11.gzp.hu ([212.40.96.53]:65296 "EHLO odpn1.odpn.net")
-	by vger.kernel.org with ESMTP id <S265981AbSKDIAH>;
-	Mon, 4 Nov 2002 03:00:07 -0500
+	id <S265982AbSKDICY>; Mon, 4 Nov 2002 03:02:24 -0500
+Received: from mx0.gmx.net ([213.165.64.100]:40338 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S265980AbSKDICX>;
+	Mon, 4 Nov 2002 03:02:23 -0500
+Date: Mon, 4 Nov 2002 09:08:50 +0100 (MET)
+From: Dieter.Ferdinand@gmx.de
 To: linux-kernel@vger.kernel.org
-From: "Gabor Z. Papp" <gzp@myhost.mynet>
-Subject: Re: 2.4.20-rc1 [SCSI] local symbols in discarded section .text.exit
-References: <acb.3dc624fd.65ec7@gzp1.gzp.hu>
-Organization: Who, me?
-User-Agent: tin/1.5.15-20021023 ("Soil") (UNIX) (Linux/2.4.20-rc1 (i686))
-Message-ID: <1155.3dc62a8f.b93b4@gzp1.gzp.hu>
-Date: Mon, 04 Nov 2002 08:06:39 -0000
+MIME-Version: 1.0
+Subject: nfs-problem with kernel 2.4.19
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0000222744@gmx.net
+X-Authenticated-IP: [149.211.153.105]
+Message-ID: <23837.1036397330@www52.gmx.net>
+X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Gabor Z. Papp <gzp@myhost.mynet>:
+hello,
+i have a problem with my nfs-mounts on a dual-p2 350 Mhz system with kernel
+2.4.19.
 
-| Linux 2.4.20-rc1
-| glibc 2.2.5
-| gcc 2.95.4
-| GNU ld version 2.13.90.0.10 20021010
-| 
-| make[1]: Leaving directory `/usr/src/linux-2.4.20-rc1-ibm/arch/i386/lib'
-| ld -m elf_i386 -T /usr/src/linux-2.4.20-rc1-ibm/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o init/do_mounts.o \
-|        --start-group \
-|        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-|         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/scsi/scsidrv.o drivers/pci/driver.o drivers/video/video.o \
-|        net/network.o \
-|        /usr/src/linux-2.4.20-rc1-ibm/arch/i386/lib/lib.a /usr/src/linux-2.4.20-rc1-ibm/lib/lib.a /usr/src/linux-2.4.20-rc1-ibm/arch/i386/lib/lib.a \
-|        --end-group \
-|        -o vmlinux
-| drivers/scsi/scsidrv.o(.data+0x3ad4): undefined reference to `local symbols in discarded section .text.exit'
-| drivers/scsi/scsidrv.o(.data+0x3b14): undefined reference to `local symbols in discarded section .text.exit'
-| drivers/scsi/scsidrv.o(.data+0x3b54): undefined reference to `local symbols in discarded section .text.exit'
-| make: *** [vmlinux] Error 1
-| 
-| #
-| # Automatically generated make config: don't edit
-| #
-| CONFIG_X86=y
-[...]
-| CONFIG_SCSI_IPS=y
-[...]
+some times, when i transfer data over the network, the mount hangs and the
+network-connection is ok.
 
-Keith Owens wrote a nice perl script to debug, found on http://kernelnewbies.org/scripts/
+all tries to kill the processes which use this mount failed.
+i must reboot the pc.
 
-$ reference_discarded.pl 
-Finding objects, 396 objects, ignoring 0 module(s)
-Finding conglomerates, ignoring 31 conglomerate(s)
-Scanning objects
-Error: ./drivers/scsi/ips.o .data refers to 000000d4 R_386_32          .text.exit
-Error: ./drivers/scsi/ips.o .data refers to 00000114 R_386_32          .text.exit
-Error: ./drivers/scsi/ips.o .data refers to 00000154 R_386_32          .text.exit
-Done
+same problem is, when a smb-mount (connect-program terminates without
+umount) dies where it is in use.
+the i have a mount, which doesn't funktion and all programs which acces this
+mount hangs for all time.
 
-Seems like its the IBM ServeRAID support.
+goodby
+
+-- 
++++ GMX - Mail, Messaging & more  http://www.gmx.net +++
+NEU: Mit GMX ins Internet. Rund um die Uhr für 1 ct/ Min. surfen!
 

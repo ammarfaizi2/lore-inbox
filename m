@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317882AbSFSNwE>; Wed, 19 Jun 2002 09:52:04 -0400
+	id <S317261AbSFSN5P>; Wed, 19 Jun 2002 09:57:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317888AbSFSNwD>; Wed, 19 Jun 2002 09:52:03 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:48072 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S317882AbSFSNwC>;
-	Wed, 19 Jun 2002 09:52:02 -0400
-Date: Wed, 19 Jun 2002 15:51:54 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: "Andre M. Hedrick" <andre@linux-ide.org>
-Subject: [PATCH] ide+block tag support, 2.4.19-pre10
-Message-ID: <20020619135154.GD812@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S317884AbSFSN5O>; Wed, 19 Jun 2002 09:57:14 -0400
+Received: from parmenides.zen.co.uk ([212.23.8.69]:28691 "HELO
+	parmenides.zen.co.uk") by vger.kernel.org with SMTP
+	id <S317261AbSFSN5N>; Wed, 19 Jun 2002 09:57:13 -0400
+Message-ID: <3D108F2A.4080906@treblig.org>
+Date: Wed, 19 Jun 2002 15:03:22 +0100
+From: "Dave Gilbert (Home)" <gilbertd@treblig.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sylvain Le Briero <s.lebriero@free.fr>
+CC: Joshua Newton <jpnewton@speakeasy.net>, linux-kernel@vger.kernel.org
+Subject: Re: Incredible weirdness with eepro100?
+References: <1024420841.2631.14.camel@claymore.corona> <001c01c21798$f100e230$3d5e06c7@slebriero2>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Yep, a me-to I'm afraid.  We had the problem with an eepro100 on-board a 
+motherboard.  Worked fine except when we copied large files and then it 
+would start randomly timing out on smb/NFS.
 
-I updated the tcq patches to 2.4.19-pre10. Changes:
+Tried new kernels (2.4.16 I think was the last I tried); was mainly 
+using the Intel drivers that were in SuSE kernels.
 
-- (block) Port to 2.4.19-pre10
-- (block) Sync with 2.5 (blk_queue_find_tag stuff)
+In the end we gave up and put a 3com 3c905 in - it has been fine ever since.
 
-*.kernel.org/pub/linux/kernel/people/axboe/patches/v2.4/2.4.19-pre10/ide-block-tag-2419p10-1.bz2
+Dave
 
-There are also separate patches for ide and block layer.
+P.S. I'm not in a situation to try anthing more withit since it is a 
+production server.
 
--- 
-Jens Axboe
+
+
 

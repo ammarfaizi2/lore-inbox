@@ -1,46 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130868AbQLTDSI>; Tue, 19 Dec 2000 22:18:08 -0500
+	id <S130876AbQLTDu0>; Tue, 19 Dec 2000 22:50:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130887AbQLTDR6>; Tue, 19 Dec 2000 22:17:58 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:57265 "EHLO
-	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S130868AbQLTDRr>; Tue, 19 Dec 2000 22:17:47 -0500
-Message-ID: <3A401DAF.A08E2BCA@haque.net>
-Date: Tue, 19 Dec 2000 21:47:11 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
+	id <S130918AbQLTDuR>; Tue, 19 Dec 2000 22:50:17 -0500
+Received: from out5.mx.nwbl.wi.voyager.net ([169.207.2.77]:43015 "EHLO
+	out5.mx.nwbl.wi.voyager.net") by vger.kernel.org with ESMTP
+	id <S130876AbQLTDuB>; Tue, 19 Dec 2000 22:50:01 -0500
+Message-ID: <3A402563.7F7E9E58@megsinet.net>
+Date: Tue, 19 Dec 2000 21:20:03 -0600
+From: "M.H.VanLeeuwen" <vanl@megsinet.net>
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: kuznet@ms2.inr.ac.ru, tleete@mountain.net, laforge@gnumonks.org,
-        rusty@linuxcare.com.au, netfilter-devel@us5.samba.org,
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: Alexander Viro <viro@math.psu.edu>, trond.myklebust@fys.uio.no,
         linux-kernel@vger.kernel.org
-Subject: Re: ip_defrag / ip_conntrack issues (was Re: [PATCH] Fix netfilter
-In-Reply-To: <200012191454.RAA13529@ms2.inr.ac.ru> <3A400F2A.E5CD52BA@haque.net> <200012200135.RAA08489@pizda.ninka.net>
+Subject: Re: kernel BUG at /usr/src/linux/include/linux/nfs_fs.h:167! 
+ -reproducible
+In-Reply-To: <Pine.GSO.4.21.0012180631290.22952-100000@weyl.math.psu.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Woops, my bad. These finally exams are getting to me.
+Alexander Viro wrote:
+> 
+> On Mon, 18 Dec 2000, Neil Brown wrote:
+> 
+> > On Monday December 18, trond.myklebust@fys.uio.no wrote:
+> > > >>>>> " " == M H VanLeeuwen <vanl@megsinet.net> writes:
+> > >
+> > >      > Trond, Neil I don't know if this is a loopback bug or an NFS
+> > >      > bug but since nfs_fs.h was implicated so I thought one of you
+> > >      > may be interested.
+> > >
+> > >      > Could you let me know if you know this problem has already been
+> > >      > fixed or if you need more info.
+> > >
+> > > Hi,
+> > >
+> > > As far as I'm concerned, it's a loopback bug.
+> >
+> > I read it the same way.
+> > Actually, I cannot see the point of copying the "struct file"!  Why
+> > not just take a reference to it?  The comment tries to justify it, but
+> > I don't buy it.
+> 
+> Wish I remembered who had complained when I proposed to kill that copying...
+> It was introduced back in 2.1.110 and back then comment looked so:
+> 
+> +               /* Backed by a regular file - we need to hold onto
+> +                  a file structure for this file.  We'll use it to
+> +                  write to blocks that are not already present in
+> +                  a sparse file.  We create a new file structure
+> +                  based on the one passed to us via 'arg'.  This is
+> +                  to avoid changing the file structure that the
+> +                  caller is using */
+> +
+> 
+> I would be happy to get rid of that crap - it was the only reason why I
+> had to add the sodding file_moveto() and world would be better without it.
+> If we can kill it off - let's do it and let's take fs/file_table:file_moveto()
+> along.
+> 
+> IOW, I also think that copying the struct file is wrong. IIRC, complaints were
+> bogus - losetup requires enough priviliges to make worrying about security
+> implications somewhat pointless.
 
-Sorry.
+Ok, I've was able to cause 2 BUG's yesterday in a couple of hours, ( it was easier
+to lock the machine solid than to get the BUG;-)), since loading test12 w/patch I
+haven't seen a single BUG in the last 24 hours.  Any chance we can get this change
+to Linus for test13?
 
-"David S. Miller" wrote:
-> Alexey is talking about test12/netfilter + our ip_fragment.c fix,
-> not vanilla test12.
+Any specific tests you want me to run?
 
--- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+Martin
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131737AbQKUXfH>; Tue, 21 Nov 2000 18:35:07 -0500
+	id <S129476AbQKUXnH>; Tue, 21 Nov 2000 18:43:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131600AbQKUXer>; Tue, 21 Nov 2000 18:34:47 -0500
-Received: from 213-120-136-183.btconnect.com ([213.120.136.183]:39172 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S131589AbQKUXei>;
-	Tue, 21 Nov 2000 18:34:38 -0500
-Date: Tue, 21 Nov 2000 23:04:53 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: "J . A . Magallon" <jamagallon@able.es>
-cc: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>,
-        linux-kernel@vger.kernel.org, Richard Gooch <rgooch@ras.ucalgary.ca>
-Subject: Re: [PATCH] removal of "static foo = 0" from drivers/ide (test11)
-In-Reply-To: <20001121235529.E925@werewolf.able.es>
-Message-ID: <Pine.LNX.4.21.0011212300590.950-100000@penguin.homenet>
+	id <S130115AbQKUXm5>; Tue, 21 Nov 2000 18:42:57 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:47886 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129476AbQKUXmq>;
+	Tue, 21 Nov 2000 18:42:46 -0500
+Date: Wed, 22 Nov 2000 00:10:54 +0100 (CET)
+From: egger@suse.de
+Reply-To: egger@suse.de
+Subject: Re: USB: Wacom Graphire mouse wheel does not work anymore
+To: karl.gustav@gmx.net
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <8129.974798229@www10.gmx.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/plain; charset=us-ascii
+Message-Id: <20001122012134.25A7B5962@Nicole.muc.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2000, J . A . Magallon wrote:
+On 21 Nov, karl.gustav@gmx.net wrote:
 
-> 
-> On Tue, 21 Nov 2000 22:25:01 Bartlomiej Zolnierkiewicz wrote:
-> > 
-> > Quick removal of unnecessary initialization to 0.
-> > 
-> >  
-> > -static int basePort = 0;	/* base port address */
-> > -static int regPort = 0;		/* port for register number */
-> > -static int dataPort = 0;	/* port for register data */
-> > +static int basePort;	/* base port address */
-> > +static int regPort;	/* port for register number */
-> > +static int dataPort;	/* port for register data */
-> 
-> That is not too much confidence on the ANSI-ness of the compiler ???
-> 
+> Hm, there is no stable xinput driver available for XFree 4.0 and
+> xinput does not support the wheel, too :-(
 
-Quite the contrary. The patch seems correct and useful to me. What do you
-think is wrong with it? (Linus accepted megabytes worth of the above in
-the past...)
+ Actually XInput supports that sort of information but probably the
+ XInput driver doesn't. Unfortunately I don't have a Graphire, just
+ a Intuos right now and no airbrush available to test that.
 
-(see arch/i386/kernel/head.S and look for surprised. This is becoming FAQ,
-Richard, how about putting it into your FAQ mentioned at the bottom of
-this message?)
+-- 
 
-Regards,
-Tigran
-
+Servus,
+       Daniel
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

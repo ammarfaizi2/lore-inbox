@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268765AbUHaRYR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264954AbUHaR1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268765AbUHaRYR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 13:24:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUHaRYO
+	id S264954AbUHaR1I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 13:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265462AbUHaRZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 13:24:14 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:60684 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S265287AbUHaRUw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 13:20:52 -0400
-Subject: Re: [DOC] Linux kernel patch submission format
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Jeremy Higdon <jeremy@sgi.com>
-In-Reply-To: <4134B221.9070203@pobox.com>
-References: <413431F5.9000704@pobox.com>
-	 <1093970261.6200.45.camel@localhost.localdomain>
-	 <4134B221.9070203@pobox.com>
-Content-Type: text/plain
-Date: Tue, 31 Aug 2004 18:17:12 +0100
-Message-Id: <1093972632.6200.50.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.93 (1.5.93-2) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 31 Aug 2004 13:25:13 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54701 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264954AbUHaRPf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 13:15:35 -0400
+Date: Tue, 31 Aug 2004 10:15:25 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Tom Vier <tmv@comcast.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <1093949876.32682.1.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0408311006340.2295@ppc970.osdl.org>
+References: <20040825163225.4441cfdd.akpm@osdl.org>  <20040825233739.GP10907@legion.cup.hp.com>
+  <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy> 
+ <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy> 
+ <20040826053200.GU31237@waste.org> <20040826075348.GT1284@nysv.org> 
+ <20040826163234.GA9047@delft.aura.cs.cmu.edu>  <Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org>
+  <20040831033950.GA32404@zero>  <Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org>
+ <1093949876.32682.1.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-31 at 13:15 -0400, Jeff Garzik wrote:
-> hmmmm.  While I do agree with the content, I'm trying to avoid 
-> lengthening this page.  If we describe every little detail, then it 
-> becomes long -- just like SubmittingPatches -- and everybody will skip 
-> reading it.
-
-Good point. How about cutting it down to this then:
-
---- patch-format.html.orig      2004-08-31 17:30:55.867029816 +0100
-+++ patch-format.html   2004-08-31 18:16:14.042804288 +0100
-@@ -81,7 +81,9 @@
-
- This cannot be stressed enough.  Even when you are resending a change
- for the 5th time, resist the urge to attach 20 patches to a single
--email.
-+email. If you do send multiple emails though, make sure the second
-+and subsequent emails are sent as replies to the first, to keep them
-+all together in a thread.
-
- </li><li><h2>Sign your work</h2>
 
 
--- 
-dwmw2
+On Tue, 31 Aug 2004, Alan Cox wrote:
+> 
+> Several do TCP in user space. The only thing you need in kernel for
+> TCP/IP is enough decode to decide who gets the packet.
 
+Only thing? I don't think so. 
+
+You also want to make sure that regular users cannot send "impossible" 
+packets. Think about the old "ping of death" kind of thing, where a normal 
+mis-behaving (and I'm not saying intentionally so: it might be a small bug 
+that just overwrites some data) program should _not_ be able to cause 
+problems on the network.
+
+Admins absolutely _hate_ that. They will ban an OS if it sends out packets
+that cause troublem. You should remember that - we used to do strange
+things on the net (long long time ago), and we brought down servers by
+mistake, and nobody ever considered it a server bug: it was a Linux bug
+that it wouldn't do the right thing.
+
+Things like not sending FIN-packets when a program suddenly goes away is 
+NOT acceptable behaviour! Neither is it acceptable behaviour to allow user 
+programs to make up their own packets.
+
+> Even some non microkernel embedded OS's do this in order to keep kernel
+> size down.
+
+..and I'm not disagreeing that it doesn't happen. I explicitly mentioned 
+PalmOS, I bet it happens in other cases too. But I'd strongly argue that 
+it's a bug, not a feature.
+
+It's a bug that people tend to accept in a "single-client" environment. 
+
+NOTE! This is totally ignoring the fact that you can't be called "UNIX" 
+any more. You _need_ to have sequence numbers etc be shared between 
+multiple programs that all write to the stream. Again, that _does_ mean 
+that you have another protection domain (aka "kernel" or "TCP deamon") 
+that keeps track of the sequence number. 
+
+		Linus

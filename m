@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267211AbUGMXGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267212AbUGMXG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267211AbUGMXGr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 19:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267215AbUGMXGr
+	id S267212AbUGMXG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 19:06:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267215AbUGMXG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 19:06:47 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:9192 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S267211AbUGMXGh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 19:06:37 -0400
-Message-ID: <40F46A7F.5000703@pacbell.net>
-Date: Tue, 13 Jul 2004 16:04:31 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: Stuart_Hayes@Dell.com, whbeers@mbio.ncsu.edu, olh@suse.de,
-       Gary_Lerhaupt@Dell.com, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] [PATCH] proper bios handoff in ehci-hcd
-References: <7A8F92187EF7A249BF847F1BF4903C046304CF@ausx2kmpc103.aus.amer.dell.com> <20040713145628.27ae43e7@lembas.zaitcev.lan>
-In-Reply-To: <20040713145628.27ae43e7@lembas.zaitcev.lan>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 13 Jul 2004 19:06:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26832 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267212AbUGMXG5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 19:06:57 -0400
+Date: Tue, 13 Jul 2004 16:10:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: XRUN traces
+Message-Id: <20040713161004.37a4654e.akpm@osdl.org>
+In-Reply-To: <1089758294.2747.4.camel@mindpipe>
+References: <1089758294.2747.4.camel@mindpipe>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
-
-> I hit regressions when we implemented the proper handoff as requested
-> by Stuart @Dell, so I think for the moment the right thing would be this:
+Lee Revell <rlrevell@joe-job.com> wrote:
+>
+> This one is 100% reproducible, happens immediately when I start JACK.  I
+> have set CONFIG_FRAME_POINTER=y and CONFIG_4KSTACKS=n as you requested.
 > 
-> --- linux-2.4.21-15.18.EL/drivers/usb/host/ehci-hcd.c	2004-07-01
-> 08:07:56.000000000 -0700
-> +++ linux-2.4.21-15.18-usb/drivers/usb/host/ehci-hcd.c	2004-07-08
-> 15:15:05.944863675 -0700
-> @@ -302,7 +302,8 @@
->  		if (cap & (1 << 16)) {
->  			ehci_err (ehci, "BIOS handoff failed (%d, %04x)\n",
->  				where, cap);
-> -			return 1;
-> +			pci_write_config_dword (ehci->hcd.pdev, where, 0);
-> +			return 0;
->  		} 
->  		ehci_dbg (ehci, "BIOS handoff succeeded\n");
->  	}
-> 
-> Essentially, here I insist on doing the right thing with cap|=(1<<24),
-> which fixes Dell boxes which implement proper handoff, but then if we
-> time out as on Thinkpads, write zero as the old code did (probably
-> pointless, but just to be safe) and continue.
+> Jul 13 18:30:21 mindpipe kernel: ALSA /usr/src/alsa-cvs-1.0.5/alsa-driver/alsa-kernel/core/pcm_lib.c:169: XRUN: pcmC0D0p
+> Jul 13 18:30:21 mindpipe kernel:  [dump_stack+23/32] dump_stack+0x17/0x20
+> Jul 13 18:30:21 mindpipe kernel:  [__crc_totalram_pages+1279533/3558647] snd_pcm_period_elapsed+0x2c7/0x400 [snd_pcm]
+> Jul 13 18:30:21 mindpipe kernel:  [__crc_totalram_pages+1463213/3558647] snd_emu10k1_interrupt+0x377/0x400 [snd_emu10k1]
+> Jul 13 18:30:21 mindpipe kernel:  [handle_IRQ_event+51/96] handle_IRQ_event+0x33/0x60
+> Jul 13 18:30:21 mindpipe kernel:  [do_IRQ+165/368] do_IRQ+0xa5/0x170
+> Jul 13 18:30:21 mindpipe kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
+> Jul 13 18:30:21 mindpipe kernel:  [do_anonymous_page+124/384] do_anonymous_page+0x7c/0x180
+> Jul 13 18:30:21 mindpipe kernel:  [do_no_page+78/784] do_no_page+0x4e/0x310
+> Jul 13 18:30:21 mindpipe kernel:  [handle_mm_fault+193/368] handle_mm_fault+0xc1/0x170
+> Jul 13 18:30:21 mindpipe kernel:  [get_user_pages+258/880] get_user_pages+0x102/0x370
 
-I'd rather not change the config space again ... that's clearly wrong.
-Or is there some policy about what sorts of BIOS bugs we should assume?
-
-Instead, how about:  (a) longer timeout, 5 seconds to match OHCI's
-absurdly long default there; (b) change that "handoff failed" message
-to add "continuing anyway"; and (c) return 0 as you do, which I'm
-expecting is the key part of that patch.
-
-That'll evidently work for Will, as well as correctly functioning hardware
-with EHCI-aware BIOS (the Dell boxes and the AMI BIOS box I tested) also
-the classic EHCI-unaware BIOS setups.
-
-- Dave
-
-
+OK, I'll fix get_user_pages().

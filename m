@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266673AbRGJRBq>; Tue, 10 Jul 2001 13:01:46 -0400
+	id <S266684AbRGJRGZ>; Tue, 10 Jul 2001 13:06:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266674AbRGJRBf>; Tue, 10 Jul 2001 13:01:35 -0400
-Received: from isimail.interactivesi.com ([207.8.4.3]:22542 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S266673AbRGJRBV>; Tue, 10 Jul 2001 13:01:21 -0400
-Message-ID: <3B4B34D9.8090203@interactivesi.com>
-Date: Tue, 10 Jul 2001 12:01:13 -0500
-From: Timur Tabi <ttabi@interactivesi.com>
-Organization: Interactive Silicon
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: What is the truth about Linux 2.4's RAM limitations?
-In-Reply-To: <200107092129.QAA13628@tomcat.admin.navo.hpc.mil>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S266683AbRGJRGG>; Tue, 10 Jul 2001 13:06:06 -0400
+Received: from ns.suse.de ([213.95.15.193]:11782 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S266684AbRGJRGC>;
+	Tue, 10 Jul 2001 13:06:02 -0400
+Date: Tue, 10 Jul 2001 19:06:02 +0200
+From: Andi Kleen <ak@suse.de>
+To: Craig Soules <soules@happyplace.pdl.cmu.edu>
+Cc: Andi Kleen <ak@suse.de>, Chris Wedgwood <cw@f00f.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: NFS Client patch
+Message-ID: <20010710190602.A8997@gruyere.muc.suse.de>
+In-Reply-To: <20010710154135.A4603@gruyere.muc.suse.de> <Pine.LNX.3.96L.1010710124338.16113W-100000@happyplace.pdl.cmu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.96L.1010710124338.16113W-100000@happyplace.pdl.cmu.edu>; from soules@happyplace.pdl.cmu.edu on Tue, Jul 10, 2001 at 12:48:20PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard wrote:
+On Tue, Jul 10, 2001 at 12:48:20PM -0400, Craig Soules wrote:
+> On Tue, 10 Jul 2001, Andi Kleen wrote:
+> > Because to get that new cookie you would need another cookie; otherwise
+> > you could violate the readdir guarantee that it'll never return files
+> > twice.
+> 
+> I cannot locate any such guarantee in the NFS spec... are you refering to
+> another spec which applies?
 
->>So what are the limits without using PAE? Here I'm still having a little
->>problem finding definitive answers but ...
->>
->3 GB. Final answers are in the FAQ, and have been discussed before. You can
->also look in the Intel 80x86 CPU specifications.
->
->The only way to exceed current limits is via some form of segment register usage
->which will require a different compiler and a replacement of the memory
->architecture of x86 Linux implementation.
->
+It's the unix semantics of readdir(); e.g. specified in Single Unix:
 
-Are you talking about using 48-bit pointers?
+``   The type DIR, which is defined in the header <dirent.h>, represents
+     a directory stream, which is an ordered sequence of all the
+     directory entries in a particular directory. Directory entries
+     represent files; files may be removed from a directory or added to
+     a directory asynchronously to the operation of readdir(). ''
 
-(48-bit pointers, aka 16:32 pointers, on x86 are basically "far 32-bit 
-pointers".  That is, each pointer is stored as a 48-bit value, where 16 
-bits are for the selector/segment, and 32 bits are for the offset.
-
--- 
-Timur Tabi
-Interactive Silicon
+An ordered sequence does not include cycles.
 
 
+> 
+> > BTW; the cookie issue is not an NFS only problem. It occurs on local
+> > IO as well. Just consider rm -rf - reading directories and in parallel
+> > deleting them (the original poster's file system would have surely
+> > gotten that wrong). Another tricky case is telldir().  
+> 
+> I don't believe that the behavior in this case is deterministic.  If you
+> have multiple people accessing a single file, reading and writing to it,
+> there is no guarantee as to what the behavior is.  The client should be
+> able to handle any errors it creates for itself while doing this kind of
+> parallel operation.
 
+What happens with new entries added is unspecified; but old entries removed
+in parallel should never cause a violation of the rule above.
+
+A simple index into a rebalancing btree unfortunately doesn't fulfil this;
+but there are ways to add additional layers to fix it.
+
+The easiest test for it is rm -rf. 
+
+
+-Andi

@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287069AbRL2B5i>; Fri, 28 Dec 2001 20:57:38 -0500
+	id <S287080AbRL2CBT>; Fri, 28 Dec 2001 21:01:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287070AbRL2B53>; Fri, 28 Dec 2001 20:57:29 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:33782 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S287069AbRL2B5Q>;
-	Fri, 28 Dec 2001 20:57:16 -0500
-Date: Fri, 28 Dec 2001 20:57:14 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix for bug in -pre3 reiserfs_read_super()
-Message-ID: <Pine.GSO.4.21.0112282053450.3924-100000@weyl.math.psu.edu>
+	id <S287079AbRL2CBJ>; Fri, 28 Dec 2001 21:01:09 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44814 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S287073AbRL2CAy>; Fri, 28 Dec 2001 21:00:54 -0500
+Subject: Re: State of the new config & build system
+To: kaos@ocs.com.au (Keith Owens)
+Date: Sat, 29 Dec 2001 02:10:43 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds),
+        garzik@havoc.gtf.org (Legacy Fishtank), linux-kernel@vger.kernel.org,
+        lm@bitmover.com (Larry McVoy), esr@thyrsus.com (Eric S. Raymond),
+        davej@suse.de (Dave Jones), marcelo@conectiva.com.br (Marcelo Tosatti),
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <8178.1009591067@ocs3.intra.ocs.com.au> from "Keith Owens" at Dec 29, 2001 12:57:47 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16K8xQ-0002i1-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Fsck.  The second chunk (LB5) that went into -pre3 adds an absolutely
-bogus line and I'm seriously puzzled how in hell did it get there in
-the first place ;-/  Fix follows:
+> Unlike bio, kbuild 2.5 works, it just needs to be a bit faster.  Put
+> kbuild 2.5 in the kernel and I will have a faster version within 2
+> weeks.
 
-diff -urN C2-pre3/fs/reiserfs/super.c C2-pre3-reiserfs/fs/reiserfs/super.c
---- C2-pre3/fs/reiserfs/super.c	Thu Dec 27 19:48:04 2001
-+++ C2-pre3-reiserfs/fs/reiserfs/super.c	Fri Dec 28 20:51:33 2001
-@@ -637,7 +637,6 @@
- 	else
- 	    old_format = 1;
-     }
--    s->s_blocksize = size;
- 
-     s->u.reiserfs_sb.s_mount_state = SB_REISERFS_STATE(s);
-     s->u.reiserfs_sb.s_mount_state = REISERFS_VALID_FS ;
+Ok. I was assuming from what you had said that we were talking about months
+before it got up to a sane speed. If its 2 weeks then I have absolutely no
+problems with that.
+
+Alan
 

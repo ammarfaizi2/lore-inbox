@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262200AbUCIWvN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 17:51:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbUCIWvN
+	id S262265AbUCIXHW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 18:07:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbUCIXHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 17:51:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:6846 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262200AbUCIWvJ (ORCPT
+	Tue, 9 Mar 2004 18:07:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39367 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262265AbUCIXHO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 17:51:09 -0500
-Date: Tue, 9 Mar 2004 14:53:09 -0800
+	Tue, 9 Mar 2004 18:07:14 -0500
+Date: Tue, 9 Mar 2004 15:09:13 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: "Anders K. Pedersen" <akp@cohaesio.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3 userspace freeze
-Message-Id: <20040309145309.79dfac9e.akpm@osdl.org>
-In-Reply-To: <1078853795.7728.27.camel@akp.cohaesio.com>
-References: <1078853795.7728.27.camel@akp.cohaesio.com>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Print function names during do_initcall debugging
+Message-Id: <20040309150913.16d4d628.akpm@osdl.org>
+In-Reply-To: <20040309222559.GX17857@lug-owl.de>
+References: <20040309222559.GX17857@lug-owl.de>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,36 +24,47 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Anders K. Pedersen" <akp@cohaesio.com> wrote:
+Jan-Benedict Glaw <jbglaw@lug-owl.de> wrote:
 >
-> Last night I upgraded two of our webservers from Linux 2.4 to 2.6.3.
-> During the night both of them rebooted spontanously (i.e. no indication
-> of why in the log files) several times, so this morning I attached a
-> serial console to capture the kernel messages, when they rebooted.
-> 
-> What I found was that all of a sudden my SSH connections to the server
-> and the local vtys would freeze, and it would stop responding to TCP
-> connections, while still responding to ICMP echo requests. Apparently
-> all userspace processes just froze. After approximately 60 seconds, it
-> logged "SOFTDOG: Initiating system reboot.", and rebooted. This was the
-> only kernel message, except for the boot messages. This happened
-> repeatedly on both servers.
-> 
-> Both servers run (mainly) Apache 1.3 and Sun Chili ASP (several hundred
-> processes each), and the freezes seemed to happen during high load
-> peaks.
-> 
-> I have attached the kernel .config (same on both servers) and the kernel
-> boot messages including the software watchdog reboot message. Both
-> servers are identical IBM xSeries 345 servers. I have other similar
-> servers running 2.6.3 for other purposes without any problems (so far).
-> 
-> Any ideas on what's wrong, or how to find out, would be much
-> appreciated.
+> Please merge the following patch. It prints __init function names while
+> all calls are executed at do_initcalls().
 
-It could be a kernel deadlock, or a memory leak, or a disk device driver
-bug.
+Nice, thanks.  I tried to do this in the original patch but the kallsyms
+stuff wasn't set up at that stage.  Someone must have moved something.
 
-Would it be possible to run a `vmstat 1' somewhere and capture the last
-thirty or so lines prior to the reboot?
+However I suspect you didn't test it with CONFIG_KALLSYMS=n: it will be
+missing newlines in the output.
+
+
+
+ 25-akpm/init/main.c |    8 ++++++--
+ 1 files changed, 6 insertions(+), 2 deletions(-)
+
+diff -puN init/main.c~initcall_debug-print_symbol init/main.c
+--- 25/init/main.c~initcall_debug-print_symbol	Tue Mar  9 15:07:16 2004
++++ 25-akpm/init/main.c	Tue Mar  9 15:07:59 2004
+@@ -37,6 +37,7 @@
+ #include <linux/profile.h>
+ #include <linux/rcupdate.h>
+ #include <linux/moduleparam.h>
++#include <linux/kallsyms.h>
+ #include <linux/writeback.h>
+ #include <linux/cpu.h>
+ #include <linux/efi.h>
+@@ -513,8 +514,11 @@ static void __init do_initcalls(void)
+ 	for (call = &__initcall_start; call < &__initcall_end; call++) {
+ 		char *msg;
+ 
+-		if (initcall_debug)
+-			printk("calling initcall 0x%p\n", *call);
++		if (initcall_debug) {
++			printk(KERN_DEBUG "Calling initcall 0x%p", *call);
++			print_symbol(": %s()", (unsigned long) *call);
++			printk("\n");
++		}
+ 
+ 		(*call)();
+ 
+
+_
 

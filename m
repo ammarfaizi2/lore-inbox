@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282241AbRKWUpX>; Fri, 23 Nov 2001 15:45:23 -0500
+	id <S282238AbRKWUtY>; Fri, 23 Nov 2001 15:49:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282242AbRKWUpN>; Fri, 23 Nov 2001 15:45:13 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:45778 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S282241AbRKWUpH>;
-	Fri, 23 Nov 2001 15:45:07 -0500
-Date: Fri, 23 Nov 2001 21:45:00 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Padraig Brady <padraig@antefacto.com>
-Cc: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] remove trailing whitespace
-Message-ID: <20011123214500.A5770@khan.acc.umu.se>
-In-Reply-To: <Pine.LNX.4.10.10111231440260.1920-100000@coffee.psychology.mcmaster.ca> <3BFEB2DC.6040208@antefacto.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3BFEB2DC.6040208@antefacto.com>; from padraig@antefacto.com on Fri, Nov 23, 2001 at 08:34:36PM +0000
+	id <S282239AbRKWUtN>; Fri, 23 Nov 2001 15:49:13 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:58072 "EHLO
+	VL-MS-MR002.sc1.videotron.ca") by vger.kernel.org with ESMTP
+	id <S282238AbRKWUtL>; Fri, 23 Nov 2001 15:49:11 -0500
+Message-ID: <001a01c17460$4c0fc970$0100a8c0@dad>
+From: "Norm Dressler" <ndressler@dinmar.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <002101c17430$d94b2f80$3828a8c0@ndrlaptop> <20011123.122538.74728853.davem@redhat.com>
+Subject: Re: Sparc64 Compiles OK, but won't boot new kernel
+Date: Fri, 23 Nov 2001 15:49:08 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 23, 2001 at 08:34:36PM +0000, Padraig Brady wrote:
-> I used sed, but yes the following does
-> the same as downloading and applying the patch:
-> find linux -type f | xargs perl -wi -pe 's/[<space><tab>]+$//'
-> (obviously replace <space> & <tab> with the appropriate chars).
-> 
-> Note also that after (bz2) compression the space saving drops
-> from 224,654 to 139,669 bytes, which is still good.
-> 
-> Padraig.
+I was able to solve it -- I also had freeswan patched into the kernel and
+when you include the debug portions, it more then doubles the size of your
+kernel.
 
-Running Lindent on the kerneltree would be far more yielding, as
-it would, apart from removing extraoneous whitespace, also format
-all code in a sane manner. However, this is unlikely to ever happen; I
-seem to recall that Linus has commented on this before.
+Norm
+
+----- Original Message -----
+From: "David S. Miller" <davem@redhat.com>
+To: <ndressler@dinmar.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: November 23, 2001 3:25 PM
+Subject: Re: Sparc64 Compiles OK, but won't boot new kernel
 
 
-Regards: David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+>
+> Compile more things as modules, your kernel has too many things
+> compiled statically into it and is therefore too large to boot.
+>
+>
+
+

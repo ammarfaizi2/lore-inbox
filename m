@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262618AbRE0ABZ>; Sat, 26 May 2001 20:01:25 -0400
+	id <S262600AbRE0ABZ>; Sat, 26 May 2001 20:01:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262663AbRE0ABQ>; Sat, 26 May 2001 20:01:16 -0400
+	id <S262664AbRE0ABQ>; Sat, 26 May 2001 20:01:16 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:20146 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262664AbRE0ABC>;
-	Sat, 26 May 2001 20:01:02 -0400
-Message-ID: <3B0F7D04.5F567871@yahoo.com>
-Date: Sat, 26 May 2001 05:53:08 -0400
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-X-Mailer: Mozilla 3.04 (X11; I; Linux 2.4.4 i586)
+	by vger.kernel.org with ESMTP id <S262665AbRE0ABD>;
+	Sat, 26 May 2001 20:01:03 -0400
+Date: Sat, 26 May 2001 12:00:57 +0100 (BST)
+From: James Sutherland <jas88@cam.ac.uk>
+X-X-Sender: <jas88@orange.csi.cam.ac.uk>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: <lm@bitmover.com>, <aaronl@vitelus.com>, <acahalan@cs.uml.edu>,
+        <dledford@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: Copyright infringement in linux/drivers/usb/serial/keyspan*fw.h
+In-Reply-To: <200105260310.UAA15624@baldur.yggdrasil.com>
+Message-ID: <Pine.SOL.4.33.0105261157080.21081-100000@orange.csi.cam.ac.uk>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Hal Duston <hald@sound.net>, linux-kernel@vger.kernel.org,
-        rasmus@jaquet.dk
-Subject: Re: PS/2 Esdi patch #8
-In-Reply-To: <Pine.GSO.4.10.10105231748550.23376-200000@sound.net> <3B0D733F.1829DC88@yahoo.com> <20010525164615.C14899@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> 
-> On Thu, May 24 2001, Paul Gortmaker wrote:
+On Fri, 25 May 2001, Adam J. Richter wrote:
+> Larry McVoy wrote:
+> >On Fri, May 25, 2001 at 07:34:57PM -0700, Adam J. Richter wrote:
+
+> >It's also about the concept of boundaries - if you think that that
+> >concept is not a legal one then why aren't all programs which are run
+> >on top of a GPLed kernel then GPLed?
 >
-> > Probably makes sense for driver to set it regardless, seeing
-> > as default (MAX_SECTORS) has changed several times over last
-> > few months.  At least then it will be under driver control
-> > and not at the mercy of some global value.
-> 
-> You might want to assign that max_sect array too, otherwise it's just
-> going to waste space :-)
+> 	Apparently Linus felt that that was a sufficiently
+> plausible gray area that he addressed it explicitly in
+> /usr/src/linux/COPYING:
+>
+> |   NOTE! This copyright does *not* cover user programs that use kernel
+> | services by normal system calls - this is merely considered normal use
+> | of the kernel, and does *not* fall under the heading of "derived work".
+> | Also note that the GPL below is copyrighted by the Free Software
+> | Foundation, but the instance of code that it refers to (the Linux
+> | kernel) is copyrighted by me and others who actually wrote it.
 
-Heh, yes. :) 
-
-> Take a look at how ps2esdi handles requests -- always processing just
-> the first segment. Alas, it doesn't matter how big the request is.
-
-Well here is the missing line, for completeness, in case somebody
-someday gets bored and changes the above behaviour (it won't be me!)
-
-Paul.
-
---- drivers/block/ps2esdi.c~	Thu May 24 16:33:46 2001
-+++ drivers/block/ps2esdi.c	Sat May 26 04:47:45 2001
-@@ -424,6 +424,7 @@
- 	request_dma(dma_arb_level, "ed");
- 	request_region(io_base, 4, "ed");
- 	blksize_size[MAJOR_NR] = ps2esdi_blocksizes;
-+	max_sectors[MAJOR_NR] = ps2esdi_maxsect;
- 
- 	for (i = 0; i < ps2esdi_drives; i++) {
- 		register_disk(&ps2esdi_gendisk,MKDEV(MAJOR_NR,i<<6),1<<6,
+Note the "derived work"; there is no way on this earth (or any other) that
+you could regard the device's firmware as being a "derived work" of the
+driver! AFAICS, the firmware is just a file served up to the device as
+needed - no more a derivative work from the kernel than my homepage is a
+derivative work of Apache.
 
 
-
+James.
 

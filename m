@@ -1,58 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129700AbQLBTir>; Sat, 2 Dec 2000 14:38:47 -0500
+	id <S129747AbQLBTnw>; Sat, 2 Dec 2000 14:43:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130085AbQLBTih>; Sat, 2 Dec 2000 14:38:37 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:34680 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S129700AbQLBTiY> convert rfc822-to-8bit; Sat, 2 Dec 2000 14:38:24 -0500
-Date: Sat, 2 Dec 2000 13:07:29 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Donald Becker <becker@scyld.com>, Francois Romieu <romieu@cogenit.fr>,
-        Russell King <rmk@arm.linux.org.uk>, Ivan Passos <lists@cyclades.com>,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [RFC] Configuring synchronous interfaces in Linux
-In-Reply-To: <20001203075958.A1121@metastasis.f00f.org>
-Message-ID: <Pine.LNX.3.96.1001202130202.1450B-100000@mandrakesoft.mandrakesoft.com>
+	id <S130085AbQLBTnm>; Sat, 2 Dec 2000 14:43:42 -0500
+Received: from colorfullife.com ([216.156.138.34]:14858 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129747AbQLBTna>;
+	Sat, 2 Dec 2000 14:43:30 -0500
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-test11: arch/i386/boot/bootsect.S incompatible with Vaio C1VE (Crusoe) floppy
+Message-ID: <975784573.3a294a7dcabfd@ssl.local>
+Date: Sat, 02 Dec 2000 20:16:13 +0100 (CET)
+From: Wolfgang Spraul <wspraul@q-ag.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 172.26.20.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Dec 2000, Chris Wedgwood wrote:
->     > Russell King <rmk@arm.linux.org.uk> écrit :
->     > [...]
->     > > We already have a standard interface for this, but many drivers do not
->     > > support it.  Its called "ifconfig eth0 media xxx":
+2.4.0-test11, arch/i386/boot/bootsect.S has a probe_loop: to determine the
+number of sectors that can be read at once (i.e. in one track).
 
-> Actually, I starteed work on adding this to the 3c59x code last
-> night; I am now a little dispondent though as it wasn't as simple as
-> I first thought it might be.
+This routine does not work with the Sony UDF5 USB floppy disk, mapped as an
+Int13 device by the Vaio C1VE (Crusoe) BIOS.
+Therefore, a bzdisk floppy will not be bootable.
 
-Does 'ifconfig eth0 media xxx' wind up calling dev->set_config?
+I solved the problem for me by changing "disksizes: .byte 36, 18, 15, 9" to
+"disksizes: .byte 18, 18, 18, 18", but I think someone should do it right.
+I will assist debugging if needed.
 
-If yes, my guess is correct, I think the proper solution is to:
-* create a generic set_config, which does nothing but convert the calls'
-semantics into ethtool semantics, and
-* add ethtool support to the specific driver
-
-And you might even go so far as to create a generic MII implementation
-of ethtool support, so that existing drivers can simply plug in their
-mdio_{read,write} functions to automatically get full ethtool support.
-(disclaimer:  this is a spur-of-the-moment thought, creating a generic
-MII module for ethtool support may not be feasible)
-
-drivers/net/sis900.c implements set_config, if you want an example..
-
-Finally, if you want to just use ethtool directly, grab the SRPM and
-install it on your system.
-
-	Jeff
-
-
-
+Regards,
+Wolfgang
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

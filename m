@@ -1,70 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131733AbRDCWgj>; Tue, 3 Apr 2001 18:36:39 -0400
+	id <S132636AbRDCWm3>; Tue, 3 Apr 2001 18:42:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132726AbRDCWgT>; Tue, 3 Apr 2001 18:36:19 -0400
-Received: from dial023.za.nextra.sk ([195.168.64.23]:4 "HELO Boris.SHARK")
-	by vger.kernel.org with SMTP id <S131733AbRDCWgM>;
-	Tue, 3 Apr 2001 18:36:12 -0400
-Date: Wed, 4 Apr 2001 02:39:11 +0200
-From: Boris Pisarcik <boris@acheron.sk>
+	id <S132736AbRDCWmL>; Tue, 3 Apr 2001 18:42:11 -0400
+Received: from web5204.mail.yahoo.com ([216.115.106.85]:16903 "HELO
+	web5204.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S132636AbRDCWl4>; Tue, 3 Apr 2001 18:41:56 -0400
+Message-ID: <20010403224115.3664.qmail@web5204.mail.yahoo.com>
+Date: Tue, 3 Apr 2001 15:41:15 -0700 (PDT)
+From: Rob Landley <telomerase@yahoo.com>
+Subject: Repeatable hang in 2.4.3 with 4 ide drives.
 To: linux-kernel@vger.kernel.org
-Subject: Re: Question about SysRq
-Message-ID: <20010404023911.A1260@Boris>
-In-Reply-To: <20010331230454.A801@Boris> <Pine.LNX.4.30.0104021654340.29684-100000@sol.compendium-tech.com>
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0104021654340.29684-100000@sol.compendium-tech.com>; from kernel@blackhole.compendium-tech.com on Mon, Apr 02, 2001 at 04:59:30PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Unfortunately,
-> the only one that responds is sysrq-b, which boots the box without
-> syncing or unmounting the disks. Not only does that piss me off but it's
-> led to some fs corruption as well (which pisses me off even more). sysrq-b
-> is the *only* combination I can get working when this happens. 
+I'm trying to make 3 copies of a 40 gig IBM deskstar
+IDE drive.  I've got red hat 7 booted into single user
+mode, doing the following:
 
-I looked a bit at the source of sysrq handling. I've found there is
-rather big difference between sysrq+b and other killers handling.
-Sysrq+b is just called with pretty straitforward fashion - stops other 
-processors on SMP and reboots directly (hardware impulse or triple fault)
-or through the bios - so it just calls for the corruptions.
+cat /dev/hda | count | tee /dev/hdb | tee /dev/hdc >
+/dev/hdd
 
-On the other side sysrq+s marks a single variable, which will be tested
-next cycle in the bdflush kernel threads' main loop, and adds bdflush to
-scheduler runqueue list. So it gets possibility to check for emergency
-sync onle when gets next scheduled. Does it ?
+The copy seems to work fine if I never let the console
+blank.  I copied 2 gigs worth of data (at about 1.5
+megabytes/second) by hitting the shift key every few
+minutes.  It never even paused.
 
-Can you anyhow find something in your logs/console/serial console messages
-like 13.13.2000 kernel : Sysrq: Emergency Sync (this should be present - is 
-written within keyboard handler, not after shedule) and what's next logs ?
-We could determine, if the bdflush thread got scheduled and called emergency 
-syncing routine indeed.
+It also hasn't been having problems copying just hda
+to hdb.  It's adding hdc and hdd into the mix that
+triggers the hang.  I suspect the two IDE controllers
+are fighting somehow.
 
-As you wrote no of your processes does respond - probably telnet will 
-not help. You may try to write experimental programme, that only log
-say current time every n seconds, and see, if it just stopped to 
-log messages after lockup-time. If not - it doesn't get scheduled.
-If continues - there's problem with syncing. Again - try, as far
-as i understand, log kernel messages to serial console or alike, because
-the messages should not get written to logfiles - syslogd can't be woken up
-eg.
+Unblanking the screen locks it solid semi-reliably, 3
+of the 4 times I've let it do that.  (Perhaps console
+blanking/unblanking causes a latency spike?  The
+console unblanks but the red hard drive writing light
+goes off instantly and the progress display "count"
+gives you stops moving.  The kernel's still there,
+num-lock changes the keyboard light, but I can't
+ctrl-c out of the process.)
 
-Quick help against those corruptions, which comes on my mind, is use
-the reiserfs. I have no real experiences with that and its reliability,
-also as aj followed some of messages in this list about resierfs - it has
-some problems too - but in definition it shoudn't get corrupted by not-
-syncing reboot. But i see this not much helpfull ,cause if you really 
-would depend on big reliability, you wouldn't intall 2.3.x-pre kernel :)
+The one time it continued writing after unblanking it
+hung again a minute or so later, unblocked itself
+after thirty seconds or so, and then hung again and
+stayed that way for five minutes until I turned it
+off.  It was not happy.
 
-There go also occasionally discussions about watchdogs - it may be
-helpfull - but none of the two really solve the problem.
+"count" is a ten-line program I wrote to read data
+from stdin and write it back to stdout with a progress
+indicator going to stderr.  (fprintf(stderr,"%lld
+bytes\r",bytecount);  In a loop.  Woo.))
 
-LW: today a got ugly lockup with dosemu and experimental execution of
-virtual pool ;). Neither Sysrq+b functioned. But that's probably another
-story. Root or privilege suid processes (X server among them) need really 
-just a 1-bit error to corrupt near what they like.
+The chipset is sis 5513.  The 4 IBM deskstars are
+ata66 drive with an ata66 cable but the 2.4.3
+unconditionally refuses to allow me to switch on DMA
+on any of them.  (hdparm -d1 /dev/hda goes operation
+not permitted.)  I left it off for this test cause I
+just want to get it to work at the moment.  I have
+tried it with -c1 and without -c1, it hangs either
+way.
 
-The least fsck sessions and nice day                                     B.
+Rob
+
+(Yes, I'm copying the mounted drive's block device out
+from under it.  It's a bit impolite to the system, but
+I've done this lots of times.  That's why I boot into
+single user mode and sync beforehand.  Yes, the new
+drive fscks on the way back up, but since nothing's
+actually changing the data it's fine.  This is a
+seperate issue, even if I was copying hosed data it
+still shouldn't be hanging.)
+
+Update: back to the ide0 only master-to-slave copy. 
+"cat /dev/hda | count > /dev/hdb".  It's done 3 gigs
+so far with no complaints, and I let it blank and
+unblank twice now and it didn't even pause.
+
+Also, the single controller copy is going
+significantly faster (about twice as fast) even though
+the two drives still share the same cable.  Are the
+two ide controllers sharing some kind of lock?  (The
+data SHOULD be able to go in paralell,  but it doesn't
+look like it was...  I thought the google guys had a
+patch for that back at ALS...?)
+
+__________________________________________________
+Do You Yahoo!?
+Get email at your own domain with Yahoo! Mail. 
+http://personal.mail.yahoo.com/

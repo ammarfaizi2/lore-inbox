@@ -1,63 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267812AbTAMRCF>; Mon, 13 Jan 2003 12:02:05 -0500
+	id <S267882AbTAMRER>; Mon, 13 Jan 2003 12:04:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267829AbTAMRCF>; Mon, 13 Jan 2003 12:02:05 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:39855 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S267812AbTAMRCE>; Mon, 13 Jan 2003 12:02:04 -0500
+	id <S267884AbTAMRER>; Mon, 13 Jan 2003 12:04:17 -0500
+Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:16857 "EHLO
+	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S267882AbTAMREP> convert rfc822-to-8bit; Mon, 13 Jan 2003 12:04:15 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Subject: Re: patch for errno-issue (with soundcore)
-Date: Mon, 13 Jan 2003 18:10:53 +0100
-User-Agent: KMail/1.4.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       alan@lxorguk.ukuu.org.uk
-References: <D206AA476EB@vcnet.vc.cvut.cz>
-In-Reply-To: <D206AA476EB@vcnet.vc.cvut.cz>
+From: Jesse Pollard <pollard@admin.navo.hpc.mil>
+To: root@chaos.analogic.com, Richard Stallman <rms@gnu.org>
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+Date: Mon, 13 Jan 2003 11:09:48 -0600
+User-Agent: KMail/1.4.1
+Cc: R.E.Wolff@BitWizard.nl, jalvo@mbay.net, linux-kernel@vger.kernel.org
+References: <Pine.LNX.3.95.1030113091004.20746A-100000@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.3.95.1030113091004.20746A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200301131810.53089.schlicht@uni-mannheim.de>
+Message-Id: <200301131109.48727.pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13. Jan. 2003 17:33, Petr Vandrovec wrote:
-> There is no problem currently, because of nobody uses errno value at
-> all (in the firmware loader), it is just that inline functions generated
-> by syscallX() store error codes into errno...
+On Monday 13 January 2003 08:32 am, Richard B. Johnson wrote:
+[snip]
+> As previously shown, most of the programs that "come with" Linux,
+> and therefore are part of the "Operating System" to which you lay
+> claim, were developed by students at the University of California,
+> Berkeley. They even contain a Copyright notice, embedded in the
+> executable files. Anybody can do:
 >
-> Real problem is that firmware loader should use
-> filp_open/vfs_read/filp_close (or sys_open/sys_llseek/sys_read/sys_close if
-> you want to use fd interface, but filp_{open,close} and vfs_read are
-> already exported for modules while sys_open/sys_llseek/sys_read are not).
+> 		strings /usr/bin/* | grep Regents
+> 		strings /bin/* | grep Regents
 >
-> As an alternative, do_mod_firmware_load should be standalone userspace
-> program executed through call_usermodehelper or something like that...
-> Unfortunately we do not have an interface to distribute userspace binaries
-> together with kernel (except initrd) yet, so it would require either
-> adding do_mod_firmware_load into module-init-tools, or some simillar
-> package required by 2.[56].x kernels.
->
-> Also adding "#define errno (current()->exit_code)" at the beginning of
-> sound_firmware.c (just below #define __KERNEL_SYSCALLS__) should do
-> the trick, but I do not recommend taking this path.
->                                             Best regards,
->                                                 Petr Vandrovec
->                                                 vandrove@vc.cvut.cz
+> ...and see all the copyright notices embedded in the programs to
+> which you now claim credit.
 
-First of all a big THANKS!
+And by my count (RH 7.3) that comes to 52 for /usr/bin/*
+of those 52:
 
-Now, at least, I understood the real problem...
-'errno' is only needed because open(), close(), llseek() and read() are used, 
-which do a syscall and the return code is written to a variable called 
-'errno'. This is NOT the 'errno' variable defined in lib/errno.c... OK.
+	rdist has 12 entries of its' own.
+	rdistd has 7 more.
 
-And so the real problem is using these functions and as we ARE in the kernel 
-mode we do not really need the kernel traps...
+The majority of the comands deal with mail(7), and postgres (8).
+Of the compiling ones: lex and yacc show one each, gprof has two.
 
-So after realizing the real problem I think I am not the right person to fix 
-it. But if you want I could try...
+The rest all have one reference.
 
-Sincerely yours
-   Thomas Schlichter
+Of these only those dealing with the network (telnet, ftp rdist,rdistd...) 
+would be considered part of the core utilities - and even then they are
+discouraged in use (weak security).
+
+The rest of the files (3080) do not have a BSD base.
+
+In /bin/* I find only 4. /bin/csh, /bin/mail, /bin/ping and /bin/tcsh.
+Of these I only consider /bin/ping  a core utility.
+
+
+In my opinion, that is not enough to claim a BSD foundation.
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

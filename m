@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132914AbRD1O2b>; Sat, 28 Apr 2001 10:28:31 -0400
+	id <S132934AbRD1ObB>; Sat, 28 Apr 2001 10:31:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132934AbRD1O2V>; Sat, 28 Apr 2001 10:28:21 -0400
-Received: from jalon.able.es ([212.97.163.2]:4833 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S132914AbRD1O2M>;
-	Sat, 28 Apr 2001 10:28:12 -0400
-Date: Sat, 28 Apr 2001 16:28:03 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Wakko Warner <wakko@animx.eu.org>, Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        Xavier Bestel <xavier.bestel@free.fr>,
-        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
-        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and 2GB swap partition limit
-Message-ID: <20010428162803.C1062@werewolf.able.es>
-In-Reply-To: <20010428093722.A17218@animx.eu.org> <200104281411.QAA04406@cave.bitwizard.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <200104281411.QAA04406@cave.bitwizard.nl>; from R.E.Wolff@BitWizard.nl on Sat, Apr 28, 2001 at 16:11:47 +0200
-X-Mailer: Balsa 1.1.4
+	id <S133012AbRD1Oav>; Sat, 28 Apr 2001 10:30:51 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:3854 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S132934AbRD1Oar>;
+	Sat, 28 Apr 2001 10:30:47 -0400
+Message-ID: <3AEAD138.5B9D188F@evision-ventures.com>
+Date: Sat, 28 Apr 2001 16:18:32 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cleanup for fixing get_super() races
+In-Reply-To: <Pine.GSO.4.21.0104272127390.21109-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 04.28 Rogier Wolff wrote:
+Alexander Viro wrote:
 > 
-> I've ALWAYS said that it's a rule-of-thumb. This means that if you
-> have a good argument to do it differently, you should surely do so!
+> On Fri, 27 Apr 2001, Alexander Viro wrote:
 > 
+> > Fine with me. Actually in _all_ cases execept cdrom.c it's preceded by
+> > either sync_dev() or fsync_dev(). What do you think about pulling that
+> > into the same function? Actually, that's what I've done in namespace
+> > patch (name being invalidate_dev(), BTW ;-) The only problem I see
+> > here is the argument telling whether we want sync or fsync (or nothing).
+> > OTOH, I seriously suspect that we ought replace all sync_dev() cases
+> > with fsync_dev() anyway... Your opinion?
+> >                                                               Al
+> 
+> PS: last time I've separated that part of patch was a couple months
+> ago. See if something similar to the variant below would be OK with
+> you (I'll rediff it):
 
-I'm not so sure it's only a 'rule of thumb'. Do not know the state of
-paging in just released 2.4.4, but in previuos kernel, a page that was
-paged-out, reserves its place in swap even if it is paged-in again, so
-once you have paged-out all your ram at least once, you can't get any
-more memory, even if swap is 'empty'.
+I think in the context you are inventig the proposed function, 
+the drivers has allways an inode at hand. And contrary to what Linus
+says, drivers not just know about the devices they handle, they 
+know about the data they should get - at least in the context
+of block devices. And then you could as well pass the inode, which
+is already containing a refference to the corresponding sb and
+save the whole get_super linear array lookup 8-). I think
+the less kdev_t the better! It's overused already anyway, like
+for example in the whole SCSI code, where the functions in reality only
+want to pass the minor number to differentiate they behaviour...
 
-Now that macs leave out that kind of swap (MacOS classic), linux takes it.
-At least macos does not allow you to set vm to less than your physical mem.
+If you are gogin to flag the behaviour of the function,
+then please use a bitpattern of well definded flags as a parameter,
+in a similiar way like it's done for example in many GUI libraries
+(GTK, Motif and so on). This would make it far more readabel.
 
--- 
-J.A. Magallon                                          #  Let the source
-mailto:jamagallon@able.es                              #  be with you, Luke... 
-
-Linux werewolf 2.4.4 #1 SMP Sat Apr 28 11:45:02 CEST 2001 i686
-
+-- just my two euro-cent's...

@@ -1,105 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbUDOBpf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 21:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbUDOBpf
+	id S262431AbUDOBvs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 21:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262823AbUDOBvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 21:45:35 -0400
-Received: from gizmo11ps.bigpond.com ([144.140.71.21]:56463 "HELO
-	gizmo11ps.bigpond.com") by vger.kernel.org with SMTP
-	id S262453AbUDOBpc convert rfc822-to-8bit (ORCPT
+	Wed, 14 Apr 2004 21:51:48 -0400
+Received: from gate.crashing.org ([63.228.1.57]:2432 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262431AbUDOBvo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 21:45:32 -0400
-From: Ross Dickson <ross@datscreative.com.au>
-Reply-To: ross@datscreative.com.au
-Organization: Dat's Creative Pty Ltd
-To: Len Brown <len.brown@intel.com>,
-       Christian =?iso-8859-1?q?Kr=F6ner?= 
-	<christian.kroener@tu-harburg.de>,
-       linux-nforce-bugs@nvidia.com
-Subject: Re: IO-APIC on nforce2 [PATCH]
-Date: Thu, 15 Apr 2004 11:48:53 +1000
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-References: <200404131117.31306.ross@datscreative.com.au> <200404142157.34502.christian.kroener@tu-harburg.de> <1081988224.15062.75.camel@dhcppc4>
-In-Reply-To: <1081988224.15062.75.camel@dhcppc4>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200404151148.53187.ross@datscreative.com.au>
+	Wed, 14 Apr 2004 21:51:44 -0400
+Subject: [PATCH] ppc64: Fix possible duplicate MMU hash entries
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1081993642.2135.136.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 15 Apr 2004 11:47:22 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 15 April 2004 10:17, Len Brown wrote:
-> On Wed, 2004-04-14 at 15:57, Christian Kröner wrote:
-> 
-> > This is simply great, any uncommon hi-load disappeared.
-> > Will something like this get into mainline soon, maybe with automatic chipset 
-> > detection?
-> 
-> I'm okay putting the bootparam and the workaround into the kernel,
-> for it is generic and we may find other platforms need it.
+Hi !
 
-Great, it sure is simpler and cleaner than my workaround. Thanks.
+The current code has a subtle race where 2 hash PTEs can be inserted
+for the same virtual address for a short period of time. There should
+not be a stale one as the "old" one ultimately gets flushed, but the
+architecture specifies that having two hash PTE is illegal and can
+result in undefined behaviour.
 
-> 
-> But I don't have a clean way to make it automatic.
-> This is a BIOS bug, so chipset ID will not always work.
+This patch fixes it by never clearing the _PAGE_HASHPTE bit when
+doing test_and_clear_{young,dirty}. That means that subsequent faults
+on those pages will have a bit more overhead to "discover" that the
+hash entry was indeed evicted.
 
-True it is a bios thing but I have yet to see an nforce2 MOBO that is not 
-routed in this way. I am thinking it is internal to the chipset. I have seen
-none route it into io-apic pin2.
+It also adds a small optisation to avoid doing the atomic operation
+and the hash flush in test_and_clear_dirty when the page isn't dirty
+or when setting write protect while it's already set.
 
-> Maciej wrote
->  Well, the question is whether the timer->INTIN0 routing is hardwired
-> inside the nforce2 chipset or is it external and thus board-dependent.  
-> Any way to get this clarified by the chipset's manufacturer?
+Please, apply,
+Ben.
 
-Nvidia is the first Company in my 20+ years of working life to totally not 
-respond to my attempts to communicate and I have had dealings with
-numerous semiconductor firms and agents. I doubt that my email source 
-would be blocked and I have also tried their form mail. Do real people
-work there? Maybe I have to phone or fax them from here in Australia?
--or place an order for 10,000 chips? Maybe we need a worldwide union of
-Linux support staff to exhibit collective sales pressure. Enough ranting....
-
-I am also cautioned by Maciej's comments indicating that maybe the 
-override appears in the nforce2 bios because there is no other way of 
-saying this is a feature that nvidia could not get to work properly?...
-
-On the flip side in favour of this routing the clock skew may be restricted
-to only to 2.6.1 kerns, I do not have it on my patched 2.4 kerns, it may
-be fine on 2.6.5.
-
-Here is a link to the old thread with the skew issues.
-http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-01/3129.html
-Christian - would you please check if you get clock skew as described in
-that thread?
-
-> 
-> We could list the BIOS in dmi_scan(), but I hate doing
-> that b/c then the vendor releases a new version of their
-> broken BIOS and the automatic workaround no longer works...
-> 
-> -Len
-> 
-
-Unfortunately the hard lockups in the BUG report won't be fixed by this io-apic
-work. I think Shuttle is the only manufacturer to ship a bios update which has
-taken a board with existing lockup problems and fixed it. So far nobody has
-posted how this magic was done?
-http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-01/5003.html
-
-In the mean time I and others with lockups have had success with my C1 idle 
-patch but I have left it manual with kern arg for the same reason - no clean
-way to automate it. Some nforce2 need it, others don't. Want me to finish 
-cleaning it up for possible inclusion?
-http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-04/1707.html
-
--Ross.
-
-
+--- 1.31/include/asm-ppc64/pgtable.h	Fri Feb 27 23:16:07 2004
++++ edited/include/asm-ppc64/pgtable.h	Thu Apr  8 17:30:57 2004
+@@ -313,7 +313,9 @@
+ {
+ 	unsigned long old;
+ 
+-	old = pte_update(ptep, _PAGE_ACCESSED | _PAGE_HPTEFLAGS);
++       	if ((pte_val(*ptep) & (_PAGE_ACCESSED | _PAGE_HASHPTE)) == 0)
++		return 0;
++	old = pte_update(ptep, _PAGE_ACCESSED);
+ 	if (old & _PAGE_HASHPTE) {
+ 		hpte_update(ptep, old, 0);
+ 		flush_tlb_pending();	/* XXX generic code doesn't flush */
+@@ -326,12 +328,13 @@
+  * moment we always flush but we need to fix hpte_update and test if the
+  * optimisation is worth it.
+  */
+-#if 1
+ static inline int ptep_test_and_clear_dirty(pte_t *ptep)
+ {
+ 	unsigned long old;
+ 
+-	old = pte_update(ptep, _PAGE_DIRTY | _PAGE_HPTEFLAGS);
++       	if ((pte_val(*ptep) & _PAGE_DIRTY) == 0)
++		return 0;
++	old = pte_update(ptep, _PAGE_DIRTY);
+ 	if (old & _PAGE_HASHPTE)
+ 		hpte_update(ptep, old, 0);
+ 	return (old & _PAGE_DIRTY) != 0;
+@@ -341,7 +344,9 @@
+ {
+ 	unsigned long old;
+ 
+-	old = pte_update(ptep, _PAGE_RW | _PAGE_HPTEFLAGS);
++       	if ((pte_val(*ptep) & _PAGE_RW) == 0)
++       		return;
++	old = pte_update(ptep, _PAGE_RW);
+ 	if (old & _PAGE_HASHPTE)
+ 		hpte_update(ptep, old, 0);
+ }
+@@ -358,7 +363,6 @@
+ #define ptep_clear_flush_young(__vma, __address, __ptep)		\
+ ({									\
+ 	int __young = ptep_test_and_clear_young(__ptep);		\
+-	flush_tlb_page(__vma, __address);				\
+ 	__young;							\
+ })
+ 
+@@ -369,27 +373,6 @@
+ 	flush_tlb_page(__vma, __address);				\
+ 	__dirty;							\
+ })
+-
+-#else
+-static inline int ptep_test_and_clear_dirty(pte_t *ptep)
+-{
+-	unsigned long old;
+-
+-	old = pte_update(ptep, _PAGE_DIRTY);
+-	if ((~old & (_PAGE_HASHPTE | _PAGE_RW | _PAGE_DIRTY)) == 0)
+-		hpte_update(ptep, old, 1);
+-	return (old & _PAGE_DIRTY) != 0;
+-}
+-
+-static inline void ptep_set_wrprotect(pte_t *ptep)
+-{
+-	unsigned long old;
+-
+-	old = pte_update(ptep, _PAGE_RW);
+-	if ((~old & (_PAGE_HASHPTE | _PAGE_RW | _PAGE_DIRTY)) == 0)
+-		hpte_update(ptep, old, 1);
+-}
+-#endif
+ 
+ static inline pte_t ptep_get_and_clear(pte_t *ptep)
+ {
 
 

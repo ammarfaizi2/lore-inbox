@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270503AbRHNH7H>; Tue, 14 Aug 2001 03:59:07 -0400
+	id <S270501AbRHNH5i>; Tue, 14 Aug 2001 03:57:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270506AbRHNH65>; Tue, 14 Aug 2001 03:58:57 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:4106 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S270503AbRHNH6m>; Tue, 14 Aug 2001 03:58:42 -0400
-Message-ID: <3B78D9E9.B7FD98D7@idb.hist.no>
-Date: Tue, 14 Aug 2001 09:57:29 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-pre8 i686)
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: PinkFreud <pf-kernel@mirkwood.net>, linux-kernel@vger.kernel.org
-Subject: Re: Are we going too fast?
-In-Reply-To: <Pine.LNX.4.20.0108131710420.1037-100000@eriador.mirkwood.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S270503AbRHNH51>; Tue, 14 Aug 2001 03:57:27 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:37046 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S270501AbRHNH5N>; Tue, 14 Aug 2001 03:57:13 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Performance 2.4.8 is worse than 2.4.x<8 (SPEC NFS results sho
+Date: Tue, 14 Aug 2001 07:57:25 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9lall5$ave$1@forge.intermeta.de>
+In-Reply-To: <F341E03C8ED6D311805E00902761278C04728E71@xfc04.fc.hp.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 997775845 30365 212.34.181.4 (14 Aug 2001 07:57:25 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Tue, 14 Aug 2001 07:57:25 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PinkFreud wrote:
-[...]
+"HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com> writes:
 
-> > Matter of opinion. I would say that Linux-2.4 has been way long to come
-> > and wasn't quite ready for stable status. There are numerous other O/Ses
-> 
-> That's what I've been attempting to say, as well.  It seems to have been
-> released too quickly - minimal testing, too many bugs.
+>reiserfs
 
-The testing isn't minimal - it is merely ongoing.  Users don't
-pay for the kernel, so they are part of the testing team.
+Would you mind rerunning your tests with ext2?
 
-If you use anything but a distribution kernel, keep previous
-kernels around when you upgrade.  If the new one fails, report
-it here and go back to the previous one.  The only way to get wide
-testing is when enough people do this.
+	Regards
+		Henning
 
-Helge Hafting
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

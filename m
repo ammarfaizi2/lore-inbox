@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267531AbUHEBHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267532AbUHEBRk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267531AbUHEBHM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 21:07:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267530AbUHEBHM
+	id S267532AbUHEBRk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 21:17:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267537AbUHEBRk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 21:07:12 -0400
-Received: from gizmo01ps.bigpond.com ([144.140.71.11]:32190 "HELO
-	gizmo01ps.bigpond.com") by vger.kernel.org with SMTP
-	id S267531AbUHEBGz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 21:06:55 -0400
-Message-ID: <4111882B.9090504@bigpond.net.au>
-Date: Thu, 05 Aug 2004 11:06:51 +1000
+	Wed, 4 Aug 2004 21:17:40 -0400
+Received: from gizmo09ps.bigpond.com ([144.140.71.19]:6335 "HELO
+	gizmo09ps.bigpond.com") by vger.kernel.org with SMTP
+	id S267532AbUHEBRi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 21:17:38 -0400
+Message-ID: <41118AAE.7090107@bigpond.net.au>
+Date: Thu, 05 Aug 2004 11:17:34 +1000
 From: Peter Williams <pwil3058@bigpond.net.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
-Subject: Re: [PATCH] V-3.0 Single Priority Array O(1) CPU Scheduler Evaluation
-References: <20040802134257.GE2334@holomorphy.com> <410EDD60.8040406@bigpond.net.au> <20040803020345.GU2334@holomorphy.com> <410F08D6.5050200@bigpond.net.au> <20040803104912.GW2334@holomorphy.com> <41102FE5.9010507@bigpond.net.au> <20040804005034.GE2334@holomorphy.com> <41103DBB.6090100@bigpond.net.au> <20040804015115.GF2334@holomorphy.com> <41104C8F.9080603@bigpond.net.au> <20040804074440.GL2334@holomorphy.com>
-In-Reply-To: <20040804074440.GL2334@holomorphy.com>
+To: Albert Cahalan <albert@users.sf.net>
+CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       kernel@kolivas.org, Andrew Morton OSDL <akpm@osdl.org>
+Subject: Re: SCHED_BATCH and SCHED_BATCH numbering
+References: <1091638227.1232.1750.camel@cube>
+In-Reply-To: <1091638227.1232.1750.camel@cube>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> William Lee Irwin III wrote:
-> On Wed, Aug 04, 2004 at 12:40:15PM +1000, Peter Williams wrote:
+Albert Cahalan wrote:
+> Are these going to be numbered consecutively, or might
+> they better be done like the task state? SCHED_FIFO is
+> in fact already treated this way in one place. One might
+> want to test values this way:
 > 
->>The timer would be deactivated whenever the number of runnable tasks for 
->>the runqueue goes below 2.  The whole thing could be managed from the 
->>enqueue and dequeue functions i.e.
->>dequeue - if the number running is now less than two cancel the timer 
->>and otherwise decrease the expiry time to maintain the linear 
->>relationship of the interval with the number of runnable tasks
->>enqueue - if the number of runnable tasks is now 2 then start the time 
->>with a single interval setting and if the number is greater than two 
->>then increase the timer interval to maintain the linear relationship.
->>I'm assuming here that add_timer(), del_timer() and (especially) 
->>mod_timer() are relatively cheap.  If mod_timer() is too expensive some 
->>alternative method could be devised to maintain the linear relationship.
+> if(foo & (SCHED_ISO|SCHED_RR|SCHED_FIFO))  ...
 > 
+> (leaving aside SCHED_OTHER==0, or just translate
+> that single value for the ABI)
 > 
-> Naive schemes reprogram the timer device too frequently.
+> I'd like to see these get permenant allocations
+> soon, even if the code doesn't go into the kernel.
+> This is because user-space needs to know the values.
 
-I had a look at mod_timer() and I agree that it's too expensive to call 
-every time a task gets queued or dequeued.
+Excellent idea.  The definition of rt_task() could become:
 
-> Software
-> constructs are less of a concern. This also presumes that taking timer
-> interrupts when cpu-intensive workloads voluntarily yield often enough
-> is necessary or desirable.
+#define rt_task(p) ((p)->policy & (SCHED_RR|SCHED_FIFO))
 
-Voluntary yielding can't be relied upon.  Writing a program that never 
-gives up the CPU voluntarily is trivial.  Some have been known to do it 
-without even trying :-)
+instead of the highly dodgy:
 
-> This is not so in virtualized environments,
-> and unnecessary interruption of userspace also degrades performance.
+#define rt_task(p) ((p)->prio < MAX_RT_PRIO)
 
 Peter
 -- 

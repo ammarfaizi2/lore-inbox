@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129188AbQKQQo2>; Fri, 17 Nov 2000 11:44:28 -0500
+	id <S129920AbQKQQrs>; Fri, 17 Nov 2000 11:47:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129921AbQKQQoT>; Fri, 17 Nov 2000 11:44:19 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:54400 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129188AbQKQQoI>; Fri, 17 Nov 2000 11:44:08 -0500
-Date: Fri, 17 Nov 2000 11:13:33 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Doug Alcorn <doug@lathi.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: FAQ followup: changes in open fd/proc in 2.4.x?
-In-Reply-To: <m38zqitwtn.fsf@balder.seapine.com>
-Message-ID: <Pine.LNX.3.95.1001117110827.19105A-100000@chaos.analogic.com>
+	id <S129921AbQKQQri>; Fri, 17 Nov 2000 11:47:38 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:1033 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129920AbQKQQra>; Fri, 17 Nov 2000 11:47:30 -0500
+Date: Fri, 17 Nov 2000 08:17:14 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        David Hinds <dhinds@valinux.com>, tytso@valinux.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pcmcia event thread. (fwd)
+In-Reply-To: <200011170051.eAH0pvr18387@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10011170814440.2272-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Nov 2000, Doug Alcorn wrote:
 
-> I am working on a project to port a commercial app to Linux.  Our app
-> is essentially a dataserver with approximately two files per database
-> table.  I did a search of this mailing lists archive on the subject
-> and found a discussion back in the 2.0.x days when the limit was 256.
-> Basically the discussion went like this:
+
+On Fri, 17 Nov 2000, Russell King wrote:
+
+> Alan Cox writes:
+> > >From a practical point of view that currently means 'delete Linus tree pcmcia
+> > regardless of what you are doing' since the modules from David Hinds and Linus
+> > pcmcia are not 100% binary compatible for all cases.
 > 
+> However, deleting that code would render a significant number of ARM platforms
+> without PCMCIA support, which would be real bad.
 
-The default is now 1024 fds (try it):
+Right now, I suspect that the in-kernel pcmcia code is actually at the
+point where it _is_ possible to use it. David Hinds has been keeping the
+cs layer in synch with the external versions, and tons of people have
+helped make the low-level drivers stable again.
 
-main()
-{
-    int fd;
-    for(;;)
-    {
-        fd = open("/dev/null", 0);
-        printf("%d\n", fd);
-        if(fd < 0) exit(0);
+If somebody still has a problem with the in-kernel stuff, speak up. 
 
-    }
-}
-
-Something in /proc/sys/fs is supposed to increase it even more, but
-I don't know how.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+			Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

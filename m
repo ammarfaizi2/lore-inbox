@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288938AbSAETji>; Sat, 5 Jan 2002 14:39:38 -0500
+	id <S288944AbSAETr2>; Sat, 5 Jan 2002 14:47:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288940AbSAETj1>; Sat, 5 Jan 2002 14:39:27 -0500
-Received: from navy.csi.cam.ac.uk ([131.111.8.49]:51595 "EHLO
-	navy.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S288938AbSAETjI>; Sat, 5 Jan 2002 14:39:08 -0500
-Date: Sat, 5 Jan 2002 19:37:48 +0000 (GMT)
-From: "Joseph S. Myers" <jsm28@cam.ac.uk>
-X-X-Sender: <jsm28@kern.srcf.societies.cam.ac.uk>
-To: <jkl@miacid.net>
-cc: Florian Weimer <fw@deneb.enyo.de>, <dewar@gnat.com>,
-        <Dautrevaux@microprocess.com>, <paulus@samba.org>,
-        <Franz.Sirl-kernel@lauterbach.com>, <benh@kernel.crashing.org>,
-        <gcc@gcc.gnu.org>, <jtv@xs4all.nl>, <linux-kernel@vger.kernel.org>,
-        <linuxppc-dev@lists.linuxppc.org>, <minyard@acm.org>, <rth@redhat.com>,
-        <trini@kernel.crashing.org>, <velco@fadata.bg>
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <Pine.BSI.4.10.10201051111100.8542-100000@hevanet.com>
-Message-ID: <Pine.LNX.4.33.0201051929080.485-100000@kern.srcf.societies.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288940AbSAETrS>; Sat, 5 Jan 2002 14:47:18 -0500
+Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:60400 "HELO
+	dardhal") by vger.kernel.org with SMTP id <S288944AbSAETrI>;
+	Sat, 5 Jan 2002 14:47:08 -0500
+Date: Sat, 5 Jan 2002 20:47:00 +0100
+From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
+	<jdomingo@internautas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020105194700.GB1283@localhost>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0112292256490.24031-100000@imladris.surriel.com> <3C2F04F6.7030700@athlon.maya.org> <3C309CDC.DEA9960A@megsinet.net> <20011231185350.1ca25281.skraw@ithnet.com> <3C351012.9B4D4D6@megsinet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3C351012.9B4D4D6@megsinet.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Jan 2002 jkl@miacid.net wrote:
+On Thursday, 03 January 2002, at 20:14:42 -0600,
+M.H.VanLeeuwen wrote:
 
-> Wat this last bit added to the standard after ANSI/ISO 9899-1990?  I'm
-> looking through my copy and I can't find it.  All I can find is that 
+> Here is what I've run thus far.  I'll add nfs file copy into the mix also...
+> System: SMP 466 Celeron 192M RAM, running KDE, xosview, and other minor apps.
+>
+I applied your little patch "vmscan.patch.2.4.17.c" to a plain 2.4.17
+source tree, recompiled, and tried it. Swap usage is _much_ less than in
+original 2.4.17: hardware is a Pentium166 with 64 MB RAM and 75 MB
+swap, and my workload includes X 4.1.x, icewm, nightly Mozilla, several
+rxvt, gkrellm, some MP3 listening via XMMS, xchat, several links web
+browsers and a couple of little daemons runnig.
 
-I was quoting from the GCC manual (providing the documentation
-implementations are required to provide of implementation-defined
-behaviour); of course the subclause numbers are different in C99 (from
-which the subclause numbers in the GCC manual are given) from those in
-C90.  Perhaps once all the documentation for implementation-defined
-behaviour in C99 is present I'll go over what's required to document it
-all relative to C90 as well.
+I have not done scientific measures on swap usage, but with your patch
+it seems caches don't grow too much, and swap is usually 10-20 MB lower
+than using plain 2.4.17. I have also observed in /proc/meminfo that
+"Inactive:" seems to be much lower with your patch.
 
-> 	I interpret this to mean that one MAY use integer arithmatic to
-> do move a pointer outside the bounds of an array.  Specifically, as soon
-> as I've cast the pointer to an integer, the compiler has an obligation to
-> forget any assumptions it makes about that pointer.  This is what casts
-> from pointer to integer are for!  when i say (int)p I'm saying that I
-> understand the address structure of the machine and I want to manipulate
-> the address directly.
+If someone wants more tests/numbers done/reported, just ask.
 
-Just because you've created a pointer P, and it compares bitwise equal to
-a valid pointer Q you can use to access an object, does not mean that P
-can be used to access that object.  Look at DR#260, discussing the
-provenance of pointer values, which arose from extensive discussion in the
-UK C Panel, and if you think it should be resolved otherwise from how we
-(UK C Panel) proposed then raise your position on it at a meeting of your
-National Body before the next WG14 meeting.
-
-http://std.dkuug.dk/JTC1/SC22/WG14/www/docs/dr_260.htm
+Hope this helps.
 
 -- 
-Joseph S. Myers
-jsm28@cam.ac.uk
+José Luis Domingo López
+Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
+ 
+jdomingo AT internautas DOT   org  => Spam at your own risk
 

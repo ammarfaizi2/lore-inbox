@@ -1,96 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263112AbVCXMaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262806AbVCXMh3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263112AbVCXMaP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 07:30:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262806AbVCXMaP
+	id S262806AbVCXMh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 07:37:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbVCXMh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 07:30:15 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:8846 "EHLO
-	moreton.com.au") by vger.kernel.org with ESMTP id S263112AbVCXM37
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 07:29:59 -0500
-Date: Thu, 24 Mar 2005 22:28:40 +1000
-From: David McCullough <davidm@snapgear.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jmorris@redhat.com, cryptoapi@lists.logix.cz, herbert@gondor.apana.org.au,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
-Subject: [PATCH 2.6.12-rc1] API for true Random Number Generators to add entropy
-Message-ID: <20050324122840.GA7115@beast>
-References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast> <20050323203856.17d650ec.akpm@osdl.org>
+	Thu, 24 Mar 2005 07:37:29 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:12714 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S262806AbVCXMhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 07:37:22 -0500
+Date: Thu, 24 Mar 2005 13:37:21 +0100
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>, michal@logix.cz
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
+Message-ID: <20050324123719.GY29897@vanheusden.com>
+References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast> <20050324043300.GA2621@havoc.gtf.org> <20050324044621.GC3124@beast> <42424C6D.2020605@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050323203856.17d650ec.akpm@osdl.org>
+In-Reply-To: <42424C6D.2020605@pobox.com>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Wed Mar 23 21:52:36 CET 2005
+X-MSMail-Priority: High
 User-Agent: Mutt/1.5.6+20040907i
+From: folkert@vanheusden.com (Folkert van Heusden)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Also, there are other entropy daemons floating about.  I think there is 
+> one that obtains noise from an audio device.
 
-Hi all,
+That's correct: http://www.vanheusden.com/aed/ audio-entropyd
 
-Here is a revised patch for 2.6.12-rc1 that adds a routine:
+There's also one for doing the same with video4linux devices: 
+http://www.vanheusden.com/ved/
 
-    add_true_randomness(__u32 *buf, int nwords);
 
-so that true random number generator device drivers can add a entropy
-to the system.
+Folkert van Heusden
 
-Cheers,
-Davidm
-
-Signed-off-by: David McCullough <davidm@snapgear.com>
-
---- linux-2.6.12-rc1.orig/drivers/char/random.c	2005-03-18 11:33:49.000000000 +1000
-+++ linux-2.6.12-rc1/drivers/char/random.c	2005-03-24 16:16:40.000000000 +1000
-@@ -1148,6 +1148,36 @@
- EXPORT_SYMBOL(generate_random_uuid);
- 
- /********************************************************************
-+ * provide a mechanism for HW to add entropy that is of
-+ * very good quality from a true random number generator
-+ ***************************************************************/
-+
-+void add_true_randomness(__u32 *buf, int nwords)
-+{
-+	struct entropy_store *r;
-+	int wakeup_check = 0;
-+
-+	/*
-+	 * if we have too much entropy, put some in the secondary pool
-+	 */
-+	r = &blocking_pool;
-+	if (r->entropy_count >= r->poolinfo->POOLBITS)
-+		r = &nonblocking_pool;
-+	else
-+		wakeup_check = (r->entropy_count < random_read_wakeup_thresh);
-+
-+	add_entropy_words(r, buf, nwords);
-+	credit_entropy_store(r, nwords * 32);
-+
-+	/*
-+	 * wakeup if we added enough entropy to cross the threshold
-+	 */
-+	if (wakeup_check && r->entropy_count >= random_read_wakeup_thresh)
-+		wake_up_interruptible(&random_read_wait);
-+}
-+EXPORT_SYMBOL(add_true_randomness);
-+
-+/********************************************************************
-  *
-  * Sysctl interface
-  *
---- linux-2.6.12-rc1.orig/include/linux/random.h	2005-03-18 11:34:37.000000000 +1000
-+++ linux-2.6.12-rc1/include/linux/random.h	2005-03-24 15:59:42.000000000 +1000
-@@ -48,6 +48,8 @@
- 				 unsigned int value);
- extern void add_interrupt_randomness(int irq);
- 
-+extern void add_true_randomness(__u32 *buf, int nwords);
-+
- extern void get_random_bytes(void *buf, int nbytes);
- void generate_random_uuid(unsigned char uuid_out[16]);
- 
-
--- 
-David McCullough, davidm@snapgear.com  Ph:+61 7 34352815 http://www.SnapGear.com
-Custom Embedded Solutions + Security   Fx:+61 7 38913630 http://www.uCdot.org
+Auto te koop! Zie: http://www.vanheusden.com/daihatsu.php
+Op zoek naar een IT of Finance baan? Mail me voor de mogelijkheden!
++------------------------------------------------------------------+
+|UNIX admin? Then give MultiTail (http://vanheusden.com/multitail/)|
+|a try, it brings monitoring logfiles to a different level! See    |
+|http://vanheusden.com/multitail/features.html for a feature list. |
++------------------------------------------= www.unixsoftware.nl =-+
+Phone: +31-6-41278122, PGP-key: 1F28D8AE
+Get your PGP/GPG key signed at www.biglumber.com!

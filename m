@@ -1,79 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264656AbUEOQNz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264685AbUEOQgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264656AbUEOQNz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 12:13:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264664AbUEOQNz
+	id S264685AbUEOQgj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 12:36:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264686AbUEOQgj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 12:13:55 -0400
-Received: from mailout01.ims-firmen.de ([213.174.32.96]:2510 "EHLO
-	mailout01.ims-firmen.de") by vger.kernel.org with ESMTP
-	id S264656AbUEOQNx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 12:13:53 -0400
-Subject: Re: dma ripping
-From: Daniele Bernardini <db@sqbc.com>
-To: Jens Axboe <axboe@suse.de>
+	Sat, 15 May 2004 12:36:39 -0400
+Received: from cantor.suse.de ([195.135.220.2]:28125 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264685AbUEOQgh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 12:36:37 -0400
+To: Takashi Iwai <tiwai@suse.de>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040515145800.GE24600@suse.de>
-References: <1084548566.12022.57.camel@linux.site>
-	 <20040515101415.GA24600@suse.de> <1084610731.4666.8.camel@linux.site>
-	 <20040515145800.GE24600@suse.de>
-Content-Type: text/plain
-Message-Id: <1084616037.4666.14.camel@linux.site>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 15 May 2004 12:13:58 +0200
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2.6.6: ALSA sound/ppc/keywest.c:84: tumbler: cannot initialize
+ the MCS
+References: <m3y8nzgbmo.fsf@whitebox.m5r.de> <s5hu0yndose.wl@alsa2.suse.de>
+	<jelljxpgjs.fsf@sykes.suse.de>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: YOW!!  Everybody out of the GENETIC POOL!
+Date: Sat, 15 May 2004 18:36:35 +0200
+In-Reply-To: <jelljxpgjs.fsf@sykes.suse.de> (Andreas Schwab's message of
+ "Wed, 12 May 2004 21:54:31 +0200")
+Message-ID: <jesme1y7e4.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-05-15 at 16:58, Jens Axboe wrote:
-> On Sat, May 15 2004, Daniele Bernardini wrote:
-> > 
-> > On Sat, 2004-05-15 at 12:14, Jens Axboe wrote:
-> > > On Fri, May 14 2004, Daniele Bernardini wrote:
-> > > > Hi Folks, 
-> > > > 
-> > > > I am trying to get cd ripping to work on a freshly installed SuSE 9.1 on
-> > > > IBM thinkpad R50 with dvdram drive. 
-> > > > 
-> > > > It works for a while and then hangs. At this point nothing short of a
-> > > > reboot works. Ripping stop working when the message 
-> > > > 	cdrom: dropping to single frame dma
-> > > > comes up. The system feels slow for a couple of seconds and then is back
-> > > > to normal, but no ripping until next reboot
-> > > > 
-> > > > I am running the 2.6.4 compiled by SuSE.
-> > > 
-> > > Can you retest with this small debug patch applied.
-> > > 
-> > > --- drivers/cdrom/cdrom.c~	2004-05-15 12:12:24.770228291 +0200
-> > > +++ drivers/cdrom/cdrom.c	2004-05-15 12:13:25.101720866 +0200
-> > > @@ -1987,6 +1987,7 @@
-> > >  			struct request_sense *s = rq->sense;
-> > >  			ret = -EIO;
-> > >  			cdi->last_sense = s->sense_key;
-> > > +			printk("rip failed, sense %x/%x/%x\n", s->sense_key, s->asc, s->ascq);
-> > >  		}
-> > >  
-> > >  		if (blk_rq_unmap_user(rq, ubuf, bio, len))
-> > 
-> > I did it and started ripping a cd it froze after 9 tracks, though did
-> > not see your message. I was looking at /var/log/messages (see below).
-> > BTW the system got instable and then froze had to power down. It
-> > happened before always after the ripping problem.
-> > 
-> > Should I aswitch on debug for the cdrom?
-> 
-> Just an idea - can you log vmstat 5 info while doing this burn? Maybe
-> there's still a little leak in there, so watch the ram usage
-> (used/free/swap/cache).
-> 
-> Does your drive have dma enabled?
+Andreas Schwab <schwab@suse.de> writes:
 
-How do you check if dma is enabled?
+> Takashi Iwai <tiwai@suse.de> writes:
+>
+>> At Tue, 11 May 2004 00:28:47 +0200,
+>> Andreas Schwab wrote:
+>>> 
+>>> I've never been able to get a working sound with ALSA after booting my
+>>> iBook G3 (dmasound is working fine).  Any idea what's wrong with
+>>> snd-powermac?
+>>
+>> does the attached patch work?  it's a partial patch from the latest
+>> ALSA cvs tree.
+>> the problem seems like the initialization of i2c-keywest.
+>
+> I have now imported the alsa patch from 2.6.6-mm1 and the problem seems
+> to be fixed.
 
-BTW it works with ide-scsi, so whatever the problem is must be ide-cd
-specific
+Actually there are still similar problems when waking up:
 
-Ill post the test result later
+kernel: tumbler_init_client error
+kernel: ALSA sound/ppc/tumbler.c:589: failed to set mono volume 7
+last message repeated 2 times
+kernel: ALSA sound/ppc/tumbler.c:460: failed to set mono volume 1
+kernel: ALSA sound/ppc/tumbler.c:460: failed to set mono volume 2
+kernel: ALSA sound/ppc/tumbler.c:356: failed to set DRC
+kernel: ALSA sound/ppc/tumbler.c:221: failed to set volume 
 
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

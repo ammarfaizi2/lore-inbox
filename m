@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267376AbUJRS3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267370AbUJRSY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267376AbUJRS3F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 14:29:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266835AbUJRSZR
+	id S267370AbUJRSY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 14:24:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267334AbUJRSYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 14:25:17 -0400
-Received: from holomorphy.com ([207.189.100.168]:53152 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267285AbUJRSW2 (ORCPT
+	Mon, 18 Oct 2004 14:24:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:5763 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267326AbUJRSWz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 14:22:28 -0400
-Date: Mon, 18 Oct 2004 11:22:24 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Mark Fortescue <mark@mtfhpc.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH re CONFIG_DUMMY_CONSOLE on sparc platfoms. My Console was going blank as startup. (fwd)
-Message-ID: <20041018182224.GG5607@holomorphy.com>
-References: <Pine.LNX.4.10.10410181901410.29938-100000@mtfhpc.demon.co.uk>
-Mime-Version: 1.0
+	Mon, 18 Oct 2004 14:22:55 -0400
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: forcing PS/2 USB emulation off
+References: <orzn2lyw8k.fsf@livre.redhat.lsd.ic.unicamp.br>
+	<20041017225733.GA25435@kroah.com>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: 18 Oct 2004 15:22:37 -0300
+In-Reply-To: <20041017225733.GA25435@kroah.com>
+Message-ID: <orfz4bdgya.fsf@livre.redhat.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10410181901410.29938-100000@mtfhpc.demon.co.uk>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 18, 2004 at 07:03:46PM +0100, Mark Fortescue wrote:
-> Opps. Sorry, I did not get to the bottom of the list of things to do to
-> submit a patch.
-> I am currently trying to get a sparc kernel up and running on my sparc1
-> clone. I have a hacked 2.2.14 kernel that start up but I decided that
-> seeing as I am upgrading all my linux systems, I would upgrade to the
-> latest kernel.
-> The new kernel turned the console off and then ... (power up reset
-> required at this point).
+On Oct 17, 2004, Greg KH <greg@kroah.com> wrote:
 
-Signed-off-by: William Irwin <wli@holomorphy.com>
+> On Sun, Oct 17, 2004 at 04:34:35PM -0300, Alexandre Oliva wrote:
+>> 
+>> Here's Vojtech's patch, updated to 2.6.9-rc4-bk2-ish (Fedora Core
+>> kernel-2.6.8-1.624).  Is there a good reason to keep it out of the
+>> base kernel?
 
+> It's already in the -mm kernels, and will be sent to Linus after 2.6.9
+> is out.  If you could test that kernel and verify that it works for this
+> situation, I would appreciate it.
 
--- wli
+Cool!  It works, as far as enabling the kernel to see there's a mouse
+there.  Unfortunately, it doesn't recognize it as an ALPS touchpad,
+just as a regular PS/2 mouse.  I haven't tried to figure out why yet.
+
+-- 
+Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270416AbTHQRZk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 13:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270444AbTHQRZj
+	id S270445AbTHQRiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 13:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270448AbTHQRiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 13:25:39 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:60301 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S270416AbTHQRZj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 13:25:39 -0400
-Subject: Re: Trying to run 2.6.0-test3
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Norman Diamond <ndiamond@wta.att.ne.jp>
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andries Brouwer <aebr@win.tue.nl>, Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <138e01c364ab$15b6c2b0$1aee4ca5@DIAMONDLX60>
-References: <138e01c364ab$15b6c2b0$1aee4ca5@DIAMONDLX60>
-Content-Type: text/plain
+	Sun, 17 Aug 2003 13:38:25 -0400
+Received: from smtp012.mail.yahoo.com ([216.136.173.32]:62226 "HELO
+	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S270445AbTHQRiY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 13:38:24 -0400
+Message-ID: <3F3FBDF9.5020007@yahoo.com>
+Date: Sun, 17 Aug 2003 13:40:09 -0400
+From: Brandon Stewart <rbrandonstewart@yahoo.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Hot swapping USB mouse in X window system
+References: <200308172048.15232.arvidjaar@mail.ru>
+In-Reply-To: <200308172048.15232.arvidjaar@mail.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1061141113.21878.76.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 17 Aug 2003 18:25:14 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-08-17 at 10:57, Norman Diamond wrote:
-> accept a USB keyboard but they refused.  The patch which I sent to Vojtech
-> Pavlik was ignored and these two keys continued not to work (except on my
-> machine).  Finally Mike Fabian accepted a gift of a USB keyboard and this
-> defect in Linux got fixed.  But only for somewhere around the last half of
-> the 2.4 releases, not for 2.6.
-> 
-> What will it take this time?
+Ok, that works. I knew about /dev/input/mice, but I didn't use it 
+because one mouse was PS/2 and the other was IMPS/2. But it appears to 
+figure things out on it's own. Thanks.
 
-Posting the patch with any luck ?
+-Brandon
+
+Andrey Borzenkov wrote:
+
+>>1) If a mouse is not detected at the start of X windows, that mouse will 
+>>not be checked for during the operation of X windows.
+>>2) If a mouse is detected at the start of X windows, then the device 
+>>corresponding to that mouse cannot be released until X windows is stopped
+>>    
+>>
+>
+>Use /dev/input/mice, it multiplexes all mice found and exists even if no 
+>device is currentrly available.
+>
+>Under 2.6 I can "hot-plug" serial and PS2 mouse this way and use both at the 
+>same time.
+>
+>-andrey
+>
 

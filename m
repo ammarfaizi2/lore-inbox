@@ -1,72 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268959AbUJKNxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268966AbUJKOA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268959AbUJKNxl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 09:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268966AbUJKNxl
+	id S268966AbUJKOA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 10:00:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268970AbUJKOA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 09:53:41 -0400
-Received: from cantor.suse.de ([195.135.220.2]:50360 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268959AbUJKNwz (ORCPT
+	Mon, 11 Oct 2004 10:00:56 -0400
+Received: from dev.tequila.jp ([128.121.50.153]:262 "EHLO dev.tequila.jp")
+	by vger.kernel.org with ESMTP id S268966AbUJKOAx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 09:52:55 -0400
-Message-ID: <416A58C2.6090304@suse.de>
-Date: Mon, 11 Oct 2004 11:56:18 +0200
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+	Mon, 11 Oct 2004 10:00:53 -0400
+Message-ID: <416A920E.6050709@tequila.co.jp>
+Date: Mon, 11 Oct 2004 23:00:46 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.3) Gecko/20040926 Thunderbird/0.8 Mnenhy/0.6.0.104
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: ncunningham@linuxmail.org, linux-kernel@vger.kernel.org,
-       pascal.schmidt@email.de
-Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
-References: <2HO0C-4xh-29@gated-at.bofh.it> <2I5b2-88s-15@gated-at.bofh.it> <2I5E5-6h-19@gated-at.bofh.it> <2I7Zd-1TK-11@gated-at.bofh.it> <E1CB10O-0000HL-FJ@localhost> <20040925101640.GB4039@elf.ucw.cz>
-In-Reply-To: <20040925101640.GB4039@elf.ucw.cz>
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc3-mm3 woes
+References: <4169FCB5.8050808@tequila.co.jp> <1097465881.1418.4.camel@krustophenia.net>
+In-Reply-To: <1097465881.1418.4.camel@krustophenia.net>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Pavel Machek wrote:
+On 10/11/2004 12:38 PM, Lee Revell wrote:
+> On Sun, 2004-10-10 at 23:23, Clemens Schwaighofer wrote:
+> 
+>>System: debian/unstable
+>>
+>>I just tried 2.6.9-rc3-mm3 and I have two problems:
+>>
+>>- - he calls himself 2.6.9-rc-mm31, yeah 31. I don't know where this comes
+>>from, because in the Makefile itself it is mm3. Whatever makes him do
+>>that, I don't know, but he install himselfs like this, perhaps the
+>>problems come from that
+>>
+> 
+> 
+> Weird.  Works fine here.  Maybe this is a bug in the debian build
+> process, try building from a fresh tree.
 
-> OTOH this is first report of this failure. If it fails once in a blue
-> moon, it is probably better to let it fail than waste memory.
+I'll build from kernel.org vanilla 2.8.1 + rc3 + mm3 patch.
 
-PM: Attempting to suspend to disk.
-PM: snapshotting memory.
-swsusp: critical section:
-swsusp: Saving Highmem
-[nosave pfn 0x3be]<7>[nosave pfn 0x3bf]swsusp: Need to copy 30519 pages
-suspend: (pages needed: 30519 + 512 free: 100469)
-do_acpi_sleep: page allocation failure. order:7, mode:0x120
- [<c013a628>] __alloc_pages+0x3a8/0x3b0
- [<c013a648>] __get_free_pages+0x18/0x30
- [<c0132c37>] alloc_pagedir+0x17/0x60
- [<c0132ddb>] swsusp_alloc+0x4b/0xa0
- [<c0132e63>] suspend_prepare_image+0x33/0x80
- [<c028beda>] swsusp_arch_suspend+0x2a/0x30
- [<c0132f1b>] swsusp_suspend+0x2b/0x40
- [<c01332ad>] pm_suspend_disk+0x3d/0xb0
- [<c0131765>] enter_state+0x85/0x90
- [<c01318b1>] state_store+0xc1/0xc3
- [<c01317f0>] state_store+0x0/0xc3
- [<c01852e6>] subsys_attr_store+0x26/0x30
- [<c018548d>] flush_write_buffer+0x1d/0x30
- [<c01854c9>] sysfs_write_file+0x29/0x40
- [<c01854a0>] sysfs_write_file+0x0/0x40
- [<c0150c7f>] vfs_write+0x9f/0x100
- [<c0150d8c>] sys_write+0x3c/0x70
- [<c0105c69>] sysenter_past_esp+0x52/0x79
-suspend: Allocating pagedir failed.
-swsusp: Restoring Highmem
+>>- - cdrecord segfaults. Again I don't know if this is cdrecords fault or
+>>not, but cdrecord works fine with 2.6.9-rc2-mm1
+>>
 
-this happened right now, after running fine over the weekend and doing a
-successful suspend/resume cycle this morning.
-It was a "battery critical" suspend, so this is not nice :-( I had about
-2 minutes left until hard powerdown during which i tried to get it to
-suspend but failed. Yes, userspace should handle the "failed
-battery-critical suspend" case better and probably call "shutdown -h now".
+> You might need to back out this patch:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm3/broken-out/optimize-profile-path-slightly.patch
 
-      Stefan
+oh thanks. I'll try that.
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBapIOjBz/yQjBxz8RAjqyAJ9trl/eSGibfYIi6m0JggVK56IZCgCfWztG
+yhT4j2QQy4c+p3Uk5c7ntD0=
+=NBMG
+-----END PGP SIGNATURE-----

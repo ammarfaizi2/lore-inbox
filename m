@@ -1,60 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267350AbUJIUNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267344AbUJIUOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267350AbUJIUNU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 16:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267367AbUJIUNU
+	id S267344AbUJIUOk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 16:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUJIUOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 16:13:20 -0400
-Received: from web13723.mail.yahoo.com ([66.163.176.62]:48985 "HELO
-	web13723.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267363AbUJIUL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 16:11:56 -0400
-Message-ID: <20041009201155.82221.qmail@web13723.mail.yahoo.com>
-Date: Sat, 9 Oct 2004 13:11:55 -0700 (PDT)
-From: Martins Krikis <mkrikis@yahoo.com>
-Subject: Re: Linux 2.4.28-pre4
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, mkrikis@yahoo.com
-In-Reply-To: <20041009155156.GA23965@logos.cnet>
+	Sat, 9 Oct 2004 16:14:18 -0400
+Received: from [219.156.224.2] ([219.156.224.2]:3084 "HELO rete039.it")
+	by vger.kernel.org with SMTP id S267344AbUJIULT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 16:11:19 -0400
+Message-ID: <cf2001c4ae3b$a76b428d$2c0f8278@rete039.it>
+From: "Callie Dotson" <calliedotson_bj@ulsrud.vgs.no>
+To: linux-kernel@vger.kernel.org
+Subject: New!  =?ISO-8859-1?Q?=20V=ECagra?= soft tabs.
+Date: Sat, 09 Oct 2004 23:09:08 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
+Hello!
 
-> New drivers are OK, as long as they dont break existing setups, 
-> and if substantial amount of users will benefit from it.
+We would like to offer V_I_A_G_R_A soft tabs,
 
-It cannot possibly break anything for somebody who does not
-use it, and I am not aware of any unresolved problems in it,
-i.e., I don't think it can harm its users either.
- 
-> You've submitted the patch to this list for review already? 
-> Can't remember from the top of my head.
+These pills are just like regular Vìagra but they are specially formulated 
+to be soft and dissolvable under the tongue. The pill is absorbed at the 
+mouth and enters the bloodstream directly instead of going through the stomach. 
+This results in a faster more powerful effect which lasts as long as the normal.
 
-Yes and no. This driver has been announced here 3 times,
-the latest announcement being this:
-http://www.kerneltraffic.org/kernel-traffic/kt20040807_270.html#7
+Soft Tabs also have less sidebacks (you can drive or mix alcohol drinks with them).
 
-However, I did not announce the latest release here on the list,
-and only emailed you personally last Sunday, because I felt that
-there are not enough differences with the previous release. This
-was a mistake and I'll make an announcement in a separate email.
+You can get it at: http://zap-internet.com/st/?coupon
 
-> A review by someone with good knowledge on this area (arjan, 
-> bart, alan, ?) would also be a good point on getting it into the
-> tree.
-
-I would appreciate a review of the driver very much.
-
-Thanks again,
-
-  Martins Krikis
-  Storage Components Division
-  Intel Massachusetts
-
-
-
-		
+No thanks: http://zap-internet.com/rm.html
 

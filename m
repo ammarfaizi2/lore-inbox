@@ -1,45 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315050AbSEHUOY>; Wed, 8 May 2002 16:14:24 -0400
+	id <S315096AbSEHUTJ>; Wed, 8 May 2002 16:19:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315096AbSEHUOX>; Wed, 8 May 2002 16:14:23 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43026 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315050AbSEHUOW>; Wed, 8 May 2002 16:14:22 -0400
-Subject: Re: [PATCH] IDE 58
-To: benh@kernel.crashing.org (Benjamin Herrenschmidt)
-Date: Wed, 8 May 2002 21:31:55 +0100 (BST)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        dalecki@evision-ventures.com (Martin Dalecki),
-        andre@linux-ide.org (Andre Hedrick),
-        bjorn.wesen@axis.com (Bjorn Wesen), paulus@samba.org (Paul Mackerras),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <20020508191054.6282@smtp.wanadoo.fr> from "Benjamin Herrenschmidt" at May 08, 2002 09:10:54 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E175Y6N-0002Jj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S315101AbSEHUTI>; Wed, 8 May 2002 16:19:08 -0400
+Received: from heffalump.fnal.gov ([131.225.9.20]:30566 "EHLO fnal.gov")
+	by vger.kernel.org with ESMTP id <S315096AbSEHUTH>;
+	Wed, 8 May 2002 16:19:07 -0400
+Date: Wed, 08 May 2002 15:19:03 -0500
+From: Dan Yocum <yocum@fnal.gov>
+Subject: ns83820 bug.  [was Re: Poor NFS client performance on 2.4.18?]
+To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+        linux kernel <linux-kernel@vger.kernel.org>
+Message-id: <3CD98837.16B32F84@fnal.gov>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13SGI_XFS_1.0.2 i686)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
+In-Reply-To: <3CC86BDC.C8784EA2@fnal.gov> <shsu1pyppnz.fsf@charged.uio.no>
+ <3CD6FE1E.A20384D@fnal.gov> <E174zP0-0007N9-00@charged.uio.no>
+ <3CD7F385.BAA3870B@fnal.gov> <3CD7F8A2.24DF8433@fnal.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ata_channel (or ata_drive, but I doubt that would be really
-> necessary) a set of 4 access functions: taskfile_in/out for
-> access to taskfile registers (8 bits), and data_in/out for
-> steaming datas in/out of the data reg (16 bits).
+Trond, et al.
 
-Please push it higher level than that. Load the taskfile as a set in
-each method. Remember its 1 potentially paired instruction to do an MMIO
-write, its a whole mess of synchronziation and stalls to do a function 
-pointer.
+You're right, it's a driver (ns83820) issue.  Strange that it only shows up
+when trying to execute an app that's mounted via NFS, but, whatever. 
+Running apps from the the NFS volumes with the eepro100 adapter that's on
+the machine works fine with the updated NFS_all patch applied.
 
-> address at all (that is kill the array of port addresses) but
-> just pass the taskfile_in/out functions the register number
-> (cyl_hi, cyl_lo, select, ....) as a nice symbolic constant,
-> and let the channel specific implementation figure it out.
+Thanks, again,
+Dan
 
-Pass  dev->taskfile_load() a struct at least for the common paths. Make the
-PIO block transfers also single callbacks for each block not word.
 
-Alan
+Dan Yocum wrote:
+> 
+> Dan Yocum wrote:
+> >
+> > Trond Myklebust wrote:
+> > >
+> > > On Tuesday 7. May 2002 00:05, Dan Yocum wrote:
+> > > > Trond,
+> > > >
+> > > > OK, so backing out the rpc_tweaks dif fixed the performance problem,
+> > > > however, seems to have introduced another problem that appears to be
+> > > > stemming from the seekdir.dif.  Attempting to run an app from an IRIX
+> > > > client (that has the 32bitclients option set) freezes the NFS volume - one
+> > > > can't access it from the Linux side, anymore.
+> > > >
+> > > > You can read and write to the NFS volume *before* trying to run something
+> > > > from there, but not after.
+> > > >
+> > > > Ideas?
+> > >
+> > > That smells like another network driver bug. Have you tcpdumped the traffic
+> > > between client and server?
+> >
+> > Ah, that may be the case - the problem also exists with a Linux server as
+> > well... let me check, and I'll let you know.
+> 
+> I take that back - it's only hanging on the Linux server when the IRIX
+> server is already hung.
+
+
+-- 
+Dan Yocum
+Sloan Digital Sky Survey, Fermilab  630.840.6509
+yocum@fnal.gov, http://www.sdss.org
+SDSS.  Mapping the Universe.

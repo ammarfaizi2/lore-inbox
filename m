@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263035AbTDBPhF>; Wed, 2 Apr 2003 10:37:05 -0500
+	id <S263033AbTDBPga>; Wed, 2 Apr 2003 10:36:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263036AbTDBPhF>; Wed, 2 Apr 2003 10:37:05 -0500
-Received: from vbws78.voicebs.com ([66.238.160.78]:64008 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S263035AbTDBPhB>; Wed, 2 Apr 2003 10:37:01 -0500
-Message-ID: <3E8B0648.1010800@didntduck.org>
-Date: Wed, 02 Apr 2003 10:48:24 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
+	id <S263035AbTDBPga>; Wed, 2 Apr 2003 10:36:30 -0500
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:54266 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S263033AbTDBPg3>; Wed, 2 Apr 2003 10:36:29 -0500
+Message-ID: <3E8B0803.1070302@kegel.com>
+Date: Wed, 02 Apr 2003 07:55:47 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: module.c broken in latest snapshot
+To: jjaskolski@wi.rr.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: re: X15 Web Server Source Code?
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel/module.c: In function `check_modstruct_version':
-kernel/module.c:845: warning: passing arg 2 of `__find_symbol' from 
-incompatible pointer type
-kernel/module.c:845: warning: passing arg 3 of `__find_symbol' from 
-incompatible pointer type
-kernel/module.c:847: warning: passing arg 5 of `check_version' from 
-incompatible pointer type
-kernel/module.c:847: too many arguments to function `check_version'
-kernel/module.c: In function `load_module':
-kernel/module.c:1276: structure has no member named `num_syms'
+ From X15's LICENSE:
 
---
-				Brian Gerst
+THE INTERNAL DEPLOYMENT, COMMERCIAL USE, AND/OR DISTRIBUTION OF TECHNOLOGY
+AND/OR REFERENCE CODE IN SOURCE CODE OR OBJECT CODE FORM ARE NOT PERMITTED
+UNDER THIS LICENSE.
+
+So even if I wanted to, I can't send you the code.  And even if you had
+the code, you couldn't deploy it.
+
+Why not switch to Tux or khttpd or ephttpd?
+X15 was based on sigio, so it's going to be slower than
+one based on sys_epoll.
+- Dan
+
+-- 
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
 

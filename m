@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVAGXXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVAGX2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261716AbVAGXXg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 18:23:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbVAGXVJ
+	id S261749AbVAGX2A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 18:28:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbVAGXZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 18:21:09 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:15806 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261700AbVAGXRp (ORCPT
+	Fri, 7 Jan 2005 18:25:51 -0500
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:47120 "EHLO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S261736AbVAGXY3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 18:17:45 -0500
-Subject: Re: [RFC] 2.4 and stack reduction patches
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1105137646.10979.155.camel@lade.trondhjem.org>
-References: <1105112886.4000.87.camel@dyn318077bld.beaverton.ibm.com>
-	 <20050107141224.GF29176@logos.cnet>
-	 <1105134173.4000.105.camel@dyn318077bld.beaverton.ibm.com>
-	 <1105137646.10979.155.camel@lade.trondhjem.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1105138242.4000.117.camel@dyn318077bld.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 Jan 2005 14:50:42 -0800
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jan 2005 18:24:29 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH 2.6] cciss typo fix
+Date: Fri, 7 Jan 2005 17:24:21 -0600
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF107DC0185@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6] cciss typo fix
+Thread-Index: AcT1D1/RxvRJmFYETK2KJOtSrzVGdQAAGJ2A
+From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+To: "James Bottomley" <James.Bottomley@SteelEye.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, "Jens Axboe" <axboe@suse.de>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "SCSI Mailing List" <linux-scsi@vger.kernel.org>
+X-OriginalArrivalTime: 07 Jan 2005 23:24:22.0464 (UTC) FILETIME=[04F4A400:01C4F510]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-07 at 14:40, Trond Myklebust wrote:
-> fr den 07.01.2005 Klokka 13:42 (-0800) skreiv Badari Pulavarty:
+> -----Original Message-----
+> From: James Bottomley [mailto:James.Bottomley@SteelEye.com]
 > 
-> > Here are the changes and savings.
-> > 
-> > do_execve                    320
-> > number                       100
-> > nfs_lookup                   184
-> > nfs_cached_lookup             88
-> > __revalidate_inode           112
-> > rpc_call_sync                144
-> > xprt_sendmsg                 120
 > 
-> There is no nfs_cached_lookup() in the mainline 2.4 tree. That is part
-> of the READDIRPLUS code, and was therefore never merged.
-
-Like I mentioned earlier, this patch was done for a distro release
-not mainline. I need to look at mainline code.
-
+> On Fri, 2005-01-07 at 17:01 -0600, mike.miller@hp.com wrote:
+> > -		*total_size = be32_to_cpu(*((__be32 *) 
+> &buf->total_size[0]))+1;
+> > -		*block_size = be32_to_cpu(*((__be32 *) 
+> &buf->block_size[0]));
+> > +		*total_size = be32_to_cpu(*((__u32 *) 
+> &buf->total_size[0]))+1;
+> > +		*block_size = be32_to_cpu(*((__u32 *) 
+> &buf->block_size[0]));
 > 
-> You're better off using rpc_new_task() in rpc_call_sync(): no kfree()
-> required, and no rpc_init_task() required.
+> I don't think that's a typo.  It was introduced by this patch:
+> 
+> ChangeSet 1.1988.24.79 2004/10/06 07:55:02 viro@www.linux.org.uk
+>   [PATCH] cciss endianness and iomem annotations
+>  
+> The idea being that BE and LE numbers should be annotated differently,
+> so the __be32 annotations look correct to me.  I think sparse 
+> will warn
+> if you make this change.
 
-Sure. Will do.
+Hmmm, SuSE complained that __be32 was not defined in the kernel. Any other thoughts, anyone?
 
-Thanks,
-Badari
-
+mikem

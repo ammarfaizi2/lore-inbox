@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278391AbRKHVSi>; Thu, 8 Nov 2001 16:18:38 -0500
+	id <S278447AbRKHVW7>; Thu, 8 Nov 2001 16:22:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278450AbRKHVS2>; Thu, 8 Nov 2001 16:18:28 -0500
-Received: from intranet.resilience.com ([209.245.157.33]:3463 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S278391AbRKHVSS>; Thu, 8 Nov 2001 16:18:18 -0500
+	id <S278470AbRKHVWu>; Thu, 8 Nov 2001 16:22:50 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:29970 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S278450AbRKHVWj>; Thu, 8 Nov 2001 16:22:39 -0500
+Date: Thu, 8 Nov 2001 22:22:36 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Jonas Diemer <diemer@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA 686 timer bugfix incomplete
+Message-ID: <20011108222236.A6581@suse.cz>
+In-Reply-To: <20011107211445.A2286@suse.cz> <Pine.LNX.4.05.10111080917140.19515-100000@marina.lowendale.com.au> <20011108090215.G3708@suse.cz> <20011108102124.31ca040f.diemer@gmx.de> <20011108210840.A6266@suse.cz> <20011108221751.5273484e.diemer@gmx.de>
 Mime-Version: 1.0
-Message-Id: <p05100306b810a66e5eb2@[10.128.7.49]>
-In-Reply-To: <20011108155749.A24023@devserv.devel.redhat.com>
-In-Reply-To: <20011108155749.A24023@devserv.devel.redhat.com>
-Date: Thu, 8 Nov 2001 13:18:06 -0800
-To: Pete Zaitcev <zaitcev@redhat.com>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: if (a & X || b & ~Y) in dasd.c
-Cc: linux-kernel@vger.kernel.org, Linux390@de.ibm.com
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011108221751.5273484e.diemer@gmx.de>; from diemer@gmx.de on Thu, Nov 08, 2001 at 10:17:51PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 3:57 PM -0500 11/8/01, Pete Zaitcev wrote:
->Carsten and others:
->
->this code in 2.2.14 looks suspicious to me:
->
->./drivers/s390/block/dasd.c:
->         /* first of all lets try to find out the appropriate era_action */
->         if (stat->flag & DEVSTAT_FLAG_SENSE_AVAIL ||
->             stat->dstat & ~(DEV_STAT_CHN_END | DEV_STAT_DEV_END)) {
->                 /* anything abnormal ? */
->                 if (device->discipline->examine_error == NULL ||
->                     stat->flag & DEVSTAT_HALT_FUNCTION) {
->                         era = dasd_era_fatal;
->                 } else {
->                         era = device->discipline->examine_error (cqr, stat);
->                 }
->                 DASD_DRIVER_DEBUG_EVENT (1, dasd_int_handler," era_code %d",
->                                          era);
->         }
->
->Are you sure any parenthesises are not needed here?
+On Thu, Nov 08, 2001 at 10:17:51PM +0100, Jonas Diemer wrote:
 
-It's OK. You're probably used to seeing (necessary) parens when || is 
-replaced by == in this kind of expression.
+> On Thu, 8 Nov 2001 21:08:40 +0100
+> Vojtech Pavlik <vojtech@suse.cz> wrote:
+> 
+> > There is a little problem with RTC, though:
+> > 
+> > While you can set it up to generate interrupts at say 1024 Hz, you can't
+> > read any value of how much time passed since last interrupt. You can do
+> > this on the PIT (i8253), and this is the part that is buggy.
+> > 
+> > TSC is perfect, precise and accurate, but not reliable in long term.
+> > Some CPUs do thermal throttling, notebooks play with CPU speed, etc,
+> > etc. And it's not synchronized to any interrupt source.
+> > 
+> > Ugly, ugly, ugly is the PC architecture.
+> > 
+> 
+> can't you just read the battery buffered clock? how are other OSes such as
+> Window$ doing the timing?
+
+You can. But you only get 0.5 second resolution, which obviously isn't
+good enough for microsecond timing.
+
 -- 
-/Jonathan Lundell.
+Vojtech Pavlik
+SuSE Labs

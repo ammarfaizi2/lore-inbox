@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318024AbSGWKUs>; Tue, 23 Jul 2002 06:20:48 -0400
+	id <S318014AbSGWKL1>; Tue, 23 Jul 2002 06:11:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318025AbSGWKUs>; Tue, 23 Jul 2002 06:20:48 -0400
-Received: from smtp-server4.tampabay.rr.com ([65.32.1.45]:56981 "EHLO
-	smtp-server4.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S318024AbSGWKUr>; Tue, 23 Jul 2002 06:20:47 -0400
-Message-ID: <3D3D2EBF.6AFB3B18@cfl.rr.com>
-Date: Tue, 23 Jul 2002 06:23:59 -0400
-From: Mark Hounschell <dmarkh@cfl.rr.com>
-Reply-To: dmarkh@cfl.rr.com
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-lcrs i686)
+	id <S318016AbSGWKL1>; Tue, 23 Jul 2002 06:11:27 -0400
+Received: from rzfoobar.is-asp.com ([217.11.194.155]:30616 "EHLO mail.isg.de")
+	by vger.kernel.org with ESMTP id <S318014AbSGWKL1>;
+	Tue, 23 Jul 2002 06:11:27 -0400
+Message-ID: <3D3D2C87.F7E54649@isg.de>
+Date: Tue, 23 Jul 2002 12:14:31 +0200
+From: Peter Niemayer <niemayer@isg.de>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: bigphysarea
+To: David Schwartz <davids@webmaster.com>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: read/recv sometimes returns EAGAIN instead of EINTR on SMP machines
+References: <20020723081257.AAA26793@shell.webmaster.com@whenever>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- We have a pci reflective memory card that has no hardware scatter/gatter capabilities. Software scatter/gather is to slow for our needs. It has 16mb of mem that needs to be
-contigously mapped into a user task. We have been using the bigphysarea patch and seems
-to do what we need for this card. We have been using it sice the beginning to the 2.4 
-series kernel. My question is, is this patch still nessessary or is there possibly a
-way do do this now without the patch?
+David Schwartz wrote:
 
-Ragards
-Mark
+>         My guess is that select did return EINTR, but for some reason your
+> application examined the fd sets anyway. So the bug is in not ignoring the fd
+> sets when select returns an error, which is an application issue.
+
+As you can see in the sample source code I provided, the problem is not
+caused by the application not testing select() for returning EINTR - in
+that case, the code just select()s again...
+
+Regards,
+
+Peter Niemayer

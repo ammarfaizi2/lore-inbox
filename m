@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284587AbRLIWqR>; Sun, 9 Dec 2001 17:46:17 -0500
+	id <S284584AbRLIWu1>; Sun, 9 Dec 2001 17:50:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284584AbRLIWqJ>; Sun, 9 Dec 2001 17:46:09 -0500
-Received: from [63.204.6.12] ([63.204.6.12]:19436 "EHLO mail.somanetworks.com")
-	by vger.kernel.org with ESMTP id <S284580AbRLIWpt>;
-	Sun, 9 Dec 2001 17:45:49 -0500
-Date: Sun, 9 Dec 2001 17:45:23 -0500 (EST)
-From: "Scott Murray" <scottm@somanetworks.com>
-X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-cc: <marcelo@conectiva.com.br>, Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Power Management support for opl3sa2
-In-Reply-To: <Pine.LNX.4.33.0112091427410.17944-100000@netfinity.realnet.co.sz>
-Message-ID: <Pine.LNX.4.33.0112091737230.30328-100000@rancor.yyz.somanetworks.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284580AbRLIWuR>; Sun, 9 Dec 2001 17:50:17 -0500
+Received: from eos.telenet-ops.be ([195.130.132.40]:33675 "EHLO
+	eos.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S284584AbRLIWuL>; Sun, 9 Dec 2001 17:50:11 -0500
+Subject: 2.4.16 / 2.4.17pre6 hang when loading agpgart
+From: Roel Teuwen <Roel.Teuwen@advalvas.be>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 10 Dec 2001 01:00:24 +0100
+Message-Id: <1007942424.342.0.camel@tux3>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Dec 2001, Zwane Mwaikambo wrote:
+Hi all,
 
-> Enables the power management features of the opl3sa2 and according to the
-> databooks it should work for all the chipsets supported by opl3sa2. I've
-> tested it on a YMF715 with positive results.
->
-> I can't push this to the driver maintainer first and then from there to
-> Linus and Marcelo because the maintainer isn't responding to mail.
+On my HP Omnibook 4150, 2.4.16 and 2.4.17-pre6 hang on boot right after
+the messages below.
+I need to press the reset button and load a kernel without agpgart
+compiled in to boot. When compiled as a module, the machine hangs after
+printing these lines when loading the module.
 
-AFAICS, today is the first time you've emailed me directly to ask about
-it.  I don't have a way to test the functionality this patch adds and
-can't recall seeing anyone other than yourself report on it.  However,
-it looks pretty harmless, please apply Marcelo & Linus.
+"
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory : 96M
+agpgart: Detected Intel 440BX chipset
+"
 
-Scott
+I selected the agpgart "440BX" option in menuconfig.
+AGP information :
 
-PS: Zwane, feel like taking over as maintainer of this driver?
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX - 82443BX/ZX AGP bridge (rev
+02) (prog-if 00 [Normal decode])
+	Flags: bus master, 66Mhz, medium devsel, latency 128
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+	Memory behind bridge: fe700000-fecfffff
+	Prefetchable memory behind bridge: fd000000-fe3fffff
 
+Please tell me if more information is needed.
 
--- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-e-mail: scottm@somanetworks.com
+Best regards,
+
+Roel
 
 

@@ -1,131 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262981AbSJaS4X>; Thu, 31 Oct 2002 13:56:23 -0500
+	id <S265274AbSJaTFH>; Thu, 31 Oct 2002 14:05:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263016AbSJaS4Q>; Thu, 31 Oct 2002 13:56:16 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4882 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262981AbSJaSzj>;
-	Thu, 31 Oct 2002 13:55:39 -0500
-Date: Thu, 31 Oct 2002 19:02:05 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: [PATCH] update packet & wanpipe ioctl routines
-Message-ID: <20021031190205.M27461@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S265287AbSJaTFH>; Thu, 31 Oct 2002 14:05:07 -0500
+Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:2235 "EHLO
+	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S265274AbSJaTEq> convert rfc822-to-8bit; Thu, 31 Oct 2002 14:04:46 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <pollard@admin.navo.hpc.mil>
+To: jt@hpl.hp.com, Jean Tourrilhes <jt@bougret.hpl.hp.com>,
+       Juan Gomez <juang@us.ibm.com>
+Subject: Re: How to get a local IPv4 address from within a kernel module?
+Date: Thu, 31 Oct 2002 13:09:35 -0600
+User-Agent: KMail/1.4.1
+Cc: Josh Myer <jbm@joshisanerd.com>, jbm@blessed.joshisanerd.com,
+       linux-kernel@vger.kernel.org
+References: <OFA4AB1D53.AE6E9560-ON87256C63.006382A4@us.ibm.com> <20021031183009.GB2972@bougret.hpl.hp.com>
+In-Reply-To: <20021031183009.GB2972@bougret.hpl.hp.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210311309.35451.pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 31 October 2002 12:30 pm, Jean Tourrilhes wrote:
+>         Now, there is only one thing that could qualify as "the node
+> IP address", this is the IP address associated with the hostname :
+>                 gethostbyname(hostname());
+>         IMHO, if you define the interface you are proposing, it should
+> always return the result above, because this is a well defined
+> semantic and it is more useful.
 
-Convert af_packet.c and af_wanpipe.c to call dev_ioctl by default.  I'm
-less than convinced these protocols should be calling inet_ioctl, but I'm
-not going to change that behaviour.
+Ummmmm... not quite the right answer - gethostbyname(hostname());
+doesn't even have to return an IP number.
 
-diff -urpNX dontdiff linux-2.5.45/net/packet/af_packet.c linux-2.5.45-willy/net/packet/af_packet.c
---- linux-2.5.45/net/packet/af_packet.c	2002-10-31 10:28:10.000000000 -0500
-+++ linux-2.5.45-willy/net/packet/af_packet.c	2002-10-29 17:25:30.000000000 -0500
-@@ -1432,8 +1432,7 @@ static int packet_ioctl(struct socket *s
- {
- 	struct sock *sk = sock->sk;
- 
--	switch(cmd) 
--	{
-+	switch(cmd) {
- 		case SIOCOUTQ:
- 		{
- 			int amount = atomic_read(&sk->wmem_alloc);
-@@ -1452,35 +1451,12 @@ static int packet_ioctl(struct socket *s
- 			return put_user(amount, (int *)arg);
- 		}
- 		case SIOCGSTAMP:
--			if(sk->stamp.tv_sec==0)
-+			if (sk->stamp.tv_sec==0)
- 				return -ENOENT;
- 			if (copy_to_user((void *)arg, &sk->stamp,
- 					 sizeof(struct timeval)))
- 				return -EFAULT;
- 			break;
--		case SIOCGIFFLAGS:
--#ifndef CONFIG_INET
--		case SIOCSIFFLAGS:
--#endif
--		case SIOCGIFCONF:
--		case SIOCGIFMETRIC:
--		case SIOCSIFMETRIC:
--		case SIOCGIFMEM:
--		case SIOCSIFMEM:
--		case SIOCGIFMTU:
--		case SIOCSIFMTU:
--		case SIOCSIFLINK:
--		case SIOCGIFHWADDR:
--		case SIOCSIFHWADDR:
--		case SIOCSIFMAP:
--		case SIOCGIFMAP:
--		case SIOCSIFSLAVE:
--		case SIOCGIFSLAVE:
--		case SIOCGIFINDEX:
--		case SIOCGIFNAME:
--		case SIOCGIFCOUNT:
--		case SIOCSIFHWBROADCAST:
--			return(dev_ioctl(cmd,(void *) arg));
- 
- #ifdef CONFIG_INET
- 		case SIOCADDRT:
-@@ -1501,7 +1477,7 @@ static int packet_ioctl(struct socket *s
- #endif
- 
- 		default:
--			return -EOPNOTSUPP;
-+			return dev_ioctl(cmd, (void *)arg);
- 	}
- 	return 0;
- }
-diff -urpNX dontdiff linux-2.5.45/net/wanrouter/af_wanpipe.c linux-2.5.45-willy/net/wanrouter/af_wanpipe.c
---- linux-2.5.45/net/wanrouter/af_wanpipe.c	2002-10-31 10:28:10.000000000 -0500
-+++ linux-2.5.45-willy/net/wanrouter/af_wanpipe.c	2002-10-29 16:34:36.000000000 -0500
-@@ -1922,30 +1922,6 @@ static int wanpipe_ioctl(struct socket *
- 			sock->file->f_flags |= O_NONBLOCK;
- 			return 0;
- 	
--		case SIOCGIFFLAGS:
--#ifndef CONFIG_INET
--		case SIOCSIFFLAGS:
--#endif
--		case SIOCGIFCONF:
--		case SIOCGIFMETRIC:
--		case SIOCSIFMETRIC:
--		case SIOCGIFMEM:
--		case SIOCSIFMEM:
--		case SIOCGIFMTU:
--		case SIOCSIFMTU:
--		case SIOCSIFLINK:
--		case SIOCGIFHWADDR:
--		case SIOCSIFHWADDR:
--		case SIOCSIFMAP:
--		case SIOCGIFMAP:
--		case SIOCSIFSLAVE:
--		case SIOCGIFSLAVE:
--		case SIOCGIFINDEX:
--		case SIOCGIFNAME:
--		case SIOCGIFCOUNT:
--		case SIOCSIFHWBROADCAST:
--			return(dev_ioctl(cmd,(void *) arg));
--
- #ifdef CONFIG_INET
- 		case SIOCADDRT:
- 		case SIOCDELRT:
-@@ -1968,7 +1944,7 @@ static int wanpipe_ioctl(struct socket *
- #endif
- 
- 		default:
--			return -EOPNOTSUPP;
-+			return dev_ioctl(cmd,(void *) arg);
- 	}
- 	/*NOTREACHED*/
- }
+I have an environment right now that would make that result
+useless. It is equivalent to using the 127.0.0.1 loopback.
 
+We have a cluster where the address assgned to the hostname
+is a nonroutable address, used only for internal communication
+with other nodes in a cluster. The only way to get a "proper"
+internet address is to request DNS for the address. And then
+you might get back 35 addresses (would get 330 if the library
+function would work properly).
+
+It is also possible that NONE of the interfaces are assigned the
+same name as the local host name. One of our environments
+identifies a node by a frame/node construct. Addressing is
+totally independant.
+
+This association is only a convention, and is not something
+mandatory.
+
+Even at home, my systems have two or three addreses.
+
+<external IP> applied to the firewall for external use
+192.168.1.x for a small wireless network
+192.168.0.x for the internal network
+<external IP> for a dummy network device to make Kerberos work
+192.168.2.x for a cluster network (some experimental systems).
+
+The firewall has the first three, my workstation has the third and
+fourth, and my toy cluster has the third and last.
+
+There is no "node" IP number. Especially if you have more
+than one network device.
 -- 
-Revolutions do not require corporate support.
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

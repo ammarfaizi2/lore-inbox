@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263262AbREMSuv>; Sun, 13 May 2001 14:50:51 -0400
+	id <S263264AbREMTGi>; Sun, 13 May 2001 15:06:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263263AbREMSul>; Sun, 13 May 2001 14:50:41 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40199 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263262AbREMSue>; Sun, 13 May 2001 14:50:34 -0400
-Subject: Re: PATCH 2.4.5.1: Fix Via interrupt routing issues
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Sun, 13 May 2001 19:47:16 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-        arjanv@redhat.com, Axel.Thimm@physik.fu-berlin.de (Axel Thimm),
-        mmt@unify.com (Manuel A. McLure),
-        moffe@amagerkollegiet.dk (Rasmus =?iso-8859-1?Q?B=F8g?= Hansen),
-        std7652@et.FH-Osnabrueck.DE (ARND BERGMANN),
-        randy.dunlap@intel.com (Dunlap Randy),
-        mdiehlcs@compuserve.de (Martin Diehl),
-        adrian@humboldt.co.uk (Adrian Cox), orzel@kde.org (Capricelli Thomas),
-        ianb@colorstudy.com (Ian Bicking), john@grulic.org.ar (John R Lenton)
-In-Reply-To: <3AFED656.92362303@mandrakesoft.com> from "Jeff Garzik" at May 13, 2001 02:45:42 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263265AbREMTG3>; Sun, 13 May 2001 15:06:29 -0400
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:34841 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S263264AbREMTGV>; Sun, 13 May 2001 15:06:21 -0400
+Message-ID: <004b01c0dbdf$9d341500$3303a8c0@pnetz>
+From: =?iso-8859-1?Q?Christian_Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+To: <kernel@llamas.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E14yHQW-0001Sg-00@the-village.bc.nu>
+Subject: Re: Latest on Athlon Via KT133A chipset solution?
+Date: Sun, 13 May 2001 21:04:58 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14z0tg-0006pU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I disagree. The IO-APIC is the chipset APIC. It is distinct from the APIC
-> > on the processors.
-> 
-> Disagree with which part?  The fix, or likely needing a better ifdef?
+ Give the current -ac a spin and tell me if it works/doesnt and if not how
+> it fails
 
-Needing a better ifdef
+I tried 2.4.4-ac8.
+It still hangs during boot if compiled for Athlon, but also crashes after a
+while if compiled for 586. (I did a bonnie, did it a second time. The second
+run doesn´t finished.) It is a complete system freeze, magic sysrq doesn´t
+work.
 
-> >From the point of view of the Via southbridge chip, IO-APIC is
-> external...  The comment above the ifdef was more along the lines of,
-> "Via on PPC (OpenPIC?) might need this too, not just io-apic"
+Now i am going to try the new bios with a new version of the via fix. I will
+report if this solution fix it for me/us.
 
-That will be an architecture specific quirk. I don't actually think you can
-better. Somehow I always assumed ppc people had better taste in bridges 8)
+greetings
+
+Christian
+

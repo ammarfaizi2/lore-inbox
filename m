@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263876AbTDYLiW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 07:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263879AbTDYLiW
+	id S263870AbTDYLmq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 07:42:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263884AbTDYLmq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 07:38:22 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:55488 "EHLO gaston")
-	by vger.kernel.org with ESMTP id S263876AbTDYLiV (ORCPT
+	Fri, 25 Apr 2003 07:42:46 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:62182 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S263870AbTDYLmp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 07:38:21 -0400
-Subject: Re: [RFC/PATCH] IDE Power Management try 1
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Alexander Atanasov <alex@ssi.bg>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030425103342.GJ1012@suse.de>
-References: <1051189194.13267.23.camel@gaston> <3EA90176.2080304@ssi.bg>
-	 <20030425103342.GJ1012@suse.de>
-Content-Type: text/plain
+	Fri, 25 Apr 2003 07:42:45 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051271419.14994.25.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 25 Apr 2003 13:50:20 +0200
+Message-ID: <16041.8715.409998.274020@gargle.gargle.HOWL>
+Date: Fri, 25 Apr 2003 13:54:51 +0200
+From: mikpe@csd.uu.se
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-rc1 on x86_64 oops at shutdown -h
+In-Reply-To: <p73r87rwrri.fsf@oldwotan.suse.de>
+References: <16040.16960.528537.454110@gargle.gargle.HOWL.suse.lists.linux.kernel>
+	<p73r87rwrri.fsf@oldwotan.suse.de>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen writes:
+ > mikpe@csd.uu.se writes:
+ > 
+ > > 2.4.21-rc1 on x86_64 oopses on me at shutdown -h in certain situations.
+ > > It's repeatable. Here's the raw oops:
+ > 
+ > Ah I know what the problem is. I already fixed it in CVS two weeks ago, but 
+ > the merge with marcelo was in the brokenness window and I forgot about
+ > it because of the long delay (the patch got only applied three weeks
+ > later or so)
+ > 
+ > Just copy arch/x86_64/lib/copy_user.S from an 2.4.20 kernel or revert the 
+ > changes in  that file in 2.4.21-rc1, that should fix it.
 
-> 
-> There are already lots of "INTERNAL" - basically take your pick from all
-> the ones you quote above (DRIVE_TASK, DRIVE_CMD, DRIVE_TASKFILE - it's a
-> MESS). A power management special request makes sense to me.
+Confirmed. 2.4.21-rc1 with copy_user.S from -pre7 doesn't oops any more.
+Thanks.
 
-Ok, well, if you prefer this way it's ok with me too ;) Though for
-sanity, it would have made sense then to breakup the request type into
-a major type (BIO, INTERNAL, POWER, ...) and a minor that is major-type
-dependant (READ/WRITE/BARRIER for BIO, TASKFILE,ERROR,... for INTERNAL,
-and SUSPEND/RESUME for POWER for example).
-
-Ben.
-
+/Mikael

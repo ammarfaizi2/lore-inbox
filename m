@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264662AbUEJMYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264664AbUEJMZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264662AbUEJMYK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 08:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264661AbUEJMYK
+	id S264664AbUEJMZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 08:25:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264663AbUEJMZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 08:24:10 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:58257 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S264662AbUEJMYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 08:24:06 -0400
-Date: Mon, 10 May 2004 13:22:29 +0100
-From: Dave Jones <davej@redhat.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Dominik Karall <dominik.karall@gmx.net>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-mm1
-Message-ID: <20040510122229.GA8079@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Dominik Karall <dominik.karall@gmx.net>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <20040510024506.1a9023b6.akpm@osdl.org> <200405101252.33205.dominik.karall@gmx.net> <20040510111845.GB21671@redhat.com> <409F7377.3030308@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <409F7377.3030308@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+	Mon, 10 May 2004 08:25:58 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:37760 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S264664AbUEJMZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 08:25:54 -0400
+Date: Mon, 10 May 2004 13:31:29 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200405101231.i4ACVTa7000421@81-2-122-30.bradfords.org.uk>
+To: "Richard B. Johnson" <root@chaos.analogic.com>,
+       Shobhit Mathur <shobhitmmathur@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.53.0405100757470.28174@chaos>
+References: <20040510113303.20724.qmail@web51003.mail.yahoo.com>
+ <Pine.LNX.4.53.0405100757470.28174@chaos>
+Subject: Re: PCI excessive retry error
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 10, 2004 at 10:20:07PM +1000, Nick Piggin wrote:
+> I mentioned a "broken bus" in the beginning. Some new
+> PCI boards are not 5-volt tolerant. If you plug them into
+> the PCI bus of some motherboards (Intel 865PE chipset),
+> The Intel D865PERL, for one, the PCI/Bus will get blown.
+> Same with the MS-6585 (648 MAX board). I blew up several
+> boards by plugging 3.5 volt PCI cards into the 5 volt
+> bus. According to the rules, it's supposed to work unless
+> the PCI slots have "Cadium Yellow" or "Brilliant Blue"
+> keying plugs (I kid you not, it's in the PCI specs).
 
- > In -mm, cpu_sibling_map is a cpumask_t with cpu_sibling_map[cpu]
- > containing "cpu" and all of its siblings.
- > 
- > Linus' tree looks like it is going to be that way shortly too.
+So, did you actually plug the cards in to the wrong coloured slots, or
+do you have a 3.5 volt-incompatible motherboard with a colour of slots
+which suggests compatibility?
 
-Ughh. Ok, I'm going to wuss out and leave that one for Andrew.
-(Unless I get bored enough to go patch up a -mm tree later)
-I'll worry about it in upstream cpufreq tree when it hits Linus' tree.
-
-		Dave
-
+John.

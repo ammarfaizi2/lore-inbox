@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129414AbQLHP1r>; Fri, 8 Dec 2000 10:27:47 -0500
+	id <S129415AbQLHPb5>; Fri, 8 Dec 2000 10:31:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129415AbQLHP1i>; Fri, 8 Dec 2000 10:27:38 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:5134 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S129414AbQLHP1a>;
-	Fri, 8 Dec 2000 10:27:30 -0500
-Message-ID: <3A30F68F.50076AA7@mandrakesoft.com>
-Date: Fri, 08 Dec 2000 09:56:15 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Peter Horton <pdh@colonel-panic.com>
-CC: "Mike A. Harris" <mharris@opensourceadvocate.org>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: D-LINK DFE-530-TX
-In-Reply-To: <Pine.LNX.4.30.0012061942570.620-100000@asdf.capslock.lan> <20001208012321.A1732@colonel-panic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130038AbQLHPbh>; Fri, 8 Dec 2000 10:31:37 -0500
+Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:57328 "EHLO
+	tantra.cygnus.co.uk") by vger.kernel.org with ESMTP
+	id <S129415AbQLHPb2>; Fri, 8 Dec 2000 10:31:28 -0500
+From: David Howells <dhowells@redhat.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Miles Lane <miles@megapathdsl.net>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: patch: test12-pre7 cd stuff 
+In-Reply-To: Your message of "Fri, 08 Dec 2000 15:45:16 +0100."
+             <20001208154516.D303@suse.de> 
+Date: Fri, 08 Dec 2000 15:00:56 +0000
+Message-ID: <20048.976287656@warthog.cygnus>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Horton wrote:
-> 
-> On Wed, Dec 06, 2000 at 07:44:02PM -0500, Mike A. Harris wrote:
-> > Which ethernet module works with this card?  2.2.17 kernel
-> >
-> 
-> If the PCI device ID is 3065 then it's via-rhine, but not supported by the
-> driver in the kernel. Get updated via-rhine from Donald Becker's site
-> http://www.scyld.com/network.
+> Dec  8 06:05:29 agate kernel: hdc: packet command error: status=0x51 { 
+> DriveReady SeekComplete Error }
+> Dec  8 06:05:29 agate kernel: hdc: packet command error: error=0x50
+> Dec  8 06:05:29 agate kernel: ATAPI device hdc:
+> Dec  8 06:05:29 agate kernel:   Error: Illegal request -- (Sense key=0x05)
+> Dec  8 06:05:29 agate kernel:   Invalid field in command packet -- 
+> (asc=0x24, ascq=0x00)
+> Dec  8 06:05:29 agate kernel:   The failed "Play Audio MSF" packet 
+> command was:
+> Dec  8 06:05:29 agate kernel:   "47 00 00 00 02 00 3f 24 ff 00 00 00 "
 
-2.4.x-test has some fixes for via-rhine which don't appear to have made
-it into the Becker driver yet...
+I think I've seen that as well, though I'm using a test10-ish kernel. I
+assumed it was something to do with the CD being duff though.
 
-	Jeff
-
-
--- 
-Jeff Garzik         |
-Building 1024       | These are not the J's you're lookin' for.
-MandrakeSoft        | It's an old Jedi mind trick.
+David
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

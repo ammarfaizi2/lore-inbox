@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263658AbTCUQyr>; Fri, 21 Mar 2003 11:54:47 -0500
+	id <S263665AbTCURHB>; Fri, 21 Mar 2003 12:07:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263660AbTCUQyr>; Fri, 21 Mar 2003 11:54:47 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:45479 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id <S263658AbTCUQyq>; Fri, 21 Mar 2003 11:54:46 -0500
-Message-Id: <200303211705.h2LH5BGi002669@locutus.cmf.nrl.navy.mil>
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH][ATM] s/uni driver overwrites 8-/16-bit mode
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Fri, 21 Mar 2003 12:05:10 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	id <S263666AbTCURHA>; Fri, 21 Mar 2003 12:07:00 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:15765 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S263665AbTCURG7>; Fri, 21 Mar 2003 12:06:59 -0500
+Date: Fri, 21 Mar 2003 09:17:58 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 482] New: slab error in check_poison_obj(): cache `task_struct': object was modified after freeing
+Message-ID: <335860000.1048267078@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on the s/uni 622 chip, the uppermost bit of the Master Test register
-controls the width of the data bus.  this is unused in the older s/uni
-chips.
 
-Index: linux/drivers/atm/suni.c
-===================================================================
-RCS file: /home/chas/CVSROOT/linux/drivers/atm/suni.c,v
-retrieving revision 1.4
-diff -b -B -u -r1.4 suni.c
---- linux/drivers/atm/suni.c	5 Mar 2003 16:39:56 -0000	1.4
-+++ linux/drivers/atm/suni.c	21 Mar 2003 16:53:04 -0000
-@@ -297,7 +297,7 @@
- 	mri = GET(MRI); /* reset SUNI */
- 	PUT(mri | SUNI_MRI_RESET,MRI);
- 	PUT(mri,MRI);
--	PUT(0,MT); /* disable all tests */
-+	PUT((GET(MT) & SUNI_MT_DS27_53),MT); /* disable all tests */
- 	REG_CHANGE(SUNI_TPOP_APM_S,SUNI_TPOP_APM_S_SHIFT,SUNI_TPOP_S_SONET,
- 	    TPOP_APM); /* use SONET */
- 	REG_CHANGE(SUNI_TACP_IUCHP_CLP,0,SUNI_TACP_IUCHP_CLP,
-Index: linux/drivers/atm/suni.h
-===================================================================
-RCS file: /home/chas/CVSROOT/linux/drivers/atm/suni.h,v
-retrieving revision 1.1.1.1
-diff -b -B -u -r1.1.1.1 suni.h
---- linux/drivers/atm/suni.h	20 Feb 2003 13:45:03 -0000	1.1.1.1
-+++ linux/drivers/atm/suni.h	21 Mar 2003 16:55:46 -0000
-@@ -198,6 +198,7 @@
- #define SUNI_MT_IOTST		0x04	/* RW, enable test mode */
- #define SUNI_MT_DBCTRL		0x08	/* W, control data bus by CSB pin */
- #define SUNI_MT_PMCTST		0x10	/* W, PMC test mode */
-+#define SUNI_MT_DS27_53		0x80	/* RW, select between 8- or 16- bit */
- 
- 
- #define SUNI_IDLE_PATTERN       0x6a    /* idle pattern */
+http://bugme.osdl.org/show_bug.cgi?id=482
+
+           Summary: slab error in check_poison_obj(): cache `task_struct':
+                    object was modified after freeing
+    Kernel Version: 2.5.65
+            Status: NEW
+          Severity: normal
+             Owner: akpm@digeo.com
+         Submitter: jochen@jochen.org
+
+
+Distribution: Debian Sarge
+Hardware Environment: IBM Thinkpad 600
+
+Problem Description:
+
+The kernel log contains:
+ALSA sound/isa/cs423x/cs4236_lib.c:302: CS4236: [0x538] C1 (version) = 0xe8, ext = 0xe8
+Slab corruption: start=c46acd60, expend=c46ad36f, problemat=c46acd68
+Data: ********6A
+***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************
+*********************************************************************************************************************************************************************************************************************! *************************************************************************************************************************************************************************************************************************************************************************<7>eth0: no IPv6 routers present
+*****************************************************************************************************************************************************************************************************************************************************************************************************************A5
+Next: 01 00 00 00 00 00 3C C4 04 00 00 00 00 00 00 00 00 00 00 00 FF FF FF FF 7B 00 00 00 78 00 00 00
+slab error in check_poison_obj(): cache `task_struct': object was modified after freeing
+Call Trace:
+ [<c0130a7d>] __slab_error+0x21/0x28
+ [<c0130e6c>] check_poison_obj+0x174/0x180
+ [<c0131fc9>] kmem_cache_alloc+0x8d/0x128
+ [<c0116a04>] dup_task_struct+0x70/0xd0
+ [<c0116a04>] dup_task_struct+0x70/0xd0
+ [<c0117475>] copy_process+0x99/0xb40
+ [<c0117f96>] do_fork+0x7a/0x148
+ [<c01077c0>] sys_fork+0x18/0x28
+ [<c0108d3b>] syscall_call+0x7/0xb
+
+
+Steps to reproduce:
+This is when booting the system; I've not yet rebooted and will try again.
+
+

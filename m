@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281172AbRKTRGh>; Tue, 20 Nov 2001 12:06:37 -0500
+	id <S281168AbRKTRD1>; Tue, 20 Nov 2001 12:03:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281173AbRKTRG1>; Tue, 20 Nov 2001 12:06:27 -0500
-Received: from burdell.cc.gatech.edu ([130.207.3.207]:28424 "EHLO
-	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
-	id <S281172AbRKTRGT>; Tue, 20 Nov 2001 12:06:19 -0500
-Date: Tue, 20 Nov 2001 12:06:15 -0500
-From: Josh Fryman <fryman@cc.gatech.edu>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.15-pre7 bzImage fails
-Message-Id: <20011120120615.0638b177.fryman@cc.gatech.edu>
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; sparc-sun-solaris2.7)
+	id <S281169AbRKTRDR>; Tue, 20 Nov 2001 12:03:17 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:33713 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S281168AbRKTRDP>; Tue, 20 Nov 2001 12:03:15 -0500
+Message-Id: <5.1.0.14.2.20011120165440.00a745b0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 20 Nov 2001 17:02:00 +0000
+To: Luis Miguel Correia Henriques <umiguel@alunos.deis.isec.pt>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: copy to suer space
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.31.0111201637420.13674-100000@mail.deis.isec.pt
+ >
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 16:40 20/11/01, Luis Miguel Correia Henriques wrote:
+>I'm trying to implement a kernel module that will be changing a user
+>process' code segment. I tried to user copy_to_user to patch the process's
+>code but, when I tried to read the new code (just to check...), it didn't
+>worked. Why was that? And what is the solution?
 
-2.4.14 patched to 2.4.15-pre7, on "make bzImage", failed.  if anyone wants
-additional details, let me know.  i'm not particularly interested in it, the
-es1371 was enabled by accident in a new configuration.  i've already fixed
-it and moved on.
+I don't think what you are trying to do is possible. Even if you somehow 
+managed to write over the code segment of a user space process (which I 
+very much doubt would be possible as I assume the memory is mapped 
+read-only), as soon as the kernel pages out (i.e. discards!) some portion 
+of the executable due to memory shortage your changes would be lost, since 
+the paging back into memory would happen by reading the executable back 
+from disk, which would mean it would read the unmodified code into memory...
 
----
+Why would you want to do such a thing anyway? Kernel modifying userspace 
+binaries in memory sounds like a really flawed idea which is just begging 
+for problems. - Just recompiling the user space program with the smallest 
+change would make the new binary code incompatible with your predefined 
+module...
 
-ld -m elf_i386 -T /usr/src/linux-2.4.15-pre7/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/acpi/acpi.o drivers/parport/driver.o drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o drivers/usb/usbdrv.o \
-        net/network.o \
-        /usr/src/linux-2.4.15-pre7/arch/i386/lib/lib.a /usr/src/linux-2.4.15-pre7/lib/lib.a /usr/src/linux-2.4.15-pre7/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/sound/sounddrivers.o: In function `es1371_probe':
-drivers/sound/sounddrivers.o(.text+0x103d7): undefined reference to `gameport_register_port'
-drivers/sound/sounddrivers.o: In function `es1371_remove':
-drivers/sound/sounddrivers.o(.text+0x1051b): undefined reference to `gameport_unregister_port'
-make: *** [vmlinux] Error 1
+But perhaps I misunderstood you?
+
+Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

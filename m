@@ -1,43 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbUKPUfQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbUKPUhx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbUKPUfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 15:35:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbUKPUdS
+	id S261796AbUKPUhx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 15:37:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbUKPUf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 15:33:18 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:41182 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261783AbUKPUcA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 15:32:00 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 16 Nov 2004 15:35:57 -0500
+Received: from outbound04.telus.net ([199.185.220.223]:11718 "EHLO
+	priv-edtnes51.telusplanet.net") by vger.kernel.org with ESMTP
+	id S261778AbUKPUSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 15:18:47 -0500
+Subject: Re: Boot failure, 2.6.10-rc2
+From: Bob Gill <gillb4@telusplanet.net>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0411162025180.24131@yvahk01.tjqt.qr>
+References: <1100632116.4388.9.camel@localhost.localdomain>
+	 <Pine.LNX.4.53.0411162025180.24131@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Date: Tue, 16 Nov 2004 13:19:05 -0700
+Message-Id: <1100636345.4388.21.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-Message-ID: <16794.25535.97260.366902@thebsh.namesys.com>
-Date: Tue, 16 Nov 2004 23:31:59 +0300
-To: "Andrew A." <aathan-linux-kernel-1542@cloakmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: pthread_cond_signal not waking thread
-In-Reply-To: <OMEGLKPBDPDHAGCIBHHJMEILFHAA.aathan-linux-kernel-1542@cloakmail.com>
-References: <20041116104821.GA31395@elte.hu>
-	<OMEGLKPBDPDHAGCIBHHJMEILFHAA.aathan-linux-kernel-1542@cloakmail.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew A. writes:
- > 
- > 
- > Below is a sysrq-t dump (relevant process is called "tt1"), and a
- > post I sent to ACE user group describing a situation I am seeing
- > where a pthread_cond_signal() call sometimes does not wake up the
- > thread waiting on the condition variable, despite a call to
- > sched_yield() following the pthread_cond_signal().  All threads are
- > running at equal priorities under SCHED_RR.
- > 
+On Tue, 2004-11-16 at 20:36 +0100, Jan Engelhardt wrote:
+> >Hi.  When booting 2.6.10-rc2, I get
+> >Warning: unable to open an initial console
+> >(and the boot process then stalls).
+> >
+> >My system has the following already configured:
+> >crw-------  1 bob root 5, 1 Nov 16 10:10 /dev/console
+> 
+> Are you sure /dev/console exists when the kernel boots?
+> (It is thy duty to ask this...)
+> 
+> I wonder, because there is no configurator (menuconfig) option to en-/disable
+> the driver for /dev/console -- it's *always* in. In 2.6.8, and I have not seen
+> any changes to drivers/char/tty_io.c:tty_init() - where it is added - in
+> further kernels yet.
+> 
+> >My kernel configuration includes the following:
+> >CONFIG_UNIX98_PTYS=y
+> >CONFIG_LEGACY_PTYS=y
+> >CONFIG_LEGACY_PTY_COUNT=256
 
-I experienced similar thing. Switching to the latest
-http://linux.bkbits.net/linux-2.5 (done about 10 hours ago), (as advised
-by Arjan van de Ven) fixed it.
+> But to be on the safe side, enable:
+> 
+> CONFIG_VT=y
+> CONFIG_VT_CONSOLE=y
+> 
+OK, another part of my standard build script (which is now failing to
+boot) includes:
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_NONSTANDARD=y
+# CONFIG_COMPUTONE is not set
+...
+> As I read from kernel/printk.c, the console= parameter seems to set up a
+> -serial line-, also see Documentation/serial-console.txt and
+> kernel-parameters.txt.
+> 
 
-Nikita.
+> How, after all, did you run into this error? Directly after upgrading (if
+> applicable)?
+No, the standard (old) kernel that comes with Fedora Core 3 is working
+ok, but I prefer to run my own custom kernels.  The official Fedora line
+is that it's wrong to build your own kernel, and you are silly for
+wanting to do so, but I like to build/run them anyway.
+> 
+> 
+> Jan Engelhardt
+
+Thanks for your reply though.  Your question as to whether /dev/console
+exists at boot time is making me question whether /dev/console exists at
+boot time.
+-- 
+Bob Gill <gillb4@telusplanet.net>
+

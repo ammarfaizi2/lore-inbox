@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131164AbRBHMiS>; Thu, 8 Feb 2001 07:38:18 -0500
+	id <S129945AbRBHMi3>; Thu, 8 Feb 2001 07:38:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131163AbRBHMiJ>; Thu, 8 Feb 2001 07:38:09 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:6919 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129945AbRBHMhw>; Thu, 8 Feb 2001 07:37:52 -0500
-Date: Thu, 8 Feb 2001 07:37:48 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Pavel Machek <pavel@suse.cz>
-cc: Juergen Schneider <juergen.schneider@tuxia.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
-In-Reply-To: <20010208004021.D189@bug.ucw.cz>
-Message-ID: <Pine.LNX.4.33.0102080736190.5431-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
+	id <S131163AbRBHMiT>; Thu, 8 Feb 2001 07:38:19 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42250 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129945AbRBHMiM>; Thu, 8 Feb 2001 07:38:12 -0500
+Subject: Re: Problem with schedule_timeout..
+To: avyas@cse.iitk.ac.in (Avinash vyas)
+Date: Thu, 8 Feb 2001 12:38:22 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@humbolt.nl.linux.org,
+        ak@cse.iitk.ac.in ("Atul Kumar (9721171)"),
+        rajiva@cse.iitk.ac.in (Rajiv A.R)
+In-Reply-To: <Pine.LNX.4.10.10102081745140.758-100000@csews5.cse.iitk.ac.in> from "Avinash vyas" at Feb 08, 2001 05:55:56 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14QqLB-0003RI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Feb 2001, Pavel Machek wrote:
+> 	I am a relatively newb in the kenel programming. I am using the
+> function "schedule_timeout" for sleeping for some time. But in some cases
+> the function returns after the specified timeout but in some instance it
+> returns immediately, without decrementing the timeout value passed as the
+> argument. 
 
->> I've created a patch for kernel 2.4.1 that adds some fancy options for
->> the framebuffer console driver concerning the boot logo.
->> I've added logo animation and logo centering.
->> People may find this not very useful but nice to look at. :-)
->
->Long time ago I joked that win2000 will have 30-minute film at the
->bootup. [3.1 had picture, 95+ had static logo with moving line...] And
->now it looks like _linux_ is getting that feature...
->								Pavel,
->wondering when linux boot gets so long that mpeg2 player gets
->integrated into kernel.
-
-;o)
-
-I doubt strongly that that is technically possible. In fact I'm
-sure it is not.
-
-
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Free Software advocate
-          This message is copyright 2001, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-"Facts do not cease to exist because they are ignored."
-                                               - Aldous Huxley
+Make sure you have the task set to be in interruptible or uninterrutible
+sleep before you do the schedule_timeout
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

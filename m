@@ -1,36 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267807AbUJVV0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268072AbUJVVWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267807AbUJVV0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 17:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267869AbUJVVW7
+	id S268072AbUJVVWG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 17:22:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267863AbUJVVEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 17:22:59 -0400
-Received: from mail.kroah.org ([69.55.234.183]:63705 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268000AbUJVVE6 (ORCPT
+	Fri, 22 Oct 2004 17:04:52 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:58852 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S267916AbUJVVB6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 17:04:58 -0400
-Date: Fri, 22 Oct 2004 14:04:09 -0700
-From: Greg KH <greg@kroah.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] avoid problems with kobject_set_name and name with %
-Message-ID: <20041022210409.GB25042@kroah.com>
-References: <20041008113333.5e6e5d3e@zqx3.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041008113333.5e6e5d3e@zqx3.pdx.osdl.net>
-User-Agent: Mutt/1.5.6i
+	Fri, 22 Oct 2004 17:01:58 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] PCDP: call acpi_register_gsi() with arguments in correct order
+Date: Fri, 22 Oct 2004 15:01:55 -0600
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_DVXeB2ZI5/bxEV3"
+Message-Id: <200410221501.55931.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 08, 2004 at 11:33:33AM -0700, Stephen Hemminger wrote:
-> kobject_set_name takes a printf style argument list. There are many
-> callers that pass only one string, if this string contained a '%' character
-> than bad things would happen.  The fix is simple.
-> 
-> Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+--Boundary-00=_DVXeB2ZI5/bxEV3
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Applied, thanks.
+We were calling acpi_register_gsi() with arguments out of order.
 
-greg k-h
+--Boundary-00=_DVXeB2ZI5/bxEV3
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="pcdp-swap-arguments.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="pcdp-swap-arguments.patch"
+
+PCDP: call acpi_register_gsi() with arguments in correct order
+
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+
+===== drivers/firmware/pcdp.c 1.6 vs edited =====
+--- 1.6/drivers/firmware/pcdp.c	2004-07-28 22:58:54 -06:00
++++ edited/drivers/firmware/pcdp.c	2004-10-22 14:55:47 -06:00
+@@ -98,8 +98,8 @@
+ 
+ 	if (uart_irq_supported(rev, uart)) {
+ 		port.irq = acpi_register_gsi(uart->gsi,
+-			uart_active_high_low(rev, uart),
+-			uart_edge_level(rev, uart));
++			uart_edge_level(rev, uart),
++			uart_active_high_low(rev, uart));
+ 		port.flags |= UPF_AUTO_IRQ;  /* some FW reported wrong GSI */
+ 		if (uart_pci(rev, uart))
+ 			port.flags |= UPF_SHARE_IRQ;
+
+--Boundary-00=_DVXeB2ZI5/bxEV3--

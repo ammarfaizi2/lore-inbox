@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289307AbSAIJkb>; Wed, 9 Jan 2002 04:40:31 -0500
+	id <S289310AbSAIJjv>; Wed, 9 Jan 2002 04:39:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289305AbSAIJkW>; Wed, 9 Jan 2002 04:40:22 -0500
-Received: from codepoet.org ([166.70.14.212]:28428 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S288384AbSAIJkL>;
-	Wed, 9 Jan 2002 04:40:11 -0500
-Date: Wed, 9 Jan 2002 02:40:10 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: can we make anonymous memory non-EXECUTABLE?
-Message-ID: <20020109094010.GA8743@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <a1gar7$12t$1@cesium.transmeta.com> <E16O998-0008Vo-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16O998-0008Vo-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.24i
-X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S289305AbSAIJjc>; Wed, 9 Jan 2002 04:39:32 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:27145 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S288384AbSAIJja>; Wed, 9 Jan 2002 04:39:30 -0500
+Message-ID: <3C3C0D34.40402@evision-ventures.com>
+Date: Wed, 09 Jan 2002 10:28:20 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Douglas Gilbert <dougg@torque.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PATCH 2.5.2-pre9 scsi cleanup
+In-Reply-To: <3C3BCEB9.B14D20FD@torque.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed Jan 09, 2002 at 03:11:22AM +0000, Alan Cox wrote:
-> > One way to do this would be to create a newbrk() syscall which takes a
-> > permission argument (for new pages.)
-> 
-> brk(), mmap().
-> 
-> Welcome to libc 8)
+Douglas Gilbert wrote:
 
-Umm.  How can libc implement mmap without the kernel
-handing out the pages?  I don't get it.
+>Martin Dalecki <dalecki@evision-ventures.com>
+>
+>>The attached patch does the following.
+>>
+>>1. Clean up some ifdef confusion in do_mount
+>>
+>>2. Clean up the scsi code to make ppa.c work.
+>>
+>>3. Clean up some unneccessary unneeded globals from scsi code.
+>>
+>>4. Make a bit more sure, that the minor() and friends end up in
+>>unsigned int's.
+>>
+>
+><snip/>
+>
+>Martin,
+>Please don't post a omnibus SCSI subsystem patch like this.
+>
+>Most of the code you are changing is actively maintained.
+>For example:
+>  - scsi mid-level + sr [Jens Axboe]
+>  - ppa [Tim Waugh]
+>  - sg  [me]
+>
+>Some of us have grown attached to the way 'cat /proc/scsi/scsi'
+>
+There where just two drivers for obsolete hardware which actually used this.
 
- -Erik
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+
+

@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265283AbUGGSWy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265286AbUGGSXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265283AbUGGSWy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 14:22:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265282AbUGGSVp
+	id S265286AbUGGSXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 14:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265282AbUGGSXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 14:21:45 -0400
-Received: from linuxhacker.ru ([217.76.32.60]:5075 "EHLO shrek.linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S265281AbUGGSUk (ORCPT
+	Wed, 7 Jul 2004 14:23:15 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:59373 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S265281AbUGGSWo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 14:20:40 -0400
-Date: Wed, 7 Jul 2004 21:20:24 +0300
-From: Oleg Drokin <green@clusterfs.com>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: linux-kernel@vger.kernel.org, braam@clusterfs.com
-Subject: Re: [0/9] Lustre VFS patches for 2.6
-Message-ID: <20040707182024.GK5619@linuxhacker.ru>
-References: <20040707124732.GA25877@clusterfs.com> <40EC19C6.9010309@comcast.net>
-Mime-Version: 1.0
+	Wed, 7 Jul 2004 14:22:44 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40EC19C6.9010309@comcast.net>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16620.16241.664033.493568@napali.hpl.hp.com>
+Date: Wed, 7 Jul 2004 11:22:41 -0700
+To: roland@redhat.com
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: ptrace "fix" breaks ia64
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Roland,
 
-On Wed, Jul 07, 2004 at 11:41:58AM -0400, John Richard Moser wrote:
+Peter Chubb found that your recent ptrace change to fix x86-64 access
+to the 32-bit vsyscall page breaks ia64.  See:
 
-> Interesting, but what exactly does this do?  Extra performance?  How?
-> Extra security?  Avoid deadlocks?
+ http://www.gelato.unsw.edu.au/linux-ia64/0407/10253.html
 
-These are just kernel bits necessary for Lustre to work.
-Without lustre there should be no noticeable difference.
-Lustre is a cluster filesystem and you can get more info about it at
-http://www.lustre.org
+The problem is due to the fact that the gate page on ia64 really does
+live in the kernel-mapped segment (as your original code correctly
+assumed).  Furthermore, pgd_offset_k() is different from pgd_offset()
+since the kernel-mapped segment gets a full page-directory inside a
+single region, whereas user-space regions get only 1/8th of a
+page-directory, so it's not OK to use pgd_offset() in lieu of
+pgd_offset().
 
-Bye,
-    Oleg
+As Peter's mail suggests, we _could_ make pgd_offset() smarter by
+automatically redirecting it to pgd_offset_k() when necessary, but
+that's not a nice solution because it would slow down everything else
+and would kind of defeat the purpose of having separate pgd_offset_k()
+and pgd_offset() macros.
+
+I suppose we could have a new macro pgd_offset_gate() or something
+along those lines to accommodate platform-differences in where the
+gage page lives.
+
+	--david

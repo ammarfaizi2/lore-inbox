@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbTJNDep (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 23:34:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTJNDep
+	id S261615AbTJNDwF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 23:52:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTJNDwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 23:34:45 -0400
-Received: from freelists-180.iquest.net ([206.53.239.180]:59288 "EHLO
-	turing.freelists.org") by vger.kernel.org with ESMTP
-	id S262174AbTJNDeo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 23:34:44 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: John Madden <weez@freelists.org>
-Reply-To: weez@freelists.org
+	Mon, 13 Oct 2003 23:52:05 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55052 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261615AbTJNDwD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 23:52:03 -0400
 To: linux-kernel@vger.kernel.org
-Subject: agpgart and SiS 5591/5592 - ever?
-Date: Mon, 13 Oct 2003 22:34:45 -0500
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200310132234.45163.weez@freelists.org>
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: 2.6.0-test7-netx1
+Date: 14 Oct 2003 03:42:14 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bmfral$vd3$1@gatekeeper.tmr.com>
+References: <20031009155302.4f2fe835.shemminger@osdl.org> <20031010014822.0130ca61.davem@redhat.com>
+X-Trace: gatekeeper.tmr.com 1066102934 32163 192.168.12.62 (14 Oct 2003 03:42:14 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I seem to be unfortunate enough to be the owner of a motherboard with an 
-SiS 5591/5592 AGP chipset.  It seems to be a common-enough chipset that 
-there would be a driver for it by now (checked 2.4.23-pre and 2.6.0-test7) 
--- bad vendor?
+In article <20031010014822.0130ca61.davem@redhat.com>,
+David S. Miller <davem@redhat.com> wrote:
+| On Thu, 9 Oct 2003 15:53:02 -0700
+| Stephen Hemminger <shemminger@osdl.org> wrote:
+| 
+| >     * TCP Vegas (from Dave Miller)
+| 
+| Please don't use a config option for this, that is why the
+| sysctl is there and off by default.
 
-Am I SoL here?  Time to get another motherboard?  I'd be happy to lend my 
-hardware to testing.
+What is it with people wanting their features forced into kernels which
+don't need them? First the Athlon bugfix patch, now this. There are
+people out here who would like to use 2.6 kernels in small (possibly
+embedded) applications.
 
-Thanks,
-  John
-
-
-
-
+I have nothing against any of these features, but if they aren't needed
+they are just bloat. Please don't oppose making features configurable.
 -- 
-# John Madden  weez@freelists.org
-# MailandFiles.com: Your mail, your files: http://www.mailandfiles.com
-# FreeLists: Free mailing lists for all: http://www.freelists.org
-# Linux, Apache, Perl and C: All the best things in life are free!
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

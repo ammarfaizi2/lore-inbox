@@ -1,52 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285366AbRLYFlN>; Tue, 25 Dec 2001 00:41:13 -0500
+	id <S285393AbRLYFzO>; Tue, 25 Dec 2001 00:55:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285384AbRLYFlD>; Tue, 25 Dec 2001 00:41:03 -0500
-Received: from [200.216.12.47] ([200.216.12.47]:45440 "EHLO
-	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
-	id <S285366AbRLYFkq>; Tue, 25 Dec 2001 00:40:46 -0500
-Date: Tue, 25 Dec 2001 03:40:59 -0200
-From: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <0@pervalidus.net>
-To: Matthew Johnson <matthew@psychohorse.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: EMU10K1: IRQ 10 ?
-Message-ID: <20011225054059.GD148@pervalidus>
-In-Reply-To: <20011225034725.GA148@pervalidus> <200112250401.fBP41E025476@barn.psychohorse.com> <20011225043232.GC148@pervalidus> <200112250440.fBP4eu025586@barn.psychohorse.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200112250440.fBP4eu025586@barn.psychohorse.com>
-User-Agent: Mutt/1.3.23.1i
-X-Mailer: Mutt/1.3.23.1i - Linux 2.4.17
+	id <S285385AbRLYFzF>; Tue, 25 Dec 2001 00:55:05 -0500
+Received: from cn129399-a.wall1.pa.home.com ([24.40.41.32]:36993 "EHLO dysonwi")
+	by vger.kernel.org with ESMTP id <S285384AbRLYFyy>;
+	Tue, 25 Dec 2001 00:54:54 -0500
+Message-ID: <3C2814AB.9060700@pobox.com>
+Date: Tue, 25 Dec 2001 00:54:51 -0500
+From: Will Dyson <will_dyson@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011213
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: Re: [CFT] BeFS filesystem 0.6
+In-Reply-To: <Pine.GSO.4.21.0112241625120.28049-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 24, 2001 at 08:41:19PM -0800, Matthew Johnson wrote:
-> On Monday 24 December 2001 08:32 pm, you wrote:
+Alexander Viro wrote:
 
-> > > I'd cheat and use sndconfig ot yast2 or whatever else.
-> > > Failing that I can give you some idea via my modules.conf,
-> > > but I use SuSE, whcih in turn uses Alsa.
-> >
-> > OK, so I'll try ALSA.
-> >
-> > My modules.conf just includes 'alias sound emu10k1'.
+ 
+> Umm...  Obvious comments:
+> 
+> a) typedef struct super_block vfs_sb;  Please don't.
+> 
+> b) in inode.c:
+> 	inode->i_mode = (umode_t) raw_inode->mode;
+> is wrong.  It's guaranteed bug either on big- or little-endian boxen.
+> Same for mtime, uid and gid.  befs_count_blocks() also needs cleanup.
+> 
+> c) befs_read_block()...  Erm.  Why bother with extra layer of abstraction?
+> 
+> d) befs_readdir().  You _are_ guaranteed that inode is non-NULL, you put
+> pointer to befs_dir_operations only is S_ISDIR is true and S_ISDIR is
+> mutually exclusive with S_ISLNK.
+> 
+> e) are there sparse files on BeFS?  If yes - you want to make BH_Mapped
+> conditional in get_block() (set it if block is present, don't if it's a
+> hole in file).
+> 
+> f) befs_arch().  You probably want to make that an option...
+> 
+> g) endianness problems in read_super()...
+> 
+> h) TODO: use line breaks ;-)
 
-Dec 25 03:13:38 pervalidus kernel: PCI: Found IRQ 10 for device 00:0b.0
 
-OK, ALSA worked, while OSS from the kernel didn't. I don't
-know why.
 
-I still have a problem. Sound is very distorted with a lot of
-noise when I do a 'cat /home/ftp/pub/sound/ra/english.au >
-/dev/audio' . Maybe my speakers are broken ? I never used
-them before. Time to do more testing. Yes, I know nothing
-about sound.
+Hi Al. Thanks for taking the time to respond.
 
-Thank you Matthew. Now if any kernel developer can answer why
-OSS from the kernel didn't work...
+
+A & B) I originaly had plans to make the driver work under a variety of 
+different VFSs (maybe freebsd and atheos) and to have user-space tools 
+(like the old mtools for DOS) for people on other OSs. That was the 
+motivation behind those extra abstractions, but I've actually kinda lost 
+interest in the idea. I'll just take 'em out if it really offends 
+people's asthetic sense. Perhaps kernel drivers just weren't meant to be 
+portable.
+
+B) The PPC and x86 versions of BeOS each write their filesystem metadata 
+in native byte-order. So this would only be a problem with disks that 
+were formatted on a big-endian system and read on a little-endian (or 
+the other way around, of course). I've been meaning to handle that case 
+"someday".
+
+D) Ok. I killed that test.
+
+E) To my knowledge, there are not sparse files on BeFS.
+
+F) Ideally, I would detect both the endianness of the filesystem and the 
+host, and refuse to mount if they differ (or byte-swap the metadata). 
+Can I rely on #ifdef __LITTLE_ENDIAN to detect the endianness I am 
+running on?
+
+G) Same thing as B, I think.
+
+H) Yeah. I despise editors that won't line-wrap for you. But this is 
+unix, so I guess I gotta accomodate them. Is makeing sure they don't 
+overflow 80 columns enough? Or should that be 78?
+
+ > befs_count_blocks() also needs cleanup.
+
+How so, please?
 
 -- 
-0@pervalidus.{net, {dyndns.}org} Tel: 55-21-2717-2399 (Niterói-RJ BR)
+Will Dyson
+

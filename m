@@ -1,43 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129421AbQLOJXH>; Fri, 15 Dec 2000 04:23:07 -0500
+	id <S129421AbQLOJ3L>; Fri, 15 Dec 2000 04:29:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129800AbQLOJW5>; Fri, 15 Dec 2000 04:22:57 -0500
-Received: from 4dyn46.com21.casema.net ([212.64.95.46]:24329 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S129421AbQLOJWv>;
-	Fri, 15 Dec 2000 04:22:51 -0500
-Date: Fri, 15 Dec 2000 09:52:19 +0100
-From: Jasper Spaans <jspaans@mediakabel.nl>
-To: "Mohammad A. Haque" <mhaque@haque.net>
-Cc: "David S. Miller" <davem@redhat.com>, ionut@cs.columbia.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: ip_defrag is broken (was: Re: test12 lockups -- need feedback)
-Message-ID: <20001215095219.A6358@spaans.ds9a.nl>
-In-Reply-To: <Pine.LNX.4.30.0012141619330.1107-100000@viper.haque.net> <Pine.LNX.4.30.0012141746380.1220-100000@viper.haque.net>
+	id <S129800AbQLOJ3B>; Fri, 15 Dec 2000 04:29:01 -0500
+Received: from jam.net.uni-c.dk ([130.226.0.33]:7158 "HELO jam.net.uni-c.dk")
+	by vger.kernel.org with SMTP id <S129421AbQLOJ2r>;
+	Fri, 15 Dec 2000 04:28:47 -0500
+Date: Fri, 15 Dec 2000 09:57:23 +0100
+From: torben fjerdingstad <unitfj-lk@tfj.rnd.uni-c.dk>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-test12 kernel BUG at buffer.c:765!
+Message-ID: <20001215095723.B2724@tfj.rnd.uni-c.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0012141746380.1220-100000@viper.haque.net>; from mhaque@haque.net on Thu, Dec 14, 2000 at 05:50:35PM -0500
-Organization: http://www.insultant.nl/
-X-Copyright: Copyright 2000 C. Jasper Spaans - All Rights Reserved
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2000 at 05:50:35PM -0500, Mohammad A. Haque wrote:
+Dual pentium, aic7xxx,
+In the middle of mke2fs'ing /dev/md1 (3x18Gb disks):
 
-[zap]
+raid5: resync finished.
+kernel BUG at buffer.c:765!
+invalid operand: 0000
+CPU:    1
+EIP:    0010:[<c0131831>]
+EFLAGS: 00010286
+eax: 0000001c   ebx: dc043b28   ecx: 00000000   edx: 01000000
+esi: c56a3160   edi: c56a3000   ebp: dc043ae0   esp: cb845e8c
+ds: 0018   es: 0018   ss: 0018
+Process raid5d (pid: 3781, stackpage=cb845000)
+Stack: c020de85 c020e1ba 000002fd 00000004 f891703c dc043ae0 00000001
+00000004
+       c56a3000 00000001 00000000 f8917bbf c56a3000 00000001 00000001
+c56a3000
+       e3ced400 c56a3000 00000003 00000003 e3ced400 f8918717 c56a3000
+c56a3000
+Call Trace: [<c020de85>] [<c020e1ba>] [<f891703c>] [<f8917bbf>]
+[<f8918717>] [<c010a806>] [<f8918c89>]
+       [<c01c0547>] [<c0107488>]
+Code: 0f 0b 83 c4 0c 5b c3 55 57 56 53 8b 5c 24 14 8b 54 24 18 85
 
-> Oops start flying by when I access via NFS.
-> 
-> If you need the actual Oops messages we're gonna have to get someone
-> who can setup a serial console.
 
-I captured one on my console, anyone interested please drop me a note.
+The symbols around c0131831 are here:
+c01317c0 T init_buffer
+c01317dc t end_buffer_io_bad
+c0131838 t end_buffer_io_async
+c0131958 T fsync_inode_buffers
 
-Regards,
+Here is the output from mke2fs until it stuck:
+# mke2fs /dev/md1
+mke2fs 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
+Filesystem label=
+OS type: Linux
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
+4480448 inodes, 8960192 blocks
+448009 blocks (5.00%) reserved for the super user
+First data block=0
+274 block groups
+32768 blocks per group, 32768 fragments per group
+16352 inodes per group
+Superblock backups stored on blocks:
+ 32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208,
+ 4096000, 7962624
+
+Writing inode tables: 110/274
+
 -- 
-Jasper Spaans  <jasper@spaans.ds9a.nl>
+Med venlig hilsen / Regards 
+Netdriftgruppen / Network Management Group
+UNI-C          
+
+Tlf./Phone   +45 35 87 89 41        Mail:  UNI-C                                
+Fax.         +45 35 87 89 90               Bygning 304
+E-mail: torben.fjerdingstad@uni-c.dk       DK-2800 Lyngby
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271729AbRHQWBy>; Fri, 17 Aug 2001 18:01:54 -0400
+	id <S271731AbRHQWBZ>; Fri, 17 Aug 2001 18:01:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271728AbRHQWBp>; Fri, 17 Aug 2001 18:01:45 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:31872 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S271722AbRHQWB2>;
-	Fri, 17 Aug 2001 18:01:28 -0400
-Date: Fri, 17 Aug 2001 14:59:27 -0700 (PDT)
-Message-Id: <20010817.145927.21593568.davem@redhat.com>
+	id <S271725AbRHQWBF>; Fri, 17 Aug 2001 18:01:05 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:31104 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S271722AbRHQWA5>;
+	Fri, 17 Aug 2001 18:00:57 -0400
+Date: Fri, 17 Aug 2001 14:58:37 -0700 (PDT)
+Message-Id: <20010817.145837.122620550.davem@redhat.com>
 To: riel@conectiva.com.br
-Cc: alan@lxorguk.ukuu.org.uk, tpepper@vato.org, f5ibh@db0bm.ampr.org,
-        linux-kernel@vger.kernel.org
+Cc: aia21@cam.ac.uk, alan@lxorguk.ukuu.org.uk, phillips@bonn-fries.net,
+        tpepper@vato.org, f5ibh@db0bm.ampr.org, linux-kernel@vger.kernel.org
 Subject: Re: 2.4.9 does not compile [PATCH]
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33L.0108171845570.2277-100000@duckman.distro.conectiva>
-In-Reply-To: <20010816.160208.55508845.davem@redhat.com>
-	<Pine.LNX.4.33L.0108171845570.2277-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0108171844000.2277-100000@duckman.distro.conectiva>
+In-Reply-To: <20010816.164027.85686335.davem@redhat.com>
+	<Pine.LNX.4.33L.0108171844000.2277-100000@duckman.distro.conectiva>
 X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -24,21 +24,18 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
    From: Rik van Riel <riel@conectiva.com.br>
-   Date: Fri, 17 Aug 2001 18:46:20 -0300 (BRST)
+   Date: Fri, 17 Aug 2001 18:44:16 -0300 (BRST)
 
    On Thu, 16 Aug 2001, David S. Miller wrote:
    
-   > I don't recall you saying anything about "make sure to tell the
-   > maintainers"
+   > Linus will reject every such patch, and I have grepping scripts
+   > that will detect crap like this entering the tree in case he
+   > misses something.
    
-   I'll remember your attitude for if I ever have to
-   touch the network code ;)
+   Well, you're not the NTFS maintainer.
 
-If Linus scribbled all over the network code I would
-have to accept it if it were a kernel wide cleanup he
-absolutely wanted.
+Yes, but Linus is the kernel maintainer.
 
 Later,
 David S. Miller
 davem@redhat.com
-   

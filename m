@@ -1,76 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289836AbSA2Uue>; Tue, 29 Jan 2002 15:50:34 -0500
+	id <S289858AbSA2U4e>; Tue, 29 Jan 2002 15:56:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289330AbSA2UuY>; Tue, 29 Jan 2002 15:50:24 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56842 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289877AbSA2UuN>; Tue, 29 Jan 2002 15:50:13 -0500
-Date: Tue, 29 Jan 2002 12:49:24 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Momchil Velikov <velco@fadata.bg>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Oliver Xymoron <oxymoron@waste.org>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
-Subject: Re: Note describing poor dcache utilization under high memory pressure
-In-Reply-To: <20020129123932.K899@holomorphy.com>
-Message-ID: <Pine.LNX.4.33.0201291240180.1223-100000@penguin.transmeta.com>
+	id <S289877AbSA2U4Y>; Tue, 29 Jan 2002 15:56:24 -0500
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:35027 "HELO
+	openlab.rtlab.org") by vger.kernel.org with SMTP id <S289858AbSA2U4O>;
+	Tue, 29 Jan 2002 15:56:14 -0500
+Date: Tue, 29 Jan 2002 15:56:14 -0500 (EST)
+From: "Calin A. Culianu" <calin@ajvar.org>
+To: Daniel Nofftz <nofftz@castor.uni-trier.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Steven Hassani <hassani@its.caltech.edu>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon Optimization Problem
+In-Reply-To: <Pine.LNX.4.40.0201290900490.7168-100000@infcip10.uni-trier.de>
+Message-ID: <Pine.LNX.4.30.0201291553360.10200-100000@rtlab.med.cornell.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 29 Jan 2002, Daniel Nofftz wrote:
 
-On Tue, 29 Jan 2002, William Lee Irwin III wrote:
+> On Mon, 28 Jan 2002, Calin A. Culianu wrote:
 >
-> In my mind it's not about the form but about how much of it is exposed.
-> For instance, exposing the number of levels seems to require emulating
-> an extra level for machines with 2-level pagetables.
+> > Hmm.  What do you recommend?  I remember seeing a spec sheet and register
+> > 0x95 was the memory write queue timer.. but I could have dreamed it..
+> >
+> > Anyone know what register 0x95 does?
+>
+> hmmm ... when i was working on the athlon disconnect patch i found that
+> the pcr files (resorce files) for the wpcredit programm (windows tool for
+> changing the configuration of chipset) are a good source of information.
+> but this register isn't discribed in this file ... sorry
+>
+> daniel
+> (i placed the pcr file on the web, if you are interested, have a look at:
+> http://cip.uni-trier.de/nofftz/linux/kt266_pcr.txt ... the webserver is
+> down at the moment, but should be up again in 1-2 hours)
 
-Well, you have two choices:
+Thank you kindly, Daniel.  It's strange that register 95 is ommitted.  We
+definitely can conclude that register 55 is not the one to set on the
+kt266 motherboards (whereas on the other via motherboards it *is* the one
+to set...  I even have the spec sheet to prove it! :) )
 
- - _not_ exposing fundamental details like the number of levels causes
-   different architectures to have wildly different code (see how UNIX
-   traditionally does MM, and puke)
+I really wish VIA were more willing to cooperate with us and give us spec
+sheets.  It's to their advantage to have us make their buggy motherboards
+work well with linux, for crying out loud!  I really don't get what the
+big deal is.  I mean it's not like the concept of setting bytes on a pci
+device to change functionality is so revolutionary it deserves to be
+obfuscated...
 
- - trivial "folding" macros to take 3 levels down to 2 (or four levels
-   down to 3 or two).
-
-Note that the folding macros really _are_ trivial. The pmd macros for x86
-are basically these few lines:
-
-	static inline int pgd_none(pgd_t pgd)           { return 0; }
-	static inline int pgd_bad(pgd_t pgd)            { return 0; }
-	static inline int pgd_present(pgd_t pgd)        { return 1; }
-	#define pgd_clear(xp)                           do { } while (0)
-
-	static inline pmd_t * pmd_offset(pgd_t * dir, unsigned long address)
-	{
-	        return (pmd_t *) dir;
-	}
-
-And that's it.
-
-So I'd much rather have a generic VM and do some trivial folding.
-
-> It's quite a happy coincidence when this happens, and in my mind making
-> it happen more often would be quite nice.
-
-I really isn't a co-incidence. The reason so many architectures have page
-table trees is that most architects try to make good decisions, and a tree
-layout is a simple and efficient data structure that maps well to both
-hardware and to usage patterns.
-
-Hashed page tables are incredibly naive, and perform badly for build-up
-and tear-down (and mostly have horrible cache access patterns). At least
-in some version of the UltraSparc, the Linux tree-based software TLB fill
-outperformed the Solaris version, even though the Solaris version was
-handtuned assembly and used hardware acceleration for the hash
-computations. That should tell you something.
-
-			Linus
+-Calin
 

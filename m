@@ -1,33 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265402AbRG0WDa>; Fri, 27 Jul 2001 18:03:30 -0400
+	id <S265149AbRG0WDK>; Fri, 27 Jul 2001 18:03:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265475AbRG0WDU>; Fri, 27 Jul 2001 18:03:20 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:23024 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265402AbRG0WDL>; Fri, 27 Jul 2001 18:03:11 -0400
-Subject: [PATCH] switch_mm() can fail to load ldt on SMP
-To: linux-kernel@vger.kernel.org
-Cc: "James Washer" <washer@us.ibm.com>, "Judy Barkal" <jbarkal@us.ibm.com>
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF3506F19C.23358660-ON88256A96.0077F4BF@boulder.ibm.com>
-From: "Judy Barkal" <jbarkal@us.ibm.com>
-Date: Fri, 27 Jul 2001 15:03:15 -0700
-X-MIMETrack: Serialize by Router on D03NM015/03/M/IBM(Release 5.0.6 |December 14, 2000) at
- 07/27/2001 04:03:16 PM
+	id <S265402AbRG0WDA>; Fri, 27 Jul 2001 18:03:00 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:34566 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S265149AbRG0WCw>;
+	Fri, 27 Jul 2001 18:02:52 -0400
+Date: Sat, 28 Jul 2001 00:02:15 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Chris Wedgwood <cw@f00f.org>
+cc: Hans Reiser <reiser@namesys.com>,
+        Joshua Schmidlkofer <menion@srci.iwpsd.org>,
+        kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+In-Reply-To: <20010728030255.A804@weta.f00f.org>
+Message-ID: <Pine.LNX.4.33.0107280000420.31598-100000@Expansa.sns.it>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
 
-Linus' patch is in testing/patch-2.4.8-pre1.
 
-A patch for 2.4.5-7 is available at
-http://oss.software.ibm.com/developer/opensource/linux/patches/misc.php
+On Sat, 28 Jul 2001, Chris Wedgwood wrote:
 
-Thanks,
-Jim Washer and Judy Barkal
-     washer@us.ibm.com   jbarkal@us.ibm.com
+> On Fri, Jul 27, 2001 at 06:55:09PM +0400, Hans Reiser wrote:
+>
+>     Don't use RedHat with ReiserFS, they screw things up so many
+>     ways.....
+>
+>     For instance, they compile it with the wrong options set, their
+>     boot scripts are wrong, they just shovel software onto the CD.
+>
+>     Use SuSE, and trust me, ReiserFS will boot faster than ext2.
+>
+>     Actually, I am curious as to exactly how they manage to make
+>     ReiserFS boot longer than ext2.  Do they run fsck or what?
+>
+> FWIW, Debian although it doesn't support reiserfs "out of the box" at
+> present, works flawlessly for a large number of people I know.  I also
+> hear Mandrake 7.2 and 8.0 work pretty nice if you want a pointy-clicky
+> experience :)
+>
+I could add that also slackware is just faster with / with reiserFS
+than with ext2.
+But i saw that some of RH init script are, how can I say, redundant....
+
+Luigi
+
+> Since so many people seem to run RedHat, perhaps it's worth someone
+> determining exactly what is busted with their init scripts or whatever
+> that makes reiserfs barf more often that with other distributions.
+>
+>
+>
+>   --cw
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

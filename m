@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265285AbTFMJFf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 05:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbTFMJFe
+	id S265293AbTFMJWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 05:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265297AbTFMJWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 05:05:34 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:13744
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S265285AbTFMJFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 05:05:32 -0400
-Subject: Re: Anybody gotta list archive tarball?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Jonathan Corbet <corbet@lwn.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, aeb@cwi.nl
-In-Reply-To: <20030612165134.B2602@pclin040.win.tue.nl>
-References: <20030612141446.16634.qmail@eklektix.com>
-	 <20030612165134.B2602@pclin040.win.tue.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1055495817.5162.39.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 13 Jun 2003 10:16:57 +0100
+	Fri, 13 Jun 2003 05:22:24 -0400
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:61938 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S265293AbTFMJWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 05:22:23 -0400
+To: <java_solutions@bigpond.com>
+Cc: "Alfie John" <alfiejohn@hotmail.com>, <jobs@interlogic.com.au>,
+       <vox@lists.lugod.org>, <linux-kernel@vger.kernel.org>,
+       <ajug@yahoogroups.com>
+Subject: Re: [ajug] [OT] joining the "elite" team
+References: <LGEJLNJGCBAOLLKLFCPBAEAICDAA.java_solutions@bigpond.com>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 13 Jun 2003 18:35:27 +0900
+In-Reply-To: <LGEJLNJGCBAOLLKLFCPBAEAICDAA.java_solutions@bigpond.com>
+Message-ID: <buobrx2wc9s.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   Also Oct 1993 to Jul 1995.
+"Chris Harrison" <java_solutions@bigpond.com> writes:
+> And the best one, "[our company]...is very sophisticated."  Yes, like the
+> sophisticated advertisement you came up with.
 
-Thats about what I have of linux-activists, maybe a bit more
+At least they didn't use `dynamic' or `world class' (hmmm, maybe those
+are 20th century buzzwords...).
 
+-miles
+-- 
+`To alcohol!  The cause of, and solution to,
+ all of life's problems' --Homer J. Simpson

@@ -1,92 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288245AbSACHzP>; Thu, 3 Jan 2002 02:55:15 -0500
+	id <S282934AbSACISu>; Thu, 3 Jan 2002 03:18:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288241AbSACHzF>; Thu, 3 Jan 2002 02:55:05 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:63754 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288245AbSACHyz>; Thu, 3 Jan 2002 02:54:55 -0500
-Message-ID: <3C340D45.32E1D88B@zip.com.au>
-Date: Wed, 02 Jan 2002 23:50:29 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Oleg Drokin <green@namesys.com>
-CC: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
-        reiserfs-dev@namesys.com
-Subject: Re: [PATCH] expanding truncate
-In-Reply-To: <20020103102128.A2625@namesys.com>
+	id <S282945AbSACISl>; Thu, 3 Jan 2002 03:18:41 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:44295 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S282934AbSACIS0>;
+	Thu, 3 Jan 2002 03:18:26 -0500
+Date: Thu, 3 Jan 2002 09:18:18 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Douglas Gilbert <dougg@torque.net>
+Cc: Peter Osterlund <petero2@telia.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kernel BUG at scsi_merge.c:83
+Message-ID: <20020103091818.C482@suse.de>
+In-Reply-To: <3C33DDED.7212F2F9@torque.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3C33DDED.7212F2F9@torque.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Drokin wrote:
+On Wed, Jan 02 2002, Douglas Gilbert wrote:
+> Peter Osterlund <petero2@telia.com> wrote:
 > 
-> Hello!
+> > Jens Axboe <axboe@suse.de> writes:
+> > 
+> > > On Wed, Jan 02 2002, Peter Osterlund wrote:
+> > > > Hi!
+> > > > 
+> > > > While doing some stress testing on the 2.5.2-pre5 kernel, I am hitting
+> > > > a kernel BUG at scsi_merge.c:83, followed by a kernel panic. The
+> > > > problem is that scsi_alloc_sgtable fails because the request contains
+> > > > too many physical segments. I think this patch is the correct fix:
+> > > 
+> > > Correct, ll_rw_blk default is ok now. I missed this when killing
+> > > scsi_malloc/scsi_dma, thanks.
+> > 
+> > It turns out this is still not enough to fix the problem for me,
+> > because ll_new_hw_segment is still allowing nr_phys_segments to become
+> > too large. Is the following patch the correct way to deal with this
+> > problem, or is that case supposed to be prevented by some other means?
+> > At least, this patch prevents the kernel panic during my stress test.
 > 
->     This patch makes sure that indirect pointers for holes are correctly filled in by zeroes at
->     hole-creation time. (Author is Chris Mason. fs/buffer.c part (generic_cont_expand) were written by
->     Alexander Viro)
+> <snipped patches/>
 > 
->     Please apply.
+> Peter,
+> I was able to get a repeatable oops at that line copying
+> files from /boot onto a "fake" scsi_debug disk with "pre5".
+> The first largish file it attempted to copy caused the
+> oops (which I sent to Jens).
 > 
-> ...
-> 
+> Anyway, I just applied your 2 patches (to scsi.c and ll_rw_blk.c)
+> and the oops is no more.
 
-Please.  Do not add new library functions to the kernel with
-no descriptive commentary at all.  We really need to get past
-that stage.
+I've included a slightly modified version, your logic was correct though
+Peter. Thanks.
 
-What is this function supposed to do?  It appears that if
-the page at `size' is not in cache, we write uninitialised
-data into the file.
+-- 
+Jens Axboe
 
-
---- linux-2.4.18-pre1/fs/buffer.c.orig  Thu Jan  3 10:02:03 2002
-+++ linux-2.4.18-pre1/fs/buffer.c       Thu Jan  3 10:09:24 2002
-@@ -1760,6 +1760,46 @@
-        return 0;
- }
- 
-+int generic_cont_expand(struct inode *inode, loff_t size)
-+{
-+       struct address_space *mapping = inode->i_mapping;
-+       struct page *page;
-+       unsigned long index, offset, limit;
-+       int err;
-+
-+       limit = current->rlim[RLIMIT_FSIZE].rlim_cur;
-+       if (limit != RLIM_INFINITY) {
-+               if (size > limit) {
-+                       send_sig(SIGXFSZ, current, 0);
-+                       size = limit;
-+               }
-+       }
-+       offset = (size & (PAGE_CACHE_SIZE-1)); /* Within page */
-+
-+       /* ugh.  in prepare/commit_write, if from==to==start of block, we 
-+       ** skip the prepare.  make sure we never send an offset for the start
-+       ** of a block
-+       */
-+       if ((offset & (inode->i_sb->s_blocksize - 1)) == 0) {
-+           offset++ ;
-+       }
-+       index = size >> PAGE_CACHE_SHIFT;
-+       err = -ENOMEM;
-+       page = grab_cache_page(mapping, index);
-+       if (!page)
-+               goto out;
-+       err = mapping->a_ops->prepare_write(NULL, page, offset, offset);
-+       if (!err) {
-+               err = mapping->a_ops->commit_write(NULL, page, offset, offset);
-+       }
-+       UnlockPage(page);
-+       page_cache_release(page);
-+       if (err > 0)
-+               err = 0;
-+out:
-+       return err;
-+}
-+

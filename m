@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262401AbUJ0MOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262399AbUJ0MOB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262401AbUJ0MOT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 08:14:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbUJ0MOT
+	id S262399AbUJ0MOB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 08:14:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262401AbUJ0MOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 08:14:19 -0400
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:17891 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S262401AbUJ0MOJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 08:14:09 -0400
-Date: Wed, 27 Oct 2004 14:13:43 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: Strange IO behaviour on wakeup from sleep
-In-Reply-To: <1098878790.9478.11.camel@gaston>
-Message-ID: <Pine.LNX.4.53.0410271412220.10957@gockel.physik3.uni-rostock.de>
-References: <1098845804.606.4.camel@gaston> 
- <Pine.LNX.4.53.0410271308360.9839@gockel.physik3.uni-rostock.de>
- <1098878790.9478.11.camel@gaston>
+	Wed, 27 Oct 2004 08:14:00 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:45267 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262399AbUJ0MNr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 08:13:47 -0400
+Date: Wed, 27 Oct 2004 13:13:28 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Adrian Bunk <bunk@stusta.de>
+cc: Mathieu Segaud <matt@minas-morgul.org>, Andrew Morton <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <reiserfs-dev@namesys.com>
+Subject: Re: 2.6.10-rc1-mm1: reiser4 delete_from_page_cache compile error
+In-Reply-To: <20041027111102.GD2550@stusta.de>
+Message-ID: <Pine.LNX.4.44.0410271308150.20127-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004, Benjamin Herrenschmidt wrote:
+On Wed, 27 Oct 2004, Adrian Bunk wrote:
+>   LD      .tmp_vmlinux1
+> fs/built-in.o(.text+0xd2393): In function `drop_page':
+> : undefined reference to `delete_from_page_cache'
+> make: *** [.tmp_vmlinux1] Error 1
+> 
+> Hugh already requested to drop his patch.
 
-> The problem has been observed on ppc, while this patch only affects
-> i386...
+That's right, thanks Adrian.  Mathieu, please just "patch -R -p1" the below
 
-Oops, sorry for the noise.
+--- 25/fs/reiser4/page_cache.c~reiser4-delete_from_page_cache	2004-10-24 23:37:37.997272448 -0700
++++ 25-akpm/fs/reiser4/page_cache.c	2004-10-24 23:37:38.001271840 -0700
+@@ -759,13 +759,9 @@ drop_page(struct page *page)
+ #if defined(PG_skipped)
+ 	ClearPageSkipped(page);
+ #endif
+-	if (page->mapping != NULL) {
+-		remove_from_page_cache(page);
+-		unlock_page(page);
+-		/* page removed from the mapping---decrement page counter */
+-		page_cache_release(page);
+-	} else
+-		unlock_page(page);
++	if (page->mapping != NULL)
++		delete_from_page_cache(page);
++	unlock_page(page);
+ }
+ 
+ 
 
-Still need to check whether this patch is a problem or not.
-
-Tim

@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279429AbRKASJu>; Thu, 1 Nov 2001 13:09:50 -0500
+	id <S279462AbRKASQb>; Thu, 1 Nov 2001 13:16:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279454AbRKASJj>; Thu, 1 Nov 2001 13:09:39 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:40456 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S279429AbRKASJV>;
-	Thu, 1 Nov 2001 13:09:21 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200111011809.VAA26876@ms2.inr.ac.ru>
-Subject: Re: Bind to protocol with AF_PACKET doesn't work for outgoing packets
-To: ak@suse.de (Andi Kleen)
-Date: Thu, 1 Nov 2001 21:09:07 +0300 (MSK)
-Cc: ak@suse.de, joris@deadlock.et.tudelft.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <20011101184511.A22234@wotan.suse.de> from "Andi Kleen" at Nov 1, 1 06:45:11 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S279464AbRKASQW>; Thu, 1 Nov 2001 13:16:22 -0500
+Received: from 89.ppp1-5.hob.worldonline.dk ([212.54.87.89]:52097 "EHLO
+	milhouse.home.kernel.dk") by vger.kernel.org with ESMTP
+	id <S279462AbRKASQO>; Thu, 1 Nov 2001 13:16:14 -0500
+Date: Thu, 1 Nov 2001 19:15:22 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Stress testing 2.4.14-pre6
+Message-ID: <20011101191521.H3265@suse.de>
+In-Reply-To: <Pine.LNX.4.33.0111010903280.11617-100000@penguin.transmeta.com> <3BE18402.9F958EDC@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BE18402.9F958EDC@mandrakesoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, Nov 01 2001, Jeff Garzik wrote:
+> Linus Torvalds wrote:
+> > Anyway, I seriously doubt this explains any real-world bad behaviour: the
+> > window for the interrupt hitting a half-way updated list is something like
+> > two instructions long out of the whole memory freeing path. AND most
+> > interrupts don't actually do any allocation.
+> 
+> Network Rx interrupts do....  definitely not as frequent as IDE
+> interrupts, but not infrequent.
 
-> First if you really meant this dev_xmit_nit() (which you added) could be 
-> removed.
+Which IDE interrupts allocate memory?!
 
-Sorry? It is used by packet sniffers.
+-- 
+Jens Axboe
 
-
-> ugly imho; if the feature exists it should be implemented for the full
-> packet functionality which includes binding to protocols.
-
-This is a silly abuse. Sniffers do not bind to protocols, should not
-do this and have no reasons to do this.
-
-
->  I think the patch should be added.
-
-That which adds all the packet sockets to ptype_all? Do you jest? :-)
-
-Alexey

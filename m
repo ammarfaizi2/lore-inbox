@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279864AbRJ3EkK>; Mon, 29 Oct 2001 23:40:10 -0500
+	id <S279865AbRJ3Eov>; Mon, 29 Oct 2001 23:44:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279865AbRJ3EkA>; Mon, 29 Oct 2001 23:40:00 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:62216 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S279864AbRJ3Ejo>;
-	Mon, 29 Oct 2001 23:39:44 -0500
-Date: Mon, 29 Oct 2001 20:38:42 -0800
-From: Greg KH <greg@kroah.com>
-To: Josh Hansen <joshhansen@byu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ease of hardware configuration
-Message-ID: <20011029203842.A17967@kroah.com>
-In-Reply-To: <01KA2VPVO4QI9JEBL9@EMAIL1.BYU.EDU>
-Mime-Version: 1.0
+	id <S279866AbRJ3Eol>; Mon, 29 Oct 2001 23:44:41 -0500
+Received: from longsword.omniti.com ([216.0.51.134]:53010 "EHLO
+	longsword.omniti.com") by vger.kernel.org with ESMTP
+	id <S279865AbRJ3Eoh>; Mon, 29 Oct 2001 23:44:37 -0500
+Message-ID: <3BDE3174.7718D64B@omniti.com>
+Date: Mon, 29 Oct 2001 23:49:56 -0500
+From: Robert Scussel <rscuss@omniti.com>
+Reply-To: rscuss@omniti.com
+Organization: OmniTI, Inc.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: torvalds@transmeta.com
+CC: andre@sam.com.br, linux-kernel@vger.kernel.org, jesus@omniti.com
+Subject: Re: linux-2.4.13 high SWAP
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01KA2VPVO4QI9JEBL9@EMAIL1.BYU.EDU>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.19 (i586)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 29, 2001 at 05:27:34PM -0600, Josh Hansen wrote:
-> 	Now here comes the radical part (ok, so all of this is somewhat radical): the 
-> configuration utility connects to a server such as linuxdevicedrivers.org or 
-> some other slick domain name and downloads the appropriate kernel module 
-> binaries for the hardware based on kernel version number and architecture 
-> (example: nVidia GeForce module for kernel 2.4.13 on i386, or USB Scanner 
-> module for kernel 2.4.4 on PowerPC). Once the module is obtained, it is 
-> loaded into the kernel (with explicit IO/IRQ parameters for older hardware if 
-> necessary).
-> 	Once the module is loaded, the utility quits.
+Just thought that I would add our experience.
 
-Please check out the linux-hotplug package:
-	http://linux-hotplug.sf.net/
+We have experienced the same kind of swap symptoms described, however we
+have no mounted tmpfs, or ramfs partitions. We have, in fact,
+experienced the same symptoms on the 2.4.2,2.4.5,2.4.7 and 2.4.12
+kernel, haven't yet tried the 2.4.13 kernel.  The symptoms include hung
+processes which can not be killed, system cannot right to disk, and
+files accessed during this time are filled with binary zeros.  As sync
+does not work as well, the only resolution is to do a reboot -f -n.
 
-It does most of what you are talking about right now.  And if it's
-missing anything that you want, feel free to contribute :) 
+All systems are comprised of exclusively SGI XFS partitions, with dual
+pentium II/III processors.
 
-thanks,
+Any insight would be helpful,
 
-greg k-h
+Robert Scussel
+--
+Robert Scussel
+1024D/BAF70959/0036 B19E 86CE 181D 0912  5FCC 92D8 1EA1 BAF7 0959

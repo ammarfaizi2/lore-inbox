@@ -1,71 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261975AbTDAB2W>; Mon, 31 Mar 2003 20:28:22 -0500
+	id <S261970AbTDAB1V>; Mon, 31 Mar 2003 20:27:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261977AbTDAB2W>; Mon, 31 Mar 2003 20:28:22 -0500
-Received: from [12.47.58.55] ([12.47.58.55]:12001 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id <S261975AbTDAB2U>;
-	Mon, 31 Mar 2003 20:28:20 -0500
-Date: Mon, 31 Mar 2003 17:39:20 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Delaying writes to disk when there's no need
-Message-Id: <20030331173920.3ab5a53f.akpm@digeo.com>
-In-Reply-To: <3E88EB3D.6020409@cyberone.com.au>
-References: <slrnb843gi.2tt.usenet@bender.home.hensema.net>
-	<20030328231248.GH5147@zaurus.ucw.cz>
-	<slrnb8gbfp.1d6.erik@bender.home.hensema.net>
-	<3E8845A8.20107@aitel.hist.no>
-	<3E88BAF9.8040100@cyberone.com.au>
-	<20030331144500.17bf3a2e.akpm@digeo.com>
-	<87el4ngi8l.fsf@enki.rimspace.net>
-	<20030331170927.013a0d4a.akpm@digeo.com>
-	<3E88EB3D.6020409@cyberone.com.au>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Apr 2003 01:39:38.0188 (UTC) FILETIME=[8E9FD8C0:01C2F7EF]
+	id <S261972AbTDAB1V>; Mon, 31 Mar 2003 20:27:21 -0500
+Received: from sinfonix.rz.tu-clausthal.de ([139.174.2.33]:53742 "EHLO
+	sinfonix.rz.tu-clausthal.de") by vger.kernel.org with ESMTP
+	id <S261970AbTDAB1T> convert rfc822-to-8bit; Mon, 31 Mar 2003 20:27:19 -0500
+From: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Query about SIS963 Bridges
+Date: Tue, 1 Apr 2003 03:38:14 +0200
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200304010338.14233.volker.hemmann@heim9.tu-clausthal.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <piggin@cyberone.com.au> wrote:
->
-> Would the writeout on disk idle solve this without using the fadvise?
+Hi,
 
-Yes it would schedule the I/O in the desired manner.  But it would do that
-for _all_ files, not just the desired one.
+ please cc me, bcause I am not suscribed to lkml.
 
-And that app needs to be changed to use fadvise anyway, to take down the
-useless pagecache.
+I have an Asrock K7S8X with such a 746FX/963l combo.
 
-> How often is balance_dirty_pages called? Enough to keep an otherwise
-> idle disk busy?
+Networking, IDE is working fine, I am able to access the pci soundcard and a 
+hotrod 66 controller. Even watching Tv is fine.
 
-Approximately once per 1000 dirtied pages per cpu.  Say 4 megs.  A nice
-chunk.
+I am burning cds and have no problems to access an usb-stick.
 
-> Would it be possible to fix the /tmp files case? Could you cancel IO
-> to a file that gets deleted?
+The only setback is missing support in the agpgart, crippling 3d and problems 
+with dga.
 
-Well...  One could place a hint in the inode somewhere. 
-balance_dirty_pages() is given the inode, so it could notice that this is an
-"early sync" inode and flush it every 4 megabytes.
+Kernel is gentoo's 2.4.20-gaming, an 2.5.66-mm1 was even able to boot, but had 
+a panic, killing the interrupt handler when loading modules.
 
-That would be appropriate for O_STREAMING, which is a better and more
-efficient interface than fadvise.
+ACPI and Local APIC is inabled, enablic IO-APIC gives lost interrupts for the 
+Hotrod.
 
-But really, the right thing to do here is to modify the app to use fadvise.
+If desired I can test different kernels, send the output of dmesg etc.
 
-> On a similar note, would it be useful and not difficult to do
-> speculative LIFO swapin in case of lots of free memory and an idle
-> disk? Probably too hard. I guess lowering swapiness would help.
+My Hardware:
 
-Might do.  I'm not sure how though.
+AMD Xp 2000+
+Asrock K7S8X
+2x256mb ram
+Geforce 4mx 440 (Agp 4x)
+Abit Hotrod 66 udma 66 controller  (one hd at each channel)
+Terratec Tv+
+C-Media 8738 based soundcard.
 
-Another possibility would be to perform speculative writes.  Write some
-random data to a disk block and later see if that was the data which the
-application actually wanted to write.  If so, we can optimise away the later
-I/O.
+2 hardrives on ide 0
+1 cdrw-drive and 1 dvd at ide1
+1 usb 1.1 256mb flash stick.
+
+Glück Auf,
+Volker
+
 

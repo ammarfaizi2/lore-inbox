@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUIDR4m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265106AbUIDRzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265195AbUIDR4m (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 13:56:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUIDRzT
+	id S265106AbUIDRzE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 13:55:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUIDRxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 13:55:19 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:56728 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265195AbUIDRzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 13:55:03 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q9
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Mark_H_Johnson@raytheon.com, Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>
-In-Reply-To: <1094256256.6575.109.camel@krustophenia.net>
-References: <OFACA329EE.63AC9924-ON86256F04.00556E19-86256F04.00556E29@raytheon.com>
-	 <1094256256.6575.109.camel@krustophenia.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094316731.10586.35.camel@localhost.localdomain>
+	Sat, 4 Sep 2004 13:53:38 -0400
+Received: from ozlabs.org ([203.10.76.45]:31427 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265106AbUIDRvb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 13:51:31 -0400
+Date: Sun, 5 Sep 2004 03:46:42 +1000
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org
+Cc: levon@movementarian.org, phil.el@wanadoo.fr, linux-kernel@vger.kernel.org
+Subject: [PATCH] fix oprofile vfree warning on error
+Message-ID: <20040904174642.GD7716@krispykreme>
+References: <20040904174403.GC7716@krispykreme>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 04 Sep 2004 17:52:14 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040904174403.GC7716@krispykreme>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-09-04 at 01:04, Lee Revell wrote:
-> This is looking more and more like a video driver problem:
 
-Not really. The delay is too small and X is smarter than this. (except a
-VIA case that only recently got squished).
+On error we can call __free_cpu_buffers with only some buffers
+allocated. I was getting a bunch of vfree warnings when I hit it, we
+should check before calling vfree.
 
-> The video cards have a command FIFO that is written to via the PCI bus.
-> They also have a status register, read via the PCI bus, which says
-> whether the command FIFO is full or not. The hack is to not check
-> whether the command FIFO is full before attempting to write to it, thus
-> saving a PCI bus read.
+Signed-off-by: Anton Blanchard <anton@samba.org>
 
-On problem cards X defaults to polling the status FIFO. You can tell it
-to be rude but you have to actively do so. Newer PCI 2.x specs also have
-a thing or two to say on the subject
+diff -puN drivers/oprofile/cpu_buffer.c~oprofile_vfree_fix drivers/oprofile/cpu_buffer.c
+--- linux-2.5/drivers/oprofile/cpu_buffer.c~oprofile_vfree_fix	2004-09-05 02:37:38.223212931 +1000
++++ linux-2.5-anton/drivers/oprofile/cpu_buffer.c	2004-09-05 02:37:43.608142109 +1000
+@@ -36,8 +36,10 @@ static void __free_cpu_buffers(int num)
+ {
+ 	int i;
+  
+-	for_each_online_cpu(i)
+-		vfree(cpu_buffer[i].buffer);
++	for_each_online_cpu(i) {
++		if (cpu_buffer[i].buffer)
++			vfree(cpu_buffer[i].buffer);
++	}
+ }
+  
+  
 
+_

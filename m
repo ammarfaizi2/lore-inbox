@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130844AbRAaOfu>; Wed, 31 Jan 2001 09:35:50 -0500
+	id <S131105AbRAaOlB>; Wed, 31 Jan 2001 09:41:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131105AbRAaOfl>; Wed, 31 Jan 2001 09:35:41 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:5365 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130844AbRAaOfa>; Wed, 31 Jan 2001 09:35:30 -0500
-Date: Wed, 31 Jan 2001 12:35:21 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Version 2.4.1 cannot be built. 
-In-Reply-To: <Pine.LNX.3.95.1010131091907.13340A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.21.0101311233470.1321-100000@duckman.distro.conectiva>
+	id <S131193AbRAaOkw>; Wed, 31 Jan 2001 09:40:52 -0500
+Received: from web118.mail.yahoo.com ([205.180.60.99]:57093 "HELO
+	web118.yahoomail.com") by vger.kernel.org with SMTP
+	id <S131105AbRAaOkj>; Wed, 31 Jan 2001 09:40:39 -0500
+Message-ID: <20010131144038.26689.qmail@web118.yahoomail.com>
+Date: Wed, 31 Jan 2001 06:40:38 -0800 (PST)
+From: Paul Powell <moloch16@yahoo.com>
+Subject: Why isn't init PID 1?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001, Richard B. Johnson wrote:
-> On Wed, 31 Jan 2001, Rik van Riel wrote:
-> > On Wed, 31 Jan 2001, Richard B. Johnson wrote:
+Hello,
 
-> > > I cannot find the source for GNU Make 3.77+
-> > 
-> > I have a hard time believing that you don't have
-> > the skills to go to ftp.gnu.org and download the
-> > stuff...
-> 
-> Now just a cotton-picken minute. When was the last time you
-> accessed that site? I spent most of last night looking through
-> EMPTY directories with files that are invisible to ftp but
-> (sometimes) show with their `ls`, and never with nlist.
+I have a bootable linux CD that runs a custom init. 
+Under most versions of linux init runs as process ID
+one.  Under my bootable CD, it runs as process ID 15. 
+I need it to run as PID 1 so that I can execute a
+kill(-1,15) without killing init.
 
-No need to ridicule the maintainers of ftp.gnu.org.
+The boot CD uses and initrd image to load drivers. 
+The linuxrc file looks like:
 
-Despite their site being really really full, it only
-took me about 20 seconds to locate /gnu/make
+#!/bin/sash
 
-(and yes, that is without having visited their site
-in the last 2 years or so)
+aliasall
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+echo "Loading aic7xxx module"
+insmod /lib/aic7xxx.o
+echo "Loading ips module"
+insmod /lib/ips.o ips=ioctlsize:512000
+echo "Loading sg module"
+insmod /lib/sg.o
+echo "Loading FAT modules"
+insmod /lib/fat.o
+insmod /lib/vfat.o
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+echo "Mounting /proc"
+mount -t proc /proc /proc
+init
+umount /proc
 
+Does it run as PID 15 because I execute insmod and
+mount before running init?
+
+Thanks,
+Paul
+
+__________________________________________________
+Get personalized email addresses from Yahoo! Mail - only $35 
+a year!  http://personal.mail.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

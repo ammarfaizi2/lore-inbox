@@ -1,70 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131773AbQKRWbr>; Sat, 18 Nov 2000 17:31:47 -0500
+	id <S131356AbQKRWcS>; Sat, 18 Nov 2000 17:32:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131519AbQKRWbi>; Sat, 18 Nov 2000 17:31:38 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:8452 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S131495AbQKRWb2>;
-	Sat, 18 Nov 2000 17:31:28 -0500
-Message-ID: <20001118211231.A382@bug.ucw.cz>
-Date: Sat, 18 Nov 2000 21:12:31 +0100
+	id <S131495AbQKRWcK>; Sat, 18 Nov 2000 17:32:10 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:9220 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131356AbQKRWb6>;
+	Sat, 18 Nov 2000 17:31:58 -0500
+Message-ID: <20001118214906.D382@bug.ucw.cz>
+Date: Sat, 18 Nov 2000 21:49:06 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>, "H. Peter Anvin" <hpa@transmeta.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: rdtsc to mili secs?
-In-Reply-To: <3A078C65.B3C146EC@mira.net> <E13t7ht-0007Kv-00@the-village.bc.nu> <20001110154254.A33@bug.ucw.cz> <8uhps8$1tm$1@cesium.transmeta.com> <20001114222240.A1537@bug.ucw.cz> <3A12FA97.ACFF1577@transmeta.com> <20001116115730.A665@suse.cz>
+To: Szabolcs Szakacsits <szaka@f-secure.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, Linus Torvalds <torvalds@transmeta.com>,
+        Ingo Molnar <mingo@elte.hu>
+Subject: Re: KPATCH] Reserve VM for root (was: Re: Looking for better VM)
+In-Reply-To: <200011142012.VAA00150@bug.ucw.cz> <Pine.LNX.4.30.0011161513480.20626-100000@fs129-190.f-secure.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
-In-Reply-To: <20001116115730.A665@suse.cz>; from Vojtech Pavlik on Thu, Nov 16, 2000 at 11:57:30AM +0100
+In-Reply-To: <Pine.LNX.4.30.0011161513480.20626-100000@fs129-190.f-secure.com>; from Szabolcs Szakacsits on Thu, Nov 16, 2000 at 04:01:07PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > > Intel PIIX-based systems will do duty-cycle throttling, for example.
-> > > 
-> > > Don't think so. My toshiba is PIIX-based, AFAIC:
-> > 
-> > Interesting.  Some will, definitely.  Didn't know that wasn't universal.
-> > 
-> > Clearly, on a machine like that, there is no hope for RDTSC, at least
-> > unless the CPU (and OS!) gets notification that the TSC needs to be
-> > recalibrated whenever it switches.
-> > 
-> > > Still, it is willing to run with RDTSC at 300MHz, 150MHz, and
-> > > 40MHz. (The last one in _extreme_ cases when CPU fan fails -- running
-> > > at 40MHz is better than cooking cpu).
+> >    >main() { while(1) if (fork()) malloc(1); }
+> >    >With the patch below I could ssh to the host and killall the offending
+> >    >processes. To enable reserving VM space for root do
+> > what about main() { while(1) system("ftp localhost &"); }
+> > This. or so,ething similar should allow you to kill your machine
+> > even with your patch from normal user account
 > 
-> I believe that pulsing the STPCLK pin of the processor by connecting it
-> to a say 32kHz signal and then changing the duty cycle of that signal
-> could have the effect of slowing down the processor to these speeds.
-> 
-> Somehow I can't believe a PMMX would be able to run at 40MHz. Which in
-> turn means that STPCLK also stops TSC, which is equally bad.
+> This or something similar didn't kill the box [I've tried all local
+> DoS from Packetstorm that I could find]. Please send a working
 
-Why not? From 300MHz to 40MHz... 10 times, that is not that big
-difference. (I've ran k6/400 at 66MHz, IIRC, while debugging -- I'm
-not really sure, and don't want to open machine, but it should work).
+Sorry, I did not have working example, just feeling that something
+like that should be possible.
 
-> Anyway, this should be solvable by checking for clock change in the
-> timer interrupt. This way we should be able to detect when the clock
-> went weird with a 10 ms accuracy. And compensate for that. It should be
-> possible to keep a 'reasonable' clock running even through the clock
-> changes, where reasonable means constantly growing and as close to real
-> time as 10 ms difference max.
-> 
-> Yes, this is not perfect, but still keep every program quite happy and
-> running.
+> Note, I'm not discussing "local user can kill the box without limits",
+> I say Linux "deadlocks" [it starts its own autonom life and usually
+> your only chance is to hit the reset button] when there is continuous
+> VM pressure by user applications. If you think fork() kills the box
 
-No. Udelay has just gone wrong and your old ISA xxx card just crashed
-whole system. Oops.
+That's clear bug, right? It should not deadlock, it should go to
+OOM-killer and kill someone.
 
-BTW I mailed patch to do exactly that kind of autodetection to the
-list some time ago. (I just can't find it now :-( -- search archives
-for 'TSC is slower than it should be'.
+> BTW, I have a new version of the patch with that Linux behaves much
+> better from root's point of view when the memory is more significantly
+> overcommited. I'll post it if I have time [and there is interest].
+
+There is interest. Yesterday atrey died due userland process eating
+all memory.
 								Pavel
-
+PS: atrey is machine that gets my mail, so it is kind of important to
+me.
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
 Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

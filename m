@@ -1,37 +1,39 @@
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263748AbTEYUcT (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 25 May 2003 16:32:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263749AbTEYUcT
+	id S263763AbTEYUlh (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 25 May 2003 16:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263764AbTEYUlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 16:32:19 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:4341 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263748AbTEYUcS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 16:32:18 -0400
-Date: Sun, 25 May 2003 22:45:00 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: Willy Tarreau <willy@w.ods.org>,
-   Marcelo Tosatti <marcelo@conectiva.com.br>,
-   lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-rc3 : IDE pb on Alpha
-In-Reply-To: <20030525203709.GA23651@matchmail.com>
-Message-ID: <Pine.SOL.4.30.0305252242430.10573-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 25 May 2003 16:41:36 -0400
+Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:51718
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S263763AbTEYUlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 16:41:23 -0400
+Date: Sun, 25 May 2003 13:51:17 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Alistair J Strachan <alistair@devzero.co.uk>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69-mm9
+Message-ID: <20030525205117.GB23651@matchmail.com>
+Mail-Followup-To: Alistair J Strachan <alistair@devzero.co.uk>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+References: <200305251619.40137.alistair@devzero.co.uk> <20030525131512.45ce0cc2.akpm@digeo.com> <200305252135.37109.alistair@devzero.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305252135.37109.alistair@devzero.co.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, May 25, 2003 at 09:35:36PM +0100, Alistair J Strachan wrote:
+> touch /home/tmp
+> sync
+> 
+> The kernel barfed out the attached junk and the file was never committed. The 
+> volume was not corrupted as I was able to reboot with -mm6 and all is fine. 
+> tmp does not exist on the volume.
 
-Everything is okay, older drives don't understand some commands.
-I will fix it, but now its low on my TODO list.
-
-On Sun, 25 May 2003, Mike Fedyk wrote:
-
-> On Sun, May 25, 2003 at 07:00:46PM +0200, Willy Tarreau wrote:
-> > hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> > hda: task_no_data_intr: error=0x04 { DriveStatusError }
->
-> Can you revert back to your previous kernel and run badblocks read-only on
-> it a few times.  Your drive may be going bad.
-
+Be sure to run e2fsck -f on your /home partition because some changes could
+have been made to the filesystem that happen before a directory entry would
+be changed, suck as bitmaps or somesuch.

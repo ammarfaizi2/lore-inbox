@@ -1,82 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266132AbUFILeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265737AbUFILnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266132AbUFILeT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 07:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266126AbUFILeT
+	id S265737AbUFILnz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 07:43:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265736AbUFILnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 07:34:19 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:13066 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S265736AbUFILeO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 07:34:14 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: netdev@oss.sgi.com, linux-net@vger.kernel.org
-Subject: UDP sockets bound to ANY send answers with wrong src ip address
-Date: Wed, 9 Jun 2004 14:25:39 +0300
-X-Mailer: KMail [version 1.4]
-Cc: davem@redhat.com, yoshfuji@linux-ipv6.org, pekkas@netcore.fi,
-       jmorris@redhat.com, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200406091425.39324.vda@port.imtp.ilyichevsk.odessa.ua>
+	Wed, 9 Jun 2004 07:43:55 -0400
+Received: from [213.69.232.58] ([213.69.232.58]:20747 "HELO
+	scice.schottelius.org") by vger.kernel.org with SMTP
+	id S265737AbUFILnk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 07:43:40 -0400
+Date: Wed, 9 Jun 2004 13:46:15 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: GCS <gcs@lsc.hu>
+Cc: Nico Schottelius <nico-kernel@schottelius.org>,
+       Chris Wright <chrisw@osdl.org>, Amon Ott <ao@rsbac.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dev@grsecurity.net
+Subject: Re: security patches / lsm
+Message-ID: <20040609114615.GK601@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	GCS <gcs@lsc.hu>, Chris Wright <chrisw@osdl.org>,
+	Amon Ott <ao@rsbac.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	dev@grsecurity.net
+References: <20040122191158.GA1207@schottelius.org> <20040122150937.A8720@osdlab.pdx.osdl.net> <20040609090346.GG601@schottelius.org> <20040609112235.GA1088@pooh>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="j/HO4hzKTNbM1mOX"
+Content-Disposition: inline
+In-Reply-To: <20040609112235.GA1088@pooh>
+X-MSMail-Priority: (u_int) -1
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+Organization: http://nerd-hosting.net/
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I observe that UDP sockets listening on ANY
-send response packets with ip addr derived from
-ip address of interface which is used to send 'em
-instead of using dst ip address of client's packet.
 
-I was bitten by this with DNS and NTP.
+--j/HO4hzKTNbM1mOX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This is a test setup:
+GCS [Wed, Jun 09, 2004 at 01:22:35PM +0200]:
+> * Nico Schottelius <nico-kernel@schottelius.org> [2004-06-09 11:03:46 +02=
+00]:
+>=20
+> > Who decides whether to integrate them or not?
+>  Linus? AFAIK he already said no to grsecurity.
 
-{net 172.16/16}----- 172.16.22.2 [multihomed] 195.66.192.167 ----....
+I heard about that, but I wanted to know whether this statement is still
+true. I think with grsecurity you get a great security enhanced kernel.
 
-This is a UDP server on multihomed box:
-# echo test | nc -vvvnu -l -p 222
-listening on [any] 222 ...
-connect to [172.16.22.2] from (UNKNOWN) [172.16.42.177] 333
-ping
- sent 5, rcvd 5 : Connection refused
-#
+And if the performance is really getting worse, why not add grsecurity
+patches with #ifdef GRSECURITY_ENABLED?=20
 
-This is client on 172.16.42.177:
-# echo ping | nc -vvvnu -p 333 195.66.192.167 222
-(UNKNOWN) [195.66.192.167] 222 (?) open
+Nico
 
-it waits forever, never getting 'test' string from server.
+--=20
+Keep it simple & stupid, use what's available.
+Please use pgp encryption: 8D0E 27A4 is my id.
+http://nerd-hosting.net | http://nico.schotteli.us
 
-This is a tcpdump of this event:
-13:58:00.555207 172.16.42.177.333 > 195.66.192.167.222: udp 5 (DF)
-13:58:00.559849 172.16.22.2.222 > 172.16.42.177.333: udp 5 (DF)
-                ^^^^^^^^^^^
-13:58:00.560457 172.16.42.177 > 172.16.22.2: icmp: 172.16.42.177 udp port 333 unreachable [tos 0xc0]
+--j/HO4hzKTNbM1mOX
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-This is why 172.16.42.177 thinks that port 333 is unreachable:
-# lsof -nP | grep 333
-ntpd        418   root  mem    REG        3,4   133316      68184 /.share/usr/lib/all-lib/libreadline.so.3.0
-most       7559   root  txt    REG        3,4    46828      24333 /.share/usr/app/most-4.9.2/bin/most
-nc        15085   root    3u  IPv4      29381                 UDP 172.16.42.177:333->195.66.192.167:222
-#                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-kernel does not think that 172.16.22.2.222 > 172.16.42.177.333 packet
-belong to this socket, and it is right imo.
+iQIVAwUBQMb4hbOTBMvCUbrlAQIOJRAAhWUaWLXdmpkaz/ZuRc3sDGWlLS//3sQo
+2z3T8mkMxyzR28v0g49Cjwqdpy3w2e5rr7dcaO6lCjEHBG894i4Gs37wQodAm9tT
+A2+sQwTM45/cqMwkAsvVFhxhpz8/TPZfw4whZYCtvUAD90Zx7JsTrlUR192yn6we
+QjQP1uoSmkh8NtCwYWJ5xynUCF4K2KzO+msu+IlSiAspPxQuIOSmxm5SfX5mQrIG
+RpCOR2DQ7n1IeafZbicfMIaSOps4lxcd50gwoQvlWGCcXnZGQGAtBpuXZAs0h6x5
+XVyRgNUYpei5btw0KOYEry5Xab7IidzPBMSMnvHAKni0nzD+96f8y24MIDQDa601
+m1GtRpwQCRCnw53aAXTQhUzE0Tx3k/p1w2224rWataC9/kpgl0gtCZvSiBCQsAaI
+AQ18nP2GVUCTrv/F8eCFz9f5/UzFUBEpkJbZ1qC8kS4tCbWlGFwOxpNJel7dPJgg
+QvB+XUlE9xKcur31tZLa7peCC13TizT9O+WGJrDbzlvQh+LMWg7SWKuQeNbsYCAa
+OEN/F+KgIuXDfSnEcyqAC1bnMAcY2gIOUenj+WfEKJKpsFVUMiuE359SMxahiIT3
+IsKJSRL+zAK/HFI03y6bFq8N+KkhHJzbhfh3EJztJqmjRijT1ptrZblgNwn9/kdl
+e4FInRhGIOA=
+=X2hr
+-----END PGP SIGNATURE-----
 
-Test works ok if I remove -u from both netcats (i.e. TCP works).
-
-client:
-# uname -a
-Linux firebird 2.6.6-rc1-bk1 #1 Wed May 26 11:03:11 EEST 2004 i686 unknown
-
-server:
-# uname -a
-Linux oldie 2.4.22-rc2_QoS #1 Tue Nov 18 15:55:00 GMT-2 2003 i586 unknown
-root@oldie:/.share/home/vda#
-
-I saw this behavior on 2.6 based machines as well.
--- 
-vda
+--j/HO4hzKTNbM1mOX--

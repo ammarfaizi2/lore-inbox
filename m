@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269504AbRHGW1E>; Tue, 7 Aug 2001 18:27:04 -0400
+	id <S270185AbRHGW3O>; Tue, 7 Aug 2001 18:29:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269512AbRHGW0z>; Tue, 7 Aug 2001 18:26:55 -0400
-Received: from bender.toppoint.de ([195.244.243.2]:37256 "EHLO
-	mail.toppoint.de") by vger.kernel.org with ESMTP id <S269801AbRHGW0k>;
-	Tue, 7 Aug 2001 18:26:40 -0400
->Received: (from netzwurm@localhost)
-	by gandalf.discordia (8.9.3/8.9.3/Debian 8.9.3-21) id XAA30332
-	for linux-kernel@vger.kernel.org; Tue, 7 Aug 2001 23:40:39 +0200
-Date: Tue, 7 Aug 2001 23:40:39 +0200
-From: David Spreen <david@spreen.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: encrypted swap
-Message-ID: <20010807234039.C30244@foobar.toppoint.de>
-Mime-Version: 1.0
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Content-Type: text/plain; charset=us-ascii
+	id <S269503AbRHGW3E>; Tue, 7 Aug 2001 18:29:04 -0400
+Received: from 200.206.139.161.dsl.telesp.net.br ([200.206.139.161]:39428 "EHLO
+	blackjesus.async.com.br") by vger.kernel.org with ESMTP
+	id <S269990AbRHGW2w>; Tue, 7 Aug 2001 18:28:52 -0400
+Date: Tue, 7 Aug 2001 19:28:45 -0300 (BRT)
+From: Christian Robottom Reis <kiko@async.com.br>
+To: Ben Greear <greearb@candelatech.com>
+cc: Donald Becker <becker@scyld.com>, LKML <linux-kernel@vger.kernel.org>,
+        "eepro100@scyld.com" <eepro100@scyld.com>
+Subject: Re: [eepro100] Problem with Linux 2.4.7 and builtin eepro on
+ Intel'sEEA2  motherboard.
+In-Reply-To: <3B7069ED.E4F77B68@candelatech.com>
+Message-ID: <Pine.LNX.4.32.0108071928180.379-100000@blackjesus.async.com.br>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 07, 2001 at 10:23:15PM +0300, Dan Podeanu wrote:
-> There, you have the swap encrypted, up and running. Of course, if you need
-> more fancy encryption than the default, XOR or DES, get the crypto patch.
-> You only need to have a script that does the stuff, that runs when the
-> system boots, without shutdown scripts (in case of power/battery failure
+On Tue, 7 Aug 2001, Ben Greear wrote:
 
-Okay, even if I get the password from /dev/urandom this sounds like a 
-solution for people who don't use much swapspace. Because I
-have to recreate the swapfs everytime I am booting.
+> By the way, the NICs were attached to a 10bt netgear 4-port hub.
 
-so long...
+I forgot to say: my hang with the EEA2 also happens exclusively on a
+10BaseT hub.
 
-David
--- 
-  __          _              | David "netzwurm" Spreen      Kiel, Germany
- / _|___  ___| |__  __ _ _ _ | http://www.netzwurm.cc/      david@spreen.de
-|  _/ _ \/ _ \ '_ \/ _` | '_|| gnupg key (on keyservers):   C8B6823A
-|_| \___/\___/_.__/\__,_|_|  | CellPhone:                   +49 173 3874061
+Take care,
+--
+Christian Reis, Senior Engineer, Async Open Source, Brazil.
+http://async.com.br/~kiko/ | [+55 16] 272 3330 | NMFL
 

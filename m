@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136939AbRAHHrp>; Mon, 8 Jan 2001 02:47:45 -0500
+	id <S137014AbRAHHuq>; Mon, 8 Jan 2001 02:50:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137014AbRAHHrf>; Mon, 8 Jan 2001 02:47:35 -0500
-Received: from rausis.latnet.lv ([159.148.108.6]:12296 "HELO rausis.latnet.lv")
-	by vger.kernel.org with SMTP id <S136939AbRAHHrZ>;
-	Mon, 8 Jan 2001 02:47:25 -0500
-Date: Mon, 8 Jan 2001 09:47:25 +0200 (GMT-2)
-From: Andris Pavenis <pavenis@latnet.lv>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: devfs breakage in 2.4.0 release
-In-Reply-To: <200101070625.WAA01585@adam.yggdrasil.com>
-Message-ID: <Pine.LNX.4.21.0101080926030.2247-100000@rausis.latnet.lv>
+	id <S137125AbRAHHuh>; Mon, 8 Jan 2001 02:50:37 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:59340 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S137014AbRAHHu1>;
+	Mon, 8 Jan 2001 02:50:27 -0500
+Date: Mon, 8 Jan 2001 02:50:26 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Stefan Traby <stefan@hello-penguin.com>, linux-kernel@vger.kernel.org
+Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
+In-Reply-To: <E14EvNX-0001Ac-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.21.0101080244560.2221-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,52 +20,35 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
+On Sat, 6 Jan 2001, Alan Cox wrote:
 
-On Sat, 6 Jan 2001, Adam J. Richter wrote:
-
-> 	On my Sony PictureBook PCG-C1VN, 2.4.0 hangs in the boot
-> process while 2.4.0-prerelease boots just fine.  At first I thought
-> the problem was devfs-related, but skipping devfsd just caused the
-> hang to occur a little later, this time in ifconfig.  The kernel
-> call trace looked something like this:
+> > > > Add UnlockPage(page) at the end of ramfs_writepage().
+> > > Shit. You are quite fast. Works.
+> > 
+> > 	Sure, especially considering the fact that patch was sent to
+> > Linus about a month ago (several times, actually)... ;-/
 > 
-> 	neigh_ifdown
-> 	sys_ioctl
-> 	sock_ioctl
-> 	[some addresses in modules]
-> 	stext_lock
-> 	__down_failed
-> 	__down
+> Its in all the -ac trees 8)
 > 
-> 	What surprised me more was that attempting to remount the
-> root filesystem for writing just before this (to record the module
-> kernel symbols) caused a kenel BUG() in slab.c:1542 becuase kmalloc
-> was being called with a huge negative number.
-> 
-> 	I know I could run ksymoops to get this trace, but I now
-> think the cause of the problem probably happens much earlier than
-> the symptoms.  So, I trying backing out different 2.4.0 changes.
-> So far, I can tell you that reverting the linux/mm subdirectory to
-> its 2.4.0-prerelease contents had no effect.  I will let you know
-> if I diagnose or fix the problem, as I think you may be experiencing
-> the same problem.
+> BTW Al: We have another general vfs/fs problem to handle - which is exceeding
+> max file sizes on limited file systems. Pretty much nobody is getting it
+> right. Ext2 can be tricked to go past the limit, sys5 1k sits there emitting
+> printk messages etc.
+ 
+> Any objections to me putting max file size for an fs (in pages) into the
+> superblock ? An fs can still implement weird rules by putting large values
+> in that and doing its own checks.
 
-I think it's a different problem. I reproduced the same with 2.4.0-test12
-but not 2.4.0-test10. 
+Alan, it doesn't work that way. Maximal size depends on the type of object,
+for one thing. Moreover, it's not always a multiple of page size, so you
+still need foo_get_block() to be aware of the problem (it should return
+-EFBIG). Besides, we need to take care of the situations when some of
+get_block() calls fail in prepare_write() - that can happen due to other
+problems. I've fixed all that stuff for ext2 (check the patches posted on
+l-k after 12-pre6). We need to propagate it into other filesystems, but
+I don't think that max size in pages is really worth the trouble.
 
-There are changes (not very large) in fs/devfs/base.c between
-these versions. I tried to take 2.4.0 and change back these updates and 
-saw that it doesn't fix the problem. Trying all prerelaeses between
-2.4.0-test10 and 2.4.0-test12 perhaps would take too much time ... 
-
-There is no hanging (or crashes) at all for me. All these versions
-boots Ok for me, but what I have is devfsd quitting with error message
-that it cannot state /dev/vcc/[1-6] after some relooging from the same
-terminal.
-
-Andris
-
-
+I can pull these patches out of the mix and send them to you. ACK?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

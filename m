@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268872AbUHLXMv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268884AbUHLXNQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268872AbUHLXMv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 19:12:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268865AbUHLXJw
+	id S268884AbUHLXNQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 19:13:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268873AbUHLXNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 19:09:52 -0400
-Received: from europa.pnl.gov ([130.20.248.195]:38528 "EHLO europa.pnl.gov")
-	by vger.kernel.org with ESMTP id S268884AbUHLXIu (ORCPT
+	Thu, 12 Aug 2004 19:13:05 -0400
+Received: from gate.crashing.org ([63.228.1.57]:8942 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S268884AbUHLXLH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 19:08:50 -0400
-Date: Thu, 12 Aug 2004 16:06:41 -0700
-From: Kevin Fox <Kevin.Fox@pnl.gov>
-Subject: Re: cd burning: kernel / userspace?
-In-reply-to: <20040810220528.GA17537@animx.eu.org>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: Alan Jenkins <sourcejedi@phonecoop.coop>, linux-kernel@vger.kernel.org
-Message-id: <1092352000.2408.35.camel@localhost.localdomain>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2)
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <41189AA2.3010908@phonecoop.coop>
- <20040810220528.GA17537@animx.eu.org>
-X-OriginalArrivalTime: 12 Aug 2004 23:08:43.0312 (UTC)
- FILETIME=[500A6B00:01C480C1]
+	Thu, 12 Aug 2004 19:11:07 -0400
+Subject: Re: [PATCH] SCSI midlayer power management
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Pavel Machek <pavel@suse.cz>, Nathan Bryant <nbryant@optonline.net>,
+       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <1092342716.2184.56.camel@mulgrave>
+References: <4119611D.60401@optonline.net>
+	 <20040811080935.GA26098@elf.ucw.cz> <411A1B72.1010302@optonline.net>
+	 <1092231462.2087.3.camel@mulgrave> <1092267400.2136.24.camel@gaston>
+	 <1092314892.1755.5.camel@mulgrave> <20040812131457.GB1086@elf.ucw.cz>
+	 <1092328173.2184.15.camel@mulgrave> <20040812191120.GA14903@elf.ucw.cz>
+	 <1092339247.1755.36.camel@mulgrave>  <20040812202622.GD14556@elf.ucw.cz>
+	 <1092342716.2184.56.camel@mulgrave>
+Content-Type: text/plain
+Message-Id: <1092351942.26423.17.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 13 Aug 2004 09:05:42 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why not use an interface similar to tapes? Have different devices for
-different modes of operation?
+On Fri, 2004-08-13 at 06:31, James Bottomley wrote:
+> On Thu, 2004-08-12 at 16:26, Pavel Machek wrote:
+> > Yes.
+> 
+> Well, that makes the suspend and resume functions rather complex. 
+> They're not going to be coded simply if we have to save and restore the
+> register state of the cards and reinitialise them.  I assume if you had
+> to pick three drivers to do this for, that would be aic7xxx, aic79xx and
+> sym_2?
 
-On Tue, 2004-08-10 at 15:05, Wakko Warner wrote:
-> > I've followed the latest cdrecord "discussion" on the list, and I can't 
-> > see why you have to use a userspace program which talks SCSI in order to 
-> > burn a cd.
-> 
-> I agree.
-> 
-> > Why can't a similar method be used for DAO writing?  Packet writing and 
-> > Mount Rainer support belongs in the kernel - why not normal cd burning?  
-> > On modern "burnproof" hardware, it should be possible to use dd to write 
-> > your disk image to the cdrecorder device.  I'm guessing that this just 
-> > isn't as interesting, especially with userspace programs available to do 
-> > the job.
-> 
-> Disclamer: I'm not a kernel hacker.  Just looking at things on how they
-> appear to me...
-> 
-> I have thought about this myself.  Using CDR/RW with the UDF format would be
-> simply packet writing.  This is already supported with CDRWs.
-> 
-> However, I usually burn ISO instead of UDF.  How should these instances be
-> supported:
-> 
-> 1) DAO (ISO image burned)
-> 2) TAO single session with or without fixation.  I have burned audio disks
-> like this before where I would leave off the fixate option and keep burning,
-> each track is closed.
-> 3) TAO multi session leaving disk open
-> 4) TAO multi session closing disk (probably similar if not the same as 2)
-> 5) blanking a CDRW (fast and/or slow)
-> 
-> Maybe something along the lines of IOCTLs that do these?  Wouldn't it seem
-> silly to:
-> cdrwcontrol DAO speed=40 burnproof ....
-> dd if=my.iso of=/dev/scd0 (sorry, I'm a scsi guy =)
-> 
-> or cdrwcontrol TAO speed=40 ...
-> dd ..
-> cdrwcontrol fixate
-> 
-> Ok, enough rambling, I think the idea is out =)
+It's not simple for some chips, it's simple for others, in lots of
+cases, it's just a matter of re-doing the driver init code though.
+
+Ben.
+
+

@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287373AbSBUHxe>; Thu, 21 Feb 2002 02:53:34 -0500
+	id <S287769AbSBUIG1>; Thu, 21 Feb 2002 03:06:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287769AbSBUHxZ>; Thu, 21 Feb 2002 02:53:25 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:52746 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S287373AbSBUHxQ>;
-	Thu, 21 Feb 2002 02:53:16 -0500
-Date: Thu, 21 Feb 2002 08:52:53 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Carlo Scarfoglio <scarfoglio@arpacoop.it>
-Cc: linux-kernel@vger.kernel.org, "Justin T. Gibbs" <gibbs@scsiguy.com>
-Subject: Re: AIC7XXX 6.2.5 driver
-Message-ID: <20020221075253.GH2654@suse.de>
-In-Reply-To: <3C7424F0.1080802@arpacoop.it>
+	id <S288748AbSBUIGT>; Thu, 21 Feb 2002 03:06:19 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:41016 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S287769AbSBUIGI>; Thu, 21 Feb 2002 03:06:08 -0500
+Date: Thu, 21 Feb 2002 09:06:04 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18rc2aa2
+Message-ID: <20020221090604.A1387@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C7424F0.1080802@arpacoop.it>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 20 2002, Carlo Scarfoglio wrote:
-> When will we see v. 6.2.5 included in the kernel (2.5 and 2.4, I think)?
-> The patch to kernel 2.4.17 is available since January.  It should fix a 
-> kernel panic at boot that has been in the kernel since November at 
-> least. The bug is in AIC7XXX V. 6.2.4.
+URL:
 
-You should ask Justin whether he has submitted it for inclusion or not.
-I offered to port to 2.5 at least, but heard nothing.
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18rc2aa2.gz
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18rc2aa2/
 
--- 
-Jens Axboe
+Only in 2.4.18rc2aa1: 20_pte-highmem-12
+Only in 2.4.18rc2aa2: 20_pte-highmem-13
 
+	Fix alpha compile and avoid compilation warnings.
+
+Only in 2.4.18rc2aa1: 20_reiser-o_direct-1
+Only in 2.4.18rc2aa2: 20_reiser-o_direct-2
+
+	Reiserfs typo fix.
+
+Andrea

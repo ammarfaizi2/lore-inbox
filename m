@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136348AbRD2Uin>; Sun, 29 Apr 2001 16:38:43 -0400
+	id <S136353AbRD2UkD>; Sun, 29 Apr 2001 16:40:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136351AbRD2Uid>; Sun, 29 Apr 2001 16:38:33 -0400
-Received: from www.topmail.de ([212.255.16.226]:63471 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S136348AbRD2Ui2>;
-	Sun, 29 Apr 2001 16:38:28 -0400
-Message-ID: <002401c0d0ec$57b84fd0$f6e3e13e@homeip.net>
-From: "mirabilos" <eccesys@topmail.de>
-To: "H. Peter Anvin" <hpa@transmeta.com>,
-        "Rogier Wolff" <R.E.Wolff@BitWizard.nl>
-Cc: "Gregory Maxwell" <greg@linuxpower.cx>,
-        "Rogier Wolff" <R.E.Wolff@BitWizard.nl>,
-        "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <200104292027.WAA25283@cave.bitwizard.nl>
+	id <S136354AbRD2Uju>; Sun, 29 Apr 2001 16:39:50 -0400
+Received: from 13dyn119.delft.casema.net ([212.64.76.119]:63493 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S136353AbRD2Ujh>; Sun, 29 Apr 2001 16:39:37 -0400
+Message-Id: <200104292039.WAA25357@cave.bitwizard.nl>
 Subject: Re: Sony Memory stick format funnies...
-Date: Sun, 29 Apr 2001 20:37:51 -0000
-Organization: eccesys.net Linux development
+In-Reply-To: <002401c0d0ec$57b84fd0$f6e3e13e@homeip.net> from mirabilos at "Apr
+ 29, 2001 08:37:51 pm"
+To: mirabilos <eccesys@topmail.de>
+Date: Sun, 29 Apr 2001 22:39:32 +0200 (MEST)
+CC: "H. Peter Anvin" <hpa@transmeta.com>,
+        Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        Gregory Maxwell <greg@linuxpower.cx>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Btw, the root dir contains 512 entries.
-Just from the dump.
-(I would let the partition start at sector ptabl+1, not wasting
-so much space... but M$ fdisk.exe neither does.)
--mirabilos
+mirabilos wrote:
+[Charset iso-8859-1 unsupported, filtering to ASCII...]
+> Btw, the root dir contains 512 entries.
+> Just from the dump.
 
+Jep. 
+
+> (I would let the partition start at sector ptabl+1, not wasting
+> so much space... but M$ fdisk.exe neither does.)
+
+This was formatted by my Sony DSC505V. 
+
+				Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

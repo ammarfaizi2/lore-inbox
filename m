@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262354AbUBXSHH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 13:07:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbUBXSHH
+	id S262365AbUBXSJG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 13:09:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbUBXSJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 13:07:07 -0500
-Received: from mail.kroah.org ([65.200.24.183]:60841 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262354AbUBXSHA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 13:07:00 -0500
-Date: Tue, 24 Feb 2004 09:55:17 -0800
-From: Greg KH <greg@kroah.com>
-To: Kai Makisara <Kai.Makisara@kolumbus.fi>
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] SCSI update for 2.6.3
-Message-ID: <20040224175515.GA31715@kroah.com>
-References: <Pine.LNX.4.58.0402240919490.1129@spektro.metla.fi> <20040224170412.GA31268@kroah.com> <1077642529.1804.170.camel@mulgrave> <20040224171629.GA31369@kroah.com> <Pine.LNX.4.58.0402241937450.3713@kai.makisara.local>
+	Tue, 24 Feb 2004 13:09:06 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:44225 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S262365AbUBXSIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 13:08:54 -0500
+Date: Tue, 24 Feb 2004 18:07:29 +0000
+From: Dave Jones <davej@redhat.com>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>, davem@redhat.com,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Intel vs AMD x86-64
+Message-ID: <20040224180729.GM11203@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Albert Cahalan <albert@users.sourceforge.net>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+	davem@redhat.com, Linus Torvalds <torvalds@osdl.org>
+References: <1077590524.8084.237.camel@cube> <20040224164404.GB10157@redhat.com> <1077635481.8120.300.camel@cube> <20040224173444.GL11203@redhat.com> <1077636547.8084.303.camel@cube>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402241937450.3713@kai.makisara.local>
+In-Reply-To: <1077636547.8084.303.camel@cube>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 07:51:42PM +0200, Kai Makisara wrote:
-> On Tue, 24 Feb 2004, Greg KH wrote:
-> 
-> > On Tue, Feb 24, 2004 at 11:08:48AM -0600, James Bottomley wrote:
-> > > On Tue, 2004-02-24 at 11:04, Greg KH wrote:
-> > > > Can you post it here so we can review it?
-> > > > 
-> > > > And yes, using class_simple should relieve you of Al flamage :)
-> > > 
-> > > The one in the tree is attached.  I did verify it myself, and tried it
-> > > out on some old QIC tapes I had lying around.
-> > 
-> > Can you print out the sysfs tree this patch creates?
-> > 
-> Here is a partial tree for the first tree (nearly identical entries from 
-> the middle trimmed):
+On Tue, Feb 24, 2004 at 10:29:07AM -0500, Albert Cahalan wrote:
 
-<snip>
+ > >  > I'm just saying it would be neat, and potentially
+ > >  > useful, to intentionally violate this. Of greatest
+ > >  > interest would be the 2-way Opteron boards that
+ > >  > only have RAM connected to the CPU closest to PCI.
+ > >  > The sidecar CPU :-) could be ignored.
+ > > Why on earth would you want to do that ?
+ > > It wouldn't buy you anything at all other than a world of pain.
+ > faster IO-MMU operations
 
-Ah, very nice.  And thanks for adding those symlinks back to the class
-entries, that should be helpful for people.
+huh ? You're talking about saving a handful of pci config space writes
+per every insertion/removal of entries in that GATT, which need a cpu
+cache flush anyway.
 
-Looks good.
+		Dave
 
-greg k-h

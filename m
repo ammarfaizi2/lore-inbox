@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270203AbTHGPqE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 11:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270066AbTHGPqC
+	id S270066AbTHGPqF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 11:46:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265591AbTHGPpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 11:46:02 -0400
-Received: from CS.ubishops.ca ([206.167.194.132]:650 "EHLO cs.ubishops.ca")
-	by vger.kernel.org with ESMTP id S270203AbTHGPol (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 11:44:41 -0400
-Message-ID: <3F327382.5000200@cs.ubishops.ca>
-Date: Thu, 07 Aug 2003 11:42:58 -0400
-From: Patrick McLean <pmclean@cs.ubishops.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030731
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 7 Aug 2003 11:45:43 -0400
+Received: from port-212-202-27-44.reverse.qsc.de ([212.202.27.44]:60717 "EHLO
+	camelot.fbunet.de") by vger.kernel.org with ESMTP id S270208AbTHGPpH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 11:45:07 -0400
+From: Fridtjof Busse <fbusse@gmx.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Interactivity improvements
-References: <3F3261A2.9000405@cs.ubishops.ca> <20030807152418.GA509@malvern.uk.w2k.superh.com>
-In-Reply-To: <20030807152418.GA509@malvern.uk.w2k.superh.com>
-X-Enigmail-Version: 0.76.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: Linux 2.4.22-rc1
+Date: Thu, 7 Aug 2003 17:45:06 +0200
+References: <Pine.LNX.4.53.0308071119200.27424@mx.homelinux.com> <15050.1060270543@www56.gmx.net>
+In-Reply-To: <15050.1060270543@www56.gmx.net>
+Cc: Mitch@0Bits.COM
+X-OS: Linux on i686
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308071745.06074@fbunet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* <Mitch@0Bits.COM>:
+> Not enough info.
+>
+> What usb controller do you have ? Which usb driver ?
+> ohci ? uhci ? ehci ? usb 2.0 ?
 
+nforce2 with the ehci-driver.
 
-Richard Curnow wrote:
-> * Patrick McLean <pmclean@cs.ubishops.ca> [2003-08-07]:
-> 
->>Another point is compilers, they tend to do a lot of disk I/O then 
->>become major CPU hogs, could we have some sort or heuristic that reduces 
->>the bonuses for sleeping on block I/O rather than other kinds of I/O 
->>(say pipes and network I/O in the case of X).
-> 
-> 
-> What about compilers chewing on source files coming in over NFS rather
-> than resident on local block devices?  The network waits need to be
-> broken out into NFS versus other, or UDP versus TCP or something.  e.g.
-> waits due to the user not having typed anything yet, or moved the mouse,
-> are going to be on TCP connections.
-> 
-Maybe if we had it reduce sleeping bonuses if it's waiting on filesystem 
-access, this would cover NFS as the kernel does consider it a 
-filesystem, this would cover SMB, AFS, etc as well.
+> I reported this a long time ago on the usb lists, but
+> never got down to the bottom of the problem (my fault for
+> not following thru). 
+
+I also reported this problem there, but didn't get a reply at all.
+
+> However if i disable the usb 2.0
+> driver (i.e. not loading the ehci driver) which my external
+> storage is connected to, then everything works fine - albeit
+> it much more slowly. Appears to be a timing issue on some
+> usb <-> ide controller chips since not everyone is seeing this.
+
+Well, I only see this with 2.4.22-pre/rc, so this is definitly not a 
+hardware-problem, it runs just fine with 2.4.21 at 9950 kB/s.
+And running my backup on USB 1.1 is not an option, way to slow.
+
+-- 
+Fridtjof Busse
+panic("Lucy in the sky....");
+	2.2.16 /usr/src/linux/arch/sparc64/kernel/starfire.c
 

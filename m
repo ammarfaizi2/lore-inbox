@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132895AbRD2XhD>; Sun, 29 Apr 2001 19:37:03 -0400
+	id <S133005AbRD2XkX>; Sun, 29 Apr 2001 19:40:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132993AbRD2Xgw>; Sun, 29 Apr 2001 19:36:52 -0400
-Received: from smtp.sunflower.com ([24.124.0.137]:27155 "EHLO
-	smtp.sunflower.com") by vger.kernel.org with ESMTP
-	id <S132895AbRD2Xgl>; Sun, 29 Apr 2001 19:36:41 -0400
-From: "Steve 'Denali' McKnelly" <denali@sunflower.com>
-To: "David Relson" <relson@osagesoftware.com>
-Cc: "Linux-Kernel mailing list" <linux-kernel@vger.kernel.org>
-Subject: RE: 2.4.3 2.4.4pre8: aic7xxx showstopper bug fails to detect sda
-Date: Sun, 29 Apr 2001 18:36:39 -0500
-Message-ID: <PGEDKPCOHCLFJBPJPLNMOEEMCMAA.denali@sunflower.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <4.3.2.7.2.20010429122734.00c8b100@mail.osagesoftware.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
-Importance: Normal
+	id <S132993AbRD2XkM>; Sun, 29 Apr 2001 19:40:12 -0400
+Received: from p3EE3C784.dip.t-dialin.net ([62.227.199.132]:23301 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S132999AbRD2Xj7>; Sun, 29 Apr 2001 19:39:59 -0400
+Date: Mon, 30 Apr 2001 01:39:56 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.3 2.4.4pre8: aic7xxx showstopper bug fails to detect sda
+Message-ID: <20010430013956.A1578@emma1.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010428202225.D11994@emma1.emma.line.org> <PGEDKPCOHCLFJBPJPLNMCEDICMAA.denali@sunflower.com> <20010429122546.A1419@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010429122546.A1419@werewolf.able.es>; from jamagallon@able.es on Sun, Apr 29, 2001 at 12:25:46 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ahh... It doesn't even get that far... It just dies with the
-undefined symbols...
+On Sun, 29 Apr 2001, J . A . Magallon wrote:
 
------Original Message-----
-From: David Relson [mailto:relson@osagesoftware.com]
-Sent: Sunday, April 29, 2001 11:32 AM
-To: Steve 'Denali' McKnelly
-Cc: Linux-Kernel mailing list
-Subject: RE: 2.4.3 2.4.4pre8: aic7xxx showstopper bug fails to detect
-sda
+> >              Command found on device queue
+> > aic7xxx_abort returns 8194
+> 
+> I have seen blaming for this error to aic7xxx new driver prior to version
+> 6.1.11. It was included in the 2.4.3-ac series, but its has not got into
+> main 2.4.4 (there is still 6.1.5). Everything needs its time.
 
+Since the official aic7xxx site doesn't carry a patch against 2.4.4 yet
+(just 2.4.3) which has cosmetic issues when being patched, I made a
+patch against 2.4.4: I took the 2.4.3-aic7xxx-6.1.12 patch, applied to
+2.4.4, bumped the version to read -ma1 in EXTRAVERSION, and made a new
+patch against vanilla 2.4.4, to be found at:
 
-At 12:17 PM 4/29/01, Steve 'Denali' McKnelly wrote:
->Howdy J.A.,
->
->         Let me ask a possibly stupid question... How do you tell
->what version of the Gibbs Adaptec driver you're using?  Did I
->misunderstand you when you said the 2.4.4 kernel is using 6.1.5?
->Also, did I understand you to say the 6.1.12 version will fix
->my unresolved symbol problem?
->
->Thanks,
->Steve
+*** WARNING BELOW ***
 
-Steve,
+http://mandree.home.pages.de/kernelpatches/v2.4/v2.4.4/
+ 72k linux-2.4.4-aic7xxx-to-6.1.12.patch.gz
 
-A message saying (roughly) AIC7XXX 6.1.xxx appears while the kernel is 
-loading.  You can also grep the aic7xxx.c source file or run the strings 
-command ( strings /lib/modules/2.4.4/kernel/drivers/scsi/aic7xxx ).
+Apply with patch -p1.
 
-I'm not sure about your undefined symbols problem, but I was able to build 
-2.4.4 with 6.1.11 with no trouble.
+NOTE: Do not expect this patch to last until after either Justin has a
+patch against 2.4.4 available or 2.4.5 has been released.
 
-David
-
---------------------------------------------------------
-David Relson                   Osage Software Systems, Inc.
-relson@osagesoftware.com       Ann Arbor, MI 48103
-www.osagesoftware.com          tel:  734.821.8800
-
+*** WARNING *** I did not yet try to boot it, that will have to wait
+until later.

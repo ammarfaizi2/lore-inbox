@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVALWuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVALWzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261520AbVALWuD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 17:50:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVALWsb
+	id S261527AbVALWzj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 17:55:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVALWzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 17:48:31 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:32991 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261520AbVALWoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 17:44:07 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [2.6.10][Suspend] - Time problems
-Date: Wed, 12 Jan 2005 23:44:11 +0100
-User-Agent: KMail/1.7.1
-Cc: Shawn Starr <shawn.starr@rogers.com>, linux-kernel@vger.kernel.org
-References: <200501110235.37039.shawn.starr@rogers.com> <20050112222400.GA2139@elf.ucw.cz>
-In-Reply-To: <20050112222400.GA2139@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Jan 2005 17:55:11 -0500
+Received: from mail.kroah.org ([69.55.234.183]:60651 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261527AbVALWwl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 17:52:41 -0500
+Date: Wed, 12 Jan 2005 14:16:33 -0800
+From: Greg KH <greg@kroah.com>
+To: Dave Jones <davej@redhat.com>, Roland Dreier <roland@topspin.com>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: debugfs directory structure
+Message-ID: <20050112221632.GA14230@kroah.com>
+References: <52d5watlqs.fsf@topspin.com> <20050112210945.GN24518@redhat.com> <20050112214108.GA13801@kroah.com> <20050112220142.GO24518@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501122344.11508.rjw@sisk.pl>
+In-Reply-To: <20050112220142.GO24518@redhat.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 12 of January 2005 23:24, Pavel Machek wrote:
-> Hi!
+On Wed, Jan 12, 2005 at 05:01:43PM -0500, Dave Jones wrote:
+> On Wed, Jan 12, 2005 at 01:41:08PM -0800, Greg KH wrote:
+>  > On Wed, Jan 12, 2005 at 04:09:45PM -0500, Dave Jones wrote:
+>  > > On Wed, Jan 12, 2005 at 12:50:51PM -0800, Roland Dreier wrote:
+>  > >  > Hi Greg,
+>  > >  > 
+>  > >  > Now that debugfs is merged into Linus's tree, I'm looking at using it
+>  > >  > to replace the IPoIB debugging pseudo-filesystem (ipoib_debugfs).  Is
+>  > >  > there any guidance on what the structure of debugfs should look like?
+>  > >  > Right now I'm planning on putting all the debug info files under an
+>  > >  > ipoib/ top level directory.  Does that sound reasonable?
+>  > > 
+>  > > How about mirroring the toplevel kernel source structure ?
+>  > > 
+>  > > Ie, you'd make drivers/infiniband/ulp/ipoib ?
+>  > 
+>  > But who would be in charge of createing the "drivers/" subdirectory?
+>  > debugfs can't handle "/" in a directory name, like procfs does.
 > 
-> > When resuming from suspend, I noticed the clock is waay off (its 10:16pm, 
-it 
-> > shows 2:34AM EST time). This is even after a reboot the bios now shows 
-wrong 
-> > time?
+> maybe it should ?
+
+Right now debugfs is dentry based, not string based.  If someone wants
+to send me patches to change it, I'll reconsider it :)
+
+>  > > It could get ugly quickly without some structure at least to
+>  > > the toplevel dir.
+>  > I say ipoib/ is fine, remember, this is for debugging stuff, it will
+>  > quickly get ugly anyway :)
 > 
-> Yes, see for example thread "2.6.10-mm2: swsusp regression
-> [update]". Nigel has some patch that should fix it...
+> with no heirarchy, what happens when two drivers want to make
+> the same directory / filenames ?
 
-Do you mean patches in the "[RFC] Patches to reduce delay in 
-arch/kernel/time.c" thread?
+The second call will fail.  Code should always check return values,
+right?
 
-RJW
+thanks,
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+greg k-h

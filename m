@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262623AbTENRSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 13:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbTENRSZ
+	id S263250AbTENR2P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 13:28:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTENR2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 13:18:25 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45141 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP id S262623AbTENRSX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 13:18:23 -0400
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: bug on shutdown from 68-mm4 (machine_power_off returning causes problems)
-References: <8570000.1052623548@[10.10.2.4]>
-	<20030510224421.3347ea78.akpm@digeo.com>
-	<8880000.1052624174@[10.10.2.4]>
-	<20030510231120.580243be.akpm@digeo.com>
-	<12530000.1052664451@[10.10.2.4]>
-	<m17k8x72ir.fsf_-_@frodo.biederman.org>
-	<19660000.1052710226@[10.10.2.4]> <m11xz45lqk.fsf@frodo.biederman.org>
-	<22080000.1052743429@[10.10.2.4]>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 14 May 2003 11:27:44 -0600
-In-Reply-To: <22080000.1052743429@[10.10.2.4]>
-Message-ID: <m1addp4ewf.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	Wed, 14 May 2003 13:28:14 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:9876 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263250AbTENR2O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 13:28:14 -0400
+Date: Wed, 14 May 2003 19:40:50 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Mudama, Eric" <eric_mudama@maxtor.com>
+Cc: "'Rafal Bujnowski'" <bujnor@go2.pl>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Subject: Re: hdb: dma_timer_expiry: dma status == 0x64 [2.5.69]
+Message-ID: <20030514174050.GQ15261@suse.de>
+References: <785F348679A4D5119A0C009027DE33C102E0D35F@mcoexc04.mlm.maxtor.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <785F348679A4D5119A0C009027DE33C102E0D35F@mcoexc04.mlm.maxtor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> writes:
+On Wed, May 14 2003, Mudama, Eric wrote:
+> 0x5104 is a different can of worms from the other stuff you guys were
+> reporting.
+> 
+> 5104 (status register = 0x51, error register 0x04) is the all-encompassing
+> "command abort" which is what the drive does any time you issue a command
+> with bad parameters, an invalid (immoral?) command, or some of the security
+> stuff out of sequence.  Most commonly it is seen attempting to enable
+> features on a drive that doesn't support them.
 
-> Well, yes ... but I'm not trying to use kexec, just doing an init 0 ;-)
-> That worked fine before.
+Which reminds me that it has always annoyed me that Linux doesn't print
+the failed command. Just leaves a lot of guess work... I'll try and
+remedy that.
 
-Just a last thought with my updated patch init 0 will continue to work
-because it does not return machine_halt now.
-
-Unless there was some magic I am missing.
+-- 
+Jens Axboe
 

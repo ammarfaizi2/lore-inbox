@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264659AbTFAP7f (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 11:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264660AbTFAP7f
+	id S264657AbTFAP6P (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 11:58:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264659AbTFAP6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 11:59:35 -0400
-Received: from main.gmane.org ([80.91.224.249]:11921 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264659AbTFAP7d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 11:59:33 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Pasi Savolainen <psavo@iki.fi>
-Subject: [patch][2.5.70] DRM (mga) SMP link fix (flush_tlb_all)
-Date: Sun, 1 Jun 2003 16:02:00 +0000 (UTC)
-Message-ID: <bbd81o$tso$2@main.gmane.org>
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: slrn/0.9.7.4 (Linux)
+	Sun, 1 Jun 2003 11:58:15 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:20935 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264657AbTFAP6O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 11:58:14 -0400
+Date: Sun, 1 Jun 2003 09:11:33 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Jonathan Lundell <linux@lundell-bros.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Question about style when converting from K&R to ANSI C.
+Message-ID: <20030601161133.GC3012@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Jonathan Lundell <linux@lundell-bros.com>,
+	linux-kernel@vger.kernel.org
+References: <1054446976.19557.23.camel@spc> <20030601132626.GA3012@work.bitmover.com> <20030601134942.GA10750@alpha.home.local> <20030601140602.GA3641@work.bitmover.com> <p05210609baffd3a79cfb@[207.213.214.37]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p05210609baffd3a79cfb@[207.213.214.37]>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jun 01, 2003 at 09:04:22AM -0700, Jonathan Lundell wrote:
+> The reason I've liked this format is that it gives me a quick and 
+> universal way to find *specific* functions with vi or grep, by 
+> searching for "^function_name(".
 
-drivers/char/drm/drm_memory.h needs this to compile as module (at least)
-on SMP, where flush_tlb_all() isn't a inline macro.
+Exactly.  I thought of making that point in my original posting and 
+figured everyone would tell me to use tags and I didn't want to have
+to remember all the other reasons I wanted this.
 
-For some reason insmod/modprobe got a hard hang with this, even though
-it did detect missing symbol (should've boil out at that stage?).
-This hang prevents any further module loading/unloading activity, and is
-very frustrating. Is it on must-fix list yet?
-
-
---- linux-2.5.70/arch/i386/kernel/i386_ksyms.c  2003-06-01 17:25:41.000000000 +0300
-+++ linux-2.5.70-mo/arch/i386/kernel/i386_ksyms.c       2003-06-01 17:26:13.000000000 +0300
-@@ -159,7 +159,7 @@
- 
- /* TLB flushing */
- EXPORT_SYMBOL(flush_tlb_page);
--
-+EXPORT_SYMBOL(flush_tlb_all);
- #endif
- 
- #ifdef CONFIG_X86_IO_APIC
-
-
+It really is nice knowing that "^function_name(" is the definition.
 -- 
-   Psi -- <http://www.iki.fi/pasi.savolainen>
-
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

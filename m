@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270405AbRHWVO1>; Thu, 23 Aug 2001 17:14:27 -0400
+	id <S270446AbRHWVOR>; Thu, 23 Aug 2001 17:14:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270460AbRHWVOS>; Thu, 23 Aug 2001 17:14:18 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:32139
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S270405AbRHWVOH>; Thu, 23 Aug 2001 17:14:07 -0400
-Date: Thu, 23 Aug 2001 14:14:17 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Samium Gromoff <_deepfire@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-Message-ID: <20010823141417.C14302@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <E15a1X2-000LOp-00@f10.mail.ru>
-Mime-Version: 1.0
+	id <S270373AbRHWVOB>; Thu, 23 Aug 2001 17:14:01 -0400
+Received: from sncgw.nai.com ([161.69.248.229]:38064 "EHLO mcafee-labs.nai.com")
+	by vger.kernel.org with ESMTP id <S270382AbRHWVNb>;
+	Thu, 23 Aug 2001 17:13:31 -0400
+Message-ID: <XFMail.20010823141714.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15a1X2-000LOp-00@f10.mail.ru>
-User-Agent: Mutt/1.3.20i
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <3B6B662F.3E83C22F@kegel.com>
+Date: Thu, 23 Aug 2001 14:17:14 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Dan Kegel <dank@kegel.com>
+Subject: RE: Could /dev/epoll deliver aio completion notifications? (was:
+Cc: Zach Brown <zab@zabbo.net>
+Cc: Zach Brown <zab@zabbo.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Christopher Smith <x@xman.org>, Petru Paler <ppetru@ppetru.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 24, 2001 at 12:56:52AM +0400, Samium Gromoff wrote:
-> > Because with the exception of your unique situation in which you have
-> > a machine which is stable enough to compile a kernel on and develop
-> > but can't run python, it's not a problem.
-> 
->    Tom, i think Jes wanted to tell that basically
->  there _are_ the cases when python hurts, so
->  losing the freedom not to install python is not
->  good. 
 
-What I'm saying is that the cases where you somehow don't have the room
-to toss in a stripped down python, but do have room for gcc and the
-kernel sources + compiling them are freakishly rare, if they do exist.
+On 04-Aug-2001 Dan Kegel wrote:
+> Davide, is that along the lines of what you were thinking of
+> for /dev/epoll and disk files?   (Plain old polling of disk
+> files doesn't make much sense unless you're just interested in
+> them growing, I suppose; aio completion notification is what you 
+> really want.)
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Dan, sorry for the response delay but I was in Vacation Mode ( new CPU execution mode
+that will be included in the next x86 generation ).
+I trashed my original idea to extend /dev/epoll to other other files coz this will make the
+patch way more intrusive. The only easy extension that comes in my mind is pipes.
+As soon as I'll finish to read the remaining 4231 messages in my mbox I'll fix /dev/epoll
+to get rid of stale events that I ( and Erich Nahum ) noticed in the current implementation.
+
+
+
+- Davide
+

@@ -1,130 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317170AbSHGLsJ>; Wed, 7 Aug 2002 07:48:09 -0400
+	id <S317299AbSHGLj7>; Wed, 7 Aug 2002 07:39:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317189AbSHGLsJ>; Wed, 7 Aug 2002 07:48:09 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:41997 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S317170AbSHGLsG>;
-	Wed, 7 Aug 2002 07:48:06 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Announce: kdb v2.3 is available for kernels 2.4.18 and 2.4.19
-Date: Wed, 07 Aug 2002 21:51:33 +1000
-Message-ID: <16412.1028721093@ocs3.intra.ocs.com.au>
+	id <S317141AbSHGLj6>; Wed, 7 Aug 2002 07:39:58 -0400
+Received: from smtp.actcom.co.il ([192.114.47.13]:45454 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S317170AbSHGLj5>; Wed, 7 Aug 2002 07:39:57 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Itai Nahshon <nahshon@actcom.co.il>
+Reply-To: nahshon@actcom.co.il
+To: Jakob Oestergaard <jakob@unthought.net>, linux-kernel@vger.kernel.org
+Subject: Re: Disk (block) write strangeness
+Date: Wed, 7 Aug 2002 14:43:30 +0300
+User-Agent: KMail/1.4.1
+References: <20020805184921.GC2671@unthought.net>
+In-Reply-To: <20020805184921.GC2671@unthought.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200208071443.30551.nahshon@actcom.co.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Monday 05 August 2002 21:49 pm, Jakob Oestergaard wrote:
+> Hello all,
+>
+> While investigating how various disks handle power-loss during writes, I
+> came across something *very* strange.
+>
+> It seems that
+>
+> *) Either the disk writes backwards  (no I don't believe that)
+> *) Or the kernel is writing 256 B blocks (AFAIK it can't)
+> *) The disk has some internal magic that cause a power-loss during
+>    a full block write to leave the first half of the block intact with
+>    old data, and update the second half of a block correctly with new
+>    data.  (And I don't believe that either).
+>
+> The scenario is:   I wrote a program that will write a 50 MB block with
+> O_SYNC to /dev/hdc.  The block is full of 32-bit integers, initialized
+> to 0.  For every full block write (the block is written with one single
+> write() call), the integers are incremented once.
+>
+> So first I have 50 MB of 0's. Then 50 MB of 1's. etc.
+>
+> During this write cycle, I pull the power cable.   I get the machine
+> back online and I dump the 50 MB block.
+>
+> What I found was a 50 MB block holding:
+>  11668992 times "0x00000002"
+>    231168 times "0x00000003"
+>   1174528 times "0x00000002"
+>     32512 times "0x00000003"
+>
+> Please note that 32512 is *not* a multiple of 512.  And please note that
+> the 3's are written *after* the 2's, so actually there is a 512 byte
+> block on the disk which contains 2's in the first half, and 3's in the
+> second half!
 
-Content-Type: text/plain; charset=us-ascii
+Integers are 32 bit, so a 512 byte disk block contains 128 such integers...
+Indeed, All the values above are divisible by 128, so you have:
+11668992/128 = 91164 blocks of "0x00000002"
+231168/128 = 1806 blocks of "0x00000003"
+1174528/128 = 9176 blocks of "0x00000002"
+32512/128 = 254 blocks of "0x00000003"
 
-ftp://oss.sgi.com/projects/kdb/download/v2.3/
+This does not prove, neither disprove anything about your
+main concern, that writes are non-atomic in the block level.
 
-  kdb-v2.3-2.4.18-common-1.bz2
-  kdb-v2.3-2.4.18-i386-1.bz2
-  kdb-v2.3-2.4.18-ia64-020722-1.bz2
-  kdb-v2.3-2.4.19-common-1.bz2
-  kdb-v2.3-2.4.19-i386-1.bz2
+>
+> How on earth could that happen ?
+>
+> Why does the kernel not write from beginning to end ?   Or why doesn't
+> the disk ?
+>
+> And does the elevator cause the writes to be shuffled around like that -
+> I would have expected the kernel to write from beginning to end every
+> single time...
+>
 
-These patches are alpha quality, they have had limited testing.  The
-usb keyboard code crashes on ia64 for me, set CONFIG_KDB_USB=n unless
-you feel like fixing the problem.
+I would not expect writes to be in order.
+A simple elevator algorithm could write fragments (cylinder sized?)
+in reverse order. On-disk write scheduling could start writing at any
+sector (to minimize rotational latency).
 
-Changelog extracts.
+Knowing the disk geometry and parameters could help with understanding
+your results.
 
-2.4.19-common-1
+> The kernel is 2.4.18 on some i686 box
+> The disk is a Quantum Fireball 1GB IDE (from way back then ;)
+> The IDE chipset is an I820 Camino 2
+>
+> I can submit the test program or do further tests, if anyone is
+> interested.
+>
+> Thank you,
 
-2002-08-07 Keith Owens <kaos@sgi.com>
 
-       * Upgrade to 2.4.19.
-       * Remove individual SGI copyrights, the general SGI copyright applies.
-       * Handle md0.  Reported by Hugh Dickins, different fix by Keith Owens.
-       * Use page_address() in kdbm_pg.c.  Hugh Dickins.
-       * Remove debugging printk from kdbm_pg.c.  Hugh Dickins.
-       * Move breakpoint address verification into arch dependent code.
-       * Dynamically resize kdb command table as required.
-       * Common code to support USB keyboard.  Sebastien Lelarge.
-
-2.4.18-common-1 - as above, backported to 2.4.18.
-
-2.4.19-i386-1
-
-2002-08-06 Keith Owens  <kaos@sgi.com>
-
-       * Upgrade to 2.4.19.
-       * Remove individual SGI copyrights, the general SGI copyright applies.
-       * New .text.lock name.  Hugh Dickins.
-       * Set KERNEL_CS in kdba_getcurrentframe.  Hugh Dickins.
-       * Clean up disassembly layout.  Hugh Dickins, Keith Owens.
-       * Replace hard coded stack size with THREAD_SIZE.  Hugh Dickins.
-       * Better stack layout on bt with no frame pointers.  Hugh Dickins.
-       * Make i386 IO breakpoints (bpha <address> IO) work again.
-         Martin Wilck, Keith Owens.
-       * Remove fixed KDB_MAX_COMMANDS size.
-       * Add set_fs() around __copy_to_user on kernel addresses.
-         Randolph Chung.
-       * Position i386 for CONFIG_NUMA_REPLICATE.
-
-2.4.18-i386-1 - as above, backported to 2.4.18.
-
-2.4.18-ia64-020722-1
-
-2002-08-07 Keith Owens  <kaos@sgi.com>
-
-       * Upgrade to 2.4.18-ia64-020722.
-       * Remove individual SGI copyrights, the general SGI copyright applies.
-       * Clean up disassembly layout.  Hugh Dickins, Keith Owens.
-       * Remove fixed KDB_MAX_COMMANDS size.
-       * Add set_fs() around __copy_to_user on kernel addresses.
-          Randolph Chung.
-       * Position ia64 for CONFIG_NUMA_REPLICATE.
-       * Stacked registers modification support.  Sebastien Lelarge.
-       * USB keyboard support.  Sebastien Lelarge.
-
-v2.3/README
-
-Starting with kdb v2.0 there is a common patch against each kernel which
-contains all the architecture independent code plus separate architecture
-dependent patches.  Apply the common patch for your kernel plus at least
-one architecture dependent patch, the architecture patches activate kdb.
-
-The naming convention for kdb patches is :-
-
-vx.y	The version of kdb.  x.y is updated as new features are added to kdb.
-- -v.p.s	The kernel version that the patch applies to.  's' may include -pre,
-	-rc or whatever numbering system the kernel keepers have thought up this
-	week.
-- -common	The common kdb code.  Everybody needs this.
-- -i386	Architecture dependent code for i386.
-- -ia64	Architecture dependent code for ia64, etc.
-- -n	If there are multiple kdb patches against the same kernel version then
-	the last number is incremented.
-
-To build kdb for your kernel, apply the common kdb patch which is less
-than or equal to the kernel v.p.s, taking the highest value of '-n'
-if there is more than one.  Apply the relevant arch dependent patch
-with the same value of 'vx.y-v.p.s-', taking the highest value of '-n'
-if there is more than one.
-
-For example, to use kdb for i386 on kernel 2.4.19, apply
-  kdb-v2.3-2.4.19-common-<n>		(use highest value of <n>)
-  kdb-v2.3-2.4.19-i386-<n>		(use highest value of <n>)
-in that order.  To use kdb for ia64-020722 on kernel 2.4.18, apply
-  kdb-v2.3-2.4.18-common-<n>		(use highest value of <n>)
-  kdb-v2.3-2.4.18-ia64-020722-<n>	(use highest value of <n>)
-in that order.
-
-Use patch -p1 for all patches.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE9UQnEi4UHNye0ZOoRAr1zAKCxRN+04JUs6rBB17ypNzqCZrs1sgCfewoD
-O/7sQN6M3O+jusxWDM1e+Mg=
-=AkCQ
------END PGP SIGNATURE-----
+-- Itai
 

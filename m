@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268100AbRHAUVr>; Wed, 1 Aug 2001 16:21:47 -0400
+	id <S268133AbRHAUeK>; Wed, 1 Aug 2001 16:34:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268078AbRHAUVh>; Wed, 1 Aug 2001 16:21:37 -0400
-Received: from [194.77.109.75] ([194.77.109.75]:43537 "EHLO warp.zuto.de")
-	by vger.kernel.org with ESMTP id <S268093AbRHAUV1>;
-	Wed, 1 Aug 2001 16:21:27 -0400
-From: Rainer Clasen <bj@zuto.de>
-Date: Wed, 1 Aug 2001 22:21:34 +0200
-To: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>,
-        linux-net@vger.kernel.org
-Subject: Re: [OOPS] network related crash with Linux 2.4
-Message-ID: <20010801222134.H13386@zuto.de>
-Reply-To: bj@zuto.de
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	"David S. Miller" <davem@redhat.com>, linux-net@vger.kernel.org
-In-Reply-To: <005f01c10e69$28273e60$0200a8c0@loki> <15189.2408.59953.395204@pizda.ninka.net> <20010720091329.B16207@zuto.de> <15191.56739.635100.533146@pizda.ninka.net> <20010720173655.F23559@zuto.de> <87d77ae2x6.fsf@gryffindor.sc> <20010710071924.E15071@zuto.de>
-Mime-Version: 1.0
+	id <S268145AbRHAUeB>; Wed, 1 Aug 2001 16:34:01 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:60655 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S268094AbRHAUdo>; Wed, 1 Aug 2001 16:33:44 -0400
+Message-ID: <3B68678C.5B7BD150@mvista.com>
+Date: Wed, 01 Aug 2001 13:33:16 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Chris Friesen <cfriesen@nortelnetworks.com>, linux-kernel@vger.kernel.org
+Subject: Re: No 100 HZ timer !
+In-Reply-To: <Pine.LNX.3.95.1010801154207.1042A-100000@chaos.analogic.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010710071924.E15071@zuto.de>; from bj@zuto.de on Tue, Jul 10, 2001 at 07:19:24AM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 10, 2001 at 07:19:24AM +0200, Rainer Clasen wrote:
-> Am Mon, Jul 09, 2001 at 01:51:17PM +0200 schrieb Moritz Schulte:
-> > I often see my Gateway (Cx486DX4 CPU, 14364K RAM, 124956K Swap)
-> > running Linux 2.4.[56] crashing (should I test previous
-> > versions?). These crashes seem related to networking, because they
-> > happen when trying to access some hosts. Now, the system crashes
+"Richard B. Johnson" wrote:
 > 
-> this seems to be similar to my oopsen - 
-
-On Fri, Jul 20, 2001 at 05:36:55PM +0200, Rainer Clasen wrote:
-> On Fri, Jul 20, 2001 at 12:28:35AM -0700, David S. Miller wrote:
-> > Rainer Clasen writes:
-> >  > I am using tulip, dummy, Ben Grear's dot1q VLAN devices and some ISDN
-> >  > syncppp and ISDN rawip devices are configured (but not actively used),
-> >  > too.
-> > 
-> > Can you test without dummy and VLAN?  Man, I now have to audit that
-> > friggin' code too :-(
+> > george anzinger wrote:
+> >
+> > > The testing I have done seems to indicate a lower overhead on a lightly
+> > > loaded system, about the same overhead with some load, and much more
+> > > overhead with a heavy load.  To me this seems like the wrong thing to
+> >
 > 
-> As first step I've removed dummy. Eliminating Vlan is difficult and will take
-> me some more time. 
+> Doesn't the "tick-less" system presume that somebody, somewhere, will
+> be sleeping sometime during the 1/HZ interval so that the scheduler
+> gets control?
+> 
+> If everybody's doing:
+> 
+>         for(;;)
+>           number_crunch();
+> 
+> And no I/O is pending, how does the jiffy count get bumped?
 
-Marc Boucher posted a patch on the netfilter list, that solved my
-problems.
+Who cares if it gets bumped?  In the tick less system the jiffy counter
+is a function.  Thus, if you need it, it will be current, more current
+than in the ticked system because it is calculated on the spot and does
+not rely on an interrupt to "bump" it.
+> 
+> I think the "tick-less" system relies upon a side-effect of
+> interactive use that can't be relied upon for design criteria.
+> 
+Look at the code.  You will find it here:
+http://sourceforge.net/projects/high-res-timers
 
-
-Rainer
-
--- 
-KeyID=759975BD fingerprint=887A 4BE3 6AB7 EE3C 4AE0  B0E1 0556 E25A 7599 75BD
+George

@@ -1,68 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277068AbRKSJ5o>; Mon, 19 Nov 2001 04:57:44 -0500
+	id <S277143AbRKSKAo>; Mon, 19 Nov 2001 05:00:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277012AbRKSJ5Y>; Mon, 19 Nov 2001 04:57:24 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:31240 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S276761AbRKSJ5M>;
-	Mon, 19 Nov 2001 04:57:12 -0500
-Date: Mon, 19 Nov 2001 10:57:12 +0100 (CET)
+	id <S277112AbRKSKAe>; Mon, 19 Nov 2001 05:00:34 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:35592 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S277152AbRKSKA0>;
+	Mon, 19 Nov 2001 05:00:26 -0500
+Date: Mon, 19 Nov 2001 11:00:27 +0100 (CET)
 From: Luigi Genoni <kernel@Expansa.sns.it>
 To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.15-pre6 warnings compiling reiserfs
-Message-ID: <Pine.LNX.4.33.0111191054370.28426-100000@Expansa.sns.it>
+Subject: Fatal error compiling on 2.4.15-pre6aa1.
+Message-ID: <Pine.LNX.4.33.0111191058190.28483-100000@Expansa.sns.it>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-HI,
+HI, compiling this kernel for ultrasparc64, i got also this error,
 
-I am just compiling 2.4.15-pre6 with aa1 patch, to make some
-etsts on a ultrasparc64 system used as proxy server.
-compiling reiserfs support i get those warnings:
+sparc64-linux-gcc -D__KERNEL__ -I/usr/src/linux-2.4.15-pre6/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -m64 -pipe -mno-fpu -mcpu=ultrasparc
+-mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7 -Wno-sign-compare
+-Wa,--undeclared-regs    -c -o ioctl32.o ioctl32.c
+ioctl32.c: In function `do_lvm_ioctl':
+ioctl32.c:2636: warning: assignment makes pointer from integer without a
+cast
+ioctl32.c:2670: structure has no member named `inode'
+ioctl32.c:2711: warning: assignment from incompatible pointer type
+ioctl32.c:2712: structure has no member named `inode'
+ioctl32.c:2719: structure has no member named `inode'
+ioctl32.c:2732: structure has no member named `inode'
+ioctl32.c:2611: warning: `v' might be used uninitialized in this function
+make[1]: *** [ioctl32.o] Error 1
 
-ct-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
--fno-common -m64 -pipe -mno-fpu -mcpu=ultrasparc -mcmodel=medlow
--ffixed-g4 -fcall-used-g5 -fcall-used-g7 -Wno-sign-compare
--Wa,--undeclared-regs    -c -o item_ops.o item_ops.c
-/usr/src/linux-2.4.15-pre6/include/linux/reiserfs_fs.h: In function
-`le_key_k_offset':
-In file included from item_ops.c:6:
-/usr/src/linux-2.4.15-pre6/include/linux/reiserfs_fs.h:526: warning:
-passing arg 1 of `offset_v2_k_offset' discards `const' from pointer target
-type
-/usr/src/linux-2.4.15-pre6/include/linux/reiserfs_fs.h: In function
-`le_key_k_type':
-/usr/src/linux-2.4.15-pre6/include/linux/reiserfs_fs.h:538: warning:
-passing arg 1 of `offset_v2_k_type' discards `const' from pointer target
-type
-/usr/src/linux-2.4.15-pre6/include/linux/reiserfs_fs.h: In function
-`make_empty_dir_item_v1':
-/usr/src/linux-2.4.15-pre6/include/linux/reiserfs_fs.h:971: warning: value
-computed is not used
-/usr/src/linux-2.4.15-pre6/include/linux/reiserfs_fs.h:981: warning: value
-computed is not used
-/usr/src/linux-2.4.15-pre6/include/linux/reiserfs_fs.h: In function
-`make_empty_dir_item':
-/usr/src/linux-2.4.15-pre6/include/linux/reiserfs_fs.h:1005: warning:
-value computed is not used
-/usr/src/linux-2.4.15-pre6/include/linux/reiserfs_fs.h:1015: warning:
-value computed is not used
-/usr/src/linux-2.4.15-pre6/include/linux/reiserfs_fs.h: In function
-`le_key_version':
-/usr/src/linux-2.4.15-pre6/include/linux/reiserfs_fs.h:1763: warning:
-passing arg 1 of `offset_v2_k_type' discards `const' from pointer target
-type
+LVM support is statically enable in my configuration
 
-
-In my configuration I enabled /proc/fs/reiserfs report. (still to try a
-compilation with this option turned off)
-
-Hope this helps
 
 Luigi
-
-
 

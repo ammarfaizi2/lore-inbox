@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316542AbSIIGpa>; Mon, 9 Sep 2002 02:45:30 -0400
+	id <S313190AbSIIGoe>; Mon, 9 Sep 2002 02:44:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316545AbSIIGp3>; Mon, 9 Sep 2002 02:45:29 -0400
-Received: from [212.3.242.3] ([212.3.242.3]:1013 "HELO mail.vt4.net")
-	by vger.kernel.org with SMTP id <S316542AbSIIGp3>;
-	Mon, 9 Sep 2002 02:45:29 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: linux-kernel@vger.kernel.org
-Subject: linux 2.4.20-ac patches
-Date: Mon, 9 Sep 2002 08:47:32 +0200
-User-Agent: KMail/1.4.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200209090847.32334.devilkin-lkml@blindguardian.org>
+	id <S316542AbSIIGoe>; Mon, 9 Sep 2002 02:44:34 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:29628 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S313190AbSIIGod>;
+	Mon, 9 Sep 2002 02:44:33 -0400
+Date: Mon, 9 Sep 2002 08:49:16 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] per isr in_progress markers
+Message-ID: <20020909064916.GA30669@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0209081700460.1096-100000@linux-box.realnet.co.sz> <Pine.LNX.4.44.0209081453010.1293-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0209081453010.1293-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, Sep 08, 2002 at 03:01:02PM -0700, Linus Torvalds wrote:
 
-Since my recent harddisk problems I had to reinstall my entire linux. 
-The only hardware change in the system is that the two harddisks have been 
-swapped on the ide cable (jumpers have been changed accordingly).
+>    setups (as opposed to most laptops, which often seem to put every PCI
+>    device on the same irq)
 
-Since then if I ever attempt to access the cdrom (which is used through 
-/dev/sr1 using ide-scsi) i get an oops. After that, I get errors from the 
-SCSI layer talking about timeouts and retries.
+I've always thought that this was a linux problem - any reason *why* laptops
+do this?
 
-I've since then switched back to vanilla 2.4.19 which works fine with me. The 
--ac patches don't.
+Regards,
 
-Before the harddiskproblems it worked correctly.
+bert hubert
 
-I'll see this eve to cause, ksymoops and send in an oops.
 -- 
-Bacchus, n.:
-	A convenient deity invented by the ancients as an excuse for
-getting drunk.
-		-- Ambrose Bierce, "The Devil's Dictionary"
-
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

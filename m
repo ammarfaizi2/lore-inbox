@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264483AbTFEFuR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 01:50:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264487AbTFEFuR
+	id S264488AbTFEF6n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 01:58:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264489AbTFEF6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 01:50:17 -0400
-Received: from mx03.uni-tuebingen.de ([134.2.3.13]:25547 "EHLO
-	mx03.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id S264483AbTFEFuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 01:50:16 -0400
-Date: Thu, 5 Jun 2003 08:03:46 +0200
-From: AntiVir@mx03.uni-tuebingen.de
-Message-Id: <200306050603.h5563kEh013010@mx03.uni-tuebingen.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: AntiVir ALARM [Ihre Email: "Re: Screensaver"]
-X-AntiVirus: checked by AntiVir Milter 1.0.2; AVE 6.20.0.0; VDF 6.20.0.3
+	Thu, 5 Jun 2003 01:58:43 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:54725 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S264488AbTFEF6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 01:58:42 -0400
+Message-Id: <5.1.0.14.2.20030605080244.00af0a30@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 05 Jun 2003 08:12:05 +0200
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: Re: PCI cache line messages 2.4/2.5
+Cc: Jeff Garzik <jgarzik@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Seen: false
+X-ID: S3Myh0ZcZeOQk7QxbVyBTZ8l4K-4P-0IpvARUA6wa-3IX+Nbe6Z-4N@t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* * * * * * * * * * * * * * * AntiVir ALERT * * * * * * * * * * * * * * *
-This version of AntiVir is licensed and full featured.
+ > Jeff Garzik wrote :
+ > Your BIOS did not set the PCI cache line size correctly.
 
-AntiVir hat Folgendes in einer von Ihnen adressierten E-Mail gefunden:
+Well, 2 questions :
+2.4 gets 0 and sets 128. 2.5 gets 128 and reports it wrong.
+This seems a contradiction. Which is right ?
+Why only this port on the (onboard) USB hub ?
 
-     Worm/Sobig.C
-
-Diese E-Mail wurde nicht ausgeliefert und auf dem Server isoliert.
-Ueberpruefen Sie bitte Ihr System unverzueglich auf eventuellen 
-Virenbefall.
-
-Bitte entfernen Sie vorhandene Viren, bevor Sie weitere E-Mails mit 
-Dateianhaengen versenden.
-
-
-Mail-Info:
---8<--
- From: <linux-kernel@vger.kernel.org>
- To: <rguenth@tat.physik.uni-tuebingen.de>
- Date: Thu, 5 Jun 2003 15:03:27 +0900
- Subject: Re: Screensaver
---8<--
+Margit
 

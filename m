@@ -1,42 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129613AbRBYTNc>; Sun, 25 Feb 2001 14:13:32 -0500
+	id <S129633AbRBYTRm>; Sun, 25 Feb 2001 14:17:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129629AbRBYTNM>; Sun, 25 Feb 2001 14:13:12 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:12429 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129621AbRBYTNG>;
-	Sun, 25 Feb 2001 14:13:06 -0500
-Date: Sun, 25 Feb 2001 14:13:04 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Sandy Harris <sandy@storm.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][CFT] per-process namespaces for Linux
-In-Reply-To: <3A99569F.98C64B29@storm.ca>
-Message-ID: <Pine.GSO.4.21.0102251406200.26808-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129632AbRBYTRY>; Sun, 25 Feb 2001 14:17:24 -0500
+Received: from mclean.mail.mindspring.net ([207.69.200.57]:2348 "EHLO
+	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S129629AbRBYTRL>; Sun, 25 Feb 2001 14:17:11 -0500
+Date: Sun, 25 Feb 2001 14:22:37 -0500
+From: jerry <jdinardo@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ide / usb problem
+Message-ID: <20010225142237.A84@ix.netcom.com>
+In-Reply-To: <20010225060326.K127@pervalidus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010225060326.K127@pervalidus>; from 0@pervalidus.net on Sun, Feb 25, 2001 at 06:03:26AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I also am using the cable supplied with the mobo (Abit kt7) so I do not
+think it is ASUS specific. More likey it is releated to the
+VIA chipset and/or driver.
 
+If I compile kernel with "Generic PCI bus-master DMA support"
+and run "hdparm -d1 /dev/hda" I get 700% performance increase
+on hdparm -t benchmark and I do not get any dma BadCRC errors.
 
-On Sun, 25 Feb 2001, Sandy Harris wrote:
+It is only when I also compile in the VIA82CXXX option that I get the
+    "hda: dma_intr:status=0x51 { DriveReady SeekComplete Error }"
+    "hda: dma_intr:error=0x84 { DriveStatusError BadCRC }"
+mesages (1000's of them).
 
-> One is just mount a ramdisk and extract a tarball into its root. Yes, this has
-> some problems -- how do you load tar when you haven't set up your root? -- but
-> I suspect they can be solved. At worst, this would involve some strictly limited
-> kluge to do that.
+Whether I get the messages or not, if I have dma enabled with 2.4.2
+my usb mouse stops working .
 
-No kludges actually needed. "Simplified boot sequence" _is_ simplified -
-we overmount the "final" root over ramfs. Initially empty. So you have
-the normal environment when you load ramdisk, etc.
-
-IOW, with the namespaces patch you can have root (empty, writable)
-as soon as you've registered ramfs driver. I.e. _very_ early - before
-device initialization, for one thing. Actual mounting of the "final"
-root happen very late, along with all initrd games, etc. That stuff
-(in do_mounts.c) could be executed as userland process, actually -
-see the comments in init/do_mounts.c and actual code there.
-							Cheers,
-								Al
-
+jpd
+> 	 
+> > That indicates cable problems. The CRC will avoid bad transfers
+> > as it will do retries
+> 
+> Oh my god. Are you sure it's a cable problem? I'm using the
+> cable shipped by ASUS with my K7V and have the same problem:
+> 
+> devfs: v0.102 (20000622) Richard Gooch (rgooch@atnf.csiro.au)
+> devfs: boot_options: 0x2
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> ide0: reset: success
+> 
+> Again, if it's really a cable problem, then ASUS is selling
+> cables that don't work with UDMA66 (but they sell it as
+> UDMA66).
+> 
+> I urge ASUS to explain this problem. If you do a search for
+> BadCRC at any lkml archive, you should notice most complaints
+> are from... VIA (and most seem to have an ASUS motherboard).
+> 
+> -- 
+> 0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)

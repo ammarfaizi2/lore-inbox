@@ -1,68 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265276AbTIJRCp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 13:02:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265279AbTIJRCp
+	id S265293AbTIJRN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 13:13:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265295AbTIJRN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 13:02:45 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:12993 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S265276AbTIJRCm (ORCPT
+	Wed, 10 Sep 2003 13:13:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:3308 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265293AbTIJRNz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 13:02:42 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 10 Sep 2003 13:13:55 -0400
+Date: Wed, 10 Sep 2003 09:55:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4-mm5 SMP (and mm6 and plain test5) got stuck during
+ boot
+Message-Id: <20030910095559.249cdf68.akpm@osdl.org>
+In-Reply-To: <3F5F24AB.7060304@aitel.hist.no>
+References: <3F5847B7.9070308@aitel.hist.no>
+	<3F5F24AB.7060304@aitel.hist.no>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16223.22832.21582.762891@napali.hpl.hp.com>
-Date: Wed, 10 Sep 2003 10:02:40 -0700
-To: Jes Sorensen <jes@wildopensource.com>
-Cc: davidm@hpl.hp.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] asm workarounds in generic header files
-In-Reply-To: <m3d6e8ipf6.fsf@trained-monkey.org>
-References: <A609E6D693908E4697BF8BB87E76A07A022114C0@fmsmsx408.fm.intel.com>
-	<m3llsxivva.fsf@trained-monkey.org>
-	<16222.14136.21774.211178@napali.hpl.hp.com>
-	<m3d6e8ipf6.fsf@trained-monkey.org>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On 10 Sep 2003 12:22:37 -0400, Jes Sorensen <jes@wildopensource.com> said:
+Helge Hafting <helgehaf@aitel.hist.no> wrote:
+>
+> 2.6.0-test4-mm4, mm6 and plain 2.6.0-test5 are all useless on my
+> dual celeron.  The machine get stuck when initscripts
+> tries to configure networking.  I can break
+> out of that with ctrl+c, but then it gets
+> stuck on something else shortly thereafter,
+> so I can't get as far as logging in.
 
-  Jes> I think this really depends on what you are trying to debug. If
-  Jes> you expect the macros to do exactly what they are described to
-  Jes> be doing then I'd agree. However every so often when you look
-  Jes> up the macros you really want to look at the details what they
-  Jes> are actually doing or even compare them to another arch's
-  Jes> implementation to make sure they are behaving the same. At
-  Jes> least thats my experience.
+Please try test5-mm1.  If it still gets stuck then use
+sysrq-P and sysrq-T to work out where it is hanging.
 
-That's true for some, but not others.  For example, I'd say that
-things like getreg() and setreg() are pretty intuitive.
-
-  Jes> I personally think it's unrealistic to think one can try and
-  Jes> debug things in include/asm without being able to read the
-  Jes> assembly output in the first place.
-
-Assembly output != GCC asm statements.  There are lots of
-assembly-savy folks that have no clue how to read/interpret the GCC
-asm syntax.  Those folks have the option of either generating an
-assembly file or disassembling the resulting object file.  Both
-approaches would let them read the resulting code without having to
-know exactly how the asm statement (or intrinsic) works.
-
-  David> I think the jury is out on this one.  Clearly it's a huge
-  David> benefit if you can make do without inline asm.  GCC has to
-  David> make lots of worst-case assumptions whenever it encounters an
-  David> asm statement and, due to macros and inlining, the asm
-  David> statements are not just hidden in a few leaf routines.
-
-  Jes> Reducing the amount of inline asm in the kernel would be a good
-  Jes> thing. It is cetainly one of those things that have been abused
-  Jes> way beyond it's intent.
-
-Agreed.
-
-	--david

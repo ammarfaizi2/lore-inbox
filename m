@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbUE3IKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbUE3IcC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbUE3IKl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 04:10:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbUE3IKl
+	id S261723AbUE3IcC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 04:32:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbUE3IcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 04:10:41 -0400
-Received: from verein.lst.de ([212.34.189.10]:32658 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261443AbUE3IKk (ORCPT
+	Sun, 30 May 2004 04:32:02 -0400
+Received: from verein.lst.de ([212.34.189.10]:51858 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261723AbUE3IcA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 04:10:40 -0400
-Date: Sun, 30 May 2004 10:10:34 +0200
+	Sun, 30 May 2004 04:32:00 -0400
+Date: Sun, 30 May 2004 10:31:26 +0200
 From: Christoph Hellwig <hch@lst.de>
-To: ambx1@neo.rr.com
+To: vojtech@suse.cz
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] pnpbios only makes sense for X86
-Message-ID: <20040530081034.GA30736@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, ambx1@neo.rr.com,
+Subject: [PATCH] Lowered priority of "too many keys" message in atkbd
+Message-ID: <20040530083126.GA30916@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, vojtech@suse.cz,
 	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,17 +25,18 @@ X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From the Debian kernel package
+This patch is from the Debian kernel package and I think it's valid
+because this error doesn't cause any kind of malfunction of the system.
 
 
---- kernel-source-2.6.6/drivers/pnp/pnpbios/Kconfig	2004-03-11 13:55:37.000000000 +1100
-+++ kernel-source-2.6.6-1/drivers/pnp/pnpbios/Kconfig	2004-02-19 20:55:53.000000000 +1100
-@@ -3,7 +3,7 @@
- #
- config PNPBIOS
- 	bool "Plug and Play BIOS support (EXPERIMENTAL)"
--	depends on PNP && EXPERIMENTAL
-+	depends on PNP && X86 && EXPERIMENTAL
- 	---help---
- 	  Linux uses the PNPBIOS as defined in "Plug and Play BIOS
- 	  Specification Version 1.0A May 5, 1994" to autodetect built-in
+--- linux/drivers/input/keyboard/atkbd.c	2004-04-05 19:49:28.000000000 +1000
++++ linux/drivers/input/keyboard/atkbd.c	2004-04-06 19:55:38.000000000 +1000
+@@ -284,7 +284,7 @@
+ 			atkbd_report_key(&atkbd->dev, regs, KEY_HANJA, 3);
+ 			goto out;
+ 		case ATKBD_RET_ERR:
+-			printk(KERN_WARNING "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
++			printk(KERN_DEBUG "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
+ 			goto out;
+ 	}
+ 

@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265237AbUA0RMq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 12:12:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265390AbUA0RMq
+	id S261837AbUA0RKs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 12:10:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUA0RKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 12:12:46 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:60545
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S265237AbUA0RMY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 12:12:24 -0500
-Date: Tue, 27 Jan 2004 12:25:45 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Timothy Miller <miller@techsource.com>
-Cc: walt <wa1ter@myrealbox.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Sco
-Message-ID: <20040127122545.A4752@animx.eu.org>
-References: <20040127081506.C4346@animx.eu.org> <40168A38.4010203@myrealbox.com> <40169031.50603@techsource.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <40169031.50603@techsource.com>; from Timothy Miller on Tue, Jan 27, 2004 at 11:22:09AM -0500
+	Tue, 27 Jan 2004 12:10:48 -0500
+Received: from smtp10.hy.skanova.net ([195.67.199.143]:42463 "EHLO
+	smtp10.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S261837AbUA0RKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 12:10:46 -0500
+Date: Tue, 27 Jan 2004 18:10:43 +0100 (CET)
+Message-Id: <200401271710.i0RHAhv26675@d1o408.telia.com>
+From: "Voluspa" <lista3@comhem.se>
+Reply-To: "Voluspa" <lista3@comhem.se>
+To: "Vojtech Pavlik" <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: atkbd.c: Unknown key released
+X-Mailer: Telia Webmail
+X-Telia-webmail-clientstamp: [217.208.132.234] 2004-01-27 18:10:43
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >> There's a new virus out called W32/MyDoom.A that between feb 1st and 
-> >> 12th it
-> >> will DoS www.sco.com.  I didn't see anything on the list about it this
-> >> morning so I thought I'd share.
-> > 
-> > 
-> > So, are you suggesting that we all start using Outlook Express on Jan 31?
+citerar Vojtech Pavlik:
 
-I never said this.  I was only stating that the virus existed.
+> On Tue, Jan 27, 2004 at 08:16:59AM +0100, Voluspa wrote:
+[...]
+>
+> > > > I keep getting the following in my syslog whenever I startx:
+> >
+> > In fact, it is preemptively written even _before_ I start X :-)
+[...]
+> Do you use 'kbdrate' in your bootup scripts? That's another one touching
+> the keyboard controller directly, when there are ioctls for that.
+>
+> I guess I should modify to make the message not point not directly to X,
+> but 'some application'.
 
-> As much as SCO disturbs me, these kinds of underhanded attacks against 
-> them disgust me.  They stoop to SCO's level, or worse.  SCO can and will 
-> be dealt with properly through the use of FACTS.
+Yes, 'kbdrate' is used here.
 
-I did not imply that the linux community help spread this.  Having to deal
-with windows users (Add 'L's where appropriate), I've been bombarded with
-this thing at work as I receive all virus infected emails.
+Mvh
+Mats Johannesson
 
-> Besides, DoS attacks against SCO will only be blamed on the Linux 
-> community.  So the developer of that virus is either a complete idiot or 
-> is acting to intentionally hurt our image.
-
-If the former, then this is probably a windows person.  After all, the virus
-is for *windows* and not linux.
-
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVBHRSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVBHRTS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261590AbVBHRSL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 12:18:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVBHRSE
+	id S261592AbVBHRTS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 12:19:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbVBHRSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 12:18:04 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:6892 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261590AbVBHRRi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 12:17:38 -0500
-Date: Tue, 8 Feb 2005 18:17:30 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Larry McVoy <lm@bitmover.com>
-cc: Stelian Pop <stelian@popies.net>, Francois Romieu <romieu@fr.zoreil.com>,
+	Tue, 8 Feb 2005 12:18:12 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:17413 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261592AbVBHRRp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 12:17:45 -0500
+Message-Id: <200502081717.j18HHUoK011681@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Stelian Pop <stelian@popies.net>,
        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-In-Reply-To: <20050208155845.GB14505@bitmover.com>
-Message-ID: <Pine.LNX.4.61.0502081812090.6118@scrub.home>
-References: <20050204160631.GB26748@bitmover.com> <20050204170306.GB3467@crusoe.alcove-fr>
- <20050204183922.GC27707@bitmover.com> <20050204200507.GE5028@deep-space-9.dsnet>
- <20050204201157.GN27707@bitmover.com> <20050204214015.GF5028@deep-space-9.dsnet>
- <20050204233153.GA28731@electric-eye.fr.zoreil.com> <20050205193848.GH5028@deep-space-9.dsnet>
- <20050205233841.GA20875@bitmover.com> <20050208154343.GH3537@crusoe.alcove-fr>
- <20050208155845.GB14505@bitmover.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [RFC] Linux Kernel Subversion Howto 
+In-Reply-To: Your message of "Tue, 08 Feb 2005 17:15:53 +0100."
+             <Pine.LNX.4.61.0502081714410.30794@scrub.home> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050203033459.GA29409@bitmover.com> <20050203220059.GD5028@deep-space-9.dsnet> <20050203222854.GC20914@bitmover.com> <20050204130127.GA3467@crusoe.alcove-fr> <20050204160631.GB26748@bitmover.com> <Pine.LNX.4.61.0502060025020.6118@scrub.home> <20050206173910.GB24160@bitmover.com> <Pine.LNX.4.61.0502061859000.30794@scrub.home> <20050207021030.GA25673@bitmover.com> <Pine.LNX.4.61.0502071516100.30794@scrub.home> <9e47339105020807585a5c4fc@mail.gmail.com>
+            <Pine.LNX.4.61.0502081714410.30794@scrub.home>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1107883050_3999P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 08 Feb 2005 12:17:30 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--==_Exmh_1107883050_3999P
+Content-Type: text/plain; charset=us-ascii
 
-On Tue, 8 Feb 2005, Larry McVoy wrote:
+On Tue, 08 Feb 2005 17:15:53 +0100, Roman Zippel said:
 
-> I think you are dreaming.  You've gone from wanting enough information
-> to supposedly debug your source tree to being explicit about wanting to
-> recreate the entire BK history in a different system.  The former is a
-> reasonable request, I suppose, but the latter is just a blatent request
-> for us to help debug and stress test a competing system.  
-> 
-> The answer is no, that's a clear violation of the license.
+> Why should I pay for something, I could easily do myself in less time?
 
-You do realize what this practically means?
+Why does the phrase "Shut up and code..." suddenly wander through my mind???
 
-bye, Roman
+--==_Exmh_1107883050_3999P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCCPQpcC3lWbTT17ARAgphAKCGLcilzpXNfragok86/nUhk+2EQgCg0mUh
+bvytX59zwp2QoVkCPABc/yU=
+=lMUr
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1107883050_3999P--

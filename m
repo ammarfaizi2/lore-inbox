@@ -1,185 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267516AbUJIWx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267519AbUJIWzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267516AbUJIWx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 18:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267519AbUJIWx7
+	id S267519AbUJIWzi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 18:55:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUJIWzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 18:53:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:15313 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267516AbUJIWxn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 18:53:43 -0400
-Date: Sat, 9 Oct 2004 15:53:39 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Chris Wright <chrisw@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Jody McIntyre <realtime-lsm@modernduck.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
-Subject: Re: [PATCH] Realtime LSM
-Message-ID: <20041009155339.Y2357@build.pdx.osdl.net>
-References: <1097272140.1442.75.camel@krustophenia.net> <20041008145252.M2357@build.pdx.osdl.net> <1097273105.1442.78.camel@krustophenia.net> <20041008151911.Q2357@build.pdx.osdl.net> <20041008152430.R2357@build.pdx.osdl.net> <87zn2wbt7c.fsf@sulphur.joq.us> <20041008221635.V2357@build.pdx.osdl.net> <87is9jc1eb.fsf@sulphur.joq.us> <20041009121141.X2357@build.pdx.osdl.net> <878yafbpsj.fsf@sulphur.joq.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <878yafbpsj.fsf@sulphur.joq.us>; from joq@io.com on Sat, Oct 09, 2004 at 03:27:24PM -0500
+	Sat, 9 Oct 2004 18:55:38 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:64508 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S267519AbUJIWyT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 18:54:19 -0400
+From: "Sven Dietrich" <sdietrich@mvista.com>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>,
+       <linux-kernel@vger.kernel.org>
+Cc: "Ext-Rt-Dev@Mvista. Com" <ext-rt-dev@mvista.com>
+Subject: RE: [ANNOUNCE] Linux 2.6 Real Time Kernel
+Date: Sat, 9 Oct 2004 15:54:41 -0700
+Message-ID: <EOEGJOIIAIGENMKBPIAEOEGLDKAA.sdietrich@mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: 
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jack O'Quin (joq@io.com) wrote:
-> Chris Wright <chrisw@osdl.org> writes:
-> > The egid makes a setgid-audio program be meaningful as well.
-> 
-> That works already, because we test the e_gid from the bprm structure,
-> right?  Is that redundant?
 
-You're right.  It's not quite redundant, because current->egid test is
-before current->egid would be reset on setgid (happens in apply_creds).
-Using apply_creds actually makes a bit more sense here, and simplifies
-things a touch.
 
-- use apply_creds and update gid_ok accordingly
-- only upgrade cap_effective
-- less generic variable names
-  - s/any/rt_any/
-  - s/gid/rt_gid/
-  - s/mlock/rt_mlock/
+Thanks for giving it a try!
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+The "bad: scheduling while atomic!" are indicative
+of blocking on a mutex while holding a spinlock.
 
---- security/realtime.c~in_egroup	2004-10-08 22:17:23.499153832 -0700
-+++ security/realtime.c	2004-10-09 15:49:38.048243488 -0700
-@@ -45,34 +45,37 @@
-  *  each is referenced only once in each function call.  Nothing
-  *  depends on parameters having the same value every time.
-  */
--static int any;			/* if TRUE, any process is realtime */
--module_param(any, int, 0644);
-+
-+/* if TRUE, any process is realtime */
-+static int rt_any;
-+module_param_named(any, rt_any, int, 0644);
- MODULE_PARM_DESC(any, " grant realtime privileges to any process.");
- 
--static int gid = -1;			/* realtime group id, or NO_GROUP */
--module_param(gid, int, 0644);
-+/* realtime group id, or NO_GROUP */
-+static int rt_gid = -1;
-+module_param_named(gid, rt_gid, int, 0644);
- MODULE_PARM_DESC(gid, " the group ID with access to realtime privileges.");
- 
--static int mlock = 1;			/* enable mlock() privileges */
--module_param(mlock, int, 0644);
-+/* enable mlock() privileges */
-+static int rt_mlock = 1;
-+module_param_named(mlock, rt_mlock, int, 0644);
- MODULE_PARM_DESC(mlock, " enable memory locking privileges.");
- 
- /* helper function for testing group membership */
--static inline int gid_ok(int gid, int e_gid)
-+static inline int gid_ok(int gid)
- {
- 	if (gid == -1)
- 		return 0;
- 
--	if ((gid == e_gid) || (gid == current->gid))
-+	if (gid == current->gid)
- 		return 1;
- 
- 	return in_egroup_p(gid);
- }
- 
--static int realtime_bprm_set_security(struct linux_binprm *bprm)
-+static void realtime_bprm_apply_creds(struct linux_binprm *bprm, int unsafe)
- {
--
--	cap_bprm_set_security(bprm);
-+	cap_bprm_apply_creds(bprm, unsafe);
- 
- 	/*  If a non-zero `any' parameter was specified, we grant
- 	 *  realtime privileges to every process.  If the `gid'
-@@ -81,17 +84,13 @@
- 	 *  groups, we grant realtime capabilites.
- 	 */
- 
--	if (any || gid_ok(gid, bprm->e_gid)) {
--		cap_raise(bprm->cap_effective, CAP_SYS_NICE);
--		cap_raise(bprm->cap_permitted, CAP_SYS_NICE);
--		if (mlock) {
--			cap_raise(bprm->cap_effective, CAP_IPC_LOCK);
--			cap_raise(bprm->cap_permitted, CAP_IPC_LOCK);
--			cap_raise(bprm->cap_effective, CAP_SYS_RESOURCE);
--			cap_raise(bprm->cap_permitted, CAP_SYS_RESOURCE);
-+	if (rt_any || gid_ok(rt_gid)) {
-+		cap_raise(current->cap_effective, CAP_SYS_NICE);
-+		if (rt_mlock) {
-+			cap_raise(current->cap_effective, CAP_IPC_LOCK);
-+			cap_raise(current->cap_effective, CAP_SYS_RESOURCE);
- 		}
- 	}
--	return 0;
- }
- 
- static struct security_operations capability_ops = {
-@@ -102,8 +101,8 @@
- 	.capable =			cap_capable,
- 	.netlink_send =			cap_netlink_send,
- 	.netlink_recv =			cap_netlink_recv,
--	.bprm_apply_creds =		cap_bprm_apply_creds,
--	.bprm_set_security =		realtime_bprm_set_security,
-+	.bprm_apply_creds =		realtime_bprm_apply_creds,
-+	.bprm_set_security =		cap_bprm_set_security,
- 	.bprm_secureexec =		cap_bprm_secureexec,
- 	.task_post_setuid =		cap_task_post_setuid,
- 	.task_reparent_to_init =	cap_task_reparent_to_init,
-@@ -117,14 +116,14 @@
- {
- 	{ .ctl_name	= 1,
- 	  .procname	= "any",
--	  .data		= &any,
-+	  .data		= &rt_any,
- 	  .maxlen	= sizeof(int),
- 	  .mode		= 0644,
- 	  .proc_handler	= &proc_dointvec,
- 	},
- 	{ .ctl_name	= 2,
- 	  .procname	= "gid",
--	  .data		= &gid,
-+	  .data		= &rt_gid,
- 	  .maxlen	= sizeof(int),
- 	  .mode		= 0644,
- 	  .proc_handler	= &proc_dointvec_minmax,
-@@ -133,7 +132,7 @@
- 	},
- 	{ .ctl_name	= 3,
- 	  .procname	= "mlock",
--	  .data		= &mlock,
-+	  .data		= &rt_mlock,
- 	  .maxlen	= sizeof(int),
- 	  .mode		= 0644,
- 	  .proc_handler	= &proc_dointvec,
-@@ -205,15 +204,15 @@
- 		return -ENOMEM;
- 	}
- 
--	if (any)
-+	if (rt_any)
- 		printk(KERN_INFO RT_LSM
--		       "initialized (all groups, mlock=%d)\n", mlock);
--	else if (gid == -1)
-+		       "initialized (all groups, mlock=%d)\n", rt_mlock);
-+	else if (rt_gid == -1)
- 		printk(KERN_INFO RT_LSM
--		       "initialized (no groups, mlock=%d)\n", mlock);
-+		       "initialized (no groups, mlock=%d)\n", rt_mlock);
- 	else
- 		printk(KERN_INFO RT_LSM
--		       "initialized (group %d, mlock=%d)\n", gid, mlock);
-+		       "initialized (group %d, mlock=%d)\n", rt_gid, rt_mlock);
- 		
- 	return 0;
- }
+You can see the __p_mutex_down in the trace.
+
+See the notes in the original announce
+regarding the partitioning : work in progress.
+
+I can't offer a fix for that now, but I will
+post an updated mutex patch for the
+EXPORT_SYMBOLS / module build issue.
+
+Sven
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Måns Rullgård
+> Sent: Saturday, October 09, 2004 6:15 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+>
+>
+>
+> I got this thing to build by adding a few EXPORT_SYMBOL, patch below.
+> Now it seems to be running quite well.  I am, however, getting
+> occasional "bad: scheduling while atomic!" messages, all alike:
+>
+> bad: scheduling while atomic!
+>  [<c02ef301>] schedule+0x4e5/0x4ea
+>  [<c0114cbe>] try_to_wake_up+0x99/0xa8
+>  [<c01332e2>] __p_mutex_down+0xfe/0x190
+>  [<c029e238>] alloc_skb+0x32/0xc3
+>  [<c01335e0>] kmutex_is_locked+0x1f/0x33
+>  [<c029fa63>] skb_queue_tail+0x1c/0x45
+>  [<c02eb43e>] unix_stream_sendmsg+0x22c/0x38c
+>  [<c029ab03>] sock_sendmsg+0xc9/0xe3
+>  [<c029f95a>] skb_dequeue+0x4a/0x5b
+>  [<c02eb9e6>] unix_stream_recvmsg+0x119/0x430
+>  [<c0137f06>] __alloc_pages+0x1cc/0x33f
+>  [<c01168ca>] autoremove_wake_function+0x0/0x43
+>  [<c029af4b>] sock_readv_writev+0x6e/0x97
+>  [<c029afec>] sock_writev+0x37/0x3e
+>  [<c029afb5>] sock_writev+0x0/0x3e
+>  [<c014ebb8>] do_readv_writev+0x1db/0x21f
+>  [<c01168ca>] autoremove_wake_function+0x0/0x43
+>  [<c014e5ca>] vfs_read+0xd0/0xf5
+>  [<c014ec94>] vfs_writev+0x49/0x52
+>  [<c014ed5a>] sys_writev+0x47/0x76
+>  [<c0103f09>] sysenter_past_esp+0x52/0x71
+>
+> USB, sound and wireless are all working nicely.
+>
+> Now the patch:
+>
+> --- kernel/kmutex.c~	2004-10-09 12:51:37 +02:00
+> +++ kernel/kmutex.c	2004-10-09 13:50:43 +02:00
+> @@ -20,6 +20,7 @@
+>  #include <linux/config.h>
+>  #include <linux/kmutex.h>
+>  #include <linux/sched.h>
+> +#include <linux/module.h>
+>
+>  # if defined CONFIG_PMUTEX
+>  #   include <linux/pmutex.h>
+> @@ -40,11 +41,14 @@
+>          return p_mutex_trylock(&(lock->kmtx));
+>  }
+>
+> +EXPORT_SYMBOL(kmutex_trylock);
+>
+>  inline int kmutex_is_locked(struct kmutex *lock)
+>  {
+>  	return p_mutex_is_locked(&(lock->kmtx));
+>  }
+> +
+> +EXPORT_SYMBOL(kmutex_is_locked);
+>  # endif
+>
+>
+> @@ -60,6 +64,7 @@
+>  #endif
+>  }
+>
+> +EXPORT_SYMBOL(kmutex_init);
+>
+>  /*
+>   * print warning is case kmutex_lock is called while preempt count is
+> @@ -88,6 +93,8 @@
+>  #endif
+>  }
+>
+> +EXPORT_SYMBOL(kmutex_lock);
+> +
+>  void kmutex_unlock(struct kmutex *lock)
+>  {
+>  #if defined CONFIG_KMUTEX_DEBUG
+> @@ -102,6 +109,7 @@
+>  #endif
+>  }
+>
+> +EXPORT_SYMBOL(kmutex_unlock);
+>
+>  void kmutex_unlock_wait(struct kmutex * lock)
+>  {
+> @@ -111,4 +119,4 @@
+>                  }
+>  }
+>
+> -
+> +EXPORT_SYMBOL(kmutex_unlock_wait);
+>
+>
+> --
+> Måns Rullgård
+> mru@mru.ath.cx
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

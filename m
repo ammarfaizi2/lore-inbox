@@ -1,31 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132431AbRAHRR6>; Mon, 8 Jan 2001 12:17:58 -0500
+	id <S131829AbRAHRTH>; Mon, 8 Jan 2001 12:19:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131941AbRAHRRj>; Mon, 8 Jan 2001 12:17:39 -0500
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:43014 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S132431AbRAHRRb>; Mon, 8 Jan 2001 12:17:31 -0500
-Date: Mon, 8 Jan 2001 17:15:27 +0000 (GMT)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-To: Paul Powell <moloch16@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 'console=' kernel parameter questions
-In-Reply-To: <20010108165050.13240.qmail@web119.yahoomail.com>
-Message-ID: <Pine.LNX.4.10.10101081714580.26102-100000@sphinx.mythic-beasts.com>
+	id <S132404AbRAHRS5>; Mon, 8 Jan 2001 12:18:57 -0500
+Received: from host156.207-175-42.redhat.com ([207.175.42.156]:51725 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S131941AbRAHRSn>; Mon, 8 Jan 2001 12:18:43 -0500
+Date: Mon, 8 Jan 2001 12:18:39 -0500 (EST)
+From: Ingo Molnar <mingo@redhat.com>
+To: Andi Kleen <ak@suse.de>
+cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH,serious] Fix raid5 crashes in 2.4.0
+In-Reply-To: <20010108181625.A11766@gruyere.muc.suse.de>
+Message-ID: <Pine.LNX.4.30.0101081217400.19231-100000@devserv.devel.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2001, Paul Powell wrote:
 
-> 'console=ttys0','console=cua0','console=ttys0,9600n8', etc....
-              ^
+On Mon, 8 Jan 2001, Andi Kleen wrote:
 
-console=ttyS0
+> The following patch fixes an oops in 2.4.0 RAID5 initialisation when
+> the kernel was configured without CONFIG_X86_FXSR but is booted on a
+> CPU supporting SSE.
 
-Matthew.
+yep - my bad, thanks for the fix. Fortunately it crashes at a stage when
+there are no filesystems mounted (typically), so there is no other impact,
+apart from not being able to boot with this .config.
+
+	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265718AbUFOPyO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265719AbUFOQA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265718AbUFOPyO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 11:54:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265719AbUFOPyO
+	id S265719AbUFOQA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 12:00:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265724AbUFOQA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 11:54:14 -0400
-Received: from beholder.math.fu-berlin.de ([160.45.44.200]:57475 "EHLO
-	beholder.fefe.de") by vger.kernel.org with ESMTP id S265718AbUFOPyE
+	Tue, 15 Jun 2004 12:00:27 -0400
+Received: from ned.cc.purdue.edu ([128.210.189.24]:42625 "EHLO
+	ned.cc.purdue.edu") by vger.kernel.org with ESMTP id S265719AbUFOQA0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 11:54:04 -0400
-Date: Tue, 15 Jun 2004 17:53:54 +0200
-From: Felix von Leitner <felix-kernel@fefe.de>
+	Tue, 15 Jun 2004 12:00:26 -0400
+From: Patrick Finnegan <pat@computer-refuge.org>
 To: linux-kernel@vger.kernel.org
-Subject: ieee1394 still utterly broken in 2.6.7-rc3
-Message-ID: <20040615155354.GA7988@fefe.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Compile problems on alpha: 2.6.6, 2.6.7-rc2
+Date: Tue, 15 Jun 2004 11:00:25 -0500
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Message-Id: <200406151100.25284.pat@computer-refuge.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is it too much to ask to at least revert back to the ieee1394 code from
-2.6.3 before shipping the final 2.6.7?
+I'm not quite sure what's causing this, but I get the following error
+message (make V=1):
 
-Firewire was dysfunctional sind 2.6.3, and still has not been fixed,
-despite several updates to the code.
+        ld  -static -N  -T arch/alpha/kernel/vmlinux.lds.s 
+arch/alpha/kernel/head.o   init/built-in.o --start-group  usr/built-in.o  
+arch/alpha/kernel/built-in.o  arch/alpha/mm/built-in.o  
+arch/alpha/math-emu/built-in.o  kernel/built-in.o  mm/built-in.o  
+fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  
+lib/lib.a  arch/alpha/lib/lib.a  lib/built-in.o  
+arch/alpha/lib/built-in.o  drivers/built-in.o  sound/built-in.o  
+net/built-in.o --end-group  -o .tmp_vmlinux1
+local symbol 0: discarded in section `.exit.text' from drivers/built-in.o
 
-Please, 2.6 is supposed to be a stable kernel, for people to use in
-production environments.
+make then aborts at this step.  At other times, I've gotten errors that
+read the same as the above line, for symbols "1" through "4", in order.
 
-Here's what happens with every kernel since 2.6.4:
+I'm going to guess there's a problem with one of the drivers I've got 
+built-in to the kernel, but I haven't been able to figure much else out..
+I tried using readelf, but didn't find the "0" symbol.
 
-  kernel boots
-  finds firewire hard disk
-  creates device
-  boot sequence tries to mount disk
-  computer hangs
-  I pull the cable
-  computer continues booting, just without firewire disk
+.config and drivers/built-in.o are at http://x-ray.rcs.purdue.edu/alpha-2.6/
 
-It's an Athlon mainboard with VIA chipset.
+gcc version is "gcc (GCC) 3.3.3 (Debian 20040422)"
+binutils version is "2.14.90.0.7 20031029 Debian GNU/Linux"
 
-Felix
+Pat
+-- 
+Purdue University ITAP/RCS        ---  http://www.itap.purdue.edu/rcs/
+The Computer Refuge               ---  http://computer-refuge.org

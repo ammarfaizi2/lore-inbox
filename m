@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129152AbQKRQEi>; Sat, 18 Nov 2000 11:04:38 -0500
+	id <S129170AbQKRQRt>; Sat, 18 Nov 2000 11:17:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129170AbQKRQET>; Sat, 18 Nov 2000 11:04:19 -0500
-Received: from [212.172.23.17] ([212.172.23.17]:3588 "EHLO mail.plan9.de")
-	by vger.kernel.org with ESMTP id <S129152AbQKRQEI>;
-	Sat, 18 Nov 2000 11:04:08 -0500
-Date: Sat, 18 Nov 2000 16:32:58 +0100
-From: Marc Lehmann <pcg@goof.com>
-To: linux-kernel@vger.kernel.org
-Subject: reordering pci interrupts?
-Message-ID: <20001118163258.A1643@cerebro.laendle>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux version 2.2.17 (root@cerebro) (gcc version pgcc-2.95.2 19991024 (release)) 
-X-Copyright: copyright 2000 Marc Alexander Lehmann - all rights reserved
+	id <S129225AbQKRQRi>; Sat, 18 Nov 2000 11:17:38 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:1528 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S129170AbQKRQRU>; Sat, 18 Nov 2000 11:17:20 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200011181546.eAIFkwE06889@webber.adilger.net>
+Subject: Re: [PATCH] ext2 largefile fixes + [f]truncate() error value fix
+In-Reply-To: <Pine.GSO.4.21.0011180503110.19917-100000@weyl.math.psu.edu>
+ "from Alexander Viro at Nov 18, 2000 05:28:46 am"
+To: Alexander Viro <viro@math.psu.edu>
+Date: Sat, 18 Nov 2000 08:46:57 -0700 (MST)
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a motherboard with a broken bios that is unable to set interrupts
-correctly, i.e. it initializes the devices corerctly but swaps the
-interrupts for slot1/slot3 and slot2/slot4.
+Alexander Viro writes:
+> 	* #include <linux/ext2_fs.h> removed from ksyms.c. It is not
+> needed there (hardly a surprise, since ext2 can be modular itself and
+> it doesn't export anything). Ditto for <linux/minix_fs.h>
+> 	* #include <linux/ext2_fs.h> removed from fs/nfsd/vfs.c
 
-Now, is there a way to forcefully re-order the pci-interrupts? I do not
-have an io-apic (thus no pirq=xxx), and I tried to poke the interrupt
-values directly into /proc/bus/pic/*/*, but the kernel has it's own idea.
+I've been trying to get these fixed a couple of times myself....
 
-Thanks a lot for any info (I guess I'll just patch the kernel).
+>  static int ext2_get_block(struct inode *inode, long iblock, struct buffer_head *bh_result, int create)
 
+Would you be willing to accept a patch for this function which reorganizes
+it to be sane - i.e. exit at the bottom and not the middle, no jumps into
+the middle of "if" blocks, etc?
+
+Cheers, Andreas
 -- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@opengroup.org |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

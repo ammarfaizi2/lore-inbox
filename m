@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262574AbSJBUhy>; Wed, 2 Oct 2002 16:37:54 -0400
+	id <S262569AbSJBUff>; Wed, 2 Oct 2002 16:35:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262575AbSJBUhy>; Wed, 2 Oct 2002 16:37:54 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:59063 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262574AbSJBUhw>;
-	Wed, 2 Oct 2002 16:37:52 -0400
-Date: Wed, 2 Oct 2002 22:40:30 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Ralf Gerbig <rge-news@dialeasy.de>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5 input drivers Synaptics touchpad
-Message-ID: <20021002224030.A21833@ucw.cz>
-References: <200210021824.54927@hsp-law.de> <20021002204428.A20378@ucw.cz> <200210022222.57408@hsp-law.de>
+	id <S262572AbSJBUff>; Wed, 2 Oct 2002 16:35:35 -0400
+Received: from mail.cogenit.fr ([195.68.53.173]:54506 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S262569AbSJBUfe>;
+	Wed, 2 Oct 2002 16:35:34 -0400
+Date: Wed, 2 Oct 2002 22:40:59 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cli()/sti() fix for drivers/net/depca.c
+Message-ID: <20021002224059.A18518@fafner.intra.cogenit.fr>
+References: <200210022005.g92K5Fp31816@Port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <200210022222.57408@hsp-law.de>; from rge-news@dialeasy.de on Wed, Oct 02, 2002 at 10:22:56PM +0200
+In-Reply-To: <200210022005.g92K5Fp31816@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Wed, Oct 02, 2002 at 10:58:50PM -0200
+X-Organisation: Marie's fan club - III
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 02, 2002 at 10:22:56PM +0200, Ralf Gerbig wrote:
-> Hi Vojtech,
+Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> :
+> diff -u --recursive linux-2.5.38orig/drivers/net/depca.c linux-2.5.38/drivers/net/depca.c
+> --- linux-2.5.38orig/drivers/net/depca.c	Sun Sep 22 04:25:10 2002
+> +++ linux-2.5.38/drivers/net/depca.c	Wed Oct  2 01:16:57 2002
+[...]
+> @@ -1999,18 +2000,19 @@
+>      break;
 > 
-> Am Mittwoch, 2. Oktober 2002 20:44 schrieb Vojtech Pavlik:
-> > On Wed, Oct 02, 2002 at 06:24:54PM +0200, Ralf Gerbig wrote:
-> > > Hi Vojtech,
-> > >
-> > > I just tried 2.5.40 and could not get the Synaptics touchpad on an Acer
-> > > Travelmate 353 to work with either the synaptics driver for XFree
-> > > at http://www.mobilix.org/software/synaptics/ or tpconfig at
-> > > http://www.compass.com/synaptics/ gpm also does not like the synps2
-> > > protocol. Works as (im)ps/2 though.
-> 
-> > Yes, for 2.5 I still have to write a synaptics touchpad kernel driver
-> > for it to work properly.
-> 
-> is there any kind of 'raw' psaux interface to those userspace drivers?
-> looks to me as a, at least stopgap, solution. With the disclamer that
-> I know nothing about the interface or the kernel, but i've read the
-> mantra 'userspace' many times (for values of userspace as in X and gpm).
+>    case DEPCA_GET_STATS:              /* Get the driver statistics */
+> -    cli();
+> +
+> +    spin_lock_irqsave(&lp->lock, flags);
+>      ioc->len = sizeof(lp->pktStats);
+>      if (copy_to_user(ioc->data, &lp->pktStats, ioc->len))
+>        status = -EFAULT;
+> -    sti();
+> +    spin_unlock_irqrestore(&lp->lock, flags);
 
-No, there isn't, but it should not be too hard to implement. Maybe
-easier than a synaptics driver, but not really much easier.
+- copy_to_user() may sleep. Sleeping with spinlock held hurts badly.
+- on SMP, pktStat can be updated while the copy progresses, see depca_rx().
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Ueimor

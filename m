@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262867AbREVWSJ>; Tue, 22 May 2001 18:18:09 -0400
+	id <S262868AbREVWWa>; Tue, 22 May 2001 18:22:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262868AbREVWRt>; Tue, 22 May 2001 18:17:49 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:39348 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S262867AbREVWRm>;
-	Tue, 22 May 2001 18:17:42 -0400
-Date: Wed, 23 May 2001 00:17:04 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200105222217.AAA79157.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, dalecki@evision-ventures.com
-Subject: Re: [PATCH] struct char_device
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, viro@math.psu.edu
+	id <S262871AbREVWWU>; Tue, 22 May 2001 18:22:20 -0400
+Received: from gateway.sequent.com ([192.148.1.10]:61654 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S262868AbREVWWB>; Tue, 22 May 2001 18:22:01 -0400
+Date: Tue, 22 May 2001 15:21:46 -0700
+From: "Martin J. Bligh" <mbligh@mail.com>
+Reply-To: "Martin J. Bligh" <mbligh@mail.com>
+To: linux-kernel@vger.kernel.org
+Subject: When is the earliest point I can call ioremap() ?
+Message-ID: <2702428599.990544906@W-MBLIG.beaverton.ibm.com>
+X-Mailer: Mulberry/2.0.8 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki writes:
 
-> Erm... I wasn't talking about the DESIRED state of affairs!
-> I was talking about the CURRENT state of affairs. OK?
+I'm trying to call ioremap fairly early on in kernel init (and it
+doesn't work ;-) )
 
-Oh, but in 1995 it was quite possible to compile the kernel
-with kdev_t a pointer type, and I have done it several times since.
+What setup functions have to run before ioremap() will work?
 
-The kernel keeps growing, so each time it is more work than
-the previous time.
+I can debug exactly what it's doing now if I have to, but I
+don't suspect it'll tell me much ... I'm calling from aroung
+console_init in start_kernel.
 
-> At least you have admitted that you where the one responsible
-> for the design of this MESS.
+Thanks,
 
-Thank you! However, you give me too much honour.
+Martin.
 
-Andries
+

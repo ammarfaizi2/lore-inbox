@@ -1,263 +1,238 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266923AbTGHKEb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 06:04:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266928AbTGHKEb
+	id S266997AbTGHKMU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 06:12:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267017AbTGHKMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 06:04:31 -0400
-Received: from catv-50622120.szolcatv.broadband.hu ([80.98.33.32]:48017 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266923AbTGHKED (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 06:04:03 -0400
-Message-ID: <3F0A9A79.6010809@freemail.hu>
-Date: Tue, 08 Jul 2003 12:18:33 +0200
-From: Boszormenyi Zoltan <zboszor@freemail.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en, hu
-MIME-Version: 1.0
-To: dgp85@users.sourceforge.net
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] LIRC drivers for 2.5
-Content-Type: multipart/mixed;
- boundary="------------080208090300080309020407"
+	Tue, 8 Jul 2003 06:12:20 -0400
+Received: from griffon.mipsys.com ([217.167.51.129]:6137 "EHLO gaston")
+	by vger.kernel.org with ESMTP id S266997AbTGHKMP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 06:12:15 -0400
+Subject: Re: [PATCH] timer clean up for i2c-keywest.c
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Greg KH <greg@kroah.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <16137.6948.764603.59450@cargo.ozlabs.ibm.com>
+References: <16137.6948.764603.59450@cargo.ozlabs.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1057659989.11708.113.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 08 Jul 2003 12:26:29 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080208090300080309020407
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+On Mon, 2003-07-07 at 09:03, Paul Mackerras wrote:
+> This patch changes i2c-keywest.c to use mod_timer instead of a
+> two-line sequence to compute .expires and call add_timer in 3 places.
+> Without this patch I get a BUG from time to time in add_timer.
 
-Hi,
+Ok, here it is. It also remove the never used "polled" mode. The
+driver is now in sync with the more up-to-date 2.4 version ;)
 
-I tried to compile it  but at first only lirc_sir.c compiled.
-The drivers/char/lirc/Makefile contains
+Sorry for not sending that earlier, I forgot about it and didn't
+notice it was out of sync.
 
-obj-$(LIRC_NNN) := lirc_nnn.o
+Ben.
 
-lines. These override any previously defined obj-y or obj-m defines.
-These lines should be
-
-obj-$(LIRC_NNN) += lirc_nnn.o
-
-instead.
-
-lirc_i2c.c does not compile:
-
-drivers/char/lirc/lirc_i2c.c: In function `get_key_asus':
-drivers/char/lirc/lirc_i2c.c:106: structure has no member named `name'
-drivers/char/lirc/lirc_i2c.c:117: structure has no member named `name'
-drivers/char/lirc/lirc_i2c.c: In function `set_use_inc':
-drivers/char/lirc/lirc_i2c.c:251: structure has no member named `inc_use'
-drivers/char/lirc/lirc_i2c.c:252: structure has no member named `inc_use'
-drivers/char/lirc/lirc_i2c.c:254: warning: `MOD_INC_USE_COUNT' is
-deprecated (declared at include/linux/module.h:481)
-drivers/char/lirc/lirc_i2c.c: In function `set_use_dec':
-drivers/char/lirc/lirc_i2c.c:262: structure has no member named `dec_use'
-drivers/char/lirc/lirc_i2c.c:263: structure has no member named `dec_use'
-drivers/char/lirc/lirc_i2c.c:264: warning: `MOD_DEC_USE_COUNT' is
-deprecated (declared at include/linux/module.h:493)
-drivers/char/lirc/lirc_i2c.c: At top level:
-drivers/char/lirc/lirc_i2c.c:292: unknown field `name' specified in
-initializer
-drivers/char/lirc/lirc_i2c.c:292: warning: initialization makes integer
-from pointer without a cast
-drivers/char/lirc/lirc_i2c.c: In function `ir_attach':
-drivers/char/lirc/lirc_i2c.c:311: structure has no member named `data'
-drivers/char/lirc/lirc_i2c.c:320: structure has no member named `name'
-drivers/char/lirc/lirc_i2c.c:325: structure has no member named `name'
-drivers/char/lirc/lirc_i2c.c:331: structure has no member named `name'
-drivers/char/lirc/lirc_i2c.c:336: structure has no member named `name'
-drivers/char/lirc/lirc_i2c.c:342: structure has no member named `name'
-drivers/char/lirc/lirc_i2c.c:353: structure has no member named `name'
-drivers/char/lirc/lirc_i2c.c:358: structure has no member named `inc_use'
-drivers/char/lirc/lirc_i2c.c:359: structure has no member named `inc_use'
-drivers/char/lirc/lirc_i2c.c: In function `ir_detach':
-drivers/char/lirc/lirc_i2c.c:366: structure has no member named `data'
-drivers/char/lirc/lirc_i2c.c:369: structure has no member named `dec_use'
-drivers/char/lirc/lirc_i2c.c:370: structure has no member named `dec_use'
-drivers/char/lirc/lirc_i2c.c: In function `ir_probe':
-drivers/char/lirc/lirc_i2c.c:400: structure has no member named `name'
-drivers/char/lirc/lirc_i2c.c:444: structure has no member named `name'
-drivers/char/lirc/lirc_i2c.c: At top level:
-drivers/char/lirc/lirc_i2c.c:459: parse error before "lirc_i2c_init"
-drivers/char/lirc/lirc_i2c.c:460: warning: return type defaults to `int'
-drivers/char/lirc/lirc_i2c.c:467: parse error before "lirc_i2c_exit"
-drivers/char/lirc/lirc_i2c.c:468: warning: return type defaults to `int'
-drivers/char/lirc/lirc_i2c.c:477: warning: type defaults to `int' in
-declaration of `module_init'
-drivers/char/lirc/lirc_i2c.c:477: warning: parameter names (without
-types) in function declaration
-drivers/char/lirc/lirc_i2c.c:477: warning: data definition has no type
-or storage class
-drivers/char/lirc/lirc_i2c.c:478: warning: type defaults to `int' in
-declaration of `module_exit'
-drivers/char/lirc/lirc_i2c.c:478: warning: parameter names (without
-types) in function declaration
-drivers/char/lirc/lirc_i2c.c:478: warning: data definition has no type
-or storage class
-make[3]: *** [drivers/char/lirc/lirc_i2c.o] Error 1
-make[2]: *** [drivers/char/lirc] Error 2
-make[1]: *** [drivers/char] Error 2
-make: *** [drivers] Error 2
-
-And don't use MOD_[DEC|INC]_USE_COUNT on late 2.5.x,
-they are deprecated. Use try_module_get()/module_put() instead.
-I tried to fix them, the patch is attached.
-
-Here are all the warnings after my fixes:
-
-
--- 
-Best regards,
-Zoltán Böszörményi
-
----------------------
-What did Hussein say about his knife?
-One in Bush worth two in the hand.
-
---------------080208090300080309020407
-Content-Type: text/plain;
- name="lirc-fixes.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="lirc-fixes.patch"
-
---- ./drivers/char/lirc/lirc_dev.c.old	2003-07-08 11:42:29.000000000 +0200
-+++ ./drivers/char/lirc/lirc_dev.c	2003-07-08 11:45:16.000000000 +0200
-@@ -307,7 +307,7 @@
+===== drivers/i2c/i2c-keywest.c 1.2 vs edited =====
+--- 1.2/drivers/i2c/i2c-keywest.c	Wed Apr 23 13:32:32 2003
++++ edited/drivers/i2c/i2c-keywest.c	Tue Jul  8 12:16:51 2003
+@@ -66,8 +66,6 @@
+ 
+ #include "i2c-keywest.h"
+ 
+-#undef POLLED_MODE
+-
+ #define DBG(x...) do {\
+ 	if (debug > 0) \
+ 		printk(KERN_DEBUG "KW:" x); \
+@@ -85,27 +83,6 @@
+ 
+ static struct keywest_iface *ifaces = NULL;
+ 
+-#ifdef POLLED_MODE
+-/* This isn't fast, but will go once I implement interrupt with
+- * proper timeout
+- */
+-static u8
+-wait_interrupt(struct keywest_iface* iface)
+-{
+-	int i;
+-	u8 isr;
+-	
+-	for (i = 0; i < POLL_TIMEOUT; i++) {
+-		isr = read_reg(reg_isr) & KW_I2C_IRQ_MASK;
+-		if (isr != 0)
+-			return isr;
+-		current->state = TASK_UNINTERRUPTIBLE;
+-		schedule_timeout(1);
+-	}
+-	return isr;
+-}
+-#endif /* POLLED_MODE */
+-
+ 
+ static void
+ do_stop(struct keywest_iface* iface, int result)
+@@ -116,16 +93,17 @@
+ }
+ 
+ /* Main state machine for standard & standard sub mode */
+-static void
++static int
+ handle_interrupt(struct keywest_iface *iface, u8 isr)
+ {
+ 	int ack;
++	int rearm_timer = 1;
+ 	
+ 	DBG("handle_interrupt(), got: %x, status: %x, state: %d\n",
+ 		isr, read_reg(reg_status), iface->state);
+ 	if (isr == 0 && iface->state != state_stop) {
+ 		do_stop(iface, -1);
+-		return;
++		return rearm_timer;
  	}
- 	up(&plugin_lock);
- 
--	MOD_INC_USE_COUNT;
-+	try_module_get(THIS_MODULE);
- 
- 	dprintk("lirc_dev: plugin %s registered at minor number = %d\n",
- 		ir->p.name, ir->p.minor);
-@@ -377,7 +377,7 @@
- 	init_irctl(ir);
- 	up(&plugin_lock);
- 
--	MOD_DEC_USE_COUNT;
-+	module_put(THIS_MODULE);
- 
- 	return SUCCESS;
- }
---- ./drivers/char/lirc/lirc_gpio.c.old	2003-07-08 11:42:37.000000000 +0200
-+++ ./drivers/char/lirc/lirc_gpio.c	2003-07-08 11:46:10.000000000 +0200
-@@ -336,13 +336,13 @@
- 
- static int set_use_inc(void* data)
- {
--	MOD_INC_USE_COUNT;
-+	try_module_get(THIS_MODULE);
- 	return 0;
- }
- 
- static void set_use_dec(void* data)
- {
--	MOD_DEC_USE_COUNT;
-+	module_put(THIS_MODULE);
- }
- 
- static wait_queue_head_t* get_queue(void* data)
---- ./drivers/char/lirc/lirc_it87.c.old	2003-07-08 11:42:44.000000000 +0200
-+++ ./drivers/char/lirc/lirc_it87.c	2003-07-08 11:49:45.000000000 +0200
-@@ -150,7 +150,7 @@
- 		spin_unlock(&dev_lock);
- 		return -EBUSY;
+ 	if (isr & KW_I2C_IRQ_STOP && iface->state != state_stop) {
+ 		iface->result = -1;
+@@ -196,20 +174,19 @@
+ 		if (!(isr & KW_I2C_IRQ_STOP) && (++iface->stopretry) < 10)
+ 			do_stop(iface, -1);
+ 		else {
++			rearm_timer = 0;
+ 			iface->state = state_idle;
+ 			write_reg(reg_control, 0x00);
+ 			write_reg(reg_ier, 0x00);
+-#ifndef POLLED_MODE
+ 			complete(&iface->complete);
+-#endif /* POLLED_MODE */			
+ 		}
+ 		break;
  	}
--	MOD_INC_USE_COUNT;
-+	try_module_get(THIS_MODULE);
- 	spin_unlock(&dev_lock);
- 	return 0;
- }
-@@ -159,7 +159,7 @@
- static int lirc_close(struct inode * inode,
- 		      struct file *file)
- {
--	MOD_DEC_USE_COUNT;
-+	module_put(THIS_MODULE);
- 	return 0;
- }
+ 	
+ 	write_reg(reg_isr, isr);
+-}
  
-@@ -374,7 +374,7 @@
- static int set_use_inc(void* data)
- {
- #if WE_DONT_USE_LOCAL_OPEN_CLOSE
--       MOD_INC_USE_COUNT;
-+       try_module_get(THIS_MODULE);
- #endif
-        return 0;
- }
-@@ -382,7 +382,7 @@
- static void set_use_dec(void* data)
- {
- #if WE_DONT_USE_LOCAL_OPEN_CLOSE
--       MOD_DEC_USE_COUNT;
-+       module_put(THIS_MODULE);
- #endif
- }
- static struct lirc_plugin plugin = {
---- ./drivers/char/lirc/lirc_parallel.c.old	2003-07-08 11:42:52.000000000 +0200
-+++ ./drivers/char/lirc/lirc_parallel.c	2003-07-08 11:50:47.000000000 +0200
-@@ -547,7 +547,7 @@
- 	rptr=wptr=0;
- 	lost_irqs=0;
+-#ifndef POLLED_MODE
++	return rearm_timer;
++}
  
--	MOD_INC_USE_COUNT;
-+	try_module_get(THIS_MODULE);
- 	is_open=1;
- 	return(0);
- }
-@@ -560,7 +560,7 @@
- 		parport_release(ppdevice);
+ /* Interrupt handler */
+ static irqreturn_t
+@@ -219,8 +196,7 @@
+ 
+ 	spin_lock(&iface->lock);
+ 	del_timer(&iface->timeout_timer);
+-	handle_interrupt(iface, read_reg(reg_isr));
+-	if (iface->state != state_idle) {
++	if (handle_interrupt(iface, read_reg(reg_isr))) {
+ 		iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
+ 		add_timer(&iface->timeout_timer);
  	}
- 	is_open=0;
--	MOD_DEC_USE_COUNT;
-+	module_put(THIS_MODULE);
- 	return(0);
+@@ -235,16 +211,13 @@
+ 
+ 	DBG("timeout !\n");
+ 	spin_lock_irq(&iface->lock);
+-	handle_interrupt(iface, read_reg(reg_isr));
+-	if (iface->state != state_idle) {
++	if (handle_interrupt(iface, read_reg(reg_isr))) {
+ 		iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
+ 		add_timer(&iface->timeout_timer);
+ 	}
+ 	spin_unlock(&iface->lock);
  }
  
-@@ -578,7 +578,7 @@
- static int set_use_inc(void* data)
- {
- #if WE_DONT_USE_LOCAL_OPEN_CLOSE
--       MOD_INC_USE_COUNT;
-+       try_module_get(THIS_MODULE);
- #endif
-        return 0;
- }
-@@ -586,7 +586,7 @@
- static void set_use_dec(void* data)
- {
- #if WE_DONT_USE_LOCAL_OPEN_CLOSE
--       MOD_DEC_USE_COUNT;
-+       module_put(THIS_MODULE);
- #endif
- }
- static struct lirc_plugin plugin = {
---- ./drivers/char/lirc/lirc_serial.c.old	2003-07-08 11:42:58.000000000 +0200
-+++ ./drivers/char/lirc/lirc_serial.c	2003-07-08 11:51:27.000000000 +0200
-@@ -833,7 +833,7 @@
- 	/* Init read buffer. */
- 	lirc_buffer_init(&rbuf, sizeof(lirc_t), RBUF_LEN);
+-#endif /* POLLED_MODE */
+-
+ /*
+  * SMBUS-type transfer entrypoint
+  */
+@@ -338,17 +311,7 @@
+ 	write_reg(reg_control, read_reg(reg_control) | KW_I2C_CTL_XADDR);
+ 	write_reg(reg_ier, KW_I2C_IRQ_MASK);
  
--	MOD_INC_USE_COUNT;
-+	try_module_get(THIS_MODULE);
- 	spin_unlock(&lirc_lock);
- 	return 0;
- }
-@@ -857,7 +857,7 @@
- #       endif
- 	lirc_buffer_free(&rbuf);
+-#ifdef POLLED_MODE
+-	DBG("using polled mode...\n");
+-	/* State machine, to turn into an interrupt handler */
+-	while(iface->state != state_idle) {
+-		u8 isr = wait_interrupt(iface);
+-		handle_interrupt(iface, isr);
+-	}
+-#else /* POLLED_MODE */
+-	DBG("using interrupt mode...\n");
+ 	wait_for_completion(&iface->complete);	
+-#endif /* POLLED_MODE */	
  
--	MOD_DEC_USE_COUNT;
-+	module_put(THIS_MODULE);
- }
+ 	rc = iface->result;	
+ 	DBG("transfer done, result: %d\n", rc);
+@@ -428,17 +391,7 @@
+ 		write_reg(reg_control, read_reg(reg_control) | KW_I2C_CTL_XADDR);
+ 		write_reg(reg_ier, KW_I2C_IRQ_MASK);
  
- static ssize_t lirc_write(struct file *file, const char *buf,
-
-
---------------080208090300080309020407--
+-#ifdef POLLED_MODE
+-		DBG("using polled mode...\n");
+-		/* State machine, to turn into an interrupt handler */
+-		while(iface->state != state_idle) {
+-			u8 isr = wait_interrupt(iface);
+-			handle_interrupt(iface, isr);
+-		}
+-#else /* POLLED_MODE */
+-		DBG("using interrupt mode...\n");
+ 		wait_for_completion(&iface->complete);	
+-#endif /* POLLED_MODE */	
+ 
+ 		rc = iface->result;
+ 		if (rc == 0)
+@@ -540,8 +493,8 @@
+ 			*prate);
+ 	}
+ 	
+-	/* Select standard sub mode */
+-	iface->cur_mode |= KW_I2C_MODE_STANDARDSUB;
++	/* Select standard mode by default */
++	iface->cur_mode |= KW_I2C_MODE_STANDARD;
+ 	
+ 	/* Write mode */
+ 	write_reg(reg_mode, iface->cur_mode);
+@@ -550,7 +503,6 @@
+ 	write_reg(reg_ier, 0x00);
+ 	write_reg(reg_isr, KW_I2C_IRQ_MASK);
+ 
+-#ifndef POLLED_MODE
+ 	/* Request chip interrupt */	
+ 	rc = request_irq(iface->irq, keywest_irq, 0, "keywest i2c", iface);
+ 	if (rc) {
+@@ -559,7 +511,6 @@
+ 		kfree(iface);
+ 		return -ENODEV;
+ 	}
+-#endif /* POLLED_MODE */
+ 
+ 	for (i=0; i<nchan; i++) {
+ 		struct keywest_chan* chan = &iface->channels[i];
+@@ -609,19 +560,16 @@
+ 
+ 	/* Make sure we stop all activity */
+ 	down(&iface->sem);
+-#ifndef POLLED_MODE
+ 	spin_lock_irq(&iface->lock);
+ 	while (iface->state != state_idle) {
+ 		spin_unlock_irq(&iface->lock);
+-		schedule();
++		set_task_state(current,TASK_UNINTERRUPTIBLE);
++		schedule_timeout(HZ/10);
+ 		spin_lock_irq(&iface->lock);
+ 	}
+-#endif /* POLLED_MODE */
+ 	iface->state = state_dead;
+-#ifndef POLLED_MODE
+ 	spin_unlock_irq(&iface->lock);
+ 	free_irq(iface->irq, iface);
+-#endif /* POLLED_MODE */
+ 	up(&iface->sem);
+ 
+ 	/* Release all channels */
 

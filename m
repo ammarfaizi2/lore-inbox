@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVC3A6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVC3BAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbVC3A6G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 19:58:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVC3A6F
+	id S261699AbVC3BAm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 20:00:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbVC3BAl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 19:58:05 -0500
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:58773 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261427AbVC3A5y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 19:57:54 -0500
-Message-ID: <4249F98D.9040706@yahoo.com.au>
-Date: Wed, 30 Mar 2005 10:57:49 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-CC: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] use cheaper elv_queue_empty when unplug a device
-References: <200503290253.j2T2rqg25691@unix-os.sc.intel.com> <20050329080646.GE16636@suse.de> <42491DBE.6020303@yahoo.com.au> <20050329092819.GK16636@suse.de> <424928A1.8060400@yahoo.com.au>
-In-Reply-To: <424928A1.8060400@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 29 Mar 2005 20:00:41 -0500
+Received: from mail.renesas.com ([202.234.163.13]:37601 "EHLO
+	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S261699AbVC3BAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 20:00:19 -0500
+Date: Wed, 30 Mar 2005 10:00:09 +0900 (JST)
+Message-Id: <20050330.100009.173883059.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
+Subject: [PATCH 2.6.12-rc1] m32r: Fix spinlock.h for CONFIG_DEBUG_SPINLOCK
+From: Hirokazu Takata <takata@linux-m32r.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Jens Axboe wrote:
-> 
->> Looks good, I've been toying with something very similar for a long time
->> myself.
->>
-> 
-> Here is another thing I just noticed that should further reduce the
-> locking by at least 1, sometimes 2 lock/unlock pairs per request.
-> At the cost of uglifying the code somewhat. Although it is pretty
-> nicely contained, so Jens you might consider it acceptable as is,
-> or we could investigate how to make it nicer if Kenneth reports some
-> improvement.
-> 
-> Note, this isn't runtime tested - it could easily have a bug.
-> 
+This patch is for fixing a build error of asm-m32r/spinlock.h
+for CONFIG_DEBUG_SPINLOCK.
+Please apply.
 
-OK - I have booted this on a 4-way SMP with SCSI disks, and done
-some IO tests, and no hangs.
+Thanks,
 
-So Kenneth if you could look into this one as well, to see if
-it is worthwhile, that would be great.
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
+
+ include/asm-m32r/spinlock.h |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
+
+diff -ruNp a/include/asm-m32r/spinlock.h b/include/asm-m32r/spinlock.h
+--- a/include/asm-m32r/spinlock.h	2005-03-07 14:10:57.000000000 +0900
++++ b/include/asm-m32r/spinlock.h	2005-03-08 14:08:57.000000000 +0900
+@@ -102,10 +102,8 @@ static inline void _raw_spin_lock(spinlo
+ 	unsigned long tmp0, tmp1;
+ 
+ #ifdef CONFIG_DEBUG_SPINLOCK
+-	__label__ here;
+-here:
+-	if (lock->magic != SPINLOCK_MAGIC) {
+-		printk("pc: %p\n", &&here);
++	if (unlikely(lock->magic != SPINLOCK_MAGIC)) {
++		printk("pc: %p\n", __builtin_return_address(0));
+ 		BUG();
+ 	}
+ #endif
+
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/
 

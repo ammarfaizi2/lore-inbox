@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263824AbUFBSxC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263834AbUFBS7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263824AbUFBSxC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 14:53:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbUFBSxC
+	id S263834AbUFBS7g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 14:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbUFBS7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 14:53:02 -0400
-Received: from holomorphy.com ([207.189.100.168]:39577 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263824AbUFBSwO (ORCPT
+	Wed, 2 Jun 2004 14:59:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:26019 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263815AbUFBS7e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 14:52:14 -0400
-Date: Wed, 2 Jun 2004 11:52:05 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       suparna@in.ibm.com, linux-aio@kvack.org
-Subject: Re: [1/2] use const in time.h unit conversion functions
-Message-ID: <20040602185205.GX21007@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, suparna@in.ibm.com,
-	linux-aio@kvack.org
-References: <20040601021539.413a7ad7.akpm@osdl.org> <20040602012429.GV2093@holomorphy.com> <20040602184335.GC5414@waste.org>
+	Wed, 2 Jun 2004 14:59:34 -0400
+Date: Wed, 2 Jun 2004 19:59:24 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 3/5: Device-mapper: snapshots
+Message-ID: <20040602185924.GS6302@agk.surrey.redhat.com>
+Mail-Followup-To: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+References: <22Gkd-1AX-17@gated-at.bofh.it> <m3r7sx6dip.fsf@averell.firstfloor.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040602184335.GC5414@waste.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <m3r7sx6dip.fsf@averell.firstfloor.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 02, 2004 at 01:43:35PM -0500, Matt Mackall wrote:
-> This is the second const-correctness patch I've seen in a couple days,
-> and I'd like to point out that while it's a noble cause, retrofitting
-> const decls onto interfaces is notorious for causing ripple effects in
-> APIs.
+On Wed, Jun 02, 2004 at 08:06:06PM +0200, Andi Kleen wrote:
+> Alasdair G Kergon <agk@redhat.com> writes:
+> > +/*-----------------------------------------------------------------
+> > + * Persistent snapshots, by persistent we mean that the snapshot
+> > + * will survive a reboot.
+> > + *---------------------------------------------------------------*/
+ 
+As opposed to the transient snapshot which is lost on power down.
 
-There's a point to this one. A warning got tripped when const stuff was
-passed to it in patch #2, hence this as a preparatory cleanup.
+> Is this target supposed to be crash safe? What happens when
+> the computer crashes while writing to such a volume?
+ 
+The intention is for snapshot & origin still to be consistent with each other
+on disk.  (No barriers yet, but some synchronous writes.)
 
-
--- wli
+Alasdair
+-- 
+agk@redhat.com

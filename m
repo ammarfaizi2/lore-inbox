@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265784AbTGDGhz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 02:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265799AbTGDGhz
+	id S265802AbTGDGvP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 02:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265803AbTGDGvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 02:37:55 -0400
-Received: from pop.gmx.net ([213.165.64.20]:51623 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265784AbTGDGhy (ORCPT
+	Fri, 4 Jul 2003 02:51:15 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:58773 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S265802AbTGDGvO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 02:37:54 -0400
-Date: Fri, 4 Jul 2003 09:52:17 +0300
-From: Dan Aloni <da-x@gmx.net>
-To: Greg KH <greg@kroah.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] PCI and sysfs fixes for 2.5.73
-Message-ID: <20030704065217.GA22032@callisto.yi.org>
-References: <20030704020634.GA4316@kroah.com>
+	Fri, 4 Jul 2003 02:51:14 -0400
+Date: Fri, 4 Jul 2003 09:05:41 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Sipek <jeffpc@optonline.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH - RFC] [1/5] 64-bit network statistics - generic net
+Message-ID: <20030704070541.GA20475@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Jeff Sipek <jeffpc@optonline.net>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@digeo.com>, Dave Jones <davej@codemonkey.org.uk>,
+	Jeff Garzik <jgarzik@pobox.com>
+References: <200307032231.39842.jeffpc@optonline.net> <Pine.LNX.4.44.0307032005340.8468-100000@home.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030704020634.GA4316@kroah.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.4.44.0307032005340.8468-100000@home.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 03, 2003 at 07:06:34PM -0700, Greg KH wrote:
-> Hi,
-> 
-> Here's some PCI and sysfs fixes that are against the latest 2.5.74 bk
-> tree.  They include Matthew Wilcox's set of pci cleanups, and sysfs
-> fixes for binary files.  That led into my sysfs attribute file change,
-> which required John Stultz's timer build fix.  I've also added the
-> sysfs/kobject/class rename patches based on previously posted patches.
+On Thu, Jul 03, 2003 at 08:08:03PM -0700, Linus Torvalds wrote:
 
-That's good, but I see that you didn't add the call to class_device_rename()
-in net/core/dev.c, and that's kinda misses the point ;)
+> Please do this in user space. The "overflow every 2^32 packets" thing is 
+> _not_ a problem, if you just gather the statistics at any kind of 
+> reasonable interval.
 
---- linux/net/core/dev.c	2003-06-29 22:16:29.000000000 +0300
-+++ linux/net/core/dev.c	2003-06-30 20:57:55.000000000 +0300
-@@ -2346,10 +2346,14 @@
- 				return -EEXIST;
- 			memcpy(dev->name, ifr->ifr_newname, IFNAMSIZ);
- 			dev->name[IFNAMSIZ - 1] = 0;
--			strlcpy(dev->class_dev.class_id, dev->name, BUS_ID_SIZE);
-+
-+			err = class_device_rename(&dev->class_dev, dev->name);
-+			if (err) 
-+				printk(KERN_DEBUG "SIOCSIFNAME: error renaming class_device (%d)\n", err);
-+
- 			notifier_call_chain(&netdev_chain,
- 					    NETDEV_CHANGENAME, dev);
--			return 0;
-+			return err;
- 
- 		/*
- 		 *	Unknown or private ioctl
+At 114 megabits/second, we pass the mrtg threshold of an overflow within 5
+minutes. A 1 gigabit link will do this once every 34 seconds. There are 10
+gigabit adaptors out there which may need to be polled once every 3 seconds
+then.
+
+> Remember: "perfect is the enemy of good". 
+
+Pretty good is not however. Can't we do what we do for jiffies where we only
+do a 64 bit operation very seldomly?
+
+Regards,
+
+bert
 
 -- 
-Dan Aloni
-da-x@gmx.net
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

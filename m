@@ -1,31 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261399AbSIPM0j>; Mon, 16 Sep 2002 08:26:39 -0400
+	id <S261474AbSIPM10>; Mon, 16 Sep 2002 08:27:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261401AbSIPM0i>; Mon, 16 Sep 2002 08:26:38 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:14319
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261399AbSIPM0i>; Mon, 16 Sep 2002 08:26:38 -0400
-Subject: Re: DMA problems w/ PIIX3 IDE, 2.4.20-pre4-ac2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Florian Hinzmann <f.hinzmann@hamburg.de>
-Cc: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org,
-       Jan-Hinnerk Reichert <jan-hinnerk_reichert@hamburg.de>
-In-Reply-To: <XFMail.20020916131706.f.hinzmann@hamburg.de>
-References: <XFMail.20020916131706.f.hinzmann@hamburg.de>
-Content-Type: text/plain
+	id <S261464AbSIPM1Z>; Mon, 16 Sep 2002 08:27:25 -0400
+Received: from 62-190-219-96.pdu.pipex.net ([62.190.219.96]:55047 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S261408AbSIPM1V>; Mon, 16 Sep 2002 08:27:21 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209161239.g8GCdpgO001846@darkstar.example.net>
+Subject: Re: [PATCH] Experimental IDE oops dumper v0.1
+To: linux-kernel@vger.kernel.org
+Date: Mon, 16 Sep 2002 13:39:51 +0100 (BST)
+Cc: alan@redhat.com, rusty@rustcorp.com.au
+In-Reply-To: <200209161218.g8GCI7301692@devserv.devel.redhat.com> from "Alan Cox" at Sep 16, 2002 08:18:07 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 16 Sep 2002 13:33:15 +0100
-Message-Id: <1032179595.1191.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-09-16 at 12:17, Florian Hinzmann wrote:
-> kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-> kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
-> kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+Talking about dumping oopsen, would there be any usefulness in outputting crash data to the PC speaker, using a slow, (~300 bps) modulation that would survive being captured on a cassette using a walkman with a microphone, then decoded using a userspace program from a sampled .au file?
 
-Which is the drive reporting a physical media error
+Just thought it might be easily implementable, as it doesn't have any pre-requisits, (other than having a PC speaker, which *almost* everybody has).
 
+John.

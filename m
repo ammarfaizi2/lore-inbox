@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262237AbRE1UOu>; Mon, 28 May 2001 16:14:50 -0400
+	id <S263137AbRE1UZT>; Mon, 28 May 2001 16:25:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263136AbRE1UOj>; Mon, 28 May 2001 16:14:39 -0400
-Received: from avocet.mail.pas.earthlink.net ([207.217.121.50]:57798 "EHLO
-	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S262237AbRE1UOf>; Mon, 28 May 2001 16:14:35 -0400
-From: "Christopher B. Liebman" <liebman@sponsera.com>
-To: "Jens Axboe" <axboe@suse.de>,
-        "Mark Hahn" <hahn@coffee.psychology.mcmaster.ca>
-Cc: "Acpi@Phobos. Fachschaften. Tu-Muenchen. De" 
-	<acpi@phobos.fachschaften.tu-muenchen.de>,
-        <linux-kernel@vger.kernel.org>, <alan@lxorguk.ukuu.org.uk>,
-        <andre@linux-ide.org>
-Subject: RE: [patch]: ide dma timeout retry in pio
-Date: Mon, 28 May 2001 16:13:15 -0400
-Message-ID: <EAEOIAEILFNMCKKHDGFGEEBNCAAA.liebman@sponsera.com>
+	id <S263139AbRE1UZJ>; Mon, 28 May 2001 16:25:09 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:12296 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S263138AbRE1UYw>; Mon, 28 May 2001 16:24:52 -0400
+Date: Mon, 28 May 2001 15:48:28 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 4GB I/O, 2nd edition
+In-Reply-To: <20010528175940.M9102@suse.de>
+Message-ID: <Pine.LNX.4.21.0105281546010.1261-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.10.10105281533400.25183-100000@coffee.psychology.mcmaster.ca>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think that this may be an issue with ACPI processor power saving...  I
-have documented issues with ide DMA timeouts when the processor is put into
-the C3 power state.  One of the things that happens in this state is that
-buss master arbitration is *disabled*.....  bus master activity is
-*supposed* to transition the system back to a C0 power state.  I'll bet
-there are some issues with the Linux IDE dma and disabling bus master
-arbitration......  ideas?  thoughts?  patches? ;-)
 
-	-- Chris
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Mark Hahn
->
-> I seem to recall Andre saying that the problem arises when the
-> ide DMA engine looses PCI arbitration during a burst.  shorter
-> bursts would seem like the best workaround if this is the problem...
->
+On Mon, 28 May 2001, Jens Axboe wrote:
+
+> Hi,
+> 
+> One minor bug found that would possibly oops if the SCSI pool ran out of
+> memory for the sg table and had to revert to a single segment request.
+> This should never happen, as the pool is sized after number of devices
+> and queue depth -- but it needed fixing anyway.
+> 
+> Other changes:
+> 
+> - Support cpqarray and cciss (two separate patches)
+> 
+> - Cleanup IDE DMA on/off wrt highmem
+> 
+> - Move run_task_queue back again in __wait_on_buffer. Need to look at
+>   why this hurts performance.
+
+It decrease performance of what in which way ?
+
+Thanks 
 

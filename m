@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131390AbRAFMKf>; Sat, 6 Jan 2001 07:10:35 -0500
+	id <S131478AbRAFMOQ>; Sat, 6 Jan 2001 07:14:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131478AbRAFMKZ>; Sat, 6 Jan 2001 07:10:25 -0500
-Received: from portraits.wsisiz.edu.pl ([195.205.208.34]:378 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id <S131390AbRAFMKS>; Sat, 6 Jan 2001 07:10:18 -0500
-Date: Sat, 6 Jan 2001 13:10:16 +0100
-Message-Id: <200101061210.f06CAGa01969@lt.wsisiz.edu.pl>
-From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 TCP SYN problem
-In-Reply-To: <200101060050.QAA09725@pizda.ninka.net>
-X-Newsgroups: lt.linux-kernel
-X-PGP-Key-Fingerprint: 87 9F 39 9C F9 EE EA 7F  8F C9 58 6A D4 54 0E B9
-X-Key-ID: 6DB9C699
-User-Agent: tin/1.5.7-20001104 ("Paradise Regained") (UNIX) (Linux/2.4.0 (i586))
+	id <S131604AbRAFMOG>; Sat, 6 Jan 2001 07:14:06 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:12764 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S131478AbRAFMOC>; Sat, 6 Jan 2001 07:14:02 -0500
+Message-ID: <3A570D73.F979ECB6@uow.edu.au>
+Date: Sat, 06 Jan 2001 23:20:03 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+To: dchemko@intrinsyc.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 3c59x problems on all 2.4 Kernels?
+In-Reply-To: <3A56E6FE.6F61A2C4@intrinsyc.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200101060050.QAA09725@pizda.ninka.net> you wrote:
+Daniel Chemko wrote:
+> 
+> I am using a 3Com 905C Tornado Vortex Driver and the official 2.4.0, and
+> the driver does not start up. I think I had the same problem with this
+> driver in the 2.2 kernel, which forced me to use 3com's 3c90x, which is
+> not available for 2.4. Below are the specs:
+> 
 
->   When I initiate connection from Solaris machine everything goes OK. 
->   TCP/SYN,ACK segments are OK.
+Presumably this is a new NIC?  Marked 3c905CX?
 
->   Can anyone help me?
+Could you please test the driver at
 
-> Does:
+	http://www.uow.edu.au/~andrewm/linux/3c59x.c-2.4.0-1.gz
 
-> bash# echo "0" >/proc/sys/net/ipv4/tcp_ecn
+and let me know?
 
-Or maybe it?
-echo "1" > /proc/sys/net/ipv4/ip_no_pmtu_disc
+Thanks
 
--- 
-*[ £ukasz Tr±biñski ]*
-SysAdmin @wsisiz.edu.pl
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,118 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262708AbSKDUQ0>; Mon, 4 Nov 2002 15:16:26 -0500
+	id <S262743AbSKDU3z>; Mon, 4 Nov 2002 15:29:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262712AbSKDUQZ>; Mon, 4 Nov 2002 15:16:25 -0500
-Received: from [198.149.18.6] ([198.149.18.6]:48776 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S262708AbSKDUQY>;
-	Mon, 4 Nov 2002 15:16:24 -0500
-Date: Mon, 4 Nov 2002 22:37:25 -0500
-From: Christoph Hellwig <hch@sgi.com>
-To: marcelo@connectiva.com.br.munich.sgi.com, Robert Love <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] set_cpus_allowed() for 2.4
-Message-ID: <20021104223725.A23168@sgi.com>
-Mail-Followup-To: Christoph Hellwig <hch@sgi.com>,
-	marcelo@connectiva.com.br, Robert Love <rml@tech9.net>,
-	linux-kernel@vger.kernel.org
-References: <1033513407.12959.91.camel@phantasy>
-Mime-Version: 1.0
+	id <S262776AbSKDU3z>; Mon, 4 Nov 2002 15:29:55 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:56974
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S262743AbSKDU3x>; Mon, 4 Nov 2002 15:29:53 -0500
+Message-ID: <3DC6DA2B.8060903@redhat.com>
+Date: Mon, 04 Nov 2002 12:35:55 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021102
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "Theodore Ts'o" <tytso@mit.edu>, Linus Torvalds <torvalds@transmeta.com>,
+       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+       Dax Kelson <dax@gurulabs.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, davej@suse.de
+Subject: Re: Filesystem Capabilities in 2.6?
+References: <87y98bxygd.fsf@goat.bogus.local>	<Pine.LNX.4.44.0211021754180.2300-100000@home.transmeta.com>	<20021104024910.GA14849@ravel.coda.cs.cmu.edu> 	<20021104145049.GC9197@think.thunk.org> <1036424005.1113.73.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1036424005.1113.73.camel@irongate.swansea.linux.org.uk>
+X-Enigmail-Version: 0.65.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1033513407.12959.91.camel@phantasy>; from rml@tech9.net on Tue, Oct 01, 2002 at 07:03:28PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-now that all vendors ship a backport of Ingo's O(1) scheduler external projects
-like XFS have to track those projects in addition to the mainline kernel.
+Alan Cox wrote:
 
-Having the common new APIs available in mainline would be a very good think for
-thos projects.  We already have a proper yield() in 2.4.20, but the
-set_cpus_allowed() API used e.g. for kernelthreads bound to CPUs is still missing.
+> execve /proc/self/fd/n ???
 
-Any chance you could apply Robert Love's patch to add it for 2.4.20-rc2?  Note
-that it does not change any existing code but just adds that interface.
+Inspired by this and because Alan of course cannot be wrong about
+something as simple as this I went on and implemented it.  Just to jind
+that it's not working properly.  Try this:
 
 
-diff -urN linux-2.4.20-pre8/include/linux/sched.h linux/include/linux/sched.h
---- linux-2.4.20-pre8/include/linux/sched.h	Mon Sep 30 17:41:22 2002
-+++ linux/include/linux/sched.h	Tue Oct  1 18:35:28 2002
-@@ -163,6 +164,12 @@
- extern int start_context_thread(void);
- extern int current_is_keventd(void);
- 
-+#if CONFIG_SMP
-+extern void set_cpus_allowed(struct task_struct *p, unsigned long new_mask);
-+#else
-+# define set_cpus_allowed(p, new_mask) do { } while (0)
-+#endif
-+
- /*
-  * The default fd array needs to be at least BITS_PER_LONG,
-  * as this is the granularity returned by copy_fdset().
-diff -urN linux-2.4.20-pre8/kernel/ksyms.c linux/kernel/ksyms.c
---- linux-2.4.20-pre8/kernel/ksyms.c	Mon Sep 30 17:41:22 2002
-+++ linux/kernel/ksyms.c	Tue Oct  1 18:34:41 2002
-@@ -451,6 +451,9 @@
- EXPORT_SYMBOL(interruptible_sleep_on_timeout);
- EXPORT_SYMBOL(schedule);
- EXPORT_SYMBOL(schedule_timeout);
-+#if CONFIG_SMP
-+EXPORT_SYMBOL(set_cpus_allowed);
-+#endif
- EXPORT_SYMBOL(yield);
- EXPORT_SYMBOL(__cond_resched);
- EXPORT_SYMBOL(jiffies);
-diff -urN linux-2.4.20-pre8/kernel/sched.c linux/kernel/sched.c
---- linux-2.4.20-pre8/kernel/sched.c	Mon Sep 30 17:41:22 2002
-+++ linux/kernel/sched.c	Tue Oct  1 18:54:49 2002
-@@ -850,6 +850,46 @@
- 
- void scheduling_functions_end_here(void) { }
- 
-+#if CONFIG_SMP
-+
-+/**
-+ * set_cpus_allowed() - change a given task's processor affinity
-+ * @p: task to bind
-+ * @new_mask: bitmask of allowed processors
-+ *
-+ * Upon return, the task is running on a legal processor.  Note the caller
-+ * must have a valid reference to the task: it must not exit() prematurely.
-+ * This call can sleep; do not hold locks on call.
-+ */
-+void set_cpus_allowed(struct task_struct *p, unsigned long new_mask)
-+{
-+	new_mask &= cpu_online_map;
-+	BUG_ON(!new_mask);
-+
-+	p->cpus_allowed = new_mask;
-+
-+	/*
-+	 * If the task is on a no-longer-allowed processor, we need to move
-+	 * it.  If the task is not current, then set need_resched and send
-+	 * its processor an IPI to reschedule.
-+	 */
-+	if (!(p->cpus_runnable & p->cpus_allowed)) {
-+		if (p != current) {
-+			p->need_resched = 1;
-+			smp_send_reschedule(p->processor);
-+		}
-+		/*
-+		 * Wait until we are on a legal processor.  If the task is
-+		 * current, then we should be on a legal processor the next
-+		 * time we reschedule.  Otherwise, we need to wait for the IPI.
-+		 */
-+		while (!(p->cpus_runnable & p->cpus_allowed))
-+			schedule();
-+	}
-+}
-+
-+#endif /* CONFIG_SMP */
-+
- #ifndef __alpha__
- 
- /*
+$ echo -e "#! /bin/sh\necho u1" > u1
+$ chmod +x u1
+$ echo -e "#! /bin/sh\necho u2" > u2
+$ chmod +x u2
+$ cat u.c
+int
+main()
+{
+  system ("cp -f u1 uu");
+  int fd = open ("./uu", 0);
+  char buf[100];
+  sprintf (buf, "/proc/self/fd/%d", fd);
+  char buf2[100];
+  int n = readlink (buf, buf2, sizeof (buf2));
+  buf2[n] = '\0';
+  system ("cp -f u2 uu");
+  execl (buf, buf2, "hallo", 0);
+  return 0;
+}
+$ gcc -c o u u.c
+$ ./u
+
+
+You should see 'u2' as the result.  But this is exactly what the fexecve
+call is supposed to prevent.  The file, once opened, should be reused.
+The expected result is 'u1'.
+
+The problem is, as you can see from the readlink call in strace's
+output, that /proc/self/fd/XXX is used as a symlink in the execve call.
+ The symlink of course refers to 'u2'.
+
+And thinking back, I did try to write fexecve like this back when...
+
+Anyway, any solution to this is welcome since the missing fexecve is
+regularly asked for.
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9xtor2ijCOnn/RHQRAgHQAJ9YsYVnX9rKVYf9Rzy4fgUx5195pgCghnXC
+b5ZIJ1+vivZ2pWTmLxdrXtc=
+=vJwO
+-----END PGP SIGNATURE-----
+

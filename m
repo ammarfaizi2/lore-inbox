@@ -1,123 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316659AbSH0STo>; Tue, 27 Aug 2002 14:19:44 -0400
+	id <S316673AbSH0SXc>; Tue, 27 Aug 2002 14:23:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316673AbSH0STo>; Tue, 27 Aug 2002 14:19:44 -0400
-Received: from mail.gmx.net ([213.165.64.20]:61965 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S316659AbSH0STm>;
-	Tue, 27 Aug 2002 14:19:42 -0400
-From: Felix Seeger <felix.seeger@gmx.de>
+	id <S316728AbSH0SXc>; Tue, 27 Aug 2002 14:23:32 -0400
+Received: from elin.scali.no ([62.70.89.10]:5650 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S316673AbSH0SXb>;
+	Tue, 27 Aug 2002 14:23:31 -0400
+Date: Tue, 27 Aug 2002 20:22:03 +0200 (CEST)
+From: Steffen Persvold <sp@scali.com>
+X-X-Sender: sp@sp-laptop.isdn.scali.no
 To: linux-kernel@vger.kernel.org
-Subject: Re: USB mouse problem, kernel panic on startup in 2.4.19
-Date: Tue, 27 Aug 2002 20:23:47 +0200
-User-Agent: KMail/1.4.6
-References: <200208272011.51691.felix.seeger@gmx.de>
-In-Reply-To: <200208272011.51691.felix.seeger@gmx.de>
+Message-ID: <Pine.LNX.4.44.0208271934180.18659-100000@sp-laptop.isdn.scali.no>
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200208272023.52351.felix.seeger@gmx.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Dear list people,
 
-Sorry, there was a type. I noticed the ????
+Lately I've been testing out a couple of Dell PowerEdge 2650 machines. 
+These babies have dual onboard BCM95701A10 NICs (Tigon3 chip) mounted 
+in the same PCI-X 133MHz 64 bit bus.
 
-Here is it without this typo:
+Since they have dual onboard GbE, I've been trying to channel bond them 
+using just two crossover cables between two machines. The results I'm 
+seeing is at the first glance very strange. What I see is that the 
+performance when bonded (round robin) is about _half_ (and sometimes even 
+less) compared to just using a single interface. Here are some netpipe-2.4 
+results :
 
-bash-2.05b# ksymoops /home/hal/panic.txt
-ksymoops 2.4.6 on i686 2.4.19.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.19/ (default)
-     -m /boot/System.map-2.4.19 (default)
+64k message size, single interface
+  1:     65536 bytes  190 times -->  760.54 Mbps in 0.000657 sec
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+256k message size, single interface
+  1:    262144 bytes   53 times -->  855.04 Mbps in 0.002339 sec
 
-Warning (compare_maps): ksyms_base symbol 
-eighty_ninty_three_R__ver_eighty_ninty_three not found in System.map.  
-Ignoring ksyms_base entry
-Kernel BUG at usb-ohci.h:464!
-Invalid operand: 0000
-CPU: 0
-EIP: 0010:[<c02105e0>] Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010046
-eax: 00000000  ebx: d3ed7800  ecx: d3d7800  edx: 000ee4c0
-esi:  04000001  edi:  00000000  ebp: c02e7fac esp: c02e7f30
-ds: 0018  es: 0018 ss: 0018
-Process swapper (pid:0,stackpage=c02e7000)
-Stack: d3ed7800   04000001   d980f000   c02e7fac   00000246   00000000   
-c021187b   d3ed7800
-          d3e97d00   04000001   0000000a   c02e7fac  00000002   c0109a9f    
-0000000a   d3ed7800
-          c02e7fac    00000280   c0301b00   0000000a c02e7fa4    c0109c1e   
-0000000a   c02e7fac
-Call Trace: [<c021187b>]  [<c0109a9f>]  [<c0109c1>]  [<c0106c20>]  
-[<c0106c20>]
-[<c010beb8>]  [<c0106c20>]  [<c0106c20>]  [<c0106c43>]  [<0106cb2>]  
-[<c0105000>]
-[<c0105027>]
-Code: 0f 0b d0 01 00 ab 28 c0 8b 38 89 fd 8b 07 c1 e8 1c 75 51 8b
+64 message size, both interfaces (using round robin)
+  1:     65536 bytes   65 times -->  257.06 Mbps in 0.001945 sec
+
+256k message size, both interfaces (using round robin)
+  1:    262144 bytes   25 times -->  376.01 Mbps in 0.005319 sec
+
+Looking at the output of netstat -s after a testrun with 256k message 
+size, I see some differences (main items) :
+
+Single interface :
+ Tcp:
+      0 segments retransmited
+
+ TcpExt:
+     109616 packets directly queued to recvmsg prequeue.
+     52249581 packets directly received from backlog
+     125694404 packets directly received from prequeue
+     78 packets header predicted
+     124999 packets header predicted and directly queued to user
+     TCPPureAcks: 93
+     TCPHPAcks: 22981
+
+      
+Bonded interfaces :
+  Tcp:
+      234 segments retransmited
+
+  TcpExt:
+      1 delayed acks sent
+      Quick ack mode was activated 234 times
+      67087 packets directly queued to recvmsg prequeue.
+      6058227 packets directly received from backlog
+      13276665 packets directly received from prequeue
+      6232 packets header predicted
+      4625 packets header predicted and directly queued to user
+      TCPPureAcks: 25708
+      TCPHPAcks: 4456
 
 
->>EIP; c02105e0 <dl_reverse_done_list+60/f0>   <=====
+The biggest difference as far as I can see is the 'packtes header 
+predicted', 'packets header predicted and directly queued to user', 
+'TCPPureAcks' and TCPHPAcks.
 
->>ebx; d3ed7800 <_end+13b9fc50/194d9450>
->>ebp; c02e7fac <init_task_union+1fac/2000>
->>esp; c02e7f30 <init_task_union+1f30/2000>
+I have an idea that this happens because the packets are comming out of 
+order into the receiving node (i.e the bonding device is alternating 
+between each interface when sending, and when the receiving node gets the 
+packets it is possible that the first interface get packets number 0, 2, 
+4 and 6 in one interrupt and queues it to the network stack before packet 
+1, 3, 5 is handled on the other interface).
 
-Trace; c021187b <hc_interrupt+7b/130>
-Trace; c0109a9f <handle_IRQ_event+2f/60>
-Trace; 0c0109c1 Before first symbol
-Trace; c0106c20 <default_idle+0/30>
-Trace; c0106c20 <default_idle+0/30>
-Trace; c010beb8 <call_do_IRQ+5/d>
-Trace; c0106c20 <default_idle+0/30>
-Trace; c0106c20 <default_idle+0/30>
-Trace; c0106c43 <default_idle+23/30>
-Trace; 00106cb2 Before first symbol
-Trace; c0105000 <_stext+0/0>
-Trace; c0105027 <rest_init+27/30>
+If this is the case, any ideas how to fix this...
 
-Code;  c02105e0 <dl_reverse_done_list+60/f0>
-00000000 <_EIP>:
-Code;  c02105e0 <dl_reverse_done_list+60/f0>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c02105e2 <dl_reverse_done_list+62/f0>
-   2:   d0 01                     rolb   (%ecx)
-Code;  c02105e4 <dl_reverse_done_list+64/f0>
-   4:   00 ab 28 c0 8b 38         add    %ch,0x388bc028(%ebx)
-Code;  c02105ea <dl_reverse_done_list+6a/f0>
-   a:   89 fd                     mov    %edi,%ebp
-Code;  c02105ec <dl_reverse_done_list+6c/f0>
-   c:   8b 07                     mov    (%edi),%eax
-Code;  c02105ee <dl_reverse_done_list+6e/f0>
-   e:   c1 e8 1c                  shr    $0x1c,%eax
-Code;  c02105f1 <dl_reverse_done_list+71/f0>
-  11:   75 51                     jne    64 <_EIP+0x64> c0210644 
-<dl_reverse_done_list+c4/f0>
-Code;  c02105f3 <dl_reverse_done_list+73/f0>
-  13:   8b 00                     mov    (%eax),%eax
+I would really love to get 2Gbit/sec on these machines....
 
-<0> Kernel panic: Aiee, killing interrupt handler!
 
-2 warnings issued.  Results may not be reliable.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+PS
 
-iD8DBQE9a8O4S0DOrvdnsewRAhxUAJ9MvEpGhf0gfHa/Y1EZTpTJTeTjAwCdGbT0
-cG4OqgQYcs3bs1H8Bjk3eL0=
-=5bW8
------END PGP SIGNATURE-----
+I've also seen this feature on the Intel GbE cards (e1000), but these 
+drivers has a parameter named RxIntDelay which can be set to 0 to get 
+interrupt for each packet. Is this possible with the tg3 driver too ?
+
+DS
+
+Regards,
+--
+  Steffen Persvold   |       Scali AS
+ mailto:sp@scali.com |  http://www.scali.com
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
+
 

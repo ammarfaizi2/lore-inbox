@@ -1,49 +1,88 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315792AbSFCX1U>; Mon, 3 Jun 2002 19:27:20 -0400
+	id <S315794AbSFCX3D>; Mon, 3 Jun 2002 19:29:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315794AbSFCX1T>; Mon, 3 Jun 2002 19:27:19 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:35078 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S315792AbSFCX1S>; Mon, 3 Jun 2002 19:27:18 -0400
-Date: Mon, 3 Jun 2002 20:27:08 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Pawel Kot <pkot@linuxnews.pl>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Andre Hedrick <andre@serialata.org>
-Subject: Re: Another -pre
-Message-ID: <20020603232707.GI6062@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Pawel Kot <pkot@linuxnews.pl>, lkml <linux-kernel@vger.kernel.org>,
-	Andre Hedrick <andre@serialata.org>
-In-Reply-To: <Pine.LNX.4.44.0206031155200.4146-100000@freak.distro.conectiva> <1023149710.6773.82.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Url: http://advogato.org/person/acme
+	id <S315806AbSFCX3C>; Mon, 3 Jun 2002 19:29:02 -0400
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:43146 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S315794AbSFCX3A>; Mon, 3 Jun 2002 19:29:00 -0400
+Message-ID: <3CFBFD41.2020505@wanadoo.fr>
+Date: Tue, 04 Jun 2002 01:35:29 +0200
+From: =?ISO-8859-15?Q?Fran=E7ois_Cami?= <stilgar2k@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+X-Accept-Language: en-us, fr
+MIME-Version: 1.0
+To: Andrew Morton <akpm@zip.com.au>
+CC: john slee <indigoid@higherplane.net>,
+        Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        Helge Hafting <helgehaf@aitel.hist.no>,
+        "Ronny T. Lampert (EED)" <Ronny.Lampert@eed.ericsson.se>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 3c59x driver: card not responding after a while
+In-Reply-To: <3CFB21C5.27BBFB66@aitel.hist.no> <Pine.LNX.4.44.0206031050170.10836-100000@netfinity.realnet.co.sz> <20020603125752.GE12322@higherplane.net> <3CFBCDBD.DF675D57@zip.com.au>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Tue, Jun 04, 2002 at 01:15:10AM +0100, Alan Cox escreveu:
-> With the current code I've got these items on my list I class as
-> problematic.
+Andrew Morton wrote:
+> john slee wrote:
+> 
+>>On Mon, Jun 03, 2002 at 10:51:34AM +0200, Zwane Mwaikambo wrote:
+>>
+>>>On Mon, 3 Jun 2002, Helge Hafting wrote:
+>>>
+>>>
+>>>>I see this too.  I always thought it was the less-than-perfect ABIT BP6
+>>>>loosing an irq or something.  (odd that it _always_ is the NIC that goes
+>>>>though...)  I also have a k6 with the same NIC, and another
+>>>>UP machine at work.  They never fail this way.
+>>>>Could it be a SMP problem?
+>>>
+>>>I wouldn't think so, i use it on SMP extensively without a hitch.
+>>
+>>"me too" - have been using 3c905B cards in various SMP (and UP) boxes
+>>for a couple of years now and they've never failed me, even on bp6.  in
+>>fact i seem to have missed out on the plague of bp6 problems, even when
+>>running dual 300a overclocked to 450.  strange.
+>>
+> 
+> 
+> That driver is solid for SMP.  It's possible that the BP6
+> is losing its IRQ routing assignments, or the APIC is
+> getting stuck.  We had extensive problems with that last
+> year.  A workaround was implemented and as far as I can tell,
+> the problem went away.
+> 
+> It seems to affect network cards most because they typically
+> generate the most interrupts.
+> 
+> Try booting the machine with the `noapic' option.
 
-you mean with 2.4.19-pre9 or with 2.4.19-pre9-ac3?
- 
-> 1 Weird corruption report with AMD chipset in PIO mode
+If I remember correctly, back in January we (we being Andrew Morton
+and myself) talked about my 3C905C-TX not willing to share an
+interrupt with my SBLive!...
 
-Oh, I'm not alone ;) Well, up to now it _seems_ that ext3 is saving my day,
-but it only happened two time after I upgraded to 2.4.19-pre8-ac5, none after
-I upgraded to 2.4.19-pre9-ac3, but I can't manage to make 'hdparm -X68 /dev/hdd'
-to work :( I have already sent detailed information to Andre and discussed
-and tried several things sugested in a irc chat.
+I've spotted the same problem, this time sharing an interrupt
+between my 3C905C-TX and an Intel i82559 10/100 ethernet
+controller (kernel is 2.4.19pre7).
 
-Short description: I use ext3 over raid0, using /dev/hda4 and /dev/hdd1,
-/dev/hdc has a CDRW drive, mostly unused, /dev/hdb has nothing, two times
-/dev/hda stopped responding, not reproducible AFAIT.
+The situation is a bit different : using the 3C905C with the
+SBLive! resulted in a total lock-up of the machine, whereas using both
+network cards usually generate network timeouts and weird errors.
 
-- Arnaldo
+Putting the cards in separate (meaning different IRQ lines) PCI
+slots solved the problem (same solution than between 3C905 and
+SBLive!). All 3 cards are now working perfectly, at the same time.
+
+Motherboard is MSI BXMaster (i440BX).
+
+-- 
+
+F. CAMI
+----------------------------------------------------------
+  "To disable the Internet to save EMI and Disney is the
+moral equivalent of burning down the library of Alexandria
+to ensure the livelihood of monastic scribes."
+               - John Ippolito (Guggenheim)
+

@@ -1,90 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267968AbUJLVtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267904AbUJLVwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267968AbUJLVtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 17:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUJLVtZ
+	id S267904AbUJLVwf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 17:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUJLVwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 17:49:25 -0400
-Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:52363 "EHLO
-	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S267936AbUJLVsu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 17:48:50 -0400
-Message-ID: <416C5122.9040001@kolivas.org>
-Date: Wed, 13 Oct 2004 07:48:18 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-Cc: netdev@oss.sgi.com,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       davem@redhat.com
-Subject: Re: [PATCH] netconsole support for b44
-References: <416BC26B.6090603@kolivas.org> <20041012180949.GW5414@waste.org>
-In-Reply-To: <20041012180949.GW5414@waste.org>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigBF3A108614D7BD67726F038C"
+	Tue, 12 Oct 2004 17:52:35 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:9225 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S267930AbUJLVrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 17:47:41 -0400
+Date: Tue, 12 Oct 2004 23:47:04 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chris Wright <chrisw@osdl.org>, mochel@digitalimplant.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] make CONFIG_PM_DEBUG depend on CONFIG_PM
+Message-ID: <20041012214704.GE18579@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigBF3A108614D7BD67726F038C
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Matt Mackall wrote:
-> On Tue, Oct 12, 2004 at 09:39:23PM +1000, Con Kolivas wrote:
-> 
->>This patch adds poll support to the b44 driver to allow netconsole 
->>support. Style lifted straight from 8139too.c
->>
->>here is the dmesg output with it in place:
->>
->>netconsole: device eth0 not up yet, forcing it
->>netconsole: carrier detect appears flaky, waiting 10 seconds
->>b44: eth0: Link is down.
->>b44: eth0: Link is up at 100 Mbps, full duplex.
->>b44: eth0: Flow control is on for TX and on for RX.
->>netconsole: network logging started
->>
->>output confirmed by netcat on other system.
->>
->>Signed-off-by: Con Kolivas <kernel@kolivas.org>
-> 
-> 
-> +       disable_irq(dev->irq);
-> +       b44_interrupt (dev->irq, dev, NULL);
-> +       enable_irq(dev->irq);
-> 
-> Aside from this bizarre whitespace convention and neglecting to cc:
-> me, looks good.
-> 
+The trivial patch by Chris Wright below still applies against
+both 2.6.9-rc4 and 2.6.9-rc4-mm1.
 
-sorry,sorry,thanks.
 
-Can you explain where I went wrong in the whitespace so I don't make the 
-same mistake again? It looked pretty standard to me.
+make CONFIG_PM_DEBUG depend on CONFIG_PM
 
-Should I nudge akpm with this or will it go via another route?
 
-Cheers,
-Con
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---------------enigBF3A108614D7BD67726F038C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBbFEkZUg7+tp6mRURAlWCAJ4oaRD1BZfn4t1aFQdzT5GHZA14mwCfZ08d
-c/pMvPFNLqseH5ekm/xyvZY=
-=wXV5
------END PGP SIGNATURE-----
-
---------------enigBF3A108614D7BD67726F038C--
+===== kernel/power/Kconfig 1.11 vs edited =====
+--- 1.11/kernel/power/Kconfig	2004-08-01 20:36:39 -07:00
++++ edited/kernel/power/Kconfig	2004-09-29 16:01:40 -07:00
+@@ -20,6 +20,7 @@
+ 
+ config PM_DEBUG
+ 	bool "Power Management Debug Support"
++	depends on PM
+ 	---help---
+ 	This option enables verbose debugging support in the Power Management
+ 	code. This is helpful when debugging and reporting various PM bugs, 

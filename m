@@ -1,50 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266216AbUIOOYF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266208AbUIOO07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266216AbUIOOYF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 10:24:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266459AbUIOOUs
+	id S266208AbUIOO07 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 10:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbUIOO07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 10:20:48 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:41350 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S266233AbUIOOUK (ORCPT
+	Wed, 15 Sep 2004 10:26:59 -0400
+Received: from sd291.sivit.org ([194.146.225.122]:25559 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S266233AbUIOOVL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 10:20:10 -0400
-Date: Wed, 15 Sep 2004 16:18:19 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/3] beat kswapd with the proverbial clue-bat
-Message-ID: <20040915141819.GC6158@wohnheim.fh-wedel.de>
-References: <20040904230210.03fe3c11.davem@davemloft.net> <413AAF49.5070600@yahoo.com.au> <413AE6E7.5070103@yahoo.com.au> <Pine.LNX.4.58.0409051021290.2331@ppc970.osdl.org> <1094405830.2809.8.camel@laptop.fenrus.com> <Pine.LNX.4.58.0409051051120.2331@ppc970.osdl.org> <20040915132712.GA6158@wohnheim.fh-wedel.de> <20040915132904.GA30530@devserv.devel.redhat.com> <20040915133408.GB6158@wohnheim.fh-wedel.de> <20040915133939.GC30530@devserv.devel.redhat.com>
+	Wed, 15 Sep 2004 10:21:11 -0400
+Date: Wed, 15 Sep 2004 16:21:07 +0200
+From: Stelian Pop <stelian@popies.net>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC, 2.6] a simple FIFO implementation
+Message-ID: <20040915142107.GD21917@sd291.sivit.org>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	linux-kernel@vger.kernel.org
+References: <20040913135253.GA3118@crusoe.alcove-fr> <200409150827.55011.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040915133939.GC30530@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <200409150827.55011.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 September 2004 15:39:39 +0200, Arjan van de Ven wrote:
+On Wed, Sep 15, 2004 at 08:27:54AM -0500, Dmitry Torokhov wrote:
+
+> On Monday 13 September 2004 08:52 am, Stelian Pop wrote:
+> > +static inline unsigned int kfifo_len(struct kfifo *fifo) {
+> > +       unsigned long flags;
+> > +       unsigned int result;
+> > +       
+> > +       spin_lock_irqsave(&fifo->lock, flags);
+> > +       
+> > +       result = fifo->len;
+> > +
+> > +       spin_unlock_irqrestore(&fifo->lock, flags);
+> > +
+> > +       return result;
+> > +}
 > 
-> if your page is made unfreeable for the vm, for example by virtue of not
-> being on the LRU or having an elevated count or.. or .. then such a page is
-> pinned.
+> Hi,
 > 
-> if your page is freeable byt he VM and your device is dmaing from/to it you
-> have a really bad bug
+> I do not think that taking/releasing spinlock here serves any purpose as
+> len can get canged right after releasing the lock and therefore no longer
+> valid... 
 
-Agreed.  skb->data should be safe as long as kfree_skb isn't called [1].
-Thanks for the education.
+Indeed, removed.
 
-[1] Actually, that does cause a really bad bug, but completely
-unrelated to memory management.  kfree_skb does more than the name
-indicates.  Patches will follow...
+> And relying on result of kfifo_len to decide if the FIF can be
+> drained is not reliable so probably the inteface is better off without this
+> function.
 
-Jörn
+Still, one should have a way to get at least a hint on whether the
+FIFO has data or not (think poll() implementation).
 
+What about adding a note in the header saying the function can be racy
+and does not guarantee a subsequent kfifo_get will succeed ?
+
+> Also I think that most users would put only sertain structures (homogenous?)
+> in their FIFOs so maybe it should be:
+> 
+> struct kfifo *kfifo_alloc(unsigned int el_size, unsigned int len)
+> unsigned int kfifo_put(struct kfifo *fifo, void *buffer)
+> unsigned int kfifo_get(struct kfifo *fifo, void *buffer)
+
+It's easy to adapt the generic interface to what you want, but difficult
+to do the contrary. Let's be the most generic here (who knows, maybe 
+somebody wants to add several structures at once...).
+
+> Also, don't we have a rule that for functions the opening curly brace should
+> be on a new line?
+
+Sure, corrected.
+
+Stelian.
 -- 
-Everything should be made as simple as possible, but not simpler.
--- Albert Einstein
+Stelian Pop <stelian@popies.net>    

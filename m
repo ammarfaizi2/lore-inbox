@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264135AbRFRPGX>; Mon, 18 Jun 2001 11:06:23 -0400
+	id <S264181AbRFRPP4>; Mon, 18 Jun 2001 11:15:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264138AbRFRPGN>; Mon, 18 Jun 2001 11:06:13 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:34896 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S264135AbRFRPGD>; Mon, 18 Jun 2001 11:06:03 -0400
-Date: Mon, 18 Jun 2001 17:03:06 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: German Gomez Garcia <german@piraos.com>,
-        Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Strange behaviour of swap under 2.4.5-ac15
-Message-ID: <20010618170306.A1317@athlon.random>
-In-Reply-To: <20010618155605.D13836@athlon.random> <Pine.LNX.4.33.0106181153440.32426-100000@duckman.distro.conectiva>
+	id <S264176AbRFRPPq>; Mon, 18 Jun 2001 11:15:46 -0400
+Received: from [207.0.237.38] ([207.0.237.38]:22276 "HELO sin.sloth.org")
+	by vger.kernel.org with SMTP id <S264169AbRFRPPa>;
+	Mon, 18 Jun 2001 11:15:30 -0400
+Date: Mon, 18 Jun 2001 11:15:11 -0400
+From: Geoffrey Gallaway <geoffeg@sin.sloth.org>
+To: linux-kernel@vger.kernel.org
+Subject: Error in documentation?
+Message-ID: <20010618111510.A27662@sin.sloth.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0106181153440.32426-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Mon, Jun 18, 2001 at 11:54:09AM -0300
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 18, 2001 at 11:54:09AM -0300, Rik van Riel wrote:
-> YOUR PATCH fixes a real bug, true.  But that wasn't
-> what German was complaining about ;)
+linux/Documentation/modules.txt says that I should find my modules in
+"linux/modules" after running "make modules". However, this is
+apparently not true as I see no modules directory. 
 
-How did you know that before he made his first reply to my email?
+I am trying to compile a kernel with lots of modules for a machine
+without a network connection. To move the kernel, I simply copy it to
+floppy and move it over to the other machine. However, for the modules,
+is my only choice appears to be "make modules-install" then tar up
+/lib/modules/kernel-release/ and then remove the directory. Is there a 
+cleaner way to handle this?
 
-Andrea
+Geoffeg
+
+-- 
+Geoffrey Gallaway || 
+geoffeg@sloth.org || Clones are people two.
+D e v o r z h u n ||

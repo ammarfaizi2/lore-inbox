@@ -1,128 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262219AbUCSRFy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 12:05:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbUCSRFy
+	id S263019AbUCSRJU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 12:09:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbUCSRJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 12:05:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:51137 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262219AbUCSRFG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 12:05:06 -0500
-Subject: Re: 2.6.5-rc1-mm2 and direct_read_under
-From: Daniel McNeil <daniel@osdl.org>
-To: Chris Mason <mason@suse.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-In-Reply-To: <1079714990.6930.49.camel@ibm-c.pdx.osdl.net>
-References: <20040314172809.31bd72f7.akpm@osdl.org>
-	 <1079461971.23783.5.camel@ibm-c.pdx.osdl.net>
-	 <1079474312.4186.927.camel@watt.suse.com>
-	 <20040316152106.22053934.akpm@osdl.org>
-	 <20040316152843.667a623d.akpm@osdl.org>
-	 <20040316153900.1e845ba2.akpm@osdl.org>
-	 <1079485055.4181.1115.camel@watt.suse.com>
-	 <1079487710.3100.22.camel@ibm-c.pdx.osdl.net>
-	 <20040316180043.441e8150.akpm@osdl.org>
-	 <1079554288.4183.1938.camel@watt.suse.com>
-	 <20040317123324.46411197.akpm@osdl.org>
-	 <1079563568.4185.1947.camel@watt.suse.com>
-	 <20040317150909.7fd121bd.akpm@osdl.org>
-	 <1079566076.4186.1959.camel@watt.suse.com>
-	 <20040317155111.49d09a87.akpm@osdl.org>
-	 <1079568387.4186.1964.camel@watt.suse.com>
-	 <20040317161338.28b21c35.akpm@osdl.org>
-	 <1079569870.4186.1967.camel@watt.suse.com>
-	 <20040317163332.0385d665.akpm@osdl.org>
-	 <1079572511.6930.5.camel@ibm-c.pdx.osdl.net>
-	 <1079632431.6930.30.camel@ibm-c.pdx.osdl.net>
-	 <1079635678.4185.2100.camel@watt.suse.com>
-	 <1079637004.6930.42.camel@ibm-c.pdx.osdl.net>
-	 <1079714990.6930.49.camel@ibm-c.pdx.osdl.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1079715901.6930.52.camel@ibm-c.pdx.osdl.net>
+	Fri, 19 Mar 2004 12:09:20 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30915 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261915AbUCSRJN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 12:09:13 -0500
+Date: Fri, 19 Mar 2004 17:09:09 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: Matthew Wilcox <willy@debian.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@zip.com.au>, Greg KH <greg@kroah.com>,
+       David Mosberger <davidm@hpl.hp.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [2/3] Use insert_resource in pci_claim_resource
+Message-ID: <20040319170909.GR25059@parcelfarce.linux.theplanet.co.uk>
+References: <20040318235024.GH25059@parcelfarce.linux.theplanet.co.uk> <20040318235217.GJ25059@parcelfarce.linux.theplanet.co.uk> <20040319095600.A9678@flint.arm.linux.org.uk> <20040319145212.GN25059@parcelfarce.linux.theplanet.co.uk> <20040319153639.E14431@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 19 Mar 2004 09:05:01 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040319153639.E14431@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can't type this morning -- 2.6.5-rc1-mm2 is what I ran on.
-                           =============
+On Fri, Mar 19, 2004 at 03:36:39PM +0000, Russell King wrote:
+> On Fri, Mar 19, 2004 at 02:52:12PM +0000, Matthew Wilcox wrote:
+> > But I do think insert_resource is the right call to make.  If the device has
+> > the wrong resources, that means something's gone awfully wrong earlier in
+> > the pci code.
+> 
+> Sure, but due to the request_resource semantics, it provides a good way
+> to catch this should it occur.
 
-Daniel
-On Fri, 2004-03-19 at 08:49, Daniel McNeil wrote:
-> I re-ran direct_read_under test (6 copies) on 2.6.4-rc1-mm2:
-> 
-> ext3 failed within 2 hours.
-> 
-> ext2 ran overnight without errors.
-> 
-> Daniel
-> 
-> On Thu, 2004-03-18 at 11:10, Daniel McNeil wrote:
-> > On Thu, 2004-03-18 at 10:47, Chris Mason wrote:
-> > > On Thu, 2004-03-18 at 12:53, Daniel McNeil wrote:
-> > > > I'm ran 2.6.4-mm2 plus the 2 wait_on_page_range() patches,
-> > > > the test_set_page_writeback() patch and clear_page_dirty_for_io patch
-> > > > overnight.
-> > > > 
-> > > > 6 copies of direct_read_under test on 8-cpu system on 1
-> > > > ext3 file system in 1 directory on a scsi disk.
-> > > > (http://developer.osdl.org/daniel/AIO/TESTS/direct_read_under.c)
-> > > > 
-> > > > 5 of the 6 tests saw uninitialized data within 2 hours.
-> > > > The sixth test ran overnight.
-> > > 
-> > > Do you still have the errors generated?  I wondering how big the range
-> > > of uninitialized data was.  When I was bug hunting yesterday, I saw
-> > > ranges from 64k to 32mb in size, which was why I decided writes weren't
-> > > getting to the disk at all.
-> > > 
-> > > It might be interesting to try with data=writeback, or on ext2.  Things
-> > > might be easier to track if we're not worried about ll_rw_block.
-> > > 
-> > > It might also be interesting to significantly lower the size of the
-> > > reads and writes done by direct_read_under, or anything else you can
-> > > think of to get the reproduce time down to something smaller than 2
-> > > hours...
-> > > 
-> > > It's probably a good idea to upgrade to 2.6.5-rc1-mm2, just so we're all
-> > > staring at the same code.
-> > > 
-> > > -chris
-> > > 
-> > 
-> > Chris,
-> > 
-> > Still have the data:
-> > 		 63 pages (258048 bytes)
-> > 		 90 pages (368640 bytes)
-> > 		139 pages (569344 bytes)
-> > 		 30 pages (122880 bytes)
-> > 		 87 pages (356352 bytes)
-> > 		
-> > 
-> > I'm rebooting to 2.6.5-rc1-mm2 and will re-run.  I have do have
-> > versions of direct_read_under that do smaller i/o and also
-> > 1 that does forks off and does 'sync' calls every few seconds.
-> > 
-> > I'll give ext2 and try as well.
-> > 
-> > Daniel
-> > 
-> > --
-> > To unsubscribe, send a message with 'unsubscribe linux-aio' in
-> > the body to majordomo@kvack.org.  For more info on Linux AIO,
-> > see: http://www.kvack.org/aio/
-> > Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
-> 
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-aio' in
-> the body to majordomo@kvack.org.  For more info on Linux AIO,
-> see: http://www.kvack.org/aio/
-> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
+Now that I try it, we lose.  ACPI allows us an unlimited number of resources
+that can be routed to each bus, and pci_bus only has space for 4.  On my
+rx2600 box, we have 5 resources pointing to bus 0x20:
 
+# cat /proc/iomem /proc/ioports |grep :20
+90000000-97ffffff : PCI Bus 0000:20
+ff5e0000-ff5e0007 : PCI Bus 0000:20
+ff5e2000-ff5e2007 : PCI Bus 0000:20
+90004000000-90103fffffe : PCI Bus 0000:20
+00002000-00002fff : PCI Bus 0000:20
+
+Sure, you can argue that some of these should be coalesced and others
+aren't used, but I'm not comfortable diddling with that in the kernel,
+or asking firmware to change that.  And nobody knows what tomorrow will
+bring in terms of PCI bus topologies.  So I'd like the insert_resource
+patch to go in.
+
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,121 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276673AbRJPUkA>; Tue, 16 Oct 2001 16:40:00 -0400
+	id <S276701AbRJPUue>; Tue, 16 Oct 2001 16:50:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276682AbRJPUju>; Tue, 16 Oct 2001 16:39:50 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:39689 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S276673AbRJPUjl>;
-	Tue, 16 Oct 2001 16:39:41 -0400
-Date: Tue, 16 Oct 2001 18:39:59 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: <linux-mm@kvack.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] hogstop for 2.4.12-ac3
-Message-ID: <Pine.LNX.4.33L.0110161747130.6440-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276702AbRJPUuY>; Tue, 16 Oct 2001 16:50:24 -0400
+Received: from postfix2-1.free.fr ([213.228.0.9]:34517 "HELO
+	postfix2-1.free.fr") by vger.kernel.org with SMTP
+	id <S276701AbRJPUuT>; Tue, 16 Oct 2001 16:50:19 -0400
+Date: Tue, 16 Oct 2001 22:50:49 +0200
+From: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@lineo.fr>
+To: linux-kernel@vger.kernel.org, "Justin T . Gibbs" <gibbs@scsiguy.com>
+Subject: Re: [PATCH] export pci_table in aic7xxx for Hotplug
+Message-ID: <20011016225049.A996@online.fr>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	"Justin T . Gibbs" <gibbs@scsiguy.com>
+In-Reply-To: <20011015222311.E2665@turing> <200110152031.f9FKVlY56104@aslan.scsiguy.com> <20011016181726.E935@turing> <20011016221645.A346@online.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20011016221645.A346@online.fr>
+User-Agent: Mutt/1.3.22i
+X-Operating-System: "debian SID Gnu/Linux 2.4.12 on i586"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ok I switch ON the light in my brain and things are better now.
 
-This patch attempts to stop slow down heavy memory allocators
-before the system runs really low on ram, so the other programs
-in the system can run smoother during higher system loads.
+The PCI layer notify the driver that one of its devices has been
+removed.
+This is done with the remove function in the pci_driver struct.
 
-This patch does the following things to achieve that:
+In the case of the aic7xxx this is the function
+ahc_linux_pci_dev_remove().
 
-1) instead of a simple reschedule, call try_to_free_pages()
-   from __alloc_pages() once all zones have less than
-   zone->pages_low freeable, this not only has the effect
-   of memory allocators being slowed down, but it will also
-   mean they are virtually certain of the fact that they'll
-   get their memory afte _one_ call to try_to_free_pages(),
-   instead of "hitting the wall"
+I should, at this point, precise that I use the driver v6.2.4.
 
-2) removing the "penalise the process allocating memory" from
-   swap_out(); while this code swaps out memory from the
-   current process, it is almost certain to _increase_ the
-   allocation rate by this process, which would only make
-   things worse for the other processes
+I look in the code but it looks like this part of the code is broken.
+Please Justin let me 1 month before starting looking at it. Otherwise I
+have no chance to find a bug by myself.
 
-As usual, the latest version of my pathes can be found on
-http://www.surriel.com/patches/ and tests under various
-workloads and on various system types are very welcome ...
+Christophe 
 
 
-regards,
-
-Rik
 -- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-
-
---- linux-2.4.12-ac3/mm/page_alloc.c.orig	Tue Oct 16 15:56:38 2001
-+++ linux-2.4.12-ac3/mm/page_alloc.c	Tue Oct 16 16:58:17 2001
-@@ -346,22 +346,15 @@
- 	 * We wake up kswapd, in the hope that kswapd will
- 	 * resolve this situation before memory gets tight.
- 	 *
--	 * We also yield the CPU, because that:
--	 * - gives kswapd a chance to do something
--	 * - slows down allocations, in particular the
--	 *   allocations from the fast allocator that's
--	 *   causing the problems ...
--	 * - ... which minimises the impact the "bad guys"
--	 *   have on the rest of the system
--	 * - if we don't have __GFP_IO set, kswapd may be
--	 *   able to free some memory we can't free ourselves
-+	 * We'll also help a bit trying to free pages, this
-+	 * way statistics will make sure really fast allocators
-+	 * are slowed down more than slow allocators and other
-+	 * programs in the system shouldn't be impacted as much
-+	 * by the hogs.
- 	 */
- 	wakeup_kswapd();
--	if (gfp_mask & __GFP_WAIT) {
--		__set_current_state(TASK_RUNNING);
--		current->policy |= SCHED_YIELD;
--		schedule();
--	}
-+	if ((gfp_mask & __GFP_WAIT) && !(current->flags & PF_MEMALLOC))
-+		try_to_free_pages(gfp_mask);
-
- 	/*
- 	 * After waking up kswapd, we try to allocate a page
-@@ -431,8 +424,13 @@
- 		 * do not have __GFP_FS set it's possible we cannot make
- 		 * any progress freeing pages, in that case it's better
- 		 * to give up than to deadlock the kernel looping here.
-+		 *
-+		 * NFS: we must yield the CPU (to rpciod) to avoid deadlock.
- 		 */
- 		if (gfp_mask & __GFP_WAIT) {
-+			__set_current_state(TASK_RUNNING);
-+			current->policy |= SCHED_YIELD;
-+			schedule();
- 			if (!order || free_shortage()) {
- 				int progress = try_to_free_pages(gfp_mask);
- 				if (progress || (gfp_mask & __GFP_FS))
---- linux-2.4.12-ac3/mm/vmscan.c.orig	Tue Oct 16 15:56:38 2001
-+++ linux-2.4.12-ac3/mm/vmscan.c	Tue Oct 16 17:04:44 2001
-@@ -399,11 +399,7 @@
- 	int retval = 0;
- 	struct mm_struct *mm = current->mm;
-
--	/* Always start by trying to penalize the process that is allocating memory */
--	if (mm)
--		retval = swap_out_mm(mm, swap_amount(mm));
--
--	/* Then, look at the other mm's */
-+	/* Scan part of the process virtual memory. */
- 	counter = (mmlist_nr << SWAP_SHIFT) >> priority;
- 	do {
- 		spin_lock(&mmlist_lock);
-
+Christophe Barbé <christophe.barbe@online.fr>
+GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E

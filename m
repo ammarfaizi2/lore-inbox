@@ -1,60 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbUK0GEc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbUK0GDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbUK0GEc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 01:04:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUK0DqA
+	id S262060AbUK0GDB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 01:03:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUK0DtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 22:46:00 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:17604 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262658AbUKZTfo (ORCPT
+	Fri, 26 Nov 2004 22:49:19 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:5572 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262543AbUKZTds (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:35:44 -0500
-Subject: Re: [Ext2-devel] [Patch 2/3]: ext3: handle attempted delete of
-	bitmap blocks.
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       "Theodore Ts'o" <tytso@mit.edu>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>
-In-Reply-To: <20041121190901.GQ1974@schnapps.adilger.int>
-References: <200411200004.iAK04oZk006590@sisko.sctweedie.blueyonder.co.uk>
-	 <20041121190901.GQ1974@schnapps.adilger.int>
-Content-Type: text/plain
+	Fri, 26 Nov 2004 14:33:48 -0500
+Message-ID: <41A71A13.2010008@in.ibm.com>
+Date: Fri, 26 Nov 2004 17:27:07 +0530
+From: Hariprasad Nellitheertha <hari@in.ibm.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+CC: Badari Pulavarty <pbadari@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       varap@us.ibm.com
+Subject: Re: [PATCH] kdump: Fix for boot problems on SMP
+References: <419CACE2.7060408@in.ibm.com> <41A20DB5.2050302@in.ibm.com> <1101170617.4987.268.camel@dyn318077bld.beaverton.ibm.com> <200411260221.49888.amgta@yacht.ocn.ne.jp>
+In-Reply-To: <200411260221.49888.amgta@yacht.ocn.ne.jp>
+Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1101464061.1941.16.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 26 Nov 2004 10:14:21 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sun, 2004-11-21 at 19:09, Andreas Dilger wrote:
-
-> > This is easily reproduced with a sample ext3 fs image containing an
-> > inode whose direct and indirect blocks refer to a block bitmap block.
-> > Allocating new blocks and then deleting that inode will BUG() with:
+Akinobu Mita wrote:
+> On Tuesday 23 November 2004 09:43, Badari Pulavarty wrote:
 > 
-> Shouldn't we have already ext3_error'd when we tried to delete the
-> bitmap block?  Not that this fix isn't a good one, I'm just trying to
-> determine if there is something wrong with our error handling there.
+>>gdb is not showing the stack info properly, on my saved vmcore.
+>>I thought vmlinux is not matching the vmcore, so I verified that
+>>vmcore and vmlinux matchup. But still no luck...
+>>
+>># gdb  ../linux-2.6.9/vmlinux vmcore.2
+> 
+> 
+> [...]
+> 
+> 
+>>(gdb) bt
+>>#0  default_idle () at arch/i386/kernel/process.c:108
+>>#1  0xc04cdff8 in init_thread_union ()
+>>#2  0xc0101b86 in cpu_idle () at arch/i386/kernel/process.c:196
+>>#3  0xc04cea20 in start_kernel () at init/main.c:523
+>>#4  0xc0100211 in L6 () at /tmp/cch2z2jk.s:2054
+>>Cannot access memory at address 0x550007
+> 
+> 
+> 
+> I think the panic was happened on the CPU except for CPU#0.
+> 
+> Currently vmcore contains only CPU#0's register contents.
+> Therefore, GDB always shows backtrace of CPU#0.
+> 
+> 
+> fs/proc/vmcore.c:
+> 
+> static void elf_vmcore_store_hdr(char *bufp, int nphdr, int dataoff)
+> {
+> ...
+>         /* 1 - Get the registers from the reserved memory area */
+>         reg_ppos = BACKUP_END + CRASH_RELOCATE_SIZE;
+>         read_from_oldmem(reg_buf, REG_SIZE, &reg_ppos, 0);
+>         elf_core_copy_regs(&prstatus.pr_reg, (struct pt_regs *)reg_buf);
+>         buf = storenote(&notes[0], buf);
+> 
+> 
+> In this place, "reg_ppos" is the pointer to the copy of relocated
+> crash_smp_regs[0].
+> kdump should save the "crash_smp_regs[**panic_cpu**]".
+> 
+> Or, it is better to save all crash_smp_regs[NR_CPUS].
+> In other words:
 
-There is --- if there wasn't, I wouldn't be able to reproduce the oops
-on demand. :-)
+I am actually working on patches to export the registers of all
+processors as elf notes sections. Similar to what multi-threaded core
+dump does. This will enable gdb to correctly analyze the stack trace
+on all processors.
 
-The trouble is that ext3_free_branches() calls ext3_forget() and
-ext3_free_blocks() in that order.  The ordering is fairly important: we
-don't ever want to get the revoke bits in the bh out-of-sync with what's
-in the bitmaps.  (Ordering wrt the journal is far less important because
-those are committed atomically.)
-
-And while ext3_free_blocks() has the check for freeing blocks in the
-system zone, ext3_forget() does not.  So we assert-fail on the initial
-attempt to forget a b_committed_data bh before we get to the system-zone
-check.
-
-Cheers,
- Stephen
-
+Thanks and Regards,
+Hari

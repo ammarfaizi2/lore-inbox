@@ -1,135 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317083AbSGYDlm>; Wed, 24 Jul 2002 23:41:42 -0400
+	id <S317112AbSGYD5I>; Wed, 24 Jul 2002 23:57:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317286AbSGYDlm>; Wed, 24 Jul 2002 23:41:42 -0400
-Received: from dracula.gtri.gatech.edu ([130.207.193.70]:6828 "EHLO
-	shaft.shaftnet.org") by vger.kernel.org with ESMTP
-	id <S317083AbSGYDll>; Wed, 24 Jul 2002 23:41:41 -0400
-Date: Wed, 24 Jul 2002 23:43:16 -0400
-From: Stuffed Crust <pizza@shaftnet.org>
+	id <S317211AbSGYD5I>; Wed, 24 Jul 2002 23:57:08 -0400
+Received: from epithumia.math.uh.edu ([129.7.128.2]:55263 "EHLO
+	epithumia.math.uh.edu") by vger.kernel.org with ESMTP
+	id <S317112AbSGYD5I>; Wed, 24 Jul 2002 23:57:08 -0400
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.19-rc3-ac2 I2O (Promise SX6000) funkiness
-Message-ID: <20020725034316.GA4501@shaftnet.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Subject: Re: 2.5.28 and partitions
+References: <Pine.GSO.4.21.0207241925450.14656-100000@weyl.math.psu.edu>
+From: Jason L Tibbitts III <tibbs@math.uh.edu>
+Date: 24 Jul 2002 23:00:21 -0500
+In-Reply-To: Alexander Viro's message of "Wed, 24 Jul 2002 19:42:41 -0400 (EDT)"
+Message-ID: <ufaznwg319m.fsf@epithumia.math.uh.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "AV" == Alexander Viro <viro@math.psu.edu> writes:
 
---Nq2Wo0NMKNjxTN9z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+AV> That stuff becomes an issue for 2Tb disks.  Do we actually have
+AV> something that large attached to 32bit boxen?
 
-I'm trying to use a Promise SX6000 board.  This one has a 128 meg stick
-on it, and five 120 gig drives in a RAID5 configuration.
+Yes, I just built a few machines with 2.2TB of disk apiece.  And this
+isn't really all that esoteric; each box only cost around $7K.
 
-The array is created and initialized fine (save the 12 hours or so of
-incessant beeping by the card..)
+AV> ... and still use i386 with these disks?  ia64 is stillborn, but
+AV> x86-64 promises to be more useful than Itanic.
 
-I fire up the i2o_pci and i2o_block modules and the card and its array
-are detected:
+Well, these are just file servers.  It would be a waste to stick a
+64bit processor in there just for its 64bitness; if I could get
+Hammers, I'd rather run compute jobs on them and leave the menial
+tasks like file serving to the 32bit machines.
 
-	I2O Core - (C) Copyright 1999 Red Hat Software
-	I2O: Event thread created as pid 9
-	I2O configuration manager v 0.04.
-	  (C) Copyright 1999 Red Hat Software
-	Linux I2O PCI support (c) 1999 Red Hat Software.
-	i2o: Checking for PCI I2O controllers...
-	PCI: Found IRQ 10 for device 00:11.1
-	PCI: Sharing IRQ 10 with 00:07.2
-	i2o: I2O controller on bus 0 at 137.
-	i2o: PCI I2O controller at 0xDA000000 size=3D4194304
-	I2O: Promise workarounds activated.
-	I2O: MTRR workaround for Intel i960 processor
-	i2o/iop0: Installed at IRQ10
-	i2o: 1 I2O controller found and installed.
-	Activating I2O controllers...
-	This may take a few minutes if there are many devices
-	i2o/iop0: Reset rejected, trying to clear
-	i2o/iop0: LCT has 9 entries.
-	i2o/iop0: Configuration dialog desired.
-	I2O Block Storage OSM v0.9
-	   (c) Copyright 1999-2001 Red Hat Software.
-	i2o_block: registered device at major 80  =20
-	i2o_block: Checking for Boot device...
-	i2o_block: Checking for I2O Block devices...
-	i2ob: Installing tid 11 device at unit 0  =20
-	i2o/hda: Max segments 28, queue depth 8, byte limit 49152.
-	i2o/hda: Type 68: 468987MB, 512 byte sectors.
-	i2o/hda: Maximum sectors/read set to 96.  =20
-	 i2o/hda: i2o/hda1
+AV> u64 for sector_t doesn't change anything for 64bit boxen that
+AV> might be interested in really large disks and screws 32bit ones
+AV> that shouldn't have to pay for that...
 
-So now it's time to create a filesystem.
+Well, I'd happily run a custom kernel on these machines.  I certainly
+don't want my other hundred-plus machines to run slower just to let a
+handful of file servers see all of their disk, but it would be nice to
+have the choice.
 
-	mke2fs -j -m -0 /dev/i2o/hda1
+ - J<
 
-It starts out fine, then the console starts spewing these messages after
-about 30/2664 inode tables.
-
-	i2o/iop0: No handler for event (0x00000020)
-	i2o/iop0: No handler for event (0x00000020)
-	i2o/iop0: No handler for event (0x00000020)
-	i2o/iop0: No handler for event (0x00000020)
-	i2o/iop0: No handler for event (0x00000020)
-	...
-
-After I break out of mke2fs, the errors continue for a while, then
-change to:
-
-	i2o/iop0: Hardware Failure: Unknown Error =20
-	i2o/iop0: Hardware Failure: Unknown Error =20
-	i2o/iop0: Hardware Failure: Unknown Error =20
-	...
-	i2o_post_wait event completed after timeout.
-	i2o_post_wait event completed after timeout.
-	i2o_post_wait event completed after timeout.
-	...
-	i2ob_release: controller rejected unclaim.
-
-This happens with 2.4.19rc2aa1 SMP, 2.4.19rc3aa1 SMP.
-It also happens with 2.4.19rc3ac2 SMP (with noapic+nosmp, as I have the
-endless APIC Error bug with that kernel)=20
-And finally, it happens on the "stock" RedHat 2.4.18-5 Uniprocessor kernel.
-
-So, can anyone tell me what's going on here?  Is the controller on the
-fritz?  Is the host PC all screwed up?  (memtest86 says the RAM is
-likely fine; though the SX6000 provides no means for me to verify it=20
-on the card itself)=20
-
-FWIW, this is a newer SX6000 with PDC20276 chips on it, and it's sharing
-IRQ10 with the usb controller.  Disabling it makes no difference.
-
-Further details can be provided upon request...
-
-I can move the controller to another machine this weekend for further
-testing.  But in the mean time, Just what is event 0x00000020?
-
-I suppose I can call up Promise, but as their driver won't even compile,
-I don't have much faith in their ability to do anything but shave a
-couple of hours off of my life.
-
- - Pizza
---=20
-Solomon Peachy                                   pizza@f*cktheusers.org
-I'm not broke, but I'm badly bent.                         ICQ #1318344
-Patience comes to those who wait.                         Melbourne, FL
-
---Nq2Wo0NMKNjxTN9z
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9P3PUPuLgii2759ARAmuPAJ91dEl+kQeUAfWIza+T2VIPhvUBcgCfR2RS
-MEy1aNv84fLEA2MIh7inZKw=
-=0WR4
------END PGP SIGNATURE-----
-
---Nq2Wo0NMKNjxTN9z--

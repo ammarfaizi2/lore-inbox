@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130685AbQLQS4Z>; Sun, 17 Dec 2000 13:56:25 -0500
+	id <S129391AbQLQTES>; Sun, 17 Dec 2000 14:04:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130894AbQLQS4F>; Sun, 17 Dec 2000 13:56:05 -0500
-Received: from pcep-jamie.cern.ch ([137.138.38.126]:26885 "EHLO
-	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
-	id <S130685AbQLQSz1>; Sun, 17 Dec 2000 13:55:27 -0500
-Date: Sun, 17 Dec 2000 19:23:51 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+	id <S129534AbQLQTEI>; Sun, 17 Dec 2000 14:04:08 -0500
+Received: from 1Cust191.tnt30.rtm1.nl.uu.net ([213.116.154.191]:52866 "EHLO
+	ida.2y.net") by vger.kernel.org with ESMTP id <S129391AbQLQTDs>;
+	Sun, 17 Dec 2000 14:03:48 -0500
+Message-ID: <3A3D06D3.93041108@freeler.nl>
+Date: Sun, 17 Dec 2000 19:32:51 +0100
+From: Jorg de Jong <j.e.s.de.jong@freeler.nl>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en, nl
+MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test13-pre1 lockup: run_task_queue or tty_io are wrong
-Message-ID: <20001217192351.A18244@pcep-jamie.cern.ch>
-In-Reply-To: <20001217034928.A410@ppc.vc.cvut.cz> <Pine.LNX.4.10.10012161859340.23256-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10012161859340.23256-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Dec 16, 2000 at 07:09:56PM -0800
+CC: linux-kernel@vger.kernel.org
+Subject: Re: test12: innd bug came back?
+In-Reply-To: <918pmt$q9s$1@osiris.storner.dk> <Pine.GSO.4.21.0012131646070.5045-100000@weyl.math.psu.edu> <918rml$53u$1@penguin.transmeta.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Ho humm. I'll have to check what the proper fix is. Right now the rule is
-> that nobody can _ever_ remove himself from a task queue, although there is
-> one bad user that does exactly that, and that means that it should be ok
-> to just cache the "next" pointer in run_task_queue(), and make it look
-> something like
+> >On 13 Dec 2000, Henrik [ISO-8859-1] Størner wrote:
+> >
+> >> Just to add a "me too" on this. I didn't report when I saw it last week,
 
-How about using a sentinel list entry representing the current position
-in run_task_queue's loop?
+I'd like to second that. ME TOO !
+Since I switched to 2.4.0.test12 I again have the innd bug.
+( well at least the same symptoms !)
 
-The sentinel's next pointer isn't invalidated by other operations on the
-list, provided each operation is protected by tqueue_lock.  Each
-iteration step is a matter or removing the sentinel, and inserting it in
-the next position.  A task removing itself would then be perfectly ok.
+No problems with test10 and test11. I have not used any pre kernels.
 
--- Jamie
+regards
+
+
+-- 
+Jorg de Jong
+Work : mailto:jorg.de.jong@ict.nl 
+Play : mailto:j.e.s.de.jong@freeler.nl
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

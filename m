@@ -1,44 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129335AbRBEQvF>; Mon, 5 Feb 2001 11:51:05 -0500
+	id <S135380AbRBEQyQ>; Mon, 5 Feb 2001 11:54:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131020AbRBEQu4>; Mon, 5 Feb 2001 11:50:56 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:17147 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129335AbRBEQuw>; Mon, 5 Feb 2001 11:50:52 -0500
-Date: Mon, 5 Feb 2001 14:49:58 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Mohit Aron <aron@Zambeel.com>
-cc: "'David Schwartz'" <davids@webmaster.com>, linux-kernel@vger.kernel.org
-Subject: RE: system call sched_yield() doesn't work on Linux 2.2
-In-Reply-To: <2B8089144916D411896D00D0B73C8353DB2C20@exchange.zambeel.com>
-Message-ID: <Pine.LNX.4.21.0102051449080.1311-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135378AbRBEQyH>; Mon, 5 Feb 2001 11:54:07 -0500
+Received: from mail.inup.com ([194.250.46.226]:63753 "EHLO www.inup.com")
+	by vger.kernel.org with ESMTP id <S131020AbRBEQx5>;
+	Mon, 5 Feb 2001 11:53:57 -0500
+Date: Mon, 5 Feb 2001 17:53:48 +0100
+From: christophe barbe <christophe.barbe@inup.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: christophe barbe <christophe.barbe@inup.com>, linux-kernel@vger.kernel.org
+Subject: Re: IRQ and sleep_on
+Message-ID: <20010205175348.A2372@pc8.inup.com>
+In-Reply-To: <20010205131154.I31876@pc8.inup.com> <20010205133837.A485@pc8.inup.com> <3A7EA3B0.2D7CFA19@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3A7EA3B0.2D7CFA19@colorfullife.com>; from ma
+ nfred@colorfullife.com on lun, fév 05, 2001 at 
+ 13:59:28 +0100
+X-Mailer: Balsa 1.1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Feb 2001, Mohit Aron wrote:
+Ok thank you for your help.
+I've followed your first advice. My solution was ok on my target (ppc and x86) but was not a good solution.
+I'm very interesting to know why it's bad to restore flags in a sub-function. I imagine it should be due to an optimisation in the restore function.
 
-> you're expecting is lying in wait for me. Here is simple logic
-> for you to figure out - if you have one run queue, and two
-> threads calling sched_yield() (and hence theoretically putting
-> themselves at the end of run queue), perfect alternation should
-> be seen.
+Thank you,
+Christophe Barbé
 
-If you really feel as strongly about this as this
-email suggests, why don't you send us a patch ?
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+On lun, 05 fév 2001 13:59:28 Manfred Spraul wrote:
+> christophe barbe wrote:
+> > 
+> > I've missed the thread "avoiding bad sleeps" last week. I've had a similar problem
+> > and I would like to discuss the solution I've used to avoid it.
+> > 
+> > I want to wake up a sleeping process from an IRQ handler. In the process, if I use
+> > a interruptible_sleep_on(), I need first to restore flags (otherwise the process
+> > will sleep forever).
+> > 
+> > restore_flags(flags);
+> > // <<== here IRQ handler possibly call wake_up()
+> > interruptible_sleep_on(&my_queue);
+> >
+> > [...]
+> > I've written a modified version of  interruptible_sleep_on which takes an
+> > additionnal argument : flags to be restored.
+> 
+> That's possible, but it will crash on Sparc: you cannot restore the
+> interrupt flag saved in one function in another function.
+> 
+> The solution is very simple: do not call restore_flags() before
+> interruptible_sleep_on(), the schedule internally reenables interrupts.
+> 
+> >>>>>>>>>>
+> for(;;) {
+> 	cli();
+> 	if(condition) {
+> 		sti();
+> 		break;
+> 	}
+> 	interruptible_sleep_on();
+> 	sti(); /* required! */
+> } 	
+> >>>>>>>>>
+> 
+> But if you are writing new code, then DO NOT USE sleep_on(), use
+> add_wait_queue(), and a spinlock instead of cli().
+> Look at wait_event_irq in <linux/raid/md_k.h> from the 2.4 kernel as an
+> example.
+> 
+> --
+> 	Manfred
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
+-- 
+Christophe Barbé
+Software Engineer
+Lineo High Availability Group
+42-46, rue Médéric
+92110 Clichy - France
+phone (33).1.41.40.02.12
+fax (33).1.41.40.02.01
+www.lineo.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

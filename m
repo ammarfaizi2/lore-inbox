@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269041AbRH0VWW>; Mon, 27 Aug 2001 17:22:22 -0400
+	id <S269067AbRH0VWw>; Mon, 27 Aug 2001 17:22:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269067AbRH0VWM>; Mon, 27 Aug 2001 17:22:12 -0400
-Received: from imo-r03.mx.aol.com ([152.163.225.99]:6082 "EHLO
-	imo-r03.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S269041AbRH0VV6>; Mon, 27 Aug 2001 17:21:58 -0400
-From: Floydsmith@aol.com
-Message-ID: <b8.1a85f08d.28bc13fa@aol.com>
-Date: Mon, 27 Aug 2001 17:22:02 EDT
-Subject: 2.4.9 ide-floppy broken - 2.4.8 works ok
-To: linux-kernel@vger.kernel.org
-CC: Floydsmith@aol.com
+	id <S269081AbRH0VWn>; Mon, 27 Aug 2001 17:22:43 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:52491 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S269067AbRH0VW3>; Mon, 27 Aug 2001 17:22:29 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+Date: Mon, 27 Aug 2001 23:29:13 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+In-Reply-To: <Pine.LNX.4.33L.0108271213370.5646-100000@imladris.rielhome.cone ctiva> <516649838.998944465@[169.254.198.40]>
+In-Reply-To: <516649838.998944465@[169.254.198.40]>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: AOL 4.0 for Windows 95 sub 14
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010827212237Z16070-32384+719@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My ls-120 drive is connected to /dev/hdd (a scsi emulated IDE drive is 
-connected to /dev/hdc)
+On August 27, 2001 09:34 pm, Alex Bligh - linux-kernel wrote:
+> As another optimization, we may need to think of pages used
+> by multiple streams. Think, for instance, of 'make -j' and
+> header files, or many users ftp'ing down the same file.
+> Just because one gcc process has read past
+> a block in a header file, I submit that we are less keen to
+> drop it if it is in the readahead chain for another.
 
-The "messages" has:
-Aug 27 17:17:28 localhost kernel: hdb: 30043440 sectors (15382 MB) w/2048KiB 
-Cache, CHS=1870/255/63
-Aug 27 17:17:28 localhost kernel: ide-floppy driver 0.97
-Aug 27 17:17:28 localhost kernel: hdd: No disk in drive
-Aug 27 17:17:28 localhost kernel: hdd: 123264kB, 963/8/32 CHS, 533 kBps, 512 
-sector size, 720 rpm
-Aug 27 17:17:28 localhost kernel: ide-floppy: hdd: I/O error, pc = 5a, key =  
-5, asc = 24, ascq =  0
-Aug 27 17:17:28 localhost kernel: Partition check:
-Aug 27 17:17:28 localhost kernel:  hda: hda1 hda2 hda3 hda4 < hda5 >
-Aug 27 17:17:28 localhost kernel:  hdb: hdb1 hdb2 hdb3 hdb4 < hdb5 hdb6 >
-Aug 27 17:17:28 localhost kernel: ide-floppy driver 0.97
+This is supposed to be handled by putting the page on the active list and 
+aging it up, i.e., the current behaviour.
 
-Same message appears when a diskette is attempted to be mounted.
-
-Floyd,
+--
+Daniel

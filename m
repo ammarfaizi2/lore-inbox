@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316080AbSETPWU>; Mon, 20 May 2002 11:22:20 -0400
+	id <S316078AbSETPVT>; Mon, 20 May 2002 11:21:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316083AbSETPWT>; Mon, 20 May 2002 11:22:19 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:896 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S316080AbSETPWR>; Mon, 20 May 2002 11:22:17 -0400
-Date: Mon, 20 May 2002 11:22:17 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Mounting 'foreign' file-systems
-Message-ID: <Pine.LNX.3.95.1020520111351.169A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316080AbSETPVS>; Mon, 20 May 2002 11:21:18 -0400
+Received: from mailgw.prontomail.com ([209.185.149.10]:24807 "EHLO
+	c0mailgw11.prontomail.com") by vger.kernel.org with ESMTP
+	id <S316078AbSETPVS>; Mon, 20 May 2002 11:21:18 -0400
+X-Version: beer 7.5.2333.0
+From: "will fitzgerald" <william.fitzgerald6@beer.com>
+Message-Id: <881711E8388E16A4DA8E2FCAA1BD2387@william.fitzgerald6.beer.com>
+Date: Mon, 20 May 2002 16:16:55 +0100
+X-Priority: Normal
+Content-Type: text/plain; charset=iso-8859-1
+To: linux-kernel@vger.kernel.org
+Subject: sk_buff extraction problem
+X-Mailer: Web Based Pronto
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi all,
 
-On Linux 2.4.18, I can no longer mount CDROMs that were created
-using ext2 as the file-system (yes I know this is not specified).
-I used to use these CDROMs as part of a "rescue" package.
+i'm having trouble extracting a packets source and destination 
+address from the sk_buff. i want to be able to see if a packet does 
+in fact pass through my router.
 
-Now, these can still be mounted through the loop device as is
-shown below....
+for no particular reason i choose dev.c and a function called 
+netif_rx to do this.
 
-Script started on Mon May 20 11:12:16 2002
-# mount /dev/sr0 /mnt
-mount: block device /dev/sr0 is write-protected, mounting read-only
-mount: wrong fs type, bad option, bad superblock on /dev/sr0,
-       or too many mounted file systems
-# mount -o loop /dev/sr0 /mnt
-# ls /mnt
-bin  dev  etc  lib  lost+found	mnt  root  sbin  tmp  usr
-# umount /mnt
-# exit
-exit
-Script done on Mon May 20 11:13:01 2002
+at the beginning of netif_rx() i added the lines:
+int this_cpu = smp_processor_id();
+........
+        char *p;
+        int i;
+        
+                 //  p=   (char *) (skb->mac.ethernet);
+                    p=   (char *) (skb->h.uh);
 
-So the question is, how could I put the mount options on the command
-line during LILO boot? I tried root=/dev/sr0 {failed}
-                               root="/dev/sr0 -o loop" {failed}
-                               root=/dev/sr0,-o,loop {failed}
-...etc...
+then just before return softnet_data[this_cpu].cng_level;
+i added this:
 
-..or.. is there a problem that is going to be fixed to revert to
-the older behavior ..or.. Am I going to have to redo my rescue
-stuff to use iso-9660?
+for( i=0; i<8;i++){
+            printk(KERN_DEBUG"netif_rx() ->ethernet: %02x ",*(p+i));
+            }
+
+it complies but as soon as i pass a packet through it the router 
+freezes up.
+
+am i even on the rigth track?
+
+regards will.			
 
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+Beer Mail, brought to you by your friends at beer.com.

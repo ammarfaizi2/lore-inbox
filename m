@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVCPRAe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVCPREQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbVCPRAe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 12:00:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVCPRAe
+	id S261308AbVCPREQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 12:04:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262682AbVCPREQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 12:00:34 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:59858 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261301AbVCPRAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 12:00:30 -0500
-Subject: Re: 2.6.11.x, EXTRAVERSION and module compatibility
-From: Arjan van de Ven <arjan@infradead.org>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <42386368.5030604@tls.msk.ru>
-References: <42386368.5030604@tls.msk.ru>
-Content-Type: text/plain
-Date: Wed, 16 Mar 2005 18:00:22 +0100
-Message-Id: <1110992423.6292.34.camel@laptopd505.fenrus.org>
+	Wed, 16 Mar 2005 12:04:16 -0500
+Received: from colin2.muc.de ([193.149.48.15]:7947 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261308AbVCPREN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 12:04:13 -0500
+Date: 16 Mar 2005 18:04:12 +0100
+Date: Wed, 16 Mar 2005 18:04:12 +0100
+From: Andi Kleen <ak@muc.de>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, rohit.seth@intel.com
+Subject: Re: [Patch] x86, x86_64: Intel dual-core detection
+Message-ID: <20050316170412.GA51070@muc.de>
+References: <20050315173624.A2100@unix-os.sc.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050315173624.A2100@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-16 at 19:48 +0300, Michael Tokarev wrote:
-> As far as I can see, the "super-stable" kernel releases
-> should not affect module ABI in any way
->
+On Tue, Mar 15, 2005 at 05:36:25PM -0800, Siddha, Suresh B wrote:
+> Appended patch adds the support for Intel dual-core detection and displaying
+> the core related information in /proc/cpuinfo. 
+> 
+> It adds two new fields "core id" and "cpu cores" to x86 /proc/cpuinfo
+> and the "core id" field for x86_64("cpu cores" field is already present in
+> x86_64).
 
-that is an assumption that seems quite invalid to me in general at
-least.
+Thanks. I have a similar patch for AMD CPUs, unfortuntely it uses 
+different names ("shared cores" etc.)
+> 
+> Number of processor cores in a die is detected using cpuid(4) and this
+> is documented in IA-32 Intel Architecture Software Developer's Manual (vol 2a)
+> (http://developer.intel.com/design/pentium4/manuals/index_new.htm#sdm_vol2a)
+> 
+> This patch also adds cpu_core_map similar to cpu_sibling_map.
+Called cpu_sharecore_map in my patch.
 
-
+Hmm, which names should be chosen?
+-Andi

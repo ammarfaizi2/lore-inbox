@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130791AbRCFAEW>; Mon, 5 Mar 2001 19:04:22 -0500
+	id <S130796AbRCFAHd>; Mon, 5 Mar 2001 19:07:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130792AbRCFAEM>; Mon, 5 Mar 2001 19:04:12 -0500
-Received: from snoopy.apana.org.au ([202.12.87.129]:9477 "HELO
-	snoopy.apana.org.au") by vger.kernel.org with SMTP
-	id <S130791AbRCFAEG>; Mon, 5 Mar 2001 19:04:06 -0500
-To: linux-kernel@vger.kernel.org
-Subject: USAGI IPv6 patches
-From: Brian May <bam@snoopy.apana.org.au>
-X-Home-Page: http://snoopy.apana.org.au/~bam/
-Date: 06 Mar 2001 11:03:51 +1100
-Message-ID: <84snkrvk48.fsf@snoopy.apana.org.au>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
-MIME-Version: 1.0
+	id <S130793AbRCFAHX>; Mon, 5 Mar 2001 19:07:23 -0500
+Received: from mail2.mail.iol.ie ([194.125.2.193]:12804 "EHLO mail.iol.ie")
+	by vger.kernel.org with ESMTP id <S130792AbRCFAHE>;
+	Mon, 5 Mar 2001 19:07:04 -0500
+Date: Tue, 6 Mar 2001 00:06:52 +0000
+From: Kenn Humborg <kenn@linux.ie>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kmalloc() alignment
+Message-ID: <20010306000652.A13992@excalibur.research.wombat.ie>
+In-Reply-To: <3AA2C488.54A792AD@colorfullife.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AA2C488.54A792AD@colorfullife.com>; from manfred@colorfullife.com on Sun, Mar 04, 2001 at 11:41:12PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, Mar 04, 2001 at 11:41:12PM +0100, Manfred Spraul wrote:
+> >
+> > Does kmalloc() make any guarantees of the alignment of allocated 
+> > blocks? Will the returned block always be 4-, 8- or 16-byte 
+> > aligned, for example? 
+> >
+> 
+> 4-byte alignment is guaranteed on 32-bit cpus, 8-byte alignment on
+> 64-bit cpus.
 
-I wondered if there are any long term plans to merge the USAGI IPv6
-kernel patches into Linux?
+So, to summarise (for 32-bit CPUs):
 
-See <UTL:http://www.linux-ipv6.org/>
+o  Alan Cox & Manfred Spraul say 4-byte alignment is guaranteed.
 
-Background:
+o  If you need larger alignment, you need to alloc a larger space,
+   round as necessary, and keep the original pointer for kfree()
 
-Currently, if my sources on debian-ipv6 are correct, it is not
-possible to create a IPv6 server that is not broken, as getaddrinfo
-returns both IPv4 and IPv6 addresses, but the bind operation will only
-succeed on the IPv6 address. The suggested work around at the moment
-is to ignore the error returned by bind, but I consider that to be
-broken, because the error might be important.
+Maybe I'll just use get_free_pages, since it's a 64KB chunk that
+I need (and it's only a once-off).
 
-The only solution we have all agreed to (so far) on debian-ipv6 is to
-use the USAGI patches (which IIRC modify getaddr to return only IPv6
-addresses in the above situation), however, other Debian developers
-are reluctant to require anything that is "non-standard" in the main
-kernel.
+Thanks for your advice.
 
-Hence my question...
--- 
-Brian May <bam@snoopy.apana.org.au>
+Later,
+Kenn
+

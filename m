@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263121AbTJUOfL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 10:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbTJUOfL
+	id S263133AbTJUOpg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 10:45:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbTJUOpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 10:35:11 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:41711 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263121AbTJUOfD
+	Tue, 21 Oct 2003 10:45:36 -0400
+Received: from fiberbit.xs4all.nl ([213.84.224.214]:2475 "EHLO
+	fiberbit.xs4all.nl") by vger.kernel.org with ESMTP id S263133AbTJUOpe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 10:35:03 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jeremy Higdon <jeremy@sgi.com>
-Subject: Re: Patch to add support for SGI's IOC4 chipset
-Date: Tue, 21 Oct 2003 16:39:28 +0200
-User-Agent: KMail/1.5.4
-Cc: gwh@sgi.com, jbarnes@sgi.com, aniket_m@hotmail.com,
-       linux-kernel@vger.kernel.org
-References: <3F7CB4A9.3C1F1237@sgi.com> <200310162020.51303.bzolnier@elka.pw.edu.pl> <20031021063536.GA78855@sgi.com>
-In-Reply-To: <20031021063536.GA78855@sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Oct 2003 10:45:34 -0400
+Date: Tue, 21 Oct 2003 16:37:41 +0200
+From: Marco Roeland <marco.roeland@xs4all.nl>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Cc: Norman Diamond <ndiamond@wta.att.ne.jp>
+Subject: Re: [PATCH] RH7.3 can't compile 2.6.0-test8 (fs/proc/array.c)
+Message-ID: <20031021143741.GB22633@localhost>
+References: <20031021131915.GA4436@rushmore> <20031021135221.GA22633@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200310211639.28346.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20031021135221.GA22633@localhost>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 of October 2003 08:35, Jeremy Higdon wrote:
-> > - defining IDE_ARCH_ACK_INTR and ide_ack_intr() in sgiioc4.c is a no-op,
-> >   it should be done <asm/ide.h> to make it work
-> >   (I think the same problem is present in 2.4.x)
->
-> The definition in <include/linux/ide.h> is only used if IDE_ARCH_ACK_INTR
-> is not defined.  sgiioc4.c defines IDE_ARCH_ACK_INTR before including that
-> file, so I believe we get the definition we want without touching ide.h,
-> don't we?
+On Tuesday October 21st 2003 at 15:52 uur Marco Roeland wrote:
 
-ide_ack_intr() is used by ide-io.c.  If IDE_ARCH_ACK_INTR is not defined
-in ide.h (and it won't be cause you are doing this only in sgiioc4.c
-/sgiioc4.h in 2.4.x case/ about which ide-io.c has abolutely no idea)
-ide_ack_intr() will turn into no-op and hwif->ack_intr() won't be called.
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=106651554401143&w=2
+> > 
+> > It's supposed to fix test8 compile with gcc-2.96 for RedHat 7.x.
+> 
+> Perhaps if the huge sprintf with 40+ arguments (fs/proc/array.c, line 346)
+> amongst which several trinary operators, were to be split up into several
+> parts, might that not solve the problem more elegantly?
 
-> I'll await a response on the IDE_ARCH_ACK_INTR issue.  Do you want me to
-> send another patch, or is the previous with your update sufficient?
+Does this compile (and work) for any of you friendly RedHat 7.[23] users? 
+In 2.6.0-test8 yet another argument was added to the monstrous sprintf.
+Perhaps this was just the droplet to overflow gcc-2.96's buckets? Here we
+split it into 3 distinct parts.
 
-It is sufficient.
-
-thanks,
---bartlomiej
+--- linux-2.6.0-test8/fs/proc/array.c.orig	2003-10-21 16:18:40.000000000 +0200
++++ linux-2.6.0-test8/fs/proc/array.c	2003-10-21 16:24:42.000000000 +0200
+@@ -343,9 +343,7 @@
+ 	read_lock(&tasklist_lock);
+ 	ppid = task->pid ? task->real_parent->pid : 0;
+ 	read_unlock(&tasklist_lock);
+-	res = sprintf(buffer,"%d (%s) %c %d %d %d %d %d %lu %lu \
+-%lu %lu %lu %lu %lu %ld %ld %ld %ld %d %ld %llu %lu %ld %lu %lu %lu %lu %lu \
+-%lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu %lu\n",
++	res = sprintf(buffer,"%d (%s) %c %d %d %d %d %d %lu %lu ",
+ 		task->pid,
+ 		task->comm,
+ 		state,
+@@ -355,7 +353,8 @@
+ 		tty_nr,
+ 		tty_pgrp,
+ 		task->flags,
+-		task->min_flt,
++		task->min_flt);
++	res += sprintf(buffer + res,"%lu %lu %lu %lu %lu %ld %ld %ld %ld %d %ld %llu %lu %ld %lu %lu %lu %lu %lu ",
+ 		task->cmin_flt,
+ 		task->maj_flt,
+ 		task->cmaj_flt,
+@@ -375,7 +374,8 @@
+ 		mm ? mm->start_code : 0,
+ 		mm ? mm->end_code : 0,
+ 		mm ? mm->start_stack : 0,
+-		esp,
++		esp);
++	res += sprintf(buffer + res,"%lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu %lu\n",
+ 		eip,
+ 		/* The signal information here is obsolete.
+ 		 * It must be decimal for Linux 2.0 compatibility.
 

@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131644AbRC3VY5>; Fri, 30 Mar 2001 16:24:57 -0500
+	id <S131659AbRC3Vjs>; Fri, 30 Mar 2001 16:39:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131653AbRC3VYr>; Fri, 30 Mar 2001 16:24:47 -0500
-Received: from mail.gci.com ([205.140.80.57]:26886 "EHLO daytona.gci.com")
-	by vger.kernel.org with ESMTP id <S131644AbRC3VYj>;
-	Fri, 30 Mar 2001 16:24:39 -0500
-Message-ID: <BF9651D8732ED311A61D00105A9CA3150446D6E5@berkeley.gci.com>
-From: Leif Sawyer <lsawyer@gci.com>
-To: Alan Olsen <alan@clueserver.org>, David Relson <relson@osagesoftware.com>
-Cc: Bruno Avila <jisla@elogica.com.br>, linux-kernel@vger.kernel.org
-Subject: RE: How to compile linux 0.0.0.1?
-Date: Fri, 30 Mar 2001 12:23:51 -0900
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S131666AbRC3Vjj>; Fri, 30 Mar 2001 16:39:39 -0500
+Received: from saloma.stu.rpi.edu ([128.113.199.230]:20741 "EHLO incandescent")
+	by vger.kernel.org with ESMTP id <S131659AbRC3Vj1>;
+	Fri, 30 Mar 2001 16:39:27 -0500
+Date: Fri, 30 Mar 2001 16:38:20 -0500
+From: Andres Salomon <dilinger@mp3revolution.net>
+To: Torrey Hoffman <torrey.hoffman@myrio.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Summit info?
+Message-ID: <20010330163820.A25911@mp3revolution.net>
+In-Reply-To: <B65FF72654C9F944A02CF9CC22034CE22E1B67@mail0.myrio.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <B65FF72654C9F944A02CF9CC22034CE22E1B67@mail0.myrio.com>; from torrey.hoffman@myrio.com on Fri, Mar 30, 2001 at 01:01:09PM -0800
+X-Operating-System: Linux incandescent 2.4.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Mar 2001, Alan Olsen wrote:
-> On Fri, 30 Mar 2001, David Relson wrote:
+http://lwn.net/2001/0329/kernel.php3
+ 
+The LWN kernel editor will apparently be doing some reporting for the
+event.
+
+On Fri, Mar 30, 2001 at 01:01:09PM -0800, Torrey Hoffman wrote:
+<snip>
 > 
->> At 03:06 PM 3/30/01, Alan Olsen wrote:
->>>On Fri, 30 Mar 2001, Bruno Avila wrote:
->>>
->>>> I can't find this anywhere. What is the version of the
->>>> tools to compile linux kernel 0.0.0.1 (../Historic)? And
->>>> where can i find them?
->>>
->>>Well, first you have to find a good source of obsidean, a 
->>> couple of sharp rocks, and some flint...
->> 
->> I have a friend who's a flintknapper.  He's been doing it 
->> for decades and does good work.  I'm sure he could set you
->> up with raw materials or with finished products, i.e.
->> arrowheads, knife blades, etc.
+> Is anything like that available?  I'm really hoping that some of the people
+> present at least post summaries about what the topics of discussion were,
+> what options were looked at, and what decisions were made.  Are any
+> journalists there?
 > 
-> Yeah, but then you have to find the buffalo and that gets 
-> hard.  (Actually Linus used a carabou, but those are even
-> harder to find...)
+> Thanks.
+> 
+> Torrey Hoffman
+> torrey.hoffman@myrio.com
+> 
+> 
 
-Well, I remember back to 0.12ish and the Caribou around here
-(Alaska) were plentiful then.  Ah, those were the days.
-
-<offtopic level=2>
-I did find my 0.95 disk the other day (Yggdrasil distro) and
-toyed with the idea of installing it, just to see how much
-things had really changed.  But i don't have anything
-pre-80686 :-(
-</offtopic>
-
+-- 
+"... being a Linux user is sort of like living in a house inhabited
+by a large family of carpenters and architects. Every morning when
+you wake up, the house is a little different. Maybe there is a new
+turret, or some walls have moved. Or perhaps someone has temporarily
+removed the floor under your bed." - Unix for Dummies, 2nd Edition
+        -- found in the .sig of Rob Riggs, rriggs@tesser.com

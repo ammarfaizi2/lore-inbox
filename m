@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268165AbUHKSCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268143AbUHKSHC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268165AbUHKSCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 14:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268145AbUHKSAG
+	id S268143AbUHKSHC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 14:07:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268142AbUHKSHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 14:00:06 -0400
-Received: from mailer.nec-labs.com ([138.15.108.3]:49359 "EHLO
-	mailer.nec-labs.com") by vger.kernel.org with ESMTP id S268156AbUHKR6r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 13:58:47 -0400
-Message-ID: <411A5E55.3050508@nec-labs.com>
-Date: Wed, 11 Aug 2004 10:58:45 -0700
-From: Lei Yang <leiyang@nec-labs.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
-X-Accept-Language: en-us, en
+	Wed, 11 Aug 2004 14:07:02 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:19904 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268153AbUHKSCp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 14:02:45 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Date: Wed, 11 Aug 2004 11:02:10 -0700
+User-Agent: KMail/1.6.2
+Cc: Jon Smirl <jonsmirl@yahoo.com>, Martin Mares <mj@ucw.cz>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+References: <20040806211413.77833.qmail@web14926.mail.yahoo.com> <200408111004.02995.jbarnes@engr.sgi.com> <20040811172800.GB14979@kroah.com>
+In-Reply-To: <20040811172800.GB14979@kroah.com>
 MIME-Version: 1.0
-To: Phillip Lougher <phillip@lougher.demon.co.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Compression algorithm in cloop
-References: <411A4D34.6000104@lougher.demon.co.uk>
-In-Reply-To: <411A4D34.6000104@lougher.demon.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Aug 2004 17:58:42.0258 (UTC) FILETIME=[D6891320:01C47FCC]
+Message-Id: <200408111102.10689.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday, August 11, 2004 10:28 am, Greg KH wrote:
+> On Wed, Aug 11, 2004 at 10:04:02AM -0700, Jesse Barnes wrote:
+> > On Friday, August 6, 2004 2:14 pm, Jon Smirl wrote:
+> > > Please check the code out and give it some testing. It will probably
+> > > needs some adjustment for other platforms.
+> >
+> > Jon, this works on my machine too.  Greg, if it looks ok can you pull it
+> > in? And can you add:
+> >
+> >  * (C) Copyright 2004 Silicon Graphics, Inc.
+> >  *       Jesse Barnes <jbarnes@sgi.com>
+> >
+> > to pci-sysfs.c if you do?
+>
+> Care to send me a new patch?  Oh, and that copyright line needs to look
+> like:
+> * Copyright (c) 2004 Silicon Graphics, Inc. Jesse Barnes <jbarnes@sgi.com>
+>
+> to make it legal, or so my lawyers say :)
 
-If I don't want to build a new compression library and port it to 
-kernel, all I want to do is to try out the idea -- whether it could work 
-on cloop, whether the compression ratio is acceptable, can I just change 
-the cloop code? In other words, I just need a loopback block device with 
-other compression scheme.
+But I'm not the copyright holder, Silicon Graphics is, I just wanted people to 
+know who to harass if something breaks :).
 
-I know that adding the new algorithm support to kernel would be standard 
-way to do this and would be helpful to more people, it's just that I 
-don't have that time :(
+> > Greg was a little worried that your comment
+> > 	/* .size is set individually for each device, sysfs copies it into
+> > dentry */ might not be correct.
+>
+> I looked at the code, and he's right.  But it's pretty scary that it
+> works correctly so I'd prefer to do it the way your patch did it (create
+> a new attribute for every entry.)
 
-Phillip Lougher wrote:
->  > Hello,
->  >
->  > I am trying to do some experiment on compression ratios with cloop. I
->  > know that currently cloop uses zlib. How can I change it to other
->  > algorithms?
-> 
-> Changing the algorithm from gzip is going to be probably unpopular.
-> Cloop uses the gzip deflate library inside the kernel shared by a
-> large number of other programs.  To change the algorithm you'll have
-> to add more (private) decompression code to the kernel.  This is a 
-> retrograde
-> step because the shared library was only introduced in 2.4.17 to avoid lots
-> of private copies of gzip.
-> 
->  > Where should I start from? Really a newbie to this,
->  > appreciate any comments and suggestions!!
-> 
-> There has been discussion on this list before about adding
-> bzip2 support to the kernel.  Do a search on the list for this.
-> 
-> Regards
-> 
-> Phillip
-> 
+Ok.  Jon?
+
+Thanks,
+Jesse

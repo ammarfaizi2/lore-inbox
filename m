@@ -1,68 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131342AbRAHWvp>; Mon, 8 Jan 2001 17:51:45 -0500
+	id <S135212AbRAHWyP>; Mon, 8 Jan 2001 17:54:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135791AbRAHWvf>; Mon, 8 Jan 2001 17:51:35 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:40374 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S131342AbRAHWvS>;
-	Mon, 8 Jan 2001 17:51:18 -0500
-Date: Mon, 8 Jan 2001 23:50:44 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200101082250.XAA147777.aeb@texel.cwi.nl>
-To: Andries.Brouwer@cwi.nl, andrea@suse.de
-Subject: Re: `rmdir .` doesn't work in 2.4
-Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
+	id <S135597AbRAHWyG>; Mon, 8 Jan 2001 17:54:06 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:39564 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S135212AbRAHWxz>;
+	Mon, 8 Jan 2001 17:53:55 -0500
+Date: Mon, 8 Jan 2001 14:36:26 -0800
+Message-Id: <200101082236.OAA22381@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: jes@linuxcare.com
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+In-Reply-To: <d31yud4qun.fsf@lxplus015.cern.ch> (message from Jes Sorensen on
+	08 Jan 2001 23:32:48 +0100)
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <200101080124.RAA08134@pizda.ninka.net> <d366jp4sin.fsf@lxplus015.cern.ch> <200101082148.NAA21738@pizda.ninka.net> <d31yud4qun.fsf@lxplus015.cern.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Andrea Arcangeli <andrea@suse.de>
+   From: Jes Sorensen <jes@linuxcare.com>
+   Date: 08 Jan 2001 23:32:48 +0100
 
-    > But in fact it fails with EINVAL, and
-    > 
-    > [EINVAL]: The path argument contains a last component that is dot.
+   All I am asking is that someone lets me know if they make major
+   changes to my code so I can keep track of whats happening.
 
-    I can't confirm. The specs I'm checking are here:
+We have not made any major changes to your code, in lieu of this
+not being code which is actually being submitted yet.
 
-        http://www.opengroup.org/onlinepubs/007908799/xsh/rmdir.html
+If it bothers you that publicly someone has published changes to your
+driver which you disagree with, oh well... :-)
 
-That is the SUSv2 text, one of the ingredients for the new
-POSIX standard. I quoted the current Austin draft, the current
-draft for the next version of the POSIX standard.
+This "please check things out" phase is precisely what you are
+asking of us, it is how we are saying "here is what we need to
+do with your driver, please comment".
 
-Quoting a text fragment:
-
-        The rmdir( ) function shall remove a directory whose name is given by
-        path. The directory is removed only if it is an empty directory.
-        If the directory is the root directory or the current working
-        directory of any process, it is unspecified whether the function
-        succeeds, or whether it shall fail and set errno to [EBUSY].
-        If path names a symbolic link, then rmdir( ) shall fail and
-        set errno to [ENOTDIR]. If the path argument refers to a path
-        whose final component is either dot or dot-dot, rmdir( ) shall
-        fail. ...
-
-
-    > Indeed, rmdir("P/D") does roughly the following:
-    > (i) check that P/D is a directory
-    > (ii) check that P/D does not have entries other than . and ..
-    > (iii) delete the names . and .. from P/D
-    > (iv) delete the name D from P
-
-    SUSv2 is straightforward. It doesn't talk about (iv).
-
-I just made explicit what rmdir() actually does, in order to
-show that a trailing dot really is a different case where
-other rules than the usual ones would have to be applied.
-Indeed, rmdir("foo/bar") finishes by removing the name "bar"
-from the directory "foo", but rmdir("foo/.") does not finish
-by removing the name "." from the directory "foo".
-
-Andries
-
-
-[Think classical Unix: there are inodes, and there are names.
-The rmdir call, just like rm, removes names. Now foo and foo/.
-may both be names for the same inode, but they are not the same name.]
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

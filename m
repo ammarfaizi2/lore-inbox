@@ -1,78 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262803AbTIEPg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 11:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbTIEPg1
+	id S265577AbTIEQKX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 12:10:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265603AbTIEQKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 11:36:27 -0400
-Received: from babsi.intermeta.de ([212.34.184.3]:64260 "EHLO
-	mail.intermeta.de") by vger.kernel.org with ESMTP id S262803AbTIEPgX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 11:36:23 -0400
-Subject: Re: bandwidth for bkbits.net (good news)
-From: Henning Schmiedehausen <hps@intermeta.de>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <874qzrsljc.fsf@deneb.enyo.de>
-References: <20030830230701.GA25845@work.bitmover.com>
-	 <87llt9bvtc.fsf@deneb.enyo.de> <bj1fhj$its$4@tangens.hometree.net>
-	 <874qzrsljc.fsf@deneb.enyo.de>
-Content-Type: text/plain
-Organization: INTERMETA - Gesellschaft  =?ISO-8859-1?Q?=20f=C3=BCr?= Mehrwertdienste mbH
-Message-Id: <1062776157.20632.1697.camel@forge.intermeta.de>
+	Fri, 5 Sep 2003 12:10:23 -0400
+Received: from [204.152.189.113] ([204.152.189.113]:1773 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S265577AbTIEQKM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 12:10:12 -0400
+Date: Fri, 5 Sep 2003 08:24:36 -0700
+From: Greg KH <greg@kroah.com>
+To: Ingo Oeser <ingo@oeser-vu.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] 2.4.22, USB visor module crashing on HotSync.
+Message-ID: <20030905152436.GB16363@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 05 Sep 2003 17:35:57 +0200
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -5.2 () BAYES_00
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-09-05 at 10:10, Florian Weimer wrote:
-
-> > You need a shaper connected to the ISP backbone which shapes the
-> > outgoing traffic for you and a border router which talks to the T1
-> > (C17xx or C26xx). Normally, if your ISP has some sort of clue, you
-> > will also need a bastion router which can handle backbone <-> 100 MBit
-> > traffic and does dynamic routing updates (EGP or OSPF) to the ISP
-> > backbone (A C26xx or C37xx).
+On Fri, Sep 05, 2003 at 01:30:22PM +0200, Ingo Oeser wrote:
+> Hi Greg,
 > 
-> C37xx can handle a maximum load of 225 kpps (data sheet number,
-> i.e. this value cannot be exceeded even under most favorable
-> conditions), the others handle even less.  Such routers are of no help
-> during a DoS attack.
+> there seems to be a problem with the visor module and usb_serial.
 > 
-> Yes, I snipped the DoS context, and your approach would work in a
-> benign environment. 8-)
+> Please look at __serial_close() and usb_disconnect() calling it
+> in line 1406 vs. line 1408. I would suggest removing 1408 or
+> folding it into __serial_close().
+> 
+> Formal Bug-Reporting follows:
+> 
+> [1.] One line summary of the problem:
+> 
+>       USB visor module and usb_serial crashing on HotSync in usb_disconnect
+> 
+> [2.] Full description of the problem/report:
+> 
+>       usb_disconnect calls __serial_close() which sets the tty = NULL
+>       and afterwards trys to set tty->private_data = NULL
+>       which will crash
 
-225kpps * 64 Bytes (minimum packet len) = 13,7 MBytes / sec
+Nice, someone else reported this yesterday for the ftdi_sio driver.
 
-100 MBit / 8 bit = 12,5 MBytes / sec
+Can you test the patch below and let me know if this fixes it?
 
-So, IMHO even with a small packet saturated 100 MBit link you won't
-reach 225kpps. AFAIK this was Ciscos intention to publish this number.
-It basically says "you will have filled your link before you fill our
-router". 
+thanks,
 
-I'm pretty sure that your 37xx won't do any routing updates anymore at
-this point. And if you do _anything_ that forces the packets down the
-slow path from the routing engine, you're toast anyway.
-
-But I'm pretty sure that a C37xx would handle full 100 MBit traffic to a
-busy website without any problems. In fact, I know that it does. ;-) (We
-did switch to a C12000 shortly after, mainly because we went Gigabit).
-
-	Regards
-		Henning
+greg k-h
 
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
-
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire
-
-"Dominate!! Dominate!! Eat your young and aggregate! I have grotty silicon!" 
-      -- AOL CD when played backwards  (User Friendly - 200-10-15)
-
+--- a/drivers/usb/serial/usbserial.c	Sat Aug 30 23:27:18 2003
++++ b/drivers/usb/serial/usbserial.c	Thu Sep  4 13:48:45 2003
+@@ -556,7 +556,10 @@
+ 		else
+ 			generic_close(port, filp);
+ 		port->open_count = 0;
+-		port->tty = NULL;
++		if (port->tty) {
++			port->tty->driver_data = NULL;
++			port->tty = NULL;
++		}
+ 	}
+ 
+ 	if (port->serial->type->owner)
+@@ -1401,12 +1404,9 @@
+ 		for (i = 0; i < serial->num_ports; ++i) {
+ 			port = &serial->port[i];
+ 			down (&port->sem);
+-			if (port->tty != NULL) {
+-				while (port->open_count > 0) {
++			if (port->tty != NULL)
++				while (port->open_count > 0)
+ 					__serial_close(port, NULL);
+-				}
+-				port->tty->driver_data = NULL;
+-			}
+ 			up (&port->sem);
+ 		}
+ 

@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263141AbREaSS3>; Thu, 31 May 2001 14:18:29 -0400
+	id <S263147AbREaSVj>; Thu, 31 May 2001 14:21:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263142AbREaSST>; Thu, 31 May 2001 14:18:19 -0400
-Received: from mail1.netcabo.pt ([212.113.161.135]:21775 "EHLO netcabo.pt")
-	by vger.kernel.org with ESMTP id <S263141AbREaSSC>;
-	Thu, 31 May 2001 14:18:02 -0400
-Message-ID: <3B168B59.70906@europe.com>
-Date: Thu, 31 May 2001 19:20:09 +0100
-From: Vasco Figueira <figueira@europe.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5 i686; en-US; rv:0.9+) Gecko/20010530
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] reclaim dirty dead swapcache pages
-In-Reply-To: <Pine.LNX.4.21.0105301729080.5231-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263152AbREaSVb>; Thu, 31 May 2001 14:21:31 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:62473 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S263143AbREaSVJ>;
+	Thu, 31 May 2001 14:21:09 -0400
+Date: Thu, 31 May 2001 14:23:21 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net,
+        torvalds@transmeta.com, laughing@shared-source.org
+Subject: Re: Configure.help is complete
+Message-ID: <20010531142321.A9220@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com,
+	laughing@shared-source.org
+In-Reply-To: <20010531132454.A8361@thyrsus.com> <20010531201349.B1877@dardhal.mired.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010531201349.B1877@dardhal.mired.net>; from jldomingo@crosswinds.net on Thu, May 31, 2001 at 08:13:49PM +0000
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+José Luis Domingo López <jldomingo@crosswinds.net>:
+> Would it be great to have a similar documentation for those hundreds of
+> "files" under /proc ?.
 
-Marcelo Tosatti wrote:
-
-> I tested it and yes, it works. 
-(...)
-> Please test. 
-
-I've tested it against vanilla 2.4.5 and it resolves the freeze problem, 
-though:
-
-I've opened x, gnome, mozilla, mozilla -mail, 3 gnome-terminals, pan, 
-xmms, some files and javac. Swap was totally filled up and it didn't 
-froze (good!). However suddently it came very busy (i thougth it was 
-going to freeze again), the music stopped, and came back to normal 
-again. It had killed xmms, I noticed after.
-
-Is it intentional to kill processes? Well, it does reolve the problem, 
-but kills some processes, probably the most eager ones. I will keep 
-using this patch and report again if something relevant is found.
-
-So far, so good, this is better tha having to swapoff & swapon all the 
-time. Nice work Marcelo.
+Yes, this would be wonderful.  Are you volunteering to write it?
 -- 
-Regards,
-                             Vasco Figueira
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-http://students.fct.unl.pt/users/vaf12086/
-
+[W]hat country can preserve its liberties, if its rulers are not
+warned from time to time that [the] people preserve the spirit of
+resistance?  Let them take arms...The tree of liberty must be
+refreshed from time to time, with the blood of patriots and tyrants.
+	-- Thomas Jefferson, letter to Col. William S. Smith, 1787 

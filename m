@@ -1,150 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269635AbUIRUgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269630AbUIRUsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269635AbUIRUgv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 16:36:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269631AbUIRUfu
+	id S269630AbUIRUsL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 16:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269631AbUIRUsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 16:35:50 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:20356 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S269630AbUIRUfb (ORCPT
+	Sat, 18 Sep 2004 16:48:10 -0400
+Received: from mo00.iij4u.or.jp ([210.130.0.19]:21977 "EHLO mo00.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S269630AbUIRUsB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 16:35:31 -0400
-Date: Sat, 18 Sep 2004 22:35:29 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ESP corruption bug - what CPUs are affected?
-Message-ID: <20040918203529.GA4447@vana.vc.cvut.cz>
-References: <3BFF2F87096@vcnet.vc.cvut.cz> <414C662D.5090607@aknet.ru> <20040918165932.GA15570@vana.vc.cvut.cz> <414C8924.1070701@aknet.ru>
+	Sat, 18 Sep 2004 16:48:01 -0400
+Date: Sun, 19 Sep 2004 05:47:41 +0900 (JST)
+Message-Id: <20040919.054741.01370775.okuyamak@dd.iij4u.or.jp>
+To: akpm@osdl.org
+Cc: kihara.seiji@lab.ntt.co.jp, sct@redhat.com, adilger@clusterfs.com,
+       ext3-users@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, ospfs@lab.ntt.co.jp
+Subject: Re: [PATCH] BUG on fsync/fdatasync with Ext3 data=journal
+From: Kenichi Okuyama <okuyamak@dd.iij4u.or.jp>
+In-Reply-To: <20040916145059.44a7e800.akpm@osdl.org>
+References: <ufz5i5q4r.wl%kihara.seiji@lab.ntt.co.jp>
+	<20040916145059.44a7e800.akpm@osdl.org>
+X-Mailer: Mew version 4.0.65 on Emacs 21.3 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <414C8924.1070701@aknet.ru>
-User-Agent: Mutt/1.5.6+20040818i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 18, 2004 at 11:14:44PM +0400, Stas Sergeev wrote:
-> Hi,
-> 
-> Petr Vandrovec wrote:
-> >>Does this look reasonable? If it does, I think I
-> >>should just start implementing that.
-> >Do not forget that you have to implement also return to CPL1, as
-> >NMI may arrive while you are running on CPL1.  So it may not be
-> >as trivial as it seemed. 
-> I am not sure what special actions have to be
-> taken here compared to returning to ring-3 from NMI.
-> Is there anywhere in the sources an example to take
-> a look at? (sorry for the newbie questions)
+Dear Mr. Morton, Seiji, and all,
 
-It means that you cannot blindly create CPL1 trampoline stack
-in some static per-cpu area.  But if we can assume that there
-is no other CPL1 code in the system, something like code below
-could work:
+>>>>> "AM" == Andrew Morton <akpm@osdl.org> writes:
+AM> Yes, the I_DIRTY test is bogus because data pages are not marked dirty at
+AM> write() time when the filesystem is mounted in data=journal mode.
+AM> However your patch will disable the above optimisation for data=writeback
+AM> and data-ordered modes as well.  I don't think that's necessary?
 
-/* + 20 [word 5]  SS
-   + 16 [word 4]  ESP
-   + 12 [word 3]  EFLAGS
-   +  8 [word 2]  CS
-   +  4 [word 1]  EIP
-   +  0 [word 0]  ESP for popl %esp
-*/
-u_int32_t cpl1stacks[NUM_CPUS][6];
-
-curCPU = smp_processor_id();
-minSP = curCPU * sizeof(cpl1stacks[0]);
-maxSP = minSP + sizeof(cpl1stacks[0]);
-cpl1stack = cpl1stacks[curCPU];
-
-if (cpl0stack[retCS] & 3 == 1) {
-	/* Going back to our trampoline */
-	/* There is no other place in kernel running on CPL1
-           except our trampoline; so interrupt could occur either
-           on popl %esp or on iret.  If it occured on popl %esp,
-           just return, code will do proper things.  If interrupt
-	   occured on iret, we have to perform popl %esp again,
-	   so that upper bits of %esp are correctly restored
-	   for CPL3 code */
-	ASSERT(cpl0stack[retCS] == FLAT_4G_CPL1_CS);
-	ASSERT(cpl0stack[retSS] == SMALL_CPL1_SS);
-	if (cpl0stack[retEIP] == fixup_proc) {
-		ASSERT(cpl0stack[retESP] == minSP]);
-	} else if (cpl0stack[retEIP] == fixup_proc_iret) {
-		ASSERT(cpl0stack[retESP] & 0xFFFF == minSP + 4);
-		/* Undo popl %esp - copy value from ESP we were
-                   using on CPL1 back to stack */
-		cpl1stack[0] = cpl0stack[retESP];
-		cpl0stack[retEIP] = fixup_proc;
-		cpl0stack[retESP] = minSP;
-	} else {
-		/* unexpected code running on CPL1 */
-		/* Probably do simple IRET and hope for the best? */
-		ASSERT(0);
-	}
-	iret;
-} else {
-	cpl1Stack[5] = cpl0stack[retSS];
-	cpl1Stack[4] = cpl0stack[retESP];
-	cpl1Stack[3] = cpl0stack[retEFLAGS];
-	cpl1Stack[2] = cpl0stack[retCS];
-	cpl1Stack[1] = cpl0stack[retEIP];
-	cpl1Stack[0] = (cpl0stack[retESP] & 0xFFFF0000) | minSP + 4;
-	cpl0stack[retSS] = SMALL_CPL1_SS;
-	cpl0stack[retESP] = minSP;
-	/* 
-	   Do NOT clear IF... IF flag is affected only if IOPL >= CPL, so
-	   with IOPL=0 IRET on CPL1 won't reenable interrupts.  This is reason
-	   why we cannot use RETF to return from CPL0 to CPL1 (retf
-	   is much faster than iret on P4) (and we cannot use retf for
-	   CPL1->CPL3 due to TF/RF).
-
-	   Clear TF so we do not start tracing on CPL1 if we trace
-	   userspace, and clear RF, so if somebody intentionaly pointed
-	   hardware breakpoint into CPL1 handler, it will be triggered
-	   (we must use this path for returns from INT1 too, so it
-	   is possible that RF is set in EFLAGS on stack).
-	*/
-	cpl0stack[retEFLAGS] &= ~(EFLAGS_TF | EFLAGS_RF);
-	cpl0stack[retCS] = FLAT_4G_CPL1_CS;
-	cpl0stack[retEIP] = fixup_proc;
-	iret;
-}
-
-fixup_proc:
-	popl %esp
-fixup_proc_iret;
-	iret
+I don't think Mr. Morton's code have any advantages over Seiji's patch.
 
 
-It assumes that there is one new 32bit CPL1 flat CS descriptor in GDT, and
-one 16bit (small) CPL1 SS descriptor (grows up, with limit 24*<num_cpus>
-and base of cpl1stacks), plus <num_cpus> 24byte CPL1 stacks (max. 64KB, 
-so for kernels with more than 2730 CPUs you need more than one stack 
-descriptor).
+Please look at lines below. Line starting with AM> + are the point
+Mr. Morton have added the code ( point where you removed are bit
+above, and not in the lines ).
 
 
-> >Maybe all these programs survive that
-> >their CPL3 stack changes,
-> Most likely they will, I am just not sure. What
-> if they disabled interrupts and are switching the
-> stack by loading the SS and ESP separately? If we
-> interrupt it there, there may be the problems, which
-> would be almost impossible to track down later.
-> It just looks a bit unsafe to me. Or maybe exploit
-> a sigaltstack for that? Hmm, is implementing the
-> CPL1 trampoline really that difficult after all?
-> I think it is somewhat cleaner and maybe safer.
+74         if (ext3_should_journal_data(inode)) {
+75                 ret = ext3_force_commit(inode->i_sb);
+76                 goto out;
+77         }
+AM> +	smp_mb();		/* prepare for lockless i_state read */
+AM> +	if (!(inode->i_state & I_DIRTY))
+AM> +		goto out;
+AM> +
+78 
+79         /*
+80          * The VFS has written the file data.  If the inode is unaltered
+81          * then we need not start a commit.
+82          */
+83         if (inode->i_state & (I_DIRTY_SYNC|I_DIRTY_DATASYNC)) {
+84                 struct writeback_control wbc = {
+85                         .sync_mode = WB_SYNC_ALL,
+86                         .nr_to_write = 0, /* sys_fsync did this */
+87                 };
+88                 ret = sync_inode(inode, &wbc);
+89         }
+90 out:
+91         return ret;
 
-As in pseudocode above I was able to handle even NMIs with just
-24 bytes of stack on CPL1, it is definitely preferred solution.
+Now. Please note that
+       #define I_DIRTY (I_DIRTY_SYNC | I_DIRTY_DATASYNC | I_DIRTY_PAGES)
+is definition of macro 'I_DIRTY'. As result, Mr. Morton's patch is
+saying that:
 
-> >and AFAIK LAR is microcoded on P4.
-> Where does this lead us to? Some other problems I
-> am not aware about?
+	if (!(inode->i_state & (I_DIRTY_SYNC | I_DIRTY_DATASYNC | I_DIRTY_PAGE))
+		goto out;
+         if (inode->i_state & (I_DIRTY_SYNC|I_DIRTY_DATASYNC)) {
+                 struct writeback_control wbc = {
+                         .sync_mode = WB_SYNC_ALL,
+                         .nr_to_write = 0, /* sys_fsync did this */
+                 };
+                 ret = sync_inode(inode, &wbc);
+         }
+out:
 
-It is slow.  No other problems, except that doing
-(((ss & 4) ? gdt[ss >> 3] : ldt[ss >> 3]) & 0x00????00) == 0x00????00;
-may be faster than doing (lar(ss) & 0x00????00) == 0x00????00.
-						Petr
+
+But this is equivalent to following code ( think carefully :-)
+
+         if (inode->i_state & (I_DIRTY_SYNC|I_DIRTY_DATASYNC)) {
+                 struct writeback_control wbc = {
+                         .sync_mode = WB_SYNC_ALL,
+                         .nr_to_write = 0, /* sys_fsync did this */
+                 };
+                 ret = sync_inode(inode, &wbc);
+         }
+out:
+
+whch turns out to be what Seiji's patch was.
+
+
+Hence, Mr. Morton's patch have no OPTIMIZATION over Seiji's code.
+( if gcc is smart enough, Mr. Morton's code should have no effect to
+binary. If not, it's overhead. ).
+
+
+My worry is follows.
+
+  Basically, Seiji's patch is better. But in that case,
+  smp_mb() call right before accessing to inode->i_state will
+  disappear. Is this safe.....
+
+  I am not sure because even without Seiji's patch,
+  codes at line 83 did exist. And it was working... wasn't it?
+
+  In the case smp_mb() was simply not nessasary, Seiji's patch
+  will do everything. In case smp_mb() was nessasary, we were
+  lacking one right before line 83.
+
+
+best regards,
+---- 
+Kenichi Okuyama
 

@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293238AbSCEPC0>; Tue, 5 Mar 2002 10:02:26 -0500
+	id <S293338AbSCEPHG>; Tue, 5 Mar 2002 10:07:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293297AbSCEPCQ>; Tue, 5 Mar 2002 10:02:16 -0500
-Received: from h00403399c977.ne.mediaone.net ([24.218.248.214]:15824 "EHLO
-	fred.cambridge.ma.us") by vger.kernel.org with ESMTP
-	id <S293238AbSCEPCB>; Tue, 5 Mar 2002 10:02:01 -0500
-From: pjd@fred001.dynip.com
-Message-Id: <200203051459.g25Ex5x02563@fred.cambridge.ma.us>
-Subject: Re: [PATCH] IBM Lanstreamer bugfixes (round 3)
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Tue, 5 Mar 2002 09:59:05 -0500 (EST)
-Cc: key@austin.ibm.com (Kent Yoder), linux-kernel@vger.kernel.org,
-        marcelo@conectiva.com.br
-In-Reply-To: <3C83C698.25D28157@mandrakesoft.com> from "Jeff Garzik" at Mar 04, 2002 02:10:16 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S293301AbSCEPHA>; Tue, 5 Mar 2002 10:07:00 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:17794 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S293314AbSCEPGX> convert rfc822-to-8bit;
+	Tue, 5 Mar 2002 10:06:23 -0500
+Date: Tue, 05 Mar 2002 07:04:14 -0800 (PST)
+Message-Id: <20020305.070414.77058889.davem@redhat.com>
+To: linux-kernel@vger.kernel.org, tlan@stud.ntnu.no
+Cc: jgarzik@mandrakesoft.com, linux-net@vger.kernel.org
+Subject: Re: [BETA-0.95] Sixth test release of Tigon3 driver
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020305153025.A12473@stud.ntnu.no>
+In-Reply-To: <20020305.060323.99455532.davem@redhat.com>
+	<20020305.060604.68157839.davem@redhat.com>
+	<20020305153025.A12473@stud.ntnu.no>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> MWI -does- make a difference in performance, though you may need to
-> check lanstreamer docs to see if there is a chip-specific MWI bit you
-> need to enable, over and above the PCI_COMMAND bit.
+   From: Thomas Langås <tlan@stud.ntnu.no>
+   Date: Tue, 5 Mar 2002 15:30:25 +0100
+   
+   Hmm, I found a document through google; Cisco Catalyst 4006 doesn't support
+   9KB MTUs, so I'll contact the networking guys and fix this, we want switches
+   that supports large MTUs :)
 
-My experience - which is 2-3 years old now - is that many BIOSes will
-enable MWI for you.  Which makes it very easy to forget to do this,
-and then have it discovered by your customers who have machines that
-don't set MWI...
-
-............................................................................
- Peter Desnoyers 
- 162 Pleasant St.         (617) 661-1979          pjd@fred.cambridge.ma.us
- Cambridge, Mass. 02139
-
+It's not a reasonable request, it doesn't interoperate at all
+with 10/100 segments, see my other mail.

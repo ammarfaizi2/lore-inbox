@@ -1,62 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283414AbRK2VpP>; Thu, 29 Nov 2001 16:45:15 -0500
+	id <S283409AbRK2Vnz>; Thu, 29 Nov 2001 16:43:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283411AbRK2VpG>; Thu, 29 Nov 2001 16:45:06 -0500
-Received: from CPE0080c6e9a7f7.cpe.net.cable.rogers.com ([24.102.231.5]:58378
-	"EHLO cr213096-a.rchrd1.on.wave.home.com") by vger.kernel.org
-	with ESMTP id <S283410AbRK2Vow>; Thu, 29 Nov 2001 16:44:52 -0500
-Date: Thu, 29 Nov 2001 16:37:09 -0500
-From: Masoud <masu@cr213096-a.rchrd1.on.wave.home.com>
-To: Jeffrin <jeffrin@msservices.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel File system Corruption related
-Message-ID: <20011129163709.A23980@cr213096-a.rchrd1.on.wave.home.com>
-In-Reply-To: <861yiho985.fsf@jeffrin@msservices.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <861yiho985.fsf@jeffrin@msservices.org>; from jeffrin@msservices.org on Thu, Nov 29, 2001 at 09:33:22PM +0530
+	id <S283410AbRK2Vnp>; Thu, 29 Nov 2001 16:43:45 -0500
+Received: from tux.rsn.bth.se ([194.47.143.135]:2211 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S283409AbRK2Vni>;
+	Thu, 29 Nov 2001 16:43:38 -0500
+Date: Thu, 29 Nov 2001 22:42:57 +0100 (CET)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Andrew Morton <akpm@zip.com.au>
+cc: war war <war@starband.net>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.16 & Heavy I/O
+In-Reply-To: <3C0677FB.88AE4196@zip.com.au>
+Message-ID: <Pine.LNX.4.21.0111292229270.26505-100000@tux.rsn.bth.se>
+X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-I am using 2.4.16 quite happily with a i810 chipset. Besides, 
-i810 chipset series are for at least Celeron/Pentium II/Pentium III's.
-can you give more details? did the system cleanly shutdown when you ran
-"init 0"?
-cheers,
-Masoud
+On Thu, 29 Nov 2001, Andrew Morton wrote:
 
-On Thu, Nov 29, 2001 at 09:33:22PM +0530, Jeffrin wrote:
+[snip]
+> In current kernels, with your sort of workload, it appears that
+> all IO is being initiated by method 2.  It also appears that
+> method 2 simply doesn't do it very well - I've earlier observed
+> that simply writing a 650 megabyte chunk of /dev/zero into a
+> file runs 30% faster on ext3 than on ext2.  Because ext2 uses
+> method 2, and it should be using method 1, and ext3 uses, err,
+> method 4.
+
+I too are seeing this and can't remember seeing it so clearly in the past
+as I do now. I've seen it in 2.4.10-ac12 and 2.4.15-pre7 and
+2.4.16+your_patch_for_reads_while_writing.
+
+I recently backuped my /home on a friends machine and then reformatted my
+partition from reiserfs to ext3 and then put all the data back.
+When I did this I saw this behaviour very clearly. I have quite a lot of
+'vmstat 1' output that shows that the machine is recieving a lot of data
+but not writing anything out, this is completely fine, but when the
+diskoutput begins the networkinput stops and only continues after the
+writeout is complete. There are variations to how much it stalls but it
+always stalls for some time, sometimes a short while and sometimes until
+the buffer is empty and then the story begins all over again.
+
+the disk can sustain >30MB/s output and the network is 100Mbit/s so it a
+maximum of 10-11MB/s in.
+
+I sent the 'vmstat 1' output to Rik van Riel and the response I got on irc
+was something like "ouch! Spikey!". he didn't think it should work like
+this either. To me it seems that the writeout starts to late or that no
+new data is put into the buffer while it's beeing emptied.
+
+> Are you inclined to try a patch, and let us know if the result
+> is better? (coz if you don't nothing will happen!)
+
+I'll try this tomorrow and give you a full report with vmstat output and
+slabinfo/meminfo and whatever more you might want.
+
+> http://www.zip.com.au/~akpm/linux/2.4/2.4.17-pre1/vm-fixes.patch
 > 
-> Hello ,
+> It causes writeout to be initiated via the dirty buffer LRU, not the
+> inactive list.
 > 
-> I had done a 2.4.16 kernel related compilation
-> and used it. When i did "init 0" for the first time
-> and then again tried get a GNU/Linux system related to 2.4.16
-> it might have showed related to severe filesystem corruption
-> problems.And at one time related to that atleast i  could not even
-> use GNU/Linux.It had atleast a i810  chipset and a Pentium
-> Processor.
+> Also,
 > 
+> http://www.zip.com.au/~akpm/linux/2.4/2.4.17-pre1/elevator.patch
 > 
-> I have in my     house 2 machines which is not i810 and i
-> did not find any problems related to  typical filesystem corruption.
-> 
-> 
-> May be a typical bug related to filesystem corruption
-> is not completely fixed in 2.4.16.
-> 
-> 
-> -- 
-> Jeffrin Jose T.
-> www.MSServices.org
-> GPG:1024D/F5726A1B
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> It lets you read data from the disk when writes are happening.
+
+I'll try with 2.4.17-pre1 + your patches.
+
+All my tests will be done on ext3 filesystems.
+
+/Martin
+
+Never argue with an idiot. They drag you down to their level, then beat you with experience.
+

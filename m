@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267065AbSLKIR4>; Wed, 11 Dec 2002 03:17:56 -0500
+	id <S267062AbSLKIZE>; Wed, 11 Dec 2002 03:25:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267068AbSLKIR4>; Wed, 11 Dec 2002 03:17:56 -0500
-Received: from crack.them.org ([65.125.64.184]:29605 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S267065AbSLKIRz>;
-	Wed, 11 Dec 2002 03:17:55 -0500
-Date: Wed, 11 Dec 2002 03:26:22 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: george anzinger <george@mvista.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Jim Houston <jim.houston@ccur.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-       "David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
-       schwidefsky@de.ibm.com, ralf@gnu.org, willy@debian.org
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-Message-ID: <20021211082622.GA27304@nevyn.them.org>
-Mail-Followup-To: george anzinger <george@mvista.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Jim Houston <jim.houston@ccur.com>,
-	Stephen Rothwell <sfr@canb.auug.org.au>,
-	LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-	"David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
-	schwidefsky@de.ibm.com, ralf@gnu.org, willy@debian.org
-References: <3DF06B15.1F6ECD5D@mvista.com> <Pine.LNX.4.44.0212060944030.23118-100000@home.transmeta.com> <20021209154142.GA22901@nevyn.them.org> <3DF673B9.4E273E83@mvista.com> <20021211071041.GA8988@nevyn.them.org> <3DF6F31F.DBB24F10@mvista.com>
+	id <S267068AbSLKIZE>; Wed, 11 Dec 2002 03:25:04 -0500
+Received: from danielle.hinet.hr ([195.29.148.143]:26543 "EHLO
+	danielle.hinet.hr") by vger.kernel.org with ESMTP
+	id <S267062AbSLKIZD>; Wed, 11 Dec 2002 03:25:03 -0500
+Date: Wed, 11 Dec 2002 09:31:32 +0100
+From: Mario Mikocevic <mozgy@hinet.hr>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Daniel Franke <daniel@franke.homeip.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       arjanv@redhat.com
+Subject: Re: Radeon DRI
+Message-ID: <20021211083131.GA8898@danielle.hinet.hr>
+References: <20021209224553.GA469@silmaril> <20021210015423.GA469@silmaril> <1039539378.14175.31.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <3DF6F31F.DBB24F10@mvista.com>
-User-Agent: Mutt/1.5.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1039539378.14175.31.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 12:11:11AM -0800, george anzinger wrote:
-> So, is this overkill?
+On Tue, Dec 10, 2002 at 04:56:18PM +0000, Alan Cox wrote:
+> 
+> I'm removing the drm update in -ac soon I think. 
 
-Yes.  I'm also 99% certain it won't solve the problem.  Really, the
-only way to get this right is to make sure all the state is out where
-GDB will see it and protect it.  But it sounds like doing this on S/390
-and ia64 is prohibitively complicated.
+Where can we find latest Radeon DRI/DRM update !?
+So I can resolve something like this ->
 
-I'll think about it.  If we can't come up with anything better we may
-want to just make this behave correctly on those architectures that can
-do it.
+Radeon DRI driver:
+        Compatibility mode for DRM driver version 1.1.1
+        TCL will be disabled, expect reduced performance
+        (prefer DRM radeon.o 1.3.x or newer)
+
+ps
+	linus-2.4.20
+
 
 -- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+Mario Mikoèeviæ (Mozgy)
+mozgy at hinet dot hr
+My favourite FUBAR ...

@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269453AbUINRK0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269613AbUINRXD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269453AbUINRK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 13:10:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269458AbUINREP
+	id S269613AbUINRXD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 13:23:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269600AbUINRSx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 13:04:15 -0400
-Received: from holomorphy.com ([207.189.100.168]:61332 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269516AbUINQqG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 12:46:06 -0400
-Date: Tue, 14 Sep 2004 09:45:57 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Ray Bryant <raybry@sgi.com>, hawkes@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [profile] amortize atomic hit count increments
-Message-ID: <20040914164557.GV9106@holomorphy.com>
-References: <20040913015003.5406abae.akpm@osdl.org> <20040914155103.GR9106@holomorphy.com> <20040914160531.GP4180@dualathlon.random> <200409140916.48786.jbarnes@engr.sgi.com> <20040914163143.GQ4180@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040914163143.GQ4180@dualathlon.random>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 14 Sep 2004 13:18:53 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:27786 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S269604AbUINRSZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 13:18:25 -0400
+Date: Tue, 14 Sep 2004 18:17:53 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Ville Hallivuori <vph@iki.fi>,
+       Toon van der Pas <toon@hout.vanvergehaald.nl>,
+       Wolfpaw - Dale Corse <admin@wolfpaw.net>, kaukasoi@elektroni.ee.tut.fi,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local and REMOTE(verified) Denial
+ of Service Attack
+In-Reply-To: <1095178175.17043.50.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0409141815460.23011@fogarty.jakma.org>
+References: <002301c498ee$1e81d4c0$0200a8c0@wolf> 
+ <1095008692.11736.11.camel@localhost.localdomain>  <20040912192331.GB8436@hout.vanvergehaald.nl>
+  <Pine.LNX.4.61.0409130413460.23011@fogarty.jakma.org> 
+ <Pine.LNX.4.61.0409130425440.23011@fogarty.jakma.org>  <20040913201113.GA5453@vph.iki.fi>
+  <Pine.LNX.4.61.0409141553260.23011@fogarty.jakma.org> 
+ <1095174633.16990.19.camel@localhost.localdomain> 
+ <Pine.LNX.4.61.0409141721270.23011@fogarty.jakma.org>
+ <1095178175.17043.50.camel@localhost.localdomain>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 14, 2004 at 06:31:43PM +0200, Andrea Arcangeli wrote:
-> per-cpu certainly sounds simple enough conceptually, so if you can
-> notice any slowdown even with idle loop ruled out, per-cpu is sure
-> better.
-> This bouncing is likely to hurt smaller SMP too (but once the cpu is
-> idle normally it's not a too bad thing since it only hurted reschedule
-> latency, since we remain stuck in the timer irq for a bit longer than we
-> should), but duplicating the ram of the array there doesn't look as nice
-> as it would be on the altix, not all SMP have tons of ram. So an
-> intermediate solution for this problem still sound worthwhile for the
-> normal smp case.
+On Tue, 14 Sep 2004, Alan Cox wrote:
 
-Could you clarify whether you deem the per-cpu hashtable -based
-amortization acceptable or whether this refers to per-cpu profile
-buffers? I devised the hashtables to address space footprint concerns,
-so I'm in a pickle if both have pending objections.
+> TCP-MD5 has no effect on ICMP based attacks.,
 
-Thanks.
+Hmm, good point. Which attacks, and what could be done about them? 
+(other than IPsec protect all traffic between peers).
 
-
--- wli
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+"You can't get very far in this world without your dossier being there first."
+-- Arthur Miller

@@ -1,35 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317004AbSFKLVv>; Tue, 11 Jun 2002 07:21:51 -0400
+	id <S317005AbSFKLYk>; Tue, 11 Jun 2002 07:24:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317005AbSFKLVu>; Tue, 11 Jun 2002 07:21:50 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40207 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317004AbSFKLVt>; Tue, 11 Jun 2002 07:21:49 -0400
-Date: Tue, 11 Jun 2002 12:21:44 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.21: kbuild changes broke filenames with commas
-Message-ID: <20020611122144.A3665@flint.arm.linux.org.uk>
-In-Reply-To: <20020611083947.A1346@flint.arm.linux.org.uk> <Pine.LNX.4.44.0206110510510.24261-100000@hawkeye.luckynet.adm>
+	id <S317006AbSFKLYj>; Tue, 11 Jun 2002 07:24:39 -0400
+Received: from nixpbe.pdb.siemens.de ([192.109.2.33]:37846 "EHLO
+	nixpbe.pdb.sbs.de") by vger.kernel.org with ESMTP
+	id <S317005AbSFKLYi>; Tue, 11 Jun 2002 07:24:38 -0400
+Subject: Re: Serverworks OSB4 in impossible state
+From: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
+To: Daniela Engert <dani@ngrt.de>
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20020611064201.9F55DEDBE@mail.medav.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 11 Jun 2002 13:25:25 +0200
+Message-Id: <1023794726.23733.375.camel@biker.pdb.fsc.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 11, 2002 at 05:11:13AM -0600, Thunder from the hill wrote:
-> On Tue, 11 Jun 2002, Russell King wrote:
-> > Is it really worth adding complexity to a build system to work around
-> > what is really a GCC bug for just one file?  I don't think so.
-> 
-> Think big! Think about __future__.
+[Alan, I am cc'ing you on this because I read elsewhere that you want 
+osb4-bug@ide.cabal.tm to be forwarded to you, and that address still
+bounces]. 
 
-The path to overdesign and excessive featurebloat.
+I have tried the following:
 
+- comment out the code that stalls the machine when the condition in
+  question is encountered.
+- run dd over a couple of good blocks on the CD.
+- run dd over the corrupted blocks. This leads now to very similar
+  errors as in the PIO case.
+- reenable DMA with hdparm, because it is automatically disabled by the
+  ide-cd driver if an error occurs (why that? the error has nothing to
+  do with DMA here).
+- repeat the first dd command on the good blocks and compare the
+  results.
+
+The results are identical, thus I cannot verify the "4 byte shift" Alan
+has been talking about. Of course this is a CD-ROM only scenario, thus
+I can't tell anything about hard disks.
+
+Is it possible that the 4-byte shift occurs only with some particular
+(older?) version of the chipset? 
+
+In any case, the condition that usually causes Linux to stall is 
+indeed a perfectly valid condition for DMA when the device transfers
+less data than it's supposed to. I doubt that hanging the system 
+without more detailed checks is the right measure to take there.
+
+Martin
+ 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Martin Wilck                Phone: +49 5251 8 15113
+Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
+Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
+D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
+
+
+
+
 

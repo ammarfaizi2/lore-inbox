@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283588AbRLJHFJ>; Mon, 10 Dec 2001 02:05:09 -0500
+	id <S283467AbRLJHMk>; Mon, 10 Dec 2001 02:12:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283467AbRLJHE7>; Mon, 10 Dec 2001 02:04:59 -0500
-Received: from zero.tech9.net ([209.61.188.187]:41734 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S283055AbRLJHEr>;
-	Mon, 10 Dec 2001 02:04:47 -0500
-Subject: Re: [PATCH] fully preemptible kernel
-From: Robert Love <rml@tech9.net>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org, kpreempt-tech@lists.sourceforge.net
-In-Reply-To: <01121008545000.01013@manta>
-In-Reply-To: <1007930466.11789.2.camel@phantasy> 
-	<01121008545000.01013@manta>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.06.08.57 (Preview Release)
-Date: 10 Dec 2001 02:03:53 -0500
-Message-Id: <1007967834.878.30.camel@phantasy>
+	id <S285925AbRLJHMa>; Mon, 10 Dec 2001 02:12:30 -0500
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:60680
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S283467AbRLJHMY>; Mon, 10 Dec 2001 02:12:24 -0500
+Message-Id: <5.1.0.14.2.20011210020236.01cca428@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 10 Dec 2001 02:07:06 -0500
+To: linux-kernel@vger.kernel.org
+From: Stevie O <stevie@qrpff.net>
+Subject: "Colo[u]rs"
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-12-10 at 05:54, vda wrote:
+After a few failed web searches (combos like 'linux cache color' just gave 
+me a bunch of references to video), I am resorting to this list for this 
+question.
 
-> I reported a problem with preemptible 2.4.13 and Samba server (oops, problems 
-> with creation of files from win clients).
-> Is this issue addressed?
+What exactly do y'all mean by these "colors"? Task colors, cache colors, 
+and probably a few other colors i've missed/forgotten about. What do these 
+colors represent? How are they used to group tasks/cache entries? Is what 
+they're actually for?
 
-No, because I could not reproduce it.  Could you see if it occurs on the
-current kernel with the current patch?  If so, send me the relevant
-information.
 
-	Robert Love
+--
+Stevie-O
+
+The first real programmer used COPY CON VMLINUZ and rebooted.
 

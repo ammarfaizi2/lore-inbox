@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267295AbUHDHQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267313AbUHDHSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267295AbUHDHQy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 03:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267313AbUHDHQy
+	id S267313AbUHDHSu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 03:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267303AbUHDHSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 03:16:54 -0400
-Received: from styx.suse.cz ([82.119.242.94]:8320 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S267295AbUHDHQw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 03:16:52 -0400
+	Wed, 4 Aug 2004 03:18:50 -0400
+Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:34312 "EHLO
+	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S267314AbUHDHSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 03:18:47 -0400
+From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@pld-linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.8rc3] build failed.
 Date: Wed, 4 Aug 2004 09:18:42 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Marko Macek <Marko.Macek@gmx.net>,
-       Jesper Juhl <juhl-lkml@dif.dk>, Eric Wong <eric@yhbt.net>
-Subject: Re: KVM & mouse wheel
-Message-ID: <20040804071842.GA705@ucw.cz>
-References: <410FAE9B.5010909@gmx.net> <Pine.LNX.4.60.0408032257250.2821@dragon.hygekrogen.localhost> <4110660D.5050003@gmx.net> <200408040025.20118.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200408040025.20118.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408040918.42311.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 04, 2004 at 12:25:19AM -0500, Dmitry Torokhov wrote:
+# make bzImage
 
-> On Tuesday 03 August 2004 11:29 pm, Marko Macek wrote:
-> > Jesper Juhl wrote:
-> > 
-> > > <>I also had problems with my KVM switch and mouse when I initially 
-> > > moved to
-> > > 2.6, but adding this kernel boot parameter fixed it, meybe it will help
-> > > you as well : psmouse.proto=imps
-> > 
-> > This doesn't help. Only the patch I sent helps me. The problem is that the
-> > even with psmouse.proto=imps or exps, the driver still probes for 
-> > synaptics which I
-> > consider a bug.
-> > 
-> 
-> No it is not - Synaptics with a track-point on a passthrough port will have
-> track-point disabled if it is not reset after probing for imps/exps.
- 
-Hmm, does the imps/exps probe succeed in this case?
+make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+  CHK     include/linux/compile.h
+  GEN     .version
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  LD      vmlinux
+
+ld:arch/i386/kernel/vmlinux.lds.s:1:
+   ignoring invalid character `#' in expression
+ld:arch/i386/kernel/vmlinux.lds.s:1:
+   syntax error
+make: *** [vmlinux] Error 1
+
+
+# head -n 10 vmlinux.lds.s
+
+# 1 "arch/i386/kernel/vmlinux.lds.S"
+# 1 "<built-in>"
+# 1 "<command line>"
+# 1 "arch/i386/kernel/vmlinux.lds.S"
+(...)
+# 1 "include/asm-generic/vmlinux.lds.h" 1
+(...)
+
+binutils-2.15.91.0.2-1
+gcc-3.4.2-0.20040730.1
+
+Any ideas?
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
+
+                           #define say(x) lie(x)

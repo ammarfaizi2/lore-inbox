@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbTFCVrK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 17:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbTFCVrK
+	id S261292AbTFCV4a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 17:56:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbTFCV4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 17:47:10 -0400
-Received: from ip68-107-142-198.tc.ph.cox.net ([68.107.142.198]:43137 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP id S261279AbTFCVrJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 17:47:09 -0400
-Date: Tue, 3 Jun 2003 15:00:34 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Remove extra #includes
-Message-ID: <20030603220034.GB803@ip68-0-152-218.tc.ph.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Tue, 3 Jun 2003 17:56:30 -0400
+Received: from post-21.mail.nl.demon.net ([194.159.73.20]:55825 "EHLO
+	post-21.mail.nl.demon.net") by vger.kernel.org with ESMTP
+	id S261292AbTFCV43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 17:56:29 -0400
+Message-ID: <3EDD1C87.5090906@maatwerk.net>
+Date: Wed, 04 Jun 2003 00:09:11 +0200
+From: Mauk van der Laan <mauk.lists@maatwerk.net>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: siimage slow on 2.4.21-rc6-ac2
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This removes two extra #includes of <linux/spinlock.h>.
-Nothing in either of these files require <linux/spinlock.h>.
+
+I just tested the siimage driver in 2.4.21-rc6-ac2. The errors i get in 
+-rc6 have disappeared but
+the computer becomes unresponsive (20 seconds between screen switches) 
+when I run bonnie
+and the disk is very slow:
+
+I do hdparm -d1 -X66. Anything else I can try?
+
+Mauk
 
 
-===== arch/i386/kernel/i387.c 1.16 vs edited =====
---- 1.16/arch/i386/kernel/i387.c	Tue Apr  8 22:45:37 2003
-+++ edited/arch/i386/kernel/i387.c	Tue Jun  3 13:10:08 2003
-@@ -10,7 +10,6 @@
- 
- #include <linux/config.h>
- #include <linux/sched.h>
--#include <linux/spinlock.h>
- #include <asm/processor.h>
- #include <asm/i387.h>
- #include <asm/math_emu.h>
-===== include/asm-i386/i387.h 1.12 vs edited =====
---- 1.12/include/asm-i386/i387.h	Fri May  9 14:22:55 2003
-+++ edited/include/asm-i386/i387.h	Tue Jun  3 13:23:18 2003
-@@ -12,7 +12,6 @@
- #define __ASM_I386_I387_H
- 
- #include <linux/sched.h>
--#include <linux/spinlock.h>
- #include <asm/processor.h>
- #include <asm/sigcontext.h>
- #include <asm/user.h>
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/

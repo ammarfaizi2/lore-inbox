@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262411AbSJERHT>; Sat, 5 Oct 2002 13:07:19 -0400
+	id <S262412AbSJERPt>; Sat, 5 Oct 2002 13:15:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262412AbSJERHT>; Sat, 5 Oct 2002 13:07:19 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:41960 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262411AbSJERHS>; Sat, 5 Oct 2002 13:07:18 -0400
-Date: Sat, 5 Oct 2002 19:12:45 +0200
-From: Patrick.Mau@t-online.de (Patrick Mau)
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.40 (BK of today) vmstat SIGSEGV after reading /proc/stat
-Message-ID: <20021005171245.GA3060@oscar.dorf.de>
-Reply-To: Patrick Mau <mau@oscar.prima.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S262413AbSJERPt>; Sat, 5 Oct 2002 13:15:49 -0400
+Received: from transport.cksoft.de ([62.111.66.27]:25864 "EHLO
+	transport.cksoft.de") by vger.kernel.org with ESMTP
+	id <S262412AbSJERPs>; Sat, 5 Oct 2002 13:15:48 -0400
+Date: Sat, 5 Oct 2002 17:19:23 +0000 (UTC)
+From: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>
+X-X-Sender: bz@e0-0.zab2.int.zabbadoz.net
+To: Thomas Molina <tmolina@cox.net>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 Problem Report Status
+In-Reply-To: <Pine.LNX.4.44.0210050924470.10630-100000@dad.molina>
+Message-ID: <Pine.BSF.4.44.0210051717450.39858-100000@e0-0.zab2.int.zabbadoz.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo List,
+On Sat, 5 Oct 2002, Thomas Molina wrote:
 
-The BK tree of today changed the data returned in /proc/stat.
-A 'vmstat -n 10' immediatly segfaults after reading ...
+> -------------------------------------------------------------------------
+>    open                   04 Oct 2002 SCSI st tape wrong minor
+>   40. http://marc.theaimsgroup.com/?l=linux-kernel&m=103382033204377&w=2
 
-open("/proc/stat", O_RDONLY)            = 6
-read(6, "cpu  404408 506514 8240 154301 1"..., 4095) = 714
-close(6)                                = 0
---- SIGSEGV (Segmentation fault) ---
-+++ killed by SIGSEGV +++
+FIXED. Kai Makisara pushed a patch to Linus.
 
-I'll try to prove a diff between 2.4.18 and BK current later
-this evening ...
+-- 
+Bjoern A. Zeeb				bzeeb at Zabbadoz dot NeT
+56 69 73 69 74				http://www.zabbadoz.net/
 
-cheers,
-Patrick

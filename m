@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288748AbSAQOKV>; Thu, 17 Jan 2002 09:10:21 -0500
+	id <S288768AbSAQOOL>; Thu, 17 Jan 2002 09:14:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288768AbSAQOKM>; Thu, 17 Jan 2002 09:10:12 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:9468 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S288748AbSAQOKA>; Thu, 17 Jan 2002 09:10:00 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020117083757.A7299@thyrsus.com> 
-In-Reply-To: <20020117083757.A7299@thyrsus.com>  <20020116204345.A22055@thyrsus.com> <20020116164758.F12306@thyrsus.com> <esr@thyrsus.com> <200201162156.g0GLukCj017833@tigger.cs.uni-dortmund.de> <20020116164758.F12306@thyrsus.com> <26592.1011230762@redhat.com> <20020116204345.A22055@thyrsus.com> <3515.1011257639@redhat.com> 
-To: esr@thyrsus.com
-Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2-2.1.3 is available 
+	id <S288783AbSAQOOB>; Thu, 17 Jan 2002 09:14:01 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:1049 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S288768AbSAQONu>; Thu, 17 Jan 2002 09:13:50 -0500
+Date: Thu, 17 Jan 2002 15:13:56 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Chris Chabot <chabotc@reviewboard.com>
+Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>
+Subject: blkdev speedup
+Message-ID: <20020117151356.G4847@athlon.random>
+In-Reply-To: <20020116200459.E835@athlon.random> <3C460255.4020805@reviewboard.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 17 Jan 2002 14:09:52 +0000
-Message-ID: <13681.1011276592@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3C460255.4020805@reviewboard.com>; from chabotc@reviewboard.com on Wed, Jan 16, 2002 at 11:44:37PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 16, 2002 at 11:44:37PM +0100, Chris Chabot wrote:
+> 
+> > Test hardware:
+> > 4 way Dell, 4 GB physical RAM, SCSI/RAID subsystem,
+> > DB runs on FS.
+> 
+> Can we first make sure that the other factors dont plat a rol in this 
+> benchmark? I have a couple (14+) Dell servers here, and i know for a 
+> fact that most of their RAID systems are heavely borked in the 
+> performance department.
+> 
+> All kernels upto 2.4.1x performed horibly, and all kernels after 2.4.16 
+> or so perform horibly again! Somewhere inbetween some magic seemed to 
+> happen in the block layer / elevator code / etc, that caused performance 
+> to increase upto 100% on the Dell PERC adapters. (started @ the first 
+> release of the AA VM). However after a few small releases, the 
 
-esr@thyrsus.com said:
->  Please help me correct them.
+if you're using the blkdev directly, then please try to mount the blkdev
+with a 4k filesystem before making your benchmark, that should give you
+the magic performance back. 2.4.10 intentionally were defaulting to 4k
+I/O, this is probably what made the difference for you.
 
-No. I haven't the time or the inclination to audit the whole of the CML2
-rule base to check for such things. Merge a version of CML2 that matches the
-CML1 rules as closely as can be expressed in CML2, then submit the
-'improvements' later as separate changes - change one thing at a time just
-like everyone else does. Then I promise I'll look at the actual behavioural
-changes for you as you submit them and Cc them to linux-kernel.
-
-> The definition of "behavioral change" you're implying here is so
-> narrow that if I interpreted the "agreement" that way", CML2 could do
-> nothing worthwhile. 
-
-Utter crap. CML2 makes them possible, and is a step in the right direction.
-I'm not suggesting that you never make these changes - just that you do them
-separately from the change in mechanism.
-
-Go read what our Lord and Master said about why he likes Al Viro's patches.
-Repeatedly, if needs be.
-
---
-dwmw2
-
-
+Andrea

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288677AbSBJFih>; Sun, 10 Feb 2002 00:38:37 -0500
+	id <S289296AbSBJFuT>; Sun, 10 Feb 2002 00:50:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289293AbSBJFi0>; Sun, 10 Feb 2002 00:38:26 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55044 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S288677AbSBJFiR>; Sun, 10 Feb 2002 00:38:17 -0500
-Date: Sat, 9 Feb 2002 23:23:43 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] BUG preserve registers
-In-Reply-To: <3C660517.AAA7FA8@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0202092322310.11734-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289294AbSBJFuJ>; Sun, 10 Feb 2002 00:50:09 -0500
+Received: from out010pub.verizon.net ([206.46.170.133]:39661 "EHLO
+	out010.verizon.net") by vger.kernel.org with ESMTP
+	id <S289293AbSBJFuC>; Sun, 10 Feb 2002 00:50:02 -0500
+Date: Sun, 10 Feb 2002 00:47:45 -0500
+From: Skip Ford <skip.ford@verizon.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.4-pre5 -- fbdev.c:1814: incompatible types in assignment in function `riva_set_fbinfo'
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1013319396.28886.8.camel@turbulence.megapathdsl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1013319396.28886.8.camel@turbulence.megapathdsl.net>; from miles@megapathdsl.net on Sat, Feb 09, 2002 at 09:36:36PM -0800
+Message-Id: <20020210055001.TYZI21100.out010.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+Miles Lane wrote:
+> 
+> make[4]: Entering directory `/usr/src/linux/drivers/video/riva'
+> gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+> -pipe -mpreferred-stack-boundary=2 -march=athlon   
+> -DKBUILD_BASENAME=fbdev  -c -o fbdev.o fbdev.c
+> fbdev.c: In function `riva_set_fbinfo':
+> fbdev.c:1814: incompatible types in assignment
+> make[4]: *** [fbdev.o] Error 1
+> make[4]: Leaving directory `/usr/src/linux/drivers/video/riva'
 
-On Sat, 9 Feb 2002, Andrew Morton wrote:
->
-> This is the cue for Keith to pop up and say "fixed in kbuild 2.5".
+Change the '-1' on line 1814 of drivers/video/riva/fbdev.c to 'NODEV'
 
-Nope.
+- -- 
+Skip  ID: 0x7EDDDB0A
+-----BEGIN PGP SIGNATURE-----
 
-> __BASE_FILE__ seems to have been supported for a sufficiently long time.
-
-__BASE_FILE__ is not useful.
-
-Remember: when we have a BUG in a header file, we need to get the HEADER
-file, not the base file.
-
-__BASE_FILE__ only works for .c files.
-
-And .c files aren't the problem anyway (ie if we didn't have BUG()
-statements in header files, we wouldn't have problems anyway).
-
-		Linus
-
+iEYEARECAAYFAjxmCXEACgkQBMKxVH7d2wqOrQCfataAK2V5R4UYpHZ3EHliRjsf
+DCkAoO3ekxgZeKCggLYrC0NPvVQzw7RI
+=ywV/
+-----END PGP SIGNATURE-----

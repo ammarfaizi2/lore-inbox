@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265773AbUH3HnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266876AbUH3Hpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265773AbUH3HnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 03:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266876AbUH3HnZ
+	id S266876AbUH3Hpb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 03:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266879AbUH3Hpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 03:43:25 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:53122 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S265773AbUH3HnX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 03:43:23 -0400
-Date: Mon, 30 Aug 2004 08:42:41 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Helge Hafting <helgehaf@aitel.hist.no>
-cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       rlrevell@joe-job.com, clemtaylor@comcast.net, qg@biodome.org,
-       rogers@isi.edu
-Subject: Re: reverse engineering pwcx
-In-Reply-To: <20040829210436.GA24350@hh.idb.hist.no>
-Message-ID: <Pine.LNX.4.61.0408300836010.2441@fogarty.jakma.org>
-References: <1093709838.434.6797.camel@cube> <20040829210436.GA24350@hh.idb.hist.no>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 30 Aug 2004 03:45:31 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:32226 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S266876AbUH3Hp1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 03:45:27 -0400
+Date: Sun, 29 Aug 2004 00:58:46 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Stefan Seyfried <seife@suse.de>
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>
+Subject: Re: [PATCH] make swsusp produce nicer screen output
+Message-ID: <20040828225845.GB505@openzaurus.ucw.cz>
+References: <20040820152317.GA7118@linux.nu> <20040823174217.GC603@openzaurus.ucw.cz> <20040823200858.GA4593@linux.nu> <20040824214929.GA490@openzaurus.ucw.cz> <412F132D.3000606@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <412F132D.3000606@suse.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Aug 2004, Helge Hafting wrote:
+Hi!
 
-> There's no need for faith or speculation here.
-> Put the chip under a microscope and count the pixels,
-> or rather measure their size and estimate their number.
+> >>And do we need to handle the case when nr_copy_pages < 100?
+> >> 
+> >It really should not crash. 100 pages is 4MB. Thats little low but
+> >seems possible.
+> 
+> 400k IIUC :-), and although it seems impossible, we still should not 
+> crash if we counted it wrong for some strange reason.
+> 
 
-The lavarnd guy did and counted 160x120:
+Yup, you are right. Okay so make it "can display garbage but should
+do no other harm on <100 pages".
+				Pavel
 
- 	http://slashdot.org/comments.pl?sid=119578&cid=10091208
-
-regards,
 -- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-"You don't go out and kick a mad dog.  If you have a mad dog with rabies, you
-take a gun and shoot him."
--- Pat Robertson, TV Evangelist, about Muammar Kadhafy
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

@@ -1,50 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261306AbRELRrQ>; Sat, 12 May 2001 13:47:16 -0400
+	id <S261308AbRELSbv>; Sat, 12 May 2001 14:31:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261307AbRELRrF>; Sat, 12 May 2001 13:47:05 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:34322 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S261306AbRELRqs>; Sat, 12 May 2001 13:46:48 -0400
-Date: Sat, 12 May 2001 19:46:27 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Akos Maroy <darkeye@tyrell.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Process accessing a Sony DSC-F505V camera through USB as a storage device hangs.
-Message-ID: <20010512194627.G8826@arthur.ubicom.tudelft.nl>
-In-Reply-To: <3AFD2E41.213CFB47@tyrell.hu> <20010512151803.C8826@arthur.ubicom.tudelft.nl> <3AFD5C66.1CED33FB@tyrell.hu> <20010512185037.F8826@arthur.ubicom.tudelft.nl> <3AFD743E.D581B91@tyrell.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AFD743E.D581B91@tyrell.hu>; from darkeye@tyrell.hu on Sat, May 12, 2001 at 08:34:54PM +0300
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S261310AbRELSbl>; Sat, 12 May 2001 14:31:41 -0400
+Received: from ip166-219.fli-ykh.psinet.ne.jp ([210.129.166.219]:40645 "EHLO
+	standard.erephon") by vger.kernel.org with ESMTP id <S261308AbRELSb1>;
+	Sat, 12 May 2001 14:31:27 -0400
+Message-ID: <3AFD817A.AD5B2160@yk.rim.or.jp>
+Date: Sun, 13 May 2001 03:31:22 +0900
+From: Ishikawa <ishikawa@yk.rim.or.jp>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: ja, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Athlon possible fixes
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 12, 2001 at 08:34:54PM +0300, Akos Maroy wrote:
-> Erik Mouw wrote:
-> > Hmm. Not that I am a USB expert, but could you try it with the usb-uhci
-> > driver? The uhci driver got quite some changes in 2.4.4, so it might be
-> > related with those changes.
-> 
-> Good tip, it works with this driver. Which module is is which option in
-> the kernel configuration? Is it:
-> 
-> CONFIG_USB_UHCI			uhci
-> CONFIG_USB_UHCI_ALT		usb-uhci
-> 
-> Or the other way around?
+>On Sun, May 06, 2001 at 01:51:59PM +0100, Alan Cox wrote:
+>
+>> > There really needs to be a hardware fix... this doesn't stop some
+>> > application having it's owne optimised code from breaking on some
+>> > hardware (think games and similation software perhaps).
+>>
+>> prefetch is virtually addresses. An application would need access to
+/dev/mem
+>> or similar. So the only folks I think it might actually bite are the
+Xserver
+>> people.
+>
+>Prefetch bugs in hardware have biten Linux/68k as early as '94; a GVP
+SCSI
+>HBA on the Amiga may touch areas beyond the last valid RAM address when
 
-It's the other way around.
+>doing DMA to the last page. Being a burned child from that time
+Linux/MIPS
+>didn't use the last RAM page just to be on the safe side.
+>
+>  Ralf
+
+I use Duron 750 MHz and has experienced a strange X11 server error.
+(The motherboard is Gigabyte 7IXE4 and uses AMD 751 and 756 chipsets.)
+
+If I follow a certain steps accessing a web page using
+netscape, the X11 server crashes reliably.
+(The server is for ATI rage 128. Xfree86 3.3.6.)
+
+After recompiling the X11 server with debug flag to C compiler,
+I figured that the X11 server crashes in a bitblt copy againt
+its backing up store . (I forgot what the proper X11 terminology, but
+this is where the image data is saved for quick re-display, etc..
+You can build an image in a memory buffer and then simply copy it
+onto screen memory, etc..)
+
+I was a little skeptical to think that the X11 server code
+has such a bug for SVGA 16bits color server today,
+and yet was still wondering if
+the code might want to access non-allocated area due
+to some optimized accessing pattern or something.
+
+(Long time ago, I had a similar bug on a dedicated bitblt
+instruction for a  workstation: the bitblt instruction could
+access outside the boundary of malloc-ed  area
+since it tries to access as many words as possible if there is a chance
+to use
+long word access. In doing so, the CPU could
+step outside sbrk() limit and VM access error condition was generated.
+Since this access violation occured inside the CPU firmware and
+not visible to outside, it was very hard to track. Eventually, I figured
+out
+the problem, and always allocated enough trailing area for bitmap
+storage
+just in case the CPU tried to access a few word outside the limit.
+
+Now, back to DuronAthlon problem:
+I wasn't following this Athlong bug discussion in depth, thinking
+it has something to do with VIA chipset alone.
+
+But can the same problem manifest on AMD 751 chipset?
+That would explain this mysterious X11 server
+crash beatifully :-)
+
+Happy Hacking,
+ci
 
 
-Erik
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/

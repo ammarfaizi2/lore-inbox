@@ -1,141 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265045AbUEYSxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUEYSzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265045AbUEYSxP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 14:53:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUEYSwb
+	id S265044AbUEYSzm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 14:55:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265043AbUEYSzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 14:52:31 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:23793 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S265043AbUEYSvd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 14:51:33 -0400
-From: lm240504@comcast.net
-To: Martin Zwickel <martin.zwickel@technotrend.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Invisible threads in 2.6
-Date: Tue, 25 May 2004 18:51:32 +0000
-Message-Id: <052520041851.2507.40B395B3000EE32A000009CB2200735834CBCFCACFCBCD0304@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (May  6 2004)
-X-Authenticated-Sender: bG0yNDA1MDRAY29tY2FzdC5uZXQ=
+	Tue, 25 May 2004 14:55:42 -0400
+Received: from [141.156.69.115] ([141.156.69.115]:9145 "EHLO
+	mail.infosciences.com") by vger.kernel.org with ESMTP
+	id S265044AbUEYSza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 14:55:30 -0400
+Message-ID: <40B396A1.4090208@infosciences.com>
+Date: Tue, 25 May 2004 14:55:29 -0400
+From: nardelli <jnardelli@infosciences.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="NextPart_Webmail_9m3u9jl4l_2507_1085511092_0"
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] [PATCH] visor: Fix Oops on disconnect
+References: <40AD3A88.2000002@infosciences.com> <20040521043032.GA31113@kroah.com> <40AE5DBB.6030003@infosciences.com> <20040521204430.GA5875@kroah.com> <40AE7829.9060105@infosciences.com> <40AE7CFE.5060805@infosciences.com> <20040521223024.GA7399@kroah.com> <40B22EED.4080808@infosciences.com> <20040524200805.GD4558@kroah.com> <40B26C5E.9060001@infosciences.com> <20040525183033.GB12919@kroah.com>
+In-Reply-To: <20040525183033.GB12919@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---NextPart_Webmail_9m3u9jl4l_2507_1085511092_0
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
-
-> my kernel:
-> # cat /proc/version 
-> Linux version 2.6.6-rc3-mm2 (root@phoebee) (gcc version 3.3.2 20031218 (Gentoo
-> Linux 3.3.2-r5, propolice-3.3-7)) #6 Fri May 7 10:56:06 CEST 2004
+Greg KH wrote:
+> On Mon, May 24, 2004 at 05:42:54PM -0400, nardelli wrote:
 > 
-> I just compiled your example and ran it:
-> # ./thread_test 
 > 
-<snip>
-> On my -mm patched kernel I can see them.
+> Nah, this is good enough.  I've tweaked the patch a bit to keep from
+> creating a big structure on the stack, and reduced the copy port logic
+> to something a bit more readable and applied this version.  I'll send it
+> off to Linus in a day or so.
+> 
+> Thanks a lot for your work on this.
+> 
+> greg k-h
+> 
+> +#define COPY_PORT(dest, src)						\
+> +	dest->read_urb = src->read_urb;					\
+> +	dest->bulk_in_endpointAddress = src->bulk_in_endpointAddress;	\
+> +	dest->bulk_in_buffer = src->bulk_in_buffer;			\
+> +	dest->interrupt_in_urb = src->interrupt_in_urb;			\
+> +	dest->interrupt_in_endpointAddress = src->interrupt_in_endpointAddress;	\
+> +	dest->interrupt_in_buffer = src->interrupt_in_buffer;
+> +
+> +	swap_port = kmalloc(sizeof(*swap_port), GFP_KERNEL);
+> +	if (!swap_port)
+> +		return -ENOMEM;
+> +	COPY_PORT(swap_port, serial->port[0]);
+> +	COPY_PORT(serial->port[0], serial->port[1]);
+> +	COPY_PORT(serial->port[1], swap_port);
+> +	kfree(swap_port);
+>  
+>  	return 0;
+>  }
+> -
 
-I tried 2.6.6-rc3-mm2, and didn't see any difference:
+That's definitely less error prone as well.
 
-# cat /proc/version
-Linux version 2.6.6-rc3-mm2 (lmakhlis@levlinux) (gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)) #3 SMP Tue May 25 14:04:28 EDT 2004
-                                                                                
-# ./thread_test &
-[749]
-                                                                                
-# ls /proc/749/task
-ls: /proc/749/task: No such file or directory
-                                                                                
-# ps axw
-...
-  749 tty1     Z      0:00 [thread_test <defunct>]
-...
+BTW - I appreciate the time that you have put into this, and especially 
+the constructive comments and patience that you had regarding patches 
+that I submitted.
 
-I have now tested it on Fedora Core 2 (2.6.5), SLES 9 Beta (2.6.5) and RHL 9 w/ 2.6.6-rc3-mm2, with identical results.  Could it have anything to do with which thread library the program is using?  Here's mine:
-
-# ldd ./thread_test
-        libpthread.so.0 => /lib/tls/libpthread.so.0 (0x40028000)
-        libc.so.6 => /lib/tls/libc.so.6 (0x42000000)
-        /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x40000000)
-
-# strace ./pthread_test
-<see attachment>
-
-Lev
-
-
-
-
---NextPart_Webmail_9m3u9jl4l_2507_1085511092_0
-Content-Type: application/octet-stream; name="strace.out"
-Content-Transfer-Encoding: 7bit
-
-execve("./thread_test", ["./thread_test"], [/* 11 vars */]) = 0
-uname({sys="Linux", node="levlinux", ...}) = 0
-brk(0)                                  = 0x804a000
-open("/etc/ld.so.preload", O_RDONLY)    = -1 ENOENT (No such file or directory)
-open("/etc/ld.so.cache", O_RDONLY)      = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=69902, ...}) = 0
-old_mmap(NULL, 69902, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40016000
-close(3)                                = 0
-open("/lib/tls/libpthread.so.0", O_RDONLY) = 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0p?\0\000"..., 512) = 512
-fstat64(3, {st_mode=S_IFREG|0755, st_size=80592, ...}) = 0
-old_mmap(NULL, 54612, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x40028000
-old_mmap(0x40033000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0xa000) = 0x40033000
-old_mmap(0x40034000, 5460, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x40034000
-close(3)                                = 0
-open("/lib/tls/libc.so.6", O_RDONLY)    = 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\360W\1"..., 512) = 512
-fstat64(3, {st_mode=S_IFREG|0755, st_size=1539996, ...}) = 0
-old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40036000
-old_mmap(0x42000000, 1267276, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x42000000
-old_mmap(0x42130000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x130000) = 0x42130000
-old_mmap(0x42133000, 9804, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x42133000
-close(3)                                = 0
-set_thread_area({entry_number:-1 -> 6, base_addr:0x400368a0, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 0
-munmap(0x40016000, 69902)               = 0
-set_tid_address(0x400368e8)             = 729
-rt_sigaction(SIGRTMIN, {0x4002bed0, [], SA_RESTORER, 0x400318f8}, NULL, 8) = 0
-rt_sigprocmask(SIG_UNBLOCK, [RTMIN], NULL, 8) = 0
-rt_sigprocmask(SIG_BLOCK, [33], NULL, 8) = 0
-getrlimit(0x3, 0xbffffd14)              = 0
-mmap2(NULL, 8392704, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40037000
-brk(0)                                  = 0x804a000
-brk(0x804b000)                          = 0x804b000
-brk(0)                                  = 0x804b000
-mprotect(0x40037000, 4096, PROT_NONE)   = 0
-clone(child_stack=0x40837a90, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, [730], {entry_number:6, base_addr:0x40837b30, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 730
-mmap2(NULL, 8392704, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40838000
-mprotect(0x40838000, 4096, PROT_NONE)   = 0
-clone(child_stack=0x41038a90, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, [731], {entry_number:6, base_addr:0x41038b30, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 731
-mmap2(NULL, 8392704, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x41039000
-mprotect(0x41039000, 4096, PROT_NONE)   = 0
-clone(child_stack=0x41839a90, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, [732], {entry_number:6, base_addr:0x41839b30, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 732
-mmap2(NULL, 8392704, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x42136000
-mprotect(0x42136000, 4096, PROT_NONE)   = 0
-clone(child_stack=0x42936a90, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, [733], {entry_number:6, base_addr:0x42936b30, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 733
-mmap2(NULL, 8392704, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x42937000
-mprotect(0x42937000, 4096, PROT_NONE)   = 0
-clone(child_stack=0x43137a90, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, [734], {entry_number:6, base_addr:0x43137b30, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 734
-mmap2(NULL, 8392704, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x43138000
-mprotect(0x43138000, 4096, PROT_NONE)   = 0
-clone(child_stack=0x43938a90, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, [735], {entry_number:6, base_addr:0x43938b30, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 735
-mmap2(NULL, 8392704, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x43939000
-mprotect(0x43939000, 4096, PROT_NONE)   = 0
-clone(child_stack=0x44139a90, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, [736], {entry_number:6, base_addr:0x44139b30, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 736
-mmap2(NULL, 8392704, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x4413a000
-mprotect(0x4413a000, 4096, PROT_NONE)   = 0
-clone(child_stack=0x4493aa90, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, [737], {entry_number:6, base_addr:0x4493ab30, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 737
-mmap2(NULL, 8392704, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x4493b000
-mprotect(0x4493b000, 4096, PROT_NONE)   = 0
-clone(child_stack=0x4513ba90, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, [738], {entry_number:6, base_addr:0x4513bb30, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 738
-mmap2(NULL, 8392704, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x4513c000
-mprotect(0x4513c000, 4096, PROT_NONE)   = 0
-clone(child_stack=0x4593ca90, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, [739], {entry_number:6, base_addr:0x4593cb30, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 739
-_exit(0)                                = ?
-
---NextPart_Webmail_9m3u9jl4l_2507_1085511092_0--
+-- 
+Joe Nardelli
+jnardelli@infosciences.com

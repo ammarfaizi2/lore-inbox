@@ -1,48 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262249AbRENGfv>; Mon, 14 May 2001 02:35:51 -0400
+	id <S262196AbRENGhv>; Mon, 14 May 2001 02:37:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262235AbRENGfb>; Mon, 14 May 2001 02:35:31 -0400
-Received: from mail3.noris.net ([62.128.1.28]:34715 "EHLO mail3.noris.net")
-	by vger.kernel.org with ESMTP id <S262196AbRENGf2>;
-	Mon, 14 May 2001 02:35:28 -0400
-From: "Matthias Urlichs" <smurf@noris.de>
-Date: Mon, 14 May 2001 08:35:23 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: Re: Getting FS access events
-Message-ID: <20010514083523.C801@noris.de>
-In-Reply-To: <1ete23o.p2cfoe1jnm0e0M%smurf@noris.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1ete23o.p2cfoe1jnm0e0M%smurf@noris.de>; from smurf@noris.de on Mon, May 14, 2001 at 08:26:30AM +0200
+	id <S262235AbRENGhl>; Mon, 14 May 2001 02:37:41 -0400
+Received: from mail.muc.eurocyber.net ([195.143.108.5]:29889 "EHLO
+	mail.muc.eurocyber.net") by vger.kernel.org with ESMTP
+	id <S262196AbRENGhX>; Mon, 14 May 2001 02:37:23 -0400
+Message-ID: <3AFF7D39.3FDD4144@TeraPort.de>
+Date: Mon, 14 May 2001 08:37:45 +0200
+From: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
+Organization: TeraPort GmbH
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac6 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: "J . A . Magallon" <jamagallon@able.es>
+CC: "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
+Subject: Re: Size of /proc/kcore growing over time ?
+In-Reply-To: <3AFBE5BF.5865B0CA@TeraPort.de> <20010512003534.A1060@werewolf.able.es>
+Content-Type: multipart/mixed;
+ boundary="------------071890BD94909C5D37DA8DDE"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch <rgooch@ras.ucalgary.ca>:
-> > 
-> OK, provided the prefetch will queue up a large number of requests
-> before starting the I/O. If there was a way of controlling when the
-> I/O actually starts (say by having a START flag), that would be ideal,
-> I think.
-> 
-The START flag is equivalent to the first actual read, whereupon the
-elevator code will do the Right Thing.
+This is a multi-part message in MIME format.
+--------------071890BD94909C5D37DA8DDE
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> That opens up a nasty race: if the dentry is released before the
-> pointer is harvested, you get a bogus pointer.
+"J . A . Magallon" wrote:
 > 
-You simply increase the reference count of every dentry you visit, and
-free it when the log is read.
-
-> How's that? It won't matter if read(2) synchronises, because I'll be
-> issuing the requests in device bnum order.
+> On 05.11 Martin.Knoblauch wrote:
+> >
+> >  I ask, because I thought the size of kproc could be used to determine
+> > the amount of physical memory. If this assumption is wrong, is there
+> > another way to achive the goal?
+> >
 > 
-Of course it does, because the kernel needs to wait for the next read()
-system call from your application, which it can only do after the first
-one completes, which adds another delay which will slow you down,
-especially with high-latency I/O protocols.
+> #include <sys/sysinfo.h> // for get_phys_pages()
+> #include <unistd.h> // for getpagesize()
+> 
+> ram = get_phys_pages()*getpagesize();
+> 
 
+ Close, but not there :-) What I want is the total physical memory in
+the system. Above seems to report only the physical pages available to
+the kernel.
+
+Thanks anyway
+Martin
 -- 
-Matthias Urlichs     |     noris network AG     |     http://smurf.noris.de/
+------------------------------------------------------------------
+Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+TeraPort GmbH            |    Phone:  +49-89-510857-309
+IT Services              |    Fax:    +49-89-510857-111
+http://www.teraport.de   |    Mobile: +49-170-4904759
+--------------071890BD94909C5D37DA8DDE
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="Martin.Knoblauch.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for Martin.Knoblauch
+Content-Disposition: attachment;
+ filename="Martin.Knoblauch.vcf"
+
+begin:vcard 
+n:Knoblauch;Martin
+tel;cell:+49-170-4904759
+tel;fax:+49-89-510857-111
+tel;work:+49-89-510857-309
+x-mozilla-html:FALSE
+url:http://www.teraport.de
+org:TeraPort GmbH;IT-Services
+adr:;;Garmischer Straße 4;München;Bayern;D-80339;Germany
+version:2.1
+email;internet:Martin.Knoblauch@TeraPort.de
+title:Senior System Engineer
+x-mozilla-cpt:;32160
+fn:Martin Knoblauch
+end:vcard
+
+--------------071890BD94909C5D37DA8DDE--
+

@@ -1,74 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264913AbSKEQsS>; Tue, 5 Nov 2002 11:48:18 -0500
+	id <S264903AbSKEQpF>; Tue, 5 Nov 2002 11:45:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264917AbSKEQsS>; Tue, 5 Nov 2002 11:48:18 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:21745 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S264913AbSKEQsQ>;
-	Tue, 5 Nov 2002 11:48:16 -0500
-Message-ID: <3DC7F7C4.6170BC5A@mvista.com>
-Date: Tue, 05 Nov 2002 08:54:28 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S264905AbSKEQpE>; Tue, 5 Nov 2002 11:45:04 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:53000 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S264903AbSKEQpA>; Tue, 5 Nov 2002 11:45:00 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-To: Jim Paris <jim@jtan.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: time() glitch on 2.4.18: solved
-References: <20021102013704.A24684@neurosis.mit.edu> <20021103143216.A27147@neurosis.mit.edu> <1036355418.30679.28.camel@irongate.swansea.linux.org.uk> <20021105113020.A5210@neurosis.mit.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15815.63254.582593.239533@laputa.namesys.com>
+Date: Tue, 5 Nov 2002 19:51:34 +0300
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Reiserfs mail-list <Reiserfs-List@Namesys.COM>,
+       Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Cc: Jordan Breeding <jordan.breeding@attbi.com>, reiserfs-dev@namesys.com
+Subject: [ANNOUNCE] reiser4 snaphots
+In-Reply-To: <15815.55860.150531.25135@laputa.namesys.com>
+References: <3DC7D812.6070401@attbi.com>
+	<15815.55860.150531.25135@laputa.namesys.com>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Antipastobozoticataclysm: Bariumenemanilow
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Paris wrote:
-> 
-> > > Any comments?
-> >
-> > Have a play with it, if your idea works when you deliberately disturb it
-> > then send in a patch
-> 
-> This works well.
+Hello,
 
-But it does introduce a hiccup in time.  One could just do
-an odd read IF that is all that is wrong.  Your code could
-also be correcting for other ills...
+new reiser4 snapshot is available at:
 
--g
-> 
-> -jim
-> 
-> diff -urN linux-2.4.18/arch/i386/kernel/time.c linux-2.4.18-jim/arch/i386/kernel/time.c
-> --- linux-2.4.18/arch/i386/kernel/time.c        Fri Mar 15 18:28:53 2002
-> +++ linux-2.4.18-jim/arch/i386/kernel/time.c    Tue Nov  5 11:22:02 2002
-> @@ -501,6 +501,16 @@
-> 
->                 count = inb_p(0x40);    /* read the latched count */
->                 count |= inb(0x40) << 8;
-> +
-> +               /* Any unpaired read will cause the above to swap MSB/LSB
-> +                  forever.  Try to detect this and reset the counter. */
-> +               if (count > LATCH) {
-> +                       outb_p(0x34, 0x43);
-> +                       outb_p(LATCH & 0xff, 0x40);
-> +                       outb(LATCH >> 8, 0x40);
-> +                       count = LATCH - 1;
-> +               }
-> +
->                 spin_unlock(&i8253_lock);
-> 
->                 count = ((LATCH-1) - count) * TICK_SIZE;
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+http://namesys.com/snapshots/2002.11.05/
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+new snaphots will appear there every few working days.
+
+In addition, our public BK repository with reiser4 code is available at
+bk://namesys.com/bk/reiser4.
+
+Nikita.

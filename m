@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263601AbUJ2V5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263504AbUJ2V6p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263601AbUJ2V5t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 17:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263610AbUJ2Vy3
+	id S263504AbUJ2V6p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 17:58:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbUJ2Vxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 17:54:29 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:28938 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263595AbUJ2VsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 17:48:01 -0400
-Date: Fri, 29 Oct 2004 23:47:23 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Chris Wright <chrisw@osdl.org>
-Subject: [PATCH] uninline __sigqueue_alloc (fwd)
-Message-ID: <20041029214723.GX6677@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 29 Oct 2004 17:53:47 -0400
+Received: from ppsw-6.csi.cam.ac.uk ([131.111.8.136]:24709 "EHLO
+	ppsw-6.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S263597AbUJ2VsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 17:48:15 -0400
+Date: Fri, 29 Oct 2004 22:48:01 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Changes to fs/buffer.c?
+In-Reply-To: <Pine.LNX.4.58.0410291343510.28839@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.60.0410292246300.24884@hermes-1.csi.cam.ac.uk>
+References: <Pine.LNX.4.60.0410291516580.19494@hermes-1.csi.cam.ac.uk>
+ <20041029133420.76a758b3.akpm@osdl.org> <Pine.LNX.4.58.0410291343510.28839@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 29 Oct 2004, Linus Torvalds wrote:
+> On Fri, 29 Oct 2004, Andrew Morton wrote:
+> > Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+> > >
+> > > Is it ok to export 
+> > >  create_buffers() and to make __set_page_buffers() static inline and move 
+> > >  it to include/linux/buffer.h?
+> > 
+> > ho, hum - if you must ;)
+> > 
+> > I'd be inclined to rename it to attach_page_buffers() or something though -
+> > create_buffers() is a bit generic-sounding.
+> 
+> Also, I think we should at least start out limiting it to GPL-only usage. 
+> Those page buffers are pretty intertwined with the VM usage, I'd hate to 
+> see people think this is some kind of external interface..
 
-The patch forwarded below still applies against 2.6.10-rc1-mm2.
+Yes, sure.  I will use the _GPL version for the symbol export.  I only 
+used the non-GPL-only form since create_empty_buffers() is simply exported 
+and create_buffers() is kind of the same thing but does less...
 
-Was there any specific reason why it wasn't applied?
+Best regards,
 
-
------ Forwarded message from Chris Wright <chrisw@osdl.org> -----
-
-Date:	Fri, 22 Oct 2004 14:35:51 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] uninline __sigqueue_alloc
-
-Christoph suggests letting the compiler choose.  No real compelling reason
-to inline anyhow.  I had some vmlinux size numbers suggesting inline was
-better, but re-running them on newer kernel is giving different results,
-favoring uninline.  Best let compiler choose.  Un-inline __sigqueue_alloc.
-
-Signed-off-by: Chris Wright <chrisw@osdl.org>
-
-===== kernel/signal.c 1.140 vs edited =====
---- 1.140/kernel/signal.c	2004-10-21 13:46:54 -07:00
-+++ edited/kernel/signal.c	2004-10-22 14:00:00 -07:00
-@@ -265,7 +265,7 @@
- 	return sig;
- }
- 
--static inline struct sigqueue *__sigqueue_alloc(struct task_struct *t, int flags)
-+static struct sigqueue *__sigqueue_alloc(struct task_struct *t, int flags)
- {
- 	struct sigqueue *q = NULL;
- 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

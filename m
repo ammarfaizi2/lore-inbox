@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265632AbUBFUUR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 15:20:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265662AbUBFUUR
+	id S265533AbUBFU01 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 15:26:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265636AbUBFU01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 15:20:17 -0500
-Received: from letku14.adsl.netsonic.fi ([194.29.195.14]:2202 "EHLO
-	tupa.firmament.fi") by vger.kernel.org with ESMTP id S265632AbUBFUUM
+	Fri, 6 Feb 2004 15:26:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:1737 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265533AbUBFU00 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 15:20:12 -0500
-Date: Fri, 6 Feb 2004 22:20:06 +0200
-To: Andrew Morton <akpm@osdl.org>
+	Fri, 6 Feb 2004 15:26:26 -0500
+Date: Fri, 6 Feb 2004 12:27:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Taneli =?ISO-8859-1?Q?V=E4h=E4kangas?= <taneli@firmament.fi>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Limit hash table size
-Message-ID: <20040206202006.GA19473@firmament.fi>
-References: <B05667366EE6204181EABE9C1B1C0EB5802441@scsmsx401.sc.intel.com.suse.lists.linux.kernel> <20040205155813.726041bd.akpm@osdl.org.suse.lists.linux.kernel> <p73isilkm4x.fsf@verdi.suse.de> <20040205190904.0cacd513.akpm@osdl.org>
+Message-Id: <20040206122752.4dc9f434.akpm@osdl.org>
+In-Reply-To: <20040206202006.GA19473@firmament.fi>
+References: <B05667366EE6204181EABE9C1B1C0EB5802441@scsmsx401.sc.intel.com.suse.lists.linux.kernel>
+	<20040205155813.726041bd.akpm@osdl.org.suse.lists.linux.kernel>
+	<p73isilkm4x.fsf@verdi.suse.de>
+	<20040205190904.0cacd513.akpm@osdl.org>
+	<20040206202006.GA19473@firmament.fi>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040205190904.0cacd513.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
-From: =?iso-8859-1?Q?Taneli_V=E4h=E4kangas?= <taneli@firmament.fi>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Cc: list trimmed)
+Taneli Vähäkangas <taneli@firmament.fi> wrote:
+>
+> OTOH, I'd very much
+> appreciate if the system didn't act very sluggish during updatedb.
 
-On Thu, Feb 05, 2004 at 07:09:04PM -0800, Andrew Morton wrote:
-> A decent approach to the updatedb problem is an application hint which says
-> "reclaim i/dcache harder".  Just turn it on during the updatedb run -
-> crude, but it's a start.
-> 
-> But I've been telling poeple for a year that they should set
-> /proc/sys/vm/swappiness to zero during the updatedb run and afaik nobody has
-> bothered to try it...
+It really helps if your filesystems were laid out by a 2.6 kernel.  What
+usually happens at present is that you install the distro using a 2.4
+kernel and then install 2.6.  So all those files under /usr/bin and
+/usr/include and everywhere else are laid down by the 2.4 kernel.
 
-Ok, I tried it. If anything, it made "interactive feel" slightly worse.
-This is 2.6.2-rc3 on 2xPII-233, 128M RAM, 280M swap, Gnome and Mozilla.
-If that does not apply, then forget about it. OTOH, I'd very much
-appreciate if the system didn't act very sluggish during updatedb.
+Problem is, 2.4's ext2 and ext3 don't have the Orlov allocator, which lays
+files out in a much more updatedb-friendly way.  I've seen the disk
+bandwidth quadruple as updatedb switches from a 2.4-laid-out partition to a
+2.6-laid-out partition.
 
-	Taneli
 

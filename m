@@ -1,97 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129237AbQKLTXm>; Sun, 12 Nov 2000 14:23:42 -0500
+	id <S129721AbQKLT2u>; Sun, 12 Nov 2000 14:28:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129927AbQKLTXc>; Sun, 12 Nov 2000 14:23:32 -0500
-Received: from 24.68.3.210.on.wave.home.com ([24.68.3.210]:53756 "EHLO
-	phlegmish.com") by vger.kernel.org with ESMTP id <S129237AbQKLTXS>;
-	Sun, 12 Nov 2000 14:23:18 -0500
-From: David Won <phlegm@home.com>
-Date: Sun, 12 Nov 2000 14:19:11 -0500
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Subject: Newby help. Tons and tons of Oops
+	id <S129105AbQKLT2l>; Sun, 12 Nov 2000 14:28:41 -0500
+Received: from slc188.modem.xmission.com ([166.70.9.188]:5640 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S129213AbQKLT2c>; Sun, 12 Nov 2000 14:28:32 -0500
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
+        Tigran Aivazian <tigran@veritas.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>, Max Inux <maxinux@bigfoot.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: bzImage ~ 900K with i386 test11-pre2
+In-Reply-To: <Pine.LNX.4.21.0011111644110.1036-100000@saturn.homenet> <m1ofzmcne5.fsf@frodo.biederman.org> <20001112122910.A2366@athlon.random> <m1k8a9badf.fsf@frodo.biederman.org> <20001112163705.A4933@athlon.random>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 12 Nov 2000 12:20:19 -0700
+In-Reply-To: Andrea Arcangeli's message of "Sun, 12 Nov 2000 16:37:05 +0100"
+Message-ID: <m17l69atfw.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
-Message-Id: <00111214191100.01043@phlegmish.com>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not really that much of a newby (2 years of linux) but I am a newby to 
-kernel dumps.
-I'm running Redhat 7 with the latest kernel compiled using kgcc. I get many 
-many oops, lockups and mysterious reboots. Can anybody help me determine what 
-is causing this from ksymoops output below. I thought it might be something 
-with my swapper file so I deleted and recreated the partition. I still have 
-the same problem. This system was rock solid under 6.2 but is pretty much 
-useless now. This is pnly the last couple of Oops after a reboot. I have 
-dozens in my messages file. :(
+Andrea Arcangeli <andrea@suse.de> writes:
 
-Nov 12 14:10:08 phlegmish kernel: Unable to handle kernel paging request at 
-virtual address ff57da13
-Nov 12 14:10:08 phlegmish kernel: c012fe98
-Nov 12 14:10:08 phlegmish kernel: *pde = 00000000
-Nov 12 14:10:08 phlegmish kernel: Oops: 0002
-Nov 12 14:10:08 phlegmish kernel: CPU:    0
-Nov 12 14:10:08 phlegmish kernel: EIP:    0010:[<c012fe98>]
-Nov 12 14:10:08 phlegmish kernel: EFLAGS: 00210286
-Nov 12 14:10:08 phlegmish kernel: eax: c6550800   ebx: fffffff7   ecx: 
-00000001   edx: ff57d9ff
-Nov 12 14:10:08 phlegmish kernel: esi: 0000003c   edi: 0000003c   ebp: 
-bffff5f0   esp: c0d55fb0
-Nov 12 14:10:08 phlegmish kernel: ds: 0018   es: 0018   ss: 0018
-Nov 12 14:10:08 phlegmish kernel: Process bash (pid: 875, stackpage=c0d55000)
-Nov 12 14:10:08 phlegmish kernel: Stack: c012f319 c0d54000 0000003c 080cd40c 
-c010a407 00000001 080cd40c 0000003c 
-Nov 12 14:10:08 phlegmish kernel:        0000003c 080cd40c bffff5f0 00000004 
-0000002b 0000002b 00000004 400fb6a4 
-Nov 12 14:10:08 phlegmish kernel:        00000023 00200206 bffff5c0 0000002b 
-Nov 12 14:10:08 phlegmish kernel: Call Trace: [<c012f319>] [<c010a407>] 
-Nov 12 14:10:08 phlegmish kernel: Code: ff 42 14 89 d0 c3 89 f6 8b 4c 24 04 
-ff 49 14 0f 94 c0 84 c0 
+> On Sun, Nov 12, 2000 at 06:14:36AM -0700, Eric W. Biederman wrote:
+> > x86-64 doesn't load the segment registers at all before use.
+> 
+> Yes, before switching to 64bit long mode we never do any data access. We do a
+> stack access to clear eflags only while we still run in legacy mode with paging
+> disabled and so we only rely on ss to be valid when the bootloader jumps at
+> 0x100000 for executing the head.S code (and not anymore on the gdt_48 layout).
 
->>EIP; c012fe98 <fget+20/28>   <=====
-Trace; c012f319 <sys_write+15/c8>
-Trace; c010a407 <system_call+33/38>
-Code;  c012fe98 <fget+20/28>
-00000000 <_EIP>:
-Code;  c012fe98 <fget+20/28>   <=====
-   0:   ff 42 14                  incl   0x14(%edx)   <=====
-Code;  c012fe9b <fget+23/28>
-   3:   89 d0                     mov    %edx,%eax
-Code;  c012fe9d <fget+25/28>
-   5:   c3                        ret    
-Code;  c012fe9e <fget+26/28>
-   6:   89 f6                     mov    %esi,%esi
-Code;  c012fea0 <put_filp+0/38>
-   8:   8b 4c 24 04               mov    0x4(%esp,1),%ecx
-Code;  c012fea4 <put_filp+4/38>
-   c:   ff 49 14                  decl   0x14(%ecx)
-Code;  c012fea7 <put_filp+7/38>
-   f:   0f 94 c0                  sete   %al
-Code;  c012feaa <put_filp+a/38>
-  12:   84 c0                     test   %al,%al
+Actually it just occurred to me that this stack assess is buggy.  You haven't
+set up a stack yet so.  Only the boot/compressed/head.S did and that location isn't
+safe to use.
 
-Nov 12 14:10:08 phlegmish kernel: Unable to handle kernel paging request at 
-virtual address 8b103f15
-Nov 12 14:10:08 phlegmish kernel: c012ef56
-Nov 12 14:10:08 phlegmish kernel: *pde = 00000000
-Nov 12 14:10:08 phlegmish kernel: Oops: 0000
-Nov 12 14:10:08 phlegmish kernel: CPU:    0
-Nov 12 14:10:08 phlegmish kernel: EIP:    0010:[<c012ef56>]
-Nov 12 14:10:08 phlegmish kernel: EFLAGS: 00210282
-Nov 12 14:10:08 phlegmish kernel: eax: 8b103f01   ebx: 8b103f01   ecx: 
-8b103f01   edx: 00000400
-Nov 12 14:10:08 phlegmish kernel: esi: 00000000   edi: c437c420   ebp: 
-00000001   esp: c0d55e84
-Nov 12 14:10:08 phlegmish kernel: ds: 0018   es: 0018   ss: 0018
-Nov 12 14:10:08 phlegmish kernel: Process bash (pid: 875, stackpage=c0d55000)
-Nov 12 14:10:08 phlegmish kernel: Stack: 00000007 00000000 c011b3ba 8b103f01 
-c437c420 c55210e0 c0d54000 0000000b 
-Nov 12 14:10:08 phlegmish kernel:        ff57da13 c011b9ba c437c420 00000000 
-000003fd c01129f0 c010a8be 0000000b 
-Nov 12 14:10:08 phlegmish kernel:        c0112d16 c021155e 
+Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266880AbUHTOZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266888AbUHTO2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266880AbUHTOZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 10:25:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266888AbUHTOZ1
+	id S266888AbUHTO2J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 10:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268098AbUHTO2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 10:25:27 -0400
-Received: from avalon.servus.at ([193.170.194.18]:42881 "EHLO
-	wildsau.enemy.org") by vger.kernel.org with ESMTP id S266880AbUHTOZV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 10:25:21 -0400
-From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.enemy.org>
-Message-Id: <200408201424.i7KEORxb004765@wildsau.enemy.org>
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-In-Reply-To: <4125FFA2.nail8LD61HFT4@burner>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Fri, 20 Aug 2004 16:24:27 +0200 (MET DST)
-CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       fsteiner-mail@bio.ifi.lmu.de, diablod3@gmail.com,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
-MIME-Version: 1.0
+	Fri, 20 Aug 2004 10:28:09 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:56711 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S266888AbUHTO2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 10:28:04 -0400
+Subject: Re: banias with different (unusual?) model_name
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: matthias.brill@akamail.com
+Cc: jeremy@goop.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040820093344.GA2923@akamail.com>
+References: <20040820093344.GA2923@akamail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Message-Id: <1093008335.30968.32.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 20 Aug 2004 14:25:36 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > While Sun did spend a year refusing to fix security holes I found -  for
-> > "compatibility reasons" - long ago back when I was a sysadmin at NTL,
-> > the Linux world does not work that way.
+On Gwe, 2004-08-20 at 10:33, matthias brill wrote:
+> hi jeremy
 > 
-> Unless you tell us what kind of "security holes" you found _and_ when this has 
-> been, it looks like a meaningless remark.
+> i've found a pentium-m banias which reports "Mobile Genuine Intel(R)
+> processor       1400MHz" in /proc/cpuinfo.  this (strange?) signature
+> prevents speedstep-centrino.c from working properly.
 
-Well ... despite the danger, that this email ist just another meaninless
-remark, too, I'd say that Sun acts like any other big software company: they
-don't listen to single persons reporting bugs, and tend to blame misbehaviour
-of software on you. Personal experience: I implemented some smartcard driver,
-it didn't work, I identified a bug, reported it. Sun said: "your software is
-buggy". It was only after our client (a big company) intervened, that Sun modified
-their kernel drivers (allthough I think the error was "below" that).
-Even though I exactly told them how to reproduce the bug, they were not able to.
-Two co-workes had to go to Sun in San Francisco - and they instantly were able to
-reproduce the bug on Sun's machine.
+Signatures appear to be BIOS set so that would make sense.
 
-Typical scenario: small sw-company reports bugs -> reply: "you are too unskilled".
-                  big company enters the scene -> things are getting fixed.
 
-So, you see, Sun is not per se impeccable.
+> # diff -up arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c.default arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c
+> --- arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c.default	2004-08-19 19:53:59.000000000 +0200
+> +++ arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c	2004-08-19 20:49:06.000000000 +0200
+> @@ -195,7 +195,7 @@ static struct cpufreq_frequency_table ba
+>  
+>  #define _BANIAS(cpuid, max, name)	\
+>  {	.cpu_id		= cpuid,	\
+> -	.model_name	= "Intel(R) Pentium(R) M processor " name "MHz", \
+> +	.model_name	= "Mobile Genuine Intel(R) processor       " name "MHz", \
+>  	.max_freq	= (max)*1000,	\
+>  	.op_points	= banias_##max,	\
+>  }
+> 
 
-best regards,
-H.Rosmanith
+You need a new entry "_WEIRDBANIAS" and entries in the table so that
+you don't break other people by such a change but yes
+
+> it seems that only the model_name is different for this CPU?
+
 

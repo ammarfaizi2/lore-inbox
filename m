@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264652AbUETDLF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264671AbUETDRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264652AbUETDLF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 23:11:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264662AbUETDLF
+	id S264671AbUETDRx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 23:17:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264829AbUETDRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 23:11:05 -0400
-Received: from mta5.srv.hcvlny.cv.net ([167.206.5.78]:48811 "EHLO
-	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S264652AbUETDLD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 23:11:03 -0400
-Date: Wed, 19 May 2004 23:10:10 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: bk-3.2.0 released
-In-reply-to: <20040519075128.A19221@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-Message-id: <200405192310.15462.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.6.1
-References: <20040518233238.GC28206@work.bitmover.com>
- <20040519075128.A19221@infradead.org>
+	Wed, 19 May 2004 23:17:53 -0400
+Received: from ozlabs.org ([203.10.76.45]:18822 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S264671AbUETDRw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 23:17:52 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16556.9036.564371.398823@cargo.ozlabs.ibm.com>
+Date: Thu, 20 May 2004 13:17:32 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, dwg@au.ibm.com
+Subject: [PATCH][PPC64] Move kmem_bufctl_t inside #ifndef __ASSEMBLY__
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+When the kmem_bufctl_t typedef got added to include/asm-ppc64/types.h,
+it got added outside the #ifndef __ASSEMBLY__ section, causing
+assembler errors.  This patch, from David Gibson, moves it inside the
+#ifndef __ASSEMBLY__ region.
 
-On Wednesday 19 May 2004 02:51, Christoph Hellwig wrote:
-> On Tue, May 18, 2004 at 04:32:38PM -0700, Larry McVoy wrote:
-> > BitKeeper Users,
-> >
-> > BK/Pro 3.2.0 has been released and is in the BK download area,
+Please apply.
 
-Thanks for the announcement.
+Thanks,
+Paul.
 
-Jeff.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFArCGVwFP0+seVj/4RAnNjAJ0X+iwHwWI5WVofmd9+twdYweOuygCfRJa5
-fQynPZmVDWDPaFbNZgsgCTw=
-=2dj+
------END PGP SIGNATURE-----
+Index: working-2.6/include/asm-ppc64/types.h
+===================================================================
+--- working-2.6.orig/include/asm-ppc64/types.h	2004-05-20 11:03:59.000000000 +1000
++++ working-2.6/include/asm-ppc64/types.h	2004-05-20 13:12:48.012124216 +1000
+@@ -71,9 +71,9 @@
+ 	unsigned long toc;
+ 	unsigned long env;
+ } func_descr_t;
+-#endif /* __ASSEMBLY__ */
+ 
+ typedef unsigned int kmem_bufctl_t;
++#endif /* __ASSEMBLY__ */
+ 
+ #endif /* __KERNEL__ */
+ 

@@ -1,74 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131410AbRAWQmk>; Tue, 23 Jan 2001 11:42:40 -0500
+	id <S131378AbRAWQra>; Tue, 23 Jan 2001 11:47:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131413AbRAWQma>; Tue, 23 Jan 2001 11:42:30 -0500
-Received: from xerxes.thphy.uni-duesseldorf.de ([134.99.64.10]:40064 "EHLO
-	xerxes.thphy.uni-duesseldorf.de") by vger.kernel.org with ESMTP
-	id <S131410AbRAWQm1>; Tue, 23 Jan 2001 11:42:27 -0500
-Date: Tue, 23 Jan 2001 17:42:23 +0100 (CET)
-From: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: Karsten Keil <kkeil@suse.de>, linux-kernel@vger.kernel.org,
-        Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
-Subject: Re: BUG in modutils or drivers/isdn/hisax/
-In-Reply-To: <20010123151302.J1173@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.LNX.4.10.10101231740360.2893-100000@chaos.thphy.uni-duesseldorf.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131009AbRAWQrU>; Tue, 23 Jan 2001 11:47:20 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:38265 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S130417AbRAWQrE>; Tue, 23 Jan 2001 11:47:04 -0500
+Date: Tue, 23 Jan 2001 10:47:00 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200101231647.KAA39761@tomcat.admin.navo.hpc.mil>
+To: jearle@nortelnetworks.com,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: RE: [OT?] Coding Style
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 23 Jan 2001, Ingo Oeser wrote:
-
-> To quote drivers/isdn/hisax/config.c:1710-1713
-> static struct pci_device_id hisax_pci_tbl[] __initdata = {
-> #ifdef CONFIG_HISAX_FRTIZPCI
->         {PCI_VENDOR_ID_AVM,      PCI_DEVICE_ID_AVM_FRITZ,       PCI_ANY_ID, PCI_ANY_ID},
-> #endif
+"Jonathan Earle" <jearle@nortelnetworks.com>:
+> I prefer descriptive variable and function names - like comments, they help
+> to make code so much easier to read.
 > 
-> To quote my .config:
-> CONFIG_ISDN_DRV_HISAX=m
-> CONFIG_HISAX_FRITZPCI=y
-> 
-> So the bug is indeed in the driver and is a speling mistake
-> Patch is:
-> 
-> --- linux/drivers/isdn/hisax/config.c.orig	Fri Dec 29 23:07:22 2000
-> +++ linux/drivers/isdn/hisax/config.c	Tue Jan 23 15:07:54 2001
-> @@ -1708,8 +1708,8 @@
->  }
->  
->  static struct pci_device_id hisax_pci_tbl[] __initdata = {
-> -#ifdef CONFIG_HISAX_FRTIZPCI
-> -	{PCI_VENDOR_ID_AVM,      PCI_DEVICE_ID_AVM_FRITZ,        PCI_ANY_ID, PCI_ANY_ID},
-> +#ifdef CONFIG_HISAX_FRITZPCI
-> +	{PCI_VENDOR_ID_AVM,      PCI_DEVICE_ID_AVM_FRITZ,	PCI_ANY_ID, PCI_ANY_ID},
->  #endif
->  #ifdef CONFIG_HISAX_DIEHLDIVA
->  	{PCI_VENDOR_ID_EICON,    PCI_DEVICE_ID_EICON_DIVA20,     PCI_ANY_ID, PCI_ANY_ID},
-> 
+> One thing I wonder though... why do people prefer 'some_function_name()'
+> over 'SomeFunctionName()'?  I personally don't like the underscore character
+> - it's an odd character to type when you're trying to get the name typed in,
+> and the shifted character, I find, is easier to input.
 
-Close, but not quite. (Try compiling after your patch :)
+Code is written by the few.
+Code is read by the many, and having _ in there makes it MUCH easier to
+read. Visual comparison of "SomeFunctionName" and "some_function_name"
+is faster even for a coder where there may be a typo (try dropping a character)
+or mis identifing two different symbols with similar names:
 
-Correct patch:
+	d_hash_mask
+	d_hash_shift
 
---- linux-2.4.0/drivers/isdn/hisax/config.c	Fri Dec 29 23:07:22 2000
-+++ linux-2.4.1-pre10.work/drivers/isdn/hisax/config.c	Tue Jan 23 11:23:54 2001
-@@ -1708,8 +1708,8 @@
- }
- 
- static struct pci_device_id hisax_pci_tbl[] __initdata = {
--#ifdef CONFIG_HISAX_FRTIZPCI
--	{PCI_VENDOR_ID_AVM,      PCI_DEVICE_ID_AVM_FRITZ,        PCI_ANY_ID, PCI_ANY_ID},
-+#ifdef CONFIG_HISAX_FRITZPCI
-+	{PCI_VENDOR_ID_AVM,      PCI_DEVICE_ID_AVM_A1,          PCI_ANY_ID, PCI_ANY_ID},
- #endif
- #ifdef CONFIG_HISAX_DIEHLDIVA
- 	{PCI_VENDOR_ID_EICON,    PCI_DEVICE_ID_EICON_DIVA20,     PCI_ANY_ID, PCI_ANY_ID},
+This is relatively easy to read. conversely:
 
+	DHashMask
+	DHashShift
+
+Are more difficult to spot. 
+
+In this case "The good of the many outweigh the good of the few".
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

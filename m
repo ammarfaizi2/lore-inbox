@@ -1,88 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264140AbTIIOdO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 10:33:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264148AbTIIOdO
+	id S263893AbTIIObd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 10:31:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263915AbTIIObd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 10:33:14 -0400
-Received: from postal.usc.edu ([128.125.253.6]:58348 "EHLO postal.usc.edu")
-	by vger.kernel.org with ESMTP id S264140AbTIIOdM (ORCPT
+	Tue, 9 Sep 2003 10:31:33 -0400
+Received: from alpha.tmit.bme.hu ([152.66.246.10]:34319 "EHLO alpha.ttt.bme.hu")
+	by vger.kernel.org with ESMTP id S263893AbTIIObb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 10:33:12 -0400
-Date: Tue, 09 Sep 2003 07:33:02 -0700
-From: Phil Dibowitz <phil@ipom.com>
-Subject: Re: Linux IDE bug in 2.4.21 and 2.4.22 ?
-In-reply-to: <200309091448.36231.bzolnier@elka.pw.edu.pl>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3F5DE49E.50500@ipom.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827
- Debian/1.4-3
-References: <20030908225107.GE17108@earthlink.net>
- <200309091448.36231.bzolnier@elka.pw.edu.pl>
+	Tue, 9 Sep 2003 10:31:31 -0400
+Message-Id: <200309091428.h89ES0Oe015172@alpha.ttt.bme.hu>
+From: "Horvath Gyorgy" <HORVAATH@tmit.bme.hu>
+Organization: DTT_BUTE
+To: linux-kernel@vger.kernel.org
+Date: Tue, 9 Sep 2003 16:27:17 +0200
+Subject: [ANNOUNCE] New hardware - SGA155D dual STM-1/OC3 PCI ad
+X-mailer: Pegasus Mail v3.22
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On Tuesday 09 of September 2003 00:51, Phil Dibowitz wrote:
-> 
->>Hey folks,
->>
->>I think I may have found a bug in the Linux IDE subsystem
->>introduced in 2.4.21 and still present in 2.4.22.
-> 
-> 
-> Nope, user error :-).
 
-I thought there was a reasonable chance of that! =)
+Hi all,
 
-> Nope, your CMD649 was handled by generic PCI IDE driver.
+First, I would like to introduce a new harware -
+SGA155D Dual STM-1/OC3 Telecommunications PCI Adapter.
+You can obtain a short catalog from www.aitia.ai.
+(www.aitia.ai/document/upload/200307/sga155.pdf)
+I think it is a little bit expensive - but very flexy.
+Errrr... actually the card was entirelly developed by me -
+including the cores for the FPGA.
+It is in low scale production, and working in the
+fields well. Its current application is implemented for
+DOS ;->
 
-Ah, OK. Makes sense.
+Second, I am going to turn to Linux, and I have decided to
+write the driver(s) myself (huhh) under GPL.
+It is turned out quickly, that I have some problems
+at the very beginning of the development.
 
->>As of 2.4.21, this configuration no longer works -- which is not
->>necessarily a bug. I'm almost there, stay with me. =)
-> 
-> Assumption that current .config will work with future kernel versions is *false*.
+1. The new target application requires N pieces of SGA155D adapters
+   for telephony application - multiple E1's carried in STM-1.
+   Also, we need M additional pieces of SGA155D loaded with
+   IP-Core for Packet-Over-SONET (WAN) application.
+   Moreover - several hard-disks can be attached to the
+   adapters for capture and playback application.
 
-Agreed. I said that wasn't a bug. =)
+   As I see - SGA155D is a multifunction adapter in this context.
+   Are there any driver model or technique for this situation?
 
-> Just add these two lines to your .config:
-> CONFIG_BLK_DEV_VIA82CXXX=y
-> CONFIG_BLK_DEV_CMD64X=y
+   My guess is that I write a core driver for the hardware itself
+   that can be compiled in the kernel (or can be modularized).
+   This driver allows manipulating the IP-Core for the FPGA.
+   Functional drivers are then modularized on demand.
+   BTW Can I insmod other drivers from a kernel driver?
+   Let say I have firstapp.o and firstapp.bin for the first
+   three cards, and secondapp.o plus secondapp.bin for the rest.
+   (.o is the driver and .bin is the IP-Core having the same
+   filename) The core driver loads the IP-Core first, then loads
+   the driver for that core. Hmmmm?
 
-Doh!! Didn't see the VIA driver down there at the bottom. Double doh! My 
-appologies, I should have been able to figure that out.
+2. Packet over SONET...
+   There were rumours about a Lucent card, and a driver for it -
+   but I can't reach that now (a link to the void) - just
+   for reference.
+   What model shall I use - syncppp.o and my_driver.o - or
+   I have to implement the ppp stuff entirelly in hardware
+   - according to RFC's (I used to use RFC's and ITU-T's
+   for cross compilation into VHDL :-).
+   Is syncppp conforming RFC1619, RFC1662, RFC2615?
+   I can't find notes on this in syncppp.c...
 
-That works quite well, thank you! Still have a question though...
+3. The telephony part is not yet clear for me.
+   For the new application in question - there is not much to do
+   in Linux, since the mass will be driven/sunk by the
+   hard-disks.  But it might be useful elsewhere...
+   Anyway - I will dig-up the Linux telephony project for advice
+   before bothering this list.
 
-> Your VIA IDE controller was handled by generic IDE chipset driver which
-> did probe devices *after* PCI controllers are probed, so CMD649 took
-> ide0 and ide1 first.
-
-But, what about the case when I built in the generic driver, but made 
-the CMD649 driver a module, and loaded it after boot. That shouldn't 
-have *changed* what ide0 and ide1 are, right? I had ide0 and ide1 
-assigned, did a modprobe, and CMD649 changed what ide0 adn ide1 where, 
-and then forgot about the previous ones.. like all of a sudden it told 
-the generic driver "no, no, you were wrong, there's no VIA chipset here, 
-go back to sleep."
-
-I may well be misunderstanding something precedence in the kernel here, 
-but I figured while I'm bugging you, I might as well get the full picture.
-
-Thanks for your time!
--- 
-Phil Dibowitz                             phil@ipom.com
-Freeware and Technical Pages              Insanity Palace of Metallica
-http://www.phildev.net/                   http://www.ipom.com/
-
-"They that can give up essential liberty to obtain a little temporary
-safety deserve neither liberty nor safety."
-  - Benjamin Franklin, 1759
+4. Optionally - and if I have enough time - I'd like
+   to develop a twin-linear filesystem driver for
+   time-stamped capture/playback for multiple channels
+   of data - like a multi-band magnetic tape.
+   BTW do you know an existing one?
 
 
+Best regards,
+
+
+Gyorgy Horvath,        Technical University of Budapest
+--------------         Dept. of Telecom. and Telematics
+
+Tel.: +36-1-463-1865,  Fax.: +36-1-463-1865
+Mail: horvaath@bme-tel.ttt.bme.hu
+FTP:  ttt-pub.ttt.bme.hu  ./income

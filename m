@@ -1,70 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319087AbSHMWhD>; Tue, 13 Aug 2002 18:37:03 -0400
+	id <S319092AbSHMWl7>; Tue, 13 Aug 2002 18:41:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319089AbSHMWhD>; Tue, 13 Aug 2002 18:37:03 -0400
-Received: from mg02.austin.ibm.com ([192.35.232.12]:5602 "EHLO
-	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S319087AbSHMWhB> convert rfc822-to-8bit; Tue, 13 Aug 2002 18:37:01 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andrew Theurer <habanero@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Subject: Re: [PATCH] NUMA-Q disable irqbalance
-Date: Tue, 13 Aug 2002 17:29:50 -0500
-X-Mailer: KMail [version 1.4]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33.0208131421190.3110-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0208131421190.3110-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208131729.50127.habanero@us.ibm.com>
+	id <S319093AbSHMWl7>; Tue, 13 Aug 2002 18:41:59 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:56337 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S319092AbSHMWl5>;
+	Tue, 13 Aug 2002 18:41:57 -0400
+Date: Tue, 13 Aug 2002 15:41:48 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] More USB changes for 2.5.31
+Message-ID: <20020813224148.GB23021@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > People in our benchmarking group (Andrew, cc'ed) have told me that
-> > reducing the frequency of IO-APIC reprogramming by a factor of 20 or
-> > so improves performance greatly - don't know what HZ that was at, but
-> > the whole thing seems a little overenthusiastic to me.
 
-I thought I saw a big difference in 2.4, but my latest runs could not 
-reproduce this.  I also tested Andrea's version 
-http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc3aa1/30_irq-balance-12
-which addresses some of the problems:
+Pull from:  http://linuxusb.bkbits.net/linus-2.5
 
-[email to Andrea]
-> Andrea,
-> 
-> I have some irqbalance results.  For some reason, Ingo's isn't performing as 
-> bad as I thought on 2.4.  Your patch still performs better.  These results 
-> are from NetBench, a CIFS network fileserver benchmark on a samba linux
-> 4-way 
-> P4 server:
-> 
-> 2.4.19-rc3aa3:
-> 
-> No Balance    Ingo IRQ Balance        Andrea IRQ Balance
-> 794 Mbps              787 Mbps                        792 Mbps
-> 
-> With hyperthreading:
-> 
-> No Balance    Ingo IRQ Balance        Andrea IRQ Balance
-> 773 Mbps              798 Mbps                        809 Mbps
+ drivers/usb/core/hcd.c         |   33 ++++++++++++++++++++++++++
+ drivers/usb/core/usb.c         |    4 +--
+ drivers/usb/host/ehci-q.c      |   50 ++++++----------------------------------
+ drivers/usb/host/ehci-sched.c  |   19 ++-------------
+ drivers/usb/host/ehci.h        |    1 
+ drivers/usb/host/ohci-q.c      |   50 ++++++----------------------------------
+ drivers/usb/host/ohci-sa1111.c |    8 ++++++
+ drivers/usb/host/uhci-hcd.c    |   51 ++++-------------------------------------
+ drivers/usb/host/uhci-hcd.h    |    3 --
+ drivers/usb/net/cdc-ether.c    |   10 +++++---
+ 10 files changed, 74 insertions(+), 155 deletions(-)
+------
 
-Before I tried hyperthreading, no balance was always best performance, but 
-"unfair".  However, with hyperthreading, (Andrea's) IRQbalance can be the 
-best, probably because an interrupt rate of that level just can't be 
-processed by "1/2" of a CPU and would benefit from a distrubution.  I did 
-make a run on 2.5.25 a few weeks ago.  With IRQbalance turned off, I was 10% 
-better.  I have not had a chance to try Andrea's in 2.5 but I suspect it 
-would be best overall, since he compensates for HZ:
-#define IRQ_BALANCE_INTERVAL (HZ/50) 
-and does not seem to reprogram the IO-APIC as often.  IMO, I think Andrea's 
-version is a little less aggressive and has less overhead, something I'd 
-prefer in 2.5. 
+ChangeSet@1.505, 2002-08-13 15:31:04-07:00, greg@kroah.com
+  USB: check to see if we have a disconnect function before trying to call it.
 
--Andrew Theurer
+ drivers/usb/core/usb.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+------
 
+ChangeSet@1.474.2.7, 2002-08-13 14:37:05-07:00, oliver@neukum.name
+  [PATCH] Problem with CDC Ethernet driver (CDCEther.c)
+  
+    - fixed deadlock
 
+ drivers/usb/net/cdc-ether.c |   10 +++++++---
+ 1 files changed, 7 insertions(+), 3 deletions(-)
+------
+
+ChangeSet@1.474.2.6, 2002-08-13 14:06:15-07:00, greg@kroah.com
+  USB: moved put_bus to its proper place (as the last thing we do shutting down.)
+
+ drivers/usb/core/usb.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+------
+
+ChangeSet@1.474.2.5, 2002-08-13 13:09:23-07:00, david-b@pacbell.net
+  [PATCH] HCDs support new DMA APIs (part 2 of 2)
+  
+  - teaches the shared "hcd" code to set urb->*_dma whenever the device
+    driver didn't, by creating singleshot mappings.
+
+ drivers/usb/core/hcd.c |   33 +++++++++++++++++++++++++++++++++
+ 1 files changed, 33 insertions(+)
+------
+
+ChangeSet@1.474.2.4, 2002-08-13 13:09:05-07:00, david-b@pacbell.net
+  [PATCH] HCDs support new DMA APIs (part 1 of 2)
+  
+  -  teaches the hardware-specific code to
+     use urb->*_dma instead of creating mappings.
+     (And tells ohci-sa1111 to init its buffer pools.)
+     EHCI and UHCI also eliminated duplicated state;
+     all the HCDs are now a smidgeon smaller.
+  
+  Sanity checked by enumerating, including through
+  a hub, and using a USB Ethernet adapter, with each
+  of the three host controllers.
+  
+  Worth noting:  this removes pci_dma_sync_single()
+  calls from UHCI.  On x86 (and some others) that's
+  a NOP, but for UHCI on other platforms (rare except
+  maybe on IA64, as I understand) this anticipates
+  the upcoming patch to remove interrupt automagic.
+  (I'll likely submit that after a Linus release that
+  catches up to your USB tree. :)
+
+ drivers/usb/host/ehci-q.c      |   50 ++++++----------------------------------
+ drivers/usb/host/ehci-sched.c  |   19 ++-------------
+ drivers/usb/host/ehci.h        |    1 
+ drivers/usb/host/ohci-q.c      |   50 ++++++----------------------------------
+ drivers/usb/host/ohci-sa1111.c |    8 ++++++
+ drivers/usb/host/uhci-hcd.c    |   51 ++++-------------------------------------
+ drivers/usb/host/uhci-hcd.h    |    3 --
+ 7 files changed, 32 insertions(+), 150 deletions(-)
+------
 

@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262519AbUJ0Qdl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262523AbUJ0Qhc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262519AbUJ0Qdl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 12:33:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbUJ0QaU
+	id S262523AbUJ0Qhc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 12:37:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbUJ0Qee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 12:30:20 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:44334 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262497AbUJ0Q3m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 12:29:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=rfkfw2F96ZLfyvf7YO0nL7KNk+lhjD8VFpReJW/q2tGEvpCCT7q5EpHC8XGJn7zoJmb85k0ujyFgZgQIG1WU/G2BkVF0wMVEoOjSZZ+p8cQ8q6iCTjrY/YpqnpEf5FZGKb1anOr6gtwWh1bnE69XONfxrjTJ3bvUoO9zUAXMQLs=
-Message-ID: <58cb370e041027092943037ab4@mail.gmail.com>
-Date: Wed, 27 Oct 2004 18:29:38 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [BK PATCHES] ide-2.6 update
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-In-Reply-To: <200410271213_MC3-1-8D44-F2D8@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200410271213_MC3-1-8D44-F2D8@compuserve.com>
+	Wed, 27 Oct 2004 12:34:34 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:47835 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262508AbUJ0Qbs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 12:31:48 -0400
+Date: Wed, 27 Oct 2004 09:30:31 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Hugepages demand paging V2 [0/8]: Discussion and overview
+In-Reply-To: <20041027064851.GW15367@holomorphy.com>
+Message-ID: <Pine.LNX.4.58.0410270928270.17538@schroedinger.engr.sgi.com>
+References: <B05667366EE6204181EABE9C1B1C0EB504BFA47C@scsmsx401.amr.corp.intel.com>
+ <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com>
+ <20041027064851.GW15367@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004 12:10:50 -0400, Chuck Ebbert
-<76306.1226@compuserve.com> wrote:
-> On Wed, 27 Oct 2004 at 15:07:14 +0200 Bartlomiej Zolnierkiewicz wrote:
-> 
-> >@@ -585,7 +564,8 @@
-> >       struct pci_dev *dev = hwif->pci_dev;
-> >
-> >       /* PDC20265 has problems with large LBA48 requests */
-> >-      if (dev->device == PCI_DEVICE_ID_PROMISE_20265)
-> >+      if ((dev->device == PCI_DEVICE_ID_PROMISE_20267) ||
-> >+          (dev->device == PCI_DEVICE_ID_PROMISE_20265))
-> >               hwif->rqsize = 256;
-> >
-> >       hwif->autodma = 0;
-> 
-> 
->    You forgot to update the comment...
+On Tue, 26 Oct 2004, William Lee Irwin III wrote:
 
-ah, care to send a patch?
+> On Mon, Oct 25, 2004 at 06:26:42PM -0700, Christoph Lameter wrote:
+> > Hugetlb demand paging has been part of SuSE SLES 9 for awhile now and
+> > this patchset is intended to help hugetlb demand paging also get into
+> > the official Linux kernel. Huge pages are referred to as "compound"
+> > pages in terms of "struct page" in the Linux kernel. The term
+> "compund page" may be used alternatively to huge page.
+>
+> This may very well explain why SLES9 is triplefaulting when Oracle
+> tries to use hugetlb on it on x86-64.
+>
+> Since all this is clearly malfunctioning and not done anywhere near
+> carefully enough, can I at least get *some* sanction to do any of this
+> differently?
 
->    I added this and the smart_thresholds() fix to my 2.6.9-base patches.
-> 
->    Now I have these ide fixes:
-> 
->         - smart_thresholds() fix
->         - pdc202xx_old LBA48 fix
->         - accept bad Maxtor drive serial number
->         - allow drive that reports no geometry
-> 
->    Should anything more really be in there?
-
-Nope, looks like you've all critical stuff.
+The current SUSE implementation is a different implementation and has
+severe limitations. They need a different implementation and
+the suggestion was made to start with Ken's patches.
+What would you like to do differently?

@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261953AbUANQDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 11:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbUANQDZ
+	id S264245AbUANQNU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 11:13:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbUANQNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 11:03:25 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:31762 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S262123AbUANQDR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 11:03:17 -0500
-From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-To: raven@themaw.net
-Subject: Re: Autofs question (try 2)
-Date: Wed, 14 Jan 2004 17:03:13 +0100
-User-Agent: KMail/1.5.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200401132141.45772.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.58.0401142342440.1783@raven.themaw.net>
-In-Reply-To: <Pine.LNX.4.58.0401142342440.1783@raven.themaw.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jan 2004 11:13:20 -0500
+Received: from fed1mtao08.cox.net ([68.6.19.123]:61172 "EHLO
+	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S264245AbUANQNR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 11:13:17 -0500
+Date: Wed, 14 Jan 2004 09:13:06 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org,
+       zaitcev@redhat.com
+Subject: Re: [patch] arch-specific cond_syscall usage issues
+Message-ID: <20040114161306.GA16950@stop.crashing.org>
+References: <20040110032915.GW18208@waste.org> <20040109193753.3c158b3b.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401141703.13890.robin.rosenberg.lists@dewire.com>
+In-Reply-To: <20040109193753.3c158b3b.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-onsdagen den 14 januari 2004 16.47 skrev raven@themaw.net:
-> The place for this is on the autofs list.
->
-> http://linux.kernel.org/mailman/listinfo/autofs
->
-> Short answer to your question is I don't think so. At least at the moment.
-> I would have to check it out.
->
-> What version of autofs are you using?
+On Fri, Jan 09, 2004 at 07:37:53PM -0800, Andrew Morton wrote:
 
-Ok, i'll report the question there. It is version 4.0.0 (Mandrake Cooker) in userland 
-and whatever is in the 2.6.1 vanilla kernel.
+> Matt Mackall <mpm@selenic.com> wrote:
+> >
+> >  Experimenting with trying to use cond_syscall for a few arch-specific
+> >  syscalls, I discovered that it can't actually be used outside the file
+> >  in which sys_ni_syscall is declared because the assembler doesn't feel
+> >  obliged to output the symbol in that case:
+> > 
+> >  weak.c:
+> > 
+> >  #define cond_syscall(x) asm(".weak\t" #x "\n\t.set\t" #x ",sys_ni_syscall");
+> >  cond_syscall(sys_foo);
+> > 
+> >  $ nm weak.o
+> >           U sys_ni_syscall
+> > 
+> >  One arch (PPC) is apparently trying to use cond_syscall this way
+> >  anyway, though it's probably never been actually tested as the above
+> >  test was done on a PPC.
+> 
+> So why does the PPC kernel successfully link?
 
--- robin
+Since this looks to have missed -mm3, I'm going to follow up here (I
+hate playing catch-up sometimes).
 
+As has been previously noted, the cond_syscall is only ever cared about
+on PPC when you try for !PCI.  And this only happens realistically now,
+on MPC8xx (it's usually present on IBM 4xx, and lets ignore APUS).
+MPC8xx support has been broken for a while, but hopefully will get fixed
+'soon'.
+
+So can we please move this cond_syscall into kernel/sys.c ?
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270673AbTHAFzu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 01:55:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270674AbTHAFzu
+	id S270674AbTHAGCM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 02:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270676AbTHAGCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 01:55:50 -0400
-Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:60289 "HELO
-	longlandclan.hopto.org") by vger.kernel.org with SMTP
-	id S270673AbTHAFzs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 01:55:48 -0400
-Message-ID: <3F2A00E1.1050701@longlandclan.hopto.org>
-Date: Fri, 01 Aug 2003 15:55:45 +1000
-From: Stuart Longland <stuartl@longlandclan.hopto.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4b) Gecko/20030507
-X-Accept-Language: en-us, en
+	Fri, 1 Aug 2003 02:02:12 -0400
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:2321 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id S270677AbTHAGCL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 02:02:11 -0400
+Message-Id: <200308010546.h715kJj24299@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: [PATCH] Inline vfat_strnicmp()
+Date: Fri, 1 Aug 2003 08:55:48 +0300
+X-Mailer: KMail [version 1.3.2]
+Cc: Ren <l.s.r@web.de>, linux-kernel@vger.kernel.org
+References: <20030727172150.15f8df7f.l.s.r@web.de> <200307311357.h6VDvEj20416@Port.imtp.ilyichevsk.odessa.ua> <87zniuwx81.fsf@devron.myhome.or.jp>
+In-Reply-To: <87zniuwx81.fsf@devron.myhome.or.jp>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: fun or real: proc interface for module handling?
-References: <20030731121248.GQ264@schottelius.org> <yw1xptjqub7q.fsf@users.sourceforge.net> <20030731231501.GC23607@pegasys.ws>
-In-Reply-To: <20030731231501.GC23607@pegasys.ws>
-X-Enigmail-Version: 0.75.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 31 July 2003 18:07, OGAWA Hirofumi wrote:
+> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
+> 
+> > Yes, but some future version would.
+> > 
+> > Since there is no substantial wins in hunting down
+> > such statics, and there is some risk of code bloat when
+> > big inlined statics get called from more that one callsite,
+> > and it will be automatically handled by smarter compiler someday,
+> > I think it makes perfect sense to avoid doing this.
+> 
+> Could you tell me, if compiler does it in future? I'll gladly kill
+> that inline.
 
-On Thu, Jul 31, 2003 at 02:34:01PM +0200, Måns Rullgård wrote:
+I can't be 100.00% sure it will happen. I'd say 98.234235% ;)
 
-| Nico Schottelius <nico-kernel@schottelius.org> writes:
-| > Modul options could be passed my
-| >   echo "psmouse_noext=1" > /proc/mods/psmouse/options
-| > which would also make it possible to change module options while
-running..
-|
-| How would options be passed when loading?  Some modules require that
-| to load properly.
-
-Possibility, why not just have a file, /proc/mods/initial, that you
-write the initial kernel module options to, e.g.
-
-# echo "ne2000 io=0x300 irq=11" > /proc/mods/initial
-
-Then you load the module using:
-
-# mkdir /proc/mods/ne2000/
-
-although you could skip this necessity and just load the module when
-someone writes to /proc/mods/initial.
-
-Just a thought.
-
-- --
-+-------------------------------------------------------------+
-| Stuart Longland           stuartl at longlandclan.hopto.org |
-| Brisbane Mesh Node: 719             http://stuartl.cjb.net/ |
-| I haven't lost my mind - it's backed up on a tape somewhere |
-| Griffith Student No:           Course: Bachelor/IT (Nathan) |
-+-------------------------------------------------------------+
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE/KgDhIGJk7gLSDPcRAngeAJ4mUbQGQaijQbelNW8/6nXkdT+P+wCfUJ3U
-I6J5l/5TS3UTrQlJb/D86YM=
-=MIdk
------END PGP SIGNATURE-----
-
+Andrew Morton kills extra large inlines, and you are creating them :(
+That's not ok. Just leave those poor static functions alone
+until compiler will do them, all at once.
+There are lots of other stuff to do in the kernel source.
+--
+vda

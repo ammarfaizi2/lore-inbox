@@ -1,123 +1,151 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290107AbSAKUlq>; Fri, 11 Jan 2002 15:41:46 -0500
+	id <S290133AbSAKUxU>; Fri, 11 Jan 2002 15:53:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290109AbSAKUlh>; Fri, 11 Jan 2002 15:41:37 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:34823 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S290107AbSAKUlU>; Fri, 11 Jan 2002 15:41:20 -0500
-Date: Fri, 11 Jan 2002 14:41:17 -0600
-From: Ken Brownfield <brownfld@irridia.com>
-To: vanl@megsinet.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020111144117.A1485@asooo.flowerfire.com>
-In-Reply-To: <3C2CD326.100@athlon.maya.org> <20020103142301.C4759@asooo.flowerfire.com>
-Mime-Version: 1.0
+	id <S290110AbSAKUxL>; Fri, 11 Jan 2002 15:53:11 -0500
+Received: from 216-42-72-167.ppp.netsville.net ([216.42.72.167]:54661 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S290111AbSAKUwx>; Fri, 11 Jan 2002 15:52:53 -0500
+Date: Fri, 11 Jan 2002 15:52:28 -0500
+From: Chris Mason <mason@suse.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: [reiserfs-dev] Re: [PATCH] expanding truncate
+Message-ID: <205500000.1010782348@tiny>
+In-Reply-To: <18370000.1010165612@tiny>
+In-Reply-To: <Pine.GSO.4.21.0201031111130.23312-100000@weyl.math.psu.edu> <18370000.1010165612@tiny>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020103142301.C4759@asooo.flowerfire.com>; from brownfld@irridia.com on Thu, Jan 03, 2002 at 02:23:01PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After more testing, my original observations seem to be holding up,
-except that under heavy VM load (e.g., "make -j bzImage") the machine's
-overall performance seems far lower.  For instance, without the patch
-the -j build finishes in ~10 minutes (2x933P3/256MB) but with the patch
-I haven't had the patience to let it finish after more than an hour.
-
-This is perhaps because the vmscan patch is too aggressively shrinking
-the caches, or causing thrashing in another area?  I'm also noticing
-that the amount of swap used is nearly an order of magnitude higher,
-which doesn't make sense at first glance...  Also, there are extended
-periods where idle CPU is 50-80%.
-
-Maybe the patch or at least its intent can be merged with Andrea's work
-if applicable?
-
-Thanks,
--- 
-Ken.
-brownfld@irridia.com
 
 
-On Thu, Jan 03, 2002 at 02:23:01PM -0600, Ken Brownfield wrote:
-| Unfortunately, I lost the response that basically said "2.4 looks stable
-| to me", but let me count the ways in which I agree with Andreas'
-| sentiment:
-| 
-| 	A) VM has major issues
-| 		1) about a dozen recent OOPS reports in VM code
-| 		2) VM falls down on large-memory machines with a
-| 		   high inode count (slocate/updatedb, i/dcache)
-| 		3) Memory allocation failures and OOM triggers
-| 		   even though caches remain full.
-| 		4) Other bugs fixed in -aa and others
-| 	B) Live- and dead-locks that I'm seeing on all 2.4 production
-| 	   machines > 2.4.9, possibly related to A.  But how will I
-| 	   ever find out?
-| 	C) IO-APIC code that requires noapic on any and all SMP
-| 	   machines that I've ever run on.
-| 
-| I don't have anything against anyone here -- I think everyone is doing a
-| fine job.  It's an issue of acceptance of the problem and focus.  These
-| issues are all showstoppers for me, and while I don't represent the 90%
-| of the Linux market that is UP desktops, IMHO future work on the kernel
-| will be degraded by basic functionality that continues to cause
-| problems.
-| 
-| I think seeing some of Andrea's and Andrew's et al patches actually
-| *happen* would be a good thing, since 2.4 kernels are decidedly not
-| ready for production here.  I am forced to apply 26 distinct patch sets
-| to my kernels, and I am NOT the right person to make these judgements.
-| Which is why I was interested in an LKML summary source, though I
-| haven't yet had a chance to catch up on that thread of comment.
-| 
-| Having a glitch in the radeon driver is one thing; having persistent,
-| fatal, and reproducable failures in universal kernel code is entirely
-| another.
-| 
-| -- 
-| Ken.
-| brownfld@irridia.com
-| 
-| 
-| On Fri, Dec 28, 2001 at 09:16:38PM +0100, Andreas Hartmann wrote:
-| | Hello all,
-| | 
-| | Again, I did a rsync-operation as described in
-| | "[2.4.17rc1] Swapping" MID <3C1F4014.2010705@athlon.maya.org>.
-| | 
-| | This time, the kernel had a swappartition which was about 200MB. As the 
-| | swap-partition was fully used, the kernel killed all processes of knode.
-| | Nearly 50% of RAM had been used for buffers at this moment. Why is there 
-| | so much memory used for buffers?
-| | 
-| | I know I repeat it, but please:
-| | 
-| | 	Fix the VM-management in kernel 2.4.x. It's unusable. Believe
-| | 	me! As comparison: kernel 2.2.19 didn't need nearly any swap for
-| | 	the same operation!
-| | 
-| | Please consider that I'm using 512 MB of RAM. This should, or better: 
-| | must be enough to do the rsync-operation nearly without any swapping - 
-| | kernel 2.2.19 does it!
-| | 
-| | The performance of kernel 2.4.18pre1 is very poor, which is no surprise, 
-| | because the machine swaps nearly nonstop.
-| | 
-| | 
-| | Regards,
-| | Andreas Hartmann
-| | 
-| | -
-| | To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-| | the body of a message to majordomo@vger.kernel.org
-| | More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| | Please read the FAQ at  http://www.tux.org/lkml/
-| -
-| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-| the body of a message to majordomo@vger.kernel.org
-| More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| Please read the FAQ at  http://www.tux.org/lkml/
+On Friday, January 04, 2002 12:33:32 PM -0500 Chris Mason <mason@suse.com> wrote:
+
+[ expanding truncate patch ]
+
+>> 	Seriously, it looks like a half-arsed and very old attempt to do common
+>> expanding truncate() for no-holes filesystems.  BTW, these days rlimit
+>> checks are done by vmtruncate().
+
+Ok, the rlimit checks where still there because generic_cont_expand is called before vmtruncate.  I changed it around to match vmtruncate better though.
+
+Does anyone still object to the patch below?
+
+-chris
+
+--- 0.22/fs/reiserfs/file.c Fri, 11 Jan 2002 14:17:09 -0500 
++++ 0.22(w)/fs/reiserfs/file.c Fri, 11 Jan 2002 15:28:35 -0500 
+@@ -103,6 +103,20 @@
+ 	if (get_inode_item_key_version(inode) == KEY_FORMAT_3_5 &&
+ 	    attr->ia_size > MAX_NON_LFS)
+             return -EFBIG ;
++
++	/* fill in hole pointers in the expanding truncate case. */
++        if (attr->ia_size > inode->i_size) {
++	    error = generic_cont_expand(inode, attr->ia_size) ;
++	    if (inode->u.reiserfs_i.i_prealloc_count > 0) {
++		struct reiserfs_transaction_handle th ;
++		/* we're changing at most 2 bitmaps, inode + super */
++		journal_begin(&th, inode->i_sb, 4) ;
++		reiserfs_discard_prealloc (&th, inode);
++		journal_end(&th, inode->i_sb, 4) ;
++	    }
++	    if (error)
++	        return error ;
++	}
+     }
+ 
+     if ((((attr->ia_valid & ATTR_UID) && (attr->ia_uid & ~0xffff)) ||
+--- 0.22/fs/reiserfs/inode.c Fri, 11 Jan 2002 14:17:09 -0500 
++++ 0.22(w)/fs/reiserfs/inode.c Fri, 11 Jan 2002 14:43:42 -0500 
+@@ -2125,7 +2125,7 @@
+     /* we test for O_SYNC here so we can commit the transaction
+     ** for any packed tails the file might have had
+     */
+-    if (f->f_flags & O_SYNC) {
++    if (f && f->f_flags & O_SYNC) {
+ 	lock_kernel() ;
+  	reiserfs_commit_for_inode(inode) ;
+ 	unlock_kernel();
+--- 0.22/fs/buffer.c Fri, 11 Jan 2002 11:53:37 -0500 
++++ 0.22(w)/fs/buffer.c Fri, 11 Jan 2002 15:28:08 -0500 
+@@ -1760,6 +1760,52 @@
+ 	return 0;
+ }
+ 
++/* utility function for filesystems that need to do work on expanding
++ * truncates.  Uses prepare/commit_write to allow the filesystem to
++ * deal with the hole.  
++ */
++int generic_cont_expand(struct inode *inode, loff_t size)
++{
++	struct address_space *mapping = inode->i_mapping;
++	struct page *page;
++	unsigned long index, offset, limit;
++	int err;
++
++	err = -EFBIG;
++        limit = current->rlim[RLIMIT_FSIZE].rlim_cur;
++	if (limit != RLIM_INFINITY && size > (loff_t)limit) {
++		send_sig(SIGXFSZ, current, 0);
++		goto out;
++	}
++	if (size > inode->i_sb->s_maxbytes)
++		goto out;
++
++	offset = (size & (PAGE_CACHE_SIZE-1)); /* Within page */
++
++	/* ugh.  in prepare/commit_write, if from==to==start of block, we 
++	** skip the prepare.  make sure we never send an offset for the start
++	** of a block
++	*/
++	if ((offset & (inode->i_sb->s_blocksize - 1)) == 0) {
++		offset++;
++	}
++	index = size >> PAGE_CACHE_SHIFT;
++	err = -ENOMEM;
++	page = grab_cache_page(mapping, index);
++	if (!page)
++		goto out;
++	err = mapping->a_ops->prepare_write(NULL, page, offset, offset);
++	if (!err) {
++		err = mapping->a_ops->commit_write(NULL, page, offset, offset);
++	}
++	UnlockPage(page);
++	page_cache_release(page);
++	if (err > 0)
++		err = 0;
++out:
++	return err;
++}
++
+ /*
+  * For moronic filesystems that do not allow holes in file.
+  * We may have to extend the file.
+--- 0.22/kernel/ksyms.c Fri, 11 Jan 2002 11:54:05 -0500 
++++ 0.22(w)/kernel/ksyms.c Fri, 11 Jan 2002 14:17:35 -0500 
+@@ -204,6 +204,7 @@
+ EXPORT_SYMBOL(block_read_full_page);
+ EXPORT_SYMBOL(block_prepare_write);
+ EXPORT_SYMBOL(block_sync_page);
++EXPORT_SYMBOL(generic_cont_expand);
+ EXPORT_SYMBOL(cont_prepare_write);
+ EXPORT_SYMBOL(generic_commit_write);
+ EXPORT_SYMBOL(block_truncate_page);
+--- 0.22/include/linux/fs.h Fri, 11 Jan 2002 14:17:09 -0500 
++++ 0.22(w)/include/linux/fs.h Fri, 11 Jan 2002 14:17:35 -0500 
+@@ -1416,6 +1416,7 @@
+ extern int block_prepare_write(struct page*, unsigned, unsigned, get_block_t*);
+ extern int cont_prepare_write(struct page*, unsigned, unsigned, get_block_t*,
+ 				unsigned long *);
++extern int generic_cont_expand(struct inode *inode, loff_t size) ;
+ extern int block_commit_write(struct page *page, unsigned from, unsigned to);
+ extern int block_sync_page(struct page *);
+ 
+
+

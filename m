@@ -1,61 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264261AbUGLXtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264275AbUGLXxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbUGLXtj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 19:49:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbUGLXtj
+	id S264275AbUGLXxR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 19:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264297AbUGLXxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 19:49:39 -0400
-Received: from fire.osdl.org ([65.172.181.4]:58257 "EHLO fire-2.osdl.org")
-	by vger.kernel.org with ESMTP id S264261AbUGLXth (ORCPT
+	Mon, 12 Jul 2004 19:53:17 -0400
+Received: from mail.ccur.com ([208.248.32.212]:45322 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S264275AbUGLXxF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 19:49:37 -0400
-Subject: Re: Linux 2.6.8-rc1 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0407111120010.1764@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0407111120010.1764@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1089676151.3547.30.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 12 Jul 2004 16:49:11 -0700
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jul 2004 19:53:05 -0400
+Message-ID: <40F3245A.1070401@ccur.com>
+From: "Blackwood, John" <john.blackwood@ccur.com>
+Reply-To: "Blackwood, John" <john.blackwood@ccur.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andi Kleen <ak@muc.de>
+Subject: [PATCH] arch/i386|x86_64/kernel/ptrace.c linux-2.6.7
+Date: Mon, 12 Jul 2004 19:52:58 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For the last couple 2.6 kernels and mm kernels...
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
+Hi Andi,
 
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.8-rc1      0w/0e       0w/0e    87w/ 0e   5w/0e   1w/0e     82w/0e
-2.6.7          0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    102w/0e
-2.6.7-rc3      0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    104w/0e
-2.6.7-rc2      0w/0e       0w/0e   110w/ 0e   5w/0e   2w/0e    106w/0e
-2.6.7-rc1      0w/0e       0w/0e   111w/ 0e   6w/0e   2w/0e    107w/0e
-2.6.6          0w/0e       0w/0e   123w/ 0e   7w/0e   4w/0e    121w/0e
+In linux-2.6.7, I would like to suggest a few small changes to the error
+checking the PTRACE_GETREGS and PTRACE_SETREGS processing in sys_ptrace().
 
-Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
+While working on our own linux debugger, we noticed that if an invalid
+user-space address is passed in, then the ptrace() call would return
+success even though the registers were not properly read (PTRACE_GETREGS)
+or written (PTRACE_SETREGS).
 
-Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
---------------- ---------- -------- -------- -------- -------- --------
-2.6.7-mm7         0w/0e     0w/0e    89w/9e    5w/0e   1w/0e     84w/0e
-2.6.7-mm6         0w/0e     0w/0e    85w/9e    5w/0e   1w/0e     80w/0e
-2.6.7-mm5         0w/0e     0w/0e    92w/0e    5w/0e   1w/0e     87w/0e
-2.6.7-mm4         0w/0e     0w/0e    94w/0e    5w/0e   1w/0e     89w/0e
-2.6.7-mm3         0w/0e     0w/0e    90w/6e    5w/0e   1w/0e     86w/0e
-2.6.7-mm2         0w/0e     0w/0e   109w/0e    7w/0e   1w/0e    106w/0e
-2.6.7-mm1         0w/0e     5w/0e   108w/0e    5w/0e   1w/0e    104w/0e
+Since the access_ok() check only ensures that the user-space address
+is within the range of valid user space addresses, the subsequent
+__put_user() or __get_user() calls can still fail if the user-space
+address is not current a valid address within the caller's address space.
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
+The suggested fix below for i386 and x86_64 is to logically OR the returned
+value into 'ret' from the __put_user() or __get_user() calls, in the
+same way that the arch/x86_64/ia32/ptrace32.c code does.
 
-John
+Additionally, for x86_64 only, the access_ok() size parameter should really
+be sizeof(struct user_regs_struct) instead of FRAME_SIZE, since on x86_64
+the user_regs_struct being read/written is actually a bit larger than
+the FRAME_SIZE define.
+
+
+Thank you.
+
+
+
+diff -ru linux-2.6.7/arch/i386/kernel/ptrace.c 
+linux/arch/i386/kernel/ptrace.c
+--- linux-2.6.7/arch/i386/kernel/ptrace.c       2004-06-16 
+01:19:03.000000000 -0400
++++ linux/arch/i386/kernel/ptrace.c     2004-07-12 13:09:33.000000000 -0400
+@@ -428,11 +428,11 @@
+                        ret = -EIO;
+                        break;
+                }
++               ret = 0;
+                for ( i = 0; i < FRAME_SIZE*sizeof(long); i += 
+sizeof(long) ) {
+-                       __put_user(getreg(child, i), datap);
++                       ret |= __put_user(getreg(child, i), datap);
+                        datap++;
+                }
+-               ret = 0;
+                break;
+        }
+
+@@ -442,12 +442,12 @@
+                        ret = -EIO;
+                        break;
+                }
++               ret = 0;
+                for ( i = 0; i < FRAME_SIZE*sizeof(long); i += 
+sizeof(long) ) {
+-                       __get_user(tmp, datap);
++                       ret |=__get_user(tmp, datap);
+                        putreg(child, i, tmp);
+                        datap++;
+                }
+-               ret = 0;
+                break;
+        }
+
+
+
+diff -ru linux-2.6.7/arch/x86_64/kernel/ptrace.c 
+linux/arch/x86_64/kernel/ptrace.c
+--- linux-2.6.7/arch/x86_64/kernel/ptrace.c     2004-06-16 
+01:19:09.000000000 -0400
++++ linux/arch/x86_64/kernel/ptrace.c   2004-07-12 16:03:35.584411668 -0400
+@@ -429,30 +429,30 @@
+                break;
+
+        case PTRACE_GETREGS: { /* Get all gp regs from the child. */
+-               if (!access_ok(VERIFY_WRITE, (unsigned __user *)data, 
+FRAME_SIZE)) {
++               if (!access_ok(VERIFY_WRITE, (unsigned __user *)data, 
+sizeof(struct user_regs_struct))) {
+                        ret = -EIO;
+                        break;
+                }
++               ret = 0;
+                for (ui = 0; ui < sizeof(struct user_regs_struct); ui += 
+sizeof(long)) {
+-                       __put_user(getreg(child, ui),(unsigned long 
+__user *) data);
++                       ret |= __put_user(getreg(child, ui),(unsigned 
+long __user *) data);
+                        data += sizeof(long);
+                }
+-               ret = 0;
+                break;
+        }
+
+        case PTRACE_SETREGS: { /* Set all gp regs in the child. */
+                unsigned long tmp;
+-               if (!access_ok(VERIFY_READ, (unsigned __user *)data, 
+FRAME_SIZE)) {
++               if (!access_ok(VERIFY_READ, (unsigned __user *)data, 
+sizeof(struct user_regs_struct))) {
+                        ret = -EIO;
+                        break;
+                }
++               ret = 0;
+                for (ui = 0; ui < sizeof(struct user_regs_struct); ui += 
+sizeof(long)) {
+-                       __get_user(tmp, (unsigned long __user *) data);
++                       ret |= __get_user(tmp, (unsigned long __user *) 
+data);
+                        putreg(child, ui, tmp);
+                        data += sizeof(long);
+                }
+-               ret = 0;
+                break;
+        }
 
 
 

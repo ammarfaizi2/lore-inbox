@@ -1,78 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbULDXlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbULDXsZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbULDXlm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 18:41:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbULDXlm
+	id S261197AbULDXsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 18:48:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbULDXsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 18:41:42 -0500
-Received: from smtp2.netcabo.pt ([212.113.174.29]:32330 "EHLO
-	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S261196AbULDXlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 18:41:37 -0500
-Message-ID: <32796.192.168.1.5.1102203504.squirrel@192.168.1.5>
-In-Reply-To: <20041204224641.GA14850@elte.hu>
-References: <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu>
-    <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu>
-    <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu>
-    <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu>
-    <20041203205807.GA25578@elte.hu>
-    <32786.192.168.1.5.1102199522.squirrel@192.168.1.5>
-    <20041204224641.GA14850@elte.hu>
-Date: Sat, 4 Dec 2004 23:38:24 -0000 (WET)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.32-0
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
-       "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Karsten Wiese" <annabellesgarden@yahoo.de>,
-       "Gunther Persoons" <gunther_persoons@spymac.com>, emann@mrv.com,
-       "Shane Shrybman" <shrybman@aei.ca>, "Amit Shah" <amit.shah@codito.com>,
-       "Esben Nielsen" <simlo@phys.au.dk>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
+	Sat, 4 Dec 2004 18:48:25 -0500
+Received: from main.gmane.org ([80.91.229.2]:4528 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261197AbULDXsV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 18:48:21 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Paul Ionescu <i_p_a_u_l@yahoo.com>
+Subject: Re: Linux 2.6.10-rc3
+Date: Sun, 05 Dec 2004 01:48:04 +0200
+Message-ID: <pan.2004.12.04.23.48.03.367311@yahoo.com>
+References: <Pine.LNX.4.58.0412031611460.22796@ppc970.osdl.org> <pan.2004.12.04.09.06.09.707940@nn7.de> <87oeha6lj1.fsf@sycorax.lbl.gov> <cosrt1$j67$1@sea.gmane.org> <87eki66jx8.fsf@sycorax.lbl.gov> <1102195032.1560.58.camel@tux.rsn.bth.se> <877jnxago0.fsf@sycorax.lbl.gov> <Pine.LNX.4.58.0412042241070.13328@tux.rsn.bth.se>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 04 Dec 2004 23:41:36.0316 (UTC) FILETIME=[CB226FC0:01C4DA5A]
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: home-33027.b.astral.ro
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
->
-> Rui Nuno Capela wrote:
->
->> Ingo Molnar wrote:
->> >
->> > i have released the -V0.7.32-0 Real-Time Preemption patch, which can
->> > be downloaded from the usual place:
->> >
->>
->> I have a bug to report, it shows on both of my machines (SMP and UP)
->> now running RT-V0.7.32-2. It seems to be present also on previous RT
->> releases, and don't even know if it's upstream.
->>
->> When one usb-storage flash stick is first time unplugged:
->
-> hm, doesnt seem to be directly related to -RT. Could you try the vanilla
-> -rc2-mm3 kernel, does it trigger there too?
->
+On Sat, 04 Dec 2004 22:42:11 +0100, Martin Josefsson wrote:
+> That's an usb2.0 bug, the ehci driver sleeps when it can't sleep.
 
-No, it doesn't. Just tested on 2.6.10-rc2-mm3 (vanilla) and nothing wrong
-happens. I can plug and unplug the USB flashram stick, and again, and
-again, and everything stays fine.
+I have the message bellow without ehci-hcd module loaded, so I took out
+USB2 problem, but this one I don't know what it means:
 
-On 2.6.10-rc2-mm3-RT-V0.7.32-2 I get trouble after the first time I unplug
-the thingie. From then on I rather not touch it back again ;)
 
-Take care.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+Warning: CPU frequency is 1700000, cpufreq assumed 600000 kHz.
+Debug: sleeping function called from invalid context at mm/slab.c:2063
+in_atomic():0[expected: 0], irqs_disabled():1
+ [<0211cbcb>] __might_sleep+0x7d/0x8a
+ [<0214bf9f>] __kmalloc+0x42/0x7d
+ [<021f48e9>] acpi_os_allocate+0xa/0xb
+ [<0220878a>] acpi_ut_allocate+0x2e/0x52
+ [<02208721>] acpi_ut_initialize_buffer+0x41/0x7c
+ [<02205474>] acpi_rs_create_byte_stream+0x23/0x3b
+ [<02206976>] acpi_rs_set_srs_method_data+0x1b/0x9d
+ [<0211b101>] recalc_task_prio+0x128/0x133
+ [<0220e15c>] acpi_pci_link_set+0xfe/0x176
+ [<0220e4e0>] irqrouter_resume+0x1c/0x24
+ [<0224366a>] sysdev_resume+0x3e/0xa5
+ [<02246564>] device_power_up+0x5/0xa
+ [<0213db9a>] suspend_enter+0x25/0x2d
+ [<0213dc08>] enter_state+0x3f/0x5e
+ [<0220ad54>] acpi_suspend+0x28/0x34
+ [<0220b7c4>] acpi_system_write_sleep+0x5c/0x6d
+ [<02179769>] locate_fd+0x5c/0x78
+ [<02165c82>] vfs_write+0xb6/0xe2
+ [<02165d4c>] sys_write+0x3c/0x62
+PCI: Setting latency timer of device 0000:00:1d.0 to 64
+
 

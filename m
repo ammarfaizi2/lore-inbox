@@ -1,82 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261587AbTIUAPk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 20:15:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbTIUAPk
+	id S261979AbTIUApK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 20:45:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbTIUApK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 20:15:40 -0400
-Received: from main.gmane.org ([80.91.224.249]:26271 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261587AbTIUAPj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 20:15:39 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Sat, 20 Sep 2003 20:45:10 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:13513 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S261979AbTIUApG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Sep 2003 20:45:06 -0400
+Message-ID: <3F6CF491.9030205@free.fr>
+Date: Sun, 21 Sep 2003 02:45:05 +0200
+From: Jean-pierre Cartal <jpcartal@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b; MultiZilla v1.5.0.2f) Gecko/20030918
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: 2.4.22 USB problem (uhci)
-Date: Sat, 20 Sep 2003 17:15:57 -0700
-Message-ID: <m2r82bvvwi.fsf@tnuctip.rychter.com>
-References: <m2znh1pj5z.fsf@tnuctip.rychter.com> <20030919190628.GI6624@kroah.com>
- <m2d6dwr3k8.fsf@tnuctip.rychter.com> <20030919201751.GA7101@kroah.com>
- <m28yokr070.fsf@tnuctip.rychter.com> <20030919204419.GB7282@kroah.com>
- <m2smmspjjq.fsf@tnuctip.rychter.com> <20030919212232.GG7282@kroah.com>
- <m2brtgpg1a.fsf@tnuctip.rychter.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:aRCwEayRvts4fus6qdIejfkUCxs=
+Subject: suid bit behaviour modification in 2.6.0-test5
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jan" == Jan Rychter <jan@rychter.com>:
->>>>> "Greg" == Greg KH <greg@kroah.com> writes:
- Jan> [...]
+Hello,
 
- > Please allow me to restate the original problem:
- >
- > -- I usually use uhci instead of usb-uhci, because it is able to go
- > into "suspend mode" when no devices are plugged, which allows the CPU
- > to enter C3 states,
- >
- > -- usb-uhci eats CPU power by keeping it in C2 constantly because of
- > busmastering DMA activity, therefore being much less useful,
- >
- > -- uhci generally works for me just fine, but breaks in one
- > particular case, when removing the device causes a strange message to
- > be printed and the system being unable to use the C3 states again,
- > until uhci is unloaded and reloaded back again.
- >
- > Just as a reminder, this message is:
- >
- > uhci.c: efe0: host controller halted. very bad
- >
- > I hope if the message says "very bad", then this is something that
- > can be fixed. I was therefore reporting a problem with "uhci" and
- > kindly asking for help.
+I'm running a standard RH 9 installation upgraded to kernel 2.6.0-test5 
+with rpms from http://people.redhat.com/arjanv/2.5/RPMS.kernel/.
 
- Greg> Ok, sorry for the confusion.  No I don't know of a fix for this
- Greg> problem, but one just went into the 2.6 kernel tree for the
- Greg> uhci-hcd driver that you might want to take a look at that fixed
- Greg> a problem almost exactly like this.
+I noticed that contrary to what was happening with 2.4.x kernel, suid 
+root files don't loose their suid bit when they get overwritten by a 
+normal user (see example below)
 
- Jan> Greg,
+Is this the intended behaviour or a bug ?
 
- Jan> I've looked at uhci.c, the message comes from line 2461, in
- Jan> uhci_interrupt. But there is no chance I will be able to fix it
- Jan> without first understanding thoroughly how uhci.c works.
+Example :
 
- Jan> So I guess this goes into my "unfixed Linux bugs" bin.
-
-I've just realized that some people may not know why the above uhci bug
-is a problem.
-
-Having done some measurements and calculations, the above uhci bug
-translates into a shortened battery life: 20 minutes less for the laptop
-I've been testing on. You get 1h30 instead of 1h50 you would normally
-get if uhci would work correctly.
-
-That's like having only 84% of your battery available to start with.
-
---J.
+[cartaljp@localhost test]$ uname -r
+2.6.0-0.test5.1.38
+[cartaljp@localhost test]$ id
+uid=500(cartaljp) gid=500(cartaljp)
+[cartaljp@localhost test]$ touch suid_test
+[cartaljp@localhost test]$ ls -l
+total 0
+-rw-rw-r--    1 cartaljp cartaljp        0 Sep 19 07:55 suid_test
+[cartaljp@localhost test]$ su -
+Password:
+[root@localhost test]# chown root ~cartaljp/test/suid_test
+[root@localhost test]# chmod 4775 ~cartaljp/test/suid_test
+[root@localhost test]# exit
+[cartaljp@localhost test]$ ls -l
+total 0
+-rwsrwxr-x    1 root     cartaljp        0 Sep 19 07:55 suid_test
+[cartaljp@localhost test]$ cp /bin/ls suid_test
+[cartaljp@localhost test]$ ls -l
+total 72
+-rwsrwxr-x    1 root     cartaljp    67668 Sep 19 07:56 suid_test <- 
+Suid bit is still set whereas with 2.4.x kernel it was reset.
 

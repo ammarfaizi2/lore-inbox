@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbULFHOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbULFHQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbULFHOU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 02:14:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbULFHOU
+	id S261257AbULFHQw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 02:16:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbULFHQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 02:14:20 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:62627 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261201AbULFHOQ (ORCPT
+	Mon, 6 Dec 2004 02:16:52 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:38564 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261257AbULFHQq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 02:14:16 -0500
-Date: Mon, 6 Dec 2004 08:13:39 +0100
+	Mon, 6 Dec 2004 02:16:46 -0500
+Date: Mon, 6 Dec 2004 08:15:24 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Jeff Sipek <jeffpc@optonline.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Con Kolivas <kernel@kolivas.org>, Jeff Sipek <jeffpc@optonline.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] Time sliced CFQ #2
-Message-ID: <20041206071335.GA10498@suse.de>
-References: <20041204104921.GC10449@suse.de> <20041204163948.GA20486@optonline.net> <20041205185844.GF6430@suse.de> <20041206002954.GA28205@optonline.net>
+Message-ID: <20041206071524.GB10498@suse.de>
+References: <20041204104921.GC10449@suse.de> <20041204163948.GA20486@optonline.net> <20041205185844.GF6430@suse.de> <20041206002954.GA28205@optonline.net> <41B3BD0F.6010008@kolivas.org> <20041206022338.GA5472@optonline.net> <41B3C54B.1080803@kolivas.org> <CED75073-4743-11D9-9115-000393ACC76E@mac.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041206002954.GA28205@optonline.net>
+In-Reply-To: <CED75073-4743-11D9-9115-000393ACC76E@mac.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 05 2004, Jeff Sipek wrote:
-> On Sun, Dec 05, 2004 at 07:58:45PM +0100, Jens Axboe wrote:
-> > It should be really easy to try some rudimentary prio io support - just
-> > scale the time slice based on process priority. A few lines of code
-> > change, and io priority now follows process cpu scheduler priority. To
-> > work really well, the code probably needs a few more limits besides just
-> > slice time.
+On Mon, Dec 06 2004, Kyle Moffett wrote:
+> On Dec 05, 2004, at 21:34, Con Kolivas wrote:
+> >I think when nice is changed, ioprio needs to be changed with it as a 
+> >sane
+> >default action. I suspect that most of the time people will not use the
+> >separate ioprio call, but using 'nice' is a regular linuxy thing to 
+> >do. Ideally
+> >we make ioprio part of the 'nice' utility and we specify both at the 
+> >same time.
+> >Something like: "nice -n 5 -i 20 blah"
 > 
-> I started working on the rudimentary io prio code, and it got me
-> thinking...  Why use the cpu scheduler priorities? Wouldn't it make
-> more sense to add io_prio to task_struct? This way you can have a
-> process which you know needs a lot of CPU but not as much io, or the
-> other way around.
+> What about this:
 > 
-> What do you think?
+> nice = x;		/* -20 to 20 */
+> ioprio = y;		/* -40 to 40 */
+> effective_ioprio = clamp(x+y);	/* -20 to 20 */
 
-I don't like tieing them together, see various threads in the list
-archives for discussions about that. I just said that it would be easy
-to test basic support this way, since you only have to change a few
-lines.
-
-I've already posted the glue code to set/query process priorities, I
-would plan on just using something like that again.
+That's way too many priority levels, there's no way on earth you can
+that finely QOS something that you don't have more control over (hard
+drive).
 
 -- 
 Jens Axboe

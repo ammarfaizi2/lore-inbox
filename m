@@ -1,77 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263780AbTDOBtb (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 21:49:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264028AbTDOBtb (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 21:49:31 -0400
-Received: from holomorphy.com ([66.224.33.161]:30852 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263780AbTDOBta (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 21:49:30 -0400
-Date: Mon, 14 Apr 2003 19:00:57 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.67-mm3
-Message-ID: <20030415020057.GC706@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030414015313.4f6333ad.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S264063AbTDOBxJ (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 21:53:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbTDOBxJ (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 21:53:09 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:6841 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S264063AbTDOBxF (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 21:53:05 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Daniel Gryniewicz <dang@fprintf.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20-ck5
+Date: Tue, 15 Apr 2003 12:06:46 +1000
+User-Agent: KMail/1.5.1
+References: <3E96D711.70404@comcast.net> <1050370913.1933.6.camel@athena.fprintf.net>
+In-Reply-To: <1050370913.1933.6.camel@athena.fprintf.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030414015313.4f6333ad.akpm@digeo.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+Message-Id: <200304151206.46443.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 14, 2003 at 01:53:13AM -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.67/2.5.67-mm3/
-> 
-> A bunch of new fixes, and a framebuffer update.  This should work a bit
-> better than -mm2.
+On Tue, 15 Apr 2003 11:41, Daniel Gryniewicz wrote:
+> I also have had a problem with ck5.  I've been using the ckX kernel for
+> a while now, and they're great kernels.  ck4 was absolutely solid.  I've
+> been following the interactiveness changes in 2.5, although I don't use
+> it, with some interest, so I was really happy when you announced them in
+> ck5.  However, it broke my Evolution.  In large folders (such as LKML),
+> the current message jumps around randomly umong the unread messages when
+> I try and select the next unread message.  This does not happen with ck4
+> on an otherwise unchanged system (I use gentoo 1.4).  I remember
+> information about 2.5 breaking Evolution, but that was a long time
+> before these interactive fixes.  Here are my versions.  If there's
+> anything else you want, let me know.
 
+Yes sorry it's ck5's fault, it's b0rken. Use ck6 which is on the website now 
+called ck6pre_2416030413_2.4.20.patch.bz2 It doesn't have the mem leak in ck5 
+and has the interactivity patch removed. Ignore the pre name it's going to be 
+renamed when I update my website et al. This should be as stable as ck4.
 
-If one's goal is to free highmem pages, shrink_slab() is an ineffective
-method of recovering them, as slab pages are all ZONE_NORMAL or ZONE_DMA.
-Hence, this "FIXME: do not do for zone highmem". Presumably this is a
-question of policy, as highmem allocations may be satisfied by reaping
-slab pages and handing them back; but the FIXME says what we should do.
-
-
-diff -urpN mm3-2.5.67-1/mm/vmscan.c mm3-2.5.67-2/mm/vmscan.c
---- mm3-2.5.67-1/mm/vmscan.c	2003-04-14 18:08:15.000000000 -0700
-+++ mm3-2.5.67-2/mm/vmscan.c	2003-04-14 18:16:41.000000000 -0700
-@@ -134,11 +134,9 @@ void remove_shrinker(struct shrinker *sh
-  * If the vm encounted mapped pages on the LRU it increase the pressure on
-  * slab to avoid swapping.
-  *
-- * FIXME: do not do for zone highmem
-- *
-  * We do weird things to avoid (scanned*seeks*entries) overflowing 32 bits.
-  */
--static int shrink_slab(long scanned,  unsigned int gfp_mask)
-+static int shrink_slab(long scanned, unsigned int gfp_mask)
- {
- 	struct shrinker *shrinker;
- 	long pages;
-@@ -835,7 +833,8 @@ try_to_free_pages(struct zone *classzone
- 
- 		/* Take a nap, wait for some writeback to complete */
- 		blk_congestion_wait(WRITE, HZ/10);
--		shrink_slab(total_scanned, gfp_mask);
-+		if (classzone - classzone->zone_pgdat->node_zones < ZONE_HIGHMEM)
-+			shrink_slab(total_scanned, gfp_mask);
- 	}
- 	if (gfp_mask & __GFP_FS)
- 		out_of_memory();
-@@ -895,7 +894,8 @@ static int balance_pgdat(pg_data_t *pgda
- 				max_scan = SWAP_CLUSTER_MAX;
- 			to_free -= shrink_zone(zone, max_scan, GFP_KERNEL,
- 					to_reclaim, &nr_mapped, ps, priority);
--			shrink_slab(max_scan + nr_mapped, GFP_KERNEL);
-+			if (i < ZONE_HIGHMEM)
-+				shrink_slab(max_scan + nr_mapped, GFP_KERNEL);
- 			if (zone->all_unreclaimable)
- 				continue;
- 			if (zone->pages_scanned > zone->present_pages * 2)
+Con

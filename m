@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317779AbSFSFuU>; Wed, 19 Jun 2002 01:50:20 -0400
+	id <S317780AbSFSFvO>; Wed, 19 Jun 2002 01:51:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317780AbSFSFuT>; Wed, 19 Jun 2002 01:50:19 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:60389 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S317779AbSFSFuS>; Wed, 19 Jun 2002 01:50:18 -0400
-Date: Wed, 19 Jun 2002 07:50:13 +0200
-From: Andi Kleen <ak@muc.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Export ioremap_nocache
-Message-ID: <20020619075013.A2778@averell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S317781AbSFSFvN>; Wed, 19 Jun 2002 01:51:13 -0400
+Received: from handhelds.org ([192.58.209.91]:2780 "HELO handhelds.org")
+	by vger.kernel.org with SMTP id <S317780AbSFSFvL>;
+	Wed, 19 Jun 2002 01:51:11 -0400
+From: George France <france@handhelds.org>
+To: Richard Liu <richliu@ite.techarea.org>,
+       Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: Does it have SD/MMC Driver?
+Date: Wed, 19 Jun 2002 01:50:44 -0400
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="US-ASCII"
+References: <20020619105928.CD87.RICHLIU@ite.techarea.org>
+In-Reply-To: <20020619105928.CD87.RICHLIU@ite.techarea.org>
+MIME-Version: 1.0
+Message-Id: <02061901504400.06509@shadowfax.middleearth>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Richard,
 
-This is needed to still load modules which use ioremap_nocache. Broken by
-me with the pageattr patch.
+There is a MMC driver from the kernel cvs tree at handhelds.org.  It was just 
+announced today.  Please see:
 
--Andi
+http://handhelds.org/pipermail/ipaq/2002-June/014310.html
+
+As for SD, I do not believe that it is legally possible to have an Open 
+Source SD driver.  It may be possible to have a bin only Closed Source SD 
+driver.  It is probably best that you check with a legal professional.
+
+Best Regards,
 
 
---- linux-2.5.23-work/arch/i386/kernel/i386_ksyms.c-o	Wed Jun 19 05:32:14 2002
-+++ linux-2.5.23-work/arch/i386/kernel/i386_ksyms.c	Wed Jun 19 07:47:34 2002
-@@ -63,6 +63,7 @@
- EXPORT_SYMBOL(dump_fpu);
- EXPORT_SYMBOL(dump_extended_fpu);
- EXPORT_SYMBOL(__ioremap);
-+EXPORT_SYMBOL(ioremap_nocache);
- EXPORT_SYMBOL(iounmap);
- EXPORT_SYMBOL(enable_irq);
- EXPORT_SYMBOL(disable_irq);
+--George
+
+On Tuesday 18 June 2002 23:04, Richard Liu wrote:
+> Hi.
+>     does anyone porting SD/MMC driver in linux platform?
+> I want to porting SD/MMC driver,
+>
+> It's a chip which using LPC connect to south bridge.
+> I want some information about how to porting it,
+> like major/minor number, etc.
+>
+> If anyone have information about this, could you give me a head?
+> --
+> Richard Liu, an Linux Device driver developer .
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315429AbSEQFxP>; Fri, 17 May 2002 01:53:15 -0400
+	id <S315430AbSEQFzY>; Fri, 17 May 2002 01:55:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315430AbSEQFxO>; Fri, 17 May 2002 01:53:14 -0400
-Received: from mailx.cdacindia.com ([202.54.40.35]:44996 "EHLO
-	falcon.cdac.ernet.in") by vger.kernel.org with ESMTP
-	id <S315429AbSEQFxN>; Fri, 17 May 2002 01:53:13 -0400
-Date: Fri, 17 May 2002 11:20:34 +0530 (IST)
-From: Sanket Rathi <sanket.rathi@cdac.ernet.in>
+	id <S315431AbSEQFzX>; Fri, 17 May 2002 01:55:23 -0400
+Received: from violet.setuza.cz ([194.149.118.97]:31502 "EHLO violet.setuza.cz")
+	by vger.kernel.org with ESMTP id <S315430AbSEQFzW>;
+	Fri, 17 May 2002 01:55:22 -0400
+Subject: Re: counters
+From: Frank Schaefer <frank.schafer@setuza.cz>
 To: linux-kernel@vger.kernel.org
-Subject: Bounce Buffer Patch
-Message-ID: <Pine.GSO.4.10.10205171118320.17118-100000@mailhub.cdac.ernet.in>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <3CE3BECB.FF1AE6A@ail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 17 May 2002 07:55:23 +0200
+Message-Id: <1021614923.253.0.camel@ADMIN>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have read about bounce buffer and understand.
-but from where i can get the code of that patch and how it internally
-works.
+On Thu, 2002-05-16 at 16:14, Manik Raina wrote:
+> anyone knows if there are counters in the linux kernel
+> which can be read via /proc like mechanism for the
+> following :
+> 
+> 1. total number of bytes read by process by syscalls
+> like read()
+> 
+> 2. total number of bytes written by each process by
+> syscalls like write()
 
-can anybody help
+Hi,
 
-Thanks in advance
+as far as I know there's not a ready to use counter in the procfs.
 
---- Sanket Rathi
+BTW: What do you want to count? Do You mean timers?
 
---------------------------
+It shouldn't be a problem, to write a little driver, which could make
+this available.
+
+Regards
+Frank
 

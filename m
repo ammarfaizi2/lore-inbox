@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288173AbSAUUVW>; Mon, 21 Jan 2002 15:21:22 -0500
+	id <S288174AbSAUUgW>; Mon, 21 Jan 2002 15:36:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288169AbSAUUVM>; Mon, 21 Jan 2002 15:21:12 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:55310 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S288121AbSAUUVE>;
-	Mon, 21 Jan 2002 15:21:04 -0500
-Date: Mon, 21 Jan 2002 12:16:29 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] PCI Hotplug documentation
-Message-ID: <20020121201629.GA3720@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
+	id <S288184AbSAUUgM>; Mon, 21 Jan 2002 15:36:12 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:36110 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S288174AbSAUUgD>; Mon, 21 Jan 2002 15:36:03 -0500
+Date: Mon, 21 Jan 2002 15:35:35 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: yodaiken@fsmlabs.com
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <20020121084344.A13455@hq.fsmlabs.com>
+Message-ID: <Pine.LNX.3.96.1020121151224.23079A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 21 Jan 2002 yodaiken@fsmlabs.com wrote:
 
-Here's a patch against 2.5.3-pre2 that adds the pci_hotplug driver core
-to the kernel documentation build process.
+> I think of "benefit", perhaps naiively, in terms of something that can
+> be measured or demonstrated rather than just announced.
 
-thanks,
+I guess there are people who assume that anything which can't be given a
+number doesn't matter or possible doesn't exist. If software can't come up
+with a number for the beauty of a sunset, cuteness of a baby, or taste of
+a good wine, then obviously all that subjective stuff is meaningless.
 
-greg k-h
+However, since we have art, food, and wine critics making a living giving
+their meaningless opinions, I guess the majority of us recognize that even
+without a number produced by a benchmark there is "subjectively better." I
+don't know of anyone who doesn't feel that the rmap patches, even with
+some admited imprefections, make the system more responsive. I haven't
+seen one person who questioned this after trying it.
 
+Explaining responsiveness is like describing color to a blind person, any
+quantifications totally miss the experience.
 
-diff -Nru a/Documentation/DocBook/Makefile b/Documentation/DocBook/Makefile
---- a/Documentation/DocBook/Makefile	Mon Jan 21 10:48:39 2002
-+++ b/Documentation/DocBook/Makefile	Mon Jan 21 10:48:39 2002
-@@ -93,6 +93,8 @@
- 		$(TOPDIR)/drivers/net/8390.c \
- 		$(TOPDIR)/drivers/char/serial.c \
- 		$(TOPDIR)/drivers/pci/pci.c \
-+		$(TOPDIR)/drivers/hotplug/pci_hotplug_core.c \
-+		$(TOPDIR)/drivers/hotplug/pci_hotplug_util.c \
- 		$(TOPDIR)/drivers/block/ll_rw_blk.c \
- 		$(TOPDIR)/drivers/sound/sound_core.c \
- 		$(TOPDIR)/drivers/sound/sound_firmware.c \
-diff -Nru a/Documentation/DocBook/kernel-api.tmpl b/Documentation/DocBook/kernel-api.tmpl
---- a/Documentation/DocBook/kernel-api.tmpl	Mon Jan 21 10:48:38 2002
-+++ b/Documentation/DocBook/kernel-api.tmpl	Mon Jan 21 10:48:38 2002
-@@ -162,6 +162,10 @@
-      <sect1><title>PCI Support Library</title>
- !Edrivers/pci/pci.c
-      </sect1>
-+     <sect1><title>PCI Hotplug Support Library</title>
-+!Edrivers/hotplug/pci_hotplug_core.c
-+!Edrivers/hotplug/pci_hotplug_util.c
-+     </sect1>
-      <sect1><title>MCA Architecture</title>
- 	<sect2><title>MCA Device Functions</title>
- !Earch/i386/kernel/mca.c
+There are some responsemarks which may or may not be useful, feel free to
+actually locate and run these and post the results instead of posting
+multiple ways to ask for quantification. Linux people work on the things
+that interest them, and most of us can tell a pea from a bowling ball
+without a caliper.
+
+Consider this a response to your other notes of similar nature.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

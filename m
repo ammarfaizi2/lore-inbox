@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269999AbTGaWDY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 18:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274882AbTGaWDX
+	id S270493AbTGaV7o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 17:59:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270508AbTGaV7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 18:03:23 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:64748 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S270634AbTGaWDP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 18:03:15 -0400
-Date: Fri, 1 Aug 2003 00:03:00 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Dominik Brugger <ml.dominik83@gmx.net>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: OHCI problems with suspend/resume
-Message-ID: <20030731220300.GB487@elf.ucw.cz>
-References: <Pine.LNX.4.44L0.0307251057300.724-100000@ida.rowland.org> <1059153629.528.2.camel@gaston> <3F21B3BF.1030104@pacbell.net> <20030726210123.GD266@elf.ucw.cz> <3F288CAB.6020401@pacbell.net> <1059686596.7187.153.camel@gaston>
+	Thu, 31 Jul 2003 17:59:43 -0400
+Received: from law11-f124.law11.hotmail.com ([64.4.17.124]:42768 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S270493AbTGaV7k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 17:59:40 -0400
+X-Originating-IP: [216.33.229.163]
+X-Originating-Email: [muthian_s@hotmail.com]
+From: "Muthian S" <muthian_s@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: madvise on file pages
+Date: Thu, 31 Jul 2003 21:59:39 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1059686596.7187.153.camel@gaston>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; format=flowed
+Message-ID: <Law11-F124d2VqKwRPQ00000a39@hotmail.com>
+X-OriginalArrivalTime: 31 Jul 2003 21:59:39.0694 (UTC) FILETIME=[0A1AFCE0:01C357AF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> > The pm_*() is how a handful of sound drivers and other random
-> > stuff register themselves -- and how PCI does it.
-> > 
-> > I'd sure have expected PCI to only use the driver model stuff,
-> > and I'll hope all those users will all be phased out by the
-> > time that 2.6 gets near the end of its test cycle.
-> 
-> PCI is broken since it does both (and thus, if we call both rounds
-> of notifiers, we end up suspending PCI twice, the second time without
-> any ordering constraints). In my trees, I comment out that "legacy"
-> stuff (though I also don't call the old-style pm_* stuff anymore
-> neither)
+Could someone inform as to what is the behavior when madvise DONTNEED is 
+called on pages that are mmap'd from local files mapped with MAP_SHARED, 
+i.e. they share the same page that the file cache does.  In such cases, can 
+madvise be made to release specific pages in the file cache by mmap-ing the 
+relevant file segment ?
 
-Can you mail me a patch? [Where does PCI do its "second round"? From a
-quick look I did not see that.]
+thanks,
+Muthian.
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+_________________________________________________________________
+Play detective. Identify genuine Windows. 
+http://server1.msn.co.in/sp03/coa/index.asp Win cool prizes.
+

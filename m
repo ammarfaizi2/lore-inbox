@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129143AbRAYTlc>; Thu, 25 Jan 2001 14:41:32 -0500
+	id <S129274AbRAYTr6>; Thu, 25 Jan 2001 14:47:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129390AbRAYTlX>; Thu, 25 Jan 2001 14:41:23 -0500
-Received: from firewall.fesppr.br ([200.238.157.11]:20986 "EHLO
-	smtp2.fesppr.br") by vger.kernel.org with ESMTP id <S129101AbRAYTlJ>;
-	Thu, 25 Jan 2001 14:41:09 -0500
+	id <S129305AbRAYTrs>; Thu, 25 Jan 2001 14:47:48 -0500
+Received: from Mail.Hollister-Inc.com ([64.69.106.202]:10510 "EHLO
+	jawa.hollister-inc") by vger.kernel.org with ESMTP
+	id <S129274AbRAYTrd>; Thu, 25 Jan 2001 14:47:33 -0500
+Message-ID: <1037AF3191A7D411B5BF005004D2B294457AAE@HPXY>
+From: John Carter <jcarter@hollister-inc.com>
 To: linux-kernel@vger.kernel.org
-Subject: non-random IP IDs
-Message-ID: <980451650.3a7081428753c@webmail.fesppr.br>
-Date: Thu, 25 Jan 2001 17:40:50 -0200 (BRST)
-From: Alexandre Hautequest <hquest@fesppr.br>
+Subject: Looking for a Linux/SCSI Driver Developer
+Date: Thu, 25 Jan 2001 14:48:29 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
-X-Originating-IP: 172.16.60.100
-X-WebMail-Company: Fundacao de Estudos Sociais do Parana
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+Good Afternoon!  My name is John Carter, Technical Recruiter with Hollister
+Associates Contract IT/Software Division in Boston, Ma.  We currently deal
+with Top Tier Software and Development as well as Brick and Mortar Companies
+in Boston and New England area.
 
-I was playing a bit on some of my machines with Nessus (www.nessus.org), and it
-told me the following text:
+I presently have an opportunity for a Linux/SCSI Driver Developer that may
+be of interest to you. 
 
-    "The remote host uses non-random IP IDs, that is, it is
-     possible to predict the next value of the ip_id field of
-     the ip packets sent by this host.
+If you are interested in learning more about this project, or future
+engagements which will continue to sharpen your skills, you can contact me
+anytime.
 
-     An attacker may use this feature to determine if the remote
-     host sent a packet in reply to another request. This may be
-     used for portscanning and other things.
+I look forward to hearing from you.
 
-     Solution : Contact your vendor for a patch
-     Risk factor : Low"
+Be the technical lead for a small team of 4 engineers to design and develop
+a Fault Tolerant version of Linux on Stratus Fault Tolerant IA32
+architecture. This project will include the porting of Linux to Stratus FT
+hardware, kernel support for CPU and memory synchronization, the addition of
+hot-plug PCI support, and a device memory protection scheme. Position
+involves design, development of code, participation in strategic product
+definition and customer presentations. 
+Experience 5 or more years of software development experience. Linux kernel
+and/or device driver experience highly desirable or UNIX kernel experience a
+must. All coding will be in C/C++.
 
-Is there some option to dinamically enable this random IP ID's, or I need to 
-change something and recompile, or just "No way!"?
+Position is in Maynard, MA
 
-Please cc me as i'm not subscribed to the list.
+John Carter
+Technical Recruiter
+Hollister Associates, Inc.
+Phone: 617-654-0258
+mailto:jcarter@hollister-inc.com
+http://www.hollister-inc.com
 
-Thanks in advance.
 
---
-Alexandre Hautequest
-hquest at fesppr.br
 
-"Globalização: Um paraguaio dirigindo pelas estradas brasileiras um carro 
-francês fabricado na Argentina ouvindo música americana num som japonês."
+**********************************************************************
+This email and any files transmitted with it are confidential and
+intended solely for the use of the individual or entity to whom they
+are addressed. If you have received this email in error please notify
+the system manager.
 
--------------------------------------------------
-Esta mensagem foi enviada pelo WebMail da FESP.
-Conheça a FESP: http://www.fesppr.br/
+This footnote also confirms that this email message has been swept by
+MIMEsweeper for the presence of computer viruses.
+
+www.mimesweeper.com
+**********************************************************************
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

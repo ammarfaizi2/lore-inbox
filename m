@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbUKCMvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbUKCMyx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbUKCMvo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 07:51:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbUKCMvo
+	id S261581AbUKCMyx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 07:54:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbUKCMyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 07:51:44 -0500
-Received: from out009pub.verizon.net ([206.46.170.131]:39127 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S261576AbUKCMvl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 07:51:41 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: is killing zombies possible w/o a reboot?
-Date: Wed, 3 Nov 2004 07:51:39 -0500
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Nov 2004 07:54:53 -0500
+Received: from gprs214-124.eurotel.cz ([160.218.214.124]:129 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261581AbUKCMyt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 07:54:49 -0500
+Date: Wed, 3 Nov 2004 13:54:32 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Cc: gcs@lsc.hu, lm@work.bitmover.com
+Subject: Example where BKCVS is not detailed enough (and ask for help)
+Message-ID: <20041103125432.GB1132@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411030751.39578.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.46.51] at Wed, 3 Nov 2004 06:51:40 -0600
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+Hi!
 
-I thought I'd get caught up on -bkx kernels and made a -bk8 just now.
+We are trying to track down ugly bug where machines fail to power down
+/ power up at first occassion on 2.6.8.1 + acpi parts from 2.6.9-bk1.
 
-But I'd tried to run gnomeradio earlier to listen to the elections, 
-but it failed leaving to run, as did tvtime then too, claiming it 
-couldn't get a lock on /dev/video0, and gnomeradio apparently left a 
-lock on alsasound that prevented the normal gracefull shutdown by 
-locking up the shutdown on the "stopping alsasound" line.  So I had 
-to use the hardware reset.
+Unfortunately all acpi changes in this area are merged into "BKrev:
+412f21c8cj8TLCDiYwWr68kVXtdeXg" => it is not easy to find bug by
+binary search. Is there easy way to get split-up patches?
 
-I'd tried to kill the zombie earlier but couldn't.
+Bjorn: You could probably download individual patches from bkbits.net
+by hand and try to revert them one by one.
 
-Isn't there some way to clean up a &^$#^#@)_ zombie?
+Others: Is there easier way than that?
 
+Improvement request:
+
+One big change looks like this on cvs log...
+
+[PATCH] USB: USB PhidgetServo driver update
+
+Once again a (small) patch for the phidgetservo driver.
+
+Some servos have a very high maximum angle, set upper limit to the
+maximum allowed by the hardware. Reported by Mario Scholz
+<mario@expires-0409.mail.trial-n-error.net>
+
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+2004/08/23 18:06:07+00:00 aegl
+Merge agluck-lia64.sc.intel.com:/data/home/aegl/BK/linux-ia64-test-2.6.8.1
+into agluck-lia64.sc.intel.com:/data/home/aegl/BK/linux-ia64-release-2.6.8.1
+
+2004/08/18 21:50:56+00:00 jbarnes
+[ACPI] ia64 build fix
+
+Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+
+2004/08/18 18:18:02+00:00 kenneth.w.chen
+
+....would it be possible to put some bkrev's or urls for the
+individual changes? If I want to find patch corresponding to last
+change on bkbits, ... I guess I can only grep for changelog comment.
+
+								Pavel
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

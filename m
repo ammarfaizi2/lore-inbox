@@ -1,72 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129188AbQKQS6K>; Fri, 17 Nov 2000 13:58:10 -0500
+	id <S129660AbQKQS77>; Fri, 17 Nov 2000 13:59:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129220AbQKQS6A>; Fri, 17 Nov 2000 13:58:00 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:65038 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129188AbQKQS5w>; Fri, 17 Nov 2000 13:57:52 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: VGA PCI IO port reservations
-Date: 17 Nov 2000 10:27:36 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8v3tao$s2l$1@cesium.transmeta.com>
-In-Reply-To: <200011171620.eAHGKgg00324@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+	id <S129270AbQKQS7t>; Fri, 17 Nov 2000 13:59:49 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:47156 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129220AbQKQS7n>; Fri, 17 Nov 2000 13:59:43 -0500
+Date: Fri, 17 Nov 2000 19:28:34 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Christoph Rohland <cr@sap.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Tigran Aivazian <tigran@veritas.com>,
+        Mikael Pettersson <mikpe@csd.uu.se>, Jordan <ledzep37@home.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Error in x86 CPU capabilities starting with test5/6
+Message-ID: <20001117192834.A30047@athlon.random>
+In-Reply-To: <E13wkLK-0000bP-00@the-village.bc.nu> <qwwpujuvk1s.fsf@sap.com> <20001117161833.A27098@athlon.random> <qwwaeaytwfa.fsf@sap.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <qwwaeaytwfa.fsf@sap.com>; from cr@sap.com on Fri, Nov 17, 2000 at 05:06:49PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200011171620.eAHGKgg00324@flint.arm.linux.org.uk>
-By author:    Russell King <rmk@arm.linux.org.uk>
-In newsgroup: linux.dev.kernel
-> 
-> I've been looking at a number of VGA cards recently, and I've started
-> wondering out the Linux resource management as far as allocation of
-> IO ports.  I've come to the conclusion that it does not contain all
-> information necessary to allow allocations to be made safely.
-> 
-> Thus far, VGA cards that I've looked at scatter extra registers through
-> out the PCI IO memory region without appearing in the PCI BARs.  In fact,
-> for some cards there wouldn't be enough BARs to list them all.
-> 
+On Fri, Nov 17, 2000 at 05:06:49PM +0100, Christoph Rohland wrote:
+> Could I get this for i686? :-)
 
-This (and ISA) is why PCs usually allocate only addresses that match
-the following equation for PCI IO:
+If we break binary compatibility yes. I mean: new glibc binaries wouldn't
+run anymore on older kernels. Also new static binaries wouldn't run
+anymore on older kernels. At least if we don't introduce runtime
+checks to guess if current kernel supports vsyscall or not (and if we do
+that it means we're adding slow checks in an extremely fast path and that's
+not what we want :).
 
-       (port >= 0x1000 && (port & 0x0300) == 0).
+As about the broken calling conventions of the IA32 ABI, I think it doesn't
+worth to break the binary compatibility at this late stage.
 
-As you can see, the ports you list below all violate the second
-criterion, they are thus "ISA equivalent ports".
-
-The downside is that it's impossible to allocate more than 256
-consecutive ports.
-
-> For example, S3 cards typically use:
-> 
->  0x0102,  0x42e8,  0x46e8,  0x4ae8,  0x8180 - 0x8200,  0x82e8,  0x86e8,
->  0x8ae8,  0x8ee8,  0x92e8,  0x96e8,  0x9ae8,  0x9ee8,  0xa2e8,  0xa6e8,
->  0xaae8,  0xaee8,  0xb2e8,  0xb6e8,  0xbae8,  0xbee8,  0xe2e8, 
->  0xff00 - 0xff44
-> 
-> And Trident TGUI9440 uses:
-> 
->  0x2120,  0x43c4
-> 
-> Cyber2000-type cards use:
-> 
->  0x0102,  0x46e8
-> 
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

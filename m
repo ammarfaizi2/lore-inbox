@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264698AbTFAS2H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 14:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264700AbTFAS2H
+	id S264701AbTFASbU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 14:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbTFASbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 14:28:07 -0400
-Received: from [195.208.223.238] ([195.208.223.238]:8320 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S264698AbTFAS1a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 14:27:30 -0400
-Date: Sun, 1 Jun 2003 22:40:26 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Ben Collins <bcollins@debian.org>
-Cc: Willy Tarreau <willy@w.ods.org>, Jason Papadopoulos <jasonp@boo.net>,
-       linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: Linux 2.4.21-rc3 : IDE pb on Alpha
-Message-ID: <20030601224026.A642@localhost.park.msu.ru>
-References: <5.2.1.1.2.20030526232835.00a468e0@boo.net> <20030527045302.GA545@alpha.home.local> <20030527134017.B3408@jurassic.park.msu.ru> <20030527123152.GA24849@alpha.home.local> <20030527180403.A2292@jurassic.park.msu.ru> <20030531152417.GY13766@phunnypharm.org>
+	Sun, 1 Jun 2003 14:31:20 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:17619 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264701AbTFASbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 14:31:18 -0400
+Date: Sun, 1 Jun 2003 20:44:36 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.5 patch] SECURITY_ROOTPLUG must depend on USB
+Message-ID: <20030601184436.GD29425@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030531152417.GY13766@phunnypharm.org>; from bcollins@debian.org on Sat, May 31, 2003 at 11:24:17AM -0400
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 31, 2003 at 11:24:17AM -0400, Ben Collins wrote:
-> I just tried this patch, and for the first time in a long time, I've
-> been able to boot with UDMA(66) enabled and not get the corruption.
+The following patch lets SECURITY_ROOTPLUG depend on USB (otherwise
+there are link errors since Root Plug Support needs
+usb_bus_list{,_lock}):
 
-Excellent, thanks for the report. :-)
 
-Ivan.
+--- linux-2.5.70-mm3/security/Kconfig.old	2003-06-01 20:40:40.000000000 +0200
++++ linux-2.5.70-mm3/security/Kconfig	2003-06-01 20:41:00.000000000 +0200
+@@ -33,7 +33,7 @@
+ 
+ config SECURITY_ROOTPLUG
+ 	tristate "Root Plug Support"
+-	depends on SECURITY!=n
++	depends on USB && SECURITY!=n
+ 	help
+ 	  This is a sample LSM module that should only be used as such.
+ 	  It prevents any programs running with egid == 0 if a specific
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

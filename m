@@ -1,90 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbVCAIJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVCAIOQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261293AbVCAIJg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 03:09:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVCAIJg
+	id S261380AbVCAIOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 03:14:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbVCAIOP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 03:09:36 -0500
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:5731 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261293AbVCAIJZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 03:09:25 -0500
-Message-ID: <4224232F.3000600@yahoo.com.au>
-Date: Tue, 01 Mar 2005 19:09:19 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Tue, 1 Mar 2005 03:14:15 -0500
+Received: from borg.st.net.au ([65.23.158.22]:59847 "EHLO borg.st.net.au")
+	by vger.kernel.org with ESMTP id S261380AbVCAINd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 03:13:33 -0500
+Message-ID: <4224245E.6090503@torque.net>
+Date: Tue, 01 Mar 2005 18:14:22 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Theurer <habanero@us.ibm.com>
-CC: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/13] timestamp fixes
-References: <42235517.5070504@us.ibm.com> <42235EC6.9030900@us.ibm.com>
-In-Reply-To: <42235EC6.9030900@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Adrian Bunk <bunk@stusta.de>
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] SCSI: possible cleanups
+References: <20050228213159.GO4021@stusta.de>
+In-Reply-To: <20050228213159.GO4021@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Theurer wrote:
-> Nick, can you describe the system you run the DB tests on?  Do you have 
-> any cpu idle time stats and hopefully some context switch rate stats?
+Adrian Bunk wrote:
+> Before I'm getting flamed to death:
 
-Yeah, it is dbt3-pgsql on OSDL's 8-way STP machines. I think they're
-PIII Xeons with 2MB L2 cache.
+Adrian,
+I have a few comments below.
 
-I had been having some difficulty running them recently, but I might
-have just worked out what the problem was, so hopefully I can benchmark
-the patchset I just sent to Andrew (plus fixes from Ingo, etc).
-
-Basically what would happen is that with seemingly small changes, the
-"throughput" figure would go from about 260 tps to under 100. I don't
-know exactly why this benchmark is particularly sensitive to the
-problem, but it has been a good canary for too-much-idle-time
-regressions in the past.
-
-> I think I understand the concern [patch 6] of stealing a task from one 
-> node to an idle cpu in another node, but I wonder if we can have some 
-> sort of check for idle balance: if the domain/node to steal from has 
-> some idle cpu somewhere, we do not steal, period.  To do this we have a 
-> cpu_idle bitmask, we update as cpus go idle/busy, and we reference this 
-> cpu_idle & sd->cpu_mask to see if there's at least one cpu that's idle.
+> This patch contains possible cleanups. If parts of this patch conflict 
+> with pending changes these parts of my patch have to be dropped.
 > 
+> This patch contains the following possible cleanups:
+> - make needlessly global code static
+> - remove or #if 0 the following unused functions:
+>   - scsi.h: print_driverbyte
+>   - scsi.h: print_hostbyte
 
-I think this could become a scalability problem... and I'd prefer to
-initially try to address problems of too much idle time by tuning them
-out rather than use things like wake-to-idle-cpu.
+The names of the above are too general so they should go
+as soon as practical.
 
-One of my main problems with wake to idle is that it is explicitly
-introducing a bias so that wakers repel their wakees. With all else
-being equal, we want exactly the opposite effect (hence all the affine
-wakeups and wake balancing stuff).
+>   - constants.c: scsi_print_hostbyte
+>   - constants.c: scsi_print_driverbyte
 
-The regular periodic balancing may be dumb, but at least it doesn't
-have that kind of bias.
+I'm a bit surprised nothing else is using the above two.
 
-The other thing of course is that we want to reduce internode task
-movement at almost all costs, and the periodic balancer can be very
-careful about this - something more difficult for wake_idle unless
-we introduce more complexity there (a very time critical path).
+>   - scsi_scan.c: scsi_scan_single_target
+> - remove the following unneeded EXPORT_SYMBOL's:
+>   - constants.c: __scsi_print_sense
+>   - hosts.c: scsi_host_lookup
+>   - scsi.c: scsi_device_cancel
+>   - scsi_error.c: scsi_normalize_sense
 
-Anyway, I'm not saying no to anything at this stage... let's just see
-how we go.
+I introduced scsi_normalize_sense() recently, Christoph H.
+proposed it should be static but Luben Tuikov (aic7xxx
+maintainer) said he wished to use it in the future.
+Hence it was left global.
 
->> Ingo wrote:
->>
->> But i expect fork/clone balancing to be almost certainly a problem. (We
->> didnt get it right for all workloads in 2.6.7, and i think it cannot be
->> gotten right currently either, without userspace API help - but i'd be
->> happy to be proven wrong.)
-> 
-> 
-> Perhaps initially one could balance on fork up to the domain level which 
-> has task_hot_time=0, up to a shared cache by default.  Anything above 
-> that could require a numactl like preference from userspace.
-> 
+>   - scsi_error.c: scsi_sense_desc_find
 
-That may end up being what we have to do. Probably doesn't make
-much sense to do it at all if we aren't doing it for NUMA.
+A pending patch on st from Kai M. will be using
+scsi_sense_desc_find(). I presume others will be using
+it in the future (e.g. SAT returns ATA status via
+a sense data descriptor with no corresponding fixed
+format representation).
 
-Nick
+>   - scsi_lib.c: scsi_device_resume
+>   - scsi_scan.c: scsi_rescan_device
+>   - scsi_scan.c: scsi_scan_single_target
+
+Doug Gilbert
 

@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.com) by vger.kernel.org via listexpand
-	id <S261163AbRELD5a>; Fri, 11 May 2001 23:57:30 -0400
+	id <S261158AbRELD5v>; Fri, 11 May 2001 23:57:51 -0400
 Received: (majordomo@vger.kernel.com) by vger.kernel.org
-	id <S261155AbRELD5K>; Fri, 11 May 2001 23:57:10 -0400
-Received: from server1.cosmoslink.net ([208.179.167.101]:14371 "EHLO
-	server1.cosmoslink.net") by vger.kernel.org with ESMTP
-	id <S261154AbRELD5I>; Fri, 11 May 2001 23:57:08 -0400
-Message-ID: <000701c0da97$c87065a0$bba6b3d0@Toshiba>
-From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-Subject: Chat rooms for linux kernel developers
-Date: Fri, 11 May 2001 20:58:20 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S261157AbRELD5l>; Fri, 11 May 2001 23:57:41 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:49800 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S261159AbRELD52>;
+	Fri, 11 May 2001 23:57:28 -0400
+X-Originating-IP: [204.118.127.253]
+Reply-To: vsriram@jni.com
+From: "Sriram V" <to_sriram@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Configuring shared memory
+Date: Sat, 12 May 2001 08:23:55 +0530
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F67RMWuLn5U9T3TGJ2T00002181@hotmail.com>
+X-OriginalArrivalTime: 12 May 2001 02:53:56.0113 (UTC) FILETIME=[C9237810:01C0DA8E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear linux kernel mailing list ,
+Hi,
 
-Is there is any chat (IRC) for linux kernel developers .
+Can somebody please tell me how to configure the amount of shared memory 
+that a 2.2.x kernel allocates? Kindly copy to my e-mail address 
+(to_sriram@hotmail.com).
 
-Thank you ,
-
-Best Regards,
-
-Jaswinder.
--- 
-These are my opinions not 3Di.
-
-
+Thanks,
+Sriram
+_________________________________________________________________________
+Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
 

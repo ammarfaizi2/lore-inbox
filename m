@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263620AbTJaVaM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 16:30:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263617AbTJaVaM
+	id S263646AbTJaV7c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 16:59:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263647AbTJaV7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 16:30:12 -0500
-Received: from [212.57.164.72] ([212.57.164.72]:50442 "EHLO mail.ward.six")
-	by vger.kernel.org with ESMTP id S263598AbTJaVaG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 16:30:06 -0500
-Date: Sat, 1 Nov 2003 02:29:38 +0500
-From: Denis Zaitsev <zzz@anda.ru>
-To: marcelo.tosatti@cyclades.com, gibbs@scsiguy.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH TRIVIAL] Compile error in 2.4.22 without PCI
-Message-ID: <20031101022938.A17535@natasha.ward.six>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Fri, 31 Oct 2003 16:59:32 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32779 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263646AbTJaV7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 16:59:31 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@transmeta.com (H. Peter Anvin)
+Subject: Re: initrd help -- umounts root after pivot_root
+Date: 31 Oct 2003 13:59:09 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <bnulvd$fps$1@cesium.transmeta.com>
+References: <1067604362.5526.15.camel@tweedy.ksc.nasa.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have these warnings when I'm compiling 2.4.22 for a 486 EISA system:
+	From: H. Peter Anvin <hpa@zytor.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-Comment-To: Bob Chiodini <robert.chiodini-1@ksc.nasa.gov>
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 
-aic7xxx_osm.c: In function `ahc_softc_comp':
-aic7xxx_osm.c:1560: warning: implicit declaration of function `ahc_get_pci_bus'
-aic7xxx_osm.c:1568: warning: implicit declaration of function `ahc_get_pci_slot'
+Followup to:  <1067604362.5526.15.camel@tweedy.ksc.nasa.gov>
+By author:    Bob Chiodini <robert.chiodini-1@ksc.nasa.gov>
+In newsgroup: linux.dev.kernel
+> 
+> John,
+> 
+> It does not appear that the kernel(s) will support the root fs on
+> tmpfs.  Looking through the init kernel code:  It boils down to a block
+> device with real major and minor number or NFS.
+> 
 
-And then the make finishes with an error, because these functions
-really exist only if the PCI support is turned on.
+Baloney.  See the SuperRescue CD, for example, for a distro which uses
+exactly this.
 
-The patch below fixes this.  And the same patch fits for the 2.6
-kernels.  Please, apply it.
-
-
---- drivers/scsi/aic7xxx/aic7xxx_osm.c.orig	2003-09-15 01:56:14.000000000 +0600
-+++ drivers/scsi/aic7xxx/aic7xxx_osm.c	2003-10-15 00:23:37.000000000 +0600
-@@ -1552,6 +1552,7 @@ ahc_softc_comp(struct ahc_softc *lahc, s
- 
- 	/* Still equal.  Sort by BIOS address, ioport, or bus/slot/func. */
- 	switch (rvalue) {
-+#ifdef CONFIG_PCI
- 	case AHC_PCI:
- 	{
- 		char primary_channel;
-@@ -1584,6 +1585,8 @@ ahc_softc_comp(struct ahc_softc *lahc, s
- 			value = 1;
- 		break;
- 	}
-+#endif
-+#ifdef CONFIG_EISA
- 	case AHC_EISA:
- 		if ((rahc->flags & AHC_BIOS_ENABLED) != 0) {
- 			value = rahc->platform_data->bios_address
-@@ -1593,6 +1596,7 @@ ahc_softc_comp(struct ahc_softc *lahc, s
- 			      - lahc->bsh.ioport; 
- 		}
- 		break;
-+#endif
- 	default:
- 		panic("ahc_softc_sort: invalid bus type");
- 	}
--
-To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+If you send me mail in HTML format I will assume it's spam.
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

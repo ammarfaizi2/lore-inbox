@@ -1,46 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268782AbRG0FoF>; Fri, 27 Jul 2001 01:44:05 -0400
+	id <S268788AbRG0Gno>; Fri, 27 Jul 2001 02:43:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268783AbRG0Fnz>; Fri, 27 Jul 2001 01:43:55 -0400
-Received: from mx01-a.netapp.com ([198.95.226.53]:33953 "EHLO
-	mx01-a.netapp.com") by vger.kernel.org with ESMTP
-	id <S268782AbRG0Fns>; Fri, 27 Jul 2001 01:43:48 -0400
-Date: Thu, 26 Jul 2001 22:42:58 -0700 (PDT)
-From: Kip Macy <kmacy@netapp.com>
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Hard disk problem:
-In-Reply-To: <Pine.LNX.4.33.0107270005210.25463-100000@asdf.capslock.lan>
-Message-ID: <Pine.GSO.4.10.10107262239100.23974-100000@orbit-fe.eng.netapp.com>
+	id <S268787AbRG0Gne>; Fri, 27 Jul 2001 02:43:34 -0400
+Received: from samar.sasken.com ([164.164.56.2]:9345 "EHLO samar.sasken.com")
+	by vger.kernel.org with ESMTP id <S268788AbRG0GnZ> convert rfc822-to-8bit;
+	Fri, 27 Jul 2001 02:43:25 -0400
+Date: Fri, 27 Jul 2001 12:13:16 +0530 (IST)
+From: Deepika Kakrania <deepika@sasken.com>
+To: =?windows-1250?Q?Lubom=EDr_Bulej?= <pallas@kadan.cz>
+cc: <linux-net@vger.rutgers.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: CBQ is not limiting bandwidth!!!
+In-Reply-To: <Pine.LNX.4.33.0107261623540.2339-100000@ps.kadan.cz>
+Message-ID: <Pine.GSO.4.30.0107271157410.14048-100000@sunk2.sasi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
 
+ Thanks a lot for the reply. Now it's working fine. But I have another
+problem.
 
-I don't know my drives that well, but it looks like a drive problem to me.
+ If I set all these rules with bandwith parameter set to 100Mbit, then
+results are near to expected results. But when I set bandwidth parameter
+to 10Mbit with all other parameters unchanged it doesn't give correct
+results.
 
-> Is this a hardware or software problem, or could it be either?
-> 
-> Jul 26 23:51:59 asdf kernel: hda: dma_intr: status=0x51
-> { DriveReady SeekComplete Error }
+The results I got for both cases are following.
 
-I believe that his means the drive failed to seek to the desired sector,
-it was either miscalibrated, or the sector was bad.
+ BANDWITH	RATE 		WEIGHT		Throughput (as seen using
+						 netperf)
 
-> Jul 26 23:51:59 asdf kernel: hda: dma_intr: error=0x40
-> { UncorrectableError }, LBAsect=8545004, sector=62608
-> Jul 26 23:51:59 asdf kernel: end_request: I/O error, dev 03:05
-> (hda), sector 62608
+ 10 Mbit	4 Mbit	        400 Kbit		6.38 Mbps
+ 10 Mbit	5 Mbit		500 Kbit		7.31 Mbps
 
-I believe that this means that even with the on disk ECC the data from
-the sector was not recoverable.
+ 100 Mbit	4 Mbit		400 Kbit		4.08 Mbps
+ 100 Mbit	5 Mbit		500 Kbit		5.11 Mbps.
 
+Can anyone explain what could be the reason for this? Why I don't get
+correct results when I set bandwidth to 10 Mbit?
 
+Thanks in advance.
 
+regards,
+Deepika
 
--Kip
+On Thu, 26 Jul 2001, [windows-1250] Lubomír Bulej wrote:
+
+> Hi,
+>
+> >   I am defining only one class at m/c router on interface eth1. The tc
+> > rules set up for doing so are following.
+> >
+> >  tc qdisc add dev eth1 root handle 1: cbq bandwidth 10Mbit cell 8 avpkt
+> > 1000 mpu 64
+> >
+> >  tc class add dev eth1 parent 1:0 classud 1:1 cbq bandwidth 10Mbit rate
+> > 1kbit allot 1514 cell 8 weigth 100bit prio 5 maxburst 20 avpkt 1000
+>
+> Add "bounded" at the end of the command... Otherwise the class borrows
+> bandwidth from its parent.
+>
+>
+> Regards,
+> Lubomir
+>
 

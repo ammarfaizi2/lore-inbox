@@ -1,69 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262947AbTJECeb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 22:34:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262948AbTJECeb
+	id S262953AbTJECp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 22:45:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbTJECp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 22:34:31 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1414 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262947AbTJECea
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 22:34:30 -0400
-Date: Sun, 5 Oct 2003 03:34:28 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Larry McVoy <lm@work.bitmover.com>, Rob Landley <rob@landley.net>,
-       andersen@codepoet.org, "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-Message-ID: <20031005023428.GI7665@parcelfarce.linux.theplanet.co.uk>
-References: <20030914064144.GA20689@codepoet.org> <bk30f1$ftu$2@tangens.hometree.net> <20030915055721.GA6556@codepoet.org> <200310041952.09186.rob@landley.net> <20031005010521.GA21138@work.bitmover.com>
+	Sat, 4 Oct 2003 22:45:59 -0400
+Received: from janus.zeusinc.com ([205.242.242.161]:13899 "EHLO
+	zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
+	id S262953AbTJECp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 22:45:57 -0400
+Subject: Re: Problems caused by scheduler tweaks in 2.6.0-test6?
+From: Tom Sightler <ttsig@tuxyturvy.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200310041950.44011.kernel@kolivas.org>
+References: <1065188297.2660.17.camel@iso-8590-lx.zeusinc.com>
+	 <3F7E8EC0.7080008@cyberone.com.au>  <200310041950.44011.kernel@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1065321924.2725.26.camel@iso-8590-lx.zeusinc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031005010521.GA21138@work.bitmover.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2) 
+Date: Sat, 04 Oct 2003 22:45:25 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 04, 2003 at 06:05:21PM -0700, Larry McVoy wrote:
+
+> Please send a rundown of what top shows during these occurrences, and please 
+> define "hangs". I can't see how the scheduler tweaks can bring the machine 
+> down.
 > 
-> Yeah, but Linus stating his position about a license doesn't mean diddly.
-> The kernel is licensed under a license, that license is a contract that
-> people enter into.  To the extent that it is enforceable, that license
-> determines what happens, Linus can't retroactively decide to interpret
-> the license a different way.  The license can't enforce things which
-> the law doesn't allow.  In particular, the law understands a concept of
-> a boundary.  And Linus' comments notwithstanding, modules are a pretty
-> clear boundary.  Even the GPL acks this, it knows that anything which
-> is clearly separable is not covered.
+> Con
 
-Oh, for fuck sake!  Larry, grep the damn tree for EXPORT_SYMBOL.  And
-count them.  _IF_ it would be a relatively sane set of primitives - sure,
-no arguments.  It's not.  Nowhere near that.
+I'm not sure exactly how to get the output from top when running VMware
+fullscreen, does it have a way to dump the output to text?  Would
+another tool provide you with valuable output?
 
-Conversions from EXPORT_SYMBOL to EXPORT_SYMBOL_GPL are noise.  Why?
-Because at any point any exported symbol can disappear.  Period.  For
-some of them it's less likely, for some - more, but there was no promise
-to preserve that set.  Ever.  Look at them and you will see why - if
-we promise to keep all that pile present and working as it used to, we've
-got a pitchfork stuck in the kernel guts.
+As far as the Wine/Outlook 2000 issue, I don't know how the scheduler
+changes cause this, and for the longest time I never really thought that
+was it, I always assumed that it was something else different between
+the main and the -mm tree.  However, I'm basically 100% sure that it's
+the cause now because I tested with stock -test6 and then applied Nick's
+patches for -test6 (which back out your changes) and the problem goes
+away.
 
-Yes, it would be nice if there was something at least resembling an API.
-Get the export list to shrink by 1.5 orders of magnitude and we might
-have something to talk about.  That, and get the situation to the point
-where additions to the export list would have to be defended - not granted
-whenever somebody says "I wanna".  Until then there's no boundary at all.
+Hang means that the program simply will never exit, not that the whole
+system hangs or anything.  When you exit Outlook it synchronizes the
+mailbox before it exits and the closes down the connection.  The program
+hangs with a "Please wait while Outlook exits" message a this never goes
+away.  It's 100% repeatable with your scheduler tweaks, and never
+happens with Nick's patches.  What can I provide for that issue?  Top
+output shows the process sleeping, not using any CPU.  I can kill the
+process and it will exit.
 
-Right now modules can call _anything_.  Look through the history and you'll
-see patches that not only added an export but removed static at the same
-chunk.  And you know what?  The guys who would like to pretend that there
-is a boundary are the same guys who had destroyed it.  It used to be much
-smaller list of exported objects.  Guess who had been pushing for its expansion
-until it had lost any semblance of controlled interface?
+I guess my concern is that I seem to run into a lot of issues that I
+consider bad behavior.  I've outlined the issues with Acrobat to you
+before and you stated that you had profiled it.  Well this is something
+I use almost every day and with these scheduler tweaks it becomes almost
+unusable.  With Nicks patches, or even stock -test5 it works great.
 
-When additions to interface start happening without any review and without
-any percieved need to even explain why you need to add this, this and that -
-it stops being an interface.  It's true for any project, not just the kernel.
+Basically for me these tweaks significantly degrade three major programs
+that I use to do work related activities (VMware, Acrobat, and to some
+extent Crossover Office).  I'll be glad to help where I can, tell me
+what information would help you.
 
-And I'll bet you anything - if you try to get the damn thing back into shape,
-authors of said modules will be out for blood.
+Later,
+Tom
+
+

@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289241AbSA1QqO>; Mon, 28 Jan 2002 11:46:14 -0500
+	id <S289231AbSA1Qqe>; Mon, 28 Jan 2002 11:46:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289239AbSA1QqB>; Mon, 28 Jan 2002 11:46:01 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:49306 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S289231AbSA1Qpp>; Mon, 28 Jan 2002 11:45:45 -0500
-Date: Mon, 28 Jan 2002 09:45:35 -0700
-Message-Id: <200201281645.g0SGjZp02300@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] sd-many for 2.4.18-pre7 (uses devfs)
-In-Reply-To: <20020128101035.B8894@suse.de>
-In-Reply-To: <200201280326.g0S3QTt27080@vindaloo.ras.ucalgary.ca>
-	<20020128101035.B8894@suse.de>
+	id <S289236AbSA1QqW>; Mon, 28 Jan 2002 11:46:22 -0500
+Received: from jhuml3.jhu.edu ([128.220.2.66]:20884 "HELO jhuml3.jhu.edu")
+	by vger.kernel.org with SMTP id <S289231AbSA1QqG>;
+	Mon, 28 Jan 2002 11:46:06 -0500
+Date: Mon, 28 Jan 2002 11:19:58 -0500
+From: Thomas Hood <jdthood@mail.com>
+Subject: Re: 2.4.18-pre7 slow ... apm problem
+In-Reply-To: <E16VBgH-0000Z4-00@the-village.bc.nu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>
+Message-id: <1012234798.744.103.camel@thanatos>
+MIME-version: 1.0
+X-Mailer: Evolution/1.0.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+In-Reply-To: <E16VBgH-0000Z4-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe writes:
-> On Sun, Jan 27 2002, Richard Gooch wrote:
-> >   Hi, all. Appended is my sd-many patch. It supports up to 2080
-> > SD's. This patch is against 2.4.18-pre7, and is essentially the same
-> > as earlier versions of this patch, just compensating for kernel drift.
-> 
-> Could you please at least try to follow the style in sd? To me, this
-> alone is reason enough why the patch should not be applied.
+On Mon, 2002-01-28 at 08:18, Alan Cox wrote:
+> We don't know how VMware switches between virtual machines. If that
+> switch is done behind Linux back, then VMware is effectively special.
+> It is virtualising the system and it has to virtualise APM status too.
+> If its doing the switch when it is a current foreground process then
+> it wouldnt explain the problem
 
-??? I *have* followed the style. Or at least I've tried to. Where did
-I not?
+VMware is essentially a hardware emulator, so if the guest OS is
+idling the CPU it should only be idling the virtual CPU, not the
+real one.  
 
-				Regards,
+Having said that, VMware emulates a lot of hardware by making
+use of facilities that Linux provides.  It emulates a super-VGA
+card by making use of X, for example.  Do you suppose that
+VMware emulates CPU slowing by slowing the real CPU?  I hope not.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Since VMware is closed source software we needn't worry our
+heads too much about this problem.  VMware users have a 
+workaround: set idle_threshold to 100.
+
+Can we get more info about the keyboard repeat rate slowing?
+
+--
+Thomas
+

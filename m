@@ -1,65 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129991AbRCDC3D>; Sat, 3 Mar 2001 21:29:03 -0500
+	id <S129987AbRCDCZd>; Sat, 3 Mar 2001 21:25:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130004AbRCDC2x>; Sat, 3 Mar 2001 21:28:53 -0500
-Received: from granger.mail.mindspring.net ([207.69.200.148]:47122 "EHLO
-	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S129991AbRCDC2e>; Sat, 3 Mar 2001 21:28:34 -0500
-Message-ID: <003001c0a452$ac242f60$1601a8c0@zeusinc.com>
-From: "Tom Sightler" <ttsig@tuxyturvy.com>
-To: "Keith Owens" <kaos@ocs.com.au>, <sjhill@cotw.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <22634.983669972@ocs3.ocs-net>
-Subject: Re: LILO error with 2.4.3-pre1... 
-Date: Sat, 3 Mar 2001 21:27:15 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S129991AbRCDCZY>; Sat, 3 Mar 2001 21:25:24 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:56024 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S129987AbRCDCZK>;
+	Sat, 3 Mar 2001 21:25:10 -0500
+Date: Sun, 4 Mar 2001 03:24:52 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200103040224.DAA15179@harpo.it.uu.se>
+To: alan@lxorguk.ukuu.org.uk, fg@mandrakesoft.com
+Subject: Re: [PATCH] 2.4.2: cure the kapm-idled taking (100-epsilon)% CPU
+Cc: jgarzik@mandrakesoft.com, kernel@linux-mandrake.com,
+        linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 3 Mar 2001 23:35:34 +0000 (GMT), Alan Cox wrote:
 
------ Original Message -----
-From: "Keith Owens" <kaos@ocs.com.au>
-To: <sjhill@cotw.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Saturday, March 03, 2001 8:39 PM
-Subject: Re: LILO error with 2.4.3-pre1...
-
-
-> On Sat, 03 Mar 2001 19:19:28 -0600,
-> "Steven J. Hill" <sjhill@cotw.com> wrote:
-> >I have no idea why the 1023 limit is coming up considering 2.4.2 and
-> >LILO were working just fine together and I have a newer BIOS that has
-> >not problems detecting the driver properly. Go ahead, call me idiot :).
+>> Well, from reading the source, I don't see how this can break APM... What=
+>>  am I
+>> missing?
 >
-> OK, you're an idiot :).  It only worked before because all the files
-> that lilo used just happened to be below cylinder 1024.  Your partition
-> goes past cyl 1024 and your new kernel is using space above 1024.
+>If you've stopped kapm-idled from using cpu then you've stopped it from going
+>into the bios suspend one presumes.
 
-I would agree with this explanation.
+Maybe, maybe not.
 
-> Find a version of lilo that can cope with cyl >= 1024 (is there one?)
+Short story: CONFIG_APM_CPU_IDLE is broken on three machines I run,
+including one laptop. It actually _prevents_ the CPU from "idling".
 
-Uh, the version he has can cope with this, see the following:
+Long story: While working on the UP-APIC patch I was trying to figure
+why I was seeing a near-perfect 100Hz NMI count on an otherwise idle
+machine, while other people were seeing much lower rates. An idle
+machine is supposed to "hlt" frequently, which also suspends UP-APIC
+NMI generation.
 
->    LILO version 21.4-4, Copyright (C) 1992-1998 Werner Almesberger
->    'lba32' extensions Copyright (C) 1999,2000 John Coffman
+As it turned out, I had CONFIG_APM_CPU_IDLE=y in my .configs. So
+apm_mainloop() dutifully called APM_FUNC_IDLE whenever it felt the
+machine was idle. Problem is, APM_FUNC_IDLE doesn't actually _do_
+anything on these machines [maybe apm_bios_call_simple() is buggy,
+maybe the BIOSen are, I don't know]. So instead apm_mainloop() was
+sitting there in a tight loop calling APM_FUNC_IDLE like crazy:
+my 800Mhz Coppermine was doing 1.3 million of these calls per second,
+and kapm-idled was taking >95% of CPU time [sound familiar?].
 
-The lba32 extensions should take care of this, of course you have to add
-'lba32' as a line in your lilo.conf before lilo actually uses them (and, I
-assume, the BIOS must support the LBA extensions, but it seems most modern
-ones do).
+After I disabled CONFIG_APM_CPU_IDLE the Coppermine is running about
+15 degrees C cooler than before. kapm-idled takes almost no CPU time
+since it basically just sleeps waiting for APM events. The kernel's
+regular idle loop "hlt":s the box most of the time between timer irqs.
 
-Give that a try.  Works for me.
+It's easy enough to check if you've got a broken CONFIG_APM_CPU_IDLE:
+define a counter, increment it in apm.c:apm_do_idle(), and print
+it at the end of irq.c:get_irq_list(). On an idle machine, cat
+/proc/interrupts, sleep 5 seconds, and cat /proc/interrupts again.
+Note the difference in the apm_do_idle() counter.
+Similarly, you can also add a counter to process.c:default_idle()
+to see how often the kernel "hlt":s.
 
-Later,
-Tom
-
-
+/Mikael

@@ -1,78 +1,70 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317955AbSFNQwO>; Fri, 14 Jun 2002 12:52:14 -0400
+	id <S317957AbSFNQzv>; Fri, 14 Jun 2002 12:55:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317957AbSFNQwN>; Fri, 14 Jun 2002 12:52:13 -0400
-Received: from h-64-105-136-45.SNVACAID.covad.net ([64.105.136.45]:59281 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S317955AbSFNQwL>; Fri, 14 Jun 2002 12:52:11 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Fri, 14 Jun 2002 09:52:02 -0700
-Message-Id: <200206141652.JAA26744@adam.yggdrasil.com>
-To: axboe@suse.de
-Subject: Re: bio_chain: proposed solution for bio_alloc failure and large IO simplification
-Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
+	id <S317958AbSFNQzu>; Fri, 14 Jun 2002 12:55:50 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:2450 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S317957AbSFNQzt>; Fri, 14 Jun 2002 12:55:49 -0400
+Date: Fri, 14 Jun 2002 10:55:47 -0600
+Message-Id: <200206141655.g5EGtlT01389@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Tigran Aivazian <tigran@aivazian.name>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [VERY OFFTOPIC] (was VIRUS MAKER !
+In-Reply-To: <Pine.LNX.4.33.0206141004150.2127-100000@einstein.homenet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jun 2002 Jens Axboe wrote:
->On Thu, Jun 13 2002, Adam J. Richter wrote:
-[...]
->> 	newbio = bio_chain(oldbio);
-[...]
->> 	I realize there may be locking issues in implementing this.
+Tigran Aivazian writes:
+> here is an opportunity to expose a sick muslim mind from Iraq to the
+> world, so why not do it... ah, I will press ^X to send and see what
+> happens :)
 
->but I think that statement is very naive :-)
+Sure, you can argue that this virus maker "idea" is sick. However, at
+the very least, it's completely uninteresting in this forum. Yes, I
+know you marked it as off-topic. Better not to post it in the first
+place.
 
->Essentially you are keeping a cookie to the old bio submitted, so that
->you can merge new bio with it fairly cheaply (it's still not very cheap,
->although you do eliminate the biggest offender, the list merge scan).
->The first problem is that once you submit the bio, there are some things
->that are not yours to touch anymore. You cannot change bi_next for
->instance, you have no idea what state the bio is in wrt I/O completion.
->Sure you can hold a reference to the bio, but all that really gets you
->in this situation is a handle to it, nothing more. How do you decide
->when to invalidate this cookie that you have?
+But of course the real reason you felt compelled to post this is as
+"evidence" of the inferiority/sickness of Islam compared to your own
+religion, Christianity. You demonstrated a lack of tolerance. A good
+Christian is supposed to show love and tolerance, regardless of
+whether you agree with someone's views, ideas or lifestyle. It doesn't
+look like you measure up. An issue for you to resolve with your Lord.
 
-	At any time, there could be only one "hinted" bio in a
-request: the last bio in the request.  So you only have to
-clear the hint when:
+You also demonstrated a lack of clear thinking. Every religion has
+it's share of extremists and "sick" minds, and Christianity is no
+exception. You seem to have missed that minor detail. I'm sure that if
+you received that message from a Christian, you *would not* have
+bothered posting the message here, and certainly would not have said:
 
-		1. you merge bio's,
-		2. elv_next_request is called,
-		3. newbio is submitted.
+"here is an opportunity to expose a sick christian mind from America
+to the world, so why not do it..."
 
-	In all three cases q->queue_lock gets taken, so we should
-not need to add any additional spin_lock_irq's, and the two lines
-to clear the hint pointers should be trivial.
+because that would be embarrasing to your religion. So you're also a
+hypocrite. Think how many Muslims are embarrased by those who share
+their religion but have taken it to extremes.
 
->So what do I like? As I see it, the only nice way to make sure that a
->bio always has the best possible size is to just ask 'can we put another
->page into this bio'. That way we can apply the right (and not just
->minimum) limits every time.
+> This reminds me of one thing a friend who attended English course in
+> some college told me. The students from Iraq, when asked "what is
+> your name?", "what is your mother's name?", "what is your
+> occupation?" only took a deep breath and shouted with all their
+> might "Saddam Hussein!!!"...
 
-	That would be pretty nice too, but that lacks three potential
-advantages of my bio_chain appoach, in order of importance:
+And this is relevant how? Oh, of course. More "evidence" of the
+sickness of Islam. I expect you felt superior, but really you should
+feel ashamed.
 
-		1. bio_chain is avoids memory allocation failures,
-		2. bio_chain can start the first IO slightly sooner,
-		3. bio_chain makes bio submitters slightly simpler.
+Jesus didn't say "love thy Christian neighbour". He said "love thy
+neighbour". And he said that for a *reason*. Time for you to re-learn
+the faith you claim to have.
 
-	The disadvantage of my single I/O vector bio_chain apprach is
-that it results in another procedure call per vector.  We also already
-have code that builds multiple IO vectors in ll_rw_kio and the mpage.c
-routines.
+BTW: my response is not an invitation to a long, tedious discussion
+laced with "clarifications", back-pedalling and self-justification.
 
-	I think I would be happy enough with your approach, but, just
-to eliminate possibilities of memory allocation failure, I think I
-want to still have some kind of bio_chain, perhaps without the merge
-hinting, but with a parameter to allow for allocating a bio up to the
-size of oldbio, like so:
+				Regards,
 
-struct bio *bio_chain(struct bio *oldbio, int gfp_mask,
-		       int nvecs /* <= oldbio->bi_max */);
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

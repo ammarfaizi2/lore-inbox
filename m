@@ -1,85 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbUKVBHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbUKVBJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261858AbUKVBHK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 20:07:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbUKVBHJ
+	id S261897AbUKVBJj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 20:09:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbUKVBHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 20:07:09 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14597 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261858AbUKVBFJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 20:05:09 -0500
-Date: Mon, 22 Nov 2004 02:05:06 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Christoph Hellwig <hch@infradead.org>, Antonino Daplas <adaplas@pol.net>,
-       linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [2.6 patch] cyber2000fb.c: misc cleanups
-Message-ID: <20041122010505.GB3007@stusta.de>
-References: <20041121153614.GR2829@stusta.de> <20041121204752.A23300@flint.arm.linux.org.uk> <20041121205613.GA12634@infradead.org> <20041122000413.A27572@flint.arm.linux.org.uk> <20041122001051.GA3007@stusta.de> <20041122002136.A30668@flint.arm.linux.org.uk>
+	Sun, 21 Nov 2004 20:07:24 -0500
+Received: from imap.gmx.net ([213.165.64.20]:40905 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261882AbUKVBGs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 20:06:48 -0500
+X-Authenticated: #4399952
+Date: Mon, 22 Nov 2004 02:07:41 +0100
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
+Message-ID: <20041122020741.5d69f8bf@mango.fruits.de>
+In-Reply-To: <20041122005411.GA19363@elte.hu>
+References: <20041108165718.GA7741@elte.hu>
+	<20041109160544.GA28242@elte.hu>
+	<20041111144414.GA8881@elte.hu>
+	<20041111215122.GA5885@elte.hu>
+	<20041116125402.GA9258@elte.hu>
+	<20041116130946.GA11053@elte.hu>
+	<20041116134027.GA13360@elte.hu>
+	<20041117124234.GA25956@elte.hu>
+	<20041118123521.GA29091@elte.hu>
+	<20041118164612.GA17040@elte.hu>
+	<20041122005411.GA19363@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041122002136.A30668@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22, 2004 at 12:21:36AM +0000, Russell King wrote:
->...
-> That leaves me as the sole provider of the source code, and the
-> code has always been in the "experimental but useful" stage.  The
-> capture code is something which doesn't meet my standards for
-> mainline kernel inclusion.
->...
+On Mon, 22 Nov 2004 01:54:11 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
-This sounds reasonable.
+> i have released the -V0.7.30-2 Real-Time Preemption patch, which can be
+> downloaded from the usual place:
 
-Below is only the rest of my patch.
+> the biggest change in this release are fixes for priority-inheritance
+> bugs uncovered by Esben Nielsen pi_test suite. These bugs could explain
+> some of the jackd-under-load latencies reported.
 
+It seems these large load related xruns are gone :) At least i wasn't able
+to trigger any during my uptime of 52 min. Will report if i ever see  any of
+those again.
 
-<--  snip  -->
-
-
-The patch below ncludes the following cleanups for 
-drivers/video/cyber2000fb.c:
-- make some needlessly global code static
-
-
-diffstat output:
- drivers/video/cyber2000fb.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc2-mm2-full/drivers/video/cyber2000fb.c.old	2004-11-21 15:05:10.000000000 +0100
-+++ linux-2.6.10-rc2-mm2-full/drivers/video/cyber2000fb.c	2004-11-21 15:10:01.000000000 +0100
-@@ -1306,7 +1233,8 @@
-  * Parse Cyber2000fb options.  Usage:
-  *  video=cyber2000:font:fontname
-  */
--int
-+#ifndef MODULE
-+static int
- cyber2000fb_setup(char *options)
- {
- 	char *opt;
-@@ -1328,6 +1256,7 @@
- 	}
- 	return 0;
- }
-+#endif
- 
- /*
-  * The CyberPro chips can be placed on many different bus types.
-@@ -1717,7 +1646,7 @@
-  *
-  * Tony: "module_init" is now required
-  */
--int __init cyber2000fb_init(void)
-+static int __init cyber2000fb_init(void)
- {
- 	int ret = -1, err;
- 
-
-
+flo

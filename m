@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264860AbUF1H06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264855AbUF1HnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264860AbUF1H06 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 03:26:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264855AbUF1H06
+	id S264855AbUF1HnP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 03:43:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264880AbUF1HnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 03:26:58 -0400
-Received: from pD9542CA1.dip.t-dialin.net ([217.84.44.161]:59264 "EHLO
-	cylob.rephlex.local") by vger.kernel.org with ESMTP id S264860AbUF1H04
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 03:26:56 -0400
-Message-ID: <40DFC853.20803@bigfoot.com>
-Date: Mon, 28 Jun 2004 09:27:15 +0200
-From: Frederic Krueger <spamalltheway@bigfoot.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040625)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Mon, 28 Jun 2004 03:43:15 -0400
+Received: from disk.smurf.noris.de ([192.109.102.53]:39365 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S264855AbUF1HnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 03:43:14 -0400
 To: linux-kernel@vger.kernel.org
-Subject: io apic + tsc = slowdown (bugreport + possible fix)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: [OT?] Where is kernel.bkbits.net?
+Date: Mon, 28 Jun 2004 09:40:30 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2004.06.28.07.40.28.815794@smurf.noris.de>
+References: <200406252123.51254.dtor_core@ameritech.net>
+NNTP-Posting-Host: kiste.smurf.noris.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Trace: server.smurf.noris.de 1088408430 21435 192.109.102.35 (28 Jun 2004 07:40:30 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Mon, 28 Jun 2004 07:40:30 +0000 (UTC)
+To: lm@bitmover.com
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi, Dmitry Torokhov wrote:
 
-just wanted to point out the patch I imported from an older version of 
-the 2.6.x kernel (not done by me at all ;-)).
-It's basically causing the system to a near zero slowdown after one hour 
-of uptime. And the reason for it must be the io_apic irq0 handling with 
-TSC enabled systems (seems to show up on ibm pre-built boxes more often 
-than on others though).
-Funnily pressing any keys _all the time_ works around for this for the 
-time a key is pressed ;)
+> Apologies if this is off-topic, but what has happened to kernel.bkbits.net?
+> I can't pull from it for the last 2 days (timeout) and traceroute shows a 
+> black hole on way there... Is it just me?
 
-The bug report entry contains a patch for arch/i386/kernel/io_apic.c  
-which fixed it for me.
-Maybe this should make it into the cvs tree since it's a _really_ 
-annoying bug, basically rendering the computer unusable if present.
+It seems that somebody has firewalled the machine to death.
 
-The link to the bug report with more detailed information can be found here:
-http://bugme.osdl.org/show_bug.cgi?id=2964
+It's still reachable on port 80.  :-/
 
-Thanks for checking and considering :-)
-
-Bye,
-Frederic
-
-
+-- 
+Matthias Urlichs

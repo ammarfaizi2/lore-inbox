@@ -1,74 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317369AbSGOJSf>; Mon, 15 Jul 2002 05:18:35 -0400
+	id <S317397AbSGOJTh>; Mon, 15 Jul 2002 05:19:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317396AbSGOJSe>; Mon, 15 Jul 2002 05:18:34 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:59641 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317369AbSGOJSe>; Mon, 15 Jul 2002 05:18:34 -0400
-Date: Mon, 15 Jul 2002 14:55:21 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Matthew Wilcox <willy@debian.org>,
-       Janitors <kernel-janitor-discuss@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] BH removal text
-Message-ID: <20020715145521.C15298@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20020701050555.F29045@parcelfarce.linux.theplanet.co.uk> <20020714010506.GW23693@holomorphy.com> <20020714102219.A9412@in.ibm.com> <20020714101730.GZ23693@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020714101730.GZ23693@holomorphy.com>; from wli@holomorphy.com on Sun, Jul 14, 2002 at 03:17:30AM -0700
+	id <S317398AbSGOJTg>; Mon, 15 Jul 2002 05:19:36 -0400
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:32926 "EHLO
+	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
+	id <S317397AbSGOJTe>; Mon, 15 Jul 2002 05:19:34 -0400
+Date: Mon, 15 Jul 2002 11:20:45 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.gmd.de>
+Message-Id: <200207150920.g6F9Kj7v019998@burner.fokus.gmd.de>
+To: riel@conectiva.com.br, venom@sns.it
+Cc: Richard.Zidlicky@stud.informatik.uni-erlangen.de, andersen@codepoet.org,
+       linux-kernel@vger.kernel.org, schilling@fokus.gmd.de
+Subject: Re: IDE/ATAPI in 2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 14, 2002 at 03:17:30AM -0700, William Lee Irwin III wrote:
-> On Sun, Jul 14, 2002 at 10:22:19AM +0530, Dipankar Sarma wrote:
-> > Even if you replace timemr_bh() with a tasklet, you still need
-> > to take the global_bh_lock to ensure that timers don't race with
-> > single-threaded BH processing in drivers. I wrote this patch [included]
-> > to get rid of timer_bh in Ingo's smptimers, but it acquires
-> > global_bh_lock as well as net_bh_lock, the latter to ensure
-> > that some older protocol code that expected serialization of
-> > NET_BH and timers work correctly (see deliver_to_old_ones()).
-> > They need to be cleaned up too.
-> 
-> This is great stuff. I'll definitely try it out in an hour or two. I'd
-> be interested in helping with the cleanup of the things assuming the BH
-> things still exist but might need a wee bit of hand-holding to get
-> through it. I'll go around flagging people down who might be able to
-> help me with it as I go.
+>From venom@sns.it Mon Jul 15 11:11:59 2002
+>On Sun, 14 Jul 2002, Rik van Riel wrote:
 
-I did a quick and dirty search on packet_type.data == NULL protocols.
-Here is a list -
+>> > BTW: did you ever look at Solaris / HP-UX, ... and the way they
+>> > name disks?
+>> >
+>> > someting like: /dev/{r}dsk/c0t0d0s0
+>> > This is SCSI bus, target, lun and slice.
+>>
+>> I wonder what they'll change it to in order to support
+>> network attached storage.
+>>
+>Actually notthing:
 
-802/psnap.c
-appletalk/ddp.c
-ax25/af_ax25.c
-core/ext8022.c
-econet/af_econet.c
-irda/irsyms.c
-x25/af_x25.c
+>dbtecnocasa:{root}:/>format
+>Searching for disks...done
 
-These need to be made safe for a non-BH based timer. I guess
-the current code assumes serialization between timer and
-BH context code due to the use of now-defunct NET_BH.
+>c2t1d0: configured with capacity of 6.56MB
+>c2t1d30: configured with capacity of 34.04GB
+>c2t1d31: configured with capacity of 34.04GB
+>c2t1d81: configured with capacity of 34.04GB
 
-> 
-> I actually suspect tty-related things are a likely culprit as
-> significant use of the serial console occurs.
 
-It should also be possible to make minimal non-smptimers 
-bhless_timer patch - just in case smptimers isn't going in
-any time soon. It will run a timer tasklet off of do_timer().
-The tasklet handler still has to grab global_bh_lock and
-the likes to keep the tty and other drivers that expect
-serialization BH and timers or use __global_cli, happy.
-Will such a patch be useful ?
+>AVAILABLE DISK SELECTIONS:
+>       0. c0t0d0 <SUN18G cyl 7506 alt 2 hd 19 sec 248>
+>          /pci@1f,4000/scsi@3/sd@0,0
+>       1. c2t1d0 <EMC-SYMMETRIX-5567 cyl 14 alt 2 hd 15 sec 64>
+>          /pci@4,2000/scsi@1/sd@1,0
+>       2. c2t1d30 <EMC-SYMMETRIX-5567 cyl 37178 alt 2 hd 30 sec 64>
+>          /pci@4,2000/scsi@1/sd@1,1e
+>       3. c2t1d31 <EMC-SYMMETRIX-5567 cyl 37178 alt 2 hd 30 sec 64>
+>          /pci@4,2000/scsi@1/sd@1,1f
+>       4. c2t1d81 <EMC-SYMMETRIX-5567 cyl 37178 alt 2 hd 30 sec 64>
+>          /pci@4,2000/scsi@1/sd@1,51
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+>except of c0t0d0 everything else is network attached...
+
+
+How is it attached? Using FACL or ISCSI?
+
+In any case, it seems to be a natural solution to do it this way.
+
+In order to access a network disk, you need to obtain the right to
+do so first. Once this has been done, the netork subsystem just looks
+like a new SCSI bus.
+
+Jörg
+
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
+ URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

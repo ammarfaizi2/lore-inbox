@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311025AbSEUI5z>; Tue, 21 May 2002 04:57:55 -0400
+	id <S311749AbSEUJEk>; Tue, 21 May 2002 05:04:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311749AbSEUI5z>; Tue, 21 May 2002 04:57:55 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:53500 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S311025AbSEUI5y>; Tue, 21 May 2002 04:57:54 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	id <S311884AbSEUJEj>; Tue, 21 May 2002 05:04:39 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:57354 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S311749AbSEUJEj>; Tue, 21 May 2002 05:04:39 -0400
+Message-ID: <3CEA0D65.DA25FB09@aitel.hist.no>
+Date: Tue, 21 May 2002 11:03:33 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.12-dj1 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Thoughts on using fs/jbd from drivers/md
+In-Reply-To: <15587.18828.934431.941516@notabene.cse.unsw.edu.au> <20020516161749.D2410@redhat.com> <20020517182942.GF627@matchmail.com> <20020517193410.W2693@redhat.com> <20020518013537.GH627@matchmail.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15594.3075.528426.593684@wombat.chubb.wattle.id.au>
-Date: Tue, 21 May 2002 18:57:39 +1000
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>,
-        Peter Chubb <peter@chubb.wattle.id.au>, <trivial@rustcorp.com.au>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Allow aic7xx firmware to be built from BK tree. 
-In-Reply-To: <Pine.LNX.4.44.0205210012470.1673-100000@chaos.physics.uiowa.edu>
-X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Kai" == Kai Germaschewski <kai-germaschewski@uiowa.edu> writes:
+Mike Fedyk wrote:
+>
+> Doesn't degraded mode imply that there are not any parity
+> disk(raid4)/stripe(raid5) updates?
+> 
+Degraded mode means one of the (redundant) disks have
+failed and isn't used.  In raid-4 that might be
+the parity disk - and then you get the no parity
+case.
 
-Kai> On Mon, 20 May 2002, Justin T. Gibbs wrote:
->> >Some people are using source control management systems which
->> >leave the managed files read-only.
->> 
->> These people shouldn't be rebuilding the firmware. 8-)
+But it might be a data disk that failed instead,
+the missing data will be calculated from 
+parity when needed, and of course parity is
+modified upon write so information
+can be stored even though some storage is missing.
 
-Kai> True, but some do anyway...
+Raid-5 spreads the parity over all the disks
+for performance, so wether a missing disk
+translates to a missing parity stripe or a missing
+data stripe depends on the exact
+block number.
 
-Or so as I do, and have a single source tree that's read-only, and
-trees of links to the source tree that I build different
-configurations from.
-
-(The `touch' that   make depend   does really hurts here)
-
->> Only with lots of MD5 junk and other complicated rules.  I have no
->> problem with changing the name of the shipped files and using a
->> link if that will finally put this issue to rest.
-
-Kai> Okay, I'll take care of it. I think it should be done and over
-Kai> with, then.
-
-Personally, I'd prefer a rule like:
-
-aic7xxx_seq.h aic7xxx_reg.h: %.h : shipped_%.h
-	cp $< $@
-
-otherwise an attempt to build with CONFIG_AIC7XXX_BUILD_FIRMWARE yes
-after a build with no will fail.
-
-Peter C
+Helge Hafting

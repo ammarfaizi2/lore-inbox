@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289481AbSBJKIJ>; Sun, 10 Feb 2002 05:08:09 -0500
+	id <S289487AbSBJKOl>; Sun, 10 Feb 2002 05:14:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289487AbSBJKH7>; Sun, 10 Feb 2002 05:07:59 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:39693 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S289481AbSBJKHs>; Sun, 10 Feb 2002 05:07:48 -0500
-Date: Sun, 10 Feb 2002 11:07:45 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Felix Seeger <felix.seeger@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sonypi in 2.4.18-pre9
-Message-ID: <20020210100745.GA18294@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-In-Reply-To: <20020209115453Z288878-13996+19685@vger.kernel.org> <E16ZcwO-0000ee-00@smtp.fr.alcove.com> <20020209200609.GC32401@come.alcove-fr> <E16Zg6y-0001Dq-00@smtp.fr.alcove.com>
-Mime-Version: 1.0
+	id <S289492AbSBJKOa>; Sun, 10 Feb 2002 05:14:30 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5640 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289487AbSBJKOU>;
+	Sun, 10 Feb 2002 05:14:20 -0500
+Message-ID: <3C6647BB.A69310BA@zip.com.au>
+Date: Sun, 10 Feb 2002 02:13:15 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: paule@ilu.vu
+CC: Chris Ball <chris@void.printf.net>, linux-kernel@vger.kernel.org
+Subject: Re: 3com pcmcia modules.
+In-Reply-To: <20020209151533.A644@ilu.vu> <877kpmvetv.fsf@lexis.house.pkl.net>, <877kpmvetv.fsf@lexis.house.pkl.net>; <20020209160407.A1222@ilu.vu> <3C6584F3.D571C1CB@zip.com.au> <20020209220805.A383@ilu.vu>,
+		<20020209220805.A383@ilu.vu>; from paule@ilu.vu on Sat, Feb 09, 2002 at 10:08:05PM +0000 <20020210095940.A1147@ilu.vu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16Zg6y-0001Dq-00@smtp.fr.alcove.com>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 09, 2002 at 11:30:06PM +0100, Felix Seeger wrote:
+paule@ilu.vu wrote:
+> 
+> An old problem has re-appeared since I have done this,
+> On a soft-reboot ('reboot / shutdown -r now') the kernel
+> stops on its way back up stating
+> Socket Status 0x0000003
+> 
+> (or something similar)
+> and it then requires a hard-reset to clear.
+> This only seems to be under the 3c59x code / more-so the vortex module.
 
-> With kernel 2.4.17, spicctrl -p shows an error message:
-> ioctl failed: Invalid argument
+IRQ storm on the Cardbus controller, probably.
 
-That's normal. Power status was added only in 2.4.18-pre1.
-In your original mail hovewer, you seemed to state that spicctrl -b/-B
-failed on those kernels.
+Try the pcmcia-ip-autoconf and yenta-hack patches at
+http://www.zip.com.au/~akpm/linux/2.4/2.4.18-pre9/
 
-> With kernel 2.4.18-pre9 it works fine, the only difference between the config 
-> is that I have enabled IO Device Support.
-> I don't know what this is and maybe I don' need it.
-> I've only activated it because of the error message (ioctl failed)
-
-My question marks were because I don't know either what IO Device Support
-means nor where you did select that. Unless you mean Sony I/O Control
-Device Support...
-
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+-

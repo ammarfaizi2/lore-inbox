@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267079AbTBUDEd>; Thu, 20 Feb 2003 22:04:33 -0500
+	id <S267083AbTBUDPp>; Thu, 20 Feb 2003 22:15:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267083AbTBUDEd>; Thu, 20 Feb 2003 22:04:33 -0500
-Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:41859 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S267079AbTBUDEc>; Thu, 20 Feb 2003 22:04:32 -0500
-Date: Thu, 20 Feb 2003 15:14:48 -0600 (CST)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@localhost.localdomain
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Stacy Woods <spwoods@us.ibm.com>
-Subject: Re: Bugs sitting in RESOLVED state
-In-Reply-To: <276780000.1045791394@flay>
-Message-ID: <Pine.LNX.4.44.0302201500260.2145-100000@localhost.localdomain>
+	id <S267085AbTBUDPp>; Thu, 20 Feb 2003 22:15:45 -0500
+Received: from 5-077.ctame701-1.telepar.net.br ([200.193.163.77]:45786 "EHLO
+	5-077.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S267083AbTBUDPp>; Thu, 20 Feb 2003 22:15:45 -0500
+Date: Fri, 21 Feb 2003 00:25:29 -0300 (BRT)
+From: Rik van Riel <riel@imladris.surriel.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, "" <linux-kernel@vger.kernel.org>,
+       "" <lse-tech@lists.sourceforge.net>
+Subject: Re: Performance of partial object-based rmap
+In-Reply-To: <20030220190819.531e119d.akpm@digeo.com>
+Message-ID: <Pine.LNX.4.50L.0302210020560.2329-100000@imladris.surriel.com>
+References: <7490000.1045715152@[10.10.2.4]> <278890000.1045791857@flay>
+ <20030220190819.531e119d.akpm@digeo.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Feb 2003, Martin J. Bligh wrote:
+On Thu, 20 Feb 2003, Andrew Morton wrote:
 
-> > Also, several of my 'resolved' bugs have comments that clearly indicate
-> > the fix has been merged.  So, now I must go in a clicking spree, taking
-> > valuable time away from hacking :)  Don't we have kind and gracious
-> > Bugzilla janitors for this sort of thing?
-> 
-> heh ;-) will try to sort something out for that ... we ought to go through
-> each one and do a simple check like that, before we send out such lists.
+> I think the guiding principle here is that we should not optimise for the
+> uncommon case (as rmap is doing), and we should not allow the uncommon case
+> to be utterly terrible (as Dave's patch can do).
 
-I went back through and marked most of Jeff's "resolved" bugs as closed.  
-The one I left as closed is number 85, concerning use of cli and friends 
-in hamradio.  An inspection of the source in 2.5.62 shows they are still 
-there.  If there was a patch to correct this, it apparently still hasn't 
-been merged in latest bk.
+This "guiding principle" appears to be the primary reason why
+we've taken over a year to stabilise linux 2.0 and linux 2.2
+and linux 2.4 ... or at least, too much of a focus on the first
+half of this guiding principle. ;)
 
+We absolutely have to take care in avoiding the worst case
+scenarios, since statistics pretty much guarantee that somebody
+will run into nothing but that scenario ...
+
+cheers,
+
+Rik
+-- 
+Engineers don't grow up, they grow sideways.
+http://www.surriel.com/		http://kernelnewbies.org/

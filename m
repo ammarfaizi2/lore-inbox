@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135304AbQL3SXv>; Sat, 30 Dec 2000 13:23:51 -0500
+	id <S132865AbQL3Shn>; Sat, 30 Dec 2000 13:37:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135248AbQL3SXm>; Sat, 30 Dec 2000 13:23:42 -0500
-Received: from p3EE3C958.dip.t-dialin.net ([62.227.201.88]:10756 "HELO
-	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S132865AbQL3SX3>; Sat, 30 Dec 2000 13:23:29 -0500
-Date: Sat, 30 Dec 2000 18:30:38 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: How to write patches
-Message-ID: <20001230183038.B1950@emma1.emma.line.org>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOL.3.96.1001229234454.12681A-100000@kohinoor.csa.iisc.ernet.in>
+	id <S133087AbQL3ShX>; Sat, 30 Dec 2000 13:37:23 -0500
+Received: from se1.cogenit.fr ([195.68.53.173]:38418 "EHLO se1.cogenit.fr")
+	by vger.kernel.org with ESMTP id <S132865AbQL3ShN>;
+	Sat, 30 Dec 2000 13:37:13 -0500
+Date: Sat, 30 Dec 2000 19:06:36 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Repeatable 2.4.0-test13-pre4 nfsd Oops rears it head again
+Message-ID: <20001230190636.A11235@se1.cogenit.fr>
+In-Reply-To: <20001228161126.A982@lingas.basement.bogus> <200012282159.NAA00929@pizda.ninka.net> <20001228212116.A968@lingas.basement.bogus> <92ha5l$1qh$1@penguin.transmeta.com> <3A4DBC02.92C0FD9A@uow.edu.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.SOL.3.96.1001229234454.12681A-100000@kohinoor.csa.iisc.ernet.in>; from sourav@csa.iisc.ernet.in on Fri, Dec 29, 2000 at 23:52:05 +0530
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <3A4DBC02.92C0FD9A@uow.edu.au>
+X-Organisation: Marie's fan club
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Dec 2000, Sourav Sen wrote:
+Andrew Morton <andrewm@uow.edu.au> écrit :
+[...]
+> The 3c905C is a well manufactured and very feature-rich NIC which at
+> present appears to have fewer problem reports than eepro100, 8139 or tulip.
 
-> 
-> Hi,
-> 
-> This question may seem naive, but can anyone tell me if there is any
-> structured way of writing patches? 
+I guess that the lack of problem reports for the epic chipset comes from
+a smaller user base. FWIW, I haven't experienced real problems with
+it (observation base: 20~30 boards). Neither did I with the few 3c905 used btw.
 
-1. get a base tree, e. g. 2.2.18, and unpack it into /usr/src 
-   (rename your old /usr/src/linux first)
-2. rename linux you got in 1. to linux-2.2.18 or whatever is appropriate
-3. cp -a -l linux-2.2.18 linux-2.2.18-ss1 (your initials and a number)
-   that makes hard links which speeds up diff a lot
-   WARNING: IF YOU HAVE AN EDITOR THAT DOES NOT RENAME THE ORIGINAL TO A
-   BACKUP FILE NAME, YOU MUST NOT USE -l HERE! (You'd end up editing the
-   copy AND the original and your diff would be empty.)
-   (break link and copy on write would be a cool feature for the fs...)
-4. ln -sfn linux-2.2.18-ss1 linux
-5. go edit your ss1 tree with an editor that makes backups by renaming
-   before it writes out its files (emacs does in default configuration,
-   vi does not!)
-6. if your -ss1 kernel is ready for release, save your .config from
-   /usr/src/linux somewhere you'll find it (for convenience).
-7. cd /usr/src/linux ; make distclean
-8. cd /usr/src
-9. diff -Nur linux-2.2.18 linux-2.2.18-ss1 | gzip -9c >patch-2.2.18-ss1.gz
+[...]
+> Perhaps most significantly, the 905 has full scatter/gather support.
 
-With diff, that's OLD NEW (or FROM TO), nothing really difficult since
-it's the same way as in mv or cp.
+May be done for the epic. TODO++
 
 -- 
-Matthias Andree
+Ueimor
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

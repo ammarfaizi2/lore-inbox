@@ -1,71 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbUFVNYZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbUFVNYw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbUFVNYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 09:24:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbUFVNYZ
+	id S261563AbUFVNYw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 09:24:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbUFVNYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 09:24:25 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:41723 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261605AbUFVNYX (ORCPT
+	Tue, 22 Jun 2004 09:24:52 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:50622 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S261563AbUFVNYs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 09:24:23 -0400
-Date: Tue, 22 Jun 2004 06:35:37 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: cw@f00f.org, dcn@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add wait_event_interruptible_exclusive() macro
-Message-Id: <20040622063537.33282647.pj@sgi.com>
-In-Reply-To: <20040622122948.GA2038@infradead.org>
-References: <40D30646.mailxA8X155I80@aqua.americas.sgi.com>
-	<20040622120130.GA16246@taniwha.stupidest.org>
-	<20040622122948.GA2038@infradead.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 22 Jun 2004 09:24:48 -0400
+Date: Tue, 22 Jun 2004 15:24:46 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness
+Message-ID: <20040622132446.GC20632@lug-owl.de>
+Mail-Followup-To: Horst von Brand <vonbrand@inf.utfsm.cl>,
+	linux-kernel@vger.kernel.org
+References: <20040618213830.GT20632@lug-owl.de> <200406190334.i5J3Y9Yp020733@eeyore.valparaiso.cl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="NXCAzhIteaazJRDw"
+Content-Disposition: inline
+In-Reply-To: <200406190334.i5J3Y9Yp020733@eeyore.valparaiso.cl>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph wrote:
-> In this case a macro is the only sensible way.  Check how the arguments
-> are used in wait_event_*
 
-Are you referring to such usages as the "&wq" in this line:
+--NXCAzhIteaazJRDw
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->	add_wait_queue_exclusive(&wq, &__wait);
+On Fri, 2004-06-18 23:34:08 -0400, Horst von Brand <vonbrand@inf.utfsm.cl>
+wrote in message <200406190334.i5J3Y9Yp020733@eeyore.valparaiso.cl>:
+> Jan-Benedict Glaw <jbglaw@lug-owl.de> said:
+> > Well, sometimes I actually do some nice work to put on the table, but
+> > keeping an eye on a good number of vendor trees is IMHO *far* beyond
+> > what you'd actually do at some late evening at the weekends. That's way
+> > more than a good full-time job. At least, I think so.
+>=20
+> Besides, if you haven't got access to the hardware involved and relevant
+> test cases, your efforts can be positively harmful.
 
-If so, then yes, a macro is needed.  This is a poor man's implicit pass
-by reference.  In straight C, not using macros, saying "foo(x)" pushes
-the value of 'x' on the stack, not the address of 'x'.  This macro
-pushes the _address_ of 'x' on the stack (x == wq), but doesn't require
-the "address of" operator, "&", as in foo(&x), to be explicitly coded. 
-Hence, straight C is insufficient to the task.
+Well, there's a second direction of patch flow: Linus' Latest'n'Greatest
+towards custom trees. I'm quite sure most vendors will do constant
+builds and any breakage will (in a fast manner) be detected quite
+soon...
 
-I don't know if it applies in this case, but one can mix macros with
-inlines, to get both this implicit pass by reference, and get some
-type checking on the arguments.  See my dreaded cpumask patch, in the
-latest *-mm patch series, for many examples.
+MfG, JBG
 
-They look like:
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
 
-#define foo(x) __foo(&(x))
+--NXCAzhIteaazJRDw
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-static inline void __foo(int *xp)		\
-{						\
-	printk("addr of x is %p\n", xp);	\
-}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-This both provides implicit pass by reference, and checks that the
-argument and return types are as intended (to within the range of
-C's automatic type conversions ;).
+iD8DBQFA2DMeHb1edYOZ4bsRAsYVAJ9DzPeKHghg3B8wBC9N69+cldiArACfeHJg
+nTGJtEEXGhwE5vMACjzkLFE=
+=0b5c
+-----END PGP SIGNATURE-----
 
-Be aware that I am engaging in drive-by-commenting here, which is
-commenting on a phrase that jumped out at me, without any effort to
-look around at the larger picture.  Damage due to collateral fire is
-not uncommon in such cases ;).
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+--NXCAzhIteaazJRDw--

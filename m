@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269953AbRHENSg>; Sun, 5 Aug 2001 09:18:36 -0400
+	id <S269958AbRHENdI>; Sun, 5 Aug 2001 09:33:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269955AbRHENSQ>; Sun, 5 Aug 2001 09:18:16 -0400
-Received: from weta.f00f.org ([203.167.249.89]:41104 "EHLO weta.f00f.org")
-	by vger.kernel.org with ESMTP id <S269953AbRHENSG>;
-	Sun, 5 Aug 2001 09:18:06 -0400
-Date: Mon, 6 Aug 2001 01:18:59 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/<n>/maps getting _VERY_ long
-Message-ID: <20010806011859.A21830@weta.f00f.org>
-In-Reply-To: <20010805171202.A20716@weta.f00f.org> <E15TNbk-0007pu-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15TNbk-0007pu-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.20i
-X-No-Archive: Yes
+	id <S269959AbRHENc6>; Sun, 5 Aug 2001 09:32:58 -0400
+Received: from dfmail.f-secure.com ([194.252.6.39]:5636 "HELO
+	dfmail.f-secure.com") by vger.kernel.org with SMTP
+	id <S269958AbRHENcz>; Sun, 5 Aug 2001 09:32:55 -0400
+Date: Sun, 5 Aug 2001 16:46:21 +0300 (MET DST)
+From: Szabolcs Szakacsits <szaka@f-secure.com>
+To: <kern@wolf.ericsson.net.nz>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Oops pcnet32 ethernet driver on Compaq Deskpro 5100
+In-Reply-To: <Pine.LNX.4.33.0108041641480.14017-100000@wolf.ericsson.net.nz>
+Message-ID: <Pine.LNX.4.30.0108051626260.29834-100000@fs131-224.f-secure.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 05, 2001 at 02:06:16PM +0100, Alan Cox wrote:
 
-    Linus took itout because it was quite complex and nobody seemed to
-    have cases that triggered it or made it useful
+On Sat, 4 Aug 2001 kern@wolf.ericsson.net.nz wrote:
 
-Hmm... well it seems the are cases which trigger this, mozilla and
-vmware being quite common.
+> I am getting the following oops when I try to insert the pcnet32 ethernet
+> driver on an older Compaq 5100 (Pentium 100 with onboard ethernet
+> controller) and rh7.1
 
-Is a less heavy-handed approach than the original code possible?
-Something like when inserting into a processes vma, if there are more
-than <n> entries, we lock/scan/coalesce/unlock --- or would this
-locking be too gross?
+Get the RH 7.1 kernel update
+	http://www.redhat.com/support/errata/RHSA-2001-084.html
+or upgrade your kernel to a recent one. You have an old pcnet32 card
+that needs 16 bit init first but some early 2.4 (and the RH 7.1 shipped)
+kernel did 32 bit init.
 
+	Szaka
 
-
-  --cw

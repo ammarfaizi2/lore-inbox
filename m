@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261547AbUBULz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 06:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbUBULz7
+	id S261395AbUBUMak (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 07:30:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbUBUMak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 06:55:59 -0500
-Received: from pileup.ihatent.com ([217.13.24.22]:53681 "EHLO
-	pileup.ihatent.com") by vger.kernel.org with ESMTP id S261547AbUBULz6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 06:55:58 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: SUB memeory stick and kobject oops
-References: <87n07cbtl2.fsf@lapper.ihatent.com>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 21 Feb 2004 12:55:26 +0100
-In-Reply-To: <87n07cbtl2.fsf@lapper.ihatent.com>
-Message-ID: <87d688bqa9.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sat, 21 Feb 2004 07:30:40 -0500
+Received: from dns.communicationvalley.it ([212.239.58.133]:63211 "HELO
+	rose.communicationvalley.it") by vger.kernel.org with SMTP
+	id S261395AbUBUMaj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 07:30:39 -0500
+From: Silla Rizzoli <silla@netvalley.it>
+Organization: Communication Valley spa
+To: daniel.ritz@gmx.ch
+Subject: Re: 2.4.25 yenta problem and small fix/workaround
+Date: Sat, 21 Feb 2004 13:28:53 +0100
+User-Agent: KMail/1.6
+Cc: David Hinds <dhinds@sonic.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200402202331.45218.daniel.ritz@gmx.ch>
+In-Reply-To: <200402202331.45218.daniel.ritz@gmx.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402211328.56826.silla@netvalley.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Hoogerhuis <alexh@ihatent.com> writes:
+> silla, does this one help?
+> dave, what do you think?
 >
-> [SNIP]
+> rgds
+> -daniel
 >
+> patch:
+> the CB_CDETECT1 and CB_CDETECT2 bits both should be 0 for the card being
+> recognized correctly (and one of the voltage bits need to be set)
+>
+Nope, sorry, same behaviour. :(
 
-In good custom of quoting one self, I am guilty TUI (Typing Under
-Influence), and please do a s/SUB/USB/ on the subject... :]
-
-mvh,
-A
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+Regards,
+Silla

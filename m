@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130383AbRBAPKf>; Thu, 1 Feb 2001 10:10:35 -0500
+	id <S130576AbRBAPQR>; Thu, 1 Feb 2001 10:16:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129864AbRBAPK1>; Thu, 1 Feb 2001 10:10:27 -0500
-Received: from ns.caldera.de ([212.34.180.1]:48133 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S130530AbRBAPKM>;
-	Thu, 1 Feb 2001 10:10:12 -0500
-Date: Thu, 1 Feb 2001 16:09:53 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: bsuparna@in.ibm.com
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
-        kiobuf-io-devel@lists.sourceforge.net
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
-Message-ID: <20010201160953.A17058@caldera.de>
-Mail-Followup-To: bsuparna@in.ibm.com,
-	"Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
-	kiobuf-io-devel@lists.sourceforge.net
-In-Reply-To: <CA2569E6.0051970D.00@d73mta03.au.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <CA2569E6.0051970D.00@d73mta03.au.ibm.com>; from bsuparna@in.ibm.com on Thu, Feb 01, 2001 at 08:14:58PM +0530
+	id <S130564AbRBAPQG>; Thu, 1 Feb 2001 10:16:06 -0500
+Received: from kirk.nscl.msu.edu ([35.8.34.84]:7699 "EHLO kirk.nscl.msu.edu")
+	by vger.kernel.org with ESMTP id <S129168AbRBAPP7>;
+	Thu, 1 Feb 2001 10:15:59 -0500
+From: Eric Kasten <kasten@nscl.msu.edu>
+Message-Id: <200102011515.f11FFDd17690@kirk.nscl.msu.edu>
+Subject: Re: BUG: v2.4.1 missing EXPORT_SYMBOL
+In-Reply-To: <9869.980988032@kao2.melbourne.sgi.com> from Keith Owens at "Feb
+ 1, 2001 11:40:32 am"
+To: Keith Owens <kaos@ocs.com.au>
+Date: Thu, 1 Feb 2001 10:15:13 -0500 (EST)
+CC: linux-kernel@vger.kernel.org, Ken Sandars <ksandars@eurologic.com>
+Reply-To: kasten@nscl.msu.edu
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 01, 2001 at 08:14:58PM +0530, bsuparna@in.ibm.com wrote:
+> On Wed, 31 Jan 2001 15:44:29 -0500 (EST), 
+> Eric Kasten <kasten@nscl.msu.edu> wrote:
+> >Quick bug report for kernel 2.4.1.  There needs to be a
+> >EXPORT_SYMBOL(name_to_kdev_t); at the bottom of linux/init/main.c.
+> >name_to_kdev_t is used by the md driver (and maybe others).  If the
+> >driver is built as a module it won't load due to the missing symbol.
 > 
-> >Hi,
-> >
-> >On Thu, Feb 01, 2001 at 10:25:22AM +0530, bsuparna@in.ibm.com wrote:
-> >>
-> >> >We _do_ need the ability to stack completion events, but as far as the
-> >> >kiobuf work goes, my current thoughts are to do that by stacking
-> >> >lightweight "clone" kiobufs.
-> >>
-> >> Would that work with stackable filesystems ?
-> >
-> >Only if the filesystems were using VFS interfaces which used kiobufs.
-> >Right now, the only filesystem using kiobufs is XFS, and it only
-> >passes them down to the block device layer, not to other filesystems.
+> Don't blame us when the driver gets an oops.  name_to_kdev_t is defined
+> __init so the code is discarded after boot and the area is reused as
+> scratch space.  You must not EXPORT_SYMBOL() any __init or __exit code.
 > 
-> That would require the vfs interfaces themselves (address space
-> readpage/writepage ops) to take kiobufs as arguments, instead of struct
-> page *  . That's not the case right now, is it ?
+> The only place name_to_kdev_t is used in md is in the md_setup routine,
+> that routine probably only makes sense when md is built in, not when md
+> is a module.  I recommend wrapping md_setup and all its data in #ifndef
+> MODULE.
 
-No, and with the current kiobufs it would not make sense, because they
-are to heavy-weight.  With page,length,offsett iobufs this makes sense
-and is IMHO the way to go.
+Which is fine by me.  I'm not using the md driver much on 2.4.1 at the
+moment -- just testing to make sure that most of the things that I'll
+use in the longer run are working.  Hence, pass on what I know of the
+problem and what appears to fix it and hopefully get a bit of a review
+by those buried deeper in the kernel than I am (have time to be)
+at the moment (which you have aptly provided).
 
-	Christoph
+Thanks.
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+...Eric
+
+Eric Kasten
+kasten@nscl.msu.edu
+National Superconducting Cyclotron Lab
+(517) 333-6412
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

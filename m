@@ -1,35 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRACRrI>; Wed, 3 Jan 2001 12:47:08 -0500
+	id <S129183AbRACRvT>; Wed, 3 Jan 2001 12:51:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129226AbRACRq6>; Wed, 3 Jan 2001 12:46:58 -0500
-Received: from dorf.wh.uni-dortmund.de ([129.217.255.136]:55312 "HELO
-	mail.dorf.wh.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S129183AbRACRql>; Wed, 3 Jan 2001 12:46:41 -0500
-Date: Wed, 3 Jan 2001 18:14:55 +0100
-From: Patrick Mau <mau@oscar.prima.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Where's pre13-x.diff.gz ?
-Message-ID: <20010103181455.A15176@oscar.dorf.wh.uni-dortmund.de>
-Reply-To: Patrick Mau <mau@oscar.prima.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S129226AbRACRvK>; Wed, 3 Jan 2001 12:51:10 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:13023 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129183AbRACRux>;
+	Wed, 3 Jan 2001 12:50:53 -0500
+Date: Wed, 3 Jan 2001 18:19:36 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200101031719.SAA142410.aeb@texel.cwi.nl>
+To: Andries.Brouwer@cwi.nl, macro@ds2.pg.gda.pl
+Subject: Re: Timeout: AT keyboard not present?
+Cc: linux-kernel@vger.kernel.org, sfr@gmx.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+>> It looks like scancode mode 1
 
-just a small question. The pre13-x.diff.gz patches vanished
-from ftp.xx.kernel.org. I need pre13-5 and pre13-6 (and later,
-if there where any).
+> It looks like untranslated mode 2
 
-They have not been moved to testing/old or something, hopefully
-they're not lost ?
+Yes, that gives the same codes.
 
-cheers,
-Patrick
+(But you are right, this point of view gives a few more possibilities
+to get into this state.)
+
+Andries
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

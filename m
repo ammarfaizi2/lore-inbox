@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVA0UaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVA0UcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbVA0UaG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 15:30:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVA0UaF
+	id S261174AbVA0UcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 15:32:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbVA0UcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 15:30:05 -0500
-Received: from pastinakel.tue.nl ([131.155.2.7]:40971 "EHLO pastinakel.tue.nl")
-	by vger.kernel.org with ESMTP id S261170AbVA0U3x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 15:29:53 -0500
-Date: Thu, 27 Jan 2005 21:29:47 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jaco Kroon <jaco@kroon.co.za>, sebekpi@poczta.onet.pl,
-       Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: i8042 access timings
-Message-ID: <20050127202947.GD6010@pclin040.win.tue.nl>
-References: <200501260040.46288.sebekpi@poczta.onet.pl> <41F888CB.8090601@kroon.co.za> <Pine.LNX.4.58.0501270948280.2362@ppc970.osdl.org>
+	Thu, 27 Jan 2005 15:32:24 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:35536 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261174AbVA0UcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 15:32:11 -0500
+Date: Thu, 27 Jan 2005 20:32:06 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Subject: Re: Patch 4/6  randomize the stack pointer
+Message-ID: <20050127203206.GA2180@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+References: <20050127101117.GA9760@infradead.org> <20050127101322.GE9760@infradead.org> <20050127202335.GA2033@infradead.org> <20050127202720.GA12390@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501270948280.2362@ppc970.osdl.org>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: MessageCare: pastinakel.tue.nl 1108; Body=1 Fuz1=1 Fuz2=1
+In-Reply-To: <20050127202720.GA12390@infradead.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 27, 2005 at 10:09:24AM -0800, Linus Torvalds wrote:
+> The patch below replaces the existing 8Kb randomisation of the userspace
+> stack pointer (which is currently only done for Hyperthreaded P-IVs) with a
+> more general randomisation over a 64Kb range. 64Kb is not a lot, but it's a
+> start and once the dust settles we can increase this value to a more
+> agressive value.
 
-> So what _might_ happen is that we write the command, and then 
-> i8042_wait_write() thinks that there is space to write the data 
-> immediately, and writes the data, but now the data got lost because the 
-> buffer was busy.
+Why are we doing this for x86 only, btw? 
 
-Hmm - I just answered the same post and concluded that I didnt understand,
-so you have progressed further. I considered the same possibility,
-but the data was not lost since we read it again later.
-Only the ready flag was lost.
+> +unsigned long arch_align_stack(unsigned long sp)
+> +{
+> +	if (randomize_va_space)
+> +		sp -= ((get_random_int() % 4096) << 4);
+> +	return sp & ~0xf;
+> +}
 
-> The IO delay should be _before_ the read of the status, not after it.
+this looks like it'd work nicely on all architectures.
 
-Andries

@@ -1,164 +1,182 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266833AbUJFDtb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266839AbUJFDxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266833AbUJFDtb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 23:49:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266838AbUJFDtb
+	id S266839AbUJFDxj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 23:53:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266838AbUJFDxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 23:49:31 -0400
-Received: from banach.math.auburn.edu ([131.204.45.3]:63371 "EHLO
-	banach.math.auburn.edu") by vger.kernel.org with ESMTP
-	id S266833AbUJFDtY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 23:49:24 -0400
-Date: Tue, 5 Oct 2004 22:06:58 -0500 (CDT)
-From: Theodore Kilgore <kilgota@banach.math.auburn.edu>
-To: Matthew Dharm <mdharm-usb@one-eyed-alien.net>
-cc: usb-storage@lists.one-eyed-alien.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] to 2.6.9-rc2, supports USB Bulk devices using 32-byte CBW 
-Message-ID: <Pine.LNX.4.58.0410052030230.12089@banach.math.auburn.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 5 Oct 2004 23:53:39 -0400
+Received: from mail.renesas.com ([202.234.163.13]:57545 "EHLO
+	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S266839AbUJFDxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 23:53:31 -0400
+Date: Wed, 06 Oct 2004 12:53:20 +0900 (JST)
+Message-Id: <20041006.125320.579639469.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
+Subject: [PATCH 2.6.9-rc3-mm2] [m32r] Update include/asm-m32r/m32102.h
+From: Hirokazu Takata <takata@linux-m32r.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The purpose of this patch is to support SCSI Bulk-transport devices which
-expect a 32-byte Command Block Wrapper, when the Bulk transport specs
-require the length to be 31 bytes. Clearly, this non-conformity renders a
-device totally inaccessible unless some accommodation is made for its
-special needs. Nevertheless, all known devices with this particular
-problem do otherwise honor the Bulk Transport specs and do otherwise use
-the standard SCSI command set, so that only minor changes to existing code
-will support them.  The changes proposed here incorporate the results of
-extensive discussion on the usb-storage mailing list, as well as
-correspondence with Matt Dharm and Pat LaVarre prior to that.
+Here is a patch to update include/asm-m32r/m32102.h.
+Please apply.
 
-Why is the patch needed?
+     * include/asm-m32r/m32102.h:
+     - Add macro definitions for DMA controller.
+     - Cosmetics; rearrange indentations.
 
-In particular, several digital cameras have been encountered which require
-the 32-byte Command Block. These cameras do not respond to commands when
-only 31 bytes are put in the Command Block Wrapper. An extra, tailing byte
-is required (which is invariably 0x0). These cameras all report themselves
-in /proc/bus/usb/devices as Class ff, Subclass 06, Protocol 50,
-acknowledging by the ff entry that they are not quite standard. Attempts
-in the past to support them have caused a great deal of trouble, as a
-Google search for "DC2MEGA" will easily establish. One of these cameras,
-the Praktica DC21, is even mentioned on the Linux Kernel mailing list,
-2003/Jan/2389.html, as causing the first kernel oops for a 2.6 kernel. The
-oops occurred when someone tried just to add an unusual_devs.h entry and
-hook up the camera, without investigating what the actual the problem is.
-Another such camera, the Argus DC-3500, is described as a (presumably
-supported) mass-storage device on
-<http://www.teaser.fr/~hfiguiere/linux/digicam.html>, the authoritative
-list for current support status of known digital cameras. The entry is
-inaccurate. But with this patch the Argus DC-3500 camera can indeed be
-used as a mass-storage device.
+Thanks.
 
-What does the patch do?
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
 
-Only a few small changes are sufficient to make these devices connect
-through USB and to function normally:
+ include/asm-m32r/m32102.h |  112 ++++++++++++++++++++++++++++------------------
+ 1 files changed, 70 insertions(+), 42 deletions(-)
 
-The patch introduces a new flag US_FL_BULK32 (in
-drivers/usb/storage/usb.h). The flag is then activated if a device is
-connected, which has an entry in drivers/usb/storage/unusual_devs.h
-containing US_FL_BULK32 in its flag field.  Two such new entries for
-unusual_devs.h are given, which suffice to cover all currently-known
-devices which require the flag.
 
-Then, when and only when the US_FL_BULK32 flag is active, the standard
-Bulk-only transport routines (in drivers/usb/storage/transport.c) will
-implement a 32-byte Command Block Wrapper. And in order to be certain that
-this is an unusual choice, the 32-byte variant is further marked as
-"unlikely."
-
-Has anyone actually tested this code?
-
-Yes. And it did what it is supposed to do.
-
-Developer's Certificate of Origin:
-
-I certify that this contribution has been contributed in whole or in part
-by me, and I have the right to submit it under the GPL, consistent with
-the license of the Linux kernel.
-
-Signed-off-by: Theodore Kilgore <kilgota@auburn.edu>
-
- (patch begins beneath dashed line)
---------------------------------------------------------------------------
-diff -uprN -X dontdiff linux-2.6.9-rc2.orig/drivers/usb/storage/transport.c linux-2.6.9-rc2/drivers/usb/storage/transport.c
---- linux-2.6.9-rc2.orig/drivers/usb/storage/transport.c	2004-09-30 00:02:17.000000000 -0500
-+++ linux-2.6.9-rc2/drivers/usb/storage/transport.c	2004-10-01 17:48:13.000000000 -0500
-@@ -952,6 +952,13 @@ int usb_stor_Bulk_transport(struct scsi_
- 	int result;
- 	int fake_sense = 0;
- 	unsigned int cswlen;
-+	unsigned int cbwlen = US_BULK_CB_WRAP_LEN;
-+
-+	/* Take care of BULK32 devices; set extra byte to 0 */
-+	if ( unlikely(us->flags & US_FL_BULK32)) {
-+		cbwlen = 32;
-+		us->iobuf[31] = 0;
-+	}
-
- 	/* set up the command wrapper */
- 	bcb->Signature = cpu_to_le32(US_BULK_CB_SIGN);
-@@ -974,7 +981,7 @@ int usb_stor_Bulk_transport(struct scsi_
- 			(bcb->Lun >> 4), (bcb->Lun & 0x0F),
- 			bcb->Length);
- 	result = usb_stor_bulk_transfer_buf(us, us->send_bulk_pipe,
--				bcb, US_BULK_CB_WRAP_LEN, NULL);
-+				bcb, cbwlen, NULL);
- 	US_DEBUGP("Bulk command transfer result=%d\n", result);
- 	if (result != USB_STOR_XFER_GOOD)
- 		return USB_STOR_TRANSPORT_ERROR;
-diff -uprN -X dontdiff linux-2.6.9-rc2.orig/drivers/usb/storage/unusual_devs.h linux-2.6.9-rc2/drivers/usb/storage/unusual_devs.h
---- linux-2.6.9-rc2.orig/drivers/usb/storage/unusual_devs.h	2004-09-30 00:02:17.000000000 -0500
-+++ linux-2.6.9-rc2/drivers/usb/storage/unusual_devs.h	2004-10-05 20:45:01.000000000 -0500
-@@ -248,6 +248,17 @@ UNUSUAL_DEV(  0x04e6, 0x0101, 0x0200, 0x
- 		"CD-RW Device",
- 		US_SC_8020, US_PR_CB, NULL, 0),
-
-+/* Entry and supporting patch by Theodore Kilgore <kilgota@auburn.edu>.
-+ * Device uses standards-violating 32-byte Bulk Command Block Wrappers and
-+ * reports itself as "Proprietary SCSI Bulk." Cf. device entry 0x084d:0x0011.
+--- a/include/asm-m32r/m32102.h	2004-10-05 12:39:39.000000000 +0900
++++ b/include/asm-m32r/m32102.h	2004-10-06 12:49:03.000000000 +0900
+@@ -23,6 +23,34 @@
+ #define M32R_CPM_PLLCR_PORTL     (0x08+M32R_CPM_OFFSET)
+ 
+ /*
++ * DMA Controller registers.
 + */
++#define M32R_DMA_OFFSET		(0x000F8000+M32R_SFR_OFFSET)
 +
-+UNUSUAL_DEV(  0x04fc, 0x80c2, 0x0000, 0x9999,
-+		"Kobian Mercury",
-+		"Binocam DCB-132",
-+		US_SC_DEVICE, US_PR_DEVICE, NULL,
-+		US_FL_BULK32),
++#define M32R_DMAEN_PORTL	(0x000+M32R_DMA_OFFSET)
++#define M32R_DMAISTS_PORTL	(0x004+M32R_DMA_OFFSET)
++#define M32R_DMAEDET_PORTL	(0x008+M32R_DMA_OFFSET)
++#define M32R_DMAASTS_PORTL	(0x00c+M32R_DMA_OFFSET)
 +
- /* Reported by Bob Sass <rls@vectordb.com> -- only rev 1.33 tested */
- UNUSUAL_DEV(  0x050d, 0x0115, 0x0133, 0x0133,
- 		"Belkin",
-@@ -684,6 +695,19 @@ UNUSUAL_DEV( 0x0839, 0x000a, 0x0001, 0x0
- 		US_SC_DEVICE, US_PR_DEVICE, NULL,
- 		US_FL_FIX_INQUIRY),
-
-+/* Entry and supporting patch by Theodore Kilgore <kilgota@auburn.edu>.
-+ * Flag will support Bulk devices which use a standards-violating 32-byte
-+ * Command Block Wrapper. Here, the "DC2MEGA" cameras (several brands) with
-+ * Grandtech GT892x chip, which request "Proprietary SCSI Bulk" support.
-+ */
++#define M32R_DMA0CR0_PORTL	(0x100+M32R_DMA_OFFSET)
++#define M32R_DMA0CR1_PORTL	(0x104+M32R_DMA_OFFSET)
++#define M32R_DMA0CSA_PORTL	(0x108+M32R_DMA_OFFSET)
++#define M32R_DMA0RSA_PORTL	(0x10c+M32R_DMA_OFFSET)
++#define M32R_DMA0CDA_PORTL	(0x110+M32R_DMA_OFFSET)
++#define M32R_DMA0RDA_PORTL	(0x114+M32R_DMA_OFFSET)
++#define M32R_DMA0CBCUT_PORTL	(0x118+M32R_DMA_OFFSET)
++#define M32R_DMA0RBCUT_PORTL	(0x11c+M32R_DMA_OFFSET)
 +
-+UNUSUAL_DEV(  0x084d, 0x0011, 0x0000, 0x9999,
-+		"Grandtech",
-+		"DC2MEGA",
-+		US_SC_DEVICE, US_PR_DEVICE, NULL,
-+		US_FL_BULK32),
++#define M32R_DMA1CR0_PORTL	(0x200+M32R_DMA_OFFSET)
++#define M32R_DMA1CR1_PORTL	(0x204+M32R_DMA_OFFSET)
++#define M32R_DMA1CSA_PORTL	(0x208+M32R_DMA_OFFSET)
++#define M32R_DMA1RSA_PORTL	(0x20c+M32R_DMA_OFFSET)
++#define M32R_DMA1CDA_PORTL	(0x210+M32R_DMA_OFFSET)
++#define M32R_DMA1RDA_PORTL	(0x214+M32R_DMA_OFFSET)
++#define M32R_DMA1CBCUT_PORTL	(0x218+M32R_DMA_OFFSET)
++#define M32R_DMA1RBCUT_PORTL	(0x21c+M32R_DMA_OFFSET)
 +
-+
- /* Aiptek PocketCAM 3Mega
-  * Nicolas DUPEUX <nicolas@dupeux.net>
++/*
+  * Multi Function Timer registers.
   */
-diff -uprN -X dontdiff linux-2.6.9-rc2.orig/drivers/usb/storage/usb.h linux-2.6.9-rc2/drivers/usb/storage/usb.h
---- linux-2.6.9-rc2.orig/drivers/usb/storage/usb.h	2004-09-30 00:02:17.000000000 -0500
-+++ linux-2.6.9-rc2/drivers/usb/storage/usb.h	2004-09-29 18:46:19.000000000 -0500
-@@ -73,6 +73,7 @@ struct us_unusual_dev {
- #define US_FL_SCM_MULT_TARG   0x00000020 /* supports multiple targets	    */
- #define US_FL_FIX_INQUIRY     0x00000040 /* INQUIRY response needs faking   */
- #define US_FL_FIX_CAPACITY    0x00000080 /* READ CAPACITY response too big  */
-+#define US_FL_BULK32          0x00000200 /* Uses 32-byte CBW length         */
+ #define M32R_MFT_OFFSET        (0x000FC000+M32R_SFR_OFFSET)
+@@ -121,15 +149,15 @@
+  */
+ #define M32R_SIO_OFFSET  (0x000FD000+M32R_SFR_OFFSET)
+ 
+-#define M32R_SIO0_CR_PORTL     (0x000+M32R_SIO_OFFSET)
+-#define M32R_SIO0_MOD0_PORTL   (0x004+M32R_SIO_OFFSET)
+-#define M32R_SIO0_MOD1_PORTL   (0x008+M32R_SIO_OFFSET)
+-#define M32R_SIO0_STS_PORTL    (0x00C+M32R_SIO_OFFSET)
+-#define M32R_SIO0_TRCR_PORTL   (0x010+M32R_SIO_OFFSET)
+-#define M32R_SIO0_BAUR_PORTL   (0x014+M32R_SIO_OFFSET)
+-#define M32R_SIO0_RBAUR_PORTL  (0x018+M32R_SIO_OFFSET)
+-#define M32R_SIO0_TXB_PORTL    (0x01C+M32R_SIO_OFFSET)
+-#define M32R_SIO0_RXB_PORTL    (0x020+M32R_SIO_OFFSET)
++#define M32R_SIO0_CR_PORTL    (0x000+M32R_SIO_OFFSET)
++#define M32R_SIO0_MOD0_PORTL  (0x004+M32R_SIO_OFFSET)
++#define M32R_SIO0_MOD1_PORTL  (0x008+M32R_SIO_OFFSET)
++#define M32R_SIO0_STS_PORTL   (0x00C+M32R_SIO_OFFSET)
++#define M32R_SIO0_TRCR_PORTL  (0x010+M32R_SIO_OFFSET)
++#define M32R_SIO0_BAUR_PORTL  (0x014+M32R_SIO_OFFSET)
++#define M32R_SIO0_RBAUR_PORTL (0x018+M32R_SIO_OFFSET)
++#define M32R_SIO0_TXB_PORTL   (0x01C+M32R_SIO_OFFSET)
++#define M32R_SIO0_RXB_PORTL   (0x020+M32R_SIO_OFFSET)
+ 
+ /*
+  * Interrupt Control Unit registers.
+@@ -201,41 +229,41 @@
+ #define M32R_ICUCR_ILEVEL6  (6UL<<0)   /* b29-b31: Interrupt priority level 6 */
+ #define M32R_ICUCR_ILEVEL7  (7UL<<0)   /* b29-b31: Disable interrupt */
+ 
+-#define  M32R_IRQ_INT0    (1)   /* INT0 */
+-#define  M32R_IRQ_INT1    (2)   /* INT1 */
+-#define  M32R_IRQ_INT2    (3)   /* INT2 */
+-#define  M32R_IRQ_INT3    (4)   /* INT3 */
+-#define  M32R_IRQ_INT4    (5)   /* INT4 */
+-#define  M32R_IRQ_INT5    (6)   /* INT5 */
+-#define  M32R_IRQ_INT6    (7)   /* INT6 */
+-#define  M32R_IRQ_MFT0    (16)  /* MFT0 */
+-#define  M32R_IRQ_MFT1    (17)  /* MFT1 */
+-#define  M32R_IRQ_MFT2    (18)  /* MFT2 */
+-#define  M32R_IRQ_MFT3    (19)  /* MFT3 */
+-#define  M32R_IRQ_MFT4    (20)  /* MFT4 */
+-#define  M32R_IRQ_MFT5    (21)  /* MFT5 */
+-#define  M32R_IRQ_DMA0    (32)  /* DMA0 */
+-#define  M32R_IRQ_DMA1    (33)  /* DMA1 */
+-#define  M32R_IRQ_SIO0_R  (48)  /* SIO0 send    */
+-#define  M32R_IRQ_SIO0_S  (49)  /* SIO0 receive */
+-#define  M32R_IRQ_SIO1_R  (50)  /* SIO1 send    */
+-#define  M32R_IRQ_SIO1_S  (51)  /* SIO1 receive */
+-#define  M32R_IRQ_SIO2_R  (52)  /* SIO2 send    */
+-#define  M32R_IRQ_SIO2_S  (53)  /* SIO2 receive */
+-#define  M32R_IRQ_SIO3_R  (54)  /* SIO3 send    */
+-#define  M32R_IRQ_SIO3_S  (55)  /* SIO3 receive */
+-#define  M32R_IRQ_SIO4_R  (56)  /* SIO4 send    */
+-#define  M32R_IRQ_SIO4_S  (57)  /* SIO4 receive */
++#define M32R_IRQ_INT0    (1)   /* INT0 */
++#define M32R_IRQ_INT1    (2)   /* INT1 */
++#define M32R_IRQ_INT2    (3)   /* INT2 */
++#define M32R_IRQ_INT3    (4)   /* INT3 */
++#define M32R_IRQ_INT4    (5)   /* INT4 */
++#define M32R_IRQ_INT5    (6)   /* INT5 */
++#define M32R_IRQ_INT6    (7)   /* INT6 */
++#define M32R_IRQ_MFT0    (16)  /* MFT0 */
++#define M32R_IRQ_MFT1    (17)  /* MFT1 */
++#define M32R_IRQ_MFT2    (18)  /* MFT2 */
++#define M32R_IRQ_MFT3    (19)  /* MFT3 */
++#define M32R_IRQ_MFT4    (20)  /* MFT4 */
++#define M32R_IRQ_MFT5    (21)  /* MFT5 */
++#define M32R_IRQ_DMA0    (32)  /* DMA0 */
++#define M32R_IRQ_DMA1    (33)  /* DMA1 */
++#define M32R_IRQ_SIO0_R  (48)  /* SIO0 send    */
++#define M32R_IRQ_SIO0_S  (49)  /* SIO0 receive */
++#define M32R_IRQ_SIO1_R  (50)  /* SIO1 send    */
++#define M32R_IRQ_SIO1_S  (51)  /* SIO1 receive */
++#define M32R_IRQ_SIO2_R  (52)  /* SIO2 send    */
++#define M32R_IRQ_SIO2_S  (53)  /* SIO2 receive */
++#define M32R_IRQ_SIO3_R  (54)  /* SIO3 send    */
++#define M32R_IRQ_SIO3_S  (55)  /* SIO3 receive */
++#define M32R_IRQ_SIO4_R  (56)  /* SIO4 send    */
++#define M32R_IRQ_SIO4_S  (57)  /* SIO4 receive */
+ 
+ #ifdef CONFIG_SMP
+-#define M32R_IRQ_IPI0 (56)
+-#define M32R_IRQ_IPI1 (57)
+-#define M32R_IRQ_IPI2 (58)
+-#define M32R_IRQ_IPI3 (59)
+-#define M32R_IRQ_IPI4 (60)
+-#define M32R_IRQ_IPI5 (61)
+-#define M32R_IRQ_IPI6 (62)
+-#define M32R_IRQ_IPI7 (63)
++#define M32R_IRQ_IPI0    (56)
++#define M32R_IRQ_IPI1    (57)
++#define M32R_IRQ_IPI2    (58)
++#define M32R_IRQ_IPI3    (59)
++#define M32R_IRQ_IPI4    (60)
++#define M32R_IRQ_IPI5    (61)
++#define M32R_IRQ_IPI6    (62)
++#define M32R_IRQ_IPI7    (63)
+ #define M32R_CPUID_PORTL (0xffffffe0)
+ 
+ #define M32R_FPGA_TOP (0x000F0000+M32R_SFR_OFFSET)
 
- /* Dynamic flag definitions: used in set_bit() etc. */
- #define US_FLIDX_URB_ACTIVE	18  /* 0x00040000  current_urb is in use  */
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/
+

@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbUCGLtC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 06:49:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbUCGLtC
+	id S261819AbUCGLuh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 06:50:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbUCGLug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 06:49:02 -0500
-Received: from main.gmane.org ([80.91.224.249]:32702 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261817AbUCGLtA (ORCPT
+	Sun, 7 Mar 2004 06:50:36 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:46265 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261819AbUCGLuc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 06:49:00 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Mike Hearn <mh@codeweavers.com>
-Subject: Re: Potential bug in fs/binfmt_elf.c?
-Date: Sun, 07 Mar 2004 11:53:55 +0000
-Organization: CodeWeavers, Inc
-Message-ID: <pan.2004.03.07.11.53.54.970527@codeweavers.com>
-References: <1078508281.3065.33.camel@linux.littlegreen> <404A1C71.3010507@redhat.com> <1078607410.10313.7.camel@linux.littlegreen> <404ABD06.4060607@redhat.com> <pan.2004.03.07.09.58.43.675972@codeweavers.com> <404AFD72.3070306@redhat.com>
-Reply-To: mike@theoretic.com
+	Sun, 7 Mar 2004 06:50:32 -0500
+Date: Sun, 7 Mar 2004 12:50:31 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SCSI CDROM/DVD trouble with 2.6.3 (2.6.2 is fine)
+Message-ID: <20040307115031.GK23525@suse.de>
+References: <Pine.LNX.4.56.0403051745430.21208@jju_lnx.backbone.dif.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: e-ucs036.dur.ac.uk
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.56.0403051745430.21208@jju_lnx.backbone.dif.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 07 Mar 2004 02:46:10 -0800, Ulrich Drepper wrote:
-> No.  It only handles what is necessary.
+On Fri, Mar 05 2004, Jesper Juhl wrote:
+> 
+> Hi,
+> 
+> I'm currently running 2.6.2 on a system with an Adaptec 29160N SCSI
+> controller, an IBM UltraStar Ultra160 SCSI disk, A Plextor SCSI CD writer
+> and a Pioneer SCSI DVD-ROM drive.
+> With 2.6.2 everything functions perfectly (did so with 2.4.x as well) and
+> I have no trouble what-so-ever.  With 2.6.3 it's a completely different
+> matter.
 
-But can it handle this case, or will it also map the load area ELF section
-wrongly?
+Try 2.6.4-rc, this problem was reported and fixed weeks ago.
+
+-- 
+Jens Axboe
 

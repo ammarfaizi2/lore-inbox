@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287648AbSAELGC>; Sat, 5 Jan 2002 06:06:02 -0500
+	id <S287647AbSAELEB>; Sat, 5 Jan 2002 06:04:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287652AbSAELFw>; Sat, 5 Jan 2002 06:05:52 -0500
-Received: from dsl-213-023-043-154.arcor-ip.net ([213.23.43.154]:52237 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S287648AbSAELFk>;
-	Sat, 5 Jan 2002 06:05:40 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alexander Viro <viro@math.psu.edu>
-Subject: Re: [CFT] Unbork fs.h + per-fs supers
-Date: Sat, 5 Jan 2002 12:08:55 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-In-Reply-To: <Pine.GSO.4.21.0201050448280.29230-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0201050448280.29230-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16MohE-0001GW-00@starship.berlin>
+	id <S287645AbSAELDw>; Sat, 5 Jan 2002 06:03:52 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:28902 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S287647AbSAELDk>; Sat, 5 Jan 2002 06:03:40 -0500
+Date: Sat, 5 Jan 2002 03:03:37 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: elmer@ylenurme.ee, linux-kernel@vger.kernel.org
+Subject: Patch: linux-2.5.2-pre8/drivers/net/aironet4500_core.c tried to return NODEV, should be -ENODEV
+Message-ID: <20020105030337.A23630@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="45Z9DzgjV8m4Oswq"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 5, 2002 10:54 am, Alexander Viro wrote:
-> On Sat, 5 Jan 2002, Daniel Phillips wrote:
-> 
-> > Adding VFS support for per-fs superblock size was dead simple compared to 
-> > doing the inodes because superblocks are few enough that no slab cache is 
-> > needed, and also because of cleanup Al had already done.
-> 
-> *Stop*.
-> 
-> First of all, exporting size of superblock is wrong, since the entire
-> ->read_super() mechanism is going to be replaced with ->get_super(type, ...)
-> (get_sb_...() becoming commonly used instances of the method).  Moreover,
-> freeing superblock is very likely to become a method (for quite a few
-> reasons).
-> 
-> Please, don't turn fs type into a bloody mess.  It's bad enough as it
-> is; at least don't add the stuff that will go away anyway.
 
-How would you suggest it be done?
+--45Z9DzgjV8m4Oswq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---
-Daniel
+
+	linux-2.5.2-pre8/drivers/net/aironet4500_core.c
+contains contains a routine that tried to return NODEV as
+an error code where the author's intention was apparently
+-ENODEV.  That is the second error of this type that the
+change in kdev_t has exposed (the other one was in
+drivers/isdn/sc/command.c).
+
+	Here is the patch.
+
+-- 
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
+
+--45Z9DzgjV8m4Oswq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="aeronet.diff"
+
+--- linux-2.5.2-pre8/drivers/net/aironet4500_core.c	Sun Sep 30 12:26:06 2001
++++ linux/drivers/net/aironet4500_core.c	Sat Jan  5 02:57:16 2002
+@@ -2836,8 +2836,7 @@
+  	return 0; 
+    final:
+    	printk(KERN_ERR "aironet init failed \n");
+-   	return NODEV;
+-   	
++   	return -ENODEV;
+  };
+ 
+ int awc_private_init(struct net_device * dev){
+
+--45Z9DzgjV8m4Oswq--

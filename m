@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132852AbRDZTFy>; Thu, 26 Apr 2001 15:05:54 -0400
+	id <S131472AbRDZTGN>; Thu, 26 Apr 2001 15:06:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135887AbRDZTFo>; Thu, 26 Apr 2001 15:05:44 -0400
-Received: from mx3.port.ru ([194.67.23.37]:51982 "EHLO mx3.port.ru")
-	by vger.kernel.org with ESMTP id <S131472AbRDZTF3>;
-	Thu, 26 Apr 2001 15:05:29 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: linux-kernel@vger.kernel.org
-Cc: reiser@idiom.com
-Subject: ReiserFS question
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.34.27.16]
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E14sr4v-000EC4-00@f3.mail.ru>
-Date: Thu, 26 Apr 2001 23:05:25 +0400
+	id <S135206AbRDZTGD>; Thu, 26 Apr 2001 15:06:03 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:261 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S131472AbRDZTFw>; Thu, 26 Apr 2001 15:05:52 -0400
+Date: Thu, 26 Apr 2001 15:00:38 -0400
+From: Chris Mason <mason@suse.com>
+To: Alexander Viro <viro@math.psu.edu>, Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+Message-ID: <235100000.988311638@tiny>
+In-Reply-To: <Pine.GSO.4.21.0104261421050.15385-100000@weyl.math.psu.edu>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-      Hi People...
-   got a following "dead of alive" question:
-   how to find a root block on a ReiserFS partition
-   with a corrupted superblock?
-
-   reiserfsprogs-3.x.0.9j simply writes -2^32
-   there at start (reset_super_block) and then simply
-   crashes when attempting to access to such mad place
-          ... got nearly lost my main partition ...
 
 
- sorry for bad english
+On Thursday, April 26, 2001 02:24:26 PM -0400 Alexander Viro
+<viro@math.psu.edu> wrote:
+
+> 
+> 
+> On Thu, 26 Apr 2001, Andrea Arcangeli wrote:
+> 
+>> correct. I bet other fs are affected as well btw.
+> 
+> If only... block_read() vs. block_write() has the same race. I'm going
+> through the list of all wait_on_buffer() users right now.
+> 
+
+Looks like reiserfs has it too when allocating tree blocks, but it should
+be harder to hit.  The fix should be small but it will take me a bit to
+make sure it doesn't affect the rest of the balancing code.
+
+-chris
 

@@ -1,64 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129830AbRCHV3s>; Thu, 8 Mar 2001 16:29:48 -0500
+	id <S129727AbRCHVdS>; Thu, 8 Mar 2001 16:33:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129833AbRCHV3i>; Thu, 8 Mar 2001 16:29:38 -0500
-Received: from rasputin.trustix.com ([195.139.104.66]:25874 "HELO
-	rasputin.trustix.com") by vger.kernel.org with SMTP
-	id <S129830AbRCHV31>; Thu, 8 Mar 2001 16:29:27 -0500
-Message-ID: <3AA7F9F0.40402@trustix.com>
-Date: Thu, 08 Mar 2001 22:30:24 +0100
-From: Lars Gaarden <larsg@trustix.com>
-Organization: Trustix AS
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-ac4 i686; en-US; 0.8) Gecko/20010220
-X-Accept-Language: en
+	id <S129730AbRCHVdJ>; Thu, 8 Mar 2001 16:33:09 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:63129 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129727AbRCHVc7>;
+	Thu, 8 Mar 2001 16:32:59 -0500
+Date: Thu, 8 Mar 2001 16:31:27 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: God <atm@pinky.penguinpowered.com>
+cc: Ben Greear <greearb@candelatech.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.2 ext2 filesystem corruption ? (was 2.4.2: What happened
+ ?(No
+In-Reply-To: <Pine.LNX.4.21.0103081511560.878-100000@scotch.homeip.net>
+Message-ID: <Pine.GSO.4.21.0103081556460.12913-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Venkatesh Ramamurthy <Venkateshr@ami.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Microsoft begining to open source Windows 2000?
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E952C7@ATL_MS1>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Venkatesh Ramamurthy wrote:
 
-> 	Enterprise customers are beginning to see the value of having
-> 	source available, and MS is doing this as a half-baked
-> 	solution to give decition makers one less reason for switching
-> 	to Open Source.
+
+On Thu, 8 Mar 2001, God wrote:
+
+> > *users* have no business changing the system configuration. End of story.
+> > Again, if somebody doesn't read manpages before doing stuff under root -
+> > no point trying to protect him. He will find a way to fsck up, no matter
+> > how many "safety" checks you put in.
 > 
+> Just curious, but do you administer any kind of network with users?  Are
+
+Fortunately, not anymore.
+
+> they all perfect?  Never changing a setting?  Never screwing anything
+
+Thanks $DEITY, never really had to deal with DOS/MacOS/Windows. So that
+was not that much of a problem system-wide. Power-lusers screwing their
+.profile, .forward, yodda, yodda? You bet.
+
+> up?  ... If so , then it must get boring sitting in your office all day.
+
+Not really ;-/
+
+> According to you, I, nor any of the other millions of computer users/game
+> players out there, should ever do anything more then install a game and
+> run it.  Oh wait .. ya know what? .. that involves changing system
+> settings too ..... darn .. ya know .. I guess I just shouldn't use a
+> computer at all.... -end of story
+
+Not exactly. It's not a matter of should or shouldn't. It's much simpler -
+if you do something you'd better get some idea of potential scale of
+screwups you can cause doing that. Anyone who uses sharp tools and doesn't
+watch his steps is going to get hurt, be it buzz-saw or root. When you
+are logged in as root you can cause _any_ damage to system. If you do
+that - blame yourself. It sucks to spend a weekend with backups because
+of a typo, but if you screw yourself because you didn't RTFM... <shrug>
+You don't take random pills without checking the side effects, do you?
+Same principle...
+
+> > BTW, that's the first time I've seen
+> > "elite" used as a term for "able to understand the meaning of words 'use
+> > with extreme caution'". Oh, well...
 > 
-> Microsoft such attempts can be viewed as either
-> 1. Trying to make it sources open(in the long run) or
-> 2. As you said a "half - baked solution"
-> 
-> 	But the article mentioned about the "earlier success with the pilot
-> program" , which made me feel that they may have more plans than making the
-> sources open for a few customers.
+> What? .... that is very, VERY, low and stupid.
 
-Don't get me wrong. I think that making the source available is
-a step in the right direction. But MS' business model is very
-centered around controlling and protecting their operating
-system/platform. Ever since they gained an upper hand in the
-PC platform war, their agenda has been to protect Windows from
-any competing platforms. Think OS/2, Java, Netscape.
-
-There is also the fact that Windows source code has been available
-for a long time, both to universities and to ISVs that are
-developing software that requires deep hackery (Citrix, Bristol
-technology, etc). Which makes me believe that this "source
-available (under heavy license)" thing is mainly a marketing stunt
-to make MS look good.
-
-Today MS is a platform provider. Open Source is all about making
-the platform a commodity. A major business plan and culture
-rewiring has to happen inside MS before they can embrace Open
-Source, and I don't see that happening yet.
-
-I'd be very happy to be proved wrong, though.
-
--- 
-LarsG.
+Would you mind rereading the posting I replied to? Previous poster apparently
+implied that ability to read the manpage is a sign of being a member
+of some elite. No arguments - it's _very_ stupid. Your point being?
 

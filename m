@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312375AbSDEIVD>; Fri, 5 Apr 2002 03:21:03 -0500
+	id <S312379AbSDEI0x>; Fri, 5 Apr 2002 03:26:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312379AbSDEIUx>; Fri, 5 Apr 2002 03:20:53 -0500
-Received: from angband.namesys.com ([212.16.7.85]:15494 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S312375AbSDEIUk>; Fri, 5 Apr 2002 03:20:40 -0500
-Date: Fri, 5 Apr 2002 12:20:35 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Daniel Nofftz <nofftz@castor.uni-trier.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Q] reiserfs error message at boot-time
-Message-ID: <20020405122035.A14561@namesys.com>
-In-Reply-To: <Pine.LNX.4.40.0204050959290.13705-100000@infcip10.uni-trier.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S312380AbSDEI0d>; Fri, 5 Apr 2002 03:26:33 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:63459 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S312379AbSDEI0W>; Fri, 5 Apr 2002 03:26:22 -0500
+Date: Fri, 5 Apr 2002 10:24:39 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: David Schwartz <davids@webmaster.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+In-Reply-To: <20020405072951.AAA8697@shell.webmaster.com@whenever>
+Message-ID: <Pine.NEB.4.44.0204051020450.7845-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, 4 Apr 2002, David Schwartz wrote:
 
-On Fri, Apr 05, 2002 at 10:03:47AM +0200, Daniel Nofftz wrote:
+> >A GPL library can only be linked with other GPL-compatible code.
+>
+> 	Where in the GPL did you find this provision?!
 
-> i just moved my linux partitition from ext3 to reiserfs.
-> now my problem:
-> when i boot, i get this error-message:
-> reiserfs: Unrecognized mount option errors
-> reiserfs: Unrecognized mount option errors
+<--  snip  -->
 
-Can you show content of your /etc/fstab?
-It complains you passed it unrecognised "errors" option.
+    b) You must cause any work that you distribute or publish, that in
+    whole or in part contains or is derived from the Program or any
+    part thereof, to be licensed as a whole at no charge to all third
+    parties under the terms of this License.
 
-Bye,
-    Oleg
+<--  snip  -->
+
+> 	DS
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

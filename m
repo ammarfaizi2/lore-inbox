@@ -1,98 +1,394 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271401AbTGQKoA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 06:44:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271406AbTGQKn5
+	id S271407AbTGQKun (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 06:50:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271414AbTGQKun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 06:43:57 -0400
-Received: from web20008.mail.yahoo.com ([216.136.225.71]:28689 "HELO
-	web20008.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S271401AbTGQKmq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 06:42:46 -0400
-Message-ID: <20030717105739.70395.qmail@web20008.mail.yahoo.com>
-Date: Thu, 17 Jul 2003 03:57:39 -0700 (PDT)
-From: navneet panda <navneet_panda@yahoo.com>
-Subject: kernel panic at boot
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Thu, 17 Jul 2003 06:50:43 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:28809 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S271407AbTGQKuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 06:50:04 -0400
+Date: Thu, 17 Jul 2003 13:04:54 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Arch-independent morse code panics for 2.6.0-test1-ac2
+Message-ID: <20030717110454.GJ8160@louise.pinerecords.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Alan,
 
-My HP ZE 5170 laptop has RH9 with gcc
-gcc (GCC) 3.2.2 20030222 (Red Hat Linux 3.2.2-5)
+I've rediffed the latest morsepanics code for test1ac2, here it is.
+The patch is a bit different from the one in the original 2.5-ac
+branch, namely it includes the Jan-Benedict Glaw insane macro stuff(tm).
 
-grub.conf reads 
+-- 
+Tomas Szepe <szepe@pinerecords.com>
 
-title Red Hat Linux (2.6.0-test1-ac1)
-        root (hd0,5)
-        kernel /boot/vmlinuz-2.6.0-test1-ac1 ro
-root=LABEL=/ hdc=ide-scsi idebus=66
-        initrd /boot/initrd-2.6.0-test1-ac1.img
+
+diff -urN a/drivers/char/keyboard.c b/drivers/char/keyboard.c
+--- a/drivers/char/keyboard.c	2003-06-22 22:27:39.000000000 +0200
++++ b/drivers/char/keyboard.c	2003-07-17 12:43:10.000000000 +0200
+@@ -262,6 +262,27 @@
+ }
  
-title Red Hat Linux (2.4.20-18.9)
-        root (hd0,5)
-        kernel /boot/vmlinuz-2.4.20-18.9 ro
-root=/dev/hda6 hdc=ide-scsi idebus=66
-        initrd /boot/initrd-2.4.20-18.9.img
+ /*
++ * Turn all possible leds on or off.
++ */
++void kd_set_led_all(int state)
++{
++	struct list_head *node;
++	state = state ? 1 : 0;
++
++	list_for_each(node, &kbd_handler.h_list) {
++		struct input_handle *handle = to_handle_h(node);
++		if (test_bit(EV_LED, handle->dev->evbit)) {
++			int led;
++			for (led = 0; led <= LED_MAX; led++) {
++				if (test_bit(led, handle->dev->ledbit))
++					input_event(handle->dev, EV_LED, led,
++						state);
++			}
++		}
++	}
++}
++
++/*
+  * Setting the keyboard rate.
+  */
+ static inline unsigned int ms_to_jiffies(unsigned int ms) {
+diff -urN a/include/linux/morseops.h b/include/linux/morseops.h
+--- a/include/linux/morseops.h	1970-01-01 01:00:00.000000000 +0100
++++ b/include/linux/morseops.h	2003-07-17 12:43:10.000000000 +0200
+@@ -0,0 +1,23 @@
++/*  Yes, it's morse code ops indeed.  */
++
++#ifndef _LINUX_MORSEOPS_H
++#define _LINUX_MORSEOPS_H
++
++#include <linux/config.h>
++
++#ifdef CONFIG_MORSE_PANICS
++
++extern const unsigned char morsetable[];	/* in kernel/morse.c */
++void panic_morseblink(char *buf);		/* in kernel/morse.c */
++
++static inline unsigned char tomorse(char c) {
++	if (c >= 'a' && c <= 'z')
++		c -= 'a' - 'A';
++	return (c >= '"' && c <= '_') ? morsetable[c - '"'] : 0;
++}
++
++#else	/* CONFIG_MORSE_PANICS */
++# define panic_morseblink(buf)		do { } while (0)
++#endif	/* CONFIG_MORSE_PANICS */
++
++#endif	/* _LINUX_MORSEOPS_H */
+diff -urN a/include/linux/vt_kern.h b/include/linux/vt_kern.h
+--- a/include/linux/vt_kern.h	2003-04-07 19:32:27.000000000 +0200
++++ b/include/linux/vt_kern.h	2003-07-17 12:43:10.000000000 +0200
+@@ -33,7 +33,10 @@
+ 	wait_queue_head_t paste_wait;
+ } *vt_cons[MAX_NR_CONSOLES];
  
-title Debian
-        root (hd0,3)
-        kernel /boot/vmlinuz-2.4.18-bf2.4
-root=/dev/hda4 hdc=ide-scsi idebus=66
-
-
-I compiled the source for 2.6 test after applying the
-second patch and then 
-
-make mrproper
-make xconfig 
-make bzImage 
-make modules 
-make modules_install 
-make install
-
-copied the .config to the appropriate file in /boot
-
-The message upon bootup is
-
-mounting root filesystem
-mount error 19 mounting ext3
-pivotroot: pivot_root (/sysroot, /sysroot/initrd)
-failed:2
-umount /initrd/proc failed : 2
-
-Freeing unused kernel memory : 228K freed
-
-Kernel panic : No init found 
-Try passing init= option to kernel
-
-I did include ext3 fs support because it was already
-part of old config file from 2.4 which was used as a
-base for the new config file. 
-
-I don't think this should make a difference but ....
-Under 2.4 I had made the change that I had made
-separate reiserfs partitions for /usr /var /tmp after
-the initial install and moved all the relevant files
-there. / is still ext3. the 2.6 source is under
-/usr/src. 
-
-The strange thing is I pass exactly the same options
-to the 2.4 kernel as well as kernel 2.4.18-bf2.4 (
-debian on reiserfs ) and there isn't any problem.
-
-Should I be trying some debugging? I am not very sure
-how to go about that.
-
-Thanks in advance.
-
-Panda
-
-
-__________________________________
-Do you Yahoo!?
-SBC Yahoo! DSL - Now only $29.95 per month!
-http://sbc.yahoo.com
++/* keyboard.c */
++
+ extern void kd_mksound(unsigned int hz, unsigned int ticks);
++extern void kd_set_led_all(int state);
+ extern int kbd_rate(struct kbd_repeat *rep);
+ 
+ /* console.c */
+diff -urN a/init/Kconfig b/init/Kconfig
+--- a/init/Kconfig	2003-07-17 12:46:04.000000000 +0200
++++ b/init/Kconfig	2003-07-17 12:45:09.000000000 +0200
+@@ -134,6 +134,20 @@
+ 	  This option enables access to kernel configuration file and build
+ 	  information through /proc/ikconfig.
+ 
++config MORSE_PANICS
++	bool "Morse code panics"
++	depends on VT
++	help
++	  When enabled, this code will make a panicking kernel cry for
++	  help in morse code, signalling on the leds of a possibly attached
++	  keyboard and/or a bleeper.  You can enable/disable your morse
++	  output devices of choice using the "panicmorse" kernel boot
++	  parameter.  Currently, "panicmorse=0" will disable the signalling
++	  completely, "panicmorse=1" (the default) will only blink the leds,
++	  "panicmorse=2" will only beep, and "panicmorse=3" will do both.
++
++	  If unsure, say Y.  This feature is very helpful to those who
++	  spend most of their time in X.
+ 
+ menuconfig EMBEDDED
+ 	bool "Remove kernel features (for embedded systems)"
+diff -urN a/kernel/Makefile b/kernel/Makefile
+--- a/kernel/Makefile	2003-07-17 12:46:04.000000000 +0200
++++ b/kernel/Makefile	2003-07-17 12:43:10.000000000 +0200
+@@ -20,6 +20,7 @@
+ obj-$(CONFIG_SOFTWARE_SUSPEND) += suspend.o
+ obj-$(CONFIG_COMPAT) += compat.o
+ obj-$(CONFIG_IKCONFIG) += configs.o
++obj-$(CONFIG_MORSE_PANICS) += morse.o
+ 
+ # files to be removed upon make clean
+ clean-files := ikconfig.h
+diff -urN a/kernel/morse.c b/kernel/morse.c
+--- a/kernel/morse.c	1970-01-01 01:00:00.000000000 +0100
++++ b/kernel/morse.c	2003-07-17 12:43:10.000000000 +0200
+@@ -0,0 +1,229 @@
++/*
++ *  kernel/morse.c
++ *
++ *  Copyright (C) 2002 Andrew Rodland <arodland@noln.com>
++ *  Copyright (C) 2003 Tomas Szepe <szepe@pinerecords.com>
++ *
++ *  Tell the user who may be running in X and not see the console that
++ *  we have panic'd.  This is to distingush panics from "real lockups."
++ *  Could in theory send the panic message as morse, but that is left
++ *  as an exercise for the reader.
++ *
++ *  And now it's done! LED and speaker morse code by Andrew Rodland
++ *  <arodland@noln.com>, with improvements based on suggestions from
++ *  linux@horizon.com and a host of others.
++ *
++ *  Initial 2.5 morsepanics port and cleanup by
++ *  Tomas Szepe <szepe@pinerecords.com>, January 2003.
++ *
++ *  Cryptic morse code table replaced with meticulous macrowork by
++ *  Jan-Benedict Glaw <jbglaw@lug-owl.de>, February 2003.
++ */
++
++#include <linux/config.h>
++#include <linux/morseops.h>
++#include <linux/init.h>
++#include <linux/jiffies.h>
++#include <linux/vt_kern.h>
++
++#define DITLEN			(HZ / 5)
++#define DAHLEN			(3 * DITLEN)
++#define SPACELEN		(7 * DITLEN)
++#define FREQ			844
++
++#define MORSE_OUTPUT_BLINK	(1 << 0)
++#define MORSE_OUTPUT_BLEEP	(1 << 1)
++#define MORSE_OUTPUT_ESTRADE	(MORSE_OUTPUT_BLINK | MORSE_OUTPUT_BLEEP)
++
++static int morse_setting = MORSE_OUTPUT_BLINK;
++
++/*  The following macros are used to make up the morse code table.  */
++
++#define	IS_DASH(letter, shift)					\
++	((letter) == '-' ? (1 << (shift)) : (0 << (shift)))
++#define	MORSE(shift, b1, b2, b3, b4, b5, b6)			\
++	(1 << (shift)	| IS_DASH((b1), 5) | IS_DASH((b2), 4)	\
++			| IS_DASH((b3), 3) | IS_DASH((b4), 2)	\
++			| IS_DASH((b5), 1) | IS_DASH((b6), 0))
++#define	MORSE0(letter)						\
++		(0)
++#define	MORSE1(letter, b1)					\
++		MORSE(1, '.', '.', '.', '.', '.', (b1))
++#define	MORSE2(letter, b1, b2)					\
++		MORSE(2, '.', '.', '.', '.', (b1), (b2))
++#define	MORSE3(letter, b1, b2, b3)				\
++		MORSE(3, '.', '.', '.', (b1), (b2), (b3))
++#define	MORSE4(letter, b1, b2, b3, b4)				\
++		MORSE(4, '.', '.', (b1), (b1), (b3), (b4))
++#define	MORSE5(letter, b1, b2, b3, b4, b5)			\
++		MORSE(5, '.', (b1), (b2), (b3), (b4), (b5))
++#define	MORSE6(letter, b1, b2, b3, b4, b5, b6)			\
++		MORSE(6, (b1), (b2), (b3), (b4), (b5), (b6))
++
++/*  Do not shuffle things about in here, the order matters.  */
++const unsigned char morsetable[] = {
++
++	/*  0122, 0, 0310, 0, 0, 0163,				"#$%&'  */
++	MORSE6('"', '-', '.', '-', '-', '.', '-'),
++	MORSE0('#'),
++	0310,		/*  '$': FIXME  */
++	MORSE0('%'),
++	MORSE0('&'),
++	MORSE6('\'', '-', '.', '-', '.', '-', '-'),
++
++	/*  055, 0155, 0, 0, 0163, 0141, 0152, 0051,		()*+,-./  */
++	MORSE5('(', '-', '.', '-', '-', '.'),
++	MORSE6(')', '-', '.', '-', '-', '.', '-'),
++	MORSE0('*'),
++
++	/*  http://www.vennfuessler.de/service/technik/morsen.html  */
++	MORSE5('+', '.', '-', '.', '-', '.'),
++
++	MORSE6(',', '-', '-', '.', '.', '.', '-'),
++	MORSE6('-', '-', '.', '.', '.', '.', '-'),
++	MORSE6('.', '.', '-', '.', '-', '.', '-'),
++	MORSE5('/', '-', '.', '.', '-', '.'),
++
++	/*  077, 076, 074, 070, 060, 040, 041, 043, 047, 057,	0-9  */
++	MORSE5('0', '-', '-', '-', '-', '-'),
++	MORSE5('1', '.', '-', '-', '-', '-'),
++	MORSE5('2', '.', '.', '-', '-', '-'),
++	MORSE5('3', '.', '.', '.', '-', '-'),
++	MORSE5('4', '.', '.', '.', '.', '-'),
++	MORSE5('5', '.', '.', '.', '.', '.'),
++	MORSE5('6', '-', '.', '.', '.', '.'),
++	MORSE5('7', '-', '-', '.', '.', '.'),
++	MORSE5('8', '-', '-', '-', '.', '.'),
++	MORSE5('9', '-', '-', '-', '-', '.'),
++
++	/*  0107, 0125, 0, 0061, 0, 0114, 0,			:;<=>?@  */
++	MORSE6(':', '-', '-', '-', '.', '.', '.'),
++	MORSE6(';', '-', '.', '-', '.', '-', '.'),
++	MORSE0('<'),
++	MORSE5('=', '-', '.', '.', '.', '-'),
++	MORSE0('>'),
++	MORSE6('?', '.', '.', '-', '-', '.', '.'),
++	MORSE0('@'),
++
++	/*  006, 021, 025, 011, 002, 024, 013, 020, 004,	A-I  */
++	MORSE2('A', '.', '-'),
++	MORSE4('B', '-', '.', '.', '.'),
++	MORSE4('C', '-', '.', '-', '.'),
++	MORSE3('D', '-', '.', '.'),
++	MORSE1('E', '.'),
++	MORSE4('F', '.', '.', '-', '.'),
++	MORSE3('G', '-', '-', '.'),
++	MORSE4('H', '.', '.', '.', '.'),
++	MORSE2('I', '.', '.'),
++
++	/*  036, 015, 022, 007, 005, 017, 026, 033, 012,	J-R  */
++	MORSE4('J', '.', '-', '-', '-'),
++	MORSE3('K', '-', '.', '-'),
++	MORSE4('L', '.', '-', '.', '.'),
++	MORSE2('M', '-', '-'),
++	MORSE2('N', '-', '.'),
++	MORSE3('O', '-', '-', '-'),
++	MORSE4('P', '.', '-', '-', '.'),
++	MORSE4('Q', '-', '-', '.', '-'),
++	MORSE3('R', '.', '-', '.'),
++
++	/*  010, 003, 014, 030, 016, 031, 035, 023,		S-Z  */
++	MORSE3('S', '.', '.', '.'),
++	MORSE1('T', '-'),
++	MORSE3('U', '.', '.', '-'),
++	MORSE4('V', '.', '.', '.', '-'),
++	MORSE3('W', '.', '-', '-'),
++	MORSE4('X', '-', '.', '.', '-'),
++	MORSE4('Y', '-', '.', '-', '-'),
++	MORSE4('Z', '-', '-', '.', '.'),
++
++	/*  0, 0, 0, 0, 0154					[\]^_  */
++	MORSE0('['),
++	MORSE0('\\'),
++	MORSE0(']'),
++	MORSE0('^'),
++	MORSE6('_', '.', '-', '-', '-', '.', '-'),
++};
++
++void panic_morseblink(char *buf)
++{ 
++	static unsigned long next_jiffie = 0;
++	static char *bufpos = 0;
++	static unsigned char morse = 0;
++	static char state = 1;
++	
++	if (!(morse_setting & MORSE_OUTPUT_ESTRADE))
++		return;
++
++	if (!buf)
++		buf = "Uh oh, we lost the panic msg.";
++
++	/*  Waiting for something?  */
++	if (bufpos && time_after(next_jiffie, jiffies))
++		return;
++
++	if (state) {	/*  Coming off of a blink.  */
++		if (morse_setting & MORSE_OUTPUT_BLINK)
++			kd_set_led_all(0);
++
++		state = 0;
++
++		if (morse > 1) {
++			/*  Not done yet, just a one-dit pause.  */
++			next_jiffie = jiffies + DITLEN;
++		} else {
++			/*  Get a new char, figure out how much space.  */
++
++			/*  First time through.  */
++			if (!bufpos)
++				bufpos = buf;
++
++			if (!*bufpos) {
++				/*  Repeating.  */
++				bufpos = buf;
++				next_jiffie = jiffies + SPACELEN;
++			} else {
++				/*  Inter-letter space.  */
++				next_jiffie = jiffies + DAHLEN; 
++			}
++
++			if (!(morse = tomorse(*bufpos))) {
++				next_jiffie = jiffies + SPACELEN;
++				state = 1;	/*  And get us back here.  */
++			}
++			bufpos++;
++		}
++	} else {
++		/*  Starting a new blink.  We have a valid code in morse.  */
++		int len;
++
++		len = (morse & 0x01) ? DAHLEN : DITLEN;
++
++		if (morse_setting & MORSE_OUTPUT_BLEEP)
++			kd_mksound(FREQ, len);
++
++		if (morse_setting & MORSE_OUTPUT_BLINK)
++			kd_set_led_all(1);
++
++		next_jiffie = jiffies + len;
++
++		state = 1;
++		morse >>= 1;
++	}
++}
++
++static int __init panicmorse_setup(char *str)
++{
++	int par;
++	if (get_option(&str, &par)) 
++		morse_setting = par;
++	return 1;
++}
++
++/*  "panicmorse=0" disables the blinking as it caused problems with
++ *  certain console switches.
++ *
++ *  "panicmorse | 1" does the show using kbd leds.
++ *  "panicmorse | 2" throws in bleeping via kd_mksound().
++ */
++__setup("panicmorse=", panicmorse_setup);
+diff -urN a/kernel/panic.c b/kernel/panic.c
+--- a/kernel/panic.c	2003-05-27 08:06:57.000000000 +0200
++++ b/kernel/panic.c	2003-07-17 12:43:10.000000000 +0200
+@@ -16,6 +16,7 @@
+ #include <linux/init.h>
+ #include <linux/sysrq.h>
+ #include <linux/interrupt.h>
++#include <linux/morseops.h>
+ 
+ asmlinkage void sys_sync(void);	/* it's really int */
+ 
+@@ -97,7 +98,7 @@
+ #endif
+ 	local_irq_enable();
+ 	for (;;)
+-		;
++		panic_morseblink(buf);
+ }
+ 
+ /**

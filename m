@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVBRTBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVBRTDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261450AbVBRTBO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 14:01:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVBRTBO
+	id S261449AbVBRTDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 14:03:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVBRTDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 14:01:14 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:23743 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S261448AbVBRTBM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 14:01:12 -0500
-Date: Fri, 18 Feb 2005 20:01:11 +0100
-From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-X-Mailer: The Bat! (v3.0) UNREG / CD5BF9353B3B7091
-Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-X-Priority: 3 (Normal)
-Message-ID: <173098725.20050218200111@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Subject: eepro100 or e100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Feb 2005 14:03:16 -0500
+Received: from fire.osdl.org ([65.172.181.4]:14987 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261448AbVBRTCp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 14:02:45 -0500
+Date: Fri, 18 Feb 2005 11:02:32 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, david@fubar.dk
+Subject: Re: [PATCH] add I/O error uevent for block devices
+Message-Id: <20050218110232.6512f0fb.akpm@osdl.org>
+In-Reply-To: <20050218124503.GA7705@vrfy.org>
+References: <20050218083316.GA6619@vrfy.org>
+	<20050218014621.0b453232.akpm@osdl.org>
+	<20050218124503.GA7705@vrfy.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Kay Sievers <kay.sievers@vrfy.org> wrote:
+>
+>  > - there are numerous other places where an I/O error can be detected:
+>  >   grep the tree for b_end_io and bio_end_io.
+> 
+>  You mean the mmap and direct-io stuff?
 
-Can anyone shed some light upon the state of development
-of these drivers?
-I mean: the set of supported both NIC and kernel features.
-Are both drivers supported by their authors, etc.
-
-Looking for answers that would lead to a conclusion which to use.
-
-Regards,
-Maciej
-
-
+direct-io, certainly.  Also reiserfs, xfs, ntfs, ext3, jfs and possibly md
+have their own I/O completion handlers.

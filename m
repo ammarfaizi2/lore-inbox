@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275021AbRIZLsn>; Wed, 26 Sep 2001 07:48:43 -0400
+	id <S275042AbRIZMOV>; Wed, 26 Sep 2001 08:14:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275026AbRIZLse>; Wed, 26 Sep 2001 07:48:34 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:56327 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S275021AbRIZLsY>;
-	Wed, 26 Sep 2001 07:48:24 -0400
-Date: Wed, 26 Sep 2001 13:48:37 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Paul G. Allen" <pgallen@randomlogic.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life
- in prison
-In-Reply-To: <E15lfGM-00046c-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0109261341130.29158-100000@Expansa.sns.it>
+	id <S275056AbRIZMOM>; Wed, 26 Sep 2001 08:14:12 -0400
+Received: from [212.111.50.98] ([212.111.50.98]:48143 "EHLO
+	shami.gointernet.co.uk") by vger.kernel.org with ESMTP
+	id <S275042AbRIZMOC>; Wed, 26 Sep 2001 08:14:02 -0400
+Message-ID: <3BB1C6D8.D5D2B582@gointernet.co.uk>
+Date: Wed, 26 Sep 2001 13:15:20 +0100
+From: Eugenio Mastroviti <eugeniom@gointernet.co.uk>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-4GB i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Luigi Genoni <kernel@Expansa.sns.it>,
+        Hack Central <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by lifein 
+ prison
+In-Reply-To: <Pine.LNX.4.33.0109261341130.29158-100000@Expansa.sns.it>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Luigi Genoni wrote:
+> 
+> On Tue, 25 Sep 2001, Alan Cox wrote:
 
+> Fare una legge e non farla rispettare significa
+> autorizzare il contrario.
 
-On Tue, 25 Sep 2001, Alan Cox wrote:
+Issuing a law and not enforcing it means authorizing its opposite
 
-> > > If this passes, everyone working in computer security can be arrested and thrown in prison for life. In addition, people such as Kevin Mitnick can be thrown
-> > > back in prison even though they have already paid for their crime (double jeopardy?).
-> > >
-> > > http://www.securityfocus.com/news/257
->
-> Cuba is within small boat distance. I thought it was going to be twenty
-> years before the direction changed, now Im not so sure
-> -
-I have been told of people covering this destance by swin, I do not know
-if it is true, but a seawolf told me that from USA to cuba should
-be easier to go. :).
+(I think)
 
-I was thinking to  Richelieau princip:
-Fare una legge e non farla rispettare significa
-autorizzare il contrario.
-(sorry, unable to translate in english, it is something like if you say a
-law, and you are not
-forcing people to respect it, people are allowed by law to do the
-countrary).
-Do you think Americans are considering this moral aspect?
+> Do you think Americans are considering this moral aspect?
 
-Luigi
+It's not only moral - it's awfully practical, as we Italians know very
+well (speed limits on the highways... ahem...)
 
+Eugenio
 
+-- 
+Anxiety, n.:
+        The first time you can't do it a second time.
+Panic, n.:
+        The second time you can't do it the first time.

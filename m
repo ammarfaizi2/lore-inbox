@@ -1,80 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132752AbRDUQry>; Sat, 21 Apr 2001 12:47:54 -0400
+	id <S132756AbRDURF7>; Sat, 21 Apr 2001 13:05:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132754AbRDUQro>; Sat, 21 Apr 2001 12:47:44 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:58374 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S132752AbRDUQr0> convert rfc822-to-8bit; Sat, 21 Apr 2001 12:47:26 -0400
-From: s-jaschke@t-online.de (Stefan Jaschke)
-Reply-To: stefan@jaschke-net.de
-Organization: jaschke-net.de
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: Problems with Toshiba SD-W2002 DVD-RAM drive (IDE)
-Date: Sat, 21 Apr 2001 18:47:07 +0200
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
+	id <S132758AbRDURFq>; Sat, 21 Apr 2001 13:05:46 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:24080 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S132756AbRDURFm>;
+	Sat, 21 Apr 2001 13:05:42 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200104211702.VAA14712@ms2.inr.ac.ru>
+Subject: Re: Bug report: tcp staled when send-q != 0, timers == 0.
+To: berd@elf.ihep.su (Eugene B. Berdnikov)
+Date: Sat, 21 Apr 2001 21:02:32 +0400 (MSK DST)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01041714250400.01376@antares> <01041914440701.01232@antares> <20010419150332.B22159@suse.de>
-In-Reply-To: <20010419150332.B22159@suse.de>
+In-Reply-To: <20010421194503.H23490@elf.ihep.su> from "Eugene B. Berdnikov" at Apr 21, 1 07:45:03 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Message-Id: <01042118470700.01914@antares>
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
+Hello!
 
-I took some time to try to understand why "mke2fs -b 2048 /dev/hdc"
-wants 500MB memory. Here is a first explanation:
-# mke2fs -m 0 -n /dev/hdc
-mke2fs 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
-Filesystem label=
-OS type: Linux
-Block size=4096 (log=2)
-Fragment size=4096 (log=2)
-406650880 inodes, 813284544 blocks
-0 blocks (0.00%) reserved for the super user
-First data block=0
-24820 block groups
-32768 blocks per group, 32768 fragments per group
-16384 inodes per group
+>  Im my case P-MTU discovery
 
-813284544 4k blocks would be 3.7 Terabyte.
-(Strangely enough, calling mke2fs with any blocksize parameter results in a memory
-allocation larger then my memory available.)
+Sorry, I lied. Not pmtu discovery but exaclty opposite effect
+is important here: collapsing of small frames to larger ones.
+Each such merge results in loss of 1 "sack" in 2.2.
 
-I took some more time to understand at what point the wrong size is introduced.
-I got the source rpm, set CFLAGS to "-g", ran gdb, and nailed down the point:
+>  I only wrote that it was active when got stuck. It may be idle before -
+>  I do not remember, but have a habit to keep connections for weeks. :)
 
-(gdb) l
-80      #endif
-81              if (fd < 0)
-82                      return errno;
-83
-84      #ifdef BLKGETSIZE
-85              if (ioctl(fd, BLKGETSIZE, &size) >= 0) {
-86                      close(fd);
-87                      *retblocks = size / (blocksize / 512);
-88                      return 0;
-89              }
-(gdb) n
-86                      close(fd);
-(gdb) print size
-$1 = -2083658236
-(gdb) bt
-#0  ext2fs_get_device_size (file=0xbffff911 "/dev/hdc", blocksize=1024, 
-    retblocks=0xbffff534) at ../../../lib/ext2fs/getsize.c:86
-#1  0x804aca3 in PRS (argc=4, argv=0xbffff75c) at ../../misc/mke2fs.c:993
-#2  0x804af2e in main (argc=4, argv=0xbffff75c) at ../../misc/mke2fs.c:1081
-#3  0x40044baf in __libc_start_main () from /lib/libc.so.6
- 
-I am afraid I'd need help to go deeper.
+Good. 8)
 
-Cheers,
-Stefan J.
+>  As my experiments show, any connection, entering keepalive once,
+>  have lose its ability to send zero probes - forever.
 
--- 
-Stefan R. Jaschke <stefan@jaschke-net.de>
-http://www.jaschke-net.de
+Exactly.
+
+
+>  OK. Let us return to the "mss/mtu bug". The most mystifying thing for
+>  me is the dependance of the MTU threshold on the kernel version, etc.
+
+Well, you can reinvestigate this to get more reliable results...
+
+Actually, this problem is so difficult that the study would be purely
+academical; there is no hope to fix it in 2.2. It is partially
+repaired during 2.3 and completely resolved only in 2.4.4.
+
+
+>  But the question is what the minimum "reliable" MTU. There are lots of
+>  situations when data comes rapidly in small packets (say, monitoring logs).
+>  Is there a danger to lose such connections on a heavily loaded host?
+
+There is no real danger. Bad things can happen only when receiver does not
+read data for very long time, in this case connection times out not
+receiving any acks.
+
+What's about minimum/maximum mtu... it does not exist. F.e. if sender floods
+1 byte frames in TCP_NODELAY mode and receiver does not read them, 2.2 will
+fail not depending on mtu. See? Even 40 bytes of IP+TCP headers (not counting
+for additional overhead) guarantee that memory will exhaust by order earlier
+than receiver can close window.
+
+Alexey

@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267735AbUHRVIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267795AbUHRVS5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267735AbUHRVIk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 17:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267760AbUHRVIj
+	id S267795AbUHRVS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 17:18:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267746AbUHRVRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 17:08:39 -0400
-Received: from holomorphy.com ([207.189.100.168]:29113 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267748AbUHRVFG (ORCPT
+	Wed, 18 Aug 2004 17:17:04 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:28869 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267849AbUHRVPr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 17:05:06 -0400
-Date: Wed, 18 Aug 2004 14:05:03 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
+	Wed, 18 Aug 2004 17:15:47 -0400
+Date: Wed, 18 Aug 2004 14:15:41 -0700
+From: Paul Jackson <pj@sgi.com>
 To: "David S. Miller" <davem@redhat.com>
-Cc: pj@sgi.com, linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Does io_remap_page_range() take 5 or 6 args?
-Message-ID: <20040818210503.GG11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"David S. Miller" <davem@redhat.com>, pj@sgi.com,
-	linux-kernel@vger.kernel.org
-References: <20040818133348.7e319e0e.pj@sgi.com> <20040818205338.GF11200@holomorphy.com> <20040818135638.4326ca02.davem@redhat.com>
+Message-Id: <20040818141541.467e1e2d.pj@sgi.com>
+In-Reply-To: <20040818135401.670f11bd.davem@redhat.com>
+References: <20040818133348.7e319e0e.pj@sgi.com>
+	<20040818135401.670f11bd.davem@redhat.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040818135638.4326ca02.davem@redhat.com>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Aug 2004 13:53:38 -0700 William Lee Irwin III wrote:
->> Once it's decided how many it really takes, I'll fix up sparc32 as-needed.
+Dave Miller wrote:
+> Each platform needs different args, unfortunately.
 
-On Wed, Aug 18, 2004 at 01:56:38PM -0700, David S. Miller wrote:
-> (sorry for the emply reply previously)
-> It needs 6 unless we start passing in a 64-bit value to io_remap_page_range()
-> for the 'offset' parameter.
-> Physical I/O addresses are 36-bits or so on sparc32 systems, which is
-> why we need to pass in "offset" and "space".
+Doesn't that make it kinda rough on the folks trying to write
+arch-independent code, such as sound/core/pcm_native.c that I am
+tripping over?
 
-We should pass 64-bit values to remap_page_range() also, then. Or
-perhaps passing pfn's to both suffices, as it all has to be page
-aligned anyway.
+I can imagine a possible 'solution' something like (1) always passing
+six args, and (2) providing arch-dependent macros to generate those last
+two args, from some arch-generic value.
 
+Just brainstorming ...
 
--- wli
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

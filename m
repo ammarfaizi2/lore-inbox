@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbQLWT5w>; Sat, 23 Dec 2000 14:57:52 -0500
+	id <S129410AbQLWT66>; Sat, 23 Dec 2000 14:58:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129410AbQLWT5m>; Sat, 23 Dec 2000 14:57:42 -0500
-Received: from tango.SoftHome.net ([204.144.231.49]:13231 "HELO
-	tango.SoftHome.net") by vger.kernel.org with SMTP
-	id <S129267AbQLWT5d>; Sat, 23 Dec 2000 14:57:33 -0500
-Message-ID: <3A44FBF7.46EDB9EB@softhome.net>
-Date: Sat, 23 Dec 2000 14:24:39 -0500
-From: "Todd M. Roy" <toddroy@softhome.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test13-pre3 i586)
-X-Accept-Language: en
+	id <S131030AbQLWT6s>; Sat, 23 Dec 2000 14:58:48 -0500
+Received: from tahallah.claranet.co.uk ([212.126.138.206]:22283 "EHLO
+	tahallah.clara.co.uk") by vger.kernel.org with ESMTP
+	id <S129410AbQLWT6i>; Sat, 23 Dec 2000 14:58:38 -0500
+Date: Sat, 23 Dec 2000 19:27:57 +0000 (GMT)
+From: Alex Buell <alex.buell@tahallah.clara.co.uk>
+Reply-To: <alex.buell@tahallah.clara.co.uk>
+To: Marcus Meissner <Marcus.Meissner@caldera.de>
+cc: "Mohammad A. Haque" <mhaque@haque.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Netgear FA311
+In-Reply-To: <200012231915.UAA17691@ns.caldera.de>
+Message-ID: <Pine.LNX.4.30.0012231927200.4671-100000@tahallah.clara.co.uk>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: lvm 0.8 to 0.9 conversion?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 23 Dec 2000, Marcus Meissner wrote:
 
-Now that in 2.4.0-test12-pre4, lvm 0.9 has replaced 0.8, is it possible
-to do a conversion of lvm created physical volumes, volume groups
-and logical volumes from 0.8 to 0.9?
+> > Is this where you got the sources?
+> > http://www.scyld.com/network/natsemi.html (Thanks Steve)
+>
+> The linux driver is actually on the accompanying floppy disk. Without license
+> statement unfortunately.
 
-Sorry if this is already a FAQ that I just haven't found yet.
+I got a floppy disk with the netgear fa311, but the only linux sources on
+it was for 2.0.36!
 
+Cheers,
+Alex
+-- 
+I stand in my undergarments and hurl inventive in your general direction.
 
--- todd --
+http://www.tahallah.clara.co.uk
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

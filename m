@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312033AbSCQNzw>; Sun, 17 Mar 2002 08:55:52 -0500
+	id <S312039AbSCQOcD>; Sun, 17 Mar 2002 09:32:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312035AbSCQNzn>; Sun, 17 Mar 2002 08:55:43 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:24825 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S312033AbSCQNz3>; Sun, 17 Mar 2002 08:55:29 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <1016305054.19498.13.camel@sonja> 
-In-Reply-To: <1016305054.19498.13.camel@sonja>  <20020316061535.GA16653@krispykreme> <730219199.1016271418@[10.10.2.3]> 
-To: Daniel Egger <degger@fhm.edu>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] 7.52 second kernel compile 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 17 Mar 2002 13:54:40 +0000
-Message-ID: <7874.1016373280@redhat.com>
+	id <S312041AbSCQObn>; Sun, 17 Mar 2002 09:31:43 -0500
+Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:5837 "EHLO
+	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S312039AbSCQObd>; Sun, 17 Mar 2002 09:31:33 -0500
+Date: Sun, 17 Mar 2002 15:31:27 +0100 (CET)
+From: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Andrew Morton <akpm@zip.com.au>,
+        <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
+Subject: Re: fadvise syscall?
+In-Reply-To: <5.1.0.14.2.20020317131910.0522b490@pop.cus.cam.ac.uk>
+Message-Id: <Pine.LNX.4.44.0203171505280.27987-100000@phobos>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 17 Mar 2002, Anton Altaparmakov wrote:
 
-degger@fhm.edu said:
->  Interestingly -pipe doesn't give any measurable performance increases
-> or even leads to a minor decrease in compile speed in my latest tests
-> on bigger projects like the linux kernel or GIMP.
+> All of what you are asking for exists in Windows and all the semantics are
+> implemented through a very powerful open(2) equivalent. I don't see why we
+> shouldn't do the same. It makes more sense to me than inventing yet another
+> system call...
 
-I believe that newer versions of GCC have a builtin preprocessor, and -pipe 
-forces them to use the old, slower, external cpp. 
+It is easier for application writers to code:
 
---
-dwmw2
+[...]
+#ifdef HAVE_FADVISE
+	(void)fadvise(fd, FADV_STREAMING);
+#endif
+[...]
 
+Than to have a forest of #ifdefs to determine which O_* flags are
+supported. After all, we still want our programs to run under Solaris. :-)
+
+   Simon
+
+-- 
+GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
+ Fingerprint: 040E B5F7 84F1 4FBC CEAD  ADC6 18A0 CC8D 5706 A4B4
+Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
 

@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266807AbUJNS33@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266901AbUJNSe4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266807AbUJNS33 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 14:29:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266837AbUJNS3J
+	id S266901AbUJNSe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 14:34:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267303AbUJNSec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 14:29:09 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:62472 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S266838AbUJNRir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 13:38:47 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: TimO <hairballmt@mcn.net>, "Richard B. Johnson" <root@chaos.analogic.com>
-Subject: Re: Linux-2.6.8 Hates DOS partitions
-Date: Thu, 14 Oct 2004 20:38:05 +0300
-User-Agent: KMail/1.5.4
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.61.0410131329110.3818@chaos.analogic.com> <20041013213519.GA3379@pclin040.win.tue.nl> <416D15BB.9020002@mcn.net>
-In-Reply-To: <416D15BB.9020002@mcn.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Oct 2004 14:34:32 -0400
+Received: from phoenix.infradead.org ([81.187.226.98]:1798 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266905AbUJNSAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 14:00:09 -0400
+Date: Thu, 14 Oct 2004 19:00:06 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] Introduce PCI <-> CPU address conversion [1/2]
+Message-ID: <20041014180005.GA11954@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
+	linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+	linux-ia64@vger.kernel.org
+References: <20041014124737.GM16153@parcelfarce.linux.theplanet.co.uk> <20041014125348.GA9633@infradead.org> <20041014135323.GO16153@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410142038.05141.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <20041014135323.GO16153@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Having experienced a similar but not exact situation; I'm going to
-> suggest that your BIOS is to blame.  (AMI?)  If you hadn't already
-> done a MBR restore; I would have suggested for you to remove the ATA
-> disk to see if you could once again boot to DOS.  You might remove
-> it anyway to see if a boot from DOS floppy will again allow you to
-> 'see' the DOS D:\ partition.
->    My situation actually arose from a motherboard swap; AOpen/Award/K7
-> --> GByte/AMI/AthlonXP.  Linux booted fine and ran for 2 weeks with-
-> out problem.  I could even see/read all the DOS/VFAT partitions just
-> fine.  It wasn't until I went to boot Win98 that I noticed the prob-
-> lem(Invalid system disk).  Booting from a floppy showed a "Drive not
-> ready" for C:(hda2); D:(hdc1) looked fine but became corrupt as soon
-> as I wrote to it, and E:(hdc2) didn't even show.  I made sure to
-> transfer the IDE settings exactly but no amount of war would allow
-> both systems to boot from the same hard drive(ATA)on the GByte/AMI
-> board and I eventually managed to trash the Linux / as well.  Another
-> motherboard with an Award/Pheonix Bios, a little restoration and all
-> is once again right with the(my) world.
+On Thu, Oct 14, 2004 at 02:53:23PM +0100, Matthew Wilcox wrote:
+> On Thu, Oct 14, 2004 at 01:53:48PM +0100, Christoph Hellwig wrote:
+> > I'd rather have this declared in every architectures asm/ header, so it's
+> > more explicit that it's an per-arch thing.  Also make it a static inline
+> > so we get typechecking.
 > 
-> oh, YMMV   :)
+> I actually don't want typechecking.  Sometimes you have a device and
+> sometimes you have a bus.  You can get everything you want (sysdata)
+> from either, so there's no point in doing dev->bus when all you needed
+> was right there.
 
-Hehe. I have a HP box here which insists that there are 240 heads
-on large IDE drives, not typical 255. This wreaks havoc when I
-try to swap disks between this box and some saner one. Most OSes
-do not boot after swap.
-
-Of special note is total brain damage of NT4 bootloader.
-Boot sector contains plain simple divide overflow bug and
-even when fixed, the same bug is apparently present in NTLDR.
-Result: cannot boot if NTLDR or kernel file is farther than 2Gb
-from disk beginning.
---
-vda
+For some architectures the sysdata is different for bus vs device, so
+yes, we do want strict typechecking.
 

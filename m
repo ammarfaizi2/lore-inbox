@@ -1,122 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263842AbUEHR1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264002AbUEHR3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263842AbUEHR1m (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 13:27:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUEHR1m
+	id S264002AbUEHR3J (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 13:29:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUEHR3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 13:27:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:59548 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263842AbUEHR1i (ORCPT
+	Sat, 8 May 2004 13:29:09 -0400
+Received: from fw.osdl.org ([65.172.181.6]:63900 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264002AbUEHR2n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 13:27:38 -0400
-Date: Sat, 8 May 2004 10:25:34 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: <dongzai007@sohu.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: vid&pid problems in usb_probe()
-Message-Id: <20040508102534.11951d7d.rddunlap@osdl.org>
-In-Reply-To: <2512736.1084007124337.JavaMail.postfix@mx0.mail.sohu.com>
-References: <2512736.1084007124337.JavaMail.postfix@mx0.mail.sohu.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 8 May 2004 13:28:43 -0400
+Date: Sat, 8 May 2004 10:28:29 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: manfred@colorfullife.com, davej@redhat.com, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: dentry bloat.
+In-Reply-To: <20040508031159.782d6a46.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org>
+References: <20040506200027.GC26679@redhat.com> <20040506150944.126bb409.akpm@osdl.org>
+ <409B1511.6010500@colorfullife.com> <20040508012357.3559fb6e.akpm@osdl.org>
+ <20040508022304.17779635.akpm@osdl.org> <20040508031159.782d6a46.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 May 2004 17:05:24 +0800 (CST) <dongzai007@sohu.com> wrote:
-
-| Thank you for replying,but I don't know what you mean,
-| USB descriptor data structure is defined in 
-| "/usr/include/linux/usb.h"
-| 
-| my kernel version is 2.4.18.
-
-Are you saying that your driver uses /usr/include/linux/usb.h ?
-If so, that's wrong.  It should use linux-2.4.18/include/linux/usb.h
-instead, and it will if you build/make the driver correctly.
-
-So, how do you build this driver?  Show the Makefile or command
-line that you use.
-
-Regarding the data structure, I don't know what /usr/include/linux/usb.h
-on your system contains since that is not a kernel header file (and
-drivers shouldn't use those).  I do recall, however, that many moons
-ago, there were some usb structs in usb.h that were not defined
-with __attribute__((packed)), and that could cause field offsets
-to be off a bit, er, byte (or more).
-
-And what processor arch. are you doing this on?
-
-Driver source code?
-
-~Randy
 
 
-| -----  Original Message  -----
-| From: Randy.Dunlap 
-| To: dongzai007@sohu.com 
-| Cc: linux-kernel@vger.kernel.org 
-| Subject: Re: vid&pid problems in usb_probe()
-| Sent: Sat May 08 12:45:54 CST 2004
-| 
-| > On Sat, 8 May 2004 11:48:44 +0800 (CST) <dongzai007@sohu.com> wrote:
-| > 
-| > | 
-| > | 
-| > | I am writting an usb driver.You know function usb_probe(...) is used to determine whether the usbdevices just pluged in is what the driver is for.
-| > 
-| > a.  Please learn to use the Enter/Return key around character position
-| > 70 (or before) on each line.
-| > 
-| > b.  what kernel version?   (*always*)
-| > 
-| > c.  You should ask this on the linux-usb-development mailing list:
-| > linux-usb-devel@lists.sf.net
-| > 
-| > 
-| > | The Vid and Pid of my usb device are 0x1111 and 0x0000 respectively.
-| > | 
-| > | the program is :
-| > | 
-| > | static void* usb_probe(struct usb_device *udev, unsigned int ifnum, const struct usb_device_id *id)
-| > | {
-| > |     ..............
-| > |     ..............
-| > |     
-| > |     printk("<1>Vid:%x
-| Pid:%x
-| ",udev->descriptor.idVendor,udev->descriptor.idProduct);
-| > | 
-| > |     if ((udev->descriptor.idVendor!=0x1111)
-| > |          ||(udev->descriptor.idProduct!=0x0000)) return NULL;
-| > | 
-| > |     ..............
-| > | }
-| > | 
-| > | when I plug the device whose vid & pid is 0x1111 & 0x0000 respectively.
-| > | this Module displayed
-| > | 
-| > | 
-| > | Vid:0
-| > | Pid:201
-| > | 
-| > | usb.c ........ no active driver for this device;
-| > | 
-| > | and when I plug another device , I also got wrong vid & pid.
-| > | 
-| > | But when I wrote program as below:
-| > | 
-| > | __u16 tmp=0x1111;
-| > | printk("<1>%x",tmp);
-| > | 
-| > | it can print "1111" on the screen. That means my syntax is correct.
-| > | I mean, the problem may be at the data transfered into function usb_probe()
-| > | Maybe data transfered into function usb_probe() is wrong.
-| > | 
-| > | I wonder where is the problem, how can i solve.
-| > 
-| > Seeing more (or all) of your source code could help.
-| > I'm especially curious (suspicious) about your USB descriptor data
-| > structures.
+On Sat, 8 May 2004, Andrew Morton wrote:
+>   */
+>  struct qstr {
+>  	const unsigned char *name;
+> -	unsigned int len;
+>  	unsigned int hash;
+> -};
+> +	unsigned short len;
+> +} __attribute__((packed));
+
+This would make me nervous.
+
+Since we don't use this thing in an array, this may be right. But on the
+other hand, if this thing is preceded by an "unsigned short" in a
+structure (or "int" on a 64-bit architecture), I think you just made
+"name" be unaligned, which can cause serious problems. Because I think
+"packed" _also_ means that it doesn't honor the alignment of the thing
+when laying it out in structures.
+
+Also, in your previous patch (which I'm not as convinced might be wrong), 
+the d_qstr pointer removal makes me worry:
+
+-       struct qstr * d_qstr;           /* quick str ptr used in lockless lookup and concurrent d_move */
+
+I thought the point of d_qstr was that when we do the lockless lookup,
+we're guaranteed to always see "stable storage" in the sense that when we
+follow the d_qstr, we will always get a "char *" + "len" that match, and
+we could never see a partial update (ie len points to the old one, and
+"char *" points to the new one).
+
+In particular, think about the "d_compare(parent, qstr, name)" / 
+"memcmp(qstr->name, str, len)" part - what if "len" doesn't match str, 
+because a concurrent d_move() is updating them, and maybe we will compare 
+past the end of kernel mapped memory or something?
+
+(In other words, the "move_count" check should protect us from returning a 
+wrong dentry, but I'd worry that we'd do something that could cause 
+serious problems before we even get to the "move_count" check).
+
+Hmm?
+
+Btw, I'd love to be proven wrong, since I hate that d_qstr, and I think 
+your d_qstr removal patch otherwise looked wonderful.
+
+		Linus

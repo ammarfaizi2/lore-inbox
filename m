@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVAHJsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVAHJsT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261954AbVAHJsT (ORCPT <rfc822;willy@w.ods.org>);
+	id S261946AbVAHJsT (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 8 Jan 2005 04:48:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbVAHJrB
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbVAHJqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 04:47:01 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:17629 "HELO
+	Sat, 8 Jan 2005 04:46:52 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:19421 "HELO
 	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261858AbVAHJkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 04:40:52 -0500
-Subject: [RFC] Patches to reduce delay in arch/kernel/time.c
+	id S261918AbVAHJk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 04:40:56 -0500
+Subject: Patch 1/3: Reduce number of get_cmos_time_calls.
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 Reply-To: ncunningham@linuxmail.org
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Pavel Machek <pavel@ucw.cz>, John Stultz <johnstul@us.ibm.com>,
        David Shaohua <shaohua.li@intel.com>
+In-Reply-To: <1105176732.5478.20.camel@desktop.cunninghams>
+References: <1105176732.5478.20.camel@desktop.cunninghams>
 Content-Type: text/plain
-Message-Id: <1105176732.5478.20.camel@desktop.cunninghams>
+Message-Id: <1105177073.5478.33.camel@desktop.cunninghams>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 08 Jan 2005 20:42:02 +1100
+Date: Sat, 08 Jan 2005 20:42:10 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+Reduce the number of calls to get_cmos_time. Since get_cmos_time waits
+for the start of a new second, two consecutive calls add one full second
+to the time to suspend/resume.
 
-Over the past couple of months there's been a fair bit of discussion
-regarding clock drift after suspending, big pauses during suspending and
-resuming and so on.  I believe this set of three patches, applied on top
-of David's patch (now in Linus' tree) may address the remaining issues.
-Comments please!
+Signed-off-by: Nigel Cunningham <ncunningham@linuxmail.org>
 
-Patch 1: Replace multiple calls to get_cmos_time in both suspend and
-resume routines with a single call. Since get_cmos_time waits for the
-start of the next second before returning the result, This
-reduces the delay for suspending and resuming by one second in each
-case.
-Patch 2: Make sleep start an unsigned long. This appears to address the
-occasional 1hr 10min error seen by myself and John
-(http://lkml.org/lkml/2004/12/15/290). Better solution?
-Patch 3: Implement a new __get_cmos_time() function which doesn't delay
-until the start of the new second before returning. Use it in suspending
-(feel free to correct me, but I don't think having the
-exact start of the second is necessary here).
+diff -ruNp 911-old/arch/i386/kernel/time.c 911-new/arch/i386/kernel/time.c
+--- 911-old/arch/i386/kernel/time.c	2005-01-08 19:36:46.107382632 +1100
++++ 911-new/arch/i386/kernel/time.c	2005-01-08 19:36:25.439524624 +1100
+@@ -326,9 +326,11 @@ static int timer_suspend(struct sys_devi
+ 	/*
+ 	 * Estimate time zone so that set_time can update the clock
+ 	 */
+-	clock_cmos_diff = -get_cmos_time();
++	long cmos_time = get_cmos_time();
++	
++	clock_cmos_diff = -cmos_time;
+ 	clock_cmos_diff += get_seconds();
+-	sleep_start = get_cmos_time();
++	sleep_start = cmos_time;
+ 	return 0;
+ }
+ 
+@@ -337,13 +339,15 @@ static int timer_resume(struct sys_devic
+ 	unsigned long flags;
+ 	unsigned long sec;
+ 	unsigned long sleep_length;
++	unsigned long cmos_time;
+ 
+ #ifdef CONFIG_HPET_TIMER
+ 	if (is_hpet_enabled())
+ 		hpet_reenable();
+ #endif
+-	sec = get_cmos_time() + clock_cmos_diff;
+-	sleep_length = (get_cmos_time() - sleep_start) * HZ;
++	cmos_time = get_cmos_time();
++	sec = cmos_time + clock_cmos_diff;
++	sleep_length = (cmos_time - sleep_start) * HZ;
+ 	write_seqlock_irqsave(&xtime_lock, flags);
+ 	xtime.tv_sec = sec;
+ 	xtime.tv_nsec = 0;
 
-Regards,
-
-Nigel
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-
-Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
 

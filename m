@@ -1,40 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317392AbSIJKfZ>; Tue, 10 Sep 2002 06:35:25 -0400
+	id <S319096AbSIJKnR>; Tue, 10 Sep 2002 06:43:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319096AbSIJKfZ>; Tue, 10 Sep 2002 06:35:25 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:10256 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S317392AbSIJKfY>; Tue, 10 Sep 2002 06:35:24 -0400
-Message-ID: <3D7DCC6D.4153691E@aitel.hist.no>
-Date: Tue, 10 Sep 2002 12:41:49 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.33 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: Tomas Szepe <szepe@pinerecords.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BK] PATCH ReiserFS 1 of 3 RESEND
-References: <20020909113147.BBA73A7CDF@reload.namesys.com> <Pine.LNX.4.44.0209090831240.1641-100000@home.transmeta.com> <20020909154849.GJ26075@louise.pinerecords.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S319098AbSIJKnR>; Tue, 10 Sep 2002 06:43:17 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:13516 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S319096AbSIJKnQ>; Tue, 10 Sep 2002 06:43:16 -0400
+Date: Tue, 10 Sep 2002 12:30:47 +0200
+From: Heinz.Mauelshagen@t-online.de (Heinz J . Mauelshagen)
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: linux-kernel@vger.kernel.org, mge@sistina.com
+Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
+Message-ID: <20020910123047.A21509@sistina.com>
+Reply-To: mauelshagen@sistina.com
+References: <20020909104944.GH27887@marowsky-bree.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020909104944.GH27887@marowsky-bree.de>; from lmb@suse.de on Mon, Sep 09, 2002 at 12:49:44PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomas Szepe wrote:
+On Mon, Sep 09, 2002 at 12:49:44PM +0200, Lars Marowsky-Bree wrote:
+> Morning everyone,
 > 
-> > (Yes, I realize that both addresses likely work perfectly fine, and that
-> > "reload"  is the machine you actually use for sending the email, but
-> > still.. I bet I'm not the only one who uses spam filtering software that
-> > cares about issues like this.)
+> I hope people are waking up by now ;-)
 > 
-> Linus, if your spam filtering software considers a post with a unidiff
-> inside it spam, it's apparently not too terrific.
+> So, what is the take on "multi-path IO" (in particular, storage) in 2.5/2.6?
+> 
+> Right now, we have md multipathing in 2.4 (+ an enhancement to that one by
+> Jens Axboe and myself, which however was ignored on l-k ;-), an enhancement to
+> LVM1 and various hardware-specific and thus obviously wrong approaches.
+> 
+> I am looking at what to do for 2.5. I have considered porting the small
+> changes from 2.4 to md 2.5. The LVM1 changes are probably and out gone, as
+> LVM1 doesn't work still.
+> 
+> I noticed that EVMS duplicates the entire md layer internally (great way to
+> code, really!), so that might also require changing if I update the md code.
+> 
+> Or can the LVM2 device-mapper be used to do that more cleanly?
 
-A good point today, but dangerous.  If "unidiff makes it ok" becomes 
-mainstream (i.e. some distro packages that sort of antispam sw) then 
-spammers surely will append a real small unidiff to their messages.
-Today they put extra letters in the subject, fooling yesterday's
-spam detectors. . .
+We have a multi-path target for device-mapper planned for later this year.
 
-Helge Hafting
+This will be a multi-path addon to the generic mapping service(s)
+device-mapper already provides which can multi-path access to any
+arbitrary given block device, not just logical volumes.
+
+> 
+> I wonder whether anyone has given this some thought already.
+
+We did ;)
+
+> 
+> 
+> Sincerely,
+>     Lars Marowsky-Brée <lmb@suse.de>
+> 
+> -- 
+> Immortality is an adequate definition of high availability for me.
+> 	--- Gregory F. Pfister
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+
+Regards,
+Heinz    -- The LVM Guy --
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+Heinz Mauelshagen                                 Sistina Software Inc.
+Senior Consultant/Developer                       Am Sonnenhang 11
+                                                  56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@Sistina.com                           +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

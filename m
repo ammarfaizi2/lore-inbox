@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267901AbUJGTbL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267760AbUJGTbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267901AbUJGTbL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 15:31:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267772AbUJGT3d
+	id S267760AbUJGTbN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 15:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267595AbUJGT27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 15:29:33 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:4291 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S267841AbUJGT1b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 15:27:31 -0400
-Message-Id: <200410071927.i97JRQKO006355@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
-To: "David S. Miller" <davem@davemloft.net>
-Cc: arun.sharma@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Kill a sparse warning in binfmt_elf.c 
-In-Reply-To: Your message of "Thu, 07 Oct 2004 12:16:23 PDT."
-             <20041007121623.674796d1.davem@davemloft.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <4164756E.4010408@intel.com> <200410071811.i97IBQf0031262@turing-police.cc.vt.edu> <41658FB4.5090402@intel.com> <200410071854.i97IsvU5031703@turing-police.cc.vt.edu>
-            <20041007121623.674796d1.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_68684898P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 7 Oct 2004 15:28:59 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:26051 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S267968AbUJGT1z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 15:27:55 -0400
+Date: Thu, 07 Oct 2004 12:28:35 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: David Vrabel <dvrabel@arcom.com>
+cc: Hanna Linder <hannal@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com
+Subject: Re: [PATCH 2.6][2/54] arch/i386/pci/acpi.c Use for_each_pci_dev macro
+Message-ID: <22840000.1097177314@w-hlinder.beaverton.ibm.com>
+In-Reply-To: <41650CB9.80608@arcom.com>
+References: <3740000.1097094228@w-hlinder.beaverton.ibm.com> <41650CB9.80608@arcom.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Thu, 07 Oct 2004 15:27:26 -0400
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_68684898P
-Content-Type: text/plain; charset=us-ascii
+--On Thursday, October 07, 2004 10:30:33 AM +0100 David Vrabel <dvrabel@arcom.com> wrote:
 
-On Thu, 07 Oct 2004 12:16:23 PDT, "David S. Miller" said:
+> Hanna Linder wrote:
+>> 
+>> +		for_each_pci_dev(dev);
+> 
+> That semicolon doesn't look right.
 
-> The caller's aren't, that is the point.  They run dump_write()
-> with set_fs(KERNEL_DS), which allows kernel pointers to be treated
-> as user ones in system call handling paths, which is why the cast
-> is needed somewhere.
+Woops. You are right. Here is the reroll
 
-Right - and my point is that putting one cast way down at the bottom
-to quiet a warning doesn't do much good - the cast should be pushed
-up to as close to that set_fs() as feasible.  Otherwise if some other,
-new, caller surfaces and bogusly passes something *else* in that
-void * pointer, it gets a lot harder for sparse and similar to do their
-jobs. 
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+---
+
+diff -Nrup linux-2.6.9-rc3-mm2cln/arch/i386/pci/acpi.c linux-2.6.9-rc3-mm2patch/arch/i386/pci/acpi.c
+--- linux-2.6.9-rc3-mm2cln/arch/i386/pci/acpi.c	2004-10-04 11:38:04.000000000 -0700
++++ linux-2.6.9-rc3-mm2patch/arch/i386/pci/acpi.c	2004-10-07 12:21:49.825530848 -0700
+@@ -41,7 +41,7 @@ static int __init pci_acpi_init(void)
+ 		printk(KERN_INFO "** was specified.  If this was required to make a driver work,\n");
+ 		printk(KERN_INFO "** please email the output of \"lspci\" to bjorn.helgaas@hp.com\n");
+ 		printk(KERN_INFO "** so I can fix the driver.\n");
+-		while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL)
++		for_each_pci_dev(dev)
+ 			acpi_pci_irq_enable(dev);
+ 	} else {
+ 		printk(KERN_INFO "** PCI interrupts are no longer routed automatically.  If this\n");
 
 
---==_Exmh_68684898P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBZZiecC3lWbTT17ARAn6HAJ9MkB/1noTVsKBfbWYsqMBK2cYfbwCdEMaI
-2OVRSwrzlkOnDMvOUL0JaXk=
-=DZOA
------END PGP SIGNATURE-----
-
---==_Exmh_68684898P--

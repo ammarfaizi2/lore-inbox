@@ -1,25 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263319AbTDYPJF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 11:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263328AbTDYPJF
+	id S263328AbTDYPQF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 11:16:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263330AbTDYPQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 11:09:05 -0400
-Received: from watch.techsource.com ([209.208.48.130]:53244 "EHLO
-	techsource.com") by vger.kernel.org with ESMTP id S263319AbTDYPJC
+	Fri, 25 Apr 2003 11:16:05 -0400
+Received: from watch.techsource.com ([209.208.48.130]:26110 "EHLO
+	techsource.com") by vger.kernel.org with ESMTP id S263328AbTDYPQE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 11:09:02 -0400
-Message-ID: <3EA9565B.9020905@techsource.com>
-Date: Fri, 25 Apr 2003 11:38:03 -0400
+	Fri, 25 Apr 2003 11:16:04 -0400
+Message-ID: <3EA95800.2090409@techsource.com>
+Date: Fri, 25 Apr 2003 11:45:04 -0400
 From: Timothy Miller <miller@techsource.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Steven Augart <steve@augart.com>
-CC: John Bradford <john@grabjohn.com>,
+To: Ragnar Hojland Espinosa <ragnar@linalco.com>
+CC: "Downing, Thomas" <Thomas.Downing@ipc.com>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Simple x86 Simulator (was: Re: Flame Linus to a crisp!)
-References: <200304250702.h3P72FZF000352@81-2-122-30.bradfords.org.uk> <3EA8EC4D.4090506@augart.com>
+Subject: Re: Flame Linus to a crisp!
+References: <170EBA504C3AD511A3FE00508BB89A9201FD8E40@exnanycmbx4.ipc.com> <3EA7F0C6.8010907@techsource.com> <20030425122942.GB11586@linalco.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,24 +27,22 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Steven Augart wrote:
+Ragnar Hojland Espinosa wrote:
 
-> We could not.  Consider just the 8 32-bit-wide legacy x86 registers, 
-> excluding the MMX and FPU registers:
-> (AX, BX, CX, DX, BP, SI, DI, SP).  32 bits x 8 = 2^256 independent 
-> states to look up in the table, each state having 256 bits of 
-> information.  2^264 total bits of information needed.  Assume 1 GB 
-> dimms (2^30 * 8 bits each = 2^33 bits of info), with a volume of 10 
-> cm^3 per DIMM (including a tiny amount of space for air circulation.).
-> Need 34508731733952818937173779311385127262255544860851932776 cubic 
-> kilometers of space.
+>  
 >
-> Considerably larger than the volume of the earth, although admittedly 
-> smaller than the total volume of the universe.
-> --Steven Augart
+>>    
+>>
 >
+>What I don't get is why would you think MS you'd be able to open MS docs with
+>open office, or how would Wine work.  Or even more simple, would you be able
+>to just plug a samba server and that it would be recognized by MS clients as
+>a trusted party?
+>
+>I must surely be missing something..
+>  
 >
 
-If this could be done, someone would have done it already.
+Likewise.  I totally don't understand your question.
 
 

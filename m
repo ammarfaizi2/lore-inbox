@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288089AbSATVzZ>; Sun, 20 Jan 2002 16:55:25 -0500
+	id <S288460AbSATV6f>; Sun, 20 Jan 2002 16:58:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288460AbSATVzQ>; Sun, 20 Jan 2002 16:55:16 -0500
-Received: from james.kalifornia.com ([208.179.59.2]:55420 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S288089AbSATVyk>; Sun, 20 Jan 2002 16:54:40 -0500
-Message-ID: <3C4B3CA8.3090406@blue-labs.org>
-Date: Sun, 20 Jan 2002 16:54:48 -0500
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020120
-X-Accept-Language: en-us
+	id <S288473AbSATV60>; Sun, 20 Jan 2002 16:58:26 -0500
+Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:50696 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S288460AbSATV6Q>;
+	Sun, 20 Jan 2002 16:58:16 -0500
+Date: Sun, 20 Jan 2002 16:46:30 -0500 (EST)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: <fdavis@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+cc: <fdavis@si.rr.com>
+Subject: 2.5.3-pre2: isdn_common.c compile error
+Message-ID: <Pine.LNX.4.33.0201201644001.1213-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Compile err - 2.4.18-pre4 - undefined reference to `unload_mpu401'
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/sound/sounddrivers.o: In function `unload_sbmpu':
-drivers/sound/sounddrivers.o(.text+0xc0b3): undefined reference to 
-`unload_mpu401'
-drivers/sound/sounddrivers.o(__ksymtab+0x2d0): undefined reference to 
-`unload_mpu401'
-make: *** [vmlinux] Error 1
+Hello all,
+    While 'make modules', I received the following error:
 
-This is 2.4.18-pre4, any quick fixes?
+Regards,
+Frank
 
--d
-
+isdn_common.c: In function `isdn_register_devfs':
+isdn_common.c:2256: `ISDN_MINOR_B' undeclared (first use in this function)
+isdn_common.c:2256: (Each undeclared identifier is reported only once
+isdn_common.c:2256: for each function it appears in.)
+make[2]: *** [isdn_common.o] Error 1
+make[2]: Leaving directory `/usr/src/linux/drivers/isdn'
+make[1]: *** [_modsubdir_isdn] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_mod_drivers] Error 2
 

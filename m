@@ -1,79 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275848AbRI1F4L>; Fri, 28 Sep 2001 01:56:11 -0400
+	id <S275851AbRI1GBe>; Fri, 28 Sep 2001 02:01:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275850AbRI1F4C>; Fri, 28 Sep 2001 01:56:02 -0400
-Received: from cc839443-a.chmbl1.ga.home.com ([24.5.105.138]:31237 "EHLO spock")
-	by vger.kernel.org with ESMTP id <S275848AbRI1Fz7>;
-	Fri, 28 Sep 2001 01:55:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Joerger <steven@spock.2y.net>
-To: "David Grant" <davidgrant79@hotmail.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: ide drive problem?
-Date: Fri, 28 Sep 2001 01:55:59 -0400
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20010928041519.968EA4FA00@spock> <OE55yDnSI4nHp4PlNMu00004f47@hotmail.com>
-In-Reply-To: <OE55yDnSI4nHp4PlNMu00004f47@hotmail.com>
+	id <S275850AbRI1GBX>; Fri, 28 Sep 2001 02:01:23 -0400
+Received: from sirppi.helsinki.fi ([128.214.205.27]:60690 "EHLO
+	sirppi.helsinki.fi") by vger.kernel.org with ESMTP
+	id <S275851AbRI1GBN>; Fri, 28 Sep 2001 02:01:13 -0400
+From: Atro Tossavainen <atossava@cc.helsinki.fi>
+Message-Id: <200109280601.f8S61c931645@sirppi.helsinki.fi>
+Subject: [2.2.19] clock timer configuration lost - probably a VIA686a motherboard
+To: linux-kernel@vger.kernel.org
+Date: Fri, 28 Sep 2001 09:01:38 +0300 (EET DST)
+Reply-To: Atro.Tossavainen@helsinki.fi
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010928060858.9CFA74FA00@spock>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David,
+I'm getting this message every couple of minutes on a new machine with
+the 2.2.19 kernel.
 
-Thanks for the insight. I am using an 80 pin cable, but the length and 
-quality are of course suspect. I will swap this out and see if it helps.
+The motherboard is a new ASUS and does not have a VIA chipset.
 
-Thanks again,
-Steven Joerger
+It is presently not possible for me to upgrade to a 2.4 kernel as AFS
+support is still rather flakey there.
 
+# cat /proc/pci
+PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: Acer Labs Unknown device (rev 4).
+      Vendor id=10b9. Device id=1647.
+      Medium devsel.  Master Capable.  No bursts.  
+      Prefetchable 32 bit memory at 0xf0000000 [0xf0000008].
+  Bus  0, device   1, function  0:
+    PCI bridge: Acer Labs Unknown device (rev 0).
+      Vendor id=10b9. Device id=5247.
+      Slow devsel.  Master Capable.  No bursts.  Min Gnt=8.
+  Bus  0, device   2, function  0:
+    USB Controller: Acer Labs M5237 USB (rev 3).
+      Medium devsel.  Fast back-to-back capable.  IRQ 9.  Master Capable.  Laten
+cy=32.  Max Lat=80.
+      Non-prefetchable 32 bit memory at 0xec000000 [0xec000000].
+  Bus  0, device   6, function  0:
+    USB Controller: Acer Labs M5237 USB (rev 3).
+      Medium devsel.  Fast back-to-back capable.  IRQ 9.  Master Capable.  Laten
+cy=32.  Max Lat=80.
+      Non-prefetchable 32 bit memory at 0xeb000000 [0xeb000000].
+  Bus  0, device   4, function  0:
+    IDE interface: Acer Labs M5229 TXpro (rev 196).
+      Medium devsel.  Fast back-to-back capable.  Master Capable.  Latency=32.  
+Min Gnt=2.Max Lat=4.
+      I/O at 0xd400 [0xd401].
+  Bus  0, device   7, function  0:
+    ISA bridge: Acer Labs M1533 Aladdin IV (rev 0).
+      Medium devsel.  Master Capable.  No bursts.  
+  Bus  0, device  10, function  0:
+    Multimedia audio controller: Unknown vendor Unknown device (rev 8).
+      Vendor id=1102. Device id=2.
+      Medium devsel.  Fast back-to-back capable.  IRQ 5.  Master Capable.  Laten
+cy=32.  Min Gnt=2.Max Lat=20.
+      I/O at 0xb400 [0xb401].
+  Bus  0, device  10, function  1:
+    Input device controller: Unknown vendor Unknown device (rev 8).
+      Vendor id=1102. Device id=7002.
+      Medium devsel.  Fast back-to-back capable.  Master Capable.  Latency=32.  
+      I/O at 0xb000 [0xb001].
+  Bus  0, device  11, function  0:
+    Ethernet controller: Intel 82557 (rev 12).
+      Medium devsel.  Fast back-to-back capable.  IRQ 10.  Master Capable.  Late
+ncy=32.  Min Gnt=8.Max Lat=56.
+      Non-prefetchable 32 bit memory at 0xea000000 [0xea000000].
+      I/O at 0xa800 [0xa801].
+      Non-prefetchable 32 bit memory at 0xe9800000 [0xe9800000].
+  Bus  0, device  17, function  0:
+    Bridge: Acer Labs M7101 PMU (rev 0).
+      Medium devsel.  
+  Bus  1, device   0, function  0:
+    VGA compatible controller: Matrox Unknown device (rev 130).
+      Vendor id=102b. Device id=525.
+      Medium devsel.  Fast back-to-back capable.  IRQ 11.  Master Capable.  Late
+ncy=64.  Min Gnt=16.Max Lat=32.
+      Prefetchable 32 bit memory at 0xee000000 [0xee000008].
+      Non-prefetchable 32 bit memory at 0xed000000 [0xed000000].
+      Non-prefetchable 32 bit memory at 0xec800000 [0xec800000].
 
-On Friday 28 September 2001 01:44 am, David Grant wrote:
-> I think the standard response people would give you is that your IDE cable
-> is too long, of bad quality, or you are using a 40-pin cable instead of an
-> 80-pin cable (although I'm pretty sure that should have been detected, and
-> DMA should automatically have not been used, but I heard at one point that
-> the code which detected this on motherboards using the vt82c686b chip
-> didn't really work in some cases).
->
-> That's the standard answer, but I used to get this messages on my machine
-> as well (I think it was back when I was trying to use my VIA chipset with
-> Redhat 7.1).  I don't seem to get them anymore though, but maybe that's
-> just because I'm trying to install distros newer than Redhat 7.1.  That
-> makes me think that I never had CRC errors, it was just some buggy VIA
-> code.
->
-> I just get the dma timeout errors now with my VIA IDE controller.  I also
-> get them with the Promise controller (sigh...).
->
-> David Grant
->
-> ----- Original Message -----
-> From: "Steven Joerger" <steven@spock.2y.net>
-> To: <linux-kernel@vger.kernel.org>
-> Sent: Thursday, September 27, 2001 9:02 PM
-> Subject: ide drive problem?
->
-> > List,
-> >
-> > When I enable support for my chipset in the kernel (via kt133) I always
->
-> get
->
-> > these messages:
-> >
-> > hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> > hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> >
-> > over and over and ....
-> >
-> > Any clues to whats going on?
-> >
-> > Thanks,
-> > Steven Joerger
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+Or, in a more readable format,
+
+# lspci
+00:00.0 Host bridge: Acer Laboratories Inc. [ALi]: Unknown device 1647 (rev 04)
+00:01.0 PCI bridge: Acer Laboratories Inc. [ALi] M5247
+00:02.0 USB Controller: Acer Laboratories Inc. [ALi] M5237 USB (rev 03)
+00:04.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c4)
+00:06.0 USB Controller: Acer Laboratories Inc. [ALi] M5237 USB (rev 03)
+00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV]
+00:0a.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev 08)
+00:0a.1 Input device controller: Creative Labs SB Live! (rev 08)
+00:0b.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 0c)
+00:11.0 Bridge: Acer Laboratories Inc. [ALi] M7101 PMU
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 82)
+
+-- 
+Atro Tossavainen (Mr.)               / The Institute of Biotechnology at
+Systems Analyst, Techno-Amish &     / the University of Helsinki, Finland,
++358-9-19158939  UNIX Dinosaur     / employs me, but my opinions are my own.
+< URL : http : / / www . iki . fi / atro . tossavainen / >

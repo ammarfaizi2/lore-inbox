@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265751AbUA0UaA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 15:30:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265752AbUA0U37
+	id S265744AbUA0U2f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 15:28:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265734AbUA0U2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 15:29:59 -0500
-Received: from mail.kroah.org ([65.200.24.183]:31713 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265751AbUA0U3z (ORCPT
+	Tue, 27 Jan 2004 15:28:35 -0500
+Received: from findaloan.ca ([66.11.177.6]:43658 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id S265715AbUA0U2c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 15:29:55 -0500
-Date: Tue, 27 Jan 2004 12:29:44 -0800
-From: Greg KH <greg@kroah.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Alan Stern <stern@rowland.harvard.edu>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and platform_device_unregister_wait() to the driver model core
-Message-ID: <20040127202944.GE27240@kroah.com>
-References: <Pine.LNX.4.44L0.0401251224530.947-100000@ida.rowland.org> <Pine.LNX.4.58.0401251054340.18932@home.osdl.org> <Pine.LNX.4.58.0401261435160.7855@serv>
+	Tue, 27 Jan 2004 15:28:32 -0500
+Date: Tue, 27 Jan 2004 15:26:42 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: Timothy Miller <miller@techsource.com>, walt <wa1ter@myrealbox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Sco
+Message-ID: <20040127202642.GA7501@mark.mielke.cc>
+Mail-Followup-To: Wakko Warner <wakko@animx.eu.org>,
+	Timothy Miller <miller@techsource.com>, walt <wa1ter@myrealbox.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20040127081506.C4346@animx.eu.org> <40168A38.4010203@myrealbox.com> <40169031.50603@techsource.com> <20040127122545.A4752@animx.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0401261435160.7855@serv>
+In-Reply-To: <20040127122545.A4752@animx.eu.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 26, 2004 at 05:22:41PM +0100, Roman Zippel wrote:
-> 
-> All this is done without a module count, this means that
-> pci_unregister_driver() cannot return before the last reference is gone.
-> For network devices this is not that much of a problem, as they can be
-> rather easily deconfigured automatically, but that's not that easy for
-> mounted block devices, so one has to be damned careful when to call the
-> exit function.
+On Tue, Jan 27, 2004 at 12:25:45PM -0500, Wakko Warner wrote:
+> > Besides, DoS attacks against SCO will only be blamed on the Linux 
+> > community.  So the developer of that virus is either a complete idiot or 
+> > is acting to intentionally hurt our image.
+> If the former, then this is probably a windows person.  After all, the virus
+> is for *windows* and not linux.
 
-Um, not anymore.  I can yank out a mounted block device and watch the
-scsi core recover just fine.  The need to make everything hotpluggable
-has fixed up a lot of issues like this (as well as made more
-problems...)
+Haha... you guys are thinking like sophisticated intellectuals.
 
-thanks,
+Most likely, it is some teenage wannabe who is just trying to convince
+themselves that they play a part in this drama called life. "Look how
+cool I am!" (Of course - in the less socially ept circles, teenagers
+can take the form of 40-year old geeks... hopefully nobody here... :-) )
 
-greg k-h
+Cheers,
+mark
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

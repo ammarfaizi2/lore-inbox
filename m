@@ -1,1345 +1,991 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316796AbSE3SOU>; Thu, 30 May 2002 14:14:20 -0400
+	id <S316795AbSE3SN0>; Thu, 30 May 2002 14:13:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316797AbSE3SOU>; Thu, 30 May 2002 14:14:20 -0400
-Received: from ppp-217-133-209-102.dialup.tiscali.it ([217.133.209.102]:54200
+	id <S316796AbSE3SNZ>; Thu, 30 May 2002 14:13:25 -0400
+Received: from ppp-217-133-209-102.dialup.tiscali.it ([217.133.209.102]:61146
 	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S316796AbSE3SNa>; Thu, 30 May 2002 14:13:30 -0400
-Subject: [PATCH] [2.4] ATM driver for the Alcatel SpeedTouch USB DSL modem
+	id <S316795AbSE3SMR>; Thu, 30 May 2002 14:12:17 -0400
+Subject: [PATCH] [2.4] ATM SAR support, based on SARlib
 From: Luca Barbieri <ldb@ldb.ods.org>
 To: Linux-Kernel ML <linux-kernel@vger.kernel.org>
 Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-uN67HeQs0ONrJXRFq53X"
+	boundary="=-s7+TWHvobxmEDXilQJ2s"
 X-Mailer: Ximian Evolution 1.0.5 
-Date: 30 May 2002 20:13:22 +0200
-Message-Id: <1022782402.1920.130.camel@ldb>
+Date: 30 May 2002 20:12:09 +0200
+Message-Id: <1022782329.1920.127.camel@ldb>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-uN67HeQs0ONrJXRFq53X
+--=-s7+TWHvobxmEDXilQJ2s
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-Depends:
-- [PATCH] [2.4, 2.5] printk helper functions
-- [PATCH] [2.4] Waitable counter structure
-- [PATCH] [2.4] ATM SAR support, based on SARlib
+This code is a slightly version of Johan Verrept's SARlib.
+It does ATM SAR (segmentation and reassembly, in other words it converts
+upper layer packets to ATM cells and the opposite) in software.
 
-Recommends:
-- [PATCH] [2.4] [2.5] Fix PPPoATM crash on disconnection
-(tasklet_disable; kfree(tasklet)) <merged in 2.4.19-pre9>
-
-Look at Configure.help for the description.
-
-This driver is based on the 1.5 driver written and maintained by Johan
-Verrept.
-I sent an older version of this set of patches to him on 16/may/2002. On
-20/may/2002 he replied saying that he would look at the patch, but he
-didn't send me any further messages.
-So, since the identity of the maintainer doesn't matter when deciding
-whether to apply a patch or not, I'm sending this to linux-kernel
-without waiting for an answer from the 1.5 maintainer in order to save
-time.
-
-diff --exclude-from=/home/ldb/src/linux-exclude -u -r -N linux-base/Documentation/Configure.help linux/Documentation/Configure.help
---- linux-base/Documentation/Configure.help	Thu May 30 13:09:51 2002
-+++ linux/Documentation/Configure.help	Mon May 27 15:29:08 2002
-@@ -13824,6 +13824,48 @@
-   Say Y here to include additional code to support the Sandisk SDDR-09
-   SmartMedia reader in the USB Mass Storage driver.
- 
-+USB Alcatel SpeedTouch USB DSL modem support
-+CONFIG_USB_SPEEDTOUCH
-+  Say Y here if you want to connect an Alcatel SpeedTouch USB modem to
-+  your computer's USB port.
+diff --exclude-from=/home/ldb/src/linux-exclude -u -r -N linux-base/Documentation/networking/atmsar.txt linux/Documentation/networking/atmsar.txt
+--- linux-base/Documentation/networking/atmsar.txt	Thu Jan  1 01:00:00 1970
++++ linux/Documentation/networking/atmsar.txt	Thu May 30 16:09:19 2002
+@@ -0,0 +1,104 @@
++#
++## ATM SAR Library  (C) 2000, Johan Verrept (Johan.Verrept@advalvas.be)
++#
++# 30/may/2002, Luca Barbieri <ldb@ldb.ods.org>:
++#     "sarlib"/"SARlib" name replaced with "atmsar"/"ATM SAR"
 +
-+  This driver provides an ATM interface that uses the modem to
-+  transfer data.  You must enable (Y or M in config) ATM (under
-+  Networking Options) to use this driver. Information on this API may
-+  be found on the WWW at <http://linux-atm.sourceforge.net>.
++For updates, check the linux-atm mailing list or mail me.
++The updates will be very infrequent because I don't have much time.
++Any remarks, patches and bug fixes are welcome.
 +
-+  This driver is a revised version (that doesn't look much like the
-+  original) of Johan Verrept's 1.5 SpeedTouch Driver.
-+  Among the improvements of this 2.x branch are:
-+  - Much more stability (hopefully); no deadlocks on shutdown
-+  - Tons of locking added: SMP should work (not tested, I don't have a
-+    suitable machine)
-+  - Unlimited number of devices without compile-time configuration
-+  - Processing of received data in URB completion handler, by default,
-+    or in separate thread if configured at compile time
-+  - If using PPPoATM, pppd will notice disconnection (thus you can
-+    disable LCP echos and set configure request to 100000000)
-+  - Inside the kernel tree
++WARNING: This is experimental software. Use at your own risk.
 +
-+  To use the device you also need a user-mode daemon that downloads
-+  the firmware and (re)initializes the modem. Currently the only
-+  working one is a closed source one from Alcatel that you can get at
-+  <http://www.alcateldsl.com/support.htm>.
++License
++=======
 +
-+  However, there is a lot of hope, since Benoit Papillaut has written
-+  an user-mode driver that contains a program that with some
-+  modifications can be used to replace the closed source
-+  daemon. Anyway, you will still need the Alcatel daemon package to
-+  extract the modem firmware from it.
++This code falls under the GNU Public License, see COPYING
++If you want to use this in a commercial product, contact me.
 +
-+  For more information, see Johan Verrept's webpages at
-+  <http://linux-usb.sourceforge.net/SpeedTouch/>.
++Usage & requirements
++====================
 +
-+  This code is also available as a module ( = code which can be
-+  inserted in and removed from the running kernel whenever you want).
-+  The module will be called speedtouch.o. If you want to compile it as
-+  a module, say M here and read <file:Documentation/modules.txt>.
++Usage: Just link this library to your driver/module/kernel.
++Requirements:
++	This needs the Linux ATM stuff, but can be easily ported to
++	any platform.
 +
- USB Diamond Rio500 support
- CONFIG_USB_RIO500
-   Say Y here if you want to connect a USB Rio500 mp3 player to your
-diff --exclude-from=/home/ldb/src/linux-exclude -u -r -N linux-base/drivers/usb/Config.in linux/drivers/usb/Config.in
---- linux-base/drivers/usb/Config.in	Thu May 30 13:09:51 2002
-+++ linux/drivers/usb/Config.in	Mon May 27 15:29:08 2002
-@@ -110,5 +110,6 @@
- comment 'USB Miscellaneous drivers'
- dep_tristate '  USB Diamond Rio500 support (EXPERIMENTAL)' CONFIG_USB_RIO500 $CONFIG_USB $CONFIG_EXPERIMENTAL
- dep_tristate '  USB Auerswald ISDN support (EXPERIMENTAL)' CONFIG_USB_AUERSWALD $CONFIG_USB $CONFIG_EXPERIMENTAL
-+dep_tristate '  USB Alcatel SpeedTouch USB DSL modem support (needs ATM enabled)' CONFIG_USB_SPEEDTOUCH $CONFIG_USB $CONFIG_ATM
- 
- endmenu
-diff --exclude-from=/home/ldb/src/linux-exclude -u -r -N linux-base/drivers/usb/Makefile linux/drivers/usb/Makefile
---- linux-base/drivers/usb/Makefile	Thu May 30 13:09:51 2002
-+++ linux/drivers/usb/Makefile	Mon May 27 15:29:08 2002
-@@ -90,6 +90,7 @@
- obj-$(CONFIG_USB_USBDNET)	+= usbdnet.o
- obj-$(CONFIG_USB_USBVISION)     += usbvision.o saa7111-new.o i2c-algo-usb.o
- obj-$(CONFIG_USB_AUERSWALD)	+= auerswald.o
-+obj-$(CONFIG_USB_SPEEDTOUCH)	+= speedtouch.o
- 
- # Object files in subdirectories
- mod-subdirs	:= serial hcd
-diff --exclude-from=/home/ldb/src/linux-exclude -u -r -N linux-base/drivers/usb/speedtouch.c linux/drivers/usb/speedtouch.c
---- linux-base/drivers/usb/speedtouch.c	Thu Jan  1 01:00:00 1970
-+++ linux/drivers/usb/speedtouch.c	Thu May 30 17:17:06 2002
-@@ -0,0 +1,1208 @@
++API
++===
++
++The API to the ATM SAR is simple. At least, I tried to make it as simple as I
++could.  I alsi tried to map it to the ATM Linux API as much as I could.
++
++There is a atmsar_open() function which will initialize the atmsar_vcc
++structure with the provided parameters. The atmsar_close() function frees
++this all.
++the atmsar_open() function is passed in a type, all the header parts, a
++pointer to the Linux ATM vcc, a pointer to a list of atmsar_vcc's and a
++flags field.
++there are 2 flags available now:
++	ATMSAR_USE_53BYTE_CELL  will force atmsar_encode_rawcell() to produce
++53 byte cell in stead of the linux 52 byte cells.
++	ATMSAR_SET_PTI          this will cause the pti bit of the last cell
++int the provided buffer to be set ( by atmsar_encode_rawcell())
++
++Real SARing happens in the atmsar_encode_xxx() and atmsar_decode_xxx()
++functions. Everything is straight forward for the encoding of the data,
++althought there are a few assumptions.
++
++atmsar_encode_rawcell assumes it gets a multiple of 48 bytes.
++	if ATMSAR_SET_PTI is set, it assumes a full aal5 pdu is supplied.
++	It does NOT calculate the cell header CRC at the moment.
++
++atmsar_encode_aal5    assumes it gets a full aal5 pdu.
++
++The decode functions have no assumptions. Both decode functions need to be 
++repeated until they return NULL.  
++
++atmsar_decode_rawcell() requires a LIST of atmsar_vcc's. This allows the user 
++to pass in any cells they received, atmsar_decode_rawcell() will drop the 
++ones it doesn't know, the others are copied into the relevant atmsar_vcc 
++reassembly buffer.  Depending on the type of reassemly (only AAL5 at the
++moment) it will return a pointer to that buffer when a complete AAL5 pdu 
++has been received. The third argument will contains a pointer the relevant 
++atmsar_vcc.  You must repeat the call with the same arguments after
++processing the buffer, to allow atmsar_decode_rawcell() to process the
++remaining cells in the receive skb. It does NOT check the cell header crc.
++
++atmsar_decode_aal5() requires a complete AAL5 packet to process.
++This will do aal5 length and crc checking.  There is some intelligence in
++there that will try to recover from an illegal length.  It will take the
++length from the trailer and check whether the crc over this part is valid.
++This allows the ATM SAR to only drop 1 AAL5 pdu when the last cell of a pdu
++is lost. ( otherwise it would have to drop both...)
++
++There is also a atmsar_alloc_tx function now.  It is supposed to be called
++with a atmsar_vcc structure instead of a atm_vcc, I had to do this because I
++had no way of getting to the atmsar_vcc structure from the atm_vcc
++structure... the user program will have to wrap the atmsar_vcc function.
++BE CAREFULL!!  the atmsar_open function will copy the alloc_tx pointer from
++the atm_vcc and call it!  You cannot set the alloc_tx function in the vcc 
++BEFORE passing it to atmsar_open!! You will have to do it afterwards...
++
++To Do
++=====
++
++Lots to do.
++
++- Adding AAL1, AAL34 and maybe even AAL2 ( probably not, unless the
++	telephony thing wants it, need to look into it).
++- Add atm cell header crc calculation.
++- more optimalisations
++	- crc_calc / copy combinations.
++- completing support to run as well in userspace as in kernel space.
++	( replacing skb's with generalised functions, define for kernel
++	space to skb functions and to ATM SAR buffer system for user space.
++- completing buffer management on receive size.  introduced mru setting to
++	reduce problem. would maybe be better to go to scatter gather method.
++
++Acknowledgements
++================
++
++Thanks to :
++
++- Whoever wrote the CRC routines in linux/drivers/net/wan/sbni.c
+diff --exclude-from=/home/ldb/src/linux-exclude -u -r -N linux-base/include/linux/atmsar.h linux/include/linux/atmsar.h
+--- linux-base/include/linux/atmsar.h	Thu Jan  1 01:00:00 1970
++++ linux/include/linux/atmsar.h	Thu May 30 16:36:53 2002
+@@ -0,0 +1,85 @@
 +/*
-+ *  ATM driver for the Alcatel SpeedTouch USB DSL modem, version 2.x
-+ *  Copyright 2002 Luca Barbieri
-+ *  Derived from the 1.5 version of Johan Verrept's driver (see notice below).
 + *
-+ *  This program is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU General Public License
-+ *  as published by the Free Software Foundation; either version 2
-+ *  of the License, or (at your option) any later version.
-+ *  
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *  
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-+ *  
-+ *  
-+ *  Driver Module for Alcatel SpeedTouch USB xDSL modem
-+ *  Copyright 2001, Alcatel
-+ *  Written by Johan Verrept (Johan.Verrept@advalvas.be)
-+ *  
++ *  General SAR library for ATM devices.
++ *
++ *  Copyright (c) 2000, Johan Verrept
++ *
 + *  This package is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License as published by
 + *  the Free Software Foundation; either version 2 of the License, or
 + *  (at your option) any later version.
-+
-+2.0 (30/may/2002, Luca Barbieri <ldb@ldb.ods.org>):
-+	- lots of improvements, almost rewritten (see Configure.help entry
-+	  and read this file)
-+	- adaptations for inclusion in kernel tree
-+
-+1.5:
-+	- fixed memory leak when sarlib_decode_aal5 returned NULL.
-+	 (reported by stephen.robinson@zen.co.uk)
-+
-+1.4:
-+	- changed the spin_lock() under interrupt to spin_lock_irqsave()
-+	- unlink all active send urbs of a vcc that is being closed.
-+
-+1.3.1:
-+	- added the version number
-+
-+1.3:
-+	- Added multiple send urb support
-+	- fixed memory leak and vcc->tx_inuse starvation bug
-+	  when not enough memory left in vcc.
-+
-+1.2:
-+	- Fixed race condition in udsl_usb_send_data()
-+
-+1.1:
-+	- Turned off packet debugging
-+ 
++ *  
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++ *
 + */
 +
-+#include <linux/module.h>
++#ifndef _ATMSAR_H_
++#define _ATMSAR_H_
++
 +#include <linux/kernel.h>
-+#include <linux/sched.h>
-+#include <linux/timer.h>
-+#include <linux/errno.h>
 +#include <linux/proc_fs.h>
 +#include <linux/slab.h>
-+#include <linux/list.h>
-+#include <asm/uaccess.h>
-+#include <linux/usb.h>
-+#include <linux/smp_lock.h>
-+#include <linux/waitcount.h>
-+
-+#include <linux/atm.h>
 +#include <linux/atmdev.h>
-+#include <linux/atmsar.h>
++#include <linux/skbuff.h>
++#include <linux/types.h>
++#include <linux/atm.h>
 +
-+static const char printk_header[] = "SpeedTouch USB: ";
-+
-+MODULE_AUTHOR
-+    ("Luca Barbieri <ldb@ldb.ods.org> (2.x), Johan Verrept <Johan.Verrept@advalvas.be> (1.x)");
-+MODULE_DESCRIPTION
-+    ("ATM driver for the Alcatel SpeedTouch USB DSL modem, version 2.x");
-+MODULE_LICENSE("GPL");
-+static const char stu_device_name[] = "Alcatel SpeedTouch USB";
-+
-+#undef STU_USE_SAR_THREAD
-+/* #define STU_USE_SAR_THREAD 1 */
-+
-+#define STU_VENDORID  0x06b9
-+#define STU_PRODUCTID 0x4061
-+
-+#define STU_NUMBER_RCV_URBS     1
-+#define STU_NUMBER_SND_URBS     1
-+#define STU_RECEIVE_BUFFER_SIZE 64*53
-+#define STU_MAX_AAL5_MRU        2048  /* max should be (1500 IP mtu + 2 ppp bytes + 32 * 5 cellheader overhead) for PPPoA and (1500 + 14 + 32*5 cellheader overhead) for PPPoE */
-+
-+/* speedmgmt is the user of these ioctls */
-+#define STU_IOCTL_START   1
-+#define STU_IOCTL_STOP    2
-+#define STU_IOCTL_RESTART 3
-+
-+#define STU_ENDPOINT_DATA_OUT      0x7
-+#define STU_ENDPOINT_DATA_IN      0x87
++#define ATMSAR_USE_53BYTE_CELL  0x1L
++#define ATMSAR_SET_PTI          0x2L
 +
 +
-+static struct usb_device_id stu_usb_ids[] = {
-+	{USB_DEVICE(STU_VENDORID, STU_PRODUCTID)},
-+	{}
-+};
++/* types */
++#define ATMSAR_TYPE_AAL0        ATM_AAL0
++#define ATMSAR_TYPE_AAL1        ATM_AAL1
++#define ATMSAR_TYPE_AAL2        ATM_AAL2
++#define ATMSAR_TYPE_AAL34       ATM_AAL34
++#define ATMSAR_TYPE_AAL5        ATM_AAL5
 +
-+/* not exporting this prevents the depmod from generating the map that causes the modules to be inserted as driver.
-+ * we do not want this, we want the script run, because we need a user-mode management daemon to sync the modem
-+ MODULE_DEVICE_TABLE ( usb, stu_usb_ids);
++
++/* default MTU's */
++#define ATMSAR_DEF_MTU_AAL0         48
++#define ATMSAR_DEF_MTU_AAL1         47
++#define ATMSAR_DEF_MTU_AAL2          0 /* not supported */
++#define ATMSAR_DEF_MTU_AAL34         0 /* not supported */
++#define ATMSAR_DEF_MTU_AAL5      65535 /* max mtu ..    */
++
++typedef struct atmsar_vcc_data {
++  struct atmsar_vcc_data   *next;
++
++  /* general atmsar flags, per connection */
++  int                flags;
++  int                type;
++
++  /* connection specific non-atmsar data */
++  struct sk_buff    *(*alloc_tx)(struct atm_vcc *vcc, unsigned int size);
++  struct atm_vcc    *vcc;
++  struct k_atm_aal_stats *stats;
++  unsigned short     mtu; /* max is actually  65k for AAL5... */
++
++  /* cell data */
++  unsigned int       vp;
++  unsigned int       vc;
++  unsigned char      gfc;
++  unsigned char      pti;
++  unsigned int       headerFlags;
++  unsigned long      atmHeader;
++   
++  /* raw cell reassembly */
++  struct sk_buff    *reasBuffer;
++  } atmsar_vcc_data_t;
++
++
++extern struct atmsar_vcc_data *atmsar_open (struct atmsar_vcc_data **list, struct atm_vcc *vcc, uint type, ushort vpi, ushort vci, unchar pti, unchar gfc, uint flags);
++extern void                    atmsar_close(struct atmsar_vcc_data **list, struct atmsar_vcc_data *vcc);
++
++extern struct sk_buff *atmsar_encode_rawcell (struct atmsar_vcc_data *ctx, struct sk_buff *skb);
++extern struct sk_buff *atmsar_encode_aal5    (struct atmsar_vcc_data *ctx, struct sk_buff *skb);
++
++struct sk_buff *atmsar_decode_rawcell (struct atmsar_vcc_data *list, struct sk_buff *skb, struct atmsar_vcc_data **ctx);
++struct sk_buff *atmsar_decode_aal5    (struct atmsar_vcc_data *ctx,  struct sk_buff *skb);
++
++struct sk_buff *atmsar_alloc_tx(struct atmsar_vcc_data *vcc, unsigned int size);
++
++#endif /* _ATMSAR_H_ */
+diff --exclude-from=/home/ldb/src/linux-exclude -u -r -N linux-base/net/atm/Makefile linux/net/atm/Makefile
+--- linux-base/net/atm/Makefile	Thu May 30 13:09:51 2002
++++ linux/net/atm/Makefile	Mon May 27 15:29:08 2002
+@@ -9,12 +9,12 @@
+ 
+ O_TARGET	:= atm.o
+ 
+-export-objs 	:= common.o atm_misc.o raw.o resources.o ipcommon.o proc.o
++export-objs 	:= common.o atm_misc.o raw.o resources.o ipcommon.o proc.o atmsar.o
+ 
+ list-multi	:= mpoa.o
+ mpoa-objs	:= mpc.o mpoa_caches.o mpoa_proc.o
+ 
+-obj-$(CONFIG_ATM) := addr.o pvc.o signaling.o svc.o common.o atm_misc.o raw.o resources.o
++obj-$(CONFIG_ATM) := addr.o pvc.o signaling.o svc.o common.o atm_misc.o raw.o resources.o atmsar.o
+ 
+ ifeq ($(CONFIG_ATM_CLIP),y)
+ obj-y += clip.o
+diff --exclude-from=/home/ldb/src/linux-exclude -u -r -N linux-base/net/atm/atmsar.c linux/net/atm/atmsar.c
+--- linux-base/net/atm/atmsar.c	Thu Jan  1 01:00:00 1970
++++ linux/net/atm/atmsar.c	Thu May 30 14:01:30 2002
+@@ -0,0 +1,729 @@
++/*
++ *  General SAR library for ATM devices. 
++ * 
++ *  Written By Johan Verrept ( Johan.Verrept@advalvas.be )
++ *
++ *  Copyright (c) 2000, Johan Verrept
++ *
++ *  This package is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *  
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. 
++
++Version 0.2.5-linuxkernel (30/may/2002, Luca Barbieri <ldb@ldb.ods.org>):
++        - shift expressions relaced with byteswap functions
++	- replaced "sarlib" with "atmsar"
++        - adaptations for inclusion in kernel tree
++
++Version 0.2.4:
++	- Fixed wrong buffer overrun check in sarlib_decode_rawcell()
++	  reported by Stephen Robinson <stephen.robinson@zen.co.uk>
++	- Fixed bug when input skb did not contain a multple of 52/53 bytes.
++	  (would happen when the speedtouch device resynced)
++	  also reported by Stephen Robinson <stephen.robinson@zen.co.uk>
++
++Version 0.2.3:
++	- Fixed wrong allocation size. caused memory corruption in some
++	  cases. Reported by Vladimir Dergachev <volodya@mindspring.com>
++	- Added some comments
++
++Version 0.2.2:
++	- Fixed CRCASM (patch from Linus Flannagan <linusf@netservices.eng.net>)
++	- Fixed problem when user did NOT use the SARLIB_USE_53BYTE_CELL flag.
++          (reported by  Piers Scannell <email@lot105.com> )
++	- No more in-buffer rewriting for cloned buffers.
++	- Removed the PII specific CFLAGS in the Makefile.
++
++Version 0.2.1:
++	- removed dependancy on alloc_tx. tis presented problems when using
++		this with the  br2684 code.
++
++Version 0.2:
++        - added AAL0 reassembly
++        - added alloc_tx support                  
++        - replaced alloc_skb in decode functions to dev_alloc_skb to allow
++                 calling from interrupt
++        - fixed embarassing AAL5 bug. I was setting the pti bit in the wrong
++                byte...
++        - fixed another emabrassing bug.. picked up the wrong crc type and
++                forgot to invert the crc result...
++        - fixed AAL5 length calculations.
++        - removed automatic skb freeing from encode functions.
++                This caused problems because i did kfree_skb it, while it
++                needed to be popped. I cannot determine though whether it
++                needs to be popped or not. Figu'e it out ye'self ;-)
++        - added mru field. This is the buffersize. sarlib_decode_aal0 will
++                use when it allocates a receive buffer. A stop gap for real
++		buffer management.
++
++Version 0.1:
++	- library created.
++	- only contains AAL5, AAL0 can be easily added. ( actually, only
++		AAL0 reassembly is missing)
 +*/
 +
++#include <linux/module.h>
++#include <linux/atmsar.h>
 +
-+typedef struct stu_data_ctx {
-+	urb_t urb;
-+	struct sk_buff *skb;
-+	struct stu_instance_data *instance;
-+} stu_data_ctx_t;
++static const char printk_header[] = "ATM SAR: ";
 +
-+typedef struct stu_usb_send_data_context {
-+	urb_t urb;
-+	struct sk_buff *skb;
-+	struct atm_vcc *vcc;
-+	struct stu_instance_data *instance;
-+} stu_usb_send_data_context_t;
++#ifndef __KERNEL__
++
++/* user space functions */
++#define atomic_add(i,v)  *(v) += i
++#define atomic_inc(v)    *(v) ++
++
++#define Malloc(size)  malloc(size)
++
++#else
++/* kernel functions */
++
++#define Malloc(size)  dev_alloc_skb(size)
++#endif
++
++#define CRCASM 1
++
++/***********************
++ **
++ **  things to remember
++ **
++ ***********************/
 +
 +/*
-+ * STU main driver data
++  1. the atmsar_vcc_data list pointer MUST be initialized to NULL
++  2. atmsar_encode_rawcell will drop incomplete cells.
++  3. ownership of the skb goes to the library !
++*/
++
++#define ATM_HDR_VPVC_MASK  (ATM_HDR_VPI_MASK | ATM_HDR_VCI_MASK)
++
++/***********************
++ **
++ **  LOCAL STRUCTURES
++ **
++ ***********************/
++
++/***********************
++ **
++ **  LOCAL MACROS
++ **
++ ***********************/
++
++#define ADD_HEADER(dest, header) *(*(u32**)&dest)++ = cpu_to_be32(header)
++
++/*
++ * CRC Routines from  net/wan/sbni.c)
++ * table generated by Rocksoft^tm Model CRC Algorithm Table Generation Program V1.0
 + */
-+
-+#define STU_STATUS_DATA_ENABLED 0
-+#define STU_STATUS_DATA_DISABLED 1
-+#define STU_STATUS_DISCONNECTED 2
-+
-+
-+
-+
-+struct stu_instance_data {
-+	struct list_head list;
-+
-+	struct usb_device *usb_dev;
-+	stu_data_ctx_t rcvbufs[STU_NUMBER_RCV_URBS];
-+	struct sk_buff_head sndqueue;
-+	stu_usb_send_data_context_t send_ctx[STU_NUMBER_SND_URBS];
-+	int status;
-+	rwlock_t lock;
-+	atomic_t vcc_count;
-+
-+	struct atm_dev *atm_dev;
-+
-+#if STU_USE_SAR_THREAD
-+	struct sk_buff_head recvqueue;
-+	int threadstamp;
-+#endif
-+
-+	struct atmsar_vcc_data *atmsar_vcc_list;
-+	rwlock_t atmsar_vcc_list_lock;
-+} stu_instance_t;
-+
-+static LIST_HEAD(devices_list);
-+static rwlock_t devices_list_lock = RW_LOCK_UNLOCKED;
-+
-+#if STU_USE_SAR_THREAD
-+static int sar_pid = 0;
-+static struct completion sar_completion =
-+COMPLETION_INITIALIZER(sar_completion);
-+static atomic_t sar_refcnt = ATOMIC_INIT(0);
-+DECLARE_WAITABLE_COUNT (sar_nzcount);
-+#endif
-+
-+#ifdef PACKET_DEBUG
-+/*******************************************************************************
-+ *
-+ * Debug 
-+ *
-+ *******************************************************************************/
-+
-+static int
-+stu_print_packet(const unsigned char *data, int len)
-+{
-+	unsigned char buffer[256];
-+	int i = 0, j = 0;
-+
-+	for (i = 0; i < len;) {
-+		buffer[0] = '\0';
-+		sprintf(buffer, "%.3d :", i);
-+		for (j = 0; (j < 16) && (i < len); j++, i++) {
-+			sprintf(buffer, "%s %2.2x", buffer, data[i]);
-+		}
-+		printk_dbg("%s", buffer);
-+	}
-+	return i;
++#define CRC32_REMAINDER CBF43926
++#define CRC32_INITIAL 0xffffffff
++#define CRC32(c,crc) (crc32tab[((size_t)(crc>>24) ^ (c)) & 0xff] ^ (((crc) << 8)))
++unsigned long crc32tab[256] = {
++	0x00000000L, 0x04C11DB7L, 0x09823B6EL, 0x0D4326D9L,
++	0x130476DCL, 0x17C56B6BL, 0x1A864DB2L, 0x1E475005L,
++	0x2608EDB8L, 0x22C9F00FL, 0x2F8AD6D6L, 0x2B4BCB61L,
++	0x350C9B64L, 0x31CD86D3L, 0x3C8EA00AL, 0x384FBDBDL,
++	0x4C11DB70L, 0x48D0C6C7L, 0x4593E01EL, 0x4152FDA9L,
++	0x5F15ADACL, 0x5BD4B01BL, 0x569796C2L, 0x52568B75L,
++	0x6A1936C8L, 0x6ED82B7FL, 0x639B0DA6L, 0x675A1011L,
++	0x791D4014L, 0x7DDC5DA3L, 0x709F7B7AL, 0x745E66CDL,
++	0x9823B6E0L, 0x9CE2AB57L, 0x91A18D8EL, 0x95609039L,
++	0x8B27C03CL, 0x8FE6DD8BL, 0x82A5FB52L, 0x8664E6E5L,
++	0xBE2B5B58L, 0xBAEA46EFL, 0xB7A96036L, 0xB3687D81L,
++	0xAD2F2D84L, 0xA9EE3033L, 0xA4AD16EAL, 0xA06C0B5DL,
++	0xD4326D90L, 0xD0F37027L, 0xDDB056FEL, 0xD9714B49L,
++	0xC7361B4CL, 0xC3F706FBL, 0xCEB42022L, 0xCA753D95L,
++	0xF23A8028L, 0xF6FB9D9FL, 0xFBB8BB46L, 0xFF79A6F1L,
++	0xE13EF6F4L, 0xE5FFEB43L, 0xE8BCCD9AL, 0xEC7DD02DL,
++	0x34867077L, 0x30476DC0L, 0x3D044B19L, 0x39C556AEL,
++	0x278206ABL, 0x23431B1CL, 0x2E003DC5L, 0x2AC12072L,
++	0x128E9DCFL, 0x164F8078L, 0x1B0CA6A1L, 0x1FCDBB16L,
++	0x018AEB13L, 0x054BF6A4L, 0x0808D07DL, 0x0CC9CDCAL,
++	0x7897AB07L, 0x7C56B6B0L, 0x71159069L, 0x75D48DDEL,
++	0x6B93DDDBL, 0x6F52C06CL, 0x6211E6B5L, 0x66D0FB02L,
++	0x5E9F46BFL, 0x5A5E5B08L, 0x571D7DD1L, 0x53DC6066L,
++	0x4D9B3063L, 0x495A2DD4L, 0x44190B0DL, 0x40D816BAL,
++	0xACA5C697L, 0xA864DB20L, 0xA527FDF9L, 0xA1E6E04EL,
++	0xBFA1B04BL, 0xBB60ADFCL, 0xB6238B25L, 0xB2E29692L,
++	0x8AAD2B2FL, 0x8E6C3698L, 0x832F1041L, 0x87EE0DF6L,
++	0x99A95DF3L, 0x9D684044L, 0x902B669DL, 0x94EA7B2AL,
++	0xE0B41DE7L, 0xE4750050L, 0xE9362689L, 0xEDF73B3EL,
++	0xF3B06B3BL, 0xF771768CL, 0xFA325055L, 0xFEF34DE2L,
++	0xC6BCF05FL, 0xC27DEDE8L, 0xCF3ECB31L, 0xCBFFD686L,
++	0xD5B88683L, 0xD1799B34L, 0xDC3ABDEDL, 0xD8FBA05AL,
++	0x690CE0EEL, 0x6DCDFD59L, 0x608EDB80L, 0x644FC637L,
++	0x7A089632L, 0x7EC98B85L, 0x738AAD5CL, 0x774BB0EBL,
++	0x4F040D56L, 0x4BC510E1L, 0x46863638L, 0x42472B8FL,
++	0x5C007B8AL, 0x58C1663DL, 0x558240E4L, 0x51435D53L,
++	0x251D3B9EL, 0x21DC2629L, 0x2C9F00F0L, 0x285E1D47L,
++	0x36194D42L, 0x32D850F5L, 0x3F9B762CL, 0x3B5A6B9BL,
++	0x0315D626L, 0x07D4CB91L, 0x0A97ED48L, 0x0E56F0FFL,
++	0x1011A0FAL, 0x14D0BD4DL, 0x19939B94L, 0x1D528623L,
++	0xF12F560EL, 0xF5EE4BB9L, 0xF8AD6D60L, 0xFC6C70D7L,
++	0xE22B20D2L, 0xE6EA3D65L, 0xEBA91BBCL, 0xEF68060BL,
++	0xD727BBB6L, 0xD3E6A601L, 0xDEA580D8L, 0xDA649D6FL,
++	0xC423CD6AL, 0xC0E2D0DDL, 0xCDA1F604L, 0xC960EBB3L,
++	0xBD3E8D7EL, 0xB9FF90C9L, 0xB4BCB610L, 0xB07DABA7L,
++	0xAE3AFBA2L, 0xAAFBE615L, 0xA7B8C0CCL, 0xA379DD7BL,
++	0x9B3660C6L, 0x9FF77D71L, 0x92B45BA8L, 0x9675461FL,
++	0x8832161AL, 0x8CF30BADL, 0x81B02D74L, 0x857130C3L,
++	0x5D8A9099L, 0x594B8D2EL, 0x5408ABF7L, 0x50C9B640L,
++	0x4E8EE645L, 0x4A4FFBF2L, 0x470CDD2BL, 0x43CDC09CL,
++	0x7B827D21L, 0x7F436096L, 0x7200464FL, 0x76C15BF8L,
++	0x68860BFDL, 0x6C47164AL, 0x61043093L, 0x65C52D24L,
++	0x119B4BE9L, 0x155A565EL, 0x18197087L, 0x1CD86D30L,
++	0x029F3D35L, 0x065E2082L, 0x0B1D065BL, 0x0FDC1BECL,
++	0x3793A651L, 0x3352BBE6L, 0x3E119D3FL, 0x3AD08088L,
++	0x2497D08DL, 0x2056CD3AL, 0x2D15EBE3L, 0x29D4F654L,
++	0xC5A92679L, 0xC1683BCEL, 0xCC2B1D17L, 0xC8EA00A0L,
++	0xD6AD50A5L, 0xD26C4D12L, 0xDF2F6BCBL, 0xDBEE767CL,
++	0xE3A1CBC1L, 0xE760D676L, 0xEA23F0AFL, 0xEEE2ED18L,
++	0xF0A5BD1DL, 0xF464A0AAL, 0xF9278673L, 0xFDE69BC4L,
++	0x89B8FD09L, 0x8D79E0BEL, 0x803AC667L, 0x84FBDBD0L,
++	0x9ABC8BD5L, 0x9E7D9662L, 0x933EB0BBL, 0x97FFAD0CL,
++	0xAFB010B1L, 0xAB710D06L, 0xA6322BDFL, 0xA2F33668L,
++	0xBCB4666DL, 0xB8757BDAL, 0xB5365D03L, 0xB1F740B4L
 +};
++
++#ifdef CRCASM
++
++#if defined(__i386__)
++unsigned long
++calc_crc(char *mem, int len, unsigned initial)
++{
++	unsigned crc, dummy_len;
++      __asm__("xorl %%eax,%%eax\n\t" "1:\n\t" "movl %%edx,%%eax\n\t" "shrl $16,%%eax\n\t" "lodsb\n\t" "xorb %%ah,%%al\n\t" "andl $255,%%eax\n\t" "shll $8,%%edx\n\t" "xorl (%%edi,%%eax,4),%%edx\n\t" "loop 1b":"=d"(crc),
++		"=c"
++		(dummy_len)
++      :	"S"(mem), "D"(&crc32tab[0]), "1"(len), "0"(initial)
++      :	"eax");
++	return crc;
++}
 +#else
-+
-+#define stu_print_packet(...)
++#undef CRCASM
++#endif
 +
 +#endif
 +
-+typedef struct stu_atm_vcc_data {
-+	struct atmsar_vcc_data *atmsar_vcc;
-+	struct waitable_count skb_zcount;
-+} stu_atm_vcc_data_t;
-+
-+#define hex2int(c) ((c >= '0') && (c <= '9') ?  (c - '0') : ((c & 0xf) + 9))
-+
-+struct atm_dev *
-+stu_atm_start(struct stu_instance_data *instance, struct atmdev_ops *devops)
++#ifndef CRCASM
++unsigned long
++calc_crc(char *mem, int len, unsigned initial)
 +{
-+	MOD_INC_USE_COUNT;
++	unsigned crc;
++	crc = initial;
 +
-+	instance->atm_dev = atm_dev_register(stu_device_name, devops, -1, 0);
-+	instance->atm_dev->dev_data = instance;
-+	instance->atm_dev->ci_range.vpi_bits = ATM_CI_MAX;
-+	instance->atm_dev->ci_range.vci_bits = ATM_CI_MAX;
-+	instance->atm_dev->signal = ATM_PHY_SIG_LOST;
-+
-+#if STU_USE_SAR_THREAD
-+	skb_queue_head_init(&instance->recvqueue);
++	for (; len; mem++, len--) {
++		crc = CRC32(*mem, crc);
++	}
++	return (crc);
++}
 +#endif
 +
-+	/* tmp init atm device, set to 128kbit */
-+	instance->atm_dev->link_rate = 128 * 1000 / 424;
++#define crc32( crc, mem, len) calc_crc(mem, len, crc);
 +
-+	return instance->atm_dev;
-+}
-+
-+void
-+stu_atm_stop(struct stu_instance_data *instance)
-+{
-+	struct atm_vcc *walk;
-+	struct atm_dev *atm_dev;
-+
-+	if (!instance->atm_dev)
-+		return;
-+
-+	atm_dev = instance->atm_dev;
-+
-+#if STU_USE_SAR_THREAD
-+	skb_queue_purge(&instance->recvqueue);
-+#endif
-+
-+	atm_dev->signal = ATM_PHY_SIG_LOST;
-+	walk = atm_dev->vccs;
-+	shutdown_atm_dev(atm_dev);
-+
-+	/* TODO: is this really needed? */
-+	for (; walk; walk = walk->next)
-+		wake_up(&walk->sleep);
-+
-+	instance->atm_dev = NULL;
-+	MOD_DEC_USE_COUNT;
-+}
-+
-+/* called from encode */
++/* ATOMIC version of alloc_tx */
 +struct sk_buff *
-+stu_atm_alloc_tx(struct atm_vcc *vcc, unsigned int size)
++atmsar_alloc_skb_wrapper(struct atm_vcc *vcc, unsigned int size)
 +{
-+	atmsar_vcc_data_t *atmsar_vcc =
-+	    ((struct stu_atm_vcc_data *) vcc->dev_data)->atmsar_vcc;
-+
-+	if (atmsar_vcc)
-+		return atmsar_alloc_tx(atmsar_vcc, size);
-+
-+	printk_err("stu_atm_alloc_tx could not find correct alloc_tx function!\n");
-+	return NULL;
-+}
-+
-+int
-+stu_atm_proc_read(struct atm_dev *atm_dev, loff_t * pos, char *page)
-+{
-+	int left = *pos;
-+
-+	if (!left--)
-+		return sprintf(page,
-+			       "SpeedTouch USB (%02x:%02x:%02x:%02x:%02x:%02x)\n",
-+			       atm_dev->esi[0], atm_dev->esi[1],
-+			       atm_dev->esi[2], atm_dev->esi[3],
-+			       atm_dev->esi[4], atm_dev->esi[5]);
-+
-+	if (!left--)
-+		return sprintf(page,
-+			       "AAL0: tx %d ( %d err ), rx %d ( %d err, %d drop )\n",
-+			       atomic_read(&atm_dev->stats.aal0.tx),
-+			       atomic_read(&atm_dev->stats.aal0.tx_err),
-+			       atomic_read(&atm_dev->stats.aal0.rx),
-+			       atomic_read(&atm_dev->stats.aal0.rx_err),
-+			       atomic_read(&atm_dev->stats.aal0.rx_drop));
-+
-+	if (!left--)
-+		return sprintf(page,
-+			       "AAL5: tx %d ( %d err ), rx %d ( %d err, %d drop )\n",
-+			       atomic_read(&atm_dev->stats.aal5.tx),
-+			       atomic_read(&atm_dev->stats.aal5.tx_err),
-+			       atomic_read(&atm_dev->stats.aal5.rx),
-+			       atomic_read(&atm_dev->stats.aal5.rx_err),
-+			       atomic_read(&atm_dev->stats.aal5.rx_drop));
-+
-+	return 0;
-+}
-+
-+typedef struct stu_cb {
-+	struct atm_vcc *vcc;
-+} stu_cb_t;
-+
-+/* doesn't sleep */
-+static void
-+stu_usb_send_next(urb_t * urb)
-+{
-+	stu_usb_send_data_context_t *ctx =
-+	    (stu_usb_send_data_context_t *) urb->context;
-+	struct stu_atm_vcc_data *dev_data =
-+	    (struct stu_atm_vcc_data *) ctx->vcc->dev_data;
-+	struct stu_instance_data *instance = ctx->instance;
 +	struct sk_buff *skb;
-+	int err;
-+	unsigned long flags;
 +
-+	printk_dbg("vcc = %p, skb = %p, status %d", ctx->vcc, ctx->skb, urb->status);
-+
-+	read_lock(&instance->lock);
-+	if (instance->status != STU_STATUS_DATA_ENABLED)
-+		goto out;
-+
-+      errloop:
-+	spin_lock_irqsave(&instance->sndqueue.lock, flags);
-+
-+	ctx->vcc->pop(ctx->vcc, ctx->skb);
-+	/* ctx->skb = NULL; */
-+
-+	dec_zero (&dev_data->skb_zcount);
-+
-+	/* submit next skb */
-+	ctx->skb = skb = __skb_dequeue(&(instance->sndqueue));
-+
-+	spin_unlock_irqrestore(&instance->sndqueue.lock, flags);
-+
++	if (atomic_read(&vcc->tx_inuse) && !atm_may_send(vcc, size)) {
++		printk_dbg("sorry: tx_inuse = %d, size = %d, sndbuf = %d",
++			    atomic_read(&vcc->tx_inuse), size, vcc->sk->sndbuf);
++		return NULL;
++	}
++	skb = alloc_skb(size, GFP_ATOMIC);
 +	if (!skb)
-+		goto out;
-+
-+	ctx->vcc = ((stu_cb_t *) (skb->cb))->vcc;
-+
-+	FILL_BULK_URB(urb,
-+		      instance->usb_dev,
-+		      usb_sndbulkpipe(instance->usb_dev, STU_ENDPOINT_DATA_OUT),
-+		      (unsigned char *) skb->data,
-+		      skb->len, (usb_complete_t) stu_usb_send_next, ctx);
-+	urb->transfer_flags |= USB_QUEUE_BULK;
-+
-+	err = usb_submit_urb(urb);
-+
-+	if (err != 0) {
-+		printk_err ("usb_submit_urb for ATM data failed (result = %d)\n", err);
-+		goto errloop;
-+	}
-+
-+	printk_dbg("send packet %p with length %d, retval = %d", ctx->skb, ctx->skb->len, err);
-+
-+      out:
-+	read_unlock(&instance->lock);
++		return NULL;
++	atomic_add(skb->truesize + ATM_PDU_OVHD, &vcc->tx_inuse);
++	return skb;
 +}
 +
-+/* doesn't sleep */
-+int
-+stu_send_encoded(struct stu_instance_data *instance, struct atm_vcc *vcc,
-+		     struct sk_buff *skb)
++struct sk_buff *
++atmsar_alloc_tx(struct atmsar_vcc_data *vcc, unsigned int size)
 +{
-+	int i;
-+	int res = 0;
-+	urb_t *urb;
-+	unsigned long flags;
-+	stu_usb_send_data_context_t *ctx;
-+	struct stu_atm_vcc_data *dev_data =
-+	    (struct stu_atm_vcc_data *) vcc->dev_data;
++	struct sk_buff *tmp = NULL;
++	int bufsize = 0;
 +
-+	printk_dbg("sending packet %p with length %d", skb, skb->len);
-+
-+	stu_print_packet(skb->data, skb->len);
-+
-+	((stu_cb_t *) skb->cb)->vcc = vcc;
-+
-+	inc_zero (&dev_data->skb_zcount);
-+
-+	spin_lock_irqsave(&instance->sndqueue.lock, flags);
-+
-+	/* we are already queueing */
-+	if (!skb_queue_empty(&instance->sndqueue)) {
-+		__skb_queue_tail(&instance->sndqueue, skb);
-+		spin_unlock_irqrestore(&instance->sndqueue.lock, flags);
-+		printk_dbg("already queing, skb (0x%p) queued", skb);
-+		goto ok;
-+	}
-+
-+	for (i = 0; i < STU_NUMBER_SND_URBS; i++)
-+		if (instance->send_ctx[i].skb == NULL)
-+			break;
-+
-+	/* we must start queueing */
-+	if (i == STU_NUMBER_SND_URBS) {
-+		__skb_queue_tail(&instance->sndqueue, skb);
-+		spin_unlock_irqrestore(&instance->sndqueue.lock, flags);
-+		printk_dbg("skb (0x%p) queued", skb);
-+		goto ok;
-+	};
-+
-+	ctx = &instance->send_ctx[i];
-+	/* init context */
-+	urb = &(ctx->urb);
-+	ctx->skb = skb;
-+	ctx->vcc = vcc;
-+	ctx->instance = instance;
-+
-+	spin_unlock_irqrestore(&instance->sndqueue.lock, flags);
-+
-+	/* submit packet */
-+	FILL_BULK_URB(urb,
-+		      instance->usb_dev,
-+		      usb_sndbulkpipe(instance->usb_dev, STU_ENDPOINT_DATA_OUT),
-+		      (unsigned char *) skb->data,
-+		      skb->len,
-+		      (usb_complete_t) stu_usb_send_next,
-+		      &(instance->send_ctx[i])
-+	    );
-+	urb->transfer_flags |= USB_QUEUE_BULK;
-+
-+	res = usb_submit_urb(urb);
-+
-+	if (res != 0) {
-+		printk_err ("usb_submit_urb for ATM data failed (result = %d) in stu_usb_send_data", res);
-+
-+		stu_usb_send_next(urb);
-+
-+		return res;
-+	}
-+
-+      ok:
-+	printk_ok();
-+	return 0;
-+}
-+
-+/* doesn't sleep */
-+int
-+stu_atm_send(struct atm_vcc *vcc, struct sk_buff *skb)
-+{
-+	struct stu_atm_vcc_data *dev_data =
-+	    (struct stu_atm_vcc_data *) vcc->dev_data;
-+	struct stu_instance_data *instance =
-+	    (struct stu_instance_data *) vcc->dev->dev_data;
-+	struct sk_buff *new = NULL;
-+	int res = -EAGAIN;
-+
-+	printk_call();
-+
-+	if (!dev_data)
-+		return -EINVAL;
-+
-+	read_lock(&instance->lock);
-+	if (instance->status != STU_STATUS_DATA_ENABLED) {
-+		if (instance->status == STU_STATUS_DISCONNECTED)
-+			res = -ENETDOWN;
-+		goto out;
-+	}
-+
-+	/* TODO: check if sk_buff's are leaked */
-+	switch (vcc->qos.aal) {
-+	case ATM_AAL5:
-+		if (instance->status != STU_STATUS_DATA_ENABLED) {
-+			res = -EAGAIN;
-+			goto out;
-+		}
-+
-+		res = -ENOMEM;
-+		new = atmsar_encode_aal5(dev_data->atmsar_vcc, skb);
-+		if (!new)
-+			goto out;
-+		if (new != skb) {
-+			vcc->pop(vcc, skb);
-+			skb = new;
-+		}
-+		new = atmsar_encode_rawcell(dev_data->atmsar_vcc, skb);
-+		if (!new)
-+			goto out;
-+		if (new != skb) {
-+			vcc->pop(vcc, skb);
-+			skb = new;
-+		}
-+		res = stu_send_encoded(instance, vcc, skb);
-+
-+		printk_res(res);
++	switch (vcc->type) {
++	case ATMSAR_TYPE_AAL0:
++		/* reserving adequate headroom */
++		bufsize =
++		    size +
++		    (((size / 48) +
++		      1) * ((vcc->flags & ATMSAR_USE_53BYTE_CELL) ? 5 : 4));
 +		break;
-+	default:
-+		res = -EINVAL;
-+	};
++	case ATMSAR_TYPE_AAL1:
++		/* reserving adequate headroom */
++		bufsize =
++		    size +
++		    (((size / 47) +
++		      1) * ((vcc->flags & ATMSAR_USE_53BYTE_CELL) ? 5 : 4));
++		break;
++	case ATMSAR_TYPE_AAL2:
++	case ATMSAR_TYPE_AAL34:
++		/* not supported */
++		break;
++	case ATMSAR_TYPE_AAL5:
++		/* reserving adequate tailroom */
++		bufsize = size + (((size + 8 + 47) / 48) * 48);
++		break;
++	}
 +
-+      out:
-+	read_unlock(&instance->lock);
-+	return res;
-+};
++	printk_dbg("requested size %d, allocating size %d", size, bufsize);
++	tmp = vcc->alloc_tx(vcc->vcc, bufsize);
++	skb_put(tmp, bufsize);
++
++	return tmp;
++}
++
++struct atmsar_vcc_data *
++atmsar_open(struct atmsar_vcc_data **list, struct atm_vcc *vcc, uint type,
++	    ushort vpi, ushort vci, unchar pti, unchar gfc, uint flags)
++{
++	struct atmsar_vcc_data *new;
++
++	new = kmalloc(sizeof (struct atmsar_vcc_data), GFP_KERNEL);
++
++	if (!new)
++		return NULL;
++
++	if (!vcc)
++		return NULL;
++
++	memset(new, 0, sizeof (struct atmsar_vcc_data));
++	new->vcc = vcc;
++/*
++ * This gives problems with the ATM layer alloc_tx().
++ * It is not usable from interrupt context and for
++ * some reason this is used in interurpt context 
++ * with br2684.c
++ *
++  if (vcc->alloc_tx)
++    new->alloc_tx  = vcc->alloc_tx;
++  else
++*/
++	new->alloc_tx = atmsar_alloc_skb_wrapper;
++
++	new->stats = vcc->stats;
++	new->type = type;
++	new->next = NULL;
++	new->gfc = gfc;
++	new->vp = vpi;
++	new->vc = vci;
++	new->pti = pti;
++
++	switch (type) {
++	case ATMSAR_TYPE_AAL0:
++		new->mtu = ATMSAR_DEF_MTU_AAL0;
++		break;
++	case ATMSAR_TYPE_AAL1:
++		new->mtu = ATMSAR_DEF_MTU_AAL1;
++		break;
++	case ATMSAR_TYPE_AAL2:
++		new->mtu = ATMSAR_DEF_MTU_AAL2;
++		break;
++	case ATMSAR_TYPE_AAL34:
++		/* not supported */
++		new->mtu = ATMSAR_DEF_MTU_AAL34;
++		break;
++	case ATMSAR_TYPE_AAL5:
++		new->mtu = ATMSAR_DEF_MTU_AAL5;
++		break;
++	}
++
++	new->atmHeader = ((unsigned long) gfc << ATM_HDR_GFC_SHIFT)
++	    | ((unsigned long) vpi << ATM_HDR_VPI_SHIFT)
++	    | ((unsigned long) vci << ATM_HDR_VCI_SHIFT)
++	    | ((unsigned long) pti << ATM_HDR_PTI_SHIFT);
++	new->flags = flags;
++	new->next = NULL;
++	new->reasBuffer = NULL;
++
++	new->next = *list;
++	*list = new;
++
++	printk_dbg("allocated new atmsar vcc 0x%p with vp %d vc %d", new, vpi,
++		    vci);
++
++	return new;
++}
 +
 +void
-+stu_sar_decode(struct stu_instance_data *instance, struct sk_buff *skb)
++atmsar_close(struct atmsar_vcc_data **list, struct atmsar_vcc_data *vcc)
 +{
-+	struct sk_buff *new = NULL, *tmp = NULL;
-+	struct atmsar_vcc_data *atmsar_vcc = NULL;
++	struct atmsar_vcc_data *work;
 +
-+	read_lock(&instance->atmsar_vcc_list_lock);
-+	/* NOTE: multiple concurrent decode calls on the same device must be locked (currently we call it only here so we don't need to lock) */
-+	while ((new =
-+		atmsar_decode_rawcell(instance->atmsar_vcc_list, skb,
-+				      &atmsar_vcc)) != NULL) {
-+		printk_dbg("after cell processing: skb->len = %d", new->len);
-+		switch (atmsar_vcc->type) {
-+		case ATMSAR_TYPE_AAL5:
-+			tmp = new;
-+			new = atmsar_decode_aal5(atmsar_vcc, new);
++	if (*list == vcc) {
++		*list = (*list)->next;
++	} else {
++		for (work = *list; work && work->next && (work->next != vcc);
++		     work = work->next) ;
 +
-+			/* we can't send NULL skbs upstream, the ATM layer would try to close the vcc... */
-+			if (new) {
-+				printk_dbg("after aal5 decap: skb->len = %d",
-+				       new->len);
-+				if (new->len
-+				    && atm_charge(atmsar_vcc->vcc,
-+						  new->truesize)) {
-+					stu_print_packet(new->data, new->len);
-+					atmsar_vcc->vcc->push(atmsar_vcc->vcc,
-+							      new);
-+				} else {
-+					printk_dbg
-+					    ("dropping incoming packet: rx_inuse = %d, vcc->sk->rcvbuf = %d, skb->true_size = %d",
-+					     atomic_read(&atmsar_vcc->vcc->
-+							 rx_inuse),
-+					     atmsar_vcc->vcc->sk->rcvbuf,
-+					     new->truesize);
-+					dev_kfree_skb(new);
++		/* return if not found */
++		if (work->next != vcc)
++			return;
++
++		work->next = work->next->next;
++	}
++
++	if (vcc->reasBuffer) {
++		dev_kfree_skb(vcc->reasBuffer);
++	}
++
++	printk_dbg("allocated atmsar vcc 0x%p with vp %d vc %d", vcc, vcc->vp,
++		    vcc->vc);
++
++	kfree(vcc);
++}
++
++/***********************
++ **
++ **    ENCODE FUNCTIONS
++ **
++ ***********************/
++
++struct sk_buff *
++atmsar_encode_rawcell(struct atmsar_vcc_data *ctx, struct sk_buff *skb)
++{
++	int number_of_cells = (skb->len) / 48;
++	int total_length =
++	    number_of_cells * (ctx->flags & ATMSAR_USE_53BYTE_CELL ? 53 : 52);
++	unsigned char *source;
++	unsigned char *target;
++	struct sk_buff *out = NULL;
++	int i;
++
++	printk_dbg("called (0x%p, 0x%p)", ctx, skb);
++
++	if (skb_cloned(skb)
++	    || (skb_headroom(skb) <
++		(number_of_cells *
++		 (ctx->flags & ATMSAR_USE_53BYTE_CELL ? 5 : 4)))) {
++		printk_dbg
++		    ("allocating new skb: ctx->alloc_tx = 0x%p, ctx->vcc = 0x%p",
++		     ctx->alloc_tx, ctx->vcc);
++		/* get new skb */
++		out = ctx->alloc_tx(ctx->vcc, total_length);
++		if (!out)
++			return NULL;
++
++		skb_put(out, total_length);
++		source = skb->data;
++		target = out->data;
++	} else {
++		printk_dbg("sufficient headroom");
++		source = skb->data;
++		skb_push(skb,
++			 number_of_cells *
++			 ((ctx->flags & ATMSAR_USE_53BYTE_CELL) ? 5 : 4));
++		target = skb->data;
++		out = skb;
++	}
++
++	printk_dbg("source 0x=%p, target 0x%p", source, target);
++
++	if (ctx->flags & ATMSAR_USE_53BYTE_CELL) {
++		for (i = 0; i < number_of_cells; i++) {
++			ADD_HEADER(target, ctx->atmHeader);
++			*target++ = (char) 0xEC;
++			memcpy(target, source, 48);
++			target += 48;
++			source += 48;
++			printk_dbg("source 0x=%p, target 0x%p", source,
++				    target);
++		}
++	} else {
++		for (i = 0; i < number_of_cells; i++) {
++			ADD_HEADER(target, ctx->atmHeader);
++			memcpy(target, source, 48);
++			target += 48;
++			source += 48;
++			printk_dbg("source 0x=%p, target 0x%p", source,
++				    target);
++		};
++	}
++
++	if (ctx->flags & ATMSAR_SET_PTI) {
++		/* setting pti bit in last cell */
++		*(target - (ctx->flags & ATMSAR_USE_53BYTE_CELL ? 50 : 49)) |=
++		    0x2;
++	}
++
++	/* update stats */
++	if (ctx->stats && (ctx->type <= ATMSAR_TYPE_AAL1))
++		atomic_add(number_of_cells, &(ctx->stats->tx));
++
++	printk_dbg("return 0x%p (length %d)", out, out->len);
++	return out;
++}
++
++struct sk_buff *
++atmsar_encode_aal5(struct atmsar_vcc_data *ctx, struct sk_buff *skb)
++{
++	int length, pdu_length;
++	unsigned char *trailer;
++	unsigned char *pad;
++	uint crc = 0xffffffff;
++
++	printk_dbg("(0x%p, 0x%p) called", ctx, skb);
++
++	/* determine aal5 length */
++	pdu_length = skb->len;
++	length = ((pdu_length + 8 + 47) / 48) * 48;
++
++	if (skb_tailroom(skb) < (length - pdu_length)) {
++		struct sk_buff *out;
++		printk_dbg
++		    ("allocating new skb: ctx->alloc_tx = 0x%p, ctx->vcc = 0x%p",
++		     ctx->alloc_tx, ctx->vcc);
++		/* get new skb */
++		out = ctx->alloc_tx(ctx->vcc, length);
++		if (!out)
++			return NULL;
++
++		printk_dbg("out->data = 0x%p", out->data);
++		printk_dbg("pdu length %d, allocated length %d", skb->len,
++			    length);
++		memcpy(out->data, skb->data, skb->len);
++		skb_put(out, skb->len);
++
++		skb = out;
++	}
++
++	printk_dbg("skb->data = 0x%p", skb->data);
++	/* note end of pdu and add length */
++	pad = skb_put(skb, length - pdu_length);
++	trailer = skb->tail - 8;
++
++	printk_dbg("trailer = 0x%p", trailer);
++
++	/* zero padding space */
++	memset(pad, 0, length - pdu_length - 8);
++
++	/* add trailer */
++	*trailer++ = (unsigned char) 0;	/* UU  = 0 */
++	*trailer++ = (unsigned char) 0;	/* CPI = 0 */
++	*(*(u16 **) & trailer)++ = cpu_to_be16(pdu_length);
++	crc = ~crc32(crc, skb->data, length - 4);
++	*(*(u32 **) & trailer)++ = cpu_to_be32(crc);
++
++	/* update stats */
++	if (ctx->stats)
++		atomic_inc(&ctx->stats->tx);
++
++	printk_dbg("return 0x%p (length %d)", skb, skb->len);
++	return skb;
++}
++
++/***********************
++ **
++ **  DECODE FUNCTIONS
++ **
++ ***********************/
++
++struct sk_buff *
++atmsar_decode_rawcell(struct atmsar_vcc_data *list, struct sk_buff *skb,
++		      struct atmsar_vcc_data **ctx)
++{
++	while (skb->len) {
++		unsigned char *cell = skb->data;
++		unsigned char *cell_payload;
++		struct atmsar_vcc_data *vcc = list;
++		unsigned long atmHeader = be32_to_cpu(*(u32 *) cell);
++
++		printk_dbg("called (0x%p, 0x%p, 0x%p)", list, skb, ctx);
++		printk_dbg("skb->data %p, skb->tail %p", skb->data, skb->tail);
++
++		if (!list || !skb || !ctx)
++			return NULL;
++		if (!skb->data || !skb->tail)
++			return NULL;
++
++		/* here should the header CRC check be... */
++
++		/* look up correct vcc */
++		for (;
++		     vcc
++		     && ((vcc->atmHeader & ATM_HDR_VPVC_MASK) !=
++			 (atmHeader & ATM_HDR_VPVC_MASK)); vcc = vcc->next) ;
++
++		printk_dbg("found vcc %p for packet on vp %d, vc %d", vcc,
++			    (int) ((atmHeader & ATM_HDR_VPI_MASK) >>
++				   ATM_HDR_VPI_SHIFT),
++			    (int) ((atmHeader & ATM_HDR_VCI_MASK) >>
++				   ATM_HDR_VCI_SHIFT));
++
++		if (vcc
++		    && (skb->len >=
++			(vcc->flags & ATMSAR_USE_53BYTE_CELL ? 53 : 52))) {
++			cell_payload =
++			    cell +
++			    (vcc->flags & ATMSAR_USE_53BYTE_CELL ? 5 : 4);
++
++			switch (vcc->type) {
++			case ATMSAR_TYPE_AAL0:
++				/* case ATMSAR_TYPE_AAL1: when we have a decode AAL1 function... */
++				{
++					struct sk_buff *tmp = Malloc(vcc->mtu);
++
++					if (tmp) {
++						memcpy(tmp->tail, cell_payload,
++						       48);
++						skb_put(tmp, 48);
++
++						if (vcc->stats)
++							atomic_inc(&vcc->stats->
++								   rx);
++
++						skb_pull(skb,
++							 (vcc->
++							  flags &
++							  ATMSAR_USE_53BYTE_CELL
++							  ? 53 : 52));
++						printk_dbg
++						    ("returns ATMSAR_TYPE_AAL0 pdu 0x%p with length %d",
++						     tmp, tmp->len);
++						return tmp;
++					};
 +				}
-+			} else {
-+				printk_dbg("atmsar_decode_aal5 returned NULL!");
-+				dev_kfree_skb(tmp);
-+			}
-+			break;
-+		default:
-+			printk_warn("illegal vcc type: dropping packet");
-+			dev_kfree_skb(new);
-+			break;
-+		}
-+	};
-+	read_unlock(&instance->atmsar_vcc_list_lock);
-+	printk_dbg("freeing skb after processqueue executed");
-+	dev_kfree_skb(skb);
-+}
++				break;
++			case ATMSAR_TYPE_AAL1:
++			case ATMSAR_TYPE_AAL2:
++			case ATMSAR_TYPE_AAL34:
++				/* not supported */
++				break;
++			case ATMSAR_TYPE_AAL5:
++				if (!vcc->reasBuffer)
++					vcc->reasBuffer = Malloc(vcc->mtu);
 +
-+#if STU_USE_SAR_THREAD
-+/* doesn't sleep */
-+void
-+stu_sar_processqueue(struct stu_instance_data *instance)
-+{
-+	struct sk_buff *skb = NULL;
++				/* if alloc fails, we just drop the cell. it is possible that we can still
++				 * receive cells on other vcc's 
++				 */
++				if (vcc->reasBuffer) {
++					/* if (buffer overrun) discard received cells until now */
++					if ((vcc->reasBuffer->len) >
++					    (vcc->mtu - 48))
++						skb_trim(vcc->reasBuffer, 0);
 +
-+	read_lock(&instance->lock);
-+	if (instance->status != STU_STATUS_DATA_ENABLED)
-+		goto out;
++					/* copy data */
++					memcpy(vcc->reasBuffer->tail,
++					       cell_payload, 48);
++					skb_put(vcc->reasBuffer, 48);
 +
-+	while ((skb = skb_dequeue(&instance->recvqueue)) != NULL) {
-+		stu_sar_decode(instance, skb);
-+		dec_nonzero(&sar_nzcount);
++					/* check for end of buffer */
++					if (cell[3] & 0x2) {
++						struct sk_buff *tmp;
 +
-+		printk_dbg("skb = %p, skb->len = %d", skb, skb->len);
-+		stu_print_packet(skb->data, skb->len);
-+	};
++						/* the aal5 buffer ends here, cut the buffer. */
++						/* buffer will always have at least one whole cell, so */
++						/* don't need to check return from skb_pull */
++						skb_pull(skb,
++							 (vcc->
++							  flags &
++							  ATMSAR_USE_53BYTE_CELL
++							  ? 53 : 52));
++						*ctx = vcc;
++						tmp = vcc->reasBuffer;
++						vcc->reasBuffer = NULL;
 +
-+      out:
-+	read_unlock(&instance->lock);
-+}
-+
-+int
-+stu_sar_threadproc(void *data)
-+{
-+	struct list_head *i;
-+	int threadstamp;
-+
-+	lock_kernel();
-+	exit_files(current);	/* daemonize doesn't do exit_files */
-+	daemonize();
-+
-+	strcpy(current->comm, "kstusard");
-+
-+	for (threadstamp = 1;; threadstamp++) {
-+		wait_count(&sar_nzcount, 1, TASK_INTERRUPTIBLE);
-+		if (signal_pending(current))
-+			break;
-+		printk_dbg("kstusard awoke");
-+
-+	      repeat:
-+		read_lock(&devices_list_lock);
-+		list_for_each(i, &devices_list) {
-+			struct stu_instance_data *instance =
-+			    (struct stu_instance_data *) i;
-+			
-+			/* avoid reprocessing a device if we processed it before having to schedule */
-+			if (threadstamp != instance->threadstamp) {
-+				stu_sar_processqueue(instance);
-+				instance->threadstamp = threadstamp;
-+				if (current->need_resched) {
-+					read_unlock(&devices_list_lock);
-+					schedule();
-+					goto repeat;
++						printk_dbg
++						    ("returns ATMSAR_TYPE_AAL5 pdu 0x%p with length %d",
++						     tmp, tmp->len);
++						return tmp;
++					}
 +				}
++				break;
++			};
++			/* flush the cell */
++			/* buffer will always contain at least one whole cell, so don't */
++			/* need to check return value from skb_pull */
++			skb_pull(skb,
++				 (vcc->
++				  flags & ATMSAR_USE_53BYTE_CELL ? 53 : 52));
++		} else {
++			/* If data is corrupt and skb doesn't hold a whole cell, flush the lot */
++			if (skb_pull
++			    (skb,
++			     (list->
++			      flags & ATMSAR_USE_53BYTE_CELL ? 53 : 52)) ==
++			    NULL) {
++				skb_trim(skb, 0);
 +			}
 +		}
-+		read_unlock(&devices_list_lock);
 +	}
 +
-+	sar_pid = 0;
-+	complete(&sar_completion);
-+	printk_dbg("kstusard is exiting");
-+	return 0;
-+}
-+
-+void
-+stu_sar_start(void)
-+{
-+	init_completion(&sar_completion);
-+	sar_pid = kernel_thread(stu_sar_threadproc, (void *) NULL,
-+				CLONE_FS | CLONE_FILES | CLONE_SIGHAND);
-+}
-+
-+void
-+stu_sar_stop(void)
-+{
-+	int pid = sar_pid;
-+	if (pid) {
-+		kill_proc(pid, SIGTERM, 1);
-+		wait_for_completion(&sar_completion);
-+	}
-+}
-+#endif
-+
-+int
-+stu_atm_open(struct atm_vcc *vcc, short vpi, int vci)
-+{
-+	struct stu_atm_vcc_data *dev_data;
-+	struct atmsar_vcc_data *atmsar_vcc;
-+	struct stu_instance_data *instance =
-+	    (struct stu_instance_data *) vcc->dev->dev_data;
-+
-+	/* at the moment only AAL5 support */
-+	if (vcc->qos.aal != ATM_AAL5)
-+		return -EINVAL;
-+
-+	printk_call();
-+
-+	read_lock(&instance->lock);
-+	if (instance->status == STU_STATUS_DISCONNECTED) {
-+		read_unlock(&instance->lock);
-+		return -ENODEV;
-+	}
-+
-+	/* NOTE
-+	   When data gets disabled (as result of loss of sync -> ioctl or device disconnection), vccs are closed and return -ENETDOWN on send/recv.
-+	   However, if the cause was an ioctl, it's still possible to open vccs and get -EAGAIN on send/recv.
-+
-+	   The reason is that right now there is no easy way of restarting pppd when the modem gets sync and pppd terminates if open fails.
-+	   Thus, open must not fail, but we obviously can't keep the old vccs because if we are using PPPoATM the ISP has probably already closed the PPP link.
-+
-+	   As a result we get this strange situation, which isn't so strange if you consider that the only difference from the "normal" one is that open succeeds earlier.
-+	 */
-+
-+	instance = (struct stu_instance_data *) vcc->dev->dev_data;
-+
-+	atomic_inc(&instance->vcc_count);
-+
-+	read_unlock(&instance->lock);
-+
-+	dev_data =
-+	    (struct stu_atm_vcc_data *)
-+	    kmalloc(sizeof (struct stu_atm_vcc_data), GFP_KERNEL);
-+	if (!dev_data)
-+		return -ENOMEM;
-+	INITIALIZE_WAITABLE_COUNT(dev_data->skb_zcount);
-+
-+	dev_data->atmsar_vcc =
-+	    atmsar_open(&atmsar_vcc, vcc, ATMSAR_TYPE_AAL5, vpi, vci, 0, 0,
-+			ATMSAR_USE_53BYTE_CELL | ATMSAR_SET_PTI);
-+
-+	write_lock(&instance->atmsar_vcc_list_lock);
-+	atmsar_vcc->next = instance->atmsar_vcc_list;
-+	instance->atmsar_vcc_list = atmsar_vcc;
-+	write_unlock(&instance->atmsar_vcc_list_lock);
-+
-+	if (!dev_data->atmsar_vcc) {
-+		kfree(dev_data);
-+		return -ENOMEM;	/* this is the only reason atmsar_open can fail... */
-+	}
-+
-+	vcc->vpi = vpi;
-+	vcc->vci = vci;
-+	set_bit(ATM_VF_ADDR, &vcc->flags);
-+	set_bit(ATM_VF_PARTIAL, &vcc->flags);
-+	set_bit(ATM_VF_READY, &vcc->flags);
-+	vcc->dev_data = dev_data;
-+	vcc->alloc_tx = stu_atm_alloc_tx;
-+
-+	dev_data->atmsar_vcc->mtu = STU_MAX_AAL5_MRU;
-+
-+	MOD_INC_USE_COUNT;
-+
-+	return 0;
-+}
-+
-+void
-+stu_cancelsends(struct stu_instance_data *instance)
-+{
-+	int i;
-+	unsigned long flags;
-+	struct sk_buff *skb;
-+	
-+	spin_lock_irqsave(&instance->sndqueue.lock, flags);
-+	for (skb = instance->sndqueue.next;
-+	     (skb != (struct sk_buff *) (&instance->sndqueue));) {
-+		struct sk_buff *next = skb->next;
-+		struct atm_vcc *vcc = ((stu_cb_t *) (skb->cb))->vcc;
-+		struct stu_atm_vcc_data *dev_data =
-+		    (struct stu_atm_vcc_data *) vcc->dev_data;
-+
-+		__skb_unlink(skb, &instance->sndqueue);
-+		vcc->pop(vcc, skb);
-+		dec_zero(&dev_data->skb_zcount);
-+
-+		skb = next;
-+	}
-+	spin_unlock_irqrestore(&instance->sndqueue.lock, flags);
-+
-+	for (i = 0; i < STU_NUMBER_SND_URBS; i++) {
-+		stu_usb_send_data_context_t *ctx = &instance->send_ctx[i];
-+		if (!ctx->skb)
-+			continue;
-+		usb_unlink_urb(&ctx->urb);
-+	}
-+
-+	return;
-+}
-+
-+void
-+stu_finish_close(struct stu_instance_data *instance)
-+{
-+	kfree(instance);
-+
-+	MOD_DEC_USE_COUNT;
-+}
-+
-+void
-+stu_atm_close(struct atm_vcc *vcc)
-+{
-+
-+	struct stu_instance_data *instance =
-+	    (struct stu_instance_data *) vcc->dev->dev_data;
-+	struct stu_atm_vcc_data *dev_data =
-+	    (struct stu_atm_vcc_data *) vcc->dev_data;
-+
-+	wait_count(&dev_data->skb_zcount, 0, TASK_UNINTERRUPTIBLE);
-+
-+	write_lock(&instance->atmsar_vcc_list_lock);
-+	atmsar_close(&(instance->atmsar_vcc_list), dev_data->atmsar_vcc);
-+	write_unlock(&instance->atmsar_vcc_list_lock);
-+
-+	kfree(dev_data);
-+	vcc->dev_data = NULL;
-+	clear_bit(ATM_VF_PARTIAL, &vcc->flags);
-+
-+	/* freeing address */
-+	vcc->vpi = ATM_VPI_UNSPEC;
-+	vcc->vci = ATM_VCI_UNSPEC;
-+	clear_bit(ATM_VF_ADDR, &vcc->flags);
-+
-+	if (atomic_dec_and_test(&instance->vcc_count)
-+	    && (instance->status == STU_STATUS_DISCONNECTED)) {
-+		stu_finish_close(instance);
-+	}
-+
-+	MOD_DEC_USE_COUNT;
-+
-+	printk_ok();
-+	return;
++	return NULL;
 +};
 +
-+int
-+stu_atm_ioctl(struct atm_dev *dev, unsigned int cmd, void *arg)
++struct sk_buff *
++atmsar_decode_aal5(struct atmsar_vcc_data *ctx, struct sk_buff *skb)
 +{
-+	switch (cmd) {
-+	case ATM_QUERYLOOP:
-+		return put_user(ATM_LM_NONE, (int *) arg) ? -EFAULT : 0;
-+	default:
-+		return -ENOIOCTLCMD;
-+	}
-+};
++	uint crc = 0xffffffff;
++	uint length, pdu_crc, pdu_length;
 +
-+static struct atmdev_ops stu_atm_devops = {
-+	open:stu_atm_open,
-+	close:stu_atm_close,
-+	ioctl:stu_atm_ioctl,
-+	send:stu_atm_send,
-+	proc_read:stu_atm_proc_read,
-+};
++	printk_dbg("atmsar_decode_aal5 (0x%p, 0x%p) called", ctx, skb);
 +
-+/* doesn't sleep */
-+void
-+stu_usb_receive(urb_t * urb)
-+{
-+	stu_data_ctx_t *ctx;
-+	struct stu_instance_data *instance;
-+	int err;
-+
-+	if (!urb)
-+		return;
-+
-+	printk_dbg("got packet %p with length %d an status %d", urb,
-+	       urb->actual_length, urb->status);
-+
-+	ctx = (stu_data_ctx_t *) urb->context;
-+	if (!ctx || !ctx->skb)
-+		return;
-+
-+	instance = ctx->instance;
-+
-+	read_lock(&instance->lock);
-+
-+	if (instance->status == STU_STATUS_DISCONNECTED)
-+		goto out;
-+
-+	switch (urb->status) {
-+	case 0:
-+		printk_dbg("processing urb with ctx %p, urb %p, skb %p", ctx, urb,
-+		       ctx ? ctx->skb : NULL);
-+
-+		if (instance->status == STU_STATUS_DATA_ENABLED) {
-+			/* update the skb structure */
-+			skb_put(ctx->skb, urb->actual_length);
-+
-+#if STU_USE_SAR_THREAD
-+			/* queue the skb for processing and wake the SAR */
-+			skb_queue_tail(&instance->recvqueue, ctx->skb);
-+			inc_nonzero(&sar_nzcount);
-+#else
-+			stu_sar_decode(instance, ctx->skb);
-+#endif
-+
-+			/* get a new skb */
-+			ctx->skb = dev_alloc_skb(STU_RECEIVE_BUFFER_SIZE);
-+			if (!ctx->skb) {
-+				printk_err ("dev_alloc_skb for receive buffer (%d bytes) failed: losing receive urb!", STU_RECEIVE_BUFFER_SIZE);
-+				goto out;
-+			}
-+		}
-+		break;
-+	case -EPIPE:		/* stall or babble */
-+		usb_clear_halt(urb->dev,
-+			       usb_rcvbulkpipe(urb->dev, STU_ENDPOINT_DATA_IN));
-+		break;
-+	case -ENOENT:		/* buffer was unlinked */
-+	case -EILSEQ:		/* unplug or timeout */
-+	case -ETIMEDOUT:	/* unplug or timeout */
-+		goto out;
-+	default:
-+		printk_err ("urb->status is an error: %d\n", urb->status);
-+		goto out;
-+	}
-+
-+	FILL_BULK_URB(urb,
-+		      instance->usb_dev,
-+		      usb_rcvbulkpipe(instance->usb_dev, STU_ENDPOINT_DATA_IN),
-+		      (unsigned char *) ctx->skb->data,
-+		      STU_RECEIVE_BUFFER_SIZE,
-+		      (usb_complete_t) stu_usb_receive, ctx);
-+	urb->transfer_flags |= USB_QUEUE_BULK;
-+
-+	if ((err = usb_submit_urb(urb)) < 0)
-+		printk_err ("usb_submit_urb failed: %d\n", err);
-+
-+      out:
-+	read_unlock(&instance->lock);
-+}
-+
-+/* doesn't sleep */
-+int
-+__stu_data_enable(struct stu_instance_data *instance)
-+{
-+	int i, succes, res;
-+
-+	/* set alternate setting 1 on interface 1 */
-+	usb_set_interface(instance->usb_dev, 1, 2);
-+
-+	printk_dbg("max packet size on endpoint %d is %d", STU_ENDPOINT_DATA_OUT,
-+	       usb_maxpacket(instance->usb_dev,
-+			     usb_sndbulkpipe(instance->usb_dev,
-+					     STU_ENDPOINT_DATA_OUT), 0));
-+
-+	for (i = 0, succes = 0; i < STU_NUMBER_RCV_URBS; i++) {
-+		stu_data_ctx_t *ctx = &(instance->rcvbufs[i]);
-+
-+		ctx->skb = dev_alloc_skb(STU_RECEIVE_BUFFER_SIZE);
-+		if (!ctx->skb) {
-+			printk_err ("dev_alloc_skb for receive buffer (%d bytes) failed: losing receive urb!", STU_RECEIVE_BUFFER_SIZE);
-+			continue;
-+		}
-+
-+		ctx->instance = instance;
-+
-+		FILL_BULK_URB(&ctx->urb,
-+			      instance->usb_dev,
-+			      usb_rcvbulkpipe(instance->usb_dev,
-+					      STU_ENDPOINT_DATA_IN),
-+			      (unsigned char *) ctx->skb->data,
-+			      STU_RECEIVE_BUFFER_SIZE,
-+			      (usb_complete_t) stu_usb_receive, ctx);
-+		ctx->urb.transfer_flags |= USB_QUEUE_BULK;
-+
-+		printk_dbg("submitting receive urb with skb->truesize = %d (asked for %d)",
-+		       ctx->skb->truesize, STU_RECEIVE_BUFFER_SIZE);
-+
-+		if ((res = usb_submit_urb(&ctx->urb)) < 0)
-+			printk_dbg("submit failed (%d): losing receive urb!", res);
-+		else
-+			succes++;
-+	}
-+
-+#if STU_USE_SAR_THREAD
-+	atomic_inc(&sar_refcnt);
-+	if (!sar_pid)
-+		stu_sar_start();
-+#endif
-+
-+	instance->atm_dev->signal = ATM_PHY_SIG_FOUND;
-+
-+	printk_dbg("%d urb%s queued for receive", succes,
-+	       (succes != 1) ? "s" : "");
-+
-+	return 0;
-+}
-+
-+/* doesn't sleep */
-+int
-+__stu_data_disable(struct stu_instance_data *instance)
-+{
-+	int i;
-+	struct atmsar_vcc_data *vcc;
-+
-+	printk_call();
-+
-+	instance->atm_dev->signal = ATM_PHY_SIG_LOST;
-+
-+	/* destroy urbs */
-+	for (i = 0; i < STU_NUMBER_RCV_URBS; i++) {
-+		stu_data_ctx_t *ctx = &(instance->rcvbufs[i]);
-+
-+		/* must be done before unlink to prevent deadlock */
-+		if (ctx->skb) {
-+			printk_dbg("freeing skb");
-+			kfree_skb(ctx->skb);
-+			ctx->skb = NULL;
-+		}
-+
-+		usb_unlink_urb(&ctx->urb);
-+	};
-+
-+#if STU_USE_SAR_THREAD
-+	if (atomic_dec_and_test(&sar_refcnt)) {
-+		stu_sar_stop();
-+	}
-+#endif
-+
-+	stu_cancelsends(instance);
-+
-+	read_lock(&instance->atmsar_vcc_list_lock);
-+	for (vcc = instance->atmsar_vcc_list; vcc; vcc = vcc->next) {
-+		atm_async_release_vcc(vcc->vcc, -ENETDOWN);
-+		vcc->vcc->push(vcc->vcc, NULL);	/* close PPPoATM */
-+	}
-+	read_unlock(&instance->atmsar_vcc_list_lock);
-+
-+	return 0;
-+};
-+
-+int
-+stu_data_disable(struct stu_instance_data *instance)
-+{
-+	int res = 0;
-+	unsigned long flags;
-+
-+	write_lock_irqsave(&instance->lock, flags);
-+
-+	if (instance->status != STU_STATUS_DATA_ENABLED)
-+		goto out;
-+
-+	printk_info ("disabling data transmission");
-+	res = __stu_data_disable(instance);
-+
-+	instance->status = STU_STATUS_DATA_DISABLED;
-+
-+      out:
-+	write_unlock_irqrestore(&instance->lock, flags);
-+	return res;
-+}
-+
-+int
-+stu_data_enable(struct stu_instance_data *instance)
-+{
-+	int res = 0;
-+	unsigned long flags;
-+
-+	write_lock_irqsave(&instance->lock, flags);
-+
-+	if (instance->status != STU_STATUS_DATA_DISABLED)
-+		goto out;
-+
-+	printk_info ("enabling data transmission");
-+	res = __stu_data_enable(instance);
-+
-+	instance->status = STU_STATUS_DATA_ENABLED;
-+
-+      out:
-+	write_unlock_irqrestore(&instance->lock, flags);
-+	return res;
-+}
-+
-+int
-+stu_data_restart(struct stu_instance_data *instance)
-+{
-+	int res = 0;
-+	unsigned long flags;
-+
-+	write_lock_irqsave(&instance->lock, flags);
-+
-+	printk_info ("restarting data transmission");	
-+	if (instance->status)
-+		__stu_data_disable(instance);
-+
-+	res = __stu_data_enable(instance);
-+
-+	instance->status = 1;
-+
-+	write_unlock_irqrestore(&instance->lock, flags);
-+	return res;
-+}
-+
-+static int
-+stu_usb_ioctl(struct usb_device *dev, unsigned int code, void *user_data)
-+{
-+	struct stu_instance_data *instance = NULL;
-+	struct list_head *i;
-+
-+	if (!capable(CAP_SYS_ADMIN))
-+		return -EPERM;
-+
-+	/* Sigh... we don't have any direct to way to get our instance data... fix usb! */
-+	read_lock(&devices_list_lock);
-+	list_for_each(i, &devices_list) {
-+		if (((struct stu_instance_data *) i)->usb_dev == dev) {
-+			instance = (struct stu_instance_data *) i;
-+			break;
-+		}
-+	}
-+	read_unlock(&devices_list_lock);
-+
-+	if (!instance)
-+		return -EINVAL;
-+
-+	switch (code) {
-+	case STU_IOCTL_RESTART:
-+		return stu_data_restart(instance);
-+	case STU_IOCTL_STOP:
-+		return stu_data_disable(instance);
-+	case STU_IOCTL_START:
-+		return stu_data_enable(instance);
-+	default:
-+		break;
-+	}
-+	return -EINVAL;
-+}
-+
-+void *
-+stu_usb_probe(struct usb_device *dev, unsigned int ifnum,
-+	      const struct usb_device_id *id)
-+{
-+	int i;
-+	unsigned char mac[6];
-+	unsigned char mac_str[13];
-+	struct stu_instance_data *instance = NULL;
-+
-+	printk_dbg("trying device with vendor=0x%x, product=0x%x, ifnum %d",
-+	       dev->descriptor.idVendor, dev->descriptor.idProduct, ifnum);
-+
-+	if ((dev->descriptor.bDeviceClass != USB_CLASS_VENDOR_SPEC) ||
-+	    (dev->descriptor.idVendor != STU_VENDORID) ||
-+	    (dev->descriptor.idProduct != STU_PRODUCTID) || (ifnum != 1))
++	if (skb->len && (skb->len % 48))
 +		return NULL;
 +
-+	MOD_INC_USE_COUNT;
++	length = be16_to_cpu(*(u16 *) (skb->tail - 6));
++	pdu_crc = be32_to_cpu(*(u32 *) (skb->tail - 4));
++	pdu_length = ((length + 47 + 8) / 48) * 48;
 +
-+	instance = kmalloc(sizeof (struct stu_instance_data), GFP_KERNEL);
-+	if (!instance) {
-+		printk_err ("kmalloc for instance data (size %u) failed!",
-+		     sizeof (struct stu_instance_data));
++	printk_dbg
++	    ("skb->len = %d, length = %d, pdu_crc = 0x%x, pdu_length = %d",
++	     skb->len, length, pdu_crc, pdu_length);
++
++	/* is skb long enough ? */
++	if (skb->len < pdu_length) {
++		if (ctx->stats)
++			atomic_inc(&ctx->stats->rx_err);
 +		return NULL;
 +	}
 +
-+	memset(instance, 0, sizeof (struct stu_instance_data));
-+	instance->usb_dev = dev;
-+	skb_queue_head_init(&instance->sndqueue);
-+	rwlock_init(&instance->lock);
-+	rwlock_init(&instance->atmsar_vcc_list_lock);
-+	instance->status = STU_STATUS_DATA_DISABLED;
++	/* is skb too long ? */
++	if (skb->len > pdu_length) {
++		printk_dbg("warning: readjusting illegal size %d -> %d",
++			    skb->len, pdu_length);
++		/* buffer is too long. we can try to recover
++		 * if we discard the first part of the skb.
++		 * the crc will decide whether this was ok
++		 */
++		skb_pull(skb, skb->len - pdu_length);
++	}
 +
-+	stu_atm_start(instance, &stu_atm_devops);
-+	if (!instance->atm_dev) {
-+		printk_err ("couldn't start ATM device");
++	crc = ~crc32(crc, skb->data, pdu_length - 4);
++
++	/* check crc */
++	if (pdu_crc != crc) {
++		printk_dbg("crc check failed!");
++
++		if (ctx->stats)
++			atomic_inc(&ctx->stats->rx_err);
 +		return NULL;
 +	}
 +
-+	/* MAC address is in serial number */
-+	usb_string(instance->usb_dev,
-+		   instance->usb_dev->descriptor.iSerialNumber, mac_str, 13);
-+	for (i = 0; i < 6; i++)
-+		mac[i] =
-+		    (hex2int(mac_str[i * 2]) * 16) +
-+		    (hex2int(mac_str[i * 2 + 1]));
++	/* pdu is ok */
++	skb_trim(skb, length);
 +
-+	printk_info("handling device with vendor=0x%x, product=0x%x, ifnum=%d, mac=%02x:%02x:%02x:%02x:%02x:%02x",
-+		dev->descriptor.idVendor, dev->descriptor.idProduct, ifnum, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);	
-+	
-+	memcpy(instance->atm_dev->esi, mac, 6);
++	/* update stats */
++	if (ctx->stats)
++		atomic_inc(&ctx->stats->rx);
 +
-+	write_lock(&devices_list_lock);
-+	list_add_tail(&instance->list, &devices_list);
-+	write_unlock(&devices_list_lock);
-+
-+	return instance;
-+}
-+
-+void
-+stu_usb_disconnect(struct usb_device *dev, void *ptr)
-+{
-+	struct stu_instance_data *instance = (struct stu_instance_data *) ptr;
-+	unsigned long flags;
-+
-+	write_lock_irqsave(&instance->lock, flags);
-+
-+	if (instance->status == STU_STATUS_DATA_ENABLED)
-+		__stu_data_disable(instance);
-+
-+	instance->status = STU_STATUS_DISCONNECTED;
-+
-+	if (instance->atm_dev)
-+		stu_atm_stop(instance);
-+
-+	printk_info("device disconnected");
-+
-+	write_unlock_irqrestore(&instance->lock, flags);
-+
-+	write_lock(&devices_list_lock);
-+	list_del(&instance->list);
-+	write_unlock(&devices_list_lock);
-+
-+	if (!atomic_read(&instance->vcc_count))
-+		stu_finish_close(instance);
-+}
-+
-+static struct usb_driver stu_usb_driver = {
-+	name: stu_device_name,
-+	probe: stu_usb_probe,
-+	disconnect: stu_usb_disconnect,
-+	ioctl: stu_usb_ioctl,
-+	id_table: stu_usb_ids,
++	printk_dbg("atmsar_decode_aal5 returns pdu 0x%p with length %d", skb,
++		    skb->len);
++	return skb;
 +};
 +
-+int
-+stu_mod_init(void)
-+{
-+	printk_dbg("initializing %s", __module_description);
-+
-+	return usb_register(&stu_usb_driver);
-+}
-+
-+int
-+stu_mod_cleanup(void)
-+{
-+#if STU_USE_SAR_THREAD
-+	stu_sar_stop();
-+#endif
-+
-+	usb_deregister(&stu_usb_driver);
-+	return 0;
-+}
-+
-+#ifdef MODULE
-+int
-+init_module(void)
-+{
-+	return stu_mod_init();
-+}
-+
-+int
-+cleanup_module(void)
-+{
-+	return stu_mod_cleanup();
-+}
-+#endif
++EXPORT_SYMBOL(atmsar_open);
++EXPORT_SYMBOL(atmsar_close);
++EXPORT_SYMBOL(atmsar_encode_rawcell);
++EXPORT_SYMBOL(atmsar_encode_aal5);
++EXPORT_SYMBOL(atmsar_decode_rawcell);
++EXPORT_SYMBOL(atmsar_decode_aal5);
++EXPORT_SYMBOL(atmsar_alloc_tx);
 
---=-uN67HeQs0ONrJXRFq53X
+--=-s7+TWHvobxmEDXilQJ2s
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.0.7 (GNU/Linux)
 
-iD8DBQA89mvCdjkty3ft5+cRAqLmAJ0aX4E2FtZimnSks9kVEB43Up6mhwCgzAwD
-l8o7HcKqnH/2CiMGenOXhNQ=
-=9Yl5
+iD8DBQA89mt5djkty3ft5+cRAs0gAJ4ryXme8xRhrHClGz3CS8DD50oyKgCaAz+b
+cUcgbaKxWTSR8EohTpJLpoM=
+=OyHI
 -----END PGP SIGNATURE-----
 
---=-uN67HeQs0ONrJXRFq53X--
+--=-s7+TWHvobxmEDXilQJ2s--

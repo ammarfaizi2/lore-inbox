@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266256AbSKSOw1>; Tue, 19 Nov 2002 09:52:27 -0500
+	id <S265446AbSKSOsJ>; Tue, 19 Nov 2002 09:48:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266274AbSKSOw1>; Tue, 19 Nov 2002 09:52:27 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:51639 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266256AbSKSOw0>; Tue, 19 Nov 2002 09:52:26 -0500
-Subject: Re: [LTP] Re: LTP - gettimeofday02 FAIL
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: Paul Larson <plars@linuxtestproject.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <p73adk5vdra.fsf@oldwotan.suse.de>
-References: <200211190127.gAJ1RWg11023@linux.local.suse.lists.linux.kernel>
-	<1037713044.24031.15.camel@plars.suse.lists.linux.kernel> 
-	<p73adk5vdra.fsf@oldwotan.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 19 Nov 2002 15:27:31 +0000
-Message-Id: <1037719651.12118.7.camel@irongate.swansea.linux.org.uk>
+	id <S265517AbSKSOsJ>; Tue, 19 Nov 2002 09:48:09 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57093 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265446AbSKSOsI>; Tue, 19 Nov 2002 09:48:08 -0500
+Date: Tue, 19 Nov 2002 14:55:02 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch: module-init-tools-0.6/modprobe.c - support subdirectories
+Message-ID: <20021119145502.B5535@flint.arm.linux.org.uk>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	linux-kernel@vger.kernel.org
+References: <20021118073247.A10109@adam.yggdrasil.com> <20021119064333.C5C1C2C2C4@lists.samba.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021119064333.C5C1C2C2C4@lists.samba.org>; from rusty@rustcorp.com.au on Tue, Nov 19, 2002 at 05:42:38PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-19 at 14:24, Andi Kleen wrote:
-> It is very hard to solve properly and efficiently. When you search the
-> list archives you will find long threads about the problem
-> (search for "TSC" and gettimeofday and perhaps HPET or cyclone). Last one 
-> was one or two weeks ago.
-> 
-> The problem has been there always in some way in linux, now it is just
-> exposed in LTP because it tests for it.
+On Tue, Nov 19, 2002 at 05:42:38PM +1100, Rusty Russell wrote:
+> A: The total linking code is about 200 generic lines, 100
+>    x86-specific lines.
 
-Dual ppro boxes normally run with a locked synchronous TSC clock. That
-suggests the newer code broke stuff. It may also be due to the bug in
-the 2.5 timer handling code (missing delays on timer reads, incorrect
-assumption that the timer never reads its limit value during the timer 
-switch back to zero)
+Should we be bounds-checking the relocations?  Maybe we are (I'm not
+familiar enough with this new module code yet.)  I'm specifically
+thinking about the following:
+
+		/* This is where to make the change */
+		location = (void *)sechdrs[sechdrs[relsec].sh_info].sh_offset
+			+ rel[i].r_offset;
+		/* This is the symbol it is referring to */
+		sym = (Elf32_Sym *)sechdrs[symindex].sh_offset
+			+ ELF32_R_SYM(rel[i].r_info);
+		if (!sym->st_value) {
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129391AbQLSAVU>; Mon, 18 Dec 2000 19:21:20 -0500
+	id <S129436AbQLSA3c>; Mon, 18 Dec 2000 19:29:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129431AbQLSAVK>; Mon, 18 Dec 2000 19:21:10 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48135 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129391AbQLSAVA>; Mon, 18 Dec 2000 19:21:00 -0500
-Subject: Re: Startup IPI (was: Re: test13-pre3)
-To: VANDROVE@vc.cvut.cz (Petr Vandrovec)
-Date: Mon, 18 Dec 2000 23:51:44 +0000 (GMT)
-Cc: macro@ds2.pg.gda.pl (Maciej W. Rozycki),
-        linux-kernel@vger.kernel.org (Kernel Mailing List),
-        mingo@chiara.elte.hu
-In-Reply-To: <100F3C80070F@vcnet.vc.cvut.cz> from "Petr Vandrovec" at Dec 19, 2000 12:33:47 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129431AbQLSA3W>; Mon, 18 Dec 2000 19:29:22 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:46086 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129391AbQLSA3I>; Mon, 18 Dec 2000 19:29:08 -0500
+Date: Mon, 18 Dec 2000 15:58:08 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test13-pre1 lockup: run_task_queue or tty_io are wrong
+In-Reply-To: <20001218215123.A19928@pcep-jamie.cern.ch>
+Message-ID: <Pine.LNX.4.10.10012181556220.4466-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E148A4I-0006RM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yeah. Just do not read video memory when another CPU starts. I'll try
-> disabling cache on both CPUs, maybe it will make some difference, as
-> secondary CPU should start with caches disabled. But maybe that it is 
-> just broken AGP bus, and nothing else. But until I find what's really
-> broken on my hardware, I'd like to leave 'udelay(300)' in.
 
-In the case where it boots does it also report mismatched MTRRs ??
+
+On Mon, 18 Dec 2000, Jamie Lokier wrote:
+> > 
+> > Nope.
+> > 
+> > There may be multiple concurrent run_task_queue's executing, so for now
+> > I've applied Andrew Morton's patch that most closely gets the old
+> > behaviour of having a private list.
+> 
+> I wasn't clear.  The sentinel is a local structure on the stack, and
+> only exists while run_task_queue is executing.  Another name for this is
+> "deletion-safe pointer".
+
+Yes, except run_task_queue removes every object it finds. So two
+concurrent run_task_queues would be bad.
+
+Sure, we could just make it skip sentinels by adding a magic flag to them,
+but that is pretty ugly.
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

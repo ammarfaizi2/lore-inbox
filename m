@@ -1,91 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317400AbSHOUTs>; Thu, 15 Aug 2002 16:19:48 -0400
+	id <S317385AbSHOUTp>; Thu, 15 Aug 2002 16:19:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317404AbSHOUTs>; Thu, 15 Aug 2002 16:19:48 -0400
-Received: from petasus.ch.intel.com ([143.182.124.5]:15809 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S317400AbSHOUTq>; Thu, 15 Aug 2002 16:19:46 -0400
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD0236DD9A@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Patrick Mochel'" <mochel@osdl.org>
-Cc: "'colpatch@us.ibm.com'" <colpatch@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-kernel@vger.kernel.org, Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Greg KH <gregkh@us.ibm.com>, jgarzik@mandrakesoft.com
-Subject: RE: [patch] PCI Cleanup
-Date: Thu, 15 Aug 2002 13:23:19 -0700
+	id <S317400AbSHOUTp>; Thu, 15 Aug 2002 16:19:45 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54798 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317385AbSHOUTp>;
+	Thu, 15 Aug 2002 16:19:45 -0400
+Message-ID: <3D5C0D3D.E68137BA@zip.com.au>
+Date: Thu, 15 Aug 2002 13:21:17 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: Hugh Dickins <hugh@veritas.com>, j-nomura@ce.jp.nec.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18(19) swapcache oops
+References: <20020815.213929.846960657.nomura@hpc.bs1.fc.nec.co.jp> <Pine.LNX.4.44.0208151515420.1610-100000@localhost.localdomain> <3D5C0995.CEE36FC8@zip.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Patrick Mochel [mailto:mochel@osdl.org] 
-> > ACPI needs access to PCI config space, and it doesn't have 
-> a struct pci_dev
-> > to pass to access functions. It doesn't look like your 
-> patch exposes an
-> > interface that 1) doesn't require a pci_dev and 2) 
-> abstracts the PCI config
-> > access method, does it?
+Andrew Morton wrote:
 > 
-> I think your dependencies are backwards. IIRC, and based on a recent 
-> conversation, ACPI needs to access PCI config space when ACPI finds a 
-> _INI method for a device in the ACPI namespace. That assumes 
-> that it can 
-> access the root bus that the device is on. 
-> 
-> You don't have a PCI device because you haven't implement lockstep 
-> enumeration yet in ACPI. With lockstep enumeration, you would 
-> add devices 
-> to the device tree and let the bus drivers initialize them. 
-> With a bit a 
-> glue, you would have a pointer to the PCI device correlating 
-> to the ACPI 
-> namespace object, and a pointer to the PCI bus on which each PCI 
-> device/namespace object resides. 
-> 
-> To spell it out a bit more explicitly, you would start to 
-> parse the ACPI
-> namespace and find a Host/PCI bridge. You would tell the PCI 
-> subsystem to
-> probe for a device at that address. It would come back 
-> successful, and you
-> would obtain a pointer to that bridge device (and bus 
-> object). For all the
-> subordinate devices to that bridge, you then have access to the config
-> space via a real struct pci_bus.
+> ...
+> --- 2.4.19/mm/swap.c~lru-race   Thu Aug 15 13:03:48 2002
+> +++ 2.4.19-akpm/mm/swap.c       Thu Aug 15 13:04:19 2002
+> @@ -57,9 +57,10 @@ void activate_page(struct page * page)
+>   */
+>  void lru_cache_add(struct page * page)
+>  {
+> -       if (!TestSetPageLRU(page)) {
+> +       if (!PageLRU(page)) {
+>                 spin_lock(&pagemap_lru_lock);
+> -               add_page_to_inactive_list(page);
+> +               if (!TestSetPageLRU(page))
+> +                       add_page_to_inactive_list(page);
+>                 spin_unlock(&pagemap_lru_lock);
+>         }
+>  }
 
-Yes, except that to find the host/pci bridge for bus 0, for example, I need
-to run _INI on the device before I run _HID (which is the method that
-returns the PNPID). _INI can theoretically access a bus 0 pci config
-operation region.
+Seems that I fixed this in 2.5.32.  That set_bit outside
+the lock gave me the willes, and I couldn't put my finger on why.
+Never occurred to me that the page could be found via pagecache
+lookup in this manner.
 
-People have mentioned to me that this is unpleasant and I agree, but the
-ACPI spec *specifically* says that bus 0 pci config access is always
-available.
+In 2.5, it is effectively:
 
-That said, maybe it is better to keep ugliness caused by ACPI in the ACPI
-driver, so if you want to have interfaces that depend on struct pci_dev or
-pci_bus, fine, and the ACPI driver can generate a temporary one in order to
-call the function. This completely violates the abstraction you are creating
-but sssh we won't tell anyone. ;)
+void lru_cache_add(struct page * page)
+{
+        spin_lock(&pagemap_lru_lock);
+        if (TestSetPageLRU(page))
+                BUG();
+        add_page_to_inactive_list(page);
+        spin_unlock(&pagemap_lru_lock);
+}
 
-BTW this is not just a matter of spec compliance. Some machines actually
-didn't work until this was implemented originally.
-
-> If you remember, I sent you a patch that did most of this 
-> about 5 months 
-> ago. It's a bit out of date, and I guarantee that it doesn't apply 
-> anymore. But the concept is the same: we should fix the 
-> drivers, not hack 
-> them to support a broken interface.
-
-Is this the one that was on bkbits.net for a while? I liked a lot of what
-you did with that, but I was so busy with other stuff I didn't get a chance
-to pull it in before it got too stale... :(
-
-Regards -- Andy
+which is what should be tested in 2.4.  It's stricter, and significantly
+faster.

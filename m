@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263212AbTJKCZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 22:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263214AbTJKCZQ
+	id S263228AbTJKCa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 22:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263230AbTJKCa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 22:25:16 -0400
-Received: from mail.kroah.org ([65.200.24.183]:38297 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263212AbTJKCZN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 22:25:13 -0400
-Date: Fri, 10 Oct 2003 19:23:36 -0700
-From: Greg KH <greg@kroah.com>
-To: Uncle Jens <kernel@millcreeksys.com>
-Cc: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>,
-       "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+	Fri, 10 Oct 2003 22:30:57 -0400
+Received: from smtp.terra.es ([213.4.129.129]:31896 "EHLO tsmtp4.mail.isp")
+	by vger.kernel.org with ESMTP id S263228AbTJKCa4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 22:30:56 -0400
+Date: Sat, 11 Oct 2003 04:30:53 +0200
+From: --- <grundig@teleline.es>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
 Subject: Re: [2.7 "thoughts"] V0.3
-Message-ID: <20031011022336.GC19749@kroah.com>
-References: <D9B4591FDBACD411B01E00508BB33C1B01F24E98@mesadm.epl.prov-liege.be> <1065820650.3f8721ea4162b@secure.millcreeksys.com>
+Message-Id: <20031011043053.1dba87e7.grundig@teleline.es>
+In-Reply-To: <20031011021307.GH727@holomorphy.com>
+References: <D9B4591FDBACD411B01E00508BB33C1B01F24E98@mesadm.epl.prov-liege.be>
+	<20031011040435.299bd3bc.grundig@teleline.es>
+	<20031011021307.GH727@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1065820650.3f8721ea4162b@secure.millcreeksys.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 10, 2003 at 03:17:30PM -0600, Uncle Jens wrote:
-> What about some type of kernel-based-DRM, where only properly(trusted) signed
-> binaries can be executed?
+El Fri, 10 Oct 2003 19:13:07 -0700 William Lee Irwin III <wli@holomorphy.com> escribió:
 
-Already done for 2.6:
-	http://sourceforge.net/projects/disec/
+> cdrecord doesn't make sense because it requires privilege for device
+> access anyway.
 
-Grab the digsig package.
+Yes; thats can be fixed easily adding the ser to some group like this:
+brw-rw----    1 root     cdrom     22,   0 2003-05-23 16:41 /dev/cd-rw
+but no, cdrecord isn't a good example ;( and I can't think of other users
+right now; so I guess the effort isn't worth of it...
 
-thanks,
-
-greg k-h
+Diego Calleja

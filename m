@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281442AbRKFDEu>; Mon, 5 Nov 2001 22:04:50 -0500
+	id <S281443AbRKFDXx>; Mon, 5 Nov 2001 22:23:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281440AbRKFDEm>; Mon, 5 Nov 2001 22:04:42 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:18419
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S277722AbRKFDE2>; Mon, 5 Nov 2001 22:04:28 -0500
-Date: Mon, 5 Nov 2001 19:04:17 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: David Chow <davidchow@rcn.com.hk>
+	id <S281444AbRKFDXn>; Mon, 5 Nov 2001 22:23:43 -0500
+Received: from zero.tech9.net ([209.61.188.187]:25103 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S281443AbRKFDXh>;
+	Mon, 5 Nov 2001 22:23:37 -0500
+Subject: Re: [RFC] bootmem for 2.5
+From: Robert Love <rml@tech9.net>
+To: William Irwin <willir@us.ibm.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dirty Page cache in 2.4
-Message-ID: <20011105190417.A665@mikef-linux.matchmail.com>
-Mail-Followup-To: David Chow <davidchow@rcn.com.hk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3BE7513D.40403@rcn.com.hk>
+In-Reply-To: <20011102140207.V31822@w-wli.des.beaverton.ibm.com>
+In-Reply-To: <20011102140207.V31822@w-wli.des.beaverton.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.100+cvs.2001.11.05.15.31 (Preview Release)
+Date: 05 Nov 2001 22:23:45 -0500
+Message-Id: <1005017025.897.0.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BE7513D.40403@rcn.com.hk>
-User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 06, 2001 at 10:55:57AM +0800, David Chow wrote:
-> Dear all,
-> 
-> I've heard the memory management in 2.4 swap out dirty pages. Is it true 
-> that dirty pages refer to the dirty pages of page cache and they may 
-> also be swapped out? Thanks.
-> 
+On Fri, 2001-11-02 at 17:02, William Irwin wrote:
+> A number of people have expressed a wish to replace the bitmap-based
+> bootmem allocator with one that tracks ranges explicitly. I have
+> written such a replacement in order to deal with some of the situations
+> I have encountered.
+> [...]
 
-No, very untrue.
+The patch is without problem on 2.4.13-ac7.  Free memory increased by
+about 100K: free and dmesg both confirm 384292k vs 384196k.  This is a
+P3-733 on an i815 with 384MB.  Very nice.
 
-To be more specific, there are dirty filesystem cache pages, and dirty
-application pages.  Dirty filesystem pages will be written to the FS, while
-dirty application pages will be swapped out.  
+Note that the patch and UP-APIC do not get along.  Some quick debugging
+with William found the cause.  APIC does indeed touch bootmem.  The
+above is thus obviously with CONFIG_X86_UP_APIC unset.
 
-If an application page is chosen for swap out and it is not dirty, the VM
-will just discard that page completely because it can beloaded from the app
-or library on disk when needed again...
+	Robert Love
 
-BTW, both VMs would do this.  This behavior is very fundamental to VM design.
-
-Mike

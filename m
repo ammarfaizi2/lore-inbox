@@ -1,70 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264376AbRGCMsC>; Tue, 3 Jul 2001 08:48:02 -0400
+	id <S264352AbRGCNGQ>; Tue, 3 Jul 2001 09:06:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264352AbRGCMrw>; Tue, 3 Jul 2001 08:47:52 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:11524 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S264300AbRGCMrj>;
-	Tue, 3 Jul 2001 08:47:39 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S264381AbRGCNGG>; Tue, 3 Jul 2001 09:06:06 -0400
+Received: from wh58-709.st.Uni-Magdeburg.DE ([141.44.198.79]:12292 "HELO
+	wh58-709.st.uni-magdeburg.de") by vger.kernel.org with SMTP
+	id <S264352AbRGCNFu>; Tue, 3 Jul 2001 09:05:50 -0400
+Date: Tue, 3 Jul 2001 15:05:58 +0200 (CEST)
+From: Erik Meusel <erik@wh58-709.st.uni-magdeburg.de>
+To: Keith Owens <kaos@ocs.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: include/asm-i386/checksum.h 
+In-Reply-To: <2487.994146067@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.33.0107031504190.21597-200000@wh58-709.st.uni-magdeburg.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15169.48856.428247.217216@cargo.ozlabs.ibm.com>
-Date: Tue, 3 Jul 2001 22:47:20 +1000 (EST)
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: about kmap_high function
-In-Reply-To: <20010703103809.A29868@redhat.com>
-In-Reply-To: <3620762046.20010629150601@turbolinux.com.cn>
-	<20010703103809.A29868@redhat.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Type: MULTIPART/MIXED; BOUNDARY="747458502-732379838-994165558=:21597"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen C. Tweedie writes:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> kmap_high is intended to be called routinely for access to highmem
-> pages.  It is coded to be as fast as possible as a result.  TLB
-> flushes are expensive, especially on SMP, so kmap_high tries hard to
-> avoid unnecessary flushes.
+--747458502-732379838-994165558=:21597
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-The code assumes that flushing a single TLB entry is expensive on SMP,
-while flushing the whole TLB is relatively cheap - certainly cheaper
-than flushing several individual entries.  And that assumption is of
-course true on i386.
+And the same thing again, this time with include/asm-i386/floppy.h.
+Patch is attached. I'm sorry to send this bit by bit, but I don't have the
+time to do it all in one right now ;)
 
-On PPC it is a bit different.  Flushing a single TLB entry is
-relatively cheap - the hardware broadcasts the TLB invalidation on the
-bus (in most implementations) so there are no cross-calls required.  But
-flushing the whole TLB is expensive because we (strictly speaking)
-have to flush the whole of the MMU hash table as well.
+mfg, Erik
 
-The MMU gets its PTEs from a hash table (which can be very large) and
-we use the hash table as a kind of level-2 cache of PTEs, which means
-that the flush_tlb_* routines have to flush entries from the MMU hash
-table as well.  The hash table can store PTEs from many contexts, so
-it can have a lot of PTEs in it at any given time.  So flushing the
-whole TLB would imply going through every single entry in the hash
-table and clearing it.  In fact, currently we cheat - flush_tlb_all
-actually only flushes the kernel portion of the address space, which
-is all that is required in the three places where flush_tlb_all is
-called at the moment.
+--747458502-732379838-994165558=:21597
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="floppy.h.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0107031505580.21597@wh58-709.st.uni-magdeburg.de>
+Content-Description: 
+Content-Disposition: attachment; filename="floppy.h.diff"
 
-This is not a criticism, rather a request that we expand the
-interfaces so that the architecture-specific code can make the
-decisions about when and how to flush TLB entries.
-
-For example, I would like to get rid of flush_tlb_all and define a
-flush_tlb_kernel_range instead.  In all the places where flush_tlb_all
-is currently used, we do actually know the range of addresses which
-are affected, and having that information would let us do things a lot
-more efficiently on PPC.  On other platforms we could define
-flush_tlb_kernel_range to just flush the whole TLB, or whatever.
-
-Note that there is already a flush_tlb_range which could be used, but
-some architectures assume that it is only used on user addresses.
-
-Regards,
-Paul.
+LS0tIC90bXAvbGludXgvaW5jbHVkZS9hc20taTM4Ni9mbG9wcHkuaAlTYXQg
+TWF5IDI2IDAzOjAxOjM4IDIwMDENCisrKyBpbmNsdWRlL2FzbS9mbG9wcHku
+aAlUdWUgSnVsICAzIDE0OjM3OjQwIDIwMDENCkBAIC03OCwyMSArNzgsMjEg
+QEANCi0gICAgICAgInRlc3RsICUxLCUxDQotCWplIDNmDQotMToJaW5iICV3
+NCwlYjANCi0JYW5kYiAkMTYwLCViMA0KLQljbXBiICQxNjAsJWIwDQotCWpu
+ZSAyZg0KLQlpbmN3ICV3NA0KLQl0ZXN0bCAlMywlMw0KLQlqbmUgNGYNCi0J
+aW5iICV3NCwlYjANCi0JbW92YiAlMCwoJTIpDQotCWptcCA1Zg0KLTQ6ICAg
+ICAJbW92YiAoJTIpLCUwDQotCW91dGIgJWIwLCV3NA0KLTU6CWRlY3cgJXc0
+DQotCW91dGIgJTAsJDB4ODANCi0JZGVjbCAlMQ0KLQlpbmNsICUyDQotCXRl
+c3RsICUxLCUxDQotCWpuZSAxYg0KLTM6CWluYiAldzQsJWIwDQorICAgICAg
+ICJ0ZXN0bCAlMSwlMSBcDQorCWplIDNmIFwNCisxOglpbmIgJXc0LCViMCBc
+DQorCWFuZGIgJDE2MCwlYjAgXA0KKwljbXBiICQxNjAsJWIwIFwNCisJam5l
+IDJmIFwNCisJaW5jdyAldzQgXA0KKwl0ZXN0bCAlMywlMyBcDQorCWpuZSA0
+ZiBcDQorCWluYiAldzQsJWIwIFwNCisJbW92YiAlMCwoJTIpIFwNCisJam1w
+IDVmIFwNCis0OiAgICAgCW1vdmIgKCUyKSwlMCBcDQorCW91dGIgJWIwLCV3
+NCBcDQorNToJZGVjdyAldzQgXA0KKwlvdXRiICUwLCQweDgwIFwNCisJZGVj
+bCAlMSBcDQorCWluY2wgJTIgXA0KKwl0ZXN0bCAlMSwlMSBcDQorCWpuZSAx
+YiBcDQorMzoJaW5iICV3NCwlYjAgXA0K
+--747458502-732379838-994165558=:21597--

@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319694AbSIMPwx>; Fri, 13 Sep 2002 11:52:53 -0400
+	id <S319689AbSIMPuM>; Fri, 13 Sep 2002 11:50:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319695AbSIMPww>; Fri, 13 Sep 2002 11:52:52 -0400
-Received: from dsl-213-023-022-092.arcor-ip.net ([213.23.22.92]:42639 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S319694AbSIMPwu>;
-	Fri, 13 Sep 2002 11:52:50 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Rusty Russell <rusty@rustcorp.com.au>,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [RFC] Raceless module interface
-Date: Fri, 13 Sep 2002 17:59:44 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-References: <20020913080709.9026B2C054@lists.samba.org>
-In-Reply-To: <20020913080709.9026B2C054@lists.samba.org>
+	id <S319690AbSIMPuM>; Fri, 13 Sep 2002 11:50:12 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:58378 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S319689AbSIMPuM>; Fri, 13 Sep 2002 11:50:12 -0400
+Date: Fri, 13 Sep 2002 11:47:45 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Hans Reiser <reiser@Namesys.COM>
+cc: Nikita Danilov <Nikita@Namesys.COM>, Bryan Whitehead <driver@jpl.nasa.gov>,
+       Nick LeRoy <nleroy@cs.wisc.edu>, jw schultz <jw@pegasys.ws>,
+       linux-kernel@vger.kernel.org
+Subject: Re: XFS?
+In-Reply-To: <3D81DD9E.4050303@namesys.com>
+Message-ID: <Pine.LNX.3.96.1020913113354.23423A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17psrB-0008Ao-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 September 2002 08:51, Rusty Russell wrote:
-> In message <E17pg3H-0007pb-00@starship> you write:
-> > The same with the entrenched separation at the user level between
-> > create and init module: what does it give you that an error exit
-> > from a single create/init would not?
-> 
-> That's done for entirely different reasons, as the userspace linker
-> needs to know the address of the module.
+On Fri, 13 Sep 2002, Hans Reiser wrote:
 
-Thanks for clearing that up.  Perhaps a callback would have been
-better, but it's obviously moot now.
+> Bill Davidsen wrote:
+
+> >No, that's probably a good thing. I don't care how good any programming
+> >team might be, an implementation written from scratch probably should burn
+> >in for a while before going in anywhere it might be used for production.
+> >
+> >And with all respect to the group, a 4th rewite from scratch in only a few
+> >years suggests that the ratio of coding to designing is pretty high.
+
+> As for the notion that the more designing you do, the less rewriting you 
+> need to do, it is a bit like the belief that the better your scientific 
+> theories the less you need to perform experiments.
+
+Exactly so. I spent several decades doing software development at GE's
+Corporate R&D Center, and I had ample proof that both of those things are
+true. I think the phrase you want in English is "fewer experiments you
+need to perform," but you did see the principle.
+ 
+> Projects that are no longer attempting rewrites of their cores are dead 
+> in their soul, and their authors should pass them on to someone younger.
+
+Hear that, Linus? Off to the retirement home with you unless you "rm *"
+your source tree and "go back to Baltimore and start over again as a
+virgin." Actually I think that Linux is an example of major software
+designed from the start to be rewritten in parts and to evolve as a whole.
+no clean sheet of paper needed.
 
 -- 
-Daniel
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

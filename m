@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272781AbRIGREv>; Fri, 7 Sep 2001 13:04:51 -0400
+	id <S272778AbRIGRDl>; Fri, 7 Sep 2001 13:03:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272418AbRIGREm>; Fri, 7 Sep 2001 13:04:42 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:27637 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S272781AbRIGRE3>; Fri, 7 Sep 2001 13:04:29 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Fri, 7 Sep 2001 11:04:26 -0600
-To: Mack Stevenson <mackstevenson@hotmail.com>
-Cc: linux-kernel@vger.kernel.org, reiser@namesys.com,
-        nerijus@users.sourceforge.net
-Subject: Re: Basic reiserfs question
-Message-ID: <20010907110426.D32553@turbolinux.com>
-Mail-Followup-To: Mack Stevenson <mackstevenson@hotmail.com>,
-	linux-kernel@vger.kernel.org, reiser@namesys.com,
-	nerijus@users.sourceforge.net
-In-Reply-To: <F1296yL2m9lHiu3fQtY00009c2d@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F1296yL2m9lHiu3fQtY00009c2d@hotmail.com>
-User-Agent: Mutt/1.3.20i
+	id <S272781AbRIGRDb>; Fri, 7 Sep 2001 13:03:31 -0400
+Received: from picard.auto.tuwien.ac.at ([128.130.12.4]:23779 "EHLO
+	picard.auto.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id <S272778AbRIGRD2>; Fri, 7 Sep 2001 13:03:28 -0400
+Date: Fri, 7 Sep 2001 19:03:43 +0200 (CEST)
+From: Heinz Deinhart <heinz@auto.tuwien.ac.at>
+To: Dan Hollis <goemon@anime.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: K7/Athlon optimizations and Sacrifices to the Great Ones.
+In-Reply-To: <Pine.LNX.4.30.0109061330420.8699-100000@anime.net>
+Message-ID: <Pine.LNX.4.33.0109071856530.6747-100000@xenon.auto.tuwien.ac.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 07, 2001  13:38 +0200, Mack Stevenson wrote:
-> Sorry, but there's something still troubling me: is getting the following 
-> lines written to syslog normal upon booting after a "clean" shutdown or an 
-> indicator of a "dirty" shutdown?
-> 
-> >From syslog, referring to the last time I booted my machine:
-> 
-> reiserfs: checking transaction log (device 03:02) ...
-> Warning, log replay starting on readonly filesystem
-> reiserfs: replayed 16 transactions in 4 seconds
-> using r5 hash to sort names
-> ReiserFS version 3.6.25
-> VFS: Mounted root (reiserfs filesystem) readonly.
+On Thu, 6 Sep 2001, Dan Hollis wrote:
 
-This clearly means that it is a "dirty" shutdown, because it is replaying
-the journal log.  
+> Anyone yet verified if burnMMX2 causes the same failures the
+> athlon-optimized kernel does?
 
-> Should I worry if I don't get such messages whenever I boot? Or should I 
-> worry if I get those messages after (apparently) clean shutdown procedures?
+several versions of Robert's burnMMX2 run on by problematic athlons
+without failing for several hours.
 
-It would be troublesome if you got the messages after a clean shutdown.
-This might mean that reiserfs is not syncing some journal buffers to disk
-when the root filesystem is remounted read-only.  Alternately, it may mean
-that it is finding bogus transactions to replay in the journal (I don't
-know how reiserfs determines whether the journal is clean or dirty).
+I did some trial and error modifications to mmx.c and found out
+that this one makes my athlons happy (but must admin i have
+no clue why). it seems to run stable now.
 
-It may also mean that your disk claims to have written data to disk, but
-then only puts it in cache and you power off before in actually writes it.
-Do you have APM/ACPI power off after shutdown?
+--- linux-2.4.9/arch/i386/lib/mmx.c	Tue May 22 19:23:16 2001
++++ linux-2.4.9-ac6-hack/arch/i386/lib/mmx.c	Sat Sep  8 00:51:33 2001
+@@ -194,6 +194,9 @@
+ 		: : "r" (from), "r" (to) : "memory");
+ 		from+=64;
+ 		to+=64;
++	__asm__ __volatile__ (
++		"  sfence \n" : :
++	);
+ 	}
+ 	for(i=(4096-320)/64; i<4096/64; i++)
+ 	{
 
-Cheers, Andreas
+maybe someone with more knowledge can take a look..
+
+ciao,
+heinz
+
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Heinz Deinhart <heinz@auto.tuwien.ac.at>
++43 1 58801-18321
+Technische Universitaet Wien, Dept. E183/1
 

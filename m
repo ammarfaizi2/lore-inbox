@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbUFWWzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbUFWW5F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbUFWWzg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 18:55:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbUFWWzg
+	id S262009AbUFWW5F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 18:57:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUFWW5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 18:55:36 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:36283 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261685AbUFWWzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 18:55:35 -0400
-Message-ID: <40DA0A42.3050205@nortelnetworks.com>
-Date: Wed, 23 Jun 2004 18:54:58 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mariusz Mazur <mmazur@kernel.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.7.0
-References: <200406240020.39735.mmazur@kernel.pl>
-In-Reply-To: <200406240020.39735.mmazur@kernel.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Jun 2004 18:57:04 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:19469 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S262009AbUFWW4w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 18:56:52 -0400
+Date: Thu, 24 Jun 2004 00:56:40 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: jt@hpl.hp.com
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: [BUG 2.6.7] : Partition table display bogus...
+Message-ID: <20040623225640.GE3072@pclin040.win.tue.nl>
+References: <20040623220557.GA26199@bougret.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040623220557.GA26199@bougret.hpl.hp.com>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mariusz Mazur wrote:
+On Wed, Jun 23, 2004 at 03:05:57PM -0700, Jean Tourrilhes wrote:
 
-> Llh is all good and nice, cause it works (most of the times anyway), but 
-> with
-> every new release the possibility of desync from kernel increases - 
-> downfalls
-> of maintaining it as a separate package. Could anybody point me to some
-> conclusions about how the thing should be done The Right Way (preferably 
-> with
-> some input from high profile kernel hackers, so I can have some assurance
-> that once something gets done it will get merged)?
+> 	Playing with 2.6.7 on my laptop. I realised Lilo did not work
+> anymore. Look further, and the partition table was all screwed up.
 
-Not a high profile hacker, but you might try submitting a patch adding an 
-include/user_abi directory (or whatever it should be called) and putting one of 
-your files there, with patches to the original kernel header file to remove the 
-userspace bits and include the new file.  That would maybe kick off some discussion.
+Not so pessimistic.
 
-Chris
+Old situation:
+>  hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
+New situation:
+>  hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
+
+Nothing wrong with that partition table.
+
+Maybe you get unhappy because of the fdisk output, but that only
+shows that you have an old fdisk. Also there nothing wrong.
+
+Ah - so the only wrong thing must be the fact that lilo stopped working.
+I suppose things will improve if you give it the "linear" (or "lba32") flag.
+
+What changed is that the kernel no longer attempts at guessing a geometry.
+If such guessing is required, user space must do so itself.
+
+Andries

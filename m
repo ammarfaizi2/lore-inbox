@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262314AbTJNJOn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 05:14:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbTJNJOn
+	id S262182AbTJNJXM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 05:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbTJNJXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 05:14:43 -0400
-Received: from cimice4.lam.cz ([212.71.168.94]:50816 "EHLO beton.cybernet.src")
-	by vger.kernel.org with ESMTP id S262314AbTJNJOj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 05:14:39 -0400
-Date: Mon, 13 Oct 2003 18:55:39 +0200
-From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
-To: linux-kernel@vger.kernel.org
-Subject: make htmldocs
-Message-ID: <20031013185539.B1832@beton.cybernet.src>
+	Tue, 14 Oct 2003 05:23:12 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:42895 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262182AbTJNJXL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 05:23:11 -0400
+Date: Tue, 14 Oct 2003 10:23:03 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Adam Sulmicki <adam@cfar.umd.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Job Announcements (was Linux TCP/IP Stack Developer)
+Message-ID: <20031014092303.GA24812@mail.shareable.org>
+References: <20031012214314.A78995-100000@www.missl.cs.umd.edu> <20031012215632.U78995-100000@www.missl.cs.umd.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Orientation: Gay
+In-Reply-To: <20031012215632.U78995-100000@www.missl.cs.umd.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-root@beton:/usr/src/linux-2.4.22$ make htmldocs
-chmod 755 /usr/src/linux-2.4.22/scripts/docgen
-chmod 755 /usr/src/linux-2.4.22/scripts/gen-all-syms
-chmod 755 /usr/src/linux-2.4.22/scripts/kernel-doc
-make -C /usr/src/linux-2.4.22/Documentation/DocBook books
-make[1]: Entering directory `/usr/src/linux-2.4.22/Documentation/DocBook'
-make[1]: Nothing to be done for `books'.
-make[1]: Leaving directory `/usr/src/linux-2.4.22/Documentation/DocBook'
-make -C Documentation/DocBook html
-make[1]: Entering directory `/usr/src/linux-2.4.22/Documentation/DocBook'
-*** You need to install DocBook stylesheets ***
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Adam Sulmicki wrote:
+> I suppose I should clarify. The list is moderated. It used to be open but
+> then every time some spam would get on list some rude folks would complain
+> to *my* ISP about spam on the list they subscribe to (!?!?). Given choice
+> between closing the list and getting it moderated I picked the 2nd choice.
 
-1) What is DocBook stylesheets?
-2) How do I install DocBook stylesheets?
-3) Bugreport: there should be written
-"Linux kernel depends on DocBook stylesheets. You may download DocBook
-stylesheets here-and-there." in README
+You seem to have overdone it.  I haven't received a single mail from
+the list in the month or so that I've been subscribed.
 
-Cl<
-
+-- Jamie

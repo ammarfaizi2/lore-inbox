@@ -1,51 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317029AbSEWW2t>; Thu, 23 May 2002 18:28:49 -0400
+	id <S317030AbSEWWb5>; Thu, 23 May 2002 18:31:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317030AbSEWW2s>; Thu, 23 May 2002 18:28:48 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:27042 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317029AbSEWW2q>;
-	Thu, 23 May 2002 18:28:46 -0400
-Date: Fri, 24 May 2002 00:28:29 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Chris <chris@directcommunications.net>, linux-kernel@vger.kernel.org
-Subject: Re: It hurts when I shoot myself in the foot
-Message-ID: <20020524002829.A27005@ucw.cz>
-In-Reply-To: <200205221615.g4MGFCH30271@directcommunications.net> <acha7p$cge$1@cesium.transmeta.com> <20020523034821.GK458@turbolinux.com> <20020523044933.GB4006@matchmail.com> <20020523054219.GL458@turbolinux.com> <20020523173305.GC4006@matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S317034AbSEWWb4>; Thu, 23 May 2002 18:31:56 -0400
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:58326 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S317030AbSEWWbz>; Thu, 23 May 2002 18:31:55 -0400
+Date: Thu, 23 May 2002 15:32:43 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: ehci-hcd on CARDBUS hangs when stopping card service
+To: Andrej.Borsenkow@mow.siemens.ru, linux-kernel@vger.kernel.org
+Message-id: <3CED6E0B.8020501@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
+In-Reply-To: <20020523171326.GA11562@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 23, 2002 at 10:33:05AM -0700, Mike Fedyk wrote:
-> On Wed, May 22, 2002 at 11:42:19PM -0600, Andreas Dilger wrote:
-> > On May 22, 2002  21:49 -0700, Mike Fedyk wrote:
-> > > On Wed, May 22, 2002 at 09:48:21PM -0600, Andreas Dilger wrote:
-> > > > There was a kernel patch posted about 5 or so months ago which would
-> > > > "handle" this setup (CPUs with the same clock speed, but different
-> > > > multipliers).  Alan Cox said it probably was a bad idea, so it wouldn't
-> > > > go into the kernel, but the patch may still be usable.
-> > > > 
-> > > > This is sometimes called "asymmetric multiprocessing", and the thread
-> > > > is at http://marc.theaimsgroup.com/?l=linux-kernel&m=98519070331478&w=4
-> > > 
-> > > I thought asymmetric multiprocessing would support CPUs with different
-> > > speeds.  ie, 400 & 450mhz.  How would you get different multipliers and same
-> > > Mhz when the CPUs are on the same FSB(ignoring AMD SMP where each processor
-> > > has an exclusive FSB, and this might be possible)?
-> > 
-> > That was what I was trying to say: same FSB speed * different multipliers
-> > = different CPU MHZ, like what the original poster is asking about.
-> > I don't think it is possible to configure a motherboard to have different
-> > FSB speeds for two processors.
-> >
-> 
-> Me neither, but it seems theoretically possible.
+I've recently got some similar reports, but with a few less
+facts ... it was clear to me there was a problem somewhere
+in the CardBus code, since I know that cleanup via rmmod is
+working fine, and in fact that's the workaround one person
+had ended up with!
 
-It is not, they are both on the same FSB, at least in Pentium II/III case.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+>>usb-ohci.c: bogus NDP=255 for OHCI usb - 09:00.1
+>>(the above two statements are repeated ~4x's)
+
+And the OHCI driver hits a related problem too ...
+
+
+> IMHO sequence in cs driver should be reverted - it is not polite to remove
+> hardware before giving driver a chance to cleanup :-)
+
+Yes, absolutely.  It's turning a "clean shutdown" scenario into a
+"dirty shutdown" ... a normal "rmmod" works, correctly, and from the
+perspective of a device driver (if not the CardBus code) those should
+be exactly the same:  two ways to start the same driver shutdown.
+
+That current sequence (powerdown before pci_dev->remove) violates the
+device tree sequencing requirement ... which I recall was one of the
+key features of the original 2.4 CardBus support.  Did it change rather
+recently, or has this bug really been lurking for a very long time?
+I'd expect to have heard about that OHCI problem (seemingly the same root
+cause) before, since there are folk using Cardbus OHCI (more using EHCI!),
+but nobody's reported it that I know of.
+
+I'll hope that problem appears only in 2.4.18-6mdk, and isn't found in
+other kernels.  In particular, if it's in 2.5.17 then there's a big
+hole in the "new driver model" work (struct device etc)!
+
+
+ > 
+	 Irrespectively,
+> endless loop in ehci_stop does not look nice.
+
+I partially agree.  For a clean shutdown, it's guaranteed not to be
+endless.  For a dirty shutdown -- physically ejecting the card, or
+the hardware having truly nasty failure mode (one I've not seen but
+which could conceivably happen) -- it's a problem to fix.
+
+Is there a clean way to detect the "card ejected before anything calls 
+pci_dev->remove()" case?  I don't really like the idea of wrapping code
+around every PCI register access to detect such cases.
+
+- Dave
+
+
+

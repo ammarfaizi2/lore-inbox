@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264748AbSL0CsL>; Thu, 26 Dec 2002 21:48:11 -0500
+	id <S264767AbSL0Dzk>; Thu, 26 Dec 2002 22:55:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264749AbSL0CsL>; Thu, 26 Dec 2002 21:48:11 -0500
-Received: from CPE-203-51-25-222.nsw.bigpond.net.au ([203.51.25.222]:44792
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S264748AbSL0CsL>; Thu, 26 Dec 2002 21:48:11 -0500
-Message-ID: <3E0BC155.5B291F57@eyal.emu.id.au>
-Date: Fri, 27 Dec 2002 13:56:21 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-e1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Joseph <jospehchan@yahoo.com.tw>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [USB 2.0 problem] ASUS CD-RW cannot be mounted.
-References: <002801c2acd2$edf6a870$3716a8c0@taipei.via.com.tw> <20021226174653.GA8229@kroah.com> <003d01c2ad4a$54eb09f0$3716a8c0@taipei.via.com.tw>
+	id <S264771AbSL0Dzk>; Thu, 26 Dec 2002 22:55:40 -0500
+Received: from almesberger.net ([63.105.73.239]:38411 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S264767AbSL0Dzk>; Thu, 26 Dec 2002 22:55:40 -0500
+Date: Fri, 27 Dec 2002 01:03:38 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Anomalous Force <anomalous_force@yahoo.com>
+Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: holy grail
+Message-ID: <20021227010338.A1406@almesberger.net>
+References: <20021227005118.18686.qmail@web13202.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20021227005118.18686.qmail@web13202.mail.yahoo.com>; from anomalous_force@yahoo.com on Thu, Dec 26, 2002 at 04:51:18PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joseph wrote:
-> 
-> > Are you sure you have all of the scsi modules you need loaded?  The
-> > dmesg output looks fine, what happens when you try to mount the drive?
-> > And does this drive work with older 2.5 kernels, or 2.4?
-> 
->   I think I've made all scsi modules I need built-in kernel.
->   (usbcore, ehci-hcd, usb-storage, sr_mod, sd_mod) Do I miss something?
->   Also, I've tested the ASUS CD-RW under kernel 2.5.45 and it worked.
->   But in the kernel 2.5.53, the system shows below when I try to mount the
-> CD-RW.
-> **   #mount /dev/scd0 /mnt/usb-cd
-> **   mount: /dev/scd0 is not a valid block device
+Anomalous Force wrote:
+> a hot swap kernel would be something like the holy grail of kernel
+> hacking.
 
-Check that you actually have /dev/scd0. I think it should be:
-	# mknod /dev/scd0 b 11 0
+:-) This comes up every once in a while. The closest approximation
+you have for this is swsusp. But you'd of course want to start a
+non-identical kernel. And that's where the hard problems lie.
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+An older or newer kernel would have different data structures, and
+possibly even data structures which are arranged in a different way
+(e.g. a hash becomes some kind of tree, etc.). So you'd need some
+translation mechanism that "upgrades" or "downgrades" all kernel
+data, including all pointers and offsets that may be sitting
+around somewhere. Good luck :-)
+
+Your best bet would be to use a system that already implements some
+form of checkpointing or process migration, and use this to
+preserve user space state across kexec reboots. openMosix may be
+relatively close to being able to do this for general user space.
+(I don't know what openMosix currently can do, but many of the
+problems they need to solve are similar in nature.)
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

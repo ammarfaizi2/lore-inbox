@@ -1,59 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVAMVDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbVAMVK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbVAMVDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 16:03:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVAMVAX
+	id S261707AbVAMVK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 16:10:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVAMVIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 16:00:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:24547 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261519AbVAMUzJ (ORCPT
+	Thu, 13 Jan 2005 16:08:38 -0500
+Received: from mail.joq.us ([67.65.12.105]:29110 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261519AbVAMVDm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 15:55:09 -0500
-Date: Thu, 13 Jan 2005 12:55:03 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: akpm@osdl.org, torvalds@osdl.org, alan@lxorguk.ukuu.org.uk,
-       marcelo.tosatti@cyclades.com
-Cc: linux-kernel@vger.kernel.org
-Subject: security contact draft
-Message-ID: <20050113125503.C469@build.pdx.osdl.net>
-Mime-Version: 1.0
+	Thu, 13 Jan 2005 16:03:42 -0500
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Chris Wright <chrisw@osdl.org>, Paul Davis <paul@linuxaudiosystems.com>,
+       Lee Revell <rlrevell@joe-job.com>, Matt Mackall <mpm@selenic.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       mingo@elte.hu, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <20050111214152.GA17943@devserv.devel.redhat.com>
+	<200501112251.j0BMp9iZ006964@localhost.localdomain>
+	<20050111150556.S10567@build.pdx.osdl.net>
+	<87y8ezzake.fsf@sulphur.joq.us>
+	<20050112074906.GB5735@devserv.devel.redhat.com>
+	<87oefuma3c.fsf@sulphur.joq.us>
+	<20050113072802.GB13195@devserv.devel.redhat.com>
+From: "Jack O'Quin" <joq@io.com>
+Date: Thu, 13 Jan 2005 15:04:26 -0600
+In-Reply-To: <20050113072802.GB13195@devserv.devel.redhat.com> (Arjan van de
+ Ven's message of "Thu, 13 Jan 2005 08:28:02 +0100")
+Message-ID: <878y6x9h2d.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To keep the conversation concrete, here's a pretty rough stab at
-documenting the policy.
 
- Linux kernel developers take security very seriously.  As such, we'd
- like to know when a security bug is found so that it can be fixed and
- disclosed as quickly as possible.
+>> > On Tue, Jan 11, 2005 at 07:43:29PM -0600, Jack O'Quin wrote:
+>> >> Arjan just means crashing the system which forces reboot to run
+>> >> fsck.
 
- 1) Contact
+>> Arjan van de Ven <arjanv@redhat.com> writes:
+>> > I actually meant data corruption.
 
- The Linux kernel security contact is $CONTACTADDR.  This is a private
- list of security officers who will help verify the bug report and develop
- and release a fix.  It is possible that the security officers will bring
- in extra help from area maintainers to understand and fix the security
- vulnerability.
+> On Wed, Jan 12, 2005 at 06:44:23PM -0600, Jack O'Quin wrote:
+>> Are you concerned about something different from the "normal" risk of
+>> data corruption when the kernel panics or someone trips over the power
+>> cord?
 
- It is preferred that mail sent to the security contact is encrypted
- with $PUBKEY.
+Arjan van de Ven <arjanv@redhat.com> writes:
+> yes; the "normal" risk is time limited, eg the kernel will wait at most 30
+> seconds before writing back your dirty data, 5 seconds for ext3 actually.
+> With the "RT-abuse" hang, this 30 second thing goes on hold (because it's
+> done from those kernel threads that cause you those hickups in sound :-) and
+> you can starve a far longer period of time.. which may well mean a far
+> larger dataset not hitting the disk.
 
- As it is with any bug, the more information provided the easier it
- will be to diagnose and fix.  Please review the procedure outlined in
- REPORTING-BUGS if you are unclear about what information is helpful.
- Any exploit code is very helpful and will not be released without
- consent from the reporter unless it's already been made public.
+Ah, good point.
 
- 2) Disclosure
+Just thinking about this naively, I come up with two scenarios:
 
- The goal of the kernel security contact is to work with the bug submitter
- to bug resolution as well as disclosure.  We prefer to fully disclose
- the bug as soon as possible.  It is reasonable to delay disclosure when
- the bug or the fix is not yet fully understood, the solution is not
- well-tested or for vendor coordination.  However, we expect these delays
- to be short, measurable in days, not weeks or months.  As a basic default
- policy, we expect report to disclosure to be on the order of $NUMDAYS.
+  (1) SMP -- RT thread hangs one CPU.  Kernel threads can still run on
+  other processors.  Rest of system continues running (degraded) until
+  more RT threads hang the remaining CPUs at which time we end up
+  with...
 
+  (2) UP -- RT thread hangs the last remaining CPU.  Kernel threads
+  can't run.  User processes can no longer write data to FS.
+
+(Probably, this simplistic analysis misses some other, more subtle,
+factors.)
+
+RT threads should not do FS writes of their own.  But, a badly broken
+or malicious one could, I suppose.  So, that might provide a mechanism
+for losing more data than usual.  Is that what you had in mind?
+-- 
+  joq

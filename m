@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264256AbTFYJHx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 05:07:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264279AbTFYJHx
+	id S264279AbTFYJNk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 05:13:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264281AbTFYJNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 05:07:53 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:17291 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S264256AbTFYJHw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 05:07:52 -0400
+	Wed, 25 Jun 2003 05:13:40 -0400
+Received: from apate.telenet-ops.be ([195.130.132.57]:12711 "EHLO
+	apate.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S264279AbTFYJNj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 05:13:39 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: Konstantin Kletschke <konsti@ludenkalle.de>, linux-kernel@vger.kernel.org
+Subject: Re: Success stories, disappearing Oopses and ps/2 keyboard
+Date: Wed, 25 Jun 2003 11:27:37 +0200
+User-Agent: KMail/1.5.1
+References: <20030624164026.GA2934@sexmachine.doom> <1056493814.1032.253.camel@w-jstultz2.beaverton.ibm.com> <20030625081313.GA1747@sexmachine.doom>
+In-Reply-To: <20030625081313.GA1747@sexmachine.doom>
+Cc: lkml@kcore.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16121.27054.257166.231690@gargle.gargle.HOWL>
-Date: Wed, 25 Jun 2003 11:21:50 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Andrew Morton <akpm@digeo.com>
-Cc: clem@clem.clem-digital.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.73 -- Uninitialised timer! (i386)
-In-Reply-To: <20030624153154.7243549d.akpm@digeo.com>
-References: <20030624124800.72bfb98d.akpm@digeo.com>
-	<200306242033.QAA27440@clem.clem-digital.net>
-	<16120.50188.29.739261@gargle.gargle.HOWL>
-	<20030624153154.7243549d.akpm@digeo.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+Message-Id: <200306251127.37944.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
- > Mikael Pettersson <mikpe@csd.uu.se> wrote:
- > >
- > > Apply the patch below (which I posted to LKML yesterday btw).
- > >  2.5.73 incorrectly removed the workaround needed to prevent
- > >  gcc-2.95.x from miscompiling spinlocks on UP (they become
- > >  empty structs, and gcc-2.95.x has problems with those).
- > 
- > Are you sure?  I saw no problems with 2.95.3.  Maybe it's
- > a 2.95.4 problem?
+On Wednesday 25 June 2003 10:13, Konstantin Kletschke wrote:
+> No, that would be no Problem. Often, if I browse in mutt and press Arrow
+> Keys, it is autorepeated suddenly but I only pressed the Key shortly!
+> The Kernel does not realize it is released since ages. Pressing again
+> the kernel stops repeating. That happens with all keys and when with
+> arrow or PageUp/Down keys in slrn it drives me mad!
 
-I know the problem exists in 2.95.3 since that's the one I
-used for my initial 2.5.73 testing. Having seen the spinlock.h
-patch, I strongly suspected things would break.
+I have seen this problem ever since I started using 2.5 on my laptop. I can 
+easily recreate it by pressing two keys at the same time, it seems that then 
+something gets screwed up and he repeats one of the two keys 20-30 times when 
+it stops.
 
-If I remember correctly, the empty struct miscompilation exists
-in all old egcs and gcc-2.95 versions, but was fixed during 3.0
-development, so 2.96 is apparently also Ok.
+I'll test with that clock=pit option later, when I have the chance to reboot.
 
-/Mikael
+Jan
+-- 
+Q:  How did you get into artificial intelligence?
+A:  Seemed logical -- I didn't have any real intelligence.
+

@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265684AbUA0VWq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 16:22:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265698AbUA0VWq
+	id S265776AbUA0VhF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 16:37:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265778AbUA0VhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 16:22:46 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:37125 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265684AbUA0VWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 16:22:45 -0500
-Date: Tue, 27 Jan 2004 21:22:43 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Florian Huber <florian.huber@mnet-online.de>
-Cc: JFS-Discussion <jfs-discussion@www-124.ibm.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Jfs-discussion] md raid + jfs + jfs_fsck
-Message-ID: <20040127212243.A20349@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Florian Huber <florian.huber@mnet-online.de>,
-	JFS-Discussion <jfs-discussion@oss.software.ibm.com>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <1075230933.11207.84.camel@suprafluid> <1075231718.21763.28.camel@shaggy.austin.ibm.com> <1075232395.11203.94.camel@suprafluid> <1075236185.21763.89.camel@shaggy.austin.ibm.com> <20040127205324.A19913@infradead.org> <1075238385.14214.3.camel@suprafluid>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Jan 2004 16:37:05 -0500
+Received: from out007pub.verizon.net ([206.46.170.107]:59808 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S265776AbUA0VhB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 16:37:01 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Sco
+Date: Tue, 27 Jan 2004 16:36:57 -0500
+User-Agent: KMail/1.6
+References: <20040127081506.C4346@animx.eu.org> <20040127122545.A4752@animx.eu.org> <20040127202642.GA7501@mark.mielke.cc>
+In-Reply-To: <20040127202642.GA7501@mark.mielke.cc>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1075238385.14214.3.camel@suprafluid>; from florian.huber@mnet-online.de on Tue, Jan 27, 2004 at 10:19:45PM +0100
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401271636.57691.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.53.166] at Tue, 27 Jan 2004 15:37:00 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 27, 2004 at 10:19:45PM +0100, Florian Huber wrote:
-> So, remove the raid, create a new raid "1" with one partiton and create
-> a jfs fs on top of it, copy all files and add the other disk to the
-> raid?
+On Tuesday 27 January 2004 15:26, Mark Mielke wrote:
+>On Tue, Jan 27, 2004 at 12:25:45PM -0500, Wakko Warner wrote:
+>> > Besides, DoS attacks against SCO will only be blamed on the
+>> > Linux community.  So the developer of that virus is either a
+>> > complete idiot or is acting to intentionally hurt our image.
 
-You can't partition md devices (yet), but otherwise yes.  I think you can
-also create md device without the persistant superblock still, but it
-always was a pain to maintain those.
+I agree with the latter interpretation.  Somebody who wants to give 
+Darls unfounded rhetoric some traction in court next week.
+
+>> If the former, then this is probably a windows person.  After all,
+>> the virus is for *windows* and not linux.
+>
+>Haha... you guys are thinking like sophisticated intellectuals.
+>
+>Most likely, it is some teenage wannabe who is just trying to
+> convince themselves that they play a part in this drama called
+> life. "Look how cool I am!" (Of course - in the less socially ept
+> circles, teenagers can take the form of 40-year old geeks...
+> hopefully nobody here... :-) )
+>
+>Cheers,
+>mark
+
+Or even a wannabe geek going on 70 :)  And no, I didn't write it.  And 
+I sure don't want to know enough about windows to be able to write a 
+worm, that would be against my religion.  In my religion, windows is 
+the wrong answer.
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty: soap,
+ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

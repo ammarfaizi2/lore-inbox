@@ -1,81 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262904AbUDLNyh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 09:54:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262907AbUDLNyh
+	id S262909AbUDLOSX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 10:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbUDLOSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 09:54:37 -0400
-Received: from web41211.mail.yahoo.com ([66.218.93.44]:22712 "HELO
-	web41211.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262904AbUDLNyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 09:54:35 -0400
-Message-ID: <20040412135430.45066.qmail@web41211.mail.yahoo.com>
-Date: Mon, 12 Apr 2004 06:54:30 -0700 (PDT)
-From: Jin Suh <jinssuh@yahoo.com>
-Subject: [2.4.25] PCMCIA PCI: No IRQ for interrupt pin A and failed to allocate shared interrupt
-To: linux-kernel@vger.kernel.org, linux1394-user@lists.sourceforge.net
+	Mon, 12 Apr 2004 10:18:22 -0400
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:24552 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S262909AbUDLOSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 10:18:17 -0400
+Message-ID: <407AA51F.5020205@myrealbox.com>
+Date: Mon, 12 Apr 2004 07:18:07 -0700
+From: Andy Lutomirski <luto@myrealbox.com>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+CC: Andrew Morton <akpm@osdl.org>, Andy Lutomirski <luto@myrealbox.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: fix must_not_trace_exec() test
+References: <20040410200551.31866667.akpm@osdl.org> <878yh1y1gs.fsf@goat.bogus.local>
+In-Reply-To: <878yh1y1gs.fsf@goat.bogus.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Olaf Dietsche wrote:
 
-I am using a Gateway 600YG2 laptop (Intel P4-M, PCMCIA TI PCI1520 controller)
-on 2.4.25. I have 3 different pcmcia firewire cards. When I insert module
-yenta_socket with any of those cards, I get "Yenta ISA IRQ mask 0x0a98, PCI irq
-0" and "PCI: No IRQ for interrupt pin A of device 03:00.0 please try using
-pci=biosirq". After this error, when I run the modprobe ieee1394 and ohci1394,
-I get "ohci1394: failed to allocate shared interrupt 10". The same pcmcia
-firewire cards work on old Gateway 9300, 9500 laptop and IBM T22 laptop. 
-BTW, my Netgear pcmcia 10/100mb ethernet card works on the Gateway 600YG2
-laptop. Also my USB pen drives are not working too. The bootparameter
-pci=biosirq doesn't seem to work. 
-It worked fine with 2.4.20 without any problems. Could someone help me to fix
-this problem on 2.4.25? I have buillt both of 2.4.20 and 2.4.25 without ACPI.
+> Andrew Morton <akpm@osdl.org> writes:
+> 
+> 
+> Although, I'd rather not lump together unrelated tests without
+> renaming must_not_trace_exec(). Btw, can someone enlighten me what
+> this atomic_read() test is all about.
 
-Thanks,
-Jin
+Oops... your fix is obviously correct.
 
-DMESG output
--------------------------------------------------------------------------
-ACPI: RSDP (v000 PTLTD                                     ) @ 0x000f6620
-ACPI: RSDT (v001 GATEWA 602      0x20021104  LTP 0x00000000) @ 0x1fef8313
-ACPI: FADT (v001 GATEWA 602      0x20021104 PTL  0x0000001e) @ 0x1fefef64
-ACPI: BOOT (v001 GATEWA 602      0x20021104  LTP 0x00000001) @ 0x1fefefd8
-ACPI: DSDT (v001 GATEWA 602      0x20021104 MSFT 0x0100000e) @ 0x00000000
-Kernel command line: initrd=ramdisk.img root=/dev/ram0 bickrootfs=tmpfs vga=791
-BOOT_IMAGE=linux 
-No local APIC present or hardware disabled
-.........
-Linux Kernel Card Services 3.1.22
-  options:  [pci] [cardbus] [pm]
-PCI: Found IRQ 10 for device 02:02.0
-PCI: Sharing IRQ 10 with 00:1f.1
-PCI: Sharing IRQ 10 with 02:02.1
-PCI: Found IRQ 10 for device 02:02.1
-PCI: Sharing IRQ 10 with 00:1f.1
-PCI: Sharing IRQ 10 with 02:02.0
-Yenta ISA IRQ mask 0x0a98, PCI irq 0
-Socket status: 30000011
-Yenta ISA IRQ mask 0x0a98, PCI irq 0
-Socket status: 30000020
-cs: cb_alloc(bus 7): vendor 0x104c, device 0x8024
-PCI: Enabling device 07:00.0 (0000 -> 0002)
-PCI: No IRQ known for interrupt pin A of device 07:00.0. Please try using
-pci=biosirq.
-ohci1394: $Rev: 1045 $ Ben Collins <bcollins@debian.org>
-PCI: Found IRQ 10 for device 02:05.0
-PCI: Sharing IRQ 10 with 00:1f.3
-PCI: Sharing IRQ 10 with 00:1f.6
-ohci1394: Failed to allocate shared interrupt 10
-PCI: No IRQ known for interrupt pin A of device 07:00.0. Please try using
-pci=biosirq.
-ohci1394: Failed to allocate shared interrupt 0
-sbp2: $Rev: 1074 $ Ben Collins <bcollins@debian.org>
+I assumed that the test was to check if the caller is a thread, but that sounds 
+odd -- wouldn't it stop being a thread after the exec anyway?  Maybe that part 
+happens after compute_creds, so this prevents a race?  Although I don't see how 
+it could be triggered if the thread never entered usermode before getting a new 
+fs/files/sighand.
 
+Anyone?
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Tax Center - File online by April 15th
-http://taxes.yahoo.com/filing.html
+> 
+> Regards, Olaf.
+> 
+> diff -urN a/security/commoncap.c b/security/commoncap.c
+> --- a/security/commoncap.c	Mon Apr 12 10:38:17 2004
+> +++ b/security/commoncap.c	Mon Apr 12 11:10:38 2004
+> @@ -118,9 +118,9 @@
+>  static inline int must_not_trace_exec (struct task_struct *p)
+>  {
+>  	return ((p->ptrace & PT_PTRACED) && !(p->ptrace & PT_PTRACE_CAP))
+> -		|| atomic_read(&current->fs->count) > 1
+> -		|| atomic_read(&current->files->count) > 1
+> -		|| atomic_read(&current->sighand->count) > 1;
+> +		|| atomic_read(&p->fs->count) > 1
+> +		|| atomic_read(&p->files->count) > 1
+> +		|| atomic_read(&p->sighand->count) > 1;
+>  }
+>  [...]
+
+--Andy

@@ -1,38 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265377AbUGDDYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265361AbUGDEAf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265377AbUGDDYW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 23:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265387AbUGDDYW
+	id S265361AbUGDEAf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 00:00:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265387AbUGDEAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 23:24:22 -0400
-Received: from colin2.muc.de ([193.149.48.15]:20235 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S265377AbUGDDYR (ORCPT
+	Sun, 4 Jul 2004 00:00:35 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:56442 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265361AbUGDEAa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 23:24:17 -0400
-Date: 4 Jul 2004 05:24:15 +0200
-Date: Sun, 4 Jul 2004 05:24:15 +0200
-From: Andi Kleen <ak@muc.de>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: x86_64 KBUILD_IMAGE
-Message-ID: <20040704032415.GB90194@muc.de>
-References: <20040704012732.GW21066@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040704012732.GW21066@holomorphy.com>
-User-Agent: Mutt/1.4.1i
+	Sun, 4 Jul 2004 00:00:30 -0400
+Date: Sat, 3 Jul 2004 20:59:09 -0700 (PDT)
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Matthew Dobson <colpatch@us.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>, Paul Jackson <pj@sgi.com>,
+       Simon <Simon.Derr@bull.net>
+Message-Id: <20040704035909.10365.17449.82915@sam.engr.sgi.com>
+Subject: [patch] remaining cpumask const qualifiers
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 03, 2004 at 06:27:32PM -0700, William Lee Irwin III wrote:
-> x86_64 doesn't set KBUILD_IMAGE, and hence defaults to vmlinux. This
-> confuses make rpm in such a manner that it copies a raw ELF executable
-> to /boot/vmlinuz-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION instead of
-> the expected bzImage, which is surprisingly unbootable and not what's
-> normally expected to be placed in /boot/ with that filename.
-> 
-> Just setting the variable is enough to convince it to use bzImage properly.
+The remainder of the const qualifiers on cpumask ops.
 
-Applied. Thanks.
+My cpumask overhaul missed specifying the const qualifiers
+in cpumask.h.  Subsequently, Linus has added some.  The following
+should provide the remainder of them.  It also fixes one src vs dst
+variable misnaming.
 
--Andi
+Using crosstool on 2.6.7-mm5, I have built the following
+arch's with the following change included:
+
+  alpha ia64 powerpc-405 powerpc-750 sparc sparc64 x86_64
+
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
+Index: 2.6.7-mm5/include/linux/cpumask.h
+===================================================================
+--- 2.6.7-mm5.orig/include/linux/cpumask.h	2004-07-01 19:05:31.000000000 -0700
++++ 2.6.7-mm5/include/linux/cpumask.h	2004-07-01 19:30:10.000000000 -0700
+@@ -114,58 +114,58 @@ static inline int __cpu_test_and_set(int
+ }
+ 
+ #define cpus_and(dst, src1, src2) __cpus_and(&(dst), &(src1), &(src2), NR_CPUS)
+-static inline void __cpus_and(cpumask_t *dstp, cpumask_t *src1p,
+-					cpumask_t *src2p, int nbits)
++static inline void __cpus_and(cpumask_t *dstp, const cpumask_t *src1p,
++					const cpumask_t *src2p, int nbits)
+ {
+ 	bitmap_and(dstp->bits, src1p->bits, src2p->bits, nbits);
+ }
+ 
+ #define cpus_or(dst, src1, src2) __cpus_or(&(dst), &(src1), &(src2), NR_CPUS)
+-static inline void __cpus_or(cpumask_t *dstp, cpumask_t *src1p,
+-					cpumask_t *src2p, int nbits)
++static inline void __cpus_or(cpumask_t *dstp, const cpumask_t *src1p,
++					const cpumask_t *src2p, int nbits)
+ {
+ 	bitmap_or(dstp->bits, src1p->bits, src2p->bits, nbits);
+ }
+ 
+ #define cpus_xor(dst, src1, src2) __cpus_xor(&(dst), &(src1), &(src2), NR_CPUS)
+-static inline void __cpus_xor(cpumask_t *dstp, cpumask_t *src1p,
+-					cpumask_t *src2p, int nbits)
++static inline void __cpus_xor(cpumask_t *dstp, const cpumask_t *src1p,
++					const cpumask_t *src2p, int nbits)
+ {
+ 	bitmap_xor(dstp->bits, src1p->bits, src2p->bits, nbits);
+ }
+ 
+ #define cpus_andnot(dst, src1, src2) \
+ 				__cpus_andnot(&(dst), &(src1), &(src2), NR_CPUS)
+-static inline void __cpus_andnot(cpumask_t *dstp, cpumask_t *src1p,
+-					cpumask_t *src2p, int nbits)
++static inline void __cpus_andnot(cpumask_t *dstp, const cpumask_t *src1p,
++					const cpumask_t *src2p, int nbits)
+ {
+ 	bitmap_andnot(dstp->bits, src1p->bits, src2p->bits, nbits);
+ }
+ 
+ #define cpus_complement(dst, src) __cpus_complement(&(dst), &(src), NR_CPUS)
+ static inline void __cpus_complement(cpumask_t *dstp,
+-					cpumask_t *srcp, int nbits)
++					const cpumask_t *srcp, int nbits)
+ {
+ 	bitmap_complement(dstp->bits, srcp->bits, nbits);
+ }
+ 
+ #define cpus_equal(src1, src2) __cpus_equal(&(src1), &(src2), NR_CPUS)
+-static inline int __cpus_equal(cpumask_t *src1p,
+-					cpumask_t *src2p, int nbits)
++static inline int __cpus_equal(const cpumask_t *src1p,
++					const cpumask_t *src2p, int nbits)
+ {
+ 	return bitmap_equal(src1p->bits, src2p->bits, nbits);
+ }
+ 
+ #define cpus_intersects(src1, src2) __cpus_intersects(&(src1), &(src2), NR_CPUS)
+-static inline int __cpus_intersects(cpumask_t *src1p,
+-					cpumask_t *src2p, int nbits)
++static inline int __cpus_intersects(const cpumask_t *src1p,
++					const cpumask_t *src2p, int nbits)
+ {
+ 	return bitmap_intersects(src1p->bits, src2p->bits, nbits);
+ }
+ 
+ #define cpus_subset(src1, src2) __cpus_subset(&(src1), &(src2), NR_CPUS)
+-static inline int __cpus_subset(cpumask_t *src1p,
+-					cpumask_t *src2p, int nbits)
++static inline int __cpus_subset(const cpumask_t *src1p,
++					const cpumask_t *src2p, int nbits)
+ {
+ 	return bitmap_subset(src1p->bits, src2p->bits, nbits);
+ }
+@@ -257,7 +257,7 @@ static inline int __next_cpu(int n, cons
+ #define cpumask_scnprintf(buf, len, src) \
+ 			__cpumask_scnprintf((buf), (len), &(src), NR_CPUS)
+ static inline int __cpumask_scnprintf(char *buf, int len,
+-					cpumask_t *srcp, int nbits)
++					const cpumask_t *srcp, int nbits)
+ {
+ 	return bitmap_scnprintf(buf, len, srcp->bits, nbits);
+ }
+@@ -265,9 +265,9 @@ static inline int __cpumask_scnprintf(ch
+ #define cpumask_parse(ubuf, ulen, src) \
+ 			__cpumask_parse((ubuf), (ulen), &(src), NR_CPUS)
+ static inline int __cpumask_parse(const char __user *buf, int len,
+-					cpumask_t *srcp, int nbits)
++					cpumask_t *dstp, int nbits)
+ {
+-	return bitmap_parse(buf, len, srcp->bits, nbits);
++	return bitmap_parse(buf, len, dstp->bits, nbits);
+ }
+ 
+ #if NR_CPUS > 1
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

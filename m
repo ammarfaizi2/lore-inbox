@@ -1,52 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315449AbSHVSyI>; Thu, 22 Aug 2002 14:54:08 -0400
+	id <S315709AbSHVS5n>; Thu, 22 Aug 2002 14:57:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315491AbSHVSyI>; Thu, 22 Aug 2002 14:54:08 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:5118 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S315449AbSHVSyH>; Thu, 22 Aug 2002 14:54:07 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Thu, 22 Aug 2002 12:56:21 -0600
-To: Corey Minyard <minyard@acm.org>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] export symbol for panic_notifier_list
-Message-ID: <20020822185621.GG19435@clusterfs.com>
-Mail-Followup-To: Corey Minyard <minyard@acm.org>,
-	linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <3D64F92A.9040406@acm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D64F92A.9040406@acm.org>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S315762AbSHVS5m>; Thu, 22 Aug 2002 14:57:42 -0400
+Received: from ausadmmsps306.aus.amer.dell.com ([143.166.224.101]:34057 "HELO
+	AUSADMMSPS306.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S315709AbSHVS5k>; Thu, 22 Aug 2002 14:57:40 -0400
+X-Server-Uuid: c21c953d-96eb-4242-880f-19bdb46bc876
+Message-ID: <20BF5713E14D5B48AA289F72BD372D6821CBBB@AUSXMPC122.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: Andries.Brouwer@cwi.nl
+cc: linux-kernel@vger.kernel.org
+Subject: RE: NULL_GUID
+Date: Thu, 22 Aug 2002 14:01:47 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 117BEA972372756-01-01
+Content-Type: text/plain; 
+ charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 22, 2002  09:46 -0500, Corey Minyard wrote:
-> If a module needs to be notified of a panic, well, it needs to get at 
-> the notifier list, but that's not exported.  patch is attached.
+> Earlier this evening I happened to compile a 2.4.20-pre4 and got
+> 
+> efi.c: In function `add_gpt_partitions':
+> efi.c:728: `NULL_GUID' undeclared (first use in this function)
+> 
+> Earlier it was defined in include/asm-ia64/efi.h,
+> but since there is no relation with ia64 it is reasonable
+> that it was moved, only it never arrived in partitions/efi.h.
+> 
+> [I'll be lazy and not supply the trivial patch. Too likely
+> that others already did.]
 
-Excellent, we have this in our private kernel patch as well.
+Yep.  FWIW, these are incorporated in the IA64 port patch released yesterday
+too.  I'd love to see these included in the standard 2.4.x trees.
 
-> --- linux.orig/kernel/ksyms.c	Thu Aug 22 08:20:26 2002
-> +++ linux/kernel/ksyms.c	Thu Aug 22 09:03:01 2002
-> @@ -492,6 +492,7 @@
->  
->  /* misc */
->  EXPORT_SYMBOL(panic);
-> +EXPORT_SYMBOL(panic_notifier_list);
->  EXPORT_SYMBOL(sprintf);
->  EXPORT_SYMBOL(snprintf);
->  EXPORT_SYMBOL(sscanf);
+Patches available in a number of places:
+bk pull http://mdomsch.bkbits.net/linux-2.4-gpt
+
+As separate patches:
+1)
+http://domsch.com/linux/patches/gpt/linux-2.4-gpt-efiguidt.cset
+has been in the IA64 port for a while.  This fixes the endianness issues
+with the efi_guid_t type and adds the NULL_GUID definition needed to compile
+the GPT code.
+
+2)
+http://domsch.com/linux/patches/ia64/linux-2.4-efihmove.cset
+moves include/asm-ia64/efi.h to include/linux/efi.h similar to the 2.5
+patches.  This is needed to allow the GPT code to compile on non-IA64
+platforms too, necessary for the use of really big disks.
+
+3)
+http://domsch.com/linux/patches/gpt/linux-2.4-gpt-efiguidt-unparse.cset
+has been the IA64 port for a while.  This fixes efi_guid_unparse for
+endianness.
 
 
-Cheers, Andreas
+These need to be applied in the above order, as #1 touches efi.h,  #2
+touches and moves efi.h, and #3 touches it then too.  All are already in the
+ia64 port tree, but Marcelo and Alan don't have any of these three yet.
+I've compiled this on x86 against BK-current building in GPT with no
+troubles.
+
+Thanks,
+Matt
+
 --
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
 

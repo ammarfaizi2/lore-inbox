@@ -1,103 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131226AbRC0MPq>; Tue, 27 Mar 2001 07:15:46 -0500
+	id <S131261AbRC0MW7>; Tue, 27 Mar 2001 07:22:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131231AbRC0MPg>; Tue, 27 Mar 2001 07:15:36 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:65497 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S131226AbRC0MP3> convert rfc822-to-8bit; Tue, 27 Mar 2001 07:15:29 -0500
-Message-Id: <l03130332b6e632432b9f@[192.168.239.101]>
-In-Reply-To: <200103271059.MAA18765@cave.bitwizard.nl>
+	id <S131244AbRC0MWk>; Tue, 27 Mar 2001 07:22:40 -0500
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:41483 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S131241AbRC0MWa>; Tue, 27 Mar 2001 07:22:30 -0500
+From: mshiju@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+        linux-mca@vger.kernel.org, linux-tr@linuxtr.net,
+        ibm-linux-tech@linux.ibm.com
+Message-ID: <CA256A1C.0043BE80.00@d73mta05.au.ibm.com>
+Date: Tue, 27 Mar 2001 17:40:10 +0530
+Subject: kernel Oops message -2.4.x - contains ksymoops <oops.txt 
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Date: Tue, 27 Mar 2001 13:14:24 +0100
-To: R.E.Wolff@BitWizard.nl (Rogier Wolff), linux-kernel@vger.kernel.org
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: OOM killer???
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Out of Memory: Killed process 117 (sendmail).
->
->What we did to run it out of memory, I don't know. But I do know that
->it shouldn't be killing one process more than once... (the process
->should not exist after one try...)
 
-This is a known bug in the Out-of-Memory handler, where it does not count the buffer and cache memory as "free" (it should), causing premature OOM killing.  It is, however, normal for the OOM killer to attempt to kill a process more than once - it takes a few scheduler cycles for the SIGKILL to actually reach the process and take effect.
+Hi,
+      I am doing some testing on IBM Lanstreamer MCA tokenring adapter on
+IBM PS/2 server-9595. Inserting the driver ( as module)  it is perfect. But
+when I do an ifconfig tr0 up then I get an kernel panic and Oops message is
+printed out . It occures when the function interruptible_sleep_on_timeout()
+is called within the device driver ..  . I am using kernel-2.4.0 with
+redhat -7 installation. Same effect was also there on 2.4.2 .But I didn't
+had any problem when the driver is compiled and run on 2.2.x version . Can
+anyone help me to resolve the problem.  . The following is the output of
+ksymoops < oops.txt  message.
 
-Also, it probably shouldn't have killed Sendmail, since that is usually a long-running, low-UID (and important) process.  The OOM-kill selector is another thing that wants fixing, and my patch contains a *very rough* beginning to this.
+Unable to handle kernel NULL pointer dereference at virtual address
+00000004
+c0111720
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0111720>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010086
+eax: 00000000   ebx: 00000086   ecx: c0d08c1c   edx: c0b9ddc8
+esi: c0d08c18   edi: 000001f4   ebp: c0b9dddc   esp: c0b9ddc0
+ds: 0018   es: 0018   ss: 0018
+Process ifconfig (pid: 651, stackpage=c0b9d000)
+Stack: 00000000 c0b9c000 00000001 ffffffff c0b9c000 00001c68 000007ce
+c0d08c00
+       c2810add c0b9ddf8 1c681c62 00000001 00000202 1c0073e0 00000002
+40017000
+       00000246 00000000 00000246 00000000 c0b9f6f4 00000246 00000000
+00000246
+Call Trace: [<c2810add>] [<c012926c>] [<c01223b0>] [<c014239f>]
+[<c01232eb>] [<c01202bf>] [<c0120411>]
+       [<c01416f0>] [<c01407b9>] [<c01e9402>] [<c01ea142>] [<c020d7b7>]
+[<c01e52e0>] [<c013cab7>] [<c0108fe3>]
+Code: 89 50 04 89 45 ec 89 4d f0 89 56 04 89 f8 e8 ed f7 ff ff 89
 
-The following patch should solve your problem for now, until a more detailed fix (which also clears up many other problems) is available in the stable kernel.
+>>EIP; c0111720 <interruptible_sleep_on_timeout+30/60>   <=====
+Trace; c2810add <[lanstreamer]streamer_open+2cd/8f0>
+Trace; c012926c <inactive_shortage+2c/40>
+Trace; c01223b0 <__find_get_page+30/70>
+Trace; c014239f <get_new_inode+df/160>
+Trace; c01232eb <filemap_nopage+cb/440>
+Trace; c01202bf <do_no_page+4f/c0>
+Trace; c0120411 <handle_mm_fault+e1/160>
+Trace; c01416f0 <destroy_inode+30/40>
+Trace; c01407b9 <dput+129/150>
+Trace; c01e9402 <dev_open+42/a0>
+Trace; c01ea142 <dev_change_flags+52/f0>
+Trace; c020d7b7 <devinet_ioctl+2d7/640>
+Trace; c01e52e0 <sock_ioctl+20/30>
+Trace; c013cab7 <sys_ioctl+187/1a0>
+Trace; c0108fe3 <system_call+33/40>
+Code;  c0111720 <interruptible_sleep_on_timeout+30/60>
+00000000 <_EIP>:
+Code;  c0111720 <interruptible_sleep_on_timeout+30/60>   <=====
+   0:   89 50 04                  mov    %edx,0x4(%eax)   <=====
+Code;  c0111723 <interruptible_sleep_on_timeout+33/60>
+   3:   89 45 ec                  mov    %eax,0xffffffec(%ebp)
+Code;  c0111726 <interruptible_sleep_on_timeout+36/60>
+   6:   89 4d f0                  mov    %ecx,0xfffffff0(%ebp)
+Code;  c0111729 <interruptible_sleep_on_timeout+39/60>
+   9:   89 56 04                  mov    %edx,0x4(%esi)
+Code;  c011172c <interruptible_sleep_on_timeout+3c/60>
+   c:   89 f8                     mov    %edi,%eax
+Code;  c011172e <interruptible_sleep_on_timeout+3e/60>
+   e:   e8 ed f7 ff ff            call   fffff800 <_EIP+0xfffff800>
+c0110f20 <schedule_timeout+0/a0>
+Code;  c0111733 <interruptible_sleep_on_timeout+43/60>
+  13:   89 00                     mov    %eax,(%eax)
 
-Alan and/or Linus may wish to apply this patch too...
+Thanks & Regards
+Shiju
 
-(excerpt from my original patch from Saturday follows)
-
---- start ---
-diff -u linux-2.4.1.orig/mm/oom_kill.c linux/mm/oom_kill.c
---- linux-2.4.1.orig/mm/oom_kill.c      Tue Nov 14 18:56:46 2000
-+++ linux/mm/oom_kill.c Sat Mar 24 20:35:20 2001
-@@ -76,7 +76,9 @@
-        run_time = (jiffies - p->start_time) >> (SHIFT_HZ + 10);
-
-        points /= int_sqrt(cpu_time);
--       points /= int_sqrt(int_sqrt(run_time));
-+
-+       /* Long-running processes are *very* important, so don't take the 4th root */
-+       points /= run_time;
-
-        /*
-         * Niced processes are most likely less important, so double
-@@ -93,6 +95,10 @@
-                                p->uid == 0 || p->euid == 0)
-                points /= 4;
-
-+       /* Much the same goes for processes with low UIDs */
-+       if(p->uid < 100 || p->euid < 100)
-+         points /= 2;
-+
-        /*
-         * We don't want to kill a process with direct hardware access.
-         * Not only could that mess up the hardware, but usually users
-@@ -192,12 +198,20 @@
- int out_of_memory(void)
- {
-        struct sysinfo swp_info;
-+       long free;
-
-        /* Enough free memory?  Not OOM. */
--       if (nr_free_pages() > freepages.min)
-+       free = nr_free_pages();
-+       if (free > freepages.min)
-+               return 0;
-+
-+       if (free + nr_inactive_clean_pages() > freepages.low)
-                return 0;
-
--       if (nr_free_pages() + nr_inactive_clean_pages() > freepages.low)
-+       /* Buffers and caches can be freed up (Jonathan "Chromatix" Morton) */
-+       free += atomic_read(&buffermem_pages);
-+       free += atomic_read(&page_cache_size);
-+       if (free > freepages.low)
-                return 0;
-
-        /* Enough swap space left?  Not OOM. */
---- end ---
-
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
+Shiju A Mathew
+Software Engineer
+IBM Global Services
+Golden Enclave,Bangalore
+Tel:91-80-5262355 Extn.:2862
 
 

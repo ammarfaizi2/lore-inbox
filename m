@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262762AbTKPUGj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 15:06:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbTKPUGj
+	id S263137AbTKPUVP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 15:21:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbTKPUVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 15:06:39 -0500
-Received: from fw.osdl.org ([65.172.181.6]:42681 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262762AbTKPUGi (ORCPT
+	Sun, 16 Nov 2003 15:21:15 -0500
+Received: from mail.gmx.de ([213.165.64.20]:1704 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263137AbTKPUVM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 15:06:38 -0500
-Date: Sun, 16 Nov 2003 12:11:31 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       Jesse Barnes <jbarnes@sgi.com>
-Subject: Re: Bootmem broke ARM
-Message-Id: <20031116121131.0796cf01.akpm@osdl.org>
-In-Reply-To: <20031116101535.A592@flint.arm.linux.org.uk>
-References: <20031116101535.A592@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 16 Nov 2003 15:21:12 -0500
+X-Authenticated: #4512188
+Message-ID: <3FB7DCF9.5090205@gmx.de>
+Date: Sun, 16 Nov 2003 21:24:25 +0100
+From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031102
+X-Accept-Language: de-de, de, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Terrible interactivity with 2.6.0-t9-mm3
+References: <20031116192643.GB15439@zip.com.au>
+In-Reply-To: <20031116192643.GB15439@zip.com.au>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
->
-> Andrew & others,
-> 
-> 2.6 contains a change to init_bootmem_core() which now sorts the nodes
-> according to their start pfn.  This change occurred in revision 1.20 of
-> bootmem.c.  Unfortunately, this active sorting broke ARM discontig memory
-> support.
-> 
-> With previous kernels, the nodes are added to the list in reverse order,
-> so architecture code knew we had to add the highest PFN first and the
-> lowest PFN node last.
-> 
-> However, we now sort the nodes using node_start_pfn, which, at this point,
-> will be uninitialised - the responsibility for initialising this field
-> is with the generic code - in free_area_init_node() which occurs well
-> after bootmem has been initialised.
-> 
-> The result of this change is that we now add nodes to the tail of the
-> pgdat list, which is the opposite way to 2.4.
-> 
-> This causes problems for ARM because we need to use bootmem to initialise
-> the kernels page tables, and we can only allocate these from node 0 - none
-> of the other nodes are mapped into memory at this point.
-> 
-> I, therefore, believe this change is bogus.  Can it be reverted please?
-> 
+CaT wrote:
 
-It looks to be bogus on ia64 as well, for which the patch was written.
+ > I just noticed major interactivity problems whilst ogging one of my
 
-Or maybe ia64 _does_ arrange for the node_start_pfn to be initialised
-before init_bootmem_core(), but I cannot see where.  So the attempt to sort
-the pgdat list in there doesn't actually sort it at all - it simply
-reverses it by accident.
+[...]
 
-Jesse, it looks like this needs to be revisited please.
+ > Doh. :/ This is the first time this has been so bad that I've felt
+ > it was worth writing about. :/
+
+
+Yup, I was using a patched mm3 so I wanted to try the plain one, but due 
+to your post, I can conclude it really is mm3 which is really bad. I 
+noticed this as well. Using Nick's CPU scheduler things are not thaaat 
+bad, but still far from mm2. I think there is some major problem 
+introduced to mm3. Without Nicks patch doing an emerge/compiling, even 
+my mouse heavily stutters like hell, regradless of the used io 
+scheduler. With Nick's patch the mouse is rather OK, but the rest if the 
+system is still not really usable. It is not a HD problem...
+
+Going back to mm2 (patched mm2) and everything it fine again.
+
+Athlon XP 1900MHz
+1GB DDR RAM
+NFORCE2 Chipset
+
+Prakash
+
+

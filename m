@@ -1,238 +1,397 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVADLed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVADLio@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbVADLed (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 06:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261163AbVADLed
+	id S261163AbVADLio (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 06:38:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVADLio
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 06:34:33 -0500
-Received: from [212.20.225.142] ([212.20.225.142]:42801 "EHLO
-	orlando.wolfsonmicro.main") by vger.kernel.org with ESMTP
-	id S261162AbVADLeM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 06:34:12 -0500
-Subject: [PATCH] AC97 support for low power codecs
-From: Liam Girdwood <Liam.Girdwood@wolfsonmicro.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jeff Garzik <jgarzik@pobox.com>, lkml <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-KSJQiI3J/nNRK+nWyhZY"
-Message-Id: <1104838450.9143.81.camel@cearnarfon>
+	Tue, 4 Jan 2005 06:38:44 -0500
+Received: from tama5.ecl.ntt.co.jp ([129.60.39.102]:29175 "EHLO
+	tama5.ecl.ntt.co.jp") by vger.kernel.org with ESMTP id S261163AbVADLhg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 06:37:36 -0500
+Message-Id: <6.0.0.20.2.20050104200330.020e0958@mailsv2.y.ecl.ntt.co.jp>
+X-Mailer: QUALCOMM Windows Eudora Version 6J-Jr3
+Date: Tue, 04 Jan 2005 20:34:09 +0900
+To: akpm@osdl.org, sct@redhat.com, adilger@clusterfs.com
+From: Hifumi Hisashi <hifumi.hisashi@lab.ntt.co.jp>
+Subject: [PATCH] BUG on error handlings in Ext3 under I/O failure
+  condition 
+Cc: ext3-users@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 04 Jan 2005 11:34:10 +0000
-X-OriginalArrivalTime: 04 Jan 2005 11:34:10.0824 (UTC) FILETIME=[4F332080:01C4F251]
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hello.
 
---=-KSJQiI3J/nNRK+nWyhZY
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+	I found bugs on error handlings in the functions arround the ext3 file
+system, which cause inadequate completions of synchronous write I/O operations
+when disk I/O failures occur.  Both 2.4 and 2.6 have this problem.
 
-Hi Alan,
+	I carried out following experiment:
 
-This is a resend of a patch that has been applied to 2.4.
+1.  Mount a ext3 file system on a SCSI disk with ordered mode.
+2.  Open a file on the file system with O_SYNC|O_RDWR|O_TRUNC|O_CREAT flag.
+3.  Write 512 bytes data to the file by calling write() every 5 seconds, and
+     examine return values from the syscall.
+     from write().
+4.  Disconnect the SCSI cable,  and examine messages from the kernel.
 
-I've attached a patch against 2.6.10 that checks the codec ID before
-doing an AC97 register reset. This allows the kernel to support low
-power codecs that are powered down by a reset command. This patch also
-fixes some other minor issues.
+	After the SCSI cable is disconnected, write() must fail.  But the
+result was different: write() succeeded for a while even though messages of
+the kernel notified SCSI I/O error.
 
-A similar patch for ALSA will follow soon.
+	By applying following modifications, the above problem was solved.
+Please consider applying this patch to the mainline kernels.
 
-Changes:-
 
- o Added AC97_DEFAULT_POWER_OFF to ac97_codec_ids[]
- o ac97_probe now checks hardwired codec ID's before sending a reset
- o Added support for WM9713
- o Moved the codec specific inits after the mixer setup as some init
-settings were being clobbered.
- o Added extra check so that default_digital_ops doesn't overwrite a
-valid codec_ops. (SPDIF)
+Signed-off-by: Hisashi Hifumi  <hifumi.hisashi@lab.ntt.co.jp>
 
-Signed-off-by: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
 
-Liam
+diff -Nru linux-2.6.10-bk6/fs/buffer.c linux-2.6.10-bk6_fix/fs/buffer.c
+--- linux-2.6.10-bk6/fs/buffer.c	2004-12-25 06:34:58.000000000 +0900
++++ linux-2.6.10-bk6_fix/fs/buffer.c	2005-01-04 19:58:48.000000000 +0900
+@@ -311,10 +311,10 @@
+  {
+  	struct inode * inode = dentry->d_inode;
+  	struct super_block * sb;
+-	int ret;
++	int ret, err;
 
---=-KSJQiI3J/nNRK+nWyhZY
-Content-Disposition: attachment; filename=ac97_codec.diff
-Content-Type: text/x-patch; name=ac97_codec.diff; charset=
-Content-Transfer-Encoding: 7bit
+  	/* sync the inode to buffers */
+-	write_inode_now(inode, 0);
++	ret = write_inode_now(inode, 0);
 
---- a/sound/oss/ac97_codec.c	2004-12-24 21:34:00.000000000 +0000
-+++ b/sound/oss/ac97_codec.c	2004-12-08 17:08:42.000000000 +0000
-@@ -30,6 +30,9 @@
-  **************************************************************************
-  *
-  * History
-+ * Feb 25, 2004 Liam Girdwood
-+ *  Added support for codecs that require a warm reset to power up.
-+ *  Support for WM9713
-  * May 02, 2003 Liam Girdwood <liam.girdwood@wolfsonmicro.com>
-  *	Removed non existant WM9700
-  *	Added support for WM9705, WM9708, WM9709, WM9710, WM9711
-@@ -70,6 +73,7 @@
- static int wolfson_init04(struct ac97_codec * codec);
- static int wolfson_init05(struct ac97_codec * codec);
- static int wolfson_init11(struct ac97_codec * codec);
-+static int wolfson_init13(struct ac97_codec * codec);
- static int tritech_init(struct ac97_codec * codec);
- static int tritech_maestro_init(struct ac97_codec * codec);
- static int sigmatel_9708_init(struct ac97_codec *codec);
-@@ -106,6 +110,7 @@
- static struct ac97_ops wolfson_ops04 = { wolfson_init04, NULL, NULL };
- static struct ac97_ops wolfson_ops05 = { wolfson_init05, NULL, NULL };
- static struct ac97_ops wolfson_ops11 = { wolfson_init11, NULL, NULL };
-+static struct ac97_ops wolfson_ops13 = { wolfson_init13, NULL, NULL };
- static struct ac97_ops tritech_ops = { tritech_init, NULL, NULL };
- static struct ac97_ops tritech_m_ops = { tritech_maestro_init, NULL, NULL };
- static struct ac97_ops sigmatel_9708_ops = { sigmatel_9708_init, NULL, NULL };
-@@ -167,6 +172,7 @@
- 	{0x574D4C05, "Wolfson WM9705/WM9710",   &wolfson_ops05},
- 	{0x574D4C09, "Wolfson WM9709",		&null_ops},
- 	{0x574D4C12, "Wolfson WM9711/9712",	&wolfson_ops11},
-+	{0x574D4C13, "Wolfson WM9713",	&wolfson_ops13, AC97_DEFAULT_POWER_OFF},
- 	{0x83847600, "SigmaTel STAC????",	&null_ops},
- 	{0x83847604, "SigmaTel STAC9701/3/4/5", &null_ops},
- 	{0x83847605, "SigmaTel STAC9704",	&null_ops},
-@@ -793,6 +799,9 @@
-  *	Currently codec_wait is used to wait for AC97 codec
-  *	reset to complete. 
-  *
-+ *  Some codecs will power down when a register reset is
-+ *  performed. We now check for such codecs.
-+ *
-  *	Returns 1 (true) on success, or 0 (false) on failure.
-  */
-  
-@@ -806,34 +815,17 @@
- 	struct list_head *l;
- 	struct ac97_driver *d;
- 	
--	/* probing AC97 codec, AC97 2.0 says that bit 15 of register 0x00 (reset) should 
--	 * be read zero.
--	 *
--	 * FIXME: is the following comment outdated?  -jgarzik 
--	 * Probing of AC97 in this way is not reliable, it is not even SAFE !!
--	 */
--	codec->codec_write(codec, AC97_RESET, 0L);
--
--	/* also according to spec, we wait for codec-ready state */	
-+	/* wait for codec-ready state */	
- 	if (codec->codec_wait)
- 		codec->codec_wait(codec);
- 	else
- 		udelay(10);
--
--	if ((audio = codec->codec_read(codec, AC97_RESET)) & 0x8000) {
--		printk(KERN_ERR "ac97_codec: %s ac97 codec not present\n",
--		       (codec->id & 0x2) ? (codec->id&1 ? "4th" : "Tertiary") 
--		       : (codec->id&1 ? "Secondary":  "Primary"));
--		return 0;
--	}
--
--	/* probe for Modem Codec */
--	codec->modem = ac97_check_modem(codec);
--	codec->name = NULL;
--	codec->codec_ops = &default_ops;
--
-+	
-+	/* will the codec power down if register reset ? */
- 	id1 = codec->codec_read(codec, AC97_VENDOR_ID1);
- 	id2 = codec->codec_read(codec, AC97_VENDOR_ID2);
-+	codec->name = NULL;
-+	codec->codec_ops = &null_ops;
- 	for (i = 0; i < ARRAY_SIZE(ac97_codec_ids); i++) {
- 		if (ac97_codec_ids[i].id == ((id1 << 16) | id2)) {
- 			codec->type = ac97_codec_ids[i].id;
-@@ -845,9 +837,34 @@
- 	}
- 
- 	codec->model = (id1 << 16) | id2;
-+	if ((codec->flags & AC97_DEFAULT_POWER_OFF) == 0) {
-+		/* reset codec and wait for the ready bit before we continue */
-+		codec->codec_write(codec, AC97_RESET, 0L);
-+		if (codec->codec_wait)
-+			codec->codec_wait(codec);
-+		else
-+			udelay(10);
+  	/* sync the superblock to buffers */
+  	sb = inode->i_sb;
+@@ -324,7 +324,9 @@
+  	unlock_super(sb);
+
+  	/* .. finally sync the buffers to disk */
+-	ret = sync_blockdev(sb->s_bdev);
++	err = sync_blockdev(sb->s_bdev);
++	if (!ret)
++		ret = err;
+  	return ret;
+  }
+
+diff -Nru linux-2.6.10-bk6/fs/fs-writeback.c 
+linux-2.6.10-bk6_fix/fs/fs-writeback.c
+--- linux-2.6.10-bk6/fs/fs-writeback.c	2004-12-25 06:35:49.000000000 +0900
++++ linux-2.6.10-bk6_fix/fs/fs-writeback.c	2005-01-04 19:58:48.000000000 +0900
+@@ -557,8 +557,9 @@
+   *	dirty. This is primarily needed by knfsd.
+   */
+
+-void write_inode_now(struct inode *inode, int sync)
++int write_inode_now(struct inode *inode, int sync)
+  {
++	int err = 0;
+  	struct writeback_control wbc = {
+  		.nr_to_write = LONG_MAX,
+  		.sync_mode = WB_SYNC_ALL,
+@@ -569,10 +570,11 @@
+
+  	might_sleep();
+  	spin_lock(&inode_lock);
+-	__writeback_single_inode(inode, &wbc);
++	err = __writeback_single_inode(inode, &wbc);
+  	spin_unlock(&inode_lock);
+  	if (sync)
+  		wait_on_inode(inode);
++	return err;
+  }
+  EXPORT_SYMBOL(write_inode_now);
+
+@@ -641,8 +643,11 @@
+  		need_write_inode_now = 1;
+  	spin_unlock(&inode_lock);
+
+-	if (need_write_inode_now)
+-		write_inode_now(inode, 1);
++	if (need_write_inode_now) {
++		err2 = write_inode_now(inode, 1);
++		if (!err)
++			err = err2;
 +	}
- 	
-+	/* probing AC97 codec, AC97 2.0 says that bit 15 of register 0x00 (reset) should 
-+	 * be read zero.
-+	 *
-+	 * FIXME: is the following comment outdated?  -jgarzik 
-+	 * Probing of AC97 in this way is not reliable, it is not even SAFE !!
+  	else
+  		wait_on_inode(inode);
+
+diff -Nru linux-2.6.10-bk6/fs/inode.c linux-2.6.10-bk6_fix/fs/inode.c
+--- linux-2.6.10-bk6/fs/inode.c	2004-12-25 06:35:40.000000000 +0900
++++ linux-2.6.10-bk6_fix/fs/inode.c	2005-01-04 19:58:48.000000000 +0900
+@@ -1035,7 +1035,7 @@
+  		spin_unlock(&inode_lock);
+  		if (!sb || (sb->s_flags & MS_ACTIVE))
+  			return;
+-		write_inode_now(inode, 1);
++		(void) write_inode_now(inode, 1);
+  		spin_lock(&inode_lock);
+  		inodes_stat.nr_unused--;
+  		hlist_del_init(&inode->i_hash);
+diff -Nru linux-2.6.10-bk6/fs/jbd/commit.c linux-2.6.10-bk6_fix/fs/jbd/commit.c
+--- linux-2.6.10-bk6/fs/jbd/commit.c	2004-12-25 06:35:27.000000000 +0900
++++ linux-2.6.10-bk6_fix/fs/jbd/commit.c	2005-01-04 19:58:48.000000000 +0900
+@@ -341,6 +341,9 @@
+  	}
+  	spin_unlock(&journal->j_list_lock);
+
++	if (err)
++		__journal_abort_hard(journal);
++
+  	journal_write_revoke_records(journal, commit_transaction);
+
+  	jbd_debug(3, "JBD: commit phase 2\n");
+diff -Nru linux-2.6.10-bk6/include/linux/fs.h 
+linux-2.6.10-bk6_fix/include/linux/fs.h
+--- linux-2.6.10-bk6/include/linux/fs.h	2004-12-25 06:34:27.000000000 +0900
++++ linux-2.6.10-bk6_fix/include/linux/fs.h	2005-01-04 19:58:48.000000000 +0900
+@@ -1341,7 +1341,7 @@
+  		invalidate_inode_pages(inode->i_mapping);
+  }
+  extern void invalidate_inode_pages2(struct address_space *mapping);
+-extern void write_inode_now(struct inode *, int);
++extern int write_inode_now(struct inode *, int);
+  extern int filemap_fdatawrite(struct address_space *);
+  extern int filemap_flush(struct address_space *);
+  extern int filemap_fdatawait(struct address_space *);
+
+
+
+
+
+
+diff -Nru linux-2.4.29-pre3-bk2/fs/ext3/fsync.c 
+linux-2.4.29-pre3-bk2_fix/fs/ext3/fsync.c
+--- linux-2.4.29-pre3-bk2/fs/ext3/fsync.c	2002-11-29 08:53:15.000000000 +0900
++++ linux-2.4.29-pre3-bk2_fix/fs/ext3/fsync.c	2005-01-04 19:58:32.000000000 +0900
+@@ -69,7 +69,7 @@
+  	if (test_opt(inode->i_sb, DATA_FLAGS) == EXT3_MOUNT_WRITEBACK_DATA)
+  		ret |= fsync_inode_data_buffers(inode);
+
+-	ext3_force_commit(inode->i_sb);
++	ret |= ext3_force_commit(inode->i_sb);
+
+  	return ret;
+  }
+diff -Nru linux-2.4.29-pre3-bk2/fs/ext3/super.c 
+linux-2.4.29-pre3-bk2_fix/fs/ext3/super.c
+--- linux-2.4.29-pre3-bk2/fs/ext3/super.c	2004-11-17 20:54:21.000000000 +0900
++++ linux-2.4.29-pre3-bk2_fix/fs/ext3/super.c	2005-01-04 19:58:32.000000000 +0900
+@@ -1608,12 +1608,13 @@
+
+  static int ext3_sync_fs(struct super_block *sb)
+  {
++	int err;
+  	tid_t target;
+
+  	sb->s_dirt = 0;
+  	target = log_start_commit(EXT3_SB(sb)->s_journal, NULL);
+-	log_wait_commit(EXT3_SB(sb)->s_journal, target);
+-	return 0;
++	err = log_wait_commit(EXT3_SB(sb)->s_journal, target);
++	return err;
+  }
+
+  /*
+diff -Nru linux-2.4.29-pre3-bk2/fs/jbd/checkpoint.c 
+linux-2.4.29-pre3-bk2_fix/fs/jbd/checkpoint.c
+--- linux-2.4.29-pre3-bk2/fs/jbd/checkpoint.c	2002-11-29 08:53:15.000000000 +0900
++++ linux-2.4.29-pre3-bk2_fix/fs/jbd/checkpoint.c	2005-01-04 
+19:58:32.000000000 +0900
+@@ -142,7 +142,7 @@
+  			spin_unlock(&journal_datalist_lock);
+  			log_start_commit(journal, transaction);
+  			unlock_journal(journal);
+-			log_wait_commit(journal, tid);
++			(void) log_wait_commit(journal, tid);
+  			goto out_return_1;
+  		}
+
+diff -Nru linux-2.4.29-pre3-bk2/fs/jbd/commit.c 
+linux-2.4.29-pre3-bk2_fix/fs/jbd/commit.c
+--- linux-2.4.29-pre3-bk2/fs/jbd/commit.c	2004-02-18 22:36:31.000000000 +0900
++++ linux-2.4.29-pre3-bk2_fix/fs/jbd/commit.c	2005-01-04 19:58:32.000000000 +0900
+@@ -92,7 +92,7 @@
+  	struct buffer_head *wbuf[64];
+  	int bufs;
+  	int flags;
+-	int err;
++	int err = 0;
+  	unsigned long blocknr;
+  	char *tagp = NULL;
+  	journal_header_t *header;
+@@ -299,6 +299,8 @@
+  			spin_unlock(&journal_datalist_lock);
+  			unlock_journal(journal);
+  			wait_on_buffer(bh);
++			if (unlikely(!buffer_uptodate(bh)))
++				err = -EIO;
+  			/* the journal_head may have been removed now */
+  			lock_journal(journal);
+  			goto write_out_data;
+@@ -326,6 +328,8 @@
+  			spin_unlock(&journal_datalist_lock);
+  			unlock_journal(journal);
+  			wait_on_buffer(bh);
++			if (unlikely(!buffer_uptodate(bh)))
++				err = -EIO;
+  			lock_journal(journal);
+  			spin_lock(&journal_datalist_lock);
+  			continue;	/* List may have changed */
+@@ -351,6 +355,9 @@
+  	}
+  	spin_unlock(&journal_datalist_lock);
+
++	if (err)
++		__journal_abort_hard(journal);
++
+  	/*
+  	 * If we found any dirty or locked buffers, then we should have
+  	 * looped back up to the write_out_data label.  If there weren't
+@@ -541,6 +548,8 @@
+  		if (buffer_locked(bh)) {
+  			unlock_journal(journal);
+  			wait_on_buffer(bh);
++			if (unlikely(!buffer_uptodate(bh)))
++				err = -EIO;
+  			lock_journal(journal);
+  			goto wait_for_iobuf;
+  		}
+@@ -602,6 +611,8 @@
+  		if (buffer_locked(bh)) {
+  			unlock_journal(journal);
+  			wait_on_buffer(bh);
++			if (unlikely(!buffer_uptodate(bh)))
++				err = -EIO;
+  			lock_journal(journal);
+  			goto wait_for_ctlbuf;
+  		}
+@@ -650,6 +661,8 @@
+  		bh->b_end_io = journal_end_buffer_io_sync;
+  		submit_bh(WRITE, bh);
+  		wait_on_buffer(bh);
++		if (unlikely(!buffer_uptodate(bh)))
++			err = -EIO;
+  		put_bh(bh);		/* One for getblk() */
+  		journal_unlock_journal_head(descriptor);
+  	}
+@@ -661,6 +674,9 @@
+
+  skip_commit: /* The journal should be unlocked by now. */
+
++	if (err)
++		__journal_abort_hard(journal);
++
+  	/* Call any callbacks that had been registered for handles in this
+  	 * transaction.  It is up to the callback to free any allocated
+  	 * memory.
+diff -Nru linux-2.4.29-pre3-bk2/fs/jbd/journal.c 
+linux-2.4.29-pre3-bk2_fix/fs/jbd/journal.c
+--- linux-2.4.29-pre3-bk2/fs/jbd/journal.c	2004-11-17 20:54:21.000000000 +0900
++++ linux-2.4.29-pre3-bk2_fix/fs/jbd/journal.c	2005-01-04 
+19:58:32.000000000 +0900
+@@ -582,8 +582,10 @@
+   * Wait for a specified commit to complete.
+   * The caller may not hold the journal lock.
+   */
+-void log_wait_commit (journal_t *journal, tid_t tid)
++int log_wait_commit (journal_t *journal, tid_t tid)
+  {
++	int err = 0;
++
+  	lock_kernel();
+  #ifdef CONFIG_JBD_DEBUG
+  	lock_journal(journal);
+@@ -600,6 +602,12 @@
+  		sleep_on(&journal->j_wait_done_commit);
+  	}
+  	unlock_kernel();
++
++	if (unlikely(is_journal_aborted(journal))) {
++		printk(KERN_EMERG "journal commit I/O error\n");
++		err = -EIO;
++	}
++	return err;
+  }
+
+  /*
+@@ -1326,7 +1334,7 @@
+
+  	/* Wait for the log commit to complete... */
+  	if (transaction)
+-		log_wait_commit(journal, transaction->t_tid);
++		err = log_wait_commit(journal, transaction->t_tid);
+
+  	/* ...and flush everything in the log out to disk. */
+  	lock_journal(journal);
+diff -Nru linux-2.4.29-pre3-bk2/fs/jbd/transaction.c 
+linux-2.4.29-pre3-bk2_fix/fs/jbd/transaction.c
+--- linux-2.4.29-pre3-bk2/fs/jbd/transaction.c	2004-08-08 
+08:26:05.000000000 +0900
++++ linux-2.4.29-pre3-bk2_fix/fs/jbd/transaction.c	2005-01-04 
+19:58:32.000000000 +0900
+@@ -1484,7 +1484,7 @@
+  		 * to wait for the commit to complete.
+  		 */
+  		if (handle->h_sync && !(current->flags & PF_MEMALLOC))
+-			log_wait_commit(journal, tid);
++			err = log_wait_commit(journal, tid);
+  	}
+  	kfree(handle);
+  	return err;
+@@ -1509,7 +1509,7 @@
+  		goto out;
+  	}
+  	handle->h_sync = 1;
+-	journal_stop(handle);
++	ret = journal_stop(handle);
+  out:
+  	unlock_kernel();
+  	return ret;
+diff -Nru linux-2.4.29-pre3-bk2/include/linux/jbd.h 
+linux-2.4.29-pre3-bk2_fix/include/linux/jbd.h
+--- linux-2.4.29-pre3-bk2/include/linux/jbd.h	2004-11-17 20:54:22.000000000 +0900
++++ linux-2.4.29-pre3-bk2_fix/include/linux/jbd.h	2005-01-04 
+19:58:32.000000000 +0900
+@@ -848,7 +848,7 @@
+
+  extern int	log_space_left (journal_t *); /* Called with journal locked */
+  extern tid_t	log_start_commit (journal_t *, transaction_t *);
+-extern void	log_wait_commit (journal_t *, tid_t);
++extern int	log_wait_commit (journal_t *, tid_t);
+  extern int	log_do_checkpoint (journal_t *, int);
+
+  extern void	log_wait_for_space(journal_t *, int nblocks);
+diff -Nru linux-2.4.29-pre3-bk2/mm/filemap.c 
+linux-2.4.29-pre3-bk2_fix/mm/filemap.c
+--- linux-2.4.29-pre3-bk2/mm/filemap.c	2004-11-17 20:54:22.000000000 +0900
++++ linux-2.4.29-pre3-bk2_fix/mm/filemap.c	2005-01-04 19:58:32.000000000 +0900
+@@ -3268,7 +3268,12 @@
+  			status = generic_osync_inode(inode, OSYNC_METADATA|OSYNC_DATA);
+  	}
+
+-	err = written ? written : status;
++	/*
++	 * generic_osync_inode always returns 0 or negative value.
++	 * So 'status < written' is always true, and written should
++	 * be returned if status >= 0.
 +	 */
-+	if ((audio = codec->codec_read(codec, AC97_RESET)) & 0x8000) {
-+		printk(KERN_ERR "ac97_codec: %s ac97 codec not present\n",
-+		       (codec->id & 0x2) ? (codec->id&1 ? "4th" : "Tertiary") 
-+		       : (codec->id&1 ? "Secondary":  "Primary"));
-+		return 0;
-+	}
-+	
-+	/* probe for Modem Codec */
-+	codec->modem = ac97_check_modem(codec);
-+	
-+	/* enable SPDIF */
- 	f = codec->codec_read(codec, AC97_EXTENDED_STATUS);
--	if(f & 4)
-+	if((codec->codec_ops == &null_ops) && (f & 4))
- 		codec->codec_ops = &default_digital_ops;
- 	
- 	/* A device which thinks its a modem but isnt */
-@@ -916,11 +933,6 @@
- 	codec->recmask_io = ac97_recmask_io;
- 	codec->mixer_ioctl = ac97_mixer_ioctl;
- 
--	/* codec specific initialization for 4-6 channel output or secondary codec stuff */
--	if (codec->codec_ops->init != NULL) {
--		codec->codec_ops->init(codec);
--	}
--
- 	/* initialize mixer channel volumes */
- 	for (i = 0; i < SOUND_MIXER_NRDEVICES; i++) {
- 		struct mixer_defaults *md = &mixer_defaults[i];
-@@ -930,6 +942,11 @@
- 			continue;
- 		ac97_set_mixer(codec, md->mixer, md->value);
- 	}
-+	
-+	/* codec specific initialization for 4-6 channel output or secondary codec stuff */
-+	if (codec->codec_ops->init != NULL) {
-+		codec->codec_ops->init(codec);
-+	}
- 
- 	/*
- 	 *	Volume is MUTE only on this device. We have to initialise
-@@ -1086,6 +1103,19 @@
- 	return 0;
- }
- 
-+/* WM9713 */
-+static int wolfson_init13(struct ac97_codec * codec)
-+{
-+	codec->codec_write(codec, AC97_RECORD_GAIN, 0x00a0);	
-+	codec->codec_write(codec, AC97_POWER_CONTROL, 0x0000);
-+	codec->codec_write(codec, AC97_EXTENDED_MODEM_ID, 0xDA00);
-+	codec->codec_write(codec, AC97_EXTEND_MODEM_STAT, 0x3810);
-+	codec->codec_write(codec, AC97_PHONE_VOL, 0x0808);
-+	codec->codec_write(codec, AC97_PCBEEP_VOL, 0x0808);
-+
-+	return 0;
-+}
-+
- static int tritech_init(struct ac97_codec * codec)
- {
- 	codec->codec_write(codec, 0x26, 0x0300);
---- a/include/linux/ac97_codec.h	2004-12-24 21:33:50.000000000 +0000
-+++ b/include/linux/ac97_codec.h	2004-12-08 13:28:42.000000000 +0000
-@@ -290,6 +290,7 @@
- 	
- #define AC97_DELUDED_MODEM	1	/* Audio codec reports its a modem */
- #define AC97_NO_PCM_VOLUME	2	/* Volume control is missing 	   */
-+#define AC97_DEFAULT_POWER_OFF 4 	/* Needs warm reset to power up */
- };
- 
- extern int ac97_read_proc (char *page_out, char **start, off_t off,
++	err = (status < 0) ? status : written;
+  out:
 
---=-KSJQiI3J/nNRK+nWyhZY--
+  	return err;
+
+
+
+
+
+  Thanks,
+
+
+----
+Hisashi Hifumi  <hifumi.hisashi@lab.ntt.co.jp>
+NTT Cyber Space Laboratories 
 

@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270090AbRHGF6R>; Tue, 7 Aug 2001 01:58:17 -0400
+	id <S270096AbRHGGMr>; Tue, 7 Aug 2001 02:12:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270091AbRHGF6G>; Tue, 7 Aug 2001 01:58:06 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:22033 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S270090AbRHGF5x>; Tue, 7 Aug 2001 01:57:53 -0400
-From: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
-Message-Id: <200108062346.BAA09011@kufel.dom>
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-To: kufel!MemAlpha.CX!rhw@green.mif.pg.gda.pl (Riley Williams)
-Date: Tue, 7 Aug 2001 01:46:25 +0200 (CEST)
-Cc: kufel!alumni.brown.edu!Thomas.Duffy.99@green.mif.pg.gda.pl (Thomas
-	Duffy),
-        kufel!vger.kernel.org!linux-kernel@green.mif.pg.gda.pl (Linux Kernel)
-In-Reply-To: <Pine.LNX.4.33.0108062304060.2845-200000@infradead.org> from "Riley Williams" at sie 06, 2001 11:56:07 
-X-Mailer: ELM [version 2.5 PL3]
+	id <S270097AbRHGGMg>; Tue, 7 Aug 2001 02:12:36 -0400
+Received: from dnscache.cbr.au.asiaonline.net ([210.215.8.100]:52431 "EHLO
+	dnscache.cbr.au.asiaonline.net") by vger.kernel.org with ESMTP
+	id <S270096AbRHGGMb>; Tue, 7 Aug 2001 02:12:31 -0400
+Message-ID: <3B6F86BA.14D449F4@acm.org>
+Date: Tue, 07 Aug 2001 16:12:10 +1000
+From: Gareth Hughes <gareth.hughes@acm.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: DRI-Devel <dri-devel@lists.sourceforge.net>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: DRM Linux kernel merge (update) needed, soon.
+In-Reply-To: <20010807014029Z270029-28344+2126@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  >> One of my systems has SIX ethernet cards, these being three ISA
->  >> and two PCI NE2000 clones and a DEC Tulip. Here's the relevant
->  >> section of modules.conf on the system in question:
+Dieter Nützel wrote:
 > 
->  >>  Q> alias eth0 ne
->  >>  Q> options eth0 io=0x340
->  >>  Q> alias eth1 ne
->  >>  Q> options eth1 io=0x320
->  >>  Q> alias eth2 ne
->  >>  Q> options eth2 io=0x2c0
->  >>  Q> alias eth3 ne2k-pci
->  >>  Q> alias eth4 ne2k-pci
->  >>  Q> alias eth5 tulip
-> 
-> 
-> However, if the cards are controlled by different drivers, you can
-> influence the order they are detected in by your choice of entries in
-> modules.conf - in the example above, the ISA cards are always eth0,
-                                                         ^^^^^^
-> eth1 and eth2, the NE2k-pci cards are always eth3 and eth4, and the
-> tulip card is always eth5, simply because that's what the said file
-> says.
+> the Linux kernel DRM stuff need a merge (update), soon.
+> Even the (latest) 2.4.7-ac (3-8) stuff has some cleanups but didn't work with
+> the tdfx DRI CVS trunk driver for example.
+> I have to build the DRI CVS tdfx.o kernel module to get it working, again.
+> If I read it right the kernel stuff include some needed fixes...
 
-Not always. You are wrong here, I'm afraid:
+Agreed.
 
-Lets assume that eth0-eth3 are not initialized at boot time and your init
-scripts attempt to initialize eth4 ...
+After being let go from VA, I've had to return all the graphics cards
+and machines they loaned me, and as my own supply of cards (and indeed
+all of my computer gear) is in storage somewhere in the US there isn't
+much I can do about fixing this.  You'll have to pester the guys at VA,
+most likely Jeff Hartmann.
 
-To avoid such problems one probably should add a lot of pre-install parameters
-in modules.conf.
+Jeff?
 
-Andrzej
-
+-- Gareth

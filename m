@@ -1,89 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313451AbSDLI3Z>; Fri, 12 Apr 2002 04:29:25 -0400
+	id <S313453AbSDLIaS>; Fri, 12 Apr 2002 04:30:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313452AbSDLI3Y>; Fri, 12 Apr 2002 04:29:24 -0400
-Received: from mail.ekh.no ([213.184.194.22]:50449 "EHLO romeo.skybert.no")
-	by vger.kernel.org with ESMTP id <S313451AbSDLI3Y>;
-	Fri, 12 Apr 2002 04:29:24 -0400
-Date: Fri, 12 Apr 2002 10:29:05 +0200 (CEST)
-From: =?iso-8859-1?Q?Erik_Inge_Bols=F8?= <erik@tms.no>
-To: Urban Widmark <urban@teststation.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.20 umount oops (probably smbfs related)
-In-Reply-To: <Pine.LNX.4.33.0204112117400.21322-100000@cola.teststation.com>
-Message-ID: <Pine.LNX.4.30.0204121003210.25377-100000@romeo.skybert.no>
+	id <S313461AbSDLIaR>; Fri, 12 Apr 2002 04:30:17 -0400
+Received: from exchsmtp.via.com.tw ([61.13.36.4]:46597 "EHLO
+	exchsmtp.via.com.tw") by vger.kernel.org with ESMTP
+	id <S313453AbSDLIaM>; Fri, 12 Apr 2002 04:30:12 -0400
+Message-ID: <369B0912E1F5D511ACA5003048222B75A3C040@exchtp02.via.com.tw>
+From: Shing Chuang <ShingChuang@via.com.tw>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4.19-pre6] via-rhine.c to support new VIA's nic chip VT6
+	105, V6105M (correct).
+Date: Fri, 12 Apr 2002 16:30:53 +0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-AntiVirus: scanned for viruses by AMaViS 0.2.0-pre6-clm-rl-8 (http://amavis.org/)
-X-AntiVirus: scanned for viruses by AMaViS 0.2.0-pre6-clm-rl-8 (http://amavis.org/)
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="BIG5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Apr 2002, Urban Widmark wrote:
-> On Tue, 9 Apr 2002, Erik Inge Bolsø wrote:
-> > >>EIP: c0126389 <fput+5/48>
-> > Trace: c012914e <do_umount+ee/144>
-> > Trace: c01291f8 <umount_dev+54/9c>
-> > Trace: c01292ed <sys_umount+ad/bc>
-> > Trace: c0129308 <sys_oldumount+c/10>
-> > Trace: c0109144 <system_call+34/38>
-> > Code:  c0126389 <fput+5/48>                    00000000 <_EIP>: <===
-> > Code:  c0126389 <fput+5/48>                       0:	8b 43 1c             	movl   0x1c(%ebx),%eax <===
->
-> Your trace doesn't include any smb_ references, but I suppose the cd8ef644
-> ones might be. I don't see where do_umount calls fput so ...
+Hi,
 
-Right. Seems that the somewhat ancient ksymoops (0.6e) didn't pick up the
-smbfs module's symbols. Will update.
+      (Please ignore the previous post patch,  the correct DEVICE ID for
+VT6105 is 0x3106, and VT6105M chip is 0x3053)
 
-> This is usually bad and you may want to investigate why it died/upgrade
-> your samba version regardless of the patch below. Recent smbmounts can log
-> to file and with a suitable debuglevel you may find out what happened
-> (debug=4 or so).
+      This patch applied to linux kernel 2.4.19-per6 to support VIA's new
+NIC chip.
+      However, VIA don't have any nic chip with pci device id 0x6100 so far,
+so this patch also remove the device ID 0x6100.
 
-Thanks for the tip. Upgrading the 2.0.6 to 2.0.10 ASAP.
-
-> > smb_lookup: find //email.txt failed, error=-5
-> > smb_get_length: recv error = 512
-> > smb_request: result -512, setting invalid
-> > smb_dont_catch_keepalive: did not get valid server!
->
-> smbfs unmount code "put_super" does:
-> 	if (server->sock_file) {
-> 		smb_proc_disconnect(server);
-> 		smb_dont_catch_keepalive(server);
-> 		fput(server->sock_file);
-> 	}
-
-<snip good explanation>
-
-Aha! I traced it as far as these lines myself yesterday, but couldn't
-figure out what nulled sock_file, and why. Thanks!
-
-> If that is what happened the patch below should help. It simply changes
-> smbfs not to try and send a disconnect message if it isn't connected.
-> Which makes sense anyway, no need to connect just to say goodbye. Even if
-> that may the polite thing to do :)
-
-Thanks, will try the patch as soon as I find time to rebuild. Looks sane
-:)
-
-> > Note that the smb share in question is mounted, alive and well as of this
-> > moment, I can read files on it just fine - it's just the umount of it that
-> > oopsed.
->
-> Sounds strange. Could that be some automounter that mounted another one
-> for you?
-
-Could be, I suppose. No automounter running, but the script that oopsed is
-run once an hour and does an umount/mount to deal with the windows server
-being rebooted - we want the share to stay mounted, no matter if we reboot
-the old NT4 box. (If we reboot it and don't do this, we get I/O errors on
-accessing the mount point.)
+       
+--- linux/drivers/net/via-rhine.c.orig	Fri Apr 12 15:36:38 2002
++++ linux/drivers/net/via-rhine.c	Fri Apr 12 15:39:04 2002
+@@ -317,7 +317,8 @@
+ enum via_rhine_chips {
+ 	VT86C100A = 0,
+ 	VT6102,
+-	VT3043,
++	VT6105,
++	VT6105M,
+ };
+ 
+ struct via_rhine_chip_info {
+@@ -345,7 +346,9 @@
+ 	  CanHaveMII | ReqTxAlign },
+ 	{ "VIA VT6102 Rhine-II", RHINE_IOTYPE, 256,
+ 	  CanHaveMII | HasWOL },
+-	{ "VIA VT3043 Rhine",    RHINE_IOTYPE, 128,
++	{ "VIA VT6105 Rhine-III",    RHINE_IOTYPE, 256,
++	  CanHaveMII | ReqTxAlign },
++	{ "VIA VT6105M Rhine-III",    RHINE_IOTYPE, 256,
+ 	  CanHaveMII | ReqTxAlign }
+ };
+ 
+@@ -353,7 +356,8 @@
+ {
+ 	{0x1106, 0x6100, PCI_ANY_ID, PCI_ANY_ID, 0, 0, VT86C100A},
+ 	{0x1106, 0x3065, PCI_ANY_ID, PCI_ANY_ID, 0, 0, VT6102},
+-	{0x1106, 0x3043, PCI_ANY_ID, PCI_ANY_ID, 0, 0, VT3043},
++	{0x1106, 0x3106, PCI_ANY_ID, PCI_ANY_ID, 0, 0, VT6105},
++	{0x1106, 0x3053, PCI_ANY_ID, PCI_ANY_ID, 0, 0, VT6105M},
+ 	{0,}			/* terminate list */
+ };
+ MODULE_DEVICE_TABLE(pci, via_rhine_pci_tbl);
+@@ -510,7 +514,7 @@
+ 	int i;
+ 
+ 	/* 3043 may need long delay after reset (dlink) */
+-	if (chip_id == VT3043 || chip_id == VT86C100A)
++	if (chip_id == VT86C100A)
+ 		udelay(100);
+ 
+ 	i = 0;
+@@ -531,7 +535,7 @@
+ static void __devinit enable_mmio(long ioaddr, int chip_id)
+ {
+ 	int n;
+-	if (chip_id == VT3043 || chip_id == VT86C100A) {
++	if (chip_id == VT86C100A) {
+ 		/* More recent docs say that this bit is reserved ... */
+ 		n = inb(ioaddr + ConfigA) | 0x20;
+ 		outb(n, ioaddr + ConfigA);
 
 -- 
-Erik I. Bolsø, Triangel Maritech Software AS | Skybert AS
-Tlf: 712 41 694		Mobil: 915 79 512
+Chuang Liang-Shing
+VIA Technologies, Inc.
++886-2-22185452 Ext. 7523
+E-Mail: ShingChuang@via.com.tw
+
 

@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269381AbUINPB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269392AbUINPB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269381AbUINPB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 11:01:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269021AbUINO6X
+	id S269392AbUINPB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 11:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269378AbUINO7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 10:58:23 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:47237 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269029AbUINOxc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 10:53:32 -0400
-Date: Tue, 14 Sep 2004 16:54:57 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
-Message-ID: <20040914145457.GA13113@elte.hu>
-References: <20040914104449.GA30790@elte.hu> <20040914105048.GA31238@elte.hu> <20040914105904.GB31370@elte.hu> <20040914110237.GC31370@elte.hu> <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu> <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4146F33C.9030504@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 14 Sep 2004 10:59:50 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:58248 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S269381AbUINO42
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 10:56:28 -0400
+Date: Tue, 14 Sep 2004 15:55:06 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Ville Hallivuori <vph@iki.fi>
+cc: Toon van der Pas <toon@hout.vanvergehaald.nl>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Wolfpaw - Dale Corse <admin@wolfpaw.net>, kaukasoi@elektroni.ee.tut.fi,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local and REMOTE(verified) Denial
+ of Service Attack
+In-Reply-To: <20040913201113.GA5453@vph.iki.fi>
+Message-ID: <Pine.LNX.4.61.0409141553260.23011@fogarty.jakma.org>
+References: <002301c498ee$1e81d4c0$0200a8c0@wolf> <1095008692.11736.11.camel@localhost.localdomain>
+ <20040912192331.GB8436@hout.vanvergehaald.nl> <Pine.LNX.4.61.0409130413460.23011@fogarty.jakma.org>
+ <Pine.LNX.4.61.0409130425440.23011@fogarty.jakma.org> <20040913201113.GA5453@vph.iki.fi>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 13 Sep 2004, Ville Hallivuori wrote:
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> Actually you can treat TCP session failure as transient error. Just 
+> use BGP graceful restart (witch basically allows re-opening TCP 
+> connection without losing routing tables).
+>
+> http://www.ietf.org/internet-drafts/draft-ietf-idr-restart-10.txt
 
-> Another thing, I don't mean this to sound like a rhetorical question,
-> but if we have a preemptible kernel, why is it a good idea to sprinkle
-      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> cond_rescheds everywhere? Isn't this now the worst of both worlds? Why
-> would someone who really cares about latency not enable preempt?
+Hmm, yes, I hadnt thought of the attack-mitigating aspects of 
+graceful restart. Though, without other measures, the session is 
+still is open to abuse (send RST every second).
 
-two things:
-
-1) none of the big distros enables CONFIG_PREEMPT in their kernels - not
-even SuSE. This is pretty telling.
-
-2) 10 new cond_resched()'s are not precisely 'sprinkle everywhere'.
-
-	Ingo
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+Wit, n.:
+ 	The salt with which the American Humorist spoils his cookery
+ 	... by leaving it out.
+ 		-- Ambrose Bierce, "The Devil's Dictionary"

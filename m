@@ -1,79 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264444AbUGGM7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265139AbUGGM6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264444AbUGGM7U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 08:59:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265104AbUGGM7T
+	id S265139AbUGGM6m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 08:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265104AbUGGM6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 08:59:19 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:40108 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264444AbUGGM4J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 08:56:09 -0400
-Message-Id: <200407071256.i67CtKka016114@zeus.kernel.org>
-From: David Zhao <davidz@126.com>
-To: linux-kernel@vger.kernel.org
-Reply-To: battery@sunoxpower.com
-Subject: Enquiry from SunoxPower
-Date: Wed, 07 Jul 2004 20:44:22 +0800
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="fc8c3756-5ec2-4c98-8d82-3133ef547352"
+	Wed, 7 Jul 2004 08:58:41 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:39305 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265127AbUGGM4h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 08:56:37 -0400
+Date: Wed, 7 Jul 2004 13:56:36 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Oleg Drokin <green@clusterfs.com>
+Cc: linux-kernel@vger.kernel.org, braam@clusterfs.com
+Subject: Re: [0/9] Lustre VFS patches for 2.6
+Message-ID: <20040707125636.GA18058@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Oleg Drokin <green@clusterfs.com>, linux-kernel@vger.kernel.org,
+	braam@clusterfs.com
+References: <20040707124732.GA25877@clusterfs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040707124732.GA25877@clusterfs.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 07, 2004 at 03:47:32PM +0300, Oleg Drokin wrote:
+> Hello!
+> 
+>    Following this mail, there are nine patches necessary for Lustre support
+>    in 2.6. The patches are against latest 2.6 bk snapshot.
+>    Compared to previous sets of patches, this one does not change existing
+>    structure and field names therefore leaving kernel VFS API completely intact.
+>    Also raw operations approach is changed, extra inode operation is introduced
+>    that is supposed to be called at the end of parent lookup and do necessary
+>    operations, if possible.
+>    Of course it would be great if these patches would be included into the
+>    kernel right away (and that is one of the reasons this set of patches
+>    keeps old API intact). Also there were at least some interest in some of the
+>    patches from other parties (e.g. Trond Myklebust was interested in some
+>    intent changes as I remember) and we are ready to work with those so that
+>    the patches will suit their needs as well.
 
-This is a multi-part message in MIME format
---fc8c3756-5ec2-4c98-8d82-3133ef547352
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-Dear Sirs or Madam,
-
-We are sincerely introduce ourselves as Sunox Power Industrial Co., Ltd. =
-specializes in R&D and manufacturing of valve regulated lead acid (VRLA) =
-batteries for years. Sunox is well located at Guangzhou Economic and =
-Technological Development District. With initial investment of US$4,000,000, =
-Sunox has introduced internationally advanced technology, in addition to its =
-famous processing and quality testing equipments from Digatron, Germany.
-
-Marketed under proprietary "Sunox" brand, we are currently producing three =
-series of products: 
-1) Small size batteries (4V, 6V, 12V / 0.8Ah - 25Ah);
-2) Stationary batteries (6V, 12V / 33Ah - 200Ah); 
-3) Stationary batteries (2V, 100Ah-3000Ah).
-
-Characterized by high energy density, advanced plate technology, sealed =
-construction, excellent performance and long operational lives, Sunox =
-Batteries are among the most reliable and versatile batteries now available.
-
-ISO 9001, CE and UL approvals guarantee our commitment to high quality, =
-comply with JIS, DIN, IEC standards.
-
-Sunox batteries are well qualified for sale in international markets and have =
-been exported to over 20 countries worldwide.
-
-Having built up in-house R&D and QC capabilities, our engineering staffs can =
-also supply OEM service on request.
-
-Always seeking to further expand our customer base, we sincerely welcome =
-interested companies to contact us for business cooperation. If you are =
-looking for a reliable and qualified supplier, we would appreciate the =
-opportunity of serving you.
-
-If you have any interest, pls do not hesitate to contact Mr David Zhao at =
-battery@sunoxpower.com .
-
-Thanks and best regards,
-David Zhao
-Sunox Power Industrial Co.,Ltd.
-Sales Office: Shenzhen Wisdom Industrial Co.,Ltd.
-Tel:+86-755-81911465  Fax: +86-755-25835598
-E-mail: battery@sunoxpower.com
-Website: www.sunoxpower.com
-
-PS.  You receive this e-mail because we believe it would be  of your =
-interest. If not, or in a mistake, pls delete it , or let us know, thanks in =
-advance, and we apologize sincerely.
-
-  
---fc8c3756-5ec2-4c98-8d82-3133ef547352--
+So do you have plans to submit lustre for inclusion soon?  Else merging is
+completely pointless as it'll fall victim to dead code removal real soon.
 

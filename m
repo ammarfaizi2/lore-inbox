@@ -1,30 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282061AbRKZSrg>; Mon, 26 Nov 2001 13:47:36 -0500
+	id <S282053AbRKZSoo>; Mon, 26 Nov 2001 13:44:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282050AbRKZSq3>; Mon, 26 Nov 2001 13:46:29 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:51975 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S282039AbRKZSpH>; Mon, 26 Nov 2001 13:45:07 -0500
-To: David Ford <david@blue-labs.org>
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.15-pre1:  "bogus" message with reiserfs root and other weirdness
-In-Reply-To: <Pine.LNX.3.96.1011126114550.26538A-100000@gatekeeper.tmr.com>
-	<87elmlmn81.fsf@devron.myhome.or.jp> <3C0286DE.50805@blue-labs.org>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 27 Nov 2001 03:44:07 +0900
-In-Reply-To: <3C0286DE.50805@blue-labs.org>
-Message-ID: <87zo594bk8.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S282039AbRKZSnn>; Mon, 26 Nov 2001 13:43:43 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:61152 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S282042AbRKZSnR>;
+	Mon, 26 Nov 2001 13:43:17 -0500
+Date: Mon, 26 Nov 2001 21:40:53 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Momchil Velikov <velco@fadata.bg>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH] Scalable page cache
+In-Reply-To: <20011126131641.A13955@redhat.com>
+Message-ID: <Pine.LNX.4.33.0111262133140.17709-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ford <david@blue-labs.org> writes:
 
-> Modular or monolithic, the bogus messages are the same.
+On Mon, 26 Nov 2001, Benjamin LaHaise wrote:
 
-Sorry, I'm incorrect. If you use a stuff like initrd, it is same message.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+> 	1. potentially long hash chains are walked with the page cache
+> 	   lock held for the entire duration of the operation
+
+not the case.
+
+> 	2. multiple cache lines are touched while holding the page cache
+> 	   lock
+
+not the case because the problem with the pagecache_lock was its bouncing
+between CPUs, not processes waiting on it.
+
+> 	3. sequential lookups involve reaquiring the page cache lock
+
+the granularity of the pagecache directly influences the number of
+accesses to the pagecache locking mechanizm. Neither patch solves this,
+the number of lock operations does not change - but the lock data
+structures are spread out more.
+
+i think it's a separate (and just as interesting) issue to decrease the
+granularity of the pagecache - this not only decreases locking (and other
+iteration) costs, it also decreases the size of the hash (or whatever
+other data structure is used).
+
+> 	4. the page cache hash is too large, virtually assuring that
+> 	   lookups will cause a cache miss
+
+this does not appear to be the case (see my other replies). Even if the
+hash table is big and assuming the worst-case (we miss on every hash table
+access), mem_map is *way* bigger in the cache because it has a much less
+compressed format. The compression ratio between mem_map[] and the hash
+table is 1:8 in the stock kernel, 1:4 with the page buckets patch.
+
+	Ingo
+

@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131334AbQKAGNu>; Wed, 1 Nov 2000 01:13:50 -0500
+	id <S131409AbQKAGTx>; Wed, 1 Nov 2000 01:19:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131349AbQKAGNk>; Wed, 1 Nov 2000 01:13:40 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:7180 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131334AbQKAGN2>; Wed, 1 Nov 2000 01:13:28 -0500
-Message-ID: <39FFB429.FA0B58CC@transmeta.com>
-Date: Tue, 31 Oct 2000 22:11:53 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10-pre3 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S131411AbQKAGTd>; Wed, 1 Nov 2000 01:19:33 -0500
+Received: from adsl-63-197-4-216.dsl.snfc21.pacbell.net ([63.197.4.216]:12804
+	"EHLO webunwired.com") by vger.kernel.org with ESMTP
+	id <S131409AbQKAGT0>; Wed, 1 Nov 2000 01:19:26 -0500
+Message-ID: <016a01c043cb$c507aad0$0101a8c0@localdomain>
+From: "Lyle Coder" <lcoder@webunwired.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <39FF0A71.FE05FAEB@gromco.com> <Pine.LNX.4.10.10010311018180.7083-100000@penguin.transmeta.com> <8tn5q9$iu5$1@cesium.transmeta.com> <20001031211506.E1041@wire.cadcamlab.org> <39FFB429.FA0B58CC@transmeta.com>
+Subject: Linus's poll variation
+Date: Tue, 31 Oct 2000 22:19:21 -0800
 MIME-Version: 1.0
-To: Peter Samuelson <peter@cadcamlab.org>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: test10-pre7
-In-Reply-To: <39FF0A71.FE05FAEB@gromco.com> <Pine.LNX.4.10.10010311018180.7083-100000@penguin.transmeta.com> <8tn5q9$iu5$1@cesium.transmeta.com> <20001031211506.E1041@wire.cadcamlab.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Samuelson wrote:
-> 
-> To Keith, Michael and me, the cleanest way to remove duplicates is
-> $(sort).  Since some object files must *not* be sorted, we came up with
-> a simple, readable way to declare that certain things had to come in a
-> certain order -- the idea being that most of the time it would not be
-> needed.  Linus disagrees that our solution is simple, readable or
-> otherwise desirable.  That's basically the whole issue in a nutshell.
-> 
+Hello,
+Is someone working on Linus's poll variation discussed in this list a week
+ago?
 
-I would tend to agree with Linus on that.  If that's truly what you're
-doing, it would be rather nonobvious.
+Thanks
+Lyle
 
-But the question, perhaps, is when does ordering matter.  I'm a little
-concerned about things highly dependent on link ordering.
-
-	-hpa
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

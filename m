@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262208AbTARC7Y>; Fri, 17 Jan 2003 21:59:24 -0500
+	id <S262089AbTARC7s>; Fri, 17 Jan 2003 21:59:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262089AbTARC7X>; Fri, 17 Jan 2003 21:59:23 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53048 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S262208AbTARC7X>; Fri, 17 Jan 2003 21:59:23 -0500
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Russell King <rmk@arm.linux.org.uk>, Mikael Pettersson <mikpe@csd.uu.se>,
-       kai@tp1.ruhr-uni-bochum.de, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.59 vmlinux.lds.S change broke modules
-References: <15911.64825.624251.707026@harpo.it.uu.se>
-	<20030117135638.A376@flint.arm.linux.org.uk>
-	<m1adhzg3fp.fsf@frodo.biederman.org>
-	<20030117162104.GB1040@mars.ravnborg.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 17 Jan 2003 20:08:08 -0700
-In-Reply-To: <20030117162104.GB1040@mars.ravnborg.org>
-Message-ID: <m1znpzdujr.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262201AbTARC7s>; Fri, 17 Jan 2003 21:59:48 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:48520 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262089AbTARC7r>; Fri, 17 Jan 2003 21:59:47 -0500
+Subject: Re: [PATCH][RESEND] linux-2.5.58_timer-tsc-cleanup_A0
+From: john stultz <johnstul@us.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030118025509.C295F2C0D0@lists.samba.org>
+References: <20030118025509.C295F2C0D0@lists.samba.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042858925.32472.11.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 17 Jan 2003 19:02:05 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg <sam@ravnborg.org> writes:
-
-> On Fri, Jan 17, 2003 at 09:13:14AM -0700, Eric W. Biederman wrote:
-> > That has been roughly my experience on x86 as well with the exception
-> > of bss sections.  For bss sections placing the symbols inside the section
-> > itself has been deadly.
+On Fri, 2003-01-17 at 17:48, Rusty Russell wrote:
+> In message <1042676113.1515.129.camel@w-jstultz2.beaverton.ibm.com> you write:
+> > Linus, All,
+> > 	This patch cleans up the timer_tsc code, removing the unused use_tsc
+> > variable and making fast_gettimeoffset_quotient static.
 > 
-> Could you elaborate a bit more what you have seen?
+> But use_tsc is still used:
 
-Sorry.  Placing symbols inside .bss sections (sections by any name
-that are not allocated) has occasionally given them values not as
-expected.  While at the same time placing the symbols around the .bss
-sections has worked reliably for me.
+Yep, this was pointed out earlier today. My bad. The cpu_freq updates
+that went in a tad bit less then 2 weeks ago slipped it in and I just
+didn't notice. I apologize. Thanks for looking at it, though. 
 
-Eric
+> 
+> And almost any patch to the x86 boot code is too convoluted to be
+> "trivial" IMHO.
+
+Ok, sounds fair.
+
+Thanks
+-john
+
+

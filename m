@@ -1,78 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261972AbSJVCrw>; Mon, 21 Oct 2002 22:47:52 -0400
+	id <S262084AbSJVCwz>; Mon, 21 Oct 2002 22:52:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262019AbSJVCrw>; Mon, 21 Oct 2002 22:47:52 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:38925 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S261972AbSJVCru>; Mon, 21 Oct 2002 22:47:50 -0400
-Date: Tue, 22 Oct 2002 03:53:46 +0100
-From: John Levon <levon@movementarian.org>
-To: Corey Minyard <cminyard@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI request/release
-Message-ID: <20021022025346.GC41678@compsoc.man.ac.uk>
-References: <3DB4AABF.9020400@mvista.com> <20021022021005.GA39792@compsoc.man.ac.uk> <3DB4B8A7.5060807@mvista.com>
+	id <S262089AbSJVCwz>; Mon, 21 Oct 2002 22:52:55 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:64266 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S262084AbSJVCwy>; Mon, 21 Oct 2002 22:52:54 -0400
+Date: Mon, 21 Oct 2002 23:58:06 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: landley@trommello.org, Guillaume Boissiere <boissiere@adiglobal.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Son of crunch time: the list v1.2.
+Message-ID: <20021022025806.GA27943@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Jeff Garzik <jgarzik@pobox.com>, landley@trommello.org,
+	Guillaume Boissiere <boissiere@adiglobal.com>,
+	linux-kernel@vger.kernel.org
+References: <20021021135137.2801edd2.rusty@rustcorp.com.au> <200210211536.25109.landley@trommello.org> <3DB4B1B9.4070303@pobox.com> <200210211642.10435.landley@trommello.org> <3DB4BD8F.1010707@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DB4B8A7.5060807@mvista.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *183pAw-000NbV-00*MRdvCVGQjL6* (Manchester Computing, University of Manchester)
+In-Reply-To: <3DB4BD8F.1010707@pobox.com>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 21, 2002 at 09:32:07PM -0500, Corey Minyard wrote:
+Em Mon, Oct 21, 2002 at 10:53:03PM -0400, Jeff Garzik escreveu:
+> >Okay, ARE the Usagi IPV6 patches and Dave's work dovetailing into one 
+> >project?  I'll happily collate them if so, I'd just like to hear it from 
+> >one of the principal authors...
 
-> This is an NMI, does it really matter?
+> I'm sure he can elaborate, but AFAIK DaveM and Alexey are only doing 
+> IPSEC... where USAGI and IPSEC intersect, there will be clashes.  So if 
+> USAGI is waiting on IPSEC to submit more patches, things are waiting on 
+> DaveM.  But if there are IPSEC-independent patches, USAGI should go 
+> ahead and send them :)
 
-Yes. Both for oprofile and the NMI watchdog (which was firing awfully
-often last time I checked). The handler needs to be as streamlined as
-possible.
+They are sending it, and David already stated here that he will be using some
+pieces of USAGI's ipsec work, but the core is being coded by him and Alexey.
 
-> dev_name could be removed, although it would be nice for reporting 
-> later.
-
-Reporting what ? from where ?
-
-> >Couldn't you modify the notifier code to do the xchg()s (though that's
-> >not available on all CPU types ...)
-> >
-> I don't understand.  The xchg()s are for atomicity between the 
-> request/release code and the NMI handler.  How could the notifier code 
-> do it?
-
-You are using the xchg()s in an attempt to thread onto/off the list
-safely no ?
-
-> >>+#define HAVE_NMI_HANDLER	1
-
-> This is so the user code can know if it's available or not.
-
-If we had that for every API or API change, the kernel would be mostly
-HAVE_*. It's either available or it's not. If you're maintaining an
-external module, then autoconf or similar is the proper way to check for
-its existence.
-
-> >Is it not possible to use linux/rcupdate.h for this stuff ?
->
-> I'm not sure.  It looks possible, but remember, this is an NMI, normal 
-> rules may not apply.  Particularly, you cannot block or spin waiting for 
-> something else, the NMI code has to run.  An NMI can happen at ANY time. 
-
-Believe me, I know :)
-
-> If the rcu code can handle this, I could use it, but I have not looked 
-> to see if it can.
-
-If it's possible (and I have no idea, not having looked at RCU at all)
-it seems the right way.
-
-regards
-john
-
--- 
-"Lots of companies would love to be in our hole."
-	- Scott McNealy
+- Arnaldo

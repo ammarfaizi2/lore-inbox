@@ -1,73 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271698AbRIJUre>; Mon, 10 Sep 2001 16:47:34 -0400
+	id <S271677AbRIJUsX>; Mon, 10 Sep 2001 16:48:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271687AbRIJUrZ>; Mon, 10 Sep 2001 16:47:25 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:30732 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S271677AbRIJUrI>; Mon, 10 Sep 2001 16:47:08 -0400
-Date: Mon, 10 Sep 2001 22:14:48 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: kuznet@ms2.inr.ac.ru
-Cc: matthias.andree@gmx.de, alan@lxorguk.ukuu.org.uk, wietse@porcupine.org,
-        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-        netdev@oss.sgi.com
-Subject: Re: [PATCH] ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
-Message-ID: <20010910221448.E30149@emma1.emma.line.org>
-Mail-Followup-To: kuznet@ms2.inr.ac.ru, alan@lxorguk.ukuu.org.uk,
-	wietse@porcupine.org, linux-kernel@vger.kernel.org,
-	linux-net@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <20010910100537.W26627@khan.acc.umu.se> <200109101936.XAA00707@ms2.inr.ac.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <200109101936.XAA00707@ms2.inr.ac.ru>
-User-Agent: Mutt/1.3.22.1i
+	id <S271687AbRIJUsP>; Mon, 10 Sep 2001 16:48:15 -0400
+Received: from adsl-216-63-236-137.dsl.tulsok.swbell.net ([216.63.236.137]:32750
+	"EHLO gateway1.brets.elevating.com") by vger.kernel.org with ESMTP
+	id <S271677AbRIJUsI>; Mon, 10 Sep 2001 16:48:08 -0400
+Message-ID: <3B9D271D.FA84C32C@elevating.com>
+Date: Mon, 10 Sep 2001 15:48:29 -0500
+From: Bret Hughes <bhughes@elevating.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-3 i686)
+X-Accept-Language: en, ja
+MIME-Version: 1.0
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: [Fwd: directory cache problems (I think)]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Sep 2001, kuznet@ms2.inr.ac.ru wrote:
+I sent this to the linux XFS list but nothing useful in the way of
+responses.  
 
-> (BTW Matthias, while applying it to my tree, I noticed that
-> it does not check for SIOGGIFNETMASK. It would be better to do this only
-> when it is meaningful: I see only SIOGGIFNETMASK and SIOGGIFBROADCAST).
 
-Thanks for reviewing it again.
+I have a configuration on 6 boxes, Duron 700 with 128 MB ram and 10GB
+ide harddrives.  These machines are all XFS 1.0.1 using the kernel from
+the 1.0.1 RH install iso and most of the RH updates.
 
-However, I think it should not be complicated. It's clear, simple and
-can easily be understood.
 
-Further reasons:
+They were all placed into service the same day and yesterday 5 days
+after they were turned on they all stopped responding to ssh.  A couple
+would still respond to a ping but nothing else.   Actually I caught one
+before it quit altogether and rebooted it last night. These machines are
+kiosk type displays that scroll html and flash pages using (netscape as
+the browser).  There is no user interaction infact not any input device
+at all.  A different page is displayed every 10 seconds.
 
-1/ It's not worth it.
+Now, After rebooting them I can get to the sadc data and looking through
+the logs shows really bad stuff happening at 1:00PM yesterday on the one
+machine I have really looked at closely.  interrupt 14s out the wazoo
+and what I think must be the cause, the dentunusd goes to 0.  Looking
+over the logs of the last few days I can see the dentunusd creeping down
+from the beginning at boot of over 20K to 0.  
 
-  a/ If someone configures two IP addresses for a P2P-interface,
-  something is wrong in a different part of the kernel, so
-  SIOCGIFDSTADDR need not be exempt.
+Is this the problem or a symptom of something else?
 
-  b/ Treating SIOCGIFADDR the same way as SIOCGIFNETMASK has the
-  advantage that kernels with 4.3BSD ioctl interface (Linux up to 2.2.19
-  and 2.4.9) will return the first address of the interface rather than
-  the alias address passed in. This way, an application can check if the
-  kernel's ioctl interface is really IP alias aware, by just matching
-  the ifr it passed in against the one it got back after SIOCGIFADDR.
+Since netscape is such a pig I kill it and restart it once an hour and
+restart X once a day.  both these events seem to take a tremendous toll
+on the dentunusd value and never gain it all back.  
 
-  I have actually sent a patch to Wietse Venema which lets Postfix warn
-  about alias interface addresses that it cannot obtain the netmasks for
-  and just skip them, so it does not treat something it does not know
-  how to handle.
+I don't know if this is an XFS issue or not but I as I said I started at 
+the XFS list and no joy yet so I thought that I would try here.  Any 
+ideas?  
 
-2/ The search-for-ifa code is unconditionally called upon entry to that
-   function. If it depends on the ioctl, it will confuse all people that
-   expect all SIOCGIF* ioctls to have the same search properties and
-   hinder debugging of applications.
+I can send all the log data anyone might use if it would help.  
+Right now I am going to reboot the damn things nightly like they were 
+windows machines for Christ's sake.
 
-Let's keep this as simple as possible. Performance is not an issue,
-ioctl is not read, you don't call it from tight inner loops. Let's not
-make it more error prone than it needs to be.
+BTW the same scenario and control scripts run for months on end on RH
+6.2 using the 2.2.3-16 kernel.
 
--- 
-Matthias Andree
-Outlook (Express) users: press Ctrl+F3 for the full source code of this post.
-begin  dont_click_this_virus.exe
-end
+Any tips and or other places to ask are appreciated. 
+
+TIA
+
+Bret

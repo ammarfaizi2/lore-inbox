@@ -1,406 +1,514 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265232AbUGDRkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265228AbUGDRsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265232AbUGDRkr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 13:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265228AbUGDRkr
+	id S265228AbUGDRsv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 13:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265233AbUGDRsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 13:40:47 -0400
-Received: from mail-relay-4.tiscali.it ([212.123.84.94]:23785 "EHLO
-	sparkfist.tiscali.it") by vger.kernel.org with ESMTP
-	id S265232AbUGDRjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 13:39:24 -0400
-Date: Sun, 4 Jul 2004 19:39:03 +0200
-From: andrea@cpushare.com
+	Sun, 4 Jul 2004 13:48:51 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:40047 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S265228AbUGDRsc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 13:48:32 -0400
+Subject: Re: Strange DMA timeouts
+From: Lasse Bang Mikkelsen <lbm-list@fatalerror.dk>
 To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: secure computing for 2.6.7
-Message-ID: <20040704173903.GE7281@dualathlon.random>
+In-Reply-To: <1088958931.3205.8.camel@slaptop>
+References: <1088958931.3205.8.camel@slaptop>
+Content-Type: multipart/mixed; boundary="=-vOKpFUOcoRS4og7TfOJr"
+Message-Id: <1088963395.2616.2.camel@slaptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 04 Jul 2004 19:49:56 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I need this new kernel feature for a reseach spare time project I'm
-developing in the weekends.  The fast path cost is basically only the
-s/testb/testw/ change in entry.S. (and even that might be removed with a
-more signficant effort but I don't think anybody could worry about that
-change).
+--=-vOKpFUOcoRS4og7TfOJr
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-This might be better off for 2.7 but I would like if people could have a
-look, and it's simple enough that it might be included in 2.6 too later
-on. (it just need to be ported to the other archs, only x86 is
-implemented here, but that's easy)
+søn, 2004-07-04 kl. 18:35 skrev Lasse Bang Mikkelsen:
 
-Especially I would like to know if anybody can see an hole in this. This
-is an order of magnitude more secure of chroot and of capabilities and
-much simpler and it doesn't require root privilegies to activate. I
-wasn't forced to take secure computing down into kernel space but I
-believe it's the simplest and most secure and most efficient approch. An
-userspace alternative would been to elaborate this below bytecode
-userspace approch but besides being an order of magnitude slower it also
-is a lot more complicated and less secure, and it keeps into the
-equation the virtual machine that executes the code later on:
+> I keep getting these DMA timeouts under heavy harddrive load, ex. when
+> unpacking big tarballs, transfering from USB harddrive etc.
+> 
+> hda: dma_timer_expiry: dma status == 0x21
+> hda: DMA timeout error
+> hda: dma timeout error: status=0xd0 { Busy }
+> 
+> hda: DMA disabled
+> ide0: reset: success
+> 
+> Is this a sign of harddisk failure or could this be a kernel problem?
 
-	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/286134
+As requested, output from dmesg, lspci and lspci -vvv attached.
 
-Furthermore I much prefer to run the bytecode on the bare hardware for
-performance reasons, and the less layering the more secure.
+Thanks.
 
-I tested it with this:
+-- 
+Regards
 
-#include <stdio.h>
-#include <signal.h>
-#include <unistd.h>
+Lasse Bang Mikkelsen
+lbm@fatalerror.dk
 
-static void sigint(int s)
-{
-	printf("SIGINT\n");
-}
-static void sigpipe(int s)
-{
-	printf("SIGPIPE\n");
-	pause();
-}
+--=-vOKpFUOcoRS4og7TfOJr
+Content-Disposition: attachment; filename=dmesg
+Content-Type: text/plain; name=dmesg; charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-int main(void) {
+Linux version 2.6.7 (root@slaptop) (gcc version 3.3.4 (Debian)) #1 Wed Jun 23 14:14:07 CEST 2004
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000001fff0000 (usable)
+ BIOS-e820: 000000001fff0000 - 000000001fffffc0 (ACPI data)
+ BIOS-e820: 000000001fffffc0 - 0000000020000000 (ACPI NVS)
+ BIOS-e820: 00000000ffb80000 - 00000000ffc00000 (reserved)
+ BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
+511MB LOWMEM available.
+On node 0 totalpages: 131056
+  DMA zone: 4096 pages, LIFO batch:1
+  Normal zone: 126960 pages, LIFO batch:16
+  HighMem zone: 0 pages, LIFO batch:1
+DMI 2.3 present.
+ACPI: RSDP (v000 OID_00                                    ) @ 0x000e6010
+ACPI: RSDT (v001 INSYDE RSDT_000 0x00000001 _CSI 0x00010101) @ 0x1fffb240
+ACPI: FADT (v001 ACER   DCL32    0x00000200 _CSI 0x00010101) @ 0x1ffffb00
+ACPI: BOOT (v001 INSYDE SYS_BOOT 0x00000100 _CSI 0x00010101) @ 0x1ffffb90
+ACPI: DBGP (v001 INSYDE DBGP_000 0x00000100 _CSI 0x00010101) @ 0x1ffffbc0
+ACPI: SSDT (v001 INSYDE   GV3Ref 0x00002000 INTL 0x20021002) @ 0x1fffb280
+ACPI: DSDT (v001 ACER     0860   0x00000006 MSFT 0x0100000e) @ 0x00000000
+ACPI: PM-Timer IO Port: 0x1008
+Built 1 zonelists
+Kernel command line: root=/dev/hda1 ro 
+Local APIC disabled by BIOS -- reenabling.
+Found and enabled local APIC!
+Initializing CPU#0
+PID hash table entries: 2048 (order 11: 16384 bytes)
+Detected 1395.612 MHz processor.
+Using pmtmr for high-res timesource
+Console: colour VGA+ 80x25
+Memory: 514308k/524224k available (3206k kernel code, 9152k reserved, 1191k data, 192k init, 0k highmem)
+Checking if this processor honours the WP bit even in supervisor mode... Ok.
+Calibrating delay loop... 2768.89 BogoMIPS
+Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
+Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
+Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+CPU:     After generic identify, caps: a7e9fbbf 00000000 00000000 00000000
+CPU:     After vendor identify, caps: a7e9fbbf 00000000 00000000 00000000
+CPU: L1 I cache: 32K, L1 D cache: 32K
+CPU: L2 cache: 1024K
+CPU:     After all inits, caps: a7e9fbbf 00000000 00000000 00000040
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU: Intel(R) Pentium(R) M processor 1400MHz stepping 05
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+enabled ExtINT on CPU#0
+ESR value before enabling vector: 00000000
+ESR value after enabling vector: 00000000
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU clock speed is 1395.0273 MHz.
+..... host bus clock speed is 99.0662 MHz.
+NET: Registered protocol family 16
+PCI: PCI BIOS revision 2.10 entry at 0xe97a4, last bus=2
+PCI: Using configuration type 1
+mtrr: v2.0 (20020519)
+ACPI: Subsystem revision 20040326
+ACPI: IRQ9 SCI: Edge set to Level Trigger.
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
+PCI: Transparent bridge - 0000:00:1e.0
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.AGPB._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.HUB_._PRT]
+ACPI: PCI Interrupt Link [LNKA] (IRQs 5 *10)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 5 10) *11
+ACPI: PCI Interrupt Link [LNKC] (IRQs 5 10) *11
+ACPI: PCI Interrupt Link [LNKD] (IRQs 5 10) *11
+ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 7 10 11 12 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 7 10 11 12 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 7 10 11 12 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LNKH] (IRQs 5 10) *11
+ACPI: Embedded Controller [EC0] (gpe 28)
+Linux Plug and Play Support v0.97 (c) Adam Belay
+SCSI subsystem initialized
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 10
+ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 10
+ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 10
+ACPI: PCI Interrupt Link [LNKH] enabled at IRQ 10
+ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 10
+PCI: Using ACPI for IRQ routing
+Simple Boot Flag at 0x37 set to 0x80
+Machine check exception polling timer started.
+audit: initializing netlink socket (disabled)
+audit(1088967657.848:0): initialized
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+NTFS driver 2.1.14 [Flags: R/O].
+udf: registering filesystem
+ACPI: AC Adapter [ACAD] (off-line)
+ACPI: Battery Slot [BAT1] (battery present)
+ACPI: Power Button (FF) [PWRF]
+ACPI: Lid Switch [LID]
+ACPI: Processor [CPU0] (supports C1 C2 C3, 8 throttling states)
+Real Time Clock Driver v1.12
+Linux agpgart interface v0.100 (c) Dave Jones
+agpgart: Detected an Intel 855PM Chipset.
+agpgart: Maximum main memory to use for agp memory: 439M
+agpgart: AGP aperture is 64M @ 0xb0000000
+Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+parport0: PC-style at 0x378 (0x778) [PCSPP(,...)]
+parport0: irq 5 detected
+Using anticipatory io scheduler
+floppy0: no floppy controllers found
+loop: loaded (max 8 devices)
+8139too Fast Ethernet driver 0.9.27
+eth0: RealTek RTL8139 at 0xa000, 00:02:3f:10:10:6b, IRQ 10
+eth0:  Identified 8139 chip type 'RTL-8101'
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+ICH4: IDE controller at PCI slot 0000:00:1f.1
+PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
+ICH4: chipset revision 3
+ICH4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0x1100-0x1107, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x1108-0x110f, BIOS settings: hdc:DMA, hdd:pio
+hda: IC25N040ATMR04-0, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hdc: MATSHITACD-RW CW-8123, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: max request size: 1024KiB
+hda: 78140160 sectors (40007 MB) w/1740KiB Cache, CHS=16383/255/63, UDMA(100)
+ hda: hda1 hda2 hda3 hda4
+hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.20
+ohci1394: $Rev: 1223 $ Ben Collins <bcollins@debian.org>
+ohci1394: fw-host0: OHCI-1394 1.1 (PCI): IRQ=[10]  MMIO=[d0001800-d0001fff]  Max Packet=[2048]
+video1394: Installed video1394 module
+ieee1394: raw1394: /dev/raw1394 device initialized
+sbp2: $Rev: 1219 $ Ben Collins <bcollins@debian.org>
+ieee1394: Loaded AMDTP driver
+ieee1394: Loaded CMP driver
+ehci_hcd 0000:00:1d.7: Intel Corp. 82801DB (ICH4) USB2 EHCI Controller
+PCI: Setting latency timer of device 0000:00:1d.7 to 64
+ehci_hcd 0000:00:1d.7: irq 10, pci mem e0850000
+ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
+PCI: cache line size of 32 is not supported by device 0000:00:1d.7
+ehci_hcd 0000:00:1d.7: USB 2.0 enabled, EHCI 1.00, driver 2004-May-10
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 6 ports detected
+USB Universal Host Controller Interface driver v2.2
+uhci_hcd 0000:00:1d.0: Intel Corp. 82801DB (ICH4) USB UHCI #1
+PCI: Setting latency timer of device 0000:00:1d.0 to 64
+uhci_hcd 0000:00:1d.0: irq 10, io base 00001200
+uhci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 2
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 2 ports detected
+uhci_hcd 0000:00:1d.1: Intel Corp. 82801DB (ICH4) USB UHCI #2
+PCI: Setting latency timer of device 0000:00:1d.1 to 64
+uhci_hcd 0000:00:1d.1: irq 10, io base 00001600
+uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 3
+hub 3-0:1.0: USB hub found
+hub 3-0:1.0: 2 ports detected
+uhci_hcd 0000:00:1d.2: Intel Corp. 82801DB (ICH4) USB UHCI #3
+PCI: Setting latency timer of device 0000:00:1d.2 to 64
+uhci_hcd 0000:00:1d.2: irq 10, io base 00001700
+uhci_hcd 0000:00:1d.2: new USB bus registered, assigned bus number 4
+hub 4-0:1.0: USB hub found
+hub 4-0:1.0: 2 ports detected
+usbcore: registered new driver usblp
+drivers/usb/class/usblp.c: v0.13: USB Printer Device Class driver
+Initializing USB Mass Storage driver...
+usbcore: registered new driver usb-storage
+USB Mass Storage support registered.
+usbcore: registered new driver usbhid
+drivers/usb/input/hid-core.c: v2.0:USB HID core driver
+drivers/usb/serial/usb-serial.c: USB Serial support registered for Generic
+usbcore: registered new driver usbserial
+drivers/usb/serial/usb-serial.c: USB Serial Driver core v2.0
+drivers/usb/serial/usb-serial.c: USB Serial support registered for PL-2303
+usbcore: registered new driver pl2303
+drivers/usb/serial/pl2303.c: Prolific PL2303 USB to serial adaptor driver v0.10
+mice: PS/2 mouse device common for all mice
+i8042.c: Detected active multiplexing controller, rev 1.1.
+serio: i8042 AUX0 port at 0x60,0x64 irq 12
+serio: i8042 AUX1 port at 0x60,0x64 irq 12
+serio: i8042 AUX2 port at 0x60,0x64 irq 12
+serio: i8042 AUX3 port at 0x60,0x64 irq 12
+Synaptics Touchpad, model: 1
+ Firmware: 5.9
+ Sensor: 18
+ new absolute packet format
+ Touchpad has extended capability bits
+ -> 4 multi-buttons, i.e. besides standard buttons
+ -> multifinger detection
+ -> palm detection
+input: SynPS/2 Synaptics TouchPad on isa0060/serio4
+serio: i8042 KBD port at 0x60,0x64 irq 1
+input: AT Translated Set 2 keyboard on isa0060/serio0
+Advanced Linux Sound Architecture Driver Version 1.0.4 (Mon May 17 14:31:44 2004 UTC).
+PCI: Setting latency timer of device 0000:00:1f.5 to 64
+ieee1394: Host added: ID:BUS[0-00:1023]  GUID[00023f3b450026ca]
+usb 2-2: new low speed USB device using address 2
+intel8x0_measure_ac97_clock: measured 49599 usecs
+intel8x0: clocking to 48000
+ALSA device list:
+  #0: Intel 82801DB-ICH4 at 0xf0000400, irq 10
+oprofile: using NMI interrupt.
+NET: Registered protocol family 2
+IP: routing cache hash table of 4096 buckets, 32Kbytes
+TCP: Hash tables configured (established 32768 bind 65536)
+ip_conntrack version 2.1 (4095 buckets, 32760 max) - 296 bytes per conntrack
+input: USB HID v1.10 Mouse [B16_b_02 USB-PS/2 Optical Mouse] on usb-0000:00:1d.0-2
+ip_tables: (C) 2000-2002 Netfilter core team
+ipt_recent v0.3.1: Stephen Frost <sfrost@snowman.net>.  http://snowman.net/projects/ipt_recent/
+arp_tables: (C) 2002 David S. Miller
+NET: Registered protocol family 1
+NET: Registered protocol family 10
+IPv6 over IPv4 tunneling driver
+NET: Registered protocol family 17
+ACPI: (supports S0 S3 S4 S4bios S5)
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+Freeing unused kernel memory: 192k freed
+Adding 498004k swap on /dev/hda3.  Priority:-1 extents:1
+EXT3-fs warning: maximal mount count reached, running e2fsck is recommended
+EXT3 FS on hda1, internal journal
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs warning: maximal mount count reached, running e2fsck is recommended
+EXT3 FS on hda4, internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+ndiswrapper version 0.8 loaded
+ndiswrapper adding w22n51.sys
+wlan0: ndiswrapper ethernet device 00:0e:35:0f:a2:f7 using driver w22n51.sys
+wlan0: duplicate address detected!
+hda: dma_timer_expiry: dma status == 0x21
+hda: DMA timeout error
+hda: dma timeout error: status=0xd0 { Busy }
 
-        signal(SIGINT, sigint);
-        signal(SIGPIPE, sigpipe);
-	printf("start\n");
+hda: DMA disabled
+ide0: reset: success
+hda: dma_timer_expiry: dma status == 0x21
+hda: DMA timeout error
+hda: dma timeout error: status=0xd0 { Busy }
 
-	while (1);
-        return 0;
-}
+hda: DMA disabled
+ide0: reset: success
+hda: dma_timer_expiry: dma status == 0x21
+hda: DMA timeout error
+hda: dma timeout error: status=0xd0 { Busy }
 
-on one shell:
+hda: DMA disabled
+ide0: reset: success
+spurious 8259A interrupt: IRQ7.
+hda: dma_timer_expiry: dma status == 0x21
+hda: DMA timeout error
+hda: dma timeout error: status=0xd0 { Busy }
 
-andrea@xeon:~> echo 1 > /proc/`pidof seccomp`/seccomp
-andrea@xeon:~> kill -SIGINT `pidof seccomp`
-andrea@xeon:~> kill -SIGINT `pidof seccomp`
-andrea@xeon:~> kill -SIGINT `pidof seccomp`
-andrea@xeon:~> kill -SIGINT `pidof seccomp`
-andrea@xeon:~> kill -SIGINT `pidof seccomp`
-andrea@xeon:~> kill -SIGINT `pidof seccomp`
-andrea@xeon:~> kill -SIGINT `pidof seccomp`
-andrea@xeon:~> kill -SIGPIPE `pidof seccomp`
-andrea@xeon:~> 
+hda: DMA disabled
+ide0: reset: success
 
-on the other:
-andrea@xeon:~> ./seccomp
-start
-SIGINT
-SIGINT
-SIGINT
-SIGINT
-SIGINT
-SIGINT
-SIGINT
-SIGPIPE
-Killed
-andrea@xeon:~> echo $?
-137
-andrea@xeon:~> 
+--=-vOKpFUOcoRS4og7TfOJr
+Content-Disposition: attachment; filename=lspci
+Content-Type: text/plain; name=lspci; charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-(pause isn't allowed and the secure computing sigkill the task)
+0000:00:00.0 Host bridge: Intel Corp. 82855PM Processor to I/O Controller (rev 21)
+0000:00:01.0 PCI bridge: Intel Corp. 82855PM Processor to AGP Controller (rev 21)
+0000:00:1d.0 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #1 (rev 03)
+0000:00:1d.1 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #2 (rev 03)
+0000:00:1d.2 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #3 (rev 03)
+0000:00:1d.7 USB Controller: Intel Corp. 82801DB (ICH4) USB2 EHCI Controller (rev 03)
+0000:00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 83)
+0000:00:1f.0 ISA bridge: Intel Corp. 82801DBM LPC Interface Controller (rev 03)
+0000:00:1f.1 IDE interface: Intel Corp. 82801DBM (ICH4) Ultra ATA Storage Controller (rev 03)
+0000:00:1f.3 SMBus: Intel Corp. 82801DB/DBM (ICH4) SMBus Controller (rev 03)
+0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801DB (ICH4) AC'97 Audio Controller (rev 03)
+0000:00:1f.6 Modem: Intel Corp. 82801DB (ICH4) AC'97 Modem Controller (rev 03)
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc RV250 5c61 [Radeon Mobility 9200 M9+] (rev 01)
+0000:02:00.0 FireWire (IEEE 1394): Texas Instruments TSB43AB21 IEEE-1394a-2000 Controller (PHY/Link)
+0000:02:01.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+0000:02:02.0 Network controller: Intel Corp. Intel(R) PRO/Wireless 2200BG (rev 05)
+0000:02:04.0 CardBus bridge: ENE Technology Inc CB1410 Cardbus Controller (rev 01)
 
-diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids 2.6.7/arch/i386/kernel/entry.S seccomp/arch/i386/kernel/entry.S
---- 2.6.7/arch/i386/kernel/entry.S	2004-05-10 08:59:10.000000000 +0200
-+++ seccomp/arch/i386/kernel/entry.S	2004-07-04 18:22:23.862198096 +0200
-@@ -163,12 +163,19 @@ do_lcall:
- 	movl %edx,EIP(%ebp)	# Now we move them to their "normal" places
- 	movl %ecx,CS(%ebp)	#
- 	GET_THREAD_INFO_WITH_ESP(%ebp)	# GET_THREAD_INFO
-+	/* call gates cannot run with SECCOMP enabled */
-+	testw $(_TIF_SECCOMP),TI_FLAGS(%ebp)
-+	jnz sigkill
- 	movl TI_EXEC_DOMAIN(%ebp), %edx	# Get the execution domain
- 	call *4(%edx)		# Call the lcall7 handler for the domain
- 	addl $4, %esp
- 	popl %eax
- 	jmp resume_userspace
- 
-+sigkill:
-+	pushl $9
-+	call do_exit		
-+
- ENTRY(lcall27)
- 	pushfl			# We get a different stack layout with call
- 				# gates, which has to be cleaned up later..
-@@ -264,7 +271,7 @@ sysenter_past_esp:
- 	cmpl $(nr_syscalls), %eax
- 	jae syscall_badsys
- 
--	testb $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT),TI_FLAGS(%ebp)
-+	testw $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SECCOMP),TI_FLAGS(%ebp)
- 	jnz syscall_trace_entry
- 	call *sys_call_table(,%eax,4)
- 	movl %eax,EAX(%esp)
-@@ -287,7 +294,7 @@ ENTRY(system_call)
- 	cmpl $(nr_syscalls), %eax
- 	jae syscall_badsys
- 					# system call tracing in operation
--	testb $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT),TI_FLAGS(%ebp)
-+	testw $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SECCOMP),TI_FLAGS(%ebp)
- 	jnz syscall_trace_entry
- syscall_call:
- 	call *sys_call_table(,%eax,4)
-diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids 2.6.7/arch/i386/kernel/ptrace.c seccomp/arch/i386/kernel/ptrace.c
---- 2.6.7/arch/i386/kernel/ptrace.c	2004-05-10 08:59:10.000000000 +0200
-+++ seccomp/arch/i386/kernel/ptrace.c	2004-07-04 18:23:28.597356856 +0200
-@@ -15,6 +15,7 @@
- #include <linux/user.h>
- #include <linux/security.h>
- #include <linux/audit.h>
-+#include <linux/seccomp.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -534,6 +535,8 @@ void do_syscall_trace(struct pt_regs *re
- 			audit_syscall_exit(current, regs->eax);
- 	}
- 
-+	if (unlikely(test_thread_flag(TIF_SECCOMP)))
-+		secure_computing(regs->orig_eax);
- 	if (!test_thread_flag(TIF_SYSCALL_TRACE))
- 		return;
- 	if (!(current->ptrace & PT_PTRACED))
-diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids 2.6.7/fs/proc/base.c seccomp/fs/proc/base.c
---- 2.6.7/fs/proc/base.c	2004-05-10 08:59:34.000000000 +0200
-+++ seccomp/fs/proc/base.c	2004-07-04 18:43:37.103635976 +0200
-@@ -32,6 +32,7 @@
- #include <linux/mount.h>
- #include <linux/security.h>
- #include <linux/ptrace.h>
-+#include <linux/seccomp.h>
- 
- /*
-  * For hysterical raisins we keep the same inumbers as in the old procfs.
-@@ -48,6 +49,7 @@ enum pid_directory_inos {
- 	PROC_TGID_TASK,
- 	PROC_TGID_STATUS,
- 	PROC_TGID_MEM,
-+	PROC_TGID_SECCOMP,
- 	PROC_TGID_CWD,
- 	PROC_TGID_ROOT,
- 	PROC_TGID_EXE,
-@@ -71,6 +73,7 @@ enum pid_directory_inos {
- 	PROC_TID_INO,
- 	PROC_TID_STATUS,
- 	PROC_TID_MEM,
-+	PROC_TID_SECCOMP,
- 	PROC_TID_CWD,
- 	PROC_TID_ROOT,
- 	PROC_TID_EXE,
-@@ -113,6 +116,7 @@ static struct pid_entry tgid_base_stuff[
- 	E(PROC_TGID_STATM,     "statm",   S_IFREG|S_IRUGO),
- 	E(PROC_TGID_MAPS,      "maps",    S_IFREG|S_IRUGO),
- 	E(PROC_TGID_MEM,       "mem",     S_IFREG|S_IRUSR|S_IWUSR),
-+	E(PROC_TGID_SECCOMP,   "seccomp", S_IFREG|S_IRUSR|S_IWUSR),
- 	E(PROC_TGID_CWD,       "cwd",     S_IFLNK|S_IRWXUGO),
- 	E(PROC_TGID_ROOT,      "root",    S_IFLNK|S_IRWXUGO),
- 	E(PROC_TGID_EXE,       "exe",     S_IFLNK|S_IRWXUGO),
-@@ -135,6 +139,7 @@ static struct pid_entry tid_base_stuff[]
- 	E(PROC_TID_STATM,      "statm",   S_IFREG|S_IRUGO),
- 	E(PROC_TID_MAPS,       "maps",    S_IFREG|S_IRUGO),
- 	E(PROC_TID_MEM,        "mem",     S_IFREG|S_IRUSR|S_IWUSR),
-+	E(PROC_TID_SECCOMP,    "seccomp", S_IFREG|S_IRUSR|S_IWUSR),
- 	E(PROC_TID_CWD,        "cwd",     S_IFLNK|S_IRWXUGO),
- 	E(PROC_TID_ROOT,       "root",    S_IFLNK|S_IRWXUGO),
- 	E(PROC_TID_EXE,        "exe",     S_IFLNK|S_IRWXUGO),
-@@ -689,6 +694,58 @@ static struct inode_operations proc_mem_
- 	.permission	= proc_permission,
- };
- 
-+static ssize_t seccomp_read(struct file * file, char * buf,
-+			    size_t count, loff_t *ppos)
-+{
-+	struct task_struct * tsk = proc_task(file->f_dentry->d_inode);
-+	char __buf[20];
-+	loff_t __ppos = *ppos;
-+	size_t len;
-+
-+	len = sprintf(__buf, "%u\n", tsk->seccomp_mode) + 1;
-+	if (__ppos >= len)
-+		return 0;
-+	if (count > len-__ppos)
-+		count = len-__ppos;
-+	if (copy_to_user(buf, __buf + __ppos, count))
-+		return -EFAULT;
-+	*ppos += count;
-+	return count;
-+}
-+
-+static ssize_t seccomp_write(struct file * file, const char * buf,
-+			     size_t count, loff_t *ppos)
-+{
-+	struct task_struct * tsk = proc_task(file->f_dentry->d_inode);
-+	char __buf[20], * end;
-+	unsigned int seccomp_mode;
-+
-+	/* can set it only once to be even more secure */
-+	if (unlikely(tsk->seccomp_mode))
-+		return -EPERM;
-+
-+	memset(__buf, 0, 20);
-+	if (count > 19)
-+		count = 19;
-+	if (copy_from_user(__buf, buf, count))
-+		return -EFAULT;
-+	seccomp_mode = simple_strtoul(__buf, &end, 0);
-+	if (*end == '\n')
-+		end++;
-+	if (seccomp_mode && seccomp_mode <= NR_SECCOMP_MODES) {
-+		tsk->seccomp_mode = seccomp_mode;
-+		set_tsk_thread_flag(tsk, TIF_SECCOMP);
-+	}
-+	if (unlikely(!(end - __buf)))
-+		return -EIO;
-+	return end - __buf;
-+}
-+
-+static struct file_operations proc_seccomp_operations = {
-+	.read		= seccomp_read,
-+	.write		= seccomp_write,
-+};
-+
- static int proc_pid_follow_link(struct dentry *dentry, struct nameidata *nd)
- {
- 	struct inode *inode = dentry->d_inode;
-@@ -1342,6 +1399,10 @@ static struct dentry *proc_pident_lookup
- 			inode->i_op = &proc_mem_inode_operations;
- 			inode->i_fop = &proc_mem_operations;
- 			break;
-+		case PROC_TID_SECCOMP:
-+		case PROC_TGID_SECCOMP:
-+			inode->i_fop = &proc_seccomp_operations;
-+			break;
- 		case PROC_TID_MOUNTS:
- 		case PROC_TGID_MOUNTS:
- 			inode->i_fop = &proc_mounts_operations;
-Files 2.6.7/ID and seccomp/ID differ
-diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids 2.6.7/include/asm-i386/thread_info.h seccomp/include/asm-i386/thread_info.h
---- 2.6.7/include/asm-i386/thread_info.h	2004-05-10 08:59:36.000000000 +0200
-+++ seccomp/include/asm-i386/thread_info.h	2004-07-04 18:25:17.304830808 +0200
-@@ -152,6 +152,7 @@ static inline unsigned long current_stac
- #define TIF_SINGLESTEP		4	/* restore singlestep on return to user mode */
- #define TIF_IRET		5	/* return with iret */
- #define TIF_SYSCALL_AUDIT	7	/* syscall auditing active */
-+#define TIF_SECCOMP		8	/* secure computing */
- #define TIF_POLLING_NRFLAG	16	/* true if poll_idle() is polling TIF_NEED_RESCHED */
- 
- #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
-@@ -161,12 +162,13 @@ static inline unsigned long current_stac
- #define _TIF_SINGLESTEP		(1<<TIF_SINGLESTEP)
- #define _TIF_IRET		(1<<TIF_IRET)
- #define _TIF_SYSCALL_AUDIT	(1<<TIF_SYSCALL_AUDIT)
-+#define _TIF_SECCOMP		(1<<TIF_SECCOMP)
- #define _TIF_POLLING_NRFLAG	(1<<TIF_POLLING_NRFLAG)
- 
- /* work to do on interrupt/exception return */
- #define _TIF_WORK_MASK \
--  (0x0000FFFF & ~(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT))
--#define _TIF_ALLWORK_MASK	0x0000FFFF	/* work to do on any return to u-space */
-+  (0x0000FFFF & ~(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SECCOMP))
-+#define _TIF_ALLWORK_MASK	(0x0000FFFF & ~_TIF_SECCOMP) /* work to do on any return to u-space */
- 
- /*
-  * Thread-synchronous status.
-diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids 2.6.7/include/linux/sched.h seccomp/include/linux/sched.h
---- 2.6.7/include/linux/sched.h	2004-05-10 08:59:41.000000000 +0200
-+++ seccomp/include/linux/sched.h	2004-07-04 17:34:34.601392040 +0200
-@@ -480,6 +480,7 @@ struct task_struct {
- 	
- 	void *security;
- 	struct audit_context *audit_context;
-+	unsigned int seccomp_mode;
- 
- /* Thread group tracking */
-    	u32 parent_exec_id;
-diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids 2.6.7/include/linux/seccomp.h seccomp/include/linux/seccomp.h
---- 2.6.7/include/linux/seccomp.h	1970-01-01 01:00:00.000000000 +0100
-+++ seccomp/include/linux/seccomp.h	2004-07-04 17:39:40.097949504 +0200
-@@ -0,0 +1,8 @@
-+#ifndef _LINUX_SECCOMP_H
-+#define _LINUX_SECCOMP_H
-+
-+#define NR_SECCOMP_MODES 1
-+
-+extern void secure_computing(int);
-+
-+#endif /* _LINUX_SECCOMP_H */
-diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids 2.6.7/kernel/Makefile seccomp/kernel/Makefile
---- 2.6.7/kernel/Makefile	2004-05-10 08:59:41.000000000 +0200
-+++ seccomp/kernel/Makefile	2004-07-04 18:28:31.347331864 +0200
-@@ -7,7 +7,7 @@ obj-y     = sched.o fork.o exec_domain.o
- 	    sysctl.o capability.o ptrace.o timer.o user.o \
- 	    signal.o sys.o kmod.o workqueue.o pid.o \
- 	    rcupdate.o intermodule.o extable.o params.o posix-timers.o \
--	    kthread.o
-+	    kthread.o seccomp.o
- 
- obj-$(CONFIG_FUTEX) += futex.o
- obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
-diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} --exclude .arch-ids 2.6.7/kernel/seccomp.c seccomp/kernel/seccomp.c
---- 2.6.7/kernel/seccomp.c	1970-01-01 01:00:00.000000000 +0100
-+++ seccomp/kernel/seccomp.c	2004-07-04 19:12:51.063993472 +0200
-@@ -0,0 +1,54 @@
-+/*
-+ * linux/kernel/seccomp.c
-+ *
-+ * Copyright 2004  Andrea Arcangeli <andrea@cpushare.com>
-+ *
-+ * This defines a simple but solid secure-computing mode.
-+ */
-+
-+#include <linux/seccomp.h>
-+#include <linux/sched.h>
-+#include <asm/unistd.h>
-+
-+/* #define SECCOMP_DEBUG 1 */
-+
-+/*
-+ * Secure computing mode 1 allows only read/write/close/exit.
-+ * To be fully secure this must be combined with rlimit
-+ * to limit the stack allocations too.
-+ */
-+static int mode1_syscalls[] = {
-+	__NR_read, __NR_write, __NR_exit,
-+	/*
-+	 * Allow either sigreturn or rt_sigreturn, newer archs
-+	 * like x86-64 only defines __NR_rt_sigreturn.
-+	 */
-+#ifdef __NR_sigreturn
-+	__NR_sigreturn,
-+#else
-+	__NR_rt_sigreturn,
-+#endif
-+};
-+
-+void secure_computing(int this_syscall)
-+{
-+	int mode = current->seccomp_mode;
-+	int * syscall;
-+
-+	switch (mode) {
-+	case 1:
-+		for (syscall = mode1_syscalls;
-+		     syscall < mode1_syscalls + sizeof(mode1_syscalls)/sizeof(int);
-+		     syscall++)
-+			if (*syscall == this_syscall)
-+				return;
-+		break;
-+	default:
-+		BUG();
-+	}
-+
-+#ifdef SECCOMP_DEBUG
-+	dump_stack();
-+#endif
-+	do_exit(SIGKILL);
-+}
+--=-vOKpFUOcoRS4og7TfOJr
+Content-Disposition: attachment; filename=lspci-vvv
+Content-Type: text/plain; name=lspci-vvv; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+0000:00:00.0 Host bridge: Intel Corp. 82855PM Processor to I/O Controller (rev 21)
+	Subsystem: Acer Incorporated [ALI]: Unknown device 003c
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 0
+	Region 0: Memory at b0000000 (32-bit, prefetchable)
+	Capabilities: <available only to root>
+
+0000:00:01.0 PCI bridge: Intel Corp. 82855PM Processor to AGP Controller (rev 21) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 128
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
+	I/O behind bridge: 0000c000-0000dfff
+	Memory behind bridge: e0000000-efffffff
+	Prefetchable memory behind bridge: a0000000-afffffff
+	Expansion ROM at 0000c000 [disabled] [size=8K]
+	BridgeCtl: Parity- SERR+ NoISA- VGA+ MAbort- >Reset- FastB2B-
+
+0000:00:1d.0 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #1 (rev 03) (prog-if 00 [UHCI])
+	Subsystem: Acer Incorporated [ALI]: Unknown device 003c
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin A routed to IRQ 10
+	Region 4: I/O ports at 1200 [size=32]
+
+0000:00:1d.1 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #2 (rev 03) (prog-if 00 [UHCI])
+	Subsystem: Acer Incorporated [ALI]: Unknown device 003c
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin B routed to IRQ 10
+	Region 4: I/O ports at 1600 [size=32]
+
+0000:00:1d.2 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #3 (rev 03) (prog-if 00 [UHCI])
+	Subsystem: Acer Incorporated [ALI]: Unknown device 003c
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin C routed to IRQ 10
+	Region 4: I/O ports at 1700 [size=32]
+
+0000:00:1d.7 USB Controller: Intel Corp. 82801DB (ICH4) USB2 EHCI Controller (rev 03) (prog-if 20 [EHCI])
+	Subsystem: Acer Incorporated [ALI]: Unknown device 003c
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin D routed to IRQ 10
+	Region 0: Memory at f4000000 (32-bit, non-prefetchable)
+	Capabilities: <available only to root>
+
+0000:00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 83) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR+
+	Latency: 0
+	Bus: primary=00, secondary=02, subordinate=02, sec-latency=32
+	I/O behind bridge: 0000a000-0000bfff
+	Memory behind bridge: d0000000-dfffffff
+	Prefetchable memory behind bridge: 90000000-9fffffff
+	BridgeCtl: Parity- SERR+ NoISA- VGA- MAbort- >Reset- FastB2B-
+
+0000:00:1f.0 ISA bridge: Intel Corp. 82801DBM LPC Interface Controller (rev 03)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+0000:00:1f.1 IDE interface: Intel Corp. 82801DBM (ICH4) Ultra ATA Storage Controller (rev 03) (prog-if 8a [Master SecP PriP])
+	Subsystem: Acer Incorporated [ALI]: Unknown device 003c
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin A routed to IRQ 10
+	Region 0: I/O ports at <unassigned>
+	Region 1: I/O ports at <unassigned>
+	Region 2: I/O ports at <unassigned>
+	Region 3: I/O ports at <unassigned>
+	Region 4: I/O ports at 1100 [size=16]
+	Region 5: Memory at 20000000 (32-bit, non-prefetchable) [size=1K]
+
+0000:00:1f.3 SMBus: Intel Corp. 82801DB/DBM (ICH4) SMBus Controller (rev 03)
+	Subsystem: Acer Incorporated [ALI]: Unknown device 003c
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin B routed to IRQ 10
+	Region 4: I/O ports at 1400 [size=32]
+
+0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801DB (ICH4) AC'97 Audio Controller (rev 03)
+	Subsystem: Acer Incorporated [ALI]: Unknown device 003c
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin B routed to IRQ 10
+	Region 0: I/O ports at e000
+	Region 1: I/O ports at e100 [size=64]
+	Region 2: Memory at f0000400 (32-bit, non-prefetchable) [size=512]
+	Region 3: Memory at f0000600 (32-bit, non-prefetchable) [size=256]
+	Capabilities: <available only to root>
+
+0000:00:1f.6 Modem: Intel Corp. 82801DB (ICH4) AC'97 Modem Controller (rev 03) (prog-if 00 [Generic])
+	Subsystem: Acer Incorporated [ALI]: Unknown device 003c
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin B routed to IRQ 10
+	Region 0: I/O ports at e200
+	Region 1: I/O ports at e300 [size=128]
+	Capabilities: <available only to root>
+
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc RV250 5c61 [Radeon Mobility 9200 M9+] (rev 01) (prog-if 00 [VGA])
+	Subsystem: Acer Incorporated [ALI]: Unknown device 003c
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 255 (2000ns min), Cache Line Size: 0x04 (16 bytes)
+	Interrupt: pin A routed to IRQ 10
+	Region 0: Memory at a8000000 (32-bit, prefetchable)
+	Region 1: I/O ports at c100 [size=256]
+	Region 2: Memory at e0010000 (32-bit, non-prefetchable) [size=64K]
+	Capabilities: <available only to root>
+
+0000:02:00.0 FireWire (IEEE 1394): Texas Instruments TSB43AB21 IEEE-1394a-2000 Controller (PHY/Link) (prog-if 10 [OHCI])
+	Subsystem: Acer Incorporated [ALI]: Unknown device 003c
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 128 (500ns min, 1000ns max), Cache Line Size: 0x04 (16 bytes)
+	Interrupt: pin A routed to IRQ 10
+	Region 0: Memory at d0001800 (32-bit, non-prefetchable)
+	Region 1: Memory at d0004000 (32-bit, non-prefetchable) [size=16K]
+	Capabilities: <available only to root>
+
+0000:02:01.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+	Subsystem: Acer Incorporated [ALI]: Unknown device 003c
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 128 (8000ns min, 16000ns max)
+	Interrupt: pin A routed to IRQ 10
+	Region 0: I/O ports at a000
+	Region 1: Memory at d0001000 (32-bit, non-prefetchable) [size=256]
+	Capabilities: <available only to root>
+
+0000:02:02.0 Network controller: Intel Corp. Intel(R) PRO/Wireless 2200BG (rev 05)
+	Subsystem: Intel Corp.: Unknown device 2701
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 128 (750ns min, 6000ns max)
+	Interrupt: pin A routed to IRQ 10
+	Region 0: Memory at d0000000 (32-bit, non-prefetchable)
+	Capabilities: <available only to root>
+
+0000:02:04.0 CardBus bridge: ENE Technology Inc CB1410 Cardbus Controller (rev 01)
+	Subsystem: Acer Incorporated [ALI]: Unknown device 003c
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 128, Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 10
+	Region 0: Memory at 90100000 (32-bit, non-prefetchable)
+	Bus: primary=02, secondary=03, subordinate=06, sec-latency=176
+	Memory window 0: 00000000-00000000
+	Memory window 1: 00000000-00000000
+	I/O window 0: 00000000-00000003
+	I/O window 1: 00000000-00000003
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite-
+	16-bit legacy interface ports at 0001
+
+
+--=-vOKpFUOcoRS4og7TfOJr--
+

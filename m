@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262869AbVAKRDX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262839AbVAKRFq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262869AbVAKRDX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 12:03:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbVAKQ4t
+	id S262839AbVAKRFq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 12:05:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262831AbVAKRDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 11:56:49 -0500
-Received: from web54502.mail.yahoo.com ([68.142.225.172]:14711 "HELO
-	web54502.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262832AbVAKQpQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 11:45:16 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=fMIwqJEQVAKXuoY0rYAXucjbFGyMFhxi8jTquQWEiUPtc5MS7+qz7XdZ62nwCFdw+Boq+FaSrBOIOm2KOCNH0c4oSnFxpRgJ2aDqjW58yU66kTAwek6g9Ft9NE/KpD4844h5TOWAMD16bry69KjCSm4h/ppwSC33pbV5ci9O76U=  ;
-Message-ID: <20050111164507.92884.qmail@web54502.mail.yahoo.com>
-Date: Tue, 11 Jan 2005 08:45:07 -0800 (PST)
-From: Shakthi Kannan <shakstux@yahoo.com>
-Subject: Re: mount PCI-express RAM memory as block device
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20050107201730.40634.qmail@web54502.mail.yahoo.com>
+	Tue, 11 Jan 2005 12:03:42 -0500
+Received: from mail.dif.dk ([193.138.115.101]:11458 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262832AbVAKRCf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 12:02:35 -0500
+Date: Tue, 11 Jan 2005 18:05:05 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, Steve Bergman <steve@rueb.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Proper procedure for reporting possible security vulnerabilities?
+In-Reply-To: <20050110164001.Q469@build.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.61.0501111758290.3368@dragon.hygekrogen.localhost>
+References: <41E2B181.3060009@rueb.com> <87d5wdhsxo.fsf@deneb.enyo.de>
+ <41E2F6B3.9060008@rueb.com> <Pine.LNX.4.61.0501102309270.2987@dragon.hygekrogen.localhost>
+ <20050110164001.Q469@build.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 10 Jan 2005, Chris Wright wrote:
 
---- "Arnd Bergmann" <arnd@arndb.de> wrote:
-> You could use the MTD block driver with on the phram
+> * Jesper Juhl (juhl-lkml@dif.dk) wrote:
+> > On Mon, 10 Jan 2005, Steve Bergman wrote:
+> > > Actually I am having a discussion with a Pax Team member about how the recent
+> > > exploits discovered by the grsecurity guys should have been handled.  They
+> > > clam that they sent email to Linus and Andrew and did not receive a response
+> > > for 3 weeks, and that is why they released exploit code into the wild.
+> > > 
+> > > Anyone here have any comments on what I should tell him?
+> > > 
+> > I don't know what other people would do or what the general feeling on 
+> > the list is, but personally I'd send such reports to the maintainer and 
+> > CC lkml, if there is no maintainer I'd just send to lkml.
+> 
+> Problem is, the rest of the world uses a security contact for reporting
+> security sensitive bugs to project maintainers and coordinating
+> disclosures.  I think it would be good for the kernel to do that as well.
+> 
+Problem is that the info can then get stuck at a vendor or maintainer 
+outside of public view and risk being mothballed. It also limits the 
+number of people who can work on a solution (including peole getting to 
+work on auditing other code for similar issues). It also prevents admins 
+from taking alternative precautions prior to availability of a fix (you 
+have to assume the bad guys already know of the bug, not just the good 
+guys).
 
-> device by simply specifying the address/size of the 
-> memory as a module parameter.  If you need 
-> autodetection, the easiest way to do that would be 
-> including the phram MTD driver in your pci device 
-> driver.
+-- 
+Jesper Juhl
 
-I studied the slram.c and rd.c device drivers. The
-ramdisk driver that I had written earlier, similar to
-the above, had worked fine. With respect to PCI
-express, I had to modify just the memory tranfer
-function. The memcpy functions translate to byte
-access. But, PCI express is dword access. So, I wrote
-my own memory copy to do long read/write using
-readl(), writel(). The block device driver works fine.
-
-Thanks,
-
-K Shakthi
-
-=====
------------------------------------------------------
-K Shakthi
-Specsoft (Hexaware Technologies), ASIC Design Center
-http://www.geocities.com/shakthimaan
------------------------------------------------------
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Read only the mail you want - Yahoo! Mail SpamGuard. 
-http://promotions.yahoo.com/new_mail 

@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318756AbSICMSl>; Tue, 3 Sep 2002 08:18:41 -0400
+	id <S318764AbSICMel>; Tue, 3 Sep 2002 08:34:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318764AbSICMSl>; Tue, 3 Sep 2002 08:18:41 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:16805 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318756AbSICMSj>;
-	Tue, 3 Sep 2002 08:18:39 -0400
-Date: Tue, 3 Sep 2002 17:34:00 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Benjamin LaHaise <bcrl@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Pavel Machek <pavel@elf.ucw.cz>, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org
-Subject: Re: aio-core in 2.5 - io_queue_wait and io_getevents
-Message-ID: <20020903173400.A2857@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <1028223041.14865.80.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com> <20020801140112.G21032@redhat.com> <20020815235459.GG14394@dualathlon.random> <20020815214225.H29874@redhat.com> <20020816150945.A1832@in.ibm.com> <20020816100334.GP14394@dualathlon.random> <20020816165306.A2055@in.ibm.com> <20020902184043.GN1210@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020902184043.GN1210@dualathlon.random>; from andrea@suse.de on Mon, Sep 02, 2002 at 08:40:43PM +0200
+	id <S318768AbSICMel>; Tue, 3 Sep 2002 08:34:41 -0400
+Received: from iris.mc.com ([192.233.16.119]:23682 "EHLO mc.com")
+	by vger.kernel.org with ESMTP id <S318764AbSICMek>;
+	Tue, 3 Sep 2002 08:34:40 -0400
+Message-Id: <200209031237.IAA27024@mc.com>
+Content-Type: text/plain; charset=US-ASCII
+From: mbs <mbs@mc.com>
+To: Andre Hedrick <andre@linux-ide.org>, Mike Isely <isely@pobox.com>
+Subject: 2.4.20-pre4-ac1 trashed my system
+Date: Tue, 3 Sep 2002 08:41:40 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.10.10208302313040.1033-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10208302313040.1033-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changed the title to reflect the latest discussion. Just wanted
-to comment on the nwait bit.
+it trashed mine also.
 
-On Mon, Sep 02, 2002 at 08:40:43PM +0200, Andrea Arcangeli wrote:
-> 
-> then about the 2.5 API we have such min_nr that allows the "at least
-> min_nr", instead of the previous default of "at least 1", so that it
-> allows implementing the aio_nwait of aix.
+supermicro p4dp8-g2 mobo
+2x 2.2 Xeon
+e7500 chipset
+wd400 40gb hd
 
-Partly, in the sense that the implementation still doesn't avoid 
-extra wakeups when less than min_nr events are available at a time 
-(if we are unlucky enough to have the min_nr events dripping in 
-slowly one at a time, we'd still have all those context switches, 
-won't we ?), though it saves on the extra user-kernel transitions 
-on those wakeups compared to if this were implemented in user-space 
-over an at-least-one primitive. 
+2.4.20-pre4-ac2 + RML preempt patch (applied cleanly)
 
-It is possible to play around with the implementation later though.
-The important bit is having "at least N" in the interface exported 
-by the kernel, which is good.
+boot it and eveything runs fine for a short while, then I start getting "bad 
+CRC" errors and "seek failure" errors.
 
-Regards
-Suparna
+I have had this problem with both ext2 and ext3
 
-> Andrea
+initially I thought it was a bad HD, so I installed a new one on a new cable 
+and did a complete rh7.3 install ran for a while eith no problems then built 
+the same kernel over again, rebooted into the new kernel and within seconds 
+was having problems again.
+
+2.4.19-rc3-ac4 +rml preempt has been dead stable, as has (so far) 2.4.29-ac4 
++rml and RH 2.4.18-3 and -5
+
+I am not doing anything funky with hd setup, not even specifying idebus= 
+
+this has happened with 40 and 80 wire cables.
+
+if there is any additional info I can provide please let me know.
+-- 
+/**************************************************
+**   Mark Salisbury       ||      mbs@mc.com     **
+** If you would like to sponsor me for the       **
+** Mass Getaway, a 150 mile bicycle ride to for  **
+** MS, contact me to donate by cash or check or  **
+** click the link below to donate by credit card **
+**************************************************/
+https://www.nationalmssociety.org/pledge/pledge.asp?participantid=86736

@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283404AbRK2V1r>; Thu, 29 Nov 2001 16:27:47 -0500
+	id <S283393AbRK2V0y>; Thu, 29 Nov 2001 16:26:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283400AbRK2V1g>; Thu, 29 Nov 2001 16:27:36 -0500
-Received: from dialpool-210-214-241-160.maa.sify.net ([210.214.241.160]:1284
-	"EHLO jefspc.mss") by vger.kernel.org with ESMTP id <S283407AbRK2V12>;
-	Thu, 29 Nov 2001 16:27:28 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Kernel File system Corruption related
-From: Jeffrin <jeffrin@msservices.org>
-Date: 29 Nov 2001 21:33:22 +0530
-Message-ID: <861yiho985.fsf@jeffrin@msservices.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.92
+	id <S283406AbRK2V0p>; Thu, 29 Nov 2001 16:26:45 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:60823 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S283393AbRK2V0f>;
+	Thu, 29 Nov 2001 16:26:35 -0500
+Date: Thu, 29 Nov 2001 13:10:46 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>, rwhron@earthlink.net
+Subject: Re: 2.5.1-pre3 FIXED (was Re: 2.5.1-pre3 DON'T USE)
+In-Reply-To: <20011129121431.D10601@suse.de>
+Message-ID: <Pine.LNX.4.10.10111291308260.20821-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 29 Nov 2001, Jens Axboe wrote:
 
-Hello ,
+> On Thu, Nov 29 2001, Jens Axboe wrote:
+> > Hi,
+> > 
+> > Please don't use this kernel unless you can afford to loose your data.
+> > I'm looking at the problem right now.
+> 
+> Ok the problem was only on highmem machines, the copying of data was
+> just wrong. The attached patch fixes that and a few other buglets, such
+> as:
+> 
+> - BIO_HASH remnant in LVM
+> - bouncing should take multi-page bio's into account
+> - bouncing should bounce pages _above_ the bounce_pfn :-)
+> - remove bio_size() macro, it's just silly
+> - multi-page bio fixes (BIO_CONTIG etc)
+> 
+> Linus, please apply.
+> 
+> I'm going to make a TODO list for the new block stuff, so potential
+> block janitors can get cracking on updating all those broken drivers
+> etc. If someone would be willing to coordinate this effort, let me know.
 
-I had done a 2.4.16 kernel related compilation
-and used it. When i did "init 0" for the first time
-and then again tried get a GNU/Linux system related to 2.4.16
-it might have showed related to severe filesystem corruption
-problems.And at one time related to that atleast i  could not even
-use GNU/Linux.It had atleast a i810  chipset and a Pentium
-Processor.
+When you think it is stable again I will supply you all an integration
+patch of my stuff and it will allow you to trace the data down the path
+ways to find any periodic or random acts of disk abuse.
 
+Regards,
 
-I have in my     house 2 machines which is not i810 and i
-did not find any problems related to  typical filesystem corruption.
+Andre Hedrick
+CEO/President, LAD Storage Consulting Group
+Linux ATA Development
+Linux Disk Certification Project
 
-
-May be a typical bug related to filesystem corruption
-is not completely fixed in 2.4.16.
-
-
--- 
-Jeffrin Jose T.
-www.MSServices.org
-GPG:1024D/F5726A1B
 

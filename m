@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264365AbUAHNU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 08:20:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264418AbUAHNU4
+	id S264384AbUAHNhp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 08:37:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264411AbUAHNhp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 08:20:56 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:22533 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S264365AbUAHNUz (ORCPT
+	Thu, 8 Jan 2004 08:37:45 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:12564 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S264384AbUAHNhn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 08:20:55 -0500
-From: Robin Rosenberg <robin.rosenberg@dewire.com>
-To: Olivier Galibert <galibert@pobox.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [autofs] [RFC] Towards a Modern Autofs
-Date: Thu, 8 Jan 2004 14:20:52 +0100
-User-Agent: KMail/1.5.3
-References: <3FFB12AD.6010000@sun.com> <3FFC8E5B.40203@sun.com> <20040108122916.GA72001@dspnet.fr.eu.org>
-In-Reply-To: <20040108122916.GA72001@dspnet.fr.eu.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 8 Jan 2004 08:37:43 -0500
+Date: Thu, 8 Jan 2004 05:39:01 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Joe Korty <joe.korty@ccur.com>, Andrew Morton <akpm@osdl.org>
+Subject: Broken big-endian SMP /proc/irq/prof_cpu_mask (2.6.0-mm1)?
+Message-Id: <20040108053901.70ef9012.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401081420.52248.robin.rosenberg@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-torsdagen den 8 januari 2004 13.29 skrev Olivier Galibert:
-> On Wed, Jan 07, 2004 at 05:55:23PM -0500, Mike Waychison wrote:
-> > Yes, an 'ls' actually does an lstat on every file.
->
-> I guess you haven't met the plague called color-ls yet.  Lucky you.
->
-> Most modern file browsers also seem to feel obligated to follow
-> symlinks to check whether they're dangling.  A mis-click on "up" when
-> you're on your home directory could cause a beautiful mount-storm.
->
+Are you running 2.6.0-mm1 or later on a big-endian SMP box?
 
-Not to mention the more complex graphical environments like Konqueror in KDE which produces a 
-nice icon with a preview of whatever the a link points to. It also scans directories in 
-order to tag the large icon with an even smaller icons to indicate what type of files the directory 
-contains. It is very nice, but very different from ls.
+If so, I probably broke your file /proc/irq/prof_cpu_mask file
+(and /proc/irq/<pid>/smp_affinity files as well ...).
 
--- robin
+Could you cat out /proc/irq/prof_cpu_mask for me, if you have
+such a box, and tell me if the bytes are backward?  Please also
+indicate your hardware architecture and number of CPUs, just
+so I can be sure I am on track here.
 
+If say you have 4 CPUs, then seeing something in the range of "1" to "f"
+would be good news, but seeing some multiple of 1000000 would be bad
+news.
+
+For further details, see the lkml thread started yesterday
+by joe.korty@ccur.com:
+
+  Subject: seperator error in __mask_snprintf_len
+
+If I have broken this as I suspect, I will prepare a patch for Andrew
+shortly that fixes it.
+
+Thanks for you assistance.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267125AbUBSJgP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 04:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267127AbUBSJgP
+	id S267129AbUBSJjb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 04:39:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267132AbUBSJjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 04:36:15 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:34725 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S267125AbUBSJgN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 04:36:13 -0500
-Date: Thu, 19 Feb 2004 10:36:10 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: David Mosberger-Tang <David.Mosberger@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Intel x86-64 support merge
-Message-ID: <20040219093610.GF17140@khan.acc.umu.se>
-Mail-Followup-To: David Mosberger-Tang <David.Mosberger@acm.org>,
-	linux-kernel@vger.kernel.org
-References: <1qHr5-2tJ-39@gated-at.bofh.it> <1qHr5-2tJ-37@gated-at.bofh.it> <1qIZw-6b9-17@gated-at.bofh.it> <1qJsI-6Be-57@gated-at.bofh.it> <ugisi4vsql.fsf@panda.mostang.com>
+	Thu, 19 Feb 2004 04:39:31 -0500
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:22788 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S267129AbUBSJj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 04:39:29 -0500
+Subject: Re: 2.6: No hot_UN_plugging of PCMCIA network cards
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Arne Ahrend <aahrend@web.de>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <4034016C.5070307@pobox.com>
+References: <20040122210501.40800ea7.aahrend@web.de>
+	 <20040122213757.H23535@flint.arm.linux.org.uk>
+	 <20040123232025.4a128ead.aahrend@web.de>
+	 <20040124004530.B25466@flint.arm.linux.org.uk> <4034016C.5070307@pobox.com>
+Content-Type: text/plain
+Message-Id: <1077183550.802.3.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ugisi4vsql.fsf@panda.mostang.com>
-User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Thu, 19 Feb 2004 10:39:11 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18, 2004 at 04:05:22PM -0800, David Mosberger-Tang wrote:
-> >>>>> On Thu, 19 Feb 2004 00:40:24 +0100, Arjan van de Ven <arjan@fenrus.demon.nl> said:
-> 
->   Arjan> On Wed, 2004-02-18 at 23:57, H. Peter Anvin wrote:
->   >>  Because they were caught by surprise and just hacked the chips
->   >> they had in the pipeline, presumably.
-> 
->   Arjan> fair enough; I hope this means the next generation has this
->   Arjan> wart fixed...
-> 
-> I wouldn't hold my breath.  My impression was that the Intel chipset
-> folks don't want I/O MMU because (a) Windows doesn't need it and (b)
-> real machines use (close-to-)64-bit-capable hardware.
+On Thu, 2004-02-19 at 01:21, Jeff Garzik wrote:
+> Russell King wrote:
+> > On Fri, Jan 23, 2004 at 11:20:25PM +0100, Arne Ahrend wrote:
+> > 
+> >>>It works for me - with pcnet_cs.  Do you have ipv6 configured into the
+> >>>kernel?
+> >>
+> >>No.
+> > 
+> > 
+> > Argh, it seems that several patches which were in the netdrv experimental
+> > tree never got merged.
+> > 
+> > Jeff - what's the situation with the net driver experimental tree?
+> > Could the DEV_STALE_CONFIG patches from around December time be
+> > merged please?
 
-Does Windows(-users) really need anything more than ever-more advanced
-graphics-adapters with ever-more buggy drivers and ever-faster CPU's,
-both to support their ever-more advanced and mind numbing games.  Oh,
-and ever-bigger hard disks to hold their ever-growing collections of
-mp3's and movies that they probably don't even listen to/watch...
+I've been experiencing hangs with -mm kernels and my CardBus 3Com NIC
+when resuming from APM suspend to disk which seem to be caused by the
+3c59x driver. The hang just gets resolved by unplugging, then plugging
+the CardBus NIC. This doesn't happen with vanilla tree, however.
 
-Yeeshh...
+I've found that reverting 3c9x-enable_wol.patch fixes this situation for
+me.
 
-Some day maybe even manufactors of Intel hardware might start to create
-intelligent, thought through hardware, but I seriously doubt it.
-
-
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

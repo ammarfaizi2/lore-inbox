@@ -1,70 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266519AbTGEWSr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 18:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266520AbTGEWSr
+	id S266520AbTGEWZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 18:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266524AbTGEWZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 18:18:47 -0400
-Received: from [163.118.102.59] ([163.118.102.59]:24448 "EHLO
-	mail.drunkencodepoets.com") by vger.kernel.org with ESMTP
-	id S266519AbTGEWSq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 18:18:46 -0400
-Date: Sat, 5 Jul 2003 18:23:59 -0400
-From: paterley <paterley@DrunkenCodePoets.com>
-To: paterley <paterley@DrunkenCodePoets.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.74-mm2
-Message-Id: <20030705182359.269b404d.paterley@DrunkenCodePoets.com>
-In-Reply-To: <20030705175830.4ccfead8.paterley@DrunkenCodePoets.com>
-References: <20030705132528.542ac65e.akpm@osdl.org>
-	<20030705175830.4ccfead8.paterley@DrunkenCodePoets.com>
-Organization: DrunkenCodePoets.com
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Sat__5_Jul_2003_18:23:59_-0400_0823ceb0"
+	Sat, 5 Jul 2003 18:25:28 -0400
+Received: from mta1.srv.hcvlny.cv.net ([167.206.5.4]:9040 "EHLO
+	mta1.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S266520AbTGEWZ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 18:25:27 -0400
+Date: Sat, 05 Jul 2003 18:39:41 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Re: [PATCH - RFC] [1/5] 64-bit network statistics - generic net
+In-reply-to: <20030705235131.A10511@electric-eye.fr.zoreil.com>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
+       Dave Jones <davej@codemonkey.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>, netdev@oss.sgi.com
+Message-id: <200307051839.50327.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+Content-description: clearsigned data
+User-Agent: KMail/1.5.2
+References: <E19YtAq-0006Xf-00@calista.inka.de>
+ <200307051700.32533.jeffpc@optonline.net>
+ <20030705235131.A10511@electric-eye.fr.zoreil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---Multipart_Sat__5_Jul_2003_18:23:59_-0400_0823ceb0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Saturday 05 July 2003 17:51, Francois Romieu wrote:
+> Jeff Sipek <jeffpc@optonline.net> :
+> > The thing is that x86 is here to stay for quite some time. Even if 64-bit
+> > processors take over the market, you will have so many "old" computers
+> > that can:
+> >
+> > - - be thrown out
+> > - - donated to some institution
+> > - - converted to routers, and other "embedded" systems
+> >
+> > Plus, they will be dirt cheap.
+>
+> - the PCI bus don't/won't/can't handle multiple 10 Gb/s adapters;
 
-ok, I get 4 of a kernel oops during boot, but the kernel seems to stay happy.  I'm going to keep it going for fun to see if I can cause more oopses.  Attached is the first of the 4 oopses.
+Ok, so let's stay in the range of gigabit ethernet...
 
-according to dmesg, immediately prior to the first oops, smbfs was unloaded due to unsafe usage.
+> - nobody sane would recycle x86 systems as core routers after having bought
+>   a few Gb/s link.
 
-Exact Error:
-Module smbfs cannot be unloaded due to unsafe usage in include/linux/module.h:482
+When you have "a few Gb/s links" you would not use your beloved Pentium 100 
+MHz to do the job, instead you would go for something like 1.5 GHz P4 or 
+Athlon, both of which would be cheaper than the new 64-bit architecture.
 
-I'll be around for a few more hours if there is anything I can do to help answer questions.
+Jeff.
 
-Pat Erley 
+P.S. I just looked up the cheapest gigabit copper I could find in 10 seconds, 
+and I found: D-Link DGE-500T for $36.27 this is just 4 times the price of the 
+cheapest fast ethernet I found on the same site (cdw.com - they are not the 
+cheapest, but I like them)
 
---Multipart_Sat__5_Jul_2003_18:23:59_-0400_0823ceb0
-Content-Type: application/octet-stream;
- name="debug.log"
-Content-Disposition: attachment;
- filename="debug.log"
-Content-Transfer-Encoding: base64
+- -- 
+A computer without Microsoft is like chocolate cake without mustard.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-VW5hYmxlIHRvIGhhbmRsZSBrZXJuZWwgTlVMTCBwb2ludGVyIGRlcmVmZXJlbmNlIGF0IHZpcnR1
-YWwgYWRkcmVzcyAwMDAwMDAwMAogcHJpbnRpbmcgZWlwOgowMDAwMDAwMAoqcGRlID0gMDAwMDAw
-MDAKT29wczogMDAwMCBbIzFdClNNUCAKQ1BVOiAgICAwCkVJUDogICAgMDA2MDpbPDAwMDAwMDAw
-Pl0gICAgTm90IHRhaW50ZWQgVkxJCkVGTEFHUzogMDAwMTAyODYKRUlQIGlzIGF0IDB4MAplYXg6
-IGMwMzgwYzIwICAgZWJ4OiBmZmZmZmZmNCAgIGVjeDogY2YwN2QzYTAgICBlZHg6IGNjODQ3ZjY4
-CmVzaTogY2YzYzI5NTAgICBlZGk6IGNmMDdkMmMwICAgZWJwOiBjYzg0N2YxOCAgIGVzcDogY2M4
-NDdlZmMKZHM6IDAwN2IgICBlczogMDA3YiAgIHNzOiAwMDY4ClByb2Nlc3MgcmMgKHBpZDogMTE5
-OCwgdGhyZWFkaW5mbz1jYzg0NjAwMCB0YXNrPWNmZDg2NmIwKQpTdGFjazogYzAxNjM3YWIgY2Yz
-YzI5NTAgY2YwN2QyYzAgY2M4NDdmNjggY2YzYzI5YzAgY2YzYzI5NTAgY2M4NDdmNjggY2M4NDdm
-NTAgCiAgICAgICBjMDE2M2ZmNyBjYzg0N2Y3MCBjZjA3ZDM4MCBjYzg0N2Y2OCBjYzg0N2Y0MCBj
-Yzg0N2Y3MCAwMDAwMDAwMSBjZjA3ZDM4MCAKICAgICAgIDAwMDAwMDAyIGNmYTI4ZjAwIDAwMDA4
-MjQxIDAwMDA4MjQxIGNmZDlhMDAwIGNjODQ3ZjljIGMwMTUzNzUxIGNmZDlhMDAwIApDYWxsIFRy
-YWNlOgogWzxjMDE2MzdhYj5dIF9fbG9va3VwX2hhc2grMHg5Yi8weGQwCiBbPGMwMTYzZmY3Pl0g
-b3Blbl9uYW1laSsweDJlNy8weDQyMAogWzxjMDE1Mzc1MT5dIGZpbHBfb3BlbisweDQxLzB4NzAK
-IFs8YzAxNTNiZDM+XSBzeXNfb3BlbisweDUzLzB4OTAKIFs8YzAxMDk0NWY+XSBzeXNjYWxsX2Nh
-bGwrMHg3LzB4YgoK
+iD8DBQE/B1OxwFP0+seVj/4RAkWfAJ9lYLk9zwpR2LpVLgVIDLovQewZKwCeLivr
+bRCwwzVIj29rmxiT5tpmkaM=
+=HXK9
+-----END PGP SIGNATURE-----
 
---Multipart_Sat__5_Jul_2003_18:23:59_-0400_0823ceb0--

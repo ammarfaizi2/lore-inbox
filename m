@@ -1,43 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272008AbRH2QaA>; Wed, 29 Aug 2001 12:30:00 -0400
+	id <S272015AbRH2Qpu>; Wed, 29 Aug 2001 12:45:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272009AbRH2Q3u>; Wed, 29 Aug 2001 12:29:50 -0400
-Received: from smtp.nwlink.com ([209.20.130.57]:11275 "EHLO smtp.nwlink.com")
-	by vger.kernel.org with ESMTP id <S272008AbRH2Q3l>;
-	Wed, 29 Aug 2001 12:29:41 -0400
-From: "Jonathan Zimmerman" <tyrius@nwlink.com>
-Reply-to: tyrius@nwlink.com
-To: linux-kernel@vger.kernel.org
-Date: Wed, 29 Aug 2001 09:29:55 -0700
-Subject: softirq & schedule documentation
-Message-id: <3b8d1887.44fb.0@nwlink.com>
-X-User-Info: 141.202.246.17
+	id <S272014AbRH2Qpl>; Wed, 29 Aug 2001 12:45:41 -0400
+Received: from archive.osdlab.org ([65.201.151.11]:17388 "EHLO fire.osdlab.org")
+	by vger.kernel.org with ESMTP id <S272010AbRH2Qp2>;
+	Wed, 29 Aug 2001 12:45:28 -0400
+Message-ID: <3B8D1ABF.4ED398DA@osdlab.org>
+Date: Wed, 29 Aug 2001 09:39:27 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+To: habanero@us.ibm.com
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: Journal FS Comparison on IOzone (was Netbench)
+In-Reply-To: <3B8A6122.3C784F2D@us.ibm.com> <3B8A9070.AD43D0E7@osdlab.org> <200108271929.OAA23048@popmail.austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I'm in the process of trying to track down a problem with the sparc32 port
 
-not booting and believe that the problem lies somewhere in either the scheduling
+Andrew Theurer wrote:
+> 
+> On Monday 27 August 2001 01:24 pm, Randy.Dunlap wrote:
+> > Hi,
+> >
+> > I am doing some similar FS comparisons, but using IOzone
+> > (www.iozone.org) instead of Netbench.
+> >
+> > Some preliminary (mostly raw) data are available at:
+> > http://www.osdlab.org/reports/journal_fs/
+> > (updated today).
+> >
+> > I am using a Linux 2.4.7 on a 4-way VA Linux system.
+> > It has 4 GB of RAM, but I have limited it to 256 MB in
+> > accordance with IOzone run rules.
+> >
+> > However, I suspect that this causes IOzone to measure disk
+> > subsystem or PCI bus performance more than it does FS performance.
+> > Any comments on this?
+> 
+> Randy,
+> 
+> You are definitly exceeding what the kernel will cache and writing to disk on
+> some tests.  I guess it depends on what is more important to you.  I think
+> both are valid things to test, and you may want to try not limiting memory to
+> get just FS performace in memory for large files.  However, writing to disk
+> is important, especially for things like bounce-buffer.  Did you have himem
+> support in your kernel?  If so, did you have a bounce-buffer elimination
+> patch as well?
 
-algorithm or ksoftirqd. Schedule is called by spawn_ksoftirqd, which then proceeds
+Hi-
 
-to loop infinately. I know that, eventually, prev = current = next = ksoftirqd.
+Sorry about the delay in responding.
 
-current->need_resched gets set to 0 in the move_rr_back block of schedule(),
+I'm interested in filesystem performance.  I'm not trying to
+document IDE vs. SCSI vs. FC performance/price tradeoffs, benefits,
+etc.
 
-but at some point in recalculate: it gets set back to 1.
+> Does the storage system/controller have a disk cache?  What size?
 
-Is there any sort of documentation on the softirq stuff and the scheduling algorithm
+Good questions, but I'm having trouble finding answers for them.
+(hence the delay in responding)
 
-out there that is relevant to 2.4.9? It seems that the only stuff I've managed
+The FC host controller is a QLogic 2200.  It is attached to an
+IBM FAStT controller/drive array -- one controller with 10
+attached drives.  I've been looking at the IBM FAStT OS console
+interface, but I can't see much cache info there.
+There is one item:  cache/processor sizes: 88/40 MB
 
-to find is based off the 2.2.x kernels.
+> Also, does IOzone default to num procs=num cpus?  I didn't see any options in
+> your cmdline for num_procs.
 
-Thanks,
+No, IOzone doesn't default to num_processes = num_cpus.
+That's a command-line option that I didn't use, although I expect
+to do some testing with that option also.
 
-Jonathan Zimmerman
+Thanks for your comments.
+
+~Randy

@@ -1,89 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267454AbUG2QRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267589AbUG2QSD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267454AbUG2QRM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 12:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267594AbUG2QPY
+	id S267589AbUG2QSD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 12:18:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264966AbUG2QR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 12:15:24 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:32774 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S268342AbUG2QMK (ORCPT
+	Thu, 29 Jul 2004 12:17:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41619 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267482AbUG2QQc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 12:12:10 -0400
-Date: Thu, 29 Jul 2004 18:12:03 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: dpf-lkml@fountainbay.com, jmorris@redhat.com, linux-kernel@vger.kernel.org,
-       aeb@cwi.nl
-Subject: Re: [PATCH] Delete cryptoloop
-Message-ID: <20040729161203.GB4008@pclin040.win.tue.nl>
-References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com> <20040721230044.20fdc5ec.akpm@osdl.org> <4411.24.6.231.172.1090470409.squirrel@24.6.231.172> <20040722014649.309bc26f.akpm@osdl.org>
+	Thu, 29 Jul 2004 12:16:32 -0400
+Subject: Re: [PATCH 20/22] AIO poll
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Avi Kivity <avi@exanet.com>
+Cc: jmoyer@redhat.com, suparna@in.ibm.com, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org, linux-osdl@osdl.org
+In-Reply-To: <41091FAA.6080409@exanet.com>
+References: <20040702130030.GA4256@in.ibm.com>
+	 <20040702163946.GJ3450@in.ibm.com>
+	 <16649.5485.651481.534569@segfault.boston.redhat.com>
+	 <41091FAA.6080409@exanet.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Sj2FQwNfcHD+EiPFDYFX"
+Organization: Red Hat UK
+Message-Id: <1091117766.2792.14.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040722014649.309bc26f.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : 
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 29 Jul 2004 18:16:07 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 22, 2004 at 01:46:49AM -0700, Andrew Morton wrote:
 
-> Your points can be simplified to "I don't use cryptoloop, but someone else
-> might" and "we shouldn't do this in a stable kernel".
-> 
-> Well, I want to hear from "someone else".  If removing cryptoloop will
-> irritate five people, well, sorry.  If it's 5,000 people, well maybe not.
-> 
-> Yes, I buy the "stable kernel" principle, but here we have an example where
-> it conflicts with the advancement of the kernel, and we need to make a
-> judgement call.
-> 
-> Actually, my most serious concern with cryptoloop is the claim that it is
-> insufficiently secure.  If this is true then we'd be better off removing
-> the feature altogether rather than (mis)leading our users into thinking
-> that their data is secure.
+--=-Sj2FQwNfcHD+EiPFDYFX
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The above sounds wrong / misguided.
+On Thu, 2004-07-29 at 18:02, Avi Kivity wrote:
+> Jeff Moyer wrote:
+>=20
+> >What are the barriers to getting the AIO poll support into the kernel?  =
+I
+> >think if we have AIO support at all, it makes sense to add this.
+> > =20
+> >
+> I second the motion. I don't see how one can write a server which uses=20
+> both networking and block aio without aio poll.
 
-First: "(mis)leading our users into thinking that their data is secure".
-Security is not a yes/no matter. There are degrees of protection against
-various possible attacks.
+one could try to use epoll and fix it to be usable for disk io too ;)
 
-Second: This seems to be a discussion about cryptoloop vs dm-crypt.
-But dm-crypt has the same weaknesses as cryptoloop, so from a crypto
-point of view there is zero reason to switch.
+--=-Sj2FQwNfcHD+EiPFDYFX
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-If there is a reason to switch it must be elegance and correctness and
-robustness of kernel implementation, together with the idea that we
-do not need more than one kernel implementation of roughly speaking
-the same concept. Not crypto, but just loop vs dm arguments.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Third: Announcing a date for the demise of cryptoloop seems a bit premature
-at a point in time when dm-crypt is not quite usable yet.
+iD8DBQBBCSLGxULwo51rQBIRAszxAJ9NmANR1mLCC0xTHRICTqN4yej0dgCeJgZ5
+FzQIrGDnWVuFM+Y7XOXn2XA=
+=81yu
+-----END PGP SIGNATURE-----
 
-I have the impression that cryptoloop and/or loop-aes presently are used by
-more than your 5000 users.
+--=-Sj2FQwNfcHD+EiPFDYFX--
 
-James Morris wrote:
-
-# Jari Ruusu ... Fruhwirth Clemens ...
-
-So far, every time I checked the details Jari Ruusu has been right.
-In the present discussion Fruhwirth Clemens showed an amazing lack
-of understanding of cryptography. His threat model seems limited to
-things like "chosen plaintext attack" etc.
-But there are so many entirely different attacks.
-
-# Part of the reason for dropping cryptoloop is to help dm-crypt
-# mature more quickly.
-
-A very strange reason. But maybe it fits in with dropping the idea
-of a stable kernel.
-
-# I've had some off-list email on the security of dm-crypt, and it seems
-# that it does need some work.  We need to get the security right more than
-# we need to worry about these other issues.
-
-Yes.
-
-Andries

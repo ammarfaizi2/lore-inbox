@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263469AbTJBS5A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 14:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263470AbTJBS5A
+	id S263468AbTJBS4f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 14:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263470AbTJBS4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 14:57:00 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:29453 "HELO
-	127.0.0.1") by vger.kernel.org with SMTP id S263469AbTJBS44 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 14:56:56 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: insecure <insecure@mail.od.ua>
-Reply-To: insecure@mail.od.ua
-To: Jeff Garzik <jgarzik@pobox.com>, Larry McVoy <lm@bitmover.com>
-Subject: Re: Minutes from 10/1 LSE Call
-Date: Thu, 2 Oct 2003 21:56:49 +0300
-X-Mailer: KMail [version 1.4]
-Cc: Andrew Morton <akpm@osdl.org>, Hanna Linder <hannal@us.ibm.com>,
-       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <37940000.1065035945@w-hlinder> <20031001233815.GB29605@work.bitmover.com> <3F7B701C.5020708@pobox.com>
-In-Reply-To: <3F7B701C.5020708@pobox.com>
+	Thu, 2 Oct 2003 14:56:35 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:31874 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263468AbTJBS4d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 14:56:33 -0400
+Date: Thu, 2 Oct 2003 14:59:28 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Hans-Georg Thien <1682-600@onlinehome.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: getting timestamp of last interrupt?
+In-Reply-To: <3F7C6319.4010407@onlinehome.de>
+Message-ID: <Pine.LNX.4.53.0310021454370.9782@chaos>
+References: <3EB19625.6040904@onlinehome.de> <3EBAAC12.F4EA298D@hp.com>
+ <3ED3CECA.9020706@onlinehome.de> <20030527231026.6deff7ed.subscript@free.fr>
+ <3F7C6319.4010407@onlinehome.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200310022156.49678.insecure@mail.od.ua>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 October 2003 03:23, Jeff Garzik wrote:
-> Larry McVoy wrote:
-> > On Wed, Oct 01, 2003 at 04:29:16PM -0700, Andrew Morton wrote:
-> >>If you have a loop like:
-> >>
-> >>	char *buf;
-> >>
-> >>	for (lots) {
-> >>		read(fd, buf, size);
-> >>	}
-> >>
-> >>the optimum value of `size' is small: as little as 8k.  Once `size' gets
-> >>close to half the size of the L1 cache you end up pushing the memory at
-> >>`buf' out of CPU cache all the time.
-> >
-> > I've seen this too, not that Andrew needs me to back him up, but in many
-> > cases even 4k is big enough.  Linux has a very thin system call layer so
-> > it is OK, good even, to use reasonable buffer sizes.
->
-> Slight tangent, FWIW...   Back when I was working on my "race-free
-> userland" project, I noticed that the fastest cp(1) implementation was
-> GNU's:  read/write from a single, statically allocated, page-aligned 4K
-> buffer.  I experimented with various buffer sizes, mmap-based copies,
-> and even with sendfile(2) where both arguments were files.
-> read(2)/write(2) of a single 4K buffer was always the fastest.
+On Thu, 2 Oct 2003, Hans-Georg Thien wrote:
 
-That sounds reasonable, but today's RAM throughput is on the order
-of 1GB/s, not 100Mb/s. 'Out of L1' theory can't explain 100Mb/s ceiling
-it seems.
---
-vda
+> I am looking for a possibility to read out the last timestamp when an
+> interrupt has occured.
+>
+> e.g.: the user presses a key on the keyboard. Where can I read out the
+> timestamp of this event?
+
+You can get A SIGIO signal for every keyboard, (or other input) event.
+What you do with it is entirely up to you. Linux/Unix doesn't have
+"callbacks", instead it has signals. It also has select() and poll(),
+all useful for handling such events. If you want a time-stamp, you
+call gettimeofday() in your signal handler.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

@@ -1,38 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbULLA0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262042AbULLAjs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262039AbULLA0X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 19:26:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbULLA0X
+	id S262042AbULLAjs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 19:39:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbULLAjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 19:26:23 -0500
-Received: from adsl-70-241-115-85.dsl.hstntx.swbell.net ([70.241.115.85]:2688
-	"EHLO leamonde.no-ip.org") by vger.kernel.org with ESMTP
-	id S262039AbULLA0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 19:26:20 -0500
-Date: Sat, 11 Dec 2004 18:26:18 -0600
-From: "Camilo A. Reyes" <camilo@leamonde.no-ip.org>
-To: Ryan Cumming <ryan@spitfire.gotdns.org>, linux-kernel@vger.kernel.org
-Subject: Re: modprobe: QM_MODULES: Funtion not implemented on kernel 2.6.9
-Message-ID: <20041212002618.GA733@leamonde.no-ip.org>
-References: <20041211195133.GA2210@leamonde.no-ip.org> <41BB86F1.4080804@osdl.org> <41BB87C0.8050807@osdl.org> <200412111603.16153.ryan@spitfire.gotdns.org>
+	Sat, 11 Dec 2004 19:39:48 -0500
+Received: from 90.Red-213-97-199.pooles.rima-tde.net ([213.97.199.90]:22668
+	"HELO fargo") by vger.kernel.org with SMTP id S262042AbULLAjq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 19:39:46 -0500
+Date: Sun, 12 Dec 2004 01:38:57 +0100
+From: David =?iso-8859-15?Q?G=F3mez?= <david@pleyades.net>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Simos Xenitellis <simos74@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Improved console UTF-8 support for the Linux kernel?
+Message-ID: <20041212003857.GA14844@fargo>
+Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	Simos Xenitellis <simos74@gmx.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1102784797.4410.8.camel@kl> <20041211173032.GA13208@fargo> <Pine.LNX.4.53.0412112002020.30929@yvahk01.tjqt.qr> <1102803807.3183.59.camel@kl> <Pine.LNX.4.61.0412120058230.15129@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <200412111603.16153.ryan@spitfire.gotdns.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.61.0412120058230.15129@yvahk01.tjqt.qr>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 11, 2004 at 04:03:16PM -0800, Ryan Cumming wrote:
-> On December 11, 2004 15:50, you wrote:
-> > but a more common location for it is this:
-> >
-> > http://www.kernel.org/pub/linux/utils/kernel/module-init-tools/
-> 
-> Or just click the first link Google returns for "module-init-tools". There are 
-> 4 links to it on the first page of results alone.
-> 
-> -Ryan
+Hi Jan ;),
 
-ha, i was actually looking for modules-init-tools on google, no
-wonder why it wasn't pulling up anything... thanks you all!
+> >I am not sure how you wrote the above characters. According to UTF-8,
+> >characters with codepoints above 0x79 require two bytes so that to be
+> >valid. When you compose "ö" (you press something like ";", then "o") in
+> >the console?
+> 
+> ö is a "native key" on my keyboard, i.e. i do not need to play with compose to 
+> generate ö.
+
+Aaahh ;), you've should said that before. The whole problem with the
+kernel is with the compose tables. If you have a native key for "ö" in
+your keyboard you'll not have problems. I can type for example a 'n
+with tilde' in my keyboard because is too is a native key, but for
+accentuated characters, for utf-8 output is neccesary to apply the patch :-/
+
+regards,
+
+-- 
+David Gómez                                      Jabber ID: davidge@jabber.org

@@ -1,82 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268241AbUHKVtS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268244AbUHKVvT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268241AbUHKVtS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 17:49:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268244AbUHKVtS
+	id S268244AbUHKVvT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 17:51:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268247AbUHKVvT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 17:49:18 -0400
-Received: from fw.osdl.org ([65.172.181.6]:4304 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268241AbUHKVtJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 17:49:09 -0400
-Date: Wed, 11 Aug 2004 14:25:46 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: bunk@fs.tum.de, zippel@linux-m68k.org, sam@ravnborg.org,
+	Wed, 11 Aug 2004 17:51:19 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:19160 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268244AbUHKVvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 17:51:14 -0400
+Date: Wed, 11 Aug 2004 23:51:06 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Len Brown <len.brown@intel.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] select FW_LOADER -> depends HOTPLUG
-Message-Id: <20040811142546.53dc84da.rddunlap@osdl.org>
-In-Reply-To: <20040811111525.GA2205@dmt.cyclades>
-References: <20040809195656.GX26174@fs.tum.de>
-	<20040809203840.GB19748@mars.ravnborg.org>
-	<Pine.LNX.4.58.0408100130470.20634@scrub.home>
-	<20040810084411.GI26174@fs.tum.de>
-	<20040810211656.GA7221@mars.ravnborg.org>
-	<20040811111525.GA2205@dmt.cyclades>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Subject: Re: 2.6.8-rc4-mm1 doesn't boot
+Message-ID: <20040811215105.GK26174@fs.tum.de>
+References: <566B962EB122634D86E6EE29E83DD808182C2B33@hdsmsx403.hd.intel.com> <1092259920.5021.117.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092259920.5021.117.camel@dhcppc4>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Aug 2004 08:15:25 -0300 Marcelo Tosatti wrote:
+On Wed, Aug 11, 2004 at 05:32:00PM -0400, Len Brown wrote:
+> I've never understood this floppy IRQ6 business.
+> Apparently it requests IRQ6, but doesn't show up in /proc/interrupts
+> 
+> In any case, dropping a PCI interrupt on IRQ6 would surely break it
+> b/c that would set that IRQ6 to level trigger.
+> 
+> Before this change, did LNKD get set to something other than IRQ6?
 
-| On Tue, Aug 10, 2004 at 11:16:57PM +0200, Sam Ravnborg wrote:
-| > On Tue, Aug 10, 2004 at 10:44:11AM +0200, Adrian Bunk wrote:
-| > > 
-| > > I assume Sam thinks in the direction to let a symbol inherit the 
-| > > dependencies off all symbols it selects.
-| > > 
-| > > E.g. in
-| > > 
-| > > config A
-| > > 	depends on B
-| > > 
-| > > config C
-| > > 	select A
-| >         depends on Z
-| > 
-| >   config Z
-| >         depends on Y
-| > > 
-| > > 
-| > > C should be treated as if it would depend on B.
-| > 
-| > Correct. But at the same time I miss some functionality to
-| > tell me what a given symbol:
-| > 1) depends on
-| > 2) selects
-| > 
-| > It would be nice in menuconfig to see what config symbol
-| > that has dependencies and/or side effects. 
-| 
-| Definately agreed. Not all users want/can go and grep the source 
-| tree looking for dependencies of a given 
-| symbol.
-| 
-| Showing the dependencies on menuconfig/xconfig is a user friendly 
-| feature. 
+Yes, this is my 2.6.8-rc3-mm1 /proc/interrupts :
 
-xconfig already has a way to do this.  Set all Options (5 of them,
-although fewer would probably work).  menuconfig doesn't do this.
+<--  snip  -->
 
-What would be even more helpful would be a way to tell *config to
-jump from <current location, where a symbol is used> to
-<where a symbol is defined>.
+           CPU0       
+  0:   17615908          XT-PIC  timer
+  1:      22333          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  6:      94751          XT-PIC  eth0
+  8:          4          XT-PIC  rtc
+  9:          0          XT-PIC  acpi
+ 10:       5119          XT-PIC  ehci_hcd
+ 11:    1329292          XT-PIC  Ensoniq AudioPCI, radeon@PCI:1:0:0
+ 12:     118130          XT-PIC  i8042
+ 14:      44614          XT-PIC  ide0
+ 15:         24          XT-PIC  ide1
+NMI:          0 
+ERR:          8
 
---
-~Randy
+<--  snip  -->
+
+
+> -Len
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,106 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267052AbSLXH6c>; Tue, 24 Dec 2002 02:58:32 -0500
+	id <S267059AbSLXIDN>; Tue, 24 Dec 2002 03:03:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267059AbSLXH6c>; Tue, 24 Dec 2002 02:58:32 -0500
-Received: from users.linvision.com ([62.58.92.114]:7617 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S267052AbSLXH6b>; Tue, 24 Dec 2002 02:58:31 -0500
-Date: Tue, 24 Dec 2002 09:05:20 +0100
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>, lk@tantalophile.demon.co.uk,
-       Ingo Molnar <mingo@elte.hu>, drepper@redhat.com,
-       bart@etpmod.phys.tue.nl, davej@codemonkey.org.uk, hpa@transmeta.com,
-       terje.eggestad@scali.com, matti.aarnio@zmailer.org, hugh@veritas.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021224090520.A19829@bitwizard.nl>
-References: <20021224112233.00e6295d.sfr@canb.auug.org.au> <Pine.LNX.4.44.0212232005080.2328-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267065AbSLXIDN>; Tue, 24 Dec 2002 03:03:13 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:58320 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267059AbSLXIDL>; Tue, 24 Dec 2002 03:03:11 -0500
+Date: Tue, 24 Dec 2002 00:11:16 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.53-mjb1 (scalability / NUMA patchset)
+Message-ID: <21380000.1040717475@titus>
+In-Reply-To: <568990000.1040112629@titus>
+References: <19270000.1038270642@flay>
+ <134580000.1039414279@titus><32230000.1039502522@titus>
+ <568990000.1040112629@titus>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212232005080.2328-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 23, 2002 at 08:10:14PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Tue, 24 Dec 2002, Stephen Rothwell wrote:
-> >
-> > And if you change the 0x00 use for alighment to 0x90 (nop) you can
-> > use gdb to disassemble that array of bytes to check any changes ...
-> 
-> Yeah, and I really should align the _normal_ return address (and not the
-> restart address).
-> 
-> Something like the appended, perhaps?
-> 
-> 		Linus
-> 
-> ===== arch/i386/kernel/entry.S 1.45 vs edited =====
-> --- 1.45/arch/i386/kernel/entry.S	Wed Dec 18 14:42:17 2002
-> +++ edited/arch/i386/kernel/entry.S	Mon Dec 23 20:02:10 2002
-> @@ -233,7 +233,7 @@
->  #endif
-> 
->  /* Points to after the "sysenter" instruction in the vsyscall page */
-> -#define SYSENTER_RETURN 0xffffe00a
-> +#define SYSENTER_RETURN 0xffffe010
-> 
->  	# sysenter call handler stub
->  	ALIGN
-> ===== arch/i386/kernel/sysenter.c 1.5 vs edited =====
-> --- 1.5/arch/i386/kernel/sysenter.c	Sun Dec 22 21:12:23 2002
-> +++ edited/arch/i386/kernel/sysenter.c	Mon Dec 23 20:04:33 2002
-> @@ -57,12 +57,17 @@
->  		0x51,			/* push %ecx */
->  		0x52,			/* push %edx */
->  		0x55,			/* push %ebp */
-> +	/* 3: backjump target */
->  		0x89, 0xe5,		/* movl %esp,%ebp */
->  		0x0f, 0x34,		/* sysenter */
-> -		0x00,			/* align return point */
-> -	/* System call restart point is here! (SYSENTER_RETURN - 2) */
-> -		0xeb, 0xfa,		/* jmp to "movl %esp,%ebp" */
-> -	/* System call normal return point is here! (SYSENTER_RETURN in entry.S) */
-> +
-> +	/* 7: align return point with nop's to make disassembly easier */
-> +		0x90, 0x90, 0x90, 0x90,
-> +		0x90, 0x90, 0x90,
-> +
-> +	/* 14: System call restart point is here! (SYSENTER_RETURN - 2) */
-> +		0xeb, 0xf3,		/* jmp to "movl %esp,%ebp" */
-> +	/* 16: System call normal return point is here! (SYSENTER_RETURN in entry.S) */
->  		0x5d,			/* pop %ebp */
->  		0x5a,			/* pop %edx */
->  		0x59,			/* pop %ecx */
+The patchset contains mainly scalability and NUMA stuff, and
+anything else that stops things from irritating me. It's meant
+to be pretty stable, not so much a testing ground for new stuff.
+I'd be very interested in feedback from other people running
+large SMP or NUMA boxes.
 
-Ehmm, Linus, 
+http://www.aracnet.com/~fletch/linux/2.5.53/patch-2.5.53-mjb1.bz2
 
-Why do you want to align the return point? Why are jump-targets aligned?
-Because they are faster. But why are they faster? Because the
-cache-line fill is more efficient: the CPU might execute those 
-instructions, while it has a smaller chance of hitting  the instructions
-before the target. 
+Since 2.5.52-mjb1
+- config_hz					Dave Hansen
++ config_hz (new version) 			Andrew Morton / Dave Hansen
+- i386_topo					Matt Dobson
++ i386_topo (new version)			Matt Dobson
 
-In this case, I'd guess we'd have more benefit from the sysenter return
-prefetching the sysenter cache line, than from prefetching the bunch
-of noops just behind the return from syscall. 
+Merged:
+- numaq_makefile                                Martin Bligh
+- numaq_apic                                    James Cleverdon / Martin 
+Bligh
+- numaq_mpparse1                                James Cleverdon / Martin 
+Bligh
+- numaq_mpparse2                                James Cleverdon / Martin 
+Bligh
 
-Now this is very hard to prove using a benchmark: In the benchmark 
-you'll quite likely run from a hot cache, and the cache line
-effects are the things we would want to measure. 
+Pending:
+Speed up page init on boot (Bill Irwin)
+Notsc automatic enablement
+Final bits of NUMA-Q / clustered_apic_mode to subarch (Martin)
+Full Summit support (James C / John)
+scheduler callers profiling (Anton)
+PPC64 NUMA patches (Anton)
+Scheduler tunables (rml)
+Lockless xtime structures (Andi)
 
-			Roger.
+kgdb						Various People
+	The older version of kgdb, not the shiny new stuff in Andrew's tree.
+	Yes, I'm boring and slow.
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currently in such an      * 
-* excursion: The stable situation does not include humans. ***************
+noframeptr					Martin Bligh
+	Disable -fomit_frame_pointer
+
+use_generic_topo				Matt Dobson
+	Make non-NUMA PPC64 use generic topology functions
+
+i386_topo					Matt Dobson
+	Some i386 topology cleanups to make it cache the data.
+
+numasched1					Erich Focht
+	Numa scheduler general foundation work + pooling
+
+numasched2					Michael Hohnbaum
+	Numa scheduler lightweight initial load balancing.
+
+local_pgdat					Bill Irwin
+	Move the pgdat structure into the remapped space with lmem_map
+
+early_printk					Dave Hansen et al.
+	Allow printk before console_init
+
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
+
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+vmalloc_stats					Dave Hansen
+	Expose useful vmalloc statistics
+
+shpte						Dave McCracken
+	Shared pagetables (as a config option)
+
+more_numaq1					James Cleverdon / Martin Bligh
+	yet more Numa-Q subarch splitup
+
+dcache_rcu					Dipankar / Maneesh
+	Use RCU type locking for the dentry cache.
+
+thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
+	Prep work to reduce kernel stacks to 4K
+	
+interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
+	Create a per-cpu interrupt stack.
+
+stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
+	Check for kernel stack overflows.
+
+4k_stack            (4K stacks pt 4)		Dave Hansen
+	Config option to reduce kernel stacks to 4K
+
+notsc						Martin Bligh
+	Enable notsc option for NUMA-Q (new version for new config system)
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+mjb1						Martin Bligh
+	Add a tag to the makefile
+

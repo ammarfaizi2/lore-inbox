@@ -1,28 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131919AbQKQL0z>; Fri, 17 Nov 2000 06:26:55 -0500
+	id <S129097AbQKQLdr>; Fri, 17 Nov 2000 06:33:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131882AbQKQL0g>; Fri, 17 Nov 2000 06:26:36 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29786 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132003AbQKQLZy>; Fri, 17 Nov 2000 06:25:54 -0500
-Subject: Re: sorted - was: How to add a drive to DMA black list?
-To: andre@linux-ide.org (Andre Hedrick)
-Date: Fri, 17 Nov 2000 10:55:23 +0000 (GMT)
-Cc: aia21@cam.ac.uk (Anton Altaparmakov), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10011161725300.6910-100000@master.linux-ide.org> from "Andre Hedrick" at Nov 16, 2000 05:26:13 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13wjAz-0000Uy-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129624AbQKQLdi>; Fri, 17 Nov 2000 06:33:38 -0500
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:17321 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129097AbQKQLd2>; Fri, 17 Nov 2000 06:33:28 -0500
+Message-Id: <5.0.2.1.2.20001117105359.00adbec0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Fri, 17 Nov 2000 11:03:56 +0000
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: How to add a drive to DMA black list?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E13wj7l-0000US-00@the-village.bc.nu>
+In-Reply-To: <5.0.0.25.2.20001116182436.00ab3160@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Then I need to fix that to prevent the bypass that should not happen.
+At 10:52 17/11/2000, Alan Cox wrote:
+> > I tried adding the string that is output for the bad drive by hdparm -i
+> > into drivers/ide/ide-dma.c::drive_blacklist and
+> > drivers/ide/ide-dma.c::bad_dma_drives but the kernel still says that it is
+> > using DMA and the kernel hangs after displaying:
+>
+>The black list is for drives with problems, not for controller bugs. 
+>Controller bugs in the Linux code just have to be fixed.
 
-No you need to fix the PIIX tuning hangs people keep reporting 8)
+That is obvious. I may be of course wrong, but I would consider this a 
+drive problem, considering that another ide drive on the same controller 
+works fine with DMA enabled (a QUANTUM TRB850A) while the Conner 
+Peripherals 1275MB - CFS1275A fails with DMA enabled. They are in fact both 
+attached simultaneously  to the PIIX controller (on different IDE channels, 
+both being masters) and one works and the other doesn't... - I should 
+probably have stated that when posting but I didn't consider it important 
+at the time (and copying by hand from one screen to another doesn't 
+encourage copying everything but the essentials...). - Am I missing something?
+
+Regards,
+
+Anton
+
+
+-- 
+      "Education is what remains after one has forgotten everything he 
+learned in school." - Albert Einstein
+-- 
+Anton Altaparmakov  Voice: +44-(0)1223-333541(lab) / +44-(0)7712-632205(mobile)
+Christ's College    eMail: AntonA@bigfoot.com / aia21@cam.ac.uk
+Cambridge CB2 3BU    ICQ: 8561279
+United Kingdom       WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

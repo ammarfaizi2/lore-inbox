@@ -1,93 +1,143 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265799AbRFYRPa>; Mon, 25 Jun 2001 13:15:30 -0400
+	id <S264904AbRFYRiL>; Mon, 25 Jun 2001 13:38:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264901AbRFYRPU>; Mon, 25 Jun 2001 13:15:20 -0400
-Received: from tungsten.btinternet.com ([194.73.73.81]:36040 "EHLO
-	tungsten.btinternet.com") by vger.kernel.org with ESMTP
-	id <S265878AbRFYRPG>; Mon, 25 Jun 2001 13:15:06 -0400
-Date: Mon, 25 Jun 2001 18:14:14 +0100 (BST)
-From: <asmith@14inverleith.freeserve.co.uk>
-X-X-Sender: <asmith@vtrl22.vtrl.co.uk>
-To: <Wayne.Brown@altec.com>
-cc: <landley@webofficenow.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Microsoft and Xenix.
-In-Reply-To: <86256A76.0011A620.00@smtpnotes.altec.com>
-Message-ID: <Pine.LNX.4.33.0106251812020.18127-100000@vtrl22.vtrl.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265726AbRFYRiC>; Mon, 25 Jun 2001 13:38:02 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:52751 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S264904AbRFYRhx>;
+	Mon, 25 Jun 2001 13:37:53 -0400
+Date: Mon, 25 Jun 2001 10:35:21 -0700
+From: Greg KH <greg@kroah.com>
+To: rio500-devel <rio500-devel@lists.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Cc: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [patch] rio500 devfs support
+Message-ID: <20010625103521.A17036@kroah.com>
+In-Reply-To: <20010619175224.A1137@glitch.snoozer.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="SUOF0GtieIMvvwua"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010619175224.A1137@glitch.snoozer.net>; from haphazard@socket.net on Tue, Jun 19, 2001 at 05:52:24PM -0500
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-If you're really keen on old mags and manuals I'll go up to attic and look
-around.  I know there are old SCO Xenix & TCP/IP, as well as Byte and Dr Dobbs
+--SUOF0GtieIMvvwua
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Sun, 24 Jun 2001 Wayne.Brown@altec.com wrote:
---
+On Tue, Jun 19, 2001 at 05:52:24PM -0500, Gregory T. Norris wrote:
+> The attached diff adds devfs support to the rio500 driver, so that
+> /dev/usb/rio500 gets created automagically.  It was generated against
+> 2.4.5, but probably applies fine against any recent kernel.  Comments
+> are welcome (but be gentle, this is my first attempt at a kernel
+> patch :-).
 
-Andrew Smith in Edinburgh
+Here's a small change that makes the node a child of the usb devfs
+entry.  It also enables the node to only be present when the device is
+actually present.  The patch is against 2.4.6-pre5.
 
-> Sorry, but I'm hanging on to my old computer manuals.  The AIX manuals in
-> particular have sentimemtal value for me.
->
-> OTOH, I have quite a few old computer magazines (from the 80's) like Byte,
-> Infoworld, etc.  I've been intending to get rid of them for some time now, but
-> hated just to throw them away.  They're in storage in a neighboring state right
-> now, but my wife probably will be driving there in the next couple of weeks to
-> pick up a few things.  If you're interested, she could bring back the magazines
-> and I can tell you exactly what I have.  You're welcome to them if you want
-> them.
->
-> Wayne
->
->
->
->
-> Rob Landley <landley@webofficenow.com> on 06/24/2001 09:32:43 AM
->
-> Please respond to landley@webofficenow.com
->
-> To:   Wayne Brown/Corporate/Altec@Altec, John Adams <johna@onevista.com>
-> cc:   linux-kernel@vger.kernel.org
->
-> Subject:  Re: Microsoft and Xenix.
->
->
->
-> On Saturday 23 June 2001 22:41, Wayne.Brown@altec.com wrote:
-> > Ah, yes, the RT/PC.  That brings back some fond memories.  My first
-> > exposure to Unix was with AIX on the RT.  I still have some of those
-> > weird-sized RT AIX manuals around somewhere...
-> >
-> > Wayne
->
-> Ooh!  Old manuals!
->
-> Would you be willing to part with them?
->
-> I am collecting old manuals, and old computing magazines.  I even pay for
-> postage, with a bit of warning that they're coming...
->
-> Rob
->
->
->
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+thanks,
 
+greg k-h
 
---
+--SUOF0GtieIMvvwua
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="usb-rio500-2.4.6-pre5.patch"
 
+diff -Nru a/drivers/usb/rio500.c b/drivers/usb/rio500.c
+--- a/drivers/usb/rio500.c	Mon Jun 25 10:31:03 2001
++++ b/drivers/usb/rio500.c	Mon Jun 25 10:31:03 2001
+@@ -38,13 +38,14 @@
+ #include <linux/spinlock.h>
+ #include <linux/usb.h>
+ #include <linux/smp_lock.h>
++#include <linux/devfs_fs_kernel.h>
+ 
+ #include "rio500_usb.h"
+ 
+ /*
+  * Version Information
+  */
+-#define DRIVER_VERSION "v1.0.0"
++#define DRIVER_VERSION "v1.1"
+ #define DRIVER_AUTHOR "Cesar Miquel <miquel@df.uba.ar>"
+ #define DRIVER_DESC "USB Rio 500 driver"
+ 
+@@ -60,6 +61,7 @@
+ 
+ struct rio_usb_data {
+         struct usb_device *rio_dev;     /* init: probe_rio */
++        devfs_handle_t devfs;           /* devfs device */
+         unsigned int ifnum;             /* Interface number of the USB device */
+         int isopen;                     /* nz if open */
+         int present;                    /* Device is present on the bus */
+@@ -69,6 +71,8 @@
+ 	struct semaphore lock;          /* general race avoidance */
+ };
+ 
++extern devfs_handle_t usb_devfs_handle;	/* /dev/usb dir. */
++
+ static struct rio_usb_data rio_instance;
+ 
+ static int open_rio(struct inode *inode, struct file *file)
+@@ -416,6 +420,15 @@
+ 	return read_count;
+ }
+ 
++static struct
++file_operations usb_rio_fops = {
++	read:		read_rio,
++	write:		write_rio,
++	ioctl:		ioctl_rio,
++	open:		open_rio,
++	release:	close_rio,
++};
++
+ static void *probe_rio(struct usb_device *dev, unsigned int ifnum,
+ 		       const struct usb_device_id *id)
+ {
+@@ -439,6 +452,14 @@
+ 	}
+ 	dbg("probe_rio: ibuf address:%p", rio->ibuf);
+ 
++	rio->devfs = devfs_register(usb_devfs_handle, "rio500",
++				    DEVFS_FL_DEFAULT, USB_MAJOR,
++				    RIO_MINOR,
++				    S_IFCHR | S_IRUSR | S_IWUSR | S_IRGRP |
++				    S_IWGRP, &usb_rio_fops, NULL);
++	if (rio->devfs == NULL)
++		dbg("probe_rio: device node registration failed");
++	
+ 	init_MUTEX(&(rio->lock));
+ 
+ 	return rio;
+@@ -448,6 +469,8 @@
+ {
+ 	struct rio_usb_data *rio = (struct rio_usb_data *) ptr;
+ 
++	devfs_unregister(rio->devfs);
++
+ 	if (rio->isopen) {
+ 		rio->isopen = 0;
+ 		/* better let it finish - the release will do whats needed */
+@@ -461,15 +484,6 @@
+ 
+ 	rio->present = 0;
+ }
+-
+-static struct
+-file_operations usb_rio_fops = {
+-	read:		read_rio,
+-	write:		write_rio,
+-	ioctl:		ioctl_rio,
+-	open:		open_rio,
+-	release:	close_rio,
+-};
+ 
+ static struct usb_device_id rio_table [] = {
+ 	{ USB_DEVICE(0x0841, 1) }, 		/* Rio 500 */
 
-
+--SUOF0GtieIMvvwua--

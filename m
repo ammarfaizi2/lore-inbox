@@ -1,68 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261856AbTJWXN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 19:13:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTJWXN3
+	id S261850AbTJWXJn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 19:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbTJWXJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 19:13:29 -0400
-Received: from portraits-china.wsisiz.edu.pl ([213.135.44.169]:3146 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S261856AbTJWXN1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 19:13:27 -0400
-Date: Fri, 24 Oct 2003 01:09:14 +0200
-Message-Id: <200310232309.h9NN9E1A002324@lt.wsisiz.edu.pl>
-From: Lukasz Trabinski <lukasz@trabinski.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.23-pre8
-In-Reply-To: <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet>
-X-Newsgroups: wsisiz.linux-kernel
-X-PGP-Key-Fingerprint: 5C87 7FF4 9539 6AA9 4EEF  529D 0236 ECCB 70F1 E978
-X-Key-ID: 70F1E978
-User-Agent: tin/1.6.2-20030910 ("Pabbay") (UNIX) (Linux/2.4.23-pre8 (i686))
+	Thu, 23 Oct 2003 19:09:43 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:30450 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261850AbTJWXJl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 19:09:41 -0400
+Message-ID: <3F985FB0.1070901@mvista.com>
+Date: Thu, 23 Oct 2003 16:09:36 -0700
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+To: john stultz <johnstul@us.ibm.com>
+CC: Pavel Machek <pavel@suse.cz>, Patrick Mochel <mochel@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [pm] fix time after suspend-to-*
+References: <20031022233306.GA6461@elf.ucw.cz>	 <1066866741.1114.71.camel@cog.beaverton.ibm.com>	 <20031023081750.GB854@openzaurus.ucw.cz>  <3F9838B4.5010401@mvista.com> <1066942532.1119.98.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1066942532.1119.98.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet> you wrote:
-> Chas Williams:
->  o [ATM]: rewrite recvmsg to use skb_copy_datagram_iovec
->  o [ATM]: remove listenq and backlog_quota from struct atm_vcc
->  o [ATM]: cleanup connect
->  o [ATM]: eliminate SOCKOPS_WRAPPED
->  o [ATM]: move vcc's to global sk-based linked list
->  o [ATM]: setsockopt/getsockopt cleanup
+john stultz wrote:
+> On Thu, 2003-10-23 at 13:23, George Anzinger wrote:
+> 
+> 
+>>I lost (never saw) the first of this thread, BUT, if this is 2.6, I strongly 
+>>recommend that settimeofday() NOT be called.  It will try to adjust 
+>>wall_to_motonoic, but, as this appears to be a correction for time lost while 
+>>sleeping, wall_to_monotonic should not change.
+> 
+> 
+> While suspended should the notion monotonic time be incrementing? If
+> we're not incrementing jiffies, then uptime isn't being incremented, so
+> to me it doesn't follow that the monotonic time should be incrementing
+> as well. 
 
-Well, ATM dosen't work for me. (from 2.4.22, 2.4.21 is OK).
+Uh, not moving jiffies?  What does this say about any timers that may be 
+pending?  Say for cron or some such?  Like I said, I picked up this thread a bit 
+late, but, seems to me that if time is passing, it should pass on both the 
+jiffies AND the wall clocks.
+> 
+> It may very well be a POSIX timers spec issue, but it just strikes me as
+> odd.
 
-No traffic via ATM interfeces.
-
-[root@voices root]# ifconfig atm1
-atm1      Link encap:UNSPEC  HWaddr 00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00
-          inet addr:XXX.XX.XX.XXX  Mask:255.255.255.252
-          UP RUNNING  MTU:9180  Metric:1
-          RX packets:9 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:1 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100
-          RX bytes:632 (632.0 b)  TX bytes:100 (100.0 b)
-
-Counters on all atm interfeces are still the same
-
-On good working kernel, during boot, i have messages like this:
-
-atm_connect (TX: cl 1,bw 0-0,sdu 9188; RX: cl 1,bw 0-0,sdu 9188,AAL 5)
-atm_connect (TX: cl 1,bw 0-0,sdu 9188; RX: cl 1,bw 0-0,sdu 9188,AAL 5)
-atm_connect (TX: cl 1,bw 0-0,sdu 9188; RX: cl 1,bw 0-0,sdu 9188,AAL 5)
-atm_connect (TX: cl 1,bw 0-0,sdu 9188; RX: cl 1,bw 0-0,sdu 9188,AAL 5)
-atm_connect (TX: cl 1,bw 0-0,sdu 9188; RX: cl 1,bw 0-0,sdu 9188,AAL 5)
-
-from 2.4.22 I haven't any messages like above, only:
-
-nicstar0: PHY seems to be 155 Mbps.
-nicstar0: MAC address 00:20:48:0E:B3:28
-
-What's going on? I don't want test 2.6.* kernels on my routers.
+The spec thing would relate to any sleeps or timers that are pending.  The spec 
+would seem to say they should complete somewhere near the requested wall time, 
+but NEVER before.  By not moving jiffies, I think they will be a bit late.  Now, 
+if they were to complete during the sleep, well those should fire at completion 
+of the sleep.  If the are to complete after the sleep, then, it seems to me, 
+they should fire at the requested time.
 
 -- 
-*[ £ukasz Tr±biñski ]*
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

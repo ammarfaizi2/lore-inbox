@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288834AbSA2Gmd>; Tue, 29 Jan 2002 01:42:33 -0500
+	id <S288859AbSA2Gue>; Tue, 29 Jan 2002 01:50:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288854AbSA2GmX>; Tue, 29 Jan 2002 01:42:23 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:2445 "HELO
+	id <S288862AbSA2GuX>; Tue, 29 Jan 2002 01:50:23 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:18318 "HELO
 	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S288834AbSA2GmP>; Tue, 29 Jan 2002 01:42:15 -0500
-Date: Tue, 29 Jan 2002 08:37:06 +0200 (SAST)
+	id <S288859AbSA2GuP>; Tue, 29 Jan 2002 01:50:15 -0500
+Date: Tue, 29 Jan 2002 08:45:23 +0200 (SAST)
 From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
 X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext2 fs corruption and usb devices
-In-Reply-To: <3C558BC0.5050700@wanadoo.fr>
-Message-ID: <Pine.LNX.4.44.0201290831360.20095-100000@netfinity.realnet.co.sz>
+To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: Mark Zealey <mark@zealos.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: fonts corruption with 3dfx drm module
+In-Reply-To: <20020128182427.11F20FB8D@netfinity.realnet.co.sz>
+Message-ID: <Pine.LNX.4.44.0201290838560.20095-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jan 2002, Pierre Rousselet wrote:
+On Mon, 28 Jan 2002, Dieter [iso-8859-15] Nützel wrote:
 
-> Where have you seen it's an oops. have you read my message ?
+> MTRR, of course (do you like 2D and even 3D hardware accelerated without 
+> MTRR?), FB, no, chipset is a AMD 750 (Irongate C4), using X 4.1.99.1 DRI CVS.
 
-oops, i wasn't paying too much attention in that mail run it seems
+The reason why i ask is because i was experiencing font corruption with 
+MTRRs enabled and X segfaulting with 4.x and a VIA Apollo pro (mostly 
+because with 3.3.6 i never setup the MTRRs myself) and a friend of mine was
+seeing corruption plus the occasional lockup with his KT133. Disabling MTRRs
+solved both our lockup problems, mind you i soon switched back to my older
+440BX setup and my problems went away. I also asked about FB because my particular card 
+(ATI Rage IIC) never gets MTRRs working in X4.1 unless i have it FB 
+enabled.
 
-> Why? The problem is solved by the diff in ext2 code in 2.4.18-pre7
-> (have you read my message ?)
-
-I got that the first time...
-
-> What i would like to know is why the corruption of the ext2 root fs with 
->   2.4.18-pre6 in only visible by the usb drivers. is it pure chance ?
-
-But i still think proprietory modules showing up in problem traces is 
-usually enough to warrant the trace as useless. The fact that it works now 
-and not then could be anybody's guess.
-
-My apologies for skimming through your email, Have a nice day.
-
-Zwane Mwaikambo
+Regards,
+	Zwane Mwaikambo
 
 

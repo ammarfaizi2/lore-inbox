@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132960AbRDRQ4L>; Wed, 18 Apr 2001 12:56:11 -0400
+	id <S133061AbRDRRBN>; Wed, 18 Apr 2001 13:01:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133061AbRDRQ4C>; Wed, 18 Apr 2001 12:56:02 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:935 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S132960AbRDRQz5>;
-	Wed, 18 Apr 2001 12:55:57 -0400
-Message-ID: <3ADDC716.7F5B43C8@mandrakesoft.com>
-Date: Wed, 18 Apr 2001 12:55:50 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-19mdksmp i686)
-X-Accept-Language: en
+	id <S133077AbRDRRBD>; Wed, 18 Apr 2001 13:01:03 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:896 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S133061AbRDRRA4>; Wed, 18 Apr 2001 13:00:56 -0400
+Date: Wed, 18 Apr 2001 13:00:02 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Dennis <dennis@etinc.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: SMP in 2.4
+In-Reply-To: <5.0.2.1.0.20010418110702.03850d20@mail.etinc.com>
+Message-ID: <Pine.LNX.3.95.1010418125641.363A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Marcus Meissner <Marcus.Meissner@caldera.de>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] misplaced pci_enable_device()s in drivers/sound/
-In-Reply-To: <20010418182944.A25024@caldera.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcus Meissner wrote:
-> Several pci_enable_device()s in drivers/sound happen _after_ accessing
-> PCI resources. I have moved them before the relevant first accesses.
+On Wed, 18 Apr 2001, Dennis wrote:
 
-cool
+> Does 2.4 have something similar to spl levels or does it still require the 
+> ridiculous MS-DOSish spin-locks to protect every bit of code?
+> 
+> DB
 
->         if (!RSRCISIOREGION(pcidev, 0))
->                 return -1;
+This must be a Troll. MS-DOS didn't have spin-locks and, when you
+have multiple CPUs with one interrupt controller, you don't have
+much choice. You either use spin-locks or you Blue-Screen.
 
-can you replace this mess while you are cleaning stuff up.  this, for
-example, should be
-	if (!(pci_resource_flags(pcidev,) & IORESOURCE_IO))
+Since Linux doesn't have a "Blue-screen of death", it needs spin-
+locks.
 
-There is also pci_resource_start and pci_resource_len.
+Cheers,
+Dick Johnson
 
->         iobase = SILLY_PCI_BASE_ADDRESS(pcidev);
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-pci_resource_start
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
-patch looks ok to me, but those would be nice additions...
 
--- 
-Jeff Garzik       | "The universe is like a safe to which there is a
-Building 1024     |  combination -- but the combination is locked up
-MandrakeSoft      |  in the safe."    -- Peter DeVries

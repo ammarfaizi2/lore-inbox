@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129506AbRDCJfq>; Tue, 3 Apr 2001 05:35:46 -0400
+	id <S129524AbRDCJm2>; Tue, 3 Apr 2001 05:42:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129524AbRDCJfh>; Tue, 3 Apr 2001 05:35:37 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:52235 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S129506AbRDCJfY>;
-	Tue, 3 Apr 2001 05:35:24 -0400
-Date: Tue, 3 Apr 2001 10:33:30 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Srinivas Surabhi <srinivas.surabhi@wipro.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: how to create in proc
-In-Reply-To: <4ebc65372d.5372d4ebc6@wipro.com>
-Message-ID: <Pine.LNX.4.30.0104031030270.2794-100000@elte.hu>
+	id <S130317AbRDCJmJ>; Tue, 3 Apr 2001 05:42:09 -0400
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:28429 "EHLO
+	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S129524AbRDCJmC>; Tue, 3 Apr 2001 05:42:02 -0400
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: linux-kernel@vger.kernel.org
+Date: Tue, 3 Apr 2001 11:40:51 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: pthreads & gdb: zombie threads?
+Message-ID: <3AC9B6C7.18590.CCCBA1@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On Tue, 3 Apr 2001, Srinivas Surabhi wrote:
+I'm having a strange problem debugging a pthreads application in 2.2.18 
+(as per SuSE 7.1):
 
->    So kindly help me, what are the system calls/fuction calls to be
-> used for the creation of sub-directory in /proc directory.
+gdb says the program terminated normally after having started two or 
+three LWPs. I can exit gdb then, and I find (ps -ax) one zombie thread 
+and two or three other threads. Is it more likely a kernel problem, a 
+library problem, or a gdb problem?
 
-eg. to create a new "foo" directory in /proc/net:
+Naively I thought when exiting the process, all threads would die...
 
-        new_dir = proc_mkdir("foo", proc_net);
-
-then use the resulting dir entry to create files in this new directory:
-
-        entry = create_proc_entry("bar", 0700, new_dir);
-
-and use remove_proc_entry() on the file entry and on the directory entry
-to clean things up.
-
-	Ingo
+Ulrich
+P.S. Not subscribed here
 

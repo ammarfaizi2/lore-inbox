@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265710AbSKATJN>; Fri, 1 Nov 2002 14:09:13 -0500
+	id <S265696AbSKATRe>; Fri, 1 Nov 2002 14:17:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265712AbSKATJM>; Fri, 1 Nov 2002 14:09:12 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:45953 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S265710AbSKATI6>;
-	Fri, 1 Nov 2002 14:08:58 -0500
-Date: Fri, 1 Nov 2002 19:14:40 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: "'torvalds@transmeta.com'" <torvalds@transmeta.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
-Subject: Re: [PATCH] 2.5.45 - i386 MCA update
-Message-ID: <20021101191440.GA31669@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-	"'torvalds@transmeta.com'" <torvalds@transmeta.com>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-	"Nakajima, Jun" <jun.nakajima@intel.com>,
-	"Mallick, Asit K" <asit.k.mallick@intel.com>
-References: <10C8636AE359D4119118009027AE99871E606C42@fmsmsx34.fm.intel.com>
+	id <S265697AbSKATRd>; Fri, 1 Nov 2002 14:17:33 -0500
+Received: from B5292.pppool.de ([213.7.82.146]:40586 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S265696AbSKATRc>; Fri, 1 Nov 2002 14:17:32 -0500
+Subject: ARP cache parameters?
+From: Daniel Egger <degger@fhm.edu>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-/eOLqg+2//36EkAc+oG4"
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 01 Nov 2002 20:16:30 +0100
+Message-Id: <1036178190.13261.7.camel@sonja.de.interearth.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <10C8636AE359D4119118009027AE99871E606C42@fmsmsx34.fm.intel.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 01, 2002 at 11:02:55AM -0800, Pallipadi, Venkatesh wrote:
- > Hi,
- > 
- >    Attached is the patch with few i386 MCA updates. Summary of changes:
- > - Logging of corrected (non critical) MCA errors on P4.
- > - Don't clear the MCA status info. in case of a non-recoverable error. If OS
- > has failed in logging those, 
- >   BIOS can still have a look at that info.
- > - Minor bug fix in do_mce_timer(). Check current cpu registers too, while
- > calling smp_call_function().
 
-I've a lot of pending patches to bluesmoke (splitting it all up
-into per-vendor files). This patch will make that a real PITA to
-rework. Can you take a look at the work in 2.5-ac and diff against
-that instead ?
+--=-/eOLqg+2//36EkAc+oG4
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-		Dave
+Hija,
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+is there any good documentation around how to tweak Linux' arp caching
+behaviour? I've been fooling around with parameters in=20
+/proc/sys/net/ipv4/neigh/default but couldn't get it to keep hardware
+addresses valid for a longer period of time than a few seconds.
+
+I'd like to avoid caching hardware addresses in userspace and I need
+my entries to be far longer reachable without making them permanent.
+
+Any pointers would be greatly appreactiated.
+
+--=20
+Servus,
+       Daniel
+
+--=-/eOLqg+2//36EkAc+oG4
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA9wtMOchlzsq9KoIYRAr+hAKCWgbvpK03GCrwQO/Zm0n9sP/pXOACgvMfm
+iVbx00LGGi67XRWWCslMQbI=
+=yQtz
+-----END PGP SIGNATURE-----
+
+--=-/eOLqg+2//36EkAc+oG4--
+

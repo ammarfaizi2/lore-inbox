@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbULPA44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262607AbULPBFm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262551AbULPA44 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 19:56:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262545AbULPA4W
+	id S262607AbULPBFm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 20:05:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262619AbULPBDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 19:56:22 -0500
-Received: from mail.dif.dk ([193.138.115.101]:51876 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262537AbULPA3F (ORCPT
+	Wed, 15 Dec 2004 20:03:39 -0500
+Received: from mail.dif.dk ([193.138.115.101]:7077 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262632AbULPAeb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 19:29:05 -0500
-Date: Thu, 16 Dec 2004 01:39:29 +0100 (CET)
+	Wed, 15 Dec 2004 19:34:31 -0500
+Date: Thu, 16 Dec 2004 01:45:01 +0100 (CET)
 From: Jesper Juhl <juhl-lkml@dif.dk>
 To: linux-kernel <linux-kernel@vger.kernel.org>
 Cc: Linux Kernel Trivial Patch Monkey <trivial@rustcorp.com.au>
-Subject: [PATCH 25/30] return statement cleanup - kill pointless parentheses
- in net/irda/irnet/irnet.h
-Message-ID: <Pine.LNX.4.61.0412160138330.3864@dragon.hygekrogen.localhost>
+Subject: [PATCH 30/30] return statement cleanup - kill pointless parentheses
+  in kernel/intermodule.c   
+Message-ID: <Pine.LNX.4.61.0412160143220.3864@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch removes pointless parentheses from return statements in 
-net/irda/irnet/irnet.h
+
+
+This patch removes pointless parentheses from return statements in kernel/intermodule.c
+
 
 Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
---- linux-2.6.10-rc3-bk8-orig/net/irda/irnet/irnet.h	2004-10-18 23:54:39.000000000 +0200
-+++ linux-2.6.10-rc3-bk8/net/irda/irnet/irnet.h	2004-12-15 23:56:32.000000000 +0100
-@@ -363,13 +363,13 @@
- /* Exit a function with debug */
- #define DRETURN(ret, dbg, args...) \
- 	{DEXIT(dbg, ": " args);\
--	return(ret); }
-+	return ret; }
+
+
+
+--- linux-2.6.10-rc3-bk8-orig/kernel/intermodule.c	2004-10-18 23:53:05.000000000 +0200
++++ linux-2.6.10-rc3-bk8/kernel/intermodule.c	2004-12-16 00:06:30.000000000 +0100
+@@ -129,7 +129,7 @@ const void *inter_module_get(const char 
+ 		}
+ 	}
+ 	spin_unlock(&ime_lock);
+-	return(result);
++	return result;
+ }
  
- /* Exit a function on failed condition */
- #define DABORT(cond, ret, dbg, args...) \
- 	{if(cond) {\
- 		DERROR(dbg, args);\
--		return(ret); }}
-+		return ret; }}
+ /**
+@@ -146,7 +146,7 @@ const void *inter_module_get_request(con
+ 		request_module("%s", modname);
+ 		result = inter_module_get(im_name);
+ 	}
+-	return(result);
++	return result;
+ }
  
- /* Invalid assertion, print out an error and exit... */
- #define DASSERT(cond, ret, dbg, args...) \
+ /**
+
+
+
+
 
 
 

@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317529AbSFECk3>; Tue, 4 Jun 2002 22:40:29 -0400
+	id <S317530AbSFECvX>; Tue, 4 Jun 2002 22:51:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317530AbSFECk2>; Tue, 4 Jun 2002 22:40:28 -0400
-Received: from waste.org ([209.173.204.2]:55750 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S317529AbSFECk1>;
-	Tue, 4 Jun 2002 22:40:27 -0400
-Date: Tue, 4 Jun 2002 21:40:25 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
-In-Reply-To: <E17FQPj-0001Rr-00@starship>
-Message-ID: <Pine.LNX.4.44.0206042132450.2614-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317532AbSFECvW>; Tue, 4 Jun 2002 22:51:22 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:24079 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S317530AbSFECvV>; Tue, 4 Jun 2002 22:51:21 -0400
+Date: Tue, 4 Jun 2002 19:51:13 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: RAID-6 support in kernel?
+Message-ID: <20020604195113.G7742@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0206031020290.30424-100000@mail.pronto.tv> <Pine.GSO.4.21.0206030213510.23709-100000@gecko.roadtoad.net> <20020603113128.C13204@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jun 2002, Daniel Phillips wrote:
+On Mon, Jun 03, 2002 at 11:31:28AM +0200, Vojtech Pavlik wrote:
+> On Mon, Jun 03, 2002 at 02:25:22AM -0700, Derek Vadala wrote:
+> 
+> He was thinking "mirror", not "stripe". Mirror of 2 RAID-5 arrays (would
+> be probably called RAID-15 (when there is a RAID-10 for mirrored stripe
+> arrays)), can withstand any two disks failing anytime. Even more for
+> certain combinations. But it is terribly inefficient.
 
-> On Tuesday 04 June 2002 21:29, Oliver Xymoron wrote:
-> > On Mon, 3 Jun 2002, Daniel Phillips wrote:
-> >
-> > > traditional IT.  Not to mention that I can look forward to a sound
-> > > system where I can be *sure* my mp3s won't skip.
-> >
-> > Not unless you're loading your entire MP3 into memory, mlocking it down,
-> > and handing it off to a hard RT process. And then your control of the
-> > playback of said song through a non-RT GUI could be arbitrarily coarse,
-> > depending on load.
->
-> Thanks for biting :-)
->
-> First, these days it's no big deal to load an entire mp3 into memory.
->
-> Second, and of more interest to broadcasting industry professionals and the
-> like, it's possible to write a real-time filesystem that bypasses all the
-> normal non-realtime facilities of the operating system, and where the latency
-> of every operation is bounded according to the amount of data transferred.
-> Such a filesystem could use its own dedicated disk, or, more practically, the
-> RTOS (or realtime subsystem) could operate the disk's block queue.
->
-> If I recall correctly, XFS makes an attempt to provide such realtime
-> guarantees, or at least the Solaris version does.  However, the operating
-> system must be able to provide true realtime guarantees in order for the
-> filesystem to provide them, and I doubt that the combination of XFS and
-> Solaris can do that.
+All the authoritative literature says that
+RAID-10 is striped mirrors (survive ~1/n 2 disk failures.)
+RAID-0+1 is mirrored stripes (survive ~1/2 2 disk failures.)
 
-Nope, it can't.
-
-Just bear in mind that it's next to impossible to avoid throwing the baby
-out with the bathwater here. Ok, so you've got an RT kernel playing your
-MP3 alongside your UNIX system - how do you control it? How do you switch
-tracks? All the latency that you were struggling with in the player is
-still there in the user interface.
-
-What you really want for an MP3 player is _not_ hard RT, what you want is
-very reliable low-latency. Which we can do without throwing away most of
-UNIX.
+What he is describing would be RAID-5+1, mirrored RAID-5s.
+RAID-15 would be a RAID-5 of mirrors.
+Both of these could survive any 3 disk failures.
 
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
+		Remember Cernan and Schmitt

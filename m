@@ -1,87 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267559AbTCETBg>; Wed, 5 Mar 2003 14:01:36 -0500
+	id <S267284AbTCETNE>; Wed, 5 Mar 2003 14:13:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267560AbTCETBg>; Wed, 5 Mar 2003 14:01:36 -0500
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:33165 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S267559AbTCETBa>; Wed, 5 Mar 2003 14:01:30 -0500
-Message-ID: <3E665AD7.5030600@wanadoo.fr>
-Date: Wed, 05 Mar 2003 20:15:19 +0000
-From: Philippe Elie <phil.el@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
-X-Accept-Language: en-us, en
+	id <S267547AbTCETNE>; Wed, 5 Mar 2003 14:13:04 -0500
+Received: from imap.gmx.net ([213.165.64.20]:3950 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S267284AbTCETND>;
+	Wed, 5 Mar 2003 14:13:03 -0500
+From: Mike Lundy <novas007@gmx.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: kernel issue
+Date: Wed, 5 Mar 2003 14:23:18 -0500
+User-Agent: KMail/1.5
+References: <F83FprhMOgRGkQ6mByS00023670@hotmail.com> <20030305182213.GB13420@gtf.org>
+In-Reply-To: <20030305182213.GB13420@gtf.org>
+Cc: linux-kernel@vger.kernel.org
+X-Pants: On
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: oprofile-list@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       John Levon <levon@movementarian.org>
-Subject: Re: Oops running oprofile in 2.5.62
-References: <3E5DB057.60503@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_u6kZ+RBJ6/3Moz8";
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200303051423.26281.novas007@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> This happened while running dbench on 2.5.62.  I haven't seen it before,
-> but I thought I'd report it anyway.  I'm using the 0.5 version of the
-> userspace tools.
-> 
-> I'm pretty sure it happened on this line in oprofile_add_sample():
-> 	cpu_buf->buffer[cpu_buf->pos].eip = eip;
 
-yes, in the last chunk of code in oprofile_add_sample()
+--Boundary-02=_u6kZ+RBJ6/3Moz8
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
 
-> Unable to handle kernel paging request at virtual address f8c3c000
-> c0212022
-> *pde = 00000000
-> Oops: 0002
-> CPU:    13
-> EIP:    0060:[<c0212022>]    Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010046
-> eax: 40082d94   ebx: 00000340   ecx: 00002000   edx: f8c2c000
-                                        ^^^^^^^^
+On Wednesday 05 March 2003 13:22, Jeff Garzik wrote:
+> On Wed, Mar 05, 2003 at 04:50:38PM +0000, turm eric wrote:
+> > I was just wondering how you all felt about linux being used by the
+> > army to crush the world
+> > under the jackboot of the US empire, and to kill babies? Thank you.
+>
+> I'm curious if you asked the same thing of Microsoft, FreeBSD,
+> OpenBSD, and every other operating system vendor, or are you just
+> ignorant of how the world works in general?
 
-buffer overrrun by one entry (8192 entry by default of 8 bytes
-each on x86), potentially oprofile_add_sample() add 3 events
-in buffer but the protection at begin of code protect against
-two addition not three
+He's actually a troll who normally posts on kuro5hin:
+http://www.kuro5hin.org/user/turmeric/
 
-The bug is rare because add_sample use three entry in rare case,
-and thing are wrong only when cpu_buf->pos == buffer_size - 2
-the code is not fixed in 2.5.64, John if you have not already
-a patch pending for this can you push it in your tree ?
+=2D-=20
+To smash a single atom, all mankind was intent.
+Now any day the atom may return the compliment.
 
-void oprofile_add_sample(unsigned long eip, unsigned int is_kernel,
-	unsigned long event, int cpu)
-.....
--	if (cpu_buf->pos > buffer_size - 2) {
-+ 
-if (cpu_buf->pos > buffer_size - 3) {
-		cpu_buf->sample_lost_overflow++;
-		goto out;
-	}
+--Boundary-02=_u6kZ+RBJ6/3Moz8
+Content-Type: application/pgp-signature
+Content-Description: signature
 
->>>EIP; c0212022 <oprofile_add_sample+102/128>   <=====
->>
-> 
->>>edi; c0310f00 <cpu_buffer+340/800>
->>
-> 
-> Trace; c02139f0 <ppro_check_ctrs+4c/80>
-> Trace; c0213291 <nmi_callback+21/28>
-> Trace; c010a1eb <do_nmi+2b/48>
-> Trace; c010962e <nmi+1e/30>
-> 
-> Code;  c0212022 <oprofile_add_sample+102/128>
-> 00000000 <_EIP>:
-> Code;  c0212022 <oprofile_add_sample+102/128>   <=====
->    0:   89 04 ca                  mov    %eax,(%edx,%ecx,8)   <=====
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-ecx == cpu_bufffer->pos == buffer_size ... boom ...
+iD8DBQA+Zk6u/tNA0+e85ksRAhXRAJwL8rSMlrtKQcYah1+w5UOAYKDAAQCeKTbE
+on5DV4STRWR9WG/Gh+A1ZsE=
+=FCVp
+-----END PGP SIGNATURE-----
 
-regards,
-Philippe Elie
+--Boundary-02=_u6kZ+RBJ6/3Moz8--
 

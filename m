@@ -1,45 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266865AbSK1XwD>; Thu, 28 Nov 2002 18:52:03 -0500
+	id <S266852AbSK1Xr1>; Thu, 28 Nov 2002 18:47:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266876AbSK1XwD>; Thu, 28 Nov 2002 18:52:03 -0500
-Received: from ncc1701.cistron.net ([62.216.30.38]:3591 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S266865AbSK1XwC>; Thu, 28 Nov 2002 18:52:02 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: connectivity to bkbits.net?
-Date: Thu, 28 Nov 2002 23:59:24 +0000 (UTC)
-Organization: Cistron
-Message-ID: <as6aks$amj$1@ncc1701.cistron.net>
-References: <200211281625.gASGPo804227@work.bitmover.com> <8aiMdRMXw-B@khms.westfalen.de> <20021128211347.D27234@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1038527964 10963 62.216.29.67 (28 Nov 2002 23:59:24 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S266849AbSK1Xr1>; Thu, 28 Nov 2002 18:47:27 -0500
+Received: from ns1.triode.net.au ([202.147.124.1]:26347 "EHLO
+	iggy.triode.net.au") by vger.kernel.org with ESMTP
+	id <S266848AbSK1XrY>; Thu, 28 Nov 2002 18:47:24 -0500
+Message-ID: <3DE69E68.7070304@torque.net>
+Date: Fri, 29 Nov 2002 09:53:28 +1100
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@steeleye.com>
+CC: Andries.Brouwer@cwi.nl, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] scsi/hosts.c device_register fix
+References: <200211281657.gASGve102802@localhost.localdomain>
+Content-Type: multipart/mixed;
+ boundary="------------090009020605010109080903"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20021128211347.D27234@flint.arm.linux.org.uk>,
-Russell King  <rmk@arm.linux.org.uk> wrote:
->On Thu, Nov 28, 2002 at 06:53:00PM +0200, Kai Henningsen wrote:
->> >From two or three traceroutes, that problem seems to be at the SGI end. I  
->> can't get to them either (nothing after the same IP as for you, at hop  
->> #17, some place at Genuity), but you are practically next door.
->
->Lesson #1 of firewalling: drop everything.
->Lesson #2 of firewalling: only accept what you absolutely have to.
+This is a multi-part message in MIME format.
+--------------090009020605010109080903
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Lesson#3 of firewalling: due to #1 and #2 most admins block
-ICMP_UNREACH_NEEDFRAG as well (ICMP == ping == bad) breaking
-path MTUd. http://alive.znep.com/~marcs/mtu/
+James Bottomley wrote:
+> Actually, the patch is wrong.  It will wreak havoc with SCSI's use of sysfs.  
+> The device_register has to be done in scsi_add_host, which is called after all 
+> the driver specific sysfs setup has been done.  The correct fix is to move the 
+> corresponding device_unregister into scsi_remove_host so that they match.
+> 
+> I've attached it below.  I'll also commit it to the scsi-misc-2.5 BK tree.
+> 
+> James
+> 
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> ===== hosts.c 1.31 vs edited =====
+> --- 1.31/drivers/scsi/hosts.c	Sun Nov 17 15:47:02 2002
+> +++ edited/hosts.c	Sat Nov 23 17:25:57 2002
+> @@ -295,6 +295,8 @@
+>  		kfree(sdev);
+>  	}
+>  
+> +	device_unregister(&shost->host_driverfs_dev);
+> +
+>  	return 0;
+>  }
+>  
+> @@ -348,7 +350,6 @@
+>  
+>  	/* Cleanup proc and driverfs */
+>  	scsi_proc_host_rm(shost);
+> -	device_unregister(&shost->host_driverfs_dev);
+>  
+>  	kfree(shost);
+>  }
 
-Note that IPv6 has no fragmentation and pMTUd is mandatory.
-Oh joy.
+James,
+The above patch is a bit noisy when applied to lk 2.5.50 .
+Attached is the same patch (I hope) which applies cleanly.
 
-Mike.
--- 
-They all laughed when I said I wanted to build a joke-telling machine.
-Well, I showed them! Nobody's laughing *now*! -- acesteves@clix.pt
+Doug Gilbert
+
+--------------090009020605010109080903
+Content-Type: text/plain;
+ name="dev_reg_2550.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="dev_reg_2550.diff"
+
+--- linux/drivers/scsi/hosts.c	2002-11-29 09:27:35.000000000 +1100
++++ linux/drivers/scsi/hosts.c2550jb	2002-11-29 09:45:28.000000000 +1100
+@@ -297,6 +297,8 @@
+ 		scsi_free_sdev(list_entry(le, Scsi_Device, siblings));
+ 	}
+ 
++	device_unregister(&shost->host_driverfs_dev);
++
+ 	return 0;
+ }
+ 
+@@ -348,7 +350,6 @@
+ 
+ 	/* Cleanup proc and driverfs */
+ 	scsi_proc_host_rm(shost);
+-	device_unregister(&shost->host_driverfs_dev);
+ 
+ 	kfree(shost);
+ }
+
+--------------090009020605010109080903--
+
 

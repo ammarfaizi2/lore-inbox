@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290843AbSBLJH6>; Tue, 12 Feb 2002 04:07:58 -0500
+	id <S290849AbSBLJII>; Tue, 12 Feb 2002 04:08:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290841AbSBLJHs>; Tue, 12 Feb 2002 04:07:48 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:18953 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S290839AbSBLJHl>;
-	Tue, 12 Feb 2002 04:07:41 -0500
-Date: Mon, 11 Feb 2002 21:15:05 +0100
+	id <S290841AbSBLJH6>; Tue, 12 Feb 2002 04:07:58 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:34569 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S290839AbSBLJHx>;
+	Tue, 12 Feb 2002 04:07:53 -0500
+Date: Mon, 11 Feb 2002 21:13:17 +0100
 From: Pavel Machek <pavel@suse.cz>
 To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Internal compiler error in 2.4.5 (hacky workaround)
-Message-ID: <20020211201505.GA9922@elf.ucw.cz>
+Subject: Internal compiler error in 2.4.5 (gcc 2.95.4)
+Message-ID: <20020211201316.GA9688@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,17 +21,38 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-This makes gcc survive... adding volatile everywhere ;-).
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasin\g
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=i386
+-DKBUILD_BASENAME=blkpg  -DEXPORT_SYMTAB -c blkpg.c
+blkpg.c: In function `blk_ioctl':
+blkpg.c:326: Internal compiler error:
+blkpg.c:326: internal error--unrecognizable insn:
+(insn 1385 2051 1394 (set (reg/v:SI 3 %ebx)
+        (asm_operands/v ("1:    movl %%eax,0(%2)
+2:      movl %%edx,4(%2)
+3:
+.section .fixup,"ax"
+4:      movl %3,%0
+        jmp 3b
+.previous
+.section __ex_table,"a"
+        .align 4
+        .long 1b,4b
+        .long 2b,4b
+.previous") ("=r") 0[
+                (reg:DI 1 %edx)
+                (reg/v:SI 5 %edi)
+                (const_int -14 [0xfffffff2])
+                (reg/v:SI 3 %ebx)
+            ]
+            [
+                (asm_input:DI ("A"))
+                (asm_input:SI ("r"))
+...
 
-int blk_ioctl(volatile kdev_t dev, volatile unsigned int cmd, volatile
-unsigned long arg)
-{
-        volatile request_queue_t *q;
-        volatile struct gendisk *g;
-        volatile u64 ullval = 0;
-        volatile int intval, *iptr;
-        volatile unsigned short usval;
-
+I'm sure someone saw this already. What's the solution? (Apart from
+updating gcc, which I'd hate to do over my modem line just now.)
 									Pavel
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.

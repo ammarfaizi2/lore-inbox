@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+ralf=40uni-koblenz.de@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S317560AbSFMJS7>; Thu, 13 Jun 2002 05:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S317561AbSFMJS6>; Thu, 13 Jun 2002 05:18:58 -0400
-Received: from cm-vina-113-213.cm.vtr.net ([200.83.113.213]:27921 "HELO rome.com") by vger.kernel.org with SMTP id <S317560AbSFMJS5>; Thu, 13 Jun 2002 05:18:57 -0400
-Reply-To: <jeremieco@rome.com>
-Message-ID: <038c82e53e5d$6436b8e1$2eb88bc0@xgeqwy>
-From: <jeremieco@rome.com>
-To: jeremieco@rome.com
-Subject: free x sites! los mejores sitios X!                              .   9768Am-6
-Date: Thu, 13 Jun 0102 05:13:24 +0400
-MiME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----=_NextPart_000_00D2_61A21C4E.E7311D16"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-Importance: Normal
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S317403AbSFMS1w>; Thu, 13 Jun 2002 14:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S317434AbSFMS1v>; Thu, 13 Jun 2002 14:27:51 -0400
+Received: from pc7.prs.nunet.net ([199.249.167.77]:39688 "HELO patternassociates.com") by vger.kernel.org with SMTP id <S317403AbSFMS1s>; Thu, 13 Jun 2002 14:27:48 -0400
+Message-ID: <20020613182748.25939.qmail@patternassociates.com>
+From: rico-linux-kernel@patternassociates.com
+Subject: Re: Serverworks OSB4 in impossible state
+To: dani@ngrt.de
+Date: Thu, 13 Jun 102 13:27:48 -0500 (CDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020613110130.897E0109F6@mail.medav.de> from "Daniela Engert" at Jun 13, 2 02:04:56 pm
+X-Mailer: ELM [version 2.4 PL25]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_NextPart_000_00D2_61A21C4E.E7311D16
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: base64
+Thanks for investing time on the logic analyser, Dani.  My experience
+is slightly different.
 
+I have several mainboards (Tyan S1867) with older chipsets from
+ServerWorks (f.k.a. Reliance).  The IDE controller (OSB4 rev 0) is used
+daily with ATAPI CDRW drives in UDMA(33) Mode.  System handles read/write
+errors without problem.
 
-SG9sbGEhIEdvbnphbGVzIQ0KaGkhDQoNCkFxdWkgbG9zIG1lam9yZXMgc2l0
-aW9zIFggbGlicmVzIHF1ZSBwb2Ry7WEgZW5jb250cmFyIGVuIDUgYfFvcyBk
-ZSBwcmFjdGljYXIgSW50ZXJuZXQ6DQpJJ3ZlIHJlZ3JvdXAgaGVyZSB0aGUg
-YmVzdCBmcmVlIGFkdWx0IHNpdGVzIGkndmUgZmluZCBvbiB0aGUgd2ViIGR1
-cmluZyA1IHllYXJzIG9mIHN1cmYhDQoNCmh0dHA6Ly93d3cudGhlenMuY29t
-LzAwMzANCiANClZpc2l0ZSBhIG1pIHBhdHJvY2luYWRvciBwYXJhIGF5dWRh
-cm1lIQ0KUGxlYXNlIHZpc2l0IG15IHNwb25zb3IgdG8gaGVscCBtZSENCg0K
-DQoNClBhcmEgbm8gcmVjaWJpciB1biBlbWFpbCBlc2Ny7WJhbWUgZW1haWw6
-IHJlbW92ZUByZW1vdmUtdG9wLmNvbSBjb24gZWwgdGVtYSBzZW1lamFudGUg
-cXVpdGFuDQpJZiB5b3Ugd2FudCB0byBzdG9wIHRvIHJlY2VpdmUgbWFpbHMg
-ZW1haWwgbWUgYXQgIHJlbW92ZUByZW1vdmUtdG9wLmNvbSB3aXRoIHRoZSBz
-dWJqZWN0IHJlbW92ZQ0KDQpHcmFjaWFzIQ0KDQogDQoNCjM0MTRpZmdIMS01
-MmwxMQ==
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-------=_NextPart_000_00D2_61A21C4E.E7311D16--
+The system will lock solid when both IDE channels are accessed,
+and either one is using DMA.  Since I want DMA, I simply abandon the
+secondary channel.
+
+I have spare machines available for quack medical experiments.
+
+Select boot-time info...
+
+Linux version 2.4.17 (rico@pc2) (gcc version 2.95.3 20010315 (release)) #1 SMP Mon Dec 31 11:51:33 CST 2001
+ServerWorks OSB4: IDE controller on PCI bus 00 dev 79
+ServerWorks OSB4: chipset revision 0
+ServerWorks OSB4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xfcb0-0xfcb7, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xfcb8-0xfcbf, BIOS settings: hdc:pio, hdd:pio
+hda: PLEXTOR CD-R PX-W2410A, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hda: ATAPI 40X CD-ROM CD-R/RW drive, 4096kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.12

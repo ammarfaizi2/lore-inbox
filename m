@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268767AbUIBUAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268933AbUIBUD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268767AbUIBUAR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 16:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268261AbUIBUAQ
+	id S268933AbUIBUD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 16:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268925AbUIBUA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 16:00:16 -0400
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:29436 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S268860AbUIBT7h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 15:59:37 -0400
-Date: Thu, 2 Sep 2004 12:59:28 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] i386 reduce spurious interrupt noise
-Message-ID: <20040902195928.GA6834@taniwha.stupidest.org>
-References: <20040902192820.GA6427@taniwha.stupidest.org> <20040902193454.GI5492@holomorphy.com> <20040902194739.GA6673@taniwha.stupidest.org> <20040902195219.GJ5492@holomorphy.com>
+	Thu, 2 Sep 2004 16:00:59 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:12945 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268657AbUIBT7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 15:59:14 -0400
+Subject: Re: silent semantic changes with reiser4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Spam <spam@tnonline.net>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Lee Revell <rlrevell@joe-job.com>,
+       Jamie Lokier <jamie@shareable.org>, Pavel Machek <pavel@suse.cz>,
+       David Masover <ninja@slaphack.com>, Chris Wedgwood <cw@f00f.org>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <1535878866.20040902214144@tnonline.net>
+References: Message from Lee Revell <rlrevell@joe-job.com>
+	 of "Wed, 01 Sep 2004 18:51:12 -0400." <1094079071.1343.25.camel@krustophenia.net>
+	 <200409021425.i82EPn9i005192@laptop11.inf.utfsm.cl>
+	 <1535878866.20040902214144@tnonline.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094151338.5645.32.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040902195219.GJ5492@holomorphy.com>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 02 Sep 2004 19:55:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 02, 2004 at 12:52:19PM -0700, William Lee Irwin III wrote:
+On Iau, 2004-09-02 at 20:41, Spam wrote:
+> > It is trivial to implement this by looking inside the files. I.e., the way
+> > mc has done this for ages.
+> 
+>   Difference is that you can't do "locate" or "find" or "Search".. You
+>   would have to open the files in an archive-supporting application
+>   such as mc.
 
-> That's okay. The reason why is that this is in response to an
-> external stimulus which can, in principle, scream out of control, so
-> even at KERN_DEBUG or other loglevels it's meaningful to rate limit
-> it.
+And would you rather that logic was running swappable in shared library
+space or privileged and unswappable in kernel ?
 
-If you have enough to be a problem something is wrong and you're dead
-already.  For such cases a more generic interrupt throttling approach
-is required.
+Alan
 
-
-  --cw

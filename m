@@ -1,83 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284691AbSADT7n>; Fri, 4 Jan 2002 14:59:43 -0500
+	id <S284676AbSADUFC>; Fri, 4 Jan 2002 15:05:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288735AbSADT71>; Fri, 4 Jan 2002 14:59:27 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:49553
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S288743AbSADT5C>; Fri, 4 Jan 2002 14:57:02 -0500
-Date: Fri, 4 Jan 2002 14:41:46 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Woodhouse <dwmw2@infradead.org>, Dave Jones <davej@suse.de>,
-        Lionel Bouton <Lionel.Bouton@free.fr>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020104144146.A20097@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Vojtech Pavlik <vojtech@suse.cz>,
-	"Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	David Woodhouse <dwmw2@infradead.org>, Dave Jones <davej@suse.de>,
-	Lionel Bouton <Lionel.Bouton@free.fr>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020103133454.A17280@suse.cz> <Pine.GSO.3.96.1020104191141.829B-100000@delta.ds2.pg.gda.pl> <20020104200410.E21887@suse.cz> <20020104140538.A19746@thyrsus.com> <20020104202151.A22445@suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020104202151.A22445@suse.cz>; from vojtech@suse.cz on Fri, Jan 04, 2002 at 08:21:51PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S288744AbSADUEx>; Fri, 4 Jan 2002 15:04:53 -0500
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:53766 "EHLO
+	clueserver.org") by vger.kernel.org with ESMTP id <S284676AbSADUEd>;
+	Fri, 4 Jan 2002 15:04:33 -0500
+Message-Id: <200201042117.g04LHkL08977@clueserver.org>
+From: Alan <alan@clueserver.org>
+Reply-To: alan@clueserver.org
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] USB Storage Config patch for 2.4.17 and 2.5.1
+Date: Fri, 4 Jan 2002 10:47:57 -0800
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <200201041041.g04AfiL05830@clueserver.org> <20020104171758.GA17028@kroah.com>
+In-Reply-To: <20020104171758.GA17028@kroah.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_X7GF0XOBI1FHGSJ1557R"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz>:
-> You'll have to add motherboards that have no ISA slots, but onboard ISA
-> devices to the list.
+
+--------------Boundary-00=_X7GF0XOBI1FHGSJ1557R
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+
+On Friday 04 January 2002 09:17, you wrote:
+> On Fri, Jan 04, 2002 at 12:11:58AM -0800, Alan wrote:
+> > Here is the patch. It has been tested for 2.4.17 and 2.5.1.  It would
+> > have been shorter, but i added indenting to make the code look
+> > consistant.) Hopefully linewrap does not hose this.
 >
-> I'd suggest looking at the output of /proc/bus/isapnp as well, because
-> if it lists any devices, you certainly need ISA support. 
+> linewrap hosed it :)
 
-OK, apparently some people are still confused about what I'm trying to do.
-That's no surprise.  It confuses *me* sometimes!
+I thought it would.  (The submissions docs make all sorts of nasty noises 
+about posting attachments to the list. I guess I will have to do it 
+anyways...)
 
-The issue is not ISA support, it is ISA *card* support.  At the moment,
-and for the foreseeable future, X86 implies ISA.  Someday there may be
-X86 motherboards without on-board ISA devices, but that's a few years off.
-When that does happen, my logic will be something like this, where 
-PCI_BRIDGE is the test for whether PC reports an ISA bridge.
+> Please try it again, and you only need to send it to me and the mailing
+> list, not all of the people in the Cc: that you originally listed.
 
-X86 and ((PCI and ISA_BRIDGE) or not PCI) => ISA
+I was going to include you on the Cc: list as well.  Right after I hit send.  
+D'oh!
 
-The "not PCI" case represents old ISA-only machines.  
+Here is the patch attached. Tested on 2.4.17 and 2.5.1. (Needs a version for 
+the new 2.5.x config structure, but that should be trivial.)
 
-What I'm actually trying to do is determine whether the machine can 
-take ISA *cards*, and use that computation to suppress questions about
-ISA cards (probed ones would still be found).  For this, the logic
-should look as follows, where:
+BTW, this was written during the PLUG meeting last night. (Which you missed.) 
+]:>
+--------------Boundary-00=_X7GF0XOBI1FHGSJ1557R
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="usb-2.4.17.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="usb-2.4.17.patch"
 
-* DMI means "reports DMI"
-* DMI_ISA means "DMI reports ISA slots"
-* BLACKLISTED means the motherboard is in an exception list of PCI-supporting,
-       DMI-supporting motherboards that falsely claim not to have ISA slots.
+LS0tIGRyaXZlcnMvdXNiL0NvbmZpZy5pbglGcmkgTm92ICAyIDE3OjE4OjU4IDIwMDEKKysrIGRy
+aXZlcnMvdXNiL0NvbmZpZy5pbglGcmkgSmFuICA0IDAzOjI5OjQ5IDIwMDIKQEAgLTMyLDE1ICsz
+MiwxOSBAQAogY29tbWVudCAnVVNCIERldmljZSBDbGFzcyBkcml2ZXJzJwogZGVwX3RyaXN0YXRl
+ICcgIFVTQiBBdWRpbyBzdXBwb3J0JyBDT05GSUdfVVNCX0FVRElPICRDT05GSUdfVVNCICRDT05G
+SUdfU09VTkQKIGRlcF90cmlzdGF0ZSAnICBVU0IgQmx1ZXRvb3RoIHN1cHBvcnQgKEVYUEVSSU1F
+TlRBTCknIENPTkZJR19VU0JfQkxVRVRPT1RIICRDT05GSUdfVVNCICRDT05GSUdfRVhQRVJJTUVO
+VEFMCi1kZXBfdHJpc3RhdGUgJyAgVVNCIE1hc3MgU3RvcmFnZSBzdXBwb3J0JyBDT05GSUdfVVNC
+X1NUT1JBR0UgJENPTkZJR19VU0IgJENPTkZJR19TQ1NJCi0gICBkZXBfbWJvb2wgJyAgICBVU0Ig
+TWFzcyBTdG9yYWdlIHZlcmJvc2UgZGVidWcnIENPTkZJR19VU0JfU1RPUkFHRV9ERUJVRyAkQ09O
+RklHX1VTQl9TVE9SQUdFCi0gICBkZXBfbWJvb2wgJyAgICBEYXRhZmFiIE1EQ0ZFLUIgQ29tcGFj
+dCBGbGFzaCBSZWFkZXIgc3VwcG9ydCcgQ09ORklHX1VTQl9TVE9SQUdFX0RBVEFGQUIgJENPTkZJ
+R19VU0JfU1RPUkFHRSAkQ09ORklHX0VYUEVSSU1FTlRBTAotICAgZGVwX21ib29sICcgICAgRnJl
+ZWNvbSBVU0IvQVRBUEkgQnJpZGdlIHN1cHBvcnQnIENPTkZJR19VU0JfU1RPUkFHRV9GUkVFQ09N
+ICAkQ09ORklHX1VTQl9TVE9SQUdFCi0gICBkZXBfbWJvb2wgJyAgICBJU0QtMjAwIFVTQi9BVEEg
+QnJpZGdlIHN1cHBvcnQnIENPTkZJR19VU0JfU1RPUkFHRV9JU0QyMDAgJENPTkZJR19VU0JfU1RP
+UkFHRQotICAgZGVwX21ib29sICcgICAgTWljcm90ZWNoIENvbXBhY3RGbGFzaC9TbWFydE1lZGlh
+IHN1cHBvcnQnIENPTkZJR19VU0JfU1RPUkFHRV9EUENNICRDT05GSUdfVVNCX1NUT1JBR0UKLSAg
+IGRlcF9tYm9vbCAnICAgIEhQIENELVdyaXRlciA4Mnh4IHN1cHBvcnQnIENPTkZJR19VU0JfU1RP
+UkFHRV9IUDgyMDBlICRDT05GSUdfVVNCX1NUT1JBR0UgJENPTkZJR19FWFBFUklNRU5UQUwKLSAg
+IGRlcF9tYm9vbCAnICAgIFNhbkRpc2sgU0REUi0wOSAoYW5kIG90aGVyIFNtYXJ0TWVkaWEpIHN1
+cHBvcnQnIENPTkZJR19VU0JfU1RPUkFHRV9TRERSMDkgJENPTkZJR19VU0JfU1RPUkFHRSAkQ09O
+RklHX0VYUEVSSU1FTlRBTAotICAgZGVwX21ib29sICcgICAgTGV4YXIgSnVtcHNob3QgQ29tcGFj
+dCBGbGFzaCBSZWFkZXInIENPTkZJR19VU0JfU1RPUkFHRV9KVU1QU0hPVCAkQ09ORklHX1VTQl9T
+VE9SQUdFICRDT05GSUdfRVhQRVJJTUVOVEFMCitpZiBbICIkQ09ORklHX1NDU0kiID0gIm4iIF07
+IHRoZW4KKyAgIGNvbW1lbnQgJyAgU0NTSSBzdXBwb3J0IGlzIG5lZWRlZCBmb3IgVVNCIFN0b3Jh
+Z2UnCitlbHNlCisgICBkZXBfdHJpc3RhdGUgJyAgVVNCIE1hc3MgU3RvcmFnZSBzdXBwb3J0JyBD
+T05GSUdfVVNCX1NUT1JBR0UgJENPTkZJR19VU0IgJENPTkZJR19TQ1NJCisgICAgICBkZXBfbWJv
+b2wgJyAgICBVU0IgTWFzcyBTdG9yYWdlIHZlcmJvc2UgZGVidWcnIENPTkZJR19VU0JfU1RPUkFH
+RV9ERUJVRyAkQ09ORklHX1VTQl9TVE9SQUdFCisgICAgICBkZXBfbWJvb2wgJyAgICBEYXRhZmFi
+IE1EQ0ZFLUIgQ29tcGFjdCBGbGFzaCBSZWFkZXIgc3VwcG9ydCcgQ09ORklHX1VTQl9TVE9SQUdF
+X0RBVEFGQUIgJENPTkZJR19VU0JfU1RPUkFHRSAkQ09ORklHX0VYUEVSSU1FTlRBTAorICAgICAg
+ZGVwX21ib29sICcgICAgRnJlZWNvbSBVU0IvQVRBUEkgQnJpZGdlIHN1cHBvcnQnIENPTkZJR19V
+U0JfU1RPUkFHRV9GUkVFQ09NICAkQ09ORklHX1VTQl9TVE9SQUdFCisgICAgICBkZXBfbWJvb2wg
+JyAgICBJU0QtMjAwIFVTQi9BVEEgQnJpZGdlIHN1cHBvcnQnIENPTkZJR19VU0JfU1RPUkFHRV9J
+U0QyMDAgJENPTkZJR19VU0JfU1RPUkFHRQorICAgICAgZGVwX21ib29sICcgICAgTWljcm90ZWNo
+IENvbXBhY3RGbGFzaC9TbWFydE1lZGlhIHN1cHBvcnQnIENPTkZJR19VU0JfU1RPUkFHRV9EUENN
+ICRDT05GSUdfVVNCX1NUT1JBR0UKKyAgICAgIGRlcF9tYm9vbCAnICAgIEhQIENELVdyaXRlciA4
+Mnh4IHN1cHBvcnQnIENPTkZJR19VU0JfU1RPUkFHRV9IUDgyMDBlICRDT05GSUdfVVNCX1NUT1JB
+R0UgJENPTkZJR19FWFBFUklNRU5UQUwKKyAgICAgIGRlcF9tYm9vbCAnICAgIFNhbkRpc2sgU0RE
+Ui0wOSAoYW5kIG90aGVyIFNtYXJ0TWVkaWEpIHN1cHBvcnQnIENPTkZJR19VU0JfU1RPUkFHRV9T
+RERSMDkgJENPTkZJR19VU0JfU1RPUkFHRSAkQ09ORklHX0VYUEVSSU1FTlRBTAorICAgICAgZGVw
+X21ib29sICcgICAgTGV4YXIgSnVtcHNob3QgQ29tcGFjdCBGbGFzaCBSZWFkZXInIENPTkZJR19V
+U0JfU1RPUkFHRV9KVU1QU0hPVCAkQ09ORklHX1VTQl9TVE9SQUdFICRDT05GSUdfRVhQRVJJTUVO
+VEFMCitmaQogZGVwX3RyaXN0YXRlICcgIFVTQiBNb2RlbSAoQ0RDIEFDTSkgc3VwcG9ydCcgQ09O
+RklHX1VTQl9BQ00gJENPTkZJR19VU0IKIGRlcF90cmlzdGF0ZSAnICBVU0IgUHJpbnRlciBzdXBw
+b3J0JyBDT05GSUdfVVNCX1BSSU5URVIgJENPTkZJR19VU0IKIAo=
 
-X86 and ((not PCI) or (not DMI) or DMI_ISA or BLACKLISTED => ISA_CARDS
-
-This is one reason I want /sys/dmi -- because if I *don't* see it, that
-means I should assume the machine is old enough to take ISA cards.  This
-filter should make the blacklist relatively small -- we wouldn't have to
-track even PCI motherboards older than the DMI standard.
-
-A key point is that as ISA phases out (near future now), the blacklist 
-will stop growing.  Ballpark guess is it will top out below 150 entries.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-If I were to select a jack-booted group of fascists who are 
-perhaps as large a danger to American society as I could pick today,
-I would pick BATF [the Bureau of Alcohol, Tobacco, and Firearms].
-        -- U.S. Representative John Dingell, 1980
+--------------Boundary-00=_X7GF0XOBI1FHGSJ1557R--

@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280700AbRKGOfe>; Wed, 7 Nov 2001 09:35:34 -0500
+	id <S280804AbRKGOkP>; Wed, 7 Nov 2001 09:40:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280801AbRKGOfY>; Wed, 7 Nov 2001 09:35:24 -0500
-Received: from yoda.planetinternet.be ([195.95.30.146]:3856 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S280700AbRKGOfJ>; Wed, 7 Nov 2001 09:35:09 -0500
-Date: Wed, 7 Nov 2001 15:34:59 +0100 (CET)
-From: Dirk Moerenhout <dirk@staf.planetinternet.be>
-X-X-Sender: <dmoerenh@dirk>
+	id <S280801AbRKGOkE>; Wed, 7 Nov 2001 09:40:04 -0500
+Received: from mailer.zib.de ([130.73.108.11]:27290 "EHLO mailer.zib.de")
+	by vger.kernel.org with ESMTP id <S280804AbRKGOju>;
+	Wed, 7 Nov 2001 09:39:50 -0500
+Date: Wed, 7 Nov 2001 15:39:46 +0100
+From: Sebastian Heidl <heidl@zib.de>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Using %cr2 to reference "current"
-In-Reply-To: <E161TWH-0004G9-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0111071527390.204-100000@dirk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+Subject: Intel compiler [Re: Using %cr2 to reference "current"]
+Message-ID: <20011107153946.T552@csr-pc1.zib.de>
+In-Reply-To: <3BE94C55.AE42D67E@evision-ventures.com> <E161TWH-0004G9-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E161TWH-0004G9-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Nov 07, 2001 at 02:17:33PM +0000
+X-www.distributed.net: 27 OGR packets (3.56 Tnodes) [4.21 Mnodes/s]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 07, 2001 at 02:17:33PM +0000, Alan Cox wrote:
 > > somehow encouraged by the compiler comparisions between gcc and intel's
 > > free compiler, which use the register passing for anything local
 > > to the actual code, where the speed gains are up to 20% im currently
->
+> 
 > I was under the impression intels compiler was profoundly non-free ?
 
-Thought that too untill a minute ago. Went to the Intel site and read the
-information.
-
+have a look:
 http://developer.intel.com/software/products/eval/
 
-Gives details about _two_ ways to get it free. The known 30 day free trial
-with support but also a less known "non commercial unsupported" option. So
-for non-commercial use you can use it as much as you want, you just don't
-get support.
 
-Downloading it now to play some with it :-)
-
-Dirk Moerenhout ///// System Administrator ///// Planet Internet NV
+_sh_
 

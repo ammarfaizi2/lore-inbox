@@ -1,80 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265903AbUFOTrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265891AbUFOTrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265903AbUFOTrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 15:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265891AbUFOTrJ
+	id S265891AbUFOTrw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 15:47:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265890AbUFOTrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 15:47:09 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:27156 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S265890AbUFOTq3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 15:46:29 -0400
-Date: Tue, 15 Jun 2004 21:55:42 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 5/5] kbuild: external module build doc
-Message-ID: <20040615195542.GE2310@mars.ravnborg.org>
-Mail-Followup-To: Jari Ruusu <jariruusu@users.sourceforge.net>,
-	Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-References: <20040614204029.GA15243@mars.ravnborg.org> <20040614204809.GF15243@mars.ravnborg.org> <40CF4C48.5A317311@users.sourceforge.net>
+	Tue, 15 Jun 2004 15:47:20 -0400
+Received: from quechua.inka.de ([193.197.184.2]:34791 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S265892AbUFOTq7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 15:46:59 -0400
+Date: Tue, 15 Jun 2004 21:46:57 +0200
+From: Bernd Eckenfels <be-mail2004@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Cc: Trent Lloyd <lathiat@bur.st>, 253590@bugs.debian.org
+Subject: Re: Bug#253590: How to turn off IPV6 (link local)
+Message-ID: <20040615194657.GA7474@lina.inka.de>
+References: <20040614233215.GA10547@lina.inka.de> <20040615023022.GB24269@thump.bur.st>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <40CF4C48.5A317311@users.sourceforge.net>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040615023022.GB24269@thump.bur.st>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 10:21:44PM +0300, Jari Ruusu wrote:
-> Sam Ravnborg wrote:
-> > --- /dev/null   Wed Dec 31 16:00:00 196900
-> > +++ b/Documentation/kbuild/extmodules.txt       2004-06-14 22:25:21 +02:00
-> [snip]
-> > +A more advanced example
-> > +- - - - - - - - - - - -
-> > +This example shows a setup where a distribution has wisely decided
-> > +to separate kernel source and output files:
-> > +
-> > +Kernel src:
-> > +/usr/src/linux-<kernel-version>/
-> > +
-> > +Output from a kernel compile, including .config:
-> > +/lib/modules/linux-<kernel-version>/build/
->                                        ^^^^^
-> Wrong! The 'build' symlink has always pointed to kernel source dir in
-> separate source and object directory case.
+On Tue, Jun 15, 2004 at 10:30:23AM +0800, Trent Lloyd wrote:
+> > 
+> > net.ipv6.conf.default.autoconf does work for the received prefixes, but does
+> > not avoid the link local configuration. (this is btw a documentation error)
+> 
+> autoconf defines whether it will auto-configure an address if a router
+> advertises the IPv6 prefix for the network to it.
 
-This document was written before Andreas posted his patch - I just never
-came around updating it.
-                                                            ^^^^^^
-> Sam, You don't seem to have any idea how much breakage you introduce if you
-> insist on redirecting the 'build' symlink from source tree to object tree.
+Yes, but the configure help tells me otherwise. Especially since there are
+two options (autoconfigure and accpet_ra) I dont think the current behavious
+is intended:
 
-No - and I still do not see it. Please explain how we can be backward
-compatible when vendors start utilising separate directories for src and output.
 
-Anyway, after I gave it some extra thoughs I concluded that
-/lib/modules/kernel-<version>/ was the wrong place to keep
-info about where to src for a given build is located.
-This information has to stay in the output directory.
+autoconf - BOOLEAN
+        Configure link-local addresses using L2 hardware addresses.
 
-So what I will implement is that during the kernel build process
-(not the install part) a symlink named 'source' is placed
-in the root of the output directory - and links to the root of
-the kernel src used for building the kernel.
+        Default: TRUE
 
-Then /lib/modules/kernel-<version>/build/source will be where
-the source is located.
-And /lib/modules/kernel-<version>/build will point to the output files.
+accept_ra - BOOLEAN
+        Accept Router Advertisements; autoconfigure using them.
 
-If the vendor does not utilise separate src and output directories
-they will point to the same directory.
-If the vendor utilises separate output and source directories
-then thay will point in two different places.
+        Functional default: enabled if local forwarding is disabled.
+                            disabled if local forwarding is enabled.
 
-Comments?
 
-	Sam
+So I think autoconf=0 should avoid  adding the 3ff8 link local  address (as
+well as lo ::1)
+
+> The issue is not having the link local address, because there is no
+> default route and hence the connection should fail.
+
+No, please check the bug report. The problem with netscape is that it _does_
+fail and not fall back to ipv4. But I think for performance reasons, no ipv6
+application should actually try to contact destinations  which are not in
+the scope of the configured address (dont connect to sitelocal/global of only
+linklocal prefix is  configured)
+
+> The problem, in the case of thi sbug, is that he has IPv6 configured,
+> but it is not working, 2001: is a real IPv6 address
+
+That was the initial problem, but we have solved that by turning autoconf
+off. The last email was only with an fe80:: prefix.
+
+> Link-local address start with fe80:: and never have a default route so
+> they will not be a problem.
+
+They are the problem, as you see above because the applications still
+prefers them over ipv4.
+
+> You can't, but it is not the issue here, you could however not load the
+> module.
+
+Yes, if it is a module. But see my comment above, I dont think the sysctl
+behaves as documented, and does not behave as expected.
+
+I can prepare a patch for this, if everybody  agrees. In addition to that, I
+would like to know how application and resolver can be fixed to not use
+incomplete or broken v6 setups (i.e. ignore link local prefix on  non local
+targets without trying to connect). 
+
+Greetings
+Bernd
+-- 
+  (OO)      -- Bernd_Eckenfels@Mörscher_Strasse_8.76185Karlsruhe.de --
+ ( .. )      ecki@{inka.de,linux.de,debian.org}  http://www.eckes.org/
+  o--o     1024D/E383CD7E  eckes@IRCNet  v:+497211603874  f:+497211606754
+(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!

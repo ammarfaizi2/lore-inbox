@@ -1,81 +1,227 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbTKDWIY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 17:08:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbTKDWIY
+	id S261267AbTKDWM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 17:12:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbTKDWM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 17:08:24 -0500
-Received: from cmailm5.svr.pol.co.uk ([195.92.193.21]:56589 "EHLO
-	cmailm5.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id S261151AbTKDWIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 17:08:22 -0500
-From: Chris Vine <chris@cvine.freeserve.co.uk>
-To: Con Kolivas <kernel@kolivas.org>, Rik van Riel <riel@redhat.com>
-Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
-Date: Tue, 4 Nov 2003 22:08:05 +0000
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-References: <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com> <200311032113.14462.chris@cvine.freeserve.co.uk> <200311041355.08731.kernel@kolivas.org>
-In-Reply-To: <200311041355.08731.kernel@kolivas.org>
+	Tue, 4 Nov 2003 17:12:56 -0500
+Received: from user-12hcje4.cable.mindspring.com ([69.22.77.196]:35464 "EHLO
+	bender.davehollis.com") by vger.kernel.org with ESMTP
+	id S261267AbTKDWMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 17:12:48 -0500
+Message-ID: <3FA8245B.8030302@davehollis.com>
+Date: Tue, 04 Nov 2003 17:12:43 -0500
+From: David T Hollis <dhollis@davehollis.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031027
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Oops in __xfrm4_state_lookup when setting up an IPSEC tunnel
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311042208.05748.chris@cvine.freeserve.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 November 2003 2:55 am, Con Kolivas wrote:
-> That's pretty much what I expected. Overall I'm happier with this later
-> version as it doesn't impact on the noticable improvement on systems that
-> are not overloaded, yet keeps performance at least that of the untuned
-> version. I can tune it to be better for this work load but it would be to
-> the detriment of the rest.
->
-> Ultimately this is the problem I see with 2.6 ; there is no way for the vm
-> to know that "all the pages belonging to the currently running tasks should
-> try their best to fit into the available space by getting an equal share".
-> It seems the 2.6 vm gives nice emphasis to the most current task, but at
-> the detriment of other tasks that are on the runqueue and still need ram.
-> The original design of the 2.6 vm didn't even include this last ditch
-> effort at taming swappiness with the "knob", and behaved as though the
-> swapppiness was always set at 100. Trying to tune this further with just
-> the swappiness value will prove futile as can be seen by the "best" setting
-> of 20 in your test case still taking 4 times longer to compile the kernel.
->
-> This is now a balance tradeoff of trying to set a value that works for your
-> combination of the required ram of the applications you run concurrently,
-> the physical ram and the swap ram. As you can see from your example, in
-> your workload it seems there would be no point having more swap than your
-> physical ram since even if it tries to use say 40Mb it just drowns in a
-> swapstorm. Clearly this is not the case in a machine with more ram in
-> different circumstances, as swapping out say openoffice and mozilla while
-> it's not being used will not cause any harm to a kernel compile that takes
-> up all the available physical ram (it would actually be beneficial).
-> Fortunately most modern machines' ram vs application sizes are of the
-> latter balance.
+I am trying to setup an IPV4 IPSEC tunnel between two systems with the 
+following topology:
 
-Your diagnosis looks right, but two points -
+192.168.1.0/24
+      |
+gw1 (2.6.0-test9-bk7)
+      |
+ 66.22.66.22
+      |
+  Internet
+      |
+ 44.33.44.33
+      |
+gw2 (2.6.0-test9-bk9)
+      |
+172.16.100.100/24
 
-1.  The test compile was not of the kernel but of a file in a C++ program 
-using quite a lot of templates and therefore which is quite memory intensive 
-(for the sake of choosing something, it was a compile of src/main.o in 
-http://www.cvine.freeserve.co.uk/efax-gtk/efax-gtk-2.2.2.src.tgz).  It would 
-be a sad day if the kernel could not be compiled under 2.6 in 32MB of memory, 
-and I am glad to say that it does compile - my 2.6.0-test9 kernel compiles on 
-the 32MB machine in on average 45 minutes 13 seconds under kernel 2.4.22, and 
-in 54 minutes 11 seconds under 2.6.0-test9 with your latest patch, which is 
-not an enormous difference.  (As a digression, in the 2.0 days the kernel 
-would compile in 6 minutes on the machine in question, and at the time I was 
-very impressed.)
+Both firewalls are RedHat 9 based installs, running stock 2.6.0-test9 
+kernels (note the variance on bk7 and bk9).  Both are running Shorewall 
+1.4.7c to setup iptables/netfilter firewalling.
 
-2.  Being able to choose a manual setting for swappiness is not "futile".  As 
-I mentioned in an earlier post, a swappiness of 10 will enable 2.6.0-test9 to 
-compile the things I threw at it on a low end machine, albeit slowly, whereas 
-with dynamic swappiness it would not compile at all.  So the difference is 
-between being able to do something and not being able to do it.
+If I configure the SAD and SPDs on gw2, than setup them up on gw1, gw2 
+Oops hard on __xfrm4_state_lookup.  I have not yet hand copied the 
+entire dump but have the initial pertinent
+info:
 
-Chris.
+EIP is at __xfrm4_state_lookup+0x6f/0xa0
+
+Call Stack is:
+xfrm_state_lookup
+xfrm_rcv_encap
+match  [ ipt_conntrack ]
+match  [ ipt_state ]
+ipt_do_table [ ip_tables ]
+ip_local_deliver
+ipt_hook [ iptable_filter]
+xfrm4_rcv
+ip_local_deliver_finish
+ip_local_deliver_finish
+nf_hook_slow
+ip_load_deliver_finish
+ip_local_deliver
+ip_local_deliver_finish
+ip_rcv_finish
+ip_rcv_finish
+nf_hook_slow
+
+
+Between reproductions of the crash (which are easy to repeat - that's 
+good.... I guess..) the constant is that it's dying in the 
+xfrm_state_lookup area.  gw1 (the bk7 system) has not crashed in any way.  
+
+tcpdump output on gw2 watching traffic to/from gw1 right at a crash:
+
+17:02:42.147923 66.22.66.22 > 44.33.44.33: ESP(spi=0x00000201,seq=0x1) (DF)
+17:02:42.147923 truncated-ip - 16 bytes missing! 66.22.66.22 > 
+69.0.0.84: truncated-ip - 16268 bytes missing! 44.33.44.33 > 69.0.0.84: 
+xns-idp (frag 13060:16352@30720) (ipip-proto-4)
+17:02:43.147660 66.22.66.22 > 44.33.44.33: ESP(spi=0x00000201,seq=0x2) (DF)
+17:02:43.147660 truncated-ip - 16 bytes missing! 66.22.66.22 > 
+69.0.0.84: bad-hlen 0 (ipip-proto-4)
+ 
+17:02:44.146738 66.22.66.22 > 44.33.44.33: ESP(spi=0x00000201,seq=0x3) (DF)
+17:02:44.146738 truncated-ip - 16 bytes missing! 66.22.66.22 > 
+69.0.0.84: bad-hlen 8 (ipip-proto-4)
+
+/sbin/lsmod:
+
+Module                  Size  Used by
+xfrm_user              15300  -
+md5                     3936  -
+aes                    32544  -
+des                    11616  -
+ah4                     7776  -
+esp4                   10496  -
+af_key                 32848  -
+autofs                 15456  -
+serial_cs               8136  -
+8250                   20960  -
+serial_core            22240  -
+3c574_cs               13804  -
+parport_pc             27240  -
+parport                43016  -
+ipt_ULOG                6440  -
+ipt_ttl                 1824  -
+ipt_TOS                 2432  -
+ipt_tos                 1504  -
+ipt_TCPMSS              4224  -
+ipt_tcpmss              2176  -
+ipt_state               1824  -
+ipt_REJECT              6816  -
+ipt_REDIRECT            2080  -
+ipt_recent             10668  -
+ipt_pkttype             1504  -
+ipt_physdev             2064  -
+ipt_owner               3104  -
+ipt_multiport           1920  -
+ipt_MASQUERADE          3584  -
+ipt_MARK                1984  -
+ipt_mark                1568  -
+ipt_mac                 1856  -
+ipt_LOG                 5472  -
+ipt_limit               2272  -
+ipt_length              1600  -
+ipt_helper              2048  -
+ipt_esp                 1856  -
+ipt_ECN                 3200  -
+ipt_ecn                 2112  -
+ipt_DSCP                2464  -
+ipt_dscp                1568  -
+ipt_conntrack           2432  -
+ipt_ah                  1856  -
+ip_queue               10584  -
+ip_nat_tftp             3344  -
+ip_nat_snmp_basic      11588  -
+ip_nat_irc              4112  -
+ip_nat_ftp              4752  -
+ip_nat_amanda           2940  -
+ip_conntrack_tftp       3508  -
+ip_conntrack_irc       71220  -
+ip_conntrack_ftp       72084  -
+ip_conntrack_amanda    69796  -
+arpt_mangle             2336  -
+arptable_filter         1984  -
+arp_tables             12512  -
+iptable_nat            21964  -
+ip_conntrack           31536  -
+iptable_mangle          2720  -
+iptable_filter          2688  -
+ip_tables              16128  -
+hid                    24992  -
+uhci_hcd               31184  -
+usbcore               107772  -
+
+
+My manual tunnel config:
+
+#!/sbin/setkey -f
+ 
+# Flush the SAD and SPD
+flush;
+spdflush;
+ 
+# ESP SAs doing encryption using 192 bit long keys (168 + 24 parity)
+# and authentication using 128 bit long keys
+add 66.22.66.22 44.33.44.33 esp 0x201 -m tunnel -E 3des-cbc 
+0x12d49767b12e4565d5fb95bf1d5248db93c60a90d7602a44 -A hmac-md5 
+0x2013c28f56dea12fae2835b3654d60a2;
+ 
+add 44.33.44.33 66.22.66.22 esp 0x301 -m tunnel -E 3des-cbc 
+0x40127f0a79fda7311b3c5344f5d5bd9a0fcd8bd926caae5f -A hmac-md5 
+0xd1b9a27cb7ab9562a0c8ad21f82be8b8;
+ 
+# Security policies
+spdadd 192.168.1.0/24 172.16.100.0/24 any -P out ipsec
+           esp/tunnel/66.22.66.22-44.33.44.33/require;
+spdadd 172.16.100.0/24 192.168.1.0/24 any -P in ipsec
+           esp/tunnel/44.33.44.33-66.22.66.22/require;
+
+
+/sbin/setkey -D:
+44.33.44.33 66.22.66.22
+        esp mode=tunnel spi=769(0x00000301) reqid=0(0x00000000)
+        E: 3des-cbc  40127f0a 79fda731 1b3c5344 f5d5bd9a 0fcd8bd9 26caae5f
+        A: hmac-md5  d1b9a27c b7ab9562 a0c8ad21 f82be8b8
+        seq=0x00000000 replay=0 flags=0x00000000 state=mature
+        created: Nov  4 16:43:39 2003   current: Nov  4 16:44:35 2003
+        diff: 56(s)     hard: 0(s)      soft: 0(s)
+        last:                           hard: 0(s)      soft: 0(s)
+        current: 0(bytes)       hard: 0(bytes)  soft: 0(bytes)
+        allocated: 0    hard: 0 soft: 0
+        sadb_seq=1 pid=3930 refcnt=0
+66.22.66.22 44.33.44.33
+        esp mode=tunnel spi=513(0x00000201) reqid=0(0x00000000)
+        E: 3des-cbc  12d49767 b12e4565 d5fb95bf 1d5248db 93c60a90 d7602a44
+        A: hmac-md5  2013c28f 56dea12f ae2835b3 654d60a2
+        seq=0x00000000 replay=0 flags=0x00000000 state=mature
+        created: Nov  4 16:43:39 2003   current: Nov  4 16:44:35 2003
+        diff: 56(s)     hard: 0(s)      soft: 0(s)
+        last:                           hard: 0(s)      soft: 0(s)
+        current: 0(bytes)       hard: 0(bytes)  soft: 0(bytes)
+        allocated: 0    hard: 0 soft: 0
+        sadb_seq=0 pid=3930 refcnt=0
+
+/sbin/setkey -D -P:
+172.16.100.0/24[any] 192.168.1.0/24[any] any
+        in ipsec
+        esp/tunnel/44.33.44.33-66.22.66.22/require
+        created: Nov  4 16:43:39 2003  lastused:
+        lifetime: 0(s) validtime: 0(s)
+        spid=8 seq=1 pid=3931
+        refcnt=1
+192.168.1.0/24[any] 172.16.100.0/24[any] any
+        out ipsec
+        esp/tunnel/66.22.66.22-44.33.44.33/require
+        created: Nov  4 16:43:39 2003  lastused:
+        lifetime: 0(s) validtime: 0(s)
+        spid=1 seq=0 pid=3931
+        refcnt=1
+
 

@@ -1,93 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263639AbUACS27 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 13:28:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbUACS2n
+	id S263762AbUACSnY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 13:43:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbUACSnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 13:28:43 -0500
-Received: from cpc1-cosh4-5-0-cust84.cos2.cable.ntl.com ([81.96.30.84]:47236
-	"EHLO slut.local.munted.org.uk") by vger.kernel.org with ESMTP
-	id S263734AbUACS2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 13:28:17 -0500
-Date: Sat, 3 Jan 2004 18:27:42 +0000 (GMT)
-From: Alex Buell <alex.buell@munted.org.uk>
-X-X-Sender: alex@slut.local.munted.org.uk
-To: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: inode_cache / dentry_cache not being reclaimed aggressively
- enough  on low-memory PCs
-In-Reply-To: <20040103103023.77bf91b5.jlash@speakeasy.net>
-Message-ID: <Pine.LNX.4.58.0401031823010.3488@slut.local.munted.org.uk>
-References: <Pine.LNX.4.58.0401031128100.2605@slut.local.munted.org.uk>
- <20040103103023.77bf91b5.jlash@speakeasy.net>
-X-no-archive: yes
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 3 Jan 2004 13:43:24 -0500
+Received: from gprs214-81.eurotel.cz ([160.218.214.81]:385 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263762AbUACSnX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 13:43:23 -0500
+Date: Sat, 3 Jan 2004 19:44:34 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Compatibility of Nvidia NVNET driver license with GPL
+Message-ID: <20040103184434.GD1080@elf.ucw.cz>
+References: <20031231073101.A474@beton.cybernet.src> <3FF26E8A.5070806@pobox.com> <20031231114357.A318@beton.cybernet.src> <3FF2C86C.1030906@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FF2C86C.1030906@pobox.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Jan 2004, John Lash wrote:
+Hi!
 
-> Check on your system, /proc/sys/fs/dentry-state, first two values appear
-> to be nr_dentry and nr_unused. Plug those values into the above code and
-> if you get something around zero, that's why the memory is stuck.
-
-Right, I put together this simple C program as follows:
-#include <stdio.h>
-#include <stdlib.h>
-
-int main(int argc, char *argv[])
-{
-        int dentries_used, dentries_unused;
-        int inodes_used, inodes_unused;
-        int ratio = 1, used;
-        char entries[80];
-        FILE *fh;
-
-        fh = fopen("/proc/sys/fs/dentry-state", "r");
-        fgets(entries, 4096, fh);
-        fclose(fh);
-
-        dentries_used = atoi(entries);
-        dentries_unused = atoi(&entries[6]);
-
-        printf("nr_dentry: %d\nnr_unused: %d\n\n", dentries_used, dentries_unused);
-
-        used = dentries_used - dentries_unused;
-        printf("%d < %d * %d = %d\n", dentries_unused, used, ratio, (dentries_unused < used * ratio));
-
-        return 0;
-}
-
-This gives me interesting results:
-
-1) On a box with humuguous dentries:
-./fs_cache 
-nr_dentry: 76637
-nr_unused: 67869
-
-67869 < 8768 * 1 = 0
-
-2) On a box with not so many:
-./fs_cache
-nr_dentry: 7950
-nr_unused: 572
-
-572 < 7378 * 1 = 1
-
-So it seems you're quite right.
-
-> A couple of solutions come to mind. The one I like best would be to
-> adjust the above code to make it conscious of the total memory in the
-> system and keep nr_unused to a reasonable percentage. Another is to
-> allow unused_ratio to be less than 1, Possibly some/proc entry to lower
-> it (.5, .25, whatever), or to avoid the float, provide another parameter
-> to do an integer divisor for unused_ratio. Something like:
+> If you are serious about this, we have tons of good ideas, and tons of 
+> suggestions on how to avoid bad ideas :)
 > 
-> 	nr_unused - nr_used * unused_ratio / ratio_fraction
+> OpenCores (http://www.opencores.org/) might be a good place to start, as 
+> they already have a 10/100 ethernet MAC which is working, and has been 
+> silicon'd:  http://www.opencores.org/projects/ethmac/  Full "source" for 
+> the MAC is available, in VHDL I think.  OpenCores also has PCI VHDL and 
+> other glue you may need.
+> 
+> You'll definitely want to implement autonegotiation.  It's a showstopper 
+> without that.  And if it's not gigabit ethernet, it's already outdated. 
+>  So it's a tough challenge.
 
-That solution does seem be the best answer.
-
+AFAIK, Clock is developing
+ethernet-over-infrared-over-300meters-of-air. It knows what is at the
+other end, and probably does not need autonegotiation. It is probably
+not going to be gigabit, either. [Current version that works is 10mbit
+over ~300meters].
+								Pavel
 -- 
-http://www.munted.org.uk
-
-Your mother cooks socks in hell
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

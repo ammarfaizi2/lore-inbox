@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVBNUTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVBNUVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbVBNUTK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 15:19:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbVBNUTC
+	id S261557AbVBNUVl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 15:21:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbVBNUVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 15:19:02 -0500
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:18342 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261570AbVBNURz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 15:17:55 -0500
-Date: Mon, 14 Feb 2005 21:17:47 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BK] upgrade will be needed
-Message-ID: <20050214201747.GE8763@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050214020802.GA3047@bitmover.com> <58cb370e05021404081e53f458@mail.gmail.com> <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com> <87wttbq8fd.fsf@freitag.home.jstuber.net>
+	Mon, 14 Feb 2005 15:21:41 -0500
+Received: from cavan.codon.org.uk ([213.162.118.85]:63141 "EHLO
+	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S261557AbVBNUVe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 15:21:34 -0500
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: acpi-devel@lists.debian.org
+Cc: linux-kernel@vger.kernel.org
+Date: Mon, 14 Feb 2005 20:20:35 +0000
+Message-Id: <1108412435.4085.112.camel@tyrosine>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87wttbq8fd.fsf@freitag.home.jstuber.net>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.3 
+X-SA-Exim-Connect-IP: 213.162.118.93
+X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
+Subject: ACPI and hotplug module loading
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Feb 2005, Juergen Stuber wrote:
+ACPI modules provide the name of the device that they want to bind to in
+the .ids section of the acpi_driver structure. Currently this
+information isn't made available in module.aliases - nor does the
+information from the DSDT seem to make its way into /sys anywhere. If
+these two issues were fixed, it would be possible for hotplug to
+autoload acpi modules on boot.
 
-> That would be much more acceptable to me, I know what I did in the past,
-> but I won't accept any restriction of what I can do in the future.
-
-> There would still be a problem of what to do if I get addicted to BK.
-
-There'd be BK/Pro - a price list on the web for individual users might
-be very helpful though. It won't be used very often but simplify the
-decision process a bit.
-
+The first of these is fairly easy to fix - it just requires a macro to
+populate a MODULE_ALIAS table during module building. The second sounds
+more awkward. Is this a desirable goal, and if so what's the best way of
+approaching it?
 -- 
-Matthias Andree
+Matthew Garrett | mjg59@srcf.ucam.org
+

@@ -1,71 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262540AbUJ0QrG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262497AbUJ0QrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262540AbUJ0QrG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 12:47:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbUJ0Qn3
+	id S262497AbUJ0QrK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 12:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbUJ0Qoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 12:43:29 -0400
-Received: from h151_115.u.wavenet.pl ([217.79.151.115]:8103 "EHLO
-	alpha.polcom.net") by vger.kernel.org with ESMTP id S262526AbUJ0Qmc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 12:42:32 -0400
-Date: Wed, 27 Oct 2004 18:42:23 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Tonnerre <tonnerre@thundrix.ch>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Erik Andersen <andersen@codepoet.org>, uclibc@uclibc.org
-Subject: Re: [OT] Re: The naming wars continue...
-In-Reply-To: <20041027161402.GC21160@thundrix.ch>
-Message-ID: <Pine.LNX.4.60.0410271830430.614@alpha.polcom.net>
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
- <20041026203137.GB10119@thundrix.ch> <417F2251.7010404@zytor.com>
- <200410271133.25701.vda@port.imtp.ilyichevsk.odessa.ua> <20041027154828.GA21160@thundrix.ch>
- <Pine.LNX.4.60.0410271803470.614@alpha.polcom.net> <20041027161402.GC21160@thundrix.ch>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 27 Oct 2004 12:44:34 -0400
+Received: from fire.osdl.org ([65.172.181.4]:61622 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S262524AbUJ0QmS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 12:42:18 -0400
+Subject: Re: 2.6.10-rc1-mm1 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041026213156.682f35ca.akpm@osdl.org>
+References: <20041026213156.682f35ca.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1098895320.9269.32.camel@cherrybomb.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 27 Oct 2004 09:42:01 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004, Tonnerre wrote:
+Build error is still...
 
-> Salut,
->
-> On Wed, Oct 27, 2004 at 06:11:43PM +0200, Grzegorz Kulewski wrote:
->> Yes, Linux (or UNIX) directory structure should be changed years ago but
->> nobody (except GOBO Linux I think) is going to do it. That will require
->> patching realy big amount of code and changing some standards. If somebody
->> has time for it feel free to contact me, and I will tell him (or her) what
->> should be changed to produce The New Directory Standard That Breaks
->> Everything But Is The Best And Most Sane In The World (TM)... :-)
->
-> This is not the case, thanks  to autoconf and pkg-config. On one of my
-> systems, I have all the  binaries under /Library/..., and all the libs
-> under     /Frameworks/...,     and      the     doc     goes     under
-> /Library/Documentation/someplace...
->
-> It's not a problem any more, thanks to the ongoing modularization.
+  LD      vmlinux
+  SYSMAP  System.map
+  SYSMAP  .tmp_System.map
+  AS      arch/i386/boot/bootsect.o
+  AS      arch/i386/boot/compressed/head.o
+  AS      arch/i386/boot/setup.o
+  HOSTCC  arch/i386/boot/tools/build
+  CC      arch/i386/boot/compressed/misc.o
+  LD      arch/i386/boot/bootsect
+  OBJCOPY arch/i386/boot/compressed/vmlinux.bin
+BFD: Warning: Writing section `.bss' to huge (ie negative) file offset 0xc02e4000.
+objcopy: arch/i386/boot/compressed/vmlinux.bin: File truncated
+make[2]: [arch/i386/boot/compressed/vmlinux.bin] Error 1 (ignored)
+  GZIP    arch/i386/boot/compressed/vmlinux.bin.gz
+  LD      arch/i386/boot/setup
+  LD      arch/i386/boot/compressed/piggy.o
+  LD      arch/i386/boot/compressed/vmlinux
+  OBJCOPY arch/i386/boot/vmlinux.bin
+  BUILD   arch/i386/boot/bzImage
 
-Hi,
+-----------------------------------------------------------------------
 
-1. Not all packages use autoconf.
-2. Not all packages use autoconf correctly.
-3. Autoconf and others are broken in my opinion (yes they provide some 
-good features but have very high amount of bad features or stupid concepts 
-too). This is not only mine opinion btw.
-4. Changing the directory structure just to rename /lib to /Library is not 
-very ambituous... I can even call it strange...
-5. I am thinking of changing directory structure (and some other things) 
-some more... For example placing every package in its own dir - like 
-/apps/gcc/3.4.2/<install date>/{bin,lib,...} and placing symlinks in /bin 
-(or how to call it) to required files from packages bins (like RELINK), 
-adding something like /apps/<package name>/<version>/<install date>/deps 
-and keeping symlinks to all external libs/programs/scripts used by 
-<package name> there, changing autoconf to ask not test for features and 
-much more (= turning Linux standards upside down).
+Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
+
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
+
+Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
+                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
+--------------- ---------- -------- -------- -------- -------- --------
+2.6.10-rc1-mm1   16w/1e     1w/1e   592w/1e    4w/0e  13w/1e    857w/0e
+2.6.9-mm1         6w/1e     1w/1e  1761w/15e  65w/0e   9w/0e   2086w/0e
+2.6.9-rc4-mm1     5w/0e     0w/0e  1766w/11e  43w/0e   6w/0e   1798w/0e
+2.6.9-rc3-mm3     5w/0e     0w/0e  1756w/11e  43w/0e   4w/0e   1786w/0e
+2.6.9-rc3-mm2    10w/0e     4w/9e  1754w/14e  43w/0e   4w/0e   1782w/1e
+2.6.9-rc3-mm1    10w/0e     4w/10e 1768w/0e   43w/0e   4w/0e   1796w/0e
+2.6.9-rc2-mm4    10w/0e     5w/0e  2573w/0e   41w/0e   4w/0e   2600w/0e
+2.6.9-rc2-mm3    10w/0e     5w/0e  2400w/0e   41w/0e   4w/0e   2435w/0e
+2.6.9-rc2-mm2    10w/0e     5w/0e  2919w/0e   41w/0e   4w/0e   2954w/0e
+2.6.9-rc2-mm1     0w/0e     2w/0e  3541w/9e   41w/0e   3w/9e   3567w/0e
+2.6.9-rc1-mm4     0w/0e     1w/0e    55w/0e    3w/0e   2w/0e     48w/0e
+2.6.9-rc1-mm3     0w/0e     0w/0e    55w/13e   3w/0e   1w/0e     49w/1e
+2.6.9-rc1-mm2     0w/0e     0w/0e    53w/11e   3w/0e   1w/0e     47w/0e
+2.6.9-rc1-mm1     0w/0e     0w/0e    80w/0e    4w/0e   1w/0e     74w/0e
+2.6.8.1-mm4       0w/0e     0w/0e    78w/0e    4w/0e   1w/0e     73w/0e
+2.6.8.1-mm3       0w/96e    0w/0e    78w/97e   4w/0e   1w/0e     74w/89e
+2.6.8.1-mm2       0w/96e    0w/0e    78w/97e   4w/0e   1w/0e     74w/89e
+2.6.8.1-mm1       0w/0e     0w/0e    78w/0e    4w/0e   1w/0e     74w/0e
+2.6.8-rc4-mm1     0w/0e     0w/5e    81w/0e    4w/0e   1w/0e     75w/0e
+2.6.8-rc3-mm2     1w/7e     0w/5e    82w/8e    4w/0e   2w/8e     75w/0e
+2.6.8-rc3-mm1     0w/0e     1w/5e    81w/9e    4w/0e   1w/0e     75w/0e
+2.6.8-rc2-mm2     0w/0e     4w/5e    87w/9e    4w/0e   1w/0e     80w/0e
+2.6.8-rc2-mm1     0w/0e     0w/0e    83w/9e    3w/0e   1w/0e     81w/0e
+2.6.8-rc1-mm1     0w/0e     0w/0e    88w/9e    5w/0e   1w/0e     87w/0e
+2.6.7-mm7         0w/0e     0w/0e    89w/9e    5w/0e   1w/0e     84w/0e
+2.6.7-mm6         0w/0e     0w/0e    85w/9e    5w/0e   1w/0e     80w/0e
+2.6.7-mm5         0w/0e     0w/0e    92w/0e    5w/0e   1w/0e     87w/0e
+2.6.7-mm4         0w/0e     0w/0e    94w/0e    5w/0e   1w/0e     89w/0e
+2.6.7-mm3         0w/0e     0w/0e    90w/6e    5w/0e   1w/0e     86w/0e
+2.6.7-mm2         0w/0e     0w/0e   109w/0e    7w/0e   1w/0e    106w/0e
+2.6.7-mm1         0w/0e     5w/0e   108w/0e    5w/0e   1w/0e    104w/0e
+2.6.7-rc3-mm2     0w/0e     5w/0e   105w/10e   5w/0e   2w/0e    100w/2e
+2.6.7-rc3-mm1     0w/0e     5w/0e   104w/10e   5w/0e   2w/0e    100w/2e
+2.6.7-rc2-mm2     0w/0e     5w/0e   109w/10e   5w/0e   2w/0e    105w/2e
+2.6.7-rc2-mm1     0w/0e    12w/0e   158w/13e   5w/0e   3w/0e    153w/4e
+2.6.7-rc1-mm1     0w/0e     6w/0e   108w/0e    5w/0e   2w/0e    104w/0e
+2.6.6-mm5         0w/0e     0w/0e   109w/5e    5w/0e   2w/0e    110w/0e
+2.6.6-mm4         0w/0e     0w/0e   112w/9e    5w/0e   2w/5e    106w/1e
+2.6.6-mm3         3w/9e     0w/0e   120w/26e   5w/0e   2w/0e    114w/10e
+2.6.6-mm2         4w/11e    0w/0e   120w/24e   6w/0e   2w/0e    118w/9e
+2.6.6-mm1         1w/0e     0w/0e   118w/25e   6w/0e   2w/0e    114w/10e
+2.6.6-rc3-mm2     0w/0e     0w/0e   117w/ 0e   8w/0e   2w/0e    116w/0e
+2.6.6-rc3-mm1     0w/0e     0w/0e   120w/10e   8w/0e   2w/0e    152w/2e
+2.6.6-rc2-mm2     0w/0e     1w/5e   118w/ 0e   8w/0e   3w/0e    118w/0e
+2.6.6-rc2-mm1     0w/0e     0w/0e   115w/ 0e   7w/0e   3w/0e    116w/0e
+2.6.6-rc1-mm1     0w/0e     0w/7e   122w/ 0e   7w/0e   4w/0e    122w/0e
+2.6.5-mm6         0w/0e     0w/0e   123w/ 0e   7w/0e   4w/0e    124w/0e
+2.6.5-mm5         0w/0e     0w/0e   119w/ 0e   7w/0e   4w/0e    120w/0e
+2.6.5-mm4         0w/0e     0w/0e   120w/ 0e   7w/0e   4w/0e    121w/0e
+2.6.5-mm3         0w/0e     1w/0e   121w/12e   7w/0e   3w/0e    123w/0e
+2.6.5-mm2         0w/0e     0w/0e   128w/12e   7w/0e   3w/0e    134w/0e
+2.6.5-mm1         0w/0e     5w/0e   122w/ 0e   7w/0e   3w/0e    124w/0e
+2.6.5-rc3-mm4     0w/0e     0w/0e   124w/ 0e   8w/0e   4w/0e    126w/0e
+2.6.5-rc3-mm3     0w/0e     5w/0e   129w/14e   8w/0e   4w/0e    129w/6e
+2.6.5-rc3-mm2     0w/0e     5w/0e   130w/14e   8w/0e   4w/0e    129w/6e
+2.6.5-rc3-mm1     0w/0e     5w/0e   129w/ 0e   8w/0e   4w/0e    129w/0e
+2.6.5-rc2-mm5     0w/0e     5w/0e   130w/ 0e   8w/0e   4w/0e    129w/0e
+2.6.5-rc2-mm4     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
+2.6.5-rc2-mm3     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
+2.6.5-rc2-mm2     0w/0e     5w/0e   137w/ 0e   8w/0e   3w/0e    134w/0e
+2.6.5-rc2-mm1     0w/0e     5w/0e   136w/ 0e   8w/0e   3w/0e    134w/0e
+2.6.5-rc1-mm2     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
+2.6.5-rc1-mm1     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
+2.6.4-mm2         1w/2e     5w/2e   144w/10e   8w/0e   3w/2e    144w/0e
+2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
+2.6.4-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
+2.6.4-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
+2.6.4-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
+2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
+2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
+2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
+2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
+2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
+2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
+2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
+2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
+2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
+2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
+2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
+2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
+2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
+2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
+2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
+2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
+2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
+2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
+2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
+2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
+2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
+2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
+
+John
 
 
-Grzegorz Kulewski
+-- 
+John Cherry
+cherry@osdl.org
+503-626-2455x29
+Open Source Development Labs
 

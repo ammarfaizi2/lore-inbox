@@ -1,67 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264489AbTCXW2j>; Mon, 24 Mar 2003 17:28:39 -0500
+	id <S264465AbTCXWTF>; Mon, 24 Mar 2003 17:19:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264490AbTCXW2j>; Mon, 24 Mar 2003 17:28:39 -0500
-Received: from lakemtao04.cox.net ([68.1.17.241]:48067 "EHLO
-	lakemtao04.cox.net") by vger.kernel.org with ESMTP
-	id <S264489AbTCXW2i>; Mon, 24 Mar 2003 17:28:38 -0500
-Message-ID: <3E7F8993.7090807@cox.net>
-Date: Mon, 24 Mar 2003 16:41:23 -0600
-From: David van Hoose <davidvh@cox.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S264463AbTCXWTF>; Mon, 24 Mar 2003 17:19:05 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:22517 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S264465AbTCXWS6>; Mon, 24 Mar 2003 17:18:58 -0500
+Date: Mon, 24 Mar 2003 14:20:15 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: linux-kernel <linux-kernel@vger.kernel.org>
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 495] New: Logitech USB cordless optical trackball no longer
- works
-References: <541570000.1048539830@flay>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: [Bug 497] New: conntrack related slab corruption. 
+Message-ID: <558030000.1048544415@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> http://bugme.osdl.org/show_bug.cgi?id=495
-> 
->            Summary: Logitech USB cordless optical trackball no longer works
->     Kernel Version: 2.5.65-bk4
->             Status: NEW
->           Severity: high
->              Owner: greg@kroah.com
->          Submitter: davidvh@cox.net
-> 
-> 
-> Distribution:
-> 
-> RedHat 8.0
-> 
-> Hardware Environment:
-> 
-> Asus P4S8X motherboard w/ Northwood Pentium 4 2.53GHz
-> Logitech USB cordless optical trackball
-> 
-> Software Environment:
-> 
-> N/A
-> 
-> Problem Description:
-> 
-> Since 2.5.64, my trackball is no longer working.
-> On bootup, a single message about a new USB device being found is displayed, but
-> the typical HID input response never appears and the trackball doesn't work.
-> I get the below message later:
-> drivers/usb/core/message.c: usb_control/bulk_msg: timeout
-> 
-> Steps to reproduce:
-> 
-> Never works.
 
-I just now figured out what the exact problem is.
-It was fixed by changing the ACPI option for Enumeration to yes.
-I'm assuming that there is a conflict between ACPI and USB.
-That is all that I changed.
+http://bugme.osdl.org/show_bug.cgi?id=497
 
-Regards,
-David
+           Summary: conntrack related slab corruption.
+    Kernel Version: 2.5.65
+            Status: NEW
+          Severity: normal
+             Owner: laforge@gnumonks.org
+         Submitter: davej@codemonkey.org.uk
+
+
+Slab corruption: start=cf480a84, expend=cf480bb7, problemat=cf480aec
+Last user: [<c03ed43a>](destroy_conntrack+0xf8/0x159)
+Data:
++****************************************************************************************+****************EC
+0A 48 CF EC 0A 48 CF
++****************************************************************************************+****************************************************************************************+*******************A5
+Next: 71 F0 2C .3A D4 3E C0 71 F0 2C .********************
+slab error in check_poison_obj(): cache `ip_conntrack': object was modified
+after freeingCall Trace:
+ [<c0144496>] check_poison_obj+0x155/0x195
+ [<c0145e4b>] kmem_cache_alloc+0x139/0x177
+ [<c03edfba>] init_conntrack+0x8d/0x44f
+ [<c03edfba>] init_conntrack+0x8d/0x44f
+ [<c03ee586>] ip_conntrack_in+0x20a/0x2bc
+ [<c03db2eb>] udp_connect+0xa8/0x353
+ [<c03aa074>] nf_iterate+0x5f/0x93
+ [<c03b9634>] dst_output+0x0/0x2d
+ [<c03aa3db>] nf_hook_slow+0xa9/0x205
+ [<c03b9634>] dst_output+0x0/0x2d
+ [<c03b7a84>] ip_queue_xmit+0x435/0x525
+ [<c03b9634>] dst_output+0x0/0x2d
+ [<c039d1df>] __kfree_skb+0x89/0xfe
+ [<c014437c>] check_poison_obj+0x3b/0x195
+ [<c03d0eeb>] tcp_v4_send_check+0x4d/0xd8
+ [<c03ca6ae>] tcp_transmit_skb+0x3b0/0x5b3
+ [<c03cd026>] tcp_connect+0x3af/0x47b
+ [<c02aa34e>] secure_tcp_sequence_number+0x82/0xa0
+ [<c03d0237>] tcp_v4_connect+0x393/0x5db
+ [<c03e3f1d>] inet_stream_connect+0x264/0x3bc
+ [<c0398ae2>] move_addr_to_kernel+0x6b/0x6f
+ [<c039a2d8>] sys_connect+0x78/0x99
+ [<c0398c00>] sock_destroy_inode+0x1d/0x21
+ [<c0398c00>] sock_destroy_inode+0x1d/0x21
+ [<c0178bbc>] destroy_inode+0x36/0x50
+ [<c017a493>] iput+0x63/0x7c
+ [<c01760b3>] dput+0x24/0x333
+ [<c039adb1>] sys_socketcall+0xb2/0x262
+ [<c015c938>] filp_close+0xe9/0x12d
+ [<c015ca13>] sys_close+0x97/0xdf
+ [<c010978f>] syscall_call+0x7/0xb
+
 

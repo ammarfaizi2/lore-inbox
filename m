@@ -1,85 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273935AbRIRVSL>; Tue, 18 Sep 2001 17:18:11 -0400
+	id <S273938AbRIRV1l>; Tue, 18 Sep 2001 17:27:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273936AbRIRVSB>; Tue, 18 Sep 2001 17:18:01 -0400
-Received: from mail.missioncriticallinux.com ([208.51.139.18]:42257 "EHLO
-	missioncriticallinux.com") by vger.kernel.org with ESMTP
-	id <S273935AbRIRVR5>; Tue, 18 Sep 2001 17:17:57 -0400
-Message-ID: <3BA7BA06.B7E61F63@MissionCriticalLinux.com>
-Date: Tue, 18 Sep 2001 14:17:58 -0700
-From: Bruce Blinn <blinn@MissionCriticalLinux.com>
-Organization: Mission Critical Linux
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.6-cdrom i686)
-X-Accept-Language: en
+	id <S273940AbRIRV1b>; Tue, 18 Sep 2001 17:27:31 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:9691 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S273938AbRIRV1R>;
+	Tue, 18 Sep 2001 17:27:17 -0400
+Date: Tue, 18 Sep 2001 17:27:40 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: Andreas Dilger <adilger@turbolabs.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+In-Reply-To: <200109182106.f8IL6Js14650@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.GSO.4.21.0109181710400.27538-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Wojtek Pilorz <wpilorz@bdk.pl>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, root@chaos.analogic.com,
-        Masoud Sharbiani <masu@cr213096-a.rchrd1.on.wave.home.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Reading Windows CD on Linux 2.4.6
-In-Reply-To: <Pine.LNX.4.21.0109181248480.22180-100000@celebris.bdk.pl>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wojtek Pilorz wrote:
+
+
+On Tue, 18 Sep 2001, Richard Gooch wrote:
+
+> Actually, many times I fed Linus smaller patches. I tried to get the
+> FS core itself in separately from the drivers, which was 100% safe
+> (since no existing code was touched), but he wasn't interested. If the
+> devfs core *had* been accepted on it's own, I could then have
+> reasonably split up the driver patches.
 > 
-> Could you try
-> cdrecord -toc dev=x,y
-> where x,y are numbers returned for your SCSI (either native or emulated)
-> device by
->  cdrecord -scanbus
+> However, I disagree with your "long history of problems" comment. You
+> make it sound like devfs hasn't performed reliably, whereas in real
+> life (i.e. normal use, not constructed exploits) it's done quite well.
+> 
+> In any case, if your "I can't be arsed to split my patch" comment is
+> directed at me, I take offense. I did actually take the trouble to
+> split up my patch.
 
-I think I finally got the cdrecord command to work (thanks Tobias).  By
-the way, after today, I will be on vacation until Monday, so if I don't
-reply to messages, don't think that it is that I do not appreciate all
-the help that I am getting.
+Sheesh... Statement: "non-priveleged user can crash any released version
+of kernel if devfs is compiled in and mounted".  Provably true.  It _does_
+qualify as a problem and yes, I would say that 20 months _is_ long.
 
-Thanks,
-Bruce
+Regardless of the reasons why the thing went in once chunk, presence of
+these problems is a direct result.  Anyone who wants to push a large
+patch into the tree is inviting the same result.
 
-# cdrecord -scanbus
-Cdrecord 1.8 (i686-pc-linux-gnu) Copyright (C) 1995-2000 Jörg Schilling
-Using libscg version 'schily-0.1'
-scsibus0:
-cdrecord: Warning: controller returns wrong size for CD capabilities
-page.
-        0,0,0     0) 'Lite-On ' 'LTN483S 48x Max ' 'PD02' Removable
-CD-ROM
-        0,1,0     1) *
-        0,2,0     2) *
-        0,3,0     3) *
-        0,4,0     4) *
-        0,5,0     5) *
-        0,6,0     6) *
-        0,7,0     7) *
-# cdrecord -toc dev=0,0,0
-Cdrecord 1.8 (i686-pc-linux-gnu) Copyright (C) 1995-2000 Jörg Schilling
-scsidev: '0,0,0'
-scsibus: 0 target: 0 lun: 0
-Using libscg version 'schily-0.1'
-cdrecord: Warning: controller returns wrong size for CD capabilities
-page.
-Device type    : Removable CD-ROM
-Version        : 0
-Response Format: 1
-Vendor_info    : 'Lite-On '
-Identifikation : 'LTN483S 48x Max '
-Revision       : 'PD02'
-Device seems to be: Generic mmc CD-ROM.
-cdrecord: Warning: controller returns wrong size for CD capabilities
-page.
-cdrecord: Warning: controller returns wrong size for CD capabilities
-page.
-cdrecord: Warning: controller returns wrong size for CD capabilities
-page.
-Using generic SCSI-3/mmc CD driver (mmc_cd).
-Driver flags   : SWABAUDIO
-first: 1 last 2
-track:   1 lba:         0 (        0) 00:02:00 adr: 1 control: 6 mode: 2
-track:   2 lba:       512 (     2048) 00:08:62 adr: 1 control: 5 mode: 2
-track:lout lba:     14144 (    56576) 03:10:44 adr: 1 control: 5 mode:
--1
-#
+BTW, potentially useful observation: if a preliminary chunk of patch
+makes sense on its own, it gets much better chance to get applied.
+Accepting devfs core in one step would be completely useless - it's
+still too large (~100Kb) and if it would be applied first, it would
+get zero testing until the rest went in.
+
+Anyway, Zen And Art Of Feeding Patches Into Tree is a topic for a different
+thread...  AFAICS devfs could be split in meaningful steps (ones that
+would get testing immediately and would add functionality by pieces),
+but by now it's hardly interesting.  If you want details - let's take
+it to private mail, preferably when I'll have some spare time.
+

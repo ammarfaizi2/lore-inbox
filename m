@@ -1,82 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVCCBBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVCCBCS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbVCCBBh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 20:01:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVCCA64
+	id S261373AbVCCBCS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 20:02:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVCCBCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 19:58:56 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:2762 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S261212AbVCCAyj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 19:54:39 -0500
-Date: Thu, 3 Mar 2005 01:54:37 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.11
-Message-ID: <20050303005436.GA11516@mail.13thfloor.at>
-Mail-Followup-To: Michael Tokarev <mjt@tls.msk.ru>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org> <20050302124728.GD14002@mail.13thfloor.at> <4225C86C.8000502@tls.msk.ru>
+	Wed, 2 Mar 2005 20:02:10 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:27560
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261373AbVCCA6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 19:58:48 -0500
+Date: Wed, 2 Mar 2005 16:58:30 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+Message-Id: <20050302165830.0a74b85c.davem@davemloft.net>
+In-Reply-To: <42265A6F.8030609@pobox.com>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+	<42264F6C.8030508@pobox.com>
+	<20050302162312.06e22e70.akpm@osdl.org>
+	<42265A6F.8030609@pobox.com>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4225C86C.8000502@tls.msk.ru>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 05:06:36PM +0300, Michael Tokarev wrote:
-> Herbert Poetzl wrote:
-> []
-> >BUG_ON() and friends are still broken (at least on x86)
-> []
-> >Freeing unused kernel memory: 244k freed
-> >------------[ cut here ]------------
-> >kernel BUG at <bad filename>:9377!
-> >	      ~~~~~~~~~~~~~~~~~~~
+On Wed, 02 Mar 2005 19:29:35 -0500
+Jeff Garzik <jgarzik@pobox.com> wrote:
+
+> If the time between big merges increases, as with this proposal, then 
+> the distance between local dev trees and linux-2.6 increases.
 > 
-> Have you tried compiling with CONFIG_DEBUG_INFO=y ?
-> (Looks like CONFIG_DEBUG_BUGVERBOSE should either
-> depend on CONFIG_DEBUG_INFO or turn it on).
+> With that distance, breakages like the 64-bit resource struct stuff 
+> become more painful.
+> 
+> I like my own "ongoing dev tree, ongoing stable tree" proposal a lot 
+> better.  But then, I'm biased :)
 
-egrep 'CONFIG_DEBUG_(INFO|BUGVERBOSE)' .config
-# CONFIG_DEBUG_BUGVERBOSE is not set
-CONFIG_DEBUG_INFO=y
+The problem is people don't test until 2.6.whatever-final goes out.
+Nothing will change that.
 
-good point, just it seems to be the other way round ..
+And the day Linus releases we always get a pile of "missing MODULE_EXPORT()"
+type bug reports that are one liner fixes.  Those fixes will not be seen by
+users until the next 2.6.x rev comes out and right now that takes months
+which is rediculious for such simple fixes.
 
-with CONFIG_DEBUG_BUGVERBOSE set I get the correct
-file and line, but no stack information ...
+We're talking about a one week "calming" period to collect the brown paper
+bag fixes for a 2.6.${even} release, that's all.
 
-Freeing unused kernel memory: 104k freed
-------------[ cut here ]------------
-kernel BUG at init/main.c:692!
-invalid operand: 0000 [#1]
-PREEMPT 
-CPU:    0
-EIP:    0060:[<c0100330>]    Not tainted VLI
-EFLAGS: 00000246   (2.6.11-rc1) 
-eax: 00000000   ebx: c01002b0   ecx: 00000000   edx: 00000000
-esi: 00000000   edi: 00000000   ebp: 00000000   esp: c10bdff0
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 1, threadinfo=c10bc000 task=c10b3aa0)
-Stack: c0100635 00000000 00000000 00000000 
-Call Trace:
- [<c0100635>]
-Code: 29 c0 01 00 00 00 6a 00 6a 02 68 97 0a 24 c0 e8 47 07 06 00 83 c4 0c 85 c0 78 60 6a 00 e8 a9 80 07 00 6a 00 e8 a2 80 07 00 58 5a <0f> 0b b4 02 13 0a 24 c0 a1 24 21 29 c0 85 c0 75 32 68 a4 0a 24 
-
-maybe there is another option which sneaked in,
-will investigate ...
-
-thanks,
-Herbert
-
-PS: was it ever considered to hard code the explicit BUG_*
-files and lines via a macro instead of that (probably very
-fancy and efficient but nevertheless) strange address stuff?
-
-I mean, are bug reports with missing/wrong file/line info
-really what the kernel developers want to see in the future?
-
-> /mjt
+All this "I have to hold onto my backlog longer, WAHHH!" arguments are bogus
+IMHO.  We're using a week of quiescence to fix the tree for users so they
+are happy whilst we work on the 2.6.${odd} interesting stuff :-)

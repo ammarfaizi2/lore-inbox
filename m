@@ -1,154 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274857AbTHFEVi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 00:21:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274858AbTHFEVi
+	id S274969AbTHFEX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 00:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274989AbTHFEX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 00:21:38 -0400
-Received: from hydrogen.one-2-one.net ([217.115.142.89]:13578 "EHLO
-	hydrogen.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S274857AbTHFEVe convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 00:21:34 -0400
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <d.nuetzel@wearabrain.de>
-Organization: WEAR-A-BRAIN
-To: Tony Lindgren <tony@atomide.com>
-Subject: 2.4.22-rc1 + ACPI patch: amd76x_pm do not work any longer
-Date: Wed, 6 Aug 2003 06:21:06 +0200
-User-Agent: KMail/1.5.3
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       acpi-devel@lists.sourceforge.net, Adrian Bunk <bunk@fs.tum.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
+	Wed, 6 Aug 2003 00:23:56 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:10961 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S274969AbTHFEXs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 00:23:48 -0400
+Date: Wed, 6 Aug 2003 09:58:54 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dick Streefland <dick.streefland@xs4all.nl>, linux-kernel@vger.kernel.org,
+       Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH] autofs4 doesn't expire
+Message-ID: <20030806042853.GA1298@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <4b0c.3f302ca5.93873@altium.nl> <20030805164904.36b5d2cc.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308060621.06216.d.nuetzel@wearabrain.de>
+In-Reply-To: <20030805164904.36b5d2cc.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Aug 05, 2003 at 04:49:04PM -0700, Andrew Morton wrote:
+> spam@streefland.xs4all.nl (Dick Streefland) wrote:
+> >
+> > In linux-2.6.0-test1, lookup_mnt() was changed to increment the ref
+> > count of the returned vfsmount struct. This breaks expiration of
+> > autofs4 mounts, because lookup_mnt() is called in check_vfsmnt()
+> > without decrementing the ref count afterwards. The following patch
+> > fixes this:
+> > 
+> 
+> Neat, thanks.
+> 
+> Probably we should hold onto that ref because we play with the vfsmount
+> later on.  So something like this?
+> 
+> 
+> diff -puN fs/autofs4/expire.c~autofs4-expiry-fix fs/autofs4/expire.c
+> --- 25/fs/autofs4/expire.c~autofs4-expiry-fix	2003-08-05 16:44:41.000000000 -0700
+> +++ 25-akpm/fs/autofs4/expire.c	2003-08-05 16:48:20.000000000 -0700
+> @@ -25,7 +25,7 @@ static inline int is_vfsmnt_tree_busy(st
+>  	struct list_head *next;
+>  	int count;
+>  
+> -	count = atomic_read(&mnt->mnt_count) - 1;
+> +	count = atomic_read(&mnt->mnt_count) - 1 - 1;
+>  
+>  repeat:
+>  	next = this_parent->mnt_mounts.next;
+> @@ -70,8 +70,11 @@ static int check_vfsmnt(struct vfsmount 
+>  	int ret = dentry->d_mounted;
+>  	struct vfsmount *vfs = lookup_mnt(mnt, dentry);
+>  
+> -	if (vfs && is_vfsmnt_tree_busy(vfs))
+> -		ret--;
+> +	if (vfs) {
+> +		if (is_vfsmnt_tree_busy(vfs))
+> +			ret = 0;
+> +		mntput(vfs);
+> +	}
+>  	DPRINTK(("check_vfsmnt: ret=%d\n", ret));
+>  	return ret;
+>  }
+> 
+> _
 
-I had it running very well on my dual Athlon MP 1900+ for several months 
-before. Latest Kernel was 2.4.22-pre5+ACPI patch.
+Sorry, I don't think it is correct. This code is called under dcache_lock,
+taken in is_tree_busy(). mntput() calls dput() and which can lead to deadlock.
 
-Any changes?
-I changed lm_sensors from 2.7.0 (?) to 2.8.0
+I was thinking of some clean solution and trying to understand autofs4 but
+some what lost in user mode utility, version 3 and 4, etc etc. 
 
-System:
-dual Athlon MP 1900+
-MSI K7D Master-L
+Dick, can you test the appended patch whether it works for you or not.
 
-2.4.22-rc1
-acpi-20030730-2.4.22-pre8.diff
-preempt-kernel-rml-2.4.21-1.patch
-IDE as modules
+Thanks
+Maneesh
 
-SunWave1 /home/nuetzel# modprobe amd76x_pm
-/lib/modules/2.4.22-rc1-rl/kernel/drivers/char/amd76x_pm.o: init_module: 
-Device or resource busy
-Hint: insmod errors can be caused by incorrect module parameters, including 
-invalid IO or IRQ parameters.
-      You may find more information in syslog or the output from dmesg
-/lib/modules/2.4.22-rc1-rl/kernel/drivers/char/amd76x_pm.o: insmod 
-/lib/modules/2.4.22-rc1-rl/kernel/drivers/char/amd76x_pm.o failed
-/lib/modules/2.4.22-rc1-rl/kernel/drivers/char/amd76x_pm.o: insmod amd76x_pm 
-failed
+diff -puN fs/autofs4/expire.c~autofs4-vfsmount-fix fs/autofs4/expire.c
+--- linux-2.6.0-test2/fs/autofs4/expire.c~autofs4-vfsmount-fix	2003-08-06 09:10:49.000000000 +0530
++++ linux-2.6.0-test2-maneesh/fs/autofs4/expire.c	2003-08-06 09:24:07.000000000 +0530
+@@ -25,7 +25,10 @@ static inline int is_vfsmnt_tree_busy(st
+ 	struct list_head *next;
+ 	int count;
+ 
+-	count = atomic_read(&mnt->mnt_count) - 1;
++	/* -1 for vfsmount's normal count,
++	 * -1 for ref taken in lookup_mnt()
++	 */
++	count = atomic_read(&mnt->mnt_count) - 1 - 1;
+ 
+ repeat:
+ 	next = this_parent->mnt_mounts.next;
+@@ -71,7 +74,8 @@ static int check_vfsmnt(struct vfsmount 
+ 	struct vfsmount *vfs = lookup_mnt(mnt, dentry);
+ 
+ 	if (vfs && is_vfsmnt_tree_busy(vfs))
+-		ret--;
++		ret = 0;
++	mntput(vfs);
+ 	DPRINTK(("check_vfsmnt: ret=%d\n", ret));
+ 	return ret;
+ }
+@@ -96,8 +100,11 @@ static int is_tree_busy(struct vfsmount 
+ 		DPRINTK(("is_tree_busy: autofs; count=%d\n", count));
+ 	}
+ 
+-	if (d_mountpoint(top))
++	if (d_mountpoint(top)) {
++		spin_unlock(&dcache_lock);
+ 		count -= check_vfsmnt(topmnt, top);
++		spin_lock(&dcache_lock);
++	}
+ 
+  repeat:
+ 	next = this_parent->d_subdirs.next;
+@@ -110,8 +117,11 @@ static int is_tree_busy(struct vfsmount 
+ 
+ 		count += atomic_read(&dentry->d_count) - 1;
+ 
+-		if (d_mountpoint(dentry))
++		if (d_mountpoint(dentry)) {
++			spin_unlock(&dcache_lock);
+ 			adj += check_vfsmnt(topmnt, dentry);
++			spin_lock(&dcache_lock);
++		}
+ 
+ 		if (is_autofs4_dentry(dentry)) {
+ 			adj++;
 
-dmesg:
-amd76x_pm: Version 20020730
-amd76x_pm: Initializing northbridge Advanced Micro Devices [AMD] AMD-760 MP 
-[IGD4-2P] System Controller
-amd76x_pm: Could not find southbridge		<----!!!!!!!!
-
-2.4.22-pre5
-older ACPI patch
-preempt-kernel-rml-2.4.21-1.patch
-
-<6>amd76x_pm: Version 20020730
-<6>amd76x_pm: Initializing northbridge Advanced Micro Devices [AMD] AMD-760 MP 
-[IGD4-2P] System Controller
-
-
-
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System 
-Controller (rev 17).
-      Master Capable.  Latency=32.
-      Prefetchable 32 bit memory at 0xe8000000 [0xebffffff].
-      Prefetchable 32 bit memory at 0xf1101000 [0xf1101fff].
-      I/O at 0xc800 [0xc803].
-  Bus  0, device   1, function  0:
-    PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP Bridge 
-(rev 0).
-      Master Capable.  Latency=32.  Min Gnt=14.
-  Bus  0, device   7, function  0:
-    ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev 5).
-  Bus  0, device   7, function  1:
-    IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE (rev 4).
-      Master Capable.  Latency=32.
-      I/O at 0xc000 [0xc00f].
-  Bus  0, device   7, function  3:
-    Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev 3).
-      Master Capable.  Latency=32.
-  Bus  0, device   9, function  0:
-    SCSI storage controller: Adaptec AIC-7892A U160/m (rev 2).
-      IRQ 17.
-      Master Capable.  Latency=32.  Min Gnt=40.Max Lat=25.
-      I/O at 0xc400 [0xc4ff].
-      Non-prefetchable 64 bit memory at 0xf1100000 [0xf1100fff].
-  Bus  0, device  16, function  0:
-    PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev 5).
-      Master Capable.  Latency=32.  Min Gnt=6.
-  Bus  1, device   5, function  0:
-    VGA compatible controller: ATI Technologies Inc Radeon R200 QL [Radeon 
-8500 LE] (rev 0).
-      IRQ 17.
-      Master Capable.  Latency=32.  Min Gnt=8.
-      Prefetchable 32 bit memory at 0xe0000000 [0xe7ffffff].
-      I/O at 0xb000 [0xb0ff].
-      Non-prefetchable 32 bit memory at 0xed000000 [0xed00ffff].
-  Bus  2, device   0, function  0:
-    USB Controller: Advanced Micro Devices [AMD] AMD-768 [Opus] USB (rev 7).
-      IRQ 19.
-      Master Capable.  Latency=32.  Max Lat=80.
-      Non-prefetchable 32 bit memory at 0xf0122000 [0xf0122fff].
-  Bus  2, device   4, function  0:
-    Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 8).
-      IRQ 16.
-      Master Capable.  Latency=32.  Min Gnt=2.Max Lat=20.
-      I/O at 0x9000 [0x901f].
-  Bus  2, device   4, function  1:
-    Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 8).
-      Master Capable.  Latency=32.
-      I/O at 0x9400 [0x9407].
-  Bus  2, device   5, function  0:
-    Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 4).
-      IRQ 17.
-      Master Capable.  Latency=32.  Min Gnt=8.Max Lat=56.
-      Prefetchable 32 bit memory at 0xf1000000 [0xf1000fff].
-      I/O at 0x9800 [0x981f].
-      Non-prefetchable 32 bit memory at 0xf0000000 [0xf00fffff].
-  Bus  2, device   6, function  0:
-    SCSI storage controller: Adaptec AHA-2940U/UW/D / AIC-7881U (rev 1).
-      IRQ 18.
-      Master Capable.  Latency=32.  Min Gnt=8.Max Lat=8.
-      I/O at 0x9c00 [0x9cff].
-      Non-prefetchable 32 bit memory at 0xf0120000 [0xf0120fff].
-  Bus  2, device   9, function  0:
-    Ethernet controller: Intel Corp. 82559ER (rev 9).
-      IRQ 17.
-      Master Capable.  Latency=32.  Min Gnt=8.Max Lat=56.
-      Non-prefetchable 32 bit memory at 0xf0121000 [0xf0121fff].
-      I/O at 0xa000 [0xa03f].
-      Non-prefetchable 32 bit memory at 0xf0100000 [0xf011ffff].
-
-Thanks.
+_
+_
 
 -- 
-Dieter Nützel
-Leiter F&E, WEAR-A-BRAIN GmbH, Wiener Str. 5, 28359 Bremen, Germany
-Mobil: 0162 673 09 09
-
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/

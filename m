@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269568AbUIZQKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269570AbUIZQT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269568AbUIZQKb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 12:10:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269570AbUIZQKb
+	id S269570AbUIZQT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 12:19:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269571AbUIZQT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 12:10:31 -0400
-Received: from pat.uio.no ([129.240.130.16]:46055 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S269568AbUIZQKY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 12:10:24 -0400
+	Sun, 26 Sep 2004 12:19:58 -0400
+Received: from sero.dbtech.de ([195.4.70.70]:8964 "HELO mx0.dbtech.de")
+	by vger.kernel.org with SMTP id S269570AbUIZQT4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Sep 2004 12:19:56 -0400
+From: Christian Fischer <Christian.Fischer@fischundfischer.com>
+Organization: Fisch+Fischer Veranstaltungstechnik
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
 Subject: Re: NFS TUNING: #define NFS3_MAXGROUPS
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Christian Fischer <Christian.Fischer@fischundfischer.com>
+Date: Sun, 26 Sep 2004 18:25:08 +0200
+User-Agent: KMail/1.7
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200409261638.36011.Christian.Fischer@fischundfischer.com>
-References: <200409261638.36011.Christian.Fischer@fischundfischer.com>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1096215018.6828.26.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 26 Sep 2004 12:10:18 -0400
-Content-Transfer-Encoding: 8BIT
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
+References: <200409261638.36011.Christian.Fischer@fischundfischer.com> <1096215018.6828.26.camel@lade.trondhjem.org>
+In-Reply-To: <1096215018.6828.26.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2306320.2r8QqmPWJH";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409261825.08628.Christian.Fischer@fischundfischer.com>
+X-Spam-HITS: 0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På su , 26/09/2004 klokka 10:38, skreiv Christian Fischer:
-> Hello.
-> 
-> Please can you tell me if  NFS_MAXGROUPS is tunable for linux kernel? (and is 
-> it safe?) I need more than 16 groups per user. For BSD-kernel it is a tunable 
-> constant (i think so) and I'm not so familar with such things. 
-> 
-> What else must i do if it is really tunable?
+--nextPart2306320.2r8QqmPWJH
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-No, it is NOT tunable. The SunRPC protocol (rfc1831) states clearly that
-the AUTH_SYS (a.k.a. AUTH_UNIX) structure is defined as
+On Sunday 26 September 2004 18:10, Trond Myklebust wrote:
 
-      struct authsys_parms {
-         unsigned int stamp;
-         string machinename<255>;
-         unsigned int uid;
-         unsigned int gid;
-         unsigned int gids<16>;
-      };
+> No, it is NOT tunable. The SunRPC protocol (rfc1831) states clearly that
+> the AUTH_SYS (a.k.a. AUTH_UNIX) structure is defined as
+>
+>       struct authsys_parms {
+>          unsigned int stamp;
+>          string machinename<255>;
+>          unsigned int uid;
+>          unsigned int gid;
+>          unsigned int gids<16>;
+>       };
+>
+> If the BSDs are playing around with that, then they are not adhering to
+> the protocol, and will be incompatible with all other SunRPC
+> implementations.
 
-If the BSDs are playing around with that, then they are not adhering to
-the protocol, and will be incompatible with all other SunRPC
-implementations.
+That's a pity.=20
+Christian
+=2D-=20
 
-Cheers,
-  Trond
+--nextPart2306320.2r8QqmPWJH
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.10 (GNU/Linux)
+
+iD8DBQBBVu1kszmQKstIgt4RApvAAJ4jL7HsD0aY8I0c9qPFC1d/UFPxSgCgqBVT
+gEtkUxGdELv5KKb/lEc2GDk=
+=7woX
+-----END PGP SIGNATURE-----
+
+--nextPart2306320.2r8QqmPWJH--
 

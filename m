@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271798AbRIYWGH>; Tue, 25 Sep 2001 18:06:07 -0400
+	id <S271809AbRIYWHR>; Tue, 25 Sep 2001 18:07:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271809AbRIYWF6>; Tue, 25 Sep 2001 18:05:58 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:2826 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S271747AbRIYWFq>; Tue, 25 Sep 2001 18:05:46 -0400
-Date: Tue, 25 Sep 2001 19:05:58 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Jens Petersohn <jkp@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: protocol is buggy?
-Message-ID: <20010925190557.A4286@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Jens Petersohn <jkp@sgi.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <XFMail.20010925124235.jkp@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <XFMail.20010925124235.jkp@sgi.com>; from jkp@sgi.com on Tue, Sep 25, 2001 at 12:42:35PM -0500
-X-Url: http://advogato.org/person/acme
+	id <S271747AbRIYWG6>; Tue, 25 Sep 2001 18:06:58 -0400
+Received: from atlrel7.hp.com ([192.151.27.9]:7953 "HELO atlrel7.hp.com")
+	by vger.kernel.org with SMTP id <S271514AbRIYWGr>;
+	Tue, 25 Sep 2001 18:06:47 -0400
+Message-ID: <C5C45572D968D411A1B500D0B74FF4A80418D54A@xfc01.fc.hp.com>
+From: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
+To: "'Andrew Morton'" <akpm@zip.com.au>,
+        "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
+Subject: RE: 2.4.10 still slow compared to 2.4.5pre1
+Date: Tue, 25 Sep 2001 18:06:59 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Tue, Sep 25, 2001 at 12:42:35PM -0500, Jens Petersohn escreveu:
+> 
+> With a synchronous NFS export, I'd expect the disk throughput
+> to be lowered to such an extent that VM issues were not
+> significant in throughput.  But you have been seeing kswapd
+> problems so hmmm...
 
-> getting the following in dmesg. Don't know if it's iptables related or
-> not. The ethernet card in question is a Intel EtherPRO 100 with the stock
-> 2.4.8 driver. Everything is working great, but I'm mostly curious why
-> these messages appear. A search in Google or LKM didn't turn anything
-> immidiately, but I might have missed something.
- 
-> protocol 0008 is buggy, dev eth1
-> protocol 0008 is buggy, dev eth1
-> protocol 0008 is buggy, dev eth1
-> protocol 0008 is buggy, dev eth1
-> NET: 16 messages suppressed.
-> protocol 0008 is buggy, dev eth1
- 
-> /proc/pci:
->   Bus  0, device  19, function  0:
->     Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 2).
->       IRQ 5.
->       Master Capable.  Latency=64.  Min Gnt=8.Max Lat=56.
->       Prefetchable 32 bit memory at 0xe4100000 [0xe4100fff].
->       I/O at 0x7400 [0x741f].
->       Non-prefetchable 32 bit memory at 0xe4000000 [0xe40fffff].
- 
-> The card in question is the "public/internet" side of the firewall.
-> There are two additional interfaces, eth0 (private ethernet) and eth2,
-> a radio LAN.
+We are comparing synchronous to synchronous between 2.4.5pre1 and 2.4.10 so
+I wouldn't expect such a difference.
+  
+> Conceivably this is a networking problem, and not an FS/VM
+> problem.  There were significant changes to the softirq
+> handling between 2.4.5 and 2.4.10, for example.
 
-probably related to eth_type_trans not being called, or something else that
-doesn't properly set skb2->nh.raw, I've experienced this while hacking on
-802.2/NetBEUI, the message comes from net/core/dev.c, function
-dev_queue_xmit_nit, line 882 in 2.4.9. I'll take a look now, but I'm in a
-hurry, so don't hold your breath.
+I don't understand what the softirq is or how that could effect performance.
+If you could point me in a direction to look, I'll check that out.
+ 
+> Could I suggest that you split these variables apart?  Perform
+> some comparative FS/VM testing between the kernels, and then
+> some comparative network testing?
 
-- Arnaldo
+This was on my list of things to do, but I haven't gotten there yet. ;)
+Working on it though.
+
+> Is it possible to run the SFS clients on the same machine,
+> over loopback?
+>
+
+I don't see me getting to this anytime in the near future.  If it will tell
+me what I need to know, I'll add it to my to do list.
+
+Cary 

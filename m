@@ -1,45 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319090AbSH2Du3>; Wed, 28 Aug 2002 23:50:29 -0400
+	id <S319054AbSH2ECx>; Thu, 29 Aug 2002 00:02:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319091AbSH2Du3>; Wed, 28 Aug 2002 23:50:29 -0400
-Received: from holomorphy.com ([66.224.33.161]:41345 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S319090AbSH2Du3>;
-	Wed, 28 Aug 2002 23:50:29 -0400
-Date: Wed, 28 Aug 2002 20:54:37 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       pavel@elf.ucw.cz, andrea <andrea@suse.de>,
-       Mikael Pettersson <mikpe@csd.uu.se>, msw@redhat.com,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [FTF][PATCH] linux-2.4.20-pre5_bad-tsc_A0
-Message-ID: <20020829035437.GE888@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	john stultz <johnstul@us.ibm.com>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, pavel@elf.ucw.cz,
-	andrea <andrea@suse.de>, Mikael Pettersson <mikpe@csd.uu.se>,
-	msw@redhat.com, Ulrich Drepper <drepper@redhat.com>
-References: <1030584008.3056.53.camel@cog>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <1030584008.3056.53.camel@cog>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S319052AbSH2ECx>; Thu, 29 Aug 2002 00:02:53 -0400
+Received: from out011pub.verizon.net ([206.46.170.135]:44495 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP
+	id <S318998AbSH2ECx>; Thu, 29 Aug 2002 00:02:53 -0400
+Message-ID: <3D6D9D56.2090806@bellatlantic.net>
+Date: Thu, 29 Aug 2002 00:04:38 -0400
+From: dtonks <dtonks@bellatlantic.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.0rc2) Gecko/20020513 Netscape/7.0b1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.31 SCSI problem w/solution
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 28, 2002 at 06:20:07PM -0700, john stultz wrote:
-> As long as folks still seem interested in this, I'll keep on maintaining
-> it, but if you feel it should just die, let me know.
+Hi,
+    When trying to compile module for sym53c416 I received an error 
+'address not in structure'.  I traced this to - asm-i386/scatterlist.h. 
+ It is missing - char * address - at the beginning of the structure.  I 
+copied scatterlist.h from 2.4.18 and it compiled fine.
 
-Is there any chance you could do a 2.5.32 version that skips over
-synchronize_tsc_ap() etc. entirely? synchronize_tsc_ap() appears to
-oops on 32x NUMA-Q boxen (though it could be io_apic.c running amok).
+Hope this helps,
+Don Tonks
+dtonks@bellatlantic.net
 
-
-Cheers,
-Bill

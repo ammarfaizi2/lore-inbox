@@ -1,94 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbUEFRtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUEFR4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbUEFRtn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 13:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUEFRtn
+	id S261763AbUEFR4F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 13:56:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbUEFR4F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 13:49:43 -0400
-Received: from lists.us.dell.com ([143.166.224.162]:55397 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S261744AbUEFRtj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 13:49:39 -0400
-Date: Thu, 6 May 2004 12:49:37 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: marcelo.tosatti@cyclades.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.4] PCI devices with no PCI_CACHE_LINE_SIZE implemented
-Message-ID: <20040506174937.GB25499@lists.us.dell.com>
+	Thu, 6 May 2004 13:56:05 -0400
+Received: from outmx007.isp.belgacom.be ([195.238.3.234]:10988 "EHLO
+	outmx007.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S261763AbUEFRz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 13:55:59 -0400
+Subject: [2.6.6-rc3-mm2] genhd-unregister warn handling
+From: FabF <Fabian.Frederick@skynet.be>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-0Zmfqh6RoF4mCr0N4iLF"
+Message-Id: <1083866562.5865.6.camel@bluerhyme.real3>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 06 May 2004 20:02:43 +0200
+X-RAVMilter-Version: 8.4.3(snapshot 20030212) (outmx007.isp.belgacom.be)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---6TrnltStXW4iwmi0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+--=-0Zmfqh6RoF4mCr0N4iLF
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Marcelo, below is a patch to lower the severity of this printk to
-KERN_DEBUG, as there are devices which (properly) don't implement the
-PCI_CACHE_LINE_SIZE register, and it's not a bug, so don't print at a
-WARNING level.  GregKH accepted the equivalent patch for 2.6.
+Andrew,
 
-Thanks,
-Matt
+	Here's a patch against 2.6.6-rc3-mm2 genhd.c unregister_blkdev
 
+	-Standardize function for void xxx
+	-Split uncorresponding return
+	-Add printks
+	-Merge kfree to positive case
 
------ Forwarded message from Matt Domsch <Matt_Domsch@dell.com> -----
+	Could you apply ?
 
-Date: Wed, 5 May 2004 17:50:53 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
-Subject: Re: PCI devices with no PCI_CACHE_LINE_SIZE implemented
-In-Reply-To: <20040505223102.GF30003@kroah.com>
+Regards,
+Fabian
 
-On Wed, May 05, 2004 at 03:31:02PM -0700, Greg KH wrote:
-> On Thu, Apr 29, 2004 at 02:53:01PM -0500, Matt Domsch wrote:
-> > a) need this be a warning, wouldn't KERN_DEBUG suffice, if a message
-> > is needed at all?  This is printed in pci_generic_prep_mwi().
->=20
-> Yes, we should make that KERN_DEBUG.  I don't have a problem with that.
-> Care to make a patch?
+--=-0Zmfqh6RoF4mCr0N4iLF
+Content-Disposition: attachment; filename=genhd1.diff
+Content-Type: text/x-patch; name=genhd1.diff; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Patch for 2.4.27-pre1 appended.
+diff -Naur orig/drivers/block/genhd.c edited/drivers/block/genhd.c
+--- orig/drivers/block/genhd.c	2004-04-04 05:37:06.000000000 +0200
++++ edited/drivers/block/genhd.c	2004-05-06 19:52:56.000000000 +0200
+@@ -116,31 +116,33 @@
+ 
+ EXPORT_SYMBOL(register_blkdev);
+ 
+-/* todo: make void - error printk here */
+-int unregister_blkdev(unsigned int major, const char *name)
++void unregister_blkdev(unsigned int major, const char *name)
+ {
+ 	struct blk_major_name **n;
+ 	struct blk_major_name *p = NULL;
+ 	int index = major_to_index(major);
+ 	unsigned long flags;
+-	int ret = 0;
+ 
+ 	down_write(&block_subsys.rwsem);
+ 	spin_lock_irqsave(&major_names_lock, flags);
+ 	for (n = &major_names[index]; *n; n = &(*n)->next)
+ 		if ((*n)->major == major)
+ 			break;
+-	if (!*n || strcmp((*n)->name, name))
+-		ret = -EINVAL;
++	if (!*n)
++		printk(KERN_WARNING "Unable to unregister block device with major %d", major);
+ 	else {
+-		p = *n;
+-		*n = p->next;
++		if (strcmp((*n)->name, name))
++			printk(KERN_WARNING "Unable to unregister %s.Major name does not correspond", name);
++		else {
++			/*name was found in blk_major_name table.Skip it*/
++			p = *n;
++			*n = p->next;
++			kfree(p);
++		}
+ 	}
+ 	spin_unlock_irqrestore(&major_names_lock, flags);
+ 	up_write(&block_subsys.rwsem);
+-	kfree(p);
+ 
+-	return ret;
+ }
+ 
+ EXPORT_SYMBOL(unregister_blkdev);
+diff -Naur orig/include/linux/fs.h edited/include/linux/fs.h
+--- orig/include/linux/fs.h	2004-05-05 17:58:57.000000000 +0200
++++ edited/include/linux/fs.h	2004-05-06 19:19:26.000000000 +0200
+@@ -1216,7 +1216,7 @@
+ #endif
+ 
+ extern int register_blkdev(unsigned int, const char *);
+-extern int unregister_blkdev(unsigned int, const char *);
++extern void unregister_blkdev(unsigned int, const char *);
+ extern struct block_device *bdget(dev_t);
+ extern void bd_set_size(struct block_device *, loff_t size);
+ extern void bd_forget(struct inode *inode);
 
-Thanks,
-Matt
+--=-0Zmfqh6RoF4mCr0N4iLF--
 
---=20
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
-=3D=3D=3D=3D=3D drivers/pci/pci.c 1.47 vs edited =3D=3D=3D=3D=3D
---- 1.47/drivers/pci/pci.c	Mon Sep 22 07:27:35 2003
-+++ edited/drivers/pci/pci.c	Wed May  5 17:49:13 2004
-@@ -943,7 +943,7 @@
- 	if (cacheline_size =3D=3D pci_cache_line_size)
- 		return 0;
-=20
--	printk(KERN_WARNING "PCI: cache line size of %d is not supported "
-+	printk(KERN_DEBUG "PCI: cache line size of %d is not supported "
- 	       "by device %s\n", pci_cache_line_size << 2, dev->slot_name);
-=20
- 	return -EINVAL;
-
---6TrnltStXW4iwmi0
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAmnqxIavu95Lw/AkRAvCZAJ4tbKiY/EE0qA6vdOI8aBkjP+YZxACbBpq3
-wR7x4cB+cjeloUiUZOiN2+k=
-=HEAa
------END PGP SIGNATURE-----
-
---6TrnltStXW4iwmi0--

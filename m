@@ -1,355 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267585AbUHMU1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267362AbUHMU1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267585AbUHMU1s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 16:27:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267357AbUHMUZ1
+	id S267362AbUHMU1y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 16:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267477AbUHMUZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 16:25:27 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:15554 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267502AbUHMUSS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 16:18:18 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc4-O7
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-In-Reply-To: <20040813104817.GI8135@elte.hu>
-References: <20040726083537.GA24948@elte.hu>
-	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
-	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
-	 <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
-	 <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu>
-	 <1092382825.3450.19.camel@mindpipe>  <20040813104817.GI8135@elte.hu>
-Content-Type: text/plain
-Message-Id: <1092428329.3450.71.camel@mindpipe>
+	Fri, 13 Aug 2004 16:25:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19895 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267447AbUHMUUB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 16:20:01 -0400
+Date: Fri, 13 Aug 2004 13:18:35 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: sam@ravnborg.org, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: __crc_* symbols in System.map
+Message-Id: <20040813131835.4ea29bba.davem@redhat.com>
+In-Reply-To: <20040813181042.GA9006@mars.ravnborg.org>
+References: <20040811205529.1ff86e9d.davem@redhat.com>
+	<20040812050136.GA7246@mars.ravnborg.org>
+	<20040812000558.220d7e5d.davem@redhat.com>
+	<20040813180239.GA7571@mars.ravnborg.org>
+	<20040813181042.GA9006@mars.ravnborg.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 13 Aug 2004 16:18:50 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-13 at 06:48, Ingo Molnar wrote:
+On Fri, 13 Aug 2004 20:10:42 +0200
+Sam Ravnborg <sam@ravnborg.org> wrote:
 
->  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc4-O7
+> On Fri, Aug 13, 2004 at 08:02:39PM +0200, Sam Ravnborg wrote:
+> > 
+> > $NM -n $1 | grep  '\( [aUw] \)\|\(__crc_\)' > $2
 > 
+> The missing -v ito grep was just to check if you were awake :-(
 
-Here's another very common one.  I am not sure this one is a problem, 
-but possibly points to areas where the VM (or XFree86) could be
-improved.
-
-preemption latency trace v1.0
------------------------------
- latency: 166 us, entries: 305 (305)
- process: XFree86/478, uid: 0
- nice: 0, policy: 0, rt_priority: 0
-=======>
- 0.000ms (+0.000ms): unmap_page_range (unmap_vmas)
- 0.000ms (+0.000ms): zap_pmd_range (unmap_page_range)
- 0.000ms (+0.000ms): zap_pte_range (zap_pmd_range)
- 0.002ms (+0.001ms): set_page_dirty (zap_pte_range)
- 0.003ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.003ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.004ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.005ms (+0.001ms): free_hot_page (zap_pte_range)
- 0.005ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.006ms (+0.001ms): set_page_dirty (zap_pte_range)
- 0.007ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.007ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.007ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.008ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.008ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.009ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.009ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.010ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.010ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.011ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.011ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.012ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.012ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.013ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.013ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.014ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.014ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.015ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.015ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.016ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.016ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.016ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.017ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.017ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.018ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.018ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.019ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.019ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.019ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.020ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.021ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.021ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.021ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.022ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.022ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.023ms (+0.000ms): free_pages_bulk (free_hot_cold_page)
- 0.037ms (+0.014ms): do_IRQ (common_interrupt)
- 0.038ms (+0.000ms): mask_and_ack_8259A (do_IRQ)
- 0.041ms (+0.003ms): generic_redirect_hardirq (do_IRQ)
- 0.042ms (+0.000ms): generic_handle_IRQ_event (do_IRQ)
- 0.042ms (+0.000ms): timer_interrupt (generic_handle_IRQ_event)
- 0.043ms (+0.000ms): mark_offset_tsc (timer_interrupt)
- 0.048ms (+0.005ms): do_timer (timer_interrupt)
- 0.049ms (+0.000ms): update_process_times (do_timer)
- 0.049ms (+0.000ms): update_one_process (update_process_times)
- 0.050ms (+0.000ms): run_local_timers (update_process_times)
- 0.050ms (+0.000ms): raise_softirq (update_process_times)
- 0.050ms (+0.000ms): scheduler_tick (update_process_times)
- 0.051ms (+0.000ms): sched_clock (scheduler_tick)
- 0.052ms (+0.001ms): task_timeslice (scheduler_tick)
- 0.052ms (+0.000ms): update_wall_time (do_timer)
- 0.052ms (+0.000ms): update_wall_time_one_tick (update_wall_time)
- 0.053ms (+0.000ms): generic_note_interrupt (do_IRQ)
- 0.053ms (+0.000ms): end_8259A_irq (do_IRQ)
- 0.054ms (+0.000ms): enable_8259A_irq (do_IRQ)
- 0.055ms (+0.001ms): do_softirq (do_IRQ)
- 0.055ms (+0.000ms): __do_softirq (do_softirq)
- 0.056ms (+0.000ms): wake_up_process (do_softirq)
- 0.056ms (+0.000ms): try_to_wake_up (wake_up_process)
- 0.056ms (+0.000ms): task_rq_lock (try_to_wake_up)
- 0.057ms (+0.000ms): activate_task (try_to_wake_up)
- 0.057ms (+0.000ms): sched_clock (activate_task)
- 0.058ms (+0.000ms): recalc_task_prio (activate_task)
- 0.058ms (+0.000ms): effective_prio (recalc_task_prio)
- 0.058ms (+0.000ms): enqueue_task (activate_task)
- 0.059ms (+0.000ms): preempt_schedule (try_to_wake_up)
- 0.060ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.060ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.060ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.061ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.061ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.061ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.062ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.062ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.063ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.063ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.064ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.064ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.064ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.065ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.065ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.066ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.066ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.066ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.067ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.067ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.068ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.068ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.068ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.069ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.069ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.070ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.070ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.071ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.071ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.071ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.072ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.072ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.072ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.073ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.073ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.073ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.074ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.074ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.075ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.075ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.075ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.076ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.076ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.077ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.077ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.078ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.078ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.078ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.079ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.079ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.079ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.080ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.080ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.081ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.081ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.082ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.082ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.082ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.083ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.083ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.084ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.084ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.084ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.085ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.085ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.086ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.086ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.086ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.087ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.087ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.088ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.088ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.088ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.089ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.089ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.090ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.090ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.090ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.091ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.091ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.091ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.092ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.092ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.093ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.093ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.093ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.094ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.094ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.095ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.095ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.096ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.096ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.096ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.097ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.097ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.097ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.098ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.098ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.099ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.099ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.100ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.100ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.100ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.101ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.101ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.102ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.102ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.102ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.103ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.103ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.104ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.104ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.104ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.105ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.105ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.106ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.106ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.106ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.107ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.107ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.108ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.108ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.108ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.109ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.109ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.110ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.110ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.110ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.111ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.111ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.111ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.112ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.112ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.113ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.113ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.114ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.114ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.114ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.115ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.115ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.115ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.116ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.116ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.117ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.117ms (+0.000ms): free_pages_bulk (free_hot_cold_page)
- 0.128ms (+0.011ms): preempt_schedule (free_pages_bulk)
- 0.129ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.129ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.130ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.130ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.130ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.131ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.131ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.132ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.132ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.132ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.133ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.133ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.134ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.134ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.134ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.135ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.135ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.135ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.136ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.136ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.137ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.137ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.137ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.138ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.138ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.139ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.139ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.139ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.140ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.140ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.141ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.141ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.141ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.142ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.142ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.142ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.143ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.144ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.144ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.145ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.145ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.145ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.146ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.146ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.146ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.147ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.147ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.148ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.148ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.148ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.149ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.149ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.149ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.150ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.150ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.151ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.151ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.152ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.152ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.152ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.153ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.153ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.153ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.154ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.154ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.155ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.155ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.155ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.155ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.156ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.156ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.157ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.157ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.158ms (+0.000ms): set_page_dirty (zap_pte_range)
- 0.158ms (+0.000ms): page_remove_rmap (zap_pte_range)
- 0.159ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.159ms (+0.000ms): free_page_and_swap_cache (zap_pte_range)
- 0.159ms (+0.000ms): __page_cache_release (zap_pte_range)
- 0.160ms (+0.000ms): preempt_schedule (__page_cache_release)
- 0.160ms (+0.000ms): free_hot_page (zap_pte_range)
- 0.160ms (+0.000ms): free_hot_cold_page (zap_pte_range)
- 0.161ms (+0.000ms): preempt_schedule (zap_pte_range)
- 0.161ms (+0.000ms): check_preempt_timing (touch_preempt_timing)
-
-
+Final version looks good to me. :-)
+Thanks Sam.

@@ -1,88 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315479AbSFTR0d>; Thu, 20 Jun 2002 13:26:33 -0400
+	id <S315335AbSFTRfK>; Thu, 20 Jun 2002 13:35:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315480AbSFTR0d>; Thu, 20 Jun 2002 13:26:33 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:32904 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S315479AbSFTR0b>;
-	Thu, 20 Jun 2002 13:26:31 -0400
-Date: Thu, 20 Jun 2002 19:26:21 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-       Paul Bristow <paul@paulbristow.net>,
-       Gadi Oxman <gadio@netvision.net.il>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.22] simple ide-tape.c and ide-floppy.c cleanup
-Message-ID: <20020620172621.GB3893@suse.de>
-References: <20020620164417.GA3893@suse.de> <Pine.SOL.4.30.0206201847260.23175-100000@mion.elka.pw.edu.pl>
+	id <S315334AbSFTRfI>; Thu, 20 Jun 2002 13:35:08 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:47633 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S315300AbSFTRfE>;
+	Thu, 20 Jun 2002 13:35:04 -0400
+From: Cort Dougan <cort@fsmlabs.com>
+Date: Thu, 20 Jun 2002 11:23:15 -0600
+To: RW Hawkins <rw@tensilica.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Benjamin LaHaise <bcrl@redhat.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: latest linus-2.5 BK broken
+Message-ID: <20020620112315.I6243@host110.fsmlabs.com>
+References: <Pine.LNX.4.44.0206191018510.2053-100000@home.transmeta.com> <m1d6umtxe8.fsf@frodo.biederman.org> <20020620103003.C6243@host110.fsmlabs.com> <3D120DEB.5040304@tensilica.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0206201847260.23175-100000@mion.elka.pw.edu.pl>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3D120DEB.5040304@tensilica.com>; from rw@tensilica.com on Thu, Jun 20, 2002 at 10:16:27AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 20 2002, Bartlomiej Zolnierkiewicz wrote:
-> 
-> On Thu, 20 Jun 2002, Jens Axboe wrote:
-> 
-> > On Thu, Jun 20 2002, Bartlomiej Zolnierkiewicz wrote:
-> > >
-> > > On Thu, 20 Jun 2002, Martin Dalecki wrote:
-> > >
-> > > > U?ytkownik Jens Axboe napisa?:
-> > > > > On Thu, Jun 20 2002, Martin Dalecki wrote:
-> > > > >
-> > > > >>U?ytkownik Jens Axboe napisa?:
-> > > > >>
-> > > > >>>On Wed, Jun 19 2002, Bartlomiej Zolnierkiewicz wrote:
-> > > > >>>
-> > > > >>>Looks pretty good in general, just one minor detail:
-> > > > >>>
-> > > > >>>
-> > > > >>>
-> > > > >>>>+
-> > > > >>>>+/*
-> > > > >>>>+ *	ATAPI packet commands.
-> > > > >>>>+ */
-> > > > >>>>+#define ATAPI_FORMAT_UNIT_CMD		0x04
-> > > > >>>>+#define ATAPI_INQUIRY_CMD		0x12
-> > > > >>>
-> > > > >>>
-> > > > >>>[snip]
-> > > > >>>
-> > > > >>>We already have the "full" list in cdrom.h (GPCMD_*), so lets just use
-> > > > >>>that. After all, ATAPI_MODE_SELECT10_CMD _is_ the same as the SCSI
-> > > > >>>variant (and I think the _CMD post fixing is silly, anyone familiar with
-> > > > >>>this is going to know what ATAPI_WRITE10 means just fine)
-> > > > >>>
-> > > > >>>Same for request_sense, that is already generalized in cdrom.h as well.
-> > > > >>
-> > > > >>I wonder what FreeBSD is using here? I see no need for invention at
-> > > > >>this place.
-> > > > >
-> > > > >
-> > > > > The invention would be adding the ATAPI_* commands, Linux has used the
-> > > > > GPCMD_ convention for quite some time now.
-> > > >
-> > > > Agreed. The ATAPI prefix would be confusing, since those are in reality SCSI
-> > > > commands anyway...
-> > >
-> > > I think we should use scsi.h and get rid of GPCMD_* convention also.
-> > > Jens, do you want "corrected" patch?
-> >
-> > Note that GPCMD_ is exported to user land, and several programs are
-> > using them for quite some time. So GPCMD_ stays, and that's final.
-> >
-> 
-> There was some discussion that user land should not include linux/ headers
-> directly, so in long term user land should be fixed not to use GPCMD_* ...
+I'm not disagreeing with Larry here.  I'm just pointing out that mainline
+Linux cares about what is commodity.  That's 1-2 processors and 2-4 on
+some PPC and other boards.
 
-Irrelevant, these are propagated to user land through glibc anyways.
-Look, it's a convenience. These have existed since 2.2.x + dvd patches,
-and they are not going away just because you want to make up some new
-names.
+I'm keenly interested in 1k processors, as is Larry,  and scaling Linux up
+to them.  I'm don't disagree with Linus' path for Linux staying on SMP for
+now.  Scaling up to huge clusters isn't a mainline Linux concern.  It's a
+very interesting research area, though.  In fact, some research I work on.
 
--- 
-Jens Axboe
-
+} You're missing the point. Larry is saying "I have been down this road 
+} before, take heed". We don't want to waste the time reinventing bloat 
+} when we can learn from others mistakes.
+} 
+} -RW
+} 
+}  Cort Dougan wrote:
+} 
+} >"Beating the SMP horse to death" does make sense for 2 processor SMP
+} >machines.  When 64 processor machines become commodity (Linux is a
+} >commodity hardware OS) something will have to be done.  When research
+} >groups put Linux on 1k processors - it's an experiment.  I don't think they
+} >have much right to complain that Linux doesn't scale up to that level -
+} >it's not designed to.
+} >
+} >That being said, large clusters are an interesting research area but it is
+} >_not_ a failing of Linux that it doesn't scale to them.
+} >-
+} >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+} >the body of a message to majordomo@vger.kernel.org
+} >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+} >Please read the FAQ at  http://www.tux.org/lkml/
+} >  
+} >
+} 
+} 
+} 
+} -
+} To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+} the body of a message to majordomo@vger.kernel.org
+} More majordomo info at  http://vger.kernel.org/majordomo-info.html
+} Please read the FAQ at  http://www.tux.org/lkml/

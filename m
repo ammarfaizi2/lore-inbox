@@ -1,43 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbULXKJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbULXKMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbULXKJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 05:09:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbULXKJ4
+	id S261385AbULXKMz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 05:12:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbULXKMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 05:09:56 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:37340 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261383AbULXKJz
+	Fri, 24 Dec 2004 05:12:55 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:48227 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261385AbULXKMt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 05:09:55 -0500
-Message-ID: <41CBEAFA.5040209@tiscali.de>
-Date: Fri, 24 Dec 2004 11:10:02 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: change of redhat symbol
-References: <cqgon2$gft$1@sea.gmane.org>
-In-Reply-To: <cqgon2$gft$1@sea.gmane.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Dec 2004 05:12:49 -0500
+Date: Fri, 24 Dec 2004 11:07:13 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: noop insert
+Message-ID: <20041224100711.GA2100@suse.de>
+References: <41CAEBD4.8030609@watson.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41CAEBD4.8030609@watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Muruganandam wrote:
+On Thu, Dec 23 2004, Shailabh Nagar wrote:
+> In noop-iosched.c (2.6.10-rc2),
+> 
+> void elevator_noop_add_request(request_queue_t *q, struct request *rq,
+> 			       int where)
+> {
+> 	struct list_head *insert = q->queue_head.prev;
+> 
+> 	if (where == ELEVATOR_INSERT_FRONT)
+> 		insert = &q->queue_head;
+> 
+> 	list_add_tail(&rq->queuelist, &q->queue_head);
+> <snip>
+> 
+> shouldn't the insertion happen at insert instead of q->queue_head ?
 
-> howto change the redhat image in the splash screen and also in others.
->
-> advance thanks
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-Edit the splash screen image or replace it with a new one
-(http://bootsplash.de).
+Yeah, it looks broken. This is easier to read and correct :-)
 
+===== drivers/block/noop-iosched.c 1.4 vs edited =====
+--- 1.4/drivers/block/noop-iosched.c	2004-10-19 11:40:17 +02:00
++++ edited/drivers/block/noop-iosched.c	2004-12-24 11:06:18 +01:00
+@@ -59,12 +59,10 @@
+ void elevator_noop_add_request(request_queue_t *q, struct request *rq,
+ 			       int where)
+ {
+-	struct list_head *insert = q->queue_head.prev;
+-
+ 	if (where == ELEVATOR_INSERT_FRONT)
+-		insert = &q->queue_head;
+-
+-	list_add_tail(&rq->queuelist, &q->queue_head);
++		list_add(&rq->queuelist, &q->queue_head);
++	else
++		list_add_tail(&rq->queuelist, &q->queue_head);
+ 
+ 	/*
+ 	 * new merges must not precede this barrier
+
+Signed-off-by: Jens Axboe <axboe@suse.de>
+
+-- 
+Jens Axboe
 

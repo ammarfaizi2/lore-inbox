@@ -1,97 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbULRPSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbULRPXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261177AbULRPSk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 10:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbULRPSk
+	id S261178AbULRPXy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 10:23:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbULRPXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 10:18:40 -0500
-Received: from mail.tmr.com ([216.238.38.203]:40639 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S261177AbULRPSN (ORCPT
+	Sat, 18 Dec 2004 10:23:54 -0500
+Received: from rproxy.gmail.com ([64.233.170.194]:1050 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261178AbULRPXu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 10:18:13 -0500
-Message-ID: <41C44C3D.2010909@tmr.com>
-Date: Sat, 18 Dec 2004 10:26:53 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+	Sat, 18 Dec 2004 10:23:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=Fi4ZGD8fCnXE93HKQrjPjxRAJ8BNFq15BLuxfnHOKbWBwMQRttSGV6KeOuoFuh09XjYPo6ezIRk+ilkeXIEMREUaQGM2baWGAd+8qM+WLu+UD4JvdOwg2cg1OhhtDIT8Z7THxA0aBh9/vjJyAnxGNd59XMflXSz0QuO7eUkMFpE=
+Message-ID: <41C46B4D.5040506@gmail.com>
+Date: Sat, 18 Dec 2004 17:39:25 +0000
+From: Mikkel Krautz <krautz@gmail.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: manu@kromtek.com
-CC: Brad Campbell <brad@wasp.net.au>, David Lawyer <dave@lafn.org>,
-       Pavel Machek <pavel@suse.cz>, Park Lee <parklee_sel@yahoo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Issue on connect 2 modems with a single phone line
-References: <41C3D5AD.7090507@wasp.net.au><41C3D5AD.7090507@wasp.net.au> <200412181145.59211.manu@kromtek.com>
-In-Reply-To: <200412181145.59211.manu@kromtek.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+CC: greg@kroah.com, vojtech@suse.cz
+Subject: Re: [PATCH] hid-core: Configurable USB HID Mouse Interrupt Polling
+ Interval
+References: <1103335970.15567.15.camel@localhost> <20041218012725.GB25628@kroah.com>
+In-Reply-To: <20041218012725.GB25628@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manu Abraham wrote:
-> On Sat December 18 2004 11:01 am, Brad Campbell wrote:
-> 
->>David Lawyer wrote:
->>
->>>On Thu, Dec 16, 2004 at 02:01:38AM +0100, Pavel Machek wrote:
->>>
->>>>Hi!
->>>>
->>>>
->>>>> I want to try serial console in order to see the
->>>>>complete Linux kernel oops.
->>>>> I have 2 computers, one is a PC, and the other is a
->>>>>Laptop. Unfortunately,my Laptop doesn't have a serial
->>>>>port on it. But then, the each machine has a internal
->>>>>serial modem respectively.
->>>>> Then, can I use a telephone line to directly connect
->>>>>the two machines via their internal modems (i.e. One
->>>>>end of the telephone line is plugged into The PC's
->>>>>modem, and the other end is plugged into The Laptop's
->>>>>modem directly), and let them do the same function as
->>>>>two serial ports and a null modem can do? If it is,
->>>>>How to achieve that?
->>>>
->>>>You'd need phone exchange to do this. Most modems will not talk using
->>>>simple cable. With 12V power supply and resistor phone exchange is
->>>>quite easy to emulate, but...
->>>
->>>Here's what I once wrote in Modem-HOWTO:
->>>
->>>  Most modems are designed to be connected only to telephone lines and
->>>  will not work over just a pair of wires.  This is because the
->>>  telephone company supplies the telephone line with a 40-50 volt DC
->>>  voltage which powers part of the modem.  Recall that ordinary
->>>  conventional telephones are entirely powered by the voltage from the
->>>  telephone company.  Without such a DC voltage, the modem lacks power
->>>  and can't send out data.  Furthermore, the telephone company has
->>>  special signals indicating a ring, line busy, etc.  Conventional
->>>  modems expect and respond to these signals.
->>
->>I have used analogue modems back to back for years and have *never* come
->>across a modem that sourced anything other than it's ringing signal (via an
->>opto) from the phone line. Every single modem I have here will talk to the
->>others over a straight telephone cable.
-> 
-> What about power ? The opto-coupler will not work without power.
-> 
-> 
->>Analogue modems use a line transformer to couple to the phone network
->>usually with a decoupling capacitor on the phone end of the network to
->>prevent large current flows through the transformer. They use a standard AC
-> 
-> The capacitor is used to prevent DC saturation of the transformer core rather 
-> than doing current limiting, A capacitor cannot do current limiting. When the 
-> lag changes by changing the capacitance value,  general concept is that a 
-> capacitor can limit current which is very much wrong.
+On Fri, 17 Dec 2004 18:59:48 -0800, Greg KH <greg@kroah.com> wrote:
+ > What about makeing it a module paramater then, that is exported to
+ > sysfs?  That makes it easier to adjust on the fly (before the mouse is
+ > inserted), and doesn't require the kernel to be rebuilt.
 
-I think you're quibbling over terminology here, blocking the DC 
-component with a decoupling capacitor does result in less current even 
-though it's not "current limiting" in some strict sense of the term. 
-Less voltage results in less current, even if the load on the other side 
-were purely resistive. None of this is germane to the original 
-discussion of using back to back modems, of course.
+I really like the idea. I'm start to think that this is the ideal way to 
+accomplish this.
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Here's a new patch. Let's hope it doesn't wrap!
+
+
+
+
+Signed-off-by: Mikkel Krautz <krautz@gmail.com>
+---
+
+
+ hid-core.c |    9 ++++++++-
+ 1 files changed, 8 insertions(+), 1 deletion(-)
+
+
+
+--- dirty/drivers/usb/input/hid-core.c
++++ clean/drivers/usb/input/hid-core.c
+@@ -37,11 +37,12 @@
+  * Version Information
+  */
+ 
+-#define DRIVER_VERSION "v2.0"
++#define DRIVER_VERSION "v2.01"
+ #define DRIVER_AUTHOR "Andreas Gal, Vojtech Pavlik"
+ #define DRIVER_DESC "USB HID core driver"
+ #define DRIVER_LICENSE "GPL"
+ 
++static unsigned int hid_mouse_polling_interval;
+ static char *hid_types[] = {"Device", "Pointer", "Mouse", "Device", 
+"Joystick",
+                 "Gamepad", "Keyboard", "Keypad", "Multi-Axis Controller"};
+ 
+@@ -1663,6 +1664,11 @@
+         if ((endpoint->bmAttributes & 3) != 3)        /* Not an 
+interrupt endpoint */
+             continue;
+ 
++        /* Change the polling interval of mice. */
++        if (hid->collection->usage == HID_GD_MOUSE
++                && hid_mouse_polling_interval > 0)
++            endpoint->bInterval = hid_mouse_polling_interval;
++       
+         /* handle potential highspeed HID correctly */
+         interval = endpoint->bInterval;
+         if (dev->speed == USB_SPEED_HIGH)
+@@ -1910,6 +1916,7 @@
+ 
+ module_init(hid_init);
+ module_exit(hid_exit);
++module_param(hid_mouse_polling_interval, int, 644);
+ 
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+ MODULE_DESCRIPTION(DRIVER_DESC);
+
+ 
+
+
+

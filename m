@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264273AbUD0Syt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264277AbUD0TAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264273AbUD0Syt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 14:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264275AbUD0Syt
+	id S264277AbUD0TAz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 15:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264288AbUD0TAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 14:54:49 -0400
-Received: from turing-police.cirt.vt.edu ([128.173.54.129]:24451 "EHLO
-	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
-	id S264273AbUD0Syr (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 14:54:47 -0400
-Message-Id: <200404271854.i3RIsdaP017849@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license 
-In-Reply-To: Your message of "Tue, 27 Apr 2004 19:53:39 +0200."
-             <Pine.LNX.4.58.0404271950170.4424@alpha.polcom.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040427165819.GA23961@valve.mbsi.ca> <408E9771.7020302@mtu.edu> <F55B44BB-9870-11D8-85DF-000A95BCAC26@linuxant.com> <408E9C59.2090502@nortelnetworks.com>
-            <Pine.LNX.4.58.0404271950170.4424@alpha.polcom.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-2022339474P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 27 Apr 2004 15:00:55 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:34531 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S264277AbUD0TAx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 15:00:53 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Greg KH <greg@kroah.com>, Oliver Neukum <oliver@neukum.org>
+Subject: Re: Kernel Oops during usb usage (2.6.5)
+Date: Tue, 27 Apr 2004 13:06:52 +0200
+User-Agent: KMail/1.5.4
+Cc: Bill Davidsen <davidsen@tmr.com>, "E. Oltmanns" <oltmanns@uni-bonn.de>,
+       linux-kernel@vger.kernel.org
+References: <20040423205617.GA1798@local> <200404270017.34478.oliver@neukum.org> <20040426223101.GA9258@kroah.com>
+In-Reply-To: <20040426223101.GA9258@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Tue, 27 Apr 2004 14:54:39 -0400
+Content-Disposition: inline
+Message-Id: <200404271306.52543.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-2022339474P
-Content-Type: text/plain; charset=us-ascii
+> Heh.  So the correct answer is:
+> 	- don't do that.  Talking to the same device through usbfs at
+> 	  the same time by multiple programs is cause for lots of bad
+> 	  things to happen to your device, and might possibly cause it
+> 	  to hang.  If you want to allow a user to access a device
+> 	  through usbfs, make sure you trust them.
 
-On Tue, 27 Apr 2004 19:53:39 +0200, Grzegorz Kulewski said:
+If usbfs fails to work when a device is accessed by multiple programs
+then that is a bug in usbfs and should be fixed.  Hopefully it's already
+fixed.
 
-> Maybe kernel should display warning only once per given licence or even 
-> once per boot (who needs warning about tainting tainted kernel?)
+All the best,
 
-If your kernel is tainted by 3 different modules, it saves you 2 reboots when
-trying to replicate a problem with an untainted kernel.
-
-Other than that, there's probably no reason to complain on a re-taint.
-
-
---==_Exmh_-2022339474P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAjqxucC3lWbTT17ARAkNLAJ4kejfd45L6yUXHnTN4zbT8+GuIMQCg+TTd
-hz4eKL5f0nqGdA3Rhdouygg=
-=H1ps
------END PGP SIGNATURE-----
-
---==_Exmh_-2022339474P--
+Duncan.

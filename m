@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262996AbUDLSBT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 14:01:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263004AbUDLSBT
+	id S263000AbUDLSI1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 14:08:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbUDLSI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 14:01:19 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36301 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262996AbUDLSBS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 14:01:18 -0400
-Date: Mon, 12 Apr 2004 10:58:55 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Jeremy Martin <martinjd@csc.uvic.ca>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix tuntap oversight
-Message-Id: <20040412105855.37ec2162.davem@redhat.com>
-In-Reply-To: <20040412162916.GA5046@net-ronin.org>
-References: <20040412065947.GC18810@net-ronin.org>
-	<20040412001551.05476658.davem@redhat.com>
-	<20040412162916.GA5046@net-ronin.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 12 Apr 2004 14:08:27 -0400
+Received: from 80-218-57-148.dclient.hispeed.ch ([80.218.57.148]:62469 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S263000AbUDLSI0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 14:08:26 -0400
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+Reply-To: daniel.ritz@gmx.ch
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [linux-audio-user] snd-hdsp+cardbus+M6807 notebook=distortion -- FIXED!
+Date: Mon, 12 Apr 2004 20:03:23 +0200
+User-Agent: KMail/1.5.2
+Cc: Ivica Ico Bukvic <ico@fuse.net>, "'Tim Blechmann'" <TimBlechmann@gmx.net>,
+       "'Thomas Charbonnel'" <thomas@undata.org>, ccheney@debian.org,
+       linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org
+References: <20040412082801.A3972@flint.arm.linux.org.uk> <200404121731.20765.daniel.ritz@gmx.ch> <20040412163854.C12980@flint.arm.linux.org.uk>
+In-Reply-To: <20040412163854.C12980@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404122003.23997.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Apr 2004 09:29:16 -0700
-Jeremy Martin <martinjd@csc.uvic.ca> wrote:
+On Monday 12 April 2004 17:38, Russell King wrote:
+> On Mon, Apr 12, 2004 at 05:31:20PM +0200, Daniel Ritz wrote:
+> > EnE datasheet says it's also available in EnE 1211, 1225, 1420.
+> > and since they are TI clones why not for the TI's too?
+> 
+> Because the register supposedly does not exist on TI - it's likely to be
+> EnE specific.
+> 
+> I'm willing to bet that TI chips will behave as expected without touching
+> 0xc9 at all.
 
-> all use that netif_running() check when setting the MAC.  I actually just pulled
-> the function from net_init.c for the tun change.  Are these broken?
-
-Yes.
+you win. just booted my TI1410 laptop . 0xc9 is 0 and read-only.
+so the EnE's are not 100% TI clone...
 

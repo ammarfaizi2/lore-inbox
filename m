@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265882AbUATXFz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 18:05:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265886AbUATXFz
+	id S265840AbUATXQL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 18:16:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265841AbUATXQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 18:05:55 -0500
-Received: from fw.osdl.org ([65.172.181.6]:3006 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265882AbUATXFP (ORCPT
+	Tue, 20 Jan 2004 18:16:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:25541 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265840AbUATXQA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 18:05:15 -0500
-Date: Tue, 20 Jan 2004 15:06:29 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: Re: swsusp does not stop DMA properly during resume
-Message-Id: <20040120150629.6949eda7.akpm@osdl.org>
-In-Reply-To: <20040120224653.GA19159@elf.ucw.cz>
-References: <20040120224653.GA19159@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jan 2004 18:16:00 -0500
+Date: Tue, 20 Jan 2004 15:15:56 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Maciej Zenczykowski <maze@cela.pl>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i386/mm and openwall change
+In-Reply-To: <Pine.LNX.4.44.0401210000370.13857-100000@gaia.cela.pl>
+Message-ID: <Pine.LNX.4.58.0401201513520.2123@home.osdl.org>
+References: <Pine.LNX.4.44.0401210000370.13857-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
->
-> Hi!
+
+
+On Wed, 21 Jan 2004, Maciej Zenczykowski wrote:
 > 
-> As Ben pointed out, swsusp is not doing the right thing with devices
-> in 2.6.1. I had patch for a long time here, and it needs to go
-> in... It stops them before copying pages back, so there are no issues
-> with running DMAs etc.
+> If it doesn't matter why set the bit at all?  If we do set the least
+> significant bit this is obviously because it shouldn't be zero (i.e. it
+> doesn't matter as long as it's boolean true), if so then why does ow set
+> it to zero in this case.  Obviously this is somehow _weird_...
 
-I _think_ what this patch is doing is suspending all devices from within
-the boot kernel before starting into the resumed kernel.  Is this correct?
+The error code is _not_ a boolean. It's several bits, and it so happens 
+that only the low bit matters for kernel space accesses. And it doesn't 
+actually matter whether it is set (2.6.x) or not (2.4.x), it should just 
+be fixed.
 
-> +	update_screen(fg_console);	/* Hmm, is this the problem? */
-
-Cryptic comment.  To what "problem" does this refer?
-
-
+		Linus

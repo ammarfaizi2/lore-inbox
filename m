@@ -1,47 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262231AbUKVRe7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbUKVRi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262231AbUKVRe7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 12:34:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbUKVR2Y
+	id S262236AbUKVRi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 12:38:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262276AbUKVRgc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 12:28:24 -0500
-Received: from neopsis.com ([213.239.204.14]:39051 "EHLO
-	matterhorn.neopsis.com") by vger.kernel.org with ESMTP
-	id S262251AbUKVRPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 12:15:10 -0500
-Message-ID: <41A21EAA.2090603@dbservice.com>
-Date: Mon, 22 Nov 2004 18:15:22 +0100
-From: Tomas Carnecky <tom@dbservice.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Helge Hafting <helge.hafting@hist.no>
-Cc: Amit Gud <amitgud1@gmail.com>, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: file as a directory
-References: <2c59f00304112205546349e88e@mail.gmail.com> <41A1FFFC.70507@hist.no>
-In-Reply-To: <41A1FFFC.70507@hist.no>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Neopsis-MailScanner-Information: Please contact the ISP for more information
-X-Neopsis-MailScanner: Found to be clean
-X-MailScanner-From: tom@dbservice.com
+	Mon, 22 Nov 2004 12:36:32 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:40427 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S262236AbUKVRfC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 12:35:02 -0500
+Subject: Re: drivers/w1/: why is dscore.c not ds9490r.c ?
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Adrian Bunk <bunk@stusta.de>
+Cc: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20041122171956.GI19419@stusta.de>
+References: <20041121220251.GE13254@stusta.de>
+	 <1101108672.2843.55.camel@uganda> <20041122133344.GA19419@stusta.de>
+	 <1101140745.9784.7.camel@uganda> <20041122165145.GH19419@stusta.de>
+	 <1101143109.9784.9.camel@uganda>  <20041122171956.GI19419@stusta.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QB9CY+BS3zZVXOWGCpAf"
+Organization: MIPT
+Date: Mon, 22 Nov 2004 20:37:00 +0300
+Message-Id: <1101145020.9784.17.camel@uganda>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Mon, 22 Nov 2004 17:32:47 +0000 (UTC)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> I recommend looking at archived threads about file as directory,
-> you'll find many more arguments.  Currently there is one kind
-> of support for archive files - loop mounts over files containing
-> filesystem images.  These are not compressed though.
 
-Isn't reiserfs trying to implement such things? I've read that in some 
-next version of reiserfs one will be able to open /etc/passwd/[username] 
-  and get the informations about [username], like UID, GID, home 
-directory etc.
+--=-QB9CY+BS3zZVXOWGCpAf
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Still true? And when can we except such a version of reiserfs?
+On Mon, 2004-11-22 at 18:19 +0100, Adrian Bunk wrote:
+> On Mon, Nov 22, 2004 at 08:05:09PM +0300, Evgeniy Polyakov wrote:
+> > On Mon, 2004-11-22 at 17:51 +0100, Adrian Bunk wrote:
+> > > On Mon, Nov 22, 2004 at 07:25:45PM +0300, Evgeniy Polyakov wrote:
+> > > >=20
+> > > > > How would a different w1 bus master chip look like in=20
+> > > > > drivers/w1/Makefile?
+> > > >=20
+> > > > obj-m: proprietary_module.o
+> > > > proprietary_module-objs: dscore.o proprietary_module_init.o
+> > > >=20
+> > > > Actually it will live outside the kernel tree, but will require ds2=
+490
+> > > > driver.
+> > > > It could be called ds2490.c but I think dscore is better name.
+> > >=20
+> > > Why are you talking about proprietary modules living outside the kern=
+el=20
+> > > tree?
+> > >=20
+> > > The only interesting case is the one of modules shipped with the kern=
+el.
+> > > And for them, this will break at link time if two such modules are=20
+> > > included statically into the kernel.
+> >=20
+> > If we _currently_ do not have any open hw/module that depends on ds2490
+> > core then it does not
+> > mean that tomorrow noone will add it.
+>=20
+> Once again:
+>   _this will break at link time if two such modules are included=20
+>    statically into the kernel_
+>=20
+> obj-$(CONFIG_W1_DS9490)         +=3D ds9490r.o=20
+> ds9490r-objs    :=3D dscore.o
+>=20
+> obj-$(CONFIG_W1_FOO)         +=3D foo.o=20
+> foo-objs    :=3D dscore.o
+>=20
 
-tom
+that should be follwing:
+
+Kconfig:
+foo depends on ds9490r
+
+obj-$() +=3D foo.o
+foo-objs :=3D foo_1.o foo_2.o
+
+It just happened that ds9490r does not need any other parts but
+dscore.o.
+That is why ds9490r.o have only dscore.o in it's dependency.
+
+> This will break with CONFIG_W1_DS9490=3Dy and CONFIG_W1_FOO=3Dy.
+>=20
+>=20
+> That drivers/w1/ contains many EXPORT_SYMBOL's with no in-kernel users=20
+> is a different issue I might send a separate patch for (that besides=20
+> proprietary modules there might come some day open source drivers using=20
+> them is not a reason).
+
+Why remove existing non disturbing set of exported functions?
+Are they violate some unknown issues?
+
+>=20
+> cu
+> Adrian
+>=20
+--=20
+
+--=-QB9CY+BS3zZVXOWGCpAf
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBoiO8IKTPhE+8wY0RAvzyAKCED1ieizRzpvLCY0HCPZ2PfDi8qACeM9tY
+Ihga0Bt0Z90fuplB90/NJ1U=
+=pLk2
+-----END PGP SIGNATURE-----
+
+--=-QB9CY+BS3zZVXOWGCpAf--
+

@@ -1,47 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318839AbSHEVcH>; Mon, 5 Aug 2002 17:32:07 -0400
+	id <S318884AbSHEVil>; Mon, 5 Aug 2002 17:38:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318882AbSHEVcH>; Mon, 5 Aug 2002 17:32:07 -0400
-Received: from ns.suse.de ([213.95.15.193]:15627 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318839AbSHEVcG>;
-	Mon, 5 Aug 2002 17:32:06 -0400
-Date: Mon, 5 Aug 2002 23:35:42 +0200
-From: Andi Kleen <ak@suse.de>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user  mode linux]
-Message-ID: <20020805233542.A12753@wotan.suse.de>
-References: <20020805163910.C7130@kushida.apsleyroad.org.suse.lists.linux.kernel> <Pine.LNX.4.44.0208050922570.1753-100000@home.transmeta.com.suse.lists.linux.kernel> <p73znw1i781.fsf@oldwotan.suse.de> <20020805223006.A8773@kushida.apsleyroad.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020805223006.A8773@kushida.apsleyroad.org>
-User-Agent: Mutt/1.3.22.1i
+	id <S318887AbSHEVil>; Mon, 5 Aug 2002 17:38:41 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:6595 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S318884AbSHEVik>;
+	Mon, 5 Aug 2002 17:38:40 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 5 Aug 2002 23:42:09 +0200 (MEST)
+Message-Id: <UTC200208052142.g75Lg9C25845.aeb@smtp.cwi.nl>
+To: greg@kroah.com
+Subject: [PATCH] usb_string fix
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 05, 2002 at 10:30:06PM +0100, Jamie Lokier wrote:
-> Andi Kleen wrote:
-> > +	err |= setup_sigcontext(&frame->sc, &frame->fpstate, regs, set->sig[0], 
-> > +				(ka->sa.sa_flags&SA_NOFP));
-> 
-> >  	err |= setup_sigcontext(&frame->uc.uc_mcontext, &frame->fpstate,
-> > -			        regs, set->sig[0]);
-> > +			        regs, set->sig[0], !!(ka->sa.sa_flags&SA_NOFP));
-> 
-> 1: Why the inconsistency between the two ways the SA_NOFP flag is checked?
 
-I don't remember. Probably there was some reason in an earlier version
-of the code. The !! could be probably removed now.
+[I thought I sent this yesterday night, but don't see it on l-k,
+maybe I forgot. Sorry if I send it twice.]
 
-> 
-> 2: What happens when the user's signal handler decides it wants to save
-> the FPU state itself (after all) and proceed with some FPU use.  Will
-> sigreturn restore the user-saved FPU state?  Just curious.
+Things are indeed as conjectured, and I can reproduce the situation
+where usb_string() returns -EPIPE. Now that this is an internal
+error code for the USB subsystem, and not meant to get out to the
+user, I made these driverfs files empty in case of error.
+(While if there is no error but the string has length 0,
+the file will consist of a single '\n'.)
 
-Nope it won't because there is no saved state. The previous context's FPU 
-state will be silently corrupted.
+One fewer random memory corruption. Unfortunately, there are more.
 
--Andi
+Andries
+
+diff -r -u /linux/2.5/linux-2.5.30/linux/drivers/usb/core/usb.c ./usb.c
+--- /linux/2.5/linux-2.5.30/linux/drivers/usb/core/usb.c	Sun Aug  4 14:16:57 2002
++++ ./usb.c	Sun Aug  4 23:00:22 2002
+@@ -863,9 +863,11 @@
+ 		return 0;
+ 	udev = to_usb_device (dev);
+ 
+-	len = usb_string(udev, udev->descriptor.iProduct, buf, PAGE_SIZE); 
++	len = usb_string(udev, udev->descriptor.iProduct, buf, PAGE_SIZE);
++	if (len < 0)
++		return 0;
+ 	buf[len] = '\n';
+-	buf[len+1] = 0x00;
++	buf[len+1] = 0;
+ 	return len+1;
+ }
+ static DEVICE_ATTR(product,"product",S_IRUGO,show_product,NULL);
+@@ -881,9 +883,11 @@
+ 		return 0;
+ 	udev = to_usb_device (dev);
+ 
+-	len = usb_string(udev, udev->descriptor.iManufacturer, buf, PAGE_SIZE); 
++	len = usb_string(udev, udev->descriptor.iManufacturer, buf, PAGE_SIZE);
++	if (len < 0)
++		return 0;
+ 	buf[len] = '\n';
+-	buf[len+1] = 0x00;
++	buf[len+1] = 0;
+ 	return len+1;
+ }
+ static DEVICE_ATTR(manufacturer,"manufacturer",S_IRUGO,show_manufacturer,NULL);
+@@ -899,9 +903,11 @@
+ 		return 0;
+ 	udev = to_usb_device (dev);
+ 
+-	len = usb_string(udev, udev->descriptor.iSerialNumber, buf, PAGE_SIZE); 
++	len = usb_string(udev, udev->descriptor.iSerialNumber, buf, PAGE_SIZE);
++	if (len < 0)
++		return 0;
+ 	buf[len] = '\n';
+-	buf[len+1] = 0x00;
++	buf[len+1] = 0;
+ 	return len+1;
+ }
+ static DEVICE_ATTR(serial,"serial",S_IRUGO,show_serial,NULL);
+@@ -918,13 +924,13 @@
+ 	unsigned claimed = 0;
+ 
+ 	/* FIXME should get called for each new configuration not just the
+-	 * first one for a device. switching configs (or altesettings) should
++	 * first one for a device. switching configs (or altsettings) should
+ 	 * undo driverfs and HCD state for the previous interfaces.
+ 	 */
+ 	for (ifnum = 0; ifnum < dev->actconfig->bNumInterfaces; ifnum++) {
+ 		struct usb_interface *interface = &dev->actconfig->interface[ifnum];
+ 		struct usb_interface_descriptor *desc = interface->altsetting;
+-		
++
+ 		/* register this interface with driverfs */
+ 		interface->dev.parent = &dev->dev;
+ 		interface->dev.bus = &usb_bus_type;

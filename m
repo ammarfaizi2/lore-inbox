@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313305AbSH3Wrv>; Fri, 30 Aug 2002 18:47:51 -0400
+	id <S312558AbSH3Wur>; Fri, 30 Aug 2002 18:50:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314546AbSH3Wru>; Fri, 30 Aug 2002 18:47:50 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:1715 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S313305AbSH3Wru>;
-	Fri, 30 Aug 2002 18:47:50 -0400
-Date: Fri, 30 Aug 2002 15:43:50 -0700 (PDT)
-Message-Id: <20020830.154350.04695094.davem@redhat.com>
-To: vojtech@suse.cz
-Cc: rmk@arm.linux.org.uk, jsimmons@transvirtual.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.31-serport
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020831003618.B33615@ucw.cz>
-References: <E17ktTz-000359-00@flint.arm.linux.org.uk>
-	<20020830.150359.16679671.davem@redhat.com>
-	<20020831003618.B33615@ucw.cz>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S314546AbSH3Wuq>; Fri, 30 Aug 2002 18:50:46 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:50698 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S312558AbSH3Wuq>; Fri, 30 Aug 2002 18:50:46 -0400
+Message-ID: <3D6FF752.B2BDDC66@zip.com.au>
+Date: Fri, 30 Aug 2002 15:53:06 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Diego Biurrun <diego@biurrun.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Oops after removing PCMCIA modem with low latency patch
+References: <20020830223913.GB412@maxx>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Vojtech Pavlik <vojtech@suse.cz>
-   Date: Sat, 31 Aug 2002 00:36:18 +0200
-   
-   No, but using serport.c, you can bind a serio to a tty via a line
-   discipline, for example if you want a PC serial mouse on /dev/ttyS0 to
-   talk to sermouse.c via serio. I don't like the approach much, I hope(d) we
-   could switch somewhere below the tty layer, but it sort of works, and
-   maybe will have the bugs fixed sooner or later.
+Diego Biurrun wrote:
+> 
+> Hello!
+> 
+> I just tried your 2.4.19-low-latency patch on a stock 2.4.19 kernel and
+> my box oopses when I manually remove my PCMCIA modem.
 
-So how about this:
+Yup.  The pcmcia drivers like to call sleeping devfs functions
+from within a timer handler.  The kernel tries to perform a
+context switch in interrupt context and bugs out.  This can happen
+without the low-latency patch, but doesn't.
 
-1) When SERIO device is claimed, we fail of TTY copy is opened
-   by any user.
+The fix for that is to change the (strange) deferred deregister thing
+in several of the CardServices drivers to punt the activity up to
+process context via schedule_task(), but nobody has done that yet.
 
-2) Once we allow SERIO device to be claimed, we prevent opens
-   of TTY copy.
+Probably, you can add
 
-I guess this is sort of what Russell is recommending.
+	if (in_interrupt())
+		return;
+
+to schedule() to make the BUGs go away.   Not using devfs makes
+them go away too - but it is not a devfs bug.

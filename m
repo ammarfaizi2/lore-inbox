@@ -1,204 +1,244 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262497AbVAQSKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262820AbVAQSOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262497AbVAQSKX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 13:10:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbVAQSJ3
+	id S262820AbVAQSOd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 13:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262831AbVAQSLF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 13:09:29 -0500
-Received: from smtp3.libero.it ([193.70.192.127]:23964 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id S262497AbVAQR52 (ORCPT
+	Mon, 17 Jan 2005 13:11:05 -0500
+Received: from rproxy.gmail.com ([64.233.170.196]:8690 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262466AbVAQSDE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 12:57:28 -0500
-Message-ID: <41EBEE98.7090207@gmail.com>
-Date: Mon, 17 Jan 2005 17:58:00 +0100
-From: Luca Falavigna <dktrkranz@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: it, it-it, en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>, vamsi_krishna@in.ibm.com, prasanna@in.ibm.com
-CC: Nathan Lynch <nathanl@austin.ibm.com>, suparna@in.ibm.com,
-       lkml <linux-kernel@vger.kernel.org>,
-       Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [PATCH] Kprobes /proc entry
-References: <41E2AC82.8020909@gmail.com> <20050110181445.GA31209@kroah.com> <1105479077.17592.8.camel@pants.austin.ibm.com> <20050111213400.GB18422@kroah.com> <41E70234.50900@gmail.com> <20050113233446.GA2710@kroah.com>
-In-Reply-To: <20050113233446.GA2710@kroah.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 17 Jan 2005 13:03:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=nDLKtxL9IbMnOlKXHUjPCwEo1LsfFnpU0njDbO6rGd7vqk4TGr0a9TMkuOe0QiGlMXbz2vlmZkRoqhY8L8JNzjPtEgvfeyXVC4vB38QvFmNb5LuKC8QSZd0okcpWIr0rggJjI/FAoLC54MprjdKfyZJ+dOCNdFki1A4Ifgg9EgU=
+Message-ID: <3f250c71050117100332774211@mail.gmail.com>
+Date: Mon, 17 Jan 2005 14:03:03 -0400
+From: Mauricio Lin <mauriciolin@gmail.com>
+Reply-To: Mauricio Lin <mauriciolin@gmail.com>
+To: Andrew Morton <akpm@osdl.org>, Mauricio Lin <mauricio.lin@indt.org.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] A new entry for /proc
+In-Reply-To: <20050114154209.6b712e55.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <3f250c7105010613115554b9d9@mail.gmail.com>
+	 <20050106202339.4f9ba479.akpm@osdl.org>
+	 <3f250c7105011414466f22fc37@mail.gmail.com>
+	 <20050114154209.6b712e55.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi Andrew,
 
-Here is a modified version of kprobes patch fixing some issues reported by Greg.
+Sorry for the patch errors.
 
-Greg KH ha scritto:
->>+{
->>+	try_module_get(THIS_MODULE);
-> 
-> 
-> Check the return value of this call?
-I removed try_module_get() and module_put() because of Stephen Hemminger's mail:
-"The module ref counting should be done by the VFS layer not the interface."
-Thank you for this hint :)
+Here goes the fixed patch. I used the xemacs editor for copying it.
+The others editor (emacs and pico) I tried do not copy the patch
+rightly. The patch copying also does not work with webmail.
 
->>+	if(!(kprobes_dir = debugfs_create_dir("kprobes", NULL)))
->>+		return -ENODEV;
->>+	if(!(kprobes_list = debugfs_create_file("list", S_IRUGO, kprobes_dir,
->>+					  	NULL, &kprobes_fops))) {
->>+		debugfs_remove(kprobes_dir);
->>+		return -ENODEV;
->>+	}
-> 
-> 
-> You never delete this file or directory on module unload, do you?
-kprobes are a built-in feature, I think there's no way to handle this.
-Please, tell me if I am wrong.
-
-
-
-- --- ./kernel/kprobes.c	2005-01-17 17:56:11.000000000 +0100
-+++ ./kernel/kprobes.c	2005-01-17 17:46:04.000000000 +0100
-@@ -33,6 +33,9 @@
- #include <linux/hash.h>
- #include <linux/init.h>
- #include <linux/module.h>
-+#include <linux/fs.h>
-+#include <linux/debugfs.h>
-+#include <linux/kallsyms.h>
- #include <asm/cacheflush.h>
- #include <asm/errno.h>
- #include <asm/kdebug.h>
-@@ -131,6 +134,88 @@
- 	unregister_kprobe(&jp->kp);
- }
-
-+static int kprobes_open(struct inode *inode, struct file *file)
+diff -uprN linux-2.6.10/Documentation/filesystems/proc.txt
+linux-2.6.10-smaps/Documentation/filesystems/proc.txt
+--- linux-2.6.10/Documentation/filesystems/proc.txt	2004-12-24
+17:34:29.000000000 -0400
++++ linux-2.6.10-smaps/Documentation/filesystems/proc.txt	2005-01-17
+11:29:31.000000000 -0400
+@@ -133,6 +133,7 @@ Table 1-1: Process specific entries in /
+  statm   Process memory status information              
+  status  Process status in human readable form          
+  wchan   If CONFIG_KALLSYMS is set, a pre-decoded wchan
++ smaps	 Extension of maps, presenting the rss size for each mapped file
+ ..............................................................................
+ 
+ For example, to get the status information of a process, all you have to do is
+diff -uprN linux-2.6.10/fs/proc/base.c linux-2.6.10-smaps/fs/proc/base.c
+--- linux-2.6.10/fs/proc/base.c	2004-12-24 17:35:00.000000000 -0400
++++ linux-2.6.10-smaps/fs/proc/base.c	2005-01-17 12:11:01.000000000 -0400
+@@ -11,6 +11,24 @@
+  *  go into icache. We cache the reference to task_struct upon lookup too.
+  *  Eventually it should become a filesystem in its own. We don't use the
+  *  rest of procfs anymore.
++ *
++ *
++ *  Changelog:
++ *  17-Jan-2005
++ *  Allan Bezerra
++ *  Bruna Moreira <bruna.moreira@indt.org.br>
++ *  Edjard Mota <edjard.mota@indt.org.br>
++ *  Ilias Biris <ext-ilias.biris@indt.org.br>
++ *  Mauricio Lin <mauricio.lin@indt.org.br>
++ *
++ *  Embedded Linux Lab - 10LE Instituto Nokia de Tecnologia - INdT
++ *
++ *  A new process specific entry (smaps) included in /proc. It shows the
++ *  size of rss for each memory area. The maps entry lacks information
++ *  about physical memory size (rss) for each mapped file, i.e.,
++ *  rss information for executables and library files.
++ *  This additional information is useful for any tools that need to know
++ *  about physical memory consumption for a process specific library.
+  */
+ 
+ #include <asm/uaccess.h>
+@@ -60,6 +78,7 @@ enum pid_directory_inos {
+ 	PROC_TGID_MAPS,
+ 	PROC_TGID_MOUNTS,
+ 	PROC_TGID_WCHAN,
++	PROC_TGID_SMAPS,
+ #ifdef CONFIG_SCHEDSTATS
+ 	PROC_TGID_SCHEDSTAT,
+ #endif
+@@ -86,6 +105,7 @@ enum pid_directory_inos {
+ 	PROC_TID_MAPS,
+ 	PROC_TID_MOUNTS,
+ 	PROC_TID_WCHAN,
++	PROC_TID_SMAPS,
+ #ifdef CONFIG_SCHEDSTATS
+ 	PROC_TID_SCHEDSTAT,
+ #endif
+@@ -123,6 +143,7 @@ static struct pid_entry tgid_base_stuff[
+ 	E(PROC_TGID_ROOT,      "root",    S_IFLNK|S_IRWXUGO),
+ 	E(PROC_TGID_EXE,       "exe",     S_IFLNK|S_IRWXUGO),
+ 	E(PROC_TGID_MOUNTS,    "mounts",  S_IFREG|S_IRUGO),
++	E(PROC_TGID_SMAPS,     "smaps",   S_IFREG|S_IRUGO),
+ #ifdef CONFIG_SECURITY
+ 	E(PROC_TGID_ATTR,      "attr",    S_IFDIR|S_IRUGO|S_IXUGO),
+ #endif
+@@ -148,6 +169,7 @@ static struct pid_entry tid_base_stuff[]
+ 	E(PROC_TID_ROOT,       "root",    S_IFLNK|S_IRWXUGO),
+ 	E(PROC_TID_EXE,        "exe",     S_IFLNK|S_IRWXUGO),
+ 	E(PROC_TID_MOUNTS,     "mounts",  S_IFREG|S_IRUGO),
++	E(PROC_TID_SMAPS,      "smaps",   S_IFREG|S_IRUGO),
+ #ifdef CONFIG_SECURITY
+ 	E(PROC_TID_ATTR,       "attr",    S_IFDIR|S_IRUGO|S_IXUGO),
+ #endif
+@@ -497,6 +519,25 @@ static struct file_operations proc_maps_
+ 	.release	= seq_release,
+ };
+ 
++extern struct seq_operations proc_pid_smaps_op;
++static int smaps_open(struct inode *inode, struct file *file)
 +{
-+	return 0;
++	struct task_struct *task = proc_task(inode);
++	int ret = seq_open(file, &proc_pid_smaps_op);
++	if (!ret) {
++		struct seq_file *m = file->private_data;
++		m->private = task;
++	}
++	return ret;
 +}
 +
-+static int kprobes_release(struct inode *inode, struct file *file)
-+{
-+	return 0;
-+}
-+
-+void kprobes_list_info(struct kprobe *k, char *buf)
-+{
-+	char *module, namebuf[KSYM_NAME_LEN+1];
-+	const char *hook, *func;
-+	unsigned long off, size, handler, addr = (unsigned long)k->addr;
-+
-+	if(k->pre_handler) {
-+		handler = (unsigned long)k->pre_handler;
-+		func = kallsyms_lookup(addr, &size, &off, &module, namebuf);
-+		buf += sprintf(buf, "PRE\t0x%lx(%s+%#lx)\t", addr, func, off);
-+		hook = kallsyms_lookup(handler, &size, &off, &module, namebuf);
-+		buf += sprintf(buf, "0x%lx(%s)\t%s\n", handler, hook,
-+			       strlen(module) ? module : "[built-in]");
-+	}
-+	if(k->post_handler) {
-+		handler = (unsigned long)k->post_handler;
-+		func = kallsyms_lookup(addr, &size, &off, &module, namebuf);
-+		buf += sprintf(buf, "POST\t0x%lx(%s+%#lx)\t", addr, func, off);
-+		hook = kallsyms_lookup(handler, &size, &off, &module, namebuf);
-+		buf += sprintf(buf, "0x%lx(%s)\t%s\n", handler, hook,
-+			       strlen(module) ? module : "[built-in]");
-+	}
-+	if(k->fault_handler) {
-+		handler = (unsigned long)k->fault_handler;
-+		func = kallsyms_lookup(addr, &size, &off, &module, namebuf);
-+		buf += sprintf(buf, "FAULT\t0x%lx(%s+%#lx)\t",
-+			       addr, func, off);
-+		hook = kallsyms_lookup(handler, &size, &off, &module, namebuf);
-+		buf += sprintf(buf, "0x%lx(%s)\t%s\n", handler, hook,
-+			       strlen(module) ? module : "[built-in]");
-+	}
-+	if(k->break_handler) {
-+		handler = (unsigned long)k->break_handler;
-+		func = kallsyms_lookup(addr, &size, &off, &module, namebuf);
-+		buf += sprintf(buf, "BREAK\t0x%lx(%s+%#lx)\t",
-+			       addr, func, off);
-+		hook = kallsyms_lookup(handler, &size, &off, &module, namebuf);
-+		buf += sprintf(buf, "0x%lx(%s)\t%s\n", handler, hook,
-+			       strlen(module) ? module : "[built-in]");
-+	}
-+}
-+
-+static ssize_t kprobes_read(struct file *file, char __user *buf,
-+			 size_t size, loff_t *off)
-+{
-+	int i;
-+	char *data = "";
-+	ssize_t len = 0;
-+	struct hlist_node *node;
-+	struct kprobe *k;
-+	
-+	spin_lock(&kprobe_lock);
-+	for(i = 0; i < KPROBE_TABLE_SIZE; i++) {
-+		hlist_for_each_entry(k, node, &kprobe_table[i], hlist) {
-+			if(k) {
-+				kprobes_list_info(k, data + len);
-+				len += strlen(data);
-+			}
-+		}
-+	}
-+	spin_unlock(&kprobe_lock);
-+	return simple_read_from_buffer(buf, size, off, data, len);
-+}
-+
-+struct dentry *kprobes_dir, *kprobes_list;
-+struct file_operations kprobes_fops = {
-+	.open = kprobes_open,
-+	.read = kprobes_read,
-+	.release = kprobes_release,
-+	.owner = THIS_MODULE
++static struct file_operations proc_smaps_operations = {
++	.open		= smaps_open,
++	.read		= seq_read,
++	.llseek		= seq_lseek,
++	.release	= seq_release,
 +};
 +
- static int __init init_kprobes(void)
+ extern struct seq_operations mounts_op;
+ static int mounts_open(struct inode *inode, struct file *file)
  {
- 	int i, err = 0;
-@@ -140,6 +225,20 @@
- 	for (i = 0; i < KPROBE_TABLE_SIZE; i++)
- 		INIT_HLIST_HEAD(&kprobe_table[i]);
-
-+	kprobes_dir = debugfs_create_dir("kprobes", NULL);
-+	if(!kprobes_dir) {
-+		printk("kprobes: could not create debugfs entry\n");
-+		goto finish;
+@@ -1341,6 +1382,11 @@ static struct dentry *proc_pident_lookup
+ 		case PROC_TGID_MOUNTS:
+ 			inode->i_fop = &proc_mounts_operations;
+ 			break;
++		case PROC_TID_SMAPS:
++		case PROC_TGID_SMAPS:
++			inode->i_fop = &proc_smaps_operations;
++			break;
++
+ #ifdef CONFIG_SECURITY
+ 		case PROC_TID_ATTR:
+ 			inode->i_nlink = 2;
+diff -uprN linux-2.6.10/fs/proc/task_mmu.c linux-2.6.10-smaps/fs/proc/task_mmu.c
+--- linux-2.6.10/fs/proc/task_mmu.c	2004-12-24 17:34:01.000000000 -0400
++++ linux-2.6.10-smaps/fs/proc/task_mmu.c	2005-01-17 09:29:38.000000000 -0400
+@@ -81,6 +81,75 @@ static int show_map(struct seq_file *m, 
+ 	return 0;
+ }
+ 
++static void resident_mem_size(struct mm_struct *mm,
++			      unsigned long start_address,
++			      unsigned long end_address,
++			      unsigned long *size)
++{
++	pgd_t *pgd;
++	pmd_t *pmd;
++	pte_t *ptep, pte;
++	unsigned long each_page;
++
++	for (each_page = start_address; each_page < end_address; each_page
++= PAGE_SIZE) {
++		pgd = pgd_offset(mm, each_page);
++		if (pgd_none(*pgd) || unlikely(pgd_bad(*pgd)))
++			continue;
++
++		pmd = pmd_offset(pgd, each_page);
++
++		if (pmd_none(*pmd))
++			continue;
++
++		if (unlikely(pmd_bad(*pmd)))
++			continue;
++
++		if (pmd_present(*pmd)) {
++			ptep = pte_offset_map(pmd, each_page);
++			if (!ptep)
++				continue;
++			pte = *ptep;
++			pte_unmap(ptep);
++			if (pte_present(pte))
++				*size += PAGE_SIZE;
++		}
 +	}
-+	kprobes_list = debugfs_create_file("list", S_IRUGO, kprobes_dir,
-+					  	NULL, &kprobes_fops);
-+	if(!kprobes_list) {		
-+		printk("kprobes: could not create debugfs entry\n");
-+		debugfs_remove(kprobes_dir);
-+		goto finish;
++}
++
++static int show_smap(struct seq_file *m, void *v)
++{
++	struct vm_area_struct *map = v;
++	struct file *file = map->vm_file;
++	int flags = map->vm_flags;
++	struct mm_struct *mm = map->vm_mm;
++	unsigned long rss = 0;
++	unsigned long vma_len = (map->vm_end - map->vm_start) >> 10;
++	
++	if (mm) {
++		resident_mem_size(mm, map->vm_start, map->vm_end, &rss);
 +	}
 +
-+finish:
- 	err = register_die_notifier(&kprobe_exceptions_nb);
- 	return err;
- }
-
-Signed-off-by: Luca Falavigna <dktrkranz@gmail.com>
-
-
-
-Regards,
-
-					Luca
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQEVAwUBQevumBZrwl7j21nOAQL46Af/apeTfTYuXvDdhWFsqWI7QBqpmYkj9+iu
-S4A2EKsBUUlnlcZrpL08lqwMup2H8jt3zjmmCcPn2Oplr054aHIDIQveu5XMA+jJ
-9w5EdDf3SZcPF+HEPmN9EV5n0BakVwGERM/8615jH804Y5IJtB8b79XMmU8wLI8x
-M4JGa+kwboD260IbWRuxfRUVqJMMVL5Mibin0RFN4WCbJYfxPhDiCsH2HGNgrw1Y
-m0uyuaUt4pynAVPpHJPAKPylwY/A9MC7/Zdfa2IIO118bNxKaFTMg0z+AN66jUwz
-kRUzxoUfDv3kIhzkHwvyPX9hjsoSPof/xQZwxclz8p6Yz00KICdZRw==
-=Ka0n
------END PGP SIGNATURE-----
-
++	seq_printf(m, "%08lx-%08lx %c%c%c%c ",
++			map->vm_start,
++			map->vm_end,
++			flags & VM_READ ? 'r' : '-',
++			flags & VM_WRITE ? 'w' : '-',
++			flags & VM_EXEC ? 'x' : '-',
++			flags & VM_MAYSHARE ? 's' : 'p');
++
++	if (map->vm_file)
++		seq_path(m, file->f_vfsmnt, file->f_dentry, " \t\n\\");
++
++	seq_putc(m, '\n');
++	
++	seq_printf(m, "Size:%8lu kB\n"
++			"Rss:%8lu kB\n",
++			vma_len,
++			rss >> 10);
++	
++	return 0;
++}
++
+ static void *m_start(struct seq_file *m, loff_t *pos)
+ {
+ 	struct task_struct *task = m->private;
+@@ -134,3 +203,10 @@ struct seq_operations proc_pid_maps_op =
+ 	.stop	= m_stop,
+ 	.show	= show_map
+ };
++
++struct seq_operations proc_pid_smaps_op = {
++	.start	= m_start,
++	.next	= m_next,
++	.stop	= m_stop,
++	.show	= show_smap
++};

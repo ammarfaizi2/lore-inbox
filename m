@@ -1,113 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270009AbTGXTdR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 15:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270022AbTGXTdR
+	id S270040AbTGXTgS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 15:36:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270047AbTGXTgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 15:33:17 -0400
-Received: from main.gmane.org ([80.91.224.249]:41430 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S270009AbTGXTdO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 15:33:14 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: Switching kernel from GPL
-Date: Thu, 24 Jul 2003 12:49:01 -0700
-Message-ID: <m265lr3dua.fsf@tnuctip.rychter.com>
-References: <200307241841.h6OIfvRn000613@81-2-122-30.bradfords.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
-X-Complaints-To: usenet@main.gmane.org
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:PJqDIh2FP1gL+1a6p6OVRCJOumY=
+	Thu, 24 Jul 2003 15:36:18 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:63904 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S270040AbTGXTgR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 15:36:17 -0400
+Date: Thu, 24 Jul 2003 14:51:16 -0500
+Subject: Re: [uClinux-dev] Kernel 2.6 size increase - get_current()?
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v552)
+Cc: David McCullough <davidm@snapgear.com>, uclinux-dev@uclinux.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Ihar \"Philips\" Filipau" <filia@softhome.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Hollis Blanchard <hollisb@us.ibm.com>
+In-Reply-To: <1059075436.7998.58.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <3038B2BC-BE10-11D7-B453-000A95A0560C@us.ibm.com>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Transfer-Encoding: quoted-printable
+On Thursday, Jul 24, 2003, at 14:37 US/Central, Alan Cox wrote:
 
->>>>> "John" =3D=3D John Bradford <john@grabjohn.com> writes:
- John> There has been some discussion on the list about the possibility
- John> of getting parts and possibly eventually all of the kernel
- John> re-licensed under another license, which is in the same spirit as
- John> the GPL.
+> On Iau, 2003-07-24 at 16:30, Hollis Blanchard wrote:
+>> So you're arguing for more inlining, because icache speculative
+>> prefetch will pick up the inlined code?
+>
+> I'm arguing for short inlined fast paths and non inlined unusual
+> paths.
+>
+>> Or you're arguing for less, because code like get_current() which is
+>> called frequently could have a single copy living in icache?
+>
+> Depends how much the jump costs you.
 
- John> Something to note is that even with the consent of all copyright
- John> holders, this may not be possible - there is at least one patent,
- John> (Read, Copy, Update), which is usable in GPL'ed code, but not
- John> necessarily in code covered by another license.  That issue would
- John> need to be discussed with the patent holders.
-[...]
+And also how big your icache is, and maybe even cpu/bus ratio, etc... 
+which depend on the arch of course.
 
-I found it interesting that there was no mention of patents in these GPL
-discussions until now. The "anti-patent" clauses in the GPL and LGPL are
-quite possibly the biggest problem preventing the use of GPL'd software
-by commercial entities, much bigget than the "pass on the source and the
-rights" requirement.
+So as I saw Ihar suggest earlier in this thread, perhaps there should 
+be two inline directives: must_inline (for code whose correctness 
+depends on it) and could_help_performance_inline. Then different archs 
+could #define could_help_performance_inline as appropriate.
 
-An excerpt from the GPL:
-
-     7. If, as a consequence of a court judgment or allegation of patent
-   infringement or for any other reason (not limited to patent issues),
-   conditions are imposed on you (whether by court order, agreement or
-   otherwise) that contradict the conditions of this License, they do not
-   excuse you from the conditions of this License.  If you cannot
-   distribute so as to satisfy simultaneously your obligations under this
-   License and any other pertinent obligations, then as a consequence you
-   may not distribute the Program at all.  For example, if a patent
-   license would not permit royalty-free redistribution of the Program by
-   all those who receive copies directly or indirectly through you, then
-   the only way you could satisfy both it and this License would be to
-   refrain entirely from distribution of the Program.
- [...]
-     8. If the distribution and/or use of the Program is restricted in
-   certain countries either by patents or by copyrighted interfaces, the
-   original copyright holder who places the Program under this License
-   may add an explicit geographical distribution limitation excluding
-   those countries, so that distribution is permitted only in or among
-   countries not thus excluded.  In such case, this License incorporates
-   the limitation as if written in the body of this License.
-
-As I understand it (and as my legal counsel advises me) this effectively
-means that if I distribute GPL code, I have to make sure that its
-distribution and re-distribution is not restricted by patents (or other
-reasons).=20
-
-If the code in question contains parts which some patents lay claim to,
-restricting distribution, then I must not distribute the code at
-all. Furthermore, by distributing the code I breach the GPL and expose
-myself to legal threat of a lawsuit from the FSF.
-
-It is needless to mention that it is impossible to me to verify that no
-patents (worldwide!) lay claim to the code I'm distributing and impose
-restrictions upon its distribution.
-
-An example of a particularly clear case of this problem is the XviD code
-(http://www.xvid.org/), which is GPL-licensed. It seems to me that the
-authors (copyright holders, to be precise) may distribute the software
-under any license they choose, but nobody else is allowed to
-re-distribute it, because they would be violating section 7 of the GPL,
-as the MPEG-4 compression is (in some countries) covered by patents
-requiring royalties to be paid.
-
-This is an issue which is very often overlooked in the hot GPL
-debates. However, in the commercial world, it is possibly the most
-important one.
-
-=2D-J.
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD4DBQA/IDgvLth4/7/QhDoRAiUhAJ4+62buUrNO0+rvAyaQ+kX/xwxeqACXV9GW
-8pLqv3bUcTN33q6QvMkL6g==
-=T1v4
------END PGP SIGNATURE-----
---=-=-=--
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
 

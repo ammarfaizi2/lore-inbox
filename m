@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268915AbUJKNUC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268937AbUJKNWB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268915AbUJKNUC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 09:20:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268922AbUJKNUB
+	id S268937AbUJKNWB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 09:22:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268922AbUJKNUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 09:20:01 -0400
-Received: from p5089FA91.dip.t-dialin.net ([80.137.250.145]:1540 "EHLO
-	timbaland.dnsalias.org") by vger.kernel.org with ESMTP
-	id S268915AbUJKNSl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 09:18:41 -0400
-From: Borislav Petkov <petkov@uni-muenster.de>
-To: David Gibson <hermes@gibson.dropbear.id.au>
-Subject: Re: [PATCH] Fix readw/writew warnings in drivers/net/wireless/hermes.h
-Date: Mon, 11 Oct 2004 15:18:38 +0200
-User-Agent: KMail/1.7
-Cc: Ricky lloyd <ricky.lloyd@gmail.com>, Jan Dittmer <j.dittmer@portrix.net>,
-       Cal Peake <cp@absolutedigital.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       NetDev Mailing List <netdev@oss.sgi.com>, proski@gnu.org
-References: <Pine.LNX.4.61.0410110702590.7899@linaeum.absolutedigital.net> <1a50bd3704101105046e66538c@mail.gmail.com> <20041011123137.GB28100@zax>
-In-Reply-To: <20041011123137.GB28100@zax>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Oct 2004 09:20:15 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:52975 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S268944AbUJKNTa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 09:19:30 -0400
+Date: Mon, 11 Oct 2004 15:19:26 +0200
+From: Tim Cambrant <cambrant@acc.umu.se>
+To: =?iso-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Unable to handle kernel paging request at virtual address 0000ed9c [was Re: 2.6.9-rc4-mm1]
+Message-ID: <20041011131926.GA13258@shaka.acc.umu.se>
+References: <20041011032502.299dc88d.akpm@osdl.org> <416A8019.4050901@hispalinux.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200410111518.39001.petkov@uni-muenster.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <416A8019.4050901@hispalinux.es>
+User-Agent: Mutt/1.4.1i
+X-Operating-System: SunOS shaka.acc.umu.se 5.8 Generic_117000-05 sun4u sparc SUNW,Ultra-250 Solaris
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 11 October 2004 14:31, David Gibson wrote:
-Hi all,
-I'm having the same pointer casting warnings with my ymfpci soundchip...
-> On Mon, Oct 11, 2004 at 05:34:20PM +0530, Ricky lloyd wrote:
-> > > Isn't the correct fix to declare iobase as (void __iomem *) ?
-> >
-> > Earlier today i had posted a patch which mainly fixes this same
-> > problem with lotsa scsi
-> > drivers and tulip drivers. I wondered the same "shouldnt all the addrs
-> > be declared as
-> > void __iomem* ??".
->
-> The trouble with that is that for some versions of the orinoco card,
-> the iobase refers to a legacy ISA IO address, not a memory-mapped IO
-> address (that's the inw()/outw() path in the macro).  That needs an
-> integer, rather than a pointer.
-however, 
-I don't think there should be any casting of IO addresses for the simple reason that the void __iomem * 
-is a part of an interface which does the right thing in both MMIO/PIO cases. The lkml 
-thread "Being more anal about iospace accesses.." contains the answer to 
-that in a great detail. As a result, the right thing to do here is, I think, to declare all addrs void __iomem*.
-Which leaves a question: while compiling the following code fragment:
+On Mon, Oct 11, 2004 at 02:44:09PM +0200, Ramón Rey Vicente wrote:
+>  
+> I get this with rc4-mm1
+> 
+> Unable to handle kernel paging request at virtual address 0000ed9c
+> ...
 
-<sound/pci/ymfpci/ymfpci_main.c>
-  static inline u8 snd_ymfpci_readb(ymfpci_t *chip, u32 offset)
-  {
-          return readb(chip->reg_area_virt + offset);
-  }
+This problem is left since -mm3, and is (for now) fixed by reversing
+optimize-profile-path-slightly.patch. Do it like this:
 
-gcc complains as so:
-
-sound/pci/ymfpci/ymfpci_main.c: In function `snd_ymfpci_readb':
-sound/pci/ymfpci/ymfpci_main.c:57: warning: passing arg 1 of `readb' makes pointer from integer without a cast
-
-Do we have to cast here or use the new interface?
-
->
-> It's not clear to me which way around the cast is less ugly.
+cd /usr/src/linux
+wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm3/broken-out/optimize-profile-path-slightly.patch
+patch -R -p1 < optimize-profile-path-slightly.patch
 
 
-Boris.
+-- 
+
+Tim Cambrant <cambrant@acc.umu.se>
+http://www.acc.umu.se/~cambrant/

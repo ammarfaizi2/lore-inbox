@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281255AbRLBQdT>; Sun, 2 Dec 2001 11:33:19 -0500
+	id <S281059AbRLBQgd>; Sun, 2 Dec 2001 11:36:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281128AbRLBQbu>; Sun, 2 Dec 2001 11:31:50 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:13580 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S280814AbRLBQbU>; Sun, 2 Dec 2001 11:31:20 -0500
-Message-ID: <3C0A54F4.C70C815C@evision-ventures.com>
-Date: Sun, 02 Dec 2001 17:21:08 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-Reply-To: dalecki@evision.ag
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Larry McVoy <lm@bitmover.com>, Davide Libenzi <davidel@xmailserver.org>,
-        Andrew Morton <akpm@zip.com.au>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Henning Schmiedehausen <hps@intermeta.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+	id <S282895AbRLBQgV>; Sun, 2 Dec 2001 11:36:21 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26641 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S282894AbRLBQgO>; Sun, 2 Dec 2001 11:36:14 -0500
 Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
-In-Reply-To: <E16A75O-0006hY-00@the-village.bc.nu>
-Content-Type: text/plain; charset=iso-8859-2
+To: dalecki@evision.ag
+Date: Sun, 2 Dec 2001 16:42:59 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), lm@bitmover.com (Larry McVoy),
+        davidel@xmailserver.org (Davide Libenzi),
+        akpm@zip.com.au (Andrew Morton),
+        phillips@bonn-fries.net (Daniel Phillips),
+        hps@intermeta.de (Henning Schmiedehausen),
+        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
+In-Reply-To: <3C0A54F4.C70C815C@evision-ventures.com> from "Martin Dalecki" at Dec 02, 2001 05:21:08 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16AZhj-0003pe-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+> > Question: What happens when people stick 8 threads of execution on a die with
+> > a single L2 cache ?
 > 
-> > > Wasn't it you that were saying that Linux will never scale with more than
-> > > 2 CPUs ?
-> >
-> > No, that wasn't me.  I said it shouldn't scale beyond 4 cpus.  I'd be pretty
-> > lame if I said it couldn't scale with more than 2.  Should != could.
-> 
-> Question: What happens when people stick 8 threads of execution on a die with
-> a single L2 cache ?
+> That had been already researched. Gogin bejoind 2 threads on a single
+> CPU
+> engine doesn't give you very much... The first step is giving about 25%
+> the second only about 5%. There are papers in the IBM research magazine
+> on
 
-That had been already researched. Gogin bejoind 2 threads on a single
-CPU
-engine doesn't give you very much... The first step is giving about 25%
-the second only about 5%. There are papers in the IBM research magazine
-on
-this topic in context of the PowerPC.
+The IBM papers make certain architectural assumptions. With some of the
+tiny modern CPU cores its going to perfectly viable to put 4 or 8 of them
+on one die. At that point cccluster still has to have cluster nodes scaling
+to 8 way
+

@@ -1,90 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263812AbTE3RTb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 13:19:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbTE3RTb
+	id S263807AbTE3RTD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 13:19:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263812AbTE3RTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 13:19:31 -0400
-Received: from pusa.informat.uv.es ([147.156.10.98]:64677 "EHLO
-	pusa.informat.uv.es") by vger.kernel.org with ESMTP id S263812AbTE3RT2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 13:19:28 -0400
-Date: Fri, 30 May 2003 19:32:42 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: readcd supossed to suport 2.5.x IDE interface?
-Message-ID: <20030530173242.GA2679@pusa.informat.uv.es>
-References: <20030530172036.GA1636@pusa.informat.uv.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030530172036.GA1636@pusa.informat.uv.es>
-User-Agent: Mutt/1.3.28i
-From: uaca@alumni.uv.es
+	Fri, 30 May 2003 13:19:03 -0400
+Received: from nelson.SEDSystems.ca ([192.107.131.136]:44748 "EHLO
+	nelson.sedsystems.ca") by vger.kernel.org with ESMTP
+	id S263807AbTE3RTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 13:19:01 -0400
+Date: Fri, 30 May 2003 11:31:57 -0600 (CST)
+From: Kendrick Hamilton <hamilton@sedsystems.ca>
+To: Bernd Jendrissek <berndj@prism.co.za>
+cc: gcc@gcc.gnu.org, <linux-kernel@vger.kernel.org>
+Subject: Re: Problem Installing Linux Kernel Module compiled with gcc-3.2.x
+In-Reply-To: <20030530192240.A7564@prism.co.za>
+Message-ID: <Pine.LNX.4.44.0305301128260.6111-100000@sw-55.sedsystems.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have been manually recompillng the module and kernel to ensure they are 
+both compiled with the same version of gcc. When I do switch gcc versions, 
+I cp .config to config, make mrproper, cp config .config, make dep, make 
+all modules modules_install install; reboot; make clean on my driver the 
+make it.
 
-Hi again,
+ On Fri, 30 May 2003, Bernd Jendrissek wrote:
 
-I'm sorry I did not tell I was using 2.5.68 vanilla, also I just saw the new
-patches. I will report about it later
-
-	Ulisses
-
-On Fri, May 30, 2003 at 07:20:36PM +0200, uaca@alumni.uv.es wrote:
-> Hi all
+> Not *exactly* on-topic for gcc@gcc.gnu.org I suppose, but here goes.
 > 
-> I'm recording CD-R/W media with cdrecord using dev=<ide device> without
-> problems but I tried to use readcd in order to read media in raw mode 
-> and doesn't work:
+> [Cc'ed to linux-kernel@vger.kernel.org]
 > 
-> agapito:/home/ulisses# readcd dev=/dev/hdc f=/dev/null
-> Read  speed:  8450 kB/s (CD  48x, DVD  6x).
-> Write speed:  7056 kB/s (CD  40x, DVD  5x).
-> Capacity: 359819 Blocks = 719638 kBytes = 702 MBytes = 736 prMB
-> Sectorsize: 2048 Bytes
-> Copy from SCSI (0,0,0) disk to file '/dev/null'
-> end:    359819
-> readcd: Operation not permitted. Cannot send SCSI cmd via ioctl
-> agapito:/home/ulisses# readcd dev=/dev/hdc f=/dev/null
+> On Fri, May 30, 2003 at 09:26:51AM -0600, Kendrick Hamilton wrote:
+> > 	I have a module for a custom developped PCI card. The device 
+> > driver is written for the Linux 2.4 series kernels. When I build the 
+> > module and the Linux kernel with gcc-2.95.3, the module installs 
+> > correctly. When I build the module and the Linux kernel with gcc-3.2.3 
+> > (also other gcc-3.2.x), the module installs but the Linux kernel crashes 
+> > in random places outside of the module. Do you have any suggestions of 
+> > what to look for? I can email you the complete module source code. I have 
+> > not tried gcc-3.3 because I cannot compile the current Linux kernel with 
+> > it (there is a known bug that is being fixed and should be out in 
+> > Linux-2.4.21).
 > 
-> the error message comes from:
+> Been there, done that, got the T-shirt.  I was lucky: while my module
+> installed, it broke in a fairly harmless way.  (It just didn't work; it
+> didn't screw with my system.)
 > 
-> ioctl(3, 0x2285, 0xbffff570)            = -1 ENOTTY (Inappropriate ioctl for device)
+> If you look at linux/include/linux/spinlock.h, you'll see:
 > 
-> where the file descriptor is the IDE device
+> /*
+>  * Your basic spinlocks, allowing only a single CPU anywhere
+>  *
+>  * Most gcc versions have a nasty bug with empty initializers.
+>  */
+> #if (__GNUC__ > 2)
+>   typedef struct { } spinlock_t;
+>   #define SPIN_LOCK_UNLOCKED (spinlock_t) { }
+> #else
+>   typedef struct { int gcc_is_buggy; } spinlock_t;
+>   #define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
+> #endif
 > 
-> I would like to help if this is a kernel flaw
+> There are a couple of spinlock_t's (directly or through other structs) in
+> the task_struct.  So when your module accesses parts of the "current"
+> task_struct beyond the first spinlock_t, you better hope it's reading and
+> not writing (which was the case with my module).
 > 
-> I was not sure were I should post this because Joerg Schilling doesn't
-> support it's tools for IDE devices (not SCSI emulated) on Linux
+> I bet your module modifies "current".
 > 
-> Thanks all
+> Hmm, actually I thought the kernel had a mechanism to prevent a GCC 3.x
+> module from being loaded into a GCC 2.x kernel and vice versa?
 > 
-> 	Ulisses
-> 
-> PD: I had a crazy idea, there are a lot of Install Parties, why not "Bug
-> hunting fests/sessions" before 2.6 reach the street?
-> 
->                 Debian GNU/Linux: a dream come true
-> -----------------------------------------------------------------------------
-> "Computers are useless. They can only give answers."            Pablo Picasso
-> 
-> --->	Visita http://www.valux.org/ para saber acerca de la	<---
-> --->	Asociación Valenciana de Usuarios de Linux		<---
->  
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-                Debian GNU/Linux: a dream come true
------------------------------------------------------------------------------
-"Computers are useless. They can only give answers."            Pablo Picasso
+Kendrick Hamilton E.I.T.
+SED Systems, a division of Calian Ltd.
+18 Innovation Blvd.
+PO Box 1464
+Saskatoon, Saskatchewan
+Canada
+S7N 3R1
 
---->	Visita http://www.valux.org/ para saber acerca de la	<---
---->	Asociación Valenciana de Usuarios de Linux		<---
- 
+Hamilton@sedsystems.ca
+Tel: (306) 933-1453
+Fax: (306) 933-1486
+

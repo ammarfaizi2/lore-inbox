@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313041AbSC0QGE>; Wed, 27 Mar 2002 11:06:04 -0500
+	id <S313048AbSC0QPZ>; Wed, 27 Mar 2002 11:15:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313040AbSC0QFy>; Wed, 27 Mar 2002 11:05:54 -0500
-Received: from netfinity.realnet.co.sz ([196.28.7.2]:49799 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S313041AbSC0QFs>; Wed, 27 Mar 2002 11:05:48 -0500
-Date: Wed, 27 Mar 2002 17:55:03 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S313047AbSC0QPP>; Wed, 27 Mar 2002 11:15:15 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:38818 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S313046AbSC0QPF>; Wed, 27 Mar 2002 11:15:05 -0500
+Date: Wed, 27 Mar 2002 17:15:07 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH][RFC] P4/Xeon Thermal LVT support
-In-Reply-To: <Pine.GSO.3.96.1020327161054.8602D-100000@delta.ds2.pg.gda.pl>
-Message-ID: <Pine.LNX.4.44.0203271754040.8973-100000@netfinity.realnet.co.sz>
+In-Reply-To: <Pine.LNX.4.44.0203271716440.5751-100000@netfinity.realnet.co.sz>
+Message-ID: <Pine.GSO.3.96.1020327170918.8602K-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Mar 2002, Maciej W. Rozycki wrote:
+On Wed, 27 Mar 2002, Zwane Mwaikambo wrote:
 
->  You can't use a vector that is in the range assigned to I/O APIC
-> interrupts (i.e.  0x31 - 0xee).  Otherwise you'll get an overlap when the
-> vector gets assigned to an ordinary IRQ line.  Also you probably want a
-> high-priority interrupt as the condition is serious, if not critical --
-> system failures, such as bus exceptions, machine check faults, parity
-> errors, power failures, etc. demand a high priority service. 
+> > high-priority interrupt as the condition is serious, if not critical --
+> > system failures, such as bus exceptions, machine check faults, parity
+> > errors, power failures, etc. demand a high priority service. 
+> 
+> Its really not that critical, its more informational, the interrupt 
+> handler in fact only displays a warning, by which time the hardware is 
+> already handling the condition.
 
-Would f0 be ok? But i see its assigned for "future linux use"
-
-Thanks,
-	Zwane
+ How can't it be critical?  Your system is overheating.  It is about to
+fail -- depending on the configuration, it'll either crash or be shut down
+by hardware (consider fire in the server room as well).  Either way the
+condition should be caught ASAP, for proper steps to be taken by the OS
+and/or the operator.  Otherwise it might have no second chance to get
+reported and the system will die silently -- you'll not know the reason
+until you get at the console (or its remains).  It may be too late then. 
 
 -- 
-http://function.linuxpower.ca
-		
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

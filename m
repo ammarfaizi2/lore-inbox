@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290693AbSARNqH>; Fri, 18 Jan 2002 08:46:07 -0500
+	id <S290694AbSARNuR>; Fri, 18 Jan 2002 08:50:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290694AbSARNps>; Fri, 18 Jan 2002 08:45:48 -0500
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:27643 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S290693AbSARNpi>; Fri, 18 Jan 2002 08:45:38 -0500
-Message-ID: <3C482739.9498E422@didntduck.org>
-Date: Fri, 18 Jan 2002 08:46:33 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
+	id <S290695AbSARNuH>; Fri, 18 Jan 2002 08:50:07 -0500
+Received: from ns1.system-techniques.com ([199.33.245.254]:39562 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S290694AbSARNtv>; Fri, 18 Jan 2002 08:49:51 -0500
+Date: Fri, 18 Jan 2002 08:48:55 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Sebastian Heidl <heidl@zib.de>
+cc: Ram Shankar <kramsn@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: LINUX IP Stack
+In-Reply-To: <20020118134031.GH27177@csr-pc1.zib.de>
+Message-ID: <Pine.LNX.4.44.0201180847080.18867-100000@filesrv1.baby-dragons.com>
 MIME-Version: 1.0
-To: DervishD <raul@viadomus.com>
-CC: linux-kernel@vger.kernel.org, yinlei_yu@hotmail.com
-Subject: Re: Is there anyway to use 4M pages on x86 linux in user level?
-In-Reply-To: <E16RYAn-0005jM-00@DervishD.viadomus.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DervishD wrote:
-> 
->     Hi Yinlei :)
-> 
-> >Since x86 architecutre has a 4M page feature
-> 
->     I may certainly be wrong but... is not 4k OR 16M the page size on
-> x86 arch? I didn't know about 4M page. Could you send me the GTD
-> settings for that? (Just curiosity :)))
 
-The large page size is 4MB, except in PAE mode where they are 2MB. 
-Normal pages are always 4KB.  Noting in the GDT affects the page size.
+	Hello Sebastian ,  Yes they sure did & the project is over .
+	http://www.cl.cam.ac.uk/Research/SRG/netos/  Doesn't say
+	when the project finished or if there is any ongoing status .
+		Hth ,  JimL
 
--- 
+On Fri, 18 Jan 2002, Sebastian Heidl wrote:
 
-						Brian Gerst
+> On Fri, Jan 18, 2002 at 05:18:54AM -0800, Ram Shankar wrote:
+> > We are interested in moving the IP stack into the
+> > application area. i.e. It should link with our
+> > application and use the devices (like /dev/eth0) for
+> > the layer 2 interface.
+> Have a look at the arsenic project:
+> http://www.cl.cam.ac.uk/Research/SRG/netos/arsenic/
+>
+> They've already done it. ;-)
+>
+> regards,
+> _sh_
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
+

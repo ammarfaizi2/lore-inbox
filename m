@@ -1,35 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262808AbTIVVmc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 17:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262812AbTIVVmb
+	id S263058AbTIVVog (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 17:44:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263060AbTIVVog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 17:42:31 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:23814 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S262808AbTIVVmb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 17:42:31 -0400
-Date: Mon, 22 Sep 2003 23:42:12 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: John Bradford <john@grabjohn.com>, arjanv@redhat.com,
-       ebiederm@xmission.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: Can we kill f inb_p, outb_p and other random I/O on port 0x80, in 2.6?
-Message-ID: <20030922234212.B28359@devserv.devel.redhat.com>
-References: <200309222003.h8MK38kC000353@81-2-122-30.bradfords.org.uk> <20030922213732.GC29869@mail.jlokier.co.uk>
+	Mon, 22 Sep 2003 17:44:36 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:40149 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263058AbTIVVoe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 17:44:34 -0400
+Date: Mon, 22 Sep 2003 23:44:19 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Zilvinas Valinskas <zilvinas@gemtek.lt>, alistair@devzero.co.uk,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: 2.6.0-test5-mm4
+Message-ID: <20030922214419.GC2983@ucw.cz>
+References: <20030922013548.6e5a5dcf.akpm@osdl.org> <200309221317.42273.alistair@devzero.co.uk> <20030922143605.GA9961@gemtek.lt> <20030922115509.4d3a3f41.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030922213732.GC29869@mail.jlokier.co.uk>; from jamie@shareable.org on Mon, Sep 22, 2003 at 10:37:32PM +0100
+In-Reply-To: <20030922115509.4d3a3f41.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 22, 2003 at 10:37:32PM +0100, Jamie Lokier wrote:
-> We already see this problem with pure PCI devices.  The standard
-> solution with PCI devices is to issue a PCI read after the write, to
-> flush the write.
+On Mon, Sep 22, 2003 at 11:55:09AM -0700, Andrew Morton wrote:
+> Zilvinas Valinskas <zilvinas@gemtek.lt> wrote:
+> >
+> > Btw Andrew ,
+> > 
+> > this change  "Synaptics" -> "SynPS/2" - breaks driver synaptic driver
+> > from http://w1.894.telia.com/~u89404340/touchpad/index.html. 
+> > 
+> > 
+> > -static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/
+> > 2", "ImPS/2", "ImExPS/2", "Synaptics"}; 
+> > +static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/2", "ImPS/2", "ImExPS/2", "SynPS/2"};
+> 
+> You mean it breaks the XFree driver?  Is it just a matter of editing
+> XF86Config to tell it the new protocl name?
 
-afaik only PCI memory accesses are posted, not io port accesses
+Ouch? This is just an information string, it is not supposed to be used
+anywhere except printks etc ... I really HOPE nobody is parsing these
+strings.
 
+Before the patch, the input_dev.name string said
+
+"Synaptics Synaptics Pad", which kind of didn't make much sense.
+
+Since it's a concatenation of protocol, vendor and device names, it
+now says
+
+"SynPS/2 Synaptics Pad", which sounds a bit better.
+
+> Either way, it looks like a change which should be reverted?
+
+If it breaks anything, that needs to be fixed in what it broke, because
+nothing should depend on this. If it does, then that's a big bug.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

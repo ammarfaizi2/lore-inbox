@@ -1,53 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265357AbUAEUlN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 15:41:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265359AbUAEUlN
+	id S265288AbUAEUgK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 15:36:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265300AbUAEUgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 15:41:13 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:45965 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S265357AbUAEUku (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 15:40:50 -0500
-Date: Mon, 5 Jan 2004 12:35:09 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Andi Kleen <ak@muc.de>
-Cc: gibbs@scsiguy.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple
- map/unmaps
-Message-Id: <20040105123509.4bacf670.davem@redhat.com>
-In-Reply-To: <m3brpi41q0.fsf@averell.firstfloor.org>
-References: <2938942704.1073325455@aslan.btc.adaptec.com>
-	<m3brpi41q0.fsf@averell.firstfloor.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Mon, 5 Jan 2004 15:36:10 -0500
+Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:37505 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S265288AbUAEUgA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 15:36:00 -0500
+Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: Mike Fedyk <mfedyk@matchmail.com>, Willy Tarreau <willy@w.ods.org>,
+       szonyi calin <caszonyi@yahoo.com>, Con Kolivas <kernel@kolivas.org>,
+       Mark Hahn <hahn@physics.mcmaster.ca>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       gillb4@telusplanet.net
+In-Reply-To: <1073291940.8884.66.camel@localhost>
+References: <1073227359.6075.284.camel@nosferatu.lan>
+	 <20040104225827.39142.qmail@web40613.mail.yahoo.com>
+	 <20040104233312.GA649@alpha.home.local>
+	 <20040104234703.GY1882@matchmail.com>  <1073291940.8884.66.camel@localhost>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-S3w42REiLqjv5FTUfHkP"
+Message-Id: <1073335127.6075.335.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 05 Jan 2004 22:38:47 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Jan 2004 20:47:19 +0100
-Andi Kleen <ak@muc.de> wrote:
 
-> Actually I disabled merging by default in the latest x86-64 code,
-> but it can be still enabled by the user using options (it makes some
-> adapters run several percent faster). I would appreciate if you could
-> fix the problem anyways.
-> 
-> I was actually planning to add a BUG() for this. Should do that.
-> There is already one that triggers often when the problem occurs.
+--=-S3w42REiLqjv5FTUfHkP
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Andi, you must not modify sg->length in any way shape or form.
+On Mon, 2004-01-05 at 10:39, Soeren Sonnenburg wrote:
+> On Mon, 2004-01-05 at 00:47, Mike Fedyk wrote:
+> > On Mon, Jan 05, 2004 at 12:33:12AM +0100, Willy Tarreau wrote:
+> > > at a time. I have yet to understand why 'ls|cat' behaves
+> > > differently, but fortunately it works and it has already saved
+> > > me some useful time.
+> >=20
+> > cat probably does some buffering for you, and sends the output to xterm=
+ in
+> > larger blocks.
+>=20
+> interestingly running ls on a remote machine in a directory with a
+> similiar amount of files (local xterm with ssh connection to that
+> machine) is also as fast as this ls | cat workaround...
+>=20
 
-The following is legal:
+Maybe it is because the process generating the output, and the
+xterm is not on the same box?  The X server gets too much time,
+so the two childs (xterm and ls/whatever) do not get enough time?
+And that might be why renice +10 `pidof X` helps? Although that
+do not seem right, as the process level seems the same:
 
-	pci_map_sg(..&sg);
-	pci_unmap_sg(...&sg);
-	pci_map_sg(..&sg);
+  xterm->bash->ssh vs xterm->bash->ls
 
-If you must modify the length field for DMA, you must have a seperate
-dma_length member of the scatterlist structure on your platform, see what
-sparc64 does here.
+Might be because the startup time is ruled out (maybe that is
+the big issue - startup of child processes?).  Could it be that
+the 'ls | cat' situation now again influence startup times (now
+it is xterm->bash->ls->cat) if above could be taken as an reason?
 
-If the documentation states this wrongly, it's a doc bug.
+
+--=20
+Martin Schlemmer
+
+--=-S3w42REiLqjv5FTUfHkP
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQA/+ctXqburzKaJYLYRAgZOAJ0ZCkk0dxDKqHpsqd1ZgYWGLeMgbgCgiUUQ
+eaR7bLTBvxsjQZn5iTqsHFk=
+=9R4o
+-----END PGP SIGNATURE-----
+
+--=-S3w42REiLqjv5FTUfHkP--
+

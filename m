@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbUFJOsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbUFJOvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbUFJOsO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 10:48:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbUFJOrP
+	id S261500AbUFJOvt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 10:51:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUFJOvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 10:47:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43705 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261422AbUFJOq5 (ORCPT
+	Thu, 10 Jun 2004 10:51:48 -0400
+Received: from tristate.vision.ee ([194.204.30.144]:33738 "HELO mail.city.ee")
+	by vger.kernel.org with SMTP id S261530AbUFJOvE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 10:46:57 -0400
-Date: Thu, 10 Jun 2004 07:46:40 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-cc: Al Viro <viro@math.psu.edu>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Finding user/kernel pointer bugs [no html]
-In-Reply-To: <1086842898.32053.380.camel@dooby.cs.berkeley.edu>
-Message-ID: <Pine.LNX.4.58.0406100735530.2050@ppc970.osdl.org>
-References: <1086838266.32059.320.camel@dooby.cs.berkeley.edu> 
- <Pine.LNX.4.58.0406092059030.2050@ppc970.osdl.org>
- <1086842898.32053.380.camel@dooby.cs.berkeley.edu>
+	Thu, 10 Jun 2004 10:51:04 -0400
+Message-ID: <40C8756B.6050501@vision.ee>
+Date: Thu, 10 Jun 2004 17:51:23 +0300
+From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Lars <terraformers@gmx.net>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7-rc3: nforce2, no C1 disconnect fixup applied
+References: <ca9jj9$dr$1@sea.gmane.org> <200406101459.45750.bzolnier@elka.pw.edu.pl> <ca9nid$bnc$1@sea.gmane.org>
+In-Reply-To: <ca9nid$bnc$1@sea.gmane.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Lars wrote:
 
+>hi
+>
+>thanks for answering!
+>
+>rc2 worked completely stable with c1 disconnect halt enabled and low
+>cpu temp.
+>  
+>
+I've kind of opposite here. with rc2-mm2 boot message says that fixup is 
+applied. "athcool stat" says 'c1 bit disabled'.
+Everything stable. When I enable that bit with "athcool on" the system 
+will lock up solid after an hour or so.
 
-On Wed, 9 Jun 2004, Robert T. Johnson wrote:
-> 
-> QUESTION:  Do you find it's difficult to figure out which fields of
-> structures should be declared __user?
+With 2.6.1-rc1-mm1 I could enable that bit manually and everything was 
+still stable afterwards ...
 
-It's _usually_ trivial, by just looking at the warnings. 
+Lenar
 
-Not always, though. We don't have a "taint" attribute (I've been thinking 
-about it, but I don't feel the pain has been worth it yet), so if you do 
-load a structure from user space (properly, with copy_from_user()) and 
-then use a non-annotated part of that as a pointer and dereference it 
-directly, sparse won't warn, of course. 
-
-However, that requires that _every_ single user of that attribute member 
-mis-uses the pointer (ie that "get_user()" never sees that pointer at 
-all)). So that case is fairly unlikely, although it can (and probably 
-does) happen for the unusual stuff.
-
-The much harder issue is structures that soemtimes contain user pointers,
-and sometime contain kernel pointers. Those sparse can't handle at all,
-since sparse does purely local and static type-checking. It will complain
-about one or the other.
-
-The only way to fix the second case is to split the structure up - which
-is usually a good idea _anyway_, but which can sometimes be pretty 
-painful. Al has done some of them. The really painful one is "struct 
-iovec", which seems to be used in this capacity a fair amount.
-
-> If a structure pointer is __user, but it has some pointer fields that
-> aren't declared __user, there's a good chance that there's a missing
-> annotation or something.
-
-Yes. That's likely a good heuristic.
-
-			Linus

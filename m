@@ -1,53 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132289AbRBDUfR>; Sun, 4 Feb 2001 15:35:17 -0500
+	id <S132331AbRBDUiR>; Sun, 4 Feb 2001 15:38:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132305AbRBDUfI>; Sun, 4 Feb 2001 15:35:08 -0500
-Received: from gear.torque.net ([204.138.244.1]:55556 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S132289AbRBDUfA>;
-	Sun, 4 Feb 2001 15:35:00 -0500
-Message-ID: <3A7DB935.4170BEBC@torque.net>
-Date: Sun, 04 Feb 2001 15:19:01 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.1 i586)
+	id <S132305AbRBDUiI>; Sun, 4 Feb 2001 15:38:08 -0500
+Received: from femail2.rdc1.on.home.com ([24.2.9.89]:15558 "EHLO
+	femail2.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S132332AbRBDUh4>; Sun, 4 Feb 2001 15:37:56 -0500
+Message-ID: <3A7DBD8F.71941A32@Home.net>
+Date: Sun, 04 Feb 2001 15:37:35 -0500
+From: Shawn Starr <Shawn.Starr@Home.net>
+Organization: Visualnet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre1 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Friedrich Lindenberg <frlind@gmx.net>
-Subject: Re: AW: ATAPI CDRW which doesn't work -> devfs problems
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PS hanging in 2.4.1 - More interesting things
+In-Reply-To: <E14PVka-00026u-00@the-village.bc.nu>
+Content-Type: multipart/mixed;
+ boundary="------------95A2D9C27F521C8C3D903533"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Friedrich Lindenberg wrote:
-> I was trying to burn cds under linux-2.4.1 with 
-> devFS enabled. But x-cd-roast (and also cdrecord)
-> do not find any scsi drives. I guess they have been
-> renamed or something like that, I cannot find them 
-> in /dev, nor anywhere in /dev/scsi ...
+This is a multi-part message in MIME format.
+--------------95A2D9C27F521C8C3D903533
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 
-xcdroast expects to find a whole swag of sg device
-filenames (/dev/sg[0-16], /dev/sg[a-q]) and scsi
-cdrom names (/dev/sr[0-15]) when it starts. The
-xcdroast tarball comes with a MAKEDEVICES.sh script to
-create them. If they are not all there it seems to
-get upset.
+Well, i found something in my logs:
 
-This is not very devfs friendly since its policy
-is only to show /dev entries for devices that you
-actually have connected and that a driver is 
-controlling.
+This really is weird :)
 
-So the hack solution is to edit out of MAKEDEVICES.sh
-those file names that you actually have then execute
-it. IMO this is not a devfs problem, xcdroast needs an 
-improved device scanning algorithm.
+Shawn.
 
-BTW the /dev/sga,b,c style of sg device names are
-deprecated in favour of the numeric style.
+Alan Cox wrote:
 
-Doug Gilbert
+> > Well, strangely, it stopped as it started?
+> > I don't know what caused it to go loopy but then it just stopped. Im using:
+> > syslogd -ver
+> > syslogd 1.4-0
+> >
+> > klogd -v
+> > klogd 1.4-0
+> >
+> > I thought this only affected older versions?
+>
+> Yep. So something else happened in this case. I don't know what but that
+> would appear to be a different bug
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+
+--------------95A2D9C27F521C8C3D903533
+Content-Type: text/plain; charset=iso-8859-15;
+ name="dump.log"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="dump.log"
+
+Feb  3 18:11:35 coredump syslogd 1.4-0: restart.
+Feb  3 18:11:35 coredump syslogd: select: Bad file descriptor
+Feb  3 18:12:06 coredump last message repeated 214069 times
+Feb  3 18:14:48 coredump syslogd 1.4-0: restart.
+Feb  3 18:14:48 coredump syslogd: select: Bad file descriptor
+Feb  3 18:21:08 coredump syslogd 1.4-0: restart.
+Feb  3 18:21:08 coredump syslogd: select: Bad file descriptor
+Feb  3 18:21:34 coredump last message repeated 168154 times
+Feb  3 18:24:08 coredump syslogd 1.4-0: restart.
+Feb  3 18:24:08 coredump syslogd: select: Bad file descriptor
+Feb  3 18:24:39 coredump last message repeated 231290 times
+Feb  3 18:26:07 coredump syslogd 1.4-0: restart.
+Feb  3 18:27:24 coredump init: Switching to runlevel: 6
+Feb  3 18:27:31 coredump exiting on signal 15
+Feb  3 18:34:44 coredump syslogd 1.4-0: restart.
+
+
+--------------95A2D9C27F521C8C3D903533--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

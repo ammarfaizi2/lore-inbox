@@ -1,78 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270513AbUJUKW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270674AbUJUKYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270513AbUJUKW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 06:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270384AbUJUKUl
+	id S270674AbUJUKYq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 06:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270538AbUJUKX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 06:20:41 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:22691
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S270611AbUJUKTr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 06:19:47 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Jens Axboe <axboe@suse.de>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-In-Reply-To: <20041021101103.GC10531@suse.de>
-References: <20041015102633.GA20132@elte.hu>
-	 <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu>
-	 <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu>
-	 <20041020094508.GA29080@elte.hu>
-	 <30690.195.245.190.93.1098349976.squirrel@195.245.190.93>
-	 <1098350190.26758.24.camel@thomas> <20041021095344.GA10531@suse.de>
-	 <1098352441.26758.30.camel@thomas>  <20041021101103.GC10531@suse.de>
-Content-Type: text/plain
-Organization: linutronix
-Message-Id: <1098353505.26758.38.camel@thomas>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 21 Oct 2004 12:11:45 +0200
+	Thu, 21 Oct 2004 06:23:27 -0400
+Received: from pop.gmx.de ([213.165.64.20]:9128 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S270484AbUJUKVE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 06:21:04 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
+Date: Thu, 21 Oct 2004 12:24:54 +0200
+User-Agent: KMail/1.7
+Cc: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Daniel Walker <dwalker@mvista.com>,
+       Bill Huey <bhuey@lnxw.com>, Andrew Morton <akpm@osdl.org>,
+       Adam Heath <doogie@debian.org>,
+       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
+       Andrew Rodland <arodland@entermail.net>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <200410171946.33472.dominik.karall@gmx.net> <87ekjw65x9.fsf@ibmpc.myhome.or.jp>
+In-Reply-To: <87ekjw65x9.fsf@ibmpc.myhome.or.jp>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1114629.MlHvlALnsd";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410211224.57951.dominik.karall@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-21 at 12:11, Jens Axboe wrote:
-> On Thu, Oct 21 2004, Thomas Gleixner wrote:
-> > On Thu, 2004-10-21 at 11:53, Jens Axboe wrote:
-> > > On Thu, Oct 21 2004, Thomas Gleixner wrote:
-> > > > On Thu, 2004-10-21 at 11:12, Rui Nuno Capela wrote:
-> > > > >  [<e018e139>] queuecommand+0x70/0x7c [usb_storage] (24)
-> > > > 
-> > > > As I already pointed out, this is a problem due to up(sema) in
-> > > > queuecommand. That's one of the semaphore abuse points, which needs to
-> > > > be fixed. 
-> > > > 
-> > > > The problem is that semaphores are hold by Process A and released by
-> > > > Process B, which makes Ingo's checks trigger
-> > > 
-> > > That's utter crap, it's perfectly valid use.
-> > 
-> > It's not!
-> > 
-> > >From the code:
-> > 
-> >          init_MUTEX_LOCKED(&(us->sema));
-> > 
-> > This is used to wait for command completion and therefor we have the
-> > completion API. It was used this way because the ancestor of completion
-> > (sleep_on) was racy !
-> 
-> I didn't look at the USB code, I'm just saying that it's perfectly valid
-> use of a semaphore the pattern you describe (process A holding it,
-> process B releasing it).
+--nextPart1114629.MlHvlALnsd
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Yeah, for a semaphore it is, but not for a mutex.
+On Monday 18 October 2004 05:50, OGAWA Hirofumi wrote:
+> Dominik Karall <dominik.karall@gmx.net> writes:
+> > yes, the bug only occurs on a specific file.
+> > as the bug is present in -mm1 (without vp) too, i applied your patch to
+> > that one. here is the output:
+> >
+> > fat_cache_check: id 0, contig 6415, fclus 38231, dclus 1010103
+> > contig 6416, fclus 38231, dclus 1010103
+> > contig 0, fclus 32, dclus 603964
+> > contig 1, fclus 30, dclus 603960
+> > contig 7, fclus 22, dclus 603950
+> > contig 4, fclus 17, dclus 603943
+> > contig 1, fclus 15, dclus 603940
+> > contig 6, fclus 8, dclus 603931
+> > contig 0, fclus 7, dclus 603929
+>
+> Thanks. Seems good. There is no inconsistency in cache.
+>
+> > and the movie starts to play in mplayer without problems. tell me if
+> > you need more debugging!
+>
+> Can you please try the patch again? This patch should tell who added
+> the cache.
+>
+> Thanks.
 
-IMHO, this is not clearly seperated and therefor produces a lot of
-confusion.
+sorry, but i can't reproduce the bug again. even after a reboot the file wo=
+rks=20
+as normal. but i didn't changed anything on the file.
+if the bug appears again, i will apply the patch and let you know!
 
-tglx
+best regards,
+dominik
 
+--nextPart1114629.MlHvlALnsd
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iQCVAwUAQXeOeQvcoSHvsHMnAQKClAQAiu5U1seV23jVJPcVcEZmtneNkRX/kAXH
+90P8WNJpnnCiCBn0XRbVJjX9Q9ixVhMqkTWoJ9Go7fLp2ygqoiOV7wrASbHXBdV6
+MY9SLIsUPdT1YfZEthSvVwK4Y3iMGpWTgjro9mpAS8NZFcyUmtNLxyDNb1jMyxmS
+kcEuMK9oSoQ=
+=QRcu
+-----END PGP SIGNATURE-----
+
+--nextPart1114629.MlHvlALnsd--

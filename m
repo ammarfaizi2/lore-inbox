@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbTIYRbV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 13:31:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbTIYR27
+	id S261263AbTIYRTx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 13:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbTIYRTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 13:28:59 -0400
-Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:55943 "EHLO
+	Thu, 25 Sep 2003 13:19:53 -0400
+Received: from d12lmsgate.de.ibm.com ([194.196.100.234]:60567 "EHLO
 	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S261188AbTIYRX6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 13:23:58 -0400
-Date: Thu, 25 Sep 2003 19:23:16 +0200
+	id S261304AbTIYRQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 13:16:53 -0400
+Date: Thu, 25 Sep 2003 19:16:13 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 (19/19): remove outdated code.
-Message-ID: <20030925172316.GT2951@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390 (3/19): 31 bit compat.
+Message-ID: <20030925171613.GD2951@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,636 +21,142 @@ User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove outdated ipl records from arch/s390/boot. They are now part of
-the s390-tools package.
+ - Fix emulation of sys_sysinfo and sys_clone.
+ - Add code for -ERESTART_RESTARTBLOCK in signal emulation.
+ - Fix ptrace peek/poke for 31 bit programs under a 64 bit kernel.
+ - Fix typos in cp_stat64.
 
 diffstat:
- arch/s390/boot/ipldump.S |  178 ---------------------------
- arch/s390/boot/ipleckd.S |  303 -----------------------------------------------
- arch/s390/boot/iplfba.S  |  131 --------------------
- 3 files changed, 612 deletions(-)
+ arch/s390/kernel/compat_ioctl.c  |    1 +
+ arch/s390/kernel/compat_linux.c  |   23 +++++++++++++++--------
+ arch/s390/kernel/compat_signal.c |    4 ++++
+ arch/s390/kernel/ptrace.c        |   21 +++++++++++++++++++--
+ 4 files changed, 39 insertions(+), 10 deletions(-)
 
-diff -urN linux-2.6/arch/s390/boot/ipldump.S linux-2.6-s390/arch/s390/boot/ipldump.S
---- linux-2.6/arch/s390/boot/ipldump.S	Mon Sep  8 21:49:51 2003
-+++ linux-2.6-s390/arch/s390/boot/ipldump.S	Thu Jan  1 01:00:00 1970
-@@ -1,178 +0,0 @@
--/*
-- *  arch/s390/boot/ipldump.S
-- *
-- *  S390 version
-- *    Copyright (C) 2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
-- *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com),
-- *
-- *  Tape dump ipl record. Put it on a tape and ipl from it and it will
-- *  write a dump of the real storage after the ipl record on that tape.
-- */
--
--#include <asm/setup.h>
--#include <asm/lowcore.h>
--
--#define IPL_BS 1024
--        .org   0
--        .long  0x00080000,0x80000000+_start    # The first 24 bytes are loaded
--        .long  0x07000000,0x60000001           # by ipl to addresses 0-23.
--        .long  0x02000000,0x20000000+IPL_BS    # (a PSW and two CCWs).
--        .long  0x00000000,0x00000000
--        .long  0x00000000,0x00000000           # svc old psw
--        .long  0x00000000,0x00000000           # program check old psw
--        .long  0x00000000,0x00000000           # machine check old psw
--        .long  0x00000000,0x00000000           # io old psw
--        .long  0x00000000,0x00000000
--        .long  0x00000000,0x00000000
--        .long  0x00000000,0x00000000
--        .long  0x000a0000,0x00000058           # external new psw
--        .long  0x000a0000,0x00000060           # svc new psw
--        .long  0x000a0000,0x00000068           # program check new psw
--        .long  0x000a0000,0x00000070           # machine check new psw
--        .long  0x00080000,0x80000000+.Lioint   # io new psw
--
--        .org   0x100
--        .globl _start
--_start:
--	l     %r1,0xb8                         # load ipl subchannel number
--#
--# find out memory size
--#
--        mvc   104(8),.Lpcmem0          # setup program check handler
--        slr   %r3,%r3
--        lhi   %r2,1
--        sll   %r2,20
--.Lloop0:
--        l     %r0,0(%r3)                 # test page
--        ar    %r3,%r2                    # add 1M
--        jnm   .Lloop0                    # r1 < 0x80000000 -> loop
--.Lchkmem0:
--        n     %r3,.L4malign0             # align to multiples of 4M
--        st    %r3,.Lmemsize              # store memory size
--.Lmemok:
--
--#
--# first write a tape mark
--#
--        bras  %r14,.Ltapemark
--#
--# write real storage to tape
--#	
-- 	slr   %r2,%r2                          # start at address 0
--        bras  %r14,.Lwriter                    # load ramdisk
--#
--# write another tape mark
--#
--        bras  %r14,.Ltapemark
--#
--# everything written, stop processor
--#
--        lpsw  .Lstopped
--#
--# subroutine for writing to tape
--# Paramters:	
--#  R1 = device number
--#  R2 = start address
--#  R3 = length
--.Lwriter:	
--        st    %r14,.Lldret
--        la    %r12,.Lorbread                   # r12 = address of orb 
--	la    %r5,.Lirb                        # r5 = address of irb
--        st    %r2,.Lccwwrite+4                 # initialize CCW data addresses
--        lctl  %c6,%c6,.Lcr6               
--        slr   %r2,%r2
--.Lldlp:
--        lhi   %r6,3                            # 3 retries
--.Lssch:
--        ssch  0(%r12)                          # write chunk of IPL_BS bytes
--        jnz   .Llderr
--.Lw4end:
--        bras  %r14,.Lwait4io
--        tm    8(%r5),0x82                      # do we have a problem ?
--        jnz   .Lrecov
--        l     %r0,.Lccwwrite+4                 # update CCW data addresses
--        ahi   %r0,IPL_BS
--        st    %r0,.Lccwwrite+4
--        clr   %r0,%r3                          # enough ?
--        jl    .Lldlp
--.Ldone:
--        l     %r14,.Lldret
--        br    %r14                             # r2 contains the total size
--.Lrecov:
--        bras  %r14,.Lsense                     # do the sensing
--        brct  %r6,.Lssch                       # dec. retry count & branch
--        j     .Llderr
--.Ltapemark:
--        st    %r14,.Lldret
--        la    %r12,.Lorbmark                   # r12 = address of orb
--        la    %r5,.Lirb                        # r5 = address of irb
--        lctl  %c6,%c6,.Lcr6
--        ssch  0(%r12)                          # write a tape mark
--        jnz   .Llderr
--        bras  %r14,.Lwait4io
--        l     %r14,.Lldret
--        br    %r14
--#
--# Sense subroutine
--#
--.Lsense:
--        st    %r14,.Lsnsret
--        la    %r7,.Lorbsense              
--        ssch  0(%r7)                           # start sense command
--        jnz   .Llderr
--        bras  %r14,.Lwait4io
--        l     %r14,.Lsnsret
--        tm    8(%r5),0x82                      # do we have a problem ?
--        jnz   .Llderr
--        br    %r14
--#
--# Wait for interrupt subroutine
--#
--.Lwait4io:
--        lpsw  .Lwaitpsw                 
--.Lioint:
--        c     %r1,0xb8                         # compare subchannel number
--        jne   .Lwait4io
--        tsch  0(%r5)
--        slr   %r0,%r0
--        tm    8(%r5),0x82                      # do we have a problem ?
--        jnz   .Lwtexit
--        tm    8(%r5),0x04                      # got device end ?
--        jz    .Lwait4io
--.Lwtexit:
--        br    %r14
--.Llderr:
--        lpsw  .Lcrash              
--
--        .align 8
--.Lorbread:
--	.long  0x00000000,0x0080ff00,.Lccwwrite
--        .align 8
--.Lorbsense:
--        .long  0x00000000,0x0080ff00,.Lccwsense
--        .align 8
--.Lorbmark:
--        .long  0x00000000,0x0080ff00,.Lccwmark
--        .align 8
--.Lccwwrite:
--        .long  0x01200000+IPL_BS,0x00000000
--.Lccwsense:
--        .long  0x04200001,0x00000000
--.Lccwmark:
--        .long  0x1f200001,0x00000000
--.Lwaitpsw:
--	.long  0x020a0000,0x80000000+.Lioint
--
--.Lirb:	.long  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
--.Lcr6:  .long  0xff000000
--        .align 8
--.Lcrash:.long  0x000a0000,0x00000000
--.Lstopped: .long 0x000a0000,0x00001234
--.Lpcmem0:.long  0x00080000,0x80000000 + .Lchkmem0
--.L4malign0:.long 0xffc00000
--.Lmemsize:.long 0
--.Lldret:.long  0
--.Lsnsret: .long 0
--
--         .org IPL_BS
--
-diff -urN linux-2.6/arch/s390/boot/ipleckd.S linux-2.6-s390/arch/s390/boot/ipleckd.S
---- linux-2.6/arch/s390/boot/ipleckd.S	Mon Sep  8 21:50:01 2003
-+++ linux-2.6-s390/arch/s390/boot/ipleckd.S	Thu Jan  1 01:00:00 1970
-@@ -1,303 +0,0 @@
--#
--#  arch/s390/boot/ipleckd.S
--#    IPL record for 3380/3390 DASD
--#
--#  S390 version
--#    Copyright (C) 1999,2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
--#    Author(s): Holger Smolinski <Holger.Smolinski@de.ibm.com>
--#
--#
--# FIXME:	 should use the countarea to determine the blocksize
--# FIXME:	 should insert zeroes into memory when filling holes
--# FIXME:	 calculate blkpertrack from rdc data and blksize
--
--# change 09/20/00       removed obsolete store of ipldevice to textesegment
--
--# Usage of registers
--# r1:	ipl subchannel ( general use, dont overload without save/restore !)
--# r10:
--# r13:	base register 	index to 0x0000
--# r14:	callers address
--# r15:	temporary save register (we have no stack!)
--
--# storage layout:
--
--#include <asm/lowcore.h>
--	
--	.org 0
--.psw:	.long 0x00080000,0x80000000+_start
--.ccw1:	.long 0x06000000,0x00001000     # Re-Read enough of bootsector to start
--.ccw2:	.long 0x00000000,0x00000000	# read countarea of record 1 to s/w.
--
--	.org 0x58
--.Lextn:	.long	0x000a0000,0x00000000+.Lextn
--.Lsvcn:	.long	0x000a0000,0x00000000+.Lsvcn
--.Lprgn:	.long	0x00080000,0x00000000+.Lecs
--.Lmcn:	.long	0x000a0000,0x00000000+.Lmcn
--.Lion:	.long   0x00080000,0x80000000+.Lionewaddr
--
--	.org 0xe0
--.Llstad:.long 	0x00000000,0x00000000	# sectorno + ct of bootlist
--
--	.org 0xf0			# Lets start now...
--_start: .globl _start
--	l  	%r1,__LC_SUBCHANNEL_ID	# get IPL-subchannel from lowcore
--	st	%r1,__LC_IPLDEV         # keep it for reipl
--	stsch	.Lrdcdata
--	oi      .Lrdcdata+5,0x84        # enable ssch and multipath mode
--.Lecs:  xi	.Lrdcdata+27,0x01	# enable concurrent sense
--	msch	.Lrdcdata	
--        xi      .Lprgn,6                # restore Wait and d/a bit in PCnew PSW
--	l	%r2,.Lparm
--	mvc     0x0(8,%r2),.Lnull       # set parmarea to null
--	lctl	%c6,%c6,.Lc6     	# enable all interrupts
--.Lrdc:					# read device characteristics
--	la	%r6,.Lrdcccw     
--	st      %r6,.Lorb+8		# store cp-address to orb
--	bras    %r15,.Lssch		# start I/O
--	oi	.Llodata+1,0x80
--	lh	%r5,.Lcountarea+6	# init r5 from countarea
--	stcm	%r5,3,.Lrdccw+2		# and store into rd template *FIXME*
--	stcm	%r5,3,.Llodata+14	# and store into lodata *FIXME*
--.Lbootlist:	
--	l	%r2,.Llstad	
--	l	%r3,.Lblklst     
--	lhi	%r4,1
--	bras	%r14,.Lreadblks
--.Lloader:	
--	l	%r10,.Lblklst     	# r10 is index to bootlist
--	lhi	%r5,4			# r5:	skip 4 blocks = firstpage....
--.Lkloop:
--	clc	.Lnull(8),0(%r10)	# test blocklist	
--	jz	.Lchkparm		# end of list?
--	l	%r2,0(%r10)		# get startblock to r2
--	slr	%r4,%r4			# erase r4
--	icm	%r4,1,7(%r10)		# get blockcount
--	slr	%r3,%r3			# get address to r3
--	icm 	%r3,0xe,4(%r10)
--	chi	%r5,0			# still blocks to skip?
--	jz	.Ldoread		# no: start reading
--	cr	%r5,%r4			# #skipblocks >= blockct?
--	jm	.L007			# no: skip the blocks one by one
--.L006:	
--	sr	%r5,%r4			# decrease number of blocks to skip
--	j	.Lkcont			# advance to next entry
--.L007:	
--	ahi	%r2,1			# skip 1 block...
--	bctr    %r4,0                   # update blockct
--	ah	%r3,.Lcountarea+6       # increment address
--	bct	%r5,.L007		# 4 blocks skipped?
--.Ldoread:
--	ltr	%r2,%r2			# test startblock
--	jz	.Lzeroes		# startblocks is zero (hole)
--.Ldiskread:	
--	bras	%r14,.Lreadblks
--	j	.Lkcont
--.Lzeroes:
--	lr	%r2,%r3
--.L001:	slr	%r3,%r3
--	icm	%r3,3,.Lcountarea+6     # get blocksize
--	slr	%r5,%r5			# no bytes to move
--.L008:	mvcle	%r2,%r4,0   		# fill zeroes to storage
--	jo	.L008			# until block is filled
--	brct	%r4,.L001   		# skip to next block
--.Lkcont:	
--	ahi	%r10,8
--	j	.Lkloop
--.Lchkparm:
--	lm	%r3,%r4,.Lstart         # load .Lstart and .Lparm
--	clc	0x0(4,%r4),.Lnull     
--	je	.Lrunkern
--	mvc	0x480(128,%r3),0(%r4)	# move 1k-0x80 to parmarea
--	mvc	0x500(256,%r3),0x80(%r4)
--	mvc	0x600(256,%r3),0x180(%r4)
--	mvc	0x700(256,%r3),0x280(%r4)
--.Lrunkern:
--#	lhi	%r2,17
--#	sll	%r2,12
--#	st	%r1,0xc6c(%r2)		# store iplsubchannel to lowcore
--#	st	%r1,0xc6c		# store iplsubchannel to lowcore
--	br	%r3
--# This function does the start IO
--# r2:	number of first block to read ( input by caller )
--# r3:	address to read data to ( input by caller )
--# r4:	number of blocks to read ( input by caller )
--# r5:	destroyed
--# r6:	blocks per track ( input by caller )
--# r7:	number of heads 
--# r8:	
--# r9:	
--# r10:	
--# r11:	temporary register
--# r12:	local use for base address
--# r13:	base address for module
--# r14:	address of caller for subroutine
--# r15:	temporary save register (since we have no stack)
--.Lreadblks:
--	la	%r12,.Ldeccw     
--	st	%r12,8+.Lorb		# store cpaddr to orb
--	ahi	%r12,0x10		# increment r12 to point to rdccw
--	oi	1(%r12),0x40		# set CC in rd template
--	# first setup the read CCWs
--	lr	%r15,%r4		# save number or blocks
--	slr	%r7,%r7
--	icm	%r7,3,.Lrdcdata+14      # load heads to r7
--	lhi     %r6,9
--	clc     .Lrdcdata+3(2),.L9345
--	je	.L011
--	lhi	%r6,10
--	clc	.Lrdcdata+3(2),.L3380
--	je	.L011
--	lhi	%r6,12
--	clc	.Lrdcdata+3(2),.L3390     
--	je	.L011			
--        bras 	%r14,.Ldisab
--.L011:	
--	# loop for nbl times
--.Lrdloop:	
--	mvc	0(8,%r12),.Lrdccw     	# copy template to this ccw
--	st	%r3,4(%r12)		# store target address to this ccw
--	bct	%r4,.L005		# decrement no of blks still to do
--	ni	1(%r12),0x3f		# delete CC from last ccw
--	lr	%r4,%r15		# restore number of blocks
--	# read CCWs are setup now		
--	stcm	%r4,3,.Llodata+2     	# store blockno to lodata clears r4
--	ar	%r4,%r2			# r4 (clear): ebl = blk + nbl
--	bctr    %r4,0			# decrement r4 ( last blk touched 
--	srda	%r2,32			# trk = blk / bpt, bot = blk % bpt 
--	dr	%r2,%r6			# r3: trk, r2: bot
--	ahi	%r2,1			# bot++ ( we start counting at 1 )
--	stcm	%r2,1,.Llodata+12     	# store bot to lodata
--	xr 	%r2,%r2			# cy  = trk / heads, hd  = trk % heads
--	dr	%r2,%r7			# r3: cy, r2: hd
--	sll	%r3,16			# combine to CCHH in r3
--	or	%r3,%r2
--	st	%r3,.Ldedata+8     	# store cchh to dedata	
--	st	%r3,.Llodata+4     	# store cchh to lodata	
--	st	%r3,.Llodata+8     	# store cchh to lodata	
--	lr	%r15,%r5		# save r5
--	srda	%r4,32			# tr2 = ebl / bpt
--	dr	%r4,%r6			# r5: tr2, r4: bot2
--	xr 	%r4,%r4			# cy2 = tr2 / heads, hd2 = hd2 % heads
--	dr	%r4,%r7			# r5: cy2, r4: hd2 
--	stcm	%r5,3,.Ldedata+12     	# store cy2,hd2 to dedata
--	stcm	%r4,3,.Ldedata+14     	# store cy2,hd2 to dedata
--	lr	%r5,%r15		# restore r5
--	# CCWs are setup now, arent they?
--	bras	%r15,.Lssch		# start I/O
--	br	%r14			# return to caller
--.L005:	
--	ah 	%r3,.Lcountarea+6     	# add blocksize to target address
--	ahi	%r12,8			# add sizeof(ccw) to base address
--	j	.Lrdloop
--# end of function
--# This function does the start IO
--# r1:	Subchannel number
--# r8:	ORB address
--# r9:	IRB address
--.Lssch:
--	lhi     %r13,10			# initialize retries
--.L012:	
--	ssch	.Lorb			# start I/O
--	jz	.Ltpi			# ok?
--	bras	%r14,.Ldisab		# error
--.Ltpi:	
--	lpsw	.Lwaitpsw     		# load wait-PSW
--.Lionewaddr:	
--	c	%r1,0xb8     		# compare to ipl subhchannel
--	jnz	.Ltpi			# not equal: loop
--	clc	0xbc(4),.Lorb 		# cross check the intparm
--	jnz	.Ltpi               	# not equal:	loop 
--	tsch    .Lirb			# get status
--	tm	.Lirb+9,0xff		# channel status ?
--	jz	.L003			# CS == 0x00
--	bras	%r14,.Ldisab		# error
--.L003:
--	tm	.Lirb+8,0xf3		# DS different from CE/DE
--	jz	.L004			# ok ?
--	bct	%r13,.L012		# retries <= 5 ?
--	bras	%r14,.Ldisab		# error
--.L004:
--	tm	.Lirb+8,0x04		# DE set?
--	jz	.Ltpi			# DE not set, loop
--.Lsschend:
--	br	%r15			# return to caller
--# end of function
--# In case of error goto disabled wait with %r14 containing the caller
--.Ldisab:
--	st	%r14,.Ldisabpsw+4     
--	lpsw	.Ldisabpsw     
--
--# FIXME pre-initialized data should be listed first
--# NULLed storage can be taken from anywhere ;) 
--.Lblklst:	
--	.long   0x00002000     
--	.align 8
--.Ldisabpsw: 
--	.long 0x000a0000,0x00000000
--.Lwaitpsw:
--	.long 0x020a0000,0x00000000+.Ltpi
--.Lorb:	
--	.long 0x0049504c,0x0080ff00	# intparm is " IPL"
--.Lc6:	.long 0xff000000
--.Lstart:
--	.long	0x00010000              # do not separate .Lstart and .Lparm
--.Lparm:	
--	.long	0x00008000              # they are loaded with a LM
--.L3390:
--	.word 	0x3390
--.L9345:
--	.word	0x9345
--.L3380:
--	.word	0x3380
--.Lnull:	
--	.long 0x00000000,0x00000000
--	.align 4
--.Lrdcdata:
--	.long 0x00000000,0x00000000
--	.long 0x00000000,0x00000000
--	.long 0x00000000,0x00000000
--	.long 0x00000000,0x00000000
--	.long 0x00000000,0x00000000
--	.long 0x00000000,0x00000000
--	.long 0x00000000,0x00000000
--	.long 0x00000000,0x00000000
--.Lirb:
--	.long 0x00000000,0x00000000
--	.long 0x00000000,0x00000000
--	.long 0x00000000,0x00000000
--	.long 0x00000000,0x00000000
--	.long 0x00000000,0x00000000
--	.long 0x00000000,0x00000000
--	.long 0x00000000,0x00000000
--	.long 0x00000000,0x00000000
--.Lcountarea:	
--	.word 0x0000			# cyl;
--	.word 0x0000			# head;
--	.byte 0x00			# record;
--	.byte 0x00			# key length;
--	.word 0x0000			# data length == blocksize;
--.Ldedata:
--	.long 0x40c00000,0x00000000
--	.long 0x00000000,0x00000000
--.Llodata:
--	.long 0x06000001,0x00000000
--	.long 0x00000000,0x01000000
--	.long 0x12345678
--	.org 0x7c8
--.Lrdcccw:				# CCW read device characteristics
--	.long 0x64400040,0x00000000+.Lrdcdata
--	.long 0x63400010,0x00000000+.Ldedata
--	.long 0x47400010,0x00000000+.Llodata
--	.long 0x12000008,0x00000000+.Lcountarea
--.Ldeccw:
--	.long 0x63400010,0x00000000+.Ldedata
--.Lloccw:
--	.long 0x47400010,0x00000000+.Llodata
--.Lrdccw:	
--	.long 0x86400000,0x00000000
--	.org 0x800
--# end of pre initialized data is here CCWarea follows
--# from here we load 1k blocklist 
--# end of function
--
-diff -urN linux-2.6/arch/s390/boot/iplfba.S linux-2.6-s390/arch/s390/boot/iplfba.S
---- linux-2.6/arch/s390/boot/iplfba.S	Mon Sep  8 21:49:51 2003
-+++ linux-2.6-s390/arch/s390/boot/iplfba.S	Thu Jan  1 01:00:00 1970
-@@ -1,131 +0,0 @@
--#
--#  Ipl block for fba devices
--#    Copyright (C) 1998 IBM Corporation
--#    Author(s): Martin Schwidefsky
--#
--#  startup for ipl at address 0
--#  start with restart
--
--# The first 24 byes are loaded by ipl to addresses 0-23 (a PSW and two CCWs).
--# The CCWs on 8-23 are used as a continuation of the implicit ipl channel
--# program. The fba ipl loader only uses the CCW on 8-15 to load the first 512
--# byte block to location 0-511 (the reading starts again at block 0, byte 0).
--# The second CCW is used to store the location of the load list.
--        .org   0
--        .long  0x00080000,0x80000000+_start    # The first 24 byte are loaded
--        .long  0x02000000,0x20000200           # by ipl to addresses 0-23.
--        .long  0x00000001,0x00000001           # (PSW, one CCW & loadlist info).
--
--        .globl _start
--_start:
--	basr  %r13,0
--.LPG0:	
--	l     %r1,0xb8                         # load ipl subchannel number
--        lhi   %r2,0x200                        # location for the loadlist
--        lm    %r3,%r4,0x10                     # blocknr and length of loadlist
--        bras  %r14,.Lloader                    # load loadlist
--
--        lhi   %r11,0x400
--        lhi   %r12,0x200                       # load address of loadlist
--        l     %r3,0(%r12)                      # get first block number
--        l     %r4,4(%r12)                      # get first block count
--        la    %r12,8(%r12)
--        j     .Llistloop
--        .org  0x50
--.Llistloop:
--        lr    %r2,%r11                         # load address
--        lr    %r5,%r4                          # block count
--        mhi   %r5,512
--        la    %r11,0(%r5,%r11)                 # update load address
--        bras  %r14,.Lloader                    # load chunk of the image
--        l     %r3,0(%r12)                      # get next block number
--        icm   %r4,15,4(%r12)                   # get next block count
--        la    %r12,8(%r12)
--        jnz   .Llistloop
--
--#
--# everything loaded, go for it
--#
--        l     %r1,.Lstart-.LPG0(%r13)
--	br    %r1
--
--#
--# subroutine for loading a sequence of block from fba
--# %r2: load address (24 bit address)
--# %r3: number of first block (unsigned long)
--# %r4: number of blocks to load (unsigned short)
--#
--        .org  0xC0
--.Lloader:
--        la    %r5,.Llo-.LPG0(%r13)
--        sth   %r4,2(%r5)                       # initialize block count
--        st    %r3,4(%r5)                       # initialize block number
--        la    %r5,.Lccws-.LPG0(%r13)
--        mhi   %r4,512
--        sth   %r4,22(%r5)                      # initialize byte count
--	icm   %r2,8,16(%r5)
--        st    %r2,16(%r5)                      # initialize CCW data address
--
--        slr   %r2,%r2
--        la    %r3,.Lorb-.LPG0(%r13)            # r2 = address of orb into r2
--        la    %r4,.Ltinfo-.LPG0(%r13)          # r3 = address of tpi info block
--        la    %r5,.Lirb-.LPG0(%r13)            # r4 = address of irb
--
--        lctl  %c6,%c6,.Lc6-.LPG0(%r13)
--.Lldlp:
--        ssch  0(%r3)                           # read blocks
--.Ltpi:
--        tpi   0(%r4)                           # test pending interrupt
--        jz    .Ltpi
--        c     %r1,0(%r4)                       # compare subchannel number
--        jne   .Ltpi
--        tsch  0(%r5)
--        slr   %r0,%r0
--        tm    8(%r5),0x82                      # do we have a problem ?
--        jnz   .Ldwpsw
--        tm    8(%r5),0x04                      # got device end ?
--        jz    .Ltpi
--.Lexit:
--        br    %r14
--
--        .align 8
--.Ldwpsw:.long  0x000a0000,0x00000000
--.Lorb:	.long  0x00000000,0x0000ff00,.Lccws
--.Ltinfo:.long  0
--.Lirb:	.long  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
--.Lc6:   .long  0xff000000
--.Lloadp:.long  0,0
--.Lparm:	.long  0x10400
--.Lstart:.long  0x10000
--        .align 8
--.Lccws: .long  0x63000000+.Lde,0x60000010      # define extent
--        .long  0x43000000+.Llo,0x60000008      # locate
--# offset 1 in read CCW: data address (24 bit)
--# offset 6 in read CCW: number of bytes (16 bit)
--        .long  0x42000000,0x20000000           # read
--.Lde:   .long  0x40000200,0x00000000
--        .long  0x00000000,0x00001000
--# offset 2 in .Llo: block count (unsigned short)
--# offset 4 in .Llo: block number (unsigned long)
--.Llo:   .long  0x06000000,0x00000000
--
--        .org   0x200
--        .long  0x00000002,0x0000007f
--        .long  0x00000081,0x0000007f
--        .long  0x00000100,0x0000007f
--        .long  0x0000017f,0x0000007f
--        .long  0x000001fe,0x0000007f
--        .long  0x0000027d,0x0000007f
--        .long  0x000002fc,0x0000007f
--        .long  0x0000037b,0x0000007f
--        .long  0x000003fa,0x0000007f
--        .long  0x00000479,0x0000007f
--        .long  0x000004f8,0x0000007f
--        .long  0x00000577,0x0000007f
--        .long  0x000005f6,0x0000007f
--        .long  0x00000675,0x0000007f
--        .long  0x000006f4,0x0000007f
--        .long  0x00000773,0x0000003f
--        .long  0x00000000,0x00000000
--        .org   0x400
--
+diff -urN linux-2.6/arch/s390/kernel/compat_ioctl.c linux-2.6-s390/arch/s390/kernel/compat_ioctl.c
+--- linux-2.6/arch/s390/kernel/compat_ioctl.c	Mon Sep  8 21:50:12 2003
++++ linux-2.6-s390/arch/s390/kernel/compat_ioctl.c	Thu Sep 25 18:33:23 2003
+@@ -23,6 +23,7 @@
+ #include <asm/types.h>
+ #include <asm/uaccess.h>
+ 
++#include <linux/blkdev.h>
+ #include <linux/blkpg.h>
+ #include <linux/cdrom.h>
+ #include <linux/dm-ioctl.h>
+diff -urN linux-2.6/arch/s390/kernel/compat_linux.c linux-2.6-s390/arch/s390/kernel/compat_linux.c
+--- linux-2.6/arch/s390/kernel/compat_linux.c	Thu Sep 25 18:33:02 2003
++++ linux-2.6-s390/arch/s390/kernel/compat_linux.c	Thu Sep 25 18:33:23 2003
+@@ -1554,7 +1554,11 @@
+         u32 totalswap;
+         u32 freeswap;
+         unsigned short procs;
+-        char _f[22];
++	unsigned short pads;
++	u32 totalhigh;
++	u32 freehigh;
++	unsigned int mem_unit;
++        char _f[8];
+ };
+ 
+ extern asmlinkage int sys_sysinfo(struct sysinfo *info);
+@@ -1579,6 +1583,9 @@
+ 	err |= __put_user (s.totalswap, &info->totalswap);
+ 	err |= __put_user (s.freeswap, &info->freeswap);
+ 	err |= __put_user (s.procs, &info->procs);
++	err |= __put_user (s.totalhigh, &info->totalhigh);
++	err |= __put_user (s.freehigh, &info->freehigh);
++	err |= __put_user (s.mem_unit, &info->mem_unit);
+ 	if (err)
+ 		return -EFAULT;
+ 	return ret;
+@@ -2581,10 +2588,10 @@
+ 	tmp.__st_ino = (u32)stat->ino;
+ 	tmp.st_mode = stat->mode;
+ 	tmp.st_nlink = (unsigned int)stat->nlink;
+-	tmp.uid = stat->uid;
+-	tmp.gid = stat->gid;
++	tmp.st_uid = stat->uid;
++	tmp.st_gid = stat->gid;
+ 	tmp.st_rdev = huge_encode_dev(stat->rdev);
+-	tmp.st_size = stat->st_size;
++	tmp.st_size = stat->size;
+ 	tmp.st_blksize = (u32)stat->blksize;
+ 	tmp.st_blocks = (u32)stat->blocks;
+ 	tmp.st_atime = (u32)stat->atime.tv_sec;
+@@ -2773,7 +2780,6 @@
+ {
+         unsigned long clone_flags;
+         unsigned long newsp;
+-	struct task_struct *p;
+ 	int *parent_tidptr, *child_tidptr;
+ 
+         clone_flags = regs.gprs[3] & 0xffffffffUL;
+@@ -2782,7 +2788,8 @@
+ 	child_tidptr = (int *) (regs.gprs[5] & 0x7fffffffUL);
+         if (!newsp)
+                 newsp = regs.gprs[15];
+-        p = do_fork(clone_flags & ~CLONE_IDLETASK, newsp, &regs, 0,
+-		    parent_tidptr, child_tidptr);
+-	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
++        return do_fork(clone_flags & ~CLONE_IDLETASK, newsp, &regs, 0,
++		       parent_tidptr, child_tidptr);
+ }
++
++
+diff -urN linux-2.6/arch/s390/kernel/compat_signal.c linux-2.6-s390/arch/s390/kernel/compat_signal.c
+--- linux-2.6/arch/s390/kernel/compat_signal.c	Mon Sep  8 21:50:28 2003
++++ linux-2.6-s390/arch/s390/kernel/compat_signal.c	Thu Sep 25 18:33:23 2003
+@@ -563,6 +563,10 @@
+ 	if (regs->trap == __LC_SVC_OLD_PSW) {
+ 		/* If so, check system call restarting.. */
+ 		switch (regs->gprs[2]) {
++			case -ERESTART_RESTARTBLOCK:
++				current_thread_info()->restart_block.fn =
++					do_no_restart_syscall;
++				clear_thread_flag(TIF_RESTART_SVC);
+ 			case -ERESTARTNOHAND:
+ 				regs->gprs[2] = -EINTR;
+ 				break;
+diff -urN linux-2.6/arch/s390/kernel/ptrace.c linux-2.6-s390/arch/s390/kernel/ptrace.c
+--- linux-2.6/arch/s390/kernel/ptrace.c	Mon Sep  8 21:50:24 2003
++++ linux-2.6-s390/arch/s390/kernel/ptrace.c	Thu Sep 25 18:33:23 2003
+@@ -321,9 +321,18 @@
+ 			/* Fake a 31 bit psw address. */
+ 			tmp = (__u32) __KSTK_PTREGS(child)->psw.addr |
+ 				PSW32_ADDR_AMODE31;
+-		} else
++		} else if (addr < (addr_t) &dummy32->regs.acrs[0]) {
++			/* gpr 0-15 */
+ 			tmp = *(__u32 *)((addr_t) __KSTK_PTREGS(child) + 
+ 					 addr*2 + 4);
++		} else if (addr < (addr_t) &dummy32->regs.orig_gpr2) {
++			offset = PT_ACR0 + addr - (addr_t) &dummy32->regs.acrs;
++			tmp = *(__u32*)((addr_t) __KSTK_PTREGS(child) + offset);
++		} else {
++			/* orig gpr 2 */
++			offset = PT_ORIGGPR2 + 4;
++			tmp = *(__u32*)((addr_t) __KSTK_PTREGS(child) + offset);
++		}
+ 	} else if (addr >= (addr_t) &dummy32->regs.fp_regs &&
+ 		   addr < (addr_t) (&dummy32->regs.fp_regs + 1)) {
+ 		/*
+@@ -387,9 +396,17 @@
+ 			/* Build a 64 bit psw address from 31 bit address. */
+ 			__KSTK_PTREGS(child)->psw.addr = 
+ 				(__u64) tmp & PSW32_ADDR_INSN;
+-		} else
++		} else if (addr < (addr_t) &dummy32->regs.acrs[0]) {
++			/* gpr 0-15 */
+ 			*(__u32*)((addr_t) __KSTK_PTREGS(child) + addr*2 + 4) =
+ 				tmp;
++		} else if (addr < (addr_t) &dummy32->regs.orig_gpr2) {
++			offset = PT_ACR0 + addr - (addr_t) &dummy32->regs.acrs;
++			*(__u32*)((addr_t) __KSTK_PTREGS(child) + offset) = tmp;
++		} else {
++			offset = PT_ORIGGPR2 + 4;
++			*(__u32*)((addr_t) __KSTK_PTREGS(child) + offset) = tmp;
++		}
+ 	} else if (addr >= (addr_t) &dummy32->regs.fp_regs &&
+ 		   addr < (addr_t) (&dummy32->regs.fp_regs + 1)) {
+ 		/*

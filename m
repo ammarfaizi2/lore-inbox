@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbTFOMyN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 08:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbTFOMyN
+	id S262197AbTFONFl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 09:05:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbTFONFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 08:54:13 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:18191 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262192AbTFOMyM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 08:54:12 -0400
-Date: Sun, 15 Jun 2003 14:07:58 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: torvalds@transmeta.com
-Cc: mochel@osdl.org, david-b@pacbell.net, linux-kernel@vger.kernel.org
-Subject: GFDL in the kernel tree
-Message-ID: <20030615140758.A9390@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	torvalds@transmeta.com, mochel@osdl.org, david-b@pacbell.net,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Sun, 15 Jun 2003 09:05:41 -0400
+Received: from clem.clem-digital.net ([68.16.168.10]:23054 "EHLO
+	clem.clem-digital.net") by vger.kernel.org with ESMTP
+	id S262197AbTFONFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 09:05:40 -0400
+From: Pete Clements <clem@clem.clem-digital.net>
+Message-Id: <200306151319.JAA04754@clem.clem-digital.net>
+Subject: Re: 2.5.71 -- Lost second 3c509 card
+In-Reply-To: <200306150153.VAA25928@clem.clem-digital.net> from Pete Clements at "Jun 14, 2003  9:53:34 pm"
+To: linux-kernel@vger.kernel.org (linux-kernel)
+Date: Sun, 15 Jun 2003 09:19:29 -0400 (EDT)
+X-Mailer: ELM [version 2.4ME+ PL48 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.71 introduces two GFDL-licensed files in the kernel tree, there's
-a few problems with this, because:
 
-(1) COPYING in the toplevel says the kernel tree is GPLv2, GFDL is
-    GPL incompatible.
-(2) Documentation/DocBook/gadget.tmpl, one of the files, includes
-    extracted from source files licensed under GPL, making this
-    a GPL license violation.
-(3) Documentation/kobject.txt, the other files claims it's under
-    GFDL but doesn't actually include the license text as mandated
-    by the GFDL.
+  > With 2.5.71, have lost second 3c509 card (i386 UP). 
+  > 
+  > >From kernel boot log with 2.5.71 get
+  >    eth%%d: 3c5x9 at 0x300, BNC port, address  00 20 af 26 bf 2c, IRQ 10.
+  > 
+  > >From kernel boot log with 2.5.70 get
+  >    eth0: 3c5x9 at 0x300, BNC port, address  00 20 af 26 bf 2c, IRQ 10.
+  >    eth1: 3c5x9 at 0x310, 10baseT port, address  00 60 08 15 31 84, IRQ 9.
+  > 
+  > Checking on a single card system (SMP), the 
+  > eth%%d: indication was introduced with 2.5.70-bk10.
 
-And of course there's still all those nasty issue with GFDL like
-invariant sections and cover texts that make at least the debian-devel
-list believe it's an unfree license..
-
-Folks, could we please only use GPL-compatible licenses in the kernel
-tree?
+As a followup, reverted the 3c509 bk10 changes. Back in business
+with 2.5.71.
+-- 
+Pete Clements 
+clem@clem.clem-digital.net

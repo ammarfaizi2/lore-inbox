@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262040AbSLPXIo>; Mon, 16 Dec 2002 18:08:44 -0500
+	id <S262266AbSLPXJ1>; Mon, 16 Dec 2002 18:09:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262214AbSLPXIn>; Mon, 16 Dec 2002 18:08:43 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51719 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262040AbSLPXIl>; Mon, 16 Dec 2002 18:08:41 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: How to do -nostdinc?
-Date: 16 Dec 2002 15:16:18 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <atlms2$sb4$1@cesium.transmeta.com>
-References: <20021216182919.GA1607@mars.ravnborg.org> <20218.1040073993@ocs3.intra.ocs.com.au>
+	id <S262296AbSLPXJ1>; Mon, 16 Dec 2002 18:09:27 -0500
+Received: from CPE-203-51-35-111.nsw.bigpond.net.au ([203.51.35.111]:36336
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S262266AbSLPXJY>; Mon, 16 Dec 2002 18:09:24 -0500
+Message-ID: <3DFE5EFC.FC7CF213@eyal.emu.id.au>
+Date: Tue, 17 Dec 2002 10:17:16 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-ac1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+To: linux-kernel@vger.kernel.org
+Subject: Re: rmap and nvidia?
+References: <3DFE522A.6010803@superonline.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20218.1040073993@ocs3.intra.ocs.com.au>
-By author:    Keith Owens <kaos@ocs.com.au>
-In newsgroup: linux.dev.kernel
+"O.Sezer" wrote:
 > 
-> Does gcc still mark -iwithprefix as deprecated?  If it does then do not
-> rely on it and use (1a).  If gcc will support -iwithprefix then use (2).
-> 
+> Is this patch correct in any way?
+> (Ripped out of the 2.5 patch and modified some).
 
-If they do, let's apply a cluebat and explain to them that there is no
-acceptable substitute for many nonhosted applications, not just the
-Linux kernel.
+The equivalent minimal patch for nv.c in 2.4 will then be:
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+--- modules/nvidia/NVIDIA_kernel/nv.c.orig      Tue Dec 10 07:27:15 2002
++++ modules/nvidia/NVIDIA_kernel/nv.c   Tue Dec 17 10:07:37 2002
+@@ -2247,7 +2247,13 @@
+     pte_kunmap(pte__);
+ #else
+     pte__ = NULL;
++#ifdef pte_offset
+     pte = *pte_offset(pg_mid_dir, address);
++#else	/* rmap-vm */
++    pte__ = pte_offset_map(pg_mid_dir, address);
++    pte = *pte__;
++    pte_unmap(pte__);
++#endif
+ #endif
+
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262142AbVC2Bsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262143AbVC2Bvz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262142AbVC2Bsr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 20:48:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbVC2Bsr
+	id S262143AbVC2Bvz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 20:51:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbVC2Bvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 20:48:47 -0500
-Received: from fire.osdl.org ([65.172.181.4]:57002 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262142AbVC2Bsn (ORCPT
+	Mon, 28 Mar 2005 20:51:55 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:4522 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262143AbVC2Bvi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 20:48:43 -0500
-Date: Mon, 28 Mar 2005 17:48:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org,
-       ebiederm@xmission.com
-Subject: Re: [RFC/PATCH 0/17][Kdump] Overview
-Message-Id: <20050328174827.414a90a9.akpm@osdl.org>
-In-Reply-To: <1112016341.4001.71.camel@localhost.localdomain>
-References: <1112016341.4001.71.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Mar 2005 20:51:38 -0500
+Date: Mon, 28 Mar 2005 17:50:21 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Pavel Machek <pavel@ucw.cz>
+cc: Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prezeroing V8
+In-Reply-To: <20050325014411.GA7698@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0503281745290.7531@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503171340480.9678@schroedinger.engr.sgi.com>
+ <20050325014411.GA7698@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> wrote:
+On Fri, 25 Mar 2005, Pavel Machek wrote:
+
+> > +unsigned int sysctl_scrub_start = 100;	/* Min percentage of zeroed free pages per zone (~10% default) */
+> > +unsigned int sysctl_scrub_stop = 300;	/* Max percentage of zeroed free pages per zone (~30% default) */
+> > +unsigned int sysctl_scrub_load = 1;	/* Do not run scrubd if load > */
+> Perhaps that variable should be called sysctl_scrub*d*_load?
+
+Hmm. Ok they are all now _scrubd_ instead..
+
+> > +	Scrubd is woken up if the system load is lower than this setting and
+> > +	the numer of unzeroed free pages drops below scrub_start*10 percent.
+> > +	The default setting of 1 insures that there will be no performance
+> > +	degradation in single user mode. In an SMP system a cpu is frequently
+> > +	idle despite the load being high. A setting of 9 or 99 may
+> > +	be useful then.
 >
->  Following patches (as in series file) need to be dropped before applying
->  the fresh ones.
-> 
->  crashdump-documentation.patch
->  crashdump-memory-preserving-reboot-using-kexec.patch
->  crashdump-routines-for-copying-dump-pages.patch
->  crashdump-routines-for-copying-dump-pages-fixes.patch
->  crashdump-elf-format-dump-file-access.patch
->  crashdump-linear-raw-format-dump-file-access.patch
->  crashdump-linear-raw-format-dump-file-access-coding-style.patch
+> I don't think 1 guarantees no performance degradation. After all, it
+> is average load and scrubd might run at just the wrong times. Perhaps
+> it should default to 0?
 
-At some point we should stop tossing out patches and replacing them in this
-manner.
-
-Because doing so makes it hard for people to see what has changed.  
-
-It makes it hard for people to see that changes in the above patches
-haven't been simply lost.
-
-And the fact that you were probably working against some kernel other than
--mm gives little confidence that the kdump development team have been
-testing the patches which are presently in -mm.  And that is what they are
-there for.
-
+Correct. Changed the wording. Not sure about setting it to zero since its
+an experimental feature set to off by default. If one enables scrubd then
+the presumably something should be happening.
 

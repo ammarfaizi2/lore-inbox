@@ -1,161 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262275AbVBXMJ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbVBXMN2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbVBXMJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 07:09:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVBXMJ0
+	id S262283AbVBXMN2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 07:13:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVBXMN2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 07:09:26 -0500
-Received: from fire.yars.free.net ([193.233.48.99]:64458 "EHLO fire.netis.ru")
-	by vger.kernel.org with ESMTP id S262275AbVBXMIM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 07:08:12 -0500
-Date: Thu, 24 Feb 2005 15:07:41 +0300
-From: "Alexander V. Lukyanov" <lav@netis.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.10] cdc-acm.c patches
-Message-ID: <20050224120741.GA4639@night.netis.priv>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="qDbXVdCdHGoSgWSk"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
-X-NETIS-MailScanner-Information: Please contact NETIS Telecom for more information <info@netis.ru> (+7 0852 797709)
-X-NETIS-MailScanner: Found to be clean
-X-NETIS-MailScanner-SpamCheck: not spam, SpamAssassin (score=-3.059,
-	required 6, autolearn=not spam, ALL_TRUSTED -1.00, AWL 0.54,
-	BAYES_00 -2.60)
-X-MailScanner-From: lav@night.yars.free.net
+	Thu, 24 Feb 2005 07:13:28 -0500
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:51324 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262283AbVBXMNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 07:13:21 -0500
+Message-ID: <421DC4DA.7000102@yahoo.com.au>
+Date: Thu, 24 Feb 2005 23:13:14 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10/13] remove aggressive idle balancing
+References: <1109229362.5177.67.camel@npiggin-nld.site> <1109229415.5177.68.camel@npiggin-nld.site> <1109229491.5177.71.camel@npiggin-nld.site> <1109229542.5177.73.camel@npiggin-nld.site> <1109229650.5177.78.camel@npiggin-nld.site> <1109229700.5177.79.camel@npiggin-nld.site> <1109229760.5177.81.camel@npiggin-nld.site> <1109229867.5177.84.camel@npiggin-nld.site> <1109229935.5177.85.camel@npiggin-nld.site> <1109230031.5177.87.camel@npiggin-nld.site> <20050224084118.GB10023@elte.hu>
+In-Reply-To: <20050224084118.GB10023@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+> 
+>> [PATCH 6/13] no aggressive idle balancing
+>>
+>> [PATCH 8/13] generalised CPU load averaging
+>> [PATCH 9/13] less affine wakups
+>> [PATCH 10/13] remove aggressive idle balancing
+> 
+> 
+> they look fine, but these are the really scary ones :-) Maybe we could
+> do #8 and #9 first, then #6+#10. But it's probably pointless to look at
+> these in isolation.
+> 
 
---qDbXVdCdHGoSgWSk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Oh yes, they are very scary and I guarantee they'll cause
+problems :P
 
-Hello!
+I didn't have any plans to get these in for 2.6.12 (2.6.13 at the
+very earliest). But it will be nice if Andrew can pick these up
+early so we try to get as much regression testing as possible.
 
-I have ZyXEL UNO modem which has usb acm interface. Starting with kernel
-version 2.6.8 the driver cdc-acm began to hand when the modem connection
-was dropped due to being idle. After the hang, no data could be read from
-the device /dev/usb/ttyACM0, but writting was ok. The led "data" was lit
-on the modem all the time after the disconnect (which indicates that modem
-has data to be read).
+I pretty much agree with your ealier breakdown of the patches (ie.
+some are fixes, others fairly straightfoward improvements that may
+get into 2.6.12, of course). Thanks very much for the review.
 
-I tracked down the problem to this: acm_read_bulk was called from
-usb_submit_urb(acm->readurb), _inside_ acm_tty_open, and that time acm->used
-was 0 which led to acm_rx_tasklet being not called, and acm_read_bulk was
-never called again.
+I expect to rework the patches, and things will get tuned and
+changed around a bit... Any problem with you taking these now
+though Andrew?
 
-The problem was caused by patch in 2.6.8, which moved incrementing of
-acm->used to bottom of acm_tty_open. My patch to fix it is attached.
+Nick
 
-When debugging the problem I noticed that debug messages sometimes have
-double \n and the second one is not KERN_DEBUG level, which causes it to
-be emitted to display. A second patch to normalize newlines in debug
-output is attached.
 
--- 
-   Alexander.
---qDbXVdCdHGoSgWSk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="cdc-acm-hang-fix.diff"
-
---- linux-2.6.10/drivers/usb/class/cdc-acm.c.orig	Thu Feb 24 15:02:29 2005
-+++ linux-2.6.10/drivers/usb/class/cdc-acm.c	Thu Feb 24 15:02:36 2005
-@@ -272,7 +272,7 @@ static int acm_tty_open(struct tty_struc
- 
-         down(&open_sem);
- 
--	if (acm->used) {
-+	if (acm->used++) {
- 		goto done;
-         }
- 
-@@ -296,7 +296,6 @@ static int acm_tty_open(struct tty_struc
- 	tty->low_latency = 1;
- 
- done:
--	acm->used++;
- 	up(&open_sem);
- 	return 0;
- 
-@@ -305,6 +304,7 @@ full_bailout:
- bail_out_and_unlink:
- 	usb_kill_urb(acm->ctrlurb);
- bail_out:
-+	acm->used--;
- 	up(&open_sem);
- 	return -EIO;
- }
-
---qDbXVdCdHGoSgWSk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="cdc-acm-dbg-fix.diff"
-
---- linux-2.6.10/drivers/usb/class/cdc-acm.c.orig1	Thu Feb 24 15:02:41 2005
-+++ linux-2.6.10/drivers/usb/class/cdc-acm.c	Thu Feb 24 15:03:41 2005
-@@ -175,7 +175,7 @@ exit:
- static void acm_read_bulk(struct urb *urb, struct pt_regs *regs)
- {
- 	struct acm *acm = urb->context;
--	dbg("Entering acm_read_bulk with status %d\n", urb->status);
-+	dbg("Entering acm_read_bulk with status %d", urb->status);
- 
- 	if (!ACM_READY(acm))
- 		return;
-@@ -232,7 +232,7 @@ static void acm_rx_tasklet(unsigned long
- static void acm_write_bulk(struct urb *urb, struct pt_regs *regs)
- {
- 	struct acm *acm = (struct acm *)urb->context;
--	dbg("Entering acm_write_bulk with status %d\n", urb->status);
-+	dbg("Entering acm_write_bulk with status %d", urb->status);
- 
- 	if (!ACM_READY(acm))
- 		goto out;
-@@ -248,7 +248,7 @@ out:
- static void acm_softint(void *private)
- {
- 	struct acm *acm = private;
--	dbg("Entering acm_softint.\n");
-+	dbg("Entering acm_softint.");
- 	
- 	if (!ACM_READY(acm))
- 		return;
-@@ -262,7 +262,7 @@ static void acm_softint(void *private)
- static int acm_tty_open(struct tty_struct *tty, struct file *filp)
- {
- 	struct acm *acm = acm_table[tty->index];
--	dbg("Entering acm_tty_open.\n");
-+	dbg("Entering acm_tty_open.");
- 
- 	if (!acm || !acm->dev)
- 		return -EINVAL;
-@@ -339,7 +339,7 @@ static int acm_tty_write(struct tty_stru
- {
- 	struct acm *acm = tty->driver_data;
- 	int stat;
--	dbg("Entering acm_tty_write to write %d bytes,\n", count);
-+	dbg("Entering acm_tty_write to write %d bytes,", count);
- 
- 	if (!ACM_READY(acm))
- 		return -EINVAL;
-@@ -352,7 +352,7 @@ static int acm_tty_write(struct tty_stru
- 
- 	dbg("Get %d bytes...", count);
- 	memcpy(acm->write_buffer, buf, count);
--	dbg("  Successfully copied.\n");
-+	dbg("  Successfully copied.");
- 
- 	acm->writeurb->transfer_buffer_length = count;
- 	acm->writeurb->dev = acm->dev;
-@@ -540,7 +540,7 @@ static int acm_probe (struct usb_interfa
- 
- 	if (!buflen) {
- 		if (intf->cur_altsetting->endpoint->extralen && intf->cur_altsetting->endpoint->extra) {
--			dev_dbg(&intf->dev,"Seeking extra descriptors on endpoint");
-+			dev_dbg(&intf->dev,"Seeking extra descriptors on endpoint\n");
- 			buflen = intf->cur_altsetting->endpoint->extralen;
- 			buffer = intf->cur_altsetting->endpoint->extra;
- 		} else {
-
---qDbXVdCdHGoSgWSk--

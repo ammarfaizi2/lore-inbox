@@ -1,32 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUGGOfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265170AbUGGOqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbUGGOfu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 10:35:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbUGGOfu
+	id S265170AbUGGOqi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 10:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265181AbUGGOqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 10:35:50 -0400
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:4078 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S265161AbUGGOfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 10:35:40 -0400
-Date: Wed, 7 Jul 2004 16:35:35 +0200
-From: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Address space for user process
-Message-Id: <20040707163535.02323a8f.Christoph.Pleger@uni-dortmund.de>
-Organization: Universitaet Dortmund
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; sparc-sun-solaris2.6)
+	Wed, 7 Jul 2004 10:46:38 -0400
+Received: from outmx006.isp.belgacom.be ([195.238.2.99]:16336 "EHLO
+	outmx006.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S265170AbUGGOqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 10:46:37 -0400
+Subject: [PATCHSET 2.6.7-rc2-ff3] Kernel webconfig
+From: FabF <fabian.frederick@skynet.be>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1089211577.3692.46.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 07 Jul 2004 16:46:17 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Roman,
 
-I read that - at least in Kernel 2.4 - the amount of memory that can be
-addressed by a user process is limited to 3 GB, no matter how much
-virtual memory is present. Is it possible to raise that limit?
+	Here's webconfig patchset #3 with 2 screenshots.It's almost read/only
+ok.Could you tell me if it's taking the right direction this time ?
 
-Kind regards
-  Christoph
+http://fabian.unixtech.be/kernel/webconfig/
+
+Regards,
+FabF
+

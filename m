@@ -1,121 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267374AbUIJMff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267381AbUIJMgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267374AbUIJMff (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 08:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267381AbUIJMff
+	id S267381AbUIJMgT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 08:36:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267387AbUIJMgT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 08:35:35 -0400
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:46806 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id S267374AbUIJMfR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 08:35:17 -0400
-Message-ID: <41419F82.10109@sun.com>
-Date: Fri, 10 Sep 2004 13:35:14 +0100
-From: Brian Somers <brian.somers@sun.com>
-Organization: Sun Microsystems
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.4) Gecko/20040414
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: Michael.Waychison@sun.com, linux-kernel@vger.kernel.org
-Subject: Re: TG3 doesn't work in kernel 2.4.27 (David S. Miller)
-References: <20040816110000.1120.31256.Mailman@lists.us.dell.com>	<200408162049.FFF09413.8592816B@anet.ne.jp>	<20040816143824.15238e42.davem@redhat.com>	<412CD101.4050406@sun.com>	<20040825120831.55a20c57.davem@redhat.com>	<412CF0E9.2010903@sun.com>	<20040825175805.6807014c.davem@redhat.com>	<412DC055.4070401@sun.com> <20040826123730.375ce5d2.davem@redhat.com>
-In-Reply-To: <20040826123730.375ce5d2.davem@redhat.com>
-Content-Type: multipart/mixed;
- boundary="------------070401040809010209020802"
+	Fri, 10 Sep 2004 08:36:19 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3848 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S267381AbUIJMft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 08:35:49 -0400
+Date: Fri, 10 Sep 2004 13:35:45 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: seems to be impossible to disable CONFIG_SERIAL [2.6.7]
+Message-ID: <20040910133545.E22599@flint.arm.linux.org.uk>
+Mail-Followup-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+	linux-kernel@vger.kernel.org
+References: <20040910110819.GE14060@lkcl.net> <20040910120950.D22599@flint.arm.linux.org.uk> <20040910122059.GG14060@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040910122059.GG14060@lkcl.net>; from lkcl@lkcl.net on Fri, Sep 10, 2004 at 01:20:59PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070401040809010209020802
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-David S. Miller wrote:
-> On Thu, 26 Aug 2004 11:49:57 +0100
-> Brian Somers <brian.somers@sun.com> wrote:
+On Fri, Sep 10, 2004 at 01:20:59PM +0100, Luke Kenneth Casson Leighton wrote:
+> On Fri, Sep 10, 2004 at 12:09:50PM +0100, Russell King wrote:
+> > On Fri, Sep 10, 2004 at 12:08:19PM +0100, Luke Kenneth Casson Leighton wrote:
+> > > hi,
+> > > 
+> > > has anyone noticed that it's impossible (without hacking) to remove
+> > > CONFIG_SERIAL?
+> > > 
+> > > remove the entries or set all SERIAL config entries to "n"...
+> > > hit make...
+> > > CONFIG_SERIAL_8250 gets set to "m", CONFIG_SERIAL gets set to "y"!
+> > > 
+> > > seeerrrriiialllll muuuusssstttt dieeeeeee kill kill kill.
+> > 
+> > No idea - you've given very little information to go on.  I doubt
+> > you're building an x86 kernel... Mind giving some clues and maybe
+> > a copy of your .config file?
+>  
+>  x86 kernel, debian default config with legacy stuff like
 > 
-> 
->>Can we get this guy to try running an older version of tg3 to see
->>what change introduce the issue?
-> 
-> 
-> Brian, we already narrowed it down to exactly the hw autoneg
-> changes Sun wrote.  It breaks the IBM blades onboard 5704
-> fibre chips.  Reverting your change or disabling hw autoneg
-> in the new code both fix the problem.
+>  sure.
 
-The problem seems to be that autoneg is disabled on the IBM switches.
-After disabling autoneg on the Sun shelf switches, I see the problem.
-This patch fixes things by reverting to sw autoneg which defaults to
-a 1000Mbps/full-duplex link but with no flow control when it fails
-(IBM should really have autoneg enabled!) - I'd appreciate it if
-someone could test this against an IBM blade.
+Ok, so it _isn't_ CONFIG_SERIAL at all.  Grumble.
 
-The patch is against the 2.6.8-1.521 version of tg3.c but should
-hopefully apply to other recent versions.  If there are problems,
-because tw32_f() isn't defined, change
+Anyway, CONFIG_SERIAL_8250 gets set to 'm' because:
 
-     tw32_f(x, y);
+$ find . -name 'Kconfig*' | xargs grep 'select SERIAL_8250' -B5
+./drivers/char/Kconfig-source "drivers/char/pcmcia/Kconfig"
+./drivers/char/Kconfig-
+./drivers/char/Kconfig-config MWAVE
+./drivers/char/Kconfig- tristate "ACP Modem (Mwave) support"
+./drivers/char/Kconfig- depends on X86
+./drivers/char/Kconfig: select SERIAL_8250
 
-to
+and you have CONFIG_MWAVE is set to 'm'.  Of course, no surprises you
+couldn't work this out - using "select" on a user-visible configuration
+symbol is a bloody nightmare and IMHO fundamentally broken.
 
-     tw32(x, y);
-     tr32(x);
+It seems to have been introduced by this change:
 
-Cheers.
+http://linux.bkbits.net:8080/linux-2.5/cset@3f6e2888FMm2_snV3LfsXw6tII6QvA?nav=index.html|src/|src/drivers|src/drivers/char|related/drivers/char/Kconfig
 
 -- 
-Brian Somers                                            Sun Microsystems
-                                             Sparc House, Guillemont Park
-Software Engineer - LSE                          Minley Road, Blackwater
-Tel: +44 1252 421 263   Ext: 21263                    Camberley GU17 9QG
-
---------------070401040809010209020802
-Content-Type: text/plain;
- name="tg3.c.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="tg3.c.patch"
-
---- tg3.c.orig	2004-09-10 13:24:28.000000000 +0100
-+++ tg3.c	2004-09-10 13:24:14.000000000 +0100
-@@ -2051,9 +2051,25 @@
- 				break;
- 			udelay(1);
- 		}
--		if (tick >= 195000)
--			printk(KERN_INFO PFX "%s: HW autoneg failed !\n",
-+		if (tick >= 195000) {
-+			u32 digctrl, txctrl;
-+
-+			printk(KERN_INFO PFX
-+			    "%s: HW autoneg failed - disabled\n",
- 			    tp->dev->name);
-+
-+			digctrl = tr32(SG_DIG_CTRL);
-+			digctrl &= ~SG_DIG_USING_HW_AUTONEG;
-+
-+			txctrl = tr32(MAC_SERDES_CFG);
-+			txctrl &= ~MAC_SERDES_CFG_EDGE_SELECT;
-+			tw32_f(MAC_SERDES_CFG, txctrl);
-+			tw32_f(SG_DIG_CTRL, digctrl | SG_DIG_SOFT_RESET);
-+			udelay(5);
-+			tw32_f(SG_DIG_CTRL, digctrl);
-+
-+			tp->tg3_flags2 &= ~TG3_FLG2_HW_AUTONEG;
-+		}
- 	}
- 
- 	/* Reset when initting first time or we have a link. */
-@@ -5280,7 +5296,6 @@
- 		txctrl = tr32(MAC_SERDES_CFG);
- 		tw32_f(MAC_SERDES_CFG, txctrl | MAC_SERDES_CFG_EDGE_SELECT);
- 		tw32_f(SG_DIG_CTRL, digctrl | SG_DIG_SOFT_RESET);
--		tr32(SG_DIG_CTRL);
- 		udelay(5);
- 		tw32_f(SG_DIG_CTRL, digctrl);
- 
-
---------------070401040809010209020802--
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

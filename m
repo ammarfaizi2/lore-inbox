@@ -1,44 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280339AbRKEIQX>; Mon, 5 Nov 2001 03:16:23 -0500
+	id <S280356AbRKEId5>; Mon, 5 Nov 2001 03:33:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280341AbRKEIQN>; Mon, 5 Nov 2001 03:16:13 -0500
-Received: from zero.tech9.net ([209.61.188.187]:57102 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S280339AbRKEIP4>;
-	Mon, 5 Nov 2001 03:15:56 -0500
-Subject: Re: 2.4.13-ac5-preempt, overflow in cached memory stat?
-From: Robert Love <rml@tech9.net>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0111051019080.6741-100000@netfinity.realnet.co.sz>
-In-Reply-To: <Pine.LNX.4.33.0111051019080.6741-100000@netfinity.realnet.co.sz>
-Content-Type: text/plain
+	id <S280357AbRKEIdr>; Mon, 5 Nov 2001 03:33:47 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4365 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280356AbRKEIdh>; Mon, 5 Nov 2001 03:33:37 -0500
+Subject: Re: NVidia/Gl problem with -ac7
+To: eagle1701e@tfz.net (MIDN Sean Jones)
+Date: Mon, 5 Nov 2001 08:40:42 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <3BE5FDDE.3030809@tfz.net> from "MIDN Sean Jones" at Nov 04, 2001 09:47:58 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.28.13.59 (Preview Release)
-Date: 05 Nov 2001 03:15:46 -0500
-Message-Id: <1004948146.806.4.camel@phantasy>
-Mime-Version: 1.0
+Message-Id: <E160fJC-0004eA-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-11-05 at 03:21, Zwane Mwaikambo wrote:
-> Thanks, I just saw a thread discussing the very same issue i had, i'll
-> download both ac7 and the ac6 preempt patch and give it a try.
+> dropped frames and/or complete freeze up. I did not experience this 
+> behavior in -ac5. (I skipped ac6). I use the latest release of NVidia's 
+> drivers. Has anyone seen any simmilar behavior?
 
-Please let me know.. I've had a few reports and I want to consider this
-bug fixed -- and not even our fault: the best kind.
+Please direct nvidia binary module queries to nvidia lists not free
+software ones.
 
-I went ahead and rediffed the patch against 2.4.13-ac7, the -ac6 will
-apply fine.  For future use however, it will be up at
-
-	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/
-
-soon as the it syncs.
-
-> PS I know you keep hearing this, but that preempt patch makes for some
-> damn smooth interactive performance ;)
-
-I can't hear it enough :)
-
-	Robert Love
-
+Alan

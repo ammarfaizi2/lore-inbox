@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316465AbSGQSxs>; Wed, 17 Jul 2002 14:53:48 -0400
+	id <S316223AbSGQSu0>; Wed, 17 Jul 2002 14:50:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316545AbSGQSxr>; Wed, 17 Jul 2002 14:53:47 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62471 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316465AbSGQSxr>; Wed, 17 Jul 2002 14:53:47 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-Date: 17 Jul 2002 18:51:25 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <ah4ebd$2vc$1@gatekeeper.tmr.com>
-References: <1026490866.5316.41.camel@thud> <20020716122756.GD4576@merlin.emma.line.org> <20020716124331.GJ7955@tahoe.alcove-fr> <20020716125301.GI4576@merlin.emma.line.org>
-X-Trace: gatekeeper.tmr.com 1026931885 3052 192.168.12.62 (17 Jul 2002 18:51:25 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	id <S316604AbSGQSu0>; Wed, 17 Jul 2002 14:50:26 -0400
+Received: from dsl-213-023-038-064.arcor-ip.net ([213.23.38.64]:59069 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S316223AbSGQSuZ>;
+	Wed, 17 Jul 2002 14:50:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] new module format
+Date: Wed, 17 Jul 2002 20:54:48 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <Pine.LNX.4.44.0207161446400.8911-100000@serv>
+In-Reply-To: <Pine.LNX.4.44.0207161446400.8911-100000@serv>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17Utwm-0004Oy-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020716125301.GI4576@merlin.emma.line.org>,
-Matthias Andree  <matthias.andree@stud.uni-dortmund.de> wrote:
+On Tuesday 16 July 2002 15:04, Roman Zippel wrote:
+> 1. Properly fixing module races: I'm playing with a init/start/stop/exit
+> model, this has the advantage that we can stop anyone from reusing a
+> module and we only have to wait for remaining users to go away until we
+> can safely unload the module.
 
-| dsmc fstat()s the file it is currently reading regularly and retries the
-| dump as the changes, and gives up if it is updated too often. Not sure
-| about the server side, and certainly not a useful option for sequential
-| devices that you directly write on. Looks like a cache for the biggest
-| file is necessary.
+I'm satisfied that, for filesystems at least, all the module races can be 
+solved without adding start/stop, and I will present code in due course.
+However, Rusty tells me there are harder cases than filesystems.  At this
+point I'm waiting for a specific example.
 
-Which doesn't address the issue of data in files A, B and C, with
-indices in X and Y. This only works if you flush and freeze all the
-files at one time, making a perfect backup of one at a time results in
-corruption if the database is busy.
+For filesystems, we rely on the filesystem code itself to know when all users 
+have gone away.  If somebody is still executing in a filesystem module after 
+all umounts are done, it's a horrible nasty bug.  We might still want to play 
+games with checking execution addresses of processes to see if anybody is 
+still in a module, but that would just be for debug; sys_delete_module can 
+rely on the filesystem's opinion about whether a module is quiescent or not.
 
-My favorite example is usenet news on INN, a bunch of circular spools, a
-linear history with two index files, 30-40k overview files, and all of
-it changing with perhaps 3.5MB/sec data and 20-50/sec index writes. Far
-better done with an application backup!
+Somebody please give me an example of why this same strategy will not
+work for all types of modular code.
 
-The point is, backups are hard, for many systems dump is optimal because
-it's fast. After that I like cpio (-Hcrc) but that's personal
-preference. All have fail cases on volatile data.
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Daniel

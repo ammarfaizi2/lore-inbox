@@ -1,203 +1,196 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264991AbUHNTll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265124AbUHNTsp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264991AbUHNTll (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 15:41:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264980AbUHNTlE
+	id S265124AbUHNTsp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 15:48:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbUHNTsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 15:41:04 -0400
-Received: from dh138.citi.umich.edu ([141.211.133.138]:53122 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264991AbUHNTdR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 15:33:17 -0400
-Subject: PATCH [7/7] Fix posix locking code
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092511994.4109.39.camel@lade.trondhjem.org>
+	Sat, 14 Aug 2004 15:48:22 -0400
+Received: from mail.gmx.de ([213.165.64.20]:18844 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265214AbUHNTqH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 15:46:07 -0400
+X-Authenticated: #12437197
+Date: Sat, 14 Aug 2004 22:46:25 +0300
+From: Dan Aloni <da-x@colinux.org>
+To: Sam Ravnborg <sam@ravnborg.org>, Benno <benjl@cse.unsw.edu.au>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] [#3 1/2] Generate vmlinux.lds instead of vmlinux.lds.s
+Message-ID: <20040814194625.GA20753@callisto.yi.org>
+References: <20040812192535.GA20953@callisto.yi.org> <20040813003743.GF30576@cse.unsw.edu.au> <20040813050424.GA7417@mars.ravnborg.org> <20040813080941.GA7639@callisto.yi.org> <20040813092426.GA27895@callisto.yi.org> <20040813183347.GA9098@mars.ravnborg.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 14 Aug 2004 15:33:14 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040813183347.GA9098@mars.ravnborg.org>
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- VFS,CIFS,NLM,NFSv4: make filesystems directly responsible for
-     calling posix_lock_file() if they need it. This fixes an
-     NFS race whereby in case of a server reboot, the recovery
-     thread could re-establish a lock that had just been freed.
+Hello Sam,
 
- Signed-off-by: Trond Myklebust <trond.myklebust@fys.uio.no>
+Here's the first patch. Note that I had to choose PPFLAGS instead 
+of CPPFLAGS because otherwise it would have collided with the other
+uses of CPPFLAGS.
 
- fs/cifs/file.c      |    2 ++
- fs/lockd/clntproc.c |    9 ++++++++-
- fs/locks.c          |   37 ++++++++++++++++++++++++++++++++-----
- fs/nfs/nfs4proc.c   |    8 ++++++++
- include/linux/fs.h  |    1 +
- 5 files changed, 51 insertions(+), 6 deletions(-)
+I've test-built a clean kernel. 
 
-diff -u --recursive --new-file --show-c-function linux-2.6.8.1-06-cleanup_locks/fs/cifs/file.c linux-2.6.8.1-07-cleanup_posix/fs/cifs/file.c
---- linux-2.6.8.1-06-cleanup_locks/fs/cifs/file.c	2004-08-14 14:25:48.000000000 -0400
-+++ linux-2.6.8.1-07-cleanup_posix/fs/cifs/file.c	2004-08-14 14:29:49.000000000 -0400
-@@ -569,6 +569,8 @@ cifs_lock(struct file *file, int cmd, st
- 			 netfid, length,
- 			 pfLock->fl_start, numUnlock, numLock, lockType,
- 			 wait_flag);
-+	if (rc == 0 && (pfLock->fl_flags & FL_POSIX))
-+		posix_lock_file(file, pfLock);
- 	FreeXid(xid);
- 	return rc;
- }
-diff -u --recursive --new-file --show-c-function linux-2.6.8.1-06-cleanup_locks/fs/lockd/clntproc.c linux-2.6.8.1-07-cleanup_posix/fs/lockd/clntproc.c
---- linux-2.6.8.1-06-cleanup_locks/fs/lockd/clntproc.c	2004-08-14 14:29:34.000000000 -0400
-+++ linux-2.6.8.1-07-cleanup_posix/fs/lockd/clntproc.c	2004-08-14 14:29:49.000000000 -0400
-@@ -561,6 +561,10 @@ nlmclnt_lock(struct nlm_rqst *req, struc
- 	if (resp->status == NLM_LCK_GRANTED) {
- 		fl->fl_u.nfs_fl.state = host->h_state;
- 		fl->fl_u.nfs_fl.flags |= NFS_LCK_GRANTED;
-+		fl->fl_flags |= FL_SLEEP;
-+		if (posix_lock_file_wait(fl->fl_file, fl) < 0)
-+				printk(KERN_WARNING "%s: VFS is out of sync with lock manager!\n",
-+						__FUNCTION__);
- 	}
- 	status = nlm_stat_to_errno(resp->status);
- out:
-@@ -627,6 +631,9 @@ nlmclnt_unlock(struct nlm_rqst *req, str
- 	if (req->a_flags & RPC_TASK_ASYNC) {
- 		status = nlmclnt_async_call(req, NLMPROC_UNLOCK,
- 					nlmclnt_unlock_callback);
-+		/* Hrmf... Do the unlock early since locks_remove_posix()
-+		 * really expects us to free the lock synchronously */
-+		posix_lock_file(fl->fl_file, fl);
- 		if (status < 0) {
- 			nlmclnt_release_lockargs(req);
- 			kfree(req);
-@@ -639,6 +646,7 @@ nlmclnt_unlock(struct nlm_rqst *req, str
- 	if (status < 0)
- 		return status;
+This applies against 2.6.8.1 (the Olympic kernel :).
+
+diff -urN -X dontdiff2 -X /home/karrde/colinux/bin/dontdiff linux-2.6.8.1-callisto/Makefile linux-2.6.8.1-callisto-work/Makefile
+--- linux-2.6.8.1-callisto/Makefile	2004-08-14 18:00:44.000000000 +0300
++++ linux-2.6.8.1-callisto-work/Makefile	2004-08-14 21:09:34.000000000 +0300
+@@ -300,6 +300,7 @@
+ CFLAGS 		:= -Wall -Wstrict-prototypes -Wno-trigraphs \
+ 	  	   -fno-strict-aliasing -fno-common
+ AFLAGS		:= -D__ASSEMBLY__
++PPFLAGS         := -D__ASSEMBLY__
  
-+	posix_lock_file(fl->fl_file, fl);
- 	if (resp->status == NLM_LCK_GRANTED)
- 		return 0;
+ export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION KERNELRELEASE ARCH \
+ 	CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC \
+@@ -309,6 +310,7 @@
+ export CPPFLAGS NOSTDINC_FLAGS OBJCOPYFLAGS LDFLAGS
+ export CFLAGS CFLAGS_KERNEL CFLAGS_MODULE 
+ export AFLAGS AFLAGS_KERNEL AFLAGS_MODULE
++export PPFLAGS PPFLAGS_KERNEL PPFLAGS_MODULE
  
-@@ -669,7 +677,6 @@ nlmclnt_unlock_callback(struct rpc_task 
- 	}
- 	if (status != NLM_LCK_GRANTED)
- 		printk(KERN_WARNING "lockd: unexpected unlock status: %d\n", status);
--
- die:
- 	nlm_release_host(req->a_host);
- 	nlmclnt_release_lockargs(req);
-diff -u --recursive --new-file --show-c-function linux-2.6.8.1-06-cleanup_locks/fs/locks.c linux-2.6.8.1-07-cleanup_posix/fs/locks.c
---- linux-2.6.8.1-06-cleanup_locks/fs/locks.c	2004-08-14 14:29:43.000000000 -0400
-+++ linux-2.6.8.1-07-cleanup_posix/fs/locks.c	2004-08-14 14:29:49.000000000 -0400
-@@ -906,6 +906,34 @@ int posix_lock_file(struct file *filp, s
- }
+ # When compiling out-of-tree modules, put MODVERDIR in the module
+ # tree rather than in the kernel tree. The kernel tree might
+@@ -540,7 +542,7 @@
  
- /**
-+ * posix_lock_file_wait - Apply a POSIX-style lock to a file
-+ * @filp: The file to apply the lock to
-+ * @fl: The lock to be applied
-+ *
-+ * Add a POSIX style lock to a file.
-+ * We merge adjacent & overlapping locks whenever possible.
-+ * POSIX locks are sorted by owner task, then by starting address
-+ */
-+int posix_lock_file_wait(struct file *filp, struct file_lock *fl)
-+{
-+	int error;
-+	might_sleep ();
-+	for (;;) {
-+		error = __posix_lock_file(filp->f_dentry->d_inode, fl);
-+		if ((error != -EAGAIN) || !(fl->fl_flags & FL_SLEEP))
-+			break;
-+		error = wait_event_interruptible(fl->fl_wait, !fl->fl_next);
-+		if (!error)
-+			continue;
+ do_system_map = $(NM) $(1) | grep -v '\(compiled\)\|\(\.o$$\)\|\( [aUw] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)' | sort > $(2)
+ 
+-LDFLAGS_vmlinux += -T arch/$(ARCH)/kernel/vmlinux.lds.s
++LDFLAGS_vmlinux += -T arch/$(ARCH)/kernel/vmlinux.lds
+ 
+ #	Generate section listing all symbols and add it into vmlinux
+ #	It's a three stage process:
+@@ -584,13 +586,13 @@
+ .tmp_kallsyms%.S: .tmp_vmlinux%
+ 	$(call cmd,kallsyms)
+ 
+-.tmp_vmlinux1: $(vmlinux-objs) arch/$(ARCH)/kernel/vmlinux.lds.s FORCE
++.tmp_vmlinux1: $(vmlinux-objs) arch/$(ARCH)/kernel/vmlinux.lds FORCE
+ 	$(call if_changed_rule,vmlinux__)
+ 
+-.tmp_vmlinux2: $(vmlinux-objs) .tmp_kallsyms1.o arch/$(ARCH)/kernel/vmlinux.lds.s FORCE
++.tmp_vmlinux2: $(vmlinux-objs) .tmp_kallsyms1.o arch/$(ARCH)/kernel/vmlinux.lds FORCE
+ 	$(call if_changed_rule,vmlinux__)
+ 
+-.tmp_vmlinux3: $(vmlinux-objs) .tmp_kallsyms2.o arch/$(ARCH)/kernel/vmlinux.lds.s FORCE
++.tmp_vmlinux3: $(vmlinux-objs) .tmp_kallsyms2.o arch/$(ARCH)/kernel/vmlinux.lds FORCE
+ 	$(call if_changed_rule,vmlinux__)
+ 
+ endif
+@@ -603,13 +605,13 @@
+ 	$(rule_verify_kallsyms)
+ endef
+ 
+-vmlinux: $(vmlinux-objs) $(kallsyms.o) arch/$(ARCH)/kernel/vmlinux.lds.s FORCE
++vmlinux: $(vmlinux-objs) $(kallsyms.o) arch/$(ARCH)/kernel/vmlinux.lds FORCE
+ 	$(call if_changed_rule,vmlinux)
+ 
+ #	The actual objects are generated when descending, 
+ #	make sure no implicit rule kicks in
+ 
+-$(sort $(vmlinux-objs)) arch/$(ARCH)/kernel/vmlinux.lds.s: $(vmlinux-dirs) ;
++$(sort $(vmlinux-objs)) arch/$(ARCH)/kernel/vmlinux.lds: $(vmlinux-dirs) ;
+ 
+ # Handle descending into subdirectories listed in $(vmlinux-dirs)
+ # Preset locale variables to speed up the build process. Limit locale
+@@ -667,7 +669,7 @@
+ #	Leave this as default for preprocessing vmlinux.lds.S, which is now
+ #	done in arch/$(ARCH)/kernel/Makefile
+ 
+-export AFLAGS_vmlinux.lds.o += -P -C -U$(ARCH)
++export PPFLAGS_vmlinux.o += -P -C -U$(ARCH)
+ 
+ # Single targets
+ # ---------------------------------------------------------------------------
+@@ -1106,6 +1108,10 @@
+ 	  $(NOSTDINC_FLAGS) $(CPPFLAGS) \
+ 	  $(modkern_aflags) $(EXTRA_AFLAGS) $(AFLAGS_$(*F).o)
+ 
++pp_flags = -Wp,-MD,$(depfile) $(AFLAGS) $(AFLAGS_KERNEL) \
++	  $(NOSTDINC_FLAGS) $(CPPFLAGS) \
++	  $(modkern_aflags) $(EXTRA_PPFLAGS) $(PPFLAGS_$(*F).o)
 +
-+		locks_delete_block(fl);
-+		break;
-+	}
-+	return error;
-+}
-+EXPORT_SYMBOL(posix_lock_file_wait);
+ quiet_cmd_as_o_S = AS      $@
+ cmd_as_o_S       = $(CC) $(a_flags) -c -o $@ $<
+ 
+diff -urN -X dontdiff2 -X /home/karrde/colinux/bin/dontdiff linux-2.6.8.1-callisto/arch/i386/kernel/Makefile linux-2.6.8.1-callisto-work/arch/i386/kernel/Makefile
+--- linux-2.6.8.1-callisto/arch/i386/kernel/Makefile	2004-08-14 18:00:04.000000000 +0300
++++ linux-2.6.8.1-callisto-work/arch/i386/kernel/Makefile	2004-08-14 20:50:56.000000000 +0300
+@@ -2,7 +2,7 @@
+ # Makefile for the linux kernel.
+ #
+ 
+-extra-y := head.o init_task.o vmlinux.lds.s
++extra-y := head.o init_task.o vmlinux.lds
+ 
+ obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o vm86.o \
+ 		ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_i386.o \
+diff -urN -X dontdiff2 -X /home/karrde/colinux/bin/dontdiff linux-2.6.8.1-callisto/scripts/Makefile.build linux-2.6.8.1-callisto-work/scripts/Makefile.build
+--- linux-2.6.8.1-callisto/scripts/Makefile.build	2004-06-16 08:19:52.000000000 +0300
++++ linux-2.6.8.1-callisto-work/scripts/Makefile.build	2004-08-14 21:08:12.000000000 +0300
+@@ -186,6 +186,20 @@
+ %.lst: %.c FORCE
+ 	$(call if_changed_dep,cc_lst_c)
+ 
++# Linker scripts preprocessor (.lds.S -> .lds)
++# ---------------------------------------------------------------------------
 +
-+/**
-  * locks_mandatory_locked - Check for an active lock
-  * @inode: the file to check
-  *
-@@ -1484,8 +1512,7 @@ int fcntl_setlk(struct file *filp, unsig
++modkern_ppflags := $(PPFLAGS_KERNEL)
++
++$(real-objs-m)      : modkern_ppflags := $(PPFLAGS_MODULE)
++$(real-objs-m:.o=.s): modkern_ppflags := $(PPFLAGS_MODULE)
++
++quiet_cmd_cpp_lds_S    = LDS     $@
++      cmd_cpp_lds_S    = $(CPP) $(pp_flags) -o $@ $<
++
++%.lds: %.lds.S FORCE
++	$(call if_changed_dep,cpp_lds_S)
++
+ # Compile assembler sources (.S)
+ # ---------------------------------------------------------------------------
  
- 	if (filp->f_op && filp->f_op->lock != NULL) {
- 		error = filp->f_op->lock(filp, cmd, file_lock);
--		if (error < 0)
--			goto out;
-+		goto out;
- 	}
+diff -urN -X dontdiff2 -X /home/karrde/colinux/bin/dontdiff linux-2.6.8.1-callisto/scripts/Makefile.lib linux-2.6.8.1-callisto-work/scripts/Makefile.lib
+--- linux-2.6.8.1-callisto/scripts/Makefile.lib	2004-06-16 08:19:23.000000000 +0300
++++ linux-2.6.8.1-callisto-work/scripts/Makefile.lib	2004-08-14 21:07:00.000000000 +0300
+@@ -139,6 +139,7 @@
  
- 	for (;;) {
-@@ -1619,8 +1646,7 @@ int fcntl_setlk64(struct file *filp, uns
+ _c_flags       = $(CFLAGS) $(EXTRA_CFLAGS) $(CFLAGS_$(*F).o)
+ _a_flags       = $(AFLAGS) $(EXTRA_AFLAGS) $(AFLAGS_$(*F).o)
++_pp_flags      = $(PPFLAGS) $(EXTRA_PPFLAGS) $(PPFLAGS_$(*F).o)
+ _hostc_flags   = $(HOSTCFLAGS)   $(HOST_EXTRACFLAGS)   $(HOSTCFLAGS_$(*F).o)
+ _hostcxx_flags = $(HOSTCXXFLAGS) $(HOST_EXTRACXXFLAGS) $(HOSTCXXFLAGS_$(*F).o)
  
- 	if (filp->f_op && filp->f_op->lock != NULL) {
- 		error = filp->f_op->lock(filp, cmd, file_lock);
--		if (error < 0)
--			goto out;
-+		goto out;
- 	}
+@@ -149,6 +150,7 @@
+ ifeq ($(KBUILD_SRC),)
+ __c_flags	= $(_c_flags)
+ __a_flags	= $(_a_flags)
++__pp_flags	= $(_pp_flags)
+ __hostc_flags	= $(_hostc_flags)
+ __hostcxx_flags	= $(_hostcxx_flags)
+ else
+@@ -164,6 +166,7 @@
+ # FIXME: Replace both with specific CFLAGS* statements in the makefiles
+ __c_flags	= $(call addtree,-I$(obj)) $(call flags,_c_flags)
+ __a_flags	=                          $(call flags,_a_flags)
++__pp_flags	=                          $(call flags,_pp_flags)
+ __hostc_flags	= -I$(obj)                 $(call flags,_hostc_flags)
+ __hostcxx_flags	= -I$(obj)                 $(call flags,_hostcxx_flags)
+ endif
+@@ -175,6 +178,9 @@
+ a_flags        = -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(CPPFLAGS) \
+ 		 $(__a_flags) $(modkern_aflags)
  
- 	for (;;) {
-@@ -1672,7 +1698,7 @@ void locks_remove_posix(struct file *fil
++pp_flags       = -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(CPPFLAGS) \
++		 $(__pp_flags) $(modkern_ppflags)
++
+ hostc_flags    = -Wp,-MD,$(depfile) $(__hostc_flags)
+ hostcxx_flags  = -Wp,-MD,$(depfile) $(__hostcxx_flags)
  
- 	if (filp->f_op && filp->f_op->lock != NULL) {
- 		filp->f_op->lock(filp, F_SETLK, &lock);
--		/* Ignore any error -- we must remove the locks anyway */
-+		goto out;
- 	}
- 
- 	/* Can't use posix_lock_file here; we need to remove it no matter
-@@ -1688,6 +1714,7 @@ void locks_remove_posix(struct file *fil
- 		before = &fl->fl_next;
- 	}
- 	unlock_kernel();
-+out:
- 	if (lock.fl_ops && lock.fl_ops->fl_release_private)
- 		lock.fl_ops->fl_release_private(&lock);
- }
-diff -u --recursive --new-file --show-c-function linux-2.6.8.1-06-cleanup_locks/fs/nfs/nfs4proc.c linux-2.6.8.1-07-cleanup_posix/fs/nfs/nfs4proc.c
---- linux-2.6.8.1-06-cleanup_locks/fs/nfs/nfs4proc.c	2004-08-14 14:27:16.000000000 -0400
-+++ linux-2.6.8.1-07-cleanup_posix/fs/nfs/nfs4proc.c	2004-08-14 14:29:49.000000000 -0400
-@@ -1856,6 +1856,8 @@ nfs4_proc_unlck(struct nfs4_state *state
- 	nfs4_put_lock_state(lsp);
- out:
- 	up(&state->lock_sema);
-+	if (status == 0)
-+		posix_lock_file(request->fl_file, request);
- 	return nfs4_map_errors(status);
- }
- 
-@@ -1932,6 +1934,12 @@ nfs4_proc_setlk(struct nfs4_state *state
- 	nfs4_put_lock_state(lsp);
- out:
- 	up(&state->lock_sema);
-+	if (status == 0) {
-+		/* Note: we always want to sleep here! */
-+		request->fl_flags |= FL_SLEEP;
-+		if (posix_lock_file_wait(request->fl_file, request) < 0)
-+			printk(KERN_WARNING "%s: VFS is out of sync with lock manager!\n", __FUNCTION__);
-+	}
- 	return nfs4_map_errors(status);
- }
- 
-diff -u --recursive --new-file --show-c-function linux-2.6.8.1-06-cleanup_locks/include/linux/fs.h linux-2.6.8.1-07-cleanup_posix/include/linux/fs.h
---- linux-2.6.8.1-06-cleanup_locks/include/linux/fs.h	2004-08-14 14:29:43.000000000 -0400
-+++ linux-2.6.8.1-07-cleanup_posix/include/linux/fs.h	2004-08-14 14:29:49.000000000 -0400
-@@ -694,6 +694,7 @@ extern void locks_remove_posix(struct fi
- extern void locks_remove_flock(struct file *);
- extern struct file_lock *posix_test_lock(struct file *, struct file_lock *);
- extern int posix_lock_file(struct file *, struct file_lock *);
-+extern int posix_lock_file_wait(struct file *, struct file_lock *);
- extern void posix_block_lock(struct file_lock *, struct file_lock *);
- extern void posix_unblock_lock(struct file *, struct file_lock *);
- extern int posix_locks_deadlock(struct file_lock *, struct file_lock *);
 
+
+-- 
+Dan Aloni
+da-x@colinux.org

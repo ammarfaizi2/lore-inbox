@@ -1,139 +1,219 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318027AbSFSVti>; Wed, 19 Jun 2002 17:49:38 -0400
+	id <S318028AbSFSVtA>; Wed, 19 Jun 2002 17:49:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318030AbSFSVti>; Wed, 19 Jun 2002 17:49:38 -0400
-Received: from jalon.able.es ([212.97.163.2]:21734 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S318027AbSFSVtd>;
-	Wed, 19 Jun 2002 17:49:33 -0400
-Date: Wed, 19 Jun 2002 23:49:25 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Nick Papadonis <nick@coelacanth.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AIC7XXX + v2.4.18 problems?
-Message-ID: <20020619214925.GA1739@werewolf.able.es>
-References: <m3k7ov2tly.fsf@noop.bombay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <m3k7ov2tly.fsf@noop.bombay>; from nick@coelacanth.com on Wed, Jun 19, 2002 at 17:09:13 +0200
-X-Mailer: Balsa 1.3.6
+	id <S318030AbSFSVs7>; Wed, 19 Jun 2002 17:48:59 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:44938 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S318028AbSFSVsz>;
+	Wed, 19 Jun 2002 17:48:55 -0400
+From: Hans-Christian Armingeon <linux.johnny@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.23 make dep error in DAC960.h:2575
+Date: Thu, 20 Jun 2002 01:47:33 +0200
+X-Mailer: KMail [version 1.4]
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_9R8ZMLPT7JA69HN4LAQU"
+Message-Id: <200206200147.33179.linux.johnny@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2002.06.19 Nick Papadonis wrote:
->Is anyone else having problems with the AIC7XXX driver using a AHA-29160
->controller?  I believe my kernel is going into a unrecoverable spin-lock 
->when there is high SCSI load.  I'm assuming this because the keyboard 
->lights still function and network still replies to pings.
->
->In addition the 'st' driver returns with unrecoverable errors when 
->trying to tar to tape.  This usually occurs after a few hundred 
->megabytes have been pushed through a device.
->
->My setup is :
->   - AHA-29160N controller
->   - Internal 50 PIN / SCSI-2 port in use
->   - See below for connected drives
->
->I tested the following kernels and they display similar behavior:
->   - v2.4.9
->   - v2.4.18
->   - v2.4.18 with updated 7XXX driver
->   - v2.4.19-pre10
->
+--------------Boundary-00=_9R8ZMLPT7JA69HN4LAQU
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 
-First of all, I have a setup like yours, and with 2 U160 drives hanged on the
-LVD connector for the bus, and one zip and one CD on the 50-pin, everything
-works fine:
+Hi,
+could someone explain/fix this error? Config is appended. Almost everything switched on. I know, that that's a bad idea, but I think that it should be possible, the dependencies should manage that.
+gcc 2.95.3 [SuSE 7.3]
 
-annwn:/proc/scsi> cat scsi
-Attached devices: 
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: FUJITSU  Model: MAJ3364MP        Rev: 0115
-  Type:   Direct-Access                    ANSI SCSI revision: 04
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: FUJITSU  Model: MAJ3364MP        Rev: 0115
-  Type:   Direct-Access                    ANSI SCSI revision: 04
-Host: scsi0 Channel: 00 Id: 02 Lun: 00
-  Vendor: TOSHIBA  Model: CD-ROM XM-6201TA Rev: 1030
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 04 Lun: 00
-  Vendor: IOMEGA   Model: ZIP 100          Rev: E.08
-  Type:   Direct-Access                    ANSI SCSI revision: 02
+Anything missing?
 
-annwn:/proc/scsi/aic7xxx> cat 0
-Adaptec AIC7xxx driver version: 6.2.8
-aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+hope that helped,
 
-Channel A Target 0 Negotiation Settings
-        User: 160.000MB/s transfers (80.000MHz DT, offset 255, 16bit)
-        Goal: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-        Curr: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-...
-Channel A Target 1 Negotiation Settings
-        User: 160.000MB/s transfers (80.000MHz DT, offset 255, 16bit)
-        Goal: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-        Curr: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-...
-Channel A Target 2 Negotiation Settings
-        User: 160.000MB/s transfers (80.000MHz DT, offset 255, 16bit)
-        Goal: 10.000MB/s transfers (10.000MHz, offset 16)
-        Curr: 10.000MB/s transfers (10.000MHz, offset 16)
-...
-Channel A Target 4 Negotiation Settings
-        User: 160.000MB/s transfers (80.000MHz DT, offset 255, 16bit)
-        Goal: 3.300MB/s transfers
-        Curr: 3.300MB/s transfers
+Johnny
 
->
->DETAILS:
->Jun 19 01:25:15 bombay kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.8
->Jun 19 01:25:15 bombay kernel:         <Adaptec 29160 Ultra160 SCSI adapter>
->Jun 19 01:25:15 bombay kernel:         aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
->Jun 19 01:25:15 bombay kernel: 
->Jun 19 01:25:15 bombay kernel:   Vendor: IBM       Model: DNES-318350       Rev: SAH0
->Jun 19 01:25:15 bombay kernel:   Type:   Direct-Access                      ANSI SCSI revision: 03
->Jun 19 01:25:15 bombay kernel:   Vendor: IBM       Model: DCAS-34330        Rev: S65A
->Jun 19 01:25:15 bombay kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
->Jun 19 01:25:15 bombay kernel:   Vendor: PLEXTOR   Model: CD-R   PX-W124TS  Rev: 1.07
->Jun 19 01:25:15 bombay kernel:   Type:   CD-ROM                             ANSI SCSI revision: 02
+D_BASENAME=blkpg -D__GENKSYMS__  blkpg.c | /sbin/genksyms  -k 2.5.23 > /mnt/data/src/linux-2.5.23/include/linux/modules/drivers/block/blkpg.ver.tmp
+  gcc -E -Wp,-MD,/mnt/data/src/linux-2.5.23/include/linux/modules/drivers/block/.genhd.ver.d -D__KERNEL__ -I/mnt/data/src/linux-2.5.23/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -nostdinc -iwithprefix include    -DKBUILD_BASENAME=genhd -D__GENKSYMS__  genhd.c | /sbin/genksyms  -k 2.5.23 > /mnt/data/src/linux-2.5.23/include/linux/modules/drivers/block/genhd.ver.tmp
+  gcc -E -Wp,-MD,/mnt/data/src/linux-2.5.23/include/linux/modules/drivers/block/.block_ioctl.ver.d -D__KERNEL__ -I/mnt/data/src/linux-2.5.23/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -nostdinc -iwithprefix include    -D
+DKBUILD_BASENAME=block_ioctl -D__GENKSYMS__  block_ioctl.c | /sbin/genksyms  -k 2.5.23 > /mnt/data/src/linux-2.5.23/include/linux/modules/drivers/block/block_ioctl.ver.tmp
+  gcc -E -Wp,-MD,/mnt/data/src/linux-2.5.23/include/linux/modules/drivers/block/.loop.ver.d -D__KERNEL__ -I/mnt/data/src/linux-2.5.23/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=loop -D__GENKSYMS__  loop.c | /sbin/genksyms  -k 2.5.23 > /mnt/data/src/linux-2.5.23/include/linux/modules/drivers/block/loop.ver.tmp
+  gcc -E -Wp,-MD,/mnt/data/src/linux-2.5.23/include/linux/modules/drivers/block/.DAC960.ver.d -D__KERNEL__ -I/mnt/data/src/linux-2.5.23/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=DAC960 -D__GENKSYMS__  DAC960.c | /sbin/genksyms  -k 2.5.23 > /mnt/data/src/linux-2.5.23/include/linux/modules/drivers/block/DAC960.ver.tmp
+In file included from DAC960.c:49:
+DAC960.h:2575: #error I am a non-portable driver, please convert me to use the Documentation/DMA-mapping.txt interfaces
+make[4]: *** [/mnt/data/src/linux-2.5.23/include/linux/modules/drivers/block/DAC960.ver] Error 1
+make[4]: Leaving directory `/mnt/data/src/linux-2.5.23/drivers/block'
+make[3]: *** [block] Error 2
+make[3]: Leaving directory `/mnt/data/src/linux-2.5.23/drivers'
+make[2]: *** [_sfdep_drivers] Error 2
+make[2]: Leaving directory `/mnt/data/src/linux-2.5.23'
+make[1]: *** [include/linux/modversions.h] Error 2
+make[1]: Leaving directory `/mnt/data/src/linux-2.5.23'
+make: *** [.hdepend] Error 2
 
-You are hangin things on the 50pin connector, which is SE, so you could never
-get 160Mb/s (LVD, transmit on up and down), you could at most go at 80Mb/s.
+--------------Boundary-00=_9R8ZMLPT7JA69HN4LAQU
+Content-Type: application/x-bzip2;
+  name="kernel-2.5.23.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="kernel-2.5.23.bz2"
 
->
->Channel A Target 0 Negotiation Settings
->        User: 40.000MB/s transfers (40.000MHz DT, offset 255)
->        Goal: 20.000MB/s transfers (20.000MHz, offset 31)
->        Curr: 20.000MB/s transfers (20.000MHz, offset 31)
+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
 
-Hardware thinks the disk just can do Goal=20Mb/s. Why ?
-It says nothing about 16 bits... Are you forcing it to narrow
-with a jumper ??
+--------------Boundary-00=_9R8ZMLPT7JA69HN4LAQU--
 
->Channel A Target 2 Negotiation Settings
->        User: 160.000MB/s transfers (80.000MHz DT, offset 255, 16bit)
->        Goal: 20.000MB/s transfers (20.000MHz, offset 15)
->        Curr: 20.000MB/s transfers (20.000MHz, offset 15)
-
-It recognizes the drive can do wide, but as the first device in the
-chain forced narrow, goal is narrow.
-
->Channel A Target 3 Negotiation Settings
->        User: 160.000MB/s transfers (80.000MHz DT, offset 255, 16bit)
->        Goal: 40.000MB/s transfers (40.000MHz, offset 127)
->        Curr: 3.300MB/s transfers
-
-Same as above....
-
-Move the fast drive to the LVD connector, and chech for jumper settings on
-that drive.
-
--- 
-J.A. Magallon             \   Software is like sex: It's better when it's free
-mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
-Linux werewolf 2.4.19-pre10-jam3, Mandrake Linux 8.3 (Cooker) for i586
-gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.4mdk)

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270104AbUJTHbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270042AbUJSXBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270104AbUJTHbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 03:31:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264665AbUJSXDu
+	id S270042AbUJSXBo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 19:01:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270189AbUJSWzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 19:03:50 -0400
-Received: from mail.kroah.org ([69.55.234.183]:62601 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269819AbUJSWqW convert rfc822-to-8bit
+	Tue, 19 Oct 2004 18:55:22 -0400
+Received: from mail.kroah.org ([69.55.234.183]:61065 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270046AbUJSWqU convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:46:22 -0400
+	Tue, 19 Oct 2004 18:46:20 -0400
 X-Fake: the user-agent is fake
 Subject: Re: [PATCH] PCI fixes for 2.6.9
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <1098225735893@kroah.com>
-Date: Tue, 19 Oct 2004 15:42:15 -0700
-Message-Id: <10982257353938@kroah.com>
+In-Reply-To: <10982257393636@kroah.com>
+Date: Tue, 19 Oct 2004 15:42:19 -0700
+Message-Id: <10982257394160@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,128 +23,70 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1997.37.25, 2004/10/06 12:25:07-07:00, akpm@osdl.org
+ChangeSet 1.1997.37.57, 2004/10/06 13:53:18-07:00, johnrose@austin.ibm.com
 
-[PATCH] add-pci_fixup_enable-pass.patch
+[PATCH] PCI Hotplug: RPA DLPAR - remove error check
 
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Here's a really long explanation for a really short patch! :)
 
-Nick Piggin's USB driver stopped working when I removed the unconditional
-PCI ACPI IRQ routing stuff.  He has verified that the attached patch fixes
-it.  I sort of hate to add another pass of PCI fixups, so I'm open to
-alternate solutions if anybody suggests one.
+As an unfortunate side effect of runtime addition/removal of PCI Host Bridges,
+the RPA DLPAR driver can no longer depend on the success of ioremap_explicit()
+(and therefore remap_page_range()) for the case of DLPAR adding an I/O Slot.
 
-Add a "pci_fixup_enable" pass of PCI fixups.  These are run at the end of
-pci_enable_device() to fix up things like IRQs that are not set up until
-then.  Some VIA boards require a fixup after the IRQ is set up.  Found by
-Nick Piggin, initial patch by Bjorn Helgaas, reworked to fit into current
--mm by Nick.
+Without addressing this, an attempt to add the first child slot of a newly
+added PHB will fail when __ioremap_explicit() determines the mappings for that
+range to already exist.
 
-Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+For a little context, __ioremap_explicit() creates mappings for the range of a
+newly added slot.  Here's why these calls will be expected to fail in some
+cases.  Keep in mind that at boot-time, the PPC64 kernel calls ioremap() for
+the entire range spanned by each PHB.  Consider the following scenarios of
+DLPAR-adding an I/O slot.
+
+1) Just after boot, one removes an I/O slot.  At this point the range
+   associated with the parent PHB is fragmented, and the child range for the
+   slot in question is iounmap()'ed.  One then re-adds the slot, at which point
+   remap_page_range()/ioremap_explicit() restores the mappings that were
+   previously removed.
+
+2) One adds a new PHB, at which point the ppc64-specific addition ioremaps the
+   entire PHB range.  One then performs a DLPAR-add of a child slot of that
+   PHB.  At this point, mappings already exist for the range of the slot to
+   be added.  So remap_page_range()/ioremap_explicit() will fail at this point.
+
+The problem is, there's not a good way to distinguish between cases 1 and 2
+from the perspective of the DLPAR driver.  Because of that, I believe the
+correct solution to be:
+
+- Removal of relevant error prints from iounmap_explicit(), which is only used
+  for DLPAR.
+- Removal of error code checks from the RPA driver
+
+
+Signed-off-by: John Rose <johnrose@austin.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/pci/pci.c                 |    7 ++++++-
- drivers/pci/quirks.c              |   15 ++++++++++++---
- include/asm-generic/vmlinux.lds.h |    3 +++
- include/linux/pci.h               |    7 +++++++
- 4 files changed, 28 insertions(+), 4 deletions(-)
+ drivers/pci/hotplug/rpadlpar_core.c |    8 ++------
+ 1 files changed, 2 insertions(+), 6 deletions(-)
 
 
-diff -Nru a/drivers/pci/pci.c b/drivers/pci/pci.c
---- a/drivers/pci/pci.c	2004-10-19 15:25:30 -07:00
-+++ b/drivers/pci/pci.c	2004-10-19 15:25:30 -07:00
-@@ -382,8 +382,13 @@
- int
- pci_enable_device(struct pci_dev *dev)
- {
-+	int err;
-+
- 	dev->is_enabled = 1;
--	return pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1);
-+	if ((err = pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1)))
-+		return err;
-+	pci_fixup_device(pci_fixup_enable, dev);
-+	return 0;
+diff -Nru a/drivers/pci/hotplug/rpadlpar_core.c b/drivers/pci/hotplug/rpadlpar_core.c
+--- a/drivers/pci/hotplug/rpadlpar_core.c	2004-10-19 15:22:29 -07:00
++++ b/drivers/pci/hotplug/rpadlpar_core.c	2004-10-19 15:22:29 -07:00
+@@ -158,12 +158,8 @@
+ 
+ 	dn->bussubno = child->number;
+ 
+-	/* ioremap() for child bus */
+-	if (remap_bus_range(child)) {
+-		printk(KERN_ERR "%s: could not ioremap() child bus\n",
+-			__FUNCTION__);
+-		return 1;
+-	}
++	/* ioremap() for child bus, which may or may not succeed */
++	remap_bus_range(child);
+ 
+ 	return 0;
  }
- 
- /**
-diff -Nru a/drivers/pci/quirks.c b/drivers/pci/quirks.c
---- a/drivers/pci/quirks.c	2004-10-19 15:25:30 -07:00
-+++ b/drivers/pci/quirks.c	2004-10-19 15:25:30 -07:00
-@@ -491,9 +491,9 @@
- 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
- 	}
- }
--DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C586_2,	quirk_via_irqpic );
--DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_5,	quirk_via_irqpic );
--DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_6,	quirk_via_irqpic );
-+DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C586_2,	quirk_via_irqpic );
-+DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_5,	quirk_via_irqpic );
-+DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_6,	quirk_via_irqpic );
- 
- 
- /*
-@@ -1003,6 +1003,9 @@
- extern struct pci_fixup __end_pci_fixups_header[];
- extern struct pci_fixup __start_pci_fixups_final[];
- extern struct pci_fixup __end_pci_fixups_final[];
-+extern struct pci_fixup __start_pci_fixups_enable[];
-+extern struct pci_fixup __end_pci_fixups_enable[];
-+
- 
- void pci_fixup_device(enum pci_fixup_pass pass, struct pci_dev *dev)
- {
-@@ -1018,6 +1021,12 @@
- 		start = __start_pci_fixups_final;
- 		end = __end_pci_fixups_final;
- 		break;
-+
-+	case pci_fixup_enable:
-+		start = __start_pci_fixups_enable;
-+		end = __end_pci_fixups_enable;
-+		break;
-+
- 	default:
- 		/* stupid compiler warning, you would think with an enum... */
- 		return;
-diff -Nru a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
---- a/include/asm-generic/vmlinux.lds.h	2004-10-19 15:25:30 -07:00
-+++ b/include/asm-generic/vmlinux.lds.h	2004-10-19 15:25:30 -07:00
-@@ -24,6 +24,9 @@
- 		VMLINUX_SYMBOL(__start_pci_fixups_final) = .;		\
- 		*(.pci_fixup_final)					\
- 		VMLINUX_SYMBOL(__end_pci_fixups_final) = .;		\
-+		VMLINUX_SYMBOL(__start_pci_fixups_enable) = .;		\
-+		*(.pci_fixup_enable)					\
-+		VMLINUX_SYMBOL(__end_pci_fixups_enable) = .;		\
- 	}								\
- 									\
- 	/* Kernel symbol table: Normal symbols */			\
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	2004-10-19 15:25:30 -07:00
-+++ b/include/linux/pci.h	2004-10-19 15:25:30 -07:00
-@@ -1001,6 +1001,7 @@
- enum pci_fixup_pass {
- 	pci_fixup_header,	/* Called immediately after reading configuration header */
- 	pci_fixup_final,	/* Final phase of device fixups */
-+	pci_fixup_enable,	/* pci_enable_device() time */
- };
- 
- /* Anonymous variables would be nice... */
-@@ -1013,6 +1014,12 @@
- 	static struct pci_fixup __pci_fixup_##vendor##device##hook __attribute_used__	\
- 	__attribute__((__section__(".pci_fixup_final"))) = {				\
- 		vendor, device, hook };
-+
-+#define DECLARE_PCI_FIXUP_ENABLE(vendor, device, hook)				\
-+	static struct pci_fixup __pci_fixup_##vendor##device##hook __attribute_used__	\
-+	__attribute__((__section__(".pci_fixup_enable"))) = {				\
-+		vendor, device, hook };
-+
- 
- void pci_fixup_device(enum pci_fixup_pass pass, struct pci_dev *dev);
- 
 

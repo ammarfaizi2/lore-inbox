@@ -1,91 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268487AbUJJVPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268497AbUJJVTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268487AbUJJVPT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 17:15:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268497AbUJJVPS
+	id S268497AbUJJVTt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 17:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268502AbUJJVTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 17:15:18 -0400
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:20846 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268487AbUJJVPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 17:15:09 -0400
-Date: Sun, 10 Oct 2004 14:15:07 -0700
-To: Andrew Morton <akpm@osdl.org>
-Cc: roland@redhat.com,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Weirdness with suspending jobs in 2.6.9-rc3
-Message-ID: <20041010211507.GB3316@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	Andrew Morton <akpm@osdl.org>, roland@redhat.com,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20041005063324.GA7445@darjeeling.triplehelix.org> <20041009101552.GA3727@stusta.de> <20041009140551.58fce532.akpm@osdl.org> <pan.2004.10.10.07.39.54.154306@triplehelix.org> <20041010004524.0bf6d42e.akpm@osdl.org>
+	Sun, 10 Oct 2004 17:19:49 -0400
+Received: from smtp2.netcabo.pt ([212.113.174.29]:23450 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S268497AbUJJVTs convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 17:19:48 -0400
+Subject: Re: [ACPI] Re: [BKPATCH] LAPIC fix for 2.6
+From: =?ISO-8859-1?Q?S=E9rgio?= Monteiro Basto <sergiomb@netcabo.pt>
+Reply-To: sergiomb@netcabo.pt
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Len Brown <len.brown@intel.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.58L.0410102000160.4217@blysk.ds.pg.gda.pl>
+References: <1097429707.30734.21.camel@d845pe>
+	 <Pine.LNX.4.58.0410101044200.3897@ppc970.osdl.org>
+	 <Pine.LNX.4.58L.0410102000160.4217@blysk.ds.pg.gda.pl>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1097443183.26647.31.camel@darkstar>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VLAOICcq5m4DWEYr"
-Content-Disposition: inline
-In-Reply-To: <20041010004524.0bf6d42e.akpm@osdl.org>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-User-Agent: Mutt/1.5.6+20040722i
-From: joshk@triplehelix.org (Joshua Kwan)
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sun, 10 Oct 2004 22:19:43 +0100
+Content-Transfer-Encoding: 8BIT
+X-OriginalArrivalTime: 10 Oct 2004 21:19:46.0461 (UTC) FILETIME=[DE255CD0:01C4AF0E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2004-10-10 at 20:04, Maciej W. Rozycki wrote:
+> On Sun, 10 Oct 2004, Linus Torvalds wrote:
+> 
+> > > Hi Linus, please do a 
+> > > 
+> > > 	bk pull bk://linux-acpi.bkbits.net/26-latest-release
+> > 
+> > Ok, this version of the patch suddenly looks like a real bug-fix in that
+> > it now makes the command line options "lapic"/"nolapic" a lot more
+> > logical.
+> 
+>  Hmm, any particular reason to keep the local APIC disabled by default?  
+> Most BIOS vendors keep it disabled just because it's easier to get stuff
+> set up this way -- with the APIC enabled you need to do the same steps to
+> program the 8259As as with the APIC disabled, plus program the APIC 
+> itself, which provides no gain to BIOS itself or to DOS, so why bother?
+> 
+>   Maciej
+> 
 
---VLAOICcq5m4DWEYr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The problem is: trying enable some local apic's (for example on via
+mother boards on my laptop), cause many problem, like hang on boot (with
+ACPI), hang on Fn-F3 (video switch), power-off fails, etc. and no one
+knows how resolved the problem.  
+So keep it disable if BIOS vendors say so, can be reasonable idea.
 
-On Sun, Oct 10, 2004 at 12:45:24AM -0700, Andrew Morton wrote:
-> Useful, thanks.
+-- 
+Sérgio M. B.
 
-Maybe this is useful too?
-
-Started make on that test Makefile, and
-
-% strace -p 31810
-Process 31810 attached - interrupt to quit
-wait4(-1073750280, NULL, 0, NULL)       =3D -1 ECHILD (No child processes)
-
-it then immediately proceeded to give the old 'no child processes.
-Stop.' thing.
-
-Strangely, the bug is experienced only sporadically when using make -j2
-on a kbuild. Maybe that's just a coincidence.
-
---=20
-Joshua Kwan
-
---VLAOICcq5m4DWEYr
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: http://triplehelix.org/~joshk/pubkey_gpg.asc
-
-iQIVAwUBQWmmWqOILr94RG8mAQJ3uA//ceYUqNEOlyA+YGgsnuSU6u2akZ/O3fe0
-oiRH3H8oU+xPHb7dU7HCmk+v+ggfm4r4LFq6C9fI3icudqtl/PhUBndD4OWfUWLl
-mwClZNezyJ4ofXforzNvL0Aakmw1ziKPRGX8j4vDKa6HJ7UzxI97Ck9l7h0sbXY9
-ACK/uzVGCZtmom8ayXGu2UKwd8b7IvfQWxbl2tiABdXhmigI724rGaECI+AK7+Uj
-GP0YsPKKE15rh64Q5j2EUCtvU8bdlSQs5QfhdyCIi1BiGRnR2OBMJ77vz2Z62I0A
-6D3bs7gmVne/fsl9wnIVg8yX9TMpPsQl/0aE29r8hr7Vif9rnugLXH6m7a3OwEax
-uKGfI6SDukABl//OXp+m9Jo3wrPvzGTM38YLLj/SVv//NJ+VuVHpjTXSbOwanL5v
-kUpyPPXxysg60TyEmBofdyQLrLtTa4MLudSuy+P8D0ulDRO2EgWzC00b9S/cfUWF
-pOHZDlgrKoyEGMMHhVZdhbtV1Wa2yEr4NbrLNu1ng2UOomIoTVbjQQEPnv3PHli6
-ZZmMprjG19ujL486zmTU5L9aQhW6V/LKOC/UF6yZoGSd5q2BgqvBWZkcZZ8Xbopb
-e1LIrOYrvQiBM5wxDIs3kEOdy40Ob0iryihvCbj2+uQbi2guQAxODUUZ+zAf7aOl
-1ihRDFAwSgE=
-=ahIL
------END PGP SIGNATURE-----
-
---VLAOICcq5m4DWEYr--

@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280728AbRKBQp1>; Fri, 2 Nov 2001 11:45:27 -0500
+	id <S280727AbRKBQi5>; Fri, 2 Nov 2001 11:38:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280729AbRKBQpR>; Fri, 2 Nov 2001 11:45:17 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59142 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280728AbRKBQpH>; Fri, 2 Nov 2001 11:45:07 -0500
+	id <S280728AbRKBQir>; Fri, 2 Nov 2001 11:38:47 -0500
+Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:20864
+	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with ESMTP id <S280727AbRKBQil>; Fri, 2 Nov 2001 11:38:41 -0500
+Date: Fri, 2 Nov 2001 08:38:21 -0800
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Message-Id: <200111021638.fA2GcLs03275@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <laughing@shared-source.org>
 Subject: Re: Linux 2.4.13-ac6
-To: whitney@math.berkeley.edu
-Date: Fri, 2 Nov 2001 16:51:32 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (LKML), laughing@shared-source.org (Alan Cox)
-In-Reply-To: <200111021638.fA2GcLs03275@adsl-209-76-109-63.dsl.snfc21.pacbell.net> from "Wayne Whitney" at Nov 02, 2001 08:38:21 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15zhXY-0002sv-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20011102142512.A9558@lightning.swansea.linux.org.uk>
+In-Reply-To: <20011102142512.A9558@lightning.swansea.linux.org.uk>
+Reply-To: whitney@math.berkeley.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> CONFIG_IDE_TASK_IOCTL
+In mailing-lists.linux-kernel, Alan Cox wrote:
 
-Adds extra ioctls for doing specific tasks within the ide layer - think of
-taskfile as an ide scheduler
+> 2.4.13-ac6
+> o	IDE driver updates				(Andre Hedrick
+> 							 Michael Cornwell)
+> 	| Taskfile framework
+> 	| Disk suspend cache flushing
+> 	| Driver updates
+> 	| UDMA133
 
-> CONFIG_IDEDMA_ONLYDISK
+This adds four config options without any Configure.help text:
 
-Do windowslike UDMA on disks PIO on cdrom
+CONFIG_IDEDISK_STROKE
+CONFIG_IDE_TASK_IOCTL
+CONFIG_IDEDMA_ONLYDISK
+CONFIG_BLK_DEV_IDEDMA_TIMEOUT
 
+Is there any documentation somewhere else for these?  In particular I
+get what most of them mean but don't understand what IDE Taskfile is.
 
-The other two Andre had best explain
+Cheers, Wayne
 

@@ -1,126 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265196AbUEZB2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265279AbUEZBci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265196AbUEZB2j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 21:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265260AbUEZB2j
+	id S265279AbUEZBci (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 21:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265273AbUEZBch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 21:28:39 -0400
-Received: from av4-2-sn3.vrr.skanova.net ([81.228.9.112]:54992 "EHLO
-	av4-2-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
-	id S265196AbUEZB2f convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 21:28:35 -0400
-From: Roger Larsson <roger.larsson@norran.net>
-To: linux-kernel@vger.kernel.org
-Subject: (Found?) Re: Hard Hang with __alloc_pages: 0-order allocation failed (gfp=0x20/1) - Not out of memory
-Date: Wed, 26 May 2004 03:22:58 +0200
-User-Agent: KMail/1.6.52
+	Tue, 25 May 2004 21:32:37 -0400
+Received: from CPE-203-45-91-55.nsw.bigpond.net.au ([203.45.91.55]:15853 "EHLO
+	mudlark.pw.nest") by vger.kernel.org with ESMTP id S265279AbUEZBcS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 21:32:18 -0400
+Message-ID: <40B3F356.2050200@aurema.com>
+Date: Wed, 26 May 2004 11:31:02 +1000
+From: Peter Williams <peterw@aurema.com>
+Organization: Aurema Pty Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200405260322.58571.roger.larsson@norran.net>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+CC: Rik van Riel <riel@redhat.com>, Shailabh Nagar <nagar@watson.ibm.com>,
+       kanderso@redhat.com, Chandra Seetharaman <sekharan@us.ibm.com>,
+       limin@sgi.com, jlan@sgi.com, linux-kernel@vger.kernel.org, jh@sgi.com,
+       Paul Jackson <pj@sgi.com>, gh@us.ibm.com,
+       Erik Jacobson <erikj@subway.americas.sgi.com>, ralf@suse.de,
+       lse-tech@lists.sourceforge.net, Vivek Kashyap <kashyapv@us.ibm.com>,
+       mason@suse.com
+Subject: Re: Minutes from 5/19 CKRM/PAGG discussion
+References: <Pine.LNX.4.44.0405241404080.22438-100000@chimarrao.boston.redhat.com> <40B2534E.3040302@watson.ibm.com> <40B288BA.7010905@aurema.com> <40B35F83.8090901@watson.ibm.com>
+In-Reply-To: <40B35F83.8090901@watson.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hubertus Franke wrote:
+> Peter Williams wrote:
+>> From my (possibly incorrect) understanding of the above description, 
+>> one thing that PAGG provides to its clients that CKRM doesn't is the 
+>> ability to attach some private data to task structs and it passes that 
+>> data to the client as part of the callback.  Am I correct in this 
+>> interpretation?
+>>
+>> Peter
+> 
+> 
+> That is the "stickling" point. Yes, PAGG provides this feature that one 
+> can chain private data to the attach/detach callback. CKRM at this point 
+> does not do that as we do not see the need for multiple class 
+> associations in the core.
 
-Since I read linux-kernel via achieves, this might be found already - but 
-anyway... (CONFIG_SMP problem? Oh, noticed that this is 2.4.21...)
+I think that you are looking at this issue too much from a CKRM point of 
+view.  I.e. just because CKRM doesn't need it doesn't mean that it isn't 
+  a good idea.  In fact the issue should be viewed more broadly than 
+just a "resource management" point of view.
 
-decode "(gfp=0x20/1)"  and you find that
-	current->flags is PF_MEMALLOC 
-	gfp is __GFP_HIGH (== GFP_ATOMIC)
-and the backtrace says we are in_interrupt()
+If there are multiple clients then having their per KernelObject data 
+managed using the PAGG mechanism greatly simplifies the task of 
+implementing a client AND reduces the potential overhead on the system 
+as the alternative is for the client to use some type of search 
+mechanism to find its copy of its per KernelObject specific data when 
+servicing its callback functions.
 
-So I guess this is the key line...
-	if (current->flags & PF_MEMALLOC && !in_interrupt()) {
+> Instead we can drive such things through the 
+> extended RBCE interface. Here you register callbacks to the task 
+> classtype to be notified of the ckrm events.
+> 
+> Since we do networking, PAGG is not sufficient for us as it only deals 
+> with processes.
 
-* Less than (.min >> 2) of memory left.
-* In interrupt
-=> Not allowed to allocate anything more
+I think that this is just a detail and that what should happen is that a 
+PAGG like mechanism be applied to sockets.  Similarly, to enable memory 
+management/monitoring one attached to address space structures would be 
+useful.  And so on.
 
-Does the caller understand that repeating requests will not help?
+> Hence we need our generic infrastructure at the core 
+> level. Sure we can try to modularize further to take the CKRM EVENTS 
+> out.
 
-In e1000_main.c
-		skb = dev_alloc_skb(adapter->rx_buffer_len + reserve_len);
+I think that breaking these up into smaller chunks (based on the type of 
+KernelObject to which they apply) would be a good idea.  The fact that 
+CKRM wants to use them all isn't sufficient justification to lump them 
+all together.
 
-___skbuff.h___
-static inline struct sk_buff *dev_alloc_skb(unsigned int length)
-{
-	return __dev_alloc_skb(length, GFP_ATOMIC);
-}
+> Then potentially one could implement task types on top of PAGG on 
+> top of CKRM Events (which are needed anyway for other the task class 
+> associations), but then again PAGG brings nothing but another indirections.
+> 
+> It worthwhile to consider to bite the bullet and allow PAGG to enter its 
+> task class association chain (1 word) and allow CKRM its own. CKRM is 
+> going after the integrated resource schedulers, PAGG/CSA (afaik) does not.
 
-static inline struct sk_buff *__dev_alloc_skb(unsigned int length,
-					      int gfp_mask)
-{
-	struct sk_buff *skb;
+I think that this is another example of you taking a too CKRM centric 
+point of view.  What I'm trying to say is that I think that these lower 
+level interfaces need to be more independent of CKRM's requirements.
 
-	skb = alloc_skb(length+16, gfp_mask);
-	if (skb)
-		skb_reserve(skb,16);
-	return skb;
-}
-
-And the rather big alloc_skb calls kmalloc
-
-void * kmalloc (size_t size, int flags)
-{
-	cache_sizes_t *csizep = cache_sizes;
-
-	for (; csizep->cs_size; csizep++) {
-		if (size > csizep->cs_size)
-			continue;
-		return __kmem_cache_alloc(flags & GFP_DMA ?
-			 csizep->cs_dmacachep : csizep->cs_cachep, flags);
-	}
-	return NULL;
-}
-
-- - - now take a close look at the try_again path - - -
-
-static inline void * __kmem_cache_alloc (kmem_cache_t *cachep, int flags)
-{
-	unsigned long save_flags;
-	void* objp;
-
-	kmem_cache_alloc_head(cachep, flags);
-try_again:
-	local_irq_save(save_flags);
-
-#ifdef CONFIG_SMP
-	{
-		cpucache_t *cc = cc_data(cachep);
-
-		if (cc) {
-			if (cc->avail) {
-				STATS_INC_ALLOCHIT(cachep);
-				objp = cc_entry(cc)[--cc->avail];
-			} else {
-				STATS_INC_ALLOCMISS(cachep);
-				objp = kmem_cache_alloc_batch(cachep,cc,flags);
-				if (!objp)
-					goto alloc_new_slab_nolock;
-
-- - -
-alloc_new_slab_nolock:
-#endif
-	local_irq_restore(save_flags);
-	if (kmem_cache_grow(cachep, flags))
-		/* Someone may have stolen our objs.  Doesn't matter, we'll
-		 * just come back here again.
-		 */
-		goto try_again;
-
-But kmem_cache_grow will return failed...
-	-> kmem_getpages ->  _get_free_pages -> alloc_pages
-
-Or have I missed something?
-
-/RogerL
-
+Peter
 -- 
-Roger Larsson
-Skellefteå
-Sweden
+Dr Peter Williams, Chief Scientist                peterw@aurema.com
+Aurema Pty Limited                                Tel:+61 2 9698 2322
+PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
+79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
+

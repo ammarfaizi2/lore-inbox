@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275752AbRJPJ6F>; Tue, 16 Oct 2001 05:58:05 -0400
+	id <S275270AbRJPJ6Z>; Tue, 16 Oct 2001 05:58:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275693AbRJPJ5z>; Tue, 16 Oct 2001 05:57:55 -0400
-Received: from weta.f00f.org ([203.167.249.89]:62102 "EHLO weta.f00f.org")
-	by vger.kernel.org with ESMTP id <S275270AbRJPJ5l>;
-	Tue, 16 Oct 2001 05:57:41 -0400
-Date: Tue, 16 Oct 2001 22:58:31 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [CFT][PATCH] large /proc/mounts and friends
-Message-ID: <20011016225831.A26737@weta.f00f.org>
-In-Reply-To: <Pine.GSO.4.21.0110152308440.11608-100000@weyl.math.psu.edu> <Pine.LNX.4.33.0110152053080.8668-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0110152053080.8668-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.22i
-X-No-Archive: Yes
+	id <S275693AbRJPJ6Q>; Tue, 16 Oct 2001 05:58:16 -0400
+Received: from post.it.helsinki.fi ([128.214.205.24]:36871 "EHLO
+	post.it.helsinki.fi") by vger.kernel.org with ESMTP
+	id <S275270AbRJPJ57>; Tue, 16 Oct 2001 05:57:59 -0400
+To: linux-kernel@vger.kernel.org
+Subject: SCSI compile error
+Message-ID: <1003226310.3bcc04c6b2a12@www3.helsinki.fi>
+Date: Tue, 16 Oct 2001 12:58:30 +0300 (EEST)
+From: Henrikki Almusa <henrikki.almusa@helsinki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.6
+X-Originating-IP: 128.214.191.211
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 15, 2001 at 09:01:17PM -0700, Linus Torvalds wrote:
+I was compiling kernel 2.4.12 and encountered a following problem. I couldn't 
+found anything from list archives about this. I tried to fix this by using the 
+same source file from 2.4.10, but that gives same error except the line number 
+is one smaller in all lines.
 
-    But you're probably right that it doesn't really matter, and as we
-    really have "pipe" semantics we might as well dis-allow any lseek
-    except to the beginning (I know that there have been apps out
-    there that avoid re-opening /proc files by lseek'ing to zero and
-    re-reading - they may not be common enough to matter, though).
+Output from compiling:
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.12/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include 
+/usr/src/linux-2.4.12/include/linux/modversions.h   -c -o cpqfcTSinit.o 
+cpqfcTSinit.c
+cpqfcTSinit.c: In function `cpqfcTS_ioctl':
+cpqfcTSinit.c:663: `SCSI_IOCTL_FC_TARGET_ADDRESS' undeclared (first use in this
+function)
+cpqfcTSinit.c:663: (Each undeclared identifier is reported only once
+cpqfcTSinit.c:663: for each function it appears in.)
+cpqfcTSinit.c:681: `SCSI_IOCTL_FC_TDR' undeclared (first use in this function)
+make[2]: *** [cpqfcTSinit.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.4.12/drivers/scsi'
+make[1]: *** [_modsubdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.12/drivers'
+make: *** [_mod_drivers] Error 2
+[root@my_comp linux-2.4.12]#
 
-I always wondered why for a number of /proc entries that aren't really
-files why we don't simply expose them as pipes as opposed to
-zero-length files?  Surely that will confuse fewer user-land programs
-as well and feeling more technically correct?
+Ps. i'm not on the kernel-list so put my email in cc atleast.
 
-
-
-   --cw
+Henrikki Almusa

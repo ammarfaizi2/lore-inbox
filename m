@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269637AbUHZU7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269623AbUHZVKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269637AbUHZU7M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:59:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269664AbUHZU5Y
+	id S269623AbUHZVKm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 17:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269642AbUHZVKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:57:24 -0400
-Received: from holomorphy.com ([207.189.100.168]:41880 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269590AbUHZUiL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:38:11 -0400
-Date: Thu, 26 Aug 2004 13:38:06 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: jmerkey@comcast.net
-Cc: Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org,
-       jmerkey@drdos.com
-Subject: Re: 1GB/2GB/3GB User Space Splitting Patch 2.6.8.1 (PSEUDO SPAM)
-Message-ID: <20040826203806.GH2793@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	jmerkey@comcast.net, Roland Dreier <roland@topspin.com>,
-	linux-kernel@vger.kernel.org, jmerkey@drdos.com
-References: <082620042024.23755.412E47050006895C00005CCB2200751150970A059D0A0306@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <082620042024.23755.412E47050006895C00005CCB2200751150970A059D0A0306@comcast.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Thu, 26 Aug 2004 17:10:09 -0400
+Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:22473 "EHLO
+	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S269645AbUHZVAs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 17:00:48 -0400
+Message-ID: <412E4F43.9030801@ttnet.net.tr>
+Date: Thu, 26 Aug 2004 23:59:47 +0300
+From: "O.Sezer" <sezeroz@ttnet.net.tr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: tr, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.28-pre2 and ntfs-2.1.6b ?
+Content-Type: text/plain;
+	charset=us-ascii;
+	format=flowed
+Content-Transfer-Encoding: 7bit
+X-ESAFE-STATUS: Mail clean
+X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, my attribution was stripped from:
->> Though asinine, the ABI spec is set in stone.
+Hi all:
 
-On Thu, Aug 26, 2004 at 08:24:38PM +0000, jmerkey@comcast.net wrote:
-> Why should Linux, which supports multiple executable formats, tie
-> itself to ELF exclusively? I doubt I am going to need to run ORACLE
-> or some other piggish app on my embedded linux system, but I would
-> like to have more kernel address space for drivers and other
-> appliance type features.  What do you plan to do when the driver base
-> becomes as large as the one in WIndows 2000/XP and you don't have
-> enough memory to load all the drivers.  Right now, iptables barfs
-> even with 3GB of address space when you load up about a  dozen
-> virtual network interfaces ?  Microsoft had this same problem (only
-> at a much sooner juncture in their platform evolution) and went to
-> VM support in the kernel itself to increase virtual address space for
-> kernel apps, file systems, and drivers when thye hit the wall. It's
-> coming time to start thinking about it.  
+With 2.4.28-pre2, ntfs-2.1.6b from linux-ntfs site
+started failing to compile at aops.c:
 
-You're years late to this game. It's been thought about and the
-consensus (which I disagreed with) was to reject virtualspace pressure
-related changes of this kind for 32-bit platforms in favor of refusing
-to support 32-bit platforms and/or workloads requiring them.
+aops.c: In function `ntfs_read_block':
+aops.c:315: parse error before "else"
+-- or in case of gcc3.4 --
+aops.c:315: error: syntax error before "else"
 
-Also, please line wrap at 80 characters (preferably 70) and please
-don't top post. The request about "top posting" is that placing quoted
-text prior to your responses in the message, with a line attributing the
-quoted text to the original author immediately above the quoted text is
-greatly preferred over the quoting arrangements made in your post(s).
+This happens with gcc-3.2.2 and gcc-3.4.0
+and can be fixed by:
 
+--- aops.c.BAK	2004-08-26 19:35:11.000000000 +0300
++++ aops.c	2004-08-26 21:41:53.000000000 +0300
+@@ -310,10 +310,11 @@
+  		return 0;
+  	}
+  	/* No i/o was scheduled on any of the buffers. */
+-	if (likely(!PageError(page)))
++	if (likely(!PageError(page))) {
+  		SetPageUptodate(page);
+-	else /* Signal synchronous i/o error. */
++	} else { /* Signal synchronous i/o error. */
+  		nr = -EIO;
++	}
+  	unlock_page(page);
+  	return nr;
+  }
 
--- wli
+The very same code used to compile fine with
+2.4.27 without any changes to it. I can't see
+where the problem is (it's 23:57 here ;)).
+Can anyone tell, please?
+
+Regards,
+Ozkan Sezer

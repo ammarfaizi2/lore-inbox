@@ -1,80 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261629AbUCBSVL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 13:21:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbUCBSVL
+	id S261729AbUCBSWe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 13:22:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbUCBSWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 13:21:11 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:6784 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261629AbUCBSVG
+	Tue, 2 Mar 2004 13:22:34 -0500
+Received: from fmr09.intel.com ([192.52.57.35]:10990 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S261729AbUCBSWd convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 13:21:06 -0500
-Date: Tue, 2 Mar 2004 13:21:23 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: poll() in 2.6 and beyond
-Message-ID: <Pine.LNX.4.53.0403021318580.796@chaos>
+	Tue, 2 Mar 2004 13:22:33 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: Network error with Intel E1000 Adapter on update 2.4.25 ==> 2.6.3
+Date: Tue, 2 Mar 2004 10:22:19 -0800
+Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E0102CBDEC9@orsmsx402.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Network error with Intel E1000 Adapter on update 2.4.25 ==> 2.6.3
+Thread-Index: AcP9LGy9DCYDtwk0RnOTuLLUfxW6jQCky7RgABbgo8AAGdr8oA==
+From: "Feldman, Scott" <scott.feldman@intel.com>
+To: "Martin Bene" <martin.bene@icomedias.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 02 Mar 2004 18:22:19.0949 (UTC) FILETIME=[4CA00DD0:01C40083]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> experimenting with the driver source shows that the interrupt 
+> displayed by ifconfig seems to depend on netdev->irq being 
+> set; this was removed during the netdev->irq ==> 
+> adapter->pdev->irq change. adding the following line corrects 
+> ifconfig display:
 
-Poll in 2.6.0; when a driver routine calls poll_wait()
-it returns <<immediately>> to somewhere in the
-kernel, then waits for my wake_up_interuptible(), before
-returning control to a user sleeping in poll(). This means
-that the user gets the wrong poll return value! It
-doesn't get the value it was given as a result of the
-interrupt, but the value that existed (0) before the
-interrupt occurred.
+Caching pdev->irq in netdev->irq is problematic because pdev->irq can
+change after registering for MSI interrupts, for example.  netdev->irq
+is vestigial from the days of manual irq assignment.
 
-Poll should not return from poll_wait() until it gets
-a wake_up_interruptible() call. The wait variable,
-info->pwait, below, has been initialized by executing
-init_waitqueue_head(&info->pwait) in the initialization
-code. This code works in 2.4.24.
+Bottom line is you'll not see the irq with ifconfig, but it'll be there
+in /proc and lspci.
 
-What do I do to make it work in 2.6.0 and beyond? There
-are no hints in the 2.6 drivers as they all seem to be
-written like this and they presumably work.
-
-
-/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-/*
- *   The interrupt service routine.
- */
-static void pci_isr(int irq, void *p, struct pt_regs *regs)
-{
-    spin_lock(&info->lock);
-    DEB(printk(KERN_INFO"%s : Interrupt!\n", devname));
-    info->poll_flag |= POLLIN|DEF_POLL;
-    wake_up_interruptible(&info->pwait);
-    spin_unlock(&info->lock);
-}
-/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-/*
- *  Device poll routine.
- */
-static size_t poll(struct file *fp, struct poll_table_struct *wait)
-{
-    size_t poll_flag;
-    size_t flags;
-    DEB(printk(KERN_INFO"%s : poll called\n", devname));
-    poll_wait(fp, &info->pwait, wait);
-    lockit(TRUE, &flags);
-    poll_flag = info->poll_flag;
-    info->poll_flag = 0;
-    lockit(FALSE, &flags);
-    DEB(printk(KERN_INFO"%s : poll returns\n", devname));
-    return poll_flag;
-}
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+-scott

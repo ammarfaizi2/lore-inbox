@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263865AbUE1ULw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263868AbUE1UNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263865AbUE1ULw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 16:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263864AbUE1ULw
+	id S263868AbUE1UNa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 16:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263869AbUE1UN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 16:11:52 -0400
-Received: from calvin.stupendous.org ([213.84.70.4]:12548 "HELO
-	quadpro.stupendous.org") by vger.kernel.org with SMTP
-	id S263868AbUE1ULl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 16:11:41 -0400
-Date: Fri, 28 May 2004 22:11:39 +0200
-From: Jurjen Oskam <jurjen@stupendous.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] 2.6.6 tty_io.c hangup locking
-Message-ID: <20040528201139.GA12281@quadpro.stupendous.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040527174509.GA1654@quadpro.stupendous.org> <1085769769.2106.23.camel@deimos.microgate.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1085769769.2106.23.camel@deimos.microgate.com>
-User-Agent: Mutt/1.4.2i
+	Fri, 28 May 2004 16:13:29 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:52374 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263868AbUE1UNP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 16:13:15 -0400
+Message-ID: <40B79DB0.6090209@us.ibm.com>
+Date: Fri, 28 May 2004 13:14:40 -0700
+From: Nivedita Singhvi <niv@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Arjan van de Ven <arjanv@redhat.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_IRQBALANCE for AMD64?
+References: <7F740D512C7C1046AB53446D372001730182BAE2@scsmsx402.amr.corp.intel.com> <40B7797F.2090204@pobox.com> <17750000.1085766378@flay> <20040528175724.GC9898@devserv.devel.redhat.com> <40B7984E.7040208@us.ibm.com> <40B799EB.8060000@pobox.com>
+In-Reply-To: <40B799EB.8060000@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 28, 2004 at 01:42:50PM -0500, Paul Fulghum wrote:
+Jeff Garzik wrote:
+> Nivedita Singhvi wrote:
 
-> Up to now, this did not cause any actual problems.
-> In 2.6.X this causes a warning if any of the called functions
-> (flush_buffer/write_wakeup) call spin_xxx_bh() functions.
+> Network is one of the areas where you _don't_ want to be constantly 
+> pointing your NIC's irq to different CPUs.
+> 
+> Cache affinity, packet re-ordering problems, and other fun ensue.
+> 
+>     Jeff
 
-It was not only a warning here, but the pptp client also didn't work again
-until after rebooting. Every time the connection was retried (every 10
-seconds or so) the message appeared. Perhaps this is a problem in the pptp
-client, but after rebooting it worked.
+I agree that there is a tradeoff point - we need the cache
+affinity, but you also want to employ the other CPUs which
+might be idle in the system - so there is a timeframe that
+is ideal to have one CPU pick up interrupts, and then move
+on to another - but that timeframe is surely shorter than
+then every 5 mins or so that the irq daemon might run,
+correct?
 
-As for the patch: applied to vanilla 2.6.5 (applied cleanly, offset -5
-lines) and compiling now.
+Also, yep, packet re-ordering is an issue for TCP connections,
+and we do have mechanisms in the kernel to address it to some
+extent - so we don't trigger fast retransmit unnecessarily.
+And if you have a lot of UDP and other traffic, or short lived
+connections, then you are unnecessarily subjecting them to
+a less ideal environment.
 
-One problem though: I'm running 2.6 for about two weeks now (with a 24x7
-pptp connection), and I encountered this problem just once. I've seen a
-report that someone got this error when his connection was severed, so
-I'll try to pull the phone cable a few times and see how it recovers, both
-with and without your patch. I'll report back when I know more.
+I agree that this is very tricky stuff to optimize, and I
+certainly don't know how to go about picking the best
+heuristic here, but I am wondering how the frequency with
+which a user space daemon might run (and you don't want it
+to run too often given the cost) would be able to handle
+something that does require finer granularity. Or is it
+everybody's understanding that fine grained balancing is
+not needed?
 
-Thanks,
--- 
-Jurjen Oskam
+thanks,
+Nivedita
 
-"Avoid putting a paging file on a fault-tolerant drive, such as a mirrored
-volume or a RAID-5 volume. Paging files do not need fault-tolerance."-MS Q308417
+
+

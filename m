@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291604AbSBHPYN>; Fri, 8 Feb 2002 10:24:13 -0500
+	id <S287359AbSBHPhD>; Fri, 8 Feb 2002 10:37:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287359AbSBHPXy>; Fri, 8 Feb 2002 10:23:54 -0500
-Received: from mailhost.tue.nl ([131.155.2.5]:59286 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S287317AbSBHPXv>;
-	Fri, 8 Feb 2002 10:23:51 -0500
-Date: Fri, 8 Feb 2002 16:23:48 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Anton Altaparmakov <aia21@cus.cam.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix floppy io ports reservation
-Message-ID: <20020208152348.GA1809@win.tue.nl>
-In-Reply-To: <E16Yevs-00054g-00@libra.cus.cam.ac.uk> <E16Yevs-00054g-00@libra.cus.cam.ac.uk> <5.1.0.14.2.20020207231937.00b0cec0@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
+	id <S291611AbSBHPgx>; Fri, 8 Feb 2002 10:36:53 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:460 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S287359AbSBHPgd>; Fri, 8 Feb 2002 10:36:33 -0500
+Message-ID: <3C63F07F.323A32DE@redhat.com>
+Date: Fri, 08 Feb 2002 15:36:31 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-26beta.16smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tigran Aivazian <tigran@veritas.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch] larger kernel stack (8k->16k) per task
+In-Reply-To: <Pine.LNX.4.33.0202081511400.1359-100000@einstein.homenet>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20020207231937.00b0cec0@pop.cus.cam.ac.uk>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> ports 0x3f0 and 0x3f1 are used on certain PS/2 systems
->> and on some very old AT clones
+Tigran Aivazian wrote:
 > 
-> [PS/2] Can you point me to the code for the PS/2 systems in question?
-> [AT] And we care because?
+> Hi,
+> 
+> In the light of some talks here about increasing kernel stack, here is my
+> patch for i386 architecture that some may find useful. It also has a nice
+> extra (/proc/stack) implemented by Hugh Dickins which helps to find major
+> offenders.
+> 
+> It is against 2.4.9 but should be easy to port in any direction. (One way
+> the patch could be improved is by making the size CONFIG_ option instead
+> of hardcoding). Oh btw, please don't tell me "but now you'd need _four_
+> physically-contiguous pages to create a task instead of two!" because I
+> know it (and think it's not too bad).
 
-You need not worry - these systems have been dead for over fifteen years.
 
+I do think it is too bad. Sorry.
+Also it's the wrong approach. The right approach (as done by Manfred and
+David) is
+to put "current" no longer on this stack just a pointer to current.
+And .... if you need a 16Kb stack your kernel code is VERY VERY sick.
+
+Greetings,
+   Arjan van de Ven

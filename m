@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279878AbRKIMwh>; Fri, 9 Nov 2001 07:52:37 -0500
+	id <S279885AbRKIM4H>; Fri, 9 Nov 2001 07:56:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279901AbRKIMw2>; Fri, 9 Nov 2001 07:52:28 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19208 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279878AbRKIMwJ>; Fri, 9 Nov 2001 07:52:09 -0500
-Subject: Re: speed difference between using hard-linked and modular drives?
-To: davem@redhat.com (David S. Miller)
-Date: Fri, 9 Nov 2001 12:59:09 +0000 (GMT)
+	id <S279891AbRKIMz5>; Fri, 9 Nov 2001 07:55:57 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:47489 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S279885AbRKIMzq>;
+	Fri, 9 Nov 2001 07:55:46 -0500
+Date: Fri, 09 Nov 2001 04:54:55 -0800 (PST)
+Message-Id: <20011109.045455.74749430.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
 Cc: ak@suse.de, anton@samba.org, mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <20011108.231632.18311891.davem@redhat.com> from "David S. Miller" at Nov 08, 2001 11:16:32 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: speed difference between using hard-linked and modular drives?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E162BFV-0002y1-00@the-village.bc.nu>
+In-Reply-To: <20011108.231632.18311891.davem@redhat.com>
+	<E162BFV-0002y1-00@the-village.bc.nu>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E162BFV-0002y1-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Oh no, not this again...
-> 
-> It _IS_ a big deal.  Fetching _ONE_ hash chain cache line
-> is always going to be cheaper than fetching _FIVE_ to _TEN_
-> page struct cache lines while walking the list.
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: Fri, 9 Nov 2001 12:59:09 +0000 (GMT)
 
-Big picture time. What costs more - the odd five cache line hit or swapping
-200Kbytes/second on and off disk ? - thats obviously workload dependant.
+   we need a CONFIG option for it
 
-Perhaps at some point we need to accept there is a memory/speed tradeoff
-throughout the kernel and we need a CONFIG option for it - especially for
-the handheld world. I don't want to do lots of I/O on an ipaq, I don't need
-big tcp hashes, and I'd rather take a small performance hit.
+I think a boot time commandline option is more appropriate
+for something like this.
 
+Franks a lot,
+David S. Miller
+davem@redhat.com

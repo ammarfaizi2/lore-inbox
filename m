@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVC2SPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVC2SQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbVC2SPw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 13:15:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVC2SPw
+	id S261283AbVC2SQL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 13:16:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVC2SQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 13:15:52 -0500
-Received: from imag.imag.fr ([129.88.30.1]:27037 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S261282AbVC2SPp (ORCPT
+	Tue, 29 Mar 2005 13:16:11 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42466 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261283AbVC2SQG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 13:15:45 -0500
-Message-ID: <1112120141.42499b4d13aa1@webmail.imag.fr>
-Date: Tue, 29 Mar 2005 20:15:41 +0200
-From: colbuse@ensisun.imag.fr
-To: linux-kernel@vger.kernel.org
-Subject: [2.4]drivers/char/console.c: check if caller is proprietary of the current console
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 195.221.228.2
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Tue, 29 Mar 2005 20:15:41 +0200 (CEST)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+	Tue, 29 Mar 2005 13:16:06 -0500
+Date: Tue, 29 Mar 2005 20:15:51 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: romano@dea.icai.upco.es, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: swsusp not working for me on a PREEMPT 2.6.12-rc1 and 2.6.12-rc1-mm3 kernel
+Message-ID: <20050329181551.GA8125@elf.ucw.cz>
+References: <20050329110309.GA17744@pern.dea.icai.upco.es> <20050329132022.GA26553@pern.dea.icai.upco.es> <20050329170238.GA8077@pern.dea.icai.upco.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050329170238.GA8077@pern.dea.icai.upco.es>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-This patch adds a verification that the calling process is writing to the
-current console, in the DEC alignment screen test.
+> > >    swsusp is not working for me with 2.6.12rc1. I compiled the kernel
+> > >    preempt, I am compiling now without preempt to test it. -mm3 has a
+> > >    similar behaviour.
+> > 
+> > Tested with no-preempt -rc1-mm3. No joy; the suspend stops exactly at the
+> > same point. 
+> 
+> Double auto-answer. I have a serial console now; if anybody can help me to
+> explain why (after booting with console=ttyS0,115200 console=tty0) if I do a
+> sysrq-t on the serial console appears just the "[4295210.188000] SysRq :
+> Show State" and not the dump which appears only to the virtual console... 
 
-(The bug can be observed by typing :
-  $chvt 2 && sleep 1 && echo -e "\033#8" 
-in vt1.)
+I'd start with non-preempt 2.6.12-rc1, then remove all the
+unneccessary drivers, boot init=/bin/bash, and see what happens.
 
-Signed-off-by: Emmanuel Colbus <emmanuel.colbus@ensimag.imag.fr>
-   
----
-
-This patch was already sent on:
-- 04 Jan 2005
-
-
---- old/drivers/char/console.c 2005-01-03 15:51:22.000000000 +0100
-+++ patched/drivers/char/console.c 2005-01-03 15:31:45.000000000
-+0100
-@@ -1781,7 +1781,7 @@
-			csi_J(currcons, 2);
-			video_erase_char =
-				(video_erase_char & 0xff00) | ' ';  
--			do_update_region(currcons, origin,screenbuf_size/2);
-+			update_region(currcons, origin, screenbuf_size/2);
-		}
-		return;
-	case ESsetG0:
-
-  
---
-Emmanuel Colbus
-Club Gnu/LInux 
-ENSIMAG - Departement telecoms
-
-
--------------------------------------------------
-envoyé via Webmail/IMAG !
-
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

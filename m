@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280895AbRKCAhD>; Fri, 2 Nov 2001 19:37:03 -0500
+	id <S280897AbRKCArP>; Fri, 2 Nov 2001 19:47:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280896AbRKCAgn>; Fri, 2 Nov 2001 19:36:43 -0500
-Received: from jalon.able.es ([212.97.163.2]:904 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S280895AbRKCAgk>;
-	Fri, 2 Nov 2001 19:36:40 -0500
-Date: Sat, 3 Nov 2001 01:36:32 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: ext3 for pre7 ?
-Message-ID: <20011103013632.A2427@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.2.1
+	id <S280898AbRKCArF>; Fri, 2 Nov 2001 19:47:05 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:3768 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S280897AbRKCAqs>; Fri, 2 Nov 2001 19:46:48 -0500
+Date: Sat, 3 Nov 2001 00:47:00 +0000 (GMT)
+From: Dave Jones <davej@suse.de>
+X-X-Sender: <davej@noodles.codemonkey.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Use OOSTORE.
+Message-ID: <Pine.LNX.4.33.0111030044070.25694-100000@noodles.codemonkey.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-I have tried to adapt the ext3 patch for pre6 to pre7, but many things
-in the buffer and cache sections (vmscan.c and so on) have changed...
-I also saw in CVS that there have been changes to make it work on pre7. 
-But I did not guess how to make a patch from CVS.
+Hi Linus,
+ Now that the OOSTORE bits are merged into your tree, it makes
+sense to use them, the patch below changes the build options
+for Winchips.
 
-Anyone out there has it ?
+regards,
 
-BTW: I see there are a bunch of chages in ext3 patch outside its own
-fs subtree (try_to_free_pages and so on). Why are not integrated in
-mainline ?
+Dave.
 
-TIA
+diff -urN --exclude-from=/home/davej/.exclude linux-2.4.14-pre6/arch/i386/config.in linux-2.4.13-ac6/arch/i386/config.in
+--- linux-2.4.14-pre6/arch/i386/config.in	Sun Oct 21 03:17:19 2001
++++ linux-2.4.13-ac6/arch/i386/config.in	Sat Nov  3 00:24:55 2001
+@@ -135,18 +144,21 @@
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
++   define_bool CONFIG_X86_OOSTORE y
+ fi
+ if [ "$CONFIG_MWINCHIP2" = "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+    define_bool CONFIG_X86_TSC y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
++   define_bool CONFIG_X86_OOSTORE y
+ fi
+ if [ "$CONFIG_MWINCHIP3D" = "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+    define_bool CONFIG_X86_TSC y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
++   define_bool CONFIG_X86_OOSTORE y
+ fi
+ tristate 'Toshiba Laptop support' CONFIG_TOSHIBA
+
 
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.14-pre7-beo #1 SMP Fri Nov 2 20:26:59 CET 2001 i686
+| Dave Jones.                    http://www.codemonkey.org.uk
+| SuSE Labs .
+

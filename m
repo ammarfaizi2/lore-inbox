@@ -1,29 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276118AbRJKLtX>; Thu, 11 Oct 2001 07:49:23 -0400
+	id <S276132AbRJKMKS>; Thu, 11 Oct 2001 08:10:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276138AbRJKLtN>; Thu, 11 Oct 2001 07:49:13 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:40722 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276132AbRJKLtB>; Thu, 11 Oct 2001 07:49:01 -0400
-Subject: Re: Uhhuh.. 2.4.12
-To: marco@esi.it (Marco Colombo)
-Date: Thu, 11 Oct 2001 12:54:35 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0110111333100.28896-100000@Megathlon.ESI> from "Marco Colombo" at Oct 11, 2001 01:35:52 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S276135AbRJKMKI>; Thu, 11 Oct 2001 08:10:08 -0400
+Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:5371 "EHLO
+	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S276132AbRJKMJt> convert rfc822-to-8bit; Thu, 11 Oct 2001 08:09:49 -0400
+Date: Thu, 11 Oct 2001 13:10:16 +0100 (BST)
+From: James Sutherland <jas88@cam.ac.uk>
+X-X-Sender: <jas88@yellow.csi.cam.ac.uk>
+To: =?iso-8859-1?Q?Pekka_Pietik=E4inen?= <pp@netppl.fi>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Tainted Modules Help Notices
+In-Reply-To: <20011011124144.A20659@netppl.fi>
+Message-ID: <Pine.SOL.4.33.0110111304430.18253-100000@yellow.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15reQ7-0002xv-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > On the other hand, the good news is that I'll open 2.5.x RSN, just
-> > because Alan is so much better at maintaining things ;)
-> 
-> And will Alan release 2.4.13 asap with Rik's VM? - (sorry, couldn't resist)
+On Thu, 11 Oct 2001, Pekka Pietikäinen wrote:
 
-I think 2.4.13 will be a Linus release
+> On Thu, Oct 11, 2001 at 09:35:34AM +0000, Henning P. Schmiedehausen wrote:
+> > How about
+> >
+> > "BSD (included in kernel source)"
+> >
+> > to make clear that this is part of the distributed kernel _sources_.
+> >
+> > "included in kernel" could also be a 3rd party binary only driver
+> > added by a Linux distribution vendor.
+> Or even something like "BSD (unmodified source freely available)", which
+> would cover 3rd party drivers as well.
+
+"BSD (GPL compatible)"? Or a more generic "Other GPL compatible"?
+
+For that matter, it's not GPL compatibility that matters here, it's source
+availability for debugging purposes; AIUI, even an "old-style BSD" module
+shouldn't taint the kernel.
+
+Better still, rather than the licensing details, have the source URL.
+Either MODULE_SOURCE_URL("http://example.com/drivers/linux/scsi.html") or
+MODULE_BINARY_ONLY, with the latter tainting the kernel since the source
+is not *freely* available?
+
+
+James.
+-- 
+"Our attitude with TCP/IP is, `Hey, we'll do it, but don't make a big
+system, because we can't fix it if it breaks -- nobody can.'"
+
+"TCP/IP is OK if you've got a little informal club, and it doesn't make
+any difference if it takes a while to fix it."
+		-- Ken Olson, in Digital News, 1988
 

@@ -1,71 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVAXRvq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVAXRyR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbVAXRvq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 12:51:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVAXRvi
+	id S261552AbVAXRyR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 12:54:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVAXRyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 12:51:38 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43672 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261547AbVAXRui (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 12:50:38 -0500
-Date: Mon, 24 Jan 2005 09:49:22 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Greg KH <greg@kroah.com>, Adrian Bunk <bunk@stusta.de>,
-       mdharm-usb@one-eyed-alien.net, zaitcev@redhat.com,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] let BLK_DEV_UB depend on USB_STORAGE=n
-Message-ID: <20050124094922.165fa988@localhost.localdomain>
-In-Reply-To: <1106567331.6480.43.camel@localhost.localdomain>
-References: <20041220001644.GI21288@stusta.de>
-	<20041220003146.GB11358@kroah.com>
-	<20041223024031.GO5217@stusta.de>
-	<20050119220707.GM4151@kroah.com>
-	<1106567331.6480.43.camel@localhost.localdomain>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+	Mon, 24 Jan 2005 12:54:17 -0500
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:7335 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261552AbVAXRxi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 12:53:38 -0500
+Date: Mon, 24 Jan 2005 16:11:13 +0100
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
+Subject: Re: 2.6.11-rc2-mm1 [compile fix]
+Message-ID: <20050124151113.GA12312@ens-lyon.fr>
+References: <20050124021516.5d1ee686.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050124021516.5d1ee686.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
+X-Spam-Report: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jan 2005 11:48:51 +0000, David Woodhouse <dwmw2@infradead.org> wrote:
-
-> On Wed, 2005-01-19 at 14:07 -0800, Greg KH wrote:
-> > I have been running with just the code portion of this patch for a while
-> > now, with good results (no Kconfig changes.)
-> > 
-> > Pete and Matt, do you mind me applying the following portion of the
-> > patch to the kernel tree?
-> > 
-> > > -#if !defined(CONFIG_BLK_DEV_UB) && !defined(CONFIG_BLK_DEV_UB_MODULE)
-> > >  UNUSUAL_DEV(  0x0781, 0x0002, 0x0009, 0x0009, 
-> > >  		"Sandisk",
-> > >  		"ImageMate SDDR-31",
-> > >  		US_SC_DEVICE, US_PR_DEVICE, NULL,
-> > >  		US_FL_IGNORE_SER ),
-> > > -#endif
+On Mon, Jan 24, 2005 at 02:15:16AM -0800, Andrew Morton wrote:
 > 
-> Urgh. Please do. Code which may compile differently in the kernel image
-> according to which _modules_ are configured at the time is horrid, and
-> should be avoided.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc1/2.6.11-rc1-mm1/
+> 
+> 
+> - Lots of updates and fixes all over the place.
+> 
+> 
+> Changes since 2.6.11-rc1-mm2:
+> 
+> [snip]
+> 
+> +kernel-forkc-make-mm_cachep-static.patch
+> 
+>  Little fixes.
+> 
+>
+It breaks compilation with gcc-4.0
 
-The fallacy of this "urgh" is easy to demonstrate when you consider usb-storage
-and ub the one and the same driver. Initially, ub was just a mode for
-usb-storage ("threadless"). I only factored them separate for reasons
-of clarity. Horrid, indeed. There's no reason to build one statically
-and another as a module.
+kernel/fork.c:1249: error: static declaration of ‘mm_cachep’ follows non-static declaration
+include/linux/slab.h:117: error: previous declaration of ‘mm_cachep’ was here
+make[1]: *** [kernel/fork.o] Error 1
+make: *** [kernel] Error 2
 
-Mind, I didn't disagree with the backout patch as such, but not because
-it was a good idea, but because it may help to shut up a few stupid users
-(provided that our scripts preserve the link order from drivers/usb/Makefile
-in modules.usbmap, or have other way to make sure that usb-storage entries
-are ahead of ub entires; did anyone actually check it? if those scripts
-sort by name, ub still pops ahead, and the backout is utterly ineffectual).
+Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
 
-When we reintroduce ub in Fedora, I'll just put this patch right back,
-it's not a problem. But please think about this issue a little more,
-you might want to take the Urgh back.
 
--- Pete
+--- linux/include/linux/slab.h	2005-01-24 11:36:33.000000000 +0100
++++ linux/include/linux/slab.h.new	2005-01-24 12:24:46.000000000 +0100
+@@ -114,7 +114,6 @@ extern int FASTCALL(kmem_ptr_validate(km
+ 
+ /* System wide caches */
+ extern kmem_cache_t	*vm_area_cachep;
+-extern kmem_cache_t	*mm_cachep;
+ extern kmem_cache_t	*names_cachep;
+ extern kmem_cache_t	*files_cachep;
+ extern kmem_cache_t	*filp_cachep;
+--- linux-clean/kernel/fork.c	2005-01-24 12:44:48.000000000 +0100
++++ linux/kernel/fork.c	2005-01-24 12:38:27.000000000 +0100
+@@ -81,6 +81,24 @@ int nr_processes(void)
+ static kmem_cache_t *task_struct_cachep;
+ #endif
+ 
++/* SLAB cache for signal_struct structures (tsk->signal) */
++kmem_cache_t *signal_cachep;
++
++/* SLAB cache for sighand_struct structures (tsk->sighand) */
++kmem_cache_t *sighand_cachep;
++
++/* SLAB cache for files_struct structures (tsk->files) */
++kmem_cache_t *files_cachep;
++
++/* SLAB cache for fs_struct structures (tsk->fs) */
++kmem_cache_t *fs_cachep;
++
++/* SLAB cache for vm_area_struct structures */
++kmem_cache_t *vm_area_cachep;
++
++/* SLAB cache for mm_struct structures (tsk->mm) */
++static kmem_cache_t *mm_cachep;
++
+ void free_task(struct task_struct *tsk)
+ {
+ 	free_thread_info(tsk->thread_info);
+@@ -1230,24 +1248,6 @@ long do_fork(unsigned long clone_flags,
+ 	return pid;
+ }
+ 
+-/* SLAB cache for signal_struct structures (tsk->signal) */
+-kmem_cache_t *signal_cachep;
+-
+-/* SLAB cache for sighand_struct structures (tsk->sighand) */
+-kmem_cache_t *sighand_cachep;
+-
+-/* SLAB cache for files_struct structures (tsk->files) */
+-kmem_cache_t *files_cachep;
+-
+-/* SLAB cache for fs_struct structures (tsk->fs) */
+-kmem_cache_t *fs_cachep;
+-
+-/* SLAB cache for vm_area_struct structures */
+-kmem_cache_t *vm_area_cachep;
+-
+-/* SLAB cache for mm_struct structures (tsk->mm) */
+-static kmem_cache_t *mm_cachep;
+-
+ void __init proc_caches_init(void)
+ {
+ 	sighand_cachep = kmem_cache_create("sighand_cache",
+

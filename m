@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262904AbVA2Lku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262900AbVA2LjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262904AbVA2Lku (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 06:40:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbVA2Lku
+	id S262900AbVA2LjS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 06:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbVA2Lhc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 06:40:50 -0500
-Received: from main.gmane.org ([80.91.229.2]:50139 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262904AbVA2Lkj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 06:40:39 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Richard Hughes <ee21rh@surrey.ac.uk>
-Subject: Re: [Bug 4081] New: OpenOffice crashes while starting due to a   threading error
-Date: Sat, 29 Jan 2005 10:44:09 +0000
-Message-ID: <pan.2005.01.29.10.44.08.856000@surrey.ac.uk>
-References: <217740000.1106412985@[10.10.2.4]> <41F30E0A.9000100@osdl.org> <1106482954.1256.2.camel@tux.rsn.bth.se> <20050126132504.3295e07d@dxpl.pdx.osdl.net> <41F97E07.2040709@comcast.net> <20050128093104.61a7a387@dxpl.pdx.osdl.net> <1106954493.3051.8.camel@krustophenia.net> <41FACEC5.6070703@comcast.net> <20050128155713.6f3ef6d8@dxpl.pdx.osdl.net>
-Reply-To: ee21rh@surrey.ac.uk
+	Sat, 29 Jan 2005 06:37:32 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44299 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262900AbVA2LhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 06:37:22 -0500
+Date: Sat, 29 Jan 2005 11:37:08 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Philippe Robin <Philippe.Robin@arm.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: Re: flush_cache_page()
+Message-ID: <20050129113707.B2233@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Philippe Robin <Philippe.Robin@arm.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <20050111223652.D30946@flint.arm.linux.org.uk> <Pine.LNX.4.58.0501111605570.2373@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: host217-43-20-137.range217-43.btcentralplus.com
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0501111605570.2373@ppc970.osdl.org>; from torvalds@osdl.org on Tue, Jan 11, 2005 at 04:07:09PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Jan 2005 15:57:13 -0800, Stephen Hemminger wrote:
-> Note: on 2.6.10
-> 	/dev/dri/card0	crw-rw-rw-
-> on 2.6.11-rc2
-> 	/dev/dri/card0	crw-rw----
-> 	/dev/dri/card1	crw-rw----
+On Tue, Jan 11, 2005 at 04:07:09PM -0800, Linus Torvalds wrote:
+> On Tue, 11 Jan 2005, Russell King wrote:
+> > Any responses on this?  Didn't get any last time I mailed this out.
 > 
-> Changing permissions seems to fix (it for startup), will try more and see
-> if udev remembers not to turn them back.
+> I don't have any real objections. I'd like it verified that gcc can
+> compile away all the overhead on the architectures that don't use the pfn, 
+> since "page_to_pfn()" can be a bit expensive otherwise.. But I don't see 
+> anything wrong with the approach.
 
-Me too. (2.6.11-rc2-bk3, openoffice.org-1.1.3) I straced soffice and found
-it hanging on /dev/dri:
+Thanks for the response.  However, apart from Ralph, Paul and yourself,
+it seems none of the other architecture maintainers care about this
+patch - the original mail was BCC'd to the architecture list.  Maybe
+that's an implicit acceptance of this patch, I don't know.
 
-geteuid32()                             = 500
-stat64("/dev/dri", {st_mode=S_IFDIR|0755, st_size=80, ...}) = 0
-stat64("/dev/dri/card14", 0xbff9c8bc)   = -1 ENOENT (No such file or directory)
-munmap(0x9b4838, 8192)                  = -1 EINVAL (Invalid argument)
-munmap(0x949e248, 3220820000)           = -1 EINVAL (Invalid argument)
---- SIGSEGV (Segmentation fault) @ 0 (0) ---
-+++ killed by SIGSEGV +++
+I do know that page_to_pfn() will generate code on some platforms which
+don't require it due to them declaring flush_cache_page() as a function.
+However, I assert that if they don't need this overhead, that's for them
+to fix up.  I don't know all their quirks so it isn't something I can
+tackle.
 
-and with a chmod a+rw /dev/dri/card* everything is okay until I reboot,
-and it defaults back to crw-rw----
+In other words, unless I actually receive some real help from the other
+architecture maintainers on this to address your concerns, ARM version 6
+CPUs with aliasing L1 caches (== >16K) will remain a dead dodo with
+mainline Linux kernels.
 
-What is at fault? Certainly oo shouldn't just seg-fault, but should the
-permissions on /dev/dri/card* be crw-rw---- or crw-rw-rw-?
-
-Richard Hughes
+(This mail BCC'd to the architecture list again in the vain hope that
+someone will offer assistance.)
 
 -- 
-
-http://www.hughsie.com/PUBLIC-KEY
-
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbVACXlH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbVACXgm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261996AbVACXlH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 18:41:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbVACXka
+	id S261979AbVACXgm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 18:36:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbVACXgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 18:40:30 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:56277 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261992AbVACXkC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 18:40:02 -0500
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-X-Message-Flag: Warning: May contain useful information
-References: <20050103171937.GG2980@stusta.de> <52sm5i70um.fsf@topspin.com>
-	<20050103231024.GP2980@stusta.de> <524qhy6qpg.fsf@topspin.com>
-	<20050103233449.GC7747@mellanox.co.il>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 03 Jan 2005 15:39:57 -0800
-In-Reply-To: <20050103233449.GC7747@mellanox.co.il> (Michael S. Tsirkin's
- message of "Tue, 4 Jan 2005 01:34:49 +0200")
-Message-ID: <52zmzq5bg2.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Mon, 3 Jan 2005 18:36:05 -0500
+Received: from terminus.zytor.com ([209.128.68.124]:11169 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261972AbVACXe3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 18:34:29 -0500
+Message-ID: <41D9D65D.7050001@zytor.com>
+Date: Mon, 03 Jan 2005 15:33:49 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [openib-general] Re: [2.6 patch] infiniband: possible cleanups
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 03 Jan 2005 23:39:57.0881 (UTC) FILETIME=[88DAF290:01C4F1ED]
+To: Michael B Allen <mba2000@ioplex.com>
+CC: sfrench@samba.org, linux-ntfs-dev@lists.sourceforge.net,
+       samba-technical@lists.samba.org, aia21@cantab.net,
+       hirofumi@mail.parknet.co.jp,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: FAT, NTFS, CIFS and DOS attributes
+References: <41D9C635.1090703@zytor.com> <54479.199.43.32.68.1104794772.squirrel@li4-142.members.linode.com>
+In-Reply-To: <54479.199.43.32.68.1104794772.squirrel@li4-142.members.linode.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Michael> By the way,
-    Michael> http://linus.bkbits.net:8080/linux-2.5/ChangeSet@-2w?nav=index.html
-    Michael> already has Roland's patches, and I thought that was what
-    Michael> Linus uses for kernel releases, right, Roland?
+Michael B Allen wrote:
+> 
+>>b) if xattr is the right thing, shouldn't this be in the system
+>>namespace rather than the user namespace?
+> 
+> If we're just thinking about MS-oriented discretionary access control then
+> I think the owner of the file is basically king and should be the only
+> normal user to that can read and write it's xattrs. So whatever namespace
+> that is (not system).
+> 
 
-Yes, the core kernel drivers are all merged in Linus's kernel
-already.  Adrian and I are talking about modules that use some
-currently unused APIs, such as Sean's madeye debugging module, the CM,
-RMPP support, etc.
+system namespace means that it's a name defined by the kernel as opposed 
+to a name defined by the user.  One of the most glaring design errors in 
+this whole thing, in my opinion, but if we're going to use xattrs we 
+probably should stick with it.
 
- - Roland
+Thus, I'd propose:
 
+	system.dosattrib	- DOS attributes (single byte)
+	system.dosshortname	- DOS short name (e.g. for VFAT)
+
+	-hpa

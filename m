@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316408AbSHBP7S>; Fri, 2 Aug 2002 11:59:18 -0400
+	id <S315805AbSHBQJQ>; Fri, 2 Aug 2002 12:09:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316548AbSHBP7A>; Fri, 2 Aug 2002 11:59:00 -0400
-Received: from ns.suse.de ([213.95.15.193]:52484 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316465AbSHBP6D>;
-	Fri, 2 Aug 2002 11:58:03 -0400
-Date: Fri, 2 Aug 2002 18:01:32 +0200
-From: Dave Jones <davej@suse.de>
-To: gerg <gerg@snapgear.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: linux-2.5.30uc0 MMU-less patches
-Message-ID: <20020802180132.P25761@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	gerg <gerg@snapgear.com>, linux-kernel@vger.kernel.org
-References: <3D4A27FE.8030801@snapgear.com> <20020802141652.E25761@suse.de> <3D4AA573.3000705@snapgear.com> <20020802173449.N25761@suse.de> <3D4AAB32.8050608@snapgear.com>
-Mime-Version: 1.0
+	id <S315485AbSHBQI2>; Fri, 2 Aug 2002 12:08:28 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32018
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S315456AbSHBQHY>; Fri, 2 Aug 2002 12:07:24 -0400
+Date: Fri, 2 Aug 2002 09:04:03 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Ed Tomlinson <tomlins@cam.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.5.30 ide problems booting 
+In-Reply-To: <200208020726.51659.tomlins@cam.org>
+Message-ID: <Pine.LNX.4.10.10208020838420.32582-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3D4AAB32.8050608@snapgear.com>; from gerg@snapgear.com on Sat, Aug 03, 2002 at 01:54:26AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 03, 2002 at 01:54:26AM +1000, gerg wrote:
+On Fri, 2 Aug 2002, Ed Tomlinson wrote:
 
- > > I didn't check the code in detail, but
- > > is there really that little that can be shared between
- > > the regular mm/ ?
- > No, there is actually a lot in common. Probably something
- > like 70%. This is really a question of organization.
+> reiserfs: checking transaction log (ide2(33,3)) for (ide2(33,3))
+> hde: dma_intr: bad DMA status (dma_stat=36)
+> hde: ide_dma_intr: status=0x50 [ drive ready,seek complete] 
+> hde: request error, nr. 1
 
-That's what I guessed on just a cursory glance at the patch.
+How the heck did you get get bit 4 of the dma_status register to report
+anything other than "0" ??
 
- > I would much prefer to see the non-mmu support in with mm.
- > But it would mean a few #ifdef's in there to allow for
- > the differences.
+Next "HTH", did it manage to invoke an DMA Error and Interrupt and return
+a the drive back in to command mode with a 50 stat ?
 
-Versus massive code duplication, I think the ifdef's would
-be a better approach, especially if you can hide them away
-in headers.
+I have never been so amazed by this driver's ablity to invoke hardware
+events that can not happen.
 
-        Dave
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+
+Andre Hedrick
+LAD Storage Consulting Group
+

@@ -1,141 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135678AbRD2FWN>; Sun, 29 Apr 2001 01:22:13 -0400
+	id <S135553AbRD2G0Q>; Sun, 29 Apr 2001 02:26:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135679AbRD2FWD>; Sun, 29 Apr 2001 01:22:03 -0400
-Received: from ingpat.ingenuity.com ([216.200.60.240]:1237 "EHLO
-	iserver.ingenuity.com") by vger.kernel.org with ESMTP
-	id <S135678AbRD2FVr>; Sun, 29 Apr 2001 01:21:47 -0400
-Message-ID: <6C6D58C130D5D411ABF200A0C9E9216A1145B2@iserver.ingenuity.com>
-From: Royans Tharakan <RTharakan@ingenuity.com>
-To: "'Matthias Andree'" <matthias.andree@stud.uni-dortmund.de>,
-        Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: RE: 2.4.3 2.4.4pre8: aic7xxx showstopper bug fails to detect sda
-Date: Sat, 28 Apr 2001 22:20:46 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S132691AbRD2G0H>; Sun, 29 Apr 2001 02:26:07 -0400
+Received: from smtp1.xs4all.nl ([194.109.127.131]:41732 "EHLO smtp1.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S135553AbRD2G0B>;
+	Sun, 29 Apr 2001 02:26:01 -0400
+From: thunder7@xs4all.nl
+Date: Sun, 29 Apr 2001 07:58:56 +0200
+To: mdharm-usb@one-eyed-alien.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Mounting an external USB host-powered ZIP 250 drive hangs in mount()
+Message-ID: <20010429075856.A821@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No problems here... with 2.4.3 
-Here is the dump from dmesg.
+I cannot seem to mount my external USB host-powered 250 Mb zip-drive in
+Linux-2.4.3-ac12. This is a freshly rebooted machine, rebooted with the
+zip-drive attached and a zip-disk inside that Windows-2000 will read
+without problems.
 
-regards,
-Royans
-
--------------
-SCSI subsystem driver Revision: 1.00
-aacraid raid driver version, Apr 28 2001
-percraid device detected
-Device mapped to virtual address 0xf8806000
-percraid:0 device initialization successful
-percraid:0 AacHba_ClassDriverInit complete
-scsi0 : percraid
-  Vendor: DELL      Model: PERCRAID Mirror   Rev: 0001
+dmesg:
+uhci.c: USB UHCI at I/O 0xc400, IRQ 7
+usb.c: new USB bus registered, assigned bus number 1
+hub.c: USB hub found
+hub.c: 2 ports detected
+uhci.c: USB UHCI at I/O 0xc800, IRQ 7
+usb.c: new USB bus registered, assigned bus number 2
+hub.c: USB hub found
+hub.c: 2 ports detected
+Initializing USB Mass Storage driver...
+usb.c: registered new driver usb-storage
+USB Mass Storage support registered.
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP, IGMP
+IP: routing cache hash table of 4096 buckets, 32Kbytes
+TCP: Hash tables configured (established 32768 bind 32768)
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+VFS: Mounted root (ext2 filesystem) readonly.
+Freeing unused kernel memory: 240k freed
+hub.c: USB new device connect on bus1/1, assigned device number 2
+scsi1 : SCSI emulation for USB Mass Storage devices
+  Vendor: IOMEGA    Model: ZIP 250           Rev: 61.T
   Type:   Direct-Access                      ANSI SCSI revision: 02
-Detected scsi removable disk sda at scsi0, channel 0, id 0, lun 0
-SCSI device sda: 35544577 512-byte hdwr sectors (18199 MB)
-sda: Write Protect is off
-Partition check:
- sda: sda1 sda2 < sda5 sda6 >
-scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.1.5
-        <Adaptec aic7899 Ultra160 SCSI adapter>
-        aic7899: Wide Channel B, SCSI Id=7, 32/255 SCBs
------------------
-bash-2.04$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Pentium III (Coppermine)
-stepping        : 6
-cpu MHz         : 993.400
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 mmx fxsr sse
-bogomips        : 1979.18
------------------
-
------Original Message-----
-From: Matthias Andree [mailto:matthias.andree@stud.uni-dortmund.de]
-Sent: Saturday, April 28, 2001 11:22 AM
-To: Linux-Kernel mailing list
-Subject: 2.4.3 2.4.4pre8: aic7xxx showstopper bug fails to detect sda
+Attached scsi removable disk sda at scsi1, channel 0, id 0, lun 0
+sda : READ CAPACITY failed.
+sda : status = 1, message = 00, host = 0, driver = 08 
+sda : extended sense code = 2 
+sda : block size assumed to be 512 bytes, disk size 1GB.  
+ sda: I/O error: dev 08:00, sector 0
+ unable to read partition table
+WARNING: USB Mass Storage data integrity not assured
+USB Mass Storage device found at 2
+======================================================================
+IRQ 7 is an unshared IRQ.
+I've read that the 'READ CAPACITY failed' indicates there is no disk
+in the drive - but there is.
 
 
-Hi,
+/proc/scsi/usb-storage-0/1:
+   Host scsi1: usb-storage
+       Vendor: Iomega
+      Product: USB Zip 250
+Serial Number: 003240BCC4D11622
+     Protocol: Transparent SCSI
+    Transport: Bulk
+         GUID: 059b0032003240bcc4d11622
 
-I have several machines here, with either onboard aic7880 or with
-AHA2940 (I don't recall) sitting on the PCI bus, which share the same
-problem: they fail to detect the first disk (Id #0). The information
-below is from lspci and /proc/scsi/scsi of Linux 2.2.19, in that order,
-all Kernels have been compiled on a Duron/800 SuSE 7.0 Linux box
-(running gcc 2.95.2).
+All seems fine, but when I do
 
-Machine #1:
+mount /dev/sda4 /mnt
 
-Pentium-II (Klamath)
+the whole kernel hangs, including the keyboard and the network.
+Windows-2000 on the same hardware can access the device. If I strace the
+mount progress, it hangs in
 
-00:09.0 SCSI storage controller: Adaptec AIC-7881U
+mount("/dev/sda4", "/mnt", "vfat", 0xc0ed000, 0
 
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: SEAGATE  Model: ST34572W         Rev: 0718
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 02 Lun: 00
-  Vendor: SEAGATE  Model: ST39140W         Rev: 1498
-  Type:   Direct-Access                    ANSI SCSI revision: 02
+I've searched the web, searched the mailing lists at usb/sourceforge,
+and I seem to be alone in this.
 
-Machine #2:
+Hardware:
 
-Pentium-II (Deschutes)
+Abit VP6, dual P3/866
+512 Mb memory
+gcc-2.95.3
+SuSE 7.1 basis
+linux-2.4.3-ac12
 
-00:09.0 SCSI storage controller: Adaptec AIC-7881U
+Kernel config:
 
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: SEAGATE  Model: ST34572N         Rev: 0784
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: IBM      Model: DCAS-32160       Rev: S65A
-  Type:   Direct-Access                    ANSI SCSI revision: 02
+CONFIG_USB=y
+CONFIG_USB_UHCI_ALT=y
+CONFIG_USB_STORAGE=y
+CONFIG_SCSI=y
+CONFIG_SCSI_DEBUG_QUEUES=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_SYM53C8XX=y
+CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=4
+CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
+CONFIG_SCSI_NCR53C8XX_SYNC=20
+CONFIG_SCSI_NCR53C8XX_SYMBIOS_COMPAT=y
 
-These have further devices (CD writer, CD-ROM drive), and these machines
-are 100% in 2.2.19. With 2.4.3 and 2.4.4-pre8, I get this problem
-(pencil & paper copy for Machine #2, DO NOT "grep"):
+I thought that would do the trick?
 
-AIC 7XXX EISA/VLB/PCI SCSI HBA DRIVER 6.1.5
-aic7880: wide Channel A, SCSI ID=7, 16/255 SCBs
-scsi0: SCSI host adapter emulation for IDE devices
-PCI: found IRQ 5 for dev 00:09.0
-scsi1:0:0:0: Attempting to queue an abort message.
-             Command found on device queue
-aic7xxx_abort returns 8194
+Thanks for any help that prevents me from rebooting into Windows-2000
+every time!
 
-Then, the Kernel detects the SECOND SCSI disk and attaches it as sda
-(Linux 2.2 would mount that as sdb), the first disk is "gone" (Linux 2.2
-would mount that as sda).  Regretfully, my root partition is on the
-FIRST SCSI disk, so the kernel panicks since it cannot mount /.
-
-That's all I copied in a hurry, maybe it's sufficient to debug, if not,
-I can try to grab a null modem cable and catch the full sequence; I'd be
-glad if someone could mention the "canonical" aic7xxx LILO append
-parameters for a full debug trace in that case.
-
-Bottom line: I'm not buying Adaptec SCSI host adaptors ever again.
-
+Jurriaan
 -- 
-Matthias Andree
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+I have transcended that phase in my intellectual growth where I discover
+humour in simple freakishness. What exists is real, therefore it is tragic,
+since whatever lives must die. Only fantasy, the vapors rising from sheer
+nonsense, can now excite my laughter.
+	Jack Vance - Lyonesse II - The Green Pearl
+GNU/Linux 2.4.3-ac12 SMP/ReiserFS 2x1743 bogomips load av: 0.05 0.03 0.00

@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261343AbTCOD0R>; Fri, 14 Mar 2003 22:26:17 -0500
+	id <S261348AbTCODnq>; Fri, 14 Mar 2003 22:43:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261344AbTCOD0R>; Fri, 14 Mar 2003 22:26:17 -0500
-Received: from almesberger.net ([63.105.73.239]:6156 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S261343AbTCOD0Q>; Fri, 14 Mar 2003 22:26:16 -0500
-Date: Sat, 15 Mar 2003 00:36:55 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Stephen Satchell <list@fluent2.pyramid.net>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Never ever use word BitKeeper if Larry does not like you
-Message-ID: <20030315003655.Z2791@almesberger.net>
-References: <20030314151455.GB8937@work.bitmover.com> <20030314105132.GB14270@atrey.karlin.mff.cuni.cz> <20030314115055.GR1211@marowsky-bree.de> <20030314144347.GA8937@work.bitmover.com> <1047658249.29595.34.camel@irongate.swansea.linux.org.uk> <20030314151455.GB8937@work.bitmover.com> <1047658281.2566.101.camel@sisko.scot.redhat.com> <5.2.0.9.0.20030314161225.01da3150@fluent2.pyramid.net>
+	id <S261349AbTCODnq>; Fri, 14 Mar 2003 22:43:46 -0500
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:32242 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id <S261348AbTCODnq>; Fri, 14 Mar 2003 22:43:46 -0500
+Date: Fri, 14 Mar 2003 20:54:14 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: war@lucidpixels.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Broadcom BCM5702 Major Problems
+Message-ID: <20030314205414.U12806@schatzie.adilger.int>
+Mail-Followup-To: war@lucidpixels.com, linux-kernel@vger.kernel.org
+References: <20030315023244.3013.qmail@lucidpixels.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5.2.0.9.0.20030314161225.01da3150@fluent2.pyramid.net>; from list@fluent2.pyramid.net on Fri, Mar 14, 2003 at 04:56:10PM -0800
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030315023244.3013.qmail@lucidpixels.com>; from war@lucidpixels.com on Sat, Mar 15, 2003 at 02:32:44AM -0000
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Satchell wrote:
->       Scarlet Cap
->       Crimson Chapeau (I like this one because of the alliteration)
->       Cherry Beanie
->       Blood Crown
->       Firehat
->       Ruby Headdress
->       Siena Skimmer
+On Mar 15, 2003  02:32 -0000, war@lucidpixels.com wrote:
+> When compiled in statically it does not work.
+> Loading the module after the entire system loads, then ifconfigging works ok.
+> Hm, maybe PCI sharing must be turned off, I read this from somewhere on google?
+> I am also running latest stable kernel 2.4.21-pre5-7.
 
-This sounds like an excellent list to try on a barkeeper you
-don't like :-)
+We are having similar problems with the Broadcom driver, and would be
+very interested in finding a solution.
 
-> The third option is to forget the nonsense of building on the BitKeeper 
-> name and come up with a name that best describes the functionality of what 
-> you are doing, or (common) use the initials of the primary developers or 
-> investors.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-AnnoyLarry, for 'A'+'L' == 'B'+'K' ?
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

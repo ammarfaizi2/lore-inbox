@@ -1,99 +1,211 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263816AbTJCQkY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 12:40:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbTJCQkY
+	id S263639AbTJCQzC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 12:55:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263650AbTJCQzB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 12:40:24 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:28685 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id S263816AbTJCQkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 12:40:19 -0400
-From: Kees Bakker <kees.bakker@xs4all.nl>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: [2.6.0-test6] Scratchy sound with via82xx (VT8233)
-Date: Fri, 3 Oct 2003 18:40:17 +0200
-User-Agent: KMail/1.5.1
-References: <200309302046.47039.kees.bakker@xs4all.nl> <s5h7k3o0x8b.wl@alsa2.suse.de>
-In-Reply-To: <s5h7k3o0x8b.wl@alsa2.suse.de>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 3 Oct 2003 12:55:01 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:18611 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263639AbTJCQy4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 12:54:56 -0400
+Date: Fri, 03 Oct 2003 09:54:47 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.6.0-test6-mjb1
+Message-ID: <183510000.1065200087@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_xZaf/zX05dP1bvy"
-Message-Id: <200310031840.17289.kees.bakker@xs4all.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patchset contains mainly scalability and NUMA stuff, and anything 
+else that stops things from irritating me. It's meant to be pretty stable, 
+not so much a testing ground for new stuff.
 
---Boundary-00=_xZaf/zX05dP1bvy
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
-On Thursday 02 October 2003 12:07, you wrote:
-> At Tue, 30 Sep 2003 20:46:47 +0200,
->
-> Kees Bakker wrote:
-> > I saw the note about dxs_support, but I have the driver built-in. How do
-> > I set dxs_support from the /proc/cmdline?
->
-> pass via boot parameter:
->
->   snd-via82xx=1,0,,-1,48000,XXX
->
-> where XXX is the value from 0 to 3 for dxs_support.
-> see the comment in sound/via82xx.c.
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.6.0-test6/patch-2.6.0-test6-mjb1.bz2
 
-Ah, I see. Well, I tested my VIA in another way. I applied this patch, which
-adds it to the whitelist. So far it behaves OK. Are there any particular
-tests that I can run to make sure?
+additional patches that can be applied if desired:
 
-Also, I want draw your attention to the fact that there DOES exist
-a VIA8233-Pre in the wild. Here is my lspci output on my MSI KT266
-motherboard:
+Since 2.6.0-test2-mjb1 (~ = changed, + = added, - = dropped)
 
-iris:~ # cat /proc/asound/cards
-0 [V8233Pre       ]: VIA8233 - VIA 8233-Pre
-                     VIA 8233-Pre at 0xd000, irq 10
+Notes: 
+	Mostly a merge forwards.
 
-iris:~ # lspci -nv -s 00:11.5
-00:11.5 Class 0401: 1106:3059 (rev 10)
-        Subsystem: 1462:3800
-        Flags: medium devsel, IRQ 10
-        I/O ports at d000 [size=256]
-        Capabilities: [c0] Power Management version 2
+Now in Linus' tree:
 
-And in case it helps, here is the output from /proc/asound/devices:
-iris:~ # cat /proc/asound/devices
-  1:       : sequencer
-  0: [0- 0]: ctl
- 17: [0- 1]: digital audio playback
- 25: [0- 1]: digital audio capture
- 16: [0- 0]: digital audio playback
- 24: [0- 0]: digital audio capture
- 33:       : timer
+- config_debug					Dave Hansen
+	Make '-g' for the kernel a config option
+	(equivalent patch merged)
 
-Let me know if you need more information.
-		Kees
+- 32bit_dev_t					Andries Brouwer
+	Make dev_t 32 bit
 
---Boundary-00=_xZaf/zX05dP1bvy
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="via82xx-add-kt266.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="via82xx-add-kt266.patch"
+- dynamic_hd_struct				Badari Pulavarty
+	Allocate hd_structs dynamically
 
---- linux-2.6.0/sound/pci/via82xx.c.orig	2003-10-03 18:30:25.000000000 +0200
-+++ linux-2.6.0/sound/pci/via82xx.c	2003-10-03 18:31:38.615792728 +0200
-@@ -1969,6 +1969,7 @@
- 	static struct dxs_whitelist whitelist[] = {
- 		{ .vendor = 0x1019, .device = 0x0996, .action = VIA_DXS_48K },
- 		{ .vendor = 0x1297, .device = 0xc160, .action = VIA_DXS_ENABLE }, /* Shuttle SK41G */
-+		{ .vendor = 0x1462, .device = 0x3800, .action = VIA_DXS_ENABLE }, /* MSI KT266 */
- 		{ } /* terminator */
- 	};
- 	struct dxs_whitelist *w;
+- 16way_x440					Matt Dobson
+	Fix problem with booting on 16x x440
 
---Boundary-00=_xZaf/zX05dP1bvy--
+- iosched_hashes				Badari Pulavarty
+	Twiddle with the iosched hash tables for fun & profit
+
+Dropped:
+
+- irq_affinity					Martin J. Bligh
+	Workaround for irq_affinity on clustered apic mode systems (eg x440)
+	(fixed differently)
+
+- kgdb						Andrew Morton
+	The older version of kgdb, synched with 2.5.54-mm1
+	(need to pick up the new version of kgdb)
+
+- thread_under_page				William Lee Irwin
+	Fix THREAD_SIZE < PAGE_SIZE case
+	(not needed for now)
+
+- reiserfs_dio					Mingming Cao
+	DIO for Reiserfs
+	(doesn't compile)
+
+- sched_interactive				Ingo Molnar
+	Bugfix for interactive scheduler
+	(not needed anymore)
+
+- kgdb_cleanup					Martin J. Bligh
+	Stop kgdb renaming schedule to do_schedule when it's not even enabled
+	(need to pick up the new version of kgdb)
+
+- lotsa_sds					Badari Pulavarty
+	Create some insane number of sds
+	(not easily mergable. Badari to give me a new version)
+
+- config_numasched				Dave Hansen
+	Turn NUMA scheduler into a config option
+	(ummm. I lost it. Will try to find it again)
+
+- separate_pmd					Dave Hansen
+	Separate kernel pmd per task.
+	(4/4 split will conflict heavily with this)
+
+- banana_split					Dave Hansen
+	Make PAGE_OFFSET play twister and limbo.
+	(4/4 split will conflict heavily with this)
+
+- proc_pid_readdir				Manfred Spraul
+	Make proc_pid_readdir more efficent. Allegedly.
+	(didn't merge easily, and I've never seen it do anything)
+
+- lockmeter_tytso				Ted Tso
+	Fix lockmeter
+	(merged into main lockmeter patch)
+
+- early_printk_fix				Dave Hansen
+	Fix epk conflict with ppc64
+	(merged into main epk patch)
+
+New:
+
++ page_lock					William Lee Irwin
+	Conditionally convert mapping->page_lock back to an rwlock
+
+
+Pending:
+lotsa_sds
+config_numasched
+4/4 split
+new kgdb
+list_of_lists
+Hyperthreaded scheduler (Ingo Molnar)
+scheduler callers profiling (Anton or Bill Hartner)
+Child runs first (akpm)
+Kexec
+e1000 fixes
+Update the lost timer ticks code
+pidmaps_nodepages (Dave Hansen)
+
+Present in this patch:
+
+early_printk					Dave Hansen / Keith Mannthey
+	Allow printk before console_init
+
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
+
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+sched_tunables					Robert Love
+	Provide tunable parameters for the scheduler (+ NUMA scheduler)
+
+partial_objrmap					Dave McCracken
+	Object based rmap for filebacked pages.
+
+spinlock_inlining				Andrew Morton & Martin J. Bligh
+	Inline spinlocks for profiling. Made into a ugly config option by me.
+
+lockmeter					John Hawkes / Hanna Linder
+	Locking stats.
+
+sched_interactive				Ingo Molnar
+	Bugfix for interactive scheduler
+
+local_balance_exec				Martin J. Bligh
+	Modify balance_exec to use node-local queues when idle
+
+tcp_speedup					Martin J. Bligh
+	Speedup TCP (avoid double copy) as suggested by Linus
+
+disable preempt					Martin J. Bligh
+	I broke preempt somehow, temporarily disable it to stop accidents
+
+ppc64 pci fix					Anton Blanchard
+	Fix some ppc64 pci thing or other.
+
+per_node_idt					Zwane Mwaikambo
+	Per node IDT so we can do silly numbers of IO-APICs on NUMA-Q
+
+aiofix2						Mingming Cao
+	fixed a bug in ioctx_alloc()
+
+config_irqbal					Keith Mannthey
+	Make irqbalance a config option
+
+percpu_real_loadavg				Dave Hansen / Martin J. Bligh
+	Tell me what the real load average is, and tell me per cpu.
+
+nolock						Dave McCracken
+	Nah, we don't like locks.
+
+mbind_part1					Matt Dobson
+	Bind some memory for NUMA.
+
+mbind_part2					Matt Dobson
+	Bind some more memory for NUMA.
+
+per_node_rss					Matt Dobson
+	Track which nodes tasks mem is on, so sched can be sensible.
+
+pfn_to_nid					Martin J. Bligh
+	Dance around the twisted rats nest of crap in i386 include.
+
+gfp_node_strict					Dave Hansen
+	Add a node strict binding as a gfp mask option
+
+page_lock					William Lee Irwin
+	Conditionally convert mapping->page_lock back to an rwlock
+
+-mjb						Martin J. Bligh
+	Add a tag to the makefile
+
 

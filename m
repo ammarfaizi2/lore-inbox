@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263320AbSJTRjf>; Sun, 20 Oct 2002 13:39:35 -0400
+	id <S263319AbSJTRhf>; Sun, 20 Oct 2002 13:37:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263321AbSJTRjf>; Sun, 20 Oct 2002 13:39:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20747 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263320AbSJTRje>;
-	Sun, 20 Oct 2002 13:39:34 -0400
-Message-ID: <3DB2EBCD.8090405@pobox.com>
-Date: Sun, 20 Oct 2002 13:45:49 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ben Collins <bcollins@debian.org>
-CC: Richard Stallman <rms@gnu.org>, linux-kernel@vger.kernel.org
-Subject: Re: Bitkeeper outrage, old and new
-References: <20021014170248.A19897@infradead.org> <E181WHl-00010N-00@fencepost.gnu.org> <20021015193138.A4010@infradead.org> <200210161856.g9GIu57t013710@santafe.santafe.edu> <20021016201328.A24882@infradead.org> <E1832Lh-0004xH-00@fencepost.gnu.org> <20021019161201.A26017@work.bitmover.com> <3DB1EAAB.30401@pobox.com> <20021020154609.GD696@phunnypharm.org> <3DB2E661.8070802@pobox.com> <20021020173438.GK696@phunnypharm.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263320AbSJTRhf>; Sun, 20 Oct 2002 13:37:35 -0400
+Received: from pop.gmx.de ([213.165.64.20]:32069 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S263319AbSJTRhe>;
+	Sun, 20 Oct 2002 13:37:34 -0400
+Message-Id: <5.1.0.14.2.20021020193521.00b9a748@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 20 Oct 2002 19:40:40 +0200
+To: Floydsmith@aol.com, linux-kernel@vger.kernel.org
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: loadlin with 2.5.?? kernels
+Cc: Floydsmith@aol.com
+In-Reply-To: <1a9.a96af34.2ae43a18@aol.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Collins wrote:
->>The whole point of the copyright assignment is that FSF becomes 
->>copyright owner.
+At 12:55 PM 10/20/2002 -0400, Floydsmith@aol.com wrote:
+>In a message dated 10/20/2002 9:03:34 AM Eastern Daylight Time, 
+>efault@gmx.de writes:
+>
+>
+>>Subj:loadlin with 2.5.?? kernels
+>>Date:10/20/2002 9:03:34 AM Eastern Daylight Time
+>>From:<mailto:efault@gmx.de>efault@gmx.de
+>>To:<mailto:linux-kernel@vger.kernel.org>linux-kernel@vger.kernel.org
+>>Sent from the Internet
 >>
->>This is so that Jeff Garzik cannot be strongarmed into changing the 
->>license on his code, or some other anti-software-freedom tactic levied 
->>against me in the future.  In theory, the FSF as an organization will 
->>protect the rights of the software when I might weaken and give in.
 >>
->>But in exchange for that protection, you are willingly giving up your 
->>rights as copyright owner...  Less freedom for [hopefully] better 
->>protection.  Just like everything in life, it's a tradeoff... :)
 >>
-> 
-> 
-> I disagree. I don't see anything in the copyright assignment (and I have
-> signed a few for the FSF) that says I don't retain original copyright
-> for my work.
+>>Greetings,
+>>
+>>I hadn't had time to build/test kernels since 2.5.8-pre3.  I now find that
+>>loadlin doesn't work on my box any more.  Is this a known problem?  If so,
+>>when did it quit working?  (loadlin obsolete?  other?)
+>>
+>>At the moment, the only way I have to boot is via floppy.
+>
+>
+>loadlin will not work with any kernel that is 1024k or greater in size.
+>There is a replacement named "linld" at:
+>http://www.tux.org/pub/people/kent-robotti/looplinux/index.html
+>which help you.
 
+Yeah, that's always been a pain, but that's not what I'm hitting (violent 
+reboot).  I'll give linld (thanks!) a shot, but mostly, I want my dearly 
+beloved loadlin back ;-)
 
-If you keep a copy locally, sure.  But the upstream sources, i.e. what's 
-important, you lose rights to even though you may have contributed 
-substantial amounts of code.  IOW if binutils goes off in a direction 
-you don't like, for example the FSF changes the license from GPL to 
-Microsoft EULA, you don't have any say in the matter whatsoever.  You're 
-left with a code fork based on the last GPL sources and/or the patches 
-you've kept locally.
-
-With Linux, I have a say in what happens to the upstream sources -- the 
-thing most people care about :)
-
-	Jeff
+         -Mike
 
 

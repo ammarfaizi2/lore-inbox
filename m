@@ -1,165 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317828AbSFSJZZ>; Wed, 19 Jun 2002 05:25:25 -0400
+	id <S317829AbSFSJ3l>; Wed, 19 Jun 2002 05:29:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317829AbSFSJZY>; Wed, 19 Jun 2002 05:25:24 -0400
-Received: from pop.gmx.net ([213.165.64.20]:64357 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S317828AbSFSJZX>;
-	Wed, 19 Jun 2002 05:25:23 -0400
-Message-ID: <3D104DF4.A8053F67@gmx.net>
-Date: Wed, 19 Jun 2002 11:25:08 +0200
-From: Richard Ems <r.ems.home@gmx.net>
-Reply-To: r.ems@gmx.net
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en,de,es
+	id <S317830AbSFSJ3k>; Wed, 19 Jun 2002 05:29:40 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:49065 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S317829AbSFSJ3j>; Wed, 19 Jun 2002 05:29:39 -0400
+Date: Wed, 19 Jun 2002 05:29:39 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: weiqing@zw.com.cn
+cc: linux-kernel@vger.kernel.org
+Subject: A question on "Scheduling in interrupt". (fwd)
+Message-ID: <Pine.LNX.4.44.0206190523210.31471-100000@devserv.devel.redhat.com>
 MIME-Version: 1.0
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Hubert Mantel <mantel@suse.de>, Andrea Arcangeli <andrea@suse.de>
-Subject: kernel OOPS: 2.4.18, nscd, nfsd
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
 
-Two kernel Oopses in short time (22:35:59 and 22:50:00). But the computer was still alive until 00:00:00, where the daily cron jobs are started and then ... kernel panic, LED's where blinking   :(
+looks like that besides Ulrich Windl i got the very same email body as
+well, as a private email. Lee, how many kernel hackers have you mailed
+with the same email body, i hope it's not "everyone in the CREDITS and
+MAINTAINERS file" ?  Why didnt you ask this on linux-net@vger.kernel.org
+or linux-kernel@vger.kernel.org?
 
-kernel is 2.4.18, from SuSE's k_deflt-2.4.18-174 package (2.4.19-pre10aa2)
+	Ingo
 
-Please CC to r.ems@gmx.net, I'm not on the linux-kernel mailing list.
+---------- Forwarded message ----------
+Date: Sat, 15 Jun 2002 12:55:30 +0800
+From: "[gb2312] Œ¿«Â" <weiqing@zw.com.cn>
+To: mingo@redhat.com
+Subject: A question on "Scheduling in interrupt".
 
-Thanks, Richard Ems
+Dear Ingo Molnar,
 
+I am a system engineer in a Chinese software development company, and currently I am implementing IPSec on Linux version 2.2.16. Generally speaking, what I am doing is adding internet key exchange and IPsec processing functions into the Linux ip_queue_xmit, ip_build_xmit and ip_local_deliver procedures. After I have built up a new sk_buff variable, I send it off using my own function send_skbuff(), this is where the problem occurs. Following is the complete copy of the culprit:
 
-# cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 6
-model name      : AMD Athlon(TM) XP1800+
-stepping        : 2
-cpu MHz         : 1544.555
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-bogomips        : 3080.19
+void send_skbuff(struct sk_buff *skb)
+{
+  struct rtable *rt;
+  struct iphdr *iph;
 
+  iph = skb->nh.iph;
+  if(ip_route_output(&rt, iph->daddr, iph->saddr,
+ IPTOS_LOWDELAY, 0))
+    goto drop;
+  skb->dst = dst_clone(&rt->u.dst);
+  skb->priority = TC_PRIO_FILLER;
+  if (skb_cloned(skb))
+    skb = skb_copy(skb, GFP_ATOMIC);
+  else
+    skb = skb_clone(skb, GFP_ATOMIC);
+  if (skb->len > rt->u.dst.pmtu)
+    goto fragment;
+  skb->dst->output(skb);
+  return;
+fragment:
+  ip_fragment(skb, skb->dst->output);
+  return;
+drop:
+  kfree_skb(skb); 
+}
 
+All functions within the above procedure are kernel supplied and irrelevant to the problem, so I will skip its explanation.
+I use the kgdb to debug my codes. Everything worked fine until I had crossed the skb->dst->output(skb) statement and hit upon return. Then, when I typed °∞next°± on host machine, the system crashed with °∞Scheduling in interrupt!°± appearing on target machine and the following message on my host machine:
 
-# lspci
-00:00.0 Host bridge: VIA Technologies, Inc. VT8367 [KT266]
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8367 [KT266 AGP]
-00:05.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
-00:0d.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 30)
-00:11.0 ISA bridge: VIA Technologies, Inc.: Unknown device 3147
-00:11.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
-00:11.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 23)
-00:11.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 23)
-01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 04)
+Program received signal SIGSEGV, Segmentation fault.
+Schedule () at sched.c: 875
+875 *(int *)0 = 0
 
+Leery of some low level codes within the °∞skb->dst->output(skb)°± provoked the crash, I step into that statement which points to function ip_output. Alas, the system crashed with the same reason upon the first statement of procedure ip_output, and that statement does simple book keeping!
+The problem is patent: scheduling while within the interrupt processing context, the myth is how could it ever be scheduling within interrupt since I am not doing anything within the interrupt context!?
+By the way, I implemented the send_skbuff months ago, and together with other codes had been working fine. This scheduling in interrupt problem only recently popped up when I was debugging error processing for IPsec and the place it occurred is irrelevant to the error processing.
+Any comments will be greatly appreciated.
 
+Regards,
 
-# scripts/ver_linux
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
-
-Linux bingo 2.4.18-4GB #1 Fri Jun 14 17:46:33 UTC 2002 i686 unknown
-
-Gnu C                  2.95.3
-Gnu make               3.79.1
-util-linux             2.11n
-mount                  2.11n
-modutils               2.4.12
-e2fsprogs              1.26
-PPP                    2.4.1
-Linux C Library        x    1 root     root      1394238 Mar 23 19:34 /lib/libc.so.6
-Dynamic linker (ldd)   2.2.5
-Procps                 2.0.7
-Net-tools              1.60
-Kbd                    1.06
-Sh-utils               2.0
-Modules Loaded         nfsd autofs4 matroxfb_base matroxfb_Ti3026 matroxfb_DAC1064 matroxfb_accel fbcon-cfb4 g450_pll matroxfb_misc 3c59x ext3 jbd lvm-mod
-
-
-Extract from /var/log/messages:
-
-...
-Jun 18 22:21:36 bingo automount[23936]: expired /net/jupiter
-Jun 18 22:22:52 bingo automount[23942]: expired /net/diablo
-Jun 18 22:30:00 bingo /USR/SBIN/CRON[23961]: (root) CMD ( /usr/lib/sa/sa1      )
-Jun 18 22:35:59 bingo kernel: Unable to handle kernel paging request at virtual address 92766008
-Jun 18 22:35:59 bingo kernel:  printing eip:
-Jun 18 22:35:59 bingo kernel: c0217944
-Jun 18 22:35:59 bingo kernel: *pde = 00000000
-Jun 18 22:35:59 bingo kernel: Oops: 0000
-Jun 18 22:35:59 bingo kernel: CPU:    0
-Jun 18 22:35:59 bingo kernel: EIP:    0010:[sock_poll+4/32]    Not tainted
-Jun 18 22:35:59 bingo kernel: EFLAGS: 00210282
-Jun 18 22:35:59 bingo kernel: eax: c0217940   ebx: 00000145   ecx: 00000000   edx: 92766000
-Jun 18 22:35:59 bingo kernel: esi: dcd88000   edi: c2bf76e0   ebp: 00000000   esp: c3419f28
-Jun 18 22:35:59 bingo kernel: ds: 0018   es: 0018   ss: 0018
-Jun 18 22:35:59 bingo kernel: Process nscd (pid: 863, stackpage=c3419000)
-Jun 18 22:35:59 bingo kernel: Stack: c0149610 92766000 00000000 00000000 000005dd 00000000 00000000 c01496fc
-Jun 18 22:35:59 bingo kernel:        00000001 dcd88000 c3419f60 c3419f64 c3418000 c3418000 00000000 00000000
-Jun 18 22:35:59 bingo kernel:        00000001 bf7ffa04 00000000 00000001 c0149860 00000001 00000000 00000001
-Jun 18 22:35:59 bingo kernel: Call Trace: [do_pollfd+128/144] [do_poll+220/240] [sys_poll+336/704] [sys_time+17/80] [system_call+51/64]
-Jun 18 22:35:59 bingo kernel:
-Jun 18 22:35:59 bingo kernel: Code: 8b 42 08 8b 40 08 05 14 01 00 00 8b 48 08 ff 74 24 08 50 52
-Jun 18 22:35:59 bingo kernel: klogd 1.4.1, ---------- state change ----------
-Jun 18 22:35:59 bingo kernel: Inspecting /boot/System.map-2.4.18-4GB
-Jun 18 22:35:59 bingo kernel: Loaded 13574 symbols from /boot/System.map-2.4.18-4GB.
-Jun 18 22:35:59 bingo kernel: Symbols match kernel version 2.4.18.
-Jun 18 22:35:59 bingo kernel: Loaded 168 symbols from 13 modules.
-Jun 18 22:40:00 bingo /USR/SBIN/CRON[24006]: (root) CMD ( /usr/lib/sa/sa1      )
-Jun 18 22:50:00 bingo /USR/SBIN/CRON[24053]: (root) CMD ( /usr/lib/sa/sa1      )
-Jun 18 22:50:00 bingo kernel:  <1>Unable to handle kernel paging request at virtual address 42627044
-Jun 18 22:50:00 bingo kernel:  printing eip:
-Jun 18 22:50:00 bingo kernel: 42627044
-Jun 18 22:50:00 bingo kernel: *pde = 00000000
-Jun 18 22:50:00 bingo kernel: Oops: 0000
-Jun 18 22:50:00 bingo kernel: CPU:    0
-Jun 18 22:50:00 bingo kernel: EIP:    0010:[zisofs_cleanup+1113747380/-1072693392]    Not tainted
-Jun 18 22:50:00 bingo kernel: EFLAGS: 00210282
-Jun 18 22:50:00 bingo kernel: eax: c1607270   ebx: c39d5c9c   ecx: cdb20020   edx: cdb20d40
-Jun 18 22:50:00 bingo kernel: esi: 00000011   edi: 00000003   ebp: 00000007   esp: c370bf30
-Jun 18 22:50:00 bingo kernel: ds: 0018   es: 0018   ss: 0018
-Jun 18 22:50:00 bingo kernel: Process nfsd (pid: 839, stackpage=c370b000)
-Jun 18 22:50:00 bingo kernel: Stack: cdb20d40 d7f64160 c2668fb8 00000001 00000003 00000011 c364d800 c362f580
-Jun 18 22:50:00 bingo kernel:        c6934014 c362f580 c3620505 c364d800 00000002 cf131240 c6934014 c364dc9c
-Jun 18 22:50:00 bingo kernel:        c02687ec c364d800 c6934014 00000000 00000027 00000007 c6934014 00000000
-Jun 18 22:50:00 bingo kernel: Call Trace: [nfsd:__insmod_nfsd_S.data_L2432+1888/2432] [nfsd:__insmod_nfsd_S.data_L2432+1888/2432] [nfsd:__insmod_nfsd_S.text_L52871+1189/52872] [svc_process+1100/1344] [nfsd:__insmod_nfsd_S.text_L52871+806/52872]
-Jun 18 22:50:00 bingo kernel:    [nfsd:__insmod_nfsd_S.data_L2432+0/2432] [kernel_thread+38/48] [nfsd:__insmod_nfsd_S.text_L52871+352/52872]
-Jun 18 22:50:00 bingo kernel:
-Jun 18 22:50:00 bingo kernel: Code:  Bad EIP value.
-Jun 18 22:59:00 bingo /USR/SBIN/CRON[24075]: (root) CMD ( rm -f /var/spool/cron/lastrun/cron.hourly)
-Jun 18 23:00:00 bingo /USR/SBIN/CRON[24080]: (root) CMD ( /usr/lib/sa/sa1      )
-Jun 18 23:10:00 bingo /USR/SBIN/CRON[24137]: (root) CMD ( /usr/lib/sa/sa1      )
-Jun 18 23:20:00 bingo /USR/SBIN/CRON[24184]: (root) CMD ( /usr/lib/sa/sa1      )
-Jun 18 23:30:00 bingo /USR/SBIN/CRON[24209]: (root) CMD ( /usr/lib/sa/sa1      )
-Jun 18 23:40:00 bingo /USR/SBIN/CRON[24254]: (root) CMD ( /usr/lib/sa/sa1      )
-Jun 18 23:50:00 bingo /USR/SBIN/CRON[24301]: (root) CMD ( /usr/lib/sa/sa1      )
-Jun 18 23:59:00 bingo /USR/SBIN/CRON[24323]: (root) CMD ( rm -f /var/spool/cron/lastrun/cron.hourly)
-Jun 19 00:00:00 bingo /USR/SBIN/CRON[24329]: (root) CMD ( /usr/lib/sa/sa2 -A   #update reports every 6 hour)
-Jun 19 00:00:00 bingo /USR/SBIN/CRON[24330]: (root) CMD ( /usr/lib/sa/sa1      )
-Jun 19 10:25:25 bingo syslogd 1.4.1: restart.
-...
-
-
-Thanks again, Richard
-
---
-Richard Ems
-... e-mail: r.ems@gmx.net
-... Computer Science, University of Hamburg
-
-Unix IS user friendly. It's just selective about who its friends are.
+Lee Tong
 
 

@@ -1,70 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318358AbSHKUhj>; Sun, 11 Aug 2002 16:37:39 -0400
+	id <S318360AbSHKUpR>; Sun, 11 Aug 2002 16:45:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318361AbSHKUhj>; Sun, 11 Aug 2002 16:37:39 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:27153 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S318358AbSHKUhi>; Sun, 11 Aug 2002 16:37:38 -0400
-Message-ID: <3D56CBB5.3010905@namesys.com>
-Date: Mon, 12 Aug 2002 00:40:21 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>,
-       Hans Reiser <reiser@bitshadow.namesys.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK] [PATCH] reiserfs changeset 7 of 7 to include into 2.4 tree
-References: <200208091636.g79GadA9007889@bitshadow.namesys.com> 	<20020809183850.A17407@infradead.org> <1029097261.16421.45.camel@irongate.swansea.linux.org.uk> <3D56C6A4.5010604@namesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318361AbSHKUpR>; Sun, 11 Aug 2002 16:45:17 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:32004 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S318360AbSHKUpQ>; Sun, 11 Aug 2002 16:45:16 -0400
+Date: Sun, 11 Aug 2002 21:49:01 +0100
+From: John Levon <movement@marcelothewonderpenguin.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: steveb@unix.lancs.ac.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 IDE Partition Check issue (again)
+Message-ID: <20020811204901.GA39920@compsoc.man.ac.uk>
+References: <E17diPZ-0004bU-00@wing1.lancs.ac.uk> <1029095618.16216.21.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1029095618.16216.21.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Boards of Canada - Geogaddi
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
+On Sun, Aug 11, 2002 at 08:53:38PM +0100, Alan Cox wrote:
 
-> Alan Cox wrote:
->
->> On Fri, 2002-08-09 at 18:38, Christoph Hellwig wrote:
->>  
->>
->>> Are you sure you want to have a new block allocator in the stable 
->>> series
->>> before it has been added to 2.5?
->>>   
->>
->>
->> Thats what I was also wondering. It seems like its an experimental
->> update rather than a bug fix so ought to be 2.5 stuff
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe 
->> linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
->>
->>  
->>
-> The non-default mount options are experimental, and the options to 
-> have things revert to old behaviour play it safe just in case.
->
-> I understand why all of you are doubtful about it going into 2.4, it 
-> is not that you are crazy, but my closeness to the code makes me think 
-> it is stable enough that it should go in.  Also remember that we have 
-> an extensive test suite, we have been benchmarking variations on this 
-> code for months, and I frankly don't think that 2.5 insertion will get 
-> it enough testing to be instructive to us.
->
-I meant to add that the default mount options are not experimental in my 
-view, they are tested and chosen as what works well and is simple/elegant.
+> Try this
+> --- drivers/ide/alim15x3.c~	2002-08-11 19:33:14.000000000 +0100
+> +++ drivers/ide/alim15x3.c	2002-08-11 19:33:14.000000000 +0100
+> @@ -810,7 +810,7 @@
+>  
+>  	/* Don't use LBA48 on ALi devices before rev 0xC4 */
+>  
+> -	if(m5229_revision < 0xC4)
+> +	if(m5229_revision <= 0xC4)
+>  		hwif->addressing = 1;
+
+would be nice to change the comment too ;)
+
+regards
+john
 
 -- 
-Hans
-
-
-
+"It is unbecoming for young men to utter maxims."
+	- Aristotle

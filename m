@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263070AbTDFUVc (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 16:21:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263071AbTDFUVc (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 16:21:32 -0400
-Received: from Mail1.KONTENT.De ([81.88.34.36]:707 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S263070AbTDFUVa (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 16:21:30 -0400
-From: Oliver Neukum <oliver@neukum.org>
-Reply-To: oliver@neukum.name
-To: Malcolm Beattie <mbeattie@clueful.co.uk>
-Subject: Re: [PATCH] new syscall: flink
-Date: Sun, 6 Apr 2003 22:33:01 +0200
-User-Agent: KMail/1.5
-Cc: Dan Kegel <dank@kegel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ulrich Drepper <drepper@redhat.com>
-References: <3E907A94.9000305@kegel.com> <200304062156.37325.oliver@neukum.org> <20030406210800.A5450@clueful.co.uk>
-In-Reply-To: <20030406210800.A5450@clueful.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id S263071AbTDFUWm (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 16:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263073AbTDFUWl (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 16:22:41 -0400
+Received: from smtp.terra.es ([213.4.129.129]:30458 "EHLO tsmtp8.mail.isp")
+	by vger.kernel.org with ESMTP id S263071AbTDFUVu (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 16:21:50 -0400
+Date: Sun, 6 Apr 2003 22:29:59 +0200
+From: Arador <diegocg@teleline.es>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: nicku@vtc.edu.hk, linux-kernel@vger.kernel.org
+Subject: Re: Debugging hard lockups (hardware?)
+Message-Id: <20030406222959.63add445.diegocg@teleline.es>
+In-Reply-To: <1049654048.1600.11.camel@dhcp22.swansea.linux.org.uk>
+References: <3E8FC9FB.A030ACFB@vtc.edu.hk>
+	<1049654048.1600.11.camel@dhcp22.swansea.linux.org.uk>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304062233.01357.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 6. April 2003 22:08 schrieb Malcolm Beattie:
-> Oliver Neukum writes:
-> > If you have an fd, the permissions based on the path are already
-> > bypassed, whether you can call flink or not, aren't they?
->
-> Not if it's opened O_RDONLY, for example.
+On 06 Apr 2003 19:34:09 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-OK, so you could open a file RW even if the fd you get passed
-is only RO, right?
+> For the NMI watchdog to fail (if you have it enabled) requires pretty
+> major disaster to have occurred since the NMI will be delivered through
+> any kind of system hang
 
-	Regards
-		Oliver
+I've a similar hang; no oops; no sysrq; no NMI messages;
+But mine only happens under 2.5; since long time ago.
+The one strange thing is that it seems that it's not hanged;
+since the X pointer moves in 3-5 seconds intervals (it even
+change the shape in the window's corners).
+It happens without X too; but as i said nothing survives...
+no oops, sysrq, nmi messages, doesn't answer to pings...
 
+I know by the fans' sound that the cpu usage goes to 100%
+
+I'm thinking of a hardware failure too (but the odd X behaviour makes
+me hesitate); since i don't remember that it failed under 2.4 that i
+remember of...this box didn't run a lot of 2.4 kernel though.
+
+The box passes memtest86; it's
+ a 2x800 box, ide disk, 256 ram;
+VIA chipset...just in the (very strange) case that somebody
+has exactly the same box and they have/don't have the same problems.
+(elitegroup d6vaa motherboard)
+
+Diego Calleja

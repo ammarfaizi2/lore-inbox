@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267388AbUJIU0l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267361AbUJIU1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267388AbUJIU0l (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 16:26:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267385AbUJIUYE
+	id S267361AbUJIU1w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 16:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267380AbUJIU0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 16:24:04 -0400
-Received: from smtpq3.home.nl ([213.51.128.198]:36803 "EHLO smtpq3.home.nl")
-	by vger.kernel.org with ESMTP id S267410AbUJIUWx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 16:22:53 -0400
-Message-ID: <4168479C.5080306@keyaccess.nl>
-Date: Sat, 09 Oct 2004 22:18:36 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Denis Zaitsev <zzz@anda.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BUG][2.6.8.1] Something wrong with ISAPnP and serial driver
-References: <20041010015206.A30047@natasha.ward.six>
-In-Reply-To: <20041010015206.A30047@natasha.ward.six>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 9 Oct 2004 16:26:53 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:23962 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267361AbUJIUZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 16:25:13 -0400
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+From: Lee Revell <rlrevell@joe-job.com>
+To: Robert Love <rml@novell.com>
+Cc: stefan.eletzhofer@eletztrick.de,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1097353225.9973.7.camel@lucy>
+References: <41677E4D.1030403@mvista.com> <416822B7.5050206@opersys.com>
+	 <1097346628.1428.11.camel@krustophenia.net>
+	 <20041009212614.GA25441@tier.local>
+	 <1097350227.1428.41.camel@krustophenia.net>
+	 <20041009213817.GB25441@tier.local>
+	 <1097351221.1428.46.camel@krustophenia.net>  <1097353225.9973.7.camel@lucy>
+Content-Type: text/plain
+Message-Id: <1097353512.1428.64.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 09 Oct 2004 16:25:13 -0400
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Zaitsev wrote:
+On Sat, 2004-10-09 at 16:20, Robert Love wrote:
+> On Sat, 2004-10-09 at 15:47 -0400, Lee Revell wrote:
+> 
+> > Yes.  The upper bound on the response time of an RT task is a function
+> > of the longest non-preemptible code path in the kernel.  Currently this
+> > is the processing of a single packet by netif_receive_skb.
+> > 
+> > AIUI hard realtime is about bounded response times.  How does this not
+> > qualify?
+> 
+> I am actually in agreement with you, favoring this soft real-time
+> approach, but this is not bounded response time or determinism.  There
+> are no guarantees, no measurements conducted with all possible inputs,
+> sizes, errors, and so on.  This soft real-time approach gives great
+> average case--but the worst case is only a measurement on a specific
+> machine in a specific workload.
 
-> 1) The 2.6 kernel doesn't activate the ISA PnP modem at the boot,
->    while the 2.4 one always does.
+I did not mean to say that VP approach alone can do hard realtime, that
+was just an example.  But, when combined the MontaVista approach of
+turning all but ~20 spinlocks into mutexes, it seems like the amount of
+non-preemptible code is small enough that you could analyze it all and
+start to make hard RT guarantees.
 
-2.4 used to scan the ISA PnP device ID string for some common substrings 
-indicating a modem given a completely unknown ISA PnP device (the code 
-is still present -- see drivers/serial/8250_pnp.c:check_name()) while 
-2.6 really needs your modem's PnP ID to be listed.
+Lee
 
-> 2) The 8250 driver finds the PnP card's port, while the 8250_pnp finds
->    the non-PnP ports.
-
-8250_pnp not finding it is therefore very likely a simple matter of it 
-not knowing that it should be driving it. Try seeing if your modem's PnP 
-ID (/sys/bus/pnp/devices/?/id) is listed in drivers/serial/8250_pnp.c 
-and if not add it (and send as a patch to Russel King).
-
-8250 itself finding it was no doubt due to you enabling the port 
-yourself so that from its standpoint, it was just another serial port 
-already present. With your modem's ID added, 8250_pnp should find and 
-activate the mdem itself without you needing to do anything other than 
-"modprobe 8250_pnp"
-
-Hope that helps.
-
-Rene.

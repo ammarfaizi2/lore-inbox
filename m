@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318319AbSGRTsD>; Thu, 18 Jul 2002 15:48:03 -0400
+	id <S318316AbSGRTvJ>; Thu, 18 Jul 2002 15:51:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318326AbSGRTsC>; Thu, 18 Jul 2002 15:48:02 -0400
-Received: from ithilien.qualcomm.com ([129.46.51.59]:37628 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S318319AbSGRTsC>; Thu, 18 Jul 2002 15:48:02 -0400
-Message-Id: <5.1.0.14.2.20020718124601.0910ba78@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 18 Jul 2002 12:50:48 -0700
-To: "James Stevenson" <mistral@stev.org>,
-       "Kevin Curtis" <kevin.curtis@farsite.co.uk>,
-       <linux-kernel@vger.kernel.org>
-From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Subject: Re: Closing a socket
-In-Reply-To: <001701c22e85$240635b0$0501a8c0@Stev.org>
-References: <7C078C66B7752B438B88E11E5E20E72E0EF451@GENERAL.farsite.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S318318AbSGRTvJ>; Thu, 18 Jul 2002 15:51:09 -0400
+Received: from [207.251.72.21] ([207.251.72.21]:44814 "EHLO
+	s-ny-exchconn01.island.com") by vger.kernel.org with ESMTP
+	id <S318316AbSGRTvI>; Thu, 18 Jul 2002 15:51:08 -0400
+Message-ID: <628900C9F8A7D51188E000A0C9F3FDFA024FF095@S-NY-EXCH01>
+From: Robert Sinko <RSinko@island.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Wrong CPU count 
+Date: Thu, 18 Jul 2002 15:52:51 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+After upgrading  from kernel 2.4.7-10smp to 2.4.9-34smp using the Red Hat
+RPM downloaded from RH Network, the CPU count on the machine reported by
+dmesg and listed in /proc/cpuinfo was 4 rather than the actual 2.
 
-> > I have implemented a new socket address family and have noted that
-> > from a multi-threaded application, if a thread calls close(fd) while a
-> > second thread has a blocking read outstanding, the sockets release() is not
-> > called.  Is this correct?  How can one unblock the read in order to do the
-> > close.
-You might want to implement shutdown(). Thread #1 will call shutdown() 
-instead of
-the close(). Your shutdown() implementation can do something like:
-         sk->shutdown |= RCV_SHUTDOWN;
-         sk->state_change(sk);
-So, reader will wakeup, check shutdown mask and return error because socket was
-shut down.
+This has occured on all 4 Dell 2650's that I've installed this patch on.  I
+don't have any other mult-processor machines available to test this with.
 
-Max
+Things seem to run OK, but this is a bit ominous.  Has anyone seem this
+problem with this or other PC Models?
+
+Thanks,
+Bob
+
+
+DISCLAIMER: The information contained herein is confidential and is intended
+solely for the addressee(s). It shall not be construed as a recommendation
+to buy or sell any security. Any unauthorized access, use, reproduction,
+disclosure or dissemination is prohibited. Neither ISLAND nor any of its
+subsidiaries or affiliates shall assume any legal liability or
+responsibility for any incorrect, misleading or altered information
+contained herein. Thank you.
 
 

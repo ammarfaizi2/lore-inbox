@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290423AbSCCXep>; Sun, 3 Mar 2002 18:34:45 -0500
+	id <S288058AbSCDADT>; Sun, 3 Mar 2002 19:03:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290685AbSCCXee>; Sun, 3 Mar 2002 18:34:34 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15120 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290423AbSCCXeT>; Sun, 3 Mar 2002 18:34:19 -0500
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-To: jdike@karaya.com (Jeff Dike)
-Date: Sun, 3 Mar 2002 23:48:56 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <200203032327.SAA04176@ccure.karaya.com> from "Jeff Dike" at Mar 03, 2002 06:27:20 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S290593AbSCDADK>; Sun, 3 Mar 2002 19:03:10 -0500
+Received: from sebula.traumatized.org ([193.121.72.130]:35522 "EHLO
+	sebula.traumatized.org") by vger.kernel.org with ESMTP
+	id <S288058AbSCDAC4>; Sun, 3 Mar 2002 19:02:56 -0500
+X-NoSPAM: http://traumatized.org/nospam/
+Message-ID: <3C82A854.1080408@pophost.eunet.be>
+Date: Sun, 03 Mar 2002 23:48:52 +0100
+From: Jurgen Philippaerts <jurgen@pophost.eunet.be>
+User-Agent: Mozilla/5.0 (X11; U; Linux sparc64; en-US; rv:0.9.8) Gecko/20020220
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre2: ufs problems
+In-Reply-To: <20020301114238.A28655@bytesex.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16hfiq-0005qg-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't have individual little map requests going on here.  I have a single
-> large map happening at boot time which creates the UML "physical" memory
-> area.  
+Gerd Knorr wrote:
 
-Doesn't matter
+> 2.4.19-pre2 fails to mount my FreeBSD filesystems:
+> 
+> bogomips root ~# grep bsd /etc/fstab
+> /dev/hda10              /bsd            ufs     ro,ufstype=44bsd 0 0
+> /dev/hda12              /bsd/var        ufs     ro,ufstype=44bsd 0 0
+> /dev/hda13              /bsd/usr        ufs     ro,ufstype=44bsd 0 0
+> bogomips root ~# mount -a
+> UFS: failed to set blocksize
+> mount: wrong fs type, bad option, bad superblock on /dev/hda10,
+>        or too many mounted file systems
+> mount: mount point /bsd/var does not exist
+> mount: mount point /bsd/usr does not exist
 
-> So, say I have a 128M UML which is only ever going to use 32M of that.  If 
-> there isn't 128M of address space, but there is 32M, this UML will never
-> get off the ground, even though it really deserved to.
+FWIW; i get the same trying to mount my Solaris partitions.
 
-Well thats up to you on how you implement it. mmap will tell you the truth
-in overcommit mode 2 or 3. Nothing will get killed off when you try and
-mmap too much or dirty pages you have.
+# mount -t ufs -r -o ufstype=sun /dev/hda4 /mnt
+mount: wrong fs type, bad option, bad superblock on /dev/hda4,
+        or too many mounted file systems
 
-> About the swap allocation, I'd bet essentially all the time when a page
-> is allocated, its dirtiness is imminent anyway.  So, I'm not adding anything
-
-Nothing of the sort. Sitting in a gnome desktop I'm showing a 41200Kb worst
-case swap requirement, but it appears under half of that is used.
-
-> to swap.  It'll be there a usec later anyway.  What I want is for the dirtying
-> to happen in a controlled place where something sane can be done if the page
-> isn't really there.
-
-Like randomly killing another process off ? If you want to dirty the pages
-pray and catch the sigbus then see memset(3). If you want to be told "sorry
-you can't have that" and write a simple loop to pick a good memory size,
-you need the address space accounting.
+in my `dmesg` output, i get:
+UFS: failed to set blocksize
 
 
-Alan
+Jurgen.
+

@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130202AbRBZOec>; Mon, 26 Feb 2001 09:34:32 -0500
+	id <S130292AbRBZOeb>; Mon, 26 Feb 2001 09:34:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130276AbRBZOc2>; Mon, 26 Feb 2001 09:32:28 -0500
+	id <S130257AbRBZOcZ>; Mon, 26 Feb 2001 09:32:25 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:53191 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130259AbRBZO3f>;
-	Mon, 26 Feb 2001 09:29:35 -0500
-Subject: Re: 64GB option broken in 2.4.2
-To: rico@patrec.com (Rico Tudor)
-Date: Mon, 26 Feb 2001 11:14:04 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20010226084403.10459.qmail@pc7.prs.nunet.net> from "Rico Tudor" at Feb 26, 2001 10:51:07 AM
-X-Mailer: ELM [version 2.5 PL1]
+	by vger.kernel.org with ESMTP id <S130230AbRBZO3e>;
+	Mon, 26 Feb 2001 09:29:34 -0500
+Date: Mon, 26 Feb 2001 10:54:02 +0100 (MET)
+From: Lennert Buytenhek <buytenh@math.leidenuniv.nl>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>, David Fries <dfries@umr.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Stale NFS handles on 2.4.2
+In-Reply-To: <shsvgpyual0.fsf@charged.uio.no>
+Message-ID: <Pine.LNX.4.30.0102261052520.16700-100000@page.math.leidenuniv.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14XLbT-00011G-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No improvement.  (In fact, 2.4.2ac3 breaks 3ware IDE RAID support.)
 
-Curiouser and curiouser. The 3ware does have some known problems but you'd
-see those equally on any SMP 1Ggig/4Gig/64Gig.
 
-> While operating this Thunder 2500 (Tyan motherboard, ServerWorks chipset)
-> is like walking on a minefield, the problem I see with 2.4.2 64GB option
-> feels generic.  I'll go out on a limb, and claim that anyone with more
-> than 1GB can reproduce this CPU spin.
+On 25 Feb 2001, Trond Myklebust wrote:
 
-In the case of 2.4.2ac I've not been able to, nor has the cerberus test suite
-but that isnt remotely full coverage of all loads/behaviours or of all 
-devices
+>      > I was hopping to avoid unmounting, as I would have to shut
+>      > about everything down to do that.
+>
+> It looks as if you'll have to do that. 'mount -oremount' does not
+> really cause the root filehandle to get updated. The only thing it
+> does at the moment is allow you to change from a read-only to a
+> read-write filesystem.
+
+A trick that works for me is mounting the NFS filesystem on another mount
+point and unmounting it there. This usually makes the mount on the
+original mount point magically work again.
+
+
+cheers,
+Lennert
 

@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265002AbRFUPYX>; Thu, 21 Jun 2001 11:24:23 -0400
+	id <S265003AbRFUPZX>; Thu, 21 Jun 2001 11:25:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265003AbRFUPYO>; Thu, 21 Jun 2001 11:24:14 -0400
-Received: from web14807.mail.yahoo.com ([216.136.224.223]:41222 "HELO
-	web14807.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S265002AbRFUPYG>; Thu, 21 Jun 2001 11:24:06 -0400
-Message-ID: <20010621152404.67336.qmail@web14807.mail.yahoo.com>
-Date: Thu, 21 Jun 2001 08:24:04 -0700 (PDT)
-From: Linux Bigot <linuxopinion@yahoo.com>
-Subject: RE: The latest Microsoft FUD
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S265006AbRFUPZE>; Thu, 21 Jun 2001 11:25:04 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:51461 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265003AbRFUPY7>; Thu, 21 Jun 2001 11:24:59 -0400
+Date: Thu, 21 Jun 2001 17:24:33 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Chris Mason <mason@suse.com>
+Cc: Stefan.Bader@de.ibm.com, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>,
+        Ingo Molnar <mingo@elte.hu>
+Subject: Re: correction: fs/buffer.c underlocking async pages
+Message-ID: <20010621172433.J29084@athlon.random>
+In-Reply-To: <20010621170813.F29084@athlon.random> <470160000.993136602@tiny>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <470160000.993136602@tiny>; from mason@suse.com on Thu, Jun 21, 2001 at 11:16:42AM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+On Thu, Jun 21, 2001 at 11:16:42AM -0400, Chris Mason wrote:
+> Think of a mixture of fsync_inode_buffers and async i/o on page.  Since
+> fsync_inode_buffers uses ll_rw_block, if that end_io handler is the last to
+> run the page never gets unlocked.
 
-Wouldn't microsoft be happy to see so many linux
-developers and extraordinaries while away their
-time on a trivial issue instead of coming up with
-other befitting replies.
+correct
 
-Not to mention, it reduces the SNR of kernel list
-pretty much.
-
-We all _love_ linux and let's focus on that.
-
-best of luck
-
-
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail - only $35 
-a year!  http://personal.mail.yahoo.com/
+Andrea

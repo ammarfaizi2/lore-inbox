@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267771AbTBGJwh>; Fri, 7 Feb 2003 04:52:37 -0500
+	id <S267775AbTBGJz3>; Fri, 7 Feb 2003 04:55:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267773AbTBGJwg>; Fri, 7 Feb 2003 04:52:36 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:17884 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267771AbTBGJwg>;
-	Fri, 7 Feb 2003 04:52:36 -0500
-Date: Fri, 07 Feb 2003 01:48:36 -0800 (PST)
-Message-Id: <20030207.014836.78483470.davem@redhat.com>
-To: maxk@qualcomm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0301180439480.10820-100000@champ.qualcomm.com>
-References: <Pine.LNX.4.33.0301020341140.2038-100000@champ.qualcomm.com>
-	<Pine.LNX.4.33.0301180439480.10820-100000@champ.qualcomm.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267776AbTBGJz3>; Fri, 7 Feb 2003 04:55:29 -0500
+Received: from matrix.roma2.infn.it ([141.108.255.2]:60305 "EHLO
+	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
+	id <S267775AbTBGJz1>; Fri, 7 Feb 2003 04:55:27 -0500
+Message-ID: <40163.141.108.16.102.1044612299.squirrel@webmail.roma2.infn.it>
+Date: Fri, 7 Feb 2003 11:04:59 +0100 (CET)
+Subject: Re: zero copy
+From: "Emiliano Gabrielli" <emiliano.gabrielli@roma2.infn.it>
+To: <linux-kernel@vger.kernel.org>, <kernelnewbies@nl.linux.org>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+X-Mailer: SquirrelMail (version 1.2.7)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Max Krasnyansky <maxk@qualcomm.com>
-   Date: Sun, 19 Jan 2003 19:22:44 -0800 (PST)
 
-   So here is new patch.
 
-Ok, it generally looks fine, and try_module_get() is cheap enough
-(basically the equivalent of a local-cpu statistic bump plus
-a compare) that I'm not concerned about any added overhead.
+<quote who="Venkat Raghu">
+>
+>
+> Hi,
+>
+> What is zero copy mechanism in ethernet drivers.
+>
+> Regards
+> Venkat
 
-And since it is fixing a bug... :-)
+Zero copy is intended to bypass the need of copying the user space buffer in kernel
+space via copy_from_user.
 
-Just let me discuss some things with Alexey before I apply this.
+It is achieved by mapping dma buffer in user space for exaple so that eth driver can
+directly use them for dma
+
+-- 
+Emiliano Gabrielli
+
+dip. di Fisica
+2° Università di Roma "Tor Vergata"
+
+
+-- 
+Emiliano Gabrielli
+
+dip. di Fisica
+2° Università di Roma "Tor Vergata"
+
+

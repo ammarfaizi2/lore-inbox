@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131562AbRDJMFI>; Tue, 10 Apr 2001 08:05:08 -0400
+	id <S131563AbRDJMLS>; Tue, 10 Apr 2001 08:11:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131563AbRDJME7>; Tue, 10 Apr 2001 08:04:59 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:51206 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S131562AbRDJMEo>; Tue, 10 Apr 2001 08:04:44 -0400
-Date: Tue, 10 Apr 2001 14:04:17 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: David Schleef <ds@schleef.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Salisbury <mbs@mc.com>,
-        Jeff Dike <jdike@karaya.com>, schwidefsky@de.ibm.com,
-        linux-kernel@vger.kernel.org
+	id <S131586AbRDJMLJ>; Tue, 10 Apr 2001 08:11:09 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:10501 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131563AbRDJMLE>; Tue, 10 Apr 2001 08:11:04 -0400
 Subject: Re: No 100 HZ timer !
-In-Reply-To: <20010410044336.A1934@stm.lbl.gov>
-Message-ID: <Pine.LNX.3.96.1010410135540.17123B-100000@artax.karlin.mff.cuni.cz>
+To: ak@suse.de (Andi Kleen)
+Date: Tue, 10 Apr 2001 13:12:14 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), ak@suse.de (Andi Kleen),
+        mbs@mc.com (Mark Salisbury), jdike@karaya.com (Jeff Dike),
+        schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20010410140202.A15114@gruyere.muc.suse.de> from "Andi Kleen" at Apr 10, 2001 02:02:02 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14mx0K-00049P-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > Its worth doing even on the ancient x86 boards with the PIT.
-> > > 
-> > > Note that programming the PIT is sloooooooow and doing it on every timer
-> > > add_timer/del_timer would be a pain.
-> > 
-> > You only have to do it occasionally.
-> > 
-> > When you add a timer newer than the current one 
-> > 	(arguably newer by at least 1/2*HZ sec)
-> > When you finish running the timers at an interval and the new interval is
-> > significantly larger than the current one.
-> > 
-> > Remember each tick we poke the PIT anyway
-> 
-> Reprogramming takes 3-4 times as long.  However, I still agree
-> it's a good idea.
+> Does not sound very attractive all at all on non virtual machines (I see the point on
+> UML/VM):
+> making system entry/context switch/interrupts slower, making add_timer slower, just to 
+> process a few less timer interrupts. That's like robbing the fast paths for a slow path.
 
-Adding and removing timers happens much more frequently than PIT tick, so
-comparing these times is pointless.
+Measure the number of clocks executing a timer interrupt. rdtsc is fast. Now
+consider the fact that out of this you get KHz or better scheduling 
+resolution required for games and midi. I'd say it looks good. I agree
+the accounting of user/system time needs care to avoid slowing down syscall
+paths
 
-If you have some device and timer protecting it from lockup on buggy
-hardware, you actually
+Alan
 
-send request to device
-add timer
-
-receive interrupt and read reply
-remove timer
-
-With the curent timer semantics, the cost of add timer and del timer is
-nearly zero. If you had to reprogram the PIT on each request and reply, it
-would slow things down. 
-
-Note that you call mod_timer also on each packet received - and in worst
-case (which may happen), you end up reprogramming the PIT on each packet.
-
-Mikulas
 

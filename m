@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131703AbQK2VvW>; Wed, 29 Nov 2000 16:51:22 -0500
+        id <S131438AbQK2WBS>; Wed, 29 Nov 2000 17:01:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131921AbQK2VvM>; Wed, 29 Nov 2000 16:51:12 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38502 "EHLO
-        the-village.bc.nu") by vger.kernel.org with ESMTP
-        id <S131703AbQK2VvA>; Wed, 29 Nov 2000 16:51:00 -0500
-Subject: Re: Fasttrak100 questions...
-To: jas88@cam.ac.uk (James A Sutherland)
-Date: Wed, 29 Nov 2000 21:18:58 +0000 (GMT)
-Cc: andre@linux-ide.org (Andre Hedrick), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        kernel@blackhole.compendium-tech.com (Dr. Kelsey Hudson),
-        hps@tanstaafl.de (Henning P. Schmiedehausen),
+        id <S132117AbQK2WBH>; Wed, 29 Nov 2000 17:01:07 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:45572
+        "EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+        id <S131438AbQK2WAu>; Wed, 29 Nov 2000 17:00:50 -0500
+Date: Wed, 29 Nov 2000 13:30:10 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: James A Sutherland <jas88@cam.ac.uk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>,
+        "Henning P. Schmiedehausen" <hps@tanstaafl.de>,
         linux-kernel@vger.kernel.org
-In-Reply-To: <00112921145000.11020@dax.joh.cam.ac.uk> from "James A Sutherland" at Nov 29, 2000 09:10:06 PM
-X-Mailer: ELM [version 2.5 PL1]
+Subject: Re: Fasttrak100 questions...
+In-Reply-To: <00112921145000.11020@dax.joh.cam.ac.uk>
+Message-ID: <Pine.LNX.4.10.10011291317160.1743-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E141Ed2-0006Oi-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I have defined the terms that are acceptable to a binary module that
-> > incorporates GPL code of MINE!  This I DEFINE THE TERMS, and they are
-> > module only!
-> 
+On Wed, 29 Nov 2000, James A Sutherland wrote:
+
 > Nope. RMS defined the terms which apply to GPL code. You are free to define any
 > other terms you like for your own code, but it is no longer GPLed in that case.
 
-Can I suggest you get a basic US copyright law text out of the local library
-and read it before continuing this. You might also want to read up on the
-background. Andre took some of his own code and granted them a conditional
-seperate license to use some of it in certain ways.
+And the code for FASTTRAK is not GPL, James we did this once before.
+If Promise were to promote and tell people to link the object to the
+kernel every again, I will begin a law suit.  Because the harm and damage
+caused to the ATA subsystem is not repairable.  The damages are not
+limited.
 
-Your comments about the GPL are also incorrect. I can grant additional rights
-without something ceasing to GPL providing those rights do not cause a conflict
-with the rules the GPL cites notably the 'no additional restrictions'
-statement.
+Now I worked with Promise to get this all clean as a module that could be
+updated as there kernel evolves.  If all of you go and SCREW up the work I
+did to try an allow a company that is not generally friendly to Linux as
+far as IP and technology issues are related, then I will stop trying to
+get them to expose the IP for the RAID signatures to export to the Linux
+SOFT RAID.
+
+THIS WILL ROYALLY SCREW EVERYBODY!  HAHAHAHA.
+
+Now do not go dorking things that I am trying to make make public.
+This is really pissing me off!
+
+Andre Hedrick
+Linux ATA Development
 
 
 -

@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136635AbREJN7p>; Thu, 10 May 2001 09:59:45 -0400
+	id <S136616AbREJN7y>; Thu, 10 May 2001 09:59:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136664AbREJN7g>; Thu, 10 May 2001 09:59:36 -0400
+	id <S136641AbREJN7q>; Thu, 10 May 2001 09:59:46 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:54674 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S136635AbREJN7Q>;
-	Thu, 10 May 2001 09:59:16 -0400
-To: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: tulip: no link beat, media switching to 10Base2
-From: Russell Senior <seniorr@aracnet.com>
-Date: 09 May 2001 20:58:45 -0700
-In-Reply-To: Jeff Garzik's message of "Wed, 09 May 2001 08:48:34 -0400"
-Message-ID: <86wv7p7t3e.fsf_-_@coulee.tdb.com>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	by vger.kernel.org with ESMTP id <S136608AbREJN71>;
+	Thu, 10 May 2001 09:59:27 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: reiserfs-list@namesys.com
+Subject: IDE DMA timeouts and reiserfs stability
+Date: Wed, 9 May 2001 23:42:35 -0400
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <01050923423500.00777@oscar>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-[a repost of a message sent to the tulip bugtracking system on sourceforge]
+I am using 2.4.5-pre1.  Over the course of the last two weeks I have had
+DMA timeouts occur twice.  Both times corrupted my fs.  While this is not
+ideal, its not unexpected as things stand now.  I have seen at least three 
+other reports on lkml about errors of this type - suspect that 2.4's ide 
+is a little fragile in some corner cases...
 
-I am using the tulip driver from vanilla linux-2.4.4, and when I
-disconnect the rj45 from the card I get the following message:
+Contrary to normal practice, after an IO error and fsck is a very wise thing
+to do.  Can we automate this process.  ie can reiserfs detect that it has
+experienced IO error(s) and set fsck required bits (two bits) in the SB?  
+It would also be nice to be able to manually set these bits.  This way a script 
+could be triggered at boot (from initrd for those of us with reiserfs boot disks) 
+to do something like this
 
-eth1: No 21041 10baseT link beat, Media switched to 10base2.
+reiserfsck -a 	this should check each FS an does a --check when the bits are set
+		to 01.  It changes the SB bits as follows (logging to <dev>01.log)
+		00 - fs is ok
+		10 - fix-fixable run required (logging to <dev>10.log)
+		11 - rebuild-tree required (logging to <dev>11.log)
 
-... and it never switches back (until I ifdown/ifup the interface,
-which is mighty inconvenient when I am off-site, which is usually).
+		writing those logs could be a bit of a catch 22...
+			
+then the script would call reiserfsck -a again to do the work (if required) and
+ask if its ok to do the fix-fixable or rebuild-tree
 
-Here are the bootup messages in 2.4.4:
+Think reiserfsck is getting good enough for this, and it would probably avoid 
+many of the problem currently popping up on the list. 
 
-[...] 
-Linux Tulip driver version 0.9.14e (April 20, 2001) 
-tulip0: 21041 Media table, default media 0800 (Autosense). 
-tulip0: 21041 media #0, 10baseT. 
-tulip0: 21041 media #4, 10baseT-FDX. 
-tulip0: 21041 media #1, 10base2. 
-eth0: Digital DC21041 Tulip rev 17 at 0xf880, 21041 mode, 00:00:C0:D4:74:D6, IRQ 5. 
-tulip1: 21041 Media table, default media 0800 (Autosense). 
-tulip1: 21041 media #0, 10baseT. 
-tulip1: 21041 media #4, 10baseT-FDX. 
-tulip1: 21041 media #1, 10base2. 
-eth1: Digital DC21041 Tulip rev 17 at 0xf800, 21041 mode, 00:00:C0:6A:7F:D5, IRQ 11. 
-[...] 
+Thoughts?
 
-There are two identical(-ish) cards in the machine (it is acting as a
-router), both the same brand anyway (SMC EtherPower PCI). I was able
-to hack in 10BaseT stability in a previous kernel (2.4.1) using
-TULIP_DEFAULT_MEDIA and TULIP_NO_MEDIA_SWITCH, but I noticed in the
-ChangeLog for 2.4.4 that these features were removed. How do I get
-reliable 10BaseT operation inspite of possible cabling disconnections.
+Ed Tomlinson <tomlins@cam.org>
+
+PS. Chris, with the fix you supplied for LVM, snapshots work 100% of the time when
+I put them on hda or hde and fail 100% on hdg...  
 
 
--- 
-Russell Senior         ``The two chiefs turned to each other.        
-seniorr@aracnet.com      Bellison uncorked a flood of horrible       
-                         profanity, which, translated meant, `This is
-                         extremely unusual.' ''                      
+
+

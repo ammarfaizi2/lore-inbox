@@ -1,46 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316827AbSGQXFJ>; Wed, 17 Jul 2002 19:05:09 -0400
+	id <S316833AbSGQXVr>; Wed, 17 Jul 2002 19:21:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316832AbSGQXFJ>; Wed, 17 Jul 2002 19:05:09 -0400
-Received: from holomorphy.com ([66.224.33.161]:26760 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316827AbSGQXFI>;
-	Wed, 17 Jul 2002 19:05:08 -0400
-Date: Wed, 17 Jul 2002 16:08:01 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dave Jones <davej@suse.de>, Steven Cole <elenstev@mesatop.com>,
-       linux-kernel@vger.kernel.org, Steven Cole <scole@lanl.gov>
-Subject: Re: 2.5.25-dj2, kernel BUG at dcache.c:361
-Message-ID: <20020717230801.GJ1096@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dave Jones <davej@suse.de>, Steven Cole <elenstev@mesatop.com>,
-	linux-kernel@vger.kernel.org, Steven Cole <scole@lanl.gov>
-References: <1026936410.11636.107.camel@spc9.esa.lanl.gov> <20020717221640.D32389@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020717221640.D32389@suse.de>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S316835AbSGQXVr>; Wed, 17 Jul 2002 19:21:47 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:53931 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316833AbSGQXVq>;
+	Wed, 17 Jul 2002 19:21:46 -0400
+Message-ID: <3D35FC8F.6010002@us.ibm.com>
+Date: Wed, 17 Jul 2002 16:23:59 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a+) Gecko/20020712
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: ipslinux@us.ibm.com, linux-kernel@vger.kernel.org,
+       Mike Anderson <andmike@us.ibm.com>
+Subject: [PATCH] ServeRAID driver doesn't compile
+Content-Type: multipart/mixed;
+ boundary="------------010405030806090902050809"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 17, 2002 at 02:06:50PM -0600, Steven Cole wrote:
->> While running 2.5.25-dj2 and dbench with increasing numbers of clients,
->> my test machine locked up with the following message:
->> kernel BUG at dcache.c:361!
+This is a multi-part message in MIME format.
+--------------010405030806090902050809
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, Jul 17, 2002 at 10:16:40PM +0200, Dave Jones wrote:
-> There are some -dj specific hacks to dcache.c to convert to use
-> list_t types. Which from memory, I think William Lee Irwin did.
-> (wli, can you double check those just in case there's either an
->  obvious thinko, or a mismerge if you get time ?)
-> Failing that, this could be something that also affects mainline
-> I think.
+In 2.5.26, the ServeRAID driver still doesn't compile correctly, you 
+get these from the vmlinux link operation:
 
-I'm bringing it up on one of my testboxen and debugging it now.
+drivers/built-in.o(.data+0xc4f4): undefined reference to `local 
+symbols in discarded section .text.exit'
+drivers/built-in.o(.data+0xc574): undefined reference to `local 
+symbols in discarded section .text.exit'
+drivers/built-in.o(.data+0xc5f4): undefined reference to `local 
+symbols in discarded section .text.exit'
 
+This patch makes them go away and appears to be the correct fix.
 
-Cheers,
-Bill
+-- 
+Dave Hansen
+haveblue@us.ibm.com
+
+--------------010405030806090902050809
+Content-Type: text/plain;
+ name="ips-compile-fix-2.5.26-1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ips-compile-fix-2.5.26-1.patch"
+
+diff -ur linux-2.5.26-clean/drivers/scsi/ips.c linux-2.5.26/drivers/scsi/ips.c
+--- linux-2.5.26-clean/drivers/scsi/ips.c	Tue Jul 16 16:49:22 2002
++++ linux-2.5.26/drivers/scsi/ips.c	Wed Jul 17 16:21:49 2002
+@@ -326,21 +326,21 @@
+        name:		ips_hot_plug_name,
+        id_table:	ips_pci_table,
+        probe:		ips_insert_device,
+-       remove:		ips_remove_device,
++       remove:		__devexit_p(ips_remove_device),
+    }; 
+            
+    struct pci_driver ips_pci_driver_5i = {
+        name:		ips_hot_plug_name,
+        id_table:	ips_pci_table_5i,
+        probe:		ips_insert_device,
+-       remove:		ips_remove_device,
++       remove:		__devexit_p(ips_remove_device),
+    };
+ 
+    struct pci_driver ips_pci_driver_i960 = {
+        name:		ips_hot_plug_name,
+        id_table:	ips_pci_table_i960,
+        probe:		ips_insert_device,
+-       remove:		ips_remove_device,
++       remove:		__devexit_p(ips_remove_device),
+    };
+ 
+ #endif
+
+--------------010405030806090902050809--
+

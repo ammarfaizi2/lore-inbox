@@ -1,65 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266139AbUBKSzu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 13:55:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266162AbUBKSzu
+	id S266162AbUBKS5b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 13:57:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUBKS5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 13:55:50 -0500
-Received: from ti200710a080-3502.bb.online.no ([80.213.45.174]:50927 "EHLO
-	ford.pronto.tv") by vger.kernel.org with ESMTP id S266139AbUBKSzs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 13:55:48 -0500
-To: Bryan Whitehead <driver@jpl.nasa.gov>
-Cc: linux-kernel@vger.kernel.org, lm@bitmover.com
-Subject: Re: reiserfs for bkbits.net?
-References: <200402111523.i1BFNnOq020225@work.bitmover.com>
-	<20040211161358.GA11564@favonius> <yw1xisidino2.fsf@kth.se>
-	<402A747C.8020100@jpl.nasa.gov>
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Wed, 11 Feb 2004 19:55:24 +0100
-In-Reply-To: <402A747C.8020100@jpl.nasa.gov> (Bryan Whitehead's message of
- "Wed, 11 Feb 2004 10:29:16 -0800")
-Message-ID: <yw1xd68lxx7n.fsf@kth.se>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 11 Feb 2004 13:57:31 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.135.30]:16656 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S266162AbUBKS53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 13:57:29 -0500
+Date: Thu, 12 Feb 2004 03:58:25 +0900 (JST)
+Message-Id: <20040212.035825.101259632.yoshfuji@linux-ipv6.org>
+To: kas@informatics.muni.cz, davem@redhat.com
+Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru,
+       yoshfuji@linux-ipv6.org
+Subject: Re: [Patch] Netlink BUG() on AMD64
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20040212.034537.11291491.yoshfuji@linux-ipv6.org>
+References: <20040205183604.N26559@fi.muni.cz>
+	<20040211181113.GA2849@fi.muni.cz>
+	<20040212.034537.11291491.yoshfuji@linux-ipv6.org>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bryan Whitehead <driver@jpl.nasa.gov> writes:
+In article <20040212.034537.11291491.yoshfuji@linux-ipv6.org> (at Thu, 12 Feb 2004 03:45:37 +0900 (JST)), YOSHIFUJI Hideaki / $B5HF#1QL@(B <yoshfuji@linux-ipv6.org> says:
 
-> Måns Rullgård wrote:
->> Sander <sander@humilis.net> writes:
->>
->>>Larry McVoy wrote (ao):
->>>
->>>>We're moving openlogging back to our offices and I'm experimenting
->>>>with filesystems to see what gives the best performance for BK usage.
->>>>Reiserfs looks pretty good and I'm wondering if anyone knows any
->>>>reasons that we shouldn't use it for bkbits.net. Also, would it help
->>>>if the journal was on a different disk? Most of the bkbits traffic is
->>>>read so I doubt it.
->>>>
->>>>Please cc me, I'm not on the list.
->>>
->>>I've cc'ed the Reiserfs mailinglist.
->>>
->>>IME Reiserfs is a fast and stable fs. If you have the time to benchmark
->>>ext3, reiserfs, jfs and xfs (and ..) with bk then you would know first
->>>hand which fs is best for you. It might be worth the time.
->> If someone does any tests, I'd be interested to hear about the
->> results.
->>
->
-> http://pcbunn.cacr.caltech.edu/gae/3ware_raid_tests.htm
->
-> They needed 200MByte/sec disk transfer speed. this is how they got it.
+> In article <20040211181113.GA2849@fi.muni.cz> (at Wed, 11 Feb 2004 19:11:14 +0100), Jan Kasprzak <kas@informatics.muni.cz> says:
+> 
+> > 	I suggest the following patch, but all occurences of
+> > nlmsg_failure: and rtattr_failure: labels should be checked for a similar
+> > problem.
+> > 
+> > --- linux-2.6.2/net/ipv4/fib_rules.c.orig	2004-02-11 18:55:58.000000000 +0100
+> > +++ linux-2.6.2/net/ipv4/fib_rules.c	2004-02-11 19:03:08.319215408 +0100
+> > @@ -438,7 +438,7 @@
+> >  
+> >  nlmsg_failure:
+> >  rtattr_failure:
+> > -	skb_put(skb, b - skb->tail);
+> > +	skb_trim(skb, b - skb->data);
+> >  	return -1;
+> >  }
+> >  
+> > Please apply or let me know what the proper fix should be.
+> 
+> looks good to me.
+> Other places including net/ipv6/{addrconf.c,route.c} seems okay.
 
-I was thinking of typical BK workloads on less extreme hardware, in my
-case software RAID 0+1 on normal IDE disks.
+Oops, I'd looked into ipv4 and ipv6 only. 
+I've grep'ed and found one in net/decnet.
+
+===== net/decnet/dn_rules.c 1.6 vs edited =====
+--- 1.6/net/decnet/dn_rules.c	Fri May  9 01:46:11 2003
++++ edited/net/decnet/dn_rules.c	Thu Feb 12 03:52:42 2004
+@@ -381,7 +381,7 @@
+ 
+ nlmsg_failure:
+ rtattr_failure:
+-	skb_put(skb, b - skb->tail);
++	skb_trim(skb, b - skb->data);
+ 	return -1;
+ }
+ 
 
 -- 
-Måns Rullgård
-mru@kth.se
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

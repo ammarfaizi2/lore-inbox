@@ -1,87 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261896AbTD0WWR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 18:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbTD0WWR
+	id S261855AbTD0WTS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 18:19:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbTD0WTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 18:22:17 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:1801 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261896AbTD0WWK convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 18:22:10 -0400
-Date: Mon, 28 Apr 2003 00:34:21 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: Larry McVoy <lm@work.bitmover.com>, Chris Adams <cmadams@hiwaay.net>
+	Sun, 27 Apr 2003 18:19:18 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28814
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261855AbTD0WTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 18:19:17 -0400
 Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-Message-ID: <20030427223421.GF27001@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Larry McVoy <lm@work.bitmover.com>, Chris Adams <cmadams@hiwaay.net>
-References: <fa.ivrgub8.1ci079c@ifi.uio.no> <20030427183553.GA955879@hiwaay.net> <20030427185037.GA23581@work.bitmover.com>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030427165959.GC6820@work.bitmover.com>
+References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com>
+	 <20030424083730.5F79A2127F@dungeon.inka.de>
+	 <20030424085913.GH28253@mail.jlokier.co.uk>
+	 <3EA804A8.8070608@techsource.com>
+	 <1051209350.4004.6.camel@dhcp22.swansea.linux.org.uk>
+	 <20030424192941.E1425@almesberger.net>
+	 <20030427142106.GA24244@merlin.emma.line.org>
+	 <20030427165959.GC6820@work.bitmover.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1051479168.15485.12.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20030427185037.GA23581@work.bitmover.com>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 27 Apr 2003 22:32:49 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Apr 2003, Larry McVoy wrote:
+On Sul, 2003-04-27 at 17:59, Larry McVoy wrote:
+> What seems to be forgotten is that the people who are locking things up
+> are the people who own those things 
 
->     1) Corporations are threatened when people copy their content and/or
->        products.
+Untrue. If I buy an X-box who owns it ? If I sold you a house and it had
+a room in it I didnt let you have access to with one way mirrors out
+watching all your activity would you be upset ? (and dont argue you
+wouldnt buy it - there wont be any other house types)
 
-The problem you're not seeing is: how much of that "content/products" is
-taken from other products?
+> it is OK to take it if you want it.  Napster is a good example.  I don't
+> like the record companies any better than anyone else but they do own
+> the material and you either respect the rules or the record companies
+> will lock it up and force you to respect the rules.
 
->     2) Corporations have a lot of money which they use to get the government
->        to create laws to protect the corporate interests.
+They want to lock it up as much to keep out small players as to stop
+piracy. Not that they shouldn't be allowed to stop piracy
 
-So make the last step, abolish elections, they're just show to pretend
-there were a democracy. The government does not have the right to act in
-the corporate interests, look at the consitution and see what oath is
-prescribed. Provided your country is a democracy, officials will have to
-swear to serve the people and only the people and its good, turn away
-damage and all that.
+> factor in the emergence of the DMCA and DRM efforts.  This community
+> thinks it is perfectly acceptable to copy anything that they find useful.
+> Take a look at some of the recent BK flamewars and over and over you
+> will see people saying "we'll clone it".   That's not unique to BK,
 
-Lopsided constructs "but the corporations make jobs" are then often used
-to bully/get bullied into making corporate friendly decisions without
-checking if they are for the good of the people. 
+Build something making the same things possible and then more. But then
+thats exactly what BK did. Does that make you a crook ?
 
->     3) Corporations have a lot of money which they use to create technology
->        which will remove threats to the corporation.
+Alan
 
-Granted.
-
->     4) The more you inist that you are doing nothing wrong the more motivated
->        the corporation becomes to stop you.
-
-5) Corporations that make products tailored to the (potential)
-   customers' needs may not have to think about #4 at all.
-
-> This isn't a BK thing, we don't have lobbyists in Washington get laws
-> passed on our behalf.  This is my private opinion based on observing
-> what's happened in the last five years or so.  The world is moving more
-> and more towards a place where IP is the significant source of revenue.
-
-IP is not the thing that let society come to life the way it is now.
-Societies have started to work our way because specializing people and
-trading goods freed resources that were to the good of everybody. If
-hunters go hunting not just for themselves, but share their prey and get
-tools (say, bow and arrow) in return for food, they get more efficient.
-
-This hasn't been about intellectual property, but sharing knowledge.
-
-What do you think will happen when basic arithmetics become IP? Why do
-you think basic arithmetics are public knowledge rather than IP? Why do
-you think it should remain this way -- or changed?
-
-If I invent something *really* new, then I'd think granting a patent for
-like 10 years might be worthwhile (with some exceptions, say for
-medicine: the state should always have the right to buy out a patent
-from a corp by covering the development costs and then releasing the
-patent). Just letting something evolve or tuning something that already
-exists is not worth a patent -- not even copyright protection (which
-happens with much of the music nowadays...)

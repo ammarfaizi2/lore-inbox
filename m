@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbUKPRI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbUKPRL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262051AbUKPRI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 12:08:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbUKPRI6
+	id S262045AbUKPRL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 12:11:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbUKPRL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 12:08:58 -0500
-Received: from hell.sks3.muni.cz ([147.251.210.30]:63369 "EHLO
-	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S262051AbUKPRI4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 12:08:56 -0500
-Date: Tue, 16 Nov 2004 18:05:27 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Stefan Schmidt <zaphodb@zaphods.net>, Nick Piggin <piggin@cyberone.com.au>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
-Message-ID: <20041116170527.GA3525@mail.muni.cz>
-References: <20041109223558.GR1309@mail.muni.cz> <20041109144607.2950a41a.akpm@osdl.org> <20041109224423.GC18366@mail.muni.cz> <20041109203348.GD8414@logos.cnet> <20041110212818.GC25410@mail.muni.cz> <20041110181148.GA12867@logos.cnet> <20041111214435.GB29112@mail.muni.cz> <4194A7F9.5080503@cyberone.com.au> <20041113144743.GL20754@zaphods.net> <20041116093311.GD11482@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20041116093311.GD11482@logos.cnet>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 16 Nov 2004 12:11:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:1929 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262045AbUKPRLR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 12:11:17 -0500
+Date: Tue, 16 Nov 2004 09:11:03 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Howells <dhowells@redhat.com>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: fork pagesize patch
+In-Reply-To: <26707.1100624330@redhat.com>
+Message-ID: <Pine.LNX.4.58.0411160909370.2222@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0411160834220.2222@ppc970.osdl.org> 
+ <Pine.LNX.4.58.0411160800060.2222@ppc970.osdl.org> <20968.1100619491@redhat.com>
+ <23880.1100621506@redhat.com> <26707.1100624330@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 16, 2004 at 07:33:11AM -0200, Marcelo Tosatti wrote:
-> > I took the default from 2.6.10-rc1-bk19 with your patch and doubled it. No
-> > luck with the following values subsequently applied:
-> > #vm.min_free_kbytes=3831
-> > #vm.min_free_kbytes=7662
-> > #vm.min_free_kbytes=15324
-> > #vm.min_free_kbytes=61296
-> > vm.min_free_kbytes=65535
-> > Did not help against the page allocation errors or boosting up the machines
-> > performance.
+
+
+On Tue, 16 Nov 2004, David Howells wrote:
+> >
+> > I think it _is_ unreasonable. It's like doing
+> >
+> > 	if (a)
+> > 		x /= a;
 > 
-> Nick, such high reservations should have protected the system from OOM.
+> Doing it with variables is not exactly the same. The compiler has been told to
+> optimise arithmetic on constants, and as such it has to represent a div-by-0
+> result, which obviously it can't.
 
-> Definately. I suspect XFS is unable to handle OOM graciously, or some other
-> problem.
+But you snipped the part where the above source code _does_ end up being 
+done on constants - in macro expansion and in inline functions. So the 
+compiler really _can_ have a constant zero in the divide, and it really 
+_can_ come from perfectly normal code. 
 
-It seems that both Stefan and me are using XFS. Does someone have this problems
-with another filesystem? Unfortunately I cannot change fs. Can you Stefen?
+In fact, maybe code like the kernel had.
 
--- 
-Luká¹ Hejtmánek
+> > Anyway, to make it not warn, why not change it to
+> >
+> > 	max_threads = mempages / (8*THREAD_SIZE/PAGE_SIZE);
+> >
+> > instead, and be done with it?
+> 
+> And drop the conditional entirely? I can go along with that.
+
+Right. It looks like the obvious thing to do, and is really what the code 
+_tried_ to do in the first place.
+
+		Linus

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292326AbSCDMP3>; Mon, 4 Mar 2002 07:15:29 -0500
+	id <S292329AbSCDMVK>; Mon, 4 Mar 2002 07:21:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292329AbSCDMPK>; Mon, 4 Mar 2002 07:15:10 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:54665 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S292326AbSCDMPH>;
-	Mon, 4 Mar 2002 07:15:07 -0500
-Date: Mon, 04 Mar 2002 04:12:52 -0800 (PST)
-Message-Id: <20020304.041252.13772021.davem@redhat.com>
+	id <S292330AbSCDMUu>; Mon, 4 Mar 2002 07:20:50 -0500
+Received: from pool-151-204-76-90.delv.east.verizon.net ([151.204.76.90]:58118
+	"EHLO trianna.2y.net") by vger.kernel.org with ESMTP
+	id <S292329AbSCDMUb>; Mon, 4 Mar 2002 07:20:31 -0500
+Date: Mon, 4 Mar 2002 07:20:54 -0500
+From: Malcolm Mallardi <magamo@ranka.2y.net>
 To: linux-kernel@vger.kernel.org
-CC: jgarzik@mandrakesoft.com, linux-net@vger.kernel.org
-Subject: [BETA-0.94] Fifth test release of Tigon3 driver
-From: "David S. Miller" <davem@redhat.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Subject: 2.4.18 vs 2.4.17 DVD video preformance problem?
+Message-ID: <20020304072054.A12646@trianna.upcommand.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Heyla folks.  I hit a snag while using 2.4.18 for the first
+time the other day.... When I played DVDs under it, there would be a
+large amount of 'skips' in comparison to 2.4.17.  I know, not much of a
+bug report, as I think the bug may have already been addressed.
+	The reason I say this is that my DVD-ROM drive is on the
+secondary IDE channel of a PIIX4 chipset.  Under 2.4.17 playback
+preformance is nearly perfect.  Could these "PIIX4 slave timing" fixes
+that I've been reading about in a few of the newer changelogs be what
+I'm looking for?  I'm going to track down one of the newer patches
+(probably -pre2-ac1) and try it out and see if that gives better
+preformance for me.
 
-This release is code named "Ginseng" in honor of the healing
-properties it will have for your machine:
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/davem/TIGON3/tg3-0.94.patch.gz
-
-Healing list:
-
-[FIX] Some DELL variants not monitoring PHY link status properly.
-[FIX] RX ring could still empty and hang chip.  TX/RX paths completely
-      revamped.  People please beat on this sucker hard.
-[FIX] Jumbo RX buffer sizing wrong.
-[FIX] RX ring replenish threshold settings were inaccurate.
-[FIX] VLAN layer forgets to set dev->last_rx
-[FEATURE] Syskonnect and Altima AC1000 Tigon3's supported.
-[FEATURE] Full 5703/5702fe/5702x support.  Please test if you have
-	  these chips since we don't :(
-
-Have at it.
-
-How does this thing perform for people?  In particular lmbench
-'bw_tcp' and 'lat_tcp' numbers over gigabit on beefy hardware are
-considered very interesting...
+--
+Malcolm D. Mallardi - Dark Freak At Large
+"Captain, we are receiving two-hundred eighty-five THOUSAND hails."
+AOL: Nuark  UIN: 11084092 Y!: Magamo Jabber: Nuark@jabber.com
+http://ranka.2y.net:3000/~magamo/index.htm

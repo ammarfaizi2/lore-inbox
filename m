@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261494AbRERTmf>; Fri, 18 May 2001 15:42:35 -0400
+	id <S261497AbRERTpz>; Fri, 18 May 2001 15:45:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261497AbRERTmZ>; Fri, 18 May 2001 15:42:25 -0400
-Received: from mail.ask.ne.jp ([203.179.96.3]:58602 "EHLO mail.ask.ne.jp")
-	by vger.kernel.org with ESMTP id <S261494AbRERTmJ>;
-	Fri, 18 May 2001 15:42:09 -0400
-Date: Sat, 19 May 2001 04:42:10 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
-To: Alex Deucher <agd5f@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DMA support for toshiba IDE controllers
-Message-Id: <20010519044210.65d17656.bruce@ask.ne.jp>
-In-Reply-To: <20010518181509.88522.qmail@web11301.mail.yahoo.com>
-In-Reply-To: <20010518181509.88522.qmail@web11301.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.6; i686-pc-linux-gnu)
+	id <S261499AbRERTpp>; Fri, 18 May 2001 15:45:45 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:38153 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S261497AbRERTp2>;
+	Fri, 18 May 2001 15:45:28 -0400
+Date: Fri, 18 May 2001 15:44:07 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Keith Owens <kaos@ocs.com.au>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+Message-ID: <20010518154407.C17324@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010518142508.B16093@thyrsus.com> <E150pgP-0007Y5-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E150pgP-0007Y5-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, May 18, 2001 at 08:13:04PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 May 2001 11:15:09 -0700 (PDT)
-Alex Deucher <agd5f@yahoo.com> wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> Being able to turn CML2 into CML1 might be the more useful exercise.
 
-> Does anyone know if there is any DMA support for the
-> toshiba IDE controller's in many of their portable
-> models such as the older porteges and librettos?  The
-> controllers support DMA, but not in linux.  I'm not
-> sure what toshiba's policy is on documentation.  They
-> used to be pretty stingy, but I heard they have
-> recently opened up of lot of their doc's, like the
-> oboe IR controller for instance. 
+That's...not a completely crazy idea.  Hmmm...
 
+It might be possible to take a CML2 rulebase and generate a sort of stupid
+jackleg CML1 translation of it.  The resulting config.in would be huge
+and nasty, and would only work in forward sequence with no side-effect
+computation, but you just might be able to get the old tools to parse it.
 
-Well, Toshiba Japan has a Linux developers' page (in Japanese):
+Again there's a technical problem with derivations.   Probably solvable.
 
-http://linux.toshiba-dme.co.jp/linux/jpn/develop.php3
+But the real question is whether the old tools have enough value to be
+worth the effort.  What problem are you trying to solve here?
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-According to that page, their mail address for requests from developers is:
-
-linux@toshiba-dme.co.jp
-
-so if you don't get any satisfaction from Toshiba USA/Europe/wherever you're
-living, try asking Toshiba Japan (they do ask that you be specific, so if you
-send them a request, make sure to state exactly which models/chipsets, etc.,
-you're interested in, and remember that they might take a while to reply to
-email in English). They do seem to be quite good lately about releasing
-documentation - Dag Brattli got some info on the IrDA hardware they use, and
-the Japan Linux Association has got docs for the ToPIC PC Card controller out
-of them, too. The only time they've actually turned someone down (according to
-that page, anyway) is when the hardware in question included third-party
-technology.
-
-
-Bruce
-
-
+This would be the best of all possible worlds, if there were
+no religion in it.
+	-- John Adams, in a letter to Thomas Jefferson.

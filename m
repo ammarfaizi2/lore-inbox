@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268856AbUJEG6B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268861AbUJEG5Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268856AbUJEG6B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 02:58:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268864AbUJEG6B
+	id S268861AbUJEG5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 02:57:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268868AbUJEG5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 02:58:01 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:35970 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268856AbUJEG5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 02:57:55 -0400
-Message-ID: <416245EF.1030202@yahoo.com.au>
-Date: Tue, 05 Oct 2004 16:57:51 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Tue, 5 Oct 2004 02:57:24 -0400
+Received: from [217.222.53.238] ([217.222.53.238]:30600 "EHLO mail.gts.it")
+	by vger.kernel.org with ESMTP id S268861AbUJEG5T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 02:57:19 -0400
+Message-ID: <41624598.6030509@gts.it>
+Date: Tue, 05 Oct 2004 08:56:24 +0200
+From: Stefano Rivoir <s.rivoir@gts.it>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Ingo Molnar <mingo@redhat.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: bug in sched.c:activate_task()
-References: <200410050216.i952Gb620657@unix-os.sc.intel.com> <Pine.LNX.4.58.0410050229380.31508@devserv.devel.redhat.com> <cone.1096958170.135056.10082.502@pc.kolivas.org>
-In-Reply-To: <cone.1096958170.135056.10082.502@pc.kolivas.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: gww@btinternet.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc3-mm2
+References: <20041004020207.4f168876.akpm@osdl.org>	<4161462A.5040806@gts.it>	<20041004121805.2bffcd99.akpm@osdl.org>	<4161BCCB.4080302@btinternet.com>	<20041004143253.50a82050.akpm@osdl.org> <20041004143953.10e6d764.akpm@osdl.org>
+In-Reply-To: <20041004143953.10e6d764.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> Ingo Molnar writes:
-> 
->>
->> On Mon, 4 Oct 2004, Chen, Kenneth W wrote:
->>
->>> Update p->timestamp to "now" in activate_task() doesn't look right to me
->>> at all.  p->timestamp records last time it was running on a cpu.  
->>> activate_task shouldn't update that variable when it queues a task on
->>> the runqueue.
->>
->>
->> correct, we are overriding it in schedule():
->>
->>         if (likely(prev != next)) {
->>                 next->timestamp = now;
->>                 rq->nr_switches++;
->>
->> the line your patch removes is a remnant of an earlier logic when we
->> timestamped tasks when they touched the runqueue. (vs. timestamping when
->> they actually run on a CPU.) So the patch looks good to me. Andrew, 
->> please
->> apply.
-> 
-> 
->     unsigned long long delta = now - next->timestamp;
-> 
->     if (next->activated == 1)
->         delta = delta * (ON_RUNQUEUE_WEIGHT * 128 / 100) / 128;
-> 
-> is in schedule() before we update the timestamp, no?
-> 
+Andrew Morton wrote:
 
-Yeah right, unfortunately.
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+>>Could you try this patch?  It'll locate the bug for us.
+
+OK, applying all of the attached patches, the whole thing works (so, 
+preemp_count fix, and preempt_disable/enable around those two #defines 
+w/smp_processor_id).
+
+Thank you all.
+
+-- 
+Stefano RIVOIR
+

@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262141AbSJASa6>; Tue, 1 Oct 2002 14:30:58 -0400
+	id <S262221AbSJASBW>; Tue, 1 Oct 2002 14:01:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262146AbSJASa6>; Tue, 1 Oct 2002 14:30:58 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:52487 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262141AbSJASa5>;
-	Tue, 1 Oct 2002 14:30:57 -0400
-Date: Tue, 1 Oct 2002 11:34:00 -0700
-From: Greg KH <greg@kroah.com>
-To: Martin Diehl <lists@mdiehl.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: calling context when writing to tty_driver
-Message-ID: <20021001183400.GA8959@kroah.com>
-References: <Pine.LNX.4.21.0210010523290.485-100000@notebook.diehl.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0210010523290.485-100000@notebook.diehl.home>
-User-Agent: Mutt/1.4i
+	id <S262499AbSJASBW>; Tue, 1 Oct 2002 14:01:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10254 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262221AbSJAR7z>;
+	Tue, 1 Oct 2002 13:59:55 -0400
+Message-ID: <3D99E3C0.5010604@pobox.com>
+Date: Tue, 01 Oct 2002 14:04:48 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Workqueue Abstraction, 2.5.40-H7
+References: <Pine.LNX.4.44.0210011653370.28821-102000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 12:37:42PM +0200, Martin Diehl wrote:
-> 
-> Hi,
-> 
-> just hitting another "sleeping on semaphore from illegal context" issue
-> with 2.5.39. Happened on down() in either usbserial->write_room() or
-> usbserial->write(), when invoked from bh context.
+Ingo,
 
-Can you send me the whole backtrace?  I'm curious as to who is calling
-those functions from bh context.
+Looking real good.
 
-> Some grepping reveals no documentation of calling context requirements
-> for those driver calls and existing serial code seems to be happy with bh
-> context. Therefore I'm wondering whether it is permitted to call from
-> don't-sleep context?
+I still think that schedule_work() should have void* cookie passed to it 
+directly, instead of at INIT_WORK time [and possibly changing it by hand 
+in the driver, immediately before schedule_work() is called]
 
-I don't know.
+For drivers that pass an interface pointer like struct net_device*, 
+INIT_WORK-time, the current scheme is fine, but when the cookie 
+fluctuates more, it makes a lot more sense to pass void* to 
+schedule_work() itself.
 
-> Since write_room() is usually called immediately before write()'ing stuff
-> to the driver it would be a good idea to keep them both callable from bh,
-> IMHO. For example tty_ldisc->write_wakeup() might probably want to issue
-> write_room() followed by write().
-> 
-> Currently, usbserial calls write_wakeup() from bh (on OUT urb completion)
-> but needs process context for write_room() and write(). My impression is
-> the whole point of write_room() is to find out how many data can be
-> accepted by the write() - if write() would be allowed to sleep it could
-> just block to deal with any amount of data.
+Further, schedule_work(wq,data) is conceptually very close to 
+my_work_func(data) and makes the code easier to trace through: it 
+becomes more obvious what is the value of the my_work_func arg, at the 
+place in the code where schedule_work() is called.  I see passing the 
+void* cookie as covering one common case, while adding void* arg to 
+schedule_work() would cover all cases...
 
-Making write() block for any amount of data would increase the
-complexity of the drivers.  What should probably be done is convert the
-usb-serial drivers to use the new serial core, but I don't have the time
-to do this work right now.  Any takers?
+[IMO the same argument can be applied to the existing timer API as well, 
+but timers are less often one-shot in kernel code, so it matter less...]
 
-thanks,
+That said, I don't feel strongly about this, so can be convinced 
+otherwise fairly easily :)  I would not complain if Linus applied your 
+patch as-is.
 
-greg k-h
+	Jeff
+
+
+

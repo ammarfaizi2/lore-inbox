@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275328AbTHMTh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 15:37:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275332AbTHMTh3
+	id S275354AbTHMTnF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 15:43:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275358AbTHMTm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 15:37:29 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:22912 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S275328AbTHMTh0
+	Wed, 13 Aug 2003 15:42:58 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:24448 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S275354AbTHMTmb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 15:37:26 -0400
-Date: Wed, 13 Aug 2003 20:37:13 +0100
+	Wed, 13 Aug 2003 15:42:31 -0400
+Date: Wed, 13 Aug 2003 20:42:01 +0100
 From: Jamie Lokier <jamie@shareable.org>
-To: David Wagner <daw@mozart.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
-Message-ID: <20030813193713.GF4405@mail.jlokier.co.uk>
-References: <20030809173329.GU31810@waste.org> <20030811020919.GD10446@mail.jlokier.co.uk> <bh77pp$rhq$1@abraham.cs.berkeley.edu> <20030811053602.GL10446@mail.jlokier.co.uk> <bh8qat$d7i$1@abraham.cs.berkeley.edu>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: Andrew Morton OSDL <akpm@osdl.org>, willy@w.ods.org, chip@pobox.com,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       davem@redhat.com
+Subject: Re: [PATCH] 2.4.22pre10: {,un}likely_p() macros for pointers
+Message-ID: <20030813194201.GG4405@mail.jlokier.co.uk>
+References: <1060488233.780.65.camel@cube> <20030810072945.GA14038@alpha.home.local> <20030811012337.GI24349@perlsupport.com> <20030811020957.GE10446@mail.jlokier.co.uk> <20030811023912.GJ24349@perlsupport.com> <20030811053059.GB28640@alpha.home.local> <20030811054209.GN10446@mail.jlokier.co.uk> <1060607398.948.213.camel@cube> <20030811115547.38b78b8e.akpm@osdl.org> <1060643637.949.228.camel@cube>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <bh8qat$d7i$1@abraham.cs.berkeley.edu>
+In-Reply-To: <1060643637.949.228.camel@cube>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Wagner wrote:
-> >It may be that an attacker knows about a systemic problem with our
-> >machine that we don't know about.  For example the attacker might know
-> >our pool state well enough shortly after boot time, to have a chance
-> >at matching a dictionary of 2^32 hashes.  The attacker might have had
-> >a chance to read our disk, which reseeding the pool at boot time does
-> >not protect against.
-> >
-> >With the right algorithm, we can protect against weaknesses of this kind.
+Albert Cahalan wrote:
+> > Being a simple soul, I prefer __builtin_expect((x) != 0, 1).
 > 
-> How?  No matter what we do, the outputs are going to be a deterministic
-> function of the state of the pool.  If the attacker can guess the entire
-> state of our pool (or narrow it down to 2^32 possibilities), we're screwed,
-> no matter what.  Right?
+> That's much harder to read. The !! is a nice
+> neat idiom. The other way requires a bit of thought.
+> (is that == or !=, a 0 or 1, and what does that
+> compute to?)
+> 
+> The !! is visually distinctive. It has only one use.
+> When you see it, you instantly know that a value is
+> being converted to the pure boolean form.
 
-Right if the attacker can guess the entire pool state.  If it's
-narrowed to 2^32 possibilities, the question is, how hard do we make
-it for the attacker to narrow it down further?
+Dear Albert,
 
-By hashing over fewer than all the internal state bits, we prevent the
-attacker from narrowing down knowledge of the unhashed bits _from a
-single hash_, under those conditions where it's possible for the
-hashed bits to be a weak state while the unhashed bits may not be
-determined by the hashed bits.
+I have to tell you your are totally wrong :)
 
-This can sometimes be true, theoretically, and sometimes it will not
-be true.
+Most C programmers will find "!!x" less clear than "x != 0", simply
+because "!!x" isn't used all that much.
 
-If the attacker can read multiple hash results, though, they will
-eventually have enough to guess the entire pool state anyway, if the
-state is weak as a whole.  Also, by hashing over fewer bits, some
-kinds of partially-weak state, where a subset of bits is weak but
-other bits are unguessable, become guessable where they would not be
-with hashing over the whole state.
+If you require significant thought to parse "x != 0" you are going to
+have trouble with more complex idioms.
 
-It's a convoluted enough mix of pros and cons that you can see why I
-said, in my last reply to Matt & Ted, that hashing over fewer bits than in
-the pool is of dubious value.
+Like "x && 1" and "x || 0", which are obvious to anyone :)
 
 -- Jamie

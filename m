@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271392AbRHTQnd>; Mon, 20 Aug 2001 12:43:33 -0400
+	id <S271399AbRHTQpd>; Mon, 20 Aug 2001 12:45:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271393AbRHTQnZ>; Mon, 20 Aug 2001 12:43:25 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:48745 "EHLO
+	id <S271398AbRHTQpY>; Mon, 20 Aug 2001 12:45:24 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:54890 "EHLO
 	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S271392AbRHTQnT>; Mon, 20 Aug 2001 12:43:19 -0400
-Message-ID: <3B813E1F.6080204@redhat.com>
-Date: Mon, 20 Aug 2001 12:43:11 -0400
+	id <S271393AbRHTQpS>; Mon, 20 Aug 2001 12:45:18 -0400
+Message-ID: <3B813EA7.6050202@redhat.com>
+Date: Mon, 20 Aug 2001 12:45:27 -0400
 From: Doug Ledford <dledford@redhat.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
 X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Yusuf Goolamabbas <yusufg@outblaze.com>, Cliff Albert <cliff@oisec.net>,
-        linux-kernel@vger.kernel.org, gibbs@scsiguy.com
+To: Stefan Fleiter <stefan.fleiter@gmx.de>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: aic7xxx errors with 2.4.8-ac7 on 440gx mobo
-In-Reply-To: <E15Ymvp-0005rl-00@the-village.bc.nu>
+In-Reply-To: <20010820105520.A22087@oisec.net> <E15YmR3-0005mb-00@the-village.bc.nu> <20010820144602.A12334@shuttle.mothership.home.dhs.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->>>I'm not currently sure what that proves. Is your board intel bios ?
+Stefan Fleiter wrote:
+> Hi Alan!
+> 
+> On Mon, 20 Aug 2001 Alan Cox wrote:
+> 
+> 
+>>>>With 2.4.8-ac7, I get SCSI errors and the kernel fails to boot. If I
+>>>>compile with APIC enabled and APIC on UP also enabled, it boots
+>>>>cleanly
+>>>>
+>>>I'm getting similair errors on 2.4.8-ac7 on my P2B-S motherboard using
+>>>the NEW AIC7xxx driver, the old isn't experiencing these problems. Further
+>>>i've been getting these errors since 2.4.3.
 >>>
->>The BIOS is Phoenix (4,0 Release 6.0, BIOS Build 125). Does Intel
->>provide their own branded bios ? Never seen them. The box is an ISP 2150
->>and it is of the Slot 1 variant.
+>>There is a known BIOS irq routing table problem with a large number of Intel
+>>BIOS boards with onboard adaptec controllers.
 >>
 > 
-> Ok that sounds unrelated. Intel do provide their own bioses (and one at
-> least branded Dell) but Phoenixbios is quite different.
+> I have the same problem, but my Adaptec is _not_ onboard.
 
-No.  The problem Intel boxes do use Phoenix BIOS.  His box is the exact 
-problem model.  It requires the use of IOAPIC support for UP or SMP in 
-order to work properly.  If 2.4.8 and 2.4.9 both work correctly now 
-*without* the use of UP-IOAPIC and without SMP, then that means in 2.4.8 
-there must have been added a DMI scan whitelist entry that makes this 
-motherboard do something sane (like never trying to assign interrupts or 
-enabling UP-IOAPIC even if it isn't the default).
+[snip]
+
+This is *not* the same problem.  The original poster can't get his 
+system booted at all (and that includes the fact that it won't even find 
+all the drives and read partition tables or anything like that).  Your 
+system is getting much further along.  Absolutely 0 progress is *vastly* 
+different from progress mixed with some errors.
 
 
 

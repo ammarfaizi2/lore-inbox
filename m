@@ -1,79 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262088AbVAYTkc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbVAYTkE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262088AbVAYTkc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 14:40:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVAYTkb
+	id S262102AbVAYTkE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 14:40:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVAYTju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 14:40:31 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:58244 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262097AbVAYTi0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 14:38:26 -0500
-Date: Tue, 25 Jan 2005 14:38:22 -0500
-From: Dave Jones <davej@redhat.com>
-To: Brice.Goglin@ens-lyon.org
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1
-Message-ID: <20050125193822.GC9267@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Brice.Goglin@ens-lyon.org,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050124021516.5d1ee686.akpm@osdl.org> <41F4E28A.3090305@ens-lyon.fr> <20050124185258.GB27570@redhat.com> <20050124204458.GD27570@redhat.com> <41F56949.3010505@ens-lyon.fr>
+	Tue, 25 Jan 2005 14:39:50 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:27034
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S262102AbVAYTi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 14:38:59 -0500
+Subject: Re: [PATCH] fix bad locking in drivers/base/driver.c
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Greg KH <greg@kroah.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Mike Waychison <Michael.Waychison@Sun.COM>,
+       Bill Davidsen <davidsen@tmr.com>, Jirka Kosina <jikos@jikos.cz>,
+       Patrick Mochel <mochel@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20050125191950.GA11445@kroah.com>
+References: <Pine.LNX.4.58.0501241921310.5857@twin.jikos.cz>
+	 <20050125055651.GA1987@kroah.com> <41F5F623.5090903@sun.com>
+	 <41F64E87.8040501@tmr.com> <41F66F86.4000609@sun.com>
+	 <Pine.LNX.4.58.0501250817430.2342@ppc970.osdl.org>
+	 <20050125191950.GA11445@kroah.com>
+Content-Type: text/plain
+Date: Tue, 25 Jan 2005 20:38:54 +0100
+Message-Id: <1106681934.4538.6.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <41F56949.3010505@ens-lyon.fr>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 10:31:53PM +0100, Brice Goglin wrote:
- > Dave Jones a écrit :
- > >Here's the most obvious bug fixed. There still seems to be
- > >something wrong however. It only successfully boots 50% of the
- > >time for me, (it reboots when starting X otherwise), and when
- > >it does boot, I get a flood of ...
- > >Warning: kfree_skb on hard IRQ cf7b5800
- > >Warning: kfree_skb on hard IRQ cf7b5800
- > >Warning: kfree_skb on hard IRQ cf7b5800
- > >
- > >I think there may be some stupid memory corruptor bug in there still.
- > 
- > Thanks, your patch makes X work again with DRI.
- > Actually, it successfully booted 100% of the time here.
- > I tried 6 or 7 times without seeing any problem like yours.
- > Let me know if you want me to try something special.
+On Tue, 2005-01-25 at 11:19 -0800, Greg KH wrote:
+> On Tue, Jan 25, 2005 at 08:27:15AM -0800, Linus Torvalds wrote:
+> > 
+> > 
+> > Hmm.. I certainly like the "use completions" patch, since it makes it a
+> > lot more obvious what is going on (and it is what completions were
+> > designed for).
+> > 
+> > However, since it does change semantics very subtly: if you call
+> > "driver_unregister()" twice (which is wrong, but looking at the code it
+> > looks like it would just silently have worked), the old code would just
+> > ignore it. The new code will block on the second one.
+> > 
+> > Now, I don't mind the blocking (it's a bug to call it twice, and blocking
+> > should even give a nice callback when you do the "show tasks"  sysrq, so
+> > it's a good way to _find_ the bug), but together with Mike's comment about
+> > "Compile-tested only", I'd really like somebody (Greg?) to say "trying to
+> > doubly remove the driver is so illegal that we don't care, and btw, I
+> > tested it and it's all ok".
+> 
+> I will add it to my queue of patches for the driver core, and test it
+> out accordingly before trying it out in the -mm tree for a while.
+> 
 
-It's quite remarkable that it works at all.
-This is needed too on top of -mm1.
+Exactly the same patch is around since 2004-10-20.
 
-		Dave
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109836020930855&w=2
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2005/01/25 14:27:39-05:00 davej@redhat.com 
-#   [AGPGART] Silly thinko in reserve bit masking.
-#   
-#   Stupid inversion meant we passed '0' to userspace, and madness
-#   ensued resulting in very funky visuals.
-#   
-#   Signed-off-by: Dave Jones <davej@redhat.com>
-# 
-diff -Nru a/drivers/char/agp/generic.c b/drivers/char/agp/generic.c
---- a/drivers/char/agp/generic.c	2005-01-25 14:34:24 -05:00
-+++ b/drivers/char/agp/generic.c	2005-01-25 14:34:24 -05:00
-@@ -324,9 +324,9 @@
- 	info->chipset = agp_bridge->type;
- 	info->device = agp_bridge->dev;
- 	if (check_bridge_mode(agp_bridge->dev))
--		info->mode = agp_bridge->mode & AGP3_RESERVED_MASK;
-+		info->mode = agp_bridge->mode & ~AGP3_RESERVED_MASK;
- 	else
--		info->mode = agp_bridge->mode & AGP2_RESERVED_MASK;
-+		info->mode = agp_bridge->mode & ~AGP2_RESERVED_MASK;
- 	info->aper_base = agp_bridge->gart_bus_addr;
- 	info->aper_size = agp_return_size();
- 	info->max_memory = agp_bridge->max_memory_agp;
+It never showed any problems and I have it in my kernels since then.
+Also Ingo's RT patches have it since October. 
+
+tglx
+
+
 
 

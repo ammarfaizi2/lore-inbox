@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263568AbTDWTjI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 15:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbTDWTiN
+	id S263976AbTDWTlj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 15:41:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbTDWTkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 15:38:13 -0400
-Received: from lakemtao02.cox.net ([68.1.17.243]:64943 "EHLO
-	lakemtao02.cox.net") by vger.kernel.org with ESMTP id S263568AbTDWThg
+	Wed, 23 Apr 2003 15:40:32 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:52944 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S263612AbTDWTkS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 15:37:36 -0400
-Message-ID: <3EA6EE47.4000801@cox.net>
-Date: Wed, 23 Apr 2003 14:49:27 -0500
-From: David van Hoose <davidvh@cox.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nils Holland <nils@ravishing.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.21-rc1] USB Trackball broken
-References: <3EA6C558.5040004@cox.net> <200304232134.42349.nils@ravishing.de>
-In-Reply-To: <200304232134.42349.nils@ravishing.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 23 Apr 2003 15:40:18 -0400
+Subject: Re: [PATCH] Extended Attributes for Security Modules against 2.5.68
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, "Ted Ts'o" <tytso@mit.edu>,
+       Andreas Gruenbacher <a.gruenbacher@computer.org>,
+       Stephen Tweedie <sct@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
+       lsm <linux-security-module@wirex.com>
+In-Reply-To: <20030423202614.A5890@infradead.org>
+References: <1051120322.14761.95.camel@moss-huskers.epoch.ncsc.mil>
+	 <20030423191749.A4244@infradead.org>
+	 <20030423112548.B15094@figure1.int.wirex.com>
+	 <20030423194501.B5295@infradead.org>
+	 <1051125476.14761.146.camel@moss-huskers.epoch.ncsc.mil>
+	 <20030423202614.A5890@infradead.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1051127534.14761.166.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Apr 2003 15:52:14 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nils Holland wrote:
-> On Wednesday 23 April 2003 18:54, David van Hoose wrote:
-> 
-> 
->>I am running RedHat 9. Trackball is detected and works when using the
->>stock 2.4.20-9 kernel that RedHat provided.
->>
->>With 2.4.21-rc1, I have included the USB and input devices in the
->>kernel, as modules, and as various combinations in between. My USB
->>Logitech Trackball shows up as being detected and setup, but it doesn't
->>work.
-> 
-> 
-> I'm using a Logitech Cordless TrackMan here, and this works fine with 
-> 2.4.21-rc1. I don't know which trackball you have, but the Logitech input 
-> devices all seem to be using more or less the same receiver, and this is what 
-> the problem would be about.
-> 
-> Anyway, if not done already, I would suggest that you plug the trackball right 
-> into one of the computer's USB ports and not into an external hub to see if 
-> that makes a difference.
+On Wed, 2003-04-23 at 15:26, Christoph Hellwig wrote:
+> And all these should _not_ happen in the actual tools but in a
+> pluggable security module (something like pam).  Encoding any security
+> policy and especially a xattr name in those utils is bad.
 
-I have a Logitech Cordless Optical Trackman. It detects as a Logitech 
-Cordless Receiver. My motherboard is an Asus P4S8X. It has the 
-SiS648/SiS963 chipsets. I'm not using an external hub. I'm using the 
-ports on my motherboard. I've tried using all 6 USB ports I have, but I 
-get the same thing; detection and no input.
+For many of the patched utilities, there would be no encoding of any
+specific policy/module as long as you have a single attribute name,
+since they are just handling the labels as strings.  It isn't clear that
+PAM-like API is feasible for the wide range of different applications
+that need to deal with security labels.  I don't see what value there is
+in adding an extra level of indirection just to get the security label
+of a file and display it, or to get it and use it to relabel a new copy
+of the file to the same label.  
 
-Regards,
-David
+As a side note, please keep in mind that SELinux is itself a generic
+framework for MAC policies, provides encapsulation of security labels,
+and allows security models and attributes to be added or removed without
+requiring changes outside of the security policy engine, which itself is
+an encapsulated component of the SELinux module.
+
+> And see, you start to contradict what you said before - with your
+> suggestion cron has to know what the label means, so your selinux
+> cron would do stupid things with say may Posix 1003.1e MAC filesystem.
+
+Not exactly.  Our patch to crond uses a generic policy API that was
+designed to support many different security models, so it doesn't have
+to be specific to SELinux.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

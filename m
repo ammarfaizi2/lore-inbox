@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261587AbSLMIbi>; Fri, 13 Dec 2002 03:31:38 -0500
+	id <S261599AbSLMInE>; Fri, 13 Dec 2002 03:43:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261573AbSLMIbi>; Fri, 13 Dec 2002 03:31:38 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:57850 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S261550AbSLMIbh> convert rfc822-to-8bit; Fri, 13 Dec 2002 03:31:37 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <mcmanus@ducksong.com>, <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Fri, 13 Dec 2002 00:39:27 -0800
-In-Reply-To: <20021211235258.GA10857@ducksong.com>
-Subject: Re: Memory Measurements and Lots of Files and Inodes
+	id <S261600AbSLMInE>; Fri, 13 Dec 2002 03:43:04 -0500
+Received: from rth.ninka.net ([216.101.162.244]:34954 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S261599AbSLMInD>;
+	Fri, 13 Dec 2002 03:43:03 -0500
+Subject: Re: pci-skeleton duplex check
+From: "David S. Miller" <davem@redhat.com>
+To: Donald Becker <becker@scyld.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Roger Luethi <rl@hellgate.ch>,
+       netdev@oss.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0212121743500.10674-100000@beohost.scyld.com>
+References: <Pine.LNX.4.44.0212121743500.10674-100000@beohost.scyld.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 13 Dec 2002 01:17:16 -0800
+Message-Id: <1039771036.1509.5.camel@rth.ninka.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20021213083926.AAA29353@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-12-12 at 17:18, Donald Becker wrote:
+> Or perhaps recognizing that when someone that has been a significant,
+> continuous contributer since the early days of Linux
 
->Can anybody provide a better metric for "ram free for userspace
->allocations"?
+Until you learn to play nice with people and mesh within the
+fabric of Linux development, I adamently do not classify you
+as you appear to self-classify yourself.  You don't contribute,
+you sit in your sandbox and then point fingers at the people who
+do know how to work with other human beings and say "see how much
+that stuff sucks?  well my stuff works, nyah!"
 
-	This is a constant battle for programmers trying to develop sophisticated 
-applications for sophisticated operating systems.
+I fear you will hold a grudge about this forever.
 
-	If all of the applications are cooperating, you can do it fairly easily. 
-First, ask the kernel how much physical memory there is. Then fudge a 
-reduction based on kernel usage. Then subtract the amount of RAM each 
-application is 'really using' by asking it.
+If Linux itself is worse off and went backwards in time for a while, it
+is because of your inability to work together with people.
 
-	If you write all the applications, this isn't hard to do. If you have to 
-cooperate with other applications you didn't write, things get trickier. If 
-you're the only application, things are really easy.
-
-	There are any number of heuristics and guesstimates. Ultimately, I recommend 
-mostly leaving your memory usage user-configurable.
-
-	DS
-
+I know it may be hard for you to accept this fact, but I can tell you
+that continuing to point the fingers elsewhere is going to be a repeated
+dead end.
 

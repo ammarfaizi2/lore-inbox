@@ -1,79 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268006AbTBRU7E>; Tue, 18 Feb 2003 15:59:04 -0500
+	id <S268011AbTBRVBa>; Tue, 18 Feb 2003 16:01:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268010AbTBRU7E>; Tue, 18 Feb 2003 15:59:04 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:19328 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id <S268006AbTBRU7D>;
-	Tue, 18 Feb 2003 15:59:03 -0500
-Date: Tue, 18 Feb 2003 13:09:03 -0800
-To: Max Krasnyansky <maxk@qualcomm.com>
-Cc: "David S. Miller" <davem@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family
-Message-ID: <20030218210903.GA9274@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <Pine.LNX.4.33.0301180439480.10820-100000@champ.qualcomm.com> <Pine.LNX.4.33.0301020341140.2038-100000@champ.qualcomm.com> <Pine.LNX.4.33.0301180439480.10820-100000@champ.qualcomm.com> <5.1.0.14.2.20030218101309.048d4288@mail1.qualcomm.com>
+	id <S268013AbTBRVBa>; Tue, 18 Feb 2003 16:01:30 -0500
+Received: from mx.laposte.net ([213.30.181.11]:57552 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id <S268011AbTBRVB3>;
+	Tue, 18 Feb 2003 16:01:29 -0500
+Subject: Re: [2.5] EHCI HID keyboard not unloaded at reboot time ?
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net
+In-Reply-To: <20030216212801.GA2546@elf.ucw.cz>
+References: <1045324980.1767.28.camel@rousalka>
+	 <20030216212801.GA2546@elf.ucw.cz>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4bfaXpMCEm8MV+VSMxLJ"
+Organization: 
+Message-Id: <1045602674.2091.8.camel@rousalka>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20030218101309.048d4288@mail1.qualcomm.com>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-1) 
+Date: 18 Feb 2003 22:11:14 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 18, 2003 at 10:50:49AM -0800, Max Krasnyansky wrote:
-> At 07:46 PM 2/17/2003, David S. Miller wrote:
-> 
-> >After talking to Alexey, I don't like this patch.
-> >
-> >The new module subsystem was supposed to deal with things
-> >like this cleanly, and this patch is merely a hack to cover
-> >up for it's shortcomings.
-> 
-> No it's not. Are you guys saying that module refcounting in net/core/dev.c 
-> is a hack too ? Patch that I sent implements exactly the same logic.
-> Grab module reference before creating net family socket and release
-> module when socket is gone. Where is the hack here ?
 
-	Few facts :
-	1) You can't get away without refcounting the module users,
-	   unless you implement weak pointers in the kernel
-	2) You can do refcounting in the module itself (old way, 2.2, 2.4)
-	3) You can do refcounting in the module users (new way)
-	4) The module code itself can't do the refcounting, unless it puts
-	   itself explicitely between the module and its users and
-	   understand the usage semantic of the module APIs
+--=-4bfaXpMCEm8MV+VSMxLJ
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-> >To be honest, I'd rather just disallow module unloading or
-> >let them stay buggy than put this hack into the tree.
-> >Special hacks are for 2.4.x where things like full cleanups are not allowed.
->
-> It's not a special hack. If it has problems let's fix them.
+Le dim 16/02/2003 =E0 22:28, Pavel Machek a =E9crit :
+> Hi!
+>=20
+> > 	This is a question related to :
+> > http://bugzilla.kernel.org/show_bug.cgi?id=3D9
+> >=20
+> > 	Basically I have a usb keyboard plugged on an external USB2 hub. Using
+> > a monolithic ehci/hid kernel I can get it to work in 2.5. It's also use=
+d
+> > in usb1 mode by the bios and the bootloader.
+> >=20
+> > 	However when I shut down or reboot from 2.5, I loose keyboard support
+> > in the bios/bootloader/linux 2.4 (used to loose it in linux 2.5 also bu=
+t
+> > recent ehci enhancements enable 2.5 to recover it). Nothing short of a
+> > PSU stop (neither reset nor stop button works) will recover it.
+>=20
+> Well, if reset does not work, it looks like hw bug ;-). OTOH this
+> might be quite easy to workaround in sw. What happens if you unplug
+> and replug the keyboard?
 
-	Well, there is still some time before 2.6.X, but not that
-much. We understand what the issues are, we now some of the solutions,
-now we just need a schedule and implement those. I personally don't
-care too much of the details as long s there is a solution.
-	When are we supposed to get a preview of the "right" way to do
-it ?
+Hey, thanks for the reply.
 
-> I want to keep Bluetooth socket modules loadable and unloadable. And
-> I'm sure Jean and other folks want's the same thing for IrDA and
-> other subsystems with sockets.
+Turns out I was right about the diagnostic. 2.5 *did* *not* *unload*
+*ehci*. So after the reboot all usb1-aware systems (bios, linux 2.4,
+etc) found usb components that expected usb2 commands. David Brownell
+send me a patch that forced ehci unload at shutdown (via a reboot
+notifier) and all's been well since. So it was a real 2.5 bug.
 
-	IrDA sockets will be unloadable, because IrDA wants to be
-modular, and people need to unload it to do CIR. So, for me the issue
-is more the probability of crashing the system.
+Sure the hardware could have moped up usb remains better, but since
+other evil OSes cleanup their usb stack correctly, I guess they didn't
+bother (plus I suspect it would have made boot times a bit longer).
 
-> Thanks
-> Max
+Anyway, closing one of the first ten bugzilla bugs at last one feels
+very good:)
 
-	Have fun...
+--=20
+Nicolas Mailhot
 
-	Jean
+--=-4bfaXpMCEm8MV+VSMxLJ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+UqFyI2bVKDsp8g0RAuckAJ0TJKN0T+h8Fd2m3HseDHf5HRuEJgCfWDSM
+gIHyDmTzgGvs2Rh/J/iWMuI=
+=/hpR
+-----END PGP SIGNATURE-----
+
+--=-4bfaXpMCEm8MV+VSMxLJ--
+

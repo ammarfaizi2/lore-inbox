@@ -1,78 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262907AbUKRTNl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbUKRUpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262907AbUKRTNl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 14:13:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbUKRTLJ
+	id S261163AbUKRUpH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 15:45:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbUKRUm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 14:11:09 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:31952 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262907AbUKRTKd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 14:10:33 -0500
-Date: Thu, 18 Nov 2004 20:10:02 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-Cc: linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: Linux 2.6.10-rc2 OOPS on boot with 3ware + reiserfs
-Message-ID: <20041118191002.GO26240@suse.de>
-References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org> <20041117165851.GA18044@tentacle.sectorb.msk.ru> <Pine.LNX.4.58.0411170935040.2222@ppc970.osdl.org> <20041118103526.GC26240@suse.de> <20041118160248.GA5922@tentacle.sectorb.msk.ru> <20041118183920.GL26240@suse.de>
+	Thu, 18 Nov 2004 15:42:29 -0500
+Received: from gw02.mail.saunalahti.fi ([195.197.172.116]:8077 "EHLO
+	gw02.mail.saunalahti.fi") by vger.kernel.org with ESMTP
+	id S261153AbUKRUlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 15:41:46 -0500
+Date: Thu, 18 Nov 2004 22:41:45 +0200
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
+To: matthieu castet <castet.matthieu@free.fr>
+Cc: jt@hpl.hp.com, linux-kernel@vger.kernel.org, Adam Belay <ambx1@neo.rr.com>
+Subject: Re: [PATCH] smsc-ircc2: Add PnP support.
+Message-ID: <20041118204145.GA21873@sci.fi>
+References: <419CECFF.2090608@free.fr> <20041118185503.GA5584@bougret.hpl.hp.com> <419CFCDE.6090400@free.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20041118183920.GL26240@suse.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <419CFCDE.6090400@free.fr>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18 2004, Jens Axboe wrote:
-> On Thu, Nov 18 2004, Vladimir B. Savkin wrote:
-> > On Thu, Nov 18, 2004 at 11:35:26AM +0100, Jens Axboe wrote:
-> > > On Wed, Nov 17 2004, Linus Torvalds wrote:
-> > > > 
-> > > > Jens, did you see this one?
-> > > 
-> > > Vladimir, is this completely reproducable? Does -rc1 work correctly (or
-> > > which was the last version you tested)? I haven't been able to spot any
-> > > errors in this path so far.
-> > 
-> > It happens 100% when smartd tries to fetch SMART info from
-> > disks connected to 3ware controller.
-> > Seems like using obsolete 3ware API has something to do with this.
-> > It does happen with -rc1 too.
-> > Here is a complete dmesg output:
-> 
-> Really looks like a double requeue, bet it happens because we end up
-> requeing both from the failed queuecommand return and from scsi_done().
-> I'll take a look.
+On Thu, Nov 18, 2004 at 08:49:50PM +0100, matthieu castet wrote:
+> Jean Tourrilhes wrote:
+> >On Thu, Nov 18, 2004 at 07:42:07PM +0100, matthieu castet wrote:
+> >>>>On3) If the ressources are markes as disabled, you just quit
+> >>>>with an error. Compouded with (2), this makes me doubly
+> >>>>nervous. Wouldn't it be possible to forcefully enable those 
+> >>
+> >>ressources ?
+> >>pnp should call automatiquely pnp_activate_dev() before probing the 
+> >>driver, so the resource should be activated. Have you got an example 
+> >>where the resource wheren't activated ?
+> >
+> >
+> >	No, it was more that I don't understand what PnP does for
+> >us. I don't have a SMS chipset to test on. Also, I would like to know
+> >if it remove the need of smcinit.
+> >
+> PnP is easy to understand ;)
+> When you probe a device, it will activate a device with the best 
+> configuration available.
 
-It is a double requeue. The SCSI path looks really messy (and buggy
-there). What happens is that the host queuecommand sets DID_ERROR and
-calls scsi_done() on the command, which may decide the commands need
-retrying and thus requeue it. Upon return from queuecommand, the SCSI
-layer initiates a requeue of the request because queuecommand returned
-1. Double requeue, request list is now screwed.
+So can we just remove the IORESOURCE_DISABLED tests?
 
-James, it looks like the queuecommand returns need an overhaul so it's
-clear who does what and when.
+And what about the pnp_*_valid() tests?
 
-You can work around the issue with this patch (I hope, not tested), I'll
-see if I can scrub the paths a little.
-
---- linux-2.6.10-rc2-mm1/drivers/scsi/3w-xxxx.c~	2004-11-18 20:03:27.945527140 +0100
-+++ linux-2.6.10-rc2-mm1/drivers/scsi/3w-xxxx.c	2004-11-18 20:10:01.249255049 +0100
-@@ -2053,6 +2053,11 @@
- 			break;
- 		case TW_IOCTL:
- 			printk(KERN_WARNING "3w-xxxx: SCSI_IOCTL_SEND_COMMAND deprecated, please update your 3ware tools.\n");
-+			tw_dev->state[request_id] = TW_S_COMPLETED;
-+			tw_state_request_finish(tw_dev, request_id);
-+			SCpnt->result = DID_ABORT << 16;
-+			done(SCpnt);
-+			reval = 0;
- 			break;
- 		default:
- 			printk(KERN_NOTICE "3w-xxxx: scsi%d: Unknown scsi opcode: 0x%x\n", tw_dev->host->host_no, *command);
+parport_pc (which I used as a guide) does both tests but 8250_pnp doesn't 
+do either.
 
 -- 
-Jens Axboe
-
+Ville Syrjälä
+syrjala@sci.fi
+http://www.sci.fi/~syrjala/

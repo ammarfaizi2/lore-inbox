@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129492AbQKSXl4>; Sun, 19 Nov 2000 18:41:56 -0500
+	id <S129405AbQKSXmz>; Sun, 19 Nov 2000 18:42:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129279AbQKSXlp>; Sun, 19 Nov 2000 18:41:45 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:12805 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S129145AbQKSXlb>; Sun, 19 Nov 2000 18:41:31 -0500
-Date: Sun, 19 Nov 2000 23:11:20 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Remove tq_scheduler
-In-Reply-To: <3A15FD94.F19DA5F0@uow.edu.au>
-Message-ID: <Pine.LNX.4.30.0011192248200.31586-100000@imladris.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129145AbQKSXmp>; Sun, 19 Nov 2000 18:42:45 -0500
+Received: from [210.149.136.126] ([210.149.136.126]:56961 "EHLO
+	research.imasy.or.jp") by vger.kernel.org with ESMTP
+	id <S129279AbQKSXmj>; Sun, 19 Nov 2000 18:42:39 -0500
+Date: Mon, 20 Nov 2000 08:11:30 +0900
+Message-Id: <200011192311.eAJNBUj02708@research.imasy.or.jp>
+From: Taisuke Yamada <tai@imasy.or.jp>
+To: karrde@callisto.yi.org
+Cc: andre@linux-ide.org, linux-kernel@vger.kernel.org, tai@imasy.or.jp
+Subject: Re: [PATCH] Large "clipped" IDE disk support for 2.4 when using old BIOS
+In-Reply-To: Your message of "Mon, 20 Nov 2000 00:41:51 +0200 (IST)".
+    <Pine.LNX.4.21.0011200036030.775-100000@callisto.yi.org>
+X-Mailer: mnews [version 1.22PL4] 2000-05/28(Sun)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Nov 2000, Andrew Morton wrote:
 
+> > > This patch is not good...[snip]
+> >
+> > Please retest with hdc=...
 >
-> This patch removes tq_scheduler from the kernel.  All uses of
-> tq_scheduler are migrated over to use schedule_task().
->
-> Notes:
-> - If anyone sleeps in a callback, then all other users of
->   schedule_task() also sleep.  But there's nothing new here.  Kinda
->   makes one wonder why schedule_task exists.  But what-hey, it's neat.
+> Ok, I've booted without the parameter, and without the jumper on
+> clipping mode (I'll do it tommorow, it's 1AM now) got something
+> similiar to what you've written, and everything looks ok.
 
-Because you're only supposed to use it if the task that is scheduled:
-	A) Doesn't care about a reasonable delay
-	B) Doesn't sleep for an unreasonable amount of time.
+Great, so it worked.
 
-As long as there's some value of 'reasonable' to match the set of tasks
-which you are using schedule_task() for at any given moment, you should be
-fine.
+# Since it worked, please discard my message I sent you to wait.
 
-If it's really necessary in 2.5, we can consider using multiple queues to
-get round this problem - either a task per subsystem or a pool of worker
-threads. Hopefully it won't be necessary though. We'll see.
+> Now it reports 90069839 - one sector less. Any damage risk to
+> my filesystems?
 
-> - Note the careful massaging of module reference counts.
->
->   Yes my friends, much usage of task queues in modules is racy wrt
->   module removal.  This patch fixes some of them.
+Hmm, that will be trouble if you access that last sector. I'll
+take a look at it after I came back from my work (It's 8AM now
+and got to go to work :-).
 
-Cool. I was going to look into that. I had figured we should fix it
-completely or not at all, though, which is why I didn't do the trick with
-use counts. I probably should have done, though.
-
-While you're in maintenance mode, do you feel like fixing up stuff to use
-up_and_exit() for killing kernel threads? I started on net/sunrpc/sched.c
-but it made my head hurt so I gave up and started hacking PCMCIA
-instead :)
-
-Also, drivers/usb/hub.c can probably use schedule_task() now instead of
-its own kernel thread.
-
--- 
-dwmw2
-
-
+--
+Taisuke Yamada <tai@imasy.or.jp>
+PGP fingerprint = 6B 57 1B ED 65 4C 7D AE  57 1B 49 A7 F7 C8 23 46
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,57 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266907AbRGQSnr>; Tue, 17 Jul 2001 14:43:47 -0400
+	id <S265472AbRGQStr>; Tue, 17 Jul 2001 14:49:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266911AbRGQSni>; Tue, 17 Jul 2001 14:43:38 -0400
-Received: from joat.prv.ri.meganet.net ([209.213.80.2]:9909 "EHLO
-	joat.prv.ri.meganet.net") by vger.kernel.org with ESMTP
-	id <S266907AbRGQSnY>; Tue, 17 Jul 2001 14:43:24 -0400
-Message-ID: <3B54878E.F1CC19FE@ueidaq.com>
-Date: Tue, 17 Jul 2001 14:44:30 -0400
-From: Alex Ivchenko <aivchenko@ueidaq.com>
-Organization: UEI, Inc.
-X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
-X-Accept-Language: en,pdf
+	id <S266911AbRGQSth>; Tue, 17 Jul 2001 14:49:37 -0400
+Received: from mail.nep.net ([12.23.44.24]:9992 "HELO nep.net")
+	by vger.kernel.org with SMTP id <S265472AbRGQStZ>;
+	Tue, 17 Jul 2001 14:49:25 -0400
+Message-ID: <19AB8F9FA07FB0409732402B4817D75A0389F9@FILESERVER.SRF.srfarms.com>
+From: "Ryan C. Bonham" <Ryan@srfarms.com>
+To: "Linux Kernel List (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Adaptec 2400A
+Date: Tue, 17 Jul 2001 14:58:12 -0400
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.6 possible problem
-In-Reply-To: <Pine.LNX.3.95.1010717103652.1430A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well,
+Hi,
 
-> funct()
-> {
->     size_t ticks;
->     wait_queue_head_t wqhead;
->     init_waitqueue_head(&wqhead);
-> 
->     ticks = 1 * HZ;        /* For 1 second */
->     while((ticks = interruptible_sleep_on_timeout(&wqhead, ticks)) > 0)
->                   ;
-> }
-Well, this works.
+Has anyone been sucesfull in getting the Adaptec 2400A Raid card to work
+under the 2.4.X Kernel?  I have Redhat 7.1, and have been uncesesfull in
+getting linux to install with support for this card. I have used the Beta
+Drivers(239) from adaptec and my system just locks when loading the
+drivers...  Thanks for any help.
 
-The question is: should I call init_waitqueue_head() every time I call
-interruptible_sleep_on_timeout() or is it enough to call it once in init_module() ?
-
-Another one: should I call wake_up_interruptible() to release pending request?
-
-
--- 
-Regards,
-Alex
-
---
-Alex Ivchenko, Ph.D.
-United Electronic Industries, Inc.
-"The High-Performance Alternative (tm)"
---
-10 Dexter Avenue
-Watertown, Massachusetts 02472
-Tel: (617) 924-1155 x 222 Fax: (617) 924-1441
-http://www.ueidaq.com
+Ryan C. Bonham
+System Administrator
+Summit Ridge Farms
+Phone: (570)-756-2656
+Fax: (570)-756-2826

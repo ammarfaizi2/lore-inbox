@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbUKWJdf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262411AbUKWJhx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262393AbUKWJdf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 04:33:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbUKWJde
+	id S262411AbUKWJhx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 04:37:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbUKWJhw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 04:33:34 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:20434 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262393AbUKWJdc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 04:33:32 -0500
-Subject: Re: [PATCH 2.6.9] fork: add a hook in do_fork()
-From: Guillaume Thouvenin <Guillaume.Thouvenin@Bull.net>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Jay Lan <jlan@engr.sgi.com>
-In-Reply-To: <20041123090325.GA22114@infradead.org>
-References: <1101189797.6210.53.camel@frecb000711.frec.bull.fr>
-	 <20041123090325.GA22114@infradead.org>
-Date: Tue, 23 Nov 2004 10:33:27 +0100
-Message-Id: <1101202407.6210.87.camel@frecb000711.frec.bull.fr>
+	Tue, 23 Nov 2004 04:37:52 -0500
+Received: from nysv.org ([213.157.66.145]:26073 "EHLO nysv.org")
+	by vger.kernel.org with ESMTP id S262411AbUKWJhn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 04:37:43 -0500
+Date: Tue, 23 Nov 2004 11:37:30 +0200
+To: Dirk Steinberg <dws@steinbergnet.net>
+Cc: reiserfs-list@namesys.com, Hans Reiser <reiser@namesys.com>,
+       Valdis.Kletnieks@vt.edu, Amit Gud <amitgud1@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: file as a directory
+Message-ID: <20041123093730.GC26192@nysv.org>
+References: <2c59f00304112205546349e88e@mail.gmail.com> <200411221759.iAMHx7QJ005491@turing-police.cc.vt.edu> <41A23566.6080903@namesys.com> <200411231011.21652.dws@steinbergnet.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 23/11/2004 10:40:32,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 23/11/2004 10:40:35,
-	Serialize complete at 23/11/2004 10:40:35
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411231011.21652.dws@steinbergnet.net>
+User-Agent: Mutt/1.5.6i
+From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-11-23 at 09:03 +0000, Christoph Hellwig wrote:
-> On Tue, Nov 23, 2004 at 07:03:17AM +0100, Guillaume Thouvenin wrote:
-> > 
-> >    For a module, I need to execute a function when a fork occurs. My
-> > solution is to add a pointer to a function (called fork_hook) in the
-> > do_fork() and if this pointer isn't NULL, I call the function. To update
-> > the pointer to the function I export a symbol (called trace_fork) that
-> > defines another function with two parameters (the hook and an
-> > identifier). This function provides a simple mechanism to manage access
-> > to the fork_hook variable.
-> > 
-> Use SGI's PAGG patches if you want such hooks.  Also this is clearly
-> a _GPL export.
+On Tue, Nov 23, 2004 at 10:11:21AM +0100, Dirk Steinberg wrote:
+>
+>How about making metas a mount option? Right now disabling metas 
+>requires patching the source.
 
-PAGG is more intrusive than my patch due to the management of groups of
-processes. This hook in the fork allows me to provide a solution to do
-per-group accounting with a module. If PAGG is added in the Linux Kernel
-Tree it could be the solution, you are right. 
+Isn't there -o nopseudo already?
 
-Guillaume 
-
+-- 
+mjt
 

@@ -1,128 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268421AbUILD0x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268435AbUILDs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268421AbUILD0x (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 23:26:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268423AbUILD0x
+	id S268435AbUILDs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 23:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268425AbUILDs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 23:26:53 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10377 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268421AbUILDZx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 23:25:53 -0400
-Date: Sat, 11 Sep 2004 20:25:25 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: greg@kroah.com
-Cc: zaitcev@redhat.com, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Patch for 3 ub bugs in 2.6.9-rc1-mm4
-Message-Id: <20040911202525.1fd6c206@lembas.zaitcev.lan>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 11 Sep 2004 23:48:27 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:62105
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S268435AbUILDsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 23:48:22 -0400
+Date: Sat, 11 Sep 2004 20:47:10 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: "Wolfpaw - Dale Corse" <admin@wolfpaw.net>
+Cc: linux-kernel@vger.kernel.org, grsecurity@grsecurity.net,
+       bugtraq@securityfocus.com
+Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local (probable Remote) Denial
+ of Service
+Message-Id: <20040911204710.4aa7abed.davem@davemloft.net>
+In-Reply-To: <000001c49872$99333460$0200a8c0@wolf>
+References: <022601c49866$9e8aa8f0$0300a8c0@s>
+	<000001c49872$99333460$0200a8c0@wolf>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Greg,
+On Sat, 11 Sep 2004 20:45:43 -0600
+"Wolfpaw - Dale Corse" <admin@wolfpaw.net> wrote:
 
-Actual users of ub quickly found problems, so here's a patch to address
-some of them.
+> As for it being an application bug - it may be one in Mysql not
+> closing the sockets, but it is a Kernel Bug that allows CLOSE_WAIT
+> sockets to clog up the connection queues, and cause a DOS conditions
+> on other applications (such as Apache). Since most software used for
+> denial of service is badly written (intentionally) to exploit the
+> holes, the error should be fixed, not blamed on faulty software.
 
-#1: An attempt to mount a CF card, pull the plug, then unmount causes a
-message "getblk: bad sector size 512" and an oops. This is caused by
-trying to do put_disk from disconnect instead of using a reference count.
-The sd.c does it this way (it uses kref).
+If the application doesn't close it's file descriptors there is
+absolutely nothing the kernel can do about it.
 
-#2: The hald fills /var/log/messages with block device errors. It seems
-that it happens because ub allowed opens of known offline devices, and
-then partition checking produced those errors. I hope taking code from
-sd.c should fix it.
+It's a resource leak, plain and simple.
 
-Also I replaced usb_unlink_urb with usb_kill_urb.
+> That being said - below is a the proper description, and the code
+> used to exploit it. Hope it helps. This version is not the one
+> which invokes the CLOSE_WAIT state, but rather the TIME_WAIT one,
+> I am not able to publish the source code for the CLOSE_WAIT bug.
 
--- Pete
+There is nothing wrong with creating tons of TIME_WAIT sockets,
+they simply time out after 60 seconds (unless hit by a RESET
+packet or similar).  This is how TCP works.
 
-diff -urp -X dontdiff linux-2.6.9-rc1-mm4/drivers/block/ub.c linux-2.6.9-rc1-mm4-ub/drivers/block/ub.c
---- linux-2.6.9-rc1-mm4/drivers/block/ub.c	2004-09-09 16:59:26.000000000 -0700
-+++ linux-2.6.9-rc1-mm4-ub/drivers/block/ub.c	2004-09-11 20:10:10.760129160 -0700
-@@ -490,6 +490,18 @@ static void ub_id_put(int id)
-  */
- static void ub_cleanup(struct ub_dev *sc)
- {
-+
-+	/*
-+	 * If we zero disk->private_data BEFORE put_disk, we have to check
-+	 * for NULL all over the place in open, release, check_media and
-+	 * revalidate, because the block level semaphore is well inside the
-+	 * put_disk. But we cannot zero after the call, because *disk is gone.
-+	 * The sd.c is blatantly racy in this area.
-+	 */
-+	/* disk->private_data = NULL; */
-+	put_disk(sc->disk);
-+	sc->disk = NULL;
-+
- 	ub_id_put(sc->id);
- 	kfree(sc);
- }
-@@ -1413,7 +1429,15 @@ static int ub_bd_open(struct inode *inod
- 	if (sc->removable || sc->readonly)
- 		check_disk_change(inode->i_bdev);
- 
--	/* XXX sd.c and floppy.c bail on open if media is not present. */
-+	/*
-+	 * The sd.c considers ->media_present and ->changed not equivalent,
-+	 * under some pretty murky conditions (a failure of READ CAPACITY).
-+	 * We may need it one day.
-+	 */
-+	if (sc->removable && sc->changed && !(filp->f_flags & O_NDELAY)) {
-+		rc = -ENOMEDIUM;
-+		goto err_open;
-+	}
- 
- 	if (sc->readonly && (filp->f_mode & FMODE_WRITE)) {
- 		rc = -EROFS;
-@@ -1498,8 +1522,11 @@ static int ub_bd_revalidate(struct gendi
- 	printk(KERN_INFO "%s: device %u capacity nsec %ld bsize %u\n",
- 	    sc->name, sc->dev->devnum, sc->capacity.nsec, sc->capacity.bsize);
- 
-+	/* XXX Support sector size switching like in sr.c */
-+	// blk_queue_hardsect_size(q, sc->capacity.bsize);
- 	set_capacity(disk, sc->capacity.nsec);
- 	// set_disk_ro(sdkp->disk, sc->readonly);
-+
- 	return 0;
- }
- 
-@@ -1746,12 +1773,7 @@ static int ub_probe_clear_stall(struct u
- 	wait_for_completion(&compl);
- 
- 	del_timer_sync(&timer);
--	/*
--	 * Most of the time, URB was done and dev set to NULL, and so
--	 * the unlink bounces out with ENODEV. We do not call usb_kill_urb
--	 * because we still think about a backport to 2.4.
--	 */
--	usb_unlink_urb(&sc->work_urb);
-+	usb_kill_urb(&sc->work_urb);
- 
- 	/* reset the endpoint toggle */
- 	usb_settoggle(sc->dev, endp, usb_pipeout(sc->last_pipe), 0);
-@@ -2011,17 +2033,6 @@ static void ub_disconnect(struct usb_int
- 		blk_cleanup_queue(q);
- 
- 	/*
--	 * If we zero disk->private_data BEFORE put_disk, we have to check
--	 * for NULL all over the place in open, release, check_media and
--	 * revalidate, because the block level semaphore is well inside the
--	 * put_disk. But we cannot zero after the call, because *disk is gone.
--	 * The sd.c is blatantly racy in this area.
--	 */
--	/* disk->private_data = NULL; */
--	put_disk(disk);
--	sc->disk = NULL;
--
--	/*
- 	 * We really expect blk_cleanup_queue() to wait, so no amount
- 	 * of paranoya is too much.
- 	 *
+> The log however clearly shows that a mysql descriptor is closed, 
+> and then used immediately again by the socket call, which causes it 
+> never to end up getting closed. Linux apparently has either no 
+> timeout for CLOSE_WAIT, or it's a very very long one.. Either way 
+> is a bad thing.
+
+Please do us all a favor and learn how TCP works.
+
+CLOSE_WAIT means simply that only one side of the TCP
+connection has done a close.  Therefore the other end
+stays open until that side closes as well.
+
+There is no way to "time things out" or release the
+state.

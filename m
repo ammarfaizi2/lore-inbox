@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263064AbUCSR3w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 12:29:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263075AbUCSR3w
+	id S263060AbUCSR2e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 12:28:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbUCSR2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 12:29:52 -0500
-Received: from userel174.dsl.pipex.com ([62.188.199.174]:22153 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id S263064AbUCSR3r
+	Fri, 19 Mar 2004 12:28:33 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62403 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263044AbUCSR20
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 12:29:47 -0500
-Date: Fri, 19 Mar 2004 17:27:43 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: tigran@einstein.homenet
-To: David Schwartz <davids@webmaster.com>
-cc: Justin Piszcz <jpiszcz@hotmail.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Linux Kernel Microcode Question
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKMENKLCAA.davids@webmaster.com>
-Message-ID: <Pine.LNX.4.44.0403191721110.3892-100000@einstein.homenet>
+	Fri, 19 Mar 2004 12:28:26 -0500
+Message-ID: <405B2DAC.8030903@pobox.com>
+Date: Fri, 19 Mar 2004 12:28:12 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Uwe Koziolek <uwe.koziolek@gmx.net>
+CC: Zero10 <damouse@zero10.demon.co.uk>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: Fw: SiS 964 SerialATA developers anywhere?
+References: <003001c40d3b$dd275330$2200a8c0@glowworm>	 <405A2B4A.9090001@pobox.com> <1079720801.3147.7.camel@uk2.local>
+In-Reply-To: <1079720801.3147.7.camel@uk2.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Mar 2004, David Schwartz wrote:
-> 	It is at least theoeretically possible that a microcode update might cause
-> an operation that's normally done very quickly (in dedicated hardware) to be
-> done by a slower path (microcode operations) to fix a bug in the dedicated
-> hardware
+Uwe Koziolek wrote:
+> Hello,
+> 
+> i have found the problem (reset PCI_COMMAND_INTX_DISABLE), but the
+> source must be cleaned, and some tests must be executed before i submit
+> the source. 
 
-Did you dream that up or did you read it somewhere? If the latter, where?
+Ah yes, that makes sense.
 
-All operations are done by "dedicated hardware" and microcode DOES modify
-that hardware, or rather the way instructions are "digested". So, applying
-microcode doesn't make anything slower per se, it's just replacing one
-code sequence with another code sequence. If a new code happens to be
-slower than the old one then of course the result will be slower, but the
-reverse is also true. When you fix a bug in a particular software why
-should a bugfix be apriori slower than the original code? Think about it.
 
-So please do not spread misinformation that applying microcode makes 
-something slower. If anything, it should make things faster, as long as 
-the guys at Intel are writing the correct (micro)code.
+> Who will check in the source?.
 
-Kind regards
-Tigran
+I will, just email me the driver you have tested...
+
+	Jeff
+
 
 

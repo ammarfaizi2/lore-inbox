@@ -1,62 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264236AbUFDLR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265732AbUFDLXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264236AbUFDLR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 07:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265732AbUFDLR2
+	id S265732AbUFDLXH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 07:23:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265733AbUFDLXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 07:17:28 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:48264 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S264236AbUFDLR1 (ORCPT
+	Fri, 4 Jun 2004 07:23:07 -0400
+Received: from mail.aei.ca ([206.123.6.14]:9982 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S265732AbUFDLXC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 07:17:27 -0400
+	Fri, 4 Jun 2004 07:23:02 -0400
+From: Ed Tomlinson <edt@aei.ca>
+Organization: me
+To: linux-kernel@vger.kernel.org
+Subject: Re: ide errors in 7-rc1-mm1 and later
+Date: Fri, 4 Jun 2004 07:22:13 -0400
+User-Agent: KMail/1.6.2
+Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>
+References: <1085689455.7831.8.camel@localhost> <20040603193107.54308dc9.akpm@osdl.org> <20040604094256.GM1946@suse.de>
+In-Reply-To: <20040604094256.GM1946@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16576.23059.490262.610771@alkaid.it.uu.se>
-Date: Fri, 4 Jun 2004 13:16:35 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, Paul Jackson <pj@sgi.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
-       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       Simon.Derr@bull.net
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
-In-Reply-To: <20040604095929.GX21007@holomorphy.com>
-References: <20040603094339.03ddfd42.pj@sgi.com>
-	<20040603101010.4b15734a.pj@sgi.com>
-	<1086313667.29381.897.camel@bach>
-	<40BFD839.7060101@yahoo.com.au>
-	<20040603221854.25d80f5a.pj@sgi.com>
-	<16576.16748.771295.988065@alkaid.it.uu.se>
-	<20040604093712.GU21007@holomorphy.com>
-	<16576.17673.548349.36588@alkaid.it.uu.se>
-	<20040604095929.GX21007@holomorphy.com>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Message-Id: <200406040722.14026.edt@aei.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III writes:
- > William Lee Irwin III writes:
- > >> If the marshalling code presents different formats to userspace
- > >> depending on BITS_PER_LONG then it's buggy.
- > 
- > On Fri, Jun 04, 2004 at 11:46:49AM +0200, Mikael Pettersson wrote:
- > > No. Read what I wrote: binary compatibility was the very problem I
- > > set out to solve, not cause.
- > > For a given cpumask_t value, user-space sees the same binary
- > > representation irregardless of how you combine 32 or 64-bit
- > > user-spaces with 32 or 64-bit kernels.
- > > This has all been worked out on x86 and amd64, and the conversion
- > > is endian-neutral so e.g. ppc32 on ppc64 should work.
- > 
- > cpumask_scnprintf() is correct to all appearances... testcase please.
+On June 4, 2004 05:42 am, Jens Axboe wrote:
+> On Thu, Jun 03 2004, Andrew Morton wrote:
+> > Ed Tomlinson <edt@aei.ca> wrote:
+> > >
+> > > Hi,
+> > > 
+> > > I am still getting these ide errors with 7-rc2-mm2.  I  get the errors even
+> > > if I mount with barrier=0 (or just defaults).  It would seem that something is 
+> > > sending my drive commands it does not understand...  
+> > > 
+> > > May 27 18:18:05 bert kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+> > > May 27 18:18:05 bert kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+> > > 
+> > > How can we find out what is wrong?
+> > > 
+> > > This does not seem to be an error that corrupts the fs, it just slows things 
+> > > down when it hits a group of these.  Note that they keep poping up - they
+> > > do stop (I still get them hours after booting).
+> > 
+> > Jens, do we still have the command bytes available when this error hits?
+> 
+> It's not trivial, here's a hack that should dump the offending opcode
+> though.
 
-How large buf does it need? I don't see any spec for that in 2.6.6.
+Hi Jens,
 
-Second, let's just say that while some kernel people think that
-converting stuff to ASCII is "neat", I'm not one of them. It's
-just a waste of time and space, for both kernel and user-space.
-I'd rather do a for-each-CPU loop which strictly keeps to cpumask_t
-operations than take a detour via ASCII.
+I applied the patch below and booted into the new kernel (the boot message showed the 
+new compile time).  The error messages remained the same - no extra info.  Is there 
+another place that prints this (or (!rq) is true)?
+
+Ideas?
+Ed
+ 
+> --- linux-2.6.7-rc2-mm2/drivers/ide/ide.c~	2004-06-04 11:32:49.286777112 +0200
+> +++ linux-2.6.7-rc2-mm2/drivers/ide/ide.c	2004-06-04 11:41:47.338870307 +0200
+> @@ -438,6 +438,30 @@
+>  #endif	/* FANCY_STATUS_DUMPS */
+>  		printk("\n");
+>  	}
+> +	{
+> +		struct request *rq;
+> +		int opcode = 0x100;
+> +
+> +		spin_lock(&ide_lock);
+> +		rq = HWGROUP(drive)->rq;
+> +		spin_unlock(&ide_lock);
+> +		if (!rq)
+> +			goto out;
+> +		if (rq->flags & (REQ_DRIVE_CMD | REQ_DRIVE_TASK)) {
+> +			char *args = rq->buffer;
+> +			if (args)
+> +				opcode = args[0];
+> +		} else if (rq->flags & REQ_DRIVE_TASKFILE) {
+> +			ide_task_t *args = rq->special;
+> +			if (args) {
+> +				task_struct_t *tf = (task_struct_t *) args->tfRegister;
+> +				opcode = tf->command;
+> +			}
+> +		}
+> +
+> +		printk("ide: failed opcode was %x\n", opcode);
+> +	}
+> +out:
+>  	local_irq_restore(flags);
+>  	return err;
+>  }
+> 

@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264273AbRFZUyR>; Tue, 26 Jun 2001 16:54:17 -0400
+	id <S264416AbRFZU4R>; Tue, 26 Jun 2001 16:56:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264416AbRFZUyH>; Tue, 26 Jun 2001 16:54:07 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38411 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264273AbRFZUyA>; Tue, 26 Jun 2001 16:54:00 -0400
-Subject: Re: [comphist] Re: Microsoft and Xenix.
-To: landley@webofficenow.com
-Date: Tue, 26 Jun 2001 21:52:56 +0100 (BST)
-Cc: asmith@14inverleith.freeserve.co.uk,
-        kaih@khms.westfalen.de (Kai Henningsen), linux-kernel@vger.kernel.org,
-        penguicon-comphist@lists.sourceforge.net
-In-Reply-To: <01062610445301.12583@localhost.localdomain> from "Rob Landley" at Jun 26, 2001 10:44:53 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15EzpQ-0004CP-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S264469AbRFZU4H>; Tue, 26 Jun 2001 16:56:07 -0400
+Received: from vena.lwn.net ([206.168.112.25]:43275 "HELO eklektix.com")
+	by vger.kernel.org with SMTP id <S264416AbRFZU4D>;
+	Tue, 26 Jun 2001 16:56:03 -0400
+Message-ID: <20010626205602.19492.qmail@eklektix.com>
+To: jlamanna@its.caltech.edu
+Subject: Re: Making a module 2.4 compatible
+cc: linux-kernel@vger.kernel.org
+From: Jonathan Corbet <corbet-lk@lwn.net>
+Date: Tue, 26 Jun 2001 14:56:01 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There seems to be a bug in the mail routing again. It may be related to the
-recent problem with ditto copier history outbreaks on Linux S/390 and the
-infamous 'pdp-11 memory subsystem' article routing bug that plagued 
-comp.os.minix once.
+> It would be nice to have it working under 2.4, so is there someplace
+> that outlines some of the major things that would have changed so I can
+> update the module accordingly?
 
-In the meantime can people check that their mailer hasnt spontaneously added
-linux-kernel to their history articles before posting them ?
+<BlatantSelfPromotion>
 
-Alan
+Within a week or so, "Linux Device Drivers" second edition should hit the
+shelves.  It will also hit the net, but that's going to take a little
+longer.  If it doesn't answer all your questions, then we failed to achieve
+what we set out to do.
 
+</BlatantSelfPromotion>
+
+jon
+
+Jonathan Corbet
+Executive editor, LWN.net
+corbet@lwn.net

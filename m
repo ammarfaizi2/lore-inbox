@@ -1,35 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289065AbSAGAyc>; Sun, 6 Jan 2002 19:54:32 -0500
+	id <S289067AbSAGAyc>; Sun, 6 Jan 2002 19:54:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289063AbSAGAyX>; Sun, 6 Jan 2002 19:54:23 -0500
-Received: from mta01bw.bigpond.com ([139.134.6.78]:58081 "EHLO
-	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S289062AbSAGAyL>; Sun, 6 Jan 2002 19:54:11 -0500
-Message-Id: <5.1.0.14.0.20020107114616.00b9f458@mail.bigpond.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 07 Jan 2002 11:53:58 +1100
-To: linux-kernel@vger.kernel.org
-From: Dylan Egan <crack_me@bigpond.com.au>
-Subject: 2.4.17 - hanging due to usb
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S289065AbSAGAyW>; Sun, 6 Jan 2002 19:54:22 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:6418 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S289063AbSAGAyN>; Sun, 6 Jan 2002 19:54:13 -0500
+Message-ID: <3C38F077.32064893@zip.com.au>
+Date: Sun, 06 Jan 2002 16:48:55 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chris Pitchford <cpitchford@intrepid.co.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Ethernet/SCSI/PCI problems when enabling SMP on 2.4.17: VP6, 
+ aix7xxx& 3c595
+In-Reply-To: <Pine.LNX.4.33.0201062057400.18876-100000@boatman.intrepnet>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Chris Pitchford wrote:
+> 
+> Hi all,
+> 
+> I am experiencing problems using a 3Com Network card and Adaptec SCSI
+> card under 2.4.17 in SMP mode. Since the only other PCI card in my system
+> is a very under used sound card I am wondering if this is a deeper
+> problem with SMP under Linux on my system.
+> 
+> I recently installed two Intel P3 Coppermine processors onto my Abit
+> VP6 motherboard and recompiled my kernel as SMP. I am seeing
+> problems that never once occured during the month I ran the system
+> with one P3 processor in UP mode.
+> 
+> During light network load I am seeing messages appear frequently in the
+> kernel messages and the network card stop receiving/transmitting traffic
+> out onto the network. This did not happen (and does not happen) when
+> running Uni-processor:
+> 
+> NETDEV WATCHDOG: eth0: transmit timed out
+> eth0: transmit timed out, tx_status 00 status e000.
+>   diagnostics: net 0c80 media 88c0 dma ffffffff.
+> eth0: Updating statistics failed, disabling stats as an interrupt source.
+>
 
-I am currently trying to install my usb-storage device to use with 2.4.17.
-I have my usb device connected and switched on so when i do insmod usb-uhci 
-or insmod uhci it automatically picks it up and goes to install it but a 
-few seconds after its done that, linux just freezes up and i can't do 
-anything except reboot via the reboot switch (keyboard does not work). My 
-usb is using a shared irq with onboard sound so i disabled sound in the 
-BIOS and retried, only to find it failed again. I dont have enough time to 
-check for any errors so i can't figure out the problem and when i check the 
-logs there seems to be nothing out of the ordinary.
+I've never seen that one before.  There's this comment in the source:
 
-Regards,
+        update_stats(ioaddr, dev);
+        /* HACK: Disable statistics as an interrupt source. */                                    /* This occurs when we have the wrong media type! */
+        if (DoneDidThat == 0  &&
+            inw(ioaddr + EL3_STATUS) & StatsFull) {
+            printk(KERN_WARNING "%s: Updating statistics failed, disabling "
+                   "stats as an interrupt source.\n", dev->name);
 
-Dylan
+But it looks like you don't have the wrong media type?  Please check
+this.
 
+
+The 3c595 is ancient, and there are numerous reports of PCI bus
+problems with it.  Fiddling with the PCI latency timers sometimes
+helps.
+
+My advice: buy another NIC.  Even a ten-dollar rtl8139 will
+perform better than the 3c595.  Sorry.
+
+-

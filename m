@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130287AbRARAkJ>; Wed, 17 Jan 2001 19:40:09 -0500
+	id <S130188AbRARAks>; Wed, 17 Jan 2001 19:40:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131104AbRARAjv>; Wed, 17 Jan 2001 19:39:51 -0500
-Received: from pine.parrswood.manchester.sch.uk ([213.205.138.155]:7431 "EHLO
-	parrswood.manchester.sch.uk") by vger.kernel.org with ESMTP
-	id <S130287AbRARAjf>; Wed, 17 Jan 2001 19:39:35 -0500
-Date: Thu, 18 Jan 2001 00:39:31 +0000 (GMT)
-From: Tim Fletcher <tim@parrswood.manchester.sch.uk>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Vojtech Pavlik <vojtech@suse.cz>, Terrence Martin <tmartin@cal.montage.ca>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: File System Corruption with 2.2.18
-In-Reply-To: <Pine.LNX.4.10.10101171630000.19441-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.30.0101180035080.28099-100000@pine.parrswood.manchester.sch.uk>
+	id <S130117AbRARAkd>; Wed, 17 Jan 2001 19:40:33 -0500
+Received: from [129.94.172.186] ([129.94.172.186]:21231 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S131104AbRARAkT>; Wed, 17 Jan 2001 19:40:19 -0500
+Date: Thu, 18 Jan 2001 01:26:04 +1100 (EST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@localhost.localdomain>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Zlatko Calusic <zlatko@iskon.hr>, <linux-kernel@vger.kernel.org>
+Subject: Re: Subtle MM bug
+In-Reply-To: <20010110193340.D29093@athlon.random>
+Message-ID: <Pine.LNX.4.31.0101180122480.31432-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > maybe but why?
-> >
-> > Because it stores no data, hence the wiping out of it is no problem?
+On Wed, 10 Jan 2001, Andrea Arcangeli wrote:
+> On Wed, Jan 10, 2001 at 10:46:07AM -0700, Eric W. Biederman wrote:
+
+> > My impression with the MM stuff is that everyone except linux is
+> > trying hard to clone BSD instead of thinking through the issues
+> > ourselves.
 >
-> Well that is useless test them because you can not test things completely.
+> I wasn't even thinking about BSD and I always though about the
+> issues myself, no panic ;).
 
-I ment that if the partiton has no persient data on it then the test can
-be run (the test wipes all data on the partition out during the test,
-right?) with no loss of data on the machine. The partition is still on the
-same disk so the test data is valid?
+Andrea, if you have the time, please do check out the
+FreeBSD and NetBSD VM code.
 
-I am thinking that the test is somewhat like badblocks -w or have I got
-the wrong end of the stick?
+The FreeBSD code has the original Mach overengineered
+abstraction layer, but an absolutely kickass page
+replacement strategy.
 
--- 
-   Tim Fletcher - Network manager   .~.
-                                    /V\      L   I   N   U   X
-     nightshade@solanum.net        // \\  >Don't fear the penguin<
-tim@parrswood.manchester.sch.uk   /(   )\
- irc: Night-Shade on quakenet      ^^-^^
+The NetBSD code has cleaned up the abstraction layer
+into something nice and lower overhead, but has a lot
+simpler (probably lower performance) page replacement.
 
-"I love the way Microsoft follows standards.  In much the
-same manner that fish follow migrating caribou."
-                                            Paul Tomblin
+It would be cool if some of the Linux hackers could take
+the time and look at this code to see if there are some
+good ideas we might want to have in Linux.
+
+It might just be the case that we DON'T want to reinvent
+the wheel (that others have made into a nice round shape
+with 15 years of trial, error and redesigning).
+
+(though I know some people prefer reinventing wheels ;))
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316342AbSE3MEo>; Thu, 30 May 2002 08:04:44 -0400
+	id <S316598AbSE3MI0>; Thu, 30 May 2002 08:08:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316598AbSE3MEn>; Thu, 30 May 2002 08:04:43 -0400
-Received: from spook.vger.org ([213.204.128.210]:35052 "HELO
-	kenny.worldonline.se") by vger.kernel.org with SMTP
-	id <S316342AbSE3MEk>; Thu, 30 May 2002 08:04:40 -0400
-Date: Thu, 30 May 2002 14:42:02 +0200 (CEST)
-From: me@vger.org
-To: Neil Brown <neilb@cse.unsw.edu.au>
-cc: linux-kernel@vger.kernel.org, Andre Hedrick <andre@linux-ide.org>
-Subject: Re: Strange RAID2 behavier...
-In-Reply-To: <15606.5268.471724.793301@notabene.cse.unsw.edu.au>
-Message-ID: <Pine.LNX.4.21.0205301441000.20123-100000@kenny.worldonline.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316600AbSE3MIZ>; Thu, 30 May 2002 08:08:25 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:1976 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316598AbSE3MIZ> convert rfc822-to-8bit;
+	Thu, 30 May 2002 08:08:25 -0400
+Date: Thu, 30 May 2002 04:52:58 -0700 (PDT)
+Message-Id: <20020530.045258.126882990.davem@redhat.com>
+To: pwaechtler@loewe-komp.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.19-pre8 fs/nfs/nfsroot.c - in_ntoa
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3CF61542.6000500@loewe-komp.de>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 May 2002, Neil Brown wrote:
+   From: Peter Wächtler <pwaechtler@loewe-komp.de>
+   Date: Thu, 30 May 2002 14:04:18 +0200
 
-> On Thursday May 30, me@vger.org wrote:
-> > 
-> > # raidstop --all /dev/md3
-> > /dev/md3: Device or resource busy
-> 
-> This just means that /dev/md3 is busy.
-> Is it mounted?  Does any process have it open?
-> 
+   Somehow a call to in_ntoa went into the kernel.
+   With that you can't linke the kernel, when CONFIG_ROOT_NFS=y
+   is on.
+   
+   fs/fs.o: In function `root_nfs_getport':
+   fs/fs.o(.text.init+0x10e1): undefined reference to `in_ntoa'
+   make: *** [vmlinux] Fehler 1
 
-md3 is unmounted and not in use by anything.
+No, in fact in_ntoa always had existed, except that I finally
+killed it.  You're supposed to replace it with NIPQUAD not
+the endian-unfriendly %x.
 
-> There is a bug in one version of raidtools that causes raidstop to
-> incorrectly report this error, but I think that bug only affects
-> /dev/md0..
-> What does
->    strace raidstop /dev/md3
-> show?
-> 
-
-cant do that now =) because ive already "fixed" the problem (read my other
-mails).
-
-
-
+I've sent Marcelo fixes for this if someone else hasn't beaten
+me to it already.

@@ -1,51 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291152AbSBGPEh>; Thu, 7 Feb 2002 10:04:37 -0500
+	id <S291160AbSBGPGH>; Thu, 7 Feb 2002 10:06:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291155AbSBGPEW>; Thu, 7 Feb 2002 10:04:22 -0500
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:29152 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S291152AbSBGPEG>; Thu, 7 Feb 2002 10:04:06 -0500
-Importance: Normal
-Subject: Re: The IBM order relaxation patch
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, <zaitcev@redhat.com>,
-        <linux-kernel@vger.kernel.org>
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OFDEA688CD.7104528D-ONC1256B59.00522C09@de.ibm.com>
-From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
-Date: Thu, 7 Feb 2002 16:05:28 +0100
-X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.8 |June 18, 2001) at
- 07/02/2002 16:05:32
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S291161AbSBGPFv>; Thu, 7 Feb 2002 10:05:51 -0500
+Received: from florin.dsl.visi.com ([209.98.146.184]:33836 "HELO
+	beaver.iucha.org") by vger.kernel.org with SMTP id <S291160AbSBGPFc>;
+	Thu, 7 Feb 2002 10:05:32 -0500
+Date: Thu, 7 Feb 2002 09:05:25 -0600
+To: Matt_Domsch@dell.com
+Cc: linux-kernel@vger.kernel.org
+Subject: SIS900 driver unresolved dependency crc32_be in 2.5.3
+Message-ID: <20020207150525.GA4629@iucha.net>
+Mail-Followup-To: Matt_Domsch@dell.com, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-message-flag: Outlook: Where do you want [your files] to go today?
+From: florin@iucha.net (Florin Iucha)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Rik van Riel wrote:
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->On Thu, 7 Feb 2002, Daniel Phillips wrote:
->
->> Yes, that's one of leading reasons for wanting rmap.  (Number one and
->> two reasons are: allow forcible unmapping of multiply referenced pages
->> for swapout; get more reliable hardware ref bit readings.)
->
->It's still on my TODO list.  Patches are very much welcome
->though ;)
+I have a K7S5A with onboard LAN.=20
 
-On s390 we have per physical page hardware referenced / changed bits.
-In the rmap framework, it should also be possible to make more efficient
-use of these ...
+I am compiling the driver (SIS900) as module and I have crc32 lib built
+in the kernel. When I run "make modules_install" or "modprobe sis900"
+afterwards I get=20
 
+bear:~# modprobe sis900
+/lib/modules/2.5.3-xfs-k7/kernel/drivers/net/sis900.o: unresolved symbol
+crc32_be
+/lib/modules/2.5.3-xfs-k7/kernel/drivers/net/sis900.o: insmod
+/lib/modules/2.5.3-xfs-k7/kernel/drivers/net/sis900.o failed
+/lib/modules/2.5.3-xfs-k7/kernel/drivers/net/sis900.o: insmod sis900
+failed
 
-Mit freundlichen Gruessen / Best Regards
+Relevant portions of .config:
 
-Ulrich Weigand
+# CONFIG_8139TOO_TUNE_TWISTER is not set
+# CONFIG_8139TOO_8129 is not set
+CONFIG_SIS900=3Dm
+# CONFIG_EPIC100 is not set
+# CONFIG_SUNDANCE is not set
 
---
-  Dr. Ulrich Weigand
-  Linux for S/390 Design & Development
-  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
-  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
+#
+# Library routines
+#
+CONFIG_CRC32=3Dy
+CONFIG_ZLIB_INFLATE=3Dm
+# CONFIG_ZLIB_DEFLATE is not set  =20
 
+florin
+
+--=20
+
+"If it's not broken, let's fix it till it is."
+
+41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
+
+--Qxx1br4bt0+wmkIi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8Ype1NLPgdTuQ3+QRAjTvAJ45FQgr5rOtmPCAHt6KmWfP1Zv+7QCfS7eX
+9LCZqo5vSvsgMR+sUCN0MQA=
+=eE+/
+-----END PGP SIGNATURE-----
+
+--Qxx1br4bt0+wmkIi--

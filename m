@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265229AbSJPQ6r>; Wed, 16 Oct 2002 12:58:47 -0400
+	id <S265349AbSJPRKQ>; Wed, 16 Oct 2002 13:10:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265230AbSJPQ6r>; Wed, 16 Oct 2002 12:58:47 -0400
-Received: from r-kk.iij4u.or.jp ([210.130.0.73]:30687 "EHLO r-kk.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id <S265229AbSJPQ6p>;
-	Wed, 16 Oct 2002 12:58:45 -0400
-Date: Thu, 17 Oct 2002 02:02:15 +0900
-From: kaza@kk.iij4u.or.jp
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-Cc: neilb@cse.unsw.edu.au, davem@redhat.com, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net
-Subject: Re: [PATCH] zerocopy NFS for 2.5.36
-Message-ID: <20021016170213.GR19806%kaza@kk.iij4u.or.jp>
-References: <15786.23306.84580.323313@notabene.cse.unsw.edu.au> <20021014.210144.74732842.taka@valinux.co.jp> <15788.57476.858253.961941@notabene.cse.unsw.edu.au> <20021016.200900.128068491.taka@valinux.co.jp>
+	id <S265350AbSJPRKQ>; Wed, 16 Oct 2002 13:10:16 -0400
+Received: from viefep13-int.chello.at ([213.46.255.15]:5694 "EHLO
+	viefep13-int.chello.at") by vger.kernel.org with ESMTP
+	id <S265349AbSJPRKP>; Wed, 16 Oct 2002 13:10:15 -0400
+Subject: Re: usb CF reader and 2.4.19
+From: Joseph Wenninger <jowenn@kde.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20021016153431.GC23287@kroah.com>
+References: <1034760128.1306.4.camel@jowennmobile> 
+	<20021016153431.GC23287@kroah.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 16 Oct 2002 19:16:49 +0200
+Message-Id: <1034788610.4084.9.camel@jowennmobile>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021016.200900.128068491.taka@valinux.co.jp>
-User-Agent: Mutt/1.3.27i-ja.2
-X-Dispatcher: Nomail 0.4.9 (Caravanserai)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi
 
-On Wed, Oct 16, 2002 at 08:09:00PM +0900,
-Hirokazu Takahashi-san wrote:
-> > After thinking about this some more, I suspect it would have to be
-> > quite large scale SMP to get much contention.
+Am Mit, 2002-10-16 um 17.34 schrieb Greg KH:
+...
 > 
-> I have no idea how much contention will happen. I haven't checked the
-> performance of it on large scale SMP yet as I don't have such a great
-> machines.
+> sync(1) and then umount(8) doesn't flush everything to the device?
 > 
-> Does anyone help us?
 
-Why don't you propose the performance test to OSDL? (OSDL-J is more
-better, I think)   OSDL provide hardware resources and operation staffs.
+Exactly. If I remount the device it looks like everything is okay, but
+if I put it into my notebook instead the CF appears still empty. If I do
+the module unloading before I remove the CF from the reader it works. I
+don't think that it is the card reader, since it works perfectly with
+Windows XP or 2000.
 
-If you want, I can help you to propose it. :-)
+Just for reference I use a ML4-USB card reader/writer from Datafab. It
+is a device with 4 slots (each appearing as an own device) for
+CF,SM,SD,MS
 
--- 
-Ko Kazaana / editor-in-chief of "TechStyle" ( http://techstyle.jp/ )
-GnuPG Fingerprint = 1A50 B204 46BD EE22 2E8C  903F F2EB CEA7 4BCF 808F
+Kind regards
+Joseph Wenninger
+

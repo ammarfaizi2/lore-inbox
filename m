@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265589AbTALNEC>; Sun, 12 Jan 2003 08:04:02 -0500
+	id <S266081AbTALNPA>; Sun, 12 Jan 2003 08:15:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265633AbTALNEC>; Sun, 12 Jan 2003 08:04:02 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42184 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S265589AbTALNEA>; Sun, 12 Jan 2003 08:04:00 -0500
-Date: Sun, 12 Jan 2003 14:12:44 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jan Yenya Kasprzak <kas@fi.muni.cz>, linux-net@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.5.56: Two global symbols "io"
-Message-ID: <20030112131244.GW21826@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S266095AbTALNPA>; Sun, 12 Jan 2003 08:15:00 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:53145 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S266081AbTALNOx>; Sun, 12 Jan 2003 08:14:53 -0500
+Message-Id: <200301121323.h0CDNoSK003043@eeyore.valparaiso.cl>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: UnitedLinux violating GPL? 
+In-Reply-To: Message from David Woodhouse <dwmw2@infradead.org> 
+   of "Sat, 11 Jan 2003 19:27:59 GMT." <10213.1042313279@passion.cambridge.redhat.com> 
+Date: Sun, 12 Jan 2003 14:23:50 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following compile error in 2.5.56:
+David Woodhouse <dwmw2@infradead.org> said:
+> brand@jupiter.cs.uni-dortmund.de said:
 
-<--  snip  -->
+[...]
 
-...
-        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s 
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o 
---start-group  usr/built-in.o  arch/i386/kernel/built-in.o  
-arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o  
-kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  
-security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  
-drivers/built-in.o  sound/built-in.o  arch/i386/math-emu/built-in.o  
-arch/i386/pci/built-in.o  arch/i386/oprofile/built-in.o  net/built-in.o 
---end-group  -o .tmp_vmlinux1
-sound/built-in.o(.data+0x7b30): multiple definition of `io'
-drivers/built-in.o(.data+0x738a0):
-...
-ld: Warning: size of symbol `io' changed from 68 to 4 in sound/built-in.o
-...
-make: *** [.tmp_vmlinux1] Error 1
+> > Don't be silly. "Complete source code" means the source needed to
+> > rebuild the binary, nothing more. If that is a mangled version derived
+> > from some other  source, so be it. You are explicitly allowed to
+> > distribute changed versions, but only under GPL. [IANAL etc, so...]
 
-<--  snip  -->
+> I disagree. A preprocessed source file with all the variables renamed to 
+> random strings would suffice to rebuild the binary, and is obviously not 
+> acceptable -- being able to rebuild the binary is not the only criterion.
 
-The offending files are:
-  sound/oss/awe_wave.c
-  drivers/net/wan/cosa.c
+That isn't "source" in my book.
 
+> 	"The source code for a work means the preferred form of the work
+> 	for making modifications to it."
 
-cu
-Adrian
+Right. And you can take the kernel-source RPM, and update drivers &c just
+as you would on the original source + patchsets
 
--- 
+> Note that the GPL doesn't say you have to give it in the preferred form for 
+> _building_ it, but the preferred form for _modifying_ it. 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+> In the opinion of many devlopers, the preferred form of the Linux kernel for
+> maintaining it is a set of individual patches against the closest
+> 'official' release, and not a tarball containing already-modified code.
 
+That is exactly that: An opinion (or preference) of many (or so you do
+think). Not legally binding, AFAIKS...
+--
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

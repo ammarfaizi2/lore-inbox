@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129292AbRCSGvo>; Mon, 19 Mar 2001 01:51:44 -0500
+	id <S131378AbRCSHWB>; Mon, 19 Mar 2001 02:22:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129506AbRCSGve>; Mon, 19 Mar 2001 01:51:34 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:37906 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129292AbRCSGvZ>;
-	Mon, 19 Mar 2001 01:51:25 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200103190650.f2J6o1S240830@saturn.cs.uml.edu>
-Subject: Re: [PATCH] Improved version reporting
-To: rhw@MemAlpha.CX (Riley Williams)
-Date: Mon, 19 Mar 2001 01:50:01 -0500 (EST)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), Andries.Brouwer@cwi.nl,
-        viro@math.psu.edu, linux-kernel@vger.kernel.org (Linux Kernel),
-        seberino@spawar.navy.mil
-In-Reply-To: <Pine.LNX.4.30.0103171718530.22673-100000@infradead.org> from "Riley Williams" at Mar 17, 2001 05:51:28 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S131376AbRCSHVm>; Mon, 19 Mar 2001 02:21:42 -0500
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:1796 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131365AbRCSHVi>;
+	Mon, 19 Mar 2001 02:21:38 -0500
+Message-ID: <20010318233955.D13058@bug.ucw.cz>
+Date: Sun, 18 Mar 2001 23:39:55 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "J. Michael Kolbe" <wicked@convergence.de>, linux-kernel@vger.kernel.org
+Subject: Re: sysrq.txt
+In-Reply-To: <20010316161919.A30690@midget.convergence.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010316161919.A30690@midget.convergence.de>; from J. Michael Kolbe on Fri, Mar 16, 2001 at 04:19:19PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Riley Williams writes:
+Hi!
 
->> The rule should be like this:
->>
->>	List the lowest version number required to get
->>	2.2.xx-level features while running a 2.4.xx kernel.
->
-> That's a meaningless definition, and can only be taken as such. What
-> use would such a list be to somebody wishing (like I recently was) to
-> upgrade a system running the 2.0.12 kernel so it runs the 2.4.2
-> kernel instead?
-...
->> Basically I ask: would existing scripts for a 2.2.xx kernel
->> break? If the old mount can still do what it used to do, then
->> "mount" need not be listed at all.
->
-> Replace that "a 2.2.xx" with "my current" and remove all restrictions
-> on what the current kernel is, and that becomes an important question.
+> I've found that the Sysrq Keys on Apple Computers
+> are 'Keypad+-F13-<command key>', maybe it would
+> be a good idea to include that in Documentation/sysrq.txt.
+> 
+> The Patch:
 
-No, not "my current" but "the previous stable". I say "2.2.xx" because
-that is the previous stable kernel.
+This patch is reversed, but otherwise looks okay. Generate
+non-reversed one and mail it to linus, possibly saying I agree.
+								Pavel
 
-If you upgrade from 2.0.xx, you should read the 2.2.xx changes file.
+> +++ sysrq.txt   Tue Dec 12 20:46:38 2000
+> @@ -29,8 +29,6 @@
+>             You send a BREAK, then within 5 seconds a command key. Sending
+>             BREAK twice is interpreted as a normal BREAK.
+>  
+> -On Mac   - Press 'Keypad+-F13-<command key>'
+> -
+>  On other - If you know of the key combos for other architectures, please
+>             let me know so I can add them to this section.
+> 
+> 
+> regards,
+> jmk
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-The important thing is to avoid version number inflation. I don't
-even bother reading the changes file, because I know it is bogus.
-Nearly all of my old software works great with a 2.4.xx kernel.
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

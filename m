@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281391AbRKZCHH>; Sun, 25 Nov 2001 21:07:07 -0500
+	id <S281403AbRKZCJ6>; Sun, 25 Nov 2001 21:09:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281393AbRKZCG5>; Sun, 25 Nov 2001 21:06:57 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:46089 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S281391AbRKZCGu>;
-	Sun, 25 Nov 2001 21:06:50 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.15-final drivers/net/bonding.c includes user space headers 
-In-Reply-To: Your message of "25 Nov 2001 13:49:33 -0800."
-             <9trp1d$ppg$1@cesium.transmeta.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 26 Nov 2001 13:06:37 +1100
-Message-ID: <1432.1006740397@ocs3.intra.ocs.com.au>
+	id <S281395AbRKZCJr>; Sun, 25 Nov 2001 21:09:47 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63505 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281403AbRKZCJb>; Sun, 25 Nov 2001 21:09:31 -0500
+Message-ID: <3C01A441.6070702@zytor.com>
+Date: Sun, 25 Nov 2001 18:09:05 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: Keith Owens <kaos@ocs.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.15-final drivers/net/bonding.c includes user space headers
+In-Reply-To: <1432.1006740397@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 Nov 2001 13:49:33 -0800, 
-"H. Peter Anvin" <hpa@zytor.com> wrote:
->By author:    Keith Owens <kaos@ocs.com.au>
->>
->> 2.4.15-final/drivers/net/bonding.c:188: #include <limits.h>
->> 
->> Kernel code must not include use space headers.  I thought this had
->> been fixed.  It will not compile in 2.5.
->
-><limits.h> is one of the compiler-provided headers, i.e. from
->/usr/lib/gcc-lib/*/*/include -- if your kbuild harness don't
->allow those headers to be included, it's broken.
+Keith Owens wrote:
 
-kbuild 2.5 does
-  '-nostdinc -I/usr/lib/gcc-lib/... gcc version ../include/'
-so it allows includes from the compiler headers.  The problem is:
+> 
+> kbuild 2.5 does
+>   '-nostdinc -I/usr/lib/gcc-lib/... gcc version ../include/'
+> so it allows includes from the compiler headers.  The problem is:
+> 
+>   bonding.c includes limits.h, picked up from gcc, OK.
+>   limits.h includes syslimits.h from gcc, OK.
+>   syslimits.h tries to include_next <limits.h> to get the user space
+>   limits, not OK.
+> 
+> Any kernel code that includes limits.h or syslimits.h is polluted by
+> user space headers.  net/bonding.c does not even need limits.h.
+> 
 
-  bonding.c includes limits.h, picked up from gcc, OK.
-  limits.h includes syslimits.h from gcc, OK.
-  syslimits.h tries to include_next <limits.h> to get the user space
-  limits, not OK.
+How UTTERLY braindamaged... I guess we could provide a (dummy?) 
+<limits.h> for the kernel environment.  I would definitely like to see 
+the standard compiler-related headers like <stdint.h> as well...
 
-Any kernel code that includes limits.h or syslimits.h is polluted by
-user space headers.  net/bonding.c does not even need limits.h.
+	-hpa
 

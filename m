@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264885AbSKNPaY>; Thu, 14 Nov 2002 10:30:24 -0500
+	id <S264920AbSKNPcH>; Thu, 14 Nov 2002 10:32:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264892AbSKNPaY>; Thu, 14 Nov 2002 10:30:24 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:147 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S264885AbSKNPaX>; Thu, 14 Nov 2002 10:30:23 -0500
-Date: Thu, 14 Nov 2002 09:35:53 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Nicolas Pitre <nico@cam.org>
-cc: Andreas Steinmetz <ast@domdv.de>, Sam Ravnborg <sam@ravnborg.org>,
-       Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: make distclean and make dep??
-In-Reply-To: <Pine.LNX.4.44.0211131628010.16858-100000@xanadu.home>
-Message-ID: <Pine.LNX.4.44.0211140933150.5313-100000@chaos.physics.uiowa.edu>
+	id <S264925AbSKNPcH>; Thu, 14 Nov 2002 10:32:07 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:48132 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP
+	id <S264920AbSKNPcG>; Thu, 14 Nov 2002 10:32:06 -0500
+Message-ID: <005401c28bf3$da8183f0$760010ac@edumazet>
+From: "dada1" <dada1@cosmosbay.com>
+To: "Benjamin LaHaise" <bcrl@redhat.com>
+Cc: "Christoph Hellwig" <hch@infradead.org>,
+       "Rik van Riel" <riel@conectiva.com.br>,
+       "Andrew Morton" <akpm@digeo.com>, <linux-mm@kvack.org>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L.0211132239370.3817-100000@imladris.surriel.com> <08a601c28bbb$2f6182a0$760010ac@edumazet> <20021114141310.A25747@infradead.org> <002b01c28bf0$751a3960$760010ac@edumazet> <20021114103147.A17468@redhat.com>
+Subject: Re: [patch] remove hugetlb syscalls
+Date: Thu, 14 Nov 2002 16:38:15 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Nov 2002, Nicolas Pitre wrote:
+Please look again into my mail :)
 
-> On Wed, 13 Nov 2002, Andreas Steinmetz wrote:
-> 
-> > Sam Ravnborg wrote:
-> > > On Wed, Nov 13, 2002 at 02:32:27PM -0500, Bill Davidsen wrote:
-> > >>Also noted, somewhere between 2.5.45 and 2.5.46 distclean vanished from 
-> > >>"make help." It's really useful to have distclean work to build patched 
-> > >>kernels for distribution, hopefully this is an oversight and not a new 
-> > >>policy.
-> > > 
-> > > Since they are equal I removed the help for the less used version.
-> > 
-> > Not so nice. /me e.g. is used to distclean, never used mrproper and 
-> > distclean is a standard target in most projects, so people are probably 
-> > more used to distclean than mrproper which is kernel specific.
+ ptr = mmap(0, nbp*BIGSZ, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0) ;
+        if (ptr == (char *)-1)
+                ptr = mmap(0, nbp*BIGSZ, PROT_READ|PROT_WRITE, MAP_PRIVATE,
+fd, 0);
 
-I think there's good reasons for both distclean and mrproper, distclean is
-the standard target which most projects use, and mrproper is the
-traditional Linux kernel target. So I would vote for keeping them both
-(and share a common help entry).
+mmap2(NULL, 4194304, PROT_READ|PROT_WRITE, MAP_SHARED, 3, 0) = -1 EINVAL
 
-What I don't see is why we would need different semantics, though, 
-anybody?
+mmap2(NULL, 4194304, PROT_READ|PROT_WRITE, MAP_PRIVATE, 3, 0) = -1 EINVAL
 
---Kai
+I tried the two versions. MAP_SHARED and MAP_PRIVATE
 
+
+
+From: "Benjamin LaHaise" <bcrl@redhat.com>
+> On Thu, Nov 14, 2002 at 04:13:56PM +0100, dada1 wrote:
+> > Thanks Christoph
+> >
+> > If I asked, this is because I tried the obvious and it doesnt work.
+>
+> It's a file.  You need to use MAP_SHARED.
+>
+> -ben
+>
 

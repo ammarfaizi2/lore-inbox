@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265950AbUGEFCi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265955AbUGEFKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265950AbUGEFCi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 01:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265955AbUGEFCi
+	id S265955AbUGEFKf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 01:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265956AbUGEFKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 01:02:38 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:6409 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S265950AbUGEFCg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 01:02:36 -0400
-To: Ali Akcaagac <aliakc@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] FAT broken in 2.6.7-bk15
-References: <1088979061.1277.6.camel@localhost>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 05 Jul 2004 14:02:32 +0900
-In-Reply-To: <1088979061.1277.6.camel@localhost>
-Message-ID: <87smc7yrkn.fsf@ibmpc.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
-MIME-Version: 1.0
+	Mon, 5 Jul 2004 01:10:35 -0400
+Received: from nevyn.them.org ([66.93.172.17]:12699 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S265955AbUGEFKc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 01:10:32 -0400
+Date: Mon, 5 Jul 2004 01:10:10 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Joel Soete <soete.joel@tiscali.be>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       marcelo.tosatti@cyclades.com
+Subject: Re: Some cleanup patches for: '...lvalues is deprecated'
+Message-ID: <20040705051010.GA24583@nevyn.them.org>
+Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>,
+	Joel Soete <soete.joel@tiscali.be>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	marcelo.tosatti@cyclades.com
+References: <40E6AC41.4050804@tiscali.be> <20040703205621.GA1640@ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040703205621.GA1640@ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ali Akcaagac <aliakc@web.de> writes:
+On Sat, Jul 03, 2004 at 10:56:21PM +0200, Vojtech Pavlik wrote:
+> On Sat, Jul 03, 2004 at 12:53:21PM +0000, Joel Soete wrote:
+> > Hi Marcelo,
+> > 
+> > Please appolgies first for wrong presentation of previous post (that was 
+> > the first and certainly the last time that I used the 'forwarding' option 
+> > of this webmail interface :( ).
+> > 
+> > Here are some backport to clean up some warning of type: use of cast 
+> > experssion
+> > as lvalues is deprecated.
+> > --- linux-2.4.27-rc2-pa4mm/kernel/sysctl.c.Orig	2004-06-29 
+> > 09:03:42.000000000 +0200
+> > +++ linux-2.4.27-rc2-pa4mm/kernel/sysctl.c	2004-06-29 
+> > 10:10:31.588030256 +0200
+> > @@ -890,7 +890,7 @@
+> >  				if (!isspace(c))
+> >  					break;
+> >  				left--;
+> > -				((char *) buffer)++;
+> > +				buffer += sizeof(char);
+> 
+> This (although correct in the end) is a wrong thing to do.
+> 
+> It seems to look like the intention is to move the pointer by a char's
+> size, however your change is equivalent to:
+> 
+> 	buffer += 1;
+> 
+> And if buffer wasn't void*, which it fortunately is, it would, unlike
+> the older construction, move the pointer by a different size.
+> 
+> So just use
+> 
+> 	buffer++;
+> 
+> here, and the intent is then clear.
 
-> The only thing NLS changes in a filesystem is special charakters for
-> filenames but it doesn't change the technical structure of the FS
-> itself so in worst case I only get some strange characters shown in
-> filenames.
+Except C does not actually allow incrementing a void pointer, since
+void does not have a size.  You can't do arithmetic on one either.  GNU
+C allows this as an extension.
 
-No, it's very unuseful. Probably it can't lookup, and it has possible
-of filesystem corruption if you write.
+It's actually this, IIRC:
+  buffer = ((char *) buffer) + 1;
 
-If you want to do it, just read/write the partition directly.
-
-
-> CONFIG_FAT_DEFAULT_CODEPAGE=437
-> CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-
-You configured these, so fatfs will try to use it.
-
-> # CONFIG_NLS_CODEPAGE_437 is not set
-> CONFIG_NLS_CODEPAGE_850=m
-> # CONFIG_NLS_ISO8859_1 is not set
-> CONFIG_NLS_ISO8859_15=m
-
-But you didn't install these. So fatfs couldn't do what you specified,
-then fatfs logged it and returns error.
-
-Looks like you want to the following config.
-
-CONFIG_FAT_DEFAULT_CODEPAGE=850
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-15"
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Daniel Jacobowitz

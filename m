@@ -1,51 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130187AbRCHWtK>; Thu, 8 Mar 2001 17:49:10 -0500
+	id <S130176AbRCHWru>; Thu, 8 Mar 2001 17:47:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130196AbRCHWtE>; Thu, 8 Mar 2001 17:49:04 -0500
-Received: from shell.ca.us.webchat.org ([216.152.64.152]:28924 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S130187AbRCHWsE>; Thu, 8 Mar 2001 17:48:04 -0500
-Message-ID: <024001c0a822$5f4844a0$7c4cf9d1@geeksparadise.com>
-Reply-To: "David Schwartz" <davids@webmaster.com>
-From: "David Schwartz" <davids@webmaster.com>
-To: <rjd@xyzzy.clara.co.uk>, "Stuart MacDonald" <stuartm@connecttech.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200103081738.f28HcDC03173@xyzzy.clara.co.uk>
-Subject: Re: [OT] Re: Microsoft begining to open source Windows 2000?
-Date: Thu, 8 Mar 2001 14:46:41 -0800
-Organization: WebMaster, Incorporated
+	id <S130187AbRCHWrl>; Thu, 8 Mar 2001 17:47:41 -0500
+Received: from mailg.telia.com ([194.22.194.26]:14609 "EHLO mailg.telia.com")
+	by vger.kernel.org with ESMTP id <S130176AbRCHWra>;
+	Thu, 8 Mar 2001 17:47:30 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Roger Larsson <roger.larsson@norran.net>
+To: "Paul Larson" <plars@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel stress testing coverage
+Date: Thu, 8 Mar 2001 23:37:55 +0100
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <OF50B88864.0721DA46-ON85256A09.006EE3FD@raleigh.ibm.com>
+In-Reply-To: <OF50B88864.0721DA46-ON85256A09.006EE3FD@raleigh.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Message-Id: <01030823375501.03048@dox>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> > It seems to me this might be an opportunity...
+Here is a link to some memory usage related test programs:
+
+  http://carpanta.dc.fi.udc.es/~quintela/memtest/
+
+They have proven their value many times...
+
+
+/RogerL
+
+On Thursday 08 March 2001 21:57, Paul Larson wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> on 03/08/2001 02:06:06 PM
 >
-> Or a trap. I'm not about to go anywhere near this and won't even look at
-> the licience but I bet the M$ argument will go something like:
+> To:   Paul Larson/Austin/IBM@ibmus
+> cc:
+> Subject:  Re: Kernel stress testing coverage
 >
->    You've looked at the code.
->    You now know things that are propriatary to M$.
->    You are not allowed to apply it to anything outside M$.
->    Stop working on those free sources the forbidden knowledge might leak.
->    You have me assimilated.
+> >One thing I've been using for coverage (at least some coverage) is the
+>
+> posix
+>
+> >test suite
+>
+> --------------------------
+>
+> Are you talking about the same posix test suite that LSB is using?  I've
+> looked into that a little, but here are the two problems I'm wanting to
+> address:
+>
+> 1. How much of the kernel is getting hit on a run of any given test?  Even
+> an approximate percentage is fine as long as I can prove it.
+>
+> 2. I could run many many copies simultaneously I suppose and get some
+> stress, but I'd prefer to stress individual pieces one at a time.  Those
+> pieces could then be mixed together in later runs for mixed load stress.
+> Additional mixed load tests will be performed with general applications
+> (web servers, databases, etc) for more of a "real world" environment, but I
+> want to have focused tests as well.
+>
+> I'm betting that there are probably a LOT of quick and dirty test programs
+> that kernel hackers have written to expose a problem or thoroughly test a
+> piece of the kernel that they modified.  These type of things would be
+> FYI this project will be going on sourceforge very soon.  I want to have a
+> little more to start out with though and finish putting together a good
+> project description, testplans, etc. to post as soon as we put it on there.
+> I hate it when people start projects and you don't see any good information
+> about it for weeks.
+>
+> Thanks,
+> Paul Larson
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-    If you're really worried, have the person with access to the MS code
-write a patch, and then have someone without access to the MS code
-reimplement the patch. Make sure that all that is taken from the orignially
-written patch are ideas and algorithms, not actual code.
-
-    Of course, you would still have to carefully read the actual license
-before deciding on the correct isolation scheme.
-
-    DS
-
-
+-- 
+Home page:
+  none currently

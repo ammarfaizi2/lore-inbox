@@ -1,74 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267037AbUBEWuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 17:50:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267036AbUBEWuX
+	id S267046AbUBEW5d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 17:57:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267050AbUBEW5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 17:50:23 -0500
-Received: from perkunas4.omnitel.net ([194.176.32.101]:4279 "EHLO
-	perkunas4.omnitel.net") by vger.kernel.org with ESMTP
-	id S267037AbUBEWtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 17:49:15 -0500
-Message-ID: <4022C869.10805@e-net.lt>
-Date: Fri, 06 Feb 2004 00:49:13 +0200
-From: Simonas Leleiva <Simonas.Leleiva@e-net.lt>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Thu, 5 Feb 2004 17:57:33 -0500
+Received: from hermes.py.intel.com ([146.152.216.3]:38535 "EHLO
+	hermes.py.intel.com") by vger.kernel.org with ESMTP id S267046AbUBEW51 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 17:57:27 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: benchmarking bandwidth Northbridge<->RAM
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Date: Thu, 5 Feb 2004 14:55:54 -0800
+Message-ID: <F595A0622682C44DBBE0BBA91E56A5ED1C3685@orsmsx410.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Thread-Index: AcPsOfj7zxKqp2KjRaWjy6FHVxAM6wAACvow
+From: "Woodruff, Robert J" <woody@co.intel.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>,
+       "Christoph Hellwig" <hch@infradead.org>
+Cc: "Hefty, Sean" <sean.hefty@intel.com>, <ftillier@infiniconsys.com>,
+       <cfriesen@nortelnetworks.com>, <greg@kroah.com>,
+       <linux-kernel@vger.kernel.org>, <hozer@hozed.org>, <woody@jf.intel.com>,
+       "Magro, Bill" <bill.magro@intel.com>, <woody@jf.intel.com>,
+       <infiniband-general@lists.sourceforge.net>
+X-OriginalArrivalTime: 05 Feb 2004 22:55:57.0027 (UTC) FILETIME=[3739DB30:01C3EC3B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I think what started the discussion was that
+if anyone wanted to look at the code and start to comment 
+before we have a 2.6 patch ready they can download it from bitkeeper at
 
-Hello all,
+http://infiniband.bkbits.net/iba
 
-I'm writing a benchmarking program under Linux.
+or if you want, I could post a tar ball of the latest BK change set on
+sourceforge,
+or you can wait till we make all the changes to the makefiles, etc, to
+allow it to 
+easily integrate into the 2.6 build environment.
 
-Here's what I do (and what I sadly find inefficient):
+Any preference ?
 
-1. I use the PCI_MEMORY_BAR0 address from the PCI device 00:00.0 (as
-given in 'lspci' it's the Host (or North) bridge) and then I mmap the
-opened /dev/mem with this address into user space, as it would be done
-with any PCI device, which memory I want to access.
+-----Original Message-----
+From: Randy.Dunlap [mailto:rddunlap@osdl.org] 
+Sent: Thursday, February 05, 2004 2:40 PM
+To: Christoph Hellwig
+Cc: Hefty, Sean; ftillier@infiniconsys.com; cfriesen@nortelnetworks.com;
+greg@kroah.com; linux-kernel@vger.kernel.org; hozer@hozed.org;
+woody@jf.intel.com; Magro, Bill; woody@jf.intel.com;
+infiniband-general@lists.sourceforge.net
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
+theLinux kernel
 
-2. I manipulate on the returned pointer and the malloc'ed pointer (to
-represent RAM) with memset command, keeping in mind that: A time for
-data to flow between NB and RAM is equal to the time a RAM<->RAM
-operation is completed minus the one with NB<->RAM (as I asume the
-data goes RAM->NB->CPU->NB->RAM and NB->CPU->NB->RAM).
 
-Now my doubts on each step mentioned above are:
+On Thu, 5 Feb 2004 22:40:43 +0000 Christoph Hellwig <hch@infradead.org>
+wrote:
 
-1. Is such approach corrent? I doubt, because I've come across with
-such Host bridges, which do NOT have an addresable memory region (on
-my AMD Athlon NB starts @ 0xd0000000 and is of 128MB length; elsewhere
-I've found it starting @ 0xe8000000-32MB, but recently my programme
-crashed because the were NO addressable PCI region to the Host
-bridge).
-   After all, is this the way to directly accessing NB?
+| On Thu, Feb 05, 2004 at 02:26:46PM -0800, Hefty, Sean wrote:
+| > Personally, I'm amazed that professional developers have to discuss 
+| > or defend modular, portable code.
+| > 
+| > Once the code has been submitted, then specific implementation 
+| > problems can be dealt with.
+| 
+| *plonk*
 
-2. But what about L1/L2 caching ruining the benchmark, about which I judge
-from very big results (~5GB/s is truly not the correct benchmark with my
-2x166MHz RAM and 64bit bus - in the best case it should not overflow
-2.5GB/s)? I've searched the web for cache disablings, but what I've only
-found was the memtest's source-code, which works only under plain non-Linux
-(non PM) environment (memtest makes a bootable floppy and then launches 'bare
-naked'). So I find memtest's inline assembly useless under linux..
-   The present workaround is to launch my benchmark with different set of
-mem-chunks, and observing a speed-decrease at the specific size (when the
-chunk doesn't fit in cache. In my case - decrease from 5GB/s to 2.9GB/s -
-still too big..) and then treat that sized-chunks to be the actual benchmark
-results.. However, part of the chunk may lay in cache anyway..
 
-Where am I thinking wrong? Hope to get a tip from you out-there :)
-
-Hear ya (hopefully soon) !
+Christoph, he didn't say merged.  Let them submit it for review... and
+then comment on it.
 
 --
-Simon
-
-
-
+~Randy
+kernel-janitors project:  http://janitor.kernelnewbies.org/

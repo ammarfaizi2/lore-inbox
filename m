@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132551AbRDAUie>; Sun, 1 Apr 2001 16:38:34 -0400
+	id <S132559AbRDAUjO>; Sun, 1 Apr 2001 16:39:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132559AbRDAUiY>; Sun, 1 Apr 2001 16:38:24 -0400
-Received: from pc57-cam4.cable.ntl.com ([62.253.135.57]:44674 "EHLO
-	kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
-	id <S132551AbRDAUiM>; Sun, 1 Apr 2001 16:38:12 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999 (debian)
-To: LA Walsh <law@sgi.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: unistd.h and 'extern's and 'syscall' "standard(?)" 
-In-Reply-To: Message from LA Walsh <law@sgi.com> 
-   of "Sun, 01 Apr 2001 13:23:00 PDT." <3AC78E24.98DEA986@sgi.com> 
-In-Reply-To: <3AC75DBF.31594195@sgi.com> <jelmpktors.fsf@hawking.suse.de>  <3AC78E24.98DEA986@sgi.com> 
-Mime-Version: 1.0
+	id <S132560AbRDAUjE>; Sun, 1 Apr 2001 16:39:04 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:59664 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S132559AbRDAUjC>;
+	Sun, 1 Apr 2001 16:39:02 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200104012038.f31Kc2L43476@saturn.cs.uml.edu>
+Subject: Re: bug database braindump from the kernel summit
+To: greg@linuxpower.cx (Gregory Maxwell)
+Date: Sun, 1 Apr 2001 16:38:01 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), lm@bitmover.com (Larry McVoy),
+   linux-kernel@vger.kernel.org
+In-Reply-To: <20010401162101.E17271@xi.linuxpower.cx> from "Gregory Maxwell" at Apr 01, 2001 04:21:01 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 01 Apr 2001 21:38:24 +0100
-From: Philip Blundell <philb@gnu.org>
-Message-Id: <E14jocC-0008Jg-00@kings-cross.london.uk.eu.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->of action to take.  Seeing as you work for suse, would you know
->where this 'syscall(3)' interface should be documented?  Is it
->supposed to be present in all distro's?  
+Gregory Maxwell writes:
+> On Sun, Apr 01, 2001 at 03:43:52PM -0400, Albert D. Cahalan wrote:
 
-It's documented in the glibc manual.  Yes, it should be present in all glibc 
-based distributions.
+>> I'm really sick of being buried in useless information. The signal
+>> gets lost in the noise. It is easy to discard automatically generated
+>> bug reports, and way too annoying to wade through the crud.
+>>
+>> When network connections hang, the console-tools package version
+>> isn't likely to be of any use. When ramfs leaks memory, nobody needs
+>> the content of /proc/pci.
+>>
+>> Sometimes the bit of crud are HUGE. Imagine the hardware info
+>> for a 64-way SGI or Sun box with plenty of devices attached.
+>
+> Disk space is 'free'.
 
-p.
-
+Disk space isn't the issue. Just a few days ago I tried to help
+somebody who posted one of the bloated fill-in-the-form bug reports.
+I gave him a useless answer, because I didn't see amid all the junk
+that he had no problems with a 2.2.xx kernel. The good information
+had been buried in fluff.
 

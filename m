@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262473AbUCRJq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 04:46:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbUCRJq4
+	id S262498AbUCRJvt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 04:51:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbUCRJvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 04:46:56 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:55199 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262473AbUCRJol (ORCPT
+	Thu, 18 Mar 2004 04:51:47 -0500
+Received: from fw.osdl.org ([65.172.181.6]:51620 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262484AbUCRJuG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 04:44:41 -0500
-From: Mikael Pettersson <mikpe@user.it.uu.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 18 Mar 2004 04:50:06 -0500
+Date: Thu, 18 Mar 2004 01:50:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: mjy@geizhals.at, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PREEMPT and server workloads
+Message-Id: <20040318015004.227fddfb.akpm@osdl.org>
+In-Reply-To: <20040318060358.GC29530@dualathlon.random>
+References: <40591EC1.1060204@geizhals.at>
+	<20040318060358.GC29530@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16473.28514.341276.209224@alkaid.it.uu.se>
-Date: Thu, 18 Mar 2004 10:44:02 +0100
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: tulip (pnic) errors in 2.6.5-rc1
-CC: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.5-rc1 causes my Netgear FA310TX to
-fill the kernel log with messages like:
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> On Thu, Mar 18, 2004 at 05:00:01AM +0100, Marinos J. Yannikos wrote:
+> > Hi,
+> > 
+> > we upgraded a few production boxes from 2.4.x to 2.6.4 recently and the 
+> > default .config setting was CONFIG_PREEMPT=y. To get straight to the 
+> > point: according to our measurements, this results in severe performance 
+> > degradation with our typical and some artificial workload. By "severe" I 
+> > mean this:
+> 
+> this is expected (see the below email, I predicted it on Mar 2000),
 
-eth1: In tulip_rx(), entry 57 004c0728.
-eth1: interrupt  csr5=0x02670050 new csr5=0x02660010.
-eth1: exiting interrupt, csr5=0x2660010.
- In tulip_rx(), entry 58 004c0728.
-eth1: In tulip_rx(), entry 58 004c0728.
-eth1: interrupt  csr5=0x02670050 new csr5=0x02660010.
-eth1: exiting interrupt, csr5=0x2660010.
- In tulip_rx(), entry 59 006a0300.
-eth1: In tulip_rx(), entry 59 006a0300.
-eth1: interrupt  csr5=0x02670050 new csr5=0x02660010.
-eth1: exiting interrupt, csr5=0x2660010.
-eth1: interrupt  csr5=0x02670014 new csr5=0x02660010.
-eth1: exiting interrupt, csr5=0x2660010.
+Incorrectly.
 
-and on and on and on ...
+> keep preempt turned off always, it's useless.
 
-No previous kernel had this problem.
+Preempt is overrated.  The infrastructure which it has introduced has been
+useful for detecting locking bugs.
 
-2.6.4 identifies the nic as:
+It has been demonstrated that preempt improves the average latency.  But
+not worst-case, because those paths tend to be under spinlock.
 
-PCI: Found IRQ 10 for device 0000:00:0b.0
-tulip1:  MII transceiver #1 config 3000 status 7829 advertising 01e1.
-eth1: Lite-On 82c168 PNIC rev 32 at 0xa000, XX:XX:XX:XX:XX:XX, IRQ 10.
-eth1: Setting full-duplex based on MII#1 link partner capability of 41e1.
+> Worst of all we're now taking spinlocks earlier than needed,
 
-/Mikael
+Where?  CPU scheduler?
+
+> and the preempt_count stuff isn't optmized away by PREEMPT=n,
+
+It should be.  If you see somewhere where it isn't, please tell us.
+
+We unconditionally bump the preempt_count in kmap_atomic() so that we can
+use atomic kmaps in read() and write().  This is why four concurrent
+write(fd, 1, buf) processes on 4-way is 8x faster than on 2.4 kernels.
+
+> preempt just wastes cpu with tons of branches in fast paths that should
+> take one cycle instead.
+
+I don't recall anyone demonstrating even a 1% impact from preemption.  If
+preemption was really causing slowdowns of this magnitude it would of
+course have been noticed.  Something strange has happened here and more
+investigation is needed.
+
+> ...
+> I still think after 4 years that such idea is more appealing then
+> preempt, and numbers start to prove me right.
+
+The overhead of CONFIG_PREEMPT is quite modest.  Measuring that is simple.

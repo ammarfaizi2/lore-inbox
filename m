@@ -1,73 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262148AbTCHTYd>; Sat, 8 Mar 2003 14:24:33 -0500
+	id <S261631AbTCHTXg>; Sat, 8 Mar 2003 14:23:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262154AbTCHTYd>; Sat, 8 Mar 2003 14:24:33 -0500
-Received: from as12-5-6.spa.s.bonet.se ([217.215.177.162]:31986 "EHLO
-	www.tnonline.net") by vger.kernel.org with ESMTP id <S262148AbTCHTYb>;
-	Sat, 8 Mar 2003 14:24:31 -0500
-Date: Sat, 8 Mar 2003 20:35:08 +0100
-From: Anders Widman <andewid@tnonline.net>
-X-Mailer: The Bat! (v1.63 Beta/6)
-Reply-To: Anders Widman <andewid@tnonline.net>
-Organization: TNOnline.net
-X-Priority: 3 (Normal)
-Message-ID: <1894258031.20030308203508@tnonline.net>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x IDE: Statis=0x58 - Drive not ready for command
-In-Reply-To: <20030308183936.GA3282@vana.vc.cvut.cz>
-References: <18084636656.20030308175447@tnonline.net>
- <20030308183936.GA3282@vana.vc.cvut.cz>
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
+	id <S262148AbTCHTXg>; Sat, 8 Mar 2003 14:23:36 -0500
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:52388 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S261631AbTCHTXe>; Sat, 8 Mar 2003 14:23:34 -0500
+Subject: Re: [patch] oprofile for ppc
+From: Albert Cahalan <albert@users.sf.net>
+To: benh@kernel.crashing.org
+Cc: paulus@samba.org, albert@users.sourceforge.net,
+       oprofile-list@lists.sourceforge.net, linuxppc-dev@lists.linuxppc.org,
+       segher@koffie.nl, o.oppitz@web.de, afleming@motorola.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1047136206.12202.85.camel@zion.wanadoo.fr>
+References: <200303070929.h279TGTu031828@saturn.cs.uml.edu>
+	<1047032003.12206.5.camel@zion.wanadoo.fr>  <1047061862.1900.67.camel@cube>
+	 <1047136206.12202.85.camel@zion.wanadoo.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 08 Mar 2003 14:30:29 -0500
+Message-Id: <1047151830.2012.149.camel@cube>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sat, Mar 08, 2003 at 05:54:47PM +0100, Anders Widman wrote:
->> 
->> I get lots of errors like these:
->> 
->> kernel: PDC202XX: Secondary channel reset.
->> kernel: hdh: drive not ready for command
->> kernel: ide3: reset: success
->> kernel: hdf: status error: status=0x58 { DriveReady SeekComplete DataRequest }
->> kernel: hdf: drive not ready for command
->> kernel: hdh: status error: status=0x58 { DriveReady SeekComplete DataRequest }
->> kernel: hdh: drive not ready for command
->> kernel: hdh: status timeout: status=0xd0 { Busy }
->> kernel: PDC202XX: Secondary channel reset.
->> kernel: hdh: drive not ready for command
->> kernel: ide3: reset: success
->> 
->> * Running virtually every kernel since 2.4.17-2.4-21-x.
->> * All harddrives UDMA100.
->> * Tried with DMA and unmask IRQ off.
->> * Tried with and without ACPI, APIC and APM.
->> * Happens to all harddrives.
->> * Cabling,  power,  hardware  and drives thorowly checked and replaced
->>   for testing.
->> * Tested with one VIA KT266a motherboard and two Intel 440BX
->> * SMART values good.
->> * To all my testing I have not found any problems with the hardware.
->> * When to many of these IDE error occur the system freezes.
->> * Errors occur with the internal controller as well as the two Promise
->>   PDC20268 (U100 Tx2) controllers.
->> 
->> What  should  I do to fix this? I do not want to run Windows as I need
->> LVM to manage the diskspace. Windows does however run very stable.
->> 
->> Any tips or ideas are welcome!
+On Sat, 2003-03-08 at 10:10, Benjamin Herrenschmidt wrote:
+> On Fri, 2003-03-07 at 19:31, Albert Cahalan wrote:
 
-> On errors you posted there are hdf & hdh. Do not you use slave-only
-> configurations? You must not use slave-only with Promise. Never.
->                                                         Petr
+>> This is just the first part of the code. Please merge it
+>> into any tree you have, unless it's obviously broken.
+>> It is useful for long-running processes that don't do
+>> much that is tied to the clock tick. (number crunching,
+>> maybe X, web browsers without animations, /tmp cleaner...)
+>>
+>> The i386 port is already using 1000 Hz in the kernel,
+>> and has 100 Hz as a non-default option. I'd really like
+>> to have this on my Mac; lots of things would improve.
+>>
+>> I intend to allow sampling based on the performance counter
+>> interrupt/trap/exception and the external interrupt signal.
+>
+> Ok. I'll ask paulus about merging this.
+>
+> Beware though that some G4s have a nasty bug that prevents
+> using the performance counter interrupt (and the thermal interrupt
+> as well). The problem is that if any of those fall at the same
+> time as the DEC interrupt, the CPU messes up it's internal
+> state and you lose SRR0/SRR1, which means you can't recover
+> from the exception.
 
-Nope. I use 4 drives on both cards.
+Ouch. Motorola's description looks really suspicious.
+The other interrupts "not affected by this errata"
+might not suffer the 2-cycle MSR(EE) reset delay,
+but they sure would interact with the broken ones.
 
+MPC7400PNS.pdf doesn't list the bug; is a MPC7400 OK?
+If not, perhaps you can send me some better info.
 
+The decrementer isn't needed on systems with the
+performance monitor. Simply require that one of the
+PMCx registers count something like clock ticks, and
+require that performance monitor interrupts be enabled.
+Problem solved, eh?
 
---------
-PGP public key: https://tnonline.net/secure/pgp_key.txt
+> Note also that it should be relatively easy to have the
+> DEC timer run faster than HZ. The code in timer.c can
+> deal with spurrious DEC interrupts, so you may improve
+> your results by just making it fire at 1Khz or higher.
+
+How about this:
+
+Bound the alarm clock (decrementer or an alternative)
+setting such that it always fires between 10000 bus
+cycles (safe number?) and 1/4000 second into the future.
+Update jiffies purely based on the timebase register.
+HZ is 1000. This ought to help with high-res timers.
+
+If that special page at the top of user-space got
+implemented (did it?), supply timebase frequency and
+offset info there for non-SMP systems. (and for SMP
+too if somebody cares to count the 60x/MPX bus cycles
+involved in synchronizing timebase registers)
+
 

@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274347AbRITGly>; Thu, 20 Sep 2001 02:41:54 -0400
+	id <S274351AbRITG6a>; Thu, 20 Sep 2001 02:58:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274345AbRITGlo>; Thu, 20 Sep 2001 02:41:44 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:11006 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274346AbRITGlf>;
-	Thu, 20 Sep 2001 02:41:35 -0400
-Date: Thu, 20 Sep 2001 08:41:31 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: Robert Love <rml@tech9.net>, Roger Larsson <roger.larsson@norran.net>,
-        linux-kernel@vger.kernel.org,
-        ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: [PATCH] Preemption Latency Measurement Tool
-Message-ID: <20010920084131.C1629@athlon.random>
-In-Reply-To: <1000939458.3853.17.camel@phantasy> <20010920063143.424BD1E41A@Cantor.suse.de>
+	id <S274352AbRITG6K>; Thu, 20 Sep 2001 02:58:10 -0400
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:44050 "HELO
+	ns.higherplane.net") by vger.kernel.org with SMTP
+	id <S274351AbRITG55>; Thu, 20 Sep 2001 02:57:57 -0400
+Date: Thu, 20 Sep 2001 16:57:46 +1000
+From: john slee <indigoid@higherplane.net>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+        Liakakis Kostas <kostas@skiathos.physics.auth.gr>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Re[2]: [PATCH] Athlon bug stomper. Pls apply.
+Message-ID: <20010920165746.G16408@higherplane.net>
+In-Reply-To: <3E975341CB7@vcnet.vc.cvut.cz> <Pine.LNX.4.33.0109200105300.25500-100000@Expansa.sns.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010920063143.424BD1E41A@Cantor.suse.de>; from Dieter.Nuetzel@hamburg.de on Thu, Sep 20, 2001 at 08:31:34AM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <Pine.LNX.4.33.0109200105300.25500-100000@Expansa.sns.it>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Those inodes lines reminded me one thing, you may want to give it a try:
+On Thu, Sep 20, 2001 at 01:07:29AM +0200, Luigi Genoni wrote:
+> Just to add a curiosity. Abit KT7A MBs do not accept all 256 MB modules.
+> with some of them they do see just 128 MB, and anyway systems are stable,
+> but of course systems managers get unhappy.
+> This should be because of modules density...
 
---- 2.4.10pre12aa1/fs/inode.c.~1~	Thu Sep 20 01:44:07 2001
-+++ 2.4.10pre12aa1/fs/inode.c	Thu Sep 20 08:37:33 2001
-@@ -295,6 +295,12 @@
- 			 * so we have to start looking from the list head.
- 			 */
- 			tmp = head;
-+
-+			if (unlikely(current->need_resched)) {
-+				spin_unlock(&inode_lock);
-+				schedule();
-+				spin_lock(&inode_lock);
-+			}
- 		}
- 	}
- 
-Andrea
+bx chipsets have a limitation of 128mb per bank for non-registered dimms
+afaik.  ie. 256mb dimms that are two-bank will work as expected, and
+256mb dimms that are one-bank will be seen as 128mb.  generally two-bank
+256mb dimms have chips on both sides of the module, whereas one-bank
+jobbies have it on one side...  found this out the expensive way :-(
+
+of course this isnt relevant to abit kt7 boards but it does sound very
+similar.
+
+j.
+
+-- 
+R N G G   "Well, there it goes again... And we just sit 
+ I G G G   here without opposable thumbs." -- gary larson

@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264942AbSKEREQ>; Tue, 5 Nov 2002 12:04:16 -0500
+	id <S264986AbSKERUF>; Tue, 5 Nov 2002 12:20:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264943AbSKEREQ>; Tue, 5 Nov 2002 12:04:16 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:31893 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264942AbSKEREO>; Tue, 5 Nov 2002 12:04:14 -0500
-Subject: Re: [PATCH] Re: time() glitch on 2.4.18: solved
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jim Paris <jim@jtan.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021105113020.A5210@neurosis.mit.edu>
-References: <20021102013704.A24684@neurosis.mit.edu>
-	<20021103143216.A27147@neurosis.mit.edu>
-	<1036355418.30679.28.camel@irongate.swansea.linux.org.uk> 
-	<20021105113020.A5210@neurosis.mit.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Nov 2002 17:32:53 +0000
-Message-Id: <1036517573.4791.107.camel@irongate.swansea.linux.org.uk>
+	id <S264987AbSKERUF>; Tue, 5 Nov 2002 12:20:05 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:48790 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S264986AbSKERTp>;
+	Tue, 5 Nov 2002 12:19:45 -0500
+Date: Tue, 5 Nov 2002 18:26:17 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 vi .config ; make oldconfig not working
+Message-ID: <20021105172617.GC1830@suse.de>
+References: <20021105165024.GJ13587@suse.de> <3DC7FB11.10209@pobox.com> <20021105171409.GA1137@suse.de> <1036517201.5601.0.camel@localhost.localdomain>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1036517201.5601.0.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-05 at 16:30, Jim Paris wrote:
-> This works well.
+On Tue, Nov 05 2002, Arjan van de Ven wrote:
+> On Tue, 2002-11-05 at 18:14, Jens Axboe wrote:
 > 
-> -jim
+> > axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
+> > 641:CONFIG_NFSD_V4=y
+> > axboe@burns:[.]linux-2.5-deadline-rbtree $ vi .config
+> > axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
+> > 641:CONFIG_NFSD_V4=n
 > 
-> diff -urN linux-2.4.18/arch/i386/kernel/time.c linux-2.4.18-jim/arch/i386/kernel/time.c
-> --- linux-2.4.18/arch/i386/kernel/time.c	Fri Mar 15 18:28:53 2002
-> +++ linux-2.4.18-jim/arch/i386/kernel/time.c	Tue Nov  5 11:22:02 2002
-> @@ -501,6 +501,16 @@
->  
->  		count = inb_p(0x40);    /* read the latched count */
->  		count |= inb(0x40) << 8;
-> +
-> +		/* Any unpaired read will cause the above to swap MSB/LSB
-> +		   forever.  Try to detect this and reset the counter. */
-> +		if (count > LATCH) {
-> +			outb_p(0x34, 0x43);
-> +			outb_p(LATCH & 0xff, 0x40);
-> +			outb(LATCH >> 8, 0x40);
-> +			count = LATCH - 1;
-> +		}
-> +
->  		spin_unlock(&i8253_lock);
->  
->  		count = ((LATCH-1) - count) * TICK_SIZE;
+> =n never worked...
 
-Add a printk to address the fact we want to know about this and I think
-thats enough to meet George's objection ?
+You're wrong, it's always worked. I've never used anything but that.
+
+> # CONFIG_NFSD_V4 is not set
+
+Come on, you really expect me to type the whole damn thing? That's
+silly.
+
+-- 
+Jens Axboe
+

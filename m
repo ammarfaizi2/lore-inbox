@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267568AbTBRDbd>; Mon, 17 Feb 2003 22:31:33 -0500
+	id <S267577AbTBRDoH>; Mon, 17 Feb 2003 22:44:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267577AbTBRDbd>; Mon, 17 Feb 2003 22:31:33 -0500
-Received: from packet.digeo.com ([12.110.80.53]:34723 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267568AbTBRDbd>;
-	Mon, 17 Feb 2003 22:31:33 -0500
-Date: Mon, 17 Feb 2003 19:42:30 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: livewire@gentoo.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.62 oops
-Message-Id: <20030217194230.7bf6f97b.akpm@digeo.com>
-In-Reply-To: <200302172229.21528.livewire@gentoo.org>
-References: <200302172229.21528.livewire@gentoo.org>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Feb 2003 03:41:26.0811 (UTC) FILETIME=[9D8DB6B0:01C2D6FF]
+	id <S267578AbTBRDoG>; Mon, 17 Feb 2003 22:44:06 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:64320
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S267577AbTBRDoG>; Mon, 17 Feb 2003 22:44:06 -0500
+Date: Mon, 17 Feb 2003 22:52:35 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [PATCH][2.5] IRQ distribution patch for 2.5.58
+In-Reply-To: <20030217181614.GP29983@holomorphy.com>
+Message-ID: <Pine.LNX.4.50.0302172244270.25630-100000@montezuma.mastecende.com>
+References: <E88224AA79D2744187E7854CA8D9131DA5CE8D@fmsmsx407.fm.intel.com>
+ <20030217181614.GP29983@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bob Johnson <livewire@gentoo.org> wrote:
->
-> Running a stress test of 50 concurrent kernel tree cp's + md5sum the files on
-> 2.5.62 results in the following:
+On Mon, 17 Feb 2003, William Lee Irwin III wrote:
+
+> On Thu, Jan 16, 2003 at 01:08:55PM -0800, Kamble, Nitin A wrote:
+> > +		spin_lock(&desc->lock);
+> > +		irq_balance_mask[selected_irq] = target_cpu_mask;
+> > +		spin_unlock(&desc->lock);
 > 
-> Feb 17 21:53:41 livewire kernel: VFS: brelse: Trying to free free buffer
-> Feb 17 21:53:41 livewire kernel: buffer layer error at fs/buffer.c:1170
-> Feb 17 21:53:41 livewire kernel: Pass this trace through ksymoops for 
-> reporting
+> Wrong.
 
-It's not really an oops, although the bug which this is reporting could cause
-a crash.
+The desc locking for irq_balance_mask looks very strange,  what made you 
+put it in?
 
-It is a known problem in the htree indexed directory code.  I can reproduce
-it, but haven't had time to work on it.  Chris Li has time to work on it,
-but cannot reproduce it.
-
-We'll get there.
-
+	Zwane
+-- 
+function.linuxpower.ca

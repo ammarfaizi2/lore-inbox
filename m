@@ -1,93 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267541AbTBFXGX>; Thu, 6 Feb 2003 18:06:23 -0500
+	id <S267697AbTBFXBm>; Thu, 6 Feb 2003 18:01:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267542AbTBFXGW>; Thu, 6 Feb 2003 18:06:22 -0500
-Received: from fubar.phlinux.com ([216.254.54.154]:1514 "EHLO
-	fubar.phlinux.com") by vger.kernel.org with ESMTP
-	id <S267541AbTBFXGT>; Thu, 6 Feb 2003 18:06:19 -0500
-Date: Thu, 6 Feb 2003 15:15:52 -0800 (PST)
-From: Matt C <wago@phlinux.com>
-To: David Brown <dave@codewhore.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: CCISS driver and disk failure...
-In-Reply-To: <Pine.LNX.4.44.0302051806010.3082-100000@fubar.phlinux.com>
-Message-ID: <Pine.LNX.4.44.0302061512020.32730-100000@fubar.phlinux.com>
+	id <S267696AbTBFXBl>; Thu, 6 Feb 2003 18:01:41 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:16389 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S267697AbTBFXAt>; Thu, 6 Feb 2003 18:00:49 -0500
+Date: Fri, 7 Feb 2003 00:09:27 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       <linux-kernel@vger.kernel.org>, <greg@kroah.com>, <jgarzik@pobox.com>
+Subject: [PATCH] Restore module support. 
+In-Reply-To: <20030204233310.AD6AF2C04E@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0302062358140.32518-100000@serv>
+References: <20030204233310.AD6AF2C04E@lists.samba.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David-
+Hi,
 
-I noticed that the disk array component of this stuff actually does not 
-require the kernel modules, which is good news. So, you should be able to 
-install the 'cmafdtn', 'cmastor', 'cpqhealth' and 'ucd-snmp' RPMs from 
-compaq and monitor your drives via SNMP without using their darn kernel 
-modules. I assume that it's communicating with the array via the cciss 
-driver in some way.
+On Tue, 4 Feb 2003, Rusty Russell wrote:
 
-Hope this helps.
+> I'm going to stop here, since I don't think you understand what I am
+> proposing, nor how the current system works: this makes is extremely
+> difficult to describe changes, and time consuming.
 
--Matt
+Rusty, if you continue to ignore criticism, I have only one answer left:
 
-On Wed, 5 Feb 2003, Matt C wrote:
+http://www.xs4all.nl/~zippel/restore-modules-2.5.59.diff
 
-> Hi David-
-> 
-> The only way we're able to do this on proliants is to use the *hack* 
-> closed-source HP kernel modules cpqasm and cpqevt. We then run their 30+ 
-> userspace daemons that monitor the system via these 2 kernel modules. Slap 
-> their hacked up ucd-snmpd on top of that and you get disk status 
-> monitoring via SNMP on the machine.
-> 
-> On a redhat machine, that's the following RPMs from HP:
-> cmafdtn
-> cmanic
-> cmastor
-> cmasvr
-> cpqhealth
-> ucd-snmp (from HP, of course)
-> 
-> It's a nasty mess, though, so if the cciss author had the time to put disk 
-> fail logging into the driver, that'd be amazingly cool.
-> 
-> -Matt
-> 
-> On Tue, 4 Feb 2003, David Brown wrote:
-> 
-> > Hi:
-> > 
-> > Does anyone know of an easy way to get messages (via syslog or
-> > otherwise) when a member disk of a CCISS SMART-2 raid array fails?
-> > Grepping through drivers/block/cciss.c didn't yield any obvious
-> > printk's. My gut feeling is that one could get the disk failure
-> > information through one of the CCISS_PASSTHRU ioctls(); I saw some
-> > reference to a similar call in code for monitoring the cpqarray
-> > driver.
-> > 
-> > HP appears to have some sort of management suite, but it appears to
-> > require X11 server-side, which isn't an option on this machine.
-> > 
-> > Is there an easy way to get disk failure information from the CCISS
-> > driver, or should I continue relying on the pretty LEDs? :)
-> > 
-> > 
-> > Thanks in advance,
-> > 
-> > - Dave
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+These numbers are quite interesting:
+
+$ diffstat restore-modules-2.5.59.diff
+ arch/i386/kernel/Makefile          |    1
+ arch/i386/kernel/cpu/mtrr/if.c     |    1
+ arch/i386/kernel/entry.S           |    6
+ arch/i386/kernel/module.c          |  111 -
+ arch/i386/mm/extable.c             |    1
+ drivers/char/agp/Makefile          |    2
+ drivers/char/misc.c                |    1                                                                                                                  
+ drivers/eisa/eisa-bus.c            |    1
+ drivers/input/serio/serport.c      |    1                                                                                                                  
+ fs/filesystems.c                   |   27
+ fs/proc/proc_misc.c                |   12
+ include/asm-generic/percpu.h       |    1
+ include/asm-generic/vmlinux.lds.h  |   15
+ include/asm-i386/module.h          |   57
+ include/linux/init.h               |  130 -
+ include/linux/module.h             |  817 ++++++------
+ include/linux/moduleloader.h       |   43
+ include/linux/moduleparam.h        |  126 -
+ init/Kconfig                       |   40
+ init/main.c                        |  109 +
+ kernel/Makefile                    |    8
+ kernel/extable.c                   |   41
+ kernel/intermodule.c               |  182 --
+ kernel/kallsyms.c                  |    5
+ kernel/kmod.c                      |    2
+ kernel/ksyms.c                     |    7
+ kernel/module.c                    | 2448 +++++++++++++++++--------------------
+ kernel/params.c                    |  336 -----
+ net/ipv4/netfilter/ip_nat_helper.c |    2
+ scripts/Makefile.modinst           |    8
+ sound/sound_core.c                 |    1
+ 31 files changed, 1805 insertions(+), 2737 deletions(-)
+
+$ size linux-2.5.59-org/vmlinux linux-2.5.59-mod/vmlinux
+   text    data     bss     dec     hex filename
+3403915  864229  338052 4606196  4648f4 linux-2.5.59-org/vmlinux
+3361448  863393  342020 4566861  45af4d linux-2.5.59-mod/vmlinux
+
+This patch still has modversion disabled, when Kai finishes the new 
+modversion support, I'll add the support for it to modutils.
+
+bye, Roman
 

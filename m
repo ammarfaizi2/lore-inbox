@@ -1,78 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264805AbUD1OI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264804AbUD1OMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264805AbUD1OI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 10:08:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264812AbUD1OI5
+	id S264804AbUD1OMI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 10:12:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264812AbUD1OJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 10:08:57 -0400
-Received: from mail.tmr.com ([216.238.38.203]:46088 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S264805AbUD1OHn (ORCPT
+	Wed, 28 Apr 2004 10:09:24 -0400
+Received: from mx2.redhat.com ([66.187.237.31]:4509 "EHLO mx2.redhat.com")
+	by vger.kernel.org with ESMTP id S264804AbUD1OIu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 10:07:43 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: bug in include file!?
-Date: Wed, 28 Apr 2004 10:08:56 -0400
-Organization: TMR Associates, Inc
-Message-ID: <c6odm2$57s$1@gatekeeper.tmr.com>
-References: <20040426203710.GA3005@matrix>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 28 Apr 2004 10:08:50 -0400
+From: Jeff Moyer <jmoyer@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1083161090 5372 192.168.12.100 (28 Apr 2004 14:04:50 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <20040426203710.GA3005@matrix>
+Message-ID: <16527.47765.286783.249944@segfault.boston.redhat.com>
+Date: Wed, 28 Apr 2004 10:07:17 -0400
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: netconsole hangs w/ alt-sysrq-t
+In-Reply-To: <20040428140353.GC28459@waste.org>
+References: <16519.58589.773562.492935@segfault.boston.redhat.com>
+	<20040425191543.GV28459@waste.org>
+	<16527.42815.447695.474344@segfault.boston.redhat.com>
+	<20040428140353.GC28459@waste.org>
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Reply-To: jmoyer@redhat.com
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-csg69@mailbox.hu wrote:
-> Dear Linux Kernel Stuff!
-> 
-> 
-> I encountered a strange error recently, when I tried to
-> compile cdrtools-2.00.3 on my system (debian woody 3.0,
-> kernel 2.6.5, gcc 2.95.4, make 3.79.1).
-> 
-> The bug is in line 217 in /usr/src/linux/include/scsi/scsi.h
-> gcc says: parse error before u8
-> (I think everything is OK there)
-> 
-> Finally I solved the problem by changing the value
-> in cdrtools-2.00.3/DEFAULTS/Defaults.linux
-> 
-> from the original:
-> DEFINCDIRS=	$(SRCROOT)/include /usr/src/linux/include
-> 
-> to:
-> DEFINCDIRS=	$(SRCROOT)/include /usr/include
-> 
-> 
-> It seems that in /usr/include/scsi/scsi.h everything is OK...
-> 
-> 
-> It may be the error of the makefiles or the kernel include files...
-> 
-> Joerg Schilling (schilling@fokus.fraunhofer.de) advised me
-> to send to you this report.
-> He thinks this is a bug in kernel include files.
+==> Regarding Re: netconsole hangs w/ alt-sysrq-t; Matt Mackall <mpm@selenic.com> adds:
 
-I believe he has set this up so that it won't compile correctly unless 
-you have a source tree at /usr/src/linux, and then he uses the includes 
-there. He has ignored being told this is not the proper way to do things.
+mpm> On Wed, Apr 28, 2004 at 08:44:47AM -0400, Jeff Moyer wrote:
+>> ==> Regarding Re: netconsole hangs w/ alt-sysrq-t; Matt Mackall
+>> <mpm@selenic.com> adds:
+>> 
+mpm> On Thu, Apr 22, 2004 at 11:29:33AM -0400, Jeff Moyer wrote:
+>> >> If netconsole is enabled, and you hit Alt-Sysrq-t, then it will print
+>> a >> small amount of output to the console(s) and then hang the system.
+>> In >> this case, I'm using the e100 driver, and we end up exhausting the
+>> >> available cbs.  Since we are in interrupt context, the driver's poll
+>> >> routine is never run, and we loop infinitely waiting for resources to
+>> >> free up that never will.  Kernel version is 2.6.5.
+>> 
+mpm> Can you try 2.6.6-rc2? It has a fix to congestion handling that should
+mpm> address this.
+>> Is the attached patch the change you are referring to?  If so, I don't
+>> see how this would fix the problem.  I ended up deferring netpoll writes
+>> to process context, which has been working fine for me.  Have I missed
+>> something?
 
-It may be an unrelated problem, but I think he regards ever case where 
-the kernel people didn't do things for his convenience as a bug, and 
-writes his code to cause problems if you don't do it his way.
+mpm> Well process context defeats the purpose. Ok, I've more closely read
+mpm> your report and if I understand correctly, you're using the NAPI
+mpm> version of e100? There's some magic NAPI bits in netpoll_poll that
+mpm> might help here:
 
-If you do audio burns it's worth fighting, they use DMA with the ATA: 
-interface. For data the last time I used ide-scsi it was working again, 
-although it's not the preferred way to operate. YMMV.
+Yes, sorry I didn't specify that earlier.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+mpm>         if(trapped && np->dev->poll && test_bit(__LINK_STATE_RX_SCHED,
+mpm> &np->dev->state))
+np-> dev->poll(np->dev, &budget);
+
+mpm> Perhaps we need to pull the trapped test out of there. Then with any
+mpm> luck, dev->hard_start_xmit will return non-zero in netpoll_send_skb,
+mpm> we'll call netpoll_poll to pump the card, and we'll be able to flush
+mpm> it.
+
+I don't think so.  You can end up in code running in interrupt context that
+is not designed to (ip routing code, etc).  I've been down that path
+already.  I only defer to process context if irqs_disabled().
+
+Other suggestions?
+
+-Jeff

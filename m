@@ -1,106 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262495AbVAJUDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262468AbVAJUDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262495AbVAJUDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 15:03:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbVAJUAK
+	id S262468AbVAJUDH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 15:03:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVAJUA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 15:00:10 -0500
-Received: from mail.tyan.com ([66.122.195.4]:21769 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S262511AbVAJT6U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 14:58:20 -0500
-Message-ID: <3174569B9743D511922F00A0C9431423072913A4@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Andi Kleen <ak@muc.de>
-Cc: "'Mikael Pettersson'" <mikpe@csd.uu.se>, jamesclv@us.ibm.com,
-       Matt_Domsch@dell.com, discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       suresh.b.siddha@intel.com
-Subject: RE: 256 apic id for amd64
-Date: Mon, 10 Jan 2005 12:09:48 -0800
+	Mon, 10 Jan 2005 15:00:27 -0500
+Received: from smtpout01-04.mesa1.secureserver.net ([64.202.165.79]:32992 "HELO
+	smtpout01-04.mesa1.secureserver.net") by vger.kernel.org with SMTP
+	id S262515AbVAJTuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 14:50:25 -0500
+Message-ID: <41E2DC8C.6080101@starnetworks.us>
+Date: Mon, 10 Jan 2005 12:50:36 -0700
+From: "Kevin P. Fleming" <kpfleming@starnetworks.us>
+Organization: Star Networks, LLC
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C4F750.561AD560"
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/6] 2.4.19-rc1 number() stack reduction
+References: <1105378550.4000.132.camel@dyn318077bld.beaverton.ibm.com> <1105378775.4000.138.camel@dyn318077bld.beaverton.ibm.com>
+In-Reply-To: <1105378775.4000.138.camel@dyn318077bld.beaverton.ibm.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+Badari Pulavarty wrote:
 
-------_=_NextPart_000_01C4F750.561AD560
-Content-Type: text/plain
+> + /* Move these off of the stack for number().  This way we reduce the
+> +  * size of the stack and don't have to copy them every time we are called.
+> +  */
+> +const char small_digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+> +const char large_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+> +
+>  static char * number(char * buf, char * end, long long num, int base, int size, int precision, int type)
+>  {
+>  	char c,sign,tmp[66];
+>  	const char *digits;
+> -	static const char small_digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+> -	static const char large_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-Try this one.
-
------Original Message-----
-From: Andi Kleen [mailto:ak@muc.de] 
-Sent: Monday, January 10, 2005 11:44 AM
-To: YhLu
-Cc: 'Mikael Pettersson'; jamesclv@us.ibm.com; Matt_Domsch@dell.com;
-discuss@x86-64.org; linux-kernel@vger.kernel.org; suresh.b.siddha@intel.com
-Subject: Re: 256 apic id for amd64
-
-On Mon, Jan 10, 2005 at 11:41:02AM -0800, YhLu wrote:
-> Please refer the patch.
-
-That's unreadable. Can you generate against a recent BK snapshot
-(2.6.10 + latest from ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/)
-
-and use diff -u  ? 
-
--Andi
-
-
-------_=_NextPart_000_01C4F750.561AD560
-Content-Type: application/octet-stream;
-	name="x86_64_phy_proc_id.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="x86_64_phy_proc_id.patch"
-
---- linux-2.6.10/arch/x86_64/kernel/setup.c	2005-01-10 =
-12:26:21.414190368 -0800=0A=
-+++ linux-2.6.10.new.x86_64/arch/x86_64/kernel/setup.c	2005-01-10 =
-12:30:53.656803200 -0800=0A=
-@@ -738,7 +738,6 @@=0A=
- {=0A=
- #ifdef CONFIG_SMP=0A=
- 	u32 	eax, ebx, ecx, edx;=0A=
--	int 	index_lsb, index_msb, tmp;=0A=
- 	int 	cpu =3D smp_processor_id();=0A=
- 	=0A=
- 	if (!cpu_has(c, X86_FEATURE_HT))=0A=
-@@ -750,8 +749,6 @@=0A=
- 	if (smp_num_siblings =3D=3D 1) {=0A=
- 		printk(KERN_INFO  "CPU: Hyper-Threading is disabled\n");=0A=
- 	} else if (smp_num_siblings > 1) {=0A=
--		index_lsb =3D 0;=0A=
--		index_msb =3D 31;=0A=
- 		/*=0A=
- 		 * At this point we only support two siblings per=0A=
- 		 * processor package.=0A=
-@@ -761,19 +758,8 @@=0A=
- 			smp_num_siblings =3D 1;=0A=
- 			return;=0A=
- 		}=0A=
--		tmp =3D smp_num_siblings;=0A=
--		while ((tmp & 1) =3D=3D 0) {=0A=
--			tmp >>=3D1 ;=0A=
--			index_lsb++;=0A=
--		}=0A=
--		tmp =3D smp_num_siblings;=0A=
--		while ((tmp & 0x80000000 ) =3D=3D 0) {=0A=
--			tmp <<=3D1 ;=0A=
--			index_msb--;=0A=
--		}=0A=
--		if (index_lsb !=3D index_msb )=0A=
--			index_msb++;=0A=
--		phys_proc_id[cpu] =3D phys_pkg_id(index_msb);=0A=
-+=0A=
-+		phys_proc_id[cpu] =3D c->x86_apicid >> hweight32(c->x86_num_cores - =
-1);=0A=
- 		=0A=
- 		printk(KERN_INFO  "CPU: Physical Processor ID: %d\n",=0A=
- 		       phys_proc_id[cpu]);=0A=
-
-------_=_NextPart_000_01C4F750.561AD560--
+Is this actually correct? Since these are declared "static const", they 
+are not on the stack anyway, because they have to persist between calls 
+to this function and cannot be changed. I'd be very surprised if the 
+compiler was copying this data from the static data segment to the stack 
+on every entry to this function.

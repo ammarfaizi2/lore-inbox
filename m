@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278314AbRJMPYW>; Sat, 13 Oct 2001 11:24:22 -0400
+	id <S278316AbRJMPjC>; Sat, 13 Oct 2001 11:39:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278315AbRJMPYO>; Sat, 13 Oct 2001 11:24:14 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:49424 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S278314AbRJMPXx>; Sat, 13 Oct 2001 11:23:53 -0400
-Message-ID: <3BC85AE7.80D340C8@evision-ventures.com>
-Date: Sat, 13 Oct 2001 17:16:55 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>, Matt_Domsch@Dell.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: crc32 cleanups
-In-Reply-To: <200110130120.f9D1K2L0024119@sleipnir.valparaiso.cl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S278317AbRJMPiw>; Sat, 13 Oct 2001 11:38:52 -0400
+Received: from [212.21.93.146] ([212.21.93.146]:40579 "EHLO
+	kushida.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S278316AbRJMPif>; Sat, 13 Oct 2001 11:38:35 -0400
+Date: Sat, 13 Oct 2001 17:36:19 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: =?iso-8859-1?Q?Mattias_Engdeg=E5rd?= <f91-men@nada.kth.se>
+Cc: pmenage@ensim.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] Pollable /proc/<pid>/ - avoid SIGCHLD/poll() races
+Message-ID: <20011013173619.C20499@kushida.jlokier.co.uk>
+In-Reply-To: <E15p3JS-0000ko-00@pmenage-dt.ensim.com> <200110041418.QAA17395@my.nada.kth.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200110041418.QAA17395@my.nada.kth.se>; from f91-men@nada.kth.se on Thu, Oct 04, 2001 at 04:18:20PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> 
-> Jeff Garzik <jgarzik@mandrakesoft.com> said:
-> 
-> [...]
-> 
-> > I was pondering whether it was ok to unconditionally include the
-> > lib/crc32.c code, regardless of need.  I am leaning towards "no," which
-> > implies Makefile and Config.in rules which must be updated for each
-> > driver that uses crc32.
-> 
-> It is easier in that case just to make it another module.
+Mattias Engdegård wrote:
+> I don't think it's contrived --- writing not a byte, but the pid and
+> return status of the dead child to a pipe is an old but useful trick.
+> It gives a natural serialisation of child deaths, and also eliminates
+> the common race where a child dies before its parent has recorded its
+> pid in a data structure. See it as a safe way of converting an
+> asynchronous signal to a queued event.
+>
+> Using pipes to wake up blocking select()s is a useful thing in general,
+> and often a lot cleaner than using signals when dealing with threads.
 
-That will waste space due to page granularity.
+This mistake is exactly the reason that Netscape 4.x freezes from time
+to time on Linux.
+
+It tries to write too many things to a pipe, making the assumption that
+this will never happen.
+
+The correct thing to do, which never freezes, is to maintain a queue or
+other structure inside your own process.  Just write a single byte to
+the pipe when a condition flag becomes true for the first time, after
+setting the flag (both inside the signal handler).  Clear the flag and
+handle the pending conditions whenever you read the byte in the select()
+loop.  A flag can be implemented as a pair of counters if you can't do
+atomic sets and clears.
+
+enjoy,
+-- Jamie

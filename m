@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263847AbUCZABl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 19:01:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263816AbUCYX70
+	id S263875AbUCZB1u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 20:27:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263863AbUCZBZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 18:59:26 -0500
-Received: from waste.org ([209.173.204.2]:48793 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S263817AbUCYX6A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 18:58:00 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-X-PatchBomber: http://selenic.com/scripts/mailpatches
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <8.524465763@selenic.com>
-Message-Id: <9.524465763@selenic.com>
-Subject: [PATCH 8/22] /dev/random: BUG on premature random users
-Date: Thu, 25 Mar 2004 17:57:43 -0600
+	Thu, 25 Mar 2004 20:25:08 -0500
+Received: from sa-3.airstreamcomm.net ([64.33.192.163]:56587 "EHLO
+	sa-3.airstreamcomm.net") by vger.kernel.org with ESMTP
+	id S263834AbUCZBYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 20:24:32 -0500
+To: 239952@bugs.debian.org, debian-devel@lists.debian.org,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Binary-only firmware covered by the GPL?
+References: <E1B6Izr-0002Ai-00@r063144.stusta.swh.mhn.de>
+	<20040325082949.GA3376@gondor.apana.org.au>
+	<20040325220803.GZ16746@fs.tum.de> <40635DD9.8090809@pobox.com>
+	<1080260235.3643.103.camel@imladris.demon.co.uk>
+From: John Hasler <john@dhh.gt.org>
+Date: Thu, 25 Mar 2004 19:30:12 -0600
+In-Reply-To: <1080260235.3643.103.camel@imladris.demon.co.uk> (David
+ Woodhouse's message of "Fri, 26 Mar 2004 00:17:15 +0000")
+Message-ID: <8765csbdjv.fsf@toncho.dhh.gt.org>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Woodhouse writes:
+> The firmware blob in question can be reasonably considered to be an
+> independent and separate work in itself. The GPL doesn't apply to it when
+> it is distributed as a SEPARATE work. But when you distribute it as part
+> of a whole which is a work based on other parts of the kernel, by
+> including it in the kernel source...
 
-/dev/random  BUG on premature random users
-
-Generate a fatal error if we try to use the get_random_bytes before
-we're initialized.
-
-
- tiny-mpm/drivers/char/random.c |    9 ++-------
- 1 files changed, 2 insertions(+), 7 deletions(-)
-
-diff -puN drivers/char/random.c~bug-on-grb drivers/char/random.c
---- tiny/drivers/char/random.c~bug-on-grb	2004-03-20 13:38:22.000000000 -0600
-+++ tiny-mpm/drivers/char/random.c	2004-03-20 13:38:22.000000000 -0600
-@@ -1412,13 +1412,8 @@ static ssize_t extract_entropy(struct en
-  */
- void get_random_bytes(void *buf, int nbytes)
- {
--	if (blocking_pool)
--		extract_entropy(blocking_pool, buf, nbytes, 0);
--	else if (input_pool)
--		extract_entropy(input_pool, buf, nbytes, 0);
--	else
--		printk(KERN_NOTICE "get_random_bytes called before "
--				   "random driver initialization\n");
-+	BUG_ON(!blocking_pool);
-+	extract_entropy(blocking_pool, buf, nbytes, 0);
- }
- 
- EXPORT_SYMBOL(get_random_bytes);
-
-_
+So don't.  Put it in a seperate file and load it at boot time.
+-- 
+John Hasler               You may treat this work as if it 
+john@dhh.gt.org           were in the public domain.
+Dancing Horse Hill        I waive all rights.
+Elmwood, Wisconsin

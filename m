@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130143AbRB1NHW>; Wed, 28 Feb 2001 08:07:22 -0500
+	id <S130153AbRB1NNn>; Wed, 28 Feb 2001 08:13:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130145AbRB1NHM>; Wed, 28 Feb 2001 08:07:12 -0500
-Received: from dnscache.cbr.au.asiaonline.net ([210.215.8.100]:49029 "EHLO
-	dnscache.cbr.au.asiaonline.net") by vger.kernel.org with ESMTP
-	id <S130143AbRB1NGz>; Wed, 28 Feb 2001 08:06:55 -0500
-Message-ID: <3A9CF79F.38751994@valinux.com>
-Date: Thu, 01 Mar 2001 00:05:35 +1100
-From: Gareth Hughes <gareth@valinux.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] r128 DRM module -- hardware bug
+	id <S130154AbRB1NNd>; Wed, 28 Feb 2001 08:13:33 -0500
+Received: from bitmap.phx.mcd.mot.com ([144.191.11.103]:23818 "EHLO
+	bitmap.phx.mcd.mot.com") by vger.kernel.org with ESMTP
+	id <S130153AbRB1NNU>; Wed, 28 Feb 2001 08:13:20 -0500
+Date: Wed, 28 Feb 2001 06:13:18 -0700
+From: peg@bitmap.phx.mcd.mot.com
+To: linux-kernel@vger.kernel.org
+Subject: Can't compile 2.4.2-ac6
+Message-ID: <20010228061317.A28217@bitmap.phx.mcd.mot.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch addresses a serious problem with older Rage 128
-chipsets, up to and including at least the Rage 128 RF chipset found on
-the Xpert 2000.  The workaround should be classed as a critical fix, as
-without it such cards will lock almost immediately.
+I just pulled down the ac6 patch to 2.4.2 kernel and after applying it without
+problems I did a make menuconfig with the following result:
 
--- Gareth
+Menuconfig has encountered a possible error in one of the kernel's
+configuration files and is unable to continue.  Here is the error
+report:
 
---- linux/drivers/char/drm/r128_drv.h	Fri Jan  5 08:03:20 2001
-+++ linux.gh/drivers/char/drm/r128_drv.h	Thu Mar  1 00:03:35 2001
-@@ -447,6 +447,11 @@
- 		DRM_INFO( "ADVANCE_RING() tail=0x%06x wr=0x%06x\n",	\
- 			  write, dev_priv->ring.tail );			\
- 	}								\
-+	if ( write < 32 ) {						\
-+		memcpy( dev_priv->ring.end,				\
-+			dev_priv->ring.start,				\
-+			write * sizeof(u32) );				\
-+	}								\
- 	r128_flush_write_combine();					\
- 	dev_priv->ring.tail = write;					\
- 	R128_WRITE( R128_PM4_BUFFER_DL_WPTR, write );			\
+ Q> scripts/Menuconfig: MCmenu0: command not found
+
+Paolo
+
+-- 
+Paolo Galtieri                            Senior Staff Engineer
+Motorola Computer Group                   INTERNET: peg@phx.mcd.mot.com
+2900 S. Diablo Way                        VOICE: (602) 438 - 3754
+Tempe, AZ 85282
+

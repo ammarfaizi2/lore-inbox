@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284445AbRLMRZQ>; Thu, 13 Dec 2001 12:25:16 -0500
+	id <S284467AbRLMRZQ>; Thu, 13 Dec 2001 12:25:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284467AbRLMRZH>; Thu, 13 Dec 2001 12:25:07 -0500
-Received: from mustard.heime.net ([194.234.65.222]:21983 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S284464AbRLMRZC>; Thu, 13 Dec 2001 12:25:02 -0500
-Date: Thu, 13 Dec 2001 18:24:13 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-cc: <linux-kernel@vger.kernel.org>, Tux mailing list <tux-list@redhat.com>
-Subject: Re: [BUG?] RAID sub system / tux
-In-Reply-To: <Pine.LNX.4.33.0112131217410.15231-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.30.0112131819040.26829-100000@mustard.heime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284464AbRLMRZH>; Thu, 13 Dec 2001 12:25:07 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:20386 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S284445AbRLMRY6>; Thu, 13 Dec 2001 12:24:58 -0500
+Date: Thu, 13 Dec 2001 10:24:52 -0700
+Message-Id: <200112131724.fBDHOqu27735@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: "David C. Hansen" <haveblue@us.ibm.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Change locking in block_dev.c:do_open()
+In-Reply-To: <Pine.GSO.4.21.0112122101350.17470-100000@weyl.math.psu.edu>
+In-Reply-To: <3C17F8B2.6080700@us.ibm.com>
+	<Pine.GSO.4.21.0112122101350.17470-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > Just wanted to say I've reproduced the error in tux-D1.
-> > > how about without tux?
-> > >
-> >
-> > I don't know how to do an intensive read like that without tux.
-> > Perhaps you've got an idea?
->
-> why not apache?
+Alexander Viro writes:
+> 
+> 
+> On Wed, 12 Dec 2001, David C. Hansen wrote:
+> 
+> > I've been looking at how the BKL is used throughout the kernel.  My end
+> > goal is to eliminate the BKL, but I don't have any fanciful ideas that I
+> > can get rid of it myself, or do it in a short period of time.  Right
+> > now, I'm looking for interesting BKL uses and examining alternatives.
+> > 
+> > Lately, I've been examining do_open() in block_dev.c.  This particular
+> > nugget of code uses the BKL for a couple of things.  First,
+> > get_blkfops() can call request_module(), which requires the BKL.
+> > Secondly, there needs to be protection so that the module isn't removed
+> > between the get_blkfops() and the __MOD_INC_USE_COUNT().  Lastly, the
+> > bd_op->open() calls expect the BKL to be held while they are called.  Is
+> > this it?  Anybody know of more reasons?
+> 
+> Sigh...  First of all, the right thing to do is to call
+> try_inc_mod_count() _in_ get_blkfops().  No need to reinvent the
+> wheel.  But real problem with that area is not BKL.  It's *!@& damn
+> devfs=only mess and code that does direct assignment of ->bd_op
+> before calling blkdev_get().  Until it's solved (and the only decent
+> way I see is to remove this misfeature) I'd seriously recommend to
+> leave the damn thing as is.
 
-I first tried, but it all somehow fucked up.
+Al, I came up with a proposed solution for this race days ago. After
+switching to try_inc_mod_count() (based on your first comments), you
+haven't responded with whether you still see a problem with this
+approach (your first message implied there were multiple problems).
 
-So I tried again - better this time. Same result as with Tux, just that
-the system's idle. All the apache processes goes defunct, and the total
-i/o as reported by vmstat is peaking at aouund 1000 blocks per sec. Not a
-lot, really...
+So instead of flaming, please explain where (if) there are remaining
+problems in this area.
 
-So sorry, Ingo and you other tux guys, it wasn't your fault.
+				Regards,
 
-roy
-
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

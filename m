@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262424AbTFGAa6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 20:30:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbTFGAa5
+	id S262429AbTFGAco (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 20:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbTFGAco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 20:30:57 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62482 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262424AbTFGAa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 20:30:56 -0400
-Date: Fri, 6 Jun 2003 17:43:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Paul Mackerras <paulus@samba.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: __user annotations
-In-Reply-To: <16097.12932.161268.783738@argo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.44.0306061738200.31112-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 6 Jun 2003 20:32:44 -0400
+Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:51338 "EHLO
+	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id S262429AbTFGAcn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 20:32:43 -0400
+Message-Id: <200306070046.h570kBsG003360@ginger.cmf.nrl.navy.mil>
+To: Werner Almesberger <wa@almesberger.net>
+cc: Mitchell Blank Jr <mitch@sfgoth.com>, "David S. Miller" <davem@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations (take 2) 
+In-reply-to: Your message of "Fri, 06 Jun 2003 20:19:06 -0300."
+             <20030606201906.F3232@almesberger.net> 
+X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
+X-mailer: nmh 1.0
+Date: Fri, 06 Jun 2003 20:44:22 -0400
+From: chas williams <chas@cmf.nrl.navy.mil>
+X-Spam-Score: () hits=-0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <20030606201906.F3232@almesberger.net>,Werner Almesberger writes:
+>Naw, it isn't supposed to do that :-) I wonder if anyone
+>actually made functional changes to atmsigd (or qgen ;-) since
+>I last touched it ...
 
-On Sat, 7 Jun 2003, Paul Mackerras wrote:
-> Linus Torvalds writes:
-> 
-> > You can get check from
-> > 
-> > 	bk://kernel.bkbits.net/torvalds/sparse
-> 
-> Is that up to date?  I cloned that repository and said "make" and got
-> heaps of compile errors.  First there were a heap of warnings like
-> this:
+we (in particualr ekinize) added point to multipoint signalling.
+its mostly handled in user space (atmsigd).  some changes will be
+needed when we support vbr. 
 
-You need to have a modern compiler. The "heaps of errors" is what you get 
-if you use a stone-age compiler that doesn't support anonymous structure 
-and union members or other C99 features.
+>But yes, with a unified VCC table, it certainly makes sense to
+>add a hash to validate those pointers. I still think that using
+>pointers per se is a good idea, because they're naturally
+>unique numbers. Given that a VCC can be in all kinds of states,
 
-Gcc has supported them since some pre-3.x version (which is pretty late,
-since they've been around in other compilers for much longer). They are a
-great way to make readable data structures that have internal structure
-_without_ having to have that structure show up unnecessarily in usage.
-
-		Linus
-
+at that point we would probably just fix it to use the netlink
+interface (or whatever is going to be the acceptable interface)

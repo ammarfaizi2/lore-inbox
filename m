@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279557AbRJ2Vcr>; Mon, 29 Oct 2001 16:32:47 -0500
+	id <S279561AbRJ2VeG>; Mon, 29 Oct 2001 16:34:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279543AbRJ2Vcg>; Mon, 29 Oct 2001 16:32:36 -0500
-Received: from iris.kkt.bme.hu ([152.66.114.49]:61714 "HELO iris.kkt.bme.hu")
-	by vger.kernel.org with SMTP id <S279561AbRJ2VcU>;
-	Mon, 29 Oct 2001 16:32:20 -0500
-Date: Mon, 29 Oct 2001 22:32:55 +0100 (CET)
-From: PALFFY Daniel <dpalffy@kkt.bme.hu>
-To: Alex Deucher <agd5f@yahoo.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: opl3sa2 sound driver and mixers
-In-Reply-To: <E15yIWa-0003lV-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0110292228040.24547-100000@iris.kkt.bme.hu>
+	id <S279563AbRJ2Vd5>; Mon, 29 Oct 2001 16:33:57 -0500
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:15748 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S279561AbRJ2Vds>; Mon, 29 Oct 2001 16:33:48 -0500
+Message-ID: <011101c160c1$b47adcf0$0201a8c0@HOMER>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: "Urban Widmark" <urban@teststation.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0110291847420.21339-100000@cola.teststation.com>
+Subject: Experimental via-rhine.c, mmio enabled
+Date: Mon, 29 Oct 2001 22:36:01 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Oct 2001, Alan Cox wrote:
+Ok, if you want to live dangerously, try the MMIO enabled via-rhine driver.
 
-> > What's strange is that 2 mixers seem to get loaded. 
-> > The first is for a CS4??? (can't recall the exact
-> 
-> CS4232 - that mixer shouldnt be getting created. That is a bug. I'll take
-> a look at it
+Get the patch (against a => 2.4.10 kernel tree I believe) here:
+http://130.239.118.227/~nitrax/via-rhine-ME1.13.1.gz
 
-Please read Documentation/sound/OPL3-SA2 (the two mixers are intentional,
-some channels are available only on the MSS mixer, others only on the
-OPL3-SA2), and don't break the driver! Since the latest DMA fix finally
-everything works fine on my Portege 3010 (which is exactly the same as the
-3020 except for a slower CPU and smaller disk).
+I'm running it right now and it works on my two D-Link DFE-530TX's.
 
---
-Dani
-			...and Linux for all.
+Should I say "[PATCH]" in the subject line btw?
+
+_____________________________________________________
+|  Martin Eriksson <nitrax@giron.wox.org>
+|  MSc CSE student, department of Computing Science
+|  Umeå University, Sweden
 
 

@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316608AbSHGBIX>; Tue, 6 Aug 2002 21:08:23 -0400
+	id <S316235AbSHGBFT>; Tue, 6 Aug 2002 21:05:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316609AbSHGBIX>; Tue, 6 Aug 2002 21:08:23 -0400
-Received: from h53n2fls24o900.telia.com ([217.208.132.53]:1512 "EHLO
-	oden.fish.net") by vger.kernel.org with ESMTP id <S316608AbSHGBIX>;
-	Tue, 6 Aug 2002 21:08:23 -0400
-Date: Wed, 7 Aug 2002 03:11:49 +0200
-From: Voluspa <voluspa@bigfoot.com>
-To: Zach Brown <zab@zabbo.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 MAESTRO sound /dev/dsp3 broken (luxury problem)
-Message-Id: <20020807031149.7a9ea69f.voluspa@bigfoot.com>
-In-Reply-To: <20020806155943.C15208@erasmus.off.net>
-References: <20020806004059.43db99fb.voluspa@bigfoot.com>
-	<1028593223.18478.129.camel@irongate.swansea.linux.org.uk>
-	<20020806155943.C15208@erasmus.off.net>
-Organization: The Foggy One
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S316599AbSHGBFT>; Tue, 6 Aug 2002 21:05:19 -0400
+Received: from jalon.able.es ([212.97.163.2]:10973 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S316235AbSHGBFS>;
+	Tue, 6 Aug 2002 21:05:18 -0400
+Date: Wed, 7 Aug 2002 03:08:14 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre1
+Message-ID: <20020807010814.GA11603@werewolf.able.es>
+References: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Tue, Aug 06, 2002 at 00:40:56 +0200
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Aug 2002 15:59:43 -0400
-Zach Brown <zab@zabbo.net> wrote:
 
-> > Can you try and find out exactly which kernel it broke at. The only
-> > maestro change Im aware of was in rc1-ac7 and wouldn't have that affect
-> > in any way I can imagine..
-> 
-> I remember reports from the depths of time that dsp3 didn't work.  I
-> wonder if there is some generation of chip that has a faulty set of high
-> apus.
+On 2002.08.06 Marcelo Tosatti wrote:
+>
+>So here goes -pre1, with a big -ac and x86-64 merges, plus other smaller
+>stuff.
+>
 
-The embarrasing thing is, I can't boot back to a working kernel. Having completed a marathon compilation I discover that it doesn't work even where it used to. Almost as if something physical has been blown to smithereens.
+Something is missing in the network merge:
 
-I'm not (overly) crazy. It _did_ work in 2.4.19-pre10-ac1+preempt. RealOne Player was bound through the environment variable AUDIO=/dev/dsp3 and gqmpeg had been configured to use /dev/dsp2.
+werewolf:/usr/src/linux# grep -r netif_receive_skb *
+drivers/net/tg3.c:                      netif_receive_skb(skb);
+Binary file drivers/net/e1000/e1000_main.o matches
+Binary file drivers/net/e1000/e1000.o matches
+include/linux/if_vlan.h:        //return (polling ? netif_receive_skb(skb) : netif_rx(skb));
 
-Btw, what I called 'a cry from the wilderness' is heavily distorted audio, at a volume about twice as high as the working channels are set to (which practically means maximum...)
+So I had to:
 
-You won't hear from me again unless a miracle happens...
+--- linux/include/linux/if_vlan.h.orig	2002-08-07 02:57:36.000000000 +0200
++++ linux/include/linux/if_vlan.h	2002-08-07 02:58:07.000000000 +0200
+@@ -183,7 +183,8 @@
+ 		break;
+ 	};
+ 
+-	return (polling ? netif_receive_skb(skb) : netif_rx(skb));
++	//return (polling ? netif_receive_skb(skb) : netif_rx(skb));
++	return netif_rx(skb);
+ }
+ 
+ static inline int vlan_hwaccel_rx(struct sk_buff *skb,
 
-Sorry to have wasted peoples time/bandwidth,
-Mats Johannesson
+To make e1000 build. But tg3 uses n_r_skb directly, so it is not useful for
+that.
+
+-- 
+J.A. Magallon             \   Software is like sex: It's better when it's free
+mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
+Linux werewolf 2.4.19-jam0, Mandrake Linux 9.0 (Cooker) for i586
+gcc (GCC) 3.2 (Mandrake Linux 9.0 3.2-0.2mdk)

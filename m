@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbUKCQ0n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbUKCQbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbUKCQ0n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 11:26:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbUKCQ0m
+	id S261695AbUKCQbT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 11:31:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbUKCQbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 11:26:42 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:25059 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261688AbUKCQ0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 11:26:33 -0500
-Date: Wed, 3 Nov 2004 08:47:48 -0800
-From: Matt Tolentino <metolent@snoqualmie.dp.intel.com>
-Message-Id: <200411031647.iA3GlmBm016951@snoqualmie.dp.intel.com>
-To: ak@suse.de
-Subject: [patch] remove direct mem_map refs for x86-64
-Cc: linux-kernel@vger.kernel.org
+	Wed, 3 Nov 2004 11:31:19 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51588 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261695AbUKCQbR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 11:31:17 -0500
+Date: Wed, 3 Nov 2004 11:31:03 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: james4765@verizon.net
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 5/5] documentation: Remove drivers/char/README.cycladesZ
+Message-ID: <20041103133103.GB4109@logos.cnet>
+References: <20041103152246.24869.2759.68945@localhost.localdomain> <20041103152314.24869.56459.88722@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041103152314.24869.56459.88722@localhost.localdomain>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi,
-
-No real functional change here.  Just use the pfn_to_page
-macros instead of directly indexing into the mem_map. 
-Patch is against 2.6.10-rc1-mm2.  Please consider...
-
-matt
-
-Signed-off-by: Matt Tolentino <matthew.e.tolentino@intel.com>
-
-This removes all but one direct reference to mem_map
-for x86-64.  This is needed on systems where we 
-break the mem_map up and directly indexing into 
-mem_map to get the page structure doesn't work anymore.
 
 
-diff -urN linux-2.6.10-rc1-mm2-vanilla/arch/x86_64/mm/init.c linux-2.6.10-rc1-mm2/arch/x86_64/mm/init.c
---- linux-2.6.10-rc1-mm2-vanilla/arch/x86_64/mm/init.c	2004-11-03 06:40:21.501214144 -0500
-+++ linux-2.6.10-rc1-mm2/arch/x86_64/mm/init.c	2004-11-03 06:20:34.000000000 -0500
-@@ -68,8 +68,8 @@
- 
- 	for_each_pgdat(pgdat) {
-                for (i = 0; i < pgdat->node_spanned_pages; ++i) {
--                       page = pgdat->node_mem_map + i;
--		total++;
-+			page = pfn_to_page(pgdat->node_start_pfn + i);
-+			total++;
-                        if (PageReserved(page))
- 			reserved++;
-                        else if (PageSwapCache(page))
-@@ -466,7 +466,7 @@
- 		/*
- 		 * Only count reserved RAM pages
- 		 */
--		if (page_is_ram(tmp) && PageReserved(mem_map+tmp))
-+		if (page_is_ram(tmp) && PageReserved(pfn_to_page(tmp)))
- 			reservedpages++;
- #endif
- 
+Why is this obsolete? 
+
+Users of Cyclades-Z still need to upload the firmware to the card.
+
+I'm OK with removal of cyclomY.README.
+
+On Wed, Nov 03, 2004 at 09:23:15AM -0600, james4765@verizon.net wrote:
+> Remove obsolete file in drivers/char.
+> 
+> Signed-off-by: James Nelson <james4765@gmail.com>
+> 
+> diff -urN --exclude='*~' linux-2.6.9-original/drivers/char/README.cycladesZ linux-2.6.9/drivers/char/README.cycladesZ
+> --- linux-2.6.9-original/drivers/char/README.cycladesZ	2004-10-18 17:54:32.000000000 -0400
+> +++ linux-2.6.9/drivers/char/README.cycladesZ	1969-12-31 19:00:00.000000000 -0500
+> @@ -1,8 +0,0 @@
+> -
+> -The Cyclades-Z must have firmware loaded onto the card before it will
+> -operate.  This operation should be performed during system startup,
+> -
+> -The firmware, loader program and the latest device driver code are
+> -available from Cyclades at
+> -    ftp://ftp.cyclades.com/pub/cyclades/cyclades-z/linux/
+> -
+> -

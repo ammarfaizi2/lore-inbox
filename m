@@ -1,118 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292357AbSBPLpu>; Sat, 16 Feb 2002 06:45:50 -0500
+	id <S292356AbSBPLuk>; Sat, 16 Feb 2002 06:50:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292356AbSBPLpl>; Sat, 16 Feb 2002 06:45:41 -0500
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:40125 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S292355AbSBPLp0>; Sat, 16 Feb 2002 06:45:26 -0500
-Message-ID: <3C6E462D.39039598@in.ibm.com>
-Date: Sat, 16 Feb 2002 17:14:45 +0530
-From: Rajasekhar Inguva <irajasek@in.ibm.com>
-X-Mailer: Mozilla 4.5 [en] (Win95; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: girouard@us.ibm.com
-CC: ctindel@ieee.org, willy@meta-x.org,
-        linux kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH]:Ethernet Bonding Driver-2.4.17
-Content-Type: multipart/mixed;
- boundary="------------2DF5B0BE26821A7CA897A995"
+	id <S292358AbSBPLua>; Sat, 16 Feb 2002 06:50:30 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:10964 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S292356AbSBPLu0>;
+	Sat, 16 Feb 2002 06:50:26 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 16 Feb 2002 11:50:15 GMT
+Message-Id: <UTC200202161150.LAA30214.aeb@cwi.nl>
+To: Andries.Brouwer@cwi.nl, john@mwk.co.nz, linux-kernel@vger.kernel.org,
+        martin.bene@icomedias.com
+Subject: Re: AW: Need to force IDE geometry
+Cc: andre@linux-ide.org, hugo@firstlinux.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------2DF5B0BE26821A7CA897A995
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+    From martin.bene@icomedias.com Sat Feb 16 10:13:30 2002
 
-Hi all,
+    Hi Andries,
 
-The patch is WRT a problem with the Ethernet Bonding Driver when
-compiled as a module. Tested on 2.4.17
-and the patch is also against 2.4.17.
+    For some reasons the c/h/s settings reported for LBA disks depend on ide =
+    device number: /hda uses 255 heads, 63 sectors while /dev/hdc and above =
+    use 16 head, 63 sectors.
 
-# insmod bonding max_bonds=2
-Using /lib/modules/2.4.17/kernel/drivers/net/bonding.o
-Warning: /lib/modules/2.4.17/kernel/drivers/net/bonding.o parameter
-max_bonds
-has max < min!
-/lib/modules/2.4.17/kernel/drivers/net/bonding.o: unknown parameter type
-'(' for
-max_bonds
+    hda: 150136560 sectors (76870 MB) w/1916KiB Cache, CHS=3D9345/255/63, =
+    UDMA(33)
+    hdb: 150136560 sectors (76870 MB) w/1916KiB Cache, CHS=3D148945/16/63, =
+    UDMA(33)
+    hdc: 150136560 sectors (76870 MB) w/1916KiB Cache, CHS=3D148945/16/63, =
+    UDMA(33)
 
-and the module fails to load.
+    As you can see, this means you end up with different reported drive =
+    geometries for identical disks. Esp. if you want to use software raid =
+    this is a major nuisance. The usual workaround is to change =
+    head/cylinder settings when first partitioning the drive and let linux =
+    change the geometry during partition table check.
 
-The problem seems to be with the way MODULE_PARM was written for
-max_bonds. 
+    Partition check:
+     hda: hda1 hda2 < hda5 hda6 > hda3
+     hdb: [PTBL] [9345/255/63] hdb1 hdb2 < hdb5 hdb6 > hdb3
+     hdc: [PTBL] [9345/255/63] hdc1 hdc2 < hdc5 hdc6 > hdc3
 
-MODULE_PARM(max_bonds,"1-" __MODULE_STRING(INT_MAX) "i"); 
+    While this works, it's quite unintuitive and confusing; correct =
+    behaviour would be to treat all disks identicaly regardless of device =
+    number.
 
-INT_MAX is defined to be ((int)(~0U>>1)) and 'insmod' gets the string
-"1-((int)(~0U>>1))i" which it is failing to understand.
+Yes, this is a FAQ. See
+	http://www.win.tue.nl/~aeb/linux/Large-Disk-14.html#ss14.2
+"Identical disks have different geometry?".
 
-As max_bonds is an integer and not an array, i feel omitting the min-max
-range would be a better option.
+You give as workaround bootparameters to Linux. My solution would
+probably be to set the disks to "Normal" in the BIOS.
+There is no need to tell the BIOS to do stupid tricks in order
+to avoid DOS problems since we are not running DOS.
+Moreover, with "Normal" the disk is slightly larger - for me the
+difference is 7 MB.
 
-And if a negative or zero value is supplied to max_bonds while loading,
-it can be taken care of in bonding_init() by setting it back to
-MAX_BONDS.
+(There is an unfortunate confusion here:
+LBA is used in two very different meanings:
+1) LBA "linear block addressing" is an access mode of disks.
+Every disk is accessed this way by Linux, unless it is really old.
+2) LBA "LBA assist" is a translation of disk geometry by the BIOS
+in order to bypass DOS deficiencies.
+Everyone wants the first, and gets it automatically.
+Nobody running Linux wants the second, but people choosing LBA
+in the BIOS setup usually think they are choosing the first.)
 
-Thx,
-Rajasekhar Inguva
-
-
---- /usr/src/linux/drivers/net/bonding.c	Fri Dec 21 23:11:54 2001
-+++ /usr/src/linux/drivers/fixed/bonding.c	Sat Feb 16 17:03:48 2002
-@@ -226,7 +226,7 @@
- static struct bonding *these_bonds =  NULL;
- static struct net_device *dev_bonds = NULL;
- 
--MODULE_PARM(max_bonds, "1-" __MODULE_STRING(INT_MAX) "i");
-+MODULE_PARM(max_bonds,"i");
- MODULE_PARM_DESC(max_bonds, "Max number of bonded devices");
- MODULE_PARM(miimon, "i");
- MODULE_PARM_DESC(miimon, "Link check interval in milliseconds");
-@@ -1981,6 +1981,10 @@
- 
- 	/* Find a name for this unit */
- 	static struct net_device *dev_bond = NULL;
-+
-+	/* If max_bonds <=0, set it to MAX_BONDS */
-+	if(max_bonds <=0)
-+		max_bonds = MAX_BONDS;
- 
- 	dev_bond = dev_bonds = kmalloc(max_bonds*sizeof(struct net_device), 
- 					GFP_KERNEL);
---------------2DF5B0BE26821A7CA897A995
-Content-Type: text/plain; charset=us-ascii;
- name="bonding.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="bonding.patch"
-
---- /usr/src/linux/drivers/net/bonding.c	Fri Dec 21 23:11:54 2001
-+++ /usr/src/linux/drivers/fixed/bonding.c	Sat Feb 16 17:03:48 2002
-@@ -226,7 +226,7 @@
- static struct bonding *these_bonds =  NULL;
- static struct net_device *dev_bonds = NULL;
- 
--MODULE_PARM(max_bonds, "1-" __MODULE_STRING(INT_MAX) "i");
-+MODULE_PARM(max_bonds,"i");
- MODULE_PARM_DESC(max_bonds, "Max number of bonded devices");
- MODULE_PARM(miimon, "i");
- MODULE_PARM_DESC(miimon, "Link check interval in milliseconds");
-@@ -1981,6 +1981,10 @@
- 
- 	/* Find a name for this unit */
- 	static struct net_device *dev_bond = NULL;
-+
-+	/* If max_bonds <=0, set it to MAX_BONDS */
-+	if(max_bonds <=0)
-+		max_bonds = MAX_BONDS;
- 
- 	dev_bond = dev_bonds = kmalloc(max_bonds*sizeof(struct net_device), 
- 					GFP_KERNEL);
-
---------------2DF5B0BE26821A7CA897A995--
-
+Andries

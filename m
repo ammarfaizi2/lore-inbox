@@ -1,124 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262045AbUDNXJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 19:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbUDNXHl
+	id S262041AbUDNXNU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 19:13:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbUDNXKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 19:07:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63425 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262045AbUDNXGE (ORCPT
+	Wed, 14 Apr 2004 19:10:30 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:1998 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S261982AbUDNWe2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 19:06:04 -0400
-Date: Wed, 14 Apr 2004 16:07:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: tytso@mit.edu, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH 0/4] ext3 block reservation patch set
-Message-Id: <20040414160714.30e34753.akpm@osdl.org>
-In-Reply-To: <1081963850.4714.6888.camel@localhost.localdomain>
-References: <200403190846.56955.pbadari@us.ibm.com>
-	<20040321015746.14b3c0dc.akpm@osdl.org>
-	<1080636930.3548.4549.camel@localhost.localdomain>
-	<20040330014523.6a368a69.akpm@osdl.org>
-	<1080956712.15980.6505.camel@localhost.localdomain>
-	<20040402175049.20b10864.akpm@osdl.org>
-	<1080959870.3548.6555.camel@localhost.localdomain>
-	<20040402185007.7d41e1a2.akpm@osdl.org>
-	<1081903949.3548.6837.camel@localhost.localdomain>
-	<20040413194734.3a08c80f.akpm@osdl.org>
-	<1081963850.4714.6888.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 14 Apr 2004 18:34:28 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16509.48237.556502.218222@napali.hpl.hp.com>
+Date: Wed, 14 Apr 2004 15:34:21 -0700
+To: Jamie Lokier <jamie@shareable.org>
+Cc: davidm@hpl.hp.com, linux-ia64@linuxia64.org,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Andrew Morton <akpm@osdl.org>, Kurt Garloff <garloff@suse.de>,
+       linux-kernel@vger.kernel.org, mingo@redhat.com
+Subject: Re: [PATCH] (IA64) Fix ugly __[PS]* macros in <asm-ia64/pgtable.h>
+In-Reply-To: <20040414210538.GG12105@mail.shareable.org>
+References: <9AB83E4717F13F419BD880F5254709E5011EBABA@scsmsx402.sc.intel.com>
+	<20040414082355.GA8303@mail.shareable.org>
+	<20040414113753.GA9413@mail.shareable.org>
+	<16509.25006.96933.584153@napali.hpl.hp.com>
+	<20040414184603.GA12105@mail.shareable.org>
+	<16509.35554.807689.904871@napali.hpl.hp.com>
+	<20040414192844.GD12105@mail.shareable.org>
+	<16509.39308.8764.219@napali.hpl.hp.com>
+	<20040414210538.GG12105@mail.shareable.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mingming Cao <cmm@us.ibm.com> wrote:
->
-> >   It's not clear when we should free up the write_state.  I guess we
-> >   could leave it around for the remaining lifetime of the inode - that'd
-> >   still be a net win.
+>>>>> On Wed, 14 Apr 2004 22:05:38 +0100, Jamie Lokier <jamie@shareable.org> said:
 
-> We could free up the write_state at the time of ext3_discard_allocation(),
-> (not at the time when we allocate a new reservation window)
-> 
-> or later if we preserve reservation for slow growing files, we release
-> the write_state at the time the inode is released.
+  Jamie> David Mosberger wrote:
 
-That sounds appropriate.
+  >> No, Alpha Linux didn't map data without execute permission.
 
-> > - You're performing ext3_discard_reservation() in ext3_release_file(). 
-> >   Note that the file may still have pending allocations at this stage: say,
-> >   open a file, map it MAP_SHARED, dirty some pages which lie over file
-> >   holes then close the file again.
-> > 
-> >   Later, the VM will come along and write those dirty pages into the
-> >   file, at which point allocations need to be performed.  But we have no
-> >   reservation data and, later, we may have no inode->write_state at all.
-> > 
-> >   What will happen?
-> > 
-> In this case, we will allocation a new reservation window for it.
-> Nothing bad will happen. We probably just waste a previously allocated
-> reservation window...but I am not sure.
-> 
-> My question is, if the file is first time opened, mapped, and we dirty
-> pages in the file hole, will there any really disk block allocation
-> involved there?
+  Jamie> That was true from Linux 1.1.67 (when Alpha was introduced)
+  Jamie> to 1.1.84 (when __[PS]* was introduced).  I'm not sure the
+  Jamie> Alpha target even worked during those versions.  Since Linux
+  Jamie> 1.1.84, it has mapped pages on the Alpha without execute
+  Jamie> permission: the _PAGE_FOE (fault on exec) bit is set for
+  Jamie> mappings which don't have PROT_EXEC.
 
-There might be, and there might not be.  It depends on timing, memory
-pressure, application activity, etc.
+$ uname -a
+Linux hostname 2.2.20 #2 Wed Mar 20 19:57:28 EST 2002 alpha GNU/Linux
+$ cat /proc/self/maps | grep cat
+0000000120000000-0000000120006000 r-xp 0000000000000000 08:01 309740     /bin/cat
+0000000120014000-0000000120016000 rwxp 0000000000004000 08:01 309740     /bin/cat
 
-> The current implementation is more than O(n): every time it does not
-> have a reservation window, it search from the head of per filesystem
-> reservation window list head. If it failed within the group, it will
-> move to the next group and start the search from the head of the list
-> again.
+As you can see, the data-segment is mapped with EXEC bit turned on.
+Ditto for the stack segment, which I think is this one:
 
-Same problem exists in arch_get_unmapped_area().  We have a funny little
-heuristic (free_area_cache) in there to speed up the common case.
+000000011fffe000-0000000120000000 rwxp 0000000000000000 00:00 0
 
-> This could be fixed by forget about the block group boundary at
-> all,(remove the for loop in ext3_new_block), make it searchs for a block
-> in a filesystem wide:)
-
-I do think we should do this.  Does it have any disadvantages?
-
-> I have concern about red black tree: it takes O(log(n)) to get where you
-> want to start, but it need also takes O(log(n)) compare to find the hole
-> size between two windows next to each other. And to find a reservable
-> window, we need to browse the whole red black tree in the worse case, so
-> the complexity is
-> 	O(log(n)) + O(log(n)) *O(n)) = O(n)*O(log(n))
-> 
-> Am I right?
-
-Think so.  rbtrees are optimised for loopkup, not for
-get-me-a-suitably-sized-hole.
-
-
-> > - Why do we discard the file's reservation on every iput()?  iput's are
-> >   relatively common operations. (see fs/fs-writeback.c)
-> > 
-> Yes..you are right! I was intent to call ext3_discard_allocation only
-> when the usage count of the inode is 0.  I looked at ext2 preallocation
-> code, it called ext2_discard_preallocation in ext2_put_inode(), so I
-> thought that's the place.  But it seems ext3_put_inode() being called
-> every time iput() is called.  We should call ext3_discard_reservation in
-> iput_final(). Should fix this in ext2.
-
-Could be. so.
-
-> > - What locking protects rsv_alloc_hit?  i_sem is not held during
-> >   VM-initiated writeout.  Maybe an atomic_t there, or just say that if we
-> >   race and the number is a bit inaccurate, we don't care?
-> > 
-> Currently no lock is protect rsv_alloc_hit.  The reason is it is just a
-> heuristics indicator of whether we should enlarge the reservation window
-> size next time. Even the hit ratio(50%) is just a rough guess, so, a
-> little bit inaccurate would not hurt much, adding another lock probably
-> not worth it. 
-
-I'd agree with that.
+	--david

@@ -1,87 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263439AbTKYX0c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 18:26:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263463AbTKYX0c
+	id S263660AbTKYXdr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 18:33:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbTKYXdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 18:26:32 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:63221 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S263439AbTKYX03
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 18:26:29 -0500
-Message-ID: <3FC3E51C.4000807@mvista.com>
-Date: Tue, 25 Nov 2003 15:26:20 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	Tue, 25 Nov 2003 18:33:47 -0500
+Received: from mid-1.inet.it ([213.92.5.18]:44974 "EHLO mid-1.inet.it")
+	by vger.kernel.org with ESMTP id S263660AbTKYXdo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 18:33:44 -0500
+From: Fabio Coatti <cova@ferrara.linux.it>
+Organization: FerraraLUG
+To: Marcel Holtmann <marcel@holtmann.org>, linux-kernel@vger.kernel.org
+Subject: Re: test9 and bluetooth - got it :)
+Date: Wed, 26 Nov 2003 00:33:20 +0100
+User-Agent: KMail/1.5.4
+Cc: "Maxim Krasnyansky <maxk@qualcomm.com>"@kefk.homelinux.org,
+       Mauro Tortonesi <mauro@deepspace6.net>
+References: <200311021853.47300.cova@ferrara.linux.it> <200311192219.02964.cova@ferrara.linux.it> <1069280879.9473.179.camel@pegasus>
+In-Reply-To: <1069280879.9473.179.camel@pegasus>
 MIME-Version: 1.0
-To: Joe Korty <joe.korty@ccur.com>
-CC: Peter Chubb <peter@chubb.wattle.id.au>, root@chaos.analogic.com,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Gabriel Paubert <paubert@iram.es>, john stultz <johnstul@us.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] possible erronous use of tick_usec in do_gettimeofday
-References: <20031028115558.GA20482@iram.es> <20031028102120.01987aa4.shemminger@osdl.org> <20031029100745.GA6674@iram.es> <20031029113850.047282c4.shemminger@osdl.org> <16288.17470.778408.883304@wombat.chubb.wattle.id.au> <3FA1838C.3060909@mvista.com> <Pine.LNX.4.53.0310301645170.16005@chaos> <16289.39801.239846.9369@wombat.chubb.wattle.id.au> <20031125164237.GA15498@rudolph.ccur.com> <3FC3B443.2060804@mvista.com> <20031125211240.GA15759@rudolph.ccur.com>
-In-Reply-To: <20031125211240.GA15759@rudolph.ccur.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8bit
+Message-Id: <200311260033.20580.cova@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Korty wrote:
-> On Tue, Nov 25, 2003 at 11:57:55AM -0800, George Anzinger wrote:
-> 
->>Joe Korty wrote:
->>
->>>test10's version of do_gettimeofday is using tick_usec which is
->>>defined in terms of USER_HZ not HZ.
->>
->>We still have the problem that we are doing this calculation in usecs while 
->>the wall clock uses nsecs.  This would be fine if there were an even number 
->>of usecs in tick_nsec, but in fact it is somewhat less than (USEC_PER_SEC / 
->>HZ).  This means that this correction (if we are behind by 7 or more ticks) 
->>will push the clock past current time.  Here are the numbers:
->>
->>tick_nsec =999849 or 1ms less 151 ns.  So if we are behind 7 or more ticks 
->>we will report the time out 1 us too high.  (7 * 151 = 1057 or 1.057 usec).
->>
->>Question is, do we care?  Will we ever be 7ms late in updating the wall 
->>clock? As I recall, the wall clock is updated in the interrupt handler for 
->>the tick so, to be this late, we would need to suffer a long interrupt hold 
->>off AND the tick recovery code would need to have done its thing.  But this 
->>whole time is covered by a write_seqlock on xtime_lock, so how can this 
->>even happen?  Seems like it is only possible when we are locked and we then 
->>throw the whole thing away.
->>
->>A test I would like to see is to put this in the code AFTER the read unlock:
->>
->>if (lost )
->>	printk("Lost is %d\n", lost);
->>
->>(need to pull "	unsigned long lost;" out of the do{}while loop to do 
->>this)
->>
->>In short, I think we are beating a dead issue.
-> 
-> 
-> There are other issues too: the 'lost' calculation is a prediction
-> over the next 'lost' number of ticks.  That prediction will be wrong
-> if 1) adjtime goes to zero within that interval or, 2) adjtime was
-> zero but went nonzero in that interval due to a adjtimex(2) call.
-> 
-> Despite these flaws the patch replaces truly broken code with code
-> that is good but slightly inaccurate, which is good enough for now.
+Alle 23:27, mercoledì 19 novembre 2003, Marcel Holtmann ha scritto:
 
-Can you prove that "lost" is EVER non-zero in a case we care about?  I.e. a case 
-where the read_seq will exit the loop?
+>
+> I don't wrote the SCO part of the HCI USB driver and I never worked with
+> USB ISOC transfers. At the moment we don't know if the problem is part
+> of the USB subsystem or if it is the driver itself, but I suspect it is
+> the driver. However I am the wrong person to ask for a fix :(
 
-I could be wrong here, but I don't think it can happen.  That is why I suggested 
-the if(lost) test.
+Thanks anyway; I've spent some time digging in logs with BT_DEBUG defined, and 
+I've seen something curious, so I'm posting here and cc'ing the hci_usb 
+module maintainer as seen on .c file; if someone else is in charge to follow 
+this code please let me know. I've tried the following without loading hcid 
+or sdpd, if I do it the crash when usb BT dongle is removed is granted :)
+
+
+The first thing that I've noticed when a usb BT dongle is plugged is this 
+error: (test9-bk24)
+
+Nov 25 21:16:02 kefk kernel: hci_usb_intr_rx_submit: hci0
+Nov 25 21:16:02 kefk kernel: hci_usb_bulk_rx_submit: hci0 urb f28f1614
+Nov 25 21:16:02 kefk kernel: __fill_isoc_desc: len 490 mtu 49
+Nov 25 21:16:02 kefk kernel: __fill_isoc_desc: desc 0 offset 0 len 49
+Nov 25 21:16:02 kefk kernel: __fill_isoc_desc: desc 1 offset 49 len 49
+Nov 25 21:16:02 kefk kernel: __fill_isoc_desc: desc 2 offset 98 len 49
+Nov 25 21:16:02 kefk kernel: __fill_isoc_desc: desc 3 offset 147 len 49
+Nov 25 21:16:02 kefk kernel: __fill_isoc_desc: desc 4 offset 196 len 49
+Nov 25 21:16:02 kefk kernel: __fill_isoc_desc: desc 5 offset 245 len 49
+Nov 25 21:16:02 kefk kernel: __fill_isoc_desc: desc 6 offset 294 len 49
+Nov 25 21:16:02 kefk kernel: __fill_isoc_desc: desc 7 offset 343 len 49
+Nov 25 21:16:02 kefk kernel: __fill_isoc_desc: desc 8 offset 392 len 49
+Nov 25 21:16:02 kefk kernel: __fill_isoc_desc: desc 9 offset 441 len 49
+Nov 25 21:16:02 kefk kernel: hci_usb_isoc_rx_submit: hci0 urb f567e414
+Nov 25 21:16:02 kefk kernel: hci_usb_isoc_rx_submit: hci0 isoc rx submit 
+failed urb f567e414 err -22
+Nov 25 21:16:02 kefk kernel: __hci_request: hci0 start
+
+i've checked and it seems that usb_submit_urb: fails here (line 340):
+
+        switch (temp) {
+        case PIPE_ISOCHRONOUS:
+        case PIPE_INTERRUPT:
+                /* too small? */
+                if (urb->interval <= 0)
+                        return -EINVAL;
+
+maybe urb->interval is not set from calling code:
+static int hci_usb_isoc_rx_submit(struct hci_usb *husb)
+(line 236 of ./drivers/bluetooth/hci_usb.c)
+but i don't know if this can cause harm.
+
+I've also noticed that when the sub dongle is unplugged, every 10 seconds I 
+get this:
+
+Nov 25 23:49:38 kefk kernel: drivers/usb/host/uhci-hcd.c: c000: suspend_hc
+Nov 25 23:49:47 kefk kernel: hci_sock_create: sock d9f14980
+Nov 25 23:49:47 kefk kernel: hci_sock_bind: sock d9f14980 sk dae8f500
+Nov 25 23:49:47 kefk kernel: hci_dev_get: 0
+Nov 25 23:49:57 kefk kernel: hci_sock_create: sock d9f14780
+Nov 25 23:49:57 kefk kernel: hci_sock_bind: sock d9f14780 sk dae8f980
+Nov 25 23:49:57 kefk kernel: hci_dev_get: 0
+Nov 25 23:50:07 kefk kernel: hci_sock_create: sock d9f14580
+Nov 25 23:50:07 kefk kernel: hci_sock_bind: sock d9f14580 sk dae8f680
+Nov 25 23:50:07 kefk kernel: hci_dev_get: 0
+
+and the use count of bluetooth module get a +2 increment each time. (hci_usb 
+is not loaded)
+I can see the same behaviour with 2.6.0-test10-bk1
+
+Module                  Size  Used by
+bnep                   11648  0
+l2cap                  26368  1 bnep
+bluetooth              47972  36 bnep,l2cap
+
+The same holds even if I unload bnep and l2cap modules.
+
+I'll be happy to add any needed information or make other tests, just let me 
+know.
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Fabio Coatti       http://www.ferrara.linux.it/members/cova     
+Ferrara Linux Users Group           http://ferrara.linux.it
+GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
+Old SysOps never die... they simply forget their password.
 

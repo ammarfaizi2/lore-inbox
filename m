@@ -1,41 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316106AbSGVEmP>; Mon, 22 Jul 2002 00:42:15 -0400
+	id <S316695AbSGVKyV>; Mon, 22 Jul 2002 06:54:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316113AbSGVEmP>; Mon, 22 Jul 2002 00:42:15 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60168 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316106AbSGVEmO>;
-	Mon, 22 Jul 2002 00:42:14 -0400
-Message-ID: <3D3B8FBE.D5C11685@zip.com.au>
-Date: Sun, 21 Jul 2002 21:53:18 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
+	id <S316709AbSGVKyU>; Mon, 22 Jul 2002 06:54:20 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:25608 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316695AbSGVKxp>; Mon, 22 Jul 2002 06:53:45 -0400
+Message-ID: <3D3BE3A9.4030704@evision.ag>
+Date: Mon, 22 Jul 2002 12:51:21 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-To: Heinz Diehl <hd@cavy.de>
-CC: linux-kernel@vger.kernel.org, sct@redhat.com
-Subject: Re: [2.5.26] ext3 from Dec. 2001?
-References: <20020720151600.GA268@chiara.cavy.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.5.27 wait
+References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com>
+Content-Type: multipart/mixed;
+ boundary="------------070401060900010707070900"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heinz Diehl wrote:
-> 
-> Hi!
-> 
-> Just a short question: is there a patch for 2.5.26 to update ext3 to
-> ext3-0.9.18? There's still ext3-0.9.16 from Dec. 2001 present in 2.5.26.
-> At ../people/sct on ftp.kernel.org there are only updates for kernel
-> 2.2 and 2.4.
+This is a multi-part message in MIME format.
+--------------070401060900010707070900
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-2.5 is uptodate wrt the current ext3-for-2.4 development tree.
-That means that it's more uptodate than 2.4 is...
+- Struct initializers are in C now.
+- Remove unused add_wait_queue_cond() macro.
 
-Some recent changes to ext3 have exposed a data=journal bug
-in 2.5 which is also present in 2.4, but is much harder to hit
-there.  I'm not sure what Stephen's intentions are on a 2.4
-upgrade, but I'd be inclined to sit tight until 2.4.20-pre.
+--------------070401060900010707070900
+Content-Type: text/plain;
+ name="wait-2.5.27.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="wait-2.5.27.diff"
 
+diff -urN linux-2.5.27/include/linux/wait.h linux/include/linux/wait.h
+--- linux-2.5.27/include/linux/wait.h	2002-07-20 21:11:04.000000000 +0200
++++ linux/include/linux/wait.h	2002-07-22 00:02:30.000000000 +0200
+@@ -43,16 +43,16 @@
+  */
+ 
+ #define __WAITQUEUE_INITIALIZER(name, tsk) {				\
+-	task:		tsk,						\
+-	func:		default_wake_function,				\
+-	task_list:	{ NULL, NULL } }
++	.task =		tsk,						\
++	.func =		default_wake_function,				\
++	.task_list =	{ NULL, NULL } }
+ 
+ #define DECLARE_WAITQUEUE(name, tsk)					\
+ 	wait_queue_t name = __WAITQUEUE_INITIALIZER(name, tsk)
+ 
+ #define __WAIT_QUEUE_HEAD_INITIALIZER(name) {				\
+-	lock:		SPIN_LOCK_UNLOCKED,				\
+-	task_list:	{ &(name).task_list, &(name).task_list } }
++	.lock =		SPIN_LOCK_UNLOCKED,				\
++	.task_list =	{ &(name).task_list, &(name).task_list } }
+ 
+ #define DECLARE_WAIT_QUEUE_HEAD(name) \
+ 	wait_queue_head_t name = __WAIT_QUEUE_HEAD_INITIALIZER(name)
+@@ -103,22 +103,6 @@
+ 	list_del(&old->task_list);
+ }
+ 
+-#define add_wait_queue_cond(q, wait, cond) \
+-	({							\
+-		unsigned long flags;				\
+-		int _raced = 0;					\
+-		spin_lock_irqsave(&(q)->lock, flags);	\
+-		(wait)->flags = 0;				\
+-		__add_wait_queue((q), (wait));			\
+-		rmb();						\
+-		if (!(cond)) {					\
+-			_raced = 1;				\
+-			__remove_wait_queue((q), (wait));	\
+-		}						\
+-		spin_lock_irqrestore(&(q)->lock, flags);	\
+-		_raced;						\
+-	})
 -
+ #endif /* __KERNEL__ */
+ 
+ #endif
+
+--------------070401060900010707070900--
+

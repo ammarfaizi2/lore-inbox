@@ -1,57 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262737AbVA1TJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262718AbVA1TJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262737AbVA1TJg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 14:09:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262738AbVA1TEj
+	id S262718AbVA1TJc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 14:09:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262734AbVA1TEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 14:04:39 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:3777 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261515AbVA1TA5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 14:00:57 -0500
-Date: Fri, 28 Jan 2005 20:00:52 +0100
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: linuxppc-dev@ozlabs.org
-Subject: Re: atkbd_init lockup with 2.6.11-rc1
-Message-ID: <20050128190052.GA4885@suse.de>
-References: <20050128132202.GA27323@suse.de>
+	Fri, 28 Jan 2005 14:04:10 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:16141 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261503AbVA1TBt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 14:01:49 -0500
+Subject: Re: make flock_lock_file_wait static
+From: Arjan van de Ven <arjan@infradead.org>
+To: paulmck@us.ibm.com
+Cc: Arjan van de Ven <arjanv@infradead.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>, viro@zenII.uk.linux.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050128141446.GA1868@us.ibm.com>
+References: <1105345168.4171.11.camel@laptopd505.fenrus.org>
+	 <1105346324.4171.16.camel@laptopd505.fenrus.org>
+	 <1105367014.11462.13.camel@lade.trondhjem.org>
+	 <1105432299.3917.11.camel@laptopd505.fenrus.org>
+	 <1105471004.12005.46.camel@lade.trondhjem.org>
+	 <1105472182.3917.49.camel@laptopd505.fenrus.org>
+	 <20050125185812.GA1499@us.ibm.com>
+	 <1106730061.6307.62.camel@laptopd505.fenrus.org>
+	 <20050126160715.GB1266@us.ibm.com>
+	 <1106765983.6307.134.camel@laptopd505.fenrus.org>
+	 <20050128141446.GA1868@us.ibm.com>
+Content-Type: text/plain
+Date: Fri, 28 Jan 2005 20:01:34 +0100
+Message-Id: <1106938895.7776.33.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20050128132202.GA27323@suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Fri, Jan 28, Olaf Hering wrote:
-
+On Fri, 2005-01-28 at 06:14 -0800, Paul E. McKenney wrote:
+> On Wed, Jan 26, 2005 at 07:59:42PM +0100, Arjan van de Ven wrote:
+> > On Wed, 2005-01-26 at 08:07 -0800, Paul E. McKenney wrote:
+> > 
+> > > > Another question: is the SDD module even available for mainline kernels,
+> > > > or is it only available for distribution kernels ?
+> > > 
+> > > Distributions only.
+> > 
+> > don't you think it's a bit weird/offensive to ask for exports in the
+> > mainline kernel.org kernel while all you care about is certain vendor
+> > kernels and never plan to provide it for mainline????
 > 
-> My IBM RS/6000 B50 locks up with 2.6.11rc1, it dies in atkbd_init():
-> 
-> Calling initcall 0xc03c272c: atkbd_init+0x0/0x38()
-> ps2_init(224) swapper(1):c0,j4294680939 enter
-> atkbd_connect(793) swapper(1):c0,j4294680993 type 1000000
-> serio_open(606) swapper(1):c0,j4294681061 enter
-> serio_set_drv(594) swapper(1):c0,j4294681117 enter
-> serio_set_drv(600) swapper(1):c0,j4294681176 leave
-> i8042_write_command(69) swapper(1):c0,j4294681236 enter
-> i8042_write_data(62) swapper(1):c0,j4294681236 enter
-> serio_open(614) swapper(1):c0,j4294681363 leave0
-> atkbd_probe(497) swapper(1):c0,j4294681421 enter
-> ps2_command(91) swapper(1):c0,j4294681478 enter
-> ps2_sendbyte(57) swapper(1):c0,j4294681534 enter
-> serio_write(95) swapper(1):c0,j4294681591 write c01b65ac
-> i8042_aux_write(253) swapper(1):c0,j4294681658 enter
-> i8042_write_command(69) swapper(1):c0,j4294681720 enter
-> i8042_write_data(62) swapper(1):c0,j4294681720 enter
+> In my experience, the only way to get exports into a major distribution
+> is to get them into mainline kernel.org.  If you can get Red Hat to
+> change its stance on this, works for me!
 
-If I remove this patch from 2.6.10-bk12, it works again. 
-No drivers were changed, I see lots of "mm" which is scary.
-Any takers?
+so a business problem between IBM and Red Hat is reason to bloat
+everyones kernel ????
 
-http://penguinppc.org/~olaf/bk12.diff.gz
-.config contains just enough to get to the atkbd_init() function.
+that's sooo wrong.
+
+(and no I cannot change the RH policy) 
+
 

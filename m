@@ -1,93 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268582AbUILJRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268544AbUILJYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268582AbUILJRv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 05:17:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268544AbUILJRu
+	id S268544AbUILJYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 05:24:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268553AbUILJYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 05:17:50 -0400
-Received: from [211.58.254.17] ([211.58.254.17]:21996 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S268581AbUILJQb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 05:16:31 -0400
-Date: Sun, 12 Sep 2004 18:16:28 +0900
-To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de
-Subject: [PATCH] Interrupt entry CONFIG_FRAME_POINTER fix
-Message-ID: <20040912091628.GB13359@home-tj.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="xgyAXRrhYN0wYx8y"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040818i
-From: Tejun Heo <tj@home-tj.org>
+	Sun, 12 Sep 2004 05:24:16 -0400
+Received: from outbound01.telus.net ([199.185.220.220]:24962 "EHLO
+	priv-edtnes56.telusplanet.net") by vger.kernel.org with ESMTP
+	id S268544AbUILJYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 05:24:08 -0400
+From: "Wolfpaw - Dale Corse" <admin@wolfpaw.net>
+To: <willy@w.ods.org>
+Cc: <peter@mysql.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.4.27 SECURITY BUG - TCP Local (probable Remote) Denial of Service
+Date: Sun, 12 Sep 2004 03:24:11 -0600
+Message-ID: <001201c498aa$43b16ce0$0200a8c0@wolf>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: Normal
+In-Reply-To: <026001c4989c$e2bddbb0$0300a8c0@s>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Willy,
 
---xgyAXRrhYN0wYx8y
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> TIME_WAIT status does not eat much resource, since they're in 
+> a separate list. I've already had several *millions* of while 
+> stressing some equipment, and I can assure you that it's 
+> really not a problem as long as you increase your 
+> tcp_max_tw_buckets accordingly. There is even no performance 
+> impact (I could still get 40000 hits/s with this number of 
+> time-waits). As David said, the connection has been closed 
+> when it enters TIME_WAIT, so it has been detached from apache.
 
- On x86_64, rbp isn't saved on entering interrupt handler even when
-CONFIG_FRAME_POINTER is turned on.  This breaks profile_pc()
-(resulting in oops) which uses regs->rbp to track back to the original
-stack.  Save full stack when CONFIG_FRAME_POINTER is specified.
+This is the odd part, try the exploit, they are detached in
+the list, but it appears apache isn't aware of that. If you
+run the code, and do multiple telnets from another window,
+you will see that there are occurrences where a connection
+can't be established, and this is where the problem is. I
+used a stock version of Mysql 3 (latest stable), stock
+apache, on an unmoded Linux box (except it had GrSecurity)
+and I was able to see a noticeable slowdown in web transactions
+with a browser. I was also the only person hitting the machine.
 
--- 
-tejun
+I am not saying you are incorrect, I'm simply clarifying what
+seems to be occurring with the issue I found.
 
+Do you happen to know of any solution for sockets stuck in
+CLOSE_WAIT, they seem to stick around forever.
 
---xgyAXRrhYN0wYx8y
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="x86_64_frame_pointer.patch"
+This bug may be more Mysql then kernel, I don't know - I still
+would tend to think these connections should not be clogging up
+the applications connection queue, and that CLOSE_WAIT should
+have a settable timeout, regardless of what the RFC says about it.
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/09/12 16:38:06+09:00 tj@htj.dyndns.org 
-#   On x86_64, rbp isn't saved on entering interrupt handler even when
-#   CONFIG_FRAME_POINTER is turned on.  This breaks profile_pc() which
-#   uses regs->rbp to track back to the original stack.  Save full stack
-#   when CONFIG_FRAME_POINTER is specified.
-# 
-# arch/x86_64/kernel/entry.S
-#   2004/09/12 16:37:55+09:00 tj@htj.dyndns.org +10 -4
-#   On x86_64, rbp isn't saved on entering interrupt handler even when
-#   CONFIG_FRAME_POINTER is turned on.  This breaks profile_pc() which
-#   uses regs->rbp to track back to the original stack.  Save full stack
-#   when CONFIG_FRAME_POINTER is specified.
-# 
-diff -Nru a/arch/x86_64/kernel/entry.S b/arch/x86_64/kernel/entry.S
---- a/arch/x86_64/kernel/entry.S	2004-09-12 18:05:16 +09:00
-+++ b/arch/x86_64/kernel/entry.S	2004-09-12 18:05:16 +09:00
-@@ -410,8 +410,8 @@
- 	CFI_REL_OFFSET	rsp,(RSP-ORIG_RAX)
- 	CFI_REL_OFFSET	rip,(RIP-ORIG_RAX)
- 	cld
--#ifdef CONFIG_DEBUG_INFO
--	SAVE_ALL	
-+#if defined(CONFIG_DEBUG_INFO)
-+	SAVE_ALL
- 	movq %rsp,%rdi
- 	/*
- 	 * Setup a stack frame pointer.  This allows gdb to trace
-@@ -419,10 +419,16 @@
- 	 */
- 	movq %rsp,%rbp
- 	CFI_DEF_CFA_REGISTER	rbp
--#else		
-+#elif defined(CONFIG_FRAME_POINTER)
-+	/* Save full stack frame such that interrupt handlers can trace
-+	 * back to the original stack using regs->rbp.  Currently,
-+	 * profile_pc() uses it when CONFIG_SMP is also turned on. */
-+	SAVE_ALL
-+	movq %rsp,%rdi
-+#else
- 	SAVE_ARGS
- 	leaq -ARGOFFSET(%rsp),%rdi	# arg1 for handler
--#endif	
-+#endif
- 	testl $3,CS(%rdi)
- 	je 1f
- 	swapgs	
+I did experience more CLOSE_WAIT's stuck at one point with Mysql..
+we had an issue wherein after calling mysql_close with the C API
+it was still leaving the sessions established, so I had moved the
+timeout on that sql daemon to 20 seconds (its all fast transactions)
+.. This caused a lot of CLOSE_WAIT issues for some reason. We then
+added something that would go through and use 'close' on the fd of
+the Mysql connection, after mysql_close was called. This had the
+odd effect of the fd being reused by a connection, before it was
+out of CLOSE_WAIT and actually closed, so it would close the new
+Connection, and also the old one :P which led us to this discovery
+that connect() appears to reuse FD's before they are actually fully
+closed.. This is how it appears anyway. Thus my use of specifically
+mysql and connect in the PoC code.
 
---xgyAXRrhYN0wYx8y--
+Hope that helps some :)
+
+Thanks :)
+D.
+

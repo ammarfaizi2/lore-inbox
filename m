@@ -1,70 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287361AbRL3Ivi>; Sun, 30 Dec 2001 03:51:38 -0500
+	id <S287362AbRL3JDR>; Sun, 30 Dec 2001 04:03:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287362AbRL3Iv1>; Sun, 30 Dec 2001 03:51:27 -0500
-Received: from TheForce.com.au ([203.18.20.200]:16141 "EHLO
-	ob1.theforce.com.au") by vger.kernel.org with ESMTP
-	id <S287361AbRL3IvO>; Sun, 30 Dec 2001 03:51:14 -0500
-Subject: VCD/XA files not reading
-From: Grahame Jordan <gbj@theforce.com.au>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S287364AbRL3JDI>; Sun, 30 Dec 2001 04:03:08 -0500
+Received: from [203.197.145.76] ([203.197.145.76]:43526 "HELO
+	mailnpd.hcltech.com") by vger.kernel.org with SMTP
+	id <S287362AbRL3JCq>; Sun, 30 Dec 2001 04:02:46 -0500
+Message-ID: <015d01c19111$299ab1c0$3e64a8c0@hcltech.com>
+From: "Kousalya K" <kkasinat@npd.hcltech.com>
+To: <rddunlap@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L2.0112040902260.18921-100000@dragon.pdx.osdl.net>
+Subject: Any idea about watchdog timer in linux
+Date: Sun, 30 Dec 2001 14:35:42 +0530
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 30 Dec 2001 19:51:02 +1100
-Message-Id: <1009702262.2223.32.camel@falcon>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi all,
 
-I have a video cd that mounts OK and reads the smaller files, but when I
-try to read the mpeg file (avseq01.dat) it fails.  There seems to be
-support for XA in include/linux/cdrom.h but it's not working for me.  I
-downloaded the same file to my HDD and it works fine.
+I wanted to call a timer function to get current time within kernel space. I
+don't want any function call to do this.
+Any idea ? In AIX we have watchdog stucture and w_stop, w_start, w_init
+functions are there to stop, initiate and  start the watchdog timer.
+Anything like that is available in linux?
 
-Kernel 2.4.16
-CDROM: Pioneer DVD-116
-
-
-When using:
-cp avseq01.dat /var/tmp
-cp: reading `avseq01.dat': Input/output error
+TIA,
+Kousalya.
 
 
-dmesg gives:
-
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x50
-end_request: I/O error, dev 16:00 (hdc), sector 1920
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x50
-end_request: I/O error, dev 16:00 (hdc), sector 1924
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x50
-end_request: I/O error, dev 16:00 (hdc), sector 1928
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x50
-end_request: I/O error, dev 16:00 (hdc), sector 1932
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x50
-end_request: I/O error, dev 16:00 (hdc), sector 1936
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x50
-end_request: I/O error, dev 16:00 (hdc), sector 1940
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x50
-end_request: I/O error, dev 16:00 (hdc), sector 1944
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x50
-end_request: I/O error, dev 16:00 (hdc), sector 1948
-
-
-Thanks
-
--- 
-Grahame Jordan
-TheForce
 

@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267417AbUH1QeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267389AbUH1QeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267417AbUH1QeP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 12:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267372AbUH1Qbj
+	id S267389AbUH1QeN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 12:34:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267378AbUH1QcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 12:31:39 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:65493 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S267486AbUH1Q0k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 12:26:40 -0400
-Date: Sat, 28 Aug 2004 18:26:34 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch][1/3] ipc/ BUG -> BUG_ON conversions
-Message-ID: <20040828162633.GG12772@fs.tum.de>
-References: <20040828151137.GA12772@fs.tum.de> <20040828151544.GB12772@fs.tum.de> <098EB4E1-F90C-11D8-A7C9-000393ACC76E@mac.com>
+	Sat, 28 Aug 2004 12:32:24 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:46497 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267389AbUH1QZx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 12:25:53 -0400
+Subject: Re: reverse engineering pwcx
+From: Lee Revell <rlrevell@joe-job.com>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       clemtaylor@comcast.net, qg@biodome.org, rogers@isi.edu
+In-Reply-To: <1093709838.434.6797.camel@cube>
+References: <1093709838.434.6797.camel@cube>
+Content-Type: text/plain
+Message-Id: <1093710358.8611.22.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <098EB4E1-F90C-11D8-A7C9-000393ACC76E@mac.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 28 Aug 2004 12:25:59 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 28, 2004 at 12:05:10PM -0400, Kyle Moffett wrote:
-> On Aug 28, 2004, at 11:15, Adrian Bunk wrote:
-> >The patch below does BUG -> BUG_ON conversions in ipc/ .
-> >--- linux-2.6.9-rc1-mm1-full-3.4/ipc/shm.c.old	2004-08-28 
-> >15:55:28.000000000 +0200
-> >+++ linux-2.6.9-rc1-mm1-full-3.4/ipc/shm.c	2004-08-28 
-> >16:02:56.000000000 +0200
-> >@@ -86,8 +86,7 @@
-> > static inline void shm_inc (int id) {
-> > 	struct shmid_kernel *shp;
-> >
-> >-	if(!(shp = shm_lock(id)))
-> >-		BUG();
-> >+	BUG_ON(!(shp = shm_lock(id)));
+On Sat, 2004-08-28 at 12:17, Albert Cahalan wrote:
+> > The LavaRnd guys examined the pixels on the actual
+> > CCD chip.  It's 160x120.  The 'decompression' is
+> > just interpolation.
 > 
-> This won't work:
-> 
-> With debugging mode:
-> if (unlikely(!(shp = shm_lock(id)))) BUG();
-> 
-> Without debugging mode:
-> do { } while(0)
+> Don't put much faith in the 160x120 number. Suppose
+> that the chip is in a Bayer pattern, with 160x120
+> of those. Well, how many pixels is that? Who knows.
+> You'd sort of have 160x120, but with double the
+> green data. Since green carries most of the luminance
+> information, producing a larger image is reasonable.
 
-Where in 2.6.9-rc1-mm1 is this "Without debugging mode" defined?
+Right, as someone else pointed out, this is wrong.
 
-> Anything you put in BUG_ON() must *NOT* have side effects.
->...
+How do you account for the Slashdot poster's assertion that it's
+physically impossible to cram 640 x 480 worth of data down a USB 1.1
+pipe?
 
-I'd have said exactly the same some time ago, but I was convinced by 
-Arjan that if done correctly, a BUG_ON() with side effects is possible  
-with no extra cost even if you want to make BUG configurably do nothing.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Lee
 

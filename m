@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263465AbTEMVWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 17:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263437AbTEMVVl
+	id S263522AbTEMV3O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 17:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263528AbTEMV3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 17:21:41 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:10746 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S262454AbTEMVVd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 17:21:33 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Chuck Ebbert <76306.1226@compuserve.com>,
-       Yoav Weiss <ml-lkml@unpatched.org>
-Subject: Re: The disappearing sys_call_table export.
-Date: Tue, 13 May 2003 16:32:48 -0500
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-References: <200305131048_MC3-1-38B1-E13F@compuserve.com>
-In-Reply-To: <200305131048_MC3-1-38B1-E13F@compuserve.com>
+	Tue, 13 May 2003 17:29:14 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:18188 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263522AbTEMV3K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 17:29:10 -0400
+Date: Tue, 13 May 2003 22:41:52 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Console bug fix.
+Message-ID: <Pine.LNX.4.44.0305132237570.12672-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Message-Id: <03051316324801.20373@tabby>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 May 2003 09:45, Chuck Ebbert wrote:
-> Jesse Pollard wrote:
-> > > However, it'll just give you false sense of security.  First of all,
-> > > its hardware dependent.  Second, it won't get wipe in case of a crash
-> > > (which is likely to happen when They come to take your disk).
-> >
-> > It is also not a valid wipe either.
-> >
-> > This particular object reuse assumes the hardware is in a secured area.
-> > If it is in a secured area then you don't need to wipe it. It remains
-> > completely under the systems control (even during a crash and reboot).
-> > The interval between crash and reboot is covered by the requirement to be
-> > in a secured area.
->
->   ...until the admin walks in, shuts down the system, puts it on a cart
-> and hauls it out the door.  Is he going to wipe the swap area before he
-> does that?  Sure, you can write a procedure that says that's what he does
-> but he will not follow it (been there done that.)
 
-If you are in that situation, the what keeps him from just pulling the plug...
-Again, the swap doesn't get purged.
+The font size needs to be set for all terminals. This patch fixes that. 
+Please apply.
 
-If you are in a situation where swap must be purged (as I am) then you also
-know you can't just walk out the door with the system. There must be property
-passes, security passes, AND inventory documents that must also show the
-contents of the purged disks... signed off by the information security
-officer.
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1077  -> 1.1078 
+#	drivers/char/vt_ioctl.c	1.22    -> 1.23   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/05/12	jsimmons@maxwell.earthlink.net	1.1078
+# [CONSOLE] This was the bug that was causing dual head (vga and mda) to lock up.
+# --------------------------------------------
+#
+diff -Nru a/drivers/char/vt_ioctl.c b/drivers/char/vt_ioctl.c
+--- a/drivers/char/vt_ioctl.c	Mon May 12 14:12:47 2003
++++ b/drivers/char/vt_ioctl.c	Mon May 12 14:12:47 2003
+@@ -869,13 +869,13 @@
+ 		if (clin > 32)
+ 			return -EINVAL;
+ 		    
+-		if (vlin)
+-			vc->vc_scan_lines = vlin;
+-		if (clin)
+-			vc->vc_font.height = clin;
+-	
+-		for (i = 0; i < MAX_NR_CONSOLES; i++)
++		for (i = 0; i < MAX_NR_CONSOLES; i++) {
++			if (vlin)
++				vc_cons[i].d->vc_scan_lines = vlin;
++			if (clin)
++				vc_cons[i].d->vc_font.height = clin;
+ 			vc_resize(i, cc, ll);
++		}
+   		return 0;
+ 	}
+ 
+

@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262640AbSJBWbP>; Wed, 2 Oct 2002 18:31:15 -0400
+	id <S262685AbSJBWws>; Wed, 2 Oct 2002 18:52:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262659AbSJBWbP>; Wed, 2 Oct 2002 18:31:15 -0400
-Received: from 111-245-ADSL.red.retevision.es ([80.224.245.111]:15447 "EHLO
-	quakers.net") by vger.kernel.org with ESMTP id <S262640AbSJBWau>;
-	Wed, 2 Oct 2002 18:30:50 -0400
-Message-ID: <3D9B75CA.3030504@eresmas.net>
-Date: Thu, 03 Oct 2002 00:40:10 +0200
-From: Manuel Clos <llanero@eresmas.net>
+	id <S262650AbSJBWws>; Wed, 2 Oct 2002 18:52:48 -0400
+Received: from cp44749-a.roemd1.lb.home.nl ([217.121.99.54]:56317 "EHLO
+	garion.edsons.demon.nl") by vger.kernel.org with ESMTP
+	id <S262685AbSJBWwr>; Wed, 2 Oct 2002 18:52:47 -0400
+Message-ID: <3D9B7B05.1080307@edsons.demon.nl>
+Date: Thu, 03 Oct 2002 01:02:29 +0200
+From: Rudy Zijlstra <rudy@edsons.demon.nl>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en, es-es
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.40]: Various "sleeping function called ..." messages
+To: linux-kernel@vger.kernel.org, mec@shout.net
+Subject: make menuconfig fail on 2.5.40
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi,
 
-I'm not subscribed, so please CC me.
+as requested by "make menuconfig" when it crahed out from under me, a 
+report on the error it generated.
 
-I got this messages at startup:
+kernel to be configured: 2.5.40, unmodified from kernel.org
+section: ALSA configuration
+error: ./script/Menuconfig: MCmenu74: command not found
 
-hda: DMA disabled
-hdb: DMA disabled
-...
-Debug: sleeping function called from illegal context at slab.c:1374
-...
-Debug: sleeping function called from illegal context at slab.c:1374
-...
+running system: Dual Athlon 1900 with SMP 2.4.19 kernel (slackware 8.1)
 
-dmesg > 2.5.40-boot.txt is at:
+Cheers,
 
-http://llanero.eresmas.net/kernel/2.5.40-boot.txt
+Rudy
 
-
--- 
-Manuel Clos
-llanero@eresmas.net
-
-TCPA y Palladium: http://bulmalug.net/body.phtml?nIdNoticia=1398
-TCPA and Palladium: http://www.cl.cam.ac.uk/~rja14/tcpa-faq.html
 

@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbUE1KjV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUE1LD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbUE1KjV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 06:39:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265875AbUE1KjV
+	id S261184AbUE1LD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 07:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbUE1LD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 06:39:21 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:10462 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S262256AbUE1KjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 06:39:17 -0400
-Date: Fri, 28 May 2004 11:37:47 +0100
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andrey Panin <pazke@donpac.ru>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc1-mm1
-Message-ID: <20040528103747.GA11265@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, Andrey Panin <pazke@donpac.ru>,
-	linux-kernel@vger.kernel.org
-References: <20040527015259.3525cbbc.akpm@osdl.org> <20040527115327.GA7499@pazke> <20040527112041.531a52e4.akpm@osdl.org> <20040528054653.GB7499@pazke> <20040527225231.722c3a93.akpm@osdl.org>
+	Fri, 28 May 2004 07:03:27 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:52996 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S261184AbUE1LDZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 07:03:25 -0400
+Subject: Re: 2.6.7-rc1-mm1: revert
+	leave-runtime-suspended-devices-off-at-system-resume.patch
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Todd Poynor <tpoynor@mvista.com>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20040527233432.GE7176@slurryseal.ddns.mvista.com>
+References: <1085658551.1998.7.camel@teapot.felipe-alfaro.com>
+	 <20040527233432.GE7176@slurryseal.ddns.mvista.com>
+Content-Type: text/plain
+Message-Id: <1085742197.1684.0.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040527225231.722c3a93.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
+Date: Fri, 28 May 2004 13:03:17 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 27, 2004 at 10:52:31PM -0700, Andrew Morton wrote:
+On Fri, 2004-05-28 at 01:34, Todd Poynor wrote:
 
- > > > Confused.  What's the problem with that?
- > > Just yet another rediff of my DMI patches :)
- > err, what DMI patches?
+> > 2.6.7-rc-mm1 includes
+> > "leave-runtime-suspended-devices-off-at-system-resume" which causes
+> > mayor problems when used on my ACPI laptop. After resuming from S3
+> > (STR), both the CardBus and UHCI-HCD bridges won't come up from
+> > suspension, rendering them completely unusable: neither my CardBus NIC,
+> > nor my USB mouse are recognized or functional.
+> 
+> Aargh, USB drivers appear to be the only drivers to modify that field, I
+> didn't catch that, sorry.  The following patch against 2.6.6 adds a new
+> field for "previous state", so that drivers that modify their own
+> dev->power.power_state during the suspend callback will be resumed.  Can
+> send a patch to fix 2.6.7-rc1-mm1 if desired.
 
-Andrey's very nice cleanup of the DMI handlers, which pretty
-much everyone agreed was a vast improvement over what we currently
-have.
-
-Andrey: I've got 1-2 patches pending for the DMI stuff too,
-but I'll wait until your stuff has got merged somewhere,
-and then mail incrementals on top.
-
-		Dave
+I would like to see the patch against 2.6.7-rc1-mm1.
+Thanks!
 

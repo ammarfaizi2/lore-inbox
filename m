@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266469AbUA2WkT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 17:40:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266471AbUA2WkT
+	id S266464AbUA2WiR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 17:38:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266466AbUA2WiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 17:40:19 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:53768 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S266469AbUA2WkL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 17:40:11 -0500
-Date: Thu, 29 Jan 2004 23:52:40 +0100
-To: venom@sns.it
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Dave Kleikamp <shaggy@austin.ibm.com>,
-       Florian Huber <florian.huber@mnet-online.de>,
-       JFS Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
+	Thu, 29 Jan 2004 17:38:16 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:9221 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S266464AbUA2Whw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 17:37:52 -0500
+Date: Thu, 29 Jan 2004 23:37:30 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Jfs-discussion] md raid + jfs + jfs_fsck
-Message-ID: <20040129225240.GA3118@hh.idb.hist.no>
-References: <20040127205324.A19913@infradead.org> <Pine.LNX.4.43.0401281021030.31225-100000@cibs9.sns.it>
+Subject: Re: Lindent fixed to match reality
+Message-ID: <20040129233730.A19497@pclin040.win.tue.nl>
+References: <20040129193727.GJ21888@waste.org> <20040129201556.GK16675@khan.acc.umu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.43.0401281021030.31225-100000@cibs9.sns.it>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040129201556.GK16675@khan.acc.umu.se>; from tao@acc.umu.se on Thu, Jan 29, 2004 at 09:15:56PM +0100
+X-Spam-DCC: SIHOPE-DCC-3: kweetal.tue.nl 1085; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 28, 2004 at 10:24:14AM +0100, venom@sns.it wrote:
-> 
-> 
-> On Tue, 27 Jan 2004, Christoph Hellwig wrote:
-> >
-> > Yes, it does.  But JFS should get the right size from the gendisk anyway.
-> > Or did you create the raid with the filesystem already existant?  While that
-> > appears to work for a non-full ext2/ext3 filesystem it's not something you
-> > should do because it makes the filesystem internal bookkeeping wrong and
-> > you'll run into trouble with any filesystem sooner or later.
-> >
-> In most situation to create a new FS on a RAID1 MD is not an option.
-> It happens that you have to mirror a partition, maybe alarge one, and it
-> already had a filesystem on top of it. Then what should you do?
-> backup, mirror and then restore? Sometimes it is not possible this too.
-> Then you accept to deal with the possible problems...
-> 
-If you need to mirror it - then you have an empty mirror disk ready, right?
-Create a degraded array on the mirror disk, then make a fs there. Then
-copy everything over from the original partition.  After this, change
-the original partition to raid and add it to the other array. (It will
-then be updated from the copy). 
+On Thu, Jan 29, 2004 at 09:15:56PM +0100, David Weinehall wrote:
 
+> > b) (no -bs) "sizeof(foo)" rather than "sizeof (foo)"
+> 
+> I can't really see the logic in this, though I know a lot of people do
+> it.  I try to stay consistent, thus I do:
+> 
+> if ()
+> for ()
+> case ()
+> while ()
+> sizeof ()
+> typeof ()
+> 
+> since they're all parts of the language, rather than
+> functions/macros or invocations of such.
 
-This approach works with all filesystems, including those that
-cannot be resized.  Data is copied twice instead of once, but
-teh copying step will defragment files and you have the option
-of changing filesystem or take advantage of sparse files if
-you so wish.
+As you say, this is religion. Secondly, there need not be any logic.
+But thirdly, if you insist: The first four are about flow of control.
+We all agree they have spaces - it is Linux kernel standard.
 
-Helge Hafting
+On the other hand, sizeof is an arithmetical expression, often part
+of larger expressions. Now expressions like
+	sizeof (*foo)+1
+might be confusing, and
+	sizeof(*foo) + 1
+shows more clearly what the parsing is.
+
+Andries

@@ -1,160 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbVCHMzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVCHM7X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbVCHMzg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 07:55:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbVCHMzf
+	id S262043AbVCHM7X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 07:59:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbVCHM7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 07:55:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:52155 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262054AbVCHMxu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 07:53:50 -0500
-Subject: Re: [RFC] ext3/jbd race: releasing in-use journal_heads
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <1110229687.15117.612.camel@sisko.sctweedie.blueyonder.co.uk>
-References: <1109966084.5309.3.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050304160451.4c33919c.akpm@osdl.org>
-	 <1110213656.15117.193.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050307123118.3a946bc8.akpm@osdl.org>
-	 <1110229687.15117.612.camel@sisko.sctweedie.blueyonder.co.uk>
-Content-Type: multipart/mixed; boundary="=-r/gEnSw54ZxMLAOBY9g3"
-Message-Id: <1110286417.1941.40.camel@sisko.sctweedie.blueyonder.co.uk>
+	Tue, 8 Mar 2005 07:59:23 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:37072 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262043AbVCHM7K convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 07:59:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=cMt5DlaewNiKDr1sUbFkrQykDvmAWn2+0buOKAU23tdzsHTLJBdmSu2ogKShegfLZxgrCZzfvP9QRuQDHVrbM61NzaN6J3oPPdZky0/pOTMriSXr18bcCoo8D9Sx4IknxOWydE0KG/x6XDkasI928BtChoPHO0GEiU4ubz3+ujo=
+Message-ID: <84bd26ef050308045943a1659b@mail.gmail.com>
+Date: Tue, 8 Mar 2005 09:59:08 -0300
+From: =?ISO-8859-1?Q?Dar=EDo_Mariani?= <mariani.dario@gmail.com>
+Reply-To: =?ISO-8859-1?Q?Dar=EDo_Mariani?= <mariani.dario@gmail.com>
+Subject: Re: Random number generator in Linux kernel
+Cc: linux-kernel@vger.kernel.org, linux-c-programming@vger.kernel.org
+In-Reply-To: <20050307231853.9F661B6E7@xprdmailfe20.nwk.excite.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Tue, 08 Mar 2005 12:53:37 +0000
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+References: <20050307231853.9F661B6E7@xprdmailfe20.nwk.excite.com>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+As far as I understand the kernel generates random numbers gathering
+data from several entropy sources, you will never get repetability
+from there. Two options I know of:
 
---=-r/gEnSw54ZxMLAOBY9g3
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+1) The standard C library has the functions rand and random, wich
+seems to have a decent distribution of the random numbers.
 
-Hi,
+2) If you use C++, the Boost library (www.boost.org) has an excelent
+set of options for generating random numbers.
 
-On Mon, 2005-03-07 at 21:08, Stephen C. Tweedie wrote:
+              Darío
 
-> Right, that was what I was thinking might be possible.  But for now I've
-> just done the simple patch --- make sure we don't clear
-> jh->b_transaction when we're just refiling buffers from one list to
-> another.  That should have the desired effect here without dangerous
-> messing around with locks.
+On Mon,  7 Mar 2005 18:18:53 -0500 (EST), Vineet Joglekar
+<vintya@excite.com> wrote:
+> 
+> Hi all,
+> 
+> Can someone please tell me where can I find and which random/pseudo-random number generator can I use inside the linux kernel? (2.4.28)
+> 
+> I found out 1 function get_random_bytes() in linux/drivers/char/random.c but thats not what I want.
+> 
+> I want a function where I will be supplying a seed to that function as an input, and will get a random number back. If same seed is used, same number should be generated again.
+> 
+> Can anybody please help me with that?
+> 
+> Thanks and regards,
+> 
+> Vineet.
+> 
+> _______________________________________________
+> Join Excite! - http://www.excite.com
+> The most personalized portal on the Web!
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-c-programming" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-And here it is; it has had about 3 hours' testing in conjunction with
-the O_DIRECT livelock fix so far, running fsx and fsstress in parallel. 
-This one is higher-risk than the previous simple fix.  However, it has
-other advantages: the original patch closed the race completely in the
-one place I know for sure it was showing up, but this version removes
-the opportunity for that particular race in the first place by avoiding
-temporary jh->b_transaction=NULL conditions completely during temporary
-list refiling.
 
-I'll try to get some targetted testing done by the people who were able
-to reproduce this in the first place, too.
-
---Stephen
-
-
---=-r/gEnSw54ZxMLAOBY9g3
-Content-Disposition: inline; filename=jbd-temp-unlink.patch
-Content-Type: text/plain; name=jbd-temp-unlink.patch; charset=ISO-8859-15
-Content-Transfer-Encoding: base64
-
-Rml4IGRlc3RydWN0aW9uIG9mIGluLXVzZSBqb3VybmFsX2hlYWQNCg0Kam91cm5hbF9wdXRfam91
-cm5hbF9oZWFkKCkgY2FuIGRlc3Ryb3kgYSBqb3VybmFsX2hlYWQgYXQgYW55IHRpbWUgYXMNCmxv
-bmcgYXMgdGhlIGpoJ3MgYl9qY291bnQgaXMgemVybyBhbmQgYl90cmFuc2FjdGlvbiBpcyBOVUxM
-LiAgSXQgaGFzIG5vDQpsb2NraW5nIHByb3RlY3Rpb24gYWdhaW5zdCB0aGUgcmVzdCBvZiB0aGUg
-am91cm5hbGluZyBjb2RlLCBhcyB0aGUgbG9jaw0KaXQgdXNlcyB0byBwcm90ZWN0IGJfamNvdW50
-IGFuZCBiaC0+Yl9wcml2YXRlIGlzIG5vdCB1c2VkIGVsc2V3aGVyZSBpbg0KamJkLg0KDQpIb3dl
-dmVyLCB0aGVyZSBhcmUgc21hbGwgd2luZG93cyB3aGVyZSBiX3RyYW5zYWN0aW9uIGlzIGdldHRp
-bmcgc2V0DQp0ZW1wb3JhcmlseSB0byBOVUxMIGR1cmluZyBub3JtYWwgb3BlcmF0aW9uczsgdHlw
-aWNhbGx5IHRoaXMgaXMNCmhhcHBlbmluZyBpbiANCg0KCQkJX19qb3VybmFsX3VuZmlsZV9idWZm
-ZXIoamgpOw0KIAkJCV9fam91cm5hbF9maWxlX2J1ZmZlcihqaCwgLi4uKTsNCg0KY2FsbCBwYWly
-cywgYXMgX19qb3VybmFsX3VuZmlsZV9idWZmZXIoKSB3aWxsIHNldCBiX3RyYW5zYWN0aW9uIHRv
-IE5VTEwNCmFuZCBfX2pvdXJuYWxfZmlsZV9idWZmZXIoKSByZS1zZXRzIGl0IGFmdGVyd2FyZHMu
-ICBBIHRydW5jYXRlIHJ1bm5pbmcNCmluIHBhcmFsbGVsIGNhbiBsZWFkIHRvIGpvdXJuYWxfdW5t
-YXBfYnVmZmVyKCkgZGVzdHJveWluZyB0aGUgamggaWYgaXQNCm9jY3VycyBiZXR3ZWVuIHRoZXNl
-IHR3byBjYWxscy4NCg0KRml4IHRoaXMgYnkgYWRkaW5nIGEgdmFyaWFudCBvZiBfX2pvdXJuYWxf
-dW5maWxlX2J1ZmZlcigpIHdoaWNoIGlzIG9ubHkNCnVzZWQgZm9yIHRoZXNlIHRlbXBvcmFyeSBq
-aCB1bmxpbmtzLCBhbmQgd2hpY2ggbGVhdmVzIHRoZSBiX3RyYW5zYWN0aW9uDQpmaWVsZCBpbnRh
-Y3Qgc28gdGhhdCB3ZSBuZXZlciBsZWF2ZSBhIHdpbmRvdyBvcGVuIHdoZXJlIGJfdHJhbnNhY3Rp
-b24gaXMNCk5VTEwuDQoNCkFkZGl0aW9uYWxseSwgdHJhcCB0aGlzIGVycm9yIGlmIGl0IGRvZXMg
-b2NjdXIsIGJ5IGNoZWNraW5nIGFnYWluc3QNCmpoLT5iX2psaXN0IGJlaW5nIG5vbi1udWxsIHdo
-ZW4gd2UgZGVzdHJveSBhIGpoLg0KDQpTaWduZWQtb2ZmLWJ5OiBTdGVwaGVuIFR3ZWVkaWUgPHNj
-dEByZWRoYXQuY29tPg0KDQotLS0gbGludXgtMi42LWV4dDMvZnMvamJkL2NvbW1pdC5jLj1LMDAw
-Mz0ub3JpZw0KKysrIGxpbnV4LTIuNi1leHQzL2ZzL2piZC9jb21taXQuYw0KQEAgLTI1OCw3ICsy
-NTgsNyBAQCB3cml0ZV9vdXRfZGF0YToNCiAJCQlCVUZGRVJfVFJBQ0UoYmgsICJsb2NrZWQiKTsN
-CiAJCQlpZiAoIWludmVydGVkX2xvY2soam91cm5hbCwgYmgpKQ0KIAkJCQlnb3RvIHdyaXRlX291
-dF9kYXRhOw0KLQkJCV9fam91cm5hbF91bmZpbGVfYnVmZmVyKGpoKTsNCisJCQlfX2pvdXJuYWxf
-dGVtcF91bmxpbmtfYnVmZmVyKGpoKTsNCiAJCQlfX2pvdXJuYWxfZmlsZV9idWZmZXIoamgsIGNv
-bW1pdF90cmFuc2FjdGlvbiwNCiAJCQkJCQlCSl9Mb2NrZWQpOw0KIAkJCWpiZF91bmxvY2tfYmhf
-c3RhdGUoYmgpOw0KLS0tIGxpbnV4LTIuNi1leHQzL2ZzL2piZC9qb3VybmFsLmMuPUswMDAzPS5v
-cmlnDQorKysgbGludXgtMi42LWV4dDMvZnMvamJkL2pvdXJuYWwuYw0KQEAgLTE3NjcsNiArMTc2
-Nyw3IEBAIHN0YXRpYyB2b2lkIF9fam91cm5hbF9yZW1vdmVfam91cm5hbF9oZWENCiAJCWlmIChq
-aC0+Yl90cmFuc2FjdGlvbiA9PSBOVUxMICYmDQogCQkJCWpoLT5iX25leHRfdHJhbnNhY3Rpb24g
-PT0gTlVMTCAmJg0KIAkJCQlqaC0+Yl9jcF90cmFuc2FjdGlvbiA9PSBOVUxMKSB7DQorCQkJSl9B
-U1NFUlRfSkgoamgsIGpoLT5iX2psaXN0ID09IEJKX05vbmUpOw0KIAkJCUpfQVNTRVJUX0JIKGJo
-LCBidWZmZXJfamJkKGJoKSk7DQogCQkJSl9BU1NFUlRfQkgoYmgsIGpoMmJoKGpoKSA9PSBiaCk7
-DQogCQkJQlVGRkVSX1RSQUNFKGJoLCAicmVtb3ZlIGpvdXJuYWxfaGVhZCIpOw0KLS0tIGxpbnV4
-LTIuNi1leHQzL2ZzL2piZC90cmFuc2FjdGlvbi5jLj1LMDAwMz0ub3JpZw0KKysrIGxpbnV4LTIu
-Ni1leHQzL2ZzL2piZC90cmFuc2FjdGlvbi5jDQpAQCAtMTA0NCw3ICsxMDQ0LDEyIEBAIGludCBq
-b3VybmFsX2RpcnR5X2RhdGEoaGFuZGxlX3QgKmhhbmRsZSwNCiAJCQkvKiBqb3VybmFsX2NsZWFu
-X2RhdGFfbGlzdCgpIG1heSBoYXZlIGdvdCB0aGVyZSBmaXJzdCAqLw0KIAkJCWlmIChqaC0+Yl90
-cmFuc2FjdGlvbiAhPSBOVUxMKSB7DQogCQkJCUpCVUZGRVJfVFJBQ0UoamgsICJ1bmZpbGUgZnJv
-bSBjb21taXQiKTsNCi0JCQkJX19qb3VybmFsX3VuZmlsZV9idWZmZXIoamgpOw0KKwkJCQlfX2pv
-dXJuYWxfdGVtcF91bmxpbmtfYnVmZmVyKGpoKTsNCisJCQkJLyogSXQgc3RpbGwgcG9pbnRzIHRv
-IHRoZSBjb21taXR0aW5nDQorCQkJCSAqIHRyYW5zYWN0aW9uOyBtb3ZlIGl0IHRvIHRoaXMgb25l
-IHNvDQorCQkJCSAqIHRoYXQgdGhlIHJlZmlsZSBhc3NlcnQgY2hlY2tzIGFyZQ0KKwkJCQkgKiBo
-YXBweS4gKi8NCisJCQkJamgtPmJfdHJhbnNhY3Rpb24gPSBoYW5kbGUtPmhfdHJhbnNhY3Rpb247
-DQogCQkJfQ0KIAkJCS8qIFRoZSBidWZmZXIgd2lsbCBiZSByZWZpbGVkIGJlbG93ICovDQogDQpA
-QCAtMTA1OCw3ICsxMDYzLDggQEAgaW50IGpvdXJuYWxfZGlydHlfZGF0YShoYW5kbGVfdCAqaGFu
-ZGxlLA0KIAkJaWYgKGpoLT5iX2psaXN0ICE9IEJKX1N5bmNEYXRhICYmIGpoLT5iX2psaXN0ICE9
-IEJKX0xvY2tlZCkgew0KIAkJCUpCVUZGRVJfVFJBQ0UoamgsICJub3Qgb24gY29ycmVjdCBkYXRh
-IGxpc3Q6IHVuZmlsZSIpOw0KIAkJCUpfQVNTRVJUX0pIKGpoLCBqaC0+Yl9qbGlzdCAhPSBCSl9T
-aGFkb3cpOw0KLQkJCV9fam91cm5hbF91bmZpbGVfYnVmZmVyKGpoKTsNCisJCQlfX2pvdXJuYWxf
-dGVtcF91bmxpbmtfYnVmZmVyKGpoKTsNCisJCQlqaC0+Yl90cmFuc2FjdGlvbiA9IGhhbmRsZS0+
-aF90cmFuc2FjdGlvbjsNCiAJCQlKQlVGRkVSX1RSQUNFKGpoLCAiZmlsZSBhcyBkYXRhIik7DQog
-CQkJX19qb3VybmFsX2ZpbGVfYnVmZmVyKGpoLCBoYW5kbGUtPmhfdHJhbnNhY3Rpb24sDQogCQkJ
-CQkJQkpfU3luY0RhdGEpOw0KQEAgLTEyMzMsOCArMTIzOSw2IEBAIGludCBqb3VybmFsX2Zvcmdl
-dCAoaGFuZGxlX3QgKmhhbmRsZSwgc3QNCiANCiAJCUpCVUZGRVJfVFJBQ0UoamgsICJiZWxvbmdz
-IHRvIGN1cnJlbnQgdHJhbnNhY3Rpb246IHVuZmlsZSIpOw0KIA0KLQkJX19qb3VybmFsX3VuZmls
-ZV9idWZmZXIoamgpOw0KLQ0KIAkJLyogDQogCQkgKiBXZSBhcmUgbm8gbG9uZ2VyIGdvaW5nIHRv
-IGpvdXJuYWwgdGhpcyBidWZmZXIuDQogCQkgKiBIb3dldmVyLCB0aGUgY29tbWl0IG9mIHRoaXMg
-dHJhbnNhY3Rpb24gaXMgc3RpbGwNCkBAIC0xMjQ4LDggKzEyNTIsMTAgQEAgaW50IGpvdXJuYWxf
-Zm9yZ2V0IChoYW5kbGVfdCAqaGFuZGxlLCBzdA0KIAkJICovDQogDQogCQlpZiAoamgtPmJfY3Bf
-dHJhbnNhY3Rpb24pIHsNCisJCQlfX2pvdXJuYWxfdGVtcF91bmxpbmtfYnVmZmVyKGpoKTsNCiAJ
-CQlfX2pvdXJuYWxfZmlsZV9idWZmZXIoamgsIHRyYW5zYWN0aW9uLCBCSl9Gb3JnZXQpOw0KIAkJ
-fSBlbHNlIHsNCisJCQlfX2pvdXJuYWxfdW5maWxlX2J1ZmZlcihqaCk7DQogCQkJam91cm5hbF9y
-ZW1vdmVfam91cm5hbF9oZWFkKGJoKTsNCiAJCQlfX2JyZWxzZShiaCk7DQogCQkJaWYgKCFidWZm
-ZXJfamJkKGJoKSkgew0KQEAgLTE0NjksNyArMTQ3NSw3IEBAIF9fYmxpc3RfZGVsX2J1ZmZlcihz
-dHJ1Y3Qgam91cm5hbF9oZWFkICoNCiAgKg0KICAqIENhbGxlZCB1bmRlciBqX2xpc3RfbG9jay4g
-IFRoZSBqb3VybmFsIG1heSBub3QgYmUgbG9ja2VkLg0KICAqLw0KLXZvaWQgX19qb3VybmFsX3Vu
-ZmlsZV9idWZmZXIoc3RydWN0IGpvdXJuYWxfaGVhZCAqamgpDQordm9pZCBfX2pvdXJuYWxfdGVt
-cF91bmxpbmtfYnVmZmVyKHN0cnVjdCBqb3VybmFsX2hlYWQgKmpoKQ0KIHsNCiAJc3RydWN0IGpv
-dXJuYWxfaGVhZCAqKmxpc3QgPSBOVUxMOw0KIAl0cmFuc2FjdGlvbl90ICp0cmFuc2FjdGlvbjsN
-CkBAIC0xNDg2LDcgKzE0OTIsNyBAQCB2b2lkIF9fam91cm5hbF91bmZpbGVfYnVmZmVyKHN0cnVj
-dCBqb3VyDQogDQogCXN3aXRjaCAoamgtPmJfamxpc3QpIHsNCiAJY2FzZSBCSl9Ob25lOg0KLQkJ
-Z290byBvdXQ7DQorCQlyZXR1cm47DQogCWNhc2UgQkpfU3luY0RhdGE6DQogCQlsaXN0ID0gJnRy
-YW5zYWN0aW9uLT50X3N5bmNfZGF0YWxpc3Q7DQogCQlicmVhazsNCkBAIC0xNTE5LDcgKzE1MjUs
-MTEgQEAgdm9pZCBfX2pvdXJuYWxfdW5maWxlX2J1ZmZlcihzdHJ1Y3Qgam91cg0KIAlqaC0+Yl9q
-bGlzdCA9IEJKX05vbmU7DQogCWlmICh0ZXN0X2NsZWFyX2J1ZmZlcl9qYmRkaXJ0eShiaCkpDQog
-CQltYXJrX2J1ZmZlcl9kaXJ0eShiaCk7CS8qIEV4cG9zZSBpdCB0byB0aGUgVk0gKi8NCi1vdXQ6
-DQorfQ0KKw0KK3ZvaWQgX19qb3VybmFsX3VuZmlsZV9idWZmZXIoc3RydWN0IGpvdXJuYWxfaGVh
-ZCAqamgpDQorew0KKwlfX2pvdXJuYWxfdGVtcF91bmxpbmtfYnVmZmVyKGpoKTsNCiAJamgtPmJf
-dHJhbnNhY3Rpb24gPSBOVUxMOw0KIH0NCiANCkBAIC0xOTI5LDcgKzE5MzksNyBAQCB2b2lkIF9f
-am91cm5hbF9maWxlX2J1ZmZlcihzdHJ1Y3Qgam91cm5hDQogCX0NCiANCiAJaWYgKGpoLT5iX3Ry
-YW5zYWN0aW9uKQ0KLQkJX19qb3VybmFsX3VuZmlsZV9idWZmZXIoamgpOw0KKwkJX19qb3VybmFs
-X3RlbXBfdW5saW5rX2J1ZmZlcihqaCk7DQogCWpoLT5iX3RyYW5zYWN0aW9uID0gdHJhbnNhY3Rp
-b247DQogDQogCXN3aXRjaCAoamxpc3QpIHsNCkBAIC0yMDEyLDcgKzIwMjIsNyBAQCB2b2lkIF9f
-am91cm5hbF9yZWZpbGVfYnVmZmVyKHN0cnVjdCBqb3VyDQogCSAqLw0KIA0KIAl3YXNfZGlydHkg
-PSB0ZXN0X2NsZWFyX2J1ZmZlcl9qYmRkaXJ0eShiaCk7DQotCV9fam91cm5hbF91bmZpbGVfYnVm
-ZmVyKGpoKTsNCisJX19qb3VybmFsX3RlbXBfdW5saW5rX2J1ZmZlcihqaCk7DQogCWpoLT5iX3Ry
-YW5zYWN0aW9uID0gamgtPmJfbmV4dF90cmFuc2FjdGlvbjsNCiAJamgtPmJfbmV4dF90cmFuc2Fj
-dGlvbiA9IE5VTEw7DQogCV9fam91cm5hbF9maWxlX2J1ZmZlcihqaCwgamgtPmJfdHJhbnNhY3Rp
-b24sIEJKX01ldGFkYXRhKTsNCi==
-
---=-r/gEnSw54ZxMLAOBY9g3--
+-- 
+That is not dead which can eternal lie,
+and with strange aeons, even death may die.

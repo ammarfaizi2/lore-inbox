@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265841AbUAUAnw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 19:43:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265899AbUAUAnw
+	id S265913AbUAUAxU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 19:53:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265921AbUAUAxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 19:43:52 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:8670 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265841AbUAUAnu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 19:43:50 -0500
-Date: Wed, 21 Jan 2004 01:43:45 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: mpt_linux_developer@lsil.com, Andrew Morton <akpm@osdl.org>,
-       James.Bottomley@SteelEye.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [2.6 patch] remove obsolete comment from fusion Kconfig
-Message-ID: <20040121004345.GK6441@fs.tum.de>
+	Tue, 20 Jan 2004 19:53:20 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:65014 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S265913AbUAUAxT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 19:53:19 -0500
+Subject: Re: IDE issues
+From: Omkhar Arasaratnam <iamroot@ca.ibm.com>
+To: Oliver Hunt <ojh16@student.canterbury.ac.nz>
+Cc: Lionel Bouton <Lionel.Bouton@inet6.fr>, linux-kernel@vger.kernel.org
+In-Reply-To: <3FE4AAAB.8000209@student.canterbury.ac.nz>
+References: <3FE43492.3020703@student.canterbury.ac.nz>
+	 <3FE2EFD5.6000009@inet6.fr>  <3FE4AAAB.8000209@student.canterbury.ac.nz>
+Content-Type: text/plain
+Message-Id: <1074646306.2143.6.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 20 Jan 2004 19:51:47 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below removes obsolete comments from the fusion Kconfig file 
-that were left after the conversion to the new config system.
+On Sun, 2003-12-21 at 04:01, Oliver Hunt wrote:
+> This is 2.6.0, as i said 2.6.0-test11 worked fine on this system running 
+> gentoo, and didn't run under debian... grrr...
+> 
+> Oh well, off to see if this helps...
 
-Please apply
-Adrian
+Can you enclose dmesg / your IDE chipset? I've seen some timing issue
+cause by using a generic IDE module instead of a specific bug fix module
+(CM640 jumps to mind).....
 
---- linux-2.6.1-mm5/drivers/message/fusion/Kconfig.old	2004-01-21 01:40:34.000000000 +0100
-+++ linux-2.6.1-mm5/drivers/message/fusion/Kconfig	2004-01-21 01:40:44.000000000 +0100
-@@ -138,11 +138,5 @@
- 	  Support for building this feature into the linux kernel is not
- 	  yet available.
- 
--#  if [ "$CONFIG_FUSION_LAN" != "n" ]; then
--#    define_bool CONFIG_NET_FC y
--#  fi
--# These <should> be define_tristate, but we leave them define_bool
--# for backward compatibility with pre-linux-2.2.15 kernels.
--# (Bugzilla:fibrebugs, #384)
- endmenu
- 
+-- 
+Omkhar
+
+

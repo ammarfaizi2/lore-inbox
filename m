@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317689AbSGKA05>; Wed, 10 Jul 2002 20:26:57 -0400
+	id <S317690AbSGKAf5>; Wed, 10 Jul 2002 20:35:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317690AbSGKA04>; Wed, 10 Jul 2002 20:26:56 -0400
-Received: from sj-msg-core-2.cisco.com ([171.69.24.11]:5018 "EHLO
-	sj-msg-core-2.cisco.com") by vger.kernel.org with ESMTP
-	id <S317689AbSGKA04>; Wed, 10 Jul 2002 20:26:56 -0400
-Message-Id: <5.1.0.14.2.20020711102614.0209de60@mira-sjcm-3.cisco.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 11 Jul 2002 10:28:41 +1000
-To: Andrew Morton <akpm@zip.com.au>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: HZ, preferably as small as possible
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       Linux <linux-kernel@vger.kernel.org>
-In-Reply-To: <3D2CA6E3.CB5BC420@zip.com.au>
-References: <59885C5E3098D511AD690002A5072D3C02AB7F88@orsmsx111.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S317691AbSGKAf4>; Wed, 10 Jul 2002 20:35:56 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:23733 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317690AbSGKAf4>;
+	Wed, 10 Jul 2002 20:35:56 -0400
+Date: Wed, 10 Jul 2002 17:37:47 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix timer interrupts on NUMA-Q
+Message-ID: <179860000.1026347867@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:28 PM 10/07/2002 -0700, Andrew Morton wrote:
-> > But on the other hand, increasing HZ has perf/latency benefits, yes? Have
-> > these been quantified?
->
->Not that I'm aware of.  And I'd regard any such claims with some
->scepticism.
+Since I turned on the IO-APICs on secondary quads, we are receiving 
+timer interrupts on *all* quads, not just the first quad, each from their 
+local timer chip. This causes time to progress far too rapidly ;-)
 
-for one, i'm using a modified version of the network FIFO queue discipline 
-to inject "delay" and "drop", similar to what ippipe can do on FreeBSD.
-given i'm using a kernel timer for this, HZ >= 1000 is essential for <1.5 
-millisecond accuracy.
+The simple patch below turns off the timer interrupts for IO-APICs other
+than interrupt 0, and has been tested to fix the problem. As it switches
+on clustered_apic_mode, it should be safe from hurting anyone else.
 
-perhaps we really need a high-speed timer mechanism for parts of the kernel 
-that require it (or a highly-accurate single-fire timer)?
+This fix is already in 2.4 - I'm playing catchup with 2.5 - the same patch
+applies with just a line offset
 
+Please apply ...
 
-cheers,
+Thanks,
 
-lincoln.
+Martin.
+
+diff -urN virgin-2.4.19-pre8/arch/i386/kernel/io_apic.c linux-2.4.19-pre8-time/arch/i386/kernel/io_apic.c
+--- virgin-2.4.19-pre8/arch/i386/kernel/io_apic.c	Tue May  7 15:21:16 2002
++++ linux-2.4.19-pre8-time/arch/i386/kernel/io_apic.c	Thu May  9 17:49:28 2002
+@@ -654,7 +654,14 @@
+ 		}
+ 
+ 		irq = pin_2_irq(idx, apic, pin);
+-		add_pin_to_irq(irq, apic, pin);
++		/*
++		 * skip adding the timer int on secondary nodes, which causes
++		 * a small but painful rift in the time-space continuum
++		 */
++		if (clustered_apic_mode && (apic != 0) && (irq == 0))
++			continue;
++		else
++			add_pin_to_irq(irq, apic, pin);
+ 
+ 		if (!apic && !IO_APIC_IRQ(irq))
+ 			continue;
 

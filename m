@@ -1,34 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265682AbRGCRjx>; Tue, 3 Jul 2001 13:39:53 -0400
+	id <S265688AbRGCRkD>; Tue, 3 Jul 2001 13:40:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265545AbRGCRjd>; Tue, 3 Jul 2001 13:39:33 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:37132 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265478AbRGCRjV>;
-	Tue, 3 Jul 2001 13:39:21 -0400
-Date: Tue, 3 Jul 2001 10:38:00 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-usb-users@lists.sourceforge.net
-Subject: Re: 2.4.5 keyspan driver
-Message-ID: <20010703103800.B28180@kroah.com>
-In-Reply-To: <20010630003323.A908@glitch.snoozer.net>
-Mime-Version: 1.0
+	id <S265545AbRGCRjx>; Tue, 3 Jul 2001 13:39:53 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:15275 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S265478AbRGCRji>;
+	Tue, 3 Jul 2001 13:39:38 -0400
+Message-ID: <3B420356.660F5CC8@mandrakesoft.com>
+Date: Tue, 03 Jul 2001 13:39:34 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Cc: kaos@ocs.com.au, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: modules and 2.5
+In-Reply-To: <200107031735.TAA00455@green.mif.pg.gda.pl>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010630003323.A908@glitch.snoozer.net>; from haphazard@socket.net on Sat, Jun 30, 2001 at 12:33:23AM -0500
-X-Operating-System: Linux 2.2.19 (i586)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 30, 2001 at 12:33:23AM -0500, Gregory T. Norris wrote:
-> CONFIG_USB_SERIAL=m
-> # CONFIG_USB_SERIAL_GENERIC is not set
+Andrzej Krzysztofowicz wrote:
+> 
+> >
+> > A couple things that would be nice for 2.5 is
+> > - let MOD_INC_USE_COUNT work even when module is built into kernel, and
+> > - let THIS_MODULE exist and be valid even when module is built into
+> > kernel
+> >
+> > This introduces bloat into the static kernel for modules which do not
+> > take advantage of this, so perhaps we can make this new behavior
+> > conditional on CONFIG_xxx option.  Individual drivers which make use of
+> > the behavior can do something like
+> >
+> >       dep_tristate 'my driver' CONFIG_MYDRIVER $CONFIG_PCI
+> >       if [ "$CONFIG_MYDRIVER" != "n" -a \
+>               ^^^^^^^^^^^^^^^^^^^^^^^
+> >            "$CONFIG_STATIC_MODULES" != "y" ]; then
+> >          define_bool CONFIG_STATIC_MODULES y
+> >       fi
+> 
+> Hmmm, shouldn't it be written in CML2 if it is for 2.5 ?
 
-Can you enable CONFIG_USB_SERIAL_GENERIC and let me know if that fixes
-the problem?
+no comment
 
-thanks,
 
-greg k-h
+> For 2.4 the marked condition ( != n on a variable defined by dep_*)
+> probably would break xconfig. Don't suggest such solutions...
+
+why is != n on a variable defined by dep_xx bad?
+That doesn't make sense.
+
+	Jeff
+
+
+-- 
+Jeff Garzik      | "I respect faith, but doubt is
+Building 1024    |  what gives you an education."
+MandrakeSoft     |           -- Wilson Mizner

@@ -1,107 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268355AbUIKXH4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268356AbUIKXQ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268355AbUIKXH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 19:07:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268356AbUIKXHz
+	id S268356AbUIKXQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 19:16:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268360AbUIKXQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 19:07:55 -0400
-Received: from fw.osdl.org ([65.172.181.6]:46214 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268355AbUIKXHv (ORCPT
+	Sat, 11 Sep 2004 19:16:59 -0400
+Received: from zork.zork.net ([64.81.246.102]:42408 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S268356AbUIKXQ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 19:07:51 -0400
-Date: Sat, 11 Sep 2004 16:05:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: kaigai@ak.jp.nec.com (Kaigai Kohei)
-Cc: hugh@veritas.com, ak@muc.de, wli@holomorphy.com,
-       takata.hirokazu@renesas.com, kaigai@ak.jp.nec.com,
+	Sat, 11 Sep 2004 19:16:58 -0400
+To: romieu@fr.zoreil.com
+Cc: jgarzik@pobox.com, akpm@osdl.org, netdev@oss.sgi.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] atomic_inc_return() for i386[1/5] (Re:
- atomic_inc_return)
-Message-Id: <20040911160532.07216174.akpm@osdl.org>
-In-Reply-To: <200409100326.i8A3QsYV007096@mailsv.bs1.fc.nec.co.jp>
-References: <Pine.LNX.4.44.0409092005430.14004-100000@localhost.localdomain>
-	<200409100326.i8A3QsYV007096@mailsv.bs1.fc.nec.co.jp>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: 2.6.9-rc1-mm4: r8169: irq 16: nobody cared!/TX Timeout
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: romieu@fr.zoreil.com, jgarzik@pobox.com, akpm@osdl.org,
+	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Date: Sun, 12 Sep 2004 00:16:43 +0100
+Message-ID: <6upt4s4cro.fsf@zork.zork.net>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: sneakums@zork.net
+X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kaigai@ak.jp.nec.com (Kaigai Kohei) wrote:
->
-> 
-> [1/5] atomic_inc_return-linux-2.6.9-rc1.i386.patch
->   This patch implements atomic_inc_return() and so on for i386,
->   and includes runtime check whether CPU is legacy 386.
->   It is same as I posted to LKML and Andi Kleen at '04/09/01.
-> 
+irq 16: nobody cared!
+ [<c0106864>] __report_bad_irq+0x24/0x90
+ [<c0106ad2>] note_interrupt+0x92/0x160
+ [<c0106f12>] do_IRQ+0x162/0x1a0
+ [<c010491c>] common_interrupt+0x18/0x20
+ [<c0101f80>] default_idle+0x0/0x40
+ [<c0101fac>] default_idle+0x2c/0x40
+ [<c0102034>] cpu_idle+0x34/0x50
+handlers:
+[<c02a5470>] (rtl8169_interrupt+0x0/0x1d0)
+Disabling IRQ #16
+NETDEV WATCHDOG: eth2: transmit timed out
+eth2: TX Timeout
 
-Can we not use the `alternative instruction' stuff to eliminate the runtime
-test?
+CONFIG_R8169_NAPI=y
 
-
-> 
-> diff -rNU4 linux-2.6.9-rc1/include/asm-i386/atomic.h linux-2.6.9-rc1.atomic_inc_return/include/asm-i386/atomic.h
-> --- linux-2.6.9-rc1/include/asm-i386/atomic.h	2004-08-24 16:02:24.000000000 +0900
-> +++ linux-2.6.9-rc1.atomic_inc_return/include/asm-i386/atomic.h	2004-09-10 10:15:18.000000000 +0900
-> @@ -1,8 +1,10 @@
->  #ifndef __ARCH_I386_ATOMIC__
->  #define __ARCH_I386_ATOMIC__
->  
->  #include <linux/config.h>
-> +#include <linux/compiler.h>
-> +#include <asm/processor.h>
->  
->  /*
->   * Atomic operations that C can't guarantee us.  Useful for
->   * resource counting etc..
-> @@ -175,8 +177,48 @@
->  		:"ir" (i), "m" (v->counter) : "memory");
->  	return c;
->  }
->  
-> +/**
-> + * atomic_add_return - add and return
-> + * @v: pointer of type atomic_t
-> + * @i: integer value to add
-> + *
-> + * Atomically adds @i to @v and returns @i + @v
-> + */
-> +static __inline__ int atomic_add_return(int i, atomic_t *v)
-> +{
-> +	int __i;
-> +#ifdef CONFIG_M386
-> +	if(unlikely(boot_cpu_data.x86==3))
-> +		goto no_xadd;
-> +#endif
-> +	/* Modern 486+ processor */
-> +	__i = i;
-> +	__asm__ __volatile__(
-> +		LOCK "xaddl %0, %1;"
-> +		:"=r"(i)
-> +		:"m"(v->counter), "0"(i));
-> +	return i + __i;
-> +
-> +#ifdef CONFIG_M386
-> +no_xadd: /* Legacy 386 processor */
-> +	local_irq_disable();
-> +	__i = atomic_read(v);
-> +	atomic_set(v, i + __i);
-> +	local_irq_enable();
-> +	return i + __i;
-> +#endif
-> +}
-> +
-> +static __inline__ int atomic_sub_return(int i, atomic_t *v)
-> +{
-> +	return atomic_add_return(-i,v);
-> +}
-> +
-> +#define atomic_inc_return(v)  (atomic_add_return(1,v))
-> +#define atomic_dec_return(v)  (atomic_sub_return(1,v))
-> +
->  /* These are x86-specific, used by some header files */
->  #define atomic_clear_mask(mask, addr) \
->  __asm__ __volatile__(LOCK "andl %0,%1" \
->  : : "r" (~(mask)),"m" (*addr) : "memory")
+I downed and upped the interface and it started working again.

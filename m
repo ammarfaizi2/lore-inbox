@@ -1,84 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272169AbRIENNm>; Wed, 5 Sep 2001 09:13:42 -0400
+	id <S271985AbRIENXN>; Wed, 5 Sep 2001 09:23:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272173AbRIENNc>; Wed, 5 Sep 2001 09:13:32 -0400
-Received: from victor.ndsuk.com ([194.202.59.31]:20498 "EHLO victor.ndsuk.com")
-	by vger.kernel.org with ESMTP id <S272169AbRIENNN>;
-	Wed, 5 Sep 2001 09:13:13 -0400
-Message-ID: <F128989C2E99D4119C110002A507409801556020@topper.hrow.ndsuk.com>
-From: "Elgar, Jeremy" <JElgar@ndsuk.com>
+	id <S272172AbRIENXD>; Wed, 5 Sep 2001 09:23:03 -0400
+Received: from dns.lineo.fr ([194.250.46.228]:13809 "EHLO mailhost.lineo.fr")
+	by vger.kernel.org with ESMTP id <S271985AbRIENWx>;
+	Wed, 5 Sep 2001 09:22:53 -0400
+Date: Wed, 5 Sep 2001 15:23:12 +0200
+From: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@lineo.fr>
 To: linux-kernel@vger.kernel.org
-Subject: RE: Applying multiple patches
-Date: Wed, 5 Sep 2001 14:14:12 +0100 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Re: Linux 2.4.9-ac6
+Message-ID: <20010905152312.A11004@pc8.lineo.fr>
+In-Reply-To: <20010905145039.A10655@pc8.lineo.fr> <1269703968.999699248@[169.254.198.40]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1269703968.999699248@[169.254.198.40]>; from linux-kernel@alex.org.uk on mer, sep 05, 2001 at 15:14:09 +0200
+X-Mailer: Balsa 1.2.pre3
+X-Operating-System: Debian SID GNU/Linux 2.4.9 on i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes I noticed that last night when I started looking through the .rej and
-.orig file,
-so beeing week I gave up and installed the ac7 patch only (least that got
-the NetGear ea101 working) ill leave the file system ill ive got the laptop
-set up,
 
-still need to apply the xfsm path for an indy i have (but that will be on a
-plain old
-2.4.9
+Le mer, 05 sep 2001 15:14:09, Alex Bligh - linux-kernel a écrit :
+> > Would it not be possible with your scheme to package a closed source
+> > driver in an open source wrapper driver and then defeat your tainting
+> > technique.
+> 
+> It would also be theoretically possible for an evil driver merchant
+> to twiddle the flag back via /dev/kmem (for instance). Or load the
+> module by manipulation of /dev/kmem. Or for the bug-reporting user
+> to patch their kernel so that the flag never got set and hence
+> disguise the presence of an nvidia driver (etc.) in a misguided
+> attempt to wangle support out of Alan et al.
+> 
+> However, I understood the point of the exercize to be a first pass
+> hueristic to flag bug reports from systems running modules for
+> which Alan and others haven't got, and can't get the source. It's
+> not going to be perfect (see above), but equally doesn't need to be.
+> I'm sure users do all sorts of other 'well don't do that, then'
+> stuff which wastes the time of those reading bug reports.
 
-Cheers
+Yes I agree that's not easy and certainly not the goal to avoid this kind
+of thing.
 
-Jeremy
+Btw I was thinking about a real case: I use in my laptop the lucent driver
+for their winmodem chipset. This driver is closed source but we use it
+relinked with proper opensource code. This avoid the use of 'insmod -f' and
+most of the bug (caused by missing symbols) but you can not trust the
+resulting module.
 
+Christophe
 
-
-> -----Original Message-----
-> From: Thomas Duffy [mailto:Thomas.Duffy.99@alumni.brown.edu]
-> Sent: 04 September 2001 23:54
-> To: Elgar, Jeremy
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: Applying multiple patches
+> --
+> Alex Bligh
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 > 
-> On Tue, 2001-09-04 at 06:07, Elgar, Jeremy wrote:
-> 
-> > The problem I have is thus,  I want to apply 
-> patch-2.4.9-ac6 (I guess might
-> > as well do ac7 now) and the xfs patch
-> > but both are from a vanilla 2-4-9.
-> 
-> I would suggest not trying this out as your first patch conflict fix
-> attempt.  Both xfs and ac are large and touch a bunch of core linux
-> files.  Getting xfs to apply on top of ac requires an 
-> intimate knowledge
-> of the xfs (and some ac) code.  If you are interested in 
-> trying out, see
-> how it was done for the 2.4.3-SGI_XFS_1.0.1 rpm that SGI put out for
-> xfs-enabled redhat 7.1.
-> 
-> If you download the src.rpm from oss.sgi.com/projects/xfs, 
-> you will find
-> an xfs patch that applies on an ac patch.  Now, both xfs and ac have
-> changed a bunch from the 2.4.3 days, but this will give you a 
-> good start
-> at figuring out what was done to get the two to play nice together.
-> 
-> -tduffy
-> 
-> 
-
-
- 
-===============================================================
-Information contained in this email message is intended only for
-use of the individual or entity named above. If the reader of this
-message is not the intended recipient, or the employee or agent
-responsible to deliver it to the intended recipient, you are hereby
-notified that any dissemination, distribution or copying of this
-communication is strictly prohibited. If you have received this
-communication in error, please immediately notify us by email
-to postmaster@ndsuk.com and destroy the original message. 
-
-
+-- 
+Christophe Barbé
+Software Engineer - christophe.barbe@lineo.fr
+Lineo France - Lineo High Availability Group
+42-46, rue Médéric - 92110 Clichy - France
+phone (33).1.41.40.02.12 - fax (33).1.41.40.02.01
+http://www.lineo.com

@@ -1,52 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262425AbTLJOZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 09:25:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbTLJOZZ
+	id S262776AbTLJOa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 09:30:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbTLJOa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 09:25:25 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:30608 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262425AbTLJOZY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 09:25:24 -0500
+	Wed, 10 Dec 2003 09:30:56 -0500
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:29175 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S262776AbTLJOay
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 09:30:54 -0500
+Content-Type: text/plain;
+  charset="CP 1252"
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Dale Whitchurch <dalew@sealevel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Linux GPL and binary module exception clause?
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: karim@opersys.com, Linus Torvalds <torvalds@osdl.org>,
-       Kendall Bennett <KendallB@scitechsoft.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10312100606510.3805-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10312100606510.3805-100000@master.linux-ide.org>
-Content-Type: text/plain
-Message-Id: <1071066315.5712.344.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.1) 
-Date: Wed, 10 Dec 2003 14:25:16 +0000
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Date: Wed, 10 Dec 2003 08:30:30 -0600
+X-Mailer: KMail [version 1.2]
+References: <000701c3be1c$8a3cfbc0$0301a8c0@comcast.net> <200312091322.33506.andrew@walrond.org> <1070979148.16262.63.camel@oktoberfest>
+In-Reply-To: <1070979148.16262.63.camel@oktoberfest>
+MIME-Version: 1.0
+Message-Id: <03121008303002.31567@tabby>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-12-10 at 06:09 -0800, Andre Hedrick wrote:
-> Can we stop with the stupidity?
+On Tuesday 09 December 2003 08:12, Dale Whitchurch wrote:
+> A question for this thread:
+>
+> Is the GPL in effect for the kernel so that anybody can enhance the
+> current drivers and add support for any other device?  If two companies
+> develop competing products and those products (albeit a few slight
+> differences) perform the same operations using almost the same hardware,
+> do we want one company to use the others driver?
 
-I'm not sure which part you think is stupid. Do you:
+Sort of. Why not? Especially if the driver is GPL.
 
-1. Disagree with my paraphrasing of the GPL, in the first two
-   paragraphs? 
+> In another sense, does the kernel evolve to reflect this?
 
-2. Disagree with the obviously correct statement that the GPL 
-   makes requirements about the licensing even of non-derived 
-   works?
+It evolves to promote standards. If both can use the same driver, then each
+(if they both contribute) will reduce the development cost of the driver
+by 1/n, where n is the number of manufacturs of similar boards.
 
-3. Disagree with my example, given in the final two paragraphs, 
-   which makes it clear that a copyright licence _may_ make 
-   restrictions on the licensing of even non-derived works. Note
-   that although my example is a licence where the licensee must
-   release _all_ future work under the same licence, I'm not
-   claiming that the GPL does this; I only claim that such a 
-   licence is _possible_.
+>  If the
+> overall driver acts the same minus a few hardware differences, does the
+> kernel source change by abstracting the similarities and allow both
+> companies to write the device specific code?
 
--- 
-dwmw2
+Yes. One project that tries to do this for graphics is the GGI. They try to
+separate the display control registers, timing registers, and data interfacing
+to allow a mix-n-match the various drivers to come up with a unique 
+combination that would work for a variety of boards. 
 
+>  Does it instead say that
+> both cards must have independent source code?  Or do we only allow the
+> first driver into the source tree?
+
+This is a combined result. Usually the first one is a specific driver for
+each device. If the drivers are GPL, somebody else may combine them, or the
+second manufacturer may take the first driver, make some changes, and release
+(under GPL) the modified driver. Then both manufacturers (or their engineers)
+may collaborate to come up with a single driver.
+
+Yes. The multiple mice implementations are an example. So are IDE drivers.
+
+> There are no evil overtones in this email, nor any disgruntled developer
+> feelings.  I am just reading at this thread and asking myself, "Is the
+> overall goal for everyone to get along?"
+
+Yup. Everybody contributing. Everybody benifiting.

@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263105AbSKRRSn>; Mon, 18 Nov 2002 12:18:43 -0500
+	id <S263279AbSKRRSx>; Mon, 18 Nov 2002 12:18:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263204AbSKRRSn>; Mon, 18 Nov 2002 12:18:43 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:11535 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S263105AbSKRRSm>;
-	Mon, 18 Nov 2002 12:18:42 -0500
-Date: Mon, 18 Nov 2002 18:25:17 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Bill Davidsen <davidsen@tmr.com>, Sam Ravnborg <sam@ravnborg.org>,
-       Nicolas Pitre <nico@cam.org>, Andreas Steinmetz <ast@domdv.de>,
+	id <S263313AbSKRRSx>; Mon, 18 Nov 2002 12:18:53 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48146 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263279AbSKRRSv>;
+	Mon, 18 Nov 2002 12:18:51 -0500
+Message-ID: <3DD9227E.5030204@pobox.com>
+Date: Mon, 18 Nov 2002 12:25:18 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ducrot Bruno <poup@poupinou.org>
+CC: Vergoz Michael <mvergoz@sysdoor.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: make distclean and make dep??
-Message-ID: <20021118172517.GA6825@mars.ravnborg.org>
-Mail-Followup-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	Bill Davidsen <davidsen@tmr.com>, Sam Ravnborg <sam@ravnborg.org>,
-	Nicolas Pitre <nico@cam.org>, Andreas Steinmetz <ast@domdv.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.96.1021117024753.18748B-100000@gatekeeper.tmr.com> <Pine.LNX.4.44.0211181034100.24137-100000@chaos.physics.uiowa.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211181034100.24137-100000@chaos.physics.uiowa.edu>
-User-Agent: Mutt/1.4i
+Subject: Re: 8139too.c patch for kernel 2.4.19
+References: <028901c28ead$10dfbd20$76405b51@romain> <3DD89813.9050608@pobox.com> <003b01c28edf$9e2b1530$76405b51@romain> <20021118170447.GB27595@poup.poupinou.org>
+In-Reply-To: <028901c28ead$10dfbd20$76405b51@romain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 18, 2002 at 10:36:20AM -0600, Kai Germaschewski wrote:
-> But when do you need the "clean + rm .config*" behavior? I don't see that 
-> to be such a common case.
-> 
-> That's why I think two targets are enough, "clean" to remove the files
-> generated during the build and "distclean" to remove all other extra stuff
-> to. And just keep mrproper to be an alias for distclean, since that's what
-> "mrproper" traditionally was (AFAIK, Linus used it that way).
+Ducrot Bruno wrote:
 
-People are used to a mrproper that does NOT delete their editor
-backup files and patch rejects. Thats the only arguments against
-mrproper=distclean.
+> On Mon, Nov 18, 2002 at 09:50:50AM +0100, Vergoz Michael wrote:
+>
+> >Hi Jeff,
+> >
+> >What i see is the current driver _doesn't_ work on my realtek 8139C.
+> >With this one it work fine.
+>
+>
+> The question was (as I understand the changes you made and the
+> answer from Jeff) : did your card work with 8139cp or not?
+>
+> If not, you have to modify 8139cp, which is the right place for C+ 
+> support.
 
-The main purpose should be to have a clear and logical
-distingush between the two/three.
-As it is today people are confused, and there is no consistency - 
-especially between architectures.
 
-I'm fine with a change that moves MRPROPER_{DIRS,FILES} to clean - except
-.config.
-But I'm not fine with the current situation where I have to say goodbye
-to all my .rej files + xx~ files just to force a full recompile.
 
-I will do a new patch tomorrow.
+Agreed.  However from the above quoted, "8139C" chip would indicate that 
+he needs to use 8139too not 8139cp.
 
-	Sam
+I am hoping (please!) that Michael will post some info that will help us 
+debug his problem.
+
+Regards,
+
+	Jeff
+
+
 

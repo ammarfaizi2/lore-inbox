@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267640AbSLSWKY>; Thu, 19 Dec 2002 17:10:24 -0500
+	id <S267653AbSLSWMr>; Thu, 19 Dec 2002 17:12:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267630AbSLSWJl>; Thu, 19 Dec 2002 17:09:41 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:2504 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267227AbSLSWJe>;
-	Thu, 19 Dec 2002 17:09:34 -0500
-Date: Thu, 19 Dec 2002 15:49:05 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: drivers/base/fs/fs.h - needed?
-In-Reply-To: <20021217200405.GA1191@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.33.0212191543000.1286-100000@localhost.localdomain>
+	id <S267648AbSLSWL5>; Thu, 19 Dec 2002 17:11:57 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46600 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267227AbSLSWKm> convert rfc822-to-8bit; Thu, 19 Dec 2002 17:10:42 -0500
+Message-ID: <3E0245C1.5060902@transmeta.com>
+Date: Thu, 19 Dec 2002 14:18:41 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021119
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pavel Machek <pavel@ucw.cz>
+CC: dean gaudet <dean-list-linux-kernel@arctic.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Intel P6 vs P7 system call performance
+References: <Pine.LNX.4.44.0212162204300.1800-100000@home.transmeta.com> <Pine.LNX.4.50.0212162241150.26163-100000@twinlark.arctic.org> <20021218235327.GC705@elf.ucw.cz>
+In-Reply-To: <20021218235327.GC705@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id gBJMIW322825
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 17 Dec 2002, Sam Ravnborg wrote:
-
-> In fs/partitions/check.c the following ugly include exists:
-> #include <../drivers/base/fs/fs.h>	/* Eeeeewwwww */
+Pavel Machek wrote:
+>>
+>>don't many of the multi-CPU problems with tsc go away because you've got a
+>>per-cpu physical page for the vsyscall?
+>>
+>>i.e. per-cpu tsc epoch and scaling can be set on that page.
 > 
-> It can be killed with no problem, the prototypes contained therein are
-> not used by check.c.
+> Problem is that cpu's can randomly drift +/- 100 clocks or so... Not
+> nice at all.
 > 
-> Is this preparations for furter device model changes?
-> If thats the case, the fs.h file, or at least the content, shall be placed
-> in include/linux for general access.
 
-It can safely be removed. 
+­­±100 clocks is what... ±50 ns these days?  You can't get that kind of
+accuracy for anything outside the CPU core anyway...
 
-Thanks
-
-	-pat
+	-hpa
 

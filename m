@@ -1,72 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264378AbTDKOrl (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 10:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbTDKOrl (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 10:47:41 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:5256 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264378AbTDKOrk (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 10:47:40 -0400
-Date: Fri, 11 Apr 2003 10:37:58 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
+	id S264346AbTDKOsr (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 10:48:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbTDKOsr (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 10:48:47 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:45533 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S264371AbTDKOsN (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 10:48:13 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Walt H <waltabbyh@comcast.net>,
        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kernel support for non-English user messages
-In-Reply-To: <200304110919_MC3-1-33FD-6E7@compuserve.com>
-Message-ID: <Pine.LNX.4.53.0304111017580.8084@chaos>
-References: <200304110919_MC3-1-33FD-6E7@compuserve.com>
+Subject: Re: 2.4.20-ck5
+Date: Sat, 12 Apr 2003 01:01:32 +1000
+User-Agent: KMail/1.5.1
+References: <3E96D711.70404@comcast.net>
+In-Reply-To: <3E96D711.70404@comcast.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304120101.32423.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Apr 2003, Chuck Ebbert wrote:
-
-> Linux Torvalds wrote:
+On Sat, 12 Apr 2003 00:54, Walt H wrote:
+> Hello,
 >
->
-> > I've used VMS, and error code number encoding is a total heap of crap.
->
-[SNIPPED...]
+> I've compiled a new kernel using the ck5 patchset you made, but have had
+> some problems. It seems that with my configuration, I expose a memory
+> leak somewhere. After the system has been up for a while, or if I try to
+> compile anything non-trivial (kde-libs for example), The system will use
+> up all available memory and further memory alloc's fail. Swap is hardly
+> being used in this case. My syslog file does report:
 
->
-> (Of course there were drawbacks, too... when the leather belt driving
-> the Difference Engine broke, for example, it was every man for himself!)
->
+> Typically, apps fail although the OOM killer isn't triggered (not sure
+> if it's enabled in ck5).
 
-You think you are kidding? The main hard disk on one of our VAX/11-750
-was belt-driven. I think it was a RA50?? Anyway, it consisted of
-a 55 pound sealed aluminum casting with fins (HDA), that a technician
-would roll in using a refrigerator dolly. It had a pulley on it's
-bottom that was fit into a belt to spin it up. The motor sounded
-like a vacuum-cleaner motor, probably made by Hoover.
+OOMK not enabled in -ck*
 
-Wmmm.
-$ ls /  # "DIR"
-%DIRECT-W-NOFILES, no files found
+> I'm wondering if there's a strange interaction with XFS? I also use the
+> Nvidia driver, however, I also tested without loading it and receive the
+> same results. My XFS thought is due to the strange behaviour of the
+> filesystem with this patchset. When I tried compiling kdelibs, the
+> system chugged along until memory was used (15-20 mins) and then the
+> compile could no longer proceed. After seeing this and issuing a 'sync',
+> the drives thrashed for approx. 30-45 seconds as if flushing unwritten
+> data. It's as if writes are being stored indefinitely? Reverting back to
+> ck4 and all is well. System info below:
 
-Remember versioned files? What would Unix do with....
+XFS must be responsible. I can't test it fully myself but it appears to be 
+related to the latest xfs update I've included in -ck5 which is a snapshot 
+from the sgi website only a week old. Until further notice, use ck4 if you 
+wish to use XFS.
 
-$ renam *.*;* *.*;1
+Thanks for the feedback.
 
-$ ls
-  *.*;1
-$
-You get left with one file called *.*;1  -- nice!
-
-I did like....
-$ set proc/priv=all
-$ @sys$system:shutdown
-
-It was almost as amazing as `init 0` on Red-Hat distributions....
-
-> --
->  Chuck
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+Con

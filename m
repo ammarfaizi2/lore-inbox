@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265748AbSKAVNw>; Fri, 1 Nov 2002 16:13:52 -0500
+	id <S265758AbSKAVWe>; Fri, 1 Nov 2002 16:22:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265752AbSKAVNw>; Fri, 1 Nov 2002 16:13:52 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:35968 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265748AbSKAVNu>; Fri, 1 Nov 2002 16:13:50 -0500
-Date: Fri, 1 Nov 2002 16:21:54 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Early Christmas
-Message-ID: <Pine.LNX.3.95.1021101162027.2580A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265759AbSKAVWe>; Fri, 1 Nov 2002 16:22:34 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:39561 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265758AbSKAVWd>; Fri, 1 Nov 2002 16:22:33 -0500
+Subject: Re: Sound doesn't work in 2.5.44-ac5?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0211011405230.1166-201000@oddball.prodigy.com>
+References: <Pine.LNX.4.44.0211011405230.1166-201000@oddball.prodigy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 01 Nov 2002 21:48:32 +0000
+Message-Id: <1036187312.12534.59.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2002-11-01 at 19:11, Bill Davidsen wrote:
+> I must be doing something wrong, but I put in every sound card I had 
+> handy, one at a time, and the modules just can't load. No warnings in make 
+> modules or modules_install.
+> 
+> Script output attached to prevent munging, config attached if anyone has a 
+> problem duplicating this.
 
-     Let me get this out before Christmas (with apologies
-     for being off-topic)
-
-     T`Was the night before payday and all through the house,
-         Not a computer was working as I clicked the mouse;
-     The screen turned blue and out slewed some text,
-         Showing register dumps and addresses in hex;
-     The disk-light was glowing and loud were the sounds,
-         Of whip-lashing disk-seeks way out-of-bounds;
-     Then quick as a wink the screen started to flash,
-         Upon each new re-boot the system would crash;
-     I reached for the Windows CD/ROM to install,
-         The system again, from scratch all, and all;
-     I worked several hours trying to make,
-         The new Windows Operating System to take;
-     It would never complete the booting sequence,
-         Nothing I did, made any sense;
-     Then what to my wondering eyes should appear,
-         But a Linux machine to which I'd grown dear;
-     I connected the disk from the Windows box broken,
-         Into the Linux machine as a token;
-     And deleted that corrupt Windows partition,
-         So another install would allow recognition;
-     Then back to the Windows machine I did all,
-        The Windows partition completed install;
-     And recover all data, programs, and curia,
-         From my quietly running Linux server.
-     -- Richard B. Johnson --
- 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-   Bush : The Fourth Reich of America
-
+Disable the atack checking options should I think fix it. mcount needs
+to be exported _NOVERS as its asm
 

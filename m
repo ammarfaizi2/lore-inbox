@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262792AbSKLAZm>; Mon, 11 Nov 2002 19:25:42 -0500
+	id <S264972AbSKLA3A>; Mon, 11 Nov 2002 19:29:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264758AbSKLAZm>; Mon, 11 Nov 2002 19:25:42 -0500
-Received: from momus.sc.intel.com ([143.183.152.8]:14803 "EHLO
-	momus.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S262792AbSKLAZl>; Mon, 11 Nov 2002 19:25:41 -0500
-Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CAC91F@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Mark Mielke'" <mark@mark.mielke.cc>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: PROT_SEM + FUTEX
-Date: Mon, 11 Nov 2002 16:31:48 -0800
+	id <S265361AbSKLA3A>; Mon, 11 Nov 2002 19:29:00 -0500
+Received: from ns.rf0.com ([198.78.66.18]:25871 "EHLO freebsd.rf0.com")
+	by vger.kernel.org with ESMTP id <S264972AbSKLA3A>;
+	Mon, 11 Nov 2002 19:29:00 -0500
+Date: Tue, 12 Nov 2002 00:35:47 +0000 (GMT)
+From: Rus Foster <rghf@fsck.me.uk>
+X-X-Sender: rghf@freebsd.rf0.com
+To: linux-kernel@vger.kernel.org
+Subject: Filesystem corruption on 2.4.20-rc1?
+Message-ID: <20021112003149.H90488-100000@freebsd.rf0.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+ has anyone seen filesystem (ext3) corruption on 2.4.20-rc1? I've just
+upgraded and am now trying to get back as much as of data as possible but
+its not looking pretty. fsck is saying no valid superblock (and I can't
+find a backup super block :( ). I've got 3 disk on seperate controllers
+and they have all got some form of corruption
 
-> frequently. I would find any application that needed to actively wait
-> on 4000 futex objects to be either incorrectly designed, or under
-> enough load that I think an investment in a few more CPU's would be
-> worthwhile... :-)
+If there is any more info please ask and I will see what I can dig out.
+ATM I'm just trying to get the machine booting and recover some of my mp3
+collection :)
 
-Not really; well, yeah really, but on other side; the case 
-I am talking about is threaded applications with thousands of threads 
-[no  kidding], where for example, 2K are producers and 4K are consumers;
-there you have a rough 50% rate of contention for each lock [assume
-each producer has a lock that the two consumers need to acquire]; the
-contention might not be very bad, but as an average you might have
-around 1000 futexes locked, that would add up to, in worst case, 1000
-pages locked ...
+Rus
 
-However, if you do some thousand threads, you better have more memory
-so that 1000 pages locked does not really mind :]
+--
+http://www.fsck.me.uk - My blog
+http://shells.fsck.me.uk - Hosting how you want it.
 
-Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
-fault]

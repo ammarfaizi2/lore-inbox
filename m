@@ -1,88 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269289AbUINLcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269292AbUINLex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269289AbUINLcp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 07:32:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269266AbUINLbj
+	id S269292AbUINLex (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 07:34:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269293AbUINLdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 07:31:39 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:14736 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269289AbUINLat (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 07:30:49 -0400
-Date: Tue, 14 Sep 2004 13:32:15 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] sched: fix scheduling latencies in vgacon.c
-Message-ID: <20040914113215.GB2804@elte.hu>
-References: <20040914095731.GA24622@elte.hu> <20040914100652.GB24622@elte.hu> <20040914101904.GD24622@elte.hu> <20040914102517.GE24622@elte.hu> <20040914104449.GA30790@elte.hu> <20040914105048.GA31238@elte.hu> <20040914105904.GB31370@elte.hu> <20040914110237.GC31370@elte.hu> <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu>
+	Tue, 14 Sep 2004 07:33:05 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:55484 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269296AbUINLbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 07:31:24 -0400
+Subject: Re: radeon-pre-2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Dave Airlie <airlied@linux.ie>,
+       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <9e47339104091310503edce155@mail.gmail.com>
+References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
+	 <9e47339104091011402e8341d0@mail.gmail.com>
+	 <Pine.LNX.4.58.0409102254250.13921@skynet>
+	 <1094853588.18235.12.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0409110137590.26651@skynet>
+	 <1094912726.21157.52.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0409122319550.20080@skynet>
+	 <1095074778.14374.41.camel@localhost.localdomain>
+	 <9e47339104091308063c394704@mail.gmail.com>
+	 <1095087860.14582.37.camel@localhost.localdomain>
+	 <9e47339104091310503edce155@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1095157635.16588.21.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="jI8keyz6grp/JLjh"
-Content-Disposition: inline
-In-Reply-To: <20040914112847.GA2804@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 14 Sep 2004 11:27:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Llu, 2004-09-13 at 18:50, Jon Smirl wrote:
+> How's this going to work with hotplug? Hotplug works by associating a
+> device with a driver by the PCI ID table contained in the driver. Both
+> the fbdev and DRI drivers currently contain the same PCI IDs for the
+> cards that the chipsets they support.
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Insert card
+	pc layer calls hotplug
+	hotplug loads vga driver
+	pci layer calls vga driver
+	vga driver generates hotplug event
+	hotplug loads stuff (user policy)
+	vga driver calls hotplugged drivers
 
+> I guess you need to build something into the VGA driver that gets the
+> PCI ID tables out of the various fbdev/DRM drivers and combine them
+> into a single table visible to hotplug.  Then let the VGA driver take
+> the hotplug event. The VGA driver can then search it's table and
+> figure out which driver to initialize.
 
-this patch fixes scheduling latencies in vgacon_do_font_op(). The code
-is protected by vga_lock already so it's safe to drop (and re-acquire)
-the BKL.
+Thats what it does. The vga_device_register functions take a vga_driver
+object which is a PCI driver lookalike with an extra field of "type" so
+you can load DRM's, FB's etc
 
-has been tested in the -VP patchset.
+> What if I have two identical PCI video cards. Don't we need an
+> initialization file to say load DRM on the one in slot 1 and fbdev on
+> the one in slot 2?
 
-	Ingo
+Possibly, thats for hotplug user space policy. 
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="fix-latency-vgacon.patch"
+Alan
 
-
-this patch fixes scheduling latencies in vgacon_do_font_op(). The code
-is protected by vga_lock already so it's safe to drop (and re-acquire)
-the BKL.
-
-has been tested in the -VP patchset.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/drivers/video/console/vgacon.c.orig	
-+++ linux/drivers/video/console/vgacon.c	
-@@ -49,6 +49,7 @@
- #include <linux/spinlock.h>
- #include <linux/ioport.h>
- #include <linux/init.h>
-+#include <linux/smp_lock.h>
- #include <video/vga.h>
- #include <asm/io.h>
- 
-@@ -763,6 +764,7 @@ static int vgacon_do_font_op(struct vgas
- 		charmap += 4 * cmapsz;
- #endif
- 
-+	unlock_kernel();
- 	spin_lock_irq(&vga_lock);
- 	/* First, the Sequencer */
- 	vga_wseq(state->vgabase, VGA_SEQ_RESET, 0x1);
-@@ -848,6 +850,7 @@ static int vgacon_do_font_op(struct vgas
- 		vga_wattr(state->vgabase, VGA_AR_ENABLE_DISPLAY, 0);	
- 	}
- 	spin_unlock_irq(&vga_lock);
-+	lock_kernel();
- 	return 0;
- }
- 
-
---jI8keyz6grp/JLjh--

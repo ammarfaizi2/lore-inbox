@@ -1,77 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267590AbUBSX5z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 18:57:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267592AbUBSX5y
+	id S267589AbUBSX4I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 18:56:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267591AbUBSX4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 18:57:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:24276 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267590AbUBSX5w (ORCPT
+	Thu, 19 Feb 2004 18:56:08 -0500
+Received: from mail.kroah.org ([65.200.24.183]:46477 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267589AbUBSX4C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 18:57:52 -0500
-Date: Thu, 19 Feb 2004 16:02:29 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Tridgell <tridge@samba.org>
-cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Jamie Lokier <jamie@shareable.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
-In-Reply-To: <16437.18605.71269.750607@samba.org>
-Message-ID: <Pine.LNX.4.58.0402191549500.2244@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0402181422180.2686@home.osdl.org>
- <Pine.LNX.4.58.0402181427230.2686@home.osdl.org> <16435.60448.70856.791580@samba.org>
- <Pine.LNX.4.58.0402181457470.18038@home.osdl.org> <16435.61622.732939.135127@samba.org>
- <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org>
- <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org>
- <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org> <20040219182948.GA3414@mail.shareable.org>
- <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org> <16437.18605.71269.750607@samba.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Feb 2004 18:56:02 -0500
+Date: Thu, 19 Feb 2004 15:56:02 -0800
+From: Greg KH <greg@kroah.com>
+To: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <1@pervalidus.net>
+Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: HOWTO use udev to manage /dev
+Message-ID: <20040219235602.GI15848@kroah.com>
+References: <20040219185932.GA10527@kroah.com> <20040219191636.GC10527@kroah.com> <Pine.LNX.4.58.0402191918440.688@pervalidus.dyndns.org> <20040219230749.GA15848@kroah.com> <Pine.LNX.4.58.0402192033490.694@pervalidus.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0402192033490.694@pervalidus.dyndns.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 20 Feb 2004 tridge@samba.org wrote:
+On Thu, Feb 19, 2004 at 08:46:42PM -0300, Frédéric L. W. Meunier wrote:
+> On Thu, 19 Feb 2004, Greg KH wrote:
 > 
-> What your proposal doesn't give us is case-insensitive indexing into
-> the dcache.
+> > On Thu, Feb 19, 2004 at 07:22:30PM -0300, Frédéric L. W. Meunier wrote:
+> > > On Thu, 19 Feb 2004, Greg KH wrote:
+> > >
+> > > >  - modify the rc.sysinit script to call the start_udev script as one of
+> > > >    the first things that it does, but after /proc and /sys are mounted.
+> > > >    I did this with the latest Fedora startup scripts with the patch at
+> > > >    the end of this file.
+> > > >
+> > > >  - make sure the /etc/udev/udev.conf file lists the udev_root as /dev.
+> > > >    It should contain the following line in order to work properly.
+> > > > 	udev_root="/dev/"
+> > > >
+> > > >  - reboot into a 2.6 kernel and watch udev create all of the initial
+> > > >    device nodes in /dev
+> > > >
+> > > >
+> > > > If anyone has any problems with this, please let me, and the
+> > > > linux-hotplug-devel@lists.sourceforge.net mailing list know.
+> > >
+> > > Unless I'm missing something, it doesn't seem to work if you
+> > > don't have /dev/null before it gets mounted.
+> >
+> > Did you build udev using glibc or klibc?  I used klibc and it worked
+> > just fine, as udev and udevd does not need /dev/null to work, unlike
+> > programs built against glibc.
+> 
+> I used your instructions, so klibc.
+> 
+> # ldd /sbin/udev*
+> 
+> /sbin/udev:
+>         not a dynamic executable
+> /sbin/udevd:
+>         not a dynamic executable
+> /sbin/udevinfo:
+>         not a dynamic executable
+> /sbin/udevsend:
+>         not a dynamic executable
+> /sbin/udevtest:
+>         not a dynamic executable
+> 
+> It doesn't complain if I mount in /udev after I boot with
+> devfs, probably because it can find /dev/null etc. But I want
+> to boot with devfs=nomount and use it in /dev.
 
-Correct.
+I agree, that would be the best.
 
-And I've told you OVER AND OVER again that you have a choice: better than 
-what you do now, or nothing. Whining about the fact that Windows is 
-stupid will only make me convinced that there is no point to even helping 
-samba, since what you really want is WNT.
+So if you take out the line about starting udevd, does it work for you?
 
-If what you want is WNT, then go away. That's not what I'm offering. And 
-it's not going to _be_ that I offer. 
+How about changing the #!/bin/bash to #!/bin/sash in the first line for
+the start_udev script?
 
-I offer you _sane_ VFS semantics, with some accelerators for your insane 
-needs. If that isn't enough, then please just stop bothering me. 
+What distro is this?
 
-Comprende?
+Can you run strace on the start_udev script after boot to see who is
+needing access to /dev/null?
 
->	 The reason the dcache is such a great thing in Linux is
-> that it is indexed by name, so you rarely do any scanning at all
+Oh, and if you create the /dev/null node as the first thing in the
+start_udev script does that work?
 
-And that is still true of any exact matches.
+thanks,
 
-If you have a fuzzy lookup of a name that does exist, but doesn't match,
-or you have a new name that simply doesn't _exist_ in the dcache, then you
-will have to scan all dentries. But now you can scan them in-memory by
-following the pointers directly without having to index through the
-filesystem data structures and worrying about disk reads. And you can
-optimize that to do a fast mismatch (ie in most cases you can probably
-look at the first one of two characters and determine immediately that
-there is no match).
-
-The only way to avoid that is to make the hash weaker. Which I'm not 
-willing to do: I'm not willing to make the _proper_ lookups go slower 
-because of some insane crap generated by Microsoft.
-
-In other words, put up or shut up. If you are only going to repeat your 
-whine about how you want the Linux VFS layer to look like Windows, I'm 
-simply NOT INTERESTED.
-
-		Linus
+greg k-h

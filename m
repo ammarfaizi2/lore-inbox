@@ -1,35 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286691AbRLVF1w>; Sat, 22 Dec 2001 00:27:52 -0500
+	id <S286695AbRLVFps>; Sat, 22 Dec 2001 00:45:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286692AbRLVF1m>; Sat, 22 Dec 2001 00:27:42 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:47880 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S286691AbRLVF1c>; Sat, 22 Dec 2001 00:27:32 -0500
-Message-ID: <3C241978.65020179@zip.com.au>
-Date: Fri, 21 Dec 2001 21:26:16 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: Jason Thomas <jason@topic.com.au>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] link errors with internal calls to devexit functions
-In-Reply-To: Your message of "Sat, 22 Dec 2001 13:57:25 +1100."
-	             <20011222025725.GA629@topic.com.au> <5750.1008997543@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S286694AbRLVFpi>; Sat, 22 Dec 2001 00:45:38 -0500
+Received: from quechua.inka.de ([212.227.14.2]:22575 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S286695AbRLVFpW>;
+	Sat, 22 Dec 2001 00:45:22 -0500
+From: Bernd Eckenfels <usenet2001-12@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: re: Linux 2.4.17
+In-Reply-To: <Pine.LNX.4.33.0112212203460.1184-100000@fargo>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E16HeyK-0006lb-00@sites.inka.de>
+Date: Sat, 22 Dec 2001 06:45:24 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> 
->         __devexit_call(bttv_remove(dev));
->         __devexit_call(uhci_pci_remove(dev));
+In article <Pine.LNX.4.33.0112212203460.1184-100000@fargo> you wrote:
+> I'd be dissapointed if Marcelo had released and stable kernel still
+> with the loopback deadlocks. And i don't think the alpha compile fix is
+> going to break anything.
 
-This may break the drivers.  They both call the remove
-function on the init path, when something failed.
+Well, of course having another RC wont be too much of a problem.
 
-I believe the correct fix here is to simply remove __devinit altogether
-from the definition of both those functions.
+greetings
+Bernd

@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbUCFN63 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 08:58:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUCFN63
+	id S261668AbUCFOEl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 09:04:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbUCFOEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 08:58:29 -0500
-Received: from mail.zmailer.org ([62.78.96.67]:13579 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S261667AbUCFN62 (ORCPT
+	Sat, 6 Mar 2004 09:04:41 -0500
+Received: from main.gmane.org ([80.91.224.249]:22195 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261668AbUCFOEj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 08:58:28 -0500
-Date: Sat, 6 Mar 2004 15:58:16 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "J. Ryan Earl" <heretic@clanhk.org>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 3Com 3C2000-T support in 2.6?
-Message-ID: <20040306135816.GI1653@mea-ext.zmailer.org>
-References: <4049AE4F.7080605@clanhk.org>
+	Sat, 6 Mar 2004 09:04:39 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Other bizarre thing... backspaces?
+Date: Sat, 06 Mar 2004 15:04:35 +0100
+Message-ID: <yw1xd67qax70.fsf@kth.se>
+References: <20040304100503.GA13970@havoc.gtf.org> <20040305232425.GA6239@havoc.gtf.org>
+ <20040306133309.GA17397@havoc.gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4049AE4F.7080605@clanhk.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ti211310a080-4136.bb.online.no
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:YR4vUijVfr7iSiAov9QC7YETh+E=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 06, 2004 at 04:56:15AM -0600, J. Ryan Earl wrote:
-> I was wondering, has anyone gotten the 3C2000-T gigE card up under 2.6?  
-> It apparently comes with driver source for the 2.4 kernel on its CD.  
-> Nice specs: 
-> http://www.3com.com/products/en_US/detail.jsp?tab=features&sku=3C2000-T&pathtype=support
-> 
-> Nice sized buffers and IP offload in a cheap package.
+David Eger <eger@havoc.gtf.org> writes:
 
-   Looks like that driver is related to SysKonnect's  sk98lin  driver.
-   It has been branched around december 2002, merging possible missing
-   support features to sk98lin baseline would be most usefull. ...
+> There are five files with embedded backspace octets in them.... ;-)
 
-   If anything, present sk98lin  knows _more_ devices, than 3c2000
-   driver, including all that 3c2000 knows.  And sk98lin knows about
-   IPv4 checksum offloading...
+That's an old way to do underlining and bold face and it seems like at
+least coda.txt is doing that.  If I could choose I'd probably just
+remove them.
 
+-- 
+Måns Rullgård
+mru@kth.se
 
-@@ -881,7 +1008,13 @@
- {
- short  i;
- unsigned long Flags;
--char   *DescrString = "sk98lin: Driver for Linux"; /* this is given to PNMI */
-+
-+/* 2002 12 24 JMA begin
-+ * Change to 3Com description. */
-+//char  *DescrString = "sk98lin: Driver for Linux"; /* this is given to PNMI */
-+char    *DescrString = "3C2000: Driver for Linux"; /* this is given to PNMI */
-+/* 2002 12 24 JMA end */
-+
-
-
-> -ryan

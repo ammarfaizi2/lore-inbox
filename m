@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267872AbUHaVY7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267880AbUHaV0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267872AbUHaVY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 17:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269221AbUHaVWn
+	id S267880AbUHaV0H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 17:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267850AbUHaVZH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 17:22:43 -0400
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:12180 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S269162AbUHaVVs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 17:21:48 -0400
-Date: Tue, 31 Aug 2004 14:21:29 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Dmitry Golubev <dmitry@mikrotik.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: 2.6.8.1, additional options for embedded systems
-Message-Id: <20040831142129.327d2dce.davem@davemloft.net>
-In-Reply-To: <200408312255.40511.dmitry@mikrotik.com>
-References: <200408312255.40511.dmitry@mikrotik.com>
-Organization: DaveM Loft Enterprises
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+	Tue, 31 Aug 2004 17:25:07 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:24329 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S267819AbUHaVYi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 17:24:38 -0400
+Date: Tue, 31 Aug 2004 14:23:19 -0700
+To: Diego Calleja <diegocg@teleline.es>
+Cc: Jeff Garzik <jgarzik@pobox.com>, bhuey@lnxw.com, torvalds@osdl.org,
+       tmv@comcast.net, linux-kernel@vger.kernel.org
+Subject: Re: Userspace file systems & MKs (Re: silent semantic changes with reiser4)
+Message-ID: <20040831212319.GA23861@nietzsche.lynx.com>
+References: <20040826053200.GU31237@waste.org> <20040826075348.GT1284@nysv.org> <20040826163234.GA9047@delft.aura.cs.cmu.edu> <Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org> <20040831033950.GA32404@zero> <Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org> <413400B6.6040807@pobox.com> <20040831053055.GA8654@nietzsche.lynx.com> <4134131D.6050001@pobox.com> <20040831155613.2b25df1e.diegocg@teleline.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040831155613.2b25df1e.diegocg@teleline.es>
+User-Agent: Mutt/1.5.6+20040818i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Aug 2004 22:55:40 +0300
-Dmitry Golubev <dmitry@mikrotik.com> wrote:
+On Tue, Aug 31, 2004 at 03:56:13PM +0200, Diego Calleja wrote:
+> There're some numbers for that:
+> 
+> http://lists.freebsd.org/pipermail/freebsd-hackers/2003-August/002426.html
 
-> - adds option to disable IGMP (that's rarely needed for desktops)
+Link about XIO and things hijacked from FreeBSD-current.
 
-Never used multicast?
+http://leaf.dragonflybsd.org/mailarchive/kernel/2004-03/msg00469.html
 
-In fact, if I had to choose the place where multicast is most
-likely to be used it would be the desktop, and certainly not
-servers.
+bill
+

@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293135AbSEAKCo>; Wed, 1 May 2002 06:02:44 -0400
+	id <S293203AbSEAKSG>; Wed, 1 May 2002 06:18:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293337AbSEAKCn>; Wed, 1 May 2002 06:02:43 -0400
-Received: from smtp1.libero.it ([193.70.192.51]:37512 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id <S293135AbSEAKCm> convert rfc822-to-8bit;
-	Wed, 1 May 2002 06:02:42 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Andrea Aime <aaime@libero.it>
+	id <S293337AbSEAKSF>; Wed, 1 May 2002 06:18:05 -0400
+Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:4748 "EHLO
+	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S293203AbSEAKSF>; Wed, 1 May 2002 06:18:05 -0400
+Date: Wed, 1 May 2002 11:18:04 +0100 (BST)
+From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
+X-X-Sender: alastair@gerber
 To: linux-kernel@vger.kernel.org
-Subject: How to tune vm to be less swap happy?
-Date: Wed, 1 May 2002 12:02:38 +0000
-User-Agent: KMail/1.4.5
+Subject: kernel BUG in "page_alloc.c" with 2.4.19-pre7-ac2
+Message-ID: <Pine.GSO.4.44.0205011113420.1714-100000@gerber>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200205011202.38653.aaime@libero.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody,
-sorry to bother you with this question, but I feel that current vm defaults 
-are not tuned for a workstation use, but for a file server/db server use.
-I work on a couple of machines with 128MB of RAM, tipically use KDE 3.0
-and Netbeans (a Java IDE). Ok, I use bloated software, I should have more
-RAM. Fine. But what I don't understand is why the system keeps swapping
-data in and out just because it doesn't want to shrink the cache below 40 MB.
-My typical memory occupation is:
+Just a small problem report observed with my Athlon system running
+2.4.19-pre7-ac2 under RH 7.2.93 (skipjack beta):
 
-             total       used       free     shared    buffers     cached
-Mem:        127096     123264       3832          0       1216      48164
--/+ buffers/cache:      73884      53212
-Swap:       257000      62316     194684
+Basically, "page_alloc.c" generated a BUG error when unmounting my
+filesystems during a reboot. I wasn't able to capture the full output,
+but I hope may be useful to report this anyway. If it happens again I'll
+try to grab the details....
 
-Now, as you can see I would need 135 MB to keep all my programs in memory,
-and if you look at top output:
+But this fault seems *not* to be repeatable - I rebooted several times
+with no problems, and my filesystems also appear to be fine.
 
- PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
- 4397 wolf       9   0 79196  71M 30472 S     0,0 57,4   0:00 java
- 4398 wolf       8   0 79196  71M 30472 S     0,0 57,4   0:00 java
-...
+Cheers
+Alastair
 
-you'll notice that due to the cache behaviour not even netbeans fits enterely 
-in memory. I really doubt that I can benefit from a 48MB disk cache since the 
-system is swapping in and out every time I open konqueror, kmail and the 
-like... is there anything I can do to shrink the cache and to allow a bigger 
-part of my working set to fit into memory? Moreover, what vm tuning do you
-advice for a typical workstation use with memory hungry applications?
-Best regards
-Andrea Aime
-
-
+o o o o o o o o o o o o o o o o o o o o o o o o o o o o
+Alastair Stevens           \ \
+MRC Biostatistics Unit      \ \___________ 01223 330383
+Cambridge UK                 \___ www.mrc-bsu.cam.ac.uk
 

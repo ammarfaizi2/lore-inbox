@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266941AbUBEXG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 18:06:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267091AbUBEXEC
+	id S267078AbUBEXAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 18:00:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267063AbUBEXAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 18:04:02 -0500
-Received: from ms-smtp-01.rdc-kc.rr.com ([24.94.166.115]:62443 "EHLO
-	ms-smtp-01.rdc-kc.rr.com") by vger.kernel.org with ESMTP
-	id S267087AbUBEXDT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 18:03:19 -0500
-Date: Thu, 5 Feb 2004 17:03:04 -0600
-From: Greg Norris <haphazard@kc.rr.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-usb-users@lists.sourceforge.net,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb mouse/keyboard problems under 2.6.2
-Message-ID: <20040205230304.GA2195@yggdrasil.localdomain>
-Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>,
-	linux-usb-users@lists.sourceforge.net,
-	linux-usb-devel@lists.sourceforge.net
-References: <20040204174748.GA27554@yggdrasil.localdomain> <20040205142155.GA606@ucw.cz> <20040205160226.GA13471@yggdrasil.localdomain>
+	Thu, 5 Feb 2004 18:00:23 -0500
+Received: from dodge.jordet.nu ([217.13.8.142]:31384 "EHLO dodge.jordet.nu")
+	by vger.kernel.org with ESMTP id S267078AbUBEW7r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 17:59:47 -0500
+Subject: Re: oops in old isdn4linux and 2.6.2-rc3 (was in -rc2 too)
+From: Stian Jordet <liste@jordet.nu>
+To: Karsten Keil <kkeil@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040203074846.GA5873@pingi3.kke.suse.de>
+References: <401E4A80.4050907@web.de>
+	 <20040202195139.GB2534@pingi3.kke.suse.de>
+	 <1075759213.29899.220.camel@pegasus>
+	 <20040203074846.GA5873@pingi3.kke.suse.de>
+Content-Type: text/plain
+Message-Id: <1076021981.662.5.camel@chevrolet.hybel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040205160226.GA13471@yggdrasil.localdomain>
-X-Operating-System: Linux yggdrasil 2.6.2 #1 SMP Thu Feb 5 16:01:48 CST 2004 i686 GNU/Linux
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 05 Feb 2004 23:59:41 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's the output from dmesg, after rebuilding with CONFIG_USB_DEBUG
-enabled.  It doesn't seem to be producing any output from after the
-initialization completed (and the problem has recurred several times
-since then), so please let me know if I should be going about this
-differently.
+tir, 03.02.2004 kl. 08.48 skrev Karsten Keil:
+> On Mon, Feb 02, 2004 at 11:00:13PM +0100, Marcel Holtmann wrote:
+> > Hi Karsten,
+> > 
+> > > try the actual I4L for 2.6 patch in 
+> > > ftp://ftp.isdn4linux.de/pub/isdn4linux/kernel/v2.6
+> > 
+> > what is your current plan for including these patches into mainstream
+> > once 2.6.2 is out?
+> > 
+> 
+> Was sent to Linus a week ago, but no answer so far.
 
-Thanx!
+Now that 2.6.2 is out, and it still hasn't been applied, is it
+inappropriate to beg you to resend it to Linus and/or Andrew? It is
+really crucial for me, without this patch Hisax with TelesPCI support
+won't even compile. And probably lots of others as well.
+
+Thanks for your great work!
+
+Best regards,
+Stian
+

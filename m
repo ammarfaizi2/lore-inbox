@@ -1,83 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279589AbRKVNtq>; Thu, 22 Nov 2001 08:49:46 -0500
+	id <S279505AbRKVNtg>; Thu, 22 Nov 2001 08:49:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279581AbRKVNth>; Thu, 22 Nov 2001 08:49:37 -0500
-Received: from [212.169.100.200] ([212.169.100.200]:10494 "EHLO
-	sexything.nextframe.net") by vger.kernel.org with ESMTP
-	id <S279589AbRKVNt1>; Thu, 22 Nov 2001 08:49:27 -0500
-Date: Thu, 22 Nov 2001 14:55:27 +0100
-From: Morten Helgesen <admin@nextframe.net>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [PATCH] remove last references to linux/malloc.h
-Message-ID: <20011122145527.A117@sexything>
-Reply-To: admin@nextframe.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-Editor: VIM - Vi IMproved 6.0
-X-Keyboard: PFU Happy Hacking Keyboard
-X-Operating-System: Slackware Linux (of course)
+	id <S279591AbRKVNt1>; Thu, 22 Nov 2001 08:49:27 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:29188 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S279581AbRKVNtH>; Thu, 22 Nov 2001 08:49:07 -0500
+Message-ID: <3BFD023B.7030307@namesys.com>
+Date: Thu, 22 Nov 2001 16:48:43 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Christian =?ISO-8859-1?Q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+CC: Andreas Dilger <adilger@turbolabs.com>, chaffee@cs.berkeley.edu,
+        linux-kernel@vger.kernel.org, Eric M <ground12@jippii.fi>
+Subject: Re: 2.4.15-pre1:  "bogus" message with reiserfs root and other weirdness
+In-Reply-To: <6893478.1006329318464.JavaMail.ground12@jippii.fi> <20011121111811.P1308@lynx.no> <E166e8A-0000t2-00@mrvdom02.schlund.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey, Linus and the rest of you.
+Christian Bornträger wrote:
 
-Quite obvious what this does, right ? :) Yep - removes the last 3 references to linux/malloc.h found in 2.4.15-pre9.
-
-Ok people - stop submitting patches which include malloc.h. Include slab.h instead. :)
-
-== Morten
-
--- 
-mvh
-Morten Helgesen 
-UNIX System Administrator & C Developer 
-Nextframe AS
-admin@nextframe.net / 93445641
-http://www.nextframe.net
-
-
-diff -ur vanilla-2.4.15-pre9/arch/arm/mach-epxa10db/dma.c patched-2.4.15-pre9/arch/arm/mach-epxa10db/dma.c
---- vanilla-2.4.15-pre9/arch/arm/mach-epxa10db/dma.c    Thu Oct 25 22:53:45 2001
-+++ patched-2.4.15-pre9/arch/arm/mach-epxa10db/dma.c    Thu Nov 22 14:06:20 2001
-@@ -19,7 +19,7 @@
-  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  */
- #include <linux/sched.h>
--#include <linux/malloc.h>
-+#include <linux/slab.h>
- #include <linux/mman.h>
- #include <linux/init.h>
-
-diff -ur vanilla-2.4.15-pre9/drivers/s390/s390io.c patched-2.4.15-pre9/drivers/s390/s390io.c
---- vanilla-2.4.15-pre9/drivers/s390/s390io.c   Sun Sep 30 21:26:07 2001
-+++ patched-2.4.15-pre9/drivers/s390/s390io.c   Thu Nov 22 14:08:51 2001
-@@ -33,7 +33,7 @@
- #include <linux/signal.h>
- #include <linux/sched.h>
- #include <linux/interrupt.h>
--#include <linux/malloc.h>
-+#include <linux/slab.h>
- #include <linux/string.h>
- #include <linux/smp.h>
- #include <linux/threads.h>
-diff -ur vanilla-2.4.15-pre9/drivers/scsi/sym53c8xx_2/sym_glue.h patched-2.4.15-pre9/drivers/scsi/sym53c8xx_2/sym_glue.h
---- vanilla-2.4.15-pre9/drivers/scsi/sym53c8xx_2/sym_glue.h     Thu Nov 22 14:13:59 2001
-+++ patched-2.4.15-pre9/drivers/scsi/sym53c8xx_2/sym_glue.h     Thu Nov 22 14:07:21 2001
-@@ -77,7 +77,7 @@
- #include <linux/errno.h>
- #include <linux/pci.h>
- #include <linux/string.h>
--#include <linux/malloc.h>
-+#include <linux/slab.h>
- #include <linux/mm.h>
- #include <linux/ioport.h>
- #include <linux/time.h>
-
-
-
+>>>Machine booted ok and everything seemed to be ok, but i noticed a few
+>>>weird messages in boot messages right before mounting the root-partition:
+>>>FAT: bogus logical sector size 0
+>>>FAT: bogus logical sector size 0
+>>>
+>>When the kernel is booting, it doesn't know the filesystem type of the
+>>root fs, so it tries to mount the root device using all of the compiled-in
+>>fs drivers, in the order they are listed in fs/Makefile.in.
+>>It appears that the fat driver doesn't even check for a magic when it
+>>starts trying to mount the filesystem, so it proceeds directly to
+>>
+>
+>To be complete we should also apply this patch.
+>
+>diff -urN linux/fs/fat/inode.c linux-new/fs/fat/inode.c
+>--- linux/fs/fat/inode.c        Thu Oct 25 09:02:26 2001
+>+++ linux-new/fs/fat/inode.c    Wed Nov 21 21:28:49 2001
+>@@ -609,7 +609,8 @@
+>                CF_LE_W(get_unaligned((unsigned short *) &b->sector_size));
+>        if (!logical_sector_size
+>            || (logical_sector_size & (logical_sector_size - 1))) {
+>-               printk("FAT: bogus logical sector size %d\n",
+>+               if (!silent)
+>+                   printk("FAT: bogus logical sector size %d\n",
+>                       logical_sector_size);
+>                brelse(bh);
+>                goto out_invalid;
+>@@ -618,7 +619,8 @@
+>        sbi->cluster_size = b->cluster_size;
+>        if (!sbi->cluster_size
+>            || (sbi->cluster_size & (sbi->cluster_size - 1))) {
+>-               printk("FAT: bogus cluster size %d\n", sbi->cluster_size);
+>+               if (!silent)
+>+                   printk("FAT: bogus cluster size %d\n", sbi->cluster_size);
+>                brelse(bh);
+>                goto out_invalid;
+>        }
+>
+>
+How about putting fat last in the list, and having it say something more 
+like "FAT: bogus cluster size, perhaps XXX is not a FAT partition"
 
 

@@ -1,88 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265532AbSLMWde>; Fri, 13 Dec 2002 17:33:34 -0500
+	id <S265508AbSLMWqA>; Fri, 13 Dec 2002 17:46:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265523AbSLMWde>; Fri, 13 Dec 2002 17:33:34 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:727 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S265516AbSLMWdc>; Fri, 13 Dec 2002 17:33:32 -0500
-Date: Sat, 14 Dec 2002 11:25:28 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Nivedita Singhvi <niv@us.ibm.com>
-cc: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>,
-       "David S. Miller" <davem@redhat.com>, dlstevens@us.ibm.com,
-       matti.aarnio@zmailer.org, alan@lxorguk.ukuu.org.uk,
-       stefano.andreani.ap@h3g.it, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: R: Kernel bug handling TCP_RTO_MAX?
-Message-ID: <2280000.1039818328@localhost.localdomain>
-In-Reply-To: <3DFA21C5.867C6320@us.ibm.com>
-References: <Pine.LNX.4.44.0212131233220.11129-100000@kenzo.iwr.uni-heidelbe	
-  rg.de> <19000000.1039780134@localhost.localdomain>
- <3DFA21C5.867C6320@us.ibm.com>
-X-Mailer: Mulberry/3.0.0b9 (Linux/x86)
+	id <S265523AbSLMWqA>; Fri, 13 Dec 2002 17:46:00 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2834 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265508AbSLMWp7>; Fri, 13 Dec 2002 17:45:59 -0500
+Message-ID: <3DFA64D9.2020002@zytor.com>
+Date: Fri, 13 Dec 2002 14:53:13 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021119
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Terje Eggestad <terje.eggestad@scali.com>
+CC: Ville Herva <vherva@niksula.hut.fi>, "J.A. Magallon" <jamagallon@able.es>,
+       Mark Mielke <mark@mark.mielke.cc>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: Intel P6 vs P7 system call performance
+References: <1039610907.25187.190.camel@pc-16.office.scali.no>	<3DF78911.5090107@zytor.com>	<1039686176.25186.195.camel@pc-16.office.scali.no>	<20021212203646.GA14228@mark.mielke.cc>	<20021212205655.GA1658@werewolf.able.es>	<1039771270.29298.41.camel@pc-16.office.scali.no> 	<20021213155859.GC1095@niksula.cs.hut.fi> <1039816682.10496.13.camel@eggis1>
+In-Reply-To: <1039816682.10496.13.camel@eggis1>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Terje Eggestad wrote:
+> I haven't tried the vsyscall patch, but there was a sysenter patch
+> floating around that I tried. It reduced the syscall overhead with 1/3
+> to 1/4, but I never tried it on P4.
+> 
+> FYI: Just note that I say overhead, which I assume to be the time it
+> take to do someting like getpid(), write(-1,...), select(-1, ...) (etc
+> that is immediatlely returned with -EINVAL by the kernel). 
+> Since the kernel do execute a quite afew instructions beside the
+> int/iret sysenter/sysexit, it's an assumption that the int 80  is the
+> culprit. 
+> 
+
+IRET in particular is a very slow instruction.
+
+As far as I know, though, the SYSENTER patch didn't deal with several of
+the corner cases introduced by the generally weird SYSENTER instruction
+(such as the fact that V86 tasks can execute it despite the fact there
+is in general no way to resume execution of the V86 task afterwards.)
+
+In practice this means that vsyscalls is pretty much the only sensible
+way to do this.  Also note that INT 80h will need to be supported
+indefinitely.
+
+Personally, I wonder if it's worth the trouble, when x86-64 takes care
+of the issue anyway :)
+
+	-hpa
 
 
---On Friday, December 13, 2002 10:07:01 -0800 Nivedita Singhvi 
-<niv@us.ibm.com> wrote:
-
-> Andrew McGregor wrote:
->
->> In a closed network, why not have SOCK_STREAM map to something faster
->> than TCP anyway?  That is, if I connect(address matching localnet),
->> SOCK_STREAM maps to (eg) SCTP.  That would be a far more dramatic
->> performance hack!
->>
->> Andrew
->
-> Not that simple. SCTP (if that is what Matti was referring to) is
-> a SOCK_STREAM socket, with a protocol of IPPROTO_SCTP. I'm just
-> getting done implementing a testsuite against the SCTP API.
->
-> i.e. You have to know you want an SCTP socket at the time you
-> open the socket. You certainly have no idea whether youre on
-> a closed network or not, for that matter, the app may want to talk
-> on multiple interfaces etc. (Most hosts will have one interface
-> on a public net)..
-
-Things are never that simple.  But I was basically talking about a local 
-policy to change the (semantics of the) API in certain cases.  It's 
-probably a bad idea and would cause all kinds of breakage, but it is 
-interesting to think about.
-
->
-> Currently, Linux SCTP doesn't yet support TCP style i.e SOCK_STREAM
-> sockets, we only do udp-style sockets (SOCK_SEQPACKET).  We will be
-> putting in SOCK_STREAM support next, but understand that performance
-> is not something that has been addressed yet, and a performant SCTP
-> is still some ways away (though I'm sure Jon and Sridhar will be
-> working their tails off to do so  ;)).
-
-I wasn't aware of the current status.  Ok, that's just where it's at.
-
->
-> But dont expect SCTP to be the surreptitious underlying layer
-> carrying TCP traffic, if thats an expectation that anyone has :)
-
-That's my particular kind of crazy idea.
-
->
-> Solving this problem without application involvement is a
-> more limited scenario..
-
-Indeed.
-
->
-> thanks,
-> Nivedita
->
->
-
-Andrew

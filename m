@@ -1,58 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262296AbTABPp1>; Thu, 2 Jan 2003 10:45:27 -0500
+	id <S262214AbTABPoY>; Thu, 2 Jan 2003 10:44:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262258AbTABPp1>; Thu, 2 Jan 2003 10:45:27 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:39110 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262296AbTABPpB>;
-	Thu, 2 Jan 2003 10:45:01 -0500
-Date: Thu, 2 Jan 2003 07:50:31 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: SZALAY Attila <sasa@pheniscidae.tvnetwork.hu>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.54
-In-Reply-To: <20030102103422.GB24116@sasa.home>
-Message-ID: <Pine.LNX.4.33L2.0301020745260.22868-100000@dragon.pdx.osdl.net>
+	id <S262224AbTABPoY>; Thu, 2 Jan 2003 10:44:24 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:34737 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262214AbTABPoX> convert rfc822-to-8bit; Thu, 2 Jan 2003 10:44:23 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: RAID0 problems with 2.4.21-BK current
+Date: Thu, 2 Jan 2003 16:51:59 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <200212292012.11556.m.c.p@wolk-project.de> <15891.33615.121943.544956@notabene.cse.unsw.edu.au>
+In-Reply-To: <15891.33615.121943.544956@notabene.cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301021651.59376.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Jan 2003, SZALAY Attila wrote:
+On Thursday 02 January 2003 01:09, Neil Brown wrote:
 
-| I have a linking problem with 2.5.54 (and 2.5.53 too)
-|
-| drivers/built-in.o: In function `kd_nosound':
-| drivers/built-in.o(.text+0x37923): undefined reference to 	nput_event'
-| drivers/built-in.o(.text+0x3793c): undefined reference to 	nput_event'
-| drivers/built-in.o: In function `kd_mksound':
-| drivers/built-in.o(.text+0x379e7): undefined reference to 	nput_event'
-| drivers/built-in.o: In function `kbd_bh':
-| drivers/built-in.o(.text+0x385a2): undefined reference to 	nput_event'
-| drivers/built-in.o(.text+0x385b0): undefined reference to 	nput_event'
-| drivers/built-in.o(.text+0x385c1): more undefined references to 	nput_event' follow
-| drivers/built-in.o: In function `kbd_connect':
-| drivers/built-in.o(.text+0x389e3): undefined reference to 	nput_open_device'
-| drivers/built-in.o: In function `kbd_disconnect':
-| drivers/built-in.o(.text+0x389ff): undefined reference to 	nput_close_device'
-| drivers/built-in.o: In function `kbd_init':
-| drivers/built-in.o(.init.text+0x2ae1): undefined reference to 	nput_register_handler'
-| make[1]: *** [vmlinux] Error 1
+Hi Neil,
 
-Yes, unfortunately this is a well-known problem.
-See kernel.bugzilla.org # 126 and # 164.
+> Is your raid0 ontop of a raid1 ???
+> If so, this patch is needed.
+nope, surely not ;) ... Plain raid0.
 
-You need to have CONFIG_INPUT=y, not =m.
-Alternatively you could have CONFIG_VT=n if that
-would work for you (not likely).
-
-| CONFIG_INPUT=m
-| CONFIG_VT=y
-| CONFIG_VT_CONSOLE=y
-
-
-HTH.
--- 
-~Randy
-
+ciao, Marc

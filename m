@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272389AbRHYEPq>; Sat, 25 Aug 2001 00:15:46 -0400
+	id <S272388AbRHYEOQ>; Sat, 25 Aug 2001 00:14:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272390AbRHYEPh>; Sat, 25 Aug 2001 00:15:37 -0400
-Received: from [211.100.87.203] ([211.100.87.203]:25101 "HELO linux.tcpip.cxm")
-	by vger.kernel.org with SMTP id <S272389AbRHYEPU>;
-	Sat, 25 Aug 2001 00:15:20 -0400
-Date: Sat, 25 Aug 2001 12:15:16 +0800
-From: hugang <linuxbest@soul.com.cn>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: test
-Message-Id: <20010825121516.6fc6b48b.linuxbest@soul.com.cn>
-Organization: soul
-X-Mailer: Sylpheed version 0.5.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 8bit
+	id <S272389AbRHYEOG>; Sat, 25 Aug 2001 00:14:06 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:14448 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S272388AbRHYEOA>; Sat, 25 Aug 2001 00:14:00 -0400
+Message-ID: <3B87256C.4050503@kalifornia.com>
+Date: Fri, 24 Aug 2001 21:11:24 -0700
+From: Ben Ford <ben@kalifornia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010821
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
+In-Reply-To: <E15a1IJ-000KjA-00@f10.mail.ru> <20010823135318.Z14302@cpe-24-221-152-185.az.sprintbbd.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tom Rini wrote:
+
+>On Fri, Aug 24, 2001 at 12:41:39AM +0400, Samium Gromoff wrote:
+>
+>>   1. I heard a lot of arguments why _not_ to include
+>>  python. Also alot of arguments why _ignore_ the arguments
+>>  to _not_ include python.
+>>    BUT! No arguments why to _include_ it...
+>>  kinda disbalance as i see.
+>>
+>
+>The main reason to include it, is that that's what it was done in.
+>
 
 
--- 
-Best Regard!
-礼！
-----------------------------------------------------
-hugang : 胡刚 	GNU/Linux User
-email  : gang_hu@soul.com.cn linuxbest@soul.com.cn
-Tel    : +861068425741/2/3/4
-Web    : http://www.soul.com.cn
+That is never an excuse.
 
-	Beijing Soul technology Co.Ltd.
-	   北京众志和达科技有限公司
-----------------------------------------------------
+

@@ -1,73 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263442AbTJVC4K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 22:56:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263444AbTJVC4K
+	id S263403AbTJVCre (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 22:47:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263422AbTJVCre
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 22:56:10 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:17164 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S263442AbTJVC4H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 22:56:07 -0400
-Date: Tue, 21 Oct 2003 19:56:02 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] frandom - fast random generator module
-Message-ID: <20031022025602.GH17713@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <3F8E552B.3010507@users.sf.net> <bn40oa$i4q$1@gatekeeper.tmr.com> <bn46q9$1rv$1@cesium.transmeta.com> <bn4aov$jf7$1@gatekeeper.tmr.com> <bn4l5q$v73$1@cesium.transmeta.com>
+	Tue, 21 Oct 2003 22:47:34 -0400
+Received: from h80ad256b.async.vt.edu ([128.173.37.107]:1921 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263403AbTJVCrc (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 22:47:32 -0400
+Message-Id: <200310220246.h9M2ko08007330@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Robert Love <rml@tech9.net>
+Cc: Thomas Schlichter <schlicht@uni-mannheim.de>,
+       James Simmons <jsimmons@infradead.org>,
+       Helge Hafting <helgehaf@aitel.hist.no>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-test8-mm1 
+In-Reply-To: Your message of "Tue, 21 Oct 2003 19:27:25 EDT."
+             <1066778844.768.348.camel@localhost> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.44.0310212141290.32738-100000@phoenix.infradead.org> <200310220053.13547.schlicht@uni-mannheim.de>
+            <1066778844.768.348.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bn4l5q$v73$1@cesium.transmeta.com>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: Vulnerable email reader detected!
+Content-Type: multipart/signed; boundary="==_Exmh_1296134294P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 21 Oct 2003 22:46:50 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 21, 2003 at 06:06:02PM -0700, H. Peter Anvin wrote:
-> Followup to:  <bn4aov$jf7$1@gatekeeper.tmr.com>
-> By author:    davidsen@tmr.com (bill davidsen)
-> In newsgroup: linux.dev.kernel
-> > | 
-> > | Bullshit.  "myrng 36 | foo" works just fine.
-> > 
-> > myrng?? That doesn't seem to be part of the bash I have, or any
-> > distribution I could check, and google shows a bunch of visual basic
-> > results rather than anything useful.
-> > 
-> > If you're suggesting that every user write their own program to
-> > generate random numbers, then write a script to call it, that kind of
-> > defeats the purpose of doing shell instead of writing a program, doesn't
-> > it? Not to mention that to get entropy the user program will have to
-> > call the devices anyway.
-> > 
-> > I think this could also fail the objective of returning unique results
-> > in an SMP system, but that's clearly imprementation dependent.
-> > 
+--==_Exmh_1296134294P
+Content-Type: text/plain; charset=us-ascii
+
+On Tue, 21 Oct 2003 19:27:25 EDT, Robert Love said:
+> On Tue, 2003-10-21 at 18:53, Thomas Schlichter wrote:
 > 
-> No, I mean that putting a piece of code in the kernel "so it can be
-> accessed from shell scripts" is idiotic.  Make a binary of it and put
-> it in the filesystem.
+> > For me the big question stays why enabling the DEBUG_* options results in a
+ 
+> > corrupt cursor and the false dots on the top of each row... (with both 
+> > kernels)
+> 
+> Almost certainly due to CONFIG_DEBUG_SLAB or CONFIG_DEBUG_PAGEALLOC,
+> which debug memory allocations and frees.
+> 
+> Code that commits the usual memory bugs (use-after-free, etc.) will
+> quickly die with these set, whereas without them the bug might never
+> manifest.
 
-Not to mention that some (bash the most common) shells have
-a PRNG built-in.  As does perl and i'm sure python and any
-other higher-than-shell scripting language.
+Right.  DEBUG_SLAB and DEBUG_PAGEALLOC will change where things end up in
+memory.  The part that *I* was surprised at was that turning them on did *NOT*
+make the code quickly die as expected - but it *did* corrupt the on-screen
+image.  That's telling me that the DEBUG stuff is setting canaries that end up
+in memory locations that the fbdev code thinks are destined for the display
+pixels.  (And conversely, that when you build without those two debug options,
+that the fbdev code is parking those now not visibly corrupted pixels on top of
+somebody's pointer chains and that's where the memory corruption is coming
+from.
 
-I'm convinced we don't need another device.  This might
-still be an alternative (build time selected) for the PRNG
-in the existing /dev/urandom if someone is that concerned
-with PRNG overhead.
+Or I could just be full of it as usual.. :)
 
-I am curious how someone is going to use random data from a
-device in a shell with the possible exception of "dd
-if=/dev/urandom of=/some/file" given that they emit a binary
-stream not numerals.
+--==_Exmh_1296134294P
+Content-Type: application/pgp-signature
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-		Remember Cernan and Schmitt
+iD8DBQE/le+acC3lWbTT17ARAtcVAKD3y/GoHp6q7tQKe814QFnDCZl3igCg5xPR
+8P8D3oLqb4ujlZ/UviIzLOw=
+=wWFB
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1296134294P--

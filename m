@@ -1,49 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288019AbSBZXau>; Tue, 26 Feb 2002 18:30:50 -0500
+	id <S288958AbSBZXcK>; Tue, 26 Feb 2002 18:32:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288557AbSBZXak>; Tue, 26 Feb 2002 18:30:40 -0500
-Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:26858 "HELO
-	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S288019AbSBZXa1>; Tue, 26 Feb 2002 18:30:27 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: low latency & preemtible kernels
-Date: Wed, 27 Feb 2002 00:30:12 +0100
-X-Mailer: KMail [version 1.3.9]
-Cc: wwp <subscript@free.fr>, Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200202261918.53190.Dieter.Nuetzel@hamburg.de> <20020226235510.E6197@werewolf.able.es>
-In-Reply-To: <20020226235510.E6197@werewolf.able.es>
+	id <S288801AbSBZXbu>; Tue, 26 Feb 2002 18:31:50 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46344 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288557AbSBZXbn>;
+	Tue, 26 Feb 2002 18:31:43 -0500
+Message-ID: <3C7C1A88.AA6CE5DD@zip.com.au>
+Date: Tue, 26 Feb 2002 15:30:16 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200202270030.12347.Dieter.Nuetzel@hamburg.de>
+To: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: assertion failure : ext3 & lvm , 2.4.17 smp & 2.4.18-ac1 smp
+In-Reply-To: <Pine.LNX.4.44.0202270017250.5280-100000@tassadar.physics.auth.gr>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dienstag, 26. Februar 2002 23:55:23, J.A. Magallon wrote:
-> On 20020226 Dieter Nützel wrote:
-> >wwp wrote:
-> >> Hi there,
-> >>
-> >> here's a newbie question:
-> >> is it UNadvisable to apply both preempt-kernel-rml and low-latency
-> >> patches over a 2.4.18 kernel?
-> >
-> >In short: no ;-)
-> >
-> >Try 2.4.18-rc4-jam2 for example. It should apply against 2.4.18 final,
-> > too.
->
-> Correction: jam2 is O(1)-multi-queue scheduler + low-latency, no
-> preeemt there.
+Dimitris Zilaskos wrote:
+> 
+> Assertion failure in do_get_write_access() at transaction.c:730: "(((jh2bh(jh))->b_state & (1UL << BH_Uptodate)) != 0)"
 
-I put it on top as always...;-)
+This was fixed in the ext3 patch which went into 2.4.18-pre5
 
-Did that before all by hand, now you have set the starting point.
-
-Regards,
-	Dieter
-BTW I will use 2.4.18-jam1.
+-

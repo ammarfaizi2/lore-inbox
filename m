@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317325AbSFCJLC>; Mon, 3 Jun 2002 05:11:02 -0400
+	id <S317326AbSFCJOY>; Mon, 3 Jun 2002 05:14:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317326AbSFCJLB>; Mon, 3 Jun 2002 05:11:01 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:57350 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S317325AbSFCJLA>; Mon, 3 Jun 2002 05:11:00 -0400
-Message-ID: <3CFB3383.44A6CC96@zip.com.au>
-Date: Mon, 03 Jun 2002 02:14:43 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
+	id <S317327AbSFCJOX>; Mon, 3 Jun 2002 05:14:23 -0400
+Received: from relay01.valueweb.net ([216.219.253.235]:59147 "EHLO
+	relay01.valueweb.net") by vger.kernel.org with ESMTP
+	id <S317326AbSFCJOW>; Mon, 3 Jun 2002 05:14:22 -0400
+Message-ID: <3CFB3378.5EB7420@opersys.com>
+Date: Mon, 03 Jun 2002 05:14:32 -0400
+From: Karim Yaghmour <karim@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/16] unplugging fix
-In-Reply-To: <3CF88852.BCFBF774@zip.com.au> <3CF9CB92.A6BF921B@zip.com.au> <20020602081204.GD820@suse.de> <20020603083937.GA23527@suse.de>
+To: andersen@codepoet.org
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+        Philippe Gerum <rpm@idealx.com>
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+In-Reply-To: <3CFB2A38.60242CBA@opersys.com> <20020603084606.GA15986@codepoet.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> 
-> ...
-> Does this work? I can't poke holes in it, but then again...
 
-It survives a 30-minute test.  It would not have done that
-before...
+Erik Andersen wrote:
+> Looks kindof cool in theory.  Have you done any benchmarking on
+> the performance hit on Linux kernel vs baseline?
 
-Are you sure blk_stop_queue() and blk_run_queues() can't
-race against each other?  Seems there's a window where
-they could both do a list_del().
+Philippe has done some preliminary testing with dbench/tbench and
+he got something like < 1%. Of course, more testing is required.
 
--
+>  What is the
+> software patent outlook for this approach look like?
+
+Alessandro's answer is to the point. Basically, grab the papers,
+the code and the patent and have a look for yourself, you will see
+that we're clear. Apart from having the kernels side-by-side,
+Adeos is based on classic early '90s nanokernel work. No secrets
+there.
+
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

@@ -1,62 +1,54 @@
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263750AbTEYUkJ (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 25 May 2003 16:40:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbTEYUkI
+	id S263760AbTEYUlQ (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 25 May 2003 16:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263763AbTEYUlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 16:40:08 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:22504 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S263750AbTEYUkG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 16:40:06 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 25 May 2003 22:53:13 +0200 (MEST)
-Message-Id: <UTC200305252053.h4PKrDb19659.aeb@smtp.cwi.nl>
-To: torvalds@transmeta.com, viro@parcelfarce.linux.theplanet.co.uk
-Subject: [patch] namespace.c fix
-Cc: linux-kernel@vger.kernel.org
+	Sun, 25 May 2003 16:41:15 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:18666 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263760AbTEYUlG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 16:41:06 -0400
+Date: Sun, 25 May 2003 22:54:09 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@digeo.com>, acme@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+   ncorbic@sangoma.com, dm@sangoma.com
+Subject: 2.5.69-mm9: undefined references to `router_devlist'
+Message-ID: <20030525205409.GF16791@fs.tum.de>
+References: <20030525042759.6edacd62.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030525042759.6edacd62.akpm@digeo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yet another one in the namespace.c series.
+It seems the following link error comes from Linus' tree:
 
-The code in graft_tree() used to be correct, but the code
+<--  snip  -->
 
-        err = -ENOENT;
-        down(&nd->dentry->d_inode->i_sem);
-        if (IS_DEADDIR(nd->dentry->d_inode))
-                goto out_unlock;
+...
+386/oprofile/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
+...
+net/built-in.o(.text+0x10b278): In function `r_start':
+: undefined reference to `router_devlist'
+net/built-in.o(.text+0x10b321): In function `r_next':
+: undefined reference to `router_devlist'
+make: *** [.tmp_vmlinux1] Error 1
 
-        spin_lock(&dcache_lock);
-        if (IS_ROOT(nd->dentry) || !d_unhashed(nd->dentry)) {
-		...
-	}
-	spin_unlock(&dcache_lock);
- out_unlock:
+<--  snip  -->
 
-was made incorrect in 2.5.29 when
+r_start and r_next are in net/wanrouter/wanproc.c.
 
-        err = security_sb_check_sb(mnt, nd);
-        if (err)
-                goto out_unlock;
+cu
+Adrian
 
-was inserted.  It has happened more often that people overlooked
-a preexisting setting of err.
+-- 
 
-Andries
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-----------------------------------------------------------------
-diff -u --recursive --new-file -X /linux/dontdiff a/fs/namespace.c b/fs/namespace.c
---- a/fs/namespace.c	Sun May 25 17:54:02 2003
-+++ b/fs/namespace.c	Sun May 25 23:41:25 2003
-@@ -486,9 +486,11 @@
- 	if (err)
- 		goto out_unlock;
- 
-+	err = -ENOENT;
- 	spin_lock(&dcache_lock);
- 	if (IS_ROOT(nd->dentry) || !d_unhashed(nd->dentry)) {
- 		struct list_head head;
-+
- 		attach_mnt(mnt, nd);
- 		list_add_tail(&head, &mnt->mnt_list);
- 		list_splice(&head, current->namespace->list.prev);

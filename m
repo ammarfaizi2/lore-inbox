@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbVCBFhV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVCBF4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262187AbVCBFhV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 00:37:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVCBFhV
+	id S262192AbVCBF4f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 00:56:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVCBF4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 00:37:21 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:33558 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262187AbVCBFhJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 00:37:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=N21qe3bA0hoBQqR10BoG+jFRNdeIGgh+I8jGquTwMmrW6VB8A1QRUM6iCZ+XiSLiV8VVvMClE4m1DvTiqL7103poHuv5df/YqnBTkdC+TaNq9HFG2CNPqK9fQtgnof+MKXg/mWhzwg8QOdeJUNSgq11L1rrHUmTpRlk2KzC/iRQ=
-Message-ID: <422550FC.9090906@gmail.com>
-Date: Wed, 02 Mar 2005 00:37:00 -0500
-From: Keenan Pepper <keenanpepper@gmail.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+	Wed, 2 Mar 2005 00:56:35 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24515 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262190AbVCBF4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 00:56:34 -0500
+Message-ID: <42255582.4050204@pobox.com>
+Date: Wed, 02 Mar 2005 00:56:18 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Undefined symbols in 2.6.11-rc5-mm1
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+CC: Tejun Heo <htejun@gmail.com>, lkml <linux-kernel@vger.kernel.org>,
+       linux-ide <linux-ide@vger.kernel.org>
+Subject: Re: [PATCH 2.6.11-rc3 01/11] ide: task_end_request() fix
+References: <20050210083808.48E9DD1A@htj.dyndns.org>	 <20050210083809.63BF53E6@htj.dyndns.org>	 <58cb370e05022407587e86f8ad@mail.gmail.com>	 <20050227064922.GA27728@htj.dyndns.org> <58cb370e050301063069799c75@mail.gmail.com>
+In-Reply-To: <58cb370e050301063069799c75@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody, I just joined the LKML!
+Bartlomiej Zolnierkiewicz wrote:
+> If somebody implements SG_IO ioctl and SCSI command pass-through
+> from libata for IDE driver (and add possibility for discrete taskfiles), we can
+> just deprecate HDIO_DRIVE_TASKFILE, forget about it and some time later
+> remove this FPOS.
 
-Don't worry, this is not just a test message, I do actually have 
-something to say. I just compiled 2.6.11-rc5-mm1 and got undefined 
-symbols "match_int", "match_octal", "match_token", and "match_strdup" in 
-several modules. This is using binutils 2.15 and gcc 3.4.4 from Debian.
-I grepped around and found those functions in lib/parser.c, so I just 
-looked at the output of "make V=1" and invoked "ld" manually, adding in 
-lib/lib.a, and the modules work fine now. However, I don't know enough 
-about the kernel build process to make a patch to fix this, so I'm just 
-notifying people of the problem.
+Can you explain what you mean by "add possibility for discrete taskfiles"?
 
-BTW, I just got a new hard disk and put Reiser4 on it. It works great! 
-Keep up the good work guys!
+	Jeff
+
+

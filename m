@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270881AbTGNUuu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 16:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270878AbTGNUtM
+	id S270787AbTGNUXV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 16:23:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270794AbTGNUVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 16:49:12 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:20893 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270872AbTGNUrW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 16:47:22 -0400
-Date: Mon, 14 Jul 2003 14:00:17 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][WATCHDOG] 2.4.22 - i810-tco patch
-Message-Id: <20030714140017.6f33c3df.rddunlap@osdl.org>
-In-Reply-To: <20030713225142.A21148@infomag.infomag.iguana.be>
-References: <20030713225142.A21148@infomag.infomag.iguana.be>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 14 Jul 2003 16:21:38 -0400
+Received: from qpirg-righttomove-k0.Concordia.CA ([132.205.87.179]:23936 "EHLO
+	smtp.rtm-lvl.org") by vger.kernel.org with ESMTP id S270833AbTGNUSN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 16:18:13 -0400
+Date: Mon, 14 Jul 2003 16:32:59 -0400
+From: Marc Heckmann <mh@nadir.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21 smp: system lockup
+Message-ID: <20030714203258.GA6959@nadir.org>
+References: <20030712171001.GA18262@nadir.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030712171001.GA18262@nadir.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Jul 2003 22:51:42 +0200 Wim Van Sebroeck <wim@iguana.be> wrote:
+Hi there,
 
-| Hi Marcelo,
-| 
-| included a patch against 2.4.22-pre5. It adds support for the 82801EB and 82801ER I/O Controller Hub's (ICH5 & ICH5R). This will add watchdog support for the i865 and i875 motherboard chipsets.
-| It also removes some extra trailing spaces in the source files.
-| 
-| Greetings,
-| Wim.
+just realised that I forgot to run ksymoops over the sysrq+t output.
 
-Hi Wim,
+the resolved output is attached. (it's big, so I had to gzip it.i sorry ). 
 
-Would you also make a version of this patch for 2.6.0-test please?
+Also, I was wondering if the deadlock I encountered might whave been the 
+IO-pausing under SMP systems that people have been talking about? 
 
---
-~Randy
+thanks in advance.
+
+-m
+
+On Sat, Jul 12, 2003 at 01:10:02PM -0400, Marc Heckmann wrote:
+> Hi,
+> 
+> I recently experienced a lockup on an SMP 2.4.21 kernel (vanilla).
+> 
+> The machine was under very heavy IO at the time. (a full backup was in
+> progress). gzipped Alt+sysrq+t output is attached. I forgot
+> Alt+sysrq+P unfortunatly.
+> 
+> iptables was still functional, it still responded to pings, but
+> everything else was locked up. obviously sysrq was still working. I
+> managed to reboot it with sysrq+b over the serial line.
+> 
+> the machine has been in production for a while and has run in the past
+> for almost 2 months w/o any problems, so I don't believe it's hardware
+> related.
+> 
+> A similar lockup happened once with the redhat 2.4.20-13.9 kernel. I
+> blamed that on all the extra patches present and switched to 2.4.21
+> hoping that it would alleviate the problem.
+> 
+> PS: I'm not an linux-kernel so please CC me directly.
+> 
+> -m
+
+

@@ -1,75 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262634AbUKRBKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbUKRBPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262634AbUKRBKM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 20:10:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbUKRBJX
+	id S262602AbUKRBPX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 20:15:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbUKRBNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 20:09:23 -0500
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:28329 "EHLO mta1.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S262634AbUKRBFO (ORCPT
+	Wed, 17 Nov 2004 20:13:25 -0500
+Received: from zamok.crans.org ([138.231.136.6]:51376 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S262661AbUKRBLE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 20:05:14 -0500
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Keir.Fraser@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk, Ian.Pratt@cl.cam.ac.uk
-Subject: Re: [patch 4/4] Xen core patch : /dev/mem calls io_remap_page_range 
-In-reply-to: Your message of "Wed, 17 Nov 2004 16:25:04 PST."
-             <1100737504.12373.259.camel@localhost> 
-Date: Thu, 18 Nov 2004 01:05:07 +0000
-From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Message-Id: <E1CUajU-0005vu-00@mta1.cl.cam.ac.uk>
+	Wed, 17 Nov 2004 20:11:04 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christian Axelsson <smiler@lanil.mine.nu>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.10-rc2-mm1] OOPS on boot (hotplug related?)
+References: <419BBFD1.7060306@lanil.mine.nu>
+	<20041117145359.4f017ed1.akpm@osdl.org>
+From: Mathieu Segaud <matt@minas-morgul.org>
+Date: Thu, 18 Nov 2004 02:11:00 +0100
+In-Reply-To: <20041117145359.4f017ed1.akpm@osdl.org> (Andrew Morton's message
+	of "Wed, 17 Nov 2004 14:53:59 -0800")
+Message-ID: <87hdno0xnf.fsf@barad-dur.crans.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 2004-11-17 at 15:56, Ian Pratt wrote:
-> > +#if defined(CONFIG_XEN)
-> > +       if (io_remap_page_range(vma, vma->vm_start, offset, 
-> > +                               vma->vm_end-vma->vm_start, vma->vm_page_prot))
-> > +               return -EAGAIN;
-> > +#else
-> >         if (remap_page_range(vma, vma->vm_start, offset, vma->vm_end-vma->vm_start,
-> >                              vma->vm_page_prot))
-> >                 return -EAGAIN;
-> > +#endif
-> >         return 0;
-> >  }
-> 
-> Do *all* calls to remap_page_range() under your arch need to be
-> converted like this, or is this the only one?  Seems like something that
-> should be done with header magic instead.  
+--=-=-=
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-It's a bit tricky...
+Andrew Morton <akpm@osdl.org> disait derni=E8rement que :
 
-As I understand it, /dev/mem on x86 could potentially be used for
-three distinct purposes:
+> Christian Axelsson <smiler@lanil.mine.nu> wrote:
+>>
+>> I'm getting OOPSes on boot on my laptop. Output is copied by hand and Iv=
+e=20
+>> only included the parts that I *think* are useful:
+>>=20
+>> ...
+>> EIP is at get_nonexclusive_access+0x13/0x40
+>
+> Yup, seems that reiser4 broke.  I've forwarded a copy of an earlier report
+> to reiserfs-dev@namesys.com.
 
-  1 mapping the bottom 1MB of physical (bus) address space
-  2 mapping MMIO devices (beyond physical memory)
-  3 'copy-on-access' mappings of physical pages
+V. Saveliev provided the right fix shortly after I reported this oops.
 
-This overloading creates a problem for us, as physical addresses
-are not the same as bus addresses in Xen.  The first two uses
-require bus addresses, the third physical addresses. 
+I attach the patch
 
-I'm not actually aware of any applications that use
-copy-on-access mappings of physical memory via /dev/mem, but
-there are a whole bunch (most notable the X server) that use
-/dev/mem for accessing the <1MB (BIOS) and MMIO frame buffer
-regions.  Hence, it makes sense for us to choose to interpret the
-offset passed in when mapping /dev/mem as a bus address, calling
-io_remap_page_range.
+Regards,
 
-As to whether there are any uses of remap_page_range within the
-kernel that rely on behaviour 3, I'm not sure. Possibly the use
-in af_packet.c does? Not sure. 
 
-If there really are no uses, an alternative patch would be to
-introduce an ARCH_HAS_REMAP_PAGE_RANGE. Would this be preferable?
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: inline; filename=reiser4-context-fix.patch
 
-Since drivers/char/mem.c already isn't exactly a thing of beauty
-we were hoping we might get away with an extra CONFIG_XEN ;-)
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/11/15 16:23:47+03:00 vs@tribesman.namesys.com 
+#   unix_file_filemap_nopage: missing context creation is added
+# 
+# plugin/file/file.c
+#   2004/11/15 16:23:45+03:00 vs@tribesman.namesys.com +5 -1
+#   unix_file_filemap_nopage: missing context creation is added
+# 
+diff -Nru a/plugin/file/file.c b/plugin/file/file.c
+--- a/plugin/file/file.c	2004-11-17 09:36:11 +03:00
++++ b/plugin/file/file.c	2004-11-17 09:36:11 +03:00
+@@ -1961,8 +1961,10 @@
+ {
+ 	struct page *page;
+ 	struct inode *inode;
+-
++	reiser4_context ctx;
++	
+ 	inode = area->vm_file->f_dentry->d_inode;
++	init_context(&ctx, inode->i_sb);
+ 
+ 	/* block filemap_nopage if copy on capture is processing with a node of this file */
+ 	down_read(&reiser4_inode_data(inode)->coc_sem);
+@@ -1972,6 +1974,8 @@
+ 
+ 	drop_nonexclusive_access(unix_file_inode_data(inode));
+ 	up_read(&reiser4_inode_data(inode)->coc_sem);
++
++	reiser4_exit_context(&ctx);
+ 	return page;
+ }
+ 
 
-Cheers,
-Ian
+--=-=-=
+
+
+
+-- 
+Lisa R. Nelson wrote:
+> So much for a friendly group.
+
+You really have seen nothing yet :-)
+
+	- Bas Mevissen on linux-kernel
+
+--=-=-=--
+

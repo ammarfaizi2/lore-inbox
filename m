@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270042AbUJHQCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270033AbUJHQCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270042AbUJHQCE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 12:02:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270054AbUJHQBf
+	id S270033AbUJHQCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 12:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270044AbUJHQCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 12:01:35 -0400
-Received: from havoc.gtf.org ([69.28.190.101]:6803 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S270042AbUJHPx0 (ORCPT
+	Fri, 8 Oct 2004 12:02:23 -0400
+Received: from village.ehouse.ru ([193.111.92.18]:54539 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S270033AbUJHQCB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 11:53:26 -0400
-Date: Fri, 8 Oct 2004 11:49:19 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Mark Lord <lkml@rtr.ca>, Christoph Hellwig <hch@infradead.org>,
-       Mark Lord <lsml@rtr.ca>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
-Message-ID: <20041008154919.GA12107@havoc.gtf.org>
-References: <4165A766.1040104@pobox.com> <4165A85D.7080704@rtr.ca> <4165AB1B.8000204@pobox.com> <4165ACF8.8060208@rtr.ca> <20041007221537.A17712@infradead.org> <1097241583.2412.15.camel@mulgrave> <4166AF2F.6070904@rtr.ca> <1097249266.1678.40.camel@mulgrave> <4166B48E.3020006@rtr.ca> <1097250465.2412.49.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 8 Oct 2004 12:02:01 -0400
+From: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
+To: "Mukker, Atul" <Atulm@lsil.com>
+Subject: Re: Megaraid random loss of luns
+Date: Fri, 8 Oct 2004 20:01:47 +0400
+User-Agent: KMail/1.7
+Cc: comsatcat@earthlink.net, linux-kernel@vger.kernel.org
+References: <0E3FA95632D6D047BA649F95DAB60E57033BCAD6@exa-atlanta>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57033BCAD6@exa-atlanta>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1097250465.2412.49.camel@mulgrave>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200410082001.48141.rathamahata@ehouse.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 08, 2004 at 10:47:40AM -0500, James Bottomley wrote:
-> However, I assume you know you can't sleep in queuecommand since it may
-> be run from the scsi tasklet?
+Hi!
+On Friday 08 October 2004 16:51, Mukker, Atul wrote:
+> I _highly_ recommend to replace the default driver with the latest 2.20.4.0
+> driver and retry.
 
-Furthermore queuecommand is inside spin_lock_irqsave
+Unfortunately, version 2.20.4.0 doesn't recognize my AMI megaraid 160 (Series 475)
 
-	Jeff
+[rathamahata@white megaraid]$ grep Version ./megaraid_mbox.c
+ * Version      : v2.20.4 (September 27 2004)
+[rathamahata@white megaraid]$ /sbin/lspci  | grep Mega
+02:04.0 RAID bus controller: American Megatrends Inc. MegaRAID (rev 02)
+[rathamahata@white megaraid]$ /sbin/lspci -n  | grep 02:04.0
+02:04.0 Class 0104: 101e:1960 (rev 02)
+[rathamahata@white megaraid]$
 
 
+-- 
+Sergey S. Kostyliov <rathamahata@ehouse.ru>
+Jabber ID: rathamahata@jabber.org

@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263341AbRFADoY>; Thu, 31 May 2001 23:44:24 -0400
+	id <S263340AbRFADiw>; Thu, 31 May 2001 23:38:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263344AbRFADoO>; Thu, 31 May 2001 23:44:14 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:62645 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263341AbRFADoG>;
-	Thu, 31 May 2001 23:44:06 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S263341AbRFADim>; Thu, 31 May 2001 23:38:42 -0400
+Received: from paloma14.e0k.nbg-hannover.de ([62.159.219.14]:33426 "HELO
+	paloma14.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S263340AbRFADib>; Thu, 31 May 2001 23:38:31 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: "D. Stimits" <stimits@idcomm.com>
+Subject: Re: missing sysrq
+Date: Fri, 1 Jun 2001 05:51:31 +0200
+X-Mailer: KMail [version 1.2.2]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15127.3906.773953.16829@pizda.ninka.net>
-Date: Thu, 31 May 2001 20:42:58 -0700 (PDT)
-To: Tim Hockin <thockin@sun.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, alan@redhat.com
-Subject: Re: [PATCH] save source address on accept()
-In-Reply-To: <3B16EFE0.D0C44FB8@sun.com>
-In-Reply-To: <3B16EFE0.D0C44FB8@sun.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Transfer-Encoding: 8bit
+Message-Id: <20010601033839Z263340-932+3417@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> D. Stimits wrote:
+>
+> > Bernd Eckenfels wrote:
+> > > 
+> > In article <3B15EF16.89B18D@idcomm.com> you wrote:
+> > > However, if I go to /proc/sys/kernel/sysrq does not exist.
+> > 
+> > It is a compile time option, so the person who compiled your kernel
+> > left it out.
+>
+> I compiled it, and the sysrq is definitely in the config. No doubt at
+> all. I also use make mrproper and config again before dep and actual
+> compile. Maybe it is just a quirk/oddball.
+>
+> D. Stimits, stimits@idcomm.com
 
-Tim Hockin writes:
- > attached is a (small) patch which saves the src address on tcp_accept(). 
- > Please let me know if there are any problems taking this for general
- > inclusion.
- ..
- > --- dist-2.4.5/net/ipv4/tcp.c	Wed May 16 10:31:27 2001
- > +++ cobalt-2.4.5/net/ipv4/tcp.c	Thu May 31 14:33:23 2001
- > @@ -2138,6 +2138,7 @@
- >  		tp->accept_queue_tail = NULL;
- >  
- >   	newsk = req->sk;
- > +	newsk->rcv_saddr = req->af.v4_req.loc_addr;
- >  	tcp_acceptq_removed(sk);
- >  	tcp_openreq_fastfree(req);
- >  	BUG_TRAP(newsk->state != TCP_SYN_RECV);
+Have you tried "echo 1 > /proc/sys/kernel/sysrq"?
+You need both, compiled in and activation.
 
-Tim, this is in fact completely bogus, it is already being done
-in tcp_v{4,6}_syn_recv_sock(), so there is no reason to do the
-exact same thing again here in tcp_accept().
+Regards,
+	Dieter
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
 
-Later,
-David S. Miller
-davem@redhat.com
+email: nuetzel@kogs.informatik.uni-hamburg.de
+@home: Dieter.Nuetzel@hamburg.de

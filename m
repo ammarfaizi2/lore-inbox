@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270444AbRHHKSL>; Wed, 8 Aug 2001 06:18:11 -0400
+	id <S270449AbRHHK5y>; Wed, 8 Aug 2001 06:57:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270445AbRHHKSB>; Wed, 8 Aug 2001 06:18:01 -0400
-Received: from [216.6.80.34] ([216.6.80.34]:273 "EHLO dcmtechdom.dcmtech.co.in")
-	by vger.kernel.org with ESMTP id <S270444AbRHHKRt>;
-	Wed, 8 Aug 2001 06:17:49 -0400
-Message-ID: <7FADCB99FC82D41199F9000629A85D1A01C650D2@dcmtechdom.dcmtech.co.in>
-From: Nitin Dhingra <nitin.dhingra@dcmtech.co.in>
-To: imran.badr@cavium.com
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Exporting kernel memory to application
-Date: Wed, 8 Aug 2001 15:48:50 +0530 
+	id <S270450AbRHHK5o>; Wed, 8 Aug 2001 06:57:44 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45831 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270449AbRHHK53>; Wed, 8 Aug 2001 06:57:29 -0400
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+To: rhw@MemAlpha.CX (Riley Williams)
+Date: Wed, 8 Aug 2001 11:59:06 +0100 (BST)
+Cc: jdwyatt@Bellsouth.net (Josh Wyatt), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <Pine.LNX.4.33.0108080705450.12565-100000@infradead.org> from "Riley Williams" at Aug 08, 2001 07:28:55 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15UR3K-00051r-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can do that by using kiobuf's ( only in kernel 2.4.x ).
-That way you could lock the user buffers in kernel but you 
-would have to allocate user buffer prior to using any kiobuf's functions 
-like map_user_kiobuf() 
+>  > Why not have a provision like the following:
+> 
+>  > 1. For a given driver, assign ethX in [ascending|descending]
+>  >    (pick one) order based on MAC addr. At least this is a
+>  >    predictable order; it should never change for a given driver.
+> 
+> Alan Cox will correct me if I'm wrong, but memory says that he pointed
+> out a while back some problem with this idea. I've cc'd this to him
+> for comments.
 
-For example you could look at arch/cris/drivers/examples/kiobuftest.c
+Correct. MAC addresses are defined per machine not per card. That they tend
+to be per card is on a PC isnt always true elsewhere. For example many sparc
+boxes have one mac per machine.
 
-:),
-Nitin
-
-
- -----Original Message-----
-From: 	Alan Cox [mailto:alan@lxorguk.ukuu.org.uk] 
-Sent:	Tuesday, August 07, 2001 4:31 PM
-To:	imran.badr@cavium.com
-Cc:	linux-kernel@vger.kernel.org
-Subject:	Re: Exporting kernel memory to application
-
-> I am in a situation where it is required to export a kernel memory
-> (allocated by kmalloc in the device driver) to the user application. I
-would
-> really appreciate any guidance or suggestion.
-
-Look at the sound drivers, they do this, although with memory allocated
-by get_free_pages() - the rest of the theory is the same
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Its still a valuable way of naming devices. 

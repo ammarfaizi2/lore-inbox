@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131974AbRC1Pwn>; Wed, 28 Mar 2001 10:52:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131976AbRC1Pwc>; Wed, 28 Mar 2001 10:52:32 -0500
-Received: from finch-post-10.mail.demon.net ([194.217.242.38]:55302 "EHLO finch-post-10.mail.demon.net") by vger.kernel.org with ESMTP id <S131974AbRC1PwU>; Wed, 28 Mar 2001 10:52:20 -0500
-Message-ID: <ZEABaXAGggw6EwTH@sis-domain.demon.co.uk>
-Date: Wed, 28 Mar 2001 16:49:26 +0100
-To: linux-kernel@vger.kernel.org
-From: Simon Williams <announce@sis-domain.demon.co.uk>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131953AbRC1Pwm>; Wed, 28 Mar 2001 10:52:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131974AbRC1Pwd>; Wed, 28 Mar 2001 10:52:33 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:7498 "EHLO tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP id <S131953AbRC1Pw2>; Wed, 28 Mar 2001 10:52:28 -0500
+Date: Wed, 28 Mar 2001 09:51:39 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200103281551.JAA49453@tomcat.admin.navo.hpc.mil>
+To: rmk@arm.linux.org.uk, Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
 Subject: Re: Disturbing news..
-References: <01032806093901.11349@tabby> <Pine.GSO.3.96.1010328144551.7198A-100000@laertes> <F6Om1QA+9ew6EwTq@sis-domain.demon.co.uk> <20010328100440.A5941@zalem.puupuu.org>
-In-Reply-To: <20010328100440.A5941@zalem.puupuu.org>
-MIME-Version: 1.0
-X-Mailer: Turnpike Integrated Version 5.01 S <Qn604$JeDmmUs1jEKXSOEfAuuD>
+Cc: snwahofm@mi.uni-erlangen.de, Jesse Pollard <jesse@cats-chateau.net>, Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20010328100440.A5941@zalem.puupuu.org>, Olivier Galibert
-<galibert@pobox.com> writes
->On Wed, Mar 28, 2001 at 03:04:46PM +0100, Simon Williams wrote:
->> I think their point was that a program could only change permissions
->> of a file that was owned by the same owner.  If a file is owned by a
->> different user & has no write permissions for any user, the program
->> can't modify the file or it's permissions.
->
->You mean, you usually have write permissions for other than the owner
->on executable files?
->
->Let me reformulate that.  You usually have write permissions for other
->than the owner, and not only on some special, untrusted log files (I'm
->talking files, here, not device nodes)?  What's your umask, 0?
->
+Russell King <rmk@arm.linux.org.uk>
+> 
+> On Wed, Mar 28, 2001 at 08:40:42AM -0600, Jesse Pollard wrote:
+> > Now, if ELF were to be modified, I'd just add a segment checksum
+> > for each segment, then put the checksum in the ELF header as well as
+> > in the/a segment header just to make things harder. At exec time a checksum
+> > verify could (expensive) be done on each segment. A reduced level could be
+> > done only on the data segment or text segment. This would at least force
+> > the virus to completly read the file to regenerate the checksum.
+> 
+> Checksums don't help that much - virus writers would treat it as "part
+> of the set of alterations that need to be made" and then the checksum
+> becomes zero protection.
+> 
+ [ snip of good stuff ]
+> Therefore, if you follow good easy system administration techniques, then
+> you end up minimising the risk of getting:
+> 
+> 1. viruses
+> 2. trojans
+> 3. malicious users
+> 
+> cracking your system.  If you don't follow these techniques, then you're
+> asking for lots of trouble, and no amount of checksumming/signing/etc
+> will ever save you.
 
-Firstly, I'm relatively new to Linux (only about 3 yrs experience) &
-don't claim to be an expert.  Secondly, I don't think I stated my point
-very clearly.
+Absolutely true. The only help the checksumming etc stuff is good for is
+detecting the fact afterward by external comparison.
 
-No, I don't have write permissions set on an executable for any user
-other than the owner.
+I like MLS for the ability to catch ATTEMPTS to make unauthorized
+modification.
 
-What I meant was that if a file is owned by root with permissions of,
-say, 555 (r-xr-xr-x), not setuid or setgid, then another executable
-run as a non-root user cannot modify it or change the permissions to
-7 (rwx).
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
->
->> Sounds like a good plan to me.
->
->PEBCAK.  Unix security is not designed with dumb "administrators" in
->mind, nor should be.  User friendly is good.  Luser friendly isn't,
->it's either dumbing down or unnecessarily restrictive.
->
-
-I completely agree (even with the PEBCAK part :)).  UNIX security on
-corporate networks or public-facing systems should be left to experts.
-I, on the other hand, am a home-user trying to learn how Linux works &
-how to secure it, I don't pretend to be an expert.
-
-My policy is to give necessary permissions & no more.  I would set the
-aforementioned permissions on the main system binaries which would allow
-other users to get on with what they need to do without being able to
-affect the workspaces of other users, only their own.
-
-I'm open to contructive criticism on this.
-
-
--- 
-Simon Williams
+Any opinions expressed are solely my own.

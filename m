@@ -1,65 +1,100 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316170AbSEJX4l>; Fri, 10 May 2002 19:56:41 -0400
+	id <S316172AbSEJX6y>; Fri, 10 May 2002 19:58:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316171AbSEJX4k>; Fri, 10 May 2002 19:56:40 -0400
-Received: from admin.nni.com ([216.107.0.51]:20495 "EHLO admin.nni.com")
-	by vger.kernel.org with ESMTP id <S316170AbSEJX4k>;
-	Fri, 10 May 2002 19:56:40 -0400
-Date: Fri, 10 May 2002 19:56:30 -0400
-From: Andrew Rodland <arodland@noln.com>
-To: toon@vdpas.hobby.nl, linux-kernel@vger.kernel.org
-Subject: Re: CML2 [was Re: PATCH & call for help: Marking ISA only drivers]
-Message-Id: <20020510195630.6e133d3a.arodland@noln.com>
-In-Reply-To: <20020509224928.A9486@vdpas.hobby.nl>
-X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="Vl43LL=.cU?SCdSz"
+	id <S316174AbSEJX6x>; Fri, 10 May 2002 19:58:53 -0400
+Received: from web10401.mail.yahoo.com ([216.136.130.93]:33867 "HELO
+	web10401.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S316172AbSEJX6v>; Fri, 10 May 2002 19:58:51 -0400
+Message-ID: <20020510235851.2870.qmail@web10401.mail.yahoo.com>
+Date: Sat, 11 May 2002 09:58:51 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Re: OOPS 2.4.19-pre7-ac4 (Was: strange things in kernel 2.4.19-pre7-ac4 + preempt patch)
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200205101413.g4AEDEX29793@Port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-1559846563-1021075131=:99891"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Vl43LL=.cU?SCdSz
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+--0-1559846563-1021075131=:99891
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 
-On Thu, 9 May 2002 22:49:28 +0200
-toon@vdpas.hobby.nl wrote:
 
-> On Thu, May 09, 2002 at 10:08:19PM +0200, Tomas Szepe wrote:
-> > > I did quite a bit of this work for CML2 - bus dependencies can be
-> > > found in the CML2 sources.
-> > 
-> > Btw, what happened to CML2?
-> > I haven't seen any updates since about February and haven't almost
-> > certainly stumbled upon a post from ESR for quite long either.
 > 
-> Eric was blasted away from the linux-kernel mailing list.
-> I understand that people tend to disagree about some subject every
-> once in a while. But he certainly didn't deserve the treatment he got.
-> Specially considering the enormous amount of work he put in it.
+> You need to decode oops. Use ksymoops. 
 
-Agreed. I did a lot of testing and some grunt-level coding on CML2, and
-I think it addressed a lot of problems that existed, and was getting
-steadily better. Sure, it had some flaky spots, but I really don't see
-all of the problems that people had with it. Even autoconfig had this
-tendency to do the Right Thing. I think it was just about ready to start
-getting some wide testing and use, when everyone abandoned it... And now
-nobody wants to use it, because of course patches don't play nice with
-it, and etc... Pretty sad.
+Ok I just compile ksymoops and here is the result
 
-Oh well.
 
---Vl43LL=.cU?SCdSz
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
+=====
+Steve Kieu
 
-iD8DBQE83F4wQ3MWXxdwvVwRAuMeAJ0V8uUYMt7K81qFLFZ3VqPbiT4yKACglY5K
-kIkoKwuFT/p8ZiVGUXUG+9c=
-=LFr+
------END PGP SIGNATURE-----
+http://messenger.yahoo.com.au - Yahoo! Messenger
+- A great way to communicate long-distance for FREE!
+--0-1559846563-1021075131=:99891
+Content-Type: application/octet-stream; name="oops.log"
+Content-Transfer-Encoding: base64
+Content-Description: oops.log
+Content-Disposition: attachment; filename="oops.log"
 
---Vl43LL=.cU?SCdSz--
+a3N5bW9vcHMgMi40LjQgb24gaTY4NiAyLjQuMTktcHJlNy1hYzQuICBPcHRp
+b25zIHVzZWQKICAgICAtViAoZGVmYXVsdCkKICAgICAtayAvcHJvYy9rc3lt
+cyAoZGVmYXVsdCkKICAgICAtbCAvcHJvYy9tb2R1bGVzIChkZWZhdWx0KQog
+ICAgIC1vIC9saWIvbW9kdWxlcy8yLjQuMTktcHJlNy1hYzQvIChkZWZhdWx0
+KQogICAgIC1tIC9ib290L1N5c3RlbS5tYXAgKGRlZmF1bHQpCgpXYXJuaW5n
+OiBZb3UgZGlkIG5vdCB0ZWxsIG1lIHdoZXJlIHRvIGZpbmQgc3ltYm9sIGlu
+Zm9ybWF0aW9uLiAgSSB3aWxsCmFzc3VtZSB0aGF0IHRoZSBsb2cgbWF0Y2hl
+cyB0aGUga2VybmVsIGFuZCBtb2R1bGVzIHRoYXQgYXJlIHJ1bm5pbmcKcmln
+aHQgbm93IGFuZCBJJ2xsIHVzZSB0aGUgZGVmYXVsdCBvcHRpb25zIGFib3Zl
+IGZvciBzeW1ib2wgcmVzb2x1dGlvbi4KSWYgdGhlIGN1cnJlbnQga2VybmVs
+IGFuZC9vciBtb2R1bGVzIGRvIG5vdCBtYXRjaCB0aGUgbG9nLCB5b3UgY2Fu
+IGdldAptb3JlIGFjY3VyYXRlIG91dHB1dCBieSB0ZWxsaW5nIG1lIHRoZSBr
+ZXJuZWwgdmVyc2lvbiBhbmQgd2hlcmUgdG8gZmluZAptYXAsIG1vZHVsZXMs
+IGtzeW1zIGV0Yy4gIGtzeW1vb3BzIC1oIGV4cGxhaW5zIHRoZSBvcHRpb25z
+LgoKY3B1OiAwLCBjbG9ja3M6IDY2ODIwOSwgc2xpY2U6IDMzNDEwNApVbmFi
+bGUgdG8gaGFuZGxlIGtlcm5lbCBwYWdpbmcgcmVxdWVzdCBhdCB2aXJ0dWFs
+IGFkZHJlc3MgMDEwMDAwMWIKYzAxMmI0NTUKKnBkZSA9IDAwMDAwMDAwCk9v
+cHM6IDAwMDAKQ1BVOiAgICAwCkVJUDogICAgMDAxMDpbPGMwMTJiNDU1Pl0g
+ICAgTm90IHRhaW50ZWQKVXNpbmcgZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAt
+dCBlbGYzMi1pMzg2IC1hIGkzODYKRUZMQUdTOiAwMDAxMzI0NgplYXg6IDAx
+MDAwMDAwICAgZWJ4OiBjNTQ1YTAwMCAgIGVjeDogYzExMTIyNTQgICBlZHg6
+IDAwMDAwMDAwCmVzaTogYzExMTIyNTQgICBlZGk6IGMwMjc5MmMwICAgZWJw
+OiBjNjY2N2VkOCAgIGVzcDogYzY2NjdlZDAKZHM6IDAwMTggICBlczogMDAx
+OCAgIHNzOiAwMDE4ClByb2Nlc3MgWCAocGlkOiAxMDIsIHN0YWNrcGFnZT1j
+NjY2NzAwMCkKU3RhY2s6IGM1NDVhMDAwIGMxMTEyMjU0IGM2NjY3ZWVjIGMw
+MThlNGIyIGMxMTEyMjU0IGM3YjQwN2NjIGM3YjQxODAwIGM2NjY3ZjA4IAog
+ICAgICAgYzAxOGU1MTEgYzAyNzkyYzAgYzU0NWEwMDAgMDAwMDAwMDAgYmZm
+ZmY5NjggYzAyNzkyYzAgYzY2NjdmNjggYzAxOGU5ZTkgCiAgICAgICBjMDI3
+OTJjMCAwMDAwMDAwMCBjMDI3OTJjMCAwMDAwMDAwMiAwMDAwMDAwMCAwMDAw
+MDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAKQ2FsbCBUcmFjZTogWzxjMDE4ZTRi
+Mj5dIFs8YzAxOGU1MTE+XSBbPGMwMThlOWU5Pl0gWzxjMDE4ZGYwND5dIFs8
+YzAxNDllZGI+XSAKICAgWzxjMDEwOGM1Yj5dIApDb2RlOiAwZiBiNiA1MCAx
+YiA4YiAxYyA5NSAwNCBlNCAyNSBjMCA4OSBjMiA2OSBkMiBiMSA3OSAzNyA5
+ZSA4YiAKCj4+RUlQOyBjMDEyYjQ1NSA8dW5sb2NrX3BhZ2UrNS83MD4gICA8
+PT09PT0KVHJhY2U7IGMwMThlNGIyIDxpODEwX2ZyZWVfcGFnZSszMi81MD4K
+VHJhY2U7IGMwMThlNTExIDxpODEwX2RtYV9jbGVhbnVwKzQxL2IwPgpUcmFj
+ZTsgYzAxOGU5ZTkgPGk4MTBfZG1hX2luaXQrYjkvZTA+ClRyYWNlOyBjMDE4
+ZGYwNCA8aTgxMF9pb2N0bCtlNC8xMDA+ClRyYWNlOyBjMDE0OWVkYiA8c3lz
+X2lvY3RsKzI2Yi8yYjA+ClRyYWNlOyBjMDEwOGM1YiA8c3lzdGVtX2NhbGwr
+MzMvMzg+CkNvZGU7ICBjMDEyYjQ1NSA8dW5sb2NrX3BhZ2UrNS83MD4KMDAw
+MDAwMDAgPF9FSVA+OgpDb2RlOyAgYzAxMmI0NTUgPHVubG9ja19wYWdlKzUv
+NzA+ICAgPD09PT09CiAgIDA6ICAgMGYgYjYgNTAgMWIgICAgICAgICAgICAg
+ICBtb3Z6YmwgMHgxYiglZWF4KSwlZWR4ICAgPD09PT09CkNvZGU7ICBjMDEy
+YjQ1OSA8dW5sb2NrX3BhZ2UrOS83MD4KICAgNDogICA4YiAxYyA5NSAwNCBl
+NCAyNSBjMCAgICAgIG1vdiAgICAweGMwMjVlNDA0KCwlZWR4LDQpLCVlYngK
+Q29kZTsgIGMwMTJiNDYwIDx1bmxvY2tfcGFnZSsxMC83MD4KICAgYjogICA4
+OSBjMiAgICAgICAgICAgICAgICAgICAgIG1vdiAgICAlZWF4LCVlZHgKQ29k
+ZTsgIGMwMTJiNDYyIDx1bmxvY2tfcGFnZSsxMi83MD4KICAgZDogICA2OSBk
+MiBiMSA3OSAzNyA5ZSAgICAgICAgIGltdWwgICAkMHg5ZTM3NzliMSwlZWR4
+LCVlZHgKQ29kZTsgIGMwMTJiNDY4IDx1bmxvY2tfcGFnZSsxOC83MD4KICAx
+MzogICA4YiAwMCAgICAgICAgICAgICAgICAgICAgIG1vdiAgICAoJWVheCks
+JWVheAoKCjEgd2FybmluZyBpc3N1ZWQuICBSZXN1bHRzIG1heSBub3QgYmUg
+cmVsaWFibGUuCg==
 
+--0-1559846563-1021075131=:99891--

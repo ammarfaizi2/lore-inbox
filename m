@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275750AbRJJNm6>; Wed, 10 Oct 2001 09:42:58 -0400
+	id <S275784AbRJJNsI>; Wed, 10 Oct 2001 09:48:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275767AbRJJNmm>; Wed, 10 Oct 2001 09:42:42 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:48133 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S275750AbRJJNm0>;
-	Wed, 10 Oct 2001 09:42:26 -0400
-Date: Wed, 10 Oct 2001 10:42:43 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: <Dennis.Heuer@stud.uni-hannover.de>
-Cc: <linux-kernel@vger.kernel.org>
+	id <S275789AbRJJNrw>; Wed, 10 Oct 2001 09:47:52 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:1808 "EHLO probity.mcc.ac.uk")
+	by vger.kernel.org with ESMTP id <S275778AbRJJNr3>;
+	Wed, 10 Oct 2001 09:47:29 -0400
+Date: Wed, 10 Oct 2001 14:47:57 +0100
+From: John Levon <moz@compsoc.man.ac.uk>
+To: linux-kernel@vger.kernel.org
 Subject: Re: packaging
+Message-ID: <20011010144756.A77572@compsoc.man.ac.uk>
+In-Reply-To: <20011010132548Z275734-760+23170@vger.kernel.org> <20011011153220.3c2d2dde.Dennis.Heuer@stud.uni-hannover.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20011011153220.3c2d2dde.Dennis.Heuer@stud.uni-hannover.de>
-Message-ID: <Pine.LNX.4.33L.0110101041510.2847-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: Mutt/1.3.19i
+X-Url: http://www.movement.uklinux.net/
+X-Record: Truant - Neither Work Nor Leisure
+X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Oct 2001 Dennis.Heuer@stud.uni-hannover.de wrote:
+On Thu, Oct 11, 2001 at 03:32:20PM +0200, Dennis.Heuer@stud.uni-hannover.de wrote:
 
 > I'm shure you discussed this several times but...
+> 
+> a 30MB download makes me think of splitting the package. There could be one
+> package with all experimental modules and one with very old and mainly unused
+> modules (like for old CD-ROMS). Don't you think?
 
-Many, many times. Luckily there is a standard response,
-which goes roughly as follows:
+please read the FAQ (shown in EVERY lkml message) before posting. Traffic is high
+enough as it is.
 
-> a 30MB download makes me think of splitting the package.
+john
 
-"Go ahead, try to split the package yourself and find out
-how impossible it is."
-
-cheers,
-
-Rik
 -- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+"For every finger you point at the other guy, check who your other fingers
+point at."
+	- jd, technocrat.net

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129076AbQKPVo7>; Thu, 16 Nov 2000 16:44:59 -0500
+	id <S129591AbQKPVps>; Thu, 16 Nov 2000 16:45:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129591AbQKPVoj>; Thu, 16 Nov 2000 16:44:39 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:49928 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129069AbQKPVod>; Thu, 16 Nov 2000 16:44:33 -0500
-Date: Thu, 16 Nov 2000 13:14:10 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dan Aloni <karrde@callisto.yi.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH (2.4)] atomic use count for proc_dir_entry
-In-Reply-To: <Pine.LNX.4.21.0011162237040.16415-100000@callisto.yi.org>
-Message-ID: <Pine.LNX.4.10.10011161313060.2661-100000@penguin.transmeta.com>
+	id <S130551AbQKPVpi>; Thu, 16 Nov 2000 16:45:38 -0500
+Received: from gull.prod.itd.earthlink.net ([207.217.121.85]:42200 "EHLO
+	gull.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S129591AbQKPVpY>; Thu, 16 Nov 2000 16:45:24 -0500
+To: Frederic LESPEZ <frederic.lespez@wanadoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Bad PCI detection of a sound card
+In-Reply-To: <200011162058.eAGKwmg05992@kaboum.unstable.org>
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: 16 Nov 2000 13:15:19 -0800
+In-Reply-To: <200011162058.eAGKwmg05992@kaboum.unstable.org>
+Message-ID: <m3zoiz62l4.fsf@matrix.mandrakesoft.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Frederic LESPEZ <frederic.lespez@wanadoo.fr> writes:
 
+> I think the problem is due to a bad PCI detection but i let you judge.
+> Here is a description of the problem :
+> I'm under X (Xfree 4.0.1).
+> I switch to a VT (virtual terminal).
+> I load my sound module (modprobe emu10k1).
 
-On Thu, 16 Nov 2000, Dan Aloni wrote:
-> 
-> Makes procfs use an atomic use count for dir entries, to avoid using 
-> the Big kernel lock. Axboe says it looks ok.
+could you try with the alsa module it should be included with your mdk7.2.
 
-There's a race there. Look at what happens if de_put() races with
-remove_proc_entry(): we'd do free_proc_entry() twice. Not good.
-
-Leave the kernel lock for now.
-
-		Linus
-
+-- 
+MandrakeSoft Inc                     http://www.chmouel.org
+                      --Chmouel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

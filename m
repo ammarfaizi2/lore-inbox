@@ -1,101 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262049AbVBAPoi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbVBAPpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262049AbVBAPoi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 10:44:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbVBAPoh
+	id S262050AbVBAPpW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 10:45:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbVBAPpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 10:44:37 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11708 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262049AbVBAPoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 10:44:07 -0500
-Date: Tue, 1 Feb 2005 15:44:00 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Brian King <brking@us.ibm.com>
-Cc: Greg KH <greg@kroah.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andi Kleen <ak@muc.de>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
-Message-ID: <20050201154400.GC10088@parcelfarce.linux.theplanet.co.uk>
-References: <1105641991.4664.73.camel@localhost.localdomain> <20050113202354.GA67143@muc.de> <41ED27CD.7010207@us.ibm.com> <1106161249.3341.9.camel@localhost.localdomain> <41F7C6A1.9070102@us.ibm.com> <1106777405.5235.78.camel@gaston> <1106841228.14787.23.camel@localhost.localdomain> <41FA4DC2.4010305@us.ibm.com> <20050201072746.GA21236@kroah.com> <41FF9C78.2040100@us.ibm.com>
-Mime-Version: 1.0
+	Tue, 1 Feb 2005 10:45:22 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:58310 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262050AbVBAPpH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 10:45:07 -0500
+From: Tom Zanussi <zanussi@us.ibm.com>
+Message-ID: <16895.41970.832512.893906@tut.ibm.com>
+Date: Tue, 1 Feb 2005 09:44:50 -0600
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41FF9C78.2040100@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Tom Zanussi <zanussi@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
+       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@AM.SONY.COM>,
+       karim@opersys.com
+Subject: Re: [PATCH] relayfs redux, part 2
+In-Reply-To: <Pine.LNX.4.61.0501312247150.30794@scrub.home>
+References: <16890.38062.477373.644205@tut.ibm.com>
+	<Pine.LNX.4.61.0501312247150.30794@scrub.home>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 01, 2005 at 09:12:56AM -0600, Brian King wrote:
-> Greg KH wrote:
-> >On Fri, Jan 28, 2005 at 08:35:46AM -0600, Brian King wrote:
-> >>+void pci_block_user_cfg_access(struct pci_dev *dev)
-> >>+{
-> >>+	unsigned long flags;
-> >>+
-> >>+	pci_save_state(dev);
-> >>+	spin_lock_irqsave(&pci_lock, flags);
-> >>+	dev->block_ucfg_access = 1;
-> >>+	spin_unlock_irqrestore(&pci_lock, flags);
-> >>+}
-> >>+EXPORT_SYMBOL(pci_block_user_cfg_access);
-> >
-> >
-> >EXPORT_SYMBOL_GPL() please?
-> 
-> Ok.
+Roman Zippel writes:
+ > Hi,
+ > 
+ > On Fri, 28 Jan 2005, Tom Zanussi wrote:
+ > 
+ > > +static inline int rchan_create_file(const char *chanpath,
+ > > +				    struct dentry **dentry,
+ > > +				    struct rchan_buf *data)
+ > > +{
+ > > +	int err;
+ > > +	const char * fname;
+ > > +	struct dentry *topdir;
+ > > +
+ > > +	err = rchan_create_dir(chanpath, &fname, &topdir);
+ > > +	if (err && (err != -EEXIST))
+ > > +		return err;
+ > > +
+ > > +	err = relayfs_create_file(fname, topdir, dentry, data, S_IRUSR);
+ > > +
+ > > +	return err;
+ > > +}
+ > 
+ > What protects topdir from being removed inbetween?
+ > Why is necessary to let the user create/remove files/dirs at all?
 
-I'm not entirely convinced these should be GPL-only exports.  Basically,
-this is saying that any driver for a device that has this problem must be
-GPLd.  I think that's a firmer stance than Linus had in mind originally.
+Good point - file/dir creation/removal should only be done by
+relay_open/close.  I'll make sure to fix both of these things.
 
-> +++ linux-2.6.11-rc2-bk9-bjking1/drivers/pci/access.c	2005-02-01 08:39:57.000000000 -0600
-> @@ -60,3 +60,78 @@ EXPORT_SYMBOL(pci_bus_read_config_dword)
->  EXPORT_SYMBOL(pci_bus_write_config_byte);
->  EXPORT_SYMBOL(pci_bus_write_config_word);
->  EXPORT_SYMBOL(pci_bus_write_config_dword);
-> +
-> +#define PCI_USER_READ_CONFIG(size,type)	\
-> +int pci_user_read_config_##size	\
-> +	(struct pci_dev *dev, int pos, type *val)	\
-{									\
-	unsigned long flags;					\
+[...]
 
-Could you line up the \ so they're uniform like the above PCI_OP_READ?
+ > 
+ > For the first version I would suggest to use just local_irq_save/_restore.
+ > Getting it right with local_add_return is not trivial and I'm pretty sure 
+ > your relay_switch_buffer() gets it wrong, e.g. the caller for whom (offset 
+ > < bufsize) must close the subbuffer. Also buffer->data in relay_reserve 
+ > may have become invalid (e.g. by an interrupt just before it).
+ > 
 
-> +	int ret = 0;						\
-> +	u32 data = -1;						\
-> +	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
-> +	spin_lock_irqsave(&pci_lock, flags);		\
-> +	if (likely(!dev->block_ucfg_access))				\
-> +		ret = dev->bus->ops->read(dev->bus, dev->devfn, pos, sizeof(type), &data); \
-> +	else if (pos < sizeof(dev->saved_config_space))		\
-> +		data = dev->saved_config_space[pos/sizeof(dev->saved_config_space[0])]; \
-> +	spin_unlock_irqrestore(&pci_lock, flags);		\
-> +	*val = (type)data;					\
+Yes, there are a couple of bugs here, but I think they're easily fixed
+- thanks for spotting them.
 
-Does this actually work?  Surely if you're reading byte 14, you get the
-byte that was at address 12 or 15 in the config space, depending whether
-you're on a big or little endian machine?
+For the buffer->data problem, the value of buffer->data at the time
+offset is reserved would have to be saved along with it for it to make
+sense.
 
-> +void pci_unblock_user_cfg_access(struct pci_dev *dev)
-> +{
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&pci_lock, flags);
-> +	dev->block_ucfg_access = 0;
-> +	spin_unlock_irqrestore(&pci_lock, flags);
-> +}
+For relay_switch_buffer(), only the offset of the first event that
+didn't fit would be less than bufsize so if there was a check for that
+i.e. if offset < bufsize, calculate padding, otherwise don't and just
+continue, the interrupt would continue through and actually accomplish
+the buffer switch, while the interrupted event would calculate the
+padding and then exit immediately because of the (offset + length <
+bufsize) recheck.  Both would then loop around again to retry and
+succeed.  Well, I'm not sure that explanation is clear, but it seems
+like it should work with that small change.
 
-If we've done a write to config space while the adapter was blocked,
-shouldn't we replay those accesses at this point?
+Please let me know if you disagree or see any other problems.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+ > You can also move all the rchan_buf members which are not written to in 
+ > the event path and which are common to all channels back to rchan.
+
+Yes, I was actually planning on doing that, but hadn't gotten to it
+yet.
+
+
+Thanks,
+
+Tom
+

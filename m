@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129544AbQKHD5u>; Tue, 7 Nov 2000 22:57:50 -0500
+	id <S130753AbQKHEAu>; Tue, 7 Nov 2000 23:00:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129689AbQKHD5k>; Tue, 7 Nov 2000 22:57:40 -0500
-Received: from gadolinium.btinternet.com ([194.73.73.111]:42682 "EHLO
-	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
-	id <S129544AbQKHD5d>; Tue, 7 Nov 2000 22:57:33 -0500
-From: davej@suse.de
-Date: Wed, 8 Nov 2000 03:57:10 +0000 (GMT)
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Installing kernel 2.4
-In-Reply-To: <20001107214147.B8542@vger.timpanogas.org>
-Message-ID: <Pine.LNX.4.21.0011080351110.8632-100000@neo.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131227AbQKHEAk>; Tue, 7 Nov 2000 23:00:40 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:49498 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S130753AbQKHEA2>; Tue, 7 Nov 2000 23:00:28 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Mike A. Harris" <mharris@opensourceadvocate.org>
+cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: ide-probe.c:400: `rtc_lock' undeclared and /lib/modules/..../build 
+In-Reply-To: Your message of "Tue, 07 Nov 2000 21:48:59 CDT."
+             <Pine.LNX.4.21.0011072148270.10929-100000@asdf.capslock.lan> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 08 Nov 2000 14:59:42 +1100
+Message-ID: <6444.973655982@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2000, Jeff V. Merkey wrote:
+On Tue, 7 Nov 2000 21:48:59 -0500 (EST), 
+"Mike A. Harris" <mharris@opensourceadvocate.org> wrote:
+>On Tue, 7 Nov 2000, Alan Cox wrote:
+>>Actually they do. I agree that it wants sorting. Im just wondering what the
+>>best approach is - maybe check modutils rev and only add the link if its high
+>>enough ?
+>
+>What if build-machine != machine-kernel-was-built-for?
 
-> Your way out in the weeds.  What started this thread was a customer who
-> ended up loading the wrong arch on a system and hanging.  I have to
-> post a kernel RPM for our release, and it's onerous to make customers
-> recompile kernels all the time and be guinea pigs for arch ports.  
-> They just want it to boot, and run with the same level of ease of use
-> and stability they get with NT and NetWare and other stuff they are used
-> to.   This is an easy choice from where I'm sitting.
-
-So you're complaining that as a vendor you have to ship multiple kernels?
-The point remains the same.
-
-The only time I recall recently where a kernel hasn't booted was when the
-AMD Athlon appeared, and the MTRR code needed fixing.
-There wasn't a lot anyone could have done, without seeing documentation
-(which iirc wasn't available at the time).
-The reason NT & Netware probably loaded fine is that they don't set
-the MTRRs themselves, but rely on third party utilities to do this
-for them after they've booted.
-
-All other recent cases of non booting that I've seen have been a
-case of user error miscompiling for a wrong target.
-As a vendor, you don't worry about this as you ship binary kernels,
-and $enduser never needs to see a source tree.
-
-davej.
-
--- 
-| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
-| SuSE Labs
+Then you are SOL, but that is a generic cross compile problem.  Anybody
+doing cross compile has to do extra steps to copy the results to the
+other machine and they can take care of problems like the build symlink
+themselves.  The patch in 2.2.18-pre20 fixes the problem for local
+compiles, which are 95%+ (SWAG) of the compiles.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

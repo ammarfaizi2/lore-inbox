@@ -1,277 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266550AbUBETpt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 14:45:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266510AbUBETpt
+	id S266570AbUBEToT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 14:44:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266564AbUBEToT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 14:45:49 -0500
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:53674 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S266550AbUBETo5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 14:44:57 -0500
-Message-ID: <40229D2C.20701@blue-labs.org>
-Date: Thu, 05 Feb 2004 14:44:44 -0500
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040121
-X-Accept-Language: en-us, en
+	Thu, 5 Feb 2004 14:44:19 -0500
+Received: from gw0.infiniconsys.com ([65.219.193.226]:41223 "EHLO
+	mail.infiniconsys.com") by vger.kernel.org with ESMTP
+	id S266570AbUBEToI convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 14:44:08 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Luis_Miguel_Garc=EDa?= <ktech@wanadoo.es>
-CC: akpm@digeo.com, acpi-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, a.verweij@student.tudelft.nl
-Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
-References: <402298C7.5050405@wanadoo.es>
-In-Reply-To: <402298C7.5050405@wanadoo.es>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [Infiniband-general] Getting an Infiniband access layer in the Linux kernel
+Date: Thu, 5 Feb 2004 14:44:07 -0500
+Message-ID: <08628CA53C6CBA4ABAFB9E808A5214CB01DB96C2@mercury.infiniconsys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in the Linux kernel
+Thread-Index: AcPsF4/hx0cPNx+HT5miYWKkvxL6wwAAY87w
+From: "Tillier, Fabian" <ftillier@infiniconsys.com>
+To: "Greg KH" <greg@kroah.com>
+Cc: "Hefty, Sean" <sean.hefty@intel.com>, <linux-kernel@vger.kernel.org>,
+       "Troy Benjegerdes" <hozer@hozed.org>,
+       "Woodruff, Robert J" <woody@co.intel.com>,
+       "Magro, Bill" <bill.magro@intel.com>,
+       "Woodruff, Robert J" <woody@jf.intel.com>,
+       <infiniband-general@lists.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the same problem.  I "solved" it a while ago by mucking with the 
-AGP stuff.  IIRC, it was turning off AGP fast writes or 8x or something 
-similar in cmos.  Went from incredibly broken to stable instantly.  I'll 
-check my cmos settings in a bit and refresh my memory.
+Greg,
 
-What patches are you using?
+The component library (the abstraction layer used by IBAL) is in no way
+tied to InfiniBand.  Whatever is in there can be used by any other
+projects, and there's a lot of useful stuff in there that does provide
+value.
+ 
+One goal of IBAL is to get InfiniBand support for Linux.  As such, it is
+a higher priority to get things working than to wait for changes to
+appear in the Linux kernel before making forward progress.
 
-p.s. reiserfs is pretty useless against crashes.  hundreds of files 
-around the harddrive get messed up everytime the machine locks 
-up...files that haven't been used in weeks, as well as files opened 
-read-only, i.e. libraries.
+Keep in mind also that InfiniBand is not a Linux-only technology.
+Sharing code between different operating systems accelerates development
+and reduces the cost of maintenance.
 
-Luis Miguel García wrote:
+Lastly, there are things (like timers) that are blatantly missing from
+user-mode in Linux, and having an abstraction here allows code to be
+shared between kernel and user mode.
 
-> (sorry with my sucking english)
->
-> ok, let me know if you know for me to test something with this newer 
-> mm kernels.
->
-> by the way, yes, I'm experiencing the lockups. Not with heavy io, but 
-> almost when I boot and enter X. The system gets completly frozzened 
-> and the HD led keps on. When I reboot with a sane kernel, I found 
-> several files from my /home directory are deleted or filled with garbage.
->
-> Now, I patch each kernel I use with the two patches Andrew sent to me 
-> and I'm having no problems.
->
-> Actually i'm running 2.6.2-ck1 + nforce-patches and the temperature of 
-> the system is 55º while idle, and 631 while compiling (only cpu fan, 
-> no case fans). I don't know if it's high (some people reported high 
-> temperatures with this patches) but it runs very well this way.
->
-> If you want for me to test some patches or something, please drop me a 
-> note.
->
-> Thanks a lot...
->
-> Luis Miguel García
->
-> P.S.: by the way, why am I getting strage "arabesque" characters when 
-> I reply to your emails? Perhaps something with wrong encoding?
->
->> This is interesting, I will test it myself later on. At one point Len
->> admitted to owning "foreign hardware :p" so maybe this could get 
->> resolved.
->>
->> Personally I haven't tried kernels with newer forcedeth drivers, 
->> because I
->> can no longer explicitely set the power state of the NIC to D3. The
->> machine complains about irqs (new debugging code since forcedeth v.20 or
->> so) and will not powerdown.
->>
->> On another note, have you noticed lockups of your system with heavy io?
->> Think of fsck'ing, burning cdroms, du on large dirs etc? Maybe it is
->> helpful to set up a list of boards and document what works or doesn't 
->> work
->> with which kernel. For instance the lockups with heavy io seem to be
->> resolved here if I leave APIC from my kernel.
->>
->> Arjen
->>
->> On Thu, 5 Feb 2004, [ISO-8859-15] Luis Miguel Garc?a wrote:
->>
->>  
->>
->>>> Hi:
->>>>
->>>> Since Andrew Morton picked up latest acpi bk updates, nforce 
->>>> motherboards have problems, mainly with ethernet adapters. 
->>>> Reporters say that with acpi=off, the problm gets fixed, so we 
->>>> think the problem could be acpi. Some more useful info:
->>>>
->>>>
->>>>
->>>> On Tue, 3 Feb 2004, [ISO-8859-1] Luis Miguel Garc?a wrote:
->>>>
->>>>
->>>   
->>>
->>>>>> >> When I try to boot with latest mm series (such as actual 
->>>>>> rc3-mm1 or
->>>>>> >> rc2-mm2), my nforce ethernet device doesn't works. It worked 
->>>>>> in the past
->>>>>> >> with the forcedeth reverse engineered driver but now it keeps 
->>>>>> for 30 or
->>>>>> >> more seconds halted (at boot) and then the network device 
->>>>>> dosn't run.
->>>>>> >>
->>>>>> >> Here is the dmesg of rc3-mm1. Do you want for me to test 
->>>>>> something? Thanks!
->>>>>> >>
->>>>>> >> P.S.:   The ACPI related messages are larger that in rc3.
->>>>>
->>>>>       
->>>>> >
->>>>> >
->>>>
->>>>     
->>>>
->>>> My e100 on an nforce2 won't work in rc3-mm1.
->>>> The "acpi=off" boot parameter makes it go.
->>>>
->>>>
->>>> And for the record, I can boot with that kernel and save one dmesg 
->>>> for you if you want. Only send me a request and I'll send it to you.
->>>>
->>>> P.S.: Sent any messages you want directly to me as i'm not 
->>>> subscribed to acpi-devel.
->>>>
->>>> Thanks,
->>>>
->>>> Luis Miguel Garc?a
->>>>
->>>>
->>>>
->>>>
->>>>
->>>   
->>>
->>>>> >Which part of nforce support are you talking about luis?
->>>>
->>>>     
->>>>
->>>   
->>>
->>>>> >On Thu, 5 Feb 2004, Andrew Morton wrote:
->>>>
->>>>     
->>>>
->>>>
->>>   
->>>
->>>>>> >> Luis Miguel Garc?a <ktech@wanadoo.es> wrote:
->>>>>
->>>>>       
->>>>> >
->>>>> >
->>>>
->>>>     
->>>>
->>>>>>>> >>> >
->>>>>>>> >>> > Andrew Morton wrote:
->>>>>>>> >>> >
->>>>>>>
->>>>>>>           
->>>>>>
->>>>>> >>
->>>>>> >>
->>>>>
->>>>>       
->>>>>
->>>>>>>>>> >>>> > >
->>>>>>>>>
->>>>>>>>>               
->>>>>>>>
->>>>>>> >>>
->>>>>>> >>>
->>>>>>
->>>>>>         
->>>>>>
->>>>>>>>>>>> >>>>> > >> 
->>>>>>>>>>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2/2.6.2-mm1/ 
->>>>>>>>>>>>
->>>>>>>>>>>> >>>>> > >>
->>>>>>>>>>>> >>>>> > >>
->>>>>>>>>>>> >>>>> > >>
->>>>>>>>>>>> >>>>> > >> - Merged some page reclaim fixes from Nick and 
->>>>>>>>>>>> Nikita.  These yield some
->>>>>>>>>>>> >>>>> > >>  performance improvements in low memory and 
->>>>>>>>>>>> heavy paging situations.
->>>>>>>>>>>> >>>>> > >>
->>>>>>>>>>>> >>>>> > >>
->>>>>>>>>>>
->>>>>>>>>>>                   
->>>>>>>>>>
->>>>>>>> >>>>
->>>>>>>> >>>>
->>>>>>>> >>> >
->>>>>>>> >>> > Andrew, do you know if this acpi pull down has nforce 
->>>>>>>> support fixed?
->>>>>>>
->>>>>>>           
->>>>>>
->>>>>> >>
->>>>>> >>
->>>>>> >>
->>>>>> >> It doesn't appear that way.
->>>>>> >>
->>>>>
->>>>>       
->>>>> >
->>>>> >
->>>>
->>>>     
->>>>
->>>>>>>> >>> > Or perhaps it's even unnotified to the acpi team?
->>>>>>>
->>>>>>>           
->>>>>>
->>>>>> >>
->>>>>> >>
->>>>>> >>
->>>>>> >> I do not know.  Sending them a bugzilla ID would help, if such 
->>>>>> a thing exists.
->>>>>> >>
->>>>>> >>
->>>>>> >>
->>>>>> >> -------------------------------------------------------
->>>>>> >> The SF.Net email is sponsored by EclipseCon 2004
->>>>>> >> Premiere Conference on Open Tools Development and Integration
->>>>>> >> See the breadth of Eclipse activity. February 3-5 in Anaheim, CA.
->>>>>> >> http://www.eclipsecon.org/osdn
->>>>>> >> _______________________________________________
->>>>>> >> Acpi-devel mailing list
->>>>>> >> Acpi-devel@lists.sourceforge.net
->>>>>> >> https://lists.sourceforge.net/lists/listinfo/acpi-devel
->>>>>> >>
->>>>>> >>
->>>>>
->>>>>       
->>>>> >
->>>>> >
->>>>
->>>>     
->>>>
->>>>
->>>> -------------------------------------------------------
->>>> The SF.Net email is sponsored by EclipseCon 2004
->>>> Premiere Conference on Open Tools Development and Integration
->>>> See the breadth of Eclipse activity. February 3-5 in Anaheim, CA.
->>>> http://www.eclipsecon.org/osdn
->>>> _______________________________________________
->>>> Acpi-devel mailing list
->>>> Acpi-devel@lists.sourceforge.net
->>>> https://lists.sourceforge.net/lists/listinfo/acpi-devel
->>>>
->>>   
->>
->>
->>
->>  
->>
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Keep in mind that we're not expecting you or the Linux community to
+blindly take the code as is.  We're looking for constructive feedback to
+make it so that everyone goes home happy.  It's disappointing that the
+feedback we're getting from you is that any abstractions will be cause
+for rejection.  What are the grounds for this policy?  What does it
+accomplish?  Is portable code a problem for the Linux community in
+general?  Removing the abstraction from the IBAL project would require
+significant rework of the code that would add very little from a
+functional perspective, and make the code base more complicated and
+harder to maintain.
 
+I think it would help us a lot to understand the motivation behind your
+opinions so that we can try to meet your expectations.  If I've
+misinterpreted your opinions, please clarify.
+
+Thanks,
+
+- Fab
+
+-----Original Message-----
+From: Greg KH [mailto:greg@kroah.com] 
+Sent: Thursday, February 05, 2004 10:41 AM
+To: Tillier, Fabian
+Cc: Hefty, Sean; linux-kernel@vger.kernel.org; Troy Benjegerdes;
+Woodruff, Robert J; Magro, Bill; Woodruff, Robert J;
+infiniband-general@lists.sourceforge.net
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
+the Linux kernel
+
+On Thu, Feb 05, 2004 at 01:31:45PM -0500, Tillier, Fabian wrote:
+> 
+> Are you suggesting that if there is any abstraction, the code will
+never
+> be accepted?  Or rather that the abstraction better be correct?  I'm
+> hoping for the latter, however please clarify.
+
+The kernel has its own abstractions that seem to be working quite well
+for all different types of platforms.  There is no need for you to
+create your own, just for a driver subsystem.
+
+If you have found any problems with the current locks please let the
+entire kernel community benefit from your changes, and not relegate them
+to a infiniband-only section of the kernel.
+
+So yes, if you add your own versions of spinlocks and atomic_t types,
+your code will be rejected, among other things :)
+
+thanks,
+
+greg k-h

@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268070AbUBRUqm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 15:46:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268072AbUBRUqm
+	id S267476AbUBRUaK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 15:30:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267710AbUBRUaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 15:46:42 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:53177 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S268070AbUBRUqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 15:46:40 -0500
-Date: Wed, 18 Feb 2004 20:44:06 +0000
-From: Dave Jones <davej@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Enable Intel AGP on x86-64
-Message-ID: <20040218204406.GB6242@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <200402182006.i1IK6bL7022634@hera.kernel.org> <20040218202325.GZ6242@redhat.com> <20040219021149.519d0754.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040219021149.519d0754.ak@suse.de>
-User-Agent: Mutt/1.4.1i
+	Wed, 18 Feb 2004 15:30:10 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:60288 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S267476AbUBRUaG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 15:30:06 -0500
+Date: Wed, 18 Feb 2004 15:32:57 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: =?US-ASCII?Q?Markus_H=E4stbacka?= <midian@ihme.org>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [NET] 64 bit byte counter for 2.6.3
+In-Reply-To: <20040218101711.25dda791@dell_ss3.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.53.0402181527000.7318@chaos>
+References: <1077123078.9223.7.camel@midux> <20040218101711.25dda791@dell_ss3.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 02:11:49AM +0100, Andi Kleen wrote:
 
- > > Please don't do this. At least copy intel-agp.c to
- > > something new and throw out all the dozens of chipsets
- > > that will never appear on ia32e.
- > > 
- > > Splitting agpgart up to seperate drivers allowed us
- > > to stop adding cruft upon cruft with each generation
- > > of chipsets.  I don't want to have to spend half of
- > > 2.7 decrufting agpgart again.
- > 
- > Huh? Did you actually read the patch?
+Markus Hästbacka <midian@ihme.org> wrote:
+> Ok, Here's a patch for 64 bit byte counters for 2.6.3. For any intrested
+> users to try.
 
-Yes, did you actually read my mail?
+Manipulation of a 'long long' is not atomic in 32 bit architectures.
+Please explain how we don't care, if we shouldn't care. Also some
+/proc entries might get read incorrectly with existing tools.
 
- > It doesn't change the AGP driver at all, just enables it in Kconfig because
- > Intel chipsets can be now used on the x86-64 kernel too.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an Pentium III machine (1797.90
+BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-You *really* think you're going to see a 440BX GART on ia32e ?
-i810 ? i820 ? i830 ? etc. etc. I'd be *very* surprised if anything
-but the current generation of ia32 chipsets gets used on ia32e.
-It just doesn't make sense.
-
-Without even looking at the code I'll bet you can shrink it
-by at least 75%.
-
-		Dave
 

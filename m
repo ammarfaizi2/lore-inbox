@@ -1,302 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264352AbTKMRRB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 12:17:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264356AbTKMRRB
+	id S264355AbTKMRUY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 12:20:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbTKMRUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 12:17:01 -0500
-Received: from vena.lwn.net ([206.168.112.25]:48323 "HELO lwn.net")
-	by vger.kernel.org with SMTP id S264352AbTKMRQd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 12:16:33 -0500
-Message-ID: <20031113171631.11629.qmail@lwn.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] seq_file documentation
-cc: torvalds@osdl.org
-From: Jonathan Corbet <corbet@lwn.net>
-Date: Thu, 13 Nov 2003 10:16:31 -0700
+	Thu, 13 Nov 2003 12:20:24 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:54413 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S264355AbTKMRUQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 12:20:16 -0500
+Date: Thu, 13 Nov 2003 09:20:15 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel.bkbits.net off the air
+Message-ID: <20031113172015.GA23754@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Davide Libenzi <davidel@xmailserver.org>,
+	Larry McVoy <lm@bitmover.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20031113162712.GA2462@work.bitmover.com> <Pine.LNX.4.44.0311130910310.1809-100000@bigblue.dev.mdolabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0311130910310.1809-100000@bigblue.dev.mdolabs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I went ahead and packaged up my seq_file document as a basic text file, in
-the interests of getting something out there.  
+On Thu, Nov 13, 2003 at 09:14:27AM -0800, Davide Libenzi wrote:
+> On Thu, 13 Nov 2003, Larry McVoy wrote:
+> 
+> > I suppose it sounds like we don't want to give out more free engineering
+> > but let's put things into perspective.  The CVS server has about 6 users.
+> > It's cost us a pile of money to build and support that technology.
+> > For 6 users.  On the other hand, there are thousands if not tens of
+> 
+> Larry, if there are really six users (i'm one of them, rsync) among 
+> pserver and rsync access, I am the first to tell you shut it down. It is 
+> not worth. On the other hand IIRC it was you that, when Pavel showed up 
+> with the bitbucket hack to extract metadata from BK, volunteered to do it 
+> internally inside BM. Do I remember correctly?
 
-jon
+Not really, the revision history of the CVS gateway predates Pavel's so-called
+hacks.
 
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net
-
-
-diff -urN test9-vanilla/Documentation/filesystems/seq_file.txt test9/Documentation/filesystems/seq_file.txt
---- test9-vanilla/Documentation/filesystems/seq_file.txt	Wed Dec 31 17:00:00 1969
-+++ test9/Documentation/filesystems/seq_file.txt	Fri Nov 14 01:03:58 2003
-@@ -0,0 +1,268 @@
-+The seq_file interface
-+
-+	Copyright 2003 Jonathan Corbet <corbet@lwn.net>
-+	This file is originally from the LWN.net Driver Porting series at
-+	http://lwn.net/Articles/driver-porting/
-+
-+
-+There are numerous ways for a device driver (or other kernel component) to
-+provide information to the user or system administrator.  One very useful
-+technique is the creation of virtual files, in /proc or elsewhere. Virtual
-+files can provide human-readable output that is easy to get at without any
-+special utility programs; they can also make life easier for script
-+writers. It is not surprising that the use of virtual files has grown over
-+the years.
-+
-+Creating those files correctly has always been a bit of a challenge,
-+however. It is not that hard to make a /proc file which returns a
-+string. But life gets trickier if the output is long - anything greater
-+than an application is likely to read in a single operation.  Handling
-+multiple reads (and seeks) requires careful attention to the reader's
-+position within the virtual file - that position is, likely as not, in the
-+middle of a line of output. The kernel is full of /proc file
-+implementations that get this wrong.
-+
-+The 2.6 kernel contains a set of functions (implemented by Alexander Viro)
-+which are designed to make it easy for virtual file creators to get it
-+right. This interface (called "seq_file") is not strictly a 2.6 feature -
-+it was also merged into 2.4.15.
-+
-+The seq_file interface is available via <linux/seq_file.h>. There are
-+three aspects to seq_file:
-+
-+     * An iterator interface which lets a virtual file implementation
-+       step through the objects it is presenting.
-+
-+     * Some utility functions for formatting objects for output without
-+       needing to worry about things like output buffers.
-+
-+     * A set of canned file_operations which implement most operations on
-+       the virtual file.
-+
-+We'll look at the seq_file interface via an extremely simple example: a
-+loadable module which creates a file called /proc/sequence. The file, when
-+read, simply produces a set of increasing integer values, one per line. The
-+sequence will continue until the user loses patience and finds something
-+better to do. The file is seekable, in that one can do something like the
-+following:
-+
-+    dd if=/proc/sequence of=out1 count=1
-+    dd if=/proc/sequence skip=1 out=out2 count=1
-+
-+Then concatenate the output files out1 and out2 and get the right
-+result. Yes, it is a thoroughly useless module, but the point is to show
-+how the mechanism works without getting lost in other details.  (Those
-+wanting to see the full source for this module can find it at
-+http://lwn.net/Articles/22359/).
-+
-+
-+The iterator interface
-+
-+Modules implementing a virtual file with seq_file must implement a simple
-+iterator object that allows stepping through the data of
-+interest. Iterators must be able to move to a specific position - like the
-+file they implement - but the interpretation of that position is up to the
-+iterator itself. A seq_file implementation that is formatting firewall
-+rules, for example, could interpret position N as the Nth rule in the
-+chain. Positioning can thus be done in whatever way makes the most sense
-+for the generator of the data, which need not be aware of how a position
-+translates to an offset in the virtual file. The one obvious exception is
-+that a position of zero should indicate the beginning of the file.
-+
-+The /proc/sequence iterator just uses the count of the next number it
-+will output as its position.
-+
-+Four functions must be implemented to make the iterator work. The first,
-+called start() takes a position as an argument and returns an iterator
-+which will start reading at that position. For our simple sequence example,
-+the start() function looks like:
-+
-+	static void *ct_seq_start(struct seq_file *s, loff_t *pos)
-+	{
-+	        loff_t *spos = kmalloc(sizeof(loff_t), GFP_KERNEL);
-+	        if (! spos)
-+	                return NULL;
-+	        *spos = *pos;
-+	        return spos;
-+	}
-+
-+The entire data structure for this iterator is a single loff_t value
-+holding the current position. There is no upper bound for the sequence
-+iterator, but that will not be the case for most other seq_file
-+implementations; in most cases the start() function should check for a
-+"past end of file" condition and return NULL if need be.
-+
-+For more complicated applications, the private field of the seq_file
-+structure can be used. There is also a special value whch can be returned
-+by the start() function called SEQ_START_TOKEN; it can be used if you wish
-+to instruct your show() function (described below) to print a header at the
-+top of the output. SEQ_START_TOKEN should only be used if the offset is
-+zero, however.
-+
-+The next function to implement is called, amazingly, next(); its job is to
-+move the iterator forward to the next position in the sequence.  The
-+example module can simply increment the position by one; more useful
-+modules will do what is needed to step through some data structure. The
-+next() function returns a new iterator, or NULL if the sequence is
-+complete. Here's the example version:
-+
-+	static void *ct_seq_next(struct seq_file *s, void *v, loff_t *pos)
-+	{
-+	        loff_t *spos = (loff_t *) v;
-+	        *pos = ++(*spos);
-+	        return spos;
-+	}
-+
-+The stop() function is called when iteration is complete; its job, of
-+course, is to clean up. If dynamic memory is allocated for the iterator,
-+stop() is the place to return it.
-+
-+	static void ct_seq_stop(struct seq_file *s, void *v)
-+	{
-+	        kfree (v);
-+	}
-+
-+Finally, the show() function should format the object currently pointed to
-+by the iterator for output. It should return zero, or an error code if
-+something goes wrong. The example module's show() function is:
-+
-+	static int ct_seq_show(struct seq_file *s, void *v)
-+	{
-+	        loff_t *spos = (loff_t *) v;
-+	        seq_printf(s, "%Ld\n", *spos);
-+	        return 0;
-+	}
-+
-+We will look at seq_printf() in a moment. But first, the definition of the
-+seq_file iterator is finished by creating a seq_operations structure with
-+the four functions we have just defined:
-+
-+	static struct seq_operations ct_seq_ops = {
-+	        .start = ct_seq_start,
-+	        .next  = ct_seq_next,
-+	        .stop  = ct_seq_stop,
-+	        .show  = ct_seq_show
-+	};
-+
-+This structure will be needed to tie our iterator to the /proc file in
-+a little bit.
-+
-+It's worth noting that the interator value returned by start() and
-+manipulated by the other functions is considered to be completely opaque by
-+the seq_file code. It can thus be anything that is useful in stepping
-+through the data to be output. Counters can be useful, but it could also be
-+a direct pointer into an array or linked list. Anything goes, as long as
-+the programmer is aware that things can happen between calls to the
-+iterator function. However, the seq_file code (by design) will not sleep
-+between the calls to start() and stop(), so holding a lock during that time
-+is a reasonable thing to do. The seq_file code will also avoid taking any
-+other locks while the iterator is active.
-+
-+
-+Formatted output
-+
-+The seq_file code manages positioning within the output created by the
-+iterator and getting it into the user's buffer. But, for that to work, that
-+output must be passed to the seq_file code. Some utility functions have
-+been defined which make this task easy.
-+
-+Most code will simply use seq_printf(), which works pretty much like
-+printk(), but which requires the seq_file pointer as an argument. It is
-+common to ignore the return value from seq_printf(), but a function
-+producing complicated output may want to check that value and quit if
-+something non-zero is returned; an error return means that the seq_file
-+buffer has been filled and further output will be discarded.
-+
-+For straight character output, the following functions may be used:
-+
-+	int seq_putc(struct seq_file *m, char c);
-+	int seq_puts(struct seq_file *m, const char *s);
-+	int seq_escape(struct seq_file *m, const char *s, const char *esc);
-+
-+The first two output a single character and a string, just like one would
-+expect. seq_escape() is like seq_puts(), except that any character in s
-+which is in the string esc will be represented in octal form in the output.
-+
-+There is also a function for printing filenames:
-+
-+	int seq_path(struct seq_file *m, struct vfsmount *mnt,
-+	             struct dentry *dentry, char *esc);
-+
-+Here, mnt and dentry indicate the file of interest, and esc is a set of
-+characters which should be escaped in the output. 
-+
-+
-+Making it all work
-+
-+So far, we have a nice set of functions which can produce output within the
-+seq_file system, but we have not yet turned them into a file that a user
-+can see. Creating a file within the kernel requires, of course, the
-+creation of a set of file_operations which implement the operations on that
-+file. The seq_file interface provides a set of canned operations which do
-+most of the work. The virtual file author still must implement the open()
-+method, however, to hook everything up. The open function is often a single
-+line, as in the example module:
-+
-+	static int ct_open(struct inode *inode, struct file *file)
-+	{
-+		return seq_open(file, &ct_seq_ops);
-+	};
-+
-+Here, the call to seq_open() takes the seq_operations structure we created
-+before, and gets set up to iterate through the virtual file.
-+
-+On a successful open, seq_open() stores the struct seq_file pointer in
-+file->private_data. If you have an application where the same iterator can
-+be used for more than one file, you can store an arbitrary pointer in the
-+private field of the seq_file structure; that value can then be retrieved
-+by the iterator functions.
-+
-+The other operations of interest - read(), llseek(), and release() - are
-+all implemented by the seq_file code itself. So a virtual file's
-+file_operations structure will look like:
-+
-+	static struct file_operations ct_file_ops = {
-+	        .owner   = THIS_MODULE,
-+	        .open    = ct_open,
-+	        .read    = seq_read,
-+	        .llseek  = seq_lseek,
-+	        .release = seq_release
-+	};
-+
-+There is also a seq_release_private() which passes the contents of the
-+seq_file private field to kfree() before releasing the structure.
-+
-+The final step is the creation of the /proc file itself. In the example
-+code, that is done in the initialization code in the usual way:
-+
-+	static int ct_init(void)
-+	{
-+	        struct proc_dir_entry *entry;
-+
-+	        entry = create_proc_entry("sequence", 0, NULL);
-+	        if (entry)
-+	                entry->proc_fops = &ct_file_ops;
-+	        return 0;
-+	}
-+
-+	module_init(ct_init);
-+
-+And that is pretty much it.
-+
-+
-+The extra-simple version
-+
-+For extremely simple virtual files, there is an even easier interface.  A
-+module can define only the show() function, which should create all the
-+output that the virtual file will contain. The file's open() method then
-+calls:
-+
-+	int single_open(struct file *file,
-+	                int (*show)(struct seq_file *m, void *p),
-+	                void *data);
-+
-+When output time comes, the show() function will be called once. The data
-+value given to single_open() can be found in the private field of the
-+seq_file structure. When using single_open(), the programmer should use
-+single_release() instead of seq_release() in the file_operations structure
-+to avoid a memory leak.
+I don't mind us supporting this gateway for the small number of users, if it 
+makes them happy, that's fine.  What I mind is people coming back and asking
+for more stuff for a tiny number of people.  That doesn't make sense.  We 
+should put our efforts into helping the people using BK, not the people using
+CVS.  If you want to help yourselves, that's a fine idea, go for it.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

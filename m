@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265275AbUBFJX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 04:23:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265333AbUBFJX6
+	id S265356AbUBFJdn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 04:33:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265359AbUBFJdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 04:23:58 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:1178 "EHLO
-	myware.akkadia.org") by vger.kernel.org with ESMTP id S265275AbUBFJX5
+	Fri, 6 Feb 2004 04:33:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:22483 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265356AbUBFJd2 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 04:23:57 -0500
-Message-ID: <40235D0B.5090008@redhat.com>
-Date: Fri, 06 Feb 2004 01:23:23 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Rik van Riel <riel@redhat.com>, Jamie Lokier <jamie@shareable.org>,
-       Andi Kleen <ak@suse.de>, johnstul@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
-References: <20040205214348.GK31926@dualathlon.random> <Pine.LNX.4.44.0402052314360.5933-100000@chimarrao.boston.redhat.com> <20040206042815.GO31926@dualathlon.random>
-In-Reply-To: <20040206042815.GO31926@dualathlon.random>
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Fri, 6 Feb 2004 04:33:28 -0500
+Date: Fri, 6 Feb 2004 01:35:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Matt <dirtbird@ntlworld.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VFS locking: f_pos thread-safe ?
+Message-Id: <20040206013523.394d89f1.akpm@osdl.org>
+In-Reply-To: <40235DCC.2060606@ntlworld.com>
+References: <402359E1.6000007@ntlworld.com>
+	<20040206011630.42ed5de1.akpm@osdl.org>
+	<40235DCC.2060606@ntlworld.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Matt <dirtbird@ntlworld.com> wrote:
+>
+>  >But is there any application in which two threads simultaneously perform
+>  >read() against the same fd which is not already buggy?
+>  >
+>  >
+>  >  
+>  >
+>  touch� :) but still we should do what we can.. want me to make a patch?
 
-Andrea Arcangeli wrote:
+Not unless we can think of a way in which it actually matters, thanks.
 
-> I don't think I was arguing against it completely, exactly because I'm
-> just saying it should be optional.
-
-And the result is that the current fast syscall handling on x86-64 is
-completely unacceptable.  If it's not change security enhancements are
-not possible since the libc has to hardcode the address.
-
-- -- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAI10P2ijCOnn/RHQRAuegAKCtk8W1cXWKlTWkDrmfJfykzvqATQCfRX4Q
-cUVAR4+yIue/MFRL2xNbwfQ=
-=VHoF
------END PGP SIGNATURE-----

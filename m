@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbTFXXaX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 19:30:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbTFXXaX
+	id S263558AbTFXX33 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 19:29:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263597AbTFXX33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 19:30:23 -0400
-Received: from 12-226-168-214.client.attbi.com ([12.226.168.214]:64184 "EHLO
-	marta.kurtwerks.com") by vger.kernel.org with ESMTP id S263315AbTFXXaM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 19:30:12 -0400
-Date: Tue, 24 Jun 2003 19:44:18 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 4 is good. .00000001% is good.
-Message-ID: <20030624234418.GD5077@kurtwerks.com>
-References: <fc.0010c7b2009359090010c7b200935909.93590f@capaccess.org> <20030624233416.GB5077@kurtwerks.com>
+	Tue, 24 Jun 2003 19:29:29 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:29452 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S263558AbTFXX32 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 19:29:28 -0400
+Date: Wed, 25 Jun 2003 01:43:53 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: willy@w.ods.org, linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
+       kpfleming@cox.net, stoffel@lucent.com, gibbs@scsiguy.com,
+       green@namesys.com
+Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
+Message-Id: <20030625014353.20ec0363.skraw@ithnet.com>
+In-Reply-To: <20030624220331.GB2019@alpha.home.local>
+References: <20030509150207.3ff9cd64.skraw@ithnet.com>
+	<41560000.1055306361@caspian.scsiguy.com>
+	<20030611222346.0a26729e.skraw@ithnet.com>
+	<16103.39056.810025.975744@gargle.gargle.HOWL>
+	<20030613114531.2b7235e7.skraw@ithnet.com>
+	<20030624220331.GB2019@alpha.home.local>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030624233416.GB5077@kurtwerks.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.21-krw
-X-Woot: Woot!
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoth Kurt Wall:
-> Quoth Rick A. Hohensee:
+On Wed, 25 Jun 2003 00:03:31 +0200
+Willy Tarreau <willy@w.ods.org> wrote:
 
-[...]
-
-> > ioctls. With more teeth than Torvalds. Just don't leave it where I might
-> > get a whiff of it.
+> On Tue, Jun 24, 2003 at 11:26:09PM +0200, Stephan von Krawczynski wrote:
+>  
+> > sorry, you probably misunderstood my flaky explanation. What I meant was
+> > not a cached block from the _tape_ (obviously indeed a char-type device)
+> > but from the 3ware disk (i.e. the other side of the verification). Consider
+> > the tape completely working, but the disk data corrupt (possibly not from
+> > real reading but from corrupted cache).
 > 
-> I think I shall send your messages to a location where I might get
-> a whiff of them.
-> 
-> *plonk*
+> Ah, OK ! I didn't understand this. You're right, this is also a possibility.
+> Perhaps a tar cf - /mnt/3ware | chkblk would get evidence of somme corruption
+> ?
 
-Or, rather, where I might *not* get a whiff of them. Sheesh.
+Hm, probably a dumb question: does repeated tar'ing of the same files lead to
+exactly the same archive? There is no timestamp inside or something equivalent
+?
 
-K
--- 
-"I only touch base with reality on an as-needed basis!"
-		-- Royal Floyd Mengot (Klaus)
+Regards,
+Stephan

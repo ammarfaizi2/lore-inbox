@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319148AbSIJOpy>; Tue, 10 Sep 2002 10:45:54 -0400
+	id <S319145AbSIJOor>; Tue, 10 Sep 2002 10:44:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319153AbSIJOpy>; Tue, 10 Sep 2002 10:45:54 -0400
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:39851 "EHLO
-	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S319148AbSIJOpw>; Tue, 10 Sep 2002 10:45:52 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: linux-kernel@vger.kernel.org
-Subject: fsync trouble with 2.5.34
-Date: Tue, 10 Sep 2002 16:50:31 +0200
-User-Agent: KMail/1.4.3
+	id <S319147AbSIJOor>; Tue, 10 Sep 2002 10:44:47 -0400
+Received: from 62-190-216-131.pdu.pipex.net ([62.190.216.131]:30724 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S319145AbSIJOoq>; Tue, 10 Sep 2002 10:44:46 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209101456.g8AEuwAV000592@darkstar.example.net>
+Subject: Re: ide drive dying?
+To: mdresser_l@windsormachine.com (Mike Dresser)
+Date: Tue, 10 Sep 2002 15:56:57 +0100 (BST)
+Cc: ookhoi@humilis.net, Dieter.Nuetzel@hamburg.de,
+       linux-kernel@vger.kernel.org, erin_hartin@maxtor.com,
+       sales-mkt@maxtor.com
+In-Reply-To: <Pine.LNX.4.33.0209100949180.16210-100000@router.windsormachine.com> from "Mike Dresser" at Sep 10, 2002 09:59:56 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200209101650.31302.duncan.sands@math.u-psud.fr>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux version 2.5.34 (gcc version 3.2.1), 400MHz AMD K6-2, UP, preemptible.
+> 
+> On Tue, 10 Sep 2002, Ookhoi wrote:
+> 
+> > jbradford@dial.pipex.com wrote (ao):
+> > > I have *never* lost data to a Maxtor disk.  I have had IBM, Fujitsu,
+> > > Western Digital, and DEC drives all fail on me before.
+> > >
+> > > It's dissapointing that Maxtor are reducing their warranty from 3
+> > > years to 1 year, but on the other hand, I've never needed it at all.
+> >
+> > FWIW:
+> > On http://www.maxtor.com/products/enterprise_apps/default.htm
+> > they say 3 years limited warranty.
+> 
+> That's only their MaxLine II drives.  Their regular DiamondMax and all
+> that, are still one year starting in October.  At least their SCSI drives
+> haven't been killed off yet.
+> 
+> OffTopic:
+> 
+> I'm wonder just who in upper Management at Maxtor decided to help the
+> company commit suicide.
+> 
+> I've already ordered a few Seagate drives to test out here at our
+> offices, to replace my previous choice of Maxtor D740X's.  I'll still be
+> looking at the MaxLine II's for backup servers because of the 3 year
+> warranty, but for desktops, I can't risk our data to drives that even the
+> manufacturer doesn't trust.  The performance drop becomes secondary at
+> that point.
+> 
+> I know of a few local shops that will no longer carry Maxtor drives
+> because the warranty costs would kill their profit margin.  They cannot
+> offer a 3 year warranty on the computer when the drive is only covered
+> for a year.
+> 
+> Mike Dresser,
+> 
+> Systems Administrator
+> Windsor Machine & Stamping
+> 
 
-kmail 1.4.3 keeps hanging for several (sometimes many) seconds when
-running 2.5.34.  I attached gdb to it during one of these hangs and got
+According this this announcement:
 
-(gdb) bt
-#0  0x411544fd in fsync () from /lib/libc.so.6
-#1  0x410119c6 in fsync () from /lib/libpthread.so.0
-#2  0x0812ee88 in KDialog::marginHint ()
-#3  0x08107948 in KDialog::marginHint ()
-#4  0x0814734c in KDialog::marginHint ()
-#5  0x08149089 in KDialog::marginHint ()
-#6  0x0814306e in KDialog::marginHint ()
-#7  0x40b71b26 in QObject::activate_signal () from /usr/lib/libqt-mt.so.3
-#8  0x403baec3 in KIO::Job::result () from /usr/lib/libkio.so.4
-#9  0x403ac8f8 in KIO::Job::emitResult () from /usr/lib/libkio.so.4
-#10 0x403ad875 in KIO::SimpleJob::slotFinished () from /usr/lib/libkio.so.4
-#11 0x403aecb5 in KIO::TransferJob::slotFinished () from /usr/lib/libkio.so.4
-#12 0x403bc13c in KIO::TransferJob::qt_invoke () from /usr/lib/libkio.so.4
-#13 0x40b71b26 in QObject::activate_signal () from /usr/lib/libqt-mt.so.3
-#14 0x40b71a7e in QObject::activate_signal () from /usr/lib/libqt-mt.so.3
-#15 0x403a570c in KIO::SlaveInterface::finished () from /usr/lib/libkio.so.4
-#16 0x403a42a4 in KIO::SlaveInterface::dispatch () from /usr/lib/libkio.so.4
-#17 0x403a3df8 in KIO::SlaveInterface::dispatch () from /usr/lib/libkio.so.4
-#18 0x403a2010 in KIO::Slave::gotInput () from /usr/lib/libkio.so.4
-#19 0x403a3809 in KIO::Slave::qt_invoke () from /usr/lib/libkio.so.4
-#20 0x40b71b26 in QObject::activate_signal () from /usr/lib/libqt-mt.so.3
-#21 0x40b71c34 in QObject::activate_signal () from /usr/lib/libqt-mt.so.3
-#22 0x40dad40b in QSocketNotifier::activated () from /usr/lib/libqt-mt.so.3
-#23 0x40b87a4c in QSocketNotifier::event () from /usr/lib/libqt-mt.so.3
-#24 0x40b2a773 in QApplication::internalNotify () from /usr/lib/libqt-mt.so.3
+http://www.shareholder.com/maxtor/news/20020909-89588.cfm
 
-I was doing some heavy compiling at the same time.
+some of their new ATA drives will carry a three-year warranty.
 
-Looks like a kernel bug / behaviour change.
-
-All the best,
-
-Duncan.
+John.

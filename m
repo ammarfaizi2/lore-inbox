@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262606AbTCMWMs>; Thu, 13 Mar 2003 17:12:48 -0500
+	id <S262561AbTCMWTx>; Thu, 13 Mar 2003 17:19:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262700AbTCMWMr>; Thu, 13 Mar 2003 17:12:47 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:47030 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S262606AbTCMWMr>;
-	Thu, 13 Mar 2003 17:12:47 -0500
-Message-Id: <200303132121.h2DLLdcp005933@eeyore.valparaiso.cl>
-To: Pavel Machek <pavel@ucw.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone 
-In-Reply-To: Your message of "Thu, 13 Mar 2003 01:41:45 +0100."
-             <20030313004145.GG5958@zaurus.ucw.cz> 
-Date: Thu, 13 Mar 2003 17:21:39 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S262569AbTCMWTx>; Thu, 13 Mar 2003 17:19:53 -0500
+Received: from packet.digeo.com ([12.110.80.53]:34526 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262561AbTCMWTw>;
+	Thu, 13 Mar 2003 17:19:52 -0500
+Date: Thu, 13 Mar 2003 14:25:12 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: bzzz@tmi.comex.ru, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH] concurrent block allocation for ext2 against 2.5.64
+Message-Id: <20030313142512.69f82864.akpm@digeo.com>
+In-Reply-To: <m3of4fgjob.fsf@lexa.home.net>
+References: <m3el5bmyrf.fsf@lexa.home.net>
+	<20030313015840.1df1593c.akpm@digeo.com>
+	<m3of4fgjob.fsf@lexa.home.net>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Mar 2003 22:30:24.0393 (UTC) FILETIME=[23CCB790:01C2E9B0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Cc: chopped _way_ down]
-Pavel Machek <pavel@ucw.cz> dijo:
+Alex Tomas <bzzz@tmi.comex.ru> wrote:
+>
+> 
+> hi!
+> 
+> here is the new version of the patch.
 
-[...]
+This is great work.
 
-> Take a look at e2fsck. That's similar to
-> bk -- awfull lot of corner cases. And
-> guess what, if you mess up your disk
-> badly enough, it will just tell you to
-> fix it by hand (deallocate block free bitmap
-> in full group). And its okay.
-> (Plus I believe chkdsk has *way* bigger
-> problems than that.)
-> I'm sure you are not going to throw away
-> ext2 just because it has 1-person-per-3-years
-> problem. 99% solution is going to be
-> good enough for me, Andrea and
-> Martin. Linus can keep using bk.
+a) The algorithm which you are using to distribute the root-reserved
+   blocks across the blockgroups will end up leaving a small number of unused
+   blocks in every blockgroup.  So large files which span multiple
+   blockgroups will have little gaps in them.
 
-"Sorry, corner case encountered. Your repository is toast, get a fresh
-copy" will make you an extremely popular sort of game...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+   I think it's probably better to just lump all the root-reserved blocks
+   into as few blockgroups as possible.
+
+   Probably these should be the last blockgroups, because those are
+   nearest the spindle, and hence the slowest.  This is by no means always
+   the case - some disks are backwards, but it seems that most are not.  Plus
+   nearness to the superblock is good.
+
+b) struct ext2_bg_info needs a ____cacheline_aligned_in_smp stuck on it.
+
+c) It looks like EXT2FS_DEBUG broke.  Nobody uses that much, but we should
+   fix and test it sometime.
+
+Be expecting some benchmark numbers.  Maybe those 32-ways will be able to run
+as fast as my $300 2-way now ;)
+
+

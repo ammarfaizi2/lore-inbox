@@ -1,65 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265520AbUFWOrA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265531AbUFWOsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265520AbUFWOrA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 10:47:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbUFWOq7
+	id S265531AbUFWOsG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 10:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbUFWOr1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 10:46:59 -0400
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:49289 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S265974AbUFWOq2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 10:46:28 -0400
-Date: Wed, 23 Jun 2004 16:46:27 +0200
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: Mikael Bouillot <xaajimri@corbac.com>
-Cc: linux-kernel@vger.kernel.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-Subject: Re: Forcedeth driver bug
-Message-Id: <20040623164627.3234bc29@phoebee>
-In-Reply-To: <20040623142936.GA10440@mail.nute.net>
-References: <20040623142936.GA10440@mail.nute.net>
-X-Mailer: Sylpheed-Claws 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.2 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
-Mime-Version: 1.0
+	Wed, 23 Jun 2004 10:47:27 -0400
+Received: from clem.clem-digital.net ([68.16.168.10]:522 "EHLO
+	clem.clem-digital.net") by vger.kernel.org with ESMTP
+	id S265531AbUFWOpM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 10:45:12 -0400
+From: Pete Clements <clem@clem.clem-digital.net>
+Message-Id: <200406231445.KAA29786@clem.clem-digital.net>
+Subject: Re: 2.6.7-bk6 fails module compile -- iptable_raw.c
+In-Reply-To: <20040623.224203.122414746.yoshfuji@linux-ipv6.org> from "YOSHIFUJI Hideaki / [?iso-2022-jp?]" at "Jun 23, 2004 10:42: 3 pm"
+To: yoshfuji@linux-ipv6.org (YOSHIFUJI Hideaki / [?iso-2022-jp?])
+Date: Wed, 23 Jun 2004 10:45:00 -0400 (EDT)
+Cc: davem@redhat.com, clem@clem.clem-digital.net, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, netfilter-devel@lists.netfilter.org
+X-Mailer: ELM [version 2.4ME+ PL48 (25)]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jun 2004 14:29:36 +0000
-Mikael Bouillot <xaajimri@corbac.com> bubbled:
+Patches and compiles. Thanks.
 
->   Hi all,
-> 
->   I'm having trouble with the forcedeth driver in kernel version 2.6.7.
-> >From what I can see, it seems that incoming packets sometime get stuck
-> on their way in.
-> 
->   What happens is this: some packet enters the NIC, and for some reason,
-> it doesn't come out of the driver. As soon as another incoming packet
-> gets in, both packets are handed down by the driver.
+--
+Pete Clements
 
-Do you really know that the driver don't get the stuck packet. Or is it possible
-that the kernels network stack does the fault?
-
-I'm asking because I have a similar problem with udp and kernel 2.6.7-rc2-mm2.
-My sendto gets stuck sometimes and only continues if the kernel handles another
-network packet.
-
-But maybe my problem is a totally different one.
-
-Regards,
-Martin
-
--- 
-MyExcuse:
-YOU HAVE AN I/O ERROR -> Incompetent Operator error
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
+Quoting YOSHIFUJI Hideaki / [?iso-2022-jp?]
+  > In article <200406231256.IAA28505@clem.clem-digital.net> (at Wed, 23 Jun 2004 08:56:08 -0400 (EDT)), Pete Clements <clem@clem.clem-digital.net> says:
+  > 
+  > > FYI:  (gcc version 2.95.4)
+  > > 
+  > >   CC [M]  net/ipv4/netfilter/iptable_raw.o
+  > > net/ipv4/netfilter/iptable_raw.c:57: unknown field `target_size' specified in initializer
+  > > net/ipv4/netfilter/iptable_raw.c:57: warning: missing braces around initializer
+  > > net/ipv4/netfilter/iptable_raw.c:57: warning: (near initialization for `initial_table.entries[0].target.target.u')
+  > > net/ipv4/netfilter/iptable_raw.c:71: unknown field `target_size' specified in initializer
+  > > net/ipv4/netfilter/iptable_raw.c:85: unknown field `user' specified in initializer
+  > > net/ipv4/netfilter/iptable_raw.c:87: unknown field `name' specified in initializer
+  > > net/ipv4/netfilter/iptable_raw.c:87: warning: excess elements in union initializer
+  > > net/ipv4/netfilter/iptable_raw.c:87: warning: (near initialization for `initial_table.term.target.target.u')
+  > > make[3]: *** [net/ipv4/netfilter/iptable_raw.o] Error 1
+  > > make[2]: *** [net/ipv4/netfilter] Error 2
+  > > make[1]: *** [net/ipv4] Error 2
+  > > make: *** [net] Error 2
+  > 
+  > Please try this.
+  > 
+  > ===== net/ipv4/netfilter/iptable_raw.c 1.2 vs edited =====
+  > --- 1.2/net/ipv4/netfilter/iptable_raw.c	2004-06-22 06:39:19 +09:00
+  > +++ edited/net/ipv4/netfilter/iptable_raw.c	2004-06-23 22:35:44 +09:00
+  > @@ -54,7 +54,9 @@
+  >  		     },
+  >  		     .target = { 
+  >  			  .target = { 
+  > -				  .u.target_size = IPT_ALIGN(sizeof(struct ipt_standard_target)),
+  > +				  .u = {
+  > +					  .target_size = IPT_ALIGN(sizeof(struct ipt_standard_target)),
+  > +				  },
+  >  			  },
+  >  			  .verdict = -NF_ACCEPT - 1,
+  >  		     },
+  > @@ -68,7 +70,9 @@
+  >  		     },
+  >  		     .target = {
+  >  			     .target = {
+  > -				     .u.target_size = IPT_ALIGN(sizeof(struct ipt_standard_target)),
+  > +				     .u = {
+  > +					     .target_size = IPT_ALIGN(sizeof(struct ipt_standard_target)),
+  > +				     },
+  >  			     },
+  >  			     .verdict = -NF_ACCEPT - 1,
+  >  		     },
+  > @@ -82,9 +86,11 @@
+  >  		},
+  >  		.target = {
+  >  			.target = {
+  > -				.u.user = {
+  > -					.target_size = IPT_ALIGN(sizeof(struct ipt_error_target)), 
+  > -					.name = IPT_ERROR_TARGET,
+  > +				.u = {
+  > +					.user = {
+  > +						.target_size = IPT_ALIGN(sizeof(struct ipt_error_target)), 
+  > +						.name = IPT_ERROR_TARGET,
+  > +					},
+  >  				},
+  >  			},
+  >  			.errorname = "ERROR",
+  > 

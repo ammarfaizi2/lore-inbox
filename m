@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265853AbUBPTvS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 14:51:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265865AbUBPTvS
+	id S265816AbUBPUEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 15:04:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265839AbUBPUEJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 14:51:18 -0500
-Received: from fw.osdl.org ([65.172.181.6]:13280 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265853AbUBPTvK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 14:51:10 -0500
-Date: Mon, 16 Feb 2004 11:48:35 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: John Bradford <john@grabjohn.com>
-cc: Jeff Garzik <jgarzik@pobox.com>, Marc Lehmann <pcg@schmorp.de>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API
-In-Reply-To: <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.4.58.0402161141140.30742@home.osdl.org>
-References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca>
- <200402150006.23177.robin.rosenberg.lists@dewire.com>
- <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk>
- <200402150107.26277.robin.rosenberg.lists@dewire.com>
- <Pine.LNX.4.58.0402141827200.14025@home.osdl.org> <20040216183616.GA16491@schmorp.de>
- <Pine.LNX.4.58.0402161040310.30742@home.osdl.org> <4031197C.1040909@pobox.com>
- <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk>
+	Mon, 16 Feb 2004 15:04:09 -0500
+Received: from columba.eur.3com.com ([161.71.171.238]:41687 "EHLO
+	columba.eur.3com.com") by vger.kernel.org with ESMTP
+	id S265816AbUBPUEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 15:04:04 -0500
+Message-ID: <4031222B.5030503@jburgess.uklinux.net>
+Date: Mon, 16 Feb 2004 20:03:55 +0000
+From: Jon Burgess <lkml@jburgess.uklinux.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-gb, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alex Zarochentsev <zam@namesys.com>
+CC: Jon Burgess <lkml@jburgess.uklinux.net>, linux-kernel@vger.kernel.org
+Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small interleaved
+ writes
+References: <402BE01E.2010506@jburgess.uklinux.net> <20040216175127.GJ1298@backtop.namesys.com>
+In-Reply-To: <20040216175127.GJ1298@backtop.namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alex Zarochentsev wrote:
 
+>The fs with delayed block allocation (Reiser4, XFS, seems JFS too) look much
+>better.
+>  
+>
+Yes those results are in line with what I found on Reiserfs4 as well. I 
+also tried incresing the number of streams to see when things start to 
+break. Reiserfs4 seems to do well here as well. I stopped some tests 
+early because some filesystems were just too slow.
 
-On Mon, 16 Feb 2004, John Bradford wrote:
-> 
-> The real problem is with mis-configured userspaces, where buggy UTF-8
-> decoders are trying to make sense of data in legacy encodings
-> containing essentially random bytes > 127, which are not part of valid
-> UTF-8 sequences.
-> 
-> None of this is a real problem, if everything is set up correctly and
-> bug free.  Unfortunately the Just Works thing falls apart in the,
-> (frequent), instances that it's not :-(.
+Streams:   1     1      2      2      4     4      8     8      16    
+16     32    32
+           Write Read   Write  Read   Write Read   Write Read   Write 
+Read   Write Read     
+----------------------------------------------------------------------------------------
+ext2       26.10 29.22  8.27   14.51  6.91   7.31  
+-------------------------------------
+ext3-order 25.45 28.21  4.96   14.29  
+--------------------------------------------------
+JFS        27.76 29.17  26.72  28.93  25.72 28.86  24.76 29.01  22.94 
+28.49   4.25  6.03
+Reiser4    27.08 29.28  27.02  28.69  27.09 28.47  27.26 27.26  27.09 
+25.52  26.94 22.59 
+XFS        28.09 29.16  28.15  28.11  27.60 27.19  26.81 26.23  25.68 
+24.04  22.59 21.45
 
-The way to handle that is to aim to never _ever_ decode utf-8 unless you 
-really have to. Always leave the string in utf-8 "raw bytestring" mode as 
-long as possible, and convert to charater sets only when actually 
-printing.
+It would appear that with XFS and Reiser4 I would be able to 
+simultaneously record >32 MPEG TV channels on to a single disk. I think 
+that exceeds my TV recording requirements by some considerable margin :-)
 
-If you do that, then at worst you'll show the user a strange name (extra
-points for marking it as being errenous), but everything still works. You
-can still lookup/delete/whatever the file (internally the program still
-works on the raw byte sequence and isn't confused). Basically accept the
-fact that UTF-8 strings can contain "garbage", and don't try to fix it up.
+    Jon
 
-And no, I'm not claiming that it's wonderfully clean and that we should
-all love it. But it's _practical_, and the ugliness is certainly a lot
-less than in the alternatives.
-
-And it largely works today.
-
-		Linus

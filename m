@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318813AbSHNPQX>; Wed, 14 Aug 2002 11:16:23 -0400
+	id <S318859AbSHNPbE>; Wed, 14 Aug 2002 11:31:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318859AbSHNPQX>; Wed, 14 Aug 2002 11:16:23 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:36365 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318813AbSHNPQW>; Wed, 14 Aug 2002 11:16:22 -0400
-Date: Wed, 14 Aug 2002 12:19:59 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Matt Dobson <colpatch@us.ibm.com>
-Subject: Re: [PATCH] NUMA-Q disable irqbalance
-In-Reply-To: <Pine.LNX.4.44.0208140746070.1809-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44L.0208141208560.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S318900AbSHNPbE>; Wed, 14 Aug 2002 11:31:04 -0400
+Received: from zeke.inet.com ([199.171.211.198]:32641 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S318859AbSHNPbE>;
+	Wed, 14 Aug 2002 11:31:04 -0400
+Message-ID: <3D5A7896.7020407@inet.com>
+Date: Wed, 14 Aug 2002 10:34:46 -0500
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: of dentries and inodes
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Aug 2002, Linus Torvalds wrote:
-> On Tue, 13 Aug 2002, Rik van Riel wrote:
-> >
-> > As a clarification to this, I'm not suggesting that interactive
-> > performance doesn't exist, I'm suggesting that we should measure
-> > it.
->
-> I think the only way to measure it is with a latency measurement thing -
-> like the one used for some of the RT tuning.
->
-> However, the latency measurement should not care too much about individual
-> millisecond latencies, but only holler when it finds _combined_ bad
-> latencies in the 1/10+ second range (which is human-perceptible).
->
-> One problem is trying to find a good load for the tester program itself
-> (it should not just sit in a tight loop, it should have a memory footprint
-> and some delays of its own).
+All,
 
-A start would be Bob Matthews's IRMAN program:
+Ok, I'm puzzled... I have not yet found an answer from groups.google or 
+my oreilly tomes. :/
 
-	http://people.redhat.com/bmatthews/irman/
+(I'm looking at a 2.2 kernel, but I doubt this has changed.) In ext2, as 
+well as many other fs's, there appears a line much like this in their 
+'struct file_system_type.read_super()' function:
 
+sb->s_root = d_alloc_root(iget(sb, EXT2_ROOT_INO), NULL);
 
-I've also been talking with Randy Hwron(sp?) about doing
-latency tests with all his benchmarks.
+Now, I was under the impression that for each iget(), you need to have 
+an iput() when you're done with the inode... which in this case would 
+mean an iput() in 'struct super_operations.put_super()'... but I don't 
+see one there.
 
-If I wasn't so distracted by various other TODO items I'd
-already have a dbench with latency histograms in it ;)
+So I would expect the root inode might hang around in the filesystem 
+cache(s) after a umount.  But I would expect that to cause filesystem 
+corruption on a regular basis.  ('mount, umount, mkfs' for example, 
+would yield an inconsistancy between disk and filesystem cache.)
 
-(yes, I know dbench is a bad benchmark, but it also seems
-to be the most abused one.  Making the thing show exactly
-how much unfairness and bad latency there is will probably
-make some people look at dbench results with very different
-eyes)
+I'm missing something, or misunderstand something, or both... can anyone 
+point me in the right direction?
 
-cheers,
+TIA,
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 

@@ -1,70 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132604AbRDOI3k>; Sun, 15 Apr 2001 04:29:40 -0400
+	id <S132605AbRDOIc3>; Sun, 15 Apr 2001 04:32:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132605AbRDOI3a>; Sun, 15 Apr 2001 04:29:30 -0400
-Received: from mail1.rdc2.ab.home.com ([24.64.2.48]:749 "EHLO
-	mail1.rdc2.ab.home.com") by vger.kernel.org with ESMTP
-	id <S132604AbRDOI3R>; Sun, 15 Apr 2001 04:29:17 -0400
-Message-ID: <3ADA5C4C.748D0916@home.com>
-Date: Sun, 15 Apr 2001 20:43:24 -0600
-From: "Matthew W. Lowe" <swds.mlowe@home.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22 i686)
+	id <S132606AbRDOIcT>; Sun, 15 Apr 2001 04:32:19 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:16335 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S132605AbRDOIcF>;
+	Sun, 15 Apr 2001 04:32:05 -0400
+Message-ID: <3AD95C7F.51E07B36@mandrakesoft.com>
+Date: Sun, 15 Apr 2001 04:31:59 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre3 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.3 - Module problems?
-In-Reply-To: <Pine.LNX.4.21.0104160037230.19394-100000@maelstrom.localhost>
+To: Swivel <swivel@null.pharm.uic.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: small bug/oversight found in 2.4.3
+In-Reply-To: <Pine.LNX.4.33.0104150318460.32474-100000@null.cc.uic.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I installed that, it fixed my one NIC... The 3COM. Or I assume it did, because
-it shows up in ifconfig now, unlike the other one Unfortunately I still can't
-ping the local host (destination net unreachable). I think that might just be a
-byproduct of my main external card not working. Anyway, I double checked the
-settings in both config files for the old kernel and the new one, the realtek
-should be covered under the ne2000 pci mod. I built this directly into the
-kernel and it still doesn't seem to be working. Anyone have any ideas?
-Thanks,
-  Matt
-ecksfantom@home.com wrote:
+Swivel wrote:
+> 
+> drivers/char/char.c, line 247
+> create_proc_read_entry() is called regardless of the definition of
+> CONFIG_PROC_FS, simply wrap call with #ifdef CONFIG_PROC_FS and #endif.
 
-> I had the same problem when i upgraded to 2.4.2.
-> Upgrading to the latest modutils
-> (ftp://ftp.kernel.org/pub/linux/utils/modutils/v2.4/modutils-2.4.5.tar.gz)
-> should get you going again.
->
-> ~Jarrod
->
-> On Sun, 15 Apr 2001, Matthew W. Lowe wrote:
->
-> > I just tried to upgrade from whatever kernel comes with redhat to 2.4.3.
-> > The build, install and such was smooth. When I got to starting up,
-> > everything appeared to work, until it got to my NIC cards. Neither of
-> > them loaded properly. I've built in the EXACT same module for the NICs
-> > as I did the previous kernel. They were the NE2000 PCI module and the
-> > 3C59X module. The two NICs I have are: Realtek 8029 PCI, 3COM Etherlink
-> > III ISA. Both are PNP, the etherlink is NOT the one with the b extention
-> > at the end.
-> >
-> > Any help would be greatly appriciated.
-> >
-> > Thanks,
-> >    Matt
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+create_proc_read_entry exists, as a static inline no-op, without
+CONFIG_PROC_FS.
 
+Typically you want to change the driver-local function passed to
+create_proc_read_entry to be a static inline no-op for the
+!CONFIG_PROC_FS case.
+
+-- 
+Jeff Garzik       | "Give a man a fish, and he eats for a day. Teach a
+Building 1024     |  man to fish, and a US Navy submarine will make sure
+MandrakeSoft      |  he's never hungry again." -- Chris Neufeld

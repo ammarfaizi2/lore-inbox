@@ -1,47 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318107AbSGMG2A>; Sat, 13 Jul 2002 02:28:00 -0400
+	id <S318109AbSGMG2R>; Sat, 13 Jul 2002 02:28:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318109AbSGMG17>; Sat, 13 Jul 2002 02:27:59 -0400
-Received: from holomorphy.com ([66.224.33.161]:43168 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S318107AbSGMG17>;
-	Sat, 13 Jul 2002 02:27:59 -0400
-Date: Fri, 12 Jul 2002 23:29:47 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
+	id <S318110AbSGMG2Q>; Sat, 13 Jul 2002 02:28:16 -0400
+Received: from 62-190-201-94.pdu.pipex.net ([62.190.201.94]:23300 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S318109AbSGMG2P>; Sat, 13 Jul 2002 02:28:15 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200207130636.HAA00666@darkstar.example.net>
+Subject: Re: IDE/ATAPI in 2.5
 To: linux-kernel@vger.kernel.org
-Subject: Re: lazy_buddy-2.5.25-1
-Message-ID: <20020713062947.GD21551@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-References: <20020710085917.GP25360@holomorphy.com> <20020713062232.GC21551@holomorphy.com>
-Mime-Version: 1.0
+Date: Sat, 13 Jul 2002 07:36:08 +0100 (BST)
+Cc: thunder@ngforever.de, schilling@fokus.gmd.de, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <Pine.LNX.4.44.0207121345180.3421-100000@hawkeye.luckynet.adm> from "Thunder from the hill" at Jul 12, 2002 01:52:06 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020713062232.GC21551@holomorphy.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 12, 2002 at 11:22:32PM -0700, William Lee Irwin III wrote:
-> Okay, people bugged me about this so here it is, testbooted on an
-> 8cpu 16GB i386 box:
+> Because we can't tell Linux users "your (once favorite) CD-ROM is not 
+> implemented in Linux (any more), and will never ever be". If we explicitly 
+> exclude hardware, where do we end?!
 
-A little birdie told me I forgot the following on top of this:
+Like other mainstream operating systems :-)
 
-Cheers,
-Bill
+One thing that occurs to me, but that I don't necessarily think is a good idea, is that for a long time we had "old" IDE code and "new" IDE code in the kernel, and there is no reason why we couldn't do a similar thing, (I.E. have a "legacy devices will work" foo driver, and "legacy devices might break" foo driver).  Personally I hate that idea, but maybe others will disagree.  I'd rather support all hardware forever, because the whole point is that you can compile out what you don't want, and supporting it is not causing excessive bloat.
 
-
-===== mm/page_alloc.c 1.130 vs edited =====
---- 1.130/mm/page_alloc.c	Fri Jul 12 23:14:35 2002
-+++ edited/mm/page_alloc.c	Fri Jul 12 23:29:27 2002
-@@ -362,6 +362,7 @@
- 	list_del(&page->list);
- 	area[found_order].locally_free--;
- 	split_pages(zone, page, order, found_order);
-+	return page;
- }
- 
- #ifdef CONFIG_SOFTWARE_SUSPEND
+John.

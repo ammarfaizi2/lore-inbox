@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261398AbTBEOnR>; Wed, 5 Feb 2003 09:43:17 -0500
+	id <S261448AbTBEOyh>; Wed, 5 Feb 2003 09:54:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261409AbTBEOnR>; Wed, 5 Feb 2003 09:43:17 -0500
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:60638 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id <S261398AbTBEOnQ>;
-	Wed, 5 Feb 2003 09:43:16 -0500
-Message-Id: <200302051500.KAA05879@moss-shockers.ncsc.mil>
-Date: Wed, 5 Feb 2003 10:00:23 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: [BK PATCH] LSM changes for 2.5.59
-To: hch@infradead.org
-Cc: greg@kroah.com, hch@infradead.org, torvalds@transmeta.com,
-       linux-security-module@wirex.com, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Content-MD5: quDVD4JA+tZnpa0j+Hd8+A==
-X-Mailer: dtmail 1.2.0 CDE Version 1.2 SunOS 5.6 sun4u sparc 
+	id <S261451AbTBEOyh>; Wed, 5 Feb 2003 09:54:37 -0500
+Received: from adsl-67-123-8-233.dsl.pltn13.pacbell.net ([67.123.8.233]:2272
+	"EHLO influx.triplehelix.org") by vger.kernel.org with ESMTP
+	id <S261448AbTBEOyg>; Wed, 5 Feb 2003 09:54:36 -0500
+Date: Wed, 5 Feb 2003 07:03:31 -0800
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: acpi + keyboard/mouse problems [was Re: acpi + synaptics trackpad in 2.5]
+Message-ID: <20030205150331.GA8582@triplehelix.org>
+References: <20030203210258.GA17499@triplehelix.org> <20030204233301.GF128@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
+Content-Disposition: inline
+In-Reply-To: <20030204233301.GF128@elf.ucw.cz>
+User-Agent: Mutt/1.5.3i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Christoph Hellwig wrote:
-> Of course that needs further changes!
-> 
-> (a) actually implement that field, and
-> (b) change the prototype of the hook to int (*sysctl)(int op, enum sensitivity);
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-No.  If one were to add such a field, then it would be accessible
-through the ctl_table structure that is already passed to the hook.
-You would not replace the ctl_table parameter with the kernel's
-sensitivity hint, since the security module must be able to make its
-own determination as to the protection requirements based on its
-particular security model and attributes.  If you only pass the
-kernel's view of the sensitivity, then you are hardcoding a specific
-policy into the kernel and severely limiting the flexibility of the
-security module.  Since the kernel's hint is necessarily independent of
-any particular security model/attributes, it will only provide a
-coarse-grained partitioning, e.g. you are unlikely to be able to
-uniquely distinguish the modprobe variable if you want to specifically
-limit a particular process to modifying it.  The existing hook
-interface does not need to change.
+On Wed, Feb 05, 2003 at 12:33:02AM +0100, Pavel Machek wrote:
+> Hi!
+>=20
+> > Whenever I run a ACPI battery monitor in X, my mouse goes completely=20
+> > insane - goes around everywhere, and clicks randomly. the second i clos=
+e=20
+> > it, everything returns to normal.
+>=20
+> What machine?
 
-Implementing a sensitivity hint field in the ctl_table structure would
-be trivial, but determining a set of policy-neutral hint values that
-capture important confidentiality, integrity, and functional
-characteristics and mapping the existing set of sysctl variables to
-those hint values is a longer term task.  The hook provides useful
-functionality now, apart from such hints, and should not need to wait
-on them.  In the short term, there may be a certain amount of
-duplication of information among security modules regarding sensitive
-sysctl variables, but that information can actually help to feed back
-into the process of determining the right general set of hint values
-necessary to support multiple security models and the mappings for
-the existing sysctl variables.
+This is a Dell SmartStep 200N. I have no other working laptops using=20
+ACPI so I can't know for sure how big a problem this is :)
 
---
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
+Regards
+Josh
 
+--k+w/mQv8wyuph6w0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+QSfD6TRUxq22Mx4RAiXuAKC2//bt/m6s/lTyyh7BwxnelcLJxACcC2VK
+uLB7K4u4IICAM0XXG7CxeO8=
+=Wtry
+-----END PGP SIGNATURE-----
+
+--k+w/mQv8wyuph6w0--

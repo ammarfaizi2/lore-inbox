@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318712AbSHAL6t>; Thu, 1 Aug 2002 07:58:49 -0400
+	id <S318708AbSHAL6d>; Thu, 1 Aug 2002 07:58:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318715AbSHAL6s>; Thu, 1 Aug 2002 07:58:48 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:39692 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S318712AbSHAL6q>;
-	Thu, 1 Aug 2002 07:58:46 -0400
-Date: Thu, 1 Aug 2002 08:01:44 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Alexander Viro <viro@math.psu.edu>, "Peter J. Braam" <braam@clusterfs.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: BIG files & file systems
-Message-ID: <20020801080144.A8872@mark.mielke.cc>
-References: <20020731210739.GA15492@ravel.coda.cs.cmu.edu> <Pine.GSO.4.21.0207311711540.8505-100000@weyl.math.psu.edu> <20020801035119.GA21769@ravel.coda.cs.cmu.edu>
+	id <S318709AbSHAL6d>; Thu, 1 Aug 2002 07:58:33 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:57079 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S318708AbSHAL6c>; Thu, 1 Aug 2002 07:58:32 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020731131620.M15238@lustre.cfs> 
+References: <20020731131620.M15238@lustre.cfs> 
+To: "Peter J. Braam" <braam@clusterfs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BIG files & file systems 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020801035119.GA21769@ravel.coda.cs.cmu.edu>; from jaharkes@cs.cmu.edu on Wed, Jul 31, 2002 at 11:51:19PM -0400
+Date: Thu, 01 Aug 2002 13:01:56 +0100
+Message-ID: <6811.1028203316@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 31, 2002 at 11:51:19PM -0400, Jan Harkes wrote:
-> On Wed, Jul 31, 2002 at 05:13:46PM -0400, Alexander Viro wrote:
-> > You _do_ need unique ->st_ino from stat(2), though - otherwise tar(1)
-> > and friends will break in all sorts of amusing ways.  And there's
-> > nothing kernel can do about that - applications expect 32bit st_ino
-> > (compare them as 32bit values, etc.)
-> Which is why "tar and friends" are to different extents already broken
-> on various filesystems like Coda, NFS, NTFS, ReiserFS, and probably XFS.
-> (i.e. anything that currently uses iget5_locked instead of iget to grab
-> the inode).
 
-In theory? Maybe.
+braam@clusterfs.com said:
+> (you don't want to know who, besides I've no idea how many bits go in
+> a trillion, but it's more than 32). 
 
-In practice, a lot more than just "tar and friends" assume that inodes
-are unique...
+It all gets a little confusing after 'million'. Either you mean a US 
+'trillion', which is a European 'billion'; 10^12. Or you mean a European 
+'trillion', which is a US 'quintillion'; 10^18.
 
-mark (who recently, *continues* to write code that makes this assumption,
-      although, granted, most of the checks are 'file caching'-type
-      checks, and it isn't likely that a file will be the same size, the
-      same inode, the same device, and the same path...)
+In general, it's best to stick to the numeric form if it's greater than
+10^6. With the possible exception of using 'milliard' for 10^9, which may 
+cause the recipient to have to look up the word, but won't cause it to be 
+misinterpreted as 10^12 by non-usians.
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+http://216.239.33.100/search?q=cache:rwJFJLB7ZnoC:www.reportercentral.com/reference/vocabulary/numbernames.html
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+--
+dwmw2
 
-                           http://mark.mielke.cc/
 

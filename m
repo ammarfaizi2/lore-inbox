@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265137AbUFVSLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265139AbUFVSLV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265137AbUFVSLT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 14:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265047AbUFVSKp
+	id S265139AbUFVSLV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 14:11:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265130AbUFVSKC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 14:10:45 -0400
-Received: from mail.kroah.org ([65.200.24.183]:27061 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265049AbUFVRnQ convert rfc822-to-8bit
+	Tue, 22 Jun 2004 14:10:02 -0400
+Received: from mail.kroah.org ([65.200.24.183]:23477 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265048AbUFVRnP convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 13:43:16 -0400
+	Tue, 22 Jun 2004 13:43:15 -0400
 X-Donotread: and you are reading this why?
 Subject: Re: [PATCH] Driver Core patches for 2.6.7
-In-Reply-To: <10879261122006@kroah.com>
+In-Reply-To: <1087926110190@kroah.com>
 X-Patch: quite boring stuff, it's just source code...
-Date: Tue, 22 Jun 2004 10:41:52 -0700
-Message-Id: <10879261122143@kroah.com>
+Date: Tue, 22 Jun 2004 10:41:50 -0700
+Message-Id: <10879261102820@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,43 +23,43 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1722.111.25, 2004/06/11 17:22:53-07:00, linux@kodeaffe.de
+ChangeSet 1.1722.89.53, 2004/06/04 14:53:48-07:00, Frank.A.Uepping@t-online.de
 
-[PATCH] sysfs: fs/sysfs/inode.c: modify parents ctime and mtime on creation
+[PATCH] Driver Core: fix struct device::release issue
 
-When a node is added to sysfs (e.g. a device plugged in via USB), the
-filesystem fails to make this change visible in the parent directory's
-ctime/mtime. This is in contrast to removing a device, because in that
-case, sysfs makes use of the function simple_unlink from fs/libfs.c which
-takes care of that. Instead of using simple_link from fs/libfs.c on
-creation, sysfs implements its own mechanism. This patch hooks into the
-function sysfs_create and sets the ctime and the mtime of the parent to
-CURRENT_TIME.
-
-Signed-off-by: Sebastian Henschel <linux@kodeaffe.de>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- fs/sysfs/inode.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletion(-)
+On Saturday 27 March 2004 02:14, Greg KH wrote:
+> On Sat, Mar 06, 2004 at 12:47:24PM +0100, Frank A. Uepping wrote:
+> > Hi,
+> > if device_add fails (e.g. bus_add_device returns an error) then the release
+> > method will be called for the device. Is this a bug or a feature?
+>
+> Are you sure this will happen?  device_initialize() gets a reference
+> that is still present after device_add() fails, right?  So release()
+> will not get called.
+At the label PMError, kobject_unregister is called, which decrements the
+recount by 2, which will result in calling release at label Done (put_device).
+
+kobject_unregister should be superseded by kobject_del.
+Here is a patch:
 
 
-diff -Nru a/fs/sysfs/inode.c b/fs/sysfs/inode.c
---- a/fs/sysfs/inode.c	Tue Jun 22 09:46:53 2004
-+++ b/fs/sysfs/inode.c	Tue Jun 22 09:46:53 2004
-@@ -46,8 +46,13 @@
- 	struct inode * inode = NULL;
- 	if (dentry) {
- 		if (!dentry->d_inode) {
--			if ((inode = sysfs_new_inode(mode)))
-+			if ((inode = sysfs_new_inode(mode))) {
-+				if (dentry->d_parent && dentry->d_parent->d_inode) {
-+					struct inode *p_inode = dentry->d_parent->d_inode;
-+					p_inode->i_mtime = p_inode->i_ctime = CURRENT_TIME;
-+				}
- 				goto Proceed;
-+			}
- 			else 
- 				error = -ENOMEM;
- 		} else
+ drivers/base/core.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -Nru a/drivers/base/core.c b/drivers/base/core.c
+--- a/drivers/base/core.c	Tue Jun 22 09:48:10 2004
++++ b/drivers/base/core.c	Tue Jun 22 09:48:10 2004
+@@ -245,7 +245,7 @@
+  BusError:
+ 	device_pm_remove(dev);
+  PMError:
+-	kobject_unregister(&dev->kobj);
++	kobject_del(&dev->kobj);
+  Error:
+ 	if (parent)
+ 		put_device(parent);
 

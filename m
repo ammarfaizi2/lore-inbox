@@ -1,65 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271236AbTG2FSS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 01:18:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271245AbTG2FSS
+	id S271229AbTG2FOj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 01:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271236AbTG2FOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 01:18:18 -0400
-Received: from mgr2.xmission.com ([198.60.22.202]:33687 "EHLO
-	mgr2.xmission.com") by vger.kernel.org with ESMTP id S271236AbTG2FSR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 01:18:17 -0400
-Date: Mon, 28 Jul 2003 23:18:12 -0600
-From: "S. Anderson" <sa@xmission.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "S. Anderson" <sa@xmission.com>, pavel@xal.co.uk,
-       linux-kernel@vger.kernel.org, adaplas@pol.net
-Subject: Re: OOPS 2.6.0-test2, modprobe i810fb
-Message-ID: <20030728231812.A20738@xmission.xmission.com>
-References: <20030728171806.GA1860@xal.co.uk> <20030728201954.A16103@xmission.xmission.com> <20030728202600.18338fa9.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030728202600.18338fa9.akpm@osdl.org>; from akpm@osdl.org on Mon, Jul 28, 2003 at 08:26:00PM -0700
+	Tue, 29 Jul 2003 01:14:38 -0400
+Received: from inova102.correio.tnext.com.br ([200.222.67.102]:1499 "HELO
+	trinity-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
+	id S271229AbTG2FOg convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 01:14:36 -0400
+X-Analyze: Velop Mail Shield v0.0.3
+Date: Tue, 29 Jul 2003 02:14:34 -0300 (BRT)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <0@pervalidus.tk>
+X-X-Sender: fredlwm@pervalidus.dyndns.org
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: matroxfb and 2.6.0-test2
+In-Reply-To: <20030729021321.GA1282@vana.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.56.0307290141110.167@pervalidus.dyndns.org>
+References: <Pine.LNX.4.56.0307281958410.193@pervalidus.dyndns.org>
+ <20030729021321.GA1282@vana.vc.cvut.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 28, 2003 at 08:26:00PM -0700, Andrew Morton wrote:
-> "S. Anderson" <sa@xmission.com> wrote:
+On Tue, 29 Jul 2003, Petr Vandrovec wrote:
+
+> On Mon, Jul 28, 2003 at 08:34:40PM -0300, Frédéric L. W. Meunier wrote:
 > >
-> > On Mon, Jul 28, 2003 at 06:18:07PM +0100, Pavel Rabel wrote:
-> > > Got this OOPS when trying "modprobe i810fb",
-> > > kernel 2.6.0-test2
-> > > 
-> > 
-> > I am also getting this oops, or somthing very simmillar.
-> 
-> yay!  I finally fixed a bug! (sheesh, bad day).
-> 
-> The device table is not null-terminated so we run off the end during
-> matching and go oops.
-> 
+> > My init script contains
+> >
+> > if lspci | grep -q 'MGA G400'; then
+> > modprobe matroxfb_base
+> > fi
+> >
+> > and /etc/modprobe.conf options matroxfb_base vesa=440
+> >
+> > After it the screen became corrupted with a dump of my last
+> > shutdown. All commands still worked. I don't use fbset at all.
+> > The logs don't have anything about matroxfb.
+>
+> Try building matroxfb into the kernel. I believe that current VT system
+> does not take over console anymore if fbdev is loaded after fbcon, but
+> I never tested it myself.
 
-Thanks, that fixes the oops Pavel reported!
+Thanks. It worked (and I don't see any screen corruption).
 
-But I now realize the oops I am getting is different...
+Maybe I'm missing something, but is there anything wrong with
+video=matroxfb:vesa:0x1B5 ? I got
 
-It happens only if any of these "i810fb, i810_audio or intel-agp"
-are compiled in the kernel or insterted as modules.
+Kernel command line: BOOT_IMAGE=3 root=307 acpi=off noapic video=matroxfb:vesa:0x1B5
+Console: colour VGA+ 80x25
+matroxfb: Matrox G400 (AGP) detected
+matroxfb: MTRR's turned on
+matroxfb: 800x600x24bpp (virtual: 800x65536)
+matroxfb: framebuffer at 0xD8000000, mapped to 0xe0805000, size 33554432
+fb0: MATROX frame buffer device
+fb0: initializing hardware
+matroxfb: cannot set xres to 800, rounded up to 832
+Console: switching to colour frame buffer device 100x37
+ /dev/ide/host0/bus0/target0/lun0: p1 p2 < p5 p6 p7 p8 p9 p10 >
+Console: switching to colour frame buffer device 100x37
+matroxfb_crtc2: secondary head of fb0 was registered as fb1
 
-i810fb, i810_audio or intel-agp load up fine and seem to all work
-properly. I only get the oops when I put a card into my cardbus slot.
+and the monitor was black on part (a few cm) of the left side,
+although everything was on the screen.
 
-this is what i think happens, when I put the card in, it sets off some
-functions that will try to get a driver for the card I just inserted.
-when it gets to the pci_bus_match function, my cards vendor and device 
-numbers are tested against a drivers id_table. when that driver is 
-"i810fb, i810_audio or intel-agp" (and i810fb, i810_audio or intel-agp
-is allready loaded) the id_table is at an address that cant be handled, 
-thus cauing the oops. I am having trouble figuring out why 
-pci_drv->id_table isnt valid in this case.
+It worked fine with what I'm used to, 1024x768x32bpp;
 
-Any ideas?
+Kernel command line: BOOT_IMAGE=3 root=307 acpi=off noapic video=matroxfb:vesa:0x1B8
+Console: colour VGA+ 80x25
+matroxfb: Matrox G400 (AGP) detected
+matroxfb: MTRR's turned on
+matroxfb: 1024x768x24bpp (virtual: 1024x65536)
+matroxfb: framebuffer at 0xD8000000, mapped to 0xe0805000, size 33554432
+fb0: MATROX frame buffer device
+fb0: initializing hardware
+Console: switching to colour frame buffer device 128x48
+ /dev/ide/host0/bus0/target0/lun0: p1 p2 < p5 p6 p7 p8 p9 p10 >
+Console: switching to colour frame buffer device 128x48
+matroxfb_crtc2: secondary head of fb0 was registered as fb1
 
-Thanks,
-Shawn Anderson
+and with the default:
+
+Kernel command line: BOOT_IMAGE=3 root=307 acpi=off noapic
+Console: colour VGA+ 80x25
+matroxfb: Matrox G400 (AGP) detected
+matroxfb: MTRR's turned on
+matroxfb: 640x480x8bpp (virtual: 640x65536)
+matroxfb: framebuffer at 0xD8000000, mapped to 0xe0805000, size 33554432
+fb0: MATROX frame buffer device
+fb0: initializing hardware
+Console: switching to colour frame buffer device 80x30
+ /dev/ide/host0/bus0/target0/lun0: p1 p2 < p5 p6 p7 p8 p9 p10 >
+Console: switching to colour frame buffer device 80x30
+matroxfb_crtc2: secondary head of fb0 was registered as fb1
+
+BTW, I'm pretty syre I only got the following warning compiling
+as a module (GCC 2.95.4):
+
+  CC [M]  drivers/video/matrox/matroxfb_base.o
+drivers/video/matrox/matroxfb_base.c:1230: warning: `inverse' defined but not used

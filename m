@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293076AbSEAJYQ>; Wed, 1 May 2002 05:24:16 -0400
+	id <S293135AbSEAKCo>; Wed, 1 May 2002 06:02:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293135AbSEAJYP>; Wed, 1 May 2002 05:24:15 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:5892 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S293076AbSEAJYP>; Wed, 1 May 2002 05:24:15 -0400
-Date: Wed, 1 May 2002 10:23:28 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: William Lee Irwin III <wli@holomorphy.com>,
-        Patricia Gaughen <gone@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] discontigmem support for ia32 NUMA box against 2.4.19pre7
-Message-ID: <20020501102328.B1238@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Patricia Gaughen <gone@us.ibm.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200204300115.g3U1FQc16634@w-gaughen.des.beaverton.ibm.com> <20020430072654.B2262@infradead.org> <20020501012213.GA32767@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S293337AbSEAKCn>; Wed, 1 May 2002 06:02:43 -0400
+Received: from smtp1.libero.it ([193.70.192.51]:37512 "EHLO smtp1.libero.it")
+	by vger.kernel.org with ESMTP id <S293135AbSEAKCm> convert rfc822-to-8bit;
+	Wed, 1 May 2002 06:02:42 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Andrea Aime <aaime@libero.it>
+To: linux-kernel@vger.kernel.org
+Subject: How to tune vm to be less swap happy?
+Date: Wed, 1 May 2002 12:02:38 +0000
+User-Agent: KMail/1.4.5
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200205011202.38653.aaime@libero.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 30, 2002 at 06:22:13PM -0700, William Lee Irwin III wrote:
-> > Umm, NUMA without SMP looks rather strange to me..
-> 
-> It's still fully possible, though I'm not clear on whether NUMA-Q
-> supports it.
+Hi everybody,
+sorry to bother you with this question, but I feel that current vm defaults 
+are not tuned for a workstation use, but for a file server/db server use.
+I work on a couple of machines with 128MB of RAM, tipically use KDE 3.0
+and Netbeans (a Java IDE). Ok, I use bloated software, I should have more
+RAM. Fine. But what I don't understand is why the system keeps swapping
+data in and out just because it doesn't want to shrink the cache below 40 MB.
+My typical memory occupation is:
 
-It doesn't really make sense :)
+             total       used       free     shared    buffers     cached
+Mem:        127096     123264       3832          0       1216      48164
+-/+ buffers/cache:      73884      53212
+Swap:       257000      62316     194684
 
-Still I think it makes sense to have CONFIG_NUMAQ or whatever to depend
-on CONFIG_SMP
+Now, as you can see I would need 135 MB to keep all my programs in memory,
+and if you look at top output:
+
+ PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+ 4397 wolf       9   0 79196  71M 30472 S     0,0 57,4   0:00 java
+ 4398 wolf       8   0 79196  71M 30472 S     0,0 57,4   0:00 java
+...
+
+you'll notice that due to the cache behaviour not even netbeans fits enterely 
+in memory. I really doubt that I can benefit from a 48MB disk cache since the 
+system is swapping in and out every time I open konqueror, kmail and the 
+like... is there anything I can do to shrink the cache and to allow a bigger 
+part of my working set to fit into memory? Moreover, what vm tuning do you
+advice for a typical workstation use with memory hungry applications?
+Best regards
+Andrea Aime
+
+
 

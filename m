@@ -1,127 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267613AbSLSWIK>; Thu, 19 Dec 2002 17:08:10 -0500
+	id <S267737AbSLSWb4>; Thu, 19 Dec 2002 17:31:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266537AbSLSWH2>; Thu, 19 Dec 2002 17:07:28 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:5124 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266795AbSLSWGZ>;
-	Thu, 19 Dec 2002 17:06:25 -0500
-Date: Thu, 19 Dec 2002 21:04:08 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: akpm@digeo.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Cold allocation so that swsusp works
-Message-ID: <20021219200408.GA7252@elf.ucw.cz>
-Mime-Version: 1.0
+	id <S267734AbSLSW3c>; Thu, 19 Dec 2002 17:29:32 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7690 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267729AbSLSW3M>; Thu, 19 Dec 2002 17:29:12 -0500
+Message-ID: <3E0249FB.2020605@transmeta.com>
+Date: Thu, 19 Dec 2002 14:36:43 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021119
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: dean gaudet <dean-list-linux-kernel@arctic.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Intel P6 vs P7 system call performance
+References: <Pine.LNX.4.44.0212162204300.1800-100000@home.transmeta.com> <Pine.LNX.4.50.0212162241150.26163-100000@twinlark.arctic.org> <20021218235327.GC705@elf.ucw.cz> <3E0245C1.5060902@transmeta.com> <20021219222136.GC17941@atrey.karlin.mff.cuni.cz> <3E0246DE.2010608@transmeta.com> <20021219222614.GE17941@atrey.karlin.mff.cuni.cz> <3E024880.4010802@transmeta.com> <20021219223451.GG17941@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20021219223451.GG17941@atrey.karlin.mff.cuni.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Pavel Machek wrote:
+> Hi!
+> 
+> 
+>>>User on cpu1 reads time, communicates it to cpu2, but cpu2 is drifted
+>>>-50ns, so it reads time "before" time reported cpu1. And gets confused.
+>>>
+>>
+>>How can you get that communication to happen in < 50 ns?
+> 
+> 
+> I'm not sure I can do that, but I'm not sure I can't either. CPUs
+> snoop each other's cache, and that's supposed to be fast...
+> 
 
-This is my try to make swsusp work... Does it look acceptable?
-								Pavel
+Even over a 400 MHz FSB you have 2.5 ns cycles.  I doubt you can
+transfer a cache line in 20 FSB cycles.
 
---- clean/include/linux/gfp.h	2002-11-01 00:37:40.000000000 +0100
-+++ linux-swsusp/include/linux/gfp.h	2002-12-19 20:35:47.000000000 +0100
-@@ -18,6 +18,7 @@
- #define __GFP_HIGHIO	0x80	/* Can start high mem physical IO? */
- #define __GFP_FS	0x100	/* Can call down to low-level FS? */
- #define __GFP_COLD	0x200	/* Cache-cold page required */
-+#define __GFP_SWSUSP	0x400	/* We want page that used to be free, not some page from list */
- 
- #define GFP_NOHIGHIO	(             __GFP_WAIT | __GFP_IO)
- #define GFP_NOIO	(             __GFP_WAIT)
---- clean/kernel/suspend.c	2002-12-18 22:21:13.000000000 +0100
-+++ linux-swsusp/kernel/suspend.c	2002-12-19 20:39:26.000000000 +0100
-@@ -547,7 +547,7 @@
- 
- 	pagedir_order = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages));
- 
--	p = pagedir = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC | __GFP_COLD, pagedir_order);
-+	p = pagedir = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC | __GFP_SWSUSP, pagedir_order);
- 	if(!pagedir)
- 		return NULL;
- 
-@@ -556,7 +556,7 @@
- 		SetPageNosave(page++);
- 		
- 	while(nr_copy_pages--) {
--		p->address = get_zeroed_page(GFP_ATOMIC | __GFP_COLD);
-+		p->address = get_zeroed_page(GFP_ATOMIC | __GFP_SWSUSP);
- 		if(!p->address) {
- 			free_suspend_pagedir((unsigned long) pagedir);
- 			return NULL;
---- clean/mm/page_alloc.c	2002-12-18 22:21:13.000000000 +0100
-+++ linux-swsusp/mm/page_alloc.c	2002-12-19 20:51:59.000000000 +0100
-@@ -389,10 +389,10 @@
- 	unsigned long flags;
- 	struct page *page = NULL;
- 
--	if (order == 0) {
-+	if ((order == 0) && !(cold & __GFP_SWSUSP)) {
- 		struct per_cpu_pages *pcp;
- 
--		pcp = &zone->pageset[get_cpu()].pcp[cold];
-+		pcp = &zone->pageset[get_cpu()].pcp[!!cold];
- 		local_irq_save(flags);
- 		if (pcp->count <= pcp->low)
- 			pcp->count += rmqueue_bulk(zone, 0,
-@@ -444,15 +444,10 @@
- 	struct zone **zones, *classzone;
- 	struct page *page;
- 	int i;
--	int cold;
- 
- 	if (wait)
- 		might_sleep();
- 
--	cold = 0;
--	if (gfp_mask & __GFP_COLD)
--		cold = 1;
--
- 	zones = zonelist->zones;  /* the list of zones suitable for gfp_mask */
- 	classzone = zones[0]; 
- 	if (classzone == NULL)    /* no zones in the zonelist */
-@@ -466,7 +461,7 @@
- 		min += z->pages_low;
- 		if (z->free_pages >= min ||
- 				(!wait && z->free_pages >= z->pages_high)) {
--			page = buffered_rmqueue(z, order, cold);
-+			page = buffered_rmqueue(z, order, gfp_mask & (__GFP_COLD | __GFP_SWSUSP));
- 			if (page)
- 				return page;
- 		}
-@@ -489,7 +484,7 @@
- 		min += local_min;
- 		if (z->free_pages >= min ||
- 				(!wait && z->free_pages >= z->pages_high)) {
--			page = buffered_rmqueue(z, order, cold);
-+			page = buffered_rmqueue(z, order, gfp_mask & (__GFP_COLD | __GFP_SWSUSP));
- 			if (page)
- 				return page;
- 		}
-@@ -504,7 +499,7 @@
- 		for (i = 0; zones[i] != NULL; i++) {
- 			struct zone *z = zones[i];
- 
--			page = buffered_rmqueue(z, order, cold);
-+			page = buffered_rmqueue(z, order, gfp_mask & (__GFP_COLD | __GFP_SWSUSP));
- 			if (page)
- 				return page;
- 		}
-@@ -527,7 +522,7 @@
- 		min += z->pages_min;
- 		if (z->free_pages >= min ||
- 				(!wait && z->free_pages >= z->pages_high)) {
--			page = buffered_rmqueue(z, order, cold);
-+			page = buffered_rmqueue(z, order, gfp_mask & (__GFP_COLD | __GFP_SWSUSP));
- 			if (page)
- 				return page;
- 		}
+	-hpa
 
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+

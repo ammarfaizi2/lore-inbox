@@ -1,77 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264255AbUDOPSI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 11:18:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264314AbUDOPSI
+	id S264325AbUDOPTw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 11:19:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264319AbUDOPTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 11:18:08 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:8169 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264255AbUDOPSD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 11:18:03 -0400
-Subject: [PATCH] fix 4k irqstacks on x86 (and add voyager support)
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 15 Apr 2004 10:17:45 -0500
-Message-Id: <1082042268.2166.2.camel@mulgrave>
+	Thu, 15 Apr 2004 11:19:51 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:63245 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264318AbUDOPTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 11:19:49 -0400
+Date: Thu, 15 Apr 2004 16:19:42 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Maneesh Soni <maneesh@in.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [RFC] fix sysfs symlinks
+Message-ID: <20040415161942.A7909@flint.arm.linux.org.uk>
+Mail-Followup-To: viro@parcelfarce.linux.theplanet.co.uk,
+	Maneesh Soni <maneesh@in.ibm.com>,
+	LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+References: <20040413124037.GA21637@in.ibm.com> <20040413133615.GZ31500@parcelfarce.linux.theplanet.co.uk> <20040414064015.GA4505@in.ibm.com> <20040414070227.GA31500@parcelfarce.linux.theplanet.co.uk> <20040415091752.A24815@flint.arm.linux.org.uk> <20040415103849.GA24997@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040415103849.GA24997@parcelfarce.linux.theplanet.co.uk>; from viro@parcelfarce.linux.theplanet.co.uk on Thu, Apr 15, 2004 at 11:38:49AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's a bug in the x86 code in that it sets the boot CPU to zero. 
-This isn't correct since some subarch's use physically indexed CPUs. 
-However, subarchs have either set the boot cpu before irq_INIT() (or
-just inherited the default zero from INIT_THREAD_INFO()), so it's safe
-to believe current_thread_info()->cpu about the boot cpu.
+On Thu, Apr 15, 2004 at 11:38:49AM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> OTOH, eisa looks worse and the rest of them could be even uglier ;-/
+> Sigh...
 
-James
+This also provides enough of a reason to finally go in and fix the
+platform_device/driver code to be more reasonable - currently its
+left up to platform device drivers to do all the conversion from
+struct device to struct platform_device.
 
-===== arch/i386/kernel/i8259.c 1.28 vs edited =====
---- 1.28/arch/i386/kernel/i8259.c	Mon Apr 12 12:54:45 2004
-+++ edited/arch/i386/kernel/i8259.c	Thu Apr 15 09:59:27 2004
-@@ -445,6 +445,5 @@
- 	if (boot_cpu_data.hard_math && !cpu_has_fpu)
- 		setup_irq(FPU_IRQ, &fpu_irq);
- 
--	current_thread_info()->cpu = 0;
--	irq_ctx_init(0);
-+	irq_ctx_init(current_thread_info()->cpu);
- }
-===== arch/i386/mach-voyager/voyager_smp.c 1.19 vs edited =====
---- 1.19/arch/i386/mach-voyager/voyager_smp.c	Sun Mar 14 05:23:02 2004
-+++ edited/arch/i386/mach-voyager/voyager_smp.c	Thu Apr 15 09:52:49 2004
-@@ -599,12 +599,10 @@
- 	idle->thread.eip = (unsigned long) start_secondary;
- 	unhash_process(idle);
- 	/* init_tasks (in sched.c) is indexed logically */
--#if 0
--	// for AC kernels
--	stack_start.esp = (THREAD_SIZE + (__u8 *)TSK_TO_KSTACK(idle));
--#else
--	stack_start.esp = (void *) (1024 + PAGE_SIZE + (char *)idle->thread_info);
--#endif
-+	stack_start.esp = (void *) idle->thread.esp;
-+
-+	irq_ctx_init(cpu);
-+
- 	/* Note: Don't modify initial ss override */
- 	VDEBUG(("VOYAGER SMP: Booting CPU%d at 0x%lx[%x:%x], stack %p\n", cpu, 
- 		(unsigned long)hijack_source.val, hijack_source.idt.Segment,
-===== arch/i386/mach-voyager/voyager_thread.c 1.3 vs edited =====
---- 1.3/arch/i386/mach-voyager/voyager_thread.c	Wed Feb 12 21:35:38 2003
-+++ edited/arch/i386/mach-voyager/voyager_thread.c	Thu Apr 15 09:11:35 2004
-@@ -135,7 +135,7 @@
- 	init_timer(&wakeup_timer);
- 
- 	sigfillset(&current->blocked);
--	current->tty = NULL;	/* get rid of controlling tty */
-+	current->signal->tty = NULL;
- 
- 	printk(KERN_NOTICE "Voyager starting monitor thread\n");
- 
+Not only that, but they also subscribe to the "PM v1" model (using
+struct device_driver suspend/resume methods) whereas sysfs was
+updated to "PM v2" a while ago (using the bus_type suspend/resume).
 
+Thankfully, it's only ARM and PCMCIA which make use of platform
+devices today, so it wouldn't be that difficult to go around fixing
+them up.
+
+So take that as another reason to fix struct device_driver. 8)
+
+However, should I also mention about the possibility of the following
+being in the same category; they are also typically statically
+allocated...
+
+	struct bus_type
+	struct class
+	struct platform_device
+
+I think these may be worse than struct device_driver because I don't
+see their unregister functions even doing any form of "wait until
+unused" - so rather than being deadlock prone, they're oops-prone.
+
+Sigh, sometimes life is <insert your favourite word to describe this>. ;(
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

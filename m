@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262967AbTHVAkb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 20:40:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262968AbTHVAkb
+	id S262968AbTHVAnB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 20:43:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbTHVAnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 20:40:31 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:11528
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S262967AbTHVAk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 20:40:29 -0400
-Date: Thu, 21 Aug 2003 17:40:28 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: vijayan prabhakaran <pvijayan@rediffmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Read in ext3
-Message-ID: <20030822004028.GE1040@matchmail.com>
-Mail-Followup-To: vijayan prabhakaran <pvijayan@rediffmail.com>,
-	linux-kernel@vger.kernel.org
-References: <20030822000926.17486.qmail@webmail6.rediffmail.com>
+	Thu, 21 Aug 2003 20:43:01 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:23300 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S262968AbTHVAmr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 20:42:47 -0400
+Subject: Re: [PATCH] O17int
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Wes Janzen <superchkn@sbcglobal.net>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F454532.4030200@sbcglobal.net>
+References: <5.2.1.1.2.20030821090657.00b45af8@pop.gmx.net>
+	 <200308210723.42789.kernel@kolivas.org>
+	 <5.2.1.1.2.20030821090657.00b45af8@pop.gmx.net>
+	 <5.2.1.1.2.20030821154224.01990b48@pop.gmx.net>
+	 <3F454532.4030200@sbcglobal.net>
+Content-Type: text/plain
+Message-Id: <1061512964.720.4.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030822000926.17486.qmail@webmail6.rediffmail.com>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 22 Aug 2003 02:42:45 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 22, 2003 at 12:09:26AM -0000, vijayan prabhakaran wrote:
-> 
-> Hi,
-> 
-> I have a doubt on how ext3 handles read in this specific case.
-> 
-> Assume that a page is written to the journal but not yet updated
-> to its actual location and before updating the actual copy the 
-> page
-> gets invalidated. Now if a read comes to the same
-> data, which block will be read: the journal copy or the actual
-> copy ?
-> 
-> First of all, will this situation ever occur ? The page will be
-> marked dirty until it is written to its actual location so it 
-> may
-> never get invalidated until it is written to the actual
-> location!
+On Fri, 2003-08-22 at 00:18, Wes Janzen wrote:
 
-The page will be in memory until the transaction has finished.  The
-transaction won't finish until it has been moved from the journal to its
-final location on disk.
+> I wish I could get mm3 running so I could evaluate those interactivity 
+> statements.  I can't imagine it being worse than what I'm experiencing now:
 
-Once that has happened the page can be freed.  Now, if the page is
-invalidated in the middle of the transaction, all future accesses will come
-from memory until that page is flushed, or cleaned.
+If -mm3 doesn't work, then you can download patches against vanilla
+2.6.0-test3 from
+http://members.optusnet.com.au/ckolivas/kernel/2.5/2.6.0-test3/patch-test3-O16.3int
 
-IIUC, ext3 never reads from the journal (unless you're doing a recovery).
-The journal just shows on disk what is already in memory so it can be
-recovered after an abnormal shutdown.

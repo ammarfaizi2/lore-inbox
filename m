@@ -1,257 +1,1075 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276863AbRJCEkG>; Wed, 3 Oct 2001 00:40:06 -0400
+	id <S276864AbRJCEk4>; Wed, 3 Oct 2001 00:40:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276864AbRJCEjs>; Wed, 3 Oct 2001 00:39:48 -0400
-Received: from wolf.ericsson.net.nz ([203.97.68.250]:47509 "EHLO
-	wolf.ericsson.net.nz") by vger.kernel.org with ESMTP
-	id <S276863AbRJCEjk>; Wed, 3 Oct 2001 00:39:40 -0400
-Date: Wed, 3 Oct 2001 16:40:04 +1200 (NZST)
-From: Mark Henson <kern@wolf.ericsson.net.nz>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: page_alloc problem... (kernel BUG at page_alloc.c:84! 2.4.2-2)
-In-Reply-To: <Pine.LNX.4.33.0110030945050.27543-100000@wolf.ericsson.net.nz>
-Message-ID: <Pine.LNX.4.33.0110031548080.30574-100000@wolf.ericsson.net.nz>
+	id <S276866AbRJCEkm>; Wed, 3 Oct 2001 00:40:42 -0400
+Received: from hermes.toad.net ([162.33.130.251]:53735 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S276864AbRJCEkX>;
+	Wed, 3 Oct 2001 00:40:23 -0400
+Subject: Re: [PATCH] PnPBIOS additional fixes
+To: linux-kernel@vger.kernel.org
+Date: Wed, 3 Oct 2001 00:39:07 -0400 (EDT)
+Cc: Stelian@home.dhs.org, Pop <stelian.pop@fr.alcove.com>
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20011003043907.DAB5658B@thanatos.toad.net>
+From: jdthood@home.dhs.org (Thomas Hood)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stelian:  Here is my patch with additional fixes to the PnP BIOS driver.
+Applies against 2.4.10-ac4 (which contains your dmi scan changes).
+Could you please do me a favor and test it out?  It's nice when
+asking Alan to apply a patch to be able to tell him that at least
+two people have tested it.  :)
 
-Is this a known problem that could be fixed by upgrading to a later
-kernel??
+The patch (as before) fixes the following bugs:
+-  Change typo "struct ressource" to "struct resource":
+   eliminates compiler warning message
+-  Tweak documentation
+-  Init function moved later in the file
+-  Fix minor memory leak in build_devlist()
+-  Limit iterations over all devices, in case PnP BIOS
+   fails to return 0xff from operation on the last node
+-  Put correct handle in .devfn
+-  Return -1, not 0, for disabled irq or dma;
+   resource structs that do not correspond to devices
+   will now have the UNSET bit set in .flags
+   (parport will handle this properly)
 
-[root@jgate log]# lsmod
-Module                  Size  Used by
-dmfe                   10384   2  (autoclean)
-ipchains               38976   0  (unused)
-
-follows dmesg etc from the machine:
-
-Linux version 2.4.2-2 (root@porky.devel.redhat.com) (gcc version 2.96
-20000731 (Red Hat Linux 7.1 2.96-79)) #1 Sun Apr 8 20:41:30 EDT 2001
-BIOS-provided physical RAM map:
- BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable)
- BIOS-e820: 0000000000000400 @ 000000000009fc00 (usable)
- BIOS-e820: 0000000000010000 @ 00000000000f0000 (reserved)
- BIOS-e820: 0000000000010000 @ 00000000ffff0000 (reserved)
- BIOS-e820: 000000000f6f0000 @ 0000000000100000 (usable)
- BIOS-e820: 000000000000d000 @ 000000000f7f3000 (ACPI data)
- BIOS-e820: 0000000000003000 @ 000000000f7f0000 (ACPI NVS)
-On node 0 totalpages: 63472
-zone(0): 4096 pages.
-zone DMA has max 32 cached pages.
-zone(1): 59376 pages.
-zone Normal has max 463 cached pages.
-zone(2): 0 pages.
-zone HighMem has max 1 cached pages.
-Kernel command line: auto BOOT_IMAGE=linux ro root=302
-BOOT_FILE=/boot/vmlinuz-2.4.2-2
-Initializing CPU#0
-Detected 855.742 MHz processor.
-Console: colour VGA+ 80x25
-Calibrating delay loop... 1703.93 BogoMIPS
-Memory: 247236k/253888k available (1365k kernel code, 6264k reserved, 92k
-data, 236k init, 0k highmem)
-Dentry-cache hash table entries: 32768 (order: 6, 262144 bytes)
-Buffer-cache hash table entries: 16384 (order: 4, 65536 bytes)
-Page-cache hash table entries: 65536 (order: 7, 524288 bytes)
-Inode-cache hash table entries: 16384 (order: 5, 131072 bytes)
-VFS: Diskquotas version dquot_6.5.0 initialized
-CPU: Before vendor init, caps: 0183f9ff c1c7f9ff 00000000, vendor = 2
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 64K (64 bytes/line)
-CPU: After vendor init, caps: 0183f9ff c1c7f9ff 00000000 00000000
-CPU: After generic, caps: 0183f9ff c1c7f9ff 00000000 00000000
-CPU: Common caps: 0183f9ff c1c7f9ff 00000000 00000000
-CPU: AMD Duron(tm) processor stepping 01
-Enabling fast FPU save and restore... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-mtrr: v1.37 (20001109) Richard Gooch (rgooch@atnf.csiro.au)
-mtrr: detected mtrr type: Intel
-PCI: PCI BIOS revision 2.10 entry at 0xfb410, last bus=1
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-Unknown bridge resource 0: assuming transparent
-Unknown bridge resource 2: assuming transparent
-PCI: Using IRQ router VIA [1106/0686] at 00:07.0
-isapnp: Scanning for PnP cards...
-isapnp: No Plug & Play device found
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-apm: BIOS version 1.2 Flags 0x07 (Driver version 1.14)
-Starting kswapd v1.8
-Detected PS/2 Mouse Port.
-pty: 256 Unix98 ptys configured
-block: queued sectors max/low 164085kB/54695kB, 512 slots per queue
-RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-VP_IDE: IDE controller on PCI bus 00 dev 39
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
-    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:pio
-hd0: C/H/S=19158/16/255 from BIOS ignored
-hda: ST340824A, ATA DISK drive
-hdc: HITACHI CDR-8435, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 78165360 sectors (40021 MB) w/2048KiB Cache, CHS=77545/16/63,
-UDMA(33)
-Partition check:
- hda: hda1 hda2 hda3 hda4 < hda5 hda6 hda7 hda8 >
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-Serial driver version 5.02 (2000-08-09) with MANY_PORTS MULTIPORT
-SHARE_IRQ SERIAL_PCI ISAPNP enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-Real Time Clock Driver v1.10d
-md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
-md.c: sizeof(mdp_super_t) = 4096
-autodetecting RAID arrays
-autorun ...
-... autorun DONE.
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP, IGMP
-IP: routing cache hash table of 2048 buckets, 16Kbytes
-TCP: Hash tables configured (established 16384 bind 16384)
-Linux IP multicast router 0.06 plus PIM-SM
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-VFS: Mounted root (ext2 filesystem) readonly.
-Freeing unused kernel memory: 236k freed
-Adding Swap: 524624k swap-space (priority -1)
-Winbond Super-IO detection, now testing ports 3F0,370,250,4E,2E ...
-SMSC Super-IO detection, now testing Ports 2F0, 370 ...
-parport0: PC-style at 0x378, irq 7 [PCSPP,EPP]
-parport0: cpp_daisy: aa5500ff(38)
-parport0: assign_addrs: aa5500ff(38)
-parport0: cpp_daisy: aa5500ff(38)
-parport0: assign_addrs: aa5500ff(38)
-parport_pc: Via 686A parallel port: io=0x378, irq=7
-ip_conntrack (1983 buckets, 15864 max)
-PCI: Found IRQ 10 for device 00:08.0
-PCI: Found IRQ 11 for device 00:0a.0
-PCI: The same IRQ used for device 00:07.5
-Davicom DM91xx net driver loaded, version 1.30 (June 11, 2000)
+-- 
+Thomas Hood
+(Don't reply to the From: address but to jdthood_AT_yahoo.co.uk)
 
 
-
-
-On Wed, 3 Oct 2001, Mark Henson wrote:
-
-> Hi,
->
-> I have had three page_alloc report errors on a machine that is running as
-> an email and gateway server.  Max uptime last night was 10 days...
->
-> The machine is a Duron 850 running 2.4.2-2 Redhat, I have 3 other machines
-> runnning similar hardware, (Duron 700) one on 2.4.3 built from a tar ball
-> RH 6.2 and the other on RH 2.4.2-2 as well.
->
-> Can anyone help me identify if this is a hadrware fault - ie faulty
-> hardware or if this is a problem with the specific hw design - Soltek MB
-> or if this is a known issue and I need to upgrade to a recent 2.4.9 or
-> similar kernel?
->
-> thanks for your help
->
-> cheers
-> Mark
->
->
->
-> Oct  2 13:51:00 jgate kernel: kernel BUG at page_alloc.c:84!
-> Oct  2 13:51:00 jgate kernel: invalid operand: 0000
-> Oct  2 13:51:00 jgate kernel: CPU:    0
-> Oct  2 13:51:00 jgate kernel: EIP:    0010:[__free_pages_ok+75/848]
-> Oct  2 13:51:00 jgate kernel: EIP:    0010:[<c012d07b>]
-> Oct  2 13:51:00 jgate kernel: EFLAGS: 00010286
-> Oct  2 13:51:00 jgate kernel: eax: 0000001f   ebx: c7e4acc8   ecx:
-> fffffff5   edx: 00000000
-> Oct  2 13:51:00 jgate kernel: esi: 00000000   edi: c1000164   ebp:
-> 00000000   esp: ccc8de28
-> Oct  2 13:51:00 jgate kernel: ds: 0018   es: 0018   ss: 0018
-> Oct  2 13:51:00 jgate kernel: Process crond (pid: 20404,
-> stackpage=ccc8d000)
-> Oct  2 13:51:00 jgate kernel: Stack: c020ea7b c020ec89 00000054 c1044010
-> c7e4acc8 00003000 003fd000 c0124b02
-> Oct  2 13:51:00 jgate kernel:        c1000164 00003000 003fd000 cc817ffc
-> c0121ed9 00000003 00002000 00000000
-> Oct  2 13:51:00 jgate kernel:        00400000 c80fdbfc 00000000 c0000000
-> c80fdbfc ccc8de8c ffffffff c024a3e0
-> Oct  2 13:51:00 jgate kernel: Call Trace: [error_table+26787/46744]
-> [error_table+27313/46744] [__set_page_dirty+50/64]
-> [zap_page_range+457/656] [llc_oui+3940/4644] [send_signal+45/240]
-> [exit_mmap+184/288]
-> Oct  2 13:51:00 jgate kernel: Call Trace: [<c020ea7b>] [<c020ec89>]
-> [<c0124b02>] [<c0121ed9>] [<c024a3e0>] [<c011dacd>] [<c0124698>]
-> Oct  2 13:51:00 jgate kernel:        [mmput+38/80] [do_exit+185/560]
-> [dequeue_signal+109/176] [do_signal+553/672] [pipe_read+202/608]
-> [sys_read+194/208] [sys_llseek+201/224] [do_page_fault+0/1104]
-> Oct  2 13:51:00 jgate kernel:        [<c0114b86>] [<c01188d9>]
-> [<c011d82d>] [<c0108eb9>] [<c013ce1a>] [<c01339d2>] [<c01338f9>]
-> [<c0112f30>]
-> Oct  2 13:51:00 jgate kernel:        [signal_return+20/24]
-> Oct  2 13:51:00 jgate kernel:        [<c0109064>]
-> Oct  2 13:51:00 jgate kernel:
-> Oct  2 13:51:00 jgate kernel: Code: 0f 0b 83 c4 0c 8b 0d ac 0b 2c c0 89 f8
-> 29 c8 69 c0 f1 f0 f0
->
->
-> Oct  3 04:03:01 jgate kernel: kernel BUG at page_alloc.c:84!
-> Oct  3 04:03:01 jgate kernel: invalid operand: 0000
-> Oct  3 04:03:01 jgate kernel: CPU:    0
-> Oct  3 04:03:01 jgate kernel: EIP:    0010:[__free_pages_ok+75/848]
-> Oct  3 04:03:01 jgate kernel: EIP:    0010:[<c012d07b>]
-> Oct  3 04:03:01 jgate kernel: EFLAGS: 00010286
-> Oct  3 04:03:01 jgate kernel: eax: 0000001f   ebx: c7e4acc8   ecx:
-> fffffffe   edx: 00000000
-> Oct  3 04:03:01 jgate kernel: esi: 00000000   edi: c1000164   ebp:
-> 00000000   esp: c147bf38
-> Oct  3 04:03:01 jgate kernel: ds: 0018   es: 0018   ss: 0018
-> Oct  3 04:03:01 jgate kernel: Process kswapd (pid: 4, stackpage=c147b000)
-> Oct  3 04:03:01 jgate kernel: Stack: c020ea7b c020ec89 00000054 c9819800
-> 000001d3 c012c88e 00000000 c1000164
-> Oct  3 04:03:01 jgate kernel:        c100018c c1000164 00000000 00000000
-> c012c375 00000035 00000000 00000004
-> Oct  3 04:03:01 jgate kernel:        00000000 00000021 00000000 00000056
-> 00000000 00000028 00000004 000001d3
-> Oct  3 04:03:02 jgate kernel: Call Trace: [error_table+26787/46744]
-> [error_table+27313/46744] [free_shortage+30/144] [page_launder+1541/2432]
-> [free_shortage+30/144] [do_try_to_free_pages+53/128] [kswapd+123/288]
-> Oct  3 04:03:02 jgate kernel: Call Trace: [<c020ea7b>] [<c020ec89>]
-> [<c012c88e>] [<c012c375>] [<c012c88e>] [<c012ca85>] [<c012cb4b>]
-> Oct  3 04:03:02 jgate kernel:        [empty_bad_page+0/4096]
-> [empty_bad_page+0/4096] [kernel_thread+38/48] [kswapd+0/288]
-> Oct  3 04:03:02 jgate kernel:        [<c0105000>] [<c0105000>]
-> [<c0107596>] [<c012cad0>]
-> Oct  3 04:03:02 jgate kernel:
-> Oct  3 04:03:02 jgate kernel: Code: 0f 0b 83 c4 0c 8b 0d ac 0b 2c c0 89 f8
-> 29 c8 69 c0 f1 f0 f0
-> Oct  3 04:03:03 jgate kernel: kernel BUG at exit.c:465!
-> Oct  3 04:03:03 jgate kernel: invalid operand: 0000
-> Oct  3 04:03:03 jgate kernel: CPU:    0
-> Oct  3 04:03:03 jgate kernel: EIP:    0010:[do_exit+541/560]
-> Oct  3 04:03:03 jgate kernel: EIP:    0010:[<c0118a3d>]
-> Oct  3 04:03:03 jgate kernel: EFLAGS: 00010282
-> Oct  3 04:03:03 jgate kernel: eax: 0000001a   ebx: 00000000   ecx:
-> fffffffe   edx: 00000000
-> Oct  3 08:55:20 jgate syslogd 1.4-0: restart.
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
+diff -Naur linux-2.4.10-ac3-spop/drivers/pnp/pnp_bios.c linux-2.4.10-ac3-spop-fix/drivers/pnp/pnp_bios.c
+--- linux-2.4.10-ac3-spop/drivers/pnp/pnp_bios.c	Tue Oct  2 09:47:28 2001
++++ linux-2.4.10-ac3-spop-fix/drivers/pnp/pnp_bios.c	Tue Oct  2 17:39:27 2001
+@@ -1,9 +1,10 @@
+ /*
+- * PnP bios services
++ * PnP BIOS services
+  * 
+  * Originally (C) 1998 Christian Schmidt (chr.schmidt@tu-bs.de)
+  * Modifications (c) 1998 Tom Lees <tom@lpsg.demon.co.uk>
+  * Minor reorganizations by David Hinds <dahinds@users.sourceforge.net>
++ * More modifications by Thomas Hood <jdthood_AT_yahoo.co.uk>
+  *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License as published by the
+@@ -19,9 +20,8 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  *
+- *   Reference:
+- *   Compaq Computer Corporation, Phoenix Technologies Ltd., Intel 
+- *   Corporation. 
++ *   References:
++ *   Compaq Computer Corporation, Phoenix Technologies Ltd., Intel Corporation
+  *   Plug and Play BIOS Specification, Version 1.0A, May 5, 1994
+  *   Plug and Play BIOS Clarification Paper, October 6, 1994
+  *
+@@ -49,8 +49,6 @@
+ /* PnP bios signature: "$PnP" */
+ #define PNP_SIGNATURE   (('$' << 0) + ('P' << 8) + ('n' << 16) + ('P' << 24))
+ 
+-static void pnpbios_build_devlist(void);
+-
+ /*
+  * This is the standard structure used to identify the entry point
+  * to the Plug and Play bios
+@@ -105,6 +103,7 @@
+  * return to the caller if the call is within the first 64kB, and the linux
+  * kernel begins at offset 3GB...
+  */
++
+ asmlinkage void pnp_bios_callfunc(void);
+ 
+ __asm__(
+@@ -130,7 +129,7 @@
+ set_limit (gdt [(selname) >> 3], size)
+ 
+ /*
+- * Callable Functions
++ * Callable PnP BIOS functions
+  */
+ #define PNP_GET_NUM_SYS_DEV_NODES       0x00
+ #define PNP_GET_SYS_DEV_NODE            0x01
+@@ -148,8 +147,8 @@
+ 
+ 
+ /*
+- *	At some point we want to use this stack frame pointer to unwind
+- *	after PnP BIOS oopses. 
++ * At some point we want to use this stack frame pointer to unwind
++ * after PnP BIOS oopses. 
+  */
+  
+ u32 pnp_bios_fault_esp;
+@@ -170,7 +169,7 @@
+  	 *
+  	 *	On some boxes IRQ's during PnP bios calls seem fatal
+ 	 */
+-	
++
+ 	if(pnp_bios_is_utter_crap)
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
+ 		
+@@ -219,7 +218,13 @@
+ }
+ 
+ /*
+- * Call pnp bios with function 0x00, "get number of system device nodes"
++ *
++ * PnP BIOS ACCESS FUNCTIONS
++ *
++ */
++
++/*
++ * Call PnP BIOS with function 0x00, "get number of system device nodes"
+  */
+ 
+ int pnp_bios_dev_node_info(struct pnp_dev_node_info *data)
+@@ -233,10 +238,18 @@
+ 	return status;
+ }
+ 
++/*
++ * Note that some PnP BIOSes (on Sony Vaio laptops) die a horrible
++ * death if they are asked to access the "current" configuration
++ * Therefore, if it's a matter of indifference, it's better to call
++ * get_dev_node() and set_dev_node() with boot=1 rather than with boot=0.
++ */
++
+ /* 
+- * Call pnp bios with function 0x01, "get system device node"
++ * Call PnP BIOS with function 0x01, "get system device node"
+  * Input: *nodenum = desired node, 
+- *        boot = whether to get static boot (!=0) or dynamic current (0) config
++ *        boot = whether to get nonvolatile boot (!=0)
++ *               or volatile current (0) config
+  * Output: *nodenum=next node or 0xff if no more nodes
+  */
+ 
+@@ -252,9 +265,10 @@
+ }
+ 
+ /*
+- * Call pnp bios with function 0x02, "set system device node"
++ * Call PnP BIOS with function 0x02, "set system device node"
+  * Input: *nodenum = desired node, 
+- *        boot = whether to set static boot (!=0) or dynamic current (0) config
++ *        boot = whether to set nonvolatile boot (!=0)
++ *               or volatile current (0) config
+  */
+ 
+ int pnp_bios_set_dev_node(u8 nodenum, char boot, struct pnp_bios_node *data)
+@@ -267,11 +281,10 @@
+ 	return status;
+ }
+ 
++#if needed
+ /*
+- * Call pnp bios with function 0x03, "get event"
++ * Call PnP BIOS with function 0x03, "get event"
+  */
+-#if needed
+-
+ static int pnp_bios_get_event(u16 *event)
+ {
+ 	u16 status;
+@@ -283,10 +296,10 @@
+ }
+ #endif
+ 
++#if needed
+ /* 
+- * Call pnp bios with function 0x04, "send message"
++ * Call PnP BIOS with function 0x04, "send message"
+  */
+-#if needed
+ static int pnp_bios_send_message(u16 message)
+ {
+ 	u16 status;
+@@ -299,7 +312,7 @@
+ 
+ #ifdef CONFIG_HOTPLUG
+ /*
+- * Call pnp bios with function 0x05, "get docking station information"
++ * Call PnP BIOS with function 0x05, "get docking station information"
+  */
+ 
+ static int pnp_bios_dock_station_info(struct pnp_docking_station_info *data)
+@@ -313,11 +326,11 @@
+ }
+ #endif
+ 
++#if needed
+ /*
+- * Call pnp bios with function 0x09, "set statically allocated resource
++ * Call PnP BIOS with function 0x09, "set statically allocated resource
+  * information"
+  */
+-#if needed
+ static int pnp_bios_set_stat_res(char *info)
+ {
+ 	u16 status;
+@@ -329,11 +342,11 @@
+ }
+ #endif
+ 
++#if needed
+ /*
+- * Call pnp bios with function 0x0a, "get statically allocated resource
++ * Call PnP BIOS with function 0x0a, "get statically allocated resource
+  * information"
+  */
+-#if needed
+ static int pnp_bios_get_stat_res(char *info)
+ {
+ 	u16 status;
+@@ -345,10 +358,10 @@
+ }
+ #endif
+ 
++#if needed
+ /*
+- * Call pnp bios with function 0x0b, "get APM id table"
++ * Call PnP BIOS with function 0x0b, "get APM id table"
+  */
+-#if needed
+ static int pnp_bios_apm_id_table(char *table, u16 *size)
+ {
+ 	u16 status;
+@@ -361,10 +374,10 @@
+ }
+ #endif
+ 
++#if needed
+ /*
+- * Call pnp bios with function 0x40, "get isa pnp configuration structure"
++ * Call PnP BIOS with function 0x40, "get isa pnp configuration structure"
+  */
+-#if needed
+ static int pnp_bios_isapnp_config(struct pnp_isa_config_struc *data)
+ {
+ 	u16 status;
+@@ -376,10 +389,10 @@
+ }
+ #endif
+ 
++#if needed
+ /*
+- * Call pnp bios with function 0x41, "get ESCD info"
++ * Call PnP BIOS with function 0x41, "get ESCD info"
+  */
+-#if needed
+ static int pnp_bios_escd_info(struct escd_info_struc *data)
+ {
+ 	u16 status;
+@@ -391,11 +404,11 @@
+ }
+ #endif
+ 
++#if needed
+ /*
+- * Call pnp bios function 0x42, "read ESCD"
++ * Call PnP BIOS function 0x42, "read ESCD"
+  * nvram_base is determined by calling escd_info
+  */
+-#if needed
+ static int pnp_bios_read_escd(char *data, u32 nvram_base)
+ {
+ 	u16 status;
+@@ -409,10 +422,10 @@
+ }
+ #endif
+ 
++#if needed
+ /*
+- * Call pnp bios function 0x43, "write ESCD"
++ * Call PnP BIOS function 0x43, "write ESCD"
+  */
+-#if needed
+ static int pnp_bios_write_escd(char *data, u32 nvram_base)
+ {
+ 	u16 status;
+@@ -426,22 +439,24 @@
+ }
+ #endif
+ 
+-int pnp_bios_present(void)
+-{
+-	return (pnp_bios_inst_struc != NULL);
+-}
+-
+-#ifdef CONFIG_HOTPLUG
++EXPORT_SYMBOL(pnp_bios_dev_node_info);
++EXPORT_SYMBOL(pnp_bios_get_dev_node);
++EXPORT_SYMBOL(pnp_bios_set_dev_node);
+ 
+ /*
+- *	Manage PnP docking
++ *
++ * PnP DOCKING FUNCTIONS
++ *
+  */
+ 
++#ifdef CONFIG_HOTPLUG
++
+ static int unloading = 0;
++
+ static struct completion unload_sem;
+ 
+ /*
+- *	Much of this belongs in a shared routine somewhere
++ * (Much of this belongs in a shared routine somewhere)
+  */
+  
+ static int pnp_dock_event(int dock, struct pnp_docking_station_info *info)
+@@ -497,7 +512,7 @@
+ }
+ 
+ /*
+- *	Poll the PnP docking at a regular interval
++ * Poll the PnP docking at a regular interval
+  */
+  
+ static int pnp_dock_thread(void * unused)
+@@ -512,9 +527,8 @@
+ 		int err;
+ 		
+ 		/*
+-		 *	Poll every 2 seconds
++		 * Poll every 2 seconds
+ 		 */
+-		 
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		schedule_timeout(HZ*2);
+ 		if(signal_pending(current))
+@@ -526,7 +540,7 @@
+ 		switch(err)
+ 		{
+ 			/*
+-			 *	No dock to manage
++			 * No dock to manage
+ 			 */
+ 			case PNP_FUNCTION_NOT_SUPPORTED:
+ 				complete_and_exit(&unload_sem, 0);
+@@ -554,133 +568,53 @@
+ 
+ #endif
+ 
+-/* 
+- * Searches the defined area (0xf0000-0xffff0) for a valid PnP BIOS
+- * structure and, if found one, sets up the selectors and entry points
++/*
++ *
++ * NODE DATA HANDLING FUNCTIONS
++ *
+  */
+ 
+-static int pnp_bios_disabled;
+-static int pnp_bios_dont_use_current_config;
+-
+-static int disable_pnp_bios(char *str)
+-{
+-	pnp_bios_disabled=1;
+-	return 0;
+-}
+-
+-static int disable_use_of_current_config(char *str)
+-{
+-	pnp_bios_dont_use_current_config=1;
+-	return 0;
+-}
+-
+-__setup("nobiospnp", disable_pnp_bios);
+-__setup("nobioscurrpnp", disable_use_of_current_config);
+-
+-void pnp_bios_init(void)
+-{
+-	union pnpbios *check;
+-	u8 sum;
+-	int i, length;
+-
+-	spin_lock_init(&pnp_bios_lock);
+-
+-	if(pnp_bios_disabled)
+-	{
+-		printk(KERN_INFO "PNP BIOS services disabled.\n");
+-		return;
+-	}
+-
+-	if ( is_sony_vaio_laptop )
+-		pnp_bios_dont_use_current_config = 1;
+-
+-	for (check = (union pnpbios *) __va(0xf0000);
+-	     check < (union pnpbios *) __va(0xffff0);
+-	     ((void *) (check)) += 16) {
+-		if (check->fields.signature != PNP_SIGNATURE)
+-			continue;
+-		length = check->fields.length;
+-		if (!length)
+-			continue;
+-		for (sum = 0, i = 0; i < length; i++)
+-			sum += check->chars[i];
+-		if (sum)
+-			continue;
+-		if (check->fields.version < 0x10) {
+-			printk(KERN_WARNING "PnP: unsupported version %d.%d",
+-			       check->fields.version >> 4,
+-			       check->fields.version & 15);
+-			continue;
+-		}
+-		printk(KERN_INFO "PnP: PNP BIOS installation structure at 0x%p\n",
+-		       check);
+-		printk(KERN_INFO "PnP: PNP BIOS version %d.%d, entry at %x:%x, dseg at %x\n",
+-                       check->fields.version >> 4, check->fields.version & 15,
+-		       check->fields.pm16cseg, check->fields.pm16offset,
+-		       check->fields.pm16dseg);
+-		Q2_SET_SEL(PNP_CS32, &pnp_bios_callfunc, 64 * 1024);
+-		Q_SET_SEL(PNP_CS16, check->fields.pm16cseg, 64 * 1024);
+-		Q_SET_SEL(PNP_DS, check->fields.pm16dseg, 64 * 1024);
+-		pnp_bios_callpoint.offset = check->fields.pm16offset;
+-		pnp_bios_callpoint.segment = PNP_CS16;
+-		pnp_bios_inst_struc = check;
+-		break;
+-	}
+-	pnpbios_build_devlist();
+-#ifdef CONFIG_PROC_FS
+-	pnp_proc_init( pnp_bios_dont_use_current_config );
+-#endif
+-#ifdef CONFIG_HOTPLUG	
+-	init_completion(&unload_sem);
+-	if(kernel_thread(pnp_dock_thread, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGNAL)>0)
+-		unloading = 0;
+-#endif		
+-}
+-
+-#ifdef MODULE
+-/* We have to run it early and specifically in non modular.. */
+-module_init(pnp_bios_init);
+-
+-#ifdef CONFIG_HOTPLUG
+-static void pnp_bios_exit(void)
+-{
+-	unloading = 1;
+-	wait_for_completion(&unload_sem);
+-}
+-
+-module_exit(pnp_bios_exit);
+-#endif
+-#endif
+-
+-EXPORT_SYMBOL(pnp_bios_get_dev_node);
+-EXPORT_SYMBOL(pnp_bios_present);
+-EXPORT_SYMBOL(pnp_bios_dev_node_info);
+-
+ static void inline pnpbios_add_irqresource(struct pci_dev *dev, int irq)
+ {
++	// Permit irq==-1 which signifies "disabled"
+ 	int i = 0;
+-	while (dev->irq_resource[i].start && i < DEVICE_COUNT_IRQ) i++;
+-	if (i < DEVICE_COUNT_IRQ)
++	while (!(dev->irq_resource[i].flags & IORESOURCE_UNSET) && i < DEVICE_COUNT_IRQ) i++;
++	if (i < DEVICE_COUNT_IRQ) {
+ 		dev->irq_resource[i].start = irq;
++		dev->irq_resource[i].flags = IORESOURCE_IRQ;  // Also clears _UNSET flag
++	}
+ }
+ 
+ static void inline pnpbios_add_dmaresource(struct pci_dev *dev, int dma)
+ {
++	// Permit dma==-1 which signifies "disabled"
+ 	int i = 0;
+-	while (dev->dma_resource[i].start && i < DEVICE_COUNT_DMA) i++;
+-	if (i < DEVICE_COUNT_DMA)
++	while (!(dev->dma_resource[i].flags & IORESOURCE_UNSET) && i < DEVICE_COUNT_DMA) i++;
++	if (i < DEVICE_COUNT_DMA) {
+ 		dev->dma_resource[i].start = dma;
++		dev->dma_resource[i].flags = IORESOURCE_DMA;  // Also clears _UNSET flag
++	}
+ }
+ 
+-static void __init pnpbios_add_ioresource(struct pci_dev *dev, int io, 
+-					  int len, int flags)
++static void __init pnpbios_add_ioresource(struct pci_dev *dev, int io, int len)
+ {
+ 	int i = 0;
+-	while (dev->resource[i].start && i < DEVICE_COUNT_RESOURCE) i++;
++	while (!(dev->resource[i].flags & IORESOURCE_UNSET) && i < DEVICE_COUNT_RESOURCE) i++;
+ 	if (i < DEVICE_COUNT_RESOURCE) {
+ 		dev->resource[i].start = io;
+ 		dev->resource[i].end = io + len;
+-		dev->resource[i].flags = flags;
++		dev->resource[i].flags = IORESOURCE_IO;  // Also clears _UNSET flag
++	}
++}
++
++static void __init pnpbios_add_memresource(struct pci_dev *dev, int io, int len)
++{
++	int i = 0;
++	while (!(dev->resource[i].flags & IORESOURCE_UNSET) && i < DEVICE_COUNT_RESOURCE) i++;
++	if (i < DEVICE_COUNT_RESOURCE) {
++		dev->resource[i].start = io;
++		dev->resource[i].end = io + len;
++		dev->resource[i].flags = IORESOURCE_MEM;  // Also clears _UNSET flag
+ 	}
+ }
+ 
+@@ -692,70 +626,102 @@
+  */
+ static void mboard_request(char *pnpid, int io, int len)
+ {
+-    struct ressource *res;
++	struct resource *res;
+     
+-    if (0 != strcmp(pnpid,"PNP0c01") &&  /* memory controller */
+-	0 != strcmp(pnpid,"PNP0c02"))    /* system peripheral: other */
+-	return;
++	if (
++		0 != strcmp(pnpid,"PNP0c01") &&  /* memory controller */
++		0 != strcmp(pnpid,"PNP0c02")     /* system peripheral: other */
++	) {
++		return;
++	}
++
++	if (io < 0x100) {
++		/*
++		 * below 0x100 is only standard PC hardware
++		 * (pics, kbd, timer, dma, ...)
++		 *
++		 * We should not get resource conflicts there,
++		 * and the kernel reserves these anyway
++		 * (see arch/i386/kernel/setup.c).
++		 */
++		return;
++	}
+ 
+-    if (io < 0x100) {
+ 	/*
+-	 * below 0x100 is only standard PC hardware
+-	 * (pics, kbd, timer, dma, ...)
++	 * anything else we'll try reserve to avoid these ranges are
++	 * assigned to someone (CardBus bridges for example) and thus are
++	 * triggering resource conflicts.
+ 	 *
+-	 * We should not get ressource conflicts there,
+-	 * and the kernel reserves these anyway
+-	 * (see arch/i386/kernel/setup.c).
++	 * failures at this point are usually harmless. pci quirks for
++	 * example do reserve stuff they know about too, so we might have
++	 * double reservations here.
+ 	 */
+-	return;
+-    }
++	res = request_region(io,len,pnpid);
++	printk("PnPBIOS: %s: request 0x%x-0x%x%s\n",
++		pnpid,io,io+len,NULL != res ? " ok" : "");
+ 
+-    /*
+-     * anything else we'll try reserve to avoid these ranges are
+-     * assigned to someone (CardBus bridges for example) and thus are
+-     * triggering resource conflicts.
+-     *
+-     * failures at this point are usually harmless. pci quirks for
+-     * example do reserve stuff they know about too, so we might have
+-     * double reservations here.
+-     */
+-    res = request_region(io,len,pnpid);
+-    printk("PnPBIOS: %s: request 0x%x-0x%x%s\n",
+-	   pnpid,io,io+len,NULL != res ? " ok" : "");
++	return;
+ }
+ 
+ /* parse PNPBIOS "Allocated Resources Block" and fill IO,IRQ,DMA into pci_dev */
+-static void __init pnpbios_rawdata_2_pci_dev(struct pnp_bios_node *node, struct pci_dev *pci_dev)
++static void __init pnpbios_rawdata_2_pci_dev(struct pnp_bios_node *node, struct pci_dev *dev)
+ {
+ 	unsigned char *p = node->data, *lastp=NULL;
+-        int mask,i,io,irq,len,dma;
++	int i;
+ 
+-	memset(pci_dev, 0, sizeof(struct pci_dev));
++	/*
++	 * First, set dev contents to default values
++	 */
++	memset(dev,0,sizeof(struct pci_dev));
++	for (i=0;i<DEVICE_COUNT_RESOURCE;i++) {
++	/*	dev->resource[i].start = 0; */
++		dev->resource[i].flags = IORESOURCE_UNSET;
++	}
++	for (i=0;i<DEVICE_COUNT_IRQ;i++) {
++		dev->irq_resource[i].start = (unsigned long)-1;  // "disabled"
++		dev->irq_resource[i].flags = IORESOURCE_UNSET;
++	}
++	for (i=0;i<DEVICE_COUNT_DMA;i++) {
++		dev->dma_resource[i].start = (unsigned long)-1;  // "disabled"
++		dev->dma_resource[i].flags = IORESOURCE_UNSET;
++	}
++
++	/*
++	 * Fill in dev info
++	 */
+         while ( (char *)p < ((char *)node->data + node->size )) {
+         	if(p==lastp) break;
+ 
+                 if( p[0] & 0x80 ) {// large item
+ 			switch (p[0] & 0x7f) {
+ 			case 0x01: // memory
+-				io = *(short *) &p[4];
+-				len = *(short *) &p[10];
+-				pnpbios_add_ioresource(pci_dev, io, len, IORESOURCE_MEM);
++			{
++				int io = *(short *) &p[4];
++				int len = *(short *) &p[10];
++				pnpbios_add_memresource(dev, io, len);
+ 				break;
++			}
+ 			case 0x02: // device name
+-				len = *(short *) &p[1];
+-				memcpy(pci_dev->name, p + 3, len >= 80 ? 79 : len);
++			{
++				int len = *(short *) &p[1];
++				memcpy(dev->name, p + 3, len >= 80 ? 79 : len);
+ 				break;
++			}
+ 			case 0x05: // 32-bit memory
+-				io = *(int *) &p[4];
+-				len = *(int *) &p[16];
+-				pnpbios_add_ioresource(pci_dev, io, len, IORESOURCE_MEM);
++			{
++				int io = *(int *) &p[4];
++				int len = *(int *) &p[16];
++				pnpbios_add_memresource(dev, io, len);
+ 				break;
++			}
+ 			case 0x06: // fixed location 32-bit memory
+-				io = *(int *) &p[4];
+-				len = *(int *) &p[8];
+-				pnpbios_add_ioresource(pci_dev, io, len, IORESOURCE_MEM);
++			{
++				int io = *(int *) &p[4];
++				int len = *(int *) &p[8];
++				pnpbios_add_memresource(dev, io, len);
+ 				break;
+ 			}
++			} /* switch */
+                         lastp = p+3;
+                         p = p + p[1] + p[2]*256 + 3;
+                         continue;
+@@ -764,35 +730,45 @@
+                         break;
+                 switch (p[0]>>3) {
+                 case 0x04: // irq
+-                        irq = -1;
++                {
++                        int i, mask, irq = -1; // "disabled"
+                         mask= p[1] + p[2]*256;
+                         for (i=0;i<16;i++, mask=mask>>1)
+-                                if(mask &0x01) irq=i;
+-			pnpbios_add_irqresource(pci_dev, irq);
++                                if(mask & 0x01) irq=i;
++			pnpbios_add_irqresource(dev, irq);
+                         break;
++                }
+                 case 0x05: // dma
+-                        dma = -1;
++                {
++                        int i, mask, dma = -1; // "disabled"
+                         mask = p[1];
+                         for (i=0;i<8;i++, mask = mask>>1)
+-                                if(mask&0x01) dma=i;
+-			pnpbios_add_dmaresource(pci_dev, dma);
++                                if(mask & 0x01) dma=i;
++			pnpbios_add_dmaresource(dev, dma);
+                         break;
++                }
+                 case 0x08: // io
+-			io= p[2] + p[3] *256;
+-			len = p[7];
+-			pnpbios_add_ioresource(pci_dev, io, len, IORESOURCE_IO);
++                {
++			int io= p[2] + p[3] *256;
++			int len = p[7];
++			pnpbios_add_ioresource(dev, io, len);
+ 			mboard_request(pnpid32_to_pnpid(node->eisa_id),io,len);
+                         break;
++                }
+ 		case 0x09: // fixed location io
+-			io = p[1] + p[2] * 256;
+-			len = p[3];
+-			pnpbios_add_ioresource(pci_dev, io, len, IORESOURCE_IO);
++		{
++			int io = p[1] + p[2] * 256;
++			int len = p[3];
++			pnpbios_add_ioresource(dev, io, len);
+ 			break;
+-                }
++		}
++                } /* switch */
+                 lastp=p+1;
+                 p = p + (p[0] & 0x07) + 1;
+ 
+-        }
++        } /* while */
++
++        return;
+ }
+ 
+ #define HEX(id,a) hex[((id)>>a) & 15]
+@@ -801,7 +777,7 @@
+ static char * __init pnpid32_to_pnpid(u32 id)
+ {
+ 	const char *hex = "0123456789abcdef";
+-        static char str[8];
++	static char str[8];
+ 	id = be32_to_cpu(id);
+ 	str[0] = CHAR(id, 26);
+ 	str[1] = CHAR(id, 21);
+@@ -818,11 +794,20 @@
+ #undef HEX  
+ 
+ /*
+- *	PnPBIOS public device management layer
++ *
++ * PnP BIOS PUBLIC DEVICE MANAGEMENT LAYER FUNCTIONS
++ *
+  */
+ 
+ static LIST_HEAD(pnpbios_devices);
+ 
++int pnp_bios_present(void)
++{
++	return (pnp_bios_inst_struc != NULL);
++}
++
++EXPORT_SYMBOL(pnp_bios_present);
++
+ static int __init pnpbios_insert_device(struct pci_dev *dev)
+ {
+ 	/* FIXME: Need to check for re-add of existing node */
+@@ -836,37 +821,35 @@
+  
+ static void __init pnpbios_build_devlist(void)
+ {
+-	int i, devs = 0;
++	int i;
++	int nodenum;
++	int nodes_got = 0;
+ 	struct pnp_bios_node *node;
+-        struct pnp_dev_node_info node_info;
++	struct pnp_dev_node_info node_info;
+ 	struct pci_dev *dev;
+-	int num;
+ 	char *pnpid;
+ 
+ 	
+-        if (!pnp_bios_present ())
+-                return;
++	if (!pnp_bios_present ())
++		return;
+ 
+-        if (pnp_bios_dev_node_info(&node_info) != 0)
+-                return;
++	if (pnp_bios_dev_node_info(&node_info) != 0)
++		return;
+ 
+-        node = kmalloc(node_info.max_node_size, GFP_KERNEL);
+-        if (!node)
+-                return;
++	node = kmalloc(node_info.max_node_size, GFP_KERNEL);
++	if (!node)
++		return;
+ 
+-	for(i=0;i<0xff;i++) {
++	for(i=0,nodenum=0;i<0xff && nodenum!=0xff;i++) {
++		int thisnodenum = nodenum;
++		if (pnp_bios_get_dev_node((u8 *)&nodenum, (char )1 , node))
++			continue;
++		nodes_got++;
+ 		dev =  kmalloc(sizeof (struct pci_dev), GFP_KERNEL);
+ 		if (!dev)
+ 			break;
+-
+-		// For now we scan the "boot" config because some BIOSes
+-		// oops when their "current" configs are accessed
+-                if (pnp_bios_get_dev_node((u8 *)&num, (char )1 , node))
+-			continue;
+-
+-		devs++;
+ 		pnpbios_rawdata_2_pci_dev(node,dev);
+-		dev->devfn=num;
++		dev->devfn=thisnodenum;
+ 		pnpid = pnpid32_to_pnpid(node->eisa_id);
+ 		memcpy(dev->name,"PNPBIOS",8);
+ 		memcpy(dev->slot_name,pnpid,8);
+@@ -875,17 +858,19 @@
+ 	}
+ 	kfree(node);
+ 
+-	if (devs)
+-		printk(KERN_INFO "PnP: %i device%s detected total\n", devs, devs > 1 ? "s" : "");
+-	else
+-		printk(KERN_INFO "PnP: No devices found\n");
++	printk(KERN_INFO "PnPBIOS: %i node%s reported by PnP BIOS\n", nodes_got, nodes_got != 1 ? "s" : "");
+ }
+ 
+ 
+ /*
+- *	The public interface to PnP BIOS enumeration
++ *
++ * PUBLIC INTERFACE FUNCTIONS to PnP BIOS ENUMERATION
++ *
++ */
++
++/*
++ * Find device in list
+  */
+- 
+ struct pci_dev *pnpbios_find_device(char *pnpid, struct pci_dev *prev)
+ {
+ 	struct pci_dev *dev;
+@@ -895,7 +880,7 @@
+ 		num=0; /* Start from beginning */
+ 	else
+ 		num=prev->devfn + 1; /* Encode node number here */
+-	
++
+ 
+ 	pnpbios_for_each_dev(dev)
+ 	{
+@@ -1018,4 +1003,106 @@
+ 
+ EXPORT_SYMBOL(pnpbios_unregister_driver);
+ 
++/* 
++ *
++ * INIT AND EXIT
++ *
++ *
++ * Search the defined area (0xf0000-0xffff0) for a valid PnP BIOS
++ * structure and, if one is found, sets up the selectors and
++ * entry points
++ */
++
++extern int is_sony_vaio_laptop;
++
++static int pnp_bios_disabled;
++static int pnp_bios_dont_use_current_config;
++
++static int disable_pnp_bios(char *str)
++{
++	pnp_bios_disabled=1;
++	return 0;
++}
++
++static int disable_use_of_current_config(char *str)
++{
++	pnp_bios_dont_use_current_config=1;
++	return 0;
++}
++
++__setup("nobiospnp", disable_pnp_bios);
++__setup("nobioscurrpnp", disable_use_of_current_config);
++
++void pnp_bios_init(void)
++{
++	union pnpbios *check;
++	u8 sum;
++	int i, length;
++
++	spin_lock_init(&pnp_bios_lock);
++
++	if(pnp_bios_disabled) {
++		printk(KERN_INFO "PnPBIOS: driver disabled.\n");
++		return;
++	}
++
++	if ( is_sony_vaio_laptop )
++		pnp_bios_dont_use_current_config = 1;
+ 
++	for (check = (union pnpbios *) __va(0xf0000);
++	     check < (union pnpbios *) __va(0xffff0);
++	     ((void *) (check)) += 16) {
++		if (check->fields.signature != PNP_SIGNATURE)
++			continue;
++		length = check->fields.length;
++		if (!length)
++			continue;
++		for (sum = 0, i = 0; i < length; i++)
++			sum += check->chars[i];
++		if (sum)
++			continue;
++		if (check->fields.version < 0x10) {
++			printk(KERN_WARNING "PnPBIOS: unsupported version %d.%d",
++			       check->fields.version >> 4,
++			       check->fields.version & 15);
++			continue;
++		}
++		printk(KERN_INFO "PnPBIOS: PnP BIOS installation structure at 0x%p\n",
++		       check);
++		printk(KERN_INFO "PnPBIOS: PnP BIOS version %d.%d, entry at 0x%x:0x%x, dseg at 0x%x\n",
++                       check->fields.version >> 4, check->fields.version & 15,
++		       check->fields.pm16cseg, check->fields.pm16offset,
++		       check->fields.pm16dseg);
++		Q2_SET_SEL(PNP_CS32, &pnp_bios_callfunc, 64 * 1024);
++		Q_SET_SEL(PNP_CS16, check->fields.pm16cseg, 64 * 1024);
++		Q_SET_SEL(PNP_DS, check->fields.pm16dseg, 64 * 1024);
++		pnp_bios_callpoint.offset = check->fields.pm16offset;
++		pnp_bios_callpoint.segment = PNP_CS16;
++		pnp_bios_inst_struc = check;
++		break;
++	}
++	pnpbios_build_devlist();
++#ifdef CONFIG_PROC_FS
++	pnp_proc_init( pnp_bios_dont_use_current_config );
++#endif
++#ifdef CONFIG_HOTPLUG	
++	init_completion(&unload_sem);
++	if(kernel_thread(pnp_dock_thread, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGNAL)>0)
++		unloading = 0;
++#endif		
++}
++
++#ifdef MODULE
++/* We have to run it early and specifically in non modular.. */
++module_init(pnp_bios_init);
++
++#ifdef CONFIG_HOTPLUG
++static void pnp_bios_exit(void)
++{
++	unloading = 1;
++	wait_for_completion(&unload_sem);
++}
++
++module_exit(pnp_bios_exit);
++#endif
++#endif
+diff -Naur linux-2.4.10-ac3-spop/drivers/pnp/pnp_proc.c linux-2.4.10-ac3-spop-fix/drivers/pnp/pnp_proc.c
+--- linux-2.4.10-ac3-spop/drivers/pnp/pnp_proc.c	Mon Oct  1 20:15:41 2001
++++ linux-2.4.10-ac3-spop-fix/drivers/pnp/pnp_proc.c	Tue Oct  2 17:38:23 2001
+@@ -20,10 +20,11 @@
+ static struct pnp_dev_node_info node_info;
+ 
+ static int proc_read_devices(char *buf, char **start, off_t pos,
+-			     int count, int *eof, void *data)
++                             int count, int *eof, void *data)
+ {
+ 	struct pnp_bios_node *node;
+-	u8 num;
++	int i;
++	u8 nodenum;
+ 	char *p = buf;
+ 
+ 	if (pos != 0) {
+@@ -32,8 +33,8 @@
+ 	}
+ 	node = kmalloc(node_info.max_node_size, GFP_KERNEL);
+ 	if (!node) return -ENOMEM;
+-	for (num = 0; num != 0xff; ) {
+-		pnp_bios_get_dev_node(&num, 1, node);
++	for (i=0,nodenum=0;i<0xff && nodenum!=0xff; i++) {
++		pnp_bios_get_dev_node(&nodenum, 1, node);
+ 		p += sprintf(p, "%02x\t%08x\t%02x:%02x:%02x\t%04x\n",
+ 			     node->handle, node->eisa_id,
+ 			     node->type_code[0], node->type_code[1],
+@@ -44,11 +45,11 @@
+ }
+ 
+ static int proc_read_node(char *buf, char **start, off_t pos,
+-			  int count, int *eof, void *data)
++                          int count, int *eof, void *data)
+ {
+ 	struct pnp_bios_node *node;
+ 	int boot = (long)data >> 8;
+-	u8 num = (long)data;
++	u8 nodenum = (long)data;
+ 	int len;
+ 
+ 	if (pos != 0) {
+@@ -57,7 +58,7 @@
+ 	}
+ 	node = kmalloc(node_info.max_node_size, GFP_KERNEL);
+ 	if (!node) return -ENOMEM;
+-	pnp_bios_get_dev_node(&num, boot, node);
++	pnp_bios_get_dev_node(&nodenum, boot, node);
+ 	len = node->size - sizeof(struct pnp_bios_node);
+ 	memcpy(buf, node->data, len);
+ 	kfree(node);
+@@ -65,15 +66,15 @@
+ }
+ 
+ static int proc_write_node(struct file *file, const char *buf,
+-			   unsigned long count, void *data)
++                           unsigned long count, void *data)
+ {
+ 	struct pnp_bios_node *node;
+ 	int boot = (long)data >> 8;
+-	u8 num = (long)data;
++	u8 nodenum = (long)data;
+ 
+ 	node = kmalloc(node_info.max_node_size, GFP_KERNEL);
+ 	if (!node) return -ENOMEM;
+-	pnp_bios_get_dev_node(&num, boot, node);
++	pnp_bios_get_dev_node(&nodenum, boot, node);
+ 	if (count != node->size - sizeof(struct pnp_bios_node))
+ 		return -EINVAL;
+ 	memcpy(node->data, buf, count);
+@@ -90,29 +91,27 @@
+ 	struct pnp_bios_node *node;
+ 	struct proc_dir_entry *ent;
+ 	char name[3];
+-	u8 num;
++	int i;
++	u8 nodenum;
+ 
+ 	pnp_proc_dont_use_current_config = dont_use_current;
+ 
+ 	if (!pnp_bios_present()) return;
+-	if (pnp_bios_dev_node_info(&node_info) != 0)
+-		return;
++	if (pnp_bios_dev_node_info(&node_info) != 0) return;
+ 	
+ 	proc_pnp = proc_mkdir("pnp", proc_bus);
+ 	if (!proc_pnp) return;
+ 	proc_pnp_boot = proc_mkdir("boot", proc_pnp);
+ 	if (!proc_pnp_boot) return;
+-	create_proc_read_entry("devices", 0, proc_pnp,
+-			       proc_read_devices, NULL);
++	create_proc_read_entry("devices", 0, proc_pnp, proc_read_devices, NULL);
+ 	
+ 	node = kmalloc(node_info.max_node_size, GFP_KERNEL);
+ 	if (!node) return;
+-	for (num = 0; num != 0xff; ) {
+-		//sprintf(name, "%02x", num);
+-		if (pnp_bios_get_dev_node(&num, 1, node) != 0)
++	for (i=0,nodenum = 0; i<0xff && nodenum != 0xff; i++) {
++		if (pnp_bios_get_dev_node(&nodenum, 1, node) != 0)
+ 			break;
+ 		sprintf(name, "%02x", node->handle);
+-		if ( !dont_use_current ) {
++		if ( !pnp_proc_dont_use_current_config ) {
+ 			ent = create_proc_entry(name, 0, proc_pnp);
+ 			if (ent) {
+ 				ent->read_proc = proc_read_node;
+@@ -132,12 +131,13 @@
+ 
+ void pnp_proc_done(void)
+ {
+-	u8 num;
++	int i;
+ 	char name[3];
+ 	
+ 	if (!proc_pnp) return;
+-	for (num = 0; num != 0xff; num++) {
+-		sprintf(name, "%02x", num);
++
++	for (i=0; i<0xff; i++) {
++		sprintf(name, "%02x", i);
+ 		if ( !pnp_proc_dont_use_current_config )
+ 			remove_proc_entry(name, proc_pnp);
+ 		remove_proc_entry(name, proc_pnp_boot);

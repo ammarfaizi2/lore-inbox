@@ -1,52 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271105AbRHTGgd>; Mon, 20 Aug 2001 02:36:33 -0400
+	id <S271063AbRHTGoN>; Mon, 20 Aug 2001 02:44:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271063AbRHTGgX>; Mon, 20 Aug 2001 02:36:23 -0400
-Received: from mail.teraport.de ([195.143.8.72]:59267 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S271109AbRHTGgN>;
-	Mon, 20 Aug 2001 02:36:13 -0400
-Message-ID: <3B80AFE2.CF1922B7@TeraPort.de>
-Date: Mon, 20 Aug 2001 08:36:18 +0200
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac6 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-CC: jason@topic.com.au,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [OT?] Re: [PATCH] patch's for vmware 2.0.4 for use with linux-2.4.8 
- kernel
-In-Reply-To: <3B7D1846.BEB929DE@TeraPort.de> <m3ofpd3cim.fsf@lapper.ihatent.com>
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 08/20/2001 08:36:17 AM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 08/20/2001 08:36:28 AM,
-	Serialize complete at 08/20/2001 08:36:28 AM
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
+	id <S271092AbRHTGnx>; Mon, 20 Aug 2001 02:43:53 -0400
+Received: from mail.spylog.com ([194.67.35.220]:24196 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S271063AbRHTGnl>;
+	Mon, 20 Aug 2001 02:43:41 -0400
+Date: Mon, 20 Aug 2001 10:43:50 +0400
+From: Andrey Nekrasov <andy@spylog.ru>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.8/2.4.9 problem + 2.4.8-ac7
+Message-ID: <20010820104350.A8278@spylog.ru>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
+Organization: SpyLOG ltd.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Hoogerhuis wrote:
-> 
-> 
-> I've applied the patch with your fixes, and I've always noticed that
-> VMware seem to leak a bit of memory (occording to top and ps). Running
-> with 128Mb in a Win2k box it started off at 161Mb process size (140Mb
-> RSS) and within 5 minutes it had turned into 203Mb process size (still
-> only 140Mb RSS). Have anyone seen similar behavior, and does anyone
-> have any pointers to where I can find more info on it?
-> 
+Hello,
 
- probably better to ask the vmware folks. They also have some news
-groups served from news.vmware.com
+ Why linux-kernel 2.4.8-ac7 has not next problems???
 
-Martin
+
+Once you wrote about "Re: 2.4.8/2.4.9 problem":
+> Hello.
+> 
+> I am have problem with "kernel: __alloc_pages: 0-order allocation failed."
+> 
+> 1. syslog kern.*
+> 
+>    ...
+> 	 Aug 19 12:28:16 sol kernel: __alloc_pages: 0-order allocation failed.
+> 	 Aug 19 12:28:37 sol last message repeated 364 times
+> 	 Aug 19 12:29:17 sol last message repeated 47 times
+> 	 Aug 19 12:29:25 sol kernel: s: 0-order allocation failed.
+> 	 Aug 19 12:29:25 sol kernel: __alloc_pages: 0-order allocation failed.
+> 	 Aug 19 12:29:25 sol last message repeated 291 times
+> 	 Aug 19 12:29:25 sol kernel: eth0: can't fill rx buffer (force 0)!
+> 	 Aug 19 12:29:25 sol kernel: __alloc_pages: 0-order allocation failed.
+> 	 Aug 19 12:29:25 sol kernel: eth0: Tx ring dump,  Tx queue 2928321 /
+> 	 2928321:
+> 	 Aug 19 12:29:25 sol kernel: eth0:     0 600ca000.
+> 	 Aug 19 12:29:25 sol kernel: eth0:  *= 1 000ca000.
+> 	 Aug 19 12:29:25 sol kernel: eth0:     2 000ca000.
+>    ...
+>    Aug 19 12:29:25 sol kernel: eth0:     8 200ca000.
+> 	 Aug 19 12:29:25 sol kernel: __alloc_pages: 0-order allocation failed.
+> 	 Aug 19 12:29:25 sol kernel: eth0:     9 000ca000.
+>    ...
+> 	 Aug 19 12:29:25 sol kernel: eth0:  * 31 00000000.
+> 	 Aug 19 12:29:25 sol kernel: __alloc_pages: 0-order allocation failed.
+> 	 Aug 19 12:29:59 sol last message repeated 75 times
+> 	 Aug 19 12:31:10 sol last message repeated 32 times
+> 	 Aug 19 12:32:07 sol last message repeated 153 times
+> 	 Aug 19 12:32:35 sol last message repeated 131 times
+> 
+> 2. my configuration:
+> 
+> 	2CPU/1.5Gb RAM/Mylex Acceleraid 250/Intel PRO100/ Linux kernel 2.4.8/9-xfs /file system   is  xfs or ext2.
+> 
+> 3. NFS/NFSD kernel v3, and use nfs-root file system.
+> 
+> 4. Test 1: simple copy from/to another nfs-computer. _big_ file - up-to 4Gb
+> 
+>    Test 2: tiobench-0.3.1  on _local_ disk (Mylex RAID5) with support
+> 	         "LARGEFILES" (>2Gb).
+> 
+> 
+> Can your help me? 
+> 
+> 
+> -- 
+> bye.
+> Andrey Nekrasov, SpyLOG.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
 -- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+bye.
+Andrey Nekrasov, SpyLOG.

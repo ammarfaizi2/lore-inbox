@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265192AbSKNTsu>; Thu, 14 Nov 2002 14:48:50 -0500
+	id <S265092AbSKNTuH>; Thu, 14 Nov 2002 14:50:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265196AbSKNTsu>; Thu, 14 Nov 2002 14:48:50 -0500
-Received: from ns.suse.de ([213.95.15.193]:773 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S265192AbSKNTst>;
-	Thu, 14 Nov 2002 14:48:49 -0500
-Date: Thu, 14 Nov 2002 20:55:43 +0100
-From: Andi Kleen <ak@suse.de>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] early printk for x86
-Message-ID: <20021114205543.A9383@wotan.suse.de>
-References: <3DD3FCB3.40506@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DD3FCB3.40506@us.ibm.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S265168AbSKNTuH>; Thu, 14 Nov 2002 14:50:07 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:23244 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265092AbSKNTuF>; Thu, 14 Nov 2002 14:50:05 -0500
+Subject: Non-blocking lock requests during the grace period
+To: nfs@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
+Message-ID: <OFCACC2A48.A38B3611-ON87256C71.006D0CEB@us.ibm.com>
+From: Juan Gomez <juang@us.ibm.com>
+Date: Thu, 14 Nov 2002 11:56:42 -0800
+X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0 [IBM]|October 31, 2002) at
+ 11/14/2002 12:57:45
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 14, 2002 at 11:42:43AM -0800, Dave Hansen wrote:
-> I copied the x86_64 early printk support for plain x86.  Is anyone 
-> opposed to me sending this on to Linus?
 
-No problem from my side.
 
-although it may make sense to just put in the #ifdef __i386__ for vgabase
-and then #include it.
 
--Andi
+
+
+I found out that the current Linux client of lockd blocks non-blocking lock
+requests while the server is in the grace period.
+I think this is incorrect behavior and I am wondering if the will exists
+out there to correct this and return "resource not available"
+to the process when a request is for a *non-blocking* lock while the server
+is in the grace period.
+
+It is extremelly odd to issue a *non-blocking* call and be blocked in the
+kernel for about a minute when the server happens
+to be in the grace period.
+
+This consists of a minor change to nlmclnt_call() and I would send the
+patch if someone will review and include it.
+
+Regards, Juan
+
+

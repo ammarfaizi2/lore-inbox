@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbTKMBza (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 20:55:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbTKMBza
+	id S261929AbTKMCP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 21:15:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTKMCP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 20:55:30 -0500
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:54031 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S261891AbTKMBz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 20:55:29 -0500
-Message-ID: <3FB2E490.2070503@dcrdev.demon.co.uk>
-Date: Thu, 13 Nov 2003 01:55:28 +0000
-From: Dan Creswell <dan@dcrdev.demon.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [Fwd: PS/2 Mouse problems on 2.6-test9]
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Nov 2003 21:15:28 -0500
+Received: from adsl-67-124-145-217.dsl.pltn13.pacbell.net ([67.124.145.217]:33920
+	"EHLO top.worldcontrol.com") by vger.kernel.org with ESMTP
+	id S261929AbTKMCP0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 21:15:26 -0500
+From: brian@worldcontrol.com
+Date: Wed, 12 Nov 2003 18:16:13 -0800
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Toshiba P25-S507 laptop and freezes with 2.6.0-test9
+Message-ID: <20031113021613.GA4318@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
+References: <20031112182711.GA5454@top.worldcontrol.com> <20031112112849.A12974@osdlab.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031112112849.A12974@osdlab.pdx.osdl.net>
+X-No-Archive: yes
+X-Noarchive: yes
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI, sent this to Andrew earlier........
+> * brian@worldcontrol.com (brian@worldcontrol.com) wrote:
+> > My Toshiba P25-S507 P4 2.8 running vanilla 2.6.0-test9 occasionally
+> > freezes.  The freezes occur during events such as closing or opening
+> > the lid or removing/inserting the power adapter and sometimes during
+> > halt.
 
-Hi Andrew,
+On Wed, Nov 12, 2003 at 11:28:49AM -0800, Chris Wright wrote:
+> These are ACPI events (at least lid and power adaptor).  So, are you
+> compiling in ACPI support?  If so does it still happen with acpi=off
+> kernel command line option?  Do you still have keyboard when it freezes?
+> If so, alt-sysrq-p or alt-sysrq-t show anything useful?  And, finally,
+> you aren't using an nVidia binary only module for that GeForce are you?
 
-I'm not sure who best to send this report to so feedback appreciated.
+Yes I use APCI support.
 
-I'm running kernel 2.6-test9 here on top of Fedora Core.
+Ah, I have been trying to use 'noacpi' so I guess I have failed to
+turn it off.  I'll give 'acpi=off' a try.
 
-XFree boots just fine but a small amount of "torturing" with mouse
-movement is sufficient to lock things up solid.
+The keyboard is as dead as the rest of the system.
 
-This kernel is compiled for SMP (I have two Xeon's with HyperThreading).
+I am running the nVidia binary module.  
 
-Re-compiling the kernel for single-processor usage results in a stable
-system (I'm using it to write this email).
+I'll run 'acpi=off' for a week or two and then try the nv driver.
 
-I'm using an Intellimouse PS/2 and the Xeon's are at 2.66Ghz.
+Thanks for the help,
 
-More data points:
-
-(1) I've not encountered this problem on a dual Athlon 1.8Ghz using the
-same mouse and kernel 2.6-test9 (SMP or UP).
-
-(2) The Fedora Core Kernel 2.4 compiled for SMP also runs stably on the
-dual Xeon platform (I'm booted into that kernel now as I write this email).
-
-What would you suggest as my next steps? Would you like some more
-information/other tests performed?
-
-Many thanks,
-
-Dan.
-
-
-
-
-
+-- 
+Brian Litzinger

@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267179AbUBSKaG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 05:30:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267185AbUBSKaG
+	id S267176AbUBSKhR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 05:37:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267177AbUBSKhR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 05:30:06 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:47277 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S267179AbUBSKaB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 05:30:01 -0500
-Date: Thu, 19 Feb 2004 11:29:58 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: dan carpenter <error27@email.com>
-Cc: ltp-list@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Announce] Strace Test
-Message-ID: <20040219102958.GG17140@khan.acc.umu.se>
-Mail-Followup-To: dan carpenter <error27@email.com>,
-	ltp-list@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20040216052257.A2C971D7214@ws3-3.us4.outblaze.com>
+	Thu, 19 Feb 2004 05:37:17 -0500
+Received: from ez246.neoplus.adsl.tpnet.pl ([83.30.7.246]:52102 "EHLO
+	uran.kolkowski.no-ip.org") by vger.kernel.org with ESMTP
+	id S267176AbUBSKhQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 05:37:16 -0500
+Date: Thu, 19 Feb 2004 11:36:56 +0100
+From: Damian Kolkowski <damian@kolkowski.no-ip.org>
+To: Henrik Christian Grove <grove@sslug.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3 compile error with FB_RADEON_I2C
+Message-ID: <20040219103656.ALLYOURBASEAREBELONGTOUS.A14930@kolkowski.no-ip.org>
+Mail-Followup-To: Henrik Christian Grove <grove@sslug.dk>,
+	linux-kernel@vger.kernel.org
+References: <7gbrnwnpq3.fsf@serena.fsr.ku.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <20040216052257.A2C971D7214@ws3-3.us4.outblaze.com>
-User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <7gbrnwnpq3.fsf@serena.fsr.ku.dk>
+X-GPG-Key: 0xB2C5DE03 (http://kolkowski.no-ip.org/damian.asc x-hkp://wwwkeys.eu.pgp.net)
+X-Girl: 1 will be enough!
+X-Age: 24 (1980.09.27 - libra)
+X-IM: JID:damian@kolkowski.no-ip.org ICQ:59367544 GG:88988
+X-Operating-System: Slackware GNU/Linux, kernel 2.4.25, up 17:30
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 16, 2004 at 12:22:57AM -0500, dan carpenter wrote:
-> Good evening,
-> 
-> I'm happy to announce the initial public release of 
-> Strace Test.  I believe Strace Test is the most 
-> aggressive general purpose kernel tester available.
-> Strace Test generally crashes my system within 
-> 5 minutes (2.6.1-rc2).
+* Henrik Christian Grove <grove@sslug.dk> [2004-02-18 23:55]:
+> It looks like this might be caused by the fact that I have I2C support
+> as a module, but support for the Radeon framebuffer in kernel. Wth
+> FB_RADEON_I2C=y that probably shouldn't be a possible configuration.
 
-Pretty please with sprinkles upon, could you stress test a 2.0.40 kernel
-and report your results to me?  While I do not expect the 2.0-kernel to
-be the paramount of stability, it would be nice to fix any obvious
-bugs...
+Yep.., that is the problem, new radeonfb needs CONFIG_I2C i kernel.
 
-
-Regards: David Weinehall
 -- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+# Damian *dEiMoS* Ko³kowski # http://kolkowski.no-ip.org/ #

@@ -1,28 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316985AbSFAFU5>; Sat, 1 Jun 2002 01:20:57 -0400
+	id <S316986AbSFAFgH>; Sat, 1 Jun 2002 01:36:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316986AbSFAFU5>; Sat, 1 Jun 2002 01:20:57 -0400
-Received: from mail14.speakeasy.net ([216.254.0.214]:63373 "EHLO
-	mail.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S316985AbSFAFU4>; Sat, 1 Jun 2002 01:20:56 -0400
-Subject: Re: PROBLEM: bttv recording problems with kernel 2.2.21
-From: Ed Sweetman <safemode@speakeasy.net>
-To: hogger@mushworld.dnsart.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0205312021180.729-100000@mushworld.dnsart.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 01 Jun 2002 01:20:56 -0400
-Message-Id: <1022908856.10826.1.camel@psuedomode>
-Mime-Version: 1.0
+	id <S316987AbSFAFgG>; Sat, 1 Jun 2002 01:36:06 -0400
+Received: from web10408.mail.yahoo.com ([216.136.130.110]:32783 "HELO
+	web10408.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S316986AbSFAFgF>; Sat, 1 Jun 2002 01:36:05 -0400
+Message-ID: <20020601053606.57513.qmail@web10408.mail.yahoo.com>
+Date: Sat, 1 Jun 2002 15:36:06 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: 2.4.19-pre9-ac3 still OOPS when exiting X with i810 chipset 
+To: kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-it's not a problem with the kernel or bttv, your program needs to be
-updated to utilize new drivers for the hardware that come out.  that or
-stay with the driver version that it supports (like you've been doing). 
-email those who make realproducer and have them support something
-current.  
 
+Hi,
+
+I hope the problem has been fixed but not, Exactly the
+same oop message as I posted before; from 2.4.19-pre7
+up ; it always happen.
+
+
+
+=====
+Steve Kieu
+
+http://www.sold.com.au - The Sold.com.au Big Brand Sale
+- New PCs, notebooks, digital cameras, phones and more ... Sale ends June 12

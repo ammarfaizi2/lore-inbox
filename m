@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285994AbRLHWLn>; Sat, 8 Dec 2001 17:11:43 -0500
+	id <S286004AbRLHWNd>; Sat, 8 Dec 2001 17:13:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285993AbRLHWLd>; Sat, 8 Dec 2001 17:11:33 -0500
-Received: from pD95091CD.dip.t-dialin.net ([217.80.145.205]:22258 "EHLO
-	turtle.lila.net") by vger.kernel.org with ESMTP id <S285990AbRLHWLT>;
-	Sat, 8 Dec 2001 17:11:19 -0500
-Message-ID: <3C128CE4.94DE4ED@mpg.goe.ni.schule.de>
-Date: Sat, 08 Dec 2001 22:57:56 +0100
-From: "Jan H. Schrewe" <jschrewe@mpg.goe.ni.schule.de>
-Reply-To: jschrewe@mpg.goe.ni.schule.de
-X-Mailer: Mozilla 4.78 [de] (X11; U; Linux 2.4.12-xfs i686)
-X-Accept-Language: en
+	id <S286002AbRLHWNX>; Sat, 8 Dec 2001 17:13:23 -0500
+Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:58661 "EHLO
+	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S286004AbRLHWNO>;
+	Sat, 8 Dec 2001 17:13:14 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
+To: linux-kernel@vger.kernel.org
+Subject: SCSI????
+Date: Sat, 8 Dec 2001 22:13:59 +0000
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: zlatko.calusic@iskon.hr
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ext3 writeback mode slower than ordered mode?
-In-Reply-To: <871yi5wh93.fsf@atlas.iskon.hr>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-ID: <EXCH01SMTP01xavjrRZ0000bfbc@smtp.netcabo.pt>
+X-OriginalArrivalTime: 08 Dec 2001 22:12:13.0243 (UTC) FILETIME=[636770B0:01C18035]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zlatko Calusic schrieb:
-> 
-> I'm confused, TIA for anybody clarifying this to me!
-> --
-> Zlatko
+I have recently compiled the kernel 2.4.16 in a P2 running red hat 7.2.
 
-Have a look at
+I have a hp82xxxx so i made sure i selected the SCSI support, as well as SCSI 
+cdrom support and tape support ( don't know why though ) and disk support all 
+that stuff, but i compiled them as an integrated part of the kernel and not 
+as modules!!!!
 
+I Also selected usb mass storage support and stuff but that doesn't matter 
+for now!!
 
-http://www-106.ibm.com/developerworks/linux/library/l-fs8.html
+Well the problem is:
 
-cheers
+whenever linux boots it trys to load the Scsi modules for the new kernel but 
+it [ fails ], i figure this is because my previous had scsi as module and now 
+it isn't a module but a integrated part of the kernel, so i turned off  the 
+scsi from the service manager. ( don't know if i am right though ).
 
-Jan
+second, how do i make sure scsi support is actually running???
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+third, if scsi is running and if i have the usb mass storage built into the 
+kernel, why doesn't my cd-rw appear listed  as a scsi connected device as it 
+should??
+
+regards, Astinus.

@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265014AbSJRGne>; Fri, 18 Oct 2002 02:43:34 -0400
+	id <S264991AbSJRG6K>; Fri, 18 Oct 2002 02:58:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265025AbSJRGne>; Fri, 18 Oct 2002 02:43:34 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:52675 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265014AbSJRGnd>;
-	Fri, 18 Oct 2002 02:43:33 -0400
-Date: Thu, 17 Oct 2002 23:41:52 -0700 (PDT)
-Message-Id: <20021017.234152.32199647.davem@redhat.com>
-To: ak@muc.de
-Cc: peter@chubb.wattle.id.au, bcrl@redhat.com, trond.myklebust@fys.uio.no,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] statfs64 no longer missing
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021018063129.GA24682@averell>
-References: <15791.21383.361727.533851@wombat.chubb.wattle.id.au>
-	<20021018061701.GA18925@clusterfs.com>
-	<20021018063129.GA24682@averell>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265013AbSJRG6K>; Fri, 18 Oct 2002 02:58:10 -0400
+Received: from ns.cinet.co.jp ([210.166.75.130]:59403 "EHLO multi.cinet.co.jp")
+	by vger.kernel.org with ESMTP id <S264991AbSJRG6K>;
+	Fri, 18 Oct 2002 02:58:10 -0400
+Message-ID: <E6D19EE98F00AB4DB465A44FCF3FA46903A307@ns.cinet.co.jp>
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: "'Andrey Panin '" <pazke@orbita1.ru>
+Cc: "'linux-kernel@vger.kernel.org '" <linux-kernel@vger.kernel.org>,
+       "'Russell King '" <rmk@arm.linux.org.uk>
+Subject: RE: [PATCH][RFC] add support for PC-9800 architecture (20/26) ser
+	ial #1
+Date: Fri, 18 Oct 2002 16:04:02 +0900
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-2022-jp"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andi Kleen <ak@muc.de>
-   Date: Fri, 18 Oct 2002 08:31:29 +0200
+Andrey Panin wrote:
+> Did you see the next patch (21/26 serial #2) ? It looks even more
+> interesting.
+> As I understand serial98.c driver should support older i8251 UART.
+> However it does it by perverting 8250.c and EMULATING i8250 on top of
+> i8251,
+> see ugly code in serial_in() and serial_out() functions.
+Yes. serial98.c is based on 8250.c. And we add codes for emulating.
+Old PC-9800 has 8251 USART. Newer PC-9801 has both 16550A and 8251 like
+custom chip. Its custom chip is enhanced for support up to 115.2kbps and
+ has FIFO. 
+On kernel 2.1.x to 2.4.x, based on serial.c version are working well.
+But It's ugly code, I think too. :)
 
-   > Wasn't Dave Miller just saying that passing "long" between user-space
-   > and the kernel is just a bad idea?  Should we use "__u32" and "__u64"
-   > here instead?
-   
-   This is architecture specific, where it is ok.
-
-Well, it would be nice if we could put this into
-asm-generic/statfs64.h and use portable types like
-u64 et al.
+Regards
+Osamu Tomita

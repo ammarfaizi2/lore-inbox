@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262202AbVAEBJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbVAEBNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbVAEBJY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 20:09:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262203AbVAEBJY
+	id S262232AbVAEBNt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 20:13:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbVAEBNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 20:09:24 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:15031 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262176AbVAEBGV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 20:06:21 -0500
-Subject: Re: Very high load on P4 machines with 2.4.28
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nicholas Berry <nikberry@med.umich.edu>
-Cc: grendel@caudium.net, willy@w.ods.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <s1dad55b.011@med-gwia-02a.med.umich.edu>
-References: <s1dad55b.011@med-gwia-02a.med.umich.edu>
+	Tue, 4 Jan 2005 20:13:45 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:63109 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262224AbVAEBMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 20:12:53 -0500
+Subject: Re: FAT, NTFS, CIFS and DOS attributes
+From: Nicholas Miell <nmiell@comcast.net>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, sfrench@samba.org,
+       ntfs-dev <linux-ntfs-dev@lists.sourceforge.net>,
+       samba-technical@lists.samba.org, hirofumi@mail.parknet.co.jp,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1104886081.3815.102.camel@localhost.localdomain>
+References: <41D9C635.1090703@zytor.com>
+	 <1104834865.26349.32.camel@imp.csi.cam.ac.uk>
+	 <1104877121.3815.36.camel@localhost.localdomain>
+	 <Pine.LNX.4.60.0501042251420.15144@hermes-1.csi.cam.ac.uk>
+	 <1104886081.3815.102.camel@localhost.localdomain>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1104879448.17176.72.camel@localhost.localdomain>
+Date: Tue, 04 Jan 2005 17:12:50 -0800
+Message-Id: <1104887570.3815.104.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 05 Jan 2005 00:02:08 +0000
+X-Mailer: Evolution 2.0.2 (2.0.2-3.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-01-04 at 22:41, Nicholas Berry wrote:
-> Indeed. AIX (sorry) 5.3 on POWER5 explicitly disables SMT (IBM
-> hyperthreading) if the load doesn't warrant it.
-> 
-> (Now how about that for Linux?) :)
+On Tue, 2005-01-04 at 16:48 -0800, Nicholas Miell wrote:
 
-It would be very nice to do but AFAIK no current processor with
-hypedthreading lets you do dynamic disabling. We do try and land tasks
-on the real processors before other SMT threads and to leave the other
-threads idle. I'm not sure we could do much more unless flipping the
-cache control bits on packages when idle is a win (which I doubt)
+> [ Note to audience: the following is a long (and largely irrelevant to
+> the subject) discussion of how NTFS could implement reparse points and
+> encryption on Linux. Feel free to ignore it. ]
+
+Sorry for the reply to my own message, but I forget to mention in the
+original that the right thing to do for the Encrypted and Reparse bits
+may be just be to silently discard them and not support the manipulation
+of these rather esoteric NTFS features through a general API at all.
+
+-- 
+Nicholas Miell <nmiell@comcast.net>
 

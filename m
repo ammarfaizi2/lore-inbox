@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbUKHWgq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbUKHWjy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbUKHWgq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 17:36:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbUKHWgq
+	id S261275AbUKHWjy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 17:39:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbUKHWjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 17:36:46 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:23883 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261273AbUKHWgg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 17:36:36 -0500
-Date: Mon, 8 Nov 2004 23:37:03 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Gene Heskett <gene.heskett@verizon.net>
+	Mon, 8 Nov 2004 17:39:53 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:35505 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261275AbUKHWjm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 17:39:42 -0500
+Date: Tue, 9 Nov 2004 00:41:46 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Gunther Persoons <gunther_persoons@spymac.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: makeing a loadable module
-Message-ID: <20041108223703.GC16261@mars.ravnborg.org>
-Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org
-References: <200411072328.48785.gene.heskett@verizon.net>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.21
+Message-ID: <20041108234146.GA21550@elte.hu>
+References: <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <418FAFC5.7070000@spymac.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200411072328.48785.gene.heskett@verizon.net>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <418FAFC5.7070000@spymac.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 07, 2004 at 11:28:48PM -0500, Gene Heskett wrote:
-> Greetings;
-> 
-> I found some code I can play with/hack/etc, in the form of a loadable 
-> module and some testing driver programs, in 'dpci8255.tar.gz'.
-> 
-> Unforch its for a slightly different card than the one I have, and 
-> once I've hacked the code to suit, I need to rebuild it.
-> 
-> So whats the gcc command line to make just a bare, loadable module for 
-> say a 2.4.25 kernel?   Obviously I'm missing something when it 
-> complains and quits, claiming there is no 'main' defined, which I 
-> don't think modules actually have one of those?
-> 
-> What I'm trying to do (hey, no big dummy jokes please :)
-> 
-> [root@coyote dist]# cc -o dpci8255.o dpci8255lib.c
-> /usr/lib/gcc-lib/i386-redhat-linux/3.3.3/../../../crt1.o(.text+0x18): 
-> In function `_start':
-> : undefined reference to `main'
-> collect2: ld returned 1 exit status
 
-Create a small Makefile:
-echo obj-m := dpci8255.o > Makefile
+* Gunther Persoons <gunther_persoons@spymac.com> wrote:
 
-And use:
-make -C $PATH_TO_KERNEL_SRC SUBDIRS=$PWD modules
+> When trying to patch my kernel i get following notice:
+> patching file include/linux/highmem.h
+> patch unexpectedly ends in middle of line
+> patch: **** unexpected end of file in patch
 
-This will give you the correct gcc commandline - adopted to actual
-configuration of the kernel.
-Any other way to compile a module is br0ken.
+yeah ... the result of an incomplete upload. I've uploaded -V0.7.22 that
+is a full patch. (no other changes)
 
-For 2.6 the above syntax works as well, but simpler versions exists.
-
-	Sam
+	Ingo

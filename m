@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286336AbSBGIpn>; Thu, 7 Feb 2002 03:45:43 -0500
+	id <S286339AbSBGIxX>; Thu, 7 Feb 2002 03:53:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286339AbSBGIpe>; Thu, 7 Feb 2002 03:45:34 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:33547 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S286336AbSBGIpW>;
-	Thu, 7 Feb 2002 03:45:22 -0500
-Date: Thu, 7 Feb 2002 09:45:12 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] make ide-dma compile in 2.5.4-pre2, woops
-Message-ID: <20020207094512.D16105@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S286343AbSBGIxO>; Thu, 7 Feb 2002 03:53:14 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:39665 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S286339AbSBGIxB>; Thu, 7 Feb 2002 03:53:01 -0500
+Message-Id: <200202070852.g178qoPN001986@tigger.cs.uni-dortmund.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ? 
+In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
+   of "Wed, 06 Feb 2002 14:16:27 GMT." <E16YSs7-0005GY-00@the-village.bc.nu> 
+Date: Thu, 07 Feb 2002 09:52:49 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan Cox <alan@lxorguk.ukuu.org.uk> said:
+> "Christoph Rohland" at Feb 06, 2002 11:36:56 AM said:
+> X-Mailer: ELM [version 2.5 PL6]
+> MIME-Version: 1.0
+> Sender:  linux-kernel-owner@vger.kernel.org
+> Precedence: bulk
+> X-Mailing-List: linux-kernel@vger.kernel.org
+> X-UIDL:  70dcc828dc0f5fc32828144e3bf3c08c
+> 
+> > > If you are going to cat it onto the end of the kernel image just
+> > > mark it __initdata and shove a known symbol name on it. It'll get
+> > > dumped out of memory and you can find it trivially by using tools on
+> > > the binary
+> > 
+> > What about putting such info into a (swappable) tmpfs file with
+> > shmem_file_setup?
+> 
+> That is indeed an extremely cunning plan. Paticularly as /proc/config can
+> be a symlink to it
 
-A minor slip up on my behalf broke ide-dma compile in 2.5.4-pre2 due to
-the scatterlist ->address removal. This patch should make it work again,
-but please not that it is NOT a good example for follow for folks trying
-to fixup other drivers due to address breakage...
+Right. If I take my .config, get just non-"n" entries, get rid of the
+CONFIG_ at each line, then gzip(1) the result, I get 1515 _bytes_. Less
+than the rounding error in a module, can be expanded on the fly with
+existing infrastructure.
 
-scatterlist building for a task file ioctl will be moved to be unified
-with regular bio sglist building instead of the current nasty hack
-soonish.
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.223   -> 1.224  
-#	drivers/ide/ide-dma.c	1.9     -> 1.10   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/02/07	axboe@burns.home.kernel.dk	1.224
-# scatterlist address breakage in task file ioctl building
-# --------------------------------------------
-#
-diff -Nru a/drivers/ide/ide-dma.c b/drivers/ide/ide-dma.c
---- a/drivers/ide/ide-dma.c	Thu Feb  7 09:44:56 2002
-+++ b/drivers/ide/ide-dma.c	Thu Feb  7 09:44:56 2002
-@@ -266,14 +266,16 @@
- #if 1	
- 	if (sector_count > 128) {
- 		memset(&sg[nents], 0, sizeof(*sg));
--		sg[nents].address = virt_addr;
-+		sg[nents].page = virt_to_page(virt_addr);
-+		sg[nents].offset = (unsigned long) virt_addr & ~PAGE_MASK;
- 		sg[nents].length = 128  * SECTOR_SIZE;
- 		nents++;
- 		virt_addr = virt_addr + (128 * SECTOR_SIZE);
- 		sector_count -= 128;
- 	}
- 	memset(&sg[nents], 0, sizeof(*sg));
--	sg[nents].address = virt_addr;
-+	sg[nents].page = virt_to_page(virt_addr);
-+	sg[nents].offset = (unsigned long) virt_addr & ~PAGE_MASK;
- 	sg[nents].length =  sector_count  * SECTOR_SIZE;
- 	nents++;
-  #endif
-
+Sure, it makes sense to have .config around somehow for some rather
+specialized cases, but kludgeing on some such functionality for a very
+niche use just stinks, IMHO.
 -- 
-Jens Axboe
-
+Horst von Brand			     http://counter.li.org # 22616

@@ -1,81 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272247AbTHID2k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 23:28:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272248AbTHID2k
+	id S272241AbTHID5q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 23:57:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272244AbTHID5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 23:28:40 -0400
-Received: from mail.suse.de ([213.95.15.193]:24332 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S272247AbTHID2i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 23:28:38 -0400
-Subject: Re: [PATCH] 2.4: Fix steal_locks race
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030809031945.GA12102@gondor.apana.org.au>
-References: <20030808105321.GA5096@gondor.apana.org.au>
-	 <20030809010736.GA10487@gondor.apana.org.au>
-	 <Pine.LNX.4.53.0308090357290.18879@Chaos.suse.de>
-	 <20030809025232.GA11777@gondor.apana.org.au>
-	 <Pine.LNX.4.53.0308090509020.18879@Chaos.suse.de>
-	 <20030809031945.GA12102@gondor.apana.org.au>
-Content-Type: text/plain
-Organization: SuSE Labs, SuSE Linux AG
-Message-Id: <1060399816.1798.38.camel@bree.suse.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 09 Aug 2003 05:30:16 +0200
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Aug 2003 23:57:46 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:20944 "EHLO
+	VL-MO-MR004.ip.videotron.ca") by vger.kernel.org with ESMTP
+	id S272241AbTHID5o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 23:57:44 -0400
+Date: Fri, 08 Aug 2003 23:57:41 -0400
+From: Stephane Ouellette <ouellettes@videotron.ca>
+Subject: [PATCH]   Unused variable warning in fs/ext3/super.c if CONFIG_QUOTA
+ is not defined
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <3F347135.8070900@videotron.ca>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_NrHDOfu+ZCkB/lHiBzJUvw)"
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-08-09 at 05:19, Herbert Xu wrote:
-> On Sat, Aug 09, 2003 at 05:13:52AM +0200, Andreas Gruenbacher wrote:
-> > On Sat, 9 Aug 2003, Herbert Xu wrote:
-> > 
-> > > On Sat, Aug 09, 2003 at 04:04:53AM +0200, Andreas Gruenbacher wrote:
-> > > >
-> > > > > My patch is buggy too.  If a file is closed by another clone between
-> > > > > the two steal_locks calls the lock will again be lost.  Fortunately
-> > > > > this much harder to trigger than the previous bug.
-> > > >
-> > > > I think this is not a strict bug---this scenario is not covered by POSIX
-> > > > in the first place. Unless lock stealing is done atomically with
-> > > > unshare_files there is a window of oportunity between unshare_files() and
-> > > > steal_locks(), so locks can still get lost.
-> > >
-> > > It's not a standard compliance issue.  In this case the lock will never
-> > > be released and it will eventually lead to a crash when someone reads
-> > > /proc/locks.
-> > 
-> > I don't see how this would happen. Could you please elaborate?
-> 
-> Suppose that A and B share current->files and fd has a POSIX lock on it.
-> 
-> A			B
-> unshare_files
-> steal_locks
-> 			close(fd)
-> exec fails
-> steal_locks
-> put_files_struct
-> 
-> The close in B fails to release the lock as it has been stolen by the
-> new files structure.  The second steal_locks sets the fl_owner back to
-> the original files structure which no longer has fd in it and hence can
-> never release that lock.  The put_files_struct doesn't release the lock
-> either since it is now owned by the original file structure.
+This is a multi-part message in MIME format.
 
-In the patch I've sent there is no stealing back of locks, so that case
-does not exist.
+--Boundary_(ID_NrHDOfu+ZCkB/lHiBzJUvw)
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+
+Folks,
+
+    the following two patches fix a compile warning in fs/ext3/super.c 
+if CONFIG_QUOTA is not defined.
+
+    The patches apply against 2.4.22-rc1-ac1  and  2.6.0-test2.
+
+Stephane Ouellette
 
 
-Cheers,
--- 
-Andreas Gruenbacher <agruen@suse.de>
-SuSE Labs, SuSE Linux AG <http://www.suse.de/>
+--Boundary_(ID_NrHDOfu+ZCkB/lHiBzJUvw)
+Content-type: text/plain; name=super.c-2.4.22-rc1-ac1.diff; CHARSET=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-disposition: inline; filename=super.c-2.4.22-rc1-ac1.diff
 
+--- linux-2.4.22-rc1-ac1-orig/fs/ext3/super.c	Fri Aug  8 22:34:32 2003
++++ linux-2.4.22-rc1-ac1-fixed/fs/ext3/super.c	Fri Aug  8 23:48:54 2003
+@@ -449,7 +449,10 @@
+ }
+ 
+ static struct dquot_operations ext3_qops;
++
++#ifdef CONFIG_QUOTA
+ static int (*old_sync_dquot)(struct dquot *dquot);
++#endif
+ 
+ static struct super_operations ext3_sops = {
+ 	read_inode:	ext3_read_inode,	/* BKL held */
 
+--Boundary_(ID_NrHDOfu+ZCkB/lHiBzJUvw)
+Content-type: text/plain; name=super.c-2.6.0-test2.diff; CHARSET=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-disposition: inline; filename=super.c-2.6.0-test2.diff
+
+--- linux-2.6.0-test2-orig/fs/ext3/super.c	2003-07-27 13:09:04.000000000 -0400
++++ linux-2.6.0-test2-fixed/fs/ext3/super.c	2003-08-08 23:52:42.000000000 -0400
+@@ -2000,7 +2000,9 @@
+ /* Blocks: quota info + (4 pointer blocks + 1 entry block) * (3 indirect + 1 descriptor + 1 bitmap) + superblock */
+ #define EXT3_V0_QFMT_BLOCKS 27
+ 
++#ifdef CONFIG_QUOTA
+ static int (*old_sync_dquot)(struct dquot *dquot);
++#endif
+ 
+ static int ext3_sync_dquot(struct dquot *dquot)
+ {
+
+--Boundary_(ID_NrHDOfu+ZCkB/lHiBzJUvw)--

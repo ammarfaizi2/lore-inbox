@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271683AbRHQQdQ>; Fri, 17 Aug 2001 12:33:16 -0400
+	id <S271479AbRHQQeq>; Fri, 17 Aug 2001 12:34:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271479AbRHQQdG>; Fri, 17 Aug 2001 12:33:06 -0400
-Received: from sitebco-home-5-17.urbanet.ch ([194.38.85.209]:772 "EHLO
-	vulcan.alphanet.ch") by vger.kernel.org with ESMTP
-	id <S271683AbRHQQcv>; Fri, 17 Aug 2001 12:32:51 -0400
-Date: Fri, 17 Aug 2001 18:32:47 +0200
-From: Marc SCHAEFER <schaefer@alphanet.ch>
-Message-Id: <200108171632.SAA00941@vulcan.alphanet.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ext2 not NULLing deleted files?
-Newsgroups: alphanet.ml.linux.kernel
-In-Reply-To: <01081709381000.08800@haneman>
-Organization: ALPHANET NF -- Not for profit telecom research
-X-Newsreader: TIN [UNIX 1.3 unoff BETA 970705; i586 Linux 2.0.38]
+	id <S271684AbRHQQe2>; Fri, 17 Aug 2001 12:34:28 -0400
+Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:9220 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S271479AbRHQQeM>;
+	Fri, 17 Aug 2001 12:34:12 -0400
+Date: Fri, 17 Aug 2001 09:34:56 -0700 (PDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Holger Lubitz <h.lubitz@internet-factory.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Encrypted Swap
+In-Reply-To: <3B7D3EF9.4CEABF2C@internet-factory.de>
+Message-ID: <Pine.LNX.4.10.10108170932030.1944-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <01081709381000.08800@haneman> you wrote:
+On Fri, 17 Aug 2001, Holger Lubitz wrote:
 
-> I just recognized there's an "undelete" now for ext2 file systems [a KDE 
+> "Richard B. Johnson" proclaimed:
+> 
+> > Errrm no. All BIOS that anybody would use write all memory found when
+> > initializing the SDRAM controller. They need to because nothing,
+> > refresh, precharge, (or if you've got it, parity/crc) will work
+> > until every cell is exercised. A "warm-boot" is different. However,
+> > if you hit the reset or the power switch, nothing in RAM survives.
+> 
+> Then this may have changed with SDRAM. However, back in my Amiga days it
+> was pretty common to just reset the machine and rip whatever was left in
+> the memory (DRAM). If memory serves me right, some people put in reset
+> protection (by pointing the reset vector to some code that cleared the
+> memory), which could be fooled by hardware reset or power cycling.
+> 
 
-not new.
+My Apple IIc's manual recommended waiting 15 seconds before turning the
+machine back on in order to wait for the memory to clear.  I wonder how
+long SDRAM lasts if actually removed instead of letting the BIOS clear it
+on boot.
 
-> "The Other OS" in its professional version does of course clear the deleted 
+	Gerhard
 
-(assuming NT)
 
-No it doesn't, and there even has been cases in the past where its
-journaling filesystem was, under some conditions, extending files
-with old data blocks without deleting them (a bit like the OLE `let's
-put anything which is in RAM in this MS-Word file'), allowing other
-users to snoop on each other's data / deleted data [no references
-sorry, from memory].
+--
+Gerhard Mack
 
-Special care, as far as I understand it, must be taken when allocating
-fs data blocks. The following sequence must be followed:
+gmack@innerfire.net
 
-   1. reserve them
-   2. clear them
-   3. mark them as allocated.
-
-if 2 is too expensive, maybe it's sufficient to mark them as dirty
-and zero them in memory. But what happens if the system crashes, with
-the metadata to the disk (block allocated), but the data block not
-yet filled/zeroed ?
-
-Maybe some flags somewhere telling that those data blocks are allocated
-but not yet committed ?
+<>< As a computer I find your faith in technology amusing.
 

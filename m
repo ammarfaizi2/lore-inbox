@@ -1,61 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318210AbSHGKha>; Wed, 7 Aug 2002 06:37:30 -0400
+	id <S317605AbSHGKWY>; Wed, 7 Aug 2002 06:22:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318160AbSHGKha>; Wed, 7 Aug 2002 06:37:30 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:45574 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S318210AbSHGKh3>; Wed, 7 Aug 2002 06:37:29 -0400
-Date: Wed, 7 Aug 2002 12:40:22 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] automatic module_init ordering 
-In-Reply-To: <20020807020259.4CAED417A@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0208071208210.28515-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317611AbSHGKWY>; Wed, 7 Aug 2002 06:22:24 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:1017 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317605AbSHGKWY>; Wed, 7 Aug 2002 06:22:24 -0400
+Subject: Re: kernel BUG at page_alloc.c:113!
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Stephane Wirtel <stephane.wirtel@belgacom.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020807034831.2fa1823f.stephane.wirtel@belgacom.net>
+References: <20020807034831.2fa1823f.stephane.wirtel@belgacom.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 07 Aug 2002 12:45:31 +0100
+Message-Id: <1028720731.18156.257.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2002-08-07 at 02:48, Stephane Wirtel wrote:.
+> nvidia: loading NVIDIA NVdriver Kernel Module  1.0-2960  Tue May 14 07:41:42 PDT 2002
+> NVRM: AGPGART: VIA Apollo KT133 chipset
+> NVRM: AGPGART: aperture: 64M @ 0xe0000000
 
-On Wed, 7 Aug 2002, Rusty Russell wrote:
-
-> > I'm not sure we should go this way. My main problem is that it only solves
-> > a single ordering problem - boot time ordering. What about suspend/wakeup?
-> > We have more of these ordering problems and driverfs is supposed to help
-> > with them, so I'd rather first would like to see how much we can fix this
-> > way.
->
-> suspend/wakeup is a device issue, solved well by devicefs.  This is
-> completely independent from the subtleties of initialization order in
-> the core kernel code: devices are not the problem.
-
-If you see the pci code as a bus device driver, it becomes a problem. I
-looked at the remaining initcalls in my kernel and most of them are for
-pci. I think pci is rather abusing the initcall system.
-I have that idea that pci (like other buses) could become a "normal"
-driver module (one will probably never compile it as a module, but one
-could at least manage it like one).
-So if we integrate the bus initalizations into the device initializations,
-there isn't much left of the current initcalls.
-
-> Look at how many places have explicit initializers with #ifdef
-> CONFIG_XXX around them, because initialization order problems were too
-> hard before.  These can now be fixed as desired.
->
-> I really want *one* place where you can see what order things are
-> initalized.  If that means one big file with #ifdef's, fine.  But the
-> current approach of using link order, initializer levels and explicit
-> initializers is really hard to debug and modify.
-
-I agree that it's currently a mess, maybe your solution is the better in
-the short term to make the dependencies explicit, I'm not sure about that.
-My idea is to handle as much as possible over the module/driver
-initialization mechanisms and leave initcalls as special cases.
-
-bye, Roman
+Take it up with Nvidia, they have our code we don't have theirs. Only
+they can help you
 

@@ -1,72 +1,70 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312791AbSDXW5c>; Wed, 24 Apr 2002 18:57:32 -0400
+	id <S312797AbSDXW7C>; Wed, 24 Apr 2002 18:59:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312797AbSDXW5b>; Wed, 24 Apr 2002 18:57:31 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:49390 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S312791AbSDXW5b>; Wed, 24 Apr 2002 18:57:31 -0400
-Date: Thu, 25 Apr 2002 00:53:53 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Marc-Christian Petersen <mcp@linux-systeme.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.10 compile/link problem
-In-Reply-To: <200204250019.46082.mcp@linux-systeme.de>
-Message-ID: <Pine.NEB.4.44.0204250052380.6539-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S312799AbSDXW7B>; Wed, 24 Apr 2002 18:59:01 -0400
+Received: from h24-68-93-250.vc.shawcable.net ([24.68.93.250]:36748 "EHLO
+	me.bcgreen.com") by vger.kernel.org with ESMTP id <S312797AbSDXW7A>;
+	Wed, 24 Apr 2002 18:59:00 -0400
+Message-ID: <3CC738AD.50905@bcgreen.com>
+Date: Wed, 24 Apr 2002 15:58:53 -0700
+From: Stephen Samuel <samuel@bcgreen.com>
+Organization: Just Another Radical
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: A CD with errors (scratches etc.) blocks the whole system while
+ reading damadged files
+In-Reply-To: <Pine.LNX.3.96.1020424150911.3065D-100000@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Apr 2002, Marc-Christian Petersen wrote:
+I have a system with 2 hard disks (on separate controllers) and a CD-ROM
+on the second controller (shared with the disk that, among other things)
+handles /usr.
 
-> Hi there,
->
-> ld -m elf_i386 -T /usr/src/linux-2.5.10/arch/i386/vmlinux.lds -e stext
-> arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-> init/version.o init/do_mounts.o \
->         --start-group \
->         arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o
-> fs/fs.o ipc/ipc.o \
->         /usr/src/linux-2.5.10/arch/i386/lib/lib.a
-> /usr/src/linux-2.5.10/lib/lib.a /usr/src/linux-2.5.10/arch/i386/lib/lib.a \
->          drivers/acpi/acpi.o drivers/base/base.o drivers/char/char.o
-> drivers/block/block.o drivers/misc/misc.o drivers/net/net.o
-> drivers/media/media.o drivers/char/drm/drm.o drivers/ide/idedriver.o
-> drivers/cdrom/driver.o sound/sound.o drivers/pci/driver.o drivers/pnp/pnp.o
-> drivers/video/video.o drivers/md/mddev.o \
->         net/network.o \
->         --end-group \
->         -o vmlinux
-> drivers/net/net.o: In function `e100_diag_config_loopback':
-> drivers/net/net.o(.text+0x5adf): undefined reference to `e100_phy_reset'
-> make: *** [vmlinux] Error 1
->
-> With EtherExpress Pro 100 original Becker driver.
+I took an old data CD, scratched  took a fork to it and mounted it.
+I then started up MMX playing 'Hotel California' and tried to wc(1)
+a 700K file on the CD.not too bad not too bad not too bad
 
-No, this problem comes from the Alternate Intel driver for the
-EtherExpressPro/100. A patch to get it compile (already posted on this
-list) is:
+Hotel California played fine, but trying to do an 'ls' of /usr
+(same controller) took a LONG time..... (had to wait fnot too bad or the
+CD to release the controller).
 
---- drivers/net/e100/e100_phy.c.old	Wed Apr 24 23:45:52 2002
-+++ drivers/net/e100/e100_phy.c	Wed Apr 24 23:46:08 2002
-@@ -873,7 +873,7 @@
- 	e100_set_fc(bdp);
- }
+I could wc larg files in my /tmp directory, play music etc
+before that WC came back -- I could do anything I wanted,
+as long as I didn't need any data off of that second controller
+(e.g. loading programs in /usr would die, since that HD shares
+controller with the CD).
 
--void __devexit
-+void
- e100_phy_reset(struct e100_private *bdp)
- {
- 	u16 ctrl_reg;
+Given that I rarely use my CD ROM, it's fine having / and /usr
+separated... On the other hand, if I was trying to read damaged CDs
+with any regularity, I'd be making sure that the CD ROM drive was
+sitting on it's own controller -- even if it meant putting all the
+other IO on the system onto one IDE drive/controller.
 
-cu
-Adrian
+> where the bulk of Linux system are running. Putting the CD on another
+> cable is realistic (the system I hung does that) but putting the CD on IDE
+> and the disk on SCSI is not cost effective compared to fixing the hang in
+> software.
+
+Note that this problem is a HARDWARE one -- not a software one.
+It's kinda like trying to cross a Singapore highway... You can
+do it faster, if you don't mind dealing with the nasty side of
+a (data) bus. (read: SPLAT)
+
+Bus error: car dumped.
+
+(and if you think Linux is bad, try doing the same thing in
+Windows!).
 
 -- 
+Stephen Samuel +1(604)876-0426                samuel@bcgreen.com
+		   http://www.bcgreen.com/~samuel/
+Powerful committed communication, reaching through fear, uncertainty and
+doubt to touch the jewel within each person and bring it to life.
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
 

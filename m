@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbUDTA0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbUDTAbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261979AbUDTA0h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 20:26:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUDTA0h
+	id S261862AbUDTAbY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 20:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUDTAbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 20:26:37 -0400
-Received: from ra.sai.msu.su ([158.250.29.2]:4481 "EHLO ra.sai.msu.su")
-	by vger.kernel.org with ESMTP id S261979AbUDTA02 (ORCPT
+	Mon, 19 Apr 2004 20:31:23 -0400
+Received: from gate.crashing.org ([63.228.1.57]:15526 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261862AbUDTAbS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 20:26:28 -0400
-Date: Tue, 20 Apr 2004 04:26:20 +0400 (MSD)
-From: "E.Rodichev" <er@sai.msu.su>
-To: linux-kernel@vger.kernel.org
-Subject: /dev/psaux problem (2.6.5)
-Message-ID: <Pine.GSO.4.58.0404200404360.22353@ra.sai.msu.su>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 19 Apr 2004 20:31:18 -0400
+Subject: Re: siginfo & 32 bits compat, what is the story ?
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andi Kleen <ak@muc.de>
+Cc: joe.korty@ccur.com, Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <m3vfjvtwor.fsf@averell.firstfloor.org>
+References: <1MBxZ-6l5-37@gated-at.bofh.it> <1MLe2-5WC-25@gated-at.bofh.it>
+	 <1MP7P-UD-13@gated-at.bofh.it>  <m3vfjvtwor.fsf@averell.firstfloor.org>
+Content-Type: text/plain
+Message-Id: <1082421048.1677.63.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 20 Apr 2004 10:30:48 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-as it was described already, the new 2.6.0 approach for handling some
-input devices (mice!) lead to many troubles. As for me, the tp4d daemon
-(which is for IBM ThinkPad trackpoint) is very useful and reliable with
-2.0, 2.2 and 2.4 kernels, but it doesn't work with 2.6.x.
+> Note that there are several kinds of x86-64 codes: the original one
+> and Joe's rewritten version in recent kernels. I don't know where
+> you heard it is broken, but maybe they were describing the older
+> code.
 
-There is a good problem description at
-http://www.informatik.uni-freiburg.de/~danlee/fun/psaux/ and a user space
-driver which solves the problem. It works fine with 2.6.3, but not with
-2.6.5.
+Discussing with Stephen, looking at the current code.
 
-The reason is that in 2.6.5 it looks impossible to disable the existing
-mouse driver, which conflicts with driver from Tuukka Toivonen. My
-temporary solution was as follows:
+> If they were refering to the recent version I assume they 
+> would have reported it to the maintainer. But they didn't ...
+> 
+> Anyways - i guess it's hard to make such a decision on hearsay.  I
+> would suggest you start with the x86-64 version and when there are
+> really problems you tell us about them and we fix them.
+> 
+> BTW there was a merged version from some PA-RISC person (with yet
+> another rewritten siginfo copy function) discussed, but for some
+> reason he dropped the ball. 
+
+So I suppose the decision to actually copy _and_ convert those 3 fields
+when moving a userland siginfo around is based on an analysis of what
+userland usually does ? What bothers me is that any app that uses a
+different siginfo layout will be broken between 32 bits and 32 bits
+with this scheme, but maybe that just never happens ?
+
+Ben.
 
 
---- drivers/input/Kconfig.orig  2004-04-04 07:36:18.000000000 +0400
-+++ drivers/input/Kconfig       2004-04-20 03:45:31.000000000 +0400
-@@ -26,7 +26,6 @@ comment "Userland interfaces"
-
- config INPUT_MOUSEDEV
-        tristate "Mouse interface" if EMBEDDED
--       default y
-        depends on INPUT
-        ---help---
-          Say Y here if you want your mouse to be accessible as char devices
-
-
-I am not experienced with the modern config managment, but it looks like
-a bug in 2.6.5 configuration system. I suggest also to include Tuukka Toivonen
-driver in 2.6.x tree, as it is stable, clearly described, and it solves
-many compatibility problems.
-
-_________________________________________________________________________
-Evgeny Rodichev                          Sternberg Astronomical Institute
-email: er@sai.msu.su                              Moscow State University
-Phone: 007 (095) 939 2383
-Fax:   007 (095) 932 8841                       http://www.sai.msu.su/~er

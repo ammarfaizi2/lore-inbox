@@ -1,84 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263152AbSJRJOp>; Fri, 18 Oct 2002 05:14:45 -0400
+	id <S264037AbSJRJTH>; Fri, 18 Oct 2002 05:19:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263544AbSJRJOo>; Fri, 18 Oct 2002 05:14:44 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:62181 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S263152AbSJRJOn>;
-	Fri, 18 Oct 2002 05:14:43 -0400
-Date: Fri, 18 Oct 2002 14:54:56 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: torvalds@transmeta.com, Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] Allow for profile_buf size = kernel text size
-Message-ID: <20021018145456.A2749@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S264615AbSJRJTG>; Fri, 18 Oct 2002 05:19:06 -0400
+Received: from ns.suse.de ([213.95.15.193]:50949 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S264037AbSJRJTG>;
+	Fri, 18 Oct 2002 05:19:06 -0400
+To: Crispin Cowan <crispin@wirex.com>
+Cc: hch@infradead.org, greg@kroah.com, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, linux-security-module@wirex.com,
+       davem@redhat.com
+Subject: Re: [PATCH] remove sys_security
+References: <20021017201030.GA384@kroah.com.suse.lists.linux.kernel> <20021017211223.A8095@infradead.org.suse.lists.linux.kernel> <3DAFB260.5000206@wirex.com.suse.lists.linux.kernel> <20021018.000738.05626464.davem@redhat.com.suse.lists.linux.kernel> <3DAFC6E7.9000302@wirex.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 18 Oct 2002 11:25:02 +0200
+In-Reply-To: Crispin Cowan's message of "18 Oct 2002 10:37:01 +0200"
+Message-ID: <p73wuognlox.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-The following patch enables the kernel profiler to set up profiling
-buffer equal to the kernel text size.  It is particularly useful
-while doing insn level profiling on archs with variable sized instructions.
-There is a better possiblity of ticks being attributed to the right
-instructions if the profiling granularity is better. Patch applies neatly on
-2.5.43 and 2.5.43-mm2. Tested well on PIII 4way.  Please apply.
+Crispin Cowan <crispin@wirex.com> writes:
 
--Kiran
+> Could you elaborate on why this is a sign of trouble, design wise?
 
+David refers to the 32bit emulation issues. Some ports have a 64bit
+kernel, but support 64bit and 32bit userland (e.g. ia64 or x86-64). 
+Some ports even only have 32bit userland but 64bit kernel (like sparc64 or 
+mips64)
 
-diff -X dontdiff -ruN linux-2.5.43/fs/proc/proc_misc.c readprofile-2.5.43/fs/proc/proc_misc.c
---- linux-2.5.43/fs/proc/proc_misc.c	Wed Oct 16 08:57:18 2002
-+++ readprofile-2.5.43/fs/proc/proc_misc.c	Fri Oct 18 10:13:44 2002
-@@ -648,7 +648,7 @@
- 		proc_root_kcore->size =
- 				(size_t)high_memory - PAGE_OFFSET + PAGE_SIZE;
- 	}
--	if (prof_shift) {
-+	if (prof_on) {
- 		entry = create_proc_entry("profile", S_IWUSR | S_IRUGO, NULL);
- 		if (entry) {
- 			entry->proc_fops = &proc_profile_operations;
-diff -X dontdiff -ruN linux-2.5.43/include/linux/profile.h readprofile-2.5.43/include/linux/profile.h
---- linux-2.5.43/include/linux/profile.h	Wed Oct 16 08:58:20 2002
-+++ readprofile-2.5.43/include/linux/profile.h	Thu Oct 17 16:58:56 2002
-@@ -17,6 +17,7 @@
- extern unsigned int * prof_buffer;
- extern unsigned long prof_len;
- extern unsigned long prof_shift;
-+extern int prof_on;
- 
- 
- enum profile_type {
-diff -X dontdiff -ruN linux-2.5.43/kernel/profile.c readprofile-2.5.43/kernel/profile.c
---- linux-2.5.43/kernel/profile.c	Wed Oct 16 08:59:04 2002
-+++ readprofile-2.5.43/kernel/profile.c	Thu Oct 17 17:00:27 2002
-@@ -14,12 +14,15 @@
- unsigned int * prof_buffer;
- unsigned long prof_len;
- unsigned long prof_shift;
-+int prof_on;
- 
- int __init profile_setup(char * str)
- {
- 	int par;
--	if (get_option(&str,&par))
-+	if (get_option(&str,&par)) {
- 		prof_shift = par;
-+		prof_on = 1;
-+	}
- 	return 1;
- }
- 
-@@ -28,7 +31,7 @@
- {
- 	unsigned int size;
-  
--	if (!prof_shift) 
-+	if (!prof_on) 
- 		return;
-  
- 	/* only text is profiled */
+The 32bit and the 64bit worlds have different data types. Structure
+layout are different. To handle this the kernel has an emulation
+layer that converts the arguments of ioctls and system calls between 
+32bit and 64bit.
+
+This emulation layer sits at the 'edge' of the kernel. For example
+to convert an ioctl it first figures out the ioctl, converts it
+then reissues the same ioctl internally with 64bit arguments. When
+the ioctl returns outgoing arguments are converted too as needed.
+
+For this to work all data structures need to be transparent.
+The emulation layer needs to have a way to figure out what and
+how to convert without looking at internal state in the kernel.
+Otherwise it cannot do its job. 
+
+Without working emulation sparc64 won't work and David will be unhappy.
+
+-Andi

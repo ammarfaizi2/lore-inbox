@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129623AbRCLIoF>; Mon, 12 Mar 2001 03:44:05 -0500
+	id <S129638AbRCLIxp>; Mon, 12 Mar 2001 03:53:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129624AbRCLInp>; Mon, 12 Mar 2001 03:43:45 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:9448 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129623AbRCLIne>;
-	Mon, 12 Mar 2001 03:43:34 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: george anzinger <george@mvista.com>
-cc: mingo@elte.hu, Andrew Morton <andrewm@uow.edu.au>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] serial console vs NMI watchdog 
-In-Reply-To: Your message of "Mon, 12 Mar 2001 00:27:14 -0800."
-             <3AAC8862.3461A1A8@mvista.com> 
+	id <S129667AbRCLIxg>; Mon, 12 Mar 2001 03:53:36 -0500
+Received: from snark.tuxedo.org ([207.106.50.26]:13061 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S129638AbRCLIxW>;
+	Mon, 12 Mar 2001 03:53:22 -0500
+Date: Mon, 12 Mar 2001 03:53:07 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org,
+        elenstev@mesatop.com, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: Rename all derived CONFIG variables
+Message-ID: <20010312035307.A15136@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Peter Samuelson <peter@cadcamlab.org>,
+	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org,
+	elenstev@mesatop.com, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20736.984380602@ocs3.ocs-net> <15020.34886.547537.353688@wire.cadcamlab.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 12 Mar 2001 19:41:43 +1100
-Message-ID: <24342.984386503@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15020.34886.547537.353688@wire.cadcamlab.org>; from peter@cadcamlab.org on Mon, Mar 12, 2001 at 02:26:46AM -0600
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Mar 2001 00:27:14 -0800, 
-george anzinger <george@mvista.com> wrote:
->Keith Owens wrote:
->> kdb uses NMI IPI to get the other cpu's attention.  One cpu is in
->> control and may or may not be accepting NMI, it depends on the event
->> that entered kdb.  The other cpus end up in kdb code, spinning waiting
->> for a cpu switch.  Initially they are not receiving NMI because they
->> were invoked via NMI which is masked until they exit.
->
->Are you actually twiddling the hardware, or just changing what happens
->on NMI?
+Peter Samuelson <peter@cadcamlab.org>:
+> > In 2.4.2-ac18 there are 130 CONFIG options that are always derived
+> > from other options, the user has no control over them.
+> 
+> I've thought about these before ... but never got around to doing
+> anything about them.  I agree they should have a separate namespace.
+> 
+> However, I would vote the for namespace CONFIG__* rather than
+> CONFIG_*_DERIVED.  As Jeff noted, _DERIVED is quite a mouthful to type,
+> and CONFIG__* seems all-around less intrusive.
 
-No hardware twiddling.  One cpu gets an event which triggers kdb, that
-event may or may not be via NMI.  kdb on ix86 then uses NMI to get the
-attention of the other cpus, even if they are in a disabled spinloop.
-ix86 hardware will not deliver another NMI to a cpu until the cpu
-issues iret to return from the NMI handler.
+How much point is there to this kind of cleanup in CML1, really?
 
-Initially all but one cpu is forced into kdb via the NMI handler so no
-more NMI events will occur on those cpus.  The first cpu may or may not
-be receiving NMI, it depends on how kdb was invoked on the first cpu.
-To do single stepping of code, kdb allows one cpu out of kdb state so
-it can execute one instruction at the point it was interrupted.  If the
-cpu was entered via NMI then that means exiting from the NMI handler
-back to the original code, do single step then back into kdb again.
+After the fall LinuxWorld meeting I was under the impression that mec
+and the rest of the build team were planning to support switching to
+CML2 for the 2.5 series.  If that's not true, someone should clue me
+in *now*, before I go misrepresenting anybody's position at the 2.5
+kickoff workshop.
 
-Having exited the NMI handler, that cpu will start receiving NMI events
-again, even though it is still under kdb control.  So some cpus will
-get NMI, some will not, depending on user actions.  kdb uses a software
-mechanism to selectively disable the NMI watchdog.
+But if we're going to push Linus and the kernel crew to switch to
+CML2, then why invite the political tsuris of trying to get a large
+patch into 2.4 now?  Maybe I'm missing something here, but this doesn't
+seem necessary to me.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
+The IRS has become morally corrupted by the enormous power which we in
+Congress have unwisely entrusted to it. Too often it acts like a
+Gestapo preying upon defenseless citizens.
+	-- Senator Edward V. Long

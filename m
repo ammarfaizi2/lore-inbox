@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262457AbTJATwM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 15:52:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbTJATwM
+	id S262348AbTJATkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 15:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbTJATkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 15:52:12 -0400
-Received: from madrid10.amenworld.com ([217.174.194.138]:30468 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S262457AbTJATvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 15:51:32 -0400
-Date: Wed, 1 Oct 2003 21:21:26 +0200
-From: DervishD <raul@pleyades.net>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: "Lisa R. Nelson" <lisanels@cableone.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: File Permissions are incorrect. Security flaw in Linux
-Message-ID: <20031001192126.GB22367@DervishD>
-References: <1065012013.4078.2.camel@lisaserver> <1065044031.2158.23.camel@wynken.reefedge.com> <1065019077.2995.22.camel@localhost.localdomain> <Pine.LNX.4.53.0310011204410.4059@chaos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.53.0310011204410.4059@chaos>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+	Wed, 1 Oct 2003 15:40:09 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:11963 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S262348AbTJATkG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 15:40:06 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test5 (nearly) success story
+References: <m3k78enooi.fsf@defiant.pm.waw.pl>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 01 Oct 2003 21:25:10 +0200
+In-Reply-To: <m3k78enooi.fsf@defiant.pm.waw.pl>
+Message-ID: <m3u16sep61.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Richard :)
+Krzysztof Halasa <khc@pm.waw.pl> writes:
 
- * Richard B. Johnson <root@chaos.analogic.com> dixit:
-> > Ok, ok, I get it... It was an oversight on my part.  But I'm sure
-> > surprised about some of the hostile replies I received.  So much for a
-> > friendly group.  People should remember that there's ALWAYS someone that
-> > knows more that YOU.
-> Well there were no hostile replies (yet)
+> Just compiled and booted 2.6.0-test5 on my Fujitsu-Siemens notebook
+> (Liteline LF6, Celeron 600 MHz class, i440BX etc). No modules.
 
-    Don't you think that viro@whatever reply was hostile?
+Now test6 and gcc 3.3.1 20030915 (Red Hat Linux 3.3.1-5)
 
-> And you are being unfriendly. The correct response
-> would have been; "Okay. Thanks".
+> Problems:
+> 1. with cardbus ethernet (DEC tulip 21143-based D-Link DFE-660TX) inserted,
+>    boot process stops after printing something like:
 
-    If someone answers me something like "you are much of a dumb for
-understanding the answer, so I'll just tell you that you're wrong"
-(and believe me, that 'joke' about a well earned F in Unix 101 falls
-in this category IMHO), I wouldn't bother to thank...
-
-    Most of the replies were polite, anyway, but some not ;)
-
-    Raúl Núñez de Arenas Coronado
-
+Fixed in test6.
 -- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+Krzysztof Halasa, B*FH

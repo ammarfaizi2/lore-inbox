@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266175AbUFIVF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266181AbUFIVGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266175AbUFIVF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 17:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266180AbUFIVF7
+	id S266181AbUFIVGR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 17:06:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266179AbUFIVGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 17:05:59 -0400
-Received: from smtp2.pp.htv.fi ([213.243.153.35]:26032 "EHLO smtp2.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S266175AbUFIVFW (ORCPT
+	Wed, 9 Jun 2004 17:06:17 -0400
+Received: from nepa.nlc.no ([195.159.31.6]:65431 "HELO nepa.nlc.no")
+	by vger.kernel.org with SMTP id S266192AbUFIVDG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 17:05:22 -0400
-Subject: Re: [PATCH] ALSA: Remove subsystem-specific malloc (1/8)
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-       tiwai@suse.de
-In-Reply-To: <20040609205944.GA21150@devserv.devel.redhat.com>
-References: <200406082124.i58LOuOL016163@melkki.cs.helsinki.fi>
-	 <20040609113455.U22989@build.pdx.osdl.net>
-	 <1086812001.13026.63.camel@cherry>
-	 <1086812486.2810.21.camel@laptop.fenrus.com>
-	 <1086814663.13026.70.camel@cherry>
-	 <20040609205944.GA21150@devserv.devel.redhat.com>
-Content-Type: text/plain
-Message-Id: <1086815269.13026.76.camel@cherry>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 10 Jun 2004 00:07:49 +0300
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Jun 2004 17:03:06 -0400
+Message-ID: <1701.83.109.60.63.1086814977.squirrel@nepa.nlc.no>
+Date: Wed, 9 Jun 2004 23:02:57 +0200 (CEST)
+Subject: timer + fpu stuff locks my console race
+From: stian@nixia.no
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.0-1
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 09, 2004 at 11:57:43PM +0300, Pekka Enberg wrote:
-> > +void *kcalloc(size_t n, size_t size, int flags)
-> > +{
-> > +	if (n != 0 && size > INT_MAX / n)
-> > +		return NULL;
-> > +
-> > +	void *ret = kmalloc(n * size, flags);
-> > +	if (ret)
-> > +		memset(ret, 0, n * size);
-> > +	return ret;
-> > +}
+Please keep me in CC as I'm not on the mailinglist. I'm currently on a
+vaccation, so I can't hook my linux-box to the Internet, but I came across
+a race condition in the "old" 2.4.26-rc1 vanilla kernel.
 
-On Wed, 2004-06-09 at 23:59, Arjan van de Ven wrote:
-> ok I like it ;)
-> 
-> only question is what n==0 means, might as well short-circuit that but it's
-> optional 
+I'm doing some code tests when I came across problems with my program
+locking my console (even X if I'm using a xterm).
 
-Nah, I don't see the point. Now if I can only convince the ALSA guys to
-switch to this... =)
+I think first of all gcc triggers the problem, so the full report is here:
+http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15905
 
-		Pekka
+For more details about versions and other information needed, please let
+me know if needed. It triggers at every attempt at my box currently (and
+I'm lacking Internet connection at the time-being on my machine).
 
+
+
+Stian Skjelstad

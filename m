@@ -1,44 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314396AbSIALhW>; Sun, 1 Sep 2002 07:37:22 -0400
+	id <S316705AbSIALm6>; Sun, 1 Sep 2002 07:42:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316695AbSIALhW>; Sun, 1 Sep 2002 07:37:22 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:42627 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S314396AbSIALhV>; Sun, 1 Sep 2002 07:37:21 -0400
-Message-ID: <3D71FCEB.6060707@bingo-ev.de>
-Date: Sun, 01 Sep 2002 13:41:31 +0200
-From: Michael Obster <michael.obster@bingo-ev.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020719
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Jacobowitz <dan@debian.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19 and binutils 2.13.90.0.3 dont compile
-References: <3D710D21.5070101@bingo-ev.de> <20020901035909.GA15011@nevyn.them.org>
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S316728AbSIALm5>; Sun, 1 Sep 2002 07:42:57 -0400
+Received: from mail.actcom.co.il ([192.114.47.13]:2188 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S316705AbSIALm4>; Sun, 1 Sep 2002 07:42:56 -0400
+Subject: Re: SMB browser
+From: Gilad Ben-Yossef <gilad@benyossef.com>
+To: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3D709AB7.705@linkvest.com>
+References: <3D709AB7.705@linkvest.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 01 Sep 2002 14:47:47 +0300
+Message-Id: <1030880868.31922.44.camel@gby.benyossef.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 2002-08-31 at 13:30, Jean-Eric Cuendet wrote:
+> Hi,
+> I want to develop a filesystem driver. It will be able to access SMB 
+> shares without mountnig.
+> I'll do a daemon that use libsmbclient from Samba 3.0 that do all the 
+> dirty stuff (getting the available domains, authenticating, getting 
+> files, etc...) and a device driver that will be a filesystem driver. The 
+> driver should communicate with the daemon to ask him about shares, 
+> machines, domains, etc...
+
+People who reinvent the wheel usually end up making it square. 
+
 
 > 
-> The attached was a GCC error, the assembler is not even involved.  You
-> may want to check your GCC installations some more.
+> The idea is:
+> - the daemon should be started by "/etc/init.d/browser start" at beginning
+> - The daemon loads the driver into the kernel
+> - The daemon then mounts the filesystem on /smb using the filesystem 
+> provided by the driver
+> - The driver waits for file requests on /smb to serve them
+> The hierarchy will be :
 > 
-i dont see any error on the gcc installation. it must be a library or 
-could it be a buggy version of bin86. Have 0.16.8 installed.
+> /smb --|-- WG1  --|-- Machine1 --|-- Share1
+>        |          |              |-- Share2
+>        |          |-- Machine2 --|-- Share1
+>        |                         |-- Share2
+>        |                         |-- Share3
+>              |
+>        |-- WG2  --|-- Machine3 --|-- Share1
+>        |-- DOM1 --|-- Machine4 --|-- etc...
+>        |-- DOM2 --|-- Machine5
+> 
+> Then the user access /smb/WG2/Machine38/Share12/Dir1/File2
+> Cool, no?
+> 
+> The authentication is done externally from the kernel, by a userland 
+> process or PAM (a kerberos ticket is gotten from the Domain controller 
+> or Samba PDC). Then the daemon uses that info to authenticate in the 
+> domain. If no auth info is available, then it's authenticated as Guest.
+> 
+> My question:
+> what is the best/easy way to make a kernel driver communicate with 
+> userland? Is it via UNIX socket? Or ioctl? Shared memory? Else?
+> 
+> Thanks for any idea.
+> -jec
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Gilad Ben-Yossef <gilad@benyossef.com>
+http://benyossef.com
 
-Kind Regards,
-Michael Obster
----
-Do you want to rock?                            ___  ___  ___  _  _
-http://www.rocklinux.org/                      | _ || _ || __|| |//
-                                                ||_|||| ||||   |  /
-                                                |  _|||_||||__ |  \
-                                                ||\\ |_LINUX__||_|\\
-------------------------------------------------------------------
+"Money talks, bullshit walks and GNU awks."
+  -- Shachar "Sun" Shemesh, debt collector for the GNU/Yakuza
 

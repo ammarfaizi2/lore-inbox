@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271818AbRICUv4>; Mon, 3 Sep 2001 16:51:56 -0400
+	id <S271811AbRICUu0>; Mon, 3 Sep 2001 16:50:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271813AbRICUvp>; Mon, 3 Sep 2001 16:51:45 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:955 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S271814AbRICUvb>; Mon, 3 Sep 2001 16:51:31 -0400
-Date: Mon, 3 Sep 2001 14:51:55 -0600
-Message-Id: <200109032051.f83Kpt428276@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Zach Brown <zab@zabbo.net>
-Cc: pmhahn@titan.lahn.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cpuid/msr + devfs
-In-Reply-To: <20010903163448.A22633@erasmus.off.net>
-In-Reply-To: <Pine.LNX.4.33.0108121020050.1068-100000@titan.lahn.de>
-	<200109032007.f83K73H27504@vindaloo.ras.ucalgary.ca>
-	<20010903163448.A22633@erasmus.off.net>
+	id <S271813AbRICUuQ>; Mon, 3 Sep 2001 16:50:16 -0400
+Received: from c1765315-a.mckiny1.tx.home.com ([65.10.75.71]:260 "EHLO
+	aruba.maner.org") by vger.kernel.org with ESMTP id <S271811AbRICUuG> convert rfc822-to-8bit;
+	Mon, 3 Sep 2001 16:50:06 -0400
+Subject: atomic_dec_and_lock again - sparc64 - 2.4.9-ac7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Mon, 3 Sep 2001 15:50:25 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
+content-class: urn:content-classes:message
+Message-ID: <C033B4C3E96AF74A89582654DEC664DBC969@aruba.maner.org>
+Thread-Topic: atomic_dec_and_lock again - sparc64 - 2.4.9-ac7
+Thread-Index: AcE0ug5gAVpHgg+VQji8C8vIvZPBXg==
+From: "Donald Maner" <donjr@maner.org>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zach Brown writes:
-> > Better to have a central place which creates per-CPU directories,
-> > which you can call into and grab a directory for a CPU.
-> 
-> I talked with arjan and rmk about this when playing around with per cpu
-> statistics stuff.  Is the proc_cpu.c stuff in the patch useful?
-> 
-> 	http://www.osdlab.org/sw_resources/cpustat/cpustat-2.4.7.pre5-1.diff
+Trying to compile 2.4.9-ac7, getting this...
 
-Well, it can be used as a guide for where things have to be patched.
-It's not really suited to creating devfs directories which can be used
-by random CPU drivers, since you're using an initcall.
 
-However, the per-CPU structures you seem to be creating appears to be
-a logical place to add a devfs entry. As part of the CPU detection
-process, that entry should be initialised. Then drivers can simply
-reference that entry.
+sparc64-linux-gcc -D__KERNEL__ -I/home/donjr/linux-2.4.9-ac7/include
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -m64 -pipe -mno-fpu -mcpu=ultrasparc
+-mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7
+-Wno-sign-compare -Wa,--undeclared-regs    -DEXPORT_SYMTAB -c
+sparc64_ksyms.c
+sparc64_ksyms.c:166: `atomic_dec_and_lock' undeclared here (not in a
+function)
+sparc64_ksyms.c:166: initializer element for
+`__ksymtab_atomic_dec_and_lock.value' is not constant
+make[1]: *** [sparc64_ksyms.o] Error 1
+make[1]: Leaving directory
+`/home/donjr/linux-2.4.9-ac7/arch/sparc64/kernel'
+make: *** [_dir_arch/sparc64/kernel] Error 2
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Any hints?

@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262184AbSKCQ4C>; Sun, 3 Nov 2002 11:56:02 -0500
+	id <S262208AbSKCRDS>; Sun, 3 Nov 2002 12:03:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262190AbSKCQ4C>; Sun, 3 Nov 2002 11:56:02 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:40857 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S262184AbSKCQ4B>;
-	Sun, 3 Nov 2002 11:56:01 -0500
-Date: Sun, 3 Nov 2002 09:56:12 -0700
-From: yodaiken@fsmlabs.com
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, davej@suse.de
-Subject: Re: Filesystem Capabilities in 2.6?
-Message-ID: <20021103095612.A436@hq.fsmlabs.com>
-References: <1036342259.29642.51.camel@irongate.swansea.linux.org.uk> <Pine.GSO.4.21.0211031151590.28485-100000@steklov.math.psu.edu>
+	id <S262215AbSKCRDS>; Sun, 3 Nov 2002 12:03:18 -0500
+Received: from x101-201-88-dhcp.reshalls.umn.edu ([128.101.201.88]:2432 "EHLO
+	arashi.yi.org") by vger.kernel.org with ESMTP id <S262208AbSKCRDR>;
+	Sun, 3 Nov 2002 12:03:17 -0500
+Date: Sun, 3 Nov 2002 11:10:23 -0600
+From: Matt Reppert <arashi@arashi.yi.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Working ide-cd burn/rip, 2.5.44
+Message-Id: <20021103111023.0412c98e.arashi@arashi.yi.org>
+In-Reply-To: <20021103163452.GA11068@suse.de>
+References: <20021102184357.7091fd4d.arashi@arashi.yi.org>
+	<20021103094229.GJ3612@suse.de>
+	<20021103102902.77ae876b.arashi@arashi.yi.org>
+	<20021103163452.GA11068@suse.de>
+Organization: Yomerashi
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-message-flag: : This mail sent from host minerva, please respond.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0211031151590.28485-100000@steklov.math.psu.edu>; from viro@math.psu.edu on Sun, Nov 03, 2002 at 11:56:22AM -0500
-Organization: FSM Labs
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 03, 2002 at 11:56:22AM -0500, Alexander Viro wrote:
-> 
-> 
-> On 3 Nov 2002, Alan Cox wrote:
-> 
-> > On Sun, 2002-11-03 at 14:51, Alexander Viro wrote:
-> > > No messing with chroot needed - just a way to irrevertibly turn off the
-> > > ability (for anybody) to do mounts/umounts in a given namespace and ability
-> > > to clone that namespace.  Then give them ramfs for root and bind whatever
-> > > you need in there.  No breaking out of that, since there is nothing below
-> > > their root where they could break out to...
-> > 
-> > mkdir foo
-> > chroot foo
-> > cd ../../../..
-> > chroot .
-> 
-> ... will give him nothing, since he is not in chroot jail to start with.
-> He has a namespace of his own with his own root filesystem.  Which has
-> several empty directories and nothing else - everything else is bound on
-> these.  He is at his absolute root and can't break out of it - there is
-> nowhere to break out.  So his /foo will be a subdirectory of root of his
-> root filesystem.  OK, he chroots there.  His cwd is still at absolute root
-> and he can follow .. until he's blue in the face - he will stay where he
-> started.
+On Sun, 3 Nov 2002 17:34:52 +0100
+Jens Axboe <axboe@suse.de> wrote:
 
-Plan 9 !
+> On Sun, Nov 03 2002, Matt Reppert wrote:
+> > 3-arashi:~$ /opt/schily/bin/cdrecord dev=ATAPI:0,0,0 -checkdrive
+> 
+> use open by device name, ie dev=/dev/hdX
 
+Ah ... that makes all the difference. My bad. Works under 2.5.45
+as well. (I blame ide-scsi for continuing to make me think like my
+CDRW is on a SCSI bus somewhere ... ^^; )
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
-www.fsmlabs.com  www.rtlinux.com
-1+ 505 838 9109
-
+Thanks,
+Matt

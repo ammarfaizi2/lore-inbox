@@ -1,66 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132260AbRCWAYJ>; Thu, 22 Mar 2001 19:24:09 -0500
+	id <S132284AbRCWA0T>; Thu, 22 Mar 2001 19:26:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132284AbRCWAYD>; Thu, 22 Mar 2001 19:24:03 -0500
-Received: from owns.warpcore.org ([216.81.249.18]:6786 "EHLO owns.warpcore.org")
-	by vger.kernel.org with ESMTP id <S132260AbRCWAXw>;
-	Thu, 22 Mar 2001 19:23:52 -0500
-Date: Thu, 22 Mar 2001 18:20:48 -0600
-From: Stephen Clouse <stephenc@theiqgroup.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Guest section DW <dwguest@win.tue.nl>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-Message-ID: <20010322182048.B1406@owns.warpcore.org>
-In-Reply-To: <3AB9313C.1020909@missioncriticallinux.com> <Pine.LNX.4.21.0103212047590.19934-100000@imladris.rielhome.conectiva> <20010322124727.A5115@win.tue.nl> <20010322142831.A929@owns.warpcore.org> <3C9BCD6E.94A5BAA0@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Content-Disposition: inline; filename="msg.pgp"
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C9BCD6E.94A5BAA0@evision-ventures.com>; from dalecki@evision-ventures.com on Sat, Mar 23, 2002 at 01:33:50AM +0100
+	id <S132285AbRCWA0K>; Thu, 22 Mar 2001 19:26:10 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:896 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S132284AbRCWA0A>; Thu, 22 Mar 2001 19:26:00 -0500
+Message-ID: <3ABA9919.C6BEABD4@redhat.com>
+Date: Thu, 22 Mar 2001 19:30:17 -0500
+From: Doug Ledford <dledford@redhat.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.2ac22
+In-Reply-To: <E14gEvg-0003c0-00@the-village.bc.nu>
+Content-Type: multipart/mixed;
+ boundary="------------6F925B480609C1601E789A8C"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is a multi-part message in MIME format.
+--------------6F925B480609C1601E789A8C
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-On Sat, Mar 23, 2002 at 01:33:50AM +0100, Martin Dalecki wrote:
-> AMEN! TO THIS!
-> Uptime of a process is a much better mesaure for a killing candidate
-> then it's size.
+Alan Cox wrote:
 
-Thing is, if you take a good study of mm/oom_kill.c, it *does* take start time
-into account, as well as CPU time.  The problem is that a process (like Oracle,
-in our case) using ludicrous amounts of memory can still rank at the top of the 
-list, even with the time-based reduction factors, because total VM is the
-starting number in the equation for determining what to kill.  Oracle or what
-not sitting at 80 MB for a day or two will still find a way to outrank the
-newly-started 1 MB shell process whose malloc triggered oom_kill in the first
-place.
+> o       Next incarnation of the i810 audio driver       (Doug Ledford)
 
-If anything, time really needs to be a hard criterion for sorting the final list
-on and not merely a variable in the equation and thus tied to vmsize.
+Is this the i810 that's in Red Hat's CVS or the last copy of the big file that
+I sent you?  If it's the last copy of the big file I sent you, then it has a
+memory leak that needs fixed.  I committed the fix for the memory leak to the
+CVS archive something like two days ago.  The patch is attached.
 
-This is why the production database boxen aren't running 2.4 yet.  I can control
-Oracle's usage very finely (since it uses a fixed memory pool preallocated at
-startup), but if something else decides to fire up on there (like the nightly
-backup and maintenance routine) and decides it needs just a pinch more memory
-than what's available -- ick.  2.2.x doesn't appear to enforce new memory 
-allocation with a sniper rifle -- the new process just suffers a pleasant ("Out
-of memory!") or violent (SIGSEGV) death.
+-- 
 
-- -- 
-Stephen Clouse <stephenc@theiqgroup.com>
-Senior Programmer, IQ Coordinator Project Lead
-The IQ Group, Inc. <http://www.theiqgroup.com/>
+ Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+      Please check my web site for aic7xxx updates/answers before
+                      e-mailing me about problems
+--------------6F925B480609C1601E789A8C
+Content-Type: text/plain; charset=us-ascii;
+ name="linux-2.4.2-i810_audio-dealloc.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.4.2-i810_audio-dealloc.patch"
 
------BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.8
+--- linux/drivers/sound/i810_audio.c.save	Wed Mar 21 20:44:29 2001
++++ linux/drivers/sound/i810_audio.c	Wed Mar 21 20:44:34 2001
+@@ -1820,12 +1820,11 @@
+ 			return -EBUSY;
+ 		}
+ 		stop_dac(state);
+-		dealloc_dmabuf(state);
+ 	}
+ 	if(dmabuf->enable & ADC_RUNNING) {
+ 		stop_adc(state);
+-		dealloc_dmabuf(state);
+ 	}
++	dealloc_dmabuf(state);
+ 	if (file->f_mode & FMODE_WRITE) {
+ 		state->card->free_pcm_channel(state->card, dmabuf->write_channel->num);
+ 	}
 
-iQA/AwUBOrqW3wOGqGs0PadnEQLZUwCfWTr8HwAChQamWWvWWzZcX5DZ8PAAnROB
-Ja25OAQu3W1h7Ck0SU/TfKj8
-=VlQt
------END PGP SIGNATURE-----
+--------------6F925B480609C1601E789A8C--
+

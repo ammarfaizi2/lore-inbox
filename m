@@ -1,61 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261871AbTHaHrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 03:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbTHaHrY
+	id S262014AbTHaI2m (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 04:28:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbTHaI2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 03:47:24 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:47777 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261871AbTHaHrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 03:47:23 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: cb-lkml@fish.zetnet.co.uk
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030829184919.GA21155@xaqithis.com>
-References: <20030829184919.GA21155@xaqithis.com>
-Message-Id: <1062315980.32736.41.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Sun, 31 Aug 2003 09:46:21 +0200
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-Subject: Re: [2.6.0-test4] IDE power management
-Content-Type: text/plain
+	Sun, 31 Aug 2003 04:28:42 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:27307 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262014AbTHaI2k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 04:28:40 -0400
+Message-ID: <3F51B1A3.4080307@colorfullife.com>
+Date: Sun, 31 Aug 2003 10:28:19 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Felipe W Damasio <felipewd@terra.com.br>
+CC: linux-kernel@vger.kernel.org, rnp@netlink.co.nz
+Subject: Re: [PATCH] Fix SMP support on 3c527 net driver
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Felipe wrote:
 
-> hda: start_power_step(step: 0)
-> hda: start_power_step(step: 1)
-> hda: complete_power_step(step: 1, stat: 50, err:0)
-> hda: completing PM request, suspend
-> hda: a request made it's way while we are power managing
-> --- power down/up occurs here
-> hda: Wakeup request inited, waiting for !BSY...
-> hda: start_power_step(step: 1000)
-> hda: completing PM request, resume
-> ...
-> hda: lost interrupt
+>Also, the down/up function doesn't seem to be 
+>used in interrupt context, so I think it will work.
+>  
+>
+[snip]
+
+> static int mc32_send_packet(struct sk_buff *skb, struct net_device *dev)
+> {
+> 	struct mc32_local *lp = (struct mc32_local *)dev->priv;
+>-	unsigned long flags;
 > 
-> The hard disk won't allow any accesses any more.
+> 	volatile struct skb_header *p, *np;
 > 
-> APM suspend to RAM doesn't work properly on this machine, so I haven't
-> tested that.
+> 	netif_stop_queue(dev);
+> 
+>-	save_flags(flags);
+>-	cli();
+>+	down(&lp->mc32_sem);
+>  
+>
+No, that's wrong. mc32_send_packet is the hard_start_xmit function, 
+called from bottom half context, with the dev_xmit_lock spinlock held.
+Additionally, you must replace the sleep_on calls with wait_event, or an 
+open-coded wait queue: sleep_on is racy, it only works with cli().
 
-I'm afraid we may have APM junk getting in our way. It would be
-interesting to check out what is the request that made its way while
-power managing, though I usually consider this is harmless...
+IMHO the right way to fix cli() is
+- add a single spinlock to the driver or the device structure. Do not 
+forget the spin_lock_init().
+- replace cli/sti with spin_lock_irqsave/spin_unlock_irqsave.
+- Additionally acquire the spinlock in every interrupt handler (cli() 
+stops all interrupts, spinlocks only stop interrupt on the current cpu).
+- check if there were recursive cli() calls. Fix them.
+- replace all sleep_on calls with wait queue calls.
+- check if there are any kmalloc or schedule calls in the area now under 
+the spinlock, and reorganize the code.
 
-The lost interrupt problem may or may not be related, it could well
-be an IRQ routing problem as well. Did you have DMA enabled ? What
-happens if you disable that before suspend ? You can also add some
-printk to piix_config_drive_xfer_rate() in piix.c to check if that
-is properly getting called and doesn't fail.
+And please add a changelog entry that code was converted without testing.
 
-Ben.
-
+--
+    Manfred
 

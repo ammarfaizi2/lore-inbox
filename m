@@ -1,60 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbVBASCR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVBASDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262091AbVBASCR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 13:02:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbVBASCR
+	id S262089AbVBASDo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 13:03:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVBASDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 13:02:17 -0500
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:59282 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S262089AbVBASCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 13:02:06 -0500
-Date: Tue, 1 Feb 2005 19:02:02 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] "biological parent" pid
-In-Reply-To: <41FFA98B.2050800@tmr.com>
-Message-ID: <Pine.LNX.4.53.0502011854540.26585@gockel.physik3.uni-rostock.de>
-References: <Pine.LNX.4.53.0501311923440.18039@gockel.physik3.uni-rostock.de>
- <41FFA98B.2050800@tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Feb 2005 13:03:40 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:47554 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262089AbVBASCq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 13:02:46 -0500
+Date: Tue, 1 Feb 2005 10:02:41 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux-poweredge@dell.com
+Cc: zaitcev@redhat.com, linux-precision@dell.com, linux-kernel@vger.kernel.org
+Subject: Patch to enable the USB handoff on Dell 650
+Message-ID: <20050201100241.07c6c504@localhost.localdomain>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Feb 2005, Bill Davidsen wrote:
+Hi, guys,
 
-> Tim Schmielau wrote:
-> > The ppid of a process is not really helpful if I want to reconstruct the 
-> > real history of processes on a machine, since it may become 1 when the
-> > parent dies and the process is reparented to init.
-> > 
-> > I am not aware of concepts in Linux or other unices that apply to this
-> > case. So I made up the "biological parent pid" bioppid (in contrast to the
-> > adoptive parents pid) that just never changes.
-> > Any user of it must of course remember that it doesn't need to be a valid 
-> > pid anymore or might even belong to a different process that was forked in 
-> > the meantime. bioppid only had to be a valid pid at time btime (it's
-> > a (btime, pid) pair that unambiguously identifies a process).
-> 
-> I think you are not only using a hammer to swat a fly, buy the wrong 
-> fly. Would it not do as well to log reparenting? You could even add that 
-> as an option to init, although if you are being lazy about tracking the 
-> original parent a kernel log saying something like
->    reparent PID1 from PID2 to PID3
-> would be best. While I think all current reparenting is done to init, I 
-> could certainly think of a use for a method to reparent back to the 
-> grandparent, just to keep the accounting clean.
+I was looking at this:
+  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=138892
 
-My idea of a hammer seems to be slightly different. After all, I just 
-added _two_lines_ of code [*] to log useful information where useless info 
-was logged before.
+  I have added usb-handoff as a kernel option in grub.conf for
+  2.4.21-20.EL (smp) and re-enabled USB Emulation and Controller in the
+  BIOS, and the machine now seems to boot normally.  I only had time to
+  try booting it twice, but previously it would fail almost every time,
+  so two successive successful boots seems very good.  Thanks for your
+  quick responses and working solution!
 
-Any new logging mechanism would be orders of magnitude more expensive.
+Can someone with the Dell PW650 (which, I think, should be same as PE600)
+test this patch for me? I do not want to send this for inclusion into
+Linus' kernel before it's tested.
 
-Tim
+In theory we probably will want USB handoff to be enabled by default, but
+I am not sure this time is now, so let us use DMI lists until then.
 
+Thanks,
+-- Pete
 
-[*] or, in other word, 4 bytes per task_struct and one instruction 
-to fill that.
+--- linux-2.6.11-rc2/arch/i386/kernel/dmi_scan.c	2005-01-22 14:53:59.000000000 -0800
++++ linux-2.6.11-rc2-lem/arch/i386/kernel/dmi_scan.c	2005-01-31 20:42:16.163592792 -0800
+@@ -243,6 +243,19 @@
+ }  
+ #endif
+ 
++static __init int enable_usb_handoff(struct dmi_blacklist *d)
++{
++	extern int usb_early_handoff;
++
++	/*
++	 * A printk is probably unnecessary. There's no way this causes
++	 * any harm (famous last words). But seriously, we only add systems
++	 * to the list if we know that they need handoff for sure.
++	 */
++	usb_early_handoff = 1;
++	return 0;
++}
++
+ /*
+  *	Process the DMI blacklists
+  */
+@@ -376,6 +389,14 @@
+ 
+ #endif
+ 
++	/*
++	 *	Boxes which need USB taken over from BIOS explicitly.
++	 */
++	{ enable_usb_handoff, "Dell PW650", {
++			MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
++			MATCH(DMI_PRODUCT_NAME, "Precision WorkStation 650"),
++			NO_MATCH, NO_MATCH }},
++
+ 	{ NULL, }
+ };
+ 

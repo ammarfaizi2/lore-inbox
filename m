@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269366AbUJLAEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269364AbUJLALQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269366AbUJLAEv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 20:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269373AbUJLAEv
+	id S269364AbUJLALQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 20:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269373AbUJLALQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 20:04:51 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:18310 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269364AbUJLAEg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 20:04:36 -0400
-Message-ID: <35fb2e590410111704508ac41e@mail.gmail.com>
-Date: Tue, 12 Oct 2004 01:04:35 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: IT8212 IDE driver on ASUS P5GD-VM (IT8211)
-Cc: Ampoulin <ampoulin@altern.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1097502881.31259.21.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 11 Oct 2004 20:11:16 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:43656 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269364AbUJLALO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 20:11:14 -0400
+Message-ID: <416B211E.409@yahoo.com.au>
+Date: Tue, 12 Oct 2004 10:11:10 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Brown, Len" <len.brown@intel.com>
+Subject: Re: Linux 2.6.9-rc4 - pls test (and no more patches)
+References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org> <416A5857.1090307@yahoo.com.au> <Pine.LNX.4.58.0410110802590.3897@ppc970.osdl.org> <Pine.LNX.4.58.0410110822170.3897@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0410110822170.3897@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <200410110409.56544.ampoulin@altern.org>
-	 <1097502881.31259.21.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Oct 2004 14:54:43 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Llu, 2004-10-11 at 03:09, Ampoulin wrote:
-> > Hello,
-> >
-> > Is the patch provided by Alan Cox for IT8212 on linux 2.6.9-rc3 supposed to
-> > work on IT8211 ? I tried it and it wasn't working.
+Linus Torvalds wrote:
 > 
-> I think it will with some slight persuasion. I don't have an IT8211 so
-> I've not had a chance to dig into this. Once the driver is all nicely
-> merged I'll do the needed comparisons.
+> On Mon, 11 Oct 2004, Linus Torvalds wrote:
+> 
+>>That said, your patch is small and simple, so..
+> 
+> 
+> Btw, out of interest, make it print out the "package->type" for the 
+> failure case. It should be ACPI_TYPE_PACKAGE (4), I think, but..
+> 
 
-However I might do. I'll check later on - copy me on any discussion please.
-
-Jon.
+ACPI: element was NULL! package = 1

@@ -1,44 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267176AbTBYOhL>; Tue, 25 Feb 2003 09:37:11 -0500
+	id <S267070AbTBYOwe>; Tue, 25 Feb 2003 09:52:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267359AbTBYOhK>; Tue, 25 Feb 2003 09:37:10 -0500
-Received: from ns1.baby-dragons.com ([199.33.245.254]:20171 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S267176AbTBYOhI>; Tue, 25 Feb 2003 09:37:08 -0500
-Date: Tue, 25 Feb 2003 09:47:23 -0500 (EST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Valdis.Kletnieks@vt.edu
-cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: Minutes from Feb 21 LSE Call 
-In-Reply-To: <200302250246.h1P2kYtk024120@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.53.0302250944470.8334@filesrv1.baby-dragons.com>
-References: <33350000.1046043468@[10.10.2.4]> <20030224045717.GC4215@work.bitmover.com>
- <20030224074447.GA4664@gnuppy.monkey.org> <20030224075430.GN10411@holomorphy.com>
- <20030224080052.GA4764@gnuppy.monkey.org> <20030224004005.5e46758d.akpm@digeo.com>
- <20030224085031.GP10411@holomorphy.com> <20030224091758.A11805@hq.fsmlabs.com>
- <20030225020730.GA4507@gnuppy.monkey.org> <20030225021426.GE11953@work.bitmover.com>
-            <20030225022438.GC4507@gnuppy.monkey.org>
- <200302250246.h1P2kYtk024120@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267154AbTBYOwe>; Tue, 25 Feb 2003 09:52:34 -0500
+Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:6021 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id <S267070AbTBYOwd>; Tue, 25 Feb 2003 09:52:33 -0500
+Date: Tue, 25 Feb 2003 06:59:12 -0800
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: yodaiken@fsmlabs.com, William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@digeo.com>, lm@work.bitmover.com,
+       mbligh@aracnet.com, davidsen@tmr.com, greearb@candelatech.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030225145912.GA4162@gnuppy.monkey.org>
+References: <20030224074447.GA4664@gnuppy.monkey.org> <20030224075430.GN10411@holomorphy.com> <20030224080052.GA4764@gnuppy.monkey.org> <20030224004005.5e46758d.akpm@digeo.com> <20030224085031.GP10411@holomorphy.com> <20030224091758.A11805@hq.fsmlabs.com> <20030224231341.GQ10411@holomorphy.com> <20030224162754.A24766@hq.fsmlabs.com> <20030225021736.GB4507@gnuppy.monkey.org> <1046187058.4096.12.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1046187058.4096.12.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.3i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 25, 2003 at 03:30:59PM +0000, Alan Cox wrote:
+> Nothing is conceptually obvious. Thats the difference between 'science'
+> and engineering. Our bridges have to stay up.
 
-	Hello Valdis ,  One in those days there were no RL05's (never were
-	if my memory serves) .  They were RL02's 10mb packs .  Maybe RM05 ?
-	*nix definately was NOT known as BSD then .  JimL
+Yes, I absolutely agree with this. It shouldn't be the case where one is
+over the other, they should have a complementary relationship.
 
-On Mon, 24 Feb 2003 Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 24 Feb 2003 18:24:38 PST, Bill Huey said:
-> > But apparently what knows is not very modern. I'm no slouch either being a
-> > former BSDi (the original Unix folks) engineer, but I don't go dimissing
-> And here I thought "the original Unix folks" was Dennis and Ken mailing you
-> an RL05 with a "Good luck, let us know if it works" cover letter... ;)
--- 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+> > It's about getting relationship inside the kernel to respect and be
+> > controllable by the scheduler in some formal manner, not some random
+> > not-so-well-though-out hack of the day.
+> 
+> Prove it, compute the bounded RT worst case. You can't do it. Linux, NT,
+> VMS and so on are all basically "armwaved real time". Now for a lot of
+> things armwaved realtime is ok, one 'click' an hour on a phone call
+> from a DSP load miss isnt a big deal. Just don't try the same with
+> precision heavy machinery.
+> 
+> Its not a lack of competence, we genuinely don't yet have the understanding
+> in computing to solve some of the problems people are content to armwave
+> about.
+> 
+> If I need extremely high provable precision, Victor's approach is right, if
+> I want armwaved realtimeish behaviour with a more convenient way of working
+> then Victor's approach may not be the best.
+
+I spoke to some folks related to CMU's RTOS group about a year ago and was
+influenced by their preemption design in that they claimed to get tight RT
+latency characteristics by what seems like some mild changes to the Linux
+kernel. I recently start to investigate their stuff, took a clue from them
+and became convince that this approach was very neat and elegant. MontaVista
+apparently uses this approach over other groups that run Linux as a thread
+in another RT kernel. Whether this, static analysis tools doing rate{deadline}-monotonic
+analysis and scheduler "reservations" (born from that RT theory I believe)
+are unclear to me at this moment. I just find this particular track neat
+and reminiscent of some FreeBSD ideals that I'd like to see fully working in
+an open source kernel.
+
+Top level link to many papers:
+	http://linuxdevices.com/articles/AT6476691775.html
+
+A paper I've take interest in recently from the top-level link:
+	http://www.linuxdevices.com/articles/AT6078481804.html
+
+People I originally talked to that influence my view on this:
+	http://www-2.cs.cmu.edu/~rajkumar/linux-rk.html
+
+> Its called engineering. There are multiple ways to build most things, each
+> with different advantages, there are multiple ways to model it each with
+> more accuracy in some areas. Knowing how to use the right tool is a lot 
+> more important than having some religion about it.
+
+Yes, I agree. I'm not trying to make a religious assertion and I don't
+function that way. I just want things to work smoother and explore some
+interesting ideas that I think eventually will be highly relevant to a
+very broad embedded arena.
+
+bill
+ 

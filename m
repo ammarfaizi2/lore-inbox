@@ -1,73 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266404AbUBFDpV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 22:45:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266409AbUBFDpV
+	id S266433AbUBFDvz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 22:51:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266435AbUBFDvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 22:45:21 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:53770 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S266404AbUBFDpO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 22:45:14 -0500
-Date: Thu, 5 Feb 2004 19:45:09 -0800
-From: jw schultz <jw@pegasys.ws>
+	Thu, 5 Feb 2004 22:51:55 -0500
+Received: from h80ad253b.async.vt.edu ([128.173.37.59]:58752 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S266433AbUBFDvx (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 22:51:53 -0500
+Message-Id: <200402060351.i163ptpB010350@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.2] Documentation/SubmittingPatches
-Message-ID: <20040206034509.GI21479@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <20040205072303.BCF79FA5F1@mrhankey.megahappy.net>
+Subject: [PATCH] 2.6.2-mm1 - more -Wundef cleanup
+From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040205072303.BCF79FA5F1@mrhankey.megahappy.net>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: For a better outlook on computing run Linux
+Content-Type: multipart/signed; boundary="==_Exmh_266810730P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 05 Feb 2004 22:51:54 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 04, 2004 at 11:23:03PM -0800, Bryan Whitehead wrote:
-> 
-> I've been trying to get my feet wet by submitting trivial patchs to various maintainers and the responses have been, "your not submiting you patches correctly". It seems most developers/maintainers want a diff done like this:
-> 
-> cd /source-tree
-> diff -u linux-2.6.2/FileToPatch.orig linux-2.6.2/FileToPatch
-> 
-> instead of the "SubmitingPatches" document way:
-> cd /source-tree/linux-2.6.2
-> diff -u FileToPatch.orig FileToPatch
-> 
-> It would be _great_ if the Documentation was more accurate to the taste of developers/maintainers...
-> 
-> If the SubmittingPatches document is correct, then just toss this patch out because this won't be submitted right... ;)
-> 
-> --- linux-2.6.2/Documentation/SubmittingPatches.orig    2004-02-04 22:57:55.818563016 -0800
-> +++ linux-2.6.2/Documentation/SubmittingPatches 2004-02-04 23:01:28.799185040 -0800
-> @@ -33,13 +33,15 @@
->                                                                                                                                     
->  To create a patch for a single file, it is often sufficient to do:
->                                                                                                                                     
-> -       SRCTREE= /devel/linux-2.4
-> +       SRCTREE= /devel/
-> +       SRCDIR= linux-2.4
->         MYFILE=  drivers/net/mydriver.c
->                                                                                                                                     
-> -       cd $SRCTREE
-> +       cd $SRCTREE/$SRCDIR
->         cp $MYFILE $MYFILE.orig
->         vi $MYFILE      # make your change
-> -       diff -u $MYFILE.orig $MYFILE > /tmp/patch
-> +       cd $SRCTREE
-> +       diff -u $SRCDIR/$MYFILE.orig $SRCDIR/$MYFILE > /tmp/patch
->                                                                                                                                     
+--==_Exmh_266810730P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <10342.1076039514.1@turing-police.cc.vt.edu>
 
-For what it may be worth I find patches a lot more useful
-for review purposes if the -p (for --show-c-function) option
-is also used.
+Even after the patch I just sent, building with -Wundef still gets:
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+  CC      drivers/char/mem.o
+In file included from drivers/char/mem.c:15:
+include/linux/ftape.h:168:7: warning: "CONFIG_FT_ALT_FDC" is not defined
 
-		Remember Cernan and Schmitt
+#elif CONFIG_FT_ALT_FDC == 1  /* CONFIG_FT_MACH2 */
+
+The sort of whoops that -Wundef was intended to catch.
+
+Further research shows that it's spurious - there's no obvious
+reason for mem.c to even include ftape.h (or tpquic02.h for that
+matter) - compiles fine, even compared 'gcc -E' with and without.
+
+--- linux-2.6.2-mm1/drivers/char/mem.c.dist	2004-02-05 22:23:34.291328515 -0500
++++ linux-2.6.2-mm1/drivers/char/mem.c	2004-02-05 22:36:25.900847264 -0500
+@@ -11,8 +11,6 @@
+ #include <linux/config.h>
+ #include <linux/mm.h>
+ #include <linux/miscdevice.h>
+-#include <linux/tpqic02.h>
+-#include <linux/ftape.h>
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ #include <linux/mman.h>
+
+
+--==_Exmh_266810730P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAIw9acC3lWbTT17ARAj+MAKDmioxvVzWQ9ivqu0OB/wEW8CHEBQCeJZwA
+ZTL5zzzd2+ejId4kNoJF8w4=
+=f3yX
+-----END PGP SIGNATURE-----
+
+--==_Exmh_266810730P--

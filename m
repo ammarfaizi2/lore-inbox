@@ -1,72 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271150AbTHHCEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 22:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271155AbTHHCEJ
+	id S271155AbTHHCjI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 22:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271156AbTHHCjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 22:04:09 -0400
-Received: from mayhem.byteworld.com ([63.127.169.21]:10384 "EHLO
-	chaos.byteworld.com") by vger.kernel.org with ESMTP id S271150AbTHHCEG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 22:04:06 -0400
-Date: Thu, 7 Aug 2003 22:04:16 -0400
-From: William Enck <wenck@wapu.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>
-Subject: Re: [bk patches] 2.6.x net driver updates
-Message-ID: <20030808020416.GA20116@chaos.byteworld.com>
-References: <20030808000508.GA4464@gtf.org> <20030808013649.GA20003@chaos.byteworld.com> <3F32FFAD.1050203@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F32FFAD.1050203@pobox.com>
-User-Agent: Mutt/1.3.28i
-X-Sent-From: chaos.byteworld.com
+	Thu, 7 Aug 2003 22:39:07 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:21644 "HELO
+	develer.com") by vger.kernel.org with SMTP id S271155AbTHHCjF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 22:39:05 -0400
+Message-ID: <3F330D46.8020508@develer.com>
+Date: Fri, 08 Aug 2003 04:39:02 +0200
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer S.r.l.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: gcc@gcc.gnu.org
+CC: linux-kernel@vger.kernel.org
+Subject: Big kernel size increase with gcc 3.4
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07, 2003 at 09:41:01PM -0400, Jeff Garzik wrote:
-> William Enck wrote:
-> >On Thu, Aug 07, 2003 at 08:05:08PM -0400, Jeff Garzik wrote:
-> >
-> >>Linus, please do a
-> >>
-> >>	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.6
-> >>
-> >>Others may download the patch from
-> >>
-> >>ftp://ftp.??.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.0-test2-bk7-netdrvr1.patch.bz2
-> >>
-> >>This will update the following files:
-> >
-> >..snip..
-> >
-> >>drivers/net/wireless/orinoco_cs.c   |   16 -
-> >
-> >
-> >dmesg gave the folloing with 2.6.0-test2-bk7
-> >
-> >orinoco.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
-> >orinoco_cs.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
-> >orinoco_cs: RequestIRQ: Unsupported mode
-> >
-> >I thought the above patch might fix it, so I patched and recompiled. I
-> >still see the following in 2.6.0-test2-bk7-netdrvr1
-> >
-> >orinoco_cs.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
-> >orinoco_cs: RequestIRQ: Unsupported mode
-> >
-> >The module loaded and worked fine in -test2 and -test2-mm4. 
-> 
-> 
-> Can you test -test2-bk7 (without my patch)?
+Hello,
 
-The first set i was from -test2-bk7 and the second was from your patch.
-Your patch didn't cause the problem. I replied to your email because you
-had updates to orinoco_cs.c and I thought there was a chance your patch
-was supposed to fix it. I guess a reply was not the best thing to do,
-shall I start a new thread?
+these figures speak for themselves:
+
+   text    data     bss     dec     hex filename
+ 833352   47200   78884  959436   ea3cc linux-2.6.x/vmlinux_gcc331
+ 877420   53212   78884 1009516   f676c linux-2.6.x/vmlinux_gcc34
+
+
+ - target is linux-2.6.0-test2-uc0 for m68knommu (full config
+   available on request);
+
+ - same optimization flags: -m5307 -O2 -fno-strict-aliasing
+      -fno-common -fno-builtin -fomit-frame-pointer
+
+ - same ColdFire GCC patches were used (I strongly doubt it
+   could be a back-end issue);
+
+ - gcc-3.3.1-20030720 VS gcc-3.4-20030806.
+
+I can provide more datails if needed. Could be an inlining issue
+of course.
+
+Out of curiosity, it seems that the old 2.95.3 could finally be
+sent to rest now:
+
+   text    data     bss     dec     hex filename
+  833352   47200   78884  959436   ea3cc linux-2.6.x/vmlinux_gcc331
+  857208   72800   60836  990844   f1e7c linux-2.6.x/vmlinux_gcc295
 
 -- 
-William Enck
-wenck@wapu.org
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
+
+Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
+
+
+

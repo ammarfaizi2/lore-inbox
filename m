@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263087AbTDBSHI>; Wed, 2 Apr 2003 13:07:08 -0500
+	id <S263077AbTDBRzF>; Wed, 2 Apr 2003 12:55:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263098AbTDBSHI>; Wed, 2 Apr 2003 13:07:08 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:49329 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S263087AbTDBSHI>;
-	Wed, 2 Apr 2003 13:07:08 -0500
-Date: Wed, 2 Apr 2003 13:18:28 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nash
-Message-ID: <20030402181828.GA12583@gtf.org>
-References: <Pine.LNX.4.53.0304021301580.31073@chaos>
-Mime-Version: 1.0
+	id <S263082AbTDBRzF>; Wed, 2 Apr 2003 12:55:05 -0500
+Received: from mako.theneteffect.com ([63.97.58.10]:6930 "EHLO
+	mako.theneteffect.com") by vger.kernel.org with ESMTP
+	id <S263077AbTDBRzD>; Wed, 2 Apr 2003 12:55:03 -0500
+From: Mitch Adair <mitch@theneteffect.com>
+Message-Id: <200304021806.h32I6M709795@mako.theneteffect.com>
+Subject: Re: subsystem crashes reboot system?
+To: rmiller@duskglow.com (Russell Miller)
+Date: Wed, 2 Apr 2003 12:06:22 -0600 (CST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200304021149.36511.rmiller@duskglow.com> from "Russell Miller" at Apr 02, 2003 11:49:36 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0304021301580.31073@chaos>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 02, 2003 at 01:08:12PM -0500, Richard B. Johnson wrote:
-> RH uses nash in their 8.0 `mkinitrd`. Anybody know
-> where to find source code? Really know, I searched
-> all the obvious places and mirrors.
+> good.  But this crash left the system in a semi-functional state.  The 
+> networking stack was up and running, the kernel was running, but the 
+> filesystem was not functional and because of this the kernel was in a nearly 
+> unusable state.  Because the system was pingable, most tcp-stack level 
+> detectors would not have been able to tell that something serious was wrong.  
+> The machine (our main production machine that serves millions of hits a week) 
+> was down for three hours.
 
-http://sf.net/projects/nash/
+Isn't this what watchdog is for?  I think even the software watchdog would
+catch this, then you can panic and reboot.
 
-google search: "nash linux shell"
-
+	M

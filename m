@@ -1,76 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316567AbSFULV6>; Fri, 21 Jun 2002 07:21:58 -0400
+	id <S316569AbSFUL3Y>; Fri, 21 Jun 2002 07:29:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316569AbSFULV5>; Fri, 21 Jun 2002 07:21:57 -0400
-Received: from linux.kappa.ro ([194.102.255.131]:18878 "EHLO linux.kappa.ro")
-	by vger.kernel.org with ESMTP id <S316567AbSFULV4>;
-	Fri, 21 Jun 2002 07:21:56 -0400
-Date: Fri, 21 Jun 2002 14:24:05 +0300
-From: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>
-To: Jamie Bennett <jamie_bennett@pcpmicro.co.uk>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: VIA Southbridges in 2.4.18-rc3
-Message-ID: <20020621112405.GA20693@linux.kappa.ro>
-References: <2130109F889CD5119FAD0050BA6F2D6B064A10@SERVER>
+	id <S316571AbSFUL3X>; Fri, 21 Jun 2002 07:29:23 -0400
+Received: from line103-203.adsl.actcom.co.il ([192.117.103.203]:42247 "HELO
+	alhambra.merseine.nu") by vger.kernel.org with SMTP
+	id <S316569AbSFUL3W>; Fri, 21 Jun 2002 07:29:22 -0400
+Date: Fri, 21 Jun 2002 14:25:13 +0300
+From: Muli Ben-Yehuda <mulix@actcom.co.il>
+To: cling-li@ali.com.tw, matt_wu@acersoftech.com.cn
+Cc: linux-kernel@vger.kernel.org
+Subject: thinkpad R-30 Ali M5451 lockdown
+Message-ID: <20020621142513.E7006@alhambra.actcom.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="TD8GDToEDw0WLGOL"
 Content-Disposition: inline
-In-Reply-To: <2130109F889CD5119FAD0050BA6F2D6B064A10@SERVER>
-User-Agent: Mutt/1.3.25i
-X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.19-pre10 for example includes support for this southbridge
-and it works fine for me..
 
-On Fri, Jun 21, 2002 at 12:04:56PM +0100, Jamie Bennett wrote:
-> I know this is from a while ago but are their any plans to include
-> the via 8233a southbridge support in 2.4.19/20?
-> 
-> If not can somebody point me in the right direction on how I would
-> modify timing.h and via82xxx.c from 2.5.* to enable it to work in 
-> the 2.4.* kernels.
-> 
-> Yours
-> 
-> Jamie Bennett
-> Software Engineer
-> PCP Micro Product Ltd, Bath, England, BA2 3BT
-> 
-> Marcelo Tosatti wrote: 
-> > On Fri, 22 Feb 2002, Florian Hars wrote: 
-> >> Any reason why this: 
-> >> <http://www.uwsg.indiana.edu/hypermail/linux/kernel/0202.1/0970.html> 
-> >> isn't in rc3? My machine still works as it should.
-> >> Do you mean adding the necessary PCI ID's ? 
-> 
-> That, and adding some code in drivers/ide/via82xxx.c, 
->   { "vt8233c", PCI_DEVICE_ID_VIA_8233C, 0x00, 0x2f, VIA_UDMA_100 }, 
-> is right now ifdef'ed out, and the entry for the vt8233a, which is 
->   { "vt8233a", PCI_DEVICE_ID_VIA_8233A, 0x00, 0x2f, VIA_UDMA_133 },
-> in 2.5.2, is missing (and there is no UDMA_133 in 2.4). 
-> 
-> Right now I am running a 2.4.18-pre9 with a slightly modified 
-> drivers/ide/(timing.h|via82xxx.c) from 2.5.2, and it works with my 
-> vt8233a and an UDMA-100 disk, but this is of course not a 
-> conservative change. Maybe the patch by Vojtech Pavlik mentioned 
-> in the message I referred to above is less radical. 
-> 
-> Yours, Florian. 
-> 
-> - To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org More majordomo info at
-> <http://vger.kernel.org/majordomo-info.html> Please read the FAQ at
-> <http://www.tux.org/lkml/> [
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--TD8GDToEDw0WLGOL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-      Teodor Iacob,
-Astral TELECOM Internet
+Occasionally the ALI M5451 driver (trident.c) would lock down my IBM
+thinkpad R30. The console would continously flash the message:=20
+
+ali: AC97 CODEC read timed out.
+
+And the machine wouldn't respond to the keyboard or ssh. I'm trying to
+reproduce and debug it now. Has anyone else run accross it? google has
+been less than helpful.=20
+
+relevant lspci -vv output:=20
+
+00:06.0 Multimedia audio controller: Acer Laboratories Inc. [ALi] M5451 PCI=
+ AC-Link Controller Audio Device (rev 01)
+        Subsystem: IBM: Unknown device 0506
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-=
+ Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- =
+<TAbort- <MAbort- >SERR+ <PERR+
+        Latency: 32 (500ns min, 6000ns max)
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at 9400 [size=3D256]
+        Region 1: Memory at 81c00000 (32-bit, non-prefetchable) [size=3D4K]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=3D0mA PME(D0-,D1-,D2=
++,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+--=20
+http://vipe.technion.ac.il/~mulix/
+http://syscalltrack.sf.net/
+
+--TD8GDToEDw0WLGOL
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9Ew0YKRs727/VN8sRArL8AKCvmdzfxoqaazSNsT85ftF+cAHg2gCfTV5z
+sb4iVNGvyzFyxlvupsTQdLA=
+=3VYx
+-----END PGP SIGNATURE-----
+
+--TD8GDToEDw0WLGOL--

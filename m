@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288845AbSBRWe6>; Mon, 18 Feb 2002 17:34:58 -0500
+	id <S288800AbSBRWja>; Mon, 18 Feb 2002 17:39:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288800AbSBRWes>; Mon, 18 Feb 2002 17:34:48 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7684 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S288814AbSBRWel>; Mon, 18 Feb 2002 17:34:41 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] Make IP-Config work without ip= supplied
-Date: 18 Feb 2002 14:34:25 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a4rvhh$vku$1@cesium.transmeta.com>
-In-Reply-To: <20020218222451.GA23899@main.braxis.co.uk>
-MIME-Version: 1.0
+	id <S288834AbSBRWjT>; Mon, 18 Feb 2002 17:39:19 -0500
+Received: from dsl-213-023-040-169.arcor-ip.net ([213.23.40.169]:25744 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S288800AbSBRWjI>;
+	Mon, 18 Feb 2002 17:39:08 -0500
 Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andries.Brouwer@cwi.nl, torvalds@transmeta.com
+Subject: Re: [PATCH] size-in-bytes
+Date: Mon, 18 Feb 2002 23:43:38 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <UTC200202161609.QAA31164.aeb@cwi.nl>
+In-Reply-To: <UTC200202161609.QAA31164.aeb@cwi.nl>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Message-Id: <E16cwVW-0000jf-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020218222451.GA23899@main.braxis.co.uk>
-By author:    Krzysztof Rusocki <kszysiu@main.braxis.co.uk>
-In newsgroup: linux.dev.kernel
+On February 16, 2002 05:09 pm, Andries.Brouwer@cwi.nl wrote:
+> I just rediffed the size-in-bytes patch against 2.5.5pre1.
+> The result is found at ftp.kernel.org
+> (under 02-2.5.5pre1-sizeinbytes-bsd), and below.
 > 
-> Hi,
-> 
-> Just noticed that IP-Config behavior when no ip= parm is used has changed in
-> 2.2.18.
-> 
-> Up to 2.2.17 IP-Config was enabled even when ip= was omitted. I think that
-> it's good for use in i.e. diskless nodes.
-> 
-> Since 2.2.18, IP-Config does nothing at all until ip= is passed to the
-> kernel, however Documentation/nfsroot.txt still says that IP-Config is
-> enabled by default. Was that intentional change?
-> 
-> Such behavior remains in both 2.2.20 and 2.4.18-rc1. Following patches
-> (against these two kernel trees) make IP-Config enabled by default.
-> 
+> Comment:
+> Disk and partition size is kept several places, sometimes
+> in sectors (of 512 bytes), sometimes in blocks (of 1024 bytes).
+> This is ugly, one finds a lot of shifting left and right, as in
+> 	limit = (size << BLOCK_SIZE_BITS) >> sector_bits;
 
-I don't think this is a good idea.  The current behaviour should work
-across the board.  Diskless nodes should use a diskless bootloader
-which support command lines -- that way you get to specify the mode as
-well.  *ALL* nodes should use the command line these days.
+We want to stay with the shift counts.  They should be the primary currency
+of size measurement.  You can add shift counts together and get nice, compact
+code, whereas with absolute size you often have to ugly things - e.g., it's a
+pain to divide by blocksize when you have it as an absolute number, it's easy
+when you have it as a shift.
 
-Can we get rid of the g----d bootsect.S, please?
+If you are going to the trouble of fixing this, please don't use absolute
+size as the primary measure, use a shift count.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+--
+Daniel

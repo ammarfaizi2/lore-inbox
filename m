@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265745AbUAPS33 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 13:29:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265746AbUAPS32
+	id S265729AbUAPS1r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 13:27:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265734AbUAPS1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 13:29:28 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:34202 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265745AbUAPS3Y
+	Fri, 16 Jan 2004 13:27:47 -0500
+Received: from uswgco34.uswest.com ([199.168.32.123]:22942 "EHLO
+	uswgco34.uswest.com") by vger.kernel.org with ESMTP id S265729AbUAPS1q
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 13:29:24 -0500
-Date: Fri, 16 Jan 2004 10:29:15 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: marcel cotta <marcel@kriminell.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.1: kernel BUG at mm/swapfile.c:806
-Message-ID: <20040116182915.GL1748@srv-lnx2600.matchmail.com>
-Mail-Followup-To: Hugh Dickins <hugh@veritas.com>,
-	marcel cotta <marcel@kriminell.com>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>
-References: <400787F7.4030005@kriminell.com> <Pine.LNX.4.44.0401161618310.7487-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0401161618310.7487-100000@localhost.localdomain>
-User-Agent: Mutt/1.5.4i
+	Fri, 16 Jan 2004 13:27:46 -0500
+Message-ID: <40082D19.8040809@milent.com>
+Date: Fri, 16 Jan 2004 13:27:37 -0500
+From: Alexander Markley <alex@milent.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031009
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.1 rocks :)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 16, 2004 at 05:05:55PM +0000, Hugh Dickins wrote:
-> On Fri, 16 Jan 2004, marcel cotta wrote:
-> > i just tried to less it - the process went right into D state :p
-> 
-> That sounds like an issue that came up a month or two back: seems that
-> sys_swapon intentionally leaves a semaphore down on a swapfile, until
-> sys_swapoff.  I don't like that at all!  The noble reason was to stop
-> that file from being deleted or truncated while in use for swap,
-> but perhaps we can devise a better way to achieve that sometime -
-> set S_IMMUTABLE?
+Hey everyone, I was thinking about it, and I'll bet you guys are getting 
+quite a few bug reports on 2.6.x, and hardly any compliments in comparison.
 
-Can't the kernel just keep a reference to the inode while it is used for
-swap, and let it unlink after swapoff (and all other refs are gone) using
-normal unix semantics? 
+Just for the crap of it, I'm emailing in to say that I migrated from 
+2.4.23 to 2.6.1 last night, and, while it wasn't the smoothest 
+transition ever, I succeeded, and 2.6.1 has made my desktop speedier 
+then when running any windows or previous version of linux.
+
+Great job folks - another excellent chapter in the linux saga. :-P
+
+(The ehci-hcd module still locks the kernel immediately tho.) :(
+
+ttyl
+--Alex
+

@@ -1,150 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130290AbQLXBYt>; Sat, 23 Dec 2000 20:24:49 -0500
+	id <S129458AbQLXB2m>; Sat, 23 Dec 2000 20:28:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131193AbQLXBYk>; Sat, 23 Dec 2000 20:24:40 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:43803 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S130290AbQLXBY2>; Sat, 23 Dec 2000 20:24:28 -0500
-Date: Sun, 24 Dec 2000 01:53:46 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: Linux 2.2.19pre2
-Message-ID: <20001224015346.A17046@athlon.random>
-In-Reply-To: <3A41DDB3.7E38AC7@uow.edu.au>, <3A41DDB3.7E38AC7@uow.edu.au>; <20001221161952.B20843@athlon.random> <3A4303AC.C635F671@uow.edu.au>, <3A4303AC.C635F671@uow.edu.au>; <20001222141929.A13032@athlon.random> <3A444CAA.4C5A7A89@uow.edu.au>, <3A444CAA.4C5A7A89@uow.edu.au>; <20001223191159.B29450@athlon.random> <3A454205.D33090A8@uow.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3A454205.D33090A8@uow.edu.au>; from andrewm@uow.edu.au on Sun, Dec 24, 2000 at 11:23:33AM +1100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S129595AbQLXB2d>; Sat, 23 Dec 2000 20:28:33 -0500
+Received: from uberbox.mesatop.com ([208.164.122.11]:40201 "EHLO
+	uberbox.mesatop.com") by vger.kernel.org with ESMTP
+	id <S129458AbQLXB2Y>; Sat, 23 Dec 2000 20:28:24 -0500
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.0test13pre4-ac2 fix for CONFIG_SOUND_YMFPCI problem
+Date: Sat, 23 Dec 2000 17:58:57 -0700
+X-Mailer: KMail [version 1.1.95.2]
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_92S1NP3Y91PGMDCD26J0"
+Cc: alan@lxorguk.ukuu.org.uk
+MIME-Version: 1.0
+Message-Id: <00122317585703.07144@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 24, 2000 at 11:23:33AM +1100, Andrew Morton wrote:
-> Andrea Arcangeli wrote:
-> > 1) could be fixed trivially by making the waitqueue_lock a spinlock, but
-> > this way doesn't solve 2). And if we solve 2) properly than 1) gets fixed as
 
-BTW (follow up myself), really making the lock a spinlock (not a readwrite
-lock) would fix 2) as well (waitqueue_lock is global in 2.2.x I was thinking at
-the per-waitqueue lock of 2.4.x ;).
+--------------Boundary-00=_92S1NP3Y91PGMDCD26J0
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-> > well.
-> 
-> I don't understand the problem with 2) in 2.2?  Every task on both waitqueues
-> gets woken up.  Won't it sort itself out OK?
+With 2.4.0-test13-pre4-ac2, I get the following error with make xconfig:
 
-Not every task if it's a wake-one on both waitqueues. The problem should be the
-same in 2.2.x and 2.4.x. But if such usage makes sense is uncertain...
+make[1]: Leaving directory `/usr/src/linux-2.4.0-test13-pre4-ac2/scripts'
+wish -f scripts/kconfig.tk
+ERROR - Attempting to write value for unconfigured variable 
+(CONFIG_SOUND_YMFPCI).
 
-> For 2.4, 2) is an issue because we can have tasks on two waitqueues at the
-> same time, with a mix of exclusive and non.  Putting a global spinlock
-> into __wake_up_common would fix it, but was described as "horrid" by
-> you-know-who :)
+It appears that in the 2.4.0test13pre4-ac2 patch, the method of configuring
+CONFIG_SOUND_YMFPCI was changed by adding a 
+dep_tristate '  Yamaha PCI native mode support (EXPERIMENTAL)' and an
+if test at lines 82-84 of drivers/sound/Config.in.
 
-Yes. And that wouldn't fix the race number 3) below.
+However, the old code with a
+dep_tristate '    Yamaha YMF7xx PCI audio (native mode) (EXPERIMENTAL)'
+and associated if test at lines 149-151 remained in the Config.in file.
 
-> > I agree the right fix for 2) (and in turn for 1) ) is to count the number of
-> > exclusive wake_up_process that moves the task in the runqueue, if the task was
-> > just in the runqueue we must not consider it as an exclusive wakeup (so in turn
-> > we'll try again to wakeup the next exclusive-wakeup waiter). This will
-> > fix both races. Since the fix is self contained in __wake_up it's fine
-> > for 2.2.19pre3 as well and we can keep using a read_write lock then.
-> 
-> I really like this approach.  It fixes another problem in 2.4:
-> 
-> Example:
-> 
-> static struct request *__get_request_wait(request_queue_t *q, int rw)
-> {
->         register struct request *rq;
->         DECLARE_WAITQUEUE(wait, current);
-> 
->         add_wait_queue_exclusive(&q->wait_for_request, &wait);
->         for (;;) {
->                 __set_current_state(TASK_UNINTERRUPTIBLE);
-> 	/* WINDOW HERE */
->                 spin_lock_irq(&io_request_lock);
->                 rq = get_request(q, rw);
->                 spin_unlock_irq(&io_request_lock);
+It seems that these two sections of code are interferring with each other.
 
-note that the above is racy and can lose a wakeup, 2.4.x needs
-set_current_state there (not __set_current_state): spin_lock isn't a two-way
-barrier, it only forbids stuff ot exit the critical section. So on some
-architecture (not on the alpha for example) the cpu could reorder the code
-this way:
+The following patch removes the older section of code associated with
+CONFIG_SOUND_YMFPCI.
 
-	spin_lock_irq()
-	rq = get_request
-	__set_current_state
-	spin_unlock_irq
+Due to the very long lines, this patch may suffer readability due to 
+wraparounds, so I will attach a copy.
 
-So inverting the order of operations. That needs to be fixed too (luckily
-it's a one liner).
+Steven
 
->                 if (rq)
->                         break;
->                 generic_unplug_device(q);
->                 schedule();
->         }
->         remove_wait_queue(&q->wait_for_request, &wait);
->         current->state = TASK_RUNNING;
->         return rq;
-> }
-> 
-> If this task enters the schedule() and is then woken, and another
-> wakeup is sent to the waitqueue while this task is executing in
-> the marked window, __wake_up_common() will try to wake this
-> task a second time and will then stop looking for tasks to wake.
-> 
-> The outcome: two wakeups sent to the queue, but only one task woken.
+diff -u linux/drivers/sound/Config.in.orig linux/drivers/sound/Config.in
+--- linux/drivers/sound/Config.in.orig  Sat Dec 23 14:30:53 2000
++++ linux/drivers/sound/Config.in       Sat Dec 23 17:28:28 2000
+@@ -146,9 +146,6 @@
+    dep_tristate '    Yamaha OPL3-SA1 audio controller' CONFIG_SOUND_OPL3SA1 
+$CONFIG_SOUND_OSS
+    dep_tristate '    Yamaha OPL3-SA2, SA3, and SAx based PnP cards' 
+CONFIG_SOUND_OPL3SA2 $CONFIG_SOUND_OSS
+    dep_tristate '    Yamaha YMF7xx PCI audio (legacy mode)' 
+CONFIG_SOUND_YMPCI $CONFIG_SOUND_OSS $CONFIG_PCI
+-   if [ "$CONFIG_SOUND_YMPCI" = "n" ]; then
+-      dep_tristate '    Yamaha YMF7xx PCI audio (native mode) 
+(EXPERIMENTAL)' CONFIG_SOUND_YMFPCI $CONFIG_SOUND_OSS $CONFIG_PCI 
+$CONFIG_EXPERIMENTAL
+-   fi
+    dep_tristate '    6850 UART support' CONFIG_SOUND_UART6850 
+$CONFIG_SOUND_OSS
+   
+    dep_tristate '    Gallant Audio Cards (SC-6000 and SC-6600 based)' 
+CONFIG_SOUND_AEDSP16 $CONFIG_SOUND_OSS
 
-Correct.
 
-And btw such race is new and it must been introduced in late 2.4.0-test1X or
-so, I'm sure it couldn't happen in whole 2.3.x and 2.4.0-testX because the
-wakeup was clearing atomically the exclusive bit from the task->state.
 
-Still talking about late 2.4.x changes, why add_wait_queue_exclusive gone
-in kernel/fork.c?? That's obviously not the right place :).
+--------------Boundary-00=_92S1NP3Y91PGMDCD26J0
+Content-Type: text/plain;
+  name="ymfpci-patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="ymfpci-patch"
 
-> I haven't thought about it super-hard, but I think that if
-> __wake_up_common's exclusive-mode handling were changed
-> as you describe, so that it keeps on scanning the queue until it has
-> *definitely* moved a task onto the runqueue then this
-> problem goes away.
+ZGlmZiAtdSBsaW51eC9kcml2ZXJzL3NvdW5kL0NvbmZpZy5pbi5vcmlnIGxpbnV4L2RyaXZlcnMv
+c291bmQvQ29uZmlnLmluCi0tLSBsaW51eC9kcml2ZXJzL3NvdW5kL0NvbmZpZy5pbi5vcmlnCVNh
+dCBEZWMgMjMgMTQ6MzA6NTMgMjAwMAorKysgbGludXgvZHJpdmVycy9zb3VuZC9Db25maWcuaW4J
+U2F0IERlYyAyMyAxNzoyODoyOCAyMDAwCkBAIC0xNDYsOSArMTQ2LDYgQEAKICAgIGRlcF90cmlz
+dGF0ZSAnICAgIFlhbWFoYSBPUEwzLVNBMSBhdWRpbyBjb250cm9sbGVyJyBDT05GSUdfU09VTkRf
+T1BMM1NBMSAkQ09ORklHX1NPVU5EX09TUwogICAgZGVwX3RyaXN0YXRlICcgICAgWWFtYWhhIE9Q
+TDMtU0EyLCBTQTMsIGFuZCBTQXggYmFzZWQgUG5QIGNhcmRzJyBDT05GSUdfU09VTkRfT1BMM1NB
+MiAkQ09ORklHX1NPVU5EX09TUwogICAgZGVwX3RyaXN0YXRlICcgICAgWWFtYWhhIFlNRjd4eCBQ
+Q0kgYXVkaW8gKGxlZ2FjeSBtb2RlKScgQ09ORklHX1NPVU5EX1lNUENJICRDT05GSUdfU09VTkRf
+T1NTICRDT05GSUdfUENJCi0gICBpZiBbICIkQ09ORklHX1NPVU5EX1lNUENJIiA9ICJuIiBdOyB0
+aGVuCi0gICAgICBkZXBfdHJpc3RhdGUgJyAgICBZYW1haGEgWU1GN3h4IFBDSSBhdWRpbyAobmF0
+aXZlIG1vZGUpIChFWFBFUklNRU5UQUwpJyBDT05GSUdfU09VTkRfWU1GUENJICRDT05GSUdfU09V
+TkRfT1NTICRDT05GSUdfUENJICRDT05GSUdfRVhQRVJJTUVOVEFMCi0gICBmaQogICAgZGVwX3Ry
+aXN0YXRlICcgICAgNjg1MCBVQVJUIHN1cHBvcnQnIENPTkZJR19TT1VORF9VQVJUNjg1MCAkQ09O
+RklHX1NPVU5EX09TUwogICAKICAgIGRlcF90cmlzdGF0ZSAnICAgIEdhbGxhbnQgQXVkaW8gQ2Fy
+ZHMgKFNDLTYwMDAgYW5kIFNDLTY2MDAgYmFzZWQpJyBDT05GSUdfU09VTkRfQUVEU1AxNiAkQ09O
+RklHX1NPVU5EX09TUwo=
 
-Yes, that's true.
-
-> > Those races of course are orthogonal with the issue we discussed previously
-> > in this thread: a task registered in two waitqueues and wanting an exclusive
-> > wakeup from one waitqueue and a wake-all from the other waitqueue (for
-> > addressing that we need to move the wake-one information from the task struct
-> > to the waitqueue_head and I still think that shoudln't be addressed in 2.2.x,
-> > 2.2.x is fine with a per-task-struct wake-one information)
-> 
-> OK by me, as long as people don't uncautiously start using the
-> capability for other things.
-> 
-> > Should I take care of the 2.2.x fix, or will you take care of it? I'm not using
-> > the wake-one patch in 2.2.19pre3 because I don't like it (starting from the
-> > useless wmb() in accept) so if you want to take care of 2.2.19pre3 yourself I'd
-> > suggest to apply the wake-one patch against 2.2.19pre3 in my ftp-patch area
-> > first.  Otherwise give me an ack and I'll extend myself my wake-one patch to
-> > ignore the wake_up_process()es that doesn't move the task in the runqueue.
-> 
-> ack.
-> 
-> I'll take another look at the 2.4 patch and ask you to review that
-> when I've finished with the netdevice wetworks, if that's
-> OK.
-
-OK. Thanks for the help.
-
-Andrea
+--------------Boundary-00=_92S1NP3Y91PGMDCD26J0--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,77 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbVATXOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVATXSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262173AbVATXOF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 18:14:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVATXOE
+	id S261215AbVATXSV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 18:18:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVATXST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 18:14:04 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:6396 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262173AbVATXMX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 18:12:23 -0500
-Message-ID: <41F03AD2.4010803@mvista.com>
-Date: Thu, 20 Jan 2005 15:12:18 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       matthias@corelatus.se,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: patch to fix set_itimer() behaviour in boundary cases
-References: <16872.55357.771948.196757@antilipe.corelatus.se>	 <20050115013013.1b3af366.akpm@osdl.org>	 <1105830384.16028.11.camel@localhost.localdomain>	 <1105877497.8462.0.camel@laptopd505.fenrus.org>	 <41EEF284.2010600@mvista.com> <1106208433.4192.0.camel@laptopd505.fenrus.org>
-In-Reply-To: <1106208433.4192.0.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 20 Jan 2005 18:18:19 -0500
+Received: from mo01.iij4u.or.jp ([210.130.0.20]:1019 "EHLO mo01.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S261215AbVATXPo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 18:15:44 -0500
+Date: Fri, 21 Jan 2005 08:15:30 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.11-rc1-mm2] mips: fixed conflicting types
+Message-Id: <20050121081530.47c0dcdb.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Wed, 2005-01-19 at 15:51 -0800, George Anzinger wrote:
-> 
->>Arjan van de Ven wrote:
->>
->>>On Sun, 2005-01-16 at 00:58 +0000, Alan Cox wrote:
->>>
->>>
->>>>On Sad, 2005-01-15 at 09:30, Andrew Morton wrote:
->>>>
->>>>
->>>>>Matthias Lang <matthias@corelatus.se> wrote:
->>>>>These are things we probably cannot change now.  All three are arguably
->>>>>sensible behaviour and do satisfy the principle of least surprise.  So
->>>>>there may be apps out there which will break if we "fix" these things.
->>>>>
->>>>>If the kernel version was 2.7.0 then well maybe...
->>>>
->>>>These are things we should fix. They are bugs. Since there is no 2.7
->>>>plan pick a date to fix it. We should certainly error the overflow case
->>>>*now* because the behaviour is undefined/broken. The other cases I'm not
->>>>clear about. setitimer() is a library interface and it can do the basic
->>>>checking and error if it wants to be strictly posixly compliant.
->>>
->>>
->>>why error?
->>>I'm pretty sure we can make a loop in the setitimer code that detects
->>>we're at the end of jiffies but haven't upsurped the entire interval the
->>>user requested yet, so that the code should just do another round of
->>>sleeping...
->>>
->>
->>That would work for sleep (but glibc uses nanosleep for that) but an itimer 
->>delivers a signal.  Rather hard to trap that in glibc.
->>
-> 
-> This one I meant to fix in the kernel fwiw; we can put that loop inside
-> the kernel easily I'm sure
+This patch had fixed following 2 conflicting type errors.
 
-Yes, but it will increase the data size of the timer...
+Yoichi
 
+arch/mips/lib/csum_partial_copy.c:21: error: conflicting types for `csum_partial_copy_nocheck'
+include/asm/checksum.h:65: error: previous declaration of `csum_partial_copy_nocheck'
+arch/mips/lib/csum_partial_copy.c:38: error: conflicting types for `csum_partial_copy_from_user'
+include/asm/checksum.h:38: error: previous declaration of `csum_partial_copy_from_user'
+make[1]: *** [arch/mips/lib/csum_partial_copy.o] Error 1
+make: *** [arch/mips/lib] Error 2
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
 
+diff -urN -X dontdiff a-orig/arch/mips/lib/csum_partial_copy.c a/arch/mips/lib/csum_partial_copy.c
+--- a-orig/arch/mips/lib/csum_partial_copy.c	Wed Jan 12 13:02:09 2005
++++ a/arch/mips/lib/csum_partial_copy.c	Fri Jan 21 07:47:35 2005
+@@ -16,7 +16,7 @@
+ /*
+  * copy while checksumming, otherwise like csum_partial
+  */
+-unsigned int csum_partial_copy_nocheck(const char *src, char *dst,
++unsigned int csum_partial_copy_nocheck(const unsigned char *src, unsigned char *dst,
+ 	int len, unsigned int sum)
+ {
+ 	/*
+@@ -33,7 +33,7 @@
+  * Copy from userspace and compute checksum.  If we catch an exception
+  * then zero the rest of the buffer.
+  */
+-unsigned int csum_partial_copy_from_user (const char *src, char *dst,
++unsigned int csum_partial_copy_from_user (const unsigned char *src, unsigned char *dst,
+ 	int len, unsigned int sum, int *err_ptr)
+ {
+ 	int missing;

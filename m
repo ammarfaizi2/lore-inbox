@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273258AbRINC1z>; Thu, 13 Sep 2001 22:27:55 -0400
+	id <S273265AbRINCju>; Thu, 13 Sep 2001 22:39:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273260AbRINC1p>; Thu, 13 Sep 2001 22:27:45 -0400
-Received: from nwcst280.netaddress.usa.net ([204.68.23.25]:55757 "HELO
-	nwcst280.netaddress.usa.net") by vger.kernel.org with SMTP
-	id <S273258AbRINC1e> convert rfc822-to-8bit; Thu, 13 Sep 2001 22:27:34 -0400
-Message-ID: <20010914022756.9487.qmail@nwcst280.netaddress.usa.net>
-Date: 13 Sep 2001 21:27:56 CDT
-From: shreenivasa H V <shreenihv@usa.net>
-To: linux-kernel@vger.kernel.org
-Subject: scheduler policy
-X-MSMail-Priority: High
-X-Priority: 1
-X-Mailer: USANET web-mailer (34FM.0700.21.01)
+	id <S273266AbRINCjj>; Thu, 13 Sep 2001 22:39:39 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:47493
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S273265AbRINCjb>; Thu, 13 Sep 2001 22:39:31 -0400
+Date: Thu, 13 Sep 2001 19:39:37 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Val Henson <val@nmt.edu>
+Cc: jgarzik@mandrakesoft.com, becker@scyld.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Endian-ness bugs in yellowfin.c
+Message-ID: <20010913193937.O21906@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <20010913195141.B799@boardwalk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010913195141.B799@boardwalk>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Sep 13, 2001 at 07:51:41PM -0600, Val Henson wrote:
 
-In process scheduling, when an epoch ends because of the current process
-completing its time quantum (and all the runnable ones having finished their
-respective quantums), at the start of the new epoch, will the current running
-process retain the cpu (assuming all the runnable ones are of the same
-priority)?
+> diff -Nru a/drivers/net/Config.in b/drivers/net/Config.in
+> --- a/drivers/net/Config.in	Thu Sep 13 19:20:29 2001
+> +++ b/drivers/net/Config.in	Thu Sep 13 19:20:29 2001
+> @@ -39,7 +39,7 @@
+>        fi
+>        dep_tristate '  BMAC (G3 ethernet) support' CONFIG_BMAC $CONFIG_ALL_PPC
+>        dep_tristate '  GMAC (G4/iBook ethernet) support' CONFIG_GMAC $CONFIG_ALL_PPC
+> -      tristate '  Symbios 53c885 (Synergy ethernet) support' CONFIG_NCR885E
+> +      tristate '  Symbios 53c885 (Synergy ethernet) support' CONFIG_YELLOWFIN
+>        tristate '  National DP83902AV (Oak ethernet) support' CONFIG_OAKNET
+>        dep_bool '  PowerPC 405 on-chip ethernet' CONFIG_PPC405_ENET $CONFIG_405GP
+>        if [ "$CONFIG_PPC405_ENET" = "y" ]; then
 
-Can anyone give some pointers as to where I can find detailed info for linux
-process scheduling.
+Since you're killing this, why not just remove this question entirely?
 
-thanks,
-shreeni.
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

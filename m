@@ -1,73 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264076AbUFFUug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264138AbUFFUwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264076AbUFFUug (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 16:50:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264134AbUFFUug
+	id S264138AbUFFUwo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 16:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbUFFUwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 16:50:36 -0400
-Received: from gate.crashing.org ([63.228.1.57]:26498 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264076AbUFFUuc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 16:50:32 -0400
-Subject: Re: [BUG] asm-ppc/pgtable.h breakage from 2.6.7-rc1-bk4
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>,
-       Paul Mackerras <paulus@samba.org>
-In-Reply-To: <200406061117.i56BH14D025405@harpo.it.uu.se>
-References: <200406061117.i56BH14D025405@harpo.it.uu.se>
-Content-Type: text/plain
-Message-Id: <1086554881.1858.3.camel@gaston>
+	Sun, 6 Jun 2004 16:52:44 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:51587 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264134AbUFFUwf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 16:52:35 -0400
+Subject: Re: Killing POSIX deadlock detection
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Matthew Wilcox <willy@debian.org>, Stephen Rothwell <sfr@canb.auug.org.au>,
+       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <m165a4phy9.fsf@ebiederm.dsl.xmission.com>
+References: <200406050725.i557P3hQ004052@supreme.pcug.org.au>
+	 <20040606130422.0c8946b3.sfr@canb.auug.org.au>
+	 <20040606132751.GZ5850@parcelfarce.linux.theplanet.co.uk>
+	 <1086551360.5472.48.camel@lade.trondhjem.org>
+	 <m165a4phy9.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1086555145.7635.22.camel@lade.trondhjem.org>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 06 Jun 2004 15:48:01 -0500
-Content-Transfer-Encoding: 7bit
+Date: Sun, 06 Jun 2004 16:52:27 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, please  tell me if this patch works, I don't have a machine
-to test here. If it's ok, I'll send it to andrew/linus.
+På su , 06/06/2004 klokka 16:09, skreiv Eric W. Biederman:
+> Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+> 
+> > På su , 06/06/2004 klokka 09:27, skreiv Matthew Wilcox:
+> > \
+> > > > T1 locks file F1 -> lock (P1, F1)
+> > > > P2 locks file F2 -> lock (P2, F2)
+> > > > P2 locks file F1 -> blocks against (P1, F1)
+> > > > T1 locks file F2 -> blocks against (P2, F2)
+> > > 
+> > > Less contrived example -- T2 locks file F2.  We report deadlock here too,
+> > > even though T1 is about to unlock file F1.
+> 
+> There is a fairly sane linux specific definition here.  We should
+> track these things not by pid or tid, but by struct files_struct.
 
-===== include/asm-ppc/pgtable.h 1.33 vs edited =====
---- 1.33/include/asm-ppc/pgtable.h	2004-05-26 09:56:17 -05:00
-+++ edited/include/asm-ppc/pgtable.h	2004-06-06 15:45:24 -05:00
-@@ -555,8 +555,14 @@
- 		(_PAGE_DIRTY | _PAGE_ACCESSED | _PAGE_RW);
- 	pte_update(ptep, 0, bits);
- }
-+
-+extern void flush_one_tlb_entry_nohash(unsigned long addr);
-+
- #define  ptep_set_access_flags(__vma, __address, __ptep, __entry, __dirty) \
--        __ptep_set_access_flags(__ptep, __entry, __dirty)
-+	do {								   \
-+		__ptep_set_access_flags(__ptep, __entry, __dirty);	   \
-+		flush_one_tlb_entry_nohash(__address);		   	   \
-+	} while(0)
- 
- /*
-  * Macro to mark a page protection value as "uncacheable".
-===== arch/ppc/mm/tlb.c 1.10 vs edited =====
---- 1.10/arch/ppc/mm/tlb.c	2004-02-04 23:00:14 -06:00
-+++ edited/arch/ppc/mm/tlb.c	2004-06-06 15:44:05 -05:00
-@@ -67,6 +67,17 @@
- }
- 
- /*
-+ * Called by ptep_set_access_flags, must flush on CPUs for which the
-+ * DSI handler can't just "fixup" the TLB on a write fault
-+ */
-+void flush_one_tlb_entry_nohash(unsigned long addr)
-+{
-+	if (Hash != 0)
-+		return;
-+	_tlbie(vmaddr);
-+}
-+
-+/*
-  * Called at the end of a mmu_gather operation to make sure the
-  * TLB flush is completely done.
-  */
+RTFC... Look carefully in fs/locks.c at stuff like posix_same_owner().
+We currently use both the tgid and the struct files_struct (although
+there are a few notable bugs where we only check the one or the
+other)...
+
+That is, however, a definition which breaks the SUS standards, and it
+therefore ends up introducing pathologies such as the steal_locks crap.
+struct files_struct is NOT a sane basis for tracking locks.
+
+> > Yes: As Chuck points out, that is a fairly nasty change of the userland
+> > API.
+> 
+> ???? Failing to detect a deadlock is not a change in the API.
+> It is simply a change in behavior.
+
+It is a change in functionality from one where potential deadlocks are
+detected and reported as errors to one where deadlocks are suddenly
+possible. Are you saying that functionality is not a part of the API?
 
 
+> Perhaps what we should do is simply not attempt to detect deadlocks
+> involving threaded processes.
+
+So how do you define (and detect) a threaded process?
+
+Trond

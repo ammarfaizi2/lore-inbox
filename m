@@ -1,70 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbUJWXDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbUJWQgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261330AbUJWXDu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 19:03:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbUJWXDu
+	id S261229AbUJWQgr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 12:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUJWQg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 19:03:50 -0400
-Received: from mail14.syd.optusnet.com.au ([211.29.132.195]:22440 "EHLO
-	mail14.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261330AbUJWXDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 19:03:42 -0400
-Message-ID: <417AE332.6090300@kolivas.org>
-Date: Sun, 24 Oct 2004 09:03:14 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Javier Marcet <javier@marcet.info>, linux-kernel@vger.kernel.org
-Subject: Re: Mem issues in 2.6.9 (ever since 2.6.9-rc3) and possible cause
-References: <20041023125948.GC9488@marcet.info> <20041023123323.04b59353.akpm@osdl.org>
-In-Reply-To: <20041023123323.04b59353.akpm@osdl.org>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig28ED3D53887F7505506B965B"
+	Sat, 23 Oct 2004 12:36:27 -0400
+Received: from main.gmane.org ([80.91.229.2]:6027 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261229AbUJWQa6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 12:30:58 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Alban Browaeys <prahal@yahoo.com>
+Subject: Re: My thoughts on the
+Date: Sat, 23 Oct 2004 13:27:57 +0000 (UTC)
+Message-ID: <loom.20041023T152357-234@post.gmane.org>
+References: <7aaed09104102213032c0d7415@mail.gmail.com> <7aaed09104102214521e90c27c@mail.gmail.com> <1098485905.1440.11.camel@krustophenia.net> <200410231001.32080.b.bukowski@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 82.125.13.57 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Galeon/1.3.17.99 (Debian package 1.3.17cvs20040930-1))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig28ED3D53887F7505506B965B
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+> It looks like we need a Community driven Enterprise Kernel.
+> We decided to start testing with 2.6.10 and use it if there are no
+> Problems.
+> Maybe there are other Admins doing the same and we can start our own
+> Enterprise Kernel. 
 
-Andrew Morton wrote:
-> Javier Marcet <javier@marcet.info> wrote:
-> 
->>I've been following quite closely the development of 2.6.9, testing
->> every -rc release and a lot of -bk's.
->>
->> Upon changing from 2.6.9-rc2 to 2.6.9-rc3 I began experiencing random
->> oom kills whenever a high memory i/o load took place.
-> 
-> 
-> Do you have swap online?
 
-When he first reported it he said no swap.
+Hum Debian or is it driven by money ?
+I bet Community Driven Entreprise Kernel is way better in marketing than debian
+kernel though are we not driven by stability ...
 
-> What sort of machine is it, and how much memory has it?
+Cheers
+Alban 
 
-Ditto - 1Gb ram.
 
-Con
 
---------------enig28ED3D53887F7505506B965B
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBeuMyZUg7+tp6mRURAiLFAJ93nfYIGCRkThjG4V2eCBxG1/nN4gCfZiqy
-TR6KYjofMcA33itCuwy5XO0=
-=JdZJ
------END PGP SIGNATURE-----
-
---------------enig28ED3D53887F7505506B965B--

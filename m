@@ -1,68 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261375AbSKTQGe>; Wed, 20 Nov 2002 11:06:34 -0500
+	id <S261205AbSKTQSH>; Wed, 20 Nov 2002 11:18:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261446AbSKTQGe>; Wed, 20 Nov 2002 11:06:34 -0500
-Received: from 208-135-136-018.customer.apci.net ([208.135.136.18]:15117 "EHLO
-	blessed.joshisanerd.com") by vger.kernel.org with ESMTP
-	id <S261375AbSKTQGd>; Wed, 20 Nov 2002 11:06:33 -0500
-Date: Wed, 20 Nov 2002 10:13:20 -0600 (CST)
-From: Josh Myer <jbm@joshisanerd.com>
-To: Jacob Kroon <d00jkr@efd.lth.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: OSS VIA82cxxx sound driver problem.
-In-Reply-To: <Pine.GSO.4.44.0211201535470.12611-200000@login-4.efd.lth.se>
-Message-ID: <Pine.LNX.4.44.0211201005050.30881-100000@blessed.joshisanerd.com>
+	id <S261356AbSKTQSH>; Wed, 20 Nov 2002 11:18:07 -0500
+Received: from graze.net ([65.207.24.2]:2962 "EHLO graze.net")
+	by vger.kernel.org with ESMTP id <S261205AbSKTQSG>;
+	Wed, 20 Nov 2002 11:18:06 -0500
+Date: Wed, 20 Nov 2002 11:25:11 -0500 (EST)
+From: "Brian C. Huffman" <sheep@graze.net>
+To: linux-kernel@vger.kernel.org
+cc: alan@lxorguk.ukuu.org.uk
+Subject: i810 audio (AD1981A)
+Message-ID: <Pine.LNX.4.44.0211201109030.20057-100000@graze.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Give 2.5.x a shot. In some versions there's a buglet, which was hopefully
-fixed (I kludged a patch, then the maintainer sent a proper one, and I
-haven't had time to try it out).
+anyone?  Bueller...Bueller...
 
-I saw similar problems under 2.4 (it almost seems like the chipset is
-expecting aligned input; lots of errors after closing the device at the
-end of a song), but they went away when switching to 2.5.44.
+TIA,
+Brian
 
-Basically, the OSS driver for this chipset is hopelessly bad (no offense
-Jeff!), but ALSA one is pretty well-done and handles the quirks of the
-device.
---
-/jbm, but you can call me Josh. Really, you can!
- "What's a metaphor?" "For sheep to graze in"
-7958 1C1C 306A CDF8 4468  3EDE 1F93 F49D 5FA1 49C4
+---------- Forwarded message ----------
+Date: Tue, 19 Nov 2002 11:09:33 -0500 (EST)
+From: Brian C. Huffman <sheep@graze.net>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Peter Kundrat <kundrat@kundrat.sk>
+Subject: Re: i810 audio (AD1981A)
 
+Ok - so I have got this figured out a little more.  The Intel 845 board 
+uses the AD1981A (AC97 compatible) BUT they attach the headphone out (of 
+the codec) to the lineout on the motherboard...apparently b/c there's a 
+headphone amp in the chip and this way you can just plug the headphones 
+into the back of the computer.  :-(  Now looking at the latest drivers 
+from OSS and ALSA, this looks to be common, however the register setup for 
+the AD1981A is different from the others: AD1980, and AD1886...  
+Therefore, the patches in ALSA to disable the headphone out don't work.  
 
-On Wed, 20 Nov 2002, Jacob Kroon wrote:
+If I can't find a way to write to the registers to make this work 
+properly, I'd be happy just swapping what the mixer thinks the 
+registers are for Main Volume w/ Headphone out.  Unfortunately, I tried 
+this (with the kernel OSS) in linux/drivers/sound/ac97.h:
 
->
-> System:
-> AMD Athlon 800Mhz
-> Kernel 2.4.19, built with GCC 3.2
-> VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-> PCI bridge: VIA Technologies, Inc. VT8371 [KX133 AGP] (rev 0).
->
-> I've compiled the VIA82cxxx driver into the kernel, not as a module. The
-> driver works correctly for some time, but after a while it seems that it
-> can't set certain output frequencies (but it still plays sound), as I
-> noticed that XMMS plays songs at a slower frequency.
->
-> Small output of "dmesg", whole log in attachment:
->
-> ...
-> ...
-> attempt to access beyond end of device
-> 16:40: rw=0, want=479602, limit=479600
-> via82cxxx: timeout while reading AC97 codec (0xAC0000)
-> via82cxxx: Codec rate locked at 48Khz
-> via_audio: ignoring drain playback error -11
-> via_audio: ignoring drain playback error -11
->
-> Quake 3 sounds ok, probably becuse it's playing audio at a rate that the
-> driver still can set (11Khz i think).
->
-> /Jacob
->
+#define  AC97_RESET              0x0000      //
+// #define  AC97_MASTER_VOL_STEREO  0x0002      // Line Out
+#define  AC97_MASTER_VOL_STEREO  0x0004      // Line Out
+//#define  AC97_HEADPHONE_VOL      0x0004      //
+#define  AC97_HEADPHONE_VOL      0x0002      //
+
+This still doesn't work, though!?  Can anyone direct me to what I might be 
+doing wrong?
+
+Thanks in advance!
+Brian
+
+> On Tue, 2002-11-12 at 19:43, Alan Cox wrote:
+> 
+> > The kernel knows which AC'97 chip is attached so it could be given a
+> > table to specify chips where "volume" should either not be presented or
+> > should be remapped. Do you know what AC97 chip is on your board (Linux
+> > will print the info in the i810 load, windows and the manual probably
+> > claim that you have that as your sound chip (typically "Analog
+> > something" or "Crystal something").
+> > 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

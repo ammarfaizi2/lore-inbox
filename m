@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129192AbQKJK7x>; Fri, 10 Nov 2000 05:59:53 -0500
+	id <S129199AbQKJLAn>; Fri, 10 Nov 2000 06:00:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129199AbQKJK7o>; Fri, 10 Nov 2000 05:59:44 -0500
-Received: from atlantis.hlfl.org ([213.41.91.231]:64264 "HELO
-	atlantis.hlfl.org") by vger.kernel.org with SMTP id <S129192AbQKJK71>;
-	Fri, 10 Nov 2000 05:59:27 -0500
-Date: Fri, 10 Nov 2000 11:59:25 +0100
-From: "Arnaud S . Launay" <asl@launay.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129388AbQKJLAd>; Fri, 10 Nov 2000 06:00:33 -0500
+Received: from sportingbet.gw.dircon.net ([195.157.147.30]:27657 "HELO
+	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
+	id <S129199AbQKJLAW>; Fri, 10 Nov 2000 06:00:22 -0500
+Date: Fri, 10 Nov 2000 10:52:13 +0000
+From: Sean Hunter <sean@dev.sportingbet.com>
+To: Michal Jaegermann <michal@harddata.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.18pre21
-Message-ID: <20001110115925.A16777@profile4u.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+Subject: Re: PCI-PCI bridges mess in 2.4.x
+Message-ID: <20001110105213.A18736@bart.dev.sportingbet.com>
+Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
+	Michal Jaegermann <michal@harddata.com>,
 	linux-kernel@vger.kernel.org
-In-Reply-To: <E13u4XD-0001oe-00@the-village.bc.nu>
+In-Reply-To: <20001103011640.A20494@twiddle.net> <20001106192930.A837@jurassic.park.msu.ru> <20001108013931.A26972@twiddle.net> <3A0977A7.53641C52@mandrakesoft.com> <20001108113859.A10997@animx.eu.org> <3A098594.A85DFE0D@mandrakesoft.com> <20001108122306.A11107@animx.eu.org> <3A0989CC.2537FCEA@mandrakesoft.com> <20001109113347.B14133@animx.eu.org> <20001109163124.A31909@mail.harddata.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ZGiS0Q5IWpPtfppv"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <E13u4XD-0001oe-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Nov 10, 2000 at 03:07:21AM +0000
-X-PGP-Key: http://launay.org/pgpkey.asc
+In-Reply-To: <20001109163124.A31909@mail.harddata.com>; from michal@harddata.com on Thu, Nov 09, 2000 at 04:31:24PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 09, 2000 at 04:31:24PM -0700, Michal Jaegermann wrote:
+> On Thu, Nov 09, 2000 at 11:33:47AM -0500, Wakko Warner wrote:
+> > > It was posted to lkml, so no link (except if you want to dig through
+> > > lkml mail archives).
+> > 
+> > It booted but then it oops'ed before userland I belive.  I tried it this
+> > morning and didn't have much time.  It did find the scsi controller (which
+> > is across the bridge) and the drives attached so it does appear to be
+> > working.
+> 
+> Looks so far that I am the worst off.  If I am trying to boot with
+> a root on a SCSI device then either a controller is misdetected,
+> or goes into an infinite "abort/reset" loop, or it does not initialize
+> properly and disks are not found.  This is a non-exclusive, logical,
+> "or". :-)
 
---ZGiS0Q5IWpPtfppv
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+<metoo>Me too!</metoo>
 
-Le Fri, Nov 10, 2000 at 03:07:21AM +0000, Alan Cox a écrit:
-> Anything which isnt a strict bug fix or previously agreed is now 2.2.19
-> material.
+Exact same symptoms on my ruffian.
 
-Compiling 2.2.18pre21 without sysctl gives an error at linkage:
-kernel/kernel.o(__ksymtab+0x608): undefined reference to `sysctl_jiffies'
-
-trivial patch included, not sure it's the right one.
-
-	Arnaud.
-
---ZGiS0Q5IWpPtfppv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=diff-ksyms
-
---- linux/kernel/ksyms.old	Fri Nov 10 11:58:20 2000
-+++ linux/kernel/ksyms.c	Fri Nov 10 11:58:24 2000
-@@ -284,7 +284,6 @@
- EXPORT_SYMBOL(register_sysctl_table);
- EXPORT_SYMBOL(unregister_sysctl_table);
- EXPORT_SYMBOL(sysctl_string);
--EXPORT_SYMBOL(sysctl_jiffies);
- EXPORT_SYMBOL(sysctl_intvec);
- EXPORT_SYMBOL(proc_dostring);
- EXPORT_SYMBOL(proc_dointvec);
-
---ZGiS0Q5IWpPtfppv--
+Sean
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,108 +1,119 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154236-23312>; Sun, 25 Oct 1998 15:29:38 -0500
-Received: from dm.cobaltmicro.com ([209.133.34.35]:3104 "EHLO dm.cobaltmicro.com" ident: "davem") by vger.rutgers.edu with ESMTP id <155448-23312>; Sun, 25 Oct 1998 15:12:13 -0500
-Date: Sun, 25 Oct 1998 19:07:39 -0800
-Message-Id: <199810260307.TAA13367@dm.cobaltmicro.com>
-From: "David S. Miller" <davem@dm.cobaltmicro.com>
-To: torvalds@transmeta.com
-CC: ak@muc.de, khim@sch57.msk.ru, linux-kernel@vger.rutgers.edu, crux@Pool.Informatik.RWTH-Aachen.DE
-In-reply-to: <Pine.LNX.3.96.981025144701.3859K-100000@penguin.transmeta.com> (message from Linus Torvalds on Sun, 25 Oct 1998 14:55:09 -0800 (PST))
+Received: by vger.rutgers.edu id <154405-23312>; Sun, 25 Oct 1998 23:03:52 -0500
+Received: from campino.Informatik.RWTH-Aachen.DE ([137.226.116.240]:61751 "EHLO campino.informatik.rwth-aachen.de" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154403-23312>; Sun, 25 Oct 1998 23:01:10 -0500
+Date: Mon, 26 Oct 1998 11:58:59 +0100 (MET)
+From: Bernd Schmidt <crux@pool.informatik.rwth-aachen.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andi Kleen <ak@muc.de>, Khimenko Victor <khim@sch57.msk.ru>, linux-kernel@vger.rutgers.edu
 Subject: Re: 2.2.0 and egcs 1.1 was Re: Sorry, wrong gcc-version
-References: <Pine.LNX.3.96.981025144701.3859K-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.3.96.981025144701.3859K-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.02A.9810261116190.15628-100000@matula.informatik.rwth-aachen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-   Date: 	Sun, 25 Oct 1998 14:55:09 -0800 (PST)
-   From: Linus Torvalds <torvalds@transmeta.com>
 
-   For example, everybody in the egcs camp just decided that clobbers
-   and inputs must not overlap. Nobody told me why, and why they can't
-   just be automatically converted to early-clobbers inside gcc.
+> > Actually this is not entirely correct. Even 2.1.x kernels still have lots
+> > of incorrect inline assembler constraints which can cause the compiler
+> > to misoptimize the kernel.
 
-You're telling the compiler two different things which conflict.
+First, I should note that there are two issues here: we have bugs related to
+inline assembly in both the kernel, and in the compiler.  The compiler bugs
+are present in every version of gcc, not just gcc-2.8 or egcs.
 
-The gcc documentation indicates how the design of the asm construct
-was really geared for single assembler instructions, and the
-constraint/clobber specification works in a much more sensible way if
-you only use it in this manner.  Of course, we all have used it in a
-much more broad sense to use multiple assembler instructions and a lot
-of people screw up the "input operand only" case.
+1. Explicitly clobbering a register is supposed to make it unavailable for
+   both inputs and outputs of the same statement.  This rule has been there
+   for a long time; it's documented at least since gcc-2.6.0 (I have no earlier
+   docs available at the moment; I suspect it's been there forever).  This is
+   from gcc.info, version 2.6.0:
 
-The reload pass of the compiler groups operands for a single piece of
-RTL (the internal representation of "instructions" in gcc) into
-several groups when it sees register pressure and must create relods.
-These are:
+     The input operands are guaranteed not to use any of the clobbered
+     registers, and neither will the output operands' addresses, so you can
+     read and write the clobbered registers as many times as you like. 
 
-1) Input reloads
+   [Obviously, the clobbered regs aren't used for output operands either.]
+   Thus, using a construct like
+   __asm__ (" " : : "a" (somevalue) : "eax")
+   is incorrect.  This sort of thing occurs in the kernel, and it's a bug.
+   It should be written as
+   __asm__ (" " : "=&a" (dummy) : "0" (somevalue));
 
-   Such operands must have the specified value on input to the
-   instruction.  They will still have this specified value upon
-   completion of the instructions execution.
+2. Clobbers are dangerous on the i386.  The compiler can't guarantee that
+   even for a correctly-written asm, the clobbered register will not be used
+   for another operand.  Thus, it is highly advisable not to use clobbers
+   at all, and to use earlyclobbers as described above.  This is a compiler
+   bug, and it's very closely related to the one that lets you use "a" as
+   a constraint in the example above.
 
-2) Output reloads
+All of this only affects the i386 and other machines for which gcc has to
+define the macro SMALL_REGISTER_CLASSES in the machine description.  Without
+this macro, which normally isn't defined, gcc doesn't use registers which
+are explicitly mentioned anywhere in the internal representation at all for
+other purposes (like register allocation or for spill registers).  That makes
+the code correct, but it would also make the compiler fail to work at all for
+a machine where registers can be used explicitly (like eax as the function
+return value) and be necessary for certain instructions (like some
+multiplications that also require eax).
 
-   Such operands will be killed by this instruction and set is to some
-   value which will be set upon completion of the instruction.
+Thus, on most machines supported by gcc the incorrect asm statement above
+would cause a spill failure error, if it could be written for other machines
+(most other machine descriptions don't have single-register register classes).
 
-3) Address reloads
+> I don't agree.
+> 
+> The assembler used to be correct, and the gcc people unilaterally decided
+> to change the rules. As such, I don't think the asm is any more
+> "incorrect" than the new gcc versions are incorrect. 
 
-   These deal with address formation for memory operands found in the
-   RTL for a particular instruction and sometimes require secondary
-   reloads to be created (to deal with cases such as when the address
-   must be in a single register because the usage does not allow an
-   offsettable [reg + offset] type addressing mode, ie. the 'o'
-   constraint)
+The assembler never was correct.  It happens to work most of the time, because
+even when SMALL_REGISTER_CLASSES is defined, the compiler puts the explicitly
+mentioned registers at the end of the list that it chooses its reload regs
+from.  Only when it can't find any other register will it use any of the
+explicitly mentioned ones.
 
-When the compiler scans an instruction for an instruction it says:
+> The changes I have seen break older compilers. 
 
-1) What must be in registers upon entry to this instruction.
+In what ways?
 
-   These are the input reloads, once assigned a register life analysis
-   marks these registers as containin the specified value upon input
-   and also upon exit from the instruction.
+> So Andi, don't go saying that the kernel has problems, when it is equally
+> true to say that gcc has problems. 
 
-2) Which registers get killed as the "last thing" this instruction
-   does.  That is, with a simple example:
+Right.  Both have problems.  I'm currently working with the egcs people to
+fix the ones in gcc (make the compiler generate errors for the illegal asms,
+and avoid the whole SMALL_REGISTER_CLASSES nonsense).  However, once the
+compiler is fixed, the current kernels will fail to compile.
 
-   add		DEST, SRC
+> > In short, if you want to play safe stay with 2.7.2.3 for kernel compilation.
+> 
+> That, I think, everybody can agree on.
 
-   DEST would be an output reload, and so far gcc can legitimately
-   load the SRC value into DEST and just use DEST twice in the
-   instruction unless...
+Except that 2.7.2 is buggy as hell.  It has the same problems as egcs when
+it comes to asm statements, it just happens you may not have seen them yet.
+Fact is, any change in the kernel could cause the 2.7.2 to fall over just
+as well.
 
-3) Which input and output reloads conflict.
+> For example, everybody in the egcs camp just decided that clobbers and
+> inputs must not overlap. Nobody told me why,
 
-   When you say that an input and output don't need to be in the same
-   register value, it will use the same register for input and output
-   reloads as it sees profitable.  Unless you specify early clobber
-   with '&' in the constraints the compiler can legitimately use the
-   same register for arbitrary input and output reloads.
+Because it's documented that way.  Because on sane machines, it has always
+worked that way.
+You seem to suggest that the meaning of clobbered registers should be
+redefined so that they work the way you expect them to work.  Technically,
+that's feasible.  However, for the kernel inline assembly, you'd be left with
+the oh-so-stable gcc-2.7.2 which still doesn't work properly.  Worse,
+redefining the meaning of clobbers will suddenly make hundreds of correctly
+written asm statements for other machines as well as for the i386 generate
+incorrect code silently.  Are you seriously proposing this is a good idea?
 
-4) Which registers die in some unspecified way during this
-   instruction.  This is an explicit clobber.
+> and why they can't just be
+> automatically converted to early-clobbers inside gcc.
 
-So in the case being mentioned you are telling the compiler that a
-particular (in fact a specific) register is an "input only" operand
-and it dies in some unspecified way during this instruction.  So I
-just scanned the gcc documentation and I see:
+Clobbers in an asm statement can use a register number.  The operands need
+a register class.  There may not be a register class for a register you want
+to clobber (consider clobbering ebp which has no corresponding register class).
 
-	Some instructions clobber specific hard registers.  To describe
-	this, write a third colon after the input operands, followed by the
-	names of the clobbered hard registers (given as strings).
+Bernd
 
-If I'm not trying to be pedantic about all this, I would interpret
-this to mean "if you cannot describe what happens to a hard register
-using constraints, then use clobbers".
-
-It seems to imply that "constraint mentioned" registers and clobbers
-are mutually exclusive.
-
-So in my view either such input constraints are spurious and
-inaccurate, or one is using clobbers to describe what output
-constraints are there for.
-
-Later,
-David S. Miller
-davem@dm.cobaltmicro.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,107 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266364AbUIONrc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266457AbUIONx0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266364AbUIONrc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 09:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266351AbUIONpk
+	id S266457AbUIONx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 09:53:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266386AbUIONvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 09:45:40 -0400
-Received: from mail.zmailer.org ([62.78.96.67]:44004 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S266333AbUIONoR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 09:44:17 -0400
-Date: Wed, 15 Sep 2004 16:44:07 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Andre Bonin <kernel@bonin.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI coprocessors
-Message-ID: <20040915134407.GK19844@mea-ext.zmailer.org>
-References: <41483BD3.4030405@bonin.ca>
+	Wed, 15 Sep 2004 09:51:55 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:59841 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S266459AbUIONty (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 09:49:54 -0400
+Subject: Re: truncate shows non zero data beyond the end of the inode with
+	MAP_SHARED
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, an.li.wang@intel.com
+In-Reply-To: <20040915122920.GA4454@dualathlon.random>
+References: <20040915122920.GA4454@dualathlon.random>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1095252382.19921.46.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41483BD3.4030405@bonin.ca>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 15 Sep 2004 13:46:45 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 08:55:47AM -0400, Andre Bonin wrote:
-> Hey all,
-> I'me building an FPGA based pci board for a degree project.  In theory 
-> this board could be used as a custom, field programmable coprocessor
-> (to accelerate processes).  At which point, it might be nice to be able
-> to support it as a processor under the kernel.
-> 
-> Yes bandwidth, yes it should be PCI-Express but it is still just a 
-> degree project, 33mhz is fast enough for the proof of concept.
-> 
-> Which leads me to my questions:
-> 
-> 1) Is their support for having two different 'machine types' within one 
-> kernel? that is for example, certain executables for intel would get run 
-> on an intel processor, and others would get run on processor with type XXXX.
+On Mer, 2004-09-15 at 13:29, Andrea Arcangeli wrote:
+> I've been told we're not posix compliant the way we handle MAP_SHARED
+> on the last page of the inode. Basically after we map the page into
+> userspace people can make the data beyond the i_size non-zero and we
+> should clear it in the transition from page_mapcount 1 -> 0.  The bug
+> is that if you truncate-extend, the new data will not be guaranteed to
+> be zero.
 
-Depending...   If you think of computation intensive things, such have
-been implemented in FPGA, usually in "slave mode".  Consider algorithms
-that you want to run all the time with heavy load.  (some brute-force
-crypto breakings, Seti@Home, ...)  the math that the hardware does must
-(by necessity) be rather simple (or broken into simple steps.)
+I've heard this a couple of times but in fact SuS v3 says
 
-Things that are useful and have in the past been done in co-processors
-do include:
+--
+If the size of the mapped file changes after the call to mmap() as a
+result of some other operation on the mapped file, the effect of
+references to portions of the mapped region that correspond to added or
+removed portions of the file is unspecified.
+--
 
-  - RSA exponentation
-  - 3DES
-  - FIR/IIR filters
-  - FFT engines
-  - Matrix math engines
+Note it says "after the call to mmap" not after the file size change.
 
-Depending on used FPGA (RAM-based I presume, anti-fuse stuff is not
-reprogrammable), there might exist internal multipliers, and distributed
-RAM blocks for intermediate results.  Fairly complicated signal processing
-could be done in such a card.
+The guarantees it does make are:
+- After the mmap completes the bytes in the end area after EOF are zero
+- The bytes in question are not written back to the file
+  [although a file size change hits the first quoted rule]
 
-Cheaper FPGAs can be used to implement complexish logic to do strange
-serial IO protocols with strict timing requirements, for example.
-"Send this word to the remote device", "read back device's lattest
-reply".  (e.g. implement a VGA-LCD controller.)
+Essentially the rule is "don't extend the file on writes to the gap"
+
+BTW: there is no such thing as a useful SuSv3 implementation of mmap
+because the documentation contains an error which requires every
+reference to the mmapped object cause a bus error 8)
 
 
-> I heard once someone put native "java" .class support within the kernel 
-> (it would call the jvm run time if i remember).  I could maby do this 
-> with my own set of libraries and driver.  But differentiating between 
-> the types of executable might be hard.
 
-Sure a "micro-java-engine" can be implemented, and then ran.
-However a 50-60 M java intructions (byte-codes) per second isn't
-all that fancy, especially if you need to access memory rather
-frequently...  Your host will likely be able to run JVM faster
-than that.  (A P-IV-XEON running at 3+ GHz..)
-
-
-If you have a deeper look into how e.g. intel e100 ethernet cards
-are driven, you will quickly notice that they are given rather simple
-task lists -- except in case of "setup" operation, which sends big
-magic blob of data to the controller microsequencer.
-
-You want to do something similar, if you can do bus-mastering.
-You might introduce "must be 32-bit aligned" requirement, or
-whatever your application fancies.  (A 1000x1000 matrix inversion...)
-
-You shall make sure, that you won't be offloading tasks to the external
-engine, tasks that your internal engine could do faster (except if you
-want to spend the freed time at something else.
-
-
-> 2) Is their kernel support for PCI coprocessors for thread allocation 
-> etc.  I couldn't find any but i can try looking through the code again.
-
-
-There is nothing such for situations where processors execute different
-binary language (and thus different data layouts).
-
-There is some support to offload heavyish cryptographic tasks to
-physical co-processors (PCI-cards) .. but going twice over the
-32 bit * 33 MHz bus does limit the amount of data processable in
-the co-processor.
-
-
-/Matti Aarnio

@@ -1,74 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271151AbRHOLlN>; Wed, 15 Aug 2001 07:41:13 -0400
+	id <S271153AbRHOLpX>; Wed, 15 Aug 2001 07:45:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271149AbRHOLlD>; Wed, 15 Aug 2001 07:41:03 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:51211 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S271152AbRHOLkw>; Wed, 15 Aug 2001 07:40:52 -0400
-Message-ID: <3B7A5FCF.F4C9561F@delusion.de>
-Date: Wed, 15 Aug 2001 13:41:03 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8-ac5 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Gerd Knorr <kraxel@bytesex.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: BT878 audio dma
+	id <S271152AbRHOLpN>; Wed, 15 Aug 2001 07:45:13 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:53517 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S271153AbRHOLpA>; Wed, 15 Aug 2001 07:45:00 -0400
+Date: Wed, 15 Aug 2001 14:47:17 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <9221759778.20010815144717@port.imtp.ilyichevsk.odessa.ua>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SAK killing daemons
+In-Reply-To: <20010815104413.B13330@pasky.ji.cz>
+In-Reply-To: <509636476.20010815112514@port.imtp.ilyichevsk.odessa.ua>
+ <20010815104413.B13330@pasky.ji.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Petr,
+Wednesday, August 15, 2001, 11:44:13 AM, you wrote:
+>> I noticed that when I press SAK on virtual console #1
+>> on my Linux box, some daemons die horribly (SIGKILLed)
+>> and some are unaffected. This does not happen on other consoles.
+>> I suppose dying daemons did not detach fully from controlling tty. And
+>> since they were launched from virtual console #1 upon system startup,
+>> SAK killed them.
+>> Daemons dying upon SAK: syslogd mysqld top* logger*
+>> Daemons surviving SAK: klogd gpm dhcpcd inetd automount
+>
+> Try running the dying daemons by setsid utility (man 1 setsid, man 2 setsid),
+> it can help maybe. And try to modify that su -c command to:
+>
+> su user0 -c "top s" </dev/tty/10 >/dev/tty10 2>/dev/tty10 &
+>
+> that could help also.
 
-Hi Gerd,
+Okay, tried that with top and it works. However, syslogd still
+misbehaves. I tried these:
 
-When compiling kernels from Alan's -ac tree, i.e. 2.4.8-ac5, and configuring
-CONFIG_SOUND_BT878=y, I completely lose the ability to play sound on my
-machine over my Emu10K1 soundcard. The kernel log contains the following
-message over and over again:
+/usr/sbin/syslogd
+setsid /usr/sbin/syslogd </dev/null >/dev/null 2>&1
+setsid /usr/sbin/syslogd -n </dev/null >/dev/null 2>&1 &
 
-kernel: btaudio: stereo=1 channels=2
+with no success.
+Does ANYBODY have syslogd which does NOT die after SAK on VT #1 ?
+If so, please tell me how exactly do you launch it,
+syslogd and kernel version. Mine:
+syslogd: 1.4.1
+kernel: 2.4.5
 
-When compiled as a module, the module is never auto-loaded and therefore
-sound works fine. The relevant info for my card is below - if more info
-is required, let me know.
+Note: klogd does not die. Looking at the sources, I don't see why.
+They use similar method (however not identical code) of auto-backgrounding
+but... maybe someone more experienced can take a look?
 
-Regards,
-Udo.
+Please CC me, I'm not on the list.
+-- 
+Best regards,
+VDA                            mailto:VDA@port.imtp.ilyichevsk.odessa.ua
 
-bttv: driver version 0.7.72 loaded
-bttv: using 2 buffers with 2080k (4160k total) for capture
-bttv: Bt8xx card found (0).
-PCI: Enabling device 00:09.0 (0004 -> 0006)
-PCI: Found IRQ 9 for device 00:09.0
-PCI: Sharing IRQ 9 with 00:04.2
-PCI: Sharing IRQ 9 with 00:04.3
-PCI: Sharing IRQ 9 with 00:09.1
-PCI: Sharing IRQ 9 with 00:0d.0
-bttv0: Bt878 (rev 2) at 00:09.0, irq: 9, latency: 32, memory: 0xd7000000
-bttv0: subsystem: 0070:13eb  =>  Hauppauge WinTV  =>  card=10
-bttv0: model: BT878(Hauppauge new (bt878)) [autodetected]
-bttv0: Hauppauge msp34xx: reset line init
-i2c-dev.o: Registered 'bt848 #0' as minor 0
-i2c-core.o: adapter bt848 #0 registered as adapter 0.
-bttv0: Hauppauge eeprom: model=37284, tuner=Philips FM1216 (5), radio=yes
-bttv0: i2c: checking for MSP34xx @ 0x80... found
-i2c-core.o: driver i2c msp3400 driver registered.
-msp34xx: init: chip=MSP3410D-B4, has NICAM support
-msp3410: daemon started
-bttv0: i2c attach [MSP3410D-B4]
-i2c-core.o: client [MSP3410D-B4] registered to adapter [bt848 #0](pos. 0).
-bttv0: i2c: checking for TDA9875 @ 0xb0... not found
-bttv0: i2c: checking for TDA7432 @ 0x8a... not found
-tvaudio: TV audio decoder + audio/video mux driver
-tvaudio: known chips: tda9840,tda9873h,tda9850,tda9855,tea6300,tea6420,tda8425,pic16c54 (PV951)
-i2c-core.o: driver generic i2c audio driver registered.
-bttv0: i2c attach [tda9840]
-i2c-core.o: client [tda9840] registered to adapter [bt848 #0](pos. 1).
-i2c-core.o: driver i2c TV tuner driver registered.
-tuner: chip found @ 0xc2
-bttv0: i2c attach [Philips PAL]
-i2c-core.o: client [Philips PAL] registered to adapter [bt848 #0](pos. 2).
-bttv0: PLL: 28636363 => 35468950 ... ok
+

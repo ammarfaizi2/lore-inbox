@@ -1,52 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290750AbSAYRl2>; Fri, 25 Jan 2002 12:41:28 -0500
+	id <S290749AbSAYRoI>; Fri, 25 Jan 2002 12:44:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290749AbSAYRlT>; Fri, 25 Jan 2002 12:41:19 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:32987 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S290750AbSAYRlN>; Fri, 25 Jan 2002 12:41:13 -0500
-Date: Fri, 25 Jan 2002 12:41:10 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Rainer Krienke <krienke@uni-koblenz.de>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-        nfs@lists.sourceforge.net
-Subject: Re: 2.4.17:Increase number of anonymous filesystems beyond 256?
-Message-ID: <20020125124110.A357@devserv.devel.redhat.com>
-In-Reply-To: <mailman.1011275640.16596.linux-kernel2news@redhat.com> <200201240858.g0O8wnH03603@bliss.uni-koblenz.de> <20020124121649.A7722@devserv.devel.redhat.com> <200201250728.g0P7SDH26738@bliss.uni-koblenz.de>
-Mime-Version: 1.0
+	id <S290752AbSAYRn6>; Fri, 25 Jan 2002 12:43:58 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31755 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290749AbSAYRnq>; Fri, 25 Jan 2002 12:43:46 -0500
+Subject: Re: ACPI mentioned on lwn.net/kernel
+To: andrew.grover@intel.com (Grover, Andrew)
+Date: Fri, 25 Jan 2002 17:55:22 +0000 (GMT)
+Cc: lwn@lwn.net ('lwn@lwn.net'),
+        acpi-devel@lists.sourceforge.net ("Acpi-linux (E-mail)"),
+        linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7BDF@orsmsx111.jf.intel.com> from "Grover, Andrew" at Jan 24, 2002 05:29:40 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200201250728.g0P7SDH26738@bliss.uni-koblenz.de>; from krienke@uni-koblenz.de on Fri, Jan 25, 2002 at 08:28:13AM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16UAZO-00034f-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Rainer Krienke <krienke@uni-koblenz.de>
-> Date: Fri, 25 Jan 2002 08:28:13 +0100
+> battery status, the steps the OS must perform are defined by the BIOS.
+> However, since they are performed by the OS, the OS in fact gains visibility
+> into the process, and does not ever relinquish control to the BIOS.
 
-> > Rainer, you missed the point. Nobody cares about small things
-> > such as "cannot start nfsd" while your 4096 mounts patch
-> > simply CORRUPTS YOUR DATA TO HELL.
-> 
-> Well I never said, I really knew what I was doing:-).  Thats exacly why I 
-> asked about why to use more major devices? OK the anser to this question 
-> seems to be that minor devices may only be 8 bit due to the static nature of 
-> some kernel structures. Right?
+It has task file IDE access. It is capable of being abused for that or more.
+Intent doesnt come into it. Its no different to the current BIOS SMM
+situation. 
 
-Close enough... Actual reason is the implementation of MINOR().
-
-> > If you need more than 1200 mounts, you have to add more majors
-> > to my patch. There is a number of them between 115 and 198.
-> > I suspect scalability problems may become evident
-> > with this approach, but it will work.
-> 
-> The solution Richard posted seems to be interesting at this point isn't it?
-
-I thought about the rgooch's suggestion, it sounds good for 2.5.
-Red Hat do not ship devfs enabled currently, and I cannot use his
-allocation function if someone uses static majors, or some modules
-may not load. The patch does include a safety element (majorhog_xxx)
-that reserves majors properly. The devfs would make that unnecessary.
-
--- Pete
+Alan

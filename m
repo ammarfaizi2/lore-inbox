@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbTEVTg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 15:36:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263186AbTEVTg5
+	id S263182AbTEVTkd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 15:40:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263187AbTEVTkd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 15:36:57 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:12197 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263185AbTEVTgz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 15:36:55 -0400
-Subject: Re: 2.5.69-mm8
-From: Paul Larson <plars@linuxtestproject.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-In-Reply-To: <9790000.1053632393@[10.10.2.4]>
-References: <20030522021652.6601ed2b.akpm@digeo.com>
-	<1053629620.596.1.camel@teapot.felipe-alfaro.com>
-	<1053631843.2648.3248.camel@plars>  <9790000.1053632393@[10.10.2.4]>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-NhwYcdGnh7oj3f2X+q0q"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 22 May 2003 14:49:44 -0500
-Message-Id: <1053632985.598.3257.camel@plars>
-Mime-Version: 1.0
+	Thu, 22 May 2003 15:40:33 -0400
+Received: from isp247n.hispeed.ch ([62.2.95.247]:8388 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S263182AbTEVTkc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 15:40:32 -0400
+From: Fabiano Sidler <fabianosidler@swissonline.ch>
+To: Stephane Wirtel <stephane.wirtel@belgacom.net>
+Subject: Re: Kernel unable to load modules
+Date: Thu, 22 May 2003 21:53:30 +0200
+User-Agent: KMail/1.5
+References: <200305221709.11147.fabianosidler@swissonline.ch> <20030522152651.GB11780@stargate.lan>
+In-Reply-To: <20030522152651.GB11780@stargate.lan>
+Cc: linux-kernel@vger.kernel.org
+PGP-key: Chaibs
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200305222153.34921.fabianosidler@swissonline.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mai 22, 2003, 17.26, Stephane Wirtel wrote:
+> With gcc 3.3, i have some errors, during the compilation, thus i stay with
+> my gcc 3.2.x
+>
+> About the .ebuild of Gentoo, there are not problems with them.
 
---=-NhwYcdGnh7oj3f2X+q0q
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, 2003-05-22 at 14:39, Martin J. Bligh wrote:
-> Also seems to hang rather easily. When it gets into that state, it's diff=
-icult
-> to tell what works and what doesn't ... I can login over serial, but not=20
-> start new ssh's and "ps -ef" hangs for ever. I'll try to get some more
-> information, and assemble a less-totally-crap bug report.
-ssh and ps -ef seem to work fine on my machine
-
--Paul Larson
-
---=-NhwYcdGnh7oj3f2X+q0q
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEABECAAYFAj7NKdcACgkQbkpggQiFDqd6+wCfWyjuPyAOgcJkWILgi7lmHjag
-HtkAnjoPcKiBs2E9YuQwKlnp1tyLffr5
-=jatF
------END PGP SIGNATURE-----
-
---=-NhwYcdGnh7oj3f2X+q0q--
+Yes, with gcc3.3, some errors ocurred here also. But I 've tried it with 
+2.95.3, which I used for my running kernel, and it doesn't work. That's why 
+suppose this problems don't belong to the compiler...
 

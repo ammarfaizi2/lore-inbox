@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264491AbRFOTTO>; Fri, 15 Jun 2001 15:19:14 -0400
+	id <S264493AbRFOTWY>; Fri, 15 Jun 2001 15:22:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264493AbRFOTTE>; Fri, 15 Jun 2001 15:19:04 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:63452 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S264491AbRFOTSu>;
-	Fri, 15 Jun 2001 15:18:50 -0400
-Date: Fri, 15 Jun 2001 15:18:48 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [Final call for testers][PATCH] superblock handling changes
- (2.4.6-pre3)
-In-Reply-To: <Pine.LNX.4.31.0106151209470.7559-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0106151513480.9091-100000@weyl.math.psu.edu>
+	id <S264494AbRFOTWO>; Fri, 15 Jun 2001 15:22:14 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:51720 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S264493AbRFOTWD>;
+	Fri, 15 Jun 2001 15:22:03 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106151921.f5FJLsc03635@saturn.cs.uml.edu>
+Subject: Re: [patch] nonblinking VGA block cursor
+To: ljb@devco.net (Leon Breedt)
+Date: Fri, 15 Jun 2001 15:21:54 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010615162249.A1328@rinoa.rinoa> from "Leon Breedt" at Jun 15, 2001 04:22:49 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Leon Breedt writes:
 
-
-On Fri, 15 Jun 2001, Linus Torvalds wrote:
-
-> I have to agree with Matthew - "list_add_tail()" more clearly says what
-> the code is trying to do.
+> Attached is a patch to enforce a non-blinking, FreeBSD-syscons like
+> block cursor in console mode.
 > 
-> Aside from that, I will bet you a dollar that you'll see that using
-> "list_add_tail()" generating better code. Why? Simply because that way one
-> of the pointers is a constant, instead of being through indirection. Try
-> it and see.
+> This is useful for laptop types, or people like me who really really
+> detest a blinking cursor.
 > 
-> And if order is arbitrary, please just use
-> 
-> 	list_add(&s->s_list, super_blocks);
-> 
-> because otherwise why use the ".prev" at all?
+> NOTE: It disables the softcursor escape codes 
+>       (/usr/src/linux/Documentation/VGA-softcursor.txt), since I don't 
+>       ever want anything to change my cursor shape/style :)
 
-OK with me - I've completely missed his point when I was replying.
-For now I'd go for list_add_tail() (if you check the patch you'll
-see that this line was simply moved from get_empty_super() - verbatim).
+I've seen this 666 times too often.
 
-Order may matter performance-wise and now we can control it, but I'd
-leave experiments in that direction until 2.5. Anything that relied on
-any specific order is broken, but let's not add that into the mix for
-the time being, OK?
+Non-blinking cursors are just wrong. You need to patch your brain.
+You really fucked up, because now apps can't restore your cursor
+to proper behavior as defined by IBM.
 
+The blinking cursor is implemented in your video hardware.
+IBM knew what was right for you. Millions of people know that
+the blinking cursor is good. It is so right that a proper GUI
+will implement the blinking cursor even without hardware support.
+
+Of course FreeBSD has a block cursor. It was easy to program,
+and it seems nice to the pot-smoking hippies out in Berkeley.
+FreeBSD doesn't define standards. FreeBSD breaks standards.
+(zombie creation, "ps -ef", partition tables, pty allocation...)
+Gee, kind of like Microsoft, except Microsoft got the cursor right!
+
+Ever wonder why IBM supports Linux instead of FreeBSD? Hmmm?

@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135838AbRDTJn6>; Fri, 20 Apr 2001 05:43:58 -0400
+	id <S135840AbRDTJuU>; Fri, 20 Apr 2001 05:50:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135839AbRDTJnt>; Fri, 20 Apr 2001 05:43:49 -0400
-Received: from mailhub2.shef.ac.uk ([143.167.2.154]:50405 "EHLO
-	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
-	id <S135838AbRDTJnd>; Fri, 20 Apr 2001 05:43:33 -0400
-Date: Fri, 20 Apr 2001 10:43:23 +0100 (BST)
-From: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Hai Xu <xhai@CLEMSON.EDU>, linux-kernel@vger.kernel.org
-Subject: Re: A little problem.
-In-Reply-To: <E14qMB9-00089Z-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0104201023100.17277-100000@erdos.shef.ac.uk>
+	id <S135842AbRDTJuK>; Fri, 20 Apr 2001 05:50:10 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:20868 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S135840AbRDTJuA>;
+	Fri, 20 Apr 2001 05:50:00 -0400
+Date: Fri, 20 Apr 2001 02:49:50 -0700 (PDT)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Roberto Nibali <ratz@tac.ch>, <linux-kernel@vger.kernel.org>,
+        Donald Becker <becker@scyld.com>, Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: Fix for Donald Becker's DP83815 network driver (v1.07)
+In-Reply-To: <3ADFE5B7.C9CA1F9E@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0104200244000.5165-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is way OT here, but since Alan replied to this, I'll continue this
-thread a bit: The interesting bit here, that I don't understand, is - how
-in RedHat-7.0, that was released last year, libc is compiled against
-2.4.0?... Did they include headers from one of pre / test versions?
+On Fri, 20 Apr 2001, Jeff Garzik wrote:
 
-Thanks
-Guennadi
-
-On Thu, 19 Apr 2001, Alan Cox wrote:
-
-> > and upgrade the Linux Kerenl from their original 2.2.16 to 2.2.18. But when
-> > I compile some modules, it said my kernel is 2.4.0. I check the
-> > /usr/include/linux/version.h as follows, found that it shows I am using
-> > Kernel 2.4.0.
+> > Check again. drivers/net builds a .a, not a .o. Trust me, I've tried.
 > 
-> No. It shows the headers your C compiler libraries are built againt. Which is
-> 2.4 - and which is correct. It has nothing to do with the kernel you are 
-> running
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Sure, but if you are patching anyway, it much better to fix that than
+> hack space.c :)
 
-___
+Well, I remember asking Alan if he'd prefer it done that way, and not 
+getting a reply back. So I didn't press further.
 
-Dr. Guennadi V. Liakhovetski
-Department of Applied Mathematics
-University of Sheffield, U.K.
-email: G.Liakhovetski@sheffield.ac.uk
+The change to support __init/__exit in drivers/net is a no-brainer, and I 
+did test it at the time -- it worked as expected. But it's really up to 
+Alan to decide, I couldn't care less to be quite honest.
 
+In a way I think I understand why he's reluctant: it's very easy to end up
+changing the initialization order by mistake and messing up people's 
+network setups.
+
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 

@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268156AbTGIKWe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 06:22:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268160AbTGIKVd
+	id S268123AbTGIKVL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 06:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268151AbTGIKVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 06:21:33 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:30427 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S268149AbTGIKVR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 06:21:17 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: [PATCH] O3int interactivity for 2.5.74-mm2
-Date: Wed, 9 Jul 2003 20:37:06 +1000
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org, Mike Galbraith <efault@gmx.de>,
-       Nick Sanders <sandersn@btinternet.com>, Andrew Morton <akpm@osdl.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-References: <200307070317.11246.kernel@kolivas.org> <200307092022.07723.kernel@kolivas.org> <200307091223.52040.m.c.p@wolk-project.de>
-In-Reply-To: <200307091223.52040.m.c.p@wolk-project.de>
+	Wed, 9 Jul 2003 06:21:10 -0400
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:12431 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id S268123AbTGIKSh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 06:18:37 -0400
+From: Bernd Schubert <bernd-schubert@web.de>
+To: John Kim <jak@easystreet.com>, linux-kernel@vger.kernel.org
+Subject: Re: Oops error on scp
+Date: Wed, 9 Jul 2003 12:33:09 +0200
+User-Agent: KMail/1.5.1
+References: <200307082036.34476.jak@easystreet.com>
+In-Reply-To: <200307082036.34476.jak@easystreet.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200307092037.06362.kernel@kolivas.org>
+Message-Id: <200307091233.09254.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Jul 2003 20:23, Marc-Christian Petersen wrote:
-> On Wednesday 09 July 2003 12:22, Con Kolivas wrote:
->
-> Hi Con,
->
-> > > Now I am running 2.5.74-mm3, xterm needs about 5 seconds to open up,
-> > > but the whole system is again in a snail mode. XMMS does not skip.
-> >
-> > Well this is no different to the O3 patch on mm2 so it's no surprise :)
->
-> sure, but wait up the next mail. I forgot to mention that I do "-j2" now
-> and not -j8 or -j16 ;)
->
-> ciao, Marc
 
-You saying this is somehow slower than before?
+> Every time I have recreated the error, the mesg:
+> "Unable to handle kernel NULL pointer dereference at virtual address
+> 00000200" has appeared (the only variance being that the virtual address
+> changes from 00000200 to 00000202 when I tried to scp over a different
+> dir).  The oops error comes out when I have scp'ied maybe about 3 or 4 GBs,
+> but this is not always the case.  I have tried changing filesystems
+> (Reiserfs, ext2, ext3) to no avail, and I have run diags on my hard drive. 
+> I am starting to question if there is a hardware failure in the RAM??
 
-Ciao Marc,
-Con
+Thats what I would guess.
 
+> I don't know--I've never seen/dealt with an oops error before.
+>
+> Please advise!
+
+www.memtest86.com
+
+Just run a full test (all tests enabled.
+
+
+Regards,	
+	Bernd
+
+-- 
+Bernd Schubert
+Physikalisch Chemisches Institut / Theoretische Chemie
+Universität Heidelberg
+INF 229
+69120 Heidelberg
+e-mail: bernd.schubert@pci.uni-heidelberg.de

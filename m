@@ -1,40 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264697AbUGBRAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264746AbUGBRCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264697AbUGBRAX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 13:00:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264734AbUGBRAX
+	id S264746AbUGBRCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 13:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264750AbUGBRCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 13:00:23 -0400
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:9606 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S264697AbUGBRAW
+	Fri, 2 Jul 2004 13:02:25 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2286 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264746AbUGBRCW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 13:00:22 -0400
-Date: Fri, 2 Jul 2004 13:00:19 -0400
-To: Yichen Xie <yxie@cs.stanford.edu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: [BUGS] [CHECKER] 99 synchronization bugs and a lock summary database
-Message-ID: <20040702170019.GA32756@fieldses.org>
-References: <20040702011903.6360d43b.akpm@osdl.org> <Pine.LNX.4.44.0407020933300.23611-100000@kaki.stanford.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0407020933300.23611-100000@kaki.stanford.edu>
-User-Agent: Mutt/1.5.6+20040523i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+	Fri, 2 Jul 2004 13:02:22 -0400
+Message-ID: <40E5950F.2090308@pobox.com>
+Date: Fri, 02 Jul 2004 13:02:07 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tigran Aivazian <tigran@veritas.com>
+CC: linux-ide@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       cova@ferrara.linux.it, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: question about SATA and IDE DVD/CD drives.
+References: <Pine.LNX.4.44.0407021745400.2190-100000@einstein.homenet>
+In-Reply-To: <Pine.LNX.4.44.0407021745400.2190-100000@einstein.homenet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 02, 2004 at 09:39:40AM -0700, Yichen Xie wrote:
-> indeed, the code looks different in 2.6.7. definitely not a double unlock
-> any more, but it seems the new version exit w/ client_sema unheld at line
-> 1616, and w/ the lock held at line 1625. is there a correlation between
-> the return value with the lock state? -yichen
+Tigran Aivazian wrote:
+> On Fri, 2 Jul 2004, Jeff Garzik wrote:
+> 
+>>Enable CONFIG_IDE, and disable CONFIG_BLK_DEV_IDE_SATA, and that will 
+>>fix things I bet.
+> 
+> 
+> Tried this as well on the latest snapshot (2.6.7-bk9) and it failed as 
+> well. Namely, SATA disk works fine but IDE subsystem doesn't see the DVD 
+> drive.
+> 
+> Are you sure that I only need to enable CONFIG_IDE and not some of the
+> other IDE options (disk, cdrom, chipset-specific etc)?
 
-Yes.  The unlock happens at either nfs4xdr.c:1280 (ENCODE_SEQID_OP_TAIL)
-or nfs4xdr.c:2534 (nfsd4_encode_replay()), and in the former case the
-unlock is conditional on the value of the oc_stateowner field that's set
-before the nfs4_lock_state() in nfsd4_open_confirm().
+Sorry, I was summarizing...  you definitely need a "personality" driver 
+such as the ide-cdrom driver in order to make use of your DVD drive.
 
-So while I believe the code as it stands is correct, it's not just your
-checker that's going to find this confusing!  I'll work on a fix....--b.
+Really, though, I need to get off my butt and finish ATAPI in libata. 
+Then, libata can drive PATA devices and we can get rid of all these 
+headaches with combined mode being split between two drivers.
+
+I'm going to be doing some libata hacking this weekend, looking 
+particularly at a regression not caused by ACPI (hi Fabio).  I'll see if 
+I can finish up ATAPI at that time.
+
+	Jeff
+
+

@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267896AbTBVNIk>; Sat, 22 Feb 2003 08:08:40 -0500
+	id <S267897AbTBVNUu>; Sat, 22 Feb 2003 08:20:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267897AbTBVNIk>; Sat, 22 Feb 2003 08:08:40 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:640 "EHLO bilbo.tmr.com")
-	by vger.kernel.org with ESMTP id <S267896AbTBVNIj>;
-	Sat, 22 Feb 2003 08:08:39 -0500
-Date: Sat, 22 Feb 2003 08:18:43 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-X-X-Sender: root@bilbo.tmr.com
-Reply-To: Bill Davidsen <davidsen@tmr.com>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [2.4.21-pre4-ac5] make dep - Circular dependencies
-Message-ID: <Pine.LNX.4.44.0302220815440.5038-100000@bilbo.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267898AbTBVNUu>; Sat, 22 Feb 2003 08:20:50 -0500
+Received: from angband.namesys.com ([212.16.7.85]:1152 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S267897AbTBVNUt>; Sat, 22 Feb 2003 08:20:49 -0500
+Date: Sat, 22 Feb 2003 16:30:57 +0300
+From: Oleg Drokin <green@namesys.com>
+To: thetech@folkwolf.net, linux-kernel@vger.kernel.org
+Subject: Box freezes if I enable "AMD 76x native power management"
+Message-ID: <20030222163057.A884@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make[1]: Circular /usr/src/linux-2.4.21-pre4-ac5/include/asm/smplock.h <- /usr/src/linux-2.4.21-pre4-ac5/include/linux/interrupt.h dependency dropped.
-make[1]: Circular /usr/src/linux-2.4.21-pre4-ac5/include/linux/netfilter_ipv4/ip_conntrack_helper.h <- /usr/src/linux-2.4.21-pre4-ac5/include/linux/netfilter_ipv4/ip_conntrack.h dependency dropped.
+Hello!
 
-Happened to note this as it flashed by, the kernel is still building so I 
-don't know if it matters.
+   Starting from 2.4.20 until now (including 2.4.21-pre4 and 2.4.21-pre4-ac5",
+   whenever I enable "AMD 76x native power management" in my kernel config, I get
+   kernel that hangs at boot after reporting elevator stuff about my IDE drives.
+   Is anybody interested?
 
-Built on 2.5.61-ac1 kernel with gcc 2.96 (RH 7.3) if it matters.
+   I have dual-cpu Athlon-1700+ on some Tyan MB:
+PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System Controller (rev 17).
+      Master Capable.  Latency=64.
+      Prefetchable 32 bit memory at 0xf4000000 [0xf7ffffff].
+      Prefetchable 32 bit memory at 0xf0101000 [0xf0101fff].
+      I/O at 0x1430 [0x1433].
+  Bus  0, device   1, function  0:
+    PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP Bridge (rev 0).
+      Master Capable.  Latency=99.  Min Gnt=12.
+  Bus  0, device   7, function  0:
+    ISA bridge: Advanced Micro Devices [AMD] AMD-766 [ViperPlus] ISA (rev 2).
+  Bus  0, device   7, function  1:
+    IDE interface: Advanced Micro Devices [AMD] AMD-766 [ViperPlus] IDE (rev 1).
+      Master Capable.  Latency=64.
+      I/O at 0xf000 [0xf00f].
+  Bus  0, device   7, function  3:
+    Bridge: Advanced Micro Devices [AMD] AMD-766 [ViperPlus] ACPI (rev 1).
+      Master Capable.  Latency=64.
+  Bus  0, device   7, function  4:
+    USB Controller: Advanced Micro Devices [AMD] AMD-766 [ViperPlus] USB (rev 7).
+      IRQ 11.
+      Master Capable.  Latency=16.  Max Lat=80.
+      Non-prefetchable 32 bit memory at 0xdc000 [0xdcfff].
 
--- 
-bill davidsen, CTO TMR Associates, Inc <davidsen@tmr.com>
-  Having the feature freeze for Linux 2.5 on Hallow'een is appropriate,
-since using 2.5 kernels includes a lot of things jumping out of dark
-corners to scare you.
-
-
+Bye,
+    Oleg

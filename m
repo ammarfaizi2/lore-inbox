@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315606AbSEIEOF>; Thu, 9 May 2002 00:14:05 -0400
+	id <S313016AbSEHLAN>; Wed, 8 May 2002 07:00:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315607AbSEIEOE>; Thu, 9 May 2002 00:14:04 -0400
-Received: from mta03-svc.ntlworld.com ([62.253.162.43]:898 "EHLO
-	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S315606AbSEIEOE>; Thu, 9 May 2002 00:14:04 -0400
-Message-ID: <3CD81676.90909@notnowlewis.co.uk>
-Date: Tue, 07 May 2002 19:01:26 +0100
-From: mikeH <mikeH@notnowlewis.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020502
-X-Accept-Language: en-us, en
+	id <S313019AbSEHLAM>; Wed, 8 May 2002 07:00:12 -0400
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:61432 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S313016AbSEHLAH>; Wed, 8 May 2002 07:00:07 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Bjorn Wesen <bjorn.wesen@axis.com>,
+        Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] IDE 58
+Date: Fri, 1 Jan 1904 01:04:32 +0200
+Message-Id: <19031231230432.20732@smtp.wanadoo.fr>
+In-Reply-To: <Pine.LNX.4.33.0205081227100.30573-100000@godzilla.axis.se>
+X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: lost interrupt hell - Plea for Help
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+>I don't see why all IDE-interfaces in the world have to be I/O-mapped just 
+>because the first PC implementations used that. Sure it was an extended 
+>ISA-bus but the ISA bus is long gone and we don't all run PC's anymore 
+>either.
+>
+>So the simple abstraction we need to hit IDE-bus registers is a macro or 
+>inline, instead of a call of an I/O-primitive. It was too much work to 
+>abstract this when I inserted the CRIS-arch IDE-driver in the first place 
+>so I found a workaround but now seems like a better time..
 
-*bang*
+No, not a macro. There are cases where you want different access methods
+on the same machine. For example, pmacs can have the "mac-io" (ide-pmac)
+controller, which is MMIO based, _and_ a PCI-based legacy IDE controller
+using inx/outx like IOs. (A typical example is the Blue&White G3 who has
+both on the motherboard).
 
-*bang*
+Ultimately, you want the hwif (or what it becomes in 2.5) provide a set
+of functions for accessing taskfile registers and doing the PIO data
+stream read/writes (that is replace inb/outb and insw/outsw).
 
-Hear that? Its my head, against the wall. ;)
+>Similarily, there is no reason at all why the CPU has to do _polling_ just 
+>because the IDE _bus_ is using a PIO-mode. It probably does that on legacy 
+>PC's but HW designed, hrm, more optimally can use DMA. Hence the hooks for 
+>the ide_func_t.
+>
+>So I'd figure the software side really would be _easier_ to implement with 
+>those assumptions about how an IDE-interface is supposed to work gone.
+>
+>> This makes my  cleanup of the portability layer a bit hard
+>> to finish on the software side.
+>
+>I understand that, so lets keep the discussion going and I'll check over 
+>your current cleanup.
+>
+>/Bjorn
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-I am trying to convert my audio cds to mp3, which involves first ripping 
-the track as a wav.
-
-I have two drives, one Creative DVD 5x, one LG CDRW drive.
-My chipet is VIA K7 266 pro, 1.2ghz duron.
-
-I have tried every combination of master / slave between the two drives, 
-the drives on their own, scsi emulation through ide-scsi, purely as IDE 
-drives, ommitting ide cdrom support from teh kernel completely and only 
-using ide-scsi... every time I try to get a track ripped, dmesg fills up 
-with hdX: lost interrupt.
-
-If I try to rip from the DVD drive, the system hangs and its reset 
-button time.
-
-I am using 2.4.18.
-
-Can anyone tell me where I'm going wrong? Is there anything from my 
-system you need to see to help me?
-
-Many thanks,
-
-mikeH
 

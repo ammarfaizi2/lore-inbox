@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263321AbTCNKSp>; Fri, 14 Mar 2003 05:18:45 -0500
+	id <S261641AbTCNKU0>; Fri, 14 Mar 2003 05:20:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263324AbTCNKSp>; Fri, 14 Mar 2003 05:18:45 -0500
-Received: from mail-5.tiscali.it ([195.130.225.151]:53644 "EHLO
-	mail.tiscali.it") by vger.kernel.org with ESMTP id <S263321AbTCNKSo>;
-	Fri, 14 Mar 2003 05:18:44 -0500
-Date: Fri, 14 Mar 2003 11:29:13 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21pre5aa1
-Message-ID: <20030314102913.GD1375@dualathlon.random>
-References: <20030314090825.GB1375@dualathlon.random> <200303141115.42063.m.c.p@wolk-project.de>
+	id <S261671AbTCNKU0>; Fri, 14 Mar 2003 05:20:26 -0500
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:5643
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
+	id <S261641AbTCNKUY>; Fri, 14 Mar 2003 05:20:24 -0500
+Subject: Re: 2.5.64-mm6: oops in elv_remove_request
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+In-Reply-To: <20030314104219.GA791@suse.de>
+References: <1047576167.1318.4.camel@ixodes.goop.org>
+	 <20030313175454.GP836@suse.de> <1047578690.1322.17.camel@ixodes.goop.org>
+	 <20030313190247.GQ836@suse.de> <1047633884.1147.3.camel@ixodes.goop.org>
+	 <20030314104219.GA791@suse.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1047637870.1147.27.camel@ixodes.goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303141115.42063.m.c.p@wolk-project.de>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 14 Mar 2003 02:31:10 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 14, 2003 at 11:15:55AM +0100, Marc-Christian Petersen wrote:
-> On Friday 14 March 2003 10:08, Andrea Arcangeli wrote:
-> 
-> Hi Andrea,
-> 
-> > Only in 2.4.21pre4aa3: 60_tux-timer_t-1
-> > Only in 2.4.21pre5aa1: 60_tux-timer_t-2.gz
-> ^^ hmm, this file is empty?
-> 
-> > 	Part of it obsoleted by smptimers.
+On Fri, 2003-03-14 at 02:42, Jens Axboe wrote:
+> Looks much better. Somehow the 'random' rpm you had didn't do SG_IO,
+> odd.
 
-it was "all of it" then ;)
+Hm, not better enough.  When I test a burn, I get this:
 
-Andrea
+# cdrecord -dummy -data -isosize perforce.iso
+Cdrecord 2.01a05 (i686-pc-linux-gnu) Copyright (C) 1995-2002 J?rg Schilling
+scsidev: '/dev/hdc'
+devname: '/dev/hdc'
+scsibus: -2 target: -2 lun: -2
+Warning: Open by 'devname' is unintentional and not supported.
+Linux sg driver version: 3.5.27
+Using libscg version 'schily-0.7'
+Device type    : Removable CD-ROM
+Version        : 0
+Response Format: 1
+Vendor_info    : 'PLEXTOR '
+Identifikation : 'CD-R   PX-W4824A'
+Revision       : '1.04'
+Device seems to be: Generic mmc CD-RW.
+Using generic SCSI-3/mmc CD-R driver (mmc_cdr).
+Driver flags   : MMC-3 SWABAUDIO BURNFREE VARIREC
+Supported modes:
+cdrecord: Drive does not support TAO recording.
+cdrecord: Illegal write mode for this drive.
+exit status 255
+
+I'm guessing the "Supported modes:" line should have something on it
+(TAO, at least).  With ide-scsi it does print many modes.
+
+	J
+

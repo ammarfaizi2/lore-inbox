@@ -1,75 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262270AbUKVTAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbUKWDuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262270AbUKVTAp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 14:00:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbUKVS7D
+	id S262297AbUKWDuX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 22:50:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbUKVS4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 13:59:03 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:44261 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262344AbUKVS4h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 13:56:37 -0500
-Message-ID: <41A23662.40305@sgi.com>
-Date: Mon, 22 Nov 2004 12:56:34 -0600
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+	Mon, 22 Nov 2004 13:56:19 -0500
+Received: from gw02.applegatebroadband.net ([207.55.227.2]:40431 "EHLO
+	data.mvista.com") by vger.kernel.org with ESMTP id S262297AbUKVSzt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 13:55:49 -0500
+Message-ID: <41A235E0.8050405@mvista.com>
+Date: Mon, 22 Nov 2004 10:54:24 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Andreas Schwab <schwab@suse.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>, holt@sgi.com,
-       Dean Roe <roe@sgi.com>, Brian Sumner <bls@sgi.com>,
-       John Hawkes <hawkes@tomahawk.engr.sgi.com>
-Subject: Re: [Lse-tech] scalability of signal delivery for Posix Threads
-References: <41A20AF3.9030408@sgi.com> <20041122162214.GE21861@wotan.suse.de> <jept25yggg.fsf@sykes.suse.de> <20041122165425.GG21861@wotan.suse.de>
-In-Reply-To: <20041122165425.GG21861@wotan.suse.de>
+To: john stultz <johnstul@us.ibm.com>
+CC: Li Shaohua <shaohua.li@intel.com>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@suse.cz>
+Subject: Re: [PATCH]time run too fast after S3
+References: <1101114923.14572.8.camel@sli10-desk.sh.intel.com> <1101148405.6735.107.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1101148405.6735.107.camel@cog.beaverton.ibm.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Mon, Nov 22, 2004 at 05:51:59PM +0100, Andreas Schwab wrote:
+john stultz wrote:
+> On Mon, 2004-11-22 at 01:15, Li Shaohua wrote:
 > 
->>Andi Kleen <ak@suse.de> writes:
->>
->>
->>>At least in traditional signal semantics you have to call sigaction
->>>or signal in each signal handler to reset the signal. So that 
->>>assumption is not necessarily true.
->>
->>If you use sigaction then you get POSIX semantics, which don't have this
->>problem.
+>>after resume from S3, 'date' shows time run too fast. Here is a patch.
+> 
+> [snip]
+> 
+>>diff -puN arch/i386/kernel/time.c~wall_jiffies arch/i386/kernel/time.c
+>>--- 2.6/arch/i386/kernel/time.c~wall_jiffies	2004-11-22 17:04:42.720038352 +0800
+>>+++ 2.6-root/arch/i386/kernel/time.c	2004-11-22 17:06:21.373040816 +0800
+>>@@ -343,12 +343,13 @@ static int timer_resume(struct sys_devic
+>> 		hpet_reenable();
+>> #endif
+>> 	sec = get_cmos_time() + clock_cmos_diff;
+>>-	sleep_length = get_cmos_time() - sleep_start;
+>>+	sleep_length = (get_cmos_time() - sleep_start) * HZ;
+>> 	write_seqlock_irqsave(&xtime_lock, flags);
+>> 	xtime.tv_sec = sec;
+>> 	xtime.tv_nsec = 0;
+>> 	write_sequnlock_irqrestore(&xtime_lock, flags);
+>>-	jiffies += sleep_length * HZ;
+>>+	jiffies += sleep_length;
+>>+	wall_jiffies += sleep_length;
+>> 	return 0;
+>> }
 > 
 > 
-> It's just a common case where Ray's assumption is not true.
+> I'm not all that familiar w/ the suspend code, but yea, this looks like
+> an improvement.  The previous code was wrong because they are setting
+> xtime themselves, and then updating only jiffies. At the next timer
+> interrupt, the difference between jiffies and wall_jiffies would then be
+> added to xtime again. 
 > 
-> -Andi
-> 
+> Why they don't just use do_settimeofday() for all of this is a mystery
+> to me. Are we wanting to pretend timer ticks arrived while we were
+> suspended?
 
-True enough.  And in that case the design that I was describing wouldn't
-make sigaction() that much more expensive since if you are not in the POSIX
-thread environment (more precisely, the thread was not created with
-CLONE_SIGHAND) each thread has its own sighand structure and the "global" 
-locking mechanisum I had proposed would only require the taking of one 
-additional lock.
-
-However, special casing ITIMER_PROF is also a reasonable avenue of approach.
-The performance monitor code can also deliver signals to user space when
-a sampling buffer overflows, and this can have the same kind of scaling
-problem as ITIMER_PROF.  I'll have to do a little research to figure out
-how exactly that works, but that signal (SIGIO?) would also be a candidate
-for special casing on our platform.
+I think that this way the uptime and start times of init and friends will be 
+much more correct.  settimeofday() would move those around.  So, the short 
+answer is, yes.
 
 -- 
-Best Regards,
-Ray
------------------------------------------------
-                   Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-            so I installed Linux.
------------------------------------------------
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+

@@ -1,84 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130132AbRAPMfm>; Tue, 16 Jan 2001 07:35:42 -0500
+	id <S131079AbRAPMgc>; Tue, 16 Jan 2001 07:36:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130159AbRAPMfc>; Tue, 16 Jan 2001 07:35:32 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:22800 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S130132AbRAPMfT>;
-	Tue, 16 Jan 2001 07:35:19 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Urban Widmark <urban@teststation.com>
-Date: Tue, 16 Jan 2001 13:33:46 MET-1
+	id <S131063AbRAPMgW>; Tue, 16 Jan 2001 07:36:22 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:20497 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S130159AbRAPMgG>;
+	Tue, 16 Jan 2001 07:36:06 -0500
+Date: Tue, 16 Jan 2001 13:33:44 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: O_ANY  [was: Re: 'native files', 'object fingerprints' [was:
+ sendpath()]]
+In-Reply-To: <20010116061342.C12650@cadcamlab.org>
+Message-ID: <Pine.LNX.4.30.0101161329230.947-100000@elte.hu>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Oops with 4GB memory setting in 2.4.0 stable
-CC: <linux-kernel@vger.kernel.org>, rmager@vgkk.com
-X-mailer: Pegasus Mail v3.40
-Message-ID: <12BC861F21D7@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Jan 01 at 9:40, Urban Widmark wrote:
-> On Tue, 16 Jan 2001, Rainer Mager wrote:
-> 
-> > Hi all,
-> >
-> >   I have a 100% reproducable bug in all of the 2.4.0 kernels including the
-> > latest stable one. The issue is that if I compile the kernel to support 4GB
-> > RAM (I have 1 GB) and then try to access a samba mount I get an oops. This
-> 
-> I'll have a look tonight or so. It works for you on non-bigmem?
-> 
-> > ALWAYS happens. Usually after this the system is frozen (although the magic
-> > SYSREQ still works). If the system isn't frozen then any commands that
-> > access the disk will freeze. Fortunately GPM worked and I was able to paste
-> > the oops to a file via telnet.
-> 
-> smb_rename suggests mv, but the process is ls ... er? What commands where
-> you running on smbfs when it crashed?
-> 
-> Could this be a symbol mismatch? Keith Owens suggested a less manual way
-> to get module symbol output. Do you get the same results using that?
 
-smb_get_dircache looks suspicious to me, as it can try to map unlimited
-number of pages with kmap. And kmaps are not unlimited resource...
-You have 512 kmaps, but one SMBFS cache page can contain about 504
-pages... So two smbfs cached directories can consume all your kmaps,
-dying then in endless loop in mm/highmem.c:map_new_virtual().
+On Tue, 16 Jan 2001, Peter Samuelson wrote:
 
-Also, smb_add_to_cache looks suspicious:
+> [Ingo Molnar]
+> > - probably the most radical solution is what i suggested, to
+> > completely avoid the unique-mapping of file structures to an integer
+> > range, and use the address of the file structure (and some cookies)
+> > as an identification.
+>
+> Careful, these must cast to non-negative integers, without clashing.
 
-cachep->idx++;
-if (cachep->idx > NINDEX) goto out_full;
+if you read my (radical) proposal, the identification is based on a kernel
+pointer and a 256-bit random integer. So non-negative integers are not
+needed. (file-IO system-calls would be modified to detect if 'Unix file
+descriptors' or pointers to 'native file descriptors' are passed to them,
+so this is truly radical.)
 
-cannot idx grow over any limit?
+	Ingo
 
-get_block:
-  cachep->pages++;
-  ...
-  if (page) {
-    block = kmap(page);
-    ...
-  }
-  
-Should not you increment cachep->pages only if grab_cache_page
-succeeded? This can cause that smb_find_in_cache finds NULL
-index->block, which then oopses...
-
-smb_find_in_cache should verify index->block == NULL anyway, as
-smb_get_dircache can return couple of index->block == NULL when system
-decided to throw out one of cache pages connected to directory.
-
-But I personally do not use neither smbfs nor PAE, so what I can say...
-                                            Best regards,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-
-BTW: For ncpfs PAE testing I was using patch which needed kmap() for
-all memory above 32MB... It was very educational...
-                                                    
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278237AbRJMBvS>; Fri, 12 Oct 2001 21:51:18 -0400
+	id <S278240AbRJMCAu>; Fri, 12 Oct 2001 22:00:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278239AbRJMBvI>; Fri, 12 Oct 2001 21:51:08 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:63248 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S278237AbRJMBu7>;
-	Fri, 12 Oct 2001 21:50:59 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-kernel@vger.kernel.org
-Subject: Re: crc32 cleanups 
-In-Reply-To: Your message of "Fri, 12 Oct 2001 14:37:52 EST."
-             <Pine.LNX.3.96.1011012143222.6594D-100000@mandrakesoft.mandrakesoft.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 13 Oct 2001 11:51:17 +1000
-Message-ID: <14801.1002937877@ocs3.intra.ocs.com.au>
+	id <S278241AbRJMCAl>; Fri, 12 Oct 2001 22:00:41 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54285 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278240AbRJMCAb>; Fri, 12 Oct 2001 22:00:31 -0400
+Date: Fri, 12 Oct 2001 19:00:41 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Paul Mackerras <paulus@samba.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists
+ with insertion
+In-Reply-To: <15303.37865.489986.425653@cargo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.33.0110121846030.8148-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Oct 2001 14:37:52 -0500 (CDT), 
-Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
->(linux/lib/Makefile)
->obj-$(CONFIG_TULIP) += crc32.o
->obj-$(CONFIG_NATSEMI) += crc32.o
->obj-$(CONFIG_DMFE) += crc32.o
->obj-$(CONFIG_ANOTHERDRIVER) += crc32.o
 
-It is better to define CONFIG_CRC32 and have the Config.in files set
-CONFIG_CRC32 for selected drivers.  That avoids the problem of lots of
-drivers wanting to patch the same Makefile, instead the selection of
-crc32 is kept with the driver selection.
+On Sat, 13 Oct 2001, Paul Mackerras wrote:
+>
+> As for intel x86, is there a architecture spec that talks about things
+> like memory ordering?  My impression is that the x86 architecture is
+> pretty much defined by its implementations but I could well be wrong.
 
-lib/Makefile
-obj-$(CONFIG_CRC32) += crc32.o
+It is discussed in the multi-procesor management section, under "memory
+ordering", and it does say that "reads can be carried out specilatively
+and in any order".
 
-drivers/foo/Config.in
-if [ "$CONFIG_FOO" = "y" ]; then
-  define_bool CONFIG_CRC32 y
-fi
+HOWEVER, it does have what Intel calles "processor order", and it claims
+that "writes by a single processor are observed in the same order by all
+processors."
 
-It is even cleaner in CML2.
-require FOO implies CRC32=y
+Which implies that if the _same_ CPU wrote *p and p, there is apparently
+an ordering constraint there. But I don't think that's the case here. So
+the x86 apparently needs a rmb().
 
-In general it is a bad idea to handle selections in the Makefile, that
-is what CML is for.  Makefiles should just build the code based on CML
-output, not try to decide what to build.
+(But Intel has redefined the memory ordering so many times that they might
+redefine it in the future too and say that dependent loads are ok. I
+suspect most of the definitions are of the type "Oh, it used to be ok in
+the implementation even though it wasn't defined, and it turns out that
+Windows doesn't work if we change it, so we'll define darkness to be the
+new standard"..)
+
+> Indeed...  getting the new p but the old *p is quite
+> counter-intuitive IMHO.
+
+I disagree. I think the alpha has it right - it says that if you care
+about ordering, you have to tell so. No ifs, no buts, no special cases
+("Oh, dependent loads are special").
+
+Of course, I used to absolutely _hate_ the x86 ordering rules just because
+they are so ad-hoc. But I'm getting more and more used to them, and the
+Intel "write ordered with store-buffer forwarding" model ends up being
+really nice for locking ;)
+
+		Linus
 

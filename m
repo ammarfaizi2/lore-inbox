@@ -1,66 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbTIALNM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 07:13:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbTIALNM
+	id S262826AbTIALHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 07:07:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTIALHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 07:13:12 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:28164 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261208AbTIALNK (ORCPT
+	Mon, 1 Sep 2003 07:07:25 -0400
+Received: from smtp1.cwidc.net ([154.33.63.111]:14738 "EHLO smtp1.cwidc.net")
+	by vger.kernel.org with ESMTP id S262826AbTIALHY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 07:13:10 -0400
-Date: Mon, 1 Sep 2003 13:13:00 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Jamie Lokier <jamie@shareable.org>
-cc: Kars de Jong <jongk@linux-m68k.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux/m68k kernel mailing list 
-	<linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-In-Reply-To: <20030901100807.GB1903@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.44.0309011311330.20748-100000@serv>
-References: <Pine.GSO.4.21.0309011027310.5048-100000@waterleaf.sonytel.be>
- <1062407310.13046.6.camel@laptop.locamation.com> <20030901100807.GB1903@mail.jlokier.co.uk>
+	Mon, 1 Sep 2003 07:07:24 -0400
+Message-ID: <3F5327E7.7040303@tequila.co.jp>
+Date: Mon, 01 Sep 2003 20:05:11 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030718
+X-Accept-Language: en-us, en, ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test4 and Xfree 4.3 and japanese 106 keyboard
+References: <3F4C6281.90501@tequila.co.jp>
+In-Reply-To: <3F4C6281.90501@tequila.co.jp>
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Mon, 1 Sep 2003, Jamie Lokier wrote:
+Clemens Schwaighofer wrote:
 
-> I would prefer that you run the attached program.  It fixes a bug in
-> the function which tests whether the problem is in the L1 cache or
-> store buffer.  The bug probably didn't affect the test, but it might
-> have.
+> Hi,
+>
+> since in the 2.6 tree the keyboard layout changed there are several
+> (well known and discussed) issues with the japanese keyboard layout and
+> the Yen/bar(pipe) key. I can ship around that problem in the shell with
+> 'setkeycodes 0x6a 124', but in Xfree the xmodmap doesn't take this over
+> of course. The whole box was compiled against a 2.4.20-ck6.
+>
+> So my question is: do I have to recompiled XFree against the 2.6
+> sources, or is there any XFree keymap changes I can do to get the
+> Yen/bar key back?
 
-This is the result for a 060:
+well, just for the archives, if anybody else needs that:
 
-$ ./a.out
-(256) [175,175,11] Test separation: 4096 bytes: pass
-(256) [173,175,11] Test separation: 8192 bytes: pass
-(256) [176,175,10] Test separation: 16384 bytes: pass
-(256) [174,173,11] Test separation: 32768 bytes: pass
-(256) [174,175,11] Test separation: 65536 bytes: pass
-(256) [175,175,10] Test separation: 131072 bytes: pass
-(256) [176,176,10] Test separation: 262144 bytes: pass
-(256) [175,175,11] Test separation: 524288 bytes: pass
-(256) [173,175,11] Test separation: 1048576 bytes: pass
-(256) [174,174,11] Test separation: 2097152 bytes: pass
-(256) [176,176,10] Test separation: 4194304 bytes: pass
-(256) [177,177,9] Test separation: 8388608 bytes: pass
-(256) [175,176,10] Test separation: 16777216 bytes: pass
-VM page alias coherency test: all sizes passed
-$ cat /proc/cpuinfo
-CPU:            68060
-MMU:            68060
-FPU:            68060
-Clocking:       49.7MHz
-BogoMips:       99.53
-Calibration:    497664 loops
+in /usr/lib/X11/xkb/keycodes/xfree86 change the <AE13> = 133; to <AE13>
+= 245; and either run xmodmap -e 'keycodes 245 = 0x5c 0x7c' or add the
+xmodmap in the .xinitrc
 
-bye, Roman
+I don't have the keycode for the "close japanese bracket and long
+hyphen", so it is just a fix/hack, so you can youse tha backslash / bar
+key on a jp106 (japanese keyboard) with 2.6.0-test kernels
+
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE/UyfmjBz/yQjBxz8RAnnyAJ0UyrW1hNu8DS7rEFVQu/2u8K1wPQCgmDJp
+9hrU1ib3hzv4yR/wq6gVPUo=
+=a8OC
+-----END PGP SIGNATURE-----
 

@@ -1,40 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272094AbRHVTEi>; Wed, 22 Aug 2001 15:04:38 -0400
+	id <S272090AbRHVTI2>; Wed, 22 Aug 2001 15:08:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272086AbRHVTET>; Wed, 22 Aug 2001 15:04:19 -0400
-Received: from trained-monkey.org ([209.217.122.11]:17423 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP
-	id <S272092AbRHVTEH>; Wed, 22 Aug 2001 15:04:07 -0400
-To: Adam Radford <aradford@3WARE.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-        Jens Axboe <axboe@suse.de>
-Subject: Re: [patch] 3Ware 64 bit locking issues
-In-Reply-To: <53B208BD9A7FD311881A009027B6BBFB9EAE47@siamese>
-From: Jes Sorensen <jes@trained-monkey.org>
-Date: 22 Aug 2001 15:04:14 -0400
-In-Reply-To: Adam Radford's message of "Wed, 22 Aug 2001 11:48:07 -0700"
-Message-ID: <m3g0ajncgh.fsf@trained-monkey.org>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S272096AbRHVTIT>; Wed, 22 Aug 2001 15:08:19 -0400
+Received: from web10904.mail.yahoo.com ([216.136.131.40]:37383 "HELO
+	web10904.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S272091AbRHVTIF>; Wed, 22 Aug 2001 15:08:05 -0400
+Message-ID: <20010822190820.57208.qmail@web10904.mail.yahoo.com>
+Date: Wed, 22 Aug 2001 12:08:20 -0700 (PDT)
+From: Brad Chapman <kakadu_croc@yahoo.com>
+Subject: Re: brlock_is_locked()?
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010822.120051.25423285.davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-1368128843-998507300=:53007"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Adam" == Adam Radford <aradford@3WARE.com> writes:
+--0-1368128843-998507300=:53007
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Adam> Thanks for flags type fix and redundant pushf/popf fix.
-Adam> Regarding your question about the error handling routines, the
-Adam> 3ware driver uses the new style scsi error handling, so looking
-Adam> through scsi_error.c, all calls to
-Adam> hostt->eh_abort_handler() and hostt->eh_host_reset_handler() are
-Adam> wrapped with a spin_lock_irqsave(&io_request_lock, flags) and
-Adam> spin_unlock_irqrestore(&io_request_lock, flags) so they should
-Adam> be okay.
+Mr. Miller,
 
-Hmm ok. However, since Jens is working on killing the io_request_lock
-so something will need to get done when that happens.
+--- "David S. Miller" <davem@redhat.com> wrote:
+>    From: Brad Chapman <kakadu_croc@yahoo.com>
+>    Date: Wed, 22 Aug 2001 11:53:51 -0700 (PDT)
+> 
+>    	It's not really a deficiency. Rusty apparently decided that in
+>    order to be SMP-compliant and to prevent Oopses, that the unregistration
+>    function should grab the brlock so that all the packets would pass through
+>    the protocol-handling functions.
+> 
+> So arrange you code such that you aren't holding the netproto
+> lock when you call the unregistration function.
+> 
+> It is possible to shut down all references to whatever you
+> are unregistering, safely drop the lock, then call the
+> netfilter unregister routine.
 
-Jens, what is the strategy for that?
+	I understand that. What I'm afraid of is someone who writes a third-party
+protocol module for ip_conntrack (or ip6_conntrack) and tries to call the wrapper
+with BR_NETPROTO_LOCK held. LISB, IMHO the primary difficulty is not protecting
+the protocol linked-list from packets inside the conntrack; it's protecting the
+protocol linked-list from packets in the netfilter stack. FWICT, it should
+be almost impossible for packets to move around in conntrack with the rwlock
+but not the brlock; but strange things can happen......
 
-Cheers
-Jes
+> 
+>    (I checked the brlock code and didn't find any schedule()s; there's
+>     probably a reason for that).
+> 
+> Ummm, this is SMP 101, you can't sleep with a lock held.
+> The global kernel lock is special in this regard, but all
+> other SMP locking primitives may not sleep.
+
+	Grrr....I read Rusty's Unreliable Guide to Kernel Locking (twice) and
+still didn't remember that. Guess you have to schedule() yourself.
+
+> 
+> Later,
+> David S. Miller
+> davem@redhat.com
+
+Brad
+
+
+=====
+Brad Chapman
+
+Permanent e-mail: kakadu_croc@yahoo.com
+Current e-mail: kakadu@adelphia.net
+
+Reply to the address I used in the message to you,
+please!
+
+__________________________________________________
+Do You Yahoo!?
+Make international calls for as low as $.04/minute with Yahoo! Messenger
+http://phonecard.yahoo.com/
+--0-1368128843-998507300=:53007--

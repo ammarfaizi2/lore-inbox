@@ -1,105 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbVCNTLo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVCNTU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbVCNTLo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 14:11:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVCNTLo
+	id S261745AbVCNTU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 14:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbVCNTUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 14:11:44 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:48376 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261725AbVCNTKu (ORCPT
+	Mon, 14 Mar 2005 14:20:55 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:42369 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261745AbVCNTUs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 14:10:50 -0500
-Date: Mon, 14 Mar 2005 11:10:10 -0800
-From: Paul Jackson <pj@engr.sgi.com>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: haveblue@us.ibm.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 0/2 Buddy allocator with placement policy (Version 9) +
- prezeroing (Version 4)
-Message-Id: <20050314111010.2137dcae.pj@engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.58.0503141157330.12793@skynet>
-References: <20050307193938.0935EE594@skynet.csn.ul.ie>
-	<1110239966.6446.66.camel@localhost>
-	<Pine.LNX.4.58.0503101421260.2105@skynet>
-	<20050310092201.37bae9ba.pj@engr.sgi.com>
-	<1110478613.16432.36.camel@localhost>
-	<Pine.LNX.4.58.0503141157330.12793@skynet>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 14 Mar 2005 14:20:48 -0500
+Date: Mon, 14 Mar 2005 20:21:38 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mouse&keyboard with 2.6.10+
+Message-ID: <20050314192138.GB1673@ucw.cz>
+References: <4235683E.1020403@tls.msk.ru> <42357AE0.4050805@tls.msk.ru> <20050314142847.GA4001@ucw.cz> <4235B367.3000506@tls.msk.ru> <20050314162537.GA2716@ucw.cz> <4235BDFD.1070505@tls.msk.ru> <20050314164342.GA1735@ucw.cz> <4235E0BD.5090200@tls.msk.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4235E0BD.5090200@tls.msk.ru>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel wrote:
-> I have not read up on cpuset before so I am assuming you are talking about
-> http://www.bullopensource.org/cpuset/ so correct me if I am wrong.
+On Mon, Mar 14, 2005 at 10:06:37PM +0300, Michael Tokarev wrote:
 
-Yes - that.  See also the kernel doc file:
+> >>So is this a bios/mobo problem,
+> >
+> >Yes.
+> 
+> Never had any single problem with this hardware so far.  But.. uh-oh.
+> Well.. it's only 2.6 kernel that encounters problem with it for now,
+> so it must be the kernel... ;)
 
-	Documentation/cpusets.txt
+2.4 leaves the mouse initialization to X start time (X does it), and the
+USB modules are loaded before X starts, and thus before mouse init.
 
-> I agree that if cpuset is not
-> widely used, it should not be the only way of setting policy.
+> >>or can it be solved in kernel somehow?
 
-Well ... cpusets just hit Linus tree four days ago, so I wouldn't expect
-them to have achieved world domination quite yet ;).
+> >We could have usb-handoff by default.
+> 
+> What's the consequences of this?
+> If it does not hurt (does it?), why not to enable it?
 
-Cpusets implement hardwall outer limits on cpu and memory usage.  The
-tasks assigned to a cpuset are only allowed to work within that cpuset.
+Alan Cox reports some odd machines crash with it.
+I haven't seen one myself yet.
 
-Within a cpuset, a job may use sched_setaffinity, set_mempolicy, mbind
-and madvise to make fine grained placement and related policy choices
-however it chooses, subject to the broad, hard constraints of the cpuset.
+> And if it does not hurt, I can enable it in our default netboot
+> image as well.. if not to see whenever all our machines will work
+> ok with this parameter.
 
-The imposition of a policy that says a task can't swap is usually, at
-least where I see it used, a hard constraint, imposed externally on an
-entire job, for the well being of the rest of the system:
+SuSE has it by default, with an option to disable it by no-usb-handoff,
+that should tell you how large is the percentage of machines it breaks.
 
-    Waking up swappers imposes a burden on the rest of the
-    system, which some jobs must not be allowed to do.
+It's pretty safe to enable it in your netboot image.
 
-    And wasting further cpu cycles on a job that has exceeded
-    its allowed memory when it wasn't supposed to (and hence
-    no longer has any chance of substaining the in-memory
-    performance required of it) is a waste of possibly expensive
-    compute resources.
-
-The natural place for such an externally imposed policy limiting overall
-processor or memory usage by a group of tasks is, in my admittedly
-biased view, the cpuset.
-
-I envision a per-cpuset file, "policy_kill_no_swap", containing a
-boolean "0" or "1" (actually, "0\n" or "1\n").  It defaults to "0".  If
-set to "1" (by writing "1" to that file) then if any task in that cpuset
-gets far enough in the mm/page_alloc.c:__alloc_pages() code to initiate
-swapping, that task is killed instead.
-
-I don't see any need to have any other way of specifying this policy
-preference by a per task call such as set_mempolicy(2).  However if
-others saw such a need, I'm open to considering it.
-
-I don't view this fallback stuff like I see Mel describing it. I don't
-see it as a passing a list of fallback alternatives to a single API.
-Rather, each API need only specify one policy.  The only place
-'fallback' comes into play is if there are multiple API's (such as both
-set_mempolicy and cpusets) that affect the same decision in the kernel
-(such as whether to let a task invoke swapping, or to kill it instead).
-The 'fallback' is the chose of what API takes precedence here.  For
-system wide imposed hardwall limitations, the cpuset should have its
-policy enforced.  Within those limits, finer grained calls such as
-set_mempolicy should prevail.
-
-So, if others did make the case for a second, per-task, way of
-specifying this 'kill_no_swap' policy, then:
- 1) If a tasks cpuset policy_kill_no_swap is true, that prevails.
- 2) Otherwise the per-task setting of kill_no_swap prevails.
-
-The choices of where migration is allowed is separate, in my view,
-and deserves its own policy flags.  I don't know what those flags
-should be.
+> Thank you very much - this mysterious problem.. I was trying to
+> find the solution for quite some time before posting to LKML,
+> without any success, and the solution was already here! ;)
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+Vojtech Pavlik
+SuSE Labs, SuSE CR

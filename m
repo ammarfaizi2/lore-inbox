@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264029AbTFBV0O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 17:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264067AbTFBV0O
+	id S264067AbTFBVfa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 17:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264069AbTFBVfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 17:26:14 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:49619 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264029AbTFBV0N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 17:26:13 -0400
-Date: Mon, 2 Jun 2003 14:40:13 -0700
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.5 patch] SECURITY_ROOTPLUG must depend on USB
-Message-ID: <20030602214013.GB6801@kroah.com>
-References: <20030601184436.GD29425@fs.tum.de> <20030602172016.GB4992@kroah.com> <20030602141316.A15203@figure1.int.wirex.com>
-Mime-Version: 1.0
+	Mon, 2 Jun 2003 17:35:30 -0400
+Received: from pat.uio.no ([129.240.130.16]:13227 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S264067AbTFBVf3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 17:35:29 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030602141316.A15203@figure1.int.wirex.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16091.50722.851659.821544@charged.uio.no>
+Date: Mon, 2 Jun 2003 23:48:18 +0200
+To: Ion Badulescu <ionut@badula.org>
+Cc: "Vivek Goyal" <vivek.goyal@wipro.com>, <indou.takao@jp.fujitsu.com>,
+       <ezk@cs.sunysb.edu>, <viro@math.psu.edu>, <davem@redhat.com>,
+       <nfs@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [NFS] Disabling Symbolic Link Content Caching in NFS Client
+In-Reply-To: <200306022037.h52KbNVh012849@buggy.badula.org>
+References: <2BB7146B38D9CA40B215AB3DAAE24C080BA4F3@blr-m2-msg.wipro.com>
+	<200306022037.h52KbNVh012849@buggy.badula.org>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: Please contact postmaster@uio.no for more information
+X-UiO-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 02, 2003 at 02:13:16PM -0700, Chris Wright wrote:
-> * Greg KH (greg@kroah.com) wrote:
-> > On Sun, Jun 01, 2003 at 08:44:36PM +0200, Adrian Bunk wrote:
-> > > The following patch lets SECURITY_ROOTPLUG depend on USB (otherwise
-> > > there are link errors since Root Plug Support needs
-> > > usb_bus_list{,_lock}):
-> > 
-> > Applied, thanks.
-> 
-> While we're at it, here's a tiny cleanup for a compile warning from John
-> Cherry's build stats[1].  You may have a cleaner way you'd rather handle
-> this.
+>>>>> " " == Ion Badulescu <ionut@badula.org> writes:
 
-Thanks, but I already sent Linus a patch to clean this up in a different
-way.
+    >> 1. Make nfs_symlink_caching dynamically tunable using /proc and
+    >> sysctl interface.
 
-greg k-h
+     > No. Do it on a per-mount basis, like the other OS's do.
+
+As I said to Vivek in a private mail, it would be very nice to see
+if this could be done by replacing hlfsd with namespace groups.
+
+Al Viro has already done all the VFS layer work, which should be ready
+and working in existing 2.4.20 and 2.5.x kernels. What is missing is
+userland support for doing a CLONE_NEWNS, and then mounting the user's
+home directory, mailspool,.... in the appropriate locations at login
+time.
+
+Cheers,
+  Trond

@@ -1,111 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265324AbTLNBNP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 20:13:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265325AbTLNBNO
+	id S265319AbTLNBGY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 20:06:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265320AbTLNBGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 20:13:14 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:48908
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S265324AbTLNBNM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 20:13:12 -0500
-Date: Sat, 13 Dec 2003 17:06:50 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Brian Beattie <beattie@beattie-home.net>,
-       Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
-       Erik Andersen <andersen@codepoet.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Paul Adams <padamsdev@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux, Inc. (Re: Linux GPL and binary module exception clause?)
-In-Reply-To: <Pine.LNX.4.10.10312131635230.21491-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.10.10312131656220.21491-100000@master.linux-ide.org>
+	Sat, 13 Dec 2003 20:06:24 -0500
+Received: from mail-08.iinet.net.au ([203.59.3.40]:60098 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S265319AbTLNBGW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 20:06:22 -0500
+Message-ID: <3FDBB261.5010208@cyberone.com.au>
+Date: Sun, 14 Dec 2003 11:44:17 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Ingo Molnar <mingo@redhat.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Anton Blanchard <anton@samba.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
+Subject: Re: [PATCH] improve rwsem scalability (was Re: [CFT][RFC] HT scheduler)
+References: <20031208155904.GF19412@krispykreme> <3FD50456.3050003@cyberone.com.au> <20031209001412.GG19412@krispykreme> <3FD7F1B9.5080100@cyberone.com.au> <3FD81BA4.8070602@cyberone.com.au> <3FD8317B.4060207@cyberone.com.au> <20031211115222.GC8039@holomorphy.com> <3FD86C70.5000408@cyberone.com.au> <20031211132301.GD8039@holomorphy.com> <3FD8715F.9070304@cyberone.com.au> <20031211133207.GE8039@holomorphy.com> <3FD88D93.3000909@cyberone.com.au> <3FD91F5D.30005@cyberone.com.au> <Pine.LNX.4.58.0312120440400.14103@devserv.devel.redhat.com> <3FDA5842.9090109@cyberone.com.au>
+In-Reply-To: <3FDA5842.9090109@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Part II ...
 
-Given the issue of binary module vendors not native to Linux rules and
-standards, there becomes a need for a review body.  Given the problem of
-most binary vendors are idiots and clueless, it provides a certification
-for a given kernel.
+Nick Piggin wrote:
 
-It is short of racketeiring (sp) but it mean nobody gets to use all of
-our hard work with out paying for it.  This is fair and equitable.
+>
+>
+> Ingo Molnar wrote:
+>
+>> On Fri, 12 Dec 2003, Nick Piggin wrote:
+>>
+>>
+>>> getting contended. The following graph is a best of 3 runs average.
+>>> http://www.kerneltrap.org/~npiggin/rwsem.png
+>>>
+>>
+>> the graphs are too noise to be conclusive.
+>>
+>>
+>>> The part to look at is the tail. I need to do some more testing to see
+>>> if its significant.
+>>>
+>>
+>> yes, could you go from 150 to 300?
+>>
+>
+> The benchmark dies at 160 rooms unfortunately. Probably something in 
+> the JVM.
+>
+> I'll do a larger number of runs around the 130-150 mark.
+>
 
-Oh yeah in order to be invited to the board or advisory board you have to
-have some time in slavery to the kernel and continue to contribute.  Yeah
-I am back off the nutter wagon and running around free again!
+OK, this is an average of 5 runs at 145, 150, 155 rooms with my scheduler
+patches, with and without my rwsem patch. Its all over the place, but I 
+think
+rwsem does give a small but significant improvement.
 
-Dave Miller, can we have linux-wackos :-)
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Sat, 13 Dec 2003, Andre Hedrick wrote:
-
-> 
-> How about a charter orgainization called Linux, Inc. or The Linux
-> Foundation ?
-> 
-> CEO Linus Torvalds <aka ph> :-)
-> ---
-> fill in the blanks.
-> ---
-> CSA me <chief smart arse>
-> 
-> Now Linux, Inc is designed to regulate the commerial use of Linux and
-> defend the legal causes and actions of the kernel.  Everything has a cost.
-> Any company, organization, country, or what ever is required to pay 10% of
-> gross sales associated with products ship with Linux kernel inside,
-> period.
-> 
-> Distributions
-> Big Storage Companies
-> Big Box builders
-> Big Appliance Builders
-> blah blah ....
-> Set Top boxes
-> Firewall/VPN
-> 
-> Anybody who sells a product w/ the Linux Kernel as its base.
-> 
-> Now all the FSF/GPL supporting user space applications can go see FSF and
-> company because I do not give a damn about there issues.  They are l^Huser
-> land.
-> 
-> Now this allows for commerial adoption and commerial licnesing of Linux.
-> If this offer and idea is rejected then it proves the lack of seriousness
-> in the original goals of "world domination".
-> 
-> 10% of Redhat,SuSE(Novell),Mandrake,Conectiva,UnitedLinux,...
-> 10% of EMC,HP,IBM,Dell,Intel,...
-> 10% of CGL people,...
-> 10% of Rackable,Google,...
-> 10% of the little guys ...
-> 
-> Now what to do with the money.
-> 
-> Hire really good SHARKS and ACCOUNTANTS ...
-> Fund and promote opensource development like a foundation ...
-> Yeah it starts to look like a business and that is what Linux needs.
-> 
-> Yeah, this is to simple and easy of an idea.
-> 
-> Cheers,
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+http://www.kerneltrap.org/~npiggin/rwsem2.png
 

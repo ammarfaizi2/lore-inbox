@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287840AbSA3BSy>; Tue, 29 Jan 2002 20:18:54 -0500
+	id <S287860AbSA3BSe>; Tue, 29 Jan 2002 20:18:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287858AbSA3BSp>; Tue, 29 Jan 2002 20:18:45 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:5276 "EHLO segfault.osdlab.org")
-	by vger.kernel.org with ESMTP id <S287840AbSA3BSc>;
-	Tue, 29 Jan 2002 20:18:32 -0500
-Date: Tue, 29 Jan 2002 17:19:29 -0800 (PST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@segfault.osdlab.org>
-To: Greg KH <greg@kroah.com>
-cc: Dave Jones <davej@suse.de>, <linux-usb-devel@lists.sourceforge.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] driverfs support for USB - take 2
-In-Reply-To: <20020130010921.GB22131@kroah.com>
-Message-ID: <Pine.LNX.4.33.0201291711560.800-100000@segfault.osdlab.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287858AbSA3BSY>; Tue, 29 Jan 2002 20:18:24 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:35525 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S287840AbSA3BSI>;
+	Tue, 29 Jan 2002 20:18:08 -0500
+Date: Tue, 29 Jan 2002 20:18:06 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Stuart Young <sgy@amc.com.au>
+Cc: linux-kernel@vger.kernel.org,
+        Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>,
+        John Weber <weber@nyc.rr.com>
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <20020129201806.B12201@havoc.gtf.org>
+In-Reply-To: <3C5600A6.3080605@nyc.rr.com> <87n0yxqa6e.fsf@tigram.bogus.local> <5.1.0.14.0.20020130113958.00a04390@mail.amc.localnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <5.1.0.14.0.20020130113958.00a04390@mail.amc.localnet>; from sgy@amc.com.au on Wed, Jan 30, 2002 at 12:00:11PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 30, 2002 at 12:00:11PM +1100, Stuart Young wrote:
+> Perhaps it's time we set up a specific lkml-patch mailing list, and leave 
 
-On Tue, 29 Jan 2002, Greg KH wrote:
+I like the suggestion (most recently, of Daniel?  pardon if I
+miscredit) of having patches-2.[45]@vger.kernel.org type addresses,
+which would archive patches, and have a high noise-to-signal ratio.
+Maybe even filter out all non-patches.
 
-> On Wed, Jan 30, 2002 at 02:03:12AM +0100, Dave Jones wrote:
-> > 
-> >  > Yes, I need to have better names for the devices than just "usb_bus",
-> >  > any suggestions?  These devices nodes are really the USB root hubs in
-> >  > the USB controller, so they could just have the USB number as the name
-> >  > like the other USB devices (001), but that's pretty boring :)
-> > 
-> >  "usb_root0" .. "usb_rootN" ?
-> 
-> Hm, that's a good idea, it would match the usbfs bus numbers which
-> should keep people happy.
+The big issue I cannot decide upon is whether standard e-mails should be
+	To: torvalds@
+	CC: patches-2.4@
+or just
+	To: patches-2.4@
 
-Would it be usb_rootN or usb_busN?
+(I'm guessing Linus would prefer the first, but who knows)
 
-> >  btw, a script to marry the busid's from driverfs to lspci/lsusb
-> >  output may be useful in the future especially if combined somehow
-> >  with tree(1). Could be very handy when it gets time to debug
-> >  those "My system won't suspend to disk" "What does /driver look like?"
-> >  situations.
-> 
-> Ah, a lsdrivers program is needed! :)
+Also, something noone has mentioned is out-of-band patches.  Security fixes and other
+patches which for various reasons go straight to Linus.
 
-I started writing an 'lsdev' program a while back. If I ever get some free 
-time and feel like playing userspace again, I'll finish it along with a 
-couple of other utilities. 
+	Jeff
 
-One of the things I fantasized about was making different bus 
-'personalities' for it. So, you emulate lspci behavior with the same 
-executable. And, extend it to other buses, so you could view all the 
-devices of a particular bus type (and only those devices). 
-
-This information will be known by devices as they are registered in the 
-tree, and will be easy to export to userspace. So, one could do lspcmcia, 
-lssbus, and *drum roll* lsisa. 
-
-Now for the best part: instead of having to do lsdev -t pci etc, I was 
-just going to hard link ls{$bus type} to lsdev and make it check what 
-argv[0] was to decide how to behave. :) 
-
-People hate that idea, and I admit it's twisted. But, there's something 
-kinda cute about it. 
-
-	-pat
 

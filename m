@@ -1,80 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbUAAM3F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 07:29:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbUAAM3F
+	id S261731AbUAAMff (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 07:35:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbUAAMff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 07:29:05 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:42661 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261539AbUAAM3B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 07:29:01 -0500
-Date: Thu, 1 Jan 2004 13:28:51 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Michel =?iso-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-Cc: Jon Smirl <jonsmirl@yahoo.com>,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Dri-devel] 2.6 kernel change in nopage
-Message-ID: <20040101122851.GA13671@devserv.devel.redhat.com>
-References: <20031231182148.26486.qmail@web14918.mail.yahoo.com> <1072958618.1603.236.camel@thor.asgaard.local> <1072959055.5717.1.camel@laptop.fenrus.com> <1072959820.1600.252.camel@thor.asgaard.local>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="h31gzZEtNLTqOjlF"
+	Thu, 1 Jan 2004 07:35:35 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:25522
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S261731AbUAAMf1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 07:35:27 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Rob Love <rml@ximian.com>, Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: udev and devfs - The final word
+Date: Thu, 1 Jan 2004 06:34:28 -0600
+User-Agent: KMail/1.5.4
+Cc: Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+References: <18Cz7-7Ep-7@gated-at.bofh.it> <20040101001549.GA17401@win.tue.nl> <1072917113.11003.34.camel@fur>
+In-Reply-To: <1072917113.11003.34.camel@fur>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1072959820.1600.252.camel@thor.asgaard.local>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200401010634.28559.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 31 December 2003 18:31, Rob Love wrote:
+> On Wed, 2003-12-31 at 19:15, Andries Brouwer wrote:
+> > My plan has been to essentially use a hashed disk serial number
+> > for this "any old unique value". The problem is that "any old"
+> > is easy enough, but "unique" is more difficult.
+> > Naming devices is very difficult, but in some important cases,
+> > like SCSI or IDE disks, that would work and give a stable name.
+>
+> Yup.
+>
+> > The kernel must not invent consecutive numbers - that does not
+> > lead to stable names. Setting this up correctly is nontrivial.
+>
+> This is definitely an interesting problem space.
+>
+> I agree wrt just inventing consecutive numbers.  If there was a nice way
+> to trivially generate a random and unique number from some
+> device-inherent information, that would be nice.
+>
+> 	Rob Love
 
---h31gzZEtNLTqOjlF
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Fundamental problem: "Unique" depends on the other devices in the system.  You 
+can't guarantee unique by looking at one device, more or less by definition.
 
-On Thu, Jan 01, 2004 at 01:23:40PM +0100, Michel D=E4nzer wrote:
-> > > How does this patch look?
-> >=20
-> > ugly.
-> >=20
-> > I find using #defines for function arguments ugly beyond belief and
-> > makes it really hard to look through code. I 10x rather have an ifdef in
-> > the function prototype (which then for the mainstream kernel drm can be
-> > removed for non-matching versions) than such obfuscation.
->=20
-> That doesn't strike me as particularly beautiful either...=20
+Combine that with hotplug and you have a world of pain.  Generating a number 
+from a device is just a fancy hashing function, but as soon as you have two 
+devices that generate the same number independently (when in separate 
+systems) and you plug them both into the same system: boom.
 
-well the advantage is that the ifdefs can just go away in kernel trees of
-specific versions... (eg unifdef it)
+Now if you don't care about hotplug, it gets a little easier.  You can have a 
+collission handler that does some kind of hashing thing, figuring out which 
+device needs to get bumped and bumping it.  (As long as it consistently picks 
+the same victim, you're okay, although that in and of itself could get 
+interesting.  And if you remove the earlier device it conflicted with and 
+reboot, the device could get renumbered which is evil...)
 
-> is it really easier for merges, considering that the ugly way is kinda
-> needed for functions which take different arguments on BSD anyway?
+Of course the EASY way to deal with collisions is to just fail the hash thingy 
+in a detectable way, and punt to some kind of udev override.  So if you yank 
+a drive from system A, throw it in system B, try to re-export it NFS, and 
+it's not going to work, it TELLS you.
 
-I disagree there. The "BSD takes different arguments" thing *should* be
-fixed imo by making the common core of the function an inline function, and=
- have
-one or two (depends if the common core happens to have its arguments in com=
-mon
-with one of the oses) OS specific wrappers with the right prototype. This
-way the difference in error return sign can also be solved in the wrapper
-instead of with a nasty macro...
+Solve 90% of the problem space and have a human deal with the exceptions.  How 
+big's the unique number being exported, anyway?  (If it's 32 bits, the 
+exceptions are 1 in 4 billion.  It may never be seen in the wild...)
 
-The compiler generates the same code, but it's a lot easier to read/review.
+Rob
 
-Greetings,
-    Arjan van de Ven
-
---h31gzZEtNLTqOjlF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/9BKCxULwo51rQBIRAr4KAKCm1p+mf4n8JYmcGQFCEemK/SBCOwCgleDr
-TFEpBtIo87uHrfNTYzeTT1w=
-=6etE
------END PGP SIGNATURE-----
-
---h31gzZEtNLTqOjlF--

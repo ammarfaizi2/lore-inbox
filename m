@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263312AbTJZRQf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 12:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263343AbTJZRQf
+	id S263343AbTJZRQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 12:16:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263344AbTJZRQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 12:16:35 -0500
-Received: from linuxhacker.ru ([217.76.32.60]:9437 "EHLO shrek.linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S263312AbTJZRQd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 12:16:33 -0500
-Date: Sun, 26 Oct 2003 19:13:49 +0200
-From: Oleg Drokin <green@linuxhacker.ru>
-To: Hans Reiser <reiser@namesys.com>
-Cc: ndiamond@wta.att.ne.jp, vitaly@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: Blockbusting news, results end
-Message-ID: <20031026171348.GA14147@linuxhacker.ru>
-References: <346101c39b9e$35932680$24ee4ca5@DIAMONDLX60> <3F9BA98B.20408@namesys.com> <200310261259.h9QCxhWv004314@car.linuxhacker.ru> <3F9BB870.1010500@namesys.com> <20031026123925.GA6412@linuxhacker.ru> <3F9BF5BE.9030601@namesys.com>
+	Sun, 26 Oct 2003 12:16:58 -0500
+Received: from fiberbit.xs4all.nl ([213.84.224.214]:36511 "EHLO
+	fiberbit.xs4all.nl") by vger.kernel.org with ESMTP id S263343AbTJZRQ4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 12:16:56 -0500
+Date: Sun, 26 Oct 2003 18:16:50 +0100
+From: Marco Roeland <marco.roeland@xs4all.nl>
+To: wsy@merl.com
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: compile-time error in 2.6.0-test9
+Message-ID: <20031026171650.GD23792@localhost>
+References: <200310261553.h9QFrb513039@localhost.localdomain> <20031026162422.GB23792@localhost> <200310261635.h9QGZTe13121@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <3F9BF5BE.9030601@namesys.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200310261635.h9QGZTe13121@localhost.localdomain>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sunday 26 Oktober 2003 at 11:35 uur Bill Yerazunis wrote:
 
-On Sun, Oct 26, 2003 at 07:26:38PM +0300, Hans Reiser wrote:
-> >>bad shape is concerned, from the user's point of view it either works or 
-> >>it doesn't.
-> >Sure. And in modern desktop world it does not work (if SMART does not want 
-> >to
-> >do it).
-> I don't understand what SMART has to do with it.  I was talking about a 
-> patch is either ready for use, or it isn't, and "almost ready" is worthless.
+> What's the recommended version of GCC these days?
 
-Ah. Last time I checked, patch was ready to use.
-But it is not strictly necessary, the reason of the patch was to mark bad blocks
-in mounted filesystems "on the fly". Everything else should be handled
-by reiserfsprogs anyway. Without reiserfsprogs support (which was ready too),
-it is worthless.
+According to Documentation/Changes the 'bottomline' gcc (at least on
+i386) is gcc 2.95.3 but 2.95.4 from Debian or 2.96 from RedHat and
+Mandrake should be alright. A problem is that they are no longer
+actively maintained so bugs aren't fixed. :-(
 
-Bye,
-    Oleg
+Just recently gcc 3.3.2 was released, so that or the latest from one's
+distribution is 'current' and should work fine. Be warned though that
+although they produce better code (and even that is sometimes disputed!)
+and give better warnings, compilation is a lot slower.
+
+The Linux kernel has a lot of handcrafted optimised code, so no gcc
+version is going to outsmart that easily anyway, and also very important
+is the amount of testing a kernel gets. Better a somewhat less optimal
+compiler but which has had a lot of testing, and so has it bugs known
+and 'workarounded', than a potential 'flyer' with unknown new bugs.
+
+But for userspace applications I'd recommend gcc 3.x wholeheartedly,
+for g++ especially.
+-- 
+Marco Roeland

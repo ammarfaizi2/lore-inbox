@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316649AbSG3VeU>; Tue, 30 Jul 2002 17:34:20 -0400
+	id <S316623AbSG3VaI>; Tue, 30 Jul 2002 17:30:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316604AbSG3Vdn>; Tue, 30 Jul 2002 17:33:43 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:57812 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316662AbSG3Vc0>;
-	Tue, 30 Jul 2002 17:32:26 -0400
-Date: Tue, 30 Jul 2002 23:35:42 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Greg KH <greg@kroah.com>, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-kernel@vger.kernel.org, linuxconsole-dev@lists.sourceforge.net
-Subject: Re: [patch] Input cleanups for 2.5.29 [2/2]
-Message-ID: <20020730233542.A23181@ucw.cz>
-References: <20020730210938.GA16657@kroah.com> <Pine.LNX.4.33.0207301417190.2051-100000@penguin.transmeta.com>
+	id <S316621AbSG3VaH>; Tue, 30 Jul 2002 17:30:07 -0400
+Received: from 12-225-96-71.client.attbi.com ([12.225.96.71]:3201 "EHLO
+	p3.coop.hom") by vger.kernel.org with ESMTP id <S316589AbSG3V2y>;
+	Tue, 30 Jul 2002 17:28:54 -0400
+Date: Tue, 30 Jul 2002 14:32:34 -0700
+From: Jerry Cooperstein <coop@axian.com>
+To: linux-kernel@vger.kernel.org
+Subject: IRQTUNE and irq priority
+Message-ID: <20020730143234.A17111@p3.attbi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0207301417190.2051-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jul 30, 2002 at 02:20:36PM -0700
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 30, 2002 at 02:20:36PM -0700, Linus Torvalds wrote:
+There's an OLD tool called "irqtune"
 
-> On Tue, 30 Jul 2002, Greg KH wrote:
-> 
-> > On Tue, Jul 30, 2002 at 03:23:42PM +0200, Vojtech Pavlik wrote:
-> > > -#include <asm/types.h>
-> > > +#include <stdint.h>
-> > 
-> > Why?  I thought we were not including any glibc (or any other libc)
-> > header files when building the kernel?
-> 
-> Indeed. This is unacceptable.
-> 
-> Especially as the standard types are total crap, and the u8 etc are a lot 
-> more readable. People should realize:
-> 
->  - the "int" is superfluous. Of _course_ it's an integer. If it was a 
->    floating point number, it would be fp16/fp32/fp64/fp80/whatever.
->  - the "_t" is there only for namespace collisions, sane people can chose 
->    to ignore it.
-> 
-> What do you have left after you have removed the crap? Yup. u8, u16, etc. 
-> And if you want to share with user space, there's the long-accepted 
-> namespace collision avoidance of prepending two underscores.
-> 
-> Fix it, Vojtech.
-> 
-> 		Linus
+         http://www.best.com/~cae/irqtune
 
-I will, and will do so happily. I don't like the uint*_t types as well.
-This change was pushed very heavily for by Brad Hards, based on a
-conclusion of a rather lengthy discussion (I think on linux-usb) on
-which types should be used.
+by Craig Estey, which says about itself:
 
-Now the question remaining is how to fix that? You can just skip the
-patch. I've tried a 'bk undo', but that complains about unmerged leaves
-in that case (though really nothing depends on those changes). Or should
-I just make another cset on top of all the previous?
+   "irqtune changes the IRQ priority of devices to allow devices
+    that require high priority and fast service 
+    (e.g. serial ports, modems) to have it...."
 
--- 
-Vojtech Pavlik
-SuSE Labs
+I'm told it still works even with recent kernels, but could 
+someone comment on how good an idea it is and if there are
+better and newer ways to do this with recent kernels.
+
+
+Thanks,
+
+======================================================================
+ Jerry Cooperstein,  Senior Consultant,  <coop@axian.com>
+ Axian, Inc., Software Consulting and Training
+ 4800 SW Griffith Dr., Ste. 202,  Beaverton, OR  97005 USA
+ http://www.axian.com/               
+======================================================================

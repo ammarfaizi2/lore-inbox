@@ -1,92 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261944AbTFSX2p (ORCPT <rfc822;willy@w.ods.org>);
+	id S261936AbTFSX2p (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 19 Jun 2003 19:28:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbTFSX22
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbTFSX2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 19:28:28 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:18591 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261944AbTFSXZq convert rfc822-to-8bit
+	Thu, 19 Jun 2003 19:28:20 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:17567 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261939AbTFSXZp convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 19:25:46 -0400
+	Thu, 19 Jun 2003 19:25:45 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <1056065969234@kroah.com>
-Subject: [PATCH] PCI changes and fixes for 2.5.72
-In-Reply-To: <20030619233727.GA7200@kroah.com>
+Message-Id: <10560659701205@kroah.com>
+Subject: Re: [PATCH] PCI changes and fixes for 2.5.72
+In-Reply-To: <1056065970863@kroah.com>
 From: Greg KH <greg@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 19 Jun 2003 16:39:29 -0700
+Date: Thu, 19 Jun 2003 16:39:30 -0700
 Content-Transfer-Encoding: 7BIT
 To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1327.5.1, 2003/06/16 16:43:45-07:00, willy@debian.org
+ChangeSet 1.1327.5.3, 2003/06/18 14:56:52-07:00, davidm@napali.hpl.hp.com
 
-[PATCH] PCI: Tidy up sysfs a bit
+[PATCH] PCI: move pci_domain_nr() inside "#ifdef CONFIG_PCI" bracket
 
-This patch contains a set of uncontroversial changes to PCI sysfs.
-
- - Always output 64-bit resources so userspace doesn't need ifdefs
-   and 32-bit userspace works on 64-bit architectures.  Separate them
-   with spaces rather than tabs.
- - Prefix hex quantities with "0x"
- - Always show 7 resources for non-bridge devices, and all resources for
-   bridges rather than stopping on the first empty resource.
+Trivial build fix: pci_domain_nr() cannot be declared unless
+CONFIG_PCI is defined (otherwise, struct pci_bus hasn't been defined).
 
 
- drivers/pci/pci-sysfs.c |   24 +++++++++++-------------
- 1 files changed, 11 insertions(+), 13 deletions(-)
+ include/linux/pci.h |   19 +++++++++----------
+ 1 files changed, 9 insertions(+), 10 deletions(-)
 
 
-diff -Nru a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
---- a/drivers/pci/pci-sysfs.c	Thu Jun 19 16:32:26 2003
-+++ b/drivers/pci/pci-sysfs.c	Thu Jun 19 16:32:26 2003
-@@ -18,12 +18,6 @@
+diff -Nru a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h	Thu Jun 19 16:32:17 2003
++++ b/include/linux/pci.h	Thu Jun 19 16:32:17 2003
+@@ -743,6 +743,15 @@
+ 	return rc;
+ }
  
- #include "pci.h"
- 
--#if BITS_PER_LONG == 32
--#define LONG_FORMAT "\t%08lx"
--#else
--#define LONG_FORMAT "\t%16lx"
--#endif
--
- /* show configuration fields */
- #define pci_config_attr(field, format_string)				\
- static ssize_t								\
-@@ -36,11 +30,11 @@
- }									\
- static DEVICE_ATTR(field, S_IRUGO, show_##field, NULL);
- 
--pci_config_attr(vendor, "%04x\n");
--pci_config_attr(device, "%04x\n");
--pci_config_attr(subsystem_vendor, "%04x\n");
--pci_config_attr(subsystem_device, "%04x\n");
--pci_config_attr(class, "%06x\n");
-+pci_config_attr(vendor, "0x%04x\n");
-+pci_config_attr(device, "0x%04x\n");
-+pci_config_attr(subsystem_vendor, "0x%04x\n");
-+pci_config_attr(subsystem_device, "0x%04x\n");
-+pci_config_attr(class, "0x%06x\n");
- pci_config_attr(irq, "%u\n");
- 
- /* show resources */
-@@ -50,9 +44,13 @@
- 	struct pci_dev * pci_dev = to_pci_dev(dev);
- 	char * str = buf;
- 	int i;
-+	int max = 7;
++/*
++ * PCI domain support.  Sometimes called PCI segment (eg by ACPI),
++ * a PCI domain is defined to be a set of PCI busses which share
++ * configuration space.
++ */
++#ifndef CONFIG_PCI_DOMAINS
++static inline int pci_domain_nr(struct pci_bus *bus) { return 0; }
++#endif
 +
-+	if (pci_dev->subordinate)
-+		max = DEVICE_COUNT_RESOURCE;
+ #endif /* !CONFIG_PCI */
  
--	for (i = 0; i < DEVICE_COUNT_RESOURCE && pci_resource_start(pci_dev,i); i++) {
--		str += sprintf(str,LONG_FORMAT LONG_FORMAT LONG_FORMAT "\n",
-+	for (i = 0; i < max; i++) {
-+		str += sprintf(str,"0x%016lx 0x%016lx 0x%016lx\n",
- 			       pci_resource_start(pci_dev,i),
- 			       pci_resource_end(pci_dev,i),
- 			       pci_resource_flags(pci_dev,i));
+ /* these helpers provide future and backwards compatibility
+@@ -799,16 +808,6 @@
+ #define PCIPCI_VIAETBF		8
+ #define PCIPCI_VSFX		16
+ #define PCIPCI_ALIMAGIK		32
+-
+-/*
+- * PCI domain support.  Sometimes called PCI segment (eg by ACPI),
+- * a PCI domain is defined to be a set of PCI busses which share
+- * configuration space.
+- */
+-
+-#ifndef CONFIG_PCI_DOMAINS
+-static inline int pci_domain_nr(struct pci_bus *bus) { return 0; }
+-#endif
+ 
+ #endif /* __KERNEL__ */
+ #endif /* LINUX_PCI_H */
 

@@ -1,64 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266664AbUBFHOO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 02:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUBFHOO
+	id S266657AbUBFHMc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 02:12:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266664AbUBFHMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 02:14:14 -0500
-Received: from gate.crashing.org ([63.228.1.57]:48008 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266664AbUBFHOL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 02:14:11 -0500
-Subject: Re: HFSPLus driver for Linux 2.6.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dylan Griffiths <dylang+kernel@thock.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-In-Reply-To: <20040205200217.360c51ab.akpm@osdl.org>
-References: <402304F0.1070008@thock.com>
-	 <20040205191527.4c7a488e.akpm@osdl.org> <40231076.7040307@thock.com>
-	 <20040205200217.360c51ab.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1076051611.885.25.camel@gaston>
+	Fri, 6 Feb 2004 02:12:32 -0500
+Received: from almesberger.net ([63.105.73.238]:27400 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S266657AbUBFHMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 02:12:30 -0500
+Date: Fri, 6 Feb 2004 04:12:24 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: linux-kernel@vger.kernel.org
+Subject: VFS locking: f_pos thread-safe ?
+Message-ID: <20040206041223.A18820@almesberger.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 06 Feb 2004 18:13:32 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-02-06 at 15:02, Andrew Morton wrote:
-> Dylan Griffiths <dylang+kernel@thock.com> wrote:
-> >
-> > 	I don't remember where I grabbed this driver, I only know it's much 
-> >  more current than the one at 
-> >  http://sourceforge.net/projects/linux-hfsplus.
-> 
-> Sorry, that's a showstopper.  We need to understand who the maintenance
-> team is, and evaluate their preparedness to maintain this code long-term.
-> 
-> We don't want to be adding yet another rarely-used filesystem which has no
-> visible maintenance team.
+I'm trying to figure out how all the locking in VFS and friends
+works, and I can't quite explain to myself how f_pos is kept
+consistent with concurrent readers.
 
-It's a not-that-rarely used filesystem actually :) Been in my tree for
-a few monthes and it's used by pmac users either for iPod's or for
-accessing the MacOS X partitions.
+In fact, there might be a violation of atomicity requirements:
+e.g. if we take the route sys_read -> vfs_read ->
+generic_file_read -> __generic_file_aio_read ->
+do_generic_file_read -> do_generic_mapping_read, we don't seem
+to be holding any locks. So if I have two threads that start
+reading the same fd at the same time, they could retrieve the
+same data.
 
-It's written & maintained by Roman Zippel, and the latest snapshot is
-available at http://www.ardistech.com/hfsplus/ but you probably want
-to ask Roman if it's really the latest version before merging :)
+Section 2.9.7 of the "Austin" draft of IEEE Std. 1003.1-200x,
+28-JUL-2000, says:
 
-One thing we absolutely need too is a port of Apple's fsck for HFS+,
-currently, the driver will refuse to mount read/write a "dirty"
-HFS+ filesystem to avoid corruption, but that means we have to reboot
-MacOS to fsck it then... But that limitation shouldn't prevent merging
-it.
+"[...] read( ) [...] shall be atomic with respect to each other
+ in the effects specified in IEEE Std. 1003.1-200x when they
+ operate on regular files. If two threads each call one of these
+ functions, each call shall either see all of the specified
+ effects of the other call, or none of them."
 
-I suppose it may be good to also merge Roman's cleanup/rewrite of
-the old HFS filesytem...
+I've written a little test program with concurrent readers that
+seems to support this observation, i.e. given the following
+pseudo-code:
 
-Ben.
- 
+static void *reader(...)
+{
+    while (read(0,buffer,PAGE_SIZE));
+    ...
+}
 
+...
+    for (...)
+	pthread_create(...,reader...);
+...
 
+More than one reader may obtain a given page.
+The full test program is at
+http://www.almesberger.net/misc/tt.tar.gz
+
+Is this a real bug or am I just confused ?
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

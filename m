@@ -1,272 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVATS3B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261792AbVATS26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbVATS3B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 13:29:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVATS1V
+	id S261792AbVATS26 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 13:28:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbVATS2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 13:27:21 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10764 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261586AbVATSTK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 13:19:10 -0500
-Date: Thu, 20 Jan 2005 19:19:03 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] unexport do_settimeofday
-Message-ID: <20050120181903.GI3174@stusta.de>
-References: <20050120181703.GG3174@stusta.de>
+	Thu, 20 Jan 2005 13:28:20 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:5767 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261713AbVATSXI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 13:23:08 -0500
+Date: Thu, 20 Jan 2005 19:22:27 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Chris Wedgwood <cw@f00f.org>,
+       Andrew Morton <akpm@osdl.org>, paulus@samba.org,
+       linux-kernel@vger.kernel.org, tony.luck@intel.com,
+       dsw@gelato.unsw.edu.au, benh@kernel.crashing.org,
+       linux-ia64@vger.kernel.org, hch@infradead.org, wli@holomorphy.com,
+       jbarnes@sgi.com
+Subject: [patch, BK-curr] nonintrusive spin-polling loop in kernel/spinlock.c
+Message-ID: <20050120182227.GA26985@elte.hu>
+References: <20050120023445.GA3475@taniwha.stupidest.org> <20050119190104.71f0a76f.akpm@osdl.org> <20050120031854.GA8538@taniwha.stupidest.org> <16879.29449.734172.893834@wombat.chubb.wattle.id.au> <Pine.LNX.4.58.0501200747230.8178@ppc970.osdl.org> <20050120160839.GA13067@elte.hu> <Pine.LNX.4.58.0501200823010.8178@ppc970.osdl.org> <20050120164038.GA15874@elte.hu> <Pine.LNX.4.58.0501200947440.8178@ppc970.osdl.org> <20050120175313.GA22782@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050120181703.GG3174@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050120175313.GA22782@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ same patch with corrected subject ]
 
+this patch, against BK-curr, implements a nonintrusive spin-polling loop
+for the SMP+PREEMPT spinlock/rwlock variants, using the new *_can_lock()
+primitives. (The patch also adds *_can_lock() to the UP branch of
+spinlock.h, for completeness.)
 
-Is the patch below correct?
+build- and boot-tested on x86 SMP+PREEMPT and SMP+!PREEMPT.
 
+	Ingo
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
----
-
- arch/alpha/kernel/time.c     |    2 --
- arch/arm/kernel/time.c       |    2 --
- arch/arm26/kernel/time.c     |    2 --
- arch/cris/kernel/time.c      |    2 --
- arch/h8300/kernel/time.c     |    2 --
- arch/i386/kernel/time.c      |    2 --
- arch/m32r/kernel/time.c      |    2 --
- arch/m68k/kernel/time.c      |    2 --
- arch/m68knommu/kernel/time.c |    1 -
- arch/mips/dec/time.c         |    2 --
- arch/mips/kernel/time.c      |    2 --
- arch/parisc/kernel/time.c    |    1 -
- arch/ppc/kernel/time.c       |    2 --
- arch/ppc64/kernel/time.c     |    2 --
- arch/s390/kernel/time.c      |    2 --
- arch/sh/kernel/time.c        |    2 --
- arch/sparc/kernel/time.c     |    2 --
- arch/um/kernel/ksyms.c       |    1 -
- arch/v850/kernel/time.c      |    2 --
- arch/x86_64/kernel/time.c    |    2 --
- 20 files changed, 37 deletions(-)
-
---- linux-2.6.11-rc1-mm2-full/arch/i386/kernel/time.c.old	2005-01-20 18:52:12.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/i386/kernel/time.c	2005-01-20 18:52:27.000000000 +0100
-@@ -169,8 +169,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- static int set_rtc_mmss(unsigned long nowtime)
- {
- 	int retval;
---- linux-2.6.11-rc1-mm2-full/arch/arm/kernel/time.c.old	2005-01-20 18:52:46.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/arm/kernel/time.c	2005-01-20 18:52:51.000000000 +0100
-@@ -301,8 +301,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- /**
-  * save_time_delta - Save the offset between system time and RTC time
-  * @delta: pointer to timespec to store delta
---- linux-2.6.11-rc1-mm2-full/arch/sparc/kernel/time.c.old	2005-01-20 18:52:59.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/sparc/kernel/time.c	2005-01-20 18:53:03.000000000 +0100
-@@ -530,8 +530,6 @@
- 	return ret;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- static int sbus_do_settimeofday(struct timespec *tv)
- {
- 	time_t wtm_sec, sec = tv->tv_sec;
---- linux-2.6.11-rc1-mm2-full/arch/ppc/kernel/time.c.old	2005-01-20 18:53:11.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/ppc/kernel/time.c	2005-01-20 18:53:15.000000000 +0100
-@@ -285,8 +285,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- /* This function is only called on the boot processor */
- void __init time_init(void)
- {
---- linux-2.6.11-rc1-mm2-full/arch/mips/dec/time.c.old	2005-01-20 18:53:21.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/mips/dec/time.c	2005-01-20 18:53:25.000000000 +0100
-@@ -189,8 +189,6 @@
- 	CMOS_WRITE(RTC_REF_CLCK_32KHZ | (16 - LOG_2_HZ), RTC_REG_A);
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- void __init dec_timer_setup(struct irqaction *irq)
- {
- 	setup_irq(dec_interrupt[DEC_IRQ_RTC], irq);
---- linux-2.6.11-rc1-mm2-full/arch/mips/kernel/time.c.old	2005-01-20 18:53:32.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/mips/kernel/time.c	2005-01-20 18:53:36.000000000 +0100
-@@ -234,8 +234,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- /*
-  * Gettimeoffset routines.  These routines returns the time duration
-  * since last timer interrupt in usecs.
---- linux-2.6.11-rc1-mm2-full/arch/m68knommu/kernel/time.c.old	2005-01-20 18:53:43.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/m68knommu/kernel/time.c	2005-01-20 18:53:47.000000000 +0100
-@@ -195,4 +195,3 @@
- 	return (unsigned long long)jiffies * (1000000000 / HZ);
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
---- linux-2.6.11-rc1-mm2-full/arch/sh/kernel/time.c.old	2005-01-20 18:53:54.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/sh/kernel/time.c	2005-01-20 18:53:58.000000000 +0100
-@@ -254,8 +254,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- /* last time the RTC clock got updated */
- static long last_rtc_update;
- 
---- linux-2.6.11-rc1-mm2-full/arch/cris/kernel/time.c.old	2005-01-20 18:54:05.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/cris/kernel/time.c	2005-01-20 18:54:11.000000000 +0100
-@@ -122,8 +122,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- 
- /*
-  * BUG: This routine does not handle hour overflow properly; it just
---- linux-2.6.11-rc1-mm2-full/arch/arm26/kernel/time.c.old	2005-01-20 18:54:18.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/arm26/kernel/time.c	2005-01-20 18:54:22.000000000 +0100
-@@ -198,8 +198,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- static irqreturn_t timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
-         do_timer(regs);
---- linux-2.6.11-rc1-mm2-full/arch/m68k/kernel/time.c.old	2005-01-20 18:54:29.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/m68k/kernel/time.c	2005-01-20 18:54:32.000000000 +0100
-@@ -175,8 +175,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- /*
-  * Scheduler clock - returns current time in ns units.
+--- linux/kernel/spinlock.c.orig
++++ linux/kernel/spinlock.c
+@@ -174,7 +174,7 @@ EXPORT_SYMBOL(_write_lock);
   */
---- linux-2.6.11-rc1-mm2-full/arch/alpha/kernel/time.c.old	2005-01-20 18:54:44.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/alpha/kernel/time.c	2005-01-20 18:54:48.000000000 +0100
-@@ -512,8 +512,6 @@
- 	return 0;
- }
  
--EXPORT_SYMBOL(do_settimeofday);
--
+ #define BUILD_LOCK_OPS(op, locktype)					\
+-void __lockfunc _##op##_lock(locktype *lock)				\
++void __lockfunc _##op##_lock(locktype##_t *lock)			\
+ {									\
+ 	preempt_disable();						\
+ 	for (;;) {							\
+@@ -183,14 +183,15 @@ void __lockfunc _##op##_lock(locktype *l
+ 		preempt_enable();					\
+ 		if (!(lock)->break_lock)				\
+ 			(lock)->break_lock = 1;				\
+-		cpu_relax();						\
++		while (!op##_can_lock(lock) && (lock)->break_lock)	\
++			cpu_relax();					\
+ 		preempt_disable();					\
+ 	}								\
+ }									\
+ 									\
+ EXPORT_SYMBOL(_##op##_lock);						\
+ 									\
+-unsigned long __lockfunc _##op##_lock_irqsave(locktype *lock)		\
++unsigned long __lockfunc _##op##_lock_irqsave(locktype##_t *lock)	\
+ {									\
+ 	unsigned long flags;						\
+ 									\
+@@ -204,7 +205,8 @@ unsigned long __lockfunc _##op##_lock_ir
+ 		preempt_enable();					\
+ 		if (!(lock)->break_lock)				\
+ 			(lock)->break_lock = 1;				\
+-		cpu_relax();						\
++		while (!op##_can_lock(lock) && (lock)->break_lock)	\
++			cpu_relax();					\
+ 		preempt_disable();					\
+ 	}								\
+ 	return flags;							\
+@@ -212,14 +214,14 @@ unsigned long __lockfunc _##op##_lock_ir
+ 									\
+ EXPORT_SYMBOL(_##op##_lock_irqsave);					\
+ 									\
+-void __lockfunc _##op##_lock_irq(locktype *lock)			\
++void __lockfunc _##op##_lock_irq(locktype##_t *lock)			\
+ {									\
+ 	_##op##_lock_irqsave(lock);					\
+ }									\
+ 									\
+ EXPORT_SYMBOL(_##op##_lock_irq);					\
+ 									\
+-void __lockfunc _##op##_lock_bh(locktype *lock)				\
++void __lockfunc _##op##_lock_bh(locktype##_t *lock)			\
+ {									\
+ 	unsigned long flags;						\
+ 									\
+@@ -244,9 +246,9 @@ EXPORT_SYMBOL(_##op##_lock_bh)
+  *         _[spin|read|write]_lock_irqsave()
+  *         _[spin|read|write]_lock_bh()
+  */
+-BUILD_LOCK_OPS(spin, spinlock_t);
+-BUILD_LOCK_OPS(read, rwlock_t);
+-BUILD_LOCK_OPS(write, rwlock_t);
++BUILD_LOCK_OPS(spin, spinlock);
++BUILD_LOCK_OPS(read, rwlock);
++BUILD_LOCK_OPS(write, rwlock);
  
- /*
-  * In order to set the CMOS clock precisely, set_rtc_mmss has to be
---- linux-2.6.11-rc1-mm2-full/arch/ppc64/kernel/time.c.old	2005-01-20 18:54:56.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/ppc64/kernel/time.c	2005-01-20 18:54:59.000000000 +0100
-@@ -424,8 +424,6 @@
- 	return 0;
- }
+ #endif /* CONFIG_PREEMPT */
  
--EXPORT_SYMBOL(do_settimeofday);
--
- void __init time_init(void)
- {
- 	/* This function is only called on the boot processor */
---- linux-2.6.11-rc1-mm2-full/arch/um/kernel/ksyms.c.old	2005-01-20 18:55:07.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/um/kernel/ksyms.c	2005-01-20 18:55:11.000000000 +0100
-@@ -95,7 +95,6 @@
- EXPORT_SYMBOL(dump_thread);
+--- linux/include/linux/spinlock.h.orig
++++ linux/include/linux/spinlock.h
+@@ -221,6 +221,8 @@ typedef struct {
+ #define _raw_read_unlock(lock)	do { (void)(lock); } while(0)
+ #define _raw_write_lock(lock)	do { (void)(lock); } while(0)
+ #define _raw_write_unlock(lock)	do { (void)(lock); } while(0)
++#define read_can_lock(lock)	(((void)(lock), 1))
++#define write_can_lock(lock)	(((void)(lock), 1))
+ #define _raw_read_trylock(lock) ({ (void)(lock); (1); })
+ #define _raw_write_trylock(lock) ({ (void)(lock); (1); })
  
- EXPORT_SYMBOL(do_gettimeofday);
--EXPORT_SYMBOL(do_settimeofday);
- 
- /* This is here because UML expands open to sys_open, not to a system
-  * call instruction.
---- linux-2.6.11-rc1-mm2-full/arch/parisc/kernel/time.c.old	2005-01-20 18:55:19.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/parisc/kernel/time.c	2005-01-20 18:55:23.000000000 +0100
-@@ -197,7 +197,6 @@
- 	clock_was_set();
- 	return 0;
- }
--EXPORT_SYMBOL(do_settimeofday);
- 
- /*
-  * XXX: We can do better than this.
---- linux-2.6.11-rc1-mm2-full/arch/h8300/kernel/time.c.old	2005-01-20 18:55:33.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/h8300/kernel/time.c	2005-01-20 18:55:37.000000000 +0100
-@@ -125,8 +125,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- unsigned long long sched_clock(void)
- {
- 	return (unsigned long long)jiffies * (1000000000 / HZ);
---- linux-2.6.11-rc1-mm2-full/arch/m32r/kernel/time.c.old	2005-01-20 18:55:46.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/m32r/kernel/time.c	2005-01-20 18:55:50.000000000 +0100
-@@ -181,8 +181,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- /*
-  * In order to set the CMOS clock precisely, set_rtc_mmss has to be
-  * called 500 ms after the second nowtime has started, because when
---- linux-2.6.11-rc1-mm2-full/arch/x86_64/kernel/time.c.old	2005-01-20 18:55:59.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/x86_64/kernel/time.c	2005-01-20 18:56:02.000000000 +0100
-@@ -179,8 +179,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- unsigned long profile_pc(struct pt_regs *regs)
- {
- 	unsigned long pc = instruction_pointer(regs);
---- linux-2.6.11-rc1-mm2-full/arch/s390/kernel/time.c.old	2005-01-20 18:56:11.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/s390/kernel/time.c	2005-01-20 18:56:15.000000000 +0100
-@@ -148,8 +148,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- 
- #ifdef CONFIG_PROFILING
- #define s390_do_profile(regs)	profile_tick(CPU_PROFILING, regs)
---- linux-2.6.11-rc1-mm2-full/arch/v850/kernel/time.c.old	2005-01-20 18:56:22.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/v850/kernel/time.c	2005-01-20 18:56:26.000000000 +0100
-@@ -179,8 +179,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- static int timer_dev_id;
- static struct irqaction timer_irqaction = {
- 	timer_interrupt,
-

@@ -1,73 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317913AbSFNNy0>; Fri, 14 Jun 2002 09:54:26 -0400
+	id <S317914AbSFNN6a>; Fri, 14 Jun 2002 09:58:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317914AbSFNNyZ>; Fri, 14 Jun 2002 09:54:25 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:32776 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S317913AbSFNNyY>;
-	Fri, 14 Jun 2002 09:54:24 -0400
-Date: Fri, 14 Jun 2002 17:52:29 +0400
-From: Andrey Panin <pazke@orbita1.ru>
-To: Dave Jones <davej@suse.de>,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH: NEW SUBARCHITECTURE FOR 2.5.21] support for NCR voyager (3/4/5xxx series)
-Message-ID: <20020614135229.GA313@pazke.ipt>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	James Bottomley <James.Bottomley@HansenPartnership.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <davej@suse.de> <200206140013.g5E0DQR25561@localhost.localdomain> <20020614024547.H16772@suse.de> <20020614134152.GA1293@pazke.ipt> <20020614154945.M16772@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Uname: Linux pazke 2.5.21 
+	id <S317915AbSFNN63>; Fri, 14 Jun 2002 09:58:29 -0400
+Received: from [64.30.11.99] ([64.30.11.99]:39953 "HELO smtp.h3technology.com")
+	by vger.kernel.org with SMTP id <S317914AbSFNN63>;
+	Fri, 14 Jun 2002 09:58:29 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Security Coordinator <security@aptusventures.com>
+Organization: Aptus Ventures LLC
+To: rjh@world.std.com, jijo@free.net.ph
+Subject: Re: Very large font size crashing X Font Server and Grounding Server to a Halt (was: remote DoS in Mozilla 1.0)
+Date: Fri, 14 Jun 2002 09:50:57 -0400
+X-Mailer: KMail [version 1.3.2]
+Cc: bugtraq@securityfocus.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200206131626.MAA20634@TheWorld.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020614145331.E95A1137BB@smtp.h3technology.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 13 June 2002 12:26, rjh@world.std.com wrote:
 
---gBBFr7Ir9EOA20Yy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Exactly, any user without limits can arbitrarily "fork bomb" a system too. A 
+shell script and newbie level programming talent is all you need... That 
+whole class of DoS are hard to stop. You can do 100 things, like starve a 
+system of file handles, open 50,000 listen ports, whatever.  You can set 
+limits, but there are not even standard APIs for limiting every conceivable 
+exhaustible resource systems allocate. 
 
-On Fri, Jun 14, 2002 at 03:49:45PM +0200, Dave Jones wrote:
-> On Fri, Jun 14, 2002 at 05:41:52PM +0400, Andrey Panin wrote:
->=20
->  > We also have apm.c, bootflag.c and acpi.c which are definetely PC spec=
-ific.
->=20
-> apm may be present on the others (need visws/voyager folks to comment on
-> that I guess), but bootflag and acpi I'd suspect not.
-
-IMHO Voyagers are too old and big machines to get (working) APM,
-and visws have no BIOS or limited BIOS emulation.
-=20
->  > "Latest" (2.4.17) visws patch which i'm planning to convert for 2.5, u=
-ses
->  > function MP_processor_info() from generic mpparse.c. May be it makes s=
-ence
->  > to move to some generic file ?
->=20
-> Is that the one from the visws sourceforge project ?
-
-Yes it is.
-
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---gBBFr7Ir9EOA20Yy
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9CfUdBm4rlNOo3YgRAtxGAJ4lKzzzoMIhDjqPilmQshfbNEtdugCfe0UL
-I1pD7gSqJG0HSkcIDj+GeSs=
-=jefK
------END PGP SIGNATURE-----
-
---gBBFr7Ir9EOA20Yy--
+> On 13 Jun, Federico Sevilla III wrote:
+> > Suggestions on how to work around this on multiple levels would
+> > definitely be appreciated. I'll be starting by removing the X font server
+> > from our file and authentication server onto some high-powered
+> > workstation, but I'm sure this won't be enough, and knowing that a user
+> > process like xfs-daemon can drag the Linux kernel down to knees is not
+> > very comforting. :(
+>
+> The protection that you need is provided by "ulimit" on most Unixes.
+> There are facilities to limit maximum real memory used, maximum virtual
+> memory, maximum number of processes, etc.  This specific bug in XFree is
+> one of a general case of inescapable user process bugs.  It resulted in
+> an almost infinite size malloc() request.  You can acheive the same
+> effect in any userspace program by just putting malloc() inside an
+> infinite loop.
+>
+> If you allow users to run with unlimited memory permission, you are
+> vulnerable.  The XFree bug will hit more people than usual because it is
+> common to put the ulimit on regular user logins and forget to place a
+> limit on the automatically started processes.  The default configuration
+> from RedHat, SuSE, and others is to start XFree outside the login
+> system.  You can also place limits on these processes but you need to
+> examine the startup scripts to install the limits in the right places.
+>
+> This would then result in a different DoS.  Whenever XFree hits the
+> memory limit, the malloc's will fail, and XFree will decide what to do
+> about it.  Depending on the circumstances, XFree may shut down, thus
+> killing all the X window dependent processes.
+>
+> R Horn

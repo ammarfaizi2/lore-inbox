@@ -1,59 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289975AbSAKPH4>; Fri, 11 Jan 2002 10:07:56 -0500
+	id <S289978AbSAKPLk>; Fri, 11 Jan 2002 10:11:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289976AbSAKPHq>; Fri, 11 Jan 2002 10:07:46 -0500
-Received: from pat.uio.no ([129.240.130.16]:13001 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S289975AbSAKPHi>;
-	Fri, 11 Jan 2002 10:07:38 -0500
+	id <S289977AbSAKPLZ>; Fri, 11 Jan 2002 10:11:25 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44805 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289978AbSAKPLJ>; Fri, 11 Jan 2002 10:11:09 -0500
+Subject: Re: [patch] O(1) scheduler, -H5
+To: rmk@arm.linux.org.uk (Russell King)
+Date: Fri, 11 Jan 2002 15:22:48 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20020111145811.B31366@flint.arm.linux.org.uk> from "Russell King" at Jan 11, 2002 02:58:11 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15422.65459.871735.203004@charged.uio.no>
-Date: Fri, 11 Jan 2002 16:07:31 +0100
-To: Hans-Peter Jansen <hpj@urpla.net>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-Subject: [NFS] some strangeness (at least) with linux-2.4.17-NFS_ALL patch
-In-Reply-To: <20020111131528.44F8613E6@shrek.lisa.de>
-In-Reply-To: <20020111131528.44F8613E6@shrek.lisa.de>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Message-Id: <E16P3W4-0007vd-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Hans-Peter Jansen <hpj@urpla.net> writes:
+> Unfortunately it wasn't a simple "replace global irq with spinlocks" - some
+> code also got moved around so its not clear that the problem was fixed by
+> the spinlocks or the code reordering.  I'd rather know which it was.
 
-     > The problem is, ls on the client side complains about an I/O
-     > error, when listing the conf/ dir.
-
-What server is this?
-
-     > After removing this symlink (within the server), ls is OK
-     > within the client. Trying to copy servers /etc/ou.conf file to
-     > /usr/share/openuniverse within the client, cp complains about
-     > to many levels of symlinks?!? (/usr is shared)
-
-That can happen, yes. The symlink is still in the dcache, and so the
-VFS thinks that we want to open whatever it is that the symlink is
-pointing to (not the symlink itself). For this reason, less strict
-checking is performed, and so the client does not immediately see the
-change.
-
-If, however, you had first done 'ls -l' or something that tries to
-read the symlink itself, more strict revalidation checks are
-performed, and the stale dentry would have been detected.
-
-I can tighten the checks on this sort of thing a bit, but if so, it
-needs to be done carefully. It is important to make sure that
-operations like
-   'ls /usr/lib/*'
-(in which you want the system to repeatedly look up the same path) are
-efficient by caching the '/usr/lib' bit even if that /usr/lib is a
-symlink.
-Of course every time we do open("/usr/lib/libc.so"), we *do* want to
-make sure that we perform strict checks when we do the lookup of the
-last element of the path (on the actual file "libc.so").
-
-Cheers,
-  Trond
+The code re-ordering fixes the bug. The spinlocks are an unrelated change
+that belong in a seperate diff.

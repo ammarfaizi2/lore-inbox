@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265393AbUBJAD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 19:03:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265391AbUBJABy
+	id S265434AbUBIX6y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 18:58:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265369AbUBIXzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 19:01:54 -0500
-Received: from mail.kroah.org ([65.200.24.183]:54460 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265389AbUBIXWZ convert rfc822-to-8bit
+	Mon, 9 Feb 2004 18:55:52 -0500
+Received: from mail.kroah.org ([65.200.24.183]:63164 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265434AbUBIXWl convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 18:22:25 -0500
+	Mon, 9 Feb 2004 18:22:41 -0500
 Subject: Re: [PATCH] PCI Update for 2.6.3-rc1
-In-Reply-To: <10763689362321@kroah.com>
+In-Reply-To: <10763689351999@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Mon, 9 Feb 2004 15:22:16 -0800
-Message-Id: <10763689362302@kroah.com>
+Message-Id: <10763689362321@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -22,118 +22,89 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1500.11.3, 2004/01/30 16:35:12-08:00, eike-hotplug@sf-tec.de
+ChangeSet 1.1500.11.2, 2004/01/30 16:34:48-08:00, ambx1@neo.rr.com
 
-[PATCH] PCI Hotplug: coding style for cpqphp_pci.c
+[PATCH] PCI: Remove uneeded resource structures from pci_dev
 
-here are some coding style fixes.
+The following patch remove irq_resource and dma_resource from pci_dev.  It
+appears that the serial pci driver depends on irq_resource, however, it may be
+broken portions of an old quirk.  I attempted to maintain the existing behavior
+while removing irq_resource.  I changed FL_IRQRESOURCE to FL_NOIRQ.  Russell,
+could you provide any comments?  irq_resource and dma_resource are most likely
+remnants from when pci_dev was shared with pnp.
 
 
- drivers/pci/hotplug/cpqphp_pci.c |   26 +++++++++++---------------
- 1 files changed, 11 insertions(+), 15 deletions(-)
+ drivers/serial/8250_pci.c |   27 ++++++---------------------
+ include/linux/pci.h       |    2 --
+ 2 files changed, 6 insertions(+), 23 deletions(-)
 
 
-diff -Nru a/drivers/pci/hotplug/cpqphp_pci.c b/drivers/pci/hotplug/cpqphp_pci.c
---- a/drivers/pci/hotplug/cpqphp_pci.c	Mon Feb  9 14:59:40 2004
-+++ b/drivers/pci/hotplug/cpqphp_pci.c	Mon Feb  9 14:59:40 2004
-@@ -123,7 +123,7 @@
- 	dbg("%s: bus/dev/func = %x/%x/%x\n", __FUNCTION__, func->bus, func->device, func->function);
+diff -Nru a/drivers/serial/8250_pci.c b/drivers/serial/8250_pci.c
+--- a/drivers/serial/8250_pci.c	Mon Feb  9 14:59:44 2004
++++ b/drivers/serial/8250_pci.c	Mon Feb  9 14:59:44 2004
+@@ -43,20 +43,12 @@
+ #define FL_BASE4		0x0004
+ #define FL_GET_BASE(x)		(x & FL_BASE_MASK)
  
- 	for (j=0; j<8 ; j++) {
--		struct pci_dev* temp = pci_find_slot(func->bus, (func->device << 3) | j);
-+		struct pci_dev* temp = pci_find_slot(func->bus, PCI_DEVFN(func->device, j));
- 		if (temp)
- 			pci_remove_bus_device(temp);
- 	}
-@@ -545,10 +545,10 @@
- 		} while (function < max_functions);
- 	}			// End of IF (device in slot?)
- 	else {
--		return(2);
-+		return 2;
- 	}
- 
--	return(0);
-+	return 0;
- }
- 
- 
-@@ -594,9 +594,8 @@
- 
- 			while (next != NULL) {
- 				rc = cpqhp_save_base_addr_length(ctrl, next);
+-#define FL_IRQ_MASK		(0x0007 << 4)
+-#define FL_IRQBASE0		(0x0000 << 4)
+-#define FL_IRQBASE1		(0x0001 << 4)
+-#define FL_IRQBASE2		(0x0002 << 4)
+-#define FL_IRQBASE3		(0x0003 << 4)
+-#define FL_IRQBASE4		(0x0004 << 4)
+-#define FL_GET_IRQBASE(x)	((x & FL_IRQ_MASK) >> 4)
 -
- 				if (rc)
--					return(rc);
-+					return rc;
+ /* Use successive BARs (PCI base address registers),
+    else use offset into some specified BAR */
+ #define FL_BASE_BARS		0x0008
  
- 				next = next->next;
- 			}
-@@ -979,7 +978,6 @@
+-/* Use the irq resource table instead of dev->irq */
+-#define FL_IRQRESOURCE		0x0080
++/* do not assign an irq */
++#define FL_NOIRQ		0x0080
  
- 			while (next != NULL) {
- 				rc = cpqhp_configure_board(ctrl, next);
+ /* Use the Base address register size to cap number of ports */
+ #define FL_REGION_SZ_CAP	0x0100
+@@ -850,17 +842,10 @@
+ static _INLINE_ int
+ get_pci_irq(struct pci_dev *dev, struct pci_board *board, int idx)
+ {
+-	int base_idx;
 -
- 				if (rc)
- 					return rc;
- 
-@@ -1076,9 +1074,8 @@
- 
- 			while (next != NULL) {
- 				rc = cpqhp_valid_replace(ctrl, next);
+-	if ((board->flags & FL_IRQRESOURCE) == 0)
+-		return dev->irq;
 -
- 				if (rc)
--					return(rc);
-+					return rc;
- 
- 				next = next->next;
- 			}
-@@ -1144,7 +1141,7 @@
- 	}
- 
- 
--	return(0);
-+	return 0;
+-	base_idx = FL_GET_IRQBASE(board->flags);
+-
+-	if (base_idx > DEVICE_COUNT_IRQ)
++	if (board->flags & FL_NOIRQ)
+ 		return 0;
+-	
+-	return dev->irq_resource[base_idx].start;
++	else
++		return dev->irq;
  }
  
+ /*
+@@ -1314,7 +1299,7 @@
+ 		.first_offset	= 0x10000,
+ 	},
+ 	[pbn_sgi_ioc3] = {
+-		.flags		= FL_BASE0|FL_IRQRESOURCE,
++		.flags		= FL_BASE0|FL_NOIRQ,
+ 		.num_ports	= 1,
+ 		.base_baud	= 458333,
+ 		.uart_offset	= 8,
+diff -Nru a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h	Mon Feb  9 14:59:44 2004
++++ b/include/linux/pci.h	Mon Feb  9 14:59:44 2004
+@@ -416,8 +416,6 @@
+ 	 */
+ 	unsigned int	irq;
+ 	struct resource resource[DEVICE_COUNT_RESOURCE]; /* I/O and memory regions + expansion ROMs */
+-	struct resource dma_resource[DEVICE_COUNT_DMA];
+-	struct resource irq_resource[DEVICE_COUNT_IRQ];
  
-@@ -1229,9 +1226,8 @@
- 	i = readb(rom_resource_table + NUMBER_OF_ENTRIES);
- 	dbg("number_of_entries = %d\n", i);
- 
--	if (!readb(one_slot + SECONDARY_BUS)) {
--		return(1);
--	}
-+	if (!readb(one_slot + SECONDARY_BUS))
-+		return 1;
- 
- 	dbg("dev|IO base|length|Mem base|length|Pre base|length|PB SB MB\n");
- 
-@@ -1391,7 +1387,7 @@
- 	rc &= cpqhp_resource_sort_and_combine(&(ctrl->io_head));
- 	rc &= cpqhp_resource_sort_and_combine(&(ctrl->bus_head));
- 
--	return(rc);
-+	return rc;
- }
- 
- 
-@@ -1411,7 +1407,7 @@
- 	dbg("%s\n", __FUNCTION__);
- 
- 	if (!func)
--		return(1);
-+		return 1;
- 
- 	node = func->io_head;
- 	func->io_head = NULL;
-@@ -1450,7 +1446,7 @@
- 	rc |= cpqhp_resource_sort_and_combine(&(resources->io_head));
- 	rc |= cpqhp_resource_sort_and_combine(&(resources->bus_head));
- 
--	return(rc);
-+	return rc;
- }
- 
+ 	char *		slot_name;	/* pointer to dev.bus_id */
  
 

@@ -1,37 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277405AbRJJVUC>; Wed, 10 Oct 2001 17:20:02 -0400
+	id <S277369AbRJJVWw>; Wed, 10 Oct 2001 17:22:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277369AbRJJVTw>; Wed, 10 Oct 2001 17:19:52 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23564 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277127AbRJJVTl>; Wed, 10 Oct 2001 17:19:41 -0400
-Subject: Re: Dilemma: Replace Escalade with Adaptec 2400A or Promise Super
-To: Deanna_Bonds@adaptec.com (Bonds, Deanna)
-Date: Wed, 10 Oct 2001 22:25:43 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'), jkniiv@hushmail.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <F4C5F64C4EBBD51198AD009027D61DB31C813E@otcexc01.otc.adaptec.com> from "Bonds, Deanna" at Oct 10, 2001 01:43:13 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15rQrH-0000oX-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S277127AbRJJVWm>; Wed, 10 Oct 2001 17:22:42 -0400
+Received: from a29102.upc-a.chello.nl ([62.163.29.102]:18569 "EHLO
+	nerys.ehv.lx") by vger.kernel.org with ESMTP id <S276075AbRJJVWb>;
+	Wed, 10 Oct 2001 17:22:31 -0400
+Date: Wed, 10 Oct 2001 23:22:59 +0200
+Message-Id: <200110102122.f9ALMx424058@nerys.ehv.lx>
+From: Rudi Sluijtman <rudi@sluijtman.com>
+To: linux-kernel@vger.kernel.org
+X-Mailer: GNU Emacs 20.7.1
+Subject: [patch] .version, newversion in Makefile
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The DPT/Adaptec doesn't use this so Im not sure what
-> > its monitoring setup is
-> 
-> We have monitoring/management tools available from http://linux.adaptec.com
-> .  It is the dptapps package.  They are not open source but they are tested
-> and released for various distributions of Linux.
+Hi, 
 
-Question: What is involved in persuading ADaPTec to provide at least enough
-information for the basic monitoring facilities - so that either the kenrel
-or open source tools can be written to log errors, triggere rebuilds etc
-from the command line ?
+Due to a change in the main Makefile the .version file is overwritten
+by a new empty one since at least 2.4.10-pre12, so the version becomes
+or remains 1 after each recompile.
 
-Alan
+>From the xfs cvs tree (http://oss.sgi.com/cgi-bin/cvsweb.cgi/linux-2.4-xfs/):
+
+> --- linux-2.4-xfs/linux/Makefile        2001/09/17 02:09:52     1.123
+> +++ linux-2.4-xfs/linux/Makefile        2001/09/21 16:28:50     1.124
+> @@ -1,7 +1,7 @@
+>  VERSION = 2
+>  PATCHLEVEL = 4
+>  SUBLEVEL = 10
+> -EXTRAVERSION =-pre10-xfs
+> +EXTRAVERSION =-pre12-xfs
+>   .
+>   .
+>  newversion:
+> -       @if [ ! -f .version ]; then \
+> -               echo 1 > .version; \
+> -       else \
+> -               expr 0`cat .version` + 1 > .version; \
+> -       fi
+> +       . scripts/mkversion > .version
+
+The script does the same as the lines in the Makefile, except that it does
+not specify stdout.
+
+The script cats .version, but, this has just been overwritten because of
+the redirection: "scripts/mkversion > .version", so it is empty before
+the script can read it.
+
+I do no know why the lines in the Makefile have been moved to a script,
+but this is obviously not the way to do it.
+
+A small change to mkversion and leaving out the "> .version" in the
+Makefile for instance can do the trick:
+
+A patch for this against linux-2.4.11:
+
+diff -u --recursive --new-file linux-2.4.11/Makefile linux/Makefile
+--- linux-2.4.11/Makefile	Wed Oct 10 22:59:03 2001
++++ linux/Makefile	Wed Oct 10 23:01:58 2001
+@@ -300,7 +300,7 @@
+ $(TOPDIR)/include/linux/compile.h: include/linux/compile.h
+ 
+ newversion:
+-	. scripts/mkversion > .version
++	. scripts/mkversion
+ 
+ include/linux/compile.h: $(CONFIGURATION) include/linux/version.h newversion
+ 	@echo -n \#define UTS_VERSION \"\#`cat .version` > .ver
+@@ -530,6 +530,6 @@
+ 	tar -cvz --exclude CVS -f $(KERNELPATH).tar.gz $(KERNELPATH)/. ; \
+ 	rm $(KERNELPATH) ; \
+ 	cd $(TOPDIR) ; \
+-	. scripts/mkversion > .version ; \
++	. scripts/mkversion ; \
+ 	rpm -ta $(TOPDIR)/../$(KERNELPATH).tar.gz ; \
+ 	rm $(TOPDIR)/../$(KERNELPATH).tar.gz
+diff -u --recursive --new-file linux-2.4.11/scripts/mkversion linux/scripts/mkversion
+--- linux-2.4.11/scripts/mkversion	Wed Oct 10 22:59:34 2001
++++ linux/scripts/mkversion	Wed Oct 10 23:03:30 2001
+@@ -1,6 +1,6 @@
+ if [ ! -f .version ]
+ then
+-    echo 1
++    echo 1 > .version
+ else
+-    expr 0`cat .version` + 1
++    expr 0`cat .version` + 1 > .version
+ fi
 

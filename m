@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267798AbTGHWgu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 18:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265426AbTGHWgt
+	id S267884AbTGHWpg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 18:45:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267886AbTGHWpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 18:36:49 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:36756 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S267798AbTGHWep (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 18:34:45 -0400
-Date: Wed, 9 Jul 2003 00:41:47 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: dahinds@users.sourceforge.net, kernel list <linux-kernel@vger.kernel.org>,
+	Tue, 8 Jul 2003 18:45:36 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:49675 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267884AbTGHWpZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 18:45:25 -0400
+Date: Tue, 8 Jul 2003 23:59:58 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Pavel Machek <pavel@suse.cz>
+cc: vojtech@suse.cz,
        Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>
-Subject: Fix suspend/resume with yenta
-Message-ID: <20030708224146.GA140@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	<trivial@rustcorp.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Small cleanups for input
+In-Reply-To: <20030624101017.GD159@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0307082359160.32323-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-This fixes suspend/resume with yenta active. Please apply,
+This needs to be migrated to the new power management code.
 
-(it is trivial after you look at pcmcia_socket_dev_suspend ;-).
+> ===================================================================
+> --- linux.orig/drivers/input/power.c	2003-06-24 11:54:39.000000000 +0200
+> +++ linux/drivers/input/power.c	2003-04-18 16:19:02.000000000 +0200
+> @@ -45,9 +45,7 @@
+>  static int suspend_button_pushed = 0;
+>  static void suspend_button_task_handler(void *data)
+>  {
+> -        //extern void pm_do_suspend(void);
+>          udelay(200); /* debounce */
+> -        //pm_do_suspend();
+>          suspend_button_pushed = 0;
+>  }
+>  
+> @@ -67,8 +65,6 @@
+>  			case KEY_SUSPEND:
+>  				printk("Powering down entire device\n");
+>  
+> -				//pm_send_all(PM_SUSPEND, dev);
+> -
+>  				if (!suspend_button_pushed) {
+>                  			suspend_button_pushed = 1;
+>                          		schedule_work(&suspend_button_task);
+> 
+> 
 
-							Pavel
-
---- clean/drivers/pcmcia/yenta_socket.c	2003-07-06 20:07:39.000000000 +0200
-+++ linux/drivers/pcmcia/yenta_socket.c	2003-07-09 00:30:21.000000000 +0200
-@@ -899,7 +899,10 @@
- 
- static int yenta_dev_suspend (struct pci_dev *dev, u32 state)
- {
--	return pcmcia_socket_dev_suspend(&dev->dev, state, 0);
-+	/* FIXME: We should really let devices to act on *all* levels :-(.
-+	   If you put something else than SUSPEND_SAVE_STATE,
-+	   pcmcia_socket_dev_suspend() will simply do nothing due to its check. */
-+	return pcmcia_socket_dev_suspend(&dev->dev, state, SUSPEND_SAVE_STATE);
- }
- 
- 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

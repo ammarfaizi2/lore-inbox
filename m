@@ -1,51 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292579AbSB0Trr>; Wed, 27 Feb 2002 14:47:47 -0500
+	id <S292902AbSB0TwA>; Wed, 27 Feb 2002 14:52:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292832AbSB0TrM>; Wed, 27 Feb 2002 14:47:12 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22795 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292914AbSB0Tql>;
-	Wed, 27 Feb 2002 14:46:41 -0500
-Message-ID: <3C7D374B.4621F9BA@zip.com.au>
-Date: Wed, 27 Feb 2002 11:45:15 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
-X-Accept-Language: en
+	id <S292881AbSB0Tv3>; Wed, 27 Feb 2002 14:51:29 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59919 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292832AbSB0TuC>; Wed, 27 Feb 2002 14:50:02 -0500
+Subject: Re: Dual P4 Xeon i860 system - lockups in 2.4 & no boot in 2.2
+To: texas@ludd.luth.se (texas)
+Date: Wed, 27 Feb 2002 20:04:51 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSU.4.33.0202272021090.23682-100000@father.ludd.luth.se> from "texas" at Feb 27, 2002 08:29:21 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-CC: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net, viro@math.psu.edu
-Subject: Re: [Lse-tech] lockmeter results comparing 2.4.17, 2.5.3, and 2.5.5
-In-Reply-To: <10460000.1014833979@w-hlinder.des>,
-		<10460000.1014833979@w-hlinder.des> <67850000.1014834875@flay>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16gAJn-0005fo-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" wrote:
-> 
-> ...
-> looks a little distressing - the hold times on inode_lock by prune_icache
-> look bad in terms of latency (contention is still low, but people are still
-> waiting on it for a very long time). Is this a transient thing, or do people
-> think this is going to be a problem?
+> However, while booting 2.2.20, the following messages appear:
 
-inode_lock hold times are a problem for other reasons.  Leaving this
-unfixed makes the preepmtible kernel rather pointless....  An ideal
-fix would be to release inodes based on VM pressure against their backing
-page.  But I don't think anyone's started looking at inode_lock yet.
+Make sure you have all the pnp os settings disabled in the bios - the 
+below looks awfully like the IRQ routing wasnt set up by the bios
 
-The big one is lru_list_lock, of course.  I'll be releasing code in
-the next couple of days which should take that off the map.  Testing
-would be appreciated.
+> failure to boot issue in 2.2 can be related to the random lockups in 2.4,
+> could that be the case?
 
-I have a concern about the lockmeter results.  Lockmeter appears
-to be measuring lock frequency and hold times and contention.  But
-is it measuring the cost of the cacheline transfers?   For example,
-I expect that with delayed allocation and radix-tree pagecache, one
-of the major remaining bottlenecks will be ownership of the superblock
-semaphore's cacheline.   Is this measurable?  (Actually, we may
-then be at the point where copy_from_user costs dominate).
+Who knows. "Random lockup" you can start at the power supply and work right
+through the software - without any more info its very hard to debug
 
--
+> Feb 27 18:33:22 db2 kernel: hm, page 000f5000 reserved twice.
+> Feb 27 18:33:22 db2 kernel: hm, page 000f6000 reserved twice.
+> Feb 27 18:33:22 db2 kernel: hm, page 000f1000 reserved twice.
+> Feb 27 18:33:22 db2 kernel: hm, page 000f2000 reserved twice.
+
+These are OK
+
+> Feb 27 18:33:22 db2 kernel: OEM ID: OEM00000 Product ID: PROD00000000 APIC
+> at: 0xFEE00000
+
+Your BIOS vendor didn't even fill in the MP1.1 table with their info - 
+confidence level in BIOS _zero_
+
+> Feb 27 18:33:22 db2 kernel: Processor #0 Unknown CPU [15:2] APIC version
+> 17
+
+Curious but should be harmless
+
+> Feb 27 18:33:22 db2 kernel: WARNING: No sibling found for CPU 0.
+> Feb 27 18:33:22 db2 kernel: WARNING: No sibling found for CPU 1.
+
+HT but not hyperthreading activated in the kernel (acpismp=force). Again
+harmless just might be costing performance if your box is HT capable
+
+> What looks weird here to my untrained eyes are the "Unknown bridge
+> resource" messages and that my harddisks run on UDMA33 (the MPS v1.1
+> instead of 1.4 is due to running the BIOS in "failsafe" mode - nothing
+> that fixed the lockups though).
+
+The unknown resource should be fine. The UDMA33 may well be because the
+ide code in the base tree isnt up on i860 hardware yet.
+
+Starting points I'd suggest:
+	=	Try a non highmem kernel
+	=	See if a single CPU kernel is reliable
+		If it is consider swapping the cpus over and retesting
+		(might point to software or hardware)
+	=	Ensure your ventilation is fine and your PSU is approved
+		and to spec for the system
+
+You might want to run a memory test but thats normally seen as random
+corruption/oopses not a hang and if you have ECC ram life should be fine

@@ -1,39 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVDDKui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVDDKwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbVDDKui (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 06:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVDDKuh
+	id S261219AbVDDKwe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 06:52:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVDDKwd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 06:50:37 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24034 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261215AbVDDKuc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 06:50:32 -0400
-Date: Mon, 4 Apr 2005 11:50:29 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Isn't there race issue during fput() and the dentry_open()?
-Message-ID: <20050404105029.GY8859@parcelfarce.linux.theplanet.co.uk>
-References: <BF571719A4041A478005EF3F08EA6DF0D963B0@pcsmail03.pcs.pc.ome.toshiba.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BF571719A4041A478005EF3F08EA6DF0D963B0@pcsmail03.pcs.pc.ome.toshiba.co.jp>
-User-Agent: Mutt/1.4.1i
+	Mon, 4 Apr 2005 06:52:33 -0400
+Received: from mp1-smtp-3.eutelia.it ([62.94.10.163]:33977 "EHLO
+	smtp.eutelia.it") by vger.kernel.org with ESMTP id S261217AbVDDKv2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 06:51:28 -0400
+Message-ID: <42511C2E.1010104@eutelia.it>
+Date: Mon, 04 Apr 2005 12:51:26 +0200
+From: Sergio Chiesa <sergio.chiesa@eutelia.it>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Is there anybody there?
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 04, 2005 at 08:42:30AM +0900, Tomita, Haruo wrote:
-> Indeed, Is there a good method of debugging this issue?
-> In the check on the source, a doubtful place was not found except file_kill(). 
+What about my last post about broadcom ethernet and megaraid irq issue on 
+v2.4.29 ?
 
-The obvious way would be to add a variable and do something like
-#define file_list_lock() \
-	do { \
-		spin_lock(&files_lock); \
-		holder_pid = pid; \
-	} while(0)
-and add a way to check its value (anything - sysrq, whatever).
-
-That assumes that you can reproduce that deadlock at will, obviously...
+Ciao,
+Sergioc.

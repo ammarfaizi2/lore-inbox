@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265394AbRGBSgL>; Mon, 2 Jul 2001 14:36:11 -0400
+	id <S266323AbRGCBQv>; Mon, 2 Jul 2001 21:16:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265395AbRGBSgB>; Mon, 2 Jul 2001 14:36:01 -0400
-Received: from denise.shiny.it ([194.20.232.1]:47776 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id <S265394AbRGBSf4>;
-	Mon, 2 Jul 2001 14:35:56 -0400
-Message-ID: <3B3DEA3D.251CB340@denise.shiny.it>
-Date: Sat, 30 Jun 2001 17:03:25 +0200
-From: Giuliano Pochini <pochini@denise.shiny.it>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3 ppc)
-X-Accept-Language: en
+	id <S266187AbRGCBQl>; Mon, 2 Jul 2001 21:16:41 -0400
+Received: from spiral.extreme.ro ([212.93.159.205]:22935 "HELO
+	spiral.extreme.ro") by vger.kernel.org with SMTP id <S266185AbRGCBQ1>;
+	Mon, 2 Jul 2001 21:16:27 -0400
+Date: Sun, 1 Jul 2001 01:54:05 +0300 (EEST)
+From: Dan Podeanu <pdan@spiral.extreme.ro>
+To: Rudolf Polzer <rpolzer@durchnull.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: drivers/char/vt.c allows virtually locking up nonnetworked
+ machine
+In-Reply-To: <20010630231040.A3501@www42.durchnull.de>
+Message-ID: <Pine.LNX.4.33L2.0107010148170.28941-100000@spiral.extreme.ro>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: SCSI I/O error
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 30 Jun 2001, Rudolf Polzer wrote:
 
->From my logs:
+> There is a problem concerning chvt. A normal user can run a
+>
+> bash$ while [ 1 ]; do chvt 11; done
+>
+> which cannot be killed using the console (only remotely, virtually never
+> on a nonnetworked multiuser machine). So I changed the kernel source code
+> so that only the superuser may change terminals.
+Ok, lemme see if I got this right. What exactly do you mean by 'a normal
+user' or a 'nonnetworked machine'. If the machine is non-networked, then
+it must be sort of single user. Oh yea, and if someone logs on from your
+console, smack them and don't patch the kernel.
 
-Jun 29 14:19:56 Jay kernel: SCSI disk error : host 1 channel 0 id 5 lun 0
-return code = 8000002
-Jun 29 14:19:56 Jay kernel: Current sd08:11: sense key Recovered Error
-Jun 29 14:19:56 Jay kernel: Additional sense indicates Recovered data with
-error correction applied
-Jun 29 14:19:56 Jay kernel:  I/O error: dev 08:11, sector 480940
-Jun 29 14:19:56 Jay kernel: Incorrect number of segments after building list
+Oh yeah, I can imagine a few situations in which this would be necessary.
+But if someone you don't trust logs on from your (non-networked) console
+and has time to play with it, you're screwed anyway.
 
-I programmed the disk to report recovered errors too, and the
-log shows one of these. The user-level tool exited with an
-I/O error.
-The last line comes from drivers/scsi/scsi_merge.c:__init_io()
-and I thing there is a bug in the SCSI error handling code.
-I have an Adaptec card.
+Dan.
 
-[Linux version 2.4.6-pre3]
-
-Bye.
 

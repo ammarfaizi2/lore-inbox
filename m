@@ -1,83 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278788AbRJ3IFo>; Tue, 30 Oct 2001 03:05:44 -0500
+	id <S272549AbRJ3IPE>; Tue, 30 Oct 2001 03:15:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276032AbRJ3IFe>; Tue, 30 Oct 2001 03:05:34 -0500
-Received: from femail40.sdc1.sfba.home.com ([24.254.60.34]:14730 "EHLO
-	femail40.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S278788AbRJ3IFV>; Tue, 30 Oct 2001 03:05:21 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-Organization: Boundaries Unlimited
-To: Josh Hansen <joshhansen@byu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Ease of hardware configuration
-Date: Mon, 29 Oct 2001 22:27:07 -0400
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01KA2VPVO4QI9JEBL9@EMAIL1.BYU.EDU>
-In-Reply-To: <01KA2VPVO4QI9JEBL9@EMAIL1.BYU.EDU>
-MIME-Version: 1.0
-Message-Id: <0110292127070I.05062@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S276032AbRJ3IOz>; Tue, 30 Oct 2001 03:14:55 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:56607 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S272549AbRJ3IOs>; Tue, 30 Oct 2001 03:14:48 -0500
+Date: Tue, 30 Oct 2001 10:15:08 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Neale Banks <neale@lowendale.com.au>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Nasty suprise with uptime
+Message-ID: <20011030101507.G1598@niksula.cs.hut.fi>
+In-Reply-To: <E15yJD1-0003uO-00@the-village.bc.nu> <Pine.LNX.4.05.10110301839250.23080-100000@marina.lowendale.com.au> <20011029234615.A14476@mikef-linux.matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011029234615.A14476@mikef-linux.matchmail.com>; from mfedyk@matchmail.com on Mon, Oct 29, 2001 at 11:46:15PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 29 October 2001 18:27, Josh Hansen wrote:
+On Mon, Oct 29, 2001 at 11:46:15PM -0800, you [Mike Fedyk] claimed:
+> On Tue, Oct 30, 2001 at 06:46:03PM +1100, Neale Banks wrote:
+> >
+> > You mean there was a time when uptime>496days would crash a system?
+> > 
+> > If so, approximtely when did that get fixed?
+> > 
+> > (I'm thinking back to an as yet unexplained crash of a 2.0.38 system at
+> > ~496days uptime :-( )
+> 
+> AFAIK, the system didn't crash, but the uptime counter went down to zero.
 
-> 	A working name for this utility and kernel message system could be "Linux
-> Kernel Device Configurator".
+Oh yes, sometimes 2.0 kernel would crash at 497.1 days¹. I guess it depends
+on what you were doing at the time and what drivers and options you were
+using. I think most of the jiffies wraparound bugs were cleaned at the
+2.1.x time (so I have been told.)
 
-Or, on redhat, you could call it "kudzu".  (Type "man kudzu".)  I first 
-noticed it in the boot sequence during...  6.2?  Might have been there 
-earlier...
+(I've experienced one such crash, I'm not sure whether it was 2.0.36 or
+2.0.38.)
 
-Now true hotplug is a seperate issue.  Kudzu runs at boot time (or when you 
-type it in from the command line) and detects network cards and mice and 
-stuff.  You can't hotplug PCI.  (Well, you can, but not if you expect it to 
-WORK.  Or if you don't want to replace burned out pieces of hardware.)  
-Generally, for hotpluggable bus types, we have a daemon.  There's one for 
-pcmcia/cardbus devices, for example.  I'm guessing there's something for USB 
-(I don't use it).  All of this is sort of getting not-exactly integrated into 
-devfs, which also has a userspace daemon and does automatic device detection.
 
-Auto-detecting oddball peripherals connected to serial and paralell ports 
-(mice and printers) is a problem for things like XFree86 or the print spooler 
-that actually uses them.  (And if you run kudzu it'll get those too, it just 
-doesn't know WHEN to run because they don't generate a hotplug interrupt when 
-they get changed.)  Again, a user space issue. 
+-- v --
 
-As for downloading fresh drivers newer than your distribution (ala debian's 
-apt-get), that's tangled up in binary compatability issues between module 
-versions.  Installing modules for just about every single supported driver 
-takes up...  ("du /lib/modules/2.4.2-2"...) 22 megabytes.  I have PDF files 
-larger than that.  (If you want to start a binary module compatability 
-flamewar, feel free, but it's an ooooooooold issue steeped in politics.)
+v@iki.fi
 
-As for replacing the entire kernel without the user prompting...  That's just 
-plain dangerous.  (Especially aimed at users who dunno what to do when things 
-go wrong.  And I'm not just talking about 2.4.11...)
-
-> 	I expect that there will be many technical or other objections to such a
-> system.
-
-Such as the fact it's pretty much already been implemented by distribution 
-vendors, and is not really a kernel issue at all but a user space issue?
-
- I also expect to get ripped apart by at least a few hackers out
-> there. However, that's great! I want input. I think this or a similar
-> mechanism could really increase the ease of use for the "average user" and
-> his nephew's godmother's granddaughter's roommate's dog, etc., etc.
-
-Have you tried Red Hat 7.2, with the KDE desktop?  My cat HAS tried to use 
-it.  (Sphynx sent an email I wasn't finished typing.  Sat right in my lap, 
-reached out and pressed the mouse button.  Kind of impolite, I thought.  Then 
-again she's a lap cat, which means my laptop and her body compete for the 
-same ecological niche...)
-
-> 	Thank you!
-> 	- Josh Hansen
-
-There's an old saying on usenet.  If you want answers, don't ask questions.  
-Post errors.  It works for me.
-
-Rob
+¹) it is 497.10 days or 2^32 seconds, not 496 days.

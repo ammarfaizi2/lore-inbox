@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261578AbSKCD2y>; Sat, 2 Nov 2002 22:28:54 -0500
+	id <S261576AbSKCD0J>; Sat, 2 Nov 2002 22:26:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261579AbSKCD2y>; Sat, 2 Nov 2002 22:28:54 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2571 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261578AbSKCD2x>; Sat, 2 Nov 2002 22:28:53 -0500
-Date: Sat, 2 Nov 2002 19:35:25 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
-       <davej@suse.de>
-Subject: Re: Filesystem Capabilities in 2.6?
-In-Reply-To: <Pine.LNX.4.44.0211021922280.2354-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0211021925230.2382-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261578AbSKCD0J>; Sat, 2 Nov 2002 22:26:09 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:24580 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261576AbSKCD0I>; Sat, 2 Nov 2002 22:26:08 -0500
+Date: Sun, 3 Nov 2002 03:32:38 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: =?iso-8859-1?Q?J=2EA=2E_Magall=F3n?= <jamagallon@able.es>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Kernel GUI config
+Message-ID: <20021103033238.A11874@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	=?iso-8859-1?Q?J=2EA=2E_Magall=F3n?= <jamagallon@able.es>,
+	Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <20021102231435.GA2384@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021102231435.GA2384@werewolf.able.es>; from jamagallon@able.es on Sun, Nov 03, 2002 at 12:14:35AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 2 Nov 2002, Linus Torvalds wrote:
-
+On Sun, Nov 03, 2002 at 12:14:35AM +0100, J.A. Magallón wrote:
+> Hi all...
 > 
-> On Sat, 2 Nov 2002, Alexander Viro wrote:
-> >
-> > 	<shrug> that can be done without doing anything to filesystem.
-> > Namely, turn current "nosuid" of vfsmount into a mask of capabilities.
-> > Then use bindings instead of links.
+> I have readl all the comments about qconfig, gconfig, etc..., and I wanto to
+> comment about an idea that perhaps can make everybody happy...
 > 
-> I like that idea. It's very explicit, and clearly name-based, and we do
-> have 99% of the support for it already.
+> I don't like qt. As many others. Others do not like GTK. QT requires a C++
+> compiler to configure the kernel. Everybody agrees on putting the gui config
+> tool outside the tree. So...
+> 
+> - Make a new target called 'guiconfig'. This is neutral, and just should call
+>   an utility called for example kconfig-gui.
 
-It occurs to me that we actually do have the "extended symlink" concept in
-UNIX already: the existing "#!" escape for executables is really exactly
-that. It's just a structured symlink, except the extension is not a
-capability, but rather it's the script to be fed to the executable.
-
-With a simple extended binfmt_misc.c or binfmt_script.c, we could do a
-capability escape (that only removes capabilities, but allows for suid
-shells) fairly easily if people really want it. And it would work on any
-almost-UNIXy filesystem, including NFS etc.
-
-But I like Al's idea of mount binds even more, although it requires maybe
-a bit more administration.
-
-		Linus
+Why do you need a target?  Just install your preferred tool into /usr/bin
+and invoke it directly from there.
 

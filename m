@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbUK0W0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbUK0W32@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbUK0W0s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 17:26:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbUK0W0s
+	id S261354AbUK0W32 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 17:29:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbUK0W32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 17:26:48 -0500
-Received: from gprs214-171.eurotel.cz ([160.218.214.171]:62593 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261352AbUK0WZt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 17:25:49 -0500
-Date: Sat, 27 Nov 2004 23:25:35 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: linux@horizon.com
+	Sat, 27 Nov 2004 17:29:28 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:48600 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261374AbUK0W3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 17:29:21 -0500
+Subject: Re: ethernet Via-rhine driver 1.1.17 duplex detection issue in
+	linux kernel 2.4.25
+From: Lee Revell <rlrevell@joe-job.com>
+To: Wenping Luo <wluo@fortinet.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Suspend 2 merge
-Message-ID: <20041127222535.GA1445@elf.ucw.cz>
-References: <20041127220752.16491.qmail@science.horizon.com>
+In-Reply-To: <011801c4d270$cca65740$0101140a@fortinet.com>
+References: <011801c4d270$cca65740$0101140a@fortinet.com>
+Content-Type: text/plain
+Date: Sat, 27 Nov 2004 17:29:18 -0500
+Message-Id: <1101594559.15635.20.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041127220752.16491.qmail@science.horizon.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > My machine suspends in 7 seconds, and that's swsusp1. According to
-> > your numbers, suspend2 should suspend it in 1 second and LZE
-> > compressed should be .5 second.
-> > 
-> > I'd say "who cares". 7 seconds seems like fast enough for me.  And I'm
-> > *not* going to add 2000 lines of code for 500msec speedup during
-> > suspend.
+On Wed, 2004-11-24 at 13:58 -0800, Wenping Luo wrote:
+> I used crossed ethernet cable to connect one ethernet NIC to a Via Rhine III
+> VT6105M NIC. I set the speed mode of Rhine Nic to be "auto" whereas I forced
+> the peer NIC to be "100 Full Duplex". The Rhine NIC connected in mode of
+> "100 Half Duplex" , instead of "100 Full Duplex", after detecting the peer.
 > 
-> Lucky you.  My machine takes minutes.
-> (To be precise, it prints about a line and a half of dots in the
-> count_data_pages() loop, and often takes 2 seconds per dot.)
+> I searched the Internet and I found another reported for similiar issue at
+> http://lunar-linux.org/pipermail/lunar/2004-April/003894.html. However,
+> there is no answer for this issue yet.
 > 
-> AMD Athlon XP, 1066 MHz, 768K RAM, VIA KT133 chipset.
-> Stock 2.6.10-rc1.
-> 
-> I could really use a speedup.
 
-Yep, that's O(n^2) algorithm slowing it down. I have fix for it, but
-2.6.10 is now too frozen for performance fix to go in. See "bigdiff" I
-sent to hugang, or wait few minutes and you'll get really ugly diff in
-private email, that should solve it, too.
+Duplex detection is tricky, especially when one side is forced.  You
+will get inconsistent results with all types of hardware.  Maybe this is
+an unclear area in the Ethernet spec.  When I worked at a telco we had
+this problem with Cisco gear, BSD/OS, Linux, Windows...  We just made
+sure everything was either forced on both sides or auto everywhere.
 
-[I'll be glad when you report results. It should make count_data_pages
-< 1 second].
+Lee
 
-> if nothing else.  But complaining that it doesn't annoy *you* isn't the
-> most valid argument.
-
-Ok, it is the scale. Half a second speedup is not enough to justify
-new compression algorithm in the kernel.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,95 +1,236 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271165AbRH3B3q>; Wed, 29 Aug 2001 21:29:46 -0400
+	id <S271182AbRH3BxO>; Wed, 29 Aug 2001 21:53:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271182AbRH3B3g>; Wed, 29 Aug 2001 21:29:36 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:55558 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S271165AbRH3B3Z>; Wed, 29 Aug 2001 21:29:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: page_launder() on 2.4.9/10 issue
-Date: Thu, 30 Aug 2001 03:36:25 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0108281110540.8754-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0108281110540.8754-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010830012939Z16206-32383+2366@humbolt.nl.linux.org>
+	id <S271200AbRH3BxE>; Wed, 29 Aug 2001 21:53:04 -0400
+Received: from mailhost.nmt.edu ([129.138.4.52]:21519 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S271182AbRH3Bwp>;
+	Wed, 29 Aug 2001 21:52:45 -0400
+Date: Wed, 29 Aug 2001 19:53:02 -0600
+From: Val Henson <val@nmt.edu>
+To: "David S. Miller" <davem@redhat.com>
+Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+Subject: Re: tcp connection hangs on connect
+Message-ID: <20010829195259.B11544@boardwalk>
+In-Reply-To: <20010828171705.F890@boardwalk> <20010829082405.A5966@cubit.at> <20010829182040.C10934@boardwalk> <20010829.175537.23011867.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010829.175537.23011867.davem@redhat.com>; from davem@redhat.com on Wed, Aug 29, 2001 at 05:55:37PM -0700
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 28, 2001 08:17 pm, Linus Torvalds wrote:
-> On Tue, 28 Aug 2001, Daniel Phillips wrote:
-> > On August 28, 2001 05:36 am, Marcelo Tosatti wrote:
-> > > Linus,
-> > >
-> > > I just noticed that the new page_launder() logic has a big bad problem.
-> > >
-> > > The window to find and free previously written out pages by 
-> > > page_launder() is the amount of writeable pages on the inactive dirty 
-> > > list.
-> 
-> No.
-> 
-> There is no "window". The page_launder() logic is very clear - it will
-> write out any dirty pages that it finds that are "old".
-> 
-> > > We'll keep writing out dirty pages (as long as they are available) even 
-> > > if have a ton of cleaned pages: its just that we don't see them because 
-> > > we scan a small piece of the inactive dirty list each time.
-> 
-> So? We need to write them out at some point anyway. Isn't it much better
-> to be graceful about it, and allow the writeout to happen in the
-> background. The way things _used_ to work, we'd delay the write-out until
-> we REALLY had to, which is great for dbench, but is really horrible for
-> any normal load.
+On Wed, Aug 29, 2001 at 05:55:37PM -0700, David S. Miller wrote:
+>    
+> Without full and accurate tcpdump traces, your guess is as good as
+> ours.
 
-I thought about it a lot and I had a really hard time coming up with examples 
-where starting writeout early is not the right thing to do.  Even write 
-merging takes care of itself because if the system is heaviliy loaded the 
-queue will naturally back up and create all the write merging opportunities 
-we need.  Temporary file deletion is hurt by early writeout, yes, but that is 
-really something we should be handling at the filesystem level, not the vfs. 
-(According to this theory, XFS with its delayed allocation should be a star 
-performer on dbench.)
+:) I was hoping Alexey would respond with "Oh yeah, here's that patch,
+Dave please accept it."
 
-The only case I can see where early writeout is not necessarily the best 
-policy is when we have lots of input going on at the same time.  The classic 
-example is program startup.  If there are lots of inactive/clean pages we 
-want to hold off writeout until the swap-in activity due to program start 
-winds down or eats all the inactive/clean pages.
+Full tcpdumps from both hosts are at the end of this email.
+198.17.100.42 is a 2.2.19 machine trying to scp a file from
+198.17.100.41, running 2.4.10-pre2.  Here's the interesting bit:
 
-> Think about it - do you really want the system to actively try to reach
-> the point where it has no "regular" pages left, and has to start writing
-> stuff out (and wait for them synchronously) in order to free up memory? I
-> strongly feel that the old code was really really wrong - it may have been
-> wonderful for throughput, but it had non-repeatable behaviour, and easily
-> caused the inactive_dirty list to fill up with dirty pages because it
-> unfairly penalized clean pages.
+18:23:18.980000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 16338:17786(1448) ack 1473 win 8216 <nop,nop,timestamp 18540 456453> (DF) [tos 0x8]
+18:23:19.100000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 17786 win 31856 <nop,nop,timestamp 456465 18540> (DF) [tos 0x8]
+18:23:19.100000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 19234:20682(1448) ack 1473 win 8216 <nop,nop,timestamp 18551 456465> (DF) [tos 0x8]
+18:23:19.100000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 17786 win 31856 <nop,nop,timestamp 456465 18540,nop,nop, sack 1 {19234:20682} > (DF) [tos 0x8]
 
-It was just plain wrong.  We got sucked into the trap of optimizing for
-dbench.
+Everything's fine till here, when 198.17.100.42 misses the 17787-19234
+segment.  198.17.100.41 never retransmits this segment.
 
-> [...]
-> > > With asynchronous i_dirty->i_clean movement (moving a cleaned page to
-> > > the clean list at the IO completion handler. Please don't consider that 
-> > > for 2.4 :)) this would not happen, too.
-> >
-> > Or we could have parallel lists for dirty and clean.
-> 
-> Well, more importantly, do you actually have good reason to believe that
-> it is wrong to try to write things out asynchronously?
+18:23:19.100000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: P 22130:23578(1448) ack 1473 win 8216 <nop,nop,timestamp 18551 456465> (DF) [tos 0x8]
+18:23:19.100000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 17786 win 31856 <nop,nop,timestamp 456465 18540,nop,nop, sack 2 {22130:23578}{19234:20682} > (DF) [tos 0x8]
+18:23:19.100000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 23578:25026(1448) ack 1473 win 8216 <nop,nop,timestamp 18551 456465> (DF) [tos 0x8]
+18:23:19.100000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 17786 win 31856 <nop,nop,timestamp 456465 18540,nop,nop, sack 2 {22130:25026}{19234:20682} > (DF) [tos 0x8]
 
-Asynchronous is good, but we don't want to blindly submit every dirty page as 
-soon as it arrives on the inactive_dirty list.  This will throw away 
-information about the short-term activity of pages, without which we have no 
-means of distinguishing between LFU and LRU pages.  It doesn't matter under 
-light disk load because... the load is light (duh) but under heavy load it 
-does matter.
+Long pause, eventually I kill the scp process.  Note the lack of a
+retransmit of the 17787-19234 segment.
 
---
-Daniel
+To reproduce:
+
+As the very first TCP connection after a reboot, try to scp a large
+file from the 2.4.x machine.
+
+-VAL
+
+Full tcpdump from 198.17.100.42's point of view:
+
+18:23:15.740000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: S 3061649587:3061649587(0) win 32120 <mss 1460,sackOK,timestamp 456129 0,nop,wscale 0> (DF)
+18:23:15.740000 eth0 B arp who-has 198.17.100.42 tell 198.17.100.41
+18:23:15.740000 eth0 > arp reply 198.17.100.42 (0:30:65:ba:84:e6) is-at 0:30:65:ba:84:e6 (0:80:f6:10:50:26)
+18:23:15.740000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: S 2117491474:2117491474(0) ack 3061649588 win 5792 <mss 1460,sackOK,timestamp 18215 456129,nop,wscale 0> (DF)
+18:23:15.740000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1:1(0) ack 1 win 32120 <nop,nop,timestamp 456129 18215> (DF)
+18:23:15.760000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: P 1:26(25) ack 1 win 5792 <nop,nop,timestamp 18217 456129> (DF)
+18:23:15.760000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1:1(0) ack 26 win 32120 <nop,nop,timestamp 456131 18217> (DF)
+18:23:15.760000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: P 1:25(24) ack 26 win 32120 <nop,nop,timestamp 456131 18217> (DF)
+18:23:15.760000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 26:26(0) ack 25 win 5792 <nop,nop,timestamp 18217 456131> (DF)
+18:23:15.760000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: P 26:666(640) ack 25 win 5792 <nop,nop,timestamp 18217 456131> (DF)
+18:23:15.760000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: P 25:657(632) ack 666 win 31856 <nop,nop,timestamp 456131 18217> (DF)
+18:23:15.790000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 666:666(0) ack 657 win 6952 <nop,nop,timestamp 18221 456131> (DF)
+18:23:15.790000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: P 657:673(16) ack 666 win 31856 <nop,nop,timestamp 456134 18221> (DF)
+18:23:15.790000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 666:666(0) ack 673 win 6952 <nop,nop,timestamp 18221 456134> (DF)
+18:23:15.810000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: P 666:946(280) ack 673 win 6952 <nop,nop,timestamp 18222 456134> (DF)
+18:23:15.830000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 673:673(0) ack 946 win 31856 <nop,nop,timestamp 456138 18222> (DF)
+18:23:15.910000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: P 673:945(272) ack 946 win 31856 <nop,nop,timestamp 456146 18222> (DF)
+18:23:15.940000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 946:946(0) ack 945 win 8216 <nop,nop,timestamp 18236 456146> (DF)
+18:23:16.080000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: P 946:1522(576) ack 945 win 8216 <nop,nop,timestamp 18249 456146> (DF)
+18:23:16.100000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 945:945(0) ack 1522 win 31856 <nop,nop,timestamp 456165 18249> (DF)
+18:23:16.100000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: P 1522:1538(16) ack 945 win 8216 <nop,nop,timestamp 18251 456165> (DF)
+18:23:16.120000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 945:945(0) ack 1538 win 31856 <nop,nop,timestamp 456167 18251> (DF)
+18:23:16.220000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: P 945:961(16) ack 1538 win 31856 <nop,nop,timestamp 456177 18251> (DF)
+18:23:16.220000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 1538:1538(0) ack 961 win 8216 <nop,nop,timestamp 18263 456177> (DF)
+18:23:16.220000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: P 961:1009(48) ack 1538 win 31856 <nop,nop,timestamp 456177 18263> (DF)
+18:23:16.220000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 1538:1538(0) ack 1009 win 8216 <nop,nop,timestamp 18263 456177> (DF)
+18:23:16.220000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: P 1538:1586(48) ack 1009 win 8216 <nop,nop,timestamp 18263 456177> (DF)
+18:23:16.230000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: P 1009:1073(64) ack 1586 win 31856 <nop,nop,timestamp 456178 18263> (DF)
+18:23:16.260000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: P 1586:1650(64) ack 1073 win 8216 <nop,nop,timestamp 18267 456178> (DF)
+18:23:16.280000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1073:1073(0) ack 1650 win 31856 <nop,nop,timestamp 456183 18267> (DF)
+18:23:18.320000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: P 1073:1233(160) ack 1650 win 31856 <nop,nop,timestamp 456387 18267> (DF)
+18:23:18.320000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: P 1650:1682(32) ack 1233 win 8216 <nop,nop,timestamp 18474 456387> (DF)
+18:23:18.330000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: P 1233:1297(64) ack 1682 win 31856 <nop,nop,timestamp 456388 18474> (DF)
+18:23:18.330000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: P 1682:1730(48) ack 1297 win 8216 <nop,nop,timestamp 18474 456388> (DF)
+18:23:18.330000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: P 1297:1377(80) ack 1730 win 31856 <nop,nop,timestamp 456388 18474> (DF) [tos 0x8] 
+18:23:18.330000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: P 1730:1778(48) ack 1377 win 8216 <nop,nop,timestamp 18474 456388> (DF) [tos 0x8] 
+18:23:18.330000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: P 1377:1425(48) ack 1778 win 31856 <nop,nop,timestamp 456388 18474> (DF) [tos 0x8] 
+18:23:18.370000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 1778:1778(0) ack 1425 win 8216 <nop,nop,timestamp 18479 456388> (DF) [tos 0x8] 
+18:23:18.410000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: P 1778:1858(80) ack 1425 win 8216 <nop,nop,timestamp 18483 456388> (DF) [tos 0x8] 
+18:23:18.420000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: P 1425:1473(48) ack 1858 win 31856 <nop,nop,timestamp 456397 18483> (DF) [tos 0x8] 
+18:23:18.420000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 1858:1858(0) ack 1473 win 8216 <nop,nop,timestamp 18483 456397> (DF) [tos 0x8] 
+18:23:18.430000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 1858:3306(1448) ack 1473 win 8216 <nop,nop,timestamp 18484 456397> (DF) [tos 0x8] 
+18:23:18.460000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 3306 win 31856 <nop,nop,timestamp 456401 18484> (DF) [tos 0x8] 
+18:23:18.460000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 4754:6202(1448) ack 1473 win 8216 <nop,nop,timestamp 18487 456401> (DF) [tos 0x8] 
+18:23:18.460000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 3306 win 31856 <nop,nop,timestamp 456401 18484,nop,nop, sack 1 {4754:6202} > (DF) [tos 0x8] 
+18:23:18.460000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 7650:9098(1448) ack 1473 win 8216 <nop,nop,timestamp 18487 456401> (DF) [tos 0x8] 
+18:23:18.460000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 3306 win 31856 <nop,nop,timestamp 456401 18484,nop,nop, sack 2 {7650:9098}{4754:6202} > (DF) [tos 0x8] 
+18:23:18.460000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 3306:4754(1448) ack 1473 win 8216 <nop,nop,timestamp 18487 456401> (DF) [tos 0x8] 
+18:23:18.460000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 6202 win 28960 <nop,nop,timestamp 456401 18487,nop,nop, sack 1 {7650:9098} > (DF) [tos 0x8] 
+18:23:18.660000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 6202:7650(1448) ack 1473 win 8216 <nop,nop,timestamp 18508 456401> (DF) [tos 0x8] 
+18:23:18.660000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 9098 win 30408 <nop,nop,timestamp 456421 18508> (DF) [tos 0x8] 
+18:23:18.660000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 9098:10546(1448) ack 1473 win 8216 <nop,nop,timestamp 18508 456421> (DF) [tos 0x8] 
+18:23:18.770000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 10546 win 31856 <nop,nop,timestamp 456432 18508> (DF) [tos 0x8] 
+18:23:18.770000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 11994:13442(1448) ack 1473 win 8216 <nop,nop,timestamp 18518 456432> (DF) [tos 0x8] 
+18:23:18.770000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 10546 win 31856 <nop,nop,timestamp 456432 18508,nop,nop, sack 1 {11994:13442} > (DF) [tos 0x8] 
+18:23:18.770000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: P 14890:16338(1448) ack 1473 win 8216 <nop,nop,timestamp 18518 456432> (DF) [tos 0x8] 
+18:23:18.770000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 10546 win 31856 <nop,nop,timestamp 456432 18508,nop,nop, sack 2 {14890:16338}{11994:13442} > (DF) [tos 0x8] 
+18:23:18.770000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 10546:11994(1448) ack 1473 win 8216 <nop,nop,timestamp 18518 456432> (DF) [tos 0x8] 
+18:23:18.770000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 13442 win 28960 <nop,nop,timestamp 456432 18518,nop,nop, sack 1 {14890:16338} > (DF) [tos 0x8] 
+18:23:18.980000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 13442:14890(1448) ack 1473 win 8216 <nop,nop,timestamp 18540 456432> (DF) [tos 0x8] 
+18:23:18.980000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 16338 win 30408 <nop,nop,timestamp 456453 18540> (DF) [tos 0x8] 
+18:23:18.980000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 16338:17786(1448) ack 1473 win 8216 <nop,nop,timestamp 18540 456453> (DF) [tos 0x8] 
+18:23:19.100000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 17786 win 31856 <nop,nop,timestamp 456465 18540> (DF) [tos 0x8] 
+18:23:19.100000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 19234:20682(1448) ack 1473 win 8216 <nop,nop,timestamp 18551 456465> (DF) [tos 0x8] 
+18:23:19.100000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 17786 win 31856 <nop,nop,timestamp 456465 18540,nop,nop, sack 1 {19234:20682} > (DF) [tos 0x8] 
+18:23:19.100000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: P 22130:23578(1448) ack 1473 win 8216 <nop,nop,timestamp 18551 456465> (DF) [tos 0x8] 
+18:23:19.100000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 17786 win 31856 <nop,nop,timestamp 456465 18540,nop,nop, sack 2 {22130:23578}{19234:20682} > (DF) [tos 0x8] 
+18:23:19.100000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 23578:25026(1448) ack 1473 win 8216 <nop,nop,timestamp 18551 456465> (DF) [tos 0x8] 
+18:23:19.100000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 17786 win 31856 <nop,nop,timestamp 456465 18540,nop,nop, sack 2 {22130:25026}{19234:20682} > (DF) [tos 0x8] 
+
+<long pause, eventually I kill the scp process>
+
+18:23:52.720000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: F 1473:1473(0) ack 17786 win 31856 <nop,nop,timestamp 459827 18540,nop,nop, sack 2 {22130:25026}{19234:20682} > (DF) [tos 0x8] 
+18:23:52.720000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 25026:26474(1448) ack 1474 win 8216 <nop,nop,timestamp 21913 459827> (DF) [tos 0x8] 
+18:23:52.720000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1474:1474(0) ack 17786 win 31856 <nop,nop,timestamp 459827 18540,nop,nop, sack 2 {22130:26474}{19234:20682} > (DF) [tos 0x8] 
+18:23:52.720000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 26474:27922(1448) ack 1474 win 8216 <nop,nop,timestamp 21913 459827> (DF) [tos 0x8] 
+18:23:52.720000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1474:1474(0) ack 17786 win 31856 <nop,nop,timestamp 459827 18540,nop,nop, sack 2 {22130:27922}{19234:20682} > (DF) [tos 0x8] 
+18:23:52.720000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: . 27922:29370(1448) ack 1474 win 8216 <nop,nop,timestamp 21913 459827> (DF) [tos 0x8] 
+18:23:52.720000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1474:1474(0) ack 17786 win 31856 <nop,nop,timestamp 459827 18540,nop,nop, sack 2 {22130:29370}{19234:20682} > (DF) [tos 0x8] 
+18:23:52.720000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: P 29370:30818(1448) ack 1474 win 8216 <nop,nop,timestamp 21913 459827> (DF) [tos 0x8] 
+18:23:52.720000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1474:1474(0) ack 17786 win 31856 <nop,nop,timestamp 459827 18540,nop,nop, sack 2 {22130:30818}{19234:20682} > (DF) [tos 0x8] 
+18:23:52.720000 eth0 < 198.17.100.41.ssh > 198.17.100.42.1119: F 30818:30818(0) ack 1474 win 8216 <nop,nop,timestamp 21913 459827> (DF) [tos 0x8] 
+18:23:52.720000 eth0 > 198.17.100.42.1119 > 198.17.100.41.ssh: . 1474:1474(0) ack 17786 win 31856 <nop,nop,timestamp 459827 18540,nop,nop, sack 2 {22130:30819}{19234:20682} > (DF) [tos 0x8] 
+
+Full tcpdump from 198.17.100.41's point of view:
+
+12:21:17.157458 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: S 3061649587:3061649587(0) win 32120 <mss 1460,sackOK,timestamp 456129 0,nop,wscale 0> (DF)
+12:21:17.158821 eth0 > arp who-has 198.17.100.42 tell 198.17.100.41 (0:80:f6:10:50:26)
+12:21:17.158925 eth0 < arp reply 198.17.100.42 is-at 0:30:65:ba:84:e6 (0:80:f6:10:50:26)
+12:21:17.158954 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: S 2117491474:2117491474(0) ack 3061649588 win 5792 <mss 1460,sackOK,timestamp 18215 456129,nop,wscale 0> (DF)
+12:21:17.159068 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1:1(0) ack 1 win 32120 <nop,nop,timestamp 456129 18215> (DF)
+12:21:17.173245 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: P 1:26(25) ack 1 win 5792 <nop,nop,timestamp 18217 456129> (DF)
+12:21:17.173375 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1:1(0) ack 26 win 32120 <nop,nop,timestamp 456131 18217> (DF)
+12:21:17.175290 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: P 1:25(24) ack 26 win 32120 <nop,nop,timestamp 456131 18217> (DF)
+12:21:17.175349 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 26:26(0) ack 25 win 5792 <nop,nop,timestamp 18217 456131> (DF)
+12:21:17.176001 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: P 26:666(640) ack 25 win 5792 <nop,nop,timestamp 18217 456131> (DF)
+12:21:17.176745 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: P 25:657(632) ack 666 win 31856 <nop,nop,timestamp 456131 18217> (DF)
+12:21:17.210026 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 666:666(0) ack 657 win 6952 <nop,nop,timestamp 18221 456131> (DF)
+12:21:17.210147 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: P 657:673(16) ack 666 win 31856 <nop,nop,timestamp 456134 18221> (DF)
+12:21:17.210206 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 666:666(0) ack 673 win 6952 <nop,nop,timestamp 18221 456134> (DF)
+12:21:17.226137 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: P 666:946(280) ack 673 win 6952 <nop,nop,timestamp 18222 456134> (DF)
+12:21:17.241676 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 673:673(0) ack 946 win 31856 <nop,nop,timestamp 456138 18222> (DF)
+12:21:17.329702 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: P 673:945(272) ack 946 win 31856 <nop,nop,timestamp 456146 18222> (DF)
+12:21:17.360030 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 946:946(0) ack 945 win 8216 <nop,nop,timestamp 18236 456146> (DF)
+12:21:17.497569 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: P 946:1522(576) ack 945 win 8216 <nop,nop,timestamp 18249 456146> (DF)
+12:21:17.511696 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 945:945(0) ack 1522 win 31856 <nop,nop,timestamp 456165 18249> (DF)
+12:21:17.511767 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: P 1522:1538(16) ack 945 win 8216 <nop,nop,timestamp 18251 456165> (DF)
+12:21:17.531683 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 945:945(0) ack 1538 win 31856 <nop,nop,timestamp 456167 18251> (DF)
+12:21:17.635448 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: P 945:961(16) ack 1538 win 31856 <nop,nop,timestamp 456177 18251> (DF)
+12:21:17.635498 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 1538:1538(0) ack 961 win 8216 <nop,nop,timestamp 18263 456177> (DF)
+12:21:17.639100 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: P 961:1009(48) ack 1538 win 31856 <nop,nop,timestamp 456177 18263> (DF)
+12:21:17.639160 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 1538:1538(0) ack 1009 win 8216 <nop,nop,timestamp 18263 456177> (DF)
+12:21:17.639664 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: P 1538:1586(48) ack 1009 win 8216 <nop,nop,timestamp 18263 456177> (DF)
+12:21:17.644091 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: P 1009:1073(64) ack 1586 win 31856 <nop,nop,timestamp 456178 18263> (DF)
+12:21:17.675129 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: P 1586:1650(64) ack 1073 win 8216 <nop,nop,timestamp 18267 456178> (DF)
+12:21:17.691691 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1073:1073(0) ack 1650 win 31856 <nop,nop,timestamp 456183 18267> (DF)
+12:21:19.731975 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: P 1073:1233(160) ack 1650 win 31856 <nop,nop,timestamp 456387 18267> (DF)
+12:21:19.740436 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: P 1650:1682(32) ack 1233 win 8216 <nop,nop,timestamp 18474 456387> (DF)
+12:21:19.742819 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: P 1233:1297(64) ack 1682 win 31856 <nop,nop,timestamp 456388 18474> (DF)
+12:21:19.743408 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: P 1682:1730(48) ack 1297 win 8216 <nop,nop,timestamp 18474 456388> (DF)
+12:21:19.746385 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: P 1297:1377(80) ack 1730 win 31856 <nop,nop,timestamp 456388 18474> (DF) [tos 0x8] 
+12:21:19.749056 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: P 1730:1778(48) ack 1377 win 8216 <nop,nop,timestamp 18474 456388> (DF) [tos 0x8] 
+12:21:19.751041 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: P 1377:1425(48) ack 1778 win 31856 <nop,nop,timestamp 456388 18474> (DF) [tos 0x8] 
+12:21:19.790043 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 1778:1778(0) ack 1425 win 8216 <nop,nop,timestamp 18479 456388> (DF) [tos 0x8] 
+12:21:19.831486 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: P 1778:1858(80) ack 1425 win 8216 <nop,nop,timestamp 18483 456388> (DF) [tos 0x8] 
+12:21:19.834435 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: P 1425:1473(48) ack 1858 win 31856 <nop,nop,timestamp 456397 18483> (DF) [tos 0x8] 
+12:21:19.834508 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 1858:1858(0) ack 1473 win 8216 <nop,nop,timestamp 18483 456397> (DF) [tos 0x8] 
+12:21:19.844416 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 1858:3306(1448) ack 1473 win 8216 <nop,nop,timestamp 18484 456397> (DF) [tos 0x8] 
+12:21:19.844449 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 3306:4754(1448) ack 1473 win 8216 <nop,nop,timestamp 18484 456397> (DF) [tos 0x8] 
+12:21:19.871765 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 3306 win 31856 <nop,nop,timestamp 456401 18484> (DF) [tos 0x8] 
+12:21:19.871838 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 4754:6202(1448) ack 1473 win 8216 <nop,nop,timestamp 18487 456401> (DF) [tos 0x8] 
+12:21:19.871858 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 6202:7650(1448) ack 1473 win 8216 <nop,nop,timestamp 18487 456401> (DF) [tos 0x8] 
+12:21:19.872119 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 3306 win 31856 <nop,nop,timestamp 456401 18484,nop,nop, sack 1 {4754:6202} > (DF) [tos 0x8] 
+12:21:19.872189 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 7650:9098(1448) ack 1473 win 8216 <nop,nop,timestamp 18487 456401> (DF) [tos 0x8] 
+12:21:19.872456 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 3306 win 31856 <nop,nop,timestamp 456401 18484,nop,nop, sack 2 {7650:9098}{4754:6202} > (DF) [tos 0x8] 
+12:21:19.872543 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 3306:4754(1448) ack 1473 win 8216 <nop,nop,timestamp 18487 456401> (DF) [tos 0x8] 
+12:21:19.872810 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 6202 win 28960 <nop,nop,timestamp 456401 18487,nop,nop, sack 1 {7650:9098} > (DF) [tos 0x8] 
+12:21:20.080039 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 6202:7650(1448) ack 1473 win 8216 <nop,nop,timestamp 18508 456401> (DF) [tos 0x8] 
+12:21:20.080331 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 9098 win 30408 <nop,nop,timestamp 456421 18508> (DF) [tos 0x8] 
+12:21:20.080400 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 9098:10546(1448) ack 1473 win 8216 <nop,nop,timestamp 18508 456421> (DF) [tos 0x8] 
+12:21:20.080420 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 10546:11994(1448) ack 1473 win 8216 <nop,nop,timestamp 18508 456421> (DF) [tos 0x8] 
+12:21:20.181759 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 10546 win 31856 <nop,nop,timestamp 456432 18508> (DF) [tos 0x8] 
+12:21:20.181840 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 11994:13442(1448) ack 1473 win 8216 <nop,nop,timestamp 18518 456432> (DF) [tos 0x8] 
+12:21:20.181860 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 13442:14890(1448) ack 1473 win 8216 <nop,nop,timestamp 18518 456432> (DF) [tos 0x8] 
+12:21:20.182111 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 10546 win 31856 <nop,nop,timestamp 456432 18508,nop,nop, sack 1 {11994:13442} > (DF) [tos 0x8] 
+12:21:20.182177 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: P 14890:16338(1448) ack 1473 win 8216 <nop,nop,timestamp 18518 456432> (DF) [tos 0x8] 
+12:21:20.182436 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 10546 win 31856 <nop,nop,timestamp 456432 18508,nop,nop, sack 2 {14890:16338}{11994:13442} > (DF) [tos 0x8] 
+12:21:20.182524 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 10546:11994(1448) ack 1473 win 8216 <nop,nop,timestamp 18518 456432> (DF) [tos 0x8] 
+12:21:20.182796 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 13442 win 28960 <nop,nop,timestamp 456432 18518,nop,nop, sack 1 {14890:16338} > (DF) [tos 0x8] 
+12:21:20.400039 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 13442:14890(1448) ack 1473 win 8216 <nop,nop,timestamp 18540 456432> (DF) [tos 0x8] 
+12:21:20.400326 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 16338 win 30408 <nop,nop,timestamp 456453 18540> (DF) [tos 0x8] 
+12:21:20.400394 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 16338:17786(1448) ack 1473 win 8216 <nop,nop,timestamp 18540 456453> (DF) [tos 0x8] 
+12:21:20.400414 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 17786:19234(1448) ack 1473 win 8216 <nop,nop,timestamp 18540 456453> (DF) [tos 0x8] 
+12:21:20.511768 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 17786 win 31856 <nop,nop,timestamp 456465 18540> (DF) [tos 0x8] 
+12:21:20.511847 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 19234:20682(1448) ack 1473 win 8216 <nop,nop,timestamp 18551 456465> (DF) [tos 0x8] 
+12:21:20.511865 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 20682:22130(1448) ack 1473 win 8216 <nop,nop,timestamp 18551 456465> (DF) [tos 0x8] 
+12:21:20.512118 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 17786 win 31856 <nop,nop,timestamp 456465 18540,nop,nop, sack 1 {19234:20682} > (DF) [tos 0x8] 
+12:21:20.512184 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: P 22130:23578(1448) ack 1473 win 8216 <nop,nop,timestamp 18551 456465> (DF) [tos 0x8] 
+12:21:20.512442 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 17786 win 31856 <nop,nop,timestamp 456465 18540,nop,nop, sack 2 {22130:23578}{19234:20682} > (DF) [tos 0x8] 
+12:21:20.512512 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 23578:25026(1448) ack 1473 win 8216 <nop,nop,timestamp 18551 456465> (DF) [tos 0x8] 
+12:21:20.512782 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1473:1473(0) ack 17786 win 31856 <nop,nop,timestamp 456465 18540,nop,nop, sack 2 {22130:25026}{19234:20682} > (DF) [tos 0x8] 
+
+<long pause, eventually I kill the scp process>
+
+12:21:54.133626 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: F 1473:1473(0) ack 17786 win 31856 <nop,nop,timestamp 459827 18540,nop,nop, sack 2 {22130:25026}{19234:20682} > (DF) [tos 0x8] 
+12:21:54.133727 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 25026:26474(1448) ack 1474 win 8216 <nop,nop,timestamp 21913 459827> (DF) [tos 0x8] 
+12:21:54.134047 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1474:1474(0) ack 17786 win 31856 <nop,nop,timestamp 459827 18540,nop,nop, sack 2 {22130:26474}{19234:20682} > (DF) [tos 0x8] 
+12:21:54.134130 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 26474:27922(1448) ack 1474 win 8216 <nop,nop,timestamp 21913 459827> (DF) [tos 0x8] 
+12:21:54.134392 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1474:1474(0) ack 17786 win 31856 <nop,nop,timestamp 459827 18540,nop,nop, sack 2 {22130:27922}{19234:20682} > (DF) [tos 0x8] 
+12:21:54.134480 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: . 27922:29370(1448) ack 1474 win 8216 <nop,nop,timestamp 21913 459827> (DF) [tos 0x8] 
+12:21:54.134738 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1474:1474(0) ack 17786 win 31856 <nop,nop,timestamp 459827 18540,nop,nop, sack 2 {22130:29370}{19234:20682} > (DF) [tos 0x8] 
+12:21:54.134814 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: P 29370:30818(1448) ack 1474 win 8216 <nop,nop,timestamp 21913 459827> (DF) [tos 0x8] 
+12:21:54.135102 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1474:1474(0) ack 17786 win 31856 <nop,nop,timestamp 459827 18540,nop,nop, sack 2 {22130:30818}{19234:20682} > (DF) [tos 0x8] 
+12:21:54.135956 eth0 > 198.17.100.41.ssh > 198.17.100.42.1119: F 30818:30818(0) ack 1474 win 8216 <nop,nop,timestamp 21913 459827> (DF) [tos 0x8] 
+12:21:54.136058 eth0 < 198.17.100.42.1119 > 198.17.100.41.ssh: . 1474:1474(0) ack 17786 win 31856 <nop,nop,timestamp 459827 18540,nop,nop, sack 2 {22130:30819}{19234:20682} > (DF) [tos 0x8] 

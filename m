@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272072AbTHHXbU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 19:31:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272118AbTHHXbU
+	id S272121AbTHHXsy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 19:48:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272124AbTHHXsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 19:31:20 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:54532 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S272072AbTHHXbT (ORCPT
+	Fri, 8 Aug 2003 19:48:54 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:56071 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S272121AbTHHXsx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 19:31:19 -0400
-Date: Sat, 9 Aug 2003 01:26:11 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: James Simmons <jsimmons@infradead.org>
-cc: Adrian Bunk <bunk@fs.tum.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Surprising Kconfig depends semantics
-In-Reply-To: <Pine.LNX.4.44.0308082302130.32203-100000@phoenix.infradead.org>
-Message-ID: <Pine.LNX.4.44.0308090052330.714-100000@serv>
-References: <Pine.LNX.4.44.0308082302130.32203-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 8 Aug 2003 19:48:53 -0400
+Date: Sat, 9 Aug 2003 01:48:51 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Dheeraj <dheeraj@ece.gatech.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM : Strange logs while using Scroll-Lock key
+Message-ID: <20030809014851.A8496@pclin040.win.tue.nl>
+References: <20030808164800.GA2952@bharati>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030808164800.GA2952@bharati>; from dheeraj@ece.gatech.edu on Fri, Aug 08, 2003 at 12:48:00PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Aug 08, 2003 at 12:48:00PM -0400, Dheeraj wrote:
+> 1) I got these strange logs while i was using the console and tried to remap
+>     my caplock key to control key using loadkeys.
 
-On Fri, 8 Aug 2003, James Simmons wrote:
+You tell us what you attempted to do, but not what you did.
 
-> > The easier solution is probably to force SERIO to 'y' as well, as the 
-> > point of hiding it behind EMBEDDED is to get it compiled into the kernel.
-> 
-> What I mean is shouldn't build serio by default all the time. USB doesn't 
-> need it as well as some other drivers like the Amiga keyboard driver.
-> Serio can also be used by more things than I keyboard driver. Maybe I 
-> misunderstood?
+I did
 
-The problem is CONFIG_KEYBOARD_ATKBD and its dependency to CONFIG_SERIO, 
-if CONFIG_KEYBOARD_ATKBD is forced into the kernel, so should 
-CONFIG_SERIO.
+% dumpkeys | head -1
+keymaps 0-15
+% loadkeys
+keymaps 0-15
+keycode 58 = Control
+%
 
-bye, Roman
+and lo! my capslock key was turned into a control key.
+
+But afterwards all is well - even better than before: no more CapsLock.
+No problems with anything I tried.
+
+So, if you can reproduce a buggy situation, please describe the steps.
+
+Andries
+
+
+[For people trying this: do not simplify the above into
+% loadkeys
+keycode 58 = Control
+%
+for this turns the CapsLock on the plain map into a control key,
+so that when this key is down the control map is used, and then
+the key up event will be a CapsLock up.
+That is why it is necessary to tell loadkeys to change the entry
+in all existing keymaps simultaneously.
+This holds for all modifier keys.]
 

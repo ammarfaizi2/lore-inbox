@@ -1,89 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263534AbTEMV2M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 17:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263522AbTEMV2M
+	id S263415AbTEMVUC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 17:20:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263428AbTEMVUC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 17:28:12 -0400
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:30873 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S263490AbTEMV2H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 17:28:07 -0400
-Date: Tue, 13 May 2003 17:40:53 -0400
-To: "Douglas E. Engert" <deengert@anl.gov>
-Cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
-Subject: Re: [OpenAFS-devel] Re: [PATCH] in-core AFS multiplexor and PAG support
-Message-ID: <20030513214053.GA8745@delft.aura.cs.cmu.edu>
-Mail-Followup-To: "Douglas E. Engert" <deengert@anl.gov>,
-	David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
-References: <8812.1052841957@warthog.warthog> <Pine.LNX.4.44.0305130929340.1678-100000@home.transmeta.com> <20030513172029.GB25295@delft.aura.cs.cmu.edu> <3EC13E94.C9771D1F@anl.gov> <20030513203344.GC1005@delft.aura.cs.cmu.edu> <3EC16316.AE33A6C0@anl.gov>
+	Tue, 13 May 2003 17:20:02 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:10765 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263415AbTEMVUA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 17:20:00 -0400
+Date: Tue, 13 May 2003 23:31:10 +0200
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Helge Hafting <helgehaf@aitel.hist.no>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, alexh@ihatent.com
+Subject: Re: [PATCH] Re: 2.5.69-mm4 undefined active_load_balance
+Message-ID: <20030513213110.GA655@hh.idb.hist.no>
+References: <20030512225504.4baca409.akpm@digeo.com> <87vfwf8h2n.fsf@lapper.ihatent.com> <20030513001135.2395860a.akpm@digeo.com> <87n0hr8edh.fsf@lapper.ihatent.com> <20030513085525.GA7730@hh.idb.hist.no> <20030513020414.5ca41817.akpm@digeo.com> <3EC0FB9E.8030305@aitel.hist.no> <20030513162711.GA30804@hh.idb.hist.no> <20030513193847.GP8978@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3EC16316.AE33A6C0@anl.gov>
+In-Reply-To: <20030513193847.GP8978@holomorphy.com>
 User-Agent: Mutt/1.5.4i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 04:26:46PM -0500, Douglas E. Engert wrote:
-> Jan Harkes wrote:
-> > The kernel doesn't know whether you got into the system using a
-> > kerberized rsh, ssh, telnet, or by a buffer-overflow.
+On Tue, May 13, 2003 at 12:38:47PM -0700, William Lee Irwin III wrote:
+> On Tue, May 13, 2003 at 06:27:11PM +0200, Helge Hafting wrote:
+> > --- sched.h.orig        2003-05-13 15:45:17.000000000 +0200
+> > +++ sched.h     2003-05-13 18:07:01.000000000 +0200
+> > @@ -158,10 +158,8 @@
+> >  # define CONFIG_NR_SIBLINGS 0
+> >  #endif
+> > -#ifdef CONFIG_NR_SIBLINGS
+> > +#if CONFIG_NR_SIBLINGS
+> >  # define CONFIG_SHARE_RUNQUEUE 1
+> > -#else
+> > -# define CONFIG_SHARE_RUNQUEUE 0
+> >  #endif
+> >  extern void sched_map_runqueue(int cpu1, int cpu2);
 > 
-> No, but the sshd, or rshd can look at the credentials and determine if you
-> are establishing a new connection, and then let this process join the
-> previous PAG, i.e. share the credentials if appropriate.
-
-PAG != tokens.
-
-PAG is a simple unique session identifier. AFS, Coda and DCE/DFS happen
-associate credentials with a session.
-
-But there is no reason why multiple PAG's can't map to the same set of
-credentials. You still don't 'join' a PAG, it is up to some filesystem
-specific policy how PAGs are mapped to credentials.
-
-> > You could have the kerberized rshd remember the tokens it obtained
-> > during a previous login or were forwarded by the client and associate
-> > them with the new PAG. No need to join an existing PAG.
+> Linus just committed a patch to eliminate such offenders.
 > 
-> We maybe saying the same thing. I would say the PAG is where this
-> information is stored. One may define the PAG as a kernel only concept
-> which is destroyed when the last process ends, where I am also saying
-> it includes cached credentials which may persist longer.
+> Do you mean #if CONFIG_NR_SIBLINGS != 0 or #ifdef CONFIG_NR_SIBLINGS?
 
-I think we are saying the same thing. But abstract at a different level.
+I don't know this code well, I'm just guessing the rigth way
+to make it compile.  I don't know what's the "clean" way
+to do #if/#ifdefs either - I could probably do better if I knew.
 
-Yes, a new session could use the same credentials as an existing
-session. But it is still a new session.
+The problem was that CONFIG_SHARE_RUNQUEUE gets set even with
+configs where it doesn't make sense, (i.e. uniprocessor without HT)
+so I guessed it was some sort of misunderstanding about
+how #ifdef works.  I hope whoever wrote that code will
+take a look and either say "yes - that's what I meant"
+or fix it in a better way.
 
-> > What you propose has completely different behaviour depending on whether
-> > the user happens to have a secondary permanent connection to the target
-> > host or not. If there is no permanent session there will be no PAG to
-> > join and each rsh invocation will have to reauthenticate anyways.
-> 
-> It is possible that the credential can be kept around for some time, 
-> as was the case with the k5dcecon, so previous credentials could be reused. 
-> In the case of the DCE, there where three files, one of which was the kerberos
-> cache. The filenames has the PAG number as part of the file name. 
+Helge Hafting
 
-How long should the credentials be kept around? The kernel doesn't know
-the difference between a Kerberos ticket, an AFS or Coda token, or a DCE
-security context. In my case only the Coda servers can reliably tell us
-whether the token is valid at all.
-
-> This was not possible with AFS, since the AFS token was only in the kernel,
-> and would be destroyed when the last process in the PAG finished. 
-> (To bad, as we have seen problems if a user saves a big file, then logs off,
-> and the token is destroyed before the cache manager writes the file ac
-> to the server.) 
-
-That seems to be more an implementation issue, the token (or actually
-PAG) has to be associated with the open file handle. Logging out doesn't
-matter, except if the user explicitly flushes all tokens associated with
-his PAG.
-
-Jan

@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266615AbUGKP2o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266616AbUGKPfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266615AbUGKP2o (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 11:28:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266616AbUGKP2n
+	id S266616AbUGKPfS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 11:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266617AbUGKPfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 11:28:43 -0400
-Received: from modemcable053.53-202-24.mc.videotron.ca ([24.202.53.53]:13184
-	"EHLO omega3.sco.ath.cx") by vger.kernel.org with ESMTP
-	id S266615AbUGKP2m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 11:28:42 -0400
-Message-ID: <40F15CB7.2090802@yahoo.ca>
-Date: Sun, 11 Jul 2004 11:28:55 -0400
-From: Jonathan Filiatrault <lintuxicated@yahoo.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040528
-X-Accept-Language: en-ca, fr-ca
+	Sun, 11 Jul 2004 11:35:18 -0400
+Received: from [80.72.36.106] ([80.72.36.106]:29871 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S266616AbUGKPfK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 11:35:10 -0400
+Date: Sun, 11 Jul 2004 17:35:04 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Con Kolivas <kernel@kolivas.org>, Matthias Andree <matthias.andree@gmx.de>,
+       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: post 2.6.7 BK change breaks Java?
+In-Reply-To: <Pine.LNX.4.56.0407111713420.23979@jjulnx.backbone.dif.dk>
+Message-ID: <Pine.LNX.4.58.0407111728580.6988@alpha.polcom.net>
+References: <40EEB1B2.7000800@kolivas.org> <Pine.LNX.4.56.0407091954160.22376@jjulnx.backbone.dif.dk>
+ <Pine.LNX.4.56.0407111713420.23979@jjulnx.backbone.dif.dk>
 MIME-Version: 1.0
-To: Daniel Schmitt <pnambic@unu.nu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.7] Ehci controller interrupts like crazy on nforce2
-References: <40EDF209.70707@yahoo.ca> <200407111409.09405.pnambic@unu.nu>
-In-Reply-To: <200407111409.09405.pnambic@unu.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 11 Jul 2004, Jesper Juhl wrote:
 
->I've seen this problem on my board (Epox 8RDA3+) as well. The root cause seems 
->
->to be interrupt link devices enabled without regard for the actual device 
->status. A recent patch that delayed IRQ assignment to device activiation time 
->fixed this for me; you might want to try a fresh -mm or -bk kernel.
->
-2.6.7-bk21 fixed this problem for me, thanks
+> On Fri, 9 Jul 2004, Jesper Juhl wrote:
+> 
+> > On Fri, 9 Jul 2004, Con Kolivas wrote:
+> >
+> > >
+> > > but I suspect it's one of those possibly interfering. Looking at the
+> > > patches in question I have no idea how they could do it. I guess if you
+> > > can try backing them out it would be helpful. Here are links to the
+> > > patches in question.
+> > > http://ck.kolivas.org/patches/2.6/2.6.7/2.6.7-ck5/split-out/1100_ip_tabl
+> > > es.patch
+> > > http://ck.kolivas.org/patches/2.6/2.6.7/2.6.7-ck5/split-out/1105_CAN-200
+> > > 4-0497.patch
+> > > http://ck.kolivas.org/patches/2.6/2.6.7/2.6.7-ck5/split-out/1110_proc.pa
+> > > tch
+> >
+> > Thanks Con, I'll try playing with those tomorrow (got no time tonight),
+> > and report back.
+> >
+> Ok, got them all 3 backed out of 2.6.7-mm7 , but that doesn't change a
+> thing. The JVM still dies when I try to run eclipse.
 
->
->Hope that helps,
->
-it sure did.
+I can run Eclipse without any problems on 2.6.7-bk20-ck5 + few other not 
+related patches. Maybe try using non -mm? Try 2.6.7-bk20 and then try 
+reverting some patches. Maybe there is some other problem in -mm that 
+gives similar results?
 
-Happy Hacking,
-Joe
+PS. I am using Gentoo and it compiles eclipse from sources. But all others 
+Java apps (including Azureus - built very similar to eclipse and installed 
+from binaries) work for me too.
+
+
+Grzegorz Kulewski
+

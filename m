@@ -1,62 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264778AbTE1Pvk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 11:51:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264780AbTE1Pvk
+	id S264777AbTE1Prt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 11:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264778AbTE1Prr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 11:51:40 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:7428 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264778AbTE1Pvi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 11:51:38 -0400
-Date: Wed, 28 May 2003 11:58:49 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Ricky Beam <jfbeam@bluetronic.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.70
-In-Reply-To: <Pine.LNX.4.44.0305271024060.6597-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.3.96.1030528115243.19675A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 28 May 2003 11:47:47 -0400
+Received: from hazard.jcu.cz ([160.217.1.6]:62081 "EHLO hazard.jcu.cz")
+	by vger.kernel.org with ESMTP id S264777AbTE1Prl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 11:47:41 -0400
+Date: Wed, 28 May 2003 18:00:56 +0200
+From: Jan Marek <linux@hazard.jcu.cz>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.70 mmu_cr4_features
+Message-ID: <20030528160056.GB1454@hazard.jcu.cz>
+References: <20030528155803.GA1454@hazard.jcu.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="Qxx1br4bt0+wmkIi"
+Content-Disposition: inline
+In-Reply-To: <20030528155803.GA1454@hazard.jcu.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 May 2003, Linus Torvalds wrote:
 
-> 
-> On Tue, 27 May 2003, Ricky Beam wrote:
-> > 
-> > Count up the number of drivers that haven't been updated to the current
-> > PCI, hotplug, and modules interfaces.
-> 
-> Tough. If people don't use them, they don't get supported. It's that easy.
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Just the other day you posted strong opposition to breaking existing
-binaries, how does that map with breaking existing hardware?
+On Wed, May 28, 2003 at 05:58:03PM +0200, Jan Marek wrote:
+> Hallo l-k,
 > 
-> The thing is, these things won't change before 2.6 (or at least a 
-> pre-2.6). When 2.6.0 comes out, and somebody notices that they haven't 
-> bothered to try the 2.5.x series, _then_ maybe some of those odd-ball 
-> drivers get fixed.
+> I tried to correct a 'Missing mmu_cr4_features symbol' in the DRM
+> modules (in my case it's i810).
 > 
-> Or not. Some of them may be literally due for retirement, with users just 
-> running an old kernel on old hardware.
+> I've found this symbol only in i386 and x86_64 architectures...
 > 
-> Btw, this is nothing new. It has _always_ been the case that a lot of 
-> people didn't use the latest stable kernel until it was released, and then 
-> they complained because the drivers they used weren't up to spec.
-> 
-> 			Linus
+> For me this patch works fine.
 
-That's clearly true, but part of the reason is that some drivers just
-don't compile, so people assume it's a work in progress. And when problems
-are reported they sometimes don't get fixed even when there is a
-maintainer listed for a driver. Hopefully vendors will pick up the slack
-for things like that and the power management issues.
+attaching missing patch, sorry...
 
+Sincerely
+Jan Marek
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Ing. Jan Marek
+University of South Bohemia
+Academic Computer Centre
+Phone: +420-38-7772080
 
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="mmu_rc4_features.patch"
+
+diff -urN linux-2.5.70/arch/i386/kernel/setup.c linux-2.5.70-new/arch/i386/kernel/setup.c
+--- linux-2.5.70/arch/i386/kernel/setup.c	2003-05-27 03:00:39.000000000 +0200
++++ linux-2.5.70-new/arch/i386/kernel/setup.c	2003-05-28 11:17:09.000000000 +0200
+@@ -35,6 +35,7 @@
+ #include <linux/console.h>
+ #include <linux/root_dev.h>
+ #include <linux/highmem.h>
++#include <linux/module.h>
+ #include <video/edid.h>
+ #include <asm/e820.h>
+ #include <asm/mpspec.h>
+@@ -58,6 +59,7 @@
+ struct cpuinfo_x86 boot_cpu_data = { 0, 0, 0, 0, -1, 1, 0, 0, -1 };
+ 
+ unsigned long mmu_cr4_features;
++EXPORT_SYMBOL(mmu_cr4_features);
+ 
+ int acpi_disabled __initdata = 0;
+ 
+diff -urN linux-2.5.70/arch/x86_64/kernel/setup.c linux-2.5.70-new/arch/x86_64/kernel/setup.c
+--- linux-2.5.70/arch/x86_64/kernel/setup.c	2003-05-27 03:00:21.000000000 +0200
++++ linux-2.5.70-new/arch/x86_64/kernel/setup.c	2003-05-28 11:31:49.000000000 +0200
+@@ -31,6 +31,7 @@
+ #include <linux/initrd.h>
+ #include <linux/highmem.h>
+ #include <linux/bootmem.h>
++#include <linux/module.h>
+ #include <asm/processor.h>
+ #include <linux/console.h>
+ #include <linux/seq_file.h>
+@@ -61,6 +62,7 @@
+ struct cpuinfo_x86 boot_cpu_data;
+ 
+ unsigned long mmu_cr4_features;
++EXPORT_SYMBOL(mmu_cr4_features);
+ 
+ int acpi_disabled __initdata = 0;
+ 
+
+--Qxx1br4bt0+wmkIi--

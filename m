@@ -1,29 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272427AbRIFIZz>; Thu, 6 Sep 2001 04:25:55 -0400
+	id <S272431AbRIFIgg>; Thu, 6 Sep 2001 04:36:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272431AbRIFIZg>; Thu, 6 Sep 2001 04:25:36 -0400
-Received: from gateway.pace.co.uk ([195.44.197.250]:33185 "EHLO
-	animal.pace.co.uk") by vger.kernel.org with ESMTP
-	id <S272427AbRIFIZ1>; Thu, 6 Sep 2001 04:25:27 -0400
-Message-ID: <54045BFDAD47D5118A850002A5095CC30AC57D@exchange1.cam.pace.co.uk>
-From: Phil Thompson <Phil.Thompson@pace.co.uk>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: User Space Emulation of Devices
-Date: Thu, 6 Sep 2001 09:25:08 +0100 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S272433AbRIFIg0>; Thu, 6 Sep 2001 04:36:26 -0400
+Received: from isolaweb.it ([213.82.132.2]:22542 "EHLO web.isolaweb.it")
+	by vger.kernel.org with ESMTP id <S272431AbRIFIgZ>;
+	Thu, 6 Sep 2001 04:36:25 -0400
+Message-Id: <5.1.0.14.2.20010906103114.00a42db0@mail.tekno-soft.it>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 06 Sep 2001 10:33:52 +0200
+To: linux-kernel@vger.kernel.org
+From: Roberto Fichera <kernel@tekno-soft.it>
+Subject: Re: SmartArray 530x
+In-Reply-To: <999717032.11608.8.camel@hoth>
+In-Reply-To: <5.1.0.14.2.20010905190231.0308b150@mail.tekno-soft.it>
+ <5.1.0.14.2.20010905190231.0308b150@mail.tekno-soft.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Without going into the gory details, I have a requirement for a device
-driver that does very little apart from pass on the open/close/read/write
-"requests" onto a user space application to implement and pass back to the
-driver.
+At 21.10 05/09/01 +0200, Kjartan Maraas wrote:
 
-Does anything like this already exist?
+>Den ons, 2001-09-05 kl. 19:10 skrev Roberto Fichera:
+> > Hi All,
+> >
+> > it's supported this Compaq SCSI controller ? I'm planning to buy a ML530
+> > with the SA-5302/64 version.
+> >
+>
+>I've installed the current Red Hat beta with 2.4.x on this machine with
+>the same controller with no problems at all.
+>
+>Go for it :)
 
-Thanks,
-Phil
+Fine! Many thanks.
+
+
+Roberto Fichera.
+

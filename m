@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287896AbSAPVe7>; Wed, 16 Jan 2002 16:34:59 -0500
+	id <S287881AbSAPVcU>; Wed, 16 Jan 2002 16:32:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287940AbSAPVep>; Wed, 16 Jan 2002 16:34:45 -0500
-Received: from mail.uni-kl.de ([131.246.137.52]:24231 "EHLO mail.uni-kl.de")
-	by vger.kernel.org with ESMTP id <S287932AbSAPVeE>;
-	Wed, 16 Jan 2002 16:34:04 -0500
-Message-ID: <3C45F1C6.2010409@student.uni-kl.de>
-Date: Wed, 16 Jan 2002 22:33:58 +0100
-From: "R. Sinoradzki" <sinoradz@student.uni-kl.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011126
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Justin Carlson <justincarlson@cmu.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: multithreading  on a multiprocessor system ( a bit OT )
-In-Reply-To: <3C45D95C.7000402@student.uni-kl.de> <1011212204.314.3.camel@gs256.sp.cs.cmu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S287896AbSAPVcK>; Wed, 16 Jan 2002 16:32:10 -0500
+Received: from pD9E10BC9.dip.t-dialin.net ([217.225.11.201]:26246 "EHLO
+	fefe.de") by vger.kernel.org with ESMTP id <S287881AbSAPVcF>;
+	Wed, 16 Jan 2002 16:32:05 -0500
+Date: Wed, 16 Jan 2002 22:31:59 +0100
+From: Felix von Leitner <usenet-20020116@fefe.de>
+To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org
+Subject: Re: Penelope builds a kernel
+Message-ID: <20020116213159.GC950@fefe.de>
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020114165909.A20808@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020114165909.A20808@thyrsus.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Carlson wrote:
+Thus spake Eric S. Raymond (esr@thyrsus.com):
+> Scenario #3: Penelope goes where the geeks are surfing.
 
-> On Wed, 2002-01-16 at 14:49, R. Sinoradzki wrote:
-> 
->>O.K my question:
->>Consider two modern processors that share some data and a lock.
->>The lock may be implemented with something like an atomic test-and-set
->>instruction. Now processor 'A' acquires the lock and works with the data.
->>Processor 'B' also wants to access the data, but internally reorders it's
->>instructions because the instructions seem independent from each other.
->>So 'B' might access the data without having the lock.
->>If it's a single processor system, reordering instructions in a way that
->>ensures that it looks 'as if' everything has been executed in the right order
->>might be easy, but in a multiprocessor system 'A' doesn't know 'B's state.
->>
-> 
-> Then you've got a bug.  Modern implementations that do SMP provide some
-> way of placing barriers around speculative execution structures to make
-> sure you don't, say, go out and read some memory location that changes
-> state in a device because that's an OK speculative action to take.
-> 
-> Can't really comment on x86, as I'm not very good with it, but taking
-> for example MIPS and Alpha, in addition to the ll-sc ops, there are a
-> sync and mb instructions, respectively, which provide a method for
-> assuring that previous operations have become visible in terms of
-> general machine state before going on.
-> 
-> -Justin
-> 
+Why are you posting all this crap to linux-kernel?
 
-Ah, thank you for the keywords.
-Sorry, I should have searched "multiprocessor synchronization" in Google, but
-I tried something else that gave me a lot of useless results ...
+[58 lines that say "I want ./configure for the kernel" deleted]
+Ever put a recent SuSE or RedHat CD in your computer?
 
-Ralf
+Eric, there are hundreds of perfectly fine Linux problems you could
+solve.  Distributions will ship with generic kernels and lots of
+modules.  You are not supposed to patch the kernel unless you have some
+minimal expertise.  Requiring users to use Python will not help the
+situation at all.  Pardon the French, but don't you have any real
+problems to solve?
+
+You know, the kind of problem where solving it would actually help a few
+people?  Almost no standard user like Aunt Tilly or Penelope has a
+reason to compile a kernel, ever.  Rule 1 of computing: optimize the
+_common_ case.  This case is not common.
+
+Felix
 

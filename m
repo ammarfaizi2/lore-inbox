@@ -1,78 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314392AbSEFLde>; Mon, 6 May 2002 07:33:34 -0400
+	id <S310637AbSEFLiR>; Mon, 6 May 2002 07:38:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314393AbSEFLdd>; Mon, 6 May 2002 07:33:33 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:28943 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S314392AbSEFLdb>; Mon, 6 May 2002 07:33:31 -0400
-Date: Mon, 6 May 2002 13:33:18 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: <puw@cola.enlightnet.local>
-To: Keith Owens <kaos@ocs.com.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel 
-In-Reply-To: <8322.1020641767@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.33.0205061129440.19054-100000@cola.enlightnet.local>
+	id <S313419AbSEFLiQ>; Mon, 6 May 2002 07:38:16 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:41107 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S310637AbSEFLiQ>; Mon, 6 May 2002 07:38:16 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "Mike Black" <mblack@csihq.com>
+Date: Mon, 6 May 2002 21:37:41 +1000 (EST)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15574.27397.604248.250447@notabene.cse.unsw.edu.au>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.14 compile error
+In-Reply-To: message from Mike Black on Monday May 6
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 May 2002, Keith Owens wrote:
+On Monday May 6, mblack@csihq.com wrote:
+> Is RAID1/5 support even safe in the current 2.5 series?  I saw Neil post a
+> message while ago but wasn't sure if he was being faceitous or not...
+> I've not been able to get a single 2.5 series kernel to compile since 2.5.8
 
-> >being able to build over NFS or having stricter integrity checks. I just
-> >don't get the faster bit, but maybe that's just me.
-> 
-> You are not comparing like with like.  Much of your speed difference
-> from kbuild 2.4 to 2.5 is because you have omitted the make dep time.
-> kbuild 2.5 does not have a seperate make dep pass.  Instead it checks
-> the dependencies every time, during phase4.
+I believe raid1 works.  raid5 definately doesn't.  I'm almost ready to
+start looking at it actually... maybe tomorrow or the next day.  There
+will be a fair bit of work needed to get it working, but it shouldn't
+be very hard work (though that depends on how many bugs I introduce on
+the way...)
 
-make dep isn't part of a module rebuild given the constriants I work
-under, the changes are local to the module (which they are).
-
-In my world make dep is only relevant for the first build, and the
-times I mentioned for the full build includes a dependency build.
-(I know the presentation of that part was crap ... but so was the
- measurements :)
-
-
-> Checking the dependencies only once in kbuild 2.4 is a very common
-> source of build error.  Users change their code, forget to rerun make
-> dep then wonder why their kernel and module build is broken.  In your
-> case, you "know" that your change does not affect the dependencies so
-> you omit the make dep run.  That is the equivalent of bypassing the
-> integrity checks in kbuild 2.5, i.e. it is the equivalent of
-> NO_MAKEFILE_GEN=1.
-
-NO_MAKEFILE_GEN is still slower for me than the way I use make modules.
-
-What you are saying is that I should never do:
-make modules
-
-but always:
-make dep && make bzImage modules
-
-Ok, then I see what you meant by kbuild-2.5 being faster.
-
-Documentation/kbuild/commands.txt (2.4.18 kernel, don't have anything more
-recent at hand) has a section on make dep that says I only have to run it
-once after the first time I configure the kernel. Maybe that is where I
-picked up that habit.
-
-
-> the kernel.  BTW, if you have a lot of modules you will find that your
-> make modules time in 2.4 is significantly higher than the times you
-> quoted.
-
-Sure. I was talking about me, my .config (~30 modules) and my builds
-specifically.
-
-Btw, I can see other benefits from kbuild-2.5 (and I can bypass the things
-I don't want to run all the time more easily than in "2.4" :) and I'm not
-against it, but it didn't live up to the faster claim at anything I
-normally do. So I had to ask.
-
-/Urban
-
+NeiBrown

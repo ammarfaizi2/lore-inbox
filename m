@@ -1,46 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287204AbSBYVG5>; Mon, 25 Feb 2002 16:06:57 -0500
+	id <S291970AbSBYVIr>; Mon, 25 Feb 2002 16:08:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292187AbSBYVGo>; Mon, 25 Feb 2002 16:06:44 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:14845 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S288748AbSBYVGL>; Mon, 25 Feb 2002 16:06:11 -0500
-Message-ID: <3C7AA727.316EC197@mvista.com>
-Date: Mon, 25 Feb 2002 13:05:43 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Universal Regs address 
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S292178AbSBYVIj>; Mon, 25 Feb 2002 16:08:39 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:9107 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S291970AbSBYVIZ>;
+	Mon, 25 Feb 2002 16:08:25 -0500
+From: Raphael Manfredi <Raphael_Manfredi@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: setsockopt(SOL_SOCKET, SO_SNDBUF) broken on 2.4.18?
+X-Mailer: MH [version 6.8]
+Organization: Home, Grenoble, France
+Date: Mon, 25 Feb 2002 22:08:06 +0100
+Message-ID: <2871.1014671286@nice.ram.loc>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-&regs is needed by the deliver signal code and currently is supplied by
-the system call interface to the system calls that need it.  This
-requires that any new system call to have (at least in some archs)
-special code in the system call trap area to pass the &regs, or does it?
+Hi,
 
-In an arch in which the call stack address decreases as calls are made,
-isn't:
+I run:
 
-&regs = stack_base+size of(stack) - size of(struct regs);
+	Linux nice 2.4.18-pre7 #1 SMP Mon Jan 28 23:12:48 MET 2002 i686 unknown
 
-an for stacks that increase:
+I noticed that whenever I do:
 
-&regs = stack_base;
+	setsockopt(fd, SOL_SOCKET, SO_SNDBUF....)
 
-The only time this would not be true, unless I am missing something, is
-if the system call is made from kernel space.  Is this an issue?  Do we
-ever need &regs if called from the kernel?  If not, can we tell the call
-was from the kernel?
+followed by
 
-comments?
--- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+	getsockopt(fd, SOL_SOCKET, SO_SNDBUF....)
+
+to verify what the kernel has set, I read TWICE as much the amount used
+for the set.  That is, if I set 8192, I read 16384.  Therefore, to set
+the correct size, I need to half the parameter first.
+
+Is this a known bug?  Is it setsockopt or getsockopt which returns the
+wrong size?
+
+Here's sample code demonstrating the problem:
+
+--------------------------
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+static void set_send_buf(int fd, int size)
+{
+	int new_len;
+	int arglen = sizeof(new_len);
+
+	if (-1 == setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size)))
+		perror("setsockopt");
+
+	if (-1 == getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &new_len, &arglen))
+		perror("getsockopt");
+
+	printf("size was %d, but set %d\n", size, new_len);
+}
+
+main()
+{
+	int fd = socket(AF_INET, SOCK_STREAM, 0);
+
+	set_send_buf(fd, 8192);
+	set_send_buf(fd, 16384);
+}
+--------------------------
+
+When run, it displays:
+
+	size was 8192, but set 16384
+	size was 16384, but set 32768
+
+Raphael

@@ -1,89 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVDBU0D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVDBUgF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbVDBU0D (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 15:26:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVDBU0D
+	id S261272AbVDBUgF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 15:36:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVDBUgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 15:26:03 -0500
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:37773 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S261255AbVDBUZw (ORCPT
+	Sat, 2 Apr 2005 15:36:05 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:12189 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261264AbVDBUgC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 15:25:52 -0500
-Date: Sat, 2 Apr 2005 15:20:00 -0500
-From: Adam Belay <ambx1@neo.rr.com>
-To: Marty Leisner <leisner@rochester.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI bridge devices questions
-Message-ID: <20050402202000.GA27522@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Marty Leisner <leisner@rochester.rr.com>,
-	linux-kernel@vger.kernel.org
-References: <200504021804.j32I4XGd002721@dell.home>
+	Sat, 2 Apr 2005 15:36:02 -0500
+Date: Sat, 2 Apr 2005 22:35:50 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Gene Heskett <gene.heskett@verizon.net>,
+       LKML <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
+Message-ID: <20050402203550.GB16230@elte.hu>
+References: <20050325145908.GA7146@elte.hu> <200504011419.20964.gene.heskett@verizon.net> <424D9F6A.8080407@cybsft.com> <200504011834.22600.gene.heskett@verizon.net> <20050402051254.GA23786@elte.hu> <1112470675.27149.14.camel@localhost.localdomain> <1112472372.27149.23.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200504021804.j32I4XGd002721@dell.home>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1112472372.27149.23.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 02, 2005 at 01:04:33PM -0500, Marty Leisner wrote:
-> I have to write some code to insert a non-standard bridge
-> (it identifies itself as bridge-other, but it functions
-> as a pci-pci bridge).
+
+* Steven Rostedt <rostedt@goodmis.org> wrote:
+
+> On Sat, 2005-04-02 at 14:37 -0500, Steven Rostedt wrote:
 > 
-> I'm going to be using 2.4.2x and eventually 2.6.x for intel
-> and ppc...
-
-I'm currently working on a new pci bridge class framework for 2.6.  The most
-significant change is that you will be able to bind to the bridge using a
-"struct pci_driver".
-
+> > Here's the bug I get:
+> > 
 > 
-> In the pci_dev structure (for 2.4.29)
-> there's
-> (in include/linux/pci.h)
+> FYI
 > 
-> 00355 #define DEVICE_COUNT_RESOURCE   12
-> 00410         struct resource resource[DEVICE_COUNT_RESOURCE]; /* I/O and memory regions + expansion ROMs */
+> For kicks I ran this on 2.6.11-rc2-RT-V0.7.36-02 (I still had it as a 
+> Grub option), and the system just locked up hard.  I just was curious 
+> if this was from a different change. But at least in the latest it 
+> shows output, and not just a hard lockup.
 > 
-> We also have:
-> 00431 /*
-> 00432  *  For PCI devices, the region numbers are assigned this way:
-> 00433  *
-> 00434  *      0-5     standard PCI regions
-> 00435  *      6       expansion ROM
-> 00436  *      7-10    bridges: address space assigned to buses behind the bridge
-> 00437  */
-> 00438 
-> 00439 #define PCI_ROM_RESOURCE 6
-> 00440 #define PCI_BRIDGE_RESOURCES 7
-> 00441 #define PCI_NUM_RESOURCES 11
-> 
-> Now where my confusion sets in:
-> 	1) PCI_NUM_RESOURCES + 1 == DEVICE_COUNT_RESOURCE 
-> Why?
+> Oh, the bug report was running kernel 2.6.12-rc1-RT-V0.7.43-06.
 
-At a glance it looks like it's because the array starts at 0.
+ok, so it's not the recent NFS changes.
 
-> 	2) I understand the first 6 regions (standard) and the expansion rom) --
-> 	   why 5 more?  
-
-I'm currently redesigning this to use a resource array in "struct device".
-
-> 	3) I've only seen instances of 3 bus regions used -- IO, MEM prefetch,
-> 		MEM nonprefetch -- are they order dependent?
-
-There are 4 on cardbus bridges.  In my implementation, they will probably not
-be very order dependent.
-
-> 
-> Thanks...
-> 
-> Marty Leisner
-> leisner@rochester.rr.com
-
-Could you provide any additional details about this bridge?
-
-Thanks,
-Adam
+	Ingo

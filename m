@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129047AbRBGTJN>; Wed, 7 Feb 2001 14:09:13 -0500
+	id <S129708AbRBGTLd>; Wed, 7 Feb 2001 14:11:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129868AbRBGTJD>; Wed, 7 Feb 2001 14:09:03 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:45572 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129047AbRBGTIm>; Wed, 7 Feb 2001 14:08:42 -0500
-Date: Wed, 7 Feb 2001 13:03:41 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI-SCI Drivers v1.1-7 released
-Message-ID: <20010207130341.C27700@vger.timpanogas.org>
-In-Reply-To: <20010207111900.E27089@vger.timpanogas.org> <E14QZvc-00013n-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E14QZvc-00013n-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Feb 07, 2001 at 07:06:55PM +0000
+	id <S129500AbRBGTLX>; Wed, 7 Feb 2001 14:11:23 -0500
+Received: from infoblox.com ([64.39.15.22]:50705 "HELO torpid.com")
+	by vger.kernel.org with SMTP id <S129879AbRBGTLG>;
+	Wed, 7 Feb 2001 14:11:06 -0500
+Date: Wed, 7 Feb 2001 13:15:21 -0600 (CST)
+From: Ivan Pulleyn <ivan@torpid.com>
+To: Chris Mason <mason@suse.com>
+cc: Vedran Rodic <vedran@renata.irb.hr>, linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+In-Reply-To: <552640000.981571531@tiny>
+Message-ID: <Pine.LNX.4.10.10102071311310.9686-100000@norway.torpid.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 07, 2001 at 07:06:55PM +0000, Alan Cox wrote:
-> > I looked into this, and discovered that the gcc 2.96 compiler turned my 
-> > rep movsd code into a rep movsb (???) with some evil looking C++ style 
-> 
-> If its hand coded asm then gcc shouldnt have touched it. If its an implicit
-> memcpy then gcc will generate inline code designed for main memory copying.
-> 
-> Do you have a small example chunk of code showing this ?
-> 
-> > They deviated by 30%, indicating that my MTRR write combining optimization
-> > was not working properly in sci copy mode.  
-> 
-> That would explain the %age certainly. How it happened is the next question
 
-I'll gen some code, and send to you.
 
-:-)
+On Wed, 7 Feb 2001, Chris Mason wrote:
 
-Jeff
+> 
+> 
+> On Wednesday, February 07, 2001 07:41:25 PM +0100 Vedran Rodic
+> <vedran@renata.irb.hr> wrote:
+> 
+> > 
+> > So could some of this bugs also be present in 3.5.x version of reiserfs?
+> > Will you be fixing them for that version?
+> > 
+> 
+> This list of reiserfs bugs was all specific to the 3.6.x versions, and they
+> don't appear with the 3.5.x code.  You will probably have problems if you
+> compile 3.5.x reiserfs with an unpatched redhat gcc 2.96, though.  
+
+Apologies if I'm mis-understanding (I don't follow the list too
+closely), but the zeros-in-log-files thing happens to me a lot on
+3.5.X. Is there some sort of debugging info I could offer to help
+figure it out?
+
+Ivan...
+
+---------------------------------------------------------------------------
+			     Ivan Pulleyn
+		      4942 N. Winchester Ave. #3
+			  Chicago, IL 60640
+
+			   ivan@torpid.com
+			    (847) 980-1400
+---------------------------------------------------------------------------
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

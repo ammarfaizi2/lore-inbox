@@ -1,104 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272315AbTHIKPh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 06:15:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272316AbTHIKPh
+	id S272313AbTHIKMv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 06:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272314AbTHIKMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 06:15:37 -0400
-Received: from [203.145.184.221] ([203.145.184.221]:21253 "EHLO naturesoft.net")
-	by vger.kernel.org with ESMTP id S272315AbTHIKPb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 06:15:31 -0400
-Subject: Re: [PATCH 2.6.0-test3] compile fix for driver/block/paride/pd.c
-From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
-To: Nick Piggin <piggin@cyberone.com.au>, Jens Axboe <axboe@suse.de>
-Cc: trivial@rustcorp.com.au, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F34BEC4.8090701@cyberone.com.au>
-References: <1060421994.1276.6.camel@lima.royalchallenge.com> 
-	<3F34BEC4.8090701@cyberone.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 09 Aug 2003 16:03:43 +0530
-Message-Id: <1060425223.1276.22.camel@lima.royalchallenge.com>
+	Sat, 9 Aug 2003 06:12:51 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:54030 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S272313AbTHIKMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 06:12:49 -0400
+Date: Sat, 9 Aug 2003 11:07:18 +0200
+To: lkml@vger.kernel.org
+Subject: 2.6.0-test3 cannot mount root fs
+Message-ID: <20030809090718.GA10360@gamma.logic.tuwien.ac.at>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nick,
+Hi friends!
 
-On Sat, 2003-08-09 at 14:58, Nick Piggin wrote:
-> blk_init_queue now returns a request queue, so this
-> patch will not work properly. See the changes in
-> test2 -> test3 for how to do it correctly.
+I am trying 2.6.0-test3 but cannot get the kernel to mount /dev/hdb1
+which is the root fs.
 
-Thanks for pointing out. Here is the one with proper fixes. Compiles
-fine though not tested.
+I tells me all the usual stuff concerning that it finds the controllers
+(VIA and HPT) and disks/cdroms, but than hangs with
+	cannot mount rootfs "NULL" or hdb1
+I have compile in (of course) the filesystems of my root fs (ext3) and
+everything else I thought may be necessary, or at least what has been
+necessary up to 2.4.22-rc2.
 
+hardware: athlon, via686 ide + hpt366/370 ide, linux is un hdb
 
-This patch modifies the code to use the new blk_init_queue.
+here my config options for ide:
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_IDEDISK_STROKE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDEFLOPPY=m
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_IDE_TASKFILE_IO=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
 
-pd.c |   17 +++++++++++------
- 1 files changed, 11 insertions(+), 6 deletions(-)
+for FS:
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_MINIX_FS=m
+CONFIG_ROMFS_FS=m
+CONFIG_ISO9660_FS=m
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=m
+CONFIG_UDF_FS=m
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_NTFS_FS=m
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_HFS_FS=m
+CONFIG_CRAMFS=m
 
-diff -urN linux-2.6.0-test3/drivers/block/paride/pd.c linux-2.6.0-test3-nvk/drivers/block/paride/pd.c
---- linux-2.6.0-test3/drivers/block/paride/pd.c	2003-07-28 10:43:52.000000000 +0530
-+++ linux-2.6.0-test3-nvk/drivers/block/paride/pd.c	2003-08-09 15:58:56.000000000 +0530
-@@ -654,7 +654,7 @@
- 	return pd_identify(disk);
- }
- 
--static struct request_queue pd_queue;
-+static struct request_queue* pd_queue;
- 
- static int pd_detect(void)
- {
-@@ -704,7 +704,7 @@
- 			set_capacity(p, disk->capacity);
- 			disk->gd = p;
- 			p->private_data = disk;
--			p->queue = &pd_queue;
-+			p->queue = pd_queue;
- 			add_disk(p);
- 		}
- 	}
-@@ -782,7 +782,7 @@
- 	spin_lock_irqsave(&pd_lock, saved_flags);
- 	end_request(pd_req, success);
- 	pd_busy = 0;
--	do_pd_request(&pd_queue);
-+	do_pd_request(pd_queue);
- 	spin_unlock_irqrestore(&pd_lock, saved_flags);
- }
- 
-@@ -893,13 +893,18 @@
- 	if (register_blkdev(major, name))
- 		return -1;
- 
--	blk_init_queue(&pd_queue, do_pd_request, &pd_lock);
--	blk_queue_max_sectors(&pd_queue, cluster);
-+	pd_queue = blk_init_queue(do_pd_request, &pd_lock);
-+	if (!pd_queue)
-+		goto error;
-+
-+	blk_queue_max_sectors(pd_queue, cluster);
- 
- 	printk("%s: %s version %s, major %d, cluster %d, nice %d\n",
- 	       name, name, PD_VERSION, major, cluster, nice);
- 	pd_init_units();
- 	if (!pd_detect()) {
-+		blk_put_queue(pd_queue);
-+error:
- 		unregister_blkdev(major, name);
- 		return -1;
- 	}
-@@ -920,7 +925,7 @@
- 			pi_release(disk->pi);
- 		}
- 	}
--	blk_cleanup_queue(&pd_queue);
-+	blk_put_queue(pd_queue);
- }
- 
- MODULE_LICENSE("GPL");
+Unfortunately I cannot capture the output of the boot of 2.6.0, but I
+would happily compare it to one's dmesg output. So if you have 2.6.0
+running with via686 can you send me the dmesg after boot, so that I can
+check what there should be or what I  am missing.
 
+Thanks a lot
+
+Best wishes
+
+Norbert
+
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+WIDDICOMBE (n.)
+The sort of person who impersonates trim phones.
+			--- Douglas Adams, The Meaning of Liff

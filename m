@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbTEHJkG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 05:40:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbTEHJkG
+	id S261245AbTEHJjO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 05:39:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbTEHJjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 05:40:06 -0400
-Received: from wsip-68-15-8-100.sd.sd.cox.net ([68.15.8.100]:61830 "EHLO
-	gnuppy") by vger.kernel.org with ESMTP id S261251AbTEHJkD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 05:40:03 -0400
-Date: Thu, 8 May 2003 02:52:38 -0700
-To: Ming Lei <lei.ming@attbi.com>
-Cc: linux-kernel@vger.kernel.org, "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+	Thu, 8 May 2003 05:39:13 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:9200 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261245AbTEHJjN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 05:39:13 -0400
 Subject: Re: linux rt priority  thread corrupt  global variable?
-Message-ID: <20030508095238.GA20844@gnuppy.monkey.org>
-References: <029601c31540$b57f1280$0305a8c0@arch.sel.sony.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Ming Lei <lei.ming@attbi.com>
+Cc: linux-kernel@vger.kernel.org
 In-Reply-To: <029601c31540$b57f1280$0305a8c0@arch.sel.sony.com>
-User-Agent: Mutt/1.5.4i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+References: <029601c31540$b57f1280$0305a8c0@arch.sel.sony.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-tNq+FXaARM6Mowk3hEAE"
+Organization: Red Hat, Inc.
+Message-Id: <1052387503.1677.0.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 08 May 2003 11:51:43 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 08, 2003 at 02:03:35AM -0700, Ming Lei wrote:
-> Related questions:
-> 
-> Is linux kernel 2.4.10 considered strictly preemptive such as VxWorks or
-> other RTOS? I guess 2.4.10 may simulate preemptive with running scheduler on
-> every syscall or interrupt returns. Am I right?
 
-No, it's not a fully preemptive kernel, but spreads preemption points
-throughout the source tree, both directly and indirectly, instead. Spinlocks
-are the primary mutex of choice in Linux and create atomic critical sections
-that can't be preempted with respect to the normal Linux scheduler. Fully
-preemptive systems tend to use sleepable locks with relaxed preemptability
-within critical sections and add the possible option of priority inheritance
-depending on the system.
+--=-tNq+FXaARM6Mowk3hEAE
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-If you're going to do RT Linux related stuff use RTLinux, RTAI or other
-commerical options instead.
+On Thu, 2003-05-08 at 11:03, Ming Lei wrote:
+> Platform:
+> Intel Pentium II; RedHat 7.2 with kernel version 2.4.7-10,=20
+eeep that's an old one; it has been superceeded by like 10 or more
+errata kernels.
 
-> Is printf() real-time priority thread safe?
+--=-tNq+FXaARM6Mowk3hEAE
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Stock Linux is definitely not if I understand what you're saying and
-if I understand the code correctly. :)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-bill
+iD8DBQA+uiivxULwo51rQBIRAoHkAJsHZsG6GS5GWnerNZcMTKsimnvD4QCcD1B+
+mUYYSd3ifzlwKyOe9ASRWb0=
+=P1st
+-----END PGP SIGNATURE-----
 
+--=-tNq+FXaARM6Mowk3hEAE--

@@ -1,42 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261247AbUB0Cco (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 21:32:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbUB0Cco
+	id S261161AbUB0CeF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 21:34:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbUB0CeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 21:32:44 -0500
-Received: from bristol.phunnypharm.org ([65.207.35.130]:28629 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S261247AbUB0Ccn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 21:32:43 -0500
-Date: Thu, 26 Feb 2004 21:32:00 -0500
-From: Ben Collins <bcollins@debian.org>
+	Thu, 26 Feb 2004 21:34:05 -0500
+Received: from gate.crashing.org ([63.228.1.57]:56505 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261161AbUB0Cdy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 21:33:54 -0500
+Subject: [PATCH] ppc64: Fix a sleeping with spinlock bug in ioremap
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] SCSI host num allocation improvement
-Message-ID: <20040227023200.GA617@phunnypharm.org>
-References: <20040226235412.GA819@phunnypharm.org> <20040226171928.750f5f6f.akpm@osdl.org> <20040226173743.2bf473b4.akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1077848737.22397.159.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040226173743.2bf473b4.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 27 Feb 2004 13:25:37 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 05:37:43PM -0800, Andrew Morton wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > The lib/idr.c code is a bit clumsy but it does do the job relatively
-> > efficiently.
-> 
-> hmm, not too bad actually.  It compiles, but I didn't test it.
+Hi !
 
-Oh, this isn't any good. It does the same thing as the old way. Steadily
-incrementing numbers.
+ppc64 uses it's own range allocator for ioremap (in order to allocate
+things in a different space than normal vmalloc). This is historic
+stuff, we may get rid of it, but in the meantime, here's a patch
+turning the spinlock in there into a semaphore so it doesn't blow
+up when doing kmalloc's
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+===== arch/ppc64/mm/imalloc.c 1.3 vs edited =====
+--- 1.3/arch/ppc64/mm/imalloc.c	Mon Jan 19 17:28:15 2004
++++ edited/arch/ppc64/mm/imalloc.c	Fri Feb 27 13:05:06 2004
+@@ -9,13 +9,13 @@
+ 
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+-#include <linux/spinlock.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+ #include <asm/pgtable.h>
++#include <asm/semaphore.h>
+ 
+-rwlock_t imlist_lock = RW_LOCK_UNLOCKED;
++static DECLARE_MUTEX(imlist_sem);
+ struct vm_struct * imlist = NULL;
+ 
+ static int get_free_im_addr(unsigned long size, unsigned long *im_addr)
+@@ -223,7 +223,7 @@
+ 	struct vm_struct *area;
+ 	unsigned long addr;
+ 	
+-	write_lock(&imlist_lock);
++	down(&imlist_sem);
+ 	if (get_free_im_addr(size, &addr)) {
+ 		printk(KERN_ERR "%s() cannot obtain addr for size 0x%lx\n",
+ 				__FUNCTION__, size);
+@@ -238,7 +238,7 @@
+ 			__FUNCTION__, addr, size);
+ 	}
+ next_im_done:
+-	write_unlock(&imlist_lock);
++	up(&imlist_sem);
+ 	return area;
+ }
+ 
+@@ -247,9 +247,9 @@
+ {
+ 	struct vm_struct *area;
+ 
+-	write_lock(&imlist_lock);
++	down(&imlist_sem);
+ 	area = __im_get_area(v_addr, size, criteria);
+-	write_unlock(&imlist_lock);
++	up(&imlist_sem);
+ 	return area;
+ }
+ 
+@@ -264,17 +264,17 @@
+ 		printk(KERN_ERR "Trying to %s bad address (%p)\n", __FUNCTION__,			addr);
+ 		return ret_size;
+ 	}
+-	write_lock(&imlist_lock);
++	down(&imlist_sem);
+ 	for (p = &imlist ; (tmp = *p) ; p = &tmp->next) {
+ 		if (tmp->addr == addr) {
+ 			ret_size = tmp->size;
+ 			*p = tmp->next;
+ 			kfree(tmp);
+-			write_unlock(&imlist_lock);
++			up(&imlist_sem);
+ 			return ret_size;
+ 		}
+ 	}
+-	write_unlock(&imlist_lock);
++	up(&imlist_sem);
+ 	printk(KERN_ERR "Trying to %s nonexistent area (%p)\n", __FUNCTION__,
+ 			addr);
+ 	return ret_size;
+
+

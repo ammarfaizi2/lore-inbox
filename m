@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267500AbTBYDp5>; Mon, 24 Feb 2003 22:45:57 -0500
+	id <S265736AbTBYEDy>; Mon, 24 Feb 2003 23:03:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267558AbTBYDp4>; Mon, 24 Feb 2003 22:45:56 -0500
-Received: from [196.12.44.6] ([196.12.44.6]:28318 "EHLO students.iiit.net")
-	by vger.kernel.org with ESMTP id <S267500AbTBYDpz>;
-	Mon, 24 Feb 2003 22:45:55 -0500
-Date: Tue, 25 Feb 2003 09:27:30 +0530 (IST)
-From: Prasad <prasad_s@students.iiit.net>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Remote execution of syscalls (was  Re: Syscall from Kernel Space)
-In-Reply-To: <b3eh6t$ebi$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0302250924340.4506-100000@students.iiit.net>
+	id <S266292AbTBYEDy>; Mon, 24 Feb 2003 23:03:54 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:3968 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S265736AbTBYEDx>; Mon, 24 Feb 2003 23:03:53 -0500
+Date: Mon, 24 Feb 2003 20:13:25 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>, John Levon <levon@movementarian.org>
+cc: wli@holomorphy.com, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
+       gh@us.ibm.com
+Subject: Re: Horrible L2 cache effects from kernel compile
+Message-ID: <12300000.1046146404@[10.10.2.4]>
+In-Reply-To: <20030224193504.2ed65230.akpm@digeo.com>
+References: <3E5ABBC1.8050203@us.ibm.com>
+ <20030225005922.GU10411@holomorphy.com>
+ <20030225031516.GC49589@compsoc.man.ac.uk>
+ <20030224193504.2ed65230.akpm@digeo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 24 Feb 2003, H. Peter Anvin wrote:
-> > 
-> > coming to whats happening...  lets see it this way... Theres a process (x)  
-> > that is migrated to some other node. Now any syscall that the process (X)  
-> > makes is to be shipped back to the originating node.  Say i have a user
-> > thread (Y) running and receiving requests for syscall executions.  And now
-> > if i execute a syscall, the syscall will be executed as of (Y) is 
-> > executing it, but i want the syscall to run as if (X) is executing it!
-> > The process (X) still exists on the originating system, but is idle.
-> > 
+>> > Your profile was upside down. I've re-sorted it.
+>> > It probably confused people who were wondering why the numbers
+>> > at the top of the profile were lower than the ones below them.
+>> 
+>> Would people generally prefer things to be sorted so the most important
+>> stuff was at the top ? We're considering such a change ...
+>> 
 > 
-> Sounds like you should let the otherwise-idle process X be the thread
-> that waits for the connection and issues system calls.  This is
-> basically RPC.
+> I prefer it the way it is, so unimportant stuff can scroll away.
 > 
+> Bill can just turn his monitor upside down.
 
-but again... in this case i got to replace the loaded executable by one
-that accepts the connections while maintaining the mmap, the open files.  
-Can someone suggest me how this could be done... I am totally unaware of
-stuff like this.
+You're Australian though, so you get that by default ;-)
 
-Prasad.
+John, how about a "-r" flag or something to sort the output biggest first?
+Might keep the dissenting masses happy ;-)
 
--- 
-Failure is not an option
+M.
 

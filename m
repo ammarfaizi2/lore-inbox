@@ -1,72 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263758AbTJCPZO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 11:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263764AbTJCPZO
+	id S263753AbTJCPpM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 11:45:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263764AbTJCPpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 11:25:14 -0400
-Received: from kogut.o2.pl ([212.126.20.61]:61865 "EHLO kogut.o2.pl")
-	by vger.kernel.org with ESMTP id S263758AbTJCPZJ (ORCPT
+	Fri, 3 Oct 2003 11:45:12 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30084 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263753AbTJCPpI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 11:25:09 -0400
-From: Mariusz Kozlowski <madx@tlen.pl>
-To: linux-kernel@vger.kernel.org
-Subject: problem with USB on Sony Vaio laptop
-Date: Fri, 3 Oct 2003 17:25:23 +0200
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Fri, 3 Oct 2003 11:45:08 -0400
+Date: Fri, 3 Oct 2003 08:36:40 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Matthew Wilcox <willy@debian.org>
+Cc: piggin@cyberone.com.au, linux-kernel@vger.kernel.org, willy@debian.org
+Subject: Re: must-fix list reconciliation
+Message-Id: <20031003083640.61dcf517.rddunlap@osdl.org>
+In-Reply-To: <20031003113437.GL24824@parcelfarce.linux.theplanet.co.uk>
+References: <3F7D3F37.1060005@cyberone.com.au>
+	<20031003113437.GL24824@parcelfarce.linux.theplanet.co.uk>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310031725.23040.madx@tlen.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, 3 Oct 2003 12:34:37 +0100 Matthew Wilcox <willy@debian.org> wrote:
 
-	I've been using linux succesfully for quite long time. Recently I decided to 
-move to 2.6.x kernel series and all is fine but USB support. The problem 
-looks like this: 
+| On Fri, Oct 03, 2003 at 07:19:51PM +1000, Nick Piggin wrote:
+| > Hi everyone,
+| > As you might or might not know, the must-fix / should-fix lists have been
+| > inadvertently forked. We are merging them again, so please don't update
+| > the wiki until we have worked out what to do with them. This should be a
+| > day or two at most.
+| > 
+| > I had the idea that maybe we could put them into the source tree, and
+| > encourage people to keep them up to date by making them become criteria
+| > for the feature and code freeze. Comments?
+| 
+| I'm a little disappointed that after I spent time converting them into
+| the wiki form, you're now proposing abandoning them again.  This seems
+| like a retrograde step.
+| 
+| What I'd be more interested in doing is combining the must- and should-
+| fix lists.  As a first pass, just put all the must-fix items on the
+| should-fix list at pri 4.  One of the things I did was delete the things
+| that appeared on both lists.  This would obviously be easier if they
+| were in one list ;-)
 
-- Without USB support linux boots fine.
+Agreed on that.  I think the location is not the problem (whether
+source tree or wiki), it's just an extra step to keep them updated,
+and having no owner (or _many_ owners) often doesn't work.
+Is one of you (or the two of you) willing to be the owner/editor?
 
-- With USB support linux stops booting at some time and computer is just 
-frozen. Keyboard doesn't work. The only thing I can observe is that just 
-during loading USB modules hard disk starts working louder until the manual 
-power_off which is necessary because machine is dead at that time.
-
-All was fine with 2.4.x series. The problems started when I moved to 2.6.x. I 
-tried all 2.6.x versions released until now. None of them works fine with my 
-machine with USB support enabled.
-
-here is a little output from console during booting sequence:
-
-
-drivers/usb/core/usb.c: registered new driver hub
-ehci_hcd 0000:00:0c.2: EHCI Host Controller
-ehci_hcd 0000:00:0c.2: irq 11, pci mem df9e7800
-ehci_hcd 0000:00:0c.2: new USB bus registered, assigned bus number 1
-ehci_hcd 0000:00:0c.2: USB 2.0 enabled, EHCI 0.95, driver 2003-Jun-13
-hub 1-0:1.0: USB hub found
-hub 1-0:1.0: 4 ports detected
-drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver 
-v2.1
-uhci-hcd 0000:00:0c.0: UHCI Host Controller
-
-That's the last thing i can see. After this computer is dead. 
-
-some more details:
-- Sony Vaio PCG-FR285M laptop
-- linux 2.6.0-test6-bk4
-- no devices connected to USB ports during booting sequence
-- gcc 3.2.2
-- module-init-tools-0.9.15-pre2
-
-Any suggestions on this? If you need some more information please feel free to 
-ask me.
-
-Best Regards,
-
-	Mariusz Kozlowski
-
+--
+~Randy

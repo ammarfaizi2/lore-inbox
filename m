@@ -1,81 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbVBUEBN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbVBUEPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbVBUEBN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 23:01:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVBUEBN
+	id S261756AbVBUEPu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 23:15:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVBUEPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 23:01:13 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:19937 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261782AbVBUEBH (ORCPT
+	Sun, 20 Feb 2005 23:15:50 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:44765 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261756AbVBUEPo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 23:01:07 -0500
-Date: Sun, 20 Feb 2005 20:00:59 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: axboe@suse.de
-Cc: zaitcev@redhat.com, jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Merging fails reading /dev/uba1
-Message-ID: <20050220200059.53db7b1e@localhost.localdomain>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 20 Feb 2005 23:15:44 -0500
+Message-ID: <42196182.1090604@sgi.com>
+Date: Sun, 20 Feb 2005 22:20:18 -0600
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Andi Kleen <ak@muc.de>, Ray Bryant <raybry@austin.rr.com>,
+       linux-mm <linux-mm@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
+ II
+References: <m1vf8yf2nu.fsf@muc.de> <42114279.5070202@sgi.com> <20050215121404.GB25815@muc.de> <421241A2.8040407@sgi.com> <20050215214831.GC7345@wotan.suse.de> <4212C1A9.1050903@sgi.com> <20050217235437.GA31591@wotan.suse.de> <4215A992.80400@sgi.com> <20050218130232.GB13953@wotan.suse.de> <42168FF0.30700@sgi.com> <20050220214922.GA14486@wotan.suse.de>
+In-Reply-To: <20050220214922.GA14486@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Jens:
+Andi Kleen wrote:
+>>
+>>But we are least at the level of agreeing that the new system
+>>call looks something like the following:
+>>
+>>migrate_pages(pid, count, old_list, new_list);
+>>
+>>right?
+> 
+> 
+> For the external case probably yes. For internal (process does this
+> on its own address space) it should be hooked into mbind() too.
+> 
+> -Andi
+> 
+That makes sense.  I will agree to make that part work, too. as part
+of this.  We will probably do the external case first, because we have
+need for that.
 
-I think this question belongs to your domain, but please let me know
-if I'm mistaken, so I can pursue this elsewhere.
-
-I encountered a strange performance anomaly. I do the following:
-
-<----- Plug USB key
-[root@lembas ~]# time dd if=/dev/uba of=/dev/null bs=10k count=10240
-10240+0 records in
-10240+0 records out
-
-real    0m22.731s
-user    0m0.004s
-sys     0m0.345s
-[root@lembas ~]#
-
-<----- Remove and replug the USB key
-[root@lembas ~]# time dd if=/dev/uba1 of=/dev/null bs=10k count=10240
-10240+0 records in
-10240+0 records out
-
-real    1m42.622s
-user    0m0.005s
-sys     0m1.518s
-[root@lembas ~]#
-
-So, reading from a partition of the same device is 5 times slower than
-reading from the device itself. The question is, why?
-
-To the best of my knowledge, this does not occur with SCSI (usb-storage
-and sd or sr). This hints strongly that the ub is not doing something
-right, but what that can be?
-
-The ub takes the request processing machinery from Carmel exactly. I am
-wondering if Carmel (sx8) exhibits any similar performance anomalies
-(cc-ing to Jeff)
-
-Additional information:
-
-[root@lembas ~]# cat /proc/version
-Linux version 2.6.11-rc4-lem (zaitcev@lembas) (gcc version 3.4.2 20041017 (Red Hat 3.4.2-6.fc3)) #1 Tue Feb 15 23:06:39 PST 2005
-[root@lembas ~]# cat /proc/partitions
-major minor  #blocks  name
-
-   3     0   39070080 hda
-   3     1    5935986 hda1
-   3     2    5936017 hda2
-   3     3     554242 hda3
-   3     4          1 hda4
-   3     5   26643771 hda5
- 180     0    1024000 uba
- 180     1    1023983 uba1
-[root@lembas ~]#
-
-Thanks,
--- Pete
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------

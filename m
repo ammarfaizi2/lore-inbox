@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269621AbTGUK2F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 06:28:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269623AbTGUK2F
+	id S269639AbTGUKrt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 06:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269641AbTGUKrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 06:28:05 -0400
-Received: from tmi.comex.ru ([217.10.33.92]:36537 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S269621AbTGUK2D convert rfc822-to-8bit
+	Mon, 21 Jul 2003 06:47:49 -0400
+Received: from pd146.bielsko.sdi.tpnet.pl ([217.96.247.146]:4115 "EHLO
+	aquila.wombb.edu.pl") by vger.kernel.org with ESMTP id S269639AbTGUKrs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 06:28:03 -0400
-X-Comment-To: =?iso-8859-2?q?G=E1bor_L=E9n=E1rt?=
+	Mon, 21 Jul 2003 06:47:48 -0400
+Date: Mon, 21 Jul 2003 13:02:47 +0200
+From: =?ISO-8859-2?B?UHJ6ZW15c7NhdyBTdGFuaXOzYXc=?= Knycz 
+	<zolw@wombb.edu.pl>
+To: Bruce Harada <bharada@coral.ocn.ne.jp>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1: buffer layer error at fs/buffer.c:416
-From: Alex Tomas <bzzz@tmi.comex.ru>
-To: linux-kernel@vger.kernel.org
-Organization: HOME
-Date: Mon, 21 Jul 2003 14:42:43 +0000
-In-Reply-To: <20030721103330.GC17588@vega.digitel2002.hu>
- =?iso-8859-2?q?(G=E1bor_L=E9n=E1rt's?= message of "Mon, 21 Jul 2003
- 12:33:30 +0200")
-Message-ID: <87fzl0ym8s.fsf@gw.home.net>
-User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.3 (gnu/linux)
-References: <20030721093021.GA16319@vega.digitel2002.hu>
-	<20030721103330.GC17588@vega.digitel2002.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+Subject: Re: problem linux-2.6.0-test1 on alpha
+Message-Id: <20030721130247.2d0a6ae3.zolw@wombb.edu.pl>
+In-Reply-To: <20030721185759.1d8da19f.bharada@coral.ocn.ne.jp>
+References: <vines.sxdD+Gjg4zA@SZKOM.BFS.DE>
+	<20030721110934.0aa1aaeb.zolw@wombb.edu.pl>
+	<20030721185759.1d8da19f.bharada@coral.ocn.ne.jp>
+Organization: RODN "WOM" =?ISO-8859-2?B?QmllbHNrby1CaWGzYQ==?=
+X-Mailer: Sylpheed version 0.8.2claws (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dnia Mon, 21 Jul 2003 18:57:59 +0900
+Bruce Harada <bharada@coral.ocn.ne.jp> naszkroba³:
 
-are you sure it was clean 2.6.0-test1?
+> Just as a matter of interest, what distribution are you running on
+> that?
 
->>>>> Gábor Lénárt (GL) writes:
+PLD Linux Distribution (it's listed at alphalinux.org page) - test
+version. It haven't installer yet ;)
 
- GL> BTW, additional information: I've turned feature dir_index with tune2fs,
- GL> but I did not run "fsck -fD" on my filesystems ...
-
- GL> On Mon, Jul 21, 2003 at 11:30:21AM +0200, Gábor Lénárt wrote:
- >> When trying with 2.6.0-test1 everything seems to be fine. But when
- >> installing huge deb packages (Debian distribution) _AND_ doing eg some huge
- >> copy together, the great amount of disk i/o triggers somewhere a problem. At
- >> least I got messages like:
- >> 
- >> http://download.lgb.hu/bufferlayererror.txt
- >> 
- >> buffer layer error at fs/buffer.c:416
- GL> [...]
-
- GL> - Gábor (larta'H)
- GL> -
- GL> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
- GL> the body of a message to majordomo@vger.kernel.org
- GL> More majordomo info at  http://vger.kernel.org/majordomo-info.html
- GL> Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+.----[ a d m i n at w o m b b dot e d u dot p l ]----.
+| Przemys³aw Stanis³aw Knycz,  djrzulf@jabber.gda.pl |
+| Net/Sys Administrator, PLD Developer,  RLU: 213344 |
+`------ "Linux - the choice of GNU generation" ------'

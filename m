@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262172AbVBUW5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262168AbVBUXLj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262172AbVBUW5T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 17:57:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbVBUW5T
+	id S262168AbVBUXLj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 18:11:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbVBUXLj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 17:57:19 -0500
-Received: from levante.wiggy.net ([195.85.225.139]:20693 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S262172AbVBUW5G (ORCPT
+	Mon, 21 Feb 2005 18:11:39 -0500
+Received: from rproxy.gmail.com ([64.233.170.207]:19877 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262168AbVBUXLh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 17:57:06 -0500
-Date: Mon, 21 Feb 2005 23:57:02 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: James Simmons <jsimmons@pentafluge.infradead.org>
-Cc: Nigel Cunningham <ncunningham@cyclades.com>,
-       James Simmons <jsimmons@pentafluge.infradead.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>, Pavel Machek <pavel@suse.cz>,
-       Vojtech Pavlik <vojtech@suse.cz>, Oliver Neukum <oliver@neukum.org>,
-       Richard Purdie <rpurdie@rpsys.net>, Adrian Bunk <bunk@stusta.de>,
-       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6: drivers/input/power.c is never built
-Message-ID: <20050221225702.GO6722@wiggy.net>
-Mail-Followup-To: James Simmons <jsimmons@www.infradead.org>,
-	Nigel Cunningham <ncunningham@cyclades.com>,
-	James Simmons <jsimmons@pentafluge.infradead.org>,
-	Dmitry Torokhov <dtor_core@ameritech.net>,
-	Pavel Machek <pavel@suse.cz>, Vojtech Pavlik <vojtech@suse.cz>,
-	Oliver Neukum <oliver@neukum.org>,
-	Richard Purdie <rpurdie@rpsys.net>, Adrian Bunk <bunk@stusta.de>,
-	Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <047401c515bb$437b5130$0f01a8c0@max> <20050218213801.GA3544@ucw.cz> <20050218233148.GA1628@elf.ucw.cz> <200502182158.34910.dtor_core@ameritech.net> <1108794519.4098.24.camel@desktop.cunningham.myip.net.au> <Pine.LNX.4.56.0502211810360.13423@pentafluge.infradead.org> <20050221183413.GG6722@wiggy.net> <Pine.LNX.4.56.0502212137090.16017@pentafluge.infradead.org> <1109026236.8475.2.camel@desktop.cunningham.myip.net.au> <Pine.LNX.4.56.0502212251540.17645@pentafluge.infradead.org>
+	Mon, 21 Feb 2005 18:11:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=hIQ6QB2j1rD3xIChMACQyKjTNerXu0KVZfhxJo5e3GTdP0vnoILztEp4x1vEObfixjLXTYLcXNPNtLwL24poEKjYd6fk+8lYyFzGTxNfZJylT0nDWKOuA6vwtYCGyZLqqzq7k8kNEVXp+T0gwkPtbscC5Uyx831+WVoDON1wsYc=
+Message-ID: <29495f1d050221151168548698@mail.gmail.com>
+Date: Mon, 21 Feb 2005 15:11:36 -0800
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Anthony DiSante <theant@nodivisions.com>
+Subject: Re: uninterruptible sleep lockups
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <421A6450.8070404@nodivisions.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.56.0502212251540.17645@pentafluge.infradead.org>
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: <locally generated>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <421A3414.2020508@nodivisions.com>
+	 <200502211945.j1LJjgbZ029643@turing-police.cc.vt.edu>
+	 <421A4375.9040108@nodivisions.com>
+	 <200502212054.j1LKs3xi032658@turing-police.cc.vt.edu>
+	 <421A6450.8070404@nodivisions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously James Simmons wrote:
-> DBUS isthe future. I just wish they had  programing howto for the average 
-> joe to write apps for it.
+On Mon, 21 Feb 2005 17:44:32 -0500, Anthony DiSante
+<theant@nodivisions.com> wrote:
+> Valdis.Kletnieks@vt.edu wrote:
+> > See the thread rooted here:
+> >
+> > Date: Wed, 03 Nov 2004 07:51:39 -0500
+> > From: Gene Heskett <gene.heskett@verizon.net>
+> > Subject: is killing zombies possible w/o a reboot?
+> > Sender: linux-kernel-owner@vger.kernel.org
+> > To: linux-kernel@vger.kernel.org
+> > Reply-to: gene.heskett@verizon.net
+> > Message-id: <200411030751.39578.gene.heskett@verizon.net>
+> 
+> Also, one of the things mentioned in that thread is that whenever a driver
+> is waiting on I/O from a piece of hardware, there should always be some
+> timeout code.  Is that the root of the permanent D state?  Is it always a
+> process waiting on a piece of hardware that should be eventually timing out,
+> except the timeout code isn't there?
 
-The docs are good enough in my experience, there just seems to be a gap
-between the docs and the code. Strangely enough in this case there are
-documented API bits that are not implemented instead of the other way
-around as usual.
+If you would like to file a bugzilla bug (or reference one if you
+already have) -- http://bugzilla.kernel.org -- it would be easier to
+track the problems. It would be good to get some idea of what hardware
+is running (and thus what drivers) to debug further.
 
-Wichert.
-
--- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
+Thanks,
+Nish

@@ -1,66 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263853AbTK2Rnp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 12:43:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263855AbTK2Rno
+	id S263801AbTK2Rlr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 12:41:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263811AbTK2Rlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 12:43:44 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:1411 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263853AbTK2Rnm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 12:43:42 -0500
-Subject: Re: Too soon for stable release?
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Larry McVoy <lm@work.bitmover.com>, Tim Cambrant <tim@cambrant.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031129171111.A32154@flint.arm.linux.org.uk>
-References: <20031129174916.GA4592@cambrant.com>
-	 <20031129170104.GA15333@work.bitmover.com>
-	 <20031129171111.A32154@flint.arm.linux.org.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3M0lR/n5bxbIOkHL1edK"
-Organization: Red Hat, Inc.
-Message-Id: <1070127768.5228.1.camel@laptop.fenrus.com>
+	Sat, 29 Nov 2003 12:41:47 -0500
+Received: from relay-1m.club-internet.fr ([194.158.104.40]:27872 "EHLO
+	relay-1m.club-internet.fr") by vger.kernel.org with ESMTP
+	id S263801AbTK2Rlk convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Nov 2003 12:41:40 -0500
+From: pinotj@club-internet.fr
+To: manfred@colorfullife.com, torvalds@osdl.org
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
+Date: Sat, 29 Nov 2003 18:41:36 CET
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sat, 29 Nov 2003 18:42:48 +0100
+X-Mailer: Medianet/v2.0
+Message-Id: <mnet1.1070127696.1558.pinotj@club-internet.fr>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I triggered the slab oops with a very small kernel -test11 (~700KB):
 
---=-3M0lR/n5bxbIOkHL1edK
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+---
+slab: double free detected in cache 'biovec-1', objp c12c2df0, objn 122, slabp c12c2000, s_mem c12c2280, bufctl ffffffff
+---
 
-On Sat, 2003-11-29 at 18:11, Russell King wrote:
-> On Sat, Nov 29, 2003 at 09:01:04AM -0800, Larry McVoy wrote:
-> > The news media hasn't picked up on this yet, they seem to think that
-> > 2.6.0 is something that will be useful.  It won't be, there will be a
-> > period of months during which things stablize and then you'll see the
-> > distros pick up the release.  I don't remember where it was exactly
-> > (2.4.18?) but Red Hat waited quite a while before switching to 2.4
-> > from 2.2.  This is normal and it works out quite well in practice.
->=20
-> Red Hat did a 2.4.2 release which was 2.4.2 + a lot of stability changes.
+Oops occurs very quickly during compilation.
 
-which was basically a 2.4.4-pre=20
+Here is the .config file (I removed unset options). Full config can be found at http://cercle-daejeon.homelinux.org/misc/config-small.txt , if you want diff with other config for example.
 
-> IIRC, RH7.2 was based on 2.4.7,
+BTW, I don't understand why I can't remove config about game port, mouse and DOS partition. Compilation without DMA fails.
 
-2.4.7 lived for half a day but the VM of 2.4.7 was so bad we had to go
-to 2.4.9 immediately..
+I will reduce it again by removing FB and try unset some options in "linux for embbeded systems" and in debug.
 
---=-3M0lR/n5bxbIOkHL1edK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Hope it can help find the problem.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+Jerome Pinot
 
-iD8DBQA/yNqXxULwo51rQBIRAnERAJsFpk3//5634xKepDYUFrTIf4I1YwCeMCIc
-VJrtf9jUwwLGPQnLmrIXv/4=
-=ttDG
------END PGP SIGNATURE-----
+---
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
 
---=-3M0lR/n5bxbIOkHL1edK--
+CONFIG_CLEAN_COMPILE=y
+CONFIG_STANDALONE=y
+CONFIG_BROKEN_ON_SMP=y
+
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+
+CONFIG_X86_PC=y
+CONFIG_M386=y
+CONFIG_X86_L1_CACHE_SHIFT=4
+CONFIG_RWSEM_GENERIC_SPINLOCK=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_X86_F00F_BUG=y
+CONFIG_NOHIGHMEM=y
+
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+
+CONFIG_BINFMT_ELF=y
+
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+
+CONFIG_BLK_DEV_IDEDISK=y
+
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_IDEDMA=y
+
+CONFIG_INPUT=y
+
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+
+CONFIG_FB=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONTS=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+
+CONFIG_XFS_FS=y
+
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_RAMFS=y
+
+CONFIG_MSDOS_PARTITION=y
+
+CONFIG_DEBUG_KERNEL=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+CONFIG_DEBUG_SLAB=y
+CONFIG_DEBUG_IOVIRT=y
+CONFIG_DEBUG_SPINLOCK=y
+CONFIG_DEBUG_PAGEALLOC=y
+CONFIG_DEBUG_INFO=y
+CONFIG_DEBUG_SPINLOCK_SLEEP=y
+CONFIG_FRAME_POINTER=y
+
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_PC=y
+---
+

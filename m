@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUGISOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265200AbUGISRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbUGISOq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 14:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265163AbUGISOp
+	id S265200AbUGISRU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 14:17:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265201AbUGISRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 14:14:45 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:35539 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S265161AbUGISOm (ORCPT
+	Fri, 9 Jul 2004 14:17:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:9671 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265200AbUGISRT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 14:14:42 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Fri, 9 Jul 2004 14:17:19 -0400
+Date: Fri, 9 Jul 2004 11:17:17 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: Chris Wright <chrisw@osdl.org>, Chris White <webmaster@securesystem.info>,
+       manuel@todo-linux.com, linux-kernel@vger.kernel.org
+Subject: Re: Kernel fchown() exploit status?
+Message-ID: <20040709111717.J1973@build.pdx.osdl.net>
+References: <40EDB764.6060107@securesystem.info> <20040708162414.I1973@build.pdx.osdl.net> <200407091146.32077.mbuesch@freenet.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16622.57487.724904.777454@napali.hpl.hp.com>
-Date: Fri, 9 Jul 2004 11:14:39 -0700
-To: Peter Martuccelli <peterm@redhat.com>
-Cc: davidm@hpl.hp.com, akpm@osdl.org, faith@redhat.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       ray.lanza@hp.com
-Subject: Re: [PATCH] Updated IA64 audit support
-In-Reply-To: <200407091401.i69E1lUf005545@redrum.boston.redhat.com>
-References: <200407091401.i69E1lUf005545@redrum.boston.redhat.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200407091146.32077.mbuesch@freenet.de>; from mbuesch@freenet.de on Fri, Jul 09, 2004 at 11:46:30AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 9 Jul 2004 10:01:47 -0400, Peter Martuccelli <peterm@redhat.com> said:
+* Michael Buesch (mbuesch@freenet.de) wrote:
+> Is there an exploit available to test if the kernel has
+> this vulnerability?
 
-  Peter> I updated the patch to use the IS_IA32_PROCESS() macro, and
-  Peter> removed trailing white-space as requested.  Retested with the
-  Peter> changes, no issues to report. An updated patch follows.  Let
-  Peter> me know if there are any other issues.
+Just use of chown(2).
 
-  Peter> Please CC me directly with with any follow up posts.
-
-Nice and clean.  All that's missing is a changelog entry and a
-"Signed-off-by" trailer.  If you send me that, I'll apply it.
-
-Thanks,
-
-	--david
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

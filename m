@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbTEIHqt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 03:46:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbTEIHqs
+	id S262341AbTEIHu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 03:50:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbTEIHu5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 03:46:48 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:52747 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262347AbTEIHqs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 03:46:48 -0400
-Date: Fri, 9 May 2003 08:59:24 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The disappearing sys_call_table export.
-Message-ID: <20030509085924.B12170@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200305090352_MC3-1-3815-126F@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200305090352_MC3-1-3815-126F@compuserve.com>; from 76306.1226@compuserve.com on Fri, May 09, 2003 at 03:50:31AM -0400
+	Fri, 9 May 2003 03:50:57 -0400
+Received: from mail.hometree.net ([212.34.181.120]:4507 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP id S262341AbTEIHu5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 03:50:57 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: 2.5.69: VIA IDE still broken
+Date: Fri, 9 May 2003 08:03:34 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <b9fncm$6ae$1@tangens.hometree.net>
+References: <20030508220910.GA1070@codeblau.de>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1052467414 6478 212.34.181.4 (9 May 2003 08:03:34 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Fri, 9 May 2003 08:03:34 +0000 (UTC)
+X-Copyright: (C) 1996-2003 Henning Schmiedehausen
+X-No-Archive: yes
+User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 09, 2003 at 03:50:31AM -0400, Chuck Ebbert wrote:
->   Security-sensitive upper layers like virus scanners and loggers
-> would want to do it that way.  The upper layer might even just log
-> the fact that mount happened and then stay out of the way after that.
+Felix von Leitner <felix-kernel@fefe.de> writes:
 
-Maybe _they_ want it.  We don't want it, though.
+>reliability and market penetration over price.  I envy people who can
+>still evangelize Linux under circumstances like this.  I sure as hell
+>can not.
+
+Solution A: Don't use _development_ kernels.
+
+Solution B: Use another OS where development snapshots have production quality.
+
+	Regards
+		Henning
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
+
+Java, perl, Solaris, Linux, xSP Consulting, Web Services 
+freelance consultant -- Jakarta Turbine Development  -- hero for hire

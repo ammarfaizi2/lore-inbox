@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272567AbTHSSKO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 14:10:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272521AbTHSSJF
+	id S272484AbTHSSIv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 14:08:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272447AbTHSSIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 14:09:05 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:42761
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S272335AbTHSSAg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 14:00:36 -0400
-Date: Tue, 19 Aug 2003 11:00:28 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, andrea@suse.de, green@namesys.com,
-       marcelo@conectiva.com.br, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       mason@suse.com
-Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
-Message-ID: <20030819180028.GB19465@matchmail.com>
-Mail-Followup-To: Stephan von Krawczynski <skraw@ithnet.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, andrea@suse.de,
-	green@namesys.com, marcelo@conectiva.com.br, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, mason@suse.com
-References: <20030813125509.360c58fb.skraw@ithnet.com> <Pine.LNX.4.44.0308131143570.4279-100000@localhost.localdomain> <20030813145940.GC26998@namesys.com> <20030813171224.2a13b97f.skraw@ithnet.com> <20030813153009.GA27209@namesys.com> <20030819011208.GK10320@matchmail.com> <20030819091243.007acac0.skraw@ithnet.com> <1061298621.30565.31.camel@dhcp23.swansea.linux.org.uk> <20030819161832.2a0bae58.skraw@ithnet.com>
+	Tue, 19 Aug 2003 14:08:50 -0400
+Received: from aneto.able.es ([212.97.163.22]:40180 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S272635AbTHSSAv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 14:00:51 -0400
+Date: Tue, 19 Aug 2003 20:00:49 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SCO's "proof"
+Message-ID: <20030819180049.GA10670@werewolf.able.es>
+References: <3F422809.7080806@yahoo.com> <20030819153056.GB3059@gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <20030819161832.2a0bae58.skraw@ithnet.com>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20030819153056.GB3059@gtf.org>; from jgarzik@pobox.com on Tue, Aug 19, 2003 at 17:30:56 +0200
+X-Mailer: Balsa 2.0.13
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 19, 2003 at 04:18:32PM +0200, Stephan von Krawczynski wrote:
-> On 19 Aug 2003 14:10:22 +0100
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> 
-> > On Maw, 2003-08-19 at 08:12, Stephan von Krawczynski wrote:
-> > > > Are you saying that one CPU can't saturate the memory bus?  Or maybe
-> > > > we're hitting something on the CPU bus, or just that SMP will change the
-> > > > timings and stress things differently?  Or that if memtest doesn't test
-> > > > from the second CPU then it could be a faulty cpu/L2?
-> > > 
-> > > Well, if memtest does not use a second available CPU then probably we
-> > > should ask the author about this...
+
+On 08.19, Jeff Garzik wrote:
+> On Tue, Aug 19, 2003 at 09:37:13AM -0400, Brandon Stewart wrote:
+> > compliments of "d1rkinator" from yahoo finance message board:
 > > 
-> > I'm sure he'd give you a quote for adding SMP support if you asked.
+> > The code SCO finds offending:
+> > 
+> > www.heise.de/newsticker/data/jk-19.08.03-000/imh0.jpg
+> > www.heise.de/newsticker/data/jk-19.08.03-000/imh1.jpg
 > 
-> Well, actually I don't want to burn down his time as long as I don't see a need
-> for it. Since I am pretty confident to make the box work in SMP under 2.4.20 a
-> memtest will most certainly not give any additional information, be it running
-> UP or SMP.
-> Instead I will invest another day and convert the whole system back to
-> reiserfs, because the ext3 fs cannot be used under 2.4.20 - I don't know why.
-> Additionally reiserfs is better for testing possible patches because it crashes
-> in much shorter time than ext3 setup.
-> 2.4.20 setup gives me a simple testcase to prove people right or wrong that are
-> talking about a hardware issue.
+> Why the heck is ia64 inventing its own mutex spinlocks?
+> 
 
-Are you doing a lot of directory operations, or is it mostly just large
-amounts of data transfering over NFS?
+They can't even copy code to a slide:
 
-The reason why I ask, is that I know that at least JFS and possibly XFS uses
-trees for their directory structures, and might show similar problems (with
-its large use of trees), if you did a lot of directory operations on the
-other filesystems.
+	if (size==0)
+		return)((ulong_t NULL);
 
-Then maybe it could rule out reiserfs.  Though it still did show up on ext3...
+That does not compile...
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.22-rc2-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-1mdk))

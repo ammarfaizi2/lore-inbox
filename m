@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276418AbRI2CiP>; Fri, 28 Sep 2001 22:38:15 -0400
+	id <S276417AbRI2Cfz>; Fri, 28 Sep 2001 22:35:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276419AbRI2CiF>; Fri, 28 Sep 2001 22:38:05 -0400
-Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:29202 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S276418AbRI2Ch6>;
-	Fri, 28 Sep 2001 22:37:58 -0400
-Message-ID: <3BB53460.9000409@si.rr.com>
-Date: Fri, 28 Sep 2001 22:39:28 -0400
-From: Frank Davis <fdavis@si.rr.com>
-Reply-To: fdavis@si.rr.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: alan@lxorguk.ukuu.org.uk
-CC: linux-kernel@vger.kernel.org
-Subject: 2.4.9-ac17: unresolved symbols
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S276418AbRI2Cfq>; Fri, 28 Sep 2001 22:35:46 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:49613 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S276417AbRI2Cfg>; Fri, 28 Sep 2001 22:35:36 -0400
+Date: Fri, 28 Sep 2001 22:35:02 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-tape@vger.kernel.org
+Subject: Re: idetape broke in 2.4.x-2.4.9-ac5 (write OK but not read) ide-scsi works in 2.4.4
+Message-ID: <20010928223502.D13766@devserv.devel.redhat.com>
+In-Reply-To: <200109042234.AAA28635@harpo.it.uu.se> <20010927234023.A16753@devserv.devel.redhat.com> <15284.16283.111942.13934@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15284.16283.111942.13934@harpo.it.uu.se>; from mikpe@csd.uu.se on Fri, Sep 28, 2001 at 11:15:07AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-    I received the following while 'make modules_install'
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.9-ac17/kernel/fs/cramfs/cramfs/cramfs.o
-depmod:  zlib_fs_inflateInit_
-depmod:  zlib_fs_inflateEnd
-depmod:  zlib_fs_inflate_workspacesize
-depmod:  zlib_fs_inflate
-depmod:  zlib_fs_inflateReset
+> From: Mikael Pettersson <mikpe@csd.uu.se>
+> Date: Fri, 28 Sep 2001 11:15:07 +0200
+> Cc: linux-kernel@vger.kernel.org, linux-tape@vger.kernel.org
 
-Used the same config that worked with 2.4.9-ac16 . Using gcc 
-2.91.66..Upgrading to 2.95.4 soon.
+>  > By the way, why does everyone insist on using ide-tape?
+>  > It seems to be broken beyond any repair by injection of
+>  > lethal poison marked "OnStream Support" (not that it was brilliant
+>  > before, but that was the last nail in the coffin). Just use ide-scsi
+>  > and be done with it. I really do not enjoy reading ide-tape.c.
+> 
+> I agree that ide-tape.c looks like a buggy piece of cr*p, but apart
+> from that, what would I gain from using scsi tape on top of ide-scsi?
+> Would it magically work on broken Colorados?
 
-Regards,
-Frank
+Umm... I hope someone else would fix ide-scsi when it breaks :)
 
+I fixed Colorado, but it's certainly not the last bug.
+Frist, DMA must be off, and it is often on by default.
+Second, Dell QA already filed a new tapemark related bug...
+
+-- Pete

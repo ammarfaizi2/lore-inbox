@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262190AbTBOOgH>; Sat, 15 Feb 2003 09:36:07 -0500
+	id <S262446AbTBOPVz>; Sat, 15 Feb 2003 10:21:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262208AbTBOOgH>; Sat, 15 Feb 2003 09:36:07 -0500
-Received: from kestrel.vispa.uk.net ([62.24.228.12]:25616 "EHLO
-	kestrel.vispa.uk.net") by vger.kernel.org with ESMTP
-	id <S262190AbTBOOgG>; Sat, 15 Feb 2003 09:36:06 -0500
-Message-ID: <3E4E51CC.3080700@walrond.org>
-Date: Sat, 15 Feb 2003 14:42:20 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
+	id <S262452AbTBOPVz>; Sat, 15 Feb 2003 10:21:55 -0500
+Received: from faui11.informatik.uni-erlangen.de ([131.188.31.2]:49326 "EHLO
+	faui11.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S262446AbTBOPVy>; Sat, 15 Feb 2003 10:21:54 -0500
+From: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
+Message-Id: <200302151531.QAA01646@faui11.informatik.uni-erlangen.de>
+Subject: Re: [PATCH][2.5][8/14] smp_call_function_on_cpu - s390
+To: zwane@holomorphy.com (Zwane Mwaikambo)
+Date: Sat, 15 Feb 2003 16:31:46 +0100 (MET)
+Cc: weigand@immd1.informatik.uni-erlangen.de (Ulrich Weigand),
+       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
+In-Reply-To: <Pine.LNX.4.50.0302150924250.3518-100000@montezuma.mastecende.com> from "Zwane Mwaikambo" at Feb 15, 2003 09:29:19 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: hps@intermeta.de
-CC: linux-kernel@vger.kernel.org
-Subject: Re: openbkweb-0.0
-References: <Pine.LNX.4.44.0302132224470.656-100000@dlang.diginsite.com> <1045233701.7958.14.camel@irongate.swansea.linux.org.uk> <20030214153039.GB3188@work.bitmover.com> <1045241763.1353.19.camel@irongate.swansea.linux.org.uk> <20030214164720.GC200@louise.pinerecords.com> <20030214165041.GA6564@work.bitmover.com> <20030214170915.GE200@louise.pinerecords.com> <20030214172411.GC6564@work.bitmover.com> <b2l93k$v55$2@tangens.hometree.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't believe you (about the unlimited bandwidth)
+Zwane Mwaikambo wrote:
 
-I have to pay £2,000 per month for unlimited bandwidth on a 10Mbps port 
-and a whopping £15,000 per month (which is an awful lot of euros) for 
-unlimited use of a 100Mbps port
+> +		if (cpu_online(i) && ((1UL << i) && mask))
 
-So either I'm being *very* stupid or you're wrong
+That's still '&&' instead of '&'.
 
-Andrew Walrond
+Bye,
+Ulrich
 
-Henning P. Schmiedehausen wrote:
-> Larry McVoy <lm@bitmover.com> writes:
-> 
-> 
->>Because it costs money for bandwidth.  I agree it would be useful, so
->>find someone to cough up the $15K/year for the bandwidth and you can
->>have the diff interface you want.  The code is already written, it has
->>been for more than a year, it's simply a money issue.
-> 
-> 
-> Over here in "old europe", I can get 1" Rackspace with unlimited
-> traffic for as little as 50 euros per month. I can even get a managed
-> server with that for about 100 euros. I can't believe that this is not
-> possible in the country of "unlimited bandwith" (TM). Talk to the
-> people at RackShack or drop me a line, so we can arrange something
-> with a housing provider over here.
-> 
-> This is, after all, the 21st century.
-> 
-> 	Regards
-> 		Henning
-> 
-
-
+-- 
+  Dr. Ulrich Weigand
+  weigand@informatik.uni-erlangen.de

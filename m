@@ -1,365 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289166AbSAVFea>; Tue, 22 Jan 2002 00:34:30 -0500
+	id <S289172AbSAVFtM>; Tue, 22 Jan 2002 00:49:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289167AbSAVFeV>; Tue, 22 Jan 2002 00:34:21 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:18159 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S289166AbSAVFeE>; Tue, 22 Jan 2002 00:34:04 -0500
-Date: Mon, 21 Jan 2002 21:40:06 -0800
-From: Chris Wright <chris@wirex.com>
-To: linux-kernel@vger.kernel.org
-Cc: matthew@wil.cx
-Subject: [PATCH] 2.5.3-pre3 fcntl_[gs]etlk* cleanup
-Message-ID: <20020121214006.A23837@figure1.int.wirex.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, matthew@wil.cx
+	id <S289171AbSAVFtD>; Tue, 22 Jan 2002 00:49:03 -0500
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:26897 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S289172AbSAVFsx>;
+	Tue, 22 Jan 2002 00:48:53 -0500
+Subject: Re: Athlon PSE/AGP Bug
+From: Shaya Potter <spotter@opus.cs.columbia.edu>
+To: Steve Brueggeman <brewgyman@mediaone.net>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <o7cp4ukpr9ehftpos1hg807a9hfor7s55e@4ax.com>
+In-Reply-To: <1011610422.13864.24.camel@zeus>
+	<20020121.053724.124970557.davem@redhat.com>,
+	<20020121.053724.124970557.davem@redhat.com>; from davem@redhat.com on Mon,
+	Jan 21, 2002 at 05:37:24AM -0800 <20020121175410.G8292@athlon.random>
+	<3C4C5B26.3A8512EF@zip.com.au>  <o7cp4ukpr9ehftpos1hg807a9hfor7s55e@4ax.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 22 Jan 2002 00:45:59 -0500
+Message-Id: <1011678359.904.4.camel@zaphod>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+athlon XP 1800 is a cpuid 622 (aka an A5)
 
-The sys_fcntl() code does fget(fd) upon entry.  Later during the
-F_GETLK, F_SETLK, F_GETLK64 and F_SETLK64 code paths, the fd is looked
-up again, rather than using the filp that is already known.  AFAICT this
-is not necessary.  The patch below addresses this.
+doesn't have this bug, according to AMD tech docs.
 
-- fcntl_getlk, fcntl_setlk, fcntl_setlk64, and fcntl_getlk64 now take filp
-- collapse F_SETLK64 and F_SETLKW64 cases to one fall through case.
-- removed unused -EINVAL assignment in fcntl_setlk and fcntl_setlk64
+at least my 2 XP 1800+s are 622, so I assume all are (could be wrong)
 
-I have compiled, but not booted this patch.
+On Mon, 2002-01-21 at 19:36, Steve Brueggeman wrote:
+> Actually, this one hit home this weekend.
+> 
+> I bought a new computer at a computer fair.
+> ECS K7S5A Motherboard
+> 1.8Ghz (1.5actually) Athelon XP
+> 3DForce2-MX
+> 256MB DDR SDRAM PC-2100
+> AHA2940UW SCSI Controller
+> Compaq CDROM (reused from other upgraded system)
+> 
+> Spent all of Saturday trying to install Mandrake Linux 8.1 with random crashes,
+> segfaults, IDE-Timeouts.  Figuring this to be a memory problem, I ran memtest86
+> for 4 hours without any errors.  Was getting late, and said screw-it and went to
+> bed.  
+> 
+> Sunday, set the memory and CPU both to 100Mhz, still have problems. so I set
+> both back to 133Mhz.  Booted kernel 2.2.19 from 2nd CD in Mandrake set, and had
+> better luck.  Got it installed after 3 restarts.  Figuring this was somehow
+> related to APM or ACPI, I compiled a standard Marcello  kernel 2.4.17, but could
+> not make it through a whole compile without segfaults.  I'd just restart the
+> compile, letting make skip past the stuff that was already compiled.  Got an
+> average of 3-4 segfaults on compile run, and I tried about 5 runs.
+> 
+> Boot to linux-2.4.17 with APM and ACPI disabled, and only stuff in my system
+> enabled, and no Frame Buffer, still get segfaults when compiling kernel.
+> 
+> Then by sheer luck, while doing my normal check of linuxtoday.com, the top
+> article mentioned this Athelon bug.  I figure, "Hey, this sounds somewhat
+> familar", so I reboot with mem=nopentium as they suggested.
+> 
+> I've compiled the linux-2.4.17 about 10 times now, without a single segfault.
+> 
+> So, add me to the "Yes I've got this problem" list, and Yes, it appears to be
+> related to Nvidia AGP boards.
+> 
+> I've been running a 1Ghz Thunderbird for about a year now, with 2 different ATI
+> boards without any problems.  I'll try swapping the ATI and Nvidia display
+> adapters and see if it follows.
+> 
+> Steve Brueggeman
+> 
+> On Mon, 21 Jan 2002 10:17:10 -0800, you wrote:
+> 
+> >Andrea Arcangeli wrote:
+> >> 
+> >> ...
+> >> 
+> >> I think this is a very very minor issue, I doubt anybody ever triggered
+> >> it in real life with linux.
+> >
+> >It is said that the crashes cease when the `nopentium' option
+> >is used, so it does appear that something is up.
+> >
+> >I does seem that the nVidia driver is usually involved.
+> >
+> >> And Gentoo is shipping a kernel with preempt and rmaps included, so it
+> >> can crash anytime anyways, no matter how good the cpu is, so if they
+> >> got crashes with such a kernel (maybe even with nvidia driver) that's
+> >> normal. I was speaking today with a trusted party doing vm benchmarking
+> >> and rmap crashes the kernel reproducibly under a stright calloc while
+> >> swapping heavily, so clearly the implementation is still broken.
+> >
+> >-rmap is still young.  I did some heavy stress testing on it a couple
+> >of days ago and it was rock-solid, and performed well.
+> >
+> >> preempt additionally will mess up all the locking into the nvidia driver as
+> >> well. so if the combination of the two runs for some time without any
+> >> lockup that's pure luck IMHO.
+> >
+> >Yup.  But don't forget about the `nopentium' observations.
+> >
+> >-
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Comments?
 
-thanks,
--chris
-
-diff -X /home/chris/dontdiff -Naur linux-2.5.3-pre3/fs/fcntl.c linux-2.5.3-pre3-setlk/fs/fcntl.c
---- linux-2.5.3-pre3/fs/fcntl.c	Mon Jan 21 18:28:32 2002
-+++ linux-2.5.3-pre3-setlk/fs/fcntl.c	Mon Jan 21 20:28:33 2002
-@@ -296,11 +296,11 @@
- 			unlock_kernel();
- 			break;
- 		case F_GETLK:
--			err = fcntl_getlk(fd, (struct flock *) arg);
-+			err = fcntl_getlk(filp, (struct flock *) arg);
- 			break;
- 		case F_SETLK:
- 		case F_SETLKW:
--			err = fcntl_setlk(fd, cmd, (struct flock *) arg);
-+			err = fcntl_setlk(filp, cmd, (struct flock *) arg);
- 			break;
- 		case F_GETOWN:
- 			/*
-@@ -382,13 +382,11 @@
- 
- 	switch (cmd) {
- 		case F_GETLK64:
--			err = fcntl_getlk64(fd, (struct flock64 *) arg);
-+			err = fcntl_getlk64(filp, (struct flock64 *) arg);
- 			break;
- 		case F_SETLK64:
--			err = fcntl_setlk64(fd, cmd, (struct flock64 *) arg);
--			break;
- 		case F_SETLKW64:
--			err = fcntl_setlk64(fd, cmd, (struct flock64 *) arg);
-+			err = fcntl_setlk64(filp, cmd, (struct flock64 *) arg);
- 			break;
- 		default:
- 			err = do_fcntl(fd, cmd, arg, filp);
-diff -X /home/chris/dontdiff -Naur linux-2.5.3-pre3/fs/locks.c linux-2.5.3-pre3-setlk/fs/locks.c
---- linux-2.5.3-pre3/fs/locks.c	Mon Jan  7 12:55:16 2002
-+++ linux-2.5.3-pre3-setlk/fs/locks.c	Mon Jan 21 21:00:06 2002
-@@ -1352,9 +1352,8 @@
- /* Report the first existing lock that would conflict with l.
-  * This implements the F_GETLK command of fcntl().
-  */
--int fcntl_getlk(unsigned int fd, struct flock *l)
-+int fcntl_getlk(struct file *filp, struct flock *l)
- {
--	struct file *filp;
- 	struct file_lock *fl, file_lock;
- 	struct flock flock;
- 	int error;
-@@ -1366,19 +1365,14 @@
- 	if ((flock.l_type != F_RDLCK) && (flock.l_type != F_WRLCK))
- 		goto out;
- 
--	error = -EBADF;
--	filp = fget(fd);
--	if (!filp)
--		goto out;
--
- 	error = flock_to_posix_lock(filp, &file_lock, &flock);
- 	if (error)
--		goto out_putf;
-+		goto out;
- 
- 	if (filp->f_op && filp->f_op->lock) {
- 		error = filp->f_op->lock(filp, F_GETLK, &file_lock);
- 		if (error < 0)
--			goto out_putf;
-+			goto out;
- 		else if (error == LOCK_USE_CLNT)
- 		  /* Bypass for NFS with no locking - 2.0.36 compat */
- 		  fl = posix_test_lock(filp, &file_lock);
-@@ -1398,10 +1392,10 @@
- 		 */
- 		error = -EOVERFLOW;
- 		if (fl->fl_start > OFFT_OFFSET_MAX)
--			goto out_putf;
-+			goto out;
- 		if ((fl->fl_end != OFFSET_MAX)
- 		    && (fl->fl_end > OFFT_OFFSET_MAX))
--			goto out_putf;
-+			goto out;
- #endif
- 		flock.l_start = fl->fl_start;
- 		flock.l_len = fl->fl_end == OFFSET_MAX ? 0 :
-@@ -1413,8 +1407,6 @@
- 	if (!copy_to_user(l, &flock, sizeof(flock)))
- 		error = 0;
-   
--out_putf:
--	fput(filp);
- out:
- 	return error;
- }
-@@ -1422,12 +1414,11 @@
- /* Apply the lock described by l to an open file descriptor.
-  * This implements both the F_SETLK and F_SETLKW commands of fcntl().
-  */
--int fcntl_setlk(unsigned int fd, unsigned int cmd, struct flock *l)
-+int fcntl_setlk(struct file *filp, unsigned int cmd, struct flock *l)
- {
--	struct file *filp;
- 	struct file_lock *file_lock = locks_alloc_lock(0);
- 	struct flock flock;
--	struct inode *inode;
-+	struct inode *inode = filp->f_dentry->d_inode;
- 	int error;
- 
- 	if (file_lock == NULL)
-@@ -1440,17 +1431,6 @@
- 	if (copy_from_user(&flock, l, sizeof(flock)))
- 		goto out;
- 
--	/* Get arguments and validate them ...
--	 */
--
--	error = -EBADF;
--	filp = fget(fd);
--	if (!filp)
--		goto out;
--
--	error = -EINVAL;
--	inode = filp->f_dentry->d_inode;
--
- 	/* Don't allow mandatory locks on files that may be memory mapped
- 	 * and shared.
- 	 */
-@@ -1460,23 +1440,25 @@
- 
- 		if (mapping->i_mmap_shared != NULL) {
- 			error = -EAGAIN;
--			goto out_putf;
-+			goto out;
- 		}
- 	}
- 
-+	/* Get arguments and validate them ...
-+	 */
- 	error = flock_to_posix_lock(filp, file_lock, &flock);
- 	if (error)
--		goto out_putf;
-+		goto out;
- 	
- 	error = -EBADF;
- 	switch (flock.l_type) {
- 	case F_RDLCK:
- 		if (!(filp->f_mode & FMODE_READ))
--			goto out_putf;
-+			goto out;
- 		break;
- 	case F_WRLCK:
- 		if (!(filp->f_mode & FMODE_WRITE))
--			goto out_putf;
-+			goto out;
- 		break;
- 	case F_UNLCK:
- 		break;
-@@ -1494,23 +1476,21 @@
- 	}
- }
- 		if (!(filp->f_mode & 3))
--			goto out_putf;
-+			goto out;
- 		break;
- #endif
- 	default:
- 		error = -EINVAL;
--		goto out_putf;
-+		goto out;
- 	}
- 
- 	if (filp->f_op && filp->f_op->lock != NULL) {
- 		error = filp->f_op->lock(filp, cmd, file_lock);
- 		if (error < 0)
--			goto out_putf;
-+			goto out;
- 	}
- 	error = posix_lock_file(filp, file_lock, cmd == F_SETLKW);
- 
--out_putf:
--	fput(filp);
- out:
- 	locks_free_lock(file_lock);
- 	return error;
-@@ -1520,9 +1500,8 @@
- /* Report the first existing lock that would conflict with l.
-  * This implements the F_GETLK command of fcntl().
-  */
--int fcntl_getlk64(unsigned int fd, struct flock64 *l)
-+int fcntl_getlk64(struct file *filp, struct flock64 *l)
- {
--	struct file *filp;
- 	struct file_lock *fl, file_lock;
- 	struct flock64 flock;
- 	int error;
-@@ -1534,19 +1513,15 @@
- 	if ((flock.l_type != F_RDLCK) && (flock.l_type != F_WRLCK))
- 		goto out;
- 
--	error = -EBADF;
--	filp = fget(fd);
--	if (!filp)
--		goto out;
- 
- 	error = flock64_to_posix_lock(filp, &file_lock, &flock);
- 	if (error)
--		goto out_putf;
-+		goto out;
- 
- 	if (filp->f_op && filp->f_op->lock) {
- 		error = filp->f_op->lock(filp, F_GETLK, &file_lock);
- 		if (error < 0)
--			goto out_putf;
-+			goto out;
- 		else if (error == LOCK_USE_CLNT)
- 		  /* Bypass for NFS with no locking - 2.0.36 compat */
- 		  fl = posix_test_lock(filp, &file_lock);
-@@ -1569,8 +1544,6 @@
- 	if (!copy_to_user(l, &flock, sizeof(flock)))
- 		error = 0;
-   
--out_putf:
--	fput(filp);
- out:
- 	return error;
- }
-@@ -1578,12 +1551,11 @@
- /* Apply the lock described by l to an open file descriptor.
-  * This implements both the F_SETLK and F_SETLKW commands of fcntl().
-  */
--int fcntl_setlk64(unsigned int fd, unsigned int cmd, struct flock64 *l)
-+int fcntl_setlk64(struct file *filp, unsigned int cmd, struct flock64 *l)
- {
--	struct file *filp;
- 	struct file_lock *file_lock = locks_alloc_lock(0);
- 	struct flock64 flock;
--	struct inode *inode;
-+	struct inode *inode = filp->f_dentry->d_inode;
- 	int error;
- 
- 	if (file_lock == NULL)
-@@ -1596,16 +1568,6 @@
- 	if (copy_from_user(&flock, l, sizeof(flock)))
- 		goto out;
- 
--	/* Get arguments and validate them ...
--	 */
--
--	error = -EBADF;
--	filp = fget(fd);
--	if (!filp)
--		goto out;
--
--	error = -EINVAL;
--	inode = filp->f_dentry->d_inode;
- 
- 	/* Don't allow mandatory locks on files that may be memory mapped
- 	 * and shared.
-@@ -1616,23 +1578,25 @@
- 
- 		if (mapping->i_mmap_shared != NULL) {
- 			error = -EAGAIN;
--			goto out_putf;
-+			goto out;
- 		}
- 	}
- 
-+	/* Get arguments and validate them ...
-+	 */
- 	error = flock64_to_posix_lock(filp, file_lock, &flock);
- 	if (error)
--		goto out_putf;
-+		goto out;
- 	
- 	error = -EBADF;
- 	switch (flock.l_type) {
- 	case F_RDLCK:
- 		if (!(filp->f_mode & FMODE_READ))
--			goto out_putf;
-+			goto out;
- 		break;
- 	case F_WRLCK:
- 		if (!(filp->f_mode & FMODE_WRITE))
--			goto out_putf;
-+			goto out;
- 		break;
- 	case F_UNLCK:
- 		break;
-@@ -1640,18 +1604,16 @@
- 	case F_EXLCK:
- 	default:
- 		error = -EINVAL;
--		goto out_putf;
-+		goto out;
- 	}
- 
- 	if (filp->f_op && filp->f_op->lock != NULL) {
- 		error = filp->f_op->lock(filp, cmd, file_lock);
- 		if (error < 0)
--			goto out_putf;
-+			goto out;
- 	}
- 	error = posix_lock_file(filp, file_lock, cmd == F_SETLKW64);
- 
--out_putf:
--	fput(filp);
- out:
- 	locks_free_lock(file_lock);
- 	return error;
-diff -X /home/chris/dontdiff -Naur linux-2.5.3-pre3/include/linux/fs.h linux-2.5.3-pre3-setlk/include/linux/fs.h
---- linux-2.5.3-pre3/include/linux/fs.h	Mon Jan 21 18:28:33 2002
-+++ linux-2.5.3-pre3-setlk/include/linux/fs.h	Mon Jan 21 20:40:14 2002
-@@ -587,11 +587,11 @@
- 
- #include <linux/fcntl.h>
- 
--extern int fcntl_getlk(unsigned int, struct flock *);
--extern int fcntl_setlk(unsigned int, unsigned int, struct flock *);
-+extern int fcntl_getlk(struct file *, struct flock *);
-+extern int fcntl_setlk(struct file *, unsigned int, struct flock *);
- 
--extern int fcntl_getlk64(unsigned int, struct flock64 *);
--extern int fcntl_setlk64(unsigned int, unsigned int, struct flock64 *);
-+extern int fcntl_getlk64(struct file *, struct flock64 *);
-+extern int fcntl_setlk64(struct file *, unsigned int, struct flock64 *);
- 
- /* fs/locks.c */
- extern void locks_init_lock(struct file_lock *);

@@ -1,21 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135702AbRDSUuJ>; Thu, 19 Apr 2001 16:50:09 -0400
+	id <S135707AbRDSUwT>; Thu, 19 Apr 2001 16:52:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135704AbRDSUuA>; Thu, 19 Apr 2001 16:50:00 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:44038 "EHLO
+	id <S135704AbRDSUwL>; Thu, 19 Apr 2001 16:52:11 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:53254 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135702AbRDSUtr>; Thu, 19 Apr 2001 16:49:47 -0400
-Date: Thu, 19 Apr 2001 13:49:05 -0700 (PDT)
+	id <S135708AbRDSUv6>; Thu, 19 Apr 2001 16:51:58 -0400
+Date: Thu, 19 Apr 2001 13:51:42 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Ulrich Drepper <drepper@cygnus.com>
-cc: Alexander Viro <viro@math.psu.edu>,
-        Abramo Bagnara <abramo@alsa-project.org>, Alon Ziv <alonz@nolaviz.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Mike Kravetz <mkravetz@sequent.com>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+cc: Ulrich Drepper <drepper@cygnus.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: light weight user level semaphores
-In-Reply-To: <m3ofts3d4k.fsf@otr.mynet.cygnus.com>
-Message-ID: <Pine.LNX.4.31.0104191347480.1182-100000@penguin.transmeta.com>
+In-Reply-To: <20010419222228.J682@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <Pine.LNX.4.31.0104191351040.1182-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,23 +21,18 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On 19 Apr 2001, Ulrich Drepper wrote:
-
-> Linus Torvalds <torvalds@transmeta.com> writes:
+On Thu, 19 Apr 2001, Ingo Oeser wrote:
 >
-> > Looks good to me. Anybody want to try this out and test some benchmarks?
->
-> I fail to see how this works across processes.
+> Are you sure, you can implement SMP-safe, atomic operations (which you need
+> for all up()/down() in user space) WITHOUT using privileged
+> instructions on ALL archs Linux supports?
 
-It's up to FS_create() to create whatever shared mapping is needed.
+Why do you care?
 
-For threads, you don't need anything special.
+Sure, there are broken architectures out there. They'd need system calls.
+They'd be slow. That's THEIR problem.
 
-For fork()'d helper stuff, you'd use MAP_ANON | MAP_SHARED.
-
-For execve(), you need shm shared memory or MAP_SHARED on a file.
-
-It all depends on your needs.
+No sane architecture has this limitation.
 
 		Linus
 

@@ -1,62 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269191AbTGOSBv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 14:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269020AbTGOSAb
+	id S269211AbTGOR5X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 13:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269225AbTGOR5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 14:00:31 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:26884 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S269128AbTGOR75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 13:59:57 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6 - sysfs sensor nameing inconsistency
-Date: Tue, 15 Jul 2003 22:14:38 +0400
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Jul 2003 13:57:06 -0400
+Received: from mail.kroah.org ([65.200.24.183]:54960 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269211AbTGORwc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 13:52:32 -0400
+Date: Tue, 15 Jul 2003 11:07:32 -0700
+From: Greg KH <greg@kroah.com>
+To: ffrederick@prov-liege.be
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ipc kobject model against 2.6t1
+Message-ID: <20030715180732.GB4495@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307152214.38825.arvidjaar@mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.4 all sensor chip got a subdirectory with name derived from type_name - a 
-single word describing sensor, like
+Some coding style issues:
 
-adm1021.c:              type_name = "max1617";
-adm1021.c:              type_name = "max1617a";
-adm1021.c:              type_name = "adm1021";
-adm1021.c:              type_name = "adm1023";
-adm1021.c:              type_name = "thmc10";
-adm1021.c:              type_name = "lm84";
-adm1021.c:              type_name = "gl523sm";
-adm1021.c:              type_name = "mc1066";
-...
 
-etc. All user-level configuration (sensors, gkrellm) have been using these 
-names to match available sensors and configuration data.
+> +/*
+> + * sysfs exports
+> + */
+> +
+> +#define SHM_ATTR(_ind, _name)\
+> +		shm_ids.entries[id].sysfs_attr[_ind].name=(char*)kmalloc(SYSFS_ATTR_MAX_LENGTH,GFP_KERNEL); \
+> +		sprintf(shm_ids.entries[id].sysfs_attr[_ind].name,__stringify(_name)); \
+> +		shm_ids.entries[id].sysfs_attr[_ind].mode=0644; \
+> +		sysfs_create_file(&shm_ids.entries[id].kobj, &shm_ids.entries[id].sysfs_attr[_ind]); 
 
-In 2.6 sensors appear under /sysfs, type_name no more used and the only 
-identification available is .../name, but it seems to be arbitrary chosen 
-like
+At least _try_ to get within 80 columns :)
 
-- single word ("it87") - lm87.c
-- "name chip" or "name subclient" - most others (lm78.c, wd83781d.c etc)
-- completely arbitrary shiny description - "Generic LM85", "National LM85-B" 
-etc in lm85.c
+> +static ssize_t shm_attr_show(struct kobject *kobj, struct attribute *attr, char *buf){
 
-This means, any user program accessing sensors need incompatible changes and 
-comfiuration cannot be shared between 2.4 and 2.6 without serious redesign 
-and/or some translation layer.
+Put '{' on the new line, as Documentation/CodingStyle states to.
 
-If there are serious reasons to keep current names in "name" - what about 
-adding extra type_name property that will hold type_name compatible with 2.4, 
-at least for those drivers that are also available there. This would allow 
-easily reuse existing sensors configuration.
+> +	unsigned long key=simple_strtoul(kobj->name,NULL,10);
+> +	unsigned int id=0;
+> +	int found=0;
+> +	struct shmid_kernel *shp;
+> +	for(id=0;id<=shm_ids.max_id&&!found;id++){
 
-TIA
+Add an empty line between the variables being defined, and the first
+function statement.
 
--andrey
+Add some spaces in the for() line to look like:
+	for (id=0; id<=shm_ids.max_id && !found; id++) {
+
+Same thing for your if () statements:
+
+
+> +	if(found){
+
+
+>  void __init shm_init (void)
+>  {
+>  	ipc_init_ids(&shm_ids, 1);
+>  #ifdef CONFIG_PROC_FS
+>  	create_proc_read_entry("sysvipc/shm", 0, 0, sysvipc_shm_read_proc, NULL);
+>  #endif
+> +        strcpy(shm_ids.kobj.name, "shm");
+> +        //shm_ids.kobj.parent = &ipc_kobj;	
+> +	shm_ids.kobj.parent = NULL;
+> +        kobject_register(&shm_ids.kobj);
+
+Use tabs, and not spaces.
+
+> @@ -266,7 +345,6 @@
+>  		shm_unlock(shp);
+>  	}
+>  	up(&shm_ids.sem);
+> -
+>  	return err;
+>  }
+
+Was removing that line really necessary :)
+
+
+> @@ -274,6 +283,7 @@
+>  		vfree(ptr);
+>  	else
+>  		kfree(ptr);
+> +
+>  }
+
+You added that line why?  :)
+
+Hope this helps,
+
+greg k-h

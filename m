@@ -1,90 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265533AbTLHRM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 12:12:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265534AbTLHRM6
+	id S265053AbTLHRWD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 12:22:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbTLHRWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 12:12:58 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:54522 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265533AbTLHRMt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 12:12:49 -0500
-Message-ID: <3FD4B2F9.2040607@pacbell.net>
-Date: Mon, 08 Dec 2003 09:20:57 -0800
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
+	Mon, 8 Dec 2003 12:22:03 -0500
+Received: from k-kdom.nishanet.com ([65.125.12.2]:64528 "EHLO
+	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
+	id S265053AbTLHRVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 12:21:55 -0500
+Message-ID: <3FD4B785.6010908@nishanet.com>
+Date: Mon, 08 Dec 2003 12:40:21 -0500
+From: Bob <recbo@nishanet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031014 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Stern <stern@rowland.harvard.edu>, Duncan Sands <baldrick@free.fr>
-CC: Vince <fuzzy77@free.fr>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       mfedyk@matchmail.com, zwane@holomorphy.com,
-       linux-kernel@vger.kernel.org,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-References: <Pine.LNX.4.44L0.0312081127080.1043-100000@ida.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0312081127080.1043-100000@ida.rowland.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
+References: <200312081321.06692.ross@datscreative.com.au> <1070883402.17639.115.camel@athlonxp.bradney.info>
+In-Reply-To: <1070883402.17639.115.camel@athlonxp.bradney.info>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+We're all trying to get acpi, apic, lapic, io-apic working
+when turned on in cmos/bios and kernel.
 
->>>>...  hold
->>>>a reference to the usb_device maybe long after the device has
->>>>been disconnected.  This is supposed to be OK, but from your
->>>
->>>... no, that's not supposed to be OK.  Returning from disconnect()
->>>means that a device driver is no longer referencing the interface
->>>the driver bound to, or ep0.
+The three things that each alone have achieved stability
+on somebody's system here are 1) bios update 2) cpu
+disconnect off either in cmos if available or by athcool
+or kernel patch with same 3) timing delay patch
+
+For CPU disconnect you still need athcool or this one
+http://www.kernel.org/pub/linux/kernel/people/bart/2.6.0-test11-bart1/broken-out/nforce2-disconnect-quirk.patch
+
+Both patches are for 2.6.0-test11 kernel.
+
+turn on ioapic edge timer--
+
+http://www.kernel.org/pub/linux/kernel/people/bart/2.6.0-test11-bart1/broken-out/nforce2-apic.patch
+
+
+Other changes offer clues and expose symptoms but
+are not helpful or necessary after da fix is in. udma
+settings are a kludge of a error symptom, just aspirin.
+
+Other kludges are acpi off, local apic off in kernel,
+apic off in cmos/bios. These go away when the real
+problem is fixed.
+
+-Bob
+
+Craig Bradney wrote:
+
+>On Mon, 2003-12-08 at 04:21, Ross Dickson wrote:
+>  
+>
+>>On Monday 08 of December 2003 04:08, Bob wrote: 
+>> > >>Sounds great.. maybe you have come across something. Yes, the CPU 
+>> > >>Disconnect function arrived in your BIOS in revision of 2003/03/27 
+>> > >>"6.Adds"CPU Disconnect Function" to adjust C1 disconnects. The Chipset 
+>> > >>does not support C2 disconnect; thus, disable C2 function." 
+>> > >> 
+>> > >>For me though.. Im on an ASUS A7N8X Deluxe v2 BIOS 1007. From what I can 
+>> > >>see the CPU Disconnect isnt even in the Uber BIOS 1007 for this ASUS 
+>> > >>that has been discussed. 
+>> > >> 
+>> > >>Craig 
+>> > >
+>> > >I don't have that in MSI K7N2 MCP2-T near the 
+>> > >agp and fsb spread spectrum items or anywhere 
+>> >> else. 
+>>    
 >>
->>Well, I thought Greg wanted it to be OK :)  Anyway, I don't use
->>the device after disconnect except to take the semaphore
->>(dev->serialize), check for disconnection (dev->state), and
->>of course to execute a usb_put_dev.  Surely this usage should
->>be OK?
+>>>Use athcool: 
+>>>        http://members.jcom.home.ne.jp/jacobi/linux/softwares.html#athcool
+>>>or apply kernel patch (2.4 and 2.6 versions were posted already). 
+>>>--bart 
+>>>      
+>>>
+>>Please take a look at 
+>>
+>>Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
+>>
+>>in mailing list.
+>>
+>>I approached it from another angle regarding delaying the apic ack in local timer irq
+>>and achieved stability. It would be good to have others try it. Ian Kumlien is also
+>>reporting success so far.
+>> 
+>>    
+>>
+>
+>Although I had long uptimes before.. and therefore might achieve them
+>again fairly easily.. I'm now on 2 days 10 hours which has included a
+>lot of compilation and a lot of idle time, and plenty of the hdpar and
+>grep tests. I have used only the IRQ0 IO-APIC edge patch.
+>
+>Can someone please note all the patches for 2.6 that people have tried
+>and what they achieve? Im starting to get a bit lost, given the fact
+>that I'm running stable here with only 1 patch. (so far - this is where
+>it crashes after I click Send I suppose ;) )
+>
+>-apic
+>  
+>
+   -local apic("lapic")
 
-Why do you even need that much though?  You're not allowed to
-be USING the device any more; that's the sense in which I
-was using "reference".   Refcounting is orthogonal, except
-in the sense that to use without owning/borrowing a refcount
-will likely cause oopsing someday.
+   -acpi
 
+kernel local apic issue and acpi and apic go together,
+but turning off lapic first might achieve stability for
+some, updating bios will enable using all bios and
+linux apic, acpi, lapic, ioapic for some(me twice).
 
-> As long as your disconnect routine doesn't do usb_put_dev, so that it
+>-io-apic (IRQO set to XT-PIC incorrectly)
+>
+>-udma133?
+>  
+>
+udma133 may be a clue but I don't think anyone
+achieves stability one way or the other on that. I
+flogged every possible hdparm change and tried
+three brands of hd controller without every
+achieving stability, but once you're stable by
+using other means you can use 133 and unmask
+irq(not for siig sis?) and other hdparm opts.
 
-There's an implicit usb_get_dev() associated with probe(),
-and an implicit usb_put_dev() associated with disconnect().
-If you're going to add an explicit put(), you need to also
-add an explicit get().  Few drivers do; most rely on the
-implicit refcounts.
-
-But if you keep an extra reference to the device, you'd
-need some way to get rid of it.
-
-Yes, "usbfs" is wierd in lots of ways ... it's got references
-associated with several distinct roles, including implicitly
-associated with device creation, and so I'd suspect it doesn't
-keep them all straight.
-
-Plus, using the claim/release binding model (in its current
-state) opens it up to a different family of bugs ... since
-that doesn't hook up properly to the driver model yet, and
-making it do so is non-trivial.
-
-
-> maintains its reference, I don't see a problem.  But why do you want to
-> check dev->state later on?  Once your disconnect routine has returned, you
-> should be totally through with the device.  You should no longer care
-> whether it's attached or not.
-> 
-> And of course, remember that there are valid reasons for your disconnect 
-> routine to be called even when the device remains attached.  (rmmod is a 
-> good example.)
-
-And adding special case logic for rmmod paths isn't a good thing;
-better just to implement disconnect() as I described.
-
-- Dave
-
+>-cpu disconnect patch (missing bios option for ACPI Cx states)
+>
+>Craig
+>  
+>
 
 

@@ -1,88 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263488AbTJBUjU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 16:39:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263489AbTJBUjU
+	id S263479AbTJBUpU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 16:45:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263480AbTJBUpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 16:39:20 -0400
-Received: from gprs149-169.eurotel.cz ([160.218.149.169]:61572 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263488AbTJBUjS (ORCPT
+	Thu, 2 Oct 2003 16:45:19 -0400
+Received: from fw.osdl.org ([65.172.181.6]:34227 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263479AbTJBUpP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 16:39:18 -0400
-Date: Thu, 2 Oct 2003 22:39:06 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [pm] fix oops after saving image
-Message-ID: <20031002203906.GB7407@elf.ucw.cz>
-References: <20031001223751.GA6402@elf.ucw.cz> <Pine.LNX.4.44.0310020933140.997-100000@localhost.localdomain>
+	Thu, 2 Oct 2003 16:45:15 -0400
+Date: Thu, 2 Oct 2003 13:45:04 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Bongani Hlope <bonganilinux@mweb.co.za>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test6-mm2
+Message-ID: <20031002134504.A12141@osdlab.pdx.osdl.net>
+References: <20031002022341.797361bc.akpm@osdl.org> <20031002223545.55611ef6.bonganilinux@mweb.co.za>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310020933140.997-100000@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20031002223545.55611ef6.bonganilinux@mweb.co.za>; from bonganilinux@mweb.co.za on Thu, Oct 02, 2003 at 10:35:45PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > --- tmp/linux/kernel/power/swsusp.c	2003-10-02 00:04:35.000000000 +0200
-> > +++ linux/kernel/power/swsusp.c	2003-10-01 23:56:49.000000000 +0200
-> > @@ -345,7 +348,7 @@
-> >  	printk( "|\n" );
-> >  
-> >  	MDELAY(1000);
-> > -	free_page((unsigned long) buffer);
-> > +	/* Trying to free_page((unsigned long) buffer) here is bad idea, not sure why */
-> >  	return 0;
-> >  }
+* Bongani Hlope (bonganilinux@mweb.co.za) wrote:
+> -mm1 had a lot of events/0 zombies, and vanilla 2.6.0-test6 does not. I will test -mm2 and let you know how it goes. Alt-SysRq shows this:
 > 
-> Patches like this really do a disservice to anyone trying to read the code 
-> and figure out what is going on. I've spent a considerable amount of time 
-> deciphering and santizing the swsusp code, which is why pmdisk exists. 
 > 
-> The patch is simply a band-aid, and completely meaningless without the 
-> context of the email. If I applied this, one would be able to ascertain 
-> the reason for the patch, if they manipulated the BK tools correctly. 
-> However, seeing that line solely in the context on the rest of the source 
-> makes one cock their head, squint their eyes and pray that they never have 
-> to look at that file again. 
-> 
-> If you're seeing an Oops, please search more for the cause and submit a 
-> real fix for it. 
-> 
-> Or, simply change the semantics of the code enough to eliminate the
-> possibility of a problem. In the pmdisk code, I've statically declared the 
-> header, so we don't need that alloc/free. Please see that file for an 
-> example. 
+> events/0      Z 77361907  1834      3          1836  1831 (L-TLB)
+> c46abfc4 00000046 cf901940 77361907 00000058 c5dfa080 00000011 77361907
+>        00000058 cf901940 cf901960 00011d32 77361907 00000058 cffeeaf8 00000000
+>        c5dfa080 00000000 c0124b60 c5dfa080 00000000 00000000 00000000 c01322f0
+> Call Trace:
+>  [do_exit+560/1040] do_exit+0x230/0x410
+>  [<c0124b60>] do_exit+0x230/0x410
+>  [wait_for_helper+0/224] wait_for_helper+0x0/0xe0
+>  [<c01322f0>] wait_for_helper+0x0/0xe0
+>  [kernel_thread_helper+11/12] kernel_thread_helper+0xb/0xc
+>  [<c010ae5f>] kernel_thread_helper+0xb/0xc
 
-I do not want to waste 4K, does this look better?
-									Pavel
+Just to be clear, this sysrq trace is from -mm1, correct?  A fix has
+gone into -mm2 for this, which is why I'm asking.
 
---- tmp/linux/kernel/power/swsusp.c	2003-10-02 22:29:06.000000000 +0200
-+++ linux/kernel/power/swsusp.c	2003-10-02 22:27:07.000000000 +0200
-@@ -283,6 +283,9 @@
- 	unsigned long address;
- 	struct page *page;
- 
-+	if (!buffer)
-+		return -ENOMEM;
-+
- 	printk( "Writing data to swap (%d pages): ", nr_copy_pages );
- 	for (i=0; i<nr_copy_pages; i++) {
- 		if (!(i%100))
-@@ -345,7 +348,7 @@
- 	printk( "|\n" );
- 
- 	MDELAY(1000);
--	free_page((unsigned long) buffer);
-+	/* No need to free anything, system is going down, anyway. */
- 	return 0;
- }
- 
-
-
+thanks,
+-chris
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

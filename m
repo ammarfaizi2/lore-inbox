@@ -1,23 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130487AbRBSC1A>; Sun, 18 Feb 2001 21:27:00 -0500
+	id <S130632AbRBSCiK>; Sun, 18 Feb 2001 21:38:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130834AbRBSC0t>; Sun, 18 Feb 2001 21:26:49 -0500
-Received: from alto.i-cable.com ([210.80.60.4]:54458 "EHLO alto.i-cable.com")
-	by vger.kernel.org with ESMTP id <S130487AbRBSC0n>;
-	Sun, 18 Feb 2001 21:26:43 -0500
-Message-ID: <3A90848D.BA030697@hkicable.com>
-Date: Mon, 19 Feb 2001 10:27:25 +0800
-From: Thomas Lau <lkthomas@hkicable.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac15 i586)
-X-Accept-Language: en
+	id <S130726AbRBSCiA>; Sun, 18 Feb 2001 21:38:00 -0500
+Received: from server1.cosmoslink.net ([208.179.167.101]:13350 "EHLO
+	server1.cosmoslink.net") by vger.kernel.org with ESMTP
+	id <S130632AbRBSChs>; Sun, 18 Feb 2001 21:37:48 -0500
+Message-ID: <00dd01c09a1c$fea71b20$bba6b3d0@Toshiba>
+From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+Subject: Kernel executation from ROM
+Date: Sun, 18 Feb 2001 18:38:08 -0800
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: anyone can tell me 2.4.2 is stable or not?
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-is it stable for use?
+Dear Kernel mailing list ,
+
+what changes i have to made in kernel so that i can
+run kernel from ROM, means i keep my kernel in ROM
+and i execute my kernel from ROM .
+
+Thanks ,
+
+Happy Hacking,
+
+Jaswinder.
+-- 
+These are my opinions not 3Di.
+
+
 

@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314282AbSDVRRU>; Mon, 22 Apr 2002 13:17:20 -0400
+	id <S314284AbSDVRRW>; Mon, 22 Apr 2002 13:17:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314284AbSDVRRT>; Mon, 22 Apr 2002 13:17:19 -0400
-Received: from [193.120.151.1] ([193.120.151.1]:65012 "EHLO mail.asitatech.com")
-	by vger.kernel.org with ESMTP id <S314282AbSDVRRT>;
-	Mon, 22 Apr 2002 13:17:19 -0400
+	id <S314289AbSDVRRV>; Mon, 22 Apr 2002 13:17:21 -0400
+Received: from dsl-213-023-039-131.arcor-ip.net ([213.23.39.131]:13469 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S314284AbSDVRRV>;
+	Mon, 22 Apr 2002 13:17:21 -0400
 Content-Type: text/plain; charset=US-ASCII
-From: DJ Barrow <dj.barrow@asitatech.com>
-Organization: Asita Technologies
-To: Andi Kleen <ak@suse.de>
-Subject: Re: novice coding in /linux/net/ipv4/util.c From: DJ Barrow <dj.barrow@asitatech.com>
-Date: Mon, 22 Apr 2002 18:19:16 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020422151025Z314220-22651+13849@vger.kernel.org.suse.lists.linux.kernel> <p73it6j8xwl.fsf@oldwotan.suse.de>
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jeff Garzik <garzik@havoc.gtf.org>
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Date: Sun, 21 Apr 2002 19:17:45 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
+        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zJbd-0001GZ-00@starship> <20020422131011.D6638@havoc.gtf.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020422171719Z314282-22651+13900@vger.kernel.org>
+Message-Id: <E16zKy9-0001Hw-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sounds reasonable to me.
+On Monday 22 April 2002 19:10, Jeff Garzik wrote:
+> On Sun, Apr 21, 2002 at 05:50:25PM +0200, Daniel Phillips wrote:
+> > On Monday 22 April 2002 17:44, Larry McVoy wrote:
+> > > On Sun, Apr 21, 2002 at 02:53:13PM +0200, Daniel Phillips wrote:
+> > > > I hope I made it clear that I believe BK is helping Linux.  Furthermore, I
+> > > > don't see why Larry should not collect some advertising for his contribution.
+> > > > Within limits.  IMHO, we're on the wrong side of the limit at the moment,
+> > > > and moving further with no sign of moderating.
+> > > 
+> > > Yes, because so many purchasing managers spend their time reading the
+> > > Documentation subdirectory of the Linux kernel in order to decide what
+> > > SCM system they should use.
+> > > 
+> > > The existence (or non-existence) of the docs has absolutely no marketing
+> > > value to BK.
+> > 
+> > So you have no problem with moving them to a website, leaving a url in
+> > SubmittingPatches?
+> 
+> Do you have a problem with moving other docs out to Websites, which are
+> describing closed-spec hardware?  Such hardware (and their vendors) are
+> actively anti-open source, yet we have documents describing those, too.
 
-On Monday 22 April 2002 18:07, Andi Kleen wrote:
-> DJ Barrow <dj.barrow@asitatech.com> writes:
-> > This textbook peice of novice coding which has existed since 2.2.14.
->
-> Even earlier I think
->
-> BTW do you call libresolv novice coding too ?
->
-> > For those who can't spot the error, please note that this function is
-> > returning a static string, excellent stuff if you are hoping to reuse the
-> > same function like the following
-> > printk("%s %s\n",in_ntoa(addr1),in_ntoa(addr2));
->
-> That is why most of networking uses the NIPQUAD macro instead.
->
-> Best would be probably to convert the few remaining users of in_ntoa
-> to NIPQUAD and drop this function.
->
-> -Andi
+The other example specifically mentioned was the CVS documentation for jfs,
+and yes, I think that moving those instructions to the web site in question
+would make a lot of sense, leaving a URL wherever the docs once were.  By
+definition, the CVS instructions will be available on that site as long as
+they are useful, and not a moment longer.
+
+This is all irrespective of the fact that CVS does not have the problem of
+having a restrictive license, but since you asked...
+
+-- 
+Daniel

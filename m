@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267619AbTBFUW5>; Thu, 6 Feb 2003 15:22:57 -0500
+	id <S267625AbTBFU2R>; Thu, 6 Feb 2003 15:28:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267624AbTBFUW5>; Thu, 6 Feb 2003 15:22:57 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:62177 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267619AbTBFUW4>; Thu, 6 Feb 2003 15:22:56 -0500
-Date: Thu, 06 Feb 2003 12:32:29 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bugme-new] [Bug 304] New: TCP sessions hang when connecting Solaris 2.6
-Message-ID: <262950000.1044563549@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267626AbTBFU2R>; Thu, 6 Feb 2003 15:28:17 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:64519
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267625AbTBFU2P>; Thu, 6 Feb 2003 15:28:15 -0500
+Date: Thu, 6 Feb 2003 12:36:56 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Valdis.Kletnieks@vt.edu
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, jeff millar <wa1hco@adelphia.net>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Monta Vista software license terms 
+In-Reply-To: <200302061841.h16Iflwj005365@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.10.10302061232310.11024-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=304
+On Thu, 6 Feb 2003 Valdis.Kletnieks@vt.edu wrote:
 
-           Summary: TCP sessions hang when connecting Solaris 2.6
-    Kernel Version: 2.5.59
-            Status: NEW
-          Severity: high
-             Owner: davem@vger.kernel.org
-         Submitter: tedkaz@optonline.net
+> On Thu, 06 Feb 2003 14:37:26 GMT, Alan Cox said:
+> > On Thu, 2003-02-06 at 09:12, Andre Hedrick wrote:
+> > > Jeff,
+> > > 
+> > > Since you have not signed their contract for product, you have no idea if
+> > > there are restrictions.  Nor do I.
+> > > 
+> > > Remember "Contract Law" may restrict what their customers can do.
+> > 
+> > But not to the GPL code part of it
+> 
+> Although a US court recently held a "thou shalt not badmouth our product"
+> clause in a contract illegal, I don't see where the GPL prohibits a contract
+> that contains a clause "the recipient agrees not to engage in actions
+> A, B, or C" where C is "distribute the code".
+> 
+> The GPL prohibits such a restriction *IN THE DISTRIBUTION LICENSE*.  It
+> doesn't say squat about whether I agree to some restriction in some OTHER
+> agreement.
+
+I agree, but the terms of use of their licensed or re-licensed product can
+be revoked, and their product may be the enitre kit.  Pieces are parts, 
+the sum is the whole, and where this rime is going ... blah blah ...
+
+Their customers may be bound to some contract law we have never seen.
+The more interesting part is looking into the money trail of who is the
+financial backing and how much was contributed.  This is where I stop.
+
+Naming names will get somebody toasting warm and I like it cool and quiet
+now.
+
+Cheers,
 
 
-Distribution:Redhat Phoebe
-Hardware Environment: No Modules, 3c59x built into kernel, P4 1,7gig
-Software Environment: xterm, gnome-terminal
-Problem Description: TCP sessions hand when connecting to Solaris 2.6
-
-Steps to reproduce: Open up either ssh or rlogin into Solaris 2.6. Any action
-which causes moderate packet rates will hang the session. The box in question
-is behind a firewall with a cipe tunnel back to the DA. I will upload ethereal
-data capture of failed session. Hope this is helpful.
-
+Andre Hedrick
+LAD Storage Consulting Group
 

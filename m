@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264515AbRFYWnL>; Mon, 25 Jun 2001 18:43:11 -0400
+	id <S264523AbRFYWob>; Mon, 25 Jun 2001 18:44:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264523AbRFYWnB>; Mon, 25 Jun 2001 18:43:01 -0400
-Received: from smtp-ham-2.netsurf.de ([194.195.64.98]:33416 "EHLO
-	smtp-ham-2.netsurf.de") by vger.kernel.org with ESMTP
-	id <S264515AbRFYWmr>; Mon, 25 Jun 2001 18:42:47 -0400
-Date: Tue, 26 Jun 2001 00:41:49 +0200
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
-Cc: Fabian Arias <dewback@vtr.net>, Anuradha Ratnaweera <anuradha@gnu.org>,
-        Anatoly Ivanov <avi@levi.spb.ru>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5 and gcc v3 final
-Message-ID: <20010626004149.A3310@storm.local>
-Mail-Followup-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-	Fabian Arias <dewback@vtr.net>,
-	Anuradha Ratnaweera <anuradha@gnu.org>,
-	Anatoly Ivanov <avi@levi.spb.ru>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200106241733.f5OHXpW2000565@sleipnir.valparaiso.cl>
-User-Agent: Mutt/1.3.18i
-From: Andreas Bombe <andreas.bombe@munich.netsurf.de>
+	id <S264526AbRFYWoV>; Mon, 25 Jun 2001 18:44:21 -0400
+Received: from warden.digitalinsight.com ([208.29.163.2]:50922 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S264523AbRFYWoK> convert rfc822-to-8bit; Mon, 25 Jun 2001 18:44:10 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Date: Mon, 25 Jun 2001 14:31:42 -0700 (PDT)
+Subject: Re: Linux 2.4.5-ac18
+In-Reply-To: <9h898a$nam$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0106251430100.12872-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 24, 2001 at 01:33:51PM -0400, Horst von Brand wrote:
-> What gcc objects to is stuff like:
-> 
->    "This is a nice long string
->     that just goes on
->     and on\n"
-> 
-> which is illegal in C AFAIU. It does not object to:
-> 
->    "This long string"
->    "spans several lines, "
->    "but legally.\n"
+On 25 Jun 2001, H. Peter Anvin wrote:
 
-But the first example contains three newlines, the second just one.  A
-thing to keep in mind when going around fixing these multi line strings,
-explicit newlines have to be added.
+> Date: 25 Jun 2001 14:08:26 -0700
+> From: H. Peter Anvin <hpa@zytor.com>
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: Linux 2.4.5-ac18
+>
+> Followup to:  <20010625141459.A6669@lightning.swansea.linux.org.uk>
+> By author:    Alan Cox <laughing@shared-source.org>
+> In newsgroup: linux.dev.kernel
+>
+> > o	Lave 1uS gaps in the eepro100 cmd probe, and	(Masaru Kawashima)
+> > 	probe for longer on cmd timeout
+>
+> <Whimper>
+>
+> Please, people... S is siemens, not seconds.  Seconds is "s" (lower
+> case.)  The rule is simple: units named after people have their
+> symbols, but not their names, capitalized.
+<troll>
+ok who was Mr/Mrs Byte?
+</troll>
 
--- 
-Andreas E. Bombe <andreas.bombe@munich.netsurf.de>    DSA key 0x04880A44
+sorry couldn't resist
+
+:-)
+
+David Lang
+
+> Microseconds are written µs, or if the µ symbol is unavailable, us.
+>
+> Sorry, this one grates on me...
+>
+> 	-hpa
+> --
+> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+> "Unix gives you enough rope to shoot yourself in the foot."
+> http://www.zytor.com/~hpa/puzzle.txt
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

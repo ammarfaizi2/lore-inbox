@@ -1,90 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVACWVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVACWZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbVACWVe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 17:21:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVACWOv
+	id S261912AbVACWZc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 17:25:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVACWXB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 17:14:51 -0500
-Received: from alog0111.analogic.com ([208.224.220.126]:16512 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261890AbVACWKW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 17:10:22 -0500
-Date: Mon, 3 Jan 2005 17:03:24 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
+	Mon, 3 Jan 2005 17:23:01 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:16266 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261907AbVACWP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 17:15:56 -0500
+Subject: Re: [PATCH] get/set FAT filesystem attribute bits
+From: Nicholas Miell <nmiell@comcast.net>
 To: "H. Peter Anvin" <hpa@zytor.com>
-cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: [3/8] kill gen_init_cpio.c printk() of size_t warning
-In-Reply-To: <41D9BC07.8070209@zytor.com>
-Message-ID: <Pine.LNX.4.61.0501031657530.15108@chaos.analogic.com>
-References: <20050103172013.GA29332@holomorphy.com> <41D9881B.4020000@pobox.com>
- <20050103180915.GK29332@holomorphy.com> <Pine.LNX.4.61.0501031329030.13385@chaos.analogic.com>
- <crccas$la0$1@terminus.zytor.com> <20050103213627.GS29332@holomorphy.com>
- <41D9BC07.8070209@zytor.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Cc: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <41D9C111.2090504@zytor.com>
+References: <41D9B1C4.5050507@zytor.com>
+	 <1104787447.3604.9.camel@localhost.localdomain>
+	 <41D9BA8B.2000108@zytor.com>
+	 <1104788816.3604.17.camel@localhost.localdomain>
+	 <41D9C111.2090504@zytor.com>
+Content-Type: text/plain
+Date: Mon, 03 Jan 2005 14:10:43 -0800
+Message-Id: <1104790243.3604.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Jan 2005, H. Peter Anvin wrote:
-
-> William Lee Irwin III wrote:
->> 
->> On Mon, Jan 03, 2005 at 09:09:48PM +0000, H. Peter Anvin wrote:
->> 
->>> Dear Wrongbot,
->>> Bullshit.  Signed is promoted to unsigned.
->> 
->> I'm not sure who you're responding to here, but gcc emitted an actual
->> warning and I was only attempting to carry out the minimal effort
->> necessary to silence it. I'm not really interested in creating or
->> being involved with controversy, just silencing the core build in the
->> least invasive and so on way possible, leaving deeper drivers/ issues
->> to the resolution of the true underlying problems.
->> 
->> I don't have anything to do with the code excerpt above; I merely
->> followed the style of the other unsigned integer coercions in the file.
->> 
->
-> I was not responding to you, your stuff is perfectly sane.
->
-> The claim from the Wrongbot was that "foo + 1" is bad when foo is a size_t. 
-> This is utter bullshit, since that's EXACTLY equivalent to:
->
-> 	foo + (size_t)1
->
-> ... because of promotion rules.
->
+On Mon, 2005-01-03 at 14:02 -0800, H. Peter Anvin wrote:
+> Nicholas Miell wrote:
+> > 
+> > That's why I put fatattrs in the system namespace, which is wholly owned
+> > by the Linux kernel. Any theoretical FAT-with-xattrs variant would put
+> > those xattrs in the user namespace.
+> > 
+> > On another note, NTFS-style xattrs (aka named streams) are unrelated to
+> > Linux xattrs. A named stream is a separate file with a funny name, while
+> > a Linux xattr is a named extension to struct stat.
+>  >
+> 
+> OK, that does make it more sensible.  I do note, however, that ext2/ext3 
+> do not seem to export their attributes (chattr/lsattr) in this way; I do 
+> also note that the xattr code wherever it has been implemented is just 
+> painfully complex.
+> 
+> I'll see if I can weed it down to some kind of sane size.
+> 
 > 	-hpa
-> -
 
-I made no such claim. I claimed that the posted fix was wrong:
+Yeah, I contemplated adding system.fattattrs, system.ntfsattrs, and
+system.linuxattrs (for the ext2 attrs that have popped up in several
+other filesystems) a while ago, but xattrs seem to be the red-headed
+left-handed stepchild of the Linux VFS and I lost interest in the
+project.
 
->
-> Index: mm1-2.6.10/usr/gen_init_cpio.c
-> ===================================================================
-> --- mm1-2.6.10.orig/usr/gen_init_cpio.c	2005-01-03 06:45:53.000000000 -0800
-> +++ mm1-2.6.10/usr/gen_init_cpio.c	2005-01-03 09:42:18.000000000 -0800
-> @@ -112,7 +112,7 @@
-> 		(long) gid,		/* gid */
-> 		1,			/* nlink */
-> 		(long) mtime,		/* mtime */
-> -		strlen(target) + 1,	/* filesize */
-> +		(unsigned)strlen(target) + 1,/* filesize */
-> 		3,			/* major */
-> 		1,			/* minor */
-> 		0,			/* rmajor */
-> -
+Nice to see someone else interested in it, though.
+-- 
+Nicholas Miell <nmiell@comcast.net>
 
-
-This is wrong because strlen() already returns a size_t (unsigned).
-This "fix" only served to quiet the compiler which was warning
-about the conversion. It is a "conversion", not a "promotion".
-The simple fix to quiet this conversion warning is to use 1U
-as previously shown.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

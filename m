@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273724AbRJDSU1>; Thu, 4 Oct 2001 14:20:27 -0400
+	id <S277183AbRJDSX5>; Thu, 4 Oct 2001 14:23:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277204AbRJDSUR>; Thu, 4 Oct 2001 14:20:17 -0400
-Received: from fireball.bedford.smythco.com ([65.114.174.98]:12784 "EHLO
-	ns.bedford.smythco.com") by vger.kernel.org with ESMTP
-	id <S277183AbRJDSUM>; Thu, 4 Oct 2001 14:20:12 -0400
-Date: Thu, 4 Oct 2001 14:19:42 -0400
-From: Jason Giglio <jgiglio@smythco.com>
-To: linux-kernel@vger.kernel.org
-Subject: 3ware discontinuing the Escalade Series
-Message-ID: <20011004141942.A28202@lenina.bedford.smythco.com>
-Reply-To: jgiglio@smythco.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.2.0
+	id <S277201AbRJDSXr>; Thu, 4 Oct 2001 14:23:47 -0400
+Received: from [212.172.122.16] ([212.172.122.16]:5903 "EHLO qmail.root.at")
+	by vger.kernel.org with ESMTP id <S277183AbRJDSXo>;
+	Thu, 4 Oct 2001 14:23:44 -0400
+Date: Thu, 4 Oct 2001 20:24:11 +0200 (CEST)
+From: Karl Pitrich <pit@root.at>
+To: "lk@Aniela.EU.ORG" <lk@Aniela.EU.ORG>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 100% sync block device on 2.2 ?
+In-Reply-To: <Pine.LNX.4.33.0110042115300.398-100000@ns1.Aniela.EU.ORG>
+Message-ID: <Pine.LNX.4.33.0110042022560.1056-100000@warp.root.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-3ware has decided to discontinue their escalade series IDE RAID controller
-cards.  The drivers were open source and in the kernel tree.
+On Thu, 4 Oct 2001, lk@Aniela.EU.ORG wrote:
 
-As a side note, all 7810 cards are being recalled due to possible data
-corruption under heavy load.  7800 cards need a firmware upgrade also.  If
-you have a 7000 series card in production, be careful!
+>
+> while :; do sync ; done
+>
+>
+> and everything should be in sync :)
 
-http://www.3ware.com/products/EscaladeLetter.asp?Title=Product&subTitle=3&ImageNumber=2
+sync does not call fsync_dev(), nor it calls this flush ioctl i
+implemented in my driver.
+sync seems just to sync the vfs.
 
---
-Jason Giglio
-Information Technology Coordinator, Smyth Companies, Bedford VA
-Phone: 540-586-2311x113
-e-mail: jgiglio@NOSPAMsmythco.com

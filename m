@@ -1,80 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262353AbTLYTjM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 14:39:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbTLYTjM
+	id S262446AbTLYTj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 14:39:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbTLYTj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 14:39:12 -0500
-Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:35806 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S262353AbTLYTjJ
+	Thu, 25 Dec 2003 14:39:59 -0500
+Received: from smtp2.actcom.co.il ([192.114.47.15]:37592 "EHLO
+	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S262446AbTLYTj5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 14:39:09 -0500
-Subject: Re: [PATCH] add sysfs mem device support  [2/4]
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andreas Jellinghaus <aj@dungeon.inka.de>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031225184553.A25397@infradead.org>
-References: <20031223002126.GA4805@kroah.com>
-	 <20031223002439.GB4805@kroah.com> <20031223002609.GC4805@kroah.com>
-	 <20031223131523.B6864@infradead.org> <1072193516.3472.3.camel@fur>
-	 <20031223163904.A8589@infradead.org>
-	 <pan.2003.12.25.17.47.43.603779@dungeon.inka.de>
-	 <20031225184553.A25397@infradead.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OSVDzoNNY8IzRoNKdEYz"
-Message-Id: <1072381287.7638.52.camel@nosferatu.lan>
+	Thu, 25 Dec 2003 14:39:57 -0500
+Date: Thu, 25 Dec 2003 21:39:49 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Andrea Barisani <lcars@infis.univ.trieste.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.0, wrong Kconfig directives
+Message-ID: <20031225193948.GP31789@actcom.co.il>
+References: <20031222235622.GA17030@sole.infis.univ.trieste.it>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 25 Dec 2003 21:41:28 +0200
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7PAM/4G1BR2SfWzg"
+Content-Disposition: inline
+In-Reply-To: <20031222235622.GA17030@sole.infis.univ.trieste.it>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-OSVDzoNNY8IzRoNKdEYz
-Content-Type: text/plain
+--7PAM/4G1BR2SfWzg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2003-12-25 at 20:45, Christoph Hellwig wrote:
-> On Thu, Dec 25, 2003 at 06:48:51PM +0100, Andreas Jellinghaus wrote:
-> > On Tue, 23 Dec 2003 16:47:44 +0000, Christoph Hellwig wrote:
-> > > I disagree. For fully static devices like the mem devices the udev
-> > > indirection is completely superflous.
-> >=20
-> > If sysfs does not contain data on mem devices, we will need makedev.
-> >=20
-> > devfs did replace makedev. until udev can create all devices,
-> > it would need to re-introduce makedev.
+On Tue, Dec 23, 2003 at 12:56:23AM +0100, Andrea Barisani wrote:
+
+> - SOUND_GAMEPORT option is always turned on
 >=20
-> So what?
+> ./drivers/input/gameport/Kconfig
 >=20
+> 22: config SOUND_GAMEPORT
+> 23:         tristate
+> 24:         default y if GAMEPORT!=3Dm
+> 25:         default m if GAMEPORT=3Dm
 
-So maybe suggest an solution rather than shooting one down all the
-time (which do seem logical, and is only apposed by one person currently
-- namely you =3D).
+> line 24 is definetly wrong, option is enabled if GAMEPORT=3Dn.
 
-I currently run a system with Greg's patches + udev, and all the devices
-are generated via udev and a modified version of Robert's initscript
-(running much earlier), with only alsa's nodes generated via another
-script as it is not sysfs-ified yet.  So basically the initramfs idea
-is fully plausible if initramfs will get there (or I get time to have
-a look).=20
+line 24 is correct. CONFIG_SOUND_GAMEPORT is an odd beast, see
+e.g.
+http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D106479206731633&w=3D2 for
+details. Please leave poor CONFIG_GAMEPORT alone.=20
 
-
+Cheers,=20
+Muli=20
 --=20
-Martin Schlemmer
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
 
---=-OSVDzoNNY8IzRoNKdEYz
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+"the nucleus of linux oscillates my world" - gccbot@#offtopic
+
+
+--7PAM/4G1BR2SfWzg
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQA/6z1nqburzKaJYLYRAvLKAJ9QHk7i24Ma0BQz/spZ6KdCvY28CwCfXuWh
-hqyxZJjHkJYeLaUnrlXkmI4=
-=tum/
+iD8DBQE/6z0EKRs727/VN8sRAu28AJ9uxfWOSuMPsFEqIhIWRn0neOiqDwCfSmh2
+/nu3ws1qxnSYpaYkdbF13yQ=
+=eNrh
 -----END PGP SIGNATURE-----
 
---=-OSVDzoNNY8IzRoNKdEYz--
-
+--7PAM/4G1BR2SfWzg--

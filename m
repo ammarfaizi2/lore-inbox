@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271401AbRHZSNd>; Sun, 26 Aug 2001 14:13:33 -0400
+	id <S271413AbRHZSkd>; Sun, 26 Aug 2001 14:40:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271413AbRHZSNZ>; Sun, 26 Aug 2001 14:13:25 -0400
-Received: from paloma16.e0k.nbg-hannover.de ([62.159.219.16]:45708 "HELO
-	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S271401AbRHZSNL>; Sun, 26 Aug 2001 14:13:11 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: VCool - cool your Athlon/Duron during idle
-Date: Sun, 26 Aug 2001 20:09:34 +0200
-X-Mailer: KMail [version 1.3]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S271421AbRHZSkO>; Sun, 26 Aug 2001 14:40:14 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:25614 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S271413AbRHZSkG>;
+	Sun, 26 Aug 2001 14:40:06 -0400
+Date: Sun, 26 Aug 2001 15:39:14 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: <pcg@goof.com>, Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+In-Reply-To: <20010826164829Z16201-32383+1475@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.33L.0108261538190.5646-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010826181315Z271401-760+6195@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Alan,
+On Sun, 26 Aug 2001, Daniel Phillips wrote:
 
-Have you read something about this Athlon/Duron cooling problem?
-Can this code included into your (and/or the official) tree?
-Maybe it is needed for the AMD 750/760/760MP/760MPX, too?
+> There's an obvious explanation for the high loadavg people are seeing
+> when their systems go into thrash mode: when free is exhausted, every
+> task that fails to get a block in __alloc_pages will become
+> PF_MEMALLOC and start scanning.
 
-http://www.naggelgames.de/vcool/VCool_de.html
+If you ever tested this, you'd know this is not true.
 
-Regards,
-	Dieter
+In almost all cases where the system is thrashing
+tasks are waiting for the data they need to be read
+in from disk.
+
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

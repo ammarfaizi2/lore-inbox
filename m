@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132517AbRAGOHM>; Sun, 7 Jan 2001 09:07:12 -0500
+	id <S132601AbRAGOID>; Sun, 7 Jan 2001 09:08:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132601AbRAGOHC>; Sun, 7 Jan 2001 09:07:02 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58126 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132517AbRAGOG5>; Sun, 7 Jan 2001 09:06:57 -0500
-Subject: Re: Which kernel fixes the VM issues?
-To: jim@browsermedia.com (Jim Olsen)
-Date: Sun, 7 Jan 2001 14:08:24 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <01010706312902.10913@jim.cyberjunkees.com> from "Jim Olsen" at Jan 07, 2001 06:31:29 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S132793AbRAGOHx>; Sun, 7 Jan 2001 09:07:53 -0500
+Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:28933
+	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S132601AbRAGOHi>; Sun, 7 Jan 2001 09:07:38 -0500
+Date: Mon, 8 Jan 2001 03:07:35 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Stefan Traby <stefan@hello-penguin.com>, linux-kernel@vger.kernel.org
+Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
+Message-ID: <20010108030735.B2844@metastasis.f00f.org>
+In-Reply-To: <m1r92fj10c.fsf@frodo.biederman.org> <E14FGK1-0002gX-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14FGUl-0002iH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14FGK1-0002gX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Jan 07, 2001 at 01:57:17PM +0000
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> About once a week I get the 'VM: do_try_to_free_pages ...' error and 
-> eventually get a complete system lockup. And just this morning it locked up 
+On Sun, Jan 07, 2001 at 01:57:17PM +0000, Alan Cox wrote:
 
-Fixed in 2.2.19pre2
+    Rather more than that, and it only fixes those using
+    generic_file_*
 
-> again, although this time with a 'VFS: LRU block list corrupted' message in 
-> the logs, which i'm assuming is related to the VM issue as well. 
+So we have common code that both generic_file_* calls and block_*
+calls to check against -- how does that sound?
 
-Unrelated but believed fixed in 2.2.18
+.. or we can check 'up one level' by adding another method to struct
+file_operations perhaps (gross?).
 
+
+  --cw
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,65 +1,457 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262334AbVBVPXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbVBVPoV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262334AbVBVPXa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 10:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbVBVPXa
+	id S262337AbVBVPoV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 10:44:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262336AbVBVPoV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 10:23:30 -0500
-Received: from web50202.mail.yahoo.com ([206.190.38.43]:61877 "HELO
-	web50202.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262334AbVBVPXE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 10:23:04 -0500
-Message-ID: <20050222152300.59326.qmail@web50202.mail.yahoo.com>
-Date: Tue, 22 Feb 2005 07:23:00 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [rsbac] Thoughts on the "No Linux Security Modules framework" old claims
-To: Amon Ott <ao@rsbac.org>, rsbac@rsbac.org
-Cc: Casey Schaufler <casey@schaufler-ca.com>,
-       Lorenzo =?ISO-8859-1?Q?=20=22Hern=E1ndezGarc=EDa?=
-	 =?ISO-8859-1?Q?-Hierro=22?= <lorenzo@gnu.org>,
-       "linux-security-module@wirex.com" <linux-security-module@wirex.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200502220957.16047.ao@rsbac.org>
+	Tue, 22 Feb 2005 10:44:21 -0500
+Received: from ms003msg.fastwebnet.it ([213.140.2.42]:50888 "EHLO
+	ms003msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S262331AbVBVPn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 10:43:29 -0500
+From: Daniele Lacamera <mlists@danielinux.net>
+Reply-To: mlists@danielinux.net
+To: Stephen Hemminger <shemminger@osdl.org>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] TCP-Hybla proposal
+Date: Tue, 22 Feb 2005 16:42:46 +0100
+User-Agent: KMail/1.7.1
+References: <200502221534.42948.mlists@danielinux.net>
+In-Reply-To: <200502221534.42948.mlists@danielinux.net>
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Carlo Caini <ccaini@deis.unibo.it>,
+       Rosario Firrincieli <rfirrincieli@arces.unibo.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_2L1GC7FCJmHnx75"
+Message-Id: <200502221642.46712.mlists@danielinux.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Boundary-00=_2L1GC7FCJmHnx75
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
---- Amon Ott <ao@rsbac.org> wrote:
+On Tuesday 22 February 2005 15:34, Daniele Lacamera wrote:
+> Hi
+> This is the official patch to implement TCP Hybla congestion 
+avoidance.
 
-> On Montag 21 Februar 2005 18:50, Casey Schaufler
-> wrote:
-> > 
-> > --- Lorenzo Hernández García-Hierro
-> <lorenzo@gnu.org>
-> > wrote:
-> > 
-> > 
-> > > > There are cases where Linux DAC and MAC cannot
-> > > live happily together, 
-> > > > because Linux DAC is too limited.
-> > > 
-> > > Agreed.
-> > 
-> > OKay, I'll bite. MAC and DAC are seperate.
-> > How is it that (the limited nature of) the DAC
-> > behavior makes a system with both unhappy?
-> 
-> Back in 2001/2002 (versions 1.1.2 and 1.2.0), I
-> added DAC disabling 
-> support first for the full filesystem ...
-
-There's way to much context missing for
-me to make heads or tails of what the issue
-was!
+I've post a wrong/unclean patch. Here's the right one.
+Sorry.
 
 
-=====
-Casey Schaufler
-casey@schaufler-ca.com
+-- 
+Daniele Lacamera
+root at danielinux.net
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+--Boundary-00=_2L1GC7FCJmHnx75
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="tcp_hybla-2.6.11-rc4.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="tcp_hybla-2.6.11-rc4.patch"
+
+diff -ruN linux-2.6.11-rc4/Documentation/networking/ip-sysctl.txt hybla/Documentation/networking/ip-sysctl.txt
+--- linux-2.6.11-rc4/Documentation/networking/ip-sysctl.txt	2005-02-13 04:06:20.000000000 +0100
++++ hybla/Documentation/networking/ip-sysctl.txt	2005-02-22 13:50:38.000000000 +0100
+@@ -349,6 +349,18 @@
+ 	window. Allows two flows sharing the same connection to converge
+ 	more rapidly.
+ 	Default: 1
++	
++tcp_hybla - BOOLEAN
++	Enable TCP-Hybla congestion control algorithm.
++	TCP-Hybla is a sender-side only change that eliminates penalization of
++	long-RTT, large-bandwidth connections, like when satellite legs are
++	involved, expecially when sharing a common bottleneck with normal 
++	terrestrial connections.
++	Default: 0
++	
++tcp_hybla_rtt0 - INTEGER
++	Divisor to set up rtt0 value for hybla congestion control.
++	Default: 40 (= 1/40 sec == 25ms)
+ 
+ tcp_default_win_scale - INTEGER
+ 	Sets the minimum window scale TCP will negotiate for on all
+diff -ruN linux-2.6.11-rc4/include/linux/sysctl.h hybla/include/linux/sysctl.h
+--- linux-2.6.11-rc4/include/linux/sysctl.h	2005-02-13 04:06:53.000000000 +0100
++++ hybla/include/linux/sysctl.h	2005-02-22 13:06:59.000000000 +0100
+@@ -344,6 +344,8 @@
+ 	NET_TCP_DEFAULT_WIN_SCALE=105,
+ 	NET_TCP_MODERATE_RCVBUF=106,
+ 	NET_TCP_TSO_WIN_DIVISOR=107,
++	NET_TCP_HYBLA=108,
++	NET_TCP_HYBLA_RTT0=109,
+ };
+ 
+ enum {
+diff -ruN linux-2.6.11-rc4/include/linux/tcp.h hybla/include/linux/tcp.h
+--- linux-2.6.11-rc4/include/linux/tcp.h	2005-02-13 04:06:23.000000000 +0100
++++ hybla/include/linux/tcp.h	2005-02-22 13:04:53.000000000 +0100
+@@ -434,6 +434,16 @@
+ 		__u32	last_cwnd;	/* the last snd_cwnd */
+ 		__u32   last_stamp;     /* time when updated last_cwnd */
+ 	} bictcp;
++	
++	/* Tcp Hybla structure. */
++        struct{
++                __u32   snd_cwnd_cents; /* Keeps increment values when it is <1, <<7 */
++                __u32   rho;            /* Rho parameter, integer part  */
++                __u32   rho2;           /* Rho * Rho, integer part */
++                __u32   rho_3ls;        /* Rho parameter, <<3 */
++                __u32   rho2_7ls;       /* Rho^2, <<7	*/
++                __u32   minrtt;         /* Minimum smoothed round trip time value seen  */
++        } hybla;
+ };
+ 
+ static inline struct tcp_sock *tcp_sk(const struct sock *sk)
+diff -ruN linux-2.6.11-rc4/include/net/tcp.h hybla/include/net/tcp.h
+--- linux-2.6.11-rc4/include/net/tcp.h	2005-02-13 04:05:28.000000000 +0100
++++ hybla/include/net/tcp.h	2005-02-22 16:30:05.000000000 +0100
+@@ -608,6 +608,8 @@
+ extern int sysctl_tcp_bic_low_window;
+ extern int sysctl_tcp_moderate_rcvbuf;
+ extern int sysctl_tcp_tso_win_divisor;
++extern int sysctl_tcp_hybla;
++extern int sysctl_tcp_hybla_rtt0;
+ 
+ extern atomic_t tcp_memory_allocated;
+ extern atomic_t tcp_sockets_allocated;
+@@ -2017,4 +2019,37 @@
+ 
+ 	return (cwnd != 0);
+ }
++
++/*
++ * TCP HYBLA Functions and constants
++ */
++/* Hybla reference round trip time (default= 1/40 sec = 25 ms), expressed in jiffies */
++#define RTT0 (__u32) ((HZ/sysctl_tcp_hybla_rtt0))
++/*
++ * This is called in tcp_ipv4.c and
++ * tcp_minisocks.c when connection starts
++ */
++static inline void init_hybla(struct tcp_sock *tp)
++{
++        tp->hybla.rho = 0;
++        tp->hybla.rho2 = 0;
++        tp->hybla.rho_3ls = 0;
++        tp->hybla.rho2_7ls = 0;
++        tp->hybla.snd_cwnd_cents = 0;
++}
++/* This is called to refresh values for hybla parameters */
++static inline void hybla_recalc_param (struct tcp_sock *tp)
++{
++
++        tp->hybla.rho_3ls = (tp->srtt / RTT0);
++        if(tp->hybla.rho_3ls < 8) 
++		tp->hybla.rho_3ls =8;
++	
++        tp->hybla.rho=(tp->hybla.rho_3ls >> 3);
++        tp->hybla.rho2_7ls = ((tp->hybla.rho_3ls * tp->hybla.rho_3ls)<<1);
++        tp->hybla.rho2=(tp->hybla.rho2_7ls >>7);
++
++        if (sysctl_tcp_hybla)
++                tp->snd_cwnd_clamp = min_t (__u32, tp->snd_cwnd_clamp, tp->hybla.rho<<16);
++}
+ #endif	/* _TCP_H */
+diff -ruN linux-2.6.11-rc4/net/ipv4/sysctl_net_ipv4.c hybla/net/ipv4/sysctl_net_ipv4.c
+--- linux-2.6.11-rc4/net/ipv4/sysctl_net_ipv4.c	2005-02-13 04:07:01.000000000 +0100
++++ hybla/net/ipv4/sysctl_net_ipv4.c	2005-02-22 13:15:00.000000000 +0100
+@@ -682,6 +682,22 @@
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_dointvec,
+ 	},
++	{
++		.ctl_name       = NET_TCP_HYBLA,
++		.procname       = "tcp_hybla",
++		.data           = &sysctl_tcp_hybla,
++		.maxlen         = sizeof(int),
++                .mode           = 0644,
++                .proc_handler   = &proc_dointvec
++        },
++	{
++		.ctl_name       = NET_TCP_HYBLA_RTT0,
++		.procname       = "tcp_hybla_rtt0",
++		.data           = &sysctl_tcp_hybla_rtt0,
++		.maxlen         = sizeof(int),
++                .mode           = 0644,
++                .proc_handler   = &proc_dointvec
++        },
+ 	{ .ctl_name = 0 }
+ };
+ 
+diff -ruN linux-2.6.11-rc4/net/ipv4/tcp.c hybla/net/ipv4/tcp.c
+--- linux-2.6.11-rc4/net/ipv4/tcp.c	2005-02-13 04:05:50.000000000 +0100
++++ hybla/net/ipv4/tcp.c	2005-02-22 16:30:41.000000000 +0100
+@@ -1813,6 +1813,10 @@
+ 
+ 	if (!(sk->sk_userlocks & SOCK_BINDADDR_LOCK))
+ 		inet_reset_saddr(sk);
++	
++	/* [TCP HYBLA] Reset values on disconnect */
++        if (sysctl_tcp_hybla)
++                init_hybla(tp);
+ 
+ 	sk->sk_shutdown = 0;
+ 	sock_reset_flag(sk, SOCK_DONE);
+diff -ruN linux-2.6.11-rc4/net/ipv4/tcp_input.c hybla/net/ipv4/tcp_input.c
+--- linux-2.6.11-rc4/net/ipv4/tcp_input.c	2005-02-13 04:07:01.000000000 +0100
++++ hybla/net/ipv4/tcp_input.c	2005-02-22 13:58:49.000000000 +0100
+@@ -62,6 +62,7 @@
+  *					engine. Lots of bugs are found.
+  *		Pasi Sarolahti:		F-RTO for dealing with spurious RTOs
+  *		Angelo Dell'Aera:	TCP Westwood+ support
++ *		Daniele Lacamera:	TCP Hybla Congestion control support
+  */
+ 
+ #include <linux/config.h>
+@@ -89,6 +90,8 @@
+ int sysctl_tcp_nometrics_save;
+ int sysctl_tcp_westwood;
+ int sysctl_tcp_vegas_cong_avoid;
++int sysctl_tcp_hybla=0;
++int sysctl_tcp_hybla_rtt0=40;
+ 
+ int sysctl_tcp_moderate_rcvbuf = 1;
+ 
+@@ -595,6 +598,29 @@
+ 	tp->vegas.cntRTT++;
+ }
+ 
++/*
++ * [TCP HYBLA] Update Values, if necessary, when a new
++ * smoothed RTT Estimation becomes available
++ */
++static void hybla_update_rtt(struct tcp_sock *tp, long m)
++{
++        /* This sets rho to the smallest RTT received. */
++        if (tp->srtt!=0){
++                /*  Recalculate rho only if this srtt is the lowest */
++                if (tp->srtt < tp->hybla.minrtt){
++			hybla_recalc_param(tp);
++			/* update minimum rtt */
++			tp->hybla.minrtt = tp->srtt;
++                }
++        } else {
++                /* 1st Rho measurement */
++                hybla_recalc_param(tp);
++                /* set minimum rtt as this is the 1st ever seen */
++                tp->hybla.minrtt = tp->srtt;
++                tp->snd_cwnd=tp->hybla.rho;
++        }
++}
++
+ /* Called to compute a smoothed rtt estimate. The data fed to this
+  * routine either comes from timestamps, or from segments that were
+  * known _not_ to have been retransmitted [see Karn/Partridge
+@@ -669,6 +695,8 @@
+ 	}
+ 
+ 	tcp_westwood_update_rtt(tp, tp->srtt >> 3);
++	if(sysctl_tcp_hybla)
++		hybla_update_rtt(tp,mrtt);
+ }
+ 
+ /* Calculate rto without backoff.  This is the second half of Van Jacobson's
+@@ -808,6 +836,11 @@
+ 		else
+ 			cwnd = (tp->mss_cache_std > 1095) ? 3 : 4;
+ 	}
++	/* Hybla initial Window value set. */
++        if (sysctl_tcp_hybla){
++                hybla_recalc_param(tp);
++                cwnd=max_t(__u32, 2U, tp->hybla.rho);
++        }
+ 	return min_t(__u32, cwnd, tp->snd_cwnd_clamp);
+ }
+ 
+@@ -2322,12 +2355,153 @@
+ 	tp->snd_cwnd_stamp = tcp_time_stamp;
+ }
+ 
++/***
++ ** TCP-HYBLA Congestion control algorithm, based on:
++ **   C.Caini, R.Firrincieli, "TCP-Hybla: A TCP Enhancement
++ **   for Heterogeneous Networks",
++ **   International Journal on satellite Communications,
++ **   					September 2004
++ ***/
++static __inline__ __u32 hybla_slowstart_fraction_increment(__u32 odds){
++	switch (odds) {
++		case 0:
++			return 128;
++		case 1:
++			return 139;
++		case 2:
++			return 152;
++		case 3:
++			return 165;
++		case 4:
++			return 181;
++		case 5:
++			return 197;
++		case 6:
++			return 215;
++		case 7:
++			return 234;
++		default:
++			return 128;
++		
++	}
++}
++static __inline__ void hybla_fractions_cong_avoid(struct tcp_sock *tp)
++{
++	__u32 increment;
++	__u32 odd;
++	__u32 rho_fractions;
++	//__u8 is_slowstart=0;
++	__u32 window, ssthresh;
++	
++	if (tp->hybla.rho==0)
++		hybla_recalc_param(tp);
++	
++	ssthresh = tp->snd_ssthresh;
++	window=tp->snd_cwnd;
++	rho_fractions=tp->hybla.rho_3ls - (tp->hybla.rho << 3);
++	
++	if (window < ssthresh){
++		return;
++	} else {
++		/*** congestion avoidance 	
++		 *** INC = RHO^2 / W		
++		 *** as long as increment is estimated as (rho<<7)/window
++		 *** it already is <<7 and we can easily count its fractions.
++		 ***/	
++		increment =(tp->hybla.rho2_7ls/window);
++		odd = increment % 128;
++		tp->snd_cwnd_cnt++;
++	}
++	tp->hybla.snd_cwnd_cents += odd;
++			
++}
++
++	/* TCP Hybla main routine.
++	 * This is the algorithm behavior:
++	 *	o Recalc Hybla parameters if min_rtt has changed
++	 *	o Give cwnd a new value based on the model proposed
++	 *	o remember increments <1	
++	 */
++static __inline__ void tcp_hybla_cong_avoid(struct tcp_sock *tp)
++{
++	__u32 increment;
++	__u32 odd;
++	__u32 rho_fractions;
++	__u32 window,clamp, ssthresh;
++	__u8 is_slowstart=0;
++	
++	if (tp->hybla.rho==0)
++		hybla_recalc_param(tp);
++	
++	clamp = tp->snd_cwnd_clamp ;
++	window = tp->snd_cwnd;
++	ssthresh = tp->snd_ssthresh;
++	rho_fractions=tp->hybla.rho_3ls - (tp->hybla.rho << 3);
++	
++	if (window < ssthresh){
++		/*** slow start 	
++		 ***	INC = 2^RHO - 1 
++		 *** This is done by splitting the rho parameter
++		 *** into 2 parts: an integer part and a fraction part.
++		 *** Inrement<<7 is estimated by doing:
++		 *** 		[2^(int+fract)]<<7
++		 *** that is equal to:
++		 ***		(2^int)  *  [(2^fract) <<7]
++		 *** 2^int is straightly computed as 1<<int,
++		 *** while we will use hybla_slowstart_fraction_increment() to 
++	 	 *** calculate 2^fract in a <<7 value.
++		 ***/
++		is_slowstart=1;
++		increment =( (1 << tp->hybla.rho) * hybla_slowstart_fraction_increment(rho_fractions) ) - 128;
++		odd = increment % 128;
++		window += (increment >> 7);
++	} else {
++		/*** congestion avoidance 	
++		 *** INC = RHO^2 / W		
++		 *** as long as increment is estimated as (rho<<7)/window
++		 *** it already is <<7 and we can easily count its fractions.
++		 ***/	
++		increment =(tp->hybla.rho2_7ls/window);
++		odd = increment % 128;
++		window += (increment >> 7);
++		
++		if (increment < 128)
++			tp->snd_cwnd_cnt++;
++	}
++	tp->hybla.snd_cwnd_cents += odd;
++	
++		/***
++		 *** check when fractions goes >=128
++		 *** and increase cwnd by 1.
++		 ***/
++	while(	tp->hybla.snd_cwnd_cents >= 128){
++		window++;
++		tp->hybla.snd_cwnd_cents -= 128;
++		tp->snd_cwnd_cnt = 0;
++	}
++		/***
++		 *** clamp down slowstart cwnd to ssthresh value.
++		 ***/
++	if (is_slowstart)
++		window = min_t(__u32, window, ssthresh);
++	
++	tp->snd_cwnd = min_t (__u32, window, clamp);
++	
++	tp->snd_cwnd_stamp=tcp_time_stamp;
++		
++}
++
+ static inline void tcp_cong_avoid(struct tcp_sock *tp, u32 ack, u32 seq_rtt)
+ {
+-	if (tcp_vegas_enabled(tp))
++	if (tcp_vegas_enabled(tp)){
+ 		vegas_cong_avoid(tp, ack, seq_rtt);
+-	else
+-		reno_cong_avoid(tp);
++		return;
++	}
++	if (sysctl_tcp_hybla){
++		tcp_hybla_cong_avoid(tp);
++		return;
++	}
++	reno_cong_avoid(tp);
+ }
+ 
+ /* Restart timer after forward progress on connection.
+diff -ruN linux-2.6.11-rc4/net/ipv4/tcp_ipv4.c hybla/net/ipv4/tcp_ipv4.c
+--- linux-2.6.11-rc4/net/ipv4/tcp_ipv4.c	2005-02-13 04:05:51.000000000 +0100
++++ hybla/net/ipv4/tcp_ipv4.c	2005-02-22 13:19:02.000000000 +0100
+@@ -2055,6 +2055,9 @@
+ 	 * efficiently to them.  -DaveM
+ 	 */
+ 	tp->snd_cwnd = 2;
++	
++	/* Reset hybla parameters on socket initialization.  */
++        init_hybla(tp);
+ 
+ 	/* See draft-stevens-tcpca-spec-01 for discussion of the
+ 	 * initialization of these values.
+diff -ruN linux-2.6.11-rc4/net/ipv4/tcp_minisocks.c hybla/net/ipv4/tcp_minisocks.c
+--- linux-2.6.11-rc4/net/ipv4/tcp_minisocks.c	2005-02-13 04:07:01.000000000 +0100
++++ hybla/net/ipv4/tcp_minisocks.c	2005-02-22 13:17:07.000000000 +0100
+@@ -784,6 +784,9 @@
+ 
+ 		newtp->dsack = 0;
+ 		newtp->eff_sacks = 0;
++		
++		/* Reset hybla parameters on socket initialization.  */
++                init_hybla(newtp);
+ 
+ 		newtp->probes_out = 0;
+ 		newtp->num_sacks = 0;
+
+--Boundary-00=_2L1GC7FCJmHnx75--

@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbUHBSuO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbUHBSyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbUHBSuO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 14:50:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUHBSuN
+	id S261563AbUHBSyk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 14:54:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUHBSyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 14:50:13 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:37265 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261500AbUHBSuA (ORCPT
+	Mon, 2 Aug 2004 14:54:40 -0400
+Received: from mail.tmr.com ([216.238.38.203]:51463 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261563AbUHBSyi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 14:50:00 -0400
-Message-ID: <410E8CF1.6030905@colorfullife.com>
-Date: Mon, 02 Aug 2004 20:50:25 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Mon, 2 Aug 2004 14:54:38 -0400
+Date: Mon, 2 Aug 2004 14:48:51 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: New dev model (was [PATCH] delete devfs)
+In-Reply-To: <m38yd3j02q.fsf@defiant.pm.waw.pl>
+Message-ID: <Pine.LNX.3.96.1040802144144.17578B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: viro@parcelfarce.linux.theplanet.co.uk
-CC: linux-kernel@vger.kernel.org, Ravikiran G Thirumalai <kiran@in.ibm.com>
-Subject: Re: [patchset] Lockfree fd lookup 0 of 5
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro wrote:
+On Wed, 28 Jul 2004, Krzysztof Halasa wrote:
 
->How about this for comparison?  That's just a dumb "convert to rwlock"
->patch; we can be smarter in e.g. close_on_exec handling, but that's a
->separate story.
->  
->
-That won't help:
-The problem is the cache line trashing from fget() and fget_light() with 
-multithreaded apps. A sequence lock might help, but an rw lock is not a 
-solution.
-Actually: 2.4 had an rwlock, it was converted to a spinlock because 
-spinlocks are faster on i386:
+> Bill Davidsen <davidsen@tmr.com> writes:
+> 
+> > And akpm posted that he intended to remove cryptoloop, while others
+> > are calling for the end to devfs. Not having features disappear is
+> > part of stable, I would think, not just "not oops more often."
+> 
+> OTOH removing things declared "obsolete" for a long time doesn't make
+> it unstable - does it?
 
-    read_lock();
-    short operation();
-    read_unlock();
+Obsolete for a long time? This is a new feature in 2.6! It was just added
+and was the hook that got some people to go to 2.6 in some cases, to have
+some useful security in laptops. To remove it would effectively block
+following newer kernels when security holes are found, since dm-crypt
+would mean installing new software, training the support group,
+reformatting the disk to generate a partition to use, etc.
 
-is a bit slower than
+When major new features just added to a stable series vanish after they
+are adopted I most definitely do call that unstable.
 
-    spin_lock();
-    short operation();
-    spin_unlock();
+And dm-crypt is vulnerable to the same types of attacks, it's just harder
+to use.
 
-because read_unlock() is a full memory barrier and spin_unlock is not a 
-memory barrier (not necessary because writes are ordered)
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
---
-    Manfred

@@ -1,75 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266176AbUGZXCN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266175AbUGZXBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266176AbUGZXCN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 19:02:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266158AbUGZXCN
+	id S266175AbUGZXBe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 19:01:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266161AbUGZXAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 19:02:13 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:16583 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S266170AbUGZXBO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 19:01:14 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
+	Mon, 26 Jul 2004 19:00:47 -0400
+Received: from waste.org ([209.173.204.2]:36754 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S266158AbUGZXAd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 19:00:33 -0400
+Date: Mon, 26 Jul 2004 18:00:04 -0500
+From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 27 Jul 2004 09:00:58 +1000
-MIME-Version: 1.0
+Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>, cw@f00f.org,
+       rml@ximian.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] kernel events layer
+Message-ID: <20040726230003.GS5414@waste.org>
+References: <F989B1573A3A644BAB3920FBECA4D25A6EBFB0@orsmsx407> <20040725230951.0e150dbe.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16645.36138.385234.785650@cse.unsw.edu.au>
-Cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ext3 and SPEC SFS Run rules.
-In-Reply-To: message from Andrew Morton on Monday July 26
-References: <20040726000313.3fbf8403.akpm@osdl.org>
-	<Pine.LNX.4.44.0407261010400.32233-100000@localhost.localdomain>
-	<20040726130128.668c0722.akpm@osdl.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <20040725230951.0e150dbe.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday July 26, akpm@osdl.org wrote:
-> >    2. For NFS Version 3, the server adheres to the protocol specification. 
-> > In particular the requirement that for STABLE write requests and COMMIT 
-> > operations the NFS server must not reply to the NFS client before any 
-> > modified file system data or metadata, with the exception of access times, 
-> > are written to stable storage for that specific or related operation. See 
-> > RFC 1813, NFSv3 protocol specification for a definition of STABLE and 
-> > COMMIT for NFS write requests.
-
-Providing you use the "sync" export option, the Linux kNFSd should
-meet this requirement.
-
-> >    3. For NFS Version 3, operations which are specified to return wcc data 
-> > must, in all cases, return TRUE and the correct attribute data. Those 
-> > operations are:
-> > 
-> >       NFS Version 3
-> >       SETATTR
-> >       READLINK
-> >       CREATE
-> >       MKDIR
-> >       SYMLINK
-> >       MKNOD
-> >       REMOVE
-> >       RMDIR
-> >       RENAME
-> >       LINK
+On Sun, Jul 25, 2004 at 11:09:51PM -0700, Andrew Morton wrote:
+> "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com> wrote:
+> >
+> > If you guys are up to it, I volunteer to write/port such a tool to scan 
+> >  out the send_kevent{_atomic,}()s and make a catalog out of it.
 > 
-> To confirm this we'd need to undertake an audit of the server
-> implementation, and we'll need to ask Neil about it.
+> I must say that my gut feeling here is that bolting an arbitrary new
+> namespace into the kernel in this manner is not the way to proceed.
 
-To help with the audit: the wcc data is set by "fh_unlock".  i.e. when
-a filehandle is unlocked (up(i_sem)) a copy of the state information
-is taken and included where appropriate in the reply.
+An uncontrolled namespace is no better than the existing printk info,
+IMO. And I think it's next to impossible to control the kevent
+namespace if it's scattered across the tree as strings, having tried
+to do something analogous for another large project.
+ 
+> I hope we'll hear more from Greg on this next week - see if we can come up
+> with some way to use the kobject/sysfs namespace for this.
 
-The only place that I am aware of where we *do*not* return wcc data is
-for the WRITE request (which you have not listed).  As the underlying
-filesystem is left to do whatever locking it thinks is appropriate,
-and vfs_write does none, nfsd is not in a position to lock it itself
-against sys_write and so cannot record before and after stat
-information that is atomic w.r.t the update.
+An API that looks like sysfs + dnotify to userspace is almost what you
+want. While the sysfs namespace has some of the problems above, we're
+already stuck with it.
+ 
+> Although heaven knows how "tmpfs just ran out of space" would map onto
+> kobject/sysfs.
 
-NeilBrown
+Per mountpoint sysfs trees? I'm sure there are lifetime issues there.
+
+Btw, we probably already have potential issues with kevents being
+stale by the time userspace picks them up - eth0 up, eth0 down, eth1
+renamed eth0, userspace notices eth0 up, tries to config downed eth1.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,70 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVBLVEl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVBLVPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVBLVEl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 16:04:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVBLVEl
+	id S261151AbVBLVPr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 16:15:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbVBLVPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 16:04:41 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:16257 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261179AbVBLVEi (ORCPT
+	Sat, 12 Feb 2005 16:15:46 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:3132 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261151AbVBLVPl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 16:04:38 -0500
-Subject: Re: [RFC 2.6.11-rc2-mm2 7/7] mm: manual page migration --
-	sys_page_migrate
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Ray Bryant <raybry@sgi.com>
-Cc: Hirokazu Takahashi <taka@valinux.co.jp>, Hugh DIckins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>, Marcello Tosatti <marcello@cyclades.com>,
-       Ray Bryant <raybry@austin.rr.com>, linux-mm <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050212032620.18524.15178.29731@tomahawk.engr.sgi.com>
-References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
-	 <20050212032620.18524.15178.29731@tomahawk.engr.sgi.com>
-Content-Type: text/plain
-Date: Sat, 12 Feb 2005 13:04:22 -0800
-Message-Id: <1108242262.6154.39.camel@localhost>
+	Sat, 12 Feb 2005 16:15:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=hnqz/nZf50+C0E3FofEf6j73daX9xA0zOrNk0I7gzctf9ViXWKvP+lACXnoQOlVDoaMH9futco+nybKIZf8azUeq6hI3aTmUtHTc24JbJb21nvzRPujFCmFfYwlPr+rFQyMh8Igayzyri5VLtcIsuuQu2FptG4SIRaWRYmyf/Dw=
+Message-ID: <f396da08050212131558581168@mail.gmail.com>
+Date: Sat, 12 Feb 2005 23:15:40 +0200
+From: Margus Eha <margus.eha@gmail.com>
+Reply-To: Margus Eha <margus.eha@gmail.com>
+To: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
+Subject: Re: bttv: tuner: i2c i/o error: rc == -121 (should be 4)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <culodt$u8s$2@sea.gmane.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <f396da08050212112363a4b5cf@mail.gmail.com>
+	 <culodt$u8s$2@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-11 at 19:26 -0800, Ray Bryant wrote:
-> This patch introduces the sys_page_migrate() system call:
+Thanks for the notification.
+
+Margus
+
+
+On Sat, 12 Feb 2005 21:22:17 +0100, Jindrich Makovicka
+<makovick@kmlinux.fjfi.cvut.cz> wrote:
+> Margus Eha wrote:
+> > Tv card works but i can't change channel. Something goes wrong in tuner.c
+> > when tvtime program tries to change frequency. In /var/log/messages i can find
+> > tuner: i2c i/o error: rc == -121 (should be 4).
+> >
+> > Las working version i tried was 2.6.11-rc2
+> > Both 2.6.11-rc3-mm1 and Both 2.6.11-rc3-mm2 are not working.
+> >
+> > If kernel conf is needed i can send.
 > 
-> sys_page_migrate(pid, va_start, va_end, count, old_nodes, new_nodes);
+> http://bugme.osdl.org/show_bug.cgi?id=4171
 > 
-> Its intent is to cause the pages in the range given that are found on
-> old_nodes[i] to be moved to new_nodes[i].  Count is the the number of
-> entries in these two arrays of short.
-
-Might it be useful to use nodemasks instead of those arrays?  That's
-already the interface that the mbind() interfaces use, and it probably
-pays to be consistent with all of the numa syscalls.
-
-There also probably needs to be a bit more coordination between the
-other NUMA API and this one.  I noticed that, for now, the migration
-loop only makes a limited number of passes.  It appears that either you
-don't require that, once the syscall returns, that *all* pages have been
-migrated (there could have been allocations done behind the loop) or you
-have some way of keeping the process from doing any more allocations.
-
-There might also be some use to making sure that the NUMA binding API
-and the migration code agree what is in the affected VMA.  Otherwise,
-there might be some interesting situations where kswapd is swapping
-pages out behind a migration call, and the NUMA API is refilling those
-pages with ones that the migration call doesn't agree with.
-
-That's one reason I was looking at the loop to make sure it's only one
-pass.  I think doing passes until all pages are migrated gives you a
-livelock, so the limited number obviously makes sense. 
-
-Will you need other APIs to tell how successful the migration request
-was?  Simply returning how many pages were migrated back from the
-syscall doesn't really tell you anything concrete because there could be
-kswapd activity or other migration calls that could be messing up the
-work from the previous call.  Are all of these VMAs meant to be
-mlock()ed?
-
--- Dave
-
+> --
+> JM
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263088AbUERTsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263126AbUERTsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263088AbUERTsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 15:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbUERTsJ
+	id S263126AbUERTsW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 15:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbUERTsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 15:48:09 -0400
-Received: from pop.gmx.net ([213.165.64.20]:41704 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263088AbUERTsC (ORCPT
+	Tue, 18 May 2004 15:48:13 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:43981 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S263126AbUERTsE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 15:48:02 -0400
-X-Authenticated: #20450766
-Date: Tue, 18 May 2004 21:47:56 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Kurt Garloff <garloff@suse.de>
-cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>,
-       Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] SCSI updates for 2.6.6
-In-Reply-To: <20040518184527.GC4859@tpkurt.garloff.de>
-Message-ID: <Pine.LNX.4.44.0405182140050.3207-100000@poirot.grange>
+	Tue, 18 May 2004 15:48:04 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: usb sleep patch
+Date: Tue, 18 May 2004 21:46:54 +0200
+User-Agent: KMail/1.6.2
+Cc: Greg KH <greg@kroah.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <40AA3A0E.5040500@pobox.com> <20040518171625.GB12348@kroah.com>
+In-Reply-To: <20040518171625.GB12348@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405182146.54806.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 May 2004, Kurt Garloff wrote:
 
-> On Tue, May 11, 2004 at 02:54:33PM -0500, James Bottomley wrote:
-> > On Tue, 2004-05-11 at 14:29, Guennadi Liakhovetski wrote:
-> > > I hoped the tmscsim 64-bit bugfix would somehow find its way into the
-> > > mainstream after 2.6. Does it still have a chance?
-> >
-> > The DC390 is a maintained driver:
-> >
-> > DC390/AM53C974 SCSI driver
-> > P:	Kurt Garloff
-> > M:	garloff@suse.de
-> > W:	http://www.garloff.de/kurt/linux/dc390/
-> > S:	Maintained
-> >
-> > You need to get the maintainer to approve acceptance.
->
-> Granted ;-)
->
-> Actually, I had discussed the patch before with Guennadi and agreed to
-> it. As I don't really have much time any more for it, I would suggest
-> that Guennadi takes over, if he wants to.
+> + * msleep - sleep safely even with waitqueue interruptions
+> + * msecs: Time in milliseconds to sleep for
+> + */
+> +static inline void msleep(unsigned int msecs)
 
-Well, Kurt, thanks for the offer. I am prepared and willing to do the work
-on supporting the driver, but I am, perhaps, not skilled enough to be a
-maintainer of a SCSI LDD. My knowledge of the SCSI protocol and the SCSI
-Linux subsystem is pretty limited. On one hand, the driver is little used,
-so, even if I badly break something it is not likely to cause major
-problems. On the other hand, I would feel more comfortable if, at least at
-the beginning, somebody would review my patches. Besides, it would be a
-good opportunity for me to really learn a bit more about SCSI, SCSI Linux
-driver, BIO,...  oh well...
+Why do you make it inline? After a milisecond the cache is cold,
+so we should shrink the code.
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
-
-
+	Regards
+		Oliver

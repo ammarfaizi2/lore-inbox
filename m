@@ -1,84 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313346AbSDTWBe>; Sat, 20 Apr 2002 18:01:34 -0400
+	id <S312380AbSDTWGV>; Sat, 20 Apr 2002 18:06:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313355AbSDTWBd>; Sat, 20 Apr 2002 18:01:33 -0400
-Received: from dsl-213-023-039-128.arcor-ip.net ([213.23.39.128]:26509 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S313346AbSDTWBd>;
-	Sat, 20 Apr 2002 18:01:33 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jeff Garzik <garzik@havoc.gtf.org>
+	id <S313016AbSDTWGU>; Sat, 20 Apr 2002 18:06:20 -0400
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:59922
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S312380AbSDTWGU>; Sat, 20 Apr 2002 18:06:20 -0400
+Message-Id: <5.1.0.14.2.20020420175004.00aa9288@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sat, 20 Apr 2002 18:00:36 -0400
+To: linux-kernel@vger.kernel.org
+From: Stevie O <stevie@qrpff.net>
 Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Date: Sat, 20 Apr 2002 00:01:35 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com> <E16yfW9-0000aZ-00@starship> <20020420170747.B14186@havoc.gtf.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16ygRk-0000bR-00@starship>
+In-Reply-To: <E16yfW9-0000aZ-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 April 2002 23:07, Jeff Garzik wrote:
-> On Fri, Apr 19, 2002 at 11:02:04PM +0200, Daniel Phillips wrote:
-> > Martin Dalecki's IDE patch, gosh, look at all the fun.  It's a non-BK
-> > patch, let's see if there's a pattern.  Hmm, the next bushy one is "[PATCH]
-> > zerocopy NFS updated", descending from a traditional patch set.  The next
-> > one, "[PATCH] IDE TCQ #4" is also a traditional patch.  Hmm, no bitkeeper
-> > patches showing up yet, I don't think I need to go on.
-> > 
-> > There is a clear inverse relationship between the bk-ness of a patch and
-> > the extent to which it's discussed on lkml.  I don't know what to read into
-> > that, but it does seem to lend credence to the idea that the bitkeeper
-> > style of working is not compatible with the idea of community discussion.
-> 
-> Concrete examples, please?
-> 
-> Which patches are the stealth patches?
+ From what I can see, this is the situation:
 
-Let me turn that around.  Which bitkeeper patches have been posted to lkml and
-generated significant amounts of discussion on lkml in the last week?  Versus
-how many lines of bitkeeper patches applied to Linus's tree?
+Daniel is now bothered by the presence of BK documentation in the Linux kernel tree. Therefore, he submitted a patch to remove this documentation.
 
-I went through the 1,000 or so most recent postings on lkml, looking for patches
-that generated discussion.  Here's what I found:
+Just about everybody else involved in this thread accuses him of censorship, for attempting to restrict the dissemination of ideas. I do not know whether all of these people use BK; all I know is the "censorship" claim, on the basis that he is restricting the dissemination of information.
 
-BK patches generating discussion:
+I ask this: What if, instead of Daniel removing this documentation change, Linus himself did the patch?
 
-[PATCH] for_each_zone / for_each_pgdat
-[BK PATCH] USB device support for 2.5.8
-[BKPATCH 2.4] meye driver: fix request_irq bug
 
-Non BK patches generating discussion:
+2600 asserted that source code is speech, with the DeCSS case. I doubt EVERYONE here agrees with that, but I do agree that source code is a very precise form of communcating ideas...
 
-[CFT][PATCH] (1/5) sane procfs/dcache interaction
-[PATCH] Documenation/vm/numa
-[PATCH] fix ips driver compile problems
-[PATCH] IDE TCQ #4
-[PATCH] migration thread fix
-[PATCH] Wrong IRQ for USB on Sony Vaio (dmi_scan.c, pci-irq.c)
-[PATCH] x86 boot enhancements, boot bean counting 8/11
-[PATCH][2.5-dj] P4 thermal LVT (damage control)
-[PATCHSET] Linux 2.4.19-pre7-jam1
-[RFC] 2.5.8 sort kernel tables
-page_alloc.c comments patch
-[PATCH] Re: SSE related security hole
 
-Both BK and non-BK:
+(1) If I were to write a driver, and submit it for inclusion with the mainline kernel, would Linus be "censoring" me if he did not include my patch?
 
-[PATCH] i386 arch subdivision into machine types for 2.5.8
+And here is a better reason:
 
-The next question you might ask is: are there more BK patches or
-more Non-BK, in total, on and off lkml?  I don't have statistics at
-hand but I'm willing to bet that there are more BK patches, because
-that is how the bulk of the grunt tree maintainance is getting
-done these days.
+(2) If I had such a driver included in mainline, and that driver broke in the 2.5 series -- due to, say, BIO changes, VFS changes, procfs changes, DMA changes, PCI subsystem changes, you get the idea -- and as a result, Linus chose to remove it from mainline, he's restricting the dissemination of my ideas (driver).  Does that mean he is censoring me?
 
-My conclusion: though there are more BK patches being applied to Linus's
-tree than non-BK, they are generating less discussion on lkml than non-BK
-patches do.  Or to put it bluntly: BK patches are not being discussed.
+--
 
--- 
-Daniel
+Stevie-O
+
+*This sig was deleted for violating the DMCA.*
+

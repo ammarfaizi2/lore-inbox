@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317908AbSFSPPn>; Wed, 19 Jun 2002 11:15:43 -0400
+	id <S317907AbSFSPUF>; Wed, 19 Jun 2002 11:20:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317907AbSFSPPm>; Wed, 19 Jun 2002 11:15:42 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:1435 "EHLO
-	zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S317908AbSFSPPl>; Wed, 19 Jun 2002 11:15:41 -0400
-Message-ID: <3D10A017.C22CDD0D@nortelnetworks.com>
-Date: Wed, 19 Jun 2002 11:15:35 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: recommended method for hardware to report events to userspace?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317910AbSFSPUE>; Wed, 19 Jun 2002 11:20:04 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:1377 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S317907AbSFSPUD>; Wed, 19 Jun 2002 11:20:03 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: latest linus-2.5 BK broken 
+In-reply-to: Your message of "Tue, 18 Jun 2002 17:12:45 MST."
+             <Pine.LNX.4.33.0206181701240.2562-100000@penguin.transmeta.com> 
+Date: Thu, 20 Jun 2002 01:23:53 +1000
+Message-Id: <E17KhJj-0001Pb-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <Pine.LNX.4.33.0206181701240.2562-100000@penguin.transmeta.com> you 
+write:
+> 
+> On Wed, 19 Jun 2002, Rusty Russell wrote:
+> >  
+> > -	new_mask &= cpu_online_map;
+> > +	/* Eliminate offline cpus from the mask */
+> > +	for (i = 0; i < NR_CPUS; i++)
+> > +		if (!cpu_online(i))
+> > +			new_mask &= ~(1<<i);
+> > +
+> 
+> And why can't cpu_online_map be a bitmap?
+> 
+> What's your beef against sane and efficient data structures? The above is 
+> just crazy. 
 
-I'm doing some work on a SONET PHY and I was wondering what the recommended
-method is for asynchronously reporting events to userspace.
+Oh, it can be.  I wasn't going to require something from all archs for
+this one case (well, it was more like zero cases when I first did the
+patch).
 
-I have some non-critical events (correctable ecc errors, etc) that I poll every
-once in a while, but there are some critical events (loss of signal, for
-instance) that I want to report immediately.
+> and then add a few simple operations like
+> 
+> 	cpumask_and(cpu_mask_t * res, cpu_mask_t *a, cpu_mask_t *b);
 
-What is the usual way of doing this?  I see three possibilities: 1) the
-userspace app could register its pid with the driver using ioctl() and on a
-fault the interrupt handler in the driver could fire off a signal to the
-registered pids to alert them that something happened, at which point they do
-another ioctl() to find out exactly what it was,  2) use netlink to provide a
-socket-based notification of what happened,  3) provide a file descriptor that
-becomes readable when an event happens.
+Sure... or just make all archs supply a "cpus_online_of(mask)" which
+does that, unless there are other interesting cases.  Or we can go the
+other way and have a general "and_region(void *res, void *a, void *b,
+int len)".  Which one do you want?
 
-What's the Right Thing to do here?
+> This is not rocket science, and I find it ridiculous that you claim to
+> worry about scaling up to thousands of CPU's, and then you try to send me
+> absolute crap like the above which clearly is unacceptable for lots of
+> CPU's.
 
+Spinning 1000 times doesn't phase me until someone complains.
+Breaking userspace code does.  One can be fixed if it proves to be a
+bottleneck.  Understand?
 
-Thanks,
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

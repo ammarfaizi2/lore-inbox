@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291310AbSBSLzu>; Tue, 19 Feb 2002 06:55:50 -0500
+	id <S291307AbSBSLxj>; Tue, 19 Feb 2002 06:53:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291309AbSBSLzo>; Tue, 19 Feb 2002 06:55:44 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39693 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291310AbSBSLy5>; Tue, 19 Feb 2002 06:54:57 -0500
-Subject: Re: NE2k driver issue
-To: akpm@zip.com.au (Andrew Morton)
-Date: Tue, 19 Feb 2002 12:01:46 +0000 (GMT)
-Cc: adilger@turbolabs.com (Andreas Dilger), root@ibe.miee.ru (Samium Gromoff),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3C7230E9.AD355CA9@zip.com.au> from "Andrew Morton" at Feb 19, 2002 03:03:05 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S291309AbSBSLxc>; Tue, 19 Feb 2002 06:53:32 -0500
+Received: from mail2.alphalink.com.au ([202.161.124.58]:55413 "EHLO
+	mail2.alphalink.com.au") by vger.kernel.org with ESMTP
+	id <S291307AbSBSLxO>; Tue, 19 Feb 2002 06:53:14 -0500
+Message-ID: <3C722E1E.B8F7C231@alphalink.com.au>
+Date: Tue, 19 Feb 2002 21:51:10 +1100
+From: Greg Banks <gnb@alphalink.com.au>
+Organization: Corpus Canem Pty Ltd
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Giacomo Catenazzi <cate@debian.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Disgusted with kbuild developers
+In-Reply-To: <fa.h0m1njv.tgmh9v@ifi.uio.no> <3C72359C.6020008@debian.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16d8xu-0000IV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > the time.  This means it is generating interrupts even when you aren't
-> > listening to anything.
+Giacomo Catenazzi wrote:
 > 
-> But the odd thing is that the soundcard interrupts tentupled the
-> samba throughput.  Which sounds like a driver-handoff-to-ksoftirqd
-> problem. 
+> There are two other projects of C implementation of CML2:
+> 
+> cml2config in sourceforce,
 
-Or an IRQ routing bug
+  I've spoken with these guys.  They're using Prolog and a new
+language which they're inventing.  Their goal of a smarter inference
+engine is interesting from a theoretical point of view, but if you
+don't like Python you're going to *loathe* their stuff.
+
+> and another I lost the link.
+
+  Well, good luck to them, whoever they are.
+
+Greg.
+-- 
+the price of civilisation today is a courageous willingness to prevail,
+with force, if necessary, against whatever vicious and uncomprehending
+enemies try to strike it down.	   - Roger Sandall, The Age, 28Sep2001.

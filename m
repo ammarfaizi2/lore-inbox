@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263737AbTGFVDK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 17:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbTGFVDJ
+	id S263759AbTGFVKN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 17:10:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263802AbTGFVKN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 17:03:09 -0400
-Received: from raq465.uk2net.com ([213.239.56.46]:39185 "EHLO
-	mail.truemesh.com") by vger.kernel.org with ESMTP id S263628AbTGFVCL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 17:02:11 -0400
-Date: Sun, 6 Jul 2003 22:11:43 +0100
-From: Paul Nasrat <pauln@truemesh.com>
-To: S?rgio Duarte e Silva <sduartes@mandic.com.br>
-Cc: linux-kernel@vger.kernel.org, linux-8086@vger.kernel.org
-Subject: Re: ELKS - 80188 Newbie
-Message-ID: <20030706211143.GI7556@raq465.uk2net.com>
-Mail-Followup-To: Paul Nasrat <pauln@truemesh.com>,
-	S?rgio Duarte e Silva <sduartes@mandic.com.br>,
-	linux-kernel@vger.kernel.org, linux-8086@vger.kernel.org
-References: <3831.200.154.192.236.1057452982.squirrel@www.mandic.com.br>
+	Sun, 6 Jul 2003 17:10:13 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:35850 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S263759AbTGFVKI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 17:10:08 -0400
+Date: Sun, 6 Jul 2003 23:24:35 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Chris Mason <mason@suse.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-pre3 and reiserfs boot problem
+Message-Id: <20030706232435.5e752f37.skraw@ithnet.com>
+In-Reply-To: <1057515223.20904.1315.camel@tiny.suse.com>
+References: <20030706183453.74fbfaf2.skraw@ithnet.com>
+	<1057515223.20904.1315.camel@tiny.suse.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3831.200.154.192.236.1057452982.squirrel@www.mandic.com.br>
-User-Agent: Mutt/1.3.25i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 05, 2003 at 09:56:22PM -0300, S?rgio Duarte e Silva wrote:
+On 06 Jul 2003 14:13:44 -0400
+Chris Mason <mason@suse.com> wrote:
 
-> I would like to run Linux on an embedded 80188 Tern board
-> (www.tern.com). Is there
+> On Sun, 2003-07-06 at 12:34, Stephan von Krawczynski wrote:
+> > Hello,
+> > 
+> > I just tried 2.4.22-pre3 and found out I cannot boot my test box any more.
+> > It halts at:
+> > 
+> > reiserfs: found format "3.6" with standard journal
+> > 
+> > on a partition located on aic7xxx based hd. 
+> > 
+> > Booting the box with pre2 works perfectly well.
+> > Anything I should try? What information is needed?
+> 
+> Same config here (reiserfs 3.6.x, aic7xxx drive), works without
+> problems.  Is reiserfs or aic7xxx compiled as a module in your setup? 
+> If so did you remember to install the new modules and mkinitrd (if
+> required).
 
-ELKS (http://elks.sourceforge.net) has it's own mailing list:
-linux-8086@vger.kernel.org you can subscribe using majordomo. This
-would be the best place to discuss this.
+Hello Chris,
 
-It's not a Linux port rather a subset and implementation for 8086.
-Currently it is mostly set up to run off PC architecture, depending on
-the board it may run out of the box, or may require some porting. If the
-board supports floppy or an IDE hdd you probably can quickly check if
-you can get a bootable system
+no, there is no modules involved here. The problem arises not on my root
+partition (which happens to be reiserfs, too), that seems to be ok. Problems
+seem to come up on sda4, a simple data partition.
+ 
+> Is reiserfs on your root drive?  If not can you please boot into single
+> user mode, enable sysrq, try the mount again and get the decoded output
+> from sysrq-p and sysrq-t if it hangs.
+> 
+> -chris
 
-> anyone here that already made this? Is there any easy tutorial or boot
-> code already made for this processor?
+I am going to try with single user tomorrow morning.
 
-ELKS is bootable - and there is a user space, without a closer look I
-couldn't say if it would work out of the box on this board.  There are
-stock boot images, as well as EDE which is designed to install ELKS onto
-the HDD.  Some of the ELKS developers are working on other install
-scripts.
-
-I suggest you subscribe to linux-8086 and we'll see what we can do to
-help you.  Some more details about the board might help us. There is
-also a #elks channel on irc.freenode.net.
-
-Paul
+Regards,
+Stephan

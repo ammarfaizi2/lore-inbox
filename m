@@ -1,100 +1,177 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130423AbRBWVLy>; Fri, 23 Feb 2001 16:11:54 -0500
+	id <S129129AbRBWVTo>; Fri, 23 Feb 2001 16:19:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130438AbRBWVLp>; Fri, 23 Feb 2001 16:11:45 -0500
-Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:58116 "HELO
-	sh0n.net") by vger.kernel.org with SMTP id <S130423AbRBWVL2>;
-	Fri, 23 Feb 2001 16:11:28 -0500
-Message-ID: <3A96D1F9.7EA6BBB6@sh0n.net>
-Date: Fri, 23 Feb 2001 16:11:22 -0500
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net - http://www.sh0n.net/spstarr
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mike Galbraith <mikeg@wen-online.de>
-CC: lkm <linux-kernel@vger.kernel.org>
-Subject: Re: [ANOMALIES]: 2.4.2 - __alloc_pages: failed & mount hanging withloop 
- device issues
-In-Reply-To: <Pine.LNX.4.33.0102231409010.496-100000@mikeg.weiden.de>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+	id <S129211AbRBWVTe>; Fri, 23 Feb 2001 16:19:34 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:57359 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S129129AbRBWVTX>; Fri, 23 Feb 2001 16:19:23 -0500
+Date: Fri, 23 Feb 2001 22:18:56 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: mason@suse.com
+Subject: reiserfs: still problems with tail conversion
+Message-ID: <20010223221856.A24959@arthur.ubicom.tudelft.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok apply patch and loop patch... I'll let you know what happens in my next
-email.
+Hi all,
 
-Mike Galbraith wrote:
+I am running linux-2.4.2-pre4 with Chris Mason's tailconversion bug fix
+applied, but I still have problems with null bytes in files. I wrote a
+little test program that clearly shows the problem:
 
-> On Fri, 23 Feb 2001, Shawn Starr wrote:
->
-> > Feb 23 03:31:18 coredump kernel: __alloc_pages: 3-order allocation
-> > failed.
-> > Feb 23 03:31:18 coredump kernel: __alloc_pages: 3-order allocation
-> > failed.
-> > Feb 23 03:31:18 coredump kernel: __alloc_pages: 2-order allocation
-> > failed.
-> > Feb 23 03:31:18 coredump kernel: __alloc_pages: 3-order allocation
-> > failed.
-> > Feb 23 03:31:18 coredump kernel: __alloc_pages: 3-order allocation
-> > failed.
-> > Feb 23 03:31:18 coredump kernel: __alloc_pages: 2-order allocation
-> > failed.
-> > Feb 23 03:31:18 coredump kernel: __alloc_pages: 3-order allocation
-> > failed.
-> >
-> > The use of mkisofs and xcdroster with cdrecord seems to cause this fault
-> > in kernel.log
->
-> Hi,
->
-> Can you try the below for the high order allocation problem?  We don't
-> try very hard at all to service high order allocations under load.  If
-> it helps, let me know and I'll submit it to Rik for consideration.
->
-> (for loop troubles, you should try Jens' latest loop patch located in
-> your favorite kernel mirror under pub/linux/kernel/people/axboe)
->
->         -Mike
->
-> (patch was done against 2.4.1-ac20, but should go in ok)
-> --- mm/page_alloc.c.org Fri Feb 23 13:21:54 2001
-> +++ mm/page_alloc.c     Fri Feb 23 13:28:33 2001
-> @@ -274,7 +274,7 @@
->  struct page * __alloc_pages(zonelist_t *zonelist, unsigned long order)
->  {
->         zone_t **zone;
-> -       int direct_reclaim = 0;
-> +       int direct_reclaim = 0, loop = 0;
->         unsigned int gfp_mask = zonelist->gfp_mask;
->         struct page * page;
->
-> @@ -366,7 +366,7 @@
->          *   able to free some memory we can't free ourselves
->          */
->         wakeup_kswapd();
-> -       if (gfp_mask & __GFP_WAIT) {
-> +       if (gfp_mask & __GFP_WAIT && loop) {
->                 __set_current_state(TASK_RUNNING);
->                 current->policy |= SCHED_YIELD;
->                 schedule();
-> @@ -393,6 +393,7 @@
->          *      --> try to free pages ourselves with page_launder
->          */
->         if (!(current->flags & PF_MEMALLOC)) {
-> +               loop++;
->                 /*
->                  * Are we dealing with a higher order allocation?
->                  *
-> @@ -440,7 +441,7 @@
->                         memory_pressure++;
->                         try_to_free_pages(gfp_mask);
->                         wakeup_bdflush(0);
-> -                       if (!order)
-> +                       if (!order || loop < (1 << order))
->                                 goto try_again;
->                 }
->         }
 
+/* reisertest.c: test for tailconversion bug in reiserfs
+ *
+ * Compile with: gcc -O2 -o reisertest reisertest.c
+ */
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+#define MAXBYTES	8192
+
+int main(int argc, char *argv[])
+{
+	int fd;
+	int i;
+	char name[32];
+	char buf[MAXBYTES];
+	char check[MAXBYTES];
+	
+	memset(buf, 0x55, MAXBYTES);
+
+	fprintf(stderr, "Creating %d files ... ", MAXBYTES);
+
+	for(i = 0; i < MAXBYTES; i++) {
+		sprintf(name, "reiser-%05d.test", i);
+		fd = open(name, O_WRONLY | O_CREAT, 0644);
+		write(fd, buf, i);
+		close(fd);
+	}
+
+	fprintf(stderr, "done\n");
+	fprintf(stderr, "Appending to the files ... ");	
+
+	for(i = 0; i < MAXBYTES; i++) {
+		sprintf(name, "reiser-%05d.test", i);
+		fd = open(name, O_WRONLY | O_APPEND);
+		write(fd, buf, MAXBYTES - i);
+		close(fd);
+	}
+
+	fprintf(stderr, "done\n");
+	fprintf(stderr, "Checking files for null bytes ...\n");
+
+	for(i = 0; i < MAXBYTES; i++) {
+		sprintf(name, "reiser-%05d.test", i);
+		fd = open(name, O_RDONLY);
+		read(fd, check, MAXBYTES);
+		if(memcmp(buf, check, MAXBYTES) != 0) 
+			fprintf(stderr, "  %s contains null bytes\n", name);
+	}
+
+	fprintf(stderr, "Checking done\n");
+
+	return 0;
+}
+
+
+When I run this on a reiserfs partition, I get output like this:
+
+
+erik@arthur:~/reisertest/foo> ../reisertest
+Creating 8192 files ... done
+Appending to the files ... done
+Checking files for null bytes ...
+  reiser-00193.test contains null bytes
+  reiser-00220.test contains null bytes
+  reiser-00256.test contains null bytes
+  reiser-00289.test contains null bytes
+  reiser-00329.test contains null bytes
+  reiser-00338.test contains null bytes
+  reiser-00374.test contains null bytes
+  reiser-00407.test contains null bytes
+  reiser-00415.test contains null bytes
+  reiser-00430.test contains null bytes
+  reiser-00438.test contains null bytes
+  reiser-00445.test contains null bytes
+  reiser-00459.test contains null bytes
+  reiser-00481.test contains null bytes
+  reiser-00501.test contains null bytes
+  reiser-00508.test contains null bytes
+  reiser-00521.test contains null bytes
+  reiser-00534.test contains null bytes
+  reiser-00558.test contains null bytes
+  reiser-00577.test contains null bytes
+  reiser-00583.test contains null bytes
+  reiser-00600.test contains null bytes
+  reiser-00606.test contains null bytes
+  reiser-00612.test contains null bytes
+  reiser-00623.test contains null bytes
+  reiser-00634.test contains null bytes
+  reiser-00645.test contains null bytes
+  reiser-00665.test contains null bytes
+  reiser-00685.test contains null bytes
+  reiser-00730.test contains null bytes
+  reiser-00735.test contains null bytes
+  reiser-00740.test contains null bytes
+  reiser-00745.test contains null bytes
+  reiser-00750.test contains null bytes
+  reiser-00759.test contains null bytes
+  reiser-00764.test contains null bytes
+  reiser-00773.test contains null bytes
+  reiser-00778.test contains null bytes
+  reiser-00787.test contains null bytes
+  reiser-00796.test contains null bytes
+  reiser-00805.test contains null bytes
+  reiser-00814.test contains null bytes
+  reiser-00866.test contains null bytes
+  reiser-00915.test contains null bytes
+  reiser-00930.test contains null bytes
+  reiser-00934.test contains null bytes
+  reiser-00938.test contains null bytes
+  reiser-00942.test contains null bytes
+  reiser-00946.test contains null bytes
+  reiser-00950.test contains null bytes
+  reiser-00954.test contains null bytes
+  reiser-00958.test contains null bytes
+  reiser-00965.test contains null bytes
+  reiser-00969.test contains null bytes
+  reiser-00973.test contains null bytes
+  reiser-00977.test contains null bytes
+  reiser-00984.test contains null bytes
+  reiser-00988.test contains null bytes
+  reiser-00995.test contains null bytes
+  reiser-00999.test contains null bytes
+  reiser-01006.test contains null bytes
+  reiser-01010.test contains null bytes
+  reiser-01017.test contains null bytes
+Checking done
+
+
+Running the test a couple of times doesn't really show a pattern,
+sometimes the same files contains null bytes, sometimes others do. The
+files with null bytes seem to be with index < 1024.
+
+I did the same test with an ext2 filesystem, but didn't see any error.
+System is SuSE 7.0, compiler gcc-2.95.2.
+
+
+Erik
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261647AbTISRjl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 13:39:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbTISRjl
+	id S261646AbTISReG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 13:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbTISReG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 13:39:41 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:45963 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261647AbTISRjk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 13:39:40 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: use O_DIRECT open file, when read will hang.
-Date: Fri, 19 Sep 2003 10:38:34 -0700
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org, suparna@in.ibm.com
-References: <20030919124631.3b4e6301.hugang@soulinfo.com> <200309190939.18796.pbadari@us.ibm.com> <20030919095736.284aaa9f.akpm@osdl.org>
-In-Reply-To: <20030919095736.284aaa9f.akpm@osdl.org>
+	Fri, 19 Sep 2003 13:34:06 -0400
+Received: from [62.241.33.80] ([62.241.33.80]:32516 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S261646AbTISReF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 13:34:05 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Roland Bless <bless@tm.uka.de>, miquels@cistron.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: Fix for wrong OOM killer trigger?
+Date: Fri, 19 Sep 2003 19:30:33 +0200
+User-Agent: KMail/1.5.3
+Cc: walter@tm.uka.de, winter@tm.uka.de, doll@tm.uka.de
+References: <20030919191613.36750de3.bless@tm.uka.de>
+In-Reply-To: <20030919191613.36750de3.bless@tm.uka.de>
+X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200309191038.34117.pbadari@us.ibm.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309191930.33969.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19 September 2003 09:57 am, Andrew Morton wrote:
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> > I am also seeing some kind of regression on raw in 2.6.0-test5-mm2.
->
-> What is "some kind of regression"?
+On Friday 19 September 2003 19:16, Roland Bless wrote:
 
-I am getting different errors with database: ( I don't see these with my
-"dd" tests)
+Hi Roland,
 
-	(1) sometimes open fails with EFAULT 
-	(2) sometimes read/write fails with EFAULT
+> SW: Kernel 2.4.22 (also seen on 2.4.21, 2.4.22-ac3), lvm, software raid,
+> reiserfs, SuSE 8.1. Swap turned off (see later).
+> .... <snip> ....
+> Anyone any ideas? Please Cc: to me in your replies since I'm not on the
+> lkml. Cheers,
 
-I have been running on "raw" for quite a while, i haven't seen this before.
-I moved my logdevice to filesystem files, everything is fine.
+Please try v2.4.23-pre5 or rmap 15k for 2.4.22 vanilla.
 
->
-> > Unfortunately, this happens only with huge database benchmarks.
-> > I still haven't narrowed it down.
->
-> Use mm3 - it has fixes.  Daniel McNeil reports that mm3 fixes the dbt2
-> problems he was seeing.
+ciao, Marc
 
-Okay. I will use -mm3.
 
-Thanks,
-Badari

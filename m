@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbTDUSlA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 14:41:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbTDUSkO
+	id S261845AbTDUSfb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 14:35:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbTDUSfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 14:40:14 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13072 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261876AbTDUSjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 14:39:32 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] new system call mknod64
-Date: 21 Apr 2003 11:51:09 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b81eit$24a$1@cesium.transmeta.com>
-References: <20030421193546.A10287@infradead.org> <Pine.LNX.4.44.0304211141590.9109-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	Mon, 21 Apr 2003 14:35:30 -0400
+Received: from pointblue.com.pl ([62.89.73.6]:37383 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S261845AbTDUSet (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 14:34:49 -0400
+Subject: small patch - 2.4.21-pre7 net/core/bk
+From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: K4 labs
+Message-Id: <1050950810.2738.10.camel@flat41>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 21 Apr 2003 19:46:50 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.44.0304211141590.9109-100000@home.transmeta.com>
-By author:    Linus Torvalds <torvalds@transmeta.com>
-In newsgroup: linux.dev.kernel
-> 
-> Yes, we could make dev_t's internally be always 32+32, and do the
-> marshalling at stat() time. That would actually be my preferred approach, 
-> and would solve some of the problems with using "dev_t" as an opaque type 
-> right now (ie it would solve the "discontiguous region" issue.
-> 
+Maybe i just don't understeand this part of code, but i think we should
+not give calling driver five chances :)
 
-That would be Andries' kdev_t approach.
+---------------------------------------------------------------
+--- net/core/skbuff.c   2003-04-21 19:43:10.000000000 +0100
++++ net/core/skbuff.c.org       2003-04-21 19:42:35.000000000 +0100
+@@ -167,9 +167,13 @@
+        u8 *data;
+ 
+        if (in_interrupt() && (gfp_mask & __GFP_WAIT)) {
+-               printk(KERN_ERR "alloc_skb called nonatomically "
+-                      "from interrupt %p\n", NET_CALLER(size));
+-               BUG();
++               static int count = 0;
++               if (++count < 5) {
++                       printk(KERN_ERR "alloc_skb called nonatomically
+"
++                              "from interrupt %p\n", NET_CALLER(size));
++                       BUG();
++               }
++               gfp_mask &= ~__GFP_WAIT;
+        }
+ 
+        /* Get the HEAD */
+---------------------------------------------------------------
 
-	-hpa
+Also, i am bit confused with this part :
+     /* Get the DATA. Size must match skb_add_mtu(). */
+        size = SKB_DATA_ALIGN(size);
+        data = kmalloc(size + sizeof(struct skb_shared_info), gfp_mask);
+        if (data == NULL)
+                goto nodata;
+
+        /* XXX: does not include slab overhead */ 
+        skb->truesize = size + sizeof(struct sk_buff);
+
+can anybody explain me please why skb->truesize gets size+sizeof(struct
+sk_buff) (acording to XXX above it, it is incorrect).
+
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Grzegorz Jaskiewicz aka Kain/K4
+K4 labs
+

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129247AbRBRUFa>; Sun, 18 Feb 2001 15:05:30 -0500
+	id <S129512AbRBRUGU>; Sun, 18 Feb 2001 15:06:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129273AbRBRUFU>; Sun, 18 Feb 2001 15:05:20 -0500
-Received: from mail.mojomofo.com ([208.248.233.19]:48645 "EHLO mojomofo.com")
-	by vger.kernel.org with ESMTP id <S129247AbRBRUFM>;
-	Sun, 18 Feb 2001 15:05:12 -0500
-Message-ID: <015101c099e6$195f7cf0$0300a8c0@methusela>
+	id <S129406AbRBRUGB>; Sun, 18 Feb 2001 15:06:01 -0500
+Received: from mail.mojomofo.com ([208.248.233.19]:50181 "EHLO mojomofo.com")
+	by vger.kernel.org with ESMTP id <S129273AbRBRUFx>;
+	Sun, 18 Feb 2001 15:05:53 -0500
+Message-ID: <015401c099e6$31ec2020$0300a8c0@methusela>
 From: "Aaron Tiensivu" <mojomofo@mojomofo.com>
 To: <brian@worldcontrol.com>
 Cc: <linux-kernel@vger.kernel.org>
 In-Reply-To: <20010218004456.A13695@top.worldcontrol.com>
 Subject: Re: XOR  [ was: Linux stifles innovation.]
-Date: Sun, 18 Feb 2001 15:04:56 -0500
+Date: Sun, 18 Feb 2001 15:04:57 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"

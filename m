@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262714AbTENTte (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 15:49:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbTENTte
+	id S262486AbTENTpD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 15:45:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbTENTpC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 15:49:34 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:41693 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S262714AbTENTtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 15:49:33 -0400
-Date: Wed, 14 May 2003 21:03:07 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Jonathan Bastien-Filiatrault <Intuxicated_kdev@yahoo.ca>
-Cc: mec@shout.net, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.69 Change to i386 Makefile to distinguish athlons.
-Message-ID: <20030514200307.GA31711@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Jonathan Bastien-Filiatrault <Intuxicated_kdev@yahoo.ca>,
-	mec@shout.net, Linux Kernel <linux-kernel@vger.kernel.org>
-References: <3EC29191.5030700@yahoo.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EC29191.5030700@yahoo.ca>
-User-Agent: Mutt/1.5.4i
+	Wed, 14 May 2003 15:45:02 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:9469 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262486AbTENTpB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 15:45:01 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: RFC Proposal to enable MSI support in Linux kernel
+Date: Wed, 14 May 2003 12:57:37 -0700
+Message-ID: <3014AAAC8E0930438FD38EBF6DCEB56401E451D2@fmsmsx407.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: RFC Proposal to enable MSI support in Linux kernel
+Thread-Index: AcMaTBBPym4hZIQtS9mzSAFnOQ0xbgAAHDXA
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "Zwane Mwaikambo" <zwane@linuxpower.ca>,
+       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+Cc: <linux-kernel@vger.kernel.org>, "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Carbonari, Steven" <steven.carbonari@intel.com>
+X-OriginalArrivalTime: 14 May 2003 19:57:37.0783 (UTC) FILETIME=[11AF8870:01C31A53]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 02:57:21PM -0400, Jonathan Bastien-Filiatrault wrote:
- > It should succesfully set -march=athlon-<type> according to uname -p.
+That's a good idea, and that's the way we did this (we added MSI support on top of the vector-based indexing). If people are interested in the vector-based indexing (i.e. provide the vector number to device drivers (non-legacy drivers only) instead of IRQ) for some other uses, we would like to discuss possible cleaner implementations.
 
-"Look, a new way to do something pointless!"
+Long will post a patch containing the vector-based indexing part only. 
 
-This is just as broken as the previous patch that was posted.
-_READ_ the gcc sources. See what those flags do.
+Thanks,
+Jun
 
-The only differences are the enabling of PTA_SSE on the later models.
-"Cool, I have SSE, I want optimised SSE routines". Bad luck.
-This flag makes damn all difference on integer code. FP code is not
-allowed in kernel space, and in the few exceptions where we do use it
-(see the memcpy routines), it's guarded by explicit kernel_fpu_begin()
-kernel_fpu_end() pairs, something that gcc wouldn't be able to add for us.
-
-		Dave
-
+> -----Original Message-----
+> From: Zwane Mwaikambo [mailto:zwane@linuxpower.ca]
+> Sent: Wednesday, May 14, 2003 11:58 AM
+> To: Nguyen, Tom L
+> Cc: linux-kernel@vger.kernel.org; Saxena, Sunil; Mallick, Asit K; Nakajima,
+> Jun; Carbonari, Steven
+> Subject: Re: RFC Proposal to enable MSI support in Linux kernel
+> 
+> Is it possible for you to split up the vector based indexing and the MSI
+> support? There are other uses for such an indexing scheme as opposed to
+> irq based.
+> 
+> 	Zwane
+> --
+> function.linuxpower.ca

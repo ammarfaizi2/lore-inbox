@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267264AbTA0SUA>; Mon, 27 Jan 2003 13:20:00 -0500
+	id <S267273AbTA0Sfg>; Mon, 27 Jan 2003 13:35:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267265AbTA0SUA>; Mon, 27 Jan 2003 13:20:00 -0500
-Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:23973 "EHLO
-	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S267264AbTA0SUA>;
-	Mon, 27 Jan 2003 13:20:00 -0500
-Date: Mon, 27 Jan 2003 19:28:56 +0100
-To: "David S. Miller" <davem@redhat.com>
-Cc: lkernel2003@tuxers.net, linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru,
-       tobi@tobi.nu
-Subject: Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x, through Cisco PIX
-Message-ID: <20030127182856.GE20701@h55p111.delphi.afb.lu.se>
-References: <Pine.LNX.4.44.0301241237160.29548-100000@harappa.oldtrail.reston.va.us> <Pine.LNX.4.44.0301270920150.5267-100000@harappa.oldtrail.reston.va.us> <20030127.101128.104592362.davem@redhat.com>
+	id <S267274AbTA0Sfg>; Mon, 27 Jan 2003 13:35:36 -0500
+Received: from [202.88.171.30] ([202.88.171.30]:19393 "EHLO dikhow.hathway.com")
+	by vger.kernel.org with ESMTP id <S267273AbTA0Sff>;
+	Mon, 27 Jan 2003 13:35:35 -0500
+Date: Tue, 28 Jan 2003 00:18:26 +0530
+From: Dipankar Sarma <dipankar@gamebox.net>
+To: "Martin J. Bligh" <fletch@aracnet.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
+Subject: Re: kernbench-16 on 2.5.59 vs 2.5.59-mm6
+Message-ID: <20030128001826.A12113@dikhow>
+Reply-To: dipankar@gamebox.net
+References: <20030127174015$5cfa@gated-at.bofh.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030127.101128.104592362.davem@redhat.com>
-User-Agent: Mutt/1.5.3i
-From: Anders Gustafsson <andersg@0x63.nu>
-X-Scanner: exiscan *18dE08-0008Eb-00*MXKiLb9U7QQ* (0x63.nu)
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030127174015$5cfa@gated-at.bofh.it>; from fletch@aracnet.com on Mon, Jan 27, 2003 at 06:40:15PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 27, 2003 at 10:11:28AM -0800, David S. Miller wrote:
+On Mon, Jan 27, 2003 at 06:40:15PM +0100, Martin J. Bligh wrote:
+> Going from 59 to 59-mm6, I get:
 > 
-> I think the clue in this thread is the TCP_NODELAY socket option.
-> The one post claimed that by turning this on in telnet, it made
-> telnet exhibit the same problems SSH shows.
+> Kernbench-16:
+>                                    Elapsed        User      System         CPU
+>                         2.5.59       47.45      568.02      143.17     1498.17
+>                     2.5.59-mm6       47.18      567.15      138.62     1495.50
+> 
+> Summary: Scheduler stuff seems like a wash (schedule -> do_schedule). 
+> Seems to be some sort of rearrangement of the dcache stuff which 
+> appears to be mildly beneficial (what's going in there?). 
+> 
+> diffprofile (+ gets worse, - gets better).
+> 
+> 2023 do_schedule
+> 485 dentry_open
+> 289 .text.lock.file_table
 
-This is a "me too", well actually not me, but some friends is seeing this.
- If I remember correctly the data was actually sent to the server and only
-the response was lost (seen be stracing the shell on the server). Someone
-suggested that it might be the sequence-number beeing screwed up.
+Looks like you are getting hit by contention on files_lock. I have
+been messing around with some code to split up the files_lock, but
+I can't seem to get the locking in the tty layer right.
+
+Hmm.. .text.lock.namei is probably dcache_lock. -mms no longer has
+dcache_rcu, so not quite sure what helped you here.
 
 
--- 
-Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/
+Thanks
+Dipankar

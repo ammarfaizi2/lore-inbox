@@ -1,50 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbUDNQoM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 12:44:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264280AbUDNQoM
+	id S264278AbUDNQsV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 12:48:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264284AbUDNQsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 12:44:12 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:62726 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S261426AbUDNQoA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 12:44:00 -0400
-Date: Thu, 15 Apr 2004 00:48:41 +0800 (WST)
-From: raven@themaw.net
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] umount after bad chdir
-In-Reply-To: <Pine.LNX.4.58.0404142352590.1480@donald.themaw.net>
-Message-ID: <Pine.LNX.4.58.0404150047220.1480@donald.themaw.net>
-References: <Pine.LNX.4.44.0404141241450.29568-100000@localhost.localdomain>
- <Pine.LNX.4.58.0404142009500.1537@donald.themaw.net>
- <20040414121026.GD31500@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0404142023460.1537@donald.themaw.net>
- <Pine.LNX.4.58.0404142308260.20568@donald.themaw.net>
- <20040414152420.GE31500@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0404142352590.1480@donald.themaw.net>
+	Wed, 14 Apr 2004 12:48:20 -0400
+Received: from ida.rowland.org ([192.131.102.52]:6148 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S264278AbUDNQsP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 12:48:15 -0400
+Date: Wed, 14 Apr 2004 12:48:14 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Duncan Sands <baldrick@free.fr>
+cc: Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sf.net>,
+       <linux-kernel@vger.kernel.org>, Frederic Detienne <fd@cisco.com>
+Subject: Re: [linux-usb-devel] [PATCH 7/9] USB usbfs: destroy submitted urbs
+ only on the disconnected interface
+In-Reply-To: <200404141245.37101.baldrick@free.fr>
+Message-ID: <Pine.LNX.4.44L0.0404141226370.1474-100000@ida.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.7, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, QUOTED_EMAIL_TEXT,
-	REFERENCES, REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Apr 2004 raven@themaw.net wrote:
+On Wed, 14 Apr 2004, Duncan Sands wrote:
 
-> 
-> But looking further I see that a LOOKUP_DIRECTORY flag is used only for 
-> these two routines (excluding pivot_root) and when a trailing slash is 
-> present in the path. I think that the if this flag is present then the 
-> request will always want to look into the directory anyway, so if it's 
-> an autofs4 mount point it should be mounted then. If this is the case I 
-> can get this stuff into the fs module where it belongs.
-> 
+> diff -Nru a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
+> --- a/drivers/usb/core/devio.c	Wed Apr 14 12:18:20 2004
+> +++ b/drivers/usb/core/devio.c	Wed Apr 14 12:18:20 2004
+> @@ -341,6 +341,7 @@
+>  static void driver_disconnect(struct usb_interface *intf)
+>  {
+>  	struct dev_state *ps = usb_get_intfdata (intf);
+> +	unsigned int ifnum = intf->altsetting->desc.bInterfaceNumber;
+>  
+>  	if (!ps)
+>  		return;
+> @@ -349,11 +350,12 @@
+>  	 * all pending I/O requests; 2.6 does that.
+>  	 */
+>  
+> -	clear_bit(intf->cur_altsetting->desc.bInterfaceNumber, &ps->ifclaimed);
+> +	if (ifnum < 8*sizeof(ps->ifclaimed))
+> +		clear_bit(ifnum, &ps->ifclaimed);
+>  	usb_set_intfdata (intf, NULL);
+>  
+>  	/* force async requests to complete */
+> -	destroy_all_async (ps);
+> +	destroy_async_on_interface(ps, ifnum);
+>  }
+>  
+>  struct usb_driver usbdevfs_driver = {
 
-But it's not as simple as that after all ...
 
-Ian
+Quite apart from the stylistic questions about sanity tests and so on, 
+this code contains a bug.  It wasn't introduced by your patch; it was 
+there from before and I should have caught it earlier, along with a few 
+others.
+
+The real problem is that the code in devio.c doesn't make a clear visual
+distinction between interface number (i.e., desc.bInterfaceNumber) and
+interface index (i.e., dev->actconfig->interface[index]).  The two values
+do not have to agree.
+
+The claimintf(), releaseintf(), and checkintf() routines take an index as
+argument, and the ifclaimed bitvector uses the same index.  findintfif()
+takes a number and returns the corresponding index, duplicating much of
+the functionality of usb_ifnum_to_if().  Likewise, findintfep() returns an 
+index.
+
+The code here in driver_disconnect() uses a number where it needs to use 
+an index.
+
+Similarly, there's a typo in proc_releaseinterface(); the second argument 
+it passes to releaseintf() should be ret, not intf.
+
+And in proc_submiturb(), the value stored in as->intf is an index when it 
+should be an interface number.  Or possibly it could remain an index, but 
+then the value passed to destroy_async_on_interface() by 
+proc_releaseinterface() should be the index and not the number.
+
+Alan Stern
 

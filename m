@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbVAOCoD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVAOCyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262156AbVAOCoD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 21:44:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbVAOCoD
+	id S262167AbVAOCyl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 21:54:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVAOCyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 21:44:03 -0500
-Received: from fw.osdl.org ([65.172.181.6]:36044 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262156AbVAOCoA (ORCPT
+	Fri, 14 Jan 2005 21:54:41 -0500
+Received: from hera.kernel.org ([209.128.68.125]:54951 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S262167AbVAOCyf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 21:44:00 -0500
-Date: Fri, 14 Jan 2005 18:43:59 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Chris Wright <chrisw@osdl.org>, Florian Weimer <fw@deneb.enyo.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: security contact draft
-Message-ID: <20050114184359.D469@build.pdx.osdl.net>
-References: <20050113125503.C469@build.pdx.osdl.net> <87mzvd9f9a.fsf@deneb.enyo.de> <20050113141229.G24171@build.pdx.osdl.net> <1105744352.9838.33.camel@localhost.localdomain>
+	Fri, 14 Jan 2005 21:54:35 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: chasing the four level page table
+Date: Sat, 15 Jan 2005 02:54:15 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <csa0kn$4eg$1@terminus.zytor.com>
+References: <9e47339105010609175dabc381@mail.gmail.com> <9e4733910501061205354c9508@mail.gmail.com> <20050106214159.GG16373@redhat.com> <9e47339105010721225c0cfb32@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1105744352.9838.33.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Sat, Jan 15, 2005 at 12:33:14AM +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1105757655 4561 127.0.0.1 (15 Jan 2005 02:54:15 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Sat, 15 Jan 2005 02:54:15 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
-> On Iau, 2005-01-13 at 22:12, Chris Wright wrote:
-> > > UNIRAS and probably others require NDAs from affected software vendors
-> > > before they share vulnerability information.  It makes things easier
-> > > if you state upfront that you won't play such games.
-> > 
-> > Fair point, I can add that easily.
+Followup to:  <9e47339105010721225c0cfb32@mail.gmail.com>
+By author:    Jon Smirl <jonsmirl@gmail.com>
+In newsgroup: linux.dev.kernel
+>
+> On Thu, 6 Jan 2005 16:41:59 -0500, Dave Jones <davej@redhat.com> wrote:
+> > No other device driver is also doing such lowlevel stuff with
+> > page tables directly afaics. drivers/char/drm seem to be the only drivers
+> > using [pgd|pmd|pte]_offset() routines.
 > 
-> Is it worth adding the stipulation up front about who sets release dates
-> and within what limit as well >
+> On 6 Jan 2005 20:38:27 +0100, Andi Kleen <ak@muc.de> wrote:
+> > Perhaps we should add a get_user_phys() or somesuch for this.
+> 
+> I think this is a case where the memory manager is missing a function
+> that DRM needs. If there was a get_user_phys() function DRM wouldn't
+> need to walk the page tables.
+> 
 
-Guess it's an open question.  Do you agree with these basics bits?
+FWIW, the Nvidia device driver wrapper also has this issue.
 
- - no guarantee
- - attempt to work with reporter
- - attempt to work with vendors
- - goal of timely release
- - retain final say
- - within immediate to few weeks
- 
-Hard to put real time on it.
+There seems to be at least two classes of device drivers -- graphics
+and RDMA -- which have a genuine need to DMA user pages, after
+appropriate locking, of course.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+At that point we're better off having the mm export the right
+functionality to keep device driver authors from doing it wrong.
+
+	-hpa

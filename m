@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbTFCRLL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 13:11:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbTFCRLL
+	id S261192AbTFCRKm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 13:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbTFCRKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 13:11:11 -0400
-Received: from holomorphy.com ([66.224.33.161]:17320 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261180AbTFCRLJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 13:11:09 -0400
-Date: Tue, 3 Jun 2003 10:24:31 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Robert Love <rml@tech9.net>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: [BENCHMARK] 100Hz preempt v nopreempt contest results
-Message-ID: <20030603172431.GW8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Robert Love <rml@tech9.net>, Con Kolivas <kernel@kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>
-References: <200306031639.49515.kernel@kolivas.org> <1054659956.633.85.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 3 Jun 2003 13:10:42 -0400
+Received: from imsantv23.netvigator.com ([210.87.250.79]:22478 "EHLO
+	imsantv23.netvigator.com") by vger.kernel.org with ESMTP
+	id S261192AbTFCRKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 13:10:41 -0400
+From: Michael Frank <mflt1@micrologica.com.hk>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, Marc Wilson <msw@cox.net>
+Subject: Re: Linux 2.4.21-rc6
+Date: Wed, 4 Jun 2003 01:23:42 +0800
+User-Agent: KMail/1.5.2
+Cc: lkml <linux-kernel@vger.kernel.org>
+References: <20030529052425.GA1566@moonkingdom.net> <200306040030.27640.mflt1@micrologica.com.hk> <200306031859.59197.m.c.p@wolk-project.de>
+In-Reply-To: <200306031859.59197.m.c.p@wolk-project.de>
+X-OS: GNU/Linux 2.5.70
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1054659956.633.85.camel@localhost>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Message-Id: <200306040123.42753.mflt1@micrologica.com.hk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-02 at 23:39, Con Kolivas wrote:
->> Note this time the ratio is less useful since they are both 100Hz. The 
->> difference this time shows a large preempt improvement in process_load much 
->> like 1000Hz did. Interestingly, even unloaded kernels no_load and cache_load 
->> runs are faster with preempt. Only in xtar_load (repeatedly extracting a tar 
->> with multiple small files) was no preempt faster.
+On Wednesday 04 June 2003 00:59, Marc-Christian Petersen wrote:
+> On Tuesday 03 June 2003 18:30, Michael Frank wrote:
+> well, very easy one:
+>
+> dd if=/dev/zero of=/home/largefile bs=16384 count=131072
 
-On Tue, Jun 03, 2003 at 10:05:58AM -0700, Robert Love wrote:
-> Thanks for running these, Con.
-> I think this is an example of kernel preemption doing exactly what we
-> want it to (improve interactive performance)... probably primarily
-> because of the more accurate timeslice distribution.
-> Would be interested to figure out why xtar_load is slower.
+Got that already - more flexible:
 
-It would be helpful to get more accurate time accounting a la Mike
-Galbraith's patches.
+http://www.ussg.iu.edu/hypermail/linux/kernel/0305.3/1291.html
 
+Breaks anything >= 2.4.19 < rc6 in no time.
 
--- wli
+We need more - any ideas
+
+Reagards
+Michael
+

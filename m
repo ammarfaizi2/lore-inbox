@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272265AbTHNGb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 02:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272266AbTHNGb0
+	id S272267AbTHNGaR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 02:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272266AbTHNGaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 02:31:26 -0400
-Received: from amalthea.dnx.de ([193.108.181.146]:31387 "EHLO amalthea.dnx.de")
-	by vger.kernel.org with ESMTP id S272265AbTHNGbY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 02:31:24 -0400
-Date: Thu, 14 Aug 2003 08:31:19 +0200
-From: Robert Schwebel <robert@schwebel.de>
+	Thu, 14 Aug 2003 02:30:17 -0400
+Received: from [209.162.198.165] ([209.162.198.165]:1767 "EHLO
+	magic.skylab.org") by vger.kernel.org with ESMTP id S272265AbTHNGaN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 02:30:13 -0400
+Date: Wed, 13 Aug 2003 23:30:10 -0700 (PDT)
+From: Michael Plump <lkml@mathfillsmewithgreatjoy.com>
+X-X-Sender: plumpy@localhost.krimedawg.org
 To: linux-kernel@vger.kernel.org
-Subject: Missing ttys on SC520
-Message-ID: <20030814063119.GA10127@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
-X-Spam-Score: -2.5 (--)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19nBde-0006o1-00*Q7ZzedBQtkE*
+cc: torvalds@osdl.org
+Subject: PATCH: Correct DEVPTS config help
+Message-ID: <Pine.LNX.4.56.0308132322060.798@localhost.krimedawg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have two AMD Elan SC520 boards which are basically identical; the only
-visuable difference is that one bootloader switches on the PCI-VGA card
-and displays a splash screen before starting the Linux kernel. 
+The help for CONFIG_DEVPTS_FS claims that devfs "is a more general
+facility".  But that apparently hasn't been true since 2.5.68.  This patch
+removes that claim, and adds a warning to the DEVFS_FS help.
 
-The board without splash screen boots 2.4.21 just fine, especially there
-are entries in /dev/vc/* for the virtual terminals. The splash screen
-board does also boot, but there is only /dev/vc/0 available. Both boards
-run the same kernel image and the same user space. 
+--- linux-2.6.0-test3/fs/Kconfig	2003-08-08 21:37:26.000000000 -0700
++++ linux/fs/Kconfig	2003-08-13 23:20:32.000000000 -0700
+@@ -777,6 +777,10 @@
+ 	  the material in <file:Documentation/filesystems/devfs/>, especially
+ 	  the file README there.
 
-Any idea how this could be caused? I'm not that firm with the terminal
-code to find out which part fails while probing what... 
++          Note that devfs no longer manages /dev/pts!  If you are using UNIX98
++          ptys, you will also need to enable (and mount) the /dev/pts
++          filesystem (CONFIG_DEVPTS_FS).
++
+ 	  If unsure, say N.
 
-Robert
--- 
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
-     Hornemannstraﬂe 12,  31137 Hildesheim, Germany
-    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4
+ config DEVFS_MOUNT
+@@ -824,9 +828,6 @@
+ 	  API. Please read <file:Documentation/Changes> for more information
+ 	  about the Unix98 pty devices.
+
+-	  Note that the experimental "/dev file system support"
+-	  (CONFIG_DEVFS_FS)  is a more general facility.
+-
+ config DEVPTS_FS_XATTR
+ 	bool "/dev/pts Extended Attributes"
+ 	depends on DEVPTS_FS

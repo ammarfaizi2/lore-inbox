@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265526AbUALOMm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 09:12:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265532AbUALOMm
+	id S265514AbUALOMF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 09:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265526AbUALOMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 09:12:42 -0500
-Received: from mail2.ugr.es ([150.214.35.29]:26792 "EHLO mail2.ugr.es")
-	by vger.kernel.org with ESMTP id S265526AbUALOMj (ORCPT
+	Mon, 12 Jan 2004 09:12:05 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:6587 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265514AbUALOL7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 09:12:39 -0500
-Message-ID: <4002AB67.3010005@ugr.es>
-Date: Mon, 12 Jan 2004 15:12:55 +0100
-From: Ruben Garcia <ruben@ugr.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, ja, en, es-es
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: loop device changes the block size and causes misaligned
- accesses to the real device, which can't be processed
-References: <3FFC3BF4.6080105@ugr.es> <20040108040414.GA5017@fukurou.paranoiacs.org> <3FFD34D5.1080605@ugr.es>
-In-Reply-To: <3FFD34D5.1080605@ugr.es>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Mon, 12 Jan 2004 09:11:59 -0500
+Date: Mon, 12 Jan 2004 15:11:41 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Martin Peschke3 <MPESCHKE@de.ibm.com>
+Cc: Doug Ledford <dledford@redhat.com>, Jens Axboe <axboe@suse.de>,
+       Peter Yao <peter@exavio.com.cn>, linux-kernel@vger.kernel.org,
+       linux-scsi mailing list <linux-scsi@vger.kernel.org>
+Subject: Re: smp dead lock of io_request_lock/queue_lock patch
+Message-ID: <20040112141141.GB25249@devserv.devel.redhat.com>
+References: <OF2581AA2D.BFD408D2-ONC1256E19.004BE052-C1256E19.004E1561@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GRPZ8SYKNexpdSJ7"
+Content-Disposition: inline
+In-Reply-To: <OF2581AA2D.BFD408D2-ONC1256E19.004BE052-C1256E19.004E1561@de.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ruben Garcia wrote:
-> Ok, Ben's patch will make the loop device work as any other device, and 
-> then ext2 will complain that the hard blocksize is bigger than the 
-> blocksize used for ext2 (in my example of 1k for ext2) and fail to mount 
-> it.
-> 
-> This is better than getting misaligned transfers et all, and is 
-> consistent with using the real device.
-> 
-> On the other hand, it is much more useful being able to actually mount 
-> the ext2 fs, and I managed to do that with the loop-aes patch (Thanks 
-> Jari Ruusu)
-> 
-> I confirm this bug closed. Thanks to all
->
 
-I tried Ben's patch and it does work for encrypted CDs (i.e. you can 
-mount them) I'm going to try a non encrypted CD now to see what I find.
+--GRPZ8SYKNexpdSJ7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+
+On Mon, Jan 12, 2004 at 03:07:55PM +0100, Martin Peschke3 wrote:
+> Hi,
+>=20
+> is there a way to merge all (or at least the common denominator) of
+> Red Hat's and SuSE's changes into the vanilla 2.4 SCSI stack?
+
+Since 2.4 is basically frozen, and said patches are only performance
+optimisations and not functionality enhancements I would think this is a bad
+idea; if you need the small performance gain, 2.6 is imo a far better place
+nowadays. The 2.4 SCSI stack seems rather stable and destabilizing it this
+late in the cycle sounds bad with the alternative of 2.6 being available.
+
+Greetings,
+    Arjan van de Ven
+--GRPZ8SYKNexpdSJ7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAAqscxULwo51rQBIRAoXHAJ9DbWjpCXyuQgx5o8HcfRWUnRxGqACfSS36
+oOUMNVH+lRx0MDXbEQaOBFg=
+=GbjA
+-----END PGP SIGNATURE-----
+
+--GRPZ8SYKNexpdSJ7--

@@ -1,70 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315218AbSEaIg7>; Fri, 31 May 2002 04:36:59 -0400
+	id <S311710AbSEaIqL>; Fri, 31 May 2002 04:46:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315227AbSEaIg6>; Fri, 31 May 2002 04:36:58 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:32756 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S315218AbSEaIg6>;
-	Fri, 31 May 2002 04:36:58 -0400
-Date: Fri, 31 May 2002 14:10:30 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: BALBIR SINGH <balbir.singh@wipro.com>
-Cc: "'Mala Anand'" <manand@us.ibm.com>, linux-kernel@vger.kernel.org,
-        "'Paul McKenney'" <Paul.McKenney@us.ibm.com>,
-        "'Rusty Russell'" <rusty@rustcorp.com.au>
-Subject: Re: [Lse-tech] Re: [RFC] Dynamic percpu data allocator
-Message-ID: <20020531141030.A6933@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-In-Reply-To: <20020530232513.C3575@in.ibm.com> <00eb01c20878$d952b890$290806c0@wipro.com>
+	id <S315232AbSEaIqK>; Fri, 31 May 2002 04:46:10 -0400
+Received: from kiruna.synopsys.com ([204.176.20.18]:49816 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP
+	id <S311710AbSEaIqJ>; Fri, 31 May 2002 04:46:09 -0400
+Date: Fri, 31 May 2002 10:45:59 +0200
+From: Alex Riesen <Alexander.Riesen@synopsys.com>
+To: erc@pobox.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is the linux networking code broken?
+Message-ID: <20020531104559.A23756@riesen-pc.gr05.synopsys.com>
+Reply-To: Alexander.Riesen@synopsys.com
+Mail-Followup-To: erc@pobox.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020531064959.GD1402@riesen-pc.gr05.synopsys.com> <20020531024623.K4707-101000@ranger.pns.bellsouth.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 31, 2002 at 01:27:44PM +0530, BALBIR SINGH wrote:
-> |
-> |
-> |   CPU #0          CPU#1
-> |
-> | ---------       ---------         Start of cache line
-> |   *ctrp1         *ctrp1
-> |   *ctrp2         *ctrp2
-> |
-> |   .               .
-> |   .               .
-> |   .               .
-> |   .               .
-> |   .               .
-> |
-> | ---------       ----------        End of cache line
+On Fri, May 31, 2002 at 02:47:21AM -0500, Ed Carp wrote:
+> On Fri, 31 May 2002, Alex Riesen wrote:
 > 
+> > Neither of them. How do you think the things are working here? 8-)
+> > rsync, wget, apache, a whole lot other programs transfer megabytes.
 > 
-> Won't this result in a lot of false sharing, if any of the CPUs
-> tried to access any of the counters, the entire cache line would be
-> moved from the current CPU to that CPU. Isn't this a very bad thing or
-> am I missing something? Do all your counters fit into one cache line.
+> Most of them use short writes.  Here's the source I'm using...
 
-Yes it could result in false sharing. You could probably avoid
-that by imposing classes of allocation - say STRICLY_LOCAL and
-ALMOST_LOCAL, so that strictly local objects are not penalized
-by occasionally non-local objects. If your code frequently accesses 
-other CPU's copy of the object than you should not be using this 
-per-cpu allocator in the first place, it would be meaningless.
+Most of them are the biggest possible writes.
 
-> 
-> For sometime now, I have been thinking of implementing/supporting
-> PME's (Peformance Monitoring Events and Counters), so that we can
-> get real values (atleast on x86) as compared to our guesses about
-> cacheline bouncing, etc. Do you know if somebody is already doing
-> this?
+~/compile/ercftp ./sender localhost ../nfs-kaboom.c
+Using 2048 byte packets
+Connecting to localhost
+Resolved, opening TCP socket
+Doing connect
+Connected, waiting for OK...
+Waiting for OK...
+Sending ../nfs-kaboom.c
+... a while
+Waiting for ack...
+caught signal 14!
 
-You can use SGI kernprof to measure PMCs. See the SGI oss
-website for details. You can count L2_LINES_IN event to
-get a measure of cache line bouncing.
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+~/compile/ercftp ./receiver 
+Getting TCP socket
+Doing bind
+Doing listen
+Accepting connection
+Writing 23987 to ../nfs-kaboom.c
+... another while
+
+caught signal 14! flen=23987, inlen=0, pos=0, packets=12, packet.seqno=0
+
+
+Neither of the programs finished because of awful lot of bugs within,
+but the output clearly shows the facts.
+Surely, no problems with networking observed.
+
+What kernel do you use? Also, you may want check your system libraries
+(libc, libresolv*).
+
+-alex

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270947AbRIJOgE>; Mon, 10 Sep 2001 10:36:04 -0400
+	id <S270990AbRIJOsi>; Mon, 10 Sep 2001 10:48:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270958AbRIJOfy>; Mon, 10 Sep 2001 10:35:54 -0400
-Received: from [194.213.32.137] ([194.213.32.137]:1796 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S270947AbRIJOfq>;
-	Mon, 10 Sep 2001 10:35:46 -0400
-Message-ID: <20010910163515.C141@bug.ucw.cz>
-Date: Mon, 10 Sep 2001 16:35:15 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Ross Vandegrift <ross@willow.seitz.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Booting linux using Novell NetWare Remote Program Loader
-In-Reply-To: <20010909220921.A19145@bug.ucw.cz> <20010910092010.A22194@willow.seitz.com>
+	id <S270992AbRIJOs2>; Mon, 10 Sep 2001 10:48:28 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:36100 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S270990AbRIJOsY>; Mon, 10 Sep 2001 10:48:24 -0400
+Date: Mon, 10 Sep 2001 16:48:13 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Raghava Raju <vraghava_raju@yahoo.com>
+Cc: kernelnewbies@nl.linux.org, kernel-doc@nl.linux.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: create_proc_entry
+Message-ID: <20010910164813.B1253@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010906205153.92503.qmail@web20004.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20010910092010.A22194@willow.seitz.com>; from Ross Vandegrift on Mon, Sep 10, 2001 at 09:20:10AM -0400
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010906205153.92503.qmail@web20004.mail.yahoo.com>; from vraghava_raju@yahoo.com on Thu, Sep 06, 2001 at 01:51:53PM -0700
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Sep 06, 2001 at 01:51:53PM -0700, Raghava Raju wrote:
+>     I want to know about the the
+> call "create_proc_entry". What exactly it does.   
+> Once created how does user make use of it. What are
+> the interfaces to it for user to communicate with it.
+> Any documents related to above things will be
+> helpful.
 
-> > Could someone network boot machine using netware,
-> > capture whole session using 
-> > 
-> > tcpdump -xi eth0 
-> > 
-> > and send results to me? It should be rather easy to emulate initial
-> > handshake and use mars (netware emulator) to boot workstation...
-> 
-> My employer uses RPL on a fairly large number of Netware DOS systems.
-> When I get to work after school this afternoon, I'd be more than happy to
-> grab a dump fo you.
+It's all documented in the Procfs Guide:
 
-Okay, never minds, I figured out how to configure mars, and to my very
-big surprise, it seems to work. (I can boot freedos).
-								Pavel
+- Run "make psdocs" in your kernel tree and you'll get the file
+  Documentation/DocBook/procfs-guide.ps
+- Get the PDF version from http://www.kernelnewbies.org/documents/
+
+
+Erik
+
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

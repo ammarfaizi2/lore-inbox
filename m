@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280822AbRKGPYK>; Wed, 7 Nov 2001 10:24:10 -0500
+	id <S280818AbRKGP06>; Wed, 7 Nov 2001 10:26:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280818AbRKGPX7>; Wed, 7 Nov 2001 10:23:59 -0500
-Received: from node1500a.a2000.nl ([24.132.80.10]:61616 "HELO mail.alinoe.com")
-	by vger.kernel.org with SMTP id <S280816AbRKGPXx>;
-	Wed, 7 Nov 2001 10:23:53 -0500
-Date: Wed, 7 Nov 2001 16:23:50 +0100
-From: Carlo Wood <carlo@alinoe.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ircu-development] Slow on high-MTU (local host) connections?
-Message-ID: <20011107162350.A22701@alinoe.com>
-In-Reply-To: <20011107043425.A15045@alinoe.com> <20011106.195257.102576616.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011106.195257.102576616.davem@redhat.com>; from davem@redhat.com on Tue, Nov 06, 2001 at 07:52:57PM -0800
+	id <S280816AbRKGP0s>; Wed, 7 Nov 2001 10:26:48 -0500
+Received: from smtp.kpnqwest.com ([193.242.92.8]:38929 "EHLO kpnqwest.com")
+	by vger.kernel.org with ESMTP id <S280823AbRKGP0i>;
+	Wed, 7 Nov 2001 10:26:38 -0500
+Message-ID: <06601B69B526914CB62E1C7B1663B5CA436014@w2kexgvie02>
+From: "Bene, Martin" <Martin.Bene@KPNQwest.com>
+To: "'Roy Sigurd Karlsbakk'" <roy@karlsbakk.net>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: RAID question
+Date: Wed, 7 Nov 2001 16:22:28 +0100 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 06, 2001 at 07:52:57PM -0800, David S. Miller wrote:
-> Repeat your experiment with nagle disabled on the sockets
-> in question.
+Hi Roy,
 
-Thanks, I didn't try it yet - but I bet that will be it.
-Sorry for the post to this list.
+> raid5: measuring checksumming speed
+>    8regs     :  1480.800 MB/sec
+>    32regs    :   711.200 MB/sec
+>    pIII_sse  :  1570.400 MB/sec
+>    pII_mmx   :  1787.200 MB/sec
+>    p5_mmx    :  1904.000 MB/sec
+> raid5: using function: pIII_sse (1570.400 MB/sec)
+> 
+> Why is raid5 using function pIII_sse when p5_MMX is way faster?
 
--- 
-Carlo Wood <carlo@alinoe.com>
+The sse version is prefered over the others and gets used regardless of
+speed if it's available:
+
+/* We force the use of the SSE xor block because it can write around L2.
+   We may also be able to load into the L1 only depending on how the cpu
+   deals with a load to a line that is being prefetched.  */
+
+Bye, Martin

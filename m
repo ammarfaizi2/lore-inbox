@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263079AbUFRUsl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbUFRU6C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263079AbUFRUsl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 16:48:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263304AbUFRUrx
+	id S262109AbUFRU6C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 16:58:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbUFRU5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 16:47:53 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:51770 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262101AbUFRUp1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 16:45:27 -0400
-Date: Fri, 18 Jun 2004 22:56:02 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] save kernel version in .config file
-Message-ID: <20040618205602.GC4441@mars.ravnborg.org>
-Mail-Followup-To: Willy Tarreau <willy@w.ods.org>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20040617220651.0ceafa91.rddunlap@osdl.org> <20040618053455.GF29808@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040618053455.GF29808@alpha.home.local>
-User-Agent: Mutt/1.4.1i
+	Fri, 18 Jun 2004 16:57:23 -0400
+Received: from cfcafw.sgi.com ([198.149.23.1]:58910 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262109AbUFRUz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 16:55:59 -0400
+Date: Fri, 18 Jun 2004 15:55:58 -0500
+From: Brent Casavant <bcasavan@sgi.com>
+Reply-To: Brent Casavant <bcasavan@sgi.com>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add kallsyms_lookup() result cache
+In-Reply-To: <1087591028.1019.77.camel@tux.rsn.bth.se>
+Message-ID: <Pine.SGI.4.58.0406181554280.5029@kzerza.americas.sgi.com>
+References: <Pine.SGI.4.58.0406181435570.5029@kzerza.americas.sgi.com>
+ <1087591028.1019.77.camel@tux.rsn.bth.se>
+Organization: "Silicon Graphics, Inc."
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 18, 2004 at 07:34:55AM +0200, Willy Tarreau wrote:
-> On Thu, Jun 17, 2004 at 10:06:51PM -0700, Randy.Dunlap wrote:
-> > 
-> > Is this interesting to anyone besides me?
-> > Save kernel version info when writing .config file.
-> 
-> Very good idea Randy ! I've already used some wrong config picked out of 20,
-> and having a simple way to do a quick check is really an enhancement. BTW,
-> does KERNELRELEASE include the build number ? and could we include the
-> config date in the file too ?
+On Fri, 18 Jun 2004, Martin Josefsson wrote:
 
-Date seems worthwhile. buildnumber does not make sense since we do not
-generate a new .config for each build.
+> On Fri, 2004-06-18 at 22:03, Brent Casavant wrote:
+>
+> Hi Brent
+>
+> just something that cought my eye.
+>
+> > +static rwlock_t namecache_lock;
+>
+> should be
+>
+> static rwlock_t namecache_lock = RW_LOCK_UNLOCKED;
 
-	Sam
+Ah, thank you.  Fixed.  I'll queue up any other catches before resending.
+
+Thanks,
+Brent
+
+-- 
+Brent Casavant             bcasavan@sgi.com        Forget bright-eyed and
+Operating System Engineer  http://www.sgi.com/     bushy-tailed; I'm red-
+Silicon Graphics, Inc.     44.8562N 93.1355W 860F  eyed and bushy-haired.

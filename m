@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285963AbRL0DIw>; Wed, 26 Dec 2001 22:08:52 -0500
+	id <S285621AbRL0Crk>; Wed, 26 Dec 2001 21:47:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285634AbRL0DIn>; Wed, 26 Dec 2001 22:08:43 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:57988 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S285073AbRL0DIl>;
-	Wed, 26 Dec 2001 22:08:41 -0500
-Date: Wed, 26 Dec 2001 22:08:40 -0500
-From: Legacy Fishtank <garzik@havoc.gtf.org>
-To: Pavel Roskin <proski@gnu.org>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: readdir() loses entries on ramfs and tmpfs
-Message-ID: <20011226220840.A32612@havoc.gtf.org>
-In-Reply-To: <Pine.LNX.4.43.0112261932350.26802-100000@marabou.research.att.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.43.0112261932350.26802-100000@marabou.research.att.com>; from proski@gnu.org on Wed, Dec 26, 2001 at 07:50:11PM -0500
+	id <S285498AbRL0Crb>; Wed, 26 Dec 2001 21:47:31 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:35524 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S285273AbRL0CrR>; Wed, 26 Dec 2001 21:47:17 -0500
+Date: Wed, 26 Dec 2001 19:47:19 -0700
+Message-Id: <200112270247.fBR2lJF26074@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v205 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 26, 2001 at 07:50:11PM -0500, Pavel Roskin wrote:
-> I got a report that GNU Midnight Commander fails to erase some directories 
-> on tmpfs from the first attempt.  However, it succeeds the next time.
-[...]
->     while ((d = readdir(dir)) != NULL) {
-> 	printf("%s\n", d->d_name);
-> 	rmdir(d->d_name);
->     }
-[...]
-> I'm sorry, I cannot elaborate more, but the issue seems to be very 
-> serious.
+  Hi, all. Version 205 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
-If Midnight Commander does similar to the above it's pretty silly...
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.5/devfs-patch-current.gz
 
-In Perl I normally do something like this in a loop (with a max-loops
-limiter):
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.5/devfs-patch-current.gz
 
-	opendir
-	@dirs = readdir(FOO);
-	closedir
-	last unless @dirs;
-	&remove_the_dirs(@dirs);
+NOTE: kernel 2.5.1 and later require devfsd-v1.3.19 or later.
 
-Clearly that's slack since you could have a million files in a
-directory, but you see the point.  readdir(2) and getdents(2)
-are inherently racy.  If your code does not assume such and take
-appropriate action, it's broken.
+This is against 2.5.2-pre2. Highlights of this release:
 
-	Jeff
+- Corrected (made useful) debugging message in <unregister>
 
+- Moved <kmem_cache_create> in <mount_devfs_fs> to <init_devfs_fs>
 
+- Fixed drivers/md/lvm-fs.c to create "lvm" entry
+
+- Added magic number to guard against scribbling drivers
+
+- Only return old entry in <devfs_mk_dir> if a directory
+
+- Defined macros for error and debug messages
+
+- Updated README from master HTML file
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

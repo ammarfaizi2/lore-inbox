@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129428AbQK0Tfh>; Mon, 27 Nov 2000 14:35:37 -0500
+        id <S129752AbQK0Tg5>; Mon, 27 Nov 2000 14:36:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129455AbQK0Tf1>; Mon, 27 Nov 2000 14:35:27 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:53204 "EHLO
-        delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-        id <S129428AbQK0TfV>; Mon, 27 Nov 2000 14:35:21 -0500
-Date: Mon, 27 Nov 2000 20:04:51 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "Mr. Big" <mrbig@sneaker.sch.bme.hu>
-cc: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PROBLEM: crashing kernels
-In-Reply-To: <Pine.LNX.3.96.1001127183433.9692E-100000@sneaker.sch.bme.hu>
-Message-ID: <Pine.GSO.3.96.1001127193828.13774W-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S129748AbQK0Tgr>; Mon, 27 Nov 2000 14:36:47 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:4892 "EHLO
+        penguin.e-mind.com") by vger.kernel.org with ESMTP
+        id <S129707AbQK0Tgc>; Mon, 27 Nov 2000 14:36:32 -0500
+Date: Mon, 27 Nov 2000 20:06:18 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Michael Meissner <meissner@spectacle-pond.org>
+Cc: "David S. Miller" <davem@redhat.com>, Werner.Almesberger@epfl.ch,
+        adam@yggdrasil.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0"
+Message-ID: <20001127200618.A19980@athlon.random>
+In-Reply-To: <200011270556.VAA12506@baldur.yggdrasil.com> <20001127094139.H599@almesberger.net> <200011270839.AAA28672@pizda.ninka.net> <20001127182113.A15029@athlon.random> <20001127123655.A16930@munchkin.spectacle-pond.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20001127123655.A16930@munchkin.spectacle-pond.org>; from meissner@spectacle-pond.org on Mon, Nov 27, 2000 at 12:36:55PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2000, Mr. Big wrote:
+On Mon, Nov 27, 2000 at 12:36:55PM -0500, Michael Meissner wrote:
+> wrong to depend on two variables winding up in at adjacent offsets.
 
-> But maybe the /proc/interrupts could be usefull:
->            CPU0       CPU1       
->   0:     413111          0          XT-PIC  timer
->   1:        687          0          XT-PIC  keyboard
->   2:          0          0          XT-PIC  cascade
->   7:     751660          0          XT-PIC  eth1
->  10:    7377626          0          XT-PIC  eth0
->  11:     238981          0          XT-PIC  Mylex AcceleRAID 352, aic7xxx, aic7xxx
->  13:          1          0          XT-PIC  fpu
->  14:         10          0          XT-PIC  ide0
-> NMI:          0
-> ERR:          0
+I'd like if it will be written explicitly in the specs that it's forbidden to
+rely on that. I grepped the specs and I didn't find anything. So I wasn't sure
+if I missed the information in the specs or not. I never investigated on it
+because I always considered it bad coding regardless the fact it's guaranteed
+to generate the right asm with the _current_ tools.
 
- Hmm, nothing special.  Getting this in the APIC mode would possibly be
-more useful.  Isn't there anything that's sharing the IRQ with eth0 that's
-unhandled?  An unhandled onboard device?  What IRQs are reported by
-`/sbin/lspci -v'? 
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

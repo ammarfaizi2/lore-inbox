@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262356AbSJKELq>; Fri, 11 Oct 2002 00:11:46 -0400
+	id <S262416AbSJKIIJ>; Fri, 11 Oct 2002 04:08:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262354AbSJKELq>; Fri, 11 Oct 2002 00:11:46 -0400
-Received: from f44.pav2.hotmail.com ([64.4.37.44]:31757 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S262351AbSJKELl>;
-	Fri, 11 Oct 2002 00:11:41 -0400
-X-Originating-IP: [202.140.142.131]
-From: "Parthiban M" <parthi_m@hotmail.com>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-net@vger.kernel.org
-Cc: pamanick@npd.hcltech.com
-Subject: Query reg. free and sysinfo structure !
-Date: Fri, 11 Oct 2002 09:47:20 +0530
+	id <S262418AbSJKIIJ>; Fri, 11 Oct 2002 04:08:09 -0400
+Received: from mx7.mail.ru ([194.67.57.17]:44044 "EHLO mx7.mail.ru")
+	by vger.kernel.org with ESMTP id <S262416AbSJKIII>;
+	Fri, 11 Oct 2002 04:08:08 -0400
+From: "Samium Gromoff" <_deepfire@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: More on O_STREAMING (goodby read pauses)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F44WSUOIFLkkPFoffSC00013b73@hotmail.com>
-X-OriginalArrivalTime: 11 Oct 2002 04:17:20.0882 (UTC) FILETIME=[17C75D20:01C270DD]
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: 194.226.0.89 via proxy [194.226.0.63]
+Date: Fri, 11 Oct 2002 12:13:50 +0400
+Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17zuve-0008v9-00@f17.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+   So i suspect this O_STREAMING will revive the disk->disk
+ data copying transfer rate for large files like these bloody
+ mpeg4 .avi`s ;)
 
-     I've implemented linux kernel modules "for IP storage" using kernel 
-socket's and sending/receiving data of size more than one MB. During socket 
-operations free command shows 4k leak constantly and after some time it's 
-maintaining 2MB in free memory column continuously. pls. let me know any 
-memtrace utility available for kernel(2.4.18-3) or solution for my problem.
+   Disk transfers depends on the drive being constantly busy
+ and this new report from the battlefield brings a new hope.
 
+   The only thing left is to adopt the userland tools
+ like cp and mc...
 
-thanks,
-parthi
-
-
---
-www.hcltechnologies.com
-
-_________________________________________________________________
-MSN Photos is the easiest way to share and print your photos: 
-http://photos.msn.com/support/worldwide.aspx
+---
+cheers,
+   Samium Gromoff
+_________________________________
+_____________________________________
 

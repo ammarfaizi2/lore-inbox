@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278693AbRJSXgj>; Fri, 19 Oct 2001 19:36:39 -0400
+	id <S278694AbRJSXtC>; Fri, 19 Oct 2001 19:49:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278695AbRJSXgU>; Fri, 19 Oct 2001 19:36:20 -0400
-Received: from smtp-rt-6.wanadoo.fr ([193.252.19.160]:27044 "EHLO
-	caroubier.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S278694AbRJSXgN>; Fri, 19 Oct 2001 19:36:13 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFC] New Driver Model for 2.5
-Date: Sat, 20 Oct 2001 01:33:22 +0200
-Message-Id: <20011019233322.26154@smtp.wanadoo.fr>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+	id <S278696AbRJSXsw>; Fri, 19 Oct 2001 19:48:52 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:21003 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S278694AbRJSXsp>; Fri, 19 Oct 2001 19:48:45 -0400
+Message-ID: <3BD0BB14.C49E612C@zip.com.au>
+Date: Fri, 19 Oct 2001 16:45:24 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12-ac3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Martin Devera <devik@cdi.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: DOT call graphs of Rik and AA VMs
+In-Reply-To: <5.1.0.14.0.20011019235606.00a43a80@pop.mail.yahoo.com> <Pine.LNX.4.10.10110200120060.321-100000@luxik.cdi.cz>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reading about the suspend to disk issue, and thinking about
-some of pmac needs, I tend to stil think we have overlooked
-that ordering issue.
+Martin Devera wrote:
+> 
+> Hi,
+> 
+> While I tried to understand MM in 2.4 kernels I decided to create call
+> graph of it (in DOT). It could help everyone who tries to understand it.
+> 
+> At least they are very nice :) You can also see difference in complexity
+> of both VMs.
+> 
+> http://luxik.cdi.cz/~devik/mm.htm
+> 
 
-We should probably add a couple of list_heads to define a second
-tree in parallell to the device-tree, which is the power tree.
-A device is by default inserted in both tree as a child of it's bus
-controller.
-But the arch must be able to move it elsewhere. I beleive we have
-a way around the VM related ordering issues, but we do have other
-kind of ordering constraints that have to be dealt with when
-we start broadcasting the callbacks. 
-
-Also, I think you didn't state that io_bus is a superset of device.
-In fact, it's just a device that has childs, and this should
-probably be more generically viewed in struct device itself.
-
-Any device should be able to have childs, so we really have 2
-interleaved trees of devices, the bus tree and the power tree.
-In fact, to be complete, we could even define the interrupt tree
-with one more set of links as it's really not related to the bus
-tree on many archs/machines, and having a tree definition is really
-useful when you deal with cascaded controllers.
-
-What do you think ?
-
-Ben.
-
-
+Oh my that is cute.     Will you be publishing the gcc patch
+and perl script sometime?

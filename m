@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266490AbUHQByz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268069AbUHQB5V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266490AbUHQByz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 21:54:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268069AbUHQByy
+	id S268069AbUHQB5V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 21:57:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268074AbUHQB5V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 21:54:54 -0400
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:18693 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id S266490AbUHQByx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 21:54:53 -0400
-Message-ID: <41216566.8040206@superbug.demon.co.uk>
-Date: Tue, 17 Aug 2004 02:54:46 +0100
-From: James Courtier-Dutton <James@superbug.demon.co.uk>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040812)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Albert Cahalan <albert@users.sf.net>
-CC: george@mvista.com, Albert Cahalan <albert@users.sourceforge.net>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       lkml <linux-kernel@vger.kernel.org>, voland@dmz.com.pl,
-       nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
-       johnstul@us.ibm.com, david+powerix@blue-labs.org
+	Mon, 16 Aug 2004 21:57:21 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:64482 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S268069AbUHQB5O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 21:57:14 -0400
 Subject: Re: boot time, process start time, and NOW time
-References: <1087948634.9831.1154.camel@cube>	 <87smcf5zx7.fsf@devron.myhome.or.jp>	 <20040816124136.27646d14.akpm@osdl.org>	 <Pine.LNX.4.53.0408170055180.14122@gockel.physik3.uni-rostock.de>	 <412151CA.4060902@mvista.com> <1092695544.2301.1227.camel@cube>	 <41215EDA.3070802@mvista.com> <1092697717.2301.1233.camel@cube>
-In-Reply-To: <1092697717.2301.1233.camel@cube>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: Albert Cahalan <albert@users.sf.net>
+To: Andrew Morton OSDL <akpm@osdl.org>
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, albert@users.sourceforge.net,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       voland@dmz.com.pl, nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
+       tim@physik3.uni-rostock.de, george@mvista.com, johnstul@us.ibm.com,
+       david+powerix@blue-labs.org
+In-Reply-To: <20040816124136.27646d14.akpm@osdl.org>
+References: <1087948634.9831.1154.camel@cube>
+	 <87smcf5zx7.fsf@devron.myhome.or.jp>
+	 <20040816124136.27646d14.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1092698648.2301.1250.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 16 Aug 2004 19:24:08 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan wrote:
->>>
->>>
->>>That's userspace, which works fine on a 2.4.xx kernel.
->>>If userspace were to change, it wouldn't work OK for
->>>a 2.4.xx kernel anymore. So consider that cast in stone.
->>>
->>>"now" is the time() function. Using gettimeofday()
->>>would only make sense if I decided to pay the cost
->>>of asking for the time every time I look at a task.
->>>
+On Mon, 2004-08-16 at 15:41, Andrew Morton wrote:
 
-While on the subject of time, is it possible to get a monotonic timer 
-with 1ms or better resolution?
-We need this for linux multimedia applications, and it is used to sync 
-audio and video. Currently we use gettimeofday(). If a movie is playing, 
-and the user goes and changes the time, or changes the timezone, we do 
-not want that to effect the movie playing. I have not been able to find 
-a monotonic 1ms accurate timer in the linux kernel, that is available to 
-applications, and has little overhead. Some efficient ioctl or function 
-call for uptime to 1ms accuracy would do perfectly.
+> Where did this all end up?  Complaints about
+> wandering start times are persistent, and it'd
+> be nice to get some fix in place...
 
-James
+If you're interested in reducing (not solving)
+the problem for the 2.6.x series, you might change
+HZ to something that works better with the PIT.
+
+Here is a table showing % error for various HZ choices:
+
+wrongness_%   HZ_diff   PIT_#   HZ     actual_HZ   
+-0.00150855  -0.001509  11932   100    99.998491  
+-0.00150855  -0.009474   1900   628   627.990526  
+-0.00083809  -0.003051   3278   364   363.996949  
+-0.00083809  -0.008389   1192  1001  1000.991611  
++0.00000000  +0.000000  14551    82    82.000000  
++0.00008381  +0.000304   3287   363   363.000304  
++0.00008381  +0.000435   2299   519   519.000435  
++0.00008381  +0.000525   1903   627   627.000525  
++0.01525566  +0.152557   1193  1000  1000.152557  
++0.01860917  +0.190558   1165  1024  1024.190558
+
+As you can see, 1000 HZ and 1024 HZ are really bad.
+They're worse than typical quartz crystal variation.
+
+The old 100 HZ tick was just barely tolerable.
+While 82 is perfect, it's a bit low. :-(
+
+Some of the other choices are nice. How about 363,
+519, or 627?
+
+For the AMD Elan: 300, 400, 600, 991, 1200
+(the AMD Elan PIT runs at 1189200 instead of 1193182)
+
+

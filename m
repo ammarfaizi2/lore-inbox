@@ -1,59 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262692AbSJJAQC>; Wed, 9 Oct 2002 20:16:02 -0400
+	id <S262495AbSJJAMN>; Wed, 9 Oct 2002 20:12:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262697AbSJJAQB>; Wed, 9 Oct 2002 20:16:01 -0400
-Received: from ams-msg-core-1.cisco.com ([144.254.74.60]:5262 "EHLO
-	ams-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S262692AbSJJAPx>; Wed, 9 Oct 2002 20:15:53 -0400
-Date: Thu, 10 Oct 2002 01:21:09 +0100
-From: Derek Fawcus <dfawcus@cisco.com>
-To: Yuji Sekiya <sekiya@sfc.wide.ad.jp>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
-Message-ID: <20021010012108.E8102@edi-view1.cisco.com>
-References: <20021010002902.A3803@edi-view1.cisco.com> <20021009.162438.82081593.davem@redhat.com> <uu1jv9o3j.wl@sfc.wide.ad.jp> <20021009.164504.28085695.davem@redhat.com> <ur8ez9n8d.wl@sfc.wide.ad.jp> <20021010010439.C8102@edi-view1.cisco.com> <uptuj9mkq.wl@sfc.wide.ad.jp>
+	id <S262617AbSJJAMN>; Wed, 9 Oct 2002 20:12:13 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:58342 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262495AbSJJAMK>; Wed, 9 Oct 2002 20:12:10 -0400
+Subject: [PATCH] linux-2.5.41_timer-changes_A4 (1/3 - infrastructure)
+From: john stultz <johnstul@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dave Jones <davej@suse.de>, george anzinger <george@mvista.com>,
+       lkml <linux-kernel@vger.kernel.org>, greg kh <greg@kroah.com>,
+       Patrick Mochel <mochel@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 09 Oct 2002 17:11:35 -0700
+Message-Id: <1034208695.21965.1356.camel@cog>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <uptuj9mkq.wl@sfc.wide.ad.jp>; from sekiya@sfc.wide.ad.jp on Thu, Oct 10, 2002 at 09:14:45AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 10, 2002 at 09:14:45AM +0900, Yuji Sekiya wrote:
-> At Thu, 10 Oct 2002 01:04:39 +0100,
-> Derek Fawcus <dfawcus@cisco.com> wrote:
-> 
-> > Turn on 'debug ipv6 nd',  'debug ipv6 icmp',  'debug ipv6 pack d'
-> > 
-> > Then do 'ping ipv6' specify a link local of say fe80:1910::10 and
-> > an egress interface,  and watch what happens.
-> 
-> OK.
-> 
-> Oct 10 09:09:15: ICMPv6-ND: DELETE -> INCMP: FE80:1910::10
-> Oct 10 09:09:15: ICMPv6-ND: Sending NS for FE80:1910::10 on FastEthernet4/1
-> Oct 10 09:09:15: IPV6: source FE80::201:64FF:FEA3:ED55 (local)
-> Oct 10 09:09:15:       dest FF02::1:FF00:10 (FastEthernet4/1)
-> Oct 10 09:09:15:       traffic class 224, flow 0x0, len 72+8, prot 58, hops 255, originating
-> Oct 10 09:09:15: IPv6: Sending on FastEthernet4/1
-> Oct 10 09:09:15: IPv6: Encapsulation failed
-> 
-> Encapsulation failed ... ??? :-)
+Linus, All,
 
-Well there was no one to respond to the NS,  so it couldn't figure out
-what dest MAC address to shove in the ethernet packet.  Hence the
-ethernet encap failed.
+        The i386 time.c code is turning into a mess. We've got multiple
+functions that do the same thing, only with different hardware, all
+surrounded #ifdefs and even more difficult to follow #ifndefs. George
+Anzinger is introducing a new ACPIpm time source, I'm going to attempt
+to add the cyclone counter as a time source, and in the future there
+will be HPET to deal with. These will not go in cleanly together as
+things are now.
+        
+        Inspired by suggestions from Alan, this collection of patches
+tries to clean up time.c by breaking out the PIT and TSC specific parts
+into their own files. Additionally the patch creates an abstract
+interface to use these existing time soruces, as well as make it easier
+to add future time sources. 
+        
+        It introduces "struct timer_ops" which gives the time code a
+clear interface to use these different time sources. It also allows for
+clearer conditional compilation of these various time sources. 
 
-Say if you sent such a packet over the link to the router,  and it
-tried to forward it without the neighbour being there,  you should
-get an ICMP error generated.
+        This first patch (part 1 of 3) provides the infrastructure
+needed via the timer_ops structure, as well as the select_timer()
+function for choosing the best available timer. 
 
-But anyway it was trying to resolve a neighbour entry,  if someone
-responded,  it'd have sent the packet.
+New in this version (A4):
+* nitpick changes -GregKH
+* move new files into their own directory -Pat Mochel
+        
+Please apply.
 
-Now try it with a box on the link which will respond to the NS for that
-address.
+thanks
+-john
 
-DF
+diff -Nru a/arch/i386/kernel/timers/timer.c b/arch/i386/kernel/timers/timer.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/arch/i386/kernel/timers/timer.c	Wed Oct  9 17:06:09 2002
+@@ -0,0 +1,26 @@
++#include <linux/kernel.h>
++#include <asm/timer.h>
++
++/* list of externed timers */
++/* eg: extern struct timer_opts timer_XXX*/;
++
++/* list of timers, ordered by preference */
++struct timer_opts* timers[] = {
++	/* eg: &timer_XXX */
++};
++
++#define NR_TIMERS (sizeof(timers)/sizeof(timers[0]))
++
++/* iterates through the list of timers, returning the first 
++ * one that initializes successfully.
++ */
++struct timer_opts* select_timer(void)
++{
++	int i;
++	/* find most preferred working timer */
++	for(i=0; i < NR_TIMERS; i++)
++		if(timers[i]->init())
++			return timers[i];
++	panic("select_timer: Cannot find a suitable timer\n");
++	return 0;
++}
+diff -Nru a/include/asm-i386/timer.h b/include/asm-i386/timer.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/timer.h	Wed Oct  9 17:06:09 2002
+@@ -0,0 +1,14 @@
++#ifndef _ASMi386_TIMER_H
++#define _ASMi386_TIMER_H
++
++struct timer_opts{
++	/* probes and initializes timer. returns 1 on sucess, 0 on failure */
++	int (*init)(void);
++	/* called by the timer interrupt */
++	void (*mark_offset)(void);
++	/* called by gettimeofday. returns # ms since the last timer interrupt */
++	unsigned long (*get_offset)(void);
++};
++
++struct timer_opts* select_timer(void);
++#endif
+

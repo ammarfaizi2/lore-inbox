@@ -1,76 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbTLOVAt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 16:00:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTLOVAt
+	id S263953AbTLOVE4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 16:04:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263969AbTLOVE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 16:00:49 -0500
-Received: from ms002msg.fastwebnet.it ([213.140.2.52]:57771 "EHLO
-	ms002msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S262198AbTLOVAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 16:00:47 -0500
-From: Emilio Gargiulo <emiliogargiulo@supereva.it>
-To: Eric Sandeen <sandeen@sgi.com>
-Subject: Re: 2.4.24-pre1 hangs with XFS on LVM filesystem full
-Date: Mon, 15 Dec 2003 22:00:08 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-References: <Pine.LNX.4.44.0312132302520.766-100000@stout.americas.sgi.com>
-In-Reply-To: <Pine.LNX.4.44.0312132302520.766-100000@stout.americas.sgi.com>
+	Mon, 15 Dec 2003 16:04:56 -0500
+Received: from pop.gmx.net ([213.165.64.20]:33941 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263953AbTLOVEz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 16:04:55 -0500
+X-Authenticated: #4512188
+Message-ID: <3FDE21EF.6070608@gmx.de>
+Date: Mon, 15 Dec 2003 22:04:47 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312152200.08411.emiliogargiulo@supereva.it>
+To: linux-kernel@vger.kernel.org
+Subject: [OT] Exists? kernel/library simulating cluster/multi-processor machine
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, a simple overfill of a XFS filesystem on LVM hangs the kernel.
-It is easy to reproduce with dd if=/dev/zero of=file_on_dest_xfs_filesystem 
-bs=1024k.
-It was full reproducible with 2.4.24-pre1.
-Is also reproduceable on 2.4.23 + XFS snapshot-2.4.23-2003-12-01_00:33_UTC 
-patch.
-It is reproduceable on LVM and on simple partition like /dev/hda10.
-It is NOT reproduceable with other filesystems (reiserfs, ext3, jfs).
-I compiled the kernel with gcc 3.2.3. (Slackware 9.1)
+Hi,
 
-I am unable to reproduce the problem if I compile the kernel with gcc 3.3.1.
-Also is not reproduceable on small XFS filesystem (if the filesystem is 
-smaller than system RAM). It seems a VMM related problem....
-When hang the num-lock key change the led status.
-I will try to use KDB...
+for my diploma I am currently working on a library called "load 
+balancing class" originally developed by Frank Meisgen. As the name 
+suggests its duty is to balance the load on a heterogenous cluster. The 
+original library was written for sun sparc machines and I am proting it 
+and enhancing it. Though I have started doing it for Windows2000, it 
+also runs on Linux (which is the goal, but as Windows seems to make more 
+troubles, I develop it there). A age simulation /population simulation 
+already works and now I am busy debugging a fast sat solver (originally 
+written by Max Böhm for his "plb" and converted to lbc by Frank Meisgen).
 
-Thanks
-Emilio Gargiulo
+My question is, where there existes some sort of modified kernel or 
+library (perhaps a modified mpi libraray, as lbc uses mpi to 
+communicate) which simulates a cluster or multi-processor machines on a 
+single cpu machine (or a "bigger" cluster on a cluster). Why? Of course 
+it won't do anything good performance wise, But I want to see how well 
+the lbc works and getting access to big clusters isn't easy esp if you 
+want to tweak. Starting more than one process on one machine won't help, 
+as the processes with natrurally balance each other.
 
+Thanks,
 
-Alle 06:11, domenica 14 dicembre 2003, Eric Sandeen ha scritto:
-> So you are seeing a hang when you (over)fill the filesystem, if
-> I understand correctly?  If there is any chance that you could
-> test it with XFS to a normal disk (no LVM) or with some other
-> filesystem with LVM, that might help to narrow down the problem.
-> Nightly XFS QA tests do check ENOSPC conditions, but perhaps
-> there is bad interaction with LVM.
->
-> You could also get a CVS kernel from oss.sgi.com, or apply
-> the KDB patch you your kernel, and enter kdb when the system
-> freezes.  Then you could look at backtraces of the relevant
-> processes to get an idea of where things are stuck.
->
-> -Eric
->
-> On Sat, 13 Dec 2003, Emilio Gargiulo wrote:
-> > Hi
-> > There is a severe XFS problem with kernel 2.4.24-pre1. If you try to copy
-> > a file in a XFS filesystem on LVM bigger than free spaces, the Linux Box
-> > will hang. No messages, no warnings, it just freeze. It happens also if
-> > the filesystem was not the root filesystem.
-> > The problem is fully reproducible on 2 different computer, an old
-> > K6/400MHz and a P4/2,4GHz.
-> >
-> > If i can do something for address the issue, please tell me.
-> > Thanks
-> > Emilio Gargiulo
-
+Prakash

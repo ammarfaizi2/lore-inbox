@@ -1,86 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265480AbRGOBll>; Sat, 14 Jul 2001 21:41:41 -0400
+	id <S266041AbRGOKQF>; Sun, 15 Jul 2001 06:16:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265507AbRGOBlc>; Sat, 14 Jul 2001 21:41:32 -0400
-Received: from smtpnotes.altec.com ([209.149.164.10]:6668 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S265480AbRGOBlS>; Sat, 14 Jul 2001 21:41:18 -0400
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: linux-kernel@vger.kernel.org
-Message-ID: <86256A8A.00092DF6.00@smtpnotes.altec.com>
-Date: Sat, 14 Jul 2001 20:39:55 -0500
-Subject: Re: ORBS blacklist is BROKEN (deliberately)...
-Mime-Version: 1.0
+	id <S266044AbRGOKPz>; Sun, 15 Jul 2001 06:15:55 -0400
+Received: from over.ny.us.ibm.com ([32.97.182.111]:19137 "EHLO
+	over.ny.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S266041AbRGOKPn>; Sun, 15 Jul 2001 06:15:43 -0400
+Importance: Normal
+Subject: Re: [Lse-tech] Re: CPU affinity & IPI latency
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Mike Kravetz <mkravetz@sequent.com>, lse-tech@lists.sourceforge.net,
+        Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+        Larry McVoy <lm@bitmover.com>
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF0C6F5F92.24F5EA98-ON85256A88.006DDC58@pok.ibm.com>
+From: "Shailabh Nagar" <nagar@us.ibm.com>
+Date: Fri, 13 Jul 2001 16:17:42 -0400
+X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 07/13/2001 04:17:44 PM
+MIME-Version: 1.0
 Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+David,
 
-I don't understand.  Other sites are connecting to his server and trying to
-obtain information he doesn't want to provide.  He's tried repeatedly to have
-his server removed as a nameserver for orbs and been refused.  So now he's
-chosen to return bogus answers to sites that query his server against his will.
-How can that be a crime?
+> Global scheduling decisions should be triggered in response of load
+unbalancing
+> and not at each schedule() run otherwise we're going to introduce a
+common lock
+> that will limit the overall scalability.
 
-It reminds me of something I read once about a man who started receiving lots of
-phone calls intended for a business.  It seems the business had recently gotten
-a new phone number that was the same as his home number (but with a different
-area code).  People who called the new number (but left out the area code)
-reached the man's home.  He tried to get the business to change their new number
-(they'd had it for only a short time, whereas he had had his number for years).
-They refused.  So he started answering these calls by pretending to be an
-employee of the business and being rude to the customers.  For instance, he told
-customers whose voices identified them as members of minority groups, "We don't
-do business with you people -- you never pay your bills."  It didn't take long
-before the business changed their phone number to something that didn't remotely
-resemble his number.
+Thats correct. Though it beggars the question : who will define
+"load-imbalance" and at what granularity ? In the Loadbalancing extensions
+to MQ (http://lse.sourceforge.net/scheduling/LB/poolMQ.html) load balancing
+is done at a frequency specified at the time the loadbalancing module is
+loaded. The parameter can be changed dynamically through a /proc interface.
+So we are providing a knob for the user/sysadmin to control the
+loadbalancing desired.
 
-This seems to me to be much the same sort of thing.  I find both solutions
-rather clever, as they bring pressure to bear on the guilty party from sources
-whose complaints are more difficult to ignore than those of the original
-complainant himself.
+> My idea about the future of the scheduler is to have a config options
+users can
+> chose depending upon the machine use.
+> By trying to keep a unique scheduler for both UP and MP is like going to
+give
+> the same answer to different problems and the scaling factor ( of the
+scheduler
+> itself ) on SMP will never improve.
 
+That is true to an extent. It would be convenient for us as scheduler
+rewriters to have neatly differentiated classes like UP, SMP, BIG_SMP, NUMA
+etc. But it forces all other scheduler-sensitive code to think of each of
+these cases separately and is exactly the reason why #ifdef's are
+discouraged for critical kernel code like the scheduler.
 
+Its certainly a challenge to provide SMP/NUMA scalability in the scheduler
+(and elsewhere in the kernel) without having to resort to an #ifdef.
 
-
-
-Alan Cox <alan@lxorguk.ukuu.org.uk> on 07/14/2001 07:17:46 AM
-
-To:   kaos@ocs.com.au (Keith Owens)
-cc:   matti.aarnio@zmailer.org (Matti Aarnio), linux-kernel@vger.kernel.org,
-      linux-admin@vger.kernel.org (bcc: Wayne Brown/Corporate/Altec)
-
-Subject:  Re: ORBS blacklist is BROKEN (deliberately)...
-
-
-
-> http://www.e-scrub.com/orbs/ is the key.  "Ronald F. Guilmette"
-> <rfg@monkeys.com> sent this message to spam lists.  Anybody still using
-> ORBS for lookups can expect to get random mail bounces.
-
-Yeah he's decided to solve his load problem by committing an act of criminal
-fraud, computer misuse and a few other violations
-
-> Because of the way Alan disabled the former ORBS list zones, my name
-> server is now shouldering (at least) 1/11th of the total world-wide
-
-[I think he means the way the courts did..]
-
-And guess what, as soon as ORBS got beaten off the net MAPS starts talking
-about charging for their service, just like they promised they never would
-
-Alan
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+Shailabh
 
 
 

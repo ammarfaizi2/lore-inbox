@@ -1,73 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312364AbSDJBnL>; Tue, 9 Apr 2002 21:43:11 -0400
+	id <S312375AbSDJBvM>; Tue, 9 Apr 2002 21:51:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312370AbSDJBnK>; Tue, 9 Apr 2002 21:43:10 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:17487 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S312364AbSDJBnJ>; Tue, 9 Apr 2002 21:43:09 -0400
-Date: Wed, 10 Apr 2002 03:23:28 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-        Tony.P.Lee@nokia.com, kessler@us.ibm.com, alan@lxorguk.ukuu.org.uk,
-        Dave Jones <davej@suse.de>
-Subject: Re: Event logging vs enhancing printk
-Message-ID: <20020410032328.C6875@dualathlon.random>
-In-Reply-To: <3CB222AB.64005F3B@zip.com.au> <1934841354.1018293283@[10.10.2.3]>
+	id <S312380AbSDJBvL>; Tue, 9 Apr 2002 21:51:11 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:54776
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S312375AbSDJBvL>; Tue, 9 Apr 2002 21:51:11 -0400
+Date: Tue, 9 Apr 2002 18:53:11 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "David S. Miller" <davem@redhat.com>, Andrew Morton <akpm@zip.com.au>
+Subject: [BUG] DEADLOCK when removing a bridge on 2.4.19-pre6
+Message-ID: <20020410015311.GA31952@matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	"David S. Miller" <davem@redhat.com>,
+	Andrew Morton <akpm@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 08, 2002 at 07:14:44PM -0700, Martin J. Bligh wrote:
-> > Ah.  Yes, that will definitely happen.  We only have atomicity
-> > at the level of a single printk call.
-> > 
-> > It would be feasible to introduce additional locking so that
-> > multiple printks can be made atomic.  This should be resisted
-> > though - printk needs to be really robust, and needs to have
-> > a good chance of working even when the machine is having hysterics.
-> > It's already rather complex.
-> > 
-> > For the rare cases which you cite we can use a local staging
-> > buffer and sprintf, or just live with it, I suspect.
-> 
-> Right - what I'm proposing would be a generic equivalent of the
-> local staging buffer and sprintf - basically just a little wrapper
-> that does this for you, keeping a per task buffer somewhere.
+Hi,
 
-That still doesn't solve the race with the interrupt handlers, you'd
-need a buffer for each irq handler and one the softirq too to make
-printk buffered and coeherent coherent across newlines (doable but even
-more tricky and in turn less robust and less self contained).
+*read below for a problem report against the tulip network driver[1]
 
-> The reason I want to do it like this, rather than what you suggest,
-> is that there are over 5000 of these "rare cases" of a printk without
-> a newline, according to the IBM RAS group's code search ;-) I don't
-> fancy changing that for 5000 instances (obviously some of those are
-> grouped together, but the count is definitely non-trivial). I'd 
-> attach the report they sent me, but it's 657K long ;-) 
+It looks like the bridging feature of the kernel has changed between 2.4.17
+and 18.
 
-Pavel omits the newline intentionally during debugging, to avoid losing
-80% of the persistent stoarge in the framebuffer, but ok we could
-implement a printk_flush that flushes the buffer afterwards no matte
-what. Some other code may omit it by mistake, leading to the other cpus
-blackholed and data lost after the buffer on the other cpus overflowed
-so at least we should put a timer that spawns an huge warning if a cpu
-doesn't flush the buffer in a rasonable amount of time so we can catch
-those places.
+I have a machine running 2.4.16 running as a bride without problem.  While
+testing the network cards for another bridge I had to restart.
+Unfortunately, it didn't complete.  Nothing would respond except for sysrq.
+I was able to sync, unmount, and reboot successfully.
 
-Given the overcomplexity and the fact the logs should be parsed by
-humans and the low probability for the race, I'm not sure if the above
-is worthwhile.
+Debian does this for you automatically, but if you do it manually it does
+the same thing.
 
-If what you need is a high bandwith logging system, where with an high
-frequency of posted events the races could become more likely to
-trigger, printk is not the way to go for high bandwith anyways.
+o Setup a bridge like normal
+o start it up
+o ifconfig br0 down
+o brctl delbr br0
+*boom*
 
-Andrea
+2.4.16,17 work just fine, but 2.4.18 does not.  Looking through the
+changelog, 2.4.18-pre4, or 5 look suspect.  Also, it is not fixed in
+2.4.19-pre6.  I can test the 2.4.18-pre kernels if you'd like, just let me
+know.
+
+[1] Also several times I was able to get my tulip network card to stop
+forwarding packets after a soft-reboot from the lockup mentioned above.  I
+was able to reproduce this in 2.4.17, 2.4.18, 2.4.19-pre3-ac4 (possibly
+2.4.19-pre5-ac3 though didn't check to make sure but I used it several times
+during my testing), and 2.4.19-pre6.  None of the other network cards in
+this machine did this (3c509-isa, pcnet32-pci, eepro100-pci)
+
+I don't have a serial cable ATM but I could buy one in a few days if a
+ksymoopsed sysrq-t would help.
+
+00:00.0 Host bridge: Intel Corp. 430HX - 82439HX TXC [Triton II] (rev 03)
+00:01.0 ISA bridge: Intel Corp. 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
+00:01.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]
+00:01.2 USB Controller: Intel Corp. 82371SB PIIX3 USB [Natoma/Triton II] (rev 01)
+00:06.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
+00:07.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 02)
+00:08.0 VGA compatible controller: S3 Inc. 86c764/765 [Trio32/64/64V+] (rev 54)
+00:0b.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet LANCE] (rev 16)
+
+Mike

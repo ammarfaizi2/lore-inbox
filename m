@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVAHJTp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVAHJZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261854AbVAHJTp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 04:19:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261995AbVAHJTE
+	id S261832AbVAHJZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 04:25:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbVAHJYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 04:19:04 -0500
-Received: from mail.kroah.org ([69.55.234.183]:40325 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261854AbVAHFsN convert rfc822-to-8bit
+	Sat, 8 Jan 2005 04:24:15 -0500
+Received: from mail.kroah.org ([69.55.234.183]:31109 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261829AbVAHFsG convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 00:48:13 -0500
+	Sat, 8 Jan 2005 00:48:06 -0500
 Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
-In-Reply-To: <1105163259475@kroah.com>
+In-Reply-To: <11051632663455@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 7 Jan 2005 21:47:40 -0800
-Message-Id: <1105163260958@kroah.com>
+Date: Fri, 7 Jan 2005 21:47:46 -0800
+Message-Id: <11051632661756@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
@@ -22,141 +22,124 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.444.10, 2004/12/17 14:50:58-08:00, greg@kroah.com
+ChangeSet 1.1938.446.21, 2004/12/15 16:35:03-08:00, david-b@pacbell.net
 
-[PATCH] AOE: fix up sparse warnings and get rid of a kmalloc in the aoe driver.
+[PATCH] USB: HCD/usb_bus interface cleanup (9/15)
 
+This changes the usbcore interfaces provided to HCDs:
+
+  - Remove usb_device->hcpriv and it allocation/deallocation hooks
+
+  - Replace struct hcd_dev with more appropriate per-endpoint state
+
+  - Update HCD apis to use usb_host_endpoint in key places
+
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/block/aoe/aoe.h    |    2 +-
- drivers/block/aoe/aoeblk.c |    4 ++--
- drivers/block/aoe/aoechr.c |   28 ++++++----------------------
- drivers/block/aoe/aoenet.c |   12 +++++++-----
- 4 files changed, 16 insertions(+), 30 deletions(-)
+ drivers/usb/core/hcd.h |   20 ++++++--------------
+ include/linux/usb.h    |   17 ++++++++++++++---
+ 2 files changed, 20 insertions(+), 17 deletions(-)
 
 
-diff -Nru a/drivers/block/aoe/aoe.h b/drivers/block/aoe/aoe.h
---- a/drivers/block/aoe/aoe.h	2005-01-07 15:45:38 -08:00
-+++ b/drivers/block/aoe/aoe.h	2005-01-07 15:45:38 -08:00
-@@ -158,6 +158,6 @@
- void aoenet_exit(void);
- void aoenet_xmit(struct sk_buff *);
- int is_aoe_netif(struct net_device *ifp);
--int set_aoe_iflist(char *str);
-+int set_aoe_iflist(const char __user *str, size_t size);
+diff -Nru a/drivers/usb/core/hcd.h b/drivers/usb/core/hcd.h
+--- a/drivers/usb/core/hcd.h	2005-01-07 15:48:51 -08:00
++++ b/drivers/usb/core/hcd.h	2005-01-07 15:48:51 -08:00
+@@ -66,7 +66,6 @@
+ 	const char		*description;	/* "ehci-hcd" etc */
  
- u64 mac_addr(char addr[6]);
-diff -Nru a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
---- a/drivers/block/aoe/aoeblk.c	2005-01-07 15:45:38 -08:00
-+++ b/drivers/block/aoe/aoeblk.c	2005-01-07 15:45:38 -08:00
-@@ -170,7 +170,7 @@
+ 	struct timer_list	rh_timer;	/* drives root hub */
+-	struct list_head	dev_list;	/* devices on this bus */
  
- 	if (cmd == HDIO_GETGEO) {
- 		d->geo.start = get_start_sect(inode->i_bdev);
--		if (!copy_to_user((void *) arg, &d->geo, sizeof d->geo))
-+		if (!copy_to_user((void __user *) arg, &d->geo, sizeof d->geo))
- 			return 0;
- 		return -EFAULT;
- 	}
-@@ -227,7 +227,7 @@
- 	
- 	printk(KERN_INFO "aoe: %012llx e%lu.%lu v%04x has %llu "
- 		"sectors\n", mac_addr(d->addr), d->aoemajor, d->aoeminor,
--		d->fw_ver, d->ssize);
-+		d->fw_ver, (long long)d->ssize);
+ 	/*
+ 	 * hardware info/state
+@@ -113,14 +112,6 @@
  }
  
- void __exit
-diff -Nru a/drivers/block/aoe/aoechr.c b/drivers/block/aoe/aoechr.c
---- a/drivers/block/aoe/aoechr.c	2005-01-07 15:45:38 -08:00
-+++ b/drivers/block/aoe/aoechr.c	2005-01-07 15:45:38 -08:00
-@@ -51,9 +51,9 @@
- }
  
- static int
--interfaces(char *str)
-+interfaces(const char __user *str, size_t size)
- {
--	if (set_aoe_iflist(str)) {
-+	if (set_aoe_iflist(str, size)) {
- 		printk(KERN_CRIT
- 		       "%s: could not set interface list: %s\n",
- 		       __FUNCTION__, "too many interfaces");
-@@ -135,24 +135,10 @@
- }
- 
- static ssize_t
--aoechr_write(struct file *filp, const char *buf, size_t cnt, loff_t *offp)
-+aoechr_write(struct file *filp, const char __user *buf, size_t cnt, loff_t *offp)
- {
--	char *str = kcalloc(1, cnt+1, GFP_KERNEL);
--	int ret;
-+	int ret = -EINVAL;
- 
--	if (!str) {
--		printk(KERN_CRIT "aoe: aoechr_write: cannot allocate memory\n");
--		return -ENOMEM;
--	}
+-struct hcd_dev {	/* usb_device.hcpriv points to this */
+-	struct list_head	dev_list;	/* on this hcd */
+-	struct list_head	urb_list;	/* pending on this dev */
 -
--	ret = -EFAULT;
--	if (copy_from_user(str, buf, cnt)) {
--		printk(KERN_INFO "aoe: aoechr_write: copy from user failed\n");
--		goto out;
--	}
+-	/* per-configuration HC/HCD state, such as QH or ED */
+-	void			*ep[32];
+-};
 -
--	str[cnt] = '\0';
--	ret = -EINVAL;
- 	switch ((unsigned long) filp->private_data) {
- 	default:
- 		printk(KERN_INFO "aoe: aoechr_write: can't write to that file.\n");
-@@ -161,13 +147,11 @@
- 		ret = discover();
- 		break;
- 	case MINOR_INTERFACES:
--		ret = interfaces(str);
-+		ret = interfaces(buf, cnt);
- 		break;
- 	}
- 	if (ret == 0)
- 		ret = cnt;
-- out:
--	kfree(str);
- 	return ret;
- }
+ // urb.hcpriv is really hardware-specific
  
-@@ -192,7 +176,7 @@
- }
+ struct hcd_timeout {	/* timeouts we allocate */
+@@ -136,8 +127,6 @@
+  */
  
- static ssize_t
--aoechr_read(struct file *filp, char *buf, size_t cnt, loff_t *off)
-+aoechr_read(struct file *filp, char __user *buf, size_t cnt, loff_t *off)
- {
- 	int n;
- 	char *mp;
-diff -Nru a/drivers/block/aoe/aoenet.c b/drivers/block/aoe/aoenet.c
---- a/drivers/block/aoe/aoenet.c	2005-01-07 15:45:38 -08:00
-+++ b/drivers/block/aoe/aoenet.c	2005-01-07 15:45:38 -08:00
-@@ -53,14 +53,16 @@
- }
+ struct usb_operations {
+-	int (*allocate)(struct usb_device *);
+-	int (*deallocate)(struct usb_device *);
+ 	int (*get_frame_number) (struct usb_device *usb_dev);
+ 	int (*submit_urb) (struct urb *urb, int mem_flags);
+ 	int (*unlink_urb) (struct urb *urb, int status);
+@@ -149,7 +138,8 @@
+ 	void (*buffer_free)(struct usb_bus *bus, size_t size,
+ 			void *addr, dma_addr_t dma);
  
- int
--set_aoe_iflist(char *str)
-+set_aoe_iflist(const char __user *user_str, size_t size)
- {
--	int len = strlen(str);
--
--	if (len >= IFLISTSZ)
-+	if (size >= IFLISTSZ)
- 		return -EINVAL;
+-	void (*disable)(struct usb_device *udev, int bEndpointAddress);
++	void (*disable)(struct usb_device *udev,
++			struct usb_host_endpoint *ep);
  
--	strcpy(aoe_iflist, str);
-+	if (copy_from_user(aoe_iflist, user_str, size)) {
-+		printk(KERN_INFO "aoe: %s: copy from user failed\n", __FUNCTION__);
-+		return -EFAULT;
-+	}
-+	aoe_iflist[size] = 0x00;
- 	return 0;
- }
+ 	/* global suspend/resume of bus */
+ 	int (*hub_suspend)(struct usb_bus *);
+@@ -200,13 +190,15 @@
+ 	struct usb_hcd	*(*hcd_alloc) (void);
+ 
+ 	/* manage i/o requests, device state */
+-	int	(*urb_enqueue) (struct usb_hcd *hcd, struct urb *urb,
++	int	(*urb_enqueue) (struct usb_hcd *hcd,
++					struct usb_host_endpoint *ep,
++					struct urb *urb,
+ 					int mem_flags);
+ 	int	(*urb_dequeue) (struct usb_hcd *hcd, struct urb *urb);
+ 
+ 	/* hw synch, freeing endpoint resources that urb_dequeue can't */
+ 	void 	(*endpoint_disable)(struct usb_hcd *hcd,
+-			struct hcd_dev *dev, int bEndpointAddress);
++			struct usb_host_endpoint *ep);
+ 
+ 	/* root hub support */
+ 	int		(*hub_status_data) (struct usb_hcd *hcd, char *buf);
+diff -Nru a/include/linux/usb.h b/include/linux/usb.h
+--- a/include/linux/usb.h	2005-01-07 15:48:51 -08:00
++++ b/include/linux/usb.h	2005-01-07 15:48:51 -08:00
+@@ -40,9 +40,22 @@
+  * Devices may also have class-specific or vendor-specific descriptors.
+  */
+ 
+-/* host-side wrapper for parsed endpoint descriptors */
++/**
++ * struct usb_host_endpoint - host-side endpoint descriptor and queue
++ * @desc: descriptor for this endpoint, wMaxPacketSize in native byteorder
++ * @urb_list: urbs queued to this endpoint; maintained by usbcore
++ * @hcpriv: for use by HCD; typically holds hardware dma queue head (QH)
++ *	with one or more transfer descriptors (TDs) per urb
++ * @extra: descriptors following this endpoint in the configuration
++ * @extralen: how many bytes of "extra" are valid
++ *
++ * USB requests are always queued to a given endpoint, identified by a
++ * descriptor within an active interface in a given USB configuration.
++ */
+ struct usb_host_endpoint {
+ 	struct usb_endpoint_descriptor	desc;
++	struct list_head		urb_list;
++	void				*hcpriv;
+ 
+ 	unsigned char *extra;   /* Extra descriptors */
+ 	int extralen;
+@@ -325,8 +338,6 @@
+ 	int have_langid;		/* whether string_langid is valid yet */
+ 	int string_langid;		/* language ID for strings */
+ 
+-	void *hcpriv;			/* Host Controller private data */
+-	
+ 	struct list_head filelist;
+ 	struct dentry *usbfs_dentry;	/* usbfs dentry entry for the device */
  
 

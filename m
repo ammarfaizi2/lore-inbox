@@ -1,86 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267804AbTAMEAX>; Sun, 12 Jan 2003 23:00:23 -0500
+	id <S267808AbTAMENr>; Sun, 12 Jan 2003 23:13:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267806AbTAMEAW>; Sun, 12 Jan 2003 23:00:22 -0500
-Received: from dp.samba.org ([66.70.73.150]:52419 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267804AbTAMEAQ>;
-	Sun, 12 Jan 2003 23:00:16 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
-Subject: Re: [PATCH] fixup loop blkdev, add module_get 
-In-reply-to: Your message of "Sun, 12 Jan 2003 21:03:25 CDT."
-             <20030113020325.GA18756@gtf.org> 
-Date: Mon, 13 Jan 2003 15:08:25 +1100
-Message-Id: <20030113040906.A72D22C052@lists.samba.org>
+	id <S267811AbTAMENr>; Sun, 12 Jan 2003 23:13:47 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:27407 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267808AbTAMENq>; Sun, 12 Jan 2003 23:13:46 -0500
+Date: Sun, 12 Jan 2003 23:20:04 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Brian Gerst <bgerst@didntduck.org>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: 2.5.55/.56 instant reboot problem on 486
+In-Reply-To: <3E21157D.30607@didntduck.org>
+Message-ID: <Pine.LNX.3.96.1030112231930.18057A-200000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY=------------000509000002030104030808
+Content-ID: <Pine.LNX.3.96.1030112231930.18057B@gatekeeper.tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030113020325.GA18756@gtf.org> you write:
-> On Mon, Jan 13, 2003 at 11:55:47AM +1100, Rusty Russell wrote:
-> > In message <20030112035620.GA25648@gtf.org> you write:
-> > > Sometimes, we are absolutely certain that we have at least one module
-> > > reference "locked open" for us.  Loop is an example of such a case:  the
-> > > set-fd and clear-fd struct block_device_operations ioctls already have a
-> > > module reference from simply the block device being opened.
-> > > 
-> > > Therefore, we can just unconditionally increment the module refcount.
-> > > I added module_get to do this.
-> > 
-> > Hi Jeff,
-> > 
-> > 	We may yet want such a primitive, but I've been resisting it
-> > for the moment.
-> > 
-> > 	Firstly, because it's a very specialized and rare case which
-> > lends itself to being abused, and secondly because if I "rmmod --wait"
-> > the module, then such operations which try to hold the module in place
-> > *should* fail.  Not doing so is impolite, at least.
-> 
-> Eh...  You are trying to chase infinity with 'rmmod --wait'.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-No, you are trying to remove something and you want to chase down and
-kill the users, scripts, whatever.  It guarantees that no new users
-will access the module.
+--------------000509000002030104030808
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii; FORMAT=flowed
+Content-ID: <Pine.LNX.3.96.1030112231930.18057C@gatekeeper.tmr.com>
 
-> I disagree:
-> 
-> 1) we do not prevent root from shooting themselves in the foot,
+On Sun, 12 Jan 2003, Brian Gerst wrote:
 
-I don't understand this point.
+> The problem is that one_page_table_init() pulls the rug out from under 
+> the kernel by installing a new page table before setting it up.  A 486 
+> has a small TLB so any miss will cause a triple fault and reset.  Try 
+> this patch and see if it fixes it.
 
-> 2) moreover we do not prevent them from doing something that may be
-> perfectly reasonable,
+As someone who uses 486's for routers on occasion, thank you!
 
-Nor this one, which seems to bethe same.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-> 3) and this kind of code just adds error handling for no reason, when
-> _not_ handling the error keeps the code more clean.
+--------------000509000002030104030808
+Content-Type: TEXT/PLAIN; NAME=ptefix-1
+Content-ID: <Pine.LNX.3.96.1030112231930.18057D@gatekeeper.tmr.com>
+Content-Description: 
 
-No, the reason is simple: the admin has said they want the damn module
-removed.  They've *told* you what they want.  Why do you want to
-disobey them?  8)
+diff -urN linux-2.5.56/arch/i386/mm/init.c linux/arch/i386/mm/init.c
+--- linux-2.5.56/arch/i386/mm/init.c	Sun Jan 12 00:16:22 2003
++++ linux/arch/i386/mm/init.c	Sun Jan 12 01:48:28 2003
+@@ -71,12 +71,16 @@
+  */
+ static pte_t * __init one_page_table_init(pmd_t *pmd)
+ {
+-	pte_t *page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
+-	set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
+-	if (page_table != pte_offset_kernel(pmd, 0))
+-		BUG();	
++	if (pmd_none(*pmd)) {
++		pte_t *page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
++		set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
++		if (page_table != pte_offset_kernel(pmd, 0))
++			BUG();	
+ 
+-	return page_table;
++		return page_table;
++	}
++	
++	return pte_offset_kernel(pmd, 0);
+ }
+ 
+ /*
 
-> In general this is just caring way too much about an obscure corner
-> case.  Is the increased complexity of error handling when we _know_ the
-> refcnt is locked for worth it?
-
-Is the increased complexity of another primitive for "you know you
-have a refcount" worth it? 8)
-
-If there were 10 of these cases, sure, a __try_module_get() makes
-sense: IMHO this is one of those areas on which intelligent people can
-disagree, I think.
-
-> Note that Linus turned off the 'deprecated' warning because MOD.*COUNT
-> users are just too frequent, still.
-
-Note that I didn't put the damn thing in there 8)
-
-Hope he turned them back into macros, so the __unsafe runtime warning
-doesn't report "module.h".
-
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+--------------000509000002030104030808--

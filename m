@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270386AbTHLOju (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 10:39:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270391AbTHLOju
+	id S270452AbTHLOfK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 10:35:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270453AbTHLOfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 10:39:50 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:21655 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S270386AbTHLOjr
+	Tue, 12 Aug 2003 10:35:10 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:49301 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270452AbTHLOfH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 10:39:47 -0400
-Date: Tue, 12 Aug 2003 07:39:42 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Useful(?) BK trick
-Message-ID: <20030812143942.GA23150@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+	Tue, 12 Aug 2003 10:35:07 -0400
+Subject: Re: IDE Hotswap Disks
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Johannes Stezenbach <js@convergence.de>
+Cc: Flameeyes <dgp85@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030811170448.GC732@convergence.de>
+References: <1060615212.13982.15.camel@defiant.flameeyes>
+	 <20030811170448.GC732@convergence.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1060698661.21160.24.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 12 Aug 2003 15:31:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley asked me if there was some way to get diffs between any two revs
-of a file on bkbits.net and the answer is yes if you are willing to type in
-the revs.
+On Llu, 2003-08-11 at 18:04, Johannes Stezenbach wrote:
+> The hdparm package includes a script which does that (idectl).
+> I used it sporadically with a Thinpad Ultrabay IDE disk and cdrom.
 
-You can navigate to a file by going to www.bkbits.net and then working your
-way down to the project of interest, then the repo, then "Browse the source
-tree", then click on the file.  You'll get offered a list of revisions,
-click on one of those and you should be at a URL that looks like
+I'm working on adding proper support for this in the 2.4-ac tree at the
+moment
 
-	http://project/repo/diffs/path/to/file@rev
-
-You can put anything you want in for the rev, it can be a range.  To see
-1.2 vs 1.5 diffs you can do file@1.2..1.5 and hit return.  It may be useful
-to know that "+" always means the most recent rev in BK so to diff everything
-from 1.2 to now that's file@1.2..+
-
-FYI...
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

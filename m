@@ -1,42 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269079AbUJQIU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269080AbUJQI43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269079AbUJQIU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 04:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269080AbUJQIU7
+	id S269080AbUJQI43 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 04:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269081AbUJQI43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 04:20:59 -0400
-Received: from cantor.suse.de ([195.135.220.2]:1769 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269079AbUJQIU5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 04:20:57 -0400
-Date: Sun, 17 Oct 2004 10:20:56 +0200
-From: Olaf Hering <olh@suse.de>
-To: Andrew <cmkrnl@speakeasy.net>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kernel-2.6.9.rc4 lib/kobject.c
-Message-ID: <20041017082056.GA30109@suse.de>
-References: <4171EB60.50800@speakeasy.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4171EB60.50800@speakeasy.net>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Sun, 17 Oct 2004 04:56:29 -0400
+Received: from relaismsg.minefi.gouv.fr ([194.250.149.46]:32203 "EHLO
+	relaismsg.minefi.gouv.fr") by vger.kernel.org with ESMTP
+	id S269080AbUJQI40 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 04:56:26 -0400
+From: postmaster@cp.finances.gouv.fr
+To: <linux-kernel@vger.kernel.org>
+Subject: Notification e-manager Av1-bercy (Attachment Removal)
+Date: Sun, 17 Oct 2004 10:56:16 +0200
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_1098003376_B78506032.R82506026"
+Message-Id: <20041017085622.753BA13AC4F@av2-acct.cp.finances.gouv.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sat, Oct 16, Andrew wrote:
+This is a multi-part message in MIME format.
 
-> Some user space programs (rightly or wrongly) are expecting there would 
-> be no "gaps" in hotplug event sequence numbers, and hang waiting for the 
-> "missing" events.
+------=_NextPart_000_1098003376_B78506032.R82506026
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-Every code that relies on the value of $SEQNUM is just broken.
-The only valid check is < or >
+**************** eManager Notification *****************
 
--- 
-USB is for mice, FireWire is for men!
+The following mail was blocked since it contains sensitive content.
 
-sUse lINUX ag, nÃœRNBERG
+Source mailbox: <linux-kernel@vger.kernel.org>
+Destination mailbox(es): michelle.pedauge@cp.finances.gouv.fr
+Policy: Attachment Removal
+Attachment file name: attachment.rtf.com - application/octet-stream
+Action: Replaced with text
+
+La pièce jointe a été suprimée. Elle est interdite en raison de sa non-conformité avec les règles d'utilisation de la messagerie en usage à la DGCP
+
+******************* End of message *********************
+
+------=_NextPart_000_1098003376_B78506032.R82506026
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+
+Received: from relaismsg 
+	with id i9H8uGD10339
+	for <michelle.pedauge@cp.finances.gouv.fr>; Sun, 17 Oct 2004 10:56:16 +0200 (MEST)
+Received: from relaismsg 
+	by relaismsg.minefi.gouv.fr with id i9H8u9F15051
+	for <michelle.pedauge@cp.finances.gouv.fr>; Sun, 17 Oct 2004 10:56:09 +0200 (MEST)
+Message-Id: <200410170856.i9H8u9F15051@relaismsg.minefi.gouv.fr>
+From: linux-kernel@vger.kernel.org
+To: michelle.pedauge@cp.finances.gouv.fr
+Subject: File is bad.
+Date: Sun, 17 Oct 2004 10:56:13 +0200
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0006_00000F9D.000027D5"
+X-Priority: 3
+X-MSMail-Priority: Normal
+
+------=_NextPart_000_1098003376_B78506032.R82506026--

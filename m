@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261530AbSKGQxD>; Thu, 7 Nov 2002 11:53:03 -0500
+	id <S261451AbSKGRNb>; Thu, 7 Nov 2002 12:13:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261531AbSKGQxD>; Thu, 7 Nov 2002 11:53:03 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:24076 "EHLO
+	id <S261478AbSKGRNb>; Thu, 7 Nov 2002 12:13:31 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:25612 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261530AbSKGQxB>; Thu, 7 Nov 2002 11:53:01 -0500
-Date: Thu, 7 Nov 2002 11:58:35 -0500 (EST)
+	id <S261451AbSKGRN2>; Thu, 7 Nov 2002 12:13:28 -0500
+Date: Thu, 7 Nov 2002 12:19:15 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: reiser <reiser@namesys.com>
-cc: Peter Chubb <peter@chubb.wattle.id.au>,
-       Andreas Dilger <adilger@clusterfs.com>,
-       Nikita Danilov <Nikita@namesys.com>,
-       Tomas Szepe <szepe@pinerecords.com>,
-       Alexander Zarochentcev <zam@namesys.com>,
-       lkml <linux-kernel@vger.kernel.org>, Oleg Drokin <green@namesys.com>,
-       umka <umka@namesys.com>
-Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
-In-Reply-To: <3DC87154.1030601@namesys.com>
-Message-ID: <Pine.LNX.3.96.1021107114229.30525D-100000@gatekeeper.tmr.com>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com, jw@pegasys.ws,
+       wa@almesberger.net, rml@tech9.net, andersen@codepoet.org,
+       woofwoof@hathway.com
+Subject: Re: ps performance sucks
+In-Reply-To: <200211052139.gA5LdIc373506@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.3.96.1021107120208.30525E-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Nov 2002, reiser wrote:
+On Tue, 5 Nov 2002, Albert D. Cahalan wrote:
 
-> There is also a longer PhD thesis by her.  10 minutes is about as much 
-> work as I personally am willing to lose and try to remember.  Avoiding 
-> 75% of writes instead of 20% is a substantial performance gain worth 
-> paying a cost for.  Unfortunately it is not easy to say if it is worth 
-> that much cost, but I suspect it is.  An approach we are exploring is 
-> for blocks to reach disk earlier than that if the device is not 
-> congested, on the grounds that if not much IO is occuring, then 
-> performance is not important.
+> > Strace it - IIRC it does 5 opens per PID. Vomit.
+> 
+> Nope, it does 2. Perhaps you're not running procps 3 yet?
+> http://procps.sf.net/
+> 
+> Of course if you do something like "ps ev" you need all 5.
 
-  I would certainly like to see that, lost data in case of problems is
-more of a problem than performance for many people. 
+  Well, since you're doing all this stuff to push your version, how about
+an option to do a fast ps for most processes and only do the hard work for
+processes owned by a given user. Or not owned, so everything not root
+would be shown in detail, as an example. What about showing or not
+threads, or showing minimal detail (fast) for threads.
 
-  Particularly if (a) there is an idle CPU, (b) there are no blocks queued
-for write to the device, and (c) there are dirty blocks to go to the
-device, it would be good to ignore the age of the block or use a firly low
-minimum age. If we dropped a few blocks onto the drive each time the
-conditions were met, I suspect that with many systems that would result in
-a lot more free write space in memory. The total blocks written to the
-drive would go up, but it shouldn't hurt performance. 
+  There is a lot of room for options if you want to see everything but
+only detail for some.
 
-  My first thought is that the check would be done after finding no
-runable normal processes and before running batch priority processes. If
-only a few blocks were written each time oldest first it shouldn't even
-hurt the batch processes. 
+  I wish competing procps could be merged, I feel as though it's something
+not requiring the time of top kernel developers. If you are willing to add
+features suggested by others and they are willing to push a feature list
+to you maybe that could happen.
 
 -- 
 bill davidsen <davidsen@tmr.com>

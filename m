@@ -1,67 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319037AbSIDDob>; Tue, 3 Sep 2002 23:44:31 -0400
+	id <S319042AbSIDDrk>; Tue, 3 Sep 2002 23:47:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319038AbSIDDob>; Tue, 3 Sep 2002 23:44:31 -0400
-Received: from dp.samba.org ([66.70.73.150]:58582 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S319037AbSIDDoa>;
-	Tue, 3 Sep 2002 23:44:30 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
+	id <S319044AbSIDDrk>; Tue, 3 Sep 2002 23:47:40 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:24847
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S319042AbSIDDrj>; Tue, 3 Sep 2002 23:47:39 -0400
+Subject: Re: 2.5 Problem Report Status
+From: Robert Love <rml@tech9.net>
+To: Thomas Molina <tmolina@cox.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 1/2 daemonize() calls reparent_to_init() cleanup
-Date: Wed, 04 Sep 2002 13:48:42 +1000
-Message-Id: <20020904034904.57D582C057@lists.samba.org>
+In-Reply-To: <Pine.LNX.4.44.0209032223110.2336-100000@dad.molina>
+References: <Pine.LNX.4.44.0209032223110.2336-100000@dad.molina>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 03 Sep 2002 23:52:20 -0400
+Message-Id: <1031111540.979.3283.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Initialize child_reaper at idle thread entry: eg. ksoftirqd's PPID is
-0, because it calls reparent_to_init() before child_reaper is
-initialized.
+On Tue, 2002-09-03 at 23:26, Thomas Molina wrote:
 
-Name: Early child_reaper initialization
-Author: Rusty Russell
-Status: Trivial
+>    Problem Title                  Status                Discussion
+>    schedule() with irqs disabled! open                  03 Sep 2002
 
-D: This sets child_reaper to the idle thread upon creation, so that
-D: ksoftirqd's reparent_to_init call doesn't get the swapper as parent.
+A "fix" is in Linus's bitkeeper tree now and will appear in 2.5.34... so
+now it is closed.
 
---- working-2.5.33-hotcpu-cpudown-i386/init/main.c.~1~	Tue Sep  3 14:05:43 2002
-+++ working-2.5.33-hotcpu-cpudown-i386/init/main.c	Wed Sep  4 13:33:32 2002
-@@ -490,16 +493,6 @@
-  */
- static void __init do_basic_setup(void)
- {
--	/*
--	 * Tell the world that we're going to be the grim
--	 * reaper of innocent orphaned children.
--	 *
--	 * We don't want people to have to make incorrect
--	 * assumptions about where in the task array this
--	 * can be found.
--	 */
--	child_reaper = current;
--
- #if defined(CONFIG_MTRR)	/* Do this after SMP initialization */
- /*
-  * We should probably create some architecture-dependent "fixup after
-@@ -545,6 +538,16 @@
- 	static char * argv_sh[] = { "sh", NULL, };
- 
- 	lock_kernel();
-+	/*
-+	 * Tell the world that we're going to be the grim
-+	 * reaper of innocent orphaned children.
-+	 *
-+	 * We don't want people to have to make incorrect
-+	 * assumptions about where in the task array this
-+	 * can be found.
-+	 */
-+	child_reaper = current;
-+
- 	/* Sets up cpus_possible() */
- 	smp_prepare_cpus(max_cpus);
- 
+Note this was never a problem - it was an informative debugging message
+that unfortunately happens much more often than anticipated.
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+	Robert Love
+

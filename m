@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262712AbSJTI0q>; Sun, 20 Oct 2002 04:26:46 -0400
+	id <S262722AbSJTIal>; Sun, 20 Oct 2002 04:30:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262722AbSJTI0q>; Sun, 20 Oct 2002 04:26:46 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:17165 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S262712AbSJTI0q>;
-	Sun, 20 Oct 2002 04:26:46 -0400
-Date: Sun, 20 Oct 2002 04:33:23 -0400
+	id <S262730AbSJTIal>; Sun, 20 Oct 2002 04:30:41 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:19213 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S262722AbSJTIal>;
+	Sun, 20 Oct 2002 04:30:41 -0400
+Date: Sun, 20 Oct 2002 04:37:11 -0400
 From: Mark Mielke <mark@mark.mielke.cc>
-To: Richard Stallman <rms@gnu.org>
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Larry McVoy <lm@bitmover.com>, Richard Stallman <rms@gnu.org>,
+       hch@infradead.org, linux-kernel@vger.kernel.org
 Subject: Re: Bitkeeper outrage, old and new
-Message-ID: <20021020083323.GA5064@mark.mielke.cc>
-References: <E180rX3-0005dL-00@fencepost.gnu.org> <20021014170248.A19897@infradead.org> <E181WHl-00010N-00@fencepost.gnu.org> <20021015193138.A4010@infradead.org> <200210161856.g9GIu57t013710@santafe.santafe.edu> <20021016201328.A24882@infradead.org> <E1832Lh-0004xH-00@fencepost.gnu.org>
+Message-ID: <20021020083711.GB5064@mark.mielke.cc>
+References: <20021019161201.A26017@work.bitmover.com> <Pine.LNX.4.44.0210200147180.8911-100000@serv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1832Lh-0004xH-00@fencepost.gnu.org>
+In-Reply-To: <Pine.LNX.4.44.0210200147180.8911-100000@serv>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 19, 2002 at 06:45:37PM -0400, Richard Stallman wrote:
-> Somebody that Richard did not consider worth properly quoting wrote:
-> > Freedom includes
-> > for me that I can use any software that I have legally licensed (or
-> > written myself) without people complaining about it publically.
-> You are asking for the power to silence criticism.  That is not
-> freedom, that is a power.
+On Sun, Oct 20, 2002 at 01:48:34AM +0200, Roman Zippel wrote:
+> On Sat, 19 Oct 2002, Larry McVoy wrote:
+> > > You are asking for the power to silence criticism.  That is not
+> > > freedom, that is a power.
+> > [..]
+> > I am not free to use GPL source in any way I wish and neither is anyone
+> > else.
+> Now I'd really like to know, how Richard forces you to use GPL software...
 
-He is asking for the freedom to not be JUDGED based on the toolset
-that he prefers to use.
+Don't make it so easy. Look at what Richard wrote.
 
-An open minded individual would not confuse this with power.
+He thinks people are bad for using Bit Keeper, because the Bit Keeper
+license disagrees with his personal persuasions. He leaves no option for
+people to choose based on functionality. Instead, they must choose based
+on the ideals of Richard Stallman.
 
 mark
 

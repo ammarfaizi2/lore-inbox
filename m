@@ -1,56 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264359AbUANT05 (ORCPT <rfc822;willy@w.ods.org>);
+	id S263609AbUANT05 (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 14 Jan 2004 14:26:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbUANTYa
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUANTYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 14:24:30 -0500
-Received: from relay.pair.com ([209.68.1.20]:2828 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S263893AbUANTXa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 14:23:30 -0500
-X-pair-Authenticated: 68.42.66.6
-Subject: Re: Laptops & CPU frequency
-From: Daniel Gryniewicz <dang@fprintf.net>
-To: Robert Love <rml@ximian.com>
-Cc: Dave Jones <davej@redhat.com>,
-       Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1074107842.1153.959.camel@localhost>
-References: <20040111025623.GA19890@ncsu.edu>
-	 <20040111025623.GA19890@ncsu.edu> <1073791061.1663.77.camel@localhost>
-	 <E1Afj2b-0004QN-00@chiark.greenend.org.uk>
-	 <E1Afj2b-0004QN-00@chiark.greenend.org.uk>
-	 <1073841200.1153.0.camel@localhost>
-	 <E1AfjdT-0008OH-00@chiark.greenend.org.uk>
-	 <1073843690.1153.12.camel@localhost>  <20040114045945.GB23845@redhat.com>
-	 <1074107508.4549.10.camel@localhost>  <1074107842.1153.959.camel@localhost>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1074108207.5935.15.camel@localhost>
+	Wed, 14 Jan 2004 14:24:08 -0500
+Received: from [12.177.129.25] ([12.177.129.25]:60099 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S263609AbUANTW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 14:22:27 -0500
+Message-Id: <200401141943.i0EJhjhg007779@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: Dick Hollenbeck <spamless@hotmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: User Mode Linux Patches for 2.6 
+In-Reply-To: Your message of "Wed, 14 Jan 2004 12:30:26 CST."
+             <40058AC2.4040505@hotmail.com> 
+References: <40058AC2.4040505@hotmail.com> 
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 14 Jan 2004 14:23:27 -0500
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 14 Jan 2004 14:43:44 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-01-14 at 14:17, Robert Love wrote:
-> Dave did not mean that the other power management schemes cannot do the
-> automatic reduction on loss of AC, just that there is no SMM/BIOS hacks
-> to do it automatically.
-> 
-> Your APM scripts are probably adjusting your CPU speed when you go on
-> AC.  Fedora does this, for example.
+spamless@hotmail.com said:
+> Some of the news blips about 2.6 said the UML was integrated into the
+> kernel.  Yet I see some UML patches for 2.6?  Under what circumstances
+>  must the 2.6 kernel be patched to compile a UML guest kernel? 
 
-No APM scripts, no APM even.  I have ACPI, but no acpid, and I don't
-currently do anything with ACPI other than get battery status and
-temperature.  It also happened before I built in any cpufreq support.
+All circumstances, until I manage to get a UML update into the pool.
 
-> That is cool - the OS (user-space, even) controls the policy.
-> 
-> What we don't like is how SpeedStep can be controlled from SMM.
+				Heff
 
-This happens even booted into DOS, so it's definitely a BIOS thing.  I
-haven't looked into turning it off, I can check next time I reboot.
--- 
-Daniel Gryniewicz <dang@fprintf.net>

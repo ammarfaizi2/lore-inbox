@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130461AbRAGXRS>; Sun, 7 Jan 2001 18:17:18 -0500
+	id <S131042AbRAGXUu>; Sun, 7 Jan 2001 18:20:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131042AbRAGXRJ>; Sun, 7 Jan 2001 18:17:09 -0500
-Received: from alcove.wittsend.com ([130.205.0.20]:16147 "EHLO
-	alcove.wittsend.com") by vger.kernel.org with ESMTP
-	id <S130461AbRAGXQt>; Sun, 7 Jan 2001 18:16:49 -0500
-Date: Sun, 7 Jan 2001 18:16:15 -0500
-From: "Michael H. Warfield" <mhw@wittsend.com>
-To: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
-Cc: "John O'Donnell" <johnod@voicefx.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: .br blacklisted ?
-Message-ID: <20010107181615.C30485@alcove.wittsend.com>
-Mail-Followup-To: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
-	John O'Donnell <johnod@voicefx.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3A58F35C.6070905@voicefx.com> <3A5903C7.7504.98C899@localhost>
+	id <S135332AbRAGXUj>; Sun, 7 Jan 2001 18:20:39 -0500
+Received: from snark.tuxedo.org ([207.106.50.26]:4107 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S131042AbRAGXU0>;
+	Sun, 7 Jan 2001 18:20:26 -0500
+Date: Sun, 7 Jan 2001 18:18:32 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: CML2 0.9.1 is available
+Message-ID: <20010107181832.A5612@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.2i
-In-Reply-To: <3A5903C7.7504.98C899@localhost>; from pmanuel@myrealbox.com on Mon, Jan 08, 2001 at 12:03:19AM +0100
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2001 at 12:03:19AM +0100, Pedro M. Rodrigues wrote:
+The latest version is always available at http://www.tuxedo.org/~esr/cml2/
 
->    Lucky b*st*rd! ;-) My spam is mostly from USA. Just deleted 78 
-> of those, and only 7 seemed to be from abroad. I wish i could block 
-> .com ... ;-)
+Release 0.9.1: Sun Jan  7 18:05:36 EST 2001
+	* Synchronized with 2.4.0 final.
+	* Fixed bugs in handling of -W and -D flags.
+	* "source" pathnames are now evaluated relative relative to the 
+	  directory of the including file, so it's now possible to compile
+	  in a directory other than that of the rules file.
 
-	99% of mine is from China (either *.cn or 163.com or some other
-numbering .com or .net.  The .org is frowned upon in China - the TLD of
-protestors and disidents).  Half of what's left comes from either .kr
-or .br.  I'm fully in favor of an Internet Death Penalty against those
-TLD's and associated domains till they clean up their acts.
-
-> Pedro
-
-
-> On 7 Jan 2001, at 17:53, John O'Donnell wrote:
-
-> > Only on my company's e-mail server.  My company typically gets "zero"
-> > emails from outside the US.  If I get a piece of spam (sorry they are
-> > typically from outside the US), I just block the entire .com.br
-> > domain. I get far less SPAM now!  I cannot express how much I loathe
-> > SPAM! I have taken this one in particular out just for you....  :-) I
-> > am the only one at my company really active on the internet..
-> > apologies Johnny O
-
-	Mike
+Special thanks to Giacomo Catenazzi, whose persistence about
+reporting front-end bugs finally pushed me in the right direction to
+find some obscure problems I had never been able to reproduce before.
 -- 
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
+To stay young requires the unceasing cultivation of the ability to
+unlearn old falsehoods.
+	-- Lazarus Long 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,87 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277821AbRJIQsZ>; Tue, 9 Oct 2001 12:48:25 -0400
+	id <S277825AbRJIQte>; Tue, 9 Oct 2001 12:49:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277822AbRJIQsP>; Tue, 9 Oct 2001 12:48:15 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:6546 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S277821AbRJIQsI>; Tue, 9 Oct 2001 12:48:08 -0400
-Date: Tue, 9 Oct 2001 10:48:31 -0600
-Message-Id: <200110091648.f99GmVS29516@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
+	id <S277823AbRJIQtY>; Tue, 9 Oct 2001 12:49:24 -0400
+Received: from smtp017.mail.yahoo.com ([216.136.174.114]:1800 "HELO
+	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S277822AbRJIQtJ> convert rfc822-to-8bit; Tue, 9 Oct 2001 12:49:09 -0400
+X-Apparently-From: <xioborg@yahoo.com>
+From: Steve Brueggeman <xioborg@yahoo.com>
+To: Jan Hudec <bulb@ucw.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] devfs v194 available
-In-Reply-To: <Pine.GSO.4.21.0110091206100.15875-100000@weyl.math.psu.edu>
-In-Reply-To: <200110091603.f99G32o28831@vindaloo.ras.ucalgary.ca>
-	<Pine.GSO.4.21.0110091206100.15875-100000@weyl.math.psu.edu>
+Subject: Re: proc file system
+Date: Tue, 09 Oct 2001 11:49:38 -0500
+Message-ID: <o7a6stc9qhk57g9p6s3is4m03897k6rari@4ax.com>
+In-Reply-To: <200110052202.f95M2Ig16051@mail.swissonline.ch> <20011006173025.F12624@arthur.ubicom.tudelft.nl> <20011009154134.C28423@artax.karlin.mff.cuni.cz>
+In-Reply-To: <20011009154134.C28423@artax.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> On Tue, 9 Oct 2001, Richard Gooch wrote:
-> 
-> > Alexander Viro writes:
-> > > ... doesn't fix _under_run in try_modload() (see what happens if
-> > > namelen is 255 and parent is devfs root)
-> > 
-> > What underrun?
-> > How can this be a problem? Before I use pos, I have the following
-> > check:
-> >     if (namelen >= STRING_LENGTH) return -ENAMETOOLONG;
-> > 
-> > so the maximum value that namelen can be is STRING_LENGTH-1. Thus we
-> > have:
-> >     pos = STRING_LENGTH - (STRING_LENGTH - 1) - 1;
-> > ->  pos = 0;
-> 
-> Certainly.  And
->      buf[STRING_LENGTH - namelen - 2] = '/';
-> assigns '/' to
-> 	buf [ STRING_LENGTH - (STRING_LENGTH-1) - 2 ]
-> i.e.
-> 	buf[-1]
+Well, to get tail -f to work, minimally you'll have to support
+maintaining a fileposition, so tell() and seek() have something useful
+to work on.  It's been a while since I looked at the source for tail,
+pretty much for similar reasons (wanted to follow a /proc file).  Most
+/proc files are considered (relatively) fixed-length files, who's
+contents get updated.  tail -f expects to follow a file that is
+growing in size.
 
-Bugger. Didn't look further down. Ah, well. Incomplete bug report :-)
+I don't have sources in front of me, so hopefully someone else will
+step-up and provide more detail than I have.
 
-> > Ah, shit. I just checked the rwsem implementation. It seems that once
-> > we do a down_write() (even if that blocks because someone else has a
-> > down_read() already), subsequent down_read() calls will block until
-> > the writer is granted access and then does up_write(). Damn. It would
-> > have been good for this to be documented somewhere. Those are the
-> > kinds of traps that should be mentioned in the header file.
-> >
-> > OK: is there a variant of rwsem which is "unfair" (i.e. readers can
-> > starve writers indefinately)?
-> 
-> 	IMO it's a wrong approach.  Notice that all these problems
-> have common reason - you are reusing entries.  There's absolutely no
-> need to do that.  Separate the logics for "search" and "create", so
-> that devfs_register() would fail if entry already exists.  Detach it
-> from the tree upon unregister().  And add a simple reference counter
-> to the damn thing.  Set it to 1 when entry is created. Bump it when
-> you use it up/drop when you stop.  And drop it when you detach from
-> the tree.  End of story.  Symlink contents is freed along with the
-> entry when refcount hits zero.  No semaphores, no new locking
-> primitives, no wheels to reinvent.
+Steve Brueggeman
 
-This is exactly what I've done in my big re-write.
 
-> 	Now, given the unholy mess in your search_...() functions I
-> don't envy you - cleaning them up _will_ hurt.
+On Tue, 9 Oct 2001 15:41:34 +0200, you wrote:
 
-Yes, it *is* hurting :-( Those mutually recursive functions are the
-last bits left to convert/burn-at-the-stake in my re-write. They're
-the last bits precisely because they're the most ugly.
+>> On Sat, Oct 06, 2001 at 12:02:18AM +0200, llx@swissonline.ch wrote:
+>> > i've written a prog interface for my logger utility to make it easy
+>> > to transport my logging information from kernel to userspace using
+>> > shell commands. now i want to use tail -f /prog/<mylogfile>. what
+>> > do i have to do for that to work. when using tail my loginfo gets
+>> > read form my ringbuffer, but nothing gets printed in the terminal.
+>> 
+>> I think you actually want a character device instead of a /proc file.
+>
+>Could you please explain why? I can't see the advantage (read and write
+>are fileops; you can have them exactly the same for proc file and device).
+>
+>--------------------------------------------------------------------------------
+>                  				- Jan Hudec `Bulb' <bulb@ucw.cz>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-> Ditto for auditing the code for places that would retain a reference
-> to unregistered entries.  But as far as I can see that's the only
-> realistic way to handle these problems.
 
-Yep. My new code is looking *much* cleaner.
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

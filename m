@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263176AbTFJP1a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 11:27:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbTFJPYq
+	id S263171AbTFJPYg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 11:24:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263245AbTFJPX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 11:24:46 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:5367 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S263239AbTFJPXw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 11:23:52 -0400
-Message-ID: <3EE5FB06.1060207@mvista.com>
-Date: Tue, 10 Jun 2003 08:36:38 -0700
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 10 Jun 2003 11:23:58 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:19837 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id S263183AbTFJPWB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 11:22:01 -0400
+Date: Tue, 10 Jun 2003 16:38:03 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
 To: Andrew Morton <akpm@digeo.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Eric Piel <Eric.Piel@Bull.Net>
-Subject: Re: [PATCH] Some clean up of the time code.
-References: <3EE52CA7.9010007@mvista.com> <20030609182213.2072ca24.akpm@digeo.com>
-In-Reply-To: <20030609182213.2072ca24.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] loop 9/9 don't lose PF_MEMDIE
+In-Reply-To: <Pine.LNX.4.44.0306101606080.2285-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0306101637090.2285-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> george anzinger <george@mvista.com> wrote:
-> 
->>-void do_settimeofday(struct timeval *tv)
->> +int do_settimeofday(struct timespec *tv)
->>  {
->> +	if ((unsigned long)tv->tv_nsec > NSEC_PER_SEC)
->> +		return -EINVAL;
->> +
-> 
-> 
-> Should that be ">="?
-> 
-> Is there any reasonable way to avoid breaking existing
-> do_settimeofday() implementations? That's just more grief all round.
+loop_get_buffer loses PF_MEMDIE if it's added while in loop_copy_bio:
+not a high probability since it's not waiting there, but could happen,
+and sets a bad example (compare with add_to_swap fixed a while back).
 
-Hm. Giving this more thought, the main reason for the change was to 
-move to the timespec from the timeval, i.e. nanoseconds instead of 
-microseconds.  The error check was put in because the function was 
-already being changed.  The reason to move to the timespec is to 
-complete the change made to xtime and to more correctly align with the 
-POSIX clock_settime, both of which use timespec.
-
-I suspect Linus would prefer this direction...
-
-Comments?
-> 
-> 
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+--- loop8/drivers/block/loop.c	Tue Jun 10 11:55:11 2003
++++ loop9/drivers/block/loop.c	Tue Jun 10 12:05:17 2003
+@@ -484,7 +484,9 @@
+ 
+ 		current->flags &= ~PF_MEMALLOC;
+ 		bio = loop_copy_bio(rbh);
+-		current->flags = flags;
++		if (flags & PF_MEMALLOC)
++			current->flags |= PF_MEMALLOC;
++
+ 		if (bio == NULL)
+ 			blk_congestion_wait(WRITE, HZ/10);
+ 	} while (bio == NULL);
 

@@ -1,90 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132220AbRDFSCw>; Fri, 6 Apr 2001 14:02:52 -0400
+	id <S132313AbRDFSHp>; Fri, 6 Apr 2001 14:07:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131724AbRDFSCn>; Fri, 6 Apr 2001 14:02:43 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:31608 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S132281AbRDFSCd>; Fri, 6 Apr 2001 14:02:33 -0400
-Date: Fri, 6 Apr 2001 20:22:05 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2 times faster rawio and several fixes (2.4.3aa3)
-Message-ID: <20010406202205.N28118@athlon.random>
-In-Reply-To: <20010406183440.B28118@athlon.random> <20010406190701.H28118@athlon.random> <20010406190232.A20258@gruyere.muc.suse.de> <20010406193621.M28118@athlon.random>
+	id <S132281AbRDFSHd>; Fri, 6 Apr 2001 14:07:33 -0400
+Received: from [63.68.113.130] ([63.68.113.130]:21132 "EHLO fire.osdlab.org")
+	by vger.kernel.org with ESMTP id <S131724AbRDFSHP>;
+	Fri, 6 Apr 2001 14:07:15 -0400
+Date: Fri, 6 Apr 2001 11:06:03 -0700
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: a quest for a better scheduler
+Message-ID: <20010406110603.A1599@osdlab.org>
+In-Reply-To: <20010404151632.A2144@kochanski> <18230000.986424894@hellman> <20010405153841.A2452@osdlab.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010406193621.M28118@athlon.random>; from andrea@suse.de on Fri, Apr 06, 2001 at 07:36:21PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010405153841.A2452@osdlab.org>; from wookie@osdlab.org on Thu, Apr 05, 2001 at 03:38:41PM -0700
+From: "Timothy D. Witham" <wookie@osdlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 06, 2001 at 07:36:21PM +0200, Andrea Arcangeli wrote:
-> 2/4Mbytes naturally aligned area). so probably I will take the vmalloc way
+Timothy D. Witham wrote :
+[...]
+> I propose that we work on setting up a straight forward test harness   
+> that allows developers to quickly test a kernel patch against 
+> various performance yardsticks.
 
-As expected vmalloc additional 2 tlbs aren't visible in the numbers (that
-are mostly dominated by I/O anyways), I think it's the best solution to avoid
-the order 2 multipage:
+[...
+(proposed large server testbeds)
+...]
 
-alpha:/home/andrea # time ./rawio-bench 
-Opening /dev/raw1
-Allocating 50MB of memory
-Reading from /dev/raw1
-Writing data to /dev/raw1
 
-real    0m5.241s
-user    0m0.002s
-sys     0m1.119s
-alpha:/home/andrea # time ./rawio-bench 
-Opening /dev/raw1
-Allocating 50MB of memory
-Reading from /dev/raw1
-Writing data to /dev/raw1
+  OK, so I have received some feedback on my proposal to provide a 
+reference set of machines so that any kernel modifications could be 
+checked across a range of machines and a range of tests.  It was 
+pointed out that there are lots of smaller servers out there and 
+they should be part of any test plan.  There was also some concern 
+that a 4 way server didn't add any value in a test lineup. But I 
+have to think that with the number of 4 ways out there they should 
+be included.
 
-real    0m5.176s
-user    0m0.003s
-sys     0m1.128s
-alpha:/home/andrea # time ./rawio-bench 
-Opening /dev/raw1
-Allocating 50MB of memory
-Reading from /dev/raw1
-Writing data to /dev/raw1
+  One additional piece of feedback was that any comprehensive 
+characterization plan should include desktops, tablet devices and 
+older machines and the performance tests that address those 
+configurations usage models and I agree that it is something that 
+needs to be done. But as for providing hardware for that effort the
+OSDL is not the group to do that.  Hopefully somebody with an 
+interest in these configurations will step forward to do that 
+portion of the job.
 
-real    0m5.196s
-user    0m0.002s
-sys     0m1.132s
-alpha:/home/andrea # time ./rawio-bench 
-Opening /dev/raw1
-Allocating 50MB of memory
-Reading from /dev/raw1
-Writing data to /dev/raw1
+So the server hardware configurations have evolved to look like 
+the following.
 
-real    0m5.477s
-user    0m0.004s
-sys     0m1.146s
-alpha:/home/andrea # time ./rawio-bench 
-Opening /dev/raw1
-Allocating 50MB of memory
-Reading from /dev/raw1
-Writing data to /dev/raw1
+	1 way, 512 MB,   2 IDE
+	2 way,   1 GB,  10 SCSI (1 SCSI channel)
+	4 way,   4 GB,  20 SCSI (2 channels) 
+	8 way,   8 GB,  40 SCSI (4 channels) maybe Fibre Channel (FC)
+       16 way,  16 GB,  80 FC   (8 channels)
 
-real    0m5.217s
-user    0m0.004s
-sys     0m1.149s
-alpha:/home/andrea # 
+The types of server applications that I have heard people express concern are:
 
-Tomorrow maybe I will try to speed it up furhter using the desing described in
-the first email.
+   Web infrastructure: 
+	Apache                        (SPECWEB99???)
+	TUX                           (SPECWEB99???)
+	Jabber                        (have their own)
 
-The s/kmem_cache_alloc/vmalloc/ change is here for now and it is rock solid
-for me (regression testing is still happy):
+   Corporate infrastructure: 
+	NFS                           (SPECSFS2.0???)
+	raw TCP/IP performance
+	Samba                         (Have their own)
+	email                         (SPECMAIL2001???)
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.3/rawio-2
+   Database performance: 
+	 Raw storage I/O performance  (various)
+	 OLTP workload                (something like TPC-C???)
+	 OLAP workload
 
-I think it's ok for inclusion.
+   General usage: 
+	compile speed (usually measured by kernel compile)
 
-Andrea
+  
+Further comments?  I will start contacting folks who have expressed
+interest.
+-- 
+Timothy D. Witham - Lab Director - wookie@osdlab.org
+Open Source Development Lab Inc - A non-profit corporation
+15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2455     (fax)
+

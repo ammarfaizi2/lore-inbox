@@ -1,65 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266879AbUIOQzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266498AbUIOQ54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266879AbUIOQzT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 12:55:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266539AbUIOQzS
+	id S266498AbUIOQ54 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 12:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUIOQ5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 12:55:18 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:56776 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266821AbUIOQyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 12:54:54 -0400
-Subject: Re: swapping and the value of /proc/sys/vm/swappiness
-From: Florin Andrei <florin@andrei.myip.org>
-Reply-To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20040914201558.GA32254@logos.cnet>
-References: <413CB661.6030303@sgi.com>
-	 <cone.1094512172.450816.6110.502@pc.kolivas.org>
-	 <20040906162740.54a5d6c9.akpm@osdl.org>
-	 <1095186713.6309.15.camel@stantz.corp.sgi.com>
-	 <20040914201558.GA32254@logos.cnet>
-Content-Type: text/plain
-Message-Id: <1095267281.17153.14.camel@stantz.corp.sgi.com>
+	Wed, 15 Sep 2004 12:57:55 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:407 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S266708AbUIOQy6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 12:54:58 -0400
+Date: Wed, 15 Sep 2004 18:54:50 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Being more anal about iospace accesses..
+Message-ID: <20040915165450.GD6158@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.58.0409081543320.5912@ppc970.osdl.org> <Pine.LNX.4.58.0409150737260.2333@ppc970.osdl.org> <Pine.LNX.4.58.0409150859100.2333@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 15 Sep 2004 09:54:42 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0409150859100.2333@ppc970.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-14 at 13:15, Marcelo Tosatti wrote:
-> On Tue, Sep 14, 2004 at 11:31:53AM -0700, Florin Andrei wrote:
-
-> > I've found a situation where the vanilla kernel has a behaviour that
-> > makes no sense:
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=109237941331221&w=2
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=109237959719868&w=2
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=109238126314192&w=2
-> > 
-> > A patch by Con Kolivas fixed it:
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=109410526607990&w=2
-> > 
-> > I cannot offer more details, i have no time for experiments, i just need
-> > a system that works. The vanilla kernel does not.
+On Wed, 15 September 2004 09:30:42 -0700, Linus Torvalds wrote:
 > 
-> Have you tried to decrease the value of /proc/sys/vm/swappiness 
-> to say 30 and see what you get?
+> For example, if you don't know (or, more importantly - don't care) what 
+> kind of IO interface you use, you can now do something like
+> 
+> 	void __iomem * map = pci_iomap(dev, bar, maxbytes);
+> 	...
+> 	status = ioread32(map + DRIVER_STATUS_OFFSET);
 
-I cannot repeat the experiment (due to lack of time) but i remember
-having severe issues with low /proc/*/swappiness values on vanilla
-kernels. I don't recall the nature of the problems, though, because it's
-been a while. Sorry. But that was what prompted me to search further.
-The search ended when i found and tested Con's patch.
+C now supports pointer arithmetic with void*?  I hope the width of a
+void is not architecture dependent, that would introduce more subtle
+bugs.
 
-The current swapping policy of the vanilla 2.6 kernels is broken. Badly.
-
-At least my system works properly now. <shrug>
+Jörn
 
 -- 
-Florin Andrei
-
-http://florin.myip.org/
-
+Sometimes, asking the right question is already the answer.
+-- Unknown

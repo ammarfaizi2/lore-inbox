@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVABOhZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVABOlr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbVABOhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 09:37:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVABOhP
+	id S261251AbVABOlr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 09:41:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVABOlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 09:37:15 -0500
-Received: from fyrebird.net ([217.70.144.192]:42916 "HELO fyrebird.net")
-	by vger.kernel.org with SMTP id S261231AbVABOhG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 09:37:06 -0500
-X-Qmail-Scanner-Mail-From: lethalman@fyrebird.net via fyrebird
-X-Qmail-Scanner: 1.23 (Clear:RC:0(62.11.84.211):. Processed in 2.062093 secs)
-Message-ID: <41D80446.50206@fyrebird.net>
-Date: Sun, 02 Jan 2005 15:25:10 +0100
-From: Lethalman <lethalman@fyrebird.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Sun, 2 Jan 2005 09:41:47 -0500
+Received: from livid.absolutedigital.net ([66.92.46.173]:23689 "EHLO
+	mx2.absolutedigital.net") by vger.kernel.org with ESMTP
+	id S261251AbVABOlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 09:41:39 -0500
+Date: Sun, 2 Jan 2005 09:41:36 -0500 (EST)
+From: Cal Peake <cp@absolutedigital.net>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: fix for modular floppy builds
+Message-ID: <Pine.LNX.4.61.0501020934320.6458@lancer.cnet.absolutedigital.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Disable creation of coredump file
-References: <20050102142735.58501.qmail@web53904.mail.yahoo.com>
-In-Reply-To: <20050102142735.58501.qmail@web53904.mail.yahoo.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gan_xiao_jun@yahoo.com wrote:
-> Hi,
-> 
-> I want to disable the creation of the core dump even
-> after set "ulimit -c XXXX"
-> 
-> I modify 
-> include/asm-i386/resource.h
-> the data structure INIT_RLIMITS
-> the 4th elements(RLIMIT_CORE)
-> from 
-> rlim_cur = 0, rlim_max = RLIMINFINITY
-> to 
-> rlim_cur = 0, rlim_max = 0
-> But core dump still be created.
-> 
-> Thanks in advance.
-> gan
-> 
+Hi Linus,
 
-Undefining USE_ELF_CORE_DUMP from asm headers (like 
-include/asm-i386/elf.h and asm/elf.h) should disable core dumping.
+Modular floppy builds are still broken in -bk5. Can you merge in Jeff's 
+patch below?
 
--- 
-www.iosn.it * Amministratore Italian Open Source Network
-www.fyrebird.net * Fyrebird Hosting Provider - Technical Department
+thanks,
+
+-- Cal
+
+
+Please do a
+
+	bk pull bk://gkernel.bkbits.net/misc-2.6
+
+This will update the following files:
+
+ drivers/block/floppy.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+through these ChangeSets:
+
+<jgarzik@pobox.com> (04/12/29 1.2079)
+   block/floppy.c: fix build by removing UTS_RELEASE use
+   
+   It's redundant to the kernel message that prints out the kernel version,
+   as well as many other places where one can request the kernel version.
+
+diff -Nru a/drivers/block/floppy.c b/drivers/block/floppy.c
+--- a/drivers/block/floppy.c	2004-12-29 14:00:55 -05:00
++++ b/drivers/block/floppy.c	2004-12-29 14:00:55 -05:00
+@@ -4595,7 +4595,7 @@
+ 
+ int init_module(void)
+ {
+-	printk(KERN_INFO "inserting floppy driver for " UTS_RELEASE "\n");
++	printk(KERN_INFO "inserting floppy driver\n");
+ 
+ 	if (floppy)
+ 		parse_floppy_cfg_string(floppy);

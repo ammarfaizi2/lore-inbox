@@ -1,33 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbUKDMhd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262196AbUKDMhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbUKDMhd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 07:37:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbUKDMgn
+	id S262196AbUKDMhe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 07:37:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUKDMgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 07:36:43 -0500
-Received: from spc1-leed3-6-0-cust18.seac.broadband.ntl.com ([80.7.68.18]:2808
-	"EHLO fentible.pjc.net") by vger.kernel.org with ESMTP
-	id S262205AbUKDMdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 07:33:37 -0500
-Date: Thu, 4 Nov 2004 12:33:33 +0000
-From: Patrick Caulfield <pcaulfie@redhat.com>
-To: davem@redhat.com, linux-kernel@vger.kernel.org,
-       DECnet list <linux-decnet-user@lists.sourceforge.net>
-Subject: Re: [PATCH] DECnet route RCU fix
-Message-ID: <20041104123333.GJ26743@tykepenguin.com>
-Mail-Followup-To: davem@redhat.com, linux-kernel@vger.kernel.org,
-	DECnet list <linux-decnet-user@lists.sourceforge.net>
-References: <20041104120500.GI26743@tykepenguin.com>
+	Thu, 4 Nov 2004 07:36:35 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:7901 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262198AbUKDMf5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 07:35:57 -0500
+Date: Thu, 4 Nov 2004 13:36:05 +0100
+From: Stelian Pop <stelian@popies.net>
+To: Emmanuel Fleury <fleury@cs.aau.dk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/12] meye driver update
+Message-ID: <20041104123602.GX3472@crusoe.alcove-fr>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Emmanuel Fleury <fleury@cs.aau.dk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20041104111231.GF3472@crusoe.alcove-fr> <1099571129.23751.22.camel@rade7.e.cs.auc.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041104120500.GI26743@tykepenguin.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1099571129.23751.22.camel@rade7.e.cs.auc.dk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I should have made it clear that those last two DECnet patches were against the
-latest 2.6 kernel.
--- 
+On Thu, Nov 04, 2004 at 01:25:29PM +0100, Emmanuel Fleury wrote:
 
-patrick
+> By the way, is there any news for the development of a driver for the
+> meye of a PCG-C1MZX ?
+> 
+> lspci:
+[...]
+> 0000:00:0a.0 Multimedia controller: Fujitsu Limited.: Unknown device 2011
+[...]
+> 0000:00:12.0 CardBus bridge: Ricoh Co Ltd RL5c475 (rev 80)
+[...]
+
+> Chipset of the meye (I guess): 
+> 
+> Ricoh Co Ltd RL5c475 (rev 80)
+
+No, that's the cardbus bridge.
+
+The camera is the Fujitsu device (0x10cf/0x2011).
+
+There is a page at http://r-engine.sourceforge.net/ but the project
+seems dead. The manufacturer has given to several developers the
+docs (under a non redistribution NDA), but nobody wrote some code
+yet.
+
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>    

@@ -1,98 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVBGMbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVBGMcx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbVBGMbM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 07:31:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVBGMbL
+	id S261408AbVBGMcx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 07:32:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVBGMcx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 07:31:11 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:57729 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261404AbVBGMbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 07:31:07 -0500
-Message-ID: <42075F71.2050504@grupopie.com>
-Date: Mon, 07 Feb 2005 12:30:41 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Mon, 7 Feb 2005 07:32:53 -0500
+Received: from lucidpixels.com ([66.45.37.187]:48021 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S261408AbVBGMcu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 07:32:50 -0500
+Date: Mon, 7 Feb 2005 07:32:48 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: linux-kernel@vger.kernel.org
+Subject: Reading Bad DVD Under 2.6.10 freezes the box.
+Message-ID: <Pine.LNX.4.62.0502070728520.1743@p500>
 MIME-Version: 1.0
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: jjluza@yahoo.fr, Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc3-mm1 - broken bttv ?
-References: <200502051922.25001.jjluza@yahoo.fr> <42056065.2000504@eyal.emu.id.au> <200502060255.01758.jjluza@yahoo.fr> <42075E0A.2010802@grupopie.com>
-In-Reply-To: <42075E0A.2010802@grupopie.com>
-Content-Type: multipart/mixed;
- boundary="------------090506060906010004050106"
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090506060906010004050106
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+I have a DVD where I have three files on it, (1.7gb,1.7gb,900mb).
 
-Paulo Marques wrote:
-> jjluza wrote:
-> 
->> Eyal Lebedinsky wrote
->>
->>> I am having bttv problems with vanilla -rc3. Does it work for you?
->>
->>
->>
->> I don't know, as I said I didn't test kernel between 2.6.10 and 
->> 2.6.11-rc3-mm1.
->> Sorry.
->> If I have time enough later, I can test 2.6.11-rc3.
->> Since I don't really know if it's the good place to talk about that, I 
->> decided to report this bug on bugzilla too. Maybe you can post your 
->> problem here :
->> http://bugzilla.kernel.org/show_bug.cgi?id=4171
-> 
-> 
-> Other people with similar problems reported that the attached patch from 
->  Gerd Knorr fixed the problem for them.
+On W2K, when I try to copy the second file, I get a BadCRC error message.
 
--ENOATTACHMENT  :P
+Under Linux, I copy up to about 860MB (watched via pipebench) and then it 
+freezes the machine, I cannot ping or get to it or do anything on the 
+console; instead, I am forced to hard reboot.
 
--- 
-Paulo Marques - www.grupopie.com
+Main Question >> Why does Linux 'freeze up' when W2K gives a BadCRC error 
+msg (never freezes)?
 
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
+The DVD FS is Joilet+ISO (hence, why none of the files are bigger than 
+2GB), is this normal?  Or is there no checking code when there are errors 
+on DVD's to kill the read/etc so it does not freeze the box?
 
---------------090506060906010004050106
-Content-Type: text/x-patch;
- name="tda9887.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="tda9887.diff"
-
---- linux-2.6.11-rc3/drivers/media/video/tda9887.c
-+++ linux-2.6.11-rc3/drivers/media/video/tda9887.c
-@@ -545,19 +553,21 @@
- 	int rc;
- 
- 	memset(buf,0,sizeof(buf));
-+	tda9887_set_tvnorm(t,buf);
- 	buf[1] |= cOutputPort1Inactive;
- 	buf[1] |= cOutputPort2Inactive;
--	tda9887_set_tvnorm(t,buf);
- 	if (UNSET != t->pinnacle_id) {
- 		tda9887_set_pinnacle(t,buf);
- 	}
- 	tda9887_set_config(t,buf);
- 	tda9887_set_insmod(t,buf);
- 
-+#if 0
- 	if (t->std & V4L2_STD_SECAM_L) {
- 		/* secam fixup (FIXME: move this to tvnorms array?) */
- 		buf[1] &= ~cOutputPort2Inactive;
- 	}
-+#endif
- 
- 	dprintk(PREFIX "writing: b=0x%02x c=0x%02x e=0x%02x\n",
- 		buf[1],buf[2],buf[3]);
-
---------------090506060906010004050106--
+Thanks.

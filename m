@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316705AbSILTEk>; Thu, 12 Sep 2002 15:04:40 -0400
+	id <S316857AbSILTKE>; Thu, 12 Sep 2002 15:10:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316788AbSILTEk>; Thu, 12 Sep 2002 15:04:40 -0400
-Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:3268 "EHLO
-	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S316705AbSILTEj>; Thu, 12 Sep 2002 15:04:39 -0400
-Date: Thu, 12 Sep 2002 16:09:08 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Jim Sibley <jlsibley@us.ibm.com>
-cc: Thunder from the hill <thunder@lightweight.ods.org>,
-       <linux-kernel@vger.kernel.org>, Giuliano Pochini <pochini@shiny.it>
-Subject: RE: Killing/balancing processes when overcommited
-In-Reply-To: <OFDB91827C.152E85A4-ON88256C32.0067C0A4@boulder.ibm.com>
-Message-ID: <Pine.LNX.4.44L.0209121608470.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S316792AbSILTKD>; Thu, 12 Sep 2002 15:10:03 -0400
+Received: from dsl-213-023-039-132.arcor-ip.net ([213.23.39.132]:6280 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S316857AbSILTKD>;
+	Thu, 12 Sep 2002 15:10:03 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Chuck Lever <cel@citi.umich.edu>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+Date: Thu, 12 Sep 2002 21:06:20 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrew Morton <akpm@digeo.com>, Rik van Riel <riel@conectiva.com.br>,
+       <trond.myklebust@fys.uio.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.BSO.4.33.0209101412300.5368-100000@citi.umich.edu>
+In-Reply-To: <Pine.BSO.4.33.0209101412300.5368-100000@citi.umich.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17pZID-0007jw-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Sep 2002, Jim Sibley wrote:
+On Tuesday 10 September 2002 21:04, Chuck Lever wrote:
+> when locking or unlocking a file, the idea is to make sure that other
+> clients can see all changes to the file that were made while it was
+> locked.  locking and unlocking provide tighter cache coherency than simple
+> everyday close-to-open because that's why applications go to the trouble
+> of locking a file -- they expect to share the contents of the file with
+> other applications on other clients.
+> 
+> when a file is locked, the client wants to be certain it has the latest
+> version of the file for an application to play with.  the cache is purged
+> to cause the client to read any recent changes from the server.  when a
+> file is unlocked, the client wants to share its changes with other clients
+> so it flushes all pending writes before allowing the unlocking application
+> to proceed.
 
-> I still favor an installation file in /etc specifying the order in which
-> things are to be killed. Any alogrithmic assumptions are bound to fail at
-> some point to the dissatisfaction of the installation.
+This is clear and easy to understand, thanks.
 
-That's all fine and well, but somebody will have to implement this. ;)
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
+Daniel

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269027AbTCAVFo>; Sat, 1 Mar 2003 16:05:44 -0500
+	id <S269032AbTCAVPW>; Sat, 1 Mar 2003 16:15:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269032AbTCAVFo>; Sat, 1 Mar 2003 16:05:44 -0500
-Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:57815 "EHLO
-	finwe.eu.org") by vger.kernel.org with ESMTP id <S269027AbTCAVFn>;
-	Sat, 1 Mar 2003 16:05:43 -0500
-Date: Sat, 1 Mar 2003 22:16:12 +0100
-From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Update to 2.5.x snapshots
-Message-ID: <20030301211611.GA23874@finwe.eu.org>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <3E60FAAB.1080007@pobox.com>
+	id <S269033AbTCAVPW>; Sat, 1 Mar 2003 16:15:22 -0500
+Received: from pdbn-d9bb8750.pool.mediaWays.net ([217.187.135.80]:16 "EHLO
+	citd.de") by vger.kernel.org with ESMTP id <S269032AbTCAVPW>;
+	Sat, 1 Mar 2003 16:15:22 -0500
+Date: Sat, 1 Mar 2003 22:25:37 +0100
+From: Matthias Schniedermeyer <ms@citd.de>
+To: Dan Kegel <dank@kegel.com>
+Cc: Joe Perches <joe@perches.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mike@aiinc.ca
+Subject: Re: [PATCH] kernel source spellchecker
+Message-ID: <20030301212537.GA32408@citd.de>
+References: <Pine.LNX.4.44.0303012026410.31670-101000@korben.citd.de> <3E612561.1050002@kegel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E60FAAB.1080007@pobox.com>
-Organization: Kreatorzy Kreacji Bialej
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <3E612561.1050002@kegel.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-
-> Old 2.5.x BK snapshots on kernel.org are now moved into the "old" 
-> sub-directory, instead of being deleted.
+On Sat, Mar 01, 2003 at 01:25:53PM -0800, Dan Kegel wrote:
+> Matthias Schniedermeyer wrote:
+> >This versions defaults to only correct words within a comment. ...
+> >// Comments are easy(tm). "Everything after // until line-end".
+> >
+> >and /* ... */ are easy(tm) too because gcc doesn't support to nest them.
 > 
-> The script change is untested... so yell at me if things break when 
-> Linus releases 2.5.64.
+> I'll be damned.  I'm impressed with how easy that was in perl.
 
-It may not be related, but  
-http://www.kernel.org/pub/linux/kernel/v2.4/testing/cset/
-has "BitKeeper patches since v2.4.21-pre4: 354 Changesets"
-(not latest -pre).
+As long as there is no nesting involved most things a easy/trivial to
+achieve with REs.
 
-	Jacek
+
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
 

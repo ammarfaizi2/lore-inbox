@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135272AbRAaCHe>; Tue, 30 Jan 2001 21:07:34 -0500
+	id <S129999AbRAaCZV>; Tue, 30 Jan 2001 21:25:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131243AbRAaCHY>; Tue, 30 Jan 2001 21:07:24 -0500
-Received: from pcow024o.blueyonder.co.uk ([195.188.53.126]:29956 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S135272AbRAaCGs>;
-	Tue, 30 Jan 2001 21:06:48 -0500
-Date: Wed, 31 Jan 2001 02:06:33 +0000
-From: Michael Pacey <michael@wd21.co.uk>
-To: Andreas Dilger <adilger@turbolinux.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Multiple SCSI host adapters, naming of attached devices
-Message-ID: <20010131020633.J388@kermit.wd21.co.uk>
-In-Reply-To: <20010130224912.A388@kermit.wd21.co.uk> <200101310105.f0V15qi03324@webber.adilger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <200101310105.f0V15qi03324@webber.adilger.net>; from adilger@turbolinux.com on Wed, Jan 31, 2001 at 01:05:51 +0000
-X-Mailer: Balsa 1.0.pre5
+	id <S130299AbRAaCZM>; Tue, 30 Jan 2001 21:25:12 -0500
+Received: from palrel3.hp.com ([156.153.255.226]:43276 "HELO palrel3.hp.com")
+	by vger.kernel.org with SMTP id <S129999AbRAaCZE>;
+	Tue, 30 Jan 2001 21:25:04 -0500
+Message-ID: <3A77777D.E1A998FC@cup.hp.com>
+Date: Tue, 30 Jan 2001 18:25:01 -0800
+From: Rick Jones <raj@cup.hp.com>
+Organization: the Unofficial HP
+X-Mailer: Mozilla 4.75 [en] (X11; U; HP-UX B.11.00 9000/785)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: jamal <hadi@cyberus.ca>
+Cc: Ion Badulescu <ionut@cs.columbia.edu>, Andrew Morton <andrewm@uow.edu.au>,
+        lkml <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: Still not sexy! (Re: sendfile+zerocopy: fairly sexy (nothing 
+ todowith ECN)
+In-Reply-To: <Pine.GSO.4.30.0101302039580.3017-100000@shell.cyberus.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 31 Jan 2001 01:05:51 Andreas Dilger wrote:
-
+> > How does ZC/SG change the nature of the packets presented to the NIC?
 > 
-> If you are using ext2 filesystems, you don't care which is which, because
-> you can mount by filesystem UUID or LABEL, so just ignore the device
-> names.
-> The same is true with LVM.
+> what do you mean? I am _sure_ you know how SG/ZC work. So i am suspecting
+> more than socratic view on life here. Could be influence from Aristotle;->
 
-Well, I tried changing the order of driver loading in driver/scsi/hosts.c
-after reading something on the web but that didn't work.
+Well, I don't know  the specifics of Linux, but I gather from what I've
+read on the list thusfar, that prior to implementing SG support, Linux
+NIC drivers would copy packets into single contiguous buffers that were
+then sent to the NIC yes? 
 
-Then I tried what you (and another kind soul) suggested, i.e. mount by
-label, and the machine fails to mount the / filesystem read-write on boot,
-though I can do it manually. This is a Debian potato system. Well, I'm
-tired and I've had too much wine and whisky so I am going to bed, but I
-will attack this afresh tomorrow night...
+If so, the implication is with SG going, that copy no longer takes
+place, and so a chain of buffers is given to the NIC.
 
-Thanks for the advice, perhaps I'll need more tomorrow :)
- 
+Also, if one is fully ZC :) pesky things like protocol headers can
+naturally end-up in separate buffers.
 
---
-Michael Pacey
-michael@wd21.co.uk
-ICQ: 105498469
+So, now you have to ask how well any given NIC follows chains of
+buffers. At what number of buffers is the overhead in the NIC of
+following the chains enough to keep it from achieving link-rate?
 
-wd21 ltd - world domination in the 21st century
+One way to try and deduce that would be to meld some of the SG and preSG
+behaviours and copy packets into varying numbers of buffers per packet
+and measure the resulting impact on throughput through the NIC.
 
+rick jones
+
+As time marches on, the orders of magnitude of the constants may change,
+but basic concepts still remain, and the "lessons" learned in the past
+by one generation tend to get relearned in the next :) for example -
+there is no such a thing as a free lunch... :)
+
+-- 
+ftp://ftp.cup.hp.com/dist/networking/misc/rachel/
+these opinions are mine, all mine; HP might not want them anyway... :)
+feel free to email, OR post, but please do NOT do BOTH...
+my email address is raj in the cup.hp.com domain...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

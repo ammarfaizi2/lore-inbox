@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267306AbUI0UGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267319AbUI0UK0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267306AbUI0UGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 16:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUI0UEQ
+	id S267319AbUI0UK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 16:10:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267312AbUI0UKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 16:04:16 -0400
-Received: from minimail.digi.com ([204.221.110.13]:25210 "EHLO
-	minimail.digi.com") by vger.kernel.org with ESMTP id S267312AbUI0UDd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 16:03:33 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH 2.6.8.1] drivers/char: New serial driver.
-Date: Mon, 27 Sep 2004 15:03:32 -0500
-Message-ID: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D774@minimail.digi.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.8.1] drivers/char: New serial driver.
-Thread-Index: AcSkzRCoJ2xJTPw7RtOhhK8YhUxFDA==
-From: "Kilau, Scott" <Scott_Kilau@digi.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <wenxiong@us.ibm.com>
+	Mon, 27 Sep 2004 16:10:19 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:28036 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S267323AbUI0UJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 16:09:13 -0400
+Subject: Re: [PATCH][2.6.9-rc2-mm3] perfctr ppc32 preliminary interrupt
+	support
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: mikpe@csd.uu.se, benh@kernel.crashing.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1096315531.1296.21.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 27 Sep 2004 16:05:31 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am submitting a new serial driver for the 2.6 series of kernels.
+Benjamin Herrenschmidt writes:
 
-Description:
-Digi serial driver for the Digi Neo and Classic PCI serial port
-products.
+> Be careful that some G4's have a bug which can cause a
+> perf monitor interrupt to crash your kernel :( Basically, the
+> problem is if any of TAU or PerfMon interrupt happens at the
+> same time as a DEC interrupt, some revs of the CPU can get
+> confused and lose the previous exception state.
 
-IBM has requested this submission into the Linux kernel.
+Instead of excluding all these CPUs, simply put the
+clock tick on the PerfMon interrupt. There's a bit-flip
+that'll go at about 4 kHz on a system with a 100 MHz bus.
+That should do. One need not change HZ; the interrupt
+can be ignored whenever the timebase hasn't advanced
+enough to require another clock tick.
 
-The patch is quite large (300K uncompressed), so rather than attach it
-I am submitting a link to our ftp site where the patch is located.
 
-ftp://ftp1.digi.com/pub/patches/dgnc.patch
-
-Signed-off-by: Scott H Kilau <scottk@digi.com>
-
-Thanks
-Scott Kilau
-Digi International

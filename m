@@ -1,77 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263761AbUELVKC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263777AbUELV2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263761AbUELVKC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 17:10:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbUELVHi
+	id S263777AbUELV2s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 17:28:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265241AbUELV2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 17:07:38 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:30850 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265235AbUELVDO (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 17:03:14 -0400
-Message-Id: <200405122103.i4CL3AUp014523@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Netdev <netdev@oss.sgi.com>
-Subject: Re: MSEC_TO_JIFFIES is messed up... 
-In-Reply-To: Your message of "Wed, 12 May 2004 22:50:28 +0200."
-             <20040512205028.GA18806@elte.hu> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040512020700.6f6aa61f.akpm@osdl.org> <20040512181903.GG13421@kroah.com> <40A26FFA.4030701@pobox.com> <20040512193349.GA14936@elte.hu> <200405121947.i4CJlJm5029666@turing-police.cc.vt.edu> <Pine.LNX.4.58.0405121255170.11950@bigblue.dev.mdolabs.com> <200405122007.i4CK7GPQ020444@turing-police.cc.vt.edu> <20040512202807.GA16849@elte.hu> <20040512203500.GA17999@elte.hu>
-            <20040512205028.GA18806@elte.hu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-725252706P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Wed, 12 May 2004 17:28:48 -0400
+Received: from out002pub.verizon.net ([206.46.170.141]:22011 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S265239AbUELV20
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 17:28:26 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
+Date: Wed, 12 May 2004 17:28:22 -0400
+User-Agent: KMail/1.6
+References: <fa.jr282gn.1ni2t37@ifi.uio.no> <008201c437e7$b1a35160$6601a8c0@northbrook> <20040512185224.GA2658@bounceswoosh.org>
+In-Reply-To: <20040512185224.GA2658@bounceswoosh.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Date: Wed, 12 May 2004 17:03:10 -0400
+Message-Id: <200405121728.22629.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.205.63.246] at Wed, 12 May 2004 16:28:24 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-725252706P
-Content-Type: text/plain; charset=us-ascii
+On Wednesday 12 May 2004 14:52, Eric D. Mudama wrote:
+>On Wed, May 12 at  0:09, Robert Hancock wrote:
+>>If this is indeed the case, that those drives don't support the
+>> "flush write cache" command, I'd like to see Maxtor's excuse as to
+>> why.. I believe that Windows always powers down IDE drives before
+>> shutdown, maybe this is because of non-universal support for the
+>> "flush write cache" command?
+>
+>The issue is a bit more subtle, and I'm not making an "excuse" per
+>say...
+>
+>(Not speaking officially for Maxtor, but I'm just trying to help...)
+>
+>
+>As per the email I got from Bart, the drive in question doesn't
+>support 48-bit commands.  The wierdness is that it claims to support
+>the FLUSH CACHE EXT (0xEA) command.  Obviously, this combination
+>doesn't make it safe to issue FLUSH CACHE EXT since the drive will
+> not be able to properly report a failing location in the event of a
+> failure to flush due to a fatal write fault.  The drive knows a
+> FLUSH CACHE EXT command isn't safe, so it aborts that command which
+> is the error message you see.
+>
+>The code that Bart showed me does a '&' on the feature word with the
+>required support bits, but uses the result in an 'if' conditional. 
+> I believe that means that in C, if either of the bits is set, then
+> the 'if' will evaluate to true, which is causing the problem.
+>
+>The solution (that should work for all drives) would be to test
+>properly to make sure the drive reports support for both 48-bit
+>commands and FLUSH CACHE EXT, with something like:
+>
+>  if ((feature & bits) == bits)
+>
+>then issue that command.  If *either* of these bits is false, then
+> the drive should be issued a normal FLUSH CACHE (0xE7) command
+> (which is a reasonably standard 28-bit command, and all Maxtor
+> drives support, including the models in question.)
+>
+>Note that this only affects newer drives (last 18 months or so) that
+>are <120GB. (Yes, I know that is still a truckload)
+>
+>There are a gazillion of these in the field (we sell ~60 million
+>drives/year?) so I don't believe a firmware "upgrade" or equivalent
+>simply is logistically possible, but this inconsistency is going to
+> be addressed in future products, I'm making sure of it.
+>
+>
+>If anyone has questions, please don't hesitate to email and I'll do
+> my best to help.
 
-On Wed, 12 May 2004 22:50:28 +0200, Ingo Molnar said:
+Thank you Eric, for such a clear explanation of the problem (I have 
+one of those drives and was the one who made the second report I 
+believe...  Now it seems that a fix can be written into our driver 
+without a lot of fuss, so it becomes a non-issue for us once thats 
+filtered thru Andrew and on up to Linus.
 
-> Content-Disposition: attachment; filename="hz-cleanup-2.6.6-A2"
-> 
-> --- linux/include/linux/time.h.orig	
-> +++ linux/include/linux/time.h	
-> @@ -177,6 +177,24 @@ struct timezone {
->  	(SH_DIV((MAX_JIFFY_OFFSET >> SEC_JIFFIE_SC) * TICK_NSEC, NSEC_PER_SEC, 
-1) - 1)
->  
->  #endif
-> +
-> +/*
-> + * Convert jiffies to milliseconds and back.
-> + *
-> + * Avoid unnecessary multiplications/divisions in the
-> + * two most common HZ cases:
-> + */
-> +#if HZ == 1000
-> +# define JIFFIES_TO_MSECS(x)	(x)
-> +# define MSECS_TO_JIFFIES(x)	(x)
-> +#elif HZ == 100
-> +# define JIFFIES_TO_MSECS(x)	((x) * 10)
-> +# define MSECS_TO_JIFFIES(x)	((x) / 10)
-> +#else
-> +# define JIFFIES_TO_MSECS(x)	((x) * 1000 / HZ)
-> +# define MSECS_TO_JIFFIES(x)	((x) * HZ / 1000)
-> +#endif
-> +
+My Q for you, is, does M$ already have a similar workaround in their 
+drivers?  Just curious. :)
 
-Looks good to me.. :)
-
---==_Exmh_-725252706P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAopEOcC3lWbTT17ARArOzAKDM3xA1BVYCfW4BJhF7WIRcbbVVlACfciAe
-ZNSdcKBxy1tXpJvpoUky7w0=
-=8oxt
------END PGP SIGNATURE-----
-
---==_Exmh_-725252706P--
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

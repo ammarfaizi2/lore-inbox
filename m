@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269041AbRHGRBz>; Tue, 7 Aug 2001 13:01:55 -0400
+	id <S269178AbRHGWcY>; Tue, 7 Aug 2001 18:32:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269049AbRHGRBo>; Tue, 7 Aug 2001 13:01:44 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:24070 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S269041AbRHGRBh>; Tue, 7 Aug 2001 13:01:37 -0400
-Message-Id: <200108031443.f73EhQLX017842@pincoya.inf.utfsm.cl>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread 
-In-Reply-To: Your message of "Fri, 03 Aug 2001 15:09:06 +0200."
-             <01080315090600.01827@starship> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Fri, 03 Aug 2001 10:43:26 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S269518AbRHGWcO>; Tue, 7 Aug 2001 18:32:14 -0400
+Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:1039 "EHLO
+	alfik.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S269515AbRHGWcD>; Tue, 7 Aug 2001 18:32:03 -0400
+Date: Sun, 5 Aug 2001 22:19:37 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Dan Hollis <goemon@anime.net>
+Cc: Jussi Laako <jlaako@pp.htv.fi>, linux-kernel@vger.kernel.org
+Subject: CRC loop method (was Re: ReiserFS / 2.4.6 / Data Corruption)
+Message-ID: <20010805221937.A78@toy.ucw.cz>
+In-Reply-To: <3B672C6B.9AC418B0@pp.htv.fi> <Pine.LNX.4.30.0107311526360.13810-100000@anime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.30.0107311526360.13810-100000@anime.net>; from goemon@anime.net on Tue, Jul 31, 2001 at 03:32:39PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips <phillips@bonn-fries.net> said:
-> On Friday 03 August 2001 05:13, Alexander Viro wrote:
+Hi!
 
-[...]
+> > I'd be very happy with full data journalling even with 50% performance
+> > penalty... There are applications that require extreme data integrity all
+> > times no matter what happens.
+> 
+> How about an idea I proposed a while back, 'integrity loopback'?
+> 
+> A loopback device which writes a CRC with each block and checks the CRC
+> when read back.
 
-> > You forgot ".. at any given moment". IOW, operation you propose is
-> > inherently racy. You want to do that - you do that in userland.
+I have written that. Do you want a copy?
 
-> Are you saying that there may not be a ".." some of the time?  Or just 
-> that it may spontaneously be relinked?  If it does spontaneously change 
-> it doesn't matter, you have still made sure there is access by at least 
-> one path.
-
-Think "mv thisdir somewhereelse"
 -- 
-Dr. Horst H. von Brand                Usuario #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267534AbRGMTxR>; Fri, 13 Jul 2001 15:53:17 -0400
+	id <S267536AbRGMUCh>; Fri, 13 Jul 2001 16:02:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267535AbRGMTxJ>; Fri, 13 Jul 2001 15:53:09 -0400
-Received: from mail1.qualcomm.com ([129.46.64.223]:2299 "EHLO
-	mail1.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S267534AbRGMTxB>; Fri, 13 Jul 2001 15:53:01 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Maksim Krasnyanskiy <maxk@qualcomm.com>
-Organization: Qualcomm
-To: Joerg Reuter <jreuter@suse.de>
-Subject: Re: [BUG?] vtund broken by tun driver changes in 2.4.6
-Date: Fri, 13 Jul 2001 12:44:28 -0700
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0107070058350.29490-100000@mackman.net.suse.lists.linux.kernel> <01071308585200.00792@btdemo1.qualcomm.com> <20010713194317.A18866@suse.de>
-In-Reply-To: <20010713194317.A18866@suse.de>
+	id <S267537AbRGMUC2>; Fri, 13 Jul 2001 16:02:28 -0400
+Received: from sncgw.nai.com ([161.69.248.229]:44492 "EHLO mcafee-labs.nai.com")
+	by vger.kernel.org with ESMTP id <S267536AbRGMUCQ>;
+	Fri, 13 Jul 2001 16:02:16 -0400
+Message-ID: <XFMail.20010713130537.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Message-Id: <01071312442805.00792@btdemo1.qualcomm.com>
-Content-Transfer-Encoding: 7BIT
+In-Reply-To: <200107131939.f6DJdb921665@eng2.sequent.com>
+Date: Fri, 13 Jul 2001 13:05:37 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Gerrit Huizenga <gerrit@us.ibm.com>
+Subject: Re: [Lse-tech] Re: CPU affinity & IPI latency
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
+        Andi Kleen <ak@suse.de>, lse-tech@lists.sourceforge.net,
+        Mike Kravetz <mkravetz@sequent.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Ioctls were defined _without_ IOW macros. And that was ugly. That's why I
-> > redifened them. So, if you recompile everything will be fine.
->
-> So you break binary compatibilty within a _stable_ kernel release just
-> for the sake of beauty ? 
-I rewrote a lot of driver code to support persistent device and device ownership. So, I thought it was a right time
-to clean up interface as well. API was supposed to be cleaned up before 2.4.0 final.
 
-> Besides, this does not only affect VTUND but  also other applications like Hercules.
-Yeah :(. Dave warned me about that.  I agree that it's a bad thing. Sorry about that.
-I promice that there will be no API changes in 2.4.x. 
- 
-> Just recompiling Hercules  doesn't  help here anyway, because it (rightfully) refuses to include kernel
-> headers but (due to the lack of net/if_tun.h within glibc) constructs the IOCTL command on its own.
-Which imho is not a good idea.
+On 13-Jul-2001 Gerrit Huizenga wrote:
+> In a lot of cases, UP is just a simplified, degenerate case of SMP (which
+> is itself often a degenerate case of NUMA).  Wouldn't it make a lot of
+> sense to have a single scheduler which 1) was relively simple, 2) was as
+> good as the current scheduler (or better) on UP, and 3) scaled well on SMP
+> (and
+> NUMA)?  I think the current lse scheduler meets all of those goals pretty
+> well.
 
-> > > And BTW, you shouldn't include kernel headers from user space programs, should you.
-> > That rule doesn't apply here.
->
-> Can you tell me why it does not apply here? Just because you happen to
-> be the author of both the driver (which is, without doubt, very
-> valuable) and _one_ of several applications using it?
-No. Just because glibc lacks a lot of if_*.h headers and if_tun.h is one of them.
-Also it seems that there is no standard where if_*.h should go (include/netinet or in include/net).
-On my RH 7.1 box if_ether.h is in netinet (which is imho wrong) and if_ppp.h is in net. 
+It's the concept of 'good enough' that seems to have different meanings for
+different people.
+Personally I could even think that the behaviour for the UP case is 'almost'
+the same but, as you can see by watching at the lk threads in the last years,
+it's pretty hard to try people to agree on the concept of 'good enough'.
+Config options will leave the current scheduler for UP ( or even for not heavy
+MP ) while will introduce an option to users that will suffer scheduler
+problems.
 
-Max
--- 
 
-Maksim Krasnyanskiy      
-Senior Kernel Engineer
-Qualcomm Incorporated
+> Config options means the user has to choose, I have too many important
+> choices to make already when building a kernel.
 
-maxk@qualcomm.com
-http://bluez.sf.net
-http://vtun.sf.net
+Even when I go at the restaurant I've to chose, but I still prefer that instead
+of getting the 'menu du jour'.
+
+
+
+
+- Davide
+

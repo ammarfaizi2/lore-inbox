@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130420AbQKGQMl>; Tue, 7 Nov 2000 11:12:41 -0500
+	id <S130543AbQKGQNV>; Tue, 7 Nov 2000 11:13:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130543AbQKGQMb>; Tue, 7 Nov 2000 11:12:31 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:43346 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S130420AbQKGQM2>; Tue, 7 Nov 2000 11:12:28 -0500
-Date: Tue, 7 Nov 2000 10:12:26 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200011071612.KAA318749@tomcat.admin.navo.hpc.mil>
-To: davids@webmaster.com, "RAJESH BALAN" <atmproj@yahoo.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: malloc(1/0) ??
-X-Mailer: [XMailTool v3.1.2b]
+	id <S130209AbQKGQNL>; Tue, 7 Nov 2000 11:13:11 -0500
+Received: from conr-adsl-dhcp-net2-3.txucom.net ([207.70.168.3]:4934 "EHLO
+	synergy.linux-help.org") by vger.kernel.org with ESMTP
+	id <S130004AbQKGQM7>; Tue, 7 Nov 2000 11:12:59 -0500
+Date: Tue, 7 Nov 2000 10:15:35 -0600
+From: Bill West <wingman@nospamsynergy.linux-help.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: pppd and 2.4.0pre10
+Message-ID: <20001107101535.A15731@synergy.linux-help.org>
+In-Reply-To: <Pine.LNX.4.21.0011041757570.32560-100000@tahallah.clara.co.uk> <3A05E5B1.F3E1CA09@eyal.emu.id.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A05E5B1.F3E1CA09@eyal.emu.id.au>; from livid@eyal.emu.id.au on Mon, Nov 06, 2000 at 09:56:49AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+On Mon, Nov 06, 2000 at 09:56:49AM +1100, Eyal Lebedinsky wrote:
+> Alex Buell wrote:
+> > 
+> > tahallah[alex]:/home/alex > ppp-on
+> > 
+> > tahallah[alex]:/home/alex > /usr/sbin/pppd: This system lacks kernel
+> > support for PPP.  This could be because the PPP kernel module could not be
+> > loaded, or because PPP was not included in the kernel configuration.  If
+> > PPP was included as a module, try `/sbin/modprobe -v ppp'.  If that fails,
 > 
-> > hi,
-> > why does this program works. when executed, it doesnt
-> > give a segmentation fault. when the program requests
-> > memory, is a standard chunk is allocated irrespective
-> > of the what the user specifies. please explain.
-> >
-> > main()
-> > {
-> >    char *s;
-> >    s = (char*)malloc(0);
-> >    strcpy(s,"fffff");
-> >    printf("%s\n",s);
-> > }
-> >
-> > NOTE:
-> >   i know its a 'C' problem. but i wanted to know how
-> > this works
+> I have something different with ppp on 2.4.0-test10. I very often get
+> the ppp link up, I can ping the ISP end of the connection, but nothing
+> else. All the pppd messages look just fine coming up.
 > 
-> 	The program does not work. A program works if it does what it's supposed to
-> do. If you want to argue that this program is supposed to print "ffffff"
-> then explain to me why the 'malloc' contains a zero in parenthesis.
-> 
-> 	The program can't possibly work because it invokes undefined behavior. It
-> is impossible to determine what a program that invokes undefined behavior is
-> 'supposed to do'.
 
-All true, but the reason it "works" is that malloc WILL allocate some memory,
-even if it's only a few bytes of header.:
+And something even more different. Dialin ppp connections to my 2.4.pre10
+box with pppd version 2.4.0 is successful but uses all available CPU
+resources. Load avg's stay around 1.5 with just pppd using resources.
 
-       |       |   (other memory block controled by malloc/free...)
-       |-------|
-       | header|
-       |       |    - address returned to program
-       | next  |
-       | header|    (next memory block...)
+excerpt from top:
 
-Now the strcpy may have copied the string "fffff" over the next header.
-The copy worked, the printf worked (its buffers were already allocated...)
-BUT... If you allocate more memory via malloc, you will get an error
-(eventually). I believe malloc(0) allocates 4 bytes as a minimum, though
-this particular call IS undefined. You also did not check to see if
-malloc did return something (It did, or you would have gotten a segmentation
-fault from writing to location 0 with strcpy).
+107 processes: 104 sleeping, 3 running, 0 zombie, 0 stopped
+CPU states:  99.4% user,   0.6% system,   0.0% nice,   0.0% idle
+Mem:  255632K av, 238360K used,  17272K free,      0K shrd,   9052K buff
+Swap: 191480K av,      0K used, 191480K free                 89068K cached
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT  LIB %CPU %MEM   TIME COMMAND
+15493 root      18   0   996  996   832 R       0 98.8  0.3  20:48 pppd
 
-Any opinions expressed are solely my own.
+
+This is a dialin and not a dialout connection.
+
+
+remove nospam to reply directly
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,110 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVAGRgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbVAGRji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVAGRgf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 12:36:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVAGRgK
+	id S261368AbVAGRji (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 12:39:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVAGRjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 12:36:10 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:49101 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261365AbVAGRev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 12:34:51 -0500
-Message-ID: <41DEC83D.30105@comcast.net>
-Date: Fri, 07 Jan 2005 12:34:53 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-References: <1105096053.5444.11.camel@ulysse.olympe.o2t> <20050107111508.GA6667@infradead.org> <20050107111751.GA6765@infradead.org>
-In-Reply-To: <20050107111751.GA6765@infradead.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Fri, 7 Jan 2005 12:39:37 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:27121 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261374AbVAGRjQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 12:39:16 -0500
+Date: Fri, 7 Jan 2005 09:39:16 -0800
+From: Greg KH <greg@kroah.com>
+To: Ikke <ikke.lkml@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kobject_uevent
+Message-ID: <20050107173916.GB15417@kroah.com>
+References: <297f4e01050107065060e0b2ad@mail.gmail.com> <297f4e0105010707142be80168@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <297f4e0105010707142be80168@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Jan 07, 2005 at 04:14:07PM +0100, Ikke wrote:
+> Next to this, there seems to be a mistake in the 2.6.10 changelog: it writes
+> [quote]
+> kobject_uevent(const char *signal,
+> 	                 struct kobject *kobj,
+> 	                 struct attribute *attr)
+> [/quote]
+> whilst include/linux/kobject_uevent.h defines
+> [quote]
+> int kobject_uevent(struct kobject *kobj,
+>                    enum kobject_action action,
+>                    struct attribute *attr);
+> [/quote]
+> which is something completely different.
 
-My scheme involved a 6 month release cycle supporting kernels with
-bugfixes for the prior 18 months (3 releases), though if you're really
-committed to hardware driver backporting, I guess it can be done in the
-actiwve "Stable" branch.
+Look further on in the changelog where I changed the api to the current
+one :)
 
-I really don't like the idea of driver backporting to maintain a
-supported tree because A) sometimes drivers can't work without invasive
-changes (reiser4); and B) somebody has to do the backporting, which
-means somebody may be facing an assload of extra work.
+thanks,
 
-The last 6 paragraphs of [1] sketch it out fine; though the whole
-article was pretty much geared towards discussing the Linux Kernel
-development model.
-
-I just want a development model that makes everyone happy.  I don't want
-to load up maintainers with a billion hours of backporting; but I don't
-want to load distributors with excess work either.
-
-Other interesting variations would be to allow driver backporting for
-uninvasive drivers, via third party support.  The maintainer would have
-to merge drivers into the stable kernel; but it would be up to other OSS
-developers (i.e. distributions most likely) to supply those backports.
-This would distribute the work.
-
-Oh well, what do I know?   :)
-
-[1] http://woct-blog.blogspot.com/2005/01/finally-new-pax.html
-
-Christoph Hellwig wrote:
-| [wrong cc list last time]
-|
-| On Fri, Jan 07, 2005 at 11:15:08AM +0000, Christoph Hellwig wrote:
-|
-|>On Fri, Jan 07, 2005 at 12:07:33PM +0100, Nicolas Mailhot wrote:
-|>
-|>>Hi all,
-|>>
-|>>Since 2.6 is turning into a continuous release, how about just taking
-|>>the last 2.6 release every six months and backport security fixes to it
-|>>for the next half year ?
-|>
-|>Half a year is far too long because hardware is changing to fast for that.
-|>Three month sounds like a much better idea.
-|>
-|>The real problem is that this is a really time-consuming issue, so
-|>there need to be people actually commited to doing this kind of thing.
-|>
-|>Andres Salomon from the Debian Kernel maintaince team has been thinking
-|>about such a bugfix tree, but he's worried about having the time to
-|>actually get the work done - and we know what we're talking about as
-|>we're trying to keep a properly fixed 2.6.8 tree for Debian sarge.
-|>
-|>-
-|>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-|>the body of a message to majordomo@vger.kernel.org
-|>More majordomo info at  http://vger.kernel.org/majordomo-info.html
-|>Please read the FAQ at  http://www.tux.org/lkml/
-|
-| ---end quoted text---
-| -
-| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-| the body of a message to majordomo@vger.kernel.org
-| More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| Please read the FAQ at  http://www.tux.org/lkml/
-|
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB3sfMhDd4aOud5P8RAnKIAJ0YatkLwCSP9/69aavUBjI7Rxi9RgCfUfB0
-X2vS+7BKGJyr2O4X3PWmpXM=
-=kbdb
------END PGP SIGNATURE-----
+greg k-h

@@ -1,46 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285195AbRLFVLn>; Thu, 6 Dec 2001 16:11:43 -0500
+	id <S284245AbRLFVPD>; Thu, 6 Dec 2001 16:15:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284248AbRLFVL1>; Thu, 6 Dec 2001 16:11:27 -0500
-Received: from [160.131.145.246] ([160.131.145.246]:31754 "EHLO W20303512")
-	by vger.kernel.org with ESMTP id <S285194AbRLFVLI>;
-	Thu, 6 Dec 2001 16:11:08 -0500
-Message-ID: <047d01c17e9a$598b76a0$f69183a0@W20303512>
-From: "Wilson" <defiler@null.net>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011202155440.F2622@work.bitmover.com> <2379997133.1007402344@mbligh.des.sequent.com> <20011206134642.D49@toy.ucw.cz> <20011206125005.K27589@work.bitmover.com>
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
-Date: Thu, 6 Dec 2001 16:09:51 -0500
+	id <S284248AbRLFVOx>; Thu, 6 Dec 2001 16:14:53 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.1.197.194]:45697 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S284245AbRLFVOm>;
+	Thu, 6 Dec 2001 16:14:42 -0500
+Message-ID: <3C0FDFA4.2060701@candelatech.com>
+Date: Thu, 06 Dec 2001 14:14:12 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.17-pre5
+In-Reply-To: <Pine.LNX.4.21.0112061705130.21518-100000@freak.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Larry McVoy" <lm@bitmover.com>
-To: "Pavel Machek" <pavel@suse.cz>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>; "Larry McVoy"
-<lm@bitmover.com>; "Stephan von Krawczynski" <skraw@ithnet.com>; "Horst von
-Brand" <vonbrand@sleipnir.valparaiso.cl>; "lkml"
-<linux-kernel@vger.kernel.org>
-Sent: Thursday, December 06, 2001 3:50 PM
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+Perhaps Dave could summarize it in < 50 lines.  That would
+be a whole heap better than having to read the patch to try
+to figure out what changed....
+
+Marcelo Tosatti wrote:
+
+> 
+> On Thu, 6 Dec 2001, Matthias Andree wrote:
+> 
+> 
+>>On Thu, 06 Dec 2001, Marcelo Tosatti wrote:
+>>
+>>
+>>>pre5:
+>>>
+>>...
+>>
+>>>- Networking updates				(David S. Miller)
+>>>
+>>Would you deem it feasible to elaborate on these? "Networking updates"
+>>is quite opaque and does not carry any information useful to me (at
+>>least). Or is there a place I haven't known of until know where I can
+>>get that information?
+>>
+> 
+> I could just put that information together with the changelog, but then it
+> becomes fscking huge. 
+> 
+> Ask davem for more details about it... 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
 
-> > Then we can create memnet (netdevice over shared memory), and Larry's
-dream
-> > can come true...
->
-> I'm hoping, but my dreams do not include shared memory over a network.
-
-He's talking about net over shared memory, not shared memory over net.
-
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
 

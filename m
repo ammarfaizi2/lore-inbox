@@ -1,64 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315414AbSGACbQ>; Sun, 30 Jun 2002 22:31:16 -0400
+	id <S315417AbSGACxC>; Sun, 30 Jun 2002 22:53:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315416AbSGACbP>; Sun, 30 Jun 2002 22:31:15 -0400
-Received: from cambot.suite224.net ([209.176.64.2]:21516 "EHLO suite224.net")
-	by vger.kernel.org with ESMTP id <S315414AbSGACbP>;
-	Sun, 30 Jun 2002 22:31:15 -0400
-Message-ID: <000a01c220a8$400a3300$3ff583d0@pcs686>
-From: "Matthew D. Pitts" <mpitts@suite224.net>
-To: "James Gale" <jimg@eskimo.com>, <linux-kernel@vger.kernel.org>
-References: <20020630164932.B22175@eskimo.eskimo.com>
-Subject: Re: System does not support PCI
-Date: Sun, 30 Jun 2002 22:37:30 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S315419AbSGACxB>; Sun, 30 Jun 2002 22:53:01 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:59880 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S315417AbSGACw7>; Sun, 30 Jun 2002 22:52:59 -0400
+Subject: Re: [announce] [patch] batch/idle priority scheduling, SCHED_BATCH
+From: Nicholas Miell <nmiell@attbi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0207010122580.11969-300000@e2>
+References: <Pine.LNX.4.44.0207010122580.11969-300000@e2>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 30 Jun 2002 19:55:18 -0700
+Message-Id: <1025492120.12685.8.camel@entropy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James,
+On Sun, 2002-06-30 at 17:26, Ingo Molnar wrote:
 
-Try adding pci=bios to the boot options and see if it helps
+> -#define SCHED_OTHER		0
+> +#define SCHED_NORMAL		0
 
-Matthew D. Pitts
------ Original Message -----
-From: "James Gale" <jimg@eskimo.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Sunday, June 30, 2002 7:49 PM
-Subject: PCI: System does not support PCI
+>From IEEE 1003.1-2001 / Open Group Base Spec. Issue 6:
+"Conforming implementations shall include one scheduling policy
+identified as SCHED_OTHER (which may execute identically with either the
+FIFO or round robin scheduling policy)."
 
+So, you probably want to add a "#define SCHED_OTHER SCHED_NORMAL" here
+in order to prevent future confusion, especially because the user-space
+headers have SCHED_OTHER, but no SCHED_NORMAL.
 
-> All,
->
-> I'm posting this in hope that someone can explain the problem
-> I am seeing, or corroborate my story.  I'm not subscribed to this
-> list so please CC me on any replies.  I've moved my old hard-disk
-> with a 2.4 kernel to a new computer and tried to boot it up.  I
-> get a strange message when I do that:
->
-> PCI: System does not support PCI
->
-> I don't have a /proc/pci file after boot-up either.
->
-> The new computer is an Athlon based Shuttle FS40 motherboard which,
-> of course, has a PCI bus.  So what would cause the kernel to think
-> that this board doesn't support PCI?  I've fooled with a few different
-> kernels that all give this error, but mostly I'm trying to boot my
-> stock Debian 2.4.18 kernel.  Has anybody else seen this problem?
->
-> Thanks,
-> Jim
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+- Nicholas
 
